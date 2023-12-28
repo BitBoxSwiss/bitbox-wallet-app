@@ -87,7 +87,7 @@ export function AccountsSummary({
   }, [mounted]);
 
   const onStatusChanged = useCallback(async (
-    code: string,
+    code: accountApi.AccountCode,
   ) => {
     if (!mounted.current) {
       return;
@@ -109,7 +109,7 @@ export function AccountsSummary({
     }));
   }, [mounted]);
 
-  const update = useCallback((code: string) => {
+  const update = useCallback((code: accountApi.AccountCode) => {
     if (mounted.current) {
       onStatusChanged(code);
       getAccountSummary();

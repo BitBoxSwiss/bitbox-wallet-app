@@ -48,7 +48,7 @@ import style from './send.module.css';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
-    code: string;
+    code: accountApi.AccountCode;
     devices: TDevices;
     deviceIDs: string[];
     activeCurrency: accountApi.Fiat;

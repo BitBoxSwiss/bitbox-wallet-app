@@ -30,7 +30,7 @@ import { HideAmountsButton } from '../../components/hideamountsbutton/hideamount
 
 type TProps = {
     accounts: accountApi.IAccount[];
-    code: string;
+    code: accountApi.AccountCode;
 }
 
 export const BuyInfo = ({ code, accounts }: TProps) => {

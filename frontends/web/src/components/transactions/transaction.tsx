@@ -39,7 +39,7 @@ interface State {
 }
 
 interface TransactionProps extends accountApi.ITransaction {
-    accountCode: string;
+    accountCode: accountApi.AccountCode;
     index: number;
     explorerURL: string;
 }

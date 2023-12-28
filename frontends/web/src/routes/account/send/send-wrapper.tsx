@@ -15,14 +15,14 @@
  */
 
 import { useContext } from 'react';
-import { IAccount } from '../../../api/account';
+import { AccountCode, IAccount } from '../../../api/account';
 import { TDevices } from '../../../api/devices';
 import { RatesContext } from '../../../contexts/RatesContext';
 import { Send } from './send';
 
 type TSendProps = {
     accounts: IAccount[];
-    code: string;
+    code: AccountCode;
     devices: TDevices;
     deviceIDs: string[];
 }
