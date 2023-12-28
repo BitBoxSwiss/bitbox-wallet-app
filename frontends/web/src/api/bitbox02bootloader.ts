@@ -15,6 +15,7 @@
  */
 
 import { apiGet, apiPost } from '../utils/request';
+import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
 
 export type TStatus = {
   upgrading: boolean;
@@ -77,4 +78,12 @@ export const setShowFirmwareHash = (
     `devices/bitbox02-bootloader/${deviceID}/set-firmware-hash-enabled`,
     enabled,
   );
+};
+
+export const syncStatus = (deviceID: string) => {
+  return (
+    cb: TSubscriptionCallback<TStatus>
+  ) => {
+    return subscribeEndpoint(`devices/bitbox02-bootloader/${deviceID}/status`, cb);
+  };
 };
