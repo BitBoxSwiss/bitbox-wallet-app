@@ -24,25 +24,25 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestBundledFirmware(t *testing.T) {
+func testHash(t *testing.T, info firmwareInfo, expectedMagic []byte, hashFile string) {
+	t.Helper()
+
 	const sigDataLen = 584
 	const magicLen = 4
 
-	binary, err := bundledFirmware(bitbox02common.ProductBitBox02Multi)
-	require.NoError(t, err)
-	require.True(t, len(binary) >= magicLen+sigDataLen)
-	require.Equal(t, []byte{0x65, 0x3f, 0x36, 0x2b}, binary[:magicLen])
-	hash := sha256.Sum256(binary[magicLen+sigDataLen:])
-	expectedHash, err := os.ReadFile("assets/firmware.sha256")
-	require.NoError(t, err)
-	require.Equal(t, string(expectedHash), hex.EncodeToString(hash[:]))
-
-	binary, err = bundledFirmware(bitbox02common.ProductBitBox02BTCOnly)
+	binary, err := info.binary()
 	require.NoError(t, err)
 	require.True(t, len(binary) >= 4+sigDataLen)
-	require.Equal(t, []byte{0x11, 0x23, 0x3b, 0x0b}, binary[:magicLen])
-	hash = sha256.Sum256(binary[magicLen+sigDataLen:])
-	expectedHash, err = os.ReadFile("assets/firmware-btc.sha256")
+	require.Equal(t, expectedMagic, binary[:magicLen])
+	hash := sha256.Sum256(binary[magicLen+sigDataLen:])
+	expectedHash, err := os.ReadFile(hashFile)
 	require.NoError(t, err)
 	require.Equal(t, string(expectedHash), hex.EncodeToString(hash[:]))
+}
+
+func TestBundledFirmware(t *testing.T) {
+	magicMulti := []byte{0x65, 0x3f, 0x36, 0x2b}
+	magicBTCOnly := []byte{0x11, 0x23, 0x3b, 0x0b}
+	testHash(t, bundledFirmwares[bitbox02common.ProductBitBox02Multi], magicMulti, "assets/firmware.v9.15.0.signed.bin.sha256")
+	testHash(t, bundledFirmwares[bitbox02common.ProductBitBox02BTCOnly], magicBTCOnly, "assets/firmware-btc.v9.15.0.signed.bin.sha256")
 }
