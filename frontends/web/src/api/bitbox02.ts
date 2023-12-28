@@ -77,6 +77,7 @@ export type VersionInfo = {
     // setup - that is always possible regardless of this value.
     canBackupWithRecoveryWords: boolean;
     canCreate12Words: boolean;
+    canBIP85: boolean;
 }
 
 export const getVersion = (
@@ -175,4 +176,8 @@ export const getRootFingerprint = (
   deviceID: string
 ): Promise<(SuccessResponse & { rootFingerprint: string }) | FailResponse> => {
   return apiGet(`devices/bitbox02/${deviceID}/root-fingerprint`);
+};
+
+export const invokeBIP85 = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/invoke-bip85`);
 };
