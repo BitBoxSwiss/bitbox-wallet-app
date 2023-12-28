@@ -17,7 +17,7 @@
 
 import { useTranslation } from 'react-i18next';
 import * as bitbox02BootloaderAPI from '../../../api/bitbox02bootloader';
-import { useLoad, useSubscribe } from '../../../hooks/api';
+import { useLoad, useSync } from '../../../hooks/api';
 import { useDarkmode } from '../../../hooks/darkmode';
 import { CenteredContent } from '../../centeredcontent/centeredcontent';
 import { Button } from '../../forms';
@@ -32,7 +32,10 @@ type TProps = {
 export const BitBox02Bootloader = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
-  const status = useSubscribe(bitbox02BootloaderAPI.syncStatus(deviceID));
+  const status = useSync(
+    () => bitbox02BootloaderAPI.getStatus(deviceID),
+    bitbox02BootloaderAPI.syncStatus(deviceID),
+  );
   const versionInfo = useLoad(() => bitbox02BootloaderAPI.getVersionInfo(deviceID));
 
   if (versionInfo === undefined) {
