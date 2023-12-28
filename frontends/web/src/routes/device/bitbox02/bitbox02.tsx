@@ -15,59 +15,27 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
-import { getStatus, TStatus } from '../../../api/bitbox02';
+import { getStatus } from '../../../api/bitbox02';
 import { statusChanged } from '../../../api/devicessync';
-import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
+import { useSync } from '../../../hooks/api';
 import { BB02Settings } from '../../settings/bb02-settings';
 
-type Props = {
+type TProps = {
   deviceID: string;
   deviceIDs: string[];
   hasAccounts: boolean;
 }
 
-type State = {
-    status: '' | TStatus;
-}
+export const BitBox02 = ({ deviceID, deviceIDs, hasAccounts }: TProps) => {
+  const status = useSync(
+    () => getStatus(deviceID),
+    cb => statusChanged(deviceID, () => {
+      getStatus(deviceID).then(cb);
+    })
+  );
 
-export class BitBox02 extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      status: '',
-    };
+  if (status !== 'initialized') {
+    return null;
   }
-
-  private unsubscribeList: UnsubscribeList = [];
-
-  public componentDidMount() {
-    const { deviceID } = this.props;
-    this.onStatusChanged();
-    this.unsubscribeList = [
-      statusChanged(deviceID, this.onStatusChanged),
-    ];
-  }
-
-  private onStatusChanged = () => {
-    getStatus(this.props.deviceID).then(status => {
-      this.setState({ status });
-    });
-  };
-
-  public componentWillUnmount() {
-    unsubscribe(this.unsubscribeList);
-  }
-
-  public render() {
-    const { deviceID, hasAccounts, deviceIDs } = this.props;
-    const {
-      status,
-    } = this.state;
-
-    if (status !== 'initialized') {
-      return null;
-    }
-    return <BB02Settings deviceID={deviceID} deviceIDs={deviceIDs} hasAccounts={hasAccounts} />;
-  }
-}
+  return <BB02Settings deviceID={deviceID} deviceIDs={deviceIDs} hasAccounts={hasAccounts} />;
+};
