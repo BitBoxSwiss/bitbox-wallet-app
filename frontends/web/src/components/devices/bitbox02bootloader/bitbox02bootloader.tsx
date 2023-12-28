@@ -15,10 +15,10 @@
  */
 
 import { Component } from 'react';
+import * as bitbox02BootloaderAPI from '../../../api/bitbox02bootloader';
 import { statusChanged } from '../../../api/devicessync';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiGet, apiPost } from '../../../utils/request';
 import { CenteredContent } from '../../centeredcontent/centeredcontent';
 import { Button } from '../../forms';
 import { BitBox02, BitBox02Inverted } from '../../icon/logo';
@@ -31,26 +31,13 @@ interface BitBox02BootloaderProps {
 }
 
 interface LoadedProps {
-    versionInfo: {
-        // Indicates whether the device has any firmware already installed on it.
-        // It is considered "erased" if there's no firmware, and it also happens
-        // to be the state in which BitBox02 is shipped to customers.
-        erased: boolean;
-        // Indicates whether the user can install/upgrade firmware.
-        canUpgrade: boolean;
-    };
+  versionInfo: bitbox02BootloaderAPI.TVersionInfo;
 }
 
 type Props = BitBox02BootloaderProps & LoadedProps & TranslateProps;
 
 interface State {
-    status: {
-        upgrading: boolean;
-        errMsg?: string;
-        progress: number;
-        upgradeSuccessful: boolean;
-        rebootSeconds: number;
-    };
+    status: bitbox02BootloaderAPI.TStatus;
 }
 
 class BitBox02Bootloader extends Component<Props, State> {
@@ -78,22 +65,21 @@ class BitBox02Bootloader extends Component<Props, State> {
     this.unsubscribe();
   }
 
-  private onStatusChanged = () => {
-    apiGet('devices/bitbox02-bootloader/' + this.props.deviceID + '/status').then(status => {
-      this.setState({ status });
-    });
+  private onStatusChanged = async () => {
+    const status = await bitbox02BootloaderAPI.getStatus(this.props.deviceID);
+    this.setState({ status });
   };
 
   private upgradeFirmware = () => {
-    apiPost('devices/bitbox02-bootloader/' + this.props.deviceID + '/upgrade-firmware');
+    bitbox02BootloaderAPI.upgradeFirmware(this.props.deviceID);
   };
 
   private reboot = () => {
-    apiPost('devices/bitbox02-bootloader/' + this.props.deviceID + '/reboot');
+    bitbox02BootloaderAPI.reboot(this.props.deviceID);
   };
 
   private screenRotate = () => {
-    apiPost('devices/bitbox02-bootloader/' + this.props.deviceID + '/screen-rotate');
+    bitbox02BootloaderAPI.screenRotate(this.props.deviceID);
   };
 
   public render() {
