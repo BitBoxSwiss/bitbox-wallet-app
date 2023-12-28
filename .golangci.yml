@@ -141,6 +141,12 @@ linters:
     - structcheck
     - deadcode
     - varcheck
+    - depguard
+    - inamedparam
+    - protogetter
+    - gosmopolitan
+    # todo: enable this, but there are a lot of hits
+    - testifylint
   disable-all: false
 
 issues:

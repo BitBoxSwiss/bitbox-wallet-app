@@ -59,10 +59,10 @@ func TestFixTrailingZeroes(t *testing.T) {
 	require.NoError(t, err)
 	filename := f.Name()
 
-	_, err = f.Write([]byte(
+	_, err = f.WriteString(
 		"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
 			"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-	))
+	)
 	require.NoError(t, err)
 	// Add 10 zero-byte headers that will be stripped off.
 	_, err = f.Write(make([]byte, 80*10))
