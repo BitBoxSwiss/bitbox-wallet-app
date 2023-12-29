@@ -31,6 +31,14 @@ export const getStatus = (
   return apiGet(`devices/bitbox02-bootloader/${deviceID}/status`);
 };
 
+export const syncStatus = (deviceID: string) => {
+  return (
+    cb: TSubscriptionCallback<TStatus>
+  ) => {
+    return subscribeEndpoint(`devices/bitbox02-bootloader/${deviceID}/status`, cb);
+  };
+};
+
 export type TVersionInfo = {
   // Indicates whether the device has any firmware already installed on it.
   // It is considered "erased" if there's no firmware, and it also happens
@@ -78,12 +86,4 @@ export const setShowFirmwareHash = (
     `devices/bitbox02-bootloader/${deviceID}/set-firmware-hash-enabled`,
     enabled,
   );
-};
-
-export const syncStatus = (deviceID: string) => {
-  return (
-    cb: TSubscriptionCallback<TStatus>
-  ) => {
-    return subscribeEndpoint(`devices/bitbox02-bootloader/${deviceID}/status`, cb);
-  };
 };
