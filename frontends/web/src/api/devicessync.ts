@@ -36,11 +36,11 @@ export const syncDeviceList = (
  */
 export const statusChanged = (
   deviceID: string,
-  cb: (deviceID: string) => void,
+  cb: () => void,
 ): TUnsubscribe => {
   const unsubscribe = subscribeLegacy('statusChanged', event => {
     if (event.type === 'device' && event.deviceID === deviceID) {
-      cb(deviceID);
+      cb();
     }
   });
   return unsubscribe;
