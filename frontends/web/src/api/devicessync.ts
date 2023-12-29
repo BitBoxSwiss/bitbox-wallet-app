@@ -68,11 +68,11 @@ export const channelHashChanged = (
  */
 export const attestationCheckDone = (
   deviceID: string,
-  cb: (deviceID: string) => void,
+  cb: () => void,
 ): TUnsubscribe => {
   const unsubscribe = subscribeLegacy('attestationCheckDone', event => {
     if (event.type === 'device' && event.deviceID === deviceID) {
-      cb(deviceID);
+      cb();
     }
   });
   return unsubscribe;
