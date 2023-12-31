@@ -9,6 +9,7 @@ export default defineConfig(() => {
     // `/index-...js`. This makes it easier to find these files in iOS.
     base: './',
     build: {
+      minify: false,
       modulePreload: false,
       outDir: 'build',
       rollupOptions: {
