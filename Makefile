@@ -48,8 +48,6 @@ servewallet-prodservers:
 servewallet-mainnet-prodservers:
 	go run -mod=vendor ./cmd/servewallet -mainnet -devservers=false
 buildweb:
-	node --version
-	npm --version
 	rm -rf ${WEBROOT}/build
 	cd ${WEBROOT} && npm ci
 	cd ${WEBROOT} && npm run build
