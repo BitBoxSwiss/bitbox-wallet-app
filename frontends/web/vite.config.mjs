@@ -29,8 +29,9 @@ export default defineConfig(() => {
       }
     },
     esbuild: {
-      minifyWhitespace: false,
       keepNames: true,
+      minifyIdentifiers: false,
+      minifyWhitespace: false
     },
     plugins: [
       react(),
