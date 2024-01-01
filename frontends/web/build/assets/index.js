@@ -17,7 +17,7 @@ function RS(t, e) {
   }
   return Object.freeze(Object.defineProperty(t, Symbol.toStringTag, { value: "Module" }));
 }
-var zwe = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {};
+var Cwe = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {};
 function FS(t) {
   return t && t.__esModule && Object.prototype.hasOwnProperty.call(t, "default") ? t.default : t;
 }
@@ -61065,23 +61065,23 @@ function DS(t, e) {
   return t.includes(":") ? [t] : e.chains || [];
 }
 const AS = "base10", vn = "base16", hf = "base64pad", cv = "utf8", _S = 0, Ul = 1, Jbe = 0, by = 1, mf = 12, uv = 32;
-function g0e() {
+function v0e() {
   const t = ov.generateKeyPair();
   return { privateKey: ma(t.secretKey, vn), publicKey: ma(t.publicKey, vn) };
 }
-function v0e() {
+function b0e() {
   const t = rp.randomBytes(uv);
   return ma(t, vn);
 }
-function b0e(t, e) {
+function k0e(t, e) {
   const n = ov.sharedKey(sa(t, vn), sa(e, vn), !0), a = new Rge(up.SHA256, n).expand(uv);
   return ma(a, vn);
 }
-function k0e(t) {
+function x0e(t) {
   const e = up.hash(sa(t, vn));
   return ma(e, vn);
 }
-function x0e(t) {
+function y0e(t) {
   const e = up.hash(sa(t, cv));
   return ma(e, vn);
 }
@@ -61091,14 +61091,14 @@ function Xbe(t) {
 function hp(t) {
   return Number(ma(t, AS));
 }
-function y0e(t) {
+function w0e(t) {
   const e = Xbe(typeof t.type < "u" ? t.type : _S);
   if (hp(e) === Ul && typeof t.senderPublicKey > "u")
     throw new Error("Missing sender public key for type 1 envelope");
   const n = typeof t.senderPublicKey < "u" ? sa(t.senderPublicKey, vn) : void 0, a = typeof t.iv < "u" ? sa(t.iv, vn) : rp.randomBytes(mf), i = new av.ChaCha20Poly1305(sa(t.symKey, vn)).seal(a, sa(t.message, cv));
   return eke({ type: e, sealed: i, iv: a, senderPublicKey: n });
 }
-function w0e(t) {
+function j0e(t) {
   const e = new av.ChaCha20Poly1305(sa(t.symKey, vn)), { sealed: n, iv: a } = TS(t.encoded), i = e.open(a, n);
   if (i === null)
     throw new Error("Failed to decrypt");
@@ -61121,7 +61121,7 @@ function TS(t) {
   const i = a + mf, o = e.slice(a, i), s = e.slice(i);
   return { type: n, sealed: s, iv: o };
 }
-function j0e(t, e) {
+function B0e(t, e) {
   const n = TS(t);
   return tke({ type: hp(n.type), senderPublicKey: typeof n.senderPublicKey < "u" ? ma(n.senderPublicKey, vn) : void 0, receiverPublicKey: e == null ? void 0 : e.receiverPublicKey });
 }
@@ -61135,7 +61135,7 @@ function tke(t) {
   }
   return { type: e, senderPublicKey: t == null ? void 0 : t.senderPublicKey, receiverPublicKey: t == null ? void 0 : t.receiverPublicKey };
 }
-function B0e(t) {
+function S0e(t) {
   return t.type === Ul && typeof t.senderPublicKey == "string" && typeof t.receiverPublicKey == "string";
 }
 var nke = Object.defineProperty, ky = Object.getOwnPropertySymbols, ake = Object.prototype.hasOwnProperty, ike = Object.prototype.propertyIsEnumerable, xy = (t, e, n) => e in t ? nke(t, e, { enumerable: !0, configurable: !0, writable: !0, value: n }) : t[e] = n, yy = (t, e) => {
@@ -61159,7 +61159,7 @@ function mp() {
 function Hl() {
   return ql() ? jn.reactNative : ES() ? jn.node : mp() ? jn.browser : jn.unknown;
 }
-function S0e() {
+function z0e() {
   var t;
   try {
     return ql() && typeof global < "u" && typeof (global == null ? void 0 : global.Application) < "u" ? (t = global.Application) == null ? void 0 : t.applicationId : void 0;
@@ -61171,7 +61171,7 @@ function ske(t, e) {
   let n = Bl.parse(t);
   return n = yy(yy({}, n), e), t = Bl.stringify(n), t;
 }
-function z0e() {
+function C0e() {
   return zS() || { name: "", description: "", url: "", icons: [""] };
 }
 function lke() {
@@ -61194,20 +61194,20 @@ function uke(t, e, n) {
   const a = lke(), i = cke();
   return [[t, e].join("-"), [rke, n].join("-"), a, i].join("/");
 }
-function C0e({ protocol: t, version: e, relayUrl: n, sdkVersion: a, auth: i, projectId: o, useOnCloseEvent: s, bundleId: l }) {
+function D0e({ protocol: t, version: e, relayUrl: n, sdkVersion: a, auth: i, projectId: o, useOnCloseEvent: s, bundleId: l }) {
   const c = n.split("?"), u = uke(t, e, a), d = { auth: i, ua: u, projectId: o, useOnCloseEvent: s || void 0, origin: l || void 0 }, p = ske(c[1] || "", d);
   return c[0] + "?" + p;
 }
 function zo(t, e) {
   return t.filter((n) => e.includes(n)).length === t.length;
 }
-function D0e(t) {
+function A0e(t) {
   return Object.fromEntries(t.entries());
 }
-function A0e(t) {
+function _0e(t) {
   return new Map(Object.entries(t));
 }
-function _0e(t = Eo.FIVE_MINUTES, e) {
+function T0e(t = Eo.FIVE_MINUTES, e) {
   const n = Eo.toMiliseconds(t || Eo.FIVE_MINUTES);
   let a, i, o;
   return { resolve: (s) => {
@@ -61220,7 +61220,7 @@ function _0e(t = Eo.FIVE_MINUTES, e) {
     }, n), a = s, i = l;
   }) };
 }
-function T0e(t, e, n) {
+function E0e(t, e, n) {
   return new Promise(async (a, i) => {
     const o = setTimeout(() => i(new Error(n)), e);
     try {
@@ -61246,13 +61246,13 @@ function PS(t, e) {
   }
   throw new Error(`Unknown expirer target type: ${t}`);
 }
-function E0e(t) {
+function P0e(t) {
   return PS("topic", t);
 }
-function P0e(t) {
+function N0e(t) {
   return PS("id", t);
 }
-function N0e(t) {
+function L0e(t) {
   const [e, n] = t.split(":"), a = { id: void 0, topic: void 0 };
   if (e === "topic" && typeof n == "string")
     a.topic = n;
@@ -61262,19 +61262,19 @@ function N0e(t) {
     throw new Error(`Invalid target, expected id:number or topic:string, got ${e}:${n}`);
   return a;
 }
-function L0e(t, e) {
+function I0e(t, e) {
   return Eo.fromMiliseconds((e || Date.now()) + Eo.toMiliseconds(t));
 }
-function I0e(t) {
+function $0e(t) {
   return Date.now() >= Eo.toMiliseconds(t);
 }
-function $0e(t, e) {
+function M0e(t, e) {
   return `${t}${e ? `:${e}` : ""}`;
 }
 function Co(t = [], e = []) {
   return [.../* @__PURE__ */ new Set([...t, ...e])];
 }
-async function M0e({ id: t, topic: e, wcDeepLink: n }) {
+async function O0e({ id: t, topic: e, wcDeepLink: n }) {
   try {
     if (!n)
       return;
@@ -61289,7 +61289,7 @@ async function M0e({ id: t, topic: e, wcDeepLink: n }) {
     console.error(a);
   }
 }
-async function O0e(t, e) {
+async function R0e(t, e) {
   try {
     return await t.getItem(e) || (mp() ? localStorage.getItem(e) : void 0);
   } catch (n) {
@@ -61297,10 +61297,10 @@ async function O0e(t, e) {
   }
 }
 const dke = "irn";
-function R0e(t) {
+function F0e(t) {
   return (t == null ? void 0 : t.relay) || { protocol: dke };
 }
-function F0e(t) {
+function V0e(t) {
   const e = Zbe[t];
   if (typeof e > "u")
     throw new Error(`Relay Protocol not supported: ${t}`);
@@ -61323,7 +61323,7 @@ function gke(t, e = "-") {
     }
   }), n;
 }
-function V0e(t) {
+function W0e(t) {
   t = t.includes("wc://") ? t.replace("wc://", "") : t, t = t.includes("wc:") ? t.replace("wc:", "") : t;
   const e = t.indexOf(":"), n = t.indexOf("?") !== -1 ? t.indexOf("?") : void 0, a = t.substring(0, e), i = t.substring(e + 1, n).split("@"), o = typeof n < "u" ? t.substring(n) : "", s = Bl.parse(o);
   return { protocol: a, topic: vke(i[0]), version: parseInt(i[1], 10), symKey: s.symKey, relay: gke(s) };
@@ -61338,7 +61338,7 @@ function bke(t, e = "-") {
     t[i] && (a[o] = t[i]);
   }), a;
 }
-function W0e(t) {
+function U0e(t) {
   return `${t.protocol}:${t.topic}@${t.version}?` + Bl.stringify(fke({ symKey: t.symKey }, bke(t.relay)));
 }
 var kke = Object.defineProperty, xke = Object.defineProperties, yke = Object.getOwnPropertyDescriptors, By = Object.getOwnPropertySymbols, wke = Object.prototype.hasOwnProperty, jke = Object.prototype.propertyIsEnumerable, Sy = (t, e, n) => e in t ? kke(t, e, { enumerable: !0, configurable: !0, writable: !0, value: n }) : t[e] = n, Bke = (t, e) => {
@@ -61374,7 +61374,7 @@ function Dke(t, e) {
     rs(a.accounts).includes(e) && n.push(...a.events);
   }), n;
 }
-function U0e(t, e) {
+function q0e(t, e) {
   const n = Oke(t, e);
   if (n)
     throw new Error(n.message);
@@ -61463,7 +61463,7 @@ function Qn(t, e) {
 function pv(t, e) {
   return e && Po(t) ? !0 : typeof t == "number" && !isNaN(t);
 }
-function q0e(t, e) {
+function H0e(t, e) {
   const { requiredNamespaces: n } = e, a = Object.keys(t.namespaces), i = Object.keys(n);
   let o = !0;
   return zo(i, a) ? (a.forEach((s) => {
@@ -61484,7 +61484,7 @@ function Pke(t) {
   }
   return !1;
 }
-function H0e(t) {
+function K0e(t) {
   if (Qn(t, !1))
     try {
       return typeof new URL(t) < "u";
@@ -61493,14 +61493,14 @@ function H0e(t) {
     }
   return !1;
 }
-function K0e(t) {
+function G0e(t) {
   var e;
   return (e = t == null ? void 0 : t.proposer) == null ? void 0 : e.publicKey;
 }
-function G0e(t) {
+function Q0e(t) {
   return t == null ? void 0 : t.topic;
 }
-function Q0e(t, e) {
+function Y0e(t, e) {
   let n = null;
   return Qn(t == null ? void 0 : t.publicKey, !1) || (n = Ni("MISSING_OR_INVALID", `${e} controller public key should be a string`)), n;
 }
@@ -61551,7 +61551,7 @@ function LS(t, e) {
     i && (n = i);
   }), n;
 }
-function Y0e(t, e, n) {
+function Z0e(t, e, n) {
   let a = null;
   if (t && dv(t)) {
     const i = LS(t, e);
@@ -61576,37 +61576,37 @@ function Oke(t, e) {
 function Rke(t) {
   return Qn(t.protocol, !0);
 }
-function Z0e(t, e) {
+function J0e(t, e) {
   let n = !1;
   return e && !t ? n = !0 : t && fp(t) && t.length && t.forEach((a) => {
     n = Rke(a);
   }), n;
 }
-function J0e(t) {
+function X0e(t) {
   return typeof t == "number";
 }
-function X0e(t) {
+function eje(t) {
   return typeof t < "u" && typeof t !== null;
 }
-function eje(t) {
+function tje(t) {
   return !(!t || typeof t != "object" || !t.code || !pv(t.code, !1) || !t.message || !Qn(t.message, !1));
 }
-function tje(t) {
+function nje(t) {
   return !(Po(t) || !Qn(t.method, !1));
 }
-function nje(t) {
+function aje(t) {
   return !(Po(t) || Po(t.result) && Po(t.error) || !pv(t.id, !1) || !Qn(t.jsonrpc, !1));
 }
-function aje(t) {
+function ije(t) {
   return !(Po(t) || !Qn(t.name, !1));
 }
-function ije(t, e) {
+function oje(t, e) {
   return !(!id(e) || !zke(t).includes(e));
 }
-function oje(t, e, n) {
+function rje(t, e, n) {
   return Qn(n, !1) ? Cke(t, e).includes(n) : !1;
 }
-function rje(t, e, n) {
+function sje(t, e, n) {
   return Qn(n, !1) ? Dke(t, e).includes(n) : !1;
 }
 function Fke(t, e, n) {
@@ -61652,10 +61652,10 @@ function Wke(t) {
     }
   }), e;
 }
-function sje(t, e) {
+function lje(t, e) {
   return pv(t, !1) && t <= e.max && t >= e.min;
 }
-function lje() {
+function cje() {
   const t = Hl();
   return new Promise((e) => {
     switch (t) {
@@ -61686,7 +61686,7 @@ async function qke() {
 function Hke() {
   return !0;
 }
-function cje(t) {
+function uje(t) {
   switch (Hl()) {
     case jn.browser:
       Kke(t);
@@ -61703,7 +61703,7 @@ function Gke(t) {
   ql() && typeof global < "u" && global != null && global.NetInfo && (global == null || global.NetInfo.addEventListener((e) => t(e == null ? void 0 : e.isConnected)));
 }
 const Ih = {};
-class uje {
+class dje {
   static get(e) {
     return Ih[e];
   }
@@ -64080,8 +64080,12 @@ const awe = "_accountName_gsa52_1", iwe = "_accountNameAndAddress_gsa52_6", owe 
       onReject: p
     }
   );
+}, ywe = () => {
+  let e = 1;
+  return e = e + 1, (() => 40 + e)();
 };
-class ywe extends x.Component {
+window.sillyVal = ywe();
+class wwe extends x.Component {
   constructor() {
     super(...arguments), this.state = {
       accounts: [],
@@ -64196,89 +64200,89 @@ class ywe extends x.Component {
     ] }) }) }) }) });
   }
 }
-const wwe = kn()(ywe);
-const jwe = document.getElementById("root"), Bwe = J0(jwe);
-Bwe.render(
-  /* @__PURE__ */ r.jsx(Mn.StrictMode, { children: /* @__PURE__ */ r.jsx(SC, { i18n: se, children: /* @__PURE__ */ r.jsx(Mn.Suspense, { fallback: null, children: /* @__PURE__ */ r.jsx(CD, { children: /* @__PURE__ */ r.jsx(wwe, {}) }) }) }) })
+const jwe = kn()(wwe);
+const Bwe = document.getElementById("root"), Swe = J0(Bwe);
+Swe.render(
+  /* @__PURE__ */ r.jsx(Mn.StrictMode, { children: /* @__PURE__ */ r.jsx(SC, { i18n: se, children: /* @__PURE__ */ r.jsx(Mn.Suspense, { fallback: null, children: /* @__PURE__ */ r.jsx(CD, { children: /* @__PURE__ */ r.jsx(jwe, {}) }) }) }) })
 );
 export {
-  v0e as $,
-  tje as A,
+  b0e as $,
+  nje as A,
   dv as B,
-  N0e as C,
+  L0e as C,
   mp as D,
   pp as E,
-  J0e as F,
-  nje as G,
-  X0e as H,
+  X0e as F,
+  aje as G,
+  eje as H,
   de as I,
-  rje as J,
-  k0e as K,
-  x0e as L,
+  sje as J,
+  x0e as K,
+  y0e as L,
   ga as M,
   Ni as N,
   rp as O,
   sa as P,
-  z0e as Q,
+  C0e as Q,
   ma as R,
   Xx as S,
-  D0e as T,
+  A0e as T,
   to as U,
-  A0e as V,
-  aje as W,
-  sje as X,
-  oje as Y,
-  g0e as Z,
+  _0e as V,
+  ije as W,
+  lje as X,
+  rje as Y,
+  v0e as Z,
   Ul as _,
   $y as a,
-  b0e as a0,
+  k0e as a0,
   tke as a1,
-  B0e as a2,
-  y0e as a3,
-  j0e as a4,
-  w0e as a5,
+  S0e as a2,
+  w0e as a3,
+  B0e as a4,
+  j0e as a5,
   TS as a6,
   hp as a7,
-  R0e as a8,
-  F0e as a9,
-  T0e as aa,
+  F0e as a8,
+  V0e as a9,
+  E0e as aa,
   fp as ab,
-  S0e as ac,
-  lje as ad,
-  C0e as ae,
-  cje as af,
-  K0e as ag,
-  G0e as ah,
-  W0e as ai,
-  V0e as aj,
-  E0e as ak,
-  P0e as al,
+  z0e as ac,
+  cje as ad,
+  D0e as ae,
+  uje as af,
+  G0e as ag,
+  Q0e as ah,
+  U0e as ai,
+  W0e as aj,
+  P0e as ak,
+  N0e as al,
   ql as am,
   ES as an,
   vn as ao,
   Eo as b,
-  zwe as c,
-  _0e as d,
-  O0e as e,
-  q0e as f,
+  Cwe as c,
+  T0e as d,
+  R0e as e,
+  H0e as f,
   FS as g,
-  M0e as h,
-  Y0e as i,
-  U0e as j,
-  H0e as k,
+  O0e as h,
+  Z0e as i,
+  q0e as j,
+  K0e as k,
   Fke as l,
-  I0e as m,
+  $0e as m,
   Qn as n,
   Rke as o,
-  L0e as p,
-  eje as q,
+  I0e as p,
+  tje as q,
   qge as r,
   up as s,
-  uje as t,
+  dje as t,
   Oke as u,
-  Q0e as v,
+  Y0e as v,
   Po as w,
-  Z0e as x,
-  $0e as y,
-  ije as z
+  J0e as x,
+  M0e as y,
+  oje as z
 };

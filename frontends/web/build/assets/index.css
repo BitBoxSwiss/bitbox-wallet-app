@@ -2192,10 +2192,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./ar2.svg);
 }
 .fi-as {
-  background-image: url(./as2.svg);
+  background-image: url(./as.svg);
 }
 .fi-as.fis {
-  background-image: url(./as.svg);
+  background-image: url(./as2.svg);
 }
 .fi-at {
   background-image: url(./at.svg);
@@ -2204,10 +2204,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./at2.svg);
 }
 .fi-au {
-  background-image: url(./au.svg);
+  background-image: url(./au2.svg);
 }
 .fi-au.fis {
-  background-image: url(./au2.svg);
+  background-image: url(./au.svg);
 }
 .fi-aw {
   background-image: url(./aw.svg);
@@ -2216,10 +2216,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./aw2.svg);
 }
 .fi-ax {
-  background-image: url(./ax.svg);
+  background-image: url(./ax2.svg);
 }
 .fi-ax.fis {
-  background-image: url(./ax2.svg);
+  background-image: url(./ax.svg);
 }
 .fi-az {
   background-image: url(./az.svg);
@@ -2246,22 +2246,22 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./bd2.svg);
 }
 .fi-be {
-  background-image: url(./be2.svg);
-}
-.fi-be.fis {
   background-image: url(./be.svg);
 }
-.fi-bf {
-  background-image: url(./bf2.svg);
+.fi-be.fis {
+  background-image: url(./be2.svg);
 }
-.fi-bf.fis {
+.fi-bf {
   background-image: url(./bf.svg);
 }
+.fi-bf.fis {
+  background-image: url(./bf2.svg);
+}
 .fi-bg {
-  background-image: url(./bg2.svg);
+  background-image: url(./bg.svg);
 }
 .fi-bg.fis {
-  background-image: url(./bg.svg);
+  background-image: url(./bg2.svg);
 }
 .fi-bh {
   background-image: url(./bh.svg);
@@ -2270,16 +2270,16 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./bh2.svg);
 }
 .fi-bi {
-  background-image: url(./bi2.svg);
-}
-.fi-bi.fis {
   background-image: url(./bi.svg);
 }
+.fi-bi.fis {
+  background-image: url(./bi2.svg);
+}
 .fi-bj {
-  background-image: url(./bj2.svg);
+  background-image: url(./bj.svg);
 }
 .fi-bj.fis {
-  background-image: url(./bj.svg);
+  background-image: url(./bj2.svg);
 }
 .fi-bl {
   background-image: url(./bl.svg);
@@ -2288,10 +2288,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./bl2.svg);
 }
 .fi-bm {
-  background-image: url(./bm2.svg);
+  background-image: url(./bm.svg);
 }
 .fi-bm.fis {
-  background-image: url(./bm.svg);
+  background-image: url(./bm2.svg);
 }
 .fi-bn {
   background-image: url(./bn.svg);
@@ -2312,10 +2312,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./bq.svg);
 }
 .fi-br {
-  background-image: url(./br.svg);
+  background-image: url(./br2.svg);
 }
 .fi-br.fis {
-  background-image: url(./br2.svg);
+  background-image: url(./br.svg);
 }
 .fi-bs {
   background-image: url(./bs.svg);
@@ -2324,16 +2324,16 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./bs2.svg);
 }
 .fi-bt {
-  background-image: url(./bt2.svg);
-}
-.fi-bt.fis {
   background-image: url(./bt.svg);
 }
+.fi-bt.fis {
+  background-image: url(./bt2.svg);
+}
 .fi-bv {
-  background-image: url(./bv2.svg);
+  background-image: url(./bv.svg);
 }
 .fi-bv.fis {
-  background-image: url(./bv.svg);
+  background-image: url(./bv2.svg);
 }
 .fi-bw {
   background-image: url(./bw.svg);
@@ -2342,34 +2342,34 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./bw2.svg);
 }
 .fi-by {
-  background-image: url(./by.svg);
-}
-.fi-by.fis {
   background-image: url(./by2.svg);
 }
-.fi-bz {
-  background-image: url(./bz2.svg);
+.fi-by.fis {
+  background-image: url(./by.svg);
 }
-.fi-bz.fis {
+.fi-bz {
   background-image: url(./bz.svg);
 }
-.fi-ca {
-  background-image: url(./ca.svg);
+.fi-bz.fis {
+  background-image: url(./bz2.svg);
 }
-.fi-ca.fis {
+.fi-ca {
   background-image: url(./ca2.svg);
 }
-.fi-cc {
-  background-image: url(./cc2.svg);
+.fi-ca.fis {
+  background-image: url(./ca.svg);
 }
-.fi-cc.fis {
+.fi-cc {
   background-image: url(./cc.svg);
 }
+.fi-cc.fis {
+  background-image: url(./cc2.svg);
+}
 .fi-cd {
-  background-image: url(./cd.svg);
+  background-image: url(./cd2.svg);
 }
 .fi-cd.fis {
-  background-image: url(./cd2.svg);
+  background-image: url(./cd.svg);
 }
 .fi-cf {
   background-image: url(./cf.svg);
@@ -2378,10 +2378,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./cf2.svg);
 }
 .fi-cg {
-  background-image: url(./cg.svg);
+  background-image: url(./cg2.svg);
 }
 .fi-cg.fis {
-  background-image: url(./cg2.svg);
+  background-image: url(./cg.svg);
 }
 .fi-ch {
   background-image: url(./ch.svg);
@@ -2396,22 +2396,22 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./ci2.svg);
 }
 .fi-ck {
-  background-image: url(./ck2.svg);
-}
-.fi-ck.fis {
   background-image: url(./ck.svg);
 }
-.fi-cl {
-  background-image: url(./cl.svg);
+.fi-ck.fis {
+  background-image: url(./ck2.svg);
 }
-.fi-cl.fis {
+.fi-cl {
   background-image: url(./cl2.svg);
 }
+.fi-cl.fis {
+  background-image: url(./cl.svg);
+}
 .fi-cm {
-  background-image: url(./cm2.svg);
+  background-image: url(./cm.svg);
 }
 .fi-cm.fis {
-  background-image: url(./cm.svg);
+  background-image: url(./cm2.svg);
 }
 .fi-cn {
   background-image: url(./cn2.svg);
@@ -2432,10 +2432,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./cr2.svg);
 }
 .fi-cu {
-  background-image: url(./cu2.svg);
+  background-image: url(./cu.svg);
 }
 .fi-cu.fis {
-  background-image: url(./cu.svg);
+  background-image: url(./cu2.svg);
 }
 .fi-cv {
   background-image: url(./cv.svg);
@@ -2450,10 +2450,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./cw2.svg);
 }
 .fi-cx {
-  background-image: url(./cx.svg);
+  background-image: url(./cx2.svg);
 }
 .fi-cx.fis {
-  background-image: url(./cx2.svg);
+  background-image: url(./cx.svg);
 }
 .fi-cy {
   background-image: url(./cy.svg);
@@ -2462,22 +2462,22 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./cy2.svg);
 }
 .fi-cz {
-  background-image: url(./cz2.svg);
-}
-.fi-cz.fis {
   background-image: url(./cz.svg);
 }
-.fi-de {
-  background-image: url(./de2.svg);
+.fi-cz.fis {
+  background-image: url(./cz2.svg);
 }
-.fi-de.fis {
+.fi-de {
   background-image: url(./de.svg);
 }
+.fi-de.fis {
+  background-image: url(./de2.svg);
+}
 .fi-dj {
-  background-image: url(./dj2.svg);
+  background-image: url(./dj.svg);
 }
 .fi-dj.fis {
-  background-image: url(./dj.svg);
+  background-image: url(./dj2.svg);
 }
 .fi-dk {
   background-image: url(./dk.svg);
@@ -2486,10 +2486,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./dk2.svg);
 }
 .fi-dm {
-  background-image: url(./dm.svg);
+  background-image: url(./dm2.svg);
 }
 .fi-dm.fis {
-  background-image: url(./dm2.svg);
+  background-image: url(./dm.svg);
 }
 .fi-do {
   background-image: url(./do.svg);
@@ -2498,10 +2498,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./do2.svg);
 }
 .fi-dz {
-  background-image: url(./dz.svg);
+  background-image: url(./dz2.svg);
 }
 .fi-dz.fis {
-  background-image: url(./dz2.svg);
+  background-image: url(./dz.svg);
 }
 .fi-ec {
   background-image: url(./ec.svg);
@@ -2510,10 +2510,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./ec2.svg);
 }
 .fi-ee {
-  background-image: url(./ee2.svg);
+  background-image: url(./ee.svg);
 }
 .fi-ee.fis {
-  background-image: url(./ee.svg);
+  background-image: url(./ee2.svg);
 }
 .fi-eg {
   background-image: url(./eg.svg);
@@ -2528,10 +2528,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./eh2.svg);
 }
 .fi-er {
-  background-image: url(./er2.svg);
+  background-image: url(./er.svg);
 }
 .fi-er.fis {
-  background-image: url(./er.svg);
+  background-image: url(./er2.svg);
 }
 .fi-es {
   background-image: url(./es.svg);
@@ -2540,16 +2540,16 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./es2.svg);
 }
 .fi-et {
-  background-image: url(./et.svg);
-}
-.fi-et.fis {
   background-image: url(./et2.svg);
 }
+.fi-et.fis {
+  background-image: url(./et.svg);
+}
 .fi-fi {
-  background-image: url(./fi2.svg);
+  background-image: url(./fi.svg);
 }
 .fi-fi.fis {
-  background-image: url(./fi.svg);
+  background-image: url(./fi2.svg);
 }
 .fi-fj {
   background-image: url(./fj.svg);
@@ -2570,10 +2570,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./fm2.svg);
 }
 .fi-fo {
-  background-image: url(./fo2.svg);
+  background-image: url(./fo.svg);
 }
 .fi-fo.fis {
-  background-image: url(./fo.svg);
+  background-image: url(./fo2.svg);
 }
 .fi-fr {
   background-image: url(./fr.svg);
@@ -2582,10 +2582,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./fr2.svg);
 }
 .fi-ga {
-  background-image: url(./ga2.svg);
+  background-image: url(./ga.svg);
 }
 .fi-ga.fis {
-  background-image: url(./ga.svg);
+  background-image: url(./ga2.svg);
 }
 .fi-gb {
   background-image: url(./gb.svg);
@@ -2648,10 +2648,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./gn2.svg);
 }
 .fi-gp {
-  background-image: url(./gp2.svg);
+  background-image: url(./gp.svg);
 }
 .fi-gp.fis {
-  background-image: url(./gp.svg);
+  background-image: url(./gp2.svg);
 }
 .fi-gq {
   background-image: url(./gq.svg);
@@ -2660,10 +2660,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./gq2.svg);
 }
 .fi-gr {
-  background-image: url(./gr.svg);
+  background-image: url(./gr2.svg);
 }
 .fi-gr.fis {
-  background-image: url(./gr2.svg);
+  background-image: url(./gr.svg);
 }
 .fi-gs {
   background-image: url(./gs.svg);
@@ -2696,10 +2696,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./gy2.svg);
 }
 .fi-hk {
-  background-image: url(./hk2.svg);
+  background-image: url(./hk.svg);
 }
 .fi-hk.fis {
-  background-image: url(./hk.svg);
+  background-image: url(./hk2.svg);
 }
 .fi-hm {
   background-image: url(./hm.svg);
@@ -2744,10 +2744,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./ie2.svg);
 }
 .fi-il {
-  background-image: url(./il2.svg);
+  background-image: url(./il.svg);
 }
 .fi-il.fis {
-  background-image: url(./il.svg);
+  background-image: url(./il2.svg);
 }
 .fi-im {
   background-image: url(./im.svg);
@@ -2768,10 +2768,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./io2.svg);
 }
 .fi-iq {
-  background-image: url(./iq.svg);
+  background-image: url(./iq2.svg);
 }
 .fi-iq.fis {
-  background-image: url(./iq2.svg);
+  background-image: url(./iq.svg);
 }
 .fi-ir {
   background-image: url(./ir.svg);
@@ -2810,10 +2810,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./jo2.svg);
 }
 .fi-jp {
-  background-image: url(./jp2.svg);
+  background-image: url(./jp.svg);
 }
 .fi-jp.fis {
-  background-image: url(./jp.svg);
+  background-image: url(./jp2.svg);
 }
 .fi-ke {
   background-image: url(./ke.svg);
@@ -2828,16 +2828,16 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./kg2.svg);
 }
 .fi-kh {
-  background-image: url(./kh2.svg);
-}
-.fi-kh.fis {
   background-image: url(./kh.svg);
 }
+.fi-kh.fis {
+  background-image: url(./kh2.svg);
+}
 .fi-ki {
-  background-image: url(./ki.svg);
+  background-image: url(./ki2.svg);
 }
 .fi-ki.fis {
-  background-image: url(./ki2.svg);
+  background-image: url(./ki.svg);
 }
 .fi-km {
   background-image: url(./km.svg);
@@ -2888,10 +2888,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./la2.svg);
 }
 .fi-lb {
-  background-image: url(./lb2.svg);
+  background-image: url(./lb.svg);
 }
 .fi-lb.fis {
-  background-image: url(./lb.svg);
+  background-image: url(./lb2.svg);
 }
 .fi-lc {
   background-image: url(./lc.svg);
@@ -2942,10 +2942,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./lv2.svg);
 }
 .fi-ly {
-  background-image: url(./ly2.svg);
+  background-image: url(./ly.svg);
 }
 .fi-ly.fis {
-  background-image: url(./ly.svg);
+  background-image: url(./ly2.svg);
 }
 .fi-ma {
   background-image: url(./ma.svg);
@@ -2960,22 +2960,22 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./mc2.svg);
 }
 .fi-md {
-  background-image: url(./md.svg);
-}
-.fi-md.fis {
   background-image: url(./md2.svg);
 }
-.fi-me {
-  background-image: url(./me.svg);
+.fi-md.fis {
+  background-image: url(./md.svg);
 }
-.fi-me.fis {
+.fi-me {
   background-image: url(./me2.svg);
 }
+.fi-me.fis {
+  background-image: url(./me.svg);
+}
 .fi-mf {
-  background-image: url(./mf.svg);
+  background-image: url(./mf2.svg);
 }
 .fi-mf.fis {
-  background-image: url(./mf2.svg);
+  background-image: url(./mf.svg);
 }
 .fi-mg {
   background-image: url(./mg.svg);
@@ -3002,16 +3002,16 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./ml2.svg);
 }
 .fi-mm {
-  background-image: url(./mm.svg);
-}
-.fi-mm.fis {
   background-image: url(./mm2.svg);
 }
+.fi-mm.fis {
+  background-image: url(./mm.svg);
+}
 .fi-mn {
-  background-image: url(./mn2.svg);
+  background-image: url(./mn.svg);
 }
 .fi-mn.fis {
-  background-image: url(./mn.svg);
+  background-image: url(./mn2.svg);
 }
 .fi-mo {
   background-image: url(./mo.svg);
@@ -3020,10 +3020,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./mo2.svg);
 }
 .fi-mp {
-  background-image: url(./mp.svg);
+  background-image: url(./mp2.svg);
 }
 .fi-mp.fis {
-  background-image: url(./mp2.svg);
+  background-image: url(./mp.svg);
 }
 .fi-mq {
   background-image: url(./mq.svg);
@@ -3062,10 +3062,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./mv2.svg);
 }
 .fi-mw {
-  background-image: url(./mw.svg);
+  background-image: url(./mw2.svg);
 }
 .fi-mw.fis {
-  background-image: url(./mw2.svg);
+  background-image: url(./mw.svg);
 }
 .fi-mx {
   background-image: url(./mx.svg);
@@ -3074,16 +3074,16 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./mx2.svg);
 }
 .fi-my {
-  background-image: url(./my.svg);
-}
-.fi-my.fis {
   background-image: url(./my2.svg);
 }
+.fi-my.fis {
+  background-image: url(./my.svg);
+}
 .fi-mz {
-  background-image: url(./mz.svg);
+  background-image: url(./mz2.svg);
 }
 .fi-mz.fis {
-  background-image: url(./mz2.svg);
+  background-image: url(./mz.svg);
 }
 .fi-na {
   background-image: url(./na.svg);
@@ -3098,16 +3098,16 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./nc2.svg);
 }
 .fi-ne {
-  background-image: url(./ne2.svg);
-}
-.fi-ne.fis {
   background-image: url(./ne.svg);
 }
+.fi-ne.fis {
+  background-image: url(./ne2.svg);
+}
 .fi-nf {
-  background-image: url(./nf2.svg);
+  background-image: url(./nf.svg);
 }
 .fi-nf.fis {
-  background-image: url(./nf.svg);
+  background-image: url(./nf2.svg);
 }
 .fi-ng {
   background-image: url(./ng.svg);
@@ -3140,16 +3140,16 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./np2.svg);
 }
 .fi-nr {
-  background-image: url(./nr2.svg);
-}
-.fi-nr.fis {
   background-image: url(./nr.svg);
 }
+.fi-nr.fis {
+  background-image: url(./nr2.svg);
+}
 .fi-nu {
-  background-image: url(./nu.svg);
+  background-image: url(./nu2.svg);
 }
 .fi-nu.fis {
-  background-image: url(./nu2.svg);
+  background-image: url(./nu.svg);
 }
 .fi-nz {
   background-image: url(./nz.svg);
@@ -3158,22 +3158,22 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./nz2.svg);
 }
 .fi-om {
-  background-image: url(./om2.svg);
-}
-.fi-om.fis {
   background-image: url(./om.svg);
 }
-.fi-pa {
-  background-image: url(./pa2.svg);
+.fi-om.fis {
+  background-image: url(./om2.svg);
 }
-.fi-pa.fis {
+.fi-pa {
   background-image: url(./pa.svg);
 }
+.fi-pa.fis {
+  background-image: url(./pa2.svg);
+}
 .fi-pe {
-  background-image: url(./pe.svg);
+  background-image: url(./pe2.svg);
 }
 .fi-pe.fis {
-  background-image: url(./pe2.svg);
+  background-image: url(./pe.svg);
 }
 .fi-pf {
   background-image: url(./pf.svg);
@@ -3188,10 +3188,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./pg2.svg);
 }
 .fi-ph {
-  background-image: url(./ph2.svg);
+  background-image: url(./ph.svg);
 }
 .fi-ph.fis {
-  background-image: url(./ph.svg);
+  background-image: url(./ph2.svg);
 }
 .fi-pk {
   background-image: url(./pk.svg);
@@ -3206,10 +3206,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./pl2.svg);
 }
 .fi-pm {
-  background-image: url(./pm2.svg);
+  background-image: url(./pm.svg);
 }
 .fi-pm.fis {
-  background-image: url(./pm.svg);
+  background-image: url(./pm2.svg);
 }
 .fi-pn {
   background-image: url(./pn.svg);
@@ -3236,10 +3236,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./pt2.svg);
 }
 .fi-pw {
-  background-image: url(./pw2.svg);
+  background-image: url(./pw.svg);
 }
 .fi-pw.fis {
-  background-image: url(./pw.svg);
+  background-image: url(./pw2.svg);
 }
 .fi-py {
   background-image: url(./py.svg);
@@ -3254,10 +3254,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./qa2.svg);
 }
 .fi-re {
-  background-image: url(./re2.svg);
+  background-image: url(./re.svg);
 }
 .fi-re.fis {
-  background-image: url(./re.svg);
+  background-image: url(./re2.svg);
 }
 .fi-ro {
   background-image: url(./ro.svg);
@@ -3338,16 +3338,16 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./sj2.svg);
 }
 .fi-sk {
-  background-image: url(./sk.svg);
-}
-.fi-sk.fis {
   background-image: url(./sk2.svg);
 }
+.fi-sk.fis {
+  background-image: url(./sk.svg);
+}
 .fi-sl {
-  background-image: url(./sl2.svg);
+  background-image: url(./sl.svg);
 }
 .fi-sl.fis {
-  background-image: url(./sl.svg);
+  background-image: url(./sl2.svg);
 }
 .fi-sm {
   background-image: url(./sm.svg);
@@ -3374,10 +3374,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./sr2.svg);
 }
 .fi-ss {
-  background-image: url(./ss.svg);
+  background-image: url(./ss2.svg);
 }
 .fi-ss.fis {
-  background-image: url(./ss2.svg);
+  background-image: url(./ss.svg);
 }
 .fi-st {
   background-image: url(./st.svg);
@@ -3404,22 +3404,22 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./sy2.svg);
 }
 .fi-sz {
-  background-image: url(./sz2.svg);
-}
-.fi-sz.fis {
   background-image: url(./sz.svg);
 }
-.fi-tc {
-  background-image: url(./tc2.svg);
+.fi-sz.fis {
+  background-image: url(./sz2.svg);
 }
-.fi-tc.fis {
+.fi-tc {
   background-image: url(./tc.svg);
 }
+.fi-tc.fis {
+  background-image: url(./tc2.svg);
+}
 .fi-td {
-  background-image: url(./td.svg);
+  background-image: url(./td2.svg);
 }
 .fi-td.fis {
-  background-image: url(./td2.svg);
+  background-image: url(./td.svg);
 }
 .fi-tf {
   background-image: url(./tf.svg);
@@ -3428,10 +3428,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./tf2.svg);
 }
 .fi-tg {
-  background-image: url(./tg.svg);
+  background-image: url(./tg2.svg);
 }
 .fi-tg.fis {
-  background-image: url(./tg2.svg);
+  background-image: url(./tg.svg);
 }
 .fi-th {
   background-image: url(./th.svg);
@@ -3470,16 +3470,16 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./tn2.svg);
 }
 .fi-to {
-  background-image: url(./to2.svg);
-}
-.fi-to.fis {
   background-image: url(./to.svg);
 }
+.fi-to.fis {
+  background-image: url(./to2.svg);
+}
 .fi-tr {
-  background-image: url(./tr.svg);
+  background-image: url(./tr2.svg);
 }
 .fi-tr.fis {
-  background-image: url(./tr2.svg);
+  background-image: url(./tr.svg);
 }
 .fi-tt {
   background-image: url(./tt.svg);
@@ -3500,10 +3500,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./tw2.svg);
 }
 .fi-tz {
-  background-image: url(./tz2.svg);
+  background-image: url(./tz.svg);
 }
 .fi-tz.fis {
-  background-image: url(./tz.svg);
+  background-image: url(./tz2.svg);
 }
 .fi-ua {
   background-image: url(./ua.svg);
@@ -3512,10 +3512,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./ua2.svg);
 }
 .fi-ug {
-  background-image: url(./ug2.svg);
+  background-image: url(./ug.svg);
 }
 .fi-ug.fis {
-  background-image: url(./ug.svg);
+  background-image: url(./ug2.svg);
 }
 .fi-um {
   background-image: url(./um.svg);
@@ -3536,10 +3536,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./uy2.svg);
 }
 .fi-uz {
-  background-image: url(./uz.svg);
+  background-image: url(./uz2.svg);
 }
 .fi-uz.fis {
-  background-image: url(./uz2.svg);
+  background-image: url(./uz.svg);
 }
 .fi-va {
   background-image: url(./va.svg);
@@ -3560,10 +3560,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./ve2.svg);
 }
 .fi-vg {
-  background-image: url(./vg2.svg);
+  background-image: url(./vg.svg);
 }
 .fi-vg.fis {
-  background-image: url(./vg.svg);
+  background-image: url(./vg2.svg);
 }
 .fi-vi {
   background-image: url(./vi.svg);
@@ -3620,10 +3620,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./zm2.svg);
 }
 .fi-zw {
-  background-image: url(./zw2.svg);
+  background-image: url(./zw.svg);
 }
 .fi-zw.fis {
-  background-image: url(./zw.svg);
+  background-image: url(./zw2.svg);
 }
 .fi-arab {
   background-image: url(./arab.svg);
@@ -3632,10 +3632,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./arab2.svg);
 }
 .fi-cefta {
-  background-image: url(./cefta.svg);
+  background-image: url(./cefta2.svg);
 }
 .fi-cefta.fis {
-  background-image: url(./cefta2.svg);
+  background-image: url(./cefta.svg);
 }
 .fi-cp {
   background-image: url(./cp.svg);
@@ -3644,10 +3644,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./cp2.svg);
 }
 .fi-dg {
-  background-image: url(./dg2.svg);
+  background-image: url(./dg.svg);
 }
 .fi-dg.fis {
-  background-image: url(./dg.svg);
+  background-image: url(./dg2.svg);
 }
 .fi-eac {
   background-image: url(./eac.svg);
@@ -3680,10 +3680,10 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./eu2.svg);
 }
 .fi-gb-eng {
-  background-image: url(./gb-eng2.svg);
+  background-image: url(./gb-eng.svg);
 }
 .fi-gb-eng.fis {
-  background-image: url(./gb-eng.svg);
+  background-image: url(./gb-eng2.svg);
 }
 .fi-gb-nir {
   background-image: url(./gb-nir.svg);
@@ -3692,16 +3692,16 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./gb-nir2.svg);
 }
 .fi-gb-sct {
-  background-image: url(./gb-sct.svg);
-}
-.fi-gb-sct.fis {
   background-image: url(./gb-sct2.svg);
 }
+.fi-gb-sct.fis {
+  background-image: url(./gb-sct.svg);
+}
 .fi-gb-wls {
-  background-image: url(./gb-wls2.svg);
+  background-image: url(./gb-wls.svg);
 }
 .fi-gb-wls.fis {
-  background-image: url(./gb-wls.svg);
+  background-image: url(./gb-wls2.svg);
 }
 .fi-ic {
   background-image: url(./ic.svg);
@@ -3710,16 +3710,16 @@ a._sidebarActive_1xwfn_125 ._single_1xwfn_136 img,
   background-image: url(./ic2.svg);
 }
 .fi-pc {
-  background-image: url(./pc.svg);
-}
-.fi-pc.fis {
   background-image: url(./pc2.svg);
 }
+.fi-pc.fis {
+  background-image: url(./pc.svg);
+}
 .fi-sh-ac {
-  background-image: url(./sh-ac2.svg);
+  background-image: url(./sh-ac.svg);
 }
 .fi-sh-ac.fis {
-  background-image: url(./sh-ac.svg);
+  background-image: url(./sh-ac2.svg);
 }
 .fi-sh-hl {
   background-image: url(./sh-hl.svg);

@@ -52,6 +52,20 @@ type State = {
 
 type Props = TranslateProps;
 
+const sillyFN = () => {
+  const a = 40;
+  let b = 1;
+  b = b + 1;
+  const sillyFn2 = () => {
+    const val = a + b;
+    return val;
+  };
+  return sillyFn2();
+};
+
+// @ts-ignore
+window.sillyVal = sillyFN();
+
 class App extends Component<Props, State> {
   public readonly state: State = {
     accounts: [],
