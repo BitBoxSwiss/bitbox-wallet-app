@@ -31,6 +31,7 @@ export default defineConfig(() => {
     esbuild: {
       keepNames: true,
       minifyIdentifiers: false,
+      minifySyntax: true,
       minifyWhitespace: false
     },
     plugins: [
