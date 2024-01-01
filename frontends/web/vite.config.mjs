@@ -12,6 +12,7 @@ export default defineConfig(() => {
       minify: true,
       modulePreload: false,
       outDir: 'build',
+      // target: 'chrome83',
       rollupOptions: {
         output: {
           entryFileNames: 'assets/[name].js',
@@ -29,6 +30,7 @@ export default defineConfig(() => {
     },
     esbuild: {
       minifyWhitespace: false,
+      keepNames: true,
     },
     plugins: [
       react(),
