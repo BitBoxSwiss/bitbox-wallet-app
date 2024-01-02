@@ -1529,6 +1529,7 @@
       "fiatAmount": "Fiat amount",
       "fiatAtTime": "Fiat at time of transaction",
       "status": "Status",
+      "title": "Transaction Details",
       "type": "Type"
     },
     "explorer": "Transaction ID",
