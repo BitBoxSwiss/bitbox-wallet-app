@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { useContext } from 'react';
-import AppContext from '../../contexts/AppContext';
+import { AppContext } from '../../contexts/AppContext';
 
 import { CoinUnit, ConversionUnit } from './../../api/account';
 import style from './amount.module.css';

@@ -16,17 +16,18 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import { getConfig, setConfig } from '../utils/config';
-import AppContext from './AppContext';
+import { AppContext, TSidebarStatus } from './AppContext';
 
 type TProps = {
     children: ReactNode;
-  }
+}
 
 export const AppProvider = ({ children }: TProps) => {
   const [guideShown, setGuideShown] = useState(false);
   const [guideExists, setGuideExists] = useState(false);
   const [hideAmounts, setHideAmounts] = useState(false);
-
+  const [activeSidebar, setActiveSidebar] = useState(false);
+  const [sidebarStatus, setSidebarStatus] = useState<TSidebarStatus>('');
 
   const toggleGuide = () => {
     setConfig({ frontend: { guideShown: !guideShown } });
@@ -36,6 +37,10 @@ export const AppProvider = ({ children }: TProps) => {
   const toggleHideAmounts = () => {
     setConfig({ frontend: { hideAmounts: !hideAmounts } });
     setHideAmounts(prev => !prev);
+  };
+
+  const toggleSidebar = () => {
+    setActiveSidebar(prev => !prev);
   };
 
   useEffect(() => {
@@ -56,13 +61,18 @@ export const AppProvider = ({ children }: TProps) => {
   return (
     <AppContext.Provider
       value={{
+        activeSidebar,
         toggleGuide,
         guideShown,
         guideExists,
         hideAmounts,
+        sidebarStatus,
+        setActiveSidebar,
         setGuideShown,
         setGuideExists,
+        setSidebarStatus,
         toggleHideAmounts,
+        toggleSidebar
       }}>
       {children}
     </AppContext.Provider>
