@@ -26,6 +26,7 @@ require (
 require (
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
 	github.com/aead/siphash v1.0.1 // indirect
+	github.com/breez/breez-sdk-go v0.2.10 // indirect
 	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f // indirect
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
