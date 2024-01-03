@@ -20,7 +20,7 @@ import { Status } from '../../../components/status/status';
 import { PasswordEntry } from './components/password-entry/password-entry';
 
 type Props = {
-  attestation: boolean | null;
+  attestation: boolean | null | undefined;
 }
 
 export const Unlock = ({ attestation }: Props) => {
