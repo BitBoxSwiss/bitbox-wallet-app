@@ -4,6 +4,7 @@ CGO=1
 BUILDMODE=c-shared
 GOARCH=amd64
 GOOS=windows
+BREEZ_LIB_DIR=../../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/windows-amd64/
 
 windows:
 	CGO_CFLAGS="${GOWINSECFLAGS} ${CFLAGS}" \
@@ -25,6 +26,7 @@ windows-legacy:
 	CGO_ENABLED=1 go build -mod=vendor -ldflags="-s -w" -buildmode=c-archive \
 		-o libserver.a
 	gcc server.def libserver.a -shared -lwinmm -lhid -lsetupapi -lWs2_32 \
+		-L${BREEZ_LIB_DIR} -lbreez_sdk_bindings \
 		-o libserver.dll -Wl,--out-implib,libserver.lib
 
 clean:

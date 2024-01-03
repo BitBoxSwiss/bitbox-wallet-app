@@ -20,5 +20,6 @@ make -C server/ windows-legacy
 env -u MAKE -u MAKEFLAGS cmd "/C compile_windows.bat"
 cp build/assets.rcc build/windows/
 cp server/libserver.dll build/windows/
+cp ../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/windows-amd64/breez_sdk_bindings.dll build/windows/
 windeployqt build/windows/BitBox.exe
 cp "$MINGW_BIN/libssp-0.dll" build/windows/
