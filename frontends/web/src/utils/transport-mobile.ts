@@ -16,7 +16,7 @@
  */
 
 import { TMsgCallback, TPayload, TQueryPromiseMap } from './transport-common';
-import { runningInAndroid } from './env';
+import { runningOnMobile } from './env';
 
 let queryID: number = 0;
 const queryPromises: TQueryPromiseMap = {};
@@ -24,7 +24,7 @@ const currentListeners: TMsgCallback[] = [];
 
 export function mobileCall(query: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    if (runningInAndroid()) {
+    if (runningOnMobile()) {
       if (typeof window.onMobileCallResponse === 'undefined') {
         window.onMobileCallResponse = (
           queryID: number,

@@ -19,7 +19,7 @@ import { i18n } from '../i18n/i18n';
 import { alertUser } from '../components/alert/Alert';
 import { call } from './transport-qt';
 import { mobileCall } from './transport-mobile';
-import { runningInAndroid, runningInQtWebEngine } from './env';
+import { runningInQtWebEngine, runningOnMobile } from './env';
 
 // extConfig is a way to set config values which are inserted
 // externally by templating engines (code generation). A default value
@@ -78,7 +78,7 @@ export function apiGet(endpoint: string): Promise<any> {
       endpoint,
     }));
   }
-  if (runningInAndroid()) {
+  if (runningOnMobile()) {
     return mobileCall(JSON.stringify({
       method: 'GET',
       endpoint,
@@ -100,7 +100,7 @@ export function apiPost(
       body: JSON.stringify(body)
     }));
   }
-  if (runningInAndroid()) {
+  if (runningOnMobile()) {
     return mobileCall(JSON.stringify({
       method: 'POST',
       endpoint,
