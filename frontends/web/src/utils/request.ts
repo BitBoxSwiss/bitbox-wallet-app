@@ -18,7 +18,7 @@
 import { i18n } from '../i18n/i18n';
 import { alertUser } from '../components/alert/Alert';
 import { call } from './transport-qt';
-import { mobileCall } from './transport-android';
+import { mobileCall } from './transport-mobile';
 import { runningInAndroid, runningInQtWebEngine } from './env';
 
 // extConfig is a way to set config values which are inserted

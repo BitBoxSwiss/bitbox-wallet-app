@@ -16,7 +16,7 @@
  */
 
 import { qtSubscribePushNotifications } from './transport-qt';
-import { mobileSubscribePushNotifications } from './transport-android';
+import { mobileSubscribePushNotifications } from './transport-mobile';
 import { webSubscribePushNotifications } from './transport-websocket';
 import { TPayload, TMsgCallback, TUnsubscribe } from './transport-common';
 import { runningInAndroid, runningInQtWebEngine } from './env';
