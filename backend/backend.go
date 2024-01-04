@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
@@ -112,6 +113,20 @@ type AccountEvent struct {
 	Data string             `json:"data"`
 }
 
+type authEventType string
+
+const (
+	authRequired authEventType = "auth-required"
+	authForced   authEventType = "auth-forced"
+	authCanceled authEventType = "auth-canceled"
+	authOk       authEventType = "auth-ok"
+	authErr      authEventType = "auth-err"
+)
+
+type authEventObject struct {
+	Typ authEventType `json:"typ"`
+}
+
 // Environment represents functionality where the implementation depends on the environment the app
 // runs in, e.g. Qt5/Mobile/webdev.
 type Environment interface {
@@ -143,6 +158,11 @@ type Environment interface {
 	SetDarkTheme(bool)
 	// DetectDarkTheme returns true if the dark theme is enabled at OS level.
 	DetectDarkTheme() bool
+	// Auth requests the native environment to trigger authentication.
+	Auth()
+	// OnAuthSettingChanged is called when the authentication (screen lock) setting is changed.
+	// This is also called when the app launches with the current setting.
+	OnAuthSettingChanged(enabled bool)
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
@@ -161,10 +181,13 @@ type Backend struct {
 	devices map[string]device.Interface
 
 	accountsAndKeystoreLock locker.Locker
-	accounts                accountsList
+	accounts                AccountsList
 	// keystore is nil if no keystore is connected.
 	keystore keystore.Keystore
-	aopp     AOPP
+
+	connectKeystore connectKeystore
+
+	aopp AOPP
 
 	// makeBtcAccount creates a BTC account. In production this is `btc.NewAccount`, but can be
 	// overridden in unit tests for mocking.
@@ -192,6 +215,8 @@ type Backend struct {
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
 	tstCheckAccountUsed func(accounts.Interface) bool
+	// For unit tests, called when `backend.maybeAddHiddenUnusedAccounts()` has run.
+	tstMaybeAddHiddenUnusedAccounts func()
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -291,6 +316,79 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 // Config returns the app config.
 func (backend *Backend) Config() *config.Config {
 	return backend.config
+}
+
+// Authenticate executes a system authentication if
+// the authentication config flag is enabled or if the
+// `force` input flag is enabled (as a consequence of an
+// 'auth/auth-forced' notification).
+// Otherwise, the authentication is automatically assumed as
+// successful.
+func (backend *Backend) Authenticate(force bool) {
+	backend.log.Info("Auth requested")
+	if backend.config.AppConfig().Backend.Authentication || force {
+		backend.environment.Auth()
+	} else {
+		backend.AuthResult(true)
+	}
+}
+
+// TriggerAuth triggers an auth-required notification.
+func (backend *Backend) TriggerAuth() {
+	backend.Notify(observable.Event{
+		Subject: "auth",
+		Action:  action.Replace,
+		Object: authEventObject{
+			Typ: authRequired,
+		},
+	})
+}
+
+// CancelAuth triggers an auth-canceled notification.
+func (backend *Backend) CancelAuth() {
+	backend.Notify(observable.Event{
+		Subject: "auth",
+		Action:  action.Replace,
+		Object: authEventObject{
+			Typ: authCanceled,
+		},
+	})
+}
+
+// ForceAuth triggers an auth-forced notification
+// followed by an auth-required notification.
+func (backend *Backend) ForceAuth() {
+	backend.Notify(observable.Event{
+		Subject: "auth",
+		Action:  action.Replace,
+		Object: authEventObject{
+			Typ: authForced,
+		},
+	})
+	backend.Notify(observable.Event{
+		Subject: "auth",
+		Action:  action.Replace,
+		Object: authEventObject{
+			Typ: authRequired,
+		},
+	})
+}
+
+// AuthResult triggers an auth-ok or auth-err notification
+// depending on the input value.
+func (backend *Backend) AuthResult(ok bool) {
+	backend.log.Infof("Auth result: %v", ok)
+	typ := authErr
+	if ok {
+		typ = authOk
+	}
+	backend.Notify(observable.Event{
+		Subject: "auth",
+		Action:  action.Replace,
+		Object: authEventObject{
+			Typ: typ,
+		},
+	})
 }
 
 // DefaultAppConfig returns the default app config.
@@ -432,7 +530,7 @@ func (backend *Backend) Testing() bool {
 }
 
 // Accounts returns the current accounts of the backend.
-func (backend *Backend) Accounts() []accounts.Interface {
+func (backend *Backend) Accounts() AccountsList {
 	defer backend.accountsAndKeystoreLock.RLock()()
 	return backend.accounts
 }
@@ -481,6 +579,8 @@ func (backend *Backend) Start() <-chan interface{} {
 
 	backend.ratesUpdater.StartCurrentRates()
 	backend.configureHistoryExchangeRates()
+
+	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
 	return backend.events
 }
 
@@ -505,7 +605,11 @@ func (backend *Backend) Keystore() keystore.Keystore {
 func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	defer backend.accountsAndKeystoreLock.Lock()()
 	// Only for logging, if there is an error we continue anyway.
-	fingerprint, _ := keystore.RootFingerprint()
+	fingerprint, err := keystore.RootFingerprint()
+	if err != nil {
+		backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
+		return
+	}
 	log := backend.log.WithField("rootFingerprint", fingerprint)
 	log.Info("registering keystore")
 	backend.keystore = keystore
@@ -514,15 +618,29 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		Action:  action.Reload,
 	})
 
-	belongsToKeystore := func(account *config.Account) bool {
-		fingerprint, err := keystore.RootFingerprint()
-		if err != nil {
-			log.WithError(err).Error("Could not retrieve root fingerprint")
-			return false
-		}
+	belongsToKeystore := func(_ *config.AccountsConfig, account *config.Account) bool {
 		return account.SigningConfigurations.ContainsRootFingerprint(fingerprint)
 	}
-	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+
+	persistKeystore := func(accountsConfig *config.AccountsConfig) error {
+		keystoreName, err := keystore.Name()
+		if err != nil {
+			return errp.WithMessage(err, "could not retrieve keystore name")
+		}
+		keystoreCfg := accountsConfig.GetOrAddKeystore(fingerprint)
+		keystoreCfg.Name = keystoreName
+		keystoreCfg.LastConnected = time.Now()
+		return nil
+	}
+
+	err = backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		// Persist keystore with its name in the config.
+		if err := persistKeystore(accountsConfig); err != nil {
+			log.WithError(err).Error("Could not persist keystore")
+		}
+
+		// Persist default accounts the first time, otherwise perform any migrations that may be
+		// needed on the persisted accounts.
 		accounts := backend.filterAccounts(accountsConfig, belongsToKeystore)
 		if len(accounts) != 0 {
 			return backend.updatePersistedAccounts(keystore, accounts)
@@ -533,9 +651,13 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		log.WithError(err).Error("Could not persist default accounts")
 	}
 
-	backend.initAccounts()
+	backend.initAccounts(false)
 
 	backend.aoppKeystoreRegistered()
+
+	backend.connectKeystore.onConnect(backend.keystore)
+
+	go backend.maybeAddHiddenUnusedAccounts()
 }
 
 // DeregisterKeystore removes the registered keystore.
@@ -555,7 +677,7 @@ func (backend *Backend) DeregisterKeystore() {
 		Action:  action.Reload,
 	})
 
-	backend.uninitAccounts()
+	backend.uninitAccounts(false)
 	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
 	// keystore. For now we just remove all, then re-add the rest.
 	backend.initPersistedAccounts()
@@ -698,7 +820,7 @@ func (backend *Backend) Close() error {
 
 	backend.ratesUpdater.Stop()
 
-	backend.uninitAccounts()
+	backend.uninitAccounts(true)
 
 	for _, coin := range backend.coins {
 		if err := coin.Close(); err != nil {
@@ -760,4 +882,49 @@ func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, err
 	}
 
 	return acct, nil
+}
+
+// CancelConnectKeystore cancels a pending keystore connection request if one exists.
+func (backend *Backend) CancelConnectKeystore() {
+	backend.connectKeystore.cancel(errUserAbort)
+}
+
+// SetWatchonly sets the keystore's watchonly flag to `watchonly`.
+// When enabling watchonly, all currently loaded accounts of that keystore are turned into watchonly accounts.
+// When disabling watchonly, all the watchonly status of all of the keystore's persisted accounts is reset.
+func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) error {
+	err := backend.config.ModifyAccountsConfig(func(config *config.AccountsConfig) error {
+		ks, err := config.LookupKeystore(rootFingerprint)
+		if err != nil {
+			return err
+		}
+		ks.Watchonly = watchonly
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	if !watchonly {
+		// When disabling watchonly of the keystore, we reset the Watch flag for each of its
+		// accounts, so that when the user enables watchonly for this keystore again, it does not
+		// show all accounts again - they first need to be loaded via their keystore.
+		return backend.AccountSetWatch(
+			func(account *config.Account) bool {
+				return account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint)
+			},
+			nil,
+		)
+	}
+
+	accounts := backend.Accounts()
+	// When enabling watchonly, we turn the currently loaded accounts into watch-only accounts.
+	t := true
+	return backend.AccountSetWatch(
+		func(account *config.Account) bool {
+			// Apply to each currently loaded account.
+			return !account.HiddenBecauseUnused && accounts.lookup(account.Code) != nil
+		},
+		&t,
+	)
 }

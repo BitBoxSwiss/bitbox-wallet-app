@@ -84,6 +84,10 @@
   "app": {
     "upgrade": "アプリの新しいバージョンが利用可能です！{{current}}から{{version}}にアップグレードしてください。"
   },
+  "auth": {
+    "authButton": "認証",
+    "title": "続行するには認証してください"
+  },
   "backup": {
     "check": {
       "checking": "バックアップを確認中…",
@@ -137,7 +141,8 @@
     },
     "showMnemonic": {
       "description": "あなたのリカバリーワードが表示されます。これらはあなたのウォレットのバックアップを形成します。それらを紙に書き留めてください。\n\n<strong>それらをデジタルに保存したり、写真を撮ったりしないでください。</strong>\n\n<strong>単語を大声で言わないでください。</strong>\n\n<strong>このバックアップはパスワードによって保護されていません。</strong>\n\nその後、各単語を確認していただくことになります。",
-      "title": "リカバリーワードを表示する"
+      "title": "リカバリーワードを表示する",
+      "warning": "<strong>リカバリーワードは決して誰にも教えないでください。</strong>それによって、あなたのウォレットへ完全にアクセスできるようになります。もし誰かがあなたのリカバリーワードを尋ねてきたら、それは詐欺師です！"
     },
     "title": "バックアップの管理"
   },
@@ -262,6 +267,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "BitBox02からmicroSDカードを抜いて安全な場所にしまってください。",
+      "storeMnemonic": "リカバリーワードを安全な場所に保管してください",
       "success": "バックアップの作成に成功しました。"
     },
     "stepInsertSD": {
@@ -465,6 +471,7 @@
   },
   "chart": {
     "dataMissing": "過去のデータを収集中です...お待ちください",
+    "dataOldTimestamp": "過去の為替レートが更新されています。{{time}}以降のデータがチャートに表示されません。",
     "dataUpdating": "データを更新中です...",
     "filter": {
       "all": "全て",
@@ -484,6 +491,10 @@
     "infoWhenPaired": "まずペアリングされたモバイルアプリで操作し、次にBitBox上で続けてください"
   },
   "confirmOnDevice": "デバイス上で確認してください。",
+  "connectKeystore": {
+    "promptNoName": "続行するには、BitBox02を接続してください",
+    "promptWithName": "\"{{name}}\" という名前のBitBox02を接続してください"
+  },
   "darkmode": {
     "toggle": "ダークモード"
   },
@@ -515,6 +526,9 @@
       "deviceName": {
         "description": "あなたのデバイスの名前を変更してください。"
       },
+      "rootFingerprint": {
+        "description": "ルートフィンガープリントは、現在使用中のウォレットに対して固有の識別子です。パスフレーズを使用する場合、異なるウォレットを区別するのに役立ちます。"
+      },
       "securechip": {
         "description": "セキュアチップのモデルです。"
       },
@@ -522,7 +536,7 @@
     },
     "expert": {
       "factoryReset": {
-        "description": "デバイスを工場出荷時の設定にリセットします。これにより、BitBox02上のウォレットが削除されます。",
+        "description": "デバイスを工場出荷時の設定にリセットしてください。これにより、BitBox02からウォレットが削除されます！",
         "title": "工場出荷時の設定にリセットします。"
       },
       "goToStartupSettings": {
@@ -600,7 +614,9 @@
     "aoppUnsupportedAsset": "アセットがサポートされていません。",
     "aoppUnsupportedFormat": "要求されたアドレス形式をサポートする利用可能なアカウントはありません。",
     "aoppUnsupportedKeystore": "接続されたデバイスは、このアセットのメッセージに署名できません",
-    "aoppVersion": "不明なバージョンです。"
+    "aoppVersion": "不明なバージョンです。",
+    "wrongKeystore": "接続されたウォレットが間違っています。このアカウントに合致する正しいデバイスを挿入しているかを確認してください。",
+    "wrongKeystore2": "オプションのパスフレーズを使用している場合、アカウントの正しいパスフレーズを入力していることを確認してください。"
   },
   "fiat": {
     "default": "デフォルト",
@@ -981,6 +997,20 @@
         "text": "スイスのShift Cryptoにより開発されたこのアプリをご使用いただきありがとうございます。現在はまだベータ版となっているため、使い勝手においての不明点・お気付きの点などのご連絡をいただけると幸いです。",
         "title": "BitBoxAppにようこそ！"
       }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "text": "新しい携帯やコンピューターでBitBoxAppを使用している場合、dappsに再度接続する必要があります。そうすると、通常通りdapp上で再びあなたのコインを確認することができます。",
+        "title": "以前の接続が見えません。"
+      },
+      "supportedNetworks": {
+        "text": "現在、BitBoxAppでWalletConnectを使用してサポートされているのはEthereumメインネットのみです。他のEVM互換チェーンを使用するには、Rabbyブラウザ拡張ウォレットをご利用ください。",
+        "title": "どのネットワークがサポートされていますか？"
+      },
+      "whatIsWalletConnect": {
+        "text": "WalletConnectは、web3アプリケーションのための通信プロトコルです。これにより、第三者のアプリを使用せずに、EthereumベースのDAppsやウェブウォレットに便利に接続することができます。これは、BitBoxAppのAndroidユーザーに特に便利です。",
+        "title": "WalletConnectとは何ですか？"
+      }
     }
   },
   "headerssync": {
@@ -1027,6 +1057,7 @@
   },
   "loading": "ロード中…",
   "manageAccounts": {
+    "accountHidden": "このアカウントは、閲覧専用アカウントから非表示にされています。再度表示するには、BitBox02を接続してください。",
     "editAccount": "編集",
     "editAccountNameTitle": "アカウント名を編集する",
     "noAccounts": "アカウントが見つかりません",
@@ -1035,7 +1066,9 @@
       "showTokens": "トークンを表示する ({{activeTokenCount}})"
     },
     "settingsButtonDescription": "アカウントの追加と表示/非表示",
-    "title": "アカウント管理"
+    "title": "アカウント管理",
+    "watchAccount": "閲覧アカウント",
+    "watchAccountDescription": "このアカウントは閲覧専用アカウントの一部です。トグルを使用して、閲覧専用から非表示にすることができます。"
   },
   "mobile": {
     "usingMobileDataWarning": "モバイルデータ使用：このアプリは、アカウントロック解除後に最大数百メガバイトのブロックチェーンヘッダーデータをダウンロードする場合があります。モバイルデータの使用を避けるため、Wi-Fiに接続してください。このメッセージは、一度閉じると再び表示されません。"
@@ -1047,6 +1080,10 @@
       }
     },
     "advancedSettings": {
+      "authentication": {
+        "description": "アプリへのアクセスを画面ロックや指紋認証でロックします。",
+        "title": "スクリーンロック"
+      },
       "coinControl": {
         "description": "プライバシーを向上させるために、トランザクションに含まれるUTXO（未使用取引出力）を選択してください。"
       },
@@ -1068,6 +1105,12 @@
       "defaultCurrency": {
         "description": "デフォルトの通貨を選択してください。",
         "title": "デフォルトの通貨"
+      },
+      "hideAmounts": {
+        "description": "公共の場でアプリを使用する際にプライバシーを向上させるために、残高や金額を非表示にするトグルを表示します。",
+        "hideAmounts": "金額を隠す",
+        "showAmounts": "金額を表示する",
+        "title": "金額の非表示を許可する"
       },
       "language": {
         "description": "BitBoxAppで使用する言語を選択してください。",
@@ -1190,7 +1233,7 @@
         "パスフレーズは、バックアップの上に追加されるセキュリティの層です。",
         "異なるパスフレーズを入力すると、必ず異なるウォレットが生成されます。",
         "ウォレットを復元するには、<strong>パスフレーズとバックアップの両方が必要です</strong>。",
-        "パスフレーズを忘れると、コインにアクセスできなくなります。"
+        "パスフレーズを忘れた場合、<strong>コインにアクセスできなくなります</strong>。"
       ]
     },
     "what": {
@@ -1240,7 +1283,7 @@
     }
   },
   "reset": {
-    "description": "デバイス上の全データが消去されます。これはあなたのプライベートキーも含みます！",
+    "description": "このデバイスからすべてのデータが削除されます。それには、あなたのプライベートキーも含まれます！",
     "notReset": "デバイスはリセットされませんでした。",
     "title": "デバイスを工場出荷状態にリセット",
     "understand": "私はバックアップがあり、リカバリーパスワードも覚えています",
@@ -1383,7 +1426,7 @@
   "settings": {
     "about": "について",
     "accounts": "アカウント",
-    "advancedSettings": "高度な設定",
+    "advancedSettings": "詳細設定",
     "appearance": "外観",
     "electrum": {
       "add": "サーバーを追加",
@@ -1442,8 +1485,6 @@
   },
   "setup": "デバイスを設定",
   "sidebar": {
-    "accounts": "アカウント",
-    "addAccount": "アカウントを追加",
     "buy": "仮想通貨を購入する",
     "device": "デバイス管理",
     "leave": "離れる",
@@ -1528,12 +1569,51 @@
     "unlocked2": "BitBoxを再度挿入した際にLEDが点灯します",
     "unlocked3": "LEDが点灯したらデバイスをタップしてください"
   },
+  "walletConnect": {
+    "connect": {
+      "button": "接続する",
+      "dappLabel": "dappのURIアドレスを入力してください。",
+      "invalidPairingUri": "無効なペアリングURIです"
+    },
+    "dashboard": {
+      "allSessions": "全セッション",
+      "disclaimer": "Walletconnectは、EthereumベースのDappsに接続するためのプロトコルです。これらのdappsはサードパーティのサービスによって運営されているため、信頼できるdappsにのみ接続し、トランザクションを行う際には常に署名している内容を把握しておくことが重要です。",
+      "newConnection": "新しい接続",
+      "noConnectedSessions": "現在、どのアカウントもdappsに接続されていません。"
+    },
+    "invalidPairingChain": "ペアリングの承認にエラーが発生しました。サポートされているチェーンの一つを使用していることを確認してください：{{chains}}",
+    "pairingRequest": {
+      "approve": "接続を承認する",
+      "reject": "拒否する",
+      "title": "からの新規接続リクエスト"
+    },
+    "pairingSuccess": "Dappが正常に接続されました。dappのウェブサイトで続行できます。",
+    "signingRequest": {
+      "account": "アカウント",
+      "chain": "チェーン",
+      "dapp": "Dapp",
+      "data": "Data",
+      "dataParsingError": "データの解析に失敗しました",
+      "decodeError": "メッセージのデコードに失敗しました。",
+      "method": {
+        "sendTransaction": "トランザクションに署名して送信する",
+        "signMessage": "メッセージに署名する",
+        "signTransaction": "トランザクションに署名する",
+        "signTypedData": "タイプされたデータに署名する"
+      },
+      "successfullySigned": "リクエストが正常に署名されました。",
+      "walletConnectRequest": "WalletConnectリクエスト"
+    },
+    "useNewUri": "このURIはすでに接続を試みるために使用されています。新しいURIを使用してください。",
+    "walletConnect": "WalletConnect"
+  },
   "warning": {
     "receivePairing": "安全なアドレス検証を有効にするために、BitBoxをペアリングしてください。サイドバーの「デバイスの管理」に移動してください。",
     "sdcard": "バックアップを管理したい場合を除き、BitBoxとマイクロSDカードを別々に保管してください。",
     "sendPairing": "トランザクションの詳細を安全に確認するために、BitBoxをペアリングしてください。サイドバーの「デバイスの管理」に移動してください。"
   },
   "welcome": {
+    "connect": "BitBox02を接続する",
     "getStarted": "BitBox02にファームウェアをインストールして始めましょう。",
     "insertBitBox02": "BitBox02の場合は、続行するためにデバイスをタップしてください。",
     "insertDevice": "開始するにはデバイスを差し込んでください",

@@ -19,7 +19,7 @@ import { useState, useEffect, createRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../hooks/api';
 import { useDarkmode } from '../../hooks/darkmode';
-import { IAccount } from '../../api/account';
+import { AccountCode, IAccount } from '../../api/account';
 import { getConfig } from '../../utils/config';
 import { getMoonpayBuyInfo } from '../../api/exchanges';
 import Guide from './guide';
@@ -31,7 +31,7 @@ import style from './iframe.module.css';
 
 type TProps = {
     accounts: IAccount[];
-    code: string;
+    code: AccountCode;
 }
 
 export const Moonpay = ({ accounts, code }: TProps) => {

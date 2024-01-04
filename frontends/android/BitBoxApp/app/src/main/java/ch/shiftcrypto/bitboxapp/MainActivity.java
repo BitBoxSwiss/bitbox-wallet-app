@@ -52,7 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import goserver.Goserver;
+import mobileserver.Mobileserver;
 
 public class MainActivity extends AppCompatActivity {
     private final int PERMISSIONS_REQUEST_CAMERA_QRCODE = 0;
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
         @JavascriptInterface
         public void call(int queryID, String query) {
-            Goserver.backendCall(queryID, query);
+            Mobileserver.backendCall(queryID, query);
         }
     }
 
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Goserver.usingMobileDataChanged();
+            Mobileserver.usingMobileDataChanged();
          }
     };
 
@@ -400,12 +400,68 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        goViewModel.getAuthenticator().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean requestAuth) {
+                if (!requestAuth) {
+                    return;
+                }
+
+                BiometricAuthHelper.showAuthenticationPrompt(MainActivity.this, new BiometricAuthHelper.AuthCallback() {
+                    @Override
+                    public void onSuccess() {
+                        // Authenticated successfully
+                        Util.log("Auth success");
+                        goViewModel.closeAuth();
+                        Mobileserver.authResult(true);
+                    }
+
+                    @Override
+                    public void onFailure() {
+                        // Failed
+                        Util.log("Auth failed");
+                        goViewModel.closeAuth();
+                        Mobileserver.authResult(false);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        // Canceled
+                        Util.log("Auth canceled");
+                        goViewModel.closeAuth();
+                        Mobileserver.cancelAuth();
+                    }
+                });
+            }
+        });
+
+        goViewModel.getAuthSetting().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean enabled) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (enabled) {
+                            // Treat the content of the window as secure, preventing it from appearing in
+                            // screenshots, the app switcher, or from being viewed on non-secure displays. We
+                            // are really only interested in hiding the app contents from the app switcher -
+                            // screenshots unfortunately also get disabled.
+                            getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+                        } else {
+                            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Util.log("lifecycle: onResume");
+        Mobileserver.triggerAuth();
+
         // This is only called reliably when USB is attached with android:launchMode="singleTop"
 
         // Usb device list is updated on ATTACHED / DETACHED intents.
@@ -463,7 +519,7 @@ public class MainActivity extends AppCompatActivity {
             Uri uri = intent.getData();
             if (uri != null) {
                 if (uri.getScheme().equals("aopp")) {
-                    Goserver.handleURI(uri.toString());
+                    Mobileserver.handleURI(uri.toString());
                 }
             }
         }

@@ -14,27 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import { useContext } from 'react';
 import { Fiat, ConversionUnit, IAmount } from '../../api/account';
-import { BtcUnit } from '../../api/coins';
-import { reinitializeAccounts } from '../../api/backend';
-import { share } from '../../decorators/share';
-import { Store } from '../../decorators/store';
-import { setConfig } from '../../utils/config';
+import { RatesContext } from '../../contexts/RatesContext';
 import { Amount } from '../../components/amount/amount';
-import { equal } from '../../utils/equal';
-import { apiGet } from '../../utils/request';
 import style from './rates.module.css';
 
-export interface SharedProps {
-    active: Fiat;
-    // eslint-disable-next-line react/no-unused-prop-types
-    selected: Fiat[];
-    btcUnit?: BtcUnit;
-    alwaysShowAmounts?: boolean;
-}
-
-export type FiatWithDisplayName = {
+type FiatWithDisplayName = {
   currency: Fiat,
   displayName: string
 }
@@ -60,68 +46,6 @@ export const currenciesWithDisplayName: FiatWithDisplayName[] = [
   { currency: 'USD', displayName: 'United States Dollar' },
   { currency: 'BTC', displayName: 'Bitcoin' }
 ];
-export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'CZK', 'EUR', 'GBP', 'HKD', 'ILS', 'JPY', 'KRW', 'NOK', 'PLN', 'RUB', 'SEK', 'SGD', 'USD', 'BTC'];
-
-export const store = new Store<SharedProps>({
-  active: 'USD',
-  selected: ['USD', 'EUR', 'CHF'],
-  btcUnit: 'default',
-});
-
-// TODO: should not invoking apiGet imediatelly, see the apiGet() function for more details
-updateRatesConfig();
-
-export function updateRatesConfig(): void {
-  apiGet('config').then((appconf) => {
-    if (appconf.frontend && appconf.backend.mainFiat) {
-      store.setState({ active: appconf.backend.mainFiat });
-    }
-    if (appconf.backend && appconf.backend.fiatList && appconf.backend.btcUnit) {
-      store.setState({
-        selected: appconf.backend.fiatList,
-        btcUnit: appconf.backend.btcUnit,
-      });
-    }
-  });
-}
-
-//this is setting default currency
-export function setActiveFiat(fiat: Fiat): void {
-  if (!store.state.selected.includes(fiat)) {
-    selectFiat(fiat);
-  }
-  store.setState({ active: fiat });
-  setConfig({ backend: { mainFiat: fiat } });
-}
-
-function rotateFiat(): void {
-  const index = store.state.selected.indexOf(store.state.active);
-  const fiat = store.state.selected[(index + 1) % store.state.selected.length];
-  setActiveFiat(fiat);
-}
-
-//this is selecting active currency
-export function selectFiat(fiat: Fiat): void {
-  const selected = [...store.state.selected, fiat];
-  setConfig({ backend: { fiatList: selected } })
-    .then(() => {
-      store.setState({ selected });
-      // Need to reconfigure currency exchange rates updater
-      // which is done during accounts reset.
-      reinitializeAccounts();
-    });
-}
-
-export function unselectFiat(fiat: Fiat): void {
-  const selected = store.state.selected.filter(item => !equal(item, fiat));
-  setConfig({ backend: { fiatList: selected } })
-    .then(() => {
-      store.setState({ selected });
-      // Need to reconfigure currency exchange rates updater
-      // which is done during accounts reset.
-      reinitializeAccounts();
-    });
-}
 
 export function formatNumber(amount: number, maxDigits: number): string {
   let formatted = amount.toFixed(maxDigits);
@@ -141,37 +65,36 @@ type TProvidedProps = {
     noAction?: boolean;
     sign?: string;
     noBtcZeroes?: boolean;
+    alwaysShowAmounts?: boolean;
 }
 
-type TProps = TProvidedProps & SharedProps;
 
 function Conversion({
   amount,
   tableRow,
   unstyled,
   skipUnit,
-  active,
   noAction,
   sign,
   noBtcZeroes,
-  btcUnit,
   alwaysShowAmounts = false
-}: TProps) {
+}: TProvidedProps) {
+
+  const { rotateFiat, defaultCurrency, btcUnit } = useContext(RatesContext);
 
   let formattedAmount = <>{'---'}</>;
   let isAvailable = false;
 
-  var activeUnit: ConversionUnit = active;
-  if (active === 'BTC' && btcUnit === 'sat') {
+  let activeUnit: ConversionUnit = defaultCurrency;
+  if (defaultCurrency === 'BTC' && btcUnit === 'sat') {
     activeUnit = 'sat';
   }
 
-  // amount.conversions[active] can be empty in recent transactions.
-  if (amount && amount.conversions && amount.conversions[active] && amount.conversions[active] !== '') {
+  // amount.conversions[defaultCurrency] can be empty in recent transactions.
+  if (amount && amount.conversions && amount.conversions[defaultCurrency] && amount.conversions[defaultCurrency] !== '') {
     isAvailable = true;
-    formattedAmount = <Amount alwaysShowAmounts={alwaysShowAmounts} amount={amount.conversions[active]} unit={activeUnit} removeBtcTrailingZeroes={!!noBtcZeroes}/>;
+    formattedAmount = <Amount alwaysShowAmounts={alwaysShowAmounts} amount={amount.conversions[defaultCurrency]} unit={activeUnit} removeBtcTrailingZeroes={!!noBtcZeroes}/>;
   }
-
 
   if (tableRow) {
     return (
@@ -211,4 +134,4 @@ function Conversion({
 
 export const formattedCurrencies = currenciesWithDisplayName.map((fiat) => ({ label: `${fiat.displayName} (${fiat.currency})`, value: fiat.currency }));
 
-export const FiatConversion = share<SharedProps, TProvidedProps>(store)(Conversion);
+export const FiatConversion = Conversion;

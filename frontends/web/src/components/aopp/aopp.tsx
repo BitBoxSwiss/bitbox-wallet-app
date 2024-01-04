@@ -17,7 +17,6 @@
 import React, { Component, ReactNode } from 'react';
 import * as accountAPI from '../../api/account';
 import * as aoppAPI from '../../api/aopp';
-import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { equal } from '../../utils/equal';
 import { SimpleMarkup } from '../../utils/markup';
@@ -29,6 +28,7 @@ import { Cancel, PointToBitBox02 } from '../icon';
 import { VerifyAddress } from './verifyaddress';
 import { Vasp } from './vasp';
 import styles from './aopp.module.css';
+import { TUnsubscribe } from '../../utils/transport-common';
 
 type TProps = {
   children: ReactNode;
@@ -38,47 +38,55 @@ const Banner = ({ children }: TProps) => (
   <div className={styles.banner}>{children}</div>
 );
 
-interface State {
-    accountCode: accountAPI.AccountCode;
+type State = {
+  accountCode: accountAPI.AccountCode;
+  aopp?: aoppAPI.Aopp;
 }
 
-interface AoppProps {
-}
-
-interface SubscribedProps {
-    aopp?: aoppAPI.Aopp;
-}
-
-type Props = SubscribedProps & AoppProps & TranslateProps;
+type Props = TranslateProps;
 
 const domain = (callback: string): string => new URL(callback).host;
 
 class Aopp extends Component<Props, State> {
   public readonly state: State = {
     accountCode: '',
+    aopp: undefined,
   };
+  private unsubscribe?: TUnsubscribe;
 
   public componentDidMount() {
     this.setAccountCodeDefault();
+    this.unsubscribe = aoppAPI.subscribeAOPP(aopp => this.updateAOPP(aopp));
+    aoppAPI.getAOPP().then(aopp => this.setState({ aopp }));
   }
 
-  public componentDidUpdate(prevProps: Props) {
-    if (this.props.aopp === undefined) {
-      return;
+  public componentWillUnmount() {
+    if (this.unsubscribe) {
+      this.unsubscribe();
     }
-    if (this.props.aopp.state === 'choosing-account'
-            && (
-              prevProps.aopp?.state !== 'choosing-account'
-                || !equal(this.props.aopp.accounts, prevProps.aopp.accounts)
-            )
-    ) {
-      this.setAccountCodeDefault();
-    }
+  }
 
+  private updateAOPP(aopp: aoppAPI.Aopp) {
+    let shouldUpdateAccountCodeDefault = false;
+    this.setState(currentState => {
+      if (aopp?.state === 'choosing-account'
+        && (
+          currentState.aopp?.state !== 'choosing-account'
+          || !equal(aopp.accounts, currentState.aopp?.accounts)
+        )
+      ) {
+        shouldUpdateAccountCodeDefault = true;
+      }
+      return { aopp };
+    }, () => { // callback when state did update
+      if (shouldUpdateAccountCodeDefault) {
+        this.setAccountCodeDefault();
+      }
+    });
   }
 
   private setAccountCodeDefault() {
-    const { aopp } = this.props;
+    const { aopp } = this.state;
     if (aopp === undefined || aopp.state !== 'choosing-account') {
       return;
     }
@@ -95,8 +103,8 @@ class Aopp extends Component<Props, State> {
   };
 
   public render() {
-    const { t, aopp } = this.props;
-    const { accountCode } = this.state;
+    const { t } = this.props;
+    const { accountCode, aopp } = this.state;
     if (!aopp) {
       return null;
     }
@@ -267,11 +275,5 @@ class Aopp extends Component<Props, State> {
   }
 }
 
-const subscribeHOC = subscribe<SubscribedProps, AoppProps & TranslateProps>(
-  { aopp: 'aopp' },
-  false,
-  false,
-)(Aopp);
-
-const translateHOC = translate()(subscribeHOC);
+const translateHOC = translate()(Aopp);
 export { translateHOC as Aopp };

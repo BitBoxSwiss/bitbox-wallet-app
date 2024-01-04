@@ -16,32 +16,45 @@
 
 import React, { useState } from 'react';
 import { testRegister } from '../../../api/account';
+import { getTesting } from '../../../api/backend';
 import { Button } from '../../../components/forms';
 import { PasswordSingleInput } from '../../../components/password';
+import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
+import { useLoad } from '../../../hooks/api';
+import { debug } from '../../../utils/env';
 
 export const SkipForTesting = () => {
+  const [dialog, setDialog] = useState(false);
+  const show = useLoad(debug ? getTesting : () => Promise.resolve(false));
   const [testPIN, setTestPIN] = useState('');
   const registerTestingDevice = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     await testRegister(testPIN);
-  };
-  const handleFormChange = (value: string) => {
-    setTestPIN(value);
+    setDialog(false);
   };
 
-
+  if (!show) {
+    return null;
+  }
+  const title = 'Unlock software keystore';
   return (
-    <form onSubmit={registerTestingDevice} style={{ flexGrow: 0, maxWidth: 400, width: '100%', alignSelf: 'center' }}>
-      <PasswordSingleInput
-        type="password"
-        autoFocus
-        label="Test Password"
-        onValidPassword={handleFormChange}
-        value={testPIN} />
-      <Button type="submit" secondary>
-        Skip for Testing
-      </Button>
-    </form>
+    <>
+      <button onClick={() => setDialog(true)}>{title}</button>
+      <Dialog open={dialog} title={title} onClose={() => setDialog(false)}>
+        <form onSubmit={registerTestingDevice}>
+          <PasswordSingleInput
+            type="password"
+            autoFocus
+            label="Test Password"
+            onValidPassword={setTestPIN}
+            value={testPIN} />
+          <DialogButtons>
+            <Button primary type="submit">
+              Unlock
+            </Button>
+          </DialogButtons>
+        </form>
+      </Dialog>
+    </>
   );
-
 };

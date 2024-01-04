@@ -29,6 +29,7 @@ import { getConfig } from '../../utils/config';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
+import { EnableAuthSetting } from './components/advanced-settings/enable-auth-setting';
 
 export type TProxyConfig = {
   proxyAddress: string;
@@ -40,8 +41,10 @@ export type TFrontendConfig = {
   coinControl?: boolean;
 }
 
-type TBackendConfig = {
+export type TBackendConfig = {
   proxy?: TProxyConfig
+  authentication?: boolean;
+
 }
 
 export type TConfig = {
@@ -55,6 +58,7 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
   const [config, setConfig] = useState<TConfig>();
 
   const frontendConfig = config?.frontend;
+  const backendConfig = config?.backend;
   const proxyConfig = config?.backend?.proxy;
 
   useEffect(() => {
@@ -82,6 +86,7 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
               >
                 <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
+                <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
                 <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
                 <ConnectFullNodeSetting />
               </WithSettingsTabs>

@@ -36,6 +36,7 @@ import creditCardDarkSVG from './assets/icons/credit-card.svg';
 import creditCardLightSVG from './assets/icons/credit-card-light.svg';
 import editSVG from './assets/icons/edit.svg';
 import editLightSVG from './assets/icons/edit-light.svg';
+import editActiveSVG from './assets/icons/edit-active.svg';
 import ethColorSVG from './assets//eth-color.svg';
 import redDotSVG from './assets/icons/red-dot.svg';
 import copySVG from './assets/icons/copy.svg';
@@ -45,6 +46,7 @@ import closeXDarkSVG from './assets/icons/close-x-dark.svg';
 import externalLink from './assets/icons/external-link.svg';
 import eyeClosedSVG from './assets/icons/eye-closed.svg';
 import eyeOpenedSVG from './assets/icons/eye-opened.svg';
+import eyeOpenedDarkSVG from './assets/icons/eye-opened-dark.svg';
 import globeDarkSVG from './assets/icons/globe-dark.svg';
 import globeLightSVG from './assets/icons/globe-light.svg';
 import guideSVG from './assets/icons/guide.svg';
@@ -62,6 +64,7 @@ import saveLightSVG from './assets/icons/save-light.svg';
 import starSVG from './assets/icons/star.svg';
 import starInactiveSVG from './assets/icons/star-inactive.svg';
 import selectedCheckLightSVG from './assets/icons/selected-check-light.svg';
+import usbSuccessSVG from './assets/icons/usb-success.svg';
 import style from './icon.module.css';
 
 export const ExpandOpen = () => (
@@ -155,10 +158,12 @@ export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} dragg
 export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggable={false} {...props} />);
 export const Edit = (props: ImgProps) => (<img src={editSVG} draggable={false} {...props} />);
 export const EditLight = (props: ImgProps) => (<img src={editLightSVG} draggable={false} {...props} />);
+export const EditActive = (props: ImgProps) => (<img src={editActiveSVG} draggable={false} {...props} />);
 export const ETHLogo = (props: ImgProps) => (<img src={ethColorSVG} draggable={false} {...props} />);
 export const ExternalLink = (props: ImgProps) => (<img src={externalLink} draggable={false} {...props} />);
 export const EyeClosed = (props: ImgProps) => (<img src={eyeClosedSVG} draggable={false} {...props} />);
 export const EyeOpened = (props: ImgProps) => (<img src={eyeOpenedSVG} draggable={false} {...props} />);
+export const EyeOpenedDark = (props: ImgProps) => (<img src={eyeOpenedDarkSVG} draggable={false} {...props} />);
 export const GlobeDark = (props: ImgProps) => (<img src={globeDarkSVG} draggable={false} {...props} />);
 export const GlobeLight = (props: ImgProps) => (<img src={globeLightSVG} draggable={false} {...props} />);
 export const GuideActive = (props: ImgProps) => (<img src={guideSVG} draggable={false} {...props} />);
@@ -176,6 +181,7 @@ export const SaveLight = (props: ImgProps) => (<img src={saveLightSVG} draggable
 export const Star = (props: ImgProps) => (<img src={starSVG} draggable={false} {...props} />);
 export const StarInactive = (props: ImgProps) => (<img src={starInactiveSVG} draggable={false} {...props} />);
 export const SelectedCheckLight = (props: ImgProps) => (<img src={selectedCheckLightSVG} draggable={false} {...props} />);
+export const USBSuccess = (props: ImgProps) => (<img src={usbSuccessSVG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
  */

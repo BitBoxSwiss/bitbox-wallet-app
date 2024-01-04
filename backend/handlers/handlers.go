@@ -16,6 +16,7 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -68,7 +69,7 @@ type Backend interface {
 	DefaultAppConfig() config.AppConfig
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
-	Accounts() []accounts.Interface
+	Accounts() backend.AccountsList
 	Keystore() keystore.Keystore
 	OnAccountInit(f func(accounts.Interface))
 	OnAccountUninit(f func(accounts.Interface))
@@ -96,12 +97,19 @@ type Backend interface {
 	SetAccountActive(accountCode accountsTypes.Code, active bool) error
 	SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error
 	RenameAccount(accountCode accountsTypes.Code, name string) error
+	// disabling for now, we'll either bring this back (if user request it) or remove for good
+	// AccountSetWatch(filter func(*config.Account) bool, watch *bool) error
 	AOPP() backend.AOPP
 	AOPPCancel()
 	AOPPApprove()
 	AOPPChooseAccount(code accountsTypes.Code)
+	Authenticate(force bool)
+	TriggerAuth()
+	ForceAuth()
 	GetAccountFromCode(code string) (accounts.Interface, error)
 	HTTPClient() *http.Client
+	CancelConnectKeystore()
+	SetWatchonly(rootFingerprint []byte, watchonly bool) error
 	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
 }
 
@@ -192,6 +200,9 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBannersHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileDataHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/authenticate", handlers.postAuthenticateHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/trigger-auth", handlers.postTriggerAuthHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/force-auth", handlers.postForceAuthHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/set-dark-theme", handlers.postDarkThemeHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/detect-dark-theme", handlers.getDetectDarkThemeHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
@@ -203,6 +214,8 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActiveHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccountHandler).Methods("POST")
+	// disabling for now, we'll either bring this back (if user request it) or remove for good
+	// getAPIRouterNoError(apiRouter)("/account-set-watch", handlers.postAccountSetWatchHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoinsHandler).Methods("GET")
@@ -231,6 +244,9 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystoreHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonlyHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChangedHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
@@ -342,8 +358,18 @@ type activeToken struct {
 	AccountCode accountsTypes.Code `json:"accountCode"`
 }
 
+type keystoreJSON struct {
+	config.Keystore
+	Connected bool `json:"connected"`
+}
+
 type accountJSON struct {
+	// Multiple accounts can belong to the same keystore. For now we replicate the keystore info in
+	// the accounts. In the future the getAccountsHandler() could return the accounts grouped
+	// keystore.
+	Keystore              keystoreJSON       `json:"keystore"`
 	Active                bool               `json:"active"`
+	Watch                 bool               `json:"watch"`
 	CoinCode              coinpkg.Code       `json:"coinCode"`
 	CoinUnit              string             `json:"coinUnit"`
 	CoinName              string             `json:"coinName"`
@@ -354,11 +380,21 @@ type accountJSON struct {
 	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
 }
 
-func newAccountJSON(account accounts.Interface, activeTokens []activeToken) *accountJSON {
+func newAccountJSON(
+	keystore config.Keystore,
+	account accounts.Interface,
+	activeTokens []activeToken,
+	keystoreConnected bool) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
+	watch := account.Config().Config.Watch
 	return &accountJSON{
+		Keystore: keystoreJSON{
+			Keystore:  keystore,
+			Connected: keystoreConnected,
+		},
 		Active:                !account.Config().Config.Inactive,
+		Watch:                 watch != nil && *watch,
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
 		CoinName:              account.Coin().Name(),
@@ -447,6 +483,29 @@ func (handlers *Handlers) getUsingMobileDataHandler(r *http.Request) interface{}
 	return handlers.backend.Environment().UsingMobileData()
 }
 
+func (handlers *Handlers) postAuthenticateHandler(r *http.Request) interface{} {
+	var force bool
+	if err := json.NewDecoder(r.Body).Decode(&force); err != nil {
+		return map[string]interface{}{
+			"success":      false,
+			"errorMessage": err.Error(),
+		}
+	}
+
+	handlers.backend.Authenticate(force)
+	return nil
+}
+
+func (handlers *Handlers) postTriggerAuthHandler(r *http.Request) interface{} {
+	handlers.backend.TriggerAuth()
+	return nil
+}
+
+func (handlers *Handlers) postForceAuthHandler(r *http.Request) interface{} {
+	handlers.backend.ForceAuth()
+	return nil
+}
+
 func (handlers *Handlers) postDarkThemeHandler(r *http.Request) (interface{}, error) {
 	var isDark bool
 	if err := json.NewDecoder(r.Body).Decode(&isDark); err != nil {
@@ -517,19 +576,17 @@ func (handlers *Handlers) getKeystoresHandler(_ *http.Request) interface{} {
 }
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
-	accounts := []*accountJSON{}
 	persistedAccounts := handlers.backend.Config().AccountsConfig()
+
+	accounts := []*accountJSON{}
 	for _, account := range handlers.backend.Accounts() {
 		if account.Config().Config.HiddenBecauseUnused {
 			continue
 		}
 		var activeTokens []activeToken
+
+		persistedAccount := account.Config().Config
 		if account.Coin().Code() == coinpkg.CodeETH {
-			persistedAccount := persistedAccounts.Lookup(account.Config().Config.Code)
-			if persistedAccount == nil {
-				handlers.log.WithField("code", account.Config().Config.Code).Error("account not found in accounts database")
-				continue
-			}
 			for _, tokenCode := range persistedAccount.ActiveTokens {
 				activeTokens = append(activeTokens, activeToken{
 					TokenCode:   tokenCode,
@@ -537,7 +594,29 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
 				})
 			}
 		}
-		accounts = append(accounts, newAccountJSON(account, activeTokens))
+
+		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
+		if err != nil {
+			handlers.log.WithField("code", account.Config().Config.Code).Error("could not identify root fingerprint")
+			continue
+		}
+		keystore, err := persistedAccounts.LookupKeystore(rootFingerprint)
+		if err != nil {
+			handlers.log.WithField("code", account.Config().Config.Code).Error("could not find keystore of account")
+			continue
+		}
+
+		keystoreConnected := false
+		if connectedKeystore := handlers.backend.Keystore(); connectedKeystore != nil {
+			connectedKeystoreRootFingerprint, err := connectedKeystore.RootFingerprint()
+			if err != nil {
+				handlers.log.WithError(err).Error("Could not retrieve rootFingerprint")
+			} else {
+				keystoreConnected = bytes.Equal(rootFingerprint, connectedKeystoreRootFingerprint)
+			}
+		}
+
+		accounts = append(accounts, newAccountJSON(*keystore, account, activeTokens, keystoreConnected))
 	}
 	return accounts
 }
@@ -722,6 +801,33 @@ func (handlers *Handlers) postRenameAccountHandler(r *http.Request) interface{} 
 	}
 	return response{Success: true}
 }
+
+// disabling for now, we'll either bring this back (if user request it) or remove for good
+/*
+func (handlers *Handlers) postAccountSetWatchHandler(r *http.Request) interface{} {
+	var jsonBody struct {
+		AccountCode accountsTypes.Code `json:"accountCode"`
+		Watch       bool               `json:"watch"`
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+
+	filter := func(account *config.Account) bool {
+		return account.Code == jsonBody.AccountCode
+	}
+	if err := handlers.backend.AccountSetWatch(filter, &jsonBody.Watch); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	return response{Success: true}
+}
+*/
 
 func (handlers *Handlers) postAccountsReinitializeHandler(_ *http.Request) interface{} {
 	handlers.backend.ReinitializeAccounts()
@@ -1264,5 +1370,33 @@ func (handlers *Handlers) postAOPPCancelHandler(r *http.Request) interface{} {
 
 func (handlers *Handlers) postAOPPApproveHandler(r *http.Request) interface{} {
 	handlers.backend.AOPPApprove()
+	return nil
+}
+
+func (handlers *Handlers) postCancelConnectKeystoreHandler(r *http.Request) interface{} {
+	handlers.backend.CancelConnectKeystore()
+	return nil
+}
+
+func (handlers *Handlers) postSetWatchonlyHandler(r *http.Request) interface{} {
+	type response struct {
+		Success bool `json:"success"`
+	}
+	var request struct {
+		RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
+		Watchonly       bool           `json:"watchonly"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false}
+	}
+	if err := handlers.backend.SetWatchonly([]byte(request.RootFingerprint), request.Watchonly); err != nil {
+		return response{Success: false}
+	}
+	return response{Success: true}
+}
+
+func (handlers *Handlers) postOnAuthSettingChangedHandler(r *http.Request) interface{} {
+	handlers.backend.Environment().OnAuthSettingChanged(
+		handlers.backend.Config().AppConfig().Backend.Authentication)
 	return nil
 }

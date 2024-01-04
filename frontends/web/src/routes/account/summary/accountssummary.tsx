@@ -24,14 +24,15 @@ import { unsubscribe } from '../../../utils/subscriptions';
 import { useMountedRef } from '../../../hooks/mount';
 import { useSDCard } from '../../../hooks/sdcard';
 import { Status } from '../../../components/status/status';
-import { Header } from '../../../components/layout';
+import { GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
+import { View } from '../../../components/view/view';
 import { Chart } from './chart';
 import { SummaryBalance } from './summarybalance';
 import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
-import AppContext from '../../../contexts/AppContext';
+import { AppContext } from '../../../contexts/AppContext';
 
 type TProps = {
     accounts: accountApi.IAccount[];
@@ -86,7 +87,7 @@ export function AccountsSummary({
   }, [mounted]);
 
   const onStatusChanged = useCallback(async (
-    code: string,
+    code: accountApi.AccountCode,
   ) => {
     if (!mounted.current) {
       return;
@@ -108,7 +109,7 @@ export function AccountsSummary({
     }));
   }, [mounted]);
 
-  const update = useCallback((code: string) => {
+  const update = useCallback((code: accountApi.AccountCode) => {
     if (mounted.current) {
       onStatusChanged(code);
       getAccountSummary();
@@ -147,16 +148,16 @@ export function AccountsSummary({
   }, [onStatusChanged, getAccountsTotalBalance, accounts]);
 
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer scrollableContainer">
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <Status hidden={!hasCard} type="warning">
             {t('warning.sdcard')}
           </Status>
           <Header title={<h2>{t('accountSummary.title')}</h2>}>
             <HideAmountsButton />
           </Header>
-          <div className="content padded">
+          <View>
             <Chart
               hideAmounts={hideAmounts}
               data={summaryData}
@@ -171,9 +172,9 @@ export function AccountsSummary({
               totalBalancePerCoin={totalBalancePerCoin}
               balances={balances}
             />
-          </div>
-        </div>
-      </div>
+          </View>
+        </Main>
+      </GuidedContent>
       <Guide>
         <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription')} />
         <Entry key="accountSummaryAmount" entry={{
@@ -186,6 +187,6 @@ export function AccountsSummary({
         }} />
         <Entry key="trackingModePortfolioChart" entry={t('guide.trackingModePortfolioChart')} />
       </Guide>
-    </div>
+    </GuideWrapper>
   );
 }

@@ -43,7 +43,7 @@ import style from './account.module.css';
 
 type Props = {
   accounts: accountApi.IAccount[];
-  code: string;
+  code: accountApi.AccountCode;
   devices: TDevices;
 };
 
@@ -68,7 +68,7 @@ export function Account({
 
   const hasCard = useSDCard(devices, [code]);
 
-  const onAccountChanged = useCallback((code: string, status: accountApi.IStatus | undefined) => {
+  const onAccountChanged = useCallback((code: accountApi.AccountCode, status: accountApi.IStatus | undefined) => {
     if (!code || status === undefined || status.fatalError) {
       return;
     }
@@ -190,6 +190,7 @@ export function Account({
 
   const actionButtonsProps = {
     code,
+    coinCode: account.coinCode,
     canSend,
     exchangeBuySupported,
     account
@@ -204,7 +205,7 @@ export function Account({
         <Header
           title={<h2><span>{account.name}</span></h2>}>
           <HideAmountsButton />
-          <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
+          <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center m-left-half">
             <Info className={style.accountIcon} />
             <span>{t('accountInfo.label')}</span>
           </Link>

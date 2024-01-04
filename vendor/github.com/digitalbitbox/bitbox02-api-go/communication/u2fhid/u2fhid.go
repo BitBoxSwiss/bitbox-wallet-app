@@ -106,7 +106,7 @@ func (communication *Communication) sendFrame(msg string) error {
 		_, err := communication.device.Write(x)
 		return errp.WithMessage(errp.WithStack(err), "Failed to send message")
 	}
-	readBuffer := bytes.NewBuffer([]byte(msg))
+	readBuffer := bytes.NewBufferString(msg)
 	// init frame
 	header := newBuffer()
 	if err := binary.Write(header, binary.BigEndian, cid); err != nil {

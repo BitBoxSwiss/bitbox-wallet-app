@@ -15,9 +15,9 @@ import androidx.core.app.NotificationCompat;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import goserver.GoAPIInterface;
-import goserver.GoEnvironmentInterface;
-import goserver.Goserver;
+import mobileserver.GoAPIInterface;
+import mobileserver.GoEnvironmentInterface;
+import mobileserver.Mobileserver;
 
 public class GoService extends Service {
     // Binder given to clients
@@ -81,7 +81,7 @@ public class GoService extends Service {
         Util.log("GoService: Starting server...");
         startedLock.lock();
         if (!started) {
-            Goserver.serve(filePath, goEnvironment, goAPI);
+            Mobileserver.serve(filePath, goEnvironment, goAPI);
             started = true;
             Util.log("server started!");
         } else {

@@ -74,6 +74,8 @@ type Backend struct {
 	DeprecatedLitecoinActive bool `json:"litecoinActive"`
 	DeprecatedEthereumActive bool `json:"ethereumActive"`
 
+	Authentication bool `json:"authentication"`
+
 	BTC  btcCoinConfig `json:"btc"`
 	TBTC btcCoinConfig `json:"tbtc"`
 	RBTC btcCoinConfig `json:"rbtc"`
@@ -148,6 +150,7 @@ func NewDefaultAppConfig() AppConfig {
 				UseProxy:     false,
 				ProxyAddress: "",
 			},
+			Authentication:           false,
 			DeprecatedBitcoinActive:  true,
 			DeprecatedLitecoinActive: true,
 			DeprecatedEthereumActive: true,
@@ -230,6 +233,7 @@ func NewDefaultAppConfig() AppConfig {
 			MainFiat: rates.USD.String(),
 			BtcUnit:  coin.BtcUnitDefault,
 		},
+		Frontend: make(map[string]interface{}),
 	}
 }
 
@@ -322,6 +326,16 @@ func (config *Config) AppConfig() AppConfig {
 func (config *Config) SetAppConfig(appConfig AppConfig) error {
 	defer config.appConfigLock.Lock()()
 	config.appConfig = appConfig
+	return config.save(config.appConfigFilename, config.appConfig)
+}
+
+// ModifyAppConfig calls f with the current config, allowing f to make any changes, and
+// persists the result if f returns nil error.  It propagates the f's error as is.
+func (config *Config) ModifyAppConfig(f func(*AppConfig) error) error {
+	defer config.appConfigLock.Lock()()
+	if err := f(&config.appConfig); err != nil {
+		return err
+	}
 	return config.save(config.appConfigFilename, config.appConfig)
 }
 

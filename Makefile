@@ -35,9 +35,7 @@ envinit:
 #  - additional dependencies: Qt 5.15 & Xcode command line tools
 #  - add to $PATH: /usr/local/opt/go@1.20/bin
 osx-init:
-	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-	brew install go@1.20
-	brew install qt@5
+	./scripts/osx-brew.sh
 	$(MAKE) envinit
 servewallet:
 	go run -mod=vendor ./cmd/servewallet
@@ -87,6 +85,7 @@ clean:
 	rm -rf ${WEBROOT}/build
 	cd frontends/qt && $(MAKE) clean
 	cd frontends/android && $(MAKE) clean
+	cd backend/mobileserver && $(MAKE) clean
 dockerinit:
 	./scripts/container.sh build --pull --force-rm -t shiftcrypto/bitbox-wallet-app .
 dockerdev:

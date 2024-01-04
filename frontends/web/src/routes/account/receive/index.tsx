@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import { IAccount } from '../../../api/account';
+import { AccountCode, IAccount } from '../../../api/account';
 import { TDevices } from '../../../api/devices';
 import { Receive as ReceiveBB02 } from './receive';
 import { Receive as ReceiveBB01 } from './receive-bb01';
 
 type TProps = {
   accounts: IAccount[];
-  code: string;
+  code: AccountCode;
   deviceIDs: string[];
   devices: TDevices;
 };
@@ -44,7 +44,6 @@ export const Receive = (props: TProps) => {
   default: // software keystore
     return (
       <ReceiveBB02
-        deviceID={deviceID}
         {...props} />
     );
   }

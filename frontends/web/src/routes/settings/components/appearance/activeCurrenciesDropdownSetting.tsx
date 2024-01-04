@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-import { store, SharedProps, formattedCurrencies } from '../../../../components/rates/rates';
-import { SettingsItem } from '../settingsItem/settingsItem';
-import { share } from '../../../../decorators/share';
-import { ActiveCurrenciesDropdown } from '../dropdowns/activecurrenciesdropdown';
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formattedCurrencies } from '../../../../components/rates/rates';
+import { SettingsItem } from '../settingsItem/settingsItem';
+import { ActiveCurrenciesDropdown } from '../dropdowns/activecurrenciesdropdown';
+import { RatesContext } from '../../../../contexts/RatesContext';
 
-const ActiveCurrenciesDropdownSetting = ({ selected, active }: SharedProps) => {
+const ActiveCurrenciesDropdownSetting = () => {
   const { t } = useTranslation();
+  const { activeCurrencies, defaultCurrency } = useContext(RatesContext);
   return (
     <SettingsItem
       collapseOnSmall
@@ -30,12 +32,12 @@ const ActiveCurrenciesDropdownSetting = ({ selected, active }: SharedProps) => {
       extraComponent={
         <ActiveCurrenciesDropdown
           options={formattedCurrencies}
-          active={active}
-          selected={selected}
+          defaultCurrency={defaultCurrency}
+          activeCurrencies={activeCurrencies}
         />
       }
     />
   );
 };
 
-export const ActiveCurrenciesDropdownSettingWithStore = share<SharedProps>(store)(ActiveCurrenciesDropdownSetting);
+export { ActiveCurrenciesDropdownSetting };

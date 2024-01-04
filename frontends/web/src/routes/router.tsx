@@ -9,7 +9,7 @@ import { Exchange } from './buy/exchange';
 import { Pocket } from './buy/pocket';
 import { Info } from './account/info/info';
 import { Receive } from './account/receive';
-import { Send } from './account/send/send';
+import { SendWrapper } from './account/send/send-wrapper';
 import { AccountsSummary } from './account/summary/accountssummary';
 import { DeviceSwitch } from './device/deviceswitch';
 import ManageBackups from './device/manage-backups/manage-backups';
@@ -74,7 +74,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   </InjectParams>;
 
   const AccSend = <InjectParams>
-    <Send
+    <SendWrapper
       code={'' /* dummy to satisfy TS */}
       devices={devices}
       deviceIDs={deviceIDs}
@@ -192,7 +192,6 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="pocket/:code" element={PocketEl} />
         <Route path="exchange/:code" element={ExchangeEl} />
       </Route>
-      <Route path="passphrase/:deviceID" element={PassphraseEl} />
       <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
       <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
       <Route path="settings">
@@ -200,9 +199,16 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="appearance" element={AppearanceEl} />
         <Route path="about" element={AboutEl} />
         <Route path="device-settings/:deviceID" element={Device} />
+        <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
         <Route path="advanced-settings" element={AdvancedSettingsEl} />
         <Route path="electrum" element={<ElectrumSettings />} />
-        <Route path="manage-accounts" element={<ManageAccounts key={'manage-accounts'} deviceIDs={deviceIDs} hasAccounts={hasAccounts}/>} />
+        <Route path="manage-accounts" element={
+          <ManageAccounts
+            accounts={accounts}
+            key="manage-accounts"
+            deviceIDs={deviceIDs}
+            hasAccounts={hasAccounts} />
+        } />
       </Route>
     </Route>
   </Routes>;

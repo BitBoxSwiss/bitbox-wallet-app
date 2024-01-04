@@ -221,8 +221,24 @@ func (configuration *Configuration) String() string {
 	return fmt.Sprintf("ethereumSimple;%s", configuration.EthereumSimple.KeyInfo)
 }
 
-// Configurations is an unordered collection of configurations.
+// Configurations is an unordered collection of configurations. All entries must have the same root
+// fingerprint.
 type Configurations []*Configuration
+
+// RootFingerprint gets the fingerprint of the first config (assuming that all configurations have
+// the same rootFingerprint). Returns an error if the list has no entries or does not contain a
+// known config.
+func (configs Configurations) RootFingerprint() ([]byte, error) {
+	for _, config := range configs {
+		if config.BitcoinSimple != nil {
+			return config.BitcoinSimple.KeyInfo.RootFingerprint, nil
+		}
+		if config.EthereumSimple != nil {
+			return config.EthereumSimple.KeyInfo.RootFingerprint, nil
+		}
+	}
+	return nil, errp.New("Could not retrieve fingerprint from signing configurations")
+}
 
 // ContainsRootFingerprint returns true if the rootFingerprint is present in one of the configurations.
 func (configs Configurations) ContainsRootFingerprint(rootFingerprint []byte) bool {

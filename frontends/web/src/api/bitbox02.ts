@@ -77,6 +77,7 @@ export type VersionInfo = {
     // setup - that is always possible regardless of this value.
     canBackupWithRecoveryWords: boolean;
     canCreate12Words: boolean;
+    canBIP85: boolean;
 }
 
 export const getVersion = (
@@ -171,24 +172,12 @@ export const setPassword = (
   return apiPost(`devices/bitbox02/${deviceID}/set-password`, seedLen);
 };
 
-export const getShowFirmwareHash = (deviceID: string) => {
-  return (): Promise<boolean> => {
-    return apiGet(`devices/bitbox02-bootloader/${deviceID}/show-firmware-hash-enabled`);
-  };
-};
-
-export const setShowFirmwareHash = (
-  deviceID: string,
-  enabled: boolean,
-) => {
-  return apiPost(
-    `devices/bitbox02-bootloader/${deviceID}/set-firmware-hash-enabled`,
-    enabled,
-  );
-};
-
 export const getRootFingerprint = (
   deviceID: string
 ): Promise<(SuccessResponse & { rootFingerprint: string }) | FailResponse> => {
   return apiGet(`devices/bitbox02/${deviceID}/root-fingerprint`);
+};
+
+export const invokeBIP85 = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/invoke-bip85`);
 };

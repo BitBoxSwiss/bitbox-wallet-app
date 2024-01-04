@@ -76,9 +76,9 @@ func PocketURL(devServers bool, locale string) string {
 // IsPocketSupported is true if coin.Code is supported by Pocket.
 func IsPocketSupported(account accounts.Interface) bool {
 	coinCode := account.Coin().Code()
-	canSign := account.Config().Keystore.CanSignMessage(coinCode)
-	// Pocket would also support tbtc, but at the moment testnet address signing is disabled on firmware.
-	return (coinCode == coin.CodeBTC || coinCode == coin.CodeTBTC) && canSign
+	// Pocket would also support tbtc, but at the moment testnet address signing is disabled on the
+	// BitBox02 firmware.
+	return coinCode == coin.CodeBTC || coinCode == coin.CodeTBTC
 }
 
 // PocketDeals returns the purchase conditions (fee and payment methods) offered by Pocket.
@@ -128,10 +128,19 @@ func GetPocketSupportedRegions(httpClient *http.Client) (map[string]PocketRegion
 //	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
 //	#3: is an optional error that could be generated during the execution of the function.
 func PocketWidgetSignAddress(account accounts.Interface, message string, format string) (string, string, error) {
-
 	if !IsPocketSupported(account) {
-		err := fmt.Errorf("Coin not supported %s", account.Coin().Code())
+		return "", "", errp.Newf("Coin not supported %s", account.Coin().Code())
+	}
+
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
 		return "", "", err
+	}
+
+	canSign := keystore.CanSignMessage(account.Coin().Code())
+	if !canSign {
+		return "", "", errp.Newf("The connected device or keystore cannot sign messages for %s",
+			account.Coin().Code())
 	}
 
 	unused := account.GetUnusedReceiveAddresses()
@@ -151,7 +160,7 @@ func PocketWidgetSignAddress(account accounts.Interface, message string, format 
 	}
 	addr := unused[signingConfigIdx].Addresses[0]
 
-	sig, err := account.Config().Keystore.SignBTCMessage(
+	sig, err := keystore.SignBTCMessage(
 		[]byte(message),
 		addr.AbsoluteKeypath(),
 		account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),

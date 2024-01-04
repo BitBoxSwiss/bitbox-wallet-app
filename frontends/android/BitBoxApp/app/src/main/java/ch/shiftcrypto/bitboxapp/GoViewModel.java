@@ -20,10 +20,10 @@ import androidx.lifecycle.MutableLiveData;
 
 import java.util.Locale;
 
-import goserver.GoAPIInterface;
-import goserver.GoDeviceInfoInterface;
-import goserver.GoEnvironmentInterface;
-import goserver.GoReadWriteCloserInterface;
+import mobileserver.GoAPIInterface;
+import mobileserver.GoDeviceInfoInterface;
+import mobileserver.GoEnvironmentInterface;
+import mobileserver.GoReadWriteCloserInterface;
 
 public class GoViewModel extends AndroidViewModel {
 
@@ -104,7 +104,6 @@ public class GoViewModel extends AndroidViewModel {
         }
 
         public void notifyUser(String message) {
-
         }
 
         private GoDeviceInfoInterface device;
@@ -119,6 +118,15 @@ public class GoViewModel extends AndroidViewModel {
 
         public void systemOpen(String url) throws Exception {
             Util.systemOpen(getApplication(), url);
+        }
+
+        public void auth() {
+            Util.log("Auth requested from backend");
+            requestAuth();
+        }
+
+        public void onAuthSettingChanged(boolean enabled) {
+            authSetting.postValue(enabled);
         }
 
         public boolean usingMobileData() {
@@ -187,15 +195,36 @@ public class GoViewModel extends AndroidViewModel {
         }
     }
 
-     private MutableLiveData<Boolean> isDarkTheme = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isDarkTheme = new MutableLiveData<>();
 
-     public MutableLiveData<Boolean> getIsDarkTheme() {
+    public MutableLiveData<Boolean> getIsDarkTheme() {
          return isDarkTheme;
      }
-
-     public void setIsDarkTheme(Boolean isDark) {
+    public void setIsDarkTheme(Boolean isDark) {
          this.isDarkTheme.postValue(isDark);
     }
+
+    private MutableLiveData<Boolean> authenticator = new MutableLiveData<>(false);
+
+    public MutableLiveData<Boolean> getAuthenticator() {
+        return authenticator;
+    }
+
+    // The value of the backend config's Authentication setting.
+    private MutableLiveData<Boolean> authSetting = new MutableLiveData<>(false);
+
+    public MutableLiveData<Boolean> getAuthSetting() {
+        return authSetting;
+    }
+
+    public void requestAuth() {
+        this.authenticator.postValue(true);
+    }
+
+    public void closeAuth() {
+        this.authenticator.postValue(false);
+    }
+
     private GoEnvironment goEnvironment;
     private GoAPI goAPI;
 

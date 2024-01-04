@@ -33,7 +33,7 @@ type ProposedTransaction struct {
 	TXProposal *maketx.TxProposal
 	// List of signing configurations that might be used in the tx inputs.
 	AccountSigningConfigurations []*signing.Configuration
-	GetAddress                   func(blockchain.ScriptHashHex) *addresses.AccountAddress
+	GetAccountAddress            func(blockchain.ScriptHashHex) *addresses.AccountAddress
 	GetPrevTx                    func(chainhash.Hash) (*wire.MsgTx, error)
 	// Signatures collects the signatures, one per transaction input.
 	Signatures []*types.Signature
@@ -56,20 +56,24 @@ func (account *Account) signTransaction(
 	proposedTransaction := &ProposedTransaction{
 		TXProposal:                   txProposal,
 		AccountSigningConfigurations: signingConfigs,
-		GetAddress:                   account.getAddress,
+		GetAccountAddress:            account.getAddress,
 		GetPrevTx:                    getPrevTx,
 		Signatures:                   make([]*types.Signature, len(txProposal.Transaction.TxIn)),
 		SigHashes:                    txscript.NewTxSigHashes(txProposal.Transaction, previousOutputs),
 		FormatUnit:                   account.coin.formatUnit,
 	}
 
-	if err := account.Config().Keystore.SignTransaction(proposedTransaction); err != nil {
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return err
+	}
+	if err := keystore.SignTransaction(proposedTransaction); err != nil {
 		return err
 	}
 
 	for index, input := range txProposal.Transaction.TxIn {
 		spentOutput := previousOutputs[input.PreviousOutPoint]
-		address := proposedTransaction.GetAddress(spentOutput.ScriptHashHex())
+		address := proposedTransaction.GetAccountAddress(spentOutput.ScriptHashHex())
 		signature := proposedTransaction.Signatures[index]
 		if signature == nil {
 			return errp.New("Signature missing")

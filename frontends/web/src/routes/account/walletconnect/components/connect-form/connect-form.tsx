@@ -16,6 +16,7 @@
 
 import { SetStateAction, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import * as accountAPI from '../../../../../api/account';
 import { Button, Input } from '../../../../../components/forms';
 import { route } from '../../../../../utils/route';
 import { useMediaQuery } from '../../../../../hooks/mediaquery';
@@ -25,7 +26,7 @@ import { ScanQRVideo } from '../../../send/components/inputs/scan-qr-video';
 import styles from './connect-form.module.css';
 
 type TWCConnectFormProps = {
-    code: string;
+    code: accountAPI.AccountCode;
     connectLoading: boolean;
     uri: string;
     onInputChange: (value: SetStateAction<string>) => void;
@@ -82,7 +83,7 @@ export const WCConnectForm = ({
           className={showQRButton ? styles.inputWithIcon : ''}
           value={uri}
           readOnly={connectLoading}
-          onInput={(e) => onInputChange(e.target.value.replaceAll(' ', ''))}>
+          onInput={(e) => onInputChange(e.target.value.replace(/\s/g, ''))}>
           {(showQRButton && !connectLoading) && <ScanQRButton onClick={toggleScanQR} />}
         </Input>
         <ScanQRDialog

@@ -64,7 +64,7 @@ github.com/decred/dcrd/crypto/blake256
 github.com/decred/dcrd/dcrec/secp256k1/v4
 github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa
 github.com/decred/dcrd/dcrec/secp256k1/v4/schnorr
-# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20231108065112-29421cdcb314
+# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20231228154428-2ac5d3dfecc1
 ## explicit; go 1.13
 github.com/digitalbitbox/bitbox02-api-go/api/bootloader
 github.com/digitalbitbox/bitbox02-api-go/api/common

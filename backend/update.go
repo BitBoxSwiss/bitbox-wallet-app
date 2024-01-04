@@ -27,7 +27,7 @@ const updateFileURL = "https://bitbox.swiss/updates/desktop.json"
 
 var (
 	// Version of the backend as displayed to the user.
-	Version = semver.NewSemVer(4, 39, 0)
+	Version = semver.NewSemVer(4, 40, 0)
 )
 
 // UpdateFile is retrieved from the server.

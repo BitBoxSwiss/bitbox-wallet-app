@@ -19,6 +19,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"math/big"
 
 	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
@@ -72,6 +73,15 @@ func NewKeystoreFromPIN(pin string) *Keystore {
 // Type implements keystore.Keystore.
 func (keystore *Keystore) Type() keystorePkg.Type {
 	return keystorePkg.TypeSoftware
+}
+
+// Name implements keystore.Keystore.
+func (keystore *Keystore) Name() (string, error) {
+	fingerprint, err := keystore.RootFingerprint()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("Software keystore %x", fingerprint), nil
 }
 
 // RootFingerprint implements keystore.Keystore.
@@ -187,7 +197,7 @@ func (keystore *Keystore) SignTransaction(
 			keystore.log.Error("There needs to be exactly one output being spent per input.")
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
-		address := btcProposedTx.GetAddress(spentOutput.ScriptHashHex())
+		address := btcProposedTx.GetAccountAddress(spentOutput.ScriptHashHex())
 
 		xprv, err := address.Configuration.AbsoluteKeypath().Derive(keystore.master)
 		if err != nil {

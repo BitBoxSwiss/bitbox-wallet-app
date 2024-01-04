@@ -22,9 +22,9 @@
 
 .actionsContainer {
     display: flex;
-    gap: var(--space-quarter);
     transform: translateY(-36%);
-    margin-top: var(--space-quarter);
+    margin-top: calc(var(--space-quarter) * 2);
+    padding-bottom: 14px;
 }
 
 .buy,
@@ -38,13 +38,19 @@
     font-size: var(--size-default);
     height: calc(var(--item-height) / 1.5);
     line-height: calc(var(--item-height) / 1.5);
+    margin-bottom: var(--space-quarter);
+    margin-left: var(--space-quarter);
+    min-width: calc(var(--item-height) * 2);
     padding: 0 var(--space-half);
     text-align: center;
     text-decoration: none;
     transition: background-color ease-out 0.2s;
     width: auto;
-    min-width: calc(var(--item-height) * 2);
     will-change: background-color;
+}
+
+.walletConnect {
+    justify-content: center;
 }
 
 .withWalletConnect.actionsContainer {
@@ -76,16 +82,14 @@
 
 @media (max-width: 768px) {
     .actionsContainer {
-        flex: 0 0 91%;
+        flex-wrap: wrap;
         justify-content: space-between;
         margin-bottom: var(--space-default);
-        max-width: 91%;
-        transform: none;
-        width: 91%;
         margin-left: auto;
         margin-right: auto;
-        flex-wrap: wrap;
-        gap: var(--space-quarter);
+        padding-bottom: 0;
+        transform: none;
+        width: 100%;
     }
 
 
@@ -116,8 +120,11 @@
 
     .send,
     .receive,
-    .buy {
+    .buy,
+    .walletConnect
+    {
         font-size: var(--size-small);
+        margin-bottom: 0;
         width: auto;
     }
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package goserver
+package mobileserver
 
 import (
 	"io"
@@ -92,6 +92,8 @@ type GoEnvironmentInterface interface {
 	NativeLocale() string
 	SetDarkTheme(bool)
 	DetectDarkTheme() bool
+	Auth()
+	OnAuthSettingChanged(bool)
 }
 
 // readWriteCloser implements io.ReadWriteCloser, translating from GoReadWriteCloserInterface. All methods
@@ -126,7 +128,8 @@ func (d deviceInfo) Open() (io.ReadWriteCloser, error) {
 	return readWriteCloser{device}, nil
 }
 
-// GoAPIInterface is used to pas api (GET/POST) responses and websocket push notifications to Android.
+// GoAPIInterface is used to pas api (GET/POST) responses and websocket push notifications to
+// Android/iOS.
 type GoAPIInterface interface {
 	bridgecommon.NativeCommunication
 }
@@ -195,11 +198,13 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 			UsingMobileDataFunc: environment.UsingMobileData,
 			NativeLocaleFunc:    environment.NativeLocale,
 			GetSaveFilenameFunc: func(suggestedFilename string) string {
-				// On Android, we don't yet support exporting files. Implement this once needed.
+				// On mobile, we don't yet support exporting files. Implement this once needed.
 				return ""
 			},
-			SetDarkThemeFunc:    environment.SetDarkTheme,
-			DetectDarkThemeFunc: environment.DetectDarkTheme,
+			SetDarkThemeFunc:         environment.SetDarkTheme,
+			DetectDarkThemeFunc:      environment.DetectDarkTheme,
+			AuthFunc:                 environment.Auth,
+			OnAuthSettingChangedFunc: environment.OnAuthSettingChanged,
 		},
 	)
 }
@@ -208,4 +213,20 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 // sleep.
 func Shutdown() {
 	bridgecommon.Shutdown()
+}
+
+// TriggerAuth triggers an auth required notification towards the frontend.
+func TriggerAuth() {
+	bridgecommon.TriggerAuth()
+}
+
+// CancelAuth triggers an auth canceled notification towards the frontend.
+func CancelAuth() {
+	bridgecommon.CancelAuth()
+}
+
+// AuthResult triggers an auth feeedback notification (auth-ok/auth-err) towards the frontend,
+// depending on the input value.
+func AuthResult(ok bool) {
+	bridgecommon.AuthResult(ok)
 }

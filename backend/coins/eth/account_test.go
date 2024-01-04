@@ -89,7 +89,6 @@ func newAccount(t *testing.T) *Account {
 				SigningConfigurations: signingConfigurations,
 			},
 			DBFolder:        dbFolder,
-			Keystore:        nil,
 			OnEvent:         func(accountsTypes.Event) {},
 			RateUpdater:     nil,
 			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },

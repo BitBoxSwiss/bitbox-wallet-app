@@ -82,11 +82,22 @@
     align-items: center;
 }
 
+.sidebarPortfolio + .sidebarHeaderContainer {
+    margin-top: 28px;
+}
+
 .sidebarHeader {
     font-size: var(--sidebar-header-size);
     line-height: var(--sidebar-header-line-height);
     color: var(--color-secondary);
-    text-transform: uppercase;
+}
+
+.sidebarIconVisible {
+    visibility: visible;
+}
+
+.sidebarIconHidden {
+    visibility: hidden;
 }
 
 .sidebarItem {

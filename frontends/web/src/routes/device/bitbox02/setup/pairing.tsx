@@ -24,7 +24,7 @@ import { PointToBitBox02 } from '../../../../components/icon';
 import { Button } from '../../../../components/forms';
 
 type Props = {
-  attestation: boolean | null;
+  attestation: boolean | null | undefined;
   deviceID: string;
   pairingFailed: boolean;
 }

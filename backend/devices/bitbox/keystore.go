@@ -46,6 +46,12 @@ func (keystore *keystore) Type() keystorePkg.Type {
 	return keystorePkg.TypeHardware
 }
 
+// Name implements keystore.Keystore.
+func (keystore *keystore) Name() (string, error) {
+	// Won't bother getting the actual name here.
+	return "BitBox01", nil
+}
+
 // RootFingerprint implements keystore.Keystore.
 func (keystore *keystore) RootFingerprint() ([]byte, error) {
 	keystore.rootFingerMu.Lock()
@@ -154,7 +160,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			keystore.log.Error("There needs to be exactly one output being spent per input.")
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
-		address := btcProposedTx.GetAddress(spentOutput.ScriptHashHex())
+		address := btcProposedTx.GetAccountAddress(spentOutput.ScriptHashHex())
 		isSegwit, subScript := address.ScriptForHashToSign()
 		var signatureHash []byte
 		if isSegwit {

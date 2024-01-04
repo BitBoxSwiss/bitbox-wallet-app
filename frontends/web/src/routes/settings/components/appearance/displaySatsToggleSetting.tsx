@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toggle } from '../../../../components/toggle/toggle';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { useLoad } from '../../../../hooks/api';
 import { getConfig, setConfig } from '../../../../utils/config';
-import { updateRatesConfig } from '../../../../components/rates/rates';
+import { RatesContext } from '../../../../contexts/RatesContext';
 import { BtcUnit, setBtcUnit } from '../../../../api/coins';
 import { alertUser } from '../../../../components/alert/Alert';
 
@@ -28,6 +28,8 @@ export const DisplaySatsToggleSetting = () => {
   const { t } = useTranslation();
   const fetchedConfig = useLoad(getConfig);
   const [displayAsSAT, setDisplayAsSAT] = useState<boolean>();
+
+  const { updateRatesConfig } = useContext(RatesContext);
 
   useEffect(() => {
     if (fetchedConfig) {
@@ -52,7 +54,6 @@ export const DisplaySatsToggleSetting = () => {
       alertUser(t('genericError'));
     }
   };
-
 
   return (
     <>

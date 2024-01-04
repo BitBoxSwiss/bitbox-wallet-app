@@ -27,7 +27,6 @@ import { Balance } from '../../../components/balance/balance';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
 import { Button, ButtonLink } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
-import { store as fiat } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
@@ -39,6 +38,7 @@ import { route } from '../../../utils/route';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
 import { SendGuide } from './send-guide';
+import { TProposalError, txProposalErrorHandling } from './services';
 import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
 import { CoinInput } from './components/inputs/coin-input';
@@ -48,9 +48,10 @@ import style from './send.module.css';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
-    code: string;
+    code: accountApi.AccountCode;
     devices: TDevices;
     deviceIDs: string[];
+    activeCurrency: accountApi.Fiat;
 }
 
 interface SignProgress {
@@ -60,7 +61,7 @@ interface SignProgress {
 
 type Props = SendProps & TranslateProps;
 
-interface State {
+export type State = {
     account?: accountApi.IAccount;
     balance?: accountApi.IBalance;
     proposedFee?: accountApi.IAmount;
@@ -78,9 +79,9 @@ interface State {
     isSent: boolean;
     isAborted: boolean;
     isUpdatingProposal: boolean;
-    addressError?: string;
-    amountError?: string;
-    feeError?: string;
+    addressError?: TProposalError['addressError'];
+    amountError?: TProposalError['amountError'];
+    feeError?: TProposalError['feeError'];
     paired?: boolean;
     noMobileChannelError?: boolean;
     signProgress?: SignProgress;
@@ -115,7 +116,7 @@ class Send extends Component<Props, State> {
     isAborted: false,
     isUpdatingProposal: false,
     noMobileChannelError: false,
-    fiatUnit: fiat.state.active,
+    fiatUnit: this.props.activeCurrency,
     coinControl: false,
     btcUnit : 'default',
     activeCoinControl: false,
@@ -207,13 +208,20 @@ class Send extends Component<Props, State> {
     }
   };
 
-  private send = () => {
+  private send = async () => {
     if (this.state.noMobileChannelError) {
       alertUser(this.props.t('warning.sendPairing'));
       return;
     }
+    const code = this.getAccount()!.code;
+    const connectResult = await accountApi.connectKeystore(code);
+    if (!connectResult.success) {
+      return;
+    }
+
     this.setState({ signProgress: undefined, isConfirming: true });
-    accountApi.sendTx(this.getAccount()!.code).then(result => {
+    try {
+      const result = await accountApi.sendTx(code);
       if (result.success) {
         this.setState({
           sendAll: false,
@@ -246,12 +254,12 @@ class Send extends Component<Props, State> {
           alertUser(this.props.t('unknownError', errorMessage && { errorMessage }));
         }
       }
-    })
-      .catch((error) => console.error(error))
-      .then(() => {
-        // The following method allows pressing escape again.
-        this.setState({ isConfirming: false, signProgress: undefined, signConfirm: false });
-      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      // The following method allows pressing escape again.
+      this.setState({ isConfirming: false, signProgress: undefined, signConfirm: false });
+    }
   };
 
   private txInput = () => ({
@@ -332,32 +340,8 @@ class Send extends Component<Props, State> {
         this.convertToFiat(result.amount.amount);
       }
     } else {
-      const errorCode = result.errorCode;
-      switch (errorCode) {
-      case 'invalidAddress':
-        this.setState({ addressError: this.props.t('send.error.invalidAddress') });
-        break;
-      case 'invalidAmount':
-      case 'insufficientFunds':
-        this.setState({
-          amountError: this.props.t(`send.error.${errorCode}`),
-          proposedFee: undefined,
-        });
-        break;
-      case 'feeTooLow':
-        this.setState({ feeError: this.props.t('send.error.feeTooLow') });
-        break;
-      case 'feesNotAvailable':
-        this.setState({ feeError: this.props.t('send.error.feesNotAvailable') });
-        break;
-      default:
-        this.setState({ proposedFee: undefined });
-        if (errorCode) {
-          this.unregisterEvents();
-          alertUser(errorCode, { callback: this.registerEvents });
-        }
-      }
-      this.setState({ isUpdatingProposal: false });
+      const errorHandling = txProposalErrorHandling(this.registerEvents, this.unregisterEvents, result.errorCode);
+      this.setState({ ...errorHandling, isUpdatingProposal: false });
     }
   };
 

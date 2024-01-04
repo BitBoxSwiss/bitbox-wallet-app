@@ -20,7 +20,7 @@ import Select, { components, SingleValueProps, OptionProps, SingleValue, Dropdow
 import { AccountCode, IAccount } from '../../api/account';
 import { Button } from '../forms';
 import Logo from '../icon/logo';
-import AppContext from '../../contexts/AppContext';
+import { AppContext } from '../../contexts/AppContext';
 import styles from './accountselector.module.css';
 
 export type TOption = {
@@ -32,11 +32,12 @@ export type TOption = {
 }
 
 type TAccountSelector = {
-    title: string;
-    options: TOption[];
-    selected?: string;
-    onChange: (value: string) => void;
-    onProceed: () => void;
+  title: string;
+  disabled?: boolean;
+  options: TOption[];
+  selected?: string;
+  onChange: (value: string) => void;
+  onProceed: () => void;
 }
 
 const SelectSingleValue: FunctionComponent<SingleValueProps<TOption>> = (props) => {
@@ -80,7 +81,7 @@ const DropdownIndicator: FunctionComponent<DropdownIndicatorProps<TOption>> = (p
 
 
 
-export const AccountSelector = ({ title, options, selected, onChange, onProceed }: TAccountSelector) => {
+export const AccountSelector = ({ title, disabled, options, selected, onChange, onProceed }: TAccountSelector) => {
   const { t } = useTranslation();
   const [selectedAccount, setSelectedAccount] = useState<TOption>();
 
@@ -118,7 +119,7 @@ export const AccountSelector = ({ title, options, selected, onChange, onProceed 
         <Button
           primary
           onClick={onProceed}
-          disabled={!selected}>
+          disabled={!selected || disabled}>
           {t('buy.info.next')}
         </Button>
       </div>
