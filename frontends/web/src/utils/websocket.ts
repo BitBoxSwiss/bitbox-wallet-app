@@ -16,7 +16,7 @@
  */
 
 import { qtSubscribePushNotifications } from './transport-qt';
-import { androidSubscribePushNotifications } from './transport-android';
+import { mobileSubscribePushNotifications } from './transport-android';
 import { webSubscribePushNotifications } from './transport-websocket';
 import { TPayload, TMsgCallback, TUnsubscribe } from './transport-common';
 import { runningInAndroid, runningInQtWebEngine } from './env';
@@ -28,7 +28,7 @@ export function apiWebsocket(msgCallback: TMsgCallback): TUnsubscribe {
     return qtSubscribePushNotifications(msgCallback);
   }
   if (runningInAndroid()) {
-    return androidSubscribePushNotifications(msgCallback);
+    return mobileSubscribePushNotifications(msgCallback);
   }
   return webSubscribePushNotifications(msgCallback);
 }

@@ -18,7 +18,7 @@
 import { i18n } from '../i18n/i18n';
 import { alertUser } from '../components/alert/Alert';
 import { call } from './transport-qt';
-import { androidCall } from './transport-android';
+import { mobileCall } from './transport-android';
 import { runningInAndroid, runningInQtWebEngine } from './env';
 
 // extConfig is a way to set config values which are inserted
@@ -79,7 +79,7 @@ export function apiGet(endpoint: string): Promise<any> {
     }));
   }
   if (runningInAndroid()) {
-    return androidCall(JSON.stringify({
+    return mobileCall(JSON.stringify({
       method: 'GET',
       endpoint,
     }));
@@ -101,7 +101,7 @@ export function apiPost(
     }));
   }
   if (runningInAndroid()) {
-    return androidCall(JSON.stringify({
+    return mobileCall(JSON.stringify({
       method: 'POST',
       endpoint,
       body: JSON.stringify(body)

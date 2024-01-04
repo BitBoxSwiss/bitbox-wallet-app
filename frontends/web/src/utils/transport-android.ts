@@ -22,11 +22,11 @@ let queryID: number = 0;
 const queryPromises: TQueryPromiseMap = {};
 const currentListeners: TMsgCallback[] = [];
 
-export function androidCall(query: string): Promise<unknown> {
+export function mobileCall(query: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
     if (runningInAndroid()) {
-      if (typeof window.onAndroidCallResponse === 'undefined') {
-        window.onAndroidCallResponse = (
+      if (typeof window.onMobileCallResponse === 'undefined') {
+        window.onMobileCallResponse = (
           queryID: number,
           response: unknown,
         ) => {
@@ -43,9 +43,9 @@ export function androidCall(query: string): Promise<unknown> {
   });
 }
 
-export function androidSubscribePushNotifications(msgCallback: TMsgCallback) {
-  if (typeof window.onAndroidPushNotification === 'undefined') {
-    window.onAndroidPushNotification = (msg: TPayload) => {
+export function mobileSubscribePushNotifications(msgCallback: TMsgCallback) {
+  if (typeof window.onMobilePushNotification === 'undefined') {
+    window.onMobilePushNotification = (msg: TPayload) => {
       currentListeners.forEach(listener => listener(msg));
     };
   }
