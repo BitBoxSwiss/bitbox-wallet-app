@@ -1,5 +1,5 @@
 .insured {
-    padding: var(--space-eight) 10px;
+    padding: 4px 10px;
     border-radius: var(--space-half);
     border: 1px solid;
     font-size: var(--size-small);
@@ -9,15 +9,25 @@
     color: var(--color-darkgreen);
     margin: 0px 10px;
     text-decoration: none;
+    white-space: nowrap;
+    max-height: 24px;
+}
+
+.insured div {
+  max-height: 14px;
+  display: flex;
+  align-items: center;
 }
 
 .insured img {
   max-height: 14px;
-  margin-right: 5px;
 }
 
-@media (max-width: 382px) {
-    .insured {
-        font-size: 10px;
-    }
+.insured span {
+  margin-left: 5px;
+}
+
+.insuredShield {
+    padding: 3px;
+    max-height: 22px;
 }

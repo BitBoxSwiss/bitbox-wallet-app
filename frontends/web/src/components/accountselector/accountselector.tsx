@@ -21,6 +21,7 @@ import { Button } from '../forms';
 import Logo from '../icon/logo';
 import AppContext from '../../contexts/AppContext';
 import styles from './accountselector.module.css';
+import { InsuredShield } from '../../routes/account/components/insuredtag';
 
 export type TOption = {
   label: string;
@@ -28,6 +29,7 @@ export type TOption = {
   disabled: boolean;
   coinCode?: IAccount['coinCode'];
   balance?: string;
+  insured?: boolean;
 }
 
 type TAccountSelector = {
@@ -48,13 +50,14 @@ export const setOptionBalances = async (options: TOption[]): Promise<TOption[]> 
 
 const SelectSingleValue: FunctionComponent<SingleValueProps<TOption>> = (props) => {
   const { hideAmounts } = useContext(AppContext);
-  const { label, coinCode, balance } = props.data;
+  const { label, coinCode, balance, insured } = props.data;
   return (
     <div className={styles.singleValueContainer}>
       <components.SingleValue {...props}>
         <div className={styles.valueContainer}>
           {coinCode ? <Logo coinCode={coinCode} alt={coinCode} /> : null}
           <span className={styles.selectLabelText}>{label}</span>
+          {insured && <InsuredShield/>}
           {coinCode && balance && <span className={styles.balanceSingleValue}>{hideAmounts ? `*** ${coinCode}` : balance}</span>}
         </div>
       </components.SingleValue>
@@ -64,13 +67,14 @@ const SelectSingleValue: FunctionComponent<SingleValueProps<TOption>> = (props) 
 
 const SelectOption: FunctionComponent<OptionProps<TOption>> = (props) => {
   const { hideAmounts } = useContext(AppContext);
-  const { label, coinCode, balance } = props.data;
+  const { label, coinCode, balance, insured } = props.data;
 
   return (
     <components.Option {...props}>
       <div className={styles.valueContainer}>
         {coinCode ? <Logo coinCode={coinCode} alt={coinCode} /> : null}
         <span className={styles.selectLabelText}>{label}</span>
+        {insured && <InsuredShield/>}
         {coinCode && balance && <span className={styles.balance}>{hideAmounts ? `*** ${coinCode}` : balance}</span>}
       </div>
     </components.Option>
