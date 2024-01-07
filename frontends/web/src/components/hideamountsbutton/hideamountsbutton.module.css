@@ -2,6 +2,7 @@
     border-width: 0;
     display: flex;
     padding: 0;
+    text-align: left;
 }
 
 .button img {
@@ -10,6 +11,5 @@
 }
 
 .button span {
-    width: 96px;
     margin-left: var(--space-eight);
 }
