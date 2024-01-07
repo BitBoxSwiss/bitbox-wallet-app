@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toggle } from '../../../../components/toggle/toggle';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { useLoad } from '../../../../hooks/api';
 import { getConfig, setConfig } from '../../../../utils/config';
+import { AppContext } from '../../../../contexts/AppContext';
 
 export const HideAmountsSetting = () => {
   const { t } = useTranslation();
+  const { setHideAmounts } = useContext(AppContext);
   const [allowHideAmounts, setAllowHideAmounts] = useState<boolean>();
   const config = useLoad(getConfig);
 
@@ -37,6 +39,12 @@ export const HideAmountsSetting = () => {
   }, [config]);
 
   const toggleAllowHideAmounts = async () => {
+    if (allowHideAmounts) {
+      setHideAmounts(false);
+      await setConfig({
+        frontend: { hideAmounts: false }
+      });
+    }
     setAllowHideAmounts(!allowHideAmounts);
     await setConfig({
       frontend: { allowHideAmounts: !allowHideAmounts }
