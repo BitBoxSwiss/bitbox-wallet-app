@@ -77,3 +77,30 @@ export const attestationCheckDone = (
   });
   return unsubscribe;
 };
+
+export type TSignProgress = {
+  steps: number;
+  step: number;
+}
+
+export const signProgress = (
+  cb: (progress: TSignProgress) => void
+): TUnsubscribe => {
+  const unsubscribe = subscribeLegacy('signProgress', event => {
+    if ('type' in event && event.type === 'device' && event.data === 'signProgress') {
+      cb(event.meta);
+    }
+  });
+  return unsubscribe;
+};
+
+export const signConfirm = (
+  cb: () => void
+): TUnsubscribe => {
+  const unsubscribe = subscribeLegacy('signConfirm', event => {
+    if ('type' in event && event.type === 'device' && event.data === 'signConfirm') {
+      cb();
+    }
+  });
+  return unsubscribe;
+};

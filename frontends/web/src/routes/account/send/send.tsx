@@ -30,20 +30,20 @@ import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main 
 import { Status } from '../../../components/status/status';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
-import { apiWebsocket } from '../../../utils/websocket';
-import { isBitcoinBased, findAccount } from '../utils';
 import { FeeTargets } from './feetargets';
-import { TSelectedUTXOs, UTXOs } from './utxos';
 import { route } from '../../../utils/route';
+import { signConfirm, signProgress, TSignProgress } from '../../../api/devicessync';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
+import { isBitcoinBased, findAccount } from '../utils';
 import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
 import { SendGuide } from './send-guide';
-import { TProposalError, txProposalErrorHandling } from './services';
 import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
 import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
+import { TSelectedUTXOs, UTXOs } from './utxos';
+import { TProposalError, txProposalErrorHandling } from './services';
 import style from './send.module.css';
 
 interface SendProps {
@@ -54,10 +54,7 @@ interface SendProps {
     activeCurrency: accountApi.Fiat;
 }
 
-interface SignProgress {
-    steps: number;
-    step: number;
-}
+
 
 type Props = SendProps & TranslateProps;
 
@@ -84,7 +81,7 @@ export type State = {
     feeError?: TProposalError['feeError'];
     paired?: boolean;
     noMobileChannelError?: boolean;
-    signProgress?: SignProgress;
+    signProgress?: TSignProgress;
     // show visual BitBox in dialog when instructed to sign.
     signConfirm: boolean;
     coinControl: boolean;
@@ -134,11 +131,14 @@ class Send extends Component<Props, State> {
   };
 
   public componentDidMount() {
+    const updateBalance = (code: string) => accountApi.getBalance(code)
+      .then(balance => this.setState({ balance }))
+      .catch(console.error);
+
     if (this.props.code) {
-      accountApi.getBalance(this.props.code)
-        .then(balance => this.setState({ balance }))
-        .catch(console.error);
+      updateBalance(this.props.code);
     }
+
     if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
       apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then((mobileChannel: boolean) => {
         getDeviceInfo(this.props.deviceIDs[0])
@@ -158,28 +158,15 @@ class Send extends Component<Props, State> {
     });
 
     this.unsubscribeList = [
-      apiWebsocket((payload) => {
-        if ('type' in payload) {
-          const { data, meta, type } = payload;
-          switch (type) {
-          case 'device':
-            switch (data) {
-            case 'signProgress':
-              this.setState({ signProgress: meta, signConfirm: false });
-              break;
-            case 'signConfirm':
-              this.setState({ signConfirm: true });
-              break;
-            }
-            break;
-          }
-        }
-      }),
+      signProgress((progress) =>
+        this.setState({ signProgress: progress, signConfirm: false })
+      ),
+      signConfirm(() =>
+        this.setState({ signConfirm: true })
+      ),
       syncdone((code) => {
         if (this.props.code === code) {
-          accountApi.getBalance(code)
-            .then(balance => this.setState({ balance }))
-            .catch(console.error);
+          updateBalance(code);
         }
       }),
     ];
