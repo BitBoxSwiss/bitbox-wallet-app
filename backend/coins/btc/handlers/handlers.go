@@ -27,6 +27,7 @@ import (
 
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
@@ -736,6 +737,10 @@ func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, erro
 		if firmware.IsErrorAbort(err) {
 			return response{Success: false, ErrorCode: string(exchanges.ErrUserAbort)}, nil
 		}
+		if errp.Cause(err) == backend.ErrWrongKeystore {
+			return response{Success: false, ErrorCode: string("wrongKeystore")}, nil
+		}
+
 		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}

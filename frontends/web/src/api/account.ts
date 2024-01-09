@@ -380,7 +380,7 @@ export type AddressSignResponse = {
 } | {
   success: false;
   errorMessage?: string;
-  errorCode?: 'userAbort';
+  errorCode?: 'userAbort' | 'wrongKeystore';
 }
 
 export const signAddress = (format: string, msg: string, code: AccountCode): Promise<AddressSignResponse> => {

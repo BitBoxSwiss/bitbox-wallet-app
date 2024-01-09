@@ -127,7 +127,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
             sendAddressWithXPub(response.address, response.signature, '');
           }
         } else {
-          if (response.errorCode !== 'userAbort') {
+          if (!['userAbort', 'wrongKeystore'].includes(response.errorCode || '')) {
             alertUser(t('unknownError', { errorMessage: response.errorMessage }));
             console.log('error: ' + response.errorMessage);
           }
