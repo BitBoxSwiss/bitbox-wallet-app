@@ -54,7 +54,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
-	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
@@ -240,7 +239,6 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/exchange/buy-supported/{code}", handlers.getExchangeBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url", handlers.getExchangePocketURL).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/pocket/sign-address", handlers.postPocketWidgetSignAddress).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/bitsurance/lookup", handlers.postBitsuranceLookup).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/bitsurance/url", handlers.getBitsuranceURL).Methods("GET")
@@ -1347,44 +1345,6 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interfa
 	}
 	return response{Success: true}
 
-}
-
-func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) interface{} {
-	type response struct {
-		Success      bool   `json:"success"`
-		Address      string `json:"address"`
-		Signature    string `json:"signature"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
-		ErrorCode    string `json:"errorCode,omitempty"`
-	}
-
-	var request struct {
-		AccountCode accountsTypes.Code `json:"accountCode"`
-		Msg         string             `json:"msg"`
-		Format      string             `json:"format"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}
-	}
-
-	account, err := handlers.backend.GetAccountFromCode(request.AccountCode)
-	if err != nil {
-		handlers.log.Error(err)
-		return response{Success: false, ErrorMessage: err.Error()}
-	}
-
-	address, signature, err := exchanges.PocketWidgetSignAddress(
-		account,
-		request.Msg,
-		request.Format)
-	if err != nil {
-		if firmware.IsErrorAbort(err) {
-			return response{Success: false, ErrorCode: string(exchanges.ErrUserAbort)}
-		}
-		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
-		return response{Success: false, ErrorMessage: err.Error()}
-	}
-	return response{Success: true, Address: address, Signature: signature}
 }
 
 func (handlers *Handlers) getAOPPHandler(r *http.Request) interface{} {

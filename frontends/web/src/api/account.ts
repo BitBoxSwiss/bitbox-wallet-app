@@ -372,3 +372,18 @@ export const ethSignTypedMessage = (code: AccountCode, chainId: number, data: an
 export const ethSignWalletConnectTx = (code: AccountCode, send: boolean, chainId: number, tx: any): Promise<TSignWalletConnectTx> => {
   return apiPost(`account/${code}/eth-sign-wallet-connect-tx`, { send, chainId, tx });
 };
+
+export type AddressSignResponse = {
+  success: true;
+  signature: string;
+  address: string;
+} | {
+  success: false;
+  errorMessage?: string;
+  errorCode?: 'userAbort';
+}
+
+export const signAddress = (format: string, msg: string, code: AccountCode): Promise<AddressSignResponse> => {
+  return apiPost(`account/${code}/sign-address`, { format, msg, code });
+};
+
