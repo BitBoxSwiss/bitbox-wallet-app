@@ -37,6 +37,13 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 )
 
+const (
+	// ErrAccountAlreadyExists is returned if an account is being added which already exists.
+	errAccountAlreadyExists errp.ErrorCode = "accountAlreadyExists"
+	// ErrAccountLimitReached is returned when adding an account if no more accounts can be added.
+	errAccountLimitReached errp.ErrorCode = "accountLimitReached"
+)
+
 // hardenedKeystart is the BIP44 offset to make a keypath element hardened.
 const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 
@@ -352,11 +359,11 @@ func nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accoun
 		}
 	}
 	if !keystore.SupportsMultipleAccounts() && nextAccountNumber >= 1 {
-		return 0, errp.WithStack(ErrAccountLimitReached)
+		return 0, errp.WithStack(errAccountLimitReached)
 	}
 
 	if nextAccountNumber >= accountsHardLimit {
-		return 0, errp.WithStack(ErrAccountLimitReached)
+		return 0, errp.WithStack(errAccountLimitReached)
 	}
 	return nextAccountNumber, nil
 }
@@ -717,7 +724,7 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 	for _, account2 := range accountsConfig.Accounts {
 		if account.Code == account2.Code {
 			backend.log.Errorf("An account with same code exists: %s", account.Code)
-			return errp.WithStack(ErrAccountAlreadyExists)
+			return errp.WithStack(errAccountAlreadyExists)
 		}
 		if account.CoinCode == account2.CoinCode {
 			// We detect a duplicate account (subaccount in a unified account) if any of the
@@ -725,7 +732,7 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 			for _, config := range account.SigningConfigurations {
 				for _, config2 := range account2.SigningConfigurations {
 					if config.ExtendedPublicKey().String() == config2.ExtendedPublicKey().String() {
-						return errp.WithStack(ErrAccountAlreadyExists)
+						return errp.WithStack(errAccountAlreadyExists)
 					}
 				}
 			}

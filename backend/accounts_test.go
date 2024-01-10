@@ -16,7 +16,6 @@ package backend
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -286,14 +285,14 @@ func TestNextAccountNumber(t *testing.T) {
 	require.Equal(t, uint16(1), num)
 
 	_, err = nextAccountNumber(coinpkg.CodeBTC, ks(fingerprint1, false), accountsConfig)
-	require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+	require.Equal(t, errAccountLimitReached, errp.Cause(err))
 
 	num, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprint1, true), accountsConfig)
 	require.NoError(t, err)
 	require.Equal(t, uint16(4), num)
 
 	_, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprint2, true), accountsConfig)
-	require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+	require.Equal(t, errAccountLimitReached, errp.Cause(err))
 }
 
 const (
@@ -871,7 +870,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			"bitcoin 2",
 			bitbox01LikeKeystore,
 		)
-		require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+		require.Equal(t, errAccountLimitReached, errp.Cause(err))
 		require.Equal(t, accountsCount, len(b.Config().AccountsConfig().Accounts))
 
 		// Try to add another Litecoin account - can't, only one account supported.
@@ -880,7 +879,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			"litecoin 2",
 			bitbox01LikeKeystore,
 		)
-		require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+		require.Equal(t, errAccountLimitReached, errp.Cause(err))
 		require.Equal(t, accountsCount, len(b.Config().AccountsConfig().Accounts))
 	})
 
@@ -890,7 +889,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 
-		expectedErr := errors.New("failed getting xpub")
+		expectedErr := errp.New("failed getting xpub")
 		// Keystore has a problem getting the xpub.
 		ks := &keystoremock.KeystoreMock{
 			RootFingerprintFunc: func() ([]byte, error) {
