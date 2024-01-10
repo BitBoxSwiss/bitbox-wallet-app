@@ -75,6 +75,7 @@ const Sidebar = ({
   accounts,
 }: SidebarProps) => {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
   const { activeSidebar, sidebarStatus, toggleSidebar } = useContext(AppContext);
 
   useEffect(() => {
@@ -148,6 +149,7 @@ const Sidebar = ({
   const hidden = sidebarStatus === 'forceHidden';
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const accountsByKeystore = getAccountsByKeystore(accounts);
+  const userInSpecificAccountBuyPage = (pathname.startsWith('/buy'));
 
   return (
     <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>
@@ -209,7 +211,7 @@ const Sidebar = ({
         { accounts.length ? (
           <div key="buy" className={style.sidebarItem}>
             <NavLink
-              className={({ isActive }) => isActive ? style.sidebarActive : ''}
+              className={({ isActive }) => isActive || userInSpecificAccountBuyPage ? style.sidebarActive : ''}
               to="/buy/info">
               <div className={style.single}>
                 <img draggable={false} src={coins} />
