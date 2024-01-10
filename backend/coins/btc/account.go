@@ -389,8 +389,14 @@ func (account *Account) Info() *accounts.Info {
 	}
 	// The internal extended key representation always uses the same version bytes (prefix xpub). We
 	// convert it here to the account-specific version (zpub, ypub, tpub, ...).
-	signingConfigurations := make([]*signing.Configuration, len(account.subaccounts))
-	for idx, subacc := range account.subaccounts {
+	isInsuredAccount := account.Config().Config.InsuranceStatus == string(bitsurance.ActiveStatus)
+	var signingConfigurations []*signing.Configuration
+	for _, subacc := range account.subaccounts {
+		isNativeSegwit := subacc.signingConfiguration.ScriptType() == signing.ScriptTypeP2WPKH
+		// hiding legacy/taproot xpubs as an insured account should only receive on native segwit.
+		if isInsuredAccount && !isNativeSegwit {
+			continue
+		}
 		xpub := subacc.signingConfiguration.ExtendedPublicKey()
 		if xpub.IsPrivate() {
 			panic("xpub can't be private")
@@ -405,12 +411,13 @@ func (account *Account) Info() *accounts.Info {
 					account.coin, subacc.signingConfiguration.ScriptType()),
 			},
 		)
-		signingConfigurations[idx] = signing.NewBitcoinConfiguration(
+		signingConfiguration := signing.NewBitcoinConfiguration(
 			subacc.signingConfiguration.ScriptType(),
 			subacc.signingConfiguration.BitcoinSimple.KeyInfo.RootFingerprint,
 			subacc.signingConfiguration.AbsoluteKeypath(),
 			xpubCopy,
 		)
+		signingConfigurations = append(signingConfigurations, signingConfiguration)
 	}
 	return &accounts.Info{
 		SigningConfigurations: signingConfigurations,
