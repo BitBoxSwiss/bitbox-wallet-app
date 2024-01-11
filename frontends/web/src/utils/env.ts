@@ -30,3 +30,10 @@ export function runningInQtWebEngine() {
 export function runningInAndroid() {
   return typeof window.android !== 'undefined';
 }
+
+/**
+ * Returns whether the code is running on mobile.
+ */
+export function runningOnMobile() {
+  return runningInAndroid();
+}
