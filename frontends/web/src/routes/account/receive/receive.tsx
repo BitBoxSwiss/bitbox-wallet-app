@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
 import { useEsc } from '../../../hooks/keyboard';
@@ -31,6 +31,7 @@ import { Header } from '../../../components/layout';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
 import style from './receive.module.css';
+import { KeystoreContext } from '../../../contexts/KeystoreContext';
 
 type TProps = {
   accounts: accountApi.IAccount[];
@@ -66,6 +67,7 @@ export const Receive = ({
   const [addressDialog, setAddressDialog] = useState<AddressDialog>();
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.IReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
+  const { requestKeystore } = useContext(KeystoreContext);
 
 
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
@@ -111,25 +113,23 @@ export const Receive = ({
     if (!receiveAddresses || code === undefined) {
       return;
     }
-    const connectResult = await accountApi.connectKeystore(code);
-    if (!connectResult.success) {
-      return;
-    }
+    requestKeystore(code, async () => {
+      const hasSecureOutput = await accountApi.hasSecureOutput(code)();
+      if (!hasSecureOutput.hasSecureOutput) {
+        setVerifying('insecure');
+        // For the software keystore, the dialog is dismissed manually.
+        return;
+      }
 
-    const hasSecureOutput = await accountApi.hasSecureOutput(code)();
-    if (!hasSecureOutput.hasSecureOutput) {
-      setVerifying('insecure');
-      // For the software keystore, the dialog is dismissed manually.
-      return;
-    }
+      // For devices with a display, the dialog is dismissed by tapping the device.
+      setVerifying('secure');
+      try {
+        await accountApi.verifyAddress(code, receiveAddresses[addressesIndex].addresses[activeIndex].addressID);
+      } finally {
+        setVerifying(false);
+      }
 
-    // For devices with a display, the dialog is dismissed by tapping the device.
-    setVerifying('secure');
-    try {
-      await accountApi.verifyAddress(code, receiveAddresses[addressesIndex].addresses[activeIndex].addressID);
-    } finally {
-      setVerifying(false);
-    }
+    });
   };
 
   const previous = (e: React.SyntheticEvent) => {

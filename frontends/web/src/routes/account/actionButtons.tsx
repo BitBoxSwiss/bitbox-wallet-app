@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-import { MouseEvent } from 'react';
+import { MouseEvent, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import { WalletConnectLight } from '../../components/icon';
 import { useMediaQuery } from '../../hooks/mediaquery';
-import { connectKeystore, AccountCode, CoinCode, IAccount } from '../../api/account';
+import { AccountCode, CoinCode, IAccount } from '../../api/account';
 import { isEthereumBased } from './utils';
 import style from './account.module.css';
+import { KeystoreContext } from '../../contexts/KeystoreContext';
 
 type TProps = {
   canSend?: boolean;
@@ -35,6 +36,7 @@ type TProps = {
 export const ActionButtons = ({ canSend, code, coinCode, exchangeBuySupported, account }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { requestKeystore } = useContext(KeystoreContext);
   const walletConnectEnabled = isEthereumBased(account.coinCode) && !account.isToken;
   const isLargeTablet = useMediaQuery('(max-width: 830px)');
 
@@ -44,11 +46,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeBuySupported, a
   const sendLink = `/account/${code}/send`;
   const maybeRouteSend = async (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const connectResult = await connectKeystore(code);
-    if (connectResult.success) {
-      // Proceed to the send screen if the keystore was connected.
-      navigate(sendLink);
-    }
+    requestKeystore(code, () => navigate(sendLink));
   };
 
   return (

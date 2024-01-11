@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, createRef } from 'react';
+import { useState, useEffect, createRef, useContext } from 'react';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { getConfig } from '../../utils/config';
 import { getTransactionList, AccountCode } from '../../api/account';
@@ -28,6 +28,7 @@ import { Spinner } from '../../components/spinner/Spinner';
 import { PocketTerms } from './pocket-terms';
 import { useLoad } from '../../hooks/api';
 import { alertUser } from '../../components/alert/Alert';
+import { KeystoreContext } from '../../contexts/KeystoreContext';
 import Guide from './guide';
 import style from './iframe.module.css';
 
@@ -42,6 +43,7 @@ export const Pocket = ({ code }: TProps) => {
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const { requestKeystore } = useContext(KeystoreContext);
 
   const iframeURL = useLoad(getPocketURL);
   const config = useLoad(getConfig);
@@ -101,43 +103,47 @@ export const Pocket = ({ code }: TProps) => {
   };
 
   const handleRequestAddress = (message: RequestAddressV0Message) => {
-    signing = true;
-    const addressType = message.withScriptType ? String(message.withScriptType) : '';
-    const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
-    signAddress(
-      addressType,
-      withMessageSignature,
-      code)
-      .then(response => {
-        signing = false;
-        if (response.success) {
-          sendAddress(response.address, response.signature);
-        } else {
-          if (response.errorCode !== 'userAbort') {
-            alertUser(t('unknownError', { errorMessage: response.errorMessage }));
-            console.log('error: ' + response.errorMessage);
+    requestKeystore(code, async () => {
+      signing = true;
+      const addressType = message.withScriptType ? String(message.withScriptType) : '';
+      const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
+      signAddress(
+        addressType,
+        withMessageSignature,
+        code)
+        .then(response => {
+          signing = false;
+          if (response.success) {
+            sendAddress(response.address, response.signature);
+          } else {
+            if (response.errorCode !== 'userAbort') {
+              alertUser(t('unknownError', { errorMessage: response.errorMessage }));
+              console.log('error: ' + response.errorMessage);
+            }
           }
-        }
-      });
+        });
+    });
 
   };
 
   const handleVerifyAddress = (address: string) => {
-    setVerifying(true);
-    verifyAddress(address, code)
-      .then(response => {
-        setVerifying(false);
-        if (!response.success) {
-          if (response.errorCode === 'addressNotFound') {
+    requestKeystore(code, async () => {
+      setVerifying(true);
+      verifyAddress(address, code)
+        .then(response => {
+          setVerifying(false);
+          if (!response.success) {
+            if (response.errorCode === 'addressNotFound') {
             // This should not happen, unless the user receives a tx on the same address between the message signing
             // and the address verification.
-            alertUser(t('buy.pocket.usedAddress', { address:  address }));
-          } else {
-            alertUser(t('unknownError', { errorMessage: response.errorMessage }));
-            console.log('error: ' + response.errorMessage);
+              alertUser(t('buy.pocket.usedAddress', { address:  address }));
+            } else {
+              alertUser(t('unknownError', { errorMessage: response.errorMessage }));
+              console.log('error: ' + response.errorMessage);
+            }
           }
-        }
-      });
+        });
+    });
   };
 
   const sendXpub = () => {
