@@ -15,20 +15,29 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { useContext } from 'react';
 import { Button } from './forms';
-import { cancelConnectKeystore, syncConnectKeystore } from '../api/backend';
 import { useSubscribeReset } from '../hooks/api';
 import { Dialog, DialogButtons } from './dialog/dialog';
 import { BitBox02StylizedDark, BitBox02StylizedLight, Cancel, PointToBitBox02 } from './icon';
 import { useDarkmode } from '../hooks/darkmode';
 import { SkipForTesting } from '../routes/device/components/skipfortesting';
+import { KeystoreContext } from '../contexts/KeystoreContext';
+import { syncConnectKeystore } from '../api/keystores';
 import styles from './keystoreconnectprompt.module.css';
 
 export function KeystoreConnectPrompt() {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
+  const { cancelRequest } = useContext(KeystoreContext);
 
   const [data, reset] = useSubscribeReset(syncConnectKeystore());
+
+  const cancelRequestAndReset = () => {
+    reset();
+    cancelRequest();
+  };
+
   if (!data) {
     return null;
   }
@@ -51,7 +60,7 @@ export function KeystoreConnectPrompt() {
           <SkipForTesting />
         </div>
         <DialogButtons>
-          <Button secondary onClick={() => cancelConnectKeystore()}>{t('dialog.cancel')}</Button>
+          <Button secondary onClick={cancelRequest}>{t('dialog.cancel')}</Button>
         </DialogButtons>
       </Dialog>
     );
@@ -75,7 +84,7 @@ export function KeystoreConnectPrompt() {
           }
         </div>
         <DialogButtons>
-          <Button secondary onClick={() => reset()}>{t('dialog.cancel')}</Button>
+          <Button secondary onClick={cancelRequestAndReset}>{t('dialog.cancel')}</Button>
         </DialogButtons>
       </Dialog>
     );

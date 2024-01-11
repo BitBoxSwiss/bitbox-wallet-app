@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from '../../utils/route';
 import * as accountApi from '../../api/account';
@@ -27,6 +27,7 @@ import { Spinner } from '../../components/spinner/Spinner';
 import { isBitcoinOnly } from '../account/utils';
 import { View, ViewContent } from '../../components/view/view';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
+import { KeystoreContext } from '../../contexts/KeystoreContext';
 
 type TProps = {
     accounts: accountApi.IAccount[];
@@ -36,7 +37,8 @@ type TProps = {
 export const BuyInfo = ({ code, accounts }: TProps) => {
   const [selected, setSelected] = useState<string>(code);
   const [options, setOptions] = useState<TOption[]>();
-  const [disabled, setDisabled] = useState<boolean>(false);
+  const { requestKeystore } = useContext(KeystoreContext);
+  const redirectAttempted = useRef(false);
 
   const { t } = useTranslation();
 
@@ -56,13 +58,15 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
   const maybeProceed = useCallback(async () => {
     if (options !== undefined && options.length === 1) {
       const accountCode = options[0].value;
-      const connectResult = await accountApi.connectKeystore(accountCode);
-      if (!connectResult.success) {
-        return;
+      if (!redirectAttempted.current) {
+        // The requestKeystore dependency causes the function to be fired multiple times
+        // when wrongKeystore error is returned. We use redirectAttempted to avoid making multiple requests.
+        redirectAttempted.current = true;
+        requestKeystore(accountCode, () => route(`/buy/exchange/${accountCode}`));
+
       }
-      route(`/buy/exchange/${accountCode}`);
     }
-  }, [options]);
+  }, [options, requestKeystore]);
 
   const handleChangeAccount = (selected: string) => {
     setSelected(selected);
@@ -76,7 +80,6 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
     maybeProceed();
   }, [maybeProceed, options]);
 
-
   const getBalances = (options: TOption[]) => {
     Promise.all(options.map((option) => (
       getBalance(option.value).then(balance => {
@@ -88,18 +91,9 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
   };
 
   const handleProceed = async () => {
-    setDisabled(true);
-    try {
-      const connectResult = await accountApi.connectKeystore(selected);
-      if (!connectResult.success) {
-        return;
-      }
-    } finally {
-      setDisabled(false);
-    }
-
-    route(`/buy/exchange/${selected}`);
+    requestKeystore(selected, () => route(`/buy/exchange/${selected}`));
   };
+
   if (options === undefined) {
     return <Spinner guideExists={false} text={t('loading')} />;
   }
@@ -121,7 +115,6 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
               ) : (
                 <AccountSelector
                   title={t('buy.title', { name })}
-                  disabled={disabled}
                   options={options}
                   selected={selected}
                   onChange={handleChangeAccount}

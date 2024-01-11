@@ -27,6 +27,7 @@ import (
 
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
@@ -594,12 +595,23 @@ func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
 	return nil, handlers.account.SetTxNote(args.InternalTxID, args.Note)
 }
 
+// If there is no connected keystore, `connectKeystore` waits until a keystore is connected.
+// It can return immediately, if a keystore is already connected.
+// It will return success = true if the connected keystore is the expected one.
+// It will return success = false and `wrongKeystore` error code in case the connected keystore
+// is the wrong one.
+// it will return success = false without error codes in case of cancellation (i.e. a call to the
+// 'cancel-connect-keystore' endpoint) or unexpected errors.
 func (handlers *Handlers) postConnectKeystore(r *http.Request) (interface{}, error) {
 	type response struct {
-		Success bool `json:"success"`
+		Success   bool   `json:"success"`
+		ErrorCode string `json:"errorCode"`
 	}
 
 	_, err := handlers.account.Config().ConnectKeystore()
+	if errp.Cause(err) == backend.ErrWrongKeystore {
+		return response{Success: false, ErrorCode: "wrongKeystore"}, nil
+	}
 	return response{Success: err == nil}, nil
 }
 

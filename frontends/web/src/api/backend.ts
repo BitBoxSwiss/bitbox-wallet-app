@@ -76,35 +76,6 @@ export const socksProxyCheck = (proxyAddress: string): Promise<ISuccess> => {
   return apiPost('socksproxy/check', proxyAddress);
 };
 
-export type TSyncConnectKeystore = null | {
-  typ: 'connect';
-  keystoreName: string;
-} | {
-  typ: 'error';
-  errorCode: 'wrongKeystore';
-  errorMessage: '';
-};
-
-/**
- * Returns a function that subscribes a callback on a "connect-keystore".
- * Meant to be used with `useSubscribe`.
- */
-export const syncConnectKeystore = () => {
-  return (
-    cb: TSubscriptionCallback<TSyncConnectKeystore>
-  ) => {
-    return subscribeEndpoint('connect-keystore', (
-      obj: TSyncConnectKeystore,
-    ) => {
-      cb(obj);
-    });
-  };
-};
-
-export const cancelConnectKeystore = (): Promise<void> => {
-  return apiPost('cancel-connect-keystore');
-};
-
 export const setWatchonly = (rootFingerprint: string, watchonly: boolean): Promise<ISuccess> => {
   return apiPost('set-watchonly', { rootFingerprint, watchonly });
 };

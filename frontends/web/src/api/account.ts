@@ -342,7 +342,14 @@ export const testRegister = (pin: string): Promise<null> => {
   return apiPost('test/register', { pin });
 };
 
-export const connectKeystore = (code: AccountCode): Promise<{ success: boolean; }> => {
+export type TResultConnectKeystore = SuccessResponse | {
+  success: false;
+  errorCode?: 'wrongKeystore';
+};
+
+// This is meant to be called only by the KeystoreProvider. To request the connection
+// of a keystore, please use 'requestKeystore' method exposed by the KeystoreContext.
+export const connectKeystore = (code: AccountCode): Promise<TResultConnectKeystore> => {
   return apiPost(`account/${code}/connect-keystore`);
 };
 

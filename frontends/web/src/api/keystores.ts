@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { subscribeEndpoint, TUnsubscribe } from './subscribe';
-import { apiGet } from '../utils/request';
+import { subscribeEndpoint, TSubscriptionCallback, TUnsubscribe } from './subscribe';
+import { apiGet, apiPost } from '../utils/request';
 
 export type { TUnsubscribe };
 
@@ -31,3 +31,34 @@ export const subscribeKeystores = (
 export const getKeystores = (): Promise<TKeystores> => {
   return apiGet('keystores');
 };
+
+export type TSyncConnectKeystore = null | {
+  typ: 'connect';
+  keystoreName: string;
+} | {
+  typ: 'error';
+  errorCode: 'wrongKeystore';
+  errorMessage: '';
+};
+
+/**
+ * Returns a function that subscribes a callback on a "connect-keystore".
+ * Meant to be used with `useSubscribe`.
+ */
+export const syncConnectKeystore = () => {
+  return (
+    cb: TSubscriptionCallback<TSyncConnectKeystore>
+  ) => {
+    return subscribeEndpoint('connect-keystore', (
+      obj: TSyncConnectKeystore,
+    ) => {
+      cb(obj);
+    });
+  };
+};
+
+export const cancelConnectKeystore = (): Promise<void> => {
+  return apiPost('cancel-connect-keystore');
+};
+
+

@@ -613,7 +613,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			default:
 				// Display error to user.
 				errorCode := ""
-				if errp.Cause(err) == errWrongKeystore {
+				if errp.Cause(err) == ErrWrongKeystore {
 					errorCode = "wrongKeystore"
 				}
 				backend.Notify(observable.Event{
