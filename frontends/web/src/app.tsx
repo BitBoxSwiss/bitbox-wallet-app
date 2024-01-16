@@ -46,6 +46,7 @@ import { AuthRequired } from './components/auth/authrequired';
 import { WCWeb3WalletProvider } from './contexts/WCWeb3WalletProvider';
 import { RatesProvider } from './contexts/RatesProvider';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
+import { sortAccounts } from './routes/account/utils';
 
 export const App = () => {
   const { t } = useTranslation();
@@ -139,7 +140,7 @@ export const App = () => {
   };
 
   const deviceIDs: string[] = Object.keys(devices);
-  const activeAccounts = accounts.filter(acct => acct.active);
+  const activeAccounts = sortAccounts(accounts.filter(acct => acct.active));
   return (
     <ConnectedApp>
       <AppProvider>
