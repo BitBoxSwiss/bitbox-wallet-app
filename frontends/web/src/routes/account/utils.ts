@@ -100,6 +100,12 @@ export type TAccountsByKeystore = {
   accounts: IAccount[];
 };
 
+export const sortAccounts = (accounts: IAccount[]) => {
+  return Array.from(accounts).sort(
+    (ac1, ac2) => ac1.keystore.name.localeCompare(ac2.keystore.name)
+  );
+};
+
 // Returns the accounts grouped by the keystore fingerprint.
 export function getAccountsByKeystore(accounts: IAccount[]): TAccountsByKeystore[] {
   return Object.values(accounts.reduce((acc, account) => {
