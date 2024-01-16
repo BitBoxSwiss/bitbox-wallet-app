@@ -26,6 +26,11 @@ import (
 )
 
 const (
+	// ErrAddressNotFound is returned if an address provided for verification is not in the list of unused addresses.
+	errAddressNotFound errp.ErrorCode = "addressNotFound"
+)
+
+const (
 	// pocketMainTestURL is the url of the pocket test environment.
 	pocketMainTestURL = "https://widget.staging.pocketbitcoin.com"
 
@@ -199,5 +204,5 @@ func PocketWidgetVerifyAddress(account accounts.Interface, address string) error
 	}
 	// If this happens the address provided by pocket is not in the list of unused addresses.
 	// Reason could be that it has been used between the message signing and the verification.
-	return errp.WithStack(ErrAddressNotFound)
+	return errp.WithStack(errAddressNotFound)
 }

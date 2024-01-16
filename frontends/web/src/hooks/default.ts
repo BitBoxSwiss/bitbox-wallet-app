@@ -1,6 +1,5 @@
 /**
- * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +14,9 @@
  * limitations under the License.
  */
 
-export const debug = import.meta.env.DEV;
-
 /**
- * Returns whether the code is running in QtWebEngine.
+ * useDefault is a hook to provide a default value to a value that can be undefined.
  */
-export function runningInQtWebEngine() {
-  return typeof window.qt !== 'undefined';
-}
-
-/**
- * Returns whether the code is running in Android.
- */
-export function runningInAndroid() {
-  return typeof window.android !== 'undefined';
-}
-
-/**
- * Returns whether the code is running on mobile.
- */
-export function runningOnMobile() {
-  return runningInAndroid();
+export function useDefault<T>(value: T | undefined, defaultValue: T): T {
+  return value !== undefined ? value : defaultValue;
 }

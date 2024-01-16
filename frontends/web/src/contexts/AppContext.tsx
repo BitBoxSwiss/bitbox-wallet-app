@@ -28,6 +28,7 @@ type AppContextProps = {
     setGuideExists: Dispatch<SetStateAction<boolean>>;
     setGuideShown: Dispatch<SetStateAction<boolean>>;
     setSidebarStatus: Dispatch<SetStateAction<TSidebarStatus>>;
+    setHideAmounts: Dispatch<SetStateAction<boolean>>;
     toggleGuide: () => void;
     toggleHideAmounts: () => void;
     toggleSidebar: () => void;

@@ -21,22 +21,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 )
 
-// ErrorCode are errors that are represented by an error code. This helps the frontend to translate
-// error messages.
-type ErrorCode string
-
-func (e ErrorCode) Error() string {
-	return string(e)
-}
-
-const (
-	// ErrAddressNotFound is returned if an address provided for verification is not in the list of unused addresses.
-	ErrAddressNotFound ErrorCode = "addressNotFound"
-
-	// ErrUserAbort is returned if the user aborted the current operation.
-	ErrUserAbort ErrorCode = "userAbort"
-)
-
 // regionCodes is an array containing ISO 3166-1 alpha-2 code of all regions.
 // Source: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 var regionCodes = []string{
