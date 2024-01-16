@@ -27,7 +27,10 @@ import (
 // ErrWrongKeystore is raised when the connected keystore is different from
 // the requested one.
 var ErrWrongKeystore = errors.New("Wrong device/keystore connected.")
-var errUserAbort = errors.New("aborted by user")
+
+// ErrUserAbort is raised when the connection request has been canceled by calling
+// the `cancel-connect-keystore` endpoint.
+var ErrUserAbort = errors.New("aborted by user")
 var errReplaced = errors.New("replaced by new prompt")
 
 // connectKeystore is a helper struct to enable connecting to a keystore with a specific root

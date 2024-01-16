@@ -1,7 +1,7 @@
 import { t } from 'i18next';
 import { SessionTypes } from '@walletconnect/types';
 import { EIP155_SIGNING_METHODS, decodeEthMessage } from './walletconnect';
-import { ethSignMessage, ethSignTypedMessage, ethSignWalletConnectTx, getEthAccountCodeAndNameByAddress } from '../api/account';
+import { AccountCode, ethSignMessage, ethSignTypedMessage, ethSignWalletConnectTx, getEthAccountCodeAndNameByAddress } from '../api/account';
 import { alertUser } from '../components/alert/Alert';
 
 type TWCParams = {
@@ -23,6 +23,7 @@ export type TEthSignHandlerParams = {
 export type TRequestDialogContent = {
   accountName: string;
   accountAddress: string; // 'accountAddress' is the account's "receive" / "wallet" address
+  accountCode: AccountCode;
   chain: string;
   signingData: string; // data / message coming from dapp
   currentSession: SessionTypes.Struct;
@@ -101,6 +102,7 @@ async function ethSignHandler({ params, launchSignDialog, topic, id, currentSess
       signingData: decoded,
       currentSession,
       accountName,
+      accountCode,
       accountAddress,
       chain: params.chainId,
       method: t('walletConnect.signingRequest.method.signMessage')
@@ -147,6 +149,7 @@ async function ethSignTypedDataHandler({ params, launchSignDialog, topic, id, cu
       signingData: JSON.stringify(typedData, null, 2),
       currentSession,
       accountName,
+      accountCode,
       accountAddress,
       chain: params.chainId,
       method: t('walletConnect.signingRequest.method.signTypedData')
@@ -187,6 +190,7 @@ async function ethSignOrSendTransactionHandler(args: TEthSignHandlerParams, meth
       signingData: JSON.stringify(data),
       currentSession,
       accountName,
+      accountCode,
       accountAddress,
       chain: params.chainId,
       method: formattedMethod,

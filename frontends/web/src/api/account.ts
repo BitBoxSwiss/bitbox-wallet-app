@@ -344,7 +344,7 @@ export const testRegister = (pin: string): Promise<null> => {
 
 export type TResultConnectKeystore = SuccessResponse | {
   success: false;
-  errorCode?: 'wrongKeystore';
+  errorCode?: 'wrongKeystore' | 'userAbort';
 };
 
 // This is meant to be called only by the KeystoreProvider. To request the connection

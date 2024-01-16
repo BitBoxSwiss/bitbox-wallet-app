@@ -53,10 +53,10 @@ func TestConnectKeystore(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			time.Sleep(50 * time.Millisecond)
-			ck.cancel(errUserAbort)
+			ck.cancel(ErrUserAbort)
 		}()
 		_, err := ck.connect(nil, fingerprint, time.Second)
-		require.Equal(t, errUserAbort, err)
+		require.Equal(t, ErrUserAbort, err)
 		wg.Wait()
 	})
 

@@ -25,25 +25,27 @@ type TProps = {
 
 type TKeystoreWait = {
   accountCode: AccountCode;
-  onSuccess: () => void;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
 export const KeystoreProvider = ({ children }: TProps) => {
   const [keystoreWait, setKeystoreWait] = useState<TKeystoreWait>();
 
-  const requestKeystore = async (accountCode: AccountCode, onSuccess: () => void) => {
+  const requestKeystore = async (accountCode: AccountCode, onSuccess?: () => void, onCancel?: () => void) => {
     if (!accountCode) {
       return;
     }
-    connect(accountCode, onSuccess);
+    connect(accountCode, onSuccess, onCancel);
   };
 
   const cancelRequest = () => {
     cancelConnectKeystore();
+    keystoreWait?.onCancel && keystoreWait.onCancel();
     setKeystoreWait(undefined);
   };
 
-  const connect = useCallback(async (accountCode: AccountCode, onSuccess: () => void) => {
+  const connect = useCallback(async (accountCode: AccountCode, onSuccess?: () => void, onCancel?: () => void) => {
     // If there is no connected keystore, `connectKeystore` waits until a keystore is connected.
     // If there is a connected keystore, it returns immediately, with success if it is
     // the expected one, or with a 'wrongKeystore' error otherwise.
@@ -55,8 +57,11 @@ export const KeystoreProvider = ({ children }: TProps) => {
     if (!connectResult.success) {
       if (connectResult?.errorCode === 'wrongKeystore') {
         if (keystoreWait?.accountCode !== accountCode) {
-          setKeystoreWait({ accountCode, onSuccess });
+          setKeystoreWait({ accountCode, onSuccess, onCancel });
         }
+      }
+      if (connectResult?.errorCode === 'userAbort' && onCancel) {
+        onCancel();
       }
     } else {
       if (onSuccess) {

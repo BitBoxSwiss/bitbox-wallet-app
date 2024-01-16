@@ -885,7 +885,7 @@ func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, err
 
 // CancelConnectKeystore cancels a pending keystore connection request if one exists.
 func (backend *Backend) CancelConnectKeystore() {
-	backend.connectKeystore.cancel(errUserAbort)
+	backend.connectKeystore.cancel(ErrUserAbort)
 }
 
 // SetWatchonly sets the keystore's watchonly flag to `watchonly`.

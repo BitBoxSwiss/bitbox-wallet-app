@@ -22,10 +22,13 @@ import { TEthSignHandlerParams, TLaunchSignDialog, TRequestDialogContent, handle
 import { alertUser } from '../alert/Alert';
 import { rejectMessage } from '../../utils/walletconnect';
 import { TStage, WCIncomingSignRequestDialog } from './incoming-signing-request-dialog';
+import { KeystoreContext } from '../../contexts/KeystoreContext';
+import { AccountCode } from '../../api/account';
 
 type TSigningRequestData = {
   topic: string;
   id: number;
+  accountCode: AccountCode;
 }
 
 export const WCSigningRequest = () => {
@@ -35,14 +38,15 @@ export const WCSigningRequest = () => {
   const [stage, setStage] = useState<TStage>('initial');
   const signMessageApiCallerRef: MutableRefObject<(() => Promise<any>) | undefined> = useRef();
   const requestDataRef = useRef<TSigningRequestData>();
+  const { requestKeystore } = useContext(KeystoreContext);
 
   const launchSignDialog = ({ topic, id, apiCaller, dialogContent }: TLaunchSignDialog) => {
-    const { signingData, currentSession, accountAddress, accountName, chain, method } = dialogContent;
+    const { signingData, currentSession, accountAddress, accountName, accountCode, chain, method } = dialogContent;
 
     // storing data to be used whenever
     // user accepts or rejects later
     // (see handleAcceptBtn & handleRejectBtn)
-    requestDataRef.current = { topic, id };
+    requestDataRef.current = { topic, id, accountCode };
 
     // storing the appropriate "signing api call" to be called later on (see handleAcceptBtn)
     signMessageApiCallerRef.current = apiCaller;
@@ -51,6 +55,7 @@ export const WCSigningRequest = () => {
     setDialogContent({
       accountAddress,
       accountName,
+      accountCode,
       signingData,
       chain,
       currentSession,
@@ -84,7 +89,7 @@ export const WCSigningRequest = () => {
     return () => {
       web3wallet?.off('session_request', onSessionRequest);
     };
-  }, [isWalletInitialized, web3wallet]);
+  }, [isWalletInitialized, web3wallet, requestKeystore]);
 
   const handleRejectBtn = async () => {
     setDialogOpen(false);
@@ -100,26 +105,32 @@ export const WCSigningRequest = () => {
     const requestData = requestDataRef.current;
     if (apiCaller && requestData) {
       setStage('confirming');
-      const { topic, id, } = requestData;
-      const { response, success, error } = await apiCaller();
-      if (success) {
-        //user proceeds to sign in BB02 device
-        await web3wallet?.respondSessionRequest({ topic, response });
-        setStage('accepted');
-        setTimeout(() => {
-          setDialogOpen(false);
-          setStage('initial');
-        }, 5000);
-      } else if (error.aborted) {
-        //rejected from BB02 device
+      const { topic, id, accountCode } = requestData;
+      const abort = async () => {
         setStage('initial');
         setDialogOpen(false);
         await web3wallet?.respondSessionRequest({ topic, response: rejectMessage(id) });
-      } else {
-        setStage('initial');
-        const { errorMessage } = error;
-        alertUser(errorMessage ? errorMessage : t('pairing.error.text'));
-      }
+
+      };
+      requestKeystore(accountCode, async () => {
+        const { response, success, error } = await apiCaller();
+        if (success) {
+          //user successfully signed in BB02 device
+          await web3wallet?.respondSessionRequest({ topic, response });
+          setStage('accepted');
+          setTimeout(() => {
+            setDialogOpen(false);
+            setStage('initial');
+          }, 5000);
+        } else if (error.aborted) {
+          //rejected from BB02 device
+          abort();
+        } else {
+          setStage('initial');
+          const { errorMessage } = error;
+          alertUser(errorMessage ? errorMessage : t('pairing.error.text'));
+        }
+      }, abort);
     }
   };
 

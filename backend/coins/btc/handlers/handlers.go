@@ -612,6 +612,9 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) (interface{}, err
 	if errp.Cause(err) == backend.ErrWrongKeystore {
 		return response{Success: false, ErrorCode: "wrongKeystore"}, nil
 	}
+	if errp.Cause(err) == backend.ErrUserAbort {
+		return response{Success: false, ErrorCode: "userAbort"}, nil
+	}
 	return response{Success: err == nil}, nil
 }
 

@@ -18,7 +18,7 @@ import { createContext } from 'react';
 import { AccountCode } from '../api/account';
 
 type KeystoreContextProps = {
-    requestKeystore: (accountCode: AccountCode, onSuccess: () => void) => Promise<void>;
+    requestKeystore: (accountCode: AccountCode, onSuccess?: () => void, onCancel?: () => void) => Promise<void>;
     cancelRequest: () => void;
 }
 

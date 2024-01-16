@@ -602,7 +602,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 				// If a previous connect-keystore request is in progress, the previous request is
 				// failed, but we don't dismiss the prompt, as the new prompt has already been shown
 				// by the above "connect" notification.y
-			case err == nil || errp.Cause(err) == errUserAbort:
+			case err == nil || errp.Cause(err) == ErrUserAbort:
 				// Dismiss prompt after success or upon user abort.
 
 				backend.Notify(observable.Event{
