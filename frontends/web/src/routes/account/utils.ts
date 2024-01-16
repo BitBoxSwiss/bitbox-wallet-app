@@ -100,10 +100,10 @@ export type TAccountsByKeystore = {
   accounts: IAccount[];
 };
 
-export const sortAccounts = (accounts: IAccount[]) => {
-  return Array.from(accounts).sort(
-    (ac1, ac2) => ac1.keystore.name.localeCompare(ac2.keystore.name)
-  );
+export const sortAccounts = (accounts: IAccount[]): IAccount[] => {
+  return Array.from(accounts).sort((ac1, ac2) => {
+    return `${ac1.keystore.rootFingerprint}${ac1.code}`.localeCompare(`${ac2.keystore.rootFingerprint}${ac2.code}`);
+  });
 };
 
 // Returns the accounts grouped by the keystore fingerprint.
