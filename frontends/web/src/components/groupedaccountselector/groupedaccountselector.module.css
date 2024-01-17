@@ -18,8 +18,23 @@
     padding: 0 calc(var(--space-quarter) + var(--space-eight));
 }
 
+.groupHeader {
+    align-items: center;
+    display: flex;
+    padding: var(--space-eight) 0;
+    padding-bottom: 8px;
+}
+
 .select {
     margin-bottom: var(--space-half);
+}
+
+.select :global(.react-select__group-heading) {
+    color: var(--color-default);
+    font-size: var(--size-default);
+    margin: 0;
+    padding-right: var(--space-quarter);
+    text-transform: unset;
 }
 
 .select :global(.react-select__menu) {
@@ -90,3 +105,4 @@
     width: 20px;
     height: 20px;
 }
+

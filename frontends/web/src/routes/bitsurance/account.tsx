@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { route } from '../../utils/route';
 import { IAccount, connectKeystore } from '../../api/account';
 import { BitsuranceGuide } from './guide';
-import { AccountSelector, TOption, setOptionBalances } from '../../components/accountselector/accountselector';
+import { GroupedAccountSelector } from '../../components/groupedaccountselector/groupedaccountselector';
 import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { View, ViewContent } from '../../components/view/view';
@@ -33,8 +33,8 @@ type TProps = {
 
 export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   const [selected, setSelected] = useState<string>(code);
-  const [btcAccounts, setBtcAccounts] = useState<TOption[]>();
   const [disabled, setDisabled] = useState<boolean>(false);
+  const [btcAccounts, setBtcAccounts] = useState<IAccount[]>();
 
   const { t } = useTranslation();
 
@@ -48,17 +48,13 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
       alertUser(response.errorMessage);
       return;
     }
-    const options = accounts
-      // btc accounts that have never been insured, or with a canceled
-      // insurance contract, can be used to make a new contract.
-      .filter(account => account.coinCode === 'btc' &&
-          (!account.bitsuranceStatus
-           || account.bitsuranceStatus === 'canceled'
-           || account.bitsuranceStatus === 'refused'))
-      .map(({ name, code, coinCode }) => (
-        { label: name, value: code, coinCode, disabled: false }
-      ));
-    setBtcAccounts(await setOptionBalances(options));
+    // btc accounts that have never been insured, or with a canceled
+    // insurance contract, can be used to make a new contract.
+    const insurableAccounts = accounts.filter(account => account.coinCode === 'btc' &&
+        (!account.bitsuranceStatus
+         || account.bitsuranceStatus === 'canceled'
+        || account.bitsuranceStatus === 'refused'));
+    setBtcAccounts(insurableAccounts);
   }, [accounts]);
 
   // check supported accounts
@@ -69,7 +65,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   // if there is only one account available let's automatically redirect to the widget
   useEffect(() => {
     if (btcAccounts !== undefined && btcAccounts.length === 1) {
-      route(`/bitsurance/widget/${btcAccounts[0].value}`);
+      route(`/bitsurance/widget/${btcAccounts[0].code}`);
     }
   }, [btcAccounts]);
 
@@ -100,13 +96,14 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
               { btcAccounts.length === 0 ? (
                 <div>{t('bitsuranceAccount.noAccount')}</div>
               ) : (
-                <AccountSelector
+                <GroupedAccountSelector
                   title={t('bitsuranceAccount.select')}
-                  options={btcAccounts}
                   disabled={disabled}
+                  accounts={btcAccounts}
                   selected={selected}
                   onChange={handleChangeAccount}
-                  onProceed={handleProceed} />
+                  onProceed={handleProceed}
+                />
               )}
             </ViewContent>
           </View>
