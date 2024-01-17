@@ -18,8 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { getConfig } from '../../utils/config';
-import { ScriptType } from '../../api/account';
-import { signAddress } from '../../api/exchanges';
+import { ScriptType, signAddress } from '../../api/account';
 import { getInfo } from '../../api/account';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
@@ -128,7 +127,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
             sendAddressWithXPub(response.address, response.signature, '');
           }
         } else {
-          if (response.errorCode !== 'userAbort') {
+          if (!['userAbort', 'wrongKeystore'].includes(response.errorCode || '')) {
             alertUser(t('unknownError', { errorMessage: response.errorMessage }));
             console.log('error: ' + response.errorMessage);
           }

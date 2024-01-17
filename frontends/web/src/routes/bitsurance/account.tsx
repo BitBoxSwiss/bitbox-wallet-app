@@ -17,7 +17,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from '../../utils/route';
-import { IAccount } from '../../api/account';
+import { IAccount, connectKeystore } from '../../api/account';
 import { BitsuranceGuide } from './guide';
 import { AccountSelector, TOption, setOptionBalances } from '../../components/accountselector/accountselector';
 import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
@@ -34,6 +34,7 @@ type TProps = {
 export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   const [selected, setSelected] = useState<string>(code);
   const [btcAccounts, setBtcAccounts] = useState<TOption[]>();
+  const [disabled, setDisabled] = useState<boolean>(false);
 
   const { t } = useTranslation();
 
@@ -72,10 +73,19 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
     }
   }, [btcAccounts]);
 
-
-  const handleProceed = () => {
+  const handleProceed = async () => {
+    setDisabled(true);
+    try {
+      const connectResult = await connectKeystore(selected);
+      if (!connectResult.success) {
+        return;
+      }
+    } finally {
+      setDisabled(false);
+    }
     route(`/bitsurance/widget/${selected}`);
   };
+
   if (btcAccounts === undefined) {
     return <Spinner guideExists={false} text={t('loading')} />;
   }
@@ -93,6 +103,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
                 <AccountSelector
                   title={t('bitsuranceAccount.select')}
                   options={btcAccounts}
+                  disabled={disabled}
                   selected={selected}
                   onChange={handleChangeAccount}
                   onProceed={handleProceed} />

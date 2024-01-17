@@ -105,7 +105,7 @@ func TestConnectKeystore(t *testing.T) {
 			ck.onConnect(expectedKeystore)
 		}()
 		_, err := ck.connect(nil, fingerprint2, time.Second)
-		require.Equal(t, errWrongKeystore, err)
+		require.Equal(t, ErrWrongKeystore, err)
 		wg.Wait()
 	})
 }

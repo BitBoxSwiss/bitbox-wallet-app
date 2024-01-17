@@ -24,7 +24,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 )
 
-var errWrongKeystore = errors.New("Wrong device/keystore connected.")
+// ErrWrongKeystore is returned if the connected keystore is not the expected one.
+var ErrWrongKeystore = errors.New("Wrong device/keystore connected.")
 var errUserAbort = errors.New("aborted by user")
 var errReplaced = errors.New("replaced by new prompt")
 
@@ -43,7 +44,7 @@ func compareRootFingerprint(ks keystore.Keystore, rootFingerprint []byte) error 
 		return err
 	}
 	if !bytes.Equal(rootFingerprint, keystoreRootFingerprint) {
-		return errWrongKeystore
+		return ErrWrongKeystore
 	}
 	return nil
 }
