@@ -574,7 +574,7 @@ func (backend *Backend) Start() <-chan interface{} {
 
 	defer backend.accountsAndKeystoreLock.Lock()()
 	backend.initPersistedAccounts()
-	backend.emitAccountsStatusChanged()
+	backend.emitAccountsListChanged()
 
 	backend.ratesUpdater.StartCurrentRates()
 	backend.configureHistoryExchangeRates()
@@ -680,7 +680,6 @@ func (backend *Backend) DeregisterKeystore() {
 	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
 	// keystore. For now we just remove all, then re-add the rest.
 	backend.initPersistedAccounts()
-	backend.emitAccountsStatusChanged()
 }
 
 // Register registers the given device at this backend.
