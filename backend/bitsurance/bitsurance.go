@@ -29,7 +29,7 @@ import (
 )
 
 const (
-	apiKey        = "265bfd773038c9ad9da7047e107babba0269bc3d31952172d9b10335e8a9d8e9"
+	apiKey        = "cv9K9SXaMGMy26ThA3sqVetROkhRSPLU"
 	apiURL        = "https://api.bitsurance.eu/api/"
 	testApiURL    = "https://testapi.bitsurance.eu/api/"
 	widgetVersion = "1"
