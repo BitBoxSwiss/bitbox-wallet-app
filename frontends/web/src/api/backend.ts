@@ -76,13 +76,15 @@ export const socksProxyCheck = (proxyAddress: string): Promise<ISuccess> => {
   return apiPost('socksproxy/check', proxyAddress);
 };
 
+export type TConnectKeystoreErrorCode = 'wrongKeystore' | 'timeout';
+
 export type TSyncConnectKeystore = null | {
   typ: 'connect';
   keystoreName: string;
 } | {
   typ: 'error';
-  errorCode: 'wrongKeystore';
-  errorMessage: '';
+  errorCode?: TConnectKeystoreErrorCode;
+  errorMessage: string;
 };
 
 /**

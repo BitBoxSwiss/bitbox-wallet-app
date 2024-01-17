@@ -15,7 +15,6 @@
 package backend
 
 import (
-	"context"
 	"sync"
 	"testing"
 	"time"
@@ -38,7 +37,7 @@ func TestConnectKeystore(t *testing.T) {
 
 	t.Run("timeout", func(t *testing.T) {
 		_, err := ck.connect(nil, fingerprint, time.Millisecond)
-		require.Equal(t, context.DeadlineExceeded, err)
+		require.Equal(t, errTimeout, err)
 	})
 
 	t.Run("already connected", func(t *testing.T) {
@@ -53,10 +52,10 @@ func TestConnectKeystore(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			time.Sleep(50 * time.Millisecond)
-			ck.cancel(errUserAbort)
+			ck.cancel(ErrUserAbort)
 		}()
 		_, err := ck.connect(nil, fingerprint, time.Second)
-		require.Equal(t, errUserAbort, err)
+		require.Equal(t, ErrUserAbort, err)
 		wg.Wait()
 	})
 

@@ -26,8 +26,12 @@ import (
 
 // ErrWrongKeystore is returned if the connected keystore is not the expected one.
 var ErrWrongKeystore = errors.New("Wrong device/keystore connected.")
-var errUserAbort = errors.New("aborted by user")
+
+// ErrUserAbort is raised when a keystore connection is aborted calling CancelConnectKeystore().
+var ErrUserAbort = errors.New("aborted by user")
 var errReplaced = errors.New("replaced by new prompt")
+
+var errTimeout = errors.New("timeout")
 
 // connectKeystore is a helper struct to enable connecting to a keystore with a specific root
 // fingerprint.
@@ -35,7 +39,11 @@ type connectKeystore struct {
 	locker.Locker
 	// connectKeystoreCallback, if not nil, is called when a keystore is registered.
 	connectKeystoreCallback func(keystore.Keystore)
-	cancelFunc              context.CancelCauseFunc
+	// retryCallback, if not nil, is called when a keystore is deregistered or when the cancel() is called.
+	// It allows to make a new connect attempt after a wrong keystore was connected, unless the request has
+	// been aborted.
+	retryCallback func(retry bool)
+	cancelFunc    context.CancelCauseFunc
 }
 
 func compareRootFingerprint(ks keystore.Keystore, rootFingerprint []byte) error {
@@ -108,6 +116,9 @@ func (c *connectKeystore) connect(
 	case r := <-resultCh:
 		return r.ks, r.err
 	case <-ctx.Done():
+		if context.Cause(ctx) == context.DeadlineExceeded {
+			return nil, errTimeout
+		}
 		return nil, context.Cause(ctx)
 	}
 }
@@ -123,6 +134,14 @@ func (c *connectKeystore) onConnect(keystore keystore.Keystore) {
 	}
 }
 
+func (c *connectKeystore) onDisconnect() {
+	defer c.Lock()()
+	if c.retryCallback != nil {
+		c.retryCallback(true)
+		c.retryCallback = nil
+	}
+}
+
 // cancel fails a pending call to `connect()`, making it return `cause` as the error.
 func (c *connectKeystore) cancel(cause error) {
 	defer c.Lock()()
@@ -131,4 +150,13 @@ func (c *connectKeystore) cancel(cause error) {
 		c.cancelFunc = nil
 		c.connectKeystoreCallback = nil
 	}
+	if c.retryCallback != nil {
+		c.retryCallback(false)
+		c.retryCallback = nil
+	}
+}
+
+func (c *connectKeystore) SetRetryConnect(f func(retry bool)) {
+	defer c.Lock()()
+	c.retryCallback = f
 }
