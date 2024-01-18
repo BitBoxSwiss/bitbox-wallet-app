@@ -18,11 +18,10 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { getConfig } from '../../utils/config';
-import { getTransactionList, signAddress } from '../../api/account';
 import { Dialog } from '../../components/dialog/dialog';
 import { confirmation } from '../../components/confirm/Confirm';
 import { verifyAddress, getPocketURL } from '../../api/exchanges';
-import { getInfo } from '../../api/account';
+import { AccountCode, getInfo, getTransactionList, signAddress } from '../../api/account';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { PocketTerms } from '../../components/terms/pocket-terms';
@@ -32,7 +31,7 @@ import Guide from './guide';
 import style from './iframe.module.css';
 
 interface TProps {
-    code: string;
+    code: AccountCode;
 }
 
 export const Pocket = ({ code }: TProps) => {

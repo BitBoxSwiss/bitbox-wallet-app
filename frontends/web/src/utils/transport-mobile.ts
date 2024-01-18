@@ -15,20 +15,20 @@
  * limitations under the License.
  */
 
-import { TMsgCallback, TQueryPromiseMap } from './transport-common';
-import { runningInAndroid } from './env';
+import { TMsgCallback, TPayload, TQueryPromiseMap } from './transport-common';
+import { runningOnMobile } from './env';
 
 let queryID: number = 0;
 const queryPromises: TQueryPromiseMap = {};
-const currentListeners: Function[] = [];
+const currentListeners: TMsgCallback[] = [];
 
-export function androidCall(query: string) {
+export function mobileCall(query: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    if (runningInAndroid()) {
-      if (typeof window.onAndroidCallResponse === 'undefined') {
-        window.onAndroidCallResponse = (
+    if (runningOnMobile()) {
+      if (typeof window.onMobileCallResponse === 'undefined') {
+        window.onMobileCallResponse = (
           queryID: number,
-          response: string,
+          response: unknown,
         ) => {
           queryPromises[queryID].resolve(response);
           delete queryPromises[queryID];
@@ -43,9 +43,9 @@ export function androidCall(query: string) {
   });
 }
 
-export function androidSubscribePushNotifications(msgCallback: TMsgCallback) {
-  if (typeof window.onAndroidPushNotification === 'undefined') {
-    window.onAndroidPushNotification = (msg: string) => {
+export function mobileSubscribePushNotifications(msgCallback: TMsgCallback) {
+  if (typeof window.onMobilePushNotification === 'undefined') {
+    window.onMobilePushNotification = (msg: TPayload) => {
       currentListeners.forEach(listener => listener(msg));
     };
   }

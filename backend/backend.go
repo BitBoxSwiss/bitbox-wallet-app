@@ -220,6 +220,8 @@ type Backend struct {
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
 	tstCheckAccountUsed func(accounts.Interface) bool
+	// For unit tests, called when `backend.maybeAddHiddenUnusedAccounts()` has run.
+	tstMaybeAddHiddenUnusedAccounts func()
 }
 
 // NewBackend creates a new backend with the given arguments.

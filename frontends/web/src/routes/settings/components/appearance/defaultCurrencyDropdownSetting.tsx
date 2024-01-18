@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-import { currenciesWithDisplayName, formattedCurrencies, selectFiat, setActiveFiat, store } from '../../../../components/rates/rates';
+import { currenciesWithDisplayName, formattedCurrencies } from '../../../../components/rates/rates';
 import { SingleDropdown } from '../dropdowns/singledropdown';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { Fiat } from '../../../../api/account';
 import { useTranslation } from 'react-i18next';
+import { useContext } from 'react';
+import { RatesContext } from '../../../../contexts/RatesContext';
 
 export const DefaultCurrencyDropdownSetting = () => {
   const { t } = useTranslation();
-  const valueLabel = currenciesWithDisplayName.find(fiat => fiat.currency === store.state.active)?.displayName;
-  const defaultValueLabel = valueLabel ? `${valueLabel} (${store.state.active})` : store.state.active;
+  const { selectFiat, updateDefaultFiat, defaultCurrency, activeCurrencies } = useContext(RatesContext);
+  const valueLabel = currenciesWithDisplayName.find(fiat => fiat.currency === defaultCurrency)?.displayName;
+  const defaultValueLabel = valueLabel ? `${valueLabel} (${defaultCurrency})` : defaultCurrency;
   return (
     <SettingsItem
       settingName={t('newSettings.appearance.defaultCurrency.title')}
@@ -32,15 +35,15 @@ export const DefaultCurrencyDropdownSetting = () => {
       extraComponent={
         <SingleDropdown
           options={formattedCurrencies}
-          handleChange={(fiat: Fiat) => {
-            setActiveFiat(fiat);
-            if (!store.state.selected.includes(fiat)) {
-              selectFiat(fiat);
+          handleChange={async (fiat: Fiat) => {
+            updateDefaultFiat(fiat);
+            if (!activeCurrencies.includes(fiat)) {
+              await selectFiat(fiat);
             }
           }}
           defaultValue={{
             label: defaultValueLabel,
-            value: store.state.active
+            value: defaultCurrency
           }}
         />
       }

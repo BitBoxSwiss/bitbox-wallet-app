@@ -34,7 +34,7 @@ import style from './receive.module.css';
 
 type TProps = {
   accounts: accountApi.IAccount[];
-  code: string;
+  code: accountApi.AccountCode;
 };
 
 type AddressDialog = { addressType: number } | undefined;

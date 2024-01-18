@@ -19,7 +19,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
 import { useEsc } from '../../../hooks/keyboard';
-import { getInfo, IAccount } from '../../../api/account';
+import { getInfo, IAccount, AccountCode } from '../../../api/account';
 import { route } from '../../../utils/route';
 import { isBitcoinBased } from '../utils';
 import { ButtonLink } from '../../../components/forms';
@@ -30,7 +30,7 @@ import style from './info.module.css';
 
 type TProps = {
     accounts: IAccount[];
-    code: string;
+    code: AccountCode;
 };
 
 export const Info = ({

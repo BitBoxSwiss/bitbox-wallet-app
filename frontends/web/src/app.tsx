@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,121 +15,65 @@
  * limitations under the License.
  */
 
-import { Component, Fragment } from 'react';
+import { useCallback, useEffect, Fragment } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { useSync } from './hooks/api';
+import { useDefault } from './hooks/default';
+import { usePrevious } from './hooks/previous';
 import { AppRouter } from './routes/router';
 import { Wizard as BitBox02Wizard } from './routes/device/bitbox02/wizard';
-import { getAccounts, IAccount } from './api/account';
+import { getAccounts } from './api/account';
 import { syncAccountsList } from './api/accountsync';
-import { getDeviceList, TDevices } from './api/devices';
+import { getDeviceList } from './api/devices';
 import { syncDeviceList } from './api/devicessync';
 import { syncNewTxs } from './api/transactions';
 import { notifyUser } from './api/system';
-import { unsubscribe, UnsubscribeList } from './utils/subscriptions';
 import { ConnectedApp } from './connected';
 import { Alert } from './components/alert/Alert';
 import { Aopp } from './components/aopp/aopp';
 import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
 import { KeystoreConnectPrompt } from './components/keystoreconnectprompt';
-import { panelStore } from './components/sidebar/sidebar';
 import { MobileDataWarning } from './components/mobiledatawarning';
-import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
+import { Sidebar } from './components/sidebar/sidebar';
 import { Update } from './components/update/update';
-import { translate, TranslateProps } from './decorators/translate';
-import { route, RouterWatcher } from './utils/route';
+import { RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { DarkModeProvider } from './contexts/DarkmodeProvider';
 import { AppProvider } from './contexts/AppProvider';
 import { AuthRequired } from './components/auth/authrequired';
 import { WCWeb3WalletProvider } from './contexts/WCWeb3WalletProvider';
+import { RatesProvider } from './contexts/RatesProvider';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 
-type State = {
-  accounts: IAccount[];
-  devices: TDevices;
-}
+export const App = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-type Props = TranslateProps;
+  const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
+  const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
 
-class App extends Component<Props, State> {
-  public readonly state: State = {
-    accounts: [],
-    devices: {},
-  };
+  const prevDevices = usePrevious(devices);
 
-  private unsubscribeList: UnsubscribeList = [];
-
-  /**
-   * Gets fired when the route changes.
-   */
-  private handleRoute = () => {
-    if (panelStore.state.activeSidebar) {
-      toggleSidebar();
-    }
-  };
-
-  public componentDidMount() {
-    Promise.all([getDeviceList(), getAccounts()])
-      .then(([devices, accounts]) => {
-        this.setStateWithDeviceList({ accounts, devices });
-      }).catch(console.error);
-
-
-    this.unsubscribeList.push(
-      syncNewTxs((meta) => {
-        notifyUser(this.props.t('notification.newTxs', {
-          count: meta.count,
-          accountName: meta.accountName,
-        }));
-      }),
-      syncAccountsList(accounts => {
-        this.setState({ accounts }, () => this.maybeRoute());
-      }),
-      syncDeviceList((devices) => {
-        this.setStateWithDeviceList({ devices });
-      }),
-    );
-  }
-
-  private setStateWithDeviceList(newState: Partial<State>) {
-    const oldDeviceIDList = Object.keys(this.state.devices);
-    this.setState(currentState => ({ ...currentState, ...newState }), () => {
-      const newDeviceIDList: string[] = Object.keys(this.state.devices);
-      // If a device is newly connected, we route to the settings.
-      if (
-        newDeviceIDList.length > 0
-        && newDeviceIDList[0] !== oldDeviceIDList[0]
-      ) {
-        // We only route to settings if it is a bb01 or a bb02 bootloader.
-        // The bitbox02 wizard itself is mounted globally (see BitBox02Wizard) so it can be unlocked
-        // anywhere at any time.
-        // We don't bother implementing the same for the bitbox01.
-        // The bb02 bootloader screen is not full screen, so we don't mount it globally and instead
-        // route to it.
-        const productName = this.state.devices[newDeviceIDList[0]];
-        if (productName === 'bitbox' || productName === 'bitbox02-bootloader') {
-          route(`settings/device-settings/${newDeviceIDList[0]}`, true);
-          return;
-        }
-      }
-      this.maybeRoute();
+  useEffect(() => {
+    return syncNewTxs((meta) => {
+      notifyUser(t('notification.newTxs', {
+        count: meta.count,
+        accountName: meta.accountName,
+      }));
     });
-  }
+  }, [t]);
 
-  public componentWillUnmount() {
-    unsubscribe(this.unsubscribeList);
-  }
-
-  private maybeRoute = () => {
+  const maybeRoute = useCallback(() => {
     const currentURL = window.location.pathname;
     const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
     const inAccounts = currentURL.startsWith('/account/');
-    const accounts = this.state.accounts;
 
     // QT and Android start their apps in '/index.html' and '/android_asset/web/index.html' respectively
     // This re-routes them to '/' so we have a simpler uri structure
     if (isIndex && currentURL !== '/' && (!accounts || accounts.length === 0)) {
-      route('/', true);
+      navigate('/');
       return;
     }
     // if no accounts are registered on specified views route to /
@@ -138,56 +82,75 @@ class App extends Component<Props, State> {
       || currentURL.startsWith('/add-account')
       || currentURL.startsWith('/settings/manage-accounts')
     )) {
-      route('/', true);
+      navigate('/');
       return;
     }
     // if no devices are registered on specified views route to /
-    if (Object.keys(this.state.devices).length === 0 &&
+    if (Object.keys(devices).length === 0 &&
         currentURL.startsWith('/settings/device-settings/')) {
-      route('/', true);
+      navigate('/');
       return;
     }
     // if on an account that isn't registered route to /
     if (inAccounts && !accounts.some(account => currentURL.startsWith('/account/' + account.code))) {
-      route('/', true);
+      navigate('/');
       return;
     }
     // if on index page and have at least 1 account, route to /account-summary
     if (isIndex && accounts.length) {
-      route('/account-summary', true);
+      navigate('/account-summary');
       return;
     }
     // if on the /buy/ view and there are no accounts view route to /
     if (accounts.length === 0 && currentURL.startsWith('/buy/')) {
-      route('/', true);
+      navigate('/');
       return;
     }
     // if on the /bitsurance/ view and there are no accounts view route to /
     if (accounts.length === 0 && currentURL.startsWith('/bitsurance/')) {
-      route('/', true);
+      navigate('/');
       return;
     }
 
-  };
+  }, [accounts, devices, navigate]);
+
+  useEffect(() => {
+    const oldDeviceIDList = Object.keys(prevDevices || {});
+    const newDeviceIDList: string[] = Object.keys(devices);
+
+    // If a device is newly connected, we route to the settings.
+    if (
+      newDeviceIDList.length > 0
+      && newDeviceIDList[0] !== oldDeviceIDList[0]
+    ) {
+      // We only route to settings if it is a bb01 or a bb02 bootloader.
+      // The bitbox02 wizard itself is mounted globally (see BitBox02Wizard) so it can be unlocked
+      // anywhere at any time.
+      // We don't bother implementing the same for the bitbox01.
+      // The bb02 bootloader screen is not full screen, so we don't mount it globally and instead
+      // route to it.
+      const productName = devices[newDeviceIDList[0]];
+      if (productName === 'bitbox' || productName === 'bitbox02-bootloader') {
+        navigate(`settings/device-settings/${newDeviceIDList[0]}`);
+        return;
+      }
+    }
+    maybeRoute();
+  }, [devices, maybeRoute, navigate, prevDevices]);
 
   // Returns a string representation of the current devices, so it can be used in the `key` property of subcomponents.
   // The prefix is used so different subcomponents can have unique keys to not confuse the renderer.
-  private devicesKey = (prefix: string): string => {
-    return prefix + ':' + JSON.stringify(this.state.devices, Object.keys(this.state.devices).sort());
+  const devicesKey = (prefix: string): string => {
+    return prefix + ':' + JSON.stringify(devices, Object.keys(devices).sort());
   };
 
-  private activeAccounts = (): IAccount[] => {
-    return this.state.accounts.filter(acct => acct.active);
-  };
-
-  public render() {
-    const { accounts, devices } = this.state;
-    const deviceIDs: string[] = Object.keys(devices);
-    const activeAccounts = this.activeAccounts();
-    return (
-      <ConnectedApp>
-        <AppProvider>
-          <DarkModeProvider>
+  const deviceIDs: string[] = Object.keys(devices);
+  const activeAccounts = accounts.filter(acct => acct.active);
+  return (
+    <ConnectedApp>
+      <AppProvider>
+        <DarkModeProvider>
+          <RatesProvider>
             <WCWeb3WalletProvider>
               <Darkmode />
               <div className="app">
@@ -223,20 +186,17 @@ class App extends Component<Props, State> {
                     activeAccounts={activeAccounts}
                     deviceIDs={deviceIDs}
                     devices={devices}
-                    devicesKey={this.devicesKey}
+                    devicesKey={devicesKey}
                   />
-                  <RouterWatcher onChange={this.handleRoute} />
+                  <RouterWatcher />
                 </div>
                 <Alert />
                 <Confirm />
               </div>
             </WCWeb3WalletProvider>
-          </DarkModeProvider>
-        </AppProvider>
-      </ConnectedApp>
-    );
-  }
-}
-
-const HOC = translate()(App);
-export { HOC as App };
+          </RatesProvider>
+        </DarkModeProvider>
+      </AppProvider>
+    </ConnectedApp>
+  );
+};

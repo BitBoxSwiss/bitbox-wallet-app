@@ -32,6 +32,30 @@ import (
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
 )
 
+const (
+	// errAOPPUnsupportedAsset is returned when an AOPP request is for an asset we don't support
+	// AOPP for.
+	errAOPPUnsupportedAsset errp.ErrorCode = "aoppUnsupportedAsset"
+	// errAOPPUnsupportedFormat is returned when the requested format (script type) is not supported
+	// by the keystore.
+	errAOPPUnsupportedFormat errp.ErrorCode = "aoppUnsupportedFormat"
+	// errAOPPVersion is returned when we cannot handle an AOPP request because we don't support the
+	// request version.
+	errAOPPVersion errp.ErrorCode = "aoppVersion"
+	// ErrAOPPInvalidRequest is returned when the request is not valid.
+	errAOPPInvalidRequest errp.ErrorCode = "aoppInvalidRequest"
+	// errAOPPNoAccounts is returned when there are no available accounts to choose from.
+	errAOPPNoAccounts errp.ErrorCode = "aoppNoAccounts"
+	// errAOPPUnsupportedKeystore is returned when the connected keystore does not support signing messages.
+	errAOPPUnsupportedKeystore errp.ErrorCode = "aoppUnsupportedKeystore"
+	// errAOPPUnknown is returned on unexpected errors that in theory should never happen.
+	errAOPPUnknown errp.ErrorCode = "aoppUnknown"
+	// errAOPPSigningAborted is returned when the user cancels the message signing on the device.
+	errAOPPSigningAborted errp.ErrorCode = "aoppSigningAborted"
+	// errAOPPCallback is returned when there was an error calling the callback in the AOPP request.
+	errAOPPCallback errp.ErrorCode = "aoppCallback"
+)
+
 // aoppCoinMap maps from the asset codes specified by AOPP to our own coin codes.
 var aoppCoinMap = map[string]coinpkg.Code{
 	"btc": coinpkg.CodeBTC,
@@ -85,8 +109,8 @@ const (
 type AOPP struct {
 	// State is the current state the request is in. See `aoppState*` for the possible values.
 	State aoppState `json:"state"`
-	// ErrorCode is an "aopp*" error code, see errors.go. Only applies if State == aoppStateError.
-	ErrorCode ErrorCode `json:"errorCode"`
+	// ErrorCode is an "aopp*" error code. Only applies if State == aoppStateError.
+	ErrorCode errp.ErrorCode `json:"errorCode"`
 	// Accounts is the list of accounts the user can choose from. Only applies if State == aoppStateChoosingAccount.
 	Accounts []account `json:"accounts"`
 	// AccountCode is the code of the chosen account from which an address will be taken. Only
@@ -134,7 +158,7 @@ func (backend *Backend) AOPPCancel() {
 
 // aoppSetError pushes an error to the frontend to display. `accountsAndKeystoreLock` must be held
 // when calling this function.
-func (backend *Backend) aoppSetError(err ErrorCode) {
+func (backend *Backend) aoppSetError(err errp.ErrorCode) {
 	backend.aopp.State = aoppStateError
 	backend.aopp.ErrorCode = err
 	backend.notifyAOPP()

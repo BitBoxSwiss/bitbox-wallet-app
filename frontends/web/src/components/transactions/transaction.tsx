@@ -39,7 +39,7 @@ interface State {
 }
 
 interface TransactionProps extends accountApi.ITransaction {
-    accountCode: string;
+    accountCode: accountApi.AccountCode;
     index: number;
     explorerURL: string;
 }
@@ -231,7 +231,12 @@ class Transaction extends Component<Props, State> {
             Amount and Confirmations info are displayed using props data
             instead of transactionInfo because they are live updated.
           */}
-        <Dialog open={transactionDialog} title="Transaction Details" onClose={this.hideDetails} slim medium>
+        <Dialog
+          open={transactionDialog}
+          title={t('transaction.details.title')}
+          onClose={this.hideDetails}
+          slim
+          medium>
           {transactionInfo && <>
             <form onSubmit={this.handleEdit} className={style.detailInput}>
               <label htmlFor="note">{t('note.title')}</label>

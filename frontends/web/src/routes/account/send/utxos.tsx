@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import {
   allScriptTypes,
   getUTXOs,
+  AccountCode,
   ScriptType,
   TUTXO,
 } from '../../../api/account';
@@ -38,7 +39,7 @@ export type TSelectedUTXOs = {
 };
 
 type Props = {
-  accountCode: string;
+  accountCode: AccountCode;
   active: boolean;
   explorerURL: string;
   onChange: (selectedUTXO: TSelectedUTXOs) => void;

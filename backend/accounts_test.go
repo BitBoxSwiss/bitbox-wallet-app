@@ -16,11 +16,11 @@ package backend
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math/big"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -285,14 +285,14 @@ func TestNextAccountNumber(t *testing.T) {
 	require.Equal(t, uint16(1), num)
 
 	_, err = nextAccountNumber(coinpkg.CodeBTC, ks(fingerprint1, false), accountsConfig)
-	require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+	require.Equal(t, errAccountLimitReached, errp.Cause(err))
 
 	num, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprint1, true), accountsConfig)
 	require.NoError(t, err)
 	require.Equal(t, uint16(4), num)
 
 	_, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprint2, true), accountsConfig)
-	require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+	require.Equal(t, errAccountLimitReached, errp.Cause(err))
 }
 
 const (
@@ -870,7 +870,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			"bitcoin 2",
 			bitbox01LikeKeystore,
 		)
-		require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+		require.Equal(t, errAccountLimitReached, errp.Cause(err))
 		require.Equal(t, accountsCount, len(b.Config().AccountsConfig().Accounts))
 
 		// Try to add another Litecoin account - can't, only one account supported.
@@ -879,7 +879,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			"litecoin 2",
 			bitbox01LikeKeystore,
 		)
-		require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+		require.Equal(t, errAccountLimitReached, errp.Cause(err))
 		require.Equal(t, accountsCount, len(b.Config().AccountsConfig().Accounts))
 	})
 
@@ -889,7 +889,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 
-		expectedErr := errors.New("failed getting xpub")
+		expectedErr := errp.New("failed getting xpub")
 		// Keystore has a problem getting the xpub.
 		ks := &keystoremock.KeystoreMock{
 			RootFingerprintFunc: func() ([]byte, error) {
@@ -1529,6 +1529,13 @@ func TestWatchonly(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 
+		// registering a keystore calls `go maybeAddHiddenunusedAccounts()` - we need wait for it to
+		// complete to avoid race conditions in this test about which account is added at what time.
+		hiddenAccountsAdded := make(chan struct{})
+		b.tstMaybeAddHiddenUnusedAccounts = func() {
+			close(hiddenAccountsAdded)
+		}
+
 		ks := makeBitBox02Multi()
 
 		rootFingerprint, err := ks.RootFingerprint()
@@ -1536,9 +1543,16 @@ func TestWatchonly(t *testing.T) {
 
 		b.registerKeystore(ks)
 		checkShownAccountsLen(t, b, 3, 3)
+
+		select {
+		case <-hiddenAccountsAdded:
+		case <-time.After(5 * time.Second):
+			require.Fail(t, "expected hidden accounts to be added")
+		}
+
 		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
 
-		// An account may already have been added as part of autodiscover, so we add two.
+		// An account has already been added as part of autodiscover, so we add two.
 		newAccountCode1, err := b.CreateAndPersistAccountConfig(
 			coinpkg.CodeBTC,
 			"Bitcoin account name",

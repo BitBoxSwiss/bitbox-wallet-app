@@ -32,7 +32,7 @@ import { WCSuccessPairing } from './components/success-pairing/success-pairing';
 import styles from './connect.module.css';
 
 type TProps = {
-  code: string;
+  code: accountApi.AccountCode;
   accounts: accountApi.IAccount[]
 };
 

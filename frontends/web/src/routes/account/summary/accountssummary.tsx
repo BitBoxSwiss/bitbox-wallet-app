@@ -32,7 +32,7 @@ import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
-import AppContext from '../../../contexts/AppContext';
+import { AppContext } from '../../../contexts/AppContext';
 
 type TProps = {
     accounts: accountApi.IAccount[];
@@ -87,7 +87,7 @@ export function AccountsSummary({
   }, [mounted]);
 
   const onStatusChanged = useCallback(async (
-    code: string,
+    code: accountApi.AccountCode,
   ) => {
     if (!mounted.current) {
       return;
@@ -109,7 +109,7 @@ export function AccountsSummary({
     }));
   }, [mounted]);
 
-  const update = useCallback((code: string) => {
+  const update = useCallback((code: accountApi.AccountCode) => {
     if (mounted.current) {
       onStatusChanged(code);
       getAccountSummary();

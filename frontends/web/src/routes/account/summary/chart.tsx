@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { createChart, IChartApi, BarsInfo, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventHandler, MouseEventParams, BarPrice } from 'lightweight-charts';
+import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
 import { Component, createRef, ReactChild } from 'react';
 import { ISummary } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -101,7 +101,7 @@ class Chart extends Component<Props, State> {
     window.removeEventListener('resize', this.onResize);
     if (this.chart) {
       this.chart.timeScale().unsubscribeVisibleLogicalRangeChange(this.calculateChange);
-      this.chart.unsubscribeCrosshairMove(this.handleCrosshair as MouseEventHandler);
+      this.chart.unsubscribeCrosshairMove(this.handleCrosshair);
     }
   }
 
@@ -183,14 +183,17 @@ class Chart extends Component<Props, State> {
             },
           },
           layout: {
-            backgroundColor: darkmode ? '#1D1D1B' : '#F5F5F5',
+            background: {
+              type: ColorType.Solid,
+              color: darkmode ? '#1D1D1B' : '#F5F5F5',
+            },
             fontSize: 11,
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
             textColor: darkmode ? '#F5F5F5' : '#1D1D1B',
           },
           leftPriceScale: {
             borderVisible: false,
-            drawTicks: false,
+            ticksVisible: false,
             visible: this.props.hideAmounts ? false : !this.state.isMobile,
             entireTextOnly: true,
           },
@@ -199,7 +202,7 @@ class Chart extends Component<Props, State> {
           },
           rightPriceScale: {
             visible: false,
-            drawTicks: false,
+            ticksVisible: false,
           },
           timeScale: {
             borderVisible: false,
@@ -225,7 +228,7 @@ class Chart extends Component<Props, State> {
       this.lineSeries.setData(this.props.data.chartDataDaily as ChartData);
       this.setFormattedData(this.props.data.chartDataDaily as ChartData);
       this.chart.timeScale().subscribeVisibleLogicalRangeChange(this.calculateChange);
-      this.chart.subscribeCrosshairMove(this.handleCrosshair as MouseEventHandler);
+      this.chart.subscribeCrosshairMove(this.handleCrosshair);
       this.chart.timeScale().fitContent();
       window.addEventListener('resize', this.onResize);
       setTimeout(() => this.ref.current?.classList.remove(styles.invisible), 200);
@@ -367,7 +370,7 @@ class Chart extends Component<Props, State> {
       return;
     }
     const logicalrange = this.chart.timeScale().getVisibleLogicalRange() as LogicalRange;
-    const visiblerange = this.lineSeries.barsInLogicalRange(logicalrange) as BarsInfo;
+    const visiblerange = this.lineSeries.barsInLogicalRange(logicalrange);
     if (!visiblerange) {
       // if the chart is empty, during first load, barsInLogicalRange is null
       return;
@@ -390,7 +393,7 @@ class Chart extends Component<Props, State> {
     });
   };
 
-  private handleCrosshair = ({ point, time, seriesPrices }: MouseEventParams) => {
+  private handleCrosshair = ({ point, time, seriesData }: MouseEventParams) => {
     if (!this.refToolTip.current) {
       return;
     }
@@ -406,13 +409,28 @@ class Chart extends Component<Props, State> {
       });
       return;
     }
-    const price = seriesPrices.get(this.lineSeries) as BarPrice;
-    const coordinate = this.lineSeries.priceToCoordinate(price);
+    const price = seriesData.get(this.lineSeries) as LineData<Time>;
+    if (!price) {
+      return;
+    }
+    const coordinate = this.lineSeries.priceToCoordinate(price.value);
     if (!coordinate) {
       return;
     }
-    const toolTipTop = Math.max(coordinate - 70, 0);
-    const toolTipLeft = Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70));
+    const coordinateY =
+      (coordinate - tooltip.clientHeight > 0)
+        ? coordinate - tooltip.clientHeight
+        : Math.max(
+          0,
+          Math.min(
+            parent.clientHeight - tooltip.clientHeight,
+            coordinate + 70
+          )
+        );
+
+    const toolTipTop = Math.floor(Math.max(coordinateY, 0));
+    const toolTipLeft = Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70)));
+
     this.setState({
       toolTipVisible: true,
       toolTipValue: this.formattedData ? this.formattedData[time as number] : '',
@@ -528,7 +546,7 @@ class Chart extends Component<Props, State> {
           <span
             ref={this.refToolTip}
             className={styles.tooltip}
-            style={{ 'left': toolTipLeft, top: toolTipTop }}
+            style={{ left: toolTipLeft, top: toolTipTop }}
             hidden={!toolTipVisible || isMobile}>
             {toolTipValue !== undefined ? (
               <span>

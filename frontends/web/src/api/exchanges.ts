@@ -57,7 +57,7 @@ export type MoonpayBuyInfo = {
   address: string;
 }
 
-export const getMoonpayBuyInfo = (code: string) => {
+export const getMoonpayBuyInfo = (code: AccountCode) => {
   return (): Promise<MoonpayBuyInfo> => {
     return apiGet(`exchange/moonpay/buy-info/${code}`);
   };
@@ -81,7 +81,7 @@ export type SupportedExchanges= {
   exchanges: string[];
 };
 
-export const getExchangeBuySupported = (code: string) => {
+export const getExchangeBuySupported = (code: AccountCode) => {
   return (): Promise<SupportedExchanges> => {
     return apiGet(`exchange/buy-supported/${code}`);
   };

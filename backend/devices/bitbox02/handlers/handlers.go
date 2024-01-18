@@ -55,6 +55,7 @@ type BitBox02 interface {
 	Product() bitbox02common.Product
 	GotoStartupSettings() error
 	RootFingerprint() ([]byte, error)
+	BIP85() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -92,6 +93,7 @@ func NewHandlers(
 	handleFunc("/restore-from-mnemonic", handlers.postRestoreFromMnemonicHandler).Methods("POST")
 	handleFunc("/goto-startup-settings", handlers.postGotoStartupSettings).Methods("POST")
 	handleFunc("/root-fingerprint", handlers.getRootFingerprint).Methods("GET")
+	handleFunc("/invoke-bip85", handlers.postInvokeBIP85Handler).Methods("POST")
 	return handlers
 }
 
@@ -315,6 +317,7 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 		// If true, it is possible to create a 12-word seed by passing `16` as `seedLen` to
 		// `SetPassword()`. Otherwise, only `32` is allowed, corresponding to 24 words.
 		CanCreate12Words bool `json:"canCreate12Words"`
+		CanBIP85         bool `json:"canBIP85"`
 	}{
 		CurrentVersion:             currentVersion.String(),
 		NewVersion:                 newVersion.String(),
@@ -322,6 +325,7 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 		CanGotoStartupSettings:     currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
 		CanBackupWithRecoveryWords: currentVersion.AtLeast(semver.NewSemVer(9, 13, 0)),
 		CanCreate12Words:           currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
+		CanBIP85:                   currentVersion.AtLeast(semver.NewSemVer(9, 16, 0)),
 	}
 }
 
@@ -374,4 +378,12 @@ func (handlers *Handlers) getRootFingerprint(_ *http.Request) interface{} {
 		"success":         true,
 		"rootFingerprint": hex.EncodeToString(fingerprint),
 	}
+}
+
+func (handlers *Handlers) postInvokeBIP85Handler(_ *http.Request) interface{} {
+	err := handlers.device.BIP85()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log)
+	}
+	return map[string]interface{}{"success": true}
 }

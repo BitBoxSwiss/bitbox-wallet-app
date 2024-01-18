@@ -17,11 +17,8 @@
 
 import React, { ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { share } from '../../decorators/share';
-import { SharedPanelProps, panelStore } from '../sidebar/sidebar';
 import { GuideActive, MenuLight, MenuDark } from '../icon';
-import { toggleSidebar } from '../sidebar/sidebar';
-import AppContext from '../../contexts/AppContext';
+import { AppContext } from '../../contexts/AppContext';
 import style from './header.module.css';
 interface HeaderProps {
     title?: string | JSX.Element | JSX.Element[];
@@ -29,10 +26,9 @@ interface HeaderProps {
     hideSidebarToggler?: boolean;
     children?: ReactNode;
 }
-type Props = HeaderProps & SharedPanelProps;
+type Props = HeaderProps;
 
 const Header = ({
-  sidebarStatus,
   narrow,
   title,
   hideSidebarToggler,
@@ -40,7 +36,7 @@ const Header = ({
 }: Props) => {
   const { t } = useTranslation();
 
-  const { guideShown, guideExists, toggleGuide } = useContext(AppContext);
+  const { guideShown, guideExists, toggleGuide, toggleSidebar, sidebarStatus } = useContext(AppContext);
 
   const toggle = (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -76,5 +72,4 @@ const Header = ({
   );
 };
 
-const SharedHeader = share<SharedPanelProps, HeaderProps>(panelStore)(Header);
-export { SharedHeader as Header };
+export { Header };

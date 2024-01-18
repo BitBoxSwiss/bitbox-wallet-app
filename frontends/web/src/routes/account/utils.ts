@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '../../api/account';
+import { AccountCode, CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '../../api/account';
 
-export function findAccount(accounts: IAccount[], accountCode: string): IAccount | undefined {
+export function findAccount(accounts: IAccount[], accountCode: AccountCode): IAccount | undefined {
   return accounts.find(({ code }) => accountCode === code);
 }
 

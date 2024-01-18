@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { NavigateFunction, useLocation, useNavigate } from 'react-router';
+import { AppContext } from '../contexts/AppContext';
 
-
-type TProps = { onChange: (() => void) };
 
 let navigate: NavigateFunction | undefined;
 
@@ -30,11 +29,17 @@ export const route = (route: string, replace?: boolean) => {
 };
 
 // This component makes route fn work, and triggers an onChange function
-export const RouterWatcher = ({ onChange }: TProps) => {
+export const RouterWatcher = () => {
   navigate = useNavigate();
+  const { setActiveSidebar } = useContext(AppContext);
   const { pathname } = useLocation();
+
+  /**
+   * Gets fired when the route changes.
+   */
   useEffect(() => {
-    onChange();
-  }, [onChange, pathname]);
+    setActiveSidebar(false);
+  }, [pathname, setActiveSidebar]);
+
   return null;
 };

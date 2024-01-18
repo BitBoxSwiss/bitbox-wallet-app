@@ -51,7 +51,7 @@ async function initTransport() {
   return webChannel;
 }
 
-export function call(query: string) {
+export function call(query: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
     initTransport().then((channel: any) => {
       queryID++;

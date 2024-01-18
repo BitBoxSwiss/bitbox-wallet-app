@@ -18,7 +18,7 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
-import { getShowFirmwareHash, setShowFirmwareHash } from '../../../api/bitbox02';
+import { getShowFirmwareHash, setShowFirmwareHash } from '../../../api/bitbox02bootloader';
 import { Toggle } from '../../toggle/toggle';
 
 type Props = {

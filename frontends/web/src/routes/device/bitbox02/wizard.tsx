@@ -14,211 +14,155 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
-import { getStatus, getVersion, VersionInfo, verifyAttestation, TStatus } from '../../../api/bitbox02';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
+import { useLoad, useSync } from '../../../hooks/api';
+import { getStatus, getVersion, verifyAttestation } from '../../../api/bitbox02';
 import { attestationCheckDone, statusChanged } from '../../../api/devicessync';
-import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
-import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { FirmwareUpgradeRequired } from '../upgrade-firmware-required';
 import { Main } from '../../../components/layout';
 import { Unlock } from './unlock';
 import { Pairing } from './setup/pairing';
-import { Wait } from './setup/wait';
 import { SetupOptions, TWalletCreateOptions, TWalletSetupChoices } from './setup/choose';
 import { CreateWallet } from './setup/wallet-create';
 import { RestoreFromSDCard, RestoreFromMnemonic } from './setup/wallet-restore';
 import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
 
-type Props = {
+type TProps = {
   deviceID: string;
 }
 
-type State = {
-    versionInfo?: VersionInfo;
-    attestation: boolean | null;
-    status: '' | TStatus;
-    appStatus: '' | TWalletSetupChoices;
-    createOptions?: TWalletCreateOptions;
-    // if true, we just pair and unlock, so we can hide some steps.
-    unlockOnly: boolean;
-    showWizard: boolean;
-    waitDialog?: {
-        title: string;
-        text?: string;
-    };
-}
+export const Wizard = ({ deviceID }: TProps) => {
+  const navigate = useNavigate();
+  const versionInfo = useLoad(() => getVersion(deviceID));
+  const attestation = useSync(
+    () => verifyAttestation(deviceID),
+    cb => attestationCheckDone(deviceID, () => {
+      verifyAttestation(deviceID).then(cb);
+    })
+  );
+  const [appStatus, setAppStatus] = useState<'' | TWalletSetupChoices>('');
+  const [createOptions, setCreateOptions] = useState<TWalletCreateOptions>();
+  const [showWizard, setShowWizard] = useState<boolean>(false);
+  // If true, we just pair and unlock, so we can hide some steps.
+  const [unlockOnly, setUnlockOnly] = useState<boolean>(true);
+  const status = useSync(
+    () => getStatus(deviceID),
+    cb => statusChanged(deviceID, () => {
+      getStatus(deviceID).then(cb);
+    })
+  );
 
-export class Wizard extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      attestation: null,
-      status: '',
-      appStatus: '',
-      unlockOnly: true,
-      showWizard: false,
-      waitDialog: undefined,
-    };
+  const handleGetStarted = () => {
+    setShowWizard(false);
+    navigate('/account-summary');
+  };
+
+  useEffect(() => {
+    if (status === undefined) {
+      return;
+    }
+    if (!showWizard && ['connected', 'unpaired', 'pairingFailed', 'uninitialized', 'seeded'].includes(status)) {
+      setShowWizard(true);
+    }
+    if (unlockOnly && ['uninitialized', 'seeded'].includes(status)) {
+      setUnlockOnly(false);
+    }
+  }, [status, showWizard, unlockOnly]);
+
+  const handleAbort = () => {
+    setAppStatus('');
+    setCreateOptions(undefined);
+  };
+  if (status === undefined) {
+    return null;
   }
-
-  private unsubscribeList: UnsubscribeList = [];
-
-  public componentDidMount() {
-    const { deviceID } = this.props;
-    getVersion(deviceID).then(versionInfo => {
-      this.setState({ versionInfo });
-    });
-    this.updateAttestationCheck();
-    this.onStatusChanged();
-    this.unsubscribeList = [
-      statusChanged(deviceID, this.onStatusChanged),
-      attestationCheckDone(deviceID, this.updateAttestationCheck),
-    ];
+  if (!versionInfo) {
+    return null;
   }
-
-  private updateAttestationCheck = () => {
-    verifyAttestation(this.props.deviceID).then(attestation => {
-      this.setState({ attestation });
-    });
-  };
-
-  private handleGetStarted = () => {
-    this.setState({ status: '' });
-    route('/account-summary', true);
-  };
-
-  private onStatusChanged = () => {
-    const { showWizard, unlockOnly } = this.state;
-    getStatus(this.props.deviceID).then(status => {
-      if (!showWizard && ['connected', 'unpaired', 'pairingFailed', 'uninitialized', 'seeded'].includes(status)) {
-        this.setState({ showWizard: true });
-      }
-      if (unlockOnly && ['uninitialized', 'seeded'].includes(status)) {
-        this.setState({ unlockOnly: false });
-      }
-      this.setState({ status });
-    });
-  };
-
-  private handleAbort = () => {
-    this.setState({
-      appStatus: '',
-      createOptions: undefined,
-    });
-  };
-
-  public componentWillUnmount() {
-    unsubscribe(this.unsubscribeList);
-  }
-
-  public render() {
-    const { deviceID } = this.props;
-    const {
-      attestation,
-      createOptions,
-      versionInfo,
-      status,
-      appStatus,
-      unlockOnly,
-      showWizard,
-      waitDialog,
-    } = this.state;
-
-    if (status === '') {
-      return null;
-    }
-    if (!versionInfo) {
-      return null;
-    }
-    if (status === 'require_firmware_upgrade') {
-      return (
-        <FirmwareUpgradeRequired
-          deviceID={deviceID}
-          versionInfo={versionInfo} />
-      );
-    }
-    if (status === 'require_app_upgrade') {
-      return <AppUpgradeRequired/>;
-    }
-    if (!showWizard) {
-      return null;
-    }
-    if (waitDialog) {
-      return (
-        <Wait
-          key="wait-view"
-          title={waitDialog.title}
-          text={waitDialog.text} />
-      );
-    }
-    // fixes empty main element, happens when after unlocking the device, reason wizard is now always mounted in app.tsx
-    if (appStatus === '' && status === 'initialized') {
-      return null;
-    }
+  if (status === 'require_firmware_upgrade') {
     return (
-      <Main>
-        { (status === 'connected') ? (
-          <Unlock
-            key="unlock"
-            attestation={attestation} />
-        ) : null }
-
-        { (status === 'unpaired' || status === 'pairingFailed') && (
-          <Pairing
-            key="pairing"
-            deviceID={deviceID}
-            attestation={attestation}
-            pairingFailed={status === 'pairingFailed'} />
-        )}
-
-        { (!unlockOnly && appStatus === '') && (
-          <SetupOptions
-            key="choose-setup"
-            versionInfo={versionInfo}
-            onSelectSetup={(
-              type: TWalletSetupChoices,
-              createOptions?: TWalletCreateOptions,
-            ) => this.setState({ appStatus: type, createOptions })} />
-        )}
-
-        { (!unlockOnly && appStatus === 'create-wallet') && (
-          <CreateWallet
-            backupType={(createOptions?.withMnemonic ? 'mnemonic' : 'sdcard')}
-            backupSeedLength={createOptions?.with12Words ? 16 : 32}
-            deviceID={deviceID}
-            isSeeded={status === 'seeded'}
-            onAbort={this.handleAbort} />
-        )}
-
-        {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
-        { (!unlockOnly && appStatus === 'restore-sdcard' && status !== 'initialized') && (
-          <RestoreFromSDCard
-            key="restore-sdcard"
-            deviceID={deviceID}
-            onAbort={this.handleAbort} />
-        )}
-
-        { (!unlockOnly && appStatus === 'restore-mnemonic' && status !== 'initialized') && (
-          <RestoreFromMnemonic
-            key="restore-mnemonic"
-            deviceID={deviceID}
-            onAbort={this.handleAbort} />
-        )}
-
-        { (appStatus === 'create-wallet' && status === 'initialized') && (
-          <CreateWalletSuccess
-            key="success"
-            backupType={(createOptions?.withMnemonic ? 'mnemonic' : 'sdcard')}
-            onContinue={this.handleGetStarted} />
-        )}
-        { (appStatus === 'restore-sdcard' && status === 'initialized') && (
-          <RestoreFromSDCardSuccess key="backup-success" onContinue={this.handleGetStarted} />
-        )}
-        { (appStatus === 'restore-mnemonic' && status === 'initialized') && (
-          <RestoreFromMnemonicSuccess key="backup-mnemonic-success" onContinue={this.handleGetStarted} />
-        )}
-      </Main>
+      <FirmwareUpgradeRequired
+        deviceID={deviceID}
+        versionInfo={versionInfo} />
     );
   }
-}
+  if (status === 'require_app_upgrade') {
+    return <AppUpgradeRequired/>;
+  }
+  if (!showWizard) {
+    return null;
+  }
+  // fixes empty main element, happens when after unlocking the device, reason wizard is now always mounted in app.tsx
+  if (appStatus === '' && status === 'initialized') {
+    return null;
+  }
+  return (
+    <Main>
+      { (status === 'connected') ? (
+        <Unlock
+          key="unlock"
+          attestation={attestation} />
+      ) : null }
+
+      { (status === 'unpaired' || status === 'pairingFailed') && (
+        <Pairing
+          key="pairing"
+          deviceID={deviceID}
+          attestation={attestation}
+          pairingFailed={status === 'pairingFailed'} />
+      )}
+
+      { (!unlockOnly && appStatus === '') && (
+        <SetupOptions
+          key="choose-setup"
+          versionInfo={versionInfo}
+          onSelectSetup={(
+            type: TWalletSetupChoices,
+            createOptions?: TWalletCreateOptions,
+          ) => {
+            setAppStatus(type);
+            setCreateOptions(createOptions);
+          }} />
+      )}
+
+      { (!unlockOnly && appStatus === 'create-wallet') && (
+        <CreateWallet
+          backupType={(createOptions?.withMnemonic ? 'mnemonic' : 'sdcard')}
+          backupSeedLength={createOptions?.with12Words ? 16 : 32}
+          deviceID={deviceID}
+          isSeeded={status === 'seeded'}
+          onAbort={handleAbort} />
+      )}
+
+      {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
+      { (!unlockOnly && appStatus === 'restore-sdcard' && status !== 'initialized') && (
+        <RestoreFromSDCard
+          key="restore-sdcard"
+          deviceID={deviceID}
+          onAbort={handleAbort} />
+      )}
+
+      { (!unlockOnly && appStatus === 'restore-mnemonic' && status !== 'initialized') && (
+        <RestoreFromMnemonic
+          key="restore-mnemonic"
+          deviceID={deviceID}
+          onAbort={handleAbort} />
+      )}
+
+      { (appStatus === 'create-wallet' && status === 'initialized') && (
+        <CreateWalletSuccess
+          key="success"
+          backupType={(createOptions?.withMnemonic ? 'mnemonic' : 'sdcard')}
+          onContinue={handleGetStarted} />
+      )}
+      { (appStatus === 'restore-sdcard' && status === 'initialized') && (
+        <RestoreFromSDCardSuccess key="backup-success" onContinue={handleGetStarted} />
+      )}
+      { (appStatus === 'restore-mnemonic' && status === 'initialized') && (
+        <RestoreFromMnemonicSuccess key="backup-mnemonic-success" onContinue={handleGetStarted} />
+      )}
+    </Main>
+  );
+};

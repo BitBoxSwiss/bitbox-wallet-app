@@ -53,3 +53,18 @@ func (detailedError DetailedError) Error() string {
 func WithContext(err error, data Context) *DetailedError {
 	return &DetailedError{Data: data, Err: err}
 }
+
+// ErrorCode are errors that are represented by an error code. This helps the frontend to translate
+// error messages.
+type ErrorCode string
+
+func (e ErrorCode) Error() string {
+	return string(e)
+}
+
+// The follwing error codes are defined here because they are shared between packages.
+// Package specific error codes should be defined inside the package itself.
+const (
+// ErrUserAbort is returned if the user aborted the current operation.
+// This is just an example: ErrUserAbort ErrorCode = "userAbort"
+)
