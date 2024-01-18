@@ -20,28 +20,18 @@ vi.mock('../../../utils/request', () => ({
   apiGet: vi.fn().mockResolvedValue(''),
 }));
 vi.mock('../../../i18n/i18n');
-vi.mock('../../../decorators/translate', () => ({
-  // this mock makes sure any components using the translate HoC receive the t function as a prop
-  translate: () => (Component: any) => {
-    Component.defaultProps = { ...Component.defaultProps, t: (k: any) => k };
-    return Component;
-  },
-}));
-
-vi.mock('../../../../src/decorators/load', () => ({
-  load: () => (Component: any) => {
-    Component.defaultProps = { ...Component.defaultProps, config: { frontend: { } } };
-    return Component;
-  },
-}));
 
 import { render, waitFor } from '@testing-library/react';
-import { FeeTargets } from '../../../routes/account/send/feetargets';
+import { FeeTargets } from './feetargets';
 import { apiGet } from '../../../utils/request';
+import * as apiHooks from '../../../hooks/api';
+
+const useLoadSpy = vi.spyOn(apiHooks, 'useLoad');
 
 describe('routes/account/send/feetargets', () => {
 
   it('should match the snapshot', async () => {
+    useLoadSpy.mockReturnValue({ frontend: { expertFee: false } });
     (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'economy',
       feeTargets: [
@@ -89,6 +79,7 @@ describe('routes/account/send/feetargets', () => {
   });
 
   it('should match the snapshot with empty feetargets', async () => {
+    useLoadSpy.mockReturnValue({ frontend: { expertFee: false } });
     (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: '',
       feeTargets: [],
@@ -108,6 +99,7 @@ describe('routes/account/send/feetargets', () => {
   });
 
   it('should call onFeeTargetChange with default', () => new Promise<void>(async done => {
+    useLoadSpy.mockReturnValue({ frontend: { expertFee: false } });
     const apiGetMock = (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'normal',
       feeTargets: [

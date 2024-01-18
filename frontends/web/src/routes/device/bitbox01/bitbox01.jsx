@@ -28,8 +28,8 @@ import SeedRestore from './setup/seed-restore';
 import { Initialize } from './setup/initialize';
 import Success from './setup/success';
 import Settings from './settings/settings';
-import { setSidebarStatus } from '../../../components/sidebar/sidebar';
 import { withTranslation } from 'react-i18next';
+import { AppContext } from '../../../contexts/AppContext';
 
 const DeviceStatus = Object.freeze({
   BOOTLOADER: 'bootloader',
@@ -47,6 +47,8 @@ const GOAL = Object.freeze({
 });
 
 class Device extends Component {
+  static contextType = AppContext;
+
   state = {
     firmwareVersion: null,
     deviceRegistered: false,
@@ -101,9 +103,9 @@ class Device extends Component {
     if (this.state.deviceRegistered) {
       apiGet('devices/' + this.props.deviceID + '/status').then(deviceStatus => {
         if (['seeded', 'initialized'].includes(deviceStatus)) {
-          setSidebarStatus('');
+          this.context.setSidebarStatus('');
         } else {
-          setSidebarStatus('forceHidden');
+          this.context.setSidebarStatus('forceHidden');
         }
         this.setState({ deviceStatus });
       });

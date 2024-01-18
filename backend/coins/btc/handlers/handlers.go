@@ -36,7 +36,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/exchanges"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
@@ -51,6 +50,11 @@ type Handlers struct {
 	account accounts.Interface
 	log     *logrus.Entry
 }
+
+const (
+	// ErrUserAbort is returned if the user aborted the current operation.
+	errUserAbort errp.ErrorCode = "userAbort"
+)
 
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
@@ -735,7 +739,7 @@ func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, erro
 		request.Format)
 	if err != nil {
 		if firmware.IsErrorAbort(err) {
-			return response{Success: false, ErrorCode: string(exchanges.ErrUserAbort)}, nil
+			return response{Success: false, ErrorCode: string(errUserAbort)}, nil
 		}
 		if errp.Cause(err) == backend.ErrWrongKeystore {
 			return response{Success: false, ErrorCode: string("wrongKeystore")}, nil

@@ -15,9 +15,9 @@
  */
 
 import { TUnsubscribe } from '../utils/transport-common';
+import * as accountAPI from './account';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 import { subscribe as subscribeLegacy } from '../utils/event-legacy';
-import { IAccount } from './account';
 
 /**
  * Subscribes the given function on the "account" event and receives the
@@ -25,7 +25,7 @@ import { IAccount } from './account';
  * Returns a method to unsubscribe.
  */
 export const syncAccountsList = (
-  cb: (accounts: IAccount[],) => void
+  cb: (accounts: accountAPI.IAccount[],) => void
 ): TUnsubscribe => {
   return subscribeEndpoint('accounts', cb);
 };
@@ -35,7 +35,7 @@ export const syncAccountsList = (
  * event to receive the progress of the address sync.
  * Meant to be used with `useSubscribe`.
  */
-export const syncAddressesCount = (code: string) => {
+export const syncAddressesCount = (code: accountAPI.AccountCode) => {
   return (
     cb: TSubscriptionCallback<number>
   ) => {
@@ -49,11 +49,11 @@ export const syncAddressesCount = (code: string) => {
 
 /**
  * Fired when status of an account changed, mostly
- * used as event to call accountApi.getStatus(code).
+ * used as event to call accountAPI.getStatus(code).
  * Returns a method to unsubscribe.
  */
 export const statusChanged = (
-  cb: (code: string) => void,
+  cb: (code: accountAPI.AccountCode) => void,
 ): TUnsubscribe => {
   const unsubscribe = subscribeLegacy('statusChanged', event => {
     if (event.type === 'account' && event.code) {
@@ -68,7 +68,7 @@ export const statusChanged = (
  * Returns a method to unsubscribe.
  */
 export const syncdone = (
-  cb: (code: string) => void,
+  cb: (code: accountAPI.AccountCode) => void,
 ): TUnsubscribe => {
   return subscribeLegacy('syncdone', event => {
     if (event.type === 'account' && event.code) {

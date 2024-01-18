@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package goserver
+package mobileserver
 
 import (
 	"io"
@@ -128,7 +128,8 @@ func (d deviceInfo) Open() (io.ReadWriteCloser, error) {
 	return readWriteCloser{device}, nil
 }
 
-// GoAPIInterface is used to pas api (GET/POST) responses and websocket push notifications to Android.
+// GoAPIInterface is used to pas api (GET/POST) responses and websocket push notifications to
+// Android/iOS.
 type GoAPIInterface interface {
 	bridgecommon.NativeCommunication
 }
@@ -197,7 +198,7 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 			UsingMobileDataFunc: environment.UsingMobileData,
 			NativeLocaleFunc:    environment.NativeLocale,
 			GetSaveFilenameFunc: func(suggestedFilename string) string {
-				// On Android, we don't yet support exporting files. Implement this once needed.
+				// On mobile, we don't yet support exporting files. Implement this once needed.
 				return ""
 			},
 			SetDarkThemeFunc:         environment.SetDarkTheme,

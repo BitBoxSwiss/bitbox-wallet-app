@@ -16,12 +16,14 @@
 package bitbox02bootloader
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/digitalbitbox/bitbox02-api-go/api/bootloader"
 	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
@@ -114,7 +116,15 @@ func (device *Device) fireEvent() {
 	f := device.onEvent
 	device.mu.RUnlock()
 	if f != nil {
+		// Old-school
 		f(EventStatusChanged, nil)
+
+		// New-school
+		device.Notify(observable.Event{
+			Subject: fmt.Sprintf("devices/bitbox02-bootloader/%s/status", device.deviceID),
+			Action:  action.Replace,
+			Object:  device.Status(),
+		})
 	}
 }
 

@@ -21,7 +21,7 @@ import { Button } from '../forms';
 import { WaitDialog } from '../wait-dialog/wait-dialog';
 
 type TProps = {
-    accountCode: string;
+    accountCode: accountAPI.AccountCode;
     address: string;
     addressID: string;
 }

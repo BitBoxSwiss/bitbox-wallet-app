@@ -9,7 +9,7 @@ import { Exchange } from './buy/exchange';
 import { Pocket } from './buy/pocket';
 import { Info } from './account/info/info';
 import { Receive } from './account/receive';
-import { Send } from './account/send/send';
+import { SendWrapper } from './account/send/send-wrapper';
 import { AccountsSummary } from './account/summary/accountssummary';
 import { DeviceSwitch } from './device/deviceswitch';
 import ManageBackups from './device/manage-backups/manage-backups';
@@ -78,7 +78,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   </InjectParams>;
 
   const AccSend = <InjectParams>
-    <Send
+    <SendWrapper
       code={'' /* dummy to satisfy TS */}
       devices={devices}
       deviceIDs={deviceIDs}

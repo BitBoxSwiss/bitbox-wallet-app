@@ -556,7 +556,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) interface{} {
 	accountCode, err := handlers.backend.CreateAndPersistAccountConfig(jsonBody.CoinCode, jsonBody.Name, keystore)
 	if err != nil {
 		handlers.log.WithError(err).Error("Could not add account")
-		if errCode, ok := errp.Cause(err).(backend.ErrorCode); ok {
+		if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
 			return response{Success: false, ErrorCode: string(errCode)}
 		}
 		return response{Success: false, ErrorMessage: err.Error()}
@@ -798,7 +798,7 @@ func (handlers *Handlers) postRenameAccountHandler(r *http.Request) interface{} 
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := handlers.backend.RenameAccount(jsonBody.AccountCode, jsonBody.Name); err != nil {
-		if errCode, ok := errp.Cause(err).(backend.ErrorCode); ok {
+		if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
 			return response{Success: false, ErrorCode: string(errCode)}
 		}
 		return response{Success: false, ErrorMessage: err.Error()}
@@ -1338,7 +1338,7 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interfa
 	err = exchanges.PocketWidgetVerifyAddress(account, request.Address)
 	if err != nil {
 		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
-		if errCode, ok := errp.Cause(err).(exchanges.ErrorCode); ok {
+		if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
 			return response{Success: false, ErrorCode: string(errCode)}
 		}
 		return response{Success: false, ErrorMessage: err.Error()}

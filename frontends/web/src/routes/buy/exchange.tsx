@@ -19,7 +19,7 @@ import { i18n } from '../../i18n/i18n';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/forms';
 import * as exchangesAPI from '../../api/exchanges';
-import { IAccount } from '../../api/account';
+import { AccountCode, IAccount } from '../../api/account';
 import { Header } from '../../components/layout';
 import Guide from './guide';
 import { findAccount, getCryptoName } from '../account/utils';
@@ -40,7 +40,7 @@ import style from './exchange.module.css';
 import { CountrySelect, TOption } from './components/countryselect';
 
 type TProps = {
-    code: string;
+    code: AccountCode;
     accounts: IAccount[];
 }
 

@@ -19,7 +19,7 @@ import Select, { components, SingleValueProps, OptionProps, SingleValue, Dropdow
 import { AccountCode, IAccount, getBalance } from '../../api/account';
 import { Button } from '../forms';
 import Logo from '../icon/logo';
-import AppContext from '../../contexts/AppContext';
+import { AppContext } from '../../contexts/AppContext';
 import styles from './accountselector.module.css';
 import { InsuredShield } from '../../routes/account/components/insuredtag';
 
