@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,8 +67,8 @@ export const Receive = ({
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.IReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
-
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
+  const insured = account?.bitsuranceStatus === 'active';
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
@@ -76,7 +76,7 @@ export const Receive = ({
   const availableScriptTypes = useRef<accountApi.ScriptType[]>();
 
   const hasManyScriptTypes = availableScriptTypes.current && availableScriptTypes.current.length > 1;
-  const scriptTypeDialogOpened = !!(addressDialog && hasManyScriptTypes);
+  const scriptTypeDialogOpened = !!(addressDialog && (hasManyScriptTypes || insured));
 
   useEsc(() => !scriptTypeDialogOpened && !verifying && route(`/account/${code}`));
 
@@ -203,7 +203,7 @@ export const Receive = ({
                     )}
                   </div>
                   <CopyableInput disabled={true} value={address} flexibleHeight />
-                  { hasManyScriptTypes && (
+                  { (hasManyScriptTypes || insured) && (
                     <button
                       className={style.changeType}
                       onClick={() => setAddressDialog(!addressDialog ? { addressType } : undefined)}>
@@ -214,24 +214,30 @@ export const Receive = ({
                     <Dialog open={scriptTypeDialogOpened} onClose={() => setAddressDialog(undefined)} medium title={t('receive.changeScriptType')} >
                       {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
                         <div key={scriptType}>
-                          {addressDialog && <>
-                            <Radio
-                              checked={addressDialog.addressType === i}
-                              id={scriptType}
-                              name="scriptType"
-                              onChange={() => setAddressDialog({ addressType: i })}
-                              title={getScriptName(scriptType)}>
-                              {t(`receive.scriptType.${scriptType}`)}
-                            </Radio>
-                            {scriptType === 'p2tr' && addressDialog.addressType === i && (
-                              <Message type="warning">
-                                {t('receive.taprootWarning')}
-                              </Message>
-                            )}
-                          </>
-                          }
+                          {addressDialog && (
+                            <>
+                              <Radio
+                                checked={addressDialog.addressType === i}
+                                id={scriptType}
+                                name="scriptType"
+                                onChange={() => setAddressDialog({ addressType: i })}
+                                title={getScriptName(scriptType)}>
+                                {t(`receive.scriptType.${scriptType}`)}
+                              </Radio>
+                              {scriptType === 'p2tr' && addressDialog.addressType === i && (
+                                <Message type="warning">
+                                  {t('receive.taprootWarning')}
+                                </Message>
+                              )}
+                            </>
+                          )}
                         </div>
                       ))}
+                      {insured && (
+                        <Message type="warning">
+                          {t('receive.bitsuranceWarning')}
+                        </Message>
+                      )}
                       <DialogButtons>
                         <Button primary type="submit">
                           {t('button.done')}

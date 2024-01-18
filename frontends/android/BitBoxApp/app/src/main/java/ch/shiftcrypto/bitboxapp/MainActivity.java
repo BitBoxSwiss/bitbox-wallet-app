@@ -294,6 +294,7 @@ public class MainActivity extends AppCompatActivity {
                     List<Pattern> patterns = new ArrayList<>();
                     patterns.add(Pattern.compile("^(.*\\.)?pocketbitcoin\\.com$"));
                     patterns.add(Pattern.compile("^(.*\\.)?moonpay\\.com$"));
+                    patterns.add(Pattern.compile("^(.*\\.)?bitsurance\\.eu$"));
 
                     for (Pattern pattern : patterns) {
                         if (pattern.matcher(request.getUrl().getHost()).matches()) {

@@ -29,6 +29,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitsurance"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
@@ -53,16 +54,10 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
-	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 	qrcode "github.com/skip2/go-qrcode"
-)
-
-const (
-	// ErrUserAbort is returned if the user aborted the current operation.
-	errUserAbort errp.ErrorCode = "userAbort"
 )
 
 // Backend models the API of the backend.
@@ -108,11 +103,12 @@ type Backend interface {
 	AOPPCancel()
 	AOPPApprove()
 	AOPPChooseAccount(code accountsTypes.Code)
+	GetAccountFromCode(code accountsTypes.Code) (accounts.Interface, error)
+	HTTPClient() *http.Client
+	LookupInsuredAccounts(accountCode accountsTypes.Code) ([]bitsurance.AccountDetails, error)
 	Authenticate(force bool)
 	TriggerAuth()
 	ForceAuth()
-	GetAccountFromCode(code string) (accounts.Interface, error)
-	HTTPClient() *http.Client
 	CancelConnectKeystore()
 	SetWatchonly(rootFingerprint []byte, watchonly bool) error
 	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
@@ -243,8 +239,9 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/exchange/buy-supported/{code}", handlers.getExchangeBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url", handlers.getExchangePocketURL).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/pocket/sign-address", handlers.postPocketWidgetSignAddress).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/bitsurance/lookup", handlers.postBitsuranceLookup).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/bitsurance/url", handlers.getBitsuranceURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
@@ -374,6 +371,7 @@ type accountJSON struct {
 	// keystore.
 	Keystore              keystoreJSON       `json:"keystore"`
 	Active                bool               `json:"active"`
+	BitsuranceStatus      string             `json:"bitsuranceStatus"`
 	Watch                 bool               `json:"watch"`
 	CoinCode              coinpkg.Code       `json:"coinCode"`
 	CoinUnit              string             `json:"coinUnit"`
@@ -399,6 +397,7 @@ func newAccountJSON(
 			Connected: keystoreConnected,
 		},
 		Active:                !account.Config().Config.Inactive,
+		BitsuranceStatus:      account.Config().Config.InsuranceStatus,
 		Watch:                 watch != nil && *watch,
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
@@ -899,13 +898,13 @@ func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) interface{}
 }
 
 func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) interface{} {
-	from := r.URL.Query().Get("from")
-	to := r.URL.Query().Get("to")
+	coinCode := r.URL.Query().Get("from")
+	currency := r.URL.Query().Get("to")
 	amount := r.URL.Query().Get("amount")
 
-	currentCoin, err := handlers.backend.Coin(coinpkg.Code(from))
+	currentCoin, err := handlers.backend.Coin(coinpkg.Code(coinCode))
 	if err != nil {
-		handlers.log.WithError(err).Error("Could not get coin " + from)
+		handlers.log.WithError(err).Error("Could not get coin " + coinCode)
 		return map[string]interface{}{
 			"success": false,
 		}
@@ -921,15 +920,15 @@ func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) interfac
 
 	coinUnitAmount := new(big.Rat).SetFloat64(currentCoin.ToUnit(coinAmount, false))
 
-	unit := currentCoin.Unit(false)
-	rate := handlers.backend.RatesUpdater().LatestPrice()[unit][to]
+	coinUnit := currentCoin.Unit(false)
+	rate := handlers.backend.RatesUpdater().LatestPrice()[coinUnit][currency]
 
 	convertedAmount := new(big.Rat).Mul(coinUnitAmount, new(big.Rat).SetFloat64(rate))
 
 	btcUnit := handlers.backend.Config().AppConfig().Backend.BtcUnit
 	return map[string]interface{}{
 		"success":    true,
-		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, to, util.FormatBtcAsSat(btcUnit)),
+		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, currency == rates.BTC.String(), util.FormatBtcAsSat(btcUnit)),
 	}
 }
 
@@ -1185,7 +1184,7 @@ func (handlers *Handlers) getExchangesByRegion(r *http.Request) interface{} {
 		Error string `json:"error"`
 	}
 
-	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
 		handlers.log.Error(err)
 		return errorResult{Error: err.Error()}
@@ -1200,6 +1199,40 @@ func (handlers *Handlers) getExchangesByRegion(r *http.Request) interface{} {
 	return exchanges.ListExchangesByRegion(acct, handlers.backend.HTTPClient())
 }
 
+func (handlers *Handlers) postBitsuranceLookup(r *http.Request) interface{} {
+	type response struct {
+		Success            bool                        `json:"success"`
+		ErrorMessage       string                      `json:"errorMessage"`
+		BitsuranceAccounts []bitsurance.AccountDetails `json:"bitsuranceAccounts"`
+	}
+
+	var request struct {
+		AccountCode accountsTypes.Code `json:"code"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		handlers.log.Error(err)
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	insuredAccounts, err := handlers.backend.LookupInsuredAccounts(request.AccountCode)
+	if err != nil {
+		handlers.log.Error(err)
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+
+	return response{Success: true, BitsuranceAccounts: insuredAccounts}
+}
+
+func (handlers *Handlers) getBitsuranceURL(r *http.Request) interface{} {
+	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
+	if len(lang) == 0 {
+		// userLanguage config is empty if the set locale matches the system locale, so we have
+		// to retrieve that.
+		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
+	}
+
+	return bitsurance.WidgetURL(handlers.backend.DevServers(), lang)
+}
 func (handlers *Handlers) getExchangeDeals(r *http.Request) interface{} {
 	type exchangeDealsList struct {
 		Exchanges []exchanges.ExchangeDeals `json:"exchanges"`
@@ -1218,7 +1251,7 @@ func (handlers *Handlers) getExchangeBuySupported(r *http.Request) (interface{},
 		Exchanges []string `json:"exchanges"`
 	}
 
-	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
 		return nil, err
 	}
@@ -1240,14 +1273,14 @@ func (handlers *Handlers) getExchangeBuySupported(r *http.Request) (interface{},
 }
 
 func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{}, error) {
-	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
 		return nil, err
 	}
 
 	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
 	if len(lang) == 0 {
-		// userLanguace config is empty if the set locale matches the system locale, so we have
+		// userLanguage config is empty if the set locale matches the system locale, so we have
 		// to retrieve that.
 		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
 	}
@@ -1272,7 +1305,7 @@ func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{
 func (handlers *Handlers) getExchangePocketURL(r *http.Request) interface{} {
 	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
 	if len(lang) == 0 {
-		// userLanguace config is empty if the set locale matches the system locale, so we have
+		// userLanguage config is empty if the set locale matches the system locale, so we have
 		// to retrieve that.
 		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
 	}
@@ -1289,8 +1322,8 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interfa
 	}
 
 	var request struct {
-		AccountCode string `json:"accountCode"`
-		Address     string `json:"address"`
+		AccountCode accountsTypes.Code `json:"accountCode"`
+		Address     string             `json:"address"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
@@ -1312,44 +1345,6 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interfa
 	}
 	return response{Success: true}
 
-}
-
-func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) interface{} {
-	type response struct {
-		Success      bool   `json:"success"`
-		Address      string `json:"address"`
-		Signature    string `json:"signature"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
-		ErrorCode    string `json:"errorCode,omitempty"`
-	}
-
-	var request struct {
-		AccountCode string `json:"accountCode"`
-		Msg         string `json:"msg"`
-		Format      string `json:"format"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}
-	}
-
-	account, err := handlers.backend.GetAccountFromCode(request.AccountCode)
-	if err != nil {
-		handlers.log.Error(err)
-		return response{Success: false, ErrorMessage: err.Error()}
-	}
-
-	address, signature, err := exchanges.PocketWidgetSignAddress(
-		account,
-		request.Msg,
-		request.Format)
-	if err != nil {
-		if firmware.IsErrorAbort(err) {
-			return response{Success: false, ErrorCode: string(errUserAbort)}
-		}
-		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
-		return response{Success: false, ErrorMessage: err.Error()}
-	}
-	return response{Success: true, Address: address, Signature: signature}
 }
 
 func (handlers *Handlers) getAOPPHandler(r *http.Request) interface{} {

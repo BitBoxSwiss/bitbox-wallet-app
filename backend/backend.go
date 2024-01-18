@@ -84,6 +84,12 @@ var fixedURLWhitelist = []string{
 	"https://help.moonpay.com/",
 	// PocketBitcoin
 	"https://pocketbitcoin.com/",
+	// Bitsurance
+	"https://www.bitsurance.eu/",
+	"https://get.bitsurance.eu/",
+	"https://bitsurance.ihr-versicherungsschutz.de/",
+	"https://bitsurance.eu/support",
+	"https://support.bitsurance.eu",
 	// Documentation and other articles.
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
@@ -859,8 +865,7 @@ func (backend *Backend) HandleURI(uri string) {
 
 // GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
 // if found. It also initialize the account before returning it.
-func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, error) {
-	acctCode := accountsTypes.Code(code)
+func (backend *Backend) GetAccountFromCode(acctCode accountsTypes.Code) (accounts.Interface, error) {
 	// TODO: Refactor to make use of a map.
 	var acct accounts.Interface
 	for _, a := range backend.Accounts() {

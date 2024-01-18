@@ -24,7 +24,9 @@ import (
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitsurance"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
@@ -197,6 +199,85 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 		availableCoins = append(availableCoins, coinCode)
 	}
 	return availableCoins
+}
+
+// LookupInsuredAccounts queries the insurance status of specified or all active BTC accounts
+// and updates the internal state based on the retrieved information. If the accountCode is
+// provided, it checks the insurance status for that specific account; otherwise, it checks
+// the status for all active BTC accounts. If any account's insurance status changes, the
+// function persists the change, reinitializes the accounts, and emits a status change event.
+// Additionally, if an account's insurance is canceled or inactive, the account code is added
+// to the frontend config for notifying the user.
+func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([]bitsurance.AccountDetails, error) {
+	var accountList []accounts.Interface
+
+	if len(accountCode) > 0 {
+		// if the accountCode is not empty, we'll just check the insurance status of that account.
+		acct, err := backend.GetAccountFromCode(accountCode)
+		if err != nil {
+			return nil, err
+		}
+		accountList = []accounts.Interface{acct}
+	} else {
+		// otherwise we'll check the status for all the active BTC accounts.
+		for _, account := range backend.accounts {
+			config := account.Config().Config
+			if !config.HiddenBecauseUnused && config.CoinCode == coinpkg.CodeBTC {
+				accountList = append(accountList, account)
+			}
+		}
+	}
+
+	// check the insurance status of the selected accounts.
+	bitsuranceAccounts, err := bitsurance.LookupBitsuranceAccounts(backend.DevServers(), accountList, backend.httpClient)
+	if err != nil {
+		return nil, err
+	}
+
+	// if any account insurance status changed, persist the change and reinitialize the accounts.
+	statusChange := false
+	err = backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		for _, bitsuranceAccount := range bitsuranceAccounts {
+			bitsuranceStatus := string(bitsuranceAccount.Status)
+			accountConfig := accountsConfig.Lookup(bitsuranceAccount.AccountCode)
+			if accountConfig == nil {
+				return errp.Newf("Could not find account %s", bitsuranceAccount.AccountCode)
+			}
+			if accountConfig.InsuranceStatus != bitsuranceStatus {
+				backend.log.Infof("Account [%s] insurance status changed to %v", bitsuranceAccount.AccountCode, bitsuranceStatus)
+				canceled := bitsuranceStatus == string(bitsurance.CanceledStatus) || bitsuranceStatus == string(bitsurance.InactiveStatus)
+				if canceled {
+					// add the canceled insurance account code in the frontend config, to allow alerting the user.
+					appConfig := backend.config.AppConfig()
+					frontendConfig, ok := appConfig.Frontend.(map[string]interface{})
+					if !ok {
+						frontendConfig = make(map[string]interface{})
+					}
+					canceledAccounts, ok := frontendConfig["bitsuranceNotifyCancellation"].([]types.Code)
+					if !ok {
+						frontendConfig["bitsuranceNotifyCancellation"] = []types.Code{bitsuranceAccount.AccountCode}
+					} else {
+						canceledAccounts = append(canceledAccounts, bitsuranceAccount.AccountCode)
+						frontendConfig["bitsuranceNotifyCancellation"] = canceledAccounts
+					}
+					if err := backend.config.SetAppConfig(appConfig); err != nil {
+						return err
+					}
+				}
+				accountConfig.InsuranceStatus = bitsuranceStatus
+				statusChange = true
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if statusChange {
+		backend.emitAccountsStatusChanged()
+	}
+	return bitsuranceAccounts, nil
 }
 
 // defaultAccountName returns a default name for a new account. The first account is the coin name,
@@ -620,7 +701,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			default:
 				// Display error to user.
 				errorCode := ""
-				if errp.Cause(err) == errWrongKeystore {
+				if errp.Cause(err) == ErrWrongKeystore {
 					errorCode = "wrongKeystore"
 				}
 				backend.Notify(observable.Event{

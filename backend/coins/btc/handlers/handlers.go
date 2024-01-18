@@ -27,8 +27,10 @@ import (
 
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -38,6 +40,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -47,6 +50,11 @@ type Handlers struct {
 	account accounts.Interface
 	log     *logrus.Entry
 }
+
+const (
+	// ErrUserAbort is returned if the user aborted the current operation.
+	errUserAbort errp.ErrorCode = "userAbort"
+)
 
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
@@ -67,6 +75,7 @@ func NewHandlers(
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
+	handleFunc("/sign-address", handlers.ensureAccountInitialized(handlers.postSignBTCAddress)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/propose-tx-note", handlers.ensureAccountInitialized(handlers.postProposeTxNote)).Methods("POST")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
@@ -696,4 +705,48 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 		RawTx:   rawTx,
 		TxHash:  txHash,
 	}, nil
+}
+
+func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success      bool   `json:"success"`
+		Address      string `json:"address"`
+		Signature    string `json:"signature"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+	}
+
+	var request struct {
+		AccountCode types.Code `json:"accountCode"`
+		Msg         string     `json:"msg"`
+		Format      string     `json:"format"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+
+	account, ok := handlers.account.(*btc.Account)
+	if !ok {
+		return response{
+			Success:      false,
+			ErrorMessage: "An account must be BTC based to support address signing.",
+		}, nil
+	}
+
+	address, signature, err := btc.SignBTCAddress(
+		account,
+		request.Msg,
+		request.Format)
+	if err != nil {
+		if firmware.IsErrorAbort(err) {
+			return response{Success: false, ErrorCode: string(errUserAbort)}, nil
+		}
+		if errp.Cause(err) == backend.ErrWrongKeystore {
+			return response{Success: false, ErrorCode: string("wrongKeystore")}, nil
+		}
+
+		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	return response{Success: true, Address: address, Signature: signature}, nil
 }

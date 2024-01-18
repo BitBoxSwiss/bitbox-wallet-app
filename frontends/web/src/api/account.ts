@@ -16,6 +16,7 @@
 
 import { apiGet, apiPost } from '../utils/request';
 import { ChartData } from '../routes/account/summary/chart';
+import type { TDetailStatus } from './bitsurance';
 import { SuccessResponse } from './response';
 
 export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
@@ -60,6 +61,7 @@ export interface IAccount {
   isToken: boolean;
   activeTokens?: IActiveToken[];
   blockExplorerTxPrefix: string;
+  bitsuranceStatus?: TDetailStatus;
 }
 
 export const getAccounts = (): Promise<IAccount[]> => {
@@ -370,3 +372,18 @@ export const ethSignTypedMessage = (code: AccountCode, chainId: number, data: an
 export const ethSignWalletConnectTx = (code: AccountCode, send: boolean, chainId: number, tx: any): Promise<TSignWalletConnectTx> => {
   return apiPost(`account/${code}/eth-sign-wallet-connect-tx`, { send, chainId, tx });
 };
+
+export type AddressSignResponse = {
+  success: true;
+  signature: string;
+  address: string;
+} | {
+  success: false;
+  errorMessage?: string;
+  errorCode?: 'userAbort' | 'wrongKeystore';
+}
+
+export const signAddress = (format: string, msg: string, code: AccountCode): Promise<AddressSignResponse> => {
+  return apiPost(`account/${code}/sign-address`, { format, msg, code });
+};
+
