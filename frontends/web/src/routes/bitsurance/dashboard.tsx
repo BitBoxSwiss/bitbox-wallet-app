@@ -34,6 +34,7 @@ import { HideAmountsButton } from '../../components/hideamountsbutton/hideamount
 import { ExternalLink, GreenDot, OrangeDot, RedDot, YellowDot } from '../../components/icon';
 import style from './dashboard.module.css';
 import { HorizontallyCenteredSpinner } from '../../components/spinner/SpinnerAnimation';
+import { TAccountsByKeystore, getAccountsByKeystore, isAmbiguiousName } from '../account/utils';
 
 type TProps = {
     accounts: IAccount[];
@@ -41,6 +42,10 @@ type TProps = {
 
 type TAccountStatusIconProps = {
   status: TDetailStatus;
+}
+
+type TInsurancesByCode = {
+  [accountCode: AccountCode]: TAccountDetails;
 }
 
 const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
@@ -62,40 +67,53 @@ const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
 export const BitsuranceDashboard = ({ accounts }: TProps) => {
   const { t } = useTranslation();
   const mounted = useMountedRef();
-  const [insuredAccounts, setInsuredAccounts] = useState<TAccountDetails[]>([]);
   const [balances, setBalances] = useState<Balances>();
-  const [activeAccountCodes, setActiveAccountCodes] = useState<AccountCode[]>([]);
+  const [insurances, setInsurances] = useState<TInsurancesByCode>();
+  const [accountsByKeystore, setAccountsByKeystore] = useState<TAccountsByKeystore[]>();
 
-  const detect = useCallback(async () => {
+  // anyAccountInsured returns true if any of the accounts belonging
+  // to a certain keystore is contained in the insurances map.
+  const anyAccountInsured = (keystore: TAccountsByKeystore) => {
+    return keystore.accounts?.some(account => !!account.bitsuranceStatus);
+  };
+
+  const fetchInsurances = useCallback(async () => {
     const response = await bitsuranceLookup();
     if (!response.success) {
       alertUser(response.errorMessage);
       return;
     }
+    let accountsInsurance = {} as TInsurancesByCode;
+    response.bitsuranceAccounts.forEach(insurance => {
+      accountsInsurance[insurance.code] = insurance;
+    });
+    setInsurances(accountsInsurance);
 
-    setInsuredAccounts(response.bitsuranceAccounts);
+
   }, []);
 
   useEffect(() => {
-    setActiveAccountCodes(accounts.filter(ac => ac.active).map(ac => ac.code));
-    detect();
-    return () => setInsuredAccounts([]);
-  }, [detect, accounts]);
+    setAccountsByKeystore(getAccountsByKeystore(accounts));
+    fetchInsurances();
+    return () => setInsurances(undefined);
+  }, [fetchInsurances, accounts]);
 
   useEffect(() => {
-    insuredAccounts.forEach(account => {
-      getBalance(account.code).then(balance => {
+    if (!insurances) {
+      return;
+    }
+    Object.keys(insurances).forEach(accountCode => {
+      getBalance(accountCode).then(balance => {
         if (!mounted.current) {
           return;
         }
         setBalances((prevBalances) => ({
           ...prevBalances,
-          [account.code]: balance
+          [accountCode]: balance
         }));
-
       });
     });
-  }, [insuredAccounts, mounted]);
+  }, [insurances, mounted, accounts]);
 
   return (
     <GuideWrapper>
@@ -122,51 +140,67 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
               </div>
 
               <div className={style.accountsContainer}>
-                {insuredAccounts.length ? insuredAccounts.map(account => activeAccountCodes.includes(account.code) ? (
-                  <div key={account.code} className={style.row}>
-                    <div className="flex flex-items-center">
-                      <p className={`${style.text} ${style.accountName}`}>
-                        {accounts.filter(ac => ac.code === account.code).map(ac => ac.name)}
-                      </p>
-                      <span className={`${style.text} ${style.subtle}`}>
-                        { balances && balances[account.code] ? (
-                          <>
-                            <Amount
-                              amount={balances[account.code].available.amount}
-                              unit={balances[account.code].available.unit}
-                              removeBtcTrailingZeroes
-                            />
-                            {` ${balances[account.code].available.unit}`}
-                          </>
-                        ) : <Skeleton/>}
-                      </span>
-                    </div>
+                {accountsByKeystore?.length && insurances ? accountsByKeystore.map((keystore) => (
+                  <>
+                    { anyAccountInsured(keystore) && (
+                      <>
+                        <p className={style.keystore}>{keystore.keystore.name}
+                          { isAmbiguiousName(keystore.keystore.name, accountsByKeystore) ? (
+                          // Disambiguate accounts group by adding the fingerprint.
+                          // The most common case where this would happen is when adding accounts from the
+                          // same seed using different passphrases.
+                            <span className={style.subtle}> ({keystore.keystore.rootFingerprint})</span>
+                          ) : null }
+                        </p>
+                        <div>
+                          {keystore.accounts?.length ? keystore.accounts.map(account => insurances && insurances[account.code] ? (
+                            <div key={account.code} className={style.row}>
+                              <div className="flex flex-items-center">
+                                <p className={`${style.text} ${style.accountName}`}>
+                                  {accounts.filter(ac => ac.code === account.code).map(ac => ac.name)}
+                                </p>
+                                <span className={`${style.text} ${style.subtle}`}>
+                                  { balances && balances[account.code] ? (
+                                    <>
+                                      <Amount
+                                        amount={balances[account.code].available.amount}
+                                        unit={balances[account.code].available.unit}
+                                        removeBtcTrailingZeroes
+                                      />
+                                      {` ${balances[account.code].available.unit}`}
+                                    </>
+                                  ) : <Skeleton/>}
+                                </span>
+                              </div>
 
-                    <div className={'m-top-half m-bottom-half'}>
-                      <p className={`${style.text} ${style.subtle} m-bottom-quarter`}>{t('bitsurance.dashboard.coverage')}</p>
-                      <p className={style.text}>{account.details.maxCoverageFormatted} {account.details.currency}</p>
-                    </div>
+                              <div className={'m-top-half m-bottom-half'}>
+                                <p className={`${style.text} ${style.subtle} m-bottom-quarter`}>{t('bitsurance.dashboard.coverage')}</p>
+                                <p className={style.text}>{insurances[account.code].details.maxCoverageFormatted} {insurances[account.code].details.currency}</p>
+                              </div>
 
-                    <div className="flex flex-column-mobile">
-                      <div className="flex">
-                        <AccountStatusIcon status={account.status} />
-                        <p className={`${style.text} m-left-quarter m-right-half`}>{t('bitsurance.dashboard.' + account.status)}</p>
-                      </div>
-                      <A
-                        className={`${style.text} ${style.link} m-top-quarter-on-small`}
-                        href={account.details.support}
-                      >
-                        <div className="flex">
-                          <ExternalLink width={16} />
-                          <span className="m-left-quarter">{t('bitsurance.dashboard.supportLink')}</span>
+                              <div className="flex flex-column-mobile">
+                                <div className="flex">
+                                  <AccountStatusIcon status={insurances[account.code].status} />
+                                  <p className={`${style.text} m-left-quarter m-right-half`}>{t('bitsurance.dashboard.' + insurances[account.code].status)}</p>
+                                </div>
+                                <A
+                                  className={`${style.text} ${style.link} m-top-quarter-on-small`}
+                                  href={insurances[account.code].details.support}
+                                >
+                                  <div className="flex">
+                                    <ExternalLink width={16} />
+                                    <span className="m-left-quarter">{t('bitsurance.dashboard.supportLink')}</span>
+                                  </div>
+                                </A>
+                              </div>
+
+                            </div>
+                          ) : null) : <HorizontallyCenteredSpinner />}
                         </div>
-                      </A>
-                    </div>
-
-                  </div>
-                ) : null) : <HorizontallyCenteredSpinner />}
+                      </>)}
+                  </>
+                )) : <HorizontallyCenteredSpinner />}
               </div>
-
             </ViewContent>
           </View>
         </Main>
