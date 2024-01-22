@@ -18,7 +18,6 @@ package eth
 import (
 	"context"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -49,10 +48,6 @@ import (
 )
 
 var pollInterval = 5 * time.Minute
-
-// ethGasStationAPIKey is used to access the API of https://ethgasstation.info.
-// See https://docs.ethgasstation.info/.
-const ethGasStationAPIKey = "3a61bee56f554cc14db4f49e2ace053b3086d3c323aefec83e5ff25ca485"
 
 func isMixedCase(s string) bool {
 	return strings.ToLower(s) != s && strings.ToUpper(s) != s
@@ -507,7 +502,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 	}
 	address := ethcommon.HexToAddress(args.RecipientAddress)
 
-	suggestedGasPrice, err := account.gasPrice(args)
+	suggestedGasFeeCap, suggestedGasTipCap, err := account.gasFees(args)
 	if err != nil {
 		if _, ok := errp.Cause(err).(errors.TxValidationError); ok {
 			return nil, err
@@ -584,7 +579,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 		return nil, errp.WithStack(errors.TxValidationError(err.Error()))
 	}
 
-	fee := new(big.Int).Mul(new(big.Int).SetUint64(gasLimit), suggestedGasPrice)
+	fee := new(big.Int).Mul(new(big.Int).SetUint64(gasLimit), suggestedGasFeeCap)
 
 	// Adjust amount with fee
 	if account.coin.erc20Token != nil {
@@ -610,15 +605,44 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 			}
 		}
 	}
-	tx := types.NewTransaction(account.nextNonce,
-		*message.To,
-		message.Value, gasLimit, suggestedGasPrice, message.Data)
+
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return nil, err
+	}
+
+	var tx *types.Transaction
+
+	if keystore.SupportsEIP1559() {
+		txData := &types.DynamicFeeTx{
+			Nonce:     account.nextNonce,
+			GasTipCap: suggestedGasTipCap,
+			GasFeeCap: suggestedGasFeeCap,
+			Gas:       gasLimit,
+			To:        message.To,
+			Value:     message.Value,
+			Data:      message.Data,
+		}
+		tx = types.NewTx(txData)
+	} else {
+		tx = types.NewTransaction(
+			account.nextNonce,
+			*message.To,
+			message.Value,
+			gasLimit,
+			// use the maxFeePerGas (aka gasFeeCap) as gasPrice for legacy transactions
+			// the estimated maxFeePerGas is base fee + priority fee, and so is the appropriate
+			// legacy gasPrice setting for current network conditions
+			suggestedGasFeeCap,
+			message.Data)
+	}
+
 	return &TxProposal{
 		Coin:    account.coin,
 		Tx:      tx,
 		Fee:     fee,
 		Value:   value,
-		Signer:  types.MakeSigner(account.coin.Net(), account.blockNumber),
+		Signer:  types.NewLondonSigner(account.coin.net.ChainID),
 		Keypath: account.signingConfiguration.AbsoluteKeypath(),
 	}, nil
 }
@@ -681,58 +705,14 @@ func (account *Account) SendTx() error {
 	return nil
 }
 
-// ethGasStationFeeTargets returns four priorities with fee targets estimated by
-// https://ethgasstation.info/.
-func (account *Account) ethGasStationFeeTargets() ([]*feeTarget, error) {
-	// TODO: Use timeout.
-	// Docs: https://docs.ethgasstation.info/gas-price#gas-price
-	response, err := account.httpClient.Get("https://ethgasstation.info/api/ethgasAPI.json?api-key=" + ethGasStationAPIKey)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close() //nolint:errcheck
-	if response.StatusCode != http.StatusOK {
-		return nil, errp.Newf("ethgasstation returned status code %d", response.StatusCode)
-	}
-	var responseDecoded struct {
-		// Values are in Gwei*10
-		Average int64 `json:"average"`
-		Fast    int64 `json:"fast"`
-		Fastest int64 `json:"fastest"`
-		SafeLow int64 `json:"safeLow"`
-	}
-	if err := json.NewDecoder(response.Body).Decode(&responseDecoded); err != nil {
-		return nil, err
-	}
-	// Conversion from 10x Gwei to Wei.
-	factor := big.NewInt(1e8)
-	return []*feeTarget{
-		{
-			code:     accounts.FeeTargetCodeHigh,
-			gasPrice: new(big.Int).Mul(big.NewInt(responseDecoded.Fastest), factor),
-		},
-		{
-			code:     accounts.FeeTargetCodeNormal,
-			gasPrice: new(big.Int).Mul(big.NewInt(responseDecoded.Fast), factor),
-		},
-		{
-			code:     accounts.FeeTargetCodeLow,
-			gasPrice: new(big.Int).Mul(big.NewInt(responseDecoded.Average), factor),
-		},
-		{
-			code:     accounts.FeeTargetCodeEconomy,
-			gasPrice: new(big.Int).Mul(big.NewInt(responseDecoded.SafeLow), factor),
-		},
-	}, nil
-}
-
-// feeTargets returns four priorities with fee targets estimated by https://ethgasstation.info/.  If
-// the ethgasstation service should not reachable, we fallback to only one priority, estimated by
+// feeTargets returns three priorities with fee targets estimated by Etherscan
+// https://docs.etherscan.io/api-endpoints/gas-tracker#get-gas-oracle
+// If the service should not be reachable, we fallback to only one priority, estimated by
 // the ETH RPC eth_gasPrice endpoint.
-func (account *Account) feeTargets() []*feeTarget {
-	ethGasStationTargets, err := account.ethGasStationFeeTargets()
+func (account *Account) feeTargets() []*ethtypes.FeeTarget {
+	etherscanFeeTargets, err := account.coin.client.FeeTargets(context.TODO())
 	if err == nil {
-		return ethGasStationTargets
+		return etherscanFeeTargets
 	}
 	account.log.WithError(err).Error("Could not get fee targets from eth gas station, falling back to RPC eth_gasPrice")
 	suggestedGasPrice, err := account.coin.client.SuggestGasPrice(context.TODO())
@@ -740,10 +720,11 @@ func (account *Account) feeTargets() []*feeTarget {
 		account.log.WithError(err).Error("Fallback to RPC eth_gasPrice failed")
 		return nil
 	}
-	return []*feeTarget{
+	return []*ethtypes.FeeTarget{
 		{
-			code:     accounts.FeeTargetCodeNormal,
-			gasPrice: suggestedGasPrice,
+			TargetCode: accounts.FeeTargetCodeNormal,
+			GasFeeCap:  suggestedGasPrice,
+			GasTipCap:  suggestedGasPrice,
 		},
 	}
 }
@@ -757,30 +738,31 @@ func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCo
 	return feeTargets, accounts.DefaultFeeTarget
 }
 
-// gasPrice returns the currently suggested gas price for the given fee target, or a custom gas
-// price if the fee target is `FeeTargetCodeCustom`.
-func (account *Account) gasPrice(args *accounts.TxProposalArgs) (*big.Int, error) {
+// gasFees returns the currently suggested maxFeePerGas and maxPriorityFee for the given fee target, or a custom fee
+// if the fee target is `FeeTargetCodeCustom`. The custom fee sets both maxFeePerGas and maxPriorityFee to the same value.
+// TODO: The UI should have and advanced setting to allow the user to set maxFeePerGas and maxPriorityFee separately.
+func (account *Account) gasFees(args *accounts.TxProposalArgs) (*big.Int, *big.Int, error) {
 	if args.FeeTargetCode == accounts.FeeTargetCodeCustom {
 		// Convert from Gwei to Wei.
 		amount, err := coin.NewAmountFromString(args.CustomFee, big.NewInt(1e9))
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		gasPrice := amount.BigInt()
 		if gasPrice.Cmp(big.NewInt(0)) <= 0 {
-			return nil, errors.ErrFeeTooLow
+			return nil, nil, errors.ErrFeeTooLow
 		}
-		return gasPrice, nil
+		return gasPrice, gasPrice, nil
 	}
 	for _, t := range account.feeTargets() {
-		if t.code == args.FeeTargetCode {
-			if t.gasPrice.Cmp(big.NewInt(0)) <= 0 {
-				return nil, errors.ErrFeeTooLow
+		if t.TargetCode == args.FeeTargetCode {
+			if t.GasTipCap.Cmp(big.NewInt(0)) <= 0 || t.GasFeeCap.Cmp(big.NewInt(0)) <= 0 {
+				return nil, nil, errors.ErrFeeTooLow
 			}
-			return t.gasPrice, nil
+			return t.GasFeeCap, t.GasTipCap, nil
 		}
 	}
-	return nil, errp.Newf("Could not find fee target %s", args.FeeTargetCode)
+	return nil, nil, errp.Newf("Could not find fee target %s", args.FeeTargetCode)
 }
 
 // TxProposal implements accounts.Interface.
@@ -957,11 +939,11 @@ func (account *Account) EthSignWalletConnectTx(
 
 	for _, t := range account.feeTargets() {
 		//TODO Let user choose gas price/priority
-		if t.code == accounts.FeeTargetCodeNormal {
-			if t.gasPrice.Cmp(big.NewInt(0)) <= 0 {
+		if t.TargetCode == accounts.FeeTargetCodeNormal {
+			if t.GasFeeCap.Cmp(big.NewInt(0)) <= 0 {
 				return "", "", errors.ErrFeeTooLow
 			}
-			gasPrice = t.gasPrice
+			gasPrice = t.GasFeeCap
 		}
 	}
 
