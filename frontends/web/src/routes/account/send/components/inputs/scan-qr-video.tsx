@@ -29,7 +29,7 @@ export const ScanQRVideo = ({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useQRScanner(videoRef, {
-    onResult: result => onResult(result.data),
+    onResult: result => onResult(result),
     onError: console.error
   });
 

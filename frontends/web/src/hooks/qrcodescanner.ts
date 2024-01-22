@@ -19,7 +19,7 @@ import QrScanner from 'qr-scanner';
 
 type TUseQRScannerOptions = {
   onStart?: () => void;
-  onResult: (result: QrScanner.ScanResult) => void;
+  onResult: (result: string) => void;
   onError: (error: any) => void;
 }
 
@@ -39,11 +39,7 @@ export const useQRScanner = (
           result => {
             scanner?.stop();
             onResult(result);
-          }, {
-            onDecodeError: onError,
-            highlightScanRegion: true,
-            highlightCodeOutline: true,
-          })
+          }, onError)
       );
 
       try {
