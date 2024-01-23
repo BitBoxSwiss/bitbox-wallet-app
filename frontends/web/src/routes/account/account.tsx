@@ -46,6 +46,7 @@ import { MultilineMarkup } from '../../utils/markup';
 import { Dialog } from '../../components/dialog/dialog';
 import { A } from '../../components/anchor/anchor';
 import { getConfig, setConfig } from '../../utils/config';
+import { i18n } from '../../i18n/i18n';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -71,6 +72,15 @@ export function Account({
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeBuySupported(code), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
+
+  const getBitsuranceGuideLink = (): string => {
+    switch (i18n.resolvedLanguage) {
+    case 'de':
+      return 'https://bitbox.swiss/redirect/bitsurance-segwit-migration-guide-de';
+    default:
+      return 'https://bitbox.swiss/redirect/bitsurance-segwit-migration-guide-en';
+    }
+  };
 
   const checkUncoveredUTXOs = useCallback(async () => {
     const uncoveredScripts: accountApi.ScriptType[] = [];
@@ -256,8 +266,7 @@ export function Account({
             name: account.name,
             uncovered: uncoveredFunds,
           })}/>
-          { /* FIXME add link to the guide */ }
-          <A href="#">{t('account.uncoveredFundsLink')}</A>
+          <A href={getBitsuranceGuideLink()}>{t('account.uncoveredFundsLink')}</A>
         </Dialog>
         <Header
           title={<h2><span>{account.name}</span>{insured && (<Insured/>)}</h2>}>
