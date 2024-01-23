@@ -5,5 +5,7 @@ include ../../android-env.mk.inc
 # by turning off GO111MODULE. See also: https://github.com/golang/go/issues/34181#issuecomment-640260162
 build-android:
 	GO111MODULE=off ANDROID_HOME=${ANDROID_SDK_ROOT} gomobile bind -x -a -ldflags="-s -w" -target android .
+build-ios:
+	GO111MODULE=off gomobile bind -x -a -ldflags="-s -w" -target iossimulator .
 clean:
 	rm -f mobileserver.aar mobileserver-sources.jar
