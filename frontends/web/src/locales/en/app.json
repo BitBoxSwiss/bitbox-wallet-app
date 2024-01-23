@@ -886,6 +886,42 @@
         "title": "How to securely pair with your phone"
       }
     },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "Please check Bitsurance’s website and their FAQ for more details.",
+        "title": "Additional questions?"
+      },
+      "privacy": {
+        "link": {
+          "text": "Bitsurance privacy policy"
+        },
+        "text": "Like any regular insurance policy, it contains your full name and address, and specifies the insured object (defined by the extended public key of the insured Bitcoin account). This data is submitted to Bitsurance directly and is not shared with Shift Crypto. For more information, please consult the",
+        "title": "What personal information is needed for the insurance?"
+      },
+      "renew": {
+        "text": "The insurance will automatically renew for the next year. You can cancel the renewal any time by clicking on “Manage contract” in the BitBoxApp, which takes you to the Bitsurance customer portal.",
+        "title": "How can I renew or cancel the insurance?"
+      },
+      "status": {
+        "text": "Successfully insured accounts are marked with a green “insured” badge in the top right corner on each Bitcoin account page. In the “Insurance” section, you can see the overview of all insured Bitcoin accounts and their current insurance status.",
+        "title": "Can I check the status of an insured account?"
+      },
+      "what": {
+        "text": "Each Bitcoin insurance contract covers a specific wallet account. You can insure multiple accounts by taking out multiple insurance policies. Insured accounts are limited to using “Native Segwit” Bitcoin addresses.",
+        "title": "Is the whole BitBox wallet insured?"
+      },
+      "who": {
+        "text": "The insurance is offered by Bitsurance, an insurance broker built by bitcoiners. They work with ELEMENT insurance to provide Bitcoin insurance. Both companies are based Germany.",
+        "title": "Who is insuring my bitcoin?"
+      },
+      "why": {
+        "text": "Bitsurance covers some risks of self-custody that are not in-scope of even the most secure wallet, e.g. burglary, extortion or destruction of the wallet. It’s your personal decision if you need insurance coverage for these risks.",
+        "title": "Do I need Bitcoin insurance?"
+      }
+    },
     "cointracking": {
       "text": "Click the \"Export\" button and open the downloads folder where you will find the CSV export. Then click the link below, upload your BitBox CSV file and import the data in order to use it for your CoinTracking portfolio manager and to create your tax reports.",
       "title": "How to import my transactions into CoinTracking?"

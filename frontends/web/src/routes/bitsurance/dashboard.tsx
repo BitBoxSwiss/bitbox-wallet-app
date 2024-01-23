@@ -14,27 +14,26 @@
  * limitations under the License.
  */
 
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountCode, IAccount, getBalance } from '../../api/account';
+import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '../../api/bitsurance';
+import { useMountedRef } from '../../hooks/mount';
+import { route } from '../../utils/route';
+import { TAccountsByKeystore, getAccountsByKeystore, isAmbiguiousName } from '../account/utils';
 import { Button } from '../../components/forms';
 import { alertUser } from '../../components/alert/Alert';
-import { Entry } from '../../components/guide/entry';
-import { Guide } from '../../components/guide/guide';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { View, ViewContent } from '../../components/view/view';
-import { useCallback, useEffect, useState } from 'react';
-import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '../../api/bitsurance';
 import { A } from '../../components/anchor/anchor';
-import { route } from '../../utils/route';
 import { Amount } from '../../components/amount/amount';
-import { useMountedRef } from '../../hooks/mount';
 import { Balances } from '../account/summary/accountssummary';
 import { Skeleton } from '../../components/skeleton/skeleton';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 import { ExternalLink, GreenDot, OrangeDot, RedDot, YellowDot } from '../../components/icon';
-import style from './dashboard.module.css';
 import { HorizontallyCenteredSpinner } from '../../components/spinner/SpinnerAnimation';
-import { TAccountsByKeystore, getAccountsByKeystore, isAmbiguiousName } from '../account/utils';
+import { BitsuranceGuide } from './guide';
+import style from './dashboard.module.css';
 
 type TProps = {
     accounts: IAccount[];
@@ -207,15 +206,5 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
       </GuidedContent>
       <BitsuranceGuide />
     </GuideWrapper>
-  );
-};
-
-// TODO
-const BitsuranceGuide = () => {
-  const { t } = useTranslation();
-  return (
-    <Guide>
-      <Entry key="guide.settings.servers" entry={t('guide.settings.servers')} />
-    </Guide>
   );
 };
