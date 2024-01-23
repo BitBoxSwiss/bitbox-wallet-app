@@ -46,6 +46,7 @@ export type TKeystore = {
   watchonly: boolean;
   rootFingerprint: string;
   name: string;
+  lastConnected: string;
   connected: boolean;
 };
 
