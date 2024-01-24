@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useLoad, useSync } from '../../../hooks/api';
 import { getStatus, getVersion, verifyAttestation } from '../../../api/bitbox02';
@@ -54,10 +54,10 @@ export const Wizard = ({ deviceID }: TProps) => {
     })
   );
 
-  const handleGetStarted = () => {
+  const handleGetStarted = useCallback(() => {
     setShowWizard(false);
     navigate('/account-summary');
-  };
+  }, [navigate]);
 
   useEffect(() => {
     if (status === undefined) {
@@ -71,10 +71,11 @@ export const Wizard = ({ deviceID }: TProps) => {
     }
   }, [status, showWizard, unlockOnly]);
 
-  const handleAbort = () => {
+  const handleAbort = useCallback(() => {
     setAppStatus('');
     setCreateOptions(undefined);
-  };
+  }, []);
+
   if (status === undefined) {
     return null;
   }

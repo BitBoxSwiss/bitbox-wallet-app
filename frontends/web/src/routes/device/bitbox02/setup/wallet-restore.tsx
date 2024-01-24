@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { restoreFromMnemonic, errUserAbort } from '../../../../api/bitbox02';
 import { alertUser } from '../../../../components/alert/Alert';
@@ -72,22 +72,34 @@ export const RestoreFromMnemonic = ({
   onAbort,
 }: Props) => {
   const { t } = useTranslation();
+  const [errorCode, setErrorCode] = useState<number>();
+  const inProgress = useRef<string>();
 
   useEffect(() => {
-    restoreFromMnemonic(deviceID)
-      .then(result => {
-        if (!result.success) {
-          const errorText = result.code === errUserAbort
-            ? t('bitbox02Wizard.restoreFromMnemonic.e104')
-            : t('bitbox02Wizard.restoreFromMnemonic.failed');
-          alertUser(errorText, {
-            asDialog: false,
-            callback: () => onAbort(),
-          });
-        }
-      })
-      .catch(console.error);
-  }, [deviceID, onAbort, t]);
+    if (inProgress.current !== deviceID) {
+      // remember for which device the workflow already has been initialized
+      inProgress.current = deviceID;
+      restoreFromMnemonic(deviceID)
+        .then(result => {
+          if (!result.success) {
+            setErrorCode(result.code);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [deviceID]);
+
+  useEffect(() => {
+    if (errorCode) {
+      const errorText = errorCode === errUserAbort
+        ? t('bitbox02Wizard.restoreFromMnemonic.e104')
+        : t('bitbox02Wizard.restoreFromMnemonic.failed');
+      alertUser(errorText, {
+        asDialog: false,
+        callback: () => onAbort(),
+      });
+    }
+  }, [errorCode, onAbort, t]);
 
   return (
     <Wait
