@@ -51,11 +51,6 @@ type Handlers struct {
 	log     *logrus.Entry
 }
 
-const (
-	// ErrUserAbort is returned if the user aborted the current operation.
-	errUserAbort errp.ErrorCode = "userAbort"
-)
-
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
 	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route, log *logrus.Entry) *Handlers {
@@ -739,10 +734,10 @@ func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, erro
 		request.Format)
 	if err != nil {
 		if firmware.IsErrorAbort(err) {
-			return response{Success: false, ErrorCode: string(errUserAbort)}, nil
+			return response{Success: false, ErrorCode: errp.ErrUserAbort.Error()}, nil
 		}
 		if errp.Cause(err) == backend.ErrWrongKeystore {
-			return response{Success: false, ErrorCode: string("wrongKeystore")}, nil
+			return response{Success: false, ErrorCode: backend.ErrWrongKeystore.Error()}, nil
 		}
 
 		handlers.log.WithField("code", account.Config().Config.Code).Error(err)

@@ -687,6 +687,7 @@ func (backend *Backend) DeregisterKeystore() {
 	// keystore. For now we just remove all, then re-add the rest.
 	backend.initPersistedAccounts()
 	backend.emitAccountsStatusChanged()
+	backend.connectKeystore.onDisconnect()
 }
 
 // Register registers the given device at this backend.
@@ -890,7 +891,7 @@ func (backend *Backend) GetAccountFromCode(acctCode accountsTypes.Code) (account
 
 // CancelConnectKeystore cancels a pending keystore connection request if one exists.
 func (backend *Backend) CancelConnectKeystore() {
-	backend.connectKeystore.cancel(errUserAbort)
+	backend.connectKeystore.cancel(errp.ErrUserAbort)
 }
 
 // SetWatchonly sets the keystore's watchonly flag to `watchonly`.
