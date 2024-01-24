@@ -87,32 +87,33 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
       accountsInsurance[insurance.code] = insurance;
     });
     setInsurances(accountsInsurance);
-
-
   }, []);
 
   useEffect(() => {
     setAccountsByKeystore(getAccountsByKeystore(accounts));
     fetchInsurances();
-    return () => setInsurances(undefined);
   }, [fetchInsurances, accounts]);
 
   useEffect(() => {
-    if (!insurances) {
-      return;
-    }
-    Object.keys(insurances).forEach(accountCode => {
-      getBalance(accountCode).then(balance => {
-        if (!mounted.current) {
-          return;
-        }
-        setBalances((prevBalances) => ({
-          ...prevBalances,
-          [accountCode]: balance
-        }));
-      });
+    accountsByKeystore?.forEach(keystore => {
+      keystore.accounts
+        .filter(account => !!account.bitsuranceStatus)
+        .forEach(account => {
+          getBalance(account.code).then(balance => {
+            if (!mounted.current) {
+              return;
+            }
+            setBalances((prevBalances) => ({
+              ...prevBalances,
+              [account.code]: balance
+            }));
+          });
+        });
     });
-  }, [insurances, mounted, accounts]);
+    return () => {
+      setBalances(undefined);
+    };
+  }, [accountsByKeystore, mounted]);
 
   return (
     <GuideWrapper>
