@@ -33,6 +33,7 @@ import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '../../../contexts/AppContext';
+import { getAccountsByKeystore, isAmbiguiousName } from '../utils';
 
 type TProps = {
     accounts: accountApi.IAccount[];
@@ -51,6 +52,8 @@ export function AccountsSummary({
   const summaryReqTimerID = useRef<number>();
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
+
+  const accountsByKeystore = getAccountsByKeystore(accounts);
 
   const [summaryData, setSummaryData] = useState<accountApi.ISummary>();
   const [totalBalancePerCoin, setTotalBalancePerCoin] = useState<accountApi.ITotalBalance>();
@@ -166,12 +169,19 @@ export function AccountsSummary({
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               } />
-            <SummaryBalance
-              accounts={accounts}
-              summaryData={summaryData}
-              totalBalancePerCoin={totalBalancePerCoin}
-              balances={balances}
-            />
+            {accountsByKeystore &&
+              (accountsByKeystore.map(({ keystore, accounts }) =>
+                <SummaryBalance
+                  keystoreDisambiguatorName={isAmbiguiousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
+                  connected={keystore.connected}
+                  keystoreName={keystore.name}
+                  key={keystore.rootFingerprint}
+                  accounts={accounts}
+                  summaryData={summaryData}
+                  totalBalancePerCoin={totalBalancePerCoin}
+                  balances={balances}
+                />
+              )) }
           </View>
         </Main>
       </GuidedContent>
