@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+
+## 4.41.0
+- New feature: insure your bitcoins through Bitsurance
 - Bundle BitBox02 firmware version v9.16.0
 - Fix build on M-processor Apple machines
 - Add support for Ethereum EIP-1559 transactions: https://eips.ethereum.org/EIPS/eip-1559
