@@ -18,6 +18,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -70,7 +71,9 @@ type Backend interface {
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() backend.AccountsList
+	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
 	Keystore() keystore.Keystore
+	AccountsTotalBalanceByKeystore() (map[string]backend.KeystoreTotalAmount, error)
 	OnAccountInit(f func(accounts.Interface))
 	OnAccountUninit(f func(accounts.Interface))
 	OnDeviceInit(f func(device.Interface))
@@ -211,6 +214,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystoresHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/accounts/balance", handlers.getAccountsBalanceHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/total-balance", handlers.getAccountsTotalBalanceHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActiveHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
@@ -689,56 +693,83 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 	return response{Success: true}
 }
 
-func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (interface{}, error) {
-	totalPerCoin := make(map[coin.Code]*big.Int)
-	conversionsPerCoin := make(map[coin.Code]map[string]string)
+// getAccountsBalanceHandler returns the balance of all the accounts, grouped by keystore and coin.
+func (handlers *Handlers) getAccountsBalanceHandler(_ *http.Request) (interface{}, error) {
+	totalAmount := make(map[string]map[coin.Code]accountHandlers.FormattedAmount)
+	accountsByKeystore, err := handlers.backend.AccountsByKeystore()
+	if err != nil {
+		return nil, err
+	}
+	for keystore, accountList := range accountsByKeystore {
+		rootFingerprint := hex.EncodeToString(keystore.RootFingerprint)
+		totalPerCoin := make(map[coin.Code]*big.Int)
+		conversionsPerCoin := make(map[coin.Code]map[string]string)
+		for _, account := range accountList {
+			if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
+				continue
+			}
+			if account.FatalError() {
+				continue
+			}
+			err := account.Initialize()
+			if err != nil {
+				return nil, err
+			}
+			coinCode := account.Coin().Code()
+			b, err := account.Balance()
+			if err != nil {
+				return nil, err
+			}
+			amount := b.Available()
+			if _, ok := totalPerCoin[coinCode]; !ok {
+				totalPerCoin[coinCode] = amount.BigInt()
 
-	totalAmount := make(map[coin.Code]accountHandlers.FormattedAmount)
+			} else {
+				totalPerCoin[coinCode] = new(big.Int).Add(totalPerCoin[coinCode], amount.BigInt())
+			}
 
-	for _, account := range handlers.backend.Accounts() {
-		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
-			continue
-		}
-		if account.FatalError() {
-			continue
-		}
-		err := account.Initialize()
-		if err != nil {
-			return nil, err
-		}
-		coinCode := account.Coin().Code()
-		b, err := account.Balance()
-		if err != nil {
-			return nil, err
-		}
-		amount := b.Available()
-		if _, ok := totalPerCoin[coinCode]; !ok {
-			totalPerCoin[coinCode] = amount.BigInt()
-
-		} else {
-			totalPerCoin[coinCode] = new(big.Int).Add(totalPerCoin[coinCode], amount.BigInt())
+			conversionsPerCoin[coinCode] = coin.Conversions(
+				coin.NewAmount(totalPerCoin[coinCode]),
+				account.Coin(),
+				false,
+				account.Config().RateUpdater,
+				util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit))
 		}
 
-		conversionsPerCoin[coinCode] = coin.Conversions(
-			coin.NewAmount(totalPerCoin[coinCode]),
-			account.Coin(),
-			false,
-			account.Config().RateUpdater,
-			util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit))
+		totalAmount[rootFingerprint] = make(map[coin.Code]accountHandlers.FormattedAmount)
+		for k, v := range totalPerCoin {
+			currentCoin, err := handlers.backend.Coin(k)
+			if err != nil {
+				return nil, err
+			}
+			totalAmount[rootFingerprint][k] = accountHandlers.FormattedAmount{
+				Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
+				Unit:        currentCoin.GetFormatUnit(false),
+				Conversions: conversionsPerCoin[k],
+			}
+		}
 	}
 
-	for k, v := range totalPerCoin {
-		currentCoin, err := handlers.backend.Coin(k)
-		if err != nil {
-			return nil, err
-		}
-		totalAmount[k] = accountHandlers.FormattedAmount{
-			Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
-			Unit:        currentCoin.GetFormatUnit(false),
-			Conversions: conversionsPerCoin[k],
-		}
-	}
 	return totalAmount, nil
+}
+
+// getAccountsTotalBalanceHandler returns the total balance of all the accounts, gruped by keystore.
+func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (interface{}, error) {
+	type response struct {
+		Success      bool                                   `json:"success"`
+		ErrorCode    string                                 `json:"errorCode,omitempty"`
+		ErrorMessage string                                 `json:"errorMessage,omitempty"`
+		TotalBalance map[string]backend.KeystoreTotalAmount `json:"totalBalance"`
+	}
+
+	totalBalance, err := handlers.backend.AccountsTotalBalanceByKeystore()
+	if err != nil {
+		if errp.Cause(err) == rates.ErrRatesNotAvailable {
+			return response{Success: false, ErrorCode: err.Error()}, nil
+		}
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	return response{Success: true, TotalBalance: totalBalance}, nil
 }
 
 func (handlers *Handlers) postSetAccountActiveHandler(r *http.Request) interface{} {

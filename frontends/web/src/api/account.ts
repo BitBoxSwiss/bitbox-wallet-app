@@ -69,12 +69,37 @@ export const getAccounts = (): Promise<IAccount[]> => {
   return apiGet('accounts');
 };
 
-export interface ITotalBalance {
+export type TAccountsBalanceByCoin = {
     [key: string]: IAmount;
+};
 
+export type TAccountsBalance = {
+  [rootFingerprint: string]: TAccountsBalanceByCoin;
+};
+
+export const getAccountsBalance = (): Promise<TAccountsBalance> => {
+  return apiGet('accounts/balance');
+};
+
+export type TAccountTotalBalance = {
+    fiatUnit: ConversionUnit;
+    total: string;
+};
+
+export type TAccountsTotalBalance = {
+    [key: string]: TAccountTotalBalance;
+};
+
+export type TAccountsTotalBalanceResponse = {
+    success: true;
+    totalBalance: TAccountsTotalBalance;
+} | {
+    success: false;
+    errorCode?: 'ratesNotAvailable';
+    errorMessage?: string;
 }
 
-export const getAccountsTotalBalance = (): Promise<ITotalBalance> => {
+export const getAccountsTotalBalance = (): Promise<TAccountsTotalBalanceResponse> => {
   return apiGet('accounts/total-balance');
 };
 
