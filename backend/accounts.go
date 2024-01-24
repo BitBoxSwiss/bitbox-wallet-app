@@ -697,8 +697,8 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 						Action:  action.Replace,
 						Object: data{
 							Type:         "error",
-							ErrorCode:    "wrongKeystore",
-							ErrorMessage: err.Error(),
+							ErrorCode:    err.Error(),
+							ErrorMessage: "",
 						},
 					})
 					c := make(chan bool)
@@ -712,7 +712,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 					select {
 					case retry := <-c:
 						if !retry {
-							err = ErrUserAbort
+							err = errp.ErrUserAbort
 							break outerLoop
 						}
 					case <-time.After(timeout):
@@ -727,7 +727,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 				// If a previous connect-keystore request is in progress, the previous request is
 				// failed, but we don't dismiss the prompt, as the new prompt has already been shown
 				// by the above "connect" notification.
-			case err == nil || errp.Cause(err) == ErrUserAbort:
+			case err == nil || errp.Cause(err) == errp.ErrUserAbort:
 				// Dismiss prompt after success or upon user abort.
 				backend.Notify(observable.Event{
 					Subject: "connect-keystore",
@@ -737,7 +737,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			default:
 				var errorCode = ""
 				if errp.Cause(err) == errTimeout {
-					errorCode = "timeout"
+					errorCode = err.Error()
 				}
 				// Display error to user.
 				backend.Notify(observable.Event{

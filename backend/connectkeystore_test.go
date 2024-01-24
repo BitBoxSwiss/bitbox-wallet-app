@@ -20,6 +20,7 @@ import (
 	"time"
 
 	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 
 	"github.com/stretchr/testify/require"
 )
@@ -52,10 +53,10 @@ func TestConnectKeystore(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			time.Sleep(50 * time.Millisecond)
-			ck.cancel(ErrUserAbort)
+			ck.cancel(errp.ErrUserAbort)
 		}()
 		_, err := ck.connect(nil, fingerprint, time.Second)
-		require.Equal(t, ErrUserAbort, err)
+		require.Equal(t, errp.ErrUserAbort, err)
 		wg.Wait()
 	})
 

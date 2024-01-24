@@ -17,21 +17,20 @@ package backend
 import (
 	"bytes"
 	"context"
-	"errors"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 )
 
-// ErrWrongKeystore is returned if the connected keystore is not the expected one.
-var ErrWrongKeystore = errors.New("Wrong device/keystore connected.")
+const (
+	// ErrWrongKeystore is returned if the connected keystore is not the expected one.
+	ErrWrongKeystore errp.ErrorCode = "wrongKeystore"
 
-// ErrUserAbort is raised when a keystore connection is aborted calling CancelConnectKeystore().
-var ErrUserAbort = errors.New("aborted by user")
-var errReplaced = errors.New("replaced by new prompt")
-
-var errTimeout = errors.New("timeout")
+	errTimeout  errp.ErrorCode = "timeout"
+	errReplaced errp.ErrorCode = "connectReplaced"
+)
 
 // connectKeystore is a helper struct to enable connecting to a keystore with a specific root
 // fingerprint.
