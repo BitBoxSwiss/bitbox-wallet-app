@@ -265,6 +265,11 @@
     },
     "stepCreate": {
       "description": "This name is used as the device name and for the backup.",
+      "error": {
+        "genericMessage": "Use letters, numbers, basic symbols, spaces. Max 30 characters.",
+        "invalidChars": "Name contains invalid characters: {{invalidChars}}.",
+        "tooLong": "Name is too long."
+      },
       "nameLabel": "BitBox02 name",
       "namePlaceholder": "My BitBox02",
       "title": "Choose BitBox02 name",
