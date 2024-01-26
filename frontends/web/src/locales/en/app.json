@@ -264,7 +264,7 @@
       "unlock": "Enter BitBox02 password to unlock."
     },
     "stepCreate": {
-      "description": "This name is used as the device name and for the backup.",
+      "description": "This name is used as the device name and for backups.",
       "error": {
         "genericMessage": "Use letters, numbers, basic symbols, spaces. Max 30 characters.",
         "invalidChars": "Name contains invalid characters: {{invalidChars}}.",
