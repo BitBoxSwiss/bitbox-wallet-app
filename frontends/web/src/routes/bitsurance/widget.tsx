@@ -38,7 +38,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   const { t } = useTranslation();
 
   const [height, setHeight] = useState(0);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
+  // const [iframeLoaded, setIframeLoaded] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
 
   const iframeURL = useLoad(getBitsuranceURL);
@@ -184,8 +184,8 @@ export const BitsuranceWidget = ({ code }: TProps) => {
             />
           ) : (
             <div style={{ height }}>
-              {!iframeLoaded && <Spinner guideExists={false} text={t('loading')} /> }
-              <iframe
+              {!iframeURL && <Spinner guideExists={false} text={t('loading')} /> }
+              {/* <iframe
                 onLoad={() => {
                   setIframeLoaded(true);
                 }}
@@ -196,6 +196,20 @@ export const BitsuranceWidget = ({ code }: TProps) => {
                 frameBorder="0"
                 className={style.iframe}
                 allow="camera; payment"
+                src={iframeURL}>
+              </iframe> */}
+                IFRAME URL: {iframeURL}
+              <iframe title="bts" src={iframeURL} />
+              <iframe
+                onLoad={() => {
+                  // setIframeLoaded(true);
+                }}
+                ref={iframeRef}
+                title="Bitsurance"
+                width="100%"
+                height={200}
+                frameBorder="0"
+                className={style.iframe}
                 src={iframeURL}>
               </iframe>
             </div>
