@@ -38,6 +38,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   const { t } = useTranslation();
 
   const [height, setHeight] = useState(0);
+  console.log('h', height);
   // const [iframeLoaded, setIframeLoaded] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
 
@@ -183,7 +184,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
               onAgreedTerms={() => setAgreedTerms(true)}
             />
           ) : (
-            <div style={{ height }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap' }}>
               {!iframeURL && <Spinner guideExists={false} text={t('loading')} /> }
               {/* <iframe
                 onLoad={() => {
@@ -198,8 +199,14 @@ export const BitsuranceWidget = ({ code }: TProps) => {
                 allow="camera; payment"
                 src={iframeURL}>
               </iframe> */}
+
                 IFRAME URL: {iframeURL}
               <iframe title="bts" src={iframeURL} />
+              <iframe title="bts3" src={'https://www.bitsurance.eu/'} />
+              <iframe title="mp" src={'https://www.moonpay.com'} />
+              <iframe title="pocket" src={'https://pocketbitcoin.com/'} />
+
+
               <iframe
                 onLoad={() => {
                   // setIframeLoaded(true);
