@@ -76,9 +76,9 @@ export function Account({
   const getBitsuranceGuideLink = (): string => {
     switch (i18n.resolvedLanguage) {
     case 'de':
-      return 'https://bitbox.swiss/redirect/bitsurance-segwit-migration-guide-de';
+      return 'https://bitbox.swiss/redirects/bitsurance-segwit-migration-guide-de/';
     default:
-      return 'https://bitbox.swiss/redirect/bitsurance-segwit-migration-guide-en';
+      return 'https://bitbox.swiss/redirects/bitsurance-segwit-migration-guide-en/';
     }
   };
 
