@@ -58,6 +58,10 @@ const accountsHardLimit = 5
 // AccountsList is an accounts.Interface slice which implements a lookup method.
 type AccountsList []accounts.Interface
 
+// KeystoresAccountsListMap is a map where keys are keystores' fingerprints and values are
+// AccountsLists of accounts belonging to each keystore.
+type KeystoresAccountsListMap map[*config.Keystore]AccountsList
+
 func (a AccountsList) lookup(code accountsTypes.Code) accounts.Interface {
 	for _, acct := range a {
 		if acct.Config().Config.Code == code {
