@@ -6,9 +6,13 @@
     "fatalError": "Une erreur inattendue s'est produite.",
     "incoming": "Entrant",
     "initializing": "Récupération d'informations de la blockchain…",
+    "insuranceExpired": "<strong>Le compte n'est plus assuré</strong>\n\nLe plan d'assurance pour ce compte a été modifié.\nVeuillez consulter la page d'assurance pour plus de détails.",
+    "insured": "Compte assuré",
     "maybeProxyError": "Proxy Tor activé. Assurez-vous que votre proxy Tor fonctionne correctement, ou désactivez la configuration du proxy.",
     "reconnecting": "Connexion perdue, tentative de reconnexion…",
-    "syncedAddressesCount": "{{count}} adresses scannées"
+    "syncedAddressesCount": "{{count}} adresses scannées",
+    "uncoveredFundsLink": "Suivez ce guide pour savoir comment déplacer vos coins.",
+    "warning": "Avertissement !"
   },
   "accountInfo": {
     "address": "Adresse",
@@ -291,6 +295,56 @@
       "title": "Vous êtes prêt !"
     }
   },
+  "bitsurance": {
+    "dashboard": {
+      "active": "Police d'assurance active",
+      "button": "Assurer un nouveau compte",
+      "canceled": "Annulé",
+      "coverage": "Couverture maximale",
+      "inactive": "Inactif",
+      "processing": "Traitement",
+      "refused": "Refusé",
+      "supportLink": "Gestion du contrat",
+      "title": "Comptes assurés",
+      "waitpayment": "En attente de paiement"
+    },
+    "detect": {
+      "button": "Vérification de l'existence d'une assurance",
+      "insured": "Compte assuré détecté :",
+      "notInsured": "Aucun compte assuré n'a pu être détecté. Si vous êtes certain d'avoir un compte assuré, vérifiez d'avoir bien connecté le wallet correspondant.",
+      "text": "Si vous avez déjà souscrit à Bitsurance, l'application BitBoxapp peut se synchroniser automatiquement avec votre couverture d'assurance existante.",
+      "title": "Déjà assuré ?"
+    },
+    "insure": {
+      "button": "Vérifier la disponibilité et les tarifs",
+      "faq": "Plus d'informations sur les FAQs de Bitsurance",
+      "listItem1": "Cambriolage",
+      "listItem2": "Extorsion (par exemple: attaque avec un objet contondant)",
+      "listItem3": "Destruction due au feu, à l'eau ou autres catastrophes naturelles",
+      "month": "mois",
+      "text": "Assurez votre BitBox02 et jusqu'à une valeur de 100 000 € en Bitcoin",
+      "text3": "Disponible actuellement en Allemagne, avec d'autres zones géographiques à suivre.",
+      "title": "Démarrer"
+    },
+    "intro": {
+      "link": "Site web de Bitsurance",
+      "text1": "BitBox travaille conjointement avec Bitsurance pour ajouter une couche de protection supplémentaire à vos bitcoins. Alors que BitBox02 assure la sécurité de vos fonds, Bitsurance couvre les menaces domestiques qui ne peuvent être prises en charge par la technologie seule, comme par exemple le cambriolage, l'extorsion ou bien la destruction du hardware wallet lui-même."
+    },
+    "terms": {
+      "link": "Politique de confidentialité de Bitsurance",
+      "text1": "Bitsurance est un service tiers indépendant. Pour toute question concernant leurs offres et les demandes d'assurance, veuillez contacter Bitsurance directement.",
+      "text2": "L'assurance est actuellement disponible en Allemagne, avec d'autres zones géographiques à suivre",
+      "text3": "La couverture Bitcoin maximale actuellement disponible est de 100 000 euros par personne. Des montants plus élevés sont prévus à l'avenir.",
+      "text4": "Des informations personnelles ainsi que la clé publique étendue de votre compte assuré font partie de la police d'assurance et seront partagées avec Bitsurance et le courtier."
+    },
+    "title": "Assurance"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "Erreur : Il n'a pas été possible d'obtenir la xpub de ce compte.",
+    "noAccount": "Aucun compte ne peut être assuré.",
+    "select": "Sélectionner un compte",
+    "title": "Assurance"
+  },
   "blink": {
     "button": "Clignoter"
   },
@@ -499,7 +553,8 @@
     "toggle": "Dark mode"
   },
   "device": {
-    "appUpradeRequired": "Votre BitBox n'est pas compatible avec cette version de l'application de bureau. Veuillez télécharger et installer la dernière version."
+    "appUpradeRequired": "Votre BitBox n'est pas compatible avec cette version de l'application de bureau. Veuillez télécharger et installer la dernière version.",
+    "keystoreConnected": "Wallet connecté"
   },
   "deviceLock": {
     "button": "Activer la double authentification (2FA)",
@@ -824,6 +879,39 @@
         "title": "Comment appairer votre téléphone en toute sécurité ?"
       }
     },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "Veuillez consulter le site web de Bitsurance et sa FAQ pour plus de détails.",
+        "title": "Questions supplémentaires ?"
+      },
+      "privacy": {
+        "link": {
+          "text": "Politique de confidentialité de Bitsurance"
+        },
+        "title": "Quelles informations personnelles sont nécessaires pour l'assurance ?"
+      },
+      "renew": {
+        "title": "Comment puis-je renouveler ou résilier l'assurance ?"
+      },
+      "status": {
+        "text": "Les comptes assurés avec succès sont signalés par un badge vert \"assuré\" dans le coin supérieur droit de chaque page de vos compte Bitcoin. Dans la section \"Assurance\", vous pouvez avoir l'aperçu de tous les comptes Bitcoin assurés et leur statut d'assurance en temps réel.",
+        "title": "Puis-je consulter l'état d'un compte assuré ?"
+      },
+      "what": {
+        "title": "Est-ce que l'ensemble du portefeuille BitBox est assuré ?"
+      },
+      "who": {
+        "text": "L'assurance est proposée par Bitsurance, un courtier en assurance fondé par des bitcoiners. Ils travaillent conjointement avec ELEMENT insurance afin de fournir une assurance Bitcoin. Ces deux sociétés sont basées en Allemagne.",
+        "title": "Qui assure mes bitcoins ?"
+      },
+      "why": {
+        "text": "Bitsurance couvre certains risques liés à la self-custody (détention par soi-même) qui ne sont pas couverts même par les wallets les plus sûrs, comme par exemple le cambriolage, l'extorsion ou la destruction du-dit wallet. Il vous appartient de décider par vous même si vous avez la nécessité d'une police d'assurance pour ces risques.",
+        "title": "Ai-je besoin d'une assurance Bitcoin ?"
+      }
+    },
     "cointracking": {
       "text": "Cliquez sur le bouton \"Exporter\" et ouvrez le dossier de téléchargement où vous trouverez l'exportation CSV. Cliquez ensuite sur le lien ci-dessous, téléchargez votre fichier CSV BitBox et importez les données afin de les utiliser avec votre gestionnaire de portefeuille CoinTracking et pour créer vos déclaration fiscales.",
       "title": "Comment importer mes transactions dans CoinTracking ?"
@@ -1106,6 +1194,10 @@
         "description": "Sélectionnez votre devise par défaut",
         "title": "Devise par défaut"
       },
+      "enableAccount": {
+        "description": "La désactivation de votre compte signifie qu'il n'apparaîtra plus dans la barre latérale ou dans le portfolio. Vous avez toujours la possibilité de le réactiver à partir d'ici. Les coins de ce compte ne seront pas affectées et resteront en sécurité.",
+        "title": "Activer/désactiver le compte"
+      },
       "hideAmounts": {
         "description": "Affiche un bouton permettant de masquer votre solde et vos montants afin d'améliorer votre confidentialité lorsque vous utilisez l'application en public.",
         "hideAmounts": "Cacher les montants",
@@ -1115,6 +1207,9 @@
       "language": {
         "description": "Quelle langue souhaitez vous que BitBoxApp utilise?",
         "title": "Langue"
+      },
+      "remebmerWallet": {
+        "name": "Se souvenir du wallet"
       },
       "toggleSats": {
         "description": "Activer ou désactiver l'unité des Satoshis"
@@ -1259,6 +1354,7 @@
     "description": "Votre BitBox a généré le numéro aléatoire à {{bits}}-bit suivant :"
   },
   "receive": {
+    "bitsuranceWarning": "Ceci est un compte assuré, ce qui signifie qu'il ne peut recevoir des fonds que sur des adresses Native Segwit. Ceci afin d'éviter que vous ne receviez accidentellement des fonds vers des adresses Wrapped Segwit ou Taproot, qui ne sont elles pas assurées.",
     "changeScriptType": "Changer de type d'adresse",
     "label": "Votre adresse",
     "onlyThisCoin": {
@@ -1487,6 +1583,7 @@
   "sidebar": {
     "buy": "Acheter de la crypto",
     "device": "Gérer l'appareil",
+    "insurance": "Assurance",
     "leave": "Quitter",
     "settings": "Paramètres"
   },
@@ -1515,6 +1612,7 @@
       "fiatAmount": "Montant en Fiat",
       "fiatAtTime": "Fiat au moment de la transaction",
       "status": "Statut",
+      "title": "Détails de la transaction",
       "type": "Type"
     },
     "explorer": "Identification de transaction",

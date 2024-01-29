@@ -6,9 +6,12 @@
     "fatalError": "Er is een onverwachte fout opgetreden",
     "incoming": "Inkomende",
     "initializing": "Blockchain wordt gesynchroniseerd",
+    "insuranceExpired": "<strong>Account niet meer verzekerd</strong>\nDe verzekering voor dit account is gewijzigd. Kijk op de verzekeringspagina voor meer informatie.",
+    "insured": "Verzekerde account",
     "maybeProxyError": "De Tor Proxy staat ingeschakeld. Zorg ervoor dat deze correct werkt, of schakel de proxy-instelling uit.",
     "reconnecting": "Verbinding verbroken, opnieuw aan het verbinden...",
-    "syncedAddressesCount": "{{count}} adressen gescand"
+    "syncedAddressesCount": "{{count}} adressen gescand",
+    "uncoveredFunds": "Je heb coins op de volgende niet-verzekerde addressen van je <strong>{{name}}</strong> account: {{uncovered}}.\nJe account is verzekerd, maar alleen coins die via het <strong>Native Segwit</strong> adrestype ontvangen worden, zijn gedekt. Coins op een ander adrestype zijn niet gedekt, ook al zijn de adressen onderdeel van hetzelfde account.\nStuur alsjeblieft al je coins van de niet-ondersteunde adrestypes naar het <strong>Native Segwit</strong> adrestype, zodat alle coins op dit account verzekerd zijn."
   },
   "accountInfo": {
     "address": "Adres",
@@ -84,6 +87,10 @@
   "app": {
     "upgrade": "Er is een nieuwe versie van de app beschikbaar! Upgrade nu van versie {{current}} naar {{version}}>"
   },
+  "auth": {
+    "authButton": "Inloggen\n",
+    "title": "Log in om door te gaan"
+  },
   "backup": {
     "check": {
       "checking": "Backup aan het controleren...",
@@ -137,7 +144,8 @@
     },
     "showMnemonic": {
       "description": "Je ziet zometeen de 24 herstelwoorden die de backup van je wallet vormen. Schrijf ze op papier op.\n<strong>Sla ze niet digitaal op en neem er geen foto's van</strong>\n<strong>Zeg de woorden niet hardop</strong>\n<strong>Deze backup is niet beschermd met een wachtwoord</strong>\nAchteraf word je gevraagd ieder woord te bevestigen",
-      "title": "Herstelwoorden tonen"
+      "title": "Herstelwoorden tonen",
+      "warning": "<strong>Deel je herstelwoorden nooit, met wie dan ook!</strong> Met je herstelwoorden kan iemand volledige toegang tot je wallet krijgen. Als iemand je om je herstelwoorden vraagt, is dit vrijwel altijd een oplichter."
     },
     "title": "Backups beheren"
   },
@@ -466,6 +474,7 @@
   },
   "chart": {
     "dataMissing": "Datahistorie aan het verzamelen... even geduld.",
+    "dataOldTimestamp": "Historische wisselkoersen aan het updaten. De grafiek toont geen data van na {{time}}.",
     "dataUpdating": "Data aan het updaten...",
     "filter": {
       "all": "Alle",
@@ -485,11 +494,16 @@
     "infoWhenPaired": "Eerst op de gekoppelde telefoon en dan op je BitBox"
   },
   "confirmOnDevice": "Bevestig op je BitBox",
+  "connectKeystore": {
+    "promptNoName": "Verbind je BitBox02 om verder te gaan",
+    "promptWithName": "Verbind de BitBox02 die je \"{{name}}\" hebt genoemd om verder te gaan"
+  },
   "darkmode": {
     "toggle": "Donkere kleurstelling"
   },
   "device": {
-    "appUpradeRequired": "Je BitBox wordt niet ondersteund door deze desktop applicatie. Download en installeer de laatste versie."
+    "appUpradeRequired": "Je BitBox wordt niet ondersteund door deze desktop applicatie. Download en installeer de laatste versie.",
+    "keystoreConnected": "Verbonden wallet"
   },
   "deviceLock": {
     "button": "Stel tweefactor authenticatie (2FA) in",
@@ -515,6 +529,9 @@
       },
       "deviceName": {
         "description": "Verander de naam van je apparaat."
+      },
+      "rootFingerprint": {
+        "description": "Deze vingerafdruk is een unieke identificatie voor de wallet die je op dit moment gebruikt. Het kan je helpen om verschillende wallets uit elkaar te houden, bijvoorbeeld als je een passphrase gebruikt."
       },
       "securechip": {
         "description": "Secure-chip modelnummer"
@@ -601,7 +618,9 @@
     "aoppUnsupportedAsset": "Dit token wordt niet ondersteund.",
     "aoppUnsupportedFormat": "Er zijn geen accounts beschikbaar die de het verzochte adresformaat ondersteunen.",
     "aoppUnsupportedKeystore": "Het verbonden apparaat kan voor deze crypto geen berichten ondertekenen.",
-    "aoppVersion": "Onbekende versie."
+    "aoppVersion": "Onbekende versie.",
+    "wrongKeystore": "Verkeerde wallet verbonden. Zorg ervoor dat je de juiste BitBox02 voor dit account verbindt.",
+    "wrongKeystore2": "Als je de optionele passphrase hebt ingeschakeld, zorg er dan voor dat je de juiste passphrase voor dit account hebt ingevoerd."
   },
   "fiat": {
     "default": "Standaard",
@@ -737,6 +756,10 @@
       "whatAreAccounts": {
         "text": "Je wallet kan meerdere accounts van dezelfde coin aanmaken. Accounts zijn handig als je verschillende 'rekeningen' wilt hebben om je financiën gescheiden te houden..",
         "title": "Wat zijn accounts?"
+      },
+      "whatIsRememberWallet": {
+        "text": "Als je \"wallet onthouden\" hebt ingeschakeld, kun je de accounts voor deze wallet bekijken, zelfs zonder dat je BitBox02 is verbonden. Zo kun je je portfolio inzien wanneer je wilt. Om te verzenden en te ontvangen, moet je nog steeds je BitBox02 verbinden.\n\nAls je deze optie uitzet, moet je je BitBox02 ingeplugd hebben om de bijbehorende accounts in te zien.",
+        "title": "Wat gebeurt er als ik \"wallet onthouden\" in- of uitschakel?"
       },
       "whyIsThisUseful": {
         "text": "Accounts zijn een goede manier om bijvoorbeeld de financiën van verschillende mensen of voor verschillende doeleinden te beheren omdat deze gescheiden gehouden worden in verschillende accounts. Je kunt ook de uitgebreide publieke sleutel (xpub) van één account met iemand anders delen zonder ook maar iets over je andere accounts aan diegene bloot te stellen. Dit zorgt ervoor dat je herhaaldelijk kunt ontvangen zonder een adres te hergebruiken, bijvoorbeeld om een salaris te ontvangen of regelmatig crypto te kopen.",
@@ -982,6 +1005,20 @@
         "text": "Bedankt voor het gebruiken van deze app, gemaakt door Shift Crypto in Zwitserland. We waarderen alle feedback die je voor ons hebt! Die kun je delen door op de link onderaan het scherm te klikken.",
         "title": "Welkom in de BitBoxApp!"
       }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "text": "Als je een nieuwe telefoon of computer met de BitBoxApp verbindt, moet je opnieuw met je DApps verbinden. Als je dit gedaan hebt, zie je de coins weer in de DApp zoals je gewend bent.",
+        "title": "Ik zie mijn eerdere verbindingen niet."
+      },
+      "supportedNetworks": {
+        "text": "Op dit moment wordt alleen Ethereum via WalletConnect in de BitBoxApp ondersteund. Gebruik de Rabby-browserextensie om van andere EVM-compatibele chains gebruik te maken.",
+        "title": "Welke netwerken worden ondersteund?"
+      },
+      "whatIsWalletConnect": {
+        "text": "WalletConnect is een communicatie-protocol voor web3 applicaties. Hiermee kun je op een gemakkelijke manier met op Ethereum gebaseerde DApps en web-wallets verbinden zonder een applicatie van een derde partij te hoeven gebruiken. Dit is extra handig voor gebruikers van de Android-BitBoxApp.",
+        "title": "Wat is WalletConnect?"
+      }
     }
   },
   "headerssync": {
@@ -1028,6 +1065,7 @@
   },
   "loading": "laden...",
   "manageAccounts": {
+    "accountHidden": "Deze account is verborgen in je alleen-kijken accounts. Om hem weer te zien moet je je BitBox02 verbinden.",
     "editAccount": "Bewerken",
     "editAccountNameTitle": "Accountnaam bewerken",
     "noAccounts": "Geen accounts gevonden",
@@ -1036,7 +1074,9 @@
       "showTokens": "Tokens tonen ({{activeTokenCount}})"
     },
     "settingsButtonDescription": "Accounts toevoegen en tonen/verbergen",
-    "title": "Accounts beheren"
+    "title": "Accounts beheren",
+    "watchAccount": "Alleen-kijken account",
+    "watchAccountDescription": "Deze account is onderdeel van je alleen-kijken accounts. Je kunt het in deze lijst verbergen met de toggle."
   },
   "mobile": {
     "usingMobileDataWarning": "Mobiel datagebruik: deze app kan een paar honderd megabyte aan blockchaindata downloaden als je een account opent. Verbind met een wifinetwerk om je mobiele datagebruik te beperken.\n\nDit bericht wordt niet nogmaals getoond."
@@ -1048,6 +1088,10 @@
       }
     },
     "advancedSettings": {
+      "authentication": {
+        "description": "Vergrendel toegang tot de app met je schermvergrendeling of vingerafdruk.",
+        "title": "Schermvergrendeling"
+      },
       "coinControl": {
         "description": "Selecteer welke UTXOs onderdeel van een transactie zijn om privacy te verbeteren."
       },
@@ -1070,9 +1114,20 @@
         "description": "Selecteer je standaardvaluta",
         "title": "Standaardvaluta"
       },
+      "hideAmounts": {
+        "description": "Laat een toggle zien om je balansen en hoeveelheden te verbergen om je privacy te beschermen als je de app in het openbaar gebruikt.",
+        "hideAmounts": "Hoeveelheden verbergen",
+        "showAmounts": "Hoeveelheden laten zien",
+        "title": "\"Hoeveelheden verbergen\" inschakelen"
+      },
       "language": {
         "description": "De taal waarin je de BitBoxApp wilt gebruiken.",
         "title": "Taal"
+      },
+      "remebmerWallet": {
+        "name": "Wallet onthouden",
+        "warning": "Je onthouden wallet wordt hiermee vergeten. Om hem weer te zien, moet je je BitBox02 opnieuw verbinden. Dit heeft geen enkele invloed op de coins die op je wallet staan. \n\nWil je doorgaan?",
+        "warningTitle": "Wallet niet meer onthouden"
       },
       "toggleSats": {
         "description": "Satoshis in- of uitschakelen."
@@ -1527,12 +1582,51 @@
     "unlocked2": "Het LED lichtje gaat branden als je BitBox opnieuw is ingevoerd",
     "unlocked3": "Klik op de touchknop wanneer het LED lichtje gaat branden"
   },
+  "walletConnect": {
+    "connect": {
+      "button": "Verbinden",
+      "dappLabel": "Voer het URI-address van de DApp in",
+      "invalidPairingUri": "Ongeldige koppel-URI"
+    },
+    "dashboard": {
+      "allSessions": "Alle sessies",
+      "disclaimer": "WalletConnect is een protocol om met op Ethereum gebaseerde DApps te verbinden. Deze DApps worden aangeboden door derder partijen, dus zorg ervoor dat je alleen met DApps verbindt die je vertrouwt. Zorg er ook altijd voor dat je weet wat je ondertekent als je een transactie aanmaakt.",
+      "newConnection": "Nieuwe verbinding",
+      "noConnectedSessions": "Geen van je accounts zijn op dit moment met een DApp verbonden."
+    },
+    "invalidPairingChain": "Error met het toestaan van de koppeling. Zorg ervoor dat je een van deze ondersteunde chains gebruikt: {{chains}}",
+    "pairingRequest": {
+      "approve": "Koppeling goedkeuren",
+      "reject": "Afwijzen",
+      "title": "Nieuw koppelverzoek van"
+    },
+    "pairingSuccess": "DApp met success verbonden. Je kunt verdergaan op de website van de DApp",
+    "signingRequest": {
+      "account": "Account",
+      "chain": "Chain",
+      "dapp": "DApp",
+      "data": "Data",
+      "dataParsingError": "Data kon niet verwerkt worden",
+      "decodeError": "Bericht kon niet gedecodeerd worden",
+      "method": {
+        "sendTransaction": "Transactie ondertekenen en verzenden",
+        "signMessage": "Bericht ondertekenen",
+        "signTransaction": "Transactie ondertekenen",
+        "signTypedData": "Ingevoerde data ondertekenen"
+      },
+      "successfullySigned": "Verzoek ondertekend",
+      "walletConnectRequest": "WalletConnect verzoek"
+    },
+    "useNewUri": "Deze URI is al gebruikt om een verbinding te maken. Gebruik alsjeblieft een nieuwe URI.",
+    "walletConnect": "WalletConnect"
+  },
   "warning": {
     "receivePairing": "Koppel de BitBox om beveiligde adresverificatie in te schakelen. Ga naar 'Apparaat beheren' in de sidebar.",
     "sdcard": "Bewaar de microSD kaart apart van de BitBox, tenzij je je backups aan het beheren bent.",
     "sendPairing": "Koppel de BitBox om je transactiedetails beveiligd te kunnen verifiëren. Ga naar 'Manage device' in de sidebar."
   },
   "welcome": {
+    "connect": "Verbind je BitBox02",
     "getStarted": "Laten we beginnen door de firmware op je BitBox02 te installeren.",
     "insertBitBox02": "Tap de touch-sensoren op je BitBox02 om door te gaan.",
     "insertDevice": "Verbind je BitBox om te starten",

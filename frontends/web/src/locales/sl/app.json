@@ -6,9 +6,13 @@
     "fatalError": "Ups, nepričakovana napaka",
     "incoming": "Dohodni",
     "initializing": "Pridobivam podatke iz verige blokov...",
+    "insuranceExpired": "<strong>Račun ni več zavarovan</strong>\n\nZavarovanje za ta račun je bilo spremenjeno. Za več informacij, prosimo preverite stran o zavarovanju.",
+    "insured": "Zavarovan račun",
     "maybeProxyError": "Tor proxy omogočen. Prepričajte se, da Tor proxy deluje pravilno, ali onemogočite proxy.",
     "reconnecting": "Povezava je prekinjena, poizkušam s ponovno vzpostavitvijo...",
-    "syncedAddressesCount": "Prešteto št. naslovov: {{count}}"
+    "syncedAddressesCount": "Prešteto št. naslovov: {{count}}",
+    "uncoveredFundsLink": "Sledite temu navodilu, kako premakniti vaše kovance.",
+    "warning": "Opozorilo!"
   },
   "accountInfo": {
     "address": "Naslov",
@@ -68,7 +72,7 @@
   "aopp": {
     "addressRequest": "{{host}} zahteva naslov prejemnika.",
     "addressRequestWithLogo": "zahteva naslov prejemnika",
-    "banner": "Zahteva po naslovu je v teku.",
+    "banner": "Zahteva po naslovu je v teku. Priklopite BitBox02 za nadaljevanje.",
     "errorTitle": "Napaka med zahtevo za naslov",
     "labelAddress": "Naslov",
     "labelMessage": "Sporočilo",
@@ -140,7 +144,7 @@
       "understand": "Razumem, da bo nepravilno geslo za obnovitev ustvarilo drugo, novo denarnico"
     },
     "showMnemonic": {
-      "description": "Prikazano vam bo do 24 besed, ki tvorijo varnostno kopijo denarnice. Zapišite jih na papir.\n\n<strong>Ne hranite jih digitalno in jih ne fotografirajte.</strong>\n\n<strong>Ne izgovarjajte besed na glas.</strong>\n\n<strong>Ta varnostna kopija ni zaščitena z geslom.</strong>\n\nPo končanem prikazu besed boste morali vsako še potrditi na napravi.",
+      "description": "Na BitBox02 se bodo izpisale besede, ki tvorijo varnostno kopijo denarnice. Zapišite jih na papir.\n\n<strong>Ne hranite jih digitalno in ne fotografirajte jih!</strong>\n\n<strong>Ne izgovarjajte besed na glas.</strong>\n\n<strong>Ta varnostna kopija ni zaščitena z geslom.</strong>\n\nPo končanem prikazu besed boste morali vsako še potrditi na napravi.",
       "title": "Prikaži seznam besed",
       "warning": "<strong>Nikoli ne delite obnovitvenih besed z nikomer.</strong> Te besede omogočajo popoln dostop do vaše denarnice. Če vas kdo sprašuje po teh besedah, gre zelo verjetno za prevaro. Ne delite jih z neznanci!"
     },
@@ -290,6 +294,42 @@
       "text": "Bravo! Vaš BitBox02 je zdaj pripravljen za uporabo.\n\nZa dodatne informacije o uporabi aplikacije BitBoxApp uporabite vodnik. Na voljo je s klikom na vprašaj v zgornjem desnem kotu.",
       "title": "Zdaj ste pripravljeni za delo z BitBox denarnico!"
     }
+  },
+  "bitsurance": {
+    "dashboard": {
+      "active": "Zavarovalna polica je aktivna",
+      "button": "Zavarujte nov račun",
+      "canceled": "Preklicano",
+      "coverage": "Najvišje kritje",
+      "inactive": "Neaktivno",
+      "processing": "Obdelujem",
+      "refused": "Zavrnjeno",
+      "supportLink": "Upravljanje pogodbe",
+      "title": "Zavarovani računi",
+      "waitpayment": "Čakamo plačilo"
+    },
+    "detect": {
+      "button": "Preveri trenutno zavarovanje",
+      "insured": "Zaznan zavarovan račun:",
+      "notInsured": "Ni zaznanih zavarovanih računov. V kolikor ste prepričani, da imate zavarovane račune, preverite, da imate priključeno pravo denarnico.",
+      "text": "V kolikor že imate sklenjeno zavarovanje z Bitsurance lahko BitBoxApp samodejno prenese vaše obstoječe kritje.",
+      "title": "Ste že zavarovani?"
+    },
+    "insure": {
+      "button": "Preverite cene in razpoložljivost",
+      "faq": "Preberite več na Bitsurance FAQ"
+    },
+    "terms": {
+      "text3": "Najvišje trenutno razpoložljivo kritje Bitcoina je 100.000 € na osebo. Višji zneski bodo morda na voljo kasneje.",
+      "text5": "Za več informacij o zasebnosti se obrnite na"
+    },
+    "title": "Zavarovanje"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "Napaka: xpub-a ni bilo mogoče pridobiti iz računa.",
+    "noAccount": "Ni računov, ki bi jih bilo mogoče zavarovati.",
+    "select": "Izberite račun",
+    "title": "Zavarovanje"
   },
   "blink": {
     "button": "Sproži utripanje na napravi"
@@ -499,7 +539,8 @@
     "toggle": "Temen način"
   },
   "device": {
-    "appUpradeRequired": "BitBox ni združljiv s to verzijo namizne aplikacije. Prenesite in namestite najnovejšo različico."
+    "appUpradeRequired": "BitBox ni združljiv s to verzijo namizne aplikacije. Prenesite in namestite najnovejšo različico.",
+    "keystoreConnected": "Povezana denarnica"
   },
   "deviceLock": {
     "button": "Omogočite dvofaktorsko avtentikacijo (2FA)",
@@ -536,7 +577,7 @@
     },
     "expert": {
       "factoryReset": {
-        "description": "Ponastavite napravo na tovarniške nastavitve. Ta postopek izbriše denarnico na BitBoxu.",
+        "description": "Ponastavite napravo na tovarniške nastavitve. Ta postopek izbriše denarnico na BitBoxu!",
         "title": "Tovarniška nastavitev"
       },
       "goToStartupSettings": {
@@ -753,6 +794,10 @@
         "text": "Vaša denarnica lahko upravlja več računov istega kovanca. Računi so koristni, če želite sredstva hraniti ločeno.",
         "title": "Kaj so računi?"
       },
+      "whatIsRememberWallet": {
+        "text": "Če si izberete \"Zapomni si denarnico\" potem boste lahko videli njeno vsebino v BitBoxApp tudi, ko boste izklopili napravo. S tem boste lahko preverjali stanje svojega portfelja kadarkoli, tudi brez BitBox02. Za premik sredstev boste še vedno potrebovali vklopljeno napravo.\n\nČe izberete, da si BitBoxApp ne zapomni več določene denarnice in njenih računov, boste za njen prikaz znova vsakokrat potrebovali prikjlučen BitBox02.",
+        "title": "Kaj se zgodi, ko omogočim \"Zapomni si denarnico\"?"
+      },
       "whyIsThisUseful": {
         "text": "Računi so odlični za upravljanje sredstev za različne ljudi ali namene, ker so ločeni. Svoj \"razširjeni javni ključ\" računa lahko delite, ne da bi razkrili česarkoli o svojih drugih računih. To vam omogoča večkratno prejemanje sredstev brez ponovne uporabe naslovov, na primer prejemanja plače ali rednega nakupa kriptovalut.",
         "title": "Zakaj je to uporabno?"
@@ -822,6 +867,15 @@
       "pairing": {
         "text": "Ko naložite našo mobilno aplikacijo za iOS ali Android, skenirajte prikazano QR kodo, ki vzpostavi varen kanal med mobilno aplikacijo in to aplikacijo. Poskenirajte in sledite navodilom v mobilni aplikaciji.",
         "title": "Kako varno uparite BitBox01 s telefonom"
+      }
+    },
+    "bitsurance": {
+      "who": {
+        "text": "Zavarovanje ponuja Bitsurance, zavarovalni posrednik, ki so ga zgradili bitcoinerji. Sodelujejo z zavarovalno hišo ELEMENT ki zagotavlja zavarovanja za Bitcoin. Obe podjetji imata sedež v Nemčiji.",
+        "title": "Kdo zavaruje moj Bitcoin?"
+      },
+      "why": {
+        "title": "Ali potrebujem zavarovanje za Bitcoin?"
       }
     },
     "cointracking": {
@@ -1106,6 +1160,9 @@
         "description": "Izberite privzeto valuto",
         "title": "Privzeta valuta"
       },
+      "enableAccount": {
+        "title": "Omogoči/ onemogoči račun"
+      },
       "hideAmounts": {
         "description": "Prikaže preklopnik za skrivanje stanja in zneskov, za vašo večjo zasebnost, ko aplikacijo uporabljate na javnem mestu.",
         "hideAmounts": "Skrij zneske",
@@ -1115,6 +1172,11 @@
       "language": {
         "description": "Izberite jezik, ki ga želite uporabiti v BitBoxApp-u.",
         "title": "Jezik"
+      },
+      "remebmerWallet": {
+        "name": "Zapomni si denarnico",
+        "warning": "Odstranili boste prikaz denarnice, ko BitBox02 ni priključen. Vsebina denarnice in vsa sredstva s tem ostanejo varna in nedotaknjena, le BitBoxApp jo bo pozabil. Nadaljujem?",
+        "warningTitle": "Pozabi denarnico"
       },
       "toggleSats": {
         "description": "Prikažite ali skrijte Satošije (sats)."
@@ -1259,6 +1321,7 @@
     "description": "BitBox je ustvaril {{bits}}-bitno naključno število:"
   },
   "receive": {
+    "bitsuranceWarning": "To je zavarovan račun, kar pomeni, da lahko prejema le tip Bitcoin naslova Native Segwit. To je zato, da slučajno ne prejmete t.i. starejšega  tipa Wrapped Segwit ali novejšega Taproot, ki nista zavarovana.",
     "changeScriptType": "Spremenite tip naslova",
     "label": "Vaš naslov",
     "onlyThisCoin": {
@@ -1424,7 +1487,7 @@
     "transactionDetails": "Podrobnosti transakcije"
   },
   "settings": {
-    "about": "O nastavitvah",
+    "about": "Podatki o BitBoxApp",
     "accounts": "Računi",
     "advancedSettings": "Napredne nastavitve",
     "appearance": "Izgled",
@@ -1487,6 +1550,7 @@
   "sidebar": {
     "buy": "Kupite kripto",
     "device": "Upravljanje naprave",
+    "insurance": "Zavarovanje",
     "leave": "Zapusti",
     "settings": "Nastavitve"
   },
@@ -1515,6 +1579,7 @@
       "fiatAmount": "Znesek v fiat valuti",
       "fiatAtTime": "Vrednost v času transakcije",
       "status": "Stanje",
+      "title": "Podrobnosti transakcije",
       "type": "Tip"
     },
     "explorer": "ID transakcije",

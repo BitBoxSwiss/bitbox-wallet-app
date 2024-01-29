@@ -145,7 +145,7 @@
       "understand": "I understand that an incorrect recovery password will create a different wallet"
     },
     "showMnemonic": {
-      "description": "You will be presented with your recovery words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
+      "description": "You will be presented with your recovery words on your BitBox02, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
       "title": "Show recovery words",
       "warning": "<strong>Never share your recovery words with anyone.</strong> Your recovery words give full access to your wallet. If someone is asking you for your recovery words, it's a scammer, do not share them!"
     },
@@ -904,7 +904,7 @@
         "link": {
           "text": "Bitsurance privacy policy"
         },
-        "text": "Like any regular insurance policy, it contains your full name and address, and specifies the insured object (defined by the extended public key of the insured Bitcoin account). This data is submitted to Bitsurance directly and is not shared with Shift Crypto. For more information, please consult the",
+        "text": "Like any regular insurance policy, it contains your full name and address, and specifies the insured object (defined by the extended public key of the insured Bitcoin account). This data is submitted to Bitsurance directly and is not shared with Shift Crypto. Please consult the Bitsurance privacy policy for more information",
         "title": "What personal information is needed for the insurance?"
       },
       "renew": {
@@ -912,7 +912,7 @@
         "title": "How can I renew or cancel the insurance?"
       },
       "status": {
-        "text": "Successfully insured accounts are marked with a green “insured” badge in the top right corner on each Bitcoin account page. In the “Insurance” section, you can see the overview of all insured Bitcoin accounts and their current insurance status.",
+        "text": "Successfully insured accounts are marked with a green “insured” badge in the top left corner on each Bitcoin account page. In the “Insurance” section, you can see the overview of all insured Bitcoin accounts and their current insurance status.",
         "title": "Can I check the status of an insured account?"
       },
       "what": {
@@ -920,7 +920,7 @@
         "title": "Is the whole BitBox wallet insured?"
       },
       "who": {
-        "text": "The insurance is offered by Bitsurance, an insurance broker built by bitcoiners. They work with ELEMENT insurance to provide Bitcoin insurance. Both companies are based Germany.",
+        "text": "The insurance is offered by Bitsurance, an insurance broker built by bitcoiners. They work with ELEMENT insurance to provide Bitcoin insurance. Both companies are based in Germany.",
         "title": "Who is insuring my bitcoin?"
       },
       "why": {

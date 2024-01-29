@@ -6,9 +6,14 @@
     "fatalError": "Ocorreu um erro inesperado.",
     "incoming": "Lançamentos",
     "initializing": "Obtendo informações da blockchain...",
+    "insuranceExpired": "<strong>A conta não está mais segurada</strong>\n\nO plano de seguro para esta conta foi modificado.\nPor favor, verifique a página do seguro para obter detalhes.",
+    "insured": "Conta segurada",
     "maybeProxyError": "Tor proxy ativado. Certifique-se que seu Tor esteja rodando corretamente ou desative as opções de proxy.",
     "reconnecting": "Conexão perdida, tentando reconectar...",
-    "syncedAddressesCount": "Encontrado {{count}} endereços"
+    "syncedAddressesCount": "Encontrado {{count}} endereços",
+    "uncoveredFunds": "Você tem moedas nos seguintes tipos de endereços descobertos da sua conta <strong>{{name}}</strong>: {{uncovered}}.\nUma vez que a conta está segurada, apenas as moedas recebidas através do tipo de endereço <strong>Segwit nativo</strong> são cobertas. Moedas em outros tipos de endereços, mesmo que estejam na mesma conta, não estão seguradas.\nMova todas as suas moedas dos tipos de endereço não suportados para o tipo de endereço <strong>Segwit nativo</strong> para que todas as suas moedas nesta conta fiquem seguradas.",
+    "uncoveredFundsLink": "Siga este guia sobre como mover suas moedas.",
+    "warning": "Aviso!"
   },
   "accountInfo": {
     "address": "Endereço",
@@ -68,7 +73,7 @@
   "aopp": {
     "addressRequest": "{{host}} está solicitando um endereço de recebimento.",
     "addressRequestWithLogo": "está solicitando um endereço de recebimento",
-    "banner": "Solicitação de endereço em andamento.",
+    "banner": "Solicitação de endereço em andamento. Conecte seu dispositivo para continuar.",
     "errorTitle": "Erro durante a solicitação de endereço",
     "labelAddress": "Endereço",
     "labelMessage": "Mensagem",
@@ -140,7 +145,7 @@
       "understand": "Eu entendo que uma senha de recuperação incorreta criará uma carteira diferente"
     },
     "showMnemonic": {
-      "description": "Serão mostradas suas palavras de recuperação, que formam um backup de sua carteira. Anote-as em um papel.\n\n<strong>Não as armazene digitalmente nem tire fotos delas.</strong>\n\n<strong>Não diga as palavras em voz alta.</strong>\n\n<strong>Este backup não é protegido por senha.</strong>\n\nDepois disso, você será solicitado a confirmar cada palavra.",
+      "description": "Serão mostradas suas palavras de recuperação na sua BitBox02, que formam um backup de sua carteira. Anote-as em um papel.\n\n<strong>Não as armazene digitalmente nem tire fotos delas.</strong>\n\n<strong>Não diga as palavras em voz alta.</strong>\n\n<strong>Este backup não é protegido por senha.</strong>\n\nDepois disso, você será solicitado a confirmar cada palavra.",
       "title": "Mostrar frase de recuperação",
       "warning": "<strong>Nunca compartilhe suas palavras de recuperação com ninguém.</strong> Suas palavras de recuperação dão acesso total à sua carteira. Se alguém está pedindo suas palavras de recuperação, é um golpista, não as compartilhe!"
     },
@@ -290,6 +295,58 @@
       "text": "Oba! Sua BitBox02 agora está pronta para uso.\n\nPara obter mais informações sobre como usar o BitBoxApp, use o guia no aplicativo clicando no ponto de interrogação no canto superior direito.",
       "title": "Você está pronto para começar!"
     }
+  },
+  "bitsurance": {
+    "dashboard": {
+      "active": "Apólice de seguro ativa",
+      "button": "Faça seguro de uma nova conta",
+      "canceled": "Cancelado",
+      "coverage": "Cobertura máxima",
+      "inactive": "Inativo",
+      "processing": "Em processamento",
+      "refused": "Recusado",
+      "supportLink": "Gerenciar contrato",
+      "title": "Contas seguradas",
+      "waitpayment": "Aguardando pagamento"
+    },
+    "detect": {
+      "button": "Verificar se há seguro existente",
+      "insured": "Conta segurada detectada:",
+      "notInsured": "Nenhuma conta segurada detectada. Se você tiver certeza de que possui uma conta segurada, certifique-se de ter a carteira correta conectada.",
+      "text": "Se você já se cadastrou no Bitsurance, o BitBoxApp pode sincronizar automaticamente sua cobertura de seguro existente.",
+      "title": "Já está segurado?"
+    },
+    "insure": {
+      "button": "Verificar disponibilidade e preços",
+      "faq": "Leia mais sobre perguntas frequentes sobre Bitsurance",
+      "listItem1": "Roubo",
+      "listItem2": "Extorsão (por exemplo, $5 wrench attack)",
+      "listItem3": "Destruição devido a incêndio, água ou desastres naturais",
+      "month": "mês",
+      "text": "Faça seguro do sua BitBox02 e de até €100.000 em bitcoin contra",
+      "text2": "Os planos de seguro começam em 30€/ano (2,50€/mês). Você pode aprender mais sobre o Bitsurance e suas ofertas exatas de seguros no",
+      "text3": "Atualmente disponível na Alemanha, com mais regiões a seguir.",
+      "title": "Começar"
+    },
+    "intro": {
+      "link": "Site do Bitsurance",
+      "text1": "A BitBox trabalha com Bitsurance para adicionar uma camada adicional de proteção ao seu bitcoin. Enquanto a BitBox02 mantém seus fundos seguros, o Bitsurance cobre ameaças domésticas que não podem ser mitigadas apenas com tecnologia, como roubo, extorsão ou destruição da própria carteira de hardware."
+    },
+    "terms": {
+      "link": "Política de Privacidade do Bitsurance",
+      "text1": "Bitsurance é um serviço terceirizado independente. Para perguntas sobre suas ofertas e reivindicações de seguro, entre em contato diretamente com o Bitsurance.",
+      "text2": "O seguro está atualmente disponível na Alemanha, com mais regiões a seguir.",
+      "text3": "A cobertura máxima de Bitcoin atualmente disponível é de 100.000 euros por pessoa. Montantes mais elevados estão previstos para o futuro.",
+      "text4": "As informações pessoais e a chave pública estendida da sua conta segurada fazem parte da apólice de seguro e serão compartilhadas com o Bitsurance e a seguradora.",
+      "text5": "Para mais informações sobre privacidade, consulte a"
+    },
+    "title": "Seguro"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "Erro: não foi possível obter o xpub da conta.",
+    "noAccount": "Não há contas que possam ser seguradas.",
+    "select": "Selecione a conta",
+    "title": "Seguro"
   },
   "blink": {
     "button": "Piscar"
@@ -499,7 +556,8 @@
     "toggle": "Modo escuro"
   },
   "device": {
-    "appUpradeRequired": "Sua BitBox não é compatível com este aplicativo. Por favor, baixe e instale a versão mais recente."
+    "appUpradeRequired": "Sua BitBox não é compatível com este aplicativo. Por favor, baixe e instale a versão mais recente.",
+    "keystoreConnected": "Carteira conectada"
   },
   "deviceLock": {
     "button": "Ativar autorização de dois fatores (2FA)",
@@ -536,7 +594,7 @@
     },
     "expert": {
       "factoryReset": {
-        "description": "Redefina seu dispositivo para as configurações de fábrica - isso apagará a sua carteira BitBox02!",
+        "description": "Redefina seu dispositivo para as configurações de fábrica. Isso exclui a carteira de sua BitBox02!",
         "title": "Restauração de fábrica"
       },
       "goToStartupSettings": {
@@ -753,6 +811,10 @@
         "text": "Sua carteira pode gerenciar contas múltiplas da mesma moeda. Várias contas são de extrema ajuda para manter seus fundos separadamente.",
         "title": "O que são contas?"
       },
+      "whatIsRememberWallet": {
+        "text": "Ativar “Lembrar carteira” permite que você veja as contas desta carteira no BitBoxApp mesmo quando a BitBox02 não está conectada. Isso permite checar seu saldo e portfólio quando quiser. A BitBox02 ainda precisa ser conectada e desbloqueada para enviar ou receber moedas.\n\nDesativar “Lembrar carteira” exige que você conecte a respectiva BitBox02 (ou a carteira com frase secreta) para ver essas contas no BitBoxApp.",
+        "title": "O que acontece quando eu habilito/desabilito “Lembrar carteira”?"
+      },
       "whyIsThisUseful": {
         "text": "Contas são ótimas para gerenciar seus fundos para pessoas ou propósitos diferentes porque são separadas. Você pode também compartilhar sua \"chave pública estendida\" de uma conta sem revelar nada sobre suas outras contas.Isso permite você repetidamente receber saldo sem reutilizar os seus endereços, bem como receber seu salário ou seu saldo de crypto que for comprado.",
         "title": "Por que isso é útil?"
@@ -822,6 +884,42 @@
       "pairing": {
         "text": "Depois de fazer o download do nosso aplicativo para dispositivos móveis para iOS ou Android, escaneie o QR code exibido, que cria um canal seguro entre o aplicativo móvel e este aplicativo. Depois de escanear, siga as instruções no aplicativo para dispositivos móveis.",
         "title": "Como emparelhar de forma segura com o seu telefone"
+      }
+    },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "Verifique o site do Bitsurance e suas perguntas frequentes para obter mais detalhes.",
+        "title": "Mais perguntas?"
+      },
+      "privacy": {
+        "link": {
+          "text": "Política de privacidade do Bitsurance"
+        },
+        "text": "Como qualquer apólice de seguro regular, ela contém seu nome e endereço completos e especifica o objeto segurado (definido pela chave pública estendida da conta Bitcoin segurada). Esses dados são enviados diretamente ao Bitsurance e não são compartilhados com a Shift Crypto. Por favor consulte a política de privacidade do Bitsurance para mais informações",
+        "title": "Quais informações pessoais são necessárias para o seguro?"
+      },
+      "renew": {
+        "text": "O seguro será renovado automaticamente para o próximo ano. Você pode cancelar a renovação a qualquer momento clicando em “Gerenciar contrato” no BitBoxApp, que o leva ao portal do cliente Bitsurance.",
+        "title": "Como posso renovar ou cancelar o seguro?"
+      },
+      "status": {
+        "text": "As contas seguradas com sucesso são marcadas com um emblema verde “segurado” no canto superior esquerdo de cada página da conta Bitcoin. Na seção “Seguro”, você pode ver a visão geral de todas as contas Bitcoin seguradas e seu status atual de seguro.",
+        "title": "Posso verificar o status de uma conta segurada?"
+      },
+      "what": {
+        "text": "Cada contrato de seguro Bitcoin cobre uma conta de carteira específica. Você pode segurar várias contas contratando várias apólices de seguro. As contas seguradas estão limitadas ao uso de endereços Bitcoin “Segwit Nativo”.",
+        "title": "Toda a carteira BitBox está segurada?"
+      },
+      "who": {
+        "text": "O seguro é oferecido pelo Bitsurance, uma corretora de seguros criada por bitcoiners. Eles trabalham com o seguro ELEMENT para fornecer seguro de Bitcoin. Ambas as empresas estão sediadas na Alemanha.",
+        "title": "Quem está assegurando meu bitcoin?"
+      },
+      "why": {
+        "text": "O Bitsurance cobre alguns riscos de autocustódia que não estão no escopo nem mesmo da carteira mais segura, por exemplo. roubo, extorsão ou destruição da carteira. A decisão é sua se você precisa de cobertura de seguro para esses riscos.",
+        "title": "Preciso de seguro de Bitcoin?"
       }
     },
     "cointracking": {
@@ -1106,6 +1204,10 @@
         "description": "Selecione sua moeda padrão",
         "title": "Moeda padrão"
       },
+      "enableAccount": {
+        "description": "Desativar sua conta significa que ela não aparecerá na barra lateral ou no portfólio. Você sempre pode ativá-la novamente aqui. As moedas nesta conta não serão afetadas e permanecerão seguras.",
+        "title": "Ativar/desativar conta"
+      },
       "hideAmounts": {
         "description": "Exibe um botão para ocultar seu saldo e valores para melhorar sua privacidade ao usar o aplicativo em público.",
         "hideAmounts": "Ocultar valores",
@@ -1115,6 +1217,11 @@
       "language": {
         "description": "Qual idioma você deseja que o BitBoxApp use.",
         "title": "Idioma"
+      },
+      "remebmerWallet": {
+        "name": "Lembrar carteira",
+        "warning": "Isso removerá sua carteira lembrada. Para vê-la novamente, você precisará conectar a BitBox02 para esta carteira. Quaisquer moedas nesta carteira não serão afetadas. Você quer continuar?",
+        "warningTitle": "Desativar lembrar carteira"
       },
       "toggleSats": {
         "description": "Ativar ou desativar Satoshis."
@@ -1259,6 +1366,7 @@
     "description": "Sua BitBox gerou o seguinte número aleatório de {{bits}} bits:"
   },
   "receive": {
+    "bitsuranceWarning": "Esta é uma conta segurada, o que significa que só pode receber em Segwit Nativo. Isso é para que você não receba acidentalmente Wrapped Segwit ou Taproot, que não são segurados.",
     "changeScriptType": "Alterar tipo de endereço",
     "label": "Seu endereço",
     "onlyThisCoin": {
@@ -1487,6 +1595,7 @@
   "sidebar": {
     "buy": "Comprar crypto",
     "device": "Gerenciar dispositivo",
+    "insurance": "Seguro",
     "leave": "Sair",
     "settings": "Configurações"
   },
@@ -1515,6 +1624,7 @@
       "fiatAmount": "Valor fiduciário",
       "fiatAtTime": "Fiat no momento da transação",
       "status": "Status",
+      "title": "Detalhes da transação",
       "type": "Tipo"
     },
     "explorer": "ID da transação",
