@@ -65,7 +65,12 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   // if there is only one account available let's automatically redirect to the widget
   useEffect(() => {
     if (btcAccounts !== undefined && btcAccounts.length === 1) {
-      route(`/bitsurance/widget/${btcAccounts[0].code}`);
+      connectKeystore(btcAccounts[0].code).then(connectResult => {
+        if (!connectResult.success) {
+          return;
+        }
+        route(`/bitsurance/widget/${btcAccounts[0].code}`);
+      });
     }
   }, [btcAccounts]);
 
