@@ -48,10 +48,6 @@ export const renameAccount = (accountCode: AccountCode, name: string): Promise<I
   return apiPost('rename-account', { accountCode, name });
 };
 
-export const accountSetWatch = (accountCode: AccountCode, watch: boolean): Promise<ISuccess> => {
-  return apiPost('account-set-watch', { accountCode, watch });
-};
-
 export const reinitializeAccounts = (): Promise<null> => {
   return apiPost('accounts/reinitialize');
 };
