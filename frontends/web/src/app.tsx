@@ -146,7 +146,8 @@ export const App = () => {
   };
 
   const deviceIDs: string[] = Object.keys(devices);
-  const activeAccounts = sortAccounts(accounts.filter(acct => acct.active));
+  const sortedAccounts = sortAccounts(accounts);
+  const activeAccounts = sortedAccounts.filter(acct => acct.active);
   return (
     <ConnectedApp>
       <AppProvider>
@@ -183,7 +184,7 @@ export const App = () => {
                     })
                   }
                   <AppRouter
-                    accounts={accounts}
+                    accounts={sortedAccounts}
                     activeAccounts={activeAccounts}
                     deviceIDs={deviceIDs}
                     devices={devices}
