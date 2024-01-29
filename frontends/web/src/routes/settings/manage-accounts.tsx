@@ -72,22 +72,25 @@ class ManageAccounts extends Component<Props, State> {
           <div
             className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
             onClick={() => active && route(`/account/${account.code}`)}>
-            <Logo className={`${style.coinLogo} m-right-half`} coinCode={account.coinCode} alt={account.coinUnit} />
-            <span>
+            <Logo stacked active={account.active} className={`${style.coinLogo} m-right-half`} coinCode={account.coinCode} alt={account.coinUnit} />
+            <span className={!account.active ? style.accountNameInactive : ''}>
               {account.name}
               {' '}
               <span className="unit">({account.coinUnit})</span>
             </span>
           </div>
-          <Button
-            className={style.editBtn}
-            onClick={() => this.setState({ currentlyEditedAccount: account })}
-            transparent>
-            <EditActive />
-            <span className="hide-on-small">
-              {t('manageAccounts.editAccount')}
-            </span>
-          </Button>
+          <div className="flex flex-items-center">
+            {!account.active ? <p className={`text-small ${style.disabledText}`}>{t('generic.enabled_false')}</p> : null}
+            <Button
+              className={style.editBtn}
+              onClick={() => this.setState({ currentlyEditedAccount: account })}
+              transparent>
+              <EditActive />
+              <span className="hide-on-small">
+                {t('manageAccounts.editAccount')}
+              </span>
+            </Button>
+          </div>
           {active && account.coinCode === 'eth' ? (
             <div className={style.tokenSection}>
               <div className={`${style.tokenContainer} ${tokensVisible ? style.tokenContainerOpen : ''}`}>

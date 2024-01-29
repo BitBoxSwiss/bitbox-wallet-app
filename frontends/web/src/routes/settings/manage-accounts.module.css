@@ -3,6 +3,15 @@
     margin-bottom: var(--spacing-default);
 }
 
+.accountNameInactive {
+    color: var(--color-secondary);
+}
+
+.disabledText {
+    color: var(--color-secondary);
+    margin: 0;
+}
+
 .walletHeader {
     align-items: end;
     display: flex;
