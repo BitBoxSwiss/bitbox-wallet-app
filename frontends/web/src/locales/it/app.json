@@ -6,9 +6,14 @@
     "fatalError": "Si è verificato un errore inatteso",
     "incoming": "In entrata",
     "initializing": "Raccolgo informazioni dalla blockchain",
+    "insuranceExpired": "<strong>Account non più assicurato</strong>\n\nIl piano assicurativo per questo conto è stato modificato.\nControlla la pagina dell'assicurazione per i dettagli.",
+    "insured": "Account assicurato",
     "maybeProxyError": "Proxy Tor attivato. Assicurati che il tuo proxy Tor funzioni correttamente, oppure disabilita l'impostazione del proxy.",
     "reconnecting": "Connessione persa, provo a riconnettermi...",
-    "syncedAddressesCount": "{{count}} indirizzi letti"
+    "syncedAddressesCount": "{{count}} indirizzi letti",
+    "uncoveredFunds": "L'account <strong>{{name}}</strong> ha fondi sui seguenti tipi di indirizzi non coperti: {{uncovered}}.\nL'account è assicurato, ma solo i fondi ricevuti tramite indirizzi di tipo <strong>Native Segwit</strong> sono coperti. I fondi ricevuti tramite indirizzi di altro tipo, anche se si trovano sullo stesso account, non sono assicurati.\nSposta tutte i tuoi fondi dagli indirizzi non supportati a indirizzi di tipo <strong>Native Segwit</strong>, così che tutti i fondi di questo account siano coperti dall'assicurazione.",
+    "uncoveredFundsLink": "Segui questa guida per spostare i tuoi fondi.",
+    "warning": "Attenzione!"
   },
   "accountInfo": {
     "address": "Indirizzo",
@@ -16,8 +21,8 @@
       "buy": "Acquista {{unit}}",
       "buyCrypto": "Acquista cryptovalute",
       "information": {
-        "looksEmpty": "Sembra che il portafoglio sia vuoto.",
-        "start": "Iniziate depositando alcune valute nel portafoglio o acquistando direttamente nella BitBoxApp."
+        "looksEmpty": "Sembra che il wallet sia vuoto.",
+        "start": "Iniziate depositando alcune valute nel wallet o acquistando direttamente nella BitBoxApp."
       }
     },
     "extendedPublicKey": "Chiave pubblica estesa",
@@ -68,7 +73,7 @@
   "aopp": {
     "addressRequest": "{{host}} richiede un indirizzo di ricezione.",
     "addressRequestWithLogo": "richiede un indirizzo di ricezione\n",
-    "banner": "Richiesta dell'indirizzo in corso",
+    "banner": "Richiesta dell'indirizzo in corso. Connetti il dispositivo per continuare.",
     "errorTitle": "Errore durante la richiesta dell'indirizzo",
     "labelAddress": "Indirizzo",
     "labelMessage": "Messaggio",
@@ -92,8 +97,8 @@
     "check": {
       "checking": "Sto verificando backup...",
       "confirmTitle": "Verifica backup",
-      "notOK": "Il backup NON combacia con il portafoglio.",
-      "ok": "Il backup combacia con il portafoglio.",
+      "notOK": "Il backup NON combacia con il wallet.",
+      "ok": "Il backup combacia con il wallet.",
       "password": {
         "label": "Password di recupero",
         "placeholder": "Password di recupero",
@@ -105,7 +110,7 @@
     "create": {
       "alreadyExists": "Hai già un backup valido. Vuoi ricrearlo?",
       "fail": "Creazione backup FALLITA!",
-      "info": "Inserisci la password di recupero del portafoglio attuale per la verifica.",
+      "info": "Inserisci la password di recupero del wallet attuale per la verifica.",
       "name": {
         "label": "Nome del backup",
         "placeholder": "Assegna un nome al backup"
@@ -115,7 +120,7 @@
         "placeholder": "Inserisci la tua password di recupero"
       },
       "title": "Crea backup",
-      "verificationFailed": "La password di recupero NON corrisponde al portafoglio attuale. Il backup è stato creato. Per favore usa 'Controlla backup' per verificare di nuovo la tua password di recupero."
+      "verificationFailed": "La password di recupero NON corrisponde al wallet attuale. Il backup è stato creato. Per favore usa 'Controlla backup' per verificare di nuovo la tua password di recupero."
     },
     "description": "Scegli <strong>il file di backup del wallet</strong>",
     "insert": "Inserisci la carta microSD per gestire i backup.",
@@ -137,12 +142,12 @@
       "restoring": "Ripristino backup...",
       "selectedBackup": "<strong>{{backupName}}</strong> creato in data {{createdDateTime}} verrà ripristinato.",
       "title": "Ripristina",
-      "understand": "Capisco che una password di recupero errata creerà un portafoglio diverso"
+      "understand": "Capisco che una password di recupero errata creerà un wallet diverso"
     },
     "showMnemonic": {
-      "description": "Ti verranno mostrate le parole di recupero, che formano un backup del tuo portafoglio. Scrivile su carta.\n\n<strong>Non custodirle digitalmente e non fotografarle.</strong>\n\n<strong>Non pronunciare le parole ad alta voce.</strong>\n\n<strong>Questo backup non è protetto da password.</strong>\n\nIn seguito ti sarà richiesto di confermare ogni parola.",
+      "description": "Ti verranno mostrate le parole di recupero, che formano un backup del tuo wallet. Scrivile su carta.\n\n<strong>Non custodirle digitalmente e non fotografarle.</strong>\n\n<strong>Non pronunciare le parole ad alta voce.</strong>\n\n<strong>Questo backup non è protetto da password.</strong>\n\nIn seguito ti sarà richiesto di confermare ogni parola.",
       "title": "Mostra le parole di recupero",
-      "warning": "<strong>Non condividere le tue parole di recupero con nessuno.</strong> Le parole di recupero danno pieno accesso al tuo portafogli. Se qualcuno ti chiede le tue parole di recupero, vuole truffarti. Non condividerle!"
+      "warning": "<strong>Non condividere le tue parole di recupero con nessuno.</strong> Le parole di recupero danno pieno accesso al tuo wallet. Se qualcuno ti chiede le tue parole di recupero, vuole truffarti. Non condividerle!"
     },
     "title": "Gestisci i backup"
   },
@@ -194,7 +199,7 @@
     "advanced": {
       "button": "Opzioni avanzate",
       "outOfDate": "Firmware non aggiornato per questa funzionalità",
-      "seed12WordInfo": "Attenzione, il numero di parole non potrà essere modificato dopo la creazione del portafogli.",
+      "seed12WordInfo": "Attenzione, il numero di parole non potrà essere modificato dopo la creazione del wallet.",
       "seed12WordLabel": "Crea un seed da 12 parole invece di 24",
       "seed12WordText": "Il BitBox02 di default usa un seed da 24 parole. All'atto pratico, entrambe le lunghezze del seed sono sicure contro attacchi di tipo brute force. Alcuni utenti potrebbero preferire la comodità di un seed da 12 parole.",
       "skipSDCardLabel": "Salta il backup su microSD e sostituiscilo annotando le parole di recupero",
@@ -206,11 +211,11 @@
       "point1": "Scegli un backup sulla carta microSD",
       "point2": "Imposta una password per il tuo dispositivo",
       "restoreText": "Ok, ripristiniamo un backup!",
-      "text1": "Bene, la tua password di BitBox02 è ora impostata e il portafoglio creato. Ora è il momento di creare il tuo primo backup. Assicurati che la tua scheda microSD sia inserita nel tuo BitBox02 e continua.",
+      "text1": "Bene, la tua password di BitBox02 è ora impostata e il wallet creato. Ora è il momento di creare il tuo primo backup. Assicurati che la tua scheda microSD sia inserita nel tuo BitBox02 e continua.",
       "text2": "Segui le istruzioni sullo schermo del tuo dispositivo per creare un backup.",
       "text3": "Dopo che il backup è stato creato, rimuovi la scheda microSD e conservala in un luogo <strong>sicuro</strong>. Il contenuto della scheda microSD non è protetto da password. Non inserirla mai in nessun altro dispositivo che non sia il tuo BitBox02.",
       "userConfirmation1": "Devo conservare il backup in un luogo sicuro.",
-      "userConfirmation2": "Il backup non è protetto da una password. Chiunque abbia accesso ad esso può accedere anche al mio portafoglio.",
+      "userConfirmation2": "Il backup non è protetto da una password. Chiunque abbia accesso ad esso può accedere anche al mio wallet.",
       "userConfirmation3": "Se perdo o danneggio il mio BitBox02, l'unico modo per recuperare i miei fondi è ripristinare il backup.",
       "userConfirmation4": "Se perdo o danneggio sia il backup che il dispositivo BitBox02, i miei fondi andranno persi.",
       "userConfirmation5": "Non devo inserire il mio backup su scheda microSD in un computer, telefono, stampante o qualsiasi altro dispositivo che non sia un BitBox02.",
@@ -219,18 +224,18 @@
     "create": {
       "button": "Assegnare un nome al dispositivo e continuare",
       "info": "Ecco i passaggi necessari per configurare il tuo BitBox: ",
-      "inputTitle": "Nome del portafoglio",
+      "inputTitle": "Nome del wallet",
       "point1": "Dai un nome al tuo dispositivo",
       "point2": "Imposta una password per il tuo dispositivo",
       "point3": "Crea un backup",
-      "text": "Bene, ora creiamo un nuovo portafoglio!"
+      "text": "Bene, ora creiamo un nuovo wallet!"
     },
     "createBackupAborted": "Creazione del backup interrotta.",
     "createBackupFailed": "Creazione del backup fallita. Riprovare.",
     "initialize": {
       "passwordText": "Ora impostiamo la password del dispositivo. Usa i controlli sul tuo BitBox per scegliere i caratteri della password.",
       "passwordTitle": "Imposta la password per il tuo BitBox",
-      "text": "BitBox02 abbinato con successo! Ora inizializziamo il tuo dispositivo. Inizia scegliendo se creare un nuovo portafoglio o ripristinare un portafoglio da un backup esistente. <strong>Assicurati di avere una scheda microSD inserita nel tuo BitBox02</strong>",
+      "text": "BitBox02 abbinato con successo! Ora inizializziamo il tuo dispositivo. Inizia scegliendo se creare un nuovo wallet o ripristinare un wallet da un backup esistente. <strong>Assicurati di avere una scheda microSD inserita nel tuo BitBox02</strong>",
       "tip": "Ti consigliamo di procedere in un luogo sicuro.",
       "title": "Inizializza il tuo BitBox"
     },
@@ -263,7 +268,7 @@
       "nameLabel": "Nome del BitBox02",
       "namePlaceholder": "Il mio BitBox02",
       "title": "Scegli il nome del BitBox02",
-      "toastMicroSD": "Inserisci nel tuo BitBox02 la scheda microSD che sarà utilizzata per salvare un backup del tuo portafogli."
+      "toastMicroSD": "Inserisci nel tuo BitBox02 la scheda microSD che sarà utilizzata per salvare un backup del tuo wallet."
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Rimuovere la scheda microSD dal BitBox02 e conservarla in un luogo sicuro.",
@@ -281,7 +286,7 @@
     },
     "stepUninitialized": {
       "create": "Vorrei configurare un nuovo BitBox02.",
-      "restore": "Vorrei ripristinare il mio portafoglio da un backup.",
+      "restore": "Vorrei ripristinare il mio wallet da un backup.",
       "restoreMicroSD": "Ripristina dalla scheda microSD",
       "restoreMnemonic": "Ripristina utilizzando le parole di recupero",
       "title": "Configurare il BitBox02"
@@ -290,6 +295,58 @@
       "text": "Urrà! Il tuo BitBox02 è ora pronto all'uso. \n\nPer ulteriori informazioni su come utilizzare la BitBoxApp, si prega di utilizzare la guida in-app cliccando sul punto di domanda in alto a destra.",
       "title": "Pronti a partire!"
     }
+  },
+  "bitsurance": {
+    "dashboard": {
+      "active": "Polizza d'assicurazione attiva",
+      "button": "Assicura un nuovo account",
+      "canceled": "Cancellata",
+      "coverage": "Copertura massima",
+      "inactive": "Inattiva",
+      "processing": "In elaborazione",
+      "refused": "Rifiutata",
+      "supportLink": "Gestisci contratto",
+      "title": "Account assicurati",
+      "waitpayment": "In attesa di pagamento"
+    },
+    "detect": {
+      "button": "Verifica copertura assicurativa",
+      "insured": "Account assicurati:",
+      "notInsured": "Nessuna assicurazione rilevata. Se sei sicuro che uno degli account sia assicurato, verifica di aver inserito il wallet corretto.",
+      "text": "Se hai già assicurato i tuoi fondi con Bitsurance, la BitBoxApp può rilevare automaticamente la tua copertura assicurativa.",
+      "title": "Sei già assicurato?"
+    },
+    "insure": {
+      "button": "Verifica disponibilità e prezzi",
+      "faq": "Leggi di più sulle FAQ di Bitsurance",
+      "listItem1": "Furto",
+      "listItem2": "Estorsione (ad esempio, $5 wrench attack)",
+      "listItem3": "Distruzione dovuta a incendi, acqua o calamità naturali",
+      "month": "mese",
+      "text": "Assicura il tuo BitBox02 e fino a 100.000€ in bitcoin contro",
+      "text2": "I piani assicurativi partono da €30/anno (€2,50/mese). Puoi saperne di più su Bitsurance e sui dettagli dell'offerta sul",
+      "text3": "Attualmente disponibile in Germania, con altri Paesi in arrivo.",
+      "title": "Inizia"
+    },
+    "intro": {
+      "link": "sito Bitsurance",
+      "text1": "BitBox collabora con Bitsurance per aggiungere un ulteriore livello di protezione per i tuoi bitcoin. Mentre BitBox02 mantiene i tuoi fondi al sicuro, Bitsurance copre le minacce domestiche che non possono essere mitigate con la sola tecnologia, come furti con scasso, estorsioni o la distruzione dello stesso hardware wallet."
+    },
+    "terms": {
+      "link": "Privacy Policy di Bitsurance",
+      "text1": "Bitsurance è un servizio indipendente di terze parti. Per domande riguardanti le loro offerte e le richieste di risarcimento assicurativo, contatta direttamente Bitsurance.",
+      "text2": "La copertura assicurativa è attualmente disponibile in Germania, a cui seguiranno altri Paesi.",
+      "text3": "La copertura massima di Bitcoin attualmente disponibile è di €100.000 a persona. Prevediamo la disponibilità di importi più elevati in futuro.",
+      "text4": "Le informazioni personali e la chiave pubblica estesa del tuo account assicurato fanno parte della polizza assicurativa e saranno condivise con Bitsurance e la compagnia assicurativa.",
+      "text5": "Per ulteriori informazioni sulla privacy, consulta la"
+    },
+    "title": "Assicurazione"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "Errore: non è stato possibile ottenere la chiave pubblica dell'account.",
+    "noAccount": "Non ci sono account che possono essere assicurati.",
+    "select": "Seleziona un account",
+    "title": "Assicurazione"
   },
   "blink": {
     "button": "Lampeggia"
@@ -313,7 +370,7 @@
     "dismiss": "Sospendi",
     "done": "Fatto",
     "download": "Scarica",
-    "hiddenwallet": "Crea un portafoglio nascosto",
+    "hiddenwallet": "Crea un wallet nascosto",
     "next": "Successivo",
     "ok": "OK",
     "previous": "Precedente",
@@ -499,7 +556,8 @@
     "toggle": "Modalità scura"
   },
   "device": {
-    "appUpradeRequired": "Il tuo BitBox non è compatibile con questa versione dell'applicazione desktop. Installa l'ultima versione."
+    "appUpradeRequired": "Il tuo BitBox non è compatibile con questa versione dell'applicazione desktop. Installa l'ultima versione.",
+    "keystoreConnected": "Wallet connesso"
   },
   "deviceLock": {
     "button": "Abilita autenticazione a due fattori (2FA)",
@@ -527,7 +585,7 @@
         "description": "Modifica il nome del tuo dispositivo."
       },
       "rootFingerprint": {
-        "description": "La root fingerprint è un identificatore univoco del portafogli attualmente in uso. Ti può aiutare a distinguere portafogli diversi se usi la passphrase."
+        "description": "La root fingerprint è un identificatore univoco del wallet attualmente in uso. Ti può aiutare a distinguere wallet diversi se usi la passphrase."
       },
       "securechip": {
         "description": "Modello del secur chip."
@@ -536,7 +594,7 @@
     },
     "expert": {
       "factoryReset": {
-        "description": "Ripristina il dispositivo alle impostazioni di fabbrica. Questo cancella il portafogli sul tuo BitBox02!",
+        "description": "Ripristina il dispositivo alle impostazioni di fabbrica. Questo cancella il wallet dal tuo BitBox02!",
         "title": "Ripristino alle impostazioni di fabbrica"
       },
       "goToStartupSettings": {
@@ -597,7 +655,7 @@
       "title": "Segreti"
     }
   },
-  "deviceTampered": "Il tuo BitBox è stato fornito con una password di recupero? Se è così, interrompi il processo di configurazione e contatta il supporto immediatamente. Shift non ti fornirà mai un portafoglio pronto né ti consiglierà una password.",
+  "deviceTampered": "Il tuo BitBox è stato fornito con una password di recupero? Se è così, interrompi il processo di configurazione e contatta il supporto immediatamente. Shift non ti fornirà mai un wallet pronto, né ti consiglierà una password.",
   "dialog": {
     "cancel": "Annulla",
     "confirm": "Conferma",
@@ -615,7 +673,7 @@
     "aoppUnsupportedFormat": "Non ci sono account disponibili che supportino il formato di indirizzo richiesto.",
     "aoppUnsupportedKeystore": "Il dispositivo collegato non può firmare i messaggi per questo asset.\n",
     "aoppVersion": "Versione sconosciuta.",
-    "wrongKeystore": "Portafogli connesso errato. Assicurati di inserire il dispositivo corretto per questo account.",
+    "wrongKeystore": "Wallet connesso errato. Assicurati di inserire il dispositivo corretto per questo account.",
     "wrongKeystore2": "Se stai utilizzando la passphrase opzionale, assicurati di avere inserito quella corretta per questo account."
   },
   "fiat": {
@@ -633,8 +691,8 @@
   "genericError": "Si è verificato un errore. Se noti qualche problema, riavvia l'applicazione.",
   "goal": {
     "buttons": {
-      "create": "Creare un nuovo portafoglio",
-      "restore": "Ripristina un portafoglio dal backup"
+      "create": "Creare un nuovo wallet",
+      "restore": "Ripristina un wallet dal backup"
     },
     "paragraph": "Seleziona una delle seguenti opzioni:",
     "step": {
@@ -646,8 +704,8 @@
         "title": "Dispositivo"
       },
       "3-create": {
-        "description": "Crea un nuovo portafoglio",
-        "title": "Portafoglio"
+        "description": "Crea un nuovo wallet",
+        "title": "Wallet"
       },
       "3-restore": {
         "description": "da un backup",
@@ -688,7 +746,7 @@
         "title": "È necessario verificare l'xpub sul dispositivo?\n"
       },
       "xpub": {
-        "text": "Una chiave pubblica estesa è una chiave \"root\" da cui derivano tutti gli indirizzi di ricezione di un account. \n\nÈ fornita qui per un uso avanzato e per l'interoperabilità con portafogli watch-only, come Electrum o Sentinel. Se hai ricevuto su diversi tipi di indirizzo, importa tutti i diversi formati xpub nel portafoglio watch-only per vedere tutte le tue valute.\n\nNota bene: i portafogli di terze parti potrebbero non supportare ancora gli xpub di Taproot.",
+        "text": "Una chiave pubblica estesa è una chiave \"root\" da cui derivano tutti gli indirizzi di ricezione di un account. \n\nÈ fornita qui per un uso avanzato e per l'interoperabilità con wallet watch-only, come Electrum o Sentinel. Se hai ricevuto su diversi tipi di indirizzo, importa tutti i diversi formati xpub nel wallet watch-only per vedere tutte le tue valute.\n\nNota bene: i wallet di terze parti potrebbero non supportare ancora gli xpub di Taproot.",
         "title": "Cos'è una chiave pubblica estesa?"
       }
     },
@@ -746,12 +804,16 @@
         "title": "Posso spostare fondi tra account diversi?"
       },
       "recoverAccounts": {
-        "text": "Sì. BitBoxApp crea account utilizzando standard consolidati e compatibili con la maggior parte degli altri portafogli di criptovalute.",
-        "title": "Posso recuperare i miei account con altri portafogli?\n"
+        "text": "Sì. BitBoxApp crea account utilizzando standard consolidati e compatibili con la maggior parte degli altri wallet per criptovalute.",
+        "title": "Posso recuperare i miei account con altri wallet?"
       },
       "whatAreAccounts": {
-        "text": "Il portafoglio può gestire più account della stessa moneta. Diversi account sono utili quando si desidera mantenere i fondi separati.",
+        "text": "Il tuo wallet può gestire più account della stessa moneta. Diversi account sono utili quando si desidera mantenere i fondi separati.",
         "title": "Cosa sono gli account?"
+      },
+      "whatIsRememberWallet": {
+        "text": "Abilitando \"Ricorda wallet\" puoi vedere gli account di questo wallet nella BitBoxApp anche quando il BitBox02 non è collegato. Questo ti consente di controllare il tuo saldo e il tuo portafoglio ogni volta che vuoi. Il BitBox02 dovrà comunque essere collegato e sbloccato per inviare o ricevere fondi.\n\nDisabilitando \"Ricorda wallet\" dovrai collegare il relativo BitBox02 (con l'eventuale passphrase) per vedere i suoi account nella BitBoxApp.",
+        "title": "Cosa succede quando attivo/disattivo “Ricorda wallet”?"
       },
       "whyIsThisUseful": {
         "text": "Gli account sono ottimi per gestire fondi per persone o scopi diversi, perché sono separati. È inoltre possibile condividere la \"chiave pubblica estesa\" di un account senza rivelare nulla degli altri account. Ciò consente di ricevere ripetutamente fondi senza riutilizzare gli indirizzi, ad esempio per ricevere lo stipendio o per acquistare regolarmente criptovalute.",
@@ -764,29 +826,29 @@
     },
     "backups": {
       "check": {
-        "text": "'Controlla backup' ti permette di verificare di avere un backup funzionante corrispondente al tuo portafoglio attuale. Può anche essere usato per verificare che tu abbia ancora la password di recupero corretta. Puoi controllare la tua password di recupero principale o la tua password di recupero nascosta.",
+        "text": "'Controlla backup' ti permette di verificare di avere un backup funzionante corrispondente al tuo wallet attuale. Può anche essere usato per verificare che tu abbia ancora la password di recupero corretta. Puoi controllare la tua password di recupero principale o la tua password di recupero nascosta.",
         "title": "Cos'è il 'Controlla backup'?"
       },
       "encrypt": {
-        "text": "No, ma la tua password di recupero è necessaria per ricavare il portafoglio dal \"seed\" memorizzato.",
+        "text": "No, ma la tua password di recupero è necessaria per ricavare il wallet dal \"seed\" memorizzato.",
         "title": "Posso criptare il backup?"
       },
       "howOften": {
-        "text": "Il backup viene generato automaticamente quando viene creato un nuovo portafoglio. Devi fare un nuovo backup solo se la tua scheda microSD viene persa o danneggiata, o se vuoi usare più schede microSD come backup.\nNon è necessario creare nuovi backup dopo l'attività di transazione. Tutti i dati delle tue transazioni possono essere ricreati dal tuo singolo backup che è stato generato automaticamente per te.",
+        "text": "Il backup viene generato automaticamente quando viene creato un nuovo wallet. Devi fare un nuovo backup solo se la tua scheda microSD viene persa o danneggiata, o se vuoi usare più schede microSD come backup.\nNon è necessario creare nuovi backup dopo aver inviato o ricevuto transazioni. Tutti i dati delle tue transazioni possono essere ricreati dal tuo singolo backup che è stato generato automaticamente per te.",
         "title": "Quanto spesso devo fare un backup?"
       },
       "whatIsABackup": {
-        "text": "È una copia del \"seed\" su una scheda microSD. Il \"seed\" insieme alla tua password di recupero genera il tuo portafoglio.",
+        "text": "È una copia del \"seed\" su una scheda microSD. Il \"seed\" insieme alla tua password di recupero genera il tuo wallet.",
         "title": "Cos'è un backup?"
       }
     },
     "backupsBB02": {
       "check": {
-        "text": "'Controlla backup' ti permette di verificare che hai un backup funzionante corrispondente al tuo portafoglio attuale.",
+        "text": "'Controlla backup' ti permette di verificare che hai un backup funzionante corrispondente al tuo wallet attuale.",
         "title": "Cos'è il 'Controlla backup'?"
       },
       "encrypt": {
-        "text": "No. Tieni la scheda microSD al sicuro, perché contiene il \"seed\" non criptato per recuperare il tuo portafoglio. Se desideri proteggere con una password il tuo seed, puoi abilitare una passphrase opzionale nelle impostazioni avanzate sotto \" Gestisci dispositivo \".",
+        "text": "No. Tieni la scheda microSD al sicuro, perché contiene il \"seed\" non criptato per recuperare il tuo wallet. Se desideri proteggere con una password il tuo seed, puoi abilitare una passphrase opzionale nelle impostazioni avanzate sotto \"Gestisci dispositivo\".",
         "title": "Posso criptare il backup?"
       },
       "whatIsABackup": {
@@ -796,11 +858,11 @@
     },
     "bitbox": {
       "2FA": {
-        "text": "Quando la 2FA è abilitata, tutte le transazioni devono essere approvate sul cellulare abbinato per poter spendere fondi. Un numero monouso criptato viene inviato all'applicazione mobile, decriptato lì, e restituito al BitBox quando si preme il pulsante \"Accetta\". Questa comunicazione con il dispositivo avviene tramite un canale tra il telefono cellulare e l'applicazione desktop stabilita durante l'abbinamento.\n\nAssicurati di fare il backup del tuo portafoglio e di abbinare l'applicazione mobile prima di abilitare il 2FA. Una volta abilitato, lo slot microSD e l'abbinamento dell'applicazione mobile sono disabilitati. Possono essere riabilitati resettando il BitBox, che cancella il dispositivo.",
+        "text": "Quando la 2FA è abilitata, tutte le transazioni devono essere approvate sul cellulare abbinato per poter spendere fondi. Un numero monouso criptato viene inviato all'applicazione mobile, decriptato lì, e restituito al BitBox quando si preme il pulsante \"Accetta\". Questa comunicazione con il dispositivo avviene tramite un canale tra il telefono cellulare e l'applicazione desktop stabilita durante l'abbinamento.\n\nAssicurati di fare il backup del tuo wallet e di abbinare l'applicazione mobile prima di abilitare il 2FA. Una volta abilitato, lo slot microSD e l'abbinamento dell'applicazione mobile sono disabilitati. Possono essere riabilitati resettando il BitBox, che cancella il dispositivo.",
         "title": "Come funziona l'autorizzazione a due fattori (2FA)?"
       },
       "disable2FA": {
-        "text": "Per disabilitare il 2FA, è necessario resettare il BitBox e poi ripristinare il portafoglio dal suo backup. Assicurati di avere ancora la scheda microSD con il backup e di ricordare ancora la password di recupero. Poi premi 'Reset dispositivo'. Imposta una nuova password del dispositivo e scegli 'Ripristina un backup'. Seleziona il backup che hai fatto dal portafoglio, clicca su 'Ripristina' e inserisci la password di recupero che hai usato quando hai creato il portafoglio.",
+        "text": "Per disabilitare il 2FA, è necessario resettare il BitBox e poi ripristinare il wallet dal suo backup. Assicurati di avere ancora la scheda microSD con il backup e di ricordare ancora la password di recupero. Poi premi 'Reset dispositivo'. Imposta una nuova password del dispositivo e scegli 'Ripristina un backup'. Seleziona il backup che hai fatto dal wallet. clicca su 'Ripristina' e inserisci la password di recupero che hai usato quando hai creato il wallet.",
         "title": "Come posso disabilitare l'autorizzazione a due fattori (2FA)?"
       },
       "ejectBitbox": {
@@ -812,20 +874,56 @@
         "title": "Come posso espellere la scheda microSD?"
       },
       "hiddenWallet": {
-        "text": "Si tratta di un secondo portafoglio sullo stesso dispositivo protetto da una password diversa da quella del dispositivo e quella di recupero, che puoi usare per una negazione plausibile. Lo stesso \"seed\" di backup viene utilizzato sia per il portafoglio normale che per quello nascosto, quindi non è necessario un backup aggiuntivo.",
-        "title": "Cos'è un portafoglio nascosto?"
+        "text": "Si tratta di un secondo wallet sullo stesso dispositivo protetto da una password diversa da quella del dispositivo e quella di recupero, che puoi usare per una negazione plausibile. Lo stesso \"seed\" di backup viene utilizzato sia per il wallet normale che per quello nascosto, quindi non è necessario un backup aggiuntivo.",
+        "title": "Cos'è un wallet nascosto?"
       },
       "legacyHiddenWallet": {
         "text": "Prima clicca il pulsante qui sotto (disponibile se il BitBox è sbloccato con la password del dispositivo principale e 2FA è disabilitato), poi ricollega il tuo Bitbox e sbloccalo con la tua password del dispositivo nascosto.",
-        "title": "Come si accede al portafoglio nascosto legacy?"
+        "title": "Come si accede al wallet nascosto legacy?"
       },
       "pairing": {
         "text": "Dopo aver scaricato la nostra applicazione mobile per iOS o Android, scansiona il codice QR visualizzato, che stabilisce un canale sicuro tra l'applicazione mobile e questa applicazione. Una volta scansionato, segui le istruzioni dell'applicazione mobile.",
         "title": "Come abbinare in modo sicuro il tuo telefono"
       }
     },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "Per ulteriori dettagli, consulta il sito Web di Bitsurance e le FAQ",
+        "title": "Altre domande?"
+      },
+      "privacy": {
+        "link": {
+          "text": "privacy policy di Bitsurance"
+        },
+        "text": "Come ogni normale polizza assicurativa, contiene il tuo nome e indirizzo completo e specifica l'oggetto assicurato (definito dalla chiave pubblica estesa del conto Bitcoin assicurato). Questi dati vengono inviati direttamente a Bitsurance e non vengono condivisi con Shift Crypto. Per ulteriori informazioni, consultare la privacy policy Bitsurance",
+        "title": "Quali informazioni personali sono necessarie per l'assicurazione?"
+      },
+      "renew": {
+        "text": "L’assicurazione si rinnoverà automaticamente per l’anno successivo. Puoi annullare il rinnovo in qualsiasi momento facendo clic su \"Gestisci contratto\" nella BitBoxApp, che ti porta al portale clienti Bitsurance.",
+        "title": "Come posso rinnovare o annullare l'assicurazione?"
+      },
+      "status": {
+        "text": "Gli account assicurati con successo sono contrassegnati con un badge verde \"Account assicurato\" nell'angolo in alto a sinistra nella pagina dell'account. Nella sezione \"Assicura\" puoi vedere una panoramica di tutti gli account Bitcoin assicurati e il loro attuale stato assicurativo.",
+        "title": "Posso verificare lo stato di un account assicurato?"
+      },
+      "what": {
+        "text": "Ogni contratto assicurativo Bitcoin copre uno specifico account. Puoi assicurare più account stipulando più polizze assicurative. I conti assicurati sono limitati all'utilizzo di indirizzi Bitcoin di tipo \"Native Segwit\".",
+        "title": "L'assicurazione copre l'intero wallet BitBox?"
+      },
+      "who": {
+        "text": "L'assicurazione è offerta da Bitsurance, un broker assicurativo creato da bitcoiner. Lavorano con la compagnia di assicurazioni ELEMENT per fornire un'assicurazione su Bitcoin. Entrambe le società hanno sede in Germania.",
+        "title": "Chi assicura i miei bitcoin?"
+      },
+      "why": {
+        "text": "Bitsurance copre alcuni rischi legati alla self-custody che non possono essere tutelati neanche dal più sicuro dei wallet, ad es. furto con scasso, estorsione o distruzione del wallet stesso. È una tua decisione personale se hai bisogno di una copertura assicurativa per questi rischi.",
+        "title": "Ho bisogno di un’assicurazione Bitcoin?"
+      }
+    },
     "cointracking": {
-      "text": "Fai clic sul pulsante \"Esporta\" e apri la cartella dei download dove troverai l'esportazione CSV. Quindi fai clic sul link sottostante, carica il tuo file CSV BitBox e importa i dati per utilizzarli nel tuo gestore del portafoglio CoinTracking e per creare le tue dichiarazioni fiscali.\n",
+      "text": "Fai clic sul pulsante \"Esporta\" e apri la cartella dei download dove troverai l'esportazione CSV. Quindi fai clic sul link sottostante, carica il tuo file CSV BitBox e importa i dati per utilizzarli nel tuo gestore del portafoglio CoinTracking e per creare le tue dichiarazioni fiscali.",
       "title": "Come importo le mie transazioni in CoinTracking?"
     },
     "device": {
@@ -837,7 +935,7 @@
         "title": "Come funziona la verifica di autenticità?"
       },
       "name": {
-        "text": "Questo è il nome del tuo portafoglio e del backup. Il nome è utilizzato per i backup futuri e può essere utilizzato per distinguere tra differenti portafogli. Può essere cambiato in ogni momento, ma tieni presente che i backup fatti prima del cambio avranno il nome precedente.",
+        "text": "Questo è il nome del tuo wallet e del backup. Il nome è utilizzato per i backup futuri e può essere utilizzato per distinguere tra wallet diversi. Può essere cambiato in ogni momento, ma tieni presente che i backup fatti prima del cambio avranno il nome precedente.",
         "title": "Per cosa è utilizzato il nome del BitBox02?"
       },
       "secure-chip": {
@@ -858,7 +956,7 @@
         "title": "Quando cambiano gli indirizzi?"
       },
       "addressFormats": {
-        "text": "Da impostazione predefinita, il tipo di indirizzo è Native Segwit. Questo tipo di indirizzo è ampiamente adottato da altri portafogli/exchange e offre le migliori tariffe per le transazioni quotidiane. Tuttavia, si può anche scegliere di inviare a Taproot (solo Bitcoin), il tipo di indirizzo più recente, ma potenzialmente non ancora ampiamente supportato. In alternativa, se avete problemi a inviare a Native Segwit (predefinito), potete provare a passare al tipo di indirizzo più vecchio Wrapped Segwit, che potrebbe essere compatibile con più portafogli/scambi.",
+        "text": "Da impostazione predefinita, il tipo di indirizzo è Native Segwit. Questo tipo di indirizzo è ampiamente adottato da altri wallet/exchange e offre le migliori tariffe per le transazioni quotidiane. Tuttavia, si può anche scegliere di inviare a Taproot (solo Bitcoin), il tipo di indirizzo più recente, ma potenzialmente non ancora ampiamente supportato. In alternativa, se hai problemi a inviare a Native Segwit (predefinito), puoi provare a passare al tipo di indirizzo più vecchio Wrapped Segwit, che potrebbe essere compatibile con più wallet/exchange.",
         "title": "Quando uso \"Cambia tipo di indirizzo\"?"
       },
       "howVerify": {
@@ -866,11 +964,11 @@
         "title": "Come posso verificare un indirizzo in modo sicuro?"
       },
       "plugout": {
-        "text": "No, una volta inviate le valute al proprio indirizzo BitBox, non è necessario lasciare il BitBox collegato. Siete liberi di scollegare il vostro BitBox.",
+        "text": "No, una volta inviati fondi all'indirizzo del tuo BitBox, non è necessario lasciarlo collegato. Sei libero di scollegare il tuo BitBox.",
         "title": "È necessario lasciare il BitBox collegato durante la ricezione?"
       },
       "why20": {
-        "text": "Durante l'avvio l'app genera indirizzi derivati dal vostro \"seed\" per vedere se hanno ricevuto fondi. Poiché l'app può generare un numero quasi infinito di indirizzi, potrebbero passare anni perché determini il saldo. Per limitare questa ricerca, la app si ferma quando vede 20 indirizzi che non hanno mai ricevuto fondi. Questo è il \"gap limit\" e 20 è uno standard applicato de-facto anche se il numero è arbitrario. Questi sono i 20 indirizzi tra cui puoi scegliere.",
+        "text": "Durante l'avvio l'app genera indirizzi derivati dal tuo \"seed\" per vedere se hanno ricevuto fondi. Poiché l'app può generare un numero quasi infinito di indirizzi, potrebbero volerci anni per determinare il saldo. Per limitare questa ricerca, la app si ferma quando vede 20 indirizzi che non hanno mai ricevuto fondi. Questo è il \"gap limit\" e 20 è uno standard de-facto anche se il numero è arbitrario. Questi sono i 20 indirizzi tra cui puoi scegliere.",
         "title": "Perché solo 20 indirizzi?"
       },
       "whyMany": {
@@ -910,7 +1008,7 @@
     },
     "settings-electrum": {
       "connection": {
-        "text": "Se intendete connettervi al vostro nodo solo quando siete sulla stessa rete (ad esempio il wifi di casa vostra), allora è sufficiente utilizzare la normale comunicazione di rete.\nIn questo caso è consigliabile che il vostro server Electrum fornisca un certificato TLS per cifrare la comunicazione.\nSe avete intenzione di connettervi al vostro nodo da qualsiasi luogo, usare Tor è l'opzione migliore. In questo caso non è necessario alcun certificato TLS.",
+        "text": "Se intendi connetterti al tuo nodo solo quando sei connesso alla stessa rete (ad esempio il wifi di casa tua) allora è sufficiente utilizzare la normale comunicazione di rete.\nIn questo caso è consigliabile che il tuo server Electrum fornisca un certificato TLS per cifrare la comunicazione.\nSe hai intenzione di connetterti al tuo nodo da qualsiasi luogo, usare Tor è l'opzione migliore. In questo caso non è necessario alcun certificato TLS.",
         "title": "Meglio usare clearnet TCP, TLS o Tor?"
       },
       "instructions": {
@@ -921,7 +1019,7 @@
         "title": "Come faccio a collegare la mia BitBoxApp al mio full node?"
       },
       "options": {
-        "text": "Ci sono diverse opzioni per utilizzare il proprio nodo come acquistare un dispositivo finito, costruire il proprio o utilizzare Bitcoin Core.\nSe vuoi collegare la BitBoxApp al tuo nodo, assicurati che esegua un server Electrum. Questo è un programma dedicato che permette ad un'app portafoglio di comunicare con il tuo nodo.\nLe opzioni supportate includono Electrs, Electrum Personal Server (EPS) o Bitcoin Wallet Tracker (BTW).",
+        "text": "Ci sono diverse opzioni per utilizzare un proprio nodo come acquistare un dispositivo finito, costruire il proprio o utilizzare Bitcoin Core.\nSe vuoi collegare la BitBoxApp al tuo nodo, assicurati che esegua un server Electrum. Questo è un programma dedicato che permette ad un'app wallet di comunicare con il tuo nodo.\nLe opzioni supportate includono Electrs, Electrum Personal Server (EPS) o Bitcoin Wallet Tracker (BTW).",
         "title": "Quali opzioni ci sono per gestire un nodo?"
       },
       "tor": {
@@ -929,7 +1027,7 @@
         "title": "Cos'è Tor, Tor proxy e quale porta usare?"
       },
       "what": {
-        "text": "È possibile utilizzare il tuo portafoglio con il mio full node invece di usare i server di Shift?",
+        "text": "È possibile utilizzare il tuo wallet con il mio full node invece di usare i server di Shift.",
         "title": "Cosa significa?"
       },
       "why": {
@@ -958,7 +1056,7 @@
     },
     "unlock": {
       "forgotDevicePassword": {
-        "text": "Devi resettare il dispositivo e ripristinare il portafoglio da un backup, utilizzando la password di recupero.",
+        "text": "Devi resettare il dispositivo e ripristinare il wallet da un backup, utilizzando la password di recupero.",
         "title": "Cosa devo fare se ho dimenticato la password del dispositivo?"
       },
       "reset": {
@@ -979,7 +1077,7 @@
         "title": "Come posso ottenere un dispositivo?"
       },
       "internet": {
-        "text": "Sì, è necessaria una connessione internet per sincronizzare il portafoglio, inviare transazioni e recuperare gli ultimi tassi di cambio.",
+        "text": "Sì, è necessaria una connessione internet per sincronizzare il wallet, inviare transazioni e recuperare gli ultimi tassi di cambio.",
         "title": "Questa app richiede una connessione a internet?"
       },
       "lostDevice": {
@@ -1004,11 +1102,11 @@
         "title": "Non vedo le mie connessioni precedenti."
       },
       "supportedNetworks": {
-        "text": "Al momento, solo la mainnet Ethereum è supportata da WalletConnect nella BiBoxApp. Se hai bisogno di un portafogli per altre chain EVM puoi utilizzare l'estensione per il browser Rabby.",
+        "text": "Al momento, solo la mainnet Ethereum è supportata da WalletConnect nella BiBoxApp. Se hai bisogno di un wallet per altre chain EVM puoi utilizzare l'estensione per il browser Rabby.",
         "title": "Quali reti sono supportate?"
       },
       "whatIsWalletConnect": {
-        "text": "WalletConnect è un protocollo di comunicazione per applicazioni web3. Ti permette di connetterti comodamente a DApp e portafogli web senza dover usare un'altra app. Particolarmente utile per gli utenti Android della BitBoxApp.",
+        "text": "WalletConnect è un protocollo di comunicazione per applicazioni web3. Ti permette di connetterti comodamente a DApp e web wallet senza dover usare un'altra app. Particolarmente utile per gli utenti Android della BitBoxApp.",
         "title": "Cos'è WalletConnect?"
       }
     }
@@ -1017,14 +1115,14 @@
     "blocksSynced": "{{blocks}} blocchi sincronizzati"
   },
   "hiddenWallet": {
-    "info1HTML": "Per scopi di negazione plausibile, un portafoglio nascosto può essere creato sulla base di una combinazione <strong>diversa</strong> di password del dispositivo + password di recupero.",
-    "info2HTML": "Definisci la password del dispositivo e la password di recupero che vuoi associare al tuo portafoglio nascosto qui sotto. La password del dispositivo e la password di recupero devono essere <strong>diverse</strong> da quelle che hai definito per il tuo portafoglio principale.",
+    "info1HTML": "Per scopi di negazione plausibile, un wallet nascosto può essere creato sulla base di una combinazione <strong>diversa</strong> di password del dispositivo + password di recupero.",
+    "info2HTML": "Definisci la password del dispositivo e la password di recupero che vuoi associare al tuo wallet nascosto qui sotto. La password del dispositivo e la password di recupero devono essere <strong>diverse</strong> da quelle che hai definito per il tuo wallet principale.",
     "passwordLabel": "Password di recupero nascosta",
     "passwordPlaceholder": "Si prega di confermare la password di recupero nascosta",
     "pinLabel": "Password nascosta del dispositivo",
     "pinRepeatLabel": "Ripetere la password del dispositivo nascosto",
     "pinRepeatPlaceholder": "Si prega di confermare la password del dispositivo nascosto",
-    "success": "Portafoglio nascosto creato con successo. Ricollega il tuo BitBox per sbloccarlo."
+    "success": "Wallet nascosto creato con successo. Ricollega il tuo BitBox per sbloccarlo."
   },
   "initialize": {
     "create": "Imposta la password del dispositivo",
@@ -1035,7 +1133,7 @@
     "info": {
       "description1": "Scegli la password del tuo dispositivo. Questa sarà usata per sbloccare il tuo BitBox.",
       "description2": "Puoi usare numeri, lettere e simboli. Password più lunghe offrono maggiore sicurezza.",
-      "description3": "Se perdi la password del dispositivo, dovrai resettare il tuo dispositivo e ripristinare il backup del portafoglio.",
+      "description3": "Se perdi la password del dispositivo, dovrai resettare il tuo dispositivo e ripristinare il backup del wallet.",
       "subtitle": "Ora imposterai la password del tuo dispositivo",
       "title": "Inizializzazione del dispositivo"
     },
@@ -1050,10 +1148,10 @@
     "title": "Seleziona lingua"
   },
   "legacyhiddenwallet": {
-    "disable": "Disattiva il portafoglio nascosto legacy",
-    "enable": "Abilita il portafoglio nascosto legacy",
-    "successDisable": "Portafoglio nascosto legacy disattivato con successo",
-    "successEnable": "Il portafoglio nascosto legacy è stato attivato con successo. Ricollega il tuo BitBox e inserisci la password del dispositivo nascosto per accedere al portafoglio nascosto legacy."
+    "disable": "Disattiva il wallet nascosto legacy",
+    "enable": "Abilita il wallet nascosto legacy",
+    "successDisable": "Wallet nascosto legacy disattivato con successo",
+    "successEnable": "Il wallet nascosto legacy è stato attivato con successo. Ricollega il tuo BitBox e inserisci la password del dispositivo nascosto per accedere al wallet nascosto legacy."
   },
   "loading": "caricamento...",
   "manageAccounts": {
@@ -1106,6 +1204,10 @@
         "description": "Selezione la valuta di default",
         "title": "Valuta di default"
       },
+      "enableAccount": {
+        "description": "Disabilitare il tuo account significa che non comparirà nella barra laterale o nel portafoglio. Puoi sempre riattivarlo da qui. I fondi su questo conto non saranno modificati e rimarranno al sicuro.",
+        "title": "Abilita/disabilita account"
+      },
       "hideAmounts": {
         "description": "Visualizza un'opzione per nascondere il tuo bilancio e gli importi per aumentare la tua privacy quando usi l'app in pubblico.",
         "hideAmounts": "Nascondi importi",
@@ -1115,6 +1217,11 @@
       "language": {
         "description": "In che lingua preferisci visualizzare la BitBoxApp.",
         "title": "Lingua"
+      },
+      "remebmerWallet": {
+        "name": "Ricorda wallet",
+        "warning": "Questo farà dimenticare il tuo wallet. Per vederlo di nuovo, dovrai collegare il relativo BitBox02. I fondi presenti sul wallet non saranno modificati. Vuoi continuare?",
+        "warningTitle": "Disattiva \"Ricorda wallet\""
       },
       "toggleSats": {
         "description": "Abilita o disabilita i Satoshi"
@@ -1181,13 +1288,13 @@
   "passphrase": {
     "considerations": {
       "button": "Considerazioni sul backup\n",
-      "message": "La passphrase aggiunge un livello di protezione al backup del portafoglio (scheda microSD o parole di recupero). Se qualcuno ha accesso al vostro backup, avrà bisogno anche della passphrase per accedere al vostro portafoglio.\n\nTuttavia, questo significa che saranno necessari <strong>sia la passphrase che il backup del portafoglio</strong> per ripristinare il portafoglio abilitato alla passphrase, nel caso in cui il BitBox02 venga perso o rotto. Se si dimentica o si perde la passphrase, si perde l'accesso a tutte le valute del portafoglio.\n\nQuando si memorizza la passphrase, si consiglia di conservarla in un luogo separato rispetto al backup. In questo modo, se qualcuno trova il backup, non troverà anche la passphrase.",
+      "message": "La passphrase aggiunge un livello di protezione al backup del wallet (scheda microSD o parole di recupero). Se qualcuno ha accesso al tuo backup, avrà bisogno anche della passphrase per accedere al tuo wallet.\n\nTuttavia, questo significa che saranno necessari <strong>sia la passphrase che il backup del wallet</strong> per ripristinare il wallet con passphrase, nel caso in cui il BitBox02 venga perso o rotto. Se si dimentica o si perde la passphrase, si perde l'accesso a tutti i fondi del wallet.\n\nTi consigliamo di conservare la passphrase in un luogo separato rispetto al backup. In questo modo, se qualcuno trova il backup, non troverà anche la passphrase.",
       "title": "Considerazioni sul backup"
     },
     "disable": "Disabilita la passphrase",
     "disableInfo": {
       "button": "Disabilita",
-      "message": "Una volta disabilitata la passphrase, non verrà più richiesto di inserire una passphrase dopo aver sbloccato il BitBox02. Pertanto, si accederà al proprio portafoglio predefinito.\n\nTutte le valute presenti nel portafoglio con la passphrase saranno ancora presenti in quel portafoglio, ma non sarà possibile accedervi perché, dopo aver sbloccato il BitBox02, si aprirà il portafoglio predefinito.\n\nPer accedere nuovamente ai portafogli di passphrase, è sufficiente riattivare la funzione passphrase e inserire la relativa passphrase dopo aver sbloccato il BitBox02.\n\n<strong>Suggerimento:</strong> È ancora possibile accedere al portafoglio originale lasciando la passphrase vuota."
+      "message": "Una volta disabilitata la passphrase, non verrà più richiesto di inserire una passphrase dopo aver sbloccato il BitBox02. Pertanto, si accederà al proprio wallet predefinito.\n\nTutte le valute presenti nel wallet con la passphrase saranno ancora presenti in quel wallet, ma non sarà possibile accedervi perché, dopo aver sbloccato il BitBox02, si aprirà il wallet predefinito.\n\nPer accedere nuovamente ai wallet con passphrase, è sufficiente riattivare la funzione passphrase e inserire la stessa dopo aver sbloccato il BitBox02.\n\n<strong>Suggerimento:</strong> È ancora possibile accedere al wallet originale lasciando la passphrase vuota."
     },
     "enable": "Abilita la passphrase",
     "error": {
@@ -1195,11 +1302,11 @@
     },
     "how": {
       "button": "Come si presenta",
-      "message": "Una passphrase non funziona come una password a cui si è abituati. Se si sbaglia a digitare la passphrase, non si riceve alcuna notifica. Questo perché <strong>ogni passphrase crea un portafoglio diverso, ma valido</strong>. Ciò significa che è possibile utilizzare diverse passphrase per tanti portafogli quanti se ne desiderano. Ma si può accedere a ciascun portafoglio solo digitando la passphrase corrispondente.\n\nQuando si collega il BitBox02, viene richiesta la password del dispositivo come di consueto. Successivamente, verrà richiesto di inserire una passphrase sul dispositivo.\n\nDopo aver inserito la passphrase, vi verrà mostrata la passphrase inserita. In questo modo si può confermare di averla inserita correttamente.",
+      "message": "Una passphrase non funziona come una password a cui si è abituati. Se si sbaglia a digitare la passphrase, non si riceve alcuna notifica. Questo perché <strong>ogni passphrase crea un wallet diverso, ma valido</strong>. Ciò significa che è possibile utilizzare diverse passphrase per tanti wallet quanti se ne desiderano. Ma si può accedere a ciascun wallet solo digitando la passphrase corrispondente.\n\nQuando si collega il BitBox02, viene richiesta la password del dispositivo come di consueto. Successivamente, verrà richiesto di inserire una passphrase sul dispositivo.\n\nDopo aver inserito la passphrase, ti verrà mostrata la passphrase inserita. In questo modo puoi confermare di averla inserita correttamente.",
       "title": "Come funziona"
     },
     "intro": {
-      "message": "Una passphrase fornisce un ulteriore livello di sicurezza oltre al portafoglio.\nScopriamo come funziona.",
+      "message": "Una passphrase fornisce un livello di sicurezza aggiuntivo al tuo wallet.\nScopriamo come funziona.",
       "title": "Impostare la passphrase"
     },
     "progressDisable": {
@@ -1220,8 +1327,8 @@
       "messageEnd": "Ricollegare ora il BitBox02.\n",
       "tips": "Suggerimenti",
       "tipsList": [
-        "Si consiglia di inviare prima un piccolo importo al portafoglio con passphrase. Quindi scollegare e ricollegare il BitBox02 e inserire la password e la passphrase. Se la passphrase è stata inserita correttamente, si dovrebbero vedere i fondi nel portafoglio.",
-        "Se si desidera accedere al portafoglio originale senza passphrase, è ancora possibile farlo non inserendo nulla quando viene richiesto di inserire la passphrase. Oppure puoi disattivare la funzione passphrase."
+        "Si consiglia di inviare prima un piccolo importo al wallet con passphrase. Quindi scollegare e ricollegare il BitBox02 e inserire la password e la passphrase. Se la passphrase è stata inserita correttamente, si dovrebbero vedere i fondi nel wallet.",
+        "Se si desidera accedere al wallet originale senza passphrase, è ancora possibile farlo non inserendo nulla quando viene richiesto di inserire la passphrase. Oppure puoi disattivare la funzione passphrase."
       ],
       "title": "Passphrase disabilitata"
     },
@@ -1231,19 +1338,19 @@
       "understand": "Ho capito come funziona la passphrase e i rischi ad essa associati.\n",
       "understandList": [
         "La passphrase è un ulteriore livello di sicurezza oltre al backup.\n",
-        "L'inserimento di una passphrase diversa genererà sempre un portafoglio diverso.\n",
-        "Per ripristinare il portafoglio sono necessari <strong>sia la passphrase che il backup</strong>.",
+        "L'inserimento di una passphrase diversa genererà sempre un wallet diverso.",
+        "Per ripristinare il wallet sono necessari <strong>sia la passphrase che il backup</strong>.",
         "Se si dimentica la passphrase, <strong>non è più possibile accedere ai propri fondi</strong>.\n"
       ]
     },
     "what": {
       "button": "Scopri come funziona",
-      "message": "Un portafoglio viene creato (derivato) da un numero casuale molto grande, noto anche come seed. Questo seed viene creato quando si configura per la prima volta il BitBox02 e viene salvato nella scheda microSD o in una lista di parole di recupero. Chiunque abbia accesso al seed ha il pieno controllo sui fondi di quel portafoglio.\n\nUna passphrase è un <strong>segreto opzionale</strong>, aggiunto al seed. Quando si usa una passphrase, ogni passphrase crea un nuovo portafoglio basato sul seed + passphrase (segreto opzionale). Una passphrase può essere qualsiasi cosa: lettere, parole, caratteri speciali o può anche essere vuota. Il portafoglio predefinito deriva infatti dal seed + passphrase vuota.\n\nLa passphrase fa parte dello standard BIP39, il che significa che è compatibile con tutti i portafogli che supportano lo stesso standard.",
+      "message": "Un wallet viene creato (derivato) da un numero casuale molto grande, noto anche come seed. Questo seed viene creato quando si configura per la prima volta il BitBox02 e viene salvato nella scheda microSD o in una lista di parole di recupero. Chiunque abbia accesso al seed ha il pieno controllo sui fondi di quel wallet.\n\nUna passphrase è un <strong>segreto opzionale</strong>, aggiunto al seed. Quando si usa una passphrase, ogni passphrase crea un nuovo wallet basato sul seed + passphrase (segreto opzionale). Una passphrase può essere qualsiasi cosa: lettere, parole, caratteri speciali o può anche essere vuota. Il wallet predefinito deriva infatti dal seed + passphrase vuota.\n\nLa passphrase fa parte dello standard BIP39, il che significa che è compatibile con tutti i wallet che supportano lo stesso standard.",
       "title": "Cos'è una passphrase?"
     },
     "why": {
       "button": "Perchè usare una passphrase",
-      "message": "BitBox02 protegge il seed dall'estrazione dal dispositivo stesso, ma il backup (scheda microSD o parole di recupero) dà pieno accesso al portafoglio. Per questo motivo deve essere conservato in un luogo sicuro!\n\nPoiché una passphrase crea un nuovo portafoglio utilizzando il seed esistente, il portafoglio con l apassphrase richiede sia il <strong>backup che la passphrase per il ripristino</strong>. Il vantaggio è che se qualcuno trova il vostro backup, ha comunque bisogno della passphrase per accedere al portafoglio con la passphrase.\n\nInoltre, la funzione passphrase consente di creare più portafogli sullo stesso dispositivo, o \"portafogli nascosti\", oltre a quello predefinito.",
+      "message": "BitBox02 protegge il seed dall'estrazione dal dispositivo stesso, ma il backup (scheda microSD o parole di recupero) dà pieno accesso al wallet. Per questo motivo deve essere conservato in un luogo sicuro!\n\nPoiché una passphrase crea un nuovo wallet utilizzando il seed esistente, il wallet con la passphrase richiede sia il <strong>backup che la passphrase per il ripristino</strong>. Il vantaggio è che se qualcuno trova il tuo backup, ha comunque bisogno della passphrase per accedere al wallet con passphrase.\n\nInoltre, la funzione passphrase consente di creare piùwallet sullo stesso dispositivo, o \"wallet nascosti\", oltre a quello predefinito.",
       "title": "Perchè usare una passphrase?"
     }
   },
@@ -1259,6 +1366,7 @@
     "description": "Il tuo BitBox ha generato il seguente numero casuale {{bits}}-bit:"
   },
   "receive": {
+    "bitsuranceWarning": "Questo è un account assicurato, e può ricevere transazioni solo su indirizzi di tipo Native Segwit. In questo modo non riceverai accidentalmente fondi su indirizzi di tipo Wrapped Segwit o Taproot, che non sono assicurati.",
     "changeScriptType": "Cambia il tipo di indirizzo",
     "label": "Il tuo indirizzo",
     "onlyThisCoin": {
@@ -1272,7 +1380,7 @@
     },
     "selectAccount": "Scegli un account",
     "showFull": "Mostra e verifica l'indirizzo completo sul dispositivo",
-    "taprootWarning": "Nota: Taproot è una nuova funzione di Bitcoin e non è ancora ampiamente adottata. I fondi ricevuti sugli indirizzi Taproot potrebbero non essere visibili nei portafogli di terze parti. Molti portafogli e exchange non sono ancora in grado di inviare ad indirizzi Taproot.",
+    "taprootWarning": "Nota: Taproot è una nuova funzione di Bitcoin e non è ancora ampiamente adottata. I fondi ricevuti sugli indirizzi Taproot potrebbero non essere visibili nei wallet di terze parti. Molti wallet e exchange non sono ancora in grado di inviare ad indirizzi Taproot.",
     "title": "Ricevi {{accountName}}",
     "verify": "Verificare l'indirizzo in modo sicuro",
     "verifyBitBox01": "Verificare l'indirizzo sull'applicazione mobile",
@@ -1294,14 +1402,14 @@
       "description1": "Ti consigliamo di impostare il tuo dispositivo in un ambiente sicuro, cioè lontano da altre persone che potrebbero vedere la password che hai scelto.",
       "description2": "Ti verrà chiesto di creare due password.",
       "description3": "La prima è la <strong>password del dispositivo</strong> che sblocca il tuo dispositivo BitBox e può essere cambiata in seguito.",
-      "description4": "La seconda è la <strong>password di recupero</strong> che sblocca il tuo portafoglio. Questa password non può essere cambiata in seguito.",
-      "description5": "Il portafoglio creato sarà salvato in un file sulla scheda microSD fornita. Questo può essere utilizzato in caso di emergenza per recuperare i tuoi fondi utilizzando la tua <strong>password di recupero</strong>.",
+      "description4": "La seconda è la <strong>password di recupero</strong> che sblocca il tuo wallet. Questa password non può essere cambiata in seguito.",
+      "description5": "Il wallet creato sarà salvato in un file sulla scheda microSD fornita. Questo può essere utilizzato in caso di emergenza per recuperare i tuoi fondi utilizzando la tua <strong>password di recupero</strong>.",
       "title": "Informazioni di sicurezza"
     },
     "restore": {
       "description1": "Ti verrà chiesto di inserire la scheda microSD che hai usato per memorizzare il tuo backup.",
       "description2": "Per ripristinare il tuo dispositivo avrai bisogno della tua password di recupero. ",
-      "description3": "Fai attenzione quando inserisci la password di recupero. Qualsiasi password inserita creerà un portafoglio valido. Se inserisci la password sbagliata, potrebbe esserti mostrato un saldo del portafoglio che non ti aspetti.",
+      "description3": "Fai attenzione quando inserisci la password di recupero. Qualsiasi password inserita creerà un wallet valido. Se inserisci la password sbagliata, potrebbe esserti mostrato un saldo del wallet che non ti aspetti.",
       "title": "Informazioni di sicurezza"
     }
   },
@@ -1309,41 +1417,41 @@
     "agreements": {
       "funds-access": "NON potrò accedere ai miei fondi se dimentico la mia password di recupero",
       "password-change": "NON posso cambiare la password di recupero in futuro.",
-      "password-required": "La password di recupero è necessaria per ripristinare un portafoglio da un backup"
+      "password-required": "La password di recupero è necessaria per ripristinare un wallet da un backup"
     },
-    "create": "Crea un portafoglio",
-    "creating": "Creazione del portafoglio",
+    "create": "Crea un wallet",
+    "creating": "Creazione del wallet",
     "description": "Capisco che:",
     "error": {
       "e102": "La password deve essere composta da almeno 4 caratteri.",
-      "e200": "È necessario inserire una scheda microSD nel tuo BitBox per creare un portafoglio, così un backup può essere creato automaticamente."
+      "e200": "È necessario inserire una scheda microSD nel tuo BitBox per creare un wallet, così un backup può essere creato automaticamente."
     },
     "info": {
       "button": "Imposta ora la password di recupero\n",
       "description1": "Inserire la scheda microSD nel BitBox",
-      "description2": "Scegli una password di recupero per il portafoglio e seleziona \"Imposta password di recupero ora\".",
+      "description2": "Scegli una password di recupero per il wallet e seleziona \"Imposta password di recupero ora\".",
       "description3": "Il backup su scheda microSD e la password di recupero sono l'unico metodo per recuperare i tuoi fondi in caso di perdita o furto del dispositivo BitBox.",
       "description4": "Non è possibile cambiare la password di recupero in futuro senza dover trasferire i tuoi fondi.",
-      "title": "Crea un nuovo portafoglio"
+      "title": "Crea un nuovo wallet"
     },
     "password": {
       "label": "Password di recupero",
       "repeatPlaceholder": "Ripeti la password di recupero"
     },
     "walletName": {
-      "label": "Nome del portafoglio"
+      "label": "Nome del wallet"
     }
   },
   "seedRestore": {
     "error": {
-      "e200": "Il ripristino di un portafoglio da un backup richiede la scheda microSD."
+      "e200": "Il ripristino di un wallet da un backup richiede la scheda microSD."
     },
     "info": {
       "description1": "Inserire la scheda microSD nel BitBox e cliccare su \"Continua\".",
       "description2": "Scegliete un backup e cliccate su \"Ripristina\".",
       "description3": "Inserisci la password di recupero",
-      "description4": "Confermo di aver capito che una password errata creerà un portafoglio diverso.",
-      "title": "Come ripristinare un portafoglio da un backup"
+      "description4": "Confermo di aver capito che una password errata creerà un wallet diverso.",
+      "title": "Come ripristinare un wallet da un backup"
     }
   },
   "send": {
@@ -1369,7 +1477,7 @@
       "total": "Totale"
     },
     "error": {
-      "erc20InsufficientGasFunds": "Sembra che tu non abbia abbastanza Ether per pagare questa transazione ERC20. Per favore, assicurati di avere abbastanza Ether nel tuo portafoglio.",
+      "erc20InsufficientGasFunds": "Sembra che tu non abbia abbastanza Ether per pagare questa transazione ERC20. Per favore, assicurati di avere abbastanza Ether nel tuo wallet.",
       "feeTooLow": "commissione troppo bassa",
       "feesNotAvailable": "Impossibile stimare le commissioni\n",
       "insufficientFunds": "fondi insufficienti.",
@@ -1449,7 +1557,7 @@
       "step3": "3",
       "step3-text": "Controlla la connessione e aggiungi il server.",
       "step4": "4",
-      "step4-text": "Riavvia il portafoglio. Se non rimuovi i server di default, il tuo nodo sarà aggiunto come ridondanza.",
+      "step4-text": "Riavvia il wallet. Se non rimuovi i server di default, il tuo nodo sarà aggiunto come ridondanza.",
       "title-btc": "Bitcoin Electrum servers",
       "title-ltc": "Litecoin Electrum servers",
       "title-tbtc": "Bitcoin Testnet Electrum servers",
@@ -1487,20 +1595,21 @@
   "sidebar": {
     "buy": "Acquista criptovalute",
     "device": "Gestisci il dispositivo",
+    "insurance": "Assicura",
     "leave": "Esci",
     "settings": "Impostazioni"
   },
   "success": {
     "create": {
-      "info1": "Il tuo portafoglio è stato salvato in modo sicuro sulla scheda microSD. Rimuovila e tienila al sicuro.",
+      "info1": "Il tuo wallet è stato salvato in modo sicuro sulla scheda microSD. Rimuovila e tienila al sicuro.",
       "info2": "Hai creato una password sicura del dispositivo che sblocca il BitBox.",
-      "info3": "Hai creato una password di recupero sicura per il tuo portafoglio che sblocca i tuoi fondi e ripristina i tuoi backup.",
+      "info3": "Hai creato una password di recupero sicura per il tuo wallet che sblocca i tuoi fondi e ripristina i tuoi backup.",
       "summary": "Ecco un riassunto di quello che hai fatto",
       "title": "Successo"
     },
     "getstarted": "Inizia",
     "restore": {
-      "summary": "Hai ripristinato con successo un portafoglio dal tuo backup.",
+      "summary": "Hai ripristinato con successo un wallet dal tuo backup.",
       "title": "Successo"
     }
   },
@@ -1515,6 +1624,7 @@
       "fiatAmount": "Importo fiat",
       "fiatAtTime": "Fiat al tempo della transazione",
       "status": "Status",
+      "title": "Dettagli della Transazione",
       "type": "Tipo"
     },
     "explorer": "ID della transazione",
@@ -1565,7 +1675,7 @@
     "locked": "Per aggiornare da {{currentVersion}} a {{newVersion}}, fai un tocco lungo.",
     "title": "Aggiorna il firmware",
     "unlocked": "Il bootloader è sbloccato. Per continuare, per favore:",
-    "unlocked1": "Scollegare e ricollegare il vostro Bitbox",
+    "unlocked1": "Scollega e ricollega il tuo Bitbox",
     "unlocked2": "Il LED si accende quando il tuo BitBox è ricollegato",
     "unlocked3": "Tocca il pulsante a sfioramento quando il LED si accende"
   },
