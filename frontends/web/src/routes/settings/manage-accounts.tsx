@@ -108,45 +108,6 @@ class ManageAccounts extends Component<Props, State> {
     });
   };
 
-  private renderWatchOnlyToggle = () => {
-    // const { t } = this.props;
-    const { currentlyEditedAccount } = this.state;
-    if (!currentlyEditedAccount) {
-      return;
-    }
-    if (!currentlyEditedAccount.keystore.watchonly) {
-      return;
-    }
-    return null;
-    // disabling for now, we'll either bring this back (if user request it) or remove for good
-    // return (
-    //   <div className="flex flex-column">
-    //     <div className={style.watchOnlyContainer}>
-    //       <div className="flex">
-    //         <EyeOpenedDark width={18} height={18} />
-    //         <p className={style.watchOnlyTitle}>{t('manageAccounts.watchAccount')}</p>
-    //       </div>
-    //       <Toggle
-    //         checked={currentlyEditedAccount.watch}
-    //         className={style.toggle}
-    //         id={currentlyEditedAccount.code}
-    //         onChange={async (event) => {
-    //           event.target.disabled = true;
-    //           await this.setWatch(currentlyEditedAccount.code, !currentlyEditedAccount.watch);
-    //           this.setState({ currentlyEditedAccount: { ...currentlyEditedAccount, watch: !currentlyEditedAccount.watch } });
-    //           event.target.disabled = false;
-    //         }}
-    //       />
-    //     </div>
-    //     <p className={style.watchOnlyNote}>{t('manageAccounts.watchAccountDescription')}</p>
-    //     {
-    //       !currentlyEditedAccount.watch && <div className={style.watchOnlyAccountHidden}>
-    //         <p>{t('manageAccounts.accountHidden')}</p>
-    //       </div>
-    //     }
-    //   </div>);
-  };
-
   private toggleAccount = (accountCode: accountAPI.AccountCode, active: boolean) => {
     return backendAPI.setAccountActive(accountCode, active).then(({ success, errorMessage }) => {
       if (!success && errorMessage) {
@@ -154,14 +115,6 @@ class ManageAccounts extends Component<Props, State> {
       }
     });
   };
-
-  // disabling for now, we'll either bring this back (if user request it) or remove for good
-  // private setWatch = async (accountCode: string, watch: boolean) => {
-  //   const result = await backendAPI.accountSetWatch(accountCode, watch);
-  //   if (!result.success && result.errorMessage) {
-  //     alertUser(result.errorMessage);
-  //   }
-  // };
 
   private toggleShowTokens = (accountCode: accountAPI.AccountCode) => {
     this.setState(({ showTokens }) => ({
@@ -343,7 +296,6 @@ class ManageAccounts extends Component<Props, State> {
                             }} />
                         </Label>
                         <p>{t('newSettings.appearance.enableAccount.description')}</p>
-                        {this.renderWatchOnlyToggle()}
                         <DialogButtons>
                           <Button
                             disabled={!currentlyEditedAccount.name}
