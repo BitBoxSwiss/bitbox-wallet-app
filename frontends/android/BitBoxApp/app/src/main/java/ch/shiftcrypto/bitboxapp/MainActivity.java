@@ -257,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
                         List<Pattern> patterns = new ArrayList<>();
                         patterns.add(Pattern.compile("^\"/buy/pocket/.*\"$"));
                         patterns.add(Pattern.compile("^\"/buy/moonpay/.*\"$"));
+                        patterns.add(Pattern.compile("^\"/bitsurance/.*\"$"));
                         patterns.add(Pattern.compile("^\"/account/[^\\/]+/wallet-connect/.*\"$"));
                         for (Pattern pattern : patterns) {
                             if (pattern.matcher(location).matches()) {
