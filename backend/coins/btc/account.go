@@ -40,7 +40,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/exchanges"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -855,7 +854,7 @@ var defaultScriptType = "p2wpkh"
 // SignBTCAddress returns an unused address and makes the user sign a message to prove ownership.
 // Input params:
 //
-//	`account` is the account from which the address is derived, and that will be linked to the Pocket order.
+//	`account` is the account from which the address is derived.
 //	`message` is the message that will be signed by the user with the private key linked to the address.
 //	`format` is the script type that should be used in the address derivation, as received by the widget
 //		(see https://github.com/pocketbitcoin/request-address#requestaddressv0messagescripttype).
@@ -867,10 +866,6 @@ var defaultScriptType = "p2wpkh"
 //	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
 //	#3: is an optional error that could be generated during the execution of the function.
 func SignBTCAddress(account accounts.Interface, message string, format string) (string, string, error) {
-	if !exchanges.IsPocketSupported(account) {
-		return "", "", errp.Newf("Coin not supported %s", account.Coin().Code())
-	}
-
 	keystore, err := account.Config().ConnectKeystore()
 	if err != nil {
 		return "", "", err
@@ -889,12 +884,12 @@ func SignBTCAddress(account accounts.Interface, message string, format string) (
 	}
 	expectedScriptType, ok := requestAddressScriptTypeMap[format]
 	if !ok {
-		err := fmt.Errorf("Unknown format:  %s", format)
+		err := errp.Newf("Unknown format:  %s", format)
 		return "", "", err
 	}
 	signingConfigIdx := account.Config().Config.SigningConfigurations.FindScriptType(expectedScriptType)
 	if signingConfigIdx == -1 {
-		err := fmt.Errorf("Unknown format: %s", format)
+		err := errp.Newf("Unknown format: %s", format)
 		return "", "", err
 	}
 	addr := unused[signingConfigIdx].Addresses[0]
