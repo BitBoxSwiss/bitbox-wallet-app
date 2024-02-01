@@ -226,7 +226,8 @@ public class MainActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 // The url is not correctly updated when navigating to a new page. This allows to
                 // know the current location and to block external requests on that base.
-                view.evaluateJavascript("window.location.pathname", path -> location = path);
+                // The React router is a hash router - the current app path is behind the '#'.
+                view.evaluateJavascript("window.location.hash.replace(/^#/, '')", path -> location = path);
             }
             @Override
             public WebResourceResponse shouldInterceptRequest(final WebView view, WebResourceRequest request) {

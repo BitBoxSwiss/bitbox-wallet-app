@@ -63,16 +63,10 @@ export const App = () => {
   }, [t]);
 
   const maybeRoute = useCallback(() => {
-    const currentURL = window.location.pathname;
-    const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
+    const currentURL = window.location.hash.replace(/^#/, '');
+    const isIndex = currentURL === '' || currentURL === '/';
     const inAccounts = currentURL.startsWith('/account/');
 
-    // QT and Android start their apps in '/index.html' and '/android_asset/web/index.html' respectively
-    // This re-routes them to '/' so we have a simpler uri structure
-    if (isIndex && currentURL !== '/' && (!accounts || accounts.length === 0)) {
-      navigate('/');
-      return;
-    }
     // if no accounts are registered on specified views route to /
     if (accounts.length === 0 && (
       currentURL.startsWith('/account-summary')

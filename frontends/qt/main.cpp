@@ -122,8 +122,8 @@ public:
         // We treat the onramp page specially because we need to allow onramp
         // widgets to load in an iframe as well as let them open external links
         // in a browser.
-        bool onBuyPage = currentUrl.contains(QRegularExpression("^qrc:/buy/.*$"));
-        bool onBitsurancePage = currentUrl.contains(QRegularExpression("^qrc:/bitsurance/.*$"));
+        bool onBuyPage = currentUrl.contains(QRegularExpression("^qrc:/index\.html\#/buy/.*$"));
+        bool onBitsurancePage = currentUrl.contains(QRegularExpression("^qrc:/index\.html\#/bitsurance/.*$"));
         if (onBuyPage || onBitsurancePage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
                 // A link with target=_blank was clicked.
@@ -136,7 +136,7 @@ public:
 
         // All the requests originated in the wallet-connect section are allowed, as they are needed to
         // load the Dapp logos and it is not easy to filter out non-images requests.
-        bool onWCPage = currentUrl.contains(QRegularExpression("^qrc:/account/[^\/]+/wallet-connect/.*$"));
+        bool onWCPage = currentUrl.contains(QRegularExpression("^qrc:/index\.html\#/account/[^\/]+/wallet-connect/.*$"));
         if (onWCPage) {
           return;
         }
