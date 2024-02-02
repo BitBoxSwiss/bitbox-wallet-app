@@ -46,9 +46,10 @@ func toClosedChannelPaymentDetailsDto(closedChannelPaymentDetails breez_sdk.Clos
 		return closedChannelPaymentDetailsDto{}, err
 	}
 	return closedChannelPaymentDetailsDto{
-		ShortChannelId: closedChannelPaymentDetails.ShortChannelId,
 		State:          state,
 		FundingTxid:    closedChannelPaymentDetails.FundingTxid,
+		ShortChannelId: closedChannelPaymentDetails.ShortChannelId,
+		ClosingTxid:    closedChannelPaymentDetails.ClosingTxid,
 	}, nil
 }
 
@@ -131,16 +132,17 @@ func toLnPaymentDetailsDto(lnPaymentDetails breez_sdk.LnPaymentDetails) (lnPayme
 		return lnPaymentDetailsDto{}, err
 	}
 	return lnPaymentDetailsDto{
-		PaymentHash:           lnPaymentDetails.PaymentHash,
-		Label:                 lnPaymentDetails.Label,
-		DestinationPubkey:     lnPaymentDetails.DestinationPubkey,
-		PaymentPreimage:       lnPaymentDetails.PaymentPreimage,
-		Keysend:               lnPaymentDetails.Keysend,
-		Bolt11:                lnPaymentDetails.Bolt11,
-		LnurlSuccessAction:    successActionProcessed,
-		LnurlMetadata:         lnPaymentDetails.LnurlMetadata,
-		LnAddress:             lnPaymentDetails.LnAddress,
-		LnurlWithdrawEndpoint: lnPaymentDetails.LnurlWithdrawEndpoint,
+		PaymentHash:            lnPaymentDetails.PaymentHash,
+		Label:                  lnPaymentDetails.Label,
+		DestinationPubkey:      lnPaymentDetails.DestinationPubkey,
+		PaymentPreimage:        lnPaymentDetails.PaymentPreimage,
+		Keysend:                lnPaymentDetails.Keysend,
+		Bolt11:                 lnPaymentDetails.Bolt11,
+		LnurlSuccessAction:     successActionProcessed,
+		LnurlMetadata:          lnPaymentDetails.LnurlMetadata,
+		LnAddress:              lnPaymentDetails.LnAddress,
+		LnurlWithdrawEndpoint:  lnPaymentDetails.LnurlWithdrawEndpoint,
+		PendingExpirationBlock: lnPaymentDetails.PendingExpirationBlock,
 	}, nil
 }
 
@@ -289,6 +291,7 @@ func toPaymentDto(payment breez_sdk.Payment) (paymentDto, error) {
 		AmountMsat:  payment.AmountMsat,
 		FeeMsat:     payment.FeeMsat,
 		Status:      status,
+		Error:       payment.Error,
 		Description: payment.Description,
 		Details:     details,
 	}, nil
@@ -382,9 +385,9 @@ func toSuccessActionProcessedDto(successActionProcessed *breez_sdk.SuccessAction
 			switch resultType := successActionType.Result.(type) {
 			case breez_sdk.AesSuccessActionDataResultDecrypted:
 				return &aesSuccessActionResultDto{
-					Type: "aes", 
+					Type: "aes",
 					Result: typeDataDto{
-						Type: "decrypted", 
+						Type: "decrypted",
 						Data: aesSuccessActionDataDecryptedDto{
 							Description: resultType.Data.Description,
 							Plaintext:   resultType.Data.Plaintext,
@@ -393,9 +396,9 @@ func toSuccessActionProcessedDto(successActionProcessed *breez_sdk.SuccessAction
 				}, nil
 			case breez_sdk.AesSuccessActionDataResultErrorStatus:
 				return &aesSuccessActionResultDto{
-					Type: "aes", 
+					Type: "aes",
 					Result: aesSuccessActionResultErrorDto{
-						Type: "errorStatus", 
+						Type:   "errorStatus",
 						Reason: resultType.Reason,
 					},
 				}, nil

@@ -24,9 +24,10 @@ type bitcoinAddressDataDto struct {
 }
 
 type closedChannelPaymentDetailsDto struct {
-	ShortChannelId string `json:"shortChannelId"`
-	State          string `json:"state"`
-	FundingTxid    string `json:"fundingTxid"`
+	State          string  `json:"state"`
+	FundingTxid    string  `json:"fundingTxid"`
+	ShortChannelId *string `json:"shortChannelId"`
+	ClosingTxid    *string `json:"closingTxid"`
 }
 
 type messageSuccessActionDataDto struct {
@@ -70,16 +71,17 @@ type lnInvoiceDto struct {
 }
 
 type lnPaymentDetailsDto struct {
-	PaymentHash           string      `json:"paymentHash"`
-	Label                 string      `json:"label"`
-	DestinationPubkey     string      `json:"destinationPubkey"`
-	PaymentPreimage       string      `json:"paymentPreimage"`
-	Keysend               bool        `json:"keysend"`
-	Bolt11                string      `json:"bolt11"`
-	LnurlSuccessAction    interface{} `json:"lnurlSuccessAction"`
-	LnurlMetadata         *string     `json:"lnurlMetadata"`
-	LnAddress             *string     `json:"lnAddress"`
-	LnurlWithdrawEndpoint *string     `json:"lnurlWithdrawEndpoint"`
+	PaymentHash            string      `json:"paymentHash"`
+	Label                  string      `json:"label"`
+	DestinationPubkey      string      `json:"destinationPubkey"`
+	PaymentPreimage        string      `json:"paymentPreimage"`
+	Keysend                bool        `json:"keysend"`
+	Bolt11                 string      `json:"bolt11"`
+	LnurlSuccessAction     interface{} `json:"lnurlSuccessAction"`
+	LnurlMetadata          *string     `json:"lnurlMetadata"`
+	LnAddress              *string     `json:"lnAddress"`
+	LnurlWithdrawEndpoint  *string     `json:"lnurlWithdrawEndpoint"`
+	PendingExpirationBlock *uint32     `json:"pendingExpirationBlock"`
 }
 
 type lnUrlAuthRequestDataDto struct {
@@ -137,6 +139,7 @@ type paymentDto struct {
 	AmountMsat  uint64      `json:"amountMsat"`
 	FeeMsat     uint64      `json:"feeMsat"`
 	Status      string      `json:"status"`
+	Error       *string     `json:"error"`
 	Description *string     `json:"description"`
 	Details     typeDataDto `json:"details"`
 }

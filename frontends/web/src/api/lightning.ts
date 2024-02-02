@@ -78,9 +78,9 @@ export type CheckMessageResponse = {
 };
 
 export type ClosedChannelPaymentDetails = {
-  shortChannelId: string;
   state: ChannelState;
   fundingTxid: string;
+  shortChannelId?: string;
   closingTxid?: string;
 };
 
@@ -145,6 +145,7 @@ export type LnInvoice = {
 
 export type ListPaymentsRequest = {
   filters?: PaymentTypeFilter[];
+  metadataFilters?: MetadataFilter[];
   fromTimestamp?: number;
   toTimestamp?: number;
   includeFailures?: boolean;
@@ -164,6 +165,7 @@ export type LnPaymentDetails = {
   lnAddress?: string;
   lnurlWithdrawEndpoint?: string;
   swapInfo?: SwapInfo;
+  pendingExpirationBlock?: number;
 };
 
 export type LnUrlAuthRequestData = {
@@ -261,6 +263,11 @@ export type MessageSuccessActionData = {
   message: string;
 };
 
+export type MetadataFilter = {
+  jsonPath: string;
+  jsonValue: string;
+};
+
 export type MetadataItem = {
   key: string;
   value: string;
@@ -310,14 +317,26 @@ export type Payment = {
   amountMsat: number;
   feeMsat: number;
   status: PaymentStatus;
+  error?: string;
   description?: string;
   details: PaymentDetails;
+  metadata?: string;
 };
 
 export type PaymentFailedData = {
   error: string;
   nodeId: string;
   invoice?: LnInvoice;
+};
+
+export type PrepareRedeemOnchainFundsRequest = {
+  toAddress: string;
+  satPerVbyte: number;
+};
+
+export type PrepareRedeemOnchainFundsResponse = {
+  txWeight: number;
+  txFeeSat: number;
 };
 
 export type PrepareRefundRequest = {
@@ -329,16 +348,6 @@ export type PrepareRefundRequest = {
 export type PrepareRefundResponse = {
   refundTxWeight: number;
   refundTxFeeSat: number;
-};
-
-export type PrepareSweepRequest = {
-  toAddress: string;
-  satPerVbyte: number;
-};
-
-export type PrepareSweepResponse = {
-  sweepTxWeight: number;
-  sweepTxFeeSat: number;
 };
 
 export type Rate = {
@@ -372,6 +381,15 @@ export type RecommendedFees = {
   hourFee: number;
   economyFee: number;
   minimumFee: number;
+};
+
+export type RedeemOnchainFundsRequest = {
+  toAddress: string;
+  satPerVbyte: number;
+};
+
+export type RedeemOnchainFundsResponse = {
+  txid: number[];
 };
 
 export type RefundRequest = {
@@ -449,6 +467,7 @@ export type SendPaymentResponse = {
 export type SendSpontaneousPaymentRequest = {
   nodeId: string;
   amountMsat: number;
+  extraTlvs?: TlvEntry[];
 };
 
 export type ServiceHealthCheckResponse = {
@@ -495,20 +514,16 @@ export type SwapInfo = {
   channelOpeningFees?: OpeningFeeParams;
 };
 
-export type SweepRequest = {
-  toAddress: string;
-  satPerVbyte: number;
-};
-
-export type SweepResponse = {
-  txid: number[];
-};
-
 export type SymbolType = {
   grapheme?: string;
   template?: string;
   rtl?: boolean;
   position?: number;
+};
+
+export type TlvEntry = {
+  fieldNumber: number;
+  value: number[];
 };
 
 export type UnspentTransactionOutput = {

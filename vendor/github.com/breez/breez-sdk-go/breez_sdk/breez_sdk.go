@@ -47,318 +47,325 @@ typedef struct RustCallStatus {
 // ⚠️ increment the version suffix in all instances of UNIFFI_SHARED_HEADER_V4 in this file.           ⚠️
 #endif // def UNIFFI_SHARED_H
 
-void ffi_breez_sdk_76fc_BlockingBreezServices_object_free(
+void ffi_breez_sdk_bcde_BlockingBreezServices_object_free(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-void breez_sdk_76fc_BlockingBreezServices_disconnect(
+void breez_sdk_bcde_BlockingBreezServices_disconnect(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_send_payment(
-	void* ptr,
-	RustBuffer req,
-	RustCallStatus* out_status
-);
-
-RustBuffer breez_sdk_76fc_BlockingBreezServices_send_spontaneous_payment(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_send_payment(
 	void* ptr,
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_receive_payment(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_send_spontaneous_payment(
 	void* ptr,
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_pay_lnurl(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_receive_payment(
 	void* ptr,
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_withdraw_lnurl(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_pay_lnurl(
+	void* ptr,
+	RustBuffer req,
+	RustCallStatus* out_status
+);
+
+RustBuffer breez_sdk_bcde_BlockingBreezServices_withdraw_lnurl(
 	void* ptr,
 	RustBuffer request,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_lnurl_auth(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_lnurl_auth(
 	void* ptr,
 	RustBuffer req_data,
 	RustCallStatus* out_status
 );
 
-void breez_sdk_76fc_BlockingBreezServices_report_issue(
+void breez_sdk_bcde_BlockingBreezServices_report_issue(
 	void* ptr,
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_node_credentials(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_node_credentials(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_node_info(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_node_info(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_sign_message(
-	void* ptr,
-	RustBuffer req,
-	RustCallStatus* out_status
-);
-
-RustBuffer breez_sdk_76fc_BlockingBreezServices_check_message(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_sign_message(
 	void* ptr,
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_backup_status(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_check_message(
+	void* ptr,
+	RustBuffer req,
+	RustCallStatus* out_status
+);
+
+RustBuffer breez_sdk_bcde_BlockingBreezServices_backup_status(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-void breez_sdk_76fc_BlockingBreezServices_backup(
+void breez_sdk_bcde_BlockingBreezServices_backup(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_payment_by_hash(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_list_payments(
+	void* ptr,
+	RustBuffer req,
+	RustCallStatus* out_status
+);
+
+RustBuffer breez_sdk_bcde_BlockingBreezServices_payment_by_hash(
 	void* ptr,
 	RustBuffer hash,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_list_payments(
+void breez_sdk_bcde_BlockingBreezServices_set_payment_metadata(
+	void* ptr,
+	RustBuffer hash,
+	RustBuffer metadata,
+	RustCallStatus* out_status
+);
+
+RustBuffer breez_sdk_bcde_BlockingBreezServices_redeem_onchain_funds(
 	void* ptr,
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_sweep(
-	void* ptr,
-	RustBuffer req,
-	RustCallStatus* out_status
-);
-
-RustBuffer breez_sdk_76fc_BlockingBreezServices_fetch_fiat_rates(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_fetch_fiat_rates(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_list_fiat_currencies(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_list_fiat_currencies(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_list_lsps(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_list_lsps(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-void breez_sdk_76fc_BlockingBreezServices_connect_lsp(
+void breez_sdk_bcde_BlockingBreezServices_connect_lsp(
 	void* ptr,
 	RustBuffer lsp_id,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_fetch_lsp_info(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_fetch_lsp_info(
 	void* ptr,
 	RustBuffer lsp_id,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_open_channel_fee(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_open_channel_fee(
 	void* ptr,
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_lsp_id(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_lsp_id(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_lsp_info(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_lsp_info(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-void breez_sdk_76fc_BlockingBreezServices_close_lsp_channels(
+void breez_sdk_bcde_BlockingBreezServices_close_lsp_channels(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-void breez_sdk_76fc_BlockingBreezServices_register_webhook(
+void breez_sdk_bcde_BlockingBreezServices_register_webhook(
 	void* ptr,
 	RustBuffer webhook_url,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_receive_onchain(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_receive_onchain(
 	void* ptr,
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_in_progress_swap(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_in_progress_swap(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_list_refundables(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_list_refundables(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_prepare_refund(
-	void* ptr,
-	RustBuffer req,
-	RustCallStatus* out_status
-);
-
-RustBuffer breez_sdk_76fc_BlockingBreezServices_refund(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_prepare_refund(
 	void* ptr,
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_fetch_reverse_swap_fees(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_refund(
 	void* ptr,
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_in_progress_reverse_swaps(
-	void* ptr,
-	RustCallStatus* out_status
-);
-
-RustBuffer breez_sdk_76fc_BlockingBreezServices_max_reverse_swap_amount(
-	void* ptr,
-	RustCallStatus* out_status
-);
-
-RustBuffer breez_sdk_76fc_BlockingBreezServices_send_onchain(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_fetch_reverse_swap_fees(
 	void* ptr,
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_service_health_check(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_in_progress_reverse_swaps(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_execute_dev_command(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_max_reverse_swap_amount(
+	void* ptr,
+	RustCallStatus* out_status
+);
+
+RustBuffer breez_sdk_bcde_BlockingBreezServices_send_onchain(
+	void* ptr,
+	RustBuffer req,
+	RustCallStatus* out_status
+);
+
+RustBuffer breez_sdk_bcde_BlockingBreezServices_service_health_check(
+	void* ptr,
+	RustCallStatus* out_status
+);
+
+RustBuffer breez_sdk_bcde_BlockingBreezServices_execute_dev_command(
 	void* ptr,
 	RustBuffer command,
 	RustCallStatus* out_status
 );
 
-void breez_sdk_76fc_BlockingBreezServices_sync(
+void breez_sdk_bcde_BlockingBreezServices_sync(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_recommended_fees(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_recommended_fees(
 	void* ptr,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_BlockingBreezServices_buy_bitcoin(
-	void* ptr,
-	RustBuffer req,
-	RustCallStatus* out_status
-);
-
-RustBuffer breez_sdk_76fc_BlockingBreezServices_prepare_sweep(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_buy_bitcoin(
 	void* ptr,
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-void ffi_breez_sdk_76fc_LogStream_init_callback(
+RustBuffer breez_sdk_bcde_BlockingBreezServices_prepare_redeem_onchain_funds(
+	void* ptr,
+	RustBuffer req,
+	RustCallStatus* out_status
+);
+
+void ffi_breez_sdk_bcde_LogStream_init_callback(
 	ForeignCallback callback_stub,
 	RustCallStatus* out_status
 );
 
-void ffi_breez_sdk_76fc_EventListener_init_callback(
+void ffi_breez_sdk_bcde_EventListener_init_callback(
 	ForeignCallback callback_stub,
 	RustCallStatus* out_status
 );
 
-void* breez_sdk_76fc_connect(
+void* breez_sdk_bcde_connect(
 	RustBuffer config,
 	RustBuffer seed,
 	uint64_t listener,
 	RustCallStatus* out_status
 );
 
-void breez_sdk_76fc_set_log_stream(
+void breez_sdk_bcde_set_log_stream(
 	uint64_t log_stream,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_parse_invoice(
+RustBuffer breez_sdk_bcde_parse_invoice(
 	RustBuffer invoice,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_parse_input(
+RustBuffer breez_sdk_bcde_parse_input(
 	RustBuffer s,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_mnemonic_to_seed(
+RustBuffer breez_sdk_bcde_mnemonic_to_seed(
 	RustBuffer phrase,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_default_config(
+RustBuffer breez_sdk_bcde_default_config(
 	RustBuffer env_type,
 	RustBuffer api_key,
 	RustBuffer node_config,
 	RustCallStatus* out_status
 );
 
-RustBuffer breez_sdk_76fc_static_backup(
+RustBuffer breez_sdk_bcde_static_backup(
 	RustBuffer req,
 	RustCallStatus* out_status
 );
 
-RustBuffer ffi_breez_sdk_76fc_rustbuffer_alloc(
+RustBuffer ffi_breez_sdk_bcde_rustbuffer_alloc(
 	int32_t size,
 	RustCallStatus* out_status
 );
 
-RustBuffer ffi_breez_sdk_76fc_rustbuffer_from_bytes(
+RustBuffer ffi_breez_sdk_bcde_rustbuffer_from_bytes(
 	ForeignBytes bytes,
 	RustCallStatus* out_status
 );
 
-void ffi_breez_sdk_76fc_rustbuffer_free(
+void ffi_breez_sdk_bcde_rustbuffer_free(
 	RustBuffer buf,
 	RustCallStatus* out_status
 );
 
-RustBuffer ffi_breez_sdk_76fc_rustbuffer_reserve(
+RustBuffer ffi_breez_sdk_bcde_rustbuffer_reserve(
 	RustBuffer buf,
 	int32_t additional,
 	RustCallStatus* out_status
 );
 
 
-int32_t breez_sdk_76fc_cgo_LogStream(uint64_t, int32_t, RustBuffer, RustBuffer *);
-int32_t breez_sdk_76fc_cgo_EventListener(uint64_t, int32_t, RustBuffer, RustBuffer *);
+int32_t breez_sdk_bcde_cgo_LogStream(uint64_t, int32_t, RustBuffer, RustBuffer *);
+int32_t breez_sdk_bcde_cgo_EventListener(uint64_t, int32_t, RustBuffer, RustBuffer *);
 */
 import "C"
 
@@ -418,7 +425,7 @@ func stringToCRustBuffer(str string) C.RustBuffer {
 
 func (rb rustBuffer) free() {
 	rustCall(func(status *C.RustCallStatus) bool {
-		C.ffi_breez_sdk_76fc_rustbuffer_free(rb.self, status)
+		C.ffi_breez_sdk_bcde_rustbuffer_free(rb.self, status)
 		return false
 	})
 }
@@ -966,7 +973,7 @@ func (_self *BlockingBreezServices) Disconnect() error {
 	defer _self.ffiObject.decrementPointer()
 
 	_, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) bool {
-		C.breez_sdk_76fc_BlockingBreezServices_disconnect(
+		C.breez_sdk_bcde_BlockingBreezServices_disconnect(
 			_pointer, _uniffiStatus)
 		return false
 	})
@@ -978,7 +985,7 @@ func (_self *BlockingBreezServices) SendPayment(req SendPaymentRequest) (SendPay
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSendPaymentError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_send_payment(
+		return C.breez_sdk_bcde_BlockingBreezServices_send_payment(
 			_pointer, FfiConverterTypeSendPaymentRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -994,7 +1001,7 @@ func (_self *BlockingBreezServices) SendSpontaneousPayment(req SendSpontaneousPa
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSendPaymentError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_send_spontaneous_payment(
+		return C.breez_sdk_bcde_BlockingBreezServices_send_spontaneous_payment(
 			_pointer, FfiConverterTypeSendSpontaneousPaymentRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1010,7 +1017,7 @@ func (_self *BlockingBreezServices) ReceivePayment(req ReceivePaymentRequest) (R
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeReceivePaymentError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_receive_payment(
+		return C.breez_sdk_bcde_BlockingBreezServices_receive_payment(
 			_pointer, FfiConverterTypeReceivePaymentRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1026,7 +1033,7 @@ func (_self *BlockingBreezServices) PayLnurl(req LnUrlPayRequest) (LnUrlPayResul
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeLnUrlPayError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_pay_lnurl(
+		return C.breez_sdk_bcde_BlockingBreezServices_pay_lnurl(
 			_pointer, FfiConverterTypeLnUrlPayRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1042,7 +1049,7 @@ func (_self *BlockingBreezServices) WithdrawLnurl(request LnUrlWithdrawRequest) 
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeLnUrlWithdrawError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_withdraw_lnurl(
+		return C.breez_sdk_bcde_BlockingBreezServices_withdraw_lnurl(
 			_pointer, FfiConverterTypeLnUrlWithdrawRequestINSTANCE.lower(request), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1058,7 +1065,7 @@ func (_self *BlockingBreezServices) LnurlAuth(reqData LnUrlAuthRequestData) (LnU
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeLnUrlAuthError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_lnurl_auth(
+		return C.breez_sdk_bcde_BlockingBreezServices_lnurl_auth(
 			_pointer, FfiConverterTypeLnUrlAuthRequestDataINSTANCE.lower(reqData), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1074,7 +1081,7 @@ func (_self *BlockingBreezServices) ReportIssue(req ReportIssueRequest) error {
 	defer _self.ffiObject.decrementPointer()
 
 	_, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) bool {
-		C.breez_sdk_76fc_BlockingBreezServices_report_issue(
+		C.breez_sdk_bcde_BlockingBreezServices_report_issue(
 			_pointer, FfiConverterTypeReportIssueRequestINSTANCE.lower(req), _uniffiStatus)
 		return false
 	})
@@ -1086,7 +1093,7 @@ func (_self *BlockingBreezServices) NodeCredentials() (*NodeCredentials, error) 
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_node_credentials(
+		return C.breez_sdk_bcde_BlockingBreezServices_node_credentials(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1102,7 +1109,7 @@ func (_self *BlockingBreezServices) NodeInfo() (NodeState, error) {
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_node_info(
+		return C.breez_sdk_bcde_BlockingBreezServices_node_info(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1118,7 +1125,7 @@ func (_self *BlockingBreezServices) SignMessage(req SignMessageRequest) (SignMes
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_sign_message(
+		return C.breez_sdk_bcde_BlockingBreezServices_sign_message(
 			_pointer, FfiConverterTypeSignMessageRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1134,7 +1141,7 @@ func (_self *BlockingBreezServices) CheckMessage(req CheckMessageRequest) (Check
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_check_message(
+		return C.breez_sdk_bcde_BlockingBreezServices_check_message(
 			_pointer, FfiConverterTypeCheckMessageRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1150,7 +1157,7 @@ func (_self *BlockingBreezServices) BackupStatus() (BackupStatus, error) {
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_backup_status(
+		return C.breez_sdk_bcde_BlockingBreezServices_backup_status(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1166,27 +1173,11 @@ func (_self *BlockingBreezServices) Backup() error {
 	defer _self.ffiObject.decrementPointer()
 
 	_, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) bool {
-		C.breez_sdk_76fc_BlockingBreezServices_backup(
+		C.breez_sdk_bcde_BlockingBreezServices_backup(
 			_pointer, _uniffiStatus)
 		return false
 	})
 	return _uniffiErr
-
-}
-func (_self *BlockingBreezServices) PaymentByHash(hash string) (*Payment, error) {
-	_pointer := _self.ffiObject.incrementPointer("*BlockingBreezServices")
-	defer _self.ffiObject.decrementPointer()
-
-	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_payment_by_hash(
-			_pointer, FfiConverterstringINSTANCE.lower(hash), _uniffiStatus)
-	})
-	if _uniffiErr != nil {
-		var _uniffiDefaultValue *Payment
-		return _uniffiDefaultValue, _uniffiErr
-	} else {
-		return FfiConverterOptionalTypePaymentINSTANCE.lift(_uniffiRV), _uniffiErr
-	}
 
 }
 func (_self *BlockingBreezServices) ListPayments(req ListPaymentsRequest) ([]Payment, error) {
@@ -1194,7 +1185,7 @@ func (_self *BlockingBreezServices) ListPayments(req ListPaymentsRequest) ([]Pay
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_list_payments(
+		return C.breez_sdk_bcde_BlockingBreezServices_list_payments(
 			_pointer, FfiConverterTypeListPaymentsRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1205,19 +1196,47 @@ func (_self *BlockingBreezServices) ListPayments(req ListPaymentsRequest) ([]Pay
 	}
 
 }
-func (_self *BlockingBreezServices) Sweep(req SweepRequest) (SweepResponse, error) {
+func (_self *BlockingBreezServices) PaymentByHash(hash string) (*Payment, error) {
 	_pointer := _self.ffiObject.incrementPointer("*BlockingBreezServices")
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_sweep(
-			_pointer, FfiConverterTypeSweepRequestINSTANCE.lower(req), _uniffiStatus)
+		return C.breez_sdk_bcde_BlockingBreezServices_payment_by_hash(
+			_pointer, FfiConverterstringINSTANCE.lower(hash), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
-		var _uniffiDefaultValue SweepResponse
+		var _uniffiDefaultValue *Payment
 		return _uniffiDefaultValue, _uniffiErr
 	} else {
-		return FfiConverterTypeSweepResponseINSTANCE.lift(_uniffiRV), _uniffiErr
+		return FfiConverterOptionalTypePaymentINSTANCE.lift(_uniffiRV), _uniffiErr
+	}
+
+}
+func (_self *BlockingBreezServices) SetPaymentMetadata(hash string, metadata string) error {
+	_pointer := _self.ffiObject.incrementPointer("*BlockingBreezServices")
+	defer _self.ffiObject.decrementPointer()
+
+	_, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) bool {
+		C.breez_sdk_bcde_BlockingBreezServices_set_payment_metadata(
+			_pointer, FfiConverterstringINSTANCE.lower(hash), FfiConverterstringINSTANCE.lower(metadata), _uniffiStatus)
+		return false
+	})
+	return _uniffiErr
+
+}
+func (_self *BlockingBreezServices) RedeemOnchainFunds(req RedeemOnchainFundsRequest) (RedeemOnchainFundsResponse, error) {
+	_pointer := _self.ffiObject.incrementPointer("*BlockingBreezServices")
+	defer _self.ffiObject.decrementPointer()
+
+	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
+		return C.breez_sdk_bcde_BlockingBreezServices_redeem_onchain_funds(
+			_pointer, FfiConverterTypeRedeemOnchainFundsRequestINSTANCE.lower(req), _uniffiStatus)
+	})
+	if _uniffiErr != nil {
+		var _uniffiDefaultValue RedeemOnchainFundsResponse
+		return _uniffiDefaultValue, _uniffiErr
+	} else {
+		return FfiConverterTypeRedeemOnchainFundsResponseINSTANCE.lift(_uniffiRV), _uniffiErr
 	}
 
 }
@@ -1226,7 +1245,7 @@ func (_self *BlockingBreezServices) FetchFiatRates() ([]Rate, error) {
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_fetch_fiat_rates(
+		return C.breez_sdk_bcde_BlockingBreezServices_fetch_fiat_rates(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1242,7 +1261,7 @@ func (_self *BlockingBreezServices) ListFiatCurrencies() ([]FiatCurrency, error)
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_list_fiat_currencies(
+		return C.breez_sdk_bcde_BlockingBreezServices_list_fiat_currencies(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1258,7 +1277,7 @@ func (_self *BlockingBreezServices) ListLsps() ([]LspInformation, error) {
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_list_lsps(
+		return C.breez_sdk_bcde_BlockingBreezServices_list_lsps(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1274,7 +1293,7 @@ func (_self *BlockingBreezServices) ConnectLsp(lspId string) error {
 	defer _self.ffiObject.decrementPointer()
 
 	_, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) bool {
-		C.breez_sdk_76fc_BlockingBreezServices_connect_lsp(
+		C.breez_sdk_bcde_BlockingBreezServices_connect_lsp(
 			_pointer, FfiConverterstringINSTANCE.lower(lspId), _uniffiStatus)
 		return false
 	})
@@ -1286,7 +1305,7 @@ func (_self *BlockingBreezServices) FetchLspInfo(lspId string) (*LspInformation,
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_fetch_lsp_info(
+		return C.breez_sdk_bcde_BlockingBreezServices_fetch_lsp_info(
 			_pointer, FfiConverterstringINSTANCE.lower(lspId), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1302,7 +1321,7 @@ func (_self *BlockingBreezServices) OpenChannelFee(req OpenChannelFeeRequest) (O
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_open_channel_fee(
+		return C.breez_sdk_bcde_BlockingBreezServices_open_channel_fee(
 			_pointer, FfiConverterTypeOpenChannelFeeRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1318,7 +1337,7 @@ func (_self *BlockingBreezServices) LspId() (*string, error) {
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_lsp_id(
+		return C.breez_sdk_bcde_BlockingBreezServices_lsp_id(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1334,7 +1353,7 @@ func (_self *BlockingBreezServices) LspInfo() (LspInformation, error) {
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_lsp_info(
+		return C.breez_sdk_bcde_BlockingBreezServices_lsp_info(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1350,7 +1369,7 @@ func (_self *BlockingBreezServices) CloseLspChannels() error {
 	defer _self.ffiObject.decrementPointer()
 
 	_, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) bool {
-		C.breez_sdk_76fc_BlockingBreezServices_close_lsp_channels(
+		C.breez_sdk_bcde_BlockingBreezServices_close_lsp_channels(
 			_pointer, _uniffiStatus)
 		return false
 	})
@@ -1362,7 +1381,7 @@ func (_self *BlockingBreezServices) RegisterWebhook(webhookUrl string) error {
 	defer _self.ffiObject.decrementPointer()
 
 	_, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) bool {
-		C.breez_sdk_76fc_BlockingBreezServices_register_webhook(
+		C.breez_sdk_bcde_BlockingBreezServices_register_webhook(
 			_pointer, FfiConverterstringINSTANCE.lower(webhookUrl), _uniffiStatus)
 		return false
 	})
@@ -1374,7 +1393,7 @@ func (_self *BlockingBreezServices) ReceiveOnchain(req ReceiveOnchainRequest) (S
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeReceiveOnchainError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_receive_onchain(
+		return C.breez_sdk_bcde_BlockingBreezServices_receive_onchain(
 			_pointer, FfiConverterTypeReceiveOnchainRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1390,7 +1409,7 @@ func (_self *BlockingBreezServices) InProgressSwap() (*SwapInfo, error) {
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_in_progress_swap(
+		return C.breez_sdk_bcde_BlockingBreezServices_in_progress_swap(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1406,7 +1425,7 @@ func (_self *BlockingBreezServices) ListRefundables() ([]SwapInfo, error) {
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_list_refundables(
+		return C.breez_sdk_bcde_BlockingBreezServices_list_refundables(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1422,7 +1441,7 @@ func (_self *BlockingBreezServices) PrepareRefund(req PrepareRefundRequest) (Pre
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_prepare_refund(
+		return C.breez_sdk_bcde_BlockingBreezServices_prepare_refund(
 			_pointer, FfiConverterTypePrepareRefundRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1438,7 +1457,7 @@ func (_self *BlockingBreezServices) Refund(req RefundRequest) (RefundResponse, e
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_refund(
+		return C.breez_sdk_bcde_BlockingBreezServices_refund(
 			_pointer, FfiConverterTypeRefundRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1454,7 +1473,7 @@ func (_self *BlockingBreezServices) FetchReverseSwapFees(req ReverseSwapFeesRequ
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_fetch_reverse_swap_fees(
+		return C.breez_sdk_bcde_BlockingBreezServices_fetch_reverse_swap_fees(
 			_pointer, FfiConverterTypeReverseSwapFeesRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1470,7 +1489,7 @@ func (_self *BlockingBreezServices) InProgressReverseSwaps() ([]ReverseSwapInfo,
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_in_progress_reverse_swaps(
+		return C.breez_sdk_bcde_BlockingBreezServices_in_progress_reverse_swaps(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1486,7 +1505,7 @@ func (_self *BlockingBreezServices) MaxReverseSwapAmount() (MaxReverseSwapAmount
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_max_reverse_swap_amount(
+		return C.breez_sdk_bcde_BlockingBreezServices_max_reverse_swap_amount(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1502,7 +1521,7 @@ func (_self *BlockingBreezServices) SendOnchain(req SendOnchainRequest) (SendOnc
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSendOnchainError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_send_onchain(
+		return C.breez_sdk_bcde_BlockingBreezServices_send_onchain(
 			_pointer, FfiConverterTypeSendOnchainRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1518,7 +1537,7 @@ func (_self *BlockingBreezServices) ServiceHealthCheck() (ServiceHealthCheckResp
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_service_health_check(
+		return C.breez_sdk_bcde_BlockingBreezServices_service_health_check(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1534,7 +1553,7 @@ func (_self *BlockingBreezServices) ExecuteDevCommand(command string) (string, e
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_execute_dev_command(
+		return C.breez_sdk_bcde_BlockingBreezServices_execute_dev_command(
 			_pointer, FfiConverterstringINSTANCE.lower(command), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1550,7 +1569,7 @@ func (_self *BlockingBreezServices) Sync() error {
 	defer _self.ffiObject.decrementPointer()
 
 	_, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) bool {
-		C.breez_sdk_76fc_BlockingBreezServices_sync(
+		C.breez_sdk_bcde_BlockingBreezServices_sync(
 			_pointer, _uniffiStatus)
 		return false
 	})
@@ -1562,7 +1581,7 @@ func (_self *BlockingBreezServices) RecommendedFees() (RecommendedFees, error) {
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_recommended_fees(
+		return C.breez_sdk_bcde_BlockingBreezServices_recommended_fees(
 			_pointer, _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1578,7 +1597,7 @@ func (_self *BlockingBreezServices) BuyBitcoin(req BuyBitcoinRequest) (BuyBitcoi
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeReceiveOnchainError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_buy_bitcoin(
+		return C.breez_sdk_bcde_BlockingBreezServices_buy_bitcoin(
 			_pointer, FfiConverterTypeBuyBitcoinRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -1589,19 +1608,19 @@ func (_self *BlockingBreezServices) BuyBitcoin(req BuyBitcoinRequest) (BuyBitcoi
 	}
 
 }
-func (_self *BlockingBreezServices) PrepareSweep(req PrepareSweepRequest) (PrepareSweepResponse, error) {
+func (_self *BlockingBreezServices) PrepareRedeemOnchainFunds(req PrepareRedeemOnchainFundsRequest) (PrepareRedeemOnchainFundsResponse, error) {
 	_pointer := _self.ffiObject.incrementPointer("*BlockingBreezServices")
 	defer _self.ffiObject.decrementPointer()
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_BlockingBreezServices_prepare_sweep(
-			_pointer, FfiConverterTypePrepareSweepRequestINSTANCE.lower(req), _uniffiStatus)
+		return C.breez_sdk_bcde_BlockingBreezServices_prepare_redeem_onchain_funds(
+			_pointer, FfiConverterTypePrepareRedeemOnchainFundsRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
-		var _uniffiDefaultValue PrepareSweepResponse
+		var _uniffiDefaultValue PrepareRedeemOnchainFundsResponse
 		return _uniffiDefaultValue, _uniffiErr
 	} else {
-		return FfiConverterTypePrepareSweepResponseINSTANCE.lift(_uniffiRV), _uniffiErr
+		return FfiConverterTypePrepareRedeemOnchainFundsResponseINSTANCE.lift(_uniffiRV), _uniffiErr
 	}
 
 }
@@ -1620,7 +1639,7 @@ func (c FfiConverterBlockingBreezServices) lift(pointer unsafe.Pointer) *Blockin
 		newFfiObject(
 			pointer,
 			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.ffi_breez_sdk_76fc_BlockingBreezServices_object_free(pointer, status)
+				C.ffi_breez_sdk_bcde_BlockingBreezServices_object_free(pointer, status)
 			}),
 	}
 	runtime.SetFinalizer(result, (*BlockingBreezServices).Destroy)
@@ -1987,16 +2006,16 @@ func (_ FfiDestroyerTypeCheckMessageResponse) destroy(value CheckMessageResponse
 }
 
 type ClosedChannelPaymentDetails struct {
-	ShortChannelId string
 	State          ChannelState
 	FundingTxid    string
+	ShortChannelId *string
 	ClosingTxid    *string
 }
 
 func (r *ClosedChannelPaymentDetails) Destroy() {
-	FfiDestroyerstring{}.destroy(r.ShortChannelId)
 	FfiDestroyerTypeChannelState{}.destroy(r.State)
 	FfiDestroyerstring{}.destroy(r.FundingTxid)
+	FfiDestroyerOptionalstring{}.destroy(r.ShortChannelId)
 	FfiDestroyerOptionalstring{}.destroy(r.ClosingTxid)
 }
 
@@ -2011,9 +2030,9 @@ func (c FfiConverterTypeClosedChannelPaymentDetails) lift(cRustBuf C.RustBuffer)
 
 func (c FfiConverterTypeClosedChannelPaymentDetails) read(reader io.Reader) ClosedChannelPaymentDetails {
 	return ClosedChannelPaymentDetails{
-		FfiConverterstringINSTANCE.read(reader),
 		FfiConverterTypeChannelStateINSTANCE.read(reader),
 		FfiConverterstringINSTANCE.read(reader),
+		FfiConverterOptionalstringINSTANCE.read(reader),
 		FfiConverterOptionalstringINSTANCE.read(reader),
 	}
 }
@@ -2023,9 +2042,9 @@ func (c FfiConverterTypeClosedChannelPaymentDetails) lower(value ClosedChannelPa
 }
 
 func (c FfiConverterTypeClosedChannelPaymentDetails) write(writer io.Writer, value ClosedChannelPaymentDetails) {
-	FfiConverterstringINSTANCE.write(writer, value.ShortChannelId)
 	FfiConverterTypeChannelStateINSTANCE.write(writer, value.State)
 	FfiConverterstringINSTANCE.write(writer, value.FundingTxid)
+	FfiConverterOptionalstringINSTANCE.write(writer, value.ShortChannelId)
 	FfiConverterOptionalstringINSTANCE.write(writer, value.ClosingTxid)
 }
 
@@ -2420,6 +2439,7 @@ func (_ FfiDestroyerTypeLnInvoice) destroy(value LnInvoice) {
 
 type ListPaymentsRequest struct {
 	Filters         *[]PaymentTypeFilter
+	MetadataFilters *[]MetadataFilter
 	FromTimestamp   *int64
 	ToTimestamp     *int64
 	IncludeFailures *bool
@@ -2429,6 +2449,7 @@ type ListPaymentsRequest struct {
 
 func (r *ListPaymentsRequest) Destroy() {
 	FfiDestroyerOptionalSequenceTypePaymentTypeFilter{}.destroy(r.Filters)
+	FfiDestroyerOptionalSequenceTypeMetadataFilter{}.destroy(r.MetadataFilters)
 	FfiDestroyerOptionalint64{}.destroy(r.FromTimestamp)
 	FfiDestroyerOptionalint64{}.destroy(r.ToTimestamp)
 	FfiDestroyerOptionalbool{}.destroy(r.IncludeFailures)
@@ -2448,6 +2469,7 @@ func (c FfiConverterTypeListPaymentsRequest) lift(cRustBuf C.RustBuffer) ListPay
 func (c FfiConverterTypeListPaymentsRequest) read(reader io.Reader) ListPaymentsRequest {
 	return ListPaymentsRequest{
 		FfiConverterOptionalSequenceTypePaymentTypeFilterINSTANCE.read(reader),
+		FfiConverterOptionalSequenceTypeMetadataFilterINSTANCE.read(reader),
 		FfiConverterOptionalint64INSTANCE.read(reader),
 		FfiConverterOptionalint64INSTANCE.read(reader),
 		FfiConverterOptionalboolINSTANCE.read(reader),
@@ -2462,6 +2484,7 @@ func (c FfiConverterTypeListPaymentsRequest) lower(value ListPaymentsRequest) C.
 
 func (c FfiConverterTypeListPaymentsRequest) write(writer io.Writer, value ListPaymentsRequest) {
 	FfiConverterOptionalSequenceTypePaymentTypeFilterINSTANCE.write(writer, value.Filters)
+	FfiConverterOptionalSequenceTypeMetadataFilterINSTANCE.write(writer, value.MetadataFilters)
 	FfiConverterOptionalint64INSTANCE.write(writer, value.FromTimestamp)
 	FfiConverterOptionalint64INSTANCE.write(writer, value.ToTimestamp)
 	FfiConverterOptionalboolINSTANCE.write(writer, value.IncludeFailures)
@@ -2476,17 +2499,18 @@ func (_ FfiDestroyerTypeListPaymentsRequest) destroy(value ListPaymentsRequest) 
 }
 
 type LnPaymentDetails struct {
-	PaymentHash           string
-	Label                 string
-	DestinationPubkey     string
-	PaymentPreimage       string
-	Keysend               bool
-	Bolt11                string
-	LnurlSuccessAction    *SuccessActionProcessed
-	LnurlMetadata         *string
-	LnAddress             *string
-	LnurlWithdrawEndpoint *string
-	SwapInfo              *SwapInfo
+	PaymentHash            string
+	Label                  string
+	DestinationPubkey      string
+	PaymentPreimage        string
+	Keysend                bool
+	Bolt11                 string
+	LnurlSuccessAction     *SuccessActionProcessed
+	LnurlMetadata          *string
+	LnAddress              *string
+	LnurlWithdrawEndpoint  *string
+	SwapInfo               *SwapInfo
+	PendingExpirationBlock *uint32
 }
 
 func (r *LnPaymentDetails) Destroy() {
@@ -2501,6 +2525,7 @@ func (r *LnPaymentDetails) Destroy() {
 	FfiDestroyerOptionalstring{}.destroy(r.LnAddress)
 	FfiDestroyerOptionalstring{}.destroy(r.LnurlWithdrawEndpoint)
 	FfiDestroyerOptionalTypeSwapInfo{}.destroy(r.SwapInfo)
+	FfiDestroyerOptionaluint32{}.destroy(r.PendingExpirationBlock)
 }
 
 type FfiConverterTypeLnPaymentDetails struct{}
@@ -2525,6 +2550,7 @@ func (c FfiConverterTypeLnPaymentDetails) read(reader io.Reader) LnPaymentDetail
 		FfiConverterOptionalstringINSTANCE.read(reader),
 		FfiConverterOptionalstringINSTANCE.read(reader),
 		FfiConverterOptionalTypeSwapInfoINSTANCE.read(reader),
+		FfiConverterOptionaluint32INSTANCE.read(reader),
 	}
 }
 
@@ -2544,6 +2570,7 @@ func (c FfiConverterTypeLnPaymentDetails) write(writer io.Writer, value LnPaymen
 	FfiConverterOptionalstringINSTANCE.write(writer, value.LnAddress)
 	FfiConverterOptionalstringINSTANCE.write(writer, value.LnurlWithdrawEndpoint)
 	FfiConverterOptionalTypeSwapInfoINSTANCE.write(writer, value.SwapInfo)
+	FfiConverterOptionaluint32INSTANCE.write(writer, value.PendingExpirationBlock)
 }
 
 type FfiDestroyerTypeLnPaymentDetails struct{}
@@ -3247,6 +3274,47 @@ func (_ FfiDestroyerTypeMessageSuccessActionData) destroy(value MessageSuccessAc
 	value.Destroy()
 }
 
+type MetadataFilter struct {
+	JsonPath  string
+	JsonValue string
+}
+
+func (r *MetadataFilter) Destroy() {
+	FfiDestroyerstring{}.destroy(r.JsonPath)
+	FfiDestroyerstring{}.destroy(r.JsonValue)
+}
+
+type FfiConverterTypeMetadataFilter struct{}
+
+var FfiConverterTypeMetadataFilterINSTANCE = FfiConverterTypeMetadataFilter{}
+
+func (c FfiConverterTypeMetadataFilter) lift(cRustBuf C.RustBuffer) MetadataFilter {
+	rustBuffer := fromCRustBuffer(cRustBuf)
+	return liftFromRustBuffer[MetadataFilter](c, rustBuffer)
+}
+
+func (c FfiConverterTypeMetadataFilter) read(reader io.Reader) MetadataFilter {
+	return MetadataFilter{
+		FfiConverterstringINSTANCE.read(reader),
+		FfiConverterstringINSTANCE.read(reader),
+	}
+}
+
+func (c FfiConverterTypeMetadataFilter) lower(value MetadataFilter) C.RustBuffer {
+	return lowerIntoRustBuffer[MetadataFilter](c, value)
+}
+
+func (c FfiConverterTypeMetadataFilter) write(writer io.Writer, value MetadataFilter) {
+	FfiConverterstringINSTANCE.write(writer, value.JsonPath)
+	FfiConverterstringINSTANCE.write(writer, value.JsonValue)
+}
+
+type FfiDestroyerTypeMetadataFilter struct{}
+
+func (_ FfiDestroyerTypeMetadataFilter) destroy(value MetadataFilter) {
+	value.Destroy()
+}
+
 type MetadataItem struct {
 	Key   string
 	Value string
@@ -3548,8 +3616,10 @@ type Payment struct {
 	AmountMsat  uint64
 	FeeMsat     uint64
 	Status      PaymentStatus
+	Error       *string
 	Description *string
 	Details     PaymentDetails
+	Metadata    *string
 }
 
 func (r *Payment) Destroy() {
@@ -3559,8 +3629,10 @@ func (r *Payment) Destroy() {
 	FfiDestroyeruint64{}.destroy(r.AmountMsat)
 	FfiDestroyeruint64{}.destroy(r.FeeMsat)
 	FfiDestroyerTypePaymentStatus{}.destroy(r.Status)
+	FfiDestroyerOptionalstring{}.destroy(r.Error)
 	FfiDestroyerOptionalstring{}.destroy(r.Description)
 	FfiDestroyerTypePaymentDetails{}.destroy(r.Details)
+	FfiDestroyerOptionalstring{}.destroy(r.Metadata)
 }
 
 type FfiConverterTypePayment struct{}
@@ -3581,7 +3653,9 @@ func (c FfiConverterTypePayment) read(reader io.Reader) Payment {
 		FfiConverteruint64INSTANCE.read(reader),
 		FfiConverterTypePaymentStatusINSTANCE.read(reader),
 		FfiConverterOptionalstringINSTANCE.read(reader),
+		FfiConverterOptionalstringINSTANCE.read(reader),
 		FfiConverterTypePaymentDetailsINSTANCE.read(reader),
+		FfiConverterOptionalstringINSTANCE.read(reader),
 	}
 }
 
@@ -3596,8 +3670,10 @@ func (c FfiConverterTypePayment) write(writer io.Writer, value Payment) {
 	FfiConverteruint64INSTANCE.write(writer, value.AmountMsat)
 	FfiConverteruint64INSTANCE.write(writer, value.FeeMsat)
 	FfiConverterTypePaymentStatusINSTANCE.write(writer, value.Status)
+	FfiConverterOptionalstringINSTANCE.write(writer, value.Error)
 	FfiConverterOptionalstringINSTANCE.write(writer, value.Description)
 	FfiConverterTypePaymentDetailsINSTANCE.write(writer, value.Details)
+	FfiConverterOptionalstringINSTANCE.write(writer, value.Metadata)
 }
 
 type FfiDestroyerTypePayment struct{}
@@ -3648,6 +3724,88 @@ func (c FfiConverterTypePaymentFailedData) write(writer io.Writer, value Payment
 type FfiDestroyerTypePaymentFailedData struct{}
 
 func (_ FfiDestroyerTypePaymentFailedData) destroy(value PaymentFailedData) {
+	value.Destroy()
+}
+
+type PrepareRedeemOnchainFundsRequest struct {
+	ToAddress   string
+	SatPerVbyte uint32
+}
+
+func (r *PrepareRedeemOnchainFundsRequest) Destroy() {
+	FfiDestroyerstring{}.destroy(r.ToAddress)
+	FfiDestroyeruint32{}.destroy(r.SatPerVbyte)
+}
+
+type FfiConverterTypePrepareRedeemOnchainFundsRequest struct{}
+
+var FfiConverterTypePrepareRedeemOnchainFundsRequestINSTANCE = FfiConverterTypePrepareRedeemOnchainFundsRequest{}
+
+func (c FfiConverterTypePrepareRedeemOnchainFundsRequest) lift(cRustBuf C.RustBuffer) PrepareRedeemOnchainFundsRequest {
+	rustBuffer := fromCRustBuffer(cRustBuf)
+	return liftFromRustBuffer[PrepareRedeemOnchainFundsRequest](c, rustBuffer)
+}
+
+func (c FfiConverterTypePrepareRedeemOnchainFundsRequest) read(reader io.Reader) PrepareRedeemOnchainFundsRequest {
+	return PrepareRedeemOnchainFundsRequest{
+		FfiConverterstringINSTANCE.read(reader),
+		FfiConverteruint32INSTANCE.read(reader),
+	}
+}
+
+func (c FfiConverterTypePrepareRedeemOnchainFundsRequest) lower(value PrepareRedeemOnchainFundsRequest) C.RustBuffer {
+	return lowerIntoRustBuffer[PrepareRedeemOnchainFundsRequest](c, value)
+}
+
+func (c FfiConverterTypePrepareRedeemOnchainFundsRequest) write(writer io.Writer, value PrepareRedeemOnchainFundsRequest) {
+	FfiConverterstringINSTANCE.write(writer, value.ToAddress)
+	FfiConverteruint32INSTANCE.write(writer, value.SatPerVbyte)
+}
+
+type FfiDestroyerTypePrepareRedeemOnchainFundsRequest struct{}
+
+func (_ FfiDestroyerTypePrepareRedeemOnchainFundsRequest) destroy(value PrepareRedeemOnchainFundsRequest) {
+	value.Destroy()
+}
+
+type PrepareRedeemOnchainFundsResponse struct {
+	TxWeight uint64
+	TxFeeSat uint64
+}
+
+func (r *PrepareRedeemOnchainFundsResponse) Destroy() {
+	FfiDestroyeruint64{}.destroy(r.TxWeight)
+	FfiDestroyeruint64{}.destroy(r.TxFeeSat)
+}
+
+type FfiConverterTypePrepareRedeemOnchainFundsResponse struct{}
+
+var FfiConverterTypePrepareRedeemOnchainFundsResponseINSTANCE = FfiConverterTypePrepareRedeemOnchainFundsResponse{}
+
+func (c FfiConverterTypePrepareRedeemOnchainFundsResponse) lift(cRustBuf C.RustBuffer) PrepareRedeemOnchainFundsResponse {
+	rustBuffer := fromCRustBuffer(cRustBuf)
+	return liftFromRustBuffer[PrepareRedeemOnchainFundsResponse](c, rustBuffer)
+}
+
+func (c FfiConverterTypePrepareRedeemOnchainFundsResponse) read(reader io.Reader) PrepareRedeemOnchainFundsResponse {
+	return PrepareRedeemOnchainFundsResponse{
+		FfiConverteruint64INSTANCE.read(reader),
+		FfiConverteruint64INSTANCE.read(reader),
+	}
+}
+
+func (c FfiConverterTypePrepareRedeemOnchainFundsResponse) lower(value PrepareRedeemOnchainFundsResponse) C.RustBuffer {
+	return lowerIntoRustBuffer[PrepareRedeemOnchainFundsResponse](c, value)
+}
+
+func (c FfiConverterTypePrepareRedeemOnchainFundsResponse) write(writer io.Writer, value PrepareRedeemOnchainFundsResponse) {
+	FfiConverteruint64INSTANCE.write(writer, value.TxWeight)
+	FfiConverteruint64INSTANCE.write(writer, value.TxFeeSat)
+}
+
+type FfiDestroyerTypePrepareRedeemOnchainFundsResponse struct{}
+
+func (_ FfiDestroyerTypePrepareRedeemOnchainFundsResponse) destroy(value PrepareRedeemOnchainFundsResponse) {
 	value.Destroy()
 }
 
@@ -3734,88 +3892,6 @@ func (c FfiConverterTypePrepareRefundResponse) write(writer io.Writer, value Pre
 type FfiDestroyerTypePrepareRefundResponse struct{}
 
 func (_ FfiDestroyerTypePrepareRefundResponse) destroy(value PrepareRefundResponse) {
-	value.Destroy()
-}
-
-type PrepareSweepRequest struct {
-	ToAddress   string
-	SatPerVbyte uint64
-}
-
-func (r *PrepareSweepRequest) Destroy() {
-	FfiDestroyerstring{}.destroy(r.ToAddress)
-	FfiDestroyeruint64{}.destroy(r.SatPerVbyte)
-}
-
-type FfiConverterTypePrepareSweepRequest struct{}
-
-var FfiConverterTypePrepareSweepRequestINSTANCE = FfiConverterTypePrepareSweepRequest{}
-
-func (c FfiConverterTypePrepareSweepRequest) lift(cRustBuf C.RustBuffer) PrepareSweepRequest {
-	rustBuffer := fromCRustBuffer(cRustBuf)
-	return liftFromRustBuffer[PrepareSweepRequest](c, rustBuffer)
-}
-
-func (c FfiConverterTypePrepareSweepRequest) read(reader io.Reader) PrepareSweepRequest {
-	return PrepareSweepRequest{
-		FfiConverterstringINSTANCE.read(reader),
-		FfiConverteruint64INSTANCE.read(reader),
-	}
-}
-
-func (c FfiConverterTypePrepareSweepRequest) lower(value PrepareSweepRequest) C.RustBuffer {
-	return lowerIntoRustBuffer[PrepareSweepRequest](c, value)
-}
-
-func (c FfiConverterTypePrepareSweepRequest) write(writer io.Writer, value PrepareSweepRequest) {
-	FfiConverterstringINSTANCE.write(writer, value.ToAddress)
-	FfiConverteruint64INSTANCE.write(writer, value.SatPerVbyte)
-}
-
-type FfiDestroyerTypePrepareSweepRequest struct{}
-
-func (_ FfiDestroyerTypePrepareSweepRequest) destroy(value PrepareSweepRequest) {
-	value.Destroy()
-}
-
-type PrepareSweepResponse struct {
-	SweepTxWeight uint64
-	SweepTxFeeSat uint64
-}
-
-func (r *PrepareSweepResponse) Destroy() {
-	FfiDestroyeruint64{}.destroy(r.SweepTxWeight)
-	FfiDestroyeruint64{}.destroy(r.SweepTxFeeSat)
-}
-
-type FfiConverterTypePrepareSweepResponse struct{}
-
-var FfiConverterTypePrepareSweepResponseINSTANCE = FfiConverterTypePrepareSweepResponse{}
-
-func (c FfiConverterTypePrepareSweepResponse) lift(cRustBuf C.RustBuffer) PrepareSweepResponse {
-	rustBuffer := fromCRustBuffer(cRustBuf)
-	return liftFromRustBuffer[PrepareSweepResponse](c, rustBuffer)
-}
-
-func (c FfiConverterTypePrepareSweepResponse) read(reader io.Reader) PrepareSweepResponse {
-	return PrepareSweepResponse{
-		FfiConverteruint64INSTANCE.read(reader),
-		FfiConverteruint64INSTANCE.read(reader),
-	}
-}
-
-func (c FfiConverterTypePrepareSweepResponse) lower(value PrepareSweepResponse) C.RustBuffer {
-	return lowerIntoRustBuffer[PrepareSweepResponse](c, value)
-}
-
-func (c FfiConverterTypePrepareSweepResponse) write(writer io.Writer, value PrepareSweepResponse) {
-	FfiConverteruint64INSTANCE.write(writer, value.SweepTxWeight)
-	FfiConverteruint64INSTANCE.write(writer, value.SweepTxFeeSat)
-}
-
-type FfiDestroyerTypePrepareSweepResponse struct{}
-
-func (_ FfiDestroyerTypePrepareSweepResponse) destroy(value PrepareSweepResponse) {
 	value.Destroy()
 }
 
@@ -4053,6 +4129,84 @@ func (c FfiConverterTypeRecommendedFees) write(writer io.Writer, value Recommend
 type FfiDestroyerTypeRecommendedFees struct{}
 
 func (_ FfiDestroyerTypeRecommendedFees) destroy(value RecommendedFees) {
+	value.Destroy()
+}
+
+type RedeemOnchainFundsRequest struct {
+	ToAddress   string
+	SatPerVbyte uint32
+}
+
+func (r *RedeemOnchainFundsRequest) Destroy() {
+	FfiDestroyerstring{}.destroy(r.ToAddress)
+	FfiDestroyeruint32{}.destroy(r.SatPerVbyte)
+}
+
+type FfiConverterTypeRedeemOnchainFundsRequest struct{}
+
+var FfiConverterTypeRedeemOnchainFundsRequestINSTANCE = FfiConverterTypeRedeemOnchainFundsRequest{}
+
+func (c FfiConverterTypeRedeemOnchainFundsRequest) lift(cRustBuf C.RustBuffer) RedeemOnchainFundsRequest {
+	rustBuffer := fromCRustBuffer(cRustBuf)
+	return liftFromRustBuffer[RedeemOnchainFundsRequest](c, rustBuffer)
+}
+
+func (c FfiConverterTypeRedeemOnchainFundsRequest) read(reader io.Reader) RedeemOnchainFundsRequest {
+	return RedeemOnchainFundsRequest{
+		FfiConverterstringINSTANCE.read(reader),
+		FfiConverteruint32INSTANCE.read(reader),
+	}
+}
+
+func (c FfiConverterTypeRedeemOnchainFundsRequest) lower(value RedeemOnchainFundsRequest) C.RustBuffer {
+	return lowerIntoRustBuffer[RedeemOnchainFundsRequest](c, value)
+}
+
+func (c FfiConverterTypeRedeemOnchainFundsRequest) write(writer io.Writer, value RedeemOnchainFundsRequest) {
+	FfiConverterstringINSTANCE.write(writer, value.ToAddress)
+	FfiConverteruint32INSTANCE.write(writer, value.SatPerVbyte)
+}
+
+type FfiDestroyerTypeRedeemOnchainFundsRequest struct{}
+
+func (_ FfiDestroyerTypeRedeemOnchainFundsRequest) destroy(value RedeemOnchainFundsRequest) {
+	value.Destroy()
+}
+
+type RedeemOnchainFundsResponse struct {
+	Txid []uint8
+}
+
+func (r *RedeemOnchainFundsResponse) Destroy() {
+	FfiDestroyerSequenceuint8{}.destroy(r.Txid)
+}
+
+type FfiConverterTypeRedeemOnchainFundsResponse struct{}
+
+var FfiConverterTypeRedeemOnchainFundsResponseINSTANCE = FfiConverterTypeRedeemOnchainFundsResponse{}
+
+func (c FfiConverterTypeRedeemOnchainFundsResponse) lift(cRustBuf C.RustBuffer) RedeemOnchainFundsResponse {
+	rustBuffer := fromCRustBuffer(cRustBuf)
+	return liftFromRustBuffer[RedeemOnchainFundsResponse](c, rustBuffer)
+}
+
+func (c FfiConverterTypeRedeemOnchainFundsResponse) read(reader io.Reader) RedeemOnchainFundsResponse {
+	return RedeemOnchainFundsResponse{
+		FfiConverterSequenceuint8INSTANCE.read(reader),
+	}
+}
+
+func (c FfiConverterTypeRedeemOnchainFundsResponse) lower(value RedeemOnchainFundsResponse) C.RustBuffer {
+	return lowerIntoRustBuffer[RedeemOnchainFundsResponse](c, value)
+}
+
+func (c FfiConverterTypeRedeemOnchainFundsResponse) write(writer io.Writer, value RedeemOnchainFundsResponse) {
+	FfiConverterSequenceuint8INSTANCE.write(writer, value.Txid)
+}
+
+type FfiDestroyerTypeRedeemOnchainFundsResponse struct{}
+
+func (_ FfiDestroyerTypeRedeemOnchainFundsResponse) destroy(value RedeemOnchainFundsResponse) {
 	value.Destroy()
 }
 
@@ -4599,11 +4753,13 @@ func (_ FfiDestroyerTypeSendPaymentResponse) destroy(value SendPaymentResponse) 
 type SendSpontaneousPaymentRequest struct {
 	NodeId     string
 	AmountMsat uint64
+	ExtraTlvs  *[]TlvEntry
 }
 
 func (r *SendSpontaneousPaymentRequest) Destroy() {
 	FfiDestroyerstring{}.destroy(r.NodeId)
 	FfiDestroyeruint64{}.destroy(r.AmountMsat)
+	FfiDestroyerOptionalSequenceTypeTlvEntry{}.destroy(r.ExtraTlvs)
 }
 
 type FfiConverterTypeSendSpontaneousPaymentRequest struct{}
@@ -4619,6 +4775,7 @@ func (c FfiConverterTypeSendSpontaneousPaymentRequest) read(reader io.Reader) Se
 	return SendSpontaneousPaymentRequest{
 		FfiConverterstringINSTANCE.read(reader),
 		FfiConverteruint64INSTANCE.read(reader),
+		FfiConverterOptionalSequenceTypeTlvEntryINSTANCE.read(reader),
 	}
 }
 
@@ -4629,6 +4786,7 @@ func (c FfiConverterTypeSendSpontaneousPaymentRequest) lower(value SendSpontaneo
 func (c FfiConverterTypeSendSpontaneousPaymentRequest) write(writer io.Writer, value SendSpontaneousPaymentRequest) {
 	FfiConverterstringINSTANCE.write(writer, value.NodeId)
 	FfiConverteruint64INSTANCE.write(writer, value.AmountMsat)
+	FfiConverterOptionalSequenceTypeTlvEntryINSTANCE.write(writer, value.ExtraTlvs)
 }
 
 type FfiDestroyerTypeSendSpontaneousPaymentRequest struct{}
@@ -4939,84 +5097,6 @@ func (_ FfiDestroyerTypeSwapInfo) destroy(value SwapInfo) {
 	value.Destroy()
 }
 
-type SweepRequest struct {
-	ToAddress   string
-	SatPerVbyte uint32
-}
-
-func (r *SweepRequest) Destroy() {
-	FfiDestroyerstring{}.destroy(r.ToAddress)
-	FfiDestroyeruint32{}.destroy(r.SatPerVbyte)
-}
-
-type FfiConverterTypeSweepRequest struct{}
-
-var FfiConverterTypeSweepRequestINSTANCE = FfiConverterTypeSweepRequest{}
-
-func (c FfiConverterTypeSweepRequest) lift(cRustBuf C.RustBuffer) SweepRequest {
-	rustBuffer := fromCRustBuffer(cRustBuf)
-	return liftFromRustBuffer[SweepRequest](c, rustBuffer)
-}
-
-func (c FfiConverterTypeSweepRequest) read(reader io.Reader) SweepRequest {
-	return SweepRequest{
-		FfiConverterstringINSTANCE.read(reader),
-		FfiConverteruint32INSTANCE.read(reader),
-	}
-}
-
-func (c FfiConverterTypeSweepRequest) lower(value SweepRequest) C.RustBuffer {
-	return lowerIntoRustBuffer[SweepRequest](c, value)
-}
-
-func (c FfiConverterTypeSweepRequest) write(writer io.Writer, value SweepRequest) {
-	FfiConverterstringINSTANCE.write(writer, value.ToAddress)
-	FfiConverteruint32INSTANCE.write(writer, value.SatPerVbyte)
-}
-
-type FfiDestroyerTypeSweepRequest struct{}
-
-func (_ FfiDestroyerTypeSweepRequest) destroy(value SweepRequest) {
-	value.Destroy()
-}
-
-type SweepResponse struct {
-	Txid []uint8
-}
-
-func (r *SweepResponse) Destroy() {
-	FfiDestroyerSequenceuint8{}.destroy(r.Txid)
-}
-
-type FfiConverterTypeSweepResponse struct{}
-
-var FfiConverterTypeSweepResponseINSTANCE = FfiConverterTypeSweepResponse{}
-
-func (c FfiConverterTypeSweepResponse) lift(cRustBuf C.RustBuffer) SweepResponse {
-	rustBuffer := fromCRustBuffer(cRustBuf)
-	return liftFromRustBuffer[SweepResponse](c, rustBuffer)
-}
-
-func (c FfiConverterTypeSweepResponse) read(reader io.Reader) SweepResponse {
-	return SweepResponse{
-		FfiConverterSequenceuint8INSTANCE.read(reader),
-	}
-}
-
-func (c FfiConverterTypeSweepResponse) lower(value SweepResponse) C.RustBuffer {
-	return lowerIntoRustBuffer[SweepResponse](c, value)
-}
-
-func (c FfiConverterTypeSweepResponse) write(writer io.Writer, value SweepResponse) {
-	FfiConverterSequenceuint8INSTANCE.write(writer, value.Txid)
-}
-
-type FfiDestroyerTypeSweepResponse struct{}
-
-func (_ FfiDestroyerTypeSweepResponse) destroy(value SweepResponse) {
-	value.Destroy()
-}
-
 type Symbol struct {
 	Grapheme *string
 	Template *string
@@ -5063,6 +5143,47 @@ func (c FfiConverterTypeSymbol) write(writer io.Writer, value Symbol) {
 type FfiDestroyerTypeSymbol struct{}
 
 func (_ FfiDestroyerTypeSymbol) destroy(value Symbol) {
+	value.Destroy()
+}
+
+type TlvEntry struct {
+	FieldNumber uint64
+	Value       []uint8
+}
+
+func (r *TlvEntry) Destroy() {
+	FfiDestroyeruint64{}.destroy(r.FieldNumber)
+	FfiDestroyerSequenceuint8{}.destroy(r.Value)
+}
+
+type FfiConverterTypeTlvEntry struct{}
+
+var FfiConverterTypeTlvEntryINSTANCE = FfiConverterTypeTlvEntry{}
+
+func (c FfiConverterTypeTlvEntry) lift(cRustBuf C.RustBuffer) TlvEntry {
+	rustBuffer := fromCRustBuffer(cRustBuf)
+	return liftFromRustBuffer[TlvEntry](c, rustBuffer)
+}
+
+func (c FfiConverterTypeTlvEntry) read(reader io.Reader) TlvEntry {
+	return TlvEntry{
+		FfiConverteruint64INSTANCE.read(reader),
+		FfiConverterSequenceuint8INSTANCE.read(reader),
+	}
+}
+
+func (c FfiConverterTypeTlvEntry) lower(value TlvEntry) C.RustBuffer {
+	return lowerIntoRustBuffer[TlvEntry](c, value)
+}
+
+func (c FfiConverterTypeTlvEntry) write(writer io.Writer, value TlvEntry) {
+	FfiConverteruint64INSTANCE.write(writer, value.FieldNumber)
+	FfiConverterSequenceuint8INSTANCE.write(writer, value.Value)
+}
+
+type FfiDestroyerTypeTlvEntry struct{}
+
+func (_ FfiDestroyerTypeTlvEntry) destroy(value TlvEntry) {
 	value.Destroy()
 }
 
@@ -7984,8 +8105,8 @@ type EventListener interface {
 // foreignCallbackTypeEventListener cannot be callable be a compiled function at a same time
 type foreignCallbackTypeEventListener struct{}
 
-//export breez_sdk_76fc_cgo_EventListener
-func breez_sdk_76fc_cgo_EventListener(handle C.uint64_t, method C.int32_t, args C.RustBuffer, outBuf *C.RustBuffer) C.int32_t {
+//export breez_sdk_bcde_cgo_EventListener
+func breez_sdk_bcde_cgo_EventListener(handle C.uint64_t, method C.int32_t, args C.RustBuffer, outBuf *C.RustBuffer) C.int32_t {
 	cb := FfiConverterTypeEventListenerINSTANCE.lift(uint64(handle))
 	switch method {
 	case 0:
@@ -8032,7 +8153,7 @@ var FfiConverterTypeEventListenerINSTANCE = &FfiConverterTypeEventListener{
 // This is a static function because only 1 instance is supported for registering
 func (c *FfiConverterTypeEventListener) register() {
 	rustCall(func(status *C.RustCallStatus) int32 {
-		C.ffi_breez_sdk_76fc_EventListener_init_callback(C.ForeignCallback(C.breez_sdk_76fc_cgo_EventListener), status)
+		C.ffi_breez_sdk_bcde_EventListener_init_callback(C.ForeignCallback(C.breez_sdk_bcde_cgo_EventListener), status)
 		return 0
 	})
 }
@@ -8050,8 +8171,8 @@ type LogStream interface {
 // foreignCallbackTypeLogStream cannot be callable be a compiled function at a same time
 type foreignCallbackTypeLogStream struct{}
 
-//export breez_sdk_76fc_cgo_LogStream
-func breez_sdk_76fc_cgo_LogStream(handle C.uint64_t, method C.int32_t, args C.RustBuffer, outBuf *C.RustBuffer) C.int32_t {
+//export breez_sdk_bcde_cgo_LogStream
+func breez_sdk_bcde_cgo_LogStream(handle C.uint64_t, method C.int32_t, args C.RustBuffer, outBuf *C.RustBuffer) C.int32_t {
 	cb := FfiConverterTypeLogStreamINSTANCE.lift(uint64(handle))
 	switch method {
 	case 0:
@@ -8098,7 +8219,7 @@ var FfiConverterTypeLogStreamINSTANCE = &FfiConverterTypeLogStream{
 // This is a static function because only 1 instance is supported for registering
 func (c *FfiConverterTypeLogStream) register() {
 	rustCall(func(status *C.RustCallStatus) int32 {
-		C.ffi_breez_sdk_76fc_LogStream_init_callback(C.ForeignCallback(C.breez_sdk_76fc_cgo_LogStream), status)
+		C.ffi_breez_sdk_bcde_LogStream_init_callback(C.ForeignCallback(C.breez_sdk_bcde_cgo_LogStream), status)
 		return 0
 	})
 }
@@ -8774,6 +8895,80 @@ func (_ FfiDestroyerOptionalSequenceTypeLocalizedName) destroy(value *[]Localize
 	}
 }
 
+type FfiConverterOptionalSequenceTypeMetadataFilter struct{}
+
+var FfiConverterOptionalSequenceTypeMetadataFilterINSTANCE = FfiConverterOptionalSequenceTypeMetadataFilter{}
+
+func (c FfiConverterOptionalSequenceTypeMetadataFilter) lift(cRustBuf C.RustBuffer) *[]MetadataFilter {
+	return liftFromRustBuffer[*[]MetadataFilter](c, fromCRustBuffer(cRustBuf))
+}
+
+func (_ FfiConverterOptionalSequenceTypeMetadataFilter) read(reader io.Reader) *[]MetadataFilter {
+	if readInt8(reader) == 0 {
+		return nil
+	}
+	temp := FfiConverterSequenceTypeMetadataFilterINSTANCE.read(reader)
+	return &temp
+}
+
+func (c FfiConverterOptionalSequenceTypeMetadataFilter) lower(value *[]MetadataFilter) C.RustBuffer {
+	return lowerIntoRustBuffer[*[]MetadataFilter](c, value)
+}
+
+func (_ FfiConverterOptionalSequenceTypeMetadataFilter) write(writer io.Writer, value *[]MetadataFilter) {
+	if value == nil {
+		writeInt8(writer, 0)
+	} else {
+		writeInt8(writer, 1)
+		FfiConverterSequenceTypeMetadataFilterINSTANCE.write(writer, *value)
+	}
+}
+
+type FfiDestroyerOptionalSequenceTypeMetadataFilter struct{}
+
+func (_ FfiDestroyerOptionalSequenceTypeMetadataFilter) destroy(value *[]MetadataFilter) {
+	if value != nil {
+		FfiDestroyerSequenceTypeMetadataFilter{}.destroy(*value)
+	}
+}
+
+type FfiConverterOptionalSequenceTypeTlvEntry struct{}
+
+var FfiConverterOptionalSequenceTypeTlvEntryINSTANCE = FfiConverterOptionalSequenceTypeTlvEntry{}
+
+func (c FfiConverterOptionalSequenceTypeTlvEntry) lift(cRustBuf C.RustBuffer) *[]TlvEntry {
+	return liftFromRustBuffer[*[]TlvEntry](c, fromCRustBuffer(cRustBuf))
+}
+
+func (_ FfiConverterOptionalSequenceTypeTlvEntry) read(reader io.Reader) *[]TlvEntry {
+	if readInt8(reader) == 0 {
+		return nil
+	}
+	temp := FfiConverterSequenceTypeTlvEntryINSTANCE.read(reader)
+	return &temp
+}
+
+func (c FfiConverterOptionalSequenceTypeTlvEntry) lower(value *[]TlvEntry) C.RustBuffer {
+	return lowerIntoRustBuffer[*[]TlvEntry](c, value)
+}
+
+func (_ FfiConverterOptionalSequenceTypeTlvEntry) write(writer io.Writer, value *[]TlvEntry) {
+	if value == nil {
+		writeInt8(writer, 0)
+	} else {
+		writeInt8(writer, 1)
+		FfiConverterSequenceTypeTlvEntryINSTANCE.write(writer, *value)
+	}
+}
+
+type FfiDestroyerOptionalSequenceTypeTlvEntry struct{}
+
+func (_ FfiDestroyerOptionalSequenceTypeTlvEntry) destroy(value *[]TlvEntry) {
+	if value != nil {
+		FfiDestroyerSequenceTypeTlvEntry{}.destroy(*value)
+	}
+}
+
 type FfiConverterOptionalSequenceTypePaymentTypeFilter struct{}
 
 var FfiConverterOptionalSequenceTypePaymentTypeFilterINSTANCE = FfiConverterOptionalSequenceTypePaymentTypeFilter{}
@@ -9066,6 +9261,49 @@ type FfiDestroyerSequenceTypeLspInformation struct{}
 func (FfiDestroyerSequenceTypeLspInformation) destroy(sequence []LspInformation) {
 	for _, value := range sequence {
 		FfiDestroyerTypeLspInformation{}.destroy(value)
+	}
+}
+
+type FfiConverterSequenceTypeMetadataFilter struct{}
+
+var FfiConverterSequenceTypeMetadataFilterINSTANCE = FfiConverterSequenceTypeMetadataFilter{}
+
+func (c FfiConverterSequenceTypeMetadataFilter) lift(cRustBuf C.RustBuffer) []MetadataFilter {
+	return liftFromRustBuffer[[]MetadataFilter](c, fromCRustBuffer(cRustBuf))
+}
+
+func (c FfiConverterSequenceTypeMetadataFilter) read(reader io.Reader) []MetadataFilter {
+	length := readInt32(reader)
+	if length == 0 {
+		return nil
+	}
+	result := make([]MetadataFilter, 0, length)
+	for i := int32(0); i < length; i++ {
+		result = append(result, FfiConverterTypeMetadataFilterINSTANCE.read(reader))
+	}
+	return result
+}
+
+func (c FfiConverterSequenceTypeMetadataFilter) lower(value []MetadataFilter) C.RustBuffer {
+	return lowerIntoRustBuffer[[]MetadataFilter](c, value)
+}
+
+func (c FfiConverterSequenceTypeMetadataFilter) write(writer io.Writer, value []MetadataFilter) {
+	if len(value) > math.MaxInt32 {
+		panic("[]MetadataFilter is too large to fit into Int32")
+	}
+
+	writeInt32(writer, int32(len(value)))
+	for _, item := range value {
+		FfiConverterTypeMetadataFilterINSTANCE.write(writer, item)
+	}
+}
+
+type FfiDestroyerSequenceTypeMetadataFilter struct{}
+
+func (FfiDestroyerSequenceTypeMetadataFilter) destroy(sequence []MetadataFilter) {
+	for _, value := range sequence {
+		FfiDestroyerTypeMetadataFilter{}.destroy(value)
 	}
 }
 
@@ -9370,6 +9608,49 @@ func (FfiDestroyerSequenceTypeSwapInfo) destroy(sequence []SwapInfo) {
 	}
 }
 
+type FfiConverterSequenceTypeTlvEntry struct{}
+
+var FfiConverterSequenceTypeTlvEntryINSTANCE = FfiConverterSequenceTypeTlvEntry{}
+
+func (c FfiConverterSequenceTypeTlvEntry) lift(cRustBuf C.RustBuffer) []TlvEntry {
+	return liftFromRustBuffer[[]TlvEntry](c, fromCRustBuffer(cRustBuf))
+}
+
+func (c FfiConverterSequenceTypeTlvEntry) read(reader io.Reader) []TlvEntry {
+	length := readInt32(reader)
+	if length == 0 {
+		return nil
+	}
+	result := make([]TlvEntry, 0, length)
+	for i := int32(0); i < length; i++ {
+		result = append(result, FfiConverterTypeTlvEntryINSTANCE.read(reader))
+	}
+	return result
+}
+
+func (c FfiConverterSequenceTypeTlvEntry) lower(value []TlvEntry) C.RustBuffer {
+	return lowerIntoRustBuffer[[]TlvEntry](c, value)
+}
+
+func (c FfiConverterSequenceTypeTlvEntry) write(writer io.Writer, value []TlvEntry) {
+	if len(value) > math.MaxInt32 {
+		panic("[]TlvEntry is too large to fit into Int32")
+	}
+
+	writeInt32(writer, int32(len(value)))
+	for _, item := range value {
+		FfiConverterTypeTlvEntryINSTANCE.write(writer, item)
+	}
+}
+
+type FfiDestroyerSequenceTypeTlvEntry struct{}
+
+func (FfiDestroyerSequenceTypeTlvEntry) destroy(sequence []TlvEntry) {
+	for _, value := range sequence {
+		FfiDestroyerTypeTlvEntry{}.destroy(value)
+	}
+}
+
 type FfiConverterSequenceTypeUnspentTransactionOutput struct{}
 
 var FfiConverterSequenceTypeUnspentTransactionOutputINSTANCE = FfiConverterSequenceTypeUnspentTransactionOutput{}
@@ -9459,7 +9740,7 @@ func (FfiDestroyerSequenceTypePaymentTypeFilter) destroy(sequence []PaymentTypeF
 func Connect(config Config, seed []uint8, listener EventListener) (*BlockingBreezServices, error) {
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
-		return C.breez_sdk_76fc_connect(FfiConverterTypeConfigINSTANCE.lower(config), FfiConverterSequenceuint8INSTANCE.lower(seed), FfiConverterTypeEventListenerINSTANCE.lower(listener), _uniffiStatus)
+		return C.breez_sdk_bcde_connect(FfiConverterTypeConfigINSTANCE.lower(config), FfiConverterSequenceuint8INSTANCE.lower(seed), FfiConverterTypeEventListenerINSTANCE.lower(listener), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
 		var _uniffiDefaultValue *BlockingBreezServices
@@ -9473,7 +9754,7 @@ func Connect(config Config, seed []uint8, listener EventListener) (*BlockingBree
 func SetLogStream(logStream LogStream) error {
 
 	_, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) bool {
-		C.breez_sdk_76fc_set_log_stream(FfiConverterTypeLogStreamINSTANCE.lower(logStream), _uniffiStatus)
+		C.breez_sdk_bcde_set_log_stream(FfiConverterTypeLogStreamINSTANCE.lower(logStream), _uniffiStatus)
 		return false
 	})
 	return _uniffiErr
@@ -9483,7 +9764,7 @@ func SetLogStream(logStream LogStream) error {
 func ParseInvoice(invoice string) (LnInvoice, error) {
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_parse_invoice(FfiConverterstringINSTANCE.lower(invoice), _uniffiStatus)
+		return C.breez_sdk_bcde_parse_invoice(FfiConverterstringINSTANCE.lower(invoice), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
 		var _uniffiDefaultValue LnInvoice
@@ -9497,7 +9778,7 @@ func ParseInvoice(invoice string) (LnInvoice, error) {
 func ParseInput(s string) (InputType, error) {
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_parse_input(FfiConverterstringINSTANCE.lower(s), _uniffiStatus)
+		return C.breez_sdk_bcde_parse_input(FfiConverterstringINSTANCE.lower(s), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
 		var _uniffiDefaultValue InputType
@@ -9511,7 +9792,7 @@ func ParseInput(s string) (InputType, error) {
 func MnemonicToSeed(phrase string) ([]uint8, error) {
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_mnemonic_to_seed(FfiConverterstringINSTANCE.lower(phrase), _uniffiStatus)
+		return C.breez_sdk_bcde_mnemonic_to_seed(FfiConverterstringINSTANCE.lower(phrase), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
 		var _uniffiDefaultValue []uint8
@@ -9525,7 +9806,7 @@ func MnemonicToSeed(phrase string) ([]uint8, error) {
 func DefaultConfig(envType EnvironmentType, apiKey string, nodeConfig NodeConfig) Config {
 
 	return FfiConverterTypeConfigINSTANCE.lift(rustCall(func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_default_config(FfiConverterTypeEnvironmentTypeINSTANCE.lower(envType), FfiConverterstringINSTANCE.lower(apiKey), FfiConverterTypeNodeConfigINSTANCE.lower(nodeConfig), _uniffiStatus)
+		return C.breez_sdk_bcde_default_config(FfiConverterTypeEnvironmentTypeINSTANCE.lower(envType), FfiConverterstringINSTANCE.lower(apiKey), FfiConverterTypeNodeConfigINSTANCE.lower(nodeConfig), _uniffiStatus)
 	}))
 
 }
@@ -9533,7 +9814,7 @@ func DefaultConfig(envType EnvironmentType, apiKey string, nodeConfig NodeConfig
 func StaticBackup(req StaticBackupRequest) (StaticBackupResponse, error) {
 
 	_uniffiRV, _uniffiErr := rustCallWithError(FfiConverterTypeSdkError{}, func(_uniffiStatus *C.RustCallStatus) C.RustBuffer {
-		return C.breez_sdk_76fc_static_backup(FfiConverterTypeStaticBackupRequestINSTANCE.lower(req), _uniffiStatus)
+		return C.breez_sdk_bcde_static_backup(FfiConverterTypeStaticBackupRequestINSTANCE.lower(req), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
 		var _uniffiDefaultValue StaticBackupResponse
