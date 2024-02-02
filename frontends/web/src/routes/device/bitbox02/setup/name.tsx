@@ -19,8 +19,15 @@ import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../../components/view/view';
 import { Status } from '../../../../components/status/status';
 import { Button, Input } from '../../../../components/forms';
-import style from './name.module.css';
 import { checkSDCard } from '../../../../api/bitbox02';
+import style from './name.module.css';
+
+// matches any character that is not a printable ASCII character or space
+const regexInvalid = /[^ -~]/g;
+
+const filterUnique = (value: string, index: number, array: string[]) => {
+  return array.indexOf(value) === index;
+};
 
 type TProps = {
   onDeviceName: (name: string) => void;
@@ -38,12 +45,26 @@ export const SetDeviceName = ({
 }: TSetDeviceNameProps) => {
   const { t } = useTranslation();
   const [deviceName, setDeviceName] = useState('');
+  const [error, setError] = useState<'tooLong' | 'invalidChars' | false>();
 
   const handleDeviceNameInput = (event: Event) => {
     const target = (event.target as HTMLInputElement);
     const value: string = target.value;
+    const valueTrimmed: string = value.trim();
+
+    if (valueTrimmed.length < 1) {
+      setError(undefined);
+    } else if (valueTrimmed.length > 30) {
+      setError('tooLong');
+    } else if (regexInvalid.test(valueTrimmed)) {
+      setError('invalidChars');
+    } else {
+      setError(false);
+    }
     setDeviceName(value);
   };
+
+  const invalidChars = deviceName.match(regexInvalid)?.filter(filterUnique).join(', ');
 
   return (
     <form
@@ -65,20 +86,27 @@ export const SetDeviceName = ({
             </Status>
           )}
         </ViewHeader>
-        <ViewContent minHeight="90px">
+        <ViewContent textAlign="left" minHeight="140px">
           <Input
             autoFocus
-            className={style.wizardLabel}
+            className={`${style.wizardLabel} ${error ? style.inputError : ''}`}
             label={t('bitbox02Wizard.stepCreate.nameLabel')}
-            pattern="^.{0,63}$"
             onInput={handleDeviceNameInput}
             placeholder={t('bitbox02Wizard.stepCreate.namePlaceholder')}
             value={deviceName}
-            id="deviceName" />
+            id="deviceName">
+            <span hidden={!error} className={style.errorMessage}>
+              {t(`bitbox02Wizard.stepCreate.error.${error}`, {
+                invalidChars
+              })}
+              {' '}
+              {t('bitbox02Wizard.stepCreate.error.genericMessage')}
+            </span>
+          </Input>
         </ViewContent>
         <ViewButtons>
           <Button
-            disabled={!deviceName}
+            disabled={!!error || error !== false}
             primary
             type="submit">
             {t('button.continue')}

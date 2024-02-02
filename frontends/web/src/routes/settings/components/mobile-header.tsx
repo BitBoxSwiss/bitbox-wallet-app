@@ -32,7 +32,7 @@ export const MobileHeader = ({ title, withGuide = false }: TProps) => {
   };
   return (
     <div className={`${styles.container} ${withGuide ? `${styles.withGuide}` : ''}`}>
-      <button onClick={handleClick} className={styles.backButton}><ChevronLeftDark /> {t('button.back')}</button>
+      <button onClick={handleClick} className={styles.backButton}><ChevronLeftDark /> <span>{t('button.back')}</span></button>
       <h1 className={styles.headerText}>{title}</h1>
     </div>
   );

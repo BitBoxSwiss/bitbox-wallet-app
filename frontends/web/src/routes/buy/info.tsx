@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from '../../utils/route';
 import * as accountApi from '../../api/account';
 import { getExchangeSupportedAccounts } from './utils';
-import { getBalance } from '../../api/account';
-import Guide from './guide';
-import { AccountSelector, TOption } from '../../components/accountselector/accountselector';
 import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { isBitcoinOnly } from '../account/utils';
 import { View, ViewContent } from '../../components/view/view';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
+import { GroupedAccountSelector } from '../../components/groupedaccountselector/groupedaccountselector';
+import Guide from './guide';
 
 type TProps = {
     accounts: accountApi.IAccount[];
@@ -35,72 +34,53 @@ type TProps = {
 
 export const BuyInfo = ({ code, accounts }: TProps) => {
   const [selected, setSelected] = useState<string>(code);
-  const [options, setOptions] = useState<TOption[]>();
   const [disabled, setDisabled] = useState<boolean>(false);
+  const [supportedAccounts, setSupportedAccounts] = useState<accountApi.IAccount[]>();
 
   const { t } = useTranslation();
 
-  const checkSupportedCoins = useCallback(async () => {
+  useEffect(() => {
     try {
-      const supportedAccounts = await getExchangeSupportedAccounts(accounts);
-      const options =
-        supportedAccounts.map(({ name, code, coinCode }) => ({ label: `${name}`, value: code, coinCode, disabled: false }));
-      setOptions(options);
-      getBalances(options);
+      getExchangeSupportedAccounts(accounts).then(exchangeSupportedAccounts => {
+        setSupportedAccounts(exchangeSupportedAccounts);
+      });
     } catch (e) {
       console.error(e);
     }
-
   }, [accounts]);
 
-  const maybeProceed = useCallback(async () => {
-    if (options !== undefined && options.length === 1) {
-      const accountCode = options[0].value;
-      const connectResult = await accountApi.connectKeystore(accountCode);
-      if (!connectResult.success) {
-        return;
-      }
-      route(`/buy/exchange/${accountCode}`);
+  useEffect(() => {
+    if (supportedAccounts !== undefined && supportedAccounts.length === 1) {
+      // If user only has one supported account for exchange
+      // and they don't have the correct device connected
+      // they'll be prompted to do so.
+      const accountCode = supportedAccounts[0].code;
+      connectKeystore(accountCode).then(connected => {
+        if (connected) {
+          route(`/buy/exchange/${accountCode}`);
+        }
+      });
     }
-  }, [options]);
-
-  const handleChangeAccount = (selected: string) => {
-    setSelected(selected);
-  };
-
-  useEffect(() => {
-    checkSupportedCoins();
-  }, [checkSupportedCoins]);
-
-  useEffect(() => {
-    maybeProceed();
-  }, [maybeProceed, options]);
-
-
-  const getBalances = (options: TOption[]) => {
-    Promise.all(options.map((option) => (
-      getBalance(option.value).then(balance => {
-        return { ...option, balance: `${balance.available.amount} ${balance.available.unit}` };
-      })
-    ))).then(options => {
-      setOptions(options);
-    });
-  };
+  }, [supportedAccounts]);
 
   const handleProceed = async () => {
     setDisabled(true);
     try {
-      const connectResult = await accountApi.connectKeystore(selected);
-      if (!connectResult.success) {
-        return;
+      const connected = await connectKeystore(selected);
+      if (connected) {
+        route(`/buy/exchange/${selected}`);
       }
     } finally {
       setDisabled(false);
     }
-
-    route(`/buy/exchange/${selected}`);
   };
-  if (options === undefined) {
+
+  const connectKeystore = async (keystore: string) => {
+    const connectResult = await accountApi.connectKeystore(keystore);
+    return connectResult.success;
+  };
+
+  if (supportedAccounts === undefined) {
     return <Spinner guideExists={false} text={t('loading')} />;
   }
 
@@ -116,17 +96,18 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
           </Header>
           <View width="550px" verticallyCentered fullscreen={false}>
             <ViewContent>
-              { options.length === 0 ? (
+              { !supportedAccounts || supportedAccounts.length === 0 ? (
                 <div className="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
               ) : (
-                <AccountSelector
-                  title={t('buy.title', { name })}
-                  disabled={disabled}
-                  options={options}
-                  selected={selected}
-                  onChange={handleChangeAccount}
-                  onProceed={handleProceed}
-                />
+                supportedAccounts &&
+                      <GroupedAccountSelector
+                        accounts={supportedAccounts}
+                        title={t('buy.title', { name })}
+                        disabled={disabled}
+                        selected={selected}
+                        onChange={setSelected}
+                        onProceed={handleProceed}
+                      />
               )}
             </ViewContent>
           </View>

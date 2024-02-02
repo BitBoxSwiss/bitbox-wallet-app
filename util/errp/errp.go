@@ -65,6 +65,6 @@ func (e ErrorCode) Error() string {
 // The follwing error codes are defined here because they are shared between packages.
 // Package specific error codes should be defined inside the package itself.
 const (
-// ErrUserAbort is returned if the user aborted the current operation.
-// This is just an example: ErrUserAbort ErrorCode = "userAbort"
+	// ErrUserAbort is returned if the user aborted the current operation.
+	ErrUserAbort ErrorCode = "userAbort"
 )

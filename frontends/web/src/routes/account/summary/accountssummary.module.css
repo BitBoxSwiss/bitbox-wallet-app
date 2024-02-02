@@ -1,3 +1,12 @@
+.accountName {
+    display: flex;
+    align-items: center;
+}
+
+.accountName p {
+    margin-right: var(--space-quarter);
+}
+
 .balanceTable {
     margin: 0 0 var(--spacing-large) 0;
 }
@@ -115,6 +124,12 @@
 
 .showInCollapsedView {
     display: none;
+}
+
+@media (max-width: 768px) {
+    .accountName {
+        padding-left: var(--space-quarter);
+    }
 }
 
 @media (max-width: 640px) {

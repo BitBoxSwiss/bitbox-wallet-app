@@ -24,7 +24,9 @@ import (
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitsurance"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
@@ -55,6 +57,10 @@ const accountsHardLimit = 5
 
 // AccountsList is an accounts.Interface slice which implements a lookup method.
 type AccountsList []accounts.Interface
+
+// KeystoresAccountsListMap is a map where keys are keystores' fingerprints and values are
+// AccountsLists of accounts belonging to each keystore.
+type KeystoresAccountsListMap map[*config.Keystore]AccountsList
 
 func (a AccountsList) lookup(code accountsTypes.Code) accounts.Interface {
 	for _, acct := range a {
@@ -197,6 +203,85 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 		availableCoins = append(availableCoins, coinCode)
 	}
 	return availableCoins
+}
+
+// LookupInsuredAccounts queries the insurance status of specified or all active BTC accounts
+// and updates the internal state based on the retrieved information. If the accountCode is
+// provided, it checks the insurance status for that specific account; otherwise, it checks
+// the status for all active BTC accounts. If any account's insurance status changes, the
+// function persists the change, reinitializes the accounts, and emits a status change event.
+// Additionally, if an account's insurance is canceled or inactive, the account code is added
+// to the frontend config for notifying the user.
+func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([]bitsurance.AccountDetails, error) {
+	var accountList []accounts.Interface
+
+	if len(accountCode) > 0 {
+		// if the accountCode is not empty, we'll just check the insurance status of that account.
+		acct, err := backend.GetAccountFromCode(accountCode)
+		if err != nil {
+			return nil, err
+		}
+		accountList = []accounts.Interface{acct}
+	} else {
+		// otherwise we'll check the status for all the active BTC accounts.
+		for _, account := range backend.accounts {
+			config := account.Config().Config
+			if !config.HiddenBecauseUnused && config.CoinCode == coinpkg.CodeBTC {
+				accountList = append(accountList, account)
+			}
+		}
+	}
+
+	// check the insurance status of the selected accounts.
+	bitsuranceAccounts, err := bitsurance.LookupBitsuranceAccounts(backend.DevServers(), accountList, backend.httpClient)
+	if err != nil {
+		return nil, err
+	}
+
+	// if any account insurance status changed, persist the change and reinitialize the accounts.
+	statusChange := false
+	err = backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		for _, bitsuranceAccount := range bitsuranceAccounts {
+			bitsuranceStatus := string(bitsuranceAccount.Status)
+			accountConfig := accountsConfig.Lookup(bitsuranceAccount.AccountCode)
+			if accountConfig == nil {
+				return errp.Newf("Could not find account %s", bitsuranceAccount.AccountCode)
+			}
+			if accountConfig.InsuranceStatus != bitsuranceStatus {
+				backend.log.Infof("Account [%s] insurance status changed to %v", bitsuranceAccount.AccountCode, bitsuranceStatus)
+				canceled := bitsuranceStatus == string(bitsurance.CanceledStatus) || bitsuranceStatus == string(bitsurance.InactiveStatus)
+				if canceled {
+					// add the canceled insurance account code in the frontend config, to allow alerting the user.
+					appConfig := backend.config.AppConfig()
+					frontendConfig, ok := appConfig.Frontend.(map[string]interface{})
+					if !ok {
+						frontendConfig = make(map[string]interface{})
+					}
+					canceledAccounts, ok := frontendConfig["bitsuranceNotifyCancellation"].([]types.Code)
+					if !ok {
+						frontendConfig["bitsuranceNotifyCancellation"] = []types.Code{bitsuranceAccount.AccountCode}
+					} else {
+						canceledAccounts = append(canceledAccounts, bitsuranceAccount.AccountCode)
+						frontendConfig["bitsuranceNotifyCancellation"] = canceledAccounts
+					}
+					if err := backend.config.SetAppConfig(appConfig); err != nil {
+						return err
+					}
+				}
+				accountConfig.InsuranceStatus = bitsuranceStatus
+				statusChange = true
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if statusChange {
+		backend.emitAccountsStatusChanged()
+	}
+	return bitsuranceAccounts, nil
 }
 
 // defaultAccountName returns a default name for a new account. The first account is the coin name,
@@ -579,7 +664,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			type data struct {
 				Type         string `json:"typ"`
 				KeystoreName string `json:"keystoreName"`
-				ErrorCode    string `json:"errorCode"`
+				ErrorCode    string `json:"errorCode,omitempty"`
 				ErrorMessage string `json:"errorMessage"`
 			}
 			accountRootFingerprint, err := persistedConfig.SigningConfigurations.RootFingerprint()
@@ -591,45 +676,81 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			if err == nil {
 				keystoreName = persistedKeystore.Name
 			}
-			backend.Notify(observable.Event{
-				Subject: "connect-keystore",
-				Action:  action.Replace,
-				Object: data{
-					Type:         "connect",
-					KeystoreName: keystoreName,
-				},
-			})
-			ks, err := backend.connectKeystore.connect(
-				backend.Keystore(),
-				accountRootFingerprint,
-				20*time.Minute,
-			)
+			var ks keystore.Keystore
+			timeout := 20 * time.Minute
+		outerLoop:
+			for {
+				backend.Notify(observable.Event{
+					Subject: "connect-keystore",
+					Action:  action.Replace,
+					Object: data{
+						Type:         "connect",
+						KeystoreName: keystoreName,
+					},
+				})
+				ks, err = backend.connectKeystore.connect(
+					backend.Keystore(),
+					accountRootFingerprint,
+					timeout,
+				)
+				if err == nil || errp.Cause(err) != ErrWrongKeystore {
+					break
+				} else {
+					backend.Notify(observable.Event{
+						Subject: "connect-keystore",
+						Action:  action.Replace,
+						Object: data{
+							Type:         "error",
+							ErrorCode:    err.Error(),
+							ErrorMessage: "",
+						},
+					})
+					c := make(chan bool)
+					// retryCallback is called when the current keystore is deregistered or when
+					// CancelConnectKeystore() is called.
+					// In the first case it allows to make a new connection attempt, in the last one
+					// it'll make this function return ErrUserAbort.
+					backend.connectKeystore.SetRetryConnect(func(retry bool) {
+						c <- retry
+					})
+					select {
+					case retry := <-c:
+						if !retry {
+							err = errp.ErrUserAbort
+							break outerLoop
+						}
+					case <-time.After(timeout):
+						backend.connectKeystore.SetRetryConnect(nil)
+						err = errTimeout
+						break outerLoop
+					}
+				}
+			}
 			switch {
 			case errp.Cause(err) == errReplaced:
 				// If a previous connect-keystore request is in progress, the previous request is
 				// failed, but we don't dismiss the prompt, as the new prompt has already been shown
-				// by the above "connect" notification.y
-			case err == nil || errp.Cause(err) == errUserAbort:
+				// by the above "connect" notification.
+			case err == nil || errp.Cause(err) == errp.ErrUserAbort:
 				// Dismiss prompt after success or upon user abort.
-
 				backend.Notify(observable.Event{
 					Subject: "connect-keystore",
 					Action:  action.Replace,
 					Object:  nil,
 				})
 			default:
-				// Display error to user.
-				errorCode := ""
-				if errp.Cause(err) == errWrongKeystore {
-					errorCode = "wrongKeystore"
+				var errorCode = ""
+				if errp.Cause(err) == errTimeout {
+					errorCode = err.Error()
 				}
+				// Display error to user.
 				backend.Notify(observable.Event{
 					Subject: "connect-keystore",
 					Action:  action.Replace,
 					Object: data{
 						Type:         "error",
-						ErrorCode:    errorCode,
 						ErrorMessage: err.Error(),
+						ErrorCode:    errorCode,
 					},
 				})
 			}

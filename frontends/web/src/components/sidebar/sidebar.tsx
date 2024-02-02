@@ -22,6 +22,7 @@ import { TKeystores, subscribeKeystores, getKeystores } from '../../api/keystore
 import { IAccount } from '../../api/account';
 import coins from '../../assets/icons/coins.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
+import shieldIcon from '../../assets/icons/shield_grey.svg';
 import info from '../../assets/icons/info.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
@@ -209,18 +210,31 @@ const Sidebar = ({
 
         <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (
-          <div key="buy" className={style.sidebarItem}>
-            <NavLink
-              className={({ isActive }) => isActive || userInSpecificAccountBuyPage ? style.sidebarActive : ''}
-              to="/buy/info">
-              <div className={style.single}>
-                <img draggable={false} src={coins} />
-              </div>
-              <span className={style.sidebarLabel}>
-                {hasOnlyBTCAccounts ? t('accountInfo.buyCTA.buy', { unit: 'Bitcoin' }) : t('sidebar.buy')}
-              </span>
-            </NavLink>
-          </div>
+          <>
+            <div key="buy" className={style.sidebarItem}>
+              <NavLink
+                className={({ isActive }) => isActive || userInSpecificAccountBuyPage ? style.sidebarActive : ''}
+                to="/buy/info">
+                <div className={style.single}>
+                  <img draggable={false} src={coins} alt={t('sidebar.exchanges')}/>
+                </div>
+                <span className={style.sidebarLabel}>
+                  {hasOnlyBTCAccounts ? t('accountInfo.buyCTA.buy', { unit: 'Bitcoin' }) : t('sidebar.buy')}
+                </span>
+              </NavLink>
+            </div>
+            <div key="insurance" className={style.sidebarItem}>
+              <NavLink
+                className={({ isActive }) => isActive ? style.sidebarActive : ''}
+                to="/bitsurance/bitsurance"
+              >
+                <div className={style.single}>
+                  <img draggable={false} src={shieldIcon} alt={t('sidebar.insurance')} />
+                </div>
+                <span className={style.sidebarLabel}>{t('sidebar.insurance')}</span>
+              </NavLink>
+            </div>
+          </>
         ) : null }
 
         <div key="settings-new" className={style.sidebarItem}>

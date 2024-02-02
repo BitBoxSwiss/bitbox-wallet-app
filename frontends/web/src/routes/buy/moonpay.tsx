@@ -26,7 +26,7 @@ import Guide from './guide';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { findAccount, getCryptoName } from '../account/utils';
-import { MoonpayTerms } from './moonpay-terms';
+import { MoonpayTerms } from '../../components/terms/moonpay-terms';
 import style from './iframe.module.css';
 
 type TProps = {

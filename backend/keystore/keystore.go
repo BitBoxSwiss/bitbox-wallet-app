@@ -116,4 +116,7 @@ type Keystore interface {
 	// SignETHWalletConnectTransaction signs a transaction proposed by Wallet Connect. Returns ErrSigningAborted if the user
 	// aborts.
 	SignETHWalletConnectTransaction(chainID uint64, tx *types.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error)
+
+	// SupportsEIP1559 returns whether the keystore supports EIP1559 type 2 transactions for Ethereum
+	SupportsEIP1559() bool
 }
