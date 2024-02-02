@@ -1159,6 +1159,80 @@
     "successDisable": "Successfully disabled the legacy hidden wallet.",
     "successEnable": "Successfully enabled the legacy hidden wallet. Replug your BitBox and enter the hidden device password to access the legacy hidden wallet."
   },
+  "lightning": {
+    "accountLabel": "Lightning",
+    "activate": {
+      "success": {
+        "message": "Success, your lightning wallet is ready!"
+      },
+      "wait": {
+        "title": "Creating lightning wallet..."
+      }
+    },
+    "deactivate": {
+      "success": {
+        "message": "Success, your lightning wallet is now disabled"
+      },
+      "wait": {
+        "title": "Disabling lightning wallet..."
+      }
+    },
+    "payments": {
+      "header": {
+        "amount": "Amount",
+        "date": "Date",
+        "description": "Description",
+        "type": "Type"
+      },
+      "placeholder": "No payments yet.",
+      "title": "Payment history"
+    },
+    "receive": {
+      "amountSats": {
+        "label": "Sats",
+        "placeholder": "Enter amount"
+      },
+      "description": {
+        "label": "Description",
+        "optional": "(optional)",
+        "placeholder": "Enter description"
+      },
+      "invoice": {
+        "copied": "Invoice copied!",
+        "create": "Create invoice",
+        "creating": "Creating invoice",
+        "edit": "Edit invoice",
+        "title": "Scan QR code to receive"
+      },
+      "openChannelWarning": "A fee of {{feeSat}} sats will be deducted to open a new channel.",
+      "subtitle": "Create lightning invoice",
+      "success": {
+        "message": "Lightning payment received!"
+      },
+      "title": "Receive Lightning"
+    },
+    "send": {
+      "confirm": {
+        "amount": "Amount",
+        "memo": "Memo",
+        "title": "Confirm transaction details"
+      },
+      "qrCode": {
+        "label": "Scan lightning invoice"
+      },
+      "rawInput": {
+        "label": "Paste invoice from clipboard"
+      },
+      "sending": {
+        "connecting": "Connecting to node",
+        "message": "Sending payment"
+      },
+      "success": {
+        "message": "Transaction confirmed and sent!"
+      },
+      "title": "Send Lightning"
+    }
+  },
   "loading": "loading…",
   "manageAccounts": {
     "accountHidden": "This account has been hidden from your watch-only accounts. To see it again, please plug in your BitBox02.",
