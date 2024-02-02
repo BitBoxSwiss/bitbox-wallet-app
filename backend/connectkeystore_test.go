@@ -15,12 +15,12 @@
 package backend
 
 import (
-	"context"
 	"sync"
 	"testing"
 	"time"
 
 	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 
 	"github.com/stretchr/testify/require"
 )
@@ -38,7 +38,7 @@ func TestConnectKeystore(t *testing.T) {
 
 	t.Run("timeout", func(t *testing.T) {
 		_, err := ck.connect(nil, fingerprint, time.Millisecond)
-		require.Equal(t, context.DeadlineExceeded, err)
+		require.Equal(t, errTimeout, err)
 	})
 
 	t.Run("already connected", func(t *testing.T) {
@@ -53,10 +53,10 @@ func TestConnectKeystore(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			time.Sleep(50 * time.Millisecond)
-			ck.cancel(errUserAbort)
+			ck.cancel(errp.ErrUserAbort)
 		}()
 		_, err := ck.connect(nil, fingerprint, time.Second)
-		require.Equal(t, errUserAbort, err)
+		require.Equal(t, errp.ErrUserAbort, err)
 		wg.Wait()
 	})
 
@@ -105,7 +105,7 @@ func TestConnectKeystore(t *testing.T) {
 			ck.onConnect(expectedKeystore)
 		}()
 		_, err := ck.connect(nil, fingerprint2, time.Second)
-		require.Equal(t, errWrongKeystore, err)
+		require.Equal(t, ErrWrongKeystore, err)
 		wg.Wait()
 	})
 }

@@ -281,3 +281,8 @@ func (keystore *keystore) SignETHTypedMessage(chainId uint64, data []byte, keypa
 func (keystore *keystore) SignETHWalletConnectTransaction(chainID uint64, tx *types.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error) {
 	return nil, errp.New("unsupported")
 }
+
+// SupportsEIP1559 implements keystore.Keystore.
+func (keystore *keystore) SupportsEIP1559() bool {
+	return false
+}

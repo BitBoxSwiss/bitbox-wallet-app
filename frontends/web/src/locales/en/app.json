@@ -6,9 +6,14 @@
     "fatalError": "There was an unexpected error.",
     "incoming": "Incoming",
     "initializing": "Getting information from the blockchain…",
+    "insuranceExpired": "<strong>Account no longer insured</strong>\n\nThe insurance plan for this account has been modified.\nPlease check the insurance page for details.",
+    "insured": "Insured account",
     "maybeProxyError": "Tor proxy enabled. Ensure that your Tor proxy is running properly, or disable the proxy setting.",
     "reconnecting": "Lost connection, trying to reconnect…",
-    "syncedAddressesCount": "Scanned {{count}} addresses"
+    "syncedAddressesCount": "Scanned {{count}} addresses",
+    "uncoveredFunds": "You have coins on the following uncovered address types of your <strong>{{name}}</strong> account: {{uncovered}}.\nSince the account is insured, only coins received via the <strong>Native Segwit</strong> address type are covered. Coins on different address types, even if they are on the same account, are not insured.\nPlease move all your coins from the unsupported address types to the <strong>Native Segwit</strong> address type, so all your coins on this account are insured.",
+    "uncoveredFundsLink": "Follow this guide on how to move your coins.",
+    "warning": "Warning!\n"
   },
   "accountInfo": {
     "address": "Address",
@@ -140,7 +145,7 @@
       "understand": "I understand that an incorrect recovery password will create a different wallet"
     },
     "showMnemonic": {
-      "description": "You will be presented with your recovery words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
+      "description": "You will be presented with your recovery words on your BitBox02, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
       "title": "Show recovery words",
       "warning": "<strong>Never share your recovery words with anyone.</strong> Your recovery words give full access to your wallet. If someone is asking you for your recovery words, it's a scammer, do not share them!"
     },
@@ -259,7 +264,12 @@
       "unlock": "Enter BitBox02 password to unlock."
     },
     "stepCreate": {
-      "description": "This name is used as the device name and for the backup.",
+      "description": "This name is used as the device name and for backups.",
+      "error": {
+        "genericMessage": "Use letters, numbers, basic symbols, spaces. Max 30 characters.",
+        "invalidChars": "Name contains invalid characters: {{invalidChars}}.",
+        "tooLong": "Name is too long."
+      },
       "nameLabel": "BitBox02 name",
       "namePlaceholder": "My BitBox02",
       "title": "Choose BitBox02 name",
@@ -290,6 +300,58 @@
       "text": "Hooray! Your BitBox02 is now ready to use. \n\nFor further information on how to use the BitBoxApp, please use the in-app guide by clicking the question mark on the top right corner.",
       "title": "You're ready to go!"
     }
+  },
+  "bitsurance": {
+    "dashboard": {
+      "active": "Insurance policy active",
+      "button": "Insure a new account",
+      "canceled": "Canceled",
+      "coverage": "Maximum coverage",
+      "inactive": "Inactive",
+      "processing": "Processing",
+      "refused": "Refused",
+      "supportLink": "Manage contract",
+      "title": "Insured accounts",
+      "waitpayment": "Waiting for payment"
+    },
+    "detect": {
+      "button": "Check for existing insurance",
+      "insured": "Insured account detected:",
+      "notInsured": "No insured accounts detected. If you are sure you have an insured account, please make sure you have the correct wallet connected.",
+      "text": "If you already signed up with Bitsurance, the BitBoxApp can automatically synchronize your existing insurance coverage.",
+      "title": "Already insured?"
+    },
+    "insure": {
+      "button": "Check availability and pricing",
+      "faq": "Read more on Bitsurance FAQs",
+      "listItem1": "Burglary",
+      "listItem2": "Extortion (e.g., $5 wrench attack)",
+      "listItem3": "Destruction due to fire, water or natural disasters",
+      "month": "month",
+      "text": "Insure your BitBox02 and up to €100,000 worth of bitcoin against",
+      "text2": "Insurance plans start at €30/year (€2.50/month). You can learn more about Bitsurance and their exact insurance offerings on the",
+      "text3": "Currently available in Germany, with more regions to follow.",
+      "title": "Get started"
+    },
+    "intro": {
+      "link": "Bitsurance website",
+      "text1": "BitBox works with Bitsurance to add an additional layer of protection for your bitcoin. While the BitBox02 keeps your funds secure, Bitsurance covers threats at home that can’t be mitigated with technology alone, like burglary, extortion, or destruction of the hardware wallet itself."
+    },
+    "terms": {
+      "link": "Bitsurance Privacy Policy",
+      "text1": "Bitsurance is an independent third-party service. For questions regarding their offerings and insurance claims, please contact Bitsurance directly.",
+      "text2": "Insurance is currently available in Germany, with more regions to follow.",
+      "text3": "The maximum Bitcoin coverage currently available is €100,000 per person. Higher amounts are planned for the future.",
+      "text4": "Personal information and the extended public key of your insured account is part of the insurance policy and will be shared with Bitsurance and the insurance provider.",
+      "text5": "For more on privacy, please consult the"
+    },
+    "title": "Insurance"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "Error: Was not able to get xpub from account.",
+    "noAccount": "There are no accounts that can be insured.",
+    "select": "Select account",
+    "title": "Insurance"
   },
   "blink": {
     "button": "Blink"
@@ -616,6 +678,7 @@
     "aoppUnsupportedFormat": "There are no available accounts that support the requested address format.",
     "aoppUnsupportedKeystore": "The connected device cannot sign messages for this asset.",
     "aoppVersion": "Unknown version.",
+    "keystoreTimeout": "Wallet request expired. Please try again.",
     "wrongKeystore": "Wrong wallet connected. Please make sure to insert the correct device matching this account.",
     "wrongKeystore2": " If you are using the optional passphrase, make sure you have entered the correct passphrase for the account."
   },
@@ -827,6 +890,42 @@
       "pairing": {
         "text": "After having downloaded our mobile app for either iOS or Android, you scan the displayed QR code, which sets up a secure channel between the mobile app and this application. Once scanned, follow the instructions in the mobile app.",
         "title": "How to securely pair with your phone"
+      }
+    },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "Please check Bitsurance’s website and their FAQ for more details.",
+        "title": "Additional questions?"
+      },
+      "privacy": {
+        "link": {
+          "text": "Bitsurance privacy policy"
+        },
+        "text": "Like any regular insurance policy, it contains your full name and address, and specifies the insured object (defined by the extended public key of the insured Bitcoin account). This data is submitted to Bitsurance directly and is not shared with Shift Crypto. Please consult the Bitsurance privacy policy for more information",
+        "title": "What personal information is needed for the insurance?"
+      },
+      "renew": {
+        "text": "The insurance will automatically renew for the next year. You can cancel the renewal any time by clicking on “Manage contract” in the BitBoxApp, which takes you to the Bitsurance customer portal.",
+        "title": "How can I renew or cancel the insurance?"
+      },
+      "status": {
+        "text": "Successfully insured accounts are marked with a green “insured” badge in the top left corner on each Bitcoin account page. In the “Insurance” section, you can see the overview of all insured Bitcoin accounts and their current insurance status.",
+        "title": "Can I check the status of an insured account?"
+      },
+      "what": {
+        "text": "Each Bitcoin insurance contract covers a specific wallet account. You can insure multiple accounts by taking out multiple insurance policies. Insured accounts are limited to using “Native Segwit” Bitcoin addresses.",
+        "title": "Is the whole BitBox wallet insured?"
+      },
+      "who": {
+        "text": "The insurance is offered by Bitsurance, an insurance broker built by bitcoiners. They work with ELEMENT insurance to provide Bitcoin insurance. Both companies are based in Germany.",
+        "title": "Who is insuring my bitcoin?"
+      },
+      "why": {
+        "text": "Bitsurance covers some risks of self-custody that are not in-scope of even the most secure wallet, e.g. burglary, extortion or destruction of the wallet. It’s your personal decision if you need insurance coverage for these risks.",
+        "title": "Do I need Bitcoin insurance?"
       }
     },
     "cointracking": {
@@ -1347,6 +1446,7 @@
     "description": "Your BitBox generated the following {{bits}}-bit random number:"
   },
   "receive": {
+    "bitsuranceWarning": "This is an insured account, meaning it can only receive to Native Segwit. This is so you don't accidently receive to Wrapped Segwit or Taproot, which are not insured.",
     "changeScriptType": "Change address type",
     "label": "Your address",
     "onlyThisCoin": {
@@ -1575,6 +1675,7 @@
   "sidebar": {
     "buy": "Buy crypto",
     "device": "Manage device",
+    "insurance": "Insurance",
     "leave": "Leave",
     "settings": "Settings"
   },

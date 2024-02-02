@@ -117,6 +117,11 @@
     .header {
         padding: var(--space-half);
     }
+
+    .title {
+        padding-right: 0;
+    }
+
     .sidebarToggler.hideSidebarToggler {
         display: none;
     }

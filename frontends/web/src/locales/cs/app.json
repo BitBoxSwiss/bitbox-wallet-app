@@ -6,9 +6,14 @@
     "fatalError": "Došlo k neočekávané chybě.",
     "incoming": "Přicházející",
     "initializing": "Získávání informací z blockchainu...",
+    "insuranceExpired": "<strong>Účet již není pojištěn</strong>\n\nPlán pojištění tohoto účtu byl změněn.\nPodrobnosti naleznete na stránkách týkající se pojištění.",
+    "insured": "Pojištěný účet",
     "maybeProxyError": "Tor proxy aktivní. Ujistěte se, že proxy server Tor běží správně, nebo nastavení proxy serveru deaktivujte.",
     "reconnecting": "Ztráta spojení. Pokus o opětovné připojení...",
-    "syncedAddressesCount": "Naskenováno {{count}} adres"
+    "syncedAddressesCount": "Naskenováno {{count}} adres",
+    "uncoveredFunds": "Máte prostředky na následujících nepokrytých typech adresách vašeho <strong>{{name}}</strong> účtu: {{uncovered}}.\nVzhledem k tomu, že účet je pojištěný, vztahuje se pouze na prostředky přijaté prostřednictvím adresy typu <strong>Native  Segwit</strong>. Prostředky na odlišných typech adres, i když jsou na stejném účtu, pojištěny nejsou.\nPřesuňte prosím všechny své mince z nepodporovaných typů adres na adresy typu <strong>Native Segwit</strong>, aby byly všechny vaše prostředky na tomto účtu pojištěny.",
+    "uncoveredFundsLink": "Postupujte podle tohoto průvodce, jak přesunout své prostředky.",
+    "warning": "Varování!"
   },
   "accountInfo": {
     "address": "Adresa",
@@ -68,7 +73,7 @@
   "aopp": {
     "addressRequest": "{{host}} požaduje přijímací adresu.",
     "addressRequestWithLogo": "požaduje přijímací adresu.",
-    "banner": "Probíhá žádost o adresu.",
+    "banner": "Probíhá žádost o adresu. Pro pokračování připojte zařízení.",
     "errorTitle": "Chyba při požadavku na adresu ",
     "labelAddress": "Adresa",
     "labelMessage": "Zpráva",
@@ -140,7 +145,7 @@
       "understand": "Rozumím, že nesprávné heslo pro obnovení vytvoří jinou peněženku."
     },
     "showMnemonic": {
-      "description": "Zobrazí se vám slova pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova.\n",
+      "description": "Zobrazí se vám slova pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova.",
       "title": "Zobrazit slova pro obnovení",
       "warning": "<strong> Nikdy nikomu nesdělujte svá slova pro obnovení.</strong> Vaše slova pro obnovení poskytují plný přístup k vaší peněžence. Pokud vás někdo žádá o vaše slova pro obnovení, jedná se o podvodníka, nesdílejte je!"
     },
@@ -290,6 +295,58 @@
       "text": "Hurá! Váš BitBox02 je nyní připraven k použití.\n\nChcete-li získat další informace o tom, jak používat BitBoxApp, použijte průvodce v aplikaci kliknutím na otazník v pravém horním rohu.",
       "title": "Jste připraveni!"
     }
+  },
+  "bitsurance": {
+    "dashboard": {
+      "active": "Pojistka aktivní",
+      "button": "Pojistit nový účet",
+      "canceled": "Zrušeno",
+      "coverage": "Maximální pokrytí",
+      "inactive": "Neaktivní",
+      "processing": "Zpracovává se",
+      "refused": "Odmítnuto",
+      "supportLink": "Spravovat smlouvu",
+      "title": "Pojištěné účty",
+      "waitpayment": "Čekání na platbu"
+    },
+    "detect": {
+      "button": "Zkontrolujte stávající pojištění",
+      "insured": "Zjištěn pojištěný účet:",
+      "notInsured": "Nebyly zjištěny žádné pojištěné účty. Pokud jste si jisti, že máte pojištěný účet, zkontrolujte, zda máte připojenou správnou peněženku.",
+      "text": "Pokud jste se již zaregistrovali u Bitsurance, aplikace BitBoxApp může automaticky synchronizovat vaše stávající pojištění.",
+      "title": "Už jste pojištěni?"
+    },
+    "insure": {
+      "button": "Zkontrolujte dostupnost a cenu",
+      "faq": "Přečtěte si více na Bitsurance FAQ",
+      "listItem1": "Vloupání",
+      "listItem2": "Vydírání (např.$5 wrench attack)",
+      "listItem3": "Zničení v důsledku požáru, vody nebo přírodních katastrof",
+      "month": "měsíc",
+      "text": "Pojistěte si svůj BitBox02 a bitcoiny v hodnotě až 100 000 EUR",
+      "text2": "Pojistné plány začínají na 30 €/rok (2,50 €/měsíc). Více informací o společnosti Bitsurance a její přesné nabídce pojištění se dozvíte na stránce",
+      "text3": "V současné době k dispozici v Německu, další regiony budou následovat.",
+      "title": "Začněte"
+    },
+    "intro": {
+      "link": "Web Bitsurance",
+      "text1": "BitBox spolupracuje s Bitsurance na přidání další vrstvy ochrany pro vaše bitcoiny. Zatímco BitBox02 udržuje vaše finanční prostředky v bezpečí, Bitsurance pokrývá domácí hrozby, které nelze zmírnit samotnou technologií, jako je vloupání, vydírání nebo zničení samotné hardwarové peněženky."
+    },
+    "terms": {
+      "link": "Zásady ochrany osobních údajů Bitsurance",
+      "text1": "Bitsurance je nezávislá služba třetí strany. S dotazy týkajícími se jejich nabídky a pojistných nároků kontaktujte přímo Bitsurance.",
+      "text2": "Pojištění je aktuálně dostupné v Německu a další regiony budou následovat.",
+      "text3": "Maximální aktuálně dostupné pokrytí bitcoinů je 100 000 EUR na osobu. Do budoucna se plánují vyšší částky.",
+      "text4": "Osobní údaje a rozšířený veřejný klíč (xpub) vašeho pojištěného účtu jsou součástí pojistné smlouvy a budou sdíleny s Bitsurance a poskytovatelem pojištění.",
+      "text5": "Další informace o ochraně osobních údajů a zachování soukromí naleznete na"
+    },
+    "title": "Pojištění"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "Chyba: Nepodařilo se získat xpub z účtu.",
+    "noAccount": "Neexistují žádné účty, které lze pojistit.",
+    "select": "Vybrat účet",
+    "title": "Pojištění"
   },
   "blink": {
     "button": "Blik"
@@ -499,7 +556,8 @@
     "toggle": "Tmavý režim"
   },
   "device": {
-    "appUpradeRequired": "Váš BitBox není kompatibilní s touto aplikací. Stáhněte si a nainstalujte nejnovější verzi."
+    "appUpradeRequired": "Váš BitBox není kompatibilní s touto aplikací. Stáhněte si a nainstalujte nejnovější verzi.",
+    "keystoreConnected": "Připojená peněženka"
   },
   "deviceLock": {
     "button": "Aktivovat dvoufaktorovou autorizaci (2FA)",
@@ -536,7 +594,7 @@
     },
     "expert": {
       "factoryReset": {
-        "description": "Obnovte zařízení do továrního nastavení. Tím se smaže peněženka z vašeho BitBox02!",
+        "description": "Obnovte zařízení do továrního nastavení. Tím se smaže peněženka z vašeho BitBox02! ",
         "title": "Obnovit do továrního nastavení"
       },
       "goToStartupSettings": {
@@ -753,6 +811,10 @@
         "text": "Vaše peněženka umí spravovat více účtů jedné měny. Účty jsou užitečné, když chcete mít prostředky oddělené.",
         "title": "Co jsou účty?"
       },
+      "whatIsRememberWallet": {
+        "text": "Povolením možnosti \"Zapamatovat si peněženku\" můžete v aplikaci BitBoxApp vidět účty této peněženky, i když není BitBox02 připojen. Díky tomu můžete kdykoli zkontrolovat svůj zůstatek a portfolio. BitBox02 musí být stále připojen a odemčen, aby bylo možné odesílat nebo přijímat prostředky.\n\nPokud je možnost \"Zapamatovat si peněženku' vypnutá, musíte znovu zapojit svůj BitBox02 (nebo peněženku s přístupovou fráz) aby jste účty znovu viděli v aplikaci BitBoxApp.",
+        "title": "Co se stane, když povolím nebo vypnu „Zapamatovat peněženku“?"
+      },
       "whyIsThisUseful": {
         "text": "Účty jsou skvělé pro správu prostředků pro různé osoby nebo účely, protože jsou oddělené. Můžete také sdílet veřejný klíč (xpub) účtu, aniž byste prozradili cokoli o svých ostatních účtech. To vám umožňuje opakovaně přijímat finanční prostředky bez opakovaného používání adres, například při pobírání mzdy nebo pravidelném nákupu kryptoměn.",
         "title": "Proč je to užitečné?"
@@ -822,6 +884,42 @@
       "pairing": {
         "text": "Po stažení naší mobilní aplikace pro iOS nebo Android naskenujete zobrazený QR kód, čímž se vytvoří zabezpečený kanál mezi mobilní aplikací a touto aplikací. Po naskenování postupujte podle pokynů v mobilní aplikaci.",
         "title": "Jak bezpečně spárovat s telefonem"
+      }
+    },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "Další podrobnosti naleznete na webových stránkách Bitsurance a jejich FAQ.",
+        "title": "Další otázky?"
+      },
+      "privacy": {
+        "link": {
+          "text": "Zásady ochrany osobních údajů Bitsurance"
+        },
+        "text": "Jako každá běžná pojistka obsahuje vaše celé jméno a adresu a specifikuje pojištěný objekt (definovaný rozšířeným veřejným klíčem (xpub) pojištěného bitcoinového účtu). Tato data jsou odesílána přímo společnosti Bitsurance a nejsou sdílena se společností Shift Crypto. Další informace naleznete v zásadách ochrany osobních údajů Bitsurance",
+        "title": "Jaké osobní údaje jsou pro pojištění potřeba?"
+      },
+      "renew": {
+        "text": "Pojištění se automaticky obnoví na další rok. Obnovení můžete kdykoli zrušit kliknutím na „Spravovat smlouvu“ v aplikaci BitBoxApp, která vás přenese na zákaznický portál Bitsurance.",
+        "title": "Jak mohu obnovit nebo zrušit pojištění?"
+      },
+      "status": {
+        "text": "Úspěšně pojištěné účty jsou označeny zeleným odznakem „pojištěno“ v pravém horním rohu na každé stránce bitcoinového účtu. V sekci „Pojištění“ vidíte přehled všech pojištěných bitcoinových účtů a jejich aktuální stav pojištění.",
+        "title": "Mohu zkontrolovat stav pojištěného účtu?"
+      },
+      "what": {
+        "text": "Každá bitcoinová pojistná smlouva se vztahuje na konkrétní účet peněženky. Sjednáním více pojistek můžete pojistit více účtů. Pojištěné účty jsou omezeny na používání bitcoinových adres „Native Segwit“.",
+        "title": "Je pojištěna celá peněženka BitBox?"
+      },
+      "who": {
+        "text": "Pojištění nabízí Bitsurance, pojišťovací makléř postavený bitcoinery. Spolupracují s pojištěním ELEMENT, aby poskytovali pojištění bitcoinů. Obě společnosti sídlí v Německu.",
+        "title": "Kdo pojišťuje moje bitcoiny?"
+      },
+      "why": {
+        "text": "Bitsurance pokrývá některá rizika vlastní úschovy (self-custody), která nespadají ani do té nejbezpečnější peněženky, např. vloupání, vydírání nebo zničení peněženky. Je to vaše osobní rozhodnutí, zda potřebujete pojištění pro tato rizika.",
+        "title": "Potřebuji pojištění bitcoinů?"
       }
     },
     "cointracking": {
@@ -1106,6 +1204,10 @@
         "description": "Vyberte výchozí měnu",
         "title": "Výchozí měna"
       },
+      "enableAccount": {
+        "description": "Deaktivace účtu znamená, že se nezobrazí v postranním panelu ani v portfoliu. Zde jej můžete kdykoli znovu aktivovat. Prostředky na tomto účtu nebudou ovlivněny a zůstanou v bezpečí.",
+        "title": "Aktivovat/deaktivovat účet"
+      },
       "hideAmounts": {
         "description": "Zobrazuje přepínač pro skrytí zůstatku a částek pro ochranu soukromí při používání aplikace na veřejnosti.",
         "hideAmounts": "Skrýt částky",
@@ -1115,6 +1217,11 @@
       "language": {
         "description": "Jaký jazyk chcete v BitBoxApp používat.",
         "title": "Jazyk"
+      },
+      "remebmerWallet": {
+        "name": "Zapamatovat peněženku",
+        "warning": "Tím odstraníte zapamatovanou peněženku. Chcete-li ji znovu zobrazit, musíte připojit BitBox02 pro tuto peněženku. Žádné prostředky v této peněžence nebudou ovlivněny. Chcete pokračovat?",
+        "warningTitle": "Deaktivovat zapamatování peněženky"
       },
       "toggleSats": {
         "description": "Aktivovat nebo deaktivovat Satoshi."
@@ -1259,6 +1366,7 @@
     "description": "Váš BitBox vygeneroval následující {{bits}}-bit náhodné číslo:"
   },
   "receive": {
+    "bitsuranceWarning": "Toto je pojištěný účet, což znamená, že může přijímat pouze na Native Segwit. Je to proto, abyste náhodou neobdrželi Wrapped Segwit nebo Taproot, které nejsou pojištěny.",
     "changeScriptType": "Změňit typ adresy",
     "label": "Vaše adresa",
     "onlyThisCoin": {
@@ -1487,6 +1595,7 @@
   "sidebar": {
     "buy": "Koupit krypto",
     "device": "Spravovat zařízení",
+    "insurance": "Pojištění",
     "leave": "Odejít",
     "settings": "Nastavení"
   },
@@ -1515,6 +1624,7 @@
       "fiatAmount": "Částka ve fiatu",
       "fiatAtTime": "Fiat v době transakce",
       "status": "Stav",
+      "title": "Detaily transakce",
       "type": "Typ"
     },
     "explorer": "ID transakce",

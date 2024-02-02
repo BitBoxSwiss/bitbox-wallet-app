@@ -500,7 +500,7 @@
   },
   "device": {
     "appUpradeRequired": "Deine BitBox ist mit dieser Desktopanwendung nicht kompatibel. Bitte lade die neueste Version herunter und installiere diese..",
-    "keystoreConnected": "Verbundenes Wallet"
+    "keystoreConnected": "Verbundene Wallet"
   },
   "deviceLock": {
     "button": "Zwei-Faktor-Autorisierung (2FA) aktivieren",
@@ -1110,10 +1110,6 @@
       "defaultCurrency": {
         "description": "Wähle deine Standardwährung aus",
         "title": "Standardwährung"
-      },
-      "enableWallet": {
-        "description": "Wenn du dein Konto deaktivierst, wird es weder in der Seitenleiste noch im Portfolio angezeigt. Du kannst es hier jederzeit wieder aktivieren. Coins auf diesem Konto werden nicht beeinflusst und bleiben sicher.",
-        "title": "Wallet aktivieren/deaktivieren"
       },
       "hideAmounts": {
         "description": "Zeigt einen Schalter zum Ausblenden deines Guthabens und Beträgen an, um deine Privatsphäre zu verbessern, wenn du die App in der Öffentlichkeit nutzt.",

@@ -1,0 +1,21 @@
+.container {
+    display: flex;
+    flex-basis: 100%;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+
+.iframe {
+    max-width: 100%;
+    position: relative;
+    z-index: 3000;
+}
+
+.header {
+    position: relative;
+    z-index: 2200;
+}

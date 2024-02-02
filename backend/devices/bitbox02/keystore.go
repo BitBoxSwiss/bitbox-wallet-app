@@ -492,21 +492,41 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 }
 
 func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
+	var signature []byte
+	var err error
 	tx := txProposal.Tx
 	recipient := tx.To()
 	if recipient == nil {
 		return errp.New("contract creation not supported")
 	}
-	signature, err := keystore.device.ETHSign(
-		txProposal.Coin.ChainID(),
-		txProposal.Keypath.ToUInt32(),
-		tx.Nonce(),
-		tx.GasPrice(),
-		tx.Gas(),
-		*recipient,
-		tx.Value(),
-		tx.Data(),
-	)
+	txType := tx.Type()
+	switch { // version bytes defined in EIP2718 https://eips.ethereum.org/EIPS/eip-2718
+	case txType == 2:
+		signature, err = keystore.device.ETHSignEIP1559(
+			txProposal.Coin.ChainID(),
+			txProposal.Keypath.ToUInt32(),
+			tx.Nonce(),
+			tx.GasTipCap(),
+			tx.GasFeeCap(),
+			tx.Gas(),
+			*recipient,
+			tx.Value(),
+			tx.Data(),
+		)
+	case txType == 0:
+		signature, err = keystore.device.ETHSign(
+			txProposal.Coin.ChainID(),
+			txProposal.Keypath.ToUInt32(),
+			tx.Nonce(),
+			tx.GasPrice(),
+			tx.Gas(),
+			*recipient,
+			tx.Value(),
+			tx.Data(),
+		)
+	default:
+		return errp.New("unsupported transaction type")
+	}
 	if firmware.IsErrorAbort(err) {
 		return errp.WithStack(keystorePkg.ErrSigningAborted)
 	}
@@ -598,4 +618,9 @@ func (keystore *keystore) SignETHWalletConnectTransaction(chainId uint64, tx *et
 		return nil, err
 	}
 	return signature, nil
+}
+
+// SupportsEIP1559 implements keystore.Keystore.
+func (keystore *keystore) SupportsEIP1559() bool {
+	return keystore.device.Version().AtLeast(semver.NewSemVer(9, 16, 0))
 }

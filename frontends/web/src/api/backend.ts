@@ -48,10 +48,6 @@ export const renameAccount = (accountCode: AccountCode, name: string): Promise<I
   return apiPost('rename-account', { accountCode, name });
 };
 
-export const accountSetWatch = (accountCode: AccountCode, watch: boolean): Promise<ISuccess> => {
-  return apiPost('account-set-watch', { accountCode, watch });
-};
-
 export const reinitializeAccounts = (): Promise<null> => {
   return apiPost('accounts/reinitialize');
 };
@@ -76,13 +72,15 @@ export const socksProxyCheck = (proxyAddress: string): Promise<ISuccess> => {
   return apiPost('socksproxy/check', proxyAddress);
 };
 
+export type TConnectKeystoreErrorCode = 'wrongKeystore' | 'timeout';
+
 export type TSyncConnectKeystore = null | {
   typ: 'connect';
   keystoreName: string;
 } | {
   typ: 'error';
-  errorCode: 'wrongKeystore';
-  errorMessage: '';
+  errorCode?: TConnectKeystoreErrorCode;
+  errorMessage: string;
 };
 
 /**

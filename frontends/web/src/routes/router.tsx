@@ -27,6 +27,10 @@ import { Appearance } from './settings/appearance';
 import { MobileSettings } from './settings/mobile-settings';
 import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
+import { Bitsurance } from './bitsurance/bitsurance';
+import { BitsuranceAccount } from './bitsurance/account';
+import { BitsuranceWidget } from './bitsurance/widget';
+import { BitsuranceDashboard } from './bitsurance/dashboard';
 import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 
@@ -99,6 +103,17 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     <Info
       code={''}
       accounts={activeAccounts} />
+  </InjectParams>;
+
+  const BitsuranceAccountEl = <InjectParams>
+    <BitsuranceAccount
+      code={''}
+      accounts={activeAccounts} />
+  </InjectParams>;
+
+  const BitsuranceWidgetEl = <InjectParams>
+    <BitsuranceWidget
+      code={''} />
   </InjectParams>;
 
   const AccDashboardWC = <InjectParams>
@@ -228,6 +243,18 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       </Route>
       <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
       <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
+      <Route path="bitsurance">
+        <Route path="bitsurance" element={<Bitsurance accounts={activeAccounts}/>}/>
+        <Route path="account" element={BitsuranceAccountEl} >
+          <Route index element={BitsuranceAccountEl} />
+          <Route path=":code" element={BitsuranceAccountEl} />
+        </Route>
+        <Route path="widget" element={BitsuranceWidgetEl} >
+          <Route index element={BitsuranceWidgetEl} />
+          <Route path=":code" element={BitsuranceWidgetEl} />
+        </Route>
+        <Route path="dashboard" element={<BitsuranceDashboard accounts={activeAccounts}/>}/>
+      </Route>
       <Route path="settings">
         <Route index element={MobileSettingsEl} />
         <Route path="appearance" element={AppearanceEl} />

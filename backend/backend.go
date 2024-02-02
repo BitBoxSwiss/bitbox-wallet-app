@@ -16,7 +16,9 @@
 package backend
 
 import (
+	"encoding/hex"
 	"fmt"
+	"math/big"
 	"net/http"
 	"net/url"
 	"os"
@@ -32,6 +34,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
@@ -86,6 +90,12 @@ var fixedURLWhitelist = []string{
 	"https://help.moonpay.com/",
 	// PocketBitcoin
 	"https://pocketbitcoin.com/",
+	// Bitsurance
+	"https://www.bitsurance.eu/",
+	"https://get.bitsurance.eu/",
+	"https://bitsurance.ihr-versicherungsschutz.de/",
+	"https://bitsurance.eu/support",
+	"https://support.bitsurance.eu",
 	// Documentation and other articles.
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
@@ -540,6 +550,97 @@ func (backend *Backend) Accounts() AccountsList {
 	return backend.accounts
 }
 
+// AccountsByKeystore returns a map of the current accounts of the backend, grouped
+// by keystore.
+func (backend *Backend) AccountsByKeystore() (KeystoresAccountsListMap, error) {
+	accountsByKeystore := KeystoresAccountsListMap{}
+	defer backend.accountsAndKeystoreLock.RLock()()
+	for _, account := range backend.accounts {
+		persistedAccount := account.Config().Config
+		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
+		if err != nil {
+			return nil, err
+		}
+		keystore, err := backend.Config().AccountsConfig().LookupKeystore(rootFingerprint)
+		if err != nil {
+			return nil, err
+		}
+		accountsByKeystore[keystore] = append(accountsByKeystore[keystore], account)
+	}
+	return accountsByKeystore, nil
+}
+
+// KeystoreTotalAmount represents the total balance amount of the accounts belongings to a keystore.
+type KeystoreTotalAmount = struct {
+	// FiatUnit is the fiat unit of the total amount
+	FiatUnit string `json:"fiatUnit"`
+	// Total formatted for frontend visualization
+	Total string `json:"total"`
+}
+
+// AccountsTotalBalanceByKeystore returns a map of accounts' total balances across coins, grouped by keystore.
+func (backend *Backend) AccountsTotalBalanceByKeystore() (map[string]KeystoreTotalAmount, error) {
+	totalAmounts := make(map[string]KeystoreTotalAmount)
+	fiat := backend.Config().AppConfig().Backend.MainFiat
+	isFiatBtc := fiat == rates.BTC.String()
+	fiatUnit := fiat
+	if isFiatBtc && backend.Config().AppConfig().Backend.BtcUnit == coin.BtcUnitSats {
+		fiatUnit = "sat"
+	}
+
+	formatBtcAsSat := util.FormatBtcAsSat(backend.Config().AppConfig().Backend.BtcUnit)
+
+	accountsByKeystore, err := backend.AccountsByKeystore()
+	if err != nil {
+		return nil, err
+	}
+	for keystore, accountList := range accountsByKeystore {
+		rootFingerprint := hex.EncodeToString(keystore.RootFingerprint)
+		currentTotal := new(big.Rat)
+		for _, account := range accountList {
+			if account.Config().Config.Inactive {
+				continue
+			}
+			if account.FatalError() {
+				continue
+			}
+			err := account.Initialize()
+			if err != nil {
+				return nil, err
+			}
+			balance, err := account.Balance()
+			if err != nil {
+				return nil, err
+			}
+			// e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc. Used to convert from the smallest
+			// unit to the standard unit (BTC, LTC; ETH, etc.).
+			coinDecimals := new(big.Int).Exp(
+				big.NewInt(10),
+				big.NewInt(int64(account.Coin().Decimals(false))),
+				nil,
+			)
+
+			price, err := backend.RatesUpdater().LatestPriceForPair(account.Coin().Unit(false), fiat)
+			if err != nil {
+				return nil, err
+			}
+			fiatValue := new(big.Rat).Mul(
+				new(big.Rat).SetFrac(
+					balance.Available().BigInt(),
+					coinDecimals,
+				),
+				new(big.Rat).SetFloat64(price),
+			)
+			currentTotal.Add(currentTotal, fiatValue)
+		}
+		totalAmounts[rootFingerprint] = KeystoreTotalAmount{
+			FiatUnit: fiatUnit,
+			Total:    coin.FormatAsCurrency(currentTotal, isFiatBtc, formatBtcAsSat),
+		}
+	}
+	return totalAmounts, nil
+}
+
 // OnAccountInit installs a callback to be called when an account is initialized.
 func (backend *Backend) OnAccountInit(f func(accounts.Interface)) {
 	backend.onAccountInit = f
@@ -688,6 +789,7 @@ func (backend *Backend) DeregisterKeystore() {
 	// keystore. For now we just remove all, then re-add the rest.
 	backend.initPersistedAccounts()
 	backend.emitAccountsStatusChanged()
+	backend.connectKeystore.onDisconnect()
 }
 
 // Register registers the given device at this backend.
@@ -873,8 +975,7 @@ func (backend *Backend) HandleURI(uri string) {
 
 // GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
 // if found. It also initialize the account before returning it.
-func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, error) {
-	acctCode := accountsTypes.Code(code)
+func (backend *Backend) GetAccountFromCode(acctCode accountsTypes.Code) (accounts.Interface, error) {
 	// TODO: Refactor to make use of a map.
 	var acct accounts.Interface
 	for _, a := range backend.Accounts() {
@@ -899,7 +1000,7 @@ func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, err
 
 // CancelConnectKeystore cancels a pending keystore connection request if one exists.
 func (backend *Backend) CancelConnectKeystore() {
-	backend.connectKeystore.cancel(errUserAbort)
+	backend.connectKeystore.cancel(errp.ErrUserAbort)
 }
 
 // SetWatchonly sets the keystore's watchonly flag to `watchonly`.

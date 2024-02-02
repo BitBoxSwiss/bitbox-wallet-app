@@ -46,6 +46,7 @@ import { AuthRequired } from './components/auth/authrequired';
 import { WCWeb3WalletProvider } from './contexts/WCWeb3WalletProvider';
 import { RatesProvider } from './contexts/RatesProvider';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
+import { sortAccounts } from './routes/account/utils';
 import { getLightningConfig, subscribeLightningConfig } from './api/lightning';
 
 export const App = () => {
@@ -108,6 +109,12 @@ export const App = () => {
       navigate('/');
       return;
     }
+    // if on the /bitsurance/ view and there are no accounts view route to /
+    if (accounts.length === 0 && currentURL.startsWith('/bitsurance/')) {
+      navigate('/');
+      return;
+    }
+
   }, [accounts, devices, navigate]);
 
   useEffect(() => {
@@ -141,7 +148,8 @@ export const App = () => {
   };
 
   const deviceIDs: string[] = Object.keys(devices);
-  const activeAccounts = accounts.filter(acct => acct.active);
+  const sortedAccounts = sortAccounts(accounts);
+  const activeAccounts = sortedAccounts.filter(acct => acct.active);
   return (
     <ConnectedApp>
       <AppProvider>
@@ -179,7 +187,7 @@ export const App = () => {
                     })
                   }
                   <AppRouter
-                    accounts={accounts}
+                    accounts={sortedAccounts}
                     activeAccounts={activeAccounts}
                     deviceIDs={deviceIDs}
                     devices={devices}

@@ -24,7 +24,7 @@ prepare-android:
 logcat:
 	adb logcat -s \
 		GoLog \
-		ch.shiftcrypto.bitboxapp \
+		bitboxapp \
 		ActivityManager \
 		InputDispatcher \
 		libprocessgroup \

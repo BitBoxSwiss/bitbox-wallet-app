@@ -19,6 +19,7 @@ import (
 	"math/big"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
+	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -50,6 +51,8 @@ type Interface interface {
 	// SuggestGasPrice retrieves the currently suggested gas price to allow a timely
 	// execution of a transaction.
 	SuggestGasPrice(ctx context.Context) (*big.Int, error)
+	// FeeTargets returns EIP-1559 compatible priorities (maxFeePerGas + baseFee)
+	FeeTargets(ctx context.Context) ([]*ethtypes.FeeTarget, error)
 }
 
 // RPCTransactionReceipt is a receipt extended with the block number.

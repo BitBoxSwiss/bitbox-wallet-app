@@ -61,6 +61,9 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			SupportsCoinFunc: func(coinInstance coin.Coin) bool {
 //				panic("mock out the SupportsCoin method")
 //			},
+//			SupportsEIP1559Func: func() bool {
+//				panic("mock out the SupportsEIP1559 method")
+//			},
 //			SupportsMultipleAccountsFunc: func() bool {
 //				panic("mock out the SupportsMultipleAccounts method")
 //			},
@@ -127,6 +130,9 @@ type KeystoreMock struct {
 
 	// SupportsDeterministicEntropyFunc mocks the SupportsDeterministicEntropy method.
 	SupportsDeterministicEntropyFunc func() bool
+	
+	// SupportsEIP1559Func mocks the SupportsEIP1559 method.
+	SupportsEIP1559Func func() bool
 
 	// SupportsMultipleAccountsFunc mocks the SupportsMultipleAccounts method.
 	SupportsMultipleAccountsFunc func() bool
@@ -228,6 +234,9 @@ type KeystoreMock struct {
 		// SupportsDeterministicEntropy holds details about calls to the SupportsDeterministicEntropy method.
 		SupportsDeterministicEntropy []struct {
 		}
+		// SupportsEIP1559 holds details about calls to the SupportsEIP1559 method.
+		SupportsEIP1559 []struct {
+		}
 		// SupportsMultipleAccounts holds details about calls to the SupportsMultipleAccounts method.
 		SupportsMultipleAccounts []struct {
 		}
@@ -267,6 +276,7 @@ type KeystoreMock struct {
 	lockSupportsAccount                 sync.RWMutex
 	lockSupportsCoin                    sync.RWMutex
 	lockSupportsDeterministicEntropy    sync.RWMutex
+	lockSupportsEIP1559                 sync.RWMutex
 	lockSupportsMultipleAccounts        sync.RWMutex
 	lockSupportsUnifiedAccounts         sync.RWMutex
 	lockType                            sync.RWMutex
@@ -762,6 +772,33 @@ func (mock *KeystoreMock) SupportsDeterministicEntropyCalls() []struct {
 	mock.lockSupportsDeterministicEntropy.RLock()
 	calls = mock.calls.SupportsDeterministicEntropy
 	mock.lockSupportsDeterministicEntropy.RUnlock()
+	return calls
+}
+
+// SupportsEIP1559 calls SupportsEIP1559Func.
+func (mock *KeystoreMock) SupportsEIP1559() bool {
+	if mock.SupportsEIP1559Func == nil {
+		panic("KeystoreMock.SupportsEIP1559Func: method is nil but Keystore.SupportsEIP1559 was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockSupportsEIP1559.Lock()
+	mock.calls.SupportsEIP1559 = append(mock.calls.SupportsEIP1559, callInfo)
+	mock.lockSupportsEIP1559.Unlock()
+	return mock.SupportsEIP1559Func()
+}
+
+// SupportsEIP1559Calls gets all the calls that were made to SupportsEIP1559.
+// Check the length with:
+//
+//	len(mockedKeystore.SupportsEIP1559Calls())
+func (mock *KeystoreMock) SupportsEIP1559Calls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockSupportsEIP1559.RLock()
+	calls = mock.calls.SupportsEIP1559
+	mock.lockSupportsEIP1559.RUnlock()
 	return calls
 }
 

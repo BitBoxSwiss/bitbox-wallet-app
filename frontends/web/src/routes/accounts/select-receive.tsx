@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,21 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getBalance, IAccount } from '../../api/account';
-import { AccountSelector, TOption } from '../../components/accountselector/accountselector';
+import { IAccount } from '../../api/account';
 import { Header } from '../../components/layout';
 import { route } from '../../utils/route';
 import { isBitcoinOnly } from '../account/utils';
 import { View, ViewContent } from '../../components/view/view';
+import { GroupedAccountSelector } from '../../components/groupedaccountselector/groupedaccountselector';
 
 type TReceiveAccountsSelector = {
     activeAccounts: IAccount[]
 }
 export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSelector) => {
-  const [options, setOptions] = useState<TOption[]>([]);
   const [code, setCode] = useState('');
   const { t } = useTranslation();
-
-  useEffect(() => {
-    const options = activeAccounts.map(account => ({ label: account.name, value: account.code, disabled: false, coinCode: account.coinCode } as TOption));
-    //setting options without balance
-    setOptions(options);
-    //asynchronously fetching each account's balance
-    getBalances(options).then(options => setOptions(options));
-  }, [activeAccounts]);
 
   const handleProceed = () => {
     route(`/account/${code}/receive`);
@@ -47,20 +38,20 @@ export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSele
 
   const title = t('receive.title', { accountName: hasOnlyBTCAccounts ? 'Bitcoin' : t('buy.info.crypto') });
 
-  const getBalances = async (options: TOption[]) => {
-    return Promise.all(options.map((option) => (
-      getBalance(option.value).then(balance => {
-        return { ...option, balance: `${balance.available.amount} ${balance.available.unit}` };
-      })
-    )));
-  };
-
   return (
     <>
       <Header title={<h2>{title}</h2>} />
       <View width="550px" verticallyCentered fullscreen={false}>
         <ViewContent>
-          <AccountSelector onChange={setCode} onProceed={handleProceed} options={options} title={t('receive.selectAccount')} selected={code} />
+          {activeAccounts && activeAccounts.length > 0 &&
+            <GroupedAccountSelector
+              title={t('receive.selectAccount')}
+              accounts={activeAccounts}
+              selected={code}
+              onChange={setCode}
+              onProceed={handleProceed}
+            />
+          }
         </ViewContent>
       </View>
     </>

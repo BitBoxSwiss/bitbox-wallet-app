@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { restoreFromMnemonic, errUserAbort } from '../../../../api/bitbox02';
+import * as bitbox02 from '../../../../api/bitbox02';
 import { alertUser } from '../../../../components/alert/Alert';
 import { Backup } from '../../../../api/backup';
 import { SetPasswordWithBackup } from './password';
 import { RestoreFromSDCardBackup } from './restore';
 import { WithSDCard } from './sdcard';
+import { SetDeviceName } from './name';
 import { Wait } from './wait';
 
 type Props = {
@@ -72,12 +73,13 @@ export const RestoreFromMnemonic = ({
   onAbort,
 }: Props) => {
   const { t } = useTranslation();
+  const [status, setStatus] = useState<'intro' | 'setName' | 'restoreMnemonic'>('intro');
 
-  useEffect(() => {
-    restoreFromMnemonic(deviceID)
+  const restoreMnemonic = () => {
+    bitbox02.restoreFromMnemonic(deviceID)
       .then(result => {
         if (!result.success) {
-          const errorText = result.code === errUserAbort
+          const errorText = result.code === bitbox02.errUserAbort
             ? t('bitbox02Wizard.restoreFromMnemonic.e104')
             : t('bitbox02Wizard.restoreFromMnemonic.failed');
           alertUser(errorText, {
@@ -87,11 +89,46 @@ export const RestoreFromMnemonic = ({
         }
       })
       .catch(console.error);
-  }, [deviceID, onAbort, t]);
+  };
 
-  return (
-    <Wait
-      title={t('bitbox02Interact.followInstructionsMnemonicTitle')}
-      text={t('bitbox02Interact.followInstructionsMnemonic')} />
-  );
+  const setDeviceName = async (deviceName: string) => {
+    try {
+      setStatus('setName');
+      const result = await bitbox02.setDeviceName(deviceID, deviceName);
+      if (!result.success) {
+        const errorText = result.code === bitbox02.errUserAbort
+          ? t('bitbox02Settings.deviceName.error_104')
+          : result.message;
+        alertUser(errorText || t('genericError'), {
+          asDialog: false,
+          callback: () => onAbort(),
+        });
+        return;
+      }
+      setStatus('restoreMnemonic');
+      restoreMnemonic();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  switch (status) {
+  case 'intro':
+    return (
+      <SetDeviceName
+        missingSDCardWarning={false}
+        onDeviceName={setDeviceName}
+        onBack={onAbort} />
+    );
+  case 'setName':
+    return (
+      <Wait title={t('bitbox02Interact.confirmName')} />
+    );
+  case 'restoreMnemonic':
+    return (
+      <Wait
+        title={t('bitbox02Interact.followInstructionsMnemonicTitle')}
+        text={t('bitbox02Interact.followInstructionsMnemonic')} />
+    );
+  }
 };

@@ -51,7 +51,7 @@ export const RatesProvider = ({ children }: TProps) => {
   const rotateFiat = () => {
     const index = activeCurrencies.indexOf(defaultCurrency);
     const fiat = activeCurrencies[(index + 1) % activeCurrencies.length];
-    setDefaultCurrency(fiat);
+    updateDefaultFiat(fiat);
   };
 
   const updateDefaultFiat = (fiat: Fiat) => {
