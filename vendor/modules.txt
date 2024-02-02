@@ -4,7 +4,7 @@ github.com/StackExchange/wmi
 # github.com/aead/siphash v1.0.1
 ## explicit
 github.com/aead/siphash
-# github.com/breez/breez-sdk-go v0.2.10
+# github.com/breez/breez-sdk-go v0.2.15
 ## explicit; go 1.19
 github.com/breez/breez-sdk-go/breez_sdk
 github.com/breez/breez-sdk-go/breez_sdk/lib
@@ -181,6 +181,10 @@ github.com/tklauser/go-sysconf
 # github.com/tklauser/numcpus v0.2.2
 ## explicit; go 1.11
 github.com/tklauser/numcpus
+# github.com/tyler-smith/go-bip39 v1.1.0
+## explicit; go 1.14
+github.com/tyler-smith/go-bip39
+github.com/tyler-smith/go-bip39/wordlists
 # go.etcd.io/bbolt v1.3.6
 ## explicit; go 1.12
 go.etcd.io/bbolt
