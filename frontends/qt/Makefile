@@ -25,6 +25,9 @@ clean:
 	cd server && $(MAKE) clean
 linux:
 	$(MAKE) clean
+	cp ../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/linux-amd64/libbreez_sdk_bindings.so server/
+	apt-get install -y chrpath
+	chrpath -r $$ORIGIN/lib server/libbreez_sdk_bindings.so
 	cd server && $(MAKE) linux
 	$(MAKE) base
 	mkdir -p build/linux-tmp/lib build/linux
@@ -46,6 +49,7 @@ linux:
 	mv build/linux-tmp/BitBoxApp-*-x86_64.AppImage build/linux/
 osx:
 	$(MAKE) clean
+	cp ../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-amd64/libbreez_sdk_bindings.dylib server/
 	cd server && $(MAKE) macosx
 	$(MAKE) base
 	mkdir build/osx
