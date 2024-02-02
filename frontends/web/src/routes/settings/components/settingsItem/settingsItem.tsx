@@ -44,7 +44,7 @@ export const SettingsItem = ({
     <div className={styles.rightContentContainer}>
       <p className={
         `
-        ${styles.displayedValue}
+        ${displayedValue ? styles.displayedValue : ''}
         ${extraComponent ? styles.withMargin : ''}
         ${hideDisplayedValueOnSmall ? styles.hideDisplayedValueOnSmall : ''}
        `}

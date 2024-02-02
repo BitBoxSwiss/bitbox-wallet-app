@@ -18,16 +18,17 @@ import { useTranslation } from 'react-i18next';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 
-export default function BuyGuide() {
+export const AccountGuide = () => {
   const { t } = useTranslation();
   return (
     <Guide>
       <Entry key="whatAreAccounts" entry={t('guide.accounts.whatAreAccounts')} />
       <Entry key="whyIsThisUseful" entry={t('guide.accounts.whyIsThisUseful')} />
+      <Entry key="whatIsRememberWallet" entry={t('guide.accounts.whatIsRememberWallet')} />
       <Entry key="recoverAccounts" entry={t('guide.accounts.recoverAccounts')} />
       <Entry key="moveFunds" entry={t('guide.accounts.moveFunds')} />
       <Entry key="howtoAddTokens" entry={t('guide.accounts.howtoAddTokens')} />
       <Entry key="howManyAccounts" entry={t('guide.accounts.howManyAccounts')} />
     </Guide>
   );
-}
+};

@@ -24,13 +24,13 @@ import Guide from './guide';
 import { AccountSelector, TOption } from '../../components/accountselector/accountselector';
 import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
-import { findAccount, getCryptoName } from '../account/utils';
+import { isBitcoinOnly } from '../account/utils';
 import { View, ViewContent } from '../../components/view/view';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 
 type TProps = {
     accounts: accountApi.IAccount[];
-    code: string;
+    code: accountApi.AccountCode;
 }
 
 export const BuyInfo = ({ code, accounts }: TProps) => {
@@ -104,8 +104,8 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
     return <Spinner guideExists={false} text={t('loading')} />;
   }
 
-  const account = findAccount(accounts, code);
-  const name = getCryptoName(t('buy.info.crypto'), account);
+  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const name = hasOnlyBTCAccounts ? 'Bitcoin' : t('buy.info.crypto');
 
   return (
     <Main>

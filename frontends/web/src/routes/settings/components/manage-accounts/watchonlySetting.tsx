@@ -17,14 +17,19 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toggle } from '../../../../components/toggle/toggle';
-import { SettingsItem } from '../settingsItem/settingsItem';
 import * as backendAPI from '../../../../api/backend';
+import * as accountAPI from '../../../../api/account';
 import { useLoad } from '../../../../hooks/api';
 import { getConfig } from '../../../../utils/config';
 import { Dialog, DialogButtons } from '../../../../components/dialog/dialog';
-import { Button } from '../../../../components/forms';
+import { Button, Label } from '../../../../components/forms';
+import style from './watchonlySettings.module.css';
 
-export const WatchonlySetting = () => {
+type Props = {
+  keystore: accountAPI.TKeystore;
+}
+
+export const WatchonlySetting = ({ keystore }: Props) => {
   const { t } = useTranslation();
   const [disabled, setDisabled] = useState<boolean>(false);
   const [watchonly, setWatchonly] = useState<boolean>();
@@ -33,14 +38,14 @@ export const WatchonlySetting = () => {
 
   useEffect(() => {
     if (config) {
-      setWatchonly(config.backend.watchonly);
+      setWatchonly(keystore.watchonly);
     }
-  }, [config]);
+  }, [config, keystore]);
 
   const toggleWatchonly = async () => {
     if (!watchonly) {
       setDisabled(true);
-      const { success } = await backendAPI.setWatchonly(!watchonly);
+      const { success } = await backendAPI.setWatchonly(keystore.rootFingerprint, !watchonly);
 
       if (success) {
         setWatchonly(!watchonly);
@@ -61,7 +66,7 @@ export const WatchonlySetting = () => {
 
   const handleConfirmDisableWatchonly = async () => {
     setDisabled(true);
-    await backendAPI.setWatchonly(false);
+    await backendAPI.setWatchonly(keystore.rootFingerprint, false);
     setWatchonly(false);
     setDisabled(false);
     setWarningDialogOpen(false);
@@ -69,32 +74,25 @@ export const WatchonlySetting = () => {
 
   return (
     <>
-      <Dialog title={t('newSettings.appearance.watchonly.warningTitle')} medium onClose={handleCloseDialog} open={warningDialogOpen}>
-        <p>{t('newSettings.appearance.watchonly.warning')}</p>
+      <Dialog title={t('newSettings.appearance.remebmerWallet.warningTitle')} medium onClose={handleCloseDialog} open={warningDialogOpen}>
+        <p>{t('newSettings.appearance.remebmerWallet.warning')}</p>
         <DialogButtons>
           <Button primary onClick={handleConfirmDisableWatchonly}>{t('dialog.confirm')}</Button>
           <Button secondary onClick={handleCloseDialog}>{t('dialog.cancel')}</Button>
         </DialogButtons>
       </Dialog>
-      <SettingsItem
-        settingName={t('newSettings.appearance.watchonly.title')}
-        secondaryText={t('newSettings.appearance.watchonly.description')}
-        extraComponent={
-          <>
-            {
-              watchonly !== undefined ?
-                (
-                  <Toggle
-                    checked={watchonly}
-                    disabled={disabled}
-                    onChange={toggleWatchonly}
-                  />
-                ) :
-                null
-            }
-          </>
-        }
-      />
+      { watchonly !== undefined ? (
+        <Label className={style.label}>
+          <span className={style.labelText}>
+            {t('newSettings.appearance.remebmerWallet.name')}
+          </span>
+          <Toggle
+            checked={watchonly}
+            disabled={disabled}
+            onChange={toggleWatchonly}
+          />
+        </Label>
+      ) : null}
     </>
   );
 };

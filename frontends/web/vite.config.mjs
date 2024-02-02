@@ -5,6 +5,9 @@ import checker from 'vite-plugin-checker';
 
 export default defineConfig(() => {
   return {
+    // Relative base path so the js/css files are referenced with `./index-...js` instead of
+    // `/index-...js`. This makes it easier to find these files in iOS.
+    base: './',
     build: {
       modulePreload: false,
       outDir: 'build',

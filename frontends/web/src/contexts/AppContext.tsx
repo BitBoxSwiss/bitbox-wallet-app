@@ -16,16 +16,24 @@
 
 import { Dispatch, SetStateAction, createContext } from 'react';
 
+export type TSidebarStatus = '' | 'forceHidden'
+
 type AppContextProps = {
+    activeSidebar: boolean;
     guideShown: boolean;
     guideExists: boolean;
     hideAmounts: boolean;
+    sidebarStatus: string;
+    setActiveSidebar: Dispatch<SetStateAction<boolean>>;
     setGuideExists: Dispatch<SetStateAction<boolean>>;
     setGuideShown: Dispatch<SetStateAction<boolean>>;
+    setSidebarStatus: Dispatch<SetStateAction<TSidebarStatus>>;
+    setHideAmounts: Dispatch<SetStateAction<boolean>>;
     toggleGuide: () => void;
     toggleHideAmounts: () => void;
+    toggleSidebar: () => void;
 }
 
 const AppContext = createContext<AppContextProps>({} as AppContextProps);
 
-export default AppContext;
+export { AppContext };

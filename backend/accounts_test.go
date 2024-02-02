@@ -16,11 +16,11 @@ package backend
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math/big"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -285,14 +285,14 @@ func TestNextAccountNumber(t *testing.T) {
 	require.Equal(t, uint16(1), num)
 
 	_, err = nextAccountNumber(coinpkg.CodeBTC, ks(fingerprint1, false), accountsConfig)
-	require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+	require.Equal(t, errAccountLimitReached, errp.Cause(err))
 
 	num, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprint1, true), accountsConfig)
 	require.NoError(t, err)
 	require.Equal(t, uint16(4), num)
 
 	_, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprint2, true), accountsConfig)
-	require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+	require.Equal(t, errAccountLimitReached, errp.Cause(err))
 }
 
 const (
@@ -870,7 +870,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			"bitcoin 2",
 			bitbox01LikeKeystore,
 		)
-		require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+		require.Equal(t, errAccountLimitReached, errp.Cause(err))
 		require.Equal(t, accountsCount, len(b.Config().AccountsConfig().Accounts))
 
 		// Try to add another Litecoin account - can't, only one account supported.
@@ -879,7 +879,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			"litecoin 2",
 			bitbox01LikeKeystore,
 		)
-		require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+		require.Equal(t, errAccountLimitReached, errp.Cause(err))
 		require.Equal(t, accountsCount, len(b.Config().AccountsConfig().Accounts))
 	})
 
@@ -889,7 +889,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 
-		expectedErr := errors.New("failed getting xpub")
+		expectedErr := errp.New("failed getting xpub")
 		// Keystore has a problem getting the xpub.
 		ks := &keystoremock.KeystoreMock{
 			RootFingerprintFunc: func() ([]byte, error) {
@@ -1031,14 +1031,21 @@ func TestAccountSupported(t *testing.T) {
 	bb02Multi := makeBitBox02Multi()
 	bb02BtcOnly := makeBitBox02BTCOnly()
 
+	rootFingerprint, err := bb02Multi.RootFingerprint()
+	require.NoError(t, err)
+
+	rootFingerprint2, err := bb02BtcOnly.RootFingerprint()
+	require.NoError(t, err)
+
+	require.Equal(t, rootFingerprint, rootFingerprint2)
+
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
-
-	require.NoError(t, b.SetWatchonly(true))
 
 	// Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(bb02Multi)
 	checkShownAccountsLen(t, b, 3, 3)
+	require.NoError(t, b.SetWatchonly(rootFingerprint, true))
 
 	b.DeregisterKeystore()
 	// Registering a Bitcoin-only like keystore loads also the altcoins that were persisted
@@ -1047,7 +1054,7 @@ func TestAccountSupported(t *testing.T) {
 	checkShownAccountsLen(t, b, 3, 3)
 
 	// If watch-only is disabled, then these will not be loaded if not supported by the keystore.
-	require.NoError(t, b.SetWatchonly(false))
+	require.NoError(t, b.SetWatchonly(rootFingerprint, false))
 	b.DeregisterKeystore()
 
 	// Registering a Bitcoin-only like keystore loads only the Bitcoin account, even though altcoins
@@ -1302,26 +1309,20 @@ func TestWatchonly(t *testing.T) {
 		checkShownAccountsLen(t, b, 0, 3)
 	})
 
-	// Watchonly enabled before keystore is registered - all loaded accounts thereafter become
-	// watched.
-	t.Run("", func(t *testing.T) {
-		b := newBackend(t, testnetDisabled, regtestDisabled)
-		defer b.Close()
-		require.NoError(t, b.SetWatchonly(true))
-		b.registerKeystore(makeBitBox02Multi())
-		checkShownAccountsLen(t, b, 3, 3)
-		b.DeregisterKeystore()
-		// Accounts remain loaded.
-		checkShownAccountsLen(t, b, 3, 3)
-	})
-
 	// Watchonly enabled while keystore is registered - all already loaded accounts become watched.
 	t.Run("", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
-		b.registerKeystore(makeBitBox02Multi())
+
+		ks := makeBitBox02Multi()
+
+		rootFingerprint, err := ks.RootFingerprint()
+		require.NoError(t, err)
+
+		b.registerKeystore(ks)
 		checkShownAccountsLen(t, b, 3, 3)
-		require.NoError(t, b.SetWatchonly(true))
+		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
+
 		b.DeregisterKeystore()
 		// Accounts remain loaded.
 		checkShownAccountsLen(t, b, 3, 3)
@@ -1331,8 +1332,15 @@ func TestWatchonly(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
-		require.NoError(t, b.SetWatchonly(true))
-		b.registerKeystore(makeBitBox02Multi())
+
+		ks := makeBitBox02Multi()
+
+		rootFingerprint, err := ks.RootFingerprint()
+		require.NoError(t, err)
+
+		b.registerKeystore(ks)
+		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
+
 		checkShownAccountsLen(t, b, 3, 3)
 		exclude := accountsTypes.Code("v0-55555555-btc-0")
 		require.NotNil(t, lookup(b.Accounts(), exclude))
@@ -1351,44 +1359,47 @@ func TestWatchonly(t *testing.T) {
 		require.NotNil(t, lookup(b.Accounts(), exclude))
 	})
 
-	// Watchonly is disabled while some watched accounts are shown with no keystore connected.  All
-	// accounts should disappear. When re-enabling watchonly, they do not reappear - connecting the
-	// keystore again is necessary.
+	// Watchonly of a keystore is disabled while some watched accounts are shown with no keystore
+	// connected.  All accounts of the keystore should disappear. When re-enabling watchonly, they
+	// do not reappear - connecting the keystore again is necessary.
 	t.Run("", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
-		require.NoError(t, b.SetWatchonly(true))
-		b.registerKeystore(makeBitBox02Multi())
+
+		ks := makeBitBox02Multi()
+
+		rootFingerprint, err := ks.RootFingerprint()
+		require.NoError(t, err)
+
+		b.registerKeystore(ks)
+		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
+
 		b.DeregisterKeystore()
 		// Accounts remain loaded.
 		checkShownAccountsLen(t, b, 3, 3)
 
 		// Disable watchonly, all accounts disappear.
-		require.NoError(t, b.SetWatchonly(false))
+		require.NoError(t, b.SetWatchonly(rootFingerprint, false))
 		checkShownAccountsLen(t, b, 0, 3)
-
-		// Re-enable watchonly - accounts do not show up yet.
-		require.NoError(t, b.SetWatchonly(true))
-		checkShownAccountsLen(t, b, 0, 3)
-
-		// Reconnecting the keystore brings back the watched accounts.
-		b.registerKeystore(makeBitBox02Multi())
-		checkShownAccountsLen(t, b, 3, 3)
-		b.DeregisterKeystore()
-		checkShownAccountsLen(t, b, 3, 3)
 	})
 
-	// Disable global watchonly while keystore is connected does not make the accounts disappear
-	// yet. They only disappear once the keytore is disconnected.
+	// Disable keystore's watchonly setting while keystore is connected does not make the accounts
+	// disappear yet. They only disappear once the keytore is disconnected.
 	t.Run("", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
-		require.NoError(t, b.SetWatchonly(true))
-		b.registerKeystore(makeBitBox02Multi())
+
+		ks := makeBitBox02Multi()
+
+		rootFingerprint, err := ks.RootFingerprint()
+		require.NoError(t, err)
+
+		b.registerKeystore(ks)
 		checkShownAccountsLen(t, b, 3, 3)
+		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
 
 		// Disable watchonly, all accounts remain as the keystore is still connected.
-		require.NoError(t, b.SetWatchonly(false))
+		require.NoError(t, b.SetWatchonly(rootFingerprint, false))
 		checkShownAccountsLen(t, b, 3, 3)
 
 		// Accounts disappear when the keystore is disconnected.
@@ -1396,14 +1407,20 @@ func TestWatchonly(t *testing.T) {
 		checkShownAccountsLen(t, b, 0, 3)
 	})
 
-	// Disable watchonly for a specific account while keystore is connected does not make the
-	// account disappear yet. It only disappears once the keytore is disconnected.
+	// Disable watchonly for a specific account while its keystore is connected does not make the
+	// account disappear yet. It only disappears once the keystore is disconnected.
 	t.Run("", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
-		require.NoError(t, b.SetWatchonly(true))
+
+		ks := makeBitBox02Multi()
+
+		rootFingerprint, err := ks.RootFingerprint()
+		require.NoError(t, err)
+
 		b.registerKeystore(makeBitBox02Multi())
 		checkShownAccountsLen(t, b, 3, 3)
+		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
 
 		exclude := accountsTypes.Code("v0-55555555-btc-0")
 		require.NotNil(t, lookup(b.Accounts(), exclude))
@@ -1417,5 +1434,151 @@ func TestWatchonly(t *testing.T) {
 		b.DeregisterKeystore()
 		checkShownAccountsLen(t, b, 2, 3)
 		require.Nil(t, lookup(b.Accounts(), exclude))
+	})
+
+	// Test with two keystores, one watched and the other not.
+	t.Run("", func(t *testing.T) {
+		// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
+		rootKey1 := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+		keystoreHelper1 := software.NewKeystore(rootKey1)
+		// From mnemonic: lava scare swap mystery lawsuit army rubber clean mean bronze keen volcano
+		rootKey2 := mustXKey("xprv9s21ZrQH143K3cfe2832UrUDA5jmFWvm3acoempvZofxin26VdqjosJfTjHsVgjgszDYHiEgepM7J7U9N7HpayNZDRPUoxGKQbJCuHzgnuy")
+		keystoreHelper2 := software.NewKeystore(rootKey2)
+
+		rootFingerprint1 := []byte{0x55, 0x055, 0x55, 0x55}
+		rootFingerprint2 := []byte{0x66, 0x066, 0x66, 0x66}
+
+		// A keystore with a similar config to a BitBox02 - supporting unified accounts, no legacy
+		// P2PKH.
+		ks1 := &keystoremock.KeystoreMock{
+			NameFunc: func() (string, error) {
+				return "Mock keystore 1", nil
+			},
+			RootFingerprintFunc: func() ([]byte, error) {
+				return rootFingerprint1, nil
+			},
+			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
+				switch coin.(type) {
+				case *btc.Coin:
+					scriptType := meta.(signing.ScriptType)
+					return scriptType != signing.ScriptTypeP2PKH
+				default:
+					return true
+				}
+			},
+			SupportsUnifiedAccountsFunc: func() bool {
+				return true
+			},
+			ExtendedPublicKeyFunc: keystoreHelper1.ExtendedPublicKey,
+		}
+		ks2 := &keystoremock.KeystoreMock{
+			NameFunc: func() (string, error) {
+				return "Mock keystore 2", nil
+			},
+			RootFingerprintFunc: func() ([]byte, error) {
+				return rootFingerprint2, nil
+			},
+			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
+				switch coin.(type) {
+				case *btc.Coin:
+					scriptType := meta.(signing.ScriptType)
+					return scriptType != signing.ScriptTypeP2PKH
+				default:
+					return true
+				}
+			},
+			SupportsUnifiedAccountsFunc: func() bool {
+				return true
+			},
+			ExtendedPublicKeyFunc: keystoreHelper2.ExtendedPublicKey,
+		}
+
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		b.registerKeystore(ks1)
+		checkShownAccountsLen(t, b, 3, 3)
+		// Watch this wallet.
+		require.NoError(t, b.SetWatchonly(rootFingerprint1, true))
+		b.DeregisterKeystore()
+		// Accounts remain loaded.
+		checkShownAccountsLen(t, b, 3, 3)
+
+		b.registerKeystore(ks2)
+		checkShownAccountsLen(t, b, 6, 6)
+		b.DeregisterKeystore()
+		// ks1 accouts remain loaded.
+		checkShownAccountsLen(t, b, 3, 6)
+
+		b.registerKeystore(ks2)
+		checkShownAccountsLen(t, b, 6, 6)
+		// Watch second wallet as well.
+		require.NoError(t, b.SetWatchonly(rootFingerprint2, true))
+		b.DeregisterKeystore()
+		// All accounts remain loaded.
+		checkShownAccountsLen(t, b, 6, 6)
+
+		// Stop watching first wallet.
+		require.NoError(t, b.SetWatchonly(rootFingerprint1, false))
+		checkShownAccountsLen(t, b, 3, 6)
+	})
+
+	// Adding new accounts after the keytore has been connected: new account is watched if the
+	// keystore is already watched.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		// registering a keystore calls `go maybeAddHiddenunusedAccounts()` - we need wait for it to
+		// complete to avoid race conditions in this test about which account is added at what time.
+		hiddenAccountsAdded := make(chan struct{})
+		b.tstMaybeAddHiddenUnusedAccounts = func() {
+			close(hiddenAccountsAdded)
+		}
+
+		ks := makeBitBox02Multi()
+
+		rootFingerprint, err := ks.RootFingerprint()
+		require.NoError(t, err)
+
+		b.registerKeystore(ks)
+		checkShownAccountsLen(t, b, 3, 3)
+
+		select {
+		case <-hiddenAccountsAdded:
+		case <-time.After(5 * time.Second):
+			require.Fail(t, "expected hidden accounts to be added")
+		}
+
+		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
+
+		// An account has already been added as part of autodiscover, so we add two.
+		newAccountCode1, err := b.CreateAndPersistAccountConfig(
+			coinpkg.CodeBTC,
+			"Bitcoin account name",
+			ks,
+		)
+		require.NoError(t, err)
+		require.Equal(t, accountsTypes.Code("v0-55555555-btc-1"), newAccountCode1)
+
+		expectedNewAccountCode2 := accountsTypes.Code("v0-55555555-btc-2")
+		// Make sure the account to be added has not been added yet (autodiscover), so we know we
+		// are testing the correct setting of the Watch flag when a new account is persisted.
+		require.Nil(t, b.Config().AccountsConfig().Lookup(expectedNewAccountCode2))
+
+		newAccountCode2, err := b.CreateAndPersistAccountConfig(
+			coinpkg.CodeBTC,
+			"Bitcoin account name 2",
+			ks,
+		)
+		require.NoError(t, err)
+		require.Equal(t, expectedNewAccountCode2, newAccountCode2)
+
+		require.NoError(t, err)
+
+		b.DeregisterKeystore()
+
+		// Accounts, including the newly added ones, remain loaded.
+		checkShownAccountsLen(t, b, 5, 5)
 	})
 }

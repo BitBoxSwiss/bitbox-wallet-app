@@ -1,9 +1,28 @@
 .badge {
-  padding: var(--space-eight) 10px;
   border-radius: var(--space-half);
   border: 1px solid;
+  display: inline-block;
   font-size: var(--size-small);
   line-height: 14px;
+  padding: var(--space-eight) 10px;
+  white-space: nowrap;
+}
+
+.badge.iconOnly {
+  align-items: center;
+  display: inline-flex;
+  height: 18px;
+  justify-content: center;
+  padding: 0;
+  width: 18px;
+}
+
+.badgeIcon {
+  max-width: 10px;
+}
+
+.withChildren .badgeIcon {
+  margin-right: var(--space-eight);
 }
 
 @media (max-width: 382px) {

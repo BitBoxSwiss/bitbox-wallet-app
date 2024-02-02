@@ -16,14 +16,14 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { TTransactions } from '../../api/account';
+import { AccountCode, TTransactions } from '../../api/account';
 import { runningInAndroid } from '../../utils/env';
 import { Transaction } from './transaction';
 import { Button } from '../forms';
 import style from './transactions.module.css';
 
 type TProps = {
-    accountCode: string;
+    accountCode: AccountCode;
     explorerURL: string;
     transactions?: TTransactions;
     handleExport: () => void;

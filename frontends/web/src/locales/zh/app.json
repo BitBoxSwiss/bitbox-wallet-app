@@ -831,7 +831,6 @@
   },
   "setup": "设置设备",
   "sidebar": {
-    "addAccount": "新增帐户",
     "device": "管理设备",
     "leave": "离开",
     "settings": "设置"

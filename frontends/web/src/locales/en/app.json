@@ -68,7 +68,7 @@
   "aopp": {
     "addressRequest": "{{host}} is requesting a receiving address.",
     "addressRequestWithLogo": "is requesting a receiving address",
-    "banner": "Address request in progress.",
+    "banner": "Address request in progress. Please connect your device to continue.",
     "errorTitle": "Error during address request ",
     "labelAddress": "Address",
     "labelMessage": "Message",
@@ -499,7 +499,8 @@
     "toggle": "Dark mode"
   },
   "device": {
-    "appUpradeRequired": "Your BitBox is not compatible with this desktop application. Please download and install the latest version."
+    "appUpradeRequired": "Your BitBox is not compatible with this desktop application. Please download and install the latest version.",
+    "keystoreConnected": "Connected wallet"
   },
   "deviceLock": {
     "button": "Enable two factor authorization (2FA)",
@@ -753,6 +754,10 @@
         "text": "Your wallet can manage multiple accounts of the same coin. Accounts are helpful when you want to keep funds separate.",
         "title": "What are accounts?"
       },
+      "whatIsRememberWallet": {
+        "text": "Enabling “Remember wallet” lets you see the accounts for this wallet in the BitBoxApp even when the BitBox02 is not plugged in. This allows you to check your balance and portfolio whenever you want. The BitBox02 still needs to be plugged in and unlocked to send or receive coins.\n\nDisabling “Remember wallet” requires you to plug in the respective BitBox02 (or passphrase wallet) to see those accounts in the BitBoxApp.",
+        "title": "What happens when I enable/disable “Remember wallet”?"
+      },
       "whyIsThisUseful": {
         "text": "Accounts are great for managing funds for different people or purposes because they are separated. You can also share the \"extended public key\" of an account without revealing anything about your other accounts. This allows you to repeatedly receive funds without reusing addresses, such as receiving your wage or regularly buying crypto.",
         "title": "Why is this useful?"
@@ -1000,7 +1005,7 @@
     },
     "walletConnect": {
       "noPreviousConnections": {
-        "text": "If you are using a new phone/computer with the BitBoxApp, then you will need to connect to the dapps again. You will then see your coins on the dapp again like usual.",
+        "text": "If you are using a new phone/computer with the BitBoxApp, then you will need to connect to the DApps again. You will then see your coins on the dapp again like usual.",
         "title": "I don't see my previous connections."
       },
       "supportedNetworks": {
@@ -1131,7 +1136,7 @@
   },
   "loading": "loading…",
   "manageAccounts": {
-    "accountHidden": "This account will now be hidden from your watch-only accounts. To see it again, please plug in your BitBox02.",
+    "accountHidden": "This account has been hidden from your watch-only accounts. To see it again, please plug in your BitBox02.",
     "editAccount": "Edit",
     "editAccountNameTitle": "Edit account name",
     "noAccounts": "no accounts found",
@@ -1180,6 +1185,10 @@
         "description": "Select your default currency",
         "title": "Default currency"
       },
+      "enableAccount": {
+        "description": "Disabling your account means it will not appear in the sidebar or the portfolio. You can always enable it again from here. Coins on this account will not be affected and will remain safe.",
+        "title": "Enable/disable account"
+      },
       "hideAmounts": {
         "description": "Displays a toggle to hide your balance and amounts to improve your privacy when using the app in public.",
         "hideAmounts": "Hide amounts",
@@ -1190,14 +1199,13 @@
         "description": "Which language you want the BitBoxApp to use.",
         "title": "Language"
       },
+      "remebmerWallet": {
+        "name": "Remember wallet",
+        "warning": "This will remove your remembered wallet. To see it again, you will need to plug in the BitBox02 for this wallet. Any coins on this wallet are not affected. Do you want to continue?",
+        "warningTitle": "Disable remember wallet"
+      },
       "toggleSats": {
         "description": "Enable or disable Satoshis."
-      },
-      "watchonly": {
-        "description": "Let's you see your accounts and portfolio without the BitBox02. The BitBox02 is still needed for signing.",
-        "title": "Watch-only",
-        "warning": "This will remove all your watch-only accounts. To see them again, you will need to plug in your BitBox02. Do you want to continue?",
-        "warningTitle": "Disable watch-only"
       }
     }
   },
@@ -1565,8 +1573,6 @@
   },
   "setup": "Setup device",
   "sidebar": {
-    "accounts": "Accounts",
-    "addAccount": "Add account",
     "buy": "Buy crypto",
     "device": "Manage device",
     "leave": "Leave",
@@ -1597,6 +1603,7 @@
       "fiatAmount": "Fiat amount",
       "fiatAtTime": "Fiat at time of transaction",
       "status": "Status",
+      "title": "Transaction Details",
       "type": "Type"
     },
     "explorer": "Transaction ID",

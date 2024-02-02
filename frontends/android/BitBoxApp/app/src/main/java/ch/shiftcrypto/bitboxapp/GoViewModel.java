@@ -20,10 +20,10 @@ import androidx.lifecycle.MutableLiveData;
 
 import java.util.Locale;
 
-import goserver.GoAPIInterface;
-import goserver.GoDeviceInfoInterface;
-import goserver.GoEnvironmentInterface;
-import goserver.GoReadWriteCloserInterface;
+import mobileserver.GoAPIInterface;
+import mobileserver.GoDeviceInfoInterface;
+import mobileserver.GoEnvironmentInterface;
+import mobileserver.GoReadWriteCloserInterface;
 
 public class GoViewModel extends AndroidViewModel {
 

@@ -33,8 +33,8 @@ linux:
 	mkdir -p build/linux-tmp/lib build/linux
 	mv build/BitBox build/linux-tmp
 	cp build/assets.rcc build/linux-tmp/
-	cp server/libserver.so build/linux-tmp
-	cp server/libbreez_sdk_bindings.so build/linux-tmp/lib
+	cp server/libserver.so build/linux-tmp/lib
+	cp ../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/linux-amd64/libbreez_sdk_bindings.so build/linux-tmp/lib
 	cd build/linux-tmp && /opt/linuxdeployqt-7-x86_64.AppImage BitBox -bundle-non-qt-libs -unsupported-allow-new-glibc
 	cp /usr/lib/x86_64-linux-gnu/nss/* build/linux-tmp/lib
 	cp -aR resources/linux build/tmp-deb
@@ -47,7 +47,6 @@ linux:
 	# create AppImage
 	cd build/linux-tmp && /opt/linuxdeployqt-7-x86_64.AppImage BitBox -appimage -unsupported-allow-new-glibc
 	mv build/linux-tmp/BitBoxApp-*-x86_64.AppImage build/linux/
-	rm build/linux-tmp/libserver.so
 osx:
 	$(MAKE) clean
 	cp ../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-amd64/libbreez_sdk_bindings.dylib server/
@@ -57,11 +56,15 @@ osx:
 	mv build/BitBox.app build/osx/
 	cp resources/MacOS/Info.plist build/osx/BitBox.app/Contents/
 	cp resources/MacOS/icon.icns build/osx/BitBox.app/Contents/Resources/
-	# The `-executable` flag is needed to make the macOS build work when Qt is installed from homebrew.
-	# It works without it when Qt is installed using the official installer.
-	cd build/osx/ && macdeployqt BitBox.app -executable=BitBox.app/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess
+	mkdir -p build/osx/BitBox.app/Contents/Frameworks
 	cp server/libserver.so build/osx/BitBox.app/Contents/Frameworks
-	cp server/libbreez_sdk_bindings.dylib build/osx/BitBox.app/Contents/Frameworks
+	cp ../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-amd64/libbreez_sdk_bindings.dylib build/osx/BitBox.app/Contents/Frameworks
+	# The first `-executable` flag is needed to make the macOS build work when Qt is installed from homebrew.
+	# It works without it when Qt is installed using the official installer.
+	# The second one is needed to have libserver.so resolve libbreez_sdk_bindings by rewiring the LC_RPATH and path to libbreez.
+	cd build/osx/ && macdeployqt BitBox.app \
+		-executable=BitBox.app/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess \
+		-executable=BitBox.app/Contents/Frameworks/libserver.so
 	cp build/assets.rcc build/osx/BitBox.app/Contents/MacOS/
 	install_name_tool -change libserver.so @executable_path/../Frameworks/libserver.so build/osx/BitBox.app/Contents/MacOS/BitBox
 	cp -r resources/MacOS/Testnet.app build/osx/Testnet.app

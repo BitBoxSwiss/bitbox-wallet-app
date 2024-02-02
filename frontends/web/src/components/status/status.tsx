@@ -40,7 +40,7 @@ export const Status = ({
   className,
   children,
 }: TPRops) => {
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(dismissible ? false : true);
 
   const checkConfig = useCallback(async () => {
     if (dismissible) {
@@ -68,6 +68,7 @@ export const Status = ({
   if (hidden || !show) {
     return null;
   }
+
   return (
     <div className={[style.container, style[type], className ? className : '', dismissible ? style.withCloseBtn : ''].join(' ')}>
       <div className={style.status}>

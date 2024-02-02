@@ -3,14 +3,37 @@
     margin-bottom: var(--spacing-default);
 }
 
+.walletHeader {
+    align-items: end;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: var(--space-eight);
+}
+
+.walletTitle {
+    font-size: 20px;
+    font-weight: 400;
+    margin: 0 0 var(--space-quarter) 0;
+}
+
+.walletTitle small {
+    color: var(--color-secondary);
+    font-size: var(--size-default);
+}
+
 .setting {
     align-items: center;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: flex-end;
+    justify-content: space-between;
     min-height: var(--item-height);
-    padding: 10px var(--space-half);
+    padding: var(--space-quarter) 0;
+}
+
+.setting:not(:last-child) {
+    border-bottom: solid 1px var(--background);
 }
 
 .coinLogo {
@@ -21,20 +44,38 @@
 .acccountLink {
     align-items: center;
     display: flex;
-    flex-basis: calc(100% - 180px);
-    flex-grow: 0;
+    flex-basis: 0;
+    flex-grow: 1;
     flex-shrink: 1;
 }
 
 .editBtn {
-    background: transparent;
-    border: none;
-    color: var(--color-primary);
-    flex-basis: content;
-    flex-grow: 1;
-    flex-shrink: 1;
-    line-height: 2;
-    text-align: right;
+    min-width: 0;
+    padding: 0 0 0 var(--space-quarter);
+}
+
+.editBtn img {
+    margin-right: var(--space-quarter);
+    max-width: 18px;
+    height: auto;
+    vertical-align: text-bottom;
+}
+
+.toggleLabel {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.toggleLabelText {
+    color: var(--color-secondary);
+}
+
+.toggleLabelText img {
+    color: var(--color-secondary);
+    margin-right: var(--space-quarter);
+    max-width: 18px;
+    vertical-align: bottom;
 }
 
 .toggle {
@@ -147,12 +188,6 @@
     display: flex;
     justify-content: space-between;
     margin-top: var(--space-half);
-}
-
-.watchOnlyTitle {
-    color: var(--color-secondary);   
-    margin: 0;
-    margin-left: var(--space-quarter);
 }
 
 .watchOnlyNote {

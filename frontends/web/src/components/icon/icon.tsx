@@ -64,6 +64,7 @@ import saveLightSVG from './assets/icons/save-light.svg';
 import starSVG from './assets/icons/star.svg';
 import starInactiveSVG from './assets/icons/star-inactive.svg';
 import selectedCheckLightSVG from './assets/icons/selected-check-light.svg';
+import usbSuccessSVG from './assets/icons/usb-success.svg';
 import style from './icon.module.css';
 
 export const ExpandOpen = () => (
@@ -158,6 +159,7 @@ export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggab
 export const Edit = (props: ImgProps) => (<img src={editSVG} draggable={false} {...props} />);
 export const EditActive = (props: ImgProps) => (<img src={editActiveSVG} draggable={false} {...props} />);
 export const EditLight = (props: ImgProps) => (<img src={editLightSVG} draggable={false} {...props} />);
+export const EditActive = (props: ImgProps) => (<img src={editActiveSVG} draggable={false} {...props} />);
 export const ETHLogo = (props: ImgProps) => (<img src={ethColorSVG} draggable={false} {...props} />);
 export const ExternalLink = (props: ImgProps) => (<img src={externalLink} draggable={false} {...props} />);
 export const EyeClosed = (props: ImgProps) => (<img src={eyeClosedSVG} draggable={false} {...props} />);
@@ -180,6 +182,7 @@ export const SaveLight = (props: ImgProps) => (<img src={saveLightSVG} draggable
 export const Star = (props: ImgProps) => (<img src={starSVG} draggable={false} {...props} />);
 export const StarInactive = (props: ImgProps) => (<img src={starInactiveSVG} draggable={false} {...props} />);
 export const SelectedCheckLight = (props: ImgProps) => (<img src={selectedCheckLightSVG} draggable={false} {...props} />);
+export const USBSuccess = (props: ImgProps) => (<img src={usbSuccessSVG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
  */

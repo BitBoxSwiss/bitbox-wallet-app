@@ -138,11 +138,11 @@
   position: relative;
 }
 
-@media (max-width: 640px){
+@media (max-width: 640px) {
   .chartCanvas {
-    width: 100vw;
-    margin-left: calc(var(--space-half) * -1);
-  } 
+    max-width: 100%;
+    overflow: hidden;
+  }
 }
   
 

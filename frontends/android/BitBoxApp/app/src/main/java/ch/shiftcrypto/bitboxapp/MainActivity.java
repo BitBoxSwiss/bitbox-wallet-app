@@ -52,7 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import goserver.Goserver;
+import mobileserver.Mobileserver;
 
 public class MainActivity extends AppCompatActivity {
     private final int PERMISSIONS_REQUEST_CAMERA_QRCODE = 0;
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
         @JavascriptInterface
         public void call(int queryID, String query) {
-            Goserver.backendCall(queryID, query);
+            Mobileserver.backendCall(queryID, query);
         }
     }
 
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Goserver.usingMobileDataChanged();
+            Mobileserver.usingMobileDataChanged();
          }
     };
 
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                vw.evaluateJavascript("window.onAndroidCallResponse(" + String.valueOf(response.queryID) + ", " + response.response + ");", null);
+                                vw.evaluateJavascript("window.onMobileCallResponse(" + String.valueOf(response.queryID) + ", " + response.response + ");", null);
                             }
                         });
                     }
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                vw.evaluateJavascript("window.onAndroidPushNotification(" + (String)(msg.obj) + ");", null);
+                                vw.evaluateJavascript("window.onMobilePushNotification(" + (String)(msg.obj) + ");", null);
                             }
                         });
                     }
@@ -413,7 +413,7 @@ public class MainActivity extends AppCompatActivity {
                         // Authenticated successfully
                         Util.log("Auth success");
                         goViewModel.closeAuth();
-                        Goserver.authResult(true);
+                        Mobileserver.authResult(true);
                     }
 
                     @Override
@@ -421,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
                         // Failed
                         Util.log("Auth failed");
                         goViewModel.closeAuth();
-                        Goserver.authResult(false);
+                        Mobileserver.authResult(false);
                     }
 
                     @Override
@@ -429,7 +429,7 @@ public class MainActivity extends AppCompatActivity {
                         // Canceled
                         Util.log("Auth canceled");
                         goViewModel.closeAuth();
-                        Goserver.cancelAuth();
+                        Mobileserver.cancelAuth();
                     }
                 });
             }
@@ -460,7 +460,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Util.log("lifecycle: onResume");
-        Goserver.triggerAuth();
+        Mobileserver.triggerAuth();
 
         // This is only called reliably when USB is attached with android:launchMode="singleTop"
 
@@ -519,7 +519,7 @@ public class MainActivity extends AppCompatActivity {
             Uri uri = intent.getData();
             if (uri != null) {
                 if (uri.getScheme().equals("aopp")) {
-                    Goserver.handleURI(uri.toString());
+                    Mobileserver.handleURI(uri.toString());
                 }
             }
         }

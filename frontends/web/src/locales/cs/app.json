@@ -84,6 +84,10 @@
   "app": {
     "upgrade": "K dispozici je nová verze této aplikace! Aktualizuje prosím z {{current}} na {{version}}."
   },
+  "auth": {
+    "authButton": "Ověřit",
+    "title": "Chcete-li pokračovat, proveďte ověření"
+  },
   "backup": {
     "check": {
       "checking": "Kontrola zálohy...",
@@ -137,7 +141,8 @@
     },
     "showMnemonic": {
       "description": "Zobrazí se vám slova pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova.\n",
-      "title": "Zobrazit slova pro obnovení"
+      "title": "Zobrazit slova pro obnovení",
+      "warning": "<strong> Nikdy nikomu nesdělujte svá slova pro obnovení.</strong> Vaše slova pro obnovení poskytují plný přístup k vaší peněžence. Pokud vás někdo žádá o vaše slova pro obnovení, jedná se o podvodníka, nesdílejte je!"
     },
     "title": "Spravovat zálohy"
   },
@@ -466,6 +471,7 @@
   },
   "chart": {
     "dataMissing": "Sbíráme historická data... zůstaňte s námi.",
+    "dataOldTimestamp": "Aktualizace historických směnných kurzů. V grafu se nezobrazují data po {{time}}.",
     "dataUpdating": "aktualizace dat...",
     "filter": {
       "all": "Všechny",
@@ -485,6 +491,10 @@
     "infoWhenPaired": "Nejprve na spárovaném mobilu a poté na vašem BitBoxu"
   },
   "confirmOnDevice": "Potvrďte na svém zařízení.",
+  "connectKeystore": {
+    "promptNoName": "Chcete-li pokračovat, připojte svůj BitBox02",
+    "promptWithName": "Chcete-li pokračovat, připojte prosím svůj BitBox02 s názvem \"{{name}}\" "
+  },
   "darkmode": {
     "toggle": "Tmavý režim"
   },
@@ -604,7 +614,9 @@
     "aoppUnsupportedAsset": "Toto aktivum není podporováno.",
     "aoppUnsupportedFormat": "Nejsou k dispozici žádné účty, které by podporovaly požadovaný formát adresy.",
     "aoppUnsupportedKeystore": "Připojené zařízení nemůže podepisovat zprávy pro toto aktivum.",
-    "aoppVersion": "Neznámá verze."
+    "aoppVersion": "Neznámá verze.",
+    "wrongKeystore": "Byla připojena špatná peněženka. Ujistěte se, že jste vložili správné zařízení odpovídající tomuto účtu.",
+    "wrongKeystore2": " Pokud používáte přístupovou frázi, zkontrolujte, zda jste zadali správnou přístupovou frázi pro tento účet."
   },
   "fiat": {
     "default": "výchozí",
@@ -985,6 +997,20 @@
         "text": "Děkujeme za používání této aplikace vytvořené společností Shift Crypto ve Švýcarsku. Jsme rádi za jakýkoli příspěvek, o který se s námi podělíte. Poskytněte prosím zpětnou vazbu pomocí odkazu v dolní části.",
         "title": "Vítejte v BitBoxApp!"
       }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "text": "Pokud používáte nový telefon/počítač s BitBoxApp, budete se muset k dapps připojit znovu. Poté opět uvidíte své prostředky v dapp jako obvykle.",
+        "title": "Nevidím svá předchozí spojení."
+      },
+      "supportedNetworks": {
+        "text": "V současné době je pomocí WalletConnect v BitBoxApp podporován pouze Ethereum mainnet . Chcete-li používat jiné sítě kompatibilní s EVM, použijte prosím peněženku z rozšíření prohlížeče Rabby.",
+        "title": "Které sítě jsou podporovány?"
+      },
+      "whatIsWalletConnect": {
+        "text": "WalletConnect je komunikační protokol pro aplikace web3. Umožňuje pohodlné připojení k DApps a webovým peněženkám založeným na Ethereu bez použití aplikace třetí strany, což je užitečné zejména pro uživatele BitBoxApp pro Android.",
+        "title": "Co je WalletConnect?"
+      }
     }
   },
   "headerssync": {
@@ -1031,6 +1057,7 @@
   },
   "loading": "načítání…",
   "manageAccounts": {
+    "accountHidden": "Tento účet byl skryt z vašich watch-only účtů. Chcete-li jej znovu zobrazit, připojte prosím svůj BitBox02.",
     "editAccount": "Upravit",
     "editAccountNameTitle": "Upravit název účtu",
     "noAccounts": "nebyly nalezeny žádné účty",
@@ -1039,7 +1066,9 @@
       "showTokens": "Zobrazit tokeny ({{activeTokenCount}})"
     },
     "settingsButtonDescription": "Přidat a zobrazit/skrýt účty",
-    "title": "Spravovat účty"
+    "title": "Spravovat účty",
+    "watchAccount": "Sledovat účet",
+    "watchAccountDescription": "Tento účet je součástí watch-only účtů. Můžete jej skrýt ze svých watch-only účtů pomocí přepínače."
   },
   "mobile": {
     "usingMobileDataWarning": "Využití mobilních dat: tato aplikace může po odemčení účtu stáhnout až několik set megabajtů dat z blockchainu. Abyste se vyhnuli používání mobilních dat, připojte se k Wi-Fi. Po jejím zavření se tato zpráva již nebude zobrazovat."
@@ -1051,6 +1080,10 @@
       }
     },
     "advancedSettings": {
+      "authentication": {
+        "description": "Uzamčení přístupu k aplikaci pomocí zámku obrazovky/otisku prstu.",
+        "title": "Uzamčení obrazovky"
+      },
       "coinControl": {
         "description": "Vyberte, které UTXO jsou součástí transakce, abyste zlepšili soukromí."
       },
@@ -1072,6 +1105,12 @@
       "defaultCurrency": {
         "description": "Vyberte výchozí měnu",
         "title": "Výchozí měna"
+      },
+      "hideAmounts": {
+        "description": "Zobrazuje přepínač pro skrytí zůstatku a částek pro ochranu soukromí při používání aplikace na veřejnosti.",
+        "hideAmounts": "Skrýt částky",
+        "showAmounts": "Zobrazit částky",
+        "title": "Povolit skrytí částek"
       },
       "language": {
         "description": "Jaký jazyk chcete v BitBoxApp používat.",
@@ -1194,7 +1233,7 @@
         "Přístupová fráze představuje další vrstvu zabezpečení nad vaší zálohou.",
         "Zadáním jiné přístupové fráze se vždy vygeneruje jiná peněženka.",
         "K obnovení peněženky potřebujete <strong>přístupovou frázi i zálohu</strong>.",
-        "Pokud zapomenete přístupovou frázi, nebudete mít ke svým prostředkům přístup."
+        "Pokud zapomenete přístupovou frázi, <strong>ztratíte přístup ke svým prostředkům</strong>."
       ]
     },
     "what": {
@@ -1446,8 +1485,6 @@
   },
   "setup": "Nastavení zařízení",
   "sidebar": {
-    "accounts": "Účty",
-    "addAccount": "Přidat účet",
     "buy": "Koupit krypto",
     "device": "Spravovat zařízení",
     "leave": "Odejít",
@@ -1532,12 +1569,51 @@
     "unlocked2": "Po opětovném zapojení vašeho BitBoxu se rozsvítí LED dioda.",
     "unlocked3": "Když se rozsvítí LED dioda, klepněte na dotykové tlačítko"
   },
+  "walletConnect": {
+    "connect": {
+      "button": "Připojit",
+      "dappLabel": "Zadejte URI adresu dapp",
+      "invalidPairingUri": "Neplatné párování uri"
+    },
+    "dashboard": {
+      "allSessions": "Všechny relace",
+      "disclaimer": "Walletconnect je protokol pro připojení k Dapps založeným na Ethereu. Tyto dapps jsou provozovány službami třetích stran, takže se připojujte pouze k dapps, kterým důvěřujete, a vždy se ujistěte, že víte, co podepisujete při provádění transakce.",
+      "newConnection": "Nové připojení",
+      "noConnectedSessions": "V této chvíli nejsou k dapps připojeny žádné účty."
+    },
+    "invalidPairingChain": "Chyba při schvalování párování. Ujistěte se, že používáte jednu z podporovaných sítí: {{chains}}",
+    "pairingRequest": {
+      "approve": "Schválit připojení",
+      "reject": "Odmítnout",
+      "title": "Nový požadavek na připojení od"
+    },
+    "pairingSuccess": "Dapp se úspěšně připojil. Pokračovat můžete na dapp webu",
+    "signingRequest": {
+      "account": "Účet",
+      "chain": "Síť",
+      "dapp": "Dapp",
+      "data": "Data",
+      "dataParsingError": "Nepodařilo se zpracovat data",
+      "decodeError": "Zprávu se nepodařilo dekódova",
+      "method": {
+        "sendTransaction": "Podepište a odešlete transakci",
+        "signMessage": "Podepsat zprávu",
+        "signTransaction": "Podepsat transakci",
+        "signTypedData": "Podepište zadaná data"
+      },
+      "successfullySigned": "Žádost byla úspěšně podepsána",
+      "walletConnectRequest": "Žádost o připojení k WalletConnect"
+    },
+    "useNewUri": "Tento URI již byl použit k pokusu o připojení. Použijte prosím nový URI.",
+    "walletConnect": "WalletConnect"
+  },
   "warning": {
     "receivePairing": "Spárujte BitBox, abyste mohli bezpečně ověřit adresu. Přejděte na \"Spravovat zařízení\" v postranním panelu.",
     "sdcard": "MicroSD kartu mějte uloženou odděleně od BitBoxu, pokud ovšem nechcete spravovat zálohy.",
     "sendPairing": "Spárujte prosím BitBox a bezpečně ověřte údaje o transakci. Přejděte na \"Spravovat zařízení\" v postranním panelu."
   },
   "welcome": {
+    "connect": "Připojte BitBox02",
     "getStarted": "Začněme instalací firmwaru na váš BitBox02.",
     "insertBitBox02": "Pro BitBox02 klepněte na zařízení a pokračujte.",
     "insertDevice": "Připojte své zařízení a začněte",

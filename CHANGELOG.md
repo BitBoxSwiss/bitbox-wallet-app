@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fix build on M-processor Apple machines
 
 ## 4.40.0
 - Add support for watch-only - see your accounts and portfolio without connecting your BitBox02

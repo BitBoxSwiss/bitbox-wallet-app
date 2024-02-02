@@ -18,7 +18,7 @@
 import { useState, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from '../../../utils/route';
-import { IAccount, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '../../../api/account';
+import { AccountCode, IAccount, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '../../../api/account';
 import { getScriptName, isBitcoinBased } from '../utils';
 import { alertUser } from '../../../components/alert/Alert';
 import { CopyableInput } from '../../../components/copy/Copy';
@@ -29,7 +29,7 @@ import style from './info.module.css';
 type TProps = {
     account: IAccount;
     info: TSigningConfiguration;
-    code: string;
+    code: AccountCode;
     signingConfigIndex: number;
     children: ReactNode;
 }

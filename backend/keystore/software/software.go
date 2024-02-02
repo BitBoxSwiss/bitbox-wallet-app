@@ -210,7 +210,7 @@ func (keystore *Keystore) SignTransaction(
 			keystore.log.Error("There needs to be exactly one output being spent per input.")
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
-		address := btcProposedTx.GetAddress(spentOutput.ScriptHashHex())
+		address := btcProposedTx.GetAccountAddress(spentOutput.ScriptHashHex())
 
 		xprv, err := address.Configuration.AbsoluteKeypath().Derive(keystore.master)
 		if err != nil {

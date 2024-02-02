@@ -24,14 +24,15 @@ import { unsubscribe } from '../../../utils/subscriptions';
 import { useMountedRef } from '../../../hooks/mount';
 import { useSDCard } from '../../../hooks/sdcard';
 import { Status } from '../../../components/status/status';
-import { Header } from '../../../components/layout';
+import { GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
+import { View } from '../../../components/view/view';
 import { Chart } from './chart';
 import { SummaryBalance } from './summarybalance';
 import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
-import AppContext from '../../../contexts/AppContext';
+import { AppContext } from '../../../contexts/AppContext';
 import { NodeState, getNodeInfo, subscribeNodeState } from '../../../api/lightning';
 
 type TProps = {
@@ -84,39 +85,35 @@ export function AccountsSummary({ accounts, devices }: TProps) {
     }
   }, [mounted]);
 
-  const onStatusChanged = useCallback(
-    async (code: string) => {
-      if (!mounted.current) {
-        return;
-      }
-      const status = await accountApi.getStatus(code);
-      if (status.disabled || !mounted.current) {
-        return;
-      }
-      if (!status.synced) {
-        return accountApi.init(code);
-      }
-      const balance = await accountApi.getBalance(code);
-      if (!mounted.current) {
-        return;
-      }
-      setBalances((prevBalances) => ({
-        ...prevBalances,
-        [code]: balance
-      }));
-    },
-    [mounted]
-  );
+  const onStatusChanged = useCallback(async (
+    code: accountApi.AccountCode,
+  ) => {
+    if (!mounted.current) {
+      return;
+    }
+    const status = await accountApi.getStatus(code);
+    if (status.disabled || !mounted.current) {
+      return;
+    }
+    if (!status.synced) {
+      return accountApi.init(code);
+    }
+    const balance = await accountApi.getBalance(code);
+    if (!mounted.current) {
+      return;
+    }
+    setBalances((prevBalances) => ({
+      ...prevBalances,
+      [code]: balance
+    }));
+  }, [mounted]);
 
-  const update = useCallback(
-    (code: string) => {
-      if (mounted.current) {
-        onStatusChanged(code);
-        getAccountSummary();
-      }
-    },
-    [getAccountSummary, mounted, onStatusChanged]
-  );
+  const update = useCallback((code: accountApi.AccountCode) => {
+    if (mounted.current) {
+      onStatusChanged(code);
+      getAccountSummary();
+    }
+  }, [getAccountSummary, mounted, onStatusChanged]);
 
   // fetch accounts summary and balance on the first render.
   useEffect(() => {
@@ -163,16 +160,16 @@ export function AccountsSummary({ accounts, devices }: TProps) {
   }, [onLightningNodeStateChange]);
 
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer scrollableContainer">
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <Status hidden={!hasCard} type="warning">
             {t('warning.sdcard')}
           </Status>
           <Header title={<h2>{t('accountSummary.title')}</h2>}>
             <HideAmountsButton />
           </Header>
-          <div className="content padded">
+          <View>
             <Chart
               hideAmounts={hideAmounts}
               data={summaryData}
@@ -189,9 +186,9 @@ export function AccountsSummary({ accounts, devices }: TProps) {
               balances={balances}
               lightningNodeState={nodeState}
             />
-          </div>
-        </div>
-      </div>
+          </View>
+        </Main>
+      </GuidedContent>
       <Guide>
         <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription')} />
         <Entry
@@ -207,6 +204,6 @@ export function AccountsSummary({ accounts, devices }: TProps) {
         />
         <Entry key="trackingModePortfolioChart" entry={t('guide.trackingModePortfolioChart')} />
       </Guide>
-    </div>
+    </GuideWrapper>
   );
 }

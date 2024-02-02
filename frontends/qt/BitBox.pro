@@ -53,8 +53,6 @@ win32 {
 # https://stackoverflow.com/questions/18462420/how-to-specify-mac-platform-in-qmake-qtcreator
 unix:!macx {
     QMAKE_LFLAGS_RPATH=
-    # so libserver.so will be found by linuxdeployqt, once copied into the same folder.
-    QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\''
     QMAKE_LFLAGS += " -pie -Wl,-z,now,-z,relro,-z,noexecstack,-z,defs "
 }
 
