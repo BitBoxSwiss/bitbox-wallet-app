@@ -6,6 +6,6 @@ include ../../android-env.mk.inc
 build-android:
 	GO111MODULE=off ANDROID_HOME=${ANDROID_SDK_ROOT} gomobile bind -x -a -ldflags="-s -w" -target android .
 build-ios:
-	GO111MODULE=off gomobile bind -x -a -ldflags="-s -w" -target iossimulator .
+	GO111MODULE=off gomobile bind -x -a -ldflags="-s -w" -target ios,iossimulator .
 clean:
 	rm -f mobileserver.aar mobileserver-sources.jar

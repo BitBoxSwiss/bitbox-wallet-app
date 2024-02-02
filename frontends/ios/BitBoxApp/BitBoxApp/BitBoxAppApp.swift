@@ -107,18 +107,14 @@ struct BitBoxAppApp: App {
         WindowGroup {
             GridLayout(alignment: .leading) {
                 let goAPI = GoAPI()
-                if let fileURL = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "assets/web/") {
-                    WebView(url: fileURL, setHandlers: goAPI)
-                        .edgesIgnoringSafeArea(.all)
-                        .onAppear {
-                            setupGoAPI(goAPI: goAPI)
-                        }
-                        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-                                MobileserverTriggerAuth()
-                        }
-                } else {
-                    Text("Error: index.html not found.")
-                }
+                WebView(setHandlers: goAPI)
+                    .edgesIgnoringSafeArea(.all)
+                    .onAppear {
+                        setupGoAPI(goAPI: goAPI)
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                            MobileserverTriggerAuth()
+                    }
             }
         }
     }
@@ -132,6 +128,6 @@ struct BitBoxAppApp: App {
         }
         let goEnvironment = GoEnvironment()
        
-        MobileserverServe(appSupportDirectory.absoluteString, goEnvironment, goAPI)
+        MobileserverServe(appSupportDirectory.path, goEnvironment, goAPI)
     }
 }
