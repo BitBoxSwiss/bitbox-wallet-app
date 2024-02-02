@@ -40,9 +40,11 @@ import style from './sidebar.module.css';
 type SidebarProps = {
   deviceIDs: string[];
   accounts: IAccount[];
+  lightningInactive: boolean;
 };
 
-type TGetAccountLinkProps = IAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) };
+type ItemClickProps = { handleSidebarItemClick: (e: React.SyntheticEvent) => void };
+type TGetAccountLinkProps = IAccount & ItemClickProps;
 
 const GetAccountLink = ({
   coinCode,
@@ -51,16 +53,27 @@ const GetAccountLink = ({
   handleSidebarItemClick
 }: TGetAccountLinkProps) => {
   const { pathname } = useLocation();
-  const active = (pathname === `/account/${code}`) || (pathname.startsWith(`/account/${code}/`));
+  const active = pathname === `/account/${code}` || pathname.startsWith(`/account/${code}/`);
   return (
     <div key={code} className={style.sidebarItem}>
-      <Link
-        className={active ? style.sidebarActive : ''}
-        to={`/account/${code}`}
-        onClick={handleSidebarItemClick}
-        title={name}>
+      <Link className={active ? style.sidebarActive : ''} to={`/account/${code}`} onClick={handleSidebarItemClick} title={name}>
         <Logo stacked coinCode={coinCode} alt={name} />
         <span className={style.sidebarLabel}>{name}</span>
+      </Link>
+    </div>
+  );
+};
+
+const GetLightningLink = ({ handleSidebarItemClick }: ItemClickProps) => {
+  const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const active = pathname === '/lightning' || pathname.startsWith('/lightning/');
+  const lightningName = t('lightning.accountLabel');
+  return (
+    <div className={style.sidebarItem}>
+      <Link className={active ? style.sidebarActive : ''} to={'/lightning'} onClick={handleSidebarItemClick} title={lightningName}>
+        <Logo stacked coinCode="lightning" alt={lightningName} />
+        <span className={style.sidebarLabel}>{lightningName}</span>
       </Link>
     </div>
   );
@@ -74,6 +87,7 @@ const eject = (e: React.SyntheticEvent): void => {
 const Sidebar = ({
   deviceIDs,
   accounts,
+  lightningInactive,
 }: SidebarProps) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
@@ -207,6 +221,7 @@ const Sidebar = ({
             { keystore.accounts.map(acc => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={handleSidebarItemClick }/>) }
           </React.Fragment>
         )) }
+        {!lightningInactive && <GetLightningLink handleSidebarItemClick={handleSidebarItemClick} />}
 
         <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (

@@ -24,51 +24,52 @@ import { Skeleton } from '../../../components/skeleton/skeleton';
 import { Badge } from '../../../components/badge/badge';
 import { USBSuccess } from '../../../components/icon';
 import style from './accountssummary.module.css';
+import { NodeState } from '../../../api/lightning';
+import { useEffect, useState } from 'react';
+import { toSat } from '../../../utils/conversion';
 
 function TotalBalance({ total, fiatUnit }: accountApi.TAccountTotalBalance) {
   return (
     <>
       <strong>
-        <Amount amount={total} unit={fiatUnit}/>
-      </strong>
-      {' '}
-      <span className={style.coinUnit}>
-        {fiatUnit}
-      </span>
+        <Amount amount={total} unit={fiatUnit} />
+      </strong>{' '}
+      <span className={style.coinUnit}>{fiatUnit}</span>
     </>
   );
 }
 
 type TProps = {
-  accounts: accountApi.IAccount[],
+  accounts: accountApi.IAccount[];
   connected: boolean;
   keystoreName: string;
-  totalBalancePerCoin?: accountApi.TAccountsBalanceByCoin,
-  totalBalance?: accountApi.TAccountTotalBalance,
-  balances?: Balances,
-  keystoreDisambiguatorName?: string
-}
-
-type TAccountCoinMap = {
-    [code in accountApi.CoinCode]: accountApi.IAccount[];
+  totalBalancePerCoin?: accountApi.TAccountsBalanceByCoin;
+  totalBalance?: accountApi.TAccountTotalBalance;
+  balances?: Balances;
+  keystoreDisambiguatorName?: string;
+  lightningNodeState?: NodeState;
 };
 
-export function SummaryBalance ({
+type TAccountCoinMap = {
+  [code in accountApi.CoinCode]: accountApi.IAccount[];
+};
+
+export function SummaryBalance({
   accounts,
   connected,
   keystoreName,
   totalBalancePerCoin,
   totalBalance,
   balances,
-  keystoreDisambiguatorName
+  keystoreDisambiguatorName,
+  lightningNodeState
 }: TProps) {
   const { t } = useTranslation();
+  const [lightningBalance, setLightningBalance] = useState<accountApi.IBalance>();
 
   const getAccountsPerCoin = () => {
     return accounts.reduce((accountPerCoin, account) => {
-      accountPerCoin[account.coinCode]
-        ? accountPerCoin[account.coinCode].push(account)
-        : accountPerCoin[account.coinCode] = [account];
+      accountPerCoin[account.coinCode] ? accountPerCoin[account.coinCode].push(account) : (accountPerCoin[account.coinCode] = [account]);
       return accountPerCoin;
     }, {} as TAccountCoinMap);
   };
@@ -76,19 +77,34 @@ export function SummaryBalance ({
   const accountsPerCoin = getAccountsPerCoin();
   const coins = Object.keys(accountsPerCoin) as accountApi.CoinCode[];
 
+  useEffect(() => {
+    if (lightningNodeState) {
+      setLightningBalance({
+        hasAvailable: lightningNodeState.channelsBalanceMsat > 0,
+        available: {
+          amount: `${toSat(lightningNodeState.channelsBalanceMsat)}`,
+          unit: 'sat'
+        },
+        hasIncoming: false,
+        incoming: {
+          amount: '0',
+          unit: 'sat'
+        }
+      });
+    }
+  }, [lightningNodeState, lightningNodeState?.channelsBalanceMsat]);
+
   return (
     <div>
       <div className={style.accountName}>
-        <p>{keystoreName} {keystoreDisambiguatorName && `(${keystoreDisambiguatorName})`}</p>
-        {connected ?
-          <Badge
-            icon={props => <USBSuccess {...props} />}
-            type="success"
-          >
+        <p>
+          {keystoreName} {keystoreDisambiguatorName && `(${keystoreDisambiguatorName})`}
+        </p>
+        {connected ? (
+          <Badge icon={(props) => <USBSuccess {...props} />} type="success">
             {t('device.keystoreConnected')}
-          </Badge> :
-          null
-        }
+          </Badge>
+        ) : null}
       </div>
       <div className={style.balanceTable}>
         <table className={style.table}>
@@ -105,9 +121,9 @@ export function SummaryBalance ({
             </tr>
           </thead>
           <tbody>
-            { accounts.length > 0 ? (
-              coins.map(coinCode => {
-                const balanceRows = accountsPerCoin[coinCode].map(account =>
+            {accounts.length > 0 ? (
+              coins.map((coinCode) => {
+                const balanceRows = accountsPerCoin[coinCode].map((account) => (
                   <BalanceRow
                     key={account.code}
                     code={account.code}
@@ -115,7 +131,7 @@ export function SummaryBalance ({
                     coinCode={account.coinCode}
                     balance={balances && balances[account.code]}
                   />
-                );
+                ));
                 if (balanceRows?.length > 1) {
                   const account = accountsPerCoin[coinCode][0];
                   balanceRows.push(
@@ -124,7 +140,8 @@ export function SummaryBalance ({
                       coinCode={account.coinCode}
                       coinName={account.coinName}
                       balance={totalBalancePerCoin && totalBalancePerCoin[coinCode]}
-                    />);
+                    />
+                  );
                 }
                 return balanceRows;
               })
@@ -135,6 +152,7 @@ export function SummaryBalance ({
                 </td>
               </tr>
             )}
+            {lightningNodeState && <BalanceRow key="btc" code="lightning" name="Lightning" coinCode="lightning" balance={lightningBalance} />}
           </tbody>
           <tfoot>
             <tr>
@@ -142,9 +160,7 @@ export function SummaryBalance ({
                 <strong>{t('accountSummary.total')}</strong>
               </th>
               <td colSpan={2}>
-                {totalBalance ? (
-                  <TotalBalance total={totalBalance.total} fiatUnit={totalBalance.fiatUnit}/>
-                ) : (<Skeleton />) }
+                {totalBalance ? <TotalBalance total={totalBalance.total} fiatUnit={totalBalance.fiatUnit} /> : <Skeleton />}
               </td>
             </tr>
           </tfoot>

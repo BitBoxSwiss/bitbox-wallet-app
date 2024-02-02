@@ -244,6 +244,9 @@
     margin-top: var(--space-default);
     padding-bottom: var(--space-half);
 }
+.buttons.reverseRow {
+    flex-direction: row;
+}
 .dialog .buttons {
     padding-left: var(--space-default);
     padding-right: var(--space-default);
@@ -260,6 +263,10 @@
         flex-grow: 0;
         justify-content: flex-end;
         margin-top: var(--space-half);
+    }
+    .buttons.reverseRow {
+        /* reverse row should only have an impact on desktop when it is rendered as row */
+        flex-direction: column;
     }
     .buttons > *:not(:last-child) {
         margin-bottom: var(--space-half);
