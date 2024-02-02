@@ -40,7 +40,7 @@ func TestNewConfig(t *testing.T) {
 
 	accountsJsonBytes, err := os.ReadFile(accountsConfigFilename)
 	require.NoError(t, err)
-	expectedAccountsJsonBytes, err := json.Marshal(newDefaultAccountsonfig())
+	expectedAccountsJsonBytes, err := json.Marshal(newDefaultAccountsConfig())
 	require.NoError(t, err)
 	require.JSONEq(t, string(expectedAccountsJsonBytes), string(accountsJsonBytes))
 
