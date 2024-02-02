@@ -42,6 +42,9 @@ type Arguments struct {
 	// accountsConfigFilename stores the filename of the accounts configuration.
 	accountsConfigFilename string
 
+	// lightningConfigFilename stores the filename of the lightning configuration.
+	lightningConfigFilename string
+
 	// Testing stores whether the application is for testing only.
 	testing bool
 
@@ -93,15 +96,16 @@ func NewArguments(
 		mainDirectoryPath:     mainDirectoryPath,
 		bitbox02DirectoryPath: bitbox02DirectoryPath,
 
-		cacheDirectoryPath:     cacheDirectoryPath,
-		notesDirectoryPath:     notesDirectoryPath,
-		appConfigFilename:      path.Join(mainDirectoryPath, "config.json"),
-		accountsConfigFilename: path.Join(mainDirectoryPath, "accounts.json"),
-		testing:                testing,
-		regtest:                regtest,
-		devservers:             devservers,
-		gapLimits:              gapLimits,
-		log:                    log,
+		cacheDirectoryPath:      cacheDirectoryPath,
+		notesDirectoryPath:      notesDirectoryPath,
+		appConfigFilename:       path.Join(mainDirectoryPath, "config.json"),
+		accountsConfigFilename:  path.Join(mainDirectoryPath, "accounts.json"),
+		lightningConfigFilename: path.Join(mainDirectoryPath, "lightning.json"),
+		testing:                 testing,
+		regtest:                 regtest,
+		devservers:              devservers,
+		gapLimits:               gapLimits,
+		log:                     log,
 	}
 
 	log.Infof("Arguments: %+v", arguments)
@@ -122,6 +126,11 @@ func (arguments *Arguments) AppConfigFilename() string {
 // AccountsConfigFilename returns the path to the accounts config file of the backend.
 func (arguments *Arguments) AccountsConfigFilename() string {
 	return arguments.accountsConfigFilename
+}
+
+// LightningConfigFilename returns the path to the lightning config file of the backend.
+func (arguments *Arguments) LightningConfigFilename() string {
+	return arguments.lightningConfigFilename
 }
 
 // BitBox02DirectoryPath returns the path where BitBox data is stored.

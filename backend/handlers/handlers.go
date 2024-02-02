@@ -47,6 +47,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/exchanges"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/lightning"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -92,6 +93,7 @@ type Backend interface {
 	ReinitializeAccounts()
 	CheckForUpdateIgnoringErrors() *backend.UpdateFile
 	Banners() *banners.Banners
+	Lightning() *lightning.Lightning
 	Environment() backend.Environment
 	ChartData() (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
@@ -250,6 +252,16 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonlyHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChangedHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/config", handlers.getLightningConfigHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/lightning/config", handlers.postLightningConfigHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/activate-node", handlers.postLightningActivateNode).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/deactivate-node", handlers.postLightningDeactivateNode).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/node-info", handlers.getLightningNodeInfo).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/list-payments", handlers.getLightningListPayments).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/open-channel-fee", handlers.getLightningOpenChannelFee).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/parse-input", handlers.getLightningParseInput).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/receive-payment", handlers.postLightningReceivePayment).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/send-payment", handlers.postLightningSendPayment).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -1399,4 +1411,48 @@ func (handlers *Handlers) postOnAuthSettingChangedHandler(r *http.Request) inter
 	handlers.backend.Environment().OnAuthSettingChanged(
 		handlers.backend.Config().AppConfig().Backend.Authentication)
 	return nil
+}
+
+func (handlers *Handlers) getLightningConfigHandler(_ *http.Request) interface{} {
+	return handlers.backend.Config().LightningConfig()
+}
+
+func (handlers *Handlers) postLightningConfigHandler(r *http.Request) (interface{}, error) {
+	lightningConfig := config.LightningConfig{}
+	if err := json.NewDecoder(r.Body).Decode(&lightningConfig); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return nil, handlers.backend.Config().SetLightningConfig(lightningConfig)
+}
+
+func (handlers *Handlers) postLightningActivateNode(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostLightningActivateNode(r)
+}
+
+func (handlers *Handlers) postLightningDeactivateNode(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostLightningDeactivateNode(r)
+}
+
+func (handlers *Handlers) getLightningNodeInfo(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetNodeInfo(r)
+}
+
+func (handlers *Handlers) getLightningListPayments(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetListPayments(r)
+}
+
+func (handlers *Handlers) getLightningOpenChannelFee(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetOpenChannelFee(r)
+}
+
+func (handlers *Handlers) getLightningParseInput(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetParseInput(r)
+}
+
+func (handlers *Handlers) postLightningReceivePayment(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostReceivePayment(r)
+}
+
+func (handlers *Handlers) postLightningSendPayment(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostSendPayment(r)
 }
