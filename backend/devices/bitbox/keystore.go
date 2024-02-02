@@ -72,6 +72,16 @@ func (keystore *keystore) RootFingerprint() ([]byte, error) {
 	return fingerprint, nil
 }
 
+// DeterministicEntropy implements keystore.Keystore.
+func (keystore *keystore) DeterministicEntropy() ([]byte, error) {
+	return nil, errp.New("unsupported")
+}
+
+// SupportsDeterministicEntropy implements keystore.Keystore.
+func (keystore *keystore) SupportsDeterministicEntropy() bool {
+	return false
+}
+
 // SupportsCoin implements keystore.Keystore.
 func (keystore *keystore) SupportsCoin(coin coin.Coin) bool {
 	switch coin.(type) {

@@ -55,6 +55,7 @@ type BitBox02 interface {
 	Product() bitbox02common.Product
 	GotoStartupSettings() error
 	RootFingerprint() ([]byte, error)
+	DeterministicEntropy() ([]byte, error)
 	BIP85() error
 }
 
