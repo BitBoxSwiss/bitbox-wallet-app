@@ -399,7 +399,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 
 func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
 	err := handlers.account.SendTx()
-	if errp.Cause(err) == keystore.ErrSigningAborted {
+	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return map[string]interface{}{"success": false, "aborted": true}, nil
 	}
 	if err != nil {
@@ -624,7 +624,7 @@ func (handlers *Handlers) postEthSignMsg(r *http.Request) (interface{}, error) {
 		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
 	}
 	signature, err := ethAccount.SignMsg(signInput)
-	if errp.Cause(err) == keystore.ErrSigningAborted {
+	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return signingResponse{Success: false, Aborted: true}, nil
 	}
 	if err != nil {
@@ -651,7 +651,7 @@ func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, err
 		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
 	}
 	signature, err := ethAccount.SignTypedMsg(args.ChainId, args.Data)
-	if errp.Cause(err) == keystore.ErrSigningAborted {
+	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return signingResponse{Success: false, Aborted: true}, nil
 	}
 	if err != nil {
@@ -687,7 +687,7 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
 	}
 	txHash, rawTx, err := ethAccount.EthSignWalletConnectTx(args.Send, args.ChainId, args.Tx)
-	if errp.Cause(err) == keystore.ErrSigningAborted {
+	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return signingResponse{Success: false, Aborted: true}, nil
 	}
 	if err != nil {
