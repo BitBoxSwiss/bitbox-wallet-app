@@ -218,23 +218,41 @@ export function Account({
     return null;
   }
 
-  const canSend = balance && balance.hasAvailable;
-
-  const initializingSpinnerText =
-    (syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
-      '\n' + t('account.syncedAddressesCount', {
-        count: syncedAddressesCount.toString(),
-        defaultValue: 0,
-      } as any)
-    ) : '';
-
-  const offlineErrorTextLines: string[] = [];
+  if (status.fatalError) {
+    return (
+      <Spinner guideExists text={t('account.fatalError')} />
+    );
+  }
   if (status.offlineError !== null) {
+    const offlineErrorTextLines: string[] = [];
     offlineErrorTextLines.push(t('account.reconnecting'));
     offlineErrorTextLines.push(status.offlineError);
     if (usesProxy) {
       offlineErrorTextLines.push(t('account.maybeProxyError'));
     }
+    return (
+      <Spinner guideExists text={offlineErrorTextLines.join('\n')} />
+    );
+  }
+  if (!status.synced) {
+    const text =
+      (syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
+        '\n' + t('account.syncedAddressesCount', {
+          count: syncedAddressesCount.toString(),
+          defaultValue: 0,
+        } as any)
+      ) : '';
+
+    return (
+      <Spinner guideExists text={
+        t('account.initializing') + text
+      } />
+    );
+  }
+  if (!hasDataLoaded) {
+    return (
+      <Spinner guideExists text={''} />
+    );
   }
 
   const exchangeBuySupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
@@ -250,7 +268,7 @@ export function Account({
   const actionButtonsProps = {
     code,
     coinCode: account.coinCode,
-    canSend,
+    canSend: balance && balance.hasAvailable,
     exchangeBuySupported,
     account
   };
@@ -303,26 +321,12 @@ export function Account({
                 balanceList={[balance]}
               />
             )}
-            { !status.synced || offlineErrorTextLines.length || !hasDataLoaded || status.fatalError ? (
-              <Spinner guideExists text={
-                (status.fatalError && t('account.fatalError'))
-                  || offlineErrorTextLines.join('\n')
-                  || (!status.synced &&
-                      t('account.initializing')
-                      + initializingSpinnerText
-                  )
-                  || ''
-              } />
-            ) : (
-              <>
-                {!isAccountEmpty && <Transactions
-                  accountCode={code}
-                  handleExport={exportAccount}
-                  explorerURL={account.blockExplorerTxPrefix}
-                  transactions={transactions}
-                /> }
-              </>
-            ) }
+            {!isAccountEmpty && <Transactions
+              accountCode={code}
+              handleExport={exportAccount}
+              explorerURL={account.blockExplorerTxPrefix}
+              transactions={transactions}
+            /> }
           </div>
         </div>
       </div>
