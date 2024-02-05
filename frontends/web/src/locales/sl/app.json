@@ -11,7 +11,8 @@
     "maybeProxyError": "Tor proxy omogočen. Prepričajte se, da Tor proxy deluje pravilno, ali onemogočite proxy.",
     "reconnecting": "Povezava je prekinjena, poizkušam s ponovno vzpostavitvijo...",
     "syncedAddressesCount": "Prešteto št. naslovov: {{count}}",
-    "uncoveredFundsLink": "Sledite temu navodilu, kako premakniti vaše kovance.",
+    "uncoveredFunds": "Kovance imate na naslednjih nezavarovanih vrstah naslovov vašega računa <strong>{{name}}</strong>: {{uncovered}}. \nKer je račun zavarovan, so zajeti samo kovanci, prejeti preko naslova <strong>Native Segwit</strong>. Kovanci na ostalih vrstah naslovov, tudi če so na istem računu, niso zavarovani.\nPredlagamo, da premaknete vse kovance z nepodprtih tipov naslova na <strong>Native Segwit</strong> naslov, da bodo vsi kovanci na tem računu zavarovani. Hvala!",
+    "uncoveredFundsLink": "Za premik kovancev sledite temu navodilu.",
     "warning": "Opozorilo!"
   },
   "accountInfo": {
@@ -263,7 +264,12 @@
       "unlock": "Vnesite izbrano geslo, kot ponazarja video"
     },
     "stepCreate": {
-      "description": "To ime je uporabljeno kot ime naprave in ime varnostne kopije.",
+      "description": "To bo ime naprave in varnostne kopije.",
+      "error": {
+        "genericMessage": "Uporabite črke, številke, osnovne simbole, presledke. Največ 30 znakov.",
+        "invalidChars": "Ime vsebuje nepodprte znake: {{invalidChars}}.",
+        "tooLong": "Ime je predolgo."
+      },
       "nameLabel": "Vnesite željeno ime naprave",
       "namePlaceholder": "Moj BitBox02",
       "title": "Izberite ime za vaš BitBox02",
@@ -317,10 +323,26 @@
     },
     "insure": {
       "button": "Preverite cene in razpoložljivost",
-      "faq": "Preberite več na Bitsurance FAQ"
+      "faq": "Preberite več na Bitsurance FAQ",
+      "listItem1": "Vlom",
+      "listItem2": "Izsiljevanje (npr. napad z nevarnim predmetom)",
+      "listItem3": "Uničenje zaradi požara, vode ali naravnih nesreč",
+      "month": "mesec",
+      "text": "Zavarujte svoj BitBox02 in bitcoin v protivrednosti do 100.000 €",
+      "text2": "Zavarovanja že od 30 € na leto (2,50 € na mesec). Več o zavarovalnici Bitsurance in njihovi natančni ponudbi zavarovanj preverite na ",
+      "text3": "Trenutno na voljo v Nemčiji, kmalu pa bo tudi drugje.",
+      "title": "Začnite"
+    },
+    "intro": {
+      "link": "Spletna stran Bitsurance",
+      "text1": "BitBox sodeluje z družbo Bitsurance, da vam lahko ponudimo dodatno zaščito za vaš bitcoin. Medtem ko BitBox02 varuje vaša sredstva, Bitsurance krije grožnje na domu, ki jih ni mogoče ublažiti samo s tehnologijo, kot so vlom, izsiljevanje ali uničenje same strojne denarnice."
     },
     "terms": {
+      "link": "Politika zasebnosti Bitsurance",
+      "text1": "Bitsurance je neodvisna storitev od BitBoxa. Za vprašanja v zvezi z njihovo ponudbo in zavarovalnimi zahtevki se vedno obrnite neposredno na Bitsurance.",
+      "text2": "Zavarovanje je trenutno na voljo le v Nemčiji, v drugih državah pa bo na voljo kasneje.",
       "text3": "Najvišje trenutno razpoložljivo kritje Bitcoina je 100.000 € na osebo. Višji zneski bodo morda na voljo kasneje.",
+      "text4": "Osebni podatki in razširjeni javni ključ vašega zavarovanega računa so del zavarovalne police in bodo posredovani zavarovalnici Bitsurance in ponudniku zavarovanja.",
       "text5": "Za več informacij o zasebnosti se obrnite na"
     },
     "title": "Zavarovanje"
@@ -656,6 +678,7 @@
     "aoppUnsupportedFormat": "Na voljo ni računov, ki podpirajo zahtevano obliko naslova.",
     "aoppUnsupportedKeystore": "Povezana naprava ne more podpisati sporočil za to sredstvo",
     "aoppVersion": "Neznana različica",
+    "keystoreTimeout": "Čas za vklop se je iztekel. Poizkusite ponovno.",
     "wrongKeystore": "Priključena je napačna denarnica. Vstavite pravo napravo BitBox02, ki ustreza temu računu.",
     "wrongKeystore2": "Če uporabljate frazemsko geslo (passphrase), se prepričajte, da ste ga pravilno vnesli za ta račun."
   },
@@ -870,11 +893,38 @@
       }
     },
     "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "Za več podrobnosti si oglejte spletno mesto Bitsurance in odgovore na pogosto zastavljena vprašanja (FAQ).",
+        "title": "Imate dodatna vprašanja?"
+      },
+      "privacy": {
+        "link": {
+          "text": "Politika zasebnosti Bitsurance"
+        },
+        "text": "Kot vsaka običajna zavarovalna polica, tudi ta vsebuje vaše polno ime, naslov prebivališča ter opredeljuje predmet zavarovanja (ta je opredeljen z razširjenim javnim ključem zavarovanca). Ti podatki so posredovani neposredno zavarovalnici Bitsurance in se ne delijo s podjejem Shift Crypto (in storitvijo BitBox). Za več informacij si oglejte pravilnik o zasebnosti zavarovalnice Bitsurance.",
+        "title": "Kateri osebni podatki so potrebni za zavarovanje?"
+      },
+      "renew": {
+        "text": "Zavarovanje se samodejno podaljša za naslednje leto. Podaljšanje lahko kadar koli prekličete s klikom na \"Upravljanje pogodbe\" v aplikaciji BitBoxApp, ki vas pripelje na portal za stranke Bitsurance.",
+        "title": "Kako lahko obnovim ali prekinem zavarovanje?"
+      },
+      "status": {
+        "text": "Uspešno zavarovani računi so označeni z zeleno oznako \"zavarovano\" v zgornjem levem kotu na strani vsakega Bitcoin računa. V razdelku \"Zavarovanje\" si lahko ogledate pregled vseh Bitcoin zavarovanih računov in njihovo trenutno stanje zavarovanja.",
+        "title": "Ali lahko preverim stanje zavarovanega računa?"
+      },
+      "what": {
+        "text": "Vsaka zavarovalna polica za Bitcoin krije določen račun v denarnici. Več računov lahko zavarujete tako, da sklenete več zavarovalnih polic. Zavarovani so le Bitcoini na tipu naslova \"Native Segwit\" v posameznih zavarovanih računih.",
+        "title": "Ali so zaščiteni vsi Bitcoini v denarnici?"
+      },
       "who": {
         "text": "Zavarovanje ponuja Bitsurance, zavarovalni posrednik, ki so ga zgradili bitcoinerji. Sodelujejo z zavarovalno hišo ELEMENT ki zagotavlja zavarovanja za Bitcoin. Obe podjetji imata sedež v Nemčiji.",
         "title": "Kdo zavaruje moj Bitcoin?"
       },
       "why": {
+        "text": "Zavarovanje Bitsurance krije nekatera tveganja samo-hrambe, pred katerimi ni varna nobena strojna denarnica (naprava), kot npr. vlom, izsiljevanje ali uničenje denarnice. Ali potrebujete zavarovalno kritje za ta tveganja ali ne, je izključno vaša osebna odločitev.",
         "title": "Ali potrebujem zavarovanje za Bitcoin?"
       }
     },
@@ -1161,6 +1211,7 @@
         "title": "Privzeta valuta"
       },
       "enableAccount": {
+        "description": "Če onemogočite posamezen račun, ne bo prikazan v stranski vrstici ali portfelju. Od tu ga lahko vedno znova omogočite. \nTo ne bo vplivalo na kovance v tem računu. Ostajajo na varnem, le prikazani ne bodo.",
         "title": "Omogoči/ onemogoči račun"
       },
       "hideAmounts": {
