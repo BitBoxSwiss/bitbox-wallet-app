@@ -2,3 +2,19 @@
 .wizardLabel label {
   font-size: var(--size-wizard-text) !important;
 }
+
+.inputError input,
+.inputError input:focus {
+  border-color: var(--color-danger);
+}
+
+.errorMessage {
+  color: var(--color-danger);
+  display: block;
+  font-size: var(--size-medium);
+  padding-top: var(--space-quarter);
+}
+
+.errorMessage[hidden] {
+  display: none;
+}

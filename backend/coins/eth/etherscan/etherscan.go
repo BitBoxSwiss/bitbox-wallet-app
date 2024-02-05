@@ -35,7 +35,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
 )
 
 // CallInterval is the duration between etherscan requests.
@@ -537,7 +536,7 @@ func (etherScan *EtherScan) PendingNonceAt(ctx context.Context, account common.A
 
 // SendTransaction implements rpc.Interface.
 func (etherScan *EtherScan) SendTransaction(ctx context.Context, tx *types.Transaction) error {
-	encodedTx, err := rlp.EncodeToBytes(tx)
+	encodedTx, err := tx.MarshalBinary() // canonical RLP encoding, works for legacy and EIP-1559 txs
 	if err != nil {
 		return errp.WithStack(err)
 	}
@@ -562,4 +561,76 @@ func (etherScan *EtherScan) SuggestGasPrice(ctx context.Context) (*big.Int, erro
 // SuggestGasTipCap implements rpc.Interface.
 func (etherScan *EtherScan) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
 	return nil, errp.New("not implemented")
+}
+
+// FeeTargets returns three priorities with fee targets estimated by Etherscan
+// https://docs.etherscan.io/api-endpoints/gas-tracker#get-gas-oracle
+// FeeTargets implements rpc.Interface.
+// Note: This is not a true RPC but a custom Etherscan API call which implements their own fee estimation.
+func (etherScan *EtherScan) FeeTargets(ctx context.Context) ([]*ethtypes.FeeTarget, error) {
+	// TODO: Use timeout.
+	var result struct {
+		// Values are in Gwei*10
+		Result struct {
+			High    string `json:"FastGasPrice"`
+			Normal  string `json:"ProposeGasPrice"`
+			Low     string `json:"SafeGasPrice"`
+			BaseFee string `json:"suggestBaseFee"`
+		} `json:"result"`
+	}
+	params := url.Values{}
+	params.Set("module", "gastracker")
+	params.Set("action", "gasoracle")
+	if err := etherScan.call(params, &result); err != nil {
+		return nil, err
+	}
+	// Convert string fields to int64
+	high, err := strconv.ParseInt(result.Result.High, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	normal, err := strconv.ParseInt(result.Result.Normal, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	low, err := strconv.ParseInt(result.Result.Low, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	baseFee, err := strconv.ParseFloat(result.Result.BaseFee, 64)
+	if err != nil {
+		return nil, err
+	}
+	// Conversion from Gwei to Wei.
+	factor := big.NewInt(1e9)
+
+	baseFeeWei := new(big.Int).Mul(big.NewInt(int64(baseFee)), factor)
+	highFeeCap := new(big.Int).Mul(big.NewInt(high), factor)
+	normalFeeCap := new(big.Int).Mul(big.NewInt(normal), factor)
+	lowFeeCap := new(big.Int).Mul(big.NewInt(low), factor)
+
+	if baseFeeWei.Cmp(highFeeCap) >= 0 || baseFeeWei.Cmp(normalFeeCap) >= 0 || baseFeeWei.Cmp(lowFeeCap) >= 0 {
+		return nil, errp.New("baseFeeWei must be smaller than GasFeeCap")
+	}
+
+	return []*ethtypes.FeeTarget{
+		{
+			TargetCode: accounts.FeeTargetCodeHigh,
+			GasFeeCap:  highFeeCap,
+			GasTipCap:  new(big.Int).Sub(highFeeCap, baseFeeWei),
+		},
+		{
+			TargetCode: accounts.FeeTargetCodeNormal,
+			GasFeeCap:  normalFeeCap,
+			GasTipCap:  new(big.Int).Sub(normalFeeCap, baseFeeWei),
+		},
+		{
+			TargetCode: accounts.FeeTargetCodeLow,
+			GasFeeCap:  lowFeeCap,
+			GasTipCap:  new(big.Int).Sub(lowFeeCap, baseFeeWei),
+		},
+	}, nil
 }

@@ -100,6 +100,12 @@ export type TAccountsByKeystore = {
   accounts: IAccount[];
 };
 
+export const sortAccounts = (accounts: IAccount[]): IAccount[] => {
+  return Array.from(accounts).sort((ac1, ac2) => {
+    return `${ac1.keystore.rootFingerprint}${ac1.code}`.localeCompare(`${ac2.keystore.rootFingerprint}${ac2.code}`);
+  });
+};
+
 // Returns the accounts grouped by the keystore fingerprint.
 export function getAccountsByKeystore(accounts: IAccount[]): TAccountsByKeystore[] {
   return Object.values(accounts.reduce((acc, account) => {
@@ -112,13 +118,7 @@ export function getAccountsByKeystore(accounts: IAccount[]): TAccountsByKeystore
     }
     acc[key].accounts.push(account);
     return acc;
-  }, {} as Record<string, TAccountsByKeystore>))
-    // sort the output array as we noticed that somehow the input accounts
-    // list seems to be possibly ordered differently in different places
-    // in the code (e.g. sidebar vs manage account page)
-    .sort((ac1, ac2) => {
-      return ac1.keystore.name.localeCompare(ac2.keystore.name);
-    });
+  }, {} as Record<string, TAccountsByKeystore>));
 }
 
 // Returns true if more than one keystore has the given name.

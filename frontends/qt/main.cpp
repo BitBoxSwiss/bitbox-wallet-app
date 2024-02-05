@@ -123,7 +123,8 @@ public:
         // widgets to load in an iframe as well as let them open external links
         // in a browser.
         bool onBuyPage = currentUrl.contains(QRegularExpression("^qrc:/buy/.*$"));
-        if (onBuyPage) {
+        bool onBitsurancePage = currentUrl.contains(QRegularExpression("^qrc:/bitsurance/.*$"));
+        if (onBuyPage || onBitsurancePage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
                 // A link with target=_blank was clicked.
                 systemOpen(info.requestUrl().toString().toLocal8Bit().constData());

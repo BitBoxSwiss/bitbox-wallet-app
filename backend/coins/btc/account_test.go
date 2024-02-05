@@ -16,6 +16,7 @@
 package btc_test
 
 import (
+	"crypto/sha256"
 	"math/big"
 	"os"
 	"testing"
@@ -95,4 +96,100 @@ func TestAccount(t *testing.T) {
 	require.Equal(t, accounts.OrderedTransactions{}, transactions)
 
 	require.Equal(t, []*btc.SpendableOutput{}, account.SpendableOutputs())
+}
+
+func TestInsuredAccountAddresses(t *testing.T) {
+	code := coin.CodeTBTC
+	unit := "TBTC"
+	net := &chaincfg.TestNet3Params
+
+	dbFolder := test.TstTempDir("btc-dbfolder")
+	defer func() { _ = os.RemoveAll(dbFolder) }()
+
+	coin := btc.NewCoin(
+		code, "Bitcoin Testnet", unit, coin.BtcUnitDefault, net, dbFolder, nil, explorer, socksproxy.NewSocksProxy(false, ""))
+
+	blockchainMock := &blockchainMock.BlockchainMock{}
+	blockchainMock.MockRegisterOnConnectionErrorChangedEvent = func(f func(error)) {}
+
+	coin.TstSetMakeBlockchain(func() blockchain.Interface { return blockchainMock })
+
+	wrapSegKeypath, err := signing.NewAbsoluteKeypath("m/49'/1'/0'")
+	require.NoError(t, err)
+	wrappedSeed := sha256.Sum256([]byte("wrapped"))
+	wrapSegXpub, err := hdkeychain.NewMaster(wrappedSeed[:], net)
+	require.NoError(t, err)
+	wrapSegXpub, err = wrapSegXpub.Neuter()
+	require.NoError(t, err)
+
+	natSegKeypath, err := signing.NewAbsoluteKeypath("m/84'/1'/0'")
+	require.NoError(t, err)
+	natSegSeed := sha256.Sum256([]byte("native"))
+	natSegXpub, err := hdkeychain.NewMaster(natSegSeed[:], net)
+	require.NoError(t, err)
+	natSegXpub, err = natSegXpub.Neuter()
+	require.NoError(t, err)
+
+	signingConfigurations := signing.Configurations{
+		signing.NewBitcoinConfiguration(
+			signing.ScriptTypeP2WPKHP2SH,
+			[]byte{1, 2, 3, 4},
+			wrapSegKeypath,
+			wrapSegXpub),
+		signing.NewBitcoinConfiguration(
+			signing.ScriptTypeP2WPKH,
+			[]byte{1, 2, 3, 4},
+			natSegKeypath,
+			natSegXpub),
+	}
+
+	account := btc.NewAccount(
+		&accounts.AccountConfig{
+			Config: &config.Account{
+				Code:                  "accountcode",
+				Name:                  "accountname",
+				SigningConfigurations: signingConfigurations,
+			},
+			DBFolder:        dbFolder,
+			OnEvent:         func(accountsTypes.Event) {},
+			RateUpdater:     nil,
+			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
+			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
+		},
+		coin, nil,
+		logging.Get().WithGroup("account_test"),
+	)
+	require.NoError(t, account.Initialize())
+
+	// check the number of available addresses for native and wrapped segwit.
+	require.Equal(t, len(account.GetUnusedReceiveAddresses()[0].Addresses), 20)
+	require.Equal(t, *account.GetUnusedReceiveAddresses()[0].ScriptType, signing.ScriptTypeP2WPKHP2SH)
+	require.Equal(t, len(account.GetUnusedReceiveAddresses()[1].Addresses), 20)
+	require.Equal(t, *account.GetUnusedReceiveAddresses()[1].ScriptType, signing.ScriptTypeP2WPKH)
+
+	// Create a new insured account.
+	account2 := btc.NewAccount(
+		&accounts.AccountConfig{
+			Config: &config.Account{
+				Code:                  "accountcode2",
+				Name:                  "accountname2",
+				SigningConfigurations: signingConfigurations,
+				InsuranceStatus:       "active",
+			},
+			DBFolder:        dbFolder,
+			OnEvent:         func(accountsTypes.Event) {},
+			RateUpdater:     nil,
+			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
+			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
+		},
+		coin, nil,
+		logging.Get().WithGroup("account_test"),
+	)
+	require.NoError(t, account2.Initialize())
+
+	// native segwit is the only address type available.
+	require.Equal(t, len(account2.GetUnusedReceiveAddresses()), 1)
+	require.Equal(t, len(account2.GetUnusedReceiveAddresses()[0].Addresses), 20)
+	require.Equal(t, *account2.GetUnusedReceiveAddresses()[0].ScriptType, signing.ScriptTypeP2WPKH)
+
 }

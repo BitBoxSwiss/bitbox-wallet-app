@@ -22,6 +22,7 @@ import { TKeystores, subscribeKeystores, getKeystores } from '../../api/keystore
 import { IAccount } from '../../api/account';
 import coins from '../../assets/icons/coins.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
+import shieldIcon from '../../assets/icons/shield_grey.svg';
 import info from '../../assets/icons/info.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
@@ -52,7 +53,7 @@ const GetAccountLink = ({
   const { pathname } = useLocation();
   const active = (pathname === `/account/${code}`) || (pathname.startsWith(`/account/${code}/`));
   return (
-    <div key={code} className={style.sidebarItem}>
+    <div className={style.sidebarItem}>
       <Link
         className={active ? style.sidebarActive : ''}
         to={`/account/${code}`}
@@ -153,9 +154,9 @@ const Sidebar = ({
 
   return (
     <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>
-      <div className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
+      <div key="overlay" className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
       <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')}>
-        <div className={style.sidebarLogoContainer}>
+        <div key="app-logo" className={style.sidebarLogoContainer}>
           <Link
             to={accounts.length ? '/account-summary' : '/'}
             onClick={handleSidebarItemClick}>
@@ -167,7 +168,7 @@ const Sidebar = ({
         </div>
 
         { accounts.length ? (
-          <div className={`${style.sidebarItem} ${style.sidebarPortfolio}`}>
+          <div key="account-summary" className={`${style.sidebarItem} ${style.sidebarPortfolio}`}>
             <NavLink
               className={({ isActive }) => isActive ? style.sidebarActive : ''}
               to={'/account-summary'}
@@ -182,7 +183,7 @@ const Sidebar = ({
         ) : null }
 
         { accountsByKeystore.map(keystore => (
-          <React.Fragment key={keystore.keystore.rootFingerprint}>
+          <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
             <div className={style.sidebarHeaderContainer}>
               <span
                 className={style.sidebarHeader}
@@ -203,27 +204,42 @@ const Sidebar = ({
                   title={t('device.keystoreConnected')} />
               </span>
             </div>
-            { keystore.accounts.map(acc => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={handleSidebarItemClick }/>) }
-          </React.Fragment>
+            { keystore.accounts.map(acc => (
+              <GetAccountLink key={`account-${acc.code}`} {...acc} handleSidebarItemClick={handleSidebarItemClick} />
+            ))}
+          </div>
         )) }
 
-        <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
+        <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (
-          <div key="buy" className={style.sidebarItem}>
-            <NavLink
-              className={({ isActive }) => isActive || userInSpecificAccountBuyPage ? style.sidebarActive : ''}
-              to="/buy/info">
-              <div className={style.single}>
-                <img draggable={false} src={coins} />
-              </div>
-              <span className={style.sidebarLabel}>
-                {hasOnlyBTCAccounts ? t('accountInfo.buyCTA.buy', { unit: 'Bitcoin' }) : t('sidebar.buy')}
-              </span>
-            </NavLink>
-          </div>
+          <>
+            <div key="buy" className={style.sidebarItem}>
+              <NavLink
+                className={({ isActive }) => isActive || userInSpecificAccountBuyPage ? style.sidebarActive : ''}
+                to="/buy/info">
+                <div className={style.single}>
+                  <img draggable={false} src={coins} alt={t('sidebar.exchanges')}/>
+                </div>
+                <span className={style.sidebarLabel}>
+                  {hasOnlyBTCAccounts ? t('accountInfo.buyCTA.buy', { unit: 'Bitcoin' }) : t('sidebar.buy')}
+                </span>
+              </NavLink>
+            </div>
+            <div key="insurance" className={style.sidebarItem}>
+              <NavLink
+                className={({ isActive }) => isActive ? style.sidebarActive : ''}
+                to="/bitsurance/bitsurance"
+              >
+                <div className={style.single}>
+                  <img draggable={false} src={shieldIcon} alt={t('sidebar.insurance')} />
+                </div>
+                <span className={style.sidebarLabel}>{t('sidebar.insurance')}</span>
+              </NavLink>
+            </div>
+          </>
         ) : null }
 
-        <div key="settings-new" className={style.sidebarItem}>
+        <div key="settings" className={style.sidebarItem}>
           <NavLink
             className={({ isActive }) => isActive ? style.sidebarActive : ''}
             to={'/settings'}

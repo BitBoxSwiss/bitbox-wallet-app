@@ -1111,10 +1111,6 @@
         "description": "Selecciona tu moneda predeterminada",
         "title": "Moneda predeterminada"
       },
-      "enableWallet": {
-        "description": "Deshabilitar tu cuenta significa que no aparecerá en la barra lateral ni en la billetera. Siempre puedes volver a activarla desde aquí. Las monedas de esta cuenta no se verán afectadas y permanecerán seguras.",
-        "title": "Activar/desactivar billetera"
-      },
       "hideAmounts": {
         "description": "Muestra un conmutador para ocultar tu saldo y los importes para mejorar tu privacidad cuando utilices la aplicación en público.",
         "hideAmounts": "Ocultar importes",

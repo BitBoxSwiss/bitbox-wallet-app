@@ -6,9 +6,14 @@
     "fatalError": "Terdapat kesilapan yang tidak dijangka.",
     "incoming": "Masuk",
     "initializing": "Mendapatkan maklumat dari blockchain ...",
+    "insuranceExpired": "<strong>Akaun tidak lagi diinsuranskan</strong>\n\nPelan insurans untuk akaun ini telah diubah suai.\nSila semak halaman insurans untuk butiran.",
+    "insured": "Akaun yang diinsuranskan",
     "maybeProxyError": "Proksi Tor diaktifkan. Pastikan proksi Tor anda berfungsi dengan baik atau matikan tetapan proksi.",
     "reconnecting": "Sambungan hilang, mencuba menyambung kembali...",
-    "syncedAddressesCount": "{{count}} alamat telah diimbas"
+    "syncedAddressesCount": "{{count}} alamat telah diimbas",
+    "uncoveredFunds": "Anda mempunyai syiling pada alamat yang tidak diinsuranskan. Nama alamat: <strong>{{name}}</strong>, akaun yang tidak diinsuranskan: {{uncovered}}.\nKarena akaun itu diinsuranskan, hanya syiling diterima melalui <strong>Segwit asli (Native Segwit)</strong> adalah jenis alamat yang diinsuranskan. Syiling pada jenis alamat yang berbeza, walaupun ia berada pada akaun yang sama, tidak diinsuranskan.\nSila alihkan semua syiling anda daripada jenis alamat yang tidak disokong kepada jenis alamat <strong>Segwit asl (Native Segwit)i</strong>, jadi semua syiling anda pada akaun ini diinsuranskan.",
+    "uncoveredFundsLink": "Ikuti panduan ini tentang cara mengalihkan syiling anda.",
+    "warning": "Amaran!\n"
   },
   "accountInfo": {
     "address": "Alamat",
@@ -63,12 +68,12 @@
       "step": "Selesai",
       "title": "Akaun ditambahkan"
     },
-    "title": "Tambah Akaun"
+    "title": "Tambah akaun"
   },
   "aopp": {
     "addressRequest": "{{host}} sedang meminta alamat penerimaan.",
     "addressRequestWithLogo": "sedang meminta alamat penerima",
-    "banner": "Permintaan alamat dalam proses.",
+    "banner": "Permintaan alamat sedang dijalankan. Sila sambungkan peranti anda untuk meneruskan.",
     "errorTitle": "Ralat semasa permintaan alamat",
     "labelAddress": "Alamat",
     "labelMessage": "Mesej",
@@ -291,6 +296,58 @@
       "title": "Anda sudah bersedia untuk pergi!"
     }
   },
+  "bitsurance": {
+    "dashboard": {
+      "active": "Polisi insurans aktif",
+      "button": "Insuranskan akaun baharu",
+      "canceled": "Dibatalkan",
+      "coverage": "Liputan maksimum",
+      "inactive": "Tidak aktif",
+      "processing": "Memproses",
+      "refused": "enggan",
+      "supportLink": "Urus kontrak",
+      "title": "Akaun yang diinsuranskan",
+      "waitpayment": "Menunggu pembayaran"
+    },
+    "detect": {
+      "button": "Semak insurans sedia ada",
+      "insured": "Akaun yang diinsuranskan dikesan:",
+      "notInsured": "Tiada akaun yang diinsuranskan dikesan. Jika anda pasti anda mempunyai akaun yang diinsuranskan, sila pastikan anda mempunyai dompet yang betul disambungkan.",
+      "text": "Jika anda sudah mendaftar dengan Bitsurance, BitBoxApp boleh menyegerakkan perlindungan insurans sedia ada anda secara automatik.",
+      "title": "Sudah diinsuranskan?"
+    },
+    "insure": {
+      "button": "Semak ketersediaan dan harga",
+      "faq": "Baca lebih lanjut mengenai Soalan Lazim Bitsurance",
+      "listItem1": "rompakan",
+      "listItem2": "Peras ugut (cth., serangan sepana $5)",
+      "listItem3": "Kemusnahan akibat kebakaran, air atau bencana alam",
+      "month": "bulan",
+      "text": "Insuranskan BitBox02 anda dan bitcoin bernilai sehingga €100,000 terhadap",
+      "text2": "Pelan insurans bermula pada €30/tahun (€2.50/bulan). Anda boleh mengetahui lebih lanjut tentang Bitsurance dan tawaran insurans tepat mereka di",
+      "text3": "Kini tersedia di Jerman, dengan lebih banyak wilayah untuk diikuti.",
+      "title": "Bermula"
+    },
+    "intro": {
+      "link": "Laman web Bitsurance",
+      "text1": "BitBox berfungsi dengan Bitsurance untuk menambah lapisan perlindungan tambahan untuk bitcoin anda. Walaupun BitBox02 memastikan dana anda selamat, Bitsurance melindungi ancaman di rumah yang tidak boleh dikurangkan dengan teknologi sahaja, seperti pecah rumah, peras ugut atau pemusnahan dompet perkakasan itu sendiri."
+    },
+    "terms": {
+      "link": "Dasar Privasi Bitsurance",
+      "text1": "Bitsurance ialah perkhidmatan pihak ketiga yang bebas. Untuk pertanyaan mengenai tawaran dan tuntutan insurans mereka, sila hubungi Bitsurance secara terus.",
+      "text2": "Insurans kini tersedia di Jerman, dengan lebih banyak wilayah untuk diikuti.",
+      "text3": "Perlindungan Bitcoin maksimum yang tersedia pada masa ini ialah €100,000 setiap orang. Jumlah yang lebih tinggi dirancang untuk masa hadapan.",
+      "text4": "Maklumat peribadi dan kunci awam lanjutan (extended public key) akaun anda yang diinsuranskan adalah sebahagian daripada polisi insurans dan akan dikongsi dengan Bitsurance dan pembekal insurans.",
+      "text5": "Untuk maklumat lanjut tentang privasi, sila rujuk"
+    },
+    "title": "Insurans"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "Ralat: Tidak dapat mendapatkan xpub daripada akaun.",
+    "noAccount": "Tiada akaun yang boleh diinsuranskan.",
+    "select": "Pilih akaun",
+    "title": "Insurans"
+  },
   "blink": {
     "button": "Berkedip"
   },
@@ -499,7 +556,8 @@
     "toggle": "Mod gelap"
   },
   "device": {
-    "appUpradeRequired": "BitBox anda tidak sesuai dengan aplikasi desktop ini. Sila muat turun dan pasang versi terkini."
+    "appUpradeRequired": "BitBox anda tidak sesuai dengan aplikasi desktop ini. Sila muat turun dan pasang versi terkini.",
+    "keystoreConnected": "Wallet bersambung"
   },
   "deviceLock": {
     "button": "Membolehkan Pengesahan Dua Langkah (2FA)",
@@ -753,6 +811,10 @@
         "text": "Dompet anda boleh mengurus berbilang akaun syiling yang sama. Akaun berguna apabila anda ingin mengasingkan dana.",
         "title": "Apakah akaun?"
       },
+      "whatIsRememberWallet": {
+        "text": "Mendayakan \"Ingat dompet\" membolehkan anda melihat akaun untuk dompet ini dalam BitBoxApp walaupun apabila BitBox02 tidak dipalamkan. Ini membolehkan anda menyemak baki dan portfolio anda pada bila-bila masa anda mahu. BitBox02 masih perlu dipalamkan dan dibuka kuncinya untuk menghantar atau menerima syiling.\n\nMelumpuhkan \"Ingat dompet\" memerlukan anda memasukkan BitBox02 (atau dompet frasa laluan) masing-masing untuk melihat akaun tersebut dalam BitBoxApp.",
+        "title": "Apa yang berlaku apabila saya mendayakan/lumpuhkan \"Ingat dompet\"?"
+      },
       "whyIsThisUseful": {
         "text": "Akaun bagus untuk mengurus dana untuk orang atau tujuan yang berbeza kerana ia dipisahkan. Anda juga boleh berkongsi \"kunci awam lanjutan\" akaun tanpa mendedahkan apa-apa tentang akaun anda yang lain. Ini membolehkan anda berulang kali menerima dana tanpa menggunakan semula alamat, seperti menerima gaji anda atau kerap membeli kripto.",
         "title": "Mengapa ini berguna?"
@@ -822,6 +884,42 @@
       "pairing": {
         "text": "Selepas memuat turun aplikasi mudah alih kami untuk iOS atau Android, anda dapat menubuhkan saluran selamat antara aplikasi mudah alih dan aplikasi ini dengan mengimbas kod QR yang dipaparkan. Setelah diimbas, ikut arahan dalam aplikasi mudah alih.",
         "title": "Bagaimana memasangkan dengan selamat telefon anda"
+      }
+    },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "Sila semak tapak web Bitsurance dan Soalan Lazim mereka untuk butiran lanjut.",
+        "title": "Soalan tambahan?"
+      },
+      "privacy": {
+        "link": {
+          "text": "Dasar privasi Bitsurance"
+        },
+        "text": "Seperti mana-mana polisi insurans biasa, ia mengandungi nama penuh dan alamat anda, dan menyatakan objek yang diinsuranskan (ditakrifkan oleh kunci awam lanjutan akaun Bitcoin yang diinsuranskan). Data ini diserahkan kepada Bitsurance secara langsung dan tidak dikongsi dengan Shift Crypto. Sila rujuk dasar privasi Bitsurance untuk mendapatkan maklumat lanjut",
+        "title": "Apakah maklumat peribadi yang diperlukan untuk insurans?"
+      },
+      "renew": {
+        "text": "Insurans akan diperbaharui secara automatik untuk tahun hadapan. Anda boleh membatalkan pembaharuan pada bila-bila masa dengan mengklik pada \"Urus kontrak\" dalam BitBoxApp, yang membawa anda ke portal pelanggan Bitsurance.",
+        "title": "Bagaimanakah saya boleh memperbaharui atau membatalkan insurans?"
+      },
+      "status": {
+        "text": "Akaun yang berjaya diinsuranskan ditandakan dengan lencana hijau \"diinsuranskan\" di penjuru kiri sebelah atas pada setiap halaman akaun Bitcoin. Dalam bahagian \"Insurans\", anda boleh melihat gambaran keseluruhan semua akaun Bitcoin yang diinsuranskan dan status insurans semasa mereka.",
+        "title": "Bolehkah saya menyemak status akaun yang diinsuranskan?"
+      },
+      "what": {
+        "text": "Setiap kontrak insurans Bitcoin meliputi akaun dompet tertentu. Anda boleh menginsuranskan berbilang akaun dengan mengambil beberapa polisi insurans. Akaun yang diinsuranskan terhad kepada menggunakan alamat Bitcoin \"Segwit Asli\".",
+        "title": "Adakah keseluruhan dompet BitBox diinsuranskan?"
+      },
+      "who": {
+        "text": "Insurans ditawarkan oleh Bitsurance, broker insurans yang dibina oleh bitcoiners. Mereka bekerja dengan insurans ELEMENT untuk menyediakan insurans Bitcoin. Kedua-dua syarikat berpangkalan di Jerman.",
+        "title": "Siapa yang menginsuranskan bitcoin saya?"
+      },
+      "why": {
+        "text": "Bitsurance melindungi beberapa risiko penjagaan diri yang tidak dalam skop walaupun dompet paling selamat, mis. pecah rumah, peras ugut atau pemusnahan dompet. Ia adalah keputusan peribadi anda jika anda memerlukan perlindungan insurans untuk risiko ini.",
+        "title": "Adakah saya memerlukan insurans Bitcoin?"
       }
     },
     "cointracking": {
@@ -1106,6 +1204,10 @@
         "description": "Pilih mata wang lalai anda",
         "title": "Mata wang lalai"
       },
+      "enableAccount": {
+        "description": "Melumpuhkan akaun anda bermakna ia tidak akan muncul dalam bar sisi atau portfolio. Anda sentiasa boleh mendayakannya semula dari sini. Syiling pada akaun ini tidak akan terjejas dan akan kekal selamat.",
+        "title": "Dayakan/lumpuhkan akaun"
+      },
       "hideAmounts": {
         "description": "Memaparkan togol untuk menyembunyikan baki anda dan amaun untuk meningkatkan privasi anda apabila menggunakan apl di khalayak ramai.",
         "hideAmounts": "Sembunyikan jumlah",
@@ -1115,6 +1217,11 @@
       "language": {
         "description": "Bahasa yang anda mahu BitBoxApp gunakan.",
         "title": "Bahasa"
+      },
+      "remebmerWallet": {
+        "name": "Ingat dompet",
+        "warning": "Ini akan mengeluarkan dompet anda yang diingati. Untuk melihatnya semula, anda perlu memasukkan BitBox02 untuk dompet ini. Sebarang syiling pada dompet ini tidak terjejas. Adakah anda mahu meneruskan?",
+        "warningTitle": "Lumpuhkan ingat dompet"
       },
       "toggleSats": {
         "description": "Dayakan atau lumpuhkan Satoshis."
@@ -1259,6 +1366,7 @@
     "description": "BitBox anda telah menjana nombor rawak {{bits}}-bit berikut:"
   },
   "receive": {
+    "bitsuranceWarning": "Ini ialah akaun yang diinsuranskan, bermakna ia hanya boleh menerima kepada Native Segwit. Ini supaya anda tidak menerima secara tidak sengaja kepada Wrapped Segwit atau Taproot, yang tidak diinsuranskan.",
     "changeScriptType": "Tukar jenis alamat",
     "label": "Alamat anda",
     "onlyThisCoin": {
@@ -1487,6 +1595,7 @@
   "sidebar": {
     "buy": "Beli kripto",
     "device": "Urus Peranti",
+    "insurance": "Insurans",
     "leave": "Tinggalkan",
     "settings": "Tetapan"
   },
@@ -1515,6 +1624,7 @@
       "fiatAmount": "Jumlah Fiat",
       "fiatAtTime": "Fiat pada masa transaksi",
       "status": "Status",
+      "title": "butiran transaksi",
       "type": "taip"
     },
     "explorer": "ID Transaksi",

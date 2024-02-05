@@ -15,8 +15,9 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { ReactElement } from 'react';
 import { Button } from './forms';
-import { cancelConnectKeystore, syncConnectKeystore } from '../api/backend';
+import { TConnectKeystoreErrorCode, cancelConnectKeystore, syncConnectKeystore } from '../api/backend';
 import { useSubscribeReset } from '../hooks/api';
 import { Dialog, DialogButtons } from './dialog/dialog';
 import { BitBox02StylizedDark, BitBox02StylizedLight, Cancel, PointToBitBox02 } from './icon';
@@ -29,9 +30,35 @@ export function KeystoreConnectPrompt() {
   const { isDarkMode } = useDarkmode();
 
   const [data, reset] = useSubscribeReset(syncConnectKeystore());
+
+  const cancelAndReset = () => {
+    // This is needed to close the popup in case of timeout exception.
+    reset();
+    cancelConnectKeystore();
+  };
+
+  const errorMessage = (errorCode: TConnectKeystoreErrorCode | undefined): ReactElement | null => {
+    switch (errorCode) {
+    case 'wrongKeystore':
+      return (<>
+        {t('error.wrongKeystore')}
+        <br />
+        <br />
+        {t('error.wrongKeystore2')}
+      </>);
+    case 'timeout':
+      return (<>
+        {t('error.keystoreTimeout')}
+      </>);
+    default:
+      return null;
+    }
+  };
+
   if (!data) {
     return null;
   }
+
   switch (data.typ) {
   case 'connect':
     return (
@@ -51,21 +78,16 @@ export function KeystoreConnectPrompt() {
           <SkipForTesting />
         </div>
         <DialogButtons>
-          <Button secondary onClick={() => cancelConnectKeystore()}>{t('dialog.cancel')}</Button>
+          <Button secondary onClick={cancelConnectKeystore}>{t('dialog.cancel')}</Button>
         </DialogButtons>
       </Dialog>
     );
   case 'error':
+    const err = errorMessage(data.errorCode);
     return (
       <Dialog title={t('welcome.connect')} medium open>
         <p className={styles.text}>
-          {data.errorCode === 'wrongKeystore' ?
-            <>
-              {t('error.wrongKeystore')}
-              <br />
-              <br />
-              {t('error.wrongKeystore2')}
-            </> : data.errorMessage}
+          { err ? err : data.errorMessage }
         </p>
         <div className={`${styles.bitboxContainer} ${styles.failed}`}>
           <Cancel className={styles.cancelIcon} />
@@ -73,9 +95,10 @@ export function KeystoreConnectPrompt() {
             <BitBox02StylizedLight className={styles.bitboxImage} /> :
             <BitBox02StylizedDark className={styles.bitboxImage} />
           }
+          <SkipForTesting />
         </div>
         <DialogButtons>
-          <Button secondary onClick={() => reset()}>{t('dialog.cancel')}</Button>
+          <Button secondary onClick={cancelAndReset}>{t('dialog.cancel')}</Button>
         </DialogButtons>
       </Dialog>
     );

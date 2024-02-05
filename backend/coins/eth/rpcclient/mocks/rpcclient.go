@@ -7,6 +7,7 @@ import (
 	"context"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient"
+	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -20,43 +21,46 @@ var _ rpcclient.Interface = &InterfaceMock{}
 
 // InterfaceMock is a mock implementation of rpcclient.Interface.
 //
-// 	func TestSomethingThatUsesInterface(t *testing.T) {
+//	func TestSomethingThatUsesInterface(t *testing.T) {
 //
-// 		// make and configure a mocked rpcclient.Interface
-// 		mockedInterface := &InterfaceMock{
-// 			BalanceFunc: func(ctx context.Context, account common.Address) (*big.Int, error) {
-// 				panic("mock out the Balance method")
-// 			},
-// 			BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
-// 				panic("mock out the BlockNumber method")
-// 			},
-// 			ERC20BalanceFunc: func(account common.Address, erc20Token *erc20.Token) (*big.Int, error) {
-// 				panic("mock out the ERC20Balance method")
-// 			},
-// 			EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
-// 				panic("mock out the EstimateGas method")
-// 			},
-// 			PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {
-// 				panic("mock out the PendingNonceAt method")
-// 			},
-// 			SendTransactionFunc: func(ctx context.Context, tx *types.Transaction) error {
-// 				panic("mock out the SendTransaction method")
-// 			},
-// 			SuggestGasPriceFunc: func(ctx context.Context) (*big.Int, error) {
-// 				panic("mock out the SuggestGasPrice method")
-// 			},
-// 			TransactionByHashFunc: func(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
-// 				panic("mock out the TransactionByHash method")
-// 			},
-// 			TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
-// 				panic("mock out the TransactionReceiptWithBlockNumber method")
-// 			},
-// 		}
+//		// make and configure a mocked rpcclient.Interface
+//		mockedInterface := &InterfaceMock{
+//			BalanceFunc: func(ctx context.Context, account common.Address) (*big.Int, error) {
+//				panic("mock out the Balance method")
+//			},
+//			BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
+//				panic("mock out the BlockNumber method")
+//			},
+//			ERC20BalanceFunc: func(account common.Address, erc20Token *erc20.Token) (*big.Int, error) {
+//				panic("mock out the ERC20Balance method")
+//			},
+//			EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
+//				panic("mock out the EstimateGas method")
+//			},
+//			FeeTargetsFunc: func(ctx context.Context) ([]*ethtypes.FeeTarget, error) {
+//				panic("mock out the FeeTargets method")
+//			},
+//			PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {
+//				panic("mock out the PendingNonceAt method")
+//			},
+//			SendTransactionFunc: func(ctx context.Context, tx *types.Transaction) error {
+//				panic("mock out the SendTransaction method")
+//			},
+//			SuggestGasPriceFunc: func(ctx context.Context) (*big.Int, error) {
+//				panic("mock out the SuggestGasPrice method")
+//			},
+//			TransactionByHashFunc: func(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
+//				panic("mock out the TransactionByHash method")
+//			},
+//			TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+//				panic("mock out the TransactionReceiptWithBlockNumber method")
+//			},
+//		}
 //
-// 		// use mockedInterface in code that requires rpcclient.Interface
-// 		// and then make assertions.
+//		// use mockedInterface in code that requires rpcclient.Interface
+//		// and then make assertions.
 //
-// 	}
+//	}
 type InterfaceMock struct {
 	// BalanceFunc mocks the Balance method.
 	BalanceFunc func(ctx context.Context, account common.Address) (*big.Int, error)
@@ -69,6 +73,9 @@ type InterfaceMock struct {
 
 	// EstimateGasFunc mocks the EstimateGas method.
 	EstimateGasFunc func(ctx context.Context, call ethereum.CallMsg) (uint64, error)
+
+	// FeeTargetsFunc mocks the FeeTargets method.
+	FeeTargetsFunc func(ctx context.Context) ([]*ethtypes.FeeTarget, error)
 
 	// PendingNonceAtFunc mocks the PendingNonceAt method.
 	PendingNonceAtFunc func(ctx context.Context, account common.Address) (uint64, error)
@@ -113,6 +120,11 @@ type InterfaceMock struct {
 			// Call is the call argument value.
 			Call ethereum.CallMsg
 		}
+		// FeeTargets holds details about calls to the FeeTargets method.
+		FeeTargets []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+		}
 		// PendingNonceAt holds details about calls to the PendingNonceAt method.
 		PendingNonceAt []struct {
 			// Ctx is the ctx argument value.
@@ -151,6 +163,7 @@ type InterfaceMock struct {
 	lockBlockNumber                       sync.RWMutex
 	lockERC20Balance                      sync.RWMutex
 	lockEstimateGas                       sync.RWMutex
+	lockFeeTargets                        sync.RWMutex
 	lockPendingNonceAt                    sync.RWMutex
 	lockSendTransaction                   sync.RWMutex
 	lockSuggestGasPrice                   sync.RWMutex
@@ -178,7 +191,8 @@ func (mock *InterfaceMock) Balance(ctx context.Context, account common.Address) 
 
 // BalanceCalls gets all the calls that were made to Balance.
 // Check the length with:
-//     len(mockedInterface.BalanceCalls())
+//
+//	len(mockedInterface.BalanceCalls())
 func (mock *InterfaceMock) BalanceCalls() []struct {
 	Ctx     context.Context
 	Account common.Address
@@ -211,7 +225,8 @@ func (mock *InterfaceMock) BlockNumber(ctx context.Context) (*big.Int, error) {
 
 // BlockNumberCalls gets all the calls that were made to BlockNumber.
 // Check the length with:
-//     len(mockedInterface.BlockNumberCalls())
+//
+//	len(mockedInterface.BlockNumberCalls())
 func (mock *InterfaceMock) BlockNumberCalls() []struct {
 	Ctx context.Context
 } {
@@ -244,7 +259,8 @@ func (mock *InterfaceMock) ERC20Balance(account common.Address, erc20Token *erc2
 
 // ERC20BalanceCalls gets all the calls that were made to ERC20Balance.
 // Check the length with:
-//     len(mockedInterface.ERC20BalanceCalls())
+//
+//	len(mockedInterface.ERC20BalanceCalls())
 func (mock *InterfaceMock) ERC20BalanceCalls() []struct {
 	Account    common.Address
 	Erc20Token *erc20.Token
@@ -279,7 +295,8 @@ func (mock *InterfaceMock) EstimateGas(ctx context.Context, call ethereum.CallMs
 
 // EstimateGasCalls gets all the calls that were made to EstimateGas.
 // Check the length with:
-//     len(mockedInterface.EstimateGasCalls())
+//
+//	len(mockedInterface.EstimateGasCalls())
 func (mock *InterfaceMock) EstimateGasCalls() []struct {
 	Ctx  context.Context
 	Call ethereum.CallMsg
@@ -291,6 +308,38 @@ func (mock *InterfaceMock) EstimateGasCalls() []struct {
 	mock.lockEstimateGas.RLock()
 	calls = mock.calls.EstimateGas
 	mock.lockEstimateGas.RUnlock()
+	return calls
+}
+
+// FeeTargets calls FeeTargetsFunc.
+func (mock *InterfaceMock) FeeTargets(ctx context.Context) ([]*ethtypes.FeeTarget, error) {
+	if mock.FeeTargetsFunc == nil {
+		panic("InterfaceMock.FeeTargetsFunc: method is nil but Interface.FeeTargets was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
+	mock.lockFeeTargets.Lock()
+	mock.calls.FeeTargets = append(mock.calls.FeeTargets, callInfo)
+	mock.lockFeeTargets.Unlock()
+	return mock.FeeTargetsFunc(ctx)
+}
+
+// FeeTargetsCalls gets all the calls that were made to FeeTargets.
+// Check the length with:
+//
+//	len(mockedInterface.FeeTargetsCalls())
+func (mock *InterfaceMock) FeeTargetsCalls() []struct {
+	Ctx context.Context
+} {
+	var calls []struct {
+		Ctx context.Context
+	}
+	mock.lockFeeTargets.RLock()
+	calls = mock.calls.FeeTargets
+	mock.lockFeeTargets.RUnlock()
 	return calls
 }
 
@@ -314,7 +363,8 @@ func (mock *InterfaceMock) PendingNonceAt(ctx context.Context, account common.Ad
 
 // PendingNonceAtCalls gets all the calls that were made to PendingNonceAt.
 // Check the length with:
-//     len(mockedInterface.PendingNonceAtCalls())
+//
+//	len(mockedInterface.PendingNonceAtCalls())
 func (mock *InterfaceMock) PendingNonceAtCalls() []struct {
 	Ctx     context.Context
 	Account common.Address
@@ -349,7 +399,8 @@ func (mock *InterfaceMock) SendTransaction(ctx context.Context, tx *types.Transa
 
 // SendTransactionCalls gets all the calls that were made to SendTransaction.
 // Check the length with:
-//     len(mockedInterface.SendTransactionCalls())
+//
+//	len(mockedInterface.SendTransactionCalls())
 func (mock *InterfaceMock) SendTransactionCalls() []struct {
 	Ctx context.Context
 	Tx  *types.Transaction
@@ -382,7 +433,8 @@ func (mock *InterfaceMock) SuggestGasPrice(ctx context.Context) (*big.Int, error
 
 // SuggestGasPriceCalls gets all the calls that were made to SuggestGasPrice.
 // Check the length with:
-//     len(mockedInterface.SuggestGasPriceCalls())
+//
+//	len(mockedInterface.SuggestGasPriceCalls())
 func (mock *InterfaceMock) SuggestGasPriceCalls() []struct {
 	Ctx context.Context
 } {
@@ -415,7 +467,8 @@ func (mock *InterfaceMock) TransactionByHash(ctx context.Context, hash common.Ha
 
 // TransactionByHashCalls gets all the calls that were made to TransactionByHash.
 // Check the length with:
-//     len(mockedInterface.TransactionByHashCalls())
+//
+//	len(mockedInterface.TransactionByHashCalls())
 func (mock *InterfaceMock) TransactionByHashCalls() []struct {
 	Ctx  context.Context
 	Hash common.Hash
@@ -450,7 +503,8 @@ func (mock *InterfaceMock) TransactionReceiptWithBlockNumber(ctx context.Context
 
 // TransactionReceiptWithBlockNumberCalls gets all the calls that were made to TransactionReceiptWithBlockNumber.
 // Check the length with:
-//     len(mockedInterface.TransactionReceiptWithBlockNumberCalls())
+//
+//	len(mockedInterface.TransactionReceiptWithBlockNumberCalls())
 func (mock *InterfaceMock) TransactionReceiptWithBlockNumberCalls() []struct {
 	Ctx  context.Context
 	Hash common.Hash
