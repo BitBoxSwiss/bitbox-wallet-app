@@ -118,7 +118,6 @@ const GroupHeading = (
 
 export const GroupedAccountSelector = ({ title, disabled, selected, onChange, onProceed, accounts }: TAccountSelector) => {
   const { t } = useTranslation();
-  const [selectedAccount, setSelectedAccount] = useState<string>();
   const [options, setOptions] = useState<TGroupedOption[]>();
 
   useEffect(() => {
@@ -146,11 +145,10 @@ export const GroupedAccountSelector = ({ title, disabled, selected, onChange, on
           label: t('buy.info.selectLabel'),
           value: 'choose',
           disabled: true
-        } : options.flatMap(o => o.options).find(oo => oo.value === selectedAccount)}
+        } : options.flatMap(o => o.options).find(opt => opt.value === selected)}
         onChange={(e) => {
           const value = (e as SingleValue<TOption>)?.value || '';
           onChange(value);
-          setSelectedAccount(value);
         }}
         components={{
           Group,
