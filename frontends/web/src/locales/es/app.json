@@ -6,9 +6,14 @@
     "fatalError": "Ha habido un error inesperado.",
     "incoming": "Entrante",
     "initializing": "Obteniendo información de la blockchain ...",
+    "insuranceExpired": "<strong>Cuenta que ya no está asegurada</strong>\n\nEl plan de seguro de esta cuenta ha sido modificado.\nConsulta la página de seguros para obtener más información.",
+    "insured": "Cuenta asegurada",
     "maybeProxyError": "Tor Proxy activado. Asegúrese de que su Tor proxy está funcionando correctamente, o desactive la configuración del proxy.",
     "reconnecting": "Conexión perdida, reconectando...",
-    "syncedAddressesCount": "Escaneado {{count}} direcciones"
+    "syncedAddressesCount": "Escaneado {{count}} direcciones",
+    "uncoveredFunds": "Tiene monedas en los siguientes tipos de dirección no cubiertos de su  <strong>{{name}}</strong> cuenta: {{uncovered}}. Dado que la cuenta está asegurada, sólo las monedas recibidas a través del <strong> Segwit nativo </strong> están cubiertas. Las monedas con direcciones diferentes, aunque pertenezcan a la misma cuenta, no están aseguradas.\nPor favor, mueve todas tus monedas de los tipos de dirección no soportados al tipo de dirección <strong> Segwit nativo</strong>, para que todas tus monedas en esta cuenta estén aseguradas.",
+    "uncoveredFundsLink": "Sigue esta guía sobre cómo mover tus monedas.",
+    "warning": "¡Atención!"
   },
   "accountInfo": {
     "address": "Dirección",
@@ -260,6 +265,11 @@
     },
     "stepCreate": {
       "description": "Este nombre es utilizado como el nombre del dispositivo y el de la copia de seguridad.",
+      "error": {
+        "genericMessage": "Utilice letras, números, símbolos básicos y espacios. Máximo 30 caracteres.",
+        "invalidChars": "El nombre contiene caracteres no válidos: {{invalidChars}}.",
+        "tooLong": "El nombre es demasiado largo."
+      },
       "nameLabel": "Nombre de la BitBox02",
       "namePlaceholder": "Mi BitBox02",
       "title": "Selecciona el nombre de la BitBox02",
@@ -290,6 +300,58 @@
       "text": "Perfecto! Tu BitBox02 está lista para ser usada. \n\nPara más información sobre cómo usar la BitBoxApp, por favor utiliza la guía in-app haciendo clic en el signo de interrogación de la esquina superior derecha. ",
       "title": "Estas preparado para usar la billetera BitBox."
     }
+  },
+  "bitsurance": {
+    "dashboard": {
+      "active": "Póliza de seguro activa",
+      "button": "Asegura una nueva cuenta",
+      "canceled": "Cancelado",
+      "coverage": "Cobertura máxima",
+      "inactive": "Inactivo",
+      "processing": "Procesando ",
+      "refused": "Rechazado",
+      "supportLink": "Gestionar el contrato",
+      "title": "Cuentas aseguradas",
+      "waitpayment": "A la espera del pago"
+    },
+    "detect": {
+      "button": "Comprobar el seguro existente",
+      "insured": "Cuenta asegurada detectada:",
+      "notInsured": "No se han detectado cuentas aseguradas. Si está seguro de que tiene una cuenta asegurada, asegúrese de que tiene conectada la billetera correcta.",
+      "text": "Si ya estás suscrito a Bitsurance, la BitBoxApp puede sincronizar automáticamente tu cobertura de seguro existente.",
+      "title": "¿Ya está asegurado?"
+    },
+    "insure": {
+      "button": "Consultar disponibilidad y precios",
+      "faq": "Más información en Preguntas frecuentes sobre Bitsurance",
+      "listItem1": "Robo",
+      "listItem2": "Extorsión (por ejemplo, ataque con una llave inglesa de 5 dólares)",
+      "listItem3": "Destruction due to fire, water or natural disasters",
+      "month": "mes",
+      "text": "Asegura tu BitBox02 y hasta 100.000 euros en bitcoins contra",
+      "text2": "Los planes de seguro cuestan a partir de 30 euros al año (2,50 euros al mes). Puede obtener más información sobre Bitsurance y sus ofertas de seguros exactas en la página web",
+      "text3": "Actualmente disponible en Alemania y en otras regiones.",
+      "title": "Comienza"
+    },
+    "intro": {
+      "link": "Sitio web de Bitsurance",
+      "text1": "BitBox trabaja con Bitsurance para añadir una capa adicional de protección para tu bitcoin. Mientras que la BitBox02 mantiene tus fondos seguros, Bitsurance cubre las amenazas en casa que no se pueden mitigar solo con tecnología, como robos, extorsiones o la destrucción de la propia billetera física."
+    },
+    "terms": {
+      "link": "Política de privacidad de Bitsurance",
+      "text1": "Bitsurance es un servicio externo independiente. Para preguntas sobre sus ofertas y reclamaciones de seguros, ponte en contacto directamente con Bitsurance.",
+      "text2": "Actualmente, el seguro está disponible en Alemania y en otras regiones.",
+      "text3": "La cobertura máxima de Bitcoin disponible actualmente es de 100.000 euros por persona. Se prevén importes más elevados en el futuro.",
+      "text4": "La información personal y la clave pública ampliada de su cuenta asegurada forman parte de la póliza de seguro y se compartirán con Bitsurance y el proveedor de seguros.",
+      "text5": "Para más información sobre privacidad, consulte la"
+    },
+    "title": "Seguro"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "Error: No se ha podido obtener el xpub de la cuenta.",
+    "noAccount": "No hay cuentas que puedan asegurarse.",
+    "select": "Seleccionar cuenta",
+    "title": "Seguro"
   },
   "blink": {
     "button": "Parpadeo"
@@ -616,6 +678,7 @@
     "aoppUnsupportedFormat": "No hay cuentas disponibles que soporten el formato de direcciones solicitado.",
     "aoppUnsupportedKeystore": "El dispositivo conectado no puede firmar mensajes para este activo.",
     "aoppVersion": "Versión desconocida.",
+    "keystoreTimeout": "La solicitud de su billetera ha caducado. Por favor, inténtelo de nuevo.",
     "wrongKeystore": "Se ha conectado una billetera incorrecta. Por favor, asegúrese de insertar el dispositivo correcto que coincida con esta cuenta.",
     "wrongKeystore2": " Si utiliza la frase de contraseña opcional, asegúrese de haber introducido la frase de contraseña correcta para la cuenta."
   },
@@ -827,6 +890,42 @@
       "pairing": {
         "text": "Después de haber descargado nuestra aplicación móvil para iOS o Android, escanea el código QR mostrado, que establece un canal seguro entre la aplicación móvil y esta aplicación. Una vez escaneado, sige las instrucciones en la aplicación móvil.",
         "title": "Cómo sincronizo de forma segura con mi teléfono"
+      }
+    },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "Consulte el sitio web de Bitsurance y sus preguntas frecuentes para obtener más información.",
+        "title": "¿Tiene más preguntas?"
+      },
+      "privacy": {
+        "link": {
+          "text": "Política de privacidad de Bitsurance"
+        },
+        "text": "Como cualquier póliza de seguro normal, contiene su nombre completo y dirección, y especifica el objeto asegurado (definido por la clave pública extendida de la cuenta Bitcoin asegurada). Estos datos se envían directamente a Bitsurance y no se comparten con Shift Crypto. Por favor, consulte la política de privacidad de Bitsurance para más información.",
+        "title": "¿Qué datos personales se necesitan para el seguro?"
+      },
+      "renew": {
+        "text": "El seguro se renovará automáticamente para el año siguiente. Puedes cancelar la renovación en cualquier momento haciendo clic en \"Gestionar contrato\" en la BitBoxApp, que te lleva al portal de clientes de Bitsurance.",
+        "title": "¿Cómo puedo renovar o cancelar el seguro?"
+      },
+      "status": {
+        "text": "Las cuentas aseguradas con éxito se marcan con una insignia verde de \"asegurado\" en la esquina superior izquierda de cada página de cuenta Bitcoin. En la sección \"Seguro\", puede ver el resumen de todas las cuentas Bitcoin aseguradas y su estado de seguro actual.",
+        "title": "¿Puedo comprobar el estado de una cuenta asegurada?"
+      },
+      "what": {
+        "text": "Cada contrato de seguro de Bitcoin cubre una cuenta de billetera específica. Puede asegurar varias cuentas contratando varias pólizas de seguro. Las cuentas aseguradas están limitadas al uso de direcciones Bitcoin \"Segwit Nativo\".",
+        "title": "¿Está asegurada toda la billatera BitBox?"
+      },
+      "who": {
+        "text": "El seguro lo ofrece Bitsurance, un corredor de seguros creado por bitcoiners. Trabajan con ELEMENT insurance para ofrecer seguros de Bitcoin. Ambas empresas tienen su sede en Alemania.",
+        "title": "¿Quién asegura mi bitcoin?"
+      },
+      "why": {
+        "text": "Bitsurance cubre algunos riesgos de la autocustodia que no están cubiertos ni siquiera por la billatera más segura, como el robo, la extorsión o la destrucción de la billetera. Es tu decisión personal si necesitas cobertura de seguro para estos riesgos.",
+        "title": "¿Necesito un seguro Bitcoin?"
       }
     },
     "cointracking": {
@@ -1111,6 +1210,10 @@
         "description": "Selecciona tu moneda predeterminada",
         "title": "Moneda predeterminada"
       },
+      "enableAccount": {
+        "description": "Deshabilitar tu cuenta significa que no aparecerá en la barra lateral ni en la billetera. Siempre puedes volver a activarla desde aquí. Las monedas de esta cuenta no se verán afectadas y permanecerán seguras.",
+        "title": "Activar/desactivar cuenta"
+      },
       "hideAmounts": {
         "description": "Muestra un conmutador para ocultar tu saldo y los importes para mejorar tu privacidad cuando utilices la aplicación en público.",
         "hideAmounts": "Ocultar importes",
@@ -1269,6 +1372,7 @@
     "description": "Tu BitBox ha generado el siguiente número aleatorio de {{bits}} bits:"
   },
   "receive": {
+    "bitsuranceWarning": "Esta es una cuenta asegurada, lo que significa que sólo puede recibir a Segwit Nativo. Esto es para que no recibas accidentalmente a Wrapped Segwit o Taproot, que no están asegurados.",
     "changeScriptType": "Tipo de dirección del cambio",
     "label": "Tu dirección",
     "onlyThisCoin": {
@@ -1497,6 +1601,7 @@
   "sidebar": {
     "buy": "Compra criptomoneda",
     "device": "Administra dispositivo",
+    "insurance": "Seguro",
     "leave": "Salir",
     "settings": "Ajustes"
   },
@@ -1525,6 +1630,7 @@
       "fiatAmount": "Cantidad Fiat",
       "fiatAtTime": "Fiat en el momento de la transacción",
       "status": "Estado",
+      "title": "Detalles de la transacción",
       "type": "Tipo"
     },
     "explorer": "ID de transacción",

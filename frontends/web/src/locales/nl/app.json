@@ -11,7 +11,9 @@
     "maybeProxyError": "De Tor Proxy staat ingeschakeld. Zorg ervoor dat deze correct werkt, of schakel de proxy-instelling uit.",
     "reconnecting": "Verbinding verbroken, opnieuw aan het verbinden...",
     "syncedAddressesCount": "{{count}} adressen gescand",
-    "uncoveredFunds": "Je heb coins op de volgende niet-verzekerde addressen van je <strong>{{name}}</strong> account: {{uncovered}}.\nJe account is verzekerd, maar alleen coins die via het <strong>Native Segwit</strong> adrestype ontvangen worden, zijn gedekt. Coins op een ander adrestype zijn niet gedekt, ook al zijn de adressen onderdeel van hetzelfde account.\nStuur alsjeblieft al je coins van de niet-ondersteunde adrestypes naar het <strong>Native Segwit</strong> adrestype, zodat alle coins op dit account verzekerd zijn."
+    "uncoveredFunds": "Je heb coins op de volgende niet-verzekerde addressen van je <strong>{{name}}</strong> account: {{uncovered}}.\nJe account is verzekerd, maar alleen coins die via het <strong>Native Segwit</strong> adrestype ontvangen worden, zijn gedekt. Coins op een ander adrestype zijn niet gedekt, ook al zijn de adressen onderdeel van hetzelfde account.\nStuur alsjeblieft al je coins van de niet-ondersteunde adrestypes naar het <strong>Native Segwit</strong> adrestype, zodat alle coins op dit account verzekerd zijn.",
+    "uncoveredFundsLink": "Volg deze handleiding over hoe je je coins kunt verplaatsen.",
+    "warning": "Waarschuwing!"
   },
   "accountInfo": {
     "address": "Adres",
@@ -263,6 +265,11 @@
     },
     "stepCreate": {
       "description": "Deze naam wordt gebruikt als apparaatnaam en voor de backup",
+      "error": {
+        "genericMessage": "Gebruik letters, cijfers, symbolen en spaties. Maximaal 30 karakters.",
+        "invalidChars": "De naam bevat ongeldige karakters: {{invalidChars}}.",
+        "tooLong": "Naam is te lang"
+      },
       "nameLabel": "BitBox02 naam",
       "namePlaceholder": "Mijn BitBox02",
       "title": "Kies een naam voor je BitBox02",
@@ -293,6 +300,58 @@
       "text": "Gefeliciteerd! Je BitBox02 is nu klaar om te gebruiken.\nVoor meer informatie over het gebruik van de BitBoxApp check je de applicatiehulp door op het icoon rechtsbovenin te klikken.",
       "title": "Je bent helemaal klaar!"
     }
+  },
+  "bitsurance": {
+    "dashboard": {
+      "active": "Verzekering actief",
+      "button": "Verzeker een nieuw account",
+      "canceled": "Geannuleerd",
+      "coverage": "Maximale dekking",
+      "inactive": "Inactief",
+      "processing": "In behandeling",
+      "refused": "Geweigerd",
+      "supportLink": "Contract beheren",
+      "title": "Verzekerde accounts",
+      "waitpayment": "In afwachting van betaling"
+    },
+    "detect": {
+      "button": "Bestaande verzekering checken",
+      "insured": "Verzekerde account gevonden:",
+      "notInsured": "Geen verzekerde accounts gevonden. Als je zeker weet dat je een verzekerde account hebt, kijk dan of je de juiste wallet hebt verbonden.",
+      "text": "Als je al lid bent van Bitsurance, kan de BitBoxApp automatisch met je bestaande verzekering synchroniseren.",
+      "title": "Al verzekerd?"
+    },
+    "insure": {
+      "button": "Bekijk beschikbaarheid en prijzen",
+      "faq": "Lees meer in de Bitsurance FAQs",
+      "listItem1": "Diefstal",
+      "listItem2": "Afpersing of bedreiging",
+      "listItem3": "Vernietiging door brand, waterschade of natuurrampen",
+      "month": "maand",
+      "text": "Verzeker je BitBox02 en tot €100 000 aan bitcoin tegen",
+      "text2": "Verzekeringen zijn verkrijgbaar vanaf €30 per jaar (€2,50 per maand). Je kunt meer te weten komen over Bitsurance en hun verzekeringsaanbod op de",
+      "text3": "Op dit moment alleen beschikbaar in Duitsland, andere landen volgen later",
+      "title": "Aan de slag"
+    },
+    "intro": {
+      "link": "Bitsurance website",
+      "text1": "BitBox werkt met Bitsurance om een extra laag van bescherming voor je bitcoin te bieden. Waar de BitBox02 je coins beveiligt, dekt Bitsurance ook de dingen die niet op te lossen zijn met technologie, zoals diefstal, afpersing en bedreiging of vernietiging van de hardware wallet zelf."
+    },
+    "terms": {
+      "link": "Bitsurance privacy policy",
+      "text1": "Bitsurance is een onafhankelijke dienst van een derde partij. Voor vragen over hun aanbod en voor het doen van verzekeringsclaims kun je direct met Bitsurance contact opnemen.",
+      "text2": "Verzekeringen zijn op dit moment alleen in Duitsland beschikbaar, andere landen volgen later.",
+      "text3": "De maximale bitcoin-dekking is op dit moment €100 000 per persoon. Het plan is om in de toekomst ook hogere dekkingen aan te bieden.",
+      "text4": "Je persoonlijke informatie en de publieke sleutel van je verzekerde account is onderdeel van de verzekering en zal gedeeld worden met Bitsurance en de verzekeringsprovider.",
+      "text5": "Voor meer over je privacy, raadpleeg je de"
+    },
+    "title": "Verzekering"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "Foutmelding: De xpub voor dit account kon niet gevonden worden.",
+    "noAccount": "Er zijn geen accounts die verzekerd kunnen worden.",
+    "select": "Selecteer account",
+    "title": "Verzekering"
   },
   "blink": {
     "button": "Knipperen"
@@ -619,6 +678,7 @@
     "aoppUnsupportedFormat": "Er zijn geen accounts beschikbaar die de het verzochte adresformaat ondersteunen.",
     "aoppUnsupportedKeystore": "Het verbonden apparaat kan voor deze crypto geen berichten ondertekenen.",
     "aoppVersion": "Onbekende versie.",
+    "keystoreTimeout": "Walletaanvraag verlopen. Probeer het opnieuw.",
     "wrongKeystore": "Verkeerde wallet verbonden. Zorg ervoor dat je de juiste BitBox02 voor dit account verbindt.",
     "wrongKeystore2": "Als je de optionele passphrase hebt ingeschakeld, zorg er dan voor dat je de juiste passphrase voor dit account hebt ingevoerd."
   },
@@ -830,6 +890,42 @@
       "pairing": {
         "text": "Nadat je de mobiele BitBoxApp hebt gedownload voor iOS of Android, kun je de weergegeven QR-code scannen. Dit zet een beveiligd kanaal op tussen de mobiele telefoon en deze applicatie. Zodra je de QR-code gescand hebt, kun je de instructies op je telefoon volgen.",
         "title": "Hoe koppel ik mijn mobiele telefoon?"
+      }
+    },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "Raadpleeg alsjeblieft Bitsurance's website en hun FAQ voor meer informatie.",
+        "title": "Verder nog vragen?"
+      },
+      "privacy": {
+        "link": {
+          "text": "Bitsurance privacy policy"
+        },
+        "text": "De verzekering bevat, zoals alle verzekeringen, je naam en adres, en specificeert het het te verzekeren object (in dit geval wordt dit door je publieke sleuten gedefinieerd). Deze gegevens worden direct naar Bitsurance gestuurd en worden niet met Shift Crypto gedeeld. Voor meer informatie kun je de Bitsurance privacy policy raadplegen.",
+        "title": "Welke persoonlijke informatie is nodig voor de verzekering?"
+      },
+      "renew": {
+        "text": "De verzekering verlengt na een jaar automatisch. Je kunt dit op ieder moment stopzetten via \"Contract beheren\" in de BitBoxApp, wat je naar het klantenportaal van Bitsurance brengt.",
+        "title": "Hoe kan ik de verzekering verlengen of annuleren?"
+      },
+      "status": {
+        "text": "Verzekerde accounts worden met een groene \"verzekerd\" badge gemarkeerd in de linkerbovenhoek van de Bitcoin account-pagina. In de \"verzekering\" sectie kun je een overzicht vinden van alle verzekerde Bitcoin accounts en hun huidige verzekeringsstatus.",
+        "title": "Kan ik de status van een verzekerd account inzien?"
+      },
+      "what": {
+        "text": "Iedere Bitcoin-verzekeringscontract dekt een specifieke account in je wallet. Je kunt verschillende accounts verzekeren door meerdere polissen af te sluiten. De verzekering dekt alleen adressen van het \"Native Segwit\" type.",
+        "title": "Is de hele BitBox wallet verzekerd?"
+      },
+      "who": {
+        "text": "De verzekering wordt aangeboden door Bitsurance, een verzekeraar opgericht door bitcoiners. Ze werken samen met ELEMENT verzekeringen om de Bitcoin-verzekering aan te bieden. Beide bedrijven zijn in Duitsland gevestigd.",
+        "title": "Wie verzekert mijn bitcoin?"
+      },
+      "why": {
+        "text": "Bitsurance dekt een aantal risico's van het in eigen beheer houden van je coins die niet door een wallet afgevangen kunnen worden, zoals diefstal, afpersing of vernietiging van de wallet. Het is een persoonlijke beslissing of je voor deze risico's een verzekering nodig hebt.",
+        "title": "Heb ik een Bitcoin-verzekering nodig?"
       }
     },
     "cointracking": {
@@ -1114,6 +1210,10 @@
         "description": "Selecteer je standaardvaluta",
         "title": "Standaardvaluta"
       },
+      "enableAccount": {
+        "description": "Als je je account de-activeert betekent dit alleen dat deze niet direct zichtbaar is in de BitBoxApp. Je kunt hem via dit menu altijd weer heractiveren. Coins op gedeactiveerde accounts blijven daar gewoon staan en blijven veilig.",
+        "title": "Account activeren/uitzetten"
+      },
       "hideAmounts": {
         "description": "Laat een toggle zien om je balansen en hoeveelheden te verbergen om je privacy te beschermen als je de app in het openbaar gebruikt.",
         "hideAmounts": "Hoeveelheden verbergen",
@@ -1272,6 +1372,7 @@
     "description": "Je BitBox heeft het volgende willekeurige getal van {{bits}} bits gegenereerd:"
   },
   "receive": {
+    "bitsuranceWarning": "Dit is een verzekerde account, wat betekent dat het alleen kan ontvangen naar Native Segwit adressen. Dit is om te voorkomen dat je geen bitcoin naar adressen stuurt die niet gedekt zijn.",
     "changeScriptType": "Adrestype wijzigen",
     "label": "Jouw adres",
     "onlyThisCoin": {
@@ -1500,6 +1601,7 @@
   "sidebar": {
     "buy": "Crypto kopen",
     "device": "Apparaat beheren",
+    "insurance": "Verzekering",
     "leave": "Verlaten",
     "settings": "Instellingen"
   },
@@ -1528,6 +1630,7 @@
       "fiatAmount": "Hoeveelheid in fiat",
       "fiatAtTime": "Fiat-waarde ten tijde van de transactie",
       "status": "Status",
+      "title": "Transactiedetails",
       "type": "Type"
     },
     "explorer": "Transactie-ID",
