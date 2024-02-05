@@ -189,7 +189,7 @@ export function AccountsSummary({
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               } />
-            {accountsByKeystore && balancePerCoin &&
+            {accountsByKeystore &&
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 <SummaryBalance
                   keystoreDisambiguatorName={isAmbiguiousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
@@ -197,7 +197,7 @@ export function AccountsSummary({
                   keystoreName={keystore.name}
                   key={keystore.rootFingerprint}
                   accounts={accounts}
-                  totalBalancePerCoin={balancePerCoin[keystore.rootFingerprint]}
+                  totalBalancePerCoin={ balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
                   totalBalance={ accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
                   balances={balances}
                 />
