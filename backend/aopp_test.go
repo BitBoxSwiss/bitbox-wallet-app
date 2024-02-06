@@ -37,6 +37,7 @@ const dummyMsg = "message to be signed"
 const dummySignature = "signature"
 
 var rootFingerprint = []byte{0x55, 0x055, 0x55, 0x55}
+var rootFingerprint2 = []byte{0x66, 0x066, 0x66, 0x66}
 
 func defaultParams() url.Values {
 	params := url.Values{}
@@ -304,6 +305,36 @@ func TestAOPPSuccess(t *testing.T) {
 		b.DeregisterKeystore()
 		b.AOPPApprove()
 		require.Equal(t, aoppStateAwaitingKeystore, b.AOPP().State)
+	})
+	//  Keystore watch-only is enabled, but the keystore is still required to sign, as its accounts are not available
+	// in the AOPP flow.
+	t.Run("watch-only", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		params := defaultParams()
+		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey))
+		fingerprint, err := b.keystore.RootFingerprint()
+		require.Nil(t, err)
+		b.SetWatchonly(fingerprint, true)
+		b.DeregisterKeystore()
+
+		ks2 := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey)
+		ks2.RootFingerprintFunc = func() ([]byte, error) {
+			return rootFingerprint2, nil
+		}
+		b.registerKeystore(ks2)
+
+		b.HandleURI("aopp:?" + params.Encode())
+		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
+		b.AOPPApprove()
+
+		for _, account := range b.AOPP().Accounts {
+			ac := b.accounts.lookup(account.Code)
+			require.NotNil(t, ac)
+			accountFingerprint, err := ac.Config().Config.SigningConfigurations.RootFingerprint()
+			require.NoError(t, err)
+			require.Equal(t, accountFingerprint, rootFingerprint2)
+		}
 	})
 }
 
