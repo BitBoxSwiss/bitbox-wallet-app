@@ -1,3 +1,4 @@
+
 /**
  * Copyright 2021 Shift Crypto AG
  *
@@ -22,13 +23,14 @@ import { equal } from '../../utils/equal';
 import { SimpleMarkup } from '../../utils/markup';
 import { View, ViewHeader, ViewContent, ViewButtons } from '../view/view';
 import { Message } from '../message/message';
-import { Button, Field, Label, Select } from '../forms';
+import { Button, Field, Label } from '../forms';
 import { CopyableInput } from '../copy/Copy';
 import { Cancel, PointToBitBox02 } from '../icon';
 import { VerifyAddress } from './verifyaddress';
 import { Vasp } from './vasp';
-import styles from './aopp.module.css';
 import { TUnsubscribe } from '../../utils/transport-common';
+import { GroupedAccountSelector } from '../groupedaccountselector/groupedaccountselector';
+import styles from './aopp.module.css';
 
 type TProps = {
   children: ReactNode;
@@ -43,7 +45,9 @@ type State = {
   aopp?: aoppAPI.Aopp;
 }
 
-type Props = TranslateProps;
+type Props = TranslateProps & {
+  accounts: accountAPI.IAccount[]
+};
 
 const domain = (callback: string): string => new URL(callback).host;
 
@@ -52,6 +56,7 @@ class Aopp extends Component<Props, State> {
     accountCode: '',
     aopp: undefined,
   };
+
   private unsubscribe?: TUnsubscribe;
 
   public componentDidMount() {
@@ -162,12 +167,7 @@ class Aopp extends Component<Props, State> {
         <Banner>{t('aopp.banner')}</Banner>
       );
     case 'choosing-account': {
-      const options = aopp.accounts.map(account => {
-        return {
-          text: account.name,
-          value: account.code,
-        };
-      });
+      const accountsWithKeystore = this.props.accounts.filter(account => aopp.accounts.some(aoppItem => aoppItem.code === account.code));
       return (
         <form onSubmit={this.chooseAccount}>
           <View
@@ -179,12 +179,13 @@ class Aopp extends Component<Props, State> {
               <Vasp hostname={domain(aopp.callback)} />
             </ViewHeader>
             <ViewContent>
-              <Select
-                label={t('buy.info.selectLabel')}
-                options={options}
-                value={accountCode}
-                onChange={e => this.setState({ accountCode: (e.target as HTMLSelectElement)?.value })}
-                id="account" />
+              {accountsWithKeystore.length > 0 && <GroupedAccountSelector
+                title={t('buy.info.selectLabel')}
+                accounts={accountsWithKeystore}
+                selected={accountCode}
+                onChange={selectedAccountCode => this.setState({ accountCode: selectedAccountCode })}
+              /> }
+
             </ViewContent>
             <ViewButtons>
               <Button primary type="submit">{t('button.next')}</Button>

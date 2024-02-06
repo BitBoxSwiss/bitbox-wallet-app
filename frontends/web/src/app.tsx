@@ -167,7 +167,7 @@ export const App = () => {
                   <Banner msgKey="bitbox02" />
                   <MobileDataWarning />
                   <WCSigningRequest />
-                  <Aopp />
+                  <Aopp accounts={activeAccounts} />
                   <KeystoreConnectPrompt />
                   {
                     Object.entries(devices).map(([deviceID, productName]) => {

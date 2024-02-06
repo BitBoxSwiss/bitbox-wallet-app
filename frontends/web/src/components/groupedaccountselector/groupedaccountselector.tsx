@@ -47,7 +47,7 @@ type TAccountSelector = {
   disabled?: boolean;
   selected?: string;
   onChange: (value: string) => void;
-  onProceed: () => void;
+  onProceed?: () => void;
   accounts: IAccount[]
 }
 
@@ -160,14 +160,17 @@ export const GroupedAccountSelector = ({ title, disabled, selected, onChange, on
         }}
         defaultValue={options[0].options[0]}
       />
-      <div className="buttons text-center">
-        <Button
-          primary
-          onClick={onProceed}
-          disabled={!selected || disabled}>
-          {t('buy.info.next')}
-        </Button>
-      </div>
+      {onProceed && (
+        <div className="buttons text-center">
+          <Button
+            primary
+            onClick={onProceed}
+            disabled={!selected || disabled}>
+            {t('buy.info.next')}
+          </Button>
+        </div>
+      )}
+
     </>
 
   );
