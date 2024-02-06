@@ -95,11 +95,14 @@ class Aopp extends Component<Props, State> {
     }
   }
 
-  private chooseAccount = (e: React.SyntheticEvent) => {
-    if (this.state.accountCode) {
-      aoppAPI.chooseAccount(this.state.accountCode);
-    }
+  private chooseAccount = async (e: React.SyntheticEvent) => {
     e.preventDefault();
+    if (this.state.accountCode) {
+      const { success } = await accountAPI.connectKeystore(this.state.accountCode);
+      if (success) {
+        aoppAPI.chooseAccount(this.state.accountCode);
+      }
+    }
   };
 
   public render() {
