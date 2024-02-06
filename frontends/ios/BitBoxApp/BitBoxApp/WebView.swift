@@ -120,7 +120,9 @@ struct WebView: UIViewRepresentable {
         config.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
         
         let webView = WKWebView(frame: .zero, configuration: config)
-       
+        webView.navigationDelegate = context.coordinator
+        webView.uiDelegate = context.coordinator
+
         setHandlers.setMessageHandlers(handlers: MessageHandlers(webView: webView))
         let source = """
         window.runningOnIOS = true;
@@ -137,5 +139,37 @@ struct WebView: UIViewRepresentable {
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
         uiView.load(URLRequest(url: URL(string: scheme + ":/index.html")!))
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+    
+    class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+        // Intercept all URLs
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+            guard let url = navigationAction.request.url else {
+                decisionHandler(.cancel)
+                return
+            }
+            print("Loading URL: " + url.absoluteString)
+            // TODO: figure out if there are links (not target=_blank which are handled below) that
+            // should be intercepted here to be opened in the system browser instead.
+            // For now, allow everything.
+            decisionHandler(.allow)
+        }
+        
+        func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+            // Intercept target=_blank link clicks and open them in the system browser.
+            // This opens e.g. the cookie policy and other external links in the Moonpay/Pocket widgets, etc.
+            if navigationAction.targetFrame == nil || !navigationAction.targetFrame!.isMainFrame {
+                if let url = navigationAction.request.url {
+                    if UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+            }
+            return nil
+        }
     }
 }
