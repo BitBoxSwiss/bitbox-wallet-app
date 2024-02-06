@@ -18,13 +18,14 @@
   margin-left: 10px;
 }
 
-.ctaButton button{
-  max-width: 240px;
-  padding: 0;
+.ctaButton button {
+  padding: 0 var(--space-half);
+  width: auto !important;
 }
 
 .ctaButton img {
   margin-right: var(--space-quarter);
+  vertical-align: text-bottom;
 }
 
 .ctaButton:focus img,
