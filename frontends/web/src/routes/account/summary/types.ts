@@ -19,6 +19,7 @@ export type TChartDisplay = 'week' | 'month' | 'year' | 'all';
 export type TChartFiltersProps = {
   display: TChartDisplay
   disableFilters: boolean;
+  disableWeeklyFilters: boolean;
   onDisplayWeek: () => void;
   onDisplayMonth: () => void;
   onDisplayYear: () => void;
