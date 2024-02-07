@@ -179,6 +179,16 @@ func (backend *Backend) aoppKeystoreRegistered() {
 	var accounts []account
 	var filteredDueToScriptType bool
 	for _, acct := range backend.accounts {
+		accountFingerprint, err := acct.Config().Config.SigningConfigurations.RootFingerprint()
+		if err != nil {
+			backend.log.WithError(err).Error("Account rootfingerprint not available")
+			backend.aoppSetError(errAOPPUnknown)
+			return
+		}
+
+		if err := compareRootFingerprint(backend.keystore, accountFingerprint); err != nil {
+			continue
+		}
 		if acct.Config().Config.Inactive || acct.Config().Config.HiddenBecauseUnused {
 			continue
 		}
