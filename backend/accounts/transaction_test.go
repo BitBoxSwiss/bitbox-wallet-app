@@ -149,3 +149,67 @@ func TestOrderedTransactions(t *testing.T) {
 		},
 	}, timeseries)
 }
+
+// TestOrderedTransactionsWithFailedTransactions tests that the cumulative balance takes into
+// account failed transactions.  Ethereum transactions can be mined and fail anyway due to a too low
+// gas limit, in which case the amount is not transferred, but the fees are still paid.
+func TestOrderedTransactionsWithFailedTransactions(t *testing.T) {
+	tt := func(t time.Time) *time.Time { return &t }
+	fee := coin.NewAmountFromInt64(1)
+	txs := []*TransactionData{
+		{
+			Timestamp: tt(time.Date(2020, 9, 15, 12, 0, 0, 0, time.UTC)),
+			Height:    15,
+			Type:      TxTypeReceive,
+			Amount:    coin.NewAmountFromInt64(100),
+		},
+		{
+			Timestamp: tt(time.Date(2020, 9, 10, 12, 0, 0, 0, time.UTC)),
+			Height:    10,
+			Type:      TxTypeReceive,
+			Amount:    coin.NewAmountFromInt64(200),
+		},
+		{
+			Timestamp: tt(time.Date(2020, 9, 20, 12, 0, 0, 0, time.UTC)),
+			Height:    20,
+			Type:      TxTypeReceive,
+			Amount:    coin.NewAmountFromInt64(300),
+		},
+		{
+			Timestamp: tt(time.Date(2020, 9, 21, 12, 0, 0, 0, time.UTC)),
+			Height:    21,
+			Type:      TxTypeSendSelf,
+			Amount:    coin.NewAmountFromInt64(50),
+			Fee:       &fee,
+		},
+		{
+			Timestamp: tt(time.Date(2020, 9, 22, 12, 0, 0, 0, time.UTC)),
+			Height:    22,
+			Type:      TxTypeSend,
+			Amount:    coin.NewAmountFromInt64(50),
+			Fee:       &fee,
+			Status:    TxStatusFailed,
+		},
+		{
+			Timestamp: tt(time.Date(2020, 9, 23, 12, 0, 0, 0, time.UTC)),
+			Height:    23,
+			Type:      TxTypeReceive,
+			Amount:    coin.NewAmountFromInt64(1000),
+			Fee:       &fee,
+			Status:    TxStatusFailed,
+		},
+	}
+
+	ordered := NewOrderedTransactions(txs)
+	expectedBalances := []int64{
+		598, // failed receive tx, nothing changes
+		598, // failed send tx, only fee deducted
+		599,
+		600,
+		300,
+		200,
+	}
+	for i := range ordered {
+		require.Equal(t, coin.NewAmountFromInt64(expectedBalances[i]), ordered[i].Balance, i)
+	}
+}

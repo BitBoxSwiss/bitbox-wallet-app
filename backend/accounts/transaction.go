@@ -163,15 +163,21 @@ func NewOrderedTransactions(txs []*TransactionData) OrderedTransactions {
 		tx := txs[i]
 		switch tx.Type {
 		case TxTypeReceive:
-			balance.Add(balance, tx.Amount.BigInt())
+			if tx.Status != TxStatusFailed {
+				balance.Add(balance, tx.Amount.BigInt())
+			}
 		case TxTypeSend:
-			balance.Sub(balance, tx.Amount.BigInt())
-			// Subtract fee as well.
+			if tx.Status != TxStatusFailed {
+				balance.Sub(balance, tx.Amount.BigInt())
+			}
+			// Subtract fee as well. Ethereum: it is deducted even if the tx failed, as the tx was
+			// mined.
 			if tx.Fee != nil && !tx.FeeIsDifferentUnit {
 				balance.Sub(balance, tx.Fee.BigInt())
 			}
 		case TxTypeSendSelf:
-			// Subtract only fee.
+			// Subtract only fee. Ethereum: it is deducted even if the tx failed, as the tx was
+			// mined.
 			if tx.Fee != nil && !tx.FeeIsDifferentUnit {
 				balance.Sub(balance, tx.Fee.BigInt())
 			}
