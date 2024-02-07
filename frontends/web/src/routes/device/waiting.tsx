@@ -16,9 +16,14 @@
 
 import { useTranslation } from 'react-i18next';
 import { i18n } from '../../i18n/i18n';
+import { getDeviceList } from '../../api/devices';
+import { syncDeviceList } from '../../api/devicessync';
+import { useSync } from '../..//hooks/api';
+import { useKeystores } from '../../hooks/backend';
 import { useDarkmode } from '../../hooks/darkmode';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
+import { Spinner } from '../../components/spinner/Spinner';
 import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../components/icon/logo';
 import { Footer, Header } from '../../components/layout';
 import style from './bitbox01/bitbox01.module.css';
@@ -27,6 +32,13 @@ export const Waiting = () => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
 
+  const keystores = useKeystores();
+  const devices = useSync(getDeviceList, syncDeviceList);
+  if ((keystores !== undefined && keystores.length) || (devices !== undefined && Object.keys(devices).length)) {
+    return (
+      <Spinner guideExists text={'Loading accounts'} />
+    );
+  }
   return (
     <div className="contentWithGuide">
       <div className="container">
