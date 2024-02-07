@@ -13,7 +13,7 @@
     "syncedAddressesCount": "Prešteto št. naslovov: {{count}}",
     "uncoveredFunds": "Kovance imate na naslednjih nezavarovanih vrstah naslovov vašega računa <strong>{{name}}</strong>: {{uncovered}}. \nKer je račun zavarovan, so zajeti samo kovanci, prejeti preko naslova <strong>Native Segwit</strong>. Kovanci na ostalih vrstah naslovov, tudi če so na istem računu, niso zavarovani.\nPredlagamo, da premaknete vse kovance z nepodprtih tipov naslova na <strong>Native Segwit</strong> naslov, da bodo vsi kovanci na tem računu zavarovani. Hvala!",
     "uncoveredFundsLink": "Za premik kovancev sledite temu navodilu.",
-    "warning": "Opozorilo!"
+    "warning": "Pozor!"
   },
   "accountInfo": {
     "address": "Naslov",
@@ -912,7 +912,7 @@
         "title": "Kako lahko obnovim ali prekinem zavarovanje?"
       },
       "status": {
-        "text": "Uspešno zavarovani računi so označeni z zeleno oznako \"zavarovano\" v zgornjem levem kotu na strani vsakega Bitcoin računa. V razdelku \"Zavarovanje\" si lahko ogledate pregled vseh Bitcoin zavarovanih računov in njihovo trenutno stanje zavarovanja.",
+        "text": "Uspešno zavarovani računi so označeni z zeleno oznako \"zavarovano\" v zgornjem levem kotu na strani vsakega Bitcoin računa. V razdelku \"Zavarovanje\" si lahko ogledate pregled vseh Bitcoin zavarovanih računov in njihovo trenutno stanje zavarovanja. Posodobitev stanja lahko traja do 48 ur.",
         "title": "Ali lahko preverim stanje zavarovanega računa?"
       },
       "what": {

@@ -912,7 +912,7 @@
         "title": "How can I renew or cancel the insurance?"
       },
       "status": {
-        "text": "Successfully insured accounts are marked with a green “insured” badge in the top left corner on each Bitcoin account page. In the “Insurance” section, you can see the overview of all insured Bitcoin accounts and their current insurance status.",
+        "text": "Successfully insured accounts are marked with a green “insured” badge in the top left corner on each Bitcoin account page. In the “Insurance” section, you can see the overview of all insured Bitcoin accounts and their current insurance status. It can take up to 48 hours to update the insurance status.",
         "title": "Can I check the status of an insured account?"
       },
       "what": {

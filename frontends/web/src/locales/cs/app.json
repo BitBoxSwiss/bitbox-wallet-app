@@ -13,7 +13,7 @@
     "syncedAddressesCount": "Naskenováno {{count}} adres",
     "uncoveredFunds": "Máte prostředky na následujících nepokrytých typech adresách vašeho <strong>{{name}}</strong> účtu: {{uncovered}}.\nVzhledem k tomu, že účet je pojištěný, vztahuje se pouze na prostředky přijaté prostřednictvím adresy typu <strong>Native  Segwit</strong>. Prostředky na odlišných typech adres, i když jsou na stejném účtu, pojištěny nejsou.\nPřesuňte prosím všechny své mince z nepodporovaných typů adres na adresy typu <strong>Native Segwit</strong>, aby byly všechny vaše prostředky na tomto účtu pojištěny.",
     "uncoveredFundsLink": "Postupujte podle tohoto průvodce, jak přesunout své prostředky.",
-    "warning": "Varování!"
+    "warning": "Varování! "
   },
   "accountInfo": {
     "address": "Adresa",
@@ -264,7 +264,12 @@
       "unlock": "Pro odemknutí zadejte heslo."
     },
     "stepCreate": {
-      "description": "Tento název se používá jako název zařízení a pro zálohu.",
+      "description": "Tento název se používá jako název zařízení a pro zálohu. ",
+      "error": {
+        "genericMessage": "Používejte písmena, čísla, základní symboly, mezery. Maximálně 30 znaků.",
+        "invalidChars": "Název obsahuje neplatné znaky: {{invalidChars}}.",
+        "tooLong": "Název je příliš dlouhý."
+      },
       "nameLabel": "Název BitBox02",
       "namePlaceholder": "Můj BitBox02",
       "title": "Vyberte název pro BitBox02",
@@ -673,6 +678,7 @@
     "aoppUnsupportedFormat": "Nejsou k dispozici žádné účty, které by podporovaly požadovaný formát adresy.",
     "aoppUnsupportedKeystore": "Připojené zařízení nemůže podepisovat zprávy pro toto aktivum.",
     "aoppVersion": "Neznámá verze.",
+    "keystoreTimeout": "Platnost požadavku vypršela. Prosím zkuste to znovu.",
     "wrongKeystore": "Byla připojena špatná peněženka. Ujistěte se, že jste vložili správné zařízení odpovídající tomuto účtu.",
     "wrongKeystore2": " Pokud používáte přístupovou frázi, zkontrolujte, zda jste zadali správnou přístupovou frázi pro tento účet."
   },
@@ -906,7 +912,7 @@
         "title": "Jak mohu obnovit nebo zrušit pojištění?"
       },
       "status": {
-        "text": "Úspěšně pojištěné účty jsou označeny zeleným odznakem „pojištěno“ v pravém horním rohu na každé stránce bitcoinového účtu. V sekci „Pojištění“ vidíte přehled všech pojištěných bitcoinových účtů a jejich aktuální stav pojištění.",
+        "text": "Úspěšně pojištěné účty jsou označeny zeleným odznakem \"pojištěno\" v levém horním rohu na každé stránce účtu Bitcoin. V sekci \"Pojištění\" si můžete prohlédnout přehled všech pojištěných účtů Bitcoin a jejich aktuální stav pojištění. Aktualizace stavu pojištění může trvat až 48 hodin.",
         "title": "Mohu zkontrolovat stav pojištěného účtu?"
       },
       "what": {
