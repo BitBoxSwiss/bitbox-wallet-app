@@ -482,7 +482,7 @@ class Chart extends Component<Props, State> {
     } = this.state;
     const hasDifferenece = difference && Number.isFinite(difference);
     const hasData = this.hasData();
-    const disableFilters = !hasData || chartTotal === 0 || chartDataMissing;
+    const disableFilters = !hasData || chartDataMissing;
     const showMobileTotalValue = toolTipVisible && !!toolTipValue && isMobile;
     const chartFiltersProps = {
       display,
