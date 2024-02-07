@@ -16,7 +16,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { CoinCode, IAccount } from '../../api/account';
-import { getAccountsByKeystore, sortAccounts } from './utils';
+import { getAccountsByKeystore } from './utils';
 
 
 const createAccount = ({
@@ -127,54 +127,6 @@ describe('utils/getAccountsByKeystore', () => {
     expect(result[1].accounts.every(({ keystore }) => keystore.rootFingerprint === 'w2')).toBe(true);
     expect(result[0].accounts[2].code).toBe(accounts[6].code);
     expect(result[1].accounts[3].code).toBe(accounts[5].code);
-  });
-
-});
-
-describe('utils/sortAccounts', () => {
-
-  it('should return a new sorted array', () => {
-    const accounts = [
-      createAccount({ code: 'a2', name: 'A2', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
-      createAccount({ code: 'b2', name: 'B2', keystore: { name: 'W2', rootFingerprint: 'w2' } }),
-      createAccount({ code: 'a3', name: 'A3', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
-      createAccount({ code: 'a1', name: 'A1', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
-      createAccount({ code: 'b3', name: 'B3', keystore: { name: 'W2', rootFingerprint: 'w2' } }),
-      createAccount({ code: 'b1', name: 'B1', keystore: { name: 'W2', rootFingerprint: 'w2' } }),
-      createAccount({ code: 'b4', name: 'B4', keystore: { name: 'W2', rootFingerprint: 'w2' } }),
-    ];
-    const result = sortAccounts(accounts);
-    expect(accounts).not.toBe(result);
-    expect(result.length).toBe(accounts.length);
-    expect(result[0].keystore.rootFingerprint).toBe('w1');
-    expect(result[1].keystore.rootFingerprint).toBe('w1');
-    expect(result[2].keystore.rootFingerprint).toBe('w1');
-    expect(result[3].keystore.rootFingerprint).toBe('w2');
-    expect(result[4].keystore.rootFingerprint).toBe('w2');
-    expect(result[5].keystore.rootFingerprint).toBe('w2');
-    expect(result[6].keystore.rootFingerprint).toBe('w2');
-  });
-
-  it('should return a new sorted array, but this time all keystores have the same name', () => {
-    const accounts = [
-      createAccount({ code: 'a2', name: 'A2', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
-      createAccount({ code: 'b2', name: 'B2', keystore: { name: 'W1', rootFingerprint: 'w2' } }),
-      createAccount({ code: 'a3', name: 'A3', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
-      createAccount({ code: 'a1', name: 'A1', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
-      createAccount({ code: 'b3', name: 'B3', keystore: { name: 'W1', rootFingerprint: 'w2' } }),
-      createAccount({ code: 'b1', name: 'B1', keystore: { name: 'W1', rootFingerprint: 'w2' } }),
-      createAccount({ code: 'b4', name: 'B4', keystore: { name: 'W1', rootFingerprint: 'w2' } }),
-    ];
-    const result = sortAccounts(accounts);
-    expect(accounts).not.toBe(result);
-    expect(result.length).toBe(accounts.length);
-    expect(result[0].keystore.rootFingerprint).toBe('w1');
-    expect(result[1].keystore.rootFingerprint).toBe('w1');
-    expect(result[2].keystore.rootFingerprint).toBe('w1');
-    expect(result[3].keystore.rootFingerprint).toBe('w2');
-    expect(result[4].keystore.rootFingerprint).toBe('w2');
-    expect(result[5].keystore.rootFingerprint).toBe('w2');
-    expect(result[6].keystore.rootFingerprint).toBe('w2');
   });
 
 });
