@@ -912,7 +912,7 @@
         "title": "Wie kann ich die Versicherung verlängern oder kündigen?"
       },
       "status": {
-        "text": "Erfolgreich versicherte Konten sind auf jeder Bitcoin-Kontoseite mit einem grünen \"versichert\" Abzeichen in der oberen linken Ecke gekennzeichnet. Im Bereich \"Versicherung\" siehst du eine Übersicht über alle versicherten Bitcoin-Konten und ihren aktuellen Versicherungsstatus.",
+        "text": "Erfolgreich versicherte Konten sind auf jeder Bitcoin-Kontoseite in der oberen linken Ecke mit einem grünen „versicherten“ Abzeichen gekennzeichnet. Im Bereich „Versicherung“ siehst du die Übersicht aller versicherten Bitcoin-Konten und dem aktuellen Versicherungsstatus. Die Aktualisierung des Versicherungsstatus kann bis zu 48 Stunden dauern.",
         "title": "Kann ich den Status eines versicherten Kontos überprüfen?"
       },
       "what": {
