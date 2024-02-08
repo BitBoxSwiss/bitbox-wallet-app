@@ -18,7 +18,6 @@ package handlers
 import (
 	"bytes"
 	"encoding/base64"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -696,8 +695,7 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 	if err != nil {
 		return nil, err
 	}
-	for keystore, accountList := range accountsByKeystore {
-		rootFingerprint := hex.EncodeToString(keystore.RootFingerprint)
+	for rootFingerprint, accountList := range accountsByKeystore {
 		totalPerCoin := make(map[coin.Code]*big.Int)
 		conversionsPerCoin := make(map[coin.Code]map[string]string)
 		for _, account := range accountList {

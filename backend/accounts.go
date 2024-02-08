@@ -18,6 +18,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math"
+	"math/big"
 	"sort"
 	"strings"
 	"time"
@@ -28,10 +29,13 @@ import (
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitsurance"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -60,7 +64,7 @@ type AccountsList []accounts.Interface
 
 // KeystoresAccountsListMap is a map where keys are keystores' fingerprints and values are
 // AccountsLists of accounts belonging to each keystore.
-type KeystoresAccountsListMap map[*config.Keystore]AccountsList
+type KeystoresAccountsListMap map[string]AccountsList
 
 func (a AccountsList) lookup(code accountsTypes.Code) accounts.Interface {
 	for _, acct := range a {
@@ -203,6 +207,90 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 		availableCoins = append(availableCoins, coinCode)
 	}
 	return availableCoins
+}
+
+// AccountsByKeystore returns a map of the current accounts of the backend, grouped
+// by keystore.
+func (backend *Backend) AccountsByKeystore() (KeystoresAccountsListMap, error) {
+	defer backend.accountsAndKeystoreLock.RLock()()
+	accountsByKeystore := KeystoresAccountsListMap{}
+	for _, account := range backend.accounts {
+		persistedAccount := account.Config().Config
+		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
+		if err != nil {
+			return nil, err
+		}
+		hexFingerprint := hex.EncodeToString(rootFingerprint)
+		accountsByKeystore[hexFingerprint] = append(accountsByKeystore[hexFingerprint], account)
+	}
+	return accountsByKeystore, nil
+}
+
+// accountFiatBalance returns an account's balance, converted in fiat currency.
+func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat string) (*big.Rat, error) {
+	balance, err := account.Balance()
+	if err != nil {
+		return nil, err
+	}
+
+	coinDecimals := coin.DecimalsExp(account.Coin())
+
+	price, err := backend.RatesUpdater().LatestPriceForPair(account.Coin().Unit(false), fiat)
+	if err != nil {
+		return nil, err
+	}
+	fiatValue := new(big.Rat).Mul(
+		new(big.Rat).SetFrac(
+			balance.Available().BigInt(),
+			coinDecimals,
+		),
+		new(big.Rat).SetFloat64(price),
+	)
+	return fiatValue, nil
+}
+
+// AccountsTotalBalanceByKeystore returns a map of accounts' total balances across coins, grouped by keystore.
+func (backend *Backend) AccountsTotalBalanceByKeystore() (map[string]KeystoreTotalAmount, error) {
+	totalAmounts := make(map[string]KeystoreTotalAmount)
+	fiat := backend.Config().AppConfig().Backend.MainFiat
+	isFiatBtc := fiat == rates.BTC.String()
+	fiatUnit := fiat
+	if isFiatBtc && backend.Config().AppConfig().Backend.BtcUnit == coinpkg.BtcUnitSats {
+		fiatUnit = "sat"
+	}
+
+	formatBtcAsSat := util.FormatBtcAsSat(backend.Config().AppConfig().Backend.BtcUnit)
+
+	accountsByKeystore, err := backend.AccountsByKeystore()
+	if err != nil {
+		return nil, err
+	}
+	for rootFingerprint, accountList := range accountsByKeystore {
+		currentTotal := new(big.Rat)
+		for _, account := range accountList {
+			if account.Config().Config.Inactive {
+				continue
+			}
+			if account.FatalError() {
+				continue
+			}
+			err := account.Initialize()
+			if err != nil {
+				return nil, err
+			}
+
+			fiatValue, err := backend.accountFiatBalance(account, fiat)
+			if err != nil {
+				return nil, err
+			}
+			currentTotal.Add(currentTotal, fiatValue)
+		}
+		totalAmounts[rootFingerprint] = KeystoreTotalAmount{
+			FiatUnit: fiatUnit,
+			Total:    coinpkg.FormatAsCurrency(currentTotal, isFiatBtc, formatBtcAsSat),
+		}
+	}
+	return totalAmounts, nil
 }
 
 // LookupInsuredAccounts queries the insurance status of specified or all active BTC accounts
