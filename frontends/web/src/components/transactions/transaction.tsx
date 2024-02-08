@@ -106,11 +106,7 @@ class Transaction extends Component<Props, State> {
     const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
     const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
     const sDate = time ? this.parseTimeShort(time) : '---';
-    const statusText = {
-      complete: t('transaction.status.complete'),
-      pending: t('transaction.status.pending'),
-      failed: t('transaction.status.failed'),
-    }[status];
+    const statusText = t(`transaction.status.${status}`);
     const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
 
     return (
