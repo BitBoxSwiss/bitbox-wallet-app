@@ -53,7 +53,7 @@ const GetAccountLink = ({
   const { pathname } = useLocation();
   const active = (pathname === `/account/${code}`) || (pathname.startsWith(`/account/${code}/`));
   return (
-    <div key={code} className={style.sidebarItem}>
+    <div className={style.sidebarItem}>
       <Link
         className={active ? style.sidebarActive : ''}
         to={`/account/${code}`}
@@ -154,9 +154,9 @@ const Sidebar = ({
 
   return (
     <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>
-      <div className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
+      <div key="overlay" className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
       <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')}>
-        <div className={style.sidebarLogoContainer}>
+        <div key="app-logo" className={style.sidebarLogoContainer}>
           <Link
             to={accounts.length ? '/account-summary' : '/'}
             onClick={handleSidebarItemClick}>
@@ -168,7 +168,7 @@ const Sidebar = ({
         </div>
 
         { accounts.length ? (
-          <div className={`${style.sidebarItem} ${style.sidebarPortfolio}`}>
+          <div key="account-summary" className={`${style.sidebarItem} ${style.sidebarPortfolio}`}>
             <NavLink
               className={({ isActive }) => isActive ? style.sidebarActive : ''}
               to={'/account-summary'}
@@ -183,7 +183,7 @@ const Sidebar = ({
         ) : null }
 
         { accountsByKeystore.map(keystore => (
-          <React.Fragment key={keystore.keystore.rootFingerprint}>
+          <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
             <div className={style.sidebarHeaderContainer}>
               <span
                 className={style.sidebarHeader}
@@ -204,11 +204,13 @@ const Sidebar = ({
                   title={t('device.keystoreConnected')} />
               </span>
             </div>
-            { keystore.accounts.map(acc => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={handleSidebarItemClick }/>) }
-          </React.Fragment>
+            { keystore.accounts.map(acc => (
+              <GetAccountLink key={`account-${acc.code}`} {...acc} handleSidebarItemClick={handleSidebarItemClick} />
+            ))}
+          </div>
         )) }
 
-        <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
+        <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (
           <>
             <div key="buy" className={style.sidebarItem}>
@@ -237,7 +239,7 @@ const Sidebar = ({
           </>
         ) : null }
 
-        <div key="settings-new" className={style.sidebarItem}>
+        <div key="settings" className={style.sidebarItem}>
           <NavLink
             className={({ isActive }) => isActive ? style.sidebarActive : ''}
             to={'/settings'}
