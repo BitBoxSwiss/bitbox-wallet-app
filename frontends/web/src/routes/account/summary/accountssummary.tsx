@@ -203,19 +203,17 @@ export function AccountsSummary({ accounts, devices }: TProps) {
                 accounts.length && accounts.length <= Object.keys(balances || {}).length ? (
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
-              }
-            />
+              } />
             {accountsByKeystore &&
-              balancePerCoin &&
-              accountsByKeystore.map(({ keystore, accounts }) => (
+              (accountsByKeystore.map(({ keystore, accounts }) =>
                 <SummaryBalance
                   keystoreDisambiguatorName={isAmbiguiousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
                   connected={keystore.connected}
                   keystoreName={keystore.name}
                   key={keystore.rootFingerprint}
                   accounts={accounts}
-                  totalBalancePerCoin={balancePerCoin[keystore.rootFingerprint]}
-                  totalBalance={accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
+                  totalBalancePerCoin={ balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
+                  totalBalance={ accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
                   balances={balances}
                   lightningNodeState={nodeState}
                 />
