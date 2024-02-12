@@ -172,14 +172,14 @@ class MobilePairing extends Component<Props, State> {
                       <div className="column column-1-2">
                         <label className="text-center">Apple App Store</label>
                         <div className="flex flex-column flex-center flex-items-center">
-                          <QRCode data="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740" size={148} />
+                          <QRCode tapToCopy={false} data="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740" size={148} />
                           <a target="_blank" rel="noreferrer" href="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740"><img src={appStoreBadge} className={style.badge} /></a>
                         </div>
                       </div>
                       <div className="column column-1-2">
                         <label className="text-center">Google Play Store</label>
                         <div className="flex flex-column flex-center flex-items-center">
-                          <QRCode data="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa" size={148} />
+                          <QRCode tapToCopy={false} data="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa" size={148} />
                           <a target="_blank" rel="noreferrer" href="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa"><img src={playStoreBadge} className={style.badge} /></a>
                         </div>
                       </div>
@@ -193,14 +193,14 @@ class MobilePairing extends Component<Props, State> {
             <div>
               <p className="m-top-none"><strong className="m-right-quarter">2.</strong>{t('pairing.start.step2')}</p>
               <div className="text-center">
-                <QRCode data={JSON.stringify(channel)} size={196} />
+                <QRCode tapToCopy={false} data={JSON.stringify(channel)} size={196} />
               </div>
             </div>
           </div>
         </div>
       );
     } else if (status === 'connectOnly') {
-      content = (<QRCode data={JSON.stringify({ channel, connectOnly: true })} />);
+      content = (<QRCode tapToCopy={false} data={JSON.stringify({ channel, connectOnly: true })} />);
     } else {
       content = (<p className="m-top-none">{t(`pairing.${status}.text`)}</p>);
     }

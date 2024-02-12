@@ -17,18 +17,24 @@
 
 import { useLoad } from '../../hooks/api';
 import { getQRCode } from '../../api/backend';
+import { Check } from '../icon';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import style from './qrcode.module.css';
 
 type TProps = {
     data?: string;
     size?: number;
+    tapToCopy?: boolean;
 };
 
 export const QRCode = ({
   data,
   size = 256,
+  tapToCopy = true
 }: TProps) => {
   const qrCode = useLoad(data !== undefined ? getQRCode(data) : null, [data]);
+
   if (!qrCode) {
     if (data !== undefined) {
       return <div className={style.empty}></div>;
@@ -45,6 +51,49 @@ export const QRCode = ({
   }
 
   return (
-    <img width={size} height={size} src={qrCode.data} />
+    tapToCopy ?
+      <TapToCopyQRCode data={data} qrCodeData={qrCode.data} size={size} /> :
+      <img width={size} height={size} src={qrCode.data} />
+  );
+};
+
+type TTapToCopyQRCodeProps = {
+  data?: string;
+  qrCodeData: string
+  size: number
+}
+
+const TapToCopyQRCode = ({ data, qrCodeData, size }: TTapToCopyQRCodeProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [success, setSuccess] = useState(false);
+
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (success) {
+      setTimeout(() => setSuccess(false), 1500);
+    }
+  }, [success]);
+
+
+  const handleCopy = () => {
+    inputRef.current?.select();
+    if (document.execCommand('copy')) {
+      setSuccess(true);
+    }
+  };
+
+
+  return (
+    <div onClick={handleCopy}>
+      <input className={style.hiddenInput} ref={inputRef} value={data} readOnly/>
+      <div style={{ width: size, height: size }} className={style.outerContainer}>
+        <img className={`${style.qrCodeContainer}  ${success ? style.hide : style.show}`} width={size} height={size} src={qrCodeData} />
+        <div className={`${style.checkContainer} ${style.show}`}>
+          <Check width={size / 2} height={size / 2} />
+        </div>
+      </div>
+      <p className={`${style.copiedText} ${success ? style.show : style.hide}`}>{t('receive.qrCodeCopiedMessage')}</p>
+    </div>
   );
 };

@@ -164,7 +164,7 @@ export const Receive = ({
               { currentAddresses && (
                 <div style={{ position: 'relative' }}>
                   <div className={style.qrCodeContainer}>
-                    <QRCode data={enableCopy ? uriPrefix + address : undefined} />
+                    <QRCode tapToCopy={false} data={enableCopy ? uriPrefix + address : undefined} />
                   </div>
                   <div className={style.labels}>
                     { currentAddresses.length > 1 && (
@@ -266,7 +266,7 @@ export const Receive = ({
                             {t('receive.onlyThisCoin.description')}
                           </p>
                         )}
-                        <QRCode data={uriPrefix + address} />
+                        <QRCode tapToCopy={false} data={uriPrefix + address} />
                         <p>{t('receive.verifyInstruction')}</p>
                       </>}
                     </div>

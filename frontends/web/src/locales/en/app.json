@@ -1380,6 +1380,7 @@
       "description": "To receive other tokens, enable them in the settings. If you deposit other tokens, they might not be accessible.",
       "warning": "Make sure to only receive {{coinName}} on this address."
     },
+    "qrCodeCopiedMessage": "Copied!",
     "scriptType": {
       "p2tr": "Taproot (newest format)",
       "p2wpkh": "Native Segwit (default)",
