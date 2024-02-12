@@ -15,26 +15,23 @@
  * limitations under the License.
  */
 
-import React, { Component, createRef } from 'react';
+import { Component } from 'react';
 import * as accountApi from '../../api/account';
-import { Input } from '../../components/forms';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { A } from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
 import { CopyableInput } from '../copy/Copy';
-import { Edit, EditLight, ExpandIcon, Save, SaveLight } from '../icon/icon';
+import { ExpandIcon } from '../icon/icon';
 import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
 import { Amount } from '../../components/amount/amount';
 import { ArrowIn, ArrowOut, ArrowSelf } from './components/icons';
-import { getDarkmode } from '../darkmode/darkmode';
+import { Note } from './note';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
 
 interface State {
     transactionDialog: boolean;
-    newNote: string;
-    editMode: boolean;
     transactionInfo?: accountApi.ITransaction;
 }
 
@@ -47,13 +44,8 @@ interface TransactionProps extends accountApi.ITransaction {
 type Props = TransactionProps & TranslateProps;
 
 class Transaction extends Component<Props, State> {
-  private input = createRef<HTMLInputElement>();
-  private editButton = createRef<HTMLButtonElement>();
-
   public readonly state: State = {
     transactionDialog: false,
-    newNote: this.props.note,
-    editMode: !this.props.note,
   };
 
   private parseTimeShort = (time: string) => {
@@ -74,8 +66,6 @@ class Transaction extends Component<Props, State> {
       this.setState({
         transactionInfo: transaction,
         transactionDialog: true,
-        newNote: this.props.note,
-        editMode: !this.props.note,
       });
     })
       .catch(console.error);
@@ -83,37 +73,6 @@ class Transaction extends Component<Props, State> {
 
   private hideDetails = () => {
     this.setState({ transactionDialog: false });
-  };
-
-  private handleNoteInput = (e: Event) => {
-    const target = e.target as HTMLInputElement;
-    this.setState({ newNote: target.value });
-  };
-
-  private handleEdit = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    if (this.state.editMode && this.props.note !== this.state.newNote) {
-      accountApi.postNotesTx(this.props.accountCode, {
-        internalTxID: this.props.internalID,
-        note: this.state.newNote,
-      })
-        .catch(console.error);
-    }
-    this.focusEdit();
-    this.setState(
-      ({ editMode }) => ({ editMode: !editMode }),
-      this.focusEdit,
-    );
-  };
-
-  private focusEdit = () => {
-    if (this.editButton.current) {
-      this.editButton.current.blur();
-    }
-    if (this.state.editMode && this.input.current) {
-      this.input.current.scrollLeft = this.input.current.scrollWidth;
-      this.input.current.focus();
-    }
   };
 
   public render() {
@@ -133,8 +92,6 @@ class Transaction extends Component<Props, State> {
     } = this.props;
     const {
       transactionDialog,
-      newNote,
-      editMode,
       transactionInfo,
     } = this.state;
     const arrow = type === 'receive' ? (
@@ -153,7 +110,6 @@ class Transaction extends Component<Props, State> {
       failed: t('transaction.status.failed'),
     }[status];
     const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
-    const darkmode = getDarkmode();
 
     return (
       <div className={[style.container, index === 0 ? style.first : ''].join(' ')}>
@@ -238,34 +194,11 @@ class Transaction extends Component<Props, State> {
           slim
           medium>
           {transactionInfo && <>
-            <form onSubmit={this.handleEdit} className={style.detailInput}>
-              <label htmlFor="note">{t('note.title')}</label>
-              <Input
-                align="right"
-                autoFocus={editMode}
-                className={style.textOnlyInput}
-                readOnly={!editMode}
-                type="text"
-                id="note"
-                transparent
-                placeholder={t('note.input.placeholder')}
-                value={newNote}
-                maxLength={256}
-                onInput={this.handleNoteInput}
-                ref={this.input}/>
-              <button
-                className={style.editButton}
-                onClick={this.handleEdit}
-                title={t(`transaction.note.${editMode ? 'save' : 'edit'}`)}
-                type="button"
-                ref={this.editButton}>
-                {
-                  editMode
-                    ? darkmode ? <SaveLight /> : <Save />
-                    : darkmode ? <EditLight /> : <Edit />
-                }
-              </button>
-            </form>
+            <Note
+              accountCode={this.props.accountCode}
+              internalID={this.props.internalID}
+              note={this.props.note}
+            />
             <div className={style.detail}>
               <label>{t('transaction.details.type')}</label>
               <p>{arrow}</p>
