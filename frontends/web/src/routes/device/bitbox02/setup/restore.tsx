@@ -48,7 +48,8 @@ export const RestoreFromSDCardBackup = ({
           showRestore={true}
           showRadio={true}
           onSelectBackup={onSelectBackup}
-          onRestoreBackup={onRestoreBackup}>
+          onRestoreBackup={onRestoreBackup}
+        >
           <Button
             secondary
             onClick={onBack}>

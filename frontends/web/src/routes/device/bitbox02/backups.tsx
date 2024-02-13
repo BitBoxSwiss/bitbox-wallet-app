@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSync } from '../../../hooks/api';
 import { restoreBackup } from '../../../api/bitbox02';
@@ -55,6 +55,18 @@ export const BackupsV2 = ({
 
   const backups = useSync(() => getBackupList(deviceID), subscribeBackupList(deviceID));
   const hasBackups = backups && backups.success && backups !== undefined;
+  const hasMoreThanOneBackups = hasBackups && backups.backups.length > 1;
+
+  useEffect(() => {
+    if (!hasBackups || backups.backups.length === 0) {
+      return;
+    }
+
+    if (backups.backups.length === 1) {
+      setSelectedBackup(backups.backups[0].id);
+    }
+
+  }, [backups, hasBackups]);
 
   const restore = () => {
     if (!hasBackups) {
@@ -96,6 +108,7 @@ export const BackupsV2 = ({
             </Toast>
           )
         }
+        {showRadio && hasMoreThanOneBackups ? <p className="m-none m-bottom-large">{t('backup.restore.subtitle')}</p> : null}
         <div className={backupStyle.backupsList}>
           {
             backups.backups.length ? (
