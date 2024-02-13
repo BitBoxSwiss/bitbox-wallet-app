@@ -19,9 +19,10 @@ export const getSelectedIndex = (languages: TLanguagesList, i18n: Ii18n) => {
     index = languages.findIndex(({ code }) => code === tag);
   }
 
-  // Give up. We tried.
+  // Default fallback to English
+  // or the first index if English isn't defined
   if (index === -1) {
-    return 0;
+    return languages.findIndex(({ code }) => code === 'en') || 0;
   }
 
   return index;
