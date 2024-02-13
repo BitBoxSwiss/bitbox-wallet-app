@@ -135,6 +135,10 @@ class Chart extends Component<Props, State> {
     return this.props.data.chartDataDaily && this.props.data.chartDataDaily.length > 0;
   };
 
+  private hasHourlyData = (): boolean => {
+    return this.props.data.chartDataHourly && this.props.data.chartDataHourly.length > 0;
+  };
+
   private setFormattedData(data: ChartData) {
     this.formattedData = {} as FormattedData;
 
@@ -482,11 +486,14 @@ class Chart extends Component<Props, State> {
     } = this.state;
     const hasDifferenece = difference && Number.isFinite(difference);
     const hasData = this.hasData();
-    const disableFilters = !hasData || chartTotal === 0 || chartDataMissing;
+    const hasHourlyData = this.hasHourlyData();
+    const disableFilters = !hasData || chartDataMissing;
+    const disableWeeklyFilters = !hasHourlyData || chartDataMissing;
     const showMobileTotalValue = toolTipVisible && !!toolTipValue && isMobile;
     const chartFiltersProps = {
       display,
       disableFilters,
+      disableWeeklyFilters,
       onDisplayWeek: this.displayWeek,
       onDisplayMonth: this.displayMonth,
       onDisplayYear: this.displayYear,
