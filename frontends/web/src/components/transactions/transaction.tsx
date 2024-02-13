@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { A } from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
 import { CopyableInput } from '../copy/Copy';
-import { ExpandIcon } from '../icon/icon';
+import { Warning, ExpandIcon } from '../icon/icon';
 import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
 import { Amount } from '../../components/amount/amount';
@@ -94,7 +94,9 @@ class Transaction extends Component<Props, State> {
       transactionDialog,
       transactionInfo,
     } = this.state;
-    const arrow = type === 'receive' ? (
+    const arrow = status === 'failed' ? (
+      <Warning style={{ maxWidth: '18px' }} />
+    ) : type === 'receive' ? (
       <ArrowIn />
     ) : type === 'send' ? (
       <ArrowOut />
@@ -102,7 +104,7 @@ class Transaction extends Component<Props, State> {
       <ArrowSelf />
     );
     const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
-    const typeClassName = (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
+    const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
     const sDate = time ? this.parseTimeShort(time) : '---';
     const statusText = {
       complete: t('transaction.status.complete'),

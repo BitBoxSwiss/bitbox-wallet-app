@@ -79,6 +79,10 @@
     color: var(--color-success);
 }
 
+.failed {
+    color: var(--color-secondary);
+}
+
 .currency {
     font-variant: tabular-nums;
 }
