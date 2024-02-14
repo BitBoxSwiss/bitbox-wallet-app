@@ -282,11 +282,13 @@ func (backend *Backend) ChartData() (*Chart, error) {
 				FormattedValue: coin.FormatAsCurrency(currentTotal, isFiatBtc, formatBtcAsSat),
 			})
 		}
-
-		// Truncate leading zeroes.
+		// Truncate leading zeroes, if there are any keep the first one to start the chart with 0
 		for i, e := range result {
 			if e.Value > 0 {
-				return result[i:]
+				if i == 0 {
+					return result
+				}
+				return result[i-1:]
 			}
 		}
 		// Everything was zeroes.
