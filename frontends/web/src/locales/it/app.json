@@ -906,7 +906,7 @@
         "title": "Come posso rinnovare o annullare l'assicurazione?"
       },
       "status": {
-        "text": "Gli account assicurati con successo sono contrassegnati con un badge verde \"Account assicurato\" nell'angolo in alto a sinistra nella pagina dell'account. Nella sezione \"Assicura\" puoi vedere una panoramica di tutti gli account Bitcoin assicurati e il loro attuale stato assicurativo.",
+        "text": "Gli account assicurati con successo sono contrassegnati con un badge verde \"Account assicurato\" nell'angolo in alto a sinistra nella pagina dell'account. Nella sezione \"Assicura\" puoi vedere una panoramica di tutti gli account Bitcoin assicurati e il loro attuale stato assicurativo. Può essere necessario attendere fino a 48 ore perchè lo stato dell'assicurazione venga aggiornato.",
         "title": "Posso verificare lo stato di un account assicurato?"
       },
       "what": {

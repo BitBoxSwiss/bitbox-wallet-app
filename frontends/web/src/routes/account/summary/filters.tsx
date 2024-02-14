@@ -21,6 +21,7 @@ import styles from './chart.module.css';
 const Filters = ({
   display,
   disableFilters,
+  disableWeeklyFilters,
   onDisplayWeek,
   onDisplayMonth,
   onDisplayYear,
@@ -31,7 +32,7 @@ const Filters = ({
     <div className={styles.filters}>
       <button
         className={display === 'week' ? styles.filterActive : undefined}
-        disabled={disableFilters}
+        disabled={disableFilters || disableWeeklyFilters}
         onClick={onDisplayWeek}>
         {t('chart.filter.week')}
       </button>

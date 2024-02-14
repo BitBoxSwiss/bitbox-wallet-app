@@ -6,9 +6,14 @@
     "fatalError": "Ein unerwarteter Fehler ist aufgetreten.",
     "incoming": "Eingehend",
     "initializing": "Informationen werden von der Blockchain geladen…",
+    "insuranceExpired": "<strong>Konto nicht mehr versichert</strong>\n\nDer Versicherungsplan für dieses Konto wurde geändert.\nBitte sehe dir die Versicherungsseite für Details an.",
+    "insured": "Versichertes Konto",
     "maybeProxyError": "Tor-Proxy aktiviert. Stelle sicher, dass Tor-Proxy ordnungsgemäß ausgeführt wird, oder deaktiviere die Proxy-Einstellung.",
     "reconnecting": "Verbindung abgebrochen, neue Verbindung wird aufgebaut…",
-    "syncedAddressesCount": "{{count}} Adressen gescannt"
+    "syncedAddressesCount": "{{count}} Adressen gescannt",
+    "uncoveredFunds": "Du hast Coins auf den folgenden nicht abgesicherten Adresstypen von deinem <strong>{{name}}</strong> Konto: {{uncovered}}.\nDa das Konto versichert ist, sind nur Coins welche via den <strong>Native Segwit</strong> Adresstyp empfangen werden abgesichert. Coins auf anderen Adresstypen, auch wenn sie sich auf demselben Konto befinden, sind nicht versichert.\nBitte verschiebe alle deine Coins von den nicht unterstützten Adresstypen auf den <strong>Native Segwit</strong> Adresstyp, damit alle deine Coins auf diesem Konto versichert sind.",
+    "uncoveredFundsLink": "Folge dieser Anleitung für das Verschieben deiner Coins.",
+    "warning": "Warnung!"
   },
   "accountInfo": {
     "address": "Adresse",
@@ -260,6 +265,11 @@
     },
     "stepCreate": {
       "description": "Dieser Name wird als Gerätename und für das Backup verwendet.",
+      "error": {
+        "genericMessage": "Verwende Buchstaben, Zahlen, einfache Symbole und Leerzeichen. Max. 30 Zeichen.",
+        "invalidChars": "Der Name enthält ungültige Zeichen: {{invalidChars}}.",
+        "tooLong": "Name ist zu lang."
+      },
       "nameLabel": "BitBox02 Name",
       "namePlaceholder": "Meine BitBox02",
       "title": "Wähle BitBox02 Name",
@@ -290,6 +300,58 @@
       "text": "Hurra! Deine BitBox02 ist bereit.\n\nFür weitere Informationen klicke auf das Fragezeichen Symbol in der oberen rechten Ecke. ",
       "title": "Es kann los gehen!"
     }
+  },
+  "bitsurance": {
+    "dashboard": {
+      "active": "Versicherungsvertrag aktiv",
+      "button": "Versichere ein neues Konto",
+      "canceled": "Abgebrochen",
+      "coverage": "Maximale Abdeckung",
+      "inactive": "Inaktiv",
+      "processing": "In Bearbeitung",
+      "refused": "Abgelehnt",
+      "supportLink": "Vertrag verwalten",
+      "title": "Versicherte Konten",
+      "waitpayment": "Warte auf Zahlung"
+    },
+    "detect": {
+      "button": "Prüfe auf bestehende Versicherungen",
+      "insured": "Versichertes Konto entdeckt:",
+      "notInsured": "Keine versicherten Konten gefunden. Wenn du sicher bist, dass du ein versichertes Konto hast, vergewissere dich bitte, dass du die richtige Wallet verbunden hast.",
+      "text": "Wenn du bereits bei Bitsurance angemeldet bist, kann die BitBoxApp deinen bestehenden Versicherungsschutz automatisch synchronisieren.",
+      "title": "Bereits versichert?"
+    },
+    "insure": {
+      "button": "Verfügbarkeit und Preis prüfen",
+      "faq": "Lese mehr in den Bitsurance FAQs",
+      "listItem1": "Diebstahl",
+      "listItem2": "Erpressung (bspw. \"$5 wrench attack\")",
+      "listItem3": "Zerstörung durch Feuer, Wasser oder Naturkatastrophen",
+      "month": "Monat",
+      "text": "Versichere deine BitBox02 und Bitcoin im Wert von bis zu 100.000 € gegen",
+      "text2": "Versicherungs-Pläne beginnen ab 30 €/Jahr (2,50 €/Monat). Mehr über Bitsurance und ihre genauen Versicherungsangebote erfährst du auf der",
+      "text3": "Derzeit in Deutschland verfügbar, weitere Regionen werden folgen.",
+      "title": "Los geht's"
+    },
+    "intro": {
+      "link": "Bitsurance Website",
+      "text1": "Die BitBox arbeitet mit Bitsurance zusammen, um deinen Bitcoin zusätzlich zu schützen. Während die BitBox02 dein Guthaben schützt, deckt Bitsurance Bedrohungen zu Hause ab, die mit Technologie alleine nicht abgewehrt werden können, wie z.B. Einbruch, Erpressung oder die Zerstörung der Hardware-Wallet selbst."
+    },
+    "terms": {
+      "link": "Bitsurance Datenschutzrichtlinie",
+      "text1": "Bitsurance ist ein unabhängiger Service von Dritten. Bei Fragen zu ihren Angeboten und Versicherungsansprüchen wende dich bitte direkt an Bitsurance.",
+      "text2": "Versicherung ist derzeit in Deutschland verfügbar, weitere Regionen werden folgen.",
+      "text3": "Die maximale Bitcoin-Absicherung liegt derzeit bei 100.000 € pro Person. Für die Zukunft sind höhere Beträge geplant.",
+      "text4": "Persönliche Informationen und der erweiterte öffentliche Schlüssel deines versicherten Kontos sind Teil der Versicherungspolice und werden mit Bitsurance und dem Versicherungsanbieter geteilt.",
+      "text5": "Weitere Informationen zum Datenschutz findest du in der"
+    },
+    "title": "Versicherung"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "Fehler: Es war nicht möglich, den xpub vom Konto zu erhalten.",
+    "noAccount": "Es gibt keine Konten, die versichert werden können.",
+    "select": "Konto wählen",
+    "title": "Versicherung"
   },
   "blink": {
     "button": "Blinken"
@@ -616,6 +678,7 @@
     "aoppUnsupportedFormat": "Es sind keine Konten verfügbar, die das angeforderte Adressformat unterstützen.",
     "aoppUnsupportedKeystore": "Das verbundene Gerät kann keine Nachrichten für diese Kryptowährung signieren.",
     "aoppVersion": "Unbekannte Version.",
+    "keystoreTimeout": "Die Wallet-Anfrage ist abgelaufen. Bitte versuche es erneut.",
     "wrongKeystore": "Falsches Wallet verbunden. Bitte verbinde das richtige Gerät, zu dem diese Konto gehört.",
     "wrongKeystore2": "Falls du ein optionale Passphrase nutzt, stelle sicher, dass du die richtige Passphrase für dieses Konto eingegeben hast."
   },
@@ -827,6 +890,42 @@
       "pairing": {
         "text": "Nachdem du unsere mobile App für iOS oder Android heruntergeladen hast, scanne den angezeigten QR-Code. Dadurch wird ein sicherer Kanal zwischen der mobilen App und dieser Anwendung eingerichtet. Befolge nach dem Scannen die Anweisungen in der Smartphone App.",
         "title": "So, koppelst du dein Telefon sicher mit der BitBox"
+      }
+    },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "Bitte besuche Bitsurance’s Website und deren FAQ für mehr Details.",
+        "title": "Weitere Fragen?"
+      },
+      "privacy": {
+        "link": {
+          "text": "Bitsurance Datenschutzrichtlinie"
+        },
+        "text": "Wie jede reguläre Versicherungspolice enthält sie deinen vollständigen Namen und deine Adresse und gibt das versicherte Objekt an (definiert durch den erweiterten öffentlichen Schlüssel des versicherten Bitcoin-Kontos). Diese Daten werden direkt an Bitsurance übermittelt und nicht mit Shift Crypto geteilt. Weitere Informationen findest du in den Datenschutzbestimmungen von Bitsurance",
+        "title": "Welche persönlichen Informationen werden für die Versicherung benötigt?"
+      },
+      "renew": {
+        "text": "Die Versicherung wird automatisch für das nächste Jahr verlängert. Du kannst die Verlängerung jederzeit kündigen, indem du in der BitBoxApp auf \"Vertrag verwalten\" klickst, wodurch du zum Bitsurance-Kundenportal gelangst.",
+        "title": "Wie kann ich die Versicherung verlängern oder kündigen?"
+      },
+      "status": {
+        "text": "Erfolgreich versicherte Konten sind auf jeder Bitcoin-Kontoseite in der oberen linken Ecke mit einem grünen „versicherten“ Abzeichen gekennzeichnet. Im Bereich „Versicherung“ siehst du die Übersicht aller versicherten Bitcoin-Konten und dem aktuellen Versicherungsstatus. Die Aktualisierung des Versicherungsstatus kann bis zu 48 Stunden dauern.",
+        "title": "Kann ich den Status eines versicherten Kontos überprüfen?"
+      },
+      "what": {
+        "text": "Jeder Bitcoin-Versicherungsvertrag deckt ein bestimmtes Wallet-Konto ab. Du kannst mehrere Konten versichern, indem du mehrere Versicherungsverträge abschließt. Versicherte Konten dürfen nur \"Native Segwit\"-Bitcoin-Adressen verwenden.",
+        "title": "Ist die gesamte BitBox Wallet versichert?"
+      },
+      "who": {
+        "text": "Die Versicherung wird von Bitsurance angeboten, einem Versicherungsmakler, der von Bitcoinern gegründet wurde. Sie arbeiten mit dem ELEMENT Versicherer zusammen, um Bitcoin-Versicherungen anzubieten. Beide Unternehmen sind in Deutschland ansässig.",
+        "title": "Wer versichert meine Bitcoin?"
+      },
+      "why": {
+        "text": "Bitsurance deckt einige Risiken der Selbstverwahrung ab, die selbst bei der sichersten Wallet nicht abgedeckt werden können, z. B. Einbruch, Erpressung oder Zerstörung der Wallet. Es ist deine persönliche Entscheidung, ob du einen Versicherungsschutz für diese Risiken brauchst.",
+        "title": "Brauche ich eine Bitcoin-Versicherung?"
       }
     },
     "cointracking": {
@@ -1111,6 +1210,10 @@
         "description": "Wähle deine Standardwährung aus",
         "title": "Standardwährung"
       },
+      "enableAccount": {
+        "description": "Wenn du dein Konto deaktivierst, wird es weder in der Seitenleiste noch im Portfolio angezeigt. Du kannst es jederzeit von hier aus wieder aktivieren. Die Coins auf diesem Konto sind davon nicht betroffen und bleiben sicher.",
+        "title": "Konto aktivieren/deaktivieren"
+      },
       "hideAmounts": {
         "description": "Zeigt einen Schalter zum Ausblenden deines Guthabens und Beträgen an, um deine Privatsphäre zu verbessern, wenn du die App in der Öffentlichkeit nutzt.",
         "hideAmounts": "Beträge ausblenden",
@@ -1269,6 +1372,7 @@
     "description": "Deine BitBox hat die folgende {{bits}}-Bit-Zufallszahl generiert:"
   },
   "receive": {
+    "bitsuranceWarning": "Dies ist ein versichertes Konto, das heißt, es kann nur an Native Segwit empfangen. Dadurch wird verhinderst, dass du versehentlich an Wrapped Segwit oder Taproot empfängst, welche nicht versichert sind.",
     "changeScriptType": "Adresstyp ändern",
     "label": "Meine Adresse",
     "onlyThisCoin": {
@@ -1497,6 +1601,7 @@
   "sidebar": {
     "buy": "Krypto kaufen",
     "device": "Gerät verwalten",
+    "insurance": "Versicherung",
     "leave": "Verlassen",
     "settings": "Einstellungen"
   },
@@ -1525,6 +1630,7 @@
       "fiatAmount": "Fiatbetrag",
       "fiatAtTime": "Fiat zur Transaktionszeit",
       "status": "Status",
+      "title": "Transaktionsdetails",
       "type": "Typ"
     },
     "explorer": "Transaktions ID",
