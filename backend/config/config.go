@@ -246,20 +246,28 @@ type Config struct {
 	accountsConfigFilename string
 	accountsConfig         AccountsConfig
 	accountsConfigLock     locker.Locker
+
+	lightningConfigFilename string
+	lightningConfig         LightningConfig
+	lightningConfigLock     locker.Locker
 }
 
 // NewConfig creates a new Config, stored in the given location. The filename must be writable, but
 // does not have to exist.
-func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config, error) {
+func NewConfig(appConfigFilename string, accountsConfigFilename string, lightningConfigFilename string) (*Config, error) {
 	config := &Config{
 		appConfigFilename: appConfigFilename,
 		appConfig:         NewDefaultAppConfig(),
 
 		accountsConfigFilename: accountsConfigFilename,
-		accountsConfig:         newDefaultAccountsonfig(),
+		accountsConfig:         newDefaultAccountsConfig(),
+
+		lightningConfigFilename: lightningConfigFilename,
+		lightningConfig:         newDefaultLightningConfig(),
 	}
 	config.load()
 	appconf := config.appConfig
+	lightningConf := config.lightningConfig
 	migrateFiatList(&appconf)
 	migrateFiatCode(&appconf)
 	migrateElectrumX(&appconf)
@@ -268,6 +276,9 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 		return nil, errp.WithStack(err)
 	}
 	if err := config.ModifyAccountsConfig(migrateActiveTokens); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := config.SetLightningConfig(lightningConf); err != nil {
 		return nil, errp.WithStack(err)
 	}
 	return config, nil
@@ -314,6 +325,13 @@ func (config *Config) load() {
 	if err := json.Unmarshal(jsonBytes, &config.accountsConfig); err != nil {
 		return
 	}
+	jsonBytes, err = os.ReadFile(config.lightningConfigFilename)
+	if err != nil {
+		return
+	}
+	if err := json.Unmarshal(jsonBytes, &config.lightningConfig); err != nil {
+		return
+	}
 }
 
 // AppConfig returns the app config.
@@ -353,6 +371,19 @@ func (config *Config) ModifyAccountsConfig(f func(*AccountsConfig) error) error 
 		return err
 	}
 	return config.save(config.accountsConfigFilename, config.accountsConfig)
+}
+
+// LightningConfig returns the lightning config.
+func (config *Config) LightningConfig() LightningConfig {
+	defer config.lightningConfigLock.RLock()()
+	return config.lightningConfig
+}
+
+// SetLightningConfig sets and persists the lightning config.
+func (config *Config) SetLightningConfig(lightningConfig LightningConfig) error {
+	defer config.lightningConfigLock.Lock()()
+	config.lightningConfig = lightningConfig
+	return config.save(config.lightningConfigFilename, config.lightningConfig)
 }
 
 func (config *Config) save(filename string, conf interface{}) error {

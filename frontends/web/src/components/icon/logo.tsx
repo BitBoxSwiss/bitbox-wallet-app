@@ -26,6 +26,8 @@ import BitBox02Logo from './assets/bitbox02-logo.svg';
 import BitBox02InvertedLogo from './assets/bitbox02inverted-logo.svg';
 import BTC from './assets/btc-color.svg';
 import BTC_GREY from './assets/btc-white.svg';
+import LIGHTNING from './assets/lightning-color.svg';
+import LIGHTNING_GREY from './assets/lightning-white.svg';
 import ETH from './assets/eth-color.svg';
 import ETH_GREY from './assets/eth-white.svg';
 import LTC from './assets/ltc-color.svg';
@@ -84,6 +86,8 @@ const logoMap: LogoMap = {
   'goeth': [ETH, ETH_GREY],
   'sepeth': [ETH, ETH_GREY],
   'erc20Test': [ETH, ETH_GREY],
+
+  'lightning': [LIGHTNING, LIGHTNING_GREY],
 
   'eth-erc20-usdt': [USDT, USDT_GREY],
   'eth-erc20-usdc': [USDC, USDC_GREY],

@@ -24,17 +24,12 @@ import style from './balance.module.css';
 type TProps = {
   balance?: IBalance;
   noRotateFiat?: boolean;
-}
+};
 
-export const Balance = ({
-  balance,
-  noRotateFiat,
-}: TProps) => {
+export const Balance = ({ balance, noRotateFiat }: TProps) => {
   const { t } = useTranslation();
   if (!balance) {
-    return (
-      <header className={style.balance}></header>
-    );
+    return <header className={style.balance}></header>;
   }
 
   return (
@@ -43,40 +38,38 @@ export const Balance = ({
         <tbody>
           <tr data-testid="availableBalance">
             <td className={style.availableAmount}>
-              <Amount
-                amount={balance.available.amount}
-                unit={balance.available.unit}
-                removeBtcTrailingZeroes
-              />
+              <Amount amount={balance.available.amount} unit={balance.available.unit} removeBtcTrailingZeroes />
             </td>
             <td className={style.availableUnit}>{balance.available.unit}</td>
           </tr>
-          <FiatConversion
-            amount={balance.available}
-            tableRow
-            noAction={noRotateFiat}
-            noBtcZeroes
-          />
+          <FiatConversion amount={balance.available} tableRow noAction={noRotateFiat} noBtcZeroes />
         </tbody>
       </table>
-      {
-        balance.hasIncoming && (
-          <p className={style.pendingBalance}>
-            {t('account.incoming')}
-            <span data-testid="incomingBalance">
-              +<Amount
-                amount={balance.incoming.amount}
-                unit={balance.incoming.unit}
-                removeBtcTrailingZeroes/>
-              {' '}{balance.incoming.unit} /
-              <span className={style.incomingConversion}>
-                {' '}
-                <FiatConversion amount={balance.incoming} noBtcZeroes/>
-              </span>
+      {balance.hasIncoming && (
+        <p className={style.pendingBalance}>
+          {t('account.incoming')}
+          <span data-testid="incomingBalance">
+            +<Amount amount={balance.incoming.amount} unit={balance.incoming.unit} removeBtcTrailingZeroes /> {balance.incoming.unit} /
+            <span className={style.incomingConversion}>
+              {' '}
+              <FiatConversion amount={balance.incoming} noBtcZeroes />
             </span>
-          </p>
-        )
-      }
+          </span>
+        </p>
+      )}
     </header>
+  );
+};
+
+export const InlineBalance = ({ balance, noRotateFiat }: TProps) => {
+  if (!balance) {
+    return <span />;
+  }
+
+  return (
+    <span>
+      <Amount amount={balance.available.amount} unit={balance.available.unit} removeBtcTrailingZeroes /> /{' '}
+      <FiatConversion amount={balance.available} tableRow noAction={noRotateFiat} noBtcZeroes />
+    </span>
   );
 };

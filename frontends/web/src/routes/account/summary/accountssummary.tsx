@@ -34,20 +34,18 @@ import { Guide } from '../../../components/guide/guide';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '../../../contexts/AppContext';
 import { getAccountsByKeystore, isAmbiguiousName } from '../utils';
+import { NodeState, getNodeInfo, subscribeNodeState } from '../../../api/lightning';
 
 type TProps = {
-    accounts: accountApi.IAccount[];
-    devices: TDevices;
+  accounts: accountApi.IAccount[];
+  devices: TDevices;
 };
 
 export type Balances = {
-    [code: string]: accountApi.IBalance;
+  [code: string]: accountApi.IBalance;
 };
 
-export function AccountsSummary({
-  accounts,
-  devices,
-}: TProps) {
+export function AccountsSummary({ accounts, devices }: TProps) {
   const { t } = useTranslation();
   const summaryReqTimerID = useRef<number>();
   const mounted = useMountedRef();
@@ -59,6 +57,7 @@ export function AccountsSummary({
   const [balancePerCoin, setBalancePerCoin] = useState<accountApi.TAccountsBalance>();
   const [accountsTotalBalance, setAccountsTotalBalance] = useState<accountApi.TAccountsTotalBalance>();
   const [balances, setBalances] = useState<Balances>();
+  const [nodeState, setNodeState] = useState<NodeState>();
 
   const hasCard = useSDCard(devices);
 
@@ -107,43 +106,43 @@ export function AccountsSummary({
     }
   }, [mounted]);
 
+  const onStatusChanged = useCallback(
+    async (code: accountApi.AccountCode) => {
+      if (!mounted.current) {
+        return;
+      }
+      const status = await accountApi.getStatus(code);
+      if (status.disabled || !mounted.current) {
+        return;
+      }
+      if (!status.synced) {
+        return accountApi.init(code);
+      }
+      const balance = await accountApi.getBalance(code);
+      if (!mounted.current) {
+        return;
+      }
+      setBalances((prevBalances) => ({
+        ...prevBalances,
+        [code]: balance
+      }));
+    },
+    [mounted]
+  );
 
-  const onStatusChanged = useCallback(async (
-    code: accountApi.AccountCode,
-  ) => {
-    if (!mounted.current) {
-      return;
-    }
-    const status = await accountApi.getStatus(code);
-    if (status.disabled || !mounted.current) {
-      return;
-    }
-    if (!status.synced) {
-      return accountApi.init(code);
-    }
-    const balance = await accountApi.getBalance(code);
-    if (!mounted.current) {
-      return;
-    }
-    setBalances((prevBalances) => ({
-      ...prevBalances,
-      [code]: balance
-    }));
-  }, [mounted]);
-
-  const update = useCallback((code: accountApi.AccountCode) => {
-    if (mounted.current) {
-      onStatusChanged(code);
-      getAccountSummary();
-    }
-  }, [getAccountSummary, mounted, onStatusChanged]);
+  const update = useCallback(
+    (code: accountApi.AccountCode) => {
+      if (mounted.current) {
+        onStatusChanged(code);
+        getAccountSummary();
+      }
+    },
+    [getAccountSummary, mounted, onStatusChanged]
+  );
 
   // fetch accounts summary and balance on the first render.
   useEffect(() => {
-    const subscriptions = [
-      statusChanged(update),
-      syncdone(update)
-    ];
+    const subscriptions = [statusChanged(update), syncdone(update)];
     getAccountSummary();
     getAccountsBalance();
     getAccountsTotalBalance();
@@ -153,7 +152,7 @@ export function AccountsSummary({
   // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
     // set new timer
-    const delay = (!summaryData || summaryData.chartDataMissing) ? 1000 : 10000;
+    const delay = !summaryData || summaryData.chartDataMissing ? 1000 : 10000;
     summaryReqTimerID.current = window.setTimeout(getAccountSummary, delay);
     return () => {
       // replace previous timer if present
@@ -164,11 +163,27 @@ export function AccountsSummary({
   }, [summaryData, getAccountSummary]);
 
   useEffect(() => {
-    accounts.forEach(account => {
+    accounts.forEach((account) => {
       onStatusChanged(account.code);
     });
     getAccountsBalance();
   }, [onStatusChanged, getAccountsBalance, accounts]);
+
+  // fetch the lightning node state
+  const onLightningNodeStateChange = useCallback(async () => {
+    try {
+      const nodeState = await getNodeInfo();
+      setNodeState(nodeState);
+    } catch (err) {}
+  }, []);
+
+  // subscribe to any node state changes
+  useEffect(() => {
+    onLightningNodeStateChange();
+
+    const subscriptions = [subscribeNodeState(onLightningNodeStateChange)];
+    return () => unsubscribe(subscriptions);
+  }, [onLightningNodeStateChange]);
 
   return (
     <GuideWrapper>
@@ -185,7 +200,7 @@ export function AccountsSummary({
               hideAmounts={hideAmounts}
               data={summaryData}
               noDataPlaceholder={
-                (accounts.length && accounts.length <= Object.keys(balances || {}).length) ? (
+                accounts.length && accounts.length <= Object.keys(balances || {}).length ? (
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               } />
@@ -200,21 +215,25 @@ export function AccountsSummary({
                   totalBalancePerCoin={ balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
                   totalBalance={ accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
                   balances={balances}
+                  lightningNodeState={nodeState}
                 />
-              )) }
+              ))}
           </View>
         </Main>
       </GuidedContent>
       <Guide>
         <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription')} />
-        <Entry key="accountSummaryAmount" entry={{
-          link: {
-            text: 'www.coingecko.com',
-            url: 'https://www.coingecko.com/'
-          },
-          text: t('guide.accountSummaryAmount.text'),
-          title: t('guide.accountSummaryAmount.title')
-        }} />
+        <Entry
+          key="accountSummaryAmount"
+          entry={{
+            link: {
+              text: 'www.coingecko.com',
+              url: 'https://www.coingecko.com/'
+            },
+            text: t('guide.accountSummaryAmount.text'),
+            title: t('guide.accountSummaryAmount.title')
+          }}
+        />
         <Entry key="trackingModePortfolioChart" entry={t('guide.trackingModePortfolioChart')} />
       </Guide>
     </GuideWrapper>

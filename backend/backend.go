@@ -48,6 +48,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/lightning"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	_ "github.com/digitalbitbox/bitbox-wallet-app/breeztest"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -222,6 +223,7 @@ type Backend struct {
 	etherScanHTTPClient *http.Client
 	ratesUpdater        *rates.RateUpdater
 	banners             *banners.Banners
+	lightning           *lightning.Lightning
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
 	tstCheckAccountUsed func(accounts.Interface) bool
@@ -232,7 +234,7 @@ type Backend struct {
 // NewBackend creates a new backend with the given arguments.
 func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backend, error) {
 	log := logging.Get().WithGroup("backend")
-	config, err := config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename())
+	config, err := config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename(), arguments.LightningConfigFilename())
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -283,6 +285,9 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 
 	backend.banners = banners.NewBanners()
 	backend.banners.Observe(backend.Notify)
+
+	backend.lightning = lightning.NewLightning(backend.config, backend.arguments.CacheDirectoryPath(), backend.Keystore)
+	backend.lightning.Observe(backend.Notify)
 
 	return backend, nil
 }
@@ -682,6 +687,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.configureHistoryExchangeRates()
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
+	backend.lightning.Connect()
 	return backend.events
 }
 
@@ -924,6 +930,8 @@ func (backend *Backend) Close() error {
 
 	backend.uninitAccounts(true)
 
+	backend.lightning.Disconnect()
+
 	for _, coin := range backend.coins {
 		if err := coin.Close(); err != nil {
 			errors = append(errors, err.Error())
@@ -941,6 +949,11 @@ func (backend *Backend) Close() error {
 // Banners returns the banners instance.
 func (backend *Backend) Banners() *banners.Banners {
 	return backend.banners
+}
+
+// Lightning returns the lightning instance.
+func (backend *Backend) Lightning() *lightning.Lightning {
+	return backend.lightning
 }
 
 // HandleURI handles an external URI click for registered protocols, e.g. 'aopp:?...' URIs.  The uri

@@ -19,7 +19,7 @@ import { ChartData } from '../routes/account/summary/chart';
 import type { TDetailStatus } from './bitsurance';
 import { SuccessResponse } from './response';
 
-export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
+export type CoinCode = 'btc' | 'lightning' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
 
 export type AccountCode = string;
 

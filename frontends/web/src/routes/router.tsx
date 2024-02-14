@@ -17,6 +17,11 @@ import { ManageAccounts } from './settings/manage-accounts';
 import { ElectrumSettings } from './settings/electrum';
 import { Passphrase } from './device/bitbox02/passphrase';
 import { Account } from './account/account';
+import { Lightning } from './lightning';
+import { Receive as ReceiveLightning } from './lightning/receive';
+import { Send as SendLightning } from './lightning/send';
+import { LightningActivate } from './lightning/activate';
+import { LightningDeactivate } from './lightning/deactivate';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
 import { Appearance } from './settings/appearance';
 import { MobileSettings } from './settings/mobile-settings';
@@ -35,7 +40,8 @@ type TAppRouterProps = {
     accounts: IAccount[];
     activeAccounts: IAccount[];
     devicesKey: ((input: string) => string)
-}
+    lightningInactive: boolean;
+  }
 
 type TInjectParamsProps = {
   children: ReactChild;
@@ -46,7 +52,7 @@ const InjectParams = ({ children }: TInjectParamsProps) => {
   return React.cloneElement(children as React.ReactElement, params);
 };
 
-export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
+export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts, lightningInactive }: TAppRouterProps) => {
   const hasAccounts = accounts.length > 0;
   const Homepage = <DeviceSwitch
     key={devicesKey('device-switch-default')}
@@ -124,6 +130,26 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     />
   </InjectParams>;
 
+  const AccLightning = <InjectParams>
+    <Lightning />
+  </InjectParams>;
+
+  const AccLightningReceive = <InjectParams>
+    <ReceiveLightning />
+  </InjectParams>;
+
+  const AccLightningSend = <InjectParams>
+    <SendLightning />
+  </InjectParams>;
+
+  const AccLightningActivate = <InjectParams>
+    <LightningActivate />
+  </InjectParams>;
+
+  const AccLightningDeactivate = <InjectParams>
+    <LightningDeactivate />
+  </InjectParams>;
+
   const BuyInfoEl = <InjectParams>
     <BuyInfo
       code={''}
@@ -180,6 +206,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     <AdvancedSettings
       deviceIDs={deviceIDs}
       hasAccounts={hasAccounts}
+      lightningInactive={lightningInactive}
     />
   </InjectParams>;
 
@@ -195,6 +222,13 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="info" element={AccInfo} />
         <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
         <Route path="wallet-connect/dashboard" element={AccDashboardWC} />
+      </Route>
+      <Route path="lightning">
+        <Route index element={AccLightning} />
+        <Route path="activate" element={AccLightningActivate} />
+        <Route path="receive" element={AccLightningReceive} />
+        <Route path="send" element={AccLightningSend} />
+        <Route path="deactivate" element={AccLightningDeactivate} />
       </Route>
       <Route path="add-account" element={<AddAccount />} />
       <Route path="account-summary" element={AccountsSummaryEl} />

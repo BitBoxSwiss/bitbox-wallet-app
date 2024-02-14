@@ -54,8 +54,18 @@ type Keystore interface {
 	// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#key-identifiers
 	RootFingerprint() ([]byte, error)
 
+	// DeterministicEntropy returns the keystore's deterministic entropy for a child seed of a
+	// given derivation path. The entropy is generated using bip85 to create a child seed on the
+	// hardware wallet.
+	//
+	// https://github.com/bitcoin/bips/blob/master/bip-0085.mediawiki
+	DeterministicEntropy() ([]byte, error)
+
 	// SupportsCoin returns true if the keystore supports at least one account type for this coin.
 	SupportsCoin(coinInstance coin.Coin) bool
+
+	// SupportsDeterministicEntropy returns true if the keystore can generate deterministic entropy.
+	SupportsDeterministicEntropy() bool
 
 	// SupportsAccount returns true if they keystore supports the given coin/account.
 	// meta is a coin-specific metadata related to the account type.

@@ -25,6 +25,8 @@ import { EnableCustomFeesToggleSetting } from './components/advanced-settings/en
 import { EnableCoinControlSetting } from './components/advanced-settings/enable-coin-control-setting';
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
+import { EnableLightning } from './components/advanced-settings/enable-lightning-setting';
+import { DisableLightning } from './components/advanced-settings/disable-lightning-setting';
 import { getConfig } from '../../utils/config';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '../../components/guide/guide';
@@ -34,25 +36,24 @@ import { EnableAuthSetting } from './components/advanced-settings/enable-auth-se
 export type TProxyConfig = {
   proxyAddress: string;
   useProxy: boolean;
-}
+};
 
 export type TFrontendConfig = {
   expertFee?: boolean;
   coinControl?: boolean;
-}
+};
 
 export type TBackendConfig = {
-  proxy?: TProxyConfig
+  proxy?: TProxyConfig;
   authentication?: boolean;
-
-}
+};
 
 export type TConfig = {
-  backend?: TBackendConfig
-  frontend?: TFrontendConfig
-}
+  backend?: TBackendConfig;
+  frontend?: TFrontendConfig;
+};
 
-export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const AdvancedSettings = ({ deviceIDs, hasAccounts, lightningInactive }: TPagePropsWithSettingsTabs & { lightningInactive: boolean }) => {
   const { t } = useTranslation();
   const fetchedConfig = useLoad(getConfig) as TConfig;
   const [config, setConfig] = useState<TConfig>();
@@ -76,14 +77,12 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
                 <MobileHeader withGuide title={t('settings.advancedSettings')} />
               </>
-            } />
+            }
+          />
           <View fullscreen={false}>
             <ViewContent>
-              <WithSettingsTabs
-                deviceIDs={deviceIDs}
-                hideMobileMenu
-                hasAccounts={hasAccounts}
-              >
+              <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts}>
+                {lightningInactive ? <EnableLightning /> : <DisableLightning />}
                 <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
@@ -96,10 +95,8 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
       </GuidedContent>
       <AdvancedSettingsGuide />
     </GuideWrapper>
-
   );
 };
-
 
 const AdvancedSettingsGuide = () => {
   const { t } = useTranslation();

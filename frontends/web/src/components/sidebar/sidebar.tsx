@@ -40,9 +40,11 @@ import style from './sidebar.module.css';
 type SidebarProps = {
   deviceIDs: string[];
   accounts: IAccount[];
+  lightningInactive: boolean;
 };
 
-type TGetAccountLinkProps = IAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) };
+type ItemClickProps = { handleSidebarItemClick: (e: React.SyntheticEvent) => void };
+type TGetAccountLinkProps = IAccount & ItemClickProps;
 
 const GetAccountLink = ({
   coinCode,
@@ -51,7 +53,7 @@ const GetAccountLink = ({
   handleSidebarItemClick
 }: TGetAccountLinkProps) => {
   const { pathname } = useLocation();
-  const active = (pathname === `/account/${code}`) || (pathname.startsWith(`/account/${code}/`));
+  const active = pathname === `/account/${code}` || pathname.startsWith(`/account/${code}/`);
   return (
     <div className={style.sidebarItem}>
       <Link
@@ -66,6 +68,21 @@ const GetAccountLink = ({
   );
 };
 
+const GetLightningLink = ({ handleSidebarItemClick }: ItemClickProps) => {
+  const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const active = pathname === '/lightning' || pathname.startsWith('/lightning/');
+  const lightningName = t('lightning.accountLabel');
+  return (
+    <div className={style.sidebarItem}>
+      <Link className={active ? style.sidebarActive : ''} to={'/lightning'} onClick={handleSidebarItemClick} title={lightningName}>
+        <Logo stacked coinCode="lightning" alt={lightningName} />
+        <span className={style.sidebarLabel}>{lightningName}</span>
+      </Link>
+    </div>
+  );
+};
+
 const eject = (e: React.SyntheticEvent): void => {
   apiPost('test/deregister');
   e.preventDefault();
@@ -74,6 +91,7 @@ const eject = (e: React.SyntheticEvent): void => {
 const Sidebar = ({
   deviceIDs,
   accounts,
+  lightningInactive,
 }: SidebarProps) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
@@ -209,6 +227,7 @@ const Sidebar = ({
             ))}
           </div>
         )) }
+        {!lightningInactive && <GetLightningLink handleSidebarItemClick={handleSidebarItemClick} />}
 
         <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (

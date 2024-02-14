@@ -1,0 +1,34 @@
+.title {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: var(--space-default);
+    text-align: center;
+}
+
+.info {
+    margin-bottom: var(--space-default);
+}
+
+.label {
+    font-size: var(--size-subheader);
+    font-weight: 400;
+    color: var(--color-gray-alt);
+    line-height: 18px;
+    margin: 0;
+    margin-bottom: var(--space-eight);
+}
+
+.successCheck {
+    background-color: var(--color-success);
+    border: .5rem solid var(--color-success);
+    border-radius: 100px;
+}
+
+.successMessage {
+    color: var(--color-secondary);
+}
+
+.successMessage strong {
+    color: var(--color-default);
+}

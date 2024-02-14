@@ -104,8 +104,8 @@ type AccountsConfig struct {
 	Keystores []*Keystore `json:"keystores"`
 }
 
-// newDefaultAccountsonfig returns the default accounts config.
-func newDefaultAccountsonfig() AccountsConfig {
+// newDefaultAccountsConfig returns the default accounts config.
+func newDefaultAccountsConfig() AccountsConfig {
 	return AccountsConfig{
 		Accounts: []*Account{},
 	}

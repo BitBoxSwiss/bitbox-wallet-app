@@ -1,0 +1,92 @@
+.container {
+    max-width: 100%;
+    width: 100%;
+    min-height: 100%;
+    padding: 0;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex: none;
+    margin: 0 auto;
+    padding: var(--spacing-large) var(--spacing-large) 0 var(--spacing-large);
+    width: 800px;
+}
+
+.actionsContainer {
+    display: flex;
+    transform: translateY(-36%);
+    margin-top: var(--space-quarter);
+}
+
+.buy,
+.receive,
+.send {
+    background-color: var(--color-blue);
+    border-radius: 2px;
+    color: var(--color-alt);
+    display: inline-block;
+    font-size: var(--size-default);
+    height: calc(var(--item-height) / 1.5);
+    line-height: calc(var(--item-height) / 1.5);
+    padding: 0 var(--space-half);
+    text-align: center;
+    text-decoration: none;
+    transition: background-color ease-out 0.2s;
+    width: calc(var(--item-height) * 2);
+    will-change: background-color;
+}
+
+.receive,
+.send {
+    margin-right: var(--space-quarter);
+}
+
+.buy:hover,
+.receive:hover,
+.send:not(.disabled):hover {
+    background-color: var(--color-lightblue);
+}
+
+.send.disabled {
+    cursor: default;
+    opacity: 0.4;
+}
+
+.accountIcon {
+    width: 18px;
+    height: 18px;
+    margin-right: calc(var(--space-quarter) / 2);
+}
+
+@media (max-width: 768px) {
+    .actionsContainer {
+        flex: 0 0 91%;
+        justify-content: space-between;
+        margin-bottom: var(--space-default);
+        max-width: 91%;
+        transform: none;
+        width: 91%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .actionsContainer a {
+        flex: 1 0 30%;
+        margin-right: 0;
+        max-width: 30%;
+    }
+
+    .send,
+    .receive,
+    .buy {
+        font-size: var(--size-small);
+        width: auto;
+    }
+}
