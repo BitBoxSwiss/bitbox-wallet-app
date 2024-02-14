@@ -8,6 +8,7 @@
 - Fix build on M-processor Apple machines
 - Add support for Ethereum EIP-1559 transactions: https://eips.ethereum.org/EIPS/eip-1559
 - Replace deprecated Ethgasstation with Etherscan for fee estimation (including base + priority fee for EIP-1559)
+- Fixed a bug where the portfolio chart could show wrong values in an Ethereum account containing failed transactions
 
 ## 4.40.0
 - Add support for watch-only - see your accounts and portfolio without connecting your BitBox02

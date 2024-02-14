@@ -13,7 +13,7 @@
     "syncedAddressesCount": "Scanned {{count}} addresses",
     "uncoveredFunds": "You have coins on the following uncovered address types of your <strong>{{name}}</strong> account: {{uncovered}}.\nSince the account is insured, only coins received via the <strong>Native Segwit</strong> address type are covered. Coins on different address types, even if they are on the same account, are not insured.\nPlease move all your coins from the unsupported address types to the <strong>Native Segwit</strong> address type, so all your coins on this account are insured.",
     "uncoveredFundsLink": "Follow this guide on how to move your coins.",
-    "warning": "Warning!\n"
+    "warning": "Warning!"
   },
   "accountInfo": {
     "address": "Address",
@@ -141,6 +141,7 @@
       },
       "restoring": "Restoring backup…",
       "selectedBackup": "<strong>{{backupName}}</strong> created on {{createdDateTime}} will be restored.",
+      "subtitle": "Please select backup to continue",
       "title": "Restore",
       "understand": "I understand that an incorrect recovery password will create a different wallet"
     },
@@ -912,7 +913,7 @@
         "title": "How can I renew or cancel the insurance?"
       },
       "status": {
-        "text": "Successfully insured accounts are marked with a green “insured” badge in the top left corner on each Bitcoin account page. In the “Insurance” section, you can see the overview of all insured Bitcoin accounts and their current insurance status.",
+        "text": "Successfully insured accounts are marked with a green “insured” badge in the top left corner on each Bitcoin account page. In the “Insurance” section, you can see the overview of all insured Bitcoin accounts and their current insurance status. It can take up to 48 hours to update the insurance status.",
         "title": "Can I check the status of an insured account?"
       },
       "what": {

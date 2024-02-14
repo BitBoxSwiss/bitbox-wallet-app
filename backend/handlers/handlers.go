@@ -194,47 +194,47 @@ func NewHandlers(
 	}
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
-	getAPIRouterNoError(apiRouter)("/qr", handlers.getQRCodeHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/config", handlers.getAppConfigHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/config/default", handlers.getDefaultConfigHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/config", handlers.postAppConfigHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/native-locale", handlers.getNativeLocaleHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/notify-user", handlers.postNotifyHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBannersHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileDataHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/authenticate", handlers.postAuthenticateHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/trigger-auth", handlers.postTriggerAuthHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/force-auth", handlers.postForceAuthHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/set-dark-theme", handlers.postDarkThemeHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/detect-dark-theme", handlers.getDetectDarkThemeHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystoresHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/accounts/balance", handlers.getAccountsBalanceHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/accounts/total-balance", handlers.getAccountsTotalBalanceHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActiveHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccountHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/qr", handlers.getQRCode).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/config", handlers.getAppConfig).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/config/default", handlers.getDefaultConfig).Methods("GET")
+	getAPIRouter(apiRouter)("/config", handlers.postAppConfig).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/native-locale", handlers.getNativeLocale).Methods("GET")
+	getAPIRouter(apiRouter)("/notify-user", handlers.postNotify).Methods("POST")
+	getAPIRouter(apiRouter)("/open", handlers.postOpen).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/update", handlers.getUpdate).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBanners).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileData).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/authenticate", handlers.postAuthenticate).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/trigger-auth", handlers.postTriggerAuth).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/force-auth", handlers.postForceAuth).Methods("POST")
+	getAPIRouter(apiRouter)("/set-dark-theme", handlers.postDarkTheme).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/detect-dark-theme", handlers.getDetectDarkTheme).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/version", handlers.getVersion).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/testing", handlers.getTesting).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccount).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
+	getAPIRouter(apiRouter)("/accounts/balance", handlers.getAccountsBalance).Methods("GET")
+	getAPIRouter(apiRouter)("/accounts/total-balance", handlers.getAccountsTotalBalance).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccount).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitialize).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoinsHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystoreHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystoreHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiatHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiatHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoins).Methods("GET")
+	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystore).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystore).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/rates", handlers.getRates).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiat).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiat).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTLTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTBTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeLTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus(coinpkg.CodeBTC)).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/btc/set-unit", handlers.postBtcFormatUnit).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/coins/btc/parse-external-amount", handlers.getBTCParseExternalAmount).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownload).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/electrum/check", handlers.postElectrumCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/exchange/by-region/{code}", handlers.getExchangesByRegion).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/deals", handlers.getExchangeDeals).Methods("GET")
@@ -244,13 +244,13 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/bitsurance/lookup", handlers.postBitsuranceLookup).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/bitsurance/url", handlers.getBitsuranceURL).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystoreHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonlyHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChangedHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/aopp", handlers.getAOPP).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancel).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApprove).Methods("POST")
+	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccount).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystore).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonly).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChanged).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/lightning/config", handlers.getLightningConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/lightning/config", handlers.postLightningConfigHandler).Methods("POST")
@@ -264,7 +264,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/lightning/send-payment", handlers.postLightningSendPayment).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
-	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
+	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
 
 	handlersMapLock := locker.Locker{}
 
@@ -422,7 +422,7 @@ func newAccountJSON(
 	}
 }
 
-func (handlers *Handlers) getQRCodeHandler(r *http.Request) interface{} {
+func (handlers *Handlers) getQRCode(r *http.Request) interface{} {
 	type result struct {
 		Success bool   `json:"success"`
 		Message string `json:"message"`
@@ -445,15 +445,15 @@ func (handlers *Handlers) getQRCodeHandler(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getAppConfigHandler(_ *http.Request) interface{} {
+func (handlers *Handlers) getAppConfig(*http.Request) interface{} {
 	return handlers.backend.Config().AppConfig()
 }
 
-func (handlers *Handlers) getDefaultConfigHandler(_ *http.Request) interface{} {
+func (handlers *Handlers) getDefaultConfig(*http.Request) interface{} {
 	return handlers.backend.DefaultAppConfig()
 }
 
-func (handlers *Handlers) postAppConfigHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAppConfig(r *http.Request) (interface{}, error) {
 	appConfig := config.AppConfig{}
 	if err := json.NewDecoder(r.Body).Decode(&appConfig); err != nil {
 		return nil, errp.WithStack(err)
@@ -464,11 +464,11 @@ func (handlers *Handlers) postAppConfigHandler(r *http.Request) (interface{}, er
 // getNativeLocaleHandler returns user preferred UI language as reported
 // by the native app layer.
 // The response value may be invalid or unsupported by the app.
-func (handlers *Handlers) getNativeLocaleHandler(*http.Request) interface{} {
+func (handlers *Handlers) getNativeLocale(*http.Request) interface{} {
 	return handlers.backend.Environment().NativeLocale()
 }
 
-func (handlers *Handlers) postNotifyHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postNotify(r *http.Request) (interface{}, error) {
 	payload := struct {
 		Text string `json:"text"`
 	}{}
@@ -479,7 +479,7 @@ func (handlers *Handlers) postNotifyHandler(r *http.Request) (interface{}, error
 	return nil, nil
 }
 
-func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postOpen(r *http.Request) (interface{}, error) {
 	var url string
 	if err := json.NewDecoder(r.Body).Decode(&url); err != nil {
 		return nil, errp.WithStack(err)
@@ -487,19 +487,19 @@ func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) 
 	return nil, handlers.backend.SystemOpen(url)
 }
 
-func (handlers *Handlers) getUpdateHandler(_ *http.Request) interface{} {
+func (handlers *Handlers) getUpdate(*http.Request) interface{} {
 	return handlers.backend.CheckForUpdateIgnoringErrors()
 }
 
-func (handlers *Handlers) getBannersHandler(r *http.Request) interface{} {
+func (handlers *Handlers) getBanners(r *http.Request) interface{} {
 	return handlers.backend.Banners().GetMessage(banners.MessageKey(mux.Vars(r)["key"]))
 }
 
-func (handlers *Handlers) getUsingMobileDataHandler(r *http.Request) interface{} {
+func (handlers *Handlers) getUsingMobileData(r *http.Request) interface{} {
 	return handlers.backend.Environment().UsingMobileData()
 }
 
-func (handlers *Handlers) postAuthenticateHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postAuthenticate(r *http.Request) interface{} {
 	var force bool
 	if err := json.NewDecoder(r.Body).Decode(&force); err != nil {
 		return map[string]interface{}{
@@ -512,17 +512,17 @@ func (handlers *Handlers) postAuthenticateHandler(r *http.Request) interface{} {
 	return nil
 }
 
-func (handlers *Handlers) postTriggerAuthHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postTriggerAuth(r *http.Request) interface{} {
 	handlers.backend.TriggerAuth()
 	return nil
 }
 
-func (handlers *Handlers) postForceAuthHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postForceAuth(r *http.Request) interface{} {
 	handlers.backend.ForceAuth()
 	return nil
 }
 
-func (handlers *Handlers) postDarkThemeHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postDarkTheme(r *http.Request) (interface{}, error) {
 	var isDark bool
 	if err := json.NewDecoder(r.Body).Decode(&isDark); err != nil {
 		return nil, errp.WithStack(err)
@@ -531,19 +531,19 @@ func (handlers *Handlers) postDarkThemeHandler(r *http.Request) (interface{}, er
 	return nil, nil
 }
 
-func (handlers *Handlers) getDetectDarkThemeHandler(r *http.Request) interface{} {
+func (handlers *Handlers) getDetectDarkTheme(r *http.Request) interface{} {
 	return handlers.backend.Environment().DetectDarkTheme()
 }
 
-func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
+func (handlers *Handlers) getVersion(*http.Request) interface{} {
 	return backend.Version.String()
 }
 
-func (handlers *Handlers) getTestingHandler(_ *http.Request) interface{} {
+func (handlers *Handlers) getTesting(*http.Request) interface{} {
 	return handlers.backend.Testing()
 }
 
-func (handlers *Handlers) postAddAccountHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postAddAccount(r *http.Request) interface{} {
 	var jsonBody struct {
 		CoinCode coinpkg.Code `json:"coinCode"`
 		Name     string       `json:"name"`
@@ -576,7 +576,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) interface{} {
 	return response{Success: true, AccountCode: accountCode}
 }
 
-func (handlers *Handlers) getKeystoresHandler(_ *http.Request) interface{} {
+func (handlers *Handlers) getKeystores(*http.Request) interface{} {
 	type json struct {
 		Type keystore.Type `json:"type"`
 	}
@@ -591,7 +591,7 @@ func (handlers *Handlers) getKeystoresHandler(_ *http.Request) interface{} {
 	return keystores
 }
 
-func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
+func (handlers *Handlers) getAccounts(*http.Request) interface{} {
 	persistedAccounts := handlers.backend.Config().AccountsConfig()
 
 	accounts := []*accountJSON{}
@@ -702,7 +702,7 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 }
 
 // getAccountsBalanceHandler returns the balance of all the accounts, grouped by keystore and coin.
-func (handlers *Handlers) getAccountsBalanceHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error) {
 	totalAmount := make(map[string]map[coin.Code]accountHandlers.FormattedAmount)
 	accountsByKeystore, err := handlers.backend.AccountsByKeystore()
 	if err != nil {
@@ -762,7 +762,7 @@ func (handlers *Handlers) getAccountsBalanceHandler(_ *http.Request) (interface{
 }
 
 // getAccountsTotalBalanceHandler returns the total balance of all the accounts, gruped by keystore.
-func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountsTotalBalance(*http.Request) (interface{}, error) {
 	type response struct {
 		Success      bool                                   `json:"success"`
 		ErrorCode    string                                 `json:"errorCode,omitempty"`
@@ -780,7 +780,7 @@ func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (inter
 	return response{Success: true, TotalBalance: totalBalance}, nil
 }
 
-func (handlers *Handlers) postSetAccountActiveHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postSetAccountActive(r *http.Request) interface{} {
 	var jsonBody struct {
 		AccountCode accountsTypes.Code `json:"accountCode"`
 		Active      bool               `json:"active"`
@@ -800,7 +800,7 @@ func (handlers *Handlers) postSetAccountActiveHandler(r *http.Request) interface
 	return response{Success: true}
 }
 
-func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postSetTokenActive(r *http.Request) interface{} {
 	var jsonBody struct {
 		AccountCode accountsTypes.Code `json:"accountCode"`
 		TokenCode   string             `json:"tokenCode"`
@@ -821,7 +821,7 @@ func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) interface{}
 	return response{Success: true}
 }
 
-func (handlers *Handlers) postRenameAccountHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postRenameAccount(r *http.Request) interface{} {
 	var jsonBody struct {
 		AccountCode accountsTypes.Code `json:"accountCode"`
 		Name        string             `json:"name"`
@@ -845,12 +845,12 @@ func (handlers *Handlers) postRenameAccountHandler(r *http.Request) interface{} 
 	return response{Success: true}
 }
 
-func (handlers *Handlers) postAccountsReinitializeHandler(_ *http.Request) interface{} {
+func (handlers *Handlers) postAccountsReinitialize(*http.Request) interface{} {
 	handlers.backend.ReinitializeAccounts()
 	return nil
 }
 
-func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) interface{} {
+func (handlers *Handlers) getDevicesRegistered(*http.Request) interface{} {
 	jsonDevices := map[string]string{}
 	for deviceID, device := range handlers.backend.DevicesRegistered() {
 		jsonDevices[deviceID] = device.ProductName()
@@ -858,7 +858,7 @@ func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) interface
 	return jsonDevices
 }
 
-func (handlers *Handlers) postRegisterTestKeystoreHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postRegisterTestKeystore(r *http.Request) (interface{}, error) {
 	if !handlers.backend.Testing() {
 		return nil, errp.New("Test keystore not available")
 	}
@@ -871,12 +871,12 @@ func (handlers *Handlers) postRegisterTestKeystoreHandler(r *http.Request) (inte
 	return nil, nil
 }
 
-func (handlers *Handlers) postDeregisterTestKeystoreHandler(_ *http.Request) interface{} {
+func (handlers *Handlers) postDeregisterTestKeystore(*http.Request) interface{} {
 	handlers.backend.DeregisterKeystore()
 	return nil
 }
 
-func (handlers *Handlers) getRatesHandler(_ *http.Request) interface{} {
+func (handlers *Handlers) getRates(*http.Request) interface{} {
 	return handlers.backend.RatesUpdater().LatestPrice()
 }
 
@@ -909,7 +909,7 @@ func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) interface{}
 	}
 }
 
-func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) interface{} {
+func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 	coinCode := r.URL.Query().Get("from")
 	currency := r.URL.Query().Get("to")
 	amount := r.URL.Query().Get("amount")
@@ -944,7 +944,7 @@ func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) interfac
 	}
 }
 
-func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) interface{} {
+func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 	isFee := false
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
@@ -992,7 +992,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) interface{}
 }
 
 func (handlers *Handlers) getHeadersStatus(coinCode coinpkg.Code) func(*http.Request) (interface{}, error) {
-	return func(_ *http.Request) (interface{}, error) {
+	return func(*http.Request) (interface{}, error) {
 		coin, err := handlers.backend.Coin(coinCode)
 		if err != nil {
 			return nil, err
@@ -1001,7 +1001,7 @@ func (handlers *Handlers) getHeadersStatus(coinCode coinpkg.Code) func(*http.Req
 	}
 }
 
-func (handlers *Handlers) postCertsDownloadHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postCertsDownload(r *http.Request) interface{} {
 	var server string
 	if err := json.NewDecoder(r.Body).Decode(&server); err != nil {
 		return map[string]interface{}{
@@ -1022,7 +1022,7 @@ func (handlers *Handlers) postCertsDownloadHandler(r *http.Request) interface{} 
 	}
 }
 
-func (handlers *Handlers) postElectrumCheckHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postElectrumCheck(r *http.Request) interface{} {
 	var serverInfo config.ServerInfo
 	if err := json.NewDecoder(r.Body).Decode(&serverInfo); err != nil {
 		return map[string]interface{}{
@@ -1157,13 +1157,13 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 		writeJSON(w, value)
 	})
 }
-func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountSummary(*http.Request) (interface{}, error) {
 	return handlers.backend.ChartData()
 }
 
 // getSupportedCoinsHandler returns an array of coin codes for which you can add an account.
 // Exactly one keystore must be connected, otherwise an empty array is returned.
-func (handlers *Handlers) getSupportedCoinsHandler(_ *http.Request) interface{} {
+func (handlers *Handlers) getSupportedCoins(*http.Request) interface{} {
 	type element struct {
 		CoinCode             coinpkg.Code `json:"coinCode"`
 		Name                 string       `json:"name"`
@@ -1359,11 +1359,11 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interfa
 
 }
 
-func (handlers *Handlers) getAOPPHandler(r *http.Request) interface{} {
+func (handlers *Handlers) getAOPP(r *http.Request) interface{} {
 	return handlers.backend.AOPP()
 }
 
-func (handlers *Handlers) postAOPPChooseAccountHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAOPPChooseAccount(r *http.Request) (interface{}, error) {
 	var request struct {
 		AccountCode accountsTypes.Code `json:"accountCode"`
 	}
@@ -1375,22 +1375,22 @@ func (handlers *Handlers) postAOPPChooseAccountHandler(r *http.Request) (interfa
 	return nil, nil
 }
 
-func (handlers *Handlers) postAOPPCancelHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postAOPPCancel(r *http.Request) interface{} {
 	handlers.backend.AOPPCancel()
 	return nil
 }
 
-func (handlers *Handlers) postAOPPApproveHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postAOPPApprove(r *http.Request) interface{} {
 	handlers.backend.AOPPApprove()
 	return nil
 }
 
-func (handlers *Handlers) postCancelConnectKeystoreHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postCancelConnectKeystore(r *http.Request) interface{} {
 	handlers.backend.CancelConnectKeystore()
 	return nil
 }
 
-func (handlers *Handlers) postSetWatchonlyHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postSetWatchonly(r *http.Request) interface{} {
 	type response struct {
 		Success bool `json:"success"`
 	}
@@ -1407,7 +1407,7 @@ func (handlers *Handlers) postSetWatchonlyHandler(r *http.Request) interface{} {
 	return response{Success: true}
 }
 
-func (handlers *Handlers) postOnAuthSettingChangedHandler(r *http.Request) interface{} {
+func (handlers *Handlers) postOnAuthSettingChanged(r *http.Request) interface{} {
 	handlers.backend.Environment().OnAuthSettingChanged(
 		handlers.backend.Config().AppConfig().Backend.Authentication)
 	return nil

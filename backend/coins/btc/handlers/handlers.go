@@ -228,7 +228,7 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 	return txInfoJSON
 }
 
-func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountTransactions(*http.Request) (interface{}, error) {
 	var result struct {
 		Success      bool          `json:"success"`
 		Transactions []Transaction `json:"list"`
@@ -265,7 +265,7 @@ func (handlers *Handlers) getAccountTransaction(r *http.Request) (interface{}, e
 	return nil, nil
 }
 
-func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, error) {
 	type result struct {
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage"`
@@ -310,11 +310,11 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 	return result{Success: true}, nil
 }
 
-func (handlers *Handlers) getAccountInfo(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountInfo(*http.Request) (interface{}, error) {
 	return handlers.account.Info(), nil
 }
 
-func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 	result := []map[string]interface{}{}
 
 	t, ok := handlers.account.(*btc.Account)
@@ -339,7 +339,7 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 	return result, nil
 }
 
-func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) {
 	balance, err := handlers.account.Balance()
 	if err != nil {
 		return nil, err
@@ -399,7 +399,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 
 func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
 	err := handlers.account.SendTx()
-	if errp.Cause(err) == keystore.ErrSigningAborted {
+	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return map[string]interface{}{"success": false, "aborted": true}, nil
 	}
 	if err != nil {
@@ -440,7 +440,7 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 	}, nil
 }
 
-func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, error) {
 	type jsonFeeTarget struct {
 		Code        accounts.FeeTargetCode `json:"code"`
 		FeeRateInfo string                 `json:"feeRateInfo"`
@@ -460,7 +460,7 @@ func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, er
 	}, nil
 }
 
-func (handlers *Handlers) postInit(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postInit(*http.Request) (interface{}, error) {
 	if handlers.account == nil {
 		return nil, errp.New("/init called even though account was not added yet")
 	}
@@ -479,7 +479,7 @@ type statusResponse struct {
 	FatalError bool `json:"fatalError"`
 }
 
-func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountStatus(*http.Request) (interface{}, error) {
 	if handlers.account == nil {
 		return statusResponse{Disabled: true}, nil
 	}
@@ -496,7 +496,7 @@ func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error)
 	}, nil
 }
 
-func (handlers *Handlers) getReceiveAddresses(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error) {
 
 	type jsonAddress struct {
 		Address   string `json:"address"`
@@ -624,7 +624,7 @@ func (handlers *Handlers) postEthSignMsg(r *http.Request) (interface{}, error) {
 		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
 	}
 	signature, err := ethAccount.SignMsg(signInput)
-	if errp.Cause(err) == keystore.ErrSigningAborted {
+	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return signingResponse{Success: false, Aborted: true}, nil
 	}
 	if err != nil {
@@ -651,7 +651,7 @@ func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, err
 		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
 	}
 	signature, err := ethAccount.SignTypedMsg(args.ChainId, args.Data)
-	if errp.Cause(err) == keystore.ErrSigningAborted {
+	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return signingResponse{Success: false, Aborted: true}, nil
 	}
 	if err != nil {
@@ -687,7 +687,7 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
 	}
 	txHash, rawTx, err := ethAccount.EthSignWalletConnectTx(args.Send, args.ChainId, args.Tx)
-	if errp.Cause(err) == keystore.ErrSigningAborted {
+	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return signingResponse{Success: false, Aborted: true}, nil
 	}
 	if err != nil {
