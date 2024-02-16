@@ -42,7 +42,6 @@ import { RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
-import { getLightningConfig, subscribeLightningConfig } from './api/lightning';
 import { Providers } from './contexts/providers';
 
 export const App = () => {
@@ -51,7 +50,6 @@ export const App = () => {
 
   const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
-  const lightningConfig = useDefault(useSync(getLightningConfig, subscribeLightningConfig), { inactive: true });
 
   const prevDevices = usePrevious(devices);
 
@@ -154,7 +152,6 @@ export const App = () => {
           <Sidebar
             accounts={activeAccounts}
             deviceIDs={deviceIDs}
-            lightningInactive={lightningConfig.inactive}
           />
           <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
             <Update />
@@ -184,7 +181,6 @@ export const App = () => {
               deviceIDs={deviceIDs}
               devices={devices}
               devicesKey={devicesKey}
-              lightningInactive={lightningConfig.inactive}
             />
             <RouterWatcher />
           </div>

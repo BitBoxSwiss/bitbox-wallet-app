@@ -17,6 +17,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../hooks/api';
+import { useLightning } from '../../hooks/lightning';
 import { Main, Header, GuideWrapper, GuidedContent } from '../../components/layout';
 import { View, ViewContent } from '../../components/view/view';
 import { WithSettingsTabs } from './components/tabs';
@@ -53,10 +54,11 @@ export type TConfig = {
   frontend?: TFrontendConfig;
 };
 
-export const AdvancedSettings = ({ deviceIDs, hasAccounts, lightningInactive }: TPagePropsWithSettingsTabs & { lightningInactive: boolean }) => {
+export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   const fetchedConfig = useLoad(getConfig) as TConfig;
   const [config, setConfig] = useState<TConfig>();
+  const { lightningConfig } = useLightning();
 
   const frontendConfig = config?.frontend;
   const backendConfig = config?.backend;
@@ -82,7 +84,7 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts, lightningInactive }: 
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts}>
-                {lightningInactive ? <EnableLightning /> : <DisableLightning />}
+                {lightningConfig.inactive ? <EnableLightning /> : <DisableLightning />}
                 <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />

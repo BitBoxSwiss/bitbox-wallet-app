@@ -16,10 +16,12 @@
  */
 
 import React, { useContext, useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
 import { Link, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { TKeystores, subscribeKeystores, getKeystores } from '../../api/keystores';
 import { IAccount } from '../../api/account';
+import { useLightning } from '../../hooks/lightning';
 import coins from '../../assets/icons/coins.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 import shieldIcon from '../../assets/icons/shield_grey.svg';
@@ -29,7 +31,6 @@ import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';
-import { useLocation } from 'react-router';
 import { CloseXWhite, USBSuccess } from '../icon';
 import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '../../routes/account/utils';
 import { SkipForTesting } from '../../routes/device/components/skipfortesting';
@@ -40,7 +41,6 @@ import style from './sidebar.module.css';
 type SidebarProps = {
   deviceIDs: string[];
   accounts: IAccount[];
-  lightningInactive: boolean;
 };
 
 type ItemClickProps = { handleSidebarItemClick: (e: React.SyntheticEvent) => void };
@@ -91,11 +91,11 @@ const eject = (e: React.SyntheticEvent): void => {
 const Sidebar = ({
   deviceIDs,
   accounts,
-  lightningInactive,
 }: SidebarProps) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const { activeSidebar, sidebarStatus, toggleSidebar } = useContext(AppContext);
+  const { lightningConfig } = useLightning();
 
   useEffect(() => {
     const swipe = {
@@ -227,7 +227,7 @@ const Sidebar = ({
             ))}
           </div>
         )) }
-        {!lightningInactive && <GetLightningLink handleSidebarItemClick={handleSidebarItemClick} />}
+        {!lightningConfig.inactive && <GetLightningLink handleSidebarItemClick={handleSidebarItemClick} />}
 
         <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (

@@ -35,13 +35,12 @@ import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 
 type TAppRouterProps = {
-    devices: TDevices;
-    deviceIDs: string[];
-    accounts: IAccount[];
-    activeAccounts: IAccount[];
-    devicesKey: ((input: string) => string)
-    lightningInactive: boolean;
-  }
+  devices: TDevices;
+  deviceIDs: string[];
+  accounts: IAccount[];
+  activeAccounts: IAccount[];
+  devicesKey: ((input: string) => string)
+}
 
 type TInjectParamsProps = {
   children: ReactChild;
@@ -52,7 +51,13 @@ const InjectParams = ({ children }: TInjectParamsProps) => {
   return React.cloneElement(children as React.ReactElement, params);
 };
 
-export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts, lightningInactive }: TAppRouterProps) => {
+export const AppRouter = ({
+  devices,
+  deviceIDs,
+  devicesKey,
+  accounts,
+  activeAccounts,
+}: TAppRouterProps) => {
   const hasAccounts = accounts.length > 0;
   const Homepage = <DeviceSwitch
     key={devicesKey('device-switch-default')}
@@ -206,7 +211,6 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     <AdvancedSettings
       deviceIDs={deviceIDs}
       hasAccounts={hasAccounts}
-      lightningInactive={lightningInactive}
     />
   </InjectParams>;
 

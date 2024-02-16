@@ -15,28 +15,28 @@
  */
 
 import { ReactNode } from 'react';
-import { DarkModeProvider } from './DarkmodeProvider';
-import { AppProvider } from './AppProvider';
-import { WCWeb3WalletProvider } from './WCWeb3WalletProvider';
-import { RatesProvider } from './RatesProvider';
-import { LightningProvider } from './LightningProvider';
+import { LightningContext } from './LightningContext';
+import { getLightningConfig, subscribeLightningConfig } from '../api/lightning';
+import { useSync } from '../hooks/api';
+import { useDefault } from '../hooks/default';
 
-type Props = {
+type TProps = {
   children: ReactNode;
-};
+}
 
-export const Providers = ({ children }: Props) => {
+export const LightningProvider = ({ children }: TProps) => {
+  const lightningConfig = useDefault(
+    useSync(getLightningConfig, subscribeLightningConfig),
+    { inactive: true },
+  );
+
   return (
-    <AppProvider>
-      <DarkModeProvider>
-        <RatesProvider>
-          <WCWeb3WalletProvider>
-            <LightningProvider>
-              {children}
-            </LightningProvider>
-          </WCWeb3WalletProvider>
-        </RatesProvider>
-      </DarkModeProvider>
-    </AppProvider>
+    <LightningContext.Provider
+      value={{
+        lightningConfig
+      }}>
+      {children}
+    </LightningContext.Provider>
   );
 };
+
