@@ -27,10 +27,11 @@ vi.mock('react-i18next', () => ({
 
 describe('components/language/language', () => {
   const supportedLangs = [
-    { code: 'en-US', display: 'English' },
-    { code: 'pt', display: 'Portugues' },
-    { code: 'ms', display: 'Bahasa Melayu' },
+    { code: 'ar', display: 'Arabic' },
     { code: 'de', display: 'Deutsch' },
+    { code: 'en', display: 'English' },
+    { code: 'ms', display: 'Bahasa Melayu' },
+    { code: 'pt', display: 'Portugues' },
   ] as TLanguagesList;
 
   /**
@@ -81,7 +82,7 @@ describe('components/language/language', () => {
         },
       });
       const { getByTestId } = renderSwitchAndOpenDialog();
-      const defaultLang = getByTestId('language-selection-en-US');
+      const defaultLang = getByTestId('language-selection-en');
       expect(defaultLang.getAttribute('class')).toContain('selected');
     });
   });
