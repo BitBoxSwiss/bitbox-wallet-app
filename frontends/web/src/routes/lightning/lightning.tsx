@@ -103,12 +103,6 @@ export function Lightning() {
 
   const offlineErrorTextLines: string[] = [];
 
-  const isAccountEmpty = balance && !balance.hasAvailable && !balance.hasIncoming && payments && payments.length === 0;
-
-  const actionButtonsProps = {
-    canSend
-  };
-
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -127,7 +121,7 @@ export function Lightning() {
                 <div className="flex flex-row flex-between flex-item-center flex-column-mobile flex-reverse-mobile">
                   <Balance balance={balance} />
                   <label className="labelXLarge flex-self-start-mobile show-on-small">{t('accountSummary.availableBalance')}</label>
-                  {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
+                  <ActionButtons canSend={canSend} />
                 </div>
               </div>
               {offlineErrorTextLines.length || !hasDataLoaded ? (
