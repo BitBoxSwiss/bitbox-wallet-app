@@ -15,10 +15,10 @@
  */
 
 import { createContext } from 'react';
-import { LightningConfig } from '../api/lightning';
+import { TLightningConfig } from '../api/lightning';
 
 type Props = {
-    lightningConfig: LightningConfig;
+    lightningConfig: TLightningConfig;
 }
 
 export const LightningContext = createContext<Props>({} as Props);

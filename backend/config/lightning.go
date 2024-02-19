@@ -29,13 +29,11 @@ type LightningAccountConfig struct {
 	// Code is the code of the lightning account.
 	Code types.Code `json:"code"`
 	// Number is the lightning account incremental number.
-	Number uint16 `json:"number"`
+	Number uint16 `json:"num"`
 }
 
 // LightningConfig holds information related to the lightning config.
 type LightningConfig struct {
-	// Inactive is true if lightning has not yet been setup.
-	Inactive bool `json:"inactive"`
 	// Accounts is an array of existing lightning accounts configurations.
 	Accounts []*LightningAccountConfig `json:"accounts"`
 }
@@ -43,7 +41,6 @@ type LightningConfig struct {
 // newDefaultAccountsConfig returns the default accounts config.
 func newDefaultLightningConfig() LightningConfig {
 	return LightningConfig{
-		Inactive: true,
 		Accounts: []*LightningAccountConfig{},
 	}
 }

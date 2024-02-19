@@ -84,7 +84,7 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts}>
-                {lightningConfig.inactive ? <EnableLightning /> : <DisableLightning />}
+                {lightningConfig.accounts.length === 0 ? <EnableLightning /> : <DisableLightning />}
                 <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />

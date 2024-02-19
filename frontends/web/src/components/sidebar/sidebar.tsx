@@ -227,7 +227,7 @@ const Sidebar = ({
             ))}
           </div>
         )) }
-        {!lightningConfig.inactive && <GetLightningLink handleSidebarItemClick={handleSidebarItemClick} />}
+        {lightningConfig.accounts.length > 0 && <GetLightningLink handleSidebarItemClick={handleSidebarItemClick} />}
 
         <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (

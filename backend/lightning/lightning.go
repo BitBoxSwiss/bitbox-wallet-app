@@ -61,10 +61,6 @@ func NewLightning(config *config.Config, cacheDirectoryPath string, getKeystore 
 func (lightning *Lightning) Activate() error {
 	lightningConfig := lightning.config.LightningConfig()
 
-	if !lightningConfig.Inactive {
-		return errp.New("Lightning node already active")
-	}
-
 	if len(lightningConfig.Accounts) > 0 {
 		return errp.New("Lightning accounts already configured")
 	}
@@ -96,7 +92,6 @@ func (lightning *Lightning) Activate() error {
 		Code:            types.Code(strings.Join([]string{"v0-", hex.EncodeToString(fingerprint), "-ln-0"}, "")),
 		Number:          0,
 	}
-	lightningConfig.Inactive = false
 	lightningConfig.Accounts = append(lightningConfig.Accounts, &lightningAccount)
 
 	if err = lightning.setLightningConfig(lightningConfig); err != nil {
@@ -130,13 +125,12 @@ func (lightning *Lightning) Disconnect() {
 func (lightning *Lightning) Deactivate() error {
 	lightningConfig := lightning.config.LightningConfig()
 
-	if lightningConfig.Inactive {
+	if len(lightningConfig.Accounts) == 0 {
 		return nil
 	}
 
 	lightning.Disconnect()
 
-	lightningConfig.Inactive = true
 	lightningConfig.Accounts = []*config.LightningAccountConfig{}
 
 	if err := lightning.setLightningConfig(lightningConfig); err != nil {
@@ -154,7 +148,7 @@ func accountBreezFolder(accountCode types.Code) string {
 func (lightning *Lightning) connect() {
 	lightningConfig := lightning.config.LightningConfig()
 
-	if !lightningConfig.Inactive && len(lightningConfig.Accounts) > 0 && lightning.sdkService == nil {
+	if len(lightningConfig.Accounts) > 0 && lightning.sdkService == nil {
 		initializeLogging(lightning.log)
 
 		// At the moment we only support one LN account, but the config files could possibly
