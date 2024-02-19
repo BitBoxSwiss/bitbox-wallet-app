@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
-import { translate, TranslateProps } from '../../decorators/translate';
 import { A } from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
 import { CopyableInput } from '../copy/Copy';
@@ -30,176 +30,155 @@ import { Note } from './note';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
 
-interface State {
-    transactionDialog: boolean;
-    transactionInfo?: accountApi.ITransaction;
-}
+type Props = {
+  accountCode: accountApi.AccountCode;
+  index: number;
+  explorerURL: string;
+} & accountApi.ITransaction;
 
-interface TransactionProps extends accountApi.ITransaction {
-    accountCode: accountApi.AccountCode;
-    index: number;
-    explorerURL: string;
-}
+export const Transaction = ({
+  accountCode,
+  index,
+  internalID,
+  explorerURL,
+  type,
+  amount,
+  feeRatePerKb,
+  numConfirmations,
+  numConfirmationsComplete,
+  time,
+  addresses,
+  status,
+  note = '',
+}: Props) => {
+  const { i18n, t } = useTranslation();
+  const [transactionDialog, setTransactionDialog] = useState<boolean>(false);
+  const [transactionInfo, setTransactionInfo] = useState<accountApi.ITransaction>();
 
-type Props = TransactionProps & TranslateProps;
-
-class Transaction extends Component<Props, State> {
-  public readonly state: State = {
-    transactionDialog: false,
-  };
-
-  private parseTimeShort = (time: string) => {
+  const parseTimeShort = (time: string) => {
     const options = {
       year: 'numeric',
       month: 'numeric',
       day: 'numeric',
     } as Intl.DateTimeFormatOptions;
-    return new Date(Date.parse(time)).toLocaleString(this.props.i18n.language, options);
+    return new Date(Date.parse(time)).toLocaleString(i18n.language, options);
   };
 
-  private showDetails = () => {
-    accountApi.getTransaction(this.props.accountCode, this.props.internalID).then(transaction => {
+  const showDetails = () => {
+    accountApi.getTransaction(accountCode, internalID).then(transaction => {
       if (!transaction) {
-        console.error('Unable to retrieve transaction ' + this.props.internalID);
+        console.error('Unable to retrieve transaction ' + internalID);
         return null;
       }
-      this.setState({
-        transactionInfo: transaction,
-        transactionDialog: true,
-      });
+      setTransactionInfo(transaction);
+      setTransactionDialog(true);
     })
       .catch(console.error);
   };
 
-  private hideDetails = () => {
-    this.setState({ transactionDialog: false });
-  };
+  const arrow = status === 'failed' ? (
+    <Warning style={{ maxWidth: '18px' }} />
+  ) : type === 'receive' ? (
+    <ArrowIn />
+  ) : type === 'send' ? (
+    <ArrowOut />
+  ) : (
+    <ArrowSelf />
+  );
+  const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
+  const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
+  const sDate = time ? parseTimeShort(time) : '---';
+  const statusText = t(`transaction.status.${status}`);
+  const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
 
-  public render() {
-    const {
-      t,
-      index,
-      explorerURL,
-      type,
-      amount,
-      feeRatePerKb,
-      numConfirmations,
-      numConfirmationsComplete,
-      time,
-      addresses,
-      status,
-      note = '',
-    } = this.props;
-    const {
-      transactionDialog,
-      transactionInfo,
-    } = this.state;
-    const arrow = status === 'failed' ? (
-      <Warning style={{ maxWidth: '18px' }} />
-    ) : type === 'receive' ? (
-      <ArrowIn />
-    ) : type === 'send' ? (
-      <ArrowOut />
-    ) : (
-      <ArrowSelf />
-    );
-    const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
-    const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
-    const sDate = time ? this.parseTimeShort(time) : '---';
-    const statusText = {
-      complete: t('transaction.status.complete'),
-      pending: t('transaction.status.pending'),
-      failed: t('transaction.status.failed'),
-    }[status];
-    const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
-
-    return (
-      <div className={[style.container, index === 0 ? style.first : ''].join(' ')}>
-        <div className={[parentStyle.columns, style.row].join(' ')}>
-          <div className={parentStyle.columnGroup}>
-            <div className={parentStyle.type}>{arrow}</div>
-            <div className={parentStyle.date}>
-              <span className={style.columnLabel}>
-                {t('transaction.details.date')}:
-              </span>
-              <span className={style.date}>{sDate}</span>
-            </div>
-            { note ? (
-              <div className={parentStyle.activity}>
-                <span className={style.address}>
-                  {note}
-                </span>
-              </div>
-            ) : (
-              <div className={parentStyle.activity}>
-                <span className={style.label}>
-                  {t(type === 'receive' ? 'transaction.tx.received' : 'transaction.tx.sent')}
-                </span>
-                <span className={style.address}>
-                  {addresses[0]}
-                  {addresses.length > 1 && (
-                    <span className={style.badge}>
-                                            (+{addresses.length - 1})
-                    </span>
-                  )}
-                </span>
-              </div>
-            )}
-            <div className={[parentStyle.action, parentStyle.hideOnMedium].join(' ')}>
-              <button type="button" className={style.action} onClick={this.showDetails}>
-                <ExpandIcon expand={!transactionDialog} />
-              </button>
-            </div>
+  return (
+    <div className={[style.container, index === 0 ? style.first : ''].join(' ')}>
+      <div className={[parentStyle.columns, style.row].join(' ')}>
+        <div className={parentStyle.columnGroup}>
+          <div className={parentStyle.type}>{arrow}</div>
+          <div className={parentStyle.date}>
+            <span className={style.columnLabel}>
+              {t('transaction.details.date')}:
+            </span>
+            <span className={style.date}>{sDate}</span>
           </div>
-          <div className={parentStyle.columnGroup}>
-            <div className={parentStyle.status}>
-              <span className={style.columnLabel}>
-                {t('transaction.details.status')}:
-              </span>
-              <ProgressRing
-                className="m-right-quarter"
-                width={14}
-                value={progress}
-                isComplete={numConfirmations >= numConfirmationsComplete}
-              />
-              <span className={style.status}>{statusText}</span>
-            </div>
-            <div className={parentStyle.fiat}>
-              <span className={`${style.fiat} ${typeClassName}`}>
-                <FiatConversion amount={amount} sign={sign} noAction />
+          { note ? (
+            <div className={parentStyle.activity}>
+              <span className={style.address}>
+                {note}
               </span>
             </div>
-            <div className={`${parentStyle.currency} ${typeClassName}`}>
-              <span
-                className={`${style.amount} ${style.amountOverflow}`}
-                data-unit={` ${amount.unit}`}>
-                {sign}
-                <Amount amount={amount.amount} unit={amount.unit}/>
-                <span className={style.currencyUnit}>&nbsp;{amount.unit}</span>
+          ) : (
+            <div className={parentStyle.activity}>
+              <span className={style.label}>
+                {t(type === 'receive' ? 'transaction.tx.received' : 'transaction.tx.sent')}
+              </span>
+              <span className={style.address}>
+                {addresses[0]}
+                {addresses.length > 1 && (
+                  <span className={style.badge}>
+                    (+{addresses.length - 1})
+                  </span>
+                )}
               </span>
             </div>
-            <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>
-              <button type="button" className={style.action} onClick={this.showDetails}>
-                <ExpandIcon expand={!transactionDialog} />
-              </button>
-            </div>
+          )}
+          <div className={[parentStyle.action, parentStyle.hideOnMedium].join(' ')}>
+            <button type="button" className={style.action} onClick={showDetails}>
+              <ExpandIcon expand={!transactionDialog} />
+            </button>
           </div>
         </div>
-        {/*
-            Amount and Confirmations info are displayed using props data
-            instead of transactionInfo because they are live updated.
-          */}
-        <Dialog
-          open={transactionDialog}
-          title={t('transaction.details.title')}
-          onClose={this.hideDetails}
-          slim
-          medium>
-          {transactionInfo && <>
+        <div className={parentStyle.columnGroup}>
+          <div className={parentStyle.status}>
+            <span className={style.columnLabel}>
+              {t('transaction.details.status')}:
+            </span>
+            <ProgressRing
+              className="m-right-quarter"
+              width={14}
+              value={progress}
+              isComplete={numConfirmations >= numConfirmationsComplete}
+            />
+            <span className={style.status}>{statusText}</span>
+          </div>
+          <div className={parentStyle.fiat}>
+            <span className={`${style.fiat} ${typeClassName}`}>
+              <FiatConversion amount={amount} sign={sign} noAction />
+            </span>
+          </div>
+          <div className={`${parentStyle.currency} ${typeClassName}`}>
+            <span
+              className={`${style.amount} ${style.amountOverflow}`}
+              data-unit={` ${amount.unit}`}>
+              {sign}
+              <Amount amount={amount.amount} unit={amount.unit}/>
+              <span className={style.currencyUnit}>&nbsp;{amount.unit}</span>
+            </span>
+          </div>
+          <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>
+            <button type="button" className={style.action} onClick={showDetails}>
+              <ExpandIcon expand={!transactionDialog} />
+            </button>
+          </div>
+        </div>
+      </div>
+      {/*
+        Amount and Confirmations info are displayed using props data
+        instead of transactionInfo because they are live updated.
+      */}
+      <Dialog
+        open={transactionDialog}
+        title={t('transaction.details.title')}
+        onClose={() => setTransactionDialog(false)}
+        slim
+        medium>
+        {transactionInfo && (
+          <>
             <Note
-              accountCode={this.props.accountCode}
-              internalID={this.props.internalID}
-              note={this.props.note}
+              accountCode={accountCode}
+              internalID={internalID}
+              note={note}
             />
             <div className={style.detail}>
               <label>{t('transaction.details.type')}</label>
@@ -360,13 +339,9 @@ class Transaction extends Component<Props, State> {
                 {t('transaction.explorerTitle')}
               </A>
             </div>
-          </> }
-        </Dialog>
-      </div>
-    );
-  }
-}
-
-const HOC = translate()(Transaction);
-
-export { HOC as Transaction };
+          </>
+        )}
+      </Dialog>
+    </div>
+  );
+};

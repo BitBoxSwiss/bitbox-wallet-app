@@ -40,13 +40,10 @@ import { Sidebar } from './components/sidebar/sidebar';
 import { Update } from './components/update/update';
 import { RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
-import { DarkModeProvider } from './contexts/DarkmodeProvider';
-import { AppProvider } from './contexts/AppProvider';
 import { AuthRequired } from './components/auth/authrequired';
-import { WCWeb3WalletProvider } from './contexts/WCWeb3WalletProvider';
-import { RatesProvider } from './contexts/RatesProvider';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { getLightningConfig, subscribeLightningConfig } from './api/lightning';
+import { Providers } from './contexts/providers';
 
 export const App = () => {
   const { t } = useTranslation();
@@ -150,57 +147,51 @@ export const App = () => {
   const activeAccounts = accounts.filter(acct => acct.active);
   return (
     <ConnectedApp>
-      <AppProvider>
-        <DarkModeProvider>
-          <RatesProvider>
-            <WCWeb3WalletProvider>
-              <Darkmode />
-              <div className="app">
-                <AuthRequired/>
-                <Sidebar
-                  accounts={activeAccounts}
-                  deviceIDs={deviceIDs}
-                  lightningInactive={lightningConfig.inactive}
-                />
-                <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
-                  <Update />
-                  <Banner msgKey="bitbox01" />
-                  <Banner msgKey="bitbox02" />
-                  <MobileDataWarning />
-                  <WCSigningRequest />
-                  <Aopp />
-                  <KeystoreConnectPrompt />
-                  {
-                    Object.entries(devices).map(([deviceID, productName]) => {
-                      if (productName === 'bitbox02') {
-                        return (
-                          <Fragment key={deviceID}>
-                            <BitBox02Wizard
-                              deviceID={deviceID}
-                            />
-                          </Fragment>
-                        );
-                      }
-                      return null;
-                    })
-                  }
-                  <AppRouter
-                    accounts={accounts}
-                    activeAccounts={activeAccounts}
-                    deviceIDs={deviceIDs}
-                    devices={devices}
-                    devicesKey={devicesKey}
-                    lightningInactive={lightningConfig.inactive}
-                  />
-                  <RouterWatcher />
-                </div>
-                <Alert />
-                <Confirm />
-              </div>
-            </WCWeb3WalletProvider>
-          </RatesProvider>
-        </DarkModeProvider>
-      </AppProvider>
+      <Providers>
+        <Darkmode />
+        <div className="app">
+          <AuthRequired/>
+          <Sidebar
+            accounts={activeAccounts}
+            deviceIDs={deviceIDs}
+            lightningInactive={lightningConfig.inactive}
+          />
+          <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
+            <Update />
+            <Banner msgKey="bitbox01" />
+            <Banner msgKey="bitbox02" />
+            <MobileDataWarning />
+            <WCSigningRequest />
+            <Aopp />
+            <KeystoreConnectPrompt />
+            {
+              Object.entries(devices).map(([deviceID, productName]) => {
+                if (productName === 'bitbox02') {
+                  return (
+                    <Fragment key={deviceID}>
+                      <BitBox02Wizard
+                        deviceID={deviceID}
+                      />
+                    </Fragment>
+                  );
+                }
+                return null;
+              })
+            }
+            <AppRouter
+              accounts={accounts}
+              activeAccounts={activeAccounts}
+              deviceIDs={deviceIDs}
+              devices={devices}
+              devicesKey={devicesKey}
+              lightningInactive={lightningConfig.inactive}
+            />
+            <RouterWatcher />
+          </div>
+          <Alert />
+          <Confirm />
+        </div>
+      </Providers>
     </ConnectedApp>
   );
 };
