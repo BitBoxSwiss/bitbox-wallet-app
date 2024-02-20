@@ -80,15 +80,19 @@ func (keystore *keystore) RootFingerprint() ([]byte, error) {
 
 // DeterministicEntropy implements keystore.Keystore.
 func (keystore *keystore) DeterministicEntropy() ([]byte, error) {
-	// TODO: Generate the deterministic entropy for a child seed of a given derivation path.
-	// The entropy is generated using bip85 to create a child seed on the hardware wallet.
-	entropy := []byte{}
+	entropy, err := keystore.device.BIP85AppLN()
+	if err != nil {
+		return nil, err
+	}
+	if len(entropy) != 16 {
+		return nil, errp.Newf("entropy size expected to be 16 bytes, got %d", len(entropy))
+	}
 	return entropy, nil
 }
 
 // SupportsDeterministicEntropy implements keystore.Keystore.
 func (keystore *keystore) SupportsDeterministicEntropy() bool {
-	return true
+	return keystore.device.Version().AtLeast(semver.NewSemVer(9, 17, 0))
 }
 
 // SupportsCoin implements keystore.Keystore.
