@@ -16,10 +16,13 @@
 package lightning
 
 import (
+	"encoding/hex"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/breez/breez-sdk-go/breez_sdk"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -58,8 +61,8 @@ func NewLightning(config *config.Config, cacheDirectoryPath string, getKeystore 
 func (lightning *Lightning) Activate() error {
 	lightningConfig := lightning.config.LightningConfig()
 
-	if !lightningConfig.Inactive {
-		return errp.New("Lightning node already active")
+	if len(lightningConfig.Accounts) > 0 {
+		return errp.New("Lightning accounts already configured")
 	}
 
 	keystore := lightning.getKeystore()
@@ -72,14 +75,24 @@ func (lightning *Lightning) Activate() error {
 		return err
 	}
 
+	fingerprint, err := keystore.RootFingerprint()
+	if err != nil {
+		return err
+	}
+
 	entropyMnemonic, err := bip39.NewMnemonic(entropy)
 	if err != nil {
 		lightning.log.WithError(err).Warn("Error generating mnemonic")
 		return errp.New("Error generating mnemonic")
 	}
 
-	lightningConfig.Inactive = false
-	lightningConfig.Mnemonic = entropyMnemonic
+	lightningAccount := config.LightningAccountConfig{
+		Mnemonic:        entropyMnemonic,
+		RootFingerprint: fingerprint,
+		Code:            types.Code(strings.Join([]string{"v0-", hex.EncodeToString(fingerprint), "-ln-0"}, "")),
+		Number:          0,
+	}
+	lightningConfig.Accounts = append(lightningConfig.Accounts, &lightningAccount)
 
 	if err = lightning.setLightningConfig(lightningConfig); err != nil {
 		return err
@@ -112,14 +125,13 @@ func (lightning *Lightning) Disconnect() {
 func (lightning *Lightning) Deactivate() error {
 	lightningConfig := lightning.config.LightningConfig()
 
-	if lightningConfig.Inactive {
+	if len(lightningConfig.Accounts) == 0 {
 		return nil
 	}
 
 	lightning.Disconnect()
 
-	lightningConfig.Inactive = true
-	lightningConfig.Mnemonic = ""
+	lightningConfig.Accounts = []*config.LightningAccountConfig{}
 
 	if err := lightning.setLightningConfig(lightningConfig); err != nil {
 		return err
@@ -128,15 +140,23 @@ func (lightning *Lightning) Deactivate() error {
 	return nil
 }
 
+func accountBreezFolder(accountCode types.Code) string {
+	return strings.Join([]string{"breez-", string(accountCode)}, "")
+}
+
 // connect initializes the connection configuration and calls connect to create a Breez SDK instance.
 func (lightning *Lightning) connect() {
 	lightningConfig := lightning.config.LightningConfig()
 
-	if !lightningConfig.Inactive && len(lightningConfig.Mnemonic) > 0 && lightning.sdkService == nil {
+	if len(lightningConfig.Accounts) > 0 && lightning.sdkService == nil {
 		initializeLogging(lightning.log)
 
+		// At the moment we only support one LN account, but the config files could possibly
+		// support multiple accounts, for future extensions.
+		account := lightningConfig.Accounts[0]
+
 		// TODO: this seed should be determined from the account/device.
-		seed, err := breez_sdk.MnemonicToSeed(lightningConfig.Mnemonic)
+		seed, err := breez_sdk.MnemonicToSeed(account.Mnemonic)
 
 		if err != nil {
 			lightning.log.WithError(err).Warn("BreezSDK: MnemonicToSeed failed")
@@ -150,7 +170,7 @@ func (lightning *Lightning) connect() {
 			},
 		}
 
-		workingDir := path.Join(lightning.cacheDirectoryPath, "breez-sdk")
+		workingDir := path.Join(lightning.cacheDirectoryPath, accountBreezFolder(account.Code))
 
 		if err := os.MkdirAll(workingDir, 0700); err != nil {
 			lightning.log.WithError(err).Warn("Error creating working directory")

@@ -16,7 +16,7 @@
 
 import { ReactNode } from 'react';
 import { LightningContext } from './LightningContext';
-import { getLightningConfig, subscribeLightningConfig } from '../api/lightning';
+import { TLightningAccountConfig, getLightningConfig, subscribeLightningConfig } from '../api/lightning';
 import { useSync } from '../hooks/api';
 import { useDefault } from '../hooks/default';
 
@@ -27,7 +27,7 @@ type TProps = {
 export const LightningProvider = ({ children }: TProps) => {
   const lightningConfig = useDefault(
     useSync(getLightningConfig, subscribeLightningConfig),
-    { inactive: true },
+    { accounts: {} as TLightningAccountConfig[] },
   );
 
   return (

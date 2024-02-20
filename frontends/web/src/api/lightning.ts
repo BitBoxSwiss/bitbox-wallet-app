@@ -15,6 +15,7 @@
  */
 
 import { apiGet, apiPost } from '../utils/request';
+import { AccountCode } from './account';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 import qs from 'query-string';
 
@@ -25,8 +26,15 @@ export interface ILightningResponse<T> {
   errorCode?: string;
 }
 
-export type LightningConfig = {
-  inactive: boolean;
+export type TLightningAccountConfig = {
+  mnemonic: string;
+  rootFingerprint: string;
+  code: AccountCode;
+  num: number;
+};
+
+export type TLightningConfig = {
+  accounts: TLightningAccountConfig[];
 };
 
 export type NodeSetup = {
@@ -878,11 +886,11 @@ const postApiResponse = async <T, C extends object | undefined>(url: string, dat
  * Lightning interface
  */
 
-export const getLightningConfig = async (): Promise<LightningConfig> => {
+export const getLightningConfig = async (): Promise<TLightningConfig> => {
   return await apiGet('lightning/config');
 };
 
-export const postLightningConfig = async (data: LightningConfig): Promise<void> => {
+export const postLightningConfig = async (data: TLightningConfig): Promise<void> => {
   return await apiPost('lightning/config', data);
 };
 
@@ -938,7 +946,7 @@ export const postReceivePayment = async (data: ReceivePaymentRequest): Promise<R
  * event to notify when a change to the lightning config has occurred.
  * Meant to be used with `useSubscribe`.
  */
-export const subscribeLightningConfig = (cb: TSubscriptionCallback<LightningConfig>) => {
+export const subscribeLightningConfig = (cb: TSubscriptionCallback<TLightningConfig>) => {
   return subscribeEndpoint('lightning/config', cb);
 };
 
