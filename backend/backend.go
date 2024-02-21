@@ -687,7 +687,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.configureHistoryExchangeRates()
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
-	backend.lightning.Connect()
+	go backend.lightning.Connect()
 	return backend.events
 }
 

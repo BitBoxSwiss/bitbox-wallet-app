@@ -108,14 +108,18 @@ func (lightning *Lightning) Activate() error {
 		return err
 	}
 
-	go lightning.connect(true)
+	if err = lightning.connect(true); err != nil {
+		return err
+	}
 
 	return nil
 }
 
 // Connect needs to be called before any requests are made.
 func (lightning *Lightning) Connect() {
-	go lightning.connect(false)
+	if err := lightning.connect(false); err != nil {
+		lightning.log.WithError(err).Warn("BreezSDK: Error connecting SDK")
+	}
 }
 
 // Disconnect closes an active Breez SDK instance. After this, no requests should be made.
@@ -155,7 +159,7 @@ func accountBreezFolder(accountCode types.Code) string {
 }
 
 // connect initializes the connection configuration and calls connect to create a Breez SDK instance.
-func (lightning *Lightning) connect(registerNode bool) {
+func (lightning *Lightning) connect(registerNode bool) error {
 	lightningConfig := lightning.config.LightningConfig()
 
 	if len(lightningConfig.Accounts) > 0 && lightning.sdkService == nil {
@@ -168,7 +172,7 @@ func (lightning *Lightning) connect(registerNode bool) {
 		seed, err := breez_sdk.MnemonicToSeed(account.Mnemonic)
 		if err != nil {
 			lightning.log.WithError(err).Error("BreezSDK: MnemonicToSeed failed")
-			return
+			return err
 		}
 
 		var greenlightCredentials *breez_sdk.GreenlightCredentials
@@ -176,13 +180,13 @@ func (lightning *Lightning) connect(registerNode bool) {
 			_, deviceKey, err := util.HTTPGet(lightning.httpClient, greenLightKeyUrl, "", int64(4096))
 			if err != nil {
 				lightning.log.WithError(err).Error("Greenlight key fetch failed")
-				return
+				return err
 			}
 
 			_, deviceCert, err := util.HTTPGet(lightning.httpClient, greenLightCertUrl, "", int64(4096))
 			if err != nil {
 				lightning.log.WithError(err).Error("Greenlight cert fetch failed")
-				return
+				return err
 			}
 
 			greenlightCredentials = &breez_sdk.GreenlightCredentials{
@@ -202,13 +206,13 @@ func (lightning *Lightning) connect(registerNode bool) {
 
 		if err := os.MkdirAll(workingDir, 0700); err != nil {
 			lightning.log.WithError(err).Error("Error creating working directory")
-			return
+			return err
 		}
 
 		_, breezApiKey, err := util.HTTPGet(lightning.httpClient, breezApiKeyUrl, "", int64(4096))
 		if err != nil {
 			lightning.log.WithError(err).Error("Breez api key fetch failed")
-			return
+			return err
 		}
 
 		// fetched key could have an unwanted newline, we'll just trim invalid chars for safety.
@@ -219,11 +223,12 @@ func (lightning *Lightning) connect(registerNode bool) {
 		sdkService, err := breez_sdk.Connect(config, seed, lightning)
 		if err != nil {
 			lightning.log.WithError(err).Error("BreezSDK: Error connecting SDK")
-			return
+			return err
 		}
 
 		lightning.sdkService = sdkService
 	}
+	return nil
 }
 
 func (lightning *Lightning) setLightningConfig(config config.LightningConfig) error {
