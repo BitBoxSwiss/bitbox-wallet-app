@@ -200,6 +200,10 @@ const Sidebar = ({
           </div>
         ) : null }
 
+        {lightningConfig.accounts.length !== 0 && (
+          <GetLightningLink key="lightning" handleSidebarItemClick={handleSidebarItemClick} />
+        )}
+
         { accountsByKeystore.map(keystore => (
           <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
             <div className={style.sidebarHeaderContainer}>
@@ -227,7 +231,6 @@ const Sidebar = ({
             ))}
           </div>
         )) }
-        {lightningConfig.accounts.length > 0 && <GetLightningLink handleSidebarItemClick={handleSidebarItemClick} />}
 
         <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (
