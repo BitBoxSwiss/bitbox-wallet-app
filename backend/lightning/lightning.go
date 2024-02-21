@@ -67,7 +67,7 @@ func (lightning *Lightning) Activate() error {
 
 	keystore := lightning.getKeystore()
 	if keystore == nil || !keystore.SupportsDeterministicEntropy() {
-		return errp.New("No keystore available")
+		return errp.New("No keystore available, or firmware out of date")
 	}
 
 	entropy, err := keystore.DeterministicEntropy()
