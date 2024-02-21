@@ -286,7 +286,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.banners = banners.NewBanners()
 	backend.banners.Observe(backend.Notify)
 
-	backend.lightning = lightning.NewLightning(backend.config, backend.arguments.CacheDirectoryPath(), backend.Keystore)
+	backend.lightning = lightning.NewLightning(backend.config, backend.arguments.CacheDirectoryPath(), backend.Keystore, backend.httpClient)
 	backend.lightning.Observe(backend.Notify)
 
 	return backend, nil
