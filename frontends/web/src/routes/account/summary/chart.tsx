@@ -19,12 +19,12 @@ import { Component, createRef, ReactChild } from 'react';
 import { ISummary } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Skeleton } from '../../../components/skeleton/skeleton';
-import { formatNumber } from '../../../components/rates/rates';
+import { formatNumber } from '../../../utils/rates';
 import { Amount } from '../../../components/amount/amount';
-import styles from './chart.module.css';
 import Filters from './filters';
 import { getDarkmode } from '../../../components/darkmode/darkmode';
 import { TChartDisplay, TChartFiltersProps } from './types';
+import styles from './chart.module.css';
 
 export interface FormattedLineData extends LineData {
   formattedValue: string;
