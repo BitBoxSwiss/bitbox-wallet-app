@@ -23,9 +23,12 @@ import (
 	"strings"
 
 	"github.com/breez/breez-sdk-go/breez_sdk"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -45,31 +48,40 @@ const (
 type Lightning struct {
 	observable.Implementation
 
-	config             *config.Config
+	backendConfig      *config.Config
 	cacheDirectoryPath string
 	getKeystore        func() keystore.Keystore
 	synced             bool
 
-	log        *logrus.Entry
-	sdkService *breez_sdk.BlockingBreezServices
-	httpClient *http.Client
+	log          *logrus.Entry
+	sdkService   *breez_sdk.BlockingBreezServices
+	httpClient   *http.Client
+	ratesUpdater *rates.RateUpdater
+	btcCoin      coin.Coin
 }
 
 // NewLightning creates a new instance of the Lightning struct.
-func NewLightning(config *config.Config, cacheDirectoryPath string, getKeystore func() keystore.Keystore, httpClient *http.Client) *Lightning {
+func NewLightning(config *config.Config,
+	cacheDirectoryPath string,
+	getKeystore func() keystore.Keystore,
+	httpClient *http.Client,
+	ratesUpdater *rates.RateUpdater,
+	btcCoin coin.Coin) *Lightning {
 	return &Lightning{
-		config:             config,
+		backendConfig:      config,
 		cacheDirectoryPath: cacheDirectoryPath,
 		getKeystore:        getKeystore,
 		log:                logging.Get().WithGroup("lightning"),
 		synced:             false,
 		httpClient:         httpClient,
+		ratesUpdater:       ratesUpdater,
+		btcCoin:            btcCoin,
 	}
 }
 
 // Activate first creates a mnemonic from the keystore entropy then connects to instance.
 func (lightning *Lightning) Activate() error {
-	lightningConfig := lightning.config.LightningConfig()
+	lightningConfig := lightning.backendConfig.LightningConfig()
 
 	if len(lightningConfig.Accounts) > 0 {
 		return errp.New("Lightning accounts already configured")
@@ -137,7 +149,7 @@ func (lightning *Lightning) Disconnect() {
 
 // Deactivate disconnects the instance and changes the config to inactive.
 func (lightning *Lightning) Deactivate() error {
-	lightningConfig := lightning.config.LightningConfig()
+	lightningConfig := lightning.backendConfig.LightningConfig()
 
 	if len(lightningConfig.Accounts) == 0 {
 		return nil
@@ -154,13 +166,37 @@ func (lightning *Lightning) Deactivate() error {
 	return nil
 }
 
+// CheckActive returns an error if the lightning service not has been activated.
+func (lightning *Lightning) CheckActive() error {
+	lightningConfig := lightning.backendConfig.LightningConfig()
+	if len(lightningConfig.Accounts) == 0 || lightning.sdkService == nil {
+		return errp.New("Lightning not initialized")
+	}
+	return nil
+}
+
+// Balance returns the balance of the lightning account.
+func (lightning *Lightning) Balance() (*accounts.Balance, error) {
+	if err := lightning.CheckActive(); err != nil {
+		return nil, err
+	}
+
+	nodeInfo, err := lightning.sdkService.NodeInfo()
+	if err != nil {
+		return nil, err
+	}
+
+	amount := coin.NewAmountFromInt64(int64(nodeInfo.ChannelsBalanceMsat / 1000))
+	return accounts.NewBalance(amount, coin.Amount{}), nil
+}
+
 func accountBreezFolder(accountCode types.Code) string {
 	return strings.Join([]string{"breez-", string(accountCode)}, "")
 }
 
 // connect initializes the connection configuration and calls connect to create a Breez SDK instance.
 func (lightning *Lightning) connect(registerNode bool) error {
-	lightningConfig := lightning.config.LightningConfig()
+	lightningConfig := lightning.backendConfig.LightningConfig()
 
 	if len(lightningConfig.Accounts) > 0 && lightning.sdkService == nil {
 		initializeLogging(lightning.log)
@@ -232,7 +268,7 @@ func (lightning *Lightning) connect(registerNode bool) error {
 }
 
 func (lightning *Lightning) setLightningConfig(config config.LightningConfig) error {
-	if err := lightning.config.SetLightningConfig(config); err != nil {
+	if err := lightning.backendConfig.SetLightningConfig(config); err != nil {
 		lightning.log.WithError(err).Warn("Error updating lightning config")
 		return errp.New("Error updating lightning config")
 	}

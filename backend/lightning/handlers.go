@@ -20,6 +20,8 @@ import (
 	"net/http"
 
 	"github.com/breez/breez-sdk-go/breez_sdk"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 )
 
 // PostLightningActivateNode handles the POST request to activate the lightning node.
@@ -42,7 +44,7 @@ func (lightning *Lightning) PostLightningDeactivateNode(r *http.Request) interfa
 	return responseDto{Success: true}
 }
 
-// GetNodeInfo handles the GET request retrieve the node info.
+// GetNodeInfo handles the GET request to retrieve the node info.
 func (lightning *Lightning) GetNodeInfo(_ *http.Request) interface{} {
 	if lightning.sdkService == nil {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
@@ -54,6 +56,32 @@ func (lightning *Lightning) GetNodeInfo(_ *http.Request) interface{} {
 	}
 
 	return responseDto{Success: true, Data: toNodeStateDto(nodeState)}
+}
+
+// GetBalance handles the GET request to retrieve the node balance and its fiat conversions.
+func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
+	balance, err := lightning.Balance()
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	formatAsSats := lightning.backendConfig.AppConfig().Backend.BtcUnit == coin.BtcUnitSats
+	btcCoin := lightning.btcCoin
+
+	formattedAvailableAmount := coin.FormattedAmount{
+		Amount:      btcCoin.FormatAmount(balance.Available(), false),
+		Unit:        btcCoin.GetFormatUnit(false),
+		Conversions: coin.Conversions(balance.Available(), btcCoin, false, lightning.ratesUpdater, formatAsSats),
+	}
+
+	return responseDto{
+		Success: true,
+		Data: accounts.FormattedAccountBalance{
+			HasAvailable: balance.Available().BigInt().Sign() > 0,
+			Available:    formattedAvailableAmount,
+			HasIncoming:  false,
+			Incoming:     coin.FormattedAmount{},
+		}}
 }
 
 // GetListPayments handles the GET request to list payments.

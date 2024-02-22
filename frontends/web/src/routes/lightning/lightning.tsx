@@ -18,14 +18,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
-import { getNodeInfo, getListPayments, subscribeListPayments, subscribeNodeState, NodeState, Payment } from '../../api/lightning';
+import { getListPayments, subscribeListPayments, subscribeNodeState, Payment, getLightningBalance } from '../../api/lightning';
 import { Balance } from '../../components/balance/balance';
 import { View, ViewHeader } from '../../components/view/view';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { ActionButtons } from './actionButtons';
 import { LightningGuide } from './guide';
-import { toSat } from '../../utils/conversion';
 import { Payments } from './components/payments';
 import { unsubscribe } from '../../utils/subscriptions';
 
@@ -33,18 +32,14 @@ export function Lightning() {
   const { t } = useTranslation();
   const [balance, setBalance] = useState<accountApi.IBalance>();
   const [syncedAddressesCount] = useState<number>();
-  const [nodeState, setNodeState] = useState<NodeState>();
   const [payments, setPayments] = useState<Payment[]>();
   const [error, setError] = useState<string>();
 
   const onStateChange = useCallback(async () => {
     try {
       setError(undefined);
-      const nodeState = await getNodeInfo();
-      const payments = await getListPayments({});
-
-      setNodeState(nodeState);
-      setPayments(payments);
+      setBalance(await getLightningBalance());
+      setPayments(await getListPayments({}));
     } catch (err: any) {
       const errorMessage = err?.errorMessage || err;
       setError(errorMessage);
@@ -58,23 +53,6 @@ export function Lightning() {
     return () => unsubscribe(subscriptions);
   }, [onStateChange]);
 
-  useEffect(() => {
-    if (nodeState) {
-      setBalance({
-        hasAvailable: nodeState.channelsBalanceMsat > 0,
-        available: {
-          amount: `${toSat(nodeState.channelsBalanceMsat)}`,
-          unit: 'sat'
-        },
-        hasIncoming: false,
-        incoming: {
-          amount: '0',
-          unit: 'sat'
-        }
-      });
-    }
-  }, [nodeState, nodeState?.channelsBalanceMsat]);
-
   const hasDataLoaded = balance !== undefined;
 
   if (error) {
@@ -85,7 +63,7 @@ export function Lightning() {
     );
   }
 
-  if (!nodeState) {
+  if (!balance) {
     // Wait for the nodeState to become available
     return <Spinner guideExists={false} />;
   }
