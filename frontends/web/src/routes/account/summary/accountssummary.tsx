@@ -23,6 +23,7 @@ import { statusChanged, syncdone } from '../../../api/accountsync';
 import { unsubscribe } from '../../../utils/subscriptions';
 import { useMountedRef } from '../../../hooks/mount';
 import { useSDCard } from '../../../hooks/sdcard';
+import { useLightning } from '../../../hooks/lightning';
 import { Status } from '../../../components/status/status';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { View } from '../../../components/view/view';
@@ -50,6 +51,7 @@ export function AccountsSummary({ accounts, devices }: TProps) {
   const summaryReqTimerID = useRef<number>();
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
+  const { lightningConfig } = useLightning();
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
 
@@ -215,7 +217,7 @@ export function AccountsSummary({ accounts, devices }: TProps) {
                   totalBalancePerCoin={ balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
                   totalBalance={ accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
                   balances={balances}
-                  lightningNodeState={nodeState}
+                  lightningNodeState={(lightningConfig.accounts.length && lightningConfig.accounts[0].rootFingerprint === keystore.rootFingerprint) ? nodeState : undefined}
                 />
               ))}
           </View>

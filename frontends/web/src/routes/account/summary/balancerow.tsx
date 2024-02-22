@@ -15,10 +15,10 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { AccountCode, CoinCode, IBalance } from '../../../api/account';
 import { syncAddressesCount } from '../../../api/accountsync';
 import { useSubscribe } from '../../../hooks/api';
-import { route } from '../../../utils/route';
 import Logo from '../../../components/icon/logo';
 import { Amount } from '../../../components/amount/amount';
 import Spinner from '../../../components/spinner/ascii';
@@ -36,13 +36,14 @@ export function BalanceRow (
   { code, name, coinCode, balance }: TProps
 ) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const syncStatus = useSubscribe(syncAddressesCount(code));
 
   const nameCol = (
     <td
       className={style.clickable}
       data-label={t('accountSummary.name')}
-      onClick={() => route(`/account/${code}`)}>
+      onClick={() => navigate(code === 'lightning' ? '/lightning' : `/account/${code}`)}>
       <div className={style.coinName}>
         <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
         {name}

@@ -121,6 +121,9 @@ export function SummaryBalance({
             </tr>
           </thead>
           <tbody>
+            {lightningNodeState && (
+              <BalanceRow key="lightning" code="lightning" name="Lightning" coinCode="lightning" balance={lightningBalance} />
+            )}
             {accounts.length > 0 ? (
               coins.map((coinCode) => {
                 const balanceRows = accountsPerCoin[coinCode].map((account) => (
@@ -152,7 +155,6 @@ export function SummaryBalance({
                 </td>
               </tr>
             )}
-            {lightningNodeState && <BalanceRow key="btc" code="lightning" name="Lightning" coinCode="lightning" balance={lightningBalance} />}
           </tbody>
           <tfoot>
             <tr>
