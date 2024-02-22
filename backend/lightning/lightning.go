@@ -17,6 +17,7 @@ package lightning
 
 import (
 	"encoding/hex"
+	"net/http"
 	"os"
 	"path"
 	"strings"
@@ -25,12 +26,19 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/sirupsen/logrus"
 	"github.com/tyler-smith/go-bip39"
+)
+
+const (
+	breezApiKeyUrl    = "https://bitboxapp.shiftcrypto.io/lightning/breez-api-key"
+	greenLightCertUrl = "https://bitboxapp.shiftcrypto.io/lightning/greenlight.crt"
+	greenLightKeyUrl  = "https://bitboxapp.shiftcrypto.io/lightning/greenlight-key.pem"
 )
 
 // Lightning manages the Breez SDK lightning node.
@@ -44,16 +52,18 @@ type Lightning struct {
 
 	log        *logrus.Entry
 	sdkService *breez_sdk.BlockingBreezServices
+	httpClient *http.Client
 }
 
 // NewLightning creates a new instance of the Lightning struct.
-func NewLightning(config *config.Config, cacheDirectoryPath string, getKeystore func() keystore.Keystore) *Lightning {
+func NewLightning(config *config.Config, cacheDirectoryPath string, getKeystore func() keystore.Keystore, httpClient *http.Client) *Lightning {
 	return &Lightning{
 		config:             config,
 		cacheDirectoryPath: cacheDirectoryPath,
 		getKeystore:        getKeystore,
 		log:                logging.Get().WithGroup("lightning"),
 		synced:             false,
+		httpClient:         httpClient,
 	}
 }
 
@@ -98,14 +108,14 @@ func (lightning *Lightning) Activate() error {
 		return err
 	}
 
-	go lightning.connect()
+	go lightning.connect(true)
 
 	return nil
 }
 
 // Connect needs to be called before any requests are made.
 func (lightning *Lightning) Connect() {
-	go lightning.connect()
+	go lightning.connect(false)
 }
 
 // Disconnect closes an active Breez SDK instance. After this, no requests should be made.
@@ -145,7 +155,7 @@ func accountBreezFolder(accountCode types.Code) string {
 }
 
 // connect initializes the connection configuration and calls connect to create a Breez SDK instance.
-func (lightning *Lightning) connect() {
+func (lightning *Lightning) connect(registerNode bool) {
 	lightningConfig := lightning.config.LightningConfig()
 
 	if len(lightningConfig.Accounts) > 0 && lightning.sdkService == nil {
@@ -155,17 +165,35 @@ func (lightning *Lightning) connect() {
 		// support multiple accounts, for future extensions.
 		account := lightningConfig.Accounts[0]
 
-		// TODO: this seed should be determined from the account/device.
 		seed, err := breez_sdk.MnemonicToSeed(account.Mnemonic)
-
 		if err != nil {
-			lightning.log.WithError(err).Warn("BreezSDK: MnemonicToSeed failed")
+			lightning.log.WithError(err).Error("BreezSDK: MnemonicToSeed failed")
 			return
+		}
+
+		var greenlightCredentials *breez_sdk.GreenlightCredentials
+		if registerNode {
+			_, deviceKey, err := util.HTTPGet(lightning.httpClient, greenLightKeyUrl, "", int64(4096))
+			if err != nil {
+				lightning.log.WithError(err).Error("Greenlight key fetch failed")
+				return
+			}
+
+			_, deviceCert, err := util.HTTPGet(lightning.httpClient, greenLightCertUrl, "", int64(4096))
+			if err != nil {
+				lightning.log.WithError(err).Error("Greenlight cert fetch failed")
+				return
+			}
+
+			greenlightCredentials = &breez_sdk.GreenlightCredentials{
+				DeviceKey:  deviceKey,
+				DeviceCert: deviceCert,
+			}
 		}
 
 		nodeConfig := breez_sdk.NodeConfigGreenlight{
 			Config: breez_sdk.GreenlightNodeConfig{
-				PartnerCredentials: nil,
+				PartnerCredentials: greenlightCredentials,
 				InviteCode:         nil,
 			},
 		}
@@ -173,16 +201,24 @@ func (lightning *Lightning) connect() {
 		workingDir := path.Join(lightning.cacheDirectoryPath, accountBreezFolder(account.Code))
 
 		if err := os.MkdirAll(workingDir, 0700); err != nil {
-			lightning.log.WithError(err).Warn("Error creating working directory")
+			lightning.log.WithError(err).Error("Error creating working directory")
 			return
 		}
 
-		config := breez_sdk.DefaultConfig(breez_sdk.EnvironmentTypeProduction, "", nodeConfig)
+		_, breezApiKey, err := util.HTTPGet(lightning.httpClient, breezApiKeyUrl, "", int64(4096))
+		if err != nil {
+			lightning.log.WithError(err).Error("Breez api key fetch failed")
+			return
+		}
+
+		// fetched key could have an unwanted newline, we'll just trim invalid chars for safety.
+		trimmedKey := strings.TrimSpace(string(breezApiKey))
+
+		config := breez_sdk.DefaultConfig(breez_sdk.EnvironmentTypeProduction, trimmedKey, nodeConfig)
 		config.WorkingDir = workingDir
 		sdkService, err := breez_sdk.Connect(config, seed, lightning)
-
 		if err != nil {
-			lightning.log.WithError(err).Warn("BreezSDK: Error connecting SDK")
+			lightning.log.WithError(err).Error("BreezSDK: Error connecting SDK")
 			return
 		}
 
