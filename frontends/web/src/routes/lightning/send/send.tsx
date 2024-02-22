@@ -1,5 +1,4 @@
 /**
- * Copyright 2018 Shift Devices AG
  * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,11 +19,11 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent } from '../../../components/view/view';
-import { Button } from '../../../components/forms';
+import { Button, Input } from '../../../components/forms';
 import { InputType, InputTypeVariant, LnInvoice, SdkError, getParseInput, postSendPayment } from '../../../api/lightning';
 import { SimpleMarkup } from '../../../utils/markup';
 import { route } from '../../../utils/route';
-import { toSat } from '../../../utils/conversion';
+import { toMsat, toSat } from '../../../utils/conversion';
 import { Amount } from '../../../components/amount/amount';
 import { FiatConversion } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
@@ -32,7 +31,7 @@ import { ScanQRVideo } from '../../account/send/components/inputs/scan-qr-video'
 import { Spinner } from '../../../components/spinner/Spinner';
 import styles from './send.module.css';
 
-type TStep = 'select-invoice' | 'confirm' | 'sending' | 'success';
+type TStep = 'select-invoice' | 'edit-invoice' | 'confirm' | 'sending' | 'success';
 
 const SendingSpinner = () => {
   const { t } = useTranslation();
@@ -98,19 +97,23 @@ const PaymentInput = ({ input }: PaymentInputProps) => {
 
 type SendWorkflowProps = {
   onBack: () => void;
-  onInput: (input: string) => void;
+  onCameraInput: (input: string) => void;
+  onCustomAmount: (input: number) => void;
   onSend: () => void;
   parsedInput?: InputType;
   rawInputError?: string;
+  customAmount?: number;
   step: TStep;
 };
 
 const SendWorkflow = ({
   onBack,
-  onInput,
+  onCameraInput,
+  onCustomAmount,
   onSend,
   parsedInput,
   rawInputError,
+  customAmount,
   step,
 }: SendWorkflowProps) => {
   const { t } = useTranslation();
@@ -123,7 +126,7 @@ const SendWorkflow = ({
             <Column>
               {/* this flickers quickly, as there is 'SdkError: Generic: Breez SDK error: Unrecognized input type' when logging rawInputError */}
               {rawInputError && <Status type="warning">{rawInputError}</Status>}
-              <ScanQRVideo onResult={onInput} />
+              <ScanQRVideo onResult={onCameraInput} />
               {/* Note: unfortunatelly we probably can't read from HTML5 clipboard api directly in Qt/Android WebView */}
               <Button transparent onClick={() => console.log('TODO: implement paste')}>
                 {t('lightning.send.rawInput.label')}
@@ -132,6 +135,53 @@ const SendWorkflow = ({
           </Grid>
         </ViewContent>
         <ViewButtons reverseRow>
+          <Button secondary onClick={onBack}>
+            {t('button.back')}
+          </Button>
+        </ViewButtons>
+      </View>
+    );
+  case 'edit-invoice':
+    if (parsedInput?.type !== InputTypeVariant.BOLT11) {
+      return (
+        <View fitContent minHeight="100%">
+          Invoices without amount are currently only supported for BOLT11 type invoices
+        </View>
+      );
+    }
+    return (
+      <View fitContent minHeight="100%">
+        <ViewContent>
+          <Grid col="1">
+            <Column>
+              <Input
+                type="number"
+                min="0"
+                label={t('lightning.receive.amountSats.label')}
+                placeholder={t('lightning.receive.amountSats.placeholder')}
+                id="amountSatsInput"
+                onInput={e => onCustomAmount(e.target.valueAsNumber)}
+                value={customAmount ? `${customAmount}` : ''}
+                autoFocus
+              />
+              <Input
+                label={t('lightning.receive.description.label')}
+                placeholder="This invoice has no description"
+                id="descriptionInput"
+                readOnly
+                disabled
+                value={`${parsedInput.invoice.description}`}
+              />
+            </Column>
+          </Grid>
+        </ViewContent>
+        <ViewButtons>
+          <Button
+            primary
+            onClick={onSend}
+            disabled={!customAmount}>
+            {t('button.send')}
+          </Button>
           <Button secondary onClick={onBack}>
             {t('button.back')}
           </Button>
@@ -176,21 +226,23 @@ const SendWorkflow = ({
 
 export const Send = () => {
   const { t } = useTranslation();
-  const [parsedInput, setParsedInput] = useState<InputType>();
+  const [step, setStep] = useState<TStep>('select-invoice');
+  const [paymentDetails, setPaymentDetails] = useState<InputType>();
+  const [customAmount, setCustomAmount] = useState<number>();
   const [rawInputError, setRawInputError] = useState<string>();
   const [sendError, setSendError] = useState<string>();
-  const [step, setStep] = useState<TStep>('select-invoice');
 
   const back = () => {
     switch (step) {
     case 'select-invoice':
+    case 'confirm':
       route('/lightning');
       break;
-    case 'confirm':
+    case 'edit-invoice':
     case 'success':
       setStep('select-invoice');
       setSendError(undefined);
-      setParsedInput(undefined);
+      setPaymentDetails(undefined);
       break;
     }
   };
@@ -201,7 +253,13 @@ export const Send = () => {
       const result = await getParseInput({ s: rawInput });
       switch (result.type) {
       case InputTypeVariant.BOLT11:
-        setParsedInput(result);
+        setPaymentDetails(result);
+        // if invoice has 0 amount or no amount given
+        if (!result.invoice.amountMsat) {
+          setCustomAmount(0);
+          setStep('edit-invoice');
+          break;
+        }
         setStep('confirm');
         break;
       default:
@@ -220,9 +278,13 @@ export const Send = () => {
     setStep('sending');
     setSendError(undefined);
     try {
-      switch (parsedInput?.type) {
+      switch (paymentDetails?.type) {
       case InputTypeVariant.BOLT11:
-        await postSendPayment({ bolt11: parsedInput.invoice.bolt11 });
+        await postSendPayment({
+          bolt11: paymentDetails.invoice.bolt11,
+          // amountMsat is optional, if amount is missing the UI shows edit-invoice step for the user to enter a custom amountMsat which is passed here
+          amountMsat: customAmount ? toMsat(customAmount) : undefined
+        });
         setStep('success');
         setTimeout(() => route('/lightning'), 5000);
         break;
@@ -247,10 +309,12 @@ export const Send = () => {
           <Header title={<h2>{t('lightning.send.title')}</h2>} />
           <SendWorkflow
             onBack={back}
-            onInput={parseInput}
+            onCameraInput={parseInput}
+            onCustomAmount={setCustomAmount}
             onSend={sendPayment}
-            parsedInput={parsedInput}
+            parsedInput={paymentDetails}
             rawInputError={rawInputError}
+            customAmount={customAmount}
             step={step}
           />
         </Main>
