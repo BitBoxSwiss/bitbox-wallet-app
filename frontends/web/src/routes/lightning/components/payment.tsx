@@ -1,6 +1,5 @@
 /**
- * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2024 Shift Devices AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +52,8 @@ export const Payment = ({ index, payment }: TProps) => {
           <div className={parentStyle.activity}>
             <span className={style.address}>{payment.description || ''}</span>
           </div>
+        </div>
+        <div className={parentStyle.columnGroup}>
           <div className={`${parentStyle.currency} ${payment.paymentType === PaymentType.RECEIVED ? style.receive : style.send}`}>
             <span className={`${style.amount} ${style.amountOverflow}`} data-unit=" sat">
               {sign}
