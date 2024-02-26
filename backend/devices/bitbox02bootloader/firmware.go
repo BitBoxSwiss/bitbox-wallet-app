@@ -25,13 +25,13 @@ import (
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 )
 
-//go:embed assets/firmware-btc.v9.16.0.signed.bin.gz
+//go:embed assets/firmware-btc.v9.17.0.signed.bin.gz
 var firmwareBinaryBTCOnly []byte
-var firmwareVersionBTCOnly = semver.NewSemVer(9, 16, 0)
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 17, 0)
 
-//go:embed assets/firmware.v9.16.0.signed.bin.gz
+//go:embed assets/firmware.v9.17.0.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 16, 0)
+var firmwareVersionMulti = semver.NewSemVer(9, 17, 0)
 
 type firmwareInfo struct {
 	version *semver.SemVer
