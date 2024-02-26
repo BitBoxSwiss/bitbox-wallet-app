@@ -12,18 +12,9 @@
     font-weight: 400;
 }
 
-.date {
-
-}
-
 .description {
     text-overflow: ellipsis;
     overflow: hidden;
-}
-
-.description .badge {
-    margin-left: 5px;
-    color: var(--color-secondary);
 }
 
 .amount {
@@ -82,10 +73,6 @@
 @media (max-width: 1080px), (min-width: 1200px) and (max-width: 1322px) {
     .container {
         margin: 0 0 var(--space-quarter) 0;
-    }
-
-    .container.first {
-
     }
 
     .row {
