@@ -19,12 +19,12 @@ import { Component, createRef, ReactChild } from 'react';
 import { ISummary } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Skeleton } from '../../../components/skeleton/skeleton';
-import { formatNumber } from '../../../components/rates/rates';
+import { formatNumber } from '../../../utils/rates';
 import { Amount } from '../../../components/amount/amount';
-import styles from './chart.module.css';
 import Filters from './filters';
 import { getDarkmode } from '../../../components/darkmode/darkmode';
 import { TChartDisplay, TChartFiltersProps } from './types';
+import styles from './chart.module.css';
 
 export interface FormattedLineData extends LineData {
   formattedValue: string;
@@ -388,7 +388,9 @@ class Chart extends Component<Props, State> {
       this.setState({ difference: 0, diffSince: '' });
       return;
     }
-    const valueFrom = data[rangeFrom].value;
+    // data should always have at least two data points and when the first
+    // value is 0 we take the next value as valueFrom to calculate valueDiff
+    const valueFrom = data[rangeFrom].value === 0 ? data[rangeFrom + 1].value : data[rangeFrom].value;
     const valueTo = this.props.data.chartTotal;
     const valueDiff = valueTo ? valueTo - valueFrom : 0;
     this.setState({
@@ -484,7 +486,7 @@ class Chart extends Component<Props, State> {
       toolTipTime,
       isMobile
     } = this.state;
-    const hasDifferenece = difference && Number.isFinite(difference);
+    const hasDifference = difference && Number.isFinite(difference);
     const hasData = this.hasData();
     const hasHourlyData = this.hasHourlyData();
     const disableFilters = !hasData || chartDataMissing;
@@ -516,10 +518,10 @@ class Chart extends Component<Props, State> {
               </span>
             </div>
             {!showMobileTotalValue ?
-              <span className={!hasDifferenece ? '' : (
+              <span className={!hasDifference ? '' : (
                 styles[difference < 0 ? 'down' : 'up']
               )} title={diffSince}>
-                {hasDifferenece ? (
+                {hasDifference ? (
                   <>
                     <span className={styles.arrow}>
                       {(difference < 0) ? (<ArrowUp />) : (<ArrowDown />)}
@@ -529,7 +531,7 @@ class Chart extends Component<Props, State> {
                       <span className={styles.diffUnit}>%</span>
                     </span>
                   </>
-                ) : chartTotal === 0 ? null : (<Skeleton fontSize="1.125rem" minWidth="125px" />)}
+                ) : null}
               </span>
               :
               <span className={styles.diffValue}>
