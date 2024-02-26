@@ -19,6 +19,10 @@ import type { FailResponse, SuccessResponse } from './response';
 import { apiGet, apiPost } from '@/utils/request';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
+
+export type TBlockExplorer = { name: string; url: string };
+export type TAvailableExplorers = Record<CoinCode, TBlockExplorer[]>;
+
 export interface ICoin {
     coinCode: CoinCode;
     name: string;
@@ -31,6 +35,10 @@ export interface ISuccess {
     errorMessage?: string;
     errorCode?: string;
 }
+
+export const getAvailableExplorers = (): Promise<TAvailableExplorers> => {
+  return apiGet('available-explorers');
+};
 
 export const getSupportedCoins = (): Promise<ICoin[]> => {
   return apiGet('supported-coins');
