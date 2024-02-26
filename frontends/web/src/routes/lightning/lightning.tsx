@@ -28,6 +28,7 @@ import { LightningGuide } from './guide';
 import { toSat } from '../../utils/conversion';
 import { Payments } from './components/payments';
 import { unsubscribe } from '../../utils/subscriptions';
+import { Status } from '../../components/status/status';
 
 export function Lightning() {
   const { t } = useTranslation();
@@ -107,6 +108,11 @@ export function Lightning() {
     <GuideWrapper>
       <GuidedContent>
         <Main>
+          <Status
+            dismissible="lightning-alpha-warning"
+            type="warning">
+            This is an alpha release intended for preview and testing. Only use lightning with a small amount of funds!
+          </Status>
           <Header
             title={
               <h2>
