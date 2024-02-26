@@ -703,7 +703,7 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 
 // getAccountsBalanceHandler returns the balance of all the accounts, grouped by keystore and coin.
 func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error) {
-	totalAmount := make(map[string]map[coin.Code]accountHandlers.FormattedAmount)
+	totalAmount := make(map[string]map[coin.Code]coin.FormattedAmount)
 	accountsByKeystore, err := handlers.backend.AccountsByKeystore()
 	if err != nil {
 		return nil, err
@@ -744,13 +744,13 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 				util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit))
 		}
 
-		totalAmount[rootFingerprint] = make(map[coin.Code]accountHandlers.FormattedAmount)
+		totalAmount[rootFingerprint] = make(map[coin.Code]coin.FormattedAmount)
 		for k, v := range totalPerCoin {
 			currentCoin, err := handlers.backend.Coin(k)
 			if err != nil {
 				return nil, err
 			}
-			totalAmount[rootFingerprint][k] = accountHandlers.FormattedAmount{
+			totalAmount[rootFingerprint][k] = coin.FormattedAmount{
 				Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
 				Unit:        currentCoin.GetFormatUnit(false),
 				Conversions: conversionsPerCoin[k],

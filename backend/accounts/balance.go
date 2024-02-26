@@ -22,6 +22,14 @@ type Balance struct {
 	incoming  coin.Amount
 }
 
+// FormattedAccountBalance includes the total and incoming balance of an account.
+type FormattedAccountBalance struct {
+	HasAvailable bool                 `json:"hasAvailable"`
+	Available    coin.FormattedAmount `json:"available"`
+	HasIncoming  bool                 `json:"hasIncoming"`
+	Incoming     coin.FormattedAmount `json:"incoming"`
+}
+
 // NewBalance creates a new balance with the given amounts.
 func NewBalance(available coin.Amount, incoming coin.Amount) *Balance {
 	return &Balance{

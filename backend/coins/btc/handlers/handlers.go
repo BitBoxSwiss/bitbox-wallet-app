@@ -92,16 +92,9 @@ func (handlers *Handlers) Uninit() {
 	handlers.account = nil
 }
 
-// FormattedAmount with unit and conversions.
-type FormattedAmount struct {
-	Amount      string            `json:"amount"`
-	Unit        string            `json:"unit"`
-	Conversions map[string]string `json:"conversions"`
-}
-
-func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, isFee bool) FormattedAmount {
+func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, isFee bool) coin.FormattedAmount {
 	accountCoin := handlers.account.Coin()
-	return FormattedAmount{
+	return coin.FormattedAmount{
 		Amount: accountCoin.FormatAmount(amount, isFee),
 		Unit:   accountCoin.GetFormatUnit(isFee),
 		Conversions: coin.Conversions(
@@ -114,9 +107,9 @@ func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, isFee bool) For
 	}
 }
 
-func (handlers *Handlers) formatAmountAtTimeAsJSON(amount coin.Amount, timeStamp *time.Time) *FormattedAmount {
+func (handlers *Handlers) formatAmountAtTimeAsJSON(amount coin.Amount, timeStamp *time.Time) *coin.FormattedAmount {
 	accountCoin := handlers.account.Coin()
-	return &FormattedAmount{
+	return &coin.FormattedAmount{
 		Amount: accountCoin.FormatAmount(amount, false),
 		Unit:   accountCoin.GetFormatUnit(false),
 		Conversions: coin.ConversionsAtTime(
@@ -130,30 +123,30 @@ func (handlers *Handlers) formatAmountAtTimeAsJSON(amount coin.Amount, timeStamp
 	}
 }
 
-func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount, isFee bool) FormattedAmount {
+func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount, isFee bool) coin.FormattedAmount {
 	return handlers.formatAmountAsJSON(coin.NewAmountFromInt64(int64(amount)), isFee)
 }
 
 // Transaction is the info returned per transaction by the /transactions and /transaction endpoint.
 type Transaction struct {
-	TxID                     string            `json:"txID"`
-	InternalID               string            `json:"internalID"`
-	NumConfirmations         int               `json:"numConfirmations"`
-	NumConfirmationsComplete int               `json:"numConfirmationsComplete"`
-	Type                     string            `json:"type"`
-	Status                   accounts.TxStatus `json:"status"`
-	Amount                   FormattedAmount   `json:"amount"`
-	AmountAtTime             *FormattedAmount  `json:"amountAtTime"`
-	Fee                      FormattedAmount   `json:"fee"`
-	Time                     *string           `json:"time"`
-	Addresses                []string          `json:"addresses"`
-	Note                     string            `json:"note"`
+	TxID                     string                `json:"txID"`
+	InternalID               string                `json:"internalID"`
+	NumConfirmations         int                   `json:"numConfirmations"`
+	NumConfirmationsComplete int                   `json:"numConfirmationsComplete"`
+	Type                     string                `json:"type"`
+	Status                   accounts.TxStatus     `json:"status"`
+	Amount                   coin.FormattedAmount  `json:"amount"`
+	AmountAtTime             *coin.FormattedAmount `json:"amountAtTime"`
+	Fee                      coin.FormattedAmount  `json:"fee"`
+	Time                     *string               `json:"time"`
+	Addresses                []string              `json:"addresses"`
+	Note                     string                `json:"note"`
 
 	// BTC specific fields.
-	VSize        int64           `json:"vsize"`
-	Size         int64           `json:"size"`
-	Weight       int64           `json:"weight"`
-	FeeRatePerKb FormattedAmount `json:"feeRatePerKb"`
+	VSize        int64                `json:"vsize"`
+	Size         int64                `json:"size"`
+	Weight       int64                `json:"weight"`
+	FeeRatePerKb coin.FormattedAmount `json:"feeRatePerKb"`
 
 	// ETH specific fields
 	Gas   uint64  `json:"gas"`
@@ -172,12 +165,12 @@ func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interf
 // getTxInfoJSON encodes a given transaction in JSON.
 // If `detail` is false, Coin related details, fees and historical fiat amount won't be included.
 func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail bool) Transaction {
-	var feeString FormattedAmount
+	var feeString coin.FormattedAmount
 	if txInfo.Fee != nil {
 		feeString = handlers.formatAmountAsJSON(*txInfo.Fee, true)
 	}
 	var formattedTime *string
-	var amountAtTime *FormattedAmount
+	var amountAtTime *coin.FormattedAmount
 	if txInfo.Timestamp != nil {
 		t := txInfo.Timestamp.Format(time.RFC3339)
 		formattedTime = &t
@@ -344,11 +337,11 @@ func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) 
 	if err != nil {
 		return nil, err
 	}
-	return map[string]interface{}{
-		"hasAvailable": balance.Available().BigInt().Sign() > 0,
-		"available":    handlers.formatAmountAsJSON(balance.Available(), false),
-		"hasIncoming":  balance.Incoming().BigInt().Sign() > 0,
-		"incoming":     handlers.formatAmountAsJSON(balance.Incoming(), false),
+	return accounts.FormattedAccountBalance{
+		HasAvailable: balance.Available().BigInt().Sign() > 0,
+		Available:    handlers.formatAmountAsJSON(balance.Available(), false),
+		HasIncoming:  balance.Incoming().BigInt().Sign() > 0,
+		Incoming:     handlers.formatAmountAsJSON(balance.Incoming(), false),
 	}, nil
 }
 
