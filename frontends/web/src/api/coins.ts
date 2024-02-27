@@ -15,7 +15,7 @@
  */
 
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
-import { CoinCode } from './account';
+import { CoinCode, IAmount } from './account';
 import { ISuccess } from './backend';
 import { apiPost, apiGet } from '../utils/request';
 
@@ -45,4 +45,8 @@ export type TAmount = {
 
 export const parseExternalBtcAmount = (amount: string): Promise<TAmount> => {
   return apiGet(`coins/btc/parse-external-amount?amount=${amount}`);
+};
+
+export const getBtcSatsAmount = (sats: string): Promise<{ success: false } | { success: true, amount: IAmount }> => {
+  return apiGet(`coins/btc/sats-amount?sats=${sats}`);
 };

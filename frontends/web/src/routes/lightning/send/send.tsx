@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
@@ -30,6 +30,8 @@ import { Status } from '../../../components/status/status';
 import { ScanQRVideo } from '../../account/send/components/inputs/scan-qr-video';
 import { Spinner } from '../../../components/spinner/Spinner';
 import styles from './send.module.css';
+import { getBtcSatsAmount } from '../../../api/coins';
+import { Skeleton } from '../../../components/skeleton/skeleton';
 
 type TStep = 'select-invoice' | 'edit-invoice' | 'confirm' | 'sending' | 'success';
 
@@ -51,26 +53,26 @@ type InvoiceInputProps = {
 
 const InvoiceInput = ({ invoice }: InvoiceInputProps) => {
   const { t } = useTranslation();
-  const balance: accountApi.IBalance = {
-    hasAvailable: true,
-    available: {
-      amount: `${toSat(invoice.amountMsat || 0)}`,
-      // TODO: conversions missing
-      unit: 'sat'
-    },
-    hasIncoming: false,
-    incoming: {
-      amount: '0',
-      unit: 'sat'
-    }
-  };
+  const [invoiceAmount, setInvoiceAmount] = useState<accountApi.IAmount>();
+
+  useEffect(() => {
+    getBtcSatsAmount(toSat(invoice.amountMsat || 0).toString()).then(response => {
+      if (response.success) {
+        setInvoiceAmount(response.amount);
+      }
+    });
+  }, [invoice]);
   return (
     <>
       <h1 className={styles.title}>{t('lightning.send.confirm.title')}</h1>
       <div className={styles.info}>
         <h2 className={styles.label}>{t('lightning.send.confirm.amount')}</h2>
-        <Amount amount={balance.available.amount} unit={balance.available.unit} removeBtcTrailingZeroes />/{' '}
-        <FiatConversion amount={balance.available} noBtcZeroes />
+        {invoiceAmount ? (
+          <>
+            <Amount amount={invoiceAmount.amount} unit={invoiceAmount.unit} removeBtcTrailingZeroes />{' ' + invoiceAmount.unit}/{' '}
+            <FiatConversion amount={invoiceAmount} noBtcZeroes />
+          </>
+        ) : <Skeleton />};
       </div>
       {invoice.description && (
         <div className={styles.info}>
@@ -78,8 +80,7 @@ const InvoiceInput = ({ invoice }: InvoiceInputProps) => {
           {invoice.description}
         </div>
       )}
-    </>
-  );
+    </>);
 };
 
 type PaymentInputProps = {
