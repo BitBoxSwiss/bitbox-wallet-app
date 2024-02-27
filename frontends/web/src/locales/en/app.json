@@ -1190,7 +1190,7 @@
     },
     "receive": {
       "amountSats": {
-        "label": "Sats",
+        "label": "Sat",
         "placeholder": "Enter amount"
       },
       "description": {
