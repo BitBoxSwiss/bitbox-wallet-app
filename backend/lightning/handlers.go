@@ -176,6 +176,29 @@ func (lightning *Lightning) PostSendPayment(r *http.Request) interface{} {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
 
+	invoice, err := breez_sdk.ParseInvoice(jsonBody.Bolt11)
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	nodeState, err := lightning.sdkService.NodeInfo()
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	amount := invoice.AmountMsat
+	if jsonBody.AmountMsat != nil {
+		amount = jsonBody.AmountMsat
+	}
+
+	if amount == nil {
+		return responseDto{Success: false, ErrorMessage: "No amount specified."}
+	}
+
+	if *amount > nodeState.ChannelsBalanceMsat {
+		return responseDto{Success: false, ErrorMessage: "The available funds are not enough to pay this invoice."}
+	}
+
 	sendPaymentResponse, err := lightning.sdkService.SendPayment(toSendPaymentRequest(jsonBody))
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
