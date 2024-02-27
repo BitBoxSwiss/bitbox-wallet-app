@@ -285,8 +285,17 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 
 	backend.banners = banners.NewBanners()
 	backend.banners.Observe(backend.Notify)
+	btcCoin, err := backend.Coin(coin.CodeBTC)
+	if err != nil {
+		return nil, err
+	}
 
-	backend.lightning = lightning.NewLightning(backend.config, backend.arguments.CacheDirectoryPath(), backend.Keystore, backend.httpClient)
+	backend.lightning = lightning.NewLightning(backend.config,
+		backend.arguments.CacheDirectoryPath(),
+		backend.Keystore, backend.httpClient,
+		backend.ratesUpdater,
+		btcCoin)
+
 	backend.lightning.Observe(backend.Notify)
 
 	return backend, nil

@@ -257,6 +257,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/lightning/activate-node", handlers.postLightningActivateNode).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/lightning/deactivate-node", handlers.postLightningDeactivateNode).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/lightning/node-info", handlers.getLightningNodeInfo).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/balance", handlers.getLightningBalance).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/lightning/list-payments", handlers.getLightningListPayments).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/lightning/open-channel-fee", handlers.getLightningOpenChannelFee).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/lightning/parse-input", handlers.getLightningParseInput).Methods("GET")
@@ -703,7 +704,7 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 
 // getAccountsBalanceHandler returns the balance of all the accounts, grouped by keystore and coin.
 func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error) {
-	totalAmount := make(map[string]map[coin.Code]accountHandlers.FormattedAmount)
+	totalAmount := make(map[string]map[coin.Code]coin.FormattedAmount)
 	accountsByKeystore, err := handlers.backend.AccountsByKeystore()
 	if err != nil {
 		return nil, err
@@ -744,13 +745,13 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 				util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit))
 		}
 
-		totalAmount[rootFingerprint] = make(map[coin.Code]accountHandlers.FormattedAmount)
+		totalAmount[rootFingerprint] = make(map[coin.Code]coin.FormattedAmount)
 		for k, v := range totalPerCoin {
 			currentCoin, err := handlers.backend.Coin(k)
 			if err != nil {
 				return nil, err
 			}
-			totalAmount[rootFingerprint][k] = accountHandlers.FormattedAmount{
+			totalAmount[rootFingerprint][k] = coin.FormattedAmount{
 				Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
 				Unit:        currentCoin.GetFormatUnit(false),
 				Conversions: conversionsPerCoin[k],
@@ -1435,6 +1436,10 @@ func (handlers *Handlers) postLightningDeactivateNode(r *http.Request) interface
 
 func (handlers *Handlers) getLightningNodeInfo(r *http.Request) interface{} {
 	return handlers.backend.Lightning().GetNodeInfo(r)
+}
+
+func (handlers *Handlers) getLightningBalance(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetBalance(r)
 }
 
 func (handlers *Handlers) getLightningListPayments(r *http.Request) interface{} {

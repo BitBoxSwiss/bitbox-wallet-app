@@ -15,7 +15,7 @@
  */
 
 import { apiGet, apiPost } from '../utils/request';
-import { AccountCode } from './account';
+import { AccountCode, IBalance } from './account';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 import qs from 'query-string';
 
@@ -900,6 +900,10 @@ export const postActivateNode = async (): Promise<void> => {
 
 export const postDeactivateNode = async (): Promise<void> => {
   return postApiResponse<void, undefined>('lightning/deactivate-node', undefined, 'Error calling postDeactivateNode');
+};
+
+export const getLightningBalance = async (): Promise<IBalance> => {
+  return getApiResponse<IBalance>('lightning/balance', 'Error calling getLightningBalance');
 };
 
 /**

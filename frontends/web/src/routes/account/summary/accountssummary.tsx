@@ -23,7 +23,6 @@ import { statusChanged, syncdone } from '../../../api/accountsync';
 import { unsubscribe } from '../../../utils/subscriptions';
 import { useMountedRef } from '../../../hooks/mount';
 import { useSDCard } from '../../../hooks/sdcard';
-import { useLightning } from '../../../hooks/lightning';
 import { Status } from '../../../components/status/status';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { View } from '../../../components/view/view';
@@ -35,7 +34,6 @@ import { Guide } from '../../../components/guide/guide';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '../../../contexts/AppContext';
 import { getAccountsByKeystore, isAmbiguiousName } from '../utils';
-import { NodeState, getNodeInfo, subscribeNodeState } from '../../../api/lightning';
 
 type TProps = {
   accounts: accountApi.IAccount[];
@@ -51,7 +49,6 @@ export function AccountsSummary({ accounts, devices }: TProps) {
   const summaryReqTimerID = useRef<number>();
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
-  const { lightningConfig } = useLightning();
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
 
@@ -59,7 +56,6 @@ export function AccountsSummary({ accounts, devices }: TProps) {
   const [balancePerCoin, setBalancePerCoin] = useState<accountApi.TAccountsBalance>();
   const [accountsTotalBalance, setAccountsTotalBalance] = useState<accountApi.TAccountsTotalBalance>();
   const [balances, setBalances] = useState<Balances>();
-  const [nodeState, setNodeState] = useState<NodeState>();
 
   const hasCard = useSDCard(devices);
 
@@ -171,22 +167,6 @@ export function AccountsSummary({ accounts, devices }: TProps) {
     getAccountsBalance();
   }, [onStatusChanged, getAccountsBalance, accounts]);
 
-  // fetch the lightning node state
-  const onLightningNodeStateChange = useCallback(async () => {
-    try {
-      const nodeState = await getNodeInfo();
-      setNodeState(nodeState);
-    } catch (err) {}
-  }, []);
-
-  // subscribe to any node state changes
-  useEffect(() => {
-    onLightningNodeStateChange();
-
-    const subscriptions = [subscribeNodeState(onLightningNodeStateChange)];
-    return () => unsubscribe(subscriptions);
-  }, [onLightningNodeStateChange]);
-
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -210,14 +190,11 @@ export function AccountsSummary({ accounts, devices }: TProps) {
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 <SummaryBalance
                   keystoreDisambiguatorName={isAmbiguiousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
-                  connected={keystore.connected}
-                  keystoreName={keystore.name}
-                  key={keystore.rootFingerprint}
+                  accountsKeystore={keystore}
                   accounts={accounts}
                   totalBalancePerCoin={ balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
                   totalBalance={ accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
                   balances={balances}
-                  lightningNodeState={(lightningConfig.accounts.length && lightningConfig.accounts[0].rootFingerprint === keystore.rootFingerprint) ? nodeState : undefined}
                 />
               ))}
           </View>

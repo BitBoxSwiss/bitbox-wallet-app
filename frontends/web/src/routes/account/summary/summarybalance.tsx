@@ -24,9 +24,10 @@ import { Skeleton } from '../../../components/skeleton/skeleton';
 import { Badge } from '../../../components/badge/badge';
 import { USBSuccess } from '../../../components/icon';
 import style from './accountssummary.module.css';
-import { NodeState } from '../../../api/lightning';
-import { useEffect, useState } from 'react';
-import { toSat } from '../../../utils/conversion';
+import { useLightning } from '../../../hooks/lightning';
+import { useCallback, useEffect, useState } from 'react';
+import { getLightningBalance, subscribeNodeState } from '../../../api/lightning';
+import { unsubscribe } from '../../../utils/subscriptions';
 
 function TotalBalance({ total, fiatUnit }: accountApi.TAccountTotalBalance) {
   return (
@@ -41,13 +42,11 @@ function TotalBalance({ total, fiatUnit }: accountApi.TAccountTotalBalance) {
 
 type TProps = {
   accounts: accountApi.IAccount[];
-  connected: boolean;
-  keystoreName: string;
+  accountsKeystore: accountApi.TKeystore;
   totalBalancePerCoin?: accountApi.TAccountsBalanceByCoin;
   totalBalance?: accountApi.TAccountTotalBalance;
   balances?: Balances;
   keystoreDisambiguatorName?: string;
-  lightningNodeState?: NodeState;
 };
 
 type TAccountCoinMap = {
@@ -56,16 +55,29 @@ type TAccountCoinMap = {
 
 export function SummaryBalance({
   accounts,
-  connected,
-  keystoreName,
+  accountsKeystore,
   totalBalancePerCoin,
   totalBalance,
   balances,
   keystoreDisambiguatorName,
-  lightningNodeState
 }: TProps) {
   const { t } = useTranslation();
+  const { lightningConfig } = useLightning();
   const [lightningBalance, setLightningBalance] = useState<accountApi.IBalance>();
+
+  const fetchLightningBalance = useCallback(async () => {
+    setLightningBalance(await getLightningBalance());
+  }, []);
+
+  // if there is an active lightning account derived from this keystore, subscribe to any node state changes.
+  useEffect(() => {
+    const lightningAccounts = lightningConfig.accounts;
+    if (lightningAccounts.length && lightningAccounts[0].rootFingerprint === accountsKeystore.rootFingerprint) {
+      fetchLightningBalance();
+      const subscriptions = [subscribeNodeState(fetchLightningBalance)];
+      return () => unsubscribe(subscriptions);
+    }
+  }, [fetchLightningBalance, accountsKeystore, lightningConfig]);
 
   const getAccountsPerCoin = () => {
     return accounts.reduce((accountPerCoin, account) => {
@@ -77,30 +89,13 @@ export function SummaryBalance({
   const accountsPerCoin = getAccountsPerCoin();
   const coins = Object.keys(accountsPerCoin) as accountApi.CoinCode[];
 
-  useEffect(() => {
-    if (lightningNodeState) {
-      setLightningBalance({
-        hasAvailable: lightningNodeState.channelsBalanceMsat > 0,
-        available: {
-          amount: `${toSat(lightningNodeState.channelsBalanceMsat)}`,
-          unit: 'sat'
-        },
-        hasIncoming: false,
-        incoming: {
-          amount: '0',
-          unit: 'sat'
-        }
-      });
-    }
-  }, [lightningNodeState, lightningNodeState?.channelsBalanceMsat]);
-
   return (
     <div>
       <div className={style.accountName}>
         <p>
-          {keystoreName} {keystoreDisambiguatorName && `(${keystoreDisambiguatorName})`}
+          {accountsKeystore.name} {keystoreDisambiguatorName && `(${keystoreDisambiguatorName})`}
         </p>
-        {connected ? (
+        {accountsKeystore.connected ? (
           <Badge icon={(props) => <USBSuccess {...props} />} type="success">
             {t('device.keystoreConnected')}
           </Badge>
@@ -121,7 +116,7 @@ export function SummaryBalance({
             </tr>
           </thead>
           <tbody>
-            {lightningNodeState && (
+            {lightningBalance && (
               <BalanceRow key="lightning" code="lightning" name="Lightning" coinCode="lightning" balance={lightningBalance} />
             )}
             {accounts.length > 0 ? (

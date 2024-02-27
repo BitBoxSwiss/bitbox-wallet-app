@@ -27,6 +27,13 @@ type Amount struct {
 	n *big.Int
 }
 
+// FormattedAmount with unit and conversions.
+type FormattedAmount struct {
+	Amount      string            `json:"amount"`
+	Unit        string            `json:"unit"`
+	Conversions map[string]string `json:"conversions"`
+}
+
 // NewAmount creates a new amount.
 func NewAmount(amount *big.Int) Amount {
 	return Amount{n: new(big.Int).Set(amount)}
