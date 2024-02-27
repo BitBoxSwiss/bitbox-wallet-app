@@ -117,11 +117,7 @@ export function Lightning() {
           </div>
         </Main>
       </GuidedContent>
-      <LightningGuide
-        unit="sats"
-        hasPayments={payments && payments.length > 0}
-        hasNoBalance={balance && balance.available.amount === '0'}
-      />
+      <LightningGuide />
     </GuideWrapper>
   );
 }
