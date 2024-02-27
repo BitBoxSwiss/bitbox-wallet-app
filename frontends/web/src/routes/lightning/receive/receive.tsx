@@ -40,13 +40,16 @@ import { unsubscribe } from '../../../utils/subscriptions';
 import { Spinner } from '../../../components/spinner/Spinner';
 import { Checked, Copy, EditActive } from '../../../components/icon';
 import styles from './receive.module.css';
+import { FiatConversion } from '../../../components/rates/rates';
+import { getBtcSatsAmount } from '../../../api/coins';
+import { IAmount } from '../../../api/account';
 
 type TStep = 'select-amount' | 'wait' | 'invoice' | 'success';
 
 export function Receive() {
   const { t } = useTranslation();
-  const [amountSats, setAmountSats] = useState<number>(0);
-  const [amountSatsText, setAmountSatsText] = useState<string>('');
+  const [inputSatsText, setInputSatsText] = useState<string>('');
+  const [invoiceAmount, setInvoiceAmount] = useState<IAmount>();
   const [description, setDescription] = useState<string>('');
   const [openChannelFeeResponse, setOpenChannelFeeResponse] = useState<OpenChannelFeeResponse>();
   const [receivePaymentResponse, setReceivePaymentResponse] = useState<ReceivePaymentResponse>();
@@ -65,7 +68,7 @@ export function Receive() {
       setStep('select-amount');
       setReceiveError(undefined);
       if (step === 'success') {
-        setAmountSatsText('');
+        setInputSatsText('');
       }
       break;
     }
@@ -73,7 +76,7 @@ export function Receive() {
 
   const onAmountSatsChange = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
-    setAmountSatsText(target.value);
+    setInputSatsText(target.value);
   };
 
   const onDescriptionChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -91,18 +94,24 @@ export function Receive() {
   }, [onPaymentsChange]);
 
   useEffect(() => {
-    setAmountSats(+amountSatsText);
-  }, [amountSatsText]);
+    getBtcSatsAmount(inputSatsText).then(response => {
+      if (response.success) {
+        setInvoiceAmount(response.amount);
+      }
+    });
+
+  }, [inputSatsText]);
+
 
   useEffect(() => {
     (async () => {
-      if (amountSats > 0) {
-        const openChannelFeeResponse = await getOpenChannelFee({ amountMsat: toMsat(amountSats) });
+      if (Number(inputSatsText) > 0) {
+        const openChannelFeeResponse = await getOpenChannelFee({ amountMsat: toMsat(Number(inputSatsText)) });
         setOpenChannelFeeResponse(openChannelFeeResponse);
         setShowOpenChannelWarning(openChannelFeeResponse.feeMsat > 0);
       }
     })();
-  }, [amountSats]);
+  }, [inputSatsText]);
 
   useEffect(() => {
     if (payments && receivePaymentResponse && step === 'invoice') {
@@ -119,7 +128,7 @@ export function Receive() {
     setStep('wait');
     try {
       const receivePaymentResponse = await postReceivePayment({
-        amountMsat: toMsat(amountSats),
+        amountMsat: toMsat(Number(inputSatsText)),
         description,
         openingFeeParams: openChannelFeeResponse?.usedFeeParams
       });
@@ -143,14 +152,14 @@ export function Receive() {
             <Grid col="1">
               <Column>
                 <h1 className={styles.title}>{t('lightning.receive.subtitle')}</h1>
+                <span>{t('lightning.receive.amountSats.label')} ({<FiatConversion amount={invoiceAmount} noBtcZeroes />})</span>
                 <Input
                   type="number"
                   min="0"
-                  label={t('lightning.receive.amountSats.label')}
                   placeholder={t('lightning.receive.amountSats.placeholder')}
                   id="amountSatsInput"
                   onInput={onAmountSatsChange}
-                  value={amountSatsText}
+                  value={inputSatsText}
                   autoFocus
                 />
                 <Input
@@ -168,7 +177,7 @@ export function Receive() {
             </Grid>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={receivePayment} disabled={amountSats === 0}>
+            <Button primary onClick={receivePayment} disabled={Number(inputSatsText) === 0}>
               {t('lightning.receive.invoice.create')}
             </Button>
             <Button secondary onClick={back}>
@@ -190,7 +199,7 @@ export function Receive() {
                   <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
                 </div>
                 <div className={styles.invoiceSummary}>
-                  {amountSatsText} sats (--- EUR)
+                  {inputSatsText} sats (<FiatConversion amount={invoiceAmount} noBtcZeroes />)
                   {description && ` / ${description}`}
                 </div>
                 <ColumnButtons>
@@ -217,7 +226,7 @@ export function Receive() {
         <View fitContent textCenter verticallyCentered>
           <ViewContent withIcon="success">
             <p>{t('lightning.receive.success.message')}</p>
-            {amountSatsText} sats (--- EUR)
+            <span>{inputSatsText} sats (<FiatConversion amount={invoiceAmount} noBtcZeroes />)</span>
             <br />
             {description && ` / ${description}`}
           </ViewContent>

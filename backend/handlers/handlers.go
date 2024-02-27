@@ -233,6 +233,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus(coinpkg.CodeBTC)).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/btc/set-unit", handlers.postBtcFormatUnit).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/coins/btc/parse-external-amount", handlers.getBTCParseExternalAmount).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/btc/sats-amount", handlers.getBTCSatsAmount).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownload).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/electrum/check", handlers.postElectrumCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
@@ -879,6 +880,46 @@ func (handlers *Handlers) postDeregisterTestKeystore(*http.Request) interface{} 
 
 func (handlers *Handlers) getRates(*http.Request) interface{} {
 	return handlers.backend.RatesUpdater().LatestPrice()
+}
+
+// getBTCSatsAmount taks a sats parameter in input and returns a FormattedAmount
+// object with the fiat conversions.
+func (handlers *Handlers) getBTCSatsAmount(r *http.Request) interface{} {
+	type response struct {
+		Success bool                 `json:"success"`
+		Amount  coin.FormattedAmount `json:"amount"`
+	}
+
+	satsAmount := r.URL.Query().Get("sats")
+	satsRat, valid := new(big.Rat).SetString(satsAmount)
+	if !valid {
+		return response{
+			Success: false,
+		}
+	}
+
+	btcCoin, err := handlers.backend.Coin(coinpkg.CodeBTC)
+	if err != nil {
+		handlers.log.WithError(err).Error("Failded getting coin " + coinpkg.CodeBTC)
+		return response{
+			Success: false,
+		}
+	}
+
+	coinAmount := btcCoin.SetAmount(coin.Sat2Btc(satsRat), false)
+	return response{
+		Success: true,
+		Amount: coin.FormattedAmount{
+			Amount: btcCoin.FormatAmount(coinAmount, false),
+			Unit:   btcCoin.GetFormatUnit(false),
+			Conversions: coin.Conversions(
+				coinAmount,
+				btcCoin,
+				false,
+				handlers.backend.RatesUpdater(),
+				util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit)),
+		},
+	}
 }
 
 func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) interface{} {
