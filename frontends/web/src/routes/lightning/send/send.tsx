@@ -124,13 +124,12 @@ const SendWorkflow = ({
         <ViewContent textAlign="center">
           <Grid col="1">
             <Column>
-              {/* this flickers quickly, as there is 'SdkError: Generic: Breez SDK error: Unrecognized input type' when logging rawInputError */}
               {rawInputError && <Status type="warning">{rawInputError}</Status>}
               <ScanQRVideo onResult={onCameraInput} />
-              {/* Note: unfortunatelly we probably can't read from HTML5 clipboard api directly in Qt/Android WebView */}
-              <Button transparent onClick={() => console.log('TODO: implement paste')}>
+              {/* temporary disabled paste button, reason: reading from HTML5 clipboard api is surpressed in Qt/Android WebView */}
+              {/* <Button transparent onClick={() => console.log('TODO: implement paste')}>
                 {t('lightning.send.rawInput.label')}
-              </Button>
+              </Button> */}
             </Column>
           </Grid>
         </ViewContent>
