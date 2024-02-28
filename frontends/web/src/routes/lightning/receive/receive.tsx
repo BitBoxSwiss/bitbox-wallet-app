@@ -51,6 +51,7 @@ export function Receive() {
   const [inputSatsText, setInputSatsText] = useState<string>('');
   const [invoiceAmount, setInvoiceAmount] = useState<IAmount>();
   const [description, setDescription] = useState<string>('');
+  const [disableConfirm, setDisableConfirm] = useState(true);
   const [openChannelFeeResponse, setOpenChannelFeeResponse] = useState<OpenChannelFeeResponse>();
   const [receivePaymentResponse, setReceivePaymentResponse] = useState<ReceivePaymentResponse>();
   const [receiveError, setReceiveError] = useState<string>();
@@ -105,11 +106,17 @@ export function Receive() {
 
   useEffect(() => {
     (async () => {
-      if (Number(inputSatsText) > 0) {
-        const openChannelFeeResponse = await getOpenChannelFee({ amountMsat: toMsat(Number(inputSatsText)) });
+      const inputSats = Number(inputSatsText);
+      if (inputSats > 0) {
+        const openChannelFeeResponse = await getOpenChannelFee({ amountMsat: toMsat(inputSats) });
         setOpenChannelFeeResponse(openChannelFeeResponse);
         setShowOpenChannelWarning(openChannelFeeResponse.feeMsat > 0);
+        if (inputSats > toSat(openChannelFeeResponse?.feeMsat || 0)) {
+          setDisableConfirm(false);
+          return;
+        }
       }
+      setDisableConfirm(true);
     })();
   }, [inputSatsText]);
 
@@ -177,7 +184,7 @@ export function Receive() {
             </Grid>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={receivePayment} disabled={Number(inputSatsText) === 0}>
+            <Button primary onClick={receivePayment} disabled={disableConfirm}>
               {t('lightning.receive.invoice.create')}
             </Button>
             <Button secondary onClick={back}>
