@@ -2,3 +2,5 @@
 /config/
 /server/libserver.h
 /server/libserver.so
+/server/libbreez_sdk_bindings.so
+/server/libbreez_sdk_bindings.dylib
