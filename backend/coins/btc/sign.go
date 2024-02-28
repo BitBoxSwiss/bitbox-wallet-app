@@ -15,7 +15,6 @@
 package btc
 
 import (
-	"github.com/btcsuite/btcd/btcutil/txsort"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
@@ -92,9 +91,6 @@ func (account *Account) signTransaction(
 
 func txValidityCheck(transaction *wire.MsgTx, previousOutputs maketx.PreviousOutputs,
 	sigHashes *txscript.TxSigHashes) error {
-	if !txsort.IsSorted(transaction) {
-		return errp.New("tx not bip69 conformant")
-	}
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := previousOutputs[txIn.PreviousOutPoint]
 		if !ok {

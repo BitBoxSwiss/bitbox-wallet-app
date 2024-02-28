@@ -15,10 +15,13 @@
 package maketx
 
 import (
+	"crypto/rand"
+	"encoding/binary"
+	mrand "math/rand"
 	"sort"
+	"time"
 
 	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/btcutil/txsort"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
@@ -168,7 +171,10 @@ func NewTxSpendAll(
 		TxOut:    []*wire.TxOut{output},
 		LockTime: 0,
 	}
-	txsort.InPlaceSort(unsignedTransaction)
+
+	secureRand := mrand.New(mrand.NewSource(secureSeed()))
+	shuffleTxInputsAndOutputs(unsignedTransaction, secureRand)
+
 	log.WithField("fee", maxRequiredFee).Debug("Preparing transaction to spend all outputs")
 
 	setRBF(coin, unsignedTransaction)
@@ -249,7 +255,10 @@ func NewTx(
 		} else {
 			changeAddress = nil
 		}
-		txsort.InPlaceSort(unsignedTransaction)
+
+		secureRand := mrand.New(mrand.NewSource(secureSeed()))
+		shuffleTxInputsAndOutputs(unsignedTransaction, secureRand)
+
 		log.WithField("fee", finalFee).Debug("Preparing transaction")
 
 		setRBF(coin, unsignedTransaction)
@@ -262,4 +271,27 @@ func NewTx(
 			PreviousOutputs: previousOutputs,
 		}, nil
 	}
+}
+
+// shuffleTxInputsAndOutputs shuffles both the TxIn and TxOut slices of a wire.MsgTx.
+func shuffleTxInputsAndOutputs(tx *wire.MsgTx, secureRand *mrand.Rand) {
+	// Shuffle inputs
+	secureRand.Shuffle(len(tx.TxIn), func(i, j int) {
+		tx.TxIn[i], tx.TxIn[j] = tx.TxIn[j], tx.TxIn[i]
+	})
+
+	// Shuffle outputs
+	secureRand.Shuffle(len(tx.TxOut), func(i, j int) {
+		tx.TxOut[i], tx.TxOut[j] = tx.TxOut[j], tx.TxOut[i]
+	})
+}
+
+// secureSeed generates a secure seed value.
+func secureSeed() int64 {
+	var b [8]byte
+	_, err := rand.Read(b[:])
+	if err != nil {
+		return time.Now().UnixNano() // use timestamp as fallback seed
+	}
+	return int64(binary.LittleEndian.Uint64(b[:]))
 }

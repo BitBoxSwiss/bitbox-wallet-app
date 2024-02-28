@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Replace the existing BIP69 lexicographical sorting of tx inputs/outputs with a randomized sorting approach
+
 ## 4.41.0
 - New feature: insure your bitcoins through Bitsurance
 - Bundle BitBox02 firmware version v9.16.0
