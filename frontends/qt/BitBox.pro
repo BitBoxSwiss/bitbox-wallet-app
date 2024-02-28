@@ -25,12 +25,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 include(external/singleapplication/singleapplication.pri)
 DEFINES += QAPPLICATION_CLASS=QApplication
 
-win64 {
-    LIBS += -L$$PWD/../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/windows-amd64/ -lbreez_sdk_bindings
-    INCLUDEPATH += $$PWD/../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/windows-amd64
-    DEPENDPATH += $$PWD/../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/windows-amd64
-}
-
 win32 {
     # -llibssp would be nice to have on Windows
     LIBS += -L$$PWD/server/ -llibserver
@@ -44,7 +38,7 @@ win32 {
     #QMAKE_LFLAGS += -Wl,--dynamicbase
 } else {
     QMAKE_CXXFLAGS += -std=c++11
-    LIBS += -L$$PWD/server -lbreez_sdk_bindings -lserver
+    LIBS += -L$$PWD/server -lserver
     QMAKE_CXXFLAGS += $$CFORTIFY
     QMAKE_CXXFLAGS += $$CSTACK
     QMAKE_CXXFLAGS += $$CMISC
