@@ -25,9 +25,6 @@
 }
 
 @media (max-width: 768px) {
-  .spinnerAnimationContainer p {
-    padding: 0;
-  }
   .qrVideo {
     height: 100vh;
     max-height: 100%;

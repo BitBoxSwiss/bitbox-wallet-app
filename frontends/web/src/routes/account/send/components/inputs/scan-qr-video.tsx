@@ -28,7 +28,7 @@ export const ScanQRVideo = ({
 }: TProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  useQRScanner(videoRef, {
+  const { initErrorMessage } = useQRScanner(videoRef, {
     onResult: result => onResult(result.data),
     onError: err => console.error(err),
   });
@@ -39,7 +39,7 @@ export const ScanQRVideo = ({
       be hidden once the camera / video component
        gets loaded.*/}
       <div className={style.spinnerAnimationContainer}>
-        <SpinnerAnimation />
+        {initErrorMessage ? <p>{initErrorMessage}</p> : <SpinnerAnimation />}
       </div>
       <video
         className={style.qrVideo}
