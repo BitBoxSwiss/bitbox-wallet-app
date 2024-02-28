@@ -19,7 +19,6 @@
 
 .columns >  *,
 .columnGroup > * {
-  align-items: flex-start;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -82,6 +81,11 @@
   .columns {
     flex-direction: column;
     justify-content: center;
+  }
+
+  .columns >  *,
+  .columnGroup > * { 
+    align-items: flex-start;
   }
 
   .columnGroup:last-child {

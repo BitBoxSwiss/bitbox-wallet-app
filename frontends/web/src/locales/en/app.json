@@ -1626,6 +1626,7 @@
     "noFeeTargets": "Fee rate estimations are currently unavailable. Please try again later or enter a custom fee.",
     "priority": "Priority",
     "scanQR": "Scan QR code",
+    "scanQRNoCameraMessage": "Camera not found. Please ensure that your device supports a camera and permissions are correctly set.",
     "signprogress": {
       "description": "This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {{steps}} times.",
       "label": "Progress"
