@@ -61,7 +61,7 @@ export function Receive() {
   const back = () => {
     switch (step) {
     case 'select-amount':
-      route('/lightning');
+      setStep('invoice');
       break;
     case 'invoice':
     case 'success':
