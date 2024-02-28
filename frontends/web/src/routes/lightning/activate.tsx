@@ -86,11 +86,11 @@ export const LightningActivate = () => {
     case 'intro':
       return (
         <View key="step-intro" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
-          <ViewHeader title="What is lightning?" />
+          <ViewHeader title={t('lightning.activate.intro.title')} />
           <ViewContent>
             <MultilineMarkup
               tagName="p"
-              markup="Lightning is a channel based second layer to Bitcoin. It enables you to spend and receive coins instantly and for a very low fee."
+              markup={t('lightning.activate.intro.content')}
             />
           </ViewContent>
           <ViewButtons>
@@ -106,13 +106,11 @@ export const LightningActivate = () => {
     case 'disclaimer':
       return (
         <View key="step-disclaimer" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
-          <ViewHeader title="How does it work with the BitBoxApp?" />
+          <ViewHeader title={t('lightning.activate.disclaimer.title')} />
           <ViewContent>
             <MultilineMarkup
               tagName="p"
-              markup={`Your lightning wallet will be made using a kye derived from your BitBox02 wallet. That way you can always restore your lightning wallet using your BitBox02 or backup.
-          However, unlike the BitBox02, the lightning wallet is a <strong>hot wallet</strong>. This means the keys for your lightning wallet is stored on the BitBoxApp, not on the BitBox02. You should not use the lightning wallet for a large amount of fundsd or long term storage.
-          In addition, the lightning feature is currently in beta, meaning you may encounter bugs, reliability issues or may stop fwoking entirely.`}
+              markup={t('lightning.activate.disclaimer.content')}
             />
             <Label htmlFor="confirm">
               <Checkbox id="confirm" onChange={() => setAgree(!agree)} checked={agree} />I have read the information above
@@ -131,8 +129,8 @@ export const LightningActivate = () => {
     case 'connect':
       return (
         <View key="step-confirm" minHeight={CONTENT_MIN_HEIGHT} textCenter verticallyCentered>
-          <ViewHeader title="Connect your device">
-            <SimpleMarkup tagName="p" markup="Connect your BitBox02 to create your lightning wallet" />
+          <ViewHeader title={t('lightning.activate.connect.title')}>
+            <SimpleMarkup tagName="p" markup={t('lightning.activate.connect.content')} />
           </ViewHeader>
           <ViewContent>
             <PointToBitBox02 />
@@ -165,7 +163,7 @@ export const LightningActivate = () => {
       <Status type="warning" hidden={!setupError}>
         {setupError}
       </Status>
-      <Header title="Create lightning wallet" />
+      <Header title={t('lightning.activate.title')} />
       {renderSteps()}
     </Main>
   );
