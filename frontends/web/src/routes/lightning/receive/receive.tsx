@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent } from '../../../components/view/view';
 import { Button, Input, OptionalLabel } from '../../../components/forms';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import {
   OpenChannelFeeResponse,
   Payment,
@@ -39,10 +39,10 @@ import { QRCode } from '../../../components/qrcode/qrcode';
 import { unsubscribe } from '../../../utils/subscriptions';
 import { Spinner } from '../../../components/spinner/Spinner';
 import { Checked, Copy, EditActive } from '../../../components/icon';
-import styles from './receive.module.css';
 import { FiatConversion } from '../../../components/rates/rates';
 import { getBtcSatsAmount } from '../../../api/coins';
 import { IAmount } from '../../../api/account';
+import styles from './receive.module.css';
 
 type TStep = 'select-amount' | 'wait' | 'invoice' | 'success';
 
@@ -266,26 +266,20 @@ type TCopyButtonProps = {
 const CopyButton = ({ data, successText, children }: TCopyButtonProps) => {
   const [state, setState] = useState('ready');
   const [buttonText, setButtonText] = useState(children);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const copy = () => {
-    try {
-      if (data) {
-        navigator.clipboard.writeText(data).then(() => {
-          setState('success');
-          successText && setButtonText(successText);
-        });
-      }
-    } catch (error) {
-      setState('ready');
-      if (error instanceof Error) {
-        setButtonText(error.message);
-      }
-      setButtonText(`${error}`);
+    textareaRef.current?.focus();
+    textareaRef.current?.select();
+    if (document.execCommand('copy')) {
+      setState('success');
+      successText && setButtonText(successText);
     }
   };
 
   return (
     <Button transparent onClick={copy} disabled={!data}>
+      <textarea className={styles.hiddenInput} ref={textareaRef} value={data} readOnly></textarea>
       {state === 'success' ? <Checked className={styles.btnIcon} /> : <Copy className={styles.btnIcon} />}
       {buttonText}
     </Button>
