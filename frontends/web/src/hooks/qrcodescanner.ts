@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { RefObject, useEffect } from 'react';
+import { RefObject, useEffect, useState } from 'react';
 import QrScanner from 'qr-scanner';
+import { useTranslation } from 'react-i18next';
 
 type TUseQRScannerOptions = {
   onStart?: () => void;
@@ -30,6 +31,8 @@ export const useQRScanner = (
     onError,
   }: TUseQRScannerOptions
 ) => {
+  const { t } = useTranslation();
+  const [initErrorMessage, setInitErrorMessage] = useState();
 
   useEffect(() => {
     const startScanner = async () => {
@@ -51,8 +54,11 @@ export const useQRScanner = (
         if (onStart) {
           onStart();
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error(error);
+        const stringifiedError = error.toString();
+        const cameraNotFound = stringifiedError === 'Camera not found.';
+        setInitErrorMessage(cameraNotFound ? t('send.scanQRNoCameraMessage') : stringifiedError);
       }
 
       return () => {
@@ -68,6 +74,7 @@ export const useQRScanner = (
       // Clean up scanner
       scannerPromise.then(cleanupFunc => cleanupFunc());
     };
-  }, [videoRef, onStart, onResult, onError]);
+  }, [videoRef, onStart, onResult, onError, t]);
 
+  return { initErrorMessage };
 };
