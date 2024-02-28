@@ -77,6 +77,7 @@ const TapToCopyQRCode = ({ data, qrCodeData, size }: TTapToCopyQRCodeProps) => {
 
 
   const handleCopy = () => {
+    inputRef.current?.focus();
     inputRef.current?.select();
     if (document.execCommand('copy')) {
       setSuccess(true);
