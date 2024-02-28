@@ -3,21 +3,21 @@ module github.com/digitalbitbox/bitbox-wallet-app
 go 1.20
 
 require (
-	github.com/btcsuite/btcd v0.23.4
+	github.com/btcsuite/btcd v0.24.0
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2
-	github.com/btcsuite/btcd/btcutil v1.1.3
-	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.3-0.20230901205239-f12a0b3b56c3
-	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20231228154428-2ac5d3dfecc1
-	github.com/digitalbitbox/block-client-go v0.0.0-20230103135723-d8eaf468753d
+	github.com/btcsuite/btcd/btcutil v1.1.5
+	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
+	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20240220211529-3ff3e90d0f52
+	github.com/digitalbitbox/block-client-go v0.0.0-20240228201430-dd85a15ace33
 	github.com/digitalbitbox/usb v0.0.0-20230208083750-001c519abaff
 	github.com/ethereum/go-ethereum v1.10.21
-	github.com/flynn/noise v1.0.0
+	github.com/flynn/noise v1.1.0
 	github.com/gorilla/mux v1.8.0
-	github.com/gorilla/websocket v1.4.2
+	github.com/gorilla/websocket v1.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.2.0
 	github.com/skip2/go-qrcode v0.0.0-20170812161211-695fc75a0973
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.4
 	go.etcd.io/bbolt v1.3.6
 	golang.org/x/crypto v0.5.0
 	golang.org/x/net v0.5.0

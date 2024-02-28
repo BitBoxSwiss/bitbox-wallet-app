@@ -4,7 +4,7 @@ github.com/StackExchange/wmi
 # github.com/aead/siphash v1.0.1
 ## explicit
 github.com/aead/siphash
-# github.com/btcsuite/btcd v0.23.4
+# github.com/btcsuite/btcd v0.24.0
 ## explicit; go 1.17
 github.com/btcsuite/btcd/blockchain
 github.com/btcsuite/btcd/blockchain/indexers
@@ -20,7 +20,7 @@ github.com/btcsuite/btcd/wire
 github.com/btcsuite/btcd/btcec/v2
 github.com/btcsuite/btcd/btcec/v2/ecdsa
 github.com/btcsuite/btcd/btcec/v2/schnorr
-# github.com/btcsuite/btcd/btcutil v1.1.3
+# github.com/btcsuite/btcd/btcutil v1.1.5
 ## explicit; go 1.16
 github.com/btcsuite/btcd/btcutil
 github.com/btcsuite/btcd/btcutil/base58
@@ -29,7 +29,7 @@ github.com/btcsuite/btcd/btcutil/gcs
 github.com/btcsuite/btcd/btcutil/gcs/builder
 github.com/btcsuite/btcd/btcutil/hdkeychain
 github.com/btcsuite/btcd/btcutil/txsort
-# github.com/btcsuite/btcd/chaincfg/chainhash v1.0.3-0.20230901205239-f12a0b3b56c3
+# github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
 ## explicit; go 1.17
 github.com/btcsuite/btcd/chaincfg/chainhash
 # github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
@@ -51,7 +51,7 @@ github.com/decred/dcrd/crypto/blake256
 github.com/decred/dcrd/dcrec/secp256k1/v4
 github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa
 github.com/decred/dcrd/dcrec/secp256k1/v4/schnorr
-# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20231228154428-2ac5d3dfecc1
+# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20240220211529-3ff3e90d0f52
 ## explicit; go 1.13
 github.com/digitalbitbox/bitbox02-api-go/api/bootloader
 github.com/digitalbitbox/bitbox02-api-go/api/common
@@ -60,7 +60,7 @@ github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages
 github.com/digitalbitbox/bitbox02-api-go/communication/u2fhid
 github.com/digitalbitbox/bitbox02-api-go/util/errp
 github.com/digitalbitbox/bitbox02-api-go/util/semver
-# github.com/digitalbitbox/block-client-go v0.0.0-20230103135723-d8eaf468753d
+# github.com/digitalbitbox/block-client-go v0.0.0-20240228201430-dd85a15ace33
 ## explicit; go 1.19
 github.com/digitalbitbox/block-client-go/electrum
 github.com/digitalbitbox/block-client-go/electrum/types
@@ -105,7 +105,7 @@ github.com/ethereum/go-ethereum/rlp
 github.com/ethereum/go-ethereum/rlp/internal/rlpstruct
 github.com/ethereum/go-ethereum/rpc
 github.com/ethereum/go-ethereum/signer/core/apitypes
-# github.com/flynn/noise v1.0.0
+# github.com/flynn/noise v1.1.0
 ## explicit; go 1.16
 github.com/flynn/noise
 # github.com/go-ole/go-ole v1.2.1
@@ -121,7 +121,7 @@ github.com/google/uuid
 # github.com/gorilla/mux v1.8.0
 ## explicit; go 1.12
 github.com/gorilla/mux
-# github.com/gorilla/websocket v1.4.2
+# github.com/gorilla/websocket v1.5.0
 ## explicit; go 1.12
 github.com/gorilla/websocket
 # github.com/kkdai/bstream v1.0.0
@@ -156,8 +156,8 @@ github.com/skip2/go-qrcode/reedsolomon
 # github.com/stretchr/objx v0.5.0
 ## explicit; go 1.12
 github.com/stretchr/objx
-# github.com/stretchr/testify v1.8.1
-## explicit; go 1.13
+# github.com/stretchr/testify v1.8.4
+## explicit; go 1.20
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/mock
 github.com/stretchr/testify/require
@@ -227,6 +227,7 @@ google.golang.org/protobuf/reflect/protoreflect
 google.golang.org/protobuf/reflect/protoregistry
 google.golang.org/protobuf/runtime/protoiface
 google.golang.org/protobuf/runtime/protoimpl
+google.golang.org/protobuf/types/known/emptypb
 # gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce
 ## explicit
 gopkg.in/natefinch/npipe.v2
