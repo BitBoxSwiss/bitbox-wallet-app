@@ -26,7 +26,12 @@ type TProps = {
   alwaysShowAmounts?: boolean
 };
 
-export const Amount = ({ amount, unit, removeBtcTrailingZeroes, alwaysShowAmounts = false }: TProps) => {
+export const Amount = ({
+  amount,
+  unit,
+  removeBtcTrailingZeroes,
+  alwaysShowAmounts = false,
+}: TProps) => {
   const { hideAmounts } = useContext(AppContext);
   const formatSats = (amount: string): JSX.Element => {
     const blocks: JSX.Element[] = [];
@@ -36,25 +41,39 @@ export const Amount = ({ amount, unit, removeBtcTrailingZeroes, alwaysShowAmount
       const start = Math.max(0, i - blockSize);
 
       blocks.push(
-        <span key={'block_' + blocks.length} className={start === 0 ? '' : style.space}>
+        <span
+          key={'block_' + blocks.length}
+          className={start === 0 ? '' : style.space}>
           {amount.slice(start, i)}
         </span>
       );
     }
 
-    return <span data-testid={'amountBlocks'}>{blocks.reverse()}</span>;
+    return (
+      <span data-testid={'amountBlocks'}>
+        {blocks.reverse()}
+      </span>
+    );
   };
 
-  const formatBtc = (amount: string): JSX.Element => {
+  const formatBtc = (amount: string) => {
     const dot = amount.indexOf('.');
     if (dot === -1) {
-      return <>{amount}</>;
+      return amount;
     }
-    return <span data-testid={'amountBlocks'}>
-      <span>{amount.slice(0, dot + 3)}</span>
-      <span className={style.space}>{amount.slice(dot + 3, dot + 6)}</span>
-      <span className={style.space}>{amount.slice(dot + 6, dot + 9)}</span>
-    </span>;
+    return (
+      <span data-testid={'amountBlocks'}>
+        <span>
+          {amount.slice(0, dot + 3)}
+        </span>
+        <span className={style.space}>
+          {amount.slice(dot + 3, dot + 6)}
+        </span>
+        <span className={style.space}>
+          {amount.slice(dot + 6, dot + 9)}
+        </span>
+      </span>
+    );
   };
 
   if (hideAmounts && !alwaysShowAmounts) {
@@ -67,7 +86,7 @@ export const Amount = ({ amount, unit, removeBtcTrailingZeroes, alwaysShowAmount
   case 'LTC':
   case 'TLTC':
     if (removeBtcTrailingZeroes && amount.includes('.')) {
-      return <>{amount.replace(/\.?0+$/, '')}</>;
+      return amount.replace(/\.?0+$/, '');
     } else {
       return formatBtc(amount);
     }
@@ -75,6 +94,5 @@ export const Amount = ({ amount, unit, removeBtcTrailingZeroes, alwaysShowAmount
   case 'tsat':
     return formatSats(amount);
   }
-  return <>{amount}</>;
-
+  return amount;
 };
