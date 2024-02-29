@@ -26,6 +26,49 @@ type TProps = {
   alwaysShowAmounts?: boolean
 };
 
+const formatSats = (amount: string): JSX.Element => {
+  const blocks: JSX.Element[] = [];
+  const blockSize = 3;
+
+  for (let i = amount.length; i > 0 ; i -= blockSize) {
+    const start = Math.max(0, i - blockSize);
+
+    blocks.push(
+      <span
+        key={'block_' + blocks.length}
+        className={start === 0 ? '' : style.space}>
+        {amount.slice(start, i)}
+      </span>
+    );
+  }
+
+  return (
+    <span data-testid="amountBlocks">
+      {blocks.reverse()}
+    </span>
+  );
+};
+
+const formatBtc = (amount: string) => {
+  const dot = amount.indexOf('.');
+  if (dot === -1) {
+    return amount;
+  }
+  return (
+    <span data-testid="amountBlocks">
+      <span>
+        {amount.slice(0, dot + 3)}
+      </span>
+      <span className={style.space}>
+        {amount.slice(dot + 3, dot + 6)}
+      </span>
+      <span className={style.space}>
+        {amount.slice(dot + 6, dot + 9)}
+      </span>
+    </span>
+  );
+};
+
 export const Amount = ({
   amount,
   unit,
@@ -33,48 +76,6 @@ export const Amount = ({
   alwaysShowAmounts = false,
 }: TProps) => {
   const { hideAmounts } = useContext(AppContext);
-  const formatSats = (amount: string): JSX.Element => {
-    const blocks: JSX.Element[] = [];
-    const blockSize = 3;
-
-    for (let i = amount.length; i > 0 ; i -= blockSize) {
-      const start = Math.max(0, i - blockSize);
-
-      blocks.push(
-        <span
-          key={'block_' + blocks.length}
-          className={start === 0 ? '' : style.space}>
-          {amount.slice(start, i)}
-        </span>
-      );
-    }
-
-    return (
-      <span data-testid={'amountBlocks'}>
-        {blocks.reverse()}
-      </span>
-    );
-  };
-
-  const formatBtc = (amount: string) => {
-    const dot = amount.indexOf('.');
-    if (dot === -1) {
-      return amount;
-    }
-    return (
-      <span data-testid={'amountBlocks'}>
-        <span>
-          {amount.slice(0, dot + 3)}
-        </span>
-        <span className={style.space}>
-          {amount.slice(dot + 3, dot + 6)}
-        </span>
-        <span className={style.space}>
-          {amount.slice(dot + 6, dot + 9)}
-        </span>
-      </span>
-    );
-  };
 
   if (hideAmounts && !alwaysShowAmounts) {
     return '***';
