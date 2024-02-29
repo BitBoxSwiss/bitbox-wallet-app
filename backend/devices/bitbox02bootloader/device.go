@@ -164,6 +164,11 @@ func (device *Device) VersionInfo() (*VersionInfo, error) {
 		return nil, err
 	}
 	canUpgrade := erased || bundledFirmwareVersion > currentFirmwareVersion
+	device.log.
+		WithField("bundledFirmwareVersion", bundledFirmwareVersion).
+		WithField("currentFirmwareVersion", currentFirmwareVersion).
+		WithField("erased", erased).
+		WithField("canUpgrade", canUpgrade).Info("VersionInfo")
 	return &VersionInfo{
 		Erased:     erased,
 		CanUpgrade: canUpgrade,
