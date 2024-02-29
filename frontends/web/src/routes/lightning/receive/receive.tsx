@@ -125,7 +125,6 @@ export function Receive() {
       const payment = payments.find((payment) => payment.id === receivePaymentResponse.lnInvoice.paymentHash);
       if (payment?.status === PaymentStatus.COMPLETE) {
         setStep('success');
-        setTimeout(() => route('/lightning'), 5000);
       }
     }
   }, [payments, receivePaymentResponse, step]);
@@ -237,6 +236,21 @@ export function Receive() {
             <br />
             {description && ` / ${description}`}
           </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={() => route('/lightning')}>
+              {t('button.done')}
+            </Button>
+            <Button secondary onClick={() => {
+              setPayments(undefined);
+              setInvoiceAmount(undefined);
+              setReceiveError(undefined);
+              setInputSatsText('');
+              setDescription('');
+              setStep('select-amount');
+            }}>
+              New invoice
+            </Button>
+          </ViewButtons>
         </View>
       );
     }
