@@ -189,6 +189,7 @@ export function AccountsSummary({ accounts, devices }: TProps) {
             {accountsByKeystore &&
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 <SummaryBalance
+                  key={keystore.rootFingerprint}
                   keystoreDisambiguatorName={isAmbiguiousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
                   accountsKeystore={keystore}
                   accounts={accounts}
