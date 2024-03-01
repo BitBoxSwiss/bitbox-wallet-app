@@ -25,3 +25,8 @@ export function formatNumber(amount: number, maxDigits: number): string {
   }
   return formatted;
 }
+
+// new Intl.NumberFormat("en-US", {
+//   style: "percent",
+//   signDisplay: "exceptZero",
+// }).format(0.55);

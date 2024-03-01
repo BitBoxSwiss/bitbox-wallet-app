@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { useContext } from 'react';
 import { AppContext } from '../../contexts/AppContext';
-
 import { CoinUnit, ConversionUnit } from './../../api/account';
+import { i18n } from '../../i18n/i18n';
 import style from './amount.module.css';
 
 type TProps = {
@@ -69,6 +70,10 @@ const formatBtc = (amount: string) => {
   );
 };
 
+const coins = ['BTC', 'sat', 'LTC', 'ETH', 'TBTC', 'tsat', 'TLTC', 'GOETH', 'SEPETH'];
+const tokens = ['BAT', 'DAI', 'LINK', 'MKR', 'PAXG', 'USDC', 'USDT', 'WBTC', 'ZRX'];
+const isCoinOrToken = (unit: string) => coins.includes(unit) || tokens.includes(unit);
+
 export const Amount = ({
   amount,
   unit,
@@ -95,5 +100,24 @@ export const Amount = ({
   case 'tsat':
     return formatSats(amount);
   }
-  return amount;
+
+  if (isCoinOrToken(unit)) { // don't touch coins/tokens for now
+    return amount;
+  }
+
+  const NumberFormat = Intl
+    .NumberFormat(
+      i18n.language,
+      { style: 'currency', currency: unit }
+    );
+
+  const formatted = NumberFormat
+    .formatToParts(
+      Number(amount.replace(/[']/g, '')) // scary js number conversion
+    )
+    .filter(x => !['currency', 'literal'].includes(x.type)) // only use formatte amount and drop the currency
+    .map(x => x.value)
+    .join('');
+
+  return formatted;
 };
