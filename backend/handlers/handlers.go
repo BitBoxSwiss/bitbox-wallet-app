@@ -921,11 +921,19 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 	coinUnitAmount := new(big.Rat).SetFloat64(currentCoin.ToUnit(coinAmount, false))
 
 	coinUnit := currentCoin.Unit(false)
+	if coinUnit == "TBTC" {
+		coinUnit = coinUnit[1:]
+	}
+
 	rate := handlers.backend.RatesUpdater().LatestPrice()[coinUnit][currency]
 
 	convertedAmount := new(big.Rat).Mul(coinUnitAmount, new(big.Rat).SetFloat64(rate))
 
 	btcUnit := handlers.backend.Config().AppConfig().Backend.BtcUnit
+	// use BTC in conversion for BTC accounts with sats mode enabled
+	if coinUnit == rates.BTC.String() && btcUnit == coin.BtcUnitSats {
+		btcUnit = coin.BtcUnitDefault
+	}
 	return map[string]interface{}{
 		"success":    true,
 		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, currency == rates.BTC.String(), util.FormatBtcAsSat(btcUnit)),
@@ -962,8 +970,9 @@ func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 	case "SEPETH":
 		unit = unit[3:]
 	}
-
-	if from == rates.BTC.String() && handlers.backend.Config().AppConfig().Backend.BtcUnit == coinpkg.BtcUnitSats {
+	btcUnit := handlers.backend.Config().AppConfig().Backend.BtcUnit
+	// don't use Sat2Btc for BTC accounts with sats mode enabled
+	if from == rates.BTC.String() && btcUnit == coinpkg.BtcUnitSats && unit != rates.BTC.String() {
 		fiatRat = coinpkg.Sat2Btc(fiatRat)
 	}
 

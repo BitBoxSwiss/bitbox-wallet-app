@@ -530,8 +530,9 @@ class Send extends Component<Props, State> {
     if (!account) {
       return null;
     }
-
-    const baseCurrencyUnit: accountApi.ConversionUnit = fiatUnit === 'BTC' && btcUnit === 'sat' ? 'sat' : fiatUnit;
+    // for BTC accounts with sat mode enabled use BTC as baseCurrencyUnit
+    const isNotBtcAccount = account.coinCode !== 'tbtc' && account.coinCode !== 'btc';
+    const baseCurrencyUnit: accountApi.ConversionUnit = fiatUnit === 'BTC' && btcUnit === 'sat' && isNotBtcAccount ? 'sat' : fiatUnit;
     return (
       <GuideWrapper>
         <GuidedContent>

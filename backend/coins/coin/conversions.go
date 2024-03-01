@@ -55,9 +55,14 @@ func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.Ra
 	rates := ratesUpdater.LatestPrice()
 	if rates != nil {
 		unit := coin.Unit(isFee)
-
+		formatUnit := coin.GetFormatUnit(isFee)
+		formatBtcasBtc := (formatUnit == "tsat" || formatUnit == "sat") && (coin.Code() == "tbtc" || coin.Code() == "btc")
 		conversions = map[string]string{}
 		for key, value := range rates[unit] {
+			// Avoid formatting BTC as sats for BTC accounts with sats mode enabled
+			if key == ratesPkg.BTC.String() && formatBtcasBtc {
+				formatBtcAsSats = false
+			}
 			convertedAmount := new(big.Rat).Mul(new(big.Rat).SetFloat64(coin.ToUnit(amount, isFee)), new(big.Rat).SetFloat64(value))
 			conversions[key] = FormatAsCurrency(convertedAmount, key == ratesPkg.BTC.String(), formatBtcAsSats)
 		}

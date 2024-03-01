@@ -76,7 +76,8 @@ function Conversion({
   let isAvailable = false;
 
   let activeUnit: ConversionUnit = defaultCurrency;
-  if (defaultCurrency === 'BTC' && btcUnit === 'sat') {
+  // for BTC accounts where the amount unit is sat/tsat we don't want to use sat as activeUnit for redundancy
+  if (defaultCurrency === 'BTC' && btcUnit === 'sat' && (amount && amount.unit !== 'tsat' && amount.unit !== 'sat')) {
     activeUnit = 'sat';
   }
 
