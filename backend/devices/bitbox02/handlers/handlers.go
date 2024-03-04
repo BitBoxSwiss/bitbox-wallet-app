@@ -55,7 +55,7 @@ type BitBox02 interface {
 	Product() bitbox02common.Product
 	GotoStartupSettings() error
 	RootFingerprint() ([]byte, error)
-	BIP85() error
+	BIP85AppBip39() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -381,7 +381,7 @@ func (handlers *Handlers) getRootFingerprint(_ *http.Request) interface{} {
 }
 
 func (handlers *Handlers) postInvokeBIP85Handler(_ *http.Request) interface{} {
-	err := handlers.device.BIP85()
+	err := handlers.device.BIP85AppBip39()
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
