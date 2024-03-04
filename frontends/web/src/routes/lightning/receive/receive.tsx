@@ -142,6 +142,7 @@ export function Receive() {
       setReceivePaymentResponse(receivePaymentResponse);
       setStep('invoice');
     } catch (e) {
+      setStep('select-amount');
       if (e instanceof SdkError) {
         setReceiveError(e.message);
       } else {
