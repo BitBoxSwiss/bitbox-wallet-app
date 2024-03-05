@@ -160,7 +160,7 @@ export function Receive() {
             <Grid col="1">
               <Column>
                 <h1 className={styles.title}>{t('lightning.receive.subtitle')}</h1>
-                <span>{t('lightning.receive.amountSats.label')} ({<FiatConversion amount={invoiceAmount} noBtcZeroes />})</span>
+                <span>{t('lightning.receive.amountSats.label')} ({<FiatConversion alwaysShowAmounts amount={invoiceAmount} noBtcZeroes />})</span>
                 <Input
                   type="number"
                   min="0"
@@ -207,7 +207,7 @@ export function Receive() {
                   <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
                 </div>
                 <div className={styles.invoiceSummary}>
-                  {inputSatsText} sats (<FiatConversion amount={invoiceAmount} noBtcZeroes />)
+                  {inputSatsText} sats (<FiatConversion alwaysShowAmounts amount={invoiceAmount} noBtcZeroes />)
                   {description && ` / ${description}`}
                 </div>
                 <ColumnButtons>
@@ -234,7 +234,7 @@ export function Receive() {
         <View fitContent textCenter verticallyCentered>
           <ViewContent withIcon="success">
             <p>{t('lightning.receive.success.message')}</p>
-            <span>{inputSatsText} sats (<FiatConversion amount={invoiceAmount} noBtcZeroes />)</span>
+            <span>{inputSatsText} sats (<FiatConversion alwaysShowAmounts amount={invoiceAmount} noBtcZeroes />)</span>
             <br />
             {description && ` / ${description}`}
           </ViewContent>
