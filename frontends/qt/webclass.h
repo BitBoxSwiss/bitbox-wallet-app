@@ -14,7 +14,7 @@
 
 #include <QApplication>
 
-#include "libserver.h"
+#include "server/libserver.h"
 
 class WebClass : public QObject
 {

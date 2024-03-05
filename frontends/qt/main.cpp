@@ -43,7 +43,7 @@
 #include <string.h>
 
 #include "filedialog.h"
-#include "libserver.h"
+#include "server/libserver.h"
 #include "webclass.h"
 
 #define APPNAME "BitBoxApp"
