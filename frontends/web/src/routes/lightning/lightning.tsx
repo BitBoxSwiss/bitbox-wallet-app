@@ -28,6 +28,7 @@ import { LightningGuide } from './guide';
 import { Payments } from './components/payments';
 import { unsubscribe } from '../../utils/subscriptions';
 import { Status } from '../../components/status/status';
+import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 
 export function Lightning() {
   const { t } = useTranslation();
@@ -97,7 +98,9 @@ export function Lightning() {
                 <span>{t('lightning.accountLabel')}</span>
               </h2>
             }
-          ></Header>
+          >
+            <HideAmountsButton />
+          </Header>
           <div className="innerContainer scrollableContainer">
             <div className="content padded">
               <div className="flex flex-column flex-reverse-mobile">

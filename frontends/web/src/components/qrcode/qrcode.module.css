@@ -12,7 +12,7 @@
 }
 
 .copiedText {
-  margin-top: 16px;
+  margin-top: 16px !important;
   transition: opacity 250ms;
 }
 
