@@ -1132,9 +1132,9 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		if devMode {
-			// This enables us to run a server on a different port serving just the UI, while still
-			// allowing it to access the API.
-			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+			// This enables us to run a server on a different port/address serving just the UI,
+			// while still allowing it to access the API.
+			w.Header().Set("Access-Control-Allow-Origin", "*")
 		}
 		value, err := h(r)
 		if err != nil {
