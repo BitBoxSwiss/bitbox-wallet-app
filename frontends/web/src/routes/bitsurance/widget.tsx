@@ -29,6 +29,7 @@ import { BitsuranceGuide } from './guide';
 import { getBitsuranceURL } from '../../api/bitsurance';
 import { route } from '../../utils/route';
 import style from './widget.module.css';
+import { convertScriptType } from '../../utils/request-addess';
 
 type TProps = {
     code: string;
@@ -106,7 +107,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
 
   const handleRequestAddress = (message: RequestAddressV0Message) => {
     signing = true;
-    const addressType = message.withScriptType ? String(message.withScriptType) : 'p2wpkh';
+    const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
     const withExtendedPublicKey = !!message.withExtendedPublicKey;
     signAddress(

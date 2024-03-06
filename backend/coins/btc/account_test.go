@@ -189,9 +189,9 @@ func TestSignAddress(t *testing.T) {
 	account := mockAccount(t, nil)
 	require.NoError(t, account.Initialize())
 	// pt2r is not an available script type in the mocked account.
-	_, _, err := btc.SignBTCAddress(account, "Hello there", "p2tr")
+	_, _, err := btc.SignBTCAddress(account, "Hello there", signing.ScriptTypeP2TR)
 	require.Error(t, err)
-	address, signature, err := btc.SignBTCAddress(account, "Hello there", "p2wpkh")
+	address, signature, err := btc.SignBTCAddress(account, "Hello there", signing.ScriptTypeP2WPKH)
 	require.NoError(t, err)
 	require.NotEmpty(t, address)
 	require.Equal(t, base64.StdEncoding.EncodeToString([]byte("signature")), signature)

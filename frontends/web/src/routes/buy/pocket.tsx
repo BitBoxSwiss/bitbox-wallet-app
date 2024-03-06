@@ -29,6 +29,7 @@ import { useLoad } from '../../hooks/api';
 import { alertUser } from '../../components/alert/Alert';
 import Guide from './guide';
 import style from './iframe.module.css';
+import { convertScriptType } from '../../utils/request-addess';
 
 interface TProps {
     code: AccountCode;
@@ -101,7 +102,7 @@ export const Pocket = ({ code }: TProps) => {
 
   const handleRequestAddress = (message: RequestAddressV0Message) => {
     signing = true;
-    const addressType = message.withScriptType ? String(message.withScriptType) : '';
+    const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
     signAddress(
       addressType,

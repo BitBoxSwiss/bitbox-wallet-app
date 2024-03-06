@@ -712,9 +712,9 @@ func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, erro
 	}
 
 	var request struct {
-		AccountCode types.Code `json:"accountCode"`
-		Msg         string     `json:"msg"`
-		Format      string     `json:"format"`
+		AccountCode types.Code         `json:"accountCode"`
+		Msg         string             `json:"msg"`
+		Format      signing.ScriptType `json:"format"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}, nil
