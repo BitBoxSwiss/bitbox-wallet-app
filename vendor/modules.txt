@@ -165,8 +165,8 @@ github.com/tklauser/go-sysconf
 # github.com/tklauser/numcpus v0.2.2
 ## explicit; go 1.11
 github.com/tklauser/numcpus
-# go.etcd.io/bbolt v1.3.6
-## explicit; go 1.12
+# go.etcd.io/bbolt v1.3.9
+## explicit; go 1.17
 go.etcd.io/bbolt
 # golang.org/x/crypto v0.14.0
 ## explicit; go 1.17
