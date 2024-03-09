@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Android: fix file upload forms in MoonPay
 
 ## 4.41.0
 - New feature: insure your bitcoins through Bitsurance

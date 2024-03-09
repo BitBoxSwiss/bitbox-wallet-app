@@ -29,6 +29,7 @@ import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
 import android.webkit.PermissionRequest;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -56,6 +57,12 @@ import mobileserver.Mobileserver;
 
 public class MainActivity extends AppCompatActivity {
     private final int PERMISSIONS_REQUEST_CAMERA_QRCODE = 0;
+
+    // These two are for the file picker dialog invoked by file upload forms in the WebView.
+    // Used by e.g. MoonPay's KYC forms.
+    private ValueCallback<Uri[]> filePathCallback;
+    private static final int FILE_CHOOSER_RESULT_CODE = 1;
+
     private static final String ACTION_USB_PERMISSION = "ch.shiftcrypto.bitboxapp.USB_PERMISSION";
     // The WebView is configured with this as the base URL. The purpose is so that requests made
     // from the app include shiftcrypto.ch in the Origin header to allow Moonpay to load in the
@@ -344,6 +351,23 @@ public class MainActivity extends AppCompatActivity {
                 }
                 request.deny();
             }
+
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
+                MainActivity.this.filePathCallback = filePathCallback;
+
+                Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                contentSelectionIntent.setType("*/*");
+
+                Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+                chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+                chooserIntent.putExtra(Intent.EXTRA_TITLE, "Select file");
+
+                startActivityForResult(chooserIntent, FILE_CHOOSER_RESULT_CODE);
+
+                return true;
+            }
         });
         final String javascriptVariableName = "android";
         vw.addJavascriptInterface(new JavascriptBridge(this), javascriptVariableName);
@@ -388,6 +412,27 @@ public class MainActivity extends AppCompatActivity {
         // android:launchMode="singleTop"
         super.onNewIntent(intent);
         setIntent(intent); // make sure onResume will have access to this intent
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == FILE_CHOOSER_RESULT_CODE) {
+            if (null == filePathCallback) {
+                return;
+            }
+
+            Uri[] results = null;
+            if (data != null && resultCode == RESULT_OK) {
+                Uri uri = data.getData();
+                if (uri != null) {
+                    results = new Uri[]{uri};
+                }
+            }
+            filePathCallback.onReceiveValue(results);
+            filePathCallback = null;
+        }
     }
 
     @Override

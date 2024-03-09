@@ -27,14 +27,7 @@ import (
 
 const (
 	// moonpayAPITestPubKey is the public key of Shift Crypto Moonpay account.
-	// Test assets and notes:
-	// - working fake CC: 4000 0231 0466 2535, 12/2020, 123
-	// - always declined CC: 4008 3708 9666 2369, 12/2020, 123
-	// - TBTC and testnet ETH works; send them back after a purchase to
-	//   tb1q45h8zexwztmz3nyd8gmkxhpavdsva4znwwhzvs and
-	//   0xc216eD2D6c295579718dbd4a797845CdA70B3C36, respectively.
-	//   TODO: used to be Ropsten, which has been shut down. Replace with another tesntet.
-	// - KYC always succeeds; simply click on "submit anyway"
+	// See https://dev.moonpay.com/docs/credit-cards-testing for how to test.
 	// - need to provide a valid email addr to receive a check code;
 	//   any temp email service like fakermail.com will do
 	moonpayBuyAPITestPubKey = "pk_test_e9i4oaa4J7eKo8UI3Wm8QLagoskWGjXN"
