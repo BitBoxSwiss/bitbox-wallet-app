@@ -247,9 +247,17 @@
     margin-top: var(--space-default);
     padding-bottom: var(--space-half);
 }
+.buttons.reverseRow {
+    flex-direction: row;
+}
 .dialog .buttons {
     padding-left: var(--space-default);
     padding-right: var(--space-default);
+}
+.fit .buttons {
+    margin-top: var(--space-half);
+    padding-left: var(--space-half);
+    padding-right: var(--space-half);
 }
 @media (max-width: 768px) {
     .buttons {
@@ -264,13 +272,18 @@
         justify-content: flex-end;
         margin-top: var(--space-half);
     }
+    .buttons.reverseRow {
+        /* reverse row should only have an impact on desktop when it is rendered as row */
+        flex-direction: column;
+    }
     .buttons > *:not(:last-child) {
         margin-bottom: var(--space-half);
     }
 }
 @media (max-width: 1199px) {
     .dialog .buttons {
-        padding: 0 var(--space-half);
+        margin-top: 0;
+        padding: var(--space-half);
     }
 }
 .textCenter .buttons > *:only-child {

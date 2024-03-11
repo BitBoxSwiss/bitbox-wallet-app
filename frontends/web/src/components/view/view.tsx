@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,7 +146,7 @@ export const ViewContent = ({
 
 type THeaderProps = {
     small?: boolean;
-    title: ReactNode;
+    title?: ReactNode;
     withAppLogo?: boolean;
     children?: ReactNode;
 }
@@ -170,22 +170,26 @@ export const ViewHeader = ({
       {withAppLogo && (
         isDarkMode ? <AppLogoInverted /> : <AppLogo />
       )}
-      <h1 className={style.title}>{title}</h1>
+      {title && (
+        <h1 className={style.title}>{title}</h1>
+      )}
       {children}
     </header>
   );
 };
 
 type TViewButtonsProps = {
+  reverseRow?: boolean;
   children: ReactNode;
 }
 
 /**
  * ViewButtons component use as container for buttons
  */
-export const ViewButtons = ({ children }: TViewButtonsProps) => {
+export const ViewButtons = ({ reverseRow, children }: TViewButtonsProps) => {
+  const classNames = `${style.buttons} ${reverseRow ? style.reverseRow : ''}`;
   return (
-    <div className={style.buttons}>
+    <div className={classNames}>
       {children}
     </div>
   );
