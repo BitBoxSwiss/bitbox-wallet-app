@@ -47,6 +47,9 @@
     margin-bottom: auto;
     margin-top: auto;
 }
+.verticallyCentered .fit .content {
+    justify-content: center;
+}
 .inner.fit {
     flex-shrink: 0;
     max-height: 100%;
@@ -75,7 +78,7 @@
     }
     .inner.fit {
         padding-bottom: var(--space-half);
-        padding-top: 2vh;
+        padding-top: 0;
     }
 
 }
