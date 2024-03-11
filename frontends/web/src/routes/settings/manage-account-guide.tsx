@@ -27,6 +27,14 @@ export const AccountGuide = () => {
       <Entry key="whatIsRememberWallet" entry={t('guide.accounts.whatIsRememberWallet')} />
       <Entry key="recoverAccounts" entry={t('guide.accounts.recoverAccounts')} />
       <Entry key="moveFunds" entry={t('guide.accounts.moveFunds')} />
+      <Entry key="supportedCoins" entry={{
+        link: {
+          text: t('guide.accounts.supportedCoins.link.text'),
+          url: 'https://bitbox.swiss/coins/',
+        },
+        text: t('guide.accounts.supportedCoins.text'),
+        title: t('guide.accounts.supportedCoins.title'),
+      }} />
       <Entry key="howtoAddTokens" entry={t('guide.accounts.howtoAddTokens')} />
       <Entry key="howManyAccounts" entry={t('guide.accounts.howManyAccounts')} />
     </Guide>
