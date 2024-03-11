@@ -38,10 +38,8 @@ type TMobileQRScannerProps = {
 }
 
 const MobileQRScanner = ({ onQRScanned }: TMobileQRScannerProps) => {
-  const { t } = useTranslation();
   return (
     <div className={styles.mobileQRScanner}>
-      <p className={styles.scanQRLabel}>{t('send.scanQR')}</p>
       <ScanQRVideo onResult={onQRScanned} />
     </div>
   );
@@ -86,12 +84,13 @@ export const WCConnectForm = ({
           onInput={(e) => onInputChange(e.target.value.replace(/\s/g, ''))}>
           {(showQRButton && !connectLoading) && <ScanQRButton onClick={toggleScanQR} />}
         </Input>
-        <ScanQRDialog
-          activeScanQR={activeScanQR && !isMobile}
-          toggleScanQR={toggleScanQR}
-          onChangeActiveScanQR={setActiveScanQR}
-          parseQRResult={(uri: string) => onSubmit(uri)}
-        />
+        {activeScanQR && !isMobile && (
+          <ScanQRDialog
+            toggleScanQR={toggleScanQR}
+            onChangeActiveScanQR={setActiveScanQR}
+            parseQRResult={(uri: string) => onSubmit(uri)}
+          />
+        )}
         <div className={styles.formButtonsContainer}>
           <Button
             disabled={connectLoading}

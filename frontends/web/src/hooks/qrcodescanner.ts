@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { RefObject, useEffect, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import QrScanner from 'qr-scanner';
 import { useTranslation } from 'react-i18next';
 
@@ -33,48 +33,63 @@ export const useQRScanner = (
 ) => {
   const { t } = useTranslation();
   const [initErrorMessage, setInitErrorMessage] = useState();
+  const scanner = useRef<QrScanner | null>(null);
 
   useEffect(() => {
-    const startScanner = async () => {
-      const scanner = videoRef.current && (
-        new QrScanner(
-          videoRef.current,
-          result => {
-            scanner?.stop();
-            onResult(result);
-          }, {
-            onDecodeError: onError,
-            highlightScanRegion: true,
-            highlightCodeOutline: true,
-          })
+    if (videoRef.current && !scanner.current) {
+      scanner.current = new QrScanner(
+        videoRef.current,
+        result => {
+          scanner.current?.stop();
+          onResult(result);
+        }, {
+          onDecodeError: err => {
+            const errorString = err.toString();
+            if (err && !errorString.includes('No QR code found')) {
+              onError(err);
+            }
+          },
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
+          calculateScanRegion: (v) => {
+            const videoWidth = v.videoWidth;
+            const videoHeight = v.videoHeight;
+            const factor = 0.5;
+            const size = Math.floor(Math.min(videoWidth, videoHeight) * factor);
+            return {
+              x: (videoWidth - size) / 2,
+              y: (videoHeight - size) / 2,
+              width: size,
+              height: size
+            };
+          }
+        }
       );
+    }
+  });
 
+  useEffect(() => {
+    (async () => {
       try {
-        await scanner?.start();
+        await scanner.current?.start();
         if (onStart) {
           onStart();
         }
       } catch (error: any) {
-        console.error(error);
         const stringifiedError = error.toString();
         const cameraNotFound = stringifiedError === 'Camera not found.';
         setInitErrorMessage(cameraNotFound ? t('send.scanQRNoCameraMessage') : stringifiedError);
       }
-
-      return () => {
-        scanner?.stop();
-        scanner?.destroy();
-      };
-    };
-
-    // Proxy function to get a handle on scanner.start() and ensure it is cleaned up properly
-    const scannerPromise = startScanner();
-
-    return () => {
-      // Clean up scanner
-      scannerPromise.then(cleanupFunc => cleanupFunc());
-    };
+    })();
   }, [videoRef, onStart, onResult, onError, t]);
+
+  useEffect(() => {
+    return () => {
+      scanner.current?.stop();
+      scanner.current?.destroy();
+      scanner.current = null;
+    };
+  });
 
   return { initErrorMessage };
 };

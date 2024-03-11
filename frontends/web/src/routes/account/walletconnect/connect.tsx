@@ -24,12 +24,11 @@ import { WCGuide } from './guide';
 import { TConnectStatus } from './types';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { alertUser } from '../../../components/alert/Alert';
-import { View, ViewContent } from '../../../components/view/view';
+import { View, ViewContent, ViewHeader } from '../../../components/view/view';
 import { WCHeader } from './components/header/header';
 import { WCConnectForm } from './components/connect-form/connect-form';
 import { WCIncomingPairing } from './components/incoming-pairing/incoming-pairing';
 import { WCSuccessPairing } from './components/success-pairing/success-pairing';
-import styles from './connect.module.css';
 
 type TProps = {
   code: accountApi.AccountCode;
@@ -108,34 +107,38 @@ export const ConnectScreenWalletConnect = ({
       <GuidedContent>
         <Main>
           <Header />
-          <View verticallyCentered fullscreen={false}>
-            <ViewContent>
+          <View
+            fitContent
+            verticallyCentered
+            width="620px">
+            <ViewHeader>
               <WCHeader
                 accountName={accountName}
                 receiveAddress={receiveAddress}
               />
-              <div className={styles.contentContainer}>
-                {status === 'connect' &&
-              <WCConnectForm
-                connectLoading={loading}
-                code={code}
-                uri={uri}
-                onInputChange={setUri}
-                onSubmit={async (uri) => {
-                  await handleConnect(uri);
-                }}
-              />}
-                {(status === 'incoming_pairing' && currentProposal) &&
-              <WCIncomingPairing
-                currentProposal={currentProposal}
-                pairingMetadata={currentProposal.params.proposer.metadata}
-                receiveAddress={receiveAddress}
-                onApprove={handleApprovePairingStates}
-                onReject={handleRejectPairingStates}
-              />
-                }
-                {status === 'success' && <WCSuccessPairing accountCode={code} />}
-              </div>
+            </ViewHeader>
+            <ViewContent>
+              {status === 'connect' && (
+                <WCConnectForm
+                  connectLoading={loading}
+                  code={code}
+                  uri={uri}
+                  onInputChange={setUri}
+                  onSubmit={async (uri) => {
+                    await handleConnect(uri);
+                  }}
+                />
+              )}
+              {(status === 'incoming_pairing' && currentProposal) && (
+                <WCIncomingPairing
+                  currentProposal={currentProposal}
+                  pairingMetadata={currentProposal.params.proposer.metadata}
+                  receiveAddress={receiveAddress}
+                  onApprove={handleApprovePairingStates}
+                  onReject={handleRejectPairingStates}
+                />
+              )}
+              {status === 'success' && <WCSuccessPairing accountCode={code} />}
             </ViewContent>
           </View>
         </Main>

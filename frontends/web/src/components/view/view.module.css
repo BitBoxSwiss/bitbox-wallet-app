@@ -47,6 +47,9 @@
     margin-bottom: auto;
     margin-top: auto;
 }
+.verticallyCentered .fit .content {
+    justify-content: center;
+}
 .inner.fit {
     flex-shrink: 0;
     max-height: 100%;
@@ -75,7 +78,7 @@
     }
     .inner.fit {
         padding-bottom: var(--space-half);
-        padding-top: 2vh;
+        padding-top: 0;
     }
 
 }
@@ -251,6 +254,11 @@
     padding-left: var(--space-default);
     padding-right: var(--space-default);
 }
+.fit .buttons {
+    margin-top: var(--space-half);
+    padding-left: var(--space-half);
+    padding-right: var(--space-half);
+}
 @media (max-width: 768px) {
     .buttons {
         padding: 0 var(--space-half);
@@ -274,7 +282,8 @@
 }
 @media (max-width: 1199px) {
     .dialog .buttons {
-        padding: 0 var(--space-half);
+        margin-top: 0;
+        padding: var(--space-half);
     }
 }
 .textCenter .buttons > *:only-child {
