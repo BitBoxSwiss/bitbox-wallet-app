@@ -16,3 +16,9 @@
   margin-right: 0.5em;
   vertical-align: text-bottom;
 }
+
+@media (min-width: 769px) {
+  .cardHeight {
+    min-height: 320px;
+  }
+}
