@@ -1,6 +1,6 @@
 package metrics
 
-// Healthcheck holds an error value describing an arbitrary up/down status.
+// Healthchecks hold an error value describing an arbitrary up/down status.
 type Healthcheck interface {
 	Check()
 	Error() error

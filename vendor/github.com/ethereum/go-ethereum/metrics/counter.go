@@ -8,7 +8,7 @@ type CounterSnapshot interface {
 	Count() int64
 }
 
-// Counter hold an int64 value that can be incremented and decremented.
+// Counters hold an int64 value that can be incremented and decremented.
 type Counter interface {
 	Clear()
 	Dec(int64)

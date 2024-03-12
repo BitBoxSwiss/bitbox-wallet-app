@@ -9,11 +9,11 @@ require (
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
 	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20240220211529-3ff3e90d0f52
 	github.com/digitalbitbox/block-client-go v0.0.0-20240228201430-dd85a15ace33
-	github.com/digitalbitbox/usb v0.0.0-20230208083750-001c519abaff
-	github.com/ethereum/go-ethereum v1.13.5-0.20240312132935-6c76b813df6d
+	github.com/ethereum/go-ethereum v1.13.4
 	github.com/flynn/noise v1.1.0
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.1
+	github.com/karalabe/hid v1.0.1-0.20240306101548-573246063e52
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/skip2/go-qrcode v0.0.0-20170812161211-695fc75a0973
@@ -22,6 +22,9 @@ require (
 	golang.org/x/crypto v0.21.0
 	golang.org/x/net v0.21.0
 )
+
+// TODO: remove once https://github.com/karalabe/hid/pull/52 is merged.
+replace github.com/karalabe/hid => github.com/benma/hid v0.0.0-20240312170000-f050ee197113
 
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
@@ -40,6 +43,7 @@ require (
 	github.com/ethereum/c-kzg-4844 v0.4.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
+	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/holiman/uint256 v1.2.4 // indirect
 	github.com/kkdai/bstream v1.0.0 // indirect

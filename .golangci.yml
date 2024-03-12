@@ -147,6 +147,7 @@ linters:
     - gosmopolitan
     # todo: enable this, but there are a lot of hits
     - testifylint
+    - gomoddirectives
   disable-all: false
 
 issues:

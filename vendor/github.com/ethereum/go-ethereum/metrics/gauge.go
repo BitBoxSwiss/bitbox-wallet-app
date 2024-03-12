@@ -2,12 +2,12 @@ package metrics
 
 import "sync/atomic"
 
-// GaugeSnapshot contains a readonly int64.
+// gaugeSnapshot contains a readonly int64.
 type GaugeSnapshot interface {
 	Value() int64
 }
 
-// Gauge holds an int64 value that can be set arbitrarily.
+// Gauges hold an int64 value that can be set arbitrarily.
 type Gauge interface {
 	Snapshot() GaugeSnapshot
 	Update(int64)
@@ -74,7 +74,7 @@ func (g *StandardGauge) Update(v int64) {
 	g.value.Store(v)
 }
 
-// Update updates the gauge's value if v is larger then the current value.
+// Update updates the gauge's value if v is larger then the current valie.
 func (g *StandardGauge) UpdateIfGt(v int64) {
 	for {
 		exist := g.value.Load()

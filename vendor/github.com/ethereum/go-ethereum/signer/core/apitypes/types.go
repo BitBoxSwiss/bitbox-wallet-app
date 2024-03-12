@@ -62,7 +62,7 @@ func (vs *ValidationMessages) Info(msg string) {
 	vs.Messages = append(vs.Messages, ValidationInfo{INFO, msg})
 }
 
-// GetWarnings returns an error with all messages of type WARN of above, or nil if no warnings were present
+// getWarnings returns an error with all messages of type WARN of above, or nil if no warnings were present
 func (v *ValidationMessages) GetWarnings() error {
 	var messages []string
 	for _, msg := range v.Messages {
@@ -708,7 +708,7 @@ func formatPrimitiveValue(encType string, encValue interface{}) (string, error) 
 func (t Types) validate() error {
 	for typeKey, typeArr := range t {
 		if len(typeKey) == 0 {
-			return errors.New("empty type key")
+			return fmt.Errorf("empty type key")
 		}
 		for i, typeObj := range typeArr {
 			if len(typeObj.Type) == 0 {

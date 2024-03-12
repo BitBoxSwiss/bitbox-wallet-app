@@ -12,7 +12,10 @@ func (obj *StateAccount) EncodeRLP(_w io.Writer) error {
 	if obj.Balance == nil {
 		w.Write(rlp.EmptyString)
 	} else {
-		w.WriteUint256(obj.Balance)
+		if obj.Balance.Sign() == -1 {
+			return rlp.ErrNegativeBigInt
+		}
+		w.WriteBigInt(obj.Balance)
 	}
 	w.WriteBytes(obj.Root[:])
 	w.WriteBytes(obj.CodeHash)

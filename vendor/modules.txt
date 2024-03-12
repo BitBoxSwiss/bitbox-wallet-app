@@ -99,21 +99,10 @@ github.com/digitalbitbox/block-client-go/electrum/types
 github.com/digitalbitbox/block-client-go/failover
 github.com/digitalbitbox/block-client-go/jsonrpc
 github.com/digitalbitbox/block-client-go/jsonrpc/types
-# github.com/digitalbitbox/usb v0.0.0-20230208083750-001c519abaff
-## explicit; go 1.12
-github.com/digitalbitbox/usb
-github.com/digitalbitbox/usb/hidapi
-github.com/digitalbitbox/usb/hidapi/hidapi
-github.com/digitalbitbox/usb/hidapi/libusb
-github.com/digitalbitbox/usb/hidapi/mac
-github.com/digitalbitbox/usb/hidapi/windows
-github.com/digitalbitbox/usb/libusb
-github.com/digitalbitbox/usb/libusb/libusb
-github.com/digitalbitbox/usb/libusb/libusb/os
 # github.com/ethereum/c-kzg-4844 v0.4.0
 ## explicit; go 1.19
 github.com/ethereum/c-kzg-4844/bindings/go
-# github.com/ethereum/go-ethereum v1.13.5-0.20240312132935-6c76b813df6d
+# github.com/ethereum/go-ethereum v1.13.4
 ## explicit; go 1.20
 github.com/ethereum/go-ethereum
 github.com/ethereum/go-ethereum/accounts
@@ -137,7 +126,6 @@ github.com/ethereum/go-ethereum/log
 github.com/ethereum/go-ethereum/metrics
 github.com/ethereum/go-ethereum/p2p/netutil
 github.com/ethereum/go-ethereum/params
-github.com/ethereum/go-ethereum/params/forks
 github.com/ethereum/go-ethereum/rlp
 github.com/ethereum/go-ethereum/rlp/internal/rlpstruct
 github.com/ethereum/go-ethereum/rpc
@@ -152,6 +140,9 @@ github.com/fsnotify/fsnotify
 ## explicit; go 1.12
 github.com/go-ole/go-ole
 github.com/go-ole/go-ole/oleutil
+# github.com/go-stack/stack v1.8.1
+## explicit; go 1.17
+github.com/go-stack/stack
 # github.com/google/uuid v1.3.0
 ## explicit
 github.com/google/uuid
@@ -164,6 +155,21 @@ github.com/gorilla/websocket
 # github.com/holiman/uint256 v1.2.4
 ## explicit; go 1.19
 github.com/holiman/uint256
+# github.com/karalabe/hid v1.0.1-0.20240306101548-573246063e52 => github.com/benma/hid v0.0.0-20240312170000-f050ee197113
+## explicit; go 1.19
+github.com/karalabe/hid
+github.com/karalabe/hid/hidapi
+github.com/karalabe/hid/hidapi/hidapi
+github.com/karalabe/hid/hidapi/hidtest
+github.com/karalabe/hid/hidapi/libusb
+github.com/karalabe/hid/hidapi/linux
+github.com/karalabe/hid/hidapi/mac
+github.com/karalabe/hid/hidapi/netbsd
+github.com/karalabe/hid/hidapi/pc
+github.com/karalabe/hid/hidapi/windows
+github.com/karalabe/hid/libusb
+github.com/karalabe/hid/libusb/libusb
+github.com/karalabe/hid/libusb/libusb/os
 # github.com/kkdai/bstream v1.0.0
 ## explicit; go 1.6
 github.com/kkdai/bstream
@@ -248,9 +254,6 @@ golang.org/x/crypto/sha3
 ## explicit; go 1.20
 golang.org/x/exp/constraints
 golang.org/x/exp/slices
-golang.org/x/exp/slog
-golang.org/x/exp/slog/internal
-golang.org/x/exp/slog/internal/buffer
 # golang.org/x/mod v0.14.0
 ## explicit; go 1.18
 golang.org/x/mod/semver
@@ -321,3 +324,4 @@ gopkg.in/yaml.v3
 ## explicit; go 1.17
 rsc.io/tmplfunc
 rsc.io/tmplfunc/internal/parse
+# github.com/karalabe/hid => github.com/benma/hid v0.0.0-20240312170000-f050ee197113

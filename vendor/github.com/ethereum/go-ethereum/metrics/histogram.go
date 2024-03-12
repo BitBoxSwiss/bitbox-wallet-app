@@ -4,7 +4,7 @@ type HistogramSnapshot interface {
 	SampleSnapshot
 }
 
-// Histogram calculates distribution statistics from a series of int64 values.
+// Histograms calculate distribution statistics from a series of int64 values.
 type Histogram interface {
 	Clear()
 	Update(int64)

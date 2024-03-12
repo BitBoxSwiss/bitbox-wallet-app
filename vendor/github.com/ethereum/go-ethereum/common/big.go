@@ -16,11 +16,7 @@
 
 package common
 
-import (
-	"math/big"
-
-	"github.com/holiman/uint256"
-)
+import "math/big"
 
 // Common big integers often used
 var (
@@ -31,6 +27,4 @@ var (
 	Big32  = big.NewInt(32)
 	Big256 = big.NewInt(256)
 	Big257 = big.NewInt(257)
-
-	U2560 = uint256.NewInt(0)
 )
