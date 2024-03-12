@@ -25,7 +25,7 @@ import { useLightning } from '../../hooks/lightning';
 import coins from '../../assets/icons/coins.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 import shieldIcon from '../../assets/icons/shield_grey.svg';
-import info from '../../assets/icons/info.svg';
+import linechart from '../../assets/icons/linechart.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import { debug } from '../../utils/env';
@@ -193,7 +193,7 @@ const Sidebar = ({
               title={t('accountSummary.title')}
               onClick={handleSidebarItemClick}>
               <div className={style.single}>
-                <img draggable={false} src={info} />
+                <img draggable={false} src={linechart} />
               </div>
               <span className={style.sidebarLabel}>{t('accountSummary.title')}</span>
             </NavLink>

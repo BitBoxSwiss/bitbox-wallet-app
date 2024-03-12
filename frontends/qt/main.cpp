@@ -43,7 +43,7 @@
 #include <string.h>
 
 #include "filedialog.h"
-#include "libserver.h"
+#include "server/libserver.h"
 #include "webclass.h"
 
 #define APPNAME "BitBoxApp"
@@ -226,14 +226,18 @@ int main(int argc, char *argv[])
         // issues were observed on Windows and the app crashes on some Linux systems.
         qputenv("QMLSCENE_DEVICE", "softwarecontext");
         qputenv("QT_QUICK_BACKEND", "software");
+        goLog("BITBOXAPP_RENDER=software");
     } else if (renderMode == "auto") {
         // Do nothing: leave it to Qt to decide the rendering backend, which is usually hardware
         // accelerated if available.
         //
         // In rare cases, this can lead to rendering artefacts and crashes, which is why it is not
         // enabled by default.
+        std::cerr << "Rendering mode: automatic (usually hardware accelerated)" << std::endl;
+        goLog("BITBOXAPP_RENDER=auto");
     } else {
         std::cerr << "Invalid value for BITBOXAPP_RENDER" << std::endl;
+        goLog("Invalid value for BITBOXAPP_RENDER");
         return 1;
     }
 

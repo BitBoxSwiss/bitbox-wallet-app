@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Show QR scanner video in fullscreen on mobile for onchain transactions
 
 ## 4.41.0
 - New feature: insure your bitcoins through Bitsurance

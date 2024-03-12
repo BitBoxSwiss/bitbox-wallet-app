@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +14,43 @@
  * limitations under the License.
  */
 
-import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
-import { ScanQRVideo } from '../inputs/scan-qr-video';
 import { useTranslation } from 'react-i18next';
+import { useMediaQuery } from '../../../../../hooks/mediaquery';
+import { View, ViewButtons } from '../../../../../components/view/view';
 import { Button } from '../../../../../components/forms';
+import { ScanQRVideo } from '../inputs/scan-qr-video';
 
 type TProps = {
-    activeScanQR: boolean;
-    toggleScanQR: () => void;
-    onChangeActiveScanQR: (active: boolean) => void;
-    parseQRResult: (result: string) => void;
+  toggleScanQR: () => void;
+  onChangeActiveScanQR: (active: boolean) => void;
+  parseQRResult: (result: string) => void;
 }
 
-export const ScanQRDialog = ({ parseQRResult, activeScanQR, toggleScanQR, onChangeActiveScanQR }: TProps) => {
+export const ScanQRDialog = ({
+  parseQRResult,
+  toggleScanQR,
+  onChangeActiveScanQR,
+}: TProps) => {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   return (
-    <Dialog
-      large
-      open={activeScanQR}
-      title={t('send.scanQR')}
-      onClose={toggleScanQR}>
+    <View
+      fitContent
+      fullscreen
+      dialog={!isMobile}>
       <ScanQRVideo
         onResult={result => {
           parseQRResult(result);
           onChangeActiveScanQR(false);
         }} />
-      <DialogButtons>
+      <ViewButtons reverseRow>
         <Button
           secondary
           onClick={toggleScanQR}>
           {t('button.back')}
         </Button>
-      </DialogButtons>
-    </Dialog>
+      </ViewButtons>
+    </View>
   );
 };

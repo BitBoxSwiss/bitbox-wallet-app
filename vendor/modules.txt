@@ -17,7 +17,7 @@ github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-amd64
 github.com/breez/breez-sdk-go/breez_sdk/lib/linux-aarch64
 github.com/breez/breez-sdk-go/breez_sdk/lib/linux-amd64
 github.com/breez/breez-sdk-go/breez_sdk/lib/windows-amd64
-# github.com/btcsuite/btcd v0.23.4
+# github.com/btcsuite/btcd v0.24.0
 ## explicit; go 1.17
 github.com/btcsuite/btcd/blockchain
 github.com/btcsuite/btcd/blockchain/indexers
@@ -33,7 +33,7 @@ github.com/btcsuite/btcd/wire
 github.com/btcsuite/btcd/btcec/v2
 github.com/btcsuite/btcd/btcec/v2/ecdsa
 github.com/btcsuite/btcd/btcec/v2/schnorr
-# github.com/btcsuite/btcd/btcutil v1.1.3
+# github.com/btcsuite/btcd/btcutil v1.1.5
 ## explicit; go 1.16
 github.com/btcsuite/btcd/btcutil
 github.com/btcsuite/btcd/btcutil/base58
@@ -42,7 +42,7 @@ github.com/btcsuite/btcd/btcutil/gcs
 github.com/btcsuite/btcd/btcutil/gcs/builder
 github.com/btcsuite/btcd/btcutil/hdkeychain
 github.com/btcsuite/btcd/btcutil/txsort
-# github.com/btcsuite/btcd/chaincfg/chainhash v1.0.3-0.20230901205239-f12a0b3b56c3
+# github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
 ## explicit; go 1.17
 github.com/btcsuite/btcd/chaincfg/chainhash
 # github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
@@ -73,7 +73,7 @@ github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages
 github.com/digitalbitbox/bitbox02-api-go/communication/u2fhid
 github.com/digitalbitbox/bitbox02-api-go/util/errp
 github.com/digitalbitbox/bitbox02-api-go/util/semver
-# github.com/digitalbitbox/block-client-go v0.0.0-20230103135723-d8eaf468753d
+# github.com/digitalbitbox/block-client-go v0.0.0-20240228201430-dd85a15ace33
 ## explicit; go 1.19
 github.com/digitalbitbox/block-client-go/electrum
 github.com/digitalbitbox/block-client-go/electrum/types
@@ -118,7 +118,7 @@ github.com/ethereum/go-ethereum/rlp
 github.com/ethereum/go-ethereum/rlp/internal/rlpstruct
 github.com/ethereum/go-ethereum/rpc
 github.com/ethereum/go-ethereum/signer/core/apitypes
-# github.com/flynn/noise v1.0.0
+# github.com/flynn/noise v1.1.0
 ## explicit; go 1.16
 github.com/flynn/noise
 # github.com/go-ole/go-ole v1.2.1
@@ -131,18 +131,15 @@ github.com/go-stack/stack
 # github.com/google/uuid v1.2.0
 ## explicit
 github.com/google/uuid
-# github.com/gorilla/mux v1.8.0
-## explicit; go 1.12
+# github.com/gorilla/mux v1.8.1
+## explicit; go 1.20
 github.com/gorilla/mux
-# github.com/gorilla/websocket v1.4.2
-## explicit; go 1.12
+# github.com/gorilla/websocket v1.5.1
+## explicit; go 1.20
 github.com/gorilla/websocket
 # github.com/kkdai/bstream v1.0.0
 ## explicit; go 1.6
 github.com/kkdai/bstream
-# github.com/konsorten/go-windows-terminal-sequences v1.0.1
-## explicit
-github.com/konsorten/go-windows-terminal-sequences
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors
@@ -158,8 +155,8 @@ github.com/rjeczalik/notify
 ## explicit
 github.com/shirou/gopsutil/cpu
 github.com/shirou/gopsutil/internal/common
-# github.com/sirupsen/logrus v1.2.0
-## explicit
+# github.com/sirupsen/logrus v1.9.3
+## explicit; go 1.13
 github.com/sirupsen/logrus
 # github.com/skip2/go-qrcode v0.0.0-20170812161211-695fc75a0973
 ## explicit
@@ -169,8 +166,8 @@ github.com/skip2/go-qrcode/reedsolomon
 # github.com/stretchr/objx v0.5.0
 ## explicit; go 1.12
 github.com/stretchr/objx
-# github.com/stretchr/testify v1.8.1
-## explicit; go 1.13
+# github.com/stretchr/testify v1.8.4
+## explicit; go 1.20
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/mock
 github.com/stretchr/testify/require
@@ -188,7 +185,7 @@ github.com/tyler-smith/go-bip39/wordlists
 # go.etcd.io/bbolt v1.3.6
 ## explicit; go 1.12
 go.etcd.io/bbolt
-# golang.org/x/crypto v0.5.0
+# golang.org/x/crypto v0.14.0
 ## explicit; go 1.17
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
@@ -202,21 +199,15 @@ golang.org/x/crypto/pbkdf2
 golang.org/x/crypto/ripemd160
 golang.org/x/crypto/scrypt
 golang.org/x/crypto/sha3
-golang.org/x/crypto/ssh/terminal
-# golang.org/x/net v0.5.0
+# golang.org/x/net v0.17.0
 ## explicit; go 1.17
 golang.org/x/net/internal/socks
 golang.org/x/net/proxy
-# golang.org/x/sys v0.4.0
+# golang.org/x/sys v0.13.0
 ## explicit; go 1.17
 golang.org/x/sys/cpu
-golang.org/x/sys/internal/unsafeheader
-golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/term v0.4.0
-## explicit; go 1.17
-golang.org/x/term
 # google.golang.org/protobuf v1.28.1
 ## explicit; go 1.11
 google.golang.org/protobuf/encoding/prototext

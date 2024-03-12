@@ -44,7 +44,12 @@ static char* getSaveFilename(getSaveFilenameCallback f, const char* suggestedfil
     return f(suggestedfilename);
 }
 
-// see frontends/qt/libserver.h for doc comments
+// equivalent to C.free but suitable for releasing a memory malloc'ed
+// in a non-posix portable environment, incompatible with cgo.
+// this is especially important on windows where the standard C runtime
+// memory management used by cgo and mingw is different from win32 API used
+// when compiling C++ code with MSVC. hence, the memory allocated with malloc
+// in C++ must always be freed by this function in Go instead of C.free.
 typedef void (*cppHeapFree) (void* ptr);
 static void customHeapFree(cppHeapFree f, void* ptr) {
 	f(ptr);
@@ -85,7 +90,7 @@ func (communication *nativeCommunication) PushNotify(msg string) {
 }
 
 //export backendCall
-func backendCall(queryID C.int, s *C.char) {
+func backendCall(queryID C.int, s *C.cchar_t) {
 	bridgecommon.BackendCall(int(queryID), C.GoString(s))
 }
 
@@ -104,7 +109,7 @@ func serve(
 	pushNotificationsFn C.pushNotificationsCallback,
 	responseFn C.responseCallback,
 	notifyUserFn C.notifyUserCallback,
-	preferredLocale *C.char,
+	preferredLocale *C.cchar_t,
 	getSaveFilenameFn C.getSaveFilenameCallback,
 ) {
 	log := logging.Get().WithGroup("server")
