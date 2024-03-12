@@ -81,10 +81,12 @@ export const LightningDeactivate = () => {
         <View fitContent textCenter verticallyCentered>
           <ViewContent withIcon="success">
             <p>{t('lightning.deactivate.success.message')}</p>
+          </ViewContent>
+          <ViewButtons>
             <Button primary onClick={() => route('/account-summary')}>
               {t('button.done')}
             </Button>
-          </ViewContent>
+          </ViewButtons>
         </View>
       );
     }
