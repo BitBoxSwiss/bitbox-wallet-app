@@ -17,24 +17,35 @@
 import { useTranslation } from 'react-i18next';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
+import { IAccount } from '../../../api/account';
+import { isBitcoinOnly } from '../../account/utils';
 
-export const AddAccountGuide = () => {
+type TAddAccountGuide = {
+  accounts: IAccount[]
+}
+
+export const AddAccountGuide = ({ accounts }: TAddAccountGuide) => {
   const { t } = useTranslation();
+  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   return (
     <Guide>
       <Entry key="whatAreAccounts" entry={t('guide.accounts.whatAreAccounts')} />
       <Entry key="whyIsThisUseful" entry={t('guide.accounts.whyIsThisUseful')} />
       <Entry key="recoverAccounts" entry={t('guide.accounts.recoverAccounts')} />
       <Entry key="moveFunds" entry={t('guide.accounts.moveFunds')} />
-      <Entry key="supportedCoins" entry={{
-        link: {
-          text: t('guide.accounts.supportedCoins.link.text'),
-          url: 'https://bitbox.swiss/coins/',
-        },
-        text: t('guide.accounts.supportedCoins.text'),
-        title: t('guide.accounts.supportedCoins.title'),
-      }} />
-      <Entry key="howtoAddTokens" entry={t('guide.accounts.howtoAddTokens')} />
+      { !hasOnlyBTCAccounts && (
+        <>
+          <Entry key="supportedCoins" entry={{
+            link: {
+              text: t('guide.accounts.supportedCoins.link.text'),
+              url: 'https://bitbox.swiss/coins/',
+            },
+            text: t('guide.accounts.supportedCoins.text'),
+            title: t('guide.accounts.supportedCoins.title'),
+          }} />
+          <Entry key="howtoAddTokens" entry={t('guide.accounts.howtoAddTokens')} />
+        </>
+      )}
       <Entry key="howManyAccounts" entry={t('guide.accounts.howManyAccounts')} />
     </Guide>
   );
