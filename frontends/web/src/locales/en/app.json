@@ -291,11 +291,11 @@
       "useControls": "Use the controls on your BitBox02 to set a password."
     },
     "stepUninitialized": {
-      "create": "I want to setup a new BitBox02.",
+      "create": "I want to create a new wallet on my BitBox02.",
       "restore": "I want to restore my wallet from a backup.",
       "restoreMicroSD": "Restore from microSD card",
       "restoreMnemonic": "Restore from recovery words",
-      "title": "Setup your BitBox02"
+      "title": "Setup your wallet"
     },
     "success": {
       "text": "Hooray! Your BitBox02 is now ready to use. \n\nFor further information on how to use the BitBoxApp, please use the in-app guide by clicking the question mark on the top right corner.",
