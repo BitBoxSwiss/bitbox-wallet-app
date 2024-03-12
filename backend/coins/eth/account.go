@@ -963,7 +963,10 @@ func (account *Account) EthSignWalletConnectTx(
 	// account.coin.Net() will only incude ChainID 1 in its current *params.ChainConfig
 	// Needs to be set to the appropriuate chain id for each supported network
 	//TODO we also need to connect to an appropriate RPC for each L2 network/sidechain
-	signer := types.MakeSigner(account.coin.Net(), account.blockNumber)
+
+	// BlockTime needed to decide whether to use the Cancun signer. We don't need that for now.
+	blockTime := uint64(0)
+	signer := types.MakeSigner(account.coin.Net(), account.blockNumber, blockTime)
 	signedTx, err := tx.WithSignature(signer, signature)
 	if err != nil {
 		return "", "", err
