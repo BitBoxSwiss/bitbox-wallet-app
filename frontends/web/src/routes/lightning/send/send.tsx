@@ -18,7 +18,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
-import { View, ViewButtons, ViewContent } from '../../../components/view/view';
+import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { Button, Input } from '../../../components/forms';
 import { InputType, InputTypeVariant, LnInvoice, SdkError, getParseInput, postSendPayment } from '../../../api/lightning';
 import { SimpleMarkup } from '../../../utils/markup';
@@ -29,9 +29,9 @@ import { FiatConversion } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
 import { ScanQRVideo } from '../../account/send/components/inputs/scan-qr-video';
 import { Spinner } from '../../../components/spinner/Spinner';
-import styles from './send.module.css';
 import { getBtcSatsAmount } from '../../../api/coins';
 import { Skeleton } from '../../../components/skeleton/skeleton';
+import styles from './send.module.css';
 
 type TStep = 'select-invoice' | 'edit-invoice' | 'confirm' | 'sending' | 'success';
 
@@ -121,10 +121,11 @@ const SendWorkflow = ({
   switch (step) {
   case 'select-invoice':
     return (
-      <View fitContent>
+      <View textCenter width="660px">
+        <ViewHeader title="Scan lightning invoice" />
         <ViewContent textAlign="center">
           <Grid col="1">
-            <Column>
+            <Column className={styles.camera}>
               {rawInputError && <Status type="warning">{rawInputError}</Status>}
               <ScanQRVideo onResult={onCameraInput} />
               {/* temporary disabled paste button, reason: reading from HTML5 clipboard api is surpressed in Qt/Android WebView */}
