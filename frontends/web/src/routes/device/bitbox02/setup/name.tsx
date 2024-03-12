@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../../components/view/view';
 import { Status } from '../../../../components/status/status';
 import { Button, Input } from '../../../../components/forms';
 import { checkSDCard } from '../../../../api/bitbox02';
+import { TDeviceNameError, getInvalidCharsInDeviceName, getDeviceNameValidationError } from '../../../../utils/device';
 import style from './name.module.css';
-
-// matches any character that is not a printable ASCII character or space
-const regexInvalid = /[^ -~]/g;
-
-const filterUnique = (value: string, index: number, array: string[]) => {
-  return array.indexOf(value) === index;
-};
 
 type TProps = {
   onDeviceName: (name: string) => void;
@@ -45,26 +39,17 @@ export const SetDeviceName = ({
 }: TSetDeviceNameProps) => {
   const { t } = useTranslation();
   const [deviceName, setDeviceName] = useState('');
-  const [error, setError] = useState<'tooLong' | 'invalidChars' | false>();
+  const [error, setError] = useState<TDeviceNameError>();
+  const invalidChars = useMemo(() => getInvalidCharsInDeviceName(deviceName), [deviceName]);
 
   const handleDeviceNameInput = (event: Event) => {
     const target = (event.target as HTMLInputElement);
     const value: string = target.value;
-    const valueTrimmed: string = value.trim();
-
-    if (valueTrimmed.length < 1) {
-      setError(undefined);
-    } else if (valueTrimmed.length > 30) {
-      setError('tooLong');
-    } else if (regexInvalid.test(valueTrimmed)) {
-      setError('invalidChars');
-    } else {
-      setError(false);
-    }
+    const validationError = getDeviceNameValidationError(value);
+    setError(validationError);
     setDeviceName(value);
   };
 
-  const invalidChars = deviceName.match(regexInvalid)?.filter(filterUnique).join(', ');
 
   return (
     <form
@@ -95,13 +80,7 @@ export const SetDeviceName = ({
             placeholder={t('bitbox02Wizard.stepCreate.namePlaceholder')}
             value={deviceName}
             id="deviceName">
-            <span hidden={!error} className={style.errorMessage}>
-              {t(`bitbox02Wizard.stepCreate.error.${error}`, {
-                invalidChars
-              })}
-              {' '}
-              {t('bitbox02Wizard.stepCreate.error.genericMessage')}
-            </span>
+            <DeviceNameErrorMessage error={error} invalidChars={invalidChars} />
           </Input>
         </ViewContent>
         <ViewButtons>
@@ -121,6 +100,22 @@ export const SetDeviceName = ({
       </View>
     </form>
   );
+};
+
+type TDeviceNameErrorMessageProps = {
+  error: TDeviceNameError
+  invalidChars?: string
+}
+
+export const DeviceNameErrorMessage = ({ error, invalidChars }: TDeviceNameErrorMessageProps) => {
+  const { t } = useTranslation();
+  return (<span hidden={!error} className={style.errorMessage}>
+    {t(`bitbox02Wizard.stepCreate.error.${error}`, {
+      invalidChars
+    })}
+    {' '}
+    {t('bitbox02Wizard.stepCreate.error.genericMessage')}
+  </span>);
 };
 
 type TPropsWithSDCard = TProps & {
