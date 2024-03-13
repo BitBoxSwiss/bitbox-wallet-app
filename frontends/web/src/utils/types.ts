@@ -26,3 +26,5 @@ export type KeysOf<T> = Array<keyof T>;
  * At the moment, we are using version 2.9.2 (yarn run tsc -version).
  */
 export type ObjectButNotFunction = object & { prototype?: never; };
+
+export type TDeviceNameError = undefined | 'tooShort' | 'tooLong' | 'invalidChars'

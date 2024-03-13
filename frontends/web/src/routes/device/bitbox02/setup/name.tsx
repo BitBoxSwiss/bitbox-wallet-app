@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../../components/view/view';
 import { Status } from '../../../../components/status/status';
 import { Button, Input } from '../../../../components/forms';
 import { checkSDCard } from '../../../../api/bitbox02';
-import { TDeviceNameError, getInvalidCharsInDeviceName, getDeviceNameValidationError } from '../../../../utils/device';
 import style from './name.module.css';
+import { useValidateDeviceName } from '../../../../hooks/devicename';
+import { TDeviceNameError } from '../../../../utils/types';
 
 type TProps = {
   onDeviceName: (name: string) => void;
@@ -39,17 +40,7 @@ export const SetDeviceName = ({
 }: TSetDeviceNameProps) => {
   const { t } = useTranslation();
   const [deviceName, setDeviceName] = useState('');
-  const [error, setError] = useState<TDeviceNameError>();
-  const invalidChars = useMemo(() => getInvalidCharsInDeviceName(deviceName), [deviceName]);
-
-  const handleDeviceNameInput = (event: Event) => {
-    const target = (event.target as HTMLInputElement);
-    const value: string = target.value;
-    const validationError = getDeviceNameValidationError(value);
-    setError(validationError);
-    setDeviceName(value);
-  };
-
+  const { error, invalidChars, nameIsTooShort } = useValidateDeviceName(deviceName);
 
   return (
     <form
@@ -74,9 +65,9 @@ export const SetDeviceName = ({
         <ViewContent textAlign="left" minHeight="140px">
           <Input
             autoFocus
-            className={`${style.wizardLabel} ${error ? style.inputError : ''}`}
+            className={`${style.wizardLabel} ${error && !nameIsTooShort ? style.inputError : ''}`}
             label={t('bitbox02Wizard.stepCreate.nameLabel')}
-            onInput={handleDeviceNameInput}
+            onInput={(e) => setDeviceName(e.target.value)}
             placeholder={t('bitbox02Wizard.stepCreate.namePlaceholder')}
             value={deviceName}
             id="deviceName">
@@ -85,7 +76,7 @@ export const SetDeviceName = ({
         </ViewContent>
         <ViewButtons>
           <Button
-            disabled={!!error || error !== false}
+            disabled={!!error}
             primary
             type="submit">
             {t('button.continue')}
@@ -109,6 +100,9 @@ type TDeviceNameErrorMessageProps = {
 
 export const DeviceNameErrorMessage = ({ error, invalidChars }: TDeviceNameErrorMessageProps) => {
   const { t } = useTranslation();
+  if (error === 'tooShort') {
+    return null;
+  }
   return (<span hidden={!error} className={style.errorMessage}>
     {t(`bitbox02Wizard.stepCreate.error.${error}`, {
       invalidChars
