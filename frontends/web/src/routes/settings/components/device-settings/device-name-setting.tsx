@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useState, ChangeEvent, useMemo } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { ChevronRightDark } from '../../../../components/icon';
@@ -23,8 +23,8 @@ import { Dialog, DialogButtons } from '../../../../components/dialog/dialog';
 import { getDeviceInfo, setDeviceName } from '../../../../api/bitbox02';
 import { alertUser } from '../../../../components/alert/Alert';
 import { WaitDialog } from '../../../../components/wait-dialog/wait-dialog';
-import { TDeviceNameError, getInvalidCharsInDeviceName, getDeviceNameValidationError } from '../../../../utils/device';
 import { DeviceNameErrorMessage } from '../../../device/bitbox02/setup/name';
+import { useValidateDeviceName } from '../../../../hooks/devicename';
 import nameStyle from '../../../device/bitbox02/setup/name.module.css';
 
 type TDeviceNameSettingProps = {
@@ -104,16 +104,7 @@ const DeviceNameSetting = ({ deviceName, deviceID }: TDeviceNameSettingProps) =>
 
 const SetDeviceNameDialog = ({ open, onClose, currentName, onInputChange, name, handleUpdateName }: TDialogProps) => {
   const { t } = useTranslation();
-  const [validationNameError, setValidationNameError] = useState<TDeviceNameError>();
-  const invalidChars = useMemo(() => getInvalidCharsInDeviceName(name), [name]);
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const error = getDeviceNameValidationError(value);
-    setValidationNameError(error);
-    onInputChange(value);
-  };
-
+  const { error, invalidChars, nameIsTooShort } = useValidateDeviceName(name);
 
   return (
     <Dialog
@@ -133,21 +124,21 @@ const SetDeviceNameDialog = ({ open, onClose, currentName, onInputChange, name, 
           </div>
           <div className="column">
             <Input
-              className={`m-none ${validationNameError ? nameStyle.inputError : ''}`}
+              className={`m-none ${error && !nameIsTooShort ? nameStyle.inputError : ''}`}
               label={t('bitbox02Settings.deviceName.input')}
-              onInput={handleInputChange}
+              onInput={(e) => onInputChange(e.target.value)}
               placeholder={t('bitbox02Settings.deviceName.placeholder')}
               value={name}
               id="deviceName"
             />
-            <DeviceNameErrorMessage error={validationNameError} invalidChars={invalidChars} />
+            <DeviceNameErrorMessage error={error} invalidChars={invalidChars} />
           </div>
         </div>
       </div>
       <DialogButtons>
         <Button
           primary
-          disabled={!(name && !validationNameError)}
+          disabled={!!error}
           onClick={handleUpdateName}
         >
           {t('button.ok')}
