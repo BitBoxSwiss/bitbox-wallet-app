@@ -7,6 +7,7 @@ import (
 	"os"
 	"reflect"
 	"sync"
+	"sync/atomic"
 
 	"github.com/go-stack/stack"
 )
@@ -136,15 +137,14 @@ func CallerStackHandler(format string, h Handler) Handler {
 // wrapped Handler if the given function evaluates true. For example,
 // to only log records where the 'err' key is not nil:
 //
-//    logger.SetHandler(FilterHandler(func(r *Record) bool {
-//        for i := 0; i < len(r.Ctx); i += 2 {
-//            if r.Ctx[i] == "err" {
-//                return r.Ctx[i+1] != nil
-//            }
-//        }
-//        return false
-//    }, h))
-//
+//	logger.SetHandler(FilterHandler(func(r *Record) bool {
+//	    for i := 0; i < len(r.Ctx); i += 2 {
+//	        if r.Ctx[i] == "err" {
+//	            return r.Ctx[i+1] != nil
+//	        }
+//	    }
+//	    return false
+//	}, h))
 func FilterHandler(fn func(r *Record) bool, h Handler) Handler {
 	return FuncHandler(func(r *Record) error {
 		if fn(r) {
@@ -159,8 +159,7 @@ func FilterHandler(fn func(r *Record) bool, h Handler) Handler {
 // context matches the value. For example, to only log records
 // from your ui package:
 //
-//    log.MatchFilterHandler("pkg", "app/ui", log.StdoutHandler)
-//
+//	log.MatchFilterHandler("pkg", "app/ui", log.StdoutHandler)
 func MatchFilterHandler(key string, value interface{}, h Handler) Handler {
 	return FilterHandler(func(r *Record) (pass bool) {
 		switch key {
@@ -186,8 +185,7 @@ func MatchFilterHandler(key string, value interface{}, h Handler) Handler {
 // level to the wrapped Handler. For example, to only
 // log Error/Crit records:
 //
-//     log.LvlFilterHandler(log.LvlError, log.StdoutHandler)
-//
+//	log.LvlFilterHandler(log.LvlError, log.StdoutHandler)
 func LvlFilterHandler(maxLvl Lvl, h Handler) Handler {
 	return FilterHandler(func(r *Record) (pass bool) {
 		return r.Lvl <= maxLvl
@@ -199,10 +197,9 @@ func LvlFilterHandler(maxLvl Lvl, h Handler) Handler {
 // to different locations. For example, to log to a file and
 // standard error:
 //
-//     log.MultiHandler(
-//         log.Must.FileHandler("/var/log/app.log", log.LogfmtFormat()),
-//         log.StderrHandler)
-//
+//	log.MultiHandler(
+//	    log.Must.FileHandler("/var/log/app.log", log.LogfmtFormat()),
+//	    log.StderrHandler)
 func MultiHandler(hs ...Handler) Handler {
 	return FuncHandler(func(r *Record) error {
 		for _, h := range hs {
@@ -220,10 +217,10 @@ func MultiHandler(hs ...Handler) Handler {
 // to writing to a file if the network fails, and then to
 // standard out if the file write fails:
 //
-//     log.FailoverHandler(
-//         log.Must.NetHandler("tcp", ":9090", log.JSONFormat()),
-//         log.Must.FileHandler("/var/log/app.log", log.LogfmtFormat()),
-//         log.StdoutHandler)
+//	log.FailoverHandler(
+//	    log.Must.NetHandler("tcp", ":9090", log.JSONFormat()),
+//	    log.Must.FileHandler("/var/log/app.log", log.LogfmtFormat()),
+//	    log.StdoutHandler)
 //
 // All writes that do not go to the first handler will add context with keys of
 // the form "failover_err_{idx}" which explain the error encountered while
@@ -357,4 +354,22 @@ func (m muster) FileHandler(path string, fmtr Format) Handler {
 
 func (m muster) NetHandler(network, addr string, fmtr Format) Handler {
 	return must(NetHandler(network, addr, fmtr))
+}
+
+// swapHandler wraps another handler that may be swapped out
+// dynamically at runtime in a thread-safe fashion.
+type swapHandler struct {
+	handler atomic.Value
+}
+
+func (h *swapHandler) Log(r *Record) error {
+	return (*h.handler.Load().(*Handler)).Log(r)
+}
+
+func (h *swapHandler) Swap(newHandler Handler) {
+	h.handler.Store(&newHandler)
+}
+
+func (h *swapHandler) Get() Handler {
+	return *h.handler.Load().(*Handler)
 }
