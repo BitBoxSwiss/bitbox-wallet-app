@@ -27,13 +27,16 @@ import { CoinDropDown } from './components/coin-dropdown';
 import { Check } from '../../../components/icon/icon';
 import { AddAccountGuide } from './add-account-guide';
 import { route } from '../../../utils/route';
-import { addAccount, CoinCode, TAddAccount } from '../../../api/account';
+import { addAccount, CoinCode, TAddAccount, IAccount } from '../../../api/account';
 import styles from './add.module.css';
 
+type TAddAccountGuide = {
+  accounts: IAccount[]
+}
 
 type TStep = 'select-coin' | 'choose-name' | 'success';
 
-export const AddAccount = () => {
+export const AddAccount = ({ accounts }: TAddAccountGuide) => {
   const [accountCode, setAccountCode] = useState<string>();
   const [accountName, setAccountName] = useState('');
   const [coinCode, setCoinCode] = useState<'choose' | CoinCode>('choose');
@@ -260,7 +263,7 @@ export const AddAccount = () => {
           </div>
         </div>
       </div>
-      <AddAccountGuide />
+      <AddAccountGuide accounts={accounts} />
     </div>
   );
 };

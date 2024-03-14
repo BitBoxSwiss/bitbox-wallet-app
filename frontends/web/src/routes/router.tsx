@@ -196,7 +196,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
         <Route path="wallet-connect/dashboard" element={AccDashboardWC} />
       </Route>
-      <Route path="add-account" element={<AddAccount />} />
+      <Route path="add-account" element={<AddAccount accounts={accounts}/>} />
       <Route path="account-summary" element={AccountsSummaryEl} />
       <Route path="buy">
         <Route path="info" element={BuyInfoEl} >
