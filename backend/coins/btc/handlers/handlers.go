@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/btcsuite/btcd/btcutil"
@@ -405,7 +406,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 	if err != nil {
 		handlers.log.WithError(err).Error("Failed to send transaction")
 		result := map[string]interface{}{"success": false, "errorMessage": err.Error()}
-		if err.Error() == etherscan.ERC20GasErr {
+		if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
 			result["errorCode"] = errors.ERC20InsufficientGasFunds.Error()
 		}
 		return result, nil
