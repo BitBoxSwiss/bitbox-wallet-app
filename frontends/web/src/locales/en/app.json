@@ -802,13 +802,6 @@
         "text": "Bitcoin and Litecoin can have an arbitrary amount of accounts. After five accounts, you can only add another account if the previous account has been used. \nOther coins can have a maximum of five accounts.",
         "title": "How many accounts can I create?"
       },
-      "supportedCoins": {
-        "link": {
-          "text": "View supported coins"
-        },
-        "text": "The BitBoxApp supports Bitcoin, Litecoin, Ethereum as well as a selection of ERC20 token. For Cardano and other tokens, use your BitBox02 with alternative software such as AdaLite or Rabby. You can find an exhaustive list of all supported coins on our website:",
-        "title": "Which coins are supported?"
-      },
       "howtoAddTokens": {
         "text": "Tokens using the ERC20 standard are tied to a specific Ethereum account. To enable or disable a particular token, open the \"Manage accounts\" screen, expand your Ethereum account and switch the desired token on or off.",
         "title": "How can I add additional tokens?"
@@ -820,6 +813,13 @@
       "recoverAccounts": {
         "text": "Yes. The BitBoxApp creates accounts using well-established standards compatible with most other crypto wallets.",
         "title": "Can I recover my accounts with other wallets?"
+      },
+      "supportedCoins": {
+        "link": {
+          "text": "View supported coins"
+        },
+        "text": "The BitBoxApp supports Bitcoin, Litecoin, Ethereum as well as a selection of ERC20 token. For Cardano and other tokens, use your BitBox02 with alternative software such as AdaLite or Rabby. You can find an exhaustive list of all supported coins on our website:",
+        "title": "Which coins are supported?"
       },
       "whatAreAccounts": {
         "text": "Your wallet can manage multiple accounts of the same coin. Accounts are helpful when you want to keep funds separate.",
