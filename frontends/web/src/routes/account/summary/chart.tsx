@@ -24,8 +24,8 @@ import { Amount } from '../../../components/amount/amount';
 import Filters from './filters';
 import { getDarkmode } from '../../../components/darkmode/darkmode';
 import { TChartDisplay, TChartFiltersProps } from './types';
+import { DefaultCurrencyRotator } from '../../../components/rates/rates';
 import styles from './chart.module.css';
-
 export interface FormattedLineData extends LineData {
   formattedValue: string;
 }
@@ -56,7 +56,6 @@ type Props = ChartProps & TranslateProps;
 type FormattedData = {
   [key: number]: string;
 }
-
 class Chart extends Component<Props, State> {
   private ref = createRef<HTMLDivElement>();
   private refToolTip = createRef<HTMLSpanElement>();
@@ -128,6 +127,10 @@ class Chart extends Component<Props, State> {
           visible: this.props.hideAmounts ? false : !this.state.isMobile,
         }
       });
+    }
+
+    if (this.props.data.chartFiat !== prev.data.chartFiat) {
+      this.reinitializeChart();
     }
   }
 
@@ -237,6 +240,19 @@ class Chart extends Component<Props, State> {
       window.addEventListener('resize', this.onResize);
       setTimeout(() => this.ref.current?.classList.remove(styles.invisible), 200);
 
+    }
+  };
+
+  private reinitializeChart = () => {
+    this.removeChart();
+    this.createChart();
+  };
+
+  private removeChart = () => {
+    if (this.chart) {
+      this.chart.remove();
+      this.chart = undefined;
+      window.removeEventListener('resize', this.onResize);
     }
   };
 
@@ -514,7 +530,7 @@ class Chart extends Component<Props, State> {
                 <Skeleton minWidth="220px" />
               )}
               <span className={styles.totalUnit}>
-                {chartTotal !== null && chartFiat}
+                {chartTotal !== null && <DefaultCurrencyRotator tableRow={false}/>}
               </span>
             </div>
             {!showMobileTotalValue ?

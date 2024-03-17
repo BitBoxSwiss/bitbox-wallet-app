@@ -116,11 +116,14 @@
 
 .totalValue {
   font-size: 2rem;
+  display: flex;
+  align-items: flex-end;
 }
 
 .totalUnit {
   color: var(--color-secondary);
   display: inline-block;
+  margin-bottom: 3px;
   font-size: 1.4rem;
   padding: 0 .25rem;
 }

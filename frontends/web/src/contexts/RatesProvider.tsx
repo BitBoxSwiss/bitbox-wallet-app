@@ -48,18 +48,18 @@ export const RatesProvider = ({ children }: TProps) => {
     }
   };
 
-  const rotateFiat = () => {
+  const rotateFiat = async () => {
     const index = activeCurrencies.indexOf(defaultCurrency);
     const fiat = activeCurrencies[(index + 1) % activeCurrencies.length];
-    updateDefaultFiat(fiat);
+    await updateDefaultFiat(fiat);
   };
 
-  const updateDefaultFiat = (fiat: Fiat) => {
+  const updateDefaultFiat = async (fiat: Fiat) => {
     if (!activeCurrencies.includes(fiat)) {
       selectFiat(fiat);
     }
+    await setConfig({ backend: { mainFiat: fiat } });
     setDefaultCurrency(fiat);
-    setConfig({ backend: { mainFiat: fiat } });
   };
 
   //this is a method to select a fiat to be

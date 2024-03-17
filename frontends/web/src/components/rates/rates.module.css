@@ -17,10 +17,6 @@
     position: relative;
 }
 
-.fiatRow {
-
-}
-
 .availableFiatAmount {
     padding-right: var(--space-quarter) !important;
     text-align: right;
@@ -33,8 +29,12 @@
     position: relative;
 }
 
-.unitAction::after,
-.availableFiatUnit::after {
+.rotatable {
+    position: relative;
+    cursor: default;
+}
+
+.rotatable::after { 
     border-bottom: dotted 1px var(--color-softblack);
     content: "";
     position: absolute;
@@ -58,8 +58,3 @@
     }
 }
 
-@media (max-width: 640px) {
-    .availableFiatUnit::after {
-        border-bottom: none;
-    }
-}

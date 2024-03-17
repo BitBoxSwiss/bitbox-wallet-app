@@ -70,7 +70,7 @@ function Conversion({
   alwaysShowAmounts = false
 }: TProvidedProps) {
 
-  const { rotateFiat, defaultCurrency, btcUnit } = useContext(RatesContext);
+  const { defaultCurrency, btcUnit } = useContext(RatesContext);
 
   let formattedAmount = <>{'---'}</>;
   let isAvailable = false;
@@ -92,7 +92,7 @@ function Conversion({
         <td className={unstyled ? '' : style.availableFiatAmount}>{formattedAmount}</td>
         {
           !noAction && (
-            <td className={unstyled ? '' : style.availableFiatUnit} onClick={rotateFiat}>{activeUnit}</td>
+            <DefaultCurrencyRotator activeUnit={activeUnit} className={unstyled ? '' : style.availableFiatUnit} />
           )
         }
         {
@@ -110,7 +110,7 @@ function Conversion({
       {' '}
       {
         !skipUnit && !noAction && (
-          <span className={style.unitAction} onClick={rotateFiat}>{activeUnit}</span>
+          <DefaultCurrencyRotator activeUnit={activeUnit} tableRow={false} className={style.unitAction} />
         )
       }
       {
@@ -121,6 +121,26 @@ function Conversion({
     </span>
   );
 }
+
+type TDefaultCurrencyRotator = {
+  activeUnit?: ConversionUnit;
+  className?: string;
+  tableRow?: boolean;
+}
+
+export const DefaultCurrencyRotator = ({
+  activeUnit,
+  className = '',
+  tableRow = true
+}: TDefaultCurrencyRotator) => {
+  const { rotateFiat, defaultCurrency } = useContext(RatesContext);
+  const displayedCurrency = activeUnit ? activeUnit : defaultCurrency;
+  const textStyle = `${className} ${style.rotatable}`;
+  if (!tableRow) {
+    return <span className={textStyle} onClick={rotateFiat}>{displayedCurrency}</span>;
+  }
+  return <td className={textStyle} onClick={rotateFiat}>{displayedCurrency}</td>;
+};
 
 export const formattedCurrencies = currenciesWithDisplayName.map((fiat) => ({ label: `${fiat.displayName} (${fiat.currency})`, value: fiat.currency }));
 
