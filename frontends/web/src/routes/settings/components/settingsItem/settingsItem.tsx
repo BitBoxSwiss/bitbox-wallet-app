@@ -20,7 +20,7 @@ import styles from './settingsItem.module.css';
 type TProps = {
   className?: string
   collapseOnSmall?: boolean;
-  displayedValue?: string;
+  displayedValue?: string | ReactNode;
   extraComponent?: ReactNode;
   hideDisplayedValueOnSmall?: boolean;
   onClick?: () => void;
@@ -82,5 +82,20 @@ export const SettingsItem = ({
           {content}
         </button> }
     </>
+  );
+};
+
+type TSettingsValueProps = {
+  children: ReactNode;
+  wrap?: boolean;
+}
+
+export const SettingsValue = ({
+  children,
+  wrap,
+}: TSettingsValueProps) => {
+  const classNames = wrap ? '' : styles.nowrap;
+  return (
+    <span className={classNames}>{children}</span>
   );
 };
