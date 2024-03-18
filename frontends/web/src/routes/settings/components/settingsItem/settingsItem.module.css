@@ -30,9 +30,8 @@
 
 
 .rightContentContainer {
-    display: flex;
     align-items: center;
-    flex-shrink: 0;
+    display: flex;
 }
 
 .displayedValue {
