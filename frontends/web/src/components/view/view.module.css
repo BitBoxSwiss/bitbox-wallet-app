@@ -77,7 +77,7 @@
         min-height: auto !important;
     }
     .inner.fit {
-        padding-bottom: var(--space-half);
+        padding-bottom: 0;
         padding-top: 0;
     }
 
@@ -122,7 +122,7 @@
 }
 @media (max-width: 768px) {
     .fill {
-        padding: 0 0 var(--space-default) 0;
+        padding: 0;
     }
     .header {
         padding-left: var(--space-half);
@@ -250,18 +250,22 @@
 .buttons.reverseRow {
     flex-direction: row;
 }
-.dialog .buttons {
-    padding-left: var(--space-default);
-    padding-right: var(--space-default);
-}
 .fit .buttons {
     margin-top: var(--space-half);
+    padding-left: 0;
+    padding-right: 0;
+}
+.dialog .buttons {
     padding-left: var(--space-half);
     padding-right: var(--space-half);
 }
 @media (max-width: 768px) {
     .buttons {
         padding: 0 var(--space-half);
+    }
+    .fit .buttons {
+        margin-top: 0;
+        padding: var(--space-half);
     }
 }
 @media (max-width: 768px) and (orientation: portrait) {
