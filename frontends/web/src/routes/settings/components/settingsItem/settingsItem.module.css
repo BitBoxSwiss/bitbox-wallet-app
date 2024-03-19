@@ -1,5 +1,5 @@
 .container {
-    height: var(--item-height-xlarge);
+    min-height: var(--item-height-xlarge);
     width: 100%;
     min-width: 230px;
     display: flex;
@@ -56,11 +56,15 @@
     text-overflow: ellipsis;
 }
 
+.nowrap {
+    white-space: nowrap;
+}
+
 @media (max-width: 768px) {
     .container {
-         height: auto;
-         margin-bottom: 5px;
-         min-width: 100%;
+        min-height: auto;
+        margin-bottom: 5px;
+        min-width: 100%;
     }
 
     .secondaryText {
