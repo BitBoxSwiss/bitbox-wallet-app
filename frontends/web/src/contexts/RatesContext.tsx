@@ -22,11 +22,11 @@ type RatesContextProps = {
     defaultCurrency: Fiat;
     activeCurrencies: Fiat[];
     btcUnit?: BtcUnit;
-    rotateFiat: () => Promise<void>;
-    selectFiat: (fiat: Fiat) => Promise<void>;
-    updateDefaultFiat: (fiat: Fiat) => void;
+    rotateDefaultCurrency: () => Promise<void>;
+    addToActiveCurrencies: (fiat: Fiat) => Promise<void>;
+    updateDefaultCurrency: (fiat: Fiat) => void;
     updateRatesConfig: () => Promise<void>;
-    unselectFiat: (fiat: Fiat) => Promise<void>;
+    removeFromActiveCurrencies: (fiat: Fiat) => Promise<void>;
 }
 
 const RatesContext = createContext<RatesContextProps>({} as RatesContextProps);

@@ -133,13 +133,13 @@ export const DefaultCurrencyRotator = ({
   className = '',
   tableRow = true
 }: TDefaultCurrencyRotator) => {
-  const { rotateFiat, defaultCurrency } = useContext(RatesContext);
+  const { rotateDefaultCurrency, defaultCurrency } = useContext(RatesContext);
   const displayedCurrency = activeUnit ? activeUnit : defaultCurrency;
   const textStyle = `${className} ${style.rotatable}`;
   if (!tableRow) {
-    return <span className={textStyle} onClick={rotateFiat}>{displayedCurrency}</span>;
+    return <span className={textStyle} onClick={rotateDefaultCurrency}>{displayedCurrency}</span>;
   }
-  return <td className={textStyle} onClick={rotateFiat}>{displayedCurrency}</td>;
+  return <td className={textStyle} onClick={rotateDefaultCurrency}>{displayedCurrency}</td>;
 };
 
 export const formattedCurrencies = currenciesWithDisplayName.map((fiat) => ({ label: `${fiat.displayName} (${fiat.currency})`, value: fiat.currency }));

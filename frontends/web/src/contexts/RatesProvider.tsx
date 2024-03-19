@@ -48,31 +48,33 @@ export const RatesProvider = ({ children }: TProps) => {
     }
   };
 
-  const rotateFiat = async () => {
+  const rotateDefaultCurrency = async () => {
     const index = activeCurrencies.indexOf(defaultCurrency);
     const fiat = activeCurrencies[(index + 1) % activeCurrencies.length];
-    await updateDefaultFiat(fiat);
+    await updateDefaultCurrency(fiat);
   };
 
-  const updateDefaultFiat = async (fiat: Fiat) => {
+  // sets default currency both in config (mainFiat)
+  // and in RatesContext context's (local) state
+  const updateDefaultCurrency = async (fiat: Fiat) => {
     if (!activeCurrencies.includes(fiat)) {
-      selectFiat(fiat);
+      addToActiveCurrencies(fiat);
     }
     await setConfig({ backend: { mainFiat: fiat } });
     setDefaultCurrency(fiat);
   };
 
-  //this is a method to select a fiat to be
-  //added into the selected fiat list
-  const selectFiat = async (fiat: Fiat) => {
+  // this is a method to select / add a currency
+  // into the active currencies list
+  const addToActiveCurrencies = async (fiat: Fiat) => {
     const selected = [...activeCurrencies, fiat];
     await setConfig({ backend: { fiatList: selected } });
     handleChangeSelectedFiat(selected);
   };
 
-  //this is a method to unselect a fiat to be
-  //removed from the selected fiat list
-  const unselectFiat = async (fiat: Fiat) => {
+  // this is a method to unselect / remove a currency
+  // from the active currencies list
+  const removeFromActiveCurrencies = async (fiat: Fiat) => {
     const selected = activeCurrencies.filter(item => !equal(item, fiat));
     await setConfig({ backend: { fiatList: selected } });
     handleChangeSelectedFiat(selected);
@@ -91,11 +93,11 @@ export const RatesProvider = ({ children }: TProps) => {
         defaultCurrency,
         activeCurrencies,
         btcUnit,
-        rotateFiat,
-        selectFiat,
-        updateDefaultFiat,
+        rotateDefaultCurrency,
+        addToActiveCurrencies,
+        updateDefaultCurrency,
         updateRatesConfig,
-        unselectFiat
+        removeFromActiveCurrencies
       }}
     >
       {children}
