@@ -29,12 +29,16 @@ import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
 import android.webkit.PermissionRequest;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -72,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
     GoService goService;
 
     private String location = "";
+
+    // This is for the file picker dialog invoked by file upload forms in the WebView.
+    // Used by e.g. MoonPay's KYC forms.
+    private ValueCallback<Uri[]> filePathCallback;
 
     // Connection to bind with GoService
     private ServiceConnection connection = new ServiceConnection() {
@@ -344,7 +352,31 @@ public class MainActivity extends AppCompatActivity {
                 }
                 request.deny();
             }
+
+            // file picker result handler.
+            ActivityResultLauncher<String> mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(),
+                    new ActivityResultCallback<Uri>() {
+                        @Override
+                        public void onActivityResult(Uri uri) {
+                            if (filePathCallback != null) {
+                                if (uri != null) {
+                                    filePathCallback.onReceiveValue(new Uri[]{uri});
+                                } else {
+                                    Util.log("Received null Uri in activity result");
+                                    filePathCallback.onReceiveValue(new Uri[]{});
+                                }
+                                filePathCallback = null;
+                            }
+                        }
+                    });
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+                MainActivity.this.filePathCallback = filePathCallback;
+                mGetContent.launch("*/*");
+                return true;
+            }
         });
+
         final String javascriptVariableName = "android";
         vw.addJavascriptInterface(new JavascriptBridge(this), javascriptVariableName);
 
