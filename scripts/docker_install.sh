@@ -58,9 +58,11 @@ cd /opt && \
 # Install fpm to create deb/rpm packages
 apt-get install -y --no-install-recommends \
         ruby ruby-dev build-essential rpm
+# We need to explicitly specify the dotenv version to avoid conflicts with ruby
+gem install dotenv -v 2.8.1
 gem install --no-document fpm
 
 # Needed for Android.
 apt-get install -y --no-install-recommends openjdk-17-jdk
 # Keep versions in sync with build.gradle and frontends/android/Makefile.
-/opt/android-sdk/cmdline-tools/tools/bin/sdkmanager "ndk;21.2.6472646" "platforms;android-33" "build-tools;33.0.0" "platform-tools"
+/opt/android-sdk/cmdline-tools/tools/bin/sdkmanager "ndk;21.2.6472646" "platforms;android-34" "build-tools;34.0.0" "platform-tools"
