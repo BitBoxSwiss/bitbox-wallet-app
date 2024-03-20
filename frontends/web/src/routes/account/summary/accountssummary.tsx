@@ -34,6 +34,7 @@ import { Guide } from '../../../components/guide/guide';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '../../../contexts/AppContext';
 import { getAccountsByKeystore, isAmbiguiousName } from '../utils';
+import { RatesContext } from '../../../contexts/RatesContext';
 
 type TProps = {
     accounts: accountApi.IAccount[];
@@ -52,6 +53,7 @@ export function AccountsSummary({
   const summaryReqTimerID = useRef<number>();
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
+  const { defaultCurrency } = useContext(RatesContext);
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
 
@@ -138,17 +140,24 @@ export function AccountsSummary({
     }
   }, [getAccountSummary, mounted, onStatusChanged]);
 
-  // fetch accounts summary and balance on the first render.
   useEffect(() => {
+    // for subscriptions and unsubscriptions
+    // runs only on component mount and unmount.
     const subscriptions = [
       statusChanged(update),
       syncdone(update)
     ];
+    return () => unsubscribe(subscriptions);
+  }, [update]);
+
+
+  useEffect(() => {
+    // handles fetching data and runs on component mount
+    // & whenever any of the dependencies change.
     getAccountSummary();
     getAccountsBalance();
     getAccountsTotalBalance();
-    return () => unsubscribe(subscriptions);
-  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, update]);
+  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, defaultCurrency]);
 
   // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
