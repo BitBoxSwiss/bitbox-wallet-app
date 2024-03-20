@@ -118,6 +118,7 @@ class Chart extends Component<Props, State> {
     ) {
       const data = this.state.source === 'hourly' ? chartDataHourly : chartDataDaily;
       this.lineSeries.setData(data);
+      this.chart?.timeScale().fitContent();
       this.setFormattedData(data);
     }
 
