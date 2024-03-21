@@ -287,8 +287,12 @@
     },
     "stepPassword": {
       "e104": "Setting password was canceled.",
-      "title": "Set BitBox02 password",
-      "useControls": "Use the controls on your BitBox02 to set a password."
+      "recommendLength": {
+        "link": "Learn more",
+        "text": "about how to choose a good device password."
+      },
+      "title": "Set BitBox02 device password",
+      "useControls": "Use the controls on your BitBox02 to set a device password."
     },
     "stepUninitialized": {
       "create": "I want to create a new wallet on my BitBox02.",

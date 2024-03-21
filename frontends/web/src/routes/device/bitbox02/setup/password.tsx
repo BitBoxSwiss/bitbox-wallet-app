@@ -15,16 +15,29 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { i18n } from '../../../../i18n/i18n';
 import { View, ViewContent, ViewHeader } from '../../../../components/view/view';
 import { Backup } from '../../../../api/backup';
 import { PasswordEntry } from '../components/password-entry/password-entry';
 import { Status } from '../../../../components/status/status';
 import { MultilineMarkup } from '../../../../utils/markup';
 import { convertDateToLocaleString } from '../../../../utils/date';
+import { A } from '../../../../components/anchor/anchor';
+import { Info } from '../../../../components/icon';
+import style from './password.module.css';
 
 type Props = {
   errorText: string | undefined;
 }
+
+const getSupportLink = () => {
+  switch (i18n.resolvedLanguage) {
+  case 'de':
+    return 'https://bitbox.swiss/redirects/device-password-recommendation-de/';
+  default:
+    return 'https://bitbox.swiss/redirects/device-password-recommendation-en/';
+  }
+};
 
 export const SetPassword = ({ errorText }: Props) => {
   const { t } = useTranslation();
@@ -45,6 +58,12 @@ export const SetPassword = ({ errorText }: Props) => {
       </ViewHeader>
       <ViewContent>
         <PasswordEntry />
+        <br />
+        <p className="text-small text-gray">
+          <Info className={style.textIcon} />
+          <A href={getSupportLink()}>{t('bitbox02Wizard.stepPassword.recommendLength.link')}</A>&nbsp;
+          {t('bitbox02Wizard.stepPassword.recommendLength.text')}
+        </p>
       </ViewContent>
     </View>
   );
@@ -83,6 +102,12 @@ export const SetPasswordWithBackup = ({
       <ViewContent>
         <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>
         <PasswordEntry />
+        <br />
+        <p className="text-small text-gray">
+          <Info className={style.textIcon} />
+          <A href={getSupportLink()}>{t('bitbox02Wizard.stepPassword.recommendLength.link')}</A>&nbsp;
+          {t('bitbox02Wizard.stepPassword.recommendLength.text')}
+        </p>
       </ViewContent>
     </View>
   );
