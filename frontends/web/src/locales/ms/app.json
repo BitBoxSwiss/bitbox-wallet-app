@@ -906,7 +906,7 @@
         "title": "Bagaimanakah saya boleh memperbaharui atau membatalkan insurans?"
       },
       "status": {
-        "text": "Akaun yang berjaya diinsuranskan ditandakan dengan lencana hijau \"diinsuranskan\" di penjuru kiri sebelah atas pada setiap halaman akaun Bitcoin. Dalam bahagian \"Insurans\", anda boleh melihat gambaran keseluruhan semua akaun Bitcoin yang diinsuranskan dan status insurans semasa mereka.",
+        "text": "Akaun yang berjaya diinsuranskan ditandakan dengan lencana hijau \"diinsuranskan\" di penjuru kiri sebelah atas pada setiap halaman akaun Bitcoin. Dalam bahagian \"Insurans\", anda boleh melihat gambaran keseluruhan semua akaun Bitcoin yang diinsuranskan dan status insurans semasa mereka. Ia boleh mengambil masa sehingga 48 jam untuk mengemas kini status insurans.",
         "title": "Bolehkah saya menyemak status akaun yang diinsuranskan?"
       },
       "what": {
