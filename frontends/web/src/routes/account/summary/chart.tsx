@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,6 @@ class Chart extends Component<Props, State> {
   private refToolTip = createRef<HTMLSpanElement>();
   private chart?: IChartApi;
   private lineSeries?: ISeriesApi<'Area'>;
-  private resizeTimerID?: any;
   private height: number = 300;
   private mobileHeight: number = 150;
   private formattedData?: FormattedData;
@@ -92,7 +91,6 @@ class Chart extends Component<Props, State> {
   };
 
   public componentDidMount() {
-    this.checkIfMobile();
     this.createChart();
   }
 
@@ -153,17 +151,15 @@ class Chart extends Component<Props, State> {
     });
   }
 
-  private checkIfMobile = () => {
-    this.setState({ isMobile: window.innerWidth <= 640 });
-  };
-
   private createChart = () => {
     const { data: { chartDataMissing } } = this.props;
     const darkmode = getDarkmode();
     if (this.ref.current && this.hasData() && !chartDataMissing) {
       if (!this.chart) {
-        const chartWidth = !this.state.isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
-        const chartHeight = !this.state.isMobile ? this.height : this.mobileHeight;
+        const isMobile = window.innerWidth <= 640;
+        this.setState({ isMobile });
+        const chartWidth = !isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
+        const chartHeight = !isMobile ? this.height : this.mobileHeight;
         this.chart = createChart(this.ref.current, {
           width: chartWidth,
           height: chartHeight,
@@ -187,7 +183,7 @@ class Chart extends Component<Props, State> {
             horzLines: {
               color: darkmode ? '#333333' : '#dedede',
               style: LineStyle.Solid,
-              visible: !this.state.isMobile,
+              visible: !isMobile,
             },
           },
           layout: {
@@ -202,7 +198,7 @@ class Chart extends Component<Props, State> {
           leftPriceScale: {
             borderVisible: false,
             ticksVisible: false,
-            visible: this.props.hideAmounts ? false : !this.state.isMobile,
+            visible: this.props.hideAmounts ? false : !isMobile,
             entireTextOnly: true,
           },
           localization: {
@@ -215,7 +211,7 @@ class Chart extends Component<Props, State> {
           timeScale: {
             borderVisible: false,
             timeVisible: false,
-            visible: !this.state.isMobile,
+            visible: !isMobile,
           },
           trackingMode: {
             exitMode: 0
@@ -239,8 +235,7 @@ class Chart extends Component<Props, State> {
       this.chart.subscribeCrosshairMove(this.handleCrosshair);
       this.chart.timeScale().fitContent();
       window.addEventListener('resize', this.onResize);
-      setTimeout(() => this.ref.current?.classList.remove(styles.invisible), 200);
-
+      this.ref.current?.classList.remove(styles.invisible);
     }
   };
 
@@ -258,31 +253,28 @@ class Chart extends Component<Props, State> {
   };
 
   private onResize = () => {
-    this.checkIfMobile();
-    if (this.resizeTimerID) {
-      clearTimeout(this.resizeTimerID);
+    const isMobile = window.innerWidth <= 640;
+    this.setState({ isMobile });
+    if (!this.chart || !this.ref.current) {
+      return;
     }
-    this.resizeTimerID = setTimeout(() => {
-      if (!this.chart || !this.ref.current) {
-        return;
-      }
-      const chartWidth = !this.state.isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
-      const chartHeight = !this.state.isMobile ? this.height : this.mobileHeight;
-      this.chart.resize(chartWidth, chartHeight);
-      this.chart.applyOptions({
-        grid: {
-          horzLines: {
-            visible: !this.state.isMobile
-          }
-        },
-        timeScale: {
-          visible: !this.state.isMobile
-        },
-        leftPriceScale: {
-          visible: this.props.hideAmounts ? false : !this.state.isMobile,
-        },
-      });
-    }, 200);
+    const chartWidth = !isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
+    const chartHeight = !isMobile ? this.height : this.mobileHeight;
+    this.chart.resize(chartWidth, chartHeight);
+    this.chart.applyOptions({
+      grid: {
+        horzLines: {
+          visible: !isMobile
+        }
+      },
+      timeScale: {
+        visible: !isMobile
+      },
+      leftPriceScale: {
+        visible: this.props.hideAmounts ? false : !isMobile,
+      },
+    });
+    this.chart.timeScale().fitContent();
   };
 
   private getUTCRange = () => {
