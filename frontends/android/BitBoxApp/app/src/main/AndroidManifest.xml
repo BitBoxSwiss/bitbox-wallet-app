@@ -34,6 +34,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <!-- Fixes crash when accessing the camera on some devices -->
+        <!-- ```A required meta-data tag in your app's AndroidManifest.xml does not exist.  You must have the following declaration within the <application> element:     <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" /> ``` -->
+        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
         <!-- launchMode: Makes sure that onIntent/onResume is reliably called on usb attached/detached events -->
         <!-- configChanges: Makes sure onCreate is not called on those changes, which prevents an ugly reload -->
         <activity
