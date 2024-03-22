@@ -3,6 +3,7 @@
 ## 4.42.1
 - Fix Wallet Connect issue where account unspecified by the connecting dapp caused a UI crash
 - Fix Wallet Connect issue with required/optionalNamespace and handling all possible namespace definitions
+- Fix BitBoxApp crash on GrapheneOS and other phones without Google Play Services when scanning QR codes.
 
 ## 4.42.0
 - Preselect backup when there's only one backup available
