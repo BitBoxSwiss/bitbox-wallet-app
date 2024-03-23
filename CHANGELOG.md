@@ -5,6 +5,7 @@
 - Add specific titles to guides replacing the generic "Guide" previously used on all pages
 - Android: enable transactions export feature
 - Format amounts using localized decimal and group separator
+- Support pasting different localized number formats, i.e. dot and comma separated amounts
 - Fix BitBoxApp crash on GrapheneOS and other phones without Google Play Services when scanning QR codes.
 
 ## 4.42.0

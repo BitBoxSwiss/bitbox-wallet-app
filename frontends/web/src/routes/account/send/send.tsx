@@ -332,10 +332,9 @@ class Send extends Component<Props, State> {
     }
   };
 
-  private handleFiatInput = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    this.setState({ fiatAmount: value });
-    this.convertFromFiat(value);
+  private handleFiatInput = (fiatAmount: string) => {
+    this.setState({ fiatAmount });
+    this.convertFromFiat(fiatAmount);
   };
 
   private convertToFiat = (value?: string | boolean) => {

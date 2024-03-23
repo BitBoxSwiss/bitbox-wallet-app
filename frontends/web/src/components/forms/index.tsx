@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ export { Button, ButtonLink } from './button';
 export { default as Checkbox } from './checkbox';
 export { Radio } from './radio';
 export { Field } from './field';
-export { default as Input } from './input';
+export { Input } from './input';
+export { NumberInput } from './input-number';
 export { Label } from './label';
 export { Select } from './select';
