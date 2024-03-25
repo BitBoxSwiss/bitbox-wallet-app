@@ -90,7 +90,7 @@ func (info hidDeviceInfo) Product() string {
 
 // Identifier implements DeviceInfo.
 func (info hidDeviceInfo) Identifier() string {
-	return hex.EncodeToString([]byte(info.DeviceInfo.Path))
+	return hex.EncodeToString([]byte(info.DeviceInfo.Path + info.DeviceInfo.Product))
 }
 
 // singleThreadedDevice runs all hidapi functions in the same OS thread. See the docs of the
