@@ -111,13 +111,14 @@ class Chart extends Component<Props, State> {
     }
     if (
       (this.lineSeries && prev.data.chartDataDaily && prev.data.chartDataHourly && chartDataDaily && chartDataHourly)
-            && (
-              prev.data.chartDataDaily.length !== chartDataDaily.length
-                || prev.data.chartDataHourly.length !== chartDataHourly.length
-            )
+        && (
+          prev.data.chartDataDaily.length !== chartDataDaily.length
+          || prev.data.chartDataHourly.length !== chartDataHourly.length
+        )
     ) {
       const data = this.state.source === 'hourly' ? chartDataHourly : chartDataDaily;
       this.lineSeries.setData(data);
+      this.chart?.timeScale().fitContent();
       this.setFormattedData(data);
     }
 
