@@ -103,6 +103,14 @@ export const getAccountsTotalBalance = (): Promise<TAccountsTotalBalanceResponse
   return apiGet('accounts/total-balance');
 };
 
+export type TCoinsTotalBalance = {
+  [key: string]: IAmount;
+};
+
+export const getCoinsTotalBalance = (): Promise<TCoinsTotalBalance> => {
+  return apiGet('accounts/coins-balance');
+};
+
 type TEthAccountCodeAndNameByAddress = SuccessResponse & {
   code: AccountCode;
   name: string;

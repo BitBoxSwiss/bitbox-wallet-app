@@ -41,6 +41,7 @@
   "accountSummary": {
     "availableBalance": "Available balance",
     "balance": "Balance",
+    "coin": "Coin",
     "exportSummary": "Export accounts summary to downloads folder as CSV file",
     "fiatBalance": "Fiat balance",
     "name": "Account name",

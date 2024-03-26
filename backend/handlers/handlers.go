@@ -212,6 +212,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/balance", handlers.getAccountsBalance).Methods("GET")
+	getAPIRouter(apiRouter)("/accounts/coins-balance", handlers.getCoinsTotalBalance).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/total-balance", handlers.getAccountsTotalBalance).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
@@ -744,6 +745,59 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 		}
 	}
 
+	return totalAmount, nil
+}
+
+// getCoinsTotalBalance returns the total balances grouped by coins.
+func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, error) {
+	totalPerCoin := make(map[coin.Code]*big.Int)
+	conversionsPerCoin := make(map[coin.Code]map[string]string)
+
+	totalAmount := make(map[coin.Code]accountHandlers.FormattedAmount)
+
+	for _, account := range handlers.backend.Accounts() {
+		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
+			continue
+		}
+		if account.FatalError() {
+			continue
+		}
+		err := account.Initialize()
+		if err != nil {
+			return nil, err
+		}
+		coinCode := account.Coin().Code()
+		b, err := account.Balance()
+		if err != nil {
+			return nil, err
+		}
+		amount := b.Available()
+		if _, ok := totalPerCoin[coinCode]; !ok {
+			totalPerCoin[coinCode] = amount.BigInt()
+
+		} else {
+			totalPerCoin[coinCode] = new(big.Int).Add(totalPerCoin[coinCode], amount.BigInt())
+		}
+
+		conversionsPerCoin[coinCode] = coin.Conversions(
+			coin.NewAmount(totalPerCoin[coinCode]),
+			account.Coin(),
+			false,
+			account.Config().RateUpdater,
+			util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit))
+	}
+
+	for k, v := range totalPerCoin {
+		currentCoin, err := handlers.backend.Coin(k)
+		if err != nil {
+			return nil, err
+		}
+		totalAmount[k] = accountHandlers.FormattedAmount{
+			Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
+			Unit:        currentCoin.GetFormatUnit(false),
+			Conversions: conversionsPerCoin[k],
+		}
+	}
 	return totalAmount, nil
 }
 
