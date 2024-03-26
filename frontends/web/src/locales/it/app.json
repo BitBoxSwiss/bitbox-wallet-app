@@ -160,8 +160,8 @@
     },
     "flipscreen": "Capovolgi schermo",
     "orientation": "Orientamento del dispositivo sbagliato?",
-    "success": "Aggiornamento riuscito! Passo successivo in {{rebootSeconds}} secondi...",
-    "success_install": "Installazione riuscita! Continua tra {{rebootSeconds}} secondi..."
+    "success": "Aggiornamento riuscito! ",
+    "success_install": "Installazione riuscita!"
   },
   "bitbox": {
     "error": {

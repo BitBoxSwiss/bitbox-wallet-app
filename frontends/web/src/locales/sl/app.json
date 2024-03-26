@@ -160,8 +160,8 @@
     },
     "flipscreen": "Obrnite sliko na zaslonu",
     "orientation": "Je zaslon na napravi obrnjen v napačno smer?",
-    "success": "Nadgradnja uspešna! Nadaljevanje v {{rebootSeconds}} sekundah...",
-    "success_install": "Namestitev uspešna! Nadaljevanje v {{rebootSeconds}} sekundah..."
+    "success": "Nadgradnja uspešna! ",
+    "success_install": "Namestitev uspešna! "
   },
   "bitbox": {
     "error": {

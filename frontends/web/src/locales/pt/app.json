@@ -160,8 +160,8 @@
     },
     "flipscreen": "Girar tela",
     "orientation": "Dispositivo orientado de maneira errada?",
-    "success": "Atualização bem sucedida! Continuando em {{rebootSeconds}} segundos...",
-    "success_install": "Instalação com sucesso! Continuando em {{rebootSeconds}} segundos..."
+    "success": "Atualização bem sucedida!",
+    "success_install": "Instalação com sucesso! "
   },
   "bitbox": {
     "error": {

@@ -160,8 +160,8 @@
     },
     "flipscreen": "Scherm omkeren",
     "orientation": "Tekst op je BitBox ondersteboven?",
-    "success": "Upgrade voltooid! Verder in {{rebootSeconds}} seconden...",
-    "success_install": "Installatie voltooid! Verder in {{rebootSeconds}} seconden..."
+    "success": "Upgrade voltooid! ",
+    "success_install": "Installatie voltooid! "
   },
   "bitbox": {
     "error": {

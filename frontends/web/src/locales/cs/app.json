@@ -160,8 +160,8 @@
     },
     "flipscreen": "Otoč obrazovku",
     "orientation": "Špatná orientace zařízení?",
-    "success": "Aktualizace úspěšná! Pokračování za {{rebootSeconds}} sekund...",
-    "success_install": "Instalace proběhla úspěšně! Pokračování za {{rebootSeconds}} sekund..."
+    "success": "Aktualizace úspěšná! ",
+    "success_install": "Instalace proběhla úspěšně! "
   },
   "bitbox": {
     "error": {

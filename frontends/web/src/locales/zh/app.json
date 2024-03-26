@@ -92,7 +92,7 @@
     },
     "flipscreen": "翻转屏幕",
     "orientation": "设备方向错误？",
-    "success": "升级成功！继续(等待) {{rebootSeconds}} 秒..."
+    "success": "升级成功！继续(等待) "
   },
   "bitbox": {
     "error": {
