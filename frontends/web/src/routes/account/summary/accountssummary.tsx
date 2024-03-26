@@ -28,6 +28,7 @@ import { GuideWrapper, GuidedContent, Header, Main } from '../../../components/l
 import { View } from '../../../components/view/view';
 import { Chart } from './chart';
 import { SummaryBalance } from './summarybalance';
+import { CoinBalance } from './coinbalance';
 import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
@@ -60,6 +61,7 @@ export function AccountsSummary({
   const [summaryData, setSummaryData] = useState<accountApi.ISummary>();
   const [balancePerCoin, setBalancePerCoin] = useState<accountApi.TAccountsBalance>();
   const [accountsTotalBalance, setAccountsTotalBalance] = useState<accountApi.TAccountsTotalBalance>();
+  const [coinsTotalBalance, setCoinsTotalBalance] = useState<accountApi.TCoinsTotalBalance>();
   const [balances, setBalances] = useState<Balances>();
 
   const hasCard = useSDCard(devices);
@@ -109,6 +111,17 @@ export function AccountsSummary({
     }
   }, [mounted]);
 
+  const getCoinsTotalBalance = useCallback(async () => {
+    try {
+      const coinBalance = await accountApi.getCoinsTotalBalance();
+      if (!mounted.current) {
+        return;
+      }
+      setCoinsTotalBalance(coinBalance);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [mounted]);
 
   const onStatusChanged = useCallback(async (
     code: accountApi.AccountCode,
@@ -157,7 +170,8 @@ export function AccountsSummary({
     getAccountSummary();
     getAccountsBalance();
     getAccountsTotalBalance();
-  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, defaultCurrency]);
+    getCoinsTotalBalance();
+  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, getCoinsTotalBalance, defaultCurrency]);
 
   // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
@@ -177,8 +191,8 @@ export function AccountsSummary({
       onStatusChanged(account.code);
     });
     getAccountsBalance();
-  }, [onStatusChanged, getAccountsBalance, accounts]);
-
+    getCoinsTotalBalance();
+  }, [onStatusChanged, getAccountsBalance, getCoinsTotalBalance, accounts]);
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -198,6 +212,13 @@ export function AccountsSummary({
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               } />
+            {accountsByKeystore.length > 1 && (
+              <CoinBalance
+                accounts={accounts}
+                summaryData={summaryData}
+                coinsBalances={coinsTotalBalance}
+              />
+            )}
             {accountsByKeystore &&
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 <SummaryBalance
