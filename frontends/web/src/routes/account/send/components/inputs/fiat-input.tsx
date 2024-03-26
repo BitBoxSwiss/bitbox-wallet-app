@@ -17,10 +17,11 @@
 import { useTranslation } from 'react-i18next';
 import { ConversionUnit } from '../../../../../api/account';
 import { Input } from '../../../../../components/forms';
+import { ChangeEvent } from 'react';
 
 type TProps = {
     label: ConversionUnit;
-    onFiatChange: (event: Event) => void;
+    onFiatChange: (event: ChangeEvent<HTMLInputElement>) => void;
     disabled: boolean;
     error?: string;
     fiatAmount: string;
