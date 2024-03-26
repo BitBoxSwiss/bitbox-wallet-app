@@ -160,8 +160,8 @@
     },
     "flipscreen": "画面を反転",
     "orientation": "デバイスの向きは合っていますか？　",
-    "success": "アップグレードに成功しました！{{rebootSeconds}}秒後に次に進みます。",
-    "success_install": "インストールが成功しました！{{rebootSeconds}} 秒後に次に進みます"
+    "success": "アップグレードに成功しました！",
+    "success_install": "インストールが成功しました！"
   },
   "bitbox": {
     "error": {

@@ -160,8 +160,8 @@
     },
     "flipscreen": "Bildschirm spiegeln",
     "orientation": "Ist der Bildschirm kopfüber?",
-    "success": "Upgrade erfolgreich. In {{rebootSeconds}}  geht es weiter....",
-    "success_install": "Installation erfolgreich! Es geht weiter in {{rebootSeconds}} Sekunden..."
+    "success": "Upgrade erfolgreich. ",
+    "success_install": "Installation erfolgreich! "
   },
   "bitbox": {
     "error": {
