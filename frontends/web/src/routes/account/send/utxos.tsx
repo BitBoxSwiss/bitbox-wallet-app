@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   allScriptTypes,
@@ -71,8 +71,8 @@ export const UTXOs = ({
     return () => unsubscribe();
   }, [accountCode]);
 
-  const handleUTXOChange = (event: React.SyntheticEvent) => {
-    const target = event.target as HTMLInputElement;
+  const handleUTXOChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const target = event.target;
     const outPoint = target.dataset.outpoint as string;
     const proposedUTXOs = Object.assign({}, selectedUTXOs);
     if (target.checked) {

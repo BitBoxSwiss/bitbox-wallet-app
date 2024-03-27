@@ -259,7 +259,7 @@ class Passphrase extends Component<Props, State> {
             </ul>
             <Status type={understood ? 'success' : 'warning'}>
               <Checkbox
-                onChange={e => this.setState({ understood: (e.target as HTMLInputElement)?.checked })}
+                onChange={e => this.setState({ understood: e.target.checked })}
                 id="understood"
                 checked={understood}
                 label={t('passphrase.summary.understand')}
