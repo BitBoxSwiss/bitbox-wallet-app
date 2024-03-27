@@ -133,8 +133,11 @@ export const DefaultCurrencyRotator = ({
   className = '',
   tableRow = true
 }: TDefaultCurrencyRotator) => {
-  const { rotateDefaultCurrency, defaultCurrency } = useContext(RatesContext);
-  const displayedCurrency = activeUnit ? activeUnit : defaultCurrency;
+  const { rotateDefaultCurrency, defaultCurrency, btcUnit } = useContext(RatesContext);
+
+  const displayedBtcUnit = btcUnit === 'sat' ? 'sat' : 'BTC';
+  const displayedCurrency = activeUnit ? activeUnit : defaultCurrency === 'BTC' ? displayedBtcUnit : defaultCurrency;
+
   const textStyle = `${className} ${style.rotatable}`;
   if (!tableRow) {
     return <span className={textStyle} onClick={rotateDefaultCurrency}>{displayedCurrency}</span>;
