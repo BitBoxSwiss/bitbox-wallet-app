@@ -56,7 +56,7 @@ export const SettingsItem = ({
   const content =
     (<>
       <span>
-        {typeof settingName === 'string' ? <p className={styles.primaryText}>{settingName}</p> : settingName }
+        <div className={styles.primaryText}>{settingName}</div>
         { secondaryText ? (
           <p className={styles.secondaryText}>{secondaryText}</p>
         ) : null }

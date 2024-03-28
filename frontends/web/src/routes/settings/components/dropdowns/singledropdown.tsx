@@ -25,7 +25,7 @@ type TOption = {
 type TSelectProps = {
     options: TOption[];
     handleChange: (param?: any) => void;
-    defaultValue: TOption;
+    value: TOption;
 }
 
 const DropdownIndicator = (props: DropdownIndicatorProps<TOption, false>) => {
@@ -55,13 +55,13 @@ const SingleValue = (props: SingleValueProps<TOption, false>) => {
 };
 
 
-export const SingleDropdown = ({ options, handleChange, defaultValue }: TSelectProps) => {
+export const SingleDropdown = ({ options, handleChange, value }: TSelectProps) => {
   return (
     <Select
       className={dropdownStyles.select}
       classNamePrefix="react-select"
       isSearchable={true}
-      defaultValue={defaultValue}
+      value={value}
       components={{ IndicatorSeparator: () => null, DropdownIndicator, SingleValue, Option }}
       onChange={(selected) => {
         if (selected) {

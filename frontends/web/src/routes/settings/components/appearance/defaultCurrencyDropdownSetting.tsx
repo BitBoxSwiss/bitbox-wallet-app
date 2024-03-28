@@ -41,7 +41,7 @@ export const DefaultCurrencyDropdownSetting = () => {
               await addToActiveCurrencies(fiat);
             }
           }}
-          defaultValue={{
+          value={{
             label: defaultValueLabel,
             value: defaultCurrency
           }}

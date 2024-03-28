@@ -19,21 +19,26 @@ import { useTranslation } from 'react-i18next';
 import { defaultLanguages } from '../../../../components/language/types';
 import { getSelectedIndex } from '../../../../utils/language';
 import { SingleDropdown } from '../dropdowns/singledropdown';
+import { GlobeDark, GlobeLight } from '../../../../components/icon/icon';
+import { useDarkmode } from '../../../../hooks/darkmode';
+import styles from './languageDropDownSetting.module.css';
 
 export const LanguageDropdownSetting = () => {
   const { i18n, t } = useTranslation();
   const selectedLanguage = defaultLanguages[getSelectedIndex(defaultLanguages, i18n)];
   const formattedLanguages = defaultLanguages.map(lang => ({ label: lang.display, value: lang.code }));
+  const { isDarkMode } = useDarkmode();
+  const globe = isDarkMode ? <GlobeLight/> : <GlobeDark />;
   return (
     <SettingsItem
-      settingName={t('newSettings.appearance.language.title')}
+      settingName={<div className={styles.container}>{globe}{t('newSettings.appearance.language.title')}</div>}
       secondaryText={t('newSettings.appearance.language.description')}
       collapseOnSmall
       extraComponent={
         <SingleDropdown
           options={formattedLanguages}
           handleChange={i18n.changeLanguage}
-          defaultValue={{ label: selectedLanguage.display, value: selectedLanguage.code }}
+          value={{ label: selectedLanguage.display, value: selectedLanguage.code }}
         />
       }
     />
