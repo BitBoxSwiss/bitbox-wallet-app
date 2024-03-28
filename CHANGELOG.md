@@ -4,6 +4,7 @@
 - Show QR scanner video in fullscreen on mobile for onchain transactions
 - Android: fix file upload forms in MoonPay
 - Replace the existing BIP69 lexicographical sorting of tx inputs/outputs with a randomized sorting approach
+- Android: fix app crash after close and re-open
 
 ## 4.41.0
 - New feature: insure your bitcoins through Bitsurance

@@ -607,7 +607,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Util.log("lifecycle: onDestroy");
+        if (goService != null) {
+            unbindService(connection);
+        }
         super.onDestroy();
+        Util.quit(MainActivity.this);
     }
 
     @Override
@@ -650,17 +654,7 @@ public class MainActivity extends AppCompatActivity {
             .setMessage("Do you really want to exit?")
             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
-                    // Move to background to avoid possible auto-restart after app exit.
-                    // When in foreground, the system may assume the process quit
-                    // unexpectedly and can try restarting it: Android can't tell
-                    // whether the app exited on purpose, suddenly crashed or terminated
-                    // by the system to reclaim resources.
-                    moveTaskToBack(true);
-                    // Send SIGKILL signal to the app's process and let the system shut it down.
-                    Process.killProcess(Process.myPid());
-                    // If the above killProcess didn't work and we're still here,
-                    // simply terminate the JVM as the last resort.
-                    System.exit(0);
+                    Util.quit(MainActivity.this);
                 }
             })
             .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
