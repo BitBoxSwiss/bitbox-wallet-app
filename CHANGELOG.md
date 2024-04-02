@@ -1,6 +1,11 @@
 # Changelog
 
 ## Unreleased
+-
+
+## 4.42.0
+- Bundle BitBox02 firmware version v9.18.0 and intermediate version v9.17.1
+- Add support for BIP-85 derived child keys
 - Show QR scanner video in fullscreen on mobile for onchain transactions
 - Android: fix file upload forms in MoonPay
 - Replace the existing BIP69 lexicographical sorting of tx inputs/outputs with a randomized sorting approach
