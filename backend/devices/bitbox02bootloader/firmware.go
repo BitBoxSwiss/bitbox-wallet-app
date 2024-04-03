@@ -96,12 +96,12 @@ func BundledFirmwareVersion(product bitbox02common.Product) *semver.SemVer {
 }
 
 // bundledFirmware returns the binary of the newest bundled firmware.
-func bundledFirmware(product bitbox02common.Product) ([]byte, error) {
+func bundledFirmware(product bitbox02common.Product) (*firmwareInfo, error) {
 	firmwares, ok := bundledFirmwares[product]
 	if !ok {
 		return nil, errp.New("unrecognized product")
 	}
-	return firmwares[len(firmwares)-1].binary()
+	return &firmwares[len(firmwares)-1], nil
 }
 
 // nextFirmware returns the info of the next available firmware uprade, e.g. the next intermediate

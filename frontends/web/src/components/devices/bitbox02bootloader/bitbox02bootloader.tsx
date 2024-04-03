@@ -58,6 +58,9 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       const value = Math.round(status.progress * 100);
       contents = (
         <div className="box large">
+          { versionInfo.additionalUpgradeFollows ? (
+            <p>{t('bb02Bootloader.additionalUpgradeFollows')}</p>
+          ) : null }
           <progress value={value} max="100">{value}%</progress>
           <p style={{ marginBottom: 0 }}>
             {t('bootloader.progress', {
