@@ -225,6 +225,9 @@ func (device *Device) UpgradeFirmware() error {
 type VersionInfo struct {
 	Erased     bool `json:"erased"`
 	CanUpgrade bool `json:"canUpgrade"`
+	// AdditionalUpgradeFollows is true if there is more than one upgrade to be performed
+	// (intermediate and final).
+	AdditionalUpgradeFollows bool `json:"additionalUpgradeFollows"`
 }
 
 // VersionInfo returns info about the upgrade to the bundled firmware.
@@ -237,22 +240,27 @@ func (device *Device) VersionInfo() (*VersionInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	binary, err := bundledFirmware(device.Device.Product())
+	latestFw, err := bundledFirmware(device.Device.Product())
 	if err != nil {
 		return nil, err
 	}
-	bundledFirmwareVersion, err := device.Device.SignedFirmwareVersion(binary)
+	latestFirmwareVersion := latestFw.monotonicVersion
+	nextFw, err := nextFirmware(device.Device.Product(), currentFirmwareVersion)
 	if err != nil {
 		return nil, err
 	}
-	canUpgrade := erased || bundledFirmwareVersion > currentFirmwareVersion
+	canUpgrade := erased || latestFirmwareVersion > currentFirmwareVersion
+	additionalUpgradeFollows := nextFw.monotonicVersion < latestFirmwareVersion
 	device.log.
-		WithField("bundledFirmwareVersion", bundledFirmwareVersion).
+		WithField("latestFirmwareVersion", latestFirmwareVersion).
 		WithField("currentFirmwareVersion", currentFirmwareVersion).
 		WithField("erased", erased).
-		WithField("canUpgrade", canUpgrade).Info("VersionInfo")
+		WithField("canUpgrade", canUpgrade).
+		WithField("additionalUpgradeFollows", additionalUpgradeFollows).
+		Info("VersionInfo")
 	return &VersionInfo{
-		Erased:     erased,
-		CanUpgrade: canUpgrade,
+		Erased:                   erased,
+		CanUpgrade:               canUpgrade,
+		AdditionalUpgradeFollows: additionalUpgradeFollows,
 	}, nil
 }

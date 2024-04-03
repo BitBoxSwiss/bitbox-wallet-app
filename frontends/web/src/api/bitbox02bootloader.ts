@@ -22,7 +22,6 @@ export type TStatus = {
   errMsg?: string;
   progress: number;
   upgradeSuccessful: boolean;
-  rebootSeconds: number;
 };
 
 export const getStatus = (
@@ -46,6 +45,8 @@ export type TVersionInfo = {
   erased: boolean;
   // Indicates whether the user can install/upgrade firmware.
   canUpgrade: boolean;
+  // This is true if there is more than one upgrade to be performed (intermediate and final).
+  additionalUpgradeFollows: boolean;
 };
 
 export const getVersionInfo = (
