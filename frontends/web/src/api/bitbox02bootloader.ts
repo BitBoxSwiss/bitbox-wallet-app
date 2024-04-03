@@ -22,7 +22,6 @@ export type TStatus = {
   errMsg?: string;
   progress: number;
   upgradeSuccessful: boolean;
-  rebootSeconds: number;
 };
 
 export const getStatus = (

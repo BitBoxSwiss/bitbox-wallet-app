@@ -49,7 +49,6 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
         <div className="box large">
           <p style={{ marginBottom: 0 }}>
             {t('bb02Bootloader.success', {
-              rebootSeconds: status.rebootSeconds.toString(),
               context: (versionInfo.erased ? 'install' : ''),
             })}
           </p>
