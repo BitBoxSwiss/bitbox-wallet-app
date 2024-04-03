@@ -141,6 +141,7 @@
       },
       "restoring": "Wiederherstellen des Backups…",
       "selectedBackup": "<strong>{{backupName}}</strong>, erstellt am {{createdDateTime}}, wird wiederhergestellt.",
+      "subtitle": "Bitte wähle ein Backup um fortzufahren",
       "title": "Wiederherstellen",
       "understand": "Ich habe verstanden, dass ein falsches Wiederherstellungspasswort eine neue/andere Wallet erstellt."
     },
@@ -154,6 +155,7 @@
   "bb02Bootloader": {
     "abort": "Nicht upgraden - Zurück!",
     "abort_noUpgrade": "Zurück",
+    "additionalUpgradeFollows": "Ein weiteres Update folgt. Bitte lasse dein Gerät eingesteckt, bis alle Schritte abgeschlossen sind.",
     "advanced": {
       "label": "Erweiterte Einstellungen",
       "toggleShowFirmwareHash": "Zeig mir den Hash der Firmware bei jedem Anstecken der BitBox"
@@ -198,7 +200,7 @@
   "bitbox02Wizard": {
     "advanced": {
       "button": "Erweiterte Optionen",
-      "outOfDate": "Die Firmware ist für diese Funktion zu veraltet",
+      "outOfDate": "Firmware-Update erforderlich",
       "seed12WordInfo": "Bitte beachte, dass die Anzahl der Wörter nach dem Erstellen des Wallets nicht mehr geändert werden kann.",
       "seed12WordLabel": "Erstelle einen Seed mit 12 Wörtern statt mit 24 Wörtern",
       "seed12WordText": "Standardmäßig verwendet die BitBox02 einen 24-Wörter-Seed. Beide Seed-Längen sind in der Praxis sicher gegen Brute-Forcing. Einige Benutzer bevorzugen möglicherweise die Bequemlichkeit eines 12-Wörter-Seeds.",
@@ -290,11 +292,11 @@
       "useControls": "Verwende die Touch Sensoren an den Seiten deiner BitBox02 um ein Passwort zu wählen."
     },
     "stepUninitialized": {
-      "create": "Ich möchte eine neue BitBox02 einrichten.",
+      "create": "Ich möchte eine neue Wallet auf meiner BitBox02 einrichten.",
       "restore": "Ich möchte meine Wallet von einem Backup wiederherstellen.",
       "restoreMicroSD": "Von microSD Karte wiederherstellen",
       "restoreMnemonic": "Von Wiederherstellungswörtern wiederherstellen",
-      "title": "BitBox02 einrichten"
+      "title": "Richte deine Wallet ein"
     },
     "success": {
       "text": "Hurra! Deine BitBox02 ist bereit.\n\nFür weitere Informationen klicke auf das Fragezeichen Symbol in der oberen rechten Ecke. ",
@@ -379,6 +381,7 @@
     "next": "Weiter",
     "ok": "OK",
     "previous": "Zurück",
+    "proceedOnBitBox": "Fahre mit deiner BitBox fort",
     "receive": "Erhalten",
     "restore": "Wiederherstellen",
     "select": "Auswählen",
@@ -598,6 +601,28 @@
       "title": "Geräteinformationen"
     },
     "expert": {
+      "bip85": {
+        "description": "Erstelle \"Child Keys\" nach dem BIP85-Standard mit deiner BitBox-Wallet.",
+        "disclaimer": "Ich verstehe die Funktionsweise der \"Child Keys\" und die damit verbundenen Sicherheitsaspekte.",
+        "how": {
+          "description": "Die \"Child Keys\" werden als Wiederherstellungswörter auf deiner BitBox dargestellt. Du kannst beliebig viele \"Child Keys\" erstellen. Beim Erstellen eines \"Child Keys\" wirst du nach dem Key-Index (z.B. 1, 2, 3, etc.) und der gewünschten Anzahl an Wiederherstellungswörtern (12, 18 oder 24) gefragt. Es ist wichtig, dass du dir den Key-Index und die Anzahl der Wörter merkst, um später denselben \"Child Key\" erneut abrufen zu können.",
+          "title": "Wie funktioniert es?"
+        },
+        "recover": {
+          "description": "Die Wiederherstellungswörter der \"Child Keys\" können jederzeit erneut auf der BitBox angezeigt werden. Hierfür sind der <strong>Key-Index und die Wortanzahl</strong> erforderlich, um denselben \"Child Key\" erneut zu generieren. Importiere niemals die Wiederherstellungswörter des Backups deiner BitBox-Hauptwallet in eine andere Wallet. Verwende für diesen Zweck ausschließlich dafür vorgesehene \"Child Keys\".",
+          "title": "Wie kann man Wallets mit einem \"Child Key\" der BitBox wiederherstellen?"
+        },
+        "security": {
+          "description": "Verwende niemals einen \"Child Key\" mehrfach. Benutze zum Beispiel nicht denselben Schlüssel für eine Hot-Wallet und eine Hardware-Wallet. Der Schlüssel ist nicht mehr sicher, da er auch für eine Hot-Wallet verwendet wurde.",
+          "title": "Sicherheitsaspekte"
+        },
+        "title": "Zeige BIP-85 Child Keys",
+        "what": {
+          "description": "\"Child Keys\" leiten sich vom Haupt-Seed deiner BitBox ab und ermöglichen die Erstellung neuer Wallets, ohne dass zusätzliche Wiederherstellungswörter gesichert werden müssen. Beispielsweise kannst du einen \"Child Key\" generieren und in eine Hot Wallet importieren, anstatt für diese Hot Wallet vollständig neue Wiederherstellungswörter (inkl. neuem Backup) zu generieren.",
+          "link": "Erfahre mehr über BIP-85",
+          "title": "Was sind BIP-85 Child Keys?"
+        }
+      },
       "factoryReset": {
         "description": "Setze dein Gerät auf die Werkseinstellungen zurück. Dadurch wird das Wallet auf deiner BitBox02 gelöscht!",
         "title": "Auf Werkseinstellungen zurücksetzen"
@@ -812,6 +837,13 @@
       "recoverAccounts": {
         "text": "Ja. Die BitBoxApp erstellt Konten nach bewährten Standards, die mit den meisten Krypto-Wallets kompatibel sind.",
         "title": "Kann ich meine Konten in anderen Wallets wiederherstellen?"
+      },
+      "supportedCoins": {
+        "link": {
+          "text": "Unterstützte Coins anzeigen"
+        },
+        "text": "Die BitBoxApp unterstützt Bitcoin, Litecoin, Ethereum sowie eine Auswahl von ERC20-Token. Für Cardano und andere Token verwende deine BitBox02 mit alternativer Software wie AdaLite oder Rabby. Eine vollständige Liste aller unterstützten Coins findest du auf unserer Webseite:",
+        "title": "Welche Coins werden unterstützt?"
       },
       "whatAreAccounts": {
         "text": "Deine Wallet kann mehrere Konten derselben Währung verwalten. Konten machen es einfach, Coins separiert zu halten.",
@@ -1379,6 +1411,7 @@
       "description": "Um andere Token empfangen zu können, aktiviere diese in den Einstellungen. Solltest du Token empfangen, welche die BitBoxApp nicht unterstützt, hast du möglicherweise keinen Zugang mehr zu diesen. ",
       "warning": "Stelle sicher, dass du nur {{coinName}} auf diese Adresse sendest."
     },
+    "qrCodeCopiedMessage": "Kopiert!",
     "scriptType": {
       "p2tr": "Taproot (neuestes Format)",
       "p2wpkh": "Native-Segwit (standard)",
@@ -1528,6 +1561,7 @@
     "noFeeTargets": "Gebührenschätzungen sind derzeit nicht verfügbar. Bitte versuche es später erneut oder gib eine benutzerdefinierte Gebühr ein.",
     "priority": "Priorität",
     "scanQR": "QR Code scannen",
+    "scanQRNoCameraMessage": "Kamera nicht gefunden. Bitte stelle sicher, dass dein Gerät eine Kamera unterstützt und die Berechtigungen korrekt eingestellt sind.",
     "signprogress": {
       "description": "Dies ist eine Transaktion, die viele Daten enthält. Um die Transaktion vollständig zu signieren, wirst du aufgefordert, {{steps}} mal auf der BitBox zu bestätigen.",
       "label": "Fortschritt"
