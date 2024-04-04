@@ -105,19 +105,50 @@ export const Amount = ({
     return amount;
   }
 
-  const NumberFormat = Intl
-    .NumberFormat(
-      i18n.language,
-      { style: 'currency', currency: unit }
+  // const NumberFormat = Intl
+  //   .NumberFormat(
+  //     i18n.language,
+  //     { style: 'currency', currency: unit }
+  //   );
+
+  // const formatted = NumberFormat
+  //   .formatToParts(
+  //     Number(amount.replace(/[']/g, '')) // scary js number conversion
+  //   )
+  //   .filter(x => !['currency', 'literal'].includes(x.type)) // only use formatte amount and drop the currency
+  //   .map(x => x.value)
+  //   .join('');
+
+  // return formatted;
+
+  switch (i18n.language.slice(0, 2)) {
+  case 'de':
+  case 'es':
+  case 'id':
+  case 'nl':
+  case 'pt':
+  case 'tr':
+    if (i18n.language.slice(3, 5) === 'CH') {
+      return amount.replace(/[']/g, '’');
+    }
+    return (
+      amount
+        .replace(/[.]/g, ',')
+        .replace(/[']/g, '.')
     );
+  case 'en':
+  case 'ja':
+  case 'ko':
+  case 'zh':
+    return amount.replace(/[']/g, ',');
+  case 'fr':
+  case 'ru':
+    return (
+      amount
+        .replace(/[']/g, ' ')
+        .replace(/[.]/g, ',')
+    );
+  }
+  return amount;
 
-  const formatted = NumberFormat
-    .formatToParts(
-      Number(amount.replace(/[']/g, '')) // scary js number conversion
-    )
-    .filter(x => !['currency', 'literal'].includes(x.type)) // only use formatte amount and drop the currency
-    .map(x => x.value)
-    .join('');
-
-  return formatted;
 };

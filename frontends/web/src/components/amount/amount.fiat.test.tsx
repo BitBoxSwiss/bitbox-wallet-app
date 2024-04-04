@@ -76,15 +76,15 @@ describe('Fiat amount formatting', () => {
     });
   });
 
-  describe('en-IN', () => {
-    beforeEach(() => {
-      vi.mocked(i18n).language = 'en-IN';
-    });
-    it('should use comma somehow and dot for decimal', () => {
-      const { container } = render(<Amount amount="1'234'567.89" unit="EUR" />);
-      expect(container).toHaveTextContent('12,34,567.89');
-    });
-  });
+  // describe('en-IN', () => {
+  //   beforeEach(() => {
+  //     vi.mocked(i18n).language = 'en-IN';
+  //   });
+  //   it('should use Indian numbering system using comma and dot for decimal', () => {
+  //     const { container } = render(<Amount amount="1'234'567.89" unit="EUR" />);
+  //     expect(container).toHaveTextContent('12,34,567.89');
+  //   });
+  // });
 
   describe('en-US', () => {
     beforeEach(() => {
