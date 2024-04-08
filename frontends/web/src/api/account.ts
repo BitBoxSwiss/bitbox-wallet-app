@@ -417,7 +417,7 @@ export type AddressSignResponse = {
   errorCode?: 'userAbort' | 'wrongKeystore';
 }
 
-export const signAddress = (format: string, msg: string, code: AccountCode): Promise<AddressSignResponse> => {
+export const signAddress = (format: ScriptType | '', msg: string, code: AccountCode): Promise<AddressSignResponse> => {
   return apiPost(`account/${code}/sign-address`, { format, msg, code });
 };
 
