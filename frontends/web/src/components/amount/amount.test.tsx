@@ -15,13 +15,13 @@
  */
 
 import { useContext } from 'react';
-import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { Amount } from './amount';
-import { CoinUnit } from './../../api/account';
+import { CoinUnit, ConversionUnit } from './../../api/account';
 
 vi.mock('react', async () => ({
-  // ...(await vi.importActual('react')),
+  ...(await vi.importActual('react')),
   useContext: vi.fn(),
   createContext: vi.fn()
 }));
@@ -258,6 +258,33 @@ describe('Amount formatting', () => {
         expect(container).toHaveTextContent('42');
       });
     });
+  });
+
+  describe('fiat amounts', () => {
+    let fiatCoins: ConversionUnit[] = ['USD', 'EUR', 'CHF'];
+    fiatCoins.forEach(coin => {
+      it('1\'340.25 ' + coin + ' with removeBtcTrailingZeroes enabled stays 1\'340.25', () => {
+        const { container } = render(<Amount amount="1'340.25" unit={coin} removeBtcTrailingZeroes/>);
+        expect(container).toHaveTextContent('1’340.25');
+      });
+      it('218.00 ' + coin + ' with removeBtcTrailingZeroes enabled stays 218.00', () => {
+        const { container } = render(<Amount amount="218.00" unit={coin} removeBtcTrailingZeroes/>);
+        expect(container).toHaveTextContent('218.00');
+      });
+      it('1\'340.25 ' + coin + ' with removeBtcTrailingZeroes disabled stays 1\'340.25', () => {
+        const { container } = render(<Amount amount="1'340.25" unit={coin}/>);
+        expect(container).toHaveTextContent('1’340.25');
+      });
+      it('218.00 ' + coin + ' with removeBtcTrailingZeroes disabled stays 218.00', () => {
+        const { container } = render(<Amount amount="218.00" unit={coin}/>);
+        expect(container).toHaveTextContent('218.00');
+      });
+
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
 });

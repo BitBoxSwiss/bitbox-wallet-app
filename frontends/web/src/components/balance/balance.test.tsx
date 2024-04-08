@@ -26,7 +26,7 @@ vi.mock('../../utils/request', () => ({
 }));
 
 vi.mock('react', () => ({
-  ...vi.importActual('react'),
+  useMemo: vi.fn().mockImplementation((fn) => fn()),
   useContext: vi.fn(),
   createContext: vi.fn()
 }));

@@ -1,0 +1,22 @@
+
+.arrow svg {
+  margin-right: .25rem;
+  vertical-align: text-bottom;
+}
+
+.up {
+  color: var(--color-green);
+}
+
+.down {
+  color: var(--color-softred);
+}
+
+.diffValue {
+  font-size: 1.2rem;
+}
+
+.diffUnit {
+  font-size: 1rem;
+  padding: 0 .25rem;
+}

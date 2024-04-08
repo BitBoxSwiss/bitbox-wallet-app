@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 import { useContext } from 'react';
 import { AppContext } from '../../contexts/AppContext';
 import { CoinUnit, ConversionUnit } from './../../api/account';
+import { useLocalizedPunctuation } from '../../hooks/localized';
 import { i18n } from '../../i18n/i18n';
 import style from './amount.module.css';
 
@@ -50,15 +51,34 @@ const formatSats = (amount: string): JSX.Element => {
   );
 };
 
-const formatBtc = (amount: string) => {
+const formatLocalizedAmount = (
+  amount: string,
+  group: string,
+  decimal: string
+) => {
+  return (
+    amount
+      .replace('.', '_') // convert decimal first, in case group separator uses dot
+      .replace(/[']/g, group) // replace group separator
+      .replace('_', decimal)
+  );
+};
+
+const formatBtc = (
+  amount: string,
+  group: string,
+  decimal: string
+) => {
   const dot = amount.indexOf('.');
   if (dot === -1) {
     return amount;
   }
+  // localize the first part, everything up to the second decimal place, the rest is grouped by spaces
+  const formattedPart = formatLocalizedAmount(amount.slice(0, dot + 3), group, decimal);
   return (
     <span data-testid="amountBlocks">
       <span>
-        {amount.slice(0, dot + 3)}
+        {formattedPart}
       </span>
       <span className={style.space}>
         {amount.slice(dot + 3, dot + 6)}
@@ -70,10 +90,6 @@ const formatBtc = (amount: string) => {
   );
 };
 
-const coins = ['BTC', 'sat', 'LTC', 'ETH', 'TBTC', 'tsat', 'TLTC', 'GOETH', 'SEPETH'];
-const tokens = ['BAT', 'DAI', 'LINK', 'MKR', 'PAXG', 'USDC', 'USDT', 'WBTC', 'ZRX'];
-const isCoinOrToken = (unit: string) => coins.includes(unit) || tokens.includes(unit);
-
 export const Amount = ({
   amount,
   unit,
@@ -81,6 +97,7 @@ export const Amount = ({
   alwaysShowAmounts = false,
 }: TProps) => {
   const { hideAmounts } = useContext(AppContext);
+  const { decimal, group } = useLocalizedPunctuation(i18n.language);
 
   if (hideAmounts && !alwaysShowAmounts) {
     return '***';
@@ -92,63 +109,18 @@ export const Amount = ({
   case 'LTC':
   case 'TLTC':
     if (removeBtcTrailingZeroes && amount.includes('.')) {
-      return amount.replace(/\.?0+$/, '');
+      return (
+        formatLocalizedAmount(
+          amount.replace(/\.?0+$/, ''), group, decimal
+        )
+      );
     } else {
-      return formatBtc(amount);
+      return formatBtc(amount, group, decimal);
     }
   case 'sat':
   case 'tsat':
     return formatSats(amount);
   }
 
-  if (isCoinOrToken(unit)) { // don't touch coins/tokens for now
-    return amount;
-  }
-
-  // const NumberFormat = Intl
-  //   .NumberFormat(
-  //     i18n.language,
-  //     { style: 'currency', currency: unit }
-  //   );
-
-  // const formatted = NumberFormat
-  //   .formatToParts(
-  //     Number(amount.replace(/[']/g, '')) // scary js number conversion
-  //   )
-  //   .filter(x => !['currency', 'literal'].includes(x.type)) // only use formatte amount and drop the currency
-  //   .map(x => x.value)
-  //   .join('');
-
-  // return formatted;
-
-  switch (i18n.language.slice(0, 2)) {
-  case 'de':
-  case 'es':
-  case 'id':
-  case 'nl':
-  case 'pt':
-  case 'tr':
-    if (i18n.language.slice(3, 5) === 'CH') {
-      return amount.replace(/[']/g, '’');
-    }
-    return (
-      amount
-        .replace(/[.]/g, ',')
-        .replace(/[']/g, '.')
-    );
-  case 'en':
-  case 'ja':
-  case 'ko':
-  case 'zh':
-    return amount.replace(/[']/g, ',');
-  case 'fr':
-  case 'ru':
-    return (
-      amount
-        .replace(/[']/g, ' ')
-        .replace(/[.]/g, ',')
-    );
-  }
-  return amount;
-
+  return formatLocalizedAmount(amount, group, decimal);
 };

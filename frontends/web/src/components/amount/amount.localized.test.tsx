@@ -15,14 +15,15 @@
  */
 
 import { useContext } from 'react';
-import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { Amount } from './amount';
 import { ConversionUnit } from '../../api/account';
 import { i18n } from '../../i18n/i18n';
 
 vi.mock('react', async () => ({
-  // ...(await vi.importActual('react')),
+  ...(await vi.importActual('react')),
+  useMemo: vi.fn().mockImplementation((fn) => fn()), // not really needed here, but in balance.test.tsx
   useContext: vi.fn(),
   createContext: vi.fn()
 }));
@@ -31,7 +32,7 @@ vi.mock('../../i18n/i18n', () => ({
   i18n: { language: 'de-CH' },
 }));
 
-describe('Fiat amount formatting', () => {
+describe.only('Fiat amount formatting', () => {
   beforeEach(() => {
     (useContext as Mock).mockReturnValue({ hideAmounts: false });
   });
@@ -54,6 +55,34 @@ describe('Fiat amount formatting', () => {
       const { container } = render(<Amount amount="1'234'567.89" unit="USD" />);
       expect(container).toHaveTextContent('1’234’567.89');
     });
+    it('should use apostrophe for thousand and dot for decimal and remove trailing zeros', () => {
+      const { container } = render(<Amount amount="1'234.56789000" unit="BTC" removeBtcTrailingZeroes />);
+      expect(container).toHaveTextContent('1’234.56789');
+    });
+  });
+
+  describe('de-DE', () => {
+    beforeEach(() => {
+      vi.mocked(i18n).language = 'de-DE';
+    });
+    it('should use apostrophe for thousand and dot for decimal', () => {
+      const { container } = render(<Amount amount="1'000" unit="USD" />);
+      expect(container).toHaveTextContent('1.000');
+    });
+    it('should use dot for thousand and comma for decimal', () => {
+      const { container } = render(<Amount amount="1'234'567.89" unit="EUR" />);
+      expect(container).toHaveTextContent('1.234.567,89');
+    });
+  });
+
+  describe('en-GB', () => {
+    beforeEach(() => {
+      vi.mocked(i18n).language = 'en-GB';
+    });
+    it('should use comma for thousand and dot for decimal', () => {
+      const { container } = render(<Amount amount="1'234'567.89" unit="GBP" />);
+      expect(container).toHaveTextContent('1,234,567.89');
+    });
   });
 
   describe('en-CA', () => {
@@ -66,13 +95,13 @@ describe('Fiat amount formatting', () => {
     });
   });
 
-  describe('en-GB', () => {
+  describe('es-ES', () => {
     beforeEach(() => {
-      vi.mocked(i18n).language = 'en-GB';
+      vi.mocked(i18n).language = 'es-ES';
     });
-    it('should use comma for thousand and dot for decimal', () => {
+    it('should use dot for thousand and comma for decimal', () => {
       const { container } = render(<Amount amount="1'234'567.89" unit="EUR" />);
-      expect(container).toHaveTextContent('1,234,567.89');
+      expect(container).toHaveTextContent('1.234.567,89');
     });
   });
 
@@ -85,6 +114,16 @@ describe('Fiat amount formatting', () => {
   //     expect(container).toHaveTextContent('12,34,567.89');
   //   });
   // });
+
+  describe('en-UK', () => {
+    beforeEach(() => {
+      vi.mocked(i18n).language = 'en-UK';
+    });
+    it('should use comma for thousand and dot for decimal and remove trailing zeros', () => {
+      const { container } = render(<Amount amount="1'234.56789000" unit="BTC" removeBtcTrailingZeroes />);
+      expect(container).toHaveTextContent('1,234.56789');
+    });
+  });
 
   describe('en-US', () => {
     beforeEach(() => {
@@ -103,15 +142,25 @@ describe('Fiat amount formatting', () => {
     beforeEach(() => {
       vi.mocked(i18n).language = 'es-ES';
     });
-    it('should use dot for thousand and comma for decimal', () => {
+    it('should use space for thousand and comma for decimal', () => {
       const { container } = render(<Amount amount="1'234'567.89" unit="EUR" />);
       expect(container).toHaveTextContent('1.234.567,89');
     });
   });
 
-  describe('fr-FR', () => {
+  describe('es-419', () => {
     beforeEach(() => {
-      vi.mocked(i18n).language = 'fr-FR';
+      vi.mocked(i18n).language = 'es-419';
+    });
+    it('should use space for thousand and comma for decimal', () => {
+      const { container } = render(<Amount amount="1'234'567.89" unit="EUR" />);
+      expect(container).toHaveTextContent('1,234,567.89');
+    });
+  });
+
+  describe('fr-CA', () => {
+    beforeEach(() => {
+      vi.mocked(i18n).language = 'fr-CA';
     });
     it('should use space for thousand and comma for decimal', () => {
       const { container } = render(<Amount amount="1'234'567.89" unit="EUR" />);
@@ -119,9 +168,9 @@ describe('Fiat amount formatting', () => {
     });
   });
 
-  describe('fr-CA', () => {
+  describe('fr-FR', () => {
     beforeEach(() => {
-      vi.mocked(i18n).language = 'fr-CA';
+      vi.mocked(i18n).language = 'fr-FR';
     });
     it('should use space for thousand and comma for decimal', () => {
       const { container } = render(<Amount amount="1'234'567.89" unit="EUR" />);
@@ -219,7 +268,4 @@ describe('Fiat amount formatting', () => {
     });
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
 });
