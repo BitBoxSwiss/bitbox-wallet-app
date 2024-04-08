@@ -29,7 +29,7 @@ export function ReceiveGuide({
 }: Props) {
   const { t } = useTranslation();
   return (
-    <Guide>
+    <Guide title={t('guide.guideTitle.receive')}>
       <Entry key="guide.receive.address" entry={t('guide.receive.address')} />
       <Entry key="guide.receive.whyVerify" entry={t('guide.receive.whyVerify')} />
       <Entry key="guide.receive.howVerify" entry={t('guide.receive.howVerify')} />
