@@ -1,0 +1,7 @@
+.container {
+    display: flex;
+}
+
+.container img {
+    margin-right: var(--space-eight);
+}
