@@ -10,6 +10,7 @@
 - Android: fix file upload forms in MoonPay
 - Replace the existing BIP69 lexicographical sorting of tx inputs/outputs with a randomized sorting approach
 - Android: fix app crash after close and re-open
+- Fix a bug that caused the exchange selection page to go blank if no region was selected
 
 ## 4.41.0
 - New feature: insure your bitcoins through Bitsurance

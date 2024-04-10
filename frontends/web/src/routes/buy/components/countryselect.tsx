@@ -77,8 +77,10 @@ const DropdownIndicator: FunctionComponent<DropdownIndicatorProps<TOption>> = (p
 
 const CountrySelect = ({ onChangeRegion, regions, selectedRegion }: TProps) => {
   const { t } = useTranslation();
-  const formattedRegionName = new Intl.DisplayNames([i18n.language], { type: 'region' }).of(selectedRegion) || '';
-  const selectedRegionName = selectedRegion === '' ? t('buy.exchange.selectRegion') : formattedRegionName;
+  let selectedRegionName = t('buy.exchange.selectRegion');
+  if (selectedRegion) {
+    selectedRegionName = new Intl.DisplayNames([i18n.language], { type: 'region' }).of(selectedRegion) || '';
+  }
   return (
     <Select
       className={styles.select}
