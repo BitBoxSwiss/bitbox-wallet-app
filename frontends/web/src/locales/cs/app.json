@@ -41,6 +41,7 @@
   "accountSummary": {
     "availableBalance": "Dostupný zůstatek",
     "balance": "Zůstatek",
+    "coin": "Měna",
     "exportSummary": "Exportovat přehled účtů do složky ke stažení jako soubor CSV",
     "fiatBalance": "Fiat zůstatek",
     "name": "Název účtu",
@@ -141,6 +142,7 @@
       },
       "restoring": "Obnova ze zálohy...",
       "selectedBackup": "<strong>{{backupName}}</strong> vytvořena {{createdDateTime}} bude obnovena.",
+      "subtitle": "Pro pokračování vyberte zálohu",
       "title": "Obnovit",
       "understand": "Rozumím, že nesprávné heslo pro obnovení vytvoří jinou peněženku."
     },
@@ -154,6 +156,8 @@
   "bb02Bootloader": {
     "abort": "Neaktualizovat - zpět",
     "abort_noUpgrade": "Zpět",
+    "additionalUpgradeFollows1": "Další upgrade bude následovat ihned po tomto.",
+    "additionalUpgradeFollows2": "Nechte prosím svůj BitBox02 zapojený, dokud nebudou dokončeny všechny aktualizace.",
     "advanced": {
       "label": "Rozšířená nastavení",
       "toggleShowFirmwareHash": "Zobrazit hash firmwaru při každém spuštění"
@@ -161,7 +165,9 @@
     "flipscreen": "Otoč obrazovku",
     "orientation": "Špatná orientace zařízení?",
     "success": "Aktualizace úspěšná! ",
-    "success_install": "Instalace proběhla úspěšně! "
+    "success_install": "Instalace proběhla úspěšně! ",
+    "upgradeTitle": "Aktualizace firmwaru BitBox02",
+    "upgradeTitle_install": "Instalace firmwaru BitBox02"
   },
   "bitbox": {
     "error": {
@@ -198,7 +204,7 @@
   "bitbox02Wizard": {
     "advanced": {
       "button": "Pokročilé nastavení",
-      "outOfDate": "Firmware je pro tuto funkci zastaralý",
+      "outOfDate": "Vyžaduje se aktualizace firmwaru",
       "seed12WordInfo": "Upozorňujeme, že počet slov nelze po vytvoření peněženky změnit.",
       "seed12WordLabel": "Vytvořit 12slovný namísto 24slovného seed",
       "seed12WordText": "Ve výchozím nastavení používá BitBox02 seed s 24 slovy. Obě délky seedů jsou v praxi bezpečné proti brute force útoku. Někteří uživatelé mohou místo toho upřednostnit 12slovný seed.",
@@ -290,11 +296,11 @@
       "useControls": "K nastavení hesla použijte ovládací prvky na vašem BitBox02."
     },
     "stepUninitialized": {
-      "create": "Chci nastavit nový BitBox02.",
+      "create": "Chci si na svém BitBox02 vytvořit novou peněženku.",
       "restore": "Chci obnovit svou peněženku ze zálohy.",
       "restoreMicroSD": "Obnovit z microSD karty",
       "restoreMnemonic": "Obnovit ze slov pro obnovení",
-      "title": "Nastavte svůj BitBox02"
+      "title": "Nastavení peněženky"
     },
     "success": {
       "text": "Hurá! Váš BitBox02 je nyní připraven k použití.\n\nChcete-li získat další informace o tom, jak používat BitBoxApp, použijte průvodce v aplikaci kliknutím na otazník v pravém horním rohu.",

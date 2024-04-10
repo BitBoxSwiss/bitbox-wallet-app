@@ -41,6 +41,7 @@
   "accountSummary": {
     "availableBalance": "Kontostand",
     "balance": "Saldo",
+    "coin": "Coin",
     "exportSummary": "Kontozusammenfassung als CSV Datei zum Download Ordner exportieren",
     "fiatBalance": "Fiat Kontostand",
     "name": "Konto Name",
@@ -155,7 +156,8 @@
   "bb02Bootloader": {
     "abort": "Nicht upgraden - Zurück!",
     "abort_noUpgrade": "Zurück",
-    "additionalUpgradeFollows": "Ein weiteres Update folgt. Bitte lasse dein Gerät eingesteckt, bis alle Schritte abgeschlossen sind.",
+    "additionalUpgradeFollows1": "Ein weiteres Upgrade folgt unmittelbar nach diesem.",
+    "additionalUpgradeFollows2": "Bitte lasse deine BitBox02 eingesteckt, bis alle Upgrades abgeschlossen sind.",
     "advanced": {
       "label": "Erweiterte Einstellungen",
       "toggleShowFirmwareHash": "Zeig mir den Hash der Firmware bei jedem Anstecken der BitBox"
@@ -163,7 +165,9 @@
     "flipscreen": "Bildschirm spiegeln",
     "orientation": "Ist der Bildschirm kopfüber?",
     "success": "Upgrade erfolgreich. ",
-    "success_install": "Installation erfolgreich! "
+    "success_install": "Installation erfolgreich! ",
+    "upgradeTitle": "Aktualisiere BitBox02 Firmware",
+    "upgradeTitle_install": "Installiere BitBox02 Firmware"
   },
   "bitbox": {
     "error": {
