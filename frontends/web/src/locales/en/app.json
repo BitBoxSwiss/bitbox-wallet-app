@@ -156,7 +156,8 @@
   "bb02Bootloader": {
     "abort": "Don't upgrade – take me back",
     "abort_noUpgrade": "Take me back",
-    "additionalUpgradeFollows": "An additional update will follow. Please keep your device plugged in until all steps are complete.",
+    "additionalUpgradeFollows1": "An additional upgrade will follow immediately after this one.",
+    "additionalUpgradeFollows2": "Please keep your BitBox02 plugged in until all upgrades are complete.",
     "advanced": {
       "label": "Advanced settings",
       "toggleShowFirmwareHash": "Show the firmware hash every time on startup"
@@ -164,7 +165,9 @@
     "flipscreen": "Flip screen",
     "orientation": "Device oriented the wrong way?",
     "success": "Upgrade successful!",
-    "success_install": "Installation successful!"
+    "success_install": "Installation successful!",
+    "upgradeTitle": "Upgrading BitBox02 firmware",
+    "upgradeTitle_install": "Installing BitBox02 firmware"
   },
   "bitbox": {
     "error": {
