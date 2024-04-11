@@ -15,10 +15,12 @@
 package util
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
@@ -32,7 +34,10 @@ import (
 // - `result` object that should be used to unmarshal the response body
 // Returns the error code (if available) and possibly an error.
 func APIGet(httpClient *http.Client, endpoint string, apiKey string, maxSize int64, result interface{}) (int, error) {
-	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return 0, errp.WithStack(err)
 	}
