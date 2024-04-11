@@ -34,7 +34,7 @@ import (
 // - `result` object that should be used to unmarshal the response body
 // Returns the error code (if available) and possibly an error.
 func APIGet(httpClient *http.Client, endpoint string, apiKey string, maxSize int64, result interface{}) (int, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)

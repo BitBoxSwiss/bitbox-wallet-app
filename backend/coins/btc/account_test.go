@@ -103,6 +103,7 @@ func mockAccount(t *testing.T, accountConfig *config.Account) *btc.Account {
 		},
 		coin, nil,
 		logging.Get().WithGroup("account_test"),
+		nil,
 	)
 }
 
