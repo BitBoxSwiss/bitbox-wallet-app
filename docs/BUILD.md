@@ -57,9 +57,15 @@ $ # Sign with hardened runtime:
 $ codesign -f --deep --strict --timestamp -o runtime --entitlements ../../resources/MacOS/entitlements.plist -s CODESIGN_IDENTITY BitBox.app
 $ /usr/bin/ditto -c -k --keepParent BitBox.app BitBox.zip
 $ # Notarize
-$ xcrun altool --notarize-app --primary-bundle-id "ch.shiftcrypto.bitboxapp" --username "APPLE_ID" --password "PASSWORD" --file BitBox.zip
+$ xcrun notarytool submit --apple-id "APPLE_ID" --team-id "TEAM_ID" --password "PASSWORD" BitBox.zip
 $ # Check notarization status
-$  xcrun altool --notarization-info NOTARIZATION_ID --username "APPLE_ID" --password "PASSWORD"
+$  xcrun notarytool info --apple-id "APPLE_ID" --team-id "TEAM_ID" --password "PASSWORD" NOTARIZATION_ID
+```
+
+If you don't know your TEAM_ID, you can find it in your Apple dev account or with:
+
+```
+xcrun altool --list-providers --username "APPLE_ID" --password "PASSWORD"
 ```
 
 ## Windows
