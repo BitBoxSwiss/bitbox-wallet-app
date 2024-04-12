@@ -121,6 +121,9 @@ func (lightning *Lightning) Activate() error {
 	}
 
 	if err = lightning.connect(true); err != nil {
+		if deactivateErr := lightning.Deactivate(); deactivateErr != nil {
+			lightning.log.Error(deactivateErr)
+		}
 		return err
 	}
 
