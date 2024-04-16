@@ -18,6 +18,7 @@ import android.os.Message;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
+import java.io.File;
 import java.util.Locale;
 
 import mobileserver.GoAPIInterface;
@@ -123,6 +124,12 @@ public class GoViewModel extends AndroidViewModel {
         public void auth() {
             Util.log("Auth requested from backend");
             requestAuth();
+        }
+
+        @Override
+        public String getSaveFilename(String fileName)  {
+            File folder = getApplication().getApplicationContext().getExternalFilesDir(null);
+            return new File(folder, fileName).getAbsolutePath();
         }
 
         public void onAuthSettingChanged(boolean enabled) {

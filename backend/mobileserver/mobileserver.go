@@ -90,6 +90,7 @@ type GoEnvironmentInterface interface {
 	SystemOpen(string) error
 	UsingMobileData() bool
 	NativeLocale() string
+	GetSaveFilename(string) string
 	SetDarkTheme(bool)
 	DetectDarkTheme() bool
 	Auth()
@@ -194,13 +195,10 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 				}
 				return []usb.DeviceInfo{deviceInfo{i}}
 			},
-			SystemOpenFunc:      environment.SystemOpen,
-			UsingMobileDataFunc: environment.UsingMobileData,
-			NativeLocaleFunc:    environment.NativeLocale,
-			GetSaveFilenameFunc: func(suggestedFilename string) string {
-				// On mobile, we don't yet support exporting files. Implement this once needed.
-				return ""
-			},
+			SystemOpenFunc:           environment.SystemOpen,
+			UsingMobileDataFunc:      environment.UsingMobileData,
+			NativeLocaleFunc:         environment.NativeLocale,
+			GetSaveFilenameFunc:      environment.GetSaveFilename,
 			SetDarkThemeFunc:         environment.SetDarkTheme,
 			DetectDarkThemeFunc:      environment.DetectDarkTheme,
 			AuthFunc:                 environment.Auth,

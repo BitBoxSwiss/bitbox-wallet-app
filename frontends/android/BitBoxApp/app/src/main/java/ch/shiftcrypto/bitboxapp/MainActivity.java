@@ -126,22 +126,7 @@ public class MainActivity extends AppCompatActivity {
          }
     };
 
-    private static String getMimeType(String url) {
-        String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        if (extension != null) {
-            switch (extension) {
-                case "js":
-                    type = "text/javascript";
-                    break;
-                default:
-                    type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-                    break;
-            }
-        }
 
-        return type;
-    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig){
@@ -251,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
                         // Intercept local requests and serve the response from the Android assets folder.
                         try {
                             InputStream inputStream = getAssets().open(url.replace(BASE_URL, "web/"));
-                            String mimeType = getMimeType(url);
+                            String mimeType = Util.getMimeType(url);
                             if (mimeType != null) {
                                 return new WebResourceResponse(mimeType, "UTF-8", inputStream);
                             }
