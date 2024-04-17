@@ -985,6 +985,20 @@
         "title": "Why show the secure chip model?"
       }
     },
+    "guideTitle": {
+      "account": "Account guide",
+      "accountInformation": "Account information guide",
+      "accountSummary": "Account summary guide",
+      "advancedSettings": "Advanced settings guide",
+      "appearance": "Appearance guide",
+      "buy": "Buy guide",
+      "insurance": "Insurance guide",
+      "manageAccount": "Manage accounts guide",
+      "manageDevice": "Manage device guide",
+      "receive": "Receive guide",
+      "send": "Send guide",
+      "walletConnect": "WalletConnect guide"
+    },
     "receive": {
       "address": {
         "text": "You can give the address to others to send you some coins. Just make sure they are sending to the correct address.",

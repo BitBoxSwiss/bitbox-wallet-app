@@ -40,7 +40,7 @@ export const AccountGuide = ({ accounts }: TAccountGuide) => {
   const { t } = useTranslation();
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   return (
-    <Guide>
+    <Guide title={t('guide.guideTitle.manageAccount')}>
       <Entry key="whatAreAccounts" entry={t('guide.accounts.whatAreAccounts')} />
       <Entry key="whyIsThisUseful" entry={t('guide.accounts.whyIsThisUseful')} />
       <Entry key="whatIsRememberWallet" entry={t('guide.accounts.whatIsRememberWallet')} />

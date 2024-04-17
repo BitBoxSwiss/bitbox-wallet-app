@@ -105,7 +105,7 @@ const AdvancedSettingsGuide = () => {
   const { t } = useTranslation();
 
   return (
-    <Guide>
+    <Guide title={t('guide.guideTitle.advancedSettings')}>
       <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why')} />
       <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor')} />
     </Guide>

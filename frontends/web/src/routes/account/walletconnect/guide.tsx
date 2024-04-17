@@ -5,7 +5,7 @@ import { Entry } from '../../../components/guide/entry';
 export const WCGuide = () => {
   const { t } = useTranslation();
   return (
-    <Guide>
+    <Guide title={t('guide.guideTitle.walletConnect')}>
       <Entry
         key="guide.walletConnect.whatIsWalletConnect"
         entry={t('guide.walletConnect.whatIsWalletConnect')}

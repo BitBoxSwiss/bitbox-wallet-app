@@ -235,7 +235,7 @@ export function AccountsSummary({
           </View>
         </Main>
       </GuidedContent>
-      <Guide>
+      <Guide title={t('guide.guideTitle.accountSummary')}>
         <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription')} />
         <Entry key="accountSummaryAmount" entry={{
           link: {

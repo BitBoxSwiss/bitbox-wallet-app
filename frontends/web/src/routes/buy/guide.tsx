@@ -39,7 +39,7 @@ export default function BuyGuide({ name, exchange }: BuyGuideProps) {
   const privacyLink = exchange === 'pocket' ? pocketLink : moonpayLink;
 
   return (
-    <Guide>
+    <Guide title={t('guide.guideTitle.buy')}>
       <Entry key="guide.buy.security" entry={{
         link: {
           text: t('buy.info.disclaimer.security.link'),
