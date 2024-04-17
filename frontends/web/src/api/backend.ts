@@ -128,3 +128,7 @@ export const subscribeAuth = (
 export const onAuthSettingChanged = (): Promise<void> => {
   return apiPost('on-auth-setting-changed');
 };
+
+export const exportLogs = (): Promise<ISuccess> => {
+  return apiPost('export-log');
+};
