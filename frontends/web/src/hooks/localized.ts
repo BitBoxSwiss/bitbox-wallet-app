@@ -17,8 +17,8 @@
 import { useMemo } from 'react';
 
 export const useLocalizedPunctuation = (
-  // fallback to 'en-US' if native locale is an empty string
-  locale = 'en-US'
+  // fallback to 'de-CH' if native locale is an empty string
+  locale = 'de-CH'
 ) => {
 
   const { decimal, group } = useMemo(() => {

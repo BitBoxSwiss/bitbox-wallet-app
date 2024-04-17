@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { i18n } from '../../../i18n/i18n';
+import { useContext } from 'react';
+import { AppContext } from '../../../contexts/AppContext';
 import { localizePercentage } from '../../../utils/localize';
 import { ArrowDownRed, ArrowUpGreen } from '../../../components/icon';
 import styles from './percentage-diff.module.css';
@@ -22,21 +23,19 @@ import styles from './percentage-diff.module.css';
 type TPercentageDiff = {
   hasDifference: boolean;
   difference?: number;
-  hideAmounts?: boolean;
   title?: string;
 };
 
 export const PercentageDiff = ({
   difference,
   hasDifference,
-  hideAmounts,
   title,
 }: TPercentageDiff) => {
-  const locale = i18n.language || 'en-US';
+  const { hideAmounts, nativeLocale } = useContext(AppContext);
   const positive = difference && difference > 0;
   const style = difference && positive ? 'up' : 'down';
   const className = hasDifference ? styles[style] : '';
-  const formattedDifference = difference && localizePercentage(difference, locale);
+  const formattedDifference = difference && localizePercentage(difference, nativeLocale);
   return (
     <span className={className} title={title}>
       {hasDifference ? (

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,6 @@ vi.mock('react', () => ({
   useMemo: vi.fn().mockImplementation((fn) => fn()),
   useContext: vi.fn(),
   createContext: vi.fn()
-}));
-
-vi.mock('../../i18n/i18n', () => ({
-  i18n: { language: 'de-CH' },
 }));
 
 describe('components/balance/balance', () => {

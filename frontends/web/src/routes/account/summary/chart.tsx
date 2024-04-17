@@ -483,7 +483,6 @@ class Chart extends Component<Props, State> {
         formattedChartTotal,
       },
       noDataPlaceholder,
-      hideAmounts
     } = this.props;
     const {
       difference,
@@ -532,7 +531,6 @@ class Chart extends Component<Props, State> {
                 hasDifference={!!hasDifference}
                 difference={difference}
                 title={diffSince}
-                hideAmounts={hideAmounts}
               />
             ) :
               <span className={styles.diffValue}>

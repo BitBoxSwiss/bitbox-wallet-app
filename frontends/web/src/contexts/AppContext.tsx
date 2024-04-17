@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ type AppContextProps = {
     guideShown: boolean;
     guideExists: boolean;
     hideAmounts: boolean;
+    nativeLocale: string;
     sidebarStatus: string;
     setActiveSidebar: Dispatch<SetStateAction<boolean>>;
     setGuideExists: Dispatch<SetStateAction<boolean>>;
