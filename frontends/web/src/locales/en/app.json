@@ -1624,6 +1624,10 @@
         "description": "You can connect to your own Electrum full node.",
         "title": "Connect your own full node"
       },
+      "exportLogs": {
+        "description": "Export log file to help with troubleshooting and support.",
+        "title": "Export logs"
+      },
       "fee": "Enable custom fees",
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",

@@ -92,6 +92,7 @@ type Backend interface {
 	CheckForUpdateIgnoringErrors() *backend.UpdateFile
 	Banners() *banners.Banners
 	Environment() backend.Environment
+	ExportLogs() error
 	ChartData() (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
 	CanAddAccount(coinpkg.Code, keystore.Keystore) (string, bool)
@@ -249,6 +250,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonly).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChanged).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/export-log", handlers.postExportLog).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
@@ -1451,4 +1453,16 @@ func (handlers *Handlers) postOnAuthSettingChanged(r *http.Request) interface{} 
 	handlers.backend.Environment().OnAuthSettingChanged(
 		handlers.backend.Config().AppConfig().Backend.Authentication)
 	return nil
+}
+
+func (handlers *Handlers) postExportLog(r *http.Request) interface{} {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+	}
+	if err := handlers.backend.ExportLogs(); err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
+	return result{Success: true}
 }

@@ -17,6 +17,7 @@ package backend
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -45,6 +46,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
+	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -941,4 +943,52 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 		},
 		&t,
 	)
+}
+
+// ExportLogs function copy and save log.txt file to help users provide it to support while troubleshooting.
+func (backend *Backend) ExportLogs() error {
+	name := fmt.Sprintf("%s-log.txt", time.Now().Format("2006-01-02-at-15-04-05"))
+	downloadsDir, err := utilConfig.DownloadsDir()
+	if err != nil {
+		backend.log.WithError(err).Error("error exporting logs")
+		return err
+	}
+	suggestedPath := filepath.Join(downloadsDir, name)
+	path := backend.Environment().GetSaveFilename(suggestedPath)
+	if path == "" {
+		return nil
+	}
+	backend.log.Infof("Export logs to %s.", path)
+
+	file, err := os.Create(path)
+	if err != nil {
+		backend.log.WithError(err).Error("error creating new log file")
+		return err
+	}
+	logFilePath := filepath.Join(utilConfig.AppDir(), "log.txt")
+
+	existingLogFile, err := os.Open(logFilePath)
+	if err != nil {
+		backend.log.WithError(err).Error("error opening existing log file")
+		return err
+	}
+
+	defer func() {
+		if err := existingLogFile.Close(); err != nil {
+			backend.log.WithError(err).Error("error closing existing log file")
+		}
+	}()
+
+	_, err = io.Copy(file, existingLogFile)
+	if err != nil {
+		backend.log.WithError(err).Error("error copying existing log to new file")
+		return err
+	}
+	backend.log.Infof("Exported logs copied to %s.", path)
+
+	if err := backend.Environment().SystemOpen(path); err != nil {
+		backend.log.WithError(err).Error("error opening log file")
+		return err
+	}
+	return nil
 }

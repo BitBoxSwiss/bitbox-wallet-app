@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
--
+- New feature in advanced settings: Export logs
 
 ## 4.42.0
 - Bundle BitBox02 firmware version v9.18.0 and intermediate version v9.17.1
