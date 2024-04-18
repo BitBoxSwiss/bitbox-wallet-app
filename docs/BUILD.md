@@ -67,7 +67,7 @@ $  xcrun altool --notarization-info NOTARIZATION_ID --username "APPLE_ID" --pass
 The build requires `Microsoft Visual Studio 2019 Community Edition`, with the `MSVC v142 - VS 2019 C++ x64/x86 build tools (Latest)`
 individual component.
 
-It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.21`, `node@18`, `QT 5.15.2` with `qtwebengine`, `nsis`
+It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.21`, `node@20`, `QT 5.15.2` with `qtwebengine`, `nsis`
 and possibly other tools.
 
 Some of the tools are easy to install with `choco`:

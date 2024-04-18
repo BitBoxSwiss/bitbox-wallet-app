@@ -18,7 +18,7 @@ apt-get update
 apt-get install -y --no-install-recommends curl ca-certificates
 
 # add repository for node/npm
-curl -sL https://deb.nodesource.com/setup_18.x | bash -
+curl -sL https://deb.nodesource.com/setup_20.x | bash -
 
 apt-get install -y --no-install-recommends \
     clang \
@@ -42,7 +42,7 @@ apt-get install -y --no-install-recommends \
         libxkbcommon-x11-dev \
         libxrandr-dev
 
-npm install -g npm@9.6.5
+npm install -g npm@10
 npm install -g locize-cli
 
 mkdir -p /opt/go_dist
