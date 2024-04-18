@@ -110,8 +110,8 @@ export function Receive() {
       if (inputSats > 0) {
         const openChannelFeeResponse = await getOpenChannelFee({ amountMsat: toMsat(inputSats) });
         setOpenChannelFeeResponse(openChannelFeeResponse);
-        setShowOpenChannelWarning(openChannelFeeResponse.feeMsat > 0);
-        if (inputSats > toSat(openChannelFeeResponse?.feeMsat || 0)) {
+        setShowOpenChannelWarning(openChannelFeeResponse.feeMsat ? openChannelFeeResponse.feeMsat > 0 : false);
+        if (inputSats > toSat(openChannelFeeResponse.feeMsat || 0)) {
           setDisableConfirm(false);
           return;
         }
@@ -136,7 +136,7 @@ export function Receive() {
       const receivePaymentResponse = await postReceivePayment({
         amountMsat: toMsat(Number(inputSatsText)),
         description,
-        openingFeeParams: openChannelFeeResponse?.usedFeeParams
+        openingFeeParams: openChannelFeeResponse?.feeParams
       });
       setReceivePaymentResponse(receivePaymentResponse);
       setStep('invoice');

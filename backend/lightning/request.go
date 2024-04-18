@@ -69,7 +69,7 @@ func toListPaymentsRequest(listPaymentsRequest listPaymentsRequestDto) (breez_sd
 }
 
 func toOpenChannelFeeRequestDto(params url.Values) (openChannelFeeRequestDto, error) {
-	amountMsat, err := getInt64(params, "amountMsat")
+	amountMsat, err := getOptionalUint64(params, "amountMsat")
 	if err != nil {
 		return openChannelFeeRequestDto{}, err
 	}
@@ -78,7 +78,7 @@ func toOpenChannelFeeRequestDto(params url.Values) (openChannelFeeRequestDto, er
 		return openChannelFeeRequestDto{}, err
 	}
 	return openChannelFeeRequestDto{
-		AmountMsat: uint64(amountMsat),
+		AmountMsat: amountMsat,
 		Expiry:     expiry,
 	}, nil
 }

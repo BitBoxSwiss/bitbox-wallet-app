@@ -9,8 +9,8 @@ github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRF
 github.com/benma/miniscript-go v0.0.0-20230525042155-decf85f82801/go.mod h1:uvDKYMsmXTBlYkr+p6jciP8fG6h2U2acRhMtlrweYAg=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
-github.com/breez/breez-sdk-go v0.2.15 h1:zzxU95mxY5i0GtH49GebN+weWBl9OOIe9EcLrSuqB8I=
-github.com/breez/breez-sdk-go v0.2.15/go.mod h1:EalYMEeQVwRzr6UXnF4QpLlpuWNwQQN9xwtDKNIutBo=
+github.com/breez/breez-sdk-go v0.3.8 h1:tuQLrDFaTTplvCvbS3qXhFdAW/DKtNQgieQ7h8GrXLY=
+github.com/breez/breez-sdk-go v0.3.8/go.mod h1:EalYMEeQVwRzr6UXnF4QpLlpuWNwQQN9xwtDKNIutBo=
 github.com/btcsuite/btcd v0.20.1-beta/go.mod h1:wVuoA8VJLEcwgqHBwHmzLRazpKxTv13Px/pDuV7OomQ=
 github.com/btcsuite/btcd v0.22.0-beta.0.20220111032746-97732e52810c/go.mod h1:tjmYdS6MLJ5/s0Fj4DbLgSbDHbEqLJrtnHecBFkdz5M=
 github.com/btcsuite/btcd v0.23.0/go.mod h1:0QJIIN1wwIXF/3G/m87gIwGniDMDQqjVn4SZgnFpsYY=

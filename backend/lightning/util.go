@@ -20,15 +20,6 @@ import (
 	"strconv"
 )
 
-// Get an int64 value from http request url params.
-func getInt64(params url.Values, key string) (int64, error) {
-	parsed, err := strconv.ParseInt(params.Get(key), 10, 64)
-	if err != nil {
-		return 0, err
-	}
-	return parsed, nil
-}
-
 // Get an optional bool value from http request url params.
 func getOptionalBool(params url.Values, key string) (*bool, error) {
 	if params.Has(key) {
@@ -70,6 +61,19 @@ func getOptionalUint32(params url.Values, key string) (*uint32, error) {
 			return nil, err
 		}
 		value := uint32(parsed)
+		return &value, nil
+	}
+	return nil, nil
+}
+
+// Get an optional uint64 value from http request url params.
+func getOptionalUint64(params url.Values, key string) (*uint64, error) {
+	if params.Has(key) {
+		parsed, err := strconv.ParseInt(params.Get(key), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		value := uint64(parsed)
 		return &value, nil
 	}
 	return nil, nil

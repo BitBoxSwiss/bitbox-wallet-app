@@ -127,6 +127,10 @@ func toLnInvoiceDto(lnInvoice breez_sdk.LnInvoice) lnInvoiceDto {
 }
 
 func toLnPaymentDetailsDto(lnPaymentDetails breez_sdk.LnPaymentDetails) (lnPaymentDetailsDto, error) {
+	reverseSwapInfo, err := toReverseSwapInfoDto(lnPaymentDetails.ReverseSwapInfo)
+	if err != nil {
+		return lnPaymentDetailsDto{}, err
+	}
 	successActionProcessed, err := toSuccessActionProcessedDto(lnPaymentDetails.LnurlSuccessAction)
 	if err != nil {
 		return lnPaymentDetailsDto{}, err
@@ -138,10 +142,13 @@ func toLnPaymentDetailsDto(lnPaymentDetails breez_sdk.LnPaymentDetails) (lnPayme
 		PaymentPreimage:        lnPaymentDetails.PaymentPreimage,
 		Keysend:                lnPaymentDetails.Keysend,
 		Bolt11:                 lnPaymentDetails.Bolt11,
+		OpenChannelBolt11:      lnPaymentDetails.OpenChannelBolt11,
 		LnurlSuccessAction:     successActionProcessed,
+		LnurlPayDomain:         lnPaymentDetails.LnurlPayDomain,
 		LnurlMetadata:          lnPaymentDetails.LnurlMetadata,
 		LnAddress:              lnPaymentDetails.LnAddress,
 		LnurlWithdrawEndpoint:  lnPaymentDetails.LnurlWithdrawEndpoint,
+		ReverseSwapInfo:        reverseSwapInfo,
 		PendingExpirationBlock: lnPaymentDetails.PendingExpirationBlock,
 	}, nil
 }
@@ -203,6 +210,7 @@ func toNodeStateDto(nodeState breez_sdk.NodeState) nodeStateDto {
 		BlockHeight:                nodeState.BlockHeight,
 		ChannelsBalanceMsat:        nodeState.ChannelsBalanceMsat,
 		OnchainBalanceMsat:         nodeState.OnchainBalanceMsat,
+		PendingOnchainBalanceMsat:  nodeState.PendingOnchainBalanceMsat,
 		Utxos:                      toUnspentTransactionOutputsDto(nodeState.Utxos),
 		MaxPayableMsat:             nodeState.MaxPayableMsat,
 		MaxReceivableMsat:          nodeState.MaxReceivableMsat,
@@ -216,23 +224,19 @@ func toNodeStateDto(nodeState breez_sdk.NodeState) nodeStateDto {
 func toOpenChannelFeeResponseDto(openChannelFeeResponse breez_sdk.OpenChannelFeeResponse) openChannelFeeResponseDto {
 	return openChannelFeeResponseDto{
 		FeeMsat:       openChannelFeeResponse.FeeMsat,
-		UsedFeeParams: toOpeningFeeParamsDto(openChannelFeeResponse.UsedFeeParams),
+		UsedFeeParams: toOpeningFeeParamsDto(openChannelFeeResponse.FeeParams),
 	}
 }
 
-func toOpeningFeeParamsDto(openingFeeParams *breez_sdk.OpeningFeeParams) *openingFeeParamsDto {
-	if openingFeeParams != nil {
-		return &openingFeeParamsDto{
-			MinMsat:              openingFeeParams.MinMsat,
-			Proportional:         openingFeeParams.Proportional,
-			ValidUntil:           openingFeeParams.ValidUntil,
-			MaxIdleTime:          openingFeeParams.MaxIdleTime,
-			MaxClientToSelfDelay: openingFeeParams.MaxClientToSelfDelay,
-			Promise:              openingFeeParams.Promise,
-		}
+func toOpeningFeeParamsDto(openingFeeParams breez_sdk.OpeningFeeParams) openingFeeParamsDto {
+	return openingFeeParamsDto{
+		MinMsat:              openingFeeParams.MinMsat,
+		Proportional:         openingFeeParams.Proportional,
+		ValidUntil:           openingFeeParams.ValidUntil,
+		MaxIdleTime:          openingFeeParams.MaxIdleTime,
+		MaxClientToSelfDelay: openingFeeParams.MaxClientToSelfDelay,
+		Promise:              openingFeeParams.Promise,
 	}
-
-	return nil
 }
 
 func toPaymentStatusDto(status breez_sdk.PaymentStatus) (string, error) {
@@ -330,11 +334,50 @@ func toPaymentDetailsDto(paymentDetails breez_sdk.PaymentDetails) (typeDataDto, 
 }
 
 func toReceivePaymentResponseDto(receivePaymentResponse breez_sdk.ReceivePaymentResponse) receivePaymentResponseDto {
-	return receivePaymentResponseDto{
-		LnInvoice:        toLnInvoiceDto(receivePaymentResponse.LnInvoice),
-		OpeningFeeParams: toOpeningFeeParamsDto(receivePaymentResponse.OpeningFeeParams),
-		OpeningFeeMsat:   receivePaymentResponse.OpeningFeeMsat,
+	response := receivePaymentResponseDto{
+		LnInvoice:      toLnInvoiceDto(receivePaymentResponse.LnInvoice),
+		OpeningFeeMsat: receivePaymentResponse.OpeningFeeMsat,
 	}
+	if receivePaymentResponse.OpeningFeeParams != nil {
+		openingFeeParams := toOpeningFeeParamsDto(*receivePaymentResponse.OpeningFeeParams)
+		response.OpeningFeeParams = &openingFeeParams
+	}
+	return response
+}
+
+func toReverseSwapInfoDto(reverseSwapInfo *breez_sdk.ReverseSwapInfo) (*reverseSwapInfoDto, error) {
+	if reverseSwapInfo != nil {
+		reverseSwapStatus, err := toReverseSwapStatusDto(reverseSwapInfo.Status)
+		if err != nil {
+			return nil, err
+		}
+		return &reverseSwapInfoDto{
+			Id:               reverseSwapInfo.Id,
+			ClaimPubkey:      reverseSwapInfo.ClaimPubkey,
+			LockupTxid:       reverseSwapInfo.LockupTxid,
+			ClaimTxid:        reverseSwapInfo.ClaimTxid,
+			OnchainAmountSat: reverseSwapInfo.OnchainAmountSat,
+			Status:           reverseSwapStatus,
+		}, nil
+	}
+	return nil, nil
+}
+
+//nolint:misspell
+func toReverseSwapStatusDto(status breez_sdk.ReverseSwapStatus) (string, error) {
+	switch status {
+	case breez_sdk.ReverseSwapStatusCancelled:
+		return "cancelled", nil
+	case breez_sdk.ReverseSwapStatusCompletedConfirmed:
+		return "completedConfirmed", nil
+	case breez_sdk.ReverseSwapStatusCompletedSeen:
+		return "completedSeen", nil
+	case breez_sdk.ReverseSwapStatusInProgress:
+		return "inProgress", nil
+	case breez_sdk.ReverseSwapStatusInitial:
+		return "initial", nil
+	}
+	return "", errp.New("Invalid ReverseSwapStatus")
 }
 
 func toRouteHintsDto(routeHints []breez_sdk.RouteHint) []routeHintDto {
