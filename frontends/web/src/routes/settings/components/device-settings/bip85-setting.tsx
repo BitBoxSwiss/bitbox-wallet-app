@@ -76,7 +76,9 @@ export const Bip85Setting = ({ deviceID, canBIP85 }: TProps) => {
             <Column textCenter>
               <img
                 src={isDarkMode ? bip85GraphicLight : bip85Graphic}
-                style={{ maxWidth: '100%' }}
+                style={{ height: 'auto', width: '100%' }}
+                width="320"
+                height="147"
               />
             </Column>
           </Grid>
