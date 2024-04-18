@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-import { I18nextProvider } from 'react-i18next';
-import i18n from './i18nfortests';
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
 
-type TProps = {
-    children: React.ReactNode
-}
+i18n
+  .use(initReactI18next)
+  .init({
+    lng: 'en',
+    fallbackLng: 'en',
+    resources: {
+      en: {
+        translation: {
+          'key': 'value'
+        }
+      }
+    },
+    react: {
+      useSuspense: false,
+    },
+  });
 
-const I18NWrapper = ({ children }: TProps) => {
-  return <I18nextProvider i18n={i18n}>
-	  {children}
-  </I18nextProvider>;
-};
-
-export default I18NWrapper;
+export default i18n;

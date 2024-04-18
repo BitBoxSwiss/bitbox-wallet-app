@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
+import '../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { HeadersSync } from './headerssync';
 import { TStatus } from '../../api/coins';
 import * as apiHooks from '../../hooks/api';
 import * as mountHooks from '../../hooks/mount';
-import I18NWrapper from '../../i18n/forTests/i18nwrapper';
 
 const useSubscribeSpy = vi.spyOn(apiHooks, 'useSubscribe');
 const useMountedRefSpy = vi.spyOn(mountHooks, 'useMountedRef');
@@ -37,7 +37,7 @@ describe('components/headerssync/headerssync', () => {
   it('renders null when subscribe value of null', () => {
     useSubscribeSpy.mockReturnValueOnce(null);
 
-    const { container } = render(<HeadersSync coinCode="btc" />, { wrapper: I18NWrapper });
+    const { container } = render(<HeadersSync coinCode="btc" />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -51,7 +51,7 @@ describe('components/headerssync/headerssync', () => {
       };
       useSubscribeSpy.mockReturnValueOnce(MOCKED_SUBSCRIBE_VALUE);
 
-      const { getByTestId } = render(<HeadersSync coinCode="btc" />, { wrapper: I18NWrapper });
+      const { getByTestId } = render(<HeadersSync coinCode="btc" />);
       const progressBar = getByTestId('progress-bar');
       expect(progressBar.firstChild).toHaveStyle('width: 100%');
     });
@@ -65,7 +65,7 @@ describe('components/headerssync/headerssync', () => {
       };
       useSubscribeSpy.mockReturnValueOnce(MOCKED_SUBSCRIBE_VALUE);
 
-      const { getByTestId, container } = render(<HeadersSync coinCode="btc" />, { wrapper: I18NWrapper });
+      const { getByTestId, container } = render(<HeadersSync coinCode="btc" />);
       const progressBar = getByTestId('progress-bar');
       expect(container).toHaveTextContent('50%');
       expect(progressBar.firstChild).toHaveStyle('width: 50%');

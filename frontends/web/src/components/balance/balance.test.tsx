@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import '../../../__mocks__/i18n';
 import { useContext } from 'react';
 import { Mock, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { IBalance } from '../../api/account';
-import I18NWrapper from '../../i18n/forTests/i18nwrapper';
 import { Balance } from './balance';
 
 vi.mock('../../utils/request', () => ({
@@ -66,7 +67,7 @@ describe('components/balance/balance', () => {
         }
       }
     };
-    const { getByTestId } = render(<Balance balance={MOCK_BALANCE} />, { wrapper: I18NWrapper });
+    const { getByTestId } = render(<Balance balance={MOCK_BALANCE} />);
     expect(getByTestId('availableBalance').textContent).toBe('0.005BTC');
     expect(getByTestId('incomingBalance').textContent).toBe('+0.003 BTC / 512 USD');
   });
