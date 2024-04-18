@@ -2,6 +2,7 @@
 
 ## Unreleased
 - New feature in advanced settings: Export logs
+- Add specific titles to guides replacing the generic "Guide" previously used on all pages
 
 ## 4.42.0
 - Bundle BitBox02 firmware version v9.18.0 and intermediate version v9.17.1
@@ -10,7 +11,6 @@
 - Android: fix file upload forms in MoonPay
 - Replace the existing BIP69 lexicographical sorting of tx inputs/outputs with a randomized sorting approach
 - Android: fix app crash after close and re-open
-- Add specific titles to guides replacing the generic "Guide" previously used on all pages
 
 ## 4.41.0
 - New feature: insure your bitcoins through Bitsurance
