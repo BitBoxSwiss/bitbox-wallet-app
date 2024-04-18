@@ -3,7 +3,7 @@ module github.com/digitalbitbox/bitbox-wallet-app
 go 1.20
 
 require (
-	github.com/breez/breez-sdk-go v0.2.15
+	github.com/breez/breez-sdk-go v0.3.8
 	github.com/btcsuite/btcd v0.24.0
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2
 	github.com/btcsuite/btcd/btcutil v1.1.5

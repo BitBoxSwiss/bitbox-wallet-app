@@ -127,7 +127,6 @@ func (lightning *Lightning) GetOpenChannelFee(r *http.Request) interface{} {
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
-
 	return responseDto{Success: true, Data: toOpenChannelFeeResponseDto(openChannelFeeResponse)}
 }
 

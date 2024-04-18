@@ -39,6 +39,7 @@ type nodeStateDto struct {
 	BlockHeight                uint32                        `json:"blockHeight"`
 	ChannelsBalanceMsat        uint64                        `json:"channelsBalanceMsat"`
 	OnchainBalanceMsat         uint64                        `json:"onchainBalanceMsat"`
+	PendingOnchainBalanceMsat  uint64                        `json:"pendingOnchainBalanceMsat"`
 	Utxos                      []unspentTransactionOutputDto `json:"utxos"`
 	MaxPayableMsat             uint64                        `json:"maxPayableMsat"`
 	MaxReceivableMsat          uint64                        `json:"maxReceivableMsat"`
@@ -71,17 +72,20 @@ type lnInvoiceDto struct {
 }
 
 type lnPaymentDetailsDto struct {
-	PaymentHash            string      `json:"paymentHash"`
-	Label                  string      `json:"label"`
-	DestinationPubkey      string      `json:"destinationPubkey"`
-	PaymentPreimage        string      `json:"paymentPreimage"`
-	Keysend                bool        `json:"keysend"`
-	Bolt11                 string      `json:"bolt11"`
-	LnurlSuccessAction     interface{} `json:"lnurlSuccessAction"`
-	LnurlMetadata          *string     `json:"lnurlMetadata"`
-	LnAddress              *string     `json:"lnAddress"`
-	LnurlWithdrawEndpoint  *string     `json:"lnurlWithdrawEndpoint"`
-	PendingExpirationBlock *uint32     `json:"pendingExpirationBlock"`
+	PaymentHash            string              `json:"paymentHash"`
+	Label                  string              `json:"label"`
+	DestinationPubkey      string              `json:"destinationPubkey"`
+	PaymentPreimage        string              `json:"paymentPreimage"`
+	Keysend                bool                `json:"keysend"`
+	Bolt11                 string              `json:"bolt11"`
+	OpenChannelBolt11      *string             `json:"openChannelBolt11"`
+	LnurlSuccessAction     interface{}         `json:"lnurlSuccessAction"`
+	LnurlPayDomain         *string             `json:"lnurlPayDomain"`
+	LnurlMetadata          *string             `json:"lnurlMetadata"`
+	LnAddress              *string             `json:"lnAddress"`
+	LnurlWithdrawEndpoint  *string             `json:"lnurlWithdrawEndpoint"`
+	ReverseSwapInfo        *reverseSwapInfoDto `json:"reverseSwapInfo"`
+	PendingExpirationBlock *uint32             `json:"pendingExpirationBlock"`
 }
 
 type lnUrlAuthRequestDataDto struct {
@@ -114,13 +118,13 @@ type lnUrlWithdrawRequestDataDto struct {
 }
 
 type openChannelFeeRequestDto struct {
-	AmountMsat uint64  `json:"amountMsat"`
+	AmountMsat *uint64 `json:"amountMsat"`
 	Expiry     *uint32 `json:"expiry"`
 }
 
 type openChannelFeeResponseDto struct {
-	FeeMsat       uint64               `json:"feeMsat"`
-	UsedFeeParams *openingFeeParamsDto `json:"usedFeeParams"`
+	FeeMsat       *uint64             `json:"feeMsat"`
+	UsedFeeParams openingFeeParamsDto `json:"usedFeeParams"`
 }
 
 type openingFeeParamsDto struct {
@@ -158,6 +162,15 @@ type receivePaymentResponseDto struct {
 	LnInvoice        lnInvoiceDto         `json:"lnInvoice"`
 	OpeningFeeParams *openingFeeParamsDto `json:"openingFeeParams"`
 	OpeningFeeMsat   *uint64              `json:"openingFeeMsat"`
+}
+
+type reverseSwapInfoDto struct {
+	Id               string  `json:"id"`
+	ClaimPubkey      string  `json:"claimPubkey"`
+	LockupTxid       *string `json:"lockupTxid"`
+	ClaimTxid        *string `json:"claimTxid"`
+	OnchainAmountSat uint64  `json:"onchainAmountSat"`
+	Status           string  `json:"status"`
 }
 
 type routeHintDto struct {

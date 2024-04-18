@@ -94,6 +94,7 @@ export type ClosedChannelPaymentDetails = {
 
 export type Config = {
   breezserver: string;
+  chainnotifierUrl: string;
   mempoolspaceUrl: string;
   workingDir: string;
   network: Network;
@@ -103,6 +104,10 @@ export type Config = {
   maxfeePercent: number;
   exemptfeeMsat: number;
   nodeConfig: NodeConfig;
+};
+
+export type ConfigureNodeRequest = {
+  closeToAddress?: string;
 };
 
 export type CurrencyInfo = {
@@ -168,11 +173,14 @@ export type LnPaymentDetails = {
   paymentPreimage: string;
   keysend: boolean;
   bolt11: string;
+  openChannelBolt11?: string;
   lnurlSuccessAction?: SuccessActionProcessed;
+  lnurlPayDomain?: string;
   lnurlMetadata?: string;
   lnAddress?: string;
   lnurlWithdrawEndpoint?: string;
   swapInfo?: SwapInfo;
+  reverseSwapInfo?: ReverseSwapInfo;
   pendingExpirationBlock?: number;
 };
 
@@ -253,8 +261,6 @@ export type LspInformation = {
   widgetUrl: string;
   pubkey: string;
   host: string;
-  channelCapacity: number;
-  targetConf: number;
   baseFeeMsat: number;
   feeRate: number;
   timeLockDelta: number;
@@ -286,6 +292,7 @@ export type NodeState = {
   blockHeight: number;
   channelsBalanceMsat: number;
   onchainBalanceMsat: number;
+  pendingOnchainBalanceMsat: number;
   utxos: UnspentTransactionOutput[];
   maxPayableMsat: number;
   maxReceivableMsat: number;
@@ -296,13 +303,13 @@ export type NodeState = {
 };
 
 export type OpenChannelFeeRequest = {
-  amountMsat: number;
+  amountMsat?: number;
   expiry?: number;
 };
 
 export type OpenChannelFeeResponse = {
-  feeMsat: number;
-  usedFeeParams?: OpeningFeeParams;
+  feeMsat?: number;
+  feeParams: OpeningFeeParams;
 };
 
 export type OpeningFeeParams = {
@@ -509,7 +516,7 @@ export type SwapInfo = {
   swapperPublicKey: number[];
   script: number[];
   bolt11?: string;
-  paidSats: number;
+  paidMsat: number;
   unconfirmedSats: number;
   confirmedSats: number;
   status: SwapStatus;
@@ -915,7 +922,10 @@ export const getNodeInfo = async (): Promise<NodeState> => {
 };
 
 export const getListPayments = async (params: ListPaymentsRequest): Promise<Payment[]> => {
-  return getApiResponse<Payment[]>(`lightning/list-payments?${qs.stringify(params, { skipNull: true })}`, 'Error calling getListPayments');
+  return getApiResponse<Payment[]>(
+    `lightning/list-payments?${qs.stringify(params, { skipNull: true })}`,
+    'Error calling getListPayments'
+  );
 };
 
 export const getOpenChannelFee = async (params: OpenChannelFeeRequest): Promise<OpenChannelFeeResponse> => {
