@@ -20,7 +20,7 @@ import * as accountApi from '../../../api/account';
 import { syncdone } from '../../../api/accountsync';
 import { BtcUnit, convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '../../../api/coins';
 import { View, ViewContent } from '../../../components/view/view';
-import { TDevices } from '../../../api/devices';
+import { TDevices, hasMobileChannel } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
 import { Balance } from '../../../components/balance/balance';
@@ -29,7 +29,8 @@ import { Button, ButtonLink } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { Status } from '../../../components/status/status';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiGet, apiPost } from '../../../utils/request';
+import { apiPost } from '../../../utils/request';
+import { getConfig } from '../../../utils/config';
 import { FeeTargets } from './feetargets';
 import { route } from '../../../utils/route';
 import { signConfirm, signProgress, TSignProgress } from '../../../api/devicessync';
@@ -53,8 +54,6 @@ interface SendProps {
     deviceIDs: string[];
     activeCurrency: accountApi.Fiat;
 }
-
-
 
 type Props = SendProps & TranslateProps;
 
@@ -140,17 +139,17 @@ class Send extends Component<Props, State> {
     }
 
     if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
-      apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then((mobileChannel: boolean) => {
-        getDeviceInfo(this.props.deviceIDs[0])
+      hasMobileChannel(this.props.deviceIDs[0])().then((mobileChannel: boolean) => {
+        return getDeviceInfo(this.props.deviceIDs[0])
           .then(({ pairing }) => {
             const account = this.getAccount();
             const paired = mobileChannel && pairing;
             const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
             this.setState(prevState => ({ ...prevState, paired, noMobileChannelError }));
           });
-      });
+      }).catch(console.error);
     }
-    apiGet('config').then(config => {
+    getConfig().then(config => {
       this.setState({ btcUnit: config.backend.btcUnit });
       if (this.isBitcoinBased()) {
         this.setState({ coinControl: !!(config.frontend || {}).coinControl });
