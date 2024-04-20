@@ -15,8 +15,8 @@
  */
 
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
-import { CoinCode } from './account';
-import { ISuccess } from './backend';
+import type { CoinCode, Fiat } from './account';
+import type { ISuccess } from './backend';
 import { apiPost, apiGet } from '../utils/request';
 
 export type BtcUnit = 'default' | 'sat';
@@ -45,4 +45,42 @@ export type TAmount = {
 
 export const parseExternalBtcAmount = (amount: string): Promise<TAmount> => {
   return apiGet(`coins/btc/parse-external-amount?amount=${amount}`);
+};
+
+type TConvertCurrency = {
+  amount: string;
+  coinCode: CoinCode;
+  fiatUnit: Fiat;
+};
+
+type TConvertFromCurrencyResponse = {
+  success: true;
+  amount: string;
+} | {
+  success: false;
+  errMsg: string; // TODO: backend should return useful errorMessage
+};
+
+export const convertFromCurrency = ({
+  amount,
+  coinCode,
+  fiatUnit,
+}: TConvertCurrency): Promise<TConvertFromCurrencyResponse> => {
+  return apiGet(`coins/convert-from-fiat?from=${fiatUnit}&to=${coinCode}&amount=${amount}`);
+};
+
+type TConvertToCurrencyResponse = {
+  success: true;
+  fiatAmount: string;
+} | {
+  success: false;
+  // errMsg: string; // TODO: backend should return useful errorMessage
+};
+
+export const convertToCurrency = ({
+  amount,
+  coinCode,
+  fiatUnit,
+}: TConvertCurrency): Promise<TConvertToCurrencyResponse> => {
+  return apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${fiatUnit}&amount=${amount}`);
 };

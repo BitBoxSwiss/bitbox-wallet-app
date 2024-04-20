@@ -18,7 +18,7 @@
 import { ChangeEvent, Component } from 'react';
 import * as accountApi from '../../../api/account';
 import { syncdone } from '../../../api/accountsync';
-import { BtcUnit, parseExternalBtcAmount } from '../../../api/coins';
+import { BtcUnit, convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '../../../api/coins';
 import { View, ViewContent } from '../../../components/view/view';
 import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
@@ -337,33 +337,37 @@ class Send extends Component<Props, State> {
     this.convertFromFiat(fiatAmount);
   };
 
-  private convertToFiat = (value?: string | boolean) => {
-    if (value) {
+  private convertToFiat = async (amount: string) => {
+    if (amount) {
       const coinCode = this.getAccount()!.coinCode;
-      apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${this.state.fiatUnit}&amount=${value}`)
-        .then(data => {
-          if (data.success) {
-            this.setState({ fiatAmount: data.fiatAmount });
-          } else {
-            this.setState({ amountError: this.props.t('send.error.invalidAmount') });
-          }
-        });
+      const data = await convertToCurrency({
+        amount,
+        coinCode,
+        fiatUnit: this.state.fiatUnit,
+      });
+      if (data.success) {
+        this.setState({ fiatAmount: data.fiatAmount });
+      } else {
+        this.setState({ amountError: this.props.t('send.error.invalidAmount') });
+      }
     } else {
       this.setState({ fiatAmount: '' });
     }
   };
 
-  private convertFromFiat = (value: string) => {
-    if (value) {
+  private convertFromFiat = async (amount: string) => {
+    if (amount) {
       const coinCode = this.getAccount()!.coinCode;
-      apiGet(`coins/convert-from-fiat?from=${this.state.fiatUnit}&to=${coinCode}&amount=${value}`)
-        .then(data => {
-          if (data.success) {
-            this.setState({ amount: data.amount }, () => this.validateAndDisplayFee(false));
-          } else {
-            this.setState({ amountError: this.props.t('send.error.invalidAmount') });
-          }
-        });
+      const data = await convertFromCurrency({
+        amount,
+        coinCode,
+        fiatUnit: this.state.fiatUnit,
+      });
+      if (data.success) {
+        this.setState({ amount: data.amount }, () => this.validateAndDisplayFee(false));
+      } else {
+        this.setState({ amountError: this.props.t('send.error.invalidAmount') });
+      }
     } else {
       this.setState({ amount: '' });
     }
