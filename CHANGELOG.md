@@ -3,6 +3,7 @@
 ## Unreleased
 - New feature in advanced settings: Export logs
 - Add specific titles to guides replacing the generic "Guide" previously used on all pages
+- Android: enable transactions export feature
 
 ## 4.42.0
 - Bundle BitBox02 firmware version v9.18.0 and intermediate version v9.17.1

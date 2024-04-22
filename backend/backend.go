@@ -948,12 +948,12 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 // ExportLogs function copy and save log.txt file to help users provide it to support while troubleshooting.
 func (backend *Backend) ExportLogs() error {
 	name := fmt.Sprintf("%s-log.txt", time.Now().Format("2006-01-02-at-15-04-05"))
-	downloadsDir, err := utilConfig.DownloadsDir()
+	exportsDir, err := utilConfig.ExportsDir()
 	if err != nil {
 		backend.log.WithError(err).Error("error exporting logs")
 		return err
 	}
-	suggestedPath := filepath.Join(downloadsDir, name)
+	suggestedPath := filepath.Join(exportsDir, name)
 	path := backend.Environment().GetSaveFilename(suggestedPath)
 	if path == "" {
 		return nil
