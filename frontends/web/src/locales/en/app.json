@@ -609,7 +609,7 @@
         "description": "Generate child keys from your BitBox wallet.",
         "disclaimer": "I understand how child keys work and the security considerations",
         "how": {
-          "description": "The child keys are displayed as a mnemonic on your BitBox. You can create as many child keys as you want. To show a child key, you will be asked for the child number (i.e 1st, 2nd, 3rd etc) and the desired length of the mnemonic (12, 18 or 24 recovery words). Remember, you must keep track of the <strong>child number and number of words</strong> to display the same mnemonic later.",
+          "description": "The child keys are displayed as a mnemonic on your BitBox. You can create as many child keys as you want. To show a child key, you will be asked for the child number (i.e. 1st, 2nd, 3rd etc.) and the desired length of the mnemonic (12, 18 or 24 recovery words). Remember, you must keep track of the <strong>child number and number of words</strong> to display the same mnemonic later.",
           "title": "How does it work?"
         },
         "recover": {
@@ -846,7 +846,7 @@
         "link": {
           "text": "View supported coins"
         },
-        "text": "The BitBoxApp supports Bitcoin, Litecoin, Ethereum as well as a selection of ERC20 token. For Cardano and other tokens, use your BitBox02 with alternative software such as AdaLite or Rabby. You can find an exhaustive list of all supported coins on our website:",
+        "text": "The BitBoxApp supports Bitcoin, Litecoin and Ethereum as well as a selection of ERC20 token. For Cardano and other tokens, use your BitBox02 with alternative software such as AdaLite or Rabby. You can find an exhaustive list of all supported coins on our website:",
         "title": "Which coins are supported?"
       },
       "whatAreAccounts": {
