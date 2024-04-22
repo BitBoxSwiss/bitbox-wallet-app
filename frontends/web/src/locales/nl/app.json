@@ -41,6 +41,7 @@
   "accountSummary": {
     "availableBalance": "Beschikbare balans",
     "balance": "Balans",
+    "coin": "Munt",
     "exportSummary": "Accounts als CSV bestand naar de downloads map exporteren",
     "fiatBalance": "Fiat balans",
     "name": "Accountnaam",
@@ -73,7 +74,7 @@
   "aopp": {
     "addressRequest": "Er wordt een ontvangstadres aangevraagd door {{host}}",
     "addressRequestWithLogo": "vraagt een ontvangstadres aan",
-    "banner": "Adresaanvraag in behandeling",
+    "banner": "Adresaanvraag in behandeling. Verbind je apparaat om door te gaan.",
     "errorTitle": "Foutmelding tijdens adresaanvraag",
     "labelAddress": "Adres",
     "labelMessage": "Bericht",
@@ -141,11 +142,12 @@
       },
       "restoring": "Backup aan het herstellen",
       "selectedBackup": "De backup <strong>{{backupName}}</strong>, aangemaakt op {{createdDateTime}}, wordt hersteld",
+      "subtitle": "Selecteer een backup om door te gaan",
       "title": "Herstellen",
       "understand": ""
     },
     "showMnemonic": {
-      "description": "Je ziet zometeen de 24 herstelwoorden die de backup van je wallet vormen. Schrijf ze op papier op.\n<strong>Sla ze niet digitaal op en neem er geen foto's van</strong>\n<strong>Zeg de woorden niet hardop</strong>\n<strong>Deze backup is niet beschermd met een wachtwoord</strong>\nAchteraf word je gevraagd ieder woord te bevestigen",
+      "description": "Je ziet zometeen de 24 herstelwoorden die de backup van je wallet vormen. Schrijf ze op papier op.\n<strong>Sla ze niet digitaal op en neem er geen foto's van</strong>\n<strong>Zeg de woorden niet hardop</strong>\n<strong>Deze backup is niet beschermd met een wachtwoord</strong>\nAchteraf word je gevraagd ieder woord te bevestigen.",
       "title": "Herstelwoorden tonen",
       "warning": "<strong>Deel je herstelwoorden nooit, met wie dan ook!</strong> Met je herstelwoorden kan iemand volledige toegang tot je wallet krijgen. Als iemand je om je herstelwoorden vraagt, is dit vrijwel altijd een oplichter."
     },
@@ -154,6 +156,8 @@
   "bb02Bootloader": {
     "abort": "Terug - doe de update niet",
     "abort_noUpgrade": "Breng me terug",
+    "additionalUpgradeFollows1": "Een tweede upgrade zal direct na deze volgen.",
+    "additionalUpgradeFollows2": "Houd je BitBox02 aangesloten tot alle upgrades voltooid zijn",
     "advanced": {
       "label": "Geavanceerde instellingen",
       "toggleShowFirmwareHash": "Toon de firmware hash iedere keer tijdens het opstarten"
@@ -161,7 +165,9 @@
     "flipscreen": "Scherm omkeren",
     "orientation": "Tekst op je BitBox ondersteboven?",
     "success": "Upgrade voltooid! ",
-    "success_install": "Installatie voltooid! "
+    "success_install": "Installatie voltooid! ",
+    "upgradeTitle": "BitBox02 firmware aan het upgraden",
+    "upgradeTitle_install": "BitBox02 firmware aan het installeren"
   },
   "bitbox": {
     "error": {
@@ -198,7 +204,7 @@
   "bitbox02Wizard": {
     "advanced": {
       "button": "Geavanceerde opties",
-      "outOfDate": "Deze optie is niet beschikbaar voor deze firmware-versie",
+      "outOfDate": "Er is een firmware update nodig",
       "seed12WordInfo": "De hoeveelheid woorden kan niet veranderd worden nadat je de wallet hebt aangemaakt.",
       "seed12WordLabel": "Seed met 12 ipv 24 herstelwoorden aanmaken",
       "seed12WordText": "De BitBox maakt standaard een backup met 24 herstelwoorden aan. Backups met zowel 12 als 24 woorden zijn in de praktijk veilig tegen \"brute force\" aanvallen. ",
@@ -264,7 +270,7 @@
       "unlock": "Voer je BitBox02 wachtwoord in om te ontgrendelen."
     },
     "stepCreate": {
-      "description": "Deze naam wordt gebruikt als apparaatnaam en voor de backup",
+      "description": "Deze naam zal worden gebruikt als apparaatnaam en voor de backup",
       "error": {
         "genericMessage": "Gebruik letters, cijfers, symbolen en spaties. Maximaal 30 karakters.",
         "invalidChars": "De naam bevat ongeldige karakters: {{invalidChars}}.",
@@ -290,11 +296,11 @@
       "useControls": "Gebruik de touch-sensors op je BitBox02 om een wachtwoord in te voeren."
     },
     "stepUninitialized": {
-      "create": "Ik wil een nieuwe BitBox02 instellen.",
+      "create": "Ik wil een nieuwe wallet op mijn BitBox02 aanmaken.",
       "restore": "Ik wil de backup van een bestaande wallet herstellen.",
       "restoreMicroSD": "Herstel met microSD kaart",
       "restoreMnemonic": "Herstel met herstelwoorden",
-      "title": "Stel je BitBox02 in"
+      "title": "Maak je wallet aan"
     },
     "success": {
       "text": "Gefeliciteerd! Je BitBox02 is nu klaar om te gebruiken.\nVoor meer informatie over het gebruik van de BitBoxApp check je de applicatiehulp door op het icoon rechtsbovenin te klikken.",
@@ -379,6 +385,7 @@
     "next": "Volgende",
     "ok": "OK",
     "previous": "Vorige",
+    "proceedOnBitBox": "Ga door op je BitBox",
     "receive": "Ontvangen",
     "restore": "Herstellen",
     "select": "Selecteren",
@@ -598,8 +605,30 @@
       "title": "Apparaatinformatie"
     },
     "expert": {
+      "bip85": {
+        "description": "Subsleutels genereren uit je BitBox wallet.",
+        "disclaimer": "Ik snap hoe subsleutels werken en wat de veiligheidsoverwegingen hiervan zijn",
+        "how": {
+          "description": "De subsleutels worden als woordenlijst op je BitBox weergegeven. Je kunt zo veel subsleutels genereren als je wilt. Om een subsleutel te tonen, word je om het gewenste subnummer gevraagd (bv. 1e, 2e, 3e, etc.) en de gewenste lengte van de woordenlijst (12, 18 of 24 woorden). Onthoud dat je <strong>zowel het subnummer als de hoeveelheid woorden</strong> moet onthouden om dezelfde woordenlijst later nogmaals te kunnen tonen.",
+          "title": "Hoe werkt het?"
+        },
+        "recover": {
+          "description": "Je kunt altijd de woordenlijst van de subsleutel nogmaals laten tonen. Zoals elders vermeld moet je zowel het subnummer als de hoeveelheid woorden onthouden om dezelfde woordenlijst te tonen. Je moet nooit de hoofdherstelwoorden van je BitBox in een andere wallet invoeren, gebruik hiervoor altijd alleen subsleutels.",
+          "title": "Hoe moet je een wallet herstellen met een BitBox subsleutel?"
+        },
+        "security": {
+          "description": "Gebruik een subsleutel nooit meerdere keren. Je moet een subsleutel bijvoorbeeld niet eerst voor een hot wallet gebruiken en daarna nog een keer dezelfde in een hardware wallet. Deze sleutel is niet meer veilig als hij eerder een keer gebruikt is geweest in een hot wallet.",
+          "title": "Veiligheidsoverwegingen"
+        },
+        "title": "BIP-85 subsleutel weergeven",
+        "what": {
+          "description": "Subsleutels worden vanuit je hoofdwoordenlijst gegenereerd en kunnen gebruikt worden om nieuwe wallets te maken zonder dat je meerdere woordenlijsten hoeft te bewaren. Je kunt bijvoorbeeld een subsleuten genereren en deze in een hot wallet importeren in plaats van dat je een hele nieuwe woordenlijst aan moet maken voor deze hot wallet.",
+          "link": "Lees meer over BIP-85",
+          "title": "Wat zijn subsleutels?"
+        }
+      },
       "factoryReset": {
-        "description": "Zet je BitBox terug naar de fabrieksinstellingen - dit verwijdert de wallet uit je BitBox02!",
+        "description": "Zet je BitBox terug naar de fabrieksinstellingen; dit verwijdert de wallet uit je BitBox02!",
         "title": "Terugzetten naar fabrieksinstellingen"
       },
       "goToStartupSettings": {
@@ -813,6 +842,13 @@
         "text": "Ja, de BitBoxApp maakt accounts die voldoen aan breed gebruikte standaarden, zodat je accounts compatibel zijn met de meeste andere crypto-wallets.",
         "title": "Kan ik mijn accounts in een andere wallet herstellen?"
       },
+      "supportedCoins": {
+        "link": {
+          "text": "Ondersteunde munten weergeven"
+        },
+        "text": "De BitBoxApp ondersteunt Bitcoin, Litecoin, Ethereum, en een beperkte selerctie van ERC-20 tokens. Voor Cardano en andere tokens moet je je BitBox02 met alternatieve apps zoals AdaLite of Rabby gebruiken. Je kunt een volledige lijst van alle ondersteunde munten op onze website vinden:",
+        "title": "Welke munten worden ondersteund?"
+      },
       "whatAreAccounts": {
         "text": "Je wallet kan meerdere accounts van dezelfde coin aanmaken. Accounts zijn handig als je verschillende 'rekeningen' wilt hebben om je financiën gescheiden te houden..",
         "title": "Wat zijn accounts?"
@@ -912,7 +948,7 @@
         "title": "Hoe kan ik de verzekering verlengen of annuleren?"
       },
       "status": {
-        "text": "Verzekerde accounts worden met een groene \"verzekerd\" badge gemarkeerd in de linkerbovenhoek van de Bitcoin account-pagina. In de \"verzekering\" sectie kun je een overzicht vinden van alle verzekerde Bitcoin accounts en hun huidige verzekeringsstatus.",
+        "text": "Verzekerde accounts worden met een groene \"verzekerd\" badge gemarkeerd in de linkerbovenhoek van de Bitcoin account-pagina. In de \"verzekeringen\" sectie kun je een overzicht vinden van alle verzekerde Bitcoin accounts en hun huidige verzekeringsstatus.",
         "title": "Kan ik de status van een verzekerd account inzien?"
       },
       "what": {
@@ -1346,7 +1382,7 @@
         "De passphrase is een extra beveiliging bovenop je backup",
         "Het invoeren van een andere passphrase genereert een andere wallet.",
         "Om je wallet te herstellen heb je <strong>zowel de passphrase als de backup</strong> nodig.",
-        "Als je je passphrase vergeet, kun je geen toegang meer krijgen tot je coins."
+        "Als je je passphrase vergeet, zul je <strong>geen toegang</strong> meer hebben tot je coins."
       ]
     },
     "what": {
@@ -1379,6 +1415,7 @@
       "description": "Om andere tokens te ontvangen, moet je deze inschakelen in de instellingen. Als je hier andere tokens stort, zijn ze mogelijk niet toegankelijk.",
       "warning": "Zorg dat je alleen {{coinName}} op dit adres ontvangt."
     },
+    "qrCodeCopiedMessage": "Gekopieerd!",
     "scriptType": {
       "p2tr": "Taproot (nieuwste adresformaat)",
       "p2wpkh": "Native Segwit (standaard)",
@@ -1528,6 +1565,7 @@
     "noFeeTargets": "Schattingen van de transactiekosten zijn op dit moment niet beschikbaar. Probeer het later opnieuw of stel zelf de hoogte in.",
     "priority": "Prioriteit",
     "scanQR": "QR-code scannen",
+    "scanQRNoCameraMessage": "Camera niet gevonden. Zorg er alsjeblieft voor dat je apparaat een camera heeft en dat je de BitBoxApp hier toegang toe hebt verleend.",
     "signprogress": {
       "description": "Dit is een transactie die veel data in zich heeft. Om de transactie te verzenden, word je gevraagd om {{steps}} keer te ondertekenen.",
       "label": "Voortgang"
@@ -1540,7 +1578,7 @@
   "settings": {
     "about": "Over",
     "accounts": "Accounts",
-    "advancedSettings": "Geavanceerde instellingen",
+    "advancedSettings": "Geavanceerde instellingen ",
     "appearance": "Uiterlijk",
     "electrum": {
       "add": "Server toevoegen",
@@ -1601,7 +1639,7 @@
   "sidebar": {
     "buy": "Crypto kopen",
     "device": "Apparaat beheren",
-    "insurance": "Verzekering",
+    "insurance": "Verzekeringen",
     "leave": "Verlaten",
     "settings": "Instellingen"
   },
