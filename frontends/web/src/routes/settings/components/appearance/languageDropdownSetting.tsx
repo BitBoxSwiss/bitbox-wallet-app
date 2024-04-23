@@ -16,6 +16,8 @@
 
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { useTranslation } from 'react-i18next';
+import { useLoad } from '../../../../hooks/api';
+import { getNativeLocale } from '../../../../api/nativelocale';
 import { defaultLanguages } from '../../../../components/language/types';
 import { getSelectedIndex } from '../../../../utils/language';
 import { SingleDropdown } from '../dropdowns/singledropdown';
@@ -25,6 +27,7 @@ import styles from './languageDropDownSetting.module.css';
 
 export const LanguageDropdownSetting = () => {
   const { i18n, t } = useTranslation();
+  const nativeLocale = useLoad(getNativeLocale);
   const selectedLanguage = defaultLanguages[getSelectedIndex(defaultLanguages, i18n)];
   const formattedLanguages = defaultLanguages.map(lang => ({ label: lang.display, value: lang.code }));
   const { isDarkMode } = useDarkmode();
@@ -34,6 +37,7 @@ export const LanguageDropdownSetting = () => {
       settingName={<div className={styles.container}>{globe}{t('newSettings.appearance.language.title')}</div>}
       secondaryText={t('newSettings.appearance.language.description')}
       collapseOnSmall
+      title={`Detected native locale: ${nativeLocale}`}
       extraComponent={
         <SingleDropdown
           options={formattedLanguages}

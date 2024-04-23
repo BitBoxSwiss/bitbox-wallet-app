@@ -15,44 +15,48 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { formatNumber } from './rates';
+import { localizePercentage } from './localize';
 
 describe('rates utils', () => {
-  describe('formatNumber', () => {
+  describe('localizePercentage', () => {
     it('formats positive number without thousand separator', () => {
-      expect(formatNumber(532.12, 2)).toBe('532.12');
+      expect(localizePercentage(5.3212, 'es-419')).toBe('532.12');
     });
 
     it('formats positive number with thousand separator', () => {
-      expect(formatNumber(1532.12, 2)).toBe('1\'532.12');
+      expect(localizePercentage(15.3212, 'de-CH')).toBe('1’532.12');
     });
 
     it('formats negative number without thousand separator', () => {
-      expect(formatNumber(-532.12, 2)).toBe('-532.12');
+      expect(localizePercentage(-5.3212, 'en')).toBe('-532.12');
     });
 
     it('formats negative number with thousand separator', () => {
-      expect(formatNumber(-1532.12, 2)).toBe('-1\'532.12');
+      expect(localizePercentage(-15.3212, 'de-CH')).toBe('-1’532.12');
     });
 
     it('handles zero correctly', () => {
-      expect(formatNumber(0, 2)).toBe('0.00');
+      expect(localizePercentage(0, 'en-CA')).toBe('0.00');
     });
 
     it('formats number with multiple thousand separators', () => {
-      expect(formatNumber(1234567.89, 2)).toBe('1\'234\'567.89');
+      expect(localizePercentage(12345.6789, 'de-CH')).toBe('1’234’567.89');
     });
 
     it('rounds decimal places correctly', () => {
-      expect(formatNumber(1234.5678, 2)).toBe('1\'234.57');
+      expect(localizePercentage(12.345678, 'de-CH')).toBe('1’234.57');
     });
 
     it('formats negative number close to zero without separator', () => {
-      expect(formatNumber(-100, 2)).toBe('-100.00');
+      expect(localizePercentage(-1, 'de-CH')).toBe('-100.00');
     });
 
     it('formats large negative number with separators', () => {
-      expect(formatNumber(-123456.789, 3)).toBe('-123\'456.789');
+      expect(localizePercentage(-12345.6789, 'en-US')).toBe('-1,234,567.89');
+    });
+
+    it('formats large negative number with separators, rounds to 2 digits', () => {
+      expect(localizePercentage(-1234.56789, 'en-US')).toBe('-123,456.79');
     });
 
   });

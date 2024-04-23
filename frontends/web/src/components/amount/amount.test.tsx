@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { useContext } from 'react';
 import { Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { Amount } from './amount';
 import { CoinUnit, ConversionUnit } from './../../api/account';
 
-vi.mock('react', () => ({
-  ...vi.importActual('react'),
+vi.mock('react', async () => ({
+  ...(await vi.importActual('react')),
   useContext: vi.fn(),
   createContext: vi.fn()
 }));
 
+vi.mock('../../i18n/i18n', () => ({
+  i18n: { language: 'de-CH' },
+}));
 
 const validateSpacing = (values: string[], elements: Element[]) => {
   // each element in `values` is an expected
@@ -49,7 +53,10 @@ const validateSpacing = (values: string[], elements: Element[]) => {
 describe('Amount formatting', () => {
 
   beforeEach(() => {
-    (useContext as Mock).mockReturnValue({ hideAmounts: false });
+    (useContext as Mock).mockReturnValue({
+      hideAmounts: false,
+      nativeLocale: 'de-CH'
+    });
   });
 
   describe('hide amounts', () => {
@@ -261,7 +268,7 @@ describe('Amount formatting', () => {
     fiatCoins.forEach(coin => {
       it('1\'340.25 ' + coin + ' with removeBtcTrailingZeroes enabled stays 1\'340.25', () => {
         const { container } = render(<Amount amount="1'340.25" unit={coin} removeBtcTrailingZeroes/>);
-        expect(container).toHaveTextContent('1\'340.25');
+        expect(container).toHaveTextContent('1’340.25');
       });
       it('218.00 ' + coin + ' with removeBtcTrailingZeroes enabled stays 218.00', () => {
         const { container } = render(<Amount amount="218.00" unit={coin} removeBtcTrailingZeroes/>);
@@ -269,7 +276,7 @@ describe('Amount formatting', () => {
       });
       it('1\'340.25 ' + coin + ' with removeBtcTrailingZeroes disabled stays 1\'340.25', () => {
         const { container } = render(<Amount amount="1'340.25" unit={coin}/>);
-        expect(container).toHaveTextContent('1\'340.25');
+        expect(container).toHaveTextContent('1’340.25');
       });
       it('218.00 ' + coin + ' with removeBtcTrailingZeroes disabled stays 218.00', () => {
         const { container } = render(<Amount amount="218.00" unit={coin}/>);

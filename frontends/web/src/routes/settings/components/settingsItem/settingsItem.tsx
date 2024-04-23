@@ -26,6 +26,7 @@ type TProps = {
   onClick?: () => void;
   secondaryText?: string;
   settingName: string | ReactNode;
+  title?: string;
 }
 
 export const SettingsItem = ({
@@ -37,6 +38,7 @@ export const SettingsItem = ({
   onClick,
   secondaryText,
   settingName,
+  title,
 }: TProps) => {
   const notButton = onClick === undefined;
 
@@ -55,7 +57,7 @@ export const SettingsItem = ({
 
   const content =
     (<>
-      <span>
+      <span title={title}>
         <div className={styles.primaryText}>{settingName}</div>
         { secondaryText ? (
           <p className={styles.secondaryText}>{secondaryText}</p>

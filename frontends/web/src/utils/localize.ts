@@ -14,14 +14,32 @@
  * limitations under the License.
  */
 
-export function formatNumber(amount: number, maxDigits: number): string {
-  let formatted = amount.toFixed(maxDigits);
-  let position = formatted.indexOf('.') - 3;
-  const start = formatted[0] === '-' ? 1 : 0;
+export const localizePercentage = (
+  amount: number,
+  locale: string,
+): string => {
 
-  while (position > start) {
-    formatted = formatted.slice(0, position) + '\'' + formatted.slice(position);
-    position -= 3;
+  let formatter;
+
+  try {
+    formatter = new Intl.NumberFormat(locale, {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
+      signDisplay: 'auto',
+      style: 'percent',
+    });
+  } catch (error) {
+    console.warn(locale, error);
   }
-  return formatted;
-}
+
+  if (formatter) {
+    return (
+      formatter
+        .format(amount)
+        .replace('%', '')
+        .trim()
+    );
+  }
+
+  return (amount * 100).toFixed(2);
+};

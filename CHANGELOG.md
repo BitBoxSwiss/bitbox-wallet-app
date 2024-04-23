@@ -4,6 +4,7 @@
 - New feature in advanced settings: Export logs
 - Add specific titles to guides replacing the generic "Guide" previously used on all pages
 - Android: enable transactions export feature
+- Format amounts using localized decimal and group separator
 
 ## 4.42.0
 - Preselect backup when there's only one backup available

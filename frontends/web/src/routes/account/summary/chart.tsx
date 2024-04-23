@@ -19,13 +19,14 @@ import { Component, createRef, ReactChild } from 'react';
 import { ISummary } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Skeleton } from '../../../components/skeleton/skeleton';
-import { formatNumber } from '../../../utils/rates';
 import { Amount } from '../../../components/amount/amount';
+import { PercentageDiff } from './percentage-diff';
 import Filters from './filters';
 import { getDarkmode } from '../../../components/darkmode/darkmode';
 import { TChartDisplay, TChartFiltersProps } from './types';
 import { DefaultCurrencyRotator } from '../../../components/rates/rates';
 import styles from './chart.module.css';
+
 export interface FormattedLineData extends LineData {
   formattedValue: string;
 }
@@ -403,7 +404,7 @@ class Chart extends Component<Props, State> {
     const valueTo = this.props.data.chartTotal;
     const valueDiff = valueTo ? valueTo - valueFrom : 0;
     this.setState({
-      difference: ((valueDiff / valueFrom) * 100),
+      difference: ((valueDiff / valueFrom)),
       diffSince: `${data[rangeFrom].formattedValue} (${this.renderDate(Number(data[rangeFrom].time) * 1000)})`
     });
   };
@@ -482,7 +483,6 @@ class Chart extends Component<Props, State> {
         formattedChartTotal,
       },
       noDataPlaceholder,
-      hideAmounts
     } = this.props;
     const {
       difference,
@@ -526,23 +526,13 @@ class Chart extends Component<Props, State> {
                 {chartTotal !== null && <DefaultCurrencyRotator tableRow={false}/>}
               </span>
             </div>
-            {!showMobileTotalValue ?
-              <span className={!hasDifference ? '' : (
-                styles[difference < 0 ? 'down' : 'up']
-              )} title={diffSince}>
-                {hasDifference ? (
-                  <>
-                    <span className={styles.arrow}>
-                      {(difference < 0) ? (<ArrowUp />) : (<ArrowDown />)}
-                    </span>
-                    <span className={styles.diffValue}>
-                      {hideAmounts ? '***' : formatNumber(difference, 2)}
-                      <span className={styles.diffUnit}>%</span>
-                    </span>
-                  </>
-                ) : null}
-              </span>
-              :
+            {!showMobileTotalValue ? (
+              <PercentageDiff
+                hasDifference={!!hasDifference}
+                difference={difference}
+                title={diffSince}
+              />
+            ) :
               <span className={styles.diffValue}>
                 {this.renderDate(toolTipTime * 1000)}
               </span>
@@ -589,35 +579,3 @@ class Chart extends Component<Props, State> {
 const HOC = translate()(Chart);
 
 export { HOC as Chart };
-
-export const ArrowUp = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <polyline points="19 12 12 19 5 12"></polyline>
-  </svg>
-);
-
-export const ArrowDown = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round">
-    <line x1="12" y1="19" x2="12" y2="5"></line>
-    <polyline points="5 12 12 5 19 12"></polyline>
-  </svg>
-);

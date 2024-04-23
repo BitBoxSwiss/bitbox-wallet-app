@@ -16,9 +16,9 @@
 
 // A hack around https://github.com/i18next/i18next/issues/1484 which ignores
 // underscore "_" as tag separator.
-export function i18nextFormat(locale: string) {
+export const i18nextFormat = (locale: string) => {
   return locale.replace('_', '-');
-}
+};
 
 export const localeMainLanguage = (locale: string) => {
   return i18nextFormat(locale).split('-')[0];

@@ -101,18 +101,6 @@
   color: var(--color-disabled);
 }
 
-.arrow svg {
-  margin-right: .25rem;
-  vertical-align: text-bottom;
-}
-
-.up {
-  color: var(--color-green);
-}
-
-.down {
-  color: var(--color-softred);
-}
 
 .totalValue {
   font-size: 2rem;
@@ -125,15 +113,6 @@
   display: inline-block;
   margin-bottom: 3px;
   font-size: 1.4rem;
-  padding: 0 .25rem;
-}
-
-.diffValue {
-  font-size: 1.2rem;
-}
-
-.diffUnit {
-  font-size: 1rem;
   padding: 0 .25rem;
 }
 
