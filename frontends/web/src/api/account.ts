@@ -288,6 +288,32 @@ export const getReceiveAddressList = (code: AccountCode) => {
   };
 };
 
+export type TTxInput = {
+  address: string;
+  amount: string;
+  feeTarget: FeeTargetCode;
+  customFee: string;
+  sendAll: 'yes' | 'no';
+  selectedUTXOs: string[],
+};
+
+export type TTxProposalResult = {
+  amount: IAmount;
+  fee: IAmount;
+  success: true;
+  total: IAmount;
+} | {
+  errorCode: string;
+  success: false;
+};
+
+export const proposeTx = (
+  accountCode: AccountCode,
+  txInput: TTxInput,
+): Promise<TTxProposalResult> => {
+  return apiPost(`account/${accountCode}/tx-proposal`, txInput);
+};
+
 export interface ISendTx {
     aborted?: boolean;
     success?: boolean;

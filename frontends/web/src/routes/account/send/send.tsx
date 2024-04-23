@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import { Button, ButtonLink } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { Status } from '../../../components/status/status';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiPost } from '../../../utils/request';
 import { getConfig } from '../../../utils/config';
 import { FeeTargets } from './feetargets';
 import { route } from '../../../utils/route';
@@ -248,10 +247,10 @@ class Send extends Component<Props, State> {
     }
   };
 
-  private txInput = () => ({
+  private txInput = (): accountApi.TTxInput => ({
     address: this.state.recipientAddress,
     amount: this.state.amount,
-    feeTarget: this.state.feeTarget || '',
+    feeTarget: this.state.feeTarget || 'economy',
     customFee: this.state.customFee,
     sendAll: this.state.sendAll ? 'yes' : 'no',
     selectedUTXOs: Object.keys(this.selectedUTXOs),
@@ -279,7 +278,7 @@ class Send extends Component<Props, State> {
     }
     this.setState({ isUpdatingProposal: true });
     this.proposeTimeout = setTimeout(() => {
-      const propose = apiPost('account/' + this.getAccount()!.code + '/tx-proposal', txInput)
+      const propose = accountApi.proposeTx(this.getAccount()!.code, txInput)
         .then(result => {
           const pos = this.pendingProposals.indexOf(propose);
           if (this.pendingProposals.length - 1 === pos) {
@@ -304,13 +303,10 @@ class Send extends Component<Props, State> {
     });
   };
 
-  private txProposal = (updateFiat: boolean, result: {
-        errorCode?: string;
-        amount: accountApi.IAmount;
-        fee: accountApi.IAmount;
-        success: boolean;
-        total: accountApi.IAmount;
-    }) => {
+  private txProposal = (
+    updateFiat: boolean,
+    result: accountApi.TTxProposalResult,
+  ) => {
     this.setState({ valid: result.success });
     if (result.success) {
       this.setState({
