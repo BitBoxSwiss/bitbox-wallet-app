@@ -78,6 +78,7 @@ var fixedURLWhitelist = []string{
 	"https://blockchair.com/litecoin/transaction/",
 	"https://etherscan.io/tx/",
 	"https://goerli.etherscan.io/tx/",
+	"https://sepolia.etherscan.io/tx/",
 	// Moonpay onramp
 	"https://www.moonpay.com/",
 	"https://support.moonpay.com/",
