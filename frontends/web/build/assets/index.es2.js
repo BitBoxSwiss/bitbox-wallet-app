@@ -4191,7 +4191,7 @@ function getAddress(address) {
   }
   return result;
 }
-globalThis && globalThis.__awaiter || function(thisArg, _arguments, P2, generator) {
+(function(thisArg, _arguments, P2, generator) {
   function adopt(value) {
     return value instanceof P2 ? value : new P2(function(resolve) {
       resolve(value);
@@ -4217,7 +4217,7 @@ globalThis && globalThis.__awaiter || function(thisArg, _arguments, P2, generato
     }
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
-};
+});
 function defineReadOnly(object, name, value) {
   Object.defineProperty(object, name, {
     enumerable: true,

@@ -1578,7 +1578,7 @@ function requireBrowser() {
   function wrap(opts, logger, level) {
     if (!opts.transmit && logger[level] === noop)
       return;
-    logger[level] = function(write) {
+    logger[level] = /* @__PURE__ */ function(write) {
       return function LOG() {
         const ts2 = opts.timestamp();
         const args = new Array(arguments.length);
@@ -4449,7 +4449,7 @@ lodash_isequal.exports;
   function eq(value, other) {
     return value === other || value !== value && other !== other;
   }
-  var isArguments = baseIsArguments(function() {
+  var isArguments = baseIsArguments(/* @__PURE__ */ function() {
     return arguments;
   }()) ? baseIsArguments : function(value) {
     return isObjectLike(value) && hasOwnProperty.call(value, "callee") && !propertyIsEnumerable.call(value, "callee");
@@ -4493,6 +4493,7 @@ lodash_isequal.exports;
 })(lodash_isequal, lodash_isequal.exports);
 var lodash_isequalExports = lodash_isequal.exports;
 const Bi = /* @__PURE__ */ getDefaultExportFromCjs(lodash_isequalExports);
+var define_process_env_default = {};
 function Vi(r, e) {
   if (r.length >= 255)
     throw new TypeError("Alphabet too long");
@@ -6029,7 +6030,7 @@ class Vt extends y {
     }, this.getVerifyUrl = (i) => {
       let s = i || $;
       return _t.includes(s) || (this.logger.info(`verify url: ${s}, not included in trusted list, assigning default: ${$}`), s = $), s;
-    }, this.logger = cjs$1.generateChildLogger(t, this.name), this.verifyUrl = $, this.abortController = new AbortController(), this.isDevEnv = te$1() && {}.IS_VITEST;
+    }, this.logger = cjs$1.generateChildLogger(t, this.name), this.verifyUrl = $, this.abortController = new AbortController(), this.isDevEnv = te$1() && define_process_env_default.IS_VITEST;
   }
   get context() {
     return cjs$1.getLoggerContext(this.logger);
