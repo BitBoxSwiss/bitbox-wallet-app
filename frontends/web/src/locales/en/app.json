@@ -1786,6 +1786,7 @@
     "getStarted": "Let's get started by installing firmware on your BitBox02.",
     "insertBitBox02": "For the BitBox02, please tap the device to continue.",
     "insertDevice": "Please connect your device to get started",
+    "loadingAccounts": "Loading accounts",
     "title": "Welcome"
   }
 }
