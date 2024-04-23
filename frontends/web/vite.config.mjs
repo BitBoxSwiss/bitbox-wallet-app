@@ -11,6 +11,15 @@ export default defineConfig(() => {
     build: {
       modulePreload: false,
       outDir: 'build',
+      minify: false,
+      target: 'chrome83',
+      rollupOptions: {
+        output: {
+          entryFileNames: 'assets/[name].js',
+          chunkFileNames: 'assets/[name].js',
+          assetFileNames: 'assets/[name].[ext]',
+        }
+      }
     },
     plugins: [
       react(),

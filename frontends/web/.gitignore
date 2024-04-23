@@ -1,5 +1,7 @@
 /.eslintcache
-/build/
+/build/assets/*.png
+/build/assets/*.svg
+/build/assets/*.webm
 /coverage/
 /node_modules/
 **/*/output.log
