@@ -15,19 +15,309 @@
 package backend
 
 import (
+	"context"
+	"math/big"
+	"net/http"
 	"testing"
 	"time"
 
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
+	accountsMocks "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/mocks"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	blockchainMocks "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
+
+func mustKeypath(keypath string) signing.AbsoluteKeypath {
+	kp, err := signing.NewAbsoluteKeypath(keypath)
+	if err != nil {
+		panic(err)
+	}
+	return kp
+}
+
+func mustXKey(key string) *hdkeychain.ExtendedKey {
+	xkey, err := hdkeychain.NewKeyFromString(key)
+	if err != nil {
+		panic(err)
+	}
+	return xkey
+}
+
+func keystoreHelper1() *software.Keystore {
+	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
+	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+	return software.NewKeystore(rootKey)
+}
+
+func keystoreHelper2() *software.Keystore {
+	// From mnemonic: lava scare swap mystery lawsuit army rubber clean mean bronze keen volcano
+	rootKey := mustXKey("xprv9s21ZrQH143K3cfe2832UrUDA5jmFWvm3acoempvZofxin26VdqjosJfTjHsVgjgszDYHiEgepM7J7U9N7HpayNZDRPUoxGKQbJCuHzgnuy")
+	return software.NewKeystore(rootKey)
+}
+
+var rootFingerprint1 = []byte{0x55, 0x55, 0x55, 0x55}
+
+var rootFingerprint2 = []byte{0x66, 0x66, 0x66, 0x66}
+
+// A keystore with a similar config to a BitBox02 Multi - supporting unified and multiple accounts,
+// no legacy P2PKH.
+func makeBitBox02Multi() *keystoremock.KeystoreMock {
+	return &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock name", nil
+		},
+		RootFingerprintFunc: keystoreHelper1().RootFingerprint,
+		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
+			switch coin.(type) {
+			case *btc.Coin:
+				scriptType := meta.(signing.ScriptType)
+				return scriptType != signing.ScriptTypeP2PKH
+			default:
+				return true
+			}
+		},
+		SupportsMultipleAccountsFunc: func() bool {
+			return true
+		},
+		SupportsUnifiedAccountsFunc: func() bool {
+			return true
+		},
+		ExtendedPublicKeyFunc: keystoreHelper1().ExtendedPublicKey,
+	}
+}
+
+// A keystore with a similar config to a BitBox02 Bitcon-only - supporting unified and multiple
+// accounts, no legacy P2PKH.
+func makeBitBox02BTCOnly() *keystoremock.KeystoreMock {
+	ks := makeBitBox02Multi()
+	ks.SupportsAccountFunc = func(coin coinpkg.Coin, meta interface{}) bool {
+		switch coin.(type) {
+		case *btc.Coin:
+			scriptType := meta.(signing.ScriptType)
+			return coin.Code() == coinpkg.CodeBTC && scriptType != signing.ScriptTypeP2PKH
+		default:
+			return false
+		}
+	}
+	return ks
+}
+
+func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, log *logrus.Entry) *accountsMocks.InterfaceMock {
+	t.Helper()
+	return &accountsMocks.InterfaceMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return nil
+		},
+		CoinFunc: func() coinpkg.Coin {
+			return coin
+		},
+		ConfigFunc: func() *accounts.AccountConfig {
+			return config
+		},
+		InitializeFunc: func() error {
+			return nil
+		},
+		TransactionsFunc: func() (accounts.OrderedTransactions, error) {
+			return nil, nil
+		},
+		BalanceFunc: func() (*accounts.Balance, error) {
+			return &accounts.Balance{}, nil
+		},
+		FatalErrorFunc: func() bool {
+			return false
+		},
+		GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
+			result := []accounts.AddressList{}
+			for _, signingConfig := range config.Config.SigningConfigurations {
+				addressChain := addresses.NewAddressChain(
+					signingConfig,
+					coin.Net(), 20, 0,
+					func(*addresses.AccountAddress) (bool, error) {
+						return false, nil
+					},
+					log)
+				addresses, err := addressChain.EnsureAddresses()
+				require.NoError(t, err)
+				scriptType := signingConfig.ScriptType()
+				result = append(result, accounts.AddressList{
+					ScriptType: &scriptType,
+					Addresses: []accounts.Address{
+						addresses[0],
+					},
+				})
+
+			}
+			return result
+		},
+		CloseFunc: func() {},
+	}
+}
+
+func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) *accountsMocks.InterfaceMock {
+	return &accountsMocks.InterfaceMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return nil
+		},
+		CoinFunc: func() coinpkg.Coin {
+			return coin
+		},
+		ConfigFunc: func() *accounts.AccountConfig {
+			return config
+		},
+		InitializeFunc: func() error {
+			return nil
+		},
+		TransactionsFunc: func() (accounts.OrderedTransactions, error) {
+			return nil, nil
+		},
+		GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
+			return []accounts.AddressList{
+				{
+					Addresses: []accounts.Address{
+						eth.Address{
+							Address: crypto.PubkeyToAddress(
+								*config.Config.SigningConfigurations[0].PublicKey().ToECDSA()),
+						},
+					},
+				},
+			}
+		},
+		CloseFunc: func() {},
+	}
+}
+
+type environment struct{}
+
+func (e environment) NotifyUser(msg string) {
+}
+
+func (e environment) DeviceInfos() []usb.DeviceInfo {
+	return []usb.DeviceInfo{}
+}
+
+func (e environment) SystemOpen(url string) error {
+	return nil
+}
+
+func (e environment) UsingMobileData() bool {
+	return false
+}
+
+func (e environment) NativeLocale() string {
+	return ""
+}
+
+func (e environment) GetSaveFilename(string) string {
+	return ""
+}
+
+func (e environment) SetDarkTheme(bool) {
+	// nothing to do here.
+}
+
+func (e environment) DetectDarkTheme() bool {
+	return false
+}
+
+func (e environment) Auth() {}
+
+func (e environment) OnAuthSettingChanged(bool) {}
+
+type mockTransactionsSource struct {
+}
+
+func (m *mockTransactionsSource) Transactions(
+	blockTipHeight *big.Int,
+	address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
+	[]*accounts.TransactionData, error) {
+	return []*accounts.TransactionData{}, nil
+}
+
+func newBackend(t *testing.T, testing, regtest bool) *Backend {
+	t.Helper()
+	b, err := NewBackend(
+		arguments.NewArguments(
+			test.TstTempDir("appfolder"),
+			testing, regtest,
+			true,
+			&types.GapLimits{Receive: 20, Change: 6}),
+		environment{},
+	)
+	b.tstCheckAccountUsed = func(accounts.Interface) bool {
+		return false
+	}
+	b.ratesUpdater.SetCoingeckoURL("unused") // avoid hitting real API
+
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, log *logrus.Entry) accounts.Interface {
+		return MockBtcAccount(t, config, coin, gapLimits, log)
+	}
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
+		return MockEthAccount(config, coin, httpClient, log)
+	}
+
+	// avoid hitting real API for BTC coins.
+	for _, code := range []coinpkg.Code{
+		coinpkg.CodeBTC,
+		coinpkg.CodeTBTC,
+		coinpkg.CodeRBTC,
+		coinpkg.CodeLTC,
+		coinpkg.CodeTLTC,
+	} {
+		c, err := b.Coin(code)
+		require.NoError(t, err)
+		c.(*btc.Coin).TstSetMakeBlockchain(func() blockchain.Interface {
+			return &blockchainMocks.BlockchainMock{}
+		})
+	}
+
+	// avoid hitting real API for ETH coins.
+	for _, code := range []coinpkg.Code{
+		coinpkg.CodeETH,
+		coinpkg.CodeGOETH,
+		coinpkg.CodeSEPETH,
+	} {
+		c, err := b.Coin(code)
+		require.NoError(t, err)
+		c.(*eth.Coin).TstSetClient(&mocks.InterfaceMock{
+			EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
+				return 21000, nil
+			},
+			BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
+				return big.NewInt(100), nil
+			},
+			BalanceFunc: func(ctx context.Context, account common.Address) (*big.Int, error) {
+				return big.NewInt(1e18), nil
+			},
+			PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {
+				return 0, nil
+			},
+		})
+		c.(*eth.Coin).TstSetTransactionsSource(&mockTransactionsSource{})
+	}
+	require.NoError(t, err)
+	return b
+}
 
 func TestRegisterKeystore(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
@@ -177,78 +467,4 @@ func TestRegisterKeystore(t *testing.T) {
 	// v0-66666666-ltc-0 not loaded (watch=false).
 	require.Nil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-eth-0"))
-}
-
-func lookup(accts []accounts.Interface, code accountsTypes.Code) accounts.Interface {
-	for _, acct := range accts {
-		if acct.Config().Config.Code == code {
-			return acct
-		}
-	}
-	return nil
-}
-
-// TestAccounts performs a series of typical actions related accounts.
-// 1) Register a keystore, which automatically adds some default accounts
-// 2) Add a second BTC account
-// 3) Activate some ETH tokens
-// 4) Deactivate an ETH token
-// 5) Rename an account
-// 6) Deactivate an account.
-// 7) Rename an inactive account.
-func TestAccounts(t *testing.T) {
-	ks := makeBitBox02Multi()
-
-	b := newBackend(t, testnetDisabled, regtestDisabled)
-	defer b.Close()
-
-	require.Len(t, b.Accounts(), 0)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 0)
-
-	// 1) Registering a new keystore persists a set of initial default accounts.
-	b.registerKeystore(ks)
-	checkShownAccountsLen(t, b, 3, 3)
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0"))
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))
-
-	// 2) Add a second BTC account
-	acctCode, err := b.CreateAndPersistAccountConfig(coinpkg.CodeBTC, "A second Bitcoin account", ks)
-	require.NoError(t, err)
-	require.Equal(t, accountsTypes.Code("v0-55555555-btc-1"), acctCode)
-	checkShownAccountsLen(t, b, 4, 4)
-
-	// 3) Activate some ETH tokens
-	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", true))
-	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-bat", true))
-	require.Equal(t,
-		[]string{"eth-erc20-usdt", "eth-erc20-bat"},
-		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
-	)
-	checkShownAccountsLen(t, b, 6, 4)
-	require.NotNil(t, lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-bat"))
-	require.NotNil(t, lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-usdt"))
-
-	// 4) Deactivate an ETH token
-	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", false))
-	require.Equal(t,
-		[]string{"eth-erc20-bat"},
-		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
-	)
-	checkShownAccountsLen(t, b, 5, 4)
-	require.NotNil(t, lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-bat"))
-
-	// 5) Rename an account
-	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH"))
-	require.Equal(t, "My ETH", b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Name)
-	require.Equal(t, "My ETH", lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Name)
-
-	// 6) Deactivate an ETH account - it also deactivates the tokens.
-	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
-	require.True(t, lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Inactive)
-
-	// 7) Rename an inactive account.
-	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH Renamed"))
-	require.Equal(t, "My ETH Renamed", b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Name)
-	require.Equal(t, "My ETH Renamed", lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Name)
 }

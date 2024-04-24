@@ -41,6 +41,7 @@
   "accountSummary": {
     "availableBalance": "Saldo disponibile",
     "balance": "Saldo",
+    "coin": "Valuta",
     "exportSummary": "Esporta il riepilogo dell'account in formato CSV nella cartella download",
     "fiatBalance": "Saldo fiat",
     "name": "Nome account",
@@ -141,6 +142,7 @@
       },
       "restoring": "Ripristino backup...",
       "selectedBackup": "<strong>{{backupName}}</strong> creato in data {{createdDateTime}} verrà ripristinato.",
+      "subtitle": "Seleziona un backup per continuare",
       "title": "Ripristina",
       "understand": "Capisco che una password di recupero errata creerà un wallet diverso"
     },
@@ -154,14 +156,18 @@
   "bb02Bootloader": {
     "abort": "Non aggiornare - riportami indietro",
     "abort_noUpgrade": "Indietro",
+    "additionalUpgradeFollows1": "Un aggiornamento aggiuntivo seguirà immediatamente dopo questo.",
+    "additionalUpgradeFollows2": "Mantieni connesso il tuo BitBox02 finchè tutti gli aggiornamenti non sono stati completati.",
     "advanced": {
       "label": "Impostazioni avanzate",
       "toggleShowFirmwareHash": "Mostrami l'hash del firmware ogni volta all'avvio"
     },
     "flipscreen": "Capovolgi schermo",
     "orientation": "Orientamento del dispositivo sbagliato?",
-    "success": "Aggiornamento riuscito! Passo successivo in {{rebootSeconds}} secondi...",
-    "success_install": "Installazione riuscita! Continua tra {{rebootSeconds}} secondi..."
+    "success": "Aggiornamento riuscito! ",
+    "success_install": "Installazione riuscita!",
+    "upgradeTitle": "Aggiornamento firmware BitBox02",
+    "upgradeTitle_install": "Installazione firmware BitBox02"
   },
   "bitbox": {
     "error": {
@@ -265,6 +271,11 @@
     },
     "stepCreate": {
       "description": "Questo nome viene utilizzato come nome del dispositivo e per il backup.",
+      "error": {
+        "genericMessage": "Usa lettere, numeri, simboli, spazi. Massimo 30 caratteri.",
+        "invalidChars": "Il nome contiene dei caratteri non validi: {{invalidChars}}.",
+        "tooLong": "Il nome è troppo lungo."
+      },
       "nameLabel": "Nome del BitBox02",
       "namePlaceholder": "Il mio BitBox02",
       "title": "Scegli il nome del BitBox02",
@@ -374,6 +385,7 @@
     "next": "Successivo",
     "ok": "OK",
     "previous": "Precedente",
+    "proceedOnBitBox": "Procedi sul tuo BitBox",
     "receive": "Ricevi",
     "restore": "Ripristina",
     "select": "Selezionare",
@@ -593,6 +605,28 @@
       "title": "Informazioni sul dispositivo"
     },
     "expert": {
+      "bip85": {
+        "description": "Genera child keys dal tuo wallet BitBox.",
+        "disclaimer": "Ho compreso il funzionamento delle child keys e le considerazioni di sicurezza",
+        "how": {
+          "description": "Le child keys sono visualizzate come liste di parole sul tuo BitBox. Puoi creare quante child keys vuoi. Per mostrare una child key, ti verranno chiesti il numero ordinale della chiave (prima, seconda, terza ecc) and la lunghezza desiderata (12, 18 o 24 parole di recupero). Ricordati di tenere traccia del <strong>numero ordinale e della lunghezza della chiave</strong> per poterla visualizzare nuovamente in futuro.",
+          "title": "Come funziona?"
+        },
+        "recover": {
+          "description": "Puoi sempre visualizzare nuovamente le parole di recupero della child key. Come già detto, dovrai ricordarti di tenere traccia del <strong>numero ordinale e della lunghezza della chiave</strong> per poterla visualizzare nuovamente in futuro. Non importare mai le parole di recupero principali del tuo BitBox in altri wallet, usa solamente le child keys durante l'importazione in un altro wallet.",
+          "title": "Come ripristinare un wallet utilizzando una child key di BitBox?"
+        },
+        "security": {
+          "description": "Non riutilizzare mai una child key. Per esempio, not usare una child key per un hot wallet e poi riutilizzare la stessa per un hardware wallet. Una child key non si può più considerare sicura da quando viene utilizzata per un hot wallet.",
+          "title": "Considerazioni di sicurezza"
+        },
+        "title": "Mostra una child key BIP-85",
+        "what": {
+          "description": "Le child keys sono derivate dal tuo seed principale e possono essere utilizzate per creare nuovi wallet senza la necessità di fare il backup di nuovi seed. Per esempio, puoi creare una child key e importarla all'interno di un hot wallet, invece di far creare un nuovo seed all'hot wallet stesso.",
+          "link": "Leggi di più sul BIP-85",
+          "title": "Cosa sono le child keys?"
+        }
+      },
       "factoryReset": {
         "description": "Ripristina il dispositivo alle impostazioni di fabbrica. Questo cancella il wallet dal tuo BitBox02!",
         "title": "Ripristino alle impostazioni di fabbrica"
@@ -673,6 +707,7 @@
     "aoppUnsupportedFormat": "Non ci sono account disponibili che supportino il formato di indirizzo richiesto.",
     "aoppUnsupportedKeystore": "Il dispositivo collegato non può firmare i messaggi per questo asset.\n",
     "aoppVersion": "Versione sconosciuta.",
+    "keystoreTimeout": "La richiesta al wallet è scaduta. Riprova.",
     "wrongKeystore": "Wallet connesso errato. Assicurati di inserire il dispositivo corretto per questo account.",
     "wrongKeystore2": "Se stai utilizzando la passphrase opzionale, assicurati di avere inserito quella corretta per questo account."
   },
@@ -806,6 +841,13 @@
       "recoverAccounts": {
         "text": "Sì. BitBoxApp crea account utilizzando standard consolidati e compatibili con la maggior parte degli altri wallet per criptovalute.",
         "title": "Posso recuperare i miei account con altri wallet?"
+      },
+      "supportedCoins": {
+        "link": {
+          "text": "Visualizza valute supportate"
+        },
+        "text": "La BitBoxApp supporta Bitcoin, Litecoin, Ethereum a una selezione di token ERC20. Per Cardano e altri token, usa il tuo BitBox02 con software alternativi come AdaLite o Rabby. Puoi trovare una lista completa di tutte le valute supportate sul nostro sito:",
+        "title": "Quali valute sono supportate?"
       },
       "whatAreAccounts": {
         "text": "Il tuo wallet può gestire più account della stessa moneta. Diversi account sono utili quando si desidera mantenere i fondi separati.",
@@ -1373,6 +1415,7 @@
       "description": "Per ricevere altri token, abilitali nelle impostazioni. Se depositi altri token, potrebbero non essere accessibili.",
       "warning": "Assicurati di ricevere solo {{coinName}} su questo indirizzo."
     },
+    "qrCodeCopiedMessage": "Copiato!",
     "scriptType": {
       "p2tr": "Taproot (formato più recente)",
       "p2wpkh": "Native Segwit (predefinito)",
@@ -1522,6 +1565,7 @@
     "noFeeTargets": "La stima delle fee al momento non è disponibile. Inserisci una fee a tua discrezione o riprova più tardi.",
     "priority": "Priorità",
     "scanQR": "Leggi il QR code",
+    "scanQRNoCameraMessage": "Camera non trovata. Assicurati che il tuo dispositivo supporti una camera e che i permessi siano correttamente configurati.",
     "signprogress": {
       "description": "Questa è una transazione che contiene molti dati. Per firmare la transazione, ti verrà chiesto di confermare {{steps}} volte.",
       "label": "Progresso"

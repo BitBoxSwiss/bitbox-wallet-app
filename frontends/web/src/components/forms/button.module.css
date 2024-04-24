@@ -87,9 +87,8 @@
     border-color: transparent;
     color: var(--color-blue);
     display: inline-block;
-    height: auto;
+    height: 50px;
     min-width: 0;
-    padding: var(--space-half);
 }
 
 .transparent:not([disabled]):focus,

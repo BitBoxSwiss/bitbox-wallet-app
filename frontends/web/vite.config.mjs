@@ -11,6 +11,7 @@ export default defineConfig(() => {
     build: {
       modulePreload: false,
       outDir: 'build',
+      target: ['chrome83'],
     },
     plugins: [
       react(),

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { Component } from 'react';
+import React, { ChangeEvent, Component } from 'react';
 import { route } from '../../../utils/route';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
@@ -105,8 +105,8 @@ class Restore extends Component<Props, State> {
     });
   };
 
-  private handleUnderstandChange = (e: React.SyntheticEvent) => {
-    this.setState({ understand: (e.target as HTMLInputElement).checked });
+  private handleUnderstandChange = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ understand: e.target.checked });
   };
 
   private setValidPassword = (password: string) => {

@@ -20,12 +20,13 @@ import styles from './settingsItem.module.css';
 type TProps = {
   className?: string
   collapseOnSmall?: boolean;
-  displayedValue?: string;
+  displayedValue?: string | ReactNode;
   extraComponent?: ReactNode;
   hideDisplayedValueOnSmall?: boolean;
   onClick?: () => void;
   secondaryText?: string;
   settingName: string | ReactNode;
+  title?: string;
 }
 
 export const SettingsItem = ({
@@ -37,6 +38,7 @@ export const SettingsItem = ({
   onClick,
   secondaryText,
   settingName,
+  title,
 }: TProps) => {
   const notButton = onClick === undefined;
 
@@ -55,8 +57,8 @@ export const SettingsItem = ({
 
   const content =
     (<>
-      <span>
-        {typeof settingName === 'string' ? <p className={styles.primaryText}>{settingName}</p> : settingName }
+      <span title={title}>
+        <div className={styles.primaryText}>{settingName}</div>
         { secondaryText ? (
           <p className={styles.secondaryText}>{secondaryText}</p>
         ) : null }
@@ -82,5 +84,20 @@ export const SettingsItem = ({
           {content}
         </button> }
     </>
+  );
+};
+
+type TSettingsValueProps = {
+  children: ReactNode;
+  wrap?: boolean;
+}
+
+export const SettingsValue = ({
+  children,
+  wrap,
+}: TSettingsValueProps) => {
+  const classNames = wrap ? '' : styles.nowrap;
+  return (
+    <span className={classNames}>{children}</span>
   );
 };

@@ -14,10 +14,24 @@
  * limitations under the License.
  */
 
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import '../../../__mocks__/i18n';
+import { Mock, beforeAll, describe, expect, it, vi } from 'vitest';
 import { render, fireEvent, act } from '@testing-library/react';
-import I18NWrapper from '../../i18n/forTests/i18nwrapper';
 import { Alert, alertUser } from './Alert';
+
+vi.mock('../../utils/request', () => ({
+  apiGet: vi.fn().mockResolvedValue(null),
+}));
+
+import { apiGet } from '../../utils/request';
+
+(apiGet as Mock).mockImplementation(endpoint => {
+  switch (endpoint) {
+  case 'config': { return Promise.resolve({ backend: { userLanguage: 'it' } }); }
+  // case 'native-locale': { return Promise.resolve('de'); }
+  default: { return Promise.resolve(); }
+  }
+});
 
 describe('Alert', () => {
 
@@ -35,7 +49,7 @@ describe('Alert', () => {
   });
 
   function renderAlert() {
-    return render(<Alert/>, { wrapper: I18NWrapper });
+    return render(<Alert/>);
   }
 
   it('should render the Alert component properly', () => {

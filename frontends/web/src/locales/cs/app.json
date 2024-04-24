@@ -41,6 +41,7 @@
   "accountSummary": {
     "availableBalance": "Dostupný zůstatek",
     "balance": "Zůstatek",
+    "coin": "Měna",
     "exportSummary": "Exportovat přehled účtů do složky ke stažení jako soubor CSV",
     "fiatBalance": "Fiat zůstatek",
     "name": "Název účtu",
@@ -141,6 +142,7 @@
       },
       "restoring": "Obnova ze zálohy...",
       "selectedBackup": "<strong>{{backupName}}</strong> vytvořena {{createdDateTime}} bude obnovena.",
+      "subtitle": "Pro pokračování vyberte zálohu",
       "title": "Obnovit",
       "understand": "Rozumím, že nesprávné heslo pro obnovení vytvoří jinou peněženku."
     },
@@ -154,14 +156,18 @@
   "bb02Bootloader": {
     "abort": "Neaktualizovat - zpět",
     "abort_noUpgrade": "Zpět",
+    "additionalUpgradeFollows1": "Další upgrade bude následovat ihned po tomto.",
+    "additionalUpgradeFollows2": "Nechte prosím svůj BitBox02 zapojený, dokud nebudou dokončeny všechny aktualizace.",
     "advanced": {
       "label": "Rozšířená nastavení",
       "toggleShowFirmwareHash": "Zobrazit hash firmwaru při každém spuštění"
     },
     "flipscreen": "Otoč obrazovku",
     "orientation": "Špatná orientace zařízení?",
-    "success": "Aktualizace úspěšná! Pokračování za {{rebootSeconds}} sekund...",
-    "success_install": "Instalace proběhla úspěšně! Pokračování za {{rebootSeconds}} sekund..."
+    "success": "Aktualizace úspěšná! ",
+    "success_install": "Instalace proběhla úspěšně! ",
+    "upgradeTitle": "Aktualizace firmwaru BitBox02",
+    "upgradeTitle_install": "Instalace firmwaru BitBox02"
   },
   "bitbox": {
     "error": {
@@ -198,7 +204,7 @@
   "bitbox02Wizard": {
     "advanced": {
       "button": "Pokročilé nastavení",
-      "outOfDate": "Firmware je pro tuto funkci zastaralý",
+      "outOfDate": "Vyžaduje se aktualizace firmwaru",
       "seed12WordInfo": "Upozorňujeme, že počet slov nelze po vytvoření peněženky změnit.",
       "seed12WordLabel": "Vytvořit 12slovný namísto 24slovného seed",
       "seed12WordText": "Ve výchozím nastavení používá BitBox02 seed s 24 slovy. Obě délky seedů jsou v praxi bezpečné proti brute force útoku. Někteří uživatelé mohou místo toho upřednostnit 12slovný seed.",
@@ -290,11 +296,11 @@
       "useControls": "K nastavení hesla použijte ovládací prvky na vašem BitBox02."
     },
     "stepUninitialized": {
-      "create": "Chci nastavit nový BitBox02.",
+      "create": "Chci si na svém BitBox02 vytvořit novou peněženku.",
       "restore": "Chci obnovit svou peněženku ze zálohy.",
       "restoreMicroSD": "Obnovit z microSD karty",
       "restoreMnemonic": "Obnovit ze slov pro obnovení",
-      "title": "Nastavte svůj BitBox02"
+      "title": "Nastavení peněženky"
     },
     "success": {
       "text": "Hurá! Váš BitBox02 je nyní připraven k použití.\n\nChcete-li získat další informace o tom, jak používat BitBoxApp, použijte průvodce v aplikaci kliknutím na otazník v pravém horním rohu.",
@@ -379,6 +385,7 @@
     "next": "Další",
     "ok": "OK",
     "previous": "Předchozí",
+    "proceedOnBitBox": "Pokračujte na svém BitBoxu",
     "receive": "Přijmout",
     "restore": "Obnovit",
     "select": "Vybrat",
@@ -598,6 +605,28 @@
       "title": "Informace o zařízení"
     },
     "expert": {
+      "bip85": {
+        "description": "Generujte child keys z BitBox peněženky.",
+        "disclaimer": "Rozumím fungování child keys a bezpečnostním aspektům.",
+        "how": {
+          "description": "Child keys se zobrazí jako slova (seed) na vašem BitBoxu. Můžete vytvořit libovolný počet child keys. Chcete-li zobrazit child key, budete vyzváni k zadání čísla child key (tj. 1., 2., 3. atd.) a požadované délky  (12, 18 nebo 24 slov pro obnovení). Nezapomeňte, že musíte sledovat <strong>číslo child key a počet slov</strong>, abyste mohli později zobrazit stejný seed.",
+          "title": "Jak to funguje?"
+        },
+        "recover": {
+          "description": "Vždy můžete znovu zobrazit seed pro child key. Jak již bylo zmíněno, musíte si zapamatovat <strong>číslo child key a počet slov</strong>, abyste mohli zobrazit stejný seed. Nikdy neimportujte hlavní slova pro obnovení BitBoxu do jiné peněženky, při importu do jiné peněženky používejte pouze child keys.",
+          "title": "Jak obnovit peněženky pomocí BitBox child key?"
+        },
+        "security": {
+          "description": "Child key nikdy nepoužívejte opakovaně. Nepoužívejte například child key pro hot wallet peněženku a poté stejný klíč pro hardwarovou peněženku. Tento klíč již není považován za bezpečný, protože byl použit pro hot wallet peněženku.",
+          "title": "Bezpečnostní hlediska"
+        },
+        "title": "Zobrazit BIP-85 child key",
+        "what": {
+          "description": "Child keys jsou odvozeny od hlavního seedu a lze je použít k vytvoření nových peněženek bez nutnosti zálohovat další seed. Můžete například vytvořit child key a importovat jej do hot wallet peněženky, místo aby tato hot wallet peněženka vytvořila zcela nový seed.",
+          "link": "Přečtěte si více o BIP-85",
+          "title": "Co jsou child keys?"
+        }
+      },
       "factoryReset": {
         "description": "Obnovte zařízení do továrního nastavení. Tím se smaže peněženka z vašeho BitBox02! ",
         "title": "Obnovit do továrního nastavení"
@@ -813,6 +842,13 @@
         "text": "Ano, BitBoxApp vytváří účty pomocí zavedených standardů kompatibilních s většinou ostatních kryptopeněženek.",
         "title": "Mohu obnovit své účty v jiných peněženkách?"
       },
+      "supportedCoins": {
+        "link": {
+          "text": "Zobrazit podporované kryptoměny"
+        },
+        "text": "BitBoxApp podporuje Bitcoin, Litecoin, Ethereum a vybrané tokeny ERC20. Pro Cardano a další tokeny používejte BitBox02 s alternativním softwarem, jako je AdaLite nebo Rabby. Kompletní seznam všech podporovaných kryptoměn najdete na našich webových stránkách:",
+        "title": "Které kryptoměny jsou podporovány?"
+      },
       "whatAreAccounts": {
         "text": "Vaše peněženka umí spravovat více účtů jedné měny. Účty jsou užitečné, když chcete mít prostředky oddělené.",
         "title": "Co jsou účty?"
@@ -912,7 +948,7 @@
         "title": "Jak mohu obnovit nebo zrušit pojištění?"
       },
       "status": {
-        "text": "Úspěšně pojištěné účty jsou označeny zeleným odznakem \"pojištěno\" v levém horním rohu na každé stránce účtu Bitcoin. V sekci \"Pojištění\" si můžete prohlédnout přehled všech pojištěných účtů Bitcoin a jejich aktuální stav pojištění. Aktualizace stavu pojištění může trvat až 48 hodin.",
+        "text": "Úspěšně pojištěné účty jsou označeny zeleným odznakem \"pojištěno\" v levém horním rohu na každé stránce bitcoinového účtu. V sekci \"Pojištění\" si můžete prohlédnout přehled všech pojištěných bitcoinových účtů a jejich aktuální stav pojištění. Aktualizace stavu pojištění může trvat až 48 hodin.",
         "title": "Mohu zkontrolovat stav pojištěného účtu?"
       },
       "what": {
@@ -1379,6 +1415,7 @@
       "description": "Chcete-li přijímat další tokeny, aktivujte je v nastavení. Pokud vložíte jiné tokeny, nemusí být přístupné.",
       "warning": "Ujistěte se, že přijímáte pouze {{coinName}} na této adrese."
     },
+    "qrCodeCopiedMessage": "Zkopírováno!",
     "scriptType": {
       "p2tr": "Taproot (nejnovější formát)",
       "p2wpkh": "Nativní Segwit (výchozí)",
@@ -1528,6 +1565,7 @@
     "noFeeTargets": "Odhady výše poplatků nejsou v současné době k dispozici. Zkuste to prosím později nebo zadejte vlastní poplatek.",
     "priority": "Priorita",
     "scanQR": "Naskenujte QR kód",
+    "scanQRNoCameraMessage": "Kamera nenalezena. Ujistěte se, že vaše zařízení podporuje kameru a že jsou správně nastavena oprávnění.",
     "signprogress": {
       "description": "Jedná se o transakci obsahující velké množství dat. Chcete-li transakci plně podepsat, budete vyzváni k potvrzení {{steps}}krát.",
       "label": "Průběh"

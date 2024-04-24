@@ -28,7 +28,7 @@ export const ActiveCurrenciesDropdown = ({
   const [search, setSearch] = useState('');
   const { t } = useTranslation();
 
-  const { unselectFiat, selectFiat } = useContext(RatesContext);
+  const { removeFromActiveCurrencies, addToActiveCurrencies } = useContext(RatesContext);
 
   useEffect(() => {
     if (activeCurrencies.length > 0) {
@@ -77,12 +77,12 @@ export const ActiveCurrenciesDropdown = ({
         switch (meta.action) {
         case 'select-option':
           if (meta.option) {
-            await selectFiat(meta.option.value);
+            await addToActiveCurrencies(meta.option.value);
           }
           break;
         case 'deselect-option':
           if (meta.option && meta.option.value !== defaultCurrency) {
-            await unselectFiat(meta.option.value);
+            await removeFromActiveCurrencies(meta.option.value);
           }
         }
       }}

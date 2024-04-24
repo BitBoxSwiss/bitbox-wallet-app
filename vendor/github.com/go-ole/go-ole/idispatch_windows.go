@@ -1,8 +1,10 @@
+//go:build windows
 // +build windows
 
 package ole
 
 import (
+	"math/big"
 	"syscall"
 	"time"
 	"unsafe"
@@ -91,7 +93,7 @@ func invoke(disp *IDispatch, dispid int32, dispatch int16, params ...interface{}
 			case int8:
 				vargs[n] = NewVariant(VT_I1, int64(v.(int8)))
 			case *int8:
-				vargs[n] = NewVariant(VT_I1|VT_BYREF, int64(uintptr(unsafe.Pointer(v.(*uint8)))))
+				vargs[n] = NewVariant(VT_I1|VT_BYREF, int64(uintptr(unsafe.Pointer(v.(*int8)))))
 			case int16:
 				vargs[n] = NewVariant(VT_I2, int64(v.(int16)))
 			case *int16:
@@ -132,6 +134,8 @@ func invoke(disp *IDispatch, dispid int32, dispatch int16, params ...interface{}
 				vargs[n] = NewVariant(VT_R8, *(*int64)(unsafe.Pointer(&vv)))
 			case *float64:
 				vargs[n] = NewVariant(VT_R8|VT_BYREF, int64(uintptr(unsafe.Pointer(v.(*float64)))))
+			case *big.Int:
+				vargs[n] = NewVariant(VT_DECIMAL, v.(*big.Int).Int64())
 			case string:
 				vargs[n] = NewVariant(VT_BSTR, int64(uintptr(unsafe.Pointer(SysAllocStringLen(v.(string))))))
 			case *string:
@@ -182,7 +186,9 @@ func invoke(disp *IDispatch, dispid int32, dispatch int16, params ...interface{}
 		uintptr(unsafe.Pointer(&excepInfo)),
 		0)
 	if hr != 0 {
-		err = NewErrorWithSubError(hr, BstrToString(excepInfo.bstrDescription), excepInfo)
+		excepInfo.renderStrings()
+		excepInfo.Clear()
+		err = NewErrorWithSubError(hr, excepInfo.description, excepInfo)
 	}
 	for i, varg := range vargs {
 		n := len(params) - i - 1

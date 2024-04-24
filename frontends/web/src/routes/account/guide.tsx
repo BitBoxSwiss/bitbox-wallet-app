@@ -38,7 +38,7 @@ export function AccountGuide({
 }: Props) {
   const { t } = useTranslation();
   return (
-    <Guide>
+    <Guide title={t('guide.guideTitle.account')}>
       <Entry key="accountDescription" entry={t('guide.accountDescription')} />
       {hasNoBalance && (
         <Entry key="accountSendDisabled" entry={t('guide.accountSendDisabled', {

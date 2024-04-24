@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
 import { Input } from '../../components/forms';
@@ -44,8 +44,8 @@ export function Note({ accountCode, note, internalID }: Props) {
     }
   }, [editMode]);
 
-  const handleNoteInput = (e: Event) => {
-    const target = e.target as HTMLInputElement;
+  const handleNoteInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const target = e.target;
     setNewNote(target.value);
   };
 

@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { SettingsItem } from '../settingsItem/settingsItem';
+import { SettingsItem, SettingsValue } from '../settingsItem/settingsItem';
 
 type TProps = {
     rootFingerprint: string;
@@ -27,7 +27,9 @@ const RootFingerprintSetting = ({ rootFingerprint }: TProps) => {
     <SettingsItem
       settingName={'Root fingerprint'}
       secondaryText={t('deviceSettings.deviceInformation.rootFingerprint.description')}
-      displayedValue={rootFingerprint}
+      displayedValue={
+        <SettingsValue>{rootFingerprint}</SettingsValue>
+      }
     />
   );
 };

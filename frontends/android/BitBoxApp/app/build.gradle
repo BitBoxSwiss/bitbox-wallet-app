@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    buildToolsVersion "33.0.0"
-    compileSdkVersion 33
+    buildToolsVersion '34.0.0'
+    compileSdk 34
     defaultConfig {
         applicationId "ch.shiftcrypto.bitboxapp"
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode 48
-        versionName "android-4.41.0"
+        versionCode 49
+        versionName "android-4.42.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -31,13 +31,19 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.biometric:biometric:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.activity:activity:1.8.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation "android.arch.lifecycle:extensions:1.1.1"
     implementation "android.arch.lifecycle:viewmodel:1.1.1"
     implementation project(path: ':mobileserver')
+
+
+    // Fix Duplicate class
+    // see (https://gist.github.com/danielcshn/7aa57155d766d46c043fde015f054d40)
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
 }

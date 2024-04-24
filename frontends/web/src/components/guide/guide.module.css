@@ -11,18 +11,15 @@
 }
 
 .close {
-    color: var(--color-alt);
-    font-size: var(--size-default) !important;
-    text-decoration: none;
+    height: 24px;
+    width: 24px;
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    line-height: 1;
+    padding: 4px;
 }
 
 .close img {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     margin-left: calc(var(--space-quarter) / 2);
 }
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
+import { ChangeEvent, Component } from 'react';
 import * as accountApi from '../../../api/account';
 import { syncdone } from '../../../api/accountsync';
 import { BtcUnit, parseExternalBtcAmount } from '../../../api/coins';
@@ -296,8 +296,8 @@ class Send extends Component<Props, State> {
     }, 400);
   };
 
-  private handleNoteInput = (event: Event) => {
-    const target = (event.target as HTMLInputElement);
+  private handleNoteInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const target = event.target;
     this.setState({
       'note': target.value,
     }, () => {
@@ -332,8 +332,8 @@ class Send extends Component<Props, State> {
     }
   };
 
-  private handleFiatInput = (event: Event) => {
-    const value = (event.target as HTMLInputElement).value;
+  private handleFiatInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
     this.setState({ fiatAmount: value });
     this.convertFromFiat(value);
   };

@@ -315,7 +315,7 @@ class ManageAccounts extends Component<Props, State> {
             </View>
           </Main>
         </GuidedContent>
-        <AccountGuide />
+        <AccountGuide accounts={accounts}/>
       </GuideWrapper>
     );
   }

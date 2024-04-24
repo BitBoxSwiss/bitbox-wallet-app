@@ -104,7 +104,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
                     width="100%"
                     height={height}
                     frameBorder="0"
-                    className={style.iframe}
+                    className={`${style.iframe} ${!iframeLoaded ? style.hide : ''}`}
                     allow="camera; payment"
                     src={`${moonpay.url}&colorCode=%235E94BF&theme=${isDarkMode ? 'dark' : 'light'}`}>
                   </iframe>

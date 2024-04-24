@@ -15,39 +15,21 @@
  * limitations under the License.
  */
 
-import { forwardRef } from 'react';
+import { ChangeEvent, HTMLProps, forwardRef } from 'react';
 import styles from './input.module.css';
 
-type withValue = {
-  value: string | number;
-  defaultValue?: string | number;
-} | {
-  defaultValue: string | number;
-}
 
-export type Props = withValue & {
+
+export type Props = {
     align?: 'left' | 'right';
-    autoFocus?: boolean;
     children?: React.ReactNode;
     className?: string;
-    disabled?: boolean;
     error?: string | object;
-    id?: string;
-    label?: string;
-    min?: string;
-    name?: string;
-    onInput?: (e: any) => void;
-    onPaste?: (e: any) => void;
-    pattern?: string;
-    placeholder?: string;
-    readOnly?: boolean;
-    step?: string;
-    title?: string;
+    onInput?: (e: ChangeEvent<HTMLInputElement>) => void;
     transparent?: boolean;
-    type?: 'text' | 'password' | 'number';
-    maxLength?: number;
     labelSection?: JSX.Element | undefined;
-}
+    label?: string;
+} & Omit<HTMLProps<HTMLInputElement>, 'onInput'>
 
 export default forwardRef<HTMLInputElement, Props>(function Input({
   id,

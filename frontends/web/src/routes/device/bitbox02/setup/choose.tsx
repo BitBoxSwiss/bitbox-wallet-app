@@ -177,7 +177,7 @@ export const SetupOptions = ({
       </ViewHeader>
       <ViewContent fullWidth>
         <Grid>
-          <Column asCard>
+          <Column asCard className={style.cardHeight}>
             <h3 className="title">
               {t('button.create')}
             </h3>
@@ -195,7 +195,6 @@ export const SetupOptions = ({
               </Button>
               <Button
                 onClick={() => setAdvanced(true)}
-                style={{ border: 'none', marginTop: 'var(--space-half)', height: '1.5rem' }}
                 transparent>
                 <small>
                   {t('bitbox02Wizard.advanced.button')}
@@ -203,7 +202,7 @@ export const SetupOptions = ({
               </Button>
             </ColumnButtons>
           </Column>
-          <Column asCard>
+          <Column asCard className={style.cardHeight}>
             <h3 className="title">
               {t('button.restore')}
             </h3>
@@ -218,7 +217,6 @@ export const SetupOptions = ({
               </Button>
               <Button
                 onClick={() => onSelectSetup('restore-mnemonic')}
-                style={{ marginBottom: '40px' }}
                 secondary>
                 {t('bitbox02Wizard.stepUninitialized.restoreMnemonic')}
               </Button>

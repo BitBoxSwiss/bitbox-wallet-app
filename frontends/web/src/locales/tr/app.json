@@ -92,7 +92,7 @@
     },
     "flipscreen": "Ekran çevir",
     "orientation": "Cihaz yanlış yöne mi yöneldi?",
-    "success": "Yükseltme başarılı!  {{rebootSeconds}} saniye içerisinde devam edecek..."
+    "success": "Yükseltme başarılı!  "
   },
   "bitbox": {
     "error": {

@@ -20,7 +20,7 @@ import (
 	"runtime"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	hid "github.com/digitalbitbox/usb"
+	"github.com/karalabe/hid"
 )
 
 const darwin = "darwin"
@@ -90,7 +90,7 @@ func (info hidDeviceInfo) Product() string {
 
 // Identifier implements DeviceInfo.
 func (info hidDeviceInfo) Identifier() string {
-	return hex.EncodeToString([]byte(info.DeviceInfo.Path))
+	return hex.EncodeToString([]byte(info.DeviceInfo.Path + info.DeviceInfo.Product))
 }
 
 // singleThreadedDevice runs all hidapi functions in the same OS thread. See the docs of the
@@ -155,12 +155,12 @@ func DeviceInfos() []DeviceInfo {
 	ch := make(chan funcCallResult[[]hid.DeviceInfo])
 	if runtime.GOOS == darwin {
 		funcCalls <- func() {
-			di, err := hid.EnumerateHid(0, 0)
+			di, err := hid.Enumerate(0, 0)
 			ch <- funcCallResult[[]hid.DeviceInfo]{di, err}
 		}
 		result = <-ch
 	} else {
-		di, err := hid.EnumerateHid(0, 0)
+		di, err := hid.Enumerate(0, 0)
 		result = funcCallResult[[]hid.DeviceInfo]{di, err}
 	}
 	// The library never actually returns an error in this functions.

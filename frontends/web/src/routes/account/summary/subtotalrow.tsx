@@ -65,3 +65,36 @@ export function SubTotalRow ({ coinCode, coinName, balance }: TProps) {
     </tr>
   );
 }
+
+
+export function SubTotalCoinRow ({ coinCode, coinName, balance }: TProps) {
+  const { t } = useTranslation();
+  const nameCol = (
+    <td data-label={t('accountSummary.total')}>
+      <div className={style.coinName}>
+        <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
+        <span className={style.showOnTableView}>
+          {coinName}
+        </span>
+      </div>
+    </td>
+  );
+  if (!balance) {
+    return null;
+  }
+  return (
+    <tr key={`${coinCode}_subtotal`} className={style.subTotal}>
+      { nameCol }
+      <td data-label={t('accountSummary.balance')}>
+        <span className={style.summaryTableBalance}>
+          <Amount amount={balance.amount} unit={balance.unit}/>
+          {' '}
+          <span className={style.coinUnit}>{balance.unit}</span>
+        </span>
+      </td>
+      <td data-label={t('accountSummary.fiatBalance')}>
+        <FiatConversion amount={balance} noAction={true} />
+      </td>
+    </tr>
+  );
+}

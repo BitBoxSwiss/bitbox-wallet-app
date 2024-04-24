@@ -325,7 +325,7 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 		CanGotoStartupSettings:     currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
 		CanBackupWithRecoveryWords: currentVersion.AtLeast(semver.NewSemVer(9, 13, 0)),
 		CanCreate12Words:           currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
-		CanBIP85:                   currentVersion.AtLeast(semver.NewSemVer(9, 16, 0)),
+		CanBIP85:                   currentVersion.AtLeast(semver.NewSemVer(9, 18, 0)),
 	}
 }
 

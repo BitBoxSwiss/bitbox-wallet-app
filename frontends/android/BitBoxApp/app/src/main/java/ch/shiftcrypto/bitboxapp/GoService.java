@@ -75,6 +75,8 @@ public class GoService extends Service {
     @Override
     public void onDestroy() {
         Util.log("GoService onDestroy()");
+        // It would be nice to call MobileServer.shutdown() here, but that function
+        // is currently incomplete and can lead to unpredictable results.
     }
 
     public void startServer(String filePath, GoEnvironmentInterface goEnvironment, GoAPIInterface goAPI) {

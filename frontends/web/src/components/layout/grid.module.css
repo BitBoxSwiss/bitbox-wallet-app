@@ -34,6 +34,10 @@
     text-align: center;
 }
 
+.textCenter {
+    text-align: center;
+}
+
 @media (max-width: 768px) {
     .columnAsCard {
         padding: var(--space-half);

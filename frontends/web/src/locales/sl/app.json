@@ -41,6 +41,7 @@
   "accountSummary": {
     "availableBalance": "Razpoložljivo stanje",
     "balance": "Stanje",
+    "coin": "Kovanec",
     "exportSummary": "Izvozi povzetek računa v mapo za prenos, kot datoteko CSV",
     "fiatBalance": "Stanje v fiat valuti",
     "name": "Ime računa",
@@ -141,6 +142,7 @@
       },
       "restoring": "Obnavljanje varnostne kopije ...",
       "selectedBackup": "<strong>{{backupName}}</strong> ustvarjen {{createdDateTime}} bo obnovljen.",
+      "subtitle": "",
       "title": "Obnovi",
       "understand": "Razumem, da bo nepravilno geslo za obnovitev ustvarilo drugo, novo denarnico"
     },
@@ -154,14 +156,18 @@
   "bb02Bootloader": {
     "abort": "Ne nadgradi - vrni me nazaj",
     "abort_noUpgrade": "Vrni me nazaj",
+    "additionalUpgradeFollows1": "Takoj za to nadgradnjo sledi nova.",
+    "additionalUpgradeFollows2": "BitBox02 naj bo priklopljen dokler vse nadgradnje niso nameščene!",
     "advanced": {
       "label": "Napredne nastavitve",
       "toggleShowFirmwareHash": "Ob zagonu vedno prikaži binarno vrednost strojne programske opreme (firmware hash)"
     },
     "flipscreen": "Obrnite sliko na zaslonu",
     "orientation": "Je zaslon na napravi obrnjen v napačno smer?",
-    "success": "Nadgradnja uspešna! Nadaljevanje v {{rebootSeconds}} sekundah...",
-    "success_install": "Namestitev uspešna! Nadaljevanje v {{rebootSeconds}} sekundah..."
+    "success": "Nadgradnja uspešna! ",
+    "success_install": "Namestitev uspešna! ",
+    "upgradeTitle": "Posodablja se strojno programska oprema (firmware)",
+    "upgradeTitle_install": "Namešča se strojno programska oprema (firmware)"
   },
   "bitbox": {
     "error": {
@@ -198,13 +204,13 @@
   "bitbox02Wizard": {
     "advanced": {
       "button": "Napredne možnosti",
-      "outOfDate": "Strojna programska oprema (firmware) je prestara za to funkcijo",
+      "outOfDate": "Potrebna je nadgradnja strojne programske opreme (firmware)",
       "seed12WordInfo": "Število besed kasneje ni možno spremeniti.",
       "seed12WordLabel": "Ustvari 12 besedno seme namesto 24 besednega",
       "seed12WordText": "BitBox privzeto uporablja 24 besedno seme. Na voljo je tudi 12 besedno seme. Obe podprti dolžini semena sta dovolj varni proti strojnemu uganjevanju (brute force). ",
-      "skipSDCardLabel": "Ne ustvari varnostne kopije na micro SD kartico ampak prikaži semenske besede",
-      "skipSDCardText": "Kasneje lahko vedno ustvarite varnostno kopijo na micro SD kartico ali ponovno prikažete semenske besede. To opcijo najdete v Nastavitvah.",
-      "title": "Napredne možnosti arhivske kopije"
+      "skipSDCardLabel": "Ne ustvari varnostne kopije na micro SD kartico ampak prikaži obnovitvene besede",
+      "skipSDCardText": "Kasneje lahko vedno ustvarite varnostno kopijo na micro SD kartico ali ponovno prikažete obnovitvene besede. To opcijo najdete v Nastavitvah.",
+      "title": "Napredne možnosti varnostne kopije"
     },
     "attestationFailed": "Preverjanje ni uspelo, kar je lahko posledica ponovnega zagona aplikacije, medtem ko je naprava čakala na uporabniški vnos (dotik). Napravo znova vklopite in poskusite znova. Če težava ne izgine, se obrnite na support@bitbox.swiss (v angleščini).",
     "backup": {
@@ -254,7 +260,7 @@
     "stepBackup": {
       "beforeProceed": "Pred nadaljevanjem preberite naslednje pomembne varnostne vidike:",
       "createBackup": "Zdaj boste ustvarili varnostno kopijo na microSD kartici .",
-      "createBackupMnemonic": "Zdaj zapišite semenske besede na papir ali jeklo"
+      "createBackupMnemonic": "Zdaj zapišite obnovitvene besede na papir ali jeklo"
     },
     "stepBackupSuccess": {
       "fundsSafe": "Če želite ohraniti sredstva varna, upoštevajte naslednje:",
@@ -290,11 +296,11 @@
       "useControls": "S pomočjo drsnikov na robu naprave si nastavite geslo."
     },
     "stepUninitialized": {
-      "create": "Želim postaviti nov BitBox02.",
+      "create": "Želim ustvariti novo denarnico na BitBox02.",
       "restore": "Želim obnoviti denarnico iz varnostne kopije.",
       "restoreMicroSD": "Obnovi iz microSD kartice",
       "restoreMnemonic": "Obnovi iz seznama besed",
-      "title": "Nastavite svoj BitBox02"
+      "title": "Nastavite denarnico"
     },
     "success": {
       "text": "Bravo! Vaš BitBox02 je zdaj pripravljen za uporabo.\n\nZa dodatne informacije o uporabi aplikacije BitBoxApp uporabite vodnik. Na voljo je s klikom na vprašaj v zgornjem desnem kotu.",
@@ -379,6 +385,7 @@
     "next": "Naprej",
     "ok": "OK",
     "previous": "Nazaj",
+    "proceedOnBitBox": "Nadaljujte na napravi",
     "receive": "Prejmi",
     "restore": "Obnovi",
     "select": "Izberite",
@@ -578,7 +585,7 @@
         "description": "Prikaži in preveri varnostno kopijo na Micro SD kartici."
       },
       "showRecoveryWords": {
-        "description": "Prikaži in potrdi semenske besede."
+        "description": "Prikaži in potrdi obnovitvene besede."
       },
       "title": "Varnostne kopije"
     },
@@ -598,6 +605,28 @@
       "title": "Informacije o napravi"
     },
     "expert": {
+      "bip85": {
+        "description": "",
+        "disclaimer": "Razumem kako delujejo podrejeni ključi in varnostna tveganja",
+        "how": {
+          "description": "",
+          "title": "Kako to deluje?"
+        },
+        "recover": {
+          "description": "Obnovitvene besede lahko vedno prikažete ponovno. Kot omenjeno, zapomniti si morate <strong>številko ključa in število besed</strong> za ponoven prikaz željenega ključa. Nikoli ne vnesite glavnih obnovitvenih besed (ne-podrejenih) BitBox naprave v drugo denarnico. Vedno uporabite podrejene ključe za druge denarnice.",
+          "title": "Kako obnovim denarnico s podrejenim ključem na BitBoxu?"
+        },
+        "security": {
+          "description": "Nikoli ne uporabite podrejenega ključa ponovno. Na primer: ne uporabite istega podrejenega ključa za \"vročo\" denarnico in nato še za strojno denarnico. Ključa, ki je bil enkrat uporabljen v spletni ali \"vroči\" denarnici ne smatramo kot varnega.",
+          "title": "Varnostni pomisleki"
+        },
+        "title": "Prikaži",
+        "what": {
+          "description": "Podrejeni ključi (Child keys) so generirani iz glavnega zasebnega ključa oz. obnovitvenih besed. Lahko jih uporabite za ustvarjanje drugih denarnic, npr. izven BitBox denarnice, brez potrebe po arhiviranju teh besed za vsako ustvarjeno denarnico posebej. Na primer, ustvarite podrejeni ključ na BitBoxu in ga uvozite v neko mobilno denarnico. Tako vam ni potrebno vsakokrat arhivirati novih besed za vsako spletno/vročo/mobilno denarnico posebej.",
+          "link": "Preberite si več o BIP-85",
+          "title": "Kaj so podrejeni ključi?"
+        }
+      },
       "factoryReset": {
         "description": "Ponastavite napravo na tovarniške nastavitve. Ta postopek izbriše denarnico na BitBoxu!",
         "title": "Tovarniška nastavitev"
@@ -812,6 +841,13 @@
       "recoverAccounts": {
         "text": "Da. BitBoxApp ustvarja račune z uveljavljenimi standardi, združljivimi z večino drugih kripto denarnic.",
         "title": "Ali lahko obnovim račune na drugih denarnicah?"
+      },
+      "supportedCoins": {
+        "link": {
+          "text": "Preverite podprte kovance"
+        },
+        "text": "Aplikacija BitBoxApp podpira Bitcoin, Litecoin in Ethereum, kot tudi izbrane ERC20 žetone. Za Cardano in druge žetone, uporabite BitBox02 v kombinaciji z denarnicami AdaLite ali Rabby. Popoln in osvežen seznam podprtih kovancev najdete na naši spletni strani (v angleščini):",
+        "title": "Kateri so podprti?"
       },
       "whatAreAccounts": {
         "text": "Vaša denarnica lahko upravlja več računov istega kovanca. Računi so koristni, če želite sredstva hraniti ločeno.",
@@ -1379,6 +1415,7 @@
       "description": "Če želite prejemati druge podprte žetone, jih omogočite v nastavitvah. Če na naslove, ki so na voljo nakažete/pošljete nepodprte žetone, zelo verjetno ne bodo vidni/ dostopni.",
       "warning": "Prepričajte se, da na ta naslov prejemate le {{coinName}}."
     },
+    "qrCodeCopiedMessage": "Prepisano!",
     "scriptType": {
       "p2tr": "Taproot (najnovejša oblika)",
       "p2wpkh": "Native Segwit (privzeto)",
@@ -1528,6 +1565,7 @@
     "noFeeTargets": "Generirane provizije trenutno niso dostopne. Prosimo poizkusite ponovno ali vnesite poljubno višino provizije.",
     "priority": "Omrežnina",
     "scanQR": "Skenirajte QR kodo",
+    "scanQRNoCameraMessage": "Kamera ni zaznana. Prepričajte se, da vaša naprava podpira kamero in da so pravice aplikaciji dodeljene.",
     "signprogress": {
       "description": "Ta transakcija vsebuje veliko podatkov. Če želite v celoti podpisati transakcijo, boste morali potrditi {{steps}} krat.",
       "label": "V teku"

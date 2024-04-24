@@ -18,7 +18,6 @@ package handlers
 import (
 	"bytes"
 	"encoding/base64"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -95,6 +94,7 @@ type Backend interface {
 	Banners() *banners.Banners
 	Lightning() *lightning.Lightning
 	Environment() backend.Environment
+	ExportLogs() error
 	ChartData() (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
 	CanAddAccount(coinpkg.Code, keystore.Keystore) (string, bool)
@@ -215,6 +215,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/balance", handlers.getAccountsBalance).Methods("GET")
+	getAPIRouter(apiRouter)("/accounts/coins-balance", handlers.getCoinsTotalBalance).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/total-balance", handlers.getAccountsTotalBalance).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
@@ -252,6 +253,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonly).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChanged).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/export-log", handlers.postExportLog).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/lightning/config", handlers.getLightningConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/lightning/config", handlers.postLightningConfigHandler).Methods("POST")
@@ -710,8 +712,7 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 	if err != nil {
 		return nil, err
 	}
-	for keystore, accountList := range accountsByKeystore {
-		rootFingerprint := hex.EncodeToString(keystore.RootFingerprint)
+	for rootFingerprint, accountList := range accountsByKeystore {
 		totalPerCoin := make(map[coin.Code]*big.Int)
 		conversionsPerCoin := make(map[coin.Code]map[string]string)
 		for _, account := range accountList {
@@ -760,6 +761,59 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 		}
 	}
 
+	return totalAmount, nil
+}
+
+// getCoinsTotalBalance returns the total balances grouped by coins.
+func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, error) {
+	totalPerCoin := make(map[coin.Code]*big.Int)
+	conversionsPerCoin := make(map[coin.Code]map[string]string)
+
+	totalAmount := make(map[coin.Code]coin.FormattedAmount)
+
+	for _, account := range handlers.backend.Accounts() {
+		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
+			continue
+		}
+		if account.FatalError() {
+			continue
+		}
+		err := account.Initialize()
+		if err != nil {
+			return nil, err
+		}
+		coinCode := account.Coin().Code()
+		b, err := account.Balance()
+		if err != nil {
+			return nil, err
+		}
+		amount := b.Available()
+		if _, ok := totalPerCoin[coinCode]; !ok {
+			totalPerCoin[coinCode] = amount.BigInt()
+
+		} else {
+			totalPerCoin[coinCode] = new(big.Int).Add(totalPerCoin[coinCode], amount.BigInt())
+		}
+
+		conversionsPerCoin[coinCode] = coin.Conversions(
+			coin.NewAmount(totalPerCoin[coinCode]),
+			account.Coin(),
+			false,
+			account.Config().RateUpdater,
+			util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit))
+	}
+
+	for k, v := range totalPerCoin {
+		currentCoin, err := handlers.backend.Coin(k)
+		if err != nil {
+			return nil, err
+		}
+		totalAmount[k] = coin.FormattedAmount{
+			Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
+			Unit:        currentCoin.GetFormatUnit(false),
+			Conversions: conversionsPerCoin[k],
+		}
+	}
 	return totalAmount, nil
 }
 
@@ -1453,6 +1507,18 @@ func (handlers *Handlers) postOnAuthSettingChanged(r *http.Request) interface{} 
 	handlers.backend.Environment().OnAuthSettingChanged(
 		handlers.backend.Config().AppConfig().Backend.Authentication)
 	return nil
+}
+
+func (handlers *Handlers) postExportLog(r *http.Request) interface{} {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+	}
+	if err := handlers.backend.ExportLogs(); err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
+	return result{Success: true}
 }
 
 func (handlers *Handlers) getLightningConfigHandler(_ *http.Request) interface{} {

@@ -148,42 +148,24 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		if err != nil {
 			return nil, err
 		}
-		balance, err := account.Balance()
-		if err != nil {
-			return nil, err
-		}
 		txs, err := account.Transactions()
 		if err != nil {
 			return nil, err
 		}
 		totalNumberOfTransactions += len(txs)
 
-		// e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc. Used to convert from the smallest
-		// unit to the standard unit (BTC, LTC; ETH, etc.).
-		coinDecimals := new(big.Int).Exp(
-			big.NewInt(10),
-			big.NewInt(int64(account.Coin().Decimals(false))),
-			nil,
-		)
+		coinDecimals := coin.DecimalsExp(account.Coin())
 
 		// HACK: The latest prices might deviate from the latest historical prices (which can lag
 		// behind by many minutes), which results in different total balances in the chart and the
 		// summary table.
 		//
-		// As a workaround, we manually compute the total based on the latest rates.
-		price, err := backend.RatesUpdater().LatestPriceForPair(account.Coin().Unit(false), fiat)
+		// As a workaround, we calls accountFiatBalance, which computes the total based on the latest rates.
+		fiatValue, err := backend.accountFiatBalance(account, fiat)
 		if err != nil {
 			currentTotalMissing = true
-			backend.log.
-				WithField("coin", account.Coin().Code()).WithError(err).Info("currentTotalMissing")
+			return nil, err
 		}
-		fiatValue := new(big.Rat).Mul(
-			new(big.Rat).SetFrac(
-				balance.Available().BigInt(),
-				coinDecimals,
-			),
-			new(big.Rat).SetFloat64(price),
-		)
 		currentTotal.Add(currentTotal, fiatValue)
 
 		// Below here, only chart data is being computed.

@@ -38,9 +38,6 @@ const dummySignature = "signature"
 
 const uriPrefix = "aopp:?"
 
-var rootFingerprint = []byte{0x55, 0x055, 0x55, 0x55}
-var rootFingerprint2 = []byte{0x66, 0x066, 0x66, 0x66}
-
 func defaultParams() url.Values {
 	params := url.Values{}
 	params.Set("v", "0")
@@ -63,7 +60,7 @@ func makeKeystore(
 			return "Mock keystore", nil
 		},
 		RootFingerprintFunc: func() ([]byte, error) {
-			return rootFingerprint, nil
+			return rootFingerprint1, nil
 		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
@@ -228,7 +225,7 @@ func TestAOPPSuccess(t *testing.T) {
 					State: aoppStateChoosingAccount,
 					Accounts: []account{
 						{Name: test.accountName, Code: test.accountCode},
-						{Name: "Second account", Code: regularAccountCode(rootFingerprint, test.coinCode, 1)},
+						{Name: "Second account", Code: regularAccountCode(rootFingerprint1, test.coinCode, 1)},
 					},
 					Callback: callback,
 					Message:  dummyMsg,
@@ -244,7 +241,7 @@ func TestAOPPSuccess(t *testing.T) {
 					State: aoppStateSuccess,
 					Accounts: []account{
 						{Name: test.accountName, Code: test.accountCode},
-						{Name: "Second account", Code: regularAccountCode(rootFingerprint, test.coinCode, 1)},
+						{Name: "Second account", Code: regularAccountCode(rootFingerprint1, test.coinCode, 1)},
 					},
 					AccountCode: test.accountCode,
 					Address:     test.address,
