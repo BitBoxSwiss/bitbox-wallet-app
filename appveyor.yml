@@ -27,7 +27,7 @@ before_build:
 build_script:
   - echo on
   - choco install make
-  - choco install nsis -pre
+  - choco install nsis
   - mkdir %GOPATH%\src\github.com\digitalbitbox
   - cd ..
   - mv bitbox-wallet-app %GOPATH%\src\github.com\digitalbitbox\
