@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,34 @@
  * limitations under the License.
  */
 
+import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConversionUnit } from '../../../../../api/account';
-import { Input } from '../../../../../components/forms';
-import { ChangeEvent } from 'react';
+import { NumberInput } from '../../../../../components/forms';
 
 type TProps = {
-    label: ConversionUnit;
-    onFiatChange: (event: ChangeEvent<HTMLInputElement>) => void;
-    disabled: boolean;
-    error?: string;
-    fiatAmount: string;
+  label: ConversionUnit;
+  onFiatChange: (amount: string) => void;
+  disabled: boolean;
+  error?: string;
+  fiatAmount: string;
 }
 
-export const FiatInput = ({ label, onFiatChange, disabled, error, fiatAmount }: TProps) => {
+export const FiatInput = ({
+  label,
+  onFiatChange,
+  disabled,
+  error,
+  fiatAmount,
+}: TProps) => {
   const { t } = useTranslation();
   return (
-    <Input
-      type="number"
+    <NumberInput
       step="any"
       min="0"
       label={label}
       id="fiatAmount"
-      onInput={onFiatChange}
+      onChange={(event: ChangeEvent<HTMLInputElement>) => onFiatChange(event.target.value)}
       disabled={disabled}
       error={error}
       value={fiatAmount}

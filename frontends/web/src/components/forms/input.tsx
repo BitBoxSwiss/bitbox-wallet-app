@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,7 @@
 import { ChangeEvent, HTMLProps, forwardRef } from 'react';
 import styles from './input.module.css';
 
-
-
-export type Props = {
+export type TInputProps = {
     align?: 'left' | 'right';
     children?: React.ReactNode;
     className?: string;
@@ -31,7 +29,7 @@ export type Props = {
     label?: string;
 } & Omit<HTMLProps<HTMLInputElement>, 'onInput'>
 
-export default forwardRef<HTMLInputElement, Props>(function Input({
+export const Input = forwardRef<HTMLInputElement, TInputProps>(({
   id,
   label = '',
   error,
@@ -42,7 +40,7 @@ export default forwardRef<HTMLInputElement, Props>(function Input({
   type = 'text',
   labelSection,
   ...props
-}, ref) {
+}: TInputProps, ref) => {
   return (
     <div className={[
       styles.input,
