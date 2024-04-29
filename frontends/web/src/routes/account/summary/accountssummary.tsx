@@ -28,12 +28,14 @@ import { GuideWrapper, GuidedContent, Header, Main } from '../../../components/l
 import { View } from '../../../components/view/view';
 import { Chart } from './chart';
 import { SummaryBalance } from './summarybalance';
+import { CoinBalance } from './coinbalance';
 import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '../../../contexts/AppContext';
 import { getAccountsByKeystore, isAmbiguiousName } from '../utils';
+import { RatesContext } from '../../../contexts/RatesContext';
 
 type TProps = {
   accounts: accountApi.IAccount[];
@@ -49,12 +51,14 @@ export function AccountsSummary({ accounts, devices }: TProps) {
   const summaryReqTimerID = useRef<number>();
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
+  const { defaultCurrency } = useContext(RatesContext);
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
 
   const [summaryData, setSummaryData] = useState<accountApi.ISummary>();
   const [balancePerCoin, setBalancePerCoin] = useState<accountApi.TAccountsBalance>();
   const [accountsTotalBalance, setAccountsTotalBalance] = useState<accountApi.TAccountsTotalBalance>();
+  const [coinsTotalBalance, setCoinsTotalBalance] = useState<accountApi.TCoinsTotalBalance>();
   const [balances, setBalances] = useState<Balances>();
 
   const hasCard = useSDCard(devices);
@@ -128,6 +132,18 @@ export function AccountsSummary({ accounts, devices }: TProps) {
     [mounted]
   );
 
+  const getCoinsTotalBalance = useCallback(async () => {
+    try {
+      const coinBalance = await accountApi.getCoinsTotalBalance();
+      if (!mounted.current) {
+        return;
+      }
+      setCoinsTotalBalance(coinBalance);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [mounted]);
+
   const update = useCallback(
     (code: accountApi.AccountCode) => {
       if (mounted.current) {
@@ -138,14 +154,25 @@ export function AccountsSummary({ accounts, devices }: TProps) {
     [getAccountSummary, mounted, onStatusChanged]
   );
 
-  // fetch accounts summary and balance on the first render.
   useEffect(() => {
-    const subscriptions = [statusChanged(update), syncdone(update)];
+    // for subscriptions and unsubscriptions
+    // runs only on component mount and unmount.
+    const subscriptions = [
+      statusChanged(update),
+      syncdone(update)
+    ];
+    return () => unsubscribe(subscriptions);
+  }, [update]);
+
+
+  useEffect(() => {
+    // handles fetching data and runs on component mount
+    // & whenever any of the dependencies change.
     getAccountSummary();
     getAccountsBalance();
     getAccountsTotalBalance();
-    return () => unsubscribe(subscriptions);
-  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, update]);
+    getCoinsTotalBalance();
+  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, getCoinsTotalBalance, defaultCurrency]);
 
   // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
@@ -165,8 +192,8 @@ export function AccountsSummary({ accounts, devices }: TProps) {
       onStatusChanged(account.code);
     });
     getAccountsBalance();
-  }, [onStatusChanged, getAccountsBalance, accounts]);
-
+    getCoinsTotalBalance();
+  }, [onStatusChanged, getAccountsBalance, getCoinsTotalBalance, accounts]);
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -186,6 +213,13 @@ export function AccountsSummary({ accounts, devices }: TProps) {
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               } />
+            {accountsByKeystore.length > 1 && (
+              <CoinBalance
+                accounts={accounts}
+                summaryData={summaryData}
+                coinsBalances={coinsTotalBalance}
+              />
+            )}
             {accountsByKeystore &&
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 <SummaryBalance
@@ -201,7 +235,7 @@ export function AccountsSummary({ accounts, devices }: TProps) {
           </View>
         </Main>
       </GuidedContent>
-      <Guide>
+      <Guide title={t('guide.guideTitle.accountSummary')}>
         <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription')} />
         <Entry
           key="accountSummaryAmount"

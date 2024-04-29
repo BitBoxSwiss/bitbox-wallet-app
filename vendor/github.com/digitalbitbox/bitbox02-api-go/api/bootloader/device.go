@@ -21,7 +21,6 @@ import (
 	"encoding/binary"
 	"io"
 	"math"
-	"time"
 
 	"github.com/digitalbitbox/bitbox02-api-go/api/common"
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
@@ -62,7 +61,6 @@ type Status struct {
 	Progress          float64 `json:"progress"`
 	UpgradeSuccessful bool    `json:"upgradeSuccessful"`
 	ErrMsg            string  `json:"errMsg"`
-	RebootSeconds     int     `json:"rebootSeconds"`
 }
 
 func toByte(b bool) byte {
@@ -78,7 +76,6 @@ type Device struct {
 	product         common.Product
 	status          *Status
 	onStatusChanged func(*Status)
-	sleep           func(time.Duration)
 }
 
 // NewDevice creates a new instance of Device.
@@ -93,7 +90,6 @@ func NewDevice(
 		product:         product,
 		status:          &Status{},
 		onStatusChanged: onStatusChanged,
-		sleep:           time.Sleep,
 	}
 }
 
@@ -301,11 +297,6 @@ func (device *Device) UpgradeFirmware(firmware []byte) error {
 	device.status.Progress = 0
 	device.status.UpgradeSuccessful = true
 	device.onStatusChanged(device.status)
-	for seconds := 5; seconds > 0; seconds-- {
-		device.status.RebootSeconds = seconds
-		device.onStatusChanged(device.status)
-		device.sleep(time.Second)
-	}
 	return device.Reboot()
 }
 

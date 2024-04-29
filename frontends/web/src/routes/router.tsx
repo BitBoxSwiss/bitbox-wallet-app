@@ -234,7 +234,7 @@ export const AppRouter = ({
         <Route path="send" element={AccLightningSend} />
         <Route path="deactivate" element={AccLightningDeactivate} />
       </Route>
-      <Route path="add-account" element={<AddAccount />} />
+      <Route path="add-account" element={<AddAccount accounts={accounts}/>} />
       <Route path="account-summary" element={AccountsSummaryEl} />
       <Route path="buy">
         <Route path="info" element={BuyInfoEl} >

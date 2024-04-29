@@ -67,7 +67,7 @@ const AppearanceGuide = () => {
   const { t } = useTranslation();
 
   return (
-    <Guide>
+    <Guide title={t('guide.guideTitle.appearance')}>
       <Entry key="guide.settings.sats" entry={t('guide.settings.sats')} />
       <Entry key="guide.accountRates" entry={{
         link: {

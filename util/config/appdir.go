@@ -81,10 +81,11 @@ func AppDir() string {
 	return appFolder
 }
 
-// DownloadsDir returns the absolute path to the Downloads folder in the home folder.
-func DownloadsDir() (string, error) {
+// ExportsDir returns the absolute path to the folder which can be used to export files.
+func ExportsDir() (string, error) {
 	if runtime.GOOS == "android" {
-		return "", errp.New("android not yet supported")
+		// Android apps are sandboxed, we don't need to specify a folder.
+		return "", nil
 	}
 	homeFolder := os.Getenv("HOME")
 	if runtime.GOOS == "windows" && homeFolder == "" {

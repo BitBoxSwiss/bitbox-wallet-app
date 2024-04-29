@@ -11,7 +11,7 @@ type TProps = {
 export const SendGuide = ({ coinCode }: TProps) => {
   const { t } = useTranslation();
   return (
-    <Guide>
+    <Guide title={t('guide.guideTitle.send')}>
       <Entry key="guide.send.whyFee" entry={t('guide.send.whyFee')} />
       { isBitcoinBased(coinCode) && (
         <Entry key="guide.send.priority" entry={t('guide.send.priority')} />

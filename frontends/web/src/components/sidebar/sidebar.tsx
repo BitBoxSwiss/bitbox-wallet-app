@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router';
 import { Link, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TKeystores, subscribeKeystores, getKeystores } from '../../api/keystores';
+import { useKeystores } from '../../hooks/backend';
 import { IAccount } from '../../api/account';
 import { useLightning } from '../../hooks/lightning';
 import coins from '../../assets/icons/coins.svg';
@@ -148,15 +148,7 @@ const Sidebar = ({
     };
   }, [activeSidebar, sidebarStatus, toggleSidebar]);
 
-  const [keystores, setKeystores] = useState<TKeystores>();
-
-  useEffect(() => {
-    getKeystores().then(keystores => {
-      setKeystores(keystores);
-    });
-    // this passes the unsubscribe function directly the return function of useEffect, used when the component unmounts.
-    return subscribeKeystores(setKeystores);
-  }, []);
+  const keystores = useKeystores();
 
   const handleSidebarItemClick = (event: React.SyntheticEvent) => {
     const el = (event.target as Element).closest('a');

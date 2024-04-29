@@ -17,9 +17,10 @@
 import { useTranslation } from 'react-i18next';
 import { Input } from '../../../../../components/forms';
 import style from './note-input.module.css';
+import { ChangeEvent } from 'react';
 
 type TProps = {
-    onNoteChange: (event: Event) => void;
+    onNoteChange: (event: ChangeEvent<HTMLInputElement>) => void;
     note: string;
 }
 

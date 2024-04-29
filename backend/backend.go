@@ -16,9 +16,8 @@
 package backend
 
 import (
-	"encoding/hex"
 	"fmt"
-	"math/big"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -34,8 +33,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
@@ -51,6 +48,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/lightning"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	_ "github.com/digitalbitbox/bitbox-wallet-app/breeztest"
+	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -82,6 +80,7 @@ var fixedURLWhitelist = []string{
 	"https://blockchair.com/litecoin/transaction/",
 	"https://etherscan.io/tx/",
 	"https://goerli.etherscan.io/tx/",
+	"https://sepolia.etherscan.io/tx/",
 	// Moonpay onramp
 	"https://www.moonpay.com/",
 	"https://support.moonpay.com/",
@@ -99,6 +98,7 @@ var fixedURLWhitelist = []string{
 	// Documentation and other articles.
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
+	"https://github.com/bitcoin/bips/",
 	// Others
 	"https://cointracking.info/import/bitbox/",
 }
@@ -285,7 +285,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 
 	backend.banners = banners.NewBanners()
 	backend.banners.Observe(backend.Notify)
-	btcCoin, err := backend.Coin(coin.CodeBTC)
+	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
 	if err != nil {
 		return nil, err
 	}
@@ -559,95 +559,12 @@ func (backend *Backend) Accounts() AccountsList {
 	return backend.accounts
 }
 
-// AccountsByKeystore returns a map of the current accounts of the backend, grouped
-// by keystore.
-func (backend *Backend) AccountsByKeystore() (KeystoresAccountsListMap, error) {
-	accountsByKeystore := KeystoresAccountsListMap{}
-	defer backend.accountsAndKeystoreLock.RLock()()
-	for _, account := range backend.accounts {
-		persistedAccount := account.Config().Config
-		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
-		if err != nil {
-			return nil, err
-		}
-		keystore, err := backend.Config().AccountsConfig().LookupKeystore(rootFingerprint)
-		if err != nil {
-			return nil, err
-		}
-		accountsByKeystore[keystore] = append(accountsByKeystore[keystore], account)
-	}
-	return accountsByKeystore, nil
-}
-
-// KeystoreTotalAmount represents the total balance amount of the accounts belongings to a keystore.
+// KeystoreTotalAmount represents the total balance amount of the accounts belonging to a keystore.
 type KeystoreTotalAmount = struct {
 	// FiatUnit is the fiat unit of the total amount
 	FiatUnit string `json:"fiatUnit"`
 	// Total formatted for frontend visualization
 	Total string `json:"total"`
-}
-
-// AccountsTotalBalanceByKeystore returns a map of accounts' total balances across coins, grouped by keystore.
-func (backend *Backend) AccountsTotalBalanceByKeystore() (map[string]KeystoreTotalAmount, error) {
-	totalAmounts := make(map[string]KeystoreTotalAmount)
-	fiat := backend.Config().AppConfig().Backend.MainFiat
-	isFiatBtc := fiat == rates.BTC.String()
-	fiatUnit := fiat
-	if isFiatBtc && backend.Config().AppConfig().Backend.BtcUnit == coin.BtcUnitSats {
-		fiatUnit = "sat"
-	}
-
-	formatBtcAsSat := util.FormatBtcAsSat(backend.Config().AppConfig().Backend.BtcUnit)
-
-	accountsByKeystore, err := backend.AccountsByKeystore()
-	if err != nil {
-		return nil, err
-	}
-	for keystore, accountList := range accountsByKeystore {
-		rootFingerprint := hex.EncodeToString(keystore.RootFingerprint)
-		currentTotal := new(big.Rat)
-		for _, account := range accountList {
-			if account.Config().Config.Inactive {
-				continue
-			}
-			if account.FatalError() {
-				continue
-			}
-			err := account.Initialize()
-			if err != nil {
-				return nil, err
-			}
-			balance, err := account.Balance()
-			if err != nil {
-				return nil, err
-			}
-			// e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc. Used to convert from the smallest
-			// unit to the standard unit (BTC, LTC; ETH, etc.).
-			coinDecimals := new(big.Int).Exp(
-				big.NewInt(10),
-				big.NewInt(int64(account.Coin().Decimals(false))),
-				nil,
-			)
-
-			price, err := backend.RatesUpdater().LatestPriceForPair(account.Coin().Unit(false), fiat)
-			if err != nil {
-				return nil, err
-			}
-			fiatValue := new(big.Rat).Mul(
-				new(big.Rat).SetFrac(
-					balance.Available().BigInt(),
-					coinDecimals,
-				),
-				new(big.Rat).SetFloat64(price),
-			)
-			currentTotal.Add(currentTotal, fiatValue)
-		}
-		totalAmounts[rootFingerprint] = KeystoreTotalAmount{
-			FiatUnit: fiatUnit,
-			Total:    coin.FormatAsCurrency(currentTotal, isFiatBtc, formatBtcAsSat),
-		}
-	}
-	return totalAmounts, nil
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.
@@ -1050,4 +967,52 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 		},
 		&t,
 	)
+}
+
+// ExportLogs function copy and save log.txt file to help users provide it to support while troubleshooting.
+func (backend *Backend) ExportLogs() error {
+	name := fmt.Sprintf("%s-log.txt", time.Now().Format("2006-01-02-at-15-04-05"))
+	exportsDir, err := utilConfig.ExportsDir()
+	if err != nil {
+		backend.log.WithError(err).Error("error exporting logs")
+		return err
+	}
+	suggestedPath := filepath.Join(exportsDir, name)
+	path := backend.Environment().GetSaveFilename(suggestedPath)
+	if path == "" {
+		return nil
+	}
+	backend.log.Infof("Export logs to %s.", path)
+
+	file, err := os.Create(path)
+	if err != nil {
+		backend.log.WithError(err).Error("error creating new log file")
+		return err
+	}
+	logFilePath := filepath.Join(utilConfig.AppDir(), "log.txt")
+
+	existingLogFile, err := os.Open(logFilePath)
+	if err != nil {
+		backend.log.WithError(err).Error("error opening existing log file")
+		return err
+	}
+
+	defer func() {
+		if err := existingLogFile.Close(); err != nil {
+			backend.log.WithError(err).Error("error closing existing log file")
+		}
+	}()
+
+	_, err = io.Copy(file, existingLogFile)
+	if err != nil {
+		backend.log.WithError(err).Error("error copying existing log to new file")
+		return err
+	}
+	backend.log.Infof("Exported logs copied to %s.", path)
+
+	if err := backend.Environment().SystemOpen(path); err != nil {
+		backend.log.WithError(err).Error("error opening log file")
+		return err
+	}
+	return nil
 }

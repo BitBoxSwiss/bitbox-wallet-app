@@ -27,7 +27,7 @@ export function BitcoinBasedAccountInfoGuide({
 }: BitcoinBasedAccountInfoGuideProps) {
   const { t } = useTranslation();
   return (
-    <Guide>
+    <Guide title={t('guide.guideTitle.accountInformation')}>
       <Entry key="guide.accountInfo.xpub" entry={t('guide.accountInfo.xpub')} shown={true} />
       <Entry key="guide.accountInfo.multipleXPubs" entry={{
         text: t('guide.accountInfo.multipleXPubs.text', { coinName }),

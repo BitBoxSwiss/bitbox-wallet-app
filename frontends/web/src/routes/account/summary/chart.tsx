@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,12 @@ import { Component, createRef, ReactChild } from 'react';
 import { ISummary } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Skeleton } from '../../../components/skeleton/skeleton';
-import { formatNumber } from '../../../utils/rates';
 import { Amount } from '../../../components/amount/amount';
+import { PercentageDiff } from './percentage-diff';
 import Filters from './filters';
 import { getDarkmode } from '../../../components/darkmode/darkmode';
 import { TChartDisplay, TChartFiltersProps } from './types';
+import { DefaultCurrencyRotator } from '../../../components/rates/rates';
 import styles from './chart.module.css';
 
 export interface FormattedLineData extends LineData {
@@ -56,13 +57,11 @@ type Props = ChartProps & TranslateProps;
 type FormattedData = {
   [key: number]: string;
 }
-
 class Chart extends Component<Props, State> {
   private ref = createRef<HTMLDivElement>();
   private refToolTip = createRef<HTMLSpanElement>();
   private chart?: IChartApi;
   private lineSeries?: ISeriesApi<'Area'>;
-  private resizeTimerID?: any;
   private height: number = 300;
   private mobileHeight: number = 150;
   private formattedData?: FormattedData;
@@ -93,7 +92,6 @@ class Chart extends Component<Props, State> {
   };
 
   public componentDidMount() {
-    this.checkIfMobile();
     this.createChart();
   }
 
@@ -112,13 +110,14 @@ class Chart extends Component<Props, State> {
     }
     if (
       (this.lineSeries && prev.data.chartDataDaily && prev.data.chartDataHourly && chartDataDaily && chartDataHourly)
-            && (
-              prev.data.chartDataDaily.length !== chartDataDaily.length
-                || prev.data.chartDataHourly.length !== chartDataHourly.length
-            )
+        && (
+          prev.data.chartDataDaily.length !== chartDataDaily.length
+          || prev.data.chartDataHourly.length !== chartDataHourly.length
+        )
     ) {
       const data = this.state.source === 'hourly' ? chartDataHourly : chartDataDaily;
       this.lineSeries.setData(data);
+      this.chart?.timeScale().fitContent();
       this.setFormattedData(data);
     }
 
@@ -128,6 +127,10 @@ class Chart extends Component<Props, State> {
           visible: this.props.hideAmounts ? false : !this.state.isMobile,
         }
       });
+    }
+
+    if (this.props.data.chartFiat !== prev.data.chartFiat) {
+      this.reinitializeChart();
     }
   }
 
@@ -149,17 +152,15 @@ class Chart extends Component<Props, State> {
     });
   }
 
-  private checkIfMobile = () => {
-    this.setState({ isMobile: window.innerWidth <= 640 });
-  };
-
   private createChart = () => {
     const { data: { chartDataMissing } } = this.props;
     const darkmode = getDarkmode();
     if (this.ref.current && this.hasData() && !chartDataMissing) {
       if (!this.chart) {
-        const chartWidth = !this.state.isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
-        const chartHeight = !this.state.isMobile ? this.height : this.mobileHeight;
+        const isMobile = window.innerWidth <= 640;
+        this.setState({ isMobile });
+        const chartWidth = !isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
+        const chartHeight = !isMobile ? this.height : this.mobileHeight;
         this.chart = createChart(this.ref.current, {
           width: chartWidth,
           height: chartHeight,
@@ -183,7 +184,7 @@ class Chart extends Component<Props, State> {
             horzLines: {
               color: darkmode ? '#333333' : '#dedede',
               style: LineStyle.Solid,
-              visible: !this.state.isMobile,
+              visible: !isMobile,
             },
           },
           layout: {
@@ -198,7 +199,7 @@ class Chart extends Component<Props, State> {
           leftPriceScale: {
             borderVisible: false,
             ticksVisible: false,
-            visible: this.props.hideAmounts ? false : !this.state.isMobile,
+            visible: this.props.hideAmounts ? false : !isMobile,
             entireTextOnly: true,
           },
           localization: {
@@ -211,7 +212,7 @@ class Chart extends Component<Props, State> {
           timeScale: {
             borderVisible: false,
             timeVisible: false,
-            visible: !this.state.isMobile,
+            visible: !isMobile,
           },
           trackingMode: {
             exitMode: 0
@@ -235,37 +236,46 @@ class Chart extends Component<Props, State> {
       this.chart.subscribeCrosshairMove(this.handleCrosshair);
       this.chart.timeScale().fitContent();
       window.addEventListener('resize', this.onResize);
-      setTimeout(() => this.ref.current?.classList.remove(styles.invisible), 200);
+      this.ref.current?.classList.remove(styles.invisible);
+    }
+  };
 
+  private reinitializeChart = () => {
+    this.removeChart();
+    this.createChart();
+  };
+
+  private removeChart = () => {
+    if (this.chart) {
+      this.chart.remove();
+      this.chart = undefined;
+      window.removeEventListener('resize', this.onResize);
     }
   };
 
   private onResize = () => {
-    this.checkIfMobile();
-    if (this.resizeTimerID) {
-      clearTimeout(this.resizeTimerID);
+    const isMobile = window.innerWidth <= 640;
+    this.setState({ isMobile });
+    if (!this.chart || !this.ref.current) {
+      return;
     }
-    this.resizeTimerID = setTimeout(() => {
-      if (!this.chart || !this.ref.current) {
-        return;
-      }
-      const chartWidth = !this.state.isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
-      const chartHeight = !this.state.isMobile ? this.height : this.mobileHeight;
-      this.chart.resize(chartWidth, chartHeight);
-      this.chart.applyOptions({
-        grid: {
-          horzLines: {
-            visible: !this.state.isMobile
-          }
-        },
-        timeScale: {
-          visible: !this.state.isMobile
-        },
-        leftPriceScale: {
-          visible: this.props.hideAmounts ? false : !this.state.isMobile,
-        },
-      });
-    }, 200);
+    const chartWidth = !isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
+    const chartHeight = !isMobile ? this.height : this.mobileHeight;
+    this.chart.resize(chartWidth, chartHeight);
+    this.chart.applyOptions({
+      grid: {
+        horzLines: {
+          visible: !isMobile
+        }
+      },
+      timeScale: {
+        visible: !isMobile
+      },
+      leftPriceScale: {
+        visible: this.props.hideAmounts ? false : !isMobile,
+      },
+    });
+    this.chart.timeScale().fitContent();
   };
 
   private getUTCRange = () => {
@@ -394,7 +404,7 @@ class Chart extends Component<Props, State> {
     const valueTo = this.props.data.chartTotal;
     const valueDiff = valueTo ? valueTo - valueFrom : 0;
     this.setState({
-      difference: ((valueDiff / valueFrom) * 100),
+      difference: ((valueDiff / valueFrom)),
       diffSince: `${data[rangeFrom].formattedValue} (${this.renderDate(Number(data[rangeFrom].time) * 1000)})`
     });
   };
@@ -473,7 +483,6 @@ class Chart extends Component<Props, State> {
         formattedChartTotal,
       },
       noDataPlaceholder,
-      hideAmounts
     } = this.props;
     const {
       difference,
@@ -514,26 +523,16 @@ class Chart extends Component<Props, State> {
                 <Skeleton minWidth="220px" />
               )}
               <span className={styles.totalUnit}>
-                {chartTotal !== null && chartFiat}
+                {chartTotal !== null && <DefaultCurrencyRotator tableRow={false}/>}
               </span>
             </div>
-            {!showMobileTotalValue ?
-              <span className={!hasDifference ? '' : (
-                styles[difference < 0 ? 'down' : 'up']
-              )} title={diffSince}>
-                {hasDifference ? (
-                  <>
-                    <span className={styles.arrow}>
-                      {(difference < 0) ? (<ArrowUp />) : (<ArrowDown />)}
-                    </span>
-                    <span className={styles.diffValue}>
-                      {hideAmounts ? '***' : formatNumber(difference, 2)}
-                      <span className={styles.diffUnit}>%</span>
-                    </span>
-                  </>
-                ) : null}
-              </span>
-              :
+            {!showMobileTotalValue ? (
+              <PercentageDiff
+                hasDifference={!!hasDifference}
+                difference={difference}
+                title={diffSince}
+              />
+            ) :
               <span className={styles.diffValue}>
                 {this.renderDate(toolTipTime * 1000)}
               </span>
@@ -580,35 +579,3 @@ class Chart extends Component<Props, State> {
 const HOC = translate()(Chart);
 
 export { HOC as Chart };
-
-export const ArrowUp = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <polyline points="19 12 12 19 5 12"></polyline>
-  </svg>
-);
-
-export const ArrowDown = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round">
-    <line x1="12" y1="19" x2="12" y2="5"></line>
-    <polyline points="5 12 12 5 19 12"></polyline>
-  </svg>
-);

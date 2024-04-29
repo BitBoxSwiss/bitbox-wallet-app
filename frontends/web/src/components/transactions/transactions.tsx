@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 
 import { useTranslation } from 'react-i18next';
 import { AccountCode, TTransactions } from '../../api/account';
-import { runningInAndroid } from '../../utils/env';
 import { Transaction } from './transaction';
 import { Button } from '../forms';
 import style from './transactions.module.css';
@@ -37,24 +36,18 @@ export const Transactions = ({
 }: TProps) => {
   const { t } = useTranslation();
 
-  // We don't support CSV export on Android yet, as it's a tricky to deal with the Downloads
-  // folder and permissions.
-  const csvExportDisabled = runningInAndroid();
-
   return (
     <div className={style.container}>
       <div className="flex flex-row flex-between flex-items-center">
         <label className="labelXLarge">
           {t('accountSummary.transactionHistory')}
         </label>
-        { !csvExportDisabled && (
-          <Button
-            transparent
-            onClick={handleExport}
-            title={t('account.exportTransactions')}>
-            {t('account.export')}
-          </Button>
-        ) }
+        <Button
+          transparent
+          onClick={handleExport}
+          title={t('account.exportTransactions')}>
+          {t('account.export')}
+        </Button>
       </div>
       <div className={[style.columns, style.headers, style.showOnMedium].join(' ')}>
         <div className={style.type}>{t('transaction.details.type')}</div>

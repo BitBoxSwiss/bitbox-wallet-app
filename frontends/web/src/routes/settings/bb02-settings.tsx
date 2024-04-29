@@ -34,9 +34,10 @@ import { SecureChipSetting } from './components/device-settings/secure-chip-sett
 import { DeviceNameSetting } from './components/device-settings/device-name-setting';
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
 import { RootFingerprintSetting } from './components/device-settings/root-fingerprint-setting';
-import styles from './bb02-settings.module.css';
+import { Bip85Setting } from './components/device-settings/bip85-setting';
 import { ManageDeviceGuide } from '../device/bitbox02/settings-guide';
 import { MobileHeader } from './components/mobile-header';
+import styles from './bb02-settings.module.css';
 
 
 type TProps = {
@@ -156,6 +157,16 @@ const Content = ({ deviceID }: TProps) => {
               deviceID={deviceID}
             /> :
             <StyledSkeleton />
+        }
+        {
+          versionInfo ? (
+            <Bip85Setting
+              canBIP85={versionInfo.canBIP85}
+              deviceID={deviceID}
+            />
+          ) : (
+            <StyledSkeleton />
+          )
         }
         <GoToStartupSettings deviceID={deviceID} />
         <FactoryResetSetting deviceID={deviceID} />

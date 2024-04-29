@@ -28,6 +28,7 @@ import { ConnectFullNodeSetting } from './components/advanced-settings/connect-f
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
 import { EnableLightning } from './components/advanced-settings/enable-lightning-setting';
 import { DisableLightning } from './components/advanced-settings/disable-lightning-setting';
+import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
 import { getConfig } from '../../utils/config';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '../../components/guide/guide';
@@ -90,6 +91,7 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
                 <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
                 <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
                 <ConnectFullNodeSetting />
+                <ExportLogSetting />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -104,7 +106,7 @@ const AdvancedSettingsGuide = () => {
   const { t } = useTranslation();
 
   return (
-    <Guide>
+    <Guide title={t('guide.guideTitle.advancedSettings')}>
       <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why')} />
       <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor')} />
     </Guide>

@@ -159,8 +159,8 @@
     },
     "flipscreen": "Retourner l'écran",
     "orientation": "Appareil dans le mauvais sens ?",
-    "success": "Mise à jour réussie ! Continue dans {{rebootSeconds}} secondes...",
-    "success_install": "Installation réussie ! Poursuite dans {{rebootSeconds}} secondes..."
+    "success": "Mise à jour réussie !",
+    "success_install": "Installation réussie ! "
   },
   "bitbox": {
     "error": {

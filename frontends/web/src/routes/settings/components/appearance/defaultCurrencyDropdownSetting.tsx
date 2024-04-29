@@ -24,7 +24,7 @@ import { RatesContext } from '../../../../contexts/RatesContext';
 
 export const DefaultCurrencyDropdownSetting = () => {
   const { t } = useTranslation();
-  const { selectFiat, updateDefaultFiat, defaultCurrency, activeCurrencies } = useContext(RatesContext);
+  const { addToActiveCurrencies, updateDefaultCurrency, defaultCurrency, activeCurrencies } = useContext(RatesContext);
   const valueLabel = currenciesWithDisplayName.find(fiat => fiat.currency === defaultCurrency)?.displayName;
   const defaultValueLabel = valueLabel ? `${valueLabel} (${defaultCurrency})` : defaultCurrency;
   return (
@@ -36,12 +36,12 @@ export const DefaultCurrencyDropdownSetting = () => {
         <SingleDropdown
           options={formattedCurrencies}
           handleChange={async (fiat: Fiat) => {
-            updateDefaultFiat(fiat);
+            updateDefaultCurrency(fiat);
             if (!activeCurrencies.includes(fiat)) {
-              await selectFiat(fiat);
+              await addToActiveCurrencies(fiat);
             }
           }}
-          defaultValue={{
+          value={{
             label: defaultValueLabel,
             value: defaultCurrency
           }}

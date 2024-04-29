@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import '../../../../__mocks__/i18n';
 import { describe, expect, it, Mock, vi } from 'vitest';
 
 vi.mock('../../../utils/request', () => ({

@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/btcsuite/btcd/btcutil"
@@ -264,12 +265,12 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 		ErrorMessage string `json:"errorMessage"`
 	}
 	name := fmt.Sprintf("%s-%s-export.csv", time.Now().Format("2006-01-02-at-15-04-05"), handlers.account.Config().Config.Code)
-	downloadsDir, err := config.DownloadsDir()
+	exportsDir, err := config.ExportsDir()
 	if err != nil {
 		handlers.log.WithError(err).Error("error exporting account")
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
-	suggestedPath := filepath.Join(downloadsDir, name)
+	suggestedPath := filepath.Join(exportsDir, name)
 	path := handlers.account.Config().GetSaveFilename(suggestedPath)
 	if path == "" {
 		return nil, nil
@@ -278,26 +279,26 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 
 	transactions, err := handlers.account.Transactions()
 	if err != nil {
-		handlers.log.WithError(err).Error("error exporting account")
+		handlers.log.WithError(err).Error("error getting the transactions")
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
 
 	file, err := os.Create(path)
 	if err != nil {
-		handlers.log.WithError(err).Error("error exporting account")
+		handlers.log.WithError(err).Error("error creating file")
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	if err := handlers.account.ExportCSV(file, transactions); err != nil {
 		_ = file.Close()
-		handlers.log.WithError(err).Error("error exporting account")
+		handlers.log.WithError(err).Error("error writing file")
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	if err := file.Close(); err != nil {
-		handlers.log.WithError(err).Error("error exporting account")
+		handlers.log.WithError(err).Error("error closing file")
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	if err := handlers.account.Config().UnsafeSystemOpen(path); err != nil {
-		handlers.log.WithError(err).Error("error exporting account")
+		handlers.log.WithError(err).Error("error opening file")
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	return result{Success: true}, nil
@@ -398,7 +399,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 	if err != nil {
 		handlers.log.WithError(err).Error("Failed to send transaction")
 		result := map[string]interface{}{"success": false, "errorMessage": err.Error()}
-		if err.Error() == etherscan.ERC20GasErr {
+		if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
 			result["errorCode"] = errors.ERC20InsufficientGasFunds.Error()
 		}
 		return result, nil
@@ -705,9 +706,9 @@ func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, erro
 	}
 
 	var request struct {
-		AccountCode types.Code `json:"accountCode"`
-		Msg         string     `json:"msg"`
-		Format      string     `json:"format"`
+		AccountCode types.Code         `json:"accountCode"`
+		Msg         string             `json:"msg"`
+		Format      signing.ScriptType `json:"format"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}, nil

@@ -15,6 +15,10 @@
     z-index: 3000;
 }
 
+.hide {
+    opacity: 0;
+}
+
 .header {
     position: relative;
     z-index: 2200;

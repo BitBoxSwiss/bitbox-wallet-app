@@ -41,6 +41,7 @@
   "accountSummary": {
     "availableBalance": "Saldo disponível",
     "balance": "Saldo",
+    "coin": "Moeda",
     "exportSummary": "Exportar resumo de contas para a pasta de Downloads como um arquivo CSV",
     "fiatBalance": "Saldo em moeda corrente",
     "name": "Nome da conta",
@@ -141,6 +142,7 @@
       },
       "restoring": "Restaurando o backup...",
       "selectedBackup": "<strong>{{backupName}}</strong> criado em {{createdDateTime}} será restaurado.",
+      "subtitle": "Selecione backup para continuar",
       "title": "Restaurar",
       "understand": "Eu entendo que uma senha de recuperação incorreta criará uma carteira diferente"
     },
@@ -154,14 +156,18 @@
   "bb02Bootloader": {
     "abort": "Não atualizar - Leve-me de volta",
     "abort_noUpgrade": "Me leve de volta",
+    "additionalUpgradeFollows1": "Uma atualização adicional ocorrerá imediatamente após esta.",
+    "additionalUpgradeFollows2": "Por favor, mantenha sua BitBox02 conectada até que todas as atualizações sejam concluídas.",
     "advanced": {
       "label": "Configurações avançadas",
       "toggleShowFirmwareHash": "Mostrar o hash de firmware toda vez na inicialização"
     },
     "flipscreen": "Girar tela",
     "orientation": "Dispositivo orientado de maneira errada?",
-    "success": "Atualização bem sucedida! Continuando em {{rebootSeconds}} segundos...",
-    "success_install": "Instalação com sucesso! Continuando em {{rebootSeconds}} segundos..."
+    "success": "Atualização bem sucedida!",
+    "success_install": "Instalação com sucesso! ",
+    "upgradeTitle": "Atualizando firmware BitBox02",
+    "upgradeTitle_install": "Instalando o firmware BitBox02"
   },
   "bitbox": {
     "error": {
@@ -198,7 +204,7 @@
   "bitbox02Wizard": {
     "advanced": {
       "button": "Opções avançadas",
-      "outOfDate": "Firmware desatualizado para este recurso",
+      "outOfDate": "Atualização de firmware necessária",
       "seed12WordInfo": "Observe que o número de palavras não pode ser alterado após a criação da carteira.",
       "seed12WordLabel": "Criar uma semente de 12 palavras em vez de 24 palavras",
       "seed12WordText": "Por padrão, a BitBox02 usa uma semente de 24 palavras. Ambos os tamanhos de sementes são seguros contra força bruta na prática. Alguns usuários podem preferir a conveniência da semente de 12 palavras.",
@@ -264,7 +270,12 @@
       "unlock": "Digite a senha da BitBox02 para desbloquear."
     },
     "stepCreate": {
-      "description": "Este nome é usado como o nome do dispositivo e para o backup.",
+      "description": "Este nome é usado como nome do dispositivo e para backups.",
+      "error": {
+        "genericMessage": "Use letras, números, símbolos básicos, espaços. Máximo de 30 caracteres.",
+        "invalidChars": "O nome contém caracteres inválidos: {{invalidChars}}.",
+        "tooLong": "O nome é muito longo."
+      },
       "nameLabel": "Nome da BitBox02",
       "namePlaceholder": "Minha BitBox02",
       "title": "Escolha o nome da BitBox02",
@@ -285,11 +296,11 @@
       "useControls": "Use os controles em sua BitBox02 para definir uma senha."
     },
     "stepUninitialized": {
-      "create": "Quero configurar uma nova BitBox02.",
+      "create": "Quero criar uma nova carteira na minha BitBox02.",
       "restore": "Quero restaurar minha carteira a partir de um backup.",
       "restoreMicroSD": "Restaurar a partir do cartão microSD",
       "restoreMnemonic": "Restaurar a partir da frase de recuperação",
-      "title": "Configure sua BitBox02"
+      "title": "Configure sua carteira"
     },
     "success": {
       "text": "Oba! Sua BitBox02 agora está pronta para uso.\n\nPara obter mais informações sobre como usar o BitBoxApp, use o guia no aplicativo clicando no ponto de interrogação no canto superior direito.",
@@ -374,6 +385,7 @@
     "next": "Próximo",
     "ok": "OK",
     "previous": "Anterior",
+    "proceedOnBitBox": "Prossiga em sua BitBox",
     "receive": "Receber",
     "restore": "Restaurar",
     "select": "Selecionar",
@@ -593,6 +605,28 @@
       "title": "Informações do dispositivo"
     },
     "expert": {
+      "bip85": {
+        "description": "Gere chaves filhas de sua carteira BitBox.",
+        "disclaimer": "Entendo como funcionam as chaves filhas e as considerações de segurança",
+        "how": {
+          "description": "As chaves filhas são exibidas como um mnemônico na sua BitBox. Você pode criar quantas chaves filhas desejar. Para mostrar uma chave filha, será solicitado o número da chave filha (ou seja, 1ª, 2ª, 3ª etc.) e o comprimento desejado do mnemônico (12, 18 ou 24 palavras de recuperação). Lembre-se, você deve manter registro do <strong>número da chave filha e número de palavras</strong> para exibir o mesmo mnemônico posteriormente.",
+          "title": "Como funciona?"
+        },
+        "recover": {
+          "description": "Você sempre pode exibir o mnemônico das chaves filhas novamente. Como mencionado, você deve se lembrar do <strong>número da chave filha e número de palavras</strong> para exibir o mesmo mnemônico. Nunca importe suas palavras de recuperação principais da BitBox para outra carteira, use apenas chaves filhas ao importar para outra carteira.",
+          "title": "Como recuperar carteiras usando uma chave filha BitBox?"
+        },
+        "security": {
+          "description": "Nunca reutilize uma chave filha. Por exemplo, não use uma chave filha para uma carteira quente e depois use a mesma para uma carteira de hardware. A chave não é considerada segura porque foi usada para uma carteira quente.",
+          "title": "Considerações de segurança"
+        },
+        "title": "Mostrar chave filha BIP-85",
+        "what": {
+          "description": "As chaves filhas são derivadas da semente principal e podem ser usadas para criar novas carteiras sem a necessidade de fazer backup de mais sementes. Por exemplo, você pode criar uma chave filha e importá-la para uma carteira quente em vez de fazer com que a carteira quente crie uma semente totalmente nova.",
+          "link": "Leia mais sobre BIP-85",
+          "title": "O que são chaves filhas?"
+        }
+      },
       "factoryReset": {
         "description": "Redefina seu dispositivo para as configurações de fábrica. Isso exclui a carteira de sua BitBox02!",
         "title": "Restauração de fábrica"
@@ -673,6 +707,7 @@
     "aoppUnsupportedFormat": "Não há contas disponíveis que suportem o formato de endereço solicitado.",
     "aoppUnsupportedKeystore": "O dispositivo conectado não pode assinar mensagens para este ativo.",
     "aoppVersion": "Versão desconhecida.",
+    "keystoreTimeout": "A solicitação da carteira expirou. Por favor, tente novamente.",
     "wrongKeystore": "Carteira errada conectada. Certifique-se de inserir o dispositivo correto que corresponde a esta conta.",
     "wrongKeystore2": " Se você estiver usando a frase secreta opcional, certifique-se de ter digitado a frase secreta correta para a conta."
   },
@@ -807,6 +842,13 @@
         "text": "Sim, O BitBoxApp cria suas contas usando o melhor padrão estabelecido compatível com a maioria das outras carteiras de crypto.",
         "title": "Posso recuperar minhas contas com outras carteiras?"
       },
+      "supportedCoins": {
+        "link": {
+          "text": "Ver moedas suportadas"
+        },
+        "text": "O BitBoxApp suporta Bitcoin, Litecoin, Ethereum, bem como uma seleção de tokens ERC20. Para Cardano e outros tokens, use sua BitBox02 com software alternativo como AdaLite ou Rabby. Você pode encontrar uma lista de todas as moedas suportadas em nosso site:",
+        "title": "Quais moedas são suportadas?"
+      },
       "whatAreAccounts": {
         "text": "Sua carteira pode gerenciar contas múltiplas da mesma moeda. Várias contas são de extrema ajuda para manter seus fundos separadamente.",
         "title": "O que são contas?"
@@ -906,7 +948,7 @@
         "title": "Como posso renovar ou cancelar o seguro?"
       },
       "status": {
-        "text": "As contas seguradas com sucesso são marcadas com um emblema verde “segurado” no canto superior esquerdo de cada página da conta Bitcoin. Na seção “Seguro”, você pode ver a visão geral de todas as contas Bitcoin seguradas e seu status atual de seguro.",
+        "text": "As contas seguradas com sucesso são marcadas com um emblema verde “segurado” no canto superior esquerdo de cada página da conta Bitcoin. Na seção “Seguro”, você pode ver a visão geral de todas as contas Bitcoin seguradas e seu status atual de seguro. Pode levar até 48 horas para atualizar o status do seguro.",
         "title": "Posso verificar o status de uma conta segurada?"
       },
       "what": {
@@ -1373,6 +1415,7 @@
       "description": "Para receber outros tokens, ative-os nas configurações. Se você depositar outros tokens, eles podem não ser acessíveis.",
       "warning": "Certifique-se de receber apenas {{coinName}} neste endereço."
     },
+    "qrCodeCopiedMessage": "Copiado!",
     "scriptType": {
       "p2tr": "Taproot (formato mais recente)",
       "p2wpkh": "Segwit Nativo (padrão)",
@@ -1522,6 +1565,7 @@
     "noFeeTargets": "As estimativas de taxa de transação estão indisponíveis no momento. Por favor, tente novamente mais tarde ou insira uma taxa personalizada.",
     "priority": "Prioridade",
     "scanQR": "Escanear QR code",
+    "scanQRNoCameraMessage": "Câmera não encontrada. Certifique-se de que seu dispositivo suporta uma câmera e que as permissões estão definidas corretamente.",
     "signprogress": {
       "description": "Esta é uma transação que contém muitos dados. Para assinar completamente a transação, você será solicitado a confirmar {{steps}} vezes.",
       "label": "Progresso"

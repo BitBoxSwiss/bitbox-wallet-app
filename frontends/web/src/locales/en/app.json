@@ -41,6 +41,7 @@
   "accountSummary": {
     "availableBalance": "Available balance",
     "balance": "Balance",
+    "coin": "Coin",
     "exportSummary": "Export accounts summary to downloads folder as CSV file",
     "fiatBalance": "Fiat balance",
     "name": "Account name",
@@ -155,14 +156,18 @@
   "bb02Bootloader": {
     "abort": "Don't upgrade – take me back",
     "abort_noUpgrade": "Take me back",
+    "additionalUpgradeFollows1": "An additional upgrade will follow immediately after this one.",
+    "additionalUpgradeFollows2": "Please keep your BitBox02 plugged in until all upgrades are complete.",
     "advanced": {
       "label": "Advanced settings",
       "toggleShowFirmwareHash": "Show the firmware hash every time on startup"
     },
     "flipscreen": "Flip screen",
     "orientation": "Device oriented the wrong way?",
-    "success": "Upgrade successful! Continuing in {{rebootSeconds}} seconds...",
-    "success_install": "Installation successful! Continuing in {{rebootSeconds}} seconds..."
+    "success": "Upgrade successful!",
+    "success_install": "Installation successful!",
+    "upgradeTitle": "Upgrading BitBox02 firmware",
+    "upgradeTitle_install": "Installing BitBox02 firmware"
   },
   "bitbox": {
     "error": {
@@ -199,7 +204,7 @@
   "bitbox02Wizard": {
     "advanced": {
       "button": "Advanced options",
-      "outOfDate": "Firmware out of date for this feature",
+      "outOfDate": "Firmware update required",
       "seed12WordInfo": "Please note that the number of words cannot be changed after creating the wallet.",
       "seed12WordLabel": "Create 12-word instead of 24-word seed",
       "seed12WordText": "By default the BitBox02 uses a 24-word seed. Both seed lengths are secure against brute forcing in practice. Some users may prefer the convenience of the 12-word seed instead.",
@@ -291,11 +296,11 @@
       "useControls": "Use the controls on your BitBox02 to set a password."
     },
     "stepUninitialized": {
-      "create": "I want to setup a new BitBox02.",
+      "create": "I want to create a new wallet on my BitBox02.",
       "restore": "I want to restore my wallet from a backup.",
       "restoreMicroSD": "Restore from microSD card",
       "restoreMnemonic": "Restore from recovery words",
-      "title": "Setup your BitBox02"
+      "title": "Setup your wallet"
     },
     "success": {
       "text": "Hooray! Your BitBox02 is now ready to use. \n\nFor further information on how to use the BitBoxApp, please use the in-app guide by clicking the question mark on the top right corner.",
@@ -380,6 +385,7 @@
     "next": "Next",
     "ok": "OK",
     "previous": "Previous",
+    "proceedOnBitBox": "Proceed on your BitBox",
     "receive": "Receive",
     "restore": "Restore",
     "select": "Select",
@@ -599,6 +605,28 @@
       "title": "Device information"
     },
     "expert": {
+      "bip85": {
+        "description": "Generate child keys from your BitBox wallet.",
+        "disclaimer": "I understand how child keys work and the security considerations",
+        "how": {
+          "description": "The child keys are displayed as a mnemonic on your BitBox. You can create as many child keys as you want. To show a child key, you will be asked for the child number (i.e. 1st, 2nd, 3rd etc.) and the desired length of the mnemonic (12, 18 or 24 recovery words). Remember, you must keep track of the <strong>child number and number of words</strong> to display the same mnemonic later.",
+          "title": "How does it work?"
+        },
+        "recover": {
+          "description": "You can always display the mnemonic for the child keys again. As mentioned, you must remember the <strong>child number and number of words</strong> to display the same mnemonic. Never import your main BitBox recovery words into another wallet, only use child keys when importing into another wallet.",
+          "title": "How to recover wallets using a BitBox child key?"
+        },
+        "security": {
+          "description": "Never reuse a child key. For example, do not use a child key for a hot wallet and then use the same one for a hardware wallet. The key is not considered safe since it was used for a hot wallet.",
+          "title": "Security considerations"
+        },
+        "title": "Show BIP-85 child key",
+        "what": {
+          "description": "Child keys are derived from your main seed and can be used to create new wallets without needing to backup more seeds. For example, you can create a child key and import it into a hot wallet instead of having the hot wallet create an entirely new seed.",
+          "link": "Read more about BIP-85",
+          "title": "What are child keys?"
+        }
+      },
       "factoryReset": {
         "description": "Reset your device to factory settings. This deletes the wallet from your BitBox02!",
         "title": "Factory reset"
@@ -814,6 +842,13 @@
         "text": "Yes. The BitBoxApp creates accounts using well-established standards compatible with most other crypto wallets.",
         "title": "Can I recover my accounts with other wallets?"
       },
+      "supportedCoins": {
+        "link": {
+          "text": "View supported coins"
+        },
+        "text": "The BitBoxApp supports Bitcoin, Litecoin and Ethereum as well as a selection of ERC20 token. For Cardano and other tokens, use your BitBox02 with alternative software such as AdaLite or Rabby. You can find an exhaustive list of all supported coins on our website:",
+        "title": "Which coins are supported?"
+      },
       "whatAreAccounts": {
         "text": "Your wallet can manage multiple accounts of the same coin. Accounts are helpful when you want to keep funds separate.",
         "title": "What are accounts?"
@@ -952,6 +987,20 @@
         "text": "This information shows the model number of the secure chip, the most up to date chip is ATECC608B with improved security features compared to older models.",
         "title": "Why show the secure chip model?"
       }
+    },
+    "guideTitle": {
+      "account": "Account guide",
+      "accountInformation": "Account information guide",
+      "accountSummary": "Account summary guide",
+      "advancedSettings": "Advanced settings guide",
+      "appearance": "Appearance guide",
+      "buy": "Buy guide",
+      "insurance": "Insurance guide",
+      "manageAccount": "Manage accounts guide",
+      "manageDevice": "Manage device guide",
+      "receive": "Receive guide",
+      "send": "Send guide",
+      "walletConnect": "WalletConnect guide"
     },
     "lightning": {
       "multipleDevices": {
@@ -1687,6 +1736,10 @@
         "description": "You can connect to your own Electrum full node.",
         "title": "Connect your own full node"
       },
+      "exportLogs": {
+        "description": "Export log file to help with troubleshooting and support.",
+        "title": "Export logs"
+      },
       "fee": "Enable custom fees",
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",
@@ -1845,6 +1898,7 @@
     "getStarted": "Let's get started by installing firmware on your BitBox02.",
     "insertBitBox02": "For the BitBox02, please tap the device to continue.",
     "insertDevice": "Please connect your device to get started",
+    "loadingAccounts": "Loading accounts",
     "title": "Welcome"
   }
 }

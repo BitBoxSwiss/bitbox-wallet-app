@@ -27,6 +27,7 @@ export const AppUpgradeRequired = () => {
       <Header />
       <View
         fullscreen
+        textCenter
         verticallyCentered
         width="840px"
         withBottomBar>

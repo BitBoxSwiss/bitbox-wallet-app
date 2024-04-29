@@ -29,12 +29,16 @@ import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
 import android.webkit.PermissionRequest;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -72,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
     GoService goService;
 
     private String location = "";
+
+    // This is for the file picker dialog invoked by file upload forms in the WebView.
+    // Used by e.g. MoonPay's KYC forms.
+    private ValueCallback<Uri[]> filePathCallback;
 
     // Connection to bind with GoService
     private ServiceConnection connection = new ServiceConnection() {
@@ -118,22 +126,7 @@ public class MainActivity extends AppCompatActivity {
          }
     };
 
-    private static String getMimeType(String url) {
-        String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        if (extension != null) {
-            switch (extension) {
-                case "js":
-                    type = "text/javascript";
-                    break;
-                default:
-                    type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-                    break;
-            }
-        }
 
-        return type;
-    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig){
@@ -243,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
                         // Intercept local requests and serve the response from the Android assets folder.
                         try {
                             InputStream inputStream = getAssets().open(url.replace(BASE_URL, "web/"));
-                            String mimeType = getMimeType(url);
+                            String mimeType = Util.getMimeType(url);
                             if (mimeType != null) {
                                 return new WebResourceResponse(mimeType, "UTF-8", inputStream);
                             }
@@ -344,7 +337,31 @@ public class MainActivity extends AppCompatActivity {
                 }
                 request.deny();
             }
+
+            // file picker result handler.
+            ActivityResultLauncher<String> mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(),
+                    new ActivityResultCallback<Uri>() {
+                        @Override
+                        public void onActivityResult(Uri uri) {
+                            if (filePathCallback != null) {
+                                if (uri != null) {
+                                    filePathCallback.onReceiveValue(new Uri[]{uri});
+                                } else {
+                                    Util.log("Received null Uri in activity result");
+                                    filePathCallback.onReceiveValue(new Uri[]{});
+                                }
+                                filePathCallback = null;
+                            }
+                        }
+                    });
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+                MainActivity.this.filePathCallback = filePathCallback;
+                mGetContent.launch("*/*");
+                return true;
+            }
         });
+
         final String javascriptVariableName = "android";
         vw.addJavascriptInterface(new JavascriptBridge(this), javascriptVariableName);
 
@@ -575,7 +592,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Util.log("lifecycle: onDestroy");
+        if (goService != null) {
+            unbindService(connection);
+        }
         super.onDestroy();
+        Util.quit(MainActivity.this);
     }
 
     @Override
@@ -618,17 +639,7 @@ public class MainActivity extends AppCompatActivity {
             .setMessage("Do you really want to exit?")
             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
-                    // Move to background to avoid possible auto-restart after app exit.
-                    // When in foreground, the system may assume the process quit
-                    // unexpectedly and can try restarting it: Android can't tell
-                    // whether the app exited on purpose, suddenly crashed or terminated
-                    // by the system to reclaim resources.
-                    moveTaskToBack(true);
-                    // Send SIGKILL signal to the app's process and let the system shut it down.
-                    Process.killProcess(Process.myPid());
-                    // If the above killProcess didn't work and we're still here,
-                    // simply terminate the JVM as the last resort.
-                    System.exit(0);
+                    Util.quit(MainActivity.this);
                 }
             })
             .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {

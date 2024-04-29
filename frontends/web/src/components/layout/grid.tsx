@@ -44,15 +44,23 @@ type TColumnProps = {
   asCard?: boolean;
   className?: string;
   children: ReactNode;
+  textCenter?: boolean;
 }
 
 export const Column = ({
   asCard,
   children,
   className,
+  textCenter,
 }: TColumnProps) => {
+  const classNames = `
+    ${style.column}
+    ${asCard ? style.columnAsCard : ''}
+    ${className || ''}
+    ${textCenter ? style.textCenter : ''}
+  `;
   return (
-    <div className={`${style.column} ${asCard ? style.columnAsCard : ''} ${className || ''}`}>
+    <div className={classNames}>
       {children}
     </div>
   );
