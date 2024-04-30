@@ -128,7 +128,7 @@ export const BackupsV2 = ({
                 }
               </div>
             ) : (
-              <p>{t('backup.noBackups')}</p>
+              <p className="text-center">{t('backup.noBackups')}</p>
             )
           }
         </div>
