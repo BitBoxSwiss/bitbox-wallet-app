@@ -90,8 +90,8 @@ export const ElectrumSettings = () => {
           link: {
             text: t('guide.settings-electrum.instructions.link.text'),
             url: (i18n.resolvedLanguage === 'de')
-              ? 'https://shiftcrypto.support/help/de-de/14-privatsphare/29-verbindung-der-bitboxapp-zu-meinem-bitcoin-full-node'
-              : 'https://shiftcrypto.support/help/en-us/14-privacy/29-how-to-connect-the-bitboxapp-to-my-own-full-node'
+              ? 'https://bitbox.swiss/redirects/connect-your-own-full-node-de/'
+              : 'https://bitbox.swiss/redirects/connect-your-own-full-node-en/'
           },
           text: t('guide.settings-electrum.instructions.text'),
           title: t('guide.settings-electrum.instructions.title')
