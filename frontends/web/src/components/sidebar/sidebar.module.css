@@ -231,3 +231,10 @@ a.sidebarActive .single img,
         width: 100vw;
     }
 }
+
+.closeSoftwareKeystore {
+    display: flex;
+    padding: 0;
+    text-align: left;
+    width: 100%;
+}

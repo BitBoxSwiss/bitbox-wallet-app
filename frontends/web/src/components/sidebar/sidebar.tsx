@@ -35,6 +35,7 @@ import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '../../ro
 import { SkipForTesting } from '../../routes/device/components/skipfortesting';
 import { Badge } from '../badge/badge';
 import { AppContext } from '../../contexts/AppContext';
+import { Button } from '../forms';
 import style from './sidebar.module.css';
 
 type SidebarProps = {
@@ -248,14 +249,17 @@ const Sidebar = ({
         { !keystores || keystores.length === 0 ? <SkipForTesting /> : null }
         {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
           <div key="eject" className={style.sidebarItem}>
-            <a href="#" onClick={eject}>
+            <Button transparent onClick={eject} className={style.closeSoftwareKeystore}>
               <div className={style.single}>
                 <img
                   draggable={false}
                   src={ejectIcon}
                   alt={t('sidebar.leave')} />
               </div>
-            </a>
+              <span className={style.sidebarLabel}>
+                Eject software keystore
+              </span>
+            </Button>
           </div>
         )}
       </nav>
