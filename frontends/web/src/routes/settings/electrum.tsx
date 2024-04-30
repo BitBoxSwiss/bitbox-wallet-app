@@ -22,7 +22,7 @@ import { ElectrumServers } from './electrum-servers';
 import { getTesting } from '../../api/backend';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
-import { ButtonLink } from '../../components/forms';
+import { Button, ButtonLink } from '../../components/forms';
 import { useLoad } from '../../hooks/api';
 import { Header } from '../../components/layout';
 
@@ -48,10 +48,14 @@ export const ElectrumSettings = () => {
           <div className="content padded">
             <div className="flex flex-row flex-between flex-items-center tabs">
               <div className={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>
-                <a href="#" onClick={handleTab} data-tab="btc">{t(`settings.electrum.title-${testing ? 'tbtc' : 'btc'}`)}</a>
+                <Button transparent onClick={handleTab} data-tab="btc">
+                  {t(`settings.electrum.title-${testing ? 'tbtc' : 'btc'}`)}
+                </Button>
               </div>
               <div className={['tab', activeTab === 'ltc' ? 'active' : ''].join(' ')}>
-                <a href="#" onClick={handleTab} data-tab="ltc">{t(`settings.electrum.title-${testing ? 'tltc' : 'ltc'}`)}</a>
+                <Button transparent onClick={handleTab} data-tab="ltc">
+                  {t(`settings.electrum.title-${testing ? 'tltc' : 'ltc'}`)}
+                </Button>
               </div>
             </div>
             {
