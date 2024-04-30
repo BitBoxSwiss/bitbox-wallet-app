@@ -247,18 +247,23 @@ class Send extends Component<Props, State> {
     }
   };
 
-  private txInput = (): accountApi.TTxInput => ({
-    address: this.state.recipientAddress,
-    amount: this.state.amount,
-    feeTarget: this.state.feeTarget || 'economy',
-    customFee: this.state.customFee,
-    sendAll: this.state.sendAll ? 'yes' : 'no',
-    selectedUTXOs: Object.keys(this.selectedUTXOs),
-  });
-
-  private sendDisabled = () => {
-    const txInput = this.txInput();
-    return !txInput.address || this.state.feeTarget === undefined || (txInput.sendAll === 'no' && !txInput.amount) || (this.state.feeTarget === 'custom' && !this.state.customFee);
+  private getValidTxInputData = (): Required<accountApi.TTxInput> | false => {
+    if (
+      !this.state.recipientAddress
+      || this.state.feeTarget === undefined
+      || (!this.state.sendAll && !this.state.amount)
+      || (this.state.feeTarget === 'custom' && !this.state.customFee)
+    ) {
+      return false;
+    }
+    return {
+      address: this.state.recipientAddress,
+      amount: this.state.amount,
+      feeTarget: this.state.feeTarget,
+      customFee: this.state.customFee,
+      sendAll: (this.state.sendAll ? 'yes' : 'no'),
+      selectedUTXOs: Object.keys(this.selectedUTXOs),
+    };
   };
 
   private validateAndDisplayFee = (updateFiat: boolean = true) => {
@@ -268,10 +273,10 @@ class Send extends Component<Props, State> {
       amountError: undefined,
       feeError: undefined,
     });
-    if (this.sendDisabled()) {
+    const txInput = this.getValidTxInputData();
+    if (!txInput) {
       return;
     }
-    const txInput = this.txInput();
     if (this.proposeTimeout) {
       clearTimeout(this.proposeTimeout);
       this.proposeTimeout = null;
@@ -628,7 +633,7 @@ class Send extends Component<Props, State> {
                       <Button
                         primary
                         onClick={this.send}
-                        disabled={this.sendDisabled() || !valid || isUpdatingProposal}>
+                        disabled={!this.getValidTxInputData() || !valid || isUpdatingProposal}>
                         {t('send.button')}
                       </Button>
                       <ButtonLink
