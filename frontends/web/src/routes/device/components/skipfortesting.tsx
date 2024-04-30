@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { registerTest } from '../../../api/keystores';
 import { getTesting } from '../../../api/backend';
 import { Button } from '../../../components/forms';
@@ -23,7 +24,15 @@ import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { useLoad } from '../../../hooks/api';
 import { debug } from '../../../utils/env';
 
-export const SkipForTesting = () => {
+type TProps = {
+  children?: ReactNode;
+  className?: string;
+}
+
+export const SkipForTesting = ({
+  children,
+  className,
+}: TProps) => {
   const [dialog, setDialog] = useState(false);
   const show = useLoad(debug ? getTesting : () => Promise.resolve(false));
   const [testPIN, setTestPIN] = useState('');
@@ -39,7 +48,13 @@ export const SkipForTesting = () => {
   const title = 'Unlock software keystore';
   return (
     <>
-      <button onClick={() => setDialog(true)}>{title}</button>
+      <Button
+        className={className}
+        onClick={() => setDialog(true)}
+        primary
+      >
+        {children ? children : title}
+      </Button>
       <Dialog open={dialog} title={title} onClose={() => setDialog(false)}>
         <form onSubmit={registerTestingDevice}>
           <PasswordSingleInput
