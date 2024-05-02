@@ -96,8 +96,8 @@ class Send extends Component<Props, State> {
   // pendingProposals keeps all requests that have been made
   // to /tx-proposal in case there are multiple parallel requests
   // we can ignore all other but the last one
-  private pendingProposals: any = [];
-  private proposeTimeout: any = null;
+  private pendingProposals: Array<Promise<accountApi.TTxProposalResult>> = [];
+  private proposeTimeout: ReturnType<typeof setTimeout> | null = null;
 
   public readonly state: State = {
     recipientAddress: '',
@@ -283,14 +283,14 @@ class Send extends Component<Props, State> {
     }
     this.setState({ isUpdatingProposal: true });
     this.proposeTimeout = setTimeout(() => {
-      const propose = accountApi.proposeTx(this.getAccount()!.code, txInput)
-        .then(result => {
-          const pos = this.pendingProposals.indexOf(propose);
-          if (this.pendingProposals.length - 1 === pos) {
-            this.txProposal(updateFiat, result);
-          }
-          this.pendingProposals.splice(pos, 1);
-        })
+      const propose = accountApi.proposeTx(this.getAccount()!.code, txInput);
+      propose.then(result => {
+        const pos = this.pendingProposals.indexOf(propose);
+        if (this.pendingProposals.length - 1 === pos) {
+          this.txProposal(updateFiat, result);
+        }
+        this.pendingProposals.splice(pos, 1);
+      })
         .catch(() => {
           this.setState({ valid: false });
           this.pendingProposals.splice(this.pendingProposals.indexOf(propose), 1);
