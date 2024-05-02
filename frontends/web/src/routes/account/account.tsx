@@ -303,7 +303,6 @@ export function Account({
             <div className="flex flex-column flex-reverse-mobile">
               <label className="labelXLarge flex-self-start-mobile hide-on-small">
                 {t('accountSummary.availableBalance')}
-                {t('welcome.title')}
               </label>
               <div className="flex flex-row flex-between flex-item-center flex-column-mobile flex-reverse-mobile">
                 <Balance balance={balance} />
