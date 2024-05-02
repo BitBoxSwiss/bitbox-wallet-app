@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
  */
 
 import React, { useContext, useEffect } from 'react';
+import { useLocation } from 'react-router';
 import { Link, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useKeystores } from '../../hooks/backend';
 import { IAccount } from '../../api/account';
+import { deregisterTest } from '../../api/keystores';
 import coins from '../../assets/icons/coins.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 import shieldIcon from '../../assets/icons/shield_grey.svg';
@@ -27,9 +29,7 @@ import linechart from '../../assets/icons/linechart.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import { debug } from '../../utils/env';
-import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';
-import { useLocation } from 'react-router';
 import { CloseXWhite, USBSuccess } from '../icon';
 import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '../../routes/account/utils';
 import { SkipForTesting } from '../../routes/device/components/skipfortesting';
@@ -67,7 +67,7 @@ const GetAccountLink = ({
 };
 
 const eject = (e: React.SyntheticEvent): void => {
-  apiPost('test/deregister');
+  deregisterTest();
   e.preventDefault();
 };
 
