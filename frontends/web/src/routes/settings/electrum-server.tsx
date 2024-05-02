@@ -16,9 +16,8 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { apiPost } from '../../utils/request';
+import { TElectrumServer, checkElectrum } from '../../api/node';
 import { alertUser } from '../../components/alert/Alert';
-import { TElectrumServer } from './types';
 import style from './electrum.module.css';
 
 type Props = {
@@ -35,15 +34,15 @@ export const ElectrumServer = ({
 
   const check = async () => {
     setLoadingCheck(true);
-    const { success, errorMessage } = await apiPost('electrum/check', {
+    const response = await checkElectrum({
       server: server.server.trim(),
       pemCert: server.pemCert,
       tls: server.tls,
     });
-    if (success) {
+    if (response.success) {
       alertUser(t('settings.electrum.checkSuccess', { host: server.server }));
     } else {
-      alertUser(t('settings.electrum.checkFailed') + ':\n' + errorMessage);
+      alertUser(t('settings.electrum.checkFailed') + ':\n' + response.errorMessage);
     }
     setLoadingCheck(false);
   };

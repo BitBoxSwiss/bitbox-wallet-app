@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,4 +180,8 @@ export const getRootFingerprint = (
 
 export const invokeBIP85 = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/invoke-bip85`);
+};
+
+export const gotoStartupSettings = (deviceID: string) => {
+  return apiPost(`devices/bitbox02/${deviceID}/goto-startup-settings`);
 };

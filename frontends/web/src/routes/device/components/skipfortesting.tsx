@@ -15,7 +15,7 @@
  */
 
 import React, { useState } from 'react';
-import { testRegister } from '../../../api/account';
+import { registerTest } from '../../../api/keystores';
 import { getTesting } from '../../../api/backend';
 import { Button } from '../../../components/forms';
 import { PasswordSingleInput } from '../../../components/password';
@@ -29,7 +29,7 @@ export const SkipForTesting = () => {
   const [testPIN, setTestPIN] = useState('');
   const registerTestingDevice = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    await testRegister(testPIN);
+    await registerTest(testPIN);
     setDialog(false);
   };
 

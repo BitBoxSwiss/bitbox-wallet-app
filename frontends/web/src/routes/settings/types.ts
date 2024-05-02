@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-export type TElectrumServer = {
-  server: string;
-  tls: boolean;
-  pemCert: string;
-};
-
 export type TPagePropsWithSettingsTabs = {
   deviceIDs: string[];
   hasAccounts: boolean;

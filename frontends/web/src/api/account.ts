@@ -374,10 +374,6 @@ export const addAccount = (coinCode: string, name: string): Promise<TAddAccount>
   });
 };
 
-export const testRegister = (pin: string): Promise<null> => {
-  return apiPost('test/register', { pin });
-};
-
 export const connectKeystore = (code: AccountCode): Promise<{ success: boolean; }> => {
   return apiPost(`account/${code}/connect-keystore`);
 };
@@ -393,7 +389,6 @@ export type TSignWalletConnectTx = {
   txHash: string;
   rawTx: string;
 }
-
 
 export const ethSignMessage = (code: AccountCode, message: string): Promise<TSignMessage> => {
   return apiPost(`account/${code}/eth-sign-msg`, message);
@@ -420,4 +415,3 @@ export type AddressSignResponse = {
 export const signAddress = (format: ScriptType | '', msg: string, code: AccountCode): Promise<AddressSignResponse> => {
   return apiPost(`account/${code}/sign-address`, { format, msg, code });
 };
-
