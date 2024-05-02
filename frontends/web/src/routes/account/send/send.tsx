@@ -93,10 +93,8 @@ class Send extends Component<Props, State> {
   private selectedUTXOs: TSelectedUTXOs = {};
   private unsubscribeList: UnsubscribeList = [];
 
-  // pendingProposals keeps all requests that have been made
-  // to /tx-proposal in case there are multiple parallel requests
-  // we can ignore all other but the last one
-  private pendingProposals: Array<Promise<accountApi.TTxProposalResult>> = [];
+  // in case there are multiple parallel tx proposals we can ignore all other but the last one
+  private lastProposal: Promise<accountApi.TTxProposalResult> | null = null;
   private proposeTimeout: ReturnType<typeof setTimeout> | null = null;
 
   public readonly state: State = {
@@ -286,21 +284,20 @@ class Send extends Component<Props, State> {
     this.proposeTimeout = setTimeout(async () => {
       const proposePromise = accountApi.proposeTx(this.getAccount()!.code, txInput);
       // keep this as the last known proposal
-      this.pendingProposals.push(proposePromise);
+      this.lastProposal = proposePromise;
       try {
         const result = await proposePromise;
         // continue only if this is the most recent proposal
-        if (proposePromise === this.pendingProposals[this.pendingProposals.length - 1]) {
+        if (proposePromise === this.lastProposal) {
           this.txProposal(updateFiat, result);
         }
       } catch (error) {
         this.setState({ valid: false });
         console.error('Failed to propose transaction:', error);
       } finally {
-        // Always remove the proposal from the array, regardless of success or failure
-        const pos = this.pendingProposals.indexOf(proposePromise);
-        if (pos > -1) {
-          this.pendingProposals.splice(pos, 1);
+        // cleanup regardless of success or failure
+        if (proposePromise === this.lastProposal) {
+          this.lastProposal = null;
         }
       }
     }, 400); // Delay the proposal by 400 ms
