@@ -282,21 +282,28 @@ class Send extends Component<Props, State> {
       this.proposeTimeout = null;
     }
     this.setState({ isUpdatingProposal: true });
-    this.proposeTimeout = setTimeout(() => {
-      const propose = accountApi.proposeTx(this.getAccount()!.code, txInput);
-      propose.then(result => {
-        const pos = this.pendingProposals.indexOf(propose);
-        if (this.pendingProposals.length - 1 === pos) {
+    // defer the transaction proposal
+    this.proposeTimeout = setTimeout(async () => {
+      const proposePromise = accountApi.proposeTx(this.getAccount()!.code, txInput);
+      // keep this as the last known proposal
+      this.pendingProposals.push(proposePromise);
+      try {
+        const result = await proposePromise;
+        // continue only if this is the most recent proposal
+        if (proposePromise === this.pendingProposals[this.pendingProposals.length - 1]) {
           this.txProposal(updateFiat, result);
         }
-        this.pendingProposals.splice(pos, 1);
-      })
-        .catch(() => {
-          this.setState({ valid: false });
-          this.pendingProposals.splice(this.pendingProposals.indexOf(propose), 1);
-        });
-      this.pendingProposals.push(propose);
-    }, 400);
+      } catch (error) {
+        this.setState({ valid: false });
+        console.error('Failed to propose transaction:', error);
+      } finally {
+        // Always remove the proposal from the array, regardless of success or failure
+        const pos = this.pendingProposals.indexOf(proposePromise);
+        if (pos > -1) {
+          this.pendingProposals.splice(pos, 1);
+        }
+      }
+    }, 400); // Delay the proposal by 400 ms
   };
 
   private handleNoteInput = (event: ChangeEvent<HTMLInputElement>) => {
