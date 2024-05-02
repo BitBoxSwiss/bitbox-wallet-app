@@ -16,10 +16,9 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { checkElectrum, downloadCert, TElectrumServer } from '../../api/node';
 import { Button, Input } from '../../components/forms';
-import { apiPost } from '../../utils/request';
 import { alertUser } from '../../components/alert/Alert';
-import { TElectrumServer } from './types';
 import style from './electrum.module.css';
 
 type Props = {
@@ -50,9 +49,9 @@ export const ElectrumAddServer = ({
     setElectrumCert('');
   };
 
-  const downloadCert = async () => {
+  const downloadCertificate = async () => {
     setLoadingCert(true);
-    const data = await apiPost('certs/download', electrumServer.trim());
+    const data = await downloadCert(electrumServer.trim());
     if (data.success) {
       setElectrumCert(data.pemCert);
     } else {
@@ -63,13 +62,13 @@ export const ElectrumAddServer = ({
 
   const check = async () => {
     setLoadingCheck(true);
-    const { success, errorMessage } = await apiPost('electrum/check', getServer());
-    if (success) {
+    const response = await checkElectrum(getServer());
+    if (response.success) {
       alertUser(t('settings.electrum.checkSuccess', { host: electrumServer }));
     } else {
-      alertUser(t('settings.electrum.checkFailed') + ':\n' + errorMessage);
+      alertUser(t('settings.electrum.checkFailed') + ':\n' + response.errorMessage);
     }
-    setValid(success);
+    setValid(response.success);
     setLoadingCheck(false);
   };
 
@@ -108,7 +107,7 @@ export const ElectrumAddServer = ({
         placeholder={'-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----'}
       />
       <div className={[style.block, 'flex flex-row flex-end'].join(' ')}>
-        <Button primary disabled={downloadCertButtonDisabled} onClick={downloadCert}>
+        <Button primary disabled={downloadCertButtonDisabled} onClick={downloadCertificate}>
           {
             loadingCert && (
               <div className={style.miniSpinnerContainer}>
