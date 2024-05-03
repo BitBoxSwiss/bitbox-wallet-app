@@ -17,6 +17,7 @@ package backend
 import (
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"net/http"
 	"testing"
 	"time"
@@ -1505,4 +1506,20 @@ func TestAccountsTotalBalanceByKeystore(t *testing.T) {
 
 	require.NotNil(t, totalBalance[hex.EncodeToString(ks2Fingerprint)])
 	require.Equal(t, "0.13", totalBalance[hex.EncodeToString(ks2Fingerprint)].Total)
+}
+
+func TestConvertBtcAmountToFiat(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+	b.ratesUpdater = rates.MockRateUpdater()
+	defer b.ratesUpdater.Stop()
+
+	// convert 1 BTC to USD
+	amount := coinpkg.NewAmountFromInt64(100000000)
+	expectedValue := big.NewRat(21, 1)
+
+	converted, err := b.convertBtcAmountToFiat(amount, rates.USD.String())
+	require.NoError(t, err)
+
+	require.Equal(t, expectedValue, converted)
 }

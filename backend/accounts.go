@@ -249,6 +249,31 @@ func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat stri
 	return fiatValue, nil
 }
 
+// Converts bitcoin amount to fiat.
+func (backend *Backend) convertBtcAmountToFiat(amount coin.Amount, fiat string) (*big.Rat, error) {
+	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
+	if err != nil {
+		return nil, err
+	}
+	coinDecimals := new(big.Int).Exp(
+		big.NewInt(10),
+		big.NewInt(int64(btcCoin.Decimals(false))),
+		nil,
+	)
+	price, err := backend.RatesUpdater().LatestPriceForPair(btcCoin.Unit(false), fiat)
+	if err != nil {
+		return nil, err
+	}
+	fiatValue := new(big.Rat).Mul(
+		new(big.Rat).SetFrac(
+			amount.BigInt(),
+			coinDecimals,
+		),
+		new(big.Rat).SetFloat64(price),
+	)
+	return fiatValue, nil
+}
+
 // AccountsTotalBalanceByKeystore returns a map of accounts' total balances across coins, grouped by keystore.
 func (backend *Backend) AccountsTotalBalanceByKeystore() (map[string]KeystoreTotalAmount, error) {
 	totalAmounts := make(map[string]KeystoreTotalAmount)
@@ -284,6 +309,22 @@ func (backend *Backend) AccountsTotalBalanceByKeystore() (map[string]KeystoreTot
 				return nil, err
 			}
 			currentTotal.Add(currentTotal, fiatValue)
+		}
+		// Add lightning balance if it is enabled.
+		if backend.Config().LightningConfig().LightningEnabled() {
+			lightningConfigRootFingerprint := hex.EncodeToString(backend.Config().LightningConfig().Accounts[0].RootFingerprint)
+			// Check if the lightning wallet is from the same keystore.
+			if lightningConfigRootFingerprint == rootFingerprint {
+				lightningBalance, err := backend.lightning.Balance()
+				if err != nil {
+					return nil, err
+				}
+				lightningBalanceAmount, err := backend.convertBtcAmountToFiat(lightningBalance.Available(), fiat)
+				if err != nil {
+					return nil, err
+				}
+				currentTotal.Add(currentTotal, lightningBalanceAmount)
+			}
 		}
 		totalAmounts[rootFingerprint] = KeystoreTotalAmount{
 			FiatUnit: fiatUnit,
