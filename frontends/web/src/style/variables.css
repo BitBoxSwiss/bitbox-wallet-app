@@ -37,53 +37,53 @@
     --color-danger: var(--color-error);
 
     /* font sizes */
-    --size-extra-large: 35px;
-    --size-large: 32px;
-    --size-large-mobile: 22px;
-    --size-subheader: 18px;
+    --size-extra-large: 3.5rem;
+    --size-large: 3.2rem;
+    --size-large-mobile: 2.2rem;
+    --size-subheader: 1.8rem;
     --size-medium: var(--size-default);
-    --size-default: 14px;
-    --size-small: 12px;
-    --size-xsmall: 11px;
+    --size-default: 1.4rem;
+    --size-small: 1.2rem;
+    --size-xsmall: 1.1rem;
     --size-label: var(--size-small);
     --size-button: var(--size-default);
-    --size-title: 32px;
+    --size-title: 3.2rem;
 
     /* wizard */
-    --size-wizard-text: 16px;
+    --size-wizard-text: 1.6rem;
 
     /* spacing */
     --spacing-large: 32px;
     --spacing-default: 16px;
     --spacing-half: 8px;
 
-    --space-large: 64px;
-    --space-default: 32px;
-    --space-half: 16px;
-    --space-quarter: 8px;
-    --space-eight: 4px;
+    --space-large: 6.4rem;
+    --space-default: 3.2rem;
+    --space-half: 1.6rem;
+    --space-quarter: .8rem;
+    --space-eight: .4rem;
 
-    --item-height-xsmall: 24px;
-    --item-height-small: 36px;
-    --item-height: 52px;
-    --item-height-large: 72px;
-    --item-height-xlarge: 84px;
+    --item-height-xsmall: 2.4rem;
+    --item-height-small: 3.6rem;
+    --item-height: 5.2rem;
+    --item-height-large: 7.2rem;
+    --item-height-xlarge: 8.4rem;
 
     /* typography */
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 
     /* sidebar */
     --sidebar-width-large: 250px;
-    --sidebar-margin: 32px;
-    --sidebar-item-height: 52px;
-    --sidebar-icon-margin: 14px;
-    --sidebar-icon-size: 24px;
-    --sidebar-header-size: 12px;
-    --sidebar-header-line-height: 16px;
+    --sidebar-margin: 3.2rem;
+    --sidebar-item-height: 5.2rem;
+    --sidebar-icon-margin: 1.4rem;
+    --sidebar-icon-size: 2.4rem;
+    --sidebar-header-size: 1.2rem;
+    --sidebar-header-line-height: 1.6rem;
 
     /* header */
-    --header-height: 70px;
-    --header-default-font-size: 24px;
+    --header-height: 7rem;
+    --header-default-font-size: 2.4rem;
 
     /* content */
     --content-width: 1080px;
@@ -182,16 +182,16 @@
 
 @media (max-width: 1199px) {
     :root {
-        --size-title: 18px;
+        --size-title: 1.8rem;
     }
 }
 
 @media (max-width: 768px) {
     :root {
-        --header-default-font-size: 20px;
-        --size-subheader: 16px;
-        --size-title: 16px;
+        --header-default-font-size: 2rem;
+        --size-subheader: 1.6rem;
+        --size-title: 1.6rem;
 
-        --size-wizard-text: 14px;
+        --size-wizard-text: 1.4rem;
     }
 }
