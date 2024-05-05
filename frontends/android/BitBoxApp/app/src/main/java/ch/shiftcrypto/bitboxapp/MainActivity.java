@@ -241,6 +241,12 @@ public class MainActivity extends AppCompatActivity {
                 // This size does not scale dynamically with zoom adjustments and is fixed at 1.6rem.
                 double defaultFontSizeREM = 1.6;
 
+                // Set the base font-size on the html element dynamically and apply a fixed font size to the body.
+                // Also, set a custom data attribute 'data-test' to the calculated base font size percentage for potential debugging.
+                String cssSetup = "document.documentElement.style.fontSize = '" + baseFontSizePercentage + "%';" +
+                                    "document.body.style.fontSize = '" + defaultFontSizeREM + "rem';" +
+                                    "document.body.setAttribute('data-test', '" + baseFontSizePercentage + "%');";
+
                 // Reset the WebView's text zoom to 100% to ensure that the scaling is controlled via CSS
                 // and not by the WebView's default scaling behavior.
                 view.getSettings().setTextZoom(100);

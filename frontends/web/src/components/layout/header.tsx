@@ -46,6 +46,8 @@ const Header = ({
     }
     return false;
   };
+  const test = document.body.getAttribute('data-test');
+  const width = window.screen.width;
 
   return (
     <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
@@ -65,6 +67,9 @@ const Header = ({
             >
               <GuideActive />
               {t('guide.toggle.open')}
+              <sup>
+                ({test} {width}px)
+              </sup>
             </Button>
           )}
         </div>
