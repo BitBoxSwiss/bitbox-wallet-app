@@ -14,15 +14,46 @@ public class WebViewClient extends android.webkit.WebViewClient {
     private final String baseUrl;
     private final AssetManager assets;
     private final Application appContext;
+    private final int initialZoom;
 
-    public WebViewClient(String baseUrl, AssetManager assets, Application appContext) {
+    public WebViewClient(String baseUrl, AssetManager assets, Application appContext, int initialZoom) {
         this.assets = assets;
         this.appContext = appContext;
         this.baseUrl = baseUrl;
+        this.initialZoom = initialZoom;
     }
     @Override
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
+
+        // Calculate the base font size for html as a percentage.
+        // This percentage dynamically adjusts to ensure 1rem = 10px, scaled according to the current zoom level.
+        double baseFontSizePercentage = 62.5 * ((double) initialZoom / 100.0);
+
+        // The default body font size in rem, which is independent of the zoom level.
+        // This size does not scale dynamically with zoom adjustments and is fixed at 1.6rem.
+        double defaultFontSizeREM = 1.6;
+
+        // Reset the WebView's text zoom to 100% to ensure that the scaling is controlled via CSS
+        // and not by the WebView's default scaling behavior.
+        view.getSettings().setTextZoom(100);
+
+        String cssSetupInjected =
+            "(function() {" +
+            "   function applyCss() {" +
+            "       document.documentElement.style.fontSize='" + baseFontSizePercentage + "%';" +
+            "       document.body.style.fontSize='" + defaultFontSizeREM + "rem';" +
+            "   }" +
+            "   if (document.readyState === 'complete' || document.readyState === 'interactive') {" +
+            "       applyCss();" +
+            "   } else {" +
+            "       document.addEventListener('DOMContentLoaded', applyCss);" +
+            "   }" +
+            "})();";
+
+        // Execute the CSS setup in the WebView.
+        view.evaluateJavascript(cssSetupInjected, null);
+
         // override the default readText method, that doesn't work
         // because of read permission denied.
         view.evaluateJavascript(
