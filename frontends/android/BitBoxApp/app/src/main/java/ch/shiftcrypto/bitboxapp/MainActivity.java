@@ -77,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String location = "";
 
+    private int currentZoom;
+
     // This is for the file picker dialog invoked by file upload forms in the WebView.
     // Used by e.g. MoonPay's KYC forms.
     private ValueCallback<Uri[]> filePathCallback;
@@ -221,12 +223,31 @@ public class MainActivity extends AppCompatActivity {
         // For MoonPay WebRTC camera access.
         vw.getSettings().setMediaPlaybackRequiresUserGesture(false);
 
+        // Retrieve the current text zoom setting to adjust the base font size in the WebView.
+        currentZoom = vw.getSettings().getTextZoom();
+
         vw.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 // The url is not correctly updated when navigating to a new page. This allows to
                 // know the current location and to block external requests on that base.
                 view.evaluateJavascript("window.location.pathname", path -> location = path);
+
+                // Calculate the base font size for html as a percentage.
+                // This percentage dynamically adjusts to ensure 1rem = 10px, scaled according to the current zoom level.
+                double baseFontSizePercentage = 62.5 * (currentZoom / 100.0);
+
+                // The default body font size in rem, which is independent of the zoom level.
+                // This size does not scale dynamically with zoom adjustments and is fixed at 1.6rem.
+                double defaultFontSizeREM = 1.6;
+
+                // Reset the WebView's text zoom to 100% to ensure that the scaling is controlled via CSS
+                // and not by the WebView's default scaling behavior.
+                view.getSettings().setTextZoom(100);
+
+                // Execute the CSS setup in the WebView.
+                view.evaluateJavascript(cssSetup, null);
+
             }
             @Override
             public WebResourceResponse shouldInterceptRequest(final WebView view, WebResourceRequest request) {
