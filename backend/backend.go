@@ -97,6 +97,9 @@ var fixedURLWhitelist = []string{
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
 	"https://github.com/bitcoin/bips/",
+	// app stores
+	"https://itunes.apple.com/",
+	"https://play.google.com/store/",
 	// Others
 	"https://cointracking.info/import/bitbox/",
 }
