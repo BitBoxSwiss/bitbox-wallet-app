@@ -87,11 +87,11 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           </div>
         )}
         <div className="buttons">
-          { versionInfo.canUpgrade ? (
+          { versionInfo.canUpgrade || versionInfo.canReinstall ? (
             <Button
               primary
               onClick={() => bitbox02BootloaderAPI.upgradeFirmware(deviceID)}>
-              {t('bootloader.button', { context: (versionInfo.erased ? 'install' : '') })}
+              {t('bootloader.button', { context: (versionInfo.erased ? 'install' : versionInfo.canReinstall ? 'reinstall' : '') })}
             </Button>
           ) : null }
           { !versionInfo.erased && (

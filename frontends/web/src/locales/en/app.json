@@ -365,6 +365,7 @@
   "bootloader": {
     "button": "Upgrade firmware now",
     "button_install": "Install firmware now",
+    "button_reinstall": "Reinstall firmware now",
     "progress": "Upgrading: {{progress}}%",
     "progress_install": "Installing: {{progress}}%",
     "success": "Upgrade successful! Please replug the device. This time, do not touch the button."

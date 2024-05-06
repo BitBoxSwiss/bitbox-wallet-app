@@ -45,6 +45,9 @@ export type TVersionInfo = {
   erased: boolean;
   // Indicates whether the user can install/upgrade firmware.
   canUpgrade: boolean;
+  // Indicates whether the user can re-install the same version of the firwmare.
+  // This is useful if an install/upgrade process was interrupted and the user has to try again.
+  canReinstall: boolean;
   // This is true if there is more than one upgrade to be performed (intermediate and final).
   additionalUpgradeFollows: boolean;
 };

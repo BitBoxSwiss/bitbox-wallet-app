@@ -223,8 +223,9 @@ func (device *Device) UpgradeFirmware() error {
 
 // VersionInfo contains version information about the upgrade.
 type VersionInfo struct {
-	Erased     bool `json:"erased"`
-	CanUpgrade bool `json:"canUpgrade"`
+	Erased       bool `json:"erased"`
+	CanUpgrade   bool `json:"canUpgrade"`
+	CanReinstall bool `json:"canReinstall"`
 	// AdditionalUpgradeFollows is true if there is more than one upgrade to be performed
 	// (intermediate and final).
 	AdditionalUpgradeFollows bool `json:"additionalUpgradeFollows"`
@@ -250,17 +251,20 @@ func (device *Device) VersionInfo() (*VersionInfo, error) {
 		return nil, err
 	}
 	canUpgrade := erased || latestFirmwareVersion > currentFirmwareVersion
+	canReinstall := !erased && latestFirmwareVersion == currentFirmwareVersion
 	additionalUpgradeFollows := nextFw.monotonicVersion < latestFirmwareVersion
 	device.log.
 		WithField("latestFirmwareVersion", latestFirmwareVersion).
 		WithField("currentFirmwareVersion", currentFirmwareVersion).
 		WithField("erased", erased).
 		WithField("canUpgrade", canUpgrade).
+		WithField("canReinstall", canReinstall).
 		WithField("additionalUpgradeFollows", additionalUpgradeFollows).
 		Info("VersionInfo")
 	return &VersionInfo{
 		Erased:                   erased,
 		CanUpgrade:               canUpgrade,
+		CanReinstall:             canReinstall,
 		AdditionalUpgradeFollows: additionalUpgradeFollows,
 	}, nil
 }
