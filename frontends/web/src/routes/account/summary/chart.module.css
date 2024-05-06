@@ -46,6 +46,10 @@
   .chart{
     margin-bottom: var(--spacing-default);
   }
+  .chart header {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
 
   .summary{
     align-items: center;
@@ -57,6 +61,12 @@
   }
 }
 
+@media (max-width: 768px) {
+  .chart {
+    padding-left: var(--space-half);
+    padding-right: var(--space-half);
+  }
+}
 
 .filters button {
   appearance: none;
@@ -69,6 +79,10 @@
   margin-bottom: var(--spacing-half);
   margin-left: var(--spacing-half);
   padding: 0 calc(var(--spacing-default) * .75);
+}
+
+.filters button:first-child {
+  margin-left: 0;
 }
 
 .filters button:hover:not([disabled]) {
