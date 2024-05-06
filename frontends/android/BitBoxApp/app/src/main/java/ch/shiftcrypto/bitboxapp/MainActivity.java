@@ -44,6 +44,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.activity.OnBackPressedCallback;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -365,6 +366,47 @@ public class MainActivity extends AppCompatActivity {
         final String javascriptVariableName = "android";
         vw.addJavascriptInterface(new JavascriptBridge(this), javascriptVariableName);
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+
+                if (vw.canGoBack()) {
+                    vw.goBack();
+                } else {
+                    // To avoid unexpected behaviour, we prompt users and force the app process
+                    // to exit which helps with preserving phone's resources by shutting down
+                    // all goroutines.
+                    //
+                    // Without forced app process exit, some goroutines may remain active even after
+                    // the app resumption at which point new copies of goroutines are spun up.
+                    // Note that this is different from users tapping on "home" button or switching
+                    // to another app and then back, in which case no extra goroutines are created.
+                    //
+                    // A proper fix is to make the backend process run in a separate system thread.
+                    // Until such solution is implemented, forced app exit seems most appropriate.
+                    //
+                    // See the following for details about task and activity stacks:
+                    // https://developer.android.com/guide/components/activities/tasks-and-back-stack
+                    new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Close BitBoxApp")
+                        .setMessage("Do you really want to exit?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                Util.quit(MainActivity.this);
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+                }
+
+            }
+        });
+
         try {
             String data = readRawText(getAssets().open("web/index.html"));
             vw.loadDataWithBaseURL(BASE_URL, data, null, null, null);
@@ -615,39 +657,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // The app cannot currently handle the back button action to allow users
-    // to move between screens back and forth. What happens is the app is "moved"
-    // to background as if "home" button were pressed.
-    // To avoid unexpected behaviour, we prompt users and force the app process
-    // to exit which helps with preserving phone's resources by shutting down
-    // all goroutines.
-    //
-    // Without forced app process exit, some goroutines may remain active even after
-    // the app resumption at which point new copies of goroutines are spun up.
-    // Note that this is different from users tapping on "home" button or switching
-    // to another app and then back, in which case no extra goroutines are created.
-    //
-    // A proper fix is to make the backend process run in a separate system thread.
-    // Until such solution is implemented, forced app exit seems most appropriate.
-    //
-    // See the following for details about task and activity stacks:
-    // https://developer.android.com/guide/components/activities/tasks-and-back-stack
-    @Override
-    public void onBackPressed() {
-        new AlertDialog.Builder(MainActivity.this)
-            .setTitle("Close BitBoxApp")
-            .setMessage("Do you really want to exit?")
-            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    Util.quit(MainActivity.this);
-                }
-            })
-            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            })
-            .setIcon(android.R.drawable.ic_dialog_alert)
-            .show();
-    }
 }
