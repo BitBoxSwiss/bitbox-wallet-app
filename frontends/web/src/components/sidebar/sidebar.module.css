@@ -118,18 +118,9 @@
     border-radius: 2px;
 }
 
-.sidebarArrow {
-    display: none;
-}
-
 .sidebarItem a.sidebarActive {
     text-decoration: none;
     background-color: rgba(255, 255, 255, 0.1);
-}
-
-.activeGroup .sidebarArrow {
-    display: inline;
-    margin-right: var(--sidebar-margin);
 }
 
 .sidebarItem :global(.stacked),
@@ -139,8 +130,7 @@
 }
 
 a.sidebarActive .sidebarLabel,
-.sidebar a:hover .sidebarLabel,
-.activeGroup .sidebarLabel {
+.sidebar a:hover .sidebarLabel {
     color: var(--color-alt);
 }
 
@@ -154,8 +144,7 @@ a.sidebarActive :global(.stacked) img:first-child,
 }
 
 a.sidebarActive :global(.stacked) img:last-child,
-.sidebar a:hover :global(.stacked) img:last-child,
-.activeGroup :global(.stacked) img:last-child {
+.sidebar a:hover :global(.stacked) img:last-child {
     opacity: 1;
 }
 
@@ -190,22 +179,6 @@ a.sidebarActive .single img,
     word-break: break-word;
 }
 
-.activeGroup {
-    background-color: #555555;
-}
-
-.sidebarSubmenu a svg {
-    width: 18px;
-    height: 18px;
-    margin-right: var(--sidebar-icon-margin);
-    margin-left: calc(var(--sidebar-margin) + var(--sidebar-icon-margin));
-}
-
-.sidebarArrow {
-    width: 12px;
-    height: 12px;
-}
-
 @media (max-width: 1199px) {
     .sidebar {
         transition: margin-left 0.2s ease;
@@ -230,4 +203,11 @@ a.sidebarActive .single img,
         transition: margin-left 0.3s ease;
         width: 100vw;
     }
+}
+
+.closeSoftwareKeystore {
+    display: flex;
+    padding: 0;
+    text-align: left;
+    width: 100%;
 }
