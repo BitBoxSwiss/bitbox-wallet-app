@@ -236,6 +236,19 @@ func (backend *Backend) ChartData() (*Chart, error) {
 
 	}
 
+	if backend.Config().LightningConfig().LightningEnabled() {
+		var err error
+		lightningBalance, err := backend.lightning.Balance()
+		if err != nil {
+			return nil, err
+		}
+		lightningBalanceAmount, err := backend.convertBtcAmountToFiat(lightningBalance.Available(), fiat)
+		if err != nil {
+			return nil, err
+		}
+		currentTotal.Add(currentTotal, lightningBalanceAmount)
+	}
+
 	toSortedSlice := func(s map[int64]RatChartEntry, fiat string) []ChartEntry {
 		result := make([]ChartEntry, len(s))
 		i := 0
