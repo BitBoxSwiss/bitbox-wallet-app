@@ -123,8 +123,8 @@ type openChannelFeeRequestDto struct {
 }
 
 type openChannelFeeResponseDto struct {
-	FeeMsat       *uint64             `json:"feeMsat"`
-	UsedFeeParams openingFeeParamsDto `json:"usedFeeParams"`
+	FeeMsat   *uint64             `json:"feeMsat"`
+	FeeParams openingFeeParamsDto `json:"feeParams"`
 }
 
 type openingFeeParamsDto struct {
