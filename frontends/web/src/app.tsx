@@ -43,6 +43,7 @@ import { Darkmode } from './components/darkmode/darkmode';
 import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { Providers } from './contexts/providers';
+import { getLightningConfig, subscribeLightningConfig } from './api/lightning';
 
 export const App = () => {
   const { t } = useTranslation();
@@ -52,7 +53,7 @@ export const App = () => {
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
 
   const prevDevices = usePrevious(devices);
-
+  const lightningConfig = useDefault(useSync(getLightningConfig, subscribeLightningConfig), { accounts: [] },);
   useEffect(() => {
     return syncNewTxs((meta) => {
       notifyUser(t('notification.newTxs', {
@@ -66,17 +67,25 @@ export const App = () => {
     const currentURL = window.location.pathname;
     const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
     const inAccounts = currentURL.startsWith('/account/');
+    const noLightningAccounts = lightningConfig.accounts.length === 0;
 
     // QT and Android start their apps in '/index.html' and '/android_asset/web/index.html' respectively
     // This re-routes them to '/' so we have a simpler uri structure
-    if (isIndex && currentURL !== '/' && (!accounts || accounts.length === 0)) {
+    if (isIndex && currentURL !== '/' && (!accounts || accounts.length === 0) && noLightningAccounts) {
       navigate('/');
       return;
     }
+
     // if no accounts are registered on specified views route to /
-    if (accounts.length === 0 && (
+    if (accounts.length === 0 && noLightningAccounts &&
       currentURL.startsWith('/account-summary')
-      || currentURL.startsWith('/add-account')
+    ) {
+      navigate('/');
+      return;
+    }
+
+    if (accounts.length === 0 && (
+      currentURL.startsWith('/add-account')
       || currentURL.startsWith('/settings/manage-accounts')
     )) {
       navigate('/');
@@ -94,7 +103,7 @@ export const App = () => {
       return;
     }
     // if on index page and have at least 1 account, route to /account-summary
-    if (isIndex && accounts.length) {
+    if (isIndex && (accounts.length || !noLightningAccounts)) {
       navigate('/account-summary');
       return;
     }
@@ -109,7 +118,7 @@ export const App = () => {
       return;
     }
 
-  }, [accounts, devices, navigate]);
+  }, [accounts, devices, navigate, lightningConfig]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});
