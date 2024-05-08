@@ -29,7 +29,6 @@ export const localizePercentage = (
       style: 'percent',
     });
   } catch (error) {
-    console.warn(locale, error);
   }
 
   if (formatter) {

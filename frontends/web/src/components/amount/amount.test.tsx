@@ -55,7 +55,9 @@ describe('Amount formatting', () => {
   beforeEach(() => {
     (useContext as Mock).mockReturnValue({
       hideAmounts: false,
-      nativeLocale: 'de-CH'
+      nativeLocale: 'de-CH',
+      group: '’',
+      decimal: '.'
     });
   });
 
