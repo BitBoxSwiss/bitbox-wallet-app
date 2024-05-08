@@ -28,6 +28,7 @@ import shieldIcon from '../../assets/icons/shield_grey.svg';
 import linechart from '../../assets/icons/linechart.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
+import deviceSettings from '../../assets/icons/wallet-light.svg';
 import { debug } from '../../utils/env';
 import Logo, { AppLogoInverted } from '../icon/logo';
 import { CloseXWhite, USBSuccess } from '../icon';
@@ -246,7 +247,18 @@ const Sidebar = ({
           </NavLink>
         </div>
 
-        { !keystores || keystores.length === 0 ? <SkipForTesting /> : null }
+        { !keystores || keystores.length === 0 ? (
+          <div key="unlock-software-keystore" className={style.sidebarItem}>
+            <SkipForTesting className={style.closeSoftwareKeystore}>
+              <div className={style.single}>
+                <img src={deviceSettings} />
+              </div>
+              <span className={style.sidebarLabel}>
+                Software keystore
+              </span>
+            </SkipForTesting>
+          </div>
+        ) : null }
         {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
           <div key="eject" className={style.sidebarItem}>
             <Button transparent onClick={eject} className={style.closeSoftwareKeystore}>

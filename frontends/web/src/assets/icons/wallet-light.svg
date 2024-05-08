@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512">
+  <defs>
+    <path id="a" d="M6 0h116c8 0 14 6 14 14v98H0V6a6 6 0 0 1 6-6z"/>
+    <path id="b" d="M18 14h100a6 6 0 0 1 6 6v92H12V20a6 6 0 0 1 6-6z"/>
+    <path id="d" d="M25 109h6v-7h7l2-2V20a4 4 0 0 0-4-4H17c-1 0-2 0-2 2v82l2 2h8v7z"/>
+    <path id="f" d="M106 109h6v-7h7l2-2V20a4 4 0 0 0-4-4H99c-1 0-2 0-2 2v82l2 2h7v7z"/>
+    <path id="h" d="M75 109h6V90h5c2 0 2-1 2-2V28a4 4 0 0 0-4-4H72l-2 2v62l2 2h3v19z"/>
+    <path id="j" d="M51 109h6V90h5l2-2V26l-2-2H48l-2 2v62l2 2h3v19z"/>
+    <path id="l" d="M126 112h147c16 0 30 13 30 30v340c0 16-14 30-30 30H126c-17 0-30-14-30-30V142c0-17 13-30 30-30zm149 331c-8 0-15 6-15 14v22c0 8 7 15 15 15 7 0 14-7 14-15v-22c0-8-7-14-14-14z"/>
+    <filter id="c" width="199.2%" height="125.6%" x="-50%" y="-13%" filterUnits="objectBoundingBox">
+      <feOffset in="SourceAlpha" result="shadowOffsetOuter1"/>
+      <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="4"/>
+      <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.11 0"/>
+    </filter>
+    <filter id="e" width="199.2%" height="125.6%" x="-50%" y="-13%" filterUnits="objectBoundingBox">
+      <feOffset in="SourceAlpha" result="shadowOffsetOuter1"/>
+      <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="4"/>
+      <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.11 0"/>
+    </filter>
+    <filter id="g" width="232.6%" height="128.1%" x="-66%" y="-14%" filterUnits="objectBoundingBox">
+      <feOffset in="SourceAlpha" result="shadowOffsetOuter1"/>
+      <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="4"/>
+      <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.11 0"/>
+    </filter>
+    <filter id="i" width="232.6%" height="128.1%" x="-66%" y="-14%" filterUnits="objectBoundingBox">
+      <feOffset in="SourceAlpha" result="shadowOffsetOuter1"/>
+      <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="4"/>
+      <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.11 0"/>
+    </filter>
+    <linearGradient id="k" x1="50%" x2="50%" y1="33.3%" y2="97.9%">
+      <stop offset="0%" stop-color="#CBC4AF"/>
+      <stop offset="100%" stop-color="#D3CDBB"/>
+    </linearGradient>
+    <linearGradient id="m" x1="50%" x2="50%" y1="-22.8%" y2="100%">
+      <stop offset="0%" stop-color="#949083"/>
+      <stop offset="100%" stop-color="#D4D1C9"/>
+    </linearGradient>
+    <linearGradient id="n" x1="50%" x2="50%" y1="-48.1%" y2="100%">
+      <stop offset="0%" stop-color="#949083"/>
+      <stop offset="100%" stop-color="#D4D1C9"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" fill-rule="evenodd" transform="translate(57)">
+    <g transform="translate(130)">
+      <use xlink:href="#a" fill="#CBC4AF"/>
+      <path stroke="#CBC4AF" stroke-width="2" d="M1 111h134V14c0-7-6-13-13-13H6a5 5 0 0 0-5 5v105z"/>
+      <use xlink:href="#b" fill="#264434"/>
+      <path stroke="#ABA9A2" stroke-width="2" d="M13 111h110V20a5 5 0 0 0-5-5H18a5 5 0 0 0-5 5v91z"/>
+      <use xlink:href="#d" fill="#000" filter="url(#c)"/>
+      <use xlink:href="#d" fill="#A39771"/>
+      <use xlink:href="#f" fill="#000" filter="url(#e)"/>
+      <use xlink:href="#f" fill="#A39771"/>
+      <use xlink:href="#h" fill="#000" filter="url(#g)"/>
+      <use xlink:href="#h" fill="#A39771"/>
+      <g transform="matrix(-1 0 0 1 110 0)">
+        <use xlink:href="#j" fill="#000" filter="url(#i)"/>
+        <use xlink:href="#j" fill="#A39771"/>
+      </g>
+    </g>
+    <use xlink:href="#l" fill="url(#k)"/>
+    <path stroke="#CBC4AF" stroke-width="2" d="M126 113c-16 0-29 13-29 29v340c0 16 13 29 29 29h147c16 0 29-13 29-29V142c0-16-13-29-29-29H126zm149 329c8 0 15 7 15 15v22c0 9-7 16-15 16-9 0-16-7-16-16v-22c0-8 7-15 16-15z"/>
+    <path fill="url(#m)" d="M98 335h205v16H98z" opacity=".4" style="mix-blend-mode:darken"/>
+    <path fill="url(#n)" d="M98 319h205v16H98z" opacity=".4" style="mix-blend-mode:darken" transform="rotate(-180 200 327)"/>
+  </g>
+</svg>
