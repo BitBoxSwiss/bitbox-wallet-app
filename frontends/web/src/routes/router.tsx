@@ -12,7 +12,7 @@ import { Receive } from './account/receive';
 import { SendWrapper } from './account/send/send-wrapper';
 import { AccountsSummary } from './account/summary/accountssummary';
 import { DeviceSwitch } from './device/deviceswitch';
-import ManageBackups from './device/manage-backups/manage-backups';
+import { ManageBackups } from './device/manage-backups/manage-backups';
 import { ManageAccounts } from './settings/manage-accounts';
 import { ElectrumSettings } from './settings/electrum';
 import { Passphrase } from './device/bitbox02/passphrase';
@@ -151,6 +151,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const ManageBackupsEl = <InjectParams><ManageBackups
     key={devicesKey('manage-backups')}
+    deviceID={null}
     devices={devices}
   /></InjectParams>;
 
