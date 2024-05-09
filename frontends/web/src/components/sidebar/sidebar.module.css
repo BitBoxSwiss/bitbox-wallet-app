@@ -113,9 +113,8 @@
     cursor: default;
     display: flex;
     flex-direction: row;
-    height: var(--sidebar-item-height);
+    min-height: var(--sidebar-item-height);
     justify-content: center;
-    overflow: hidden;
     position: relative;
     text-decoration: none;
 }
@@ -166,6 +165,7 @@ a.sidebarActive :global(.stacked) img:last-child,
 .single img {
     opacity: .6;
     transition: opacity 0.2s ease;
+    vertical-align: top;
 }
 
 a.sidebarActive .single img,
@@ -179,10 +179,10 @@ a.sidebarActive .single img,
     line-height: 1;
     flex: 1;
     padding-top: 0;
-    padding-right: var(--space-default);
+    padding-right: 16px;
     font-size: var(--size-default);
     font-weight: 400;
-    transition: all 0.2s ease;
+    /* transition: all 0.2s ease; /* TODO: why all, what is this even supposed to be transitioning */
     word-break: break-word;
 }
 

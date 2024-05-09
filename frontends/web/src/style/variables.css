@@ -74,10 +74,10 @@
 
     /* sidebar */
     --sidebar-width-large: 250px;
-    --sidebar-margin: 3.2rem;
-    --sidebar-item-height: 5.2rem;
-    --sidebar-icon-margin: 1.4rem;
-    --sidebar-icon-size: 2.4rem;
+    --sidebar-margin: 32px;
+    --sidebar-item-height: 52px;
+    --sidebar-icon-margin: 14px;
+    --sidebar-icon-size: 24px;
     --sidebar-header-size: 1.2rem;
     --sidebar-header-line-height: 1.6rem;
 

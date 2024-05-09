@@ -358,6 +358,7 @@
 
 .stacked img {
     transition: opacity 0.2s ease;
+    vertical-align: top;
 }
 
 .stacked img:last-child {
