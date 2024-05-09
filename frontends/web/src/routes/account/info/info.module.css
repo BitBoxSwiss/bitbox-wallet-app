@@ -36,7 +36,7 @@
     clear: both;
     display: flex;
     justify-content: space-between;
-    min-height: 3.5rem;
+    min-height: 56px;
 }
 
 .verifyButton {
