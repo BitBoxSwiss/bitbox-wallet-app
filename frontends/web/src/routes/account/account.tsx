@@ -23,6 +23,7 @@ import { statusChanged, syncAddressesCount, syncdone } from '../../api/accountsy
 import { bitsuranceLookup } from '../../api/bitsurance';
 import { TDevices } from '../../api/devices';
 import { getExchangeBuySupported, SupportedExchanges } from '../../api/exchanges';
+import { useLoad } from '../../hooks/api';
 import { useSDCard } from '../../hooks/sdcard';
 import { unsubscribe } from '../../utils/subscriptions';
 import { alertUser } from '../../components/alert/Alert';
@@ -33,20 +34,18 @@ import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { Status } from '../../components/status/status';
 import { Transactions } from '../../components/transactions/transactions';
-import { useLoad } from '../../hooks/api';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
-import style from './account.module.css';
 import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
 import { AccountGuide } from './guide';
 import { BuyReceiveCTA } from './info/buyReceiveCTA';
-import { isBitcoinBased } from './utils';
-import { getScriptName } from './utils';
+import { getScriptName, isBitcoinBased } from './utils';
 import { MultilineMarkup } from '../../utils/markup';
 import { Dialog } from '../../components/dialog/dialog';
 import { A } from '../../components/anchor/anchor';
 import { getConfig, setConfig } from '../../utils/config';
 import { i18n } from '../../i18n/i18n';
+import style from './account.module.css';
 
 type Props = {
   accounts: accountApi.IAccount[];
