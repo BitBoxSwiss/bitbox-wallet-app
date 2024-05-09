@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,46 +15,28 @@
  * limitations under the License.
  */
 
-import { Component, ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { backendConnected } from './api/subscribe';
 
-interface State {
-  connected: boolean;
+type TProps = {
+    children: ReactNode;
 }
 
-interface Props {
-  children: ReactNode;
-}
+export const ConnectedApp = ({ children }: TProps) => {
+  const [connected, setConnected] = useState(true);
 
-class ConnectedApp extends Component<Props, State> {
-  public readonly state: State = {
-    connected: true,
-  };
+  useEffect(() => {
+    return backendConnected(connected => {
+      setConnected(connected);
+    });
+  }, []);
 
-  private unsubscribe!: () => void;
-
-  public componentDidMount() {
-    this.unsubscribe = backendConnected(connected => this.setState({ connected }));
-  }
-
-  public componentWillUnmount() {
-    this.unsubscribe();
-  }
-
-  public render() {
-    const { children } = this.props;
-    const { connected } = this.state;
-    if (!connected) {
-      return (
-        <div className="app" style={{ padding: 40 }}>
-                    The WebSocket closed. Please restart the backend and reload this page.
-        </div>
-      );
-    }
+  if (!connected) {
     return (
-      <div>{children}</div>
+      <div className="app" style={{ padding: 40 }}>
+        The WebSocket closed. Please restart the backend and reload this page.
+      </div>
     );
   }
-}
-
-export { ConnectedApp };
+  return <div>{children}</div>;
+};
