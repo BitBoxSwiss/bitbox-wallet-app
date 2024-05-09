@@ -13,7 +13,7 @@
 
 .successCheck {
     background-color: var(--color-success);
-    border: .5rem solid var(--color-success);
+    border: 8px solid var(--color-success);
     border-radius: 100px;
 }
 

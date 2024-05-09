@@ -37,9 +37,9 @@
     --color-danger: var(--color-error);
 
     /* font sizes */
-    --size-extra-large: 2.2rem;
-    --size-large: 2rem;
-    --size-large-mobile: 1.4rem;
+    --size-extra-large: 35px;
+    --size-large: 32px;
+    --size-large-mobile: 22px;
     --size-subheader: 18px;
     --size-medium: var(--size-default);
     --size-default: 14px;
@@ -53,9 +53,9 @@
     --size-wizard-text: 16px;
 
     /* spacing */
-    --spacing-large: 2rem;
-    --spacing-default: 1rem;
-    --spacing-half: .5rem;
+    --spacing-large: 32px;
+    --spacing-default: 16px;
+    --spacing-half: 8px;
 
     --space-large: 64px;
     --space-default: 32px;

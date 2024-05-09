@@ -1,6 +1,6 @@
 
 .arrow img {
-  margin-right: .25rem;
+  margin-right: 4px;
   vertical-align: text-bottom;
 }
 
@@ -13,10 +13,10 @@
 }
 
 .diffValue {
-  font-size: 1.2rem;
+  font-size: 19px;
 }
 
 .diffUnit {
-  font-size: 1rem;
-  padding: 0 .25rem;
+  font-size: 16px;
+  padding: 0 4px;
 }

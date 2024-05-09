@@ -31,14 +31,14 @@ const IconAndMessage = ({ messageType }: TIconProps) => {
   case 'sent':
     return (
       <>
-        <Checked style={{ height: 18, marginRight: '1rem' }} />
+        <Checked style={{ height: 18, marginRight: '16px' }} />
         {t('send.success')}
       </>
     );
   case 'abort':
     return (
       <>
-        <Cancel alt="Abort" style={{ height: 18, marginRight: '1rem' }} />
+        <Cancel alt="Abort" style={{ height: 18, marginRight: '16px' }} />
         {t('send.abort')}
       </>
     );

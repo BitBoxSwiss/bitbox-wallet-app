@@ -12,12 +12,6 @@
   width: 100%;
 }
 
-.title {
-  font-size: 2rem;
-  font-weight: 400;
-  text-align: center;
-}
-
 .disclaimer {
   background-color: var(--background-secondary);
   flex-basis: 100%;
@@ -34,19 +28,19 @@
   background-color: #fff;
 }
 
-.disclaimer .title {
-  font-size: .875rem;
+.title {
+  font-size: 14px;
   font-weight: bold;
   text-align: left;
 }
 
 .disclaimer p {
-  font-size: .875rem;
+  font-size: 14px;
   line-height: 1.5;
 }
 
 .disclaimer p + .title {
-  margin: 2.5rem 0 0 0;
+  margin: 40px 0 0 0;
 }
 
 .table {
@@ -55,7 +49,7 @@
 
 .table table {
   border-collapse: collapse;
-  font-size: .875rem;
+  font-size: 14px;
   text-align: left;
 }
 
