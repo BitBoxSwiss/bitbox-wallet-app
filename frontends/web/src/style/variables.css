@@ -48,7 +48,7 @@
     --color-error-border: rgba(227, 6, 19, .33);
 
     /* font sizes */
-    --size-large: 2rem;
+    --size-large: 32px;
     --size-header: 24px;
     --size-subheader: 18px;
     --size-default: 14px;
@@ -57,9 +57,9 @@
     --size-title: 32px;
 
     /* spacing */
-    --spacing-large: 2rem;
-    --spacing-default: 1rem;
-    --spacing-half: .5rem;
+    --spacing-large: 32px;
+    --spacing-default: 16px;
+    --spacing-half: 8px;
 
     --space-large: 64px;
     --space-default: 32px;
