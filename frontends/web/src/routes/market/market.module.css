@@ -80,7 +80,7 @@
 }
 
 .title {
-    font-size: 2rem;
+    font-size: 32px;
     font-weight: 400;
     margin-top: 0;
     margin-bottom: var(--space-default);

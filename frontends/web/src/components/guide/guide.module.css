@@ -80,10 +80,9 @@
 }
 
 .content h2 {
-    font-size: 1.1em;
+    font-size: var(--size-subheader);
     font-weight: 400;
-    line-height: 1.2em;
-    margin: 0px;
+    margin: 0;
 }
 
 .guide p {
@@ -115,6 +114,7 @@
 .entryTitle .entryToggle {
     align-items: center;
     display: flex;
+    font-size: var(--size-subheader);
     flex-direction: row;
     font-weight: bold;
     justify-content: flex-start;
