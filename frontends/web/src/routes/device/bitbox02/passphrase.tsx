@@ -27,12 +27,9 @@ import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/
 import { PointToBitBox02 } from '../../../components/icon';
 import { Status } from '../../../components/status/status';
 
-// enabling has 6 dialogs with information
-const INFO_STEPS_ENABLE = 5;
-
-// disabling passphrase shows only 1 info dialog
-const INFO_STEPS_DISABLE = 0;
-
+// The enable wizard has five steps that can be navigated by clicking
+// 'back' or 'continue'. On the last step the passphrase will be enabled.
+const FINAL_INFO_STEP = 5;
 const CONTENT_MIN_HEIGHT = '38em';
 
 type TProps = {
@@ -44,9 +41,9 @@ type TStatus = 'info' | 'progress' | 'success';
 export const Passphrase = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [infoStep, setInfoStep] = useState(0);
+
   const [status, setStatus] = useState<TStatus>('info');
-  const [passphraseEnabled, setPassphraseEnabled] = useState<boolean>();
+  const [isEnabled, setIsEnabled] = useState<boolean>();
 
   useEffect(() => {
     getDeviceInfo(deviceID).then(result => {
@@ -56,77 +53,46 @@ export const Passphrase = ({ deviceID }: TProps) => {
         return;
       }
       const { mnemonicPassphraseEnabled } = result.deviceInfo;
-      // before enabling/disabling we show 1 or more pages to inform about the feature
-      // each page has a continue button that jumps to the next or finally toggles passphrase
-      // infoStep counts down in decreasing order
-      setPassphraseEnabled(mnemonicPassphraseEnabled);
-      setInfoStep(mnemonicPassphraseEnabled ? INFO_STEPS_DISABLE : INFO_STEPS_ENABLE);
+      setIsEnabled(mnemonicPassphraseEnabled);
     }).catch(console.error);
-  }, [deviceID, setPassphraseEnabled, setInfoStep, t]);
+  }, [deviceID, t]);
 
-  const togglePassphrase = async () => {
+  const setPassphrase = async (enabled: boolean) => {
     setStatus('progress');
     try {
-      const result = await setMnemonicPassphraseEnabled(deviceID, !passphraseEnabled);
+      const result = await setMnemonicPassphraseEnabled(deviceID, enabled);
       if (!result.success) {
         navigate(`/settings/device-settings/${deviceID}`);
         alertUser(t(`passphrase.error.e${result.code}`, {
           defaultValue: result.message || t('genericError'),
         }));
-        return;
+        return null;
       }
-      const deviceInfoResult = await getDeviceInfo(deviceID);
-      if (deviceInfoResult.success) {
-        setPassphraseEnabled(deviceInfoResult.deviceInfo.mnemonicPassphraseEnabled);
-        setStatus('success');
-      }
+      setIsEnabled(enabled);
+      setStatus('success');
     } catch (error) {
       console.error(error);
     }
   };
 
-  const stopInfo = () => navigate(`/settings/device-settings/${deviceID}`);
+  const handleAbort = () => navigate(`/settings/device-settings/${deviceID}`);
 
-  const backInfo = () => {
-    if (infoStep === undefined) {
-      return;
-    }
-    const enabled = passphraseEnabled;
-    if (
-      (!enabled && infoStep >= INFO_STEPS_ENABLE)
-      || (enabled && infoStep >= INFO_STEPS_DISABLE)
-    ) {
-      stopInfo();
-      return;
-    }
-    setInfoStep((infoStep) => infoStep + 1);
-  };
-
-  const continueInfo = () => {
-    if (infoStep === 0) {
-      togglePassphrase();
-      return;
-    }
-    setInfoStep((infoStep) => infoStep - 1);
-  };
-  if (passphraseEnabled === undefined) {
+  if (isEnabled === undefined) {
     return null;
   }
+
   return (
     <Main>
       {status === 'info' && (
-        passphraseEnabled ? (
+        isEnabled ? (
           <DisableInfo
-            onClose={stopInfo}
-            onContinue={continueInfo}
-            onBack={backInfo}
+            handleAbort={handleAbort}
+            setPassphrase={setPassphrase}
           />
         ) : (
           <EnableInfo
-            onClose={stopInfo}
-            onContinue={continueInfo}
-            onBack={backInfo}
-            infoStep={infoStep}
+            handleAbort={handleAbort}
+            setPassphrase={setPassphrase}
           />
         )
       )}
@@ -138,12 +104,12 @@ export const Passphrase = ({ deviceID }: TProps) => {
           textCenter
           verticallyCentered>
           <ViewHeader
-            title={t(passphraseEnabled
+            title={t(isEnabled
               ? 'passphrase.progressDisable.title'
               : 'passphrase.progressEnable.title')}>
             <SimpleMarkup
               tagName="p"
-              markup={t(passphraseEnabled
+              markup={t(isEnabled
                 ? 'passphrase.progressDisable.message'
                 : 'passphrase.progressEnable.message')} />
           </ViewHeader>
@@ -159,22 +125,22 @@ export const Passphrase = ({ deviceID }: TProps) => {
           verticallyCentered>
           <ViewHeader
             small
-            title={t(passphraseEnabled
+            title={t(isEnabled
               ? 'passphrase.successDisabled.title'
               : 'passphrase.successEnabled.title')} >
           </ViewHeader>
           <ViewContent>
-            <MultilineMarkup tagName="p" markup={t(passphraseEnabled
+            <MultilineMarkup tagName="p" markup={t(isEnabled
               ? 'passphrase.successDisabled.message'
               : 'passphrase.successEnabled.message')} />
-            {passphraseEnabled && (
+            {isEnabled && (
               <ul style={{ paddingLeft: 'var(--space-default)' }}>
                 <SimpleMarkup key="tip-1" tagName="li" markup={t('passphrase.successEnabled.tipsList.0')} />
                 <SimpleMarkup key="tip-2" tagName="li" markup={t('passphrase.successEnabled.tipsList.1')} />
               </ul>
             )}
             <SimpleMarkup tagName="p" markup={t(
-              passphraseEnabled
+              isEnabled
                 ? 'passphrase.successDisabled.messageEnd'
                 : 'passphrase.successEnabled.messageEnd')} />
           </ViewContent>
@@ -184,147 +150,58 @@ export const Passphrase = ({ deviceID }: TProps) => {
   );
 };
 
-type TEnableInfoProps = {
-  onClose: () => void;
-  onContinue: () => void;
-  onBack: () => void;
-  infoStep: number;
+type TInfoProps = {
+  handleAbort: () => void;
+  setPassphrase: (enabled: boolean) => void;
 }
 
-type TDisableInfoProps = {
-  onClose: () => void;
-  onContinue: () => void;
-  onBack: () => void;
-}
-
-const EnableInfo = ({
-  onClose,
-  onContinue,
-  onBack,
-  infoStep }: TEnableInfoProps) => {
+const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
   const { t } = useTranslation();
+
+  const [infoStep, setInfoStep] = useState(0);
   const [understood, setUnderstood] = useState(false);
 
-  switch (infoStep) {
-  case 5:
-    return (
-      <View
-        key="step-intro"
-        fullscreen
-        minHeight={CONTENT_MIN_HEIGHT}
-        onClose={onClose}
-        verticallyCentered>
-        <ViewHeader title={t('passphrase.intro.title')} />
+  const handleBack = () => {
+    if (infoStep <= 0) {
+      handleAbort();
+      return null;
+    }
+    setInfoStep((infoStep) => infoStep - 1);
+  };
+
+  const handleContinue = () => {
+    if (infoStep === FINAL_INFO_STEP) {
+      setPassphrase(true);
+      return null;
+    }
+    setInfoStep((infoStep) => infoStep + 1);
+  };
+
+  type TStepData = { titleKey: string; messageKey: string; buttonTextKey: string; }[]
+
+  const stepData: TStepData = [
+    { titleKey: t('passphrase.intro.title'), messageKey: t('passphrase.intro.message'), buttonTextKey: t('passphrase.what.button') },
+    { titleKey: t('passphrase.what.title'), messageKey: t('passphrase.what.message'), buttonTextKey: t('passphrase.why.button') },
+    { titleKey: t('passphrase.why.title'), messageKey: t('passphrase.why.message'), buttonTextKey: t('passphrase.considerations.button') },
+    { titleKey: t('passphrase.considerations.title'), messageKey: t('passphrase.considerations.message'), buttonTextKey: t('passphrase.how.button') },
+    { titleKey: t('passphrase.how.title'), messageKey: t('passphrase.how.message'), buttonTextKey: t('passphrase.summary.button') },
+    { titleKey: t('passphrase.summary.title'), messageKey: t('passphrase.summary.understandList'), buttonTextKey: t('passphrase.enable') },
+  ];
+
+  return (
+    <View
+      key={`step-${infoStep}`}
+      fullscreen
+      minHeight={CONTENT_MIN_HEIGHT}
+      onClose={handleAbort}
+      verticallyCentered
+    >
+      <ViewHeader title={stepData[infoStep].titleKey} />
+      {infoStep < FINAL_INFO_STEP && (
         <ViewContent>
-          <MultilineMarkup tagName="p" markup={t('passphrase.intro.message')} />
-        </ViewContent>
-        <ViewButtons>
-          <Button primary onClick={onContinue}>
-            {t('passphrase.what.button')}
-          </Button>
-          <Button secondary onClick={onBack}>
-            {t('button.back')}
-          </Button>
-        </ViewButtons>
-      </View>
-    );
-  case 4:
-    return (
-      <View
-        key="step-what"
-        fullscreen
-        minHeight={CONTENT_MIN_HEIGHT}
-        onClose={onClose}
-        verticallyCentered>
-        <ViewHeader title={t('passphrase.what.title')} />
-        <ViewContent>
-          <MultilineMarkup tagName="p" markup={t('passphrase.what.message')} />
-        </ViewContent>
-        <ViewButtons>
-          <Button primary onClick={onContinue}>
-            {t('passphrase.why.button')}
-          </Button>
-          <Button secondary onClick={onBack}>
-            {t('button.back')}
-          </Button>
-        </ViewButtons>
-      </View>
-    );
-  case 3:
-    return (
-      <View
-        key="step-why"
-        fullscreen
-        minHeight={CONTENT_MIN_HEIGHT}
-        onClose={onClose}
-        verticallyCentered>
-        <ViewHeader title={t('passphrase.why.title')} />
-        <ViewContent>
-          <MultilineMarkup tagName="p" markup={t('passphrase.why.message')} />
-        </ViewContent>
-        <ViewButtons>
-          <Button primary onClick={onContinue}>
-            {t('passphrase.considerations.button')}
-          </Button>
-          <Button secondary onClick={onBack}>
-            {t('button.back')}
-          </Button>
-        </ViewButtons>
-      </View>
-    );
-  case 2:
-    return (
-      <View
-        key="step-considerations"
-        fullscreen
-        minHeight={CONTENT_MIN_HEIGHT}
-        onClose={onClose}
-        verticallyCentered>
-        <ViewHeader title={t('passphrase.considerations.title')} />
-        <ViewContent>
-          <MultilineMarkup tagName="p" markup={t('passphrase.considerations.message')} />
-        </ViewContent>
-        <ViewButtons>
-          <Button primary onClick={onContinue}>
-            {t('passphrase.how.button')}
-          </Button>
-          <Button secondary onClick={onBack}>
-            {t('button.back')}
-          </Button>
-        </ViewButtons>
-      </View>
-    );
-  case 1:
-    return (
-      <View
-        key="step-how"
-        fullscreen
-        minHeight={CONTENT_MIN_HEIGHT}
-        onClose={onClose}
-        verticallyCentered>
-        <ViewHeader title={t('passphrase.how.title')} />
-        <ViewContent>
-          <MultilineMarkup tagName="p" markup={t('passphrase.how.message')} />
-        </ViewContent>
-        <ViewButtons>
-          <Button primary onClick={onContinue}>
-            {t('passphrase.summary.button')}
-          </Button>
-          <Button secondary onClick={onBack}>
-            {t('button.back')}
-          </Button>
-        </ViewButtons>
-      </View>
-    );
-  case 0:
-    return (
-      <View
-        key="step-summary"
-        fullscreen
-        minHeight={CONTENT_MIN_HEIGHT}
-        onClose={onClose}
-        verticallyCentered>
-        <ViewHeader title={t('passphrase.summary.title')} />
+          <MultilineMarkup tagName="p" markup={stepData[infoStep].messageKey} />
+        </ViewContent>)}
+      {infoStep >= FINAL_INFO_STEP && (
         <ViewContent>
           <ul>
             <SimpleMarkup key="info-1" tagName="li" markup={t('passphrase.summary.understandList.0')} />
@@ -340,43 +217,38 @@ const EnableInfo = ({
               label={t('passphrase.summary.understand')}
               checkboxStyle={understood ? 'success' : 'warning'} />
           </Status>
-        </ViewContent>
-        <ViewButtons>
-          <Button primary onClick={onContinue} disabled={!understood}>
-            {t('passphrase.enable')}
-          </Button>
-          <Button secondary onClick={onBack}>
-            {t('button.back')}
-          </Button>
-        </ViewButtons>
-      </View>
-    );
-  default:
-    console.error(`invalid infoStep ${infoStep}`);
-    return;
-  }
+        </ViewContent>)}
+      <ViewButtons>
+        <Button primary onClick={handleContinue} disabled={infoStep >= FINAL_INFO_STEP && !understood}>
+          {stepData[infoStep].buttonTextKey}
+        </Button>
+        <Button secondary onClick={handleBack}>
+          {t('button.back')}
+        </Button>
+      </ViewButtons>
+    </View>
+  );
 };
-const DisableInfo = ({
-  onClose,
-  onContinue,
-  onBack }: TDisableInfoProps) => {
+
+const DisableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
   const { t } = useTranslation();
+
   return (
     <View
       key="step-disable-info1"
       fullscreen
       minHeight={CONTENT_MIN_HEIGHT}
-      onClose={onClose}
+      onClose={handleAbort}
       verticallyCentered>
       <ViewHeader title={t('passphrase.disable')} />
       <ViewContent>
         <MultilineMarkup tagName="p" markup={t('passphrase.disableInfo.message')} />
       </ViewContent>
       <ViewButtons>
-        <Button primary onClick={onContinue}>
+        <Button primary onClick={() => setPassphrase(false)}>
           {t('passphrase.disableInfo.button')}
         </Button>
-        <Button secondary onClick={onBack}>
+        <Button secondary onClick={handleAbort}>
           {t('button.back')}
         </Button>
       </ViewButtons>
