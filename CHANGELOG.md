@@ -1,6 +1,7 @@
 # Changelog
 
 ## 4.42.1
+- BitBox02: fix missing button to re-install firmware, fixing interrupted installs ("invalid firmware").
 - Fix Wallet Connect issue where account unspecified by the connecting dapp caused a UI crash
 - Fix Wallet Connect issue with required/optionalNamespace and handling all possible namespace definitions
 - Fix BitBoxApp crash on GrapheneOS and other phones without Google Play Services when scanning QR codes.
