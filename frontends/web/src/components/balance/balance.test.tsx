@@ -33,7 +33,12 @@ vi.mock('react', () => ({
 
 describe('components/balance/balance', () => {
   it('renders balance properly', () => {
-    (useContext as Mock).mockReturnValue({ btcUnit: 'default', defaultCurrency: 'USD' });
+    (useContext as Mock).mockReturnValue({
+      btcUnit: 'default',
+      defaultCurrency: 'USD',
+      decimal: '.',
+      group: ','
+    });
     const MOCK_BALANCE: IBalance = {
       hasAvailable: true,
       hasIncoming: true,
@@ -79,7 +84,10 @@ describe('components/balance/balance', () => {
       btcUnit: 'default',
       defaultCurrency: 'USD',
       nativeLocale: 'en-US',
+      decimal: '.',
+      group: ','
     });
+
     const MOCK_BALANCE: IBalance = {
       hasAvailable: true,
       hasIncoming: true,
