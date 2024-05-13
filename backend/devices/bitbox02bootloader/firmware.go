@@ -21,6 +21,7 @@ import (
 	"io"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 )
@@ -51,6 +52,19 @@ func (fi firmwareInfo) signedBinary() ([]byte, error) {
 		return nil, err
 	}
 	return io.ReadAll(gz)
+}
+
+func (fi firmwareInfo) firmwareHash() ([]byte, error) {
+	signedBinary, err := fi.signedBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	_, _, binary, err := bootloader.ParseSignedFirmware(signedBinary)
+	if err != nil {
+		return nil, err
+	}
+	return bootloader.HashFirmware(fi.monotonicVersion, binary), nil
 }
 
 // The last entry in the slice is the latest firmware update to which one can upgrade.
