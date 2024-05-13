@@ -17,6 +17,8 @@
 package bitbox02bootloader
 
 import (
+	"bytes"
+	"encoding/hex"
 	"fmt"
 	"sync"
 
@@ -240,6 +242,11 @@ func (device *Device) VersionInfo() (*VersionInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+	currentFirmwareHash, _, err := device.Device.GetHashes(false, false)
+	if err != nil {
+		return nil, err
+	}
+
 	latestFw, err := bundledFirmware(device.Device.Product())
 	if err != nil {
 		return nil, err
@@ -249,12 +256,27 @@ func (device *Device) VersionInfo() (*VersionInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	canUpgrade := erased || latestFirmwareVersion > currentFirmwareVersion
+
+	latestFirmwareHash, err := latestFw.firmwareHash()
+	if err != nil {
+		return nil, err
+	}
+
+	// If the device firmware version is at the latest version but the installed firmware is
+	// different, we assume it's a broken/interrupted install. This can happen for example when a
+	// new device is shipped with the latest monotonic version pre-set, and the user interrupts
+	// their first install.
+	brokenInstall := latestFirmwareVersion == currentFirmwareVersion &&
+		!bytes.Equal(currentFirmwareHash, latestFirmwareHash)
+
+	canUpgrade := erased || latestFirmwareVersion > currentFirmwareVersion || brokenInstall
 	additionalUpgradeFollows := nextFw.monotonicVersion < latestFirmwareVersion
 	device.log.
 		WithField("latestFirmwareVersion", latestFirmwareVersion).
 		WithField("currentFirmwareVersion", currentFirmwareVersion).
+		WithField("currentFirmwareHash", hex.EncodeToString(currentFirmwareHash)).
 		WithField("erased", erased).
+		WithField("brokenInstall", brokenInstall).
 		WithField("canUpgrade", canUpgrade).
 		WithField("additionalUpgradeFollows", additionalUpgradeFollows).
 		Info("VersionInfo")
