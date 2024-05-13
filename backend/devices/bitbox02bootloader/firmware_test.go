@@ -22,36 +22,32 @@ import (
 	"os"
 	"testing"
 
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	"github.com/stretchr/testify/require"
 )
 
-func testHash(t *testing.T, info firmwareInfo, expectedMagic []byte, hashFile string) {
+func testHash(t *testing.T, info firmwareInfo, expectedProduct bitbox02common.Product, hashFile string) {
 	t.Helper()
-
-	const sigDataLen = 584
-	const magicLen = 4
 
 	signedBinary, err := info.signedBinary()
 	require.NoError(t, err)
-	require.True(t, len(signedBinary) >= 4+sigDataLen)
-	require.Equal(t, expectedMagic, signedBinary[:magicLen])
-	hash := sha256.Sum256(signedBinary[magicLen+sigDataLen:])
+	product, _, binary, err := bootloader.ParseSignedFirmware(signedBinary)
+	require.NoError(t, err)
+	require.Equal(t, expectedProduct, product)
+	hash := sha256.Sum256(binary)
 	expectedHash, err := os.ReadFile(hashFile)
 	require.NoError(t, err)
 	require.Equal(t, string(expectedHash), hex.EncodeToString(hash[:]))
 }
 
 func TestBundledFirmware(t *testing.T) {
-	magicMulti := []byte{0x65, 0x3f, 0x36, 0x2b}
-	magicBTCOnly := []byte{0x11, 0x23, 0x3b, 0x0b}
-
 	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02Multi] {
-		testHash(t, fw, magicMulti, fmt.Sprintf("assets/firmware.v%s.signed.bin.sha256", fw.version))
+		testHash(t, fw, bitbox02common.ProductBitBox02Multi, fmt.Sprintf("assets/firmware.v%s.signed.bin.sha256", fw.version))
 	}
 
 	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02BTCOnly] {
-		testHash(t, fw, magicBTCOnly, fmt.Sprintf("assets/firmware-btc.v%s.signed.bin.sha256", fw.version))
+		testHash(t, fw, bitbox02common.ProductBitBox02BTCOnly, fmt.Sprintf("assets/firmware-btc.v%s.signed.bin.sha256", fw.version))
 	}
 }
 
