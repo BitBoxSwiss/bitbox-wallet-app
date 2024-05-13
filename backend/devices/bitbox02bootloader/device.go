@@ -214,11 +214,11 @@ func (device *Device) UpgradeFirmware() error {
 	}
 	device.log.Infof("upgrading firmware: %s, %s", product, nextFirmware.version)
 
-	binary, err := nextFirmware.binary()
+	signedBinary, err := nextFirmware.signedBinary()
 	if err != nil {
 		return err
 	}
-	return device.Device.UpgradeFirmware(binary)
+	return device.Device.UpgradeFirmware(signedBinary)
 }
 
 // VersionInfo contains version information about the upgrade.

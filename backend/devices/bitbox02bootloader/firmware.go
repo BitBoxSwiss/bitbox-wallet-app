@@ -45,7 +45,7 @@ type firmwareInfo struct {
 	binaryGzip       []byte
 }
 
-func (fi firmwareInfo) binary() ([]byte, error) {
+func (fi firmwareInfo) signedBinary() ([]byte, error) {
 	gz, err := gzip.NewReader(bytes.NewBuffer(fi.binaryGzip))
 	if err != nil {
 		return nil, err
