@@ -32,11 +32,11 @@ func testHash(t *testing.T, info firmwareInfo, expectedMagic []byte, hashFile st
 	const sigDataLen = 584
 	const magicLen = 4
 
-	fwBinary, err := info.binary()
+	signedBinary, err := info.signedBinary()
 	require.NoError(t, err)
-	require.True(t, len(fwBinary) >= 4+sigDataLen)
-	require.Equal(t, expectedMagic, fwBinary[:magicLen])
-	hash := sha256.Sum256(fwBinary[magicLen+sigDataLen:])
+	require.True(t, len(signedBinary) >= 4+sigDataLen)
+	require.Equal(t, expectedMagic, signedBinary[:magicLen])
+	hash := sha256.Sum256(signedBinary[magicLen+sigDataLen:])
 	expectedHash, err := os.ReadFile(hashFile)
 	require.NoError(t, err)
 	require.Equal(t, string(expectedHash), hex.EncodeToString(hash[:]))
@@ -58,12 +58,12 @@ func TestBundledFirmware(t *testing.T) {
 func TestMontonicVersions(t *testing.T) {
 	for product, binaries := range bundledFirmwares {
 		for _, fwInfo := range binaries {
-			fwBinary, err := fwInfo.binary()
+			signedBinary, err := fwInfo.signedBinary()
 			require.NoError(t, err)
 
 			// TODO: replace magic numbers with parsing functions from the bitbox02-api-go lib,
 			// which first have to be exposed.
-			fwVersion := binary.LittleEndian.Uint32(fwBinary[392:396])
+			fwVersion := binary.LittleEndian.Uint32(signedBinary[392:396])
 
 			require.Equal(t, fwInfo.monotonicVersion, fwVersion, "%s; %s", product, fwInfo.version)
 		}
