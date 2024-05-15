@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import { WalletConnectLight } from '../../components/icon';
 import { useMediaQuery } from '../../hooks/mediaquery';
-import { connectKeystore, AccountCode, CoinCode, IAccount } from '../../api/account';
+import { connectKeystore, AccountCode, IAccount, CoinOrTokenCode } from '../../api/account';
 import { isEthereumBased } from './utils';
 import style from './account.module.css';
 
 type TProps = {
   canSend?: boolean;
   code: AccountCode;
-  coinCode: CoinCode;
+  coinCode: CoinOrTokenCode;
   exchangeBuySupported?: boolean;
   account: IAccount;
 }

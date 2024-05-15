@@ -1,6 +1,6 @@
 /**
- * Copyright 2018  Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2018 Shift Devices AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMountedRef } from '../../hooks/mount';
-import { CoinCode } from '../../api/account';
+import { CoinOrTokenCode } from '../../api/account';
 import { subscribeCoinHeaders } from '../../api/coins';
 import { useSubscribe } from '../../hooks/api';
 import Spinner from '../spinner/ascii';
 import style from './headerssync.module.css';
 
 export type TProps = {
-    coinCode: CoinCode;
+    coinCode: CoinOrTokenCode;
 }
 
 export const HeadersSync = ({ coinCode }: TProps) => {

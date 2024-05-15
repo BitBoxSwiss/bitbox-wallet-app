@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import { ChartData } from '../routes/account/summary/chart';
 import type { TDetailStatus } from './bitsurance';
 import { SuccessResponse } from './response';
 
-export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
+export type CoinCode = 'btc' | 'tbtc' | 'rbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
 
 export type AccountCode = string;
 
@@ -31,14 +31,18 @@ export type CoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'tsat' | 'TLTC' 
 
 export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'DAI';
 
+export type ERC20TokenCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 'eth-erc20-link' | 'eth-erc20-bat' | 'eth-erc20-mkr' | 'eth-erc20-zrx' | 'eth-erc20-wbtc' | 'eth-erc20-paxg' | 'eth-erc20-dai0x6b17';
+
+export type CoinOrTokenCode = CoinCode | ERC20TokenCode;
+
 export type Terc20Token = {
-  code: string;
+  code: ERC20TokenCode;
   name: string;
   unit: ERC20TokenUnit;
 };
 
 export interface IActiveToken {
-  tokenCode: string;
+  tokenCode: ERC20TokenCode;
   accountCode: AccountCode;
 }
 
@@ -54,7 +58,7 @@ export interface IAccount {
   keystore: TKeystore;
   active: boolean;
   watch: boolean;
-  coinCode: CoinCode;
+  coinCode: CoinOrTokenCode;
   coinUnit: string;
   coinName: string;
   code: AccountCode;
@@ -70,7 +74,7 @@ export const getAccounts = (): Promise<IAccount[]> => {
 };
 
 export type TAccountsBalanceByCoin = {
-    [key in CoinCode]: IAmount;
+    [key in CoinOrTokenCode]: IAmount;
 };
 
 export type TAccountsBalance = {
@@ -104,7 +108,7 @@ export const getAccountsTotalBalance = (): Promise<TAccountsTotalBalanceResponse
 };
 
 export type TCoinsTotalBalance = {
-  [key in CoinCode]: IAmount;
+  [key in CoinOrTokenCode]: IAmount;
 };
 
 export const getCoinsTotalBalance = (): Promise<TCoinsTotalBalance> => {

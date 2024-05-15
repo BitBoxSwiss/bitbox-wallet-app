@@ -170,7 +170,11 @@ class ManageAccounts extends Component<Props, State> {
     });
   };
 
-  private toggleToken = (ethAccountCode: accountAPI.AccountCode, tokenCode: string, active: boolean) => {
+  private toggleToken = (
+    ethAccountCode: accountAPI.AccountCode,
+    tokenCode: accountAPI.ERC20TokenCode,
+    active: boolean,
+  ) => {
     backendAPI.setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {
       if (!success && errorMessage) {
         alertUser(errorMessage);

@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { AccountCode, CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '../../api/account';
+import { AccountCode, CoinCode, CoinOrTokenCode, ScriptType, IAccount, CoinUnit, TKeystore } from '../../api/account';
 
 export function findAccount(accounts: IAccount[], accountCode: AccountCode): IAccount | undefined {
   return accounts.find(({ code }) => accountCode === code);
@@ -28,7 +28,7 @@ export function getCryptoName(cryptoLabel: string, account?: IAccount): string {
   return cryptoLabel;
 }
 
-export function isBitcoinOnly(coinCode: CoinCode): boolean {
+export function isBitcoinOnly(coinCode: CoinOrTokenCode): boolean {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
@@ -40,7 +40,7 @@ export function isBitcoinOnly(coinCode: CoinCode): boolean {
 
 export const isBitcoinCoin = (coin: CoinUnit) => (coin === 'BTC') || (coin === 'TBTC') || (coin === 'sat') || (coin === 'tsat');
 
-export function isBitcoinBased(coinCode: CoinCode): boolean {
+export function isBitcoinBased(coinCode: CoinOrTokenCode): boolean {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
@@ -52,11 +52,11 @@ export function isBitcoinBased(coinCode: CoinCode): boolean {
   }
 }
 
-export function isEthereumBased(coinCode: CoinCode): boolean {
+export function isEthereumBased(coinCode: CoinOrTokenCode): boolean {
   return coinCode === 'eth' || coinCode === 'goeth' || coinCode === 'sepeth' || coinCode.startsWith('eth-erc20-');
 }
 
-export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
+export function getCoinCode(coinCode: CoinOrTokenCode): CoinCode | undefined {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
@@ -71,7 +71,7 @@ export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
   }
 }
 
-export const getCoinOrTokenName = (coinCode: CoinCode): string => {
+export const getCoinOrTokenName = (coinCode: CoinOrTokenCode): string => {
   switch (getCryptoName(coinCode)) {
   case 'btc':
     return 'Bitcoin';
@@ -125,7 +125,7 @@ export function getScriptName(scriptType: ScriptType): string {
   }
 }
 
-export function customFeeUnit(coinCode: CoinCode): string {
+export function customFeeUnit(coinCode: CoinOrTokenCode): string {
   if (isBitcoinBased(coinCode)) {
     return 'sat/vB';
   }

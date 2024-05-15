@@ -15,7 +15,7 @@
  */
 
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
-import type { CoinCode, Fiat } from './account';
+import type { CoinOrTokenCode, Fiat } from './account';
 import type { ISuccess } from './backend';
 import { apiPost, apiGet } from '../utils/request';
 
@@ -28,7 +28,7 @@ export type TStatus = {
     tipHashHex: string;
 }
 
-export const subscribeCoinHeaders = (coinCode: CoinCode) => (
+export const subscribeCoinHeaders = (coinCode: CoinOrTokenCode) => (
   (cb: TSubscriptionCallback<TStatus>) => (
     subscribeEndpoint(`coins/${coinCode}/headers/status`, cb)
   )
@@ -49,7 +49,7 @@ export const parseExternalBtcAmount = (amount: string): Promise<TAmount> => {
 
 type TConvertCurrency = {
   amount: string;
-  coinCode: CoinCode;
+  coinCode: CoinOrTokenCode;
   fiatUnit: Fiat;
 };
 

@@ -2,10 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { isBitcoinBased, isBitcoinOnly } from '../utils';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
-import { CoinCode } from '../../../api/account';
+import { CoinOrTokenCode } from '../../../api/account';
 
 type TProps = {
-    coinCode: CoinCode
+    coinCode: CoinOrTokenCode
 }
 
 export const SendGuide = ({ coinCode }: TProps) => {

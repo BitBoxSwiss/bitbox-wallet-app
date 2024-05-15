@@ -37,7 +37,7 @@ export function CoinBalance ({
     return null;
   }
 
-  const coinsOrdered = [
+  const coinsOrdered: accountApi.CoinOrTokenCode[] = [
     'btc',
     'tbtc',
     'ltc',
@@ -54,7 +54,8 @@ export function CoinBalance ({
     'eth-erc20-wbtc',
     'eth-erc20-paxg',
     'eth-erc20-dai0x6b17',
-  ] as accountApi.CoinCode[];
+  ];
+
   const activeCoinCodeList = coinsOrdered.filter(coin => coin in coinsBalances);
 
   return (

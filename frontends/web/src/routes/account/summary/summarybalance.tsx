@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ type TProps = {
 }
 
 type TAccountCoinMap = {
-    [code in accountApi.CoinCode]: accountApi.IAccount[];
+    [code in accountApi.CoinOrTokenCode]: accountApi.IAccount[];
 };
 
 export function SummaryBalance ({
@@ -74,7 +74,7 @@ export function SummaryBalance ({
   };
 
   const accountsPerCoin = getAccountsPerCoin();
-  const coins = Object.keys(accountsPerCoin) as accountApi.CoinCode[];
+  const coins = Object.keys(accountsPerCoin) as accountApi.CoinOrTokenCode[];
 
   return (
     <div>

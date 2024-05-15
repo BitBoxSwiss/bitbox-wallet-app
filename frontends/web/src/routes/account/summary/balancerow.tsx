@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { AccountCode, CoinCode, IBalance } from '../../../api/account';
+import { AccountCode, CoinOrTokenCode, IBalance } from '../../../api/account';
 import { syncAddressesCount } from '../../../api/accountsync';
 import { useSubscribe } from '../../../hooks/api';
 import { route } from '../../../utils/route';
@@ -28,7 +28,7 @@ import style from './accountssummary.module.css';
 type TProps = {
   code: AccountCode;
   name: string;
-  coinCode: CoinCode;
+  coinCode: CoinOrTokenCode;
   balance?: IBalance;
 };
 

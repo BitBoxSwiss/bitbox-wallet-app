@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 
-import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, IAmount } from '../../../../../api/account';
+import { CoinOrTokenCode, ConversionUnit, FeeTargetCode, Fiat, IAmount } from '../../../../../api/account';
 import { Amount } from '../../../../../components/amount/amount';
 import { customFeeUnit } from '../../../utils';
 import style from './confirm-wait-dialog.module.css';
@@ -29,7 +29,7 @@ type TProps = {
   note: string;
   hasSelectedUTXOs: boolean;
   selectedUTXOs: string[];
-  coinCode: CoinCode;
+  coinCode: CoinOrTokenCode;
   transactionStatus: TransactionStatus;
   transactionDetails: TransactionDetails;
 

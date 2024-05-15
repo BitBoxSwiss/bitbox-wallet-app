@@ -27,7 +27,7 @@ import style from './feetargets.module.css';
 
 type Props = {
     accountCode: accountApi.AccountCode;
-    coinCode: accountApi.CoinCode;
+    coinCode: accountApi.CoinOrTokenCode;
     disabled: boolean;
     fiatUnit: accountApi.ConversionUnit;
     proposedFee?: accountApi.IAmount;
