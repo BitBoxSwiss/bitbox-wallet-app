@@ -214,7 +214,6 @@ export function AccountsSummary({
               } />
             {accountsByKeystore.length > 1 && (
               <CoinBalance
-                accounts={accounts}
                 summaryData={summaryData}
                 coinsBalances={coinsTotalBalance}
               />

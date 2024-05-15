@@ -71,6 +71,46 @@ export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
   }
 }
 
+export const getCoinOrTokenName = (coinCode: CoinCode): string => {
+  switch (getCryptoName(coinCode)) {
+  case 'btc':
+    return 'Bitcoin';
+  case 'tbtc':
+    return 'Bitcoin Testnet';
+  case 'ltc':
+    return 'Litecoin';
+  case 'tltc':
+    return 'Litecoin Testnet';
+  case 'eth':
+    return 'Ethereum';
+  case 'goeth':
+    return 'Ethereum Goerli';
+  case 'sepeth':
+    return 'Ethereum Sepolia';
+  case 'eth-erc20-usdt':
+    return 'Tether USD';
+  case 'eth-erc20-usdc':
+    return 'USD Coin';
+  case 'eth-erc20-link':
+    return 'LINK';
+  case 'eth-erc20-bat':
+    return 'Basic Attention Token';
+  case 'eth-erc20-mkr':
+    return 'Maker';
+  case 'eth-erc20-zrx':
+    return '0x';
+  case 'eth-erc20-wbtc':
+    return 'Wrapped Bitcoin';
+  case 'eth-erc20-paxg':
+    return 'Pax Gold';
+  case 'eth-erc20-dai0x6b17':
+    return 'Dai';
+  default:
+    console.warn(`unknown coin or token ${coinCode}`);
+    return coinCode;
+  }
+};
+
 
 export function getScriptName(scriptType: ScriptType): string {
   switch (scriptType) {

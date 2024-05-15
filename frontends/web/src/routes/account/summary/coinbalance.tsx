@@ -16,39 +16,46 @@
 
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
-import { SubTotalCoinRow } from './subtotalrow';
 import { Amount } from '../../../components/amount/amount';
 import { Skeleton } from '../../../components/skeleton/skeleton';
+import { SubTotalCoinRow } from './subtotalrow';
+import { getCoinOrTokenName } from '../utils';
 import style from './accountssummary.module.css';
 
 type TProps = {
-  accounts: accountApi.IAccount[],
-  summaryData?: accountApi.ISummary,
-  coinsBalances?: accountApi.TCoinsTotalBalance,
+  summaryData?: accountApi.ISummary;
+  coinsBalances?: accountApi.TCoinsTotalBalance;
 }
 
-type TAccountCoinMap = {
-    [code in accountApi.CoinCode]: accountApi.IAccount[];
-};
-
 export function CoinBalance ({
-  accounts,
   summaryData,
   coinsBalances,
 }: TProps) {
   const { t } = useTranslation();
 
-  const getAccountsPerCoin = () => {
-    return accounts.reduce((accountPerCoin, account) => {
-      accountPerCoin[account.coinCode]
-        ? accountPerCoin[account.coinCode].push(account)
-        : accountPerCoin[account.coinCode] = [account];
-      return accountPerCoin;
-    }, {} as TAccountCoinMap);
-  };
+  if (!coinsBalances) {
+    return null;
+  }
 
-  const accountsPerCoin = getAccountsPerCoin();
-  const coins = Object.keys(accountsPerCoin) as accountApi.CoinCode[];
+  const coinsOrdered = [
+    'btc',
+    'tbtc',
+    'ltc',
+    'tltc',
+    'eth',
+    'goeth',
+    'sepeth',
+    'eth-erc20-usdt',
+    'eth-erc20-usdc',
+    'eth-erc20-link',
+    'eth-erc20-bat',
+    'eth-erc20-mkr',
+    'eth-erc20-zrx',
+    'eth-erc20-wbtc',
+    'eth-erc20-paxg',
+    'eth-erc20-dai0x6b17',
+  ] as accountApi.CoinCode[];
+  const activeCoinCodeList = coinsOrdered.filter(coin => coin in coinsBalances);
 
   return (
     <div>
@@ -70,21 +77,14 @@ export function CoinBalance ({
             </tr>
           </thead>
           <tbody>
-            { accounts.length > 0 ? (
-              coins.map(coinCode => {
-                if (accountsPerCoin[coinCode]?.length >= 1) {
-                  const account = accountsPerCoin[coinCode][0];
-                  return (
-                    <SubTotalCoinRow
-                      key={account.coinCode}
-                      coinCode={account.coinCode}
-                      coinName={account.coinName}
-                      balance={coinsBalances && coinsBalances[coinCode]}
-                    />
-                  );
-                }
-                return null;
-              })) : null}
+            {activeCoinCodeList.map((coinCode) => (
+              <SubTotalCoinRow
+                key={coinCode}
+                coinCode={coinCode}
+                coinName={getCoinOrTokenName(coinCode)}
+                balance={coinsBalances && coinsBalances[coinCode]}
+              />
+            ))}
           </tbody>
           <tfoot>
             <tr>
