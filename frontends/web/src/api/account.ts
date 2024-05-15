@@ -70,11 +70,11 @@ export const getAccounts = (): Promise<IAccount[]> => {
 };
 
 export type TAccountsBalanceByCoin = {
-    [key: string]: IAmount;
+    [key in CoinCode]: IAmount;
 };
 
 export type TAccountsBalance = {
-  [rootFingerprint: string]: TAccountsBalanceByCoin;
+  [rootFingerprint in TKeystore['rootFingerprint']]: TAccountsBalanceByCoin;
 };
 
 export const getAccountsBalance = (): Promise<TAccountsBalance> => {
@@ -87,7 +87,7 @@ export type TAccountTotalBalance = {
 };
 
 export type TAccountsTotalBalance = {
-    [key: string]: TAccountTotalBalance;
+  [rootFingerprint in TKeystore['rootFingerprint']]: TAccountTotalBalance;
 };
 
 export type TAccountsTotalBalanceResponse = {
@@ -104,7 +104,7 @@ export const getAccountsTotalBalance = (): Promise<TAccountsTotalBalanceResponse
 };
 
 export type TCoinsTotalBalance = {
-  [key: string]: IAmount;
+  [key in CoinCode]: IAmount;
 };
 
 export const getCoinsTotalBalance = (): Promise<TCoinsTotalBalance> => {
