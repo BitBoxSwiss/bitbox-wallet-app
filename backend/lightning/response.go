@@ -223,8 +223,8 @@ func toNodeStateDto(nodeState breez_sdk.NodeState) nodeStateDto {
 
 func toOpenChannelFeeResponseDto(openChannelFeeResponse breez_sdk.OpenChannelFeeResponse) openChannelFeeResponseDto {
 	return openChannelFeeResponseDto{
-		FeeMsat:       openChannelFeeResponse.FeeMsat,
-		UsedFeeParams: toOpeningFeeParamsDto(openChannelFeeResponse.FeeParams),
+		FeeMsat:   openChannelFeeResponse.FeeMsat,
+		FeeParams: toOpeningFeeParamsDto(openChannelFeeResponse.FeeParams),
 	}
 }
 
