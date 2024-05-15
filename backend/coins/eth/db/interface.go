@@ -14,7 +14,7 @@
 
 package db
 
-import "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
+import "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 
 // TxInterface needs to be implemented to persist all wallet/transaction related data.
 type TxInterface interface {

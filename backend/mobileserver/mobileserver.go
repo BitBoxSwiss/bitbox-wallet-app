@@ -22,10 +22,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/bridgecommon"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bridgecommon"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
 )
 

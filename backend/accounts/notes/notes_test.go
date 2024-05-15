@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/require"
 )
 

@@ -39,7 +39,7 @@ dockerdev () {
 
     # If already running, enter the container.
     if $RUNTIME ps | grep -q $container_name; then
-        $RUNTIME exec $USERFLAG -it $container_name /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/scripts/docker_init.sh
+        $RUNTIME exec $USERFLAG -it $container_name /opt/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/scripts/docker_init.sh
         return
     fi
 
@@ -57,7 +57,7 @@ dockerdev () {
            --add-host="dev.shiftcrypto.ch:176.9.28.202" \
            --add-host="dev1.shiftcrypto.ch:176.9.28.155" \
            --add-host="dev2.shiftcrypto.ch:176.9.28.156" \
-           -v "$repo_path":/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app \
+           -v "$repo_path":/opt/go/src/github.com/BitBoxSwiss/bitbox-wallet-app \
            shiftcrypto/bitbox-wallet-app bash
 
     if [ "$RUNTIME" = "docker" ] ; then

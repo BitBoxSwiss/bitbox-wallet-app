@@ -12,16 +12,16 @@ env:
   # "docker login ghcr.io -u <github-username>" using the
   # newly generated token as password.
   # Once logged in, tag an new image:
-  #   docker tag shiftcrypto/bitbox-wallet-app:VERSION \
-  #     ghcr.io/digitalbitbox/bitbox-wallet-app-ci:VERSION
+  #   docker tag bitboxswiss/bitbox-wallet-app:VERSION \
+  #     ghcr.io/bitboxswiss/bitbox-wallet-app-ci:VERSION
   # and push as usual:
-  #   docker push ghcr.io/digitalbitbox/bitbox-wallet-app-ci:VERSION
+  #   docker push ghcr.io/bitboxswiss/bitbox-wallet-app-ci:VERSION
   # Lastly, update the next line to use the newly pushed image version.
   # See docs for more details:
   # https://docs.github.com/en/packages/guides/pushing-and-pulling-docker-images
   #
   # Keep this in sync with default in scripts/github-ci.sh.
-  CI_IMAGE: ghcr.io/digitalbitbox/bitbox-wallet-app-ci:21
+  CI_IMAGE: ghcr.io/bitboxswiss/bitbox-wallet-app-ci:21
   GITHUB_BUILD_DIR: ${{github.workspace}}
 
 jobs:
@@ -103,7 +103,7 @@ jobs:
           OS_NAME: osx
       - name: Archive app
         run: >
-          pushd ~/go/src/github.com/digitalbitbox/bitbox-wallet-app/frontends/qt/build/osx;
+          pushd ~/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/osx;
           ditto -c -k --keepParent BitBox.app ${{github.workspace}}/BitBoxApp-macos.zip;
           popd;
       - name: Upload app

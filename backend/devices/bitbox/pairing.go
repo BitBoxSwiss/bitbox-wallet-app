@@ -17,7 +17,7 @@ package bitbox
 import (
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox/relay"
 )
 
 // finishPairing finalizes the persistence of the pairing configuration, actively listens on the

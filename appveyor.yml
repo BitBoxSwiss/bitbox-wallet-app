@@ -28,10 +28,10 @@ build_script:
   - echo on
   - choco install make
   - choco install nsis -pre
-  - mkdir %GOPATH%\src\github.com\digitalbitbox
+  - mkdir %GOPATH%\src\github.com\BitBoxSwiss
   - cd ..
-  - mv bitbox-wallet-app %GOPATH%\src\github.com\digitalbitbox\
-  - cd %GOPATH%\src\github.com\digitalbitbox\bitbox-wallet-app\
+  - mv bitbox-wallet-app %GOPATH%\src\github.com\BitBoxSwiss\
+  - cd %GOPATH%\src\github.com\BitBoxSwiss\bitbox-wallet-app\
   - make qt-windows
   - cd frontends/qt
   - makensis setup.nsi
@@ -43,5 +43,5 @@ after_build:
 - mkdir %APPVEYOR_BUILD_FOLDER%
 # Copy build artifacts back to the git clone dir because they can only be
 # relative to that folder.
-- cp %GOPATH%\src\github.com\digitalbitbox\bitbox-wallet-app\frontends\qt\BitBox-installer.exe %APPVEYOR_BUILD_FOLDER%\BitBox-installer.exe
+- cp %GOPATH%\src\github.com\BitBoxSwiss\bitbox-wallet-app\frontends\qt\BitBox-installer.exe %APPVEYOR_BUILD_FOLDER%\BitBox-installer.exe
 - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\BitBox-installer.exe

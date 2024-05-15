@@ -21,11 +21,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/gorilla/mux"
 )
 
@@ -35,17 +35,17 @@ import (
 //
 //	$ go vet ./backend/...
 //	import cycle not allowed in test
-//	package github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb (test)
-//	        imports github.com/digitalbitbox/bitbox-wallet-app/util/test
-//	        imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb
-//	        imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox
-//	        imports github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc
-//	        imports github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb
+//	package github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/db/transactionsdb (test)
+//	        imports github.com/BitBoxSwiss/bitbox-wallet-app/util/test
+//	        imports github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb
+//	        imports github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox
+//	        imports github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc
+//	        imports github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/db/transactionsdb
 //	import cycle not allowed in test
-//	package github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox (test)
-//	        imports github.com/digitalbitbox/bitbox-wallet-app/util/test
-//	        imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb
-//	        imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox
+//	package github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox (test)
+//	        imports github.com/BitBoxSwiss/bitbox-wallet-app/util/test
+//	        imports github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb
+//	        imports github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox
 type backendEnv struct {
 	Locale string // returned by NativeLocale
 }

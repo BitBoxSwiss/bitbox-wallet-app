@@ -14,7 +14,7 @@
 
 package accounts
 
-import "github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+import "github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 
 // Address models a blockchain address to which coins can be sent.
 type Address interface {

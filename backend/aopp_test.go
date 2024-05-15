@@ -22,14 +22,14 @@ import (
 	"net/url"
 	"testing"
 
+	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
-	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
-	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
 	"github.com/stretchr/testify/require"
 )
 

@@ -14,7 +14,7 @@
 
 package relay
 
-import "github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+import "github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 
 // data models the content of a successful response.
 type data struct {

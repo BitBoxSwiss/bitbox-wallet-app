@@ -18,14 +18,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
-	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
-	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/stretchr/testify/require"
 )
 

@@ -18,8 +18,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
 // Amount represents an amount in the smallest coin unit (e.g. satoshi).

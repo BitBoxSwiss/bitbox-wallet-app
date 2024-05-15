@@ -17,7 +17,7 @@ package config
 import (
 	"testing"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/stretchr/testify/require"
 )
 
