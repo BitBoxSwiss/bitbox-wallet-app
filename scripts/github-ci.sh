@@ -5,7 +5,7 @@ WHAT="$1"
 # Because we need to compile some Go code without modules,
 # the source must be placed in a specific directory as expected by Go.
 # The path is relative to GOPATH.
-GO_SRC_DIR=src/github.com/digitalbitbox/bitbox-wallet-app
+GO_SRC_DIR=src/github.com/BitBoxSwiss/bitbox-wallet-app
 
 # The following is executed only on linux machines.
 if [ "$OS_NAME" == "linux" ]; then

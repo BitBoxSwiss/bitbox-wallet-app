@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/btcsuite/btcd/btcutil"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 )
 
 // FeeTarget contains the fee rate for a specific fee target.

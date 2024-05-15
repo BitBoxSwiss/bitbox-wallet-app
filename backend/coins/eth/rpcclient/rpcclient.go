@@ -18,8 +18,8 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
-	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
+	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"

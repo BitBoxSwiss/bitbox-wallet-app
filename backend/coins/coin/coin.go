@@ -18,7 +18,7 @@ package coin
 import (
 	"math/big"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 )
 
 // Coin models the currency of a blockchain.

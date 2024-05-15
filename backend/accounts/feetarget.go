@@ -15,7 +15,7 @@
 package accounts
 
 import (
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
 // FeeTarget interface has priority codes.

@@ -20,7 +20,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
 // APIGet performs a HTTP Get call to a given endpoint and unmarshal the result populating a given object.

@@ -19,13 +19,13 @@ import (
 	"context"
 	"encoding/hex"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/block-client-go/electrum"
+	"github.com/BitBoxSwiss/block-client-go/electrum/types"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/block-client-go/electrum"
-	"github.com/digitalbitbox/block-client-go/electrum/types"
 )
 
 // client wraps electrum.Client to convert some method inputs and outputs to btcd/btcutil types. It

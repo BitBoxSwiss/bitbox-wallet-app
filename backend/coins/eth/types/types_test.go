@@ -5,9 +5,9 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/stretchr/testify/require"

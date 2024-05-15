@@ -1,14 +1,14 @@
-module github.com/digitalbitbox/bitbox-wallet-app
+module github.com/BitBoxSwiss/bitbox-wallet-app
 
 go 1.20
 
 require (
+	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240516070751-b22740e514bc
+	github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519
 	github.com/btcsuite/btcd v0.24.0
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2
 	github.com/btcsuite/btcd/btcutil v1.1.5
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
-	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20240326091417-c9753acb0d16
-	github.com/digitalbitbox/block-client-go v0.0.0-20240228201430-dd85a15ace33
 	github.com/ethereum/go-ethereum v1.13.4
 	github.com/flynn/noise v1.1.0
 	github.com/gorilla/mux v1.8.1

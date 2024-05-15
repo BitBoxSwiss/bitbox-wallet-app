@@ -20,9 +20,9 @@ import (
 	_ "embed" // Needed for the go:embed directives below.
 	"io"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
-	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
+	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 )
 
 //go:embed assets/firmware-btc.v9.17.1.signed.bin.gz

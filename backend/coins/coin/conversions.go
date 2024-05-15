@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	ratesPkg "github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
+	ratesPkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 )
 
 // Btc2Sat is the sat equivalent of 1 BTC.

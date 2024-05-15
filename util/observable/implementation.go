@@ -14,7 +14,7 @@
 
 package observable
 
-import "github.com/digitalbitbox/bitbox-wallet-app/util/locker"
+import "github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
 
 // Implementation can be embedded in implementations that are observable.
 type Implementation struct {

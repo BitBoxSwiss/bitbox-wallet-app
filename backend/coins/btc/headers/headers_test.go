@@ -18,8 +18,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
