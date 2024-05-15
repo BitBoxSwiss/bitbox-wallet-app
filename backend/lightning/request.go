@@ -121,5 +121,6 @@ func toSendPaymentRequest(sendPaymentRequest sendPaymentRequestDto) breez_sdk.Se
 	return breez_sdk.SendPaymentRequest{
 		AmountMsat: sendPaymentRequest.AmountMsat,
 		Bolt11:     sendPaymentRequest.Bolt11,
+		Label:      sendPaymentRequest.Label,
 	}
 }

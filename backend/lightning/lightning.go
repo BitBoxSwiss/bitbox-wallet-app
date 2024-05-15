@@ -265,7 +265,12 @@ func (lightning *Lightning) connect(registerNode bool) error {
 
 		config := breez_sdk.DefaultConfig(breez_sdk.EnvironmentTypeProduction, trimmedKey, nodeConfig)
 		config.WorkingDir = workingDir
-		sdkService, err := breez_sdk.Connect(config, seed, lightning)
+
+		connectRequest := breez_sdk.ConnectRequest{
+			Config: config,
+			Seed:   seed,
+		}
+		sdkService, err := breez_sdk.Connect(connectRequest, lightning)
 		if err != nil {
 			lightning.log.WithError(err).Error("BreezSDK: Error connecting SDK")
 			return err
