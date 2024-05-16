@@ -15,11 +15,11 @@
 package addresses
 
 import (
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/sirupsen/logrus"
 )
 

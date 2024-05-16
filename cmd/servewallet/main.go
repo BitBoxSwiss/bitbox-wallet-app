@@ -23,14 +23,14 @@ import (
 	"runtime"
 	"strings"
 
-	backendPkg "github.com/digitalbitbox/bitbox-wallet-app/backend"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
-	btctypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
-	backendHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
+	backendPkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
+	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
+	backendHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/system"
 	"github.com/sirupsen/logrus"
 )
 

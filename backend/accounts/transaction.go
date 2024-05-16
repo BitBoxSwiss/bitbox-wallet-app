@@ -20,10 +20,10 @@ import (
 	"sort"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // TxType is a type of transaction. See the TxType* constants.

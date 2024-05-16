@@ -15,7 +15,7 @@
 package eth
 
 import (
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/ethereum/go-ethereum/common"
 )
 

@@ -18,9 +18,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 )
 
 const updateFileURL = "https://bitboxapp.shiftcrypto.io/desktop.json"

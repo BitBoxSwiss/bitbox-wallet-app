@@ -15,11 +15,11 @@
 package test
 
 import (
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 )
 
 const xpub = "tpubDCxoQyC5JaGydxN3yprM6sgqgu65LruN3JBm1fnSmGxXR3AcuNwr" +

@@ -21,15 +21,15 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
-	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
-	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 )
 
 const (

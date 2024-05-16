@@ -20,8 +20,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 const (

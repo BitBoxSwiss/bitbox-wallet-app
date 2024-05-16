@@ -21,15 +21,15 @@ import (
 	"sort"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
-	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/sirupsen/logrus"
 )
 

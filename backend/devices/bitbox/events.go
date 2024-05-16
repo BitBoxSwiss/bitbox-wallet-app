@@ -14,7 +14,7 @@
 
 package bitbox
 
-import "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
+import "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 
 // TODO: Improve error handling and change event data into a JSON object, and split BitBox events
 // from generic device events.

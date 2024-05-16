@@ -20,7 +20,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
 // maxNoteLen is the maximum length per note.

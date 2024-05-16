@@ -20,7 +20,7 @@ import (
 	_ "embed" // Needed for the go:embed directives below.
 	"io"
 
-	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
+	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 )
 
 //go:embed assets/firmware.deterministic.7.1.0.signed.bin.gz

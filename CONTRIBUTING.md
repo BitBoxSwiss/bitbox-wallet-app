@@ -24,7 +24,7 @@ a reviewer will do it for you.
 > correcting typos and code formatting.
 >
 > If you don't know where to start, look for issues labeled
-> with [good-first-issue](https://github.com/digitalbitbox/bitbox-wallet-app/issues?q=is%3Aissue+is%3Aopen+label%3Agood-first-issue).
+> with [good-first-issue](https://github.com/BitBoxSwiss/bitbox-wallet-app/issues?q=is%3Aissue+is%3Aopen+label%3Agood-first-issue).
 
 ## Git commits
 

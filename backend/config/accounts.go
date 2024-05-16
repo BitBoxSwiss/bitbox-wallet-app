@@ -19,11 +19,11 @@ import (
 	"bytes"
 	"time"
 
-	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
+	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
 )
 
 // Account holds information related to an account.

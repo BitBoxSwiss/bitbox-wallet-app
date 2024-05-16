@@ -5,9 +5,9 @@ package mocks
 
 import (
 	"context"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient"
-	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
+	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"

@@ -23,12 +23,12 @@ import (
 	"runtime"
 	"unicode"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/crypto"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid"
+	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/crypto"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox02-api-go/communication/u2fhid"
-	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
 )
 

@@ -19,7 +19,7 @@ import (
 	"io"
 	"runtime"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/karalabe/hid"
 )
 

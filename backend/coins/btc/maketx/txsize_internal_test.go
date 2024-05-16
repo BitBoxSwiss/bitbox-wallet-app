@@ -20,13 +20,13 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses/test"
+	addressesTest "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses/test"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/mempool"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
-	addressesTest "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/stretchr/testify/require"
 )
 

@@ -18,8 +18,8 @@ import (
 	"os"
 	"path"
 
-	btctypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
 )
 

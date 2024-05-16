@@ -17,9 +17,9 @@ package backend
 import (
 	"fmt"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"go.etcd.io/bbolt"
 )
 
