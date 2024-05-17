@@ -21,7 +21,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { Skeleton } from '../../../components/skeleton/skeleton';
 import { Amount } from '../../../components/amount/amount';
 import { PercentageDiff } from './percentage-diff';
-import Filters from './filters';
+import { Filters } from './filters';
 import { getDarkmode } from '../../../components/darkmode/darkmode';
 import { TChartDisplay, TChartFiltersProps } from './types';
 import { DefaultCurrencyRotator } from '../../../components/rates/rates';

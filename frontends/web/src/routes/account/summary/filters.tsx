@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { TChartFiltersProps } from './types';
 import styles from './chart.module.css';
 
-const Filters = ({
+export const Filters = ({
   display,
   disableFilters,
   disableWeeklyFilters,
@@ -57,5 +57,3 @@ const Filters = ({
     </div>
   );
 };
-
-export default Filters;
