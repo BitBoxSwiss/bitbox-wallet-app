@@ -57,12 +57,12 @@ type TStepProps = {
     hidden?: boolean;
 }
 
-export function Step({
+export const Step = ({
   children,
   hidden = false,
   line,
   status = 'wait',
-}: TStepProps) {
+}: TStepProps) => {
   if (hidden) {
     return null;
   }
@@ -74,4 +74,4 @@ export function Step({
       </div>
     </div>
   );
-}
+};

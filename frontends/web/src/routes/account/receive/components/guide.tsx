@@ -23,10 +23,10 @@ type Props = {
   hasDifferentFormats: boolean;
 };
 
-export function ReceiveGuide({
+export const ReceiveGuide = ({
   hasMultipleAddresses,
   hasDifferentFormats,
-}: Props) {
+}: Props) => {
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.receive')}>
@@ -46,4 +46,4 @@ export function ReceiveGuide({
       )}
     </Guide>
   );
-}
+};

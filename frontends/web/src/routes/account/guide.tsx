@@ -29,13 +29,13 @@ type Props = {
   hasTransactions?: boolean;
 };
 
-export function AccountGuide({
+export const AccountGuide = ({
   account,
   unit,
   hasNoBalance,
   hasIncomingBalance,
   hasTransactions,
-}: Props) {
+}: Props) => {
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.account')}>
@@ -84,4 +84,4 @@ export function AccountGuide({
       }} />
     </Guide>
   );
-}
+};

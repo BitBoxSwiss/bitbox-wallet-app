@@ -27,7 +27,7 @@ type TProps = {
   coinName: string;
 };
 
-export function SubTotalRow ({ coinCode, coinName, balance }: TProps) {
+export const SubTotalRow = ({ coinCode, coinName, balance }: TProps) => {
   const { t } = useTranslation();
   const nameCol = (
     <td data-label={t('accountSummary.total')}>
@@ -64,10 +64,9 @@ export function SubTotalRow ({ coinCode, coinName, balance }: TProps) {
       </td>
     </tr>
   );
-}
+};
 
-
-export function SubTotalCoinRow ({ coinCode, coinName, balance }: TProps) {
+export const SubTotalCoinRow = ({ coinCode, coinName, balance }: TProps) => {
   const { t } = useTranslation();
   const nameCol = (
     <td data-label={t('accountSummary.total')}>
@@ -97,4 +96,4 @@ export function SubTotalCoinRow ({ coinCode, coinName, balance }: TProps) {
       </td>
     </tr>
   );
-}
+};

@@ -46,10 +46,10 @@ export type Balances = {
     [code: string]: accountApi.IBalance;
 };
 
-export function AccountsSummary({
+export const AccountsSummary = ({
   accounts,
   devices,
-}: TProps) {
+}: TProps) => {
   const { t } = useTranslation();
   const summaryReqTimerID = useRef<number>();
   const mounted = useMountedRef();
@@ -249,4 +249,4 @@ export function AccountsSummary({
       </Guide>
     </GuideWrapper>
   );
-}
+};

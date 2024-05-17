@@ -74,7 +74,7 @@ const Deal = ({ deal }: { deal: ExchangeDealWithBestDeal }) => {
   );
 };
 
-export function ExchangeSelectionRadio({
+export const ExchangeSelectionRadio = ({
   disabled = false,
   id,
   children,
@@ -84,7 +84,7 @@ export function ExchangeSelectionRadio({
   exchangeName,
   onClickInfoButton,
   ...props
-}: TRadioProps) {
+}: TRadioProps) => {
 
   const handleClick = () => {
     if (!disabled) {
@@ -124,4 +124,4 @@ export function ExchangeSelectionRadio({
     </div>
 
   );
-}
+};

@@ -30,7 +30,7 @@ type Props = {
   note: string;
 }
 
-export function Note({ accountCode, note, internalID }: Props) {
+export const Note = ({ accountCode, note, internalID }: Props) => {
   const { isDarkMode } = useDarkmode();
   const { t } = useTranslation();
   const [newNote, setNewNote] = useState<string>(note);
@@ -90,4 +90,4 @@ export function Note({ accountCode, note, internalID }: Props) {
       </button>
     </form>
   );
-}
+};

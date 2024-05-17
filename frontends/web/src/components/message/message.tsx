@@ -24,12 +24,12 @@ export interface Props {
     children: ReactNode;
 }
 
-export function Message({
+export const Message = ({
   hidden,
   small,
   type = 'message',
   children,
-}: Props) {
+}: Props) => {
   if (hidden) {
     return null;
   }
@@ -38,4 +38,4 @@ export function Message({
       {children}
     </div>
   );
-}
+};

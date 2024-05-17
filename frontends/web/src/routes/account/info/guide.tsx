@@ -22,9 +22,9 @@ interface BitcoinBasedAccountInfoGuideProps {
     coinName: string;
 }
 
-export function BitcoinBasedAccountInfoGuide({
+export const BitcoinBasedAccountInfoGuide = ({
   coinName,
-}: BitcoinBasedAccountInfoGuideProps) {
+}: BitcoinBasedAccountInfoGuideProps) => {
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.accountInformation')}>
@@ -37,4 +37,4 @@ export function BitcoinBasedAccountInfoGuide({
       <Entry key="guide.accountInfo.verify" entry={t('guide.accountInfo.verify')} />
     </Guide>
   );
-}
+};
