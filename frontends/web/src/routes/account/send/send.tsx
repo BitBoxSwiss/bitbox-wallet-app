@@ -166,9 +166,7 @@ class Send extends Component<Props, State> {
         }
       }),
     ];
-  }
 
-  public UNSAFE_componentWillMount() {
     this.registerEvents();
   }
 
@@ -177,16 +175,11 @@ class Send extends Component<Props, State> {
     unsubscribe(this.unsubscribeList);
   }
 
-  private registerEvents = () => {
-    document.addEventListener('keydown', this.handleKeyDown);
-  };
-
-  private unregisterEvents = () => {
-    document.removeEventListener('keydown', this.handleKeyDown);
-  };
+  private registerEvents = () => document.addEventListener('keydown', this.handleKeyDown);
+  private unregisterEvents = () => document.removeEventListener('keydown', this.handleKeyDown);
 
   private handleKeyDown = (e: KeyboardEvent) => {
-    if (e.keyCode === 27 && !this.state.activeCoinControl && !this.state.activeScanQR) {
+    if (e.key === 'Escape' && !this.state.activeCoinControl && !this.state.activeScanQR) {
       route(`/account/${this.props.code}`);
     }
   };
