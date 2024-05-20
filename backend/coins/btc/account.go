@@ -44,7 +44,6 @@ import (
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/sirupsen/logrus"
 )
@@ -772,19 +771,55 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	return keystore.CanVerifyAddress(account.Coin())
 }
 
-type byValue struct {
-	outputs []*SpendableOutput
+// addressOutputsSum holds the address and sum of outputs for that address.
+type addressOutputsSum struct {
+	address string
+	sum     int64
 }
 
-func (p *byValue) Len() int { return len(p.outputs) }
-func (p *byValue) Less(i, j int) bool {
-	if p.outputs[i].TxOut.Value == p.outputs[j].TxOut.Value {
-		// Secondary sort to make coin selection deterministic.
-		return chainhash.HashH(p.outputs[i].TxOut.PkScript).String() < chainhash.HashH(p.outputs[j].TxOut.PkScript).String()
+// sortByAddresses sorts the outputs by grouping them based on their addresses and then sorting each group
+// from outputs with the biggest amounts to those with the lowest amounts.
+func sortByAddresses(result []*SpendableOutput) []*SpendableOutput {
+	// Create a map to store outputs grouped by address
+	grouped := make(map[string][]*SpendableOutput)
+
+	// Group outputs by address
+	for _, output := range result {
+		grouped[output.Address.String()] = append(grouped[output.Address.String()], output)
 	}
-	return p.outputs[i].TxOut.Value < p.outputs[j].TxOut.Value
+
+	// Create a slice to store the sums of outputs and addresses
+	sums := make([]addressOutputsSum, 0, len(grouped))
+
+	// Calculate sums of values for each group and store in the sums slice
+	for address, outputs := range grouped {
+		var sum int64
+		for _, output := range outputs {
+			sum += output.TxOut.Value
+		}
+		sums = append(sums, addressOutputsSum{
+			address: address,
+			sum:     sum,
+		})
+	}
+
+	// Sort the sums slice by the sum of values in descending order
+	sort.Slice(sums, func(i, j int) bool {
+		return sums[i].sum > sums[j].sum
+	})
+
+	// Create a new result grouped by addresses, sort them by value
+	newResult := make([]*SpendableOutput, 0, len(result))
+	for _, s := range sums {
+		outputs := grouped[s.address]
+		sort.Slice(outputs, func(i, j int) bool {
+			return outputs[i].Value > outputs[j].Value
+		})
+		newResult = append(newResult, outputs...)
+	}
+
+	return newResult
 }
-func (p *byValue) Swap(i, j int) { p.outputs[i], p.outputs[j] = p.outputs[j], p.outputs[i] }
 
 // SpendableOutput is an unspent coin.
 type SpendableOutput struct {
@@ -811,8 +846,7 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 				Address:         account.getAddress(blockchain.NewScriptHashHex(txOut.TxOut.PkScript)),
 			})
 	}
-	sort.Sort(sort.Reverse(&byValue{result}))
-	return result
+	return sortByAddresses(result)
 }
 
 // VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output
