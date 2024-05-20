@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { ChevronRightDark } from '../../../../components/icon';
 import { TorProxyDialog } from './tor-proxy-dialog';
-import InlineMessage from '../../../../components/inlineMessage/InlineMessage';
+import { InlineMessage } from '../../../../components/inlineMessage/inlineMessage';
 import { TProxyConfig } from '../../advanced-settings';
 import styles from './enable-tor-proxy-setting.module.css';
 
