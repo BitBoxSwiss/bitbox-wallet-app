@@ -16,9 +16,9 @@
 package bitbox02
 
 import (
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
-	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
 )
 
 // conversions from types used by the wallet to types defined in the protobuf messages.

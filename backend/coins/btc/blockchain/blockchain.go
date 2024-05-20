@@ -20,11 +20,11 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/block-client-go/electrum/types"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/block-client-go/electrum/types"
 )
 
 // TXHash wraps chainhash.Hash for json deserialization.

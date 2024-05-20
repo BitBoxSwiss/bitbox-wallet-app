@@ -14,7 +14,7 @@
 
 package relay
 
-import "github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
+import "github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 
 type configuration struct {
 	ChannelID         string `json:"channel"`

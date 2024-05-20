@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )

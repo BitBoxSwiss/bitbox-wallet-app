@@ -17,7 +17,7 @@ package logging
 import (
 	"encoding/json"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/sirupsen/logrus"
 )
 

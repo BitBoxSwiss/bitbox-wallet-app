@@ -20,8 +20,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/crypto"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/crypto"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/stretchr/testify/assert"
 )
 

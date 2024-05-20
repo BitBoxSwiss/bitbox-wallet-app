@@ -15,9 +15,9 @@
 package device
 
 import (
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 )
 
 // Interface represents a hardware wallet device.

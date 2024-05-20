@@ -18,9 +18,9 @@ import (
 	"encoding/hex"
 	"testing"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/stretchr/testify/require"
 )
 

@@ -24,7 +24,6 @@ import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { TPagePropsWithSettingsTabs } from './types';
 
-
 export const About = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   return (

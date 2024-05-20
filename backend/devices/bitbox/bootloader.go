@@ -21,7 +21,7 @@ import (
 	"log"
 	"math"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
 const (
@@ -117,7 +117,7 @@ func (dbb *Device) bootloaderSendBin(bin []byte) error {
 
 // BootloaderUpgradeFirmware uploads a signed bitbox firmware release to the device. Returns an
 // error if the device is not in bootloader mode.
-// See https://github.com/digitalbitbox/mcu/releases
+// See https://github.com/BitBoxSwiss/mcu/releases
 func (dbb *Device) BootloaderUpgradeFirmware(signedFirmware []byte) error {
 	if dbb.bootloaderStatus == nil {
 		return errp.New("device is not in bootloader mode")

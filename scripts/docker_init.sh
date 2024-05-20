@@ -18,5 +18,5 @@
 # container can access services on the host (e.g. electrumx).
 export BITBOX_WALLET_HOST=$(netstat -nr | grep '^0\.0\.0\.0' | awk '{print $2}')
 
-cd /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/
+cd /opt/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/
 bash

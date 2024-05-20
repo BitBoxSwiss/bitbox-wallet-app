@@ -27,11 +27,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/ratelimit"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/ratelimit"
 	"github.com/sirupsen/logrus"
 	"go.etcd.io/bbolt"
 )

@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"sync"
 
-	fileconfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
+	fileconfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/flynn/noise"
 )
 

@@ -20,7 +20,7 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
 var mu sync.RWMutex
@@ -51,7 +51,7 @@ func defaultAppFolder() string {
 		// especially when 2FA is enabled, requiring full device reset.
 		// So, check for the existing dir first. If that fails, use the regular approach.
 		// For most users, it is a noop.
-		// See https://github.com/digitalbitbox/bitbox-wallet-app/pull/16 for more details.
+		// See https://github.com/BitBoxSwiss/bitbox-wallet-app/pull/16 for more details.
 		folder = filepath.Join(os.Getenv("HOME"), ".config")
 		if fi, err := os.Stat(folder + "/bitbox"); err == nil && fi.IsDir() {
 			break

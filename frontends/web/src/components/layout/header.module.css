@@ -31,32 +31,30 @@
     z-index: 1001;
 }
 
-.disabled {
-    opacity: 0.4;    
-}
-
 .forceHidden .sidebarToggler {
     display: none !important;
 }
 
-.guideIcon {
-    font-size: var(--size-default);
-    text-decoration: none;
+.guideClose {
+    align-items: center;
     display: flex;
     flex-direction: row;
-    align-items: center;
+    font-size: var(--size-default);
+    height: 18px;
+    margin-left: var(--space-half);
+    padding: 0;
+    text-decoration: none;
 }
 
-.guideIcon img {
+.guideClose img {
     width: 18px;
     height: 18px;
     color: var(--color-blue);
     margin-right: calc(var(--space-quarter) / 2);
 }
 
-.guideIconContainer {
-    height: 18px;
-    margin-left: var(--space-half);
+.disabled {
+    opacity: 0.4;    
 }
 
 .header {

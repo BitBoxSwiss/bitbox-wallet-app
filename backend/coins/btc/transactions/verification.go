@@ -15,9 +15,9 @@
 package transactions
 
 import (
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 )
 
 func (transactions *Transactions) onHeadersEvent(event headers.Event) {

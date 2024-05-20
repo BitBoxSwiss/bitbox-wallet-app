@@ -19,12 +19,12 @@ import (
 	"sort"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
 func (backend *Backend) allCoinCodes() []string {

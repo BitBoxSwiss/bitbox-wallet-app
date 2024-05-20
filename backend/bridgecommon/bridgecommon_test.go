@@ -19,8 +19,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/bridgecommon"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bridgecommon"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/stretchr/testify/require"
 )
 

@@ -41,6 +41,11 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:1.1.1"
     implementation "android.arch.lifecycle:viewmodel:1.1.1"
     implementation project(path: ':mobileserver')
+    // The frontend depends on qr-scanner (https://github.com/nimiq/qr-scanner)
+    // which uses the Shape Detection API BarcodeDetector.  We use Google Play Services
+    // to interact with the native barcode scanner. See (2):
+    // https://developers.google.com/ml-kit/vision/barcode-scanning/android
+    implementation 'com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0'
 
 
     // Fix Duplicate class

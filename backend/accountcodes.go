@@ -17,9 +17,9 @@ package backend
 import (
 	"fmt"
 
-	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 )
 
 // The functions here must all produce globally unique account codes. They are used as names in

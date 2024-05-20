@@ -16,8 +16,8 @@
 package config
 
 import (
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
 )
 
 // LightningAccountConfig is the configuration of a single Lightning account.

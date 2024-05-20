@@ -17,8 +17,8 @@ package exchanges
 import (
 	"net/http"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 )
 
 // regionCodes is an array containing ISO 3166-1 alpha-2 code of all regions.

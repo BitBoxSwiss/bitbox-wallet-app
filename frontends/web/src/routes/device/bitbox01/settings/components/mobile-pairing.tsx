@@ -26,6 +26,7 @@ import { QRCode } from '../../../../../components/qrcode/qrcode';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 import { translate, TranslateProps } from '../../../../../decorators/translate';
 import { apiPost } from '../../../../../utils/request';
+import { A } from '../../../../../components/anchor/anchor';
 import style from '../../bitbox01.module.css';
 
 interface PairingProps {
@@ -173,14 +174,18 @@ class MobilePairing extends Component<Props, State> {
                         <label className="text-center">Apple App Store</label>
                         <div className="flex flex-column flex-center flex-items-center">
                           <QRCode tapToCopy={false} data="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740" size={148} />
-                          <a target="_blank" rel="noreferrer" href="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740"><img src={appStoreBadge} className={style.badge} /></a>
+                          <A href="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740">
+                            <img src={appStoreBadge} className={style.badge} />
+                          </A>
                         </div>
                       </div>
                       <div className="column column-1-2">
                         <label className="text-center">Google Play Store</label>
                         <div className="flex flex-column flex-center flex-items-center">
                           <QRCode tapToCopy={false} data="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa" size={148} />
-                          <a target="_blank" rel="noreferrer" href="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa"><img src={playStoreBadge} className={style.badge} /></a>
+                          <A href="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa">
+                            <img src={playStoreBadge} className={style.badge} />
+                          </A>
                         </div>
                       </div>
                     </div>

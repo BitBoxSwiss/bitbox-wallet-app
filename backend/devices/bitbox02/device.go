@@ -20,14 +20,14 @@ import (
 	"fmt"
 	"sync"
 
-	event "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
-	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
-	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
-	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
-	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
+	event "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
+	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
+	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
+	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
 )
 

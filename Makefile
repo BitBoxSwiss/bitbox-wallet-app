@@ -31,7 +31,7 @@ envinit:
 	GO111MODULE=off go get -u golang.org/x/mobile/cmd/gomobile
 	gomobile init
 # Initializiation on MacOS
-#  - run make from $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
+#  - run make from $GOPATH/src/github.com/BitBoxSwiss/bitbox-wallet-app
 #  - additional dependencies: Qt 5.15 & Xcode command line tools
 #  - add to $PATH: /usr/local/opt/go@1.21/bin
 osx-init:

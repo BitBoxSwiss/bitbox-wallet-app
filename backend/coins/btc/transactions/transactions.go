@@ -15,20 +15,20 @@
 package transactions
 
 import (
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/synchronizer"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
 	btcdBlockchain "github.com/btcsuite/btcd/blockchain"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/mempool"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/sirupsen/logrus"
 )
 

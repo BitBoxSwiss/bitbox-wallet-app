@@ -21,12 +21,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/mocks"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
-	eventpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox/relay"
+	eventpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -34,7 +34,7 @@ const (
 	// Use your own values here: Pair your BitBox first with the old desktop app and then retrieve
 	// the encryption key and channel ID from the configuration file (on macOS, run the following
 	// command: 'cat ~/Library/Application\ Support/bitbox/channel.json') and the TFA test string and
-	// xpub echo with the Electron demo app from https://github.com/digitalbitbox/ElectronDemo.
+	// xpub echo with the Electron demo app from https://github.com/BitBoxSwiss/ElectronDemo.
 	channelID         = "5wq2CsSzWZmuAtN7d5YcaTCzg76yhTJfcZunmWWYPDJG"
 	encryptionKey     = "F32H+9lxwWc0pAqmwhTSWfA+K7jT4cNx8frORb1LXoY="
 	authenticationKey = "L8dIdfcgobOdqH+EYgXs9vmZUp9P1UNAXLQ5Jy28yj4="

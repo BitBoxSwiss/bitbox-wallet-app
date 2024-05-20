@@ -16,17 +16,19 @@ package transactionsdb
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"path"
 	"reflect"
 	"testing"
 	"testing/quick"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/require"
 )
 
@@ -81,6 +83,83 @@ func testTx(f func(tx *Tx)) {
 
 func getRawValue(tx *Tx, bucketKey string, key []byte) []byte {
 	return tx.tx.Bucket([]byte(bucketKey)).Get(key)
+}
+
+// TestTxSerialization checks that Tx marshaling/unmarshaling work with both current and legacy
+// chainhash.Hash marshaling methods.
+// see https://github.com/btcsuite/btcd/pull/2025.
+func TestTxSerialization(t *testing.T) {
+	db := getDB()
+	defer func() {
+		if err := db.Close(); err != nil {
+			panic(err)
+		}
+	}()
+	dbTx, err := db.Begin(true)
+	require.NoError(t, err)
+	defer dbTx.Rollback()
+
+	// create a new Tx
+	amount := btcutil.Amount(123)
+	tx := &wire.MsgTx{
+		Version: wire.TxVersion,
+		TxIn: []*wire.TxIn{
+			wire.NewTxIn(&wire.OutPoint{Hash: chainhash.HashH(nil), Index: 0}, nil, nil),
+		},
+		TxOut:    []*wire.TxOut{wire.NewTxOut(int64(amount), []byte("dummyPubKeyScript"))},
+		LockTime: 0,
+	}
+	txHash := tx.TxHash()
+
+	dbTx.PutTx(txHash, tx, 999)
+
+	retrievedTx, err := dbTx.TxInfo(txHash)
+	require.NoError(t, err)
+	require.Equal(t, txHash, retrievedTx.Tx.TxHash())
+
+	// Override tx bytes marshaling the prevout hash with legacy method.
+	transactionsBucket, err := dbTx.(*Tx).tx.CreateBucketIfNotExists([]byte(bucketTransactionsKey))
+	require.NoError(t, err)
+
+	hashBytes := [32]byte(tx.TxIn[0].PreviousOutPoint.Hash.CloneBytes())
+	legacyMarshalledHash, err := json.Marshal(hashBytes)
+	require.NoError(t, err)
+	legacySerializedTx := `{
+    "Tx": {
+      "Version": 1,
+      "TxIn": [
+        {
+          "PreviousOutPoint": {
+            "Hash": ` + string(legacyMarshalledHash) + `,
+            "Index": 0
+          },
+          "SignatureScript": null,
+          "Witness": null,
+          "Sequence": 4294967295
+        }
+      ],
+      "TxOut": [
+        {
+          "Value": 123,
+          "PkScript": "ZHVtbXlQdWJLZXlTY3JpcHQ="
+        }
+      ],
+      "LockTime": 0
+    },
+    "Height": 999,
+    "addresses": {},
+    "Verified": null,
+    "ts": null,
+    "created": "2024-05-08T17:26:36.224472769+02:00"
+  }`
+
+	err = transactionsBucket.Put(txHash[:], []byte(legacySerializedTx))
+	require.NoError(t, err)
+
+	retrievedTx2, err := dbTx.TxInfo(txHash)
+	require.NoError(t, err)
+	require.NotNil(t, retrievedTx2)
+	require.Equal(t, retrievedTx.Tx.TxHash(), retrievedTx2.Tx.TxHash())
 }
 
 // TestTxQuick tests the tx related db functions on random data.

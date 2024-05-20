@@ -21,7 +21,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
 // request models a request to the relay server.

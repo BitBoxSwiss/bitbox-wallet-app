@@ -17,8 +17,8 @@
 import { useContext } from 'react';
 import { AppContext } from '../../contexts/AppContext';
 import { CoinUnit, ConversionUnit } from './../../api/account';
-import { useLocalizedPunctuation } from '../../hooks/localized';
 import style from './amount.module.css';
+import { LocalizationContext } from '../../contexts/localization-context';
 
 type TProps = {
   amount: string;
@@ -95,8 +95,8 @@ export const Amount = ({
   removeBtcTrailingZeroes,
   alwaysShowAmounts = false,
 }: TProps) => {
-  const { hideAmounts, nativeLocale } = useContext(AppContext);
-  const { decimal, group } = useLocalizedPunctuation(nativeLocale);
+  const { hideAmounts } = useContext(AppContext);
+  const { decimal, group } = useContext(LocalizationContext);
 
   if (hideAmounts && !alwaysShowAmounts) {
     return '***';

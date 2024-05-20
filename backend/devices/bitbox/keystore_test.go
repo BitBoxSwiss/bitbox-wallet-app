@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/mocks"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

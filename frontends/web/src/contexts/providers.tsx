@@ -20,6 +20,7 @@ import { AppProvider } from './AppProvider';
 import { WCWeb3WalletProvider } from './WCWeb3WalletProvider';
 import { RatesProvider } from './RatesProvider';
 import { LightningProvider } from './LightningProvider';
+import { LocalizationProvider } from './localization-provider';
 
 type Props = {
   children: ReactNode;
@@ -29,13 +30,15 @@ export const Providers = ({ children }: Props) => {
   return (
     <AppProvider>
       <DarkModeProvider>
-        <RatesProvider>
-          <WCWeb3WalletProvider>
-            <LightningProvider>
-              {children}
-            </LightningProvider>
-          </WCWeb3WalletProvider>
-        </RatesProvider>
+        <LocalizationProvider>
+          <RatesProvider>
+            <WCWeb3WalletProvider>
+              <LightningProvider>
+                {children}
+              </LightningProvider>
+            </WCWeb3WalletProvider>
+          </RatesProvider>
+        </LocalizationProvider>
       </DarkModeProvider>
     </AppProvider>
   );

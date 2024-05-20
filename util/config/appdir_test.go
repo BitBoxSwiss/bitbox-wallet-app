@@ -21,8 +21,8 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 )
 
 // TestAppDir runs itself in a child process for each test case.

@@ -18,9 +18,9 @@ package keystore
 import (
 	"errors"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/ethereum/go-ethereum/core/types"
 )
 

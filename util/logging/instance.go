@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/sirupsen/logrus"
 )
 

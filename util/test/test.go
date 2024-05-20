@@ -20,7 +20,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
 )
 
