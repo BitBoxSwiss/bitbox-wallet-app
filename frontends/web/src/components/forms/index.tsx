@@ -16,7 +16,7 @@
  */
 
 export { Button, ButtonLink } from './button';
-export { default as Checkbox } from './checkbox';
+export { Checkbox } from './checkbox';
 export { Radio } from './radio';
 export { Field } from './field';
 export { Input } from './input';

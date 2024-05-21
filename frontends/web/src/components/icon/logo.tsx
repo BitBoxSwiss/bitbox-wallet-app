@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,12 @@ interface Props {
     stacked?: boolean;
 }
 
-function Logo({ coinCode, active, stacked, ...rest }: Props) {
+export const Logo = ({
+  coinCode,
+  active,
+  stacked,
+  ...rest
+}: Props) => {
   if (!logoMap[coinCode]) {
     console.error('logo undefined for ', coinCode);
     return null;
@@ -123,6 +128,4 @@ function Logo({ coinCode, active, stacked, ...rest }: Props) {
         </div>}
     </div>
   );
-}
-
-export default Logo;
+};

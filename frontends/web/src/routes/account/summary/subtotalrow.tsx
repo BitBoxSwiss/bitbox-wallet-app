@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
-import Logo from '../../../components/icon/logo';
+import { Logo } from '../../../components/icon/logo';
 import { Amount } from '../../../components/amount/amount';
 import { FiatConversion } from '../../../components/rates/rates';
 import style from './accountssummary.module.css';

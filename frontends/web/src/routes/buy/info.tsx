@@ -25,7 +25,7 @@ import { isBitcoinOnly } from '../account/utils';
 import { View, ViewContent } from '../../components/view/view';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 import { GroupedAccountSelector } from '../../components/groupedaccountselector/groupedaccountselector';
-import Guide from './guide';
+import { BuyGuide } from './guide';
 
 type TProps = {
     accounts: accountApi.IAccount[];
@@ -112,7 +112,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
             </ViewContent>
           </View>
         </GuidedContent>
-        <Guide name={name} />
+        <BuyGuide name={name} />
       </GuideWrapper>
     </Main>
   );

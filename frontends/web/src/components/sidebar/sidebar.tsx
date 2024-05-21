@@ -30,7 +30,7 @@ import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import deviceSettings from '../../assets/icons/wallet-light.svg';
 import { debug } from '../../utils/env';
-import Logo, { AppLogoInverted } from '../icon/logo';
+import { AppLogoInverted, Logo } from '../icon/logo';
 import { CloseXWhite, USBSuccess } from '../icon';
 import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '../../routes/account/utils';
 import { SkipForTesting } from '../../routes/device/components/skipfortesting';

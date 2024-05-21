@@ -21,7 +21,7 @@ import * as accountAPI from '../../api/account';
 import * as backendAPI from '../../api/backend';
 import { alertUser } from '../../components/alert/Alert';
 import { Button, Input, Label } from '../../components/forms';
-import Logo from '../../components/icon/logo';
+import { Logo } from '../../components/icon/logo';
 import { EditActive, EyeOpenedDark, USBSuccess } from '../../components/icon';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { Toggle } from '../../components/toggle/toggle';
