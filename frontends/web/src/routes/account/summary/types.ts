@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export type TChartDisplay = 'week' | 'month' | 'year' | 'all';
+import type { TChartDisplay } from '../../../contexts/AppContext';
 
 export type TChartFiltersProps = {
   display: TChartDisplay
