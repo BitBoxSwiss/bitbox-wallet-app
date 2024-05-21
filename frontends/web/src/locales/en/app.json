@@ -1727,7 +1727,8 @@
     "connect": {
       "button": "Connect",
       "dappLabel": "Enter URI address of dapp",
-      "invalidPairingUri": "Invalid pairing uri"
+      "invalidPairingUri": "Invalid pairing uri",
+      "missingNamespace": "Connecting app request did not define necessary namespace"
     },
     "dashboard": {
       "allSessions": "All sessions",
