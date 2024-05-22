@@ -371,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
             public void handleOnBackPressed() {
 
                 if (vw.canGoBack()) {
-                    vw.goBack();
+                    vw.goBackOrForward(-1);
                 } else {
                     // To avoid unexpected behaviour, we prompt users and force the app process
                     // to exit which helps with preserving phone's resources by shutting down
