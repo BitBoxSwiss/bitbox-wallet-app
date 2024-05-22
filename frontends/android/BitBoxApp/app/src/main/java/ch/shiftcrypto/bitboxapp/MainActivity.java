@@ -409,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             String data = readRawText(getAssets().open("web/index.html"));
-            vw.loadDataWithBaseURL(BASE_URL, data, null, null, null);
+            vw.loadDataWithBaseURL(BASE_URL, data, null, null, BASE_URL);
         } catch (IOException e) {
             e.printStackTrace();
         }
