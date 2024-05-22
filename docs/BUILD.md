@@ -52,14 +52,14 @@ Build artifacts:
 Requires Xcode 10+ and macOS 10.13.6+.
 
 ```
-$ cd frontends/qt/build/osx/
 $ # Sign with hardened runtime:
-$ codesign -f --deep --strict --timestamp -o runtime --entitlements ../../resources/MacOS/entitlements.plist -s CODESIGN_IDENTITY BitBox.app
-$ /usr/bin/ditto -c -k --keepParent BitBox.app BitBox.zip
+$ codesign -f --deep --strict --timestamp -o runtime --entitlements frontends/qt/resources/MacOS/entitlements.plist -s CODESIGN_IDENTITY frontends/qt/build/osx/BitBox.app
+$ # Create DMG installer
+$ make osx-create-dmg
 $ # Notarize
-$ xcrun notarytool submit --apple-id "APPLE_ID" --team-id "TEAM_ID" --password "PASSWORD" BitBox.zip
+$ xcrun notarytool submit --apple-id "APPLE_ID" --team-id "TEAM_ID" --password "PASSWORD" frontends/qt/build/osx/BitBox_Installer.dmg
 $ # Check notarization status
-$  xcrun notarytool info --apple-id "APPLE_ID" --team-id "TEAM_ID" --password "PASSWORD" NOTARIZATION_ID
+$ xcrun notarytool info --apple-id "APPLE_ID" --team-id "TEAM_ID" --password "PASSWORD" NOTARIZATION_ID
 ```
 
 If you don't know your TEAM_ID, you can find it in your Apple dev account or with:
