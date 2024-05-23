@@ -47,16 +47,20 @@ const (
 	regtestDisabled = false
 )
 
-func checkShownAccountsLen(t *testing.T, b *Backend, expectedLoaded int, expectedPersisted int) {
+func checkShownLoadedAccountsLen(t *testing.T, accounts AccountsList, expectedLoaded int) {
 	t.Helper()
 	cntLoaded := 0
-	for _, acct := range b.Accounts() {
+	for _, acct := range accounts {
 		if !acct.Config().Config.HiddenBecauseUnused {
 			cntLoaded++
 		}
 	}
 	require.Equal(t, expectedLoaded, cntLoaded)
+}
 
+func checkShownAccountsLen(t *testing.T, b *Backend, expectedLoaded int, expectedPersisted int) {
+	t.Helper()
+	checkShownLoadedAccountsLen(t, b.Accounts(), expectedLoaded)
 	cntPersisted := 0
 	for _, acct := range b.Config().AccountsConfig().Accounts {
 		if !acct.HiddenBecauseUnused {
@@ -1430,15 +1434,15 @@ func TestAccountsByKeystore(t *testing.T) {
 	require.NoError(t, err)
 
 	require.NotNil(t, accountsMap[hex.EncodeToString(ks1Fingerprint)])
-	require.Len(t, accountsMap[hex.EncodeToString(ks1Fingerprint)], 3)
+	checkShownLoadedAccountsLen(t, accountsMap[hex.EncodeToString(ks1Fingerprint)], 3)
 	require.NotNil(t, accountsMap[hex.EncodeToString(ks2Fingerprint)])
-	require.Len(t, accountsMap[hex.EncodeToString(ks2Fingerprint)], 3)
+	checkShownLoadedAccountsLen(t, accountsMap[hex.EncodeToString(ks2Fingerprint)], 3)
 
 	b.DeregisterKeystore()
 	accountsMap, err = b.AccountsByKeystore()
 	require.NoError(t, err)
 	require.NotNil(t, accountsMap[hex.EncodeToString(ks1Fingerprint)])
-	require.Len(t, accountsMap[hex.EncodeToString(ks1Fingerprint)], 3)
+	checkShownLoadedAccountsLen(t, accountsMap[hex.EncodeToString(ks1Fingerprint)], 3)
 	require.Nil(t, accountsMap[hex.EncodeToString(ks2Fingerprint)])
 }
 
