@@ -288,6 +288,32 @@ export const getReceiveAddressList = (code: AccountCode) => {
   };
 };
 
+export type TTxInput = {
+  address: string;
+  amount: string;
+  feeTarget: FeeTargetCode;
+  customFee: string;
+  sendAll: 'yes' | 'no';
+  selectedUTXOs: string[],
+};
+
+export type TTxProposalResult = {
+  amount: IAmount;
+  fee: IAmount;
+  success: true;
+  total: IAmount;
+} | {
+  errorCode: string;
+  success: false;
+};
+
+export const proposeTx = (
+  accountCode: AccountCode,
+  txInput: TTxInput,
+): Promise<TTxProposalResult> => {
+  return apiPost(`account/${accountCode}/tx-proposal`, txInput);
+};
+
 export interface ISendTx {
     aborted?: boolean;
     success?: boolean;
@@ -374,10 +400,6 @@ export const addAccount = (coinCode: string, name: string): Promise<TAddAccount>
   });
 };
 
-export const testRegister = (pin: string): Promise<null> => {
-  return apiPost('test/register', { pin });
-};
-
 export const connectKeystore = (code: AccountCode): Promise<{ success: boolean; }> => {
   return apiPost(`account/${code}/connect-keystore`);
 };
@@ -393,7 +415,6 @@ export type TSignWalletConnectTx = {
   txHash: string;
   rawTx: string;
 }
-
 
 export const ethSignMessage = (code: AccountCode, message: string): Promise<TSignMessage> => {
   return apiPost(`account/${code}/eth-sign-msg`, message);
@@ -420,4 +441,3 @@ export type AddressSignResponse = {
 export const signAddress = (format: ScriptType | '', msg: string, code: AccountCode): Promise<AddressSignResponse> => {
   return apiPost(`account/${code}/sign-address`, { format, msg, code });
 };
-

@@ -24,6 +24,7 @@ export default defineConfig(() => {
       css: false,
       environment: 'jsdom',
       globals: true,
+      pool: 'forks',
       setupFiles: './vite.setup-tests.mjs',
     },
   };

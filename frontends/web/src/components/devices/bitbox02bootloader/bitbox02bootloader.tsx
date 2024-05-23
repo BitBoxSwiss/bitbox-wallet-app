@@ -104,11 +104,12 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
         </div>
         <div className="flex flex-center" style={{ marginTop: 32 }}>
           {t('bb02Bootloader.orientation')}&nbsp;
-          <a
+          <Button
             onClick={() => bitbox02BootloaderAPI.screenRotate(deviceID)}
-            style={{ textDecoration: 'underline', cursor: 'pointer' }} >
+            style={{ height: 'auto', padding: 0, textDecoration: 'underline' }}
+            transparent>
             {t('bb02Bootloader.flipscreen')}
-          </a>
+          </Button>
         </div>
         <hr/>
         <details>

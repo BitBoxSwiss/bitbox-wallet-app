@@ -66,11 +66,11 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/bridgecommon"
-	btctypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bridgecommon"
+	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/system"
 )
 
 // nativeCommunication implements bridge.NativeCommunication.

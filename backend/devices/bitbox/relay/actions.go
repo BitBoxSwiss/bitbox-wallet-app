@@ -18,8 +18,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/crypto"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/crypto"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
 // PushMessage pushes the encryption of the given data as JSON to the given server.

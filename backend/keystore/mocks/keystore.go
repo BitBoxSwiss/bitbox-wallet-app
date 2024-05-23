@@ -5,9 +5,9 @@ package mocks
 
 import (
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/ethereum/go-ethereum/core/types"
 	"sync"
 )

@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { GuideActive, MenuLight, MenuDark } from '../icon';
 import { AppContext } from '../../contexts/AppContext';
 import style from './header.module.css';
+import { Button } from '../forms';
 interface HeaderProps {
     title?: string | JSX.Element | JSX.Element[];
     narrow?: boolean;
@@ -56,16 +57,16 @@ const Header = ({
         <div className={style.title}>{title}</div>
         <div className={style.children}>
           {children}
-          {
-            guideExists && (
-              <span className={style.guideIconContainer}>
-                <a href="#" onClick={toggle} className={[style.guideIcon, guideShown ? style.disabled : ''].join(' ')}>
-                  <GuideActive />
-                  {t('guide.toggle.open')}
-                </a>
-              </span>
-            )
-          }
+          { guideExists && (
+            <Button
+              transparent
+              onClick={toggle}
+              className={`${style.guideClose} ${guideShown ? style.disabled : ''}`}
+            >
+              <GuideActive />
+              {t('guide.toggle.open')}
+            </Button>
+          )}
         </div>
       </div>
     </div>

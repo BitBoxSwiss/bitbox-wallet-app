@@ -172,7 +172,7 @@
     border: solid 1px var(--color-blue);
 }
 
-.tabs .tab a {
+.tabs .tab button {
     width: 100%;
     height: 100%;
     padding: var(--space-quarter);
@@ -187,7 +187,7 @@
     transition: all .2s ease-out;
 }
 
-.tabs .tab.active a {
+.tabs .tab.active button {
     color: var(--color-blue);
     background-color: var(--background-secondary);
 }

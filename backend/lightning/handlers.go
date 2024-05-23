@@ -19,9 +19,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/breez/breez-sdk-go/breez_sdk"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 )
 
 // PostLightningActivateNode handles the POST request to activate the lightning node.

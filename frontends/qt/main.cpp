@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
 // Disabling the sandbox allows all syscalls.
 //
 // See the following for more details.
-// https://github.com/digitalbitbox/bitbox-wallet-app/issues/1447
+// https://github.com/BitBoxSwiss/bitbox-wallet-app/issues/1447
 // https://bugreports.qt.io/browse/QTBUG-96214
 // https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/1944468
 #if defined(Q_OS_LINUX)
@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
     BitBoxApp a(argc, argv);
     // These three are part of the SingleApplication instance ID - if changed, the user should close
     // th existing app before launching the new one.
-    // See https://github.com/digitalbitbox/SingleApplication/blob/c557da5d0cb63b8002c1ba99ec18f257620009b1/singleapplication_p.cpp#L135-L137
+    // See https://github.com/BitBoxSwiss/SingleApplication/blob/c557da5d0cb63b8002c1ba99ec18f257620009b1/singleapplication_p.cpp#L135-L137
     a.setApplicationName(APPNAME);
     a.setOrganizationDomain("shiftcrypto.ch");
     a.setOrganizationName("Shift Crypto");

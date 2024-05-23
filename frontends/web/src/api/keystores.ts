@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import { subscribeEndpoint, TUnsubscribe } from './subscribe';
-import { apiGet } from '../utils/request';
+import { apiGet, apiPost } from '../utils/request';
 
 export type { TUnsubscribe };
 
@@ -30,4 +30,12 @@ export const subscribeKeystores = (
 
 export const getKeystores = (): Promise<TKeystores> => {
   return apiGet('keystores');
+};
+
+export const registerTest = (pin: string): Promise<null> => {
+  return apiPost('test/register', { pin });
+};
+
+export const deregisterTest = (): Promise<null> => {
+  return apiPost('test/deregister');
 };

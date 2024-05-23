@@ -16,9 +16,9 @@
 package lightning
 
 import (
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/breez/breez-sdk-go/breez_sdk"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 )
 
 // OnEvent receives an event from the sdk and handles it.

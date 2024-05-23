@@ -230,6 +230,17 @@ class Chart extends Component<Props, State> {
         lineColor: 'rgba(94, 148, 192, 1)',
         crosshairMarkerRadius: 6,
       });
+      switch (this.state.display) {
+      case 'week':
+        this.displayWeek();
+        break;
+      case 'month':
+        this.displayMonth();
+        break;
+      case 'year':
+        this.displayYear();
+        break;
+      }
       this.lineSeries.setData(this.props.data.chartDataDaily as ChartData);
       this.setFormattedData(this.props.data.chartDataDaily as ChartData);
       this.chart.timeScale().subscribeVisibleLogicalRangeChange(this.calculateChange);

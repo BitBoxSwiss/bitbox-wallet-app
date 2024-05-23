@@ -1,3 +1,7 @@
+github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240516070751-b22740e514bc h1:tjPmIW7g7RztjutLOdN0QZw8zE8bBpQhSf2sZgVsVNg=
+github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240516070751-b22740e514bc/go.mod h1:rP1MR1KWtV6Gihl16kAlBhtJXCgBypKtZ6T163lkWkY=
+github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519 h1:diVA/i8TJFBl9ZyMNX15KjZBpI2Gu63xQTozu6FsTrA=
+github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519/go.mod h1:SJTiQZU9ggBzVKMni97rpNS9GddPKErndFXNSDrfEGc=
 github.com/DataDog/zstd v1.4.5 h1:EndNeuB0l9syBZhut0wns3gV1hL8zX8LIu6ZiVHWLIQ=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
@@ -70,10 +74,6 @@ github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0/go.mod h1:DZGJHZMqrU4JJqFAWUS2U
 github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 h1:8UrgZ3GkP4i/CLijOJx79Yu+etlyjdBU4sfcs2WYQMs=
 github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0/go.mod h1:v57UDF4pDQJcEfFUCRop3lJL149eHGSe9Jvczhzjo/0=
 github.com/decred/dcrd/lru v1.0.0/go.mod h1:mxKOwFd7lFjN2GZYsiz/ecgqR6kkYAl+0pz0tEMk218=
-github.com/digitalbitbox/bitbox02-api-go v0.0.0-20240326091417-c9753acb0d16 h1:xdtqrFcibMBWiAYRjL55KvVWuczEtvRMq89mRRoNrpg=
-github.com/digitalbitbox/bitbox02-api-go v0.0.0-20240326091417-c9753acb0d16/go.mod h1:vCNZkkOcxHd92woSH0Hp5oMjMAIe9tMEGq4QOvj+0cY=
-github.com/digitalbitbox/block-client-go v0.0.0-20240228201430-dd85a15ace33 h1:W4aeOII3U0zuzvcRejcCoa+1yGFrgJa082VRxwvVGhY=
-github.com/digitalbitbox/block-client-go v0.0.0-20240228201430-dd85a15ace33/go.mod h1:zbeSf0Y9eGKQBx4ZE3lMJF1Wt2cjpM8m3VFiZC3Nv9w=
 github.com/ethereum/c-kzg-4844 v0.4.0 h1:3MS1s4JtA868KpJxroZoepdV0ZKBp3u/O5HcZ7R3nlY=
 github.com/ethereum/c-kzg-4844 v0.4.0/go.mod h1:VewdlzQmpT5QSrVhbBuGoCdFJkpaJlO1aQputP83wc0=
 github.com/ethereum/go-ethereum v1.13.4 h1:25HJnaWVg3q1O7Z62LaaI6S9wVq8QCw3K88g8wEzrcM=

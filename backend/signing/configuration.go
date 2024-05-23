@@ -21,9 +21,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // KeyInfo contains information about the key and where it is coming from.

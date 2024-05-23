@@ -17,11 +17,11 @@ package bitsurance
 import (
 	"testing"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/mocks"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

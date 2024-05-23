@@ -21,7 +21,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 )
 
 // detect theme used by OS and return true if it's dark

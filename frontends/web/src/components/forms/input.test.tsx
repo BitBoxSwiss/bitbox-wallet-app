@@ -17,7 +17,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import Input from './input';
+import { Input } from './input';
 
 describe('components/forms/input', () => {
   it('should preserve type attribute', () => {

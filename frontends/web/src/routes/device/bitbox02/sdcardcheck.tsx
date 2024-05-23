@@ -15,19 +15,16 @@
  */
 
 import { ReactNode, useCallback, useEffect, useState } from 'react';
-import { TranslateProps } from '../../../decorators/translate';
+import { useTranslation } from 'react-i18next';
+import { checkSDCard } from '../../../api/bitbox02';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button, ButtonLink } from '../../../components/forms';
-import { checkSDCard } from '../../../api/bitbox02';
-import { useTranslation } from 'react-i18next';
 import { HorizontallyCenteredSpinner } from '../../../components/spinner/SpinnerAnimation';
 
-type SDCardCheckProps = {
+type TProps = {
   deviceID: string;
   children: ReactNode;
 }
-
-type TProps = SDCardCheckProps & TranslateProps;
 
 const SDCardCheck = ({ deviceID, children }: TProps) => {
   const { t } = useTranslation();

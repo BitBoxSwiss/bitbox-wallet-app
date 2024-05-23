@@ -24,12 +24,12 @@ import (
 	"net"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
-	"github.com/digitalbitbox/block-client-go/electrum"
-	"github.com/digitalbitbox/block-client-go/failover"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
+	"github.com/BitBoxSwiss/block-client-go/electrum"
+	"github.com/BitBoxSwiss/block-client-go/failover"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/proxy"
 )

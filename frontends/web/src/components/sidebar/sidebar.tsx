@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,20 +22,22 @@ import { useTranslation } from 'react-i18next';
 import { useKeystores } from '../../hooks/backend';
 import { IAccount } from '../../api/account';
 import { useLightning } from '../../hooks/lightning';
+import { deregisterTest } from '../../api/keystores';
 import coins from '../../assets/icons/coins.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 import shieldIcon from '../../assets/icons/shield_grey.svg';
 import linechart from '../../assets/icons/linechart.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
+import deviceSettings from '../../assets/icons/wallet-light.svg';
 import { debug } from '../../utils/env';
-import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';
 import { CloseXWhite, USBSuccess } from '../icon';
 import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '../../routes/account/utils';
 import { SkipForTesting } from '../../routes/device/components/skipfortesting';
 import { Badge } from '../badge/badge';
 import { AppContext } from '../../contexts/AppContext';
+import { Button } from '../forms';
 import style from './sidebar.module.css';
 
 type SidebarProps = {
@@ -84,7 +86,7 @@ const GetLightningLink = ({ handleSidebarItemClick }: ItemClickProps) => {
 };
 
 const eject = (e: React.SyntheticEvent): void => {
-  apiPost('test/deregister');
+  deregisterTest();
   e.preventDefault();
 };
 
@@ -267,17 +269,31 @@ const Sidebar = ({
           </NavLink>
         </div>
 
-        { !keystores || keystores.length === 0 ? <SkipForTesting /> : null }
+        { !keystores || keystores.length === 0 ? (
+          <div key="unlock-software-keystore" className={style.sidebarItem}>
+            <SkipForTesting className={style.closeSoftwareKeystore}>
+              <div className={style.single}>
+                <img src={deviceSettings} />
+              </div>
+              <span className={style.sidebarLabel}>
+                Software keystore
+              </span>
+            </SkipForTesting>
+          </div>
+        ) : null }
         {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
           <div key="eject" className={style.sidebarItem}>
-            <a href="#" onClick={eject}>
+            <Button transparent onClick={eject} className={style.closeSoftwareKeystore}>
               <div className={style.single}>
                 <img
                   draggable={false}
                   src={ejectIcon}
                   alt={t('sidebar.leave')} />
               </div>
-            </a>
+              <span className={style.sidebarLabel}>
+                Eject software keystore
+              </span>
+            </Button>
           </div>
         )}
       </nav>

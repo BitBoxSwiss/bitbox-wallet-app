@@ -21,7 +21,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 )
 
 func detectDarkTheme() bool {

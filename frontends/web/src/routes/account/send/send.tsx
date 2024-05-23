@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@
 import { ChangeEvent, Component } from 'react';
 import * as accountApi from '../../../api/account';
 import { syncdone } from '../../../api/accountsync';
-import { BtcUnit, parseExternalBtcAmount } from '../../../api/coins';
+import { BtcUnit, convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '../../../api/coins';
 import { View, ViewContent } from '../../../components/view/view';
-import { TDevices } from '../../../api/devices';
+import { TDevices, hasMobileChannel } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
 import { Balance } from '../../../components/balance/balance';
@@ -29,7 +29,7 @@ import { Button, ButtonLink } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { Status } from '../../../components/status/status';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiGet, apiPost } from '../../../utils/request';
+import { getConfig } from '../../../utils/config';
 import { FeeTargets } from './feetargets';
 import { route } from '../../../utils/route';
 import { signConfirm, signProgress, TSignProgress } from '../../../api/devicessync';
@@ -53,8 +53,6 @@ interface SendProps {
     deviceIDs: string[];
     activeCurrency: accountApi.Fiat;
 }
-
-
 
 type Props = SendProps & TranslateProps;
 
@@ -95,11 +93,9 @@ class Send extends Component<Props, State> {
   private selectedUTXOs: TSelectedUTXOs = {};
   private unsubscribeList: UnsubscribeList = [];
 
-  // pendingProposals keeps all requests that have been made
-  // to /tx-proposal in case there are multiple parallel requests
-  // we can ignore all other but the last one
-  private pendingProposals: any = [];
-  private proposeTimeout: any = null;
+  // in case there are multiple parallel tx proposals we can ignore all other but the last one
+  private lastProposal: Promise<accountApi.TTxProposalResult> | null = null;
+  private proposeTimeout: ReturnType<typeof setTimeout> | null = null;
 
   public readonly state: State = {
     recipientAddress: '',
@@ -140,17 +136,17 @@ class Send extends Component<Props, State> {
     }
 
     if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
-      apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then((mobileChannel: boolean) => {
-        getDeviceInfo(this.props.deviceIDs[0])
+      hasMobileChannel(this.props.deviceIDs[0])().then((mobileChannel: boolean) => {
+        return getDeviceInfo(this.props.deviceIDs[0])
           .then(({ pairing }) => {
             const account = this.getAccount();
             const paired = mobileChannel && pairing;
             const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
             this.setState(prevState => ({ ...prevState, paired, noMobileChannelError }));
           });
-      });
+      }).catch(console.error);
     }
-    apiGet('config').then(config => {
+    getConfig().then(config => {
       this.setState({ btcUnit: config.backend.btcUnit });
       if (this.isBitcoinBased()) {
         this.setState({ coinControl: !!(config.frontend || {}).coinControl });
@@ -249,18 +245,23 @@ class Send extends Component<Props, State> {
     }
   };
 
-  private txInput = () => ({
-    address: this.state.recipientAddress,
-    amount: this.state.amount,
-    feeTarget: this.state.feeTarget || '',
-    customFee: this.state.customFee,
-    sendAll: this.state.sendAll ? 'yes' : 'no',
-    selectedUTXOs: Object.keys(this.selectedUTXOs),
-  });
-
-  private sendDisabled = () => {
-    const txInput = this.txInput();
-    return !txInput.address || this.state.feeTarget === undefined || (txInput.sendAll === 'no' && !txInput.amount) || (this.state.feeTarget === 'custom' && !this.state.customFee);
+  private getValidTxInputData = (): Required<accountApi.TTxInput> | false => {
+    if (
+      !this.state.recipientAddress
+      || this.state.feeTarget === undefined
+      || (!this.state.sendAll && !this.state.amount)
+      || (this.state.feeTarget === 'custom' && !this.state.customFee)
+    ) {
+      return false;
+    }
+    return {
+      address: this.state.recipientAddress,
+      amount: this.state.amount,
+      feeTarget: this.state.feeTarget,
+      customFee: this.state.customFee,
+      sendAll: (this.state.sendAll ? 'yes' : 'no'),
+      selectedUTXOs: Object.keys(this.selectedUTXOs),
+    };
   };
 
   private validateAndDisplayFee = (updateFiat: boolean = true) => {
@@ -270,30 +271,36 @@ class Send extends Component<Props, State> {
       amountError: undefined,
       feeError: undefined,
     });
-    if (this.sendDisabled()) {
+    const txInput = this.getValidTxInputData();
+    if (!txInput) {
       return;
     }
-    const txInput = this.txInput();
     if (this.proposeTimeout) {
       clearTimeout(this.proposeTimeout);
       this.proposeTimeout = null;
     }
     this.setState({ isUpdatingProposal: true });
-    this.proposeTimeout = setTimeout(() => {
-      const propose = apiPost('account/' + this.getAccount()!.code + '/tx-proposal', txInput)
-        .then(result => {
-          const pos = this.pendingProposals.indexOf(propose);
-          if (this.pendingProposals.length - 1 === pos) {
-            this.txProposal(updateFiat, result);
-          }
-          this.pendingProposals.splice(pos, 1);
-        })
-        .catch(() => {
-          this.setState({ valid: false });
-          this.pendingProposals.splice(this.pendingProposals.indexOf(propose), 1);
-        });
-      this.pendingProposals.push(propose);
-    }, 400);
+    // defer the transaction proposal
+    this.proposeTimeout = setTimeout(async () => {
+      const proposePromise = accountApi.proposeTx(this.getAccount()!.code, txInput);
+      // keep this as the last known proposal
+      this.lastProposal = proposePromise;
+      try {
+        const result = await proposePromise;
+        // continue only if this is the most recent proposal
+        if (proposePromise === this.lastProposal) {
+          this.txProposal(updateFiat, result);
+        }
+      } catch (error) {
+        this.setState({ valid: false });
+        console.error('Failed to propose transaction:', error);
+      } finally {
+        // cleanup regardless of success or failure
+        if (proposePromise === this.lastProposal) {
+          this.lastProposal = null;
+        }
+      }
+    }, 400); // Delay the proposal by 400 ms
   };
 
   private handleNoteInput = (event: ChangeEvent<HTMLInputElement>) => {
@@ -305,13 +312,10 @@ class Send extends Component<Props, State> {
     });
   };
 
-  private txProposal = (updateFiat: boolean, result: {
-        errorCode?: string;
-        amount: accountApi.IAmount;
-        fee: accountApi.IAmount;
-        success: boolean;
-        total: accountApi.IAmount;
-    }) => {
+  private txProposal = (
+    updateFiat: boolean,
+    result: accountApi.TTxProposalResult,
+  ) => {
     this.setState({ valid: result.success });
     if (result.success) {
       this.setState({
@@ -332,39 +336,42 @@ class Send extends Component<Props, State> {
     }
   };
 
-  private handleFiatInput = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    this.setState({ fiatAmount: value });
-    this.convertFromFiat(value);
+  private handleFiatInput = (fiatAmount: string) => {
+    this.setState({ fiatAmount });
+    this.convertFromFiat(fiatAmount);
   };
 
-  private convertToFiat = (value?: string | boolean) => {
-    if (value) {
+  private convertToFiat = async (amount: string) => {
+    if (amount) {
       const coinCode = this.getAccount()!.coinCode;
-      apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${this.state.fiatUnit}&amount=${value}`)
-        .then(data => {
-          if (data.success) {
-            this.setState({ fiatAmount: data.fiatAmount });
-          } else {
-            this.setState({ amountError: this.props.t('send.error.invalidAmount') });
-          }
-        });
+      const data = await convertToCurrency({
+        amount,
+        coinCode,
+        fiatUnit: this.state.fiatUnit,
+      });
+      if (data.success) {
+        this.setState({ fiatAmount: data.fiatAmount });
+      } else {
+        this.setState({ amountError: this.props.t('send.error.invalidAmount') });
+      }
     } else {
       this.setState({ fiatAmount: '' });
     }
   };
 
-  private convertFromFiat = (value: string) => {
-    if (value) {
+  private convertFromFiat = async (amount: string) => {
+    if (amount) {
       const coinCode = this.getAccount()!.coinCode;
-      apiGet(`coins/convert-from-fiat?from=${this.state.fiatUnit}&to=${coinCode}&amount=${value}`)
-        .then(data => {
-          if (data.success) {
-            this.setState({ amount: data.amount }, () => this.validateAndDisplayFee(false));
-          } else {
-            this.setState({ amountError: this.props.t('send.error.invalidAmount') });
-          }
-        });
+      const data = await convertFromCurrency({
+        amount,
+        coinCode,
+        fiatUnit: this.state.fiatUnit,
+      });
+      if (data.success) {
+        this.setState({ amount: data.amount }, () => this.validateAndDisplayFee(false));
+      } else {
+        this.setState({ amountError: this.props.t('send.error.invalidAmount') });
+      }
     } else {
       this.setState({ amount: '' });
     }
@@ -630,7 +637,7 @@ class Send extends Component<Props, State> {
                       <Button
                         primary
                         onClick={this.send}
-                        disabled={this.sendDisabled() || !valid || isUpdatingProposal}>
+                        disabled={!this.getValidTxInputData() || !valid || isUpdatingProposal}>
                         {t('send.button')}
                       </Button>
                       <ButtonLink

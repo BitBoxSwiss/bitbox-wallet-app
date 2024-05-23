@@ -18,9 +18,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox02-api-go/api/bootloader"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02bootloader"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )

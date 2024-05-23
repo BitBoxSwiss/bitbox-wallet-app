@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
  */
 
 import { LanguageDetectorAsyncModule } from 'i18next';
-import { apiGet } from '../utils/request';
+import { getNativeLocale } from '../api/nativelocale';
+import { getConfig } from '../utils/config';
 import { i18nextFormat } from './utils';
 
 const defaultUserLanguage = 'en';
@@ -25,12 +26,12 @@ export const languageFromConfig: LanguageDetectorAsyncModule = {
   type: 'languageDetector',
   async: true,
   detect: (cb) => {
-    apiGet('config').then(({ backend }) => {
+    getConfig().then(({ backend }) => {
       if (backend && backend.userLanguage) {
         cb(backend.userLanguage);
         return;
       }
-      apiGet('native-locale').then(locale => {
+      getNativeLocale().then(locale => {
         if (typeof locale === 'string' && locale) {
           try {
             new Date().toLocaleString(i18nextFormat(locale));

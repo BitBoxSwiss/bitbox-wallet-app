@@ -1,8 +1,8 @@
 package lightning
 
 import (
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/breez/breez-sdk-go/breez_sdk"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 type responseDto struct {

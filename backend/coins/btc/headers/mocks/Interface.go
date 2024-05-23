@@ -2,7 +2,7 @@
 
 package mocks
 
-import headers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
+import headers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
 import mock "github.com/stretchr/testify/mock"
 import wire "github.com/btcsuite/btcd/wire"
 

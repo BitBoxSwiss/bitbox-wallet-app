@@ -19,8 +19,8 @@ import (
 	"testing"
 	"time"
 
-	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 
 	"github.com/stretchr/testify/require"
 )

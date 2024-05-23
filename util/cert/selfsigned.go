@@ -28,8 +28,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
 )
 

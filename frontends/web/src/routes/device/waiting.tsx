@@ -72,8 +72,8 @@ export const Waiting = () => {
           link: {
             text: t('guide.waiting.lostDevice.link.text'),
             url: (i18n.resolvedLanguage === 'de')
-              ? 'https://shiftcrypto.support/help/de-de/5-backup/8-wie-kann-ich-ein-bitbox02-wallet-in-ein-drittanbieter-wallet-importieren'
-              : 'https://shiftcrypto.support/help/en-us/5-backup/8-how-do-i-restore-my-wallet-if-my-bitbox02-is-lost',
+              ? 'https://bitbox.swiss/redirects/restore-wallet-without-bitbox-de/'
+              : 'https://bitbox.swiss/redirects/restore-wallet-without-bitbox-en/',
           },
           text: t('guide.waiting.lostDevice.text'),
           title: t('guide.waiting.lostDevice.title'),

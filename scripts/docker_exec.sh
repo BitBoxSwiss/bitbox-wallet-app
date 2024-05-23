@@ -42,4 +42,4 @@ function docker_exec {
     wait $PID
 }
 
-docker_exec bitbox-wallet-dev make -C /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ "$@"
+docker_exec bitbox-wallet-dev make -C /opt/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/ "$@"

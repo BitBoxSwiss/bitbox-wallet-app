@@ -18,11 +18,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/sirupsen/logrus"
 )
 
