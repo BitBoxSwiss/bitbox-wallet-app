@@ -55,7 +55,7 @@ export const App = () => {
 
   useEffect(() => {
     window.addEventListener('popstate', () => {
-      alertUser(`popstate ${window.location.pathname}`);
+      alertUser(`popstate ${window.location.href}`);
     });
   }, []);
 
