@@ -422,7 +422,8 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             String data = readRawText(getAssets().open("web/index.html"));
-            vw.loadDataWithBaseURL(BASE_URL, data, null, null, "https://shiftcrypto.ch/index.html");
+            vw.loadDataWithBaseURL(BASE_URL, data, null, null, BASE_URL);
+            vw.clearHistory();
         } catch (IOException e) {
             e.printStackTrace();
         }
