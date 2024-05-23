@@ -43,14 +43,15 @@ const Alert = () => {
   const [message, setMessage] = useState<string>();
   const { t } = useTranslation();
 
-  alertUser = (message: string, options: AlertUserOptions = {}) => {
+  alertUser = (newMessage: string, options: AlertUserOptions = {}) => {
+    const nextMessage = active ? `${message}; \n ${newMessage}` : newMessage;
     const {
       asDialog = true,
     } = options;
     callback = options.callback;
     setActive(true);
     setAsDialog(asDialog);
-    setMessage(message);
+    setMessage(nextMessage);
   };
 
   const handleClose = () => {
