@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import type { LineData } from 'lightweight-charts';
 import { apiGet, apiPost } from '@/utils/request';
-import type { ChartData } from '@/routes/account/summary/chart';
 import type { TDetailStatus } from './bitsurance';
 import type { SuccessResponse } from './response';
 import { Slip24 } from 'request-address';
@@ -185,6 +185,12 @@ export const getInfo = (code: AccountCode) => {
 export const init = (code: AccountCode): Promise<null> => {
   return apiPost(`account/${code}/init`);
 };
+
+export type FormattedLineData = LineData & {
+  formattedValue: string;
+};
+
+export type ChartData = FormattedLineData[];
 
 export type TSummaryResponse = {
     success: true;
