@@ -30,7 +30,7 @@ import { syncDeviceList } from './api/devicessync';
 import { syncNewTxs } from './api/transactions';
 import { notifyUser } from './api/system';
 import { ConnectedApp } from './connected';
-import { Alert, alertUser } from './components/alert/Alert';
+import { Alert/*, alertUser*/ } from './components/alert/Alert';
 import { Aopp } from './components/aopp/aopp';
 import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
@@ -53,11 +53,11 @@ export const App = () => {
 
   const prevDevices = usePrevious(devices);
 
-  useEffect(() => {
-    window.addEventListener('popstate', () => {
-      alertUser(`popstate ${window.location.href}`);
-    });
-  }, []);
+  // useEffect(() => {
+  //   window.addEventListener('popstate', () => {
+  //     alertUser(`popstate ${window.location.href}`);
+  //   });
+  // }, []);
 
   useEffect(() => {
     return syncNewTxs((meta) => {
