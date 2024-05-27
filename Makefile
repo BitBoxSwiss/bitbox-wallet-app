@@ -79,6 +79,9 @@ android:
 osx-sec-check:
 	@echo "Checking build output"
 	./scripts/osx-build-check.sh
+osx-create-dmg:
+	@echo "Creating DMG installer"
+	./scripts/osx-create-dmg.sh
 ci:
 	./scripts/ci.sh
 clean:
