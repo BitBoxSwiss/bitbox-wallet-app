@@ -23,21 +23,20 @@ import { App } from './app';
 import { i18n } from './i18n/i18n';
 import './style/index.css';
 
+// // debug
+// const originalPushState = window.history.pushState;
 
-// debug
-const originalPushState = window.history.pushState;
+// // Create a new proxy object
+// const pushStateProxy = new Proxy(originalPushState, {
+//   apply(target, thisArg, argumentsList) {
+//     // Log the arguments passed to history.pushState
+//     alert(`history.pushState called with arguments: ${JSON.stringify(argumentsList)}`);
+//     return window.Reflect.apply(target, thisArg, argumentsList);
+//   }
+// });
 
-// Create a new proxy object
-const pushStateProxy = new Proxy(originalPushState, {
-  apply(target, thisArg, argumentsList) {
-    // Log the arguments passed to history.pushState
-    alert(`history.pushState called with arguments: ${JSON.stringify(argumentsList)}`);
-    return window.Reflect.apply(target, thisArg, argumentsList);
-  }
-});
-
-// Override the original pushState with the proxy
-window.history.pushState = pushStateProxy;
+// // Override the original pushState with the proxy
+// window.history.pushState = pushStateProxy;
 
 const rootEl = document.getElementById('root') as HTMLDivElement;
 const root = createRoot(rootEl);
