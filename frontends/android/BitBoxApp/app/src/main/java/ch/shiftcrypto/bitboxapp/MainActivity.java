@@ -47,11 +47,11 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.activity.OnBackPressedCallback;
 
-import java.io.BufferedReader;
+// import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+// import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
                     if (url != null && url.startsWith(BASE_URL)) {
                         // Intercept local requests and serve the response from the Android assets folder.
                         try {
-                            InputStream inputStream = getAssets().open(url.replace(BASE_URL, "web/"));
+                            InputStream inputStream = getAssets().open(url.replace("file:///", "web/"));
                             String mimeType = Util.getMimeType(url);
                             if (mimeType != null) {
                                 return new WebResourceResponse(mimeType, "UTF-8", inputStream);
@@ -420,13 +420,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        try {
-            String data = readRawText(getAssets().open("web/index.html"));
-            vw.loadDataWithBaseURL(BASE_URL, data, null, null, BASE_URL);
-            vw.clearHistory();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        vw.loadUrl("file:///android_asset/web/index.html");
 
         // We call updateDevice() here in case the app was started while the device was already connected.
         // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
@@ -438,21 +432,21 @@ public class MainActivity extends AppCompatActivity {
         goService.startServer(getApplicationContext().getFilesDir().getAbsolutePath(), gVM.getGoEnvironment(), gVM.getGoAPI());
     }
 
-    private static String readRawText(InputStream inputStream) throws IOException {
-        if (inputStream == null) {
-            return null;
-        }
+    // private static String readRawText(InputStream inputStream) throws IOException {
+    //     if (inputStream == null) {
+    //         return null;
+    //     }
 
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        StringBuilder fileContent = new StringBuilder();
-        String currentLine = bufferedReader.readLine();
-        while (currentLine != null) {
-            fileContent.append(currentLine);
-            fileContent.append("\n");
-            currentLine = bufferedReader.readLine();
-        }
-        return fileContent.toString();
-    }
+    //     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+    //     StringBuilder fileContent = new StringBuilder();
+    //     String currentLine = bufferedReader.readLine();
+    //     while (currentLine != null) {
+    //         fileContent.append(currentLine);
+    //         fileContent.append("\n");
+    //         currentLine = bufferedReader.readLine();
+    //     }
+    //     return fileContent.toString();
+    // }
 
     @Override
     protected void onNewIntent(Intent intent) {
