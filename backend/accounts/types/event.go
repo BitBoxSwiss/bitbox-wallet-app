@@ -31,7 +31,4 @@ const (
 
 	// EventHeadersSynced is fired when the headers finished syncing.
 	EventHeadersSynced Event = "headersSynced"
-
-	// EventFeeTargetsChanged is fired when the fee targets change.
-	EventFeeTargetsChanged Event = "feeTargetsChanged"
 )

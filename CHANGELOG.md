@@ -8,6 +8,7 @@
 - Support pasting different localized number formats, i.e. dot and comma separated amounts
 - Fix BitBoxApp crash on GrapheneOS and other phones without Google Play Services when scanning QR codes.
 - Add DMG installer for macOS
+- Use mempool.space as preferred fee estimation source for BTC
 
 ## 4.42.0
 - Preselect backup when there's only one backup available

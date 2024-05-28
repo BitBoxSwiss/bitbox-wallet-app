@@ -1560,6 +1560,10 @@
         "low": "2 hours (12 blocks)",
         "low_eth": "5 minutes or less",
         "low_ltc": "30 minutes (12 blocks)",
+        "mEconomy": "-",
+        "mFastest": "10 minutes (next block)",
+        "mHalfHour": "20 minutes (2 blocks)",
+        "mHour": "30 minutes (3 blocks)",
         "normal": "1 hour (6 blocks)",
         "normal_eth": "2 minutes or less",
         "normal_ltc": "15 minutes (6 blocks)"
@@ -1570,6 +1574,10 @@
         "economy": "Economy",
         "high": "High",
         "low": "Low",
+        "mEconomy": "No priority",
+        "mFastest": "High",
+        "mHalfHour": "Medium",
+        "mHour": "Low",
         "normal": "Normal"
       },
       "placeholder": "Calculating fee…"
