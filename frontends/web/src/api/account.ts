@@ -369,6 +369,7 @@ export type TUTXO = {
   amount: IAmount;
   note: string;
   scriptType: ScriptType;
+  addressReused: boolean;
 };
 
 export const getUTXOs = (code: AccountCode): Promise<TUTXO[]> => {

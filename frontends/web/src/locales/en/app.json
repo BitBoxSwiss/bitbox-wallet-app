@@ -1525,6 +1525,7 @@
     "button": "Review",
     "coincontrol": {
       "address": "Address",
+      "addressReused": "Address re-used",
       "outpoint": "Outpoint",
       "title": "Send from output"
     },
@@ -1790,6 +1791,7 @@
     "walletConnect": "WalletConnect"
   },
   "warning": {
+    "coincontrol": "One or more UTXOs have a reused address. Be aware the receiver will see all UTXOs associated with those addresses.",
     "receivePairing": "Please pair the BitBox to enable secure address verification. Go to 'Manage device' in the sidebar.",
     "sdcard": "Keep the microSD card stored separate from the BitBox, unless you want to manage backups.",
     "sendPairing": "Please pair the BitBox to securely verify transaction details. Go to 'Manage device' in the sidebar."
