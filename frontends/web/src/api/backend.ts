@@ -132,3 +132,19 @@ export const onAuthSettingChanged = (): Promise<void> => {
 export const exportLogs = (): Promise<ISuccess> => {
   return apiPost('export-log');
 };
+
+export const exportNotes = (): Promise<(FailResponse & { aborted: boolean; }) | SuccessResponse> => {
+  return apiPost('notes/export');
+};
+
+export type TImportNotes = {
+  accountCount: number;
+  transactionCount: number;
+};
+
+export const importNotes = (fileContents: ArrayBuffer): Promise<FailResponse | (SuccessResponse & { data: TImportNotes; })> => {
+  const hexString = Array.from(new Uint8Array(fileContents))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
+  return apiPost('notes/import', hexString);
+};

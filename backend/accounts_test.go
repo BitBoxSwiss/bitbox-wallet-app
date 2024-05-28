@@ -1455,7 +1455,6 @@ func TestAccountsTotalBalanceByKeystore(t *testing.T) {
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coinpkg.NewAmountFromInt64(100000), coinpkg.NewAmountFromInt64(0)), nil
 		}
-		accountMock.FatalErrorFunc = func() bool { return false }
 		return accountMock
 	}
 
@@ -1464,7 +1463,6 @@ func TestAccountsTotalBalanceByKeystore(t *testing.T) {
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coinpkg.NewAmountFromInt64(100000), coinpkg.NewAmountFromInt64(0)), nil
 		}
-		accountMock.FatalErrorFunc = func() bool { return false }
 		return accountMock
 	}
 

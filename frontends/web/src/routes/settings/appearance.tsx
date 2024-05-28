@@ -18,6 +18,8 @@ import { Main, Header, GuideWrapper, GuidedContent } from '../../components/layo
 import { View, ViewContent } from '../../components/view/view';
 import { useTranslation } from 'react-i18next';
 import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSetting';
+import { NotesImport } from './components/appearance/notesImport';
+import { NotesExport } from './components/appearance/notesExport';
 import { DefaultCurrencyDropdownSetting } from './components/appearance/defaultCurrencyDropdownSetting';
 import { DisplaySatsToggleSetting } from './components/appearance/displaySatsToggleSetting';
 import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
@@ -52,6 +54,8 @@ export const Appearance = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTab
                 <DarkmodeToggleSetting />
                 <DisplaySatsToggleSetting />
                 <HideAmountsSetting />
+                <NotesExport />
+                <NotesImport />
               </WithSettingsTabs>
             </ViewContent>
           </View>

@@ -165,6 +165,11 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 	return nil
 }
 
+// Notes returns the notes instance of this account.
+func (account *BaseAccount) Notes() *notes.Notes {
+	return account.notes
+}
+
 // Migrate legacy notes (notes stored in files based on obsolete account identifiers). Account
 // identifiers changed from v4.27.0 to v4.28.0.
 func (account *BaseAccount) migrateLegacyNotes() error {
@@ -241,7 +246,7 @@ func (account *BaseAccount) GetAndClearProposedTxNote() string {
 
 // SetTxNote implements accounts.Account.
 func (account *BaseAccount) SetTxNote(txID string, note string) error {
-	if err := account.notes.SetTxNote(txID, note); err != nil {
+	if _, err := account.notes.SetTxNote(txID, note); err != nil {
 		return err
 	}
 	// Prompt refresh.
@@ -249,7 +254,7 @@ func (account *BaseAccount) SetTxNote(txID string, note string) error {
 	return nil
 }
 
-// TxNote fetches a note for a transcation. Returns the empty string if no note was found.
+// TxNote fetches a note for a transaction. Returns the empty string if no note was found.
 func (account *BaseAccount) TxNote(txID string) string {
 	return account.notes.TxNote(txID)
 }

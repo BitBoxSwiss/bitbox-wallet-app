@@ -17,11 +17,22 @@ package config
 import (
 	"testing"
 
+	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/stretchr/testify/require"
 )
 
-func TestByCode(t *testing.T) {
+func mustXKey(key string) *hdkeychain.ExtendedKey {
+	xkey, err := hdkeychain.NewKeyFromString(key)
+	if err != nil {
+		panic(err)
+	}
+	return xkey
+}
+
+func TestLookup(t *testing.T) {
 	cfg := AccountsConfig{
 		Accounts: []*Account{
 			{Code: "a"},
@@ -42,6 +53,36 @@ func TestByCode(t *testing.T) {
 	require.NotNil(t, acct)
 	acct.Name = "foo"
 	require.Equal(t, "foo", cfg.Accounts[0].Name)
+}
+
+func TestLookupByXpub(t *testing.T) {
+	keypath, err := signing.NewAbsoluteKeypath("m/84'/1'/0'")
+	require.NoError(t, err)
+
+	someXPub := "xpub661MyMwAqRbcGAo79WnM4653Aog3nKuTYq2Wy1iURzbaGE36dgnPPMxX5oCvCiky5bFbS2jS9RfAHVtpCNCEBwy6BUjLxhXYGu19NwTgrFX"
+	someAccountCode := accountsTypes.Code("a")
+	cfg := AccountsConfig{
+		Accounts: []*Account{
+			{
+				Code: someAccountCode,
+				SigningConfigurations: signing.Configurations{
+					signing.NewBitcoinConfiguration(
+						signing.ScriptTypeP2WPKH,
+						[]byte{1, 2, 3, 4},
+						keypath,
+						mustXKey(someXPub),
+					),
+				},
+			},
+		},
+	}
+
+	_, err = cfg.LookupByXpub("foo")
+	require.Error(t, err)
+
+	acctCode, err := cfg.LookupByXpub(someXPub)
+	require.NoError(t, err)
+	require.Equal(t, someAccountCode, acctCode)
 }
 
 func TestSetTokenActive(t *testing.T) {

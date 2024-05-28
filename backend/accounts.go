@@ -73,6 +73,30 @@ func (a AccountsList) lookup(code accountsTypes.Code) accounts.Interface {
 	return nil
 }
 
+// lookupByTransactionInternalID finds the account which contains a transaction with this internal
+// tx ID. `nil, nil` is returned if not found. `err` is returned if there was an error fetching the
+// account transactions.
+func (a AccountsList) lookupByTransactionInternalID(internalID string) (accounts.Interface, error) {
+	for _, account := range a {
+		if account.FatalError() {
+			continue
+		}
+		if err := account.Initialize(); err != nil {
+			return nil, err
+		}
+		transactions, err := account.Transactions()
+		if err != nil {
+			return nil, err
+		}
+		for _, transactionData := range transactions {
+			if transactionData.InternalID == internalID {
+				return account, nil
+			}
+		}
+	}
+	return nil, nil
+}
+
 // sortAccounts sorts the accounts in-place by 1) coin 2) account number.
 func sortAccounts(accounts []accounts.Interface) {
 	compareCoin := func(coin1, coin2 coinpkg.Coin) int {

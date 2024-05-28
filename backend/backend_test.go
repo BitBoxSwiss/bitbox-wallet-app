@@ -18,6 +18,7 @@ import (
 	"context"
 	"math/big"
 	"net/http"
+	"os"
 	"testing"
 	"time"
 
@@ -47,6 +48,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
+
+func TestMain(m *testing.M) {
+	test.TstSetupLogging()
+	os.Exit(m.Run())
+}
 
 func mustKeypath(keypath string) signing.AbsoluteKeypath {
 	kp, err := signing.NewAbsoluteKeypath(keypath)
@@ -87,7 +93,9 @@ func makeBitBox02Multi() *keystoremock.KeystoreMock {
 		NameFunc: func() (string, error) {
 			return "Mock name", nil
 		},
-		RootFingerprintFunc: keystoreHelper1().RootFingerprint,
+		RootFingerprintFunc: func() ([]byte, error) {
+			return rootFingerprint1, nil
+		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
 			case *btc.Coin:
@@ -191,6 +199,7 @@ func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *
 		TransactionsFunc: func() (accounts.OrderedTransactions, error) {
 			return nil, nil
 		},
+		FatalErrorFunc: func() bool { return false },
 		GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
 			return []accounts.AddressList{
 				{
