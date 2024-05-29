@@ -127,3 +127,16 @@ export const isAmbiguiousName = (
 ): boolean => {
   return accounts.filter(keystore => keystore.keystore.name === name).length > 1;
 };
+
+export type TAccountCoinMap = {
+  [code in CoinCode]?: IAccount[];
+};
+
+export const getAccountsPerCoin = (accounts: IAccount[]): TAccountCoinMap => {
+  return accounts.reduce<Partial<TAccountCoinMap>>((accountPerCoin, account) => {
+    accountPerCoin[account.coinCode]
+      ? accountPerCoin[account.coinCode]!.push(account)
+      : accountPerCoin[account.coinCode] = [account];
+    return accountPerCoin;
+  }, {});
+};

@@ -16,6 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
+import { getAccountsPerCoin } from '../utils';
 import { Balances } from './accountssummary';
 import { BalanceRow } from './balancerow';
 import { SubTotalRow } from './subtotalrow';
@@ -49,10 +50,6 @@ type TProps = {
   keystoreDisambiguatorName?: string
 }
 
-type TAccountCoinMap = {
-    [code in accountApi.CoinCode]: accountApi.IAccount[];
-};
-
 export const SummaryBalance = ({
   accounts,
   connected,
@@ -64,16 +61,7 @@ export const SummaryBalance = ({
 }: TProps) => {
   const { t } = useTranslation();
 
-  const getAccountsPerCoin = () => {
-    return accounts.reduce((accountPerCoin, account) => {
-      accountPerCoin[account.coinCode]
-        ? accountPerCoin[account.coinCode].push(account)
-        : accountPerCoin[account.coinCode] = [account];
-      return accountPerCoin;
-    }, {} as TAccountCoinMap);
-  };
-
-  const accountsPerCoin = getAccountsPerCoin();
+  const accountsPerCoin = getAccountsPerCoin(accounts);
   const coins = Object.keys(accountsPerCoin) as accountApi.CoinCode[];
 
   return (
@@ -107,7 +95,7 @@ export const SummaryBalance = ({
           <tbody>
             { accounts.length > 0 ? (
               coins.map(coinCode => {
-                const balanceRows = accountsPerCoin[coinCode].map(account =>
+                const balanceRows = accountsPerCoin[coinCode]?.map(account =>
                   <BalanceRow
                     key={account.code}
                     code={account.code}
@@ -116,15 +104,18 @@ export const SummaryBalance = ({
                     balance={balances && balances[account.code]}
                   />
                 );
-                if (balanceRows?.length > 1) {
-                  const account = accountsPerCoin[coinCode][0];
-                  balanceRows.push(
-                    <SubTotalRow
-                      key={account.coinCode}
-                      coinCode={account.coinCode}
-                      coinName={account.coinName}
-                      balance={totalBalancePerCoin && totalBalancePerCoin[coinCode]}
-                    />);
+                if (balanceRows && balanceRows?.length > 1) {
+                  const accountsForCoin = accountsPerCoin[coinCode];
+                  if (accountsForCoin && accountsForCoin.length >= 1) {
+                    const account = accountsForCoin[0];
+                    balanceRows.push(
+                      <SubTotalRow
+                        key={account.coinCode}
+                        coinCode={account.coinCode}
+                        coinName={account.coinName}
+                        balance={totalBalancePerCoin && totalBalancePerCoin[coinCode]}
+                      />);
+                  }
                 }
                 return balanceRows;
               })
