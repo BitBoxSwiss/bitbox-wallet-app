@@ -1753,13 +1753,15 @@
     "connect": {
       "button": "Connect",
       "dappLabel": "Enter URI address of dapp",
-      "invalidPairingUri": "Invalid pairing uri"
+      "invalidPairingUri": "Invalid pairing uri",
+      "missingNamespace": "Connecting app request did not define necessary namespace"
     },
     "dashboard": {
       "allSessions": "All sessions",
       "disclaimer": "Walletconnect is a protocol to connect to Ethereum based Dapps. These dapps are run by third-party services, so only connect to dapps you trust and be sure to always know what you are signing when making a transaction.",
       "newConnection": "New connection",
-      "noConnectedSessions": "No accounts are currently connected to any dapps."
+      "noConnectedSessions": "No accounts are currently connected to any dapps.",
+      "unspecifiedAccount": "Unspecified account"
     },
     "invalidPairingChain": "Error in approving pairing. Please make sure to use one of the supported chains: {{chains}}",
     "pairingRequest": {
