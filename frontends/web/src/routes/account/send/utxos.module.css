@@ -74,7 +74,7 @@
 .transaction {
     display: flex;
     font-size: var(--size-default);
-    line-height: 1.4;
+    line-height: 1.5;
     white-space: nowrap;
 }
 
