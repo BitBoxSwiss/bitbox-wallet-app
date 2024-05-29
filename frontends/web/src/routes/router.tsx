@@ -19,10 +19,10 @@ import { Route, Routes, useParams } from 'react-router';
 import { IAccount } from '../api/account';
 import { TDevices } from '../api/devices';
 import { AddAccount } from './account/add/add';
-import { Moonpay } from './buy/moonpay';
-import { BuyInfo } from './buy/info';
-import { Exchange } from './buy/exchange';
-import { Pocket } from './buy/pocket';
+import { Moonpay } from './exchange/moonpay';
+import { BuyInfo } from './exchange/info';
+import { Exchange } from './exchange/exchange';
+import { Pocket } from './exchange/pocket';
 import { Info } from './account/info/info';
 import { Receive } from './account/receive';
 import { SendWrapper } from './account/send/send-wrapper';
@@ -155,7 +155,9 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   const ExchangeEl = <InjectParams>
     <Exchange
       code={''}
-      accounts={activeAccounts} />
+      accounts={activeAccounts}
+      deviceIDs={deviceIDs}
+    />
   </InjectParams>;
 
   const PocketEl = <InjectParams>

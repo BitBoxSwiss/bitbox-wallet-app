@@ -711,6 +711,9 @@
     "wrongKeystore": "Wrong wallet connected. Please make sure to insert the correct device matching this account.",
     "wrongKeystore2": " If you are using the optional passphrase, make sure you have entered the correct passphrase for the account."
   },
+  "exchange": {
+    "exchangeCTA": "Exchange {{unit}}"
+  },
   "fiat": {
     "default": "default",
     "setDefault": "Set {{code}} as default",

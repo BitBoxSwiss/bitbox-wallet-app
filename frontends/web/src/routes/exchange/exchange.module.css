@@ -70,13 +70,17 @@
     color: var(--color-gray-alt);
     line-height: 22px;
     margin: 0;
+    text-align: center;
     margin-top: calc((var(--space-eight) + var(--space-half)));
-    margin-left: calc((var(--space-eight) + var(--space-quarter)));
 }
 
 .radioButtonsContainer {
     line-height: 1.5;
     min-height: 180px;
+}
+
+.innerRadioButtonsContainer {
+    min-height: 110px;
 }
 
 .title {
@@ -85,4 +89,8 @@
     margin-top: 0;
     margin-bottom: var(--space-default);
     text-align: center;
+}
+
+.updateButton {
+    height: var(--item-height-small);
 }

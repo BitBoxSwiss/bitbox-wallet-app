@@ -33,6 +33,12 @@ export const getExchangesByRegion = (code: string) => {
   };
 };
 
+
+export const getSellExchangesByRegion = (): Promise<ExchangeRegionList> => {
+  return Promise.resolve({ regions: [{ code: 'CH', isMoonpayEnabled: true, isPocketEnabled: false }] });
+};
+
+
 export type ExchangeDeal = {
   fee: number;
   payment: 'card' | 'bank-transfer';
@@ -86,3 +92,9 @@ export const getExchangeBuySupported = (code: AccountCode) => {
     return apiGet(`exchange/buy-supported/${code}`);
   };
 };
+
+export const getExchangeSellSupported = (): Promise<SupportedExchanges> => {
+  // TODO: Remove mock and use actual endpoint once it's ready
+  return Promise.resolve({ exchanges: ['pocket'] });
+};
+
