@@ -160,7 +160,7 @@ export function Receive() {
         setReceiveError(String(e));
       }
     }
-  }, [description, inputSatsText, openChannelFeeResponse?.usedFeeParams]);
+  }, [description, inputSatsText, openChannelFeeResponse?.feeParams]);
 
   const renderSteps = () => {
     switch (step) {
