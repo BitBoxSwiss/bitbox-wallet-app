@@ -113,7 +113,7 @@ export const FeeTargets = ({
       return '';
     }
     const { amount, unit, conversions } = proposedFee;
-    return `${amount} ${unit} ${conversions ? ` = ${conversions[fiatUnit === 'sat' ? 'BTC' : fiatUnit]} ${fiatUnit}` : ''}`;
+    return `${amount} ${unit} ${conversions ? ` = ${conversions[fiatUnit]} ${fiatUnit}` : ''}`;
   };
 
   if (options === null) {

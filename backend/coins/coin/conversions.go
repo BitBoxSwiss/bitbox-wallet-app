@@ -23,24 +23,22 @@ func Btc2Sat(amount *big.Rat) *big.Rat {
 
 // FormatAsPlainCurrency handles formatting for currencies in a simplified way.
 // This should be used when `FormatAsCurrency` can't be used because a simpler formatting is needed (e.g. to populate forms in the frontend).
-func FormatAsPlainCurrency(amount *big.Rat, isBtc bool, formatBtcAsSats bool) string {
+func FormatAsPlainCurrency(amount *big.Rat, currency string) string {
 	var formatted string
-	if isBtc {
-		if formatBtcAsSats {
-			amount = Btc2Sat(amount)
-			formatted = amount.FloatString(0)
-		} else {
-			formatted = amount.FloatString(8)
-		}
-	} else {
+	switch currency {
+	case ratesPkg.BTC.String():
+		formatted = amount.FloatString(8)
+	case ratesPkg.SAT.String():
+		formatted = amount.FloatString(0)
+	default:
 		formatted = amount.FloatString(2)
 	}
 	return formatted
 }
 
 // FormatAsCurrency handles formatting for currencies.
-func FormatAsCurrency(amount *big.Rat, isBtc bool, formatBtcAsSats bool) string {
-	formatted := FormatAsPlainCurrency(amount, isBtc, formatBtcAsSats)
+func FormatAsCurrency(amount *big.Rat, currency string) string {
+	formatted := FormatAsPlainCurrency(amount, currency)
 	position := strings.Index(formatted, ".") - 3
 	for position > 0 {
 		formatted = formatted[:position] + "'" + formatted[position:]
@@ -59,7 +57,7 @@ func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.Ra
 		conversions = map[string]string{}
 		for key, value := range rates[unit] {
 			convertedAmount := new(big.Rat).Mul(new(big.Rat).SetFloat64(coin.ToUnit(amount, isFee)), new(big.Rat).SetFloat64(value))
-			conversions[key] = FormatAsCurrency(convertedAmount, key == ratesPkg.BTC.String(), formatBtcAsSats)
+			conversions[key] = FormatAsCurrency(convertedAmount, key)
 		}
 	}
 	return conversions
@@ -77,7 +75,7 @@ func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *rates
 				conversions[currency] = ""
 			} else {
 				convertedAmount := new(big.Rat).Mul(new(big.Rat).SetFloat64(coin.ToUnit(amount, isFee)), new(big.Rat).SetFloat64(value))
-				conversions[currency] = FormatAsCurrency(convertedAmount, currency == ratesPkg.BTC.String(), formatBtcAsSats)
+				conversions[currency] = FormatAsCurrency(convertedAmount, currency)
 			}
 		}
 	}

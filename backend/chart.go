@@ -21,9 +21,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
@@ -120,7 +118,6 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	chartEntriesHourly := map[int64]RatChartEntry{}
 
 	fiat := backend.Config().AppConfig().Backend.MainFiat
-	isFiatBtc := fiat == rates.BTC.String()
 
 	// Chart data until this point in time.
 	until := backend.RatesUpdater().HistoryLatestTimestampAll(backend.allCoinCodes(), fiat)
@@ -130,8 +127,6 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	}
 	isUpToDate := time.Since(until) < 2*time.Hour
 	lastTimestamp := until.UnixMilli()
-
-	formatBtcAsSat := util.FormatBtcAsSat(backend.Config().AppConfig().Backend.BtcUnit)
 
 	currentTotal := new(big.Rat)
 	currentTotalMissing := false
@@ -245,7 +240,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			result[i] = ChartEntry{
 				Time:           entry.Time,
 				Value:          floatValue,
-				FormattedValue: coin.FormatAsCurrency(entry.RatValue, fiat == rates.BTC.String(), formatBtcAsSat),
+				FormattedValue: coin.FormatAsCurrency(entry.RatValue, fiat),
 			}
 			i++
 		}
@@ -261,7 +256,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			result = append(result, ChartEntry{
 				Time:           time.Now().Unix(),
 				Value:          total,
-				FormattedValue: coin.FormatAsCurrency(currentTotal, isFiatBtc, formatBtcAsSat),
+				FormattedValue: coin.FormatAsCurrency(currentTotal, fiat),
 			})
 		}
 		// Truncate leading zeroes, if there are any keep the first one to start the chart with 0
@@ -285,23 +280,18 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		chartDataMissing = false
 	}
 
-	chartFiat := fiat
-	if isFiatBtc && backend.Config().AppConfig().Backend.BtcUnit == coin.BtcUnitSats {
-		chartFiat = "sat"
-	}
-
 	var chartTotal *float64
 	var formattedChartTotal string
 	if !currentTotalMissing {
 		tot, _ := currentTotal.Float64()
 		chartTotal = &tot
-		formattedChartTotal = coin.FormatAsCurrency(currentTotal, isFiatBtc, formatBtcAsSat)
+		formattedChartTotal = coin.FormatAsCurrency(currentTotal, fiat)
 	}
 	return &Chart{
 		DataMissing:    chartDataMissing,
 		DataDaily:      toSortedSlice(chartEntriesDaily, fiat),
 		DataHourly:     toSortedSlice(chartEntriesHourly, fiat),
-		Fiat:           chartFiat,
+		Fiat:           fiat,
 		Total:          chartTotal,
 		FormattedTotal: formattedChartTotal,
 		IsUpToDate:     isUpToDate,

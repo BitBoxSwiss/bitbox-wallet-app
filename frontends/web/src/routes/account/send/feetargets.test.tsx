@@ -72,6 +72,7 @@ describe('routes/account/send/feetargets', () => {
             SGD: '32233',
             USD: '0.02',
             BTC: '0.02',
+            sat: '2000000',
           },
         }}
         customFee=""

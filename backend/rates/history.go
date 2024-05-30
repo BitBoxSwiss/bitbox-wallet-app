@@ -290,8 +290,12 @@ func (updater *RateUpdater) fetchGeckoMarketRange(ctx context.Context, coin, fia
 	// Transform the response into a usable result.
 	rates := make([]exchangeRate, len(jsonBody.Prices))
 	for i, v := range jsonBody.Prices {
+		value := v[1]
+		if fiat == SAT.String() {
+			value *= unitSatoshi
+		}
 		rates[i] = exchangeRate{
-			value:     v[1],
+			value:     value,
 			timestamp: time.Unix(int64(v[0])/1000, 0), // local timezone
 		}
 	}

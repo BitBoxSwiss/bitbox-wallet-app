@@ -504,7 +504,6 @@ class Send extends Component<Props, State> {
       signProgress,
       signConfirm,
       coinControl,
-      btcUnit,
       activeCoinControl,
       activeScanQR,
       note,
@@ -531,7 +530,6 @@ class Send extends Component<Props, State> {
       return null;
     }
 
-    const baseCurrencyUnit: accountApi.ConversionUnit = fiatUnit === 'BTC' && btcUnit === 'sat' ? 'sat' : fiatUnit;
     return (
       <GuideWrapper>
         <GuidedContent>
@@ -601,7 +599,7 @@ class Send extends Component<Props, State> {
                       disabled={sendAll}
                       error={amountError}
                       fiatAmount={fiatAmount}
-                      label={baseCurrencyUnit}
+                      label={fiatUnit}
                     />
                   </Column>
                 </Grid>
@@ -611,7 +609,7 @@ class Send extends Component<Props, State> {
                       accountCode={account.code}
                       coinCode={account.coinCode}
                       disabled={!amount && !sendAll}
-                      fiatUnit={baseCurrencyUnit}
+                      fiatUnit={fiatUnit}
                       proposedFee={proposedFee}
                       customFee={customFee}
                       showCalculatingFeeLabel={isUpdatingProposal}
@@ -644,7 +642,7 @@ class Send extends Component<Props, State> {
               </ViewContent>
               <ConfirmingWaitDialog
                 paired={paired}
-                baseCurrencyUnit={baseCurrencyUnit}
+                baseCurrencyUnit={fiatUnit}
                 note={note}
                 hasSelectedUTXOs={this.hasSelectedUTXOs()}
                 selectedUTXOs={Object.keys(this.selectedUTXOs)}

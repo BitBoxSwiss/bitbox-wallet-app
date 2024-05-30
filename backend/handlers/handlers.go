@@ -955,7 +955,6 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 	coinCode := r.URL.Query().Get("from")
 	currency := r.URL.Query().Get("to")
 	amount := r.URL.Query().Get("amount")
-
 	currentCoin, err := handlers.backend.Coin(coinpkg.Code(coinCode))
 	if err != nil {
 		handlers.log.WithError(err).Error("Could not get coin " + coinCode)
@@ -979,10 +978,9 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 
 	convertedAmount := new(big.Rat).Mul(coinUnitAmount, new(big.Rat).SetFloat64(rate))
 
-	btcUnit := handlers.backend.Config().AppConfig().Backend.BtcUnit
 	return map[string]interface{}{
 		"success":    true,
-		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, currency == rates.BTC.String(), util.FormatBtcAsSat(btcUnit)),
+		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, currency),
 	}
 }
 
@@ -1015,10 +1013,6 @@ func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 		unit = unit[2:]
 	case "SEPETH":
 		unit = unit[3:]
-	}
-
-	if from == rates.BTC.String() && handlers.backend.Config().AppConfig().Backend.BtcUnit == coinpkg.BtcUnitSats {
-		fiatRat = coinpkg.Sat2Btc(fiatRat)
 	}
 
 	rate := handlers.backend.RatesUpdater().LatestPrice()[unit][from]

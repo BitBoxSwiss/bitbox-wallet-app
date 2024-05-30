@@ -28,13 +28,11 @@ import (
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
@@ -234,7 +232,6 @@ func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat stri
 	}
 
 	coinDecimals := coin.DecimalsExp(account.Coin())
-
 	price, err := backend.RatesUpdater().LatestPriceForPair(account.Coin().Unit(false), fiat)
 	if err != nil {
 		return nil, err
@@ -253,13 +250,6 @@ func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat stri
 func (backend *Backend) AccountsTotalBalanceByKeystore() (map[string]KeystoreTotalAmount, error) {
 	totalAmounts := make(map[string]KeystoreTotalAmount)
 	fiat := backend.Config().AppConfig().Backend.MainFiat
-	isFiatBtc := fiat == rates.BTC.String()
-	fiatUnit := fiat
-	if isFiatBtc && backend.Config().AppConfig().Backend.BtcUnit == coinpkg.BtcUnitSats {
-		fiatUnit = "sat"
-	}
-
-	formatBtcAsSat := util.FormatBtcAsSat(backend.Config().AppConfig().Backend.BtcUnit)
 
 	accountsByKeystore, err := backend.AccountsByKeystore()
 	if err != nil {
@@ -286,8 +276,8 @@ func (backend *Backend) AccountsTotalBalanceByKeystore() (map[string]KeystoreTot
 			currentTotal.Add(currentTotal, fiatValue)
 		}
 		totalAmounts[rootFingerprint] = KeystoreTotalAmount{
-			FiatUnit: fiatUnit,
-			Total:    coinpkg.FormatAsCurrency(currentTotal, isFiatBtc, formatBtcAsSat),
+			FiatUnit: fiat,
+			Total:    coinpkg.FormatAsCurrency(currentTotal, fiat),
 		}
 	}
 	return totalAmounts, nil
