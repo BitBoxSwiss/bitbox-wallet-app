@@ -58,8 +58,7 @@ type TProvidedProps = {
     alwaysShowAmounts?: boolean;
 }
 
-
-function Conversion({
+const Conversion = ({
   amount,
   tableRow,
   unstyled,
@@ -68,7 +67,7 @@ function Conversion({
   sign,
   noBtcZeroes,
   alwaysShowAmounts = false
-}: TProvidedProps) {
+}: TProvidedProps) => {
 
   const { defaultCurrency, btcUnit } = useContext(RatesContext);
 
@@ -120,7 +119,7 @@ function Conversion({
       }
     </span>
   );
-}
+};
 
 type TDefaultCurrencyRotator = {
   activeUnit?: ConversionUnit;

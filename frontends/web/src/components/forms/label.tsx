@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,16 @@
 
 import style from './label.module.css';
 
-export function Label({
+export const Label = ({
   className,
   children,
   id, // TODO: change to htmlFor when mirgated away from preact@8.x
   ...props
-}: JSX.IntrinsicElements['label']) {
+}: JSX.IntrinsicElements['label']) => {
   const classes = [style.label, className].join(' ');
   return (
     <label htmlFor={id} className={classes} {...props}>
       {children}
     </label>
   );
-}
+};

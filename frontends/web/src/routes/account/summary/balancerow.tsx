@@ -32,9 +32,9 @@ type TProps = {
   balance?: IBalance;
 };
 
-export function BalanceRow (
+export const BalanceRow = (
   { code, name, coinCode, balance }: TProps
-) {
+) => {
   const { t } = useTranslation();
   const syncStatus = useSubscribe(syncAddressesCount(code));
 
@@ -77,4 +77,4 @@ export function BalanceRow (
       </td>
     </tr>
   );
-}
+};

@@ -31,11 +31,11 @@ type TAccountCoinMap = {
     [code in accountApi.CoinCode]: accountApi.IAccount[];
 };
 
-export function CoinBalance ({
+export const CoinBalance = ({
   accounts,
   summaryData,
   coinsBalances,
-}: TProps) {
+}: TProps) => {
   const { t } = useTranslation();
 
   const getAccountsPerCoin = () => {
@@ -110,4 +110,4 @@ export function CoinBalance ({
       </div>
     </div>
   );
-}
+};

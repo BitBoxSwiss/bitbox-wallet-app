@@ -25,7 +25,7 @@ import { Badge } from '../../../components/badge/badge';
 import { USBSuccess } from '../../../components/icon';
 import style from './accountssummary.module.css';
 
-function TotalBalance({ total, fiatUnit }: accountApi.TAccountTotalBalance) {
+const TotalBalance = ({ total, fiatUnit }: accountApi.TAccountTotalBalance) => {
   return (
     <>
       <strong>
@@ -37,7 +37,7 @@ function TotalBalance({ total, fiatUnit }: accountApi.TAccountTotalBalance) {
       </span>
     </>
   );
-}
+};
 
 type TProps = {
   accounts: accountApi.IAccount[],
@@ -53,7 +53,7 @@ type TAccountCoinMap = {
     [code in accountApi.CoinCode]: accountApi.IAccount[];
 };
 
-export function SummaryBalance ({
+export const SummaryBalance = ({
   accounts,
   connected,
   keystoreName,
@@ -61,7 +61,7 @@ export function SummaryBalance ({
   totalBalance,
   balances,
   keystoreDisambiguatorName
-}: TProps) {
+}: TProps) => {
   const { t } = useTranslation();
 
   const getAccountsPerCoin = () => {
@@ -152,4 +152,4 @@ export function SummaryBalance ({
       </div>
     </div>
   );
-}
+};

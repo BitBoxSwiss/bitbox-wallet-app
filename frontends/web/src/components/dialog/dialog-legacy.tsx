@@ -212,10 +212,10 @@ interface DialogButtonsProps {
     children: React.ReactNode;
 }
 
-function DialogButtons({ children }: DialogButtonsProps) {
+const DialogButtons = ({ children }: DialogButtonsProps) => {
   return (
     <div className={style.dialogButtons}>{children}</div>
   );
-}
+};
 
 export { DialogLegacy, DialogButtons };

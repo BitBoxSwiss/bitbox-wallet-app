@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ export type TSubscriptionCallback<T> = (eventObject: T) => void;
  * can push data through. This should be mostly used within api.
  * Note there is a subscibe-legacy.ts module that supports older events.
  */
-export function subscribeEndpoint<T>(
+export const subscribeEndpoint = <T>(
   endpoint: string,
   cb: TSubscriptionCallback<T>,
-): TUnsubscribe {
+): TUnsubscribe => {
   return apiSubscribe(endpoint, (event: TEvent) => {
     switch (event.action) {
     case 'replace':
@@ -45,7 +45,7 @@ export function subscribeEndpoint<T>(
       throw new Error(`Event: ${event} not supported`);
     }
   });
-}
+};
 
 /**
  * Subscribes the given function to the backend/connected event.

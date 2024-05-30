@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,14 @@ let queryID: number = 0;
 const queryPromises: TQueryPromiseMap = {};
 const currentListeners: TMsgCallback[] = [];
 
-async function initTransport() {
+const initTransport = async () => {
   if (!runningInQtWebEngine()) {
     throw new Error('Must be running in Qt');
   }
   if (webChannel) {
     return webChannel;
   }
-  const initWebChannel = function(channel: any) {
+  const initWebChannel = (channel: any) => {
     channel.objects.backend.gotResponse.connect((
       queryID: number,
       response: string,
@@ -49,9 +49,9 @@ async function initTransport() {
     await new Promise(r => setTimeout(r, 1));
   }
   return webChannel;
-}
+};
 
-export function call(query: string): Promise<unknown> {
+export const call = (query: string): Promise<unknown> => {
   return new Promise((resolve, reject) => {
     initTransport().then((channel: any) => {
       queryID++;
@@ -59,9 +59,9 @@ export function call(query: string): Promise<unknown> {
       channel.objects.backend.call(queryID, query);
     });
   });
-}
+};
 
-export function qtSubscribePushNotifications(msgCallback: TMsgCallback) {
+export const qtSubscribePushNotifications = (msgCallback: TMsgCallback) => {
   currentListeners.push(msgCallback);
   return () => {
     if (!currentListeners.includes(msgCallback)) {
@@ -73,4 +73,4 @@ export function qtSubscribePushNotifications(msgCallback: TMsgCallback) {
       console.warn('currentListeners.includes(msgCallback)');
     }
   };
-}
+};
