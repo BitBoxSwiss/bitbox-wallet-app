@@ -74,28 +74,40 @@ func TestBaseAccount(t *testing.T) {
 	// This tests notes migration from v4.27.0 to v4.28.0.
 	require.NoError(t,
 		os.WriteFile(
-			path.Join(cfg.NotesFolder, "account-54b4597c3a5c48177ef2b12c97e0cb30b6fef0b431e7821675b17704c330ce5d-tbtc.json"),
-			[]byte(`{"transactions": { "legacy-1": "legacy note in unified account" }}`),
+			path.Join(cfg.NotesFolder, "test-account-identifier.json"),
+			[]byte(`{"transactions": { "conflict": "conflict note new" }}`),
+			0666,
+		),
+	)
+
+	legacyNotesFilename1 := path.Join(cfg.NotesFolder, "account-54b4597c3a5c48177ef2b12c97e0cb30b6fef0b431e7821675b17704c330ce5d-tbtc.json")
+	legacyNotesFilename2 := path.Join(cfg.NotesFolder, "account-989b84ec36f0b84e7926f9f5715e4b59a0592993b1fa4b70836addbcb0cb6e09-tbtc-p2pkh.json")
+	legacyNotesFilename3 := path.Join(cfg.NotesFolder, "account-e60b99507ba983d522f15932dbe1214e99de13c56e2bea75ed9c285f7c013117-tbtc-p2wpkh.json")
+	legacyNotesFilename4 := path.Join(cfg.NotesFolder, "account-9e779e0d49e77236f0769e0bab2fd656958d3fd023dce2388525ee66fead88bb-tbtc-p2wpkh-p2sh.json")
+	require.NoError(t,
+		os.WriteFile(
+			legacyNotesFilename1,
+			[]byte(`{"transactions": { "legacy-1": "legacy note in unified account", "conflict": "conflict note old" }}`),
 			0666,
 		),
 	)
 	require.NoError(t,
 		os.WriteFile(
-			path.Join(cfg.NotesFolder, "account-989b84ec36f0b84e7926f9f5715e4b59a0592993b1fa4b70836addbcb0cb6e09-tbtc-p2pkh.json"),
+			legacyNotesFilename2,
 			[]byte(`{"transactions": { "legacy-2": "legacy note in split account, p2pkh" }}`),
 			0666,
 		),
 	)
 	require.NoError(t,
 		os.WriteFile(
-			path.Join(cfg.NotesFolder, "account-e60b99507ba983d522f15932dbe1214e99de13c56e2bea75ed9c285f7c013117-tbtc-p2wpkh.json"),
+			legacyNotesFilename3,
 			[]byte(`{"transactions": { "legacy-3": "legacy note in split account, p2wpkh" }}`),
 			0666,
 		),
 	)
 	require.NoError(t,
 		os.WriteFile(
-			path.Join(cfg.NotesFolder, "account-9e779e0d49e77236f0769e0bab2fd656958d3fd023dce2388525ee66fead88bb-tbtc-p2wpkh-p2sh.json"),
+			legacyNotesFilename4,
 			[]byte(`{"transactions": { "legacy-4": "legacy note in split account, p2wpkh-p2sh" }}`),
 			0666,
 		),
@@ -150,6 +162,17 @@ func TestBaseAccount(t *testing.T) {
 	})
 
 	t.Run("notes", func(t *testing.T) {
+		// Legacy note files have been deleted after migration.
+		for _, filename := range []string{
+			legacyNotesFilename1,
+			legacyNotesFilename2,
+			legacyNotesFilename3,
+			legacyNotesFilename4,
+		} {
+			_, err := os.Stat(filename)
+			require.True(t, os.IsNotExist(err))
+		}
+
 		require.Equal(t, "", account.GetAndClearProposedTxNote())
 		account.ProposeTxNote("test note")
 		require.Equal(t, "test note", account.GetAndClearProposedTxNote())
@@ -161,6 +184,7 @@ func TestBaseAccount(t *testing.T) {
 		require.Equal(t, "another test note", account.TxNote("test-tx-id"))
 
 		// Test notes migration from v4.27.0 to v4.28.0
+		require.Equal(t, "conflict note new", account.TxNote("conflict"))
 		require.Equal(t, "legacy note in unified account", account.TxNote("legacy-1"))
 		require.Equal(t, "legacy note in split account, p2pkh", account.TxNote("legacy-2"))
 		require.Equal(t, "legacy note in split account, p2wpkh", account.TxNote("legacy-3"))
@@ -168,14 +192,6 @@ func TestBaseAccount(t *testing.T) {
 		// Setting a note sets it in the main notes file, and wipes it out in legacy note files.
 		require.NoError(t, account.SetTxNote("legacy-1", "updated legacy note"))
 		require.Equal(t, "updated legacy note", account.TxNote("legacy-1"))
-		contents, err := os.ReadFile(path.Join(cfg.NotesFolder, "account-54b4597c3a5c48177ef2b12c97e0cb30b6fef0b431e7821675b17704c330ce5d-tbtc.json"))
-		require.NoError(t, err)
-		require.JSONEq(t, `{"transactions":{}}`, string(contents))
-
-		// Test that the notes were persisted under the right file name with the right contents.
-		contents, err = os.ReadFile(path.Join(cfg.NotesFolder, "test-account-identifier.json"))
-		require.NoError(t, err)
-		require.JSONEq(t, `{"transactions":{"legacy-1": "updated legacy note", "test-tx-id": "another test note"}}`, string(contents))
 	})
 
 	t.Run("exportCSV", func(t *testing.T) {

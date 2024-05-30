@@ -39,6 +39,15 @@ func TestNotes(t *testing.T) {
 	require.NoError(t, notes.SetTxNote("tx-id-2", "note for tx-id-2"))
 	require.Equal(t, "note for tx-id-1", notes.TxNote("tx-id-1"))
 	require.Equal(t, "note for tx-id-2", notes.TxNote("tx-id-2"))
+
+	require.Equal(t,
+		&Data{
+			TransactionNotes: map[string]string{
+				"tx-id-1": "note for tx-id-1",
+				"tx-id-2": "note for tx-id-2",
+			},
+		},
+		notes.Data())
 }
 
 // TestNotesPersisted checks that notes are persisted.
@@ -67,4 +76,41 @@ func TestMaxLen(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, notes.SetTxNote("tx-id", strings.Repeat("x", 1024)))
 	require.Error(t, notes.SetTxNote("tx-id", strings.Repeat("x", 1025)))
+}
+
+func TestMergeLegacy(t *testing.T) {
+	filename := test.TstTempFile("account-notes")
+	notes, err := LoadNotes(filename)
+	require.NoError(t, err)
+	require.NoError(t, notes.SetTxNote("tx-id-1", "note for tx-id-1"))
+	require.NoError(t, notes.SetTxNote("tx-id-2", "note for tx-id-2"))
+
+	legacyNotes, err := LoadNotes(test.TstTempFile("legacy-notes"))
+	require.NoError(t, err)
+	require.NoError(t, legacyNotes.SetTxNote("tx-id-1", "legacy note for tx-id-1"))
+	require.NoError(t, legacyNotes.SetTxNote("tx-id-3", "legacy note for tx-id-3"))
+
+	require.NoError(t, notes.MergeLegacy(legacyNotes))
+	require.Equal(t,
+		&Data{
+			TransactionNotes: map[string]string{
+				"tx-id-1": "note for tx-id-1",
+				"tx-id-2": "note for tx-id-2",
+				"tx-id-3": "legacy note for tx-id-3",
+			},
+		},
+		notes.Data())
+
+	// Check that the merged notes were persisted.
+	notes, err = LoadNotes(filename)
+	require.NoError(t, err)
+	require.Equal(t,
+		&Data{
+			TransactionNotes: map[string]string{
+				"tx-id-1": "note for tx-id-1",
+				"tx-id-2": "note for tx-id-2",
+				"tx-id-3": "legacy note for tx-id-3",
+			},
+		},
+		notes.Data())
 }

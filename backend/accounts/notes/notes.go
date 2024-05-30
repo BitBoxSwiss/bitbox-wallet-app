@@ -26,8 +26,8 @@ import (
 // maxNoteLen is the maximum length per note.
 const maxNoteLen = 1024
 
-// NotesData is the notes JSON data serialized to disk.
-type notesData struct {
+// Data is the notes JSON data serialized to disk.
+type Data struct {
 	// More fields to be added when we can label more stuff, e.g. receive addresses, utxos, etc.
 
 	// a map of transaction ID to transaction note.
@@ -36,27 +36,28 @@ type notesData struct {
 
 // read deserializes the json files into notes. If the file does not exist yet, no error is
 // returned, and the struct is retruned with default values.
-func read(filename string) (*notesData, error) {
+func read(filename string) (*Data, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return &notesData{}, nil
+			return &Data{}, nil
 		}
 		return nil, errp.WithStack(err)
 	}
 	defer file.Close() //nolint:errcheck
-	var notes notesData
+	var notes Data
 	if err := json.NewDecoder(file).Decode(&notes); err != nil {
 		return nil, errp.WithStack(err)
 	}
 	return &notes, nil
 }
 
-func write(data *notesData, filename string) error {
+func write(data *Data, filename string) error {
 	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
+	defer func() { _ = file.Close() }()
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 	if err := encoder.Encode(data); err != nil {
@@ -68,7 +69,7 @@ func write(data *notesData, filename string) error {
 // Notes is a high level helper for notes, allowing you to read and set notes for transactions.
 type Notes struct {
 	filename string
-	data     *notesData
+	data     *Data
 	dataMu   sync.RWMutex
 }
 
@@ -115,4 +116,30 @@ func (notes *Notes) TxNote(txID string) string {
 	defer notes.dataMu.RUnlock()
 
 	return notes.data.TransactionNotes[txID]
+}
+
+// Data retrieves all stored notes. You must not modify the returned object.
+func (notes *Notes) Data() *Data {
+	notes.dataMu.RLock()
+	defer notes.dataMu.RUnlock()
+	return notes.data
+}
+
+// MergeLegacy merges the notes from an older/legacy notes file. Current/new notes take priority in
+// case of conflict.
+func (notes *Notes) MergeLegacy(legacy *Notes) error {
+	notes.dataMu.Lock()
+	defer notes.dataMu.Unlock()
+
+	if notes.data.TransactionNotes == nil {
+		notes.data.TransactionNotes = map[string]string{}
+	}
+
+	legacyData := legacy.Data()
+	for txID, note := range legacyData.TransactionNotes {
+		if _, ok := notes.data.TransactionNotes[txID]; !ok {
+			notes.data.TransactionNotes[txID] = note
+		}
+	}
+	return write(notes.data, notes.filename)
 }
