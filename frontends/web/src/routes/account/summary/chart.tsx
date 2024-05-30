@@ -93,6 +93,9 @@ class Chart extends Component<Props, State> {
   };
 
   public componentDidMount() {
+    if (this.state.source !== 'hourly' && this.context.chartDisplay === 'week') {
+      this.setState({ source: 'hourly' });
+    }
     this.createChart();
   }
 
