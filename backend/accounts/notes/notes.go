@@ -57,6 +57,7 @@ func write(data *notesData, filename string) error {
 	if err != nil {
 		return err
 	}
+	defer func() { _ = file.Close() }()
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 	if err := encoder.Encode(data); err != nil {
