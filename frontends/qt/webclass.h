@@ -21,7 +21,7 @@ class WebClass : public QObject
     Q_OBJECT
 public slots:
     void call(int queryID, const QString& query) {
-        backendCall(queryID, query.toLocal8Bit().constData());
+        backendCall(queryID, query.toUtf8().constData());
     }
 signals:
     void gotResponse(int queryID, QString response);
