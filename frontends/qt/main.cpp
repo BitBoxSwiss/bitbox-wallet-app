@@ -136,14 +136,14 @@ public:
 
         // All the requests originated in the wallet-connect section are allowed, as they are needed to
         // load the Dapp logos and it is not easy to filter out non-images requests.
-        bool onWCPage = currentUrl.contains(QRegularExpression("^qrc:/account/[^\/]+/wallet-connect/.*$"));
+        bool onWCPage = currentUrl.contains(QRegularExpression(R"(^qrc:/account/[^\/]+/wallet-connect/.*$)"));
         if (onWCPage) {
           return;
         }
 
         // Needed for the wallet connect workflow.
-        bool VerifyWCRequest = requestedUrl.contains(QRegularExpression("^https://verify\.walletconnect\.com/.*$"));
-        if (VerifyWCRequest) {
+        bool verifyWCRequest = requestedUrl.contains(QRegularExpression(R"(^https://verify\.walletconnect\.com/.*$)"));
+        if (verifyWCRequest) {
           return;
         }
 
