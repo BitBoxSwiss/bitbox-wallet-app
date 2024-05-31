@@ -232,10 +232,11 @@ type BTCTxInput struct {
 
 // BTCTx is the data needed to sign a btc transaction.
 type BTCTx struct {
-	Version  uint32
-	Inputs   []*BTCTxInput
-	Outputs  []*messages.BTCSignOutputRequest
-	Locktime uint32
+	Version         uint32
+	Inputs          []*BTCTxInput
+	Outputs         []*messages.BTCSignOutputRequest
+	Locktime        uint32
+	PaymentRequests []*messages.BTCPaymentRequestRequest
 }
 
 // BTCSign signs a bitcoin or bitcoin-like transaction. The previous transactions of the inputs
@@ -384,6 +385,22 @@ func (device *Device) BTCSign(
 				Request: &messages.Request_BtcSignOutput{
 					BtcSignOutput: tx.Outputs[outputIndex],
 				}})
+			if err != nil {
+				return nil, err
+			}
+		case messages.BTCSignNextResponse_PAYMENT_REQUEST:
+			paymentRequestIndex := next.Index
+			if int(paymentRequestIndex) >= len(tx.PaymentRequests) {
+				return nil, errp.New("payment request index out of bounds")
+			}
+			paymentRequest := tx.PaymentRequests[paymentRequestIndex]
+			next, err = device.nestedQueryBtcSign(
+				&messages.BTCRequest{
+					Request: &messages.BTCRequest_PaymentRequest{
+						PaymentRequest: paymentRequest,
+					},
+				},
+			)
 			if err != nil {
 				return nil, err
 			}
