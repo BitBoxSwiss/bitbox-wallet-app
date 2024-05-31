@@ -61,10 +61,14 @@
     display: flex;
     flex: 1 1 auto;
     min-height: 100vh;
+    /* mobile viewport bug fix */
+    min-height: -webkit-fill-available;
 }
 
 .appContent {
     height: 100vh;
+    /* mobile viewport bug fix */
+    height: -webkit-fill-available;
 }
 
 @media (max-width: 900px) {

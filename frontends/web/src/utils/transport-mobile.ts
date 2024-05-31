@@ -16,7 +16,7 @@
  */
 
 import { TMsgCallback, TPayload, TQueryPromiseMap } from './transport-common';
-import { runningOnMobile } from './env';
+import { runningInAndroid, runningOnMobile } from './env';
 
 let queryID: number = 0;
 const queryPromises: TQueryPromiseMap = {};
@@ -36,7 +36,12 @@ export const mobileCall = (query: string): Promise<unknown> => {
       }
       queryID++;
       queryPromises[queryID] = { resolve, reject };
-      window.android!.call(queryID, query);
+      if (runningInAndroid()) {
+        window.android!.call(queryID, query);
+      } else {
+        // iOS
+        window.webkit!.messageHandlers.goCall.postMessage({ queryID, query });
+      }
     } else {
       reject();
     }

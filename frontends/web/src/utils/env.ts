@@ -31,9 +31,13 @@ export const runningInAndroid = () => {
   return typeof window.android !== 'undefined';
 };
 
+export function runningInIOS() {
+  return typeof window.runningOnIOS !== 'undefined';
+}
+
 /**
  * Returns whether the code is running on mobile.
  */
 export const runningOnMobile = () => {
-  return runningInAndroid();
+  return runningInAndroid() || runningInIOS();
 };
