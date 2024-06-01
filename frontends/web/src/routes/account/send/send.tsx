@@ -173,6 +173,8 @@ class Send extends Component<Props, State> {
   public componentWillUnmount() {
     this.unregisterEvents();
     unsubscribe(this.unsubscribeList);
+    // Wipe proposed tx note.
+    accountApi.proposeTxNote(this.getAccount()!.code, '');
   }
 
   private registerEvents = () => document.addEventListener('keydown', this.handleKeyDown);
