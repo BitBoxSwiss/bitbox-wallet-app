@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import { useTranslation } from 'react-i18next';
 import { Main, Header, GuideWrapper, GuidedContent } from '../../components/layout';
 import { View, ViewContent } from '../../components/view/view';
-import { useTranslation } from 'react-i18next';
 import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSetting';
 import { NotesImport } from './components/appearance/notesImport';
 import { NotesExport } from './components/appearance/notesExport';
@@ -54,6 +54,7 @@ export const Appearance = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTab
                 <DarkmodeToggleSetting />
                 <DisplaySatsToggleSetting />
                 <HideAmountsSetting />
+                <h3 className="subTitle m-top-default">Notes</h3>
                 <NotesExport />
                 <NotesImport />
               </WithSettingsTabs>

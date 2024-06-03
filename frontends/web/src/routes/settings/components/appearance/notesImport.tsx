@@ -15,53 +15,79 @@
  */
 
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { importNotes } from '../../../../api/backend';
 import { alertUser } from '../../../../components/alert/Alert';
+import { SettingsItem } from '../settingsItem/settingsItem';
+import { ChevronRightDark } from '../../../../components/icon';
+import style from './notesImport.module.css';
 
 export const NotesImport = () => {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [importDisabled, setImportDisabled] = useState<boolean>(true);
+  const [importDisabled, setImportDisabled] = useState<boolean>(false);
+  const [filename, setFilename] = useState<string>();
 
   return (
-    <form id="uploadForm">
+    <form>
       <input
         type="file"
-        name="file"
+        className={style.fileInput}
         ref={fileInputRef}
+        accept="text/*,.txt"
         onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
           setImportDisabled(e.target.files === null || e.target.files.length === 0);
-        }}
-      />
-      <button
-        type="button"
-        disabled={importDisabled}
-        onClick={async () => {
           if (fileInputRef.current === null) {
-            return false;
+            return;
           }
           const fileInput = fileInputRef.current;
+          if (!fileInput.files || !fileInput.files.length) {
+            fileInput.click();
+            return;
+          }
+          setFilename(fileInput.files[0].name);
           try {
             setImportDisabled(true);
-            const file = fileInput.files![0];
+            const file = fileInput.files[0];
             if (file.size > 10 * 1024 * 1024) {
-              alertUser('File too large.');
-              return false;
+              alertUser(t('settings.notes.import.tooLarge'));
+              return;
             }
 
             const result = await importNotes(await file.arrayBuffer());
             if (result.success) {
-              // TODO add i18n key
-              alertUser(`Imported ${result.data.accountCount} account names and ${result.data.transactionCount} transaction notes.`);
+              const { accountCount, transactionCount } = result.data;
+              alertUser(t('settings.notes.import.success', {
+                accountCount,
+                transactionCount,
+              }));
               fileInput.value = '';
             } else if (result.message) {
               alertUser(result.message);
             }
-            return false;
+            return;
           } finally {
-            setImportDisabled(fileInput.files === null || fileInput.files.length === 0);
+            setImportDisabled(false);
           }
         }}
-      >Import</button>
+      />
+      <SettingsItem
+        disabled={importDisabled}
+        settingName={t('settings.notes.import.title')}
+        onClick={() => {
+          if (fileInputRef.current) {
+            fileInputRef.current.click();
+          }
+        }}
+        secondaryText={t('settings.notes.import.description')}
+        displayedValue={filename}
+        extraComponent={
+          <ChevronRightDark
+            width={24}
+            height={24}
+          />
+        }
+      />
     </form>
   );
 };

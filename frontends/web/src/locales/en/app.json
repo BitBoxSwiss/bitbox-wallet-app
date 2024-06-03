@@ -1655,6 +1655,20 @@
       "up-to-date": "Your app is up to date",
       "version": "App Version"
     },
+    "notes": {
+      "export": {
+        "description": "Create a backup of your transaction notes and account names.",
+        "success": "Notes successfully exported.",
+        "title": "Export notes"
+      },
+      "import": {
+        "description": "Restore your transaction notes and account names from a previously made backup file.",
+        "success": "Imported {{accountCount}} account names and {{transactionCount}} transaction notes",
+        "title": "Import notes",
+        "tooLarge": "File too large."
+      },
+      "title": "Manage notes"
+    },
     "restart": "Please re-start the BitBoxApp for the changes to take effect.",
     "services": {
       "title": "Services"
