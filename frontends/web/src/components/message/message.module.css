@@ -1,15 +1,15 @@
 .message {
+    align-items: flex-start;
     border: solid 1px var(--background-quaternary);
-    color: var(--color-secondary);
     border-radius: 2px;
-    padding: var(--spacing-default);
-    margin-bottom: var(--spacing-default);
+    color: var(--color-secondary);
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
-    align-items: flex-start;
     flex-shrink: 0;
+    justify-content: flex-start;
+    margin-bottom: var(--spacing-default);
     overflow: hidden;
+    padding: var(--spacing-default);
 }
 
 .message.small {
@@ -27,24 +27,24 @@
 
 .success {
     composes: message;
-    color: var(--color-success);
     border-color: var(--color-success);
+    color: var(--color-success);
 }
 
 .info {
     composes: message;
-    color: var(--color-blue);
     border-color: var(--color-blue);
+    color: var(--color-blue);
 }
 
 .warning {
     composes: message;
-    color: var(--color-warning);
     border-color: var(--color-warning);
+    color: var(--color-warning);
 }
 
 .error {
     composes: message;
-    color: var(--color-error);
     border-color: var(--color-error);
+    color: var(--color-error);
 }
