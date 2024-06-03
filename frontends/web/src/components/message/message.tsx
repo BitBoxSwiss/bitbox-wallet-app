@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +16,62 @@
  */
 
 import { ReactNode } from 'react';
+import { StatusInfo, StatusSuccess, StatusWarning, StatusError } from '../icon';
 import styles from './message.module.css';
 
-export interface Props {
-    hidden?: boolean;
-    small?: boolean;
-    type?: 'message' | 'success' | 'info' | 'warning' | 'error';
-    children: ReactNode;
+type TMessageTypes = 'success' | 'info' | 'warning' | 'error';
+type TMessageIconProps = { type: TMessageTypes };
+
+const MessageIcon = ({ type }: TMessageIconProps) => {
+  switch (type) {
+  case 'success':
+    return (
+      <StatusSuccess />
+    );
+  case 'info':
+    return (
+      <StatusInfo />
+    );
+  case 'error':
+    return (
+      <StatusError />
+    );
+  case 'warning':
+    return (
+      <StatusWarning />
+    );
+  default:
+    return null;
+  }
+};
+
+type MessageProps = {
+  hidden?: boolean;
+  small?: boolean;
+  title?: string;
+  type?: TMessageTypes;
+  children: ReactNode;
 }
 
 export const Message = ({
   hidden,
   small,
-  type = 'message',
+  title,
+  type = 'info',
   children,
-}: Props) => {
+}: MessageProps) => {
   if (hidden) {
     return null;
   }
   return (
     <div className={`${styles[type]} ${small ? styles.small : ''}`}>
-      {children}
+      <MessageIcon type={type} />
+      <div className={styles.content}>
+        {title && (
+          <h2 className={`subTitle ${styles.title}`}>{title}</h2>
+        )}
+        {children}
+      </div>
     </div>
   );
 };
