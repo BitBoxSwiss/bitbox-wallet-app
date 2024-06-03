@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +16,33 @@
  */
 
 import { Component, createRef } from 'react';
+import { TranslateProps, translate } from '@/decorators/translate';
 import { Input, Checkbox, Field } from './forms';
 import { alertUser } from './alert/Alert';
 import style from './password.module.css';
-import { withTranslation } from 'react-i18next';
 
-export const PasswordInput = (props) => {
-  const { seePlaintext, ...rest } = props;
+const excludeKeys = /^(Shift|Alt|Backspace|CapsLock|Tab)$/i;
+
+const hasCaps = (event: KeyboardEvent) => {
+  const key = event.key;
+  // will return null, when we cannot clearly detect if capsLock is active or not
+  if (key.length > 1 || key.toUpperCase() === key.toLowerCase() || excludeKeys.test(key)) {
+    return null;
+  }
+  // ideally we return event.getModifierState('CapsLock')) but this currently does always return false in Qt
+  return key.toUpperCase() === key && key.toLowerCase() !== key && !event.shiftKey;
+};
+
+type TPropsPasswordInput = {
+  seePlaintext?: boolean;
+  id?: string;
+  idPrefix?: string;
+  label: string;
+  placeholder?: string;
+  onInput?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  value: string;
+}
+export const PasswordInput = ({ seePlaintext, ...rest }: TPropsPasswordInput) => {
   return (
     <Input
       type={seePlaintext ? 'text' : 'password'}
@@ -30,24 +51,51 @@ export const PasswordInput = (props) => {
   );
 };
 
-class PasswordSingleInputClass extends Component {
+type TProps = {
+  idPrefix?: string;
+  pattern?: string;
+  autoFocus?: boolean;
+  disabled?: boolean;
+  label?: string;
+  placeholder?: string;
+  title?: string;
+  showLabel?: string;
+  onValidPassword: (password: string | null) => void;
+}
+
+type TPasswordSingleInputProps = TProps & TranslateProps;
+
+type TState = {
+  password: string;
+  seePlaintext: boolean;
+  capsLock: boolean;
+}
+
+class PasswordSingleInputClass extends Component<TPasswordSingleInputProps, TState> {
+  private regex?: RegExp;
+
   state = {
     password: '',
     seePlaintext: false,
     capsLock: false
   };
 
-  password = createRef();
+  password = createRef<HTMLInputElement>();
 
   idPrefix = () => {
     return this.props.idPrefix || '';
   };
 
-  UNSAFE_componentWillMount() {
-    window.addEventListener('keydown', this.handleCheckCaps);
-  }
+  handleCheckCaps = (event: KeyboardEvent) => {
+    const capsLock = hasCaps(event);
+
+    if (capsLock !== null) {
+      this.setState({ capsLock });
+    }
+  };
 
   componentDidMount() {
+    window.addEventListener('keydown', this.handleCheckCaps);
     if (this.props.pattern) {
       this.regex = new RegExp(this.props.pattern);
     }
@@ -60,8 +108,9 @@ class PasswordSingleInputClass extends Component {
     window.removeEventListener('keydown', this.handleCheckCaps);
   }
 
-  tryPaste = event => {
-    if (event.target.type === 'password') {
+  tryPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
+    if (target.type === 'password') {
       event.preventDefault();
       alertUser(this.props.t('password.warning.paste', {
         label: this.props.label
@@ -88,20 +137,13 @@ class PasswordSingleInputClass extends Component {
     }
   };
 
-  handleFormChange = event => {
-    let value = event.target.value;
+  handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let value: string | boolean = event.target.value;
     if (event.target.type === 'checkbox') {
       value = event.target.checked;
     }
-    const stateKey = event.target.id.slice(this.idPrefix().length);
-    this.setState({ [stateKey]: value }, this.validate);
-  };
-
-  handleCheckCaps = event => {
-    const capsLock = hasCaps(event);
-    if (capsLock !== null) {
-      this.setState({ capsLock });
-    }
+    const stateKey = event.target.id.slice(this.idPrefix().length) as keyof TState;
+    this.setState({ [stateKey]: value } as Pick<TState, keyof TState>, this.validate);
   };
 
   render() {
@@ -153,10 +195,18 @@ class PasswordSingleInputClass extends Component {
 
 }
 
-export const PasswordSingleInput = withTranslation(null, { withRef: true })(PasswordSingleInputClass);
+const HOC = translate(undefined, { withRef: true })(PasswordSingleInputClass);
+export { HOC as PasswordSingleInput };
 
 
-class PasswordRepeatInputClass extends Component {
+type TPasswordRepeatProps = TPasswordSingleInputProps & {
+  repeatLabel?: string;
+  repeatPlaceholder: string;
+};
+
+class PasswordRepeatInputClass extends Component<TPasswordRepeatProps, TState> {
+  private regex?: RegExp;
+
   state = {
     password: '',
     passwordRepeat: '',
@@ -164,18 +214,24 @@ class PasswordRepeatInputClass extends Component {
     capsLock: false
   };
 
-  password = createRef();
-  passwordRepeat = createRef();
+  password = createRef<HTMLInputElement>();
+  passwordRepeat = createRef<HTMLInputElement>();
 
   idPrefix = () => {
     return this.props.idPrefix || '';
   };
 
-  UNSAFE_componentWillMount() {
-    window.addEventListener('keydown', this.handleCheckCaps);
-  }
+
+  handleCheckCaps = (event: KeyboardEvent) => {
+    const capsLock = hasCaps(event);
+
+    if (capsLock !== null) {
+      this.setState({ capsLock });
+    }
+  };
 
   componentDidMount() {
+    window.addEventListener('keydown', this.handleCheckCaps);
     if (this.props.pattern) {
       this.regex = new RegExp(this.props.pattern);
     }
@@ -188,8 +244,9 @@ class PasswordRepeatInputClass extends Component {
     window.removeEventListener('keydown', this.handleCheckCaps);
   }
 
-  tryPaste = event => {
-    if (event.target.type === 'password') {
+  tryPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
+    if (target.type === 'password') {
       event.preventDefault();
       alertUser(this.props.t('password.warning.paste', {
         label: this.props.label
@@ -200,7 +257,7 @@ class PasswordRepeatInputClass extends Component {
   validate = () => {
     if (
       this.regex && this.password.current && this.passwordRepeat.current
-            && (!this.password.current.validity.valid || !this.passwordRepeat.current.validity.valid)
+      && (!this.password.current.validity.valid || !this.passwordRepeat.current.validity.valid)
     ) {
       return this.props.onValidPassword(null);
     }
@@ -211,20 +268,13 @@ class PasswordRepeatInputClass extends Component {
     }
   };
 
-  handleFormChange = event => {
-    let value = event.target.value;
+  handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let value: string | boolean = event.target.value;
     if (event.target.type === 'checkbox') {
       value = event.target.checked;
     }
     const stateKey = event.target.id.slice(this.idPrefix().length);
-    this.setState({ [stateKey]: value }, this.validate);
-  };
-
-  handleCheckCaps = event => {
-    const capsLock = hasCaps(event);
-        if (capsLock != null) { // eslint-disable-line
-      this.setState({ capsLock });
-    }
+    this.setState({ [stateKey]: value } as Pick<TState, keyof TState>, this.validate);
   };
 
   render() {
@@ -302,9 +352,15 @@ class PasswordRepeatInputClass extends Component {
   }
 }
 
-export const PasswordRepeatInput = withTranslation(null, { withRef: true })(PasswordRepeatInputClass);
+const HOCRepeat = translate(undefined, { withRef: true })(PasswordRepeatInputClass);
+export { HOCRepeat as PasswordRepeatInput };
 
-const MatchesPattern = ({ regex, value = '', text }) => {
+type MatchesPatternProps = {
+  regex: RegExp | undefined;
+  value: string;
+  text: string | undefined;
+}
+const MatchesPattern = ({ regex, value = '', text }: MatchesPatternProps) => {
   if (!regex || !value.length || regex.test(value)) {
     return null;
   }
@@ -314,15 +370,3 @@ const MatchesPattern = ({ regex, value = '', text }) => {
   );
 };
 
-const excludeKeys = /^(Shift|Alt|Backspace|CapsLock|Tab)$/i;
-
-const hasCaps = ({ key }) => {
-  // will return null, when we cannot clearly detect if capsLock is active or not
-  if (key.length > 1 || key.toUpperCase() === key.toLowerCase() || excludeKeys.test(key)) {
-    return null;
-  }
-  // ideally we return event.getModifierState('CapsLock')) but this currently does always return false in Qt
-  // @ts-ignore (event can be undefined and shiftKey exists only on MouseEvent but not Event)
-  // eslint-disable-next-line no-restricted-globals
-  return key.toUpperCase() === key && key.toLowerCase() !== key && !event.shiftKey;
-};

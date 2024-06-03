@@ -85,7 +85,7 @@ class Initialize extends Component<Props, State> {
     });
   };
 
-  private setValidPassword = (password: string) => {
+  private setValidPassword = (password: string | null) => {
     this.setState({ password });
   };
 
