@@ -3,7 +3,7 @@
   border: 1px solid;
   display: inline-block;
   font-size: var(--size-small);
-  line-height: 14px;
+  line-height: 1;
   padding: var(--space-eight) 10px;
   white-space: nowrap;
 }
@@ -41,4 +41,11 @@
   background: var(--color-lightyellow);
   border-color: var(--color-darkyellow);
   color: var(--color-olive);
+}
+
+/* swiss-red with different opacities */
+.danger {
+  background: rgba(255, 0, 0, 0.2);
+  border-color: rgba(255, 0, 0, 0.33);
+  color: rgba(255, 0, 0, 1);
 }
