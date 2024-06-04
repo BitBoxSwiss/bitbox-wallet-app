@@ -149,8 +149,8 @@
     },
     "flipscreen": "قلب الشاشة",
     "orientation": "هل تم وضع الجهاز في الاتجاه الخاطئ؟",
-    "success": "التحديث تم بنجاح! سيتم الاستمرار خلال {{rebootSeconds}} ثانية...",
-    "success_install": "التثبيت تم بنجاح! سيتم الاستمرار خلال {{rebootSeconds}} ثانية..."
+    "success": "تمت الترقية بنجاح!",
+    "success_install": "التثبيت بنجاح!"
   },
   "bitbox": {
     "error": {

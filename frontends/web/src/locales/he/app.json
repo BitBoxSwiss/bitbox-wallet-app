@@ -97,7 +97,7 @@
     },
     "flipscreen": "הפוך מסך",
     "orientation": "?ההתקן מכוון בכיוון שגוי",
-    "success": "...עדכון צלח! ממשיך בעוד {{rebootSeconds}} שניות"
+    "success": "השדרוג הצליח!"
   },
   "bitbox": {
     "error": {
@@ -677,7 +677,7 @@
     "title": "הערה"
   },
   "notification": {
-    "newTxs_one": "{{count}} עסקה חדשה ב: {{accountName}}",
+    "newTxs_one": "עסקה חדשה ב: {{accountName}}",
     "newTxs_other": "{{count}} עסקה חדשה ב: {{accountName}}"
   },
   "pairing": {
