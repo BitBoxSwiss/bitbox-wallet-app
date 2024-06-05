@@ -1663,10 +1663,15 @@
         "title": "Export notes"
       },
       "import": {
+        "accountNames_one": "Imported {{count}} account name.",
+        "accountNames_other": "Imported {{count}} account names.",
+        "accountNames_zero": "Imported 0 account names.",
         "description": "Restore your transaction notes and account names from a previously made backup file.",
-        "success": "Imported {{accountCount}} account names and {{transactionCount}} transaction notes",
         "title": "Import notes",
-        "tooLarge": "File too large."
+        "tooLarge": "File too large.",
+        "transactionNotes_one": "Imported {{count}} transaction note.",
+        "transactionNotes_other": "Imported {{count}} transaction notes.",
+        "transactionNotes_zero": "Imported 0 transaction notes."
       },
       "title": "Manage notes"
     },

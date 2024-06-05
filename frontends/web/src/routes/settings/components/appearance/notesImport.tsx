@@ -26,7 +26,6 @@ export const NotesImport = () => {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importDisabled, setImportDisabled] = useState<boolean>(false);
-  const [filename, setFilename] = useState<string>();
 
   return (
     <form>
@@ -45,7 +44,6 @@ export const NotesImport = () => {
             fileInput.click();
             return;
           }
-          setFilename(fileInput.files[0].name);
           try {
             setImportDisabled(true);
             const file = fileInput.files[0];
@@ -57,10 +55,12 @@ export const NotesImport = () => {
             const result = await importNotes(await file.arrayBuffer());
             if (result.success) {
               const { accountCount, transactionCount } = result.data;
-              alertUser(t('settings.notes.import.success', {
-                accountCount,
-                transactionCount,
-              }));
+              alertUser(`${t('settings.notes.import.accountNames', {
+                count: accountCount
+              })}
+    ${t('settings.notes.import.transactionNotes', {
+      count: transactionCount
+    })}`);
               fileInput.value = '';
             } else if (result.message) {
               alertUser(result.message);
@@ -80,7 +80,6 @@ export const NotesImport = () => {
           }
         }}
         secondaryText={t('settings.notes.import.description')}
-        displayedValue={filename}
         extraComponent={
           <ChevronRightDark
             width={24}
