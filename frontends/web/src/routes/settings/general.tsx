@@ -29,9 +29,10 @@ import { WithSettingsTabs } from './components/tabs';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
+import { SubTitle } from '../../components/title';
 import { TPagePropsWithSettingsTabs } from './types';
 
-export const Appearance = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   return (
     <GuideWrapper>
@@ -42,33 +43,42 @@ export const Appearance = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTab
             title={
               <>
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader withGuide title={t('settings.appearance')} />
+                <MobileHeader withGuide title={t('settings.general')} />
               </>
             } />
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu deviceIDs={deviceIDs}>
+                <SubTitle className="m-top-default">
+                  {t('settings.appearance')}
+                </SubTitle>
+                <LanguageDropdownSetting />
                 <DefaultCurrencyDropdownSetting />
                 <ActiveCurrenciesDropdownSetting />
-                <LanguageDropdownSetting />
                 <DarkmodeToggleSetting />
                 <DisplaySatsToggleSetting />
                 <HideAmountsSetting />
-                <h3 className="subTitle m-top-default">Notes</h3>
-                <NotesExport />
-                <NotesImport />
+                { hasAccounts ? (
+                  <>
+                    <SubTitle className="m-top-default">
+                      {t('settings.notes.title')}
+                    </SubTitle>
+                    <NotesExport />
+                    <NotesImport />
+                  </>
+                ) : null }
               </WithSettingsTabs>
             </ViewContent>
           </View>
         </Main>
       </GuidedContent>
-      <AppearanceGuide />
+      <GeneralGuide />
     </GuideWrapper>
 
   );
 };
 
-const AppearanceGuide = () => {
+const GeneralGuide = () => {
   const { t } = useTranslation();
 
   return (

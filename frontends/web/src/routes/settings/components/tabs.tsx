@@ -120,10 +120,10 @@ export const Tabs = ({ deviceIDs, hideMobileMenu, hasAccounts }: TTabs) => {
   return (
     <div className={styles.container}>
       <Tab
-        key="appearance"
+        key="general"
         hideMobileMenu={hideMobileMenu}
-        name={t('settings.appearance')}
-        url="/settings/appearance"
+        name={t('settings.general')}
+        url="/settings/general"
       />
       {hasAccounts ? (
         <Tab

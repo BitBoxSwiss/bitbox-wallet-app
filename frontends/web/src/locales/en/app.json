@@ -1646,6 +1646,7 @@
       "useProxy": "Enable tor proxy",
       "useSats": "Display BTC values in Satoshis"
     },
+    "general": "General",
     "header": {
       "home": "Home"
     },
