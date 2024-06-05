@@ -41,10 +41,10 @@ export const AddAccountGuide = ({ accounts }: TAddAccountGuide) => {
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   return (
     <Guide>
-      <Entry key="whatAreAccounts" entry={t('guide.accounts.whatAreAccounts')} />
-      <Entry key="whyIsThisUseful" entry={t('guide.accounts.whyIsThisUseful')} />
-      <Entry key="recoverAccounts" entry={t('guide.accounts.recoverAccounts')} />
-      <Entry key="moveFunds" entry={t('guide.accounts.moveFunds')} />
+      <Entry key="whatAreAccounts" entry={t('guide.accounts.whatAreAccounts', { returnObjects: true })} />
+      <Entry key="whyIsThisUseful" entry={t('guide.accounts.whyIsThisUseful', { returnObjects: true })} />
+      <Entry key="recoverAccounts" entry={t('guide.accounts.recoverAccounts', { returnObjects: true })} />
+      <Entry key="moveFunds" entry={t('guide.accounts.moveFunds', { returnObjects: true })} />
       { !hasOnlyBTCAccounts && (
         <>
           <Entry key="supportedCoins" entry={{
@@ -55,10 +55,10 @@ export const AddAccountGuide = ({ accounts }: TAddAccountGuide) => {
             text: t('guide.accounts.supportedCoins.text'),
             title: t('guide.accounts.supportedCoins.title'),
           }} />
-          <Entry key="howtoAddTokens" entry={t('guide.accounts.howtoAddTokens')} />
+          <Entry key="howtoAddTokens" entry={t('guide.accounts.howtoAddTokens', { returnObjects: true })} />
         </>
       )}
-      <Entry key="howManyAccounts" entry={t('guide.accounts.howManyAccounts')} />
+      <Entry key="howManyAccounts" entry={t('guide.accounts.howManyAccounts', { returnObjects: true })} />
     </Guide>
   );
 };

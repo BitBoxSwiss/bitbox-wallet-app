@@ -42,11 +42,11 @@ export const BitsuranceGuide = () => {
 
   return (
     <Guide title={t('guide.guideTitle.insurance')}>
-      <Entry key="guide.bitsurance.why" entry={t('guide.bitsurance.why')} shown={true} />
-      <Entry key="guide.bitsurance.who" entry={t('guide.bitsurance.who')} />
-      <Entry key="guide.bitsurance.what" entry={t('guide.bitsurance.what')} />
-      <Entry key="guide.bitsurance.status" entry={t('guide.bitsurance.status')} />
-      <Entry key="guide.bitsurance.renew" entry={t('guide.bitsurance.renew')} />
+      <Entry key="guide.bitsurance.why" entry={t('guide.bitsurance.why', { returnObjects: true })} shown={true} />
+      <Entry key="guide.bitsurance.who" entry={t('guide.bitsurance.who', { returnObjects: true })} />
+      <Entry key="guide.bitsurance.what" entry={t('guide.bitsurance.what', { returnObjects: true })} />
+      <Entry key="guide.bitsurance.status" entry={t('guide.bitsurance.status', { returnObjects: true })} />
+      <Entry key="guide.bitsurance.renew" entry={t('guide.bitsurance.renew', { returnObjects: true })} />
       <Entry key="guide.bitsurance.privacy" entry={{
         link: {
           text: t('guide.bitsurance.privacy.link.text'),

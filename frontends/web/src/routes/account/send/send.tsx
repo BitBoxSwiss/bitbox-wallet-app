@@ -229,7 +229,11 @@ class Send extends Component<Props, State> {
           break;
         default:
           const { errorMessage } = result;
-          alertUser(this.props.t('unknownError', errorMessage && { errorMessage }));
+          if (errorMessage) {
+            alertUser(this.props.t('unknownError', { errorMessage }));
+          } else {
+            alertUser(this.props.t('unknownError'));
+          }
         }
       }
     } catch (err) {
