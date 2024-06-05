@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { AccountCode, CoinCode, ERC20CoinCode } from './account';
+import type { AccountCode, CoinCode, ERC20CoinCode } from './account';
+import type { FailResponse, SuccessResponse } from './response';
 import { apiGet, apiPost } from '../utils/request';
-import { FailResponse, SuccessResponse } from './response';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export interface ICoin {

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { AccountCode, CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '../../api/account';
+import type { AccountCode, CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '../../api/account';
 
 export const findAccount = (
   accounts: IAccount[],

@@ -15,9 +15,9 @@
  */
 
 import { apiGet, apiPost } from '../utils/request';
-import { ChartData } from '../routes/account/summary/chart';
+import type { ChartData } from '../routes/account/summary/chart';
 import type { TDetailStatus } from './bitsurance';
-import { SuccessResponse } from './response';
+import type { SuccessResponse } from './response';
 
 export type NativeCoinCode = 'btc' | 'tbtc' | 'rbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
 
