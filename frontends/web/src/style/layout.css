@@ -69,6 +69,7 @@
     height: 100vh;
     /* mobile viewport bug fix */
     height: -webkit-fill-available;
+    max-height: 100vh;
 }
 
 @media (max-width: 900px) {

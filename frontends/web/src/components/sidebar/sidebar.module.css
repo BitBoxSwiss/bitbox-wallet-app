@@ -38,6 +38,7 @@
     height: 100%;
     justify-content: flex-start;
     margin-left: calc(var(--sidebar-width-large) * -1);
+    max-height: 100vh;
     /* mobile viewport bug fix */
     min-height: -webkit-fill-available;
     overflow-y: auto;
