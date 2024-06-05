@@ -29,23 +29,23 @@
 }
 
 .sidebar {
-    position: fixed;
-    margin-left: calc(var(--sidebar-width-large) * -1);
     align-content: stretch;
     background-color: var(--background-dark);
     bottom: 0;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    justify-content: flex-start;
     height: 100%;
+    justify-content: flex-start;
+    margin-left: calc(var(--sidebar-width-large) * -1);
     /* mobile viewport bug fix */
     min-height: -webkit-fill-available;
+    overflow-y: auto;
     padding: 0 0 var(--spacing-default) 0;
+    position: fixed;
     top: 0;
     width: var(--sidebar-width-large);
     z-index: 4002;
-    overflow-y: auto;
 }
 
 .sidebar > *.end {
