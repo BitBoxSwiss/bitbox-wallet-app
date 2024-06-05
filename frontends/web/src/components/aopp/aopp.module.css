@@ -7,11 +7,6 @@
     text-align: center;
 }
 
-.smallIcon {
-    margin: auto 0;
-    width: 30px;
-}
-
 .successText {
     color: var(--color-secondary);
     font-weight: 400;
