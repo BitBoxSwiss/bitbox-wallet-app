@@ -16,10 +16,9 @@
 
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useLoad } from '../../../hooks/api';
 import { getVersion } from '../../../api/bitbox02';
-import { route } from '../../../utils/route';
 import { SettingsItem } from './settingsItem/settingsItem';
 import { ChevronRightDark, RedDot } from '../../../components/icon';
 import styles from './tabs.module.css';
@@ -70,7 +69,7 @@ export const Tab = ({
   hideMobileMenu,
   canUpgrade,
 }: TTab) => {
-
+  const navigate = useNavigate();
   const upgradeDot = canUpgrade ? (
     <RedDot className={styles.canUpgradeDot} width={8} height={8} />
   ) : null;
@@ -81,7 +80,7 @@ export const Tab = ({
       <div key={url} className="show-on-small">
         <SettingsItem
           settingName={name}
-          onClick={() => route(url)}
+          onClick={() => navigate(url)}
           extraComponent={<ChevronRightDark/>} />
         {upgradeDot}
       </div>
