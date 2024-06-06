@@ -11,6 +11,7 @@
 - Add Satoshi as an option in active currencies
 - Show address re-use warning and group UTXOs with the same address together in coin control.
 - Fix encoding of transaction notes on Windows
+- Add red dot in sidebar and on device settings tab to indicate that there is a firmware upgrade
 
 ## 4.42.1
 - BitBox02: fix missing button to re-install firmware, fixing interrupted installs ("invalid firmware").
