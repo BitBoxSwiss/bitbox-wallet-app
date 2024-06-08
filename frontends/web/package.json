@@ -24,7 +24,7 @@
     "@walletconnect/jsonrpc-types": "^1.0.3",
     "@walletconnect/types": "^2.10.4",
     "@walletconnect/web3wallet": "^1.9.3",
-    "flag-icons": "^6.6.6",
+    "flag-icons": "7.2.3",
     "i18next": "21.6.16",
     "lightweight-charts": "4.1.4",
     "qr-scanner": "1.4.2",
