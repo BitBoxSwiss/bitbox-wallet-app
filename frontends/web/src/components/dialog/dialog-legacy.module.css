@@ -26,7 +26,7 @@
     text-align: left;
     max-height: 100vh;
     /* mobile viewport bug fix */
-    min-height: -webkit-fill-available;
+    max-height: -webkit-fill-available;
     overflow: auto;
     opacity: 0;
 }
