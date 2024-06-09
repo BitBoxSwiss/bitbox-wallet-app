@@ -12,7 +12,7 @@ env:
   # "docker login ghcr.io -u <github-username>" using the
   # newly generated token as password.
   # Once logged in, tag an new image:
-  #   docker tag bitboxswiss/bitbox-wallet-app:VERSION \
+  #   docker tag shiftcrypto/bitbox-wallet-app:VERSION \
   #     ghcr.io/bitboxswiss/bitbox-wallet-app-ci:VERSION
   # and push as usual:
   #   docker push ghcr.io/bitboxswiss/bitbox-wallet-app-ci:VERSION
