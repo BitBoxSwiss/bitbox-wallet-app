@@ -39,30 +39,31 @@ export const AccountGuide = ({
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.account')}>
-      <Entry key="accountDescription" entry={t('guide.accountDescription')} />
+      <Entry key="accountDescription" entry={t('guide.accountDescription', { returnObjects: true })} />
       {hasNoBalance && (
         <Entry key="accountSendDisabled" entry={t('guide.accountSendDisabled', {
-          unit
+          unit,
+          returnObjects: true
         })} />
       )}
-      <Entry key="accountReload" entry={t('guide.accountReload')} />
+      <Entry key="accountReload" entry={t('guide.accountReload', { returnObjects: true })} />
       {hasTransactions && (
-        <Entry key="accountTransactionLabel" entry={t('guide.accountTransactionLabel')} />
+        <Entry key="accountTransactionLabel" entry={t('guide.accountTransactionLabel', { returnObjects: true })} />
       )}
       {hasTransactions && (
-        <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime')} />
+        <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime', { returnObjects: true })} />
       )}
       {hasTransactions && (
-        <Entry key="accountTransactionAttributesGeneric" entry={t('guide.accountTransactionAttributesGeneric')} />
+        <Entry key="accountTransactionAttributesGeneric" entry={t('guide.accountTransactionAttributesGeneric', { returnObjects: true })} />
       )}
       {hasTransactions && isBitcoinBased(account.coinCode) && (
-        <Entry key="accountTransactionAttributesBTC" entry={t('guide.accountTransactionAttributesBTC')} />
+        <Entry key="accountTransactionAttributesBTC" entry={t('guide.accountTransactionAttributesBTC', { returnObjects: true })} />
       )}
       {hasIncomingBalance && (
-        <Entry key="accountIncomingBalance" entry={t('guide.accountIncomingBalance')} />
+        <Entry key="accountIncomingBalance" entry={t('guide.accountIncomingBalance', { returnObjects: true })} />
       )}
-      <Entry key="accountTransactionConfirmation" entry={t('guide.accountTransactionConfirmation')} />
-      <Entry key="accountFiat" entry={t('guide.accountFiat')} />
+      <Entry key="accountTransactionConfirmation" entry={t('guide.accountTransactionConfirmation', { returnObjects: true })} />
+      <Entry key="accountFiat" entry={t('guide.accountFiat', { returnObjects: true })} />
 
       { /* careful, also used in Settings */ }
       <Entry key="accountRates" entry={{

@@ -35,7 +35,11 @@ export const Banner = ({ msgKey }: TBannerProps) => {
     syncBanner(msgKey, setBanner);
   }, [msgKey]);
 
-  if (!banner || !i18n.options.fallbackLng) {
+  if (
+    !banner
+    || !i18n.options.fallbackLng
+    || !i18n.resolvedLanguage
+  ) {
     return null;
   }
   const { message, link } = banner;
