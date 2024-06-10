@@ -68,7 +68,7 @@
 .appContent {
     height: 100vh;
     /* mobile viewport bug fix */
-    height: -webkit-fill-available;
+    max-height: -webkit-fill-available;
 }
 
 @media (max-width: 900px) {

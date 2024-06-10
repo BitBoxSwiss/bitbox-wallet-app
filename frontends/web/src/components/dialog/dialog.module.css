@@ -25,7 +25,7 @@
     text-align: left;
     max-height: 100vh;
     /* mobile viewport bug fix */
-    min-height: -webkit-fill-available;
+    max-height: -webkit-fill-available;
     overflow: auto;
 }
 /* guard dialog and wait-dialog from view styles */
