@@ -154,7 +154,7 @@ func TestAOPPSuccess(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run("", func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				require.Equal(t, "POST", r.Method)
 				require.Equal(t,
 					[]string{"application/json"},
@@ -168,7 +168,8 @@ func TestAOPPSuccess(t *testing.T) {
 					string(body),
 				)
 				w.WriteHeader(http.StatusNoContent)
-			}))
+			})
+			server := httptest.NewServer(handler)
 			defer server.Close()
 
 			b := newBackend(t, testnetDisabled, regtestDisabled)
@@ -313,7 +314,7 @@ func TestAOPPSuccess(t *testing.T) {
 		params := defaultParams()
 		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey))
 		fingerprint, err := b.keystore.RootFingerprint()
-		require.Nil(t, err)
+		require.NoError(t, err)
 		b.SetWatchonly(fingerprint, true)
 		b.DeregisterKeystore()
 

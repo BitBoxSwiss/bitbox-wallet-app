@@ -397,7 +397,8 @@ func (account *Account) update() error {
 			account.address.Address.Hex(),
 		)
 	}
-	account.transactions = append(outgoingTransactionsData, confirmedTansactions...)
+	outgoingTransactionsData = append(outgoingTransactionsData, confirmedTansactions...)
+	account.transactions = outgoingTransactionsData
 	for _, transaction := range account.transactions {
 		if err := account.notifier.Put([]byte(transaction.TxID)); err != nil {
 			return err
@@ -938,7 +939,7 @@ func (account *Account) EthSignWalletConnectTx(
 	}
 
 	for _, t := range account.feeTargets() {
-		//TODO Let user choose gas price/priority
+		// TODO Let user choose gas price/priority
 		if t.TargetCode == accounts.FeeTargetCodeNormal {
 			if t.GasFeeCap.Cmp(big.NewInt(0)) <= 0 {
 				return "", "", errors.ErrFeeTooLow
@@ -959,10 +960,10 @@ func (account *Account) EthSignWalletConnectTx(
 	if err != nil {
 		return "", "", err
 	}
-	//TODO edit signer to match chainID proposed by wallet connect
+	// TODO edit signer to match chainID proposed by wallet connect
 	// account.coin.Net() will only incude ChainID 1 in its current *params.ChainConfig
 	// Needs to be set to the appropriuate chain id for each supported network
-	//TODO we also need to connect to an appropriate RPC for each L2 network/sidechain
+	// TODO we also need to connect to an appropriate RPC for each L2 network/sidechain
 
 	// BlockTime needed to decide whether to use the Cancun signer. We don't need that for now.
 	blockTime := uint64(0)
