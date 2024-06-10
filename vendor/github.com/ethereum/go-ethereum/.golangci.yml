@@ -6,13 +6,10 @@ run:
   # default is true. Enables skipping of directories:
   #   vendor$, third_party$, testdata$, examples$, Godeps$, builtin$
   skip-dirs-use-default: true
-  skip-files:
-    - core/genesis_alloc.go
 
 linters:
   disable-all: true
   enable:
-    - goconst
     - goimports
     - gosimple
     - govet
@@ -27,6 +24,8 @@ linters:
     - exportloopref
     - whitespace
 
+    ### linters we tried and will not be using:
+    ###
     # - structcheck # lots of false positives
     # - errcheck #lot of false positives
     # - contextcheck
@@ -39,11 +38,10 @@ linters:
 linters-settings:
   gofmt:
     simplify: true
-  goconst:
-    min-len: 3 # minimum length of string constant
-    min-occurrences: 6 # minimum number of occurrences
 
 issues:
+  exclude-files:
+    - core/genesis_alloc.go
   exclude-rules:
     - path: crypto/bn256/cloudflare/optate.go
       linters:

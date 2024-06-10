@@ -78,19 +78,11 @@ func (domain *Domain) computeQuotientPoly(f Polynomial, indexInDomain int64, fz,
 // This is the implementation of computeQuotientPoly for the case where z is not in the domain.
 // Since both input and output polynomials are given in evaluation form, this method just performs the desired operation pointwise.
 func (domain *Domain) computeQuotientPolyOutsideDomain(f Polynomial, fz, z fr.Element) (Polynomial, error) {
-	// Compute the lagrange form the of the numerator f(X) - f(z)
-	// Since f(X) is already in lagrange form, we can compute f(X) - f(z)
-	// by shifting all elements in f(X) by f(z)
-	numerator := make(Polynomial, len(f))
-	for i := 0; i < len(f); i++ {
-		numerator[i].Sub(&f[i], &fz)
-	}
-
 	// Compute the lagrange form of the denominator X - z.
 	// This means that we need to compute w - z for all points w in the domain.
-	denominator := make(Polynomial, len(f))
+	tmpDenom := make(Polynomial, len(f))
 	for i := 0; i < len(f); i++ {
-		denominator[i].Sub(&domain.Roots[i], &z)
+		tmpDenom[i].Sub(&domain.Roots[i], &z)
 	}
 
 	// To invert the denominator polynomial at each point of the domain, we perform a batch-inversion.
@@ -98,7 +90,16 @@ func (domain *Domain) computeQuotientPolyOutsideDomain(f Polynomial, fz, z fr.El
 	//
 	// Note: if there was a zero, the gnark-crypto library would skip
 	// it and not panic.
-	denominator = fr.BatchInvert(denominator)
+	// Note: the returned slice is a new slice, thus we are free to use tmpDenom.
+	denominator := fr.BatchInvert(tmpDenom)
+
+	// Compute the lagrange form of the numerator f(X) - f(z)
+	// Since f(X) is already in lagrange form, we can compute f(X) - f(z)
+	// by shifting all elements in f(X) by f(z)
+	numerator := tmpDenom
+	for i := 0; i < len(f); i++ {
+		numerator[i].Sub(&f[i], &fz)
+	}
 
 	// Compute the quotient q(X)
 	for i := 0; i < len(f); i++ {
@@ -134,7 +135,11 @@ func (domain *Domain) computeQuotientPolyOnDomain(f Polynomial, index uint64) (P
 	// Evaluation of 1/(X-z) at every point of the domain, except for index.
 	invRootsMinusZ := fr.BatchInvert(rootsMinusZ)
 
-	quotientPoly := make(Polynomial, domain.Cardinality)
+	// The rootsMinusZ is now free to reuse, since BatchInvert returned
+	// a fresh slice. But we need to ensure to set the value for 'index' to zero
+	quotientPoly := rootsMinusZ
+	quotientPoly[index] = fr.Element{}
+
 	for j := 0; j < int(domain.Cardinality); j++ {
 		// Check if we are on the current root of unity
 		// Note: For notations below, we use `m` to denote `index`

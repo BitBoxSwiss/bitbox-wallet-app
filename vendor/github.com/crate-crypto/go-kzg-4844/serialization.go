@@ -107,16 +107,13 @@ func DeserializeKZGProof(proof KZGProof) (bls12381.G1Affine, error) {
 // DeserializeBlob implements [blob_to_polynomial].
 //
 // [blob_to_polynomial]: https://github.com/ethereum/consensus-specs/blob/017a8495f7671f5fff2075a9bfc9238c1a0982f8/specs/deneb/polynomial-commitments.md#blob_to_polynomial
-func DeserializeBlob(blob Blob) (kzg.Polynomial, error) {
+func DeserializeBlob(blob *Blob) (kzg.Polynomial, error) {
 	poly := make(kzg.Polynomial, ScalarsPerBlob)
 	for i := 0; i < ScalarsPerBlob; i++ {
 		chunk := blob[i*SerializedScalarSize : (i+1)*SerializedScalarSize]
-		serScalar := (*Scalar)(chunk)
-		scalar, err := DeserializeScalar(*serScalar)
-		if err != nil {
-			return nil, err
+		if err := poly[i].SetBytesCanonical(chunk); err != nil {
+			return nil, ErrNonCanonicalScalar
 		}
-		poly[i] = scalar
 	}
 	return poly, nil
 }
@@ -143,12 +140,12 @@ func SerializeScalar(element fr.Element) Scalar {
 //
 // Note: This method is never used in the API because we always expect a byte array and will never receive deserialized
 // field elements. We include it so that upstream fuzzers do not need to reimplement it.
-func SerializePoly(poly kzg.Polynomial) Blob {
+func SerializePoly(poly kzg.Polynomial) *Blob {
 	var blob Blob
 	for i := 0; i < ScalarsPerBlob; i++ {
 		chunk := blob[i*SerializedScalarSize : (i+1)*SerializedScalarSize]
 		serScalar := SerializeScalar(poly[i])
 		copy(chunk, serScalar[:])
 	}
-	return blob
+	return &blob
 }
