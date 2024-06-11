@@ -87,8 +87,8 @@ func TestAccounts(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	require.Len(t, b.Accounts(), 0)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 0)
+	require.Empty(t, b.Accounts())
+	require.Empty(t, b.Config().AccountsConfig().Accounts)
 
 	// 1) Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(ks)
@@ -670,7 +670,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.NoError(t, err)
 		require.Nil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))
-		require.Equal(t, accountsCount, len(b.Config().AccountsConfig().Accounts))
+		require.Len(t, b.Config().AccountsConfig().Accounts, accountsCount)
 
 		// Try to add another Bitcoin account - can't, only one account supported.
 		_, err = b.CreateAndPersistAccountConfig(
@@ -679,7 +679,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			bitbox01LikeKeystore,
 		)
 		require.Equal(t, errAccountLimitReached, errp.Cause(err))
-		require.Equal(t, accountsCount, len(b.Config().AccountsConfig().Accounts))
+		require.Len(t, b.Config().AccountsConfig().Accounts, accountsCount)
 
 		// Try to add another Litecoin account - can't, only one account supported.
 		_, err = b.CreateAndPersistAccountConfig(
@@ -688,7 +688,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			bitbox01LikeKeystore,
 		)
 		require.Equal(t, errAccountLimitReached, errp.Cause(err))
-		require.Equal(t, accountsCount, len(b.Config().AccountsConfig().Accounts))
+		require.Len(t, b.Config().AccountsConfig().Accounts, accountsCount)
 	})
 
 	// If the keystore cannot retrieve an xpub (e.g. USB communication error), no account should be
@@ -885,25 +885,25 @@ func TestInactiveAccount(t *testing.T) {
 	checkShownAccountsLen(t, b, 3, 3)
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
 	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
-	require.True(t, !b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Inactive)
+	require.False(t, b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Inactive)
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0"))
 	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0").Inactive)
-	require.True(t, !b.Accounts().lookup("v0-55555555-ltc-0").Config().Config.Inactive)
+	require.False(t, b.Accounts().lookup("v0-55555555-ltc-0").Config().Config.Inactive)
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))
 	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Inactive)
-	require.True(t, !b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Inactive)
+	require.False(t, b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Inactive)
 
 	// Deactive an account.
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
 	checkShownAccountsLen(t, b, 3, 3)
 	require.True(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
-	require.False(t, !b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Inactive)
+	require.True(t, b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Inactive)
 
 	// Reactivate.
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", true))
 	checkShownAccountsLen(t, b, 3, 3)
 	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
-	require.True(t, !b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Inactive)
+	require.False(t, b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Inactive)
 
 	// Deactivating an ETH account with tokens also removes the tokens
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", true))
@@ -911,15 +911,15 @@ func TestInactiveAccount(t *testing.T) {
 	checkShownAccountsLen(t, b, 5, 3)
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
 	checkShownAccountsLen(t, b, 5, 3)
-	require.False(t, !b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Inactive)
-	require.False(t, !b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-usdt").Config().Config.Inactive)
-	require.False(t, !b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-bat").Config().Config.Inactive)
+	require.True(t, b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Inactive)
+	require.True(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-usdt").Config().Config.Inactive)
+	require.True(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-bat").Config().Config.Inactive)
 	// Reactivating restores them again.
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", true))
 	checkShownAccountsLen(t, b, 5, 3)
-	require.True(t, !b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Inactive)
-	require.True(t, !b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-usdt").Config().Config.Inactive)
-	require.True(t, !b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-bat").Config().Config.Inactive)
+	require.False(t, b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Inactive)
+	require.False(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-usdt").Config().Config.Inactive)
+	require.False(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-bat").Config().Config.Inactive)
 
 	// Deactivate all accounts.
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))

@@ -23,5 +23,5 @@ import (
 func TestBundledFirmware(t *testing.T) {
 	binary, err := BundledFirmware()
 	require.NoError(t, err)
-	require.True(t, len(binary) > 0)
+	require.Positive(t, len(binary))
 }

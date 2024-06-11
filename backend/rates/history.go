@@ -178,11 +178,11 @@ func (updater *RateUpdater) updateHistory(ctx context.Context, coin, fiat string
 
 	updater.historyMu.Lock()
 	defer updater.historyMu.Unlock()
-	allRates := append(updater.history[bucketName], fetchedRates...)
-	sort.Slice(allRates, func(i, j int) bool {
-		return allRates[i].timestamp.Before(allRates[j].timestamp)
+
+	updater.history[bucketName] = append(updater.history[bucketName], fetchedRates...)
+	sort.Slice(updater.history[bucketName], func(i, j int) bool {
+		return updater.history[bucketName][i].timestamp.Before(updater.history[bucketName][j].timestamp)
 	})
-	updater.history[bucketName] = allRates
 
 	return len(fetchedRates), nil
 }
