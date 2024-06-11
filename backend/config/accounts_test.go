@@ -20,17 +20,9 @@ import (
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/require"
 )
-
-func mustXKey(key string) *hdkeychain.ExtendedKey {
-	xkey, err := hdkeychain.NewKeyFromString(key)
-	if err != nil {
-		panic(err)
-	}
-	return xkey
-}
 
 func TestLookup(t *testing.T) {
 	cfg := AccountsConfig{
@@ -70,7 +62,7 @@ func TestLookupByXpub(t *testing.T) {
 						signing.ScriptTypeP2WPKH,
 						[]byte{1, 2, 3, 4},
 						keypath,
-						mustXKey(someXPub),
+						test.TstMustXKey(someXPub),
 					),
 				},
 			},
