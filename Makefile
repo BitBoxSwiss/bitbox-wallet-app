@@ -33,7 +33,7 @@ envinit:
 # Initializiation on MacOS
 #  - run make from $GOPATH/src/github.com/BitBoxSwiss/bitbox-wallet-app
 #  - additional dependencies: Qt 5.15 & Xcode command line tools
-#  - add to $PATH: /usr/local/opt/go@1.21/bin
+#  - add to $PATH: /usr/local/opt/go@1.22/bin
 osx-init:
 	./scripts/osx-brew.sh
 	$(MAKE) envinit

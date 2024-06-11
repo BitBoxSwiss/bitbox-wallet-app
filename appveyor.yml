@@ -4,14 +4,12 @@ environment:
   nodejs_version: "20"
   matrix:
     - QT: C:\Qt\5.15.2\msvc2019_64
-      GOROOT: C:\go121
+      GOROOT: C:\go
       GOPATH: C:\gopath\
       PLATFORM: amd64
       COMPILER: msvc
 
-# https://www.appveyor.com/docs/windows-images-software/#golang
-# If you change this, also change the GOROOT variable above to point to the right installation folder.
-stack: go 1.21
+stack: go 1.22
 
 install:
   - ps: Install-Product node $env:nodejs_version
