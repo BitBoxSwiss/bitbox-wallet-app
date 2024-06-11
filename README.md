@@ -47,7 +47,7 @@ The below instructions assume a unix environment.
 
 To build the app or run the development workflow, the following dependencies need to be installed:
 
-- [Go](https://golang.org/doc/install) version 1.21
+- [Go](https://golang.org/doc/install) version 1.22
 - [Node.js](https://nodejs.org/) version 20.x
 - [NPM](https://docs.npmjs.com/about-npm-versions) version 10.x or newer
 - [Qt5](https://www.qt.io) version 5.15.2
