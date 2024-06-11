@@ -108,8 +108,8 @@ const AdvancedSettingsGuide = () => {
 
   return (
     <Guide title={t('guide.guideTitle.advancedSettings')}>
-      <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why')} />
-      <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor')} />
+      <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why', { returnObjects: true })} />
+      <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor', { returnObjects: true })} />
     </Guide>
   );
 };

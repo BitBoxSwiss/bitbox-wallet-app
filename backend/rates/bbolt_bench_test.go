@@ -77,7 +77,7 @@ func BenchmarkBoltLoad(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			rates, err := loadIndividual(db, bucketName)
 			require.NoError(b, err, "loadIndividual")
-			assert.Equal(b, 5000, len(rates), "len(rates)")
+			assert.Len(b, rates, 5000, "len(rates)")
 		}
 	})
 
@@ -91,7 +91,7 @@ func BenchmarkBoltLoad(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			rates, err := loadJSON(db, bucketName)
 			require.NoError(b, err, "loadJSON")
-			assert.Equal(b, 5000, len(rates), "len(rates)")
+			assert.Len(b, rates, 5000, "len(rates)")
 		}
 	})
 
@@ -105,7 +105,7 @@ func BenchmarkBoltLoad(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			rates, err := loadGob(db, bucketName)
 			require.NoError(b, err, "loadGob")
-			assert.Equal(b, 5000, len(rates), "len(rates)")
+			assert.Len(b, rates, 5000, "len(rates)")
 		}
 	})
 }

@@ -70,9 +70,9 @@ export const BalanceRow = (
       { nameCol }
       <td colSpan={2} className={style.syncText}>
         { t('account.syncedAddressesCount', {
-          count: syncStatus?.toString(),
+          count: syncStatus,
           defaultValue: 0,
-        } as any) }
+        }) }
         <AsciiSpinner />
       </td>
     </tr>

@@ -403,7 +403,7 @@ func TestRegisterKeystore(t *testing.T) {
 	require.Equal(t, rootFingerprint1, []byte(b.Config().AccountsConfig().Keystores[0].RootFingerprint))
 	// LastConnected might not be `time.Now()` anymore as some time may have passed in the unit
 	// tests, but we check that it was set and recent.
-	require.True(t, time.Since(b.Config().AccountsConfig().Keystores[0].LastConnected) < 10*time.Second)
+	require.Less(t, time.Since(b.Config().AccountsConfig().Keystores[0].LastConnected), 10*time.Second)
 
 	// Deregistering the keystore leaves the loaded accounts (watchonly), and leaves the persisted
 	// accounts and keystores.

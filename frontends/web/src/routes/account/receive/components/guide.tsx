@@ -30,17 +30,17 @@ export const ReceiveGuide = ({
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.receive')}>
-      <Entry key="guide.receive.address" entry={t('guide.receive.address')} />
-      <Entry key="guide.receive.whyVerify" entry={t('guide.receive.whyVerify')} />
-      <Entry key="guide.receive.howVerify" entry={t('guide.receive.howVerify')} />
-      <Entry key="guide.receive.plugout" entry={t('guide.receive.plugout')} />
+      <Entry key="guide.receive.address" entry={t('guide.receive.address', { returnObjects: true })} />
+      <Entry key="guide.receive.whyVerify" entry={t('guide.receive.whyVerify', { returnObjects: true })} />
+      <Entry key="guide.receive.howVerify" entry={t('guide.receive.howVerify', { returnObjects: true })} />
+      <Entry key="guide.receive.plugout" entry={t('guide.receive.plugout', { returnObjects: true })} />
       {hasMultipleAddresses && (
         <>
-          <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} />
-          <Entry key="guide.receive.why20" entry={t('guide.receive.why20')} />
-          <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} />
+          <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany', { returnObjects: true })} />
+          <Entry key="guide.receive.why20" entry={t('guide.receive.why20', { returnObjects: true })} />
+          <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange', { returnObjects: true })} />
           {hasDifferentFormats && (
-            <Entry key="guide.receive.addressFormats" entry={t('guide.receive.addressFormats')} />
+            <Entry key="guide.receive.addressFormats" entry={t('guide.receive.addressFormats', { returnObjects: true })} />
           )}
         </>
       )}

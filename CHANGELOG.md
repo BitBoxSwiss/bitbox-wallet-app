@@ -13,6 +13,7 @@
 - Fix Wallet Connect issue with required/optionalNamespace and handling all possible namespace definitions
 - Add Satoshi as an option in active currencies
 - Show address re-use warning and group UTXOs with the same address together in coin control.
+- Fix encoding of transaction notes on Windows
 
 ## 4.42.0
 - Preselect backup when there's only one backup available

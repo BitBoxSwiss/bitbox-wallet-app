@@ -35,7 +35,6 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -83,7 +82,7 @@ func (s *newTxSuite) SetupTest() {
 		},
 	)
 	someAddresses, err := s.addressChain.EnsureAddresses()
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 	s.outputPkScript = someAddresses[1].PubkeyScript()
 	s.changeAddress = someAddresses[0]
 	s.someAddresses = someAddresses[2:]
@@ -131,7 +130,7 @@ func (s *newTxSuite) buildUTXO(satoshis ...int64) map[wire.OutPoint]maketx.UTXO 
 func (s *newTxSuite) TestNewTxNoCoins() {
 	feePerKb := btcutil.Amount(0)
 	_, err := s.newTx(1, feePerKb, s.buildUTXO())
-	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
+	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
 }
 
 func (s *newTxSuite) check(
@@ -143,20 +142,20 @@ func (s *newTxSuite) check(
 	selectedCoins map[int]struct{},
 ) {
 	txProposal, err := s.newTx(expectedAmount, feePerKb, utxo)
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 
 	tx := txProposal.Transaction
 
 	// Check invariants independent of the particular coin selection algorithm.
-	require.Equal(s.T(), s.coin, txProposal.Coin)
+	s.Require().Equal(s.coin, txProposal.Coin)
 	var output *wire.TxOut
 	if expectedChange == 0 {
-		require.Nil(s.T(), txProposal.ChangeAddress)
-		require.Len(s.T(), tx.TxOut, 1)
+		s.Require().Nil(txProposal.ChangeAddress)
+		s.Require().Len(tx.TxOut, 1)
 		output = tx.TxOut[0]
 	} else {
-		require.Equal(s.T(), s.changeAddress, txProposal.ChangeAddress)
-		require.Len(s.T(), tx.TxOut, 2)
+		s.Require().Equal(s.changeAddress, txProposal.ChangeAddress)
+		s.Require().Len(tx.TxOut, 2)
 		var changeOutput *wire.TxOut
 		if bytes.Equal(s.changeAddress.PubkeyScript(), tx.TxOut[0].PkScript) {
 			changeOutput = tx.TxOut[0]
@@ -166,28 +165,28 @@ func (s *newTxSuite) check(
 			output = tx.TxOut[0]
 		}
 		// Do we receive the correct change on the change address?
-		require.Equal(s.T(), int64(expectedChange), changeOutput.Value)
-		require.Equal(s.T(), s.changeAddress.PubkeyScript(), changeOutput.PkScript)
+		s.Require().Equal(int64(expectedChange), changeOutput.Value)
+		s.Require().Equal(s.changeAddress.PubkeyScript(), changeOutput.PkScript)
 	}
 	// Are we sending the right amount to the right recipient?
-	require.Equal(s.T(), s.output(expectedAmount), output)
+	s.Require().Equal(s.output(expectedAmount), output)
 
 	for _, txIn := range tx.TxIn {
-		require.Nil(s.T(), txIn.SignatureScript)
-		require.Nil(s.T(), txIn.Witness)
+		s.Require().Nil(txIn.SignatureScript)
+		s.Require().Nil(txIn.Witness)
 		if s.coin == tbtc {
 			// RBF for btc
-			require.Equal(s.T(), wire.MaxTxInSequenceNum-2, txIn.Sequence)
+			s.Require().Equal(wire.MaxTxInSequenceNum-2, txIn.Sequence)
 		} else {
 			// No RBF for other coins.
-			require.Equal(s.T(), wire.MaxTxInSequenceNum, txIn.Sequence)
+			s.Require().Equal(wire.MaxTxInSequenceNum, txIn.Sequence)
 		}
 	}
 
 	inputSum := int64(0)
 	for _, txIn := range tx.TxIn {
 		prevOut, ok := utxo[txIn.PreviousOutPoint]
-		require.True(s.T(), ok)
+		s.Require().True(ok)
 		inputSum += prevOut.TxOut.Value
 	}
 	txFee := btcutil.Amount(inputSum-output.Value) - expectedChange
@@ -203,14 +202,14 @@ func (s *newTxSuite) check(
 		feePerKb,
 		maketx.TstEstimateTxSize(inputConfigurations, len(output.PkScript), len(s.changeAddress.PubkeyScript())),
 		s.log) + expectedDustDonation
-	require.Equal(s.T(), expectedFee, txFee)
-	require.Equal(s.T(), expectedFee, txProposal.Fee)
-	require.Equal(s.T(), expectedAmount, txProposal.Amount)
+	s.Require().Equal(expectedFee, txFee)
+	s.Require().Equal(expectedFee, txProposal.Fee)
+	s.Require().Equal(expectedAmount, txProposal.Amount)
 
 	// Check the coin selection related results.
 
 	// Check the selected coins match the expected selected coins.
-	require.Equal(s.T(), len(tx.TxIn), len(selectedCoins))
+	s.Require().Equal(len(tx.TxIn), len(selectedCoins))
 	for i := range selectedCoins {
 		coin := s.outpoint(i)
 		found := false
@@ -220,7 +219,7 @@ func (s *newTxSuite) check(
 				break
 			}
 		}
-		require.True(s.T(), found, "didn't find coin %d", i)
+		s.Require().True(found, "didn't find coin %d", i)
 	}
 }
 
@@ -240,7 +239,7 @@ func (s *newTxSuite) TestNewTxNoFee() {
 	feePerKb := btcutil.Amount(0)
 
 	_, err := s.newTx(1, feePerKb, s.buildUTXO())
-	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
+	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
 
 	s.check(btcutil.Amount(1), feePerKb, s.buildUTXO(1), s.change(0), noDust, s.selectCoins(0))
 	s.check(btcutil.Amount(1), feePerKb, s.buildUTXO(1, 2), s.change(1), noDust, s.selectCoins(1))
@@ -270,35 +269,35 @@ func (s *newTxSuite) TestNewTxInsufficientFunds() {
 	feePerKb := btcutil.Amount(1000) // 1 sat / vbyte
 
 	_, err := s.newTx(amount, feePerKb, s.buildUTXO())
-	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
+	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
 
 	// Using one coin.
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(mBTC))
-	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
+	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(999*mBTC))
-	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
+	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
 	// exact coin not enough, as fees need to be covered.
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(1000*mBTC))
-	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
+	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
 	// One satoshi short of covering the amount and fee.
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(1000*mBTC+txSizeOneInput-1))
-	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
+	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
 	// Just enough:
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(1000*mBTC+txSizeOneInput))
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 
 	// Using two coins.
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(mBTC, mBTC))
-	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
+	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
 	// exact coin not enough, as fees need to be covered.
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(mBTC, 999*mBTC))
-	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
+	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
 	// One satoshi short of covering the amount and fee.
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(mBTC, 999*mBTC+txSizeTwoInputs-1))
-	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
+	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
 	// Just enough:
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(mBTC, 999*mBTC+txSizeTwoInputs))
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 }
 
 func (s *newTxSuite) TestNewTxCoinSelection() {

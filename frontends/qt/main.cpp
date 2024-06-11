@@ -82,7 +82,7 @@ public:
                 // if the BitBoxApp is launched and also when it is already running, in which case
                 // it is brought to the foreground automatically.
 
-                handleURI(openEvent->url().toString().toLocal8Bit().constData());
+                handleURI(openEvent->url().toString().toUtf8().constData());
             }
         }
 
@@ -103,7 +103,7 @@ public:
     {
         // Log frontend console messages to the Go log.txt.
         QString formattedMsg = QString("msg: %1; line %2; source: %3").arg(message).arg(lineNumber).arg(sourceID);
-        goLog(formattedMsg.toLocal8Bit().constData());
+        goLog(formattedMsg.toUtf8().constData());
     }
 };
 
@@ -127,7 +127,7 @@ public:
         if (onBuyPage || onBitsurancePage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
                 // A link with target=_blank was clicked.
-                systemOpen(info.requestUrl().toString().toLocal8Bit().constData());
+                systemOpen(info.requestUrl().toString().toUtf8().constData());
                 // No need to also load it in our page.
                 info.block(true);
             }
@@ -407,11 +407,11 @@ int main(int argc, char *argv[])
         [&](int instanceId, QByteArray message) {
             QString arg = QString::fromUtf8(message);
             qDebug() << "Received arg from secondary instance:" << arg;
-            handleURI(arg.toLocal8Bit().constData());
+            handleURI(arg.toUtf8().constData());
         });
     // Handle URI which the app was launched with in the primary instance.
     if (a.arguments().size() == 2) {
-        handleURI(a.arguments()[1].toLocal8Bit().constData());
+        handleURI(a.arguments()[1].toUtf8().constData());
     }
 
     return a.exec();

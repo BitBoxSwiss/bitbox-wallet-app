@@ -59,7 +59,7 @@ export const Waiting = () => {
         </Footer>
       </div>
       <Guide>
-        <Entry entry={t('guide.waiting.welcome')} shown={true} />
+        <Entry entry={t('guide.waiting.welcome', { returnObjects: true })} shown={true} />
         <Entry entry={{
           link: {
             text: t('guide.waiting.getDevice.link.text'),
@@ -78,9 +78,9 @@ export const Waiting = () => {
           text: t('guide.waiting.lostDevice.text'),
           title: t('guide.waiting.lostDevice.title'),
         }} />
-        <Entry entry={t('guide.waiting.internet')} />
-        <Entry entry={t('guide.waiting.deviceNotRecognized')} />
-        <Entry entry={t('guide.waiting.useWithoutDevice')} />
+        <Entry entry={t('guide.waiting.internet', { returnObjects: true })} />
+        <Entry entry={t('guide.waiting.deviceNotRecognized', { returnObjects: true })} />
+        <Entry entry={t('guide.waiting.useWithoutDevice', { returnObjects: true })} />
       </Guide>
     </div>
   );

@@ -14,30 +14,28 @@
  * limitations under the License.
  */
 
-import { TFunction, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { ChevronRightDark } from '../../../../components/icon';
 import { runningInAndroid, debug } from '../../../../utils/env';
 import { alertUser } from '../../../../components/alert/Alert';
 import { exportLogs } from '../../../../api/backend';
 
-const logs = async (t: TFunction) => {
-  try {
-    const result = await exportLogs();
-    if (result !== null && !result.success) {
-      alertUser(result.errorMessage || t('genericError'));
-    }
-  } catch (err) {
-    console.error(err);
-  }
-};
-
 export const ExportLogSetting = () => {
   const { t } = useTranslation();
   return (debug === true || runningInAndroid()) ? null : (
     <SettingsItem
       settingName={t('settings.expert.exportLogs.title')}
-      onClick={() => logs(t)}
+      onClick={async () => {
+        try {
+          const result = await exportLogs();
+          if (result !== null && !result.success) {
+            alertUser(result.errorMessage || t('genericError'));
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }}
       secondaryText={t('settings.expert.exportLogs.description')}
       extraComponent={
         <ChevronRightDark
