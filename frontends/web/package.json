@@ -21,9 +21,9 @@
     "vitest": "^1.4.0"
   },
   "dependencies": {
-    "@walletconnect/jsonrpc-types": "^1.0.3",
-    "@walletconnect/types": "^2.10.4",
-    "@walletconnect/web3wallet": "^1.9.3",
+    "@walletconnect/jsonrpc-types": "1.0.4",
+    "@walletconnect/types": "2.13.1",
+    "@walletconnect/web3wallet": "1.12.1",
     "flag-icons": "7.2.3",
     "i18next": "23.11.5",
     "lightweight-charts": "4.1.4",
