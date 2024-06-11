@@ -6,6 +6,7 @@ environment:
     - QT: C:\Qt\5.15.2\msvc2019_64
       GOROOT: C:\go
       GOPATH: C:\gopath\
+      GOTOOLCHAIN: local
       PLATFORM: amd64
       COMPILER: msvc
 
