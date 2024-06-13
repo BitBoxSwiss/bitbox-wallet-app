@@ -32,7 +32,7 @@
     color: white;
     height: 100vh;
     /* mobile viewport bug fix */
-    height: -webkit-fill-available;
+    max-height: -webkit-fill-available;
     margin-right: calc(var(--guide-width) * -1);
     overflow-y: auto;
     transition: margin-right 0.2s ease, transform 0.2s ease;
