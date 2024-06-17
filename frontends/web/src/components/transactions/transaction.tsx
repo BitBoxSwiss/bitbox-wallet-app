@@ -92,8 +92,8 @@ export const Transaction = ({
   const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
 
   return (
-    <div className={[style.container, index === 0 ? style.first : ''].join(' ')}>
-      <div className={[parentStyle.columns, style.row].join(' ')}>
+    <div className={`${style.container}${index === 0 ? ' ' + style.first : ''}`}>
+      <div className={`${parentStyle.columns} ${style.row}`}>
         <div className={parentStyle.columnGroup}>
           <div className={parentStyle.type}>{arrow}</div>
           <div className={parentStyle.date}>
@@ -123,7 +123,7 @@ export const Transaction = ({
               </span>
             </div>
           )}
-          <div className={[parentStyle.action, parentStyle.hideOnMedium].join(' ')}>
+          <div className={`${parentStyle.action} ${parentStyle.hideOnMedium}`}>
             <button type="button" className={style.action} onClick={showDetails}>
               <ExpandIcon expand={!transactionDialog} />
             </button>
@@ -156,7 +156,7 @@ export const Transaction = ({
               <span className={style.currencyUnit}>&nbsp;{amount.unit}</span>
             </span>
           </div>
-          <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>
+          <div className={`${parentStyle.action} ${parentStyle.showOnMedium}`}>
             <button type="button" className={style.action} onClick={showDetails}>
               <ExpandIcon expand={!transactionDialog} />
             </button>
@@ -255,7 +255,7 @@ export const Transaction = ({
                 )
               }
             </div>
-            <div className={[style.detail, style.addresses].join(' ')}>
+            <div className={`${style.detail} ${style.addresses}`}>
               <label>{t('transaction.details.address')}</label>
               <div className={style.detailAddresses}>
                 { transactionInfo.addresses.map((address) => (
@@ -321,7 +321,7 @@ export const Transaction = ({
                 </div>
               ) : null
             }
-            <div className={[style.detail, style.addresses].join(' ')}>
+            <div className={`${style.detail} ${style.addresses}`}>
               <label>{t('transaction.explorer')}</label>
               <div className={style.detailAddresses}>
                 <CopyableInput
@@ -332,7 +332,7 @@ export const Transaction = ({
                   value={transactionInfo.txID} />
               </div>
             </div>
-            <div className={[style.detail, 'flex-center'].join(' ')}>
+            <div className={`${style.detail} flex-center`}>
               <A
                 href={explorerURL + transactionInfo.txID}
                 title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}>
