@@ -87,7 +87,7 @@ export const Transaction = ({
   );
   const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
   const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
-  const sDate = time ? parseTimeShort(time) : '---';
+  const shortDate = time ? parseTimeShort(time) : '---';
   const statusText = t(`transaction.status.${status}`);
   const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
 
@@ -100,7 +100,7 @@ export const Transaction = ({
             <span className={style.columnLabel}>
               {t('transaction.details.date')}:
             </span>
-            <span className={style.date}>{sDate}</span>
+            <span className={style.date}>{shortDate}</span>
           </div>
           { note ? (
             <div className={parentStyle.activity}>
@@ -208,7 +208,7 @@ export const Transaction = ({
             </div>
             <div className={style.detail}>
               <label>{t('transaction.details.date')}</label>
-              <p>{sDate}</p>
+              <p>{shortDate}</p>
             </div>
             <div className={style.detail}>
               <label>{t('transaction.details.fiat')}</label>
