@@ -12,7 +12,7 @@ require (
 	github.com/ethereum/go-ethereum v1.14.5
 	github.com/flynn/noise v1.1.0
 	github.com/gorilla/mux v1.8.1
-	github.com/gorilla/websocket v1.5.2
+	github.com/gorilla/websocket v1.5.3
 	github.com/karalabe/hid v1.0.1-0.20240306101548-573246063e52
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
