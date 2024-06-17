@@ -30,6 +30,15 @@ import { Note } from './note';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
 
+const parseTimeShort = (time: string, lang: string) => {
+  const options = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  } as Intl.DateTimeFormatOptions;
+  return new Date(Date.parse(time)).toLocaleString(lang, options);
+};
+
 type Props = {
   accountCode: accountApi.AccountCode;
   index: number;
@@ -55,15 +64,6 @@ export const Transaction = ({
   const [transactionDialog, setTransactionDialog] = useState<boolean>(false);
   const [transactionInfo, setTransactionInfo] = useState<accountApi.ITransaction>();
 
-  const parseTimeShort = (time: string) => {
-    const options = {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-    } as Intl.DateTimeFormatOptions;
-    return new Date(Date.parse(time)).toLocaleString(i18n.language, options);
-  };
-
   const showDetails = () => {
     accountApi.getTransaction(accountCode, internalID).then(transaction => {
       if (!transaction) {
@@ -87,7 +87,7 @@ export const Transaction = ({
   );
   const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
   const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
-  const shortDate = time ? parseTimeShort(time) : '---';
+  const shortDate = time ? parseTimeShort(time, i18n.language) : '---';
   const statusText = t(`transaction.status.${status}`);
   const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
 
