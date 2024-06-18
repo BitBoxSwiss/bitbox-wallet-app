@@ -26,6 +26,7 @@ type AppContextProps = {
     hideAmounts: boolean;
     nativeLocale: string;
     sidebarStatus: string;
+    firmwareUpdateDialogOpen: boolean;
     chartDisplay: TChartDisplay;
     setActiveSidebar: Dispatch<SetStateAction<boolean>>;
     setGuideExists: Dispatch<SetStateAction<boolean>>;
@@ -33,6 +34,7 @@ type AppContextProps = {
     setSidebarStatus: Dispatch<SetStateAction<TSidebarStatus>>;
     setHideAmounts: Dispatch<SetStateAction<boolean>>;
     setChartDisplay: Dispatch<SetStateAction<TChartDisplay>>;
+    setFirmwareUpdateDialogOpen: Dispatch<SetStateAction<boolean>>;
     toggleGuide: () => void;
     toggleHideAmounts: () => void;
     toggleSidebar: () => void;

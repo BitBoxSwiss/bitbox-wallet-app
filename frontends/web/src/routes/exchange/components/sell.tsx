@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLoad } from '../../../hooks/api';
 import * as exchangesAPI from '../../../api/exchanges';
 import { findBestDeal, findLowestFee, getSellExchangeSupportedAccounts } from '../utils';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { FrontendExchangeDealsList } from '../types';
 import { ExchangeSelectionRadio } from './exchangeselectionradio';
 import { Button } from '../../../components/forms/button';
@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { IAccount } from '../../../api/account';
 import { getVersion } from '../../../api/bitbox02';
 import style from '../exchange.module.css';
+import { AppContext } from '../../../contexts/AppContext';
 
 type TProps = {
   accounts: IAccount[];
@@ -31,6 +32,7 @@ export const Sell = ({
   selectedExchange
 }: TProps) => {
   const { t } = useTranslation();
+  const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
 
   const exchangeDeals = useLoad(() => exchangesAPI.getExchangeDeals());
   const versionInfo = useLoad(() => getVersion(deviceIDs[0]), [deviceIDs[0]]);
@@ -162,6 +164,7 @@ export const Sell = ({
               <Button
                 className={style.updateButton}
                 onClick={() => {
+                  setFirmwareUpdateDialogOpen(true);
                   navigate(`/settings/device-settings/${deviceIDs[0]}`);
                 }}
                 transparent>
