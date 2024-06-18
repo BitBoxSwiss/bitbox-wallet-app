@@ -16,10 +16,12 @@
 
 import { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useLoad } from '../../../hooks/api';
+import { getVersion } from '../../../api/bitbox02';
 import { route } from '../../../utils/route';
 import { SettingsItem } from './settingsItem/settingsItem';
-import { ChevronRightDark } from '../../../components/icon';
-import { useTranslation } from 'react-i18next';
+import { ChevronRightDark, RedDot } from '../../../components/icon';
 import styles from './tabs.module.css';
 
 type TWithSettingsTabsProps = {
@@ -33,6 +35,7 @@ type TTab = {
   name: string;
   url: string;
   hideMobileMenu?: boolean;
+  canUpgrade?: boolean;
 }
 
 type TTabs = {
@@ -57,7 +60,16 @@ export const WithSettingsTabs = ({
   );
 };
 
-export const Tab = ({ name, url, hideMobileMenu }: TTab) => {
+export const Tab = ({
+  name,
+  url,
+  hideMobileMenu,
+  canUpgrade,
+}: TTab) => {
+
+  const upgradeDot = canUpgrade ? (
+    <RedDot className={styles.canUpgradeDot} width={8} height={8} />
+  ) : null;
 
   if (!hideMobileMenu) {
     // Will only be shown on mobile (index/general settings page)
@@ -67,6 +79,7 @@ export const Tab = ({ name, url, hideMobileMenu }: TTab) => {
           settingName={name}
           onClick={() => route(url)}
           extraComponent={<ChevronRightDark/>} />
+        {upgradeDot}
       </div>
     );
   }
@@ -77,7 +90,24 @@ export const Tab = ({ name, url, hideMobileMenu }: TTab) => {
       to={url}
       key={url}>
       {name}
+      {upgradeDot}
     </NavLink>
+  );
+};
+
+type TTabWithVersionCheck = TTab & {
+  deviceID: string;
+}
+
+const TabWithVersionCheck = ({ deviceID, ...props }: TTabWithVersionCheck) => {
+
+  const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
+
+  return (
+    <Tab
+      canUpgrade={versionInfo ? versionInfo.canUpgrade : false}
+      {...props}
+    />
   );
 };
 
@@ -88,7 +118,13 @@ export const Tabs = ({ deviceIDs, hideMobileMenu, hasAccounts }: TTabs) => {
       <Tab key="appearance" hideMobileMenu={hideMobileMenu} name={t('settings.appearance')} url="/settings/appearance" />
       {hasAccounts ? <Tab key="manage-accounts" hideMobileMenu={hideMobileMenu} name={t('manageAccounts.title')} url="/settings/manage-accounts" /> : null}
       {deviceIDs.map(id => (
-        <Tab hideMobileMenu={hideMobileMenu} name={t('sidebar.device')} key={`device-${id}`} url={`/settings/device-settings/${id}`} />
+        <TabWithVersionCheck
+          key={`device-${id}`}
+          deviceID={id}
+          hideMobileMenu={hideMobileMenu}
+          name={t('sidebar.device')}
+          url={`/settings/device-settings/${id}`}
+        />
       )) }
       <Tab key="advanced-settings" hideMobileMenu={hideMobileMenu} name={t('settings.advancedSettings')} url="/settings/advanced-settings" />
       <Tab key="about" hideMobileMenu={hideMobileMenu} name={t('settings.about')} url="/settings/about" />
