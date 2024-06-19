@@ -750,12 +750,17 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 	return totalAmount, nil
 }
 
+type coinFormattedAmount struct {
+	CoinCode        coin.Code                       `json:"coinCode"`
+	CoinName        string                          `json:"coinName"`
+	FormattedAmount accountHandlers.FormattedAmount `json:"formattedAmount"`
+}
+
 // getCoinsTotalBalance returns the total balances grouped by coins.
 func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, error) {
-	totalPerCoin := make(map[coin.Code]*big.Int)
-	conversionsPerCoin := make(map[coin.Code]map[string]string)
-
-	totalAmount := make(map[coin.Code]accountHandlers.FormattedAmount)
+	var coinFormattedAmounts []coinFormattedAmount
+	var sortedCoins []coin.Code
+	totalCoinsBalances := make(map[coin.Code]*big.Int)
 
 	for _, account := range handlers.backend.Accounts() {
 		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
@@ -774,33 +779,37 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, er
 			return nil, err
 		}
 		amount := b.Available()
-		if _, ok := totalPerCoin[coinCode]; !ok {
-			totalPerCoin[coinCode] = amount.BigInt()
 
+		if totalBalance, exists := totalCoinsBalances[coinCode]; exists {
+			totalBalance.Add(totalBalance, amount.BigInt())
 		} else {
-			totalPerCoin[coinCode] = new(big.Int).Add(totalPerCoin[coinCode], amount.BigInt())
+			totalCoinsBalances[coinCode] = amount.BigInt()
+			sortedCoins = append(sortedCoins, coinCode)
 		}
-
-		conversionsPerCoin[coinCode] = coin.Conversions(
-			coin.NewAmount(totalPerCoin[coinCode]),
-			account.Coin(),
-			false,
-			account.Config().RateUpdater,
-			util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit))
 	}
 
-	for k, v := range totalPerCoin {
-		currentCoin, err := handlers.backend.Coin(k)
+	for _, coinCode := range sortedCoins {
+		currentCoin, err := handlers.backend.Coin(coinCode)
 		if err != nil {
 			return nil, err
 		}
-		totalAmount[k] = accountHandlers.FormattedAmount{
-			Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
-			Unit:        currentCoin.GetFormatUnit(false),
-			Conversions: conversionsPerCoin[k],
-		}
+		coinFormattedAmounts = append(coinFormattedAmounts, coinFormattedAmount{
+			CoinCode: coinCode,
+			CoinName: currentCoin.Name(),
+			FormattedAmount: accountHandlers.FormattedAmount{
+				Amount: currentCoin.FormatAmount(coin.NewAmount(totalCoinsBalances[coinCode]), false),
+				Unit:   currentCoin.GetFormatUnit(false),
+				Conversions: coin.Conversions(
+					coin.NewAmount(totalCoinsBalances[coinCode]),
+					currentCoin,
+					false,
+					handlers.backend.RatesUpdater(),
+					util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit),
+				),
+			},
+		})
 	}
-	return totalAmount, nil
+	return coinFormattedAmounts, nil
 }
 
 // getAccountsTotalBalanceHandler returns the total balance of all the accounts, gruped by keystore.
