@@ -28,6 +28,7 @@ import (
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/stretchr/testify/require"
@@ -97,7 +98,7 @@ func scriptTypeRef(s signing.ScriptType) *signing.ScriptType { return &s }
 
 func TestAOPPSuccess(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
-	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+	rootKey := test.TstMustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
 	keystoreHelper := software.NewKeystore(rootKey)
 
 	tests := []struct {
@@ -340,7 +341,7 @@ func TestAOPPSuccess(t *testing.T) {
 
 func TestAOPPFailures(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
-	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+	rootKey := test.TstMustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
 	keystoreHelper := software.NewKeystore(rootKey)
 	ks := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey)
 

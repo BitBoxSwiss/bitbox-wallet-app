@@ -18,7 +18,8 @@ import { ReactNode } from 'react';
 import styles from './settingsItem.module.css';
 
 type TProps = {
-  className?: string
+  className?: string;
+  disabled?: boolean;
   collapseOnSmall?: boolean;
   displayedValue?: string | ReactNode;
   extraComponent?: ReactNode;
@@ -31,6 +32,7 @@ type TProps = {
 
 export const SettingsItem = ({
   className = '',
+  disabled,
   collapseOnSmall = false,
   displayedValue = '',
   extraComponent,
@@ -40,7 +42,7 @@ export const SettingsItem = ({
   settingName,
   title,
 }: TProps) => {
-  const notButton = onClick === undefined;
+  const notButton = disabled || onClick === undefined;
 
   const rightContent = (
     <div className={styles.rightContentContainer}>
@@ -79,6 +81,7 @@ export const SettingsItem = ({
           {content}
         </div> :
         <button
+          type="button"
           className={`${styles.container} ${styles.isButton} ${className}`}
           onClick={onClick}>
           {content}

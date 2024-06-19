@@ -33,6 +33,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/sirupsen/logrus"
@@ -413,9 +414,9 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:     "bitcoin 2",
 				Code:     "v0-55555555-btc-1",
 				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/0'/1'"), mustXKey("xpub6Cxa67Bfe1Aw7YVtdqKPYLhSkf7omb7WkGXQzof15VXbAZKVct1caHHK55UQN2Fnojbp2okiBCbGXyQSRzMQ6XKJJeeM2jAt6FR8K8ckA88")),
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2TR, rootFingerprint1, mustKeypath("m/86'/0'/1'"), mustXKey("xpub6CC9Tsi4eJvmSBj5xoU4sKnFGF9nF8qwExB3axxu2F7oWKFH5RucWQUfrgVGfnTDr6p5acBGpAqAMKb2A7ek8SbAUvDEXtvj37pM1S9X2km")),
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/1'"), mustXKey("xpub6CUmEcJb7juvpvNs2hKMc9BP1n82ixzUb4jyHUdYzSLmnXru3nb4hhGsfS23WRx8hgJLxMxZ7WcBGzTiYfiANUQZe3TVFghLrxvA2Ls7u4a")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/0'/1'"), test.TstMustXKey("xpub6Cxa67Bfe1Aw7YVtdqKPYLhSkf7omb7WkGXQzof15VXbAZKVct1caHHK55UQN2Fnojbp2okiBCbGXyQSRzMQ6XKJJeeM2jAt6FR8K8ckA88")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2TR, rootFingerprint1, mustKeypath("m/86'/0'/1'"), test.TstMustXKey("xpub6CC9Tsi4eJvmSBj5xoU4sKnFGF9nF8qwExB3axxu2F7oWKFH5RucWQUfrgVGfnTDr6p5acBGpAqAMKb2A7ek8SbAUvDEXtvj37pM1S9X2km")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/1'"), test.TstMustXKey("xpub6CUmEcJb7juvpvNs2hKMc9BP1n82ixzUb4jyHUdYzSLmnXru3nb4hhGsfS23WRx8hgJLxMxZ7WcBGzTiYfiANUQZe3TVFghLrxvA2Ls7u4a")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-btc-1"),
@@ -436,8 +437,8 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-1",
 				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/2'/1'"), mustXKey("xpub6DReBHtKxgeZJJrrhPEHz9kzEZU1BaQ4kPQ2J1tfjA9DMBKT2bor1ynoAPCsxdyJyZrYK5YsYmkknV5KPtpKeVb2HMX6iQ9wjpAhNSANGiA")),
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/2'/1'"), mustXKey("xpub6CrhULuXbYzo8Lk2iJY5dr6mWjHBKQuohcP99HcioFiouGuEBWEJDMbgLDD89hvJiT1wD94FnuQcSzE4QsxWDv2AQbiitk7EbNvE8mmT17M")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/2'/1'"), test.TstMustXKey("xpub6DReBHtKxgeZJJrrhPEHz9kzEZU1BaQ4kPQ2J1tfjA9DMBKT2bor1ynoAPCsxdyJyZrYK5YsYmkknV5KPtpKeVb2HMX6iQ9wjpAhNSANGiA")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/2'/1'"), test.TstMustXKey("xpub6CrhULuXbYzo8Lk2iJY5dr6mWjHBKQuohcP99HcioFiouGuEBWEJDMbgLDD89hvJiT1wD94FnuQcSzE4QsxWDv2AQbiitk7EbNvE8mmT17M")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-ltc-1"),
@@ -458,7 +459,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-1",
 				SigningConfigurations: signing.Configurations{
-					signing.NewEthereumConfiguration(rootFingerprint1, mustKeypath("m/44'/60'/0'/0/1"), mustXKey("xpub6GP83vJASH1kUpndXSe3e942omyTYSPKaav6shfic7Lc3rFJR9ctA3AXaTf7rX7PuSZNUnaqj4hiqgnRXr26jitBz4jLhmFURtVxDykHbQm")),
+					signing.NewEthereumConfiguration(rootFingerprint1, mustKeypath("m/44'/60'/0'/0/1"), test.TstMustXKey("xpub6GP83vJASH1kUpndXSe3e942omyTYSPKaav6shfic7Lc3rFJR9ctA3AXaTf7rX7PuSZNUnaqj4hiqgnRXr26jitBz4jLhmFURtVxDykHbQm")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-eth-1"),
@@ -479,9 +480,9 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:     "bitcoin 3",
 				Code:     "v0-55555555-btc-2",
 				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/0'/2'"), mustXKey("xpub6Cxa67Bfe1Aw9RoKZ9TdQy1sa2ajV2kFX7gYgSeEUbtJkiCtiv8BwUtmMf62jnqGF49xS4K9hsydZzCnKRJYgGNurJyWhHUfEb1Pb3jU7AE")),
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2TR, rootFingerprint1, mustKeypath("m/86'/0'/2'"), mustXKey("xpub6CC9Tsi4eJvmWfiBUVD3PgzZyJabmcnmRVubhrnfHoQ3WKsXeTATdBtn6wG31fjLjsKN6rePpgjAS165WpKdPFYCCdJEwH6quFgCvLmspHD")),
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/2'"), mustXKey("xpub6CUmEcJb7juvtsy83LUg98DBNk2YXQLTRh6HvVCSxEpNKn2UoUhQKrs7CMEfnWtD1a9ezxQvLKHaKXGm1Wd2pamTesJPFxipMq9p225DVnP")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/0'/2'"), test.TstMustXKey("xpub6Cxa67Bfe1Aw9RoKZ9TdQy1sa2ajV2kFX7gYgSeEUbtJkiCtiv8BwUtmMf62jnqGF49xS4K9hsydZzCnKRJYgGNurJyWhHUfEb1Pb3jU7AE")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2TR, rootFingerprint1, mustKeypath("m/86'/0'/2'"), test.TstMustXKey("xpub6CC9Tsi4eJvmWfiBUVD3PgzZyJabmcnmRVubhrnfHoQ3WKsXeTATdBtn6wG31fjLjsKN6rePpgjAS165WpKdPFYCCdJEwH6quFgCvLmspHD")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/2'"), test.TstMustXKey("xpub6CUmEcJb7juvtsy83LUg98DBNk2YXQLTRh6HvVCSxEpNKn2UoUhQKrs7CMEfnWtD1a9ezxQvLKHaKXGm1Wd2pamTesJPFxipMq9p225DVnP")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-btc-2"),
@@ -502,8 +503,8 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-2",
 				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/2'/2'"), mustXKey("xpub6DReBHtKxgeZMSJ6jG1vjLLVKUzVUZ9kQZyZfEuqLPVPBxNaZb65d2WpokoBukNqMtpGja7R1TF5HpcQ6FASTC83r476hckHd5Y4HHbmuBN")),
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/2'/2'"), mustXKey("xpub6CrhULuXbYzoAckL8qPdKvphNJQKF18vQmhaEgSMEjSB4uE3ZULChPrSQ4J2eD1zFW4rVGPe2x1AMY55F4PQSvE4KQaBzD63R5HKAu5e65a")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/2'/2'"), test.TstMustXKey("xpub6DReBHtKxgeZMSJ6jG1vjLLVKUzVUZ9kQZyZfEuqLPVPBxNaZb65d2WpokoBukNqMtpGja7R1TF5HpcQ6FASTC83r476hckHd5Y4HHbmuBN")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/2'/2'"), test.TstMustXKey("xpub6CrhULuXbYzoAckL8qPdKvphNJQKF18vQmhaEgSMEjSB4uE3ZULChPrSQ4J2eD1zFW4rVGPe2x1AMY55F4PQSvE4KQaBzD63R5HKAu5e65a")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-ltc-2"),
@@ -524,7 +525,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-2",
 				SigningConfigurations: signing.Configurations{
-					signing.NewEthereumConfiguration(rootFingerprint1, mustKeypath("m/44'/60'/0'/0/2"), mustXKey("xpub6GP83vJASH1kWxg73WYnAjrLZPzGRoBScD2JqgnPtRK57yQ1eQQuAtTnMaY6wz6HKDo4WeApein4bYmeZZRjxz93yX6AtZCaFBJo9v1NX9r")),
+					signing.NewEthereumConfiguration(rootFingerprint1, mustKeypath("m/44'/60'/0'/0/2"), test.TstMustXKey("xpub6GP83vJASH1kWxg73WYnAjrLZPzGRoBScD2JqgnPtRK57yQ1eQQuAtTnMaY6wz6HKDo4WeApein4bYmeZZRjxz93yX6AtZCaFBJo9v1NX9r")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-eth-2"),
@@ -540,9 +541,9 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:                "Bitcoin 4",
 				Code:                "v0-55555555-btc-3",
 				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/0'/3'"), mustXKey("xpub6Cxa67Bfe1AwC2ZgtXtZEGhktXtmANfGVNQT9s1Ji66RkCr7zd7weCrDJihJmEUpSeiJwvTfZUSKYpYVqSiSyujaK2iwRsu6jUtps5bpnQV")),
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2TR, rootFingerprint1, mustKeypath("m/86'/0'/3'"), mustXKey("xpub6CC9Tsi4eJvmZAzKWXdpMyc6w8UUsEWkoUDAX3zCVSZw2RTExs6vHSuTMYE765BGe1afYxEY5SMKCPY2H1XyVJpgvR4fHBvaVvCzwCX27dg")),
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/3'"), mustXKey("xpub6CUmEcJb7juvwkgAjf2f7WmD5oQx6xhizXTw2xRhPMjDq9SpZp3ELFauXdyU3XbLeHs4gvMMf6VeK7WoekdGQSXwrmVERdFtSPYiXhEFXwJ")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/0'/3'"), test.TstMustXKey("xpub6Cxa67Bfe1AwC2ZgtXtZEGhktXtmANfGVNQT9s1Ji66RkCr7zd7weCrDJihJmEUpSeiJwvTfZUSKYpYVqSiSyujaK2iwRsu6jUtps5bpnQV")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2TR, rootFingerprint1, mustKeypath("m/86'/0'/3'"), test.TstMustXKey("xpub6CC9Tsi4eJvmZAzKWXdpMyc6w8UUsEWkoUDAX3zCVSZw2RTExs6vHSuTMYE765BGe1afYxEY5SMKCPY2H1XyVJpgvR4fHBvaVvCzwCX27dg")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/3'"), test.TstMustXKey("xpub6CUmEcJb7juvwkgAjf2f7WmD5oQx6xhizXTw2xRhPMjDq9SpZp3ELFauXdyU3XbLeHs4gvMMf6VeK7WoekdGQSXwrmVERdFtSPYiXhEFXwJ")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-btc-3"),
@@ -563,9 +564,9 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:     "bitcoin 4 new name",
 				Code:     "v0-55555555-btc-3",
 				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/0'/3'"), mustXKey("xpub6Cxa67Bfe1AwC2ZgtXtZEGhktXtmANfGVNQT9s1Ji66RkCr7zd7weCrDJihJmEUpSeiJwvTfZUSKYpYVqSiSyujaK2iwRsu6jUtps5bpnQV")),
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2TR, rootFingerprint1, mustKeypath("m/86'/0'/3'"), mustXKey("xpub6CC9Tsi4eJvmZAzKWXdpMyc6w8UUsEWkoUDAX3zCVSZw2RTExs6vHSuTMYE765BGe1afYxEY5SMKCPY2H1XyVJpgvR4fHBvaVvCzwCX27dg")),
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/3'"), mustXKey("xpub6CUmEcJb7juvwkgAjf2f7WmD5oQx6xhizXTw2xRhPMjDq9SpZp3ELFauXdyU3XbLeHs4gvMMf6VeK7WoekdGQSXwrmVERdFtSPYiXhEFXwJ")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/0'/3'"), test.TstMustXKey("xpub6Cxa67Bfe1AwC2ZgtXtZEGhktXtmANfGVNQT9s1Ji66RkCr7zd7weCrDJihJmEUpSeiJwvTfZUSKYpYVqSiSyujaK2iwRsu6jUtps5bpnQV")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2TR, rootFingerprint1, mustKeypath("m/86'/0'/3'"), test.TstMustXKey("xpub6CC9Tsi4eJvmZAzKWXdpMyc6w8UUsEWkoUDAX3zCVSZw2RTExs6vHSuTMYE765BGe1afYxEY5SMKCPY2H1XyVJpgvR4fHBvaVvCzwCX27dg")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/3'"), test.TstMustXKey("xpub6CUmEcJb7juvwkgAjf2f7WmD5oQx6xhizXTw2xRhPMjDq9SpZp3ELFauXdyU3XbLeHs4gvMMf6VeK7WoekdGQSXwrmVERdFtSPYiXhEFXwJ")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-btc-3"),
@@ -594,7 +595,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:     "bitcoin 1: bech32",
 				Code:     "v0-55555555-btc-0-p2wpkh",
 				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/0'/0'"), mustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/0'/0'"), test.TstMustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-btc-0-p2wpkh"),
@@ -606,7 +607,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:     "bitcoin 1",
 				Code:     "v0-55555555-btc-0-p2wpkh-p2sh",
 				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/0'"), mustXKey("xpub6CUmEcJb7juvnw7fFYybCwvCJuPSEdhTWZCep9X1DBznwB8RRKTYBUidbEPJ9L7ExjrXhem9S759cX3BpzSUSoP2rWh9vqumJ9MPSAbi98F")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/0'"), test.TstMustXKey("xpub6CUmEcJb7juvnw7fFYybCwvCJuPSEdhTWZCep9X1DBznwB8RRKTYBUidbEPJ9L7ExjrXhem9S759cX3BpzSUSoP2rWh9vqumJ9MPSAbi98F")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-btc-0-p2wpkh-p2sh"),
@@ -618,7 +619,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:     "bitcoin 1: legacy",
 				Code:     "v0-55555555-btc-0-p2pkh",
 				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, rootFingerprint1, mustKeypath("m/44'/0'/0'"), mustXKey("xpub6D7KuxJsw7N2LtWPQKy6Tqs8vFyKudiDqcx6mtsFXT6FDb8oLcUYRjf7G4Qx8CK4DAQ4kN98n7uDCKmazxaHYLNjwDbJ1nKmDm6QEQCwkGC")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, rootFingerprint1, mustKeypath("m/44'/0'/0'"), test.TstMustXKey("xpub6D7KuxJsw7N2LtWPQKy6Tqs8vFyKudiDqcx6mtsFXT6FDb8oLcUYRjf7G4Qx8CK4DAQ4kN98n7uDCKmazxaHYLNjwDbJ1nKmDm6QEQCwkGC")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-btc-0-p2pkh"),
@@ -640,7 +641,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:     "litecoin 1: bech32",
 				Code:     "v0-55555555-ltc-0-p2wpkh",
 				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/2'/0'"), mustXKey("xpub6DReBHtKxgeZGBKTaaF1GjeBHa8dZwQpRfgYr3kxt782s8KKqio2pR6piBsiqHEPF7Rg3onMkwt9XrSxNTuW4N1VBjVbn6DQ3GPCBEUgtgP")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/2'/0'"), test.TstMustXKey("xpub6DReBHtKxgeZGBKTaaF1GjeBHa8dZwQpRfgYr3kxt782s8KKqio2pR6piBsiqHEPF7Rg3onMkwt9XrSxNTuW4N1VBjVbn6DQ3GPCBEUgtgP")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0-p2wpkh"),
@@ -652,7 +653,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Name:     "litecoin 1",
 				Code:     "v0-55555555-ltc-0-p2wpkh-p2sh",
 				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/2'/0'"), mustXKey("xpub6CrhULuXbYzo7gXNhSNZ6tzgfMWpwRFEisekvFfuWLtpXcV4jfvWf5yCuhRBvhZoisH4JCVp4ddGEi7XF2QE2S4N8pMkirJbp7N2TF5p5qQ")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/2'/0'"), test.TstMustXKey("xpub6CrhULuXbYzo7gXNhSNZ6tzgfMWpwRFEisekvFfuWLtpXcV4jfvWf5yCuhRBvhZoisH4JCVp4ddGEi7XF2QE2S4N8pMkirJbp7N2TF5p5qQ")),
 				},
 			},
 			b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0-p2wpkh-p2sh"),
@@ -743,7 +744,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			Code: "test-btc-account-code",
 			Name: "Bitcoin account name",
 			SigningConfigurations: signing.Configurations{
-				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/0'/0'"), mustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
+				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/0'/0'"), test.TstMustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
 			},
 		},
 	)
@@ -762,7 +763,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			Code: "test-ltc-account-code",
 			Name: "Litecoin account name",
 			SigningConfigurations: signing.Configurations{
-				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/2'/0'"), mustXKey("xpub6DReBHtKxgeZGBKTaaF1GjeBHa8dZwQpRfgYr3kxt782s8KKqio2pR6piBsiqHEPF7Rg3onMkwt9XrSxNTuW4N1VBjVbn6DQ3GPCBEUgtgP")),
+				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/2'/0'"), test.TstMustXKey("xpub6DReBHtKxgeZGBKTaaF1GjeBHa8dZwQpRfgYr3kxt782s8KKqio2pR6piBsiqHEPF7Rg3onMkwt9XrSxNTuW4N1VBjVbn6DQ3GPCBEUgtgP")),
 			},
 		},
 	)
@@ -781,7 +782,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			Code: "test-eth-account-code",
 			Name: "Ethereum account name",
 			SigningConfigurations: signing.Configurations{
-				signing.NewEthereumConfiguration(fingerprint, mustKeypath("m/44'/60'/0'/0/0"), mustXKey("xpub6GP83vJASH1kS7dQPWXFjVHDfYajopbG8U3j8peBH67CRCnb8QmDxZJfWpbgCQNHAzCDJ4MyVYjoh7Yv9yo7PQuZ9YyktgrtD9vmeo67Y4E")),
+				signing.NewEthereumConfiguration(fingerprint, mustKeypath("m/44'/60'/0'/0/0"), test.TstMustXKey("xpub6GP83vJASH1kS7dQPWXFjVHDfYajopbG8U3j8peBH67CRCnb8QmDxZJfWpbgCQNHAzCDJ4MyVYjoh7Yv9yo7PQuZ9YyktgrtD9vmeo67Y4E")),
 			},
 			ActiveTokens: []string{"eth-erc20-mkr"},
 		},
@@ -808,7 +809,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			Name: "Ethereum account name 2",
 
 			SigningConfigurations: signing.Configurations{
-				signing.NewEthereumConfiguration(fingerprint, mustKeypath("m/44'/60'/0'/0/1"), mustXKey("xpub6GP83vJASH1kUpndXSe3e942omyTYSPKaav6shfic7Lc3rFJR9ctA3AXaTf7rX7PuSZNUnaqj4hiqgnRXr26jitBz4jLhmFURtVxDykHbQm")),
+				signing.NewEthereumConfiguration(fingerprint, mustKeypath("m/44'/60'/0'/0/1"), test.TstMustXKey("xpub6GP83vJASH1kUpndXSe3e942omyTYSPKaav6shfic7Lc3rFJR9ctA3AXaTf7rX7PuSZNUnaqj4hiqgnRXr26jitBz4jLhmFURtVxDykHbQm")),
 			},
 			ActiveTokens: []string{"eth-erc20-usdt", "eth-erc20-bat"},
 		},
@@ -938,7 +939,7 @@ func TestInactiveAccount(t *testing.T) {
 // taproot support in v9.10.0)
 func TestTaprootUpgrade(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
-	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+	rootKey := test.TstMustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
 	keystoreHelper := software.NewKeystore(rootKey)
 	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 
@@ -1264,10 +1265,10 @@ func TestWatchonly(t *testing.T) {
 	// Test with two keystores, one watched and the other not.
 	t.Run("", func(t *testing.T) {
 		// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
-		rootKey1 := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+		rootKey1 := test.TstMustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
 		keystoreHelper1 := software.NewKeystore(rootKey1)
 		// From mnemonic: lava scare swap mystery lawsuit army rubber clean mean bronze keen volcano
-		rootKey2 := mustXKey("xprv9s21ZrQH143K3cfe2832UrUDA5jmFWvm3acoempvZofxin26VdqjosJfTjHsVgjgszDYHiEgepM7J7U9N7HpayNZDRPUoxGKQbJCuHzgnuy")
+		rootKey2 := test.TstMustXKey("xprv9s21ZrQH143K3cfe2832UrUDA5jmFWvm3acoempvZofxin26VdqjosJfTjHsVgjgszDYHiEgepM7J7U9N7HpayNZDRPUoxGKQbJCuHzgnuy")
 		keystoreHelper2 := software.NewKeystore(rootKey2)
 
 		rootFingerprint1 := []byte{0x55, 0x055, 0x55, 0x55}
@@ -1455,7 +1456,6 @@ func TestAccountsTotalBalanceByKeystore(t *testing.T) {
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coinpkg.NewAmountFromInt64(100000), coinpkg.NewAmountFromInt64(0)), nil
 		}
-		accountMock.FatalErrorFunc = func() bool { return false }
 		return accountMock
 	}
 
@@ -1464,7 +1464,6 @@ func TestAccountsTotalBalanceByKeystore(t *testing.T) {
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coinpkg.NewAmountFromInt64(100000), coinpkg.NewAmountFromInt64(0)), nil
 		}
-		accountMock.FatalErrorFunc = func() bool { return false }
 		return accountMock
 	}
 
