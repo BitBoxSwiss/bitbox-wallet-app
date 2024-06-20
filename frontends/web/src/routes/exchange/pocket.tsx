@@ -16,12 +16,12 @@
 
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
-import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
+import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
 import { getConfig } from '@/utils/config';
 import { Dialog } from '@/components/dialog/dialog';
 import { confirmation } from '@/components/confirm/Confirm';
 import { verifyAddress, getPocketURL } from '@/api/exchanges';
-import { AccountCode, getInfo, getTransactionList, signAddress } from '@/api/account';
+import { AccountCode, getInfo, getTransactionList, signAddress, proposeTx, sendTx, TTxInput, proposeTxNote } from '@/api/account';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { PocketTerms } from '@/components/terms/pocket-terms';
@@ -30,6 +30,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { BuyGuide } from './guide';
 import { convertScriptType } from '@/utils/request-addess';
 import style from './iframe.module.css';
+import { parseExternalBtcAmount } from '@/api/coins';
 
 interface TProps {
     code: AccountCode;
@@ -175,6 +176,85 @@ export const Pocket = ({ code }: TProps) => {
     });
   };
 
+  const handlePaymentRequest = async (message: PaymentRequestV0Message) => {
+    if (!message.slip24) {
+      alertUser(t('unknownError', { errorMessage: 'Missing payment request data' }));
+      return;
+    }
+
+    // this allows to correctly handle sats mode
+    const parsedAmount = await parseExternalBtcAmount(message.amount.toString());
+    if (!parsedAmount.success) {
+      alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
+      return;
+    }
+
+    const txInput: TTxInput = {
+      address: message.bitcoinAddress,
+      amount: parsedAmount.amount,
+      feeTarget: 'high',
+      customFee: '',
+      sendAll: 'no',
+      selectedUTXOs: [],
+      paymentRequest: message.slip24,
+    };
+
+    let result = await proposeTx(code, txInput);
+    if (result.success) {
+      let txNote = t('buy.pocket.paymentRequestNote') + ' ' + message.slip24.recipientName;
+      await proposeTxNote(code, txNote);
+      try {
+        const sendResult = await sendTx(code);
+        if (!sendResult.success && !sendResult.aborted) {
+          alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+        }
+      } finally {
+        //wipe tx note
+        proposeTxNote(code, '');
+      }
+    } else {
+      alertUser(t('unknownError', { errorMessage: 'Error code: ' + result.errorCode }));
+    }
+  };
+
+  // FIXME mockup test, to be removed
+  const mockPaymentRequest = () => {
+    const btcAddress = 'tb1q2q0j6gmfxynj40p0kxsr9jkagcvgpuqvqynnup';
+
+
+    // Convert the hex-encoded string to a byte array
+    const byteArray = [];
+    const hexEncodedString = 'b719cf98cc8a0f9191d4be1a6609037b5b084674d8e64b13199408813459a1b3033ff58c6468b35acc4ded661c8e23348823887046c778e6eba2e5b9586b9a25';
+    for (let i = 0; i < hexEncodedString.length; i += 2) {
+      const hex = hexEncodedString.slice(i, i + 2);
+      byteArray.push(parseInt(hex, 16));
+    }
+
+    // Convert the byte array to a Uint8Array
+    const uint8Array = new Uint8Array(byteArray);
+
+    // Encode the Uint8Array into Base64
+    const base64EncodedString = btoa(String.fromCharCode(...uint8Array));
+    console.log(base64EncodedString);
+    const mockupRequest: PaymentRequestV0Message = {
+      version: MessageVersion.V0,
+      type: V0MessageType.PaymentRequest,
+      label: 'mockupLabel',
+      message: 'mockup message',
+      bitcoinAddress : btcAddress,
+      amount: 0.00123456,
+      slip24: {
+        recipientName: 'Test Merchant',
+        memos: [{ type:  'text', text: 'TextMemo' } ],
+        outputs: [{ address: btcAddress, amount: 123456 }],
+        signature: base64EncodedString,
+        nonce: null
+      }
+    };
+
+    handlePaymentRequest(mockupRequest);
+  };
+
   const onMessage = (m: MessageEvent) => {
     if (!iframeURL || !code) {
       return;
@@ -201,6 +281,10 @@ export const Pocket = ({ code }: TProps) => {
         break;
       case V0MessageType.RequestExtendedPublicKey:
         handleRequestXpub();
+        break;
+      case V0MessageType.PaymentRequest:
+        handlePaymentRequest(message);
+        break;
       }
     } catch (e) {
       console.log(e);
@@ -226,6 +310,7 @@ export const Pocket = ({ code }: TProps) => {
             />
           ) : (
             <div style={{ height }}>
+              <button onClick={mockPaymentRequest} >mock Payment request!</button>
               {!iframeLoaded && <Spinner guideExists={false} text={t('loading')} /> }
               <iframe
                 onLoad={() => {

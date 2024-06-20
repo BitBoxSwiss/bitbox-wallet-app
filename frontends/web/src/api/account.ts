@@ -18,6 +18,7 @@ import { apiGet, apiPost } from '@/utils/request';
 import type { ChartData } from '@/routes/account/summary/chart';
 import type { TDetailStatus } from './bitsurance';
 import type { SuccessResponse } from './response';
+import { Slip24 } from 'request-address';
 
 export type NativeCoinCode = 'btc' | 'tbtc' | 'rbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
 
@@ -302,7 +303,8 @@ export type TTxInput = {
   feeTarget: FeeTargetCode;
   customFee: string;
   sendAll: 'yes' | 'no';
-  selectedUTXOs: string[],
+  selectedUTXOs: string[];
+  paymentRequest: Slip24 | null;
 };
 
 export type TTxProposalResult = {
