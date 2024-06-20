@@ -16,14 +16,12 @@
 
 .utxoContent {
     align-items: flex-start;
-    color: var(--color-default);
     display: flex;
     flex-wrap: nowrap;
     font-size: var(--size-subheader);
 }
 
 .note {
-    color: var(--color-default);
     font-size: var(--size-subheader);
     line-height: 1.5;
     margin-top: -7px;

@@ -12,9 +12,7 @@ textarea {
     background: var(--background-secondary);
 }
 
-label,
-dt {
-    color: var(--color-secondary);
+label {
     display: block;
     font-size: var(--size-default);
     font-weight: 400;
@@ -25,7 +23,6 @@ dt {
 .labelXLarge {
     font-size: var(--size-subheader);
     margin-bottom: calc(var(--space-half) * 1.5);
-    color: var(--color-default);
 }
 
 input:invalid,

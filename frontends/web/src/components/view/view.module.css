@@ -236,10 +236,6 @@
     padding-left: 1.4em;
 }
 
-.content label {
-    color: var(--color-default);
-}
-
 .buttons {
     display: flex;
     flex-direction: row-reverse;
