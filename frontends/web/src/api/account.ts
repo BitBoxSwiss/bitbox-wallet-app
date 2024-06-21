@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,9 +103,13 @@ export const getAccountsTotalBalance = (): Promise<TAccountsTotalBalanceResponse
   return apiGet('accounts/total-balance');
 };
 
-export type TCoinsTotalBalance = {
-  [key: string]: IAmount;
+type CoinFormattedAmount = {
+  coinCode: CoinCode;
+  coinName: string;
+  formattedAmount: IAmount;
 };
+
+export type TCoinsTotalBalance = CoinFormattedAmount[];
 
 export const getCoinsTotalBalance = (): Promise<TCoinsTotalBalance> => {
   return apiGet('accounts/coins-balance');
