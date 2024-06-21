@@ -21,13 +21,13 @@ import * as accountApi from '../../api/account';
 import { A } from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
 import { CopyableInput } from '../copy/Copy';
-import { Warning, ExpandIcon } from '../icon/icon';
+import { ExpandIcon } from '../icon/icon';
 import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
 import { Amount } from '../../components/amount/amount';
-import { ArrowIn, ArrowOut, ArrowSelf } from './components/icons';
 import { Note } from './note';
 import { TxDetail } from './components/detail';
+import { Arrow } from './components/arrow';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
 
@@ -77,15 +77,6 @@ export const Transaction = ({
       .catch(console.error);
   };
 
-  const arrow = status === 'failed' ? (
-    <Warning style={{ maxWidth: '18px' }} />
-  ) : type === 'receive' ? (
-    <ArrowIn />
-  ) : type === 'send' ? (
-    <ArrowOut />
-  ) : (
-    <ArrowSelf />
-  );
   const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
   const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
   const shortDate = time ? parseTimeShort(time, i18n.language) : '---';
@@ -96,7 +87,12 @@ export const Transaction = ({
     <div className={`${style.container}${index === 0 ? ' ' + style.first : ''}`}>
       <div className={`${parentStyle.columns} ${style.row}`}>
         <div className={parentStyle.columnGroup}>
-          <div className={parentStyle.type}>{arrow}</div>
+          <div className={parentStyle.type}>
+            <Arrow
+              status={status}
+              type={type}
+            />
+          </div>
           <div className={parentStyle.date}>
             <span className={style.columnLabel}>
               {t('transaction.details.date')}:
@@ -181,7 +177,12 @@ export const Transaction = ({
               internalID={internalID}
               note={note}
             />
-            <TxDetail label={t('transaction.details.type')}>{arrow}</TxDetail>
+            <TxDetail label={t('transaction.details.type')}>
+              <Arrow
+                status={status}
+                type={type}
+              />
+            </TxDetail>
             <TxDetail label={t('transaction.confirmation')}>{numConfirmations}</TxDetail>
             <TxDetail label={t('transaction.details.status')}>
               <ProgressRing
