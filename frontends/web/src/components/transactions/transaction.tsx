@@ -28,17 +28,9 @@ import { Amount } from '../../components/amount/amount';
 import { Note } from './note';
 import { TxDetail } from './components/detail';
 import { Arrow } from './components/arrow';
+import { TxDate } from './components/date';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
-
-const parseTimeShort = (time: string, lang: string) => {
-  const options = {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  } as Intl.DateTimeFormatOptions;
-  return new Date(Date.parse(time)).toLocaleString(lang, options);
-};
 
 type Props = {
   accountCode: accountApi.AccountCode;
@@ -61,7 +53,7 @@ export const Transaction = ({
   status,
   note = '',
 }: Props) => {
-  const { i18n, t } = useTranslation();
+  const { t } = useTranslation();
   const [transactionDialog, setTransactionDialog] = useState<boolean>(false);
   const [transactionInfo, setTransactionInfo] = useState<accountApi.ITransaction>();
 
@@ -79,7 +71,6 @@ export const Transaction = ({
 
   const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
   const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
-  const shortDate = time ? parseTimeShort(time, i18n.language) : '---';
   const statusText = t(`transaction.status.${status}`);
   const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
 
@@ -93,13 +84,8 @@ export const Transaction = ({
               type={type}
             />
           </div>
-          <div className={parentStyle.date}>
-            <span className={style.columnLabel}>
-              {t('transaction.details.date')}:
-            </span>
-            <span className={style.date}>{shortDate}</span>
-          </div>
-          { note ? (
+          <TxDate time={time} />
+          {note ? (
             <div className={parentStyle.activity}>
               <span className={style.address}>
                 {note}
@@ -199,7 +185,7 @@ export const Transaction = ({
                 }
               </span>
             </TxDetail>
-            <TxDetail label={t('transaction.details.date')}>{shortDate}</TxDetail>
+            <TxDate time={time} detail />
             <TxDetail label={t('transaction.details.fiat')}>
               <span className={`${style.fiat} ${typeClassName}`}>
                 <FiatConversion amount={amount} sign={sign} noAction />
