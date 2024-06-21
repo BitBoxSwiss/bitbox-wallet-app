@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-export const convertDateToLocaleString = (
-  date: string,
-  language: string
-) => {
-  return new Date(date).toLocaleString(language, {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
+import type { ITransaction } from '@/api/account';
+import { Warning } from '@/components/icon/icon';
+import { ArrowIn, ArrowOut, ArrowSelf } from './icons';
 
-export const parseTimeShort = (time: string, lang: string) => {
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  };
-  return new Date(Date.parse(time)).toLocaleString(lang, options);
+type TProps = Pick<ITransaction, 'status' | 'type'>;
+
+export const Arrow = ({ status, type }: TProps) => {
+  if (status === 'failed') {
+    return <Warning style={{ maxWidth: '18px' }} />;
+  }
+  if (type === 'receive') {
+    return <ArrowIn />;
+  }
+  if (type === 'send') {
+    return <ArrowOut />;
+  }
+  return <ArrowSelf />;
 };
