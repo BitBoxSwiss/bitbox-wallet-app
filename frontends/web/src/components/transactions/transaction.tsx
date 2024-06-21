@@ -27,6 +27,7 @@ import { FiatConversion } from '@/components/rates/rates';
 import { Amount } from '@/components/amount/amount';
 import { ArrowIn, ArrowOut, ArrowSelf } from './components/icons';
 import { Note } from './note';
+import { TxDetail } from './components/detail';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
 
@@ -180,81 +181,60 @@ export const Transaction = ({
               internalID={internalID}
               note={note}
             />
-            <div className={style.detail}>
-              <label>{t('transaction.details.type')}</label>
-              <p>{arrow}</p>
-            </div>
-            <div className={style.detail}>
-              <label>{t('transaction.confirmation')}</label>
-              <p>{numConfirmations}</p>
-            </div>
-            <div className={style.detail}>
-              <label>{t('transaction.details.status')}</label>
-              <p className="flex flex-items-center">
-                <ProgressRing
-                  className="m-right-quarter"
-                  width={14}
-                  value={progress}
-                  isComplete={numConfirmations >= numConfirmationsComplete}
-                />
-                <span className={style.status}>
-                  {statusText} {
-                    status === 'pending' && (
-                      <span>({numConfirmations}/{numConfirmationsComplete})</span>
-                    )
-                  }
-                </span>
-              </p>
-            </div>
-            <div className={style.detail}>
-              <label>{t('transaction.details.date')}</label>
-              <p>{shortDate}</p>
-            </div>
-            <div className={style.detail}>
-              <label>{t('transaction.details.fiat')}</label>
-              <p>
-                <span className={`${style.fiat} ${typeClassName}`}>
-                  <FiatConversion amount={amount} sign={sign} noAction />
-                </span>
-              </p>
-            </div>
-            <div className={style.detail}>
-              <label>{t('transaction.details.fiatAtTime')}</label>
-              <p>
-                <span className={`${style.fiat} ${typeClassName}`}>
-                  { transactionInfo.amountAtTime ?
-                    <FiatConversion amount={transactionInfo.amountAtTime} sign={sign} noAction />
-                    :
-                    <FiatConversion noAction />
-                  }
-                </span>
-              </p>
-            </div>
-            <div className={style.detail}>
-              <label>{t('transaction.details.amount')}</label>
-              <p className={typeClassName}>
-                <span className={style.amount}>
-                  {sign}
-                  <Amount amount={amount.amount} unit={amount.unit}/>
-                </span>
-                {' '}
-                <span className={style.currencyUnit}>{transactionInfo.amount.unit}</span>
-              </p>
-            </div>
-            <div className={style.detail}>
-              <label>{t('transaction.fee')}</label>
-              {
-                transactionInfo.fee && transactionInfo.fee.amount ? (
-                  <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>
-                    <Amount amount={transactionInfo.fee.amount} unit={transactionInfo.fee.unit}/>
-                    {' '}
-                    <span className={style.currencyUnit}>{transactionInfo.fee.unit}</span>
-                  </p>
-                ) : (
-                  <p>---</p>
-                )
-              }
-            </div>
+            <TxDetail label={t('transaction.details.type')}>{arrow}</TxDetail>
+            <TxDetail label={t('transaction.confirmation')}>{numConfirmations}</TxDetail>
+            <TxDetail label={t('transaction.details.status')}>
+              <ProgressRing
+                className="m-right-quarter"
+                width={14}
+                value={progress}
+                isComplete={numConfirmations >= numConfirmationsComplete}
+              />
+              <span className={style.status}>
+                {statusText} {
+                  status === 'pending' && (
+                    <span>({numConfirmations}/{numConfirmationsComplete})</span>
+                  )
+                }
+              </span>
+            </TxDetail>
+            <TxDetail label={t('transaction.details.date')}>{shortDate}</TxDetail>
+            <TxDetail label={t('transaction.details.fiat')}>
+              <span className={`${style.fiat} ${typeClassName}`}>
+                <FiatConversion amount={amount} sign={sign} noAction />
+              </span>
+            </TxDetail>
+            <TxDetail label={t('transaction.details.fiatAtTime')}>
+              <span className={`${style.fiat} ${typeClassName}`}>
+                {transactionInfo.amountAtTime ?
+                  <FiatConversion amount={transactionInfo.amountAtTime} sign={sign} noAction />
+                  :
+                  <FiatConversion noAction />
+                }
+              </span>
+            </TxDetail>
+            <TxDetail label={t('transaction.details.amount')}>
+              <span className={`${style.amount} ${typeClassName}`}>
+                {sign}
+                <Amount amount={amount.amount} unit={amount.unit} />
+              </span>
+              {' '}
+              <span className={`${style.currencyUnit} ${typeClassName}`}>{transactionInfo.amount.unit}</span>
+            </TxDetail>
+            {
+              transactionInfo.fee && transactionInfo.fee.amount ? (
+                <TxDetail
+                  label={t('transaction.fee')}
+                  title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}
+                >
+                  <Amount amount={transactionInfo.fee.amount} unit={transactionInfo.fee.unit} />
+                  {' '}
+                  <span className={style.currencyUnit}>{transactionInfo.fee.unit}</span>
+                </TxDetail>
+              ) : (
+                <TxDetail label={t('transaction.fee')}>---</TxDetail>
+              )
+            }
             <div className={`${style.detail} ${style.addresses}`}>
               <label>{t('transaction.details.address')}</label>
               <div className={style.detailAddresses}>
@@ -271,54 +251,39 @@ export const Transaction = ({
             </div>
             {
               transactionInfo.gas ? (
-                <div className={style.detail}>
-                  <label>{t('transaction.gas')}</label>
-                  <p>{transactionInfo.gas}</p>
-                </div>
+                <TxDetail label={t('transaction.gas')}>{transactionInfo.gas}</TxDetail>
               ) : null
             }
             {
-              transactionInfo.nonce !== null ? (
-                <div className={style.detail}>
-                  <label>Nonce</label>
-                  <p>{transactionInfo.nonce}</p>
-                </div>
+              transactionInfo.nonce ? (
+                <TxDetail label="Nonce">{transactionInfo.nonce}</TxDetail>
               ) : null
             }
             {
               transactionInfo.weight ? (
-                <div className={style.detail}>
-                  <label>{t('transaction.weight')}</label>
-                  <p>
-                    {transactionInfo.weight}
-                    {' '}
-                    <span className={style.currencyUnit}>WU</span>
-                  </p>
-                </div>
+                <TxDetail label={t('transaction.weight')}>
+                  {transactionInfo.weight}
+                  {' '}
+                  <span className={style.currencyUnit}>WU</span>
+                </TxDetail>
               ) : null
             }
             {
               transactionInfo.vsize ? (
-                <div className={style.detail}>
-                  <label>{t('transaction.vsize')}</label>
-                  <p>
-                    {transactionInfo.vsize}
-                    {' '}
-                    <span className={style.currencyUnit}>b</span>
-                  </p>
-                </div>
+                <TxDetail label={t('transaction.vsize')}>
+                  {transactionInfo.vsize}
+                  {' '}
+                  <span className={style.currencyUnit}>b</span>
+                </TxDetail>
               ) : null
             }
             {
               transactionInfo.size ? (
-                <div className={style.detail}>
-                  <label>{t('transaction.size')}</label>
-                  <p>
-                    {transactionInfo.size}
-                    {' '}
-                    <span className={style.currencyUnit}>b</span>
-                  </p>
-                </div>
+                <TxDetail label={t('transaction.size')}>
+                  {transactionInfo.size}
+                  {' '}
+                  <span className={style.currencyUnit}>b</span>
+                </TxDetail>
               ) : null
             }
             <div className={`${style.detail} ${style.addresses}`}>
