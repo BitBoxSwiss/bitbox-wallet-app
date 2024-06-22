@@ -212,6 +212,9 @@ export const getBalance = (code: AccountCode): Promise<IBalance> => {
   return apiGet(`account/${code}/balance`);
 };
 
+export type TTxStatus = 'complete' | 'pending' | 'failed';
+export type TTxType = 'send' | 'receive' | 'self';
+
 export interface ITransaction {
     addresses: string[];
     amount: IAmount;
@@ -225,9 +228,9 @@ export interface ITransaction {
     numConfirmations: number;
     numConfirmationsComplete: number;
     size: number;
-    status: 'complete' | 'pending' | 'failed';
+    status: TTxStatus;
     time: string | null;
-    type: 'send' | 'receive' | 'self';
+    type: TTxType;
     txID: string;
     vsize: number;
     weight: number;
