@@ -32,13 +32,15 @@ var intermediateFirmwareBinaryBTCOnly_9_17_1 []byte
 //go:embed assets/firmware.v9.17.1.signed.bin.gz
 var intermediateFirmwareBinaryMulti_9_17_1 []byte
 
-//go:embed assets/firmware-btc.v9.18.0.signed.bin.gz
+//go:embed assets/firmware-btc.v9.19.0.signed.bin.gz
 var firmwareBinaryBTCOnly []byte
-var firmwareVersionBTCOnly = semver.NewSemVer(9, 18, 0)
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 19, 0)
+var firmwareMonotonicVersionBtcOnly uint32 = 39
 
-//go:embed assets/firmware.v9.18.0.signed.bin.gz
+//go:embed assets/firmware.v9.19.0.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 18, 0)
+var firmwareVersionMulti = semver.NewSemVer(9, 19, 0)
+var firmwareMonotonicVersionMulti uint32 = 39
 
 type firmwareInfo struct {
 	version          *semver.SemVer
@@ -81,7 +83,7 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 		},
 		{
 			version:          firmwareVersionMulti,
-			monotonicVersion: 38,
+			monotonicVersion: firmwareMonotonicVersionMulti,
 			binaryGzip:       firmwareBinaryMulti,
 		},
 	},
@@ -93,7 +95,7 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 		},
 		{
 			version:          firmwareVersionBTCOnly,
-			monotonicVersion: 38,
+			monotonicVersion: firmwareMonotonicVersionBtcOnly,
 			binaryGzip:       firmwareBinaryBTCOnly,
 		},
 	},
