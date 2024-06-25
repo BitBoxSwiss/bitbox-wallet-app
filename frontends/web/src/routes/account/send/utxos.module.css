@@ -23,8 +23,7 @@
 
 .note {
     font-size: var(--size-subheader);
-    line-height: 1.5;
-    margin-top: -7px;
+    line-height: 1;
     margin-bottom: var(--space-quarter);
 }
 
@@ -47,6 +46,7 @@
 }
 
 .amounts {
+    line-height: 1;
     padding-bottom: var(--space-quarter);
 }
 

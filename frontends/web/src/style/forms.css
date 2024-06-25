@@ -16,7 +16,6 @@ label {
     display: block;
     font-size: var(--size-default);
     font-weight: 400;
-    line-height: 1;
     margin-bottom: var(--space-quarter);
 }
 
