@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { useSync } from '../../../hooks/api';
 import { restoreBackup } from '../../../api/bitbox02';
 import { getBackupList, subscribeBackupList } from '../../../api/backup';
-import Toast from '../../../components/toast/Toast';
+import { Toast } from '../../../components/toast/toast';
 import { BackupsListItem } from '../components/backup';
 import { Backup } from '../../../api/backup';
 import { Button } from '../../../components/forms';

@@ -46,7 +46,10 @@ const fetchAccountNameAndAddress = async (address: string) => {
   return { accountName: name, accountCode: code };
 };
 
-export async function handleWcEthSignRequest(method: string, args: TEthSignHandlerParams) {
+export const handleWcEthSignRequest = async (
+  method: string,
+  args: TEthSignHandlerParams,
+) => {
   switch (method) {
   case EIP155_SIGNING_METHODS.ETH_SIGN:
   case EIP155_SIGNING_METHODS.PERSONAL_SIGN:
@@ -64,14 +67,19 @@ export async function handleWcEthSignRequest(method: string, args: TEthSignHandl
   default:
     console.log(`${method} is unsupported`);
   }
-}
+};
 
 /**
-     * Wallet Connect's ETH_SIGN gives the params as [address, message]
-     * while PERSONAL_SIGN gives them as [message, address]
+ * Wallet Connect's ETH_SIGN gives the params as [address, message]
+ * while PERSONAL_SIGN gives them as [message, address]
 */
-
-async function ethSignHandler({ params, launchSignDialog, topic, id, currentSession }: TEthSignHandlerParams, method: string) {
+const ethSignHandler = async ({
+  params,
+  launchSignDialog,
+  topic,
+  id,
+  currentSession
+}: TEthSignHandlerParams, method: string) => {
   const isPersonalSign = method === EIP155_SIGNING_METHODS.PERSONAL_SIGN;
   const requestParams = params.request.params;
   const accountAddress = isPersonalSign ? requestParams[1] : requestParams[0];
@@ -106,9 +114,15 @@ async function ethSignHandler({ params, launchSignDialog, topic, id, currentSess
       method: t('walletConnect.signingRequest.method.signMessage')
     }
   });
-}
+};
 
-async function ethSignTypedDataHandler({ params, launchSignDialog, topic, id, currentSession }: TEthSignHandlerParams) {
+const ethSignTypedDataHandler = async ({
+  params,
+  launchSignDialog,
+  topic,
+  id,
+  currentSession
+}: TEthSignHandlerParams) => {
   const requestParams = params.request.params;
   const accountAddress = requestParams[0];
   const data = requestParams[1];
@@ -152,9 +166,12 @@ async function ethSignTypedDataHandler({ params, launchSignDialog, topic, id, cu
       method: t('walletConnect.signingRequest.method.signTypedData')
     }
   });
-}
+};
 
-async function ethSignOrSendTransactionHandler(args: TEthSignHandlerParams, method: string) {
+const ethSignOrSendTransactionHandler = async (
+  args: TEthSignHandlerParams,
+  method: string,
+) => {
   const isSendAndSign = method === EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION;
 
   const { params, launchSignDialog, topic, id, currentSession } = args;
@@ -192,5 +209,5 @@ async function ethSignOrSendTransactionHandler(args: TEthSignHandlerParams, meth
       method: formattedMethod,
     }
   });
-}
+};
 

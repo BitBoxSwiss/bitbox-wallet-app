@@ -13,7 +13,7 @@
     "syncedAddressesCount": "{{count}} alamat telah diimbas",
     "uncoveredFunds": "Anda mempunyai syiling pada alamat yang tidak diinsuranskan. Nama alamat: <strong>{{name}}</strong>, akaun yang tidak diinsuranskan: {{uncovered}}.\nKarena akaun itu diinsuranskan, hanya syiling diterima melalui <strong>Segwit asli (Native Segwit)</strong> adalah jenis alamat yang diinsuranskan. Syiling pada jenis alamat yang berbeza, walaupun ia berada pada akaun yang sama, tidak diinsuranskan.\nSila alihkan semua syiling anda daripada jenis alamat yang tidak disokong kepada jenis alamat <strong>Segwit asl (Native Segwit)i</strong>, jadi semua syiling anda pada akaun ini diinsuranskan.",
     "uncoveredFundsLink": "Ikuti panduan ini tentang cara mengalihkan syiling anda.",
-    "warning": "Amaran!\n"
+    "warning": "Amaran!"
   },
   "accountInfo": {
     "address": "Alamat",
@@ -41,7 +41,7 @@
   "accountSummary": {
     "availableBalance": "Baki yang ada",
     "balance": "Baki",
-    "exportSummary": "Eksport Ringkasan Akaun ke Folder Muat Turun sebagai Fail CSV",
+    "exportSummary": "Eksport ringkasan akaun ke folder muat turun sebagai fail CSV",
     "fiatBalance": "Baki Fiat",
     "name": "Nama Akaun",
     "noAccount": "Tiada akaun untuk dipaparkan.",
@@ -120,7 +120,7 @@
         "placeholder": "Sila masukkan kata laluan pemulihan anda"
       },
       "title": "Buat Backup",
-      "verificationFailed": "Kata laluan pemulihan TIDAK sesuai dompet terkini. Backup telah dibuat. Sila gunakan 'Semak Backup' untuk mengesahkan kembali password pemulihan anda."
+      "verificationFailed": "Kata laluan pemulihan TIDAK SEPADAN dengan dompet semasa. Sandaran telah dibuat. Sila gunakan 'Semak sandaran' untuk mengesahkan kata laluan pemulihan anda sekali lagi."
     },
     "description": "Pilih <strong>fail backup wallet</strong>",
     "insert": "Sila masukkan kad micro SD untuk mengurus backup.",
@@ -481,7 +481,7 @@
           "link": "Model \"security threat\"",
           "title": "Model security"
         },
-        "title": ""
+        "title": "Selamat datang ke kedai sehenti anda untuk membeli {{name}}"
       },
       "next": "Seterusnya",
       "selectLabel": "Pilih akaun anda",
@@ -1236,7 +1236,7 @@
     "title": "Catatan"
   },
   "notification": {
-    "newTxs_one": "{{count}} transaksi baru di: {{accountName}}",
+    "newTxs_one": "Transaksi baru di: {{accountName}}",
     "newTxs_other": "{{count}} transaksi baharu dalam: {{accountName}}"
   },
   "pairing": {
@@ -1381,7 +1381,7 @@
     "selectAccount": "Pilih akaun",
     "showFull": "Tunjukkan dan sahkan alamat lengkap",
     "taprootWarning": "Nota: Taproot ialah ciri Bitcoin baharu dan belum diterima pakai secara meluas. Dana yang diterima pada alamat Taproot mungkin tidak kelihatan dalam dompet jam tangan pihak ketiga sahaja. Banyak dompet dan pertukaran belum dapat dihantar ke alamat Taproot.",
-    "title": "Dapatkan syiling",
+    "title": "Terima {{accountName}}",
     "verify": "Sahkan alamat dengan selamat",
     "verifyBitBox01": "Sahkan alamat pada apl mudah alih",
     "verifyBitBox02": "Sahkan alamat pada BitBox02",
@@ -1527,7 +1527,7 @@
       "label": "Kemajuan"
     },
     "success": "Transaksi telah ditandatangani dan dihantar.",
-    "title": "Hantar syiling",
+    "title": "Hantar {{accountName}}",
     "toggleCoinControl": "Toggle Kawalan Syiling",
     "transactionDetails": "Butiran transaksi"
   },

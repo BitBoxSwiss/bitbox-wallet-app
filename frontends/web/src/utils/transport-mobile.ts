@@ -16,13 +16,13 @@
  */
 
 import { TMsgCallback, TPayload, TQueryPromiseMap } from './transport-common';
-import { runningOnMobile } from './env';
+import { runningInAndroid, runningOnMobile } from './env';
 
 let queryID: number = 0;
 const queryPromises: TQueryPromiseMap = {};
 const currentListeners: TMsgCallback[] = [];
 
-export function mobileCall(query: string): Promise<unknown> {
+export const mobileCall = (query: string): Promise<unknown> => {
   return new Promise((resolve, reject) => {
     if (runningOnMobile()) {
       if (typeof window.onMobileCallResponse === 'undefined') {
@@ -36,14 +36,19 @@ export function mobileCall(query: string): Promise<unknown> {
       }
       queryID++;
       queryPromises[queryID] = { resolve, reject };
-      window.android!.call(queryID, query);
+      if (runningInAndroid()) {
+        window.android!.call(queryID, query);
+      } else {
+        // iOS
+        window.webkit!.messageHandlers.goCall.postMessage({ queryID, query });
+      }
     } else {
       reject();
     }
   });
-}
+};
 
-export function mobileSubscribePushNotifications(msgCallback: TMsgCallback) {
+export const mobileSubscribePushNotifications = (msgCallback: TMsgCallback) => {
   if (typeof window.onMobilePushNotification === 'undefined') {
     window.onMobilePushNotification = (msg: TPayload) => {
       currentListeners.forEach(listener => listener(msg));
@@ -61,4 +66,4 @@ export function mobileSubscribePushNotifications(msgCallback: TMsgCallback) {
       console.warn('currentListeners.includes(msgCallback)');
     }
   };
-}
+};

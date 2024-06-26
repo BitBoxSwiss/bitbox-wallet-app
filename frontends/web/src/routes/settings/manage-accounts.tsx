@@ -21,7 +21,7 @@ import * as accountAPI from '../../api/account';
 import * as backendAPI from '../../api/backend';
 import { alertUser } from '../../components/alert/Alert';
 import { Button, Input, Label } from '../../components/forms';
-import Logo from '../../components/icon/logo';
+import { Logo } from '../../components/icon/logo';
 import { EditActive, EyeOpenedDark, USBSuccess } from '../../components/icon';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { Toggle } from '../../components/toggle/toggle';
@@ -170,7 +170,11 @@ class ManageAccounts extends Component<Props, State> {
     });
   };
 
-  private toggleToken = (ethAccountCode: accountAPI.AccountCode, tokenCode: string, active: boolean) => {
+  private toggleToken = (
+    ethAccountCode: accountAPI.AccountCode,
+    tokenCode: accountAPI.ERC20CoinCode,
+    active: boolean,
+  ) => {
     backendAPI.setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {
       if (!success && errorMessage) {
         alertUser(errorMessage);

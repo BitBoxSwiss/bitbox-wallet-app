@@ -34,7 +34,7 @@ export const ManageDeviceGuide = () => {
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.manageDevice')}>
-      <Entry key="whatAreAccounts" entry={t('guide.device.name')} />
+      <Entry key="whatAreAccounts" entry={t('guide.device.name', { returnObjects: true })} />
       <Entry key="guide.device.secure-chip" entry={{
         link: {
           text: t('guide.device.secure-chip.link.text'),

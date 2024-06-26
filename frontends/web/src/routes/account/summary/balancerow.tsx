@@ -15,13 +15,13 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { AccountCode, CoinCode, IBalance } from '../../../api/account';
 import { syncAddressesCount } from '../../../api/accountsync';
 import { useSubscribe } from '../../../hooks/api';
-import Logo from '../../../components/icon/logo';
+import { route } from '../../../utils/route';
+import { Logo } from '../../../components/icon/logo';
 import { Amount } from '../../../components/amount/amount';
-import Spinner from '../../../components/spinner/ascii';
+import { AsciiSpinner } from '../../../components/spinner/ascii';
 import { FiatConversion } from '../../../components/rates/rates';
 import style from './accountssummary.module.css';
 
@@ -32,18 +32,17 @@ type TProps = {
   balance?: IBalance;
 };
 
-export function BalanceRow (
+export const BalanceRow = (
   { code, name, coinCode, balance }: TProps
-) {
+) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const syncStatus = useSubscribe(syncAddressesCount(code));
 
   const nameCol = (
     <td
       className={style.clickable}
       data-label={t('accountSummary.name')}
-      onClick={() => navigate(code === 'lightning' ? '/lightning' : `/account/${code}`)}>
+      onClick={() => route(code === 'lightning' ? '/lightning' : `/account/${code}`)}>
       <div className={style.coinName}>
         <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
         {name}
@@ -71,11 +70,11 @@ export function BalanceRow (
       { nameCol }
       <td colSpan={2} className={style.syncText}>
         { t('account.syncedAddressesCount', {
-          count: syncStatus?.toString(),
+          count: syncStatus,
           defaultValue: 0,
-        } as any) }
-        <Spinner />
+        }) }
+        <AsciiSpinner />
       </td>
     </tr>
   );
-}
+};

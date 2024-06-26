@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHexBytesMarshalUnmarshal(t *testing.T) {
@@ -27,12 +28,12 @@ func TestHexBytesMarshalUnmarshal(t *testing.T) {
 
 	// Test MarshalJSON
 	marshaled, err := json.Marshal(original)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, expectedJSON, string(marshaled))
 
 	// Test UnmarshalJSON
 	var unmarshaled HexBytes
 	err = json.Unmarshal([]byte(expectedJSON), &unmarshaled)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, original, unmarshaled)
 }

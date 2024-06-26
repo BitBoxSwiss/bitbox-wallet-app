@@ -122,6 +122,20 @@ func (cfg AccountsConfig) Lookup(code accountsTypes.Code) *Account {
 	return nil
 }
 
+// LookupByXpub returns the account code of the account containing the xpub in one of its signing
+// configurations, or an error otherwise. Only te "xpub" format should be provided, not
+// "ypub"/"zpub" etc. ERC20-tokens are excluded.
+func (cfg AccountsConfig) LookupByXpub(xpub string) (accountsTypes.Code, error) {
+	for _, acct := range cfg.Accounts {
+		for _, signingConfig := range acct.SigningConfigurations {
+			if xpub == signingConfig.ExtendedPublicKey().String() {
+				return acct.Code, nil
+			}
+		}
+	}
+	return "", errp.New("account could not be found using the provided xpub")
+}
+
 // LookupKeystore looks up a keystore by fingerprint. Returns error if it could not be found.
 func (cfg AccountsConfig) LookupKeystore(rootFingerprint []byte) (*Keystore, error) {
 	for _, ks := range cfg.Keystores {

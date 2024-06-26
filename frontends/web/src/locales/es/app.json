@@ -398,7 +398,7 @@
         "moonpay": {
           "fees": {
             "bankTransfer": "Transferencia bancaria: {{fee}}%%.",
-            "creditDebitCard": "Tarjeta de crédito/débito: {{fee}}%%.",
+            "creditDebitCard": "Tarjeta de crédito/débito: {{fee}}%.",
             "learnMore": "Más información sobre Moonpay",
             "title": "Tasas"
           },
@@ -450,7 +450,7 @@
       "noExchanges": "Lo sentimos, no hay intercambios disponibles en esta región.",
       "region": "Región",
       "selectRegion": "No especificado",
-      "title": "Comprar {{nombre}}"
+      "title": "Comprar {{name}}"
     },
     "info": {
       "continue": "Acepta y continua",
@@ -555,7 +555,7 @@
   "confirmOnDevice": "Por favor confirma en tu dispositivo.",
   "connectKeystore": {
     "promptNoName": "Por favor conecta tu BitBox02 para continuar",
-    "promptWithName": "Por favor, conecta tu BitBox02 llamada \"{{nombre}}\" para continuar "
+    "promptWithName": "Por favor, conecta tu BitBox02 llamada \"{{name}}\" para continuar "
   },
   "darkmode": {
     "toggle": "Modo oscuro"
@@ -1697,7 +1697,7 @@
       "newConnection": "Nueva conexión",
       "noConnectedSessions": "Actualmente no hay cuentas conectadas a ninguna dapps."
     },
-    "invalidPairingChain": "Error al aprobar el emparejamiento. Asegúrese de utilizar una de las cadenas admitidas: {{cadenas}}",
+    "invalidPairingChain": "Error al aprobar el emparejamiento. Asegúrese de utilizar una de las cadenas admitidas: {{chains}}",
     "pairingRequest": {
       "approve": "Aprobar conexión",
       "reject": "Rechazar",

@@ -1,26 +1,26 @@
 .overlay {
+    background-color: rgba(0, 0, 0, 0.3);
+    left: 0;
+    height: 100%;
+    opacity: 0;
     position: fixed;
     top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.3);
-    z-index: -1;
-    opacity: 0;
     transition: opacity ease 0.2s;
+    width: 100%;
+    z-index: -1;
 }
 
 .close {
-    height: 24px;
-    width: 24px;
     display: flex;
+    height: 24px;
     padding: 4px;
+    width: 24px;
 }
 
 .close img {
-    width: 20px;
     height: 20px;
     margin-left: calc(var(--space-quarter) / 2);
+    width: 20px;
 }
 
 .wrapper {
@@ -28,27 +28,29 @@
 }
 
 .guide {
-    margin-right: calc(var(--guide-width) * -1);
-    height: 100vh;
-    width: var(--guide-width);
-    color: white;
     background-color: var(--color-lightblue);
+    color: white;
+    height: 100vh;
+    /* mobile viewport bug fix */
+    max-height: -webkit-fill-available;
+    margin-right: calc(var(--guide-width) * -1);
     overflow-y: auto;
     transition: margin-right 0.2s ease, transform 0.2s ease;
+    width: var(--guide-width);
     will-change: margin-right, transform;
 }
 
 .header {
-    margin-bottom: var(--space-default);
-    height: var(--header-height);
-    padding: 0 var(--space-default);
     background-color: var(--color-blue);
+    height: var(--header-height);
+    margin-bottom: var(--space-default);
+    padding: 0 var(--space-default);
 }
 
 .header h2 {
-    margin: 0;
     font-size: var(--header-default-font-size);
     font-weight: 400;
+    margin: 0;
 }
 
 .header a {
@@ -61,20 +63,20 @@
 }
 
 .content h1 {
-    margin-top: 0px;
     font-size: 1.5em;
+    margin-top: 0px;
 }
 
 .content h2 {
-    margin: 0px;
     font-size: 1.1em;
-    line-height: 1.2em;
     font-weight: 400;
+    line-height: 1.2em;
+    margin: 0px;
 }
 
 .guide p {
-    margin: 0.4em 0;
     font-size: var(--size-default);
+    margin: 0.4em 0;
 }
 
 .show {
@@ -86,21 +88,21 @@
 }
 
 .entryTitle {
+    align-items: flex-start;
+    cursor: default;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    align-items: flex-start;
-    cursor: default;
 }
 
 .entryTitle .entryToggle {
-    width: 16px;
-    line-height: 1.2em;
+    align-items: center;
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
     font-weight: bold;
+    justify-content: flex-start;
+    line-height: 1.2em;
+    width: 16px;
 }
 
 .entryTitle .entryTitleText {
@@ -108,10 +110,10 @@
 }
 
 .entryContent {
+    align-items: flex-start;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    align-items: flex-start;
     padding-left: 16px;
 }
 
@@ -140,16 +142,16 @@
     }
 
     .guide {
-        position: fixed;
         margin-right: 0;
-        top: 0;
-        right: 0;
-        width: 100%;
         max-width: 460px;
         opacity: 0;
-        z-index: -10;
+        position: fixed;
+        right: 0;
+        top: 0;
         transform: translateX(100%);
         transition-delay: 0.2s;
+        width: 100%;
+        z-index: -10;
     }
 
     .show {
@@ -165,8 +167,8 @@
 @media (max-width: 768px) {
     .guideWrapper {
         position: fixed;
-        top: 0;
         right: 0;
+        top: 0;
         width: calc(var(--space-half) + 18px);
     }
 

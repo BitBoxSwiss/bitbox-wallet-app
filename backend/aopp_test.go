@@ -28,6 +28,7 @@ import (
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/stretchr/testify/require"
@@ -97,7 +98,7 @@ func scriptTypeRef(s signing.ScriptType) *signing.ScriptType { return &s }
 
 func TestAOPPSuccess(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
-	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+	rootKey := test.TstMustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
 	keystoreHelper := software.NewKeystore(rootKey)
 
 	tests := []struct {
@@ -154,7 +155,7 @@ func TestAOPPSuccess(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run("", func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				require.Equal(t, "POST", r.Method)
 				require.Equal(t,
 					[]string{"application/json"},
@@ -168,7 +169,8 @@ func TestAOPPSuccess(t *testing.T) {
 					string(body),
 				)
 				w.WriteHeader(http.StatusNoContent)
-			}))
+			})
+			server := httptest.NewServer(handler)
 			defer server.Close()
 
 			b := newBackend(t, testnetDisabled, regtestDisabled)
@@ -313,7 +315,7 @@ func TestAOPPSuccess(t *testing.T) {
 		params := defaultParams()
 		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey))
 		fingerprint, err := b.keystore.RootFingerprint()
-		require.Nil(t, err)
+		require.NoError(t, err)
 		b.SetWatchonly(fingerprint, true)
 		b.DeregisterKeystore()
 
@@ -339,7 +341,7 @@ func TestAOPPSuccess(t *testing.T) {
 
 func TestAOPPFailures(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
-	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+	rootKey := test.TstMustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
 	keystoreHelper := software.NewKeystore(rootKey)
 	ks := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey)
 

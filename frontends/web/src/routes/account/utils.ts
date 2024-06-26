@@ -15,20 +15,26 @@
  * limitations under the License.
  */
 
-import { AccountCode, CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '../../api/account';
+import type { AccountCode, CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '../../api/account';
 
-export function findAccount(accounts: IAccount[], accountCode: AccountCode): IAccount | undefined {
+export const findAccount = (
+  accounts: IAccount[],
+  accountCode: AccountCode
+): IAccount | undefined => {
   return accounts.find(({ code }) => accountCode === code);
-}
+};
 
-export function getCryptoName(cryptoLabel: string, account?: IAccount): string {
+export const getCryptoName = (
+  cryptoLabel: string,
+  account?: IAccount,
+): string => {
   if (account && isBitcoinOnly(account.coinCode)) {
     return 'Bitcoin';
   }
   return cryptoLabel;
-}
+};
 
-export function isBitcoinOnly(coinCode: CoinCode): boolean {
+export const isBitcoinOnly = (coinCode: CoinCode): boolean => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
@@ -36,11 +42,11 @@ export function isBitcoinOnly(coinCode: CoinCode): boolean {
   default:
     return false;
   }
-}
+};
 
 export const isBitcoinCoin = (coin: CoinUnit) => (coin === 'BTC') || (coin === 'TBTC') || (coin === 'sat') || (coin === 'tsat');
 
-export function isBitcoinBased(coinCode: CoinCode): boolean {
+export const isBitcoinBased = (coinCode: CoinCode): boolean => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
@@ -50,13 +56,13 @@ export function isBitcoinBased(coinCode: CoinCode): boolean {
   default:
     return false;
   }
-}
+};
 
-export function isEthereumBased(coinCode: CoinCode): boolean {
+export const isEthereumBased = (coinCode: CoinCode): boolean => {
   return coinCode === 'eth' || coinCode === 'goeth' || coinCode === 'sepeth' || coinCode.startsWith('eth-erc20-');
-}
+};
 
-export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
+export const getCoinCode = (coinCode: CoinCode): CoinCode | undefined => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
@@ -69,10 +75,9 @@ export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
   case 'sepeth':
     return 'eth';
   }
-}
+};
 
-
-export function getScriptName(scriptType: ScriptType): string {
+export const getScriptName = (scriptType: ScriptType): string => {
   switch (scriptType) {
   case 'p2pkh':
     return 'Legacy (P2PKH)';
@@ -83,9 +88,9 @@ export function getScriptName(scriptType: ScriptType): string {
   case 'p2tr':
     return 'Taproot (bech32m, P2TR)';
   }
-}
+};
 
-export function customFeeUnit(coinCode: CoinCode): string {
+export const customFeeUnit = (coinCode: CoinCode): string => {
   if (isBitcoinBased(coinCode)) {
     return 'sat/vB';
   }
@@ -93,7 +98,7 @@ export function customFeeUnit(coinCode: CoinCode): string {
     return 'Gwei';
   }
   return '';
-}
+};
 
 export type TAccountsByKeystore = {
   keystore: TKeystore;
@@ -101,7 +106,7 @@ export type TAccountsByKeystore = {
 };
 
 // Returns the accounts grouped by the keystore fingerprint.
-export function getAccountsByKeystore(accounts: IAccount[]): TAccountsByKeystore[] {
+export const getAccountsByKeystore = (accounts: IAccount[]): TAccountsByKeystore[] => {
   return Object.values(accounts.reduce((acc, account) => {
     const key = account.keystore.rootFingerprint;
     if (!acc[key]) {
@@ -113,9 +118,25 @@ export function getAccountsByKeystore(accounts: IAccount[]): TAccountsByKeystore
     acc[key].accounts.push(account);
     return acc;
   }, {} as Record<string, TAccountsByKeystore>));
-}
+};
 
 // Returns true if more than one keystore has the given name.
-export function isAmbiguiousName(name: string, accounts: TAccountsByKeystore[]): boolean {
+export const isAmbiguiousName = (
+  name: string,
+  accounts: TAccountsByKeystore[],
+): boolean => {
   return accounts.filter(keystore => keystore.keystore.name === name).length > 1;
-}
+};
+
+export type TAccountCoinMap = {
+  [code in CoinCode]?: IAccount[];
+};
+
+export const getAccountsPerCoin = (accounts: IAccount[]): TAccountCoinMap => {
+  return accounts.reduce<Partial<TAccountCoinMap>>((accountPerCoin, account) => {
+    accountPerCoin[account.coinCode]
+      ? accountPerCoin[account.coinCode]!.push(account)
+      : accountPerCoin[account.coinCode] = [account];
+    return accountPerCoin;
+  }, {});
+};

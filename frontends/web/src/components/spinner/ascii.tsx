@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Shift Crypto AG
+ * Copyright 2020-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 import style from './ascii.module.css';
 
-export default function AsciiSpinner() {
+export const AsciiSpinner = () => {
   return (
     <div className={style.spinnerContainer}>
       <div className={style.spinner}></div>
     </div>
   );
-}
+};

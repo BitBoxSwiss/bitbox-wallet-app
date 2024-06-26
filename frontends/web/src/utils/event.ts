@@ -40,7 +40,7 @@ const subscriptions: Subscriptions = {};
 /**
  * This function dispatches the events from the websocket to the observers.
  */
-function handleEvent(payload: TPayload): void {
+const handleEvent = (payload: TPayload): void => {
   if (
     'subject' in payload
     && typeof payload.subject === 'string'
@@ -51,7 +51,7 @@ function handleEvent(payload: TPayload): void {
       }
     }
   }
-}
+};
 
 /**
  * This variable keeps track of whether the below method has subscribed to the websocket.
@@ -61,10 +61,10 @@ let subscribed: TUnsubscribe | null = null;
 /**
  * Subscribes the given observer on events of the given subject and returns a method to unsubscribe.
  */
-export function apiSubscribe(
+export const apiSubscribe = (
   subject: TSubject,
   observer: Observer
-): TUnsubscribe {
+): TUnsubscribe => {
   if (!subscribed) {
     subscribed = apiWebsocket(handleEvent);
   }
@@ -84,4 +84,4 @@ export function apiSubscribe(
       console.warn('observers.includes(observer)');
     }
   };
-}
+};

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,10 @@
 
 import { useTranslation } from 'react-i18next';
 import { TChartFiltersProps } from './types';
+import { PillButton, PillButtonGroup } from '../../../components/pillbuttongroup/pillbuttongroup';
 import styles from './chart.module.css';
 
-const Filters = ({
+export const Filters = ({
   display,
   disableFilters,
   disableWeeklyFilters,
@@ -29,33 +30,35 @@ const Filters = ({
 }: TChartFiltersProps) => {
   const { t } = useTranslation();
   return (
-    <div className={styles.filters}>
-      <button
-        className={display === 'week' ? styles.filterActive : undefined}
+    <PillButtonGroup className={styles.filters}>
+      <PillButton
+        active={display === 'week'}
         disabled={disableFilters || disableWeeklyFilters}
-        onClick={onDisplayWeek}>
+        onClick={onDisplayWeek}
+      >
         {t('chart.filter.week')}
-      </button>
-      <button
-        className={display === 'month' ? styles.filterActive : undefined}
+      </PillButton>
+      <PillButton
+        active={display === 'month'}
         disabled={disableFilters}
-        onClick={onDisplayMonth}>
+        onClick={onDisplayMonth}
+      >
         {t('chart.filter.month')}
-      </button>
-      <button
-        className={display === 'year' ? styles.filterActive : undefined}
+      </PillButton>
+      <PillButton
+        active={display === 'year'}
         disabled={disableFilters}
-        onClick={onDisplayYear}>
+        onClick={onDisplayYear}
+      >
         {t('chart.filter.year')}
-      </button>
-      <button
-        className={display === 'all' ? styles.filterActive : undefined}
+      </PillButton>
+      <PillButton
+        active={display === 'all'}
         disabled={disableFilters}
-        onClick={onDisplayAll}>
+        onClick={onDisplayAll}
+      >
         {t('chart.filter.all')}
-      </button>
-    </div>
+      </PillButton>
+    </PillButtonGroup>
   );
 };
-
-export default Filters;

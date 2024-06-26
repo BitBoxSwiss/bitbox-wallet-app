@@ -18,20 +18,18 @@ import { createRef, useEffect } from 'react';
 import PasswordGestureVideo from './assets/password-gestures.webm';
 import styles from './password-entry.module.css';
 
-
-
-function isVideoPlaying(video: HTMLVideoElement): boolean {
+const isVideoPlaying = (video: HTMLVideoElement): boolean => {
   return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2;
-}
+};
 
-function replayVideo(ref: HTMLVideoElement): void {
+const replayVideo = (ref: HTMLVideoElement): void => {
   if (ref && !isVideoPlaying(ref)) {
     // prevent: NotAllowedError: play() failed because the user didn't interact with the document first.
     // https://goo.gl/xX8pDD
     ref.muted = true;
     ref.play();
   }
-}
+};
 
 export const PasswordEntry = () => {
   let ref = createRef<HTMLVideoElement>();

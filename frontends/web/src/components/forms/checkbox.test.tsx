@@ -16,7 +16,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import Checkbox from './checkbox';
+import { Checkbox } from './checkbox';
 
 describe('components/forms/checkbox', () => {
   it('renders checkbox with proper attributes', () => {

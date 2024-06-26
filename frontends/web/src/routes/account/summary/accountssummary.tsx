@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,10 @@ export type Balances = {
   [code: string]: accountApi.IBalance;
 };
 
-export function AccountsSummary({ accounts, devices }: TProps) {
+export const AccountsSummary = ({
+  accounts,
+  devices,
+}: TProps) => {
   const { t } = useTranslation();
   const summaryReqTimerID = useRef<number>();
   const mounted = useMountedRef();
@@ -215,7 +218,6 @@ export function AccountsSummary({ accounts, devices }: TProps) {
               } />
             {accountsByKeystore.length > 1 && (
               <CoinBalance
-                accounts={accounts}
                 summaryData={summaryData}
                 coinsBalances={coinsTotalBalance}
               />
@@ -236,20 +238,17 @@ export function AccountsSummary({ accounts, devices }: TProps) {
         </Main>
       </GuidedContent>
       <Guide title={t('guide.guideTitle.accountSummary')}>
-        <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription')} />
-        <Entry
-          key="accountSummaryAmount"
-          entry={{
-            link: {
-              text: 'www.coingecko.com',
-              url: 'https://www.coingecko.com/'
-            },
-            text: t('guide.accountSummaryAmount.text'),
-            title: t('guide.accountSummaryAmount.title')
-          }}
-        />
-        <Entry key="trackingModePortfolioChart" entry={t('guide.trackingModePortfolioChart')} />
+        <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription', { returnObjects: true })} />
+        <Entry key="accountSummaryAmount" entry={{
+          link: {
+            text: 'www.coingecko.com',
+            url: 'https://www.coingecko.com/'
+          },
+          text: t('guide.accountSummaryAmount.text'),
+          title: t('guide.accountSummaryAmount.title')
+        }} />
+        <Entry key="trackingModePortfolioChart" entry={t('guide.trackingModePortfolioChart', { returnObjects: true })} />
       </Guide>
     </GuideWrapper>
   );
-}
+};

@@ -57,6 +57,6 @@ func TestBitsuranceGetId(t *testing.T) {
 		},
 	}
 	id, err := GetBitsuranceId(mockedInterface)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, expectedId, id)
 }

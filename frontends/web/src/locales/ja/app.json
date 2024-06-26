@@ -11,7 +11,7 @@
     "maybeProxyError": "Torプロキシが有効化されています。Torプロキシが正しく動作していることを確認するか、プロキシ設定を無効にしてください。",
     "reconnecting": "接続が切れました。再試行中…",
     "syncedAddressesCount": "{{count}}個のアドレスをスキャンしました",
-    "uncoveredFunds": "",
+    "uncoveredFunds": "あなたの<strong>{{name}}</strong>アカウントには、以下の未対応のアドレスタイプにコインが存在します：{{uncovered}}。\nアカウントは保険でカバーされていますが、<strong>Native Segwit</strong>アドレスタイプを通じて受け取ったコインのみが対象です。同じアカウント上でも異なるアドレスタイプにあるコインは保険対象外となります。\nこのアカウントのすべてのコインが保険でカバーされるように、未対応のアドレスタイプから<strong>Native Segwit</strong>アドレスタイプにすべてのコインを移動してください。",
     "uncoveredFundsLink": "コインの移動方法については、こちらのガイドに従ってください。",
     "warning": "警告！"
   },
@@ -1278,7 +1278,7 @@
     "title": "メモ"
   },
   "notification": {
-    "newTxs_one": "{{accountName}}にて{{count}}個の新しいトランザクション",
+    "newTxs_one": "{{accountName}} での新しい取引",
     "newTxs_other": "{{accountName}}に{{count}}件の新しい取引があります"
   },
   "pairing": {

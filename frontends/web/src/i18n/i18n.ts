@@ -53,7 +53,6 @@ i18Init.init({
   defaultNS: 'app',
 
   debug: false,
-  returnObjects: true,
 
   interpolation: {
     escapeValue: false // not needed for react

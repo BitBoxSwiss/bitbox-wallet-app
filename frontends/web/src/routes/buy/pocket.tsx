@@ -27,9 +27,9 @@ import { Spinner } from '../../components/spinner/Spinner';
 import { PocketTerms } from '../../components/terms/pocket-terms';
 import { useLoad } from '../../hooks/api';
 import { alertUser } from '../../components/alert/Alert';
-import Guide from './guide';
-import style from './iframe.module.css';
+import { BuyGuide } from './guide';
 import { convertScriptType } from '../../utils/request-addess';
+import style from './iframe.module.css';
 
 interface TProps {
     code: AccountCode;
@@ -249,7 +249,7 @@ export const Pocket = ({ code }: TProps) => {
           </Dialog>
         </div>
       </div>
-      <Guide name={name} exchange={'pocket'}/>
+      <BuyGuide name={name} exchange={'pocket'}/>
     </div>
   );
 };

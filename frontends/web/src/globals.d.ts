@@ -24,5 +24,13 @@ export declare global {
         }
         onMobileCallResponse?: (queryID: number, response: unknown) => void;
         onMobilePushNotification?: (msg: TPayload) => void;
+        runningOnIOS?: boolean;
+        webkit?: {
+          messageHandlers: {
+            goCall: {
+              postMessage: (msg: { queryID: number; query: string; }) => void;
+            }
+          }
+        }
     }
 }

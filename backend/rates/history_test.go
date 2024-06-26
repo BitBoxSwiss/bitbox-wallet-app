@@ -123,7 +123,7 @@ func TestFetchGeckoMarketRangeInvalidCoinFiat(t *testing.T) {
 		var updater RateUpdater
 		g := fixedTimeRange(time.Now().Add(-time.Hour), time.Now())
 		_, err := updater.fetchGeckoMarketRange(ctx, test.coin, test.fiat, g)
-		assert.Error(t, err, "fetchGeckoMarketRange(%q, %q) returned nil error", test.coin, test.fiat)
+		require.Error(t, err, "fetchGeckoMarketRange(%q, %q) returned nil error", test.coin, test.fiat)
 		cancel()
 	}
 }
@@ -166,9 +166,9 @@ func TestLoadDumpBucketUnusableDB(t *testing.T) {
 	updater := NewRateUpdater(nil, "/dev/null")
 	defer updater.Stop()
 	_, err1 := updater.loadHistoryBucket("foo")
-	assert.Error(t, err1, "loadHistoryBucket")
+	require.Error(t, err1, "loadHistoryBucket")
 	err2 := updater.dumpHistoryBucket("bar", nil)
-	assert.Error(t, err2, "dumpHistoryBucket")
+	require.Error(t, err2, "dumpHistoryBucket")
 }
 
 func TestDumpLoadHistoryBucket(t *testing.T) {
@@ -189,7 +189,7 @@ func TestDumpLoadHistoryBucket(t *testing.T) {
 	defer updater2.Stop()
 	rates, err := updater2.loadHistoryBucket("btcUSD")
 	require.NoError(t, err, "updater2.loadHistoryBucket")
-	assert.Equal(t, 4, len(rates), "len(rates)")
+	assert.Len(t, rates, 4, "len(rates)")
 }
 
 func TestReconfigureHistoryLoadsFromDB(t *testing.T) {
@@ -256,6 +256,6 @@ func BenchmarkLoadHistoryBucket(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		rates, err := updater2.loadHistoryBucket("btcUSD")
 		require.NoError(b, err, "updater.loadHistoryBucket")
-		require.Equal(b, 5000, len(rates), "len(rates)")
+		require.Len(b, rates, 5000, "len(rates)")
 	}
 }

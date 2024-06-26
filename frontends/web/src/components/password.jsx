@@ -20,7 +20,7 @@ import { alertUser } from './alert/Alert';
 import style from './password.module.css';
 import { withTranslation } from 'react-i18next';
 
-export function PasswordInput (props) {
+export const PasswordInput = (props) => {
   const { seePlaintext, ...rest } = props;
   return (
     <Input
@@ -28,7 +28,7 @@ export function PasswordInput (props) {
       {...rest}
     />
   );
-}
+};
 
 class PasswordSingleInputClass extends Component {
   state = {
@@ -304,7 +304,7 @@ class PasswordRepeatInputClass extends Component {
 
 export const PasswordRepeatInput = withTranslation(null, { withRef: true })(PasswordRepeatInputClass);
 
-function MatchesPattern({ regex, value = '', text }) {
+const MatchesPattern = ({ regex, value = '', text }) => {
   if (!regex || !value.length || regex.test(value)) {
     return null;
   }
@@ -312,11 +312,11 @@ function MatchesPattern({ regex, value = '', text }) {
   return (
     <p style={{ color: 'var(--color-error)' }}>{text}</p>
   );
-}
+};
 
 const excludeKeys = /^(Shift|Alt|Backspace|CapsLock|Tab)$/i;
 
-function hasCaps({ key }) {
+const hasCaps = ({ key }) => {
   // will return null, when we cannot clearly detect if capsLock is active or not
   if (key.length > 1 || key.toUpperCase() === key.toLowerCase() || excludeKeys.test(key)) {
     return null;
@@ -325,4 +325,4 @@ function hasCaps({ key }) {
   // @ts-ignore (event can be undefined and shiftKey exists only on MouseEvent but not Event)
   // eslint-disable-next-line no-restricted-globals
   return key.toUpperCase() === key && key.toLowerCase() !== key && !event.shiftKey;
-}
+};

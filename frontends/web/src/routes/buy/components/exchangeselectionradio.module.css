@@ -48,7 +48,6 @@
     color: var(--color-default);
     display: inline-block;
     font-weight: 400;
-    line-height: 22px;
     margin: 0;
 }
 .paymentMethodName img {

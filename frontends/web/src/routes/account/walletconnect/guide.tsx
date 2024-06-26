@@ -8,15 +8,15 @@ export const WCGuide = () => {
     <Guide title={t('guide.guideTitle.walletConnect')}>
       <Entry
         key="guide.walletConnect.whatIsWalletConnect"
-        entry={t('guide.walletConnect.whatIsWalletConnect')}
+        entry={t('guide.walletConnect.whatIsWalletConnect', { returnObjects: true })}
       />
       <Entry
         key="guide.walletConnect.supportedNetworks"
-        entry={t('guide.walletConnect.supportedNetworks')}
+        entry={t('guide.walletConnect.supportedNetworks', { returnObjects: true })}
       />
       <Entry
         key="guide.walletConnect.noPreviousConnections"
-        entry={t('guide.walletConnect.noPreviousConnections')}
+        entry={t('guide.walletConnect.noPreviousConnections', { returnObjects: true })}
       />
     </Guide>
   );

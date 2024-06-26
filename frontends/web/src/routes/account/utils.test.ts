@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,12 +62,12 @@ describe('utils/getAccountsByKeystore', () => {
   });
 
   it('should return one keystore entry with 2 accounts', () => {
-    const accounts = [
+    const accounts: IAccount[] = [
       {
         active: true,
         blockExplorerTxPrefix: 'https://blockstream.info/testnet/tx/',
         code: 'v0-123de678-tbtc-0',
-        coinCode: 'tbtc' as CoinCode,
+        coinCode: 'tbtc',
         coinName: 'Bitcoin Testnet',
         coinUnit: 'TBTC',
         isToken: false,
@@ -84,7 +84,7 @@ describe('utils/getAccountsByKeystore', () => {
         active: true,
         blockExplorerTxPrefix: 'https://blockstream.info/testnet/tx/',
         code: 'v0-123de678-tbtc-1',
-        coinCode: 'tbtc' as CoinCode,
+        coinCode: 'tbtc',
         coinName: 'Bitcoin Testnet',
         coinUnit: 'TBTC',
         isToken: false,
@@ -108,7 +108,7 @@ describe('utils/getAccountsByKeystore', () => {
 
   it('should return two keystores with their respective accounts', () => {
 
-    const accounts = [
+    const accounts: IAccount[] = [
       createAccount({ code: 'a1', name: 'A1', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
       createAccount({ code: 'a2', name: 'A2', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
       createAccount({ code: 'b1', name: 'B1', keystore: { name: 'W2', rootFingerprint: 'w2' } }),

@@ -73,6 +73,10 @@ import syncSVG from './assets/icons/sync.svg';
 import syncLightSVG from './assets/icons/sync-light.svg';
 import selectedCheckLightSVG from './assets/icons/selected-check-light.svg';
 import usbSuccessSVG from './assets/icons/usb-success.svg';
+import statusInfoSVG from './assets/icons/icon-info.svg';
+import statusSuccessSVG from './assets/icons/icon-success.svg';
+import statusWarningSVG from './assets/icons/icon-warning.svg';
+import statusErrorSVG from './assets/icons/icon-error.svg';
 import style from './icon.module.css';
 
 export const ExpandOpen = () => (
@@ -198,6 +202,10 @@ export const Warning = (props: ImgProps) => (<img src={warningPNG} draggable={fa
 export const WarningOutlined = (props: ImgProps) => (<img src={warningOutlinedSVG} draggable={false} {...props} />);
 export const YellowDot = (props: ImgProps) => (<img src={yellowDotSVG} draggable={false} {...props} />);
 export const USBSuccess = (props: ImgProps) => (<img src={usbSuccessSVG} draggable={false} {...props} />);
+export const StatusSuccess = (props: ImgProps) => (<img src={statusSuccessSVG} draggable={false} {...props} />);
+export const StatusInfo = (props: ImgProps) => (<img src={statusInfoSVG} draggable={false} {...props} />);
+export const StatusWarning = (props: ImgProps) => (<img src={statusWarningSVG} draggable={false} {...props} />);
+export const StatusError = (props: ImgProps) => (<img src={statusErrorSVG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
  */

@@ -1,4 +1,4 @@
-# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240516070751-b22740e514bc
+# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240531104813-fa7f932bdd38
 ## explicit; go 1.13
 github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader
 github.com/BitBoxSwiss/bitbox02-api-go/api/common
@@ -14,20 +14,17 @@ github.com/BitBoxSwiss/block-client-go/electrum/types
 github.com/BitBoxSwiss/block-client-go/failover
 github.com/BitBoxSwiss/block-client-go/jsonrpc
 github.com/BitBoxSwiss/block-client-go/jsonrpc/types
-# github.com/Microsoft/go-winio v0.6.1
-## explicit; go 1.17
+# github.com/Microsoft/go-winio v0.6.2
+## explicit; go 1.21
 github.com/Microsoft/go-winio
 github.com/Microsoft/go-winio/internal/fs
 github.com/Microsoft/go-winio/internal/socket
 github.com/Microsoft/go-winio/internal/stringbuffer
 github.com/Microsoft/go-winio/pkg/guid
-# github.com/StackExchange/wmi v1.2.1
-## explicit; go 1.13
-github.com/StackExchange/wmi
 # github.com/aead/siphash v1.0.1
 ## explicit
 github.com/aead/siphash
-# github.com/bits-and-blooms/bitset v1.10.0
+# github.com/bits-and-blooms/bitset v1.13.0
 ## explicit; go 1.16
 github.com/bits-and-blooms/bitset
 # github.com/breez/breez-sdk-go v0.3.8
@@ -54,7 +51,7 @@ github.com/btcsuite/btcd/mempool
 github.com/btcsuite/btcd/mining
 github.com/btcsuite/btcd/txscript
 github.com/btcsuite/btcd/wire
-# github.com/btcsuite/btcd/btcec/v2 v2.3.2
+# github.com/btcsuite/btcd/btcec/v2 v2.3.3
 ## explicit; go 1.17
 github.com/btcsuite/btcd/btcec/v2
 github.com/btcsuite/btcd/btcec/v2/ecdsa
@@ -91,7 +88,7 @@ github.com/consensys/gnark-crypto/field/hash
 github.com/consensys/gnark-crypto/field/pool
 github.com/consensys/gnark-crypto/internal/generator/config
 github.com/consensys/gnark-crypto/internal/parallel
-# github.com/crate-crypto/go-kzg-4844 v0.7.0
+# github.com/crate-crypto/go-kzg-4844 v1.0.0
 ## explicit; go 1.20
 github.com/crate-crypto/go-kzg-4844
 github.com/crate-crypto/go-kzg-4844/internal/kzg
@@ -100,22 +97,22 @@ github.com/crate-crypto/go-kzg-4844/internal/utils
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/deckarep/golang-set/v2 v2.1.0
+# github.com/deckarep/golang-set/v2 v2.6.0
 ## explicit; go 1.18
 github.com/deckarep/golang-set/v2
 # github.com/decred/dcrd/crypto/blake256 v1.0.1
 ## explicit; go 1.17
 github.com/decred/dcrd/crypto/blake256
-# github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0
+# github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0
 ## explicit; go 1.17
 github.com/decred/dcrd/dcrec/secp256k1/v4
 github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa
 github.com/decred/dcrd/dcrec/secp256k1/v4/schnorr
-# github.com/ethereum/c-kzg-4844 v0.4.0
+# github.com/ethereum/c-kzg-4844 v1.0.2
 ## explicit; go 1.19
 github.com/ethereum/c-kzg-4844/bindings/go
-# github.com/ethereum/go-ethereum v1.13.4
-## explicit; go 1.20
+# github.com/ethereum/go-ethereum v1.14.5
+## explicit; go 1.21
 github.com/ethereum/go-ethereum
 github.com/ethereum/go-ethereum/accounts
 github.com/ethereum/go-ethereum/accounts/abi
@@ -138,6 +135,7 @@ github.com/ethereum/go-ethereum/log
 github.com/ethereum/go-ethereum/metrics
 github.com/ethereum/go-ethereum/p2p/netutil
 github.com/ethereum/go-ethereum/params
+github.com/ethereum/go-ethereum/params/forks
 github.com/ethereum/go-ethereum/rlp
 github.com/ethereum/go-ethereum/rlp/internal/rlpstruct
 github.com/ethereum/go-ethereum/rpc
@@ -145,23 +143,20 @@ github.com/ethereum/go-ethereum/signer/core/apitypes
 # github.com/flynn/noise v1.1.0
 ## explicit; go 1.16
 github.com/flynn/noise
-# github.com/fsnotify/fsnotify v1.6.0
-## explicit; go 1.16
+# github.com/fsnotify/fsnotify v1.7.0
+## explicit; go 1.17
 github.com/fsnotify/fsnotify
 # github.com/go-ole/go-ole v1.3.0
 ## explicit; go 1.12
 github.com/go-ole/go-ole
 github.com/go-ole/go-ole/oleutil
-# github.com/go-stack/stack v1.8.1
-## explicit; go 1.17
-github.com/go-stack/stack
-# github.com/google/uuid v1.3.0
+# github.com/google/uuid v1.6.0
 ## explicit
 github.com/google/uuid
 # github.com/gorilla/mux v1.8.1
 ## explicit; go 1.20
 github.com/gorilla/mux
-# github.com/gorilla/websocket v1.5.1
+# github.com/gorilla/websocket v1.5.2
 ## explicit; go 1.20
 github.com/gorilla/websocket
 # github.com/holiman/uint256 v1.2.4
@@ -215,15 +210,15 @@ github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 github.com/pmezard/go-difflib/difflib
-# github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible
+# github.com/shirou/gopsutil v3.21.11+incompatible
 ## explicit
 github.com/shirou/gopsutil/cpu
 github.com/shirou/gopsutil/internal/common
 # github.com/sirupsen/logrus v1.9.3
 ## explicit; go 1.13
 github.com/sirupsen/logrus
-# github.com/skip2/go-qrcode v0.0.0-20170812161211-695fc75a0973
-## explicit
+# github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
+## explicit; go 1.13
 github.com/skip2/go-qrcode
 github.com/skip2/go-qrcode/bitset
 github.com/skip2/go-qrcode/reedsolomon
@@ -236,23 +231,31 @@ github.com/stretchr/testify/assert
 github.com/stretchr/testify/mock
 github.com/stretchr/testify/require
 github.com/stretchr/testify/suite
-# github.com/supranational/blst v0.3.11
+# github.com/supranational/blst v0.3.12
 ## explicit; go 1.11
 github.com/supranational/blst/bindings/go
-# github.com/tklauser/go-sysconf v0.3.12
-## explicit; go 1.13
+# github.com/tklauser/go-sysconf v0.3.14
+## explicit; go 1.18
 github.com/tklauser/go-sysconf
-# github.com/tklauser/numcpus v0.6.1
-## explicit; go 1.13
+# github.com/tklauser/numcpus v0.8.0
+## explicit; go 1.18
 github.com/tklauser/numcpus
+<<<<<<< HEAD
 # github.com/tyler-smith/go-bip39 v1.1.0
 ## explicit; go 1.14
 github.com/tyler-smith/go-bip39
 github.com/tyler-smith/go-bip39/wordlists
 # go.etcd.io/bbolt v1.3.9
 ## explicit; go 1.17
+=======
+# github.com/yusufpapurcu/wmi v1.2.4
+## explicit; go 1.16
+github.com/yusufpapurcu/wmi
+# go.etcd.io/bbolt v1.3.10
+## explicit; go 1.21
+>>>>>>> master
 go.etcd.io/bbolt
-# golang.org/x/crypto v0.21.0
+# golang.org/x/crypto v0.24.0
 ## explicit; go 1.18
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
@@ -266,52 +269,29 @@ golang.org/x/crypto/pbkdf2
 golang.org/x/crypto/ripemd160
 golang.org/x/crypto/scrypt
 golang.org/x/crypto/sha3
-# golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
+# golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 ## explicit; go 1.20
-golang.org/x/exp/constraints
-golang.org/x/exp/slices
-# golang.org/x/mod v0.14.0
-## explicit; go 1.18
-golang.org/x/mod/semver
-# golang.org/x/net v0.21.0
+golang.org/x/exp/maps
+# golang.org/x/net v0.26.0
 ## explicit; go 1.18
 golang.org/x/net/internal/socks
 golang.org/x/net/proxy
-# golang.org/x/sync v0.5.0
+# golang.org/x/sync v0.7.0
 ## explicit; go 1.18
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.18.0
+# golang.org/x/sys v0.21.0
 ## explicit; go 1.18
 golang.org/x/sys/cpu
-golang.org/x/sys/execabs
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/tools v0.15.0
-## explicit; go 1.18
-golang.org/x/tools/cmd/stringer
-golang.org/x/tools/go/gcexportdata
-golang.org/x/tools/go/internal/packagesdriver
-golang.org/x/tools/go/packages
-golang.org/x/tools/go/types/objectpath
-golang.org/x/tools/internal/event
-golang.org/x/tools/internal/event/core
-golang.org/x/tools/internal/event/keys
-golang.org/x/tools/internal/event/label
-golang.org/x/tools/internal/event/tag
-golang.org/x/tools/internal/gcimporter
-golang.org/x/tools/internal/gocommand
-golang.org/x/tools/internal/packagesinternal
-golang.org/x/tools/internal/pkgbits
-golang.org/x/tools/internal/tokeninternal
-golang.org/x/tools/internal/typeparams
-golang.org/x/tools/internal/typesinternal
-# google.golang.org/protobuf v1.32.0
+# google.golang.org/protobuf v1.34.1
 ## explicit; go 1.17
 google.golang.org/protobuf/encoding/prototext
 google.golang.org/protobuf/encoding/protowire
 google.golang.org/protobuf/internal/descfmt
 google.golang.org/protobuf/internal/descopts
 google.golang.org/protobuf/internal/detrand
+google.golang.org/protobuf/internal/editiondefaults
 google.golang.org/protobuf/internal/encoding/defval
 google.golang.org/protobuf/internal/encoding/messageset
 google.golang.org/protobuf/internal/encoding/tag

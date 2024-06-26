@@ -1,11 +1,24 @@
 # Changelog
 
 ## Unreleased
+
+## 4.43.0
 - New feature in advanced settings: Export logs
 - Add specific titles to guides replacing the generic "Guide" previously used on all pages
 - Android: enable transactions export feature
 - Format amounts using localized decimal and group separator
 - Support pasting different localized number formats, i.e. dot and comma separated amounts
+- Add DMG installer for macOS
+- Use mempool.space as preferred fee estimation source for BTC
+- Add Satoshi as an option in active currencies
+- Show address re-use warning and group UTXOs with the same address together in coin control.
+- Fix encoding of transaction notes on Windows
+- Add red dot in sidebar and on device settings tab to indicate that there is a firmware upgrade
+
+## 4.42.1
+- BitBox02: fix missing button to re-install firmware, fixing interrupted installs ("invalid firmware").
+- Fix Wallet Connect issue where account unspecified by the connecting dapp caused a UI crash
+- Fix Wallet Connect issue with required/optionalNamespace and handling all possible namespace definitions
 - Fix BitBoxApp crash on GrapheneOS and other phones without Google Play Services when scanning QR codes.
 
 ## 4.42.0

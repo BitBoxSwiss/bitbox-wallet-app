@@ -52,20 +52,20 @@ func TestAddressTestSuite(t *testing.T) {
 }
 
 func (s *addressTestSuite) TestNewAddress() {
-	require.Equal(s.T(), absoluteKeypath, s.address.Configuration.AbsoluteKeypath())
-	require.Equal(s.T(), "n2gAErwJCuPmnQuhzPkkWi2haGz9oQxjnX", s.address.EncodeAddress())
-	require.True(s.T(), s.address.IsForNet(net))
+	s.Require().Equal(absoluteKeypath, s.address.Configuration.AbsoluteKeypath())
+	s.Require().Equal("n2gAErwJCuPmnQuhzPkkWi2haGz9oQxjnX", s.address.EncodeAddress())
+	s.Require().True(s.address.IsForNet(net))
 }
 
 func (s *addressTestSuite) TestPubkeyScript() {
 	payToAddrScript := []byte{
 		0x76, 0xa9, 0x14, 0xe8, 0x18, 0x5b, 0x34, 0x52, 0x22, 0xbe, 0x2b, 0x77, 0x2f,
 		0x7a, 0xef, 0x16, 0x2c, 0x11, 0x85, 0x73, 0x2, 0x9d, 0xf4, 0x88, 0xac}
-	require.Equal(s.T(), payToAddrScript, s.address.PubkeyScript())
+	s.Require().Equal(payToAddrScript, s.address.PubkeyScript())
 }
 
 func (s *addressTestSuite) TestScriptHashHex() {
-	require.Equal(s.T(),
+	s.Require().Equal(
 		blockchain.ScriptHashHex("0466d0029406f583feadaccb91c7b5b855eb5d6782316cafa4f390b7c784436b"),
 		s.address.PubkeyScriptHashHex())
 }

@@ -31,7 +31,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/BitBoxSwiss/block-client-go/electrum/types"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -81,34 +80,34 @@ func TestSuite(t *testing.T) {
 }
 
 func (s *testSuite) TestCoin() {
-	require.Equal(s.T(), s.net, s.coin.Net())
-	require.Equal(s.T(), s.code, s.coin.Code())
-	require.Equal(s.T(), "Some coin", s.coin.Name())
-	require.Equal(s.T(), s.unit, s.coin.Unit(false))
-	require.Equal(s.T(), s.unit, s.coin.Unit(true))
-	require.Equal(s.T(), uint(8), s.coin.Decimals(false))
-	require.Equal(s.T(), uint(8), s.coin.Decimals(true))
-	require.Equal(s.T(), explorer, s.coin.BlockExplorerTransactionURLPrefix())
+	s.Require().Equal(s.net, s.coin.Net())
+	s.Require().Equal(s.code, s.coin.Code())
+	s.Require().Equal("Some coin", s.coin.Name())
+	s.Require().Equal(s.unit, s.coin.Unit(false))
+	s.Require().Equal(s.unit, s.coin.Unit(true))
+	s.Require().Equal(uint(8), s.coin.Decimals(false))
+	s.Require().Equal(uint(8), s.coin.Decimals(true))
+	s.Require().Equal(explorer, s.coin.BlockExplorerTransactionURLPrefix())
 }
 
 func (s *testSuite) TestFormatAmount() {
 	for _, isFee := range []bool{false, true} {
-		require.Equal(s.T(), "12.34568910", s.coin.FormatAmount(
+		s.Require().Equal("12.34568910", s.coin.FormatAmount(
 			coin.NewAmountFromInt64(1234568910), isFee))
-		require.Equal(s.T(), "0.00000000", s.coin.FormatAmount(
+		s.Require().Equal("0.00000000", s.coin.FormatAmount(
 			coin.NewAmountFromInt64(0), isFee))
-		require.Equal(s.T(), "0.00000001", s.coin.FormatAmount(
+		s.Require().Equal("0.00000001", s.coin.FormatAmount(
 			coin.NewAmountFromInt64(1), isFee))
 	}
 }
 
 func (s *testSuite) TestToUnit() {
 	for _, isFee := range []bool{false, true} {
-		require.Equal(s.T(), float64(12.34568910), s.coin.ToUnit(
+		s.Require().Equal(float64(12.34568910), s.coin.ToUnit(
 			coin.NewAmountFromInt64(1234568910), isFee))
-		require.Equal(s.T(), float64(0), s.coin.ToUnit(
+		s.Require().Equal(float64(0), s.coin.ToUnit(
 			coin.NewAmountFromInt64(0), isFee))
-		require.Equal(s.T(), float64(0.00000001), s.coin.ToUnit(
+		s.Require().Equal(float64(0.00000001), s.coin.ToUnit(
 			coin.NewAmountFromInt64(1), isFee))
 	}
 }
@@ -119,11 +118,11 @@ func (s *testSuite) TestSetAmount() {
 	ratAmount3, _ := new(big.Rat).SetString("123")
 
 	for _, isFee := range []bool{false, true} {
-		require.Equal(s.T(), "12312345678",
+		s.Require().Equal("12312345678",
 			s.coin.SetAmount(ratAmount1, isFee).BigInt().String())
-		require.Equal(s.T(), "0",
+		s.Require().Equal("0",
 			s.coin.SetAmount(ratAmount2, isFee).BigInt().String())
-		require.Equal(s.T(), "12300000000",
+		s.Require().Equal("12300000000",
 			s.coin.SetAmount(ratAmount3, isFee).BigInt().String())
 	}
 }
@@ -135,17 +134,17 @@ func (s *testSuite) TestParseAmount() {
 
 	s.coin.SetFormatUnit("BTC")
 	coinAmount, err := s.coin.ParseAmount(btcAmount)
-	require.Equal(s.T(), err, nil)
+	s.Require().NoError(err)
 	intAmount, err := coinAmount.Int64()
-	require.Equal(s.T(), err, nil)
-	require.Equal(s.T(), intSatAmount, intAmount)
+	s.Require().NoError(err)
+	s.Require().Equal(intSatAmount, intAmount)
 
 	s.coin.SetFormatUnit("sat")
 	coinAmount, err = s.coin.ParseAmount(satAmount)
-	require.Equal(s.T(), err, nil)
+	s.Require().NoError(err)
 	intAmount, err = coinAmount.Int64()
-	require.Equal(s.T(), err, nil)
-	require.Equal(s.T(), intSatAmount, intAmount)
+	s.Require().NoError(err)
+	s.Require().Equal(intSatAmount, intAmount)
 }
 
 func (s *testSuite) TestDecodeAddress() {
@@ -196,16 +195,16 @@ func (s *testSuite) TestDecodeAddress() {
 		invalidAddresses = append(invalidAddresses, tbtcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, btcValidAddresses...)
 	default:
-		require.Fail(s.T(), "not all cases tested")
+		s.Require().Fail("not all cases tested")
 	}
 	for _, validAddress := range validAddresses {
 		addr, err := s.coin.DecodeAddress(validAddress)
-		require.NoError(s.T(), err, validAddress)
-		require.Equal(s.T(), validAddress, addr.EncodeAddress())
+		s.Require().NoError(err, validAddress)
+		s.Require().Equal(validAddress, addr.EncodeAddress())
 	}
 	for _, invalidAddress := range invalidAddresses {
 		_, err := s.coin.DecodeAddress(invalidAddress)
-		require.Equal(s.T(), errors.ErrInvalidAddress, errp.Cause(err), invalidAddress)
+		s.Require().Equal(errors.ErrInvalidAddress, errp.Cause(err), invalidAddress)
 	}
 
 }

@@ -22,48 +22,44 @@ import (
 	"os"
 	"testing"
 
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	"github.com/stretchr/testify/require"
 )
 
-func testHash(t *testing.T, info firmwareInfo, expectedMagic []byte, hashFile string) {
+func testHash(t *testing.T, info firmwareInfo, expectedProduct bitbox02common.Product, hashFile string) {
 	t.Helper()
 
-	const sigDataLen = 584
-	const magicLen = 4
-
-	fwBinary, err := info.binary()
+	signedBinary, err := info.signedBinary()
 	require.NoError(t, err)
-	require.True(t, len(fwBinary) >= 4+sigDataLen)
-	require.Equal(t, expectedMagic, fwBinary[:magicLen])
-	hash := sha256.Sum256(fwBinary[magicLen+sigDataLen:])
+	product, _, binary, err := bootloader.ParseSignedFirmware(signedBinary)
+	require.NoError(t, err)
+	require.Equal(t, expectedProduct, product)
+	hash := sha256.Sum256(binary)
 	expectedHash, err := os.ReadFile(hashFile)
 	require.NoError(t, err)
 	require.Equal(t, string(expectedHash), hex.EncodeToString(hash[:]))
 }
 
 func TestBundledFirmware(t *testing.T) {
-	magicMulti := []byte{0x65, 0x3f, 0x36, 0x2b}
-	magicBTCOnly := []byte{0x11, 0x23, 0x3b, 0x0b}
-
 	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02Multi] {
-		testHash(t, fw, magicMulti, fmt.Sprintf("assets/firmware.v%s.signed.bin.sha256", fw.version))
+		testHash(t, fw, bitbox02common.ProductBitBox02Multi, fmt.Sprintf("assets/firmware.v%s.signed.bin.sha256", fw.version))
 	}
 
 	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02BTCOnly] {
-		testHash(t, fw, magicBTCOnly, fmt.Sprintf("assets/firmware-btc.v%s.signed.bin.sha256", fw.version))
+		testHash(t, fw, bitbox02common.ProductBitBox02BTCOnly, fmt.Sprintf("assets/firmware-btc.v%s.signed.bin.sha256", fw.version))
 	}
 }
 
 func TestMontonicVersions(t *testing.T) {
 	for product, binaries := range bundledFirmwares {
 		for _, fwInfo := range binaries {
-			fwBinary, err := fwInfo.binary()
+			signedBinary, err := fwInfo.signedBinary()
 			require.NoError(t, err)
 
 			// TODO: replace magic numbers with parsing functions from the bitbox02-api-go lib,
 			// which first have to be exposed.
-			fwVersion := binary.LittleEndian.Uint32(fwBinary[392:396])
+			fwVersion := binary.LittleEndian.Uint32(signedBinary[392:396])
 
 			require.Equal(t, fwInfo.monotonicVersion, fwVersion, "%s; %s", product, fwInfo.version)
 		}

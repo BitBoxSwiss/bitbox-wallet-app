@@ -19,26 +19,25 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestKeypath(t *testing.T) {
 	input := " m / 44' /0'/1' / 0 "
 	absoluteKeypath, err := NewAbsoluteKeypath(input)
-	assert.NoError(t, err)
-	assert.Equal(t, "m/44'/0'/1'/0", absoluteKeypath.Encode())
+	require.NoError(t, err)
+	require.Equal(t, "m/44'/0'/1'/0", absoluteKeypath.Encode())
 
 	bytes, err := json.Marshal(absoluteKeypath)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	var decodedKeypath AbsoluteKeypath
 	err = json.Unmarshal(bytes, &decodedKeypath)
 	if err != nil {
 		panic(err)
 	}
-	assert.NoError(t, err)
-	assert.Equal(t, absoluteKeypath.Encode(), decodedKeypath.Encode())
+	require.NoError(t, err)
+	require.Equal(t, absoluteKeypath.Encode(), decodedKeypath.Encode())
 }
 
 func TestNewAbsoluteKeypathFromUint32(t *testing.T) {

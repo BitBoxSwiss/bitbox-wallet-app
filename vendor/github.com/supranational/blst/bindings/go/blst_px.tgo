@@ -2,23 +2,15 @@ func PairingAggregatePkInG1(ctx Pairing, PK *P1Affine, pkValidate bool,
                             sig *P2Affine, sigGroupcheck bool, msg []byte,
                             optional ...[]byte) int { // aug
     var aug []byte
-    var uaug *C.byte
     if len(optional) > 0 {
         aug = optional[0]
-        if len(aug) > 0 {
-            uaug = (*C.byte)(&aug[0])
-        }
-    }
-    var umsg *C.byte
-    if len(msg) > 0 {
-        umsg = (*C.byte)(&msg[0])
     }
 
     r := C.blst_pairing_chk_n_aggr_pk_in_g1(&ctx[0],
                                             PK, C.bool(pkValidate),
                                             sig, C.bool(sigGroupcheck),
-                                            umsg, C.size_t(len(msg)),
-                                            uaug, C.size_t(len(aug)))
+                                            ptrOrNil(msg), C.size_t(len(msg)),
+                                            ptrOrNil(aug), C.size_t(len(aug)))
 
     return int(r)
 }
@@ -28,24 +20,16 @@ func PairingMulNAggregatePkInG1(ctx Pairing, PK *P1Affine, pkValidate bool,
                                 rand *Scalar, randBits int, msg []byte,
                                 optional ...[]byte) int { // aug
     var aug []byte
-    var uaug *C.byte
     if len(optional) > 0 {
         aug = optional[0]
-        if len(aug) > 0 {
-            uaug = (*C.byte)(&aug[0])
-        }
-    }
-    var umsg *C.byte
-    if len(msg) > 0 {
-        umsg = (*C.byte)(&msg[0])
     }
 
     r := C.blst_pairing_chk_n_mul_n_aggr_pk_in_g1(&ctx[0],
                                                   PK, C.bool(pkValidate),
                                                   sig, C.bool(sigGroupcheck),
                                                   &rand.b[0], C.size_t(randBits),
-                                                  umsg, C.size_t(len(msg)),
-                                                  uaug, C.size_t(len(aug)))
+                                                  ptrOrNil(msg), C.size_t(len(msg)),
+                                                  ptrOrNil(aug), C.size_t(len(aug)))
 
     return int(r)
 }
@@ -90,7 +74,7 @@ func (p1 *P1Affine) InG1() bool {
   return bool(C.blst_p1_affine_in_g1(p1))
 }
 
-func (dummy *P1Affine) BatchUncompress(in [][]byte) []*P1Affine {
+func (_ *P1Affine) BatchUncompress(in [][]byte) []*P1Affine {
     // Allocate space for all of the resulting points. Later we'll save pointers
     // and return those so that the result could be used in other functions,
     // such as MultipleAggregateVerify.
@@ -224,7 +208,7 @@ func (p1 *P1) Sub(pointIf interface{}) *P1 {
 }
 
 func P1Generator() *P1 {
-    return C.blst_p1_generator()
+    return &cgo_p1Generator
 }
 
 // 'acc += point * scalar', passing 'nil' for 'point' means "use the
@@ -285,29 +269,14 @@ func HashToG1(msg []byte, dst []byte,
         optional ...[]byte) *P1 { // aug
     var q P1
 
-    // Handle zero length message
-    var msgC *C.byte
-    if len(msg) > 0 {
-        msgC = (*C.byte)(&msg[0])
-    }
-
-    var dstC *C.byte
-    if len(dst) > 0 {
-        dstC = (*C.byte)(&dst[0])
-    }
-
     var aug []byte
-    var augC *C.byte
     if len(optional) > 0 {
         aug = optional[0]
-        if len(aug) > 0 {
-            augC = (*C.byte)(&aug[0])
-        }
     }
 
-    C.blst_hash_to_g1(&q, msgC, C.size_t(len(msg)),
-                          dstC, C.size_t(len(dst)),
-                          augC, C.size_t(len(aug)))
+    C.blst_hash_to_g1(&q, ptrOrNil(msg), C.size_t(len(msg)),
+                          ptrOrNil(dst), C.size_t(len(dst)),
+                          ptrOrNil(aug), C.size_t(len(aug)))
     return &q
 }
 
@@ -315,29 +284,14 @@ func EncodeToG1(msg []byte, dst []byte,
         optional ...[]byte) *P1 { // aug
     var q P1
 
-    // Handle zero length message
-    var msgC *C.byte
-    if len(msg) > 0 {
-        msgC = (*C.byte)(&msg[0])
-    }
-
-    var dstC *C.byte
-    if len(dst) > 0 {
-        dstC = (*C.byte)(&dst[0])
-    }
-
     var aug []byte
-    var augC *C.byte
     if len(optional) > 0 {
         aug = optional[0]
-        if len(aug) > 0 {
-            augC = (*C.byte)(&aug[0])
-        }
     }
 
-    C.blst_encode_to_g1(&q, msgC, C.size_t(len(msg)),
-                            dstC, C.size_t(len(dst)),
-                            augC, C.size_t(len(aug)))
+    C.blst_encode_to_g1(&q, ptrOrNil(msg), C.size_t(len(msg)),
+                            ptrOrNil(dst), C.size_t(len(dst)),
+                            ptrOrNil(aug), C.size_t(len(aug)))
     return &q
 }
 
@@ -542,7 +496,7 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
             p_scalars = &scalars[0]
         case []Scalar:
             if nbits > 248 {
-                scalarsBySlice[0] = (*C.byte)(&val[0].b[0])
+                scalarsBySlice[0] = &val[0].b[0]
                 p_scalars = &scalarsBySlice[0]
             } else {
                 p_scalars = &scalars[0]
@@ -640,7 +594,7 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
                     p_scalars = &scalars[x]
                 case []Scalar:
                     if nbits > 248 {
-                        scalarsBySlice[0] = (*C.byte)(&val[x].b[0])
+                        scalarsBySlice[0] = &val[x].b[0]
                         p_scalars = &scalarsBySlice[0]
                     } else {
                         p_scalars = &scalars[x]

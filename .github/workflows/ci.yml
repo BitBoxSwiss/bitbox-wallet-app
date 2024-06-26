@@ -12,7 +12,7 @@ env:
   # "docker login ghcr.io -u <github-username>" using the
   # newly generated token as password.
   # Once logged in, tag an new image:
-  #   docker tag bitboxswiss/bitbox-wallet-app:VERSION \
+  #   docker tag shiftcrypto/bitbox-wallet-app:VERSION \
   #     ghcr.io/bitboxswiss/bitbox-wallet-app-ci:VERSION
   # and push as usual:
   #   docker push ghcr.io/bitboxswiss/bitbox-wallet-app-ci:VERSION
@@ -21,7 +21,7 @@ env:
   # https://docs.github.com/en/packages/guides/pushing-and-pulling-docker-images
   #
   # Keep this in sync with default in scripts/github-ci.sh.
-  CI_IMAGE: ghcr.io/bitboxswiss/bitbox-wallet-app-ci:22
+  CI_IMAGE: ghcr.io/bitboxswiss/bitbox-wallet-app-ci:23
   GITHUB_BUILD_DIR: ${{github.workspace}}
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
       - name: Clone the repo
         with:
           submodules: recursive
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Run CI script
         # The script also runs golang-ci but it's ok: doesn't take too long and may be useful
         # to keep its linter errors in this log, too.
@@ -42,9 +42,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Enable caching
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           key: ${{runner.os}}-android
           path: |
@@ -55,7 +55,7 @@ jobs:
         env:
           OS_NAME: linux
       - name: Upload APK
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           path: frontends/android/BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
           name: BitBoxApp-android-${{github.sha}}.apk
@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Build Qt-Linux
@@ -71,17 +71,17 @@ jobs:
         env:
           OS_NAME: linux
       - name: Upload AppImage
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           path: frontends/qt/build/linux/BitBoxApp-*.AppImage
           name: BitBoxApp-linux-${{github.sha}}.AppImage
       - name: Upload deb
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           path: frontends/qt/build/linux/bitbox_*.deb
           name: BitBoxApp-linux-${{github.sha}}.deb
       - name: Upload rpm
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           path: frontends/qt/build/linux/bitbox-*.rpm
           name: BitBoxApp-linux-${{github.sha}}.rpm
@@ -89,13 +89,13 @@ jobs:
     runs-on: macos-12
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.20.x
+          go-version: 1.21.x
       - name: Build macOS app
         run: >
           ./scripts/github-ci.sh qt-osx;
@@ -107,7 +107,7 @@ jobs:
           ditto -c -k --keepParent BitBox.app ${{github.workspace}}/BitBoxApp-macos.zip;
           popd;
       - name: Upload app
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           path: BitBoxApp-macos.zip
           name: BitBoxApp-macos-${{github.sha}}.zip

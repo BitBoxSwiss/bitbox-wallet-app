@@ -100,6 +100,8 @@ var (
 		"SEK": "sek",
 		"PLN": "pln",
 		"CZK": "czk",
+		// Satoshi rates are converted manually in the backend using Bitcoin.
+		"sat": "btc",
 	}
 
 	// Copied from https://api.coingecko.com/api/v3/simple/supported_vs_currencies.

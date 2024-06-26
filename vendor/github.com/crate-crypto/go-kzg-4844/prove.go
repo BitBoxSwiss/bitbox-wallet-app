@@ -10,7 +10,7 @@ import (
 // value to a negative number or 0 will make it default to the number of CPUs.
 //
 // [blob_to_kzg_commitment]: https://github.com/ethereum/consensus-specs/blob/017a8495f7671f5fff2075a9bfc9238c1a0982f8/specs/deneb/polynomial-commitments.md#blob_to_kzg_commitment
-func (c *Context) BlobToKZGCommitment(blob Blob, numGoRoutines int) (KZGCommitment, error) {
+func (c *Context) BlobToKZGCommitment(blob *Blob, numGoRoutines int) (KZGCommitment, error) {
 	// 1. Deserialization
 	//
 	// Deserialize blob into polynomial
@@ -43,7 +43,7 @@ func (c *Context) BlobToKZGCommitment(blob Blob, numGoRoutines int) (KZGCommitme
 // value to a negative number or 0 will make it default to the number of CPUs.
 //
 // [compute_blob_kzg_proof]: https://github.com/ethereum/consensus-specs/blob/017a8495f7671f5fff2075a9bfc9238c1a0982f8/specs/deneb/polynomial-commitments.md#compute_blob_kzg_proof
-func (c *Context) ComputeBlobKZGProof(blob Blob, blobCommitment KZGCommitment, numGoRoutines int) (KZGProof, error) {
+func (c *Context) ComputeBlobKZGProof(blob *Blob, blobCommitment KZGCommitment, numGoRoutines int) (KZGProof, error) {
 	// 1. Deserialization
 	//
 	polynomial, err := DeserializeBlob(blob)
@@ -82,7 +82,7 @@ func (c *Context) ComputeBlobKZGProof(blob Blob, blobCommitment KZGCommitment, n
 // value to a negative number or 0 will make it default to the number of CPUs.
 //
 // [compute_kzg_proof]: https://github.com/ethereum/consensus-specs/blob/017a8495f7671f5fff2075a9bfc9238c1a0982f8/specs/deneb/polynomial-commitments.md#compute_kzg_proof
-func (c *Context) ComputeKZGProof(blob Blob, inputPointBytes Scalar, numGoRoutines int) (KZGProof, Scalar, error) {
+func (c *Context) ComputeKZGProof(blob *Blob, inputPointBytes Scalar, numGoRoutines int) (KZGProof, Scalar, error) {
 	// 1. Deserialization
 	//
 	polynomial, err := DeserializeBlob(blob)

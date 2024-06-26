@@ -39,7 +39,7 @@ import { Send as SendLightning } from './lightning/send';
 import { LightningActivate } from './lightning/activate';
 import { LightningDeactivate } from './lightning/deactivate';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
-import { Appearance } from './settings/appearance';
+import { General } from './settings/general';
 import { MobileSettings } from './settings/mobile-settings';
 import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
@@ -210,8 +210,8 @@ export const AppRouter = ({
     />
   </InjectParams>;
 
-  const AppearanceEl = <InjectParams>
-    <Appearance
+  const GeneralEl = <InjectParams>
+    <General
       deviceIDs={deviceIDs}
       hasAccounts={hasAccounts}
     />
@@ -278,7 +278,7 @@ export const AppRouter = ({
       </Route>
       <Route path="settings">
         <Route index element={MobileSettingsEl} />
-        <Route path="appearance" element={AppearanceEl} />
+        <Route path="general" element={GeneralEl} />
         <Route path="about" element={AboutEl} />
         <Route path="device-settings/:deviceID" element={Device} />
         <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />

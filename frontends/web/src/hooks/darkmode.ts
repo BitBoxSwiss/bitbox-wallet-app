@@ -15,7 +15,7 @@
  */
 
 import { useContext } from 'react';
-import DarkModeContext from '../contexts/DarkmodeContext';
+import { DarkModeContext } from '../contexts/DarkmodeContext';
 
 /**
 Hook that manages the app's dark mode state.

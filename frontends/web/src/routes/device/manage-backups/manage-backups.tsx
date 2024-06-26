@@ -126,19 +126,19 @@ const ManageBackupGuide = ({
   case 'bitbox':
     return (
       <Guide>
-        <Entry key="guide.backups.whatIsABackup" entry={t('guide.backups.whatIsABackup')} />
-        <Entry key="guide.backups.encrypt" entry={t('guide.backups.encrypt')} />
-        <Entry key="guide.backups.check" entry={t('guide.backups.check')} />
-        <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften')} />
+        <Entry key="guide.backups.whatIsABackup" entry={t('guide.backups.whatIsABackup', { returnObjects: true })} />
+        <Entry key="guide.backups.encrypt" entry={t('guide.backups.encrypt', { returnObjects: true })} />
+        <Entry key="guide.backups.check" entry={t('guide.backups.check', { returnObjects: true })} />
+        <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften', { returnObjects: true })} />
       </Guide>
     );
   case 'bitbox02':
     return (
       <Guide>
-        <Entry key="guide.backupsBB02.whatIsABackup" entry={t('guide.backupsBB02.whatIsABackup')} />
-        <Entry key="guide.backupsBB02.encrypt" entry={t('guide.backupsBB02.encrypt')} shown={true} />
-        <Entry key="guide.backupsBB02.check" entry={t('guide.backupsBB02.check')} />
-        <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften')} />
+        <Entry key="guide.backupsBB02.whatIsABackup" entry={t('guide.backupsBB02.whatIsABackup', { returnObjects: true })} />
+        <Entry key="guide.backupsBB02.encrypt" entry={t('guide.backupsBB02.encrypt', { returnObjects: true })} shown={true} />
+        <Entry key="guide.backupsBB02.check" entry={t('guide.backupsBB02.check', { returnObjects: true })} />
+        <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften', { returnObjects: true })} />
       </Guide>
     );
   default:

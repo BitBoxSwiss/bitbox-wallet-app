@@ -59,7 +59,7 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 		return feePerKb, nil
 	}
 	var feeTarget *FeeTarget
-	for _, target := range account.feeTargets {
+	for _, target := range account.feeTargets() {
 		if target.code == args.FeeTargetCode {
 			feeTarget = target
 			break

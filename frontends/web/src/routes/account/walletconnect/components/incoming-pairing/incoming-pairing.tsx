@@ -61,12 +61,18 @@ export const WCIncomingPairing = ({
     setPairingLoading(true);
     try {
       const { id, params } = currentProposal;
-      const { requiredNamespaces } = params;
-      const eipList = Object.values(requiredNamespaces);
+      const { requiredNamespaces, optionalNamespaces } = params;
+      const eipList = Object.keys(requiredNamespaces).length !== 0 ? Object.values(requiredNamespaces) : Object.values(optionalNamespaces);
+      if (!eipList) {
+        alertUser(`${t('walletConnect.connect.missingNamespace')}`);
+        await handleRejectPairing();
+        setPairingLoading(false);
+        return;
+      }
       const accounts = eipList.flatMap(eip => eip.chains?.map(chain => `${chain}:${receiveAddress}`) || []);
-      // For supported chains, use an intersection of supported chains and required chains
+      // For supported chains, use an intersection of supported chains and required chains, default to mainnet if no chains present
       const chains: string[] = eipList.flatMap(proposal =>
-        proposal.chains ? proposal.chains.filter(chain => Object.keys(SUPPORTED_CHAINS).includes(chain)) : []
+        proposal.chains ? proposal.chains.filter(chain => Object.keys(SUPPORTED_CHAINS).includes(chain)) : ['eip155:1']
       );
 
       // buildApprovedNamespaces is a

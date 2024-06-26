@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { ChevronRightDark } from '../../../../components/icon';
 import { TorProxyDialog } from './tor-proxy-dialog';
-import InlineMessage from '../../../../components/inlineMessage/InlineMessage';
+import { Message } from '../../../../components/message/message';
 import { TProxyConfig } from '../../advanced-settings';
 import styles from './enable-tor-proxy-setting.module.css';
 
@@ -37,15 +37,11 @@ export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) =
 
   return (
     <>
-      {
-        showRestartMessage ?
-          <InlineMessage
-            type="success"
-            align="left"
-            message={t('settings.restart')}
-            onEnd={() => setShowRestartMessage(false)}
-          /> : null
-      }
+      { showRestartMessage ? (
+        <Message type="warning">
+          {t('settings.restart')}
+        </Message>
+      ) : null }
       <SettingsItem
         className={styles.settingItem}
         settingName={t('settings.expert.useProxy')}

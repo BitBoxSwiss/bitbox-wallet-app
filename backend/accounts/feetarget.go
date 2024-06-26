@@ -16,6 +16,7 @@ package accounts
 
 import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/btcsuite/btcd/btcutil"
 )
 
 // FeeTarget interface has priority codes.
@@ -39,6 +40,10 @@ func NewFeeTargetCode(code string) (FeeTargetCode, error) {
 	case string(FeeTargetCodeNormal):
 	case string(FeeTargetCodeHigh):
 	case string(FeeTargetCodeCustom):
+	case string(FeeTargetCodeMempoolFastest):
+	case string(FeeTargetCodeMempoolHalfHour):
+	case string(FeeTargetCodeMempoolHour):
+	case string(FeeTargetCodeMempoolEconomy):
 	default:
 		return "", errp.WithStack(errp.Newf("Unrecognized fee target code %s", code))
 	}
@@ -58,10 +63,51 @@ const (
 	// FeeTargetCodeHigh is the high priority fee target.
 	FeeTargetCodeHigh FeeTargetCode = "high"
 
+	// FeeTargetCodeMempoolFastest is the mempool highest priority fee target.
+	FeeTargetCodeMempoolFastest FeeTargetCode = "mFastest"
+
+	// FeeTargetCodeMempoolHalfHour is the mempool half hour fee target.
+	FeeTargetCodeMempoolHalfHour FeeTargetCode = "mHalfHour"
+
+	// FeeTargetCodeMempoolHour is the mempool hour fee target.
+	FeeTargetCodeMempoolHour FeeTargetCode = "mHour"
+
+	// FeeTargetCodeMempoolEconomy is the mempool economy fee target.
+	FeeTargetCodeMempoolEconomy FeeTargetCode = "mEconomy"
+
 	// FeeTargetCodeCustom means that the actual feerate is supplied separately instead of being
 	// estimated automatically.
 	FeeTargetCodeCustom FeeTargetCode = "custom"
 
+	// DefaultMempoolFeeTarget is the default fee target for mempool fees.
+	DefaultMempoolFeeTarget = FeeTargetCodeMempoolHalfHour
+
 	// DefaultFeeTarget is the default fee target.
 	DefaultFeeTarget = FeeTargetCodeNormal
 )
+
+// MempoolSpaceFees contains mempool.space recommended fees API response
+// (https://mempool.space/docs/api/rest#get-recommended-fees)
+type MempoolSpaceFees struct {
+	FastestFee  int64 `json:"fastestFee"`
+	HalfHourFee int64 `json:"halfHourFee"`
+	HourFee     int64 `json:"hourFee"`
+	EconomyFee  int64 `json:"economyFee"`
+	MinimumFee  int64 `json:"minimumFee"`
+}
+
+// GetFeeRate returns the btcutil.Amount of the fee for the given FeeTargetCode.
+func (fees MempoolSpaceFees) GetFeeRate(code FeeTargetCode) btcutil.Amount {
+	var feeRatePerByte int64
+	switch code {
+	case FeeTargetCodeMempoolFastest:
+		feeRatePerByte = fees.FastestFee
+	case FeeTargetCodeMempoolHalfHour:
+		feeRatePerByte = fees.HalfHourFee
+	case FeeTargetCodeMempoolHour:
+		feeRatePerByte = fees.HourFee
+	case FeeTargetCodeMempoolEconomy:
+		feeRatePerByte = fees.EconomyFee
+	}
+	return btcutil.Amount(feeRatePerByte * 1000)
+}

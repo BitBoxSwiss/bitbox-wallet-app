@@ -63,7 +63,7 @@ export const WCSessionCard = ({ metadata, receiveAddress, onDisconnect }: TWCSes
   const { name, url, icons } = metadata;
   const accountDetail = useLoad(() => getEthAccountCodeAndNameByAddress(receiveAddress), []);
   const truncatedAddress = truncateAddress(receiveAddress);
-  const accountName = accountDetail && accountDetail.success ? accountDetail.name : '';
+  const accountName = accountDetail && accountDetail.success ? accountDetail.name : t('walletConnect.dashboard.unspecifiedAccount');
 
   return (
     <div className={styles.container}>

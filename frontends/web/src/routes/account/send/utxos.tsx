@@ -32,6 +32,8 @@ import { ExternalLink } from '../../../components/icon';
 import { Amount } from '../../../components/amount/amount';
 import { FiatConversion } from '../../../components/rates/rates';
 import { getScriptName } from '../utils';
+import { Message } from '../../../components/message/message';
+import { Badge } from '../../../components/badge/badge';
 import style from './utxos.module.css';
 
 export type TSelectedUTXOs = {
@@ -56,6 +58,7 @@ export const UTXOs = ({
   const { t } = useTranslation();
   const [utxos, setUtxos] = useState<TUTXO[]>([]);
   const [selectedUTXOs, setSelectedUTXOs] = useState<TSelectedUTXOs>({});
+  const [reusedAddressUTXOs, setReusedAddressUTXOs] = useState(0);
 
   useEffect(() => {
     getUTXOs(accountCode).then(setUtxos);
@@ -71,14 +74,22 @@ export const UTXOs = ({
     return () => unsubscribe();
   }, [accountCode]);
 
-  const handleUTXOChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleUTXOChange = (
+    event: ChangeEvent<HTMLInputElement>,
+    utxo: TUTXO,
+  ) => {
     const target = event.target;
-    const outPoint = target.dataset.outpoint as string;
     const proposedUTXOs = Object.assign({}, selectedUTXOs);
     if (target.checked) {
-      proposedUTXOs[outPoint] = true;
+      proposedUTXOs[utxo.outPoint] = true;
+      if (utxo.addressReused) {
+        setReusedAddressUTXOs(reusedAddressUTXOs + 1);
+      }
     } else {
-      delete proposedUTXOs[outPoint];
+      delete proposedUTXOs[utxo.outPoint];
+      if (utxo.addressReused) {
+        setReusedAddressUTXOs(reusedAddressUTXOs - 1);
+      }
     }
     setSelectedUTXOs(proposedUTXOs);
     onChange(proposedUTXOs);
@@ -98,8 +109,7 @@ export const UTXOs = ({
               <Checkbox
                 checked={!!selectedUTXOs[utxo.outPoint]}
                 id={'utxo-' + utxo.outPoint}
-                data-outpoint={utxo.outPoint}
-                onChange={handleUTXOChange}>
+                onChange={event => handleUTXOChange(event, utxo)}>
                 {utxo.note && (
                   <div className={style.note}>
                     <strong>{utxo.note}{' '}</strong>
@@ -124,6 +134,14 @@ export const UTXOs = ({
                       <span className={style.shrink}>
                         {utxo.address}
                       </span>
+                      <div className="m-left-quarter">
+                        {utxo.addressReused ?
+                          <Badge type="danger">
+                            {t('send.coincontrol.addressReused')}
+                          </Badge> :
+                          null
+                        }
+                      </div>
                     </div>
                     <div className={style.transaction}>
                       <span className={style.label}>
@@ -155,6 +173,13 @@ export const UTXOs = ({
       title={t('send.coincontrol.title')}
       large
       onClose={onClose}>
+      <div>
+        {(reusedAddressUTXOs > 0) && (
+          <Message type="warning">
+            {t('warning.coincontrol')}
+          </Message>
+        )}
+      </div>
       <div>
         { allScriptTypes.map(renderUTXOs) }
         <div className="buttons text-center m-top-none m-bottom-half">

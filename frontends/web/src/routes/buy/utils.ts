@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,12 @@
 import { FrontendExchangeDealsList, Info } from './types';
 import { IAccount } from '../../api/account';
 import { getExchangeBuySupported } from '../../api/exchanges';
+
 /**
  * Finds the lowest fee among all `supported`
  * exchange providers for a given region.
  */
-export function findLowestFee(providers: FrontendExchangeDealsList) {
+export const findLowestFee = (providers: FrontendExchangeDealsList) => {
   // all payment methods' fees of all
   // supported providers (for a selected region)
   let allFees: number[] = [];
@@ -35,10 +36,12 @@ export function findLowestFee(providers: FrontendExchangeDealsList) {
   });
 
   return Math.min(...allFees);
-}
+};
 
-
-export function findBestDeal(providers: FrontendExchangeDealsList, lowestFee: number): FrontendExchangeDealsList {
+export const findBestDeal = (
+  providers: FrontendExchangeDealsList,
+  lowestFee: number,
+): FrontendExchangeDealsList => {
   // for each provider's payment method
   // mark it as "bestDeal" if the
   // fee is equal to the lowest fee
@@ -52,24 +55,24 @@ export function findBestDeal(providers: FrontendExchangeDealsList, lowestFee: nu
     }))
   }));
   return { exchanges };
-}
+};
 
 /**
  * Gets formatted name for exchange.
  */
-export function getFormattedName(name: Omit<Info, 'region'>) {
+export const getFormattedName = (name: Omit<Info, 'region'>) => {
   switch (name) {
   case 'moonpay':
     return 'MoonPay';
   case 'pocket':
     return 'Pocket';
   }
-}
+};
 
 /**
  * Filters a given accounts list, keeping only the accounts supported by at least one exchange.
  */
-export async function getExchangeSupportedAccounts(accounts: IAccount[]): Promise<IAccount[]> {
+export const getExchangeSupportedAccounts = async (accounts: IAccount[]): Promise<IAccount[]> => {
   const accountsWithFalsyValue = await Promise.all(
     accounts.map(async (account) => {
       const supported = await getExchangeBuySupported(account.code)();
@@ -77,4 +80,4 @@ export async function getExchangeSupportedAccounts(accounts: IAccount[]): Promis
     })
   );
   return accountsWithFalsyValue.filter(result => result) as IAccount[];
-}
+};

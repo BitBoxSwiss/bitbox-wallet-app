@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ const subscriptions: ISubscriptions = {};
 /**
  * This function dispatches the events from the websocket to the observers.
  */
-function handleMessages(payload: TPayload): void {
+const handleMessages = (payload: TPayload): void => {
   if (
     'type' in payload
     && payload.data
@@ -51,12 +51,12 @@ function handleMessages(payload: TPayload): void {
       observer(payload);
     }
   }
-}
+};
 
 /**
  * Subscribes the given observer on events of the given subject and returns a method to unsubscribe.
  */
-export function subscribe(subject: TSubject, observer: Observer): TUnsubscribe {
+export const subscribe = (subject: TSubject, observer: Observer): TUnsubscribe => {
   if (!subscriptions[subject]) {
     subscriptions[subject] = [];
   }
@@ -72,6 +72,6 @@ export function subscribe(subject: TSubject, observer: Observer): TUnsubscribe {
     const index = observers.indexOf(observer);
     observers.splice(index, 1);
   };
-}
+};
 
 apiWebsocket(handleMessages);

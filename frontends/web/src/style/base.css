@@ -61,25 +61,6 @@ a {
     cursor: pointer;
 }
 
-/* definition list */
-
-dl div {
-    display: inline-block;
-    margin-right: var(--spacing-large);
-}
-
-dl dt {
-    margin-right: var(--spacing-half);
-    text-indent: 0;
-}
-
-dl dd {
-    margin: 0;
-    font-weight: bold;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 img,
 button {
     user-select: none;

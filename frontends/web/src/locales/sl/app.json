@@ -18,7 +18,7 @@
   "accountInfo": {
     "address": "Naslov",
     "buyCTA": {
-      "buy": "Kupi",
+      "buy": "Kupi {{unit}}",
       "buyCrypto": "Kupi kripto",
       "information": {
         "looksEmpty": "Denarnica je prazna.",
@@ -483,7 +483,7 @@
         },
         "privacyPolicy": "Politika zasebnosti storitve MoonPay",
         "protection": {
-          "description": "BitBoxApp ne zbira nobenih podatkov ob nakupu preko MoonPay. \nPrilivi se obravnavajo in so prikazani kot običajna transakcija. MoonPay za svoje delovanje zbira nekaj osebnih podatkov. Njihova politika zasebnosti podrobno pojasnjuje, kako ravna s temi podatki.",
+          "description": "BitBoxApp ne zbira nobenih podatkov ob nakupu {{name}} preko MoonPay. \nPrilivi se obravnavajo in so prikazani kot običajna transakcija. MoonPay za svoje delovanje zbira nekaj osebnih podatkov. Njihova politika zasebnosti podrobno pojasnjuje, kako ravna s temi podatki.",
           "descriptionGeneric": "Aplikacija BitBoxApp ne zbira podatkov ob nakupu {{name}}, vhodna sredstva se obravnavajo kot običajna transakcija. Pričakujemo, da morajo partnerske borze zbrati nekaj vaših informacij za njihovo poslovanje. Oglejte si njihove pravilnike o zasebnosti, da vidite kako postopajo z vašimi podatki.",
           "title": "Zaščita podatkov"
         },
@@ -1278,7 +1278,7 @@
     "title": "Opomba"
   },
   "notification": {
-    "newTxs_one": "{{count}} novih transakcij na: {{accountName}}",
+    "newTxs_one": "Novih transakcij na: {{accountName}}",
     "newTxs_other": "{{count}} novih transakcij na: {{accountName}}"
   },
   "pairing": {

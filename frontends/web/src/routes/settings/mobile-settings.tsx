@@ -36,7 +36,7 @@ export const MobileSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetting
   const { t } = useTranslation();
   useEffect(() => {
     if (!isMobile) {
-      route('/settings/appearance');
+      route('/settings/general');
     }
   }, [isMobile]);
   return (

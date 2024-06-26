@@ -16,11 +16,12 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import { getConfig, setConfig } from '../utils/config';
-import { AppContext, TSidebarStatus } from './AppContext';
+import { AppContext } from './AppContext';
 import { useLoad } from '../hooks/api';
 import { useDefault } from '../hooks/default';
 import { getNativeLocale } from '../api/nativelocale';
 import { i18nextFormat } from '../i18n/utils';
+import type { TChartDisplay, TSidebarStatus } from './AppContext';
 
 type TProps = {
     children: ReactNode;
@@ -33,6 +34,7 @@ export const AppProvider = ({ children }: TProps) => {
   const [hideAmounts, setHideAmounts] = useState(false);
   const [activeSidebar, setActiveSidebar] = useState(false);
   const [sidebarStatus, setSidebarStatus] = useState<TSidebarStatus>('');
+  const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('all');
 
   const toggleGuide = () => {
     setConfig({ frontend: { guideShown: !guideShown } });
@@ -73,13 +75,15 @@ export const AppProvider = ({ children }: TProps) => {
         hideAmounts,
         nativeLocale,
         sidebarStatus,
+        chartDisplay,
         setActiveSidebar,
         setGuideShown,
         setGuideExists,
         setSidebarStatus,
         setHideAmounts,
+        setChartDisplay,
         toggleHideAmounts,
-        toggleSidebar
+        toggleSidebar,
       }}>
       {children}
     </AppContext.Provider>

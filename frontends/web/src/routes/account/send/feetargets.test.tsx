@@ -25,14 +25,16 @@ vi.mock('../../../i18n/i18n');
 import { render, waitFor } from '@testing-library/react';
 import { FeeTargets } from './feetargets';
 import { apiGet } from '../../../utils/request';
-import * as apiHooks from '../../../hooks/api';
 
-const useLoadSpy = vi.spyOn(apiHooks, 'useLoad');
+import * as utilsConfig from '../../../utils/config';
+const getConfig = vi.spyOn(utilsConfig, 'getConfig');
 
 describe('routes/account/send/feetargets', () => {
 
   it('should match the snapshot', async () => {
-    useLoadSpy.mockReturnValue({ frontend: { expertFee: false } });
+    getConfig.mockReturnValue(Promise.resolve({
+      frontend: { expertFee: false }
+    }));
     (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'economy',
       feeTargets: [
@@ -70,6 +72,7 @@ describe('routes/account/send/feetargets', () => {
             SGD: '32233',
             USD: '0.02',
             BTC: '0.02',
+            sat: '2000000',
           },
         }}
         customFee=""
@@ -80,7 +83,7 @@ describe('routes/account/send/feetargets', () => {
   });
 
   it('should match the snapshot with empty feetargets', async () => {
-    useLoadSpy.mockReturnValue({ frontend: { expertFee: false } });
+    getConfig.mockReturnValue(Promise.resolve({ frontend: { expertFee: false } }));
     (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: '',
       feeTargets: [],
@@ -100,7 +103,7 @@ describe('routes/account/send/feetargets', () => {
   });
 
   it('should call onFeeTargetChange with default', () => new Promise<void>(async done => {
-    useLoadSpy.mockReturnValue({ frontend: { expertFee: false } });
+    getConfig.mockReturnValue(Promise.resolve({ frontend: { expertFee: false } }));
     const apiGetMock = (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'normal',
       feeTargets: [

@@ -25,23 +25,24 @@ import (
 )
 
 func TestInit(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+	handler := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		// Test request parameters
 		_, err := rw.Write([]byte(`
-{
-    "bitbox01": {
-        "id": "some-id",
-        "message": {
-            "en": "some-msg"
-        },
-        "link": {
-            "href": "some-link"
-        }
-    }
-}
+		{
+			"bitbox01": {
+				"id": "some-id",
+				"message": {
+					"en": "some-msg"
+				},
+				"link": {
+					"href": "some-link"
+				}
+			}
+		}
 		`))
 		require.NoError(t, err)
-	}))
+	})
+	server := httptest.NewServer(handler)
 	defer server.Close()
 
 	banners := NewBanners()

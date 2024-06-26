@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/sirupsen/logrus"
 )
 
@@ -61,4 +62,13 @@ func DecodeHandlerResponse(t *testing.T, v interface{}, r io.Reader) {
 	if err := json.NewDecoder(r).Decode(v); err != nil {
 		t.Fatalf("DecodeHandlerResponse: %v", err)
 	}
+}
+
+// TstMustXKey parses an xpub/xprv and panics on error.
+func TstMustXKey(key string) *hdkeychain.ExtendedKey {
+	xkey, err := hdkeychain.NewKeyFromString(key)
+	if err != nil {
+		panic(err)
+	}
+	return xkey
 }

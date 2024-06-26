@@ -62,6 +62,8 @@ export const FeeTargets = ({
   const [options, setOptions] = useState<TOptions[] | null>(null);
   const [noFeeTargets, setNoFeeTargets] = useState<boolean>(false);
 
+  const feeTargets = useLoad(() => accountApi.getFeeTargetList(accountCode));
+
   const inputRef = useRef<HTMLInputElement & { autofocus: boolean }>(null);
 
   const focusInput = useCallback(() => {
@@ -70,32 +72,30 @@ export const FeeTargets = ({
     }
   }, [disabled]);
 
+
   useEffect(() => {
-    accountApi.getFeeTargetList(accountCode)
-      .then(({ feeTargets, defaultFeeTarget }) => {
-        if (config) {
-          const expert = config.frontend.expertFee || feeTargets.length === 0;
-          const options = feeTargets.map(({ code, feeRateInfo }) => ({
-            value: code,
-            text: t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ` (${feeRateInfo})` : ''),
-          }));
-          if (expert) {
-            options.push({
-              value: 'custom',
-              text: t('send.feeTarget.label.custom'),
-            });
-          }
-          setOptions(options);
-          setFeeTarget(defaultFeeTarget);
-          onFeeTargetChange(defaultFeeTarget);
-          if (feeTargets.length === 0) {
-            setNoFeeTargets(true);
-          }
-        }
-      })
-      .catch(console.error);
+    if (!config || !feeTargets) {
+      return;
+    }
+    const expert = config.frontend.expertFee || feeTargets.feeTargets.length === 0;
+    const options = feeTargets.feeTargets.map(({ code, feeRateInfo }) => ({
+      value: code,
+      text: t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ` (${feeRateInfo})` : ''),
+    }));
+    if (expert) {
+      options.push({
+        value: 'custom',
+        text: t('send.feeTarget.label.custom'),
+      });
+    }
+    setOptions(options);
+    setFeeTarget(feeTargets.defaultFeeTarget);
+    onFeeTargetChange(feeTargets.defaultFeeTarget);
+    if (feeTargets.feeTargets.length === 0) {
+      setNoFeeTargets(true);
+    }
     focusInput();
-  }, [t, focusInput, accountCode, config, onFeeTargetChange]);
+  }, [t, feeTargets, focusInput, accountCode, config, onFeeTargetChange]);
 
   const handleFeeTargetChange = (event: React.SyntheticEvent) => {
     const target = event.target as HTMLSelectElement;
@@ -113,7 +113,7 @@ export const FeeTargets = ({
       return '';
     }
     const { amount, unit, conversions } = proposedFee;
-    return `${amount} ${unit} ${conversions ? ` = ${conversions[fiatUnit === 'sat' ? 'BTC' : fiatUnit]} ${fiatUnit}` : ''}`;
+    return `${amount} ${unit} ${conversions ? ` = ${conversions[fiatUnit]} ${fiatUnit}` : ''}`;
   };
 
   if (options === null) {
@@ -232,4 +232,3 @@ export const FeeTargets = ({
     )
   );
 };
-

@@ -18,6 +18,7 @@ package accounts
 import (
 	"io"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
@@ -84,6 +85,7 @@ type Interface interface {
 	CanVerifyAddresses() (bool, bool, error)
 	VerifyAddress(addressID string) (bool, error)
 
+	Notes() *notes.Notes
 	TxNote(txID string) string
 	// ProposeTxnote stores a note. The note is persisted in the notes database upon calling
 	// SendTx(). This function must be called before `SendTx()`.

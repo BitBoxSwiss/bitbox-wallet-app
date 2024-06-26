@@ -1399,7 +1399,7 @@
   "password": {
     "show": "Mostra {{label}}",
     "warning": {
-      "caps": "per incollare il testo, attivare \"MOSTRA {{etichetta}}\"",
+      "caps": "ATTENZIONE: il blocco delle maiuscole (⇪) è abilitato.",
       "paste": "per incollare il testo, attivare \"MOSTRA {{label}}\""
     }
   },

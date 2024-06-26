@@ -29,19 +29,24 @@
 }
 
 .sidebar {
-    position: fixed;
-    margin-left: calc(var(--sidebar-width-large) * -1);
     align-content: stretch;
     background-color: var(--background-dark);
+    bottom: 0;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    height: 100%;
     justify-content: flex-start;
-    height: 100vh;
+    margin-left: calc(var(--sidebar-width-large) * -1);
+    max-height: 100vh;
+    /* mobile viewport bug fix */
+    min-height: -webkit-fill-available;
+    overflow-y: auto;
     padding: 0 0 var(--spacing-default) 0;
+    position: fixed;
+    top: 0;
     width: var(--sidebar-width-large);
     z-index: 4002;
-    overflow-y: auto;
 }
 
 .sidebar > *.end {
@@ -217,4 +222,14 @@ a.sidebarActive .single img,
     padding: 0;
     text-align: left;
     width: 100%;
+}
+
+.canUpgradeDot {
+    height: 8px;
+    left: 2px;
+    max-width: 8px;
+    position: relative;
+    top: -2px;
+    vertical-align: top;
+    width: 8px;
 }

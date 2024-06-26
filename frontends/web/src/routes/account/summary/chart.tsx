@@ -21,10 +21,11 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { Skeleton } from '../../../components/skeleton/skeleton';
 import { Amount } from '../../../components/amount/amount';
 import { PercentageDiff } from './percentage-diff';
-import Filters from './filters';
+import { Filters } from './filters';
 import { getDarkmode } from '../../../components/darkmode/darkmode';
-import { TChartDisplay, TChartFiltersProps } from './types';
+import { TChartFiltersProps } from './types';
 import { DefaultCurrencyRotator } from '../../../components/rates/rates';
+import { AppContext } from '../../../contexts/AppContext';
 import styles from './chart.module.css';
 
 export interface FormattedLineData extends LineData {
@@ -40,7 +41,6 @@ type ChartProps = {
 };
 
 type State = {
-  display: TChartDisplay;
   source: 'daily' | 'hourly';
   difference?: number;
   diffSince?: string;
@@ -58,6 +58,8 @@ type FormattedData = {
   [key: number]: string;
 }
 class Chart extends Component<Props, State> {
+  static contextType = AppContext;
+  context!: React.ContextType<typeof AppContext>;
   private ref = createRef<HTMLDivElement>();
   private refToolTip = createRef<HTMLSpanElement>();
   private chart?: IChartApi;
@@ -81,7 +83,6 @@ class Chart extends Component<Props, State> {
   };
 
   public readonly state: State = {
-    display: 'all',
     source: 'daily',
     toolTipVisible: false,
     toolTipValue: undefined,
@@ -92,6 +93,9 @@ class Chart extends Component<Props, State> {
   };
 
   public componentDidMount() {
+    if (this.state.source !== 'hourly' && this.context.chartDisplay === 'week') {
+      this.setState({ source: 'hourly' });
+    }
     this.createChart();
   }
 
@@ -230,7 +234,7 @@ class Chart extends Component<Props, State> {
         lineColor: 'rgba(94, 148, 192, 1)',
         crosshairMarkerRadius: 6,
       });
-      switch (this.state.display) {
+      switch (this.context.chartDisplay) {
       case 'week':
         this.displayWeek();
         break;
@@ -241,8 +245,17 @@ class Chart extends Component<Props, State> {
         this.displayYear();
         break;
       }
-      this.lineSeries.setData(this.props.data.chartDataDaily as ChartData);
-      this.setFormattedData(this.props.data.chartDataDaily as ChartData);
+      const isChartDisplayWeekly = this.context.chartDisplay === 'week';
+      this.lineSeries.setData(
+        (isChartDisplayWeekly ?
+          this.props.data.chartDataHourly :
+          this.props.data.chartDataDaily) as ChartData
+      );
+      this.setFormattedData(
+        (isChartDisplayWeekly ?
+          this.props.data.chartDataHourly :
+          this.props.data.chartDataDaily) as ChartData
+      );
       this.chart.timeScale().subscribeVisibleLogicalRangeChange(this.calculateChange);
       this.chart.subscribeCrosshairMove(this.handleCrosshair);
       this.chart.timeScale().fitContent();
@@ -312,8 +325,9 @@ class Chart extends Component<Props, State> {
       this.setFormattedData(this.props.data.chartDataHourly || []);
       this.chart.applyOptions({ timeScale: { timeVisible: true } });
     }
+    this.context.setChartDisplay('week');
     this.setState(
-      { display: 'week', source: 'hourly' },
+      { source: 'hourly' },
       () => {
         if (!this.chart) {
           return;
@@ -334,8 +348,9 @@ class Chart extends Component<Props, State> {
       this.setFormattedData(this.props.data.chartDataDaily || []);
       this.chart.applyOptions({ timeScale: { timeVisible: false } });
     }
+    this.context.setChartDisplay('month');
     this.setState(
-      { display: 'month', source: 'daily' },
+      { source: 'daily' },
       () => {
         if (!this.chart) {
           return;
@@ -356,8 +371,9 @@ class Chart extends Component<Props, State> {
       this.setFormattedData(this.props.data.chartDataDaily);
       this.chart.applyOptions({ timeScale: { timeVisible: false } });
     }
+    this.context.setChartDisplay('year');
     this.setState(
-      { display: 'year', source: 'daily' },
+      { source: 'daily' },
       () => {
         if (!this.chart) {
           return;
@@ -378,8 +394,9 @@ class Chart extends Component<Props, State> {
       this.setFormattedData(this.props.data.chartDataDaily);
       this.chart.applyOptions({ timeScale: { timeVisible: false } });
     }
+    this.context.setChartDisplay('all');
     this.setState(
-      { display: 'all', source: 'daily' },
+      { source: 'daily' },
       () => {
         if (!this.chart) {
           return;
@@ -498,7 +515,6 @@ class Chart extends Component<Props, State> {
     const {
       difference,
       diffSince,
-      display,
       toolTipVisible,
       toolTipValue,
       toolTipTop,
@@ -513,7 +529,7 @@ class Chart extends Component<Props, State> {
     const disableWeeklyFilters = !hasHourlyData || chartDataMissing;
     const showMobileTotalValue = toolTipVisible && !!toolTipValue && isMobile;
     const chartFiltersProps = {
-      display,
+      display: this.context.chartDisplay,
       disableFilters,
       disableWeeklyFilters,
       onDisplayWeek: this.displayWeek,

@@ -22,7 +22,7 @@ import { useDarkmode } from '../../hooks/darkmode';
 import { AccountCode, IAccount } from '../../api/account';
 import { getConfig } from '../../utils/config';
 import { getMoonpayBuyInfo } from '../../api/exchanges';
-import Guide from './guide';
+import { BuyGuide } from './guide';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { findAccount, getCryptoName } from '../account/utils';
@@ -114,7 +114,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
           </div>
         </div>
       </div>
-      <Guide name={name} exchange={'moonpay'}/>
+      <BuyGuide name={name} exchange={'moonpay'}/>
     </div>
   );
 };

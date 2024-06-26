@@ -19,7 +19,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/crypto"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/random"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestEncryptThenMAC(t *testing.T) {
@@ -29,11 +29,11 @@ func TestEncryptThenMAC(t *testing.T) {
 		authenticationKey := random.BytesOrPanic(32)
 
 		encryptedBytes, err := crypto.EncryptThenMAC(message, encryptionKey, authenticationKey)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		decryptedBytes, err := crypto.MACThenDecrypt(encryptedBytes, encryptionKey, authenticationKey)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
-		assert.Equal(t, message, decryptedBytes)
+		require.Equal(t, message, decryptedBytes)
 	}
 }
