@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 /* Imported svg source (excluding BitBox logos): http://cryptoicons.co/ */
 
+import type { CoinCode } from '../../api/account';
 import AppLogoInvertedImg from './assets/app-logo-inverted.svg';
 import AppLogoImg from './assets/app-logo.svg';
 import BitBoxLogo from './assets/bitbox-logo.svg';
@@ -73,7 +74,7 @@ export const SwissMadeOpenSource = ({ large: boolean, className, ...props }: Gen
 export const SwissMadeOpenSourceDark = ({ large: boolean, className, ...props }: GenericProps) => <img {...props} draggable={false} src={SwissOpenSourceDark} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${props.large ? style.large : ''} ${className ? className : ''}`} />;
 
 type LogoMap = {
-    [property: string]: string[];
+    [key in CoinCode]: string[];
 }
 
 const logoMap: LogoMap = {
@@ -104,11 +105,16 @@ interface Props {
     active?: boolean;
     alt?: string;
     className?: string;
-    coinCode: string;
+    coinCode: CoinCode;
     stacked?: boolean;
 }
 
-function Logo({ coinCode, active, stacked, ...rest }: Props) {
+export const Logo = ({
+  coinCode,
+  active,
+  stacked,
+  ...rest
+}: Props) => {
   if (!logoMap[coinCode]) {
     console.error('logo undefined for ', coinCode);
     return null;
@@ -127,6 +133,4 @@ function Logo({ coinCode, active, stacked, ...rest }: Props) {
         </div>}
     </div>
   );
-}
-
-export default Logo;
+};

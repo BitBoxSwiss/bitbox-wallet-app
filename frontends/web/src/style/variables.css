@@ -36,6 +36,16 @@
     --color-error: var(--color-swissred);
     --color-danger: var(--color-error);
 
+    /* status broder and background colors */
+    --color-success-background: rgba(122, 186, 122, .2);
+    --color-success-border: rgba(122, 186, 122, .33);
+    --color-info-background: rgba(94, 148, 191, .2);
+    --color-info-border: rgba(94, 148, 191, .33);
+    --color-warning-background: rgba(245, 160, 76, .2);
+    --color-warning-border: rgba(245, 160, 76, .33);
+    --color-error-background: rgba(227, 6, 19, .2);
+    --color-error-border: rgba(227, 6, 19, .33);
+
     /* font sizes */
     --size-extra-large: 2.2rem;
     --size-large: 2rem;
@@ -193,5 +203,6 @@
         --size-title: 16px;
 
         --size-wizard-text: 14px;
+        --size-default: 16px;
     }
 }

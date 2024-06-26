@@ -110,7 +110,7 @@ func TestSetLightningConfig(t *testing.T) {
 	require.NoError(t, err)
 
 	lightningCfg := cfg.LightningConfig()
-	require.Equal(t, 0, len(lightningCfg.Accounts))
+	require.Empty(t, lightningCfg.Accounts)
 	lightningCfg.Accounts = append(lightningCfg.Accounts, &LightningAccountConfig{
 		Mnemonic:        "test",
 		Code:            "v0-test-ln-0",
@@ -122,7 +122,7 @@ func TestSetLightningConfig(t *testing.T) {
 	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 	require.Equal(t, cfg, cfg2)
-	require.Equal(t, 1, len(lightningCfg.Accounts))
+	require.Len(t, lightningCfg.Accounts, 1)
 }
 
 // TestMigrationSaved tests that migrations are applied when a config is loaded, and that the

@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ export type UnsubscribeList = Array<(TUnsubscribe)>;
  * It calls and removes all unsubscribers from the array.
  * This is only useful if you component has more than 1 subscribtion.
  */
-export function unsubscribe(unsubscribeList: UnsubscribeList) {
+export const unsubscribe = (unsubscribeList: UnsubscribeList) => {
   for (const unsubscribeCallback of unsubscribeList) {
     unsubscribeCallback();
   }
   unsubscribeList.splice(0, unsubscribeList.length);
-}
+};

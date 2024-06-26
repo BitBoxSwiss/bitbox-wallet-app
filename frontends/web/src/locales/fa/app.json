@@ -93,7 +93,7 @@
     },
     "flipscreen": "چرخش تصویر",
     "orientation": "جهت تصویر اشتباه است؟",
-    "success": "بروزرسانی با موفقیت انجام شد! ادامه در {{rebootSeconds}} ثانیه..."
+    "success": "ارتقا با موفقیت انجام شد!"
   },
   "bitbox": {
     "error": {
@@ -597,7 +597,7 @@
   },
   "loading": "در حال بارگذاری…",
   "notification": {
-    "newTxs_one": "{{count}} معاملات جدید در: {{accountName}}"
+    "newTxs_one": "تراکنش جدید در: {{accountName}}"
   },
   "pairing": {
     "aborted": {

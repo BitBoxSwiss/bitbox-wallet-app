@@ -18,6 +18,7 @@ package btc
 import (
 	"encoding/base64"
 	"fmt"
+	"net/http"
 	"os"
 	"path"
 	"sort"
@@ -36,6 +37,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
@@ -44,7 +46,6 @@ import (
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/sirupsen/logrus"
 )
@@ -57,6 +58,10 @@ const (
 	// maxGapLimit limits the maximum gap limit that can be used. It is an arbitrary number with the
 	// goal that the scanning will stop in a reasonable amount of time.
 	maxGapLimit = 2000
+
+	// mempoolSpaceMirror is Shift server that mirrors "https://mempool.space/api/v1/fees/recommended"
+	// rest call.
+	mempoolSpaceMirror = "https://fees1.shiftcrypto.io"
 )
 
 type subaccount struct {
@@ -102,8 +107,6 @@ type Account struct {
 	activeTxProposal     *maketx.TxProposal
 	activeTxProposalLock locker.Locker
 
-	feeTargets     []*FeeTarget
-	feeTargetsLock locker.Locker
 	// Access this only via getMinRelayFeeRate(). sat/kB.
 	minRelayFeeRate     *btcutil.Amount
 	minRelayFeeRateLock locker.Locker
@@ -117,6 +120,8 @@ type Account struct {
 	closed bool
 
 	log *logrus.Entry
+
+	httpClient *http.Client
 }
 
 // NewAccount creates a new account.
@@ -127,6 +132,7 @@ func NewAccount(
 	coin *Coin,
 	forceGapLimits *types.GapLimits,
 	log *logrus.Entry,
+	httpClient *http.Client,
 ) *Account {
 	log = log.WithField("group", "btc").
 		WithFields(logrus.Fields{"coin": coin.String(), "code": config.Config.Code, "name": config.Config.Name})
@@ -138,14 +144,8 @@ func NewAccount(
 		dbSubfolder:    "", // set in Initialize()
 		forceGapLimits: forceGapLimits,
 
-		// feeTargets must be sorted by ascending priority.
-		feeTargets: []*FeeTarget{
-			{blocks: 24, code: accounts.FeeTargetCodeEconomy},
-			{blocks: 12, code: accounts.FeeTargetCodeLow},
-			{blocks: 6, code: accounts.FeeTargetCodeNormal},
-			{blocks: 2, code: accounts.FeeTargetCodeHigh},
-		},
-		log: log,
+		log:        log,
+		httpClient: httpClient,
 	}
 	return account
 }
@@ -431,8 +431,6 @@ func (account *Account) onNewHeader(header *electrumTypes.Header) {
 		return
 	}
 	account.log.WithField("block-height", header.Height).Debug("Received new header")
-	// Fee estimates change with each block.
-	account.updateFeeTargets()
 }
 
 // FatalError returns true if the account had a fatal error.
@@ -477,26 +475,68 @@ func (account *Account) Notifier() accounts.Notifier {
 	return account.notifier
 }
 
-func (account *Account) updateFeeTargets() {
-	defer account.feeTargetsLock.Lock()()
+// feeTargets fetches the available fees. For mainnet BTC it uses mempool.space estimation.
+//
+// For the other coins or in case mempool.space is not available it fallbacks on Bitcoin Core.
+// The minimum relay fee is used as a last resource fallback in case also Bitcoin Core is
+// unavailable.
+func (account *Account) feeTargets() []*FeeTarget {
+	// for mainnet BTC we fetch mempool.space fees, as they should be more reliable.
+	var mempoolFees *accounts.MempoolSpaceFees
+	if account.coin.Code() == coin.CodeBTC {
+		mempoolFees = &accounts.MempoolSpaceFees{}
+		_, err := util.APIGet(account.httpClient, mempoolSpaceMirror, "", 1000, mempoolFees)
+		if err != nil {
+			mempoolFees = nil
+			account.log.WithError(err).Errorf("Fetching fees from %s failed", mempoolSpaceMirror)
+		}
+	}
+
+	// feeTargets must be sorted by ascending priority.
+	var feeTargets []*FeeTarget
+	if mempoolFees != nil {
+		feeTargets = []*FeeTarget{
+			{blocks: 12, code: accounts.FeeTargetCodeMempoolEconomy},
+			{blocks: 3, code: accounts.FeeTargetCodeMempoolHour},
+			{blocks: 2, code: accounts.FeeTargetCodeMempoolHalfHour},
+			{blocks: 1, code: accounts.FeeTargetCodeMempoolFastest},
+		}
+	} else {
+		feeTargets = []*FeeTarget{
+			{blocks: 24, code: accounts.FeeTargetCodeEconomy},
+			{blocks: 12, code: accounts.FeeTargetCodeLow},
+			{blocks: 6, code: accounts.FeeTargetCodeNormal},
+			{blocks: 2, code: accounts.FeeTargetCodeHigh},
+		}
+	}
+
 	var minRelayFeeRate *btcutil.Amount
 	minRelayFeeRateVal, err := account.getMinRelayFeeRate()
 	if err == nil {
 		minRelayFeeRate = &minRelayFeeRateVal
 	}
-	for _, feeTarget := range account.feeTargets {
-		feeRatePerKb, err := account.coin.Blockchain().EstimateFee(feeTarget.blocks)
-		if err != nil {
-			if account.coin.Code() != coin.CodeTLTC {
-				account.log.WithField("fee-target", feeTarget.blocks).
-					Warning("Fee could not be estimated. Taking the minimum relay fee instead")
+
+	for _, feeTarget := range feeTargets {
+		var feeRatePerKb btcutil.Amount
+
+		if mempoolFees != nil {
+			feeRatePerKb = mempoolFees.GetFeeRate(feeTarget.code)
+		} else {
+			// If mempool.space fees are not available, we fallback on Bitcoin Core estimation.
+			// If even that one is not available, we just offer the min relay fee.
+			feeRatePerKb, err = account.coin.Blockchain().EstimateFee(feeTarget.blocks)
+			if err != nil {
+				if account.coin.Code() != coin.CodeTLTC {
+					account.log.WithField("fee-target", feeTarget.blocks).
+						Warning("Fee could not be estimated. Taking the minimum relay fee instead")
+				}
+				if minRelayFeeRate == nil {
+					account.log.WithField("fee-target", feeTarget.blocks).
+						Warning("Minimum relay fee could not be determined")
+					continue
+				}
+				feeRatePerKb = *minRelayFeeRate
 			}
-			if minRelayFeeRate == nil {
-				account.log.WithField("fee-target", feeTarget.blocks).
-					Warning("Minimum relay fee could not be determined")
-				continue
-			}
-			feeRatePerKb = *minRelayFeeRate
 		}
 		// If the minrelayfee is available the estimated fee rate is smaller than the minrelayfee,
 		// we use the minrelayfee instead. If the minrelayfee is unknown, we leave the fee
@@ -507,42 +547,36 @@ func (account *Account) updateFeeTargets() {
 		feeTarget.feeRatePerKb = &feeRatePerKb
 		account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
 			"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
-		account.Config().OnEvent(accountsTypes.EventFeeTargetsChanged)
 	}
+
+	return feeTargets
 }
 
 // FeeTargets returns the fee targets and the default fee target.
 func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
-	defer account.feeTargetsLock.RLock()()
-	// Return only fee targets with a valid fee rate (drop if fee could not be estimated). Also
-	// remove all duplicate fee rates.
+	// Return only fee targets with a valid fee rate (drop if fee could not be estimated).
+	fetchedFeeTargets := account.feeTargets()
 	feeTargets := []accounts.FeeTarget{}
-	defaultAvailable := false
-outer:
-	for i := len(account.feeTargets) - 1; i >= 0; i-- {
-		feeTarget := account.feeTargets[i]
+	defaultFee := accounts.FeeTargetCodeCustom
+
+	for _, feeTarget := range fetchedFeeTargets {
 		if feeTarget.feeRatePerKb == nil {
 			continue
 		}
-		for j := i - 1; j >= 0; j-- {
-			checkFeeTarget := account.feeTargets[j]
-			if checkFeeTarget.feeRatePerKb != nil && *checkFeeTarget.feeRatePerKb == *feeTarget.feeRatePerKb {
-				continue outer
-			}
-		}
-		if feeTarget.code == accounts.DefaultFeeTarget {
-			defaultAvailable = true
+
+		switch feeTarget.code {
+		case accounts.DefaultFeeTarget:
+			fallthrough
+		case accounts.DefaultMempoolFeeTarget:
+			defaultFee = feeTarget.code
 		}
 		feeTargets = append(feeTargets, feeTarget)
 	}
 	// If the default fee level was dropped, use the cheapest.
 	// If no fee targets are available, use custom (the user can manually enter a fee rate).
-	defaultFee := accounts.DefaultFeeTarget
-	if !defaultAvailable {
+	if defaultFee == accounts.FeeTargetCodeCustom {
 		if len(feeTargets) != 0 {
 			defaultFee = feeTargets[0].Code()
-		} else {
-			defaultFee = accounts.FeeTargetCodeCustom
 		}
 	}
 	return feeTargets, defaultFee
@@ -772,19 +806,55 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	return keystore.CanVerifyAddress(account.Coin())
 }
 
-type byValue struct {
-	outputs []*SpendableOutput
+// addressOutputsSum holds the address and sum of outputs for that address.
+type addressOutputsSum struct {
+	address string
+	sum     int64
 }
 
-func (p *byValue) Len() int { return len(p.outputs) }
-func (p *byValue) Less(i, j int) bool {
-	if p.outputs[i].TxOut.Value == p.outputs[j].TxOut.Value {
-		// Secondary sort to make coin selection deterministic.
-		return chainhash.HashH(p.outputs[i].TxOut.PkScript).String() < chainhash.HashH(p.outputs[j].TxOut.PkScript).String()
+// sortByAddresses sorts the outputs by grouping them based on their addresses and then sorting each group
+// from outputs with the biggest amounts to those with the lowest amounts.
+func sortByAddresses(result []*SpendableOutput) []*SpendableOutput {
+	// Create a map to store outputs grouped by address
+	grouped := make(map[string][]*SpendableOutput)
+
+	// Group outputs by address
+	for _, output := range result {
+		grouped[output.Address.String()] = append(grouped[output.Address.String()], output)
 	}
-	return p.outputs[i].TxOut.Value < p.outputs[j].TxOut.Value
+
+	// Create a slice to store the sums of outputs and addresses
+	sums := make([]addressOutputsSum, 0, len(grouped))
+
+	// Calculate sums of values for each group and store in the sums slice
+	for address, outputs := range grouped {
+		var sum int64
+		for _, output := range outputs {
+			sum += output.TxOut.Value
+		}
+		sums = append(sums, addressOutputsSum{
+			address: address,
+			sum:     sum,
+		})
+	}
+
+	// Sort the sums slice by the sum of values in descending order
+	sort.Slice(sums, func(i, j int) bool {
+		return sums[i].sum > sums[j].sum
+	})
+
+	// Create a new result grouped by addresses, sort them by value
+	newResult := make([]*SpendableOutput, 0, len(result))
+	for _, s := range sums {
+		outputs := grouped[s.address]
+		sort.Slice(outputs, func(i, j int) bool {
+			return outputs[i].Value > outputs[j].Value
+		})
+		newResult = append(newResult, outputs...)
+	}
+
+	return newResult
 }
-func (p *byValue) Swap(i, j int) { p.outputs[i], p.outputs[j] = p.outputs[j], p.outputs[i] }
 
 // SpendableOutput is an unspent coin.
 type SpendableOutput struct {
@@ -811,8 +881,7 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 				Address:         account.getAddress(blockchain.NewScriptHashHex(txOut.TxOut.PkScript)),
 			})
 	}
-	sort.Sort(sort.Reverse(&byValue{result}))
-	return result
+	return sortByAddresses(result)
 }
 
 // VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output

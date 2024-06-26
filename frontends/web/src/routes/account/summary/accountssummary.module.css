@@ -1,6 +1,6 @@
 .accountName {
     display: flex;
-    align-items: center;
+    align-items: baseline;
 }
 
 .accountName p {

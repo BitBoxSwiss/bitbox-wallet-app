@@ -24,7 +24,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -42,23 +41,23 @@ func TestCertTestSuite(t *testing.T) {
 
 func (s *certTestSuite) TestNewRSAPrivateKey() {
 	privateKey, err := generateRSAPrivateKey()
-	require.NoError(s.T(), err)
-	require.NotEmpty(s.T(), privateKey)
-	require.NotEmpty(s.T(), privateKey.PublicKey)
+	s.Require().NoError(err)
+	s.Require().NotEmpty(privateKey)
+	s.Require().NotEmpty(privateKey.PublicKey)
 }
 
 func (s *certTestSuite) TestNewCertificate() {
 	privateKey, _ := generateRSAPrivateKey()
 	certificate, err := createSelfSignedCertificate(privateKey, s.log)
-	require.NoError(s.T(), err)
-	require.NotEmpty(s.T(), certificate)
+	s.Require().NoError(err)
+	s.Require().NotEmpty(certificate)
 	x509Cert, err := x509.ParseCertificate(certificate)
-	require.NoError(s.T(), err)
-	require.NotNil(s.T(), x509Cert)
+	s.Require().NoError(err)
+	s.Require().NotNil(x509Cert)
 	err = x509Cert.VerifyHostname("localhost")
-	require.NoError(s.T(), err)
-	require.True(s.T(), time.Now().After(x509Cert.NotBefore))
-	require.True(s.T(), time.Now().AddDate(0, 0, 1).After(x509Cert.NotAfter))
+	s.Require().NoError(err)
+	s.Require().True(time.Now().After(x509Cert.NotBefore))
+	s.Require().True(time.Now().AddDate(0, 0, 1).After(x509Cert.NotAfter))
 }
 
 func (s *certTestSuite) TestSavingCertAsPEM() {
@@ -67,19 +66,19 @@ func (s *certTestSuite) TestSavingCertAsPEM() {
 	temporaryFile := test.TstTempFile("cert_test.pem")
 	defer func() {
 		if _, err := os.Stat(temporaryFile); !os.IsNotExist(err) {
-			require.NoError(s.T(), err)
+			s.Require().NoError(err)
 			err = os.Remove(temporaryFile)
-			require.NoError(s.T(), err)
+			s.Require().NoError(err)
 		}
 	}()
 	err := saveAsPEM(temporaryFile, derToPem("CERTIFICATE", certificate))
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 	_, err = os.Stat(temporaryFile)
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 	pemBytes, err := os.ReadFile(temporaryFile)
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 	pemBlock, rest := pem.Decode(pemBytes)
-	require.NotNil(s.T(), pemBlock)
-	require.EqualValues(s.T(), certificate, pemBlock.Bytes)
-	require.Empty(s.T(), rest)
+	s.Require().NotNil(pemBlock)
+	s.Require().EqualValues(certificate, pemBlock.Bytes)
+	s.Require().Empty(rest)
 }

@@ -28,13 +28,11 @@ import (
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
@@ -73,6 +71,30 @@ func (a AccountsList) lookup(code accountsTypes.Code) accounts.Interface {
 		}
 	}
 	return nil
+}
+
+// lookupByTransactionInternalID finds the account which contains a transaction with this internal
+// tx ID. `nil, nil` is returned if not found. `err` is returned if there was an error fetching the
+// account transactions.
+func (a AccountsList) lookupByTransactionInternalID(internalID string) (accounts.Interface, error) {
+	for _, account := range a {
+		if account.FatalError() {
+			continue
+		}
+		if err := account.Initialize(); err != nil {
+			return nil, err
+		}
+		transactions, err := account.Transactions()
+		if err != nil {
+			return nil, err
+		}
+		for _, transactionData := range transactions {
+			if transactionData.InternalID == internalID {
+				return account, nil
+			}
+		}
+	}
+	return nil, nil
 }
 
 // sortAccounts sorts the accounts in-place by 1) coin 2) account number.
@@ -234,7 +256,6 @@ func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat stri
 	}
 
 	coinDecimals := coin.DecimalsExp(account.Coin())
-
 	price, err := backend.RatesUpdater().LatestPriceForPair(account.Coin().Unit(false), fiat)
 	if err != nil {
 		return nil, err
@@ -278,13 +299,6 @@ func (backend *Backend) convertBtcAmountToFiat(amount coin.Amount, fiat string) 
 func (backend *Backend) AccountsTotalBalanceByKeystore() (map[string]KeystoreTotalAmount, error) {
 	totalAmounts := make(map[string]KeystoreTotalAmount)
 	fiat := backend.Config().AppConfig().Backend.MainFiat
-	isFiatBtc := fiat == rates.BTC.String()
-	fiatUnit := fiat
-	if isFiatBtc && backend.Config().AppConfig().Backend.BtcUnit == coinpkg.BtcUnitSats {
-		fiatUnit = "sat"
-	}
-
-	formatBtcAsSat := util.FormatBtcAsSat(backend.Config().AppConfig().Backend.BtcUnit)
 
 	accountsByKeystore, err := backend.AccountsByKeystore()
 	if err != nil {
@@ -327,8 +341,8 @@ func (backend *Backend) AccountsTotalBalanceByKeystore() (map[string]KeystoreTot
 			}
 		}
 		totalAmounts[rootFingerprint] = KeystoreTotalAmount{
-			FiatUnit: fiatUnit,
-			Total:    coinpkg.FormatAsCurrency(currentTotal, isFiatBtc, formatBtcAsSat),
+			FiatUnit: fiat,
+			Total:    coinpkg.FormatAsCurrency(currentTotal, fiat),
 		}
 	}
 	return totalAmounts, nil

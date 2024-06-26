@@ -53,8 +53,8 @@ func (hook stackHook) Fire(entry *logrus.Entry) error {
 		if errCast, ok := err.(error); ok {
 			enrichIfPossible(errCast, entry)
 			stackTrace := fmt.Sprintf("%+v", errCast)
-			stackLine := strings.Replace(stackTrace, "\n", " > ", -1)
-			stackLine = strings.Replace(stackLine, "\t", "", -1)
+			stackLine := strings.ReplaceAll(stackTrace, "\n", " > ")
+			stackLine = strings.ReplaceAll(stackLine, "\t", "")
 			entry.Data["error"] = stackLine
 		}
 	}

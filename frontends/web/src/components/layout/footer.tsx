@@ -23,7 +23,7 @@ type TProps = {
   children: ReactNode;
 }
 
-export function Footer({ children }: TProps) {
+export const Footer = ({ children }: TProps) => {
   return (
     <footer className={[style.footer, 'flex flex-row flex-items-center flex-end'].join(' ')}>
       {children}
@@ -33,4 +33,4 @@ export function Footer({ children }: TProps) {
       <LanguageSwitch />
     </footer>
   );
-}
+};

@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,11 +54,11 @@ type Props = {
   devices: TDevices;
 };
 
-export function Account({
+export const Account = ({
   accounts,
   code,
   devices,
-}: Props) {
+}: Props) => {
   const { t } = useTranslation();
 
   const [balance, setBalance] = useState<accountApi.IBalance>();
@@ -185,7 +185,7 @@ export function Account({
     return () => unsubscribe(subscriptions);
   }, [code, onAccountChanged, onStatusChanged, status]);
 
-  function exportAccount() {
+  const exportAccount = () => {
     if (status === undefined || status.fatalError) {
       return;
     }
@@ -196,7 +196,7 @@ export function Account({
         }
       })
       .catch(console.error);
-  }
+  };
 
   useEffect(() => {
     setStateCode(code);
@@ -339,4 +339,4 @@ export function Account({
       />
     </div>
   );
-}
+};

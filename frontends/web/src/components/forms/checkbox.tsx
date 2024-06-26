@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ type CheckboxProps = JSX.IntrinsicElements['input'] & {
     checkboxStyle?: 'default' | 'info' | 'warning' | 'success';
 }
 
-const Checkbox: FunctionComponent<CheckboxProps> = ({
+export const Checkbox: FunctionComponent<CheckboxProps> = ({
   disabled = false,
   label,
   id,
@@ -45,5 +45,3 @@ const Checkbox: FunctionComponent<CheckboxProps> = ({
     </span>
   );
 };
-
-export default Checkbox;

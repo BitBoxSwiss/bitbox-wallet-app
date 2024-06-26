@@ -317,16 +317,27 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 		return result, errp.New("Interface must be of type btc.Account")
 	}
 
+	addressCounts := make(map[string]int)
+
 	for _, output := range t.SpendableOutputs() {
+		address := output.Address.EncodeForHumans()
+		addressCounts[address]++
+	}
+
+	for _, output := range t.SpendableOutputs() {
+		address := output.Address.EncodeForHumans()
+		addressReused := addressCounts[address] > 1
+
 		result = append(result,
 			map[string]interface{}{
-				"outPoint":   output.OutPoint.String(),
-				"txId":       output.OutPoint.Hash.String(),
-				"txOutput":   output.OutPoint.Index,
-				"amount":     handlers.formatBTCAmountAsJSON(btcutil.Amount(output.TxOut.Value), false),
-				"address":    output.Address.EncodeForHumans(),
-				"scriptType": output.Address.Configuration.ScriptType(),
-				"note":       handlers.account.TxNote(output.OutPoint.Hash.String()),
+				"outPoint":      output.OutPoint.String(),
+				"txId":          output.OutPoint.Hash.String(),
+				"txOutput":      output.OutPoint.Index,
+				"amount":        handlers.formatBTCAmountAsJSON(btcutil.Amount(output.TxOut.Value), false),
+				"address":       address,
+				"scriptType":    output.Address.Configuration.ScriptType(),
+				"note":          handlers.account.TxNote(output.OutPoint.Hash.String()),
+				"addressReused": addressReused,
 			})
 	}
 

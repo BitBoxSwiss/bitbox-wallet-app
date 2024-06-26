@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../../contexts/AppContext';
 import { MenuDark } from '../icon';
@@ -31,16 +31,6 @@ const Spinner = ({ text, guideExists }: TProps) => {
   const { t } = useTranslation();
 
   const { toggleGuide, toggleSidebar } = useContext(AppContext);
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    e.preventDefault();
-    (document.activeElement as HTMLInputElement).blur();
-  };
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
 
   return (
     <div className={style.spinnerContainer}>

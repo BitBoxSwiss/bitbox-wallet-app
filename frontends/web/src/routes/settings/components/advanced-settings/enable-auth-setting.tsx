@@ -21,7 +21,7 @@ import { SettingsItem } from '../settingsItem/settingsItem';
 import { TBackendConfig, TConfig } from '../../advanced-settings';
 import { setConfig } from '../../../../utils/config';
 import { onAuthSettingChanged, TAuthEventObject, subscribeAuth, forceAuth } from '../../../../api/backend';
-import { runningInAndroid } from '../../../../utils/env';
+import { runningInAndroid, runningInIOS } from '../../../../utils/env';
 
 type TProps = {
   backendConfig?: TBackendConfig;
@@ -56,7 +56,7 @@ export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => 
     onChangeConfig(config);
   };
 
-  if (!runningInAndroid()) {
+  if (!runningInAndroid() && !runningInIOS()) {
     return null;
   }
 

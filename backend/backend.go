@@ -242,6 +242,15 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	log.Infof("backend config: %+v", config.AppConfig().Backend)
 	log.Infof("frontend config: %+v", config.AppConfig().Frontend)
+	backendProxy := socksproxy.NewSocksProxy(
+		config.AppConfig().Backend.Proxy.UseProxy,
+		config.AppConfig().Backend.Proxy.ProxyAddress,
+	)
+	hclient, err := backendProxy.GetHTTPClient()
+	if err != nil {
+		return nil, err
+	}
+
 	backend := &Backend{
 		arguments:   arguments,
 		environment: environment,
@@ -254,7 +263,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		aopp:     AOPP{State: aoppStateInactive},
 
 		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, log *logrus.Entry) accounts.Interface {
-			return btc.NewAccount(config, coin, gapLimits, log)
+			return btc.NewAccount(config, coin, gapLimits, log, hclient)
 		},
 		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
 			return eth.NewAccount(config, coin, httpClient, log)
@@ -267,14 +276,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		return nil, err
 	}
 	backend.notifier = notifier
-	backend.socksProxy = socksproxy.NewSocksProxy(
-		backend.config.AppConfig().Backend.Proxy.UseProxy,
-		backend.config.AppConfig().Backend.Proxy.ProxyAddress,
-	)
-	hclient, err := backend.socksProxy.GetHTTPClient()
-	if err != nil {
-		return nil, err
-	}
+	backend.socksProxy = backendProxy
 	backend.httpClient = hclient
 	backend.etherScanHTTPClient = ratelimit.FromTransport(hclient.Transport, etherscan.CallInterval)
 

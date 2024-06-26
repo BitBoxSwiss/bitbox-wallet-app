@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,28 +22,28 @@ let socket: WebSocket | undefined;
 
 const currentListeners: TMsgCallback[] = [];
 
-export function webSubscribePushNotifications(msgCallback: TMsgCallback): TUnsubscribe {
+export const webSubscribePushNotifications = (msgCallback: TMsgCallback): TUnsubscribe => {
   currentListeners.push(msgCallback);
   if (!socket) {
     socket = new WebSocket((isTLS() ? 'wss://' : 'ws://') + 'localhost:' + apiPort + '/api/events');
 
-    socket.onopen = function() {
+    socket.onopen = () => {
       if (socket) {
         socket.send('Authorization: Basic ' + apiToken);
       }
     };
 
-    socket.onerror = function(event) {
+    socket.onerror = (event) => {
       console.error('websocket error', event);
     };
 
     // Listen for messages
-    socket.onmessage = function(event) {
+    socket.onmessage = (event) => {
       const payload = JSON.parse(event.data);
       currentListeners.forEach(listener => listener(payload));
     };
 
-    socket.onclose = function() {
+    socket.onclose = () => {
       currentListeners.forEach(listener => listener({ subject: 'backend/connected', action: 'replace', object: false }));
     };
   }
@@ -57,4 +57,4 @@ export function webSubscribePushNotifications(msgCallback: TMsgCallback): TUnsub
       console.warn('currentListeners.includes(msgCallback)');
     }
   };
-}
+};
