@@ -78,7 +78,10 @@ export const Exchange = ({ code, accounts }: TProps) => {
       return;
     }
     const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' }) || '';
-    const regions = regionList.regions.map(region => ({ value: region.code, label: regionNames.of(region.code) } as TOption));
+    const regions: TOption[] = regionList.regions.map(region => ({
+      value: region.code,
+      label: regionNames.of(region.code) || region.code
+    }));
 
     regions.sort((a, b) => a.label.localeCompare(b.label, i18n.language));
     setRegions(regions);
