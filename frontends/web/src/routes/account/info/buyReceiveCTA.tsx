@@ -16,8 +16,8 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useMediaQuery } from '../../../hooks/mediaquery';
-import { route } from '../../../utils/route';
 import { CoinUnit, IAccount, IBalance } from '../../../api/account';
 import { Button } from '../../../components/forms';
 import { Balances } from '../summary/accountssummary';
@@ -47,19 +47,20 @@ export const BuyReceiveCTA = ({
   exchangeBuySupported = true,
   account,
 }: TBuyReceiveCTAProps) => {
-  const formattedUnit = isBitcoinCoin(unit as CoinUnit) ? 'BTC' : unit;
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const formattedUnit = isBitcoinCoin(unit as CoinUnit) ? 'BTC' : unit;
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const onBuyCTA = () => route(code ? `/buy/info/${code}` : '/buy/info');
-  const onWalletConnect = () => route(`/account/${code}/wallet-connect/dashboard`);
+  const onBuyCTA = () => navigate(code ? `/buy/info/${code}` : '/buy/info');
+  const onWalletConnect = () => navigate(`/account/${code}/wallet-connect/dashboard`);
   const onReceiveCTA = () => {
     if (balanceList) {
       if (balanceList.length > 1) {
-        route('accounts/select-receive');
+        navigate('accounts/select-receive');
         return;
       }
-      route(`/account/${code}/receive`);
+      navigate(`/account/${code}/receive`);
     }
   };
 
