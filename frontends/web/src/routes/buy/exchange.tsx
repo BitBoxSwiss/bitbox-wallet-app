@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import 'flag-icons';
 import { useState, useEffect } from 'react';
-import { i18n } from '../../i18n/i18n';
 import { useTranslation } from 'react-i18next';
+import { SingleValue } from 'react-select';
+import { i18n } from '../../i18n/i18n';
 import { Button } from '../../components/forms';
 import * as exchangesAPI from '../../api/exchanges';
 import { AccountCode, IAccount } from '../../api/account';
@@ -35,9 +37,8 @@ import { InfoButton } from '../../components/infobutton/infobutton';
 import { InfoContent } from './components/infocontent';
 import { getNativeLocale } from '../../api/nativelocale';
 import { getConfig, setConfig } from '../../utils/config';
-import { SingleValue } from 'react-select';
-import style from './exchange.module.css';
 import { CountrySelect, TOption } from './components/countryselect';
+import style from './exchange.module.css';
 
 type TProps = {
     code: AccountCode;
