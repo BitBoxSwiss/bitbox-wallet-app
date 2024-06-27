@@ -49,7 +49,7 @@ export const BuyReceiveCTA = ({
 }: TBuyReceiveCTAProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const formattedUnit = isBitcoinCoin(unit as CoinUnit) ? 'BTC' : unit;
+  const isBitcoin = isBitcoinCoin(unit as CoinUnit);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const onBuyCTA = () => navigate(code ? `/buy/info/${code}` : '/buy/info');
@@ -75,12 +75,20 @@ export const BuyReceiveCTA = ({
       <div className={styles.container}>
         {balanceList && (
           <Button primary onClick={onReceiveCTA}>
-            {formattedUnit ? t('receive.title', { accountName: formattedUnit }) : t('receive.title', { accountName: t('buy.info.crypto') })}
+            {/* "Receive Bitcoin", "Receive crypto" or "Receive LTC" (via placeholder "Receive {{coinCode}}") */}
+            {t('generic.receive', {
+              context: isBitcoin ? 'bitcoin' : (unit ? '' : 'crypto'),
+              coinCode: unit
+            })}
           </Button>
         )}
         {exchangeBuySupported && (
           <Button primary onClick={onBuyCTA}>
-            {formattedUnit ? t('accountInfo.buyCTA.buy', { unit: formattedUnit }) : t('accountInfo.buyCTA.buyCrypto')}
+            {/* "Buy Bitcoin", "Buy crypto" or "Buy LTC" (via placeholder "Buy {{coinCode}}") */}
+            {t('generic.buy', {
+              context: isBitcoin ? 'bitcoin' : (unit ? '' : 'crypto'),
+              coinCode: unit
+            })}
           </Button>
         )}
         {account && isEthereumBased(account.coinCode) && !account.isToken && (
