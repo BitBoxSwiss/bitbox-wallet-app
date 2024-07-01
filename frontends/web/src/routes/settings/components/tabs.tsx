@@ -81,8 +81,7 @@ export const Tab = ({
         <SettingsItem
           settingName={name}
           onClick={() => navigate(url)}
-          extraComponent={<ChevronRightDark/>} />
-        {upgradeDot}
+          extraComponent={upgradeDot ? upgradeDot : <ChevronRightDark />} />
       </div>
     );
   }
