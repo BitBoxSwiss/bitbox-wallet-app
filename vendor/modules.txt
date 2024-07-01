@@ -27,10 +27,11 @@ github.com/aead/siphash
 # github.com/bits-and-blooms/bitset v1.13.0
 ## explicit; go 1.16
 github.com/bits-and-blooms/bitset
-# github.com/btcsuite/btcd v0.24.0
+# github.com/btcsuite/btcd v0.24.2
 ## explicit; go 1.17
 github.com/btcsuite/btcd/blockchain
 github.com/btcsuite/btcd/blockchain/indexers
+github.com/btcsuite/btcd/blockchain/internal/workmath
 github.com/btcsuite/btcd/btcjson
 github.com/btcsuite/btcd/chaincfg
 github.com/btcsuite/btcd/database
