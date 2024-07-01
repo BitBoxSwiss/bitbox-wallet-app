@@ -16,7 +16,7 @@
 
 import { FrontendExchangeDealsList, Info } from './types';
 import { IAccount } from '../../api/account';
-import { getExchangeBuySupported } from '../../api/exchanges';
+import { getExchangeBuySupported, getExchangeSellSupported } from '../../api/exchanges';
 
 /**
  * Finds the lowest fee among all `supported`
@@ -76,6 +76,21 @@ export const getExchangeSupportedAccounts = async (accounts: IAccount[]): Promis
   const accountsWithFalsyValue = await Promise.all(
     accounts.map(async (account) => {
       const supported = await getExchangeBuySupported(account.code)();
+      return supported.exchanges.length ? account : false;
+    })
+  );
+  return accountsWithFalsyValue.filter(result => result) as IAccount[];
+};
+
+
+/**
+ * Filters a given accounts list, keeping only the accounts supported by at least one exchange for selling.
+ */
+export const getSellExchangeSupportedAccounts = async (accounts: IAccount[]): Promise<IAccount[]> => {
+  const accountsWithFalsyValue = await Promise.all(
+    accounts.map(async (account) => {
+      //TODO: Remove the Promise.resolve mock and only use getExchangeSellSupported once BE is ready
+      const supported = account.coinCode !== 'btc' && account.coinCode !== 'tbtc' ? await Promise.resolve({ exchanges: [] }) : await getExchangeSellSupported();
       return supported.exchanges.length ? account : false;
     })
   );

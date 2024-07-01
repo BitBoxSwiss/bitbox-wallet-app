@@ -91,7 +91,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
     <Main>
       <GuideWrapper>
         <GuidedContent>
-          <Header title={<h2>{t('buy.info.title', { name })}</h2>}>
+          <Header title={<h2>{t('exchange.exchangeCTA', { unit: name })}</h2>}>
             <HideAmountsButton />
           </Header>
           <View width="550px" verticallyCentered fullscreen={false}>
@@ -99,15 +99,16 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
               { !supportedAccounts || supportedAccounts.length === 0 ? (
                 <div className="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
               ) : (
-                supportedAccounts &&
-                      <GroupedAccountSelector
-                        accounts={supportedAccounts}
-                        title={t('buy.title', { name })}
-                        disabled={disabled}
-                        selected={selected}
-                        onChange={setSelected}
-                        onProceed={handleProceed}
-                      />
+                supportedAccounts && (
+                  <GroupedAccountSelector
+                    accounts={supportedAccounts}
+                    title={t('exchange.exchangeCTA', { unit: name })}
+                    disabled={disabled}
+                    selected={selected}
+                    onChange={setSelected}
+                    onProceed={handleProceed}
+                  />
+                )
               )}
             </ViewContent>
           </View>
