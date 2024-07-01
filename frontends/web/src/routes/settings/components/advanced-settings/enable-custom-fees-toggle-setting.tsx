@@ -16,10 +16,10 @@
 
 import { ChangeEvent, Dispatch } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Toggle } from '../../../../components/toggle/toggle';
-import { SettingsItem } from '../settingsItem/settingsItem';
-import { TConfig, TFrontendConfig } from '../../advanced-settings';
-import { setConfig } from '../../../../utils/config';
+import { Toggle } from '@/components/toggle/toggle';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { TConfig, TFrontendConfig } from '@/routes/settings/advanced-settings';
+import { setConfig } from '@/utils/config';
 
 type TProps = {
   frontendConfig?: TFrontendConfig;

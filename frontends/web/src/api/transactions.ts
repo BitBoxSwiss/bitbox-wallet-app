@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { subscribe as subscribeLegacy } from '../utils/event-legacy';
+import { subscribe as subscribeLegacy } from '@/utils/event-legacy';
 
 export const syncNewTxs = (
   cb: (

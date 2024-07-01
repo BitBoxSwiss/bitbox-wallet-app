@@ -18,9 +18,9 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { WCWeb3WalletContext } from './WCWeb3WalletContext';
 import { IWeb3Wallet } from '@walletconnect/web3wallet';
-import { getTopicFromURI, pairingHasEverBeenRejected } from '../utils/walletconnect';
-import { useLoad } from '../hooks/api';
-import { getConfig, setConfig } from '../utils/config';
+import { getTopicFromURI, pairingHasEverBeenRejected } from '@/utils/walletconnect';
+import { useLoad } from '@/hooks/api';
+import { getConfig, setConfig } from '@/utils/config';
 
 type TProps = {
     children: ReactNode;

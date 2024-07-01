@@ -15,8 +15,8 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { View, ViewContent, ViewHeader } from '../../../components/view/view';
-import { Status } from '../../../components/status/status';
+import { View, ViewContent, ViewHeader } from '@/components/view/view';
+import { Status } from '@/components/status/status';
 import { PasswordEntry } from './components/password-entry/password-entry';
 
 type Props = {

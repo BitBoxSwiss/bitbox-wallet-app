@@ -17,10 +17,10 @@
 
 import React, { ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { GuideActive, MenuLight, MenuDark } from '../icon';
-import { AppContext } from '../../contexts/AppContext';
+import { GuideActive, MenuLight, MenuDark } from '@/components/icon';
+import { AppContext } from '@/contexts/AppContext';
 import style from './header.module.css';
-import { Button } from '../forms';
+import { Button } from '@/components/forms';
 interface HeaderProps {
     title?: string | JSX.Element | JSX.Element[];
     narrow?: boolean;

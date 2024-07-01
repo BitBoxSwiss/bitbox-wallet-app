@@ -15,10 +15,10 @@
  */
 
 import { useEffect } from 'react';
-import { View, ViewContent } from '../../components/view/view';
-import { Header, Main } from '../../components/layout';
-import { route } from '../../utils/route';
-import { useMediaQuery } from '../../hooks/mediaquery';
+import { View, ViewContent } from '@/components/view/view';
+import { Header, Main } from '@/components/layout';
+import { route } from '@/utils/route';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { Tabs } from './components/tabs';
 import { useTranslation } from 'react-i18next';
 import { TPagePropsWithSettingsTabs } from './types';

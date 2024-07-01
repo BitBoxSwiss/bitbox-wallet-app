@@ -16,7 +16,7 @@
 
 import { useContext, useEffect } from 'react';
 import { NavigateFunction, useLocation, useNavigate } from 'react-router';
-import { AppContext } from '../contexts/AppContext';
+import { AppContext } from '@/contexts/AppContext';
 
 
 let navigate: NavigateFunction | undefined;

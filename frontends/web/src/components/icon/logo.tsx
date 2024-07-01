@@ -17,7 +17,7 @@
 
 /* Imported svg source (excluding BitBox logos): http://cryptoicons.co/ */
 
-import type { CoinCode } from '../../api/account';
+import type { CoinCode } from '@/api/account';
 import AppLogoInvertedImg from './assets/app-logo-inverted.svg';
 import AppLogoImg from './assets/app-logo.svg';
 import BitBoxLogo from './assets/bitbox-logo.svg';

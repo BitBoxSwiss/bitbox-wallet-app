@@ -15,8 +15,8 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Entry } from '../../../../components/guide/entry';
-import { Guide } from '../../../../components/guide/guide';
+import { Entry } from '@/components/guide/entry';
+import { Guide } from '@/components/guide/guide';
 
 type Props = {
   hasMultipleAddresses: boolean;

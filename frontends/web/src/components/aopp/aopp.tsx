@@ -15,20 +15,20 @@
  */
 
 import React, { Component, ReactNode } from 'react';
-import * as accountAPI from '../../api/account';
-import * as aoppAPI from '../../api/aopp';
-import { translate, TranslateProps } from '../../decorators/translate';
-import { equal } from '../../utils/equal';
-import { SimpleMarkup } from '../../utils/markup';
-import { View, ViewHeader, ViewContent, ViewButtons } from '../view/view';
-import { Message } from '../message/message';
-import { Button, Field, Label, Select } from '../forms';
-import { CopyableInput } from '../copy/Copy';
-import { Cancel, PointToBitBox02 } from '../icon';
+import * as accountAPI from '@/api/account';
+import * as aoppAPI from '@/api/aopp';
+import { translate, TranslateProps } from '@/decorators/translate';
+import { equal } from '@/utils/equal';
+import { SimpleMarkup } from '@/utils/markup';
+import { View, ViewHeader, ViewContent, ViewButtons } from '@/components/view/view';
+import { Message } from '@/components/message/message';
+import { Button, Field, Label, Select } from '@/components/forms';
+import { CopyableInput } from '@/components/copy/Copy';
+import { Cancel, PointToBitBox02 } from '@/components/icon';
 import { VerifyAddress } from './verifyaddress';
 import { Vasp } from './vasp';
 import styles from './aopp.module.css';
-import { TUnsubscribe } from '../../utils/transport-common';
+import { TUnsubscribe } from '@/utils/transport-common';
 
 type TProps = {
   children: ReactNode;

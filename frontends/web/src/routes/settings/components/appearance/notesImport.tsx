@@ -16,10 +16,10 @@
 
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { importNotes } from '../../../../api/backend';
-import { alertUser } from '../../../../components/alert/Alert';
-import { SettingsItem } from '../settingsItem/settingsItem';
-import { ChevronRightDark } from '../../../../components/icon';
+import { importNotes } from '@/api/backend';
+import { alertUser } from '@/components/alert/Alert';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { ChevronRightDark } from '@/components/icon';
 import style from './notesImport.module.css';
 
 export const NotesImport = () => {

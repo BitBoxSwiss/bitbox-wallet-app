@@ -1,5 +1,5 @@
 import { ReactNode, useContext } from 'react';
-import { useLocalizedPunctuation } from '../hooks/localized';
+import { useLocalizedPunctuation } from '@/hooks/localized';
 import { LocalizationContext } from './localization-context';
 import { AppContext } from './AppContext';
 

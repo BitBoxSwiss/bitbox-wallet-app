@@ -15,9 +15,9 @@
  */
 
 import { useContext } from 'react';
-import { AppContext } from '../../../contexts/AppContext';
-import { localizePercentage } from '../../../utils/localize';
-import { ArrowDownRed, ArrowUpGreen } from '../../../components/icon';
+import { AppContext } from '@/contexts/AppContext';
+import { localizePercentage } from '@/utils/localize';
+import { ArrowDownRed, ArrowUpGreen } from '@/components/icon';
 import styles from './percentage-diff.module.css';
 
 type TPercentageDiff = {

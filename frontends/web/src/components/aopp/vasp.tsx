@@ -15,11 +15,11 @@
  */
 
 import styles from './vasp.module.css';
-import AOPPGroupLogo from '../../assets/exchanges/logos/aoppgroup.svg';
-import BitcoinSuisseLogo from '../../assets/exchanges/logos/bitcoin_suisse.png';
-import BittrLogo from '../../assets/exchanges/logos/bittr.png';
-import BityLogo from '../../assets/exchanges/logos/bity.png';
-import PocketBitcoinLogo from '../../assets/exchanges/logos/pocketbitcoin.svg';
+import AOPPGroupLogo from '@/assets/exchanges/logos/aoppgroup.svg';
+import BitcoinSuisseLogo from '@/assets/exchanges/logos/bitcoin_suisse.png';
+import BittrLogo from '@/assets/exchanges/logos/bittr.png';
+import BityLogo from '@/assets/exchanges/logos/bity.png';
+import PocketBitcoinLogo from '@/assets/exchanges/logos/pocketbitcoin.svg';
 
 type TVASPProps = {
     fallback?: JSX.Element;

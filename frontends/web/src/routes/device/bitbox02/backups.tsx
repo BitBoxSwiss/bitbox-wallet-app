@@ -17,17 +17,17 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSync } from '../../../hooks/api';
-import { restoreBackup } from '../../../api/bitbox02';
-import { getBackupList, subscribeBackupList } from '../../../api/backup';
-import { Toast } from '../../../components/toast/toast';
-import { BackupsListItem } from '../components/backup';
-import { Backup } from '../../../api/backup';
-import { Button } from '../../../components/forms';
+import { useSync } from '@/hooks/api';
+import { restoreBackup } from '@/api/bitbox02';
+import { getBackupList, subscribeBackupList } from '@/api/backup';
+import { Toast } from '@/components/toast/toast';
+import { BackupsListItem } from '@/routes/device/components/backup';
+import { Backup } from '@/api/backup';
+import { Button } from '@/components/forms';
 import { Check } from './checkbackup';
 import { Create } from './createbackup';
-import { HorizontallyCenteredSpinner } from '../../../components/spinner/SpinnerAnimation';
-import backupStyle from '../components/backups.module.css';
+import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimation';
+import backupStyle from '@/routes/device/components/backups.module.css';
 
 type TProps = {
     deviceID: string;

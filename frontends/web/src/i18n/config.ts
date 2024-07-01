@@ -16,8 +16,8 @@
  */
 
 import { LanguageDetectorAsyncModule } from 'i18next';
-import { getNativeLocale } from '../api/nativelocale';
-import { getConfig } from '../utils/config';
+import { getNativeLocale } from '@/api/nativelocale';
+import { getConfig } from '@/utils/config';
 import { i18nextFormat } from './utils';
 
 const defaultUserLanguage = 'en';

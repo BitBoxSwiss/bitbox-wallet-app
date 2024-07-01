@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { currenciesWithDisplayName, formattedCurrencies } from '../../../../components/rates/rates';
-import { SingleDropdown } from '../dropdowns/singledropdown';
-import { SettingsItem } from '../settingsItem/settingsItem';
-import { Fiat } from '../../../../api/account';
+import { currenciesWithDisplayName, formattedCurrencies } from '@/components/rates/rates';
+import { SingleDropdown } from '@/routes/settings/components/dropdowns/singledropdown';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { Fiat } from '@/api/account';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
-import { RatesContext } from '../../../../contexts/RatesContext';
+import { RatesContext } from '@/contexts/RatesContext';
 
 export const DefaultCurrencyDropdownSetting = () => {
   const { t } = useTranslation();

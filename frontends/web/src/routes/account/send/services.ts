@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { alertUser } from '../../../components/alert/Alert';
-import { i18n } from '../../../i18n/i18n';
+import { alertUser } from '@/components/alert/Alert';
+import { i18n } from '@/i18n/i18n';
 
 export type TProposalError = {
     addressError: string;

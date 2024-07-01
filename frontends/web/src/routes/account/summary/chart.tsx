@@ -16,16 +16,16 @@
 
 import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
 import { Component, createRef, ReactChild } from 'react';
-import { ISummary } from '../../../api/account';
-import { translate, TranslateProps } from '../../../decorators/translate';
-import { Skeleton } from '../../../components/skeleton/skeleton';
-import { Amount } from '../../../components/amount/amount';
+import { ISummary } from '@/api/account';
+import { translate, TranslateProps } from '@/decorators/translate';
+import { Skeleton } from '@/components/skeleton/skeleton';
+import { Amount } from '@/components/amount/amount';
 import { PercentageDiff } from './percentage-diff';
 import { Filters } from './filters';
-import { getDarkmode } from '../../../components/darkmode/darkmode';
+import { getDarkmode } from '@/components/darkmode/darkmode';
 import { TChartFiltersProps } from './types';
-import { DefaultCurrencyRotator } from '../../../components/rates/rates';
-import { AppContext } from '../../../contexts/AppContext';
+import { DefaultCurrencyRotator } from '@/components/rates/rates';
+import { AppContext } from '@/contexts/AppContext';
 import styles from './chart.module.css';
 
 export interface FormattedLineData extends LineData {

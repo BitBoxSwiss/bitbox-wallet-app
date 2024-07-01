@@ -16,9 +16,9 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { AccountCode, TTransactions } from '../../api/account';
+import { AccountCode, TTransactions } from '@/api/account';
 import { Transaction } from './transaction';
-import { Button } from '../forms';
+import { Button } from '@/components/forms';
 import style from './transactions.module.css';
 
 type TProps = {

@@ -17,16 +17,16 @@
 
 import { useState, useEffect, createRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '../../hooks/api';
-import { useDarkmode } from '../../hooks/darkmode';
-import { AccountCode, IAccount } from '../../api/account';
-import { getConfig } from '../../utils/config';
-import { getMoonpayBuyInfo } from '../../api/exchanges';
+import { useLoad } from '@/hooks/api';
+import { useDarkmode } from '@/hooks/darkmode';
+import { AccountCode, IAccount } from '@/api/account';
+import { getConfig } from '@/utils/config';
+import { getMoonpayBuyInfo } from '@/api/exchanges';
 import { BuyGuide } from './guide';
-import { Header } from '../../components/layout';
-import { Spinner } from '../../components/spinner/Spinner';
-import { findAccount, getCryptoName } from '../account/utils';
-import { MoonpayTerms } from '../../components/terms/moonpay-terms';
+import { Header } from '@/components/layout';
+import { Spinner } from '@/components/spinner/Spinner';
+import { findAccount, getCryptoName } from '@/routes/account/utils';
+import { MoonpayTerms } from '@/components/terms/moonpay-terms';
 import style from './iframe.module.css';
 
 type TProps = {

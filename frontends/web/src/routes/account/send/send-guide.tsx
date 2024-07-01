@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { isBitcoinBased, isBitcoinOnly } from '../utils';
-import { Entry } from '../../../components/guide/entry';
-import { Guide } from '../../../components/guide/guide';
-import { CoinCode } from '../../../api/account';
+import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
+import { Entry } from '@/components/guide/entry';
+import { Guide } from '@/components/guide/guide';
+import { CoinCode } from '@/api/account';
 
 type TProps = {
     coinCode: CoinCode

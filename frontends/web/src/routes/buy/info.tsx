@@ -16,15 +16,15 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { route } from '../../utils/route';
-import * as accountApi from '../../api/account';
+import { route } from '@/utils/route';
+import * as accountApi from '@/api/account';
 import { getExchangeSupportedAccounts } from './utils';
-import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
-import { Spinner } from '../../components/spinner/Spinner';
-import { isBitcoinOnly } from '../account/utils';
-import { View, ViewContent } from '../../components/view/view';
-import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
-import { GroupedAccountSelector } from '../../components/groupedaccountselector/groupedaccountselector';
+import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
+import { Spinner } from '@/components/spinner/Spinner';
+import { isBitcoinOnly } from '@/routes/account/utils';
+import { View, ViewContent } from '@/components/view/view';
+import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
+import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { BuyGuide } from './guide';
 
 type TProps = {

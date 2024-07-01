@@ -16,14 +16,14 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SettingsItem } from '../settingsItem/settingsItem';
-import { ChevronRightDark } from '../../../../components/icon';
-import { WaitDialog } from '../../../../components/wait-dialog/wait-dialog';
-import { MultilineMarkup, SimpleMarkup } from '../../../../utils/markup';
-import { showMnemonic } from '../../../../api/bitbox02';
-import { Message } from '../../../../components/message/message';
-import { Dialog, DialogButtons } from '../../../../components/dialog/dialog';
-import { Button } from '../../../../components/forms';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { ChevronRightDark } from '@/components/icon';
+import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
+import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
+import { showMnemonic } from '@/api/bitbox02';
+import { Message } from '@/components/message/message';
+import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Button } from '@/components/forms';
 
 type TProps = {
   deviceID: string;

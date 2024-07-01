@@ -15,8 +15,8 @@
  */
 
 import { AccountCode } from './account';
-import { apiGet, apiPost } from '../utils/request';
-import type { TUnsubscribe } from '../utils/transport-common';
+import { apiGet, apiPost } from '@/utils/request';
+import type { TUnsubscribe } from '@/utils/transport-common';
 import { subscribeEndpoint } from './subscribe';
 
 export interface Account {

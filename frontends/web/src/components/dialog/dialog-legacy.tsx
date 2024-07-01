@@ -16,7 +16,7 @@
  */
 
 import React, { Component, createRef } from 'react';
-import { CloseXDark, CloseXWhite } from '../icon';
+import { CloseXDark, CloseXWhite } from '@/components/icon';
 import style from './dialog-legacy.module.css';
 interface Props {
     title?: string;

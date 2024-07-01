@@ -17,12 +17,12 @@
 
 import React, { useState, useEffect, useRef, ChangeEvent, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '../../../hooks/api';
-import * as accountApi from '../../../api/account';
-import { getConfig } from '../../../utils/config';
-import { Input, Select } from '../../../components/forms';
-import { Message } from '../../../components/message/message';
-import { customFeeUnit, getCoinCode, isEthereumBased } from '../utils';
+import { useLoad } from '@/hooks/api';
+import * as accountApi from '@/api/account';
+import { getConfig } from '@/utils/config';
+import { Input, Select } from '@/components/forms';
+import { Message } from '@/components/message/message';
+import { customFeeUnit, getCoinCode, isEthereumBased } from '@/routes/account/utils';
 import style from './feetargets.module.css';
 
 type Props = {

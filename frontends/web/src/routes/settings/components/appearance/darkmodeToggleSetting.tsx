@@ -15,9 +15,9 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useDarkmode } from '../../../../hooks/darkmode';
-import { Toggle } from '../../../../components/toggle/toggle';
-import { SettingsItem } from '../settingsItem/settingsItem';
+import { useDarkmode } from '@/hooks/darkmode';
+import { Toggle } from '@/components/toggle/toggle';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 
 export const DarkmodeToggleSetting = () => {
   const { t } = useTranslation();

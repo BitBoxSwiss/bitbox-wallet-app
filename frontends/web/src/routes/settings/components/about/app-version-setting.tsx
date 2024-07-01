@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import { useLoad } from '../../../../hooks/api';
+import { useLoad } from '@/hooks/api';
 import { useTranslation } from 'react-i18next';
-import { getUpdate, getVersion } from '../../../../api/version';
-import { open } from '../../../../api/system';
-import { SettingsItem } from '../settingsItem/settingsItem';
-import { StyledSkeleton } from '../../bb02-settings';
-import { Checked, RedDot } from '../../../../components/icon';
-import { downloadLinkByLanguage } from '../../../../components/appdownloadlink/appdownloadlink';
+import { getUpdate, getVersion } from '@/api/version';
+import { open } from '@/api/system';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { StyledSkeleton } from '@/routes/settings/bb02-settings';
+import { Checked, RedDot } from '@/components/icon';
+import { downloadLinkByLanguage } from '@/components/appdownloadlink/appdownloadlink';
 
 export const AppVersion = () => {
   const { t } = useTranslation();

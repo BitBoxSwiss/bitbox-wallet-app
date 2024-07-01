@@ -15,7 +15,7 @@
  */
 
 import { ReactNode } from 'react';
-import { Toggle, TToggleProps } from '../toggle/toggle';
+import { Toggle, TToggleProps } from '@/components/toggle/toggle';
 import style from './settingsToggle.module.css';
 
 type Props = TToggleProps & {

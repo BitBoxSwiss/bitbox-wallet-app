@@ -16,15 +16,15 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SettingsItem } from '../settingsItem/settingsItem';
-import { View, ViewButtons, ViewContent, ViewHeader } from '../../../../components/view/view';
-import { Button, Checkbox } from '../../../../components/forms';
-import { ChevronRightDark, PointToBitBox02, Warning } from '../../../../components/icon';
-import { invokeBIP85 } from '../../../../api/bitbox02';
-import { SimpleMarkup } from '../../../../utils/markup';
-import { A } from '../../../../components/anchor/anchor';
-import { Column, Grid } from '../../../../components/layout';
-import { useDarkmode } from '../../../../hooks/darkmode';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
+import { Button, Checkbox } from '@/components/forms';
+import { ChevronRightDark, PointToBitBox02, Warning } from '@/components/icon';
+import { invokeBIP85 } from '@/api/bitbox02';
+import { SimpleMarkup } from '@/utils/markup';
+import { A } from '@/components/anchor/anchor';
+import { Column, Grid } from '@/components/layout';
+import { useDarkmode } from '@/hooks/darkmode';
 import bip85Graphic from './assets/bip85-graphic.svg';
 import bip85GraphicLight from './assets/bip85-graphic-light.svg';
 

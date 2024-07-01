@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { apiGet, apiPost } from '../utils/request';
+import { apiGet, apiPost } from '@/utils/request';
 import { AccountCode } from './account';
 
 export type TDetailStatus = 'active' | 'processing' | 'refused' | 'waitpayment' | 'inactive' | 'canceled';

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useDarkmode } from '../../hooks/darkmode';
+import { useDarkmode } from '@/hooks/darkmode';
 
 let darkmode: boolean | undefined;
 

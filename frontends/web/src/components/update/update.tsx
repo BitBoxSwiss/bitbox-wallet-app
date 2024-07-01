@@ -16,11 +16,11 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { runningInAndroid } from '../../utils/env';
-import { getUpdate } from '../../api/version';
-import { Status } from '../status/status';
-import { AppDownloadLink } from '../appdownloadlink/appdownloadlink';
-import { useLoad } from '../../hooks/api';
+import { runningInAndroid } from '@/utils/env';
+import { getUpdate } from '@/api/version';
+import { Status } from '@/components/status/status';
+import { AppDownloadLink } from '@/components/appdownloadlink/appdownloadlink';
+import { useLoad } from '@/hooks/api';
 import style from './update.module.css';
 
 export const Update = () => {

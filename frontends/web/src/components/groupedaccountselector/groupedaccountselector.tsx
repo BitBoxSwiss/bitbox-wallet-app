@@ -17,14 +17,14 @@
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Select, { components, SingleValueProps, OptionProps, SingleValue, DropdownIndicatorProps, GroupProps, GroupHeadingProps as ReactSelectGroupHeadingProps } from 'react-select';
-import { AccountCode, IAccount } from '../../api/account';
-import { Button } from '../forms';
-import { Logo } from '../icon/logo';
-import { AppContext } from '../../contexts/AppContext';
-import { USBSuccess } from '../icon';
-import { Badge } from '../badge/badge';
-import { InsuredShield } from '../../routes/account/components/insuredtag';
-import { getAccountsByKeystore } from '../../routes/account/utils';
+import { AccountCode, IAccount } from '@/api/account';
+import { Button } from '@/components/forms';
+import { Logo } from '@/components/icon/logo';
+import { AppContext } from '@/contexts/AppContext';
+import { USBSuccess } from '@/components/icon';
+import { Badge } from '@/components/badge/badge';
+import { InsuredShield } from '@/routes/account/components/insuredtag';
+import { getAccountsByKeystore } from '@/routes/account/utils';
 import { createGroupedOptions, getBalancesForGroupedAccountSelector } from './services';
 import styles from './groupedaccountselector.module.css';
 

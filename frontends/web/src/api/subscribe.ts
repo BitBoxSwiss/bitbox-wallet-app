@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { apiSubscribe, TEvent, TUnsubscribe } from '../utils/event';
-import { apiGet } from '../utils/request';
+import { apiSubscribe, TEvent, TUnsubscribe } from '@/utils/event';
+import { apiGet } from '@/utils/request';
 
 export type { TUnsubscribe };
 

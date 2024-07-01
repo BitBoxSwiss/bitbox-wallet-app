@@ -16,13 +16,13 @@
 
 import { SetStateAction, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as accountAPI from '../../../../../api/account';
-import { Button, Input } from '../../../../../components/forms';
-import { route } from '../../../../../utils/route';
-import { useMediaQuery } from '../../../../../hooks/mediaquery';
-import { ScanQRButton } from '../../../send/components/inputs/receiver-address-input';
-import { ScanQRDialog } from '../../../send/components/dialogs/scan-qr-dialog';
-import { ScanQRVideo } from '../../../send/components/inputs/scan-qr-video';
+import * as accountAPI from '@/api/account';
+import { Button, Input } from '@/components/forms';
+import { route } from '@/utils/route';
+import { useMediaQuery } from '@/hooks/mediaquery';
+import { ScanQRButton } from '@/routes/account/send/components/inputs/receiver-address-input';
+import { ScanQRDialog } from '@/routes/account/send/components/dialogs/scan-qr-dialog';
+import { ScanQRVideo } from '@/routes/account/send/components/inputs/scan-qr-video';
 import styles from './connect-form.module.css';
 
 type TWCConnectFormProps = {

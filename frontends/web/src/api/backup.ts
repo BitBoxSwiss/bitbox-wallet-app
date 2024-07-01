@@ -1,4 +1,4 @@
-import { apiGet } from '../utils/request';
+import { apiGet } from '@/utils/request';
 import { FailResponse } from './response';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 

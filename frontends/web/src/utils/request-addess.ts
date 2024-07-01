@@ -15,7 +15,7 @@
  */
 
 import { V0MessageScriptType } from 'request-address';
-import { ScriptType } from '../api/account';
+import { ScriptType } from '@/api/account';
 
 
 // convertScriptType converts a V0MessageScriptType script type (https://www.npmjs.com/package/request-address#v0messagescripttype)

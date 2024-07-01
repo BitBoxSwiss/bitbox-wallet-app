@@ -15,7 +15,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { CoinCode, IAccount } from '../../api/account';
+import { CoinCode, IAccount } from '@/api/account';
 import { getAccountsByKeystore } from './utils';
 
 

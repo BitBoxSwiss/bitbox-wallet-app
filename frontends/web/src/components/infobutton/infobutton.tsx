@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { BuyInfo } from '../icon/icon';
+import { BuyInfo } from '@/components/icon/icon';
 import style from './infobutton.module.css';
 
 type TProps = { onClick: () => void }

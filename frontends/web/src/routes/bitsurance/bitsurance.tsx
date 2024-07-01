@@ -16,19 +16,19 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IAccount } from '../../api/account';
-import { bitsuranceLookup } from '../../api/bitsurance';
-import { alertUser } from '../../components/alert/Alert';
-import { A } from '../../components/anchor/anchor';
-import { Button } from '../../components/forms';
-import { Checked, Sync, SyncLight } from '../../components/icon';
-import { Column, ColumnButtons, Grid, GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
-import { View, ViewContent } from '../../components/view/view';
-import { useDarkmode } from '../../hooks/darkmode';
-import { route } from '../../utils/route';
+import { IAccount } from '@/api/account';
+import { bitsuranceLookup } from '@/api/bitsurance';
+import { alertUser } from '@/components/alert/Alert';
+import { A } from '@/components/anchor/anchor';
+import { Button } from '@/components/forms';
+import { Checked, Sync, SyncLight } from '@/components/icon';
+import { Column, ColumnButtons, Grid, GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
+import { View, ViewContent } from '@/components/view/view';
+import { useDarkmode } from '@/hooks/darkmode';
+import { route } from '@/utils/route';
 import { BitsuranceGuide } from './guide';
 import style from './bitsurance.module.css';
-import { i18n } from '../../i18n/i18n';
+import { i18n } from '@/i18n/i18n';
 
 type TProps = {
     accounts: IAccount[];

@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { TChartFiltersProps } from './types';
-import { PillButton, PillButtonGroup } from '../../../components/pillbuttongroup/pillbuttongroup';
+import { PillButton, PillButtonGroup } from '@/components/pillbuttongroup/pillbuttongroup';
 import styles from './chart.module.css';
 
 export const Filters = ({

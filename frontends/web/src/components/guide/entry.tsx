@@ -16,7 +16,7 @@
  */
 
 import { useState, ReactNode } from 'react';
-import { A } from '../anchor/anchor';
+import { A } from '@/components/anchor/anchor';
 import style from './guide.module.css';
 
 export type TEntryProp = {

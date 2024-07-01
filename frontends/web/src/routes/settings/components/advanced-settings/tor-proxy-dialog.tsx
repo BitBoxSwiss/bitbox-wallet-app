@@ -16,13 +16,13 @@
 
 import { useTranslation } from 'react-i18next';
 import { Dispatch, useEffect, useState } from 'react';
-import { Dialog, DialogButtons } from '../../../../components/dialog/dialog';
-import { Toggle } from '../../../../components/toggle/toggle';
-import { Button, Input } from '../../../../components/forms';
-import { setConfig } from '../../../../utils/config';
-import { socksProxyCheck } from '../../../../api/backend';
-import { alertUser } from '../../../../components/alert/Alert';
-import { TConfig, TProxyConfig } from '../../advanced-settings';
+import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Toggle } from '@/components/toggle/toggle';
+import { Button, Input } from '@/components/forms';
+import { setConfig } from '@/utils/config';
+import { socksProxyCheck } from '@/api/backend';
+import { alertUser } from '@/components/alert/Alert';
+import { TConfig, TProxyConfig } from '@/routes/settings/advanced-settings';
 
 type TProps = {
   open: boolean;

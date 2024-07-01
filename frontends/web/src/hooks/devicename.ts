@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { TDeviceNameError } from '../utils/types';
+import { TDeviceNameError } from '@/utils/types';
 
 // matches any character that is not a printable ASCII character or space
 const regexInvalid = /[^ -~]/g;

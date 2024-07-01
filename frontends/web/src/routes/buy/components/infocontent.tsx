@@ -15,8 +15,8 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { A } from '../../../components/anchor/anchor';
-import { Info } from '../types';
+import { A } from '@/components/anchor/anchor';
+import { Info } from '@/routes/buy/types';
 import style from './infocontent.module.css';
 
 type TInfoContentProps = {info: Info, cardFee?: number, bankTransferFee?: number};

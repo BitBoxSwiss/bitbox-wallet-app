@@ -15,9 +15,9 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { SettingsItem } from '../settingsItem/settingsItem';
-import { ChevronRightDark } from '../../../../components/icon';
-import { route } from '../../../../utils/route';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { ChevronRightDark } from '@/components/icon';
+import { route } from '@/utils/route';
 
 export const ConnectFullNodeSetting = () => {
   const { t } = useTranslation();

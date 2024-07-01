@@ -16,8 +16,8 @@
  */
 
 import alert from './assets/icons/alert-triangle.svg';
-import BB02StylizedDark from '../../assets/device/bitbox02-stylized-reflection-dark.png';
-import BB02StylizedLight from '../../assets/device/bitbox02-stylized-reflection-light.png';
+import BB02StylizedDark from '@/assets/device/bitbox02-stylized-reflection-dark.png';
+import BB02StylizedLight from '@/assets/device/bitbox02-stylized-reflection-light.png';
 import info from './assets/icons/info.svg';
 import arrowDownSVG from './assets/icons/arrow-down-active.svg';
 import arrowDownRedSVG from './assets/icons/arrow-down-red.svg';

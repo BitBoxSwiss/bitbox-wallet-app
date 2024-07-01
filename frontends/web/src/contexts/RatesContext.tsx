@@ -15,8 +15,8 @@
  */
 
 import { createContext } from 'react';
-import { Fiat } from '../api/account';
-import { BtcUnit } from '../api/coins';
+import { Fiat } from '@/api/account';
+import { BtcUnit } from '@/api/coins';
 
 type RatesContextProps = {
     defaultCurrency: Fiat;

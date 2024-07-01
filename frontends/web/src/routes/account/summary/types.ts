@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { TChartDisplay } from '../../../contexts/AppContext';
+import type { TChartDisplay } from '@/contexts/AppContext';
 
 export type TChartFiltersProps = {
   display: TChartDisplay

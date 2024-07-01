@@ -16,11 +16,11 @@
 
 import { Dispatch, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SettingsItem } from '../settingsItem/settingsItem';
-import { ChevronRightDark } from '../../../../components/icon';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { ChevronRightDark } from '@/components/icon';
 import { TorProxyDialog } from './tor-proxy-dialog';
-import { Message } from '../../../../components/message/message';
-import { TProxyConfig } from '../../advanced-settings';
+import { Message } from '@/components/message/message';
+import { TProxyConfig } from '@/routes/settings/advanced-settings';
 import styles from './enable-tor-proxy-setting.module.css';
 
 type TProps = {

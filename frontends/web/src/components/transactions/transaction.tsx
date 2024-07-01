@@ -17,14 +17,14 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as accountApi from '../../api/account';
-import { A } from '../anchor/anchor';
-import { Dialog } from '../dialog/dialog';
-import { CopyableInput } from '../copy/Copy';
-import { Warning, ExpandIcon } from '../icon/icon';
-import { ProgressRing } from '../progressRing/progressRing';
-import { FiatConversion } from '../rates/rates';
-import { Amount } from '../../components/amount/amount';
+import * as accountApi from '@/api/account';
+import { A } from '@/components/anchor/anchor';
+import { Dialog } from '@/components/dialog/dialog';
+import { CopyableInput } from '@/components/copy/Copy';
+import { Warning, ExpandIcon } from '@/components/icon/icon';
+import { ProgressRing } from '@/components/progressRing/progressRing';
+import { FiatConversion } from '@/components/rates/rates';
+import { Amount } from '@/components/amount/amount';
 import { ArrowIn, ArrowOut, ArrowSelf } from './components/icons';
 import { Note } from './note';
 import parentStyle from './transactions.module.css';

@@ -17,12 +17,12 @@
 import { useTranslation } from 'react-i18next';
 import { ReactElement } from 'react';
 import { Button } from './forms';
-import { TConnectKeystoreErrorCode, cancelConnectKeystore, syncConnectKeystore } from '../api/backend';
-import { useSubscribeReset } from '../hooks/api';
+import { TConnectKeystoreErrorCode, cancelConnectKeystore, syncConnectKeystore } from '@/api/backend';
+import { useSubscribeReset } from '@/hooks/api';
 import { Dialog, DialogButtons } from './dialog/dialog';
 import { BitBox02StylizedDark, BitBox02StylizedLight, Cancel, PointToBitBox02 } from './icon';
-import { useDarkmode } from '../hooks/darkmode';
-import { SkipForTesting } from '../routes/device/components/skipfortesting';
+import { useDarkmode } from '@/hooks/darkmode';
+import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import styles from './keystoreconnectprompt.module.css';
 
 export const KeystoreConnectPrompt = () => {

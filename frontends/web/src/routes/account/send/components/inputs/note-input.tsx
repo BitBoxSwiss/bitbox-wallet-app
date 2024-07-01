@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Input } from '../../../../../components/forms';
+import { Input } from '@/components/forms';
 import style from './note-input.module.css';
 import { ChangeEvent } from 'react';
 

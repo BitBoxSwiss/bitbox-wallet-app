@@ -18,14 +18,14 @@ import '../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { HeadersSync } from './headerssync';
-import { TStatus } from '../../api/coins';
-import * as apiHooks from '../../hooks/api';
-import * as mountHooks from '../../hooks/mount';
+import { TStatus } from '@/api/coins';
+import * as apiHooks from '@/hooks/api';
+import * as mountHooks from '@/hooks/mount';
 
 const useSubscribeSpy = vi.spyOn(apiHooks, 'useSubscribe');
 const useMountedRefSpy = vi.spyOn(mountHooks, 'useMountedRef');
 
-vi.mock('../../utils/request', () => ({
+vi.mock('@/utils/request', () => ({
   apiGet: vi.fn().mockResolvedValue(''),
 }));
 

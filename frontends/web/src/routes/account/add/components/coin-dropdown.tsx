@@ -15,8 +15,8 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import * as backendAPI from '../../../../api/backend';
-import { Select } from '../../../../components/forms';
+import * as backendAPI from '@/api/backend';
+import { Select } from '@/components/forms';
 
 type TCoinDropDownProps = {
   onChange: (coin: backendAPI.ICoin) => void;

@@ -15,10 +15,10 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { i18n } from '../../i18n/i18n';
-import { URL_CONSTANTS } from '../../utils/url_constants';
-import { Button } from '../forms';
-import { A } from '../anchor/anchor';
+import { i18n } from '@/i18n/i18n';
+import { URL_CONSTANTS } from '@/utils/url_constants';
+import { Button } from '@/components/forms';
+import { A } from '@/components/anchor/anchor';
 
 export const downloadLinkByLanguage = () => {
   switch (i18n.resolvedLanguage) {

@@ -16,13 +16,13 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, ViewButtons, ViewContent, ViewHeader } from '../../../../components/view/view';
-import { Status } from '../../../../components/status/status';
-import { Button, Input } from '../../../../components/forms';
-import { checkSDCard } from '../../../../api/bitbox02';
+import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
+import { Status } from '@/components/status/status';
+import { Button, Input } from '@/components/forms';
+import { checkSDCard } from '@/api/bitbox02';
 import style from './name.module.css';
-import { useValidateDeviceName } from '../../../../hooks/devicename';
-import { TDeviceNameError } from '../../../../utils/types';
+import { useValidateDeviceName } from '@/hooks/devicename';
+import { TDeviceNameError } from '@/utils/types';
 
 type TProps = {
   onDeviceName: (name: string) => void;

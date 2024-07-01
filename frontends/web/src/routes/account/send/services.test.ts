@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { i18n as interfacei18n } from 'i18next';
 import { txProposalErrorHandling } from './services';
-import { alertUser } from '../../../components/alert/Alert';
+import { alertUser } from '@/components/alert/Alert';
 
 vi.mock('i18next', async () => {
   const actualI18next: { default: interfacei18n } = await vi.importActual('i18next') as { default: interfacei18n };
@@ -17,8 +17,8 @@ vi.mock('i18next', async () => {
   };
 });
 
-vi.mock('../../../components/alert/Alert', () => ({
-  ...vi.importActual('../../../components/alert/Alert'),
+vi.mock('@/components/alert/Alert', () => ({
+  ...vi.importActual('@/components/alert/Alert'),
   alertUser: vi.fn()
 }));
 

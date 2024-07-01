@@ -15,11 +15,11 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { SettingsItem } from '../settingsItem/settingsItem';
-import { ChevronRightDark } from '../../../../components/icon';
-import { runningInAndroid, debug } from '../../../../utils/env';
-import { alertUser } from '../../../../components/alert/Alert';
-import { exportLogs } from '../../../../api/backend';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { ChevronRightDark } from '@/components/icon';
+import { runningInAndroid, debug } from '@/utils/env';
+import { alertUser } from '@/components/alert/Alert';
+import { exportLogs } from '@/api/backend';
 
 export const ExportLogSetting = () => {
   const { t } = useTranslation();

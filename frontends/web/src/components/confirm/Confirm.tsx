@@ -16,9 +16,9 @@
 
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SimpleMarkup } from '../../utils/markup';
-import { DialogLegacy, DialogButtons } from '../dialog/dialog-legacy';
-import { Button } from '../forms';
+import { SimpleMarkup } from '@/utils/markup';
+import { DialogLegacy, DialogButtons } from '@/components/dialog/dialog-legacy';
+import { Button } from '@/components/forms';
 
 type TCallback = (response: boolean) => void;
 

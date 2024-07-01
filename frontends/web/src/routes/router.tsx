@@ -16,8 +16,8 @@
 
 import React, { ReactChild } from 'react';
 import { Route, Routes, useParams } from 'react-router';
-import { IAccount } from '../api/account';
-import { TDevices } from '../api/devices';
+import { IAccount } from '@/api/account';
+import { TDevices } from '@/api/devices';
 import { AddAccount } from './account/add/add';
 import { Moonpay } from './buy/moonpay';
 import { BuyInfo } from './buy/info';

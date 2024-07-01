@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { apiGet } from '../utils/request';
+import { apiGet } from '@/utils/request';
 
 /**
  * Describes the file that is loaded from 'https://bitbox.swiss/updates/desktop.json'.

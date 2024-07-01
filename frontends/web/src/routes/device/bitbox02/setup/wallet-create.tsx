@@ -16,9 +16,9 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as bitbox02 from '../../../../api/bitbox02';
-import { useMountedRef } from '../../../../hooks/mount';
-import { alertUser } from '../../../../components/alert/Alert';
+import * as bitbox02 from '@/api/bitbox02';
+import { useMountedRef } from '@/hooks/mount';
+import { alertUser } from '@/components/alert/Alert';
 import { Wait } from './wait';
 import { ChecklistWalletCreate, ChecklistWalletCreateMnemonic } from './checklist';
 import { SetDeviceName, SetDeviceNameWithSDCard } from './name';

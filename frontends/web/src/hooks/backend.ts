@@ -15,7 +15,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { TKeystores, subscribeKeystores, getKeystores } from '../api/keystores';
+import { TKeystores, subscribeKeystores, getKeystores } from '@/api/keystores';
 
 export const useKeystores = (): TKeystores | undefined => {
   const [keystores, setKeystores] = useState<TKeystores>();

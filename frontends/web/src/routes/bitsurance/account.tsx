@@ -16,15 +16,15 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { route } from '../../utils/route';
-import { IAccount, connectKeystore } from '../../api/account';
+import { route } from '@/utils/route';
+import { IAccount, connectKeystore } from '@/api/account';
 import { BitsuranceGuide } from './guide';
-import { GroupedAccountSelector } from '../../components/groupedaccountselector/groupedaccountselector';
-import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
-import { Spinner } from '../../components/spinner/Spinner';
-import { View, ViewContent } from '../../components/view/view';
-import { bitsuranceLookup } from '../../api/bitsurance';
-import { alertUser } from '../../components/alert/Alert';
+import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
+import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
+import { Spinner } from '@/components/spinner/Spinner';
+import { View, ViewContent } from '@/components/view/view';
+import { bitsuranceLookup } from '@/api/bitsurance';
+import { alertUser } from '@/components/alert/Alert';
 
 type TProps = {
     accounts: IAccount[];

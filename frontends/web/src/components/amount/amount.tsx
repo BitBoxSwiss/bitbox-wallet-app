@@ -15,10 +15,10 @@
  */
 
 import { useContext } from 'react';
-import { AppContext } from '../../contexts/AppContext';
-import { CoinUnit, ConversionUnit } from './../../api/account';
+import { AppContext } from '@/contexts/AppContext';
+import { CoinUnit, ConversionUnit } from '@/api/account';
 import style from './amount.module.css';
-import { LocalizationContext } from '../../contexts/localization-context';
+import { LocalizationContext } from '@/contexts/localization-context';
 
 type TProps = {
   amount: string;
