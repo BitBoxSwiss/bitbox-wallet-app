@@ -26,3 +26,9 @@
 .canUpgradeDot {
     vertical-align: top;
 }
+
+@media (max-width: 768px) {
+    .canUpgradeDot {
+        margin-right: 5px;
+    }
+}
