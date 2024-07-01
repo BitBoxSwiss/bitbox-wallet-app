@@ -235,10 +235,12 @@ const Sidebar = ({
                 className={({ isActive }) => isActive || userInSpecificAccountBuyPage ? style.sidebarActive : ''}
                 to="/buy/info">
                 <div className={style.single}>
-                  <img draggable={false} src={coins} alt={t('sidebar.exchanges')}/>
+                  <img draggable={false} src={coins} />
                 </div>
                 <span className={style.sidebarLabel}>
-                  {hasOnlyBTCAccounts ? t('accountInfo.buyCTA.buy', { unit: 'Bitcoin' }) : t('sidebar.buy')}
+                  {t('generic.buy', {
+                    context: hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'
+                  })}
                 </span>
               </NavLink>
             </div>
