@@ -16,12 +16,12 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { getCryptoName } from '../../routes/account/utils';
+import { getCryptoName } from '@/routes/account/utils';
 import { ChangeEvent } from 'react';
-import { Button, Checkbox } from '../forms';
-import { setConfig } from '../../utils/config';
-import { IAccount } from '../../api/account';
-import { A } from '../anchor/anchor';
+import { Button, Checkbox } from '@/components/forms';
+import { setConfig } from '@/utils/config';
+import { IAccount } from '@/api/account';
+import { A } from '@/components/anchor/anchor';
 import style from './terms.module.css';
 
 type TProps = {

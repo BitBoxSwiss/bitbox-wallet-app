@@ -16,11 +16,11 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import { RatesContext } from './RatesContext';
-import { Fiat } from '../api/account';
-import { BtcUnit } from '../api/coins';
-import { getConfig, setConfig } from '../utils/config';
-import { reinitializeAccounts } from '../api/backend';
-import { equal } from '../utils/equal';
+import { Fiat } from '@/api/account';
+import { BtcUnit } from '@/api/coins';
+import { getConfig, setConfig } from '@/utils/config';
+import { reinitializeAccounts } from '@/api/backend';
+import { equal } from '@/utils/equal';
 
 type TProps = {
     children: ReactNode;

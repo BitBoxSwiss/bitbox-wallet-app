@@ -23,17 +23,17 @@ import {
   AccountCode,
   ScriptType,
   TUTXO,
-} from '../../../api/account';
-import { syncdone } from '../../../api/accountsync';
-import { A } from '../../../components/anchor/anchor';
-import { Dialog } from '../../../components/dialog/dialog';
-import { Button, Checkbox } from '../../../components/forms';
-import { ExternalLink } from '../../../components/icon';
-import { Amount } from '../../../components/amount/amount';
-import { FiatConversion } from '../../../components/rates/rates';
-import { getScriptName } from '../utils';
-import { Message } from '../../../components/message/message';
-import { Badge } from '../../../components/badge/badge';
+} from '@/api/account';
+import { syncdone } from '@/api/accountsync';
+import { A } from '@/components/anchor/anchor';
+import { Dialog } from '@/components/dialog/dialog';
+import { Button, Checkbox } from '@/components/forms';
+import { ExternalLink } from '@/components/icon';
+import { Amount } from '@/components/amount/amount';
+import { FiatConversion } from '@/components/rates/rates';
+import { getScriptName } from '@/routes/account/utils';
+import { Message } from '@/components/message/message';
+import { Badge } from '@/components/badge/badge';
 import style from './utxos.module.css';
 
 export type TSelectedUTXOs = {

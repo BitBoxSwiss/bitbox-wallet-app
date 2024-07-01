@@ -15,8 +15,8 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { View, ViewContent, ViewHeader } from '../../../../components/view/view';
-import { PointToBitBox02 } from '../../../../components/icon';
+import { View, ViewContent, ViewHeader } from '@/components/view/view';
+import { PointToBitBox02 } from '@/components/icon';
 
 type Props = {
   title: string;

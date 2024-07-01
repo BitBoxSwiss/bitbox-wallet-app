@@ -17,14 +17,14 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useMediaQuery } from '../../../hooks/mediaquery';
-import { CoinUnit, IAccount, IBalance } from '../../../api/account';
-import { Button } from '../../../components/forms';
-import { Balances } from '../summary/accountssummary';
-import { isBitcoinCoin, isEthereumBased } from '../utils';
-import { getExchangeSupportedAccounts } from '../../buy/utils';
-import { WalletConnectLight } from '../../../components/icon';
-import { useMountedRef } from '../../../hooks/mount';
+import { useMediaQuery } from '@/hooks/mediaquery';
+import { CoinUnit, IAccount, IBalance } from '@/api/account';
+import { Button } from '@/components/forms';
+import { Balances } from '@/routes/account/summary/accountssummary';
+import { isBitcoinCoin, isEthereumBased } from '@/routes/account/utils';
+import { getExchangeSupportedAccounts } from '@/routes/buy/utils';
+import { WalletConnectLight } from '@/components/icon';
+import { useMountedRef } from '@/hooks/mount';
 import styles from './buyReceiveCTA.module.css';
 
 type TBuyReceiveCTAProps = {

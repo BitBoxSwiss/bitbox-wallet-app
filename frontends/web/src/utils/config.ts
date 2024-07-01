@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { apiGet, apiPost } from '../utils/request';
+import { apiGet, apiPost } from '@/utils/request';
 
 type TConfig = {
   backend?: unknown;

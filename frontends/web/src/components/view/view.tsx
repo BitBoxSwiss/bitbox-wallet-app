@@ -15,11 +15,11 @@
  */
 
 import { ReactNode } from 'react';
-import { useDarkmode } from '../../hooks/darkmode';
-import { LanguageSwitch } from '../language/language';
-import { Version } from '../layout/version';
-import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../icon/logo';
-import { AnimatedChecked, Close } from '../icon/icon';
+import { useDarkmode } from '@/hooks/darkmode';
+import { LanguageSwitch } from '@/components/language/language';
+import { Version } from '@/components/layout/version';
+import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '@/components/icon/logo';
+import { AnimatedChecked, Close } from '@/components/icon/icon';
 import style from './view.module.css';
 
 type TViewProps = {

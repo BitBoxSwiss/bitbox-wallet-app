@@ -17,10 +17,10 @@
 import { ReactNode, useContext, useEffect } from 'react';
 import { t } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { A } from '../anchor/anchor';
-import { CloseXWhite } from '../icon';
-import { AppContext } from '../../contexts/AppContext';
-import { Button } from '../forms';
+import { A } from '@/components/anchor/anchor';
+import { CloseXWhite } from '@/components/icon';
+import { AppContext } from '@/contexts/AppContext';
+import { Button } from '@/components/forms';
 import style from './guide.module.css';
 
 

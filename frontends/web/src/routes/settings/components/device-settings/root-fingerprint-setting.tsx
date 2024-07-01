@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { SettingsItem, SettingsValue } from '../settingsItem/settingsItem';
+import { SettingsItem, SettingsValue } from '@/routes/settings/components/settingsItem/settingsItem';
 
 type TProps = {
     rootFingerprint: string;

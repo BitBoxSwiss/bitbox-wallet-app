@@ -15,7 +15,7 @@
  */
 
 import { DependencyList, useEffect, useState } from 'react';
-import { TSubscriptionCallback, TUnsubscribe } from '../api/subscribe';
+import { TSubscriptionCallback, TUnsubscribe } from '@/api/subscribe';
 import { useMountedRef } from './mount';
 
 /**

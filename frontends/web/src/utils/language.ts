@@ -1,4 +1,4 @@
-import { TLanguagesList } from '../components/language/types';
+import { TLanguagesList } from '@/components/language/types';
 import { i18n as Ii18n } from 'i18next';
 
 export const getSelectedIndex = (languages: TLanguagesList, i18n: Ii18n) => {
