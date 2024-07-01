@@ -36,7 +36,9 @@ export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSele
 
   const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
-  const title = t('receive.title', { accountName: hasOnlyBTCAccounts ? 'Bitcoin' : t('buy.info.crypto') });
+  const title = t('generic.receive', {
+    context: hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'
+  });
 
   return (
     <>
