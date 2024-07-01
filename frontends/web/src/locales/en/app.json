@@ -1530,6 +1530,7 @@
     "coincontrol": {
       "address": "Address",
       "addressReused": "Address re-used",
+      "change": "Change",
       "outpoint": "Outpoint",
       "title": "Send from output"
     },

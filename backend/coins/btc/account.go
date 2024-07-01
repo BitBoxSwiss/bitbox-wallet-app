@@ -861,6 +861,7 @@ type SpendableOutput struct {
 	*transactions.SpendableOutput
 	OutPoint wire.OutPoint
 	Address  *addresses.AccountAddress
+	IsChange bool
 }
 
 // SpendableOutputs returns the utxo set, sorted by the value descending.
@@ -873,12 +874,19 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 		panic(err)
 	}
 	for outPoint, txOut := range utxos {
+		isChange := false
+		for _, subacc := range account.subaccounts {
+			if subacc.changeAddresses.LookupByScriptHashHex(blockchain.NewScriptHashHex(txOut.PkScript)) != nil {
+				isChange = true
+			}
+		}
 		result = append(
 			result,
 			&SpendableOutput{
 				OutPoint:        outPoint,
 				SpendableOutput: txOut,
 				Address:         account.getAddress(blockchain.NewScriptHashHex(txOut.TxOut.PkScript)),
+				IsChange:        isChange,
 			})
 	}
 	return sortByAddresses(result)

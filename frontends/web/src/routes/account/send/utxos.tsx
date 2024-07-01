@@ -141,6 +141,12 @@ export const UTXOs = ({
                           </Badge> :
                           null
                         }
+                        {utxo.isChange ?
+                          <Badge type="info">
+                            {t('send.coincontrol.change')}
+                          </Badge> :
+                          null
+                        }
                       </div>
                     </div>
                     <div className={style.transaction}>

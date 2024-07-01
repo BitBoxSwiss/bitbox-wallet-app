@@ -49,3 +49,9 @@
   border-color: rgba(255, 0, 0, 0.33);
   color: rgba(255, 0, 0, 1);
 }
+
+.info {
+  background: var(--color-info-background);
+  border: var(--color-info-border);
+  color: var(--color-default);
+}

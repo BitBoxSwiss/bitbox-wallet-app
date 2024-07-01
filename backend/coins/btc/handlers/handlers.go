@@ -345,6 +345,7 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 				"scriptType":    output.Address.Configuration.ScriptType(),
 				"note":          handlers.account.TxNote(output.OutPoint.Hash.String()),
 				"addressReused": addressReused,
+				"isChange":      output.IsChange,
 			})
 	}
 

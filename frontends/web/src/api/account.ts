@@ -378,6 +378,7 @@ export type TUTXO = {
   note: string;
   scriptType: ScriptType;
   addressReused: boolean;
+  isChange: boolean;
 };
 
 export const getUTXOs = (code: AccountCode): Promise<TUTXO[]> => {
