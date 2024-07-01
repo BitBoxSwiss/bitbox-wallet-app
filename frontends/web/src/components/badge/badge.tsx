@@ -17,7 +17,7 @@
 import { ReactElement, ReactNode } from 'react';
 import style from './badge.module.css';
 
-type TBadgeStyles = 'success' | 'warning' | 'danger'; // TODO: not yet implemented 'info'
+type TBadgeStyles = 'success' | 'warning' | 'danger' | 'info';
 
 type TProps = {
   children?: ReactNode;
