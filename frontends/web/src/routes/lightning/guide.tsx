@@ -22,11 +22,11 @@ export const LightningGuide = () => {
   const { t } = useTranslation();
   return (
     <Guide>
-      <Entry key="privateKey" entry={t('guide.lightning.privateKey')} />
-      <Entry key="securedByBitBox" entry={t('guide.lightning.securedByBitBox')} />
-      <Entry key="multipleDevices" entry={t('guide.lightning.multipleDevices')} />
-      <Entry key="multipleWallets" entry={t('guide.lightning.multipleWallets')} />
-      <Entry key="providers" entry={t('guide.lightning.providers')} />
+      <Entry key="privateKey" entry={t('guide.lightning.privateKey', { returnObjects: true })} />
+      <Entry key="securedByBitBox" entry={t('guide.lightning.securedByBitBox', { returnObjects: true })} />
+      <Entry key="multipleDevices" entry={t('guide.lightning.multipleDevices', { returnObjects: true })} />
+      <Entry key="multipleWallets" entry={t('guide.lightning.multipleWallets', { returnObjects: true })} />
+      <Entry key="providers" entry={t('guide.lightning.providers', { returnObjects: true })} />
     </Guide>
   );
 };

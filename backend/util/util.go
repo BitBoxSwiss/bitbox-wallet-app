@@ -15,10 +15,12 @@
 package util
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
@@ -52,7 +54,10 @@ func APIGet(httpClient *http.Client, endpoint string, apiKey string, maxSize int
 // - `maxSize` indicates the max expected response size. If it exceeds the function returns an error
 // Returns the error code (if available), the response body and possibly an error.
 func HTTPGet(httpClient *http.Client, endpoint string, apiKey string, maxSize int64) (int, []uint8, error) {
-	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return 0, []uint8{}, errp.WithStack(err)
 	}
@@ -76,4 +81,12 @@ func HTTPGet(httpClient *http.Client, endpoint string, apiKey string, maxSize in
 		return res.StatusCode, []uint8{}, errp.Newf("%s - response too long (> %d bytes)", endpoint, maxSize)
 	}
 	return res.StatusCode, responseBody, nil
+}
+
+// TruncateString truncates `s` to size `size` if too long.
+func TruncateString(s string, size int) string {
+	if len(s) > size {
+		return s[:size]
+	}
+	return s
 }

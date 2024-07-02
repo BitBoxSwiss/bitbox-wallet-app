@@ -49,6 +49,9 @@ const (
 
 const interval = time.Minute
 
+// unitSatoshi is 1 BTC (default unit) in Satoshi.
+const unitSatoshi = 1e8
+
 type exchangeRate struct {
 	value     float64
 	timestamp time.Time
@@ -83,6 +86,7 @@ const (
 	SGD Fiat = "SGD"
 	USD Fiat = "USD"
 	BTC Fiat = "BTC"
+	SAT Fiat = "sat"
 )
 
 // RateUpdater provides cryptocurrency-to-fiat conversion rates.
@@ -316,10 +320,20 @@ func (updater *RateUpdater) updateLast(ctx context.Context) {
 				updater.log.Errorf("unsupported fiat: %s", geckoFiat)
 				continue
 			}
+			if fiat == BTC.String() {
+				newVal[SAT.String()] = rates * unitSatoshi
+			}
 			newVal[fiat] = rates
 		}
 		rates[coinUnit] = newVal
 	}
+
+	// Create sat rates from BTC
+	sat := make(map[string]float64)
+	for currency, rate := range rates[BTC.String()] {
+		sat[currency] = rate / unitSatoshi
+	}
+	rates[SAT.String()] = sat
 
 	// Provide conversion rates for testnets as well, useful for testing.
 	for _, testnetUnit := range []string{"TBTC", "RBTC", "TLTC", "GOETH", "SEPETH"} {

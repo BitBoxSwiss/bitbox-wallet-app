@@ -23,13 +23,13 @@ interface IRadioProps {
 
 type TRadioProps = IRadioProps & JSX.IntrinsicElements['input']
 
-export function Radio({
+export const Radio = ({
   disabled = false,
   label,
   id,
   children,
   ...props
-}: TRadioProps) {
+}: TRadioProps) => {
   return (
     <span className={style.radio}>
       <input
@@ -44,4 +44,4 @@ export function Radio({
       </label>
     </span>
   );
-}
+};

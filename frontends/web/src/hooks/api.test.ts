@@ -21,7 +21,7 @@ import { TSubscriptionCallback } from '../api/subscribe';
 import { useSubscribe, useLoad, useSync } from './api';
 import * as utils from './mount';
 import { TStatus } from '../api/coins';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 
 const useMountedRefSpy = vi.spyOn(utils, 'useMountedRef');
 

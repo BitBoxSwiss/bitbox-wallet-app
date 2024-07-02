@@ -1,5 +1,6 @@
 .radio {
     --size-default: 14px;
+    line-height: 1.5;
 }
 
 .radio input {
@@ -11,7 +12,6 @@
     display: inline-flex;
     flex-direction: column;
     font-size: var(--size-default);
-    line-height: 1.5;
     margin-right: var(--space-half);
     padding-left: calc(var(--space-half) + var(--space-quarter));
     position: relative;

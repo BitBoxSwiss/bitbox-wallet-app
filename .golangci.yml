@@ -3,13 +3,13 @@
 
 # options for analysis running
 run:
-  go: 1.21
+  go: "1.21"
 
   # default concurrency is a available CPU number
   concurrency: 4
 
   # timeout for analysis, e.g. 30s, 5m, default is 1m
-  deadline: 10m
+  timeout: 10m
 
   # exit code when at least one issue was found, default is 1
   issues-exit-code: 1
@@ -23,7 +23,9 @@ run:
 # output configuration options
 output:
   # colored-line-number|line-number|json|tab|checkstyle, default is "colored-line-number"
-  format: colored-line-number
+  formats: 
+    - format: colored-line-number
+      path: stdout
 
   # print lines of code with issue, default is true
   print-issued-lines: true
@@ -36,31 +38,10 @@ output:
 linters-settings:
   gocritic:
     enabled-checks:
-      - assignOp
       - builtinShadow
-      - captLocal
-      - caseOrder
-      - defaultCaseOrder
-      - dupArg
-      - dupBranchBody
-      - dupCase
-      - elseif
-      - flagDeref
-      - ifElseChain
       - nilValReturn
-      - rangeExprCopy
       - rangeValCopy
-      - regexpMust
-      - sloppyLen
-      - switchTrue
-      - typeSwitchVar
       - typeUnparen
-      - underef
-      - unlambda
-      - unslice
-  maligned:
-    # print struct with more effective memory layout or not, false by default
-    suggest-new: true
   dupl:
     # tokens count to trigger issue, 150 by default
     threshold: 150
@@ -78,8 +59,6 @@ linters-settings:
     # max line length, lines longer will be reported. Default is 120.
     # '\t' is counted as 1 character by default, and can be changed with the tab-width option
     line-length: 120
-    # allow long comments.
-    exclude: '//'
   revive:
     rules:
       - name: exported
@@ -88,22 +67,18 @@ linters-settings:
 linters:
   enable-all: true
   disable:
-    - golint
-    - scopelint
-    - interfacer
     - gosec
     - bodyclose
     - dogsled
     - dupl
+    - err113 # can't switch to errors.Is due to GopherJS still on go1.12
     - funlen
     - gochecknoglobals
     - gochecknoinits
     - gocognit
     - godox
-    - goerr113 # can't switch to errors.Is due to GopherJS still on go1.12
     - gomnd
     - lll
-    - maligned
     - nestif
     - prealloc
     - stylecheck
@@ -119,12 +94,10 @@ linters:
     - noctx
     - nlreturn
     - cyclop
-    - ifshort
     - exhaustive
     - nilnil
     - nilerr
     - forcetypeassert
-    - exhaustivestruct
     - exhaustruct
     - maintidx
     - errorlint
@@ -133,35 +106,49 @@ linters:
     - errname
     - forbidigo
     - makezero
+    - mnd
     - nolintlint
     - gocyclo
-    - nosnakecase
     - interfacebloat
     - musttag
-    - structcheck
-    - deadcode
-    - varcheck
     - depguard
     - inamedparam
     - protogetter
+    - perfsprint
     - gosmopolitan
-    # todo: enable this, but there are a lot of hits
-    - testifylint
+    # TODO: enable this after merge https://github.com/karalabe/hid/pull/52
     - gomoddirectives
   disable-all: false
 
 issues:
-  # List of regexps of issue texts to exclude, empty list by default.
-  # But independently from this option we use default exclude patterns,
-  # it can be disabled by `exclude-use-default: false`. To list all
-  # excluded by default patterns execute `golangci-lint run --help`
-  exclude:
-  # Use linters in their original configuration. golangci-linter changes the default config, for
-  # example skipping the docstring comment checks of golint.
+  # Independently of option `exclude` we use default exclude patterns,
+  # it can be disabled by this option.
+  # To list all excluded by default patterns execute `golangci-lint run --help`.
+  # Default: true
   exclude-use-default: false
 
   # Excluding configuration per-path, per-linter, per-text and per-source.
   exclude-rules:
+    - linters:
+        - gocritic
+      text: "singleCaseSwitch: should rewrite switch statement to if statement"
+    - linters:
+        - gocritic
+      text: "badCond: `ours == from && ours == to` condition is suspicious"
+    - linters:
+        - gocritic
+      text: "builtinShadow: shadowing of predeclared identifier: max"
+    - linters:
+        - canonicalheader
+      text: "non-canonical header \"X-API-KEY\", instead use: \"X-Api-Key\""
+    - linters:
+        - testifylint
+      text: "go-require: require must only be used in the goroutine running the test function"
+    - linters:
+        - testifylint
+      text: "go-require: do not use require in http handlers"
+    - path: _test\.go
+      text: "float-compare"
     # In addition to always disalbed linters above, exclude some more in tests.
     - path: _test\.go
       linters:

@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
-import Logo from '../../../components/icon/logo';
+import { Logo } from '../../../components/icon/logo';
 import { Amount } from '../../../components/amount/amount';
 import { FiatConversion } from '../../../components/rates/rates';
 import style from './accountssummary.module.css';
@@ -27,7 +27,7 @@ type TProps = {
   coinName: string;
 };
 
-export function SubTotalRow ({ coinCode, coinName, balance }: TProps) {
+export const SubTotalRow = ({ coinCode, coinName, balance }: TProps) => {
   const { t } = useTranslation();
   const nameCol = (
     <td data-label={t('accountSummary.total')}>
@@ -64,10 +64,9 @@ export function SubTotalRow ({ coinCode, coinName, balance }: TProps) {
       </td>
     </tr>
   );
-}
+};
 
-
-export function SubTotalCoinRow ({ coinCode, coinName, balance }: TProps) {
+export const SubTotalCoinRow = ({ coinCode, coinName, balance }: TProps) => {
   const { t } = useTranslation();
   const nameCol = (
     <td data-label={t('accountSummary.total')}>
@@ -97,4 +96,4 @@ export function SubTotalCoinRow ({ coinCode, coinName, balance }: TProps) {
       </td>
     </tr>
   );
-}
+};

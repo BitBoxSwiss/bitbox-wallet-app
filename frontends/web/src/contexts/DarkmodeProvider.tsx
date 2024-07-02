@@ -19,7 +19,7 @@ import { getConfig, setConfig } from '../utils/config';
 import { setDarkTheme, detectDarkTheme } from '../api/darktheme';
 import { runningInAndroid } from '../utils/env';
 import { useMediaQuery } from '../hooks/mediaquery';
-import DarkModeContext from './DarkmodeContext';
+import { DarkModeContext } from './DarkmodeContext';
 
 type TProps = {
   children: ReactNode;

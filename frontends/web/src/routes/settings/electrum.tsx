@@ -85,11 +85,11 @@ export const ElectrumSettings = () => {
         </div>
       </div>
       <Guide>
-        <Entry key="guide.settings-electrum.what" entry={t('guide.settings-electrum.what')} />
-        <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why')} />
-        <Entry key="guide.settings-electrum.options" entry={t('guide.settings-electrum.options')} />
-        <Entry key="guide.settings-electrum.connection" entry={t('guide.settings-electrum.connection')} />
-        <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor')} />
+        <Entry key="guide.settings-electrum.what" entry={t('guide.settings-electrum.what', { returnObjects: true })} />
+        <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why', { returnObjects: true })} />
+        <Entry key="guide.settings-electrum.options" entry={t('guide.settings-electrum.options', { returnObjects: true })} />
+        <Entry key="guide.settings-electrum.connection" entry={t('guide.settings-electrum.connection', { returnObjects: true })} />
+        <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor', { returnObjects: true })} />
         <Entry key="guide.settings-electrum.instructions" entry={{
           link: {
             text: t('guide.settings-electrum.instructions.link.text'),

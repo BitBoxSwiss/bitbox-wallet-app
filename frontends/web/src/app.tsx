@@ -65,7 +65,7 @@ export const App = () => {
 
   const maybeRoute = useCallback(() => {
     const currentURL = window.location.pathname;
-    const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
+    const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html' || currentURL.endsWith('/assets/web/index.html');
     const inAccounts = currentURL.startsWith('/account/');
     const noLightningAccounts = lightningConfig.accounts.length === 0;
 
@@ -161,6 +161,7 @@ export const App = () => {
           <Sidebar
             accounts={activeAccounts}
             deviceIDs={deviceIDs}
+            devices={devices}
           />
           <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
             <Update />

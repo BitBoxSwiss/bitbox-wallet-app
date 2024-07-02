@@ -21,6 +21,7 @@ import (
 	"io"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 )
@@ -31,13 +32,15 @@ var intermediateFirmwareBinaryBTCOnly_9_17_1 []byte
 //go:embed assets/firmware.v9.17.1.signed.bin.gz
 var intermediateFirmwareBinaryMulti_9_17_1 []byte
 
-//go:embed assets/firmware-btc.v9.18.0.signed.bin.gz
+//go:embed assets/firmware-btc.v9.19.0.signed.bin.gz
 var firmwareBinaryBTCOnly []byte
-var firmwareVersionBTCOnly = semver.NewSemVer(9, 18, 0)
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 19, 0)
+var firmwareMonotonicVersionBtcOnly uint32 = 39
 
-//go:embed assets/firmware.v9.18.0.signed.bin.gz
+//go:embed assets/firmware.v9.19.0.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 18, 0)
+var firmwareVersionMulti = semver.NewSemVer(9, 19, 0)
+var firmwareMonotonicVersionMulti uint32 = 39
 
 type firmwareInfo struct {
 	version          *semver.SemVer
@@ -45,12 +48,25 @@ type firmwareInfo struct {
 	binaryGzip       []byte
 }
 
-func (fi firmwareInfo) binary() ([]byte, error) {
+func (fi firmwareInfo) signedBinary() ([]byte, error) {
 	gz, err := gzip.NewReader(bytes.NewBuffer(fi.binaryGzip))
 	if err != nil {
 		return nil, err
 	}
 	return io.ReadAll(gz)
+}
+
+func (fi firmwareInfo) firmwareHash() ([]byte, error) {
+	signedBinary, err := fi.signedBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	_, _, binary, err := bootloader.ParseSignedFirmware(signedBinary)
+	if err != nil {
+		return nil, err
+	}
+	return bootloader.HashFirmware(fi.monotonicVersion, binary), nil
 }
 
 // The last entry in the slice is the latest firmware update to which one can upgrade.
@@ -67,7 +83,7 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 		},
 		{
 			version:          firmwareVersionMulti,
-			monotonicVersion: 38,
+			monotonicVersion: firmwareMonotonicVersionMulti,
 			binaryGzip:       firmwareBinaryMulti,
 		},
 	},
@@ -79,7 +95,7 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 		},
 		{
 			version:          firmwareVersionBTCOnly,
-			monotonicVersion: 38,
+			monotonicVersion: firmwareMonotonicVersionBtcOnly,
 			binaryGzip:       firmwareBinaryBTCOnly,
 		},
 	},

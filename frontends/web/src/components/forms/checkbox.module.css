@@ -29,7 +29,7 @@
 .checkbox input + label::before {
     border: 1px solid rgb(220, 220, 220);
     border-radius: 2px;
-    top: -1px;
+    top: 2px;
 }
 .success input + label::before {
     border-color: var(--background-secondary);
@@ -51,7 +51,7 @@
     width: 0.35em;
     height: 0.55em;
     position: absolute;
-    top: 3px;
+    top: 6px;
     left: 6px;
     margin-left: -1px;
     margin-top: -2px;

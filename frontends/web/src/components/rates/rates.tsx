@@ -44,7 +44,8 @@ export const currenciesWithDisplayName: FiatWithDisplayName[] = [
   { currency: 'SEK', displayName: 'Swedish Krona' },
   { currency: 'SGD', displayName: 'Singapore Dollar' },
   { currency: 'USD', displayName: 'United States Dollar' },
-  { currency: 'BTC', displayName: 'Bitcoin' }
+  { currency: 'BTC', displayName: 'Bitcoin' },
+  { currency: 'sat', displayName: 'Satoshi' }
 ];
 
 type TProvidedProps = {
@@ -58,8 +59,7 @@ type TProvidedProps = {
     alwaysShowAmounts?: boolean;
 }
 
-
-function Conversion({
+const Conversion = ({
   amount,
   tableRow,
   unstyled,
@@ -68,17 +68,14 @@ function Conversion({
   sign,
   noBtcZeroes,
   alwaysShowAmounts = false
-}: TProvidedProps) {
+}: TProvidedProps) => {
 
-  const { defaultCurrency, btcUnit } = useContext(RatesContext);
+  const { defaultCurrency } = useContext(RatesContext);
 
   let formattedAmount = <>{'---'}</>;
   let isAvailable = false;
 
   let activeUnit: ConversionUnit = defaultCurrency;
-  if (defaultCurrency === 'BTC' && btcUnit === 'sat') {
-    activeUnit = 'sat';
-  }
 
   // amount.conversions[defaultCurrency] can be empty in recent transactions.
   if (amount && amount.conversions && amount.conversions[defaultCurrency] && amount.conversions[defaultCurrency] !== '') {
@@ -120,7 +117,7 @@ function Conversion({
       }
     </span>
   );
-}
+};
 
 type TDefaultCurrencyRotator = {
   activeUnit?: ConversionUnit;
@@ -133,10 +130,8 @@ export const DefaultCurrencyRotator = ({
   className = '',
   tableRow = true
 }: TDefaultCurrencyRotator) => {
-  const { rotateDefaultCurrency, defaultCurrency, btcUnit } = useContext(RatesContext);
-
-  const displayedBtcUnit = btcUnit === 'sat' ? 'sat' : 'BTC';
-  const displayedCurrency = activeUnit ? activeUnit : defaultCurrency === 'BTC' ? displayedBtcUnit : defaultCurrency;
+  const { rotateDefaultCurrency, defaultCurrency } = useContext(RatesContext);
+  const displayedCurrency = activeUnit ? activeUnit : defaultCurrency;
 
   const textStyle = `${className} ${style.rotatable}`;
   if (!tableRow) {

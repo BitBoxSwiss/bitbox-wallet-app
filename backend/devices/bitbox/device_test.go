@@ -32,7 +32,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -66,8 +65,8 @@ func (s *dbbTestSuite) SetupTest() {
 	s.mockCommClosed = false
 	dbb, err := NewDevice(deviceID, false, /* bootloader */
 		lowestSupportedFirmwareVersion, s.configDir, s.mockCommunication, socksproxy.NewSocksProxy(false, ""))
-	require.NoError(s.T(), dbb.Init(true))
-	require.NoError(s.T(), err)
+	s.Require().NoError(dbb.Init(true))
+	s.Require().NoError(err)
 	s.dbb = dbb
 }
 
@@ -81,11 +80,11 @@ func TestDBBTestSuite(t *testing.T) {
 }
 
 func (s *dbbTestSuite) TestNewDBBDevice() {
-	require.Equal(s.T(), StatusUninitialized, s.dbb.Status())
+	s.Require().Equal(StatusUninitialized, s.dbb.Status())
 }
 
 func (s *dbbTestSuite) TestDeviceID() {
-	require.Equal(s.T(), deviceID, s.dbb.Identifier())
+	s.Require().Equal(deviceID, s.dbb.Identifier())
 }
 
 func jsonArgumentMatcher(expected map[string]interface{}) interface{} {
@@ -110,8 +109,8 @@ func AssertPanicWithMessage(s *dbbTestSuite, expectedError string) {
 }
 
 func (s *dbbTestSuite) TestSetPassword() {
-	require.NoError(s.T(), s.login())
-	require.Equal(s.T(), StatusLoggedIn, s.dbb.Status())
+	s.Require().NoError(s.login())
+	s.Require().Equal(StatusLoggedIn, s.dbb.Status())
 }
 
 func (s *dbbTestSuite) login() error {
@@ -127,7 +126,7 @@ func (s *dbbTestSuite) login() error {
 }
 
 func (s *dbbTestSuite) TestCreateWallet() {
-	require.NoError(s.T(), s.login())
+	s.Require().NoError(s.login())
 	const dummyWalletName = "walletname"
 	s.mockCommunication.On(
 		"SendEncrypt",
@@ -171,11 +170,11 @@ func (s *dbbTestSuite) TestCreateWallet() {
 	).
 		Return(map[string]interface{}{"backup": "success"}, nil).
 		Once()
-	require.NoError(s.T(), s.dbb.CreateWallet(dummyWalletName, recoveryPassword))
+	s.Require().NoError(s.dbb.CreateWallet(dummyWalletName, recoveryPassword))
 }
 
 func (s *dbbTestSuite) TestSignZero() {
-	require.NoError(s.T(), s.login())
+	s.Require().NoError(s.login())
 
 	const expectedError = "Non-empty list of signature hashes and keypaths expected"
 
@@ -202,7 +201,7 @@ func (s *dbbTestSuite) TestSignZero() {
 }
 
 func (s *dbbTestSuite) TestSignSingle() {
-	require.NoError(s.T(), s.login())
+	s.Require().NoError(s.login())
 	signatureHash := []byte{0, 0, 0, 0, 0}
 	keyPath := "m/44'/0'/1'/0"
 	element := map[string]interface{}{"hash": hex.EncodeToString(signatureHash), "keypath": keyPath}
@@ -230,8 +229,8 @@ func (s *dbbTestSuite) TestSignSingle() {
 		Once()
 
 	signatures, err := s.dbb.Sign(nil, [][]byte{signatureHash}, []string{keyPath})
-	require.NoError(s.T(), err)
-	require.Len(s.T(), signatures, 1)
+	s.Require().NoError(err)
+	s.Require().Len(signatures, 1)
 }
 
 func (s *dbbTestSuite) mockDeviceInfo() {
@@ -245,7 +244,7 @@ func (s *dbbTestSuite) mockDeviceInfo() {
 }
 
 func (s *dbbTestSuite) TestSignFifteen() {
-	require.NoError(s.T(), s.login())
+	s.Require().NoError(s.login())
 
 	dataSlice := []interface{}{}
 	keypaths := []string{}
@@ -285,12 +284,12 @@ func (s *dbbTestSuite) TestSignFifteen() {
 		Return(map[string]interface{}{"sign": responseSignatures}, nil).
 		Once()
 	signatures, err := s.dbb.Sign(nil, signatureHashes, keypaths)
-	require.NoError(s.T(), err)
-	require.Len(s.T(), signatures, 15)
+	s.Require().NoError(err)
+	s.Require().Len(signatures, 15)
 }
 
 func (s *dbbTestSuite) TestSignSixteen() {
-	require.NoError(s.T(), s.login())
+	s.Require().NoError(s.login())
 
 	dataSlice := []interface{}{}
 	keypaths := []string{}
@@ -355,16 +354,16 @@ func (s *dbbTestSuite) TestSignSixteen() {
 		Once()
 
 	signatures, err := s.dbb.Sign(nil, signatureHashes, keypaths)
-	require.NoError(s.T(), err)
-	require.Len(s.T(), signatures, 16)
+	s.Require().NoError(err)
+	s.Require().Len(signatures, 16)
 }
 
 func (s *dbbTestSuite) TestDeviceClose() {
-	require.False(s.T(), s.dbb.closed, "s.dbb.closed")
-	require.False(s.T(), s.mockCommClosed, "s.mockCommClosed")
+	s.Require().False(s.dbb.closed, "s.dbb.closed")
+	s.Require().False(s.mockCommClosed, "s.mockCommClosed")
 	s.dbb.Close()
-	require.True(s.T(), s.dbb.closed, "s.dbb.closed")
-	require.True(s.T(), s.mockCommClosed, "s.mockCommClosed")
+	s.Require().True(s.dbb.closed, "s.dbb.closed")
+	s.Require().True(s.mockCommClosed, "s.mockCommClosed")
 }
 
 func (s *dbbTestSuite) TestDeviceStatusEvent() {
@@ -377,8 +376,8 @@ func (s *dbbTestSuite) TestDeviceStatusEvent() {
 		}
 	})
 	s.dbb.onStatusChanged()
-	require.True(s.T(), fired, "onEvent fired")
-	require.True(s.T(), seen, "EventStatusChanged")
+	s.Require().True(fired, "onEvent fired")
+	s.Require().True(seen, "EventStatusChanged")
 }
 
 func TestNewDeviceReadsChannel(t *testing.T) {

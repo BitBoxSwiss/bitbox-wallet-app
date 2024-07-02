@@ -22,33 +22,15 @@ import { Skeleton } from '../../../components/skeleton/skeleton';
 import style from './accountssummary.module.css';
 
 type TProps = {
-  accounts: accountApi.IAccount[],
   summaryData?: accountApi.ISummary,
   coinsBalances?: accountApi.TCoinsTotalBalance,
 }
 
-type TAccountCoinMap = {
-    [code in accountApi.CoinCode]: accountApi.IAccount[];
-};
-
-export function CoinBalance ({
-  accounts,
+export const CoinBalance = ({
   summaryData,
-  coinsBalances,
-}: TProps) {
+  coinsBalances = [],
+}: TProps) => {
   const { t } = useTranslation();
-
-  const getAccountsPerCoin = () => {
-    return accounts.reduce((accountPerCoin, account) => {
-      accountPerCoin[account.coinCode]
-        ? accountPerCoin[account.coinCode].push(account)
-        : accountPerCoin[account.coinCode] = [account];
-      return accountPerCoin;
-    }, {} as TAccountCoinMap);
-  };
-
-  const accountsPerCoin = getAccountsPerCoin();
-  const coins = Object.keys(accountsPerCoin) as accountApi.CoinCode[];
 
   return (
     <div>
@@ -70,21 +52,16 @@ export function CoinBalance ({
             </tr>
           </thead>
           <tbody>
-            { accounts.length > 0 ? (
-              coins.map(coinCode => {
-                if (accountsPerCoin[coinCode]?.length >= 1) {
-                  const account = accountsPerCoin[coinCode][0];
-                  return (
-                    <SubTotalCoinRow
-                      key={account.coinCode}
-                      coinCode={account.coinCode}
-                      coinName={account.coinName}
-                      balance={coinsBalances && coinsBalances[coinCode]}
-                    />
-                  );
-                }
-                return null;
-              })) : null}
+            {coinsBalances.length > 0 ? (
+              coinsBalances.map((balance) => (
+                <SubTotalCoinRow
+                  key={balance.coinCode}
+                  coinCode={balance.coinCode}
+                  coinName={balance.coinName}
+                  balance={balance.formattedAmount}
+                />
+              ))
+            ) : null}
           </tbody>
           <tfoot>
             <tr>
@@ -110,4 +87,4 @@ export function CoinBalance ({
       </div>
     </div>
   );
-}
+};

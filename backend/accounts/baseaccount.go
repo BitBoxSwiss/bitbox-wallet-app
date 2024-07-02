@@ -71,12 +71,7 @@ type BaseAccount struct {
 	offline error
 
 	// notes handles transaction notes.
-	//
-	// It is a slice for migration purposes: from v4.27.0 to v4.28.0, the account identifiers
-	// changed. The slice contains all possible instances of where notes are stored. The first
-	// element is the newest, and other elements are notes stored under legacy names. After
-	// `Initialize()`, this will always have at least one element.
-	notes []*notes.Notes
+	notes *notes.Notes
 
 	proposedTxNote   string
 	proposedTxNoteMu sync.Mutex
@@ -151,10 +146,33 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 	if err != nil {
 		return err
 	}
-	account.notes = []*notes.Notes{txNotes}
+	account.notes = txNotes
 
-	// Append legacy notes (notes stored in files based on obsolete account identifiers). Account
-	// identifiers changed from v4.27.0 to v4.28.0.
+	if err := account.migrateLegacyNotes(); err != nil {
+		return err
+	}
+
+	// An account syncdone event is generated when new rates are available. This allows the frontend
+	// to reload the relevant data.
+	if account.config.RateUpdater != nil {
+		account.config.RateUpdater.Observe(func(e observable.Event) {
+			if e.Subject == rates.RatesEventSubject {
+				account.config.OnEvent(types.EventSyncDone)
+			}
+		})
+	}
+
+	return nil
+}
+
+// Notes returns the notes instance of this account.
+func (account *BaseAccount) Notes() *notes.Notes {
+	return account.notes
+}
+
+// Migrate legacy notes (notes stored in files based on obsolete account identifiers). Account
+// identifiers changed from v4.27.0 to v4.28.0.
+func (account *BaseAccount) migrateLegacyNotes() error {
 	if len(account.Config().Config.SigningConfigurations) == 0 {
 		return nil
 	}
@@ -199,18 +217,11 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 		if err != nil {
 			return err
 		}
-		account.notes = append(account.notes, legacyNotes)
+		if err := account.notes.MergeLegacy(legacyNotes); err != nil {
+			return err
+		}
+		_ = os.Remove(notesFile)
 	}
-
-	// An account syncdone event is generated when new rates are available. This allows the frontend to reload the relevant data.
-	if account.config.RateUpdater != nil {
-		account.config.RateUpdater.Observe(func(e observable.Event) {
-			if e.Subject == rates.RatesEventSubject {
-				account.config.OnEvent(types.EventSyncDone)
-			}
-		})
-	}
-
 	return nil
 }
 
@@ -235,31 +246,17 @@ func (account *BaseAccount) GetAndClearProposedTxNote() string {
 
 // SetTxNote implements accounts.Account.
 func (account *BaseAccount) SetTxNote(txID string, note string) error {
-	// The notes slice is guaranteed to have at least one element by BaseAccount.Initialize.
-	if err := account.notes[0].SetTxNote(txID, note); err != nil {
+	if _, err := account.notes.SetTxNote(txID, note); err != nil {
 		return err
-	}
-	// Delete the notes in legacy files. Don't really care if it fails.
-	for i, notes := range account.notes[1:] {
-		if err := notes.SetTxNote(txID, ""); err != nil {
-			account.log.WithError(err).Errorf("Can't delete a note from a legacy file idx=%d", i)
-		}
 	}
 	// Prompt refresh.
 	account.config.OnEvent(types.EventStatusChanged)
 	return nil
 }
 
-// TxNote fetches a note for a transcation. Returns the empty string if no note was found.
+// TxNote fetches a note for a transaction. Returns the empty string if no note was found.
 func (account *BaseAccount) TxNote(txID string) string {
-	// Take the first note we can find. The first slice element is the regular location of notes,
-	// the other elements lookup notes in legacy locations, so they are not lost when upgrading.
-	for _, notes := range account.notes {
-		if note := notes.TxNote(txID); note != "" {
-			return note
-		}
-	}
-	return ""
+	return account.notes.TxNote(txID)
 }
 
 // ExportCSV implements accounts.Account.

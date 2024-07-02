@@ -18,6 +18,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -95,6 +96,8 @@ type Backend interface {
 	Lightning() *lightning.Lightning
 	Environment() backend.Environment
 	ExportLogs() error
+	ExportNotes() error
+	ImportNotes(jsonLines []byte) (*backend.ImportNotesResult, error)
 	ChartData() (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
 	CanAddAccount(coinpkg.Code, keystore.Keystore) (string, bool)
@@ -266,6 +269,8 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/lightning/parse-input", handlers.getLightningParseInput).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/lightning/receive-payment", handlers.postLightningReceivePayment).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/lightning/send-payment", handlers.postLightningSendPayment).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/notes/export", handlers.postExportNotes).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/notes/import", handlers.postImportNotes).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
@@ -764,12 +769,17 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 	return totalAmount, nil
 }
 
+type coinFormattedAmount struct {
+	CoinCode        coin.Code            `json:"coinCode"`
+	CoinName        string               `json:"coinName"`
+	FormattedAmount coin.FormattedAmount `json:"formattedAmount"`
+}
+
 // getCoinsTotalBalance returns the total balances grouped by coins.
 func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, error) {
-	totalPerCoin := make(map[coin.Code]*big.Int)
-	conversionsPerCoin := make(map[coin.Code]map[string]string)
-
-	totalAmount := make(map[coin.Code]coin.FormattedAmount)
+	var coinFormattedAmounts []coinFormattedAmount
+	var sortedCoins []coin.Code
+	totalCoinsBalances := make(map[coin.Code]*big.Int)
 
 	for _, account := range handlers.backend.Accounts() {
 		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
@@ -788,33 +798,37 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, er
 			return nil, err
 		}
 		amount := b.Available()
-		if _, ok := totalPerCoin[coinCode]; !ok {
-			totalPerCoin[coinCode] = amount.BigInt()
 
+		if totalBalance, exists := totalCoinsBalances[coinCode]; exists {
+			totalBalance.Add(totalBalance, amount.BigInt())
 		} else {
-			totalPerCoin[coinCode] = new(big.Int).Add(totalPerCoin[coinCode], amount.BigInt())
+			totalCoinsBalances[coinCode] = amount.BigInt()
+			sortedCoins = append(sortedCoins, coinCode)
 		}
-
-		conversionsPerCoin[coinCode] = coin.Conversions(
-			coin.NewAmount(totalPerCoin[coinCode]),
-			account.Coin(),
-			false,
-			account.Config().RateUpdater,
-			util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit))
 	}
 
-	for k, v := range totalPerCoin {
-		currentCoin, err := handlers.backend.Coin(k)
+	for _, coinCode := range sortedCoins {
+		currentCoin, err := handlers.backend.Coin(coinCode)
 		if err != nil {
 			return nil, err
 		}
-		totalAmount[k] = coin.FormattedAmount{
-			Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
-			Unit:        currentCoin.GetFormatUnit(false),
-			Conversions: conversionsPerCoin[k],
-		}
+		coinFormattedAmounts = append(coinFormattedAmounts, coinFormattedAmount{
+			CoinCode: coinCode,
+			CoinName: currentCoin.Name(),
+			FormattedAmount: coin.FormattedAmount{
+				Amount: currentCoin.FormatAmount(coin.NewAmount(totalCoinsBalances[coinCode]), false),
+				Unit:   currentCoin.GetFormatUnit(false),
+				Conversions: coin.Conversions(
+					coin.NewAmount(totalCoinsBalances[coinCode]),
+					currentCoin,
+					false,
+					handlers.backend.RatesUpdater(),
+					util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit),
+				),
+			},
+		})
 	}
-	return totalAmount, nil
+	return coinFormattedAmounts, nil
 }
 
 // getAccountsTotalBalanceHandler returns the total balance of all the accounts, gruped by keystore.
@@ -1009,7 +1023,6 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 	coinCode := r.URL.Query().Get("from")
 	currency := r.URL.Query().Get("to")
 	amount := r.URL.Query().Get("amount")
-
 	currentCoin, err := handlers.backend.Coin(coinpkg.Code(coinCode))
 	if err != nil {
 		handlers.log.WithError(err).Error("Could not get coin " + coinCode)
@@ -1033,10 +1046,9 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 
 	convertedAmount := new(big.Rat).Mul(coinUnitAmount, new(big.Rat).SetFloat64(rate))
 
-	btcUnit := handlers.backend.Config().AppConfig().Backend.BtcUnit
 	return map[string]interface{}{
 		"success":    true,
-		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, currency == rates.BTC.String(), util.FormatBtcAsSat(btcUnit)),
+		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, currency),
 	}
 }
 
@@ -1069,10 +1081,6 @@ func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 		unit = unit[2:]
 	case "SEPETH":
 		unit = unit[3:]
-	}
-
-	if from == rates.BTC.String() && handlers.backend.Config().AppConfig().Backend.BtcUnit == coinpkg.BtcUnitSats {
-		fiatRat = coinpkg.Sat2Btc(fiatRat)
 	}
 
 	rate := handlers.backend.RatesUpdater().LatestPrice()[unit][from]
@@ -1567,4 +1575,43 @@ func (handlers *Handlers) postLightningReceivePayment(r *http.Request) interface
 
 func (handlers *Handlers) postLightningSendPayment(r *http.Request) interface{} {
 	return handlers.backend.Lightning().PostSendPayment(r)
+}
+
+func (handlers *Handlers) postExportNotes(r *http.Request) interface{} {
+	type result struct {
+		Success bool   `json:"success"`
+		Message string `json:"message,omitempty"`
+		Aborted bool   `json:"aborted"`
+	}
+	if err := handlers.backend.ExportNotes(); err != nil {
+		if errp.Cause(err) == errp.ErrUserAbort {
+			return result{Success: false, Aborted: true}
+		}
+		handlers.log.WithError(err).Error("Error exporting notes")
+		return result{Success: false, Message: err.Error()}
+	}
+	return result{Success: true}
+}
+
+func (handlers *Handlers) postImportNotes(r *http.Request) interface{} {
+	type result struct {
+		Success bool                       `json:"success"`
+		Message string                     `json:"message,omitempty"`
+		Data    *backend.ImportNotesResult `json:"data"`
+	}
+
+	var fileContentsBase64 string
+	if err := json.NewDecoder(r.Body).Decode(&fileContentsBase64); err != nil {
+		return result{Success: false, Message: err.Error()}
+	}
+	fileContents, err := hex.DecodeString(fileContentsBase64)
+	if err != nil {
+		return result{Success: false, Message: err.Error()}
+	}
+	data, err := handlers.backend.ImportNotes(fileContents)
+	if err != nil {
+		handlers.log.WithError(err).Error("Error importing notes")
+		return result{Success: false, Message: err.Error()}
+	}
+	return result{Success: true, Data: data}
 }

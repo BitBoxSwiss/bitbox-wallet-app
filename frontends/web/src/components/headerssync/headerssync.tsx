@@ -1,6 +1,6 @@
 /**
  * Copyright 2018  Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import { useMountedRef } from '../../hooks/mount';
 import { CoinCode } from '../../api/account';
 import { subscribeCoinHeaders } from '../../api/coins';
 import { useSubscribe } from '../../hooks/api';
-import Spinner from '../spinner/ascii';
+import { AsciiSpinner } from '../spinner/ascii';
 import style from './headerssync.module.css';
 
 export type TProps = {
@@ -57,7 +57,7 @@ export const HeadersSync = ({ coinCode }: TProps) => {
           {' '}
           { !loaded && `(${Math.ceil(value)}%)` }
         </div>
-        { !loaded ? (<Spinner />) : null }
+        { !loaded ? (<AsciiSpinner />) : null }
       </div>
       <div data-testid="progress-bar" className={style.progressBar}>
         <div className={style.progressValue} style={{ width: `${value}%` }}></div>

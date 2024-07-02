@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import { useDarkmode } from '../hooks/darkmode';
 import { SkipForTesting } from '../routes/device/components/skipfortesting';
 import styles from './keystoreconnectprompt.module.css';
 
-export function KeystoreConnectPrompt() {
+export const KeystoreConnectPrompt = () => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
 
@@ -105,4 +105,4 @@ export function KeystoreConnectPrompt() {
   default:
     return null;
   }
-}
+};

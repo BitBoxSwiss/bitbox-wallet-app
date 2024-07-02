@@ -23,6 +23,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -86,7 +87,7 @@ func bitsuranceCheckId(devServer bool, httpClient *http.Client, accountId string
 		return account, err
 	}
 	ratAmount := new(big.Rat).SetInt64(int64(account.Details.MaxCoverage))
-	account.Details.MaxCoverageFormatted = coin.FormatAsCurrency(ratAmount, false, false)
+	account.Details.MaxCoverageFormatted = coin.FormatAsCurrency(ratAmount, rates.EUR.String())
 	return account, nil
 }
 

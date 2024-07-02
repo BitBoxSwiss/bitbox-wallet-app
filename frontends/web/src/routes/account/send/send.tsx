@@ -166,27 +166,22 @@ class Send extends Component<Props, State> {
         }
       }),
     ];
-  }
 
-  public UNSAFE_componentWillMount() {
     this.registerEvents();
   }
 
   public componentWillUnmount() {
     this.unregisterEvents();
     unsubscribe(this.unsubscribeList);
+    // Wipe proposed tx note.
+    accountApi.proposeTxNote(this.getAccount()!.code, '');
   }
 
-  private registerEvents = () => {
-    document.addEventListener('keydown', this.handleKeyDown);
-  };
-
-  private unregisterEvents = () => {
-    document.removeEventListener('keydown', this.handleKeyDown);
-  };
+  private registerEvents = () => document.addEventListener('keydown', this.handleKeyDown);
+  private unregisterEvents = () => document.removeEventListener('keydown', this.handleKeyDown);
 
   private handleKeyDown = (e: KeyboardEvent) => {
-    if (e.keyCode === 27 && !this.state.activeCoinControl && !this.state.activeScanQR) {
+    if (e.key === 'Escape' && !this.state.activeCoinControl && !this.state.activeScanQR) {
       route(`/account/${this.props.code}`);
     }
   };
@@ -234,7 +229,11 @@ class Send extends Component<Props, State> {
           break;
         default:
           const { errorMessage } = result;
-          alertUser(this.props.t('unknownError', errorMessage && { errorMessage }));
+          if (errorMessage) {
+            alertUser(this.props.t('unknownError', { errorMessage }));
+          } else {
+            alertUser(this.props.t('unknownError'));
+          }
         }
       }
     } catch (err) {
@@ -511,7 +510,6 @@ class Send extends Component<Props, State> {
       signProgress,
       signConfirm,
       coinControl,
-      btcUnit,
       activeCoinControl,
       activeScanQR,
       note,
@@ -538,7 +536,6 @@ class Send extends Component<Props, State> {
       return null;
     }
 
-    const baseCurrencyUnit: accountApi.ConversionUnit = fiatUnit === 'BTC' && btcUnit === 'sat' ? 'sat' : fiatUnit;
     return (
       <GuideWrapper>
         <GuidedContent>
@@ -608,7 +605,7 @@ class Send extends Component<Props, State> {
                       disabled={sendAll}
                       error={amountError}
                       fiatAmount={fiatAmount}
-                      label={baseCurrencyUnit}
+                      label={fiatUnit}
                     />
                   </Column>
                 </Grid>
@@ -618,7 +615,7 @@ class Send extends Component<Props, State> {
                       accountCode={account.code}
                       coinCode={account.coinCode}
                       disabled={!amount && !sendAll}
-                      fiatUnit={baseCurrencyUnit}
+                      fiatUnit={fiatUnit}
                       proposedFee={proposedFee}
                       customFee={customFee}
                       showCalculatingFeeLabel={isUpdatingProposal}
@@ -651,7 +648,7 @@ class Send extends Component<Props, State> {
               </ViewContent>
               <ConfirmingWaitDialog
                 paired={paired}
-                baseCurrencyUnit={baseCurrencyUnit}
+                baseCurrencyUnit={fiatUnit}
                 note={note}
                 hasSelectedUTXOs={this.hasSelectedUTXOs()}
                 selectedUTXOs={Object.keys(this.selectedUTXOs)}

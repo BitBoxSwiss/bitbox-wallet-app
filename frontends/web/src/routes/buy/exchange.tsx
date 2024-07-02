@@ -21,7 +21,7 @@ import { Button } from '../../components/forms';
 import * as exchangesAPI from '../../api/exchanges';
 import { AccountCode, IAccount } from '../../api/account';
 import { Header } from '../../components/layout';
-import Guide from './guide';
+import { BuyGuide } from './guide';
 import { findAccount, getCryptoName } from '../account/utils';
 import { route } from '../../utils/route';
 import { useLoad } from '../../hooks/api';
@@ -241,7 +241,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
           </div>
         </div>
       </div>
-      <Guide name={name} />
+      <BuyGuide name={name} />
     </div>
   );
 };

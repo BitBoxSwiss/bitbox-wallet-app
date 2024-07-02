@@ -5,6 +5,7 @@ package mocks
 
 import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"io"
@@ -56,6 +57,9 @@ var _ accounts.Interface = &InterfaceMock{}
 //			},
 //			InitializeFunc: func() error {
 //				panic("mock out the Initialize method")
+//			},
+//			NotesFunc: func() *notes.Notes {
+//				panic("mock out the Notes method")
 //			},
 //			NotifierFunc: func() accounts.Notifier {
 //				panic("mock out the Notifier method")
@@ -133,6 +137,9 @@ type InterfaceMock struct {
 	// InitializeFunc mocks the Initialize method.
 	InitializeFunc func() error
 
+	// NotesFunc mocks the Notes method.
+	NotesFunc func() *notes.Notes
+
 	// NotifierFunc mocks the Notifier method.
 	NotifierFunc func() accounts.Notifier
 
@@ -208,6 +215,9 @@ type InterfaceMock struct {
 		// Initialize holds details about calls to the Initialize method.
 		Initialize []struct {
 		}
+		// Notes holds details about calls to the Notes method.
+		Notes []struct {
+		}
 		// Notifier holds details about calls to the Notifier method.
 		Notifier []struct {
 		}
@@ -268,6 +278,7 @@ type InterfaceMock struct {
 	lockGetUnusedReceiveAddresses sync.RWMutex
 	lockInfo                      sync.RWMutex
 	lockInitialize                sync.RWMutex
+	lockNotes                     sync.RWMutex
 	lockNotifier                  sync.RWMutex
 	lockObserve                   sync.RWMutex
 	lockOffline                   sync.RWMutex
@@ -611,6 +622,33 @@ func (mock *InterfaceMock) InitializeCalls() []struct {
 	mock.lockInitialize.RLock()
 	calls = mock.calls.Initialize
 	mock.lockInitialize.RUnlock()
+	return calls
+}
+
+// Notes calls NotesFunc.
+func (mock *InterfaceMock) Notes() *notes.Notes {
+	if mock.NotesFunc == nil {
+		panic("InterfaceMock.NotesFunc: method is nil but Interface.Notes was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockNotes.Lock()
+	mock.calls.Notes = append(mock.calls.Notes, callInfo)
+	mock.lockNotes.Unlock()
+	return mock.NotesFunc()
+}
+
+// NotesCalls gets all the calls that were made to Notes.
+// Check the length with:
+//
+//	len(mockedInterface.NotesCalls())
+func (mock *InterfaceMock) NotesCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockNotes.RLock()
+	calls = mock.calls.Notes
+	mock.lockNotes.RUnlock()
 	return calls
 }
 
