@@ -17,7 +17,7 @@
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
 import type { CoinCode, Fiat } from './account';
 import type { ISuccess } from './backend';
-import { apiPost, apiGet } from '../utils/request';
+import { apiPost, apiGet } from '@/utils/request';
 
 export type BtcUnit = 'default' | 'sat';
 

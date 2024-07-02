@@ -17,8 +17,8 @@
 
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../../contexts/AppContext';
-import { MenuDark } from '../icon';
+import { AppContext } from '@/contexts/AppContext';
+import { MenuDark } from '@/components/icon';
 import { SpinnerAnimation } from './SpinnerAnimation';
 import style from './Spinner.module.css';
 

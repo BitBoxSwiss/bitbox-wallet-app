@@ -15,9 +15,9 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { i18n } from '../../i18n/i18n';
-import { Entry } from '../../components/guide/entry';
-import { Guide } from '../../components/guide/guide';
+import { i18n } from '@/i18n/i18n';
+import { Entry } from '@/components/guide/entry';
+import { Guide } from '@/components/guide/guide';
 
 const getLink = () => {
   switch (i18n.resolvedLanguage) {

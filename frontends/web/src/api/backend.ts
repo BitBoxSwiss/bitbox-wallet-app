@@ -16,7 +16,7 @@
 
 import type { AccountCode, CoinCode, ERC20CoinCode } from './account';
 import type { FailResponse, SuccessResponse } from './response';
-import { apiGet, apiPost } from '../utils/request';
+import { apiGet, apiPost } from '@/utils/request';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export interface ICoin {

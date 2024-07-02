@@ -16,12 +16,12 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { VersionInfo } from '../../../../api/bitbox02';
-import { View, ViewContent, ViewHeader } from '../../../../components/view/view';
-import { Column, ColumnButtons, Grid } from '../../../../components/layout';
-import { Button, Label } from '../../../../components/forms';
-import { Toggle } from '../../../../components/toggle/toggle';
-import { Info } from '../../../../components/icon';
+import { VersionInfo } from '@/api/bitbox02';
+import { View, ViewContent, ViewHeader } from '@/components/view/view';
+import { Column, ColumnButtons, Grid } from '@/components/layout';
+import { Button, Label } from '@/components/forms';
+import { Toggle } from '@/components/toggle/toggle';
+import { Info } from '@/components/icon';
 import style from './choose.module.css';
 
 export type TWalletSetupChoices = 'create-wallet' | 'restore-sdcard' | 'restore-mnemonic';

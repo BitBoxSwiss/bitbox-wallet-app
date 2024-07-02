@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { apiGet, apiPost } from '../utils/request';
-import type { ChartData } from '../routes/account/summary/chart';
+import { apiGet, apiPost } from '@/utils/request';
+import type { ChartData } from '@/routes/account/summary/chart';
 import type { TDetailStatus } from './bitsurance';
 import type { SuccessResponse } from './response';
 

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { TUnsubscribe } from '../utils/transport-common';
+import { TUnsubscribe } from '@/utils/transport-common';
 import * as accountAPI from './account';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
-import { subscribe as subscribeLegacy } from '../utils/event-legacy';
+import { subscribe as subscribeLegacy } from '@/utils/event-legacy';
 
 /**
  * Subscribes the given function on the "account" event and receives the
