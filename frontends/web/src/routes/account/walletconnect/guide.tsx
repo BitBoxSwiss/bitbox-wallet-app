@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Guide } from '../../../components/guide/guide';
-import { Entry } from '../../../components/guide/entry';
+import { Guide } from '@/components/guide/guide';
+import { Entry } from '@/components/guide/entry';
 
 export const WCGuide = () => {
   const { t } = useTranslation();

@@ -16,11 +16,11 @@
 
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Toggle } from '../../../../components/toggle/toggle';
-import { SettingsItem } from '../settingsItem/settingsItem';
-import { useLoad } from '../../../../hooks/api';
-import { getConfig, setConfig } from '../../../../utils/config';
-import { AppContext } from '../../../../contexts/AppContext';
+import { Toggle } from '@/components/toggle/toggle';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { useLoad } from '@/hooks/api';
+import { getConfig, setConfig } from '@/utils/config';
+import { AppContext } from '@/contexts/AppContext';
 
 export const HideAmountsSetting = () => {
   const { t } = useTranslation();

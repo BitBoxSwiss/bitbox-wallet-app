@@ -17,18 +17,18 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
-import { getConfig } from '../../utils/config';
-import { Dialog } from '../../components/dialog/dialog';
-import { confirmation } from '../../components/confirm/Confirm';
-import { verifyAddress, getPocketURL } from '../../api/exchanges';
-import { AccountCode, getInfo, getTransactionList, signAddress } from '../../api/account';
-import { Header } from '../../components/layout';
-import { Spinner } from '../../components/spinner/Spinner';
-import { PocketTerms } from '../../components/terms/pocket-terms';
-import { useLoad } from '../../hooks/api';
-import { alertUser } from '../../components/alert/Alert';
+import { getConfig } from '@/utils/config';
+import { Dialog } from '@/components/dialog/dialog';
+import { confirmation } from '@/components/confirm/Confirm';
+import { verifyAddress, getPocketURL } from '@/api/exchanges';
+import { AccountCode, getInfo, getTransactionList, signAddress } from '@/api/account';
+import { Header } from '@/components/layout';
+import { Spinner } from '@/components/spinner/Spinner';
+import { PocketTerms } from '@/components/terms/pocket-terms';
+import { useLoad } from '@/hooks/api';
+import { alertUser } from '@/components/alert/Alert';
 import { BuyGuide } from './guide';
-import { convertScriptType } from '../../utils/request-addess';
+import { convertScriptType } from '@/utils/request-addess';
 import style from './iframe.module.css';
 
 interface TProps {

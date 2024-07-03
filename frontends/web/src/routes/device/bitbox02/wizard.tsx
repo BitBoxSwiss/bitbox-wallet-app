@@ -16,12 +16,12 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useLoad, useSync } from '../../../hooks/api';
-import { getStatus, getVersion, verifyAttestation } from '../../../api/bitbox02';
-import { attestationCheckDone, statusChanged } from '../../../api/devicessync';
-import { AppUpgradeRequired } from '../../../components/appupgraderequired';
-import { FirmwareUpgradeRequired } from '../upgrade-firmware-required';
-import { Main } from '../../../components/layout';
+import { useLoad, useSync } from '@/hooks/api';
+import { getStatus, getVersion, verifyAttestation } from '@/api/bitbox02';
+import { attestationCheckDone, statusChanged } from '@/api/devicessync';
+import { AppUpgradeRequired } from '@/components/appupgraderequired';
+import { FirmwareUpgradeRequired } from '@/routes/device/upgrade-firmware-required';
+import { Main } from '@/components/layout';
 import { Unlock } from './unlock';
 import { Pairing } from './setup/pairing';
 import { SetupOptions, TWalletCreateOptions, TWalletSetupChoices } from './setup/choose';

@@ -17,7 +17,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, Copy } from '../icon/icon';
+import { Check, Copy } from '@/components/icon/icon';
 import style from './Copy.module.css';
 
 type TProps = {

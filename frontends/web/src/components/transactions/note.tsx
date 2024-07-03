@@ -16,10 +16,10 @@
 
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as accountApi from '../../api/account';
-import { Input } from '../../components/forms';
-import { useDarkmode } from '../../hooks/darkmode';
-import { Edit, EditLight, Save, SaveLight } from '../icon/icon';
+import * as accountApi from '@/api/account';
+import { Input } from '@/components/forms';
+import { useDarkmode } from '@/hooks/darkmode';
+import { Edit, EditLight, Save, SaveLight } from '@/components/icon/icon';
 
 import style from './transaction.module.css';
 

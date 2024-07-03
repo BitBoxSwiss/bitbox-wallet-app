@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { i18n } from '../i18n/i18n';
-import { alertUser } from '../components/alert/Alert';
+import { i18n } from '@/i18n/i18n';
+import { alertUser } from '@/components/alert/Alert';
 import { call } from './transport-qt';
 import { mobileCall } from './transport-mobile';
 import { runningInQtWebEngine, runningOnMobile } from './env';

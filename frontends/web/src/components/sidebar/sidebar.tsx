@@ -19,27 +19,27 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import { Link, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useKeystores } from '../../hooks/backend';
-import { useLightning } from '../../hooks/lightning';
-import type { TDevices } from '../../api/devices';
-import type { IAccount } from '../../api/account';
-import { deregisterTest } from '../../api/keystores';
-import { getVersion } from '../../api/bitbox02';
-import coins from '../../assets/icons/coins.svg';
-import ejectIcon from '../../assets/icons/eject.svg';
-import shieldIcon from '../../assets/icons/shield_grey.svg';
-import linechart from '../../assets/icons/linechart.svg';
-import settings from '../../assets/icons/settings-alt.svg';
-import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
-import deviceSettings from '../../assets/icons/wallet-light.svg';
-import { debug } from '../../utils/env';
-import { AppLogoInverted, Logo } from '../icon/logo';
-import { CloseXWhite, RedDot, USBSuccess } from '../icon';
-import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '../../routes/account/utils';
-import { SkipForTesting } from '../../routes/device/components/skipfortesting';
-import { Badge } from '../badge/badge';
-import { AppContext } from '../../contexts/AppContext';
-import { Button } from '../forms';
+import { useKeystores } from '@/hooks/backend';
+import { useLightning } from '@/hooks/lightning';
+import type { TDevices } from '@/api/devices';
+import type { IAccount } from '@/api/account';
+import { deregisterTest } from '@/api/keystores';
+import { getVersion } from '@/api/bitbox02';
+import coins from '@/assets/icons/coins.svg';
+import ejectIcon from '@/assets/icons/eject.svg';
+import shieldIcon from '@/assets/icons/shield_grey.svg';
+import linechart from '@/assets/icons/linechart.svg';
+import settings from '@/assets/icons/settings-alt.svg';
+import settingsGrey from '@/assets/icons/settings-alt_disabled.svg';
+import deviceSettings from '@/assets/icons/wallet-light.svg';
+import { debug } from '@/utils/env';
+import { AppLogoInverted, Logo } from '@/components/icon/logo';
+import { CloseXWhite, RedDot, USBSuccess } from '@/components/icon';
+import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '@/routes/account/utils';
+import { SkipForTesting } from '@/routes/device/components/skipfortesting';
+import { Badge } from '@/components/badge/badge';
+import { AppContext } from '@/contexts/AppContext';
+import { Button } from '@/components/forms';
 import style from './sidebar.module.css';
 
 type SidebarProps = {
@@ -257,10 +257,12 @@ const Sidebar = ({
                 className={({ isActive }) => isActive || userInSpecificAccountBuyPage ? style.sidebarActive : ''}
                 to="/buy/info">
                 <div className={style.single}>
-                  <img draggable={false} src={coins} alt={t('sidebar.exchanges')}/>
+                  <img draggable={false} src={coins} />
                 </div>
                 <span className={style.sidebarLabel}>
-                  {hasOnlyBTCAccounts ? t('accountInfo.buyCTA.buy', { unit: 'Bitcoin' }) : t('sidebar.buy')}
+                  {t('generic.buy', {
+                    context: hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'
+                  })}
                 </span>
               </NavLink>
             </div>

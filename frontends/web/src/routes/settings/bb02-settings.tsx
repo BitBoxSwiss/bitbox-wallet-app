@@ -15,19 +15,19 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useLoad } from '../../hooks/api';
+import { useLoad } from '@/hooks/api';
 import { useTranslation } from 'react-i18next';
-import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
-import { ViewContent, View } from '../../components/view/view';
+import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
+import { ViewContent, View } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './types';
 import { ManageBackupSetting } from './components/device-settings/manage-backup-setting';
 import { ShowRecoveryWordsSetting } from './components/device-settings/show-recovery-words-setting';
 import { GoToStartupSettings } from './components/device-settings/go-to-startup-settings';
 import { PassphraseSetting } from './components/device-settings/passphrase-setting';
-import { DeviceInfo, getDeviceInfo, getVersion, getRootFingerprint } from '../../api/bitbox02';
-import { alertUser } from '../../components/alert/Alert';
-import { Skeleton } from '../../components/skeleton/skeleton';
+import { DeviceInfo, getDeviceInfo, getVersion, getRootFingerprint } from '@/api/bitbox02';
+import { alertUser } from '@/components/alert/Alert';
+import { Skeleton } from '@/components/skeleton/skeleton';
 import { AttestationCheckSetting } from './components/device-settings/attestation-check-setting';
 import { FirmwareSetting } from './components/device-settings/firmware-setting';
 import { SecureChipSetting } from './components/device-settings/secure-chip-setting';
@@ -35,7 +35,7 @@ import { DeviceNameSetting } from './components/device-settings/device-name-sett
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
 import { RootFingerprintSetting } from './components/device-settings/root-fingerprint-setting';
 import { Bip85Setting } from './components/device-settings/bip85-setting';
-import { ManageDeviceGuide } from '../device/bitbox02/settings-guide';
+import { ManageDeviceGuide } from '@/routes/device/bitbox02/settings-guide';
 import { MobileHeader } from './components/mobile-header';
 import styles from './bb02-settings.module.css';
 

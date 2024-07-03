@@ -15,8 +15,8 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Main, Header, GuideWrapper, GuidedContent } from '../../components/layout';
-import { View, ViewContent } from '../../components/view/view';
+import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
+import { View, ViewContent } from '@/components/view/view';
 import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSetting';
 import { NotesImport } from './components/appearance/notesImport';
 import { NotesExport } from './components/appearance/notesExport';
@@ -27,9 +27,9 @@ import { ActiveCurrenciesDropdownSetting } from './components/appearance/activeC
 import { HideAmountsSetting } from './components/appearance/hideAmountsSetting';
 import { WithSettingsTabs } from './components/tabs';
 import { MobileHeader } from './components/mobile-header';
-import { Guide } from '../../components/guide/guide';
-import { Entry } from '../../components/guide/entry';
-import { SubTitle } from '../../components/title';
+import { Guide } from '@/components/guide/guide';
+import { Entry } from '@/components/guide/entry';
+import { SubTitle } from '@/components/title';
 import { TPagePropsWithSettingsTabs } from './types';
 
 export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {

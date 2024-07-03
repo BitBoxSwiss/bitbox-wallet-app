@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { useLoad } from '../../hooks/api';
-import { getQRCode } from '../../api/backend';
-import { Check } from '../icon';
+import { useLoad } from '@/hooks/api';
+import { getQRCode } from '@/api/backend';
+import { Check } from '@/components/icon';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import style from './qrcode.module.css';

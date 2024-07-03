@@ -15,7 +15,7 @@
  */
 
 import { subscribeEndpoint, TUnsubscribe } from './subscribe';
-import { apiGet, apiPost } from '../utils/request';
+import { apiGet, apiPost } from '@/utils/request';
 
 export type { TUnsubscribe };
 
