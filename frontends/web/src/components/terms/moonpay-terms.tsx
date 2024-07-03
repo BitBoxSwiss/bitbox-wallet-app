@@ -17,7 +17,7 @@
 
 import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isBitcoinBased } from '../../routes/account/utils';
+import { isBitcoinOnly } from '../../routes/account/utils';
 import { Button, Checkbox } from '../forms';
 import { setConfig } from '../../utils/config';
 import { IAccount } from '../../api/account';
@@ -37,7 +37,7 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
   };
 
   const coinCode = account.coinCode.toUpperCase();
-  const isBitcoin = isBitcoinBased(account.coinCode);
+  const isBitcoin = isBitcoinOnly(account.coinCode);
 
   return (
     <div className={style.disclaimerContainer}>
@@ -86,7 +86,7 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
           {t('buy.info.disclaimer.security.title')}
         </h2>
         <p>
-          {t('buy.info.disclaimer.security.description', {
+          {t('buy.info.disclaimer.security.descriptionGeneric', {
             context: isBitcoin ? 'bitcoin' : 'crypto'
           })}
         </p>
@@ -99,7 +99,7 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
           {t('buy.info.disclaimer.protection.title')}
         </h2>
         <p>
-          {t('buy.info.disclaimer.protection.description', {
+          {t('buy.info.disclaimer.protection.descriptionGeneric', {
             context: isBitcoin ? 'bitcoin' : 'crypto'
           })}
         </p>
