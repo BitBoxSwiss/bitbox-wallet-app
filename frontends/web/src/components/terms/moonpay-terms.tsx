@@ -86,7 +86,7 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
           {t('buy.info.disclaimer.security.title')}
         </h2>
         <p>
-          {t('buy.info.disclaimer.security.description', {
+          {t('buy.info.disclaimer.security.descriptionGeneric', {
             context: isBitcoin ? 'bitcoin' : 'crypto'
           })}
         </p>
@@ -99,7 +99,7 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
           {t('buy.info.disclaimer.protection.title')}
         </h2>
         <p>
-          {t('buy.info.disclaimer.protection.description', {
+          {t('buy.info.disclaimer.protection.descriptionGeneric', {
             context: isBitcoin ? 'bitcoin' : 'crypto'
           })}
         </p>
