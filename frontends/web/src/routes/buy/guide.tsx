@@ -19,11 +19,11 @@ import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 
 interface BuyGuideProps {
-  name: string;
   exchange?: 'pocket' | 'moonpay';
+  translationContext: 'bitcoin' | 'crypto';
 }
 
-export const BuyGuide = ({ name, exchange }: BuyGuideProps) => {
+export const BuyGuide = ({ exchange, translationContext }: BuyGuideProps) => {
   const { t } = useTranslation();
 
   const pocketLink = {
@@ -45,12 +45,14 @@ export const BuyGuide = ({ name, exchange }: BuyGuideProps) => {
           text: t('buy.info.disclaimer.security.link'),
           url: 'https://bitbox.swiss/bitbox02/threat-model/',
         },
-        text: t('buy.info.disclaimer.security.descriptionGeneric', { name }),
+        text: t('buy.info.disclaimer.security.descriptionGeneric', {
+          context: translationContext
+        }),
         title: t('buy.info.disclaimer.security.title'),
       }} shown={true} />
       <Entry key="guide.buy.protection" entry={{
         link: exchange ? privacyLink : undefined,
-        text: t('buy.info.disclaimer.protection.descriptionGeneric', { name }),
+        text: t('buy.info.disclaimer.protection.descriptionGeneric', { context: translationContext }),
         title: t('buy.info.disclaimer.protection.title'),
       }} />
     </Guide>
