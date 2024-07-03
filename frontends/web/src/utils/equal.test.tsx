@@ -15,7 +15,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { equal } from '../../src/utils/equal';
+import { equal } from '@/utils/equal';
 
 describe('equal', () => {
   it('is false for null and 0', () => {

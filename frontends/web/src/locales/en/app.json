@@ -18,8 +18,6 @@
   "accountInfo": {
     "address": "Address",
     "buyCTA": {
-      "buy": "Buy {{unit}}",
-      "buyCrypto": "Buy Crypto",
       "information": {
         "looksEmpty": "Looks like this wallet is empty.",
         "start": "Get started by depositing some coins to the wallet or buying directly in the BitBoxApp."
@@ -720,8 +718,14 @@
     "appVersion": "App version:"
   },
   "generic": {
+    "buy": "Buy {{coinCode}}",
+    "buy_bitcoin": "Buy Bitcoin",
+    "buy_crypto": "Buy crypto",
     "enabled_false": "Disabled",
-    "enabled_true": "Enabled"
+    "enabled_true": "Enabled",
+    "receive": "Receive {{coinCode}}",
+    "receive_bitcoin": "Receive Bitcoin",
+    "receive_crypto": "Receive crypto"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {
@@ -1793,7 +1797,6 @@
   },
   "setup": "Setup device",
   "sidebar": {
-    "buy": "Buy crypto",
     "device": "Manage device",
     "insurance": "Insurance",
     "leave": "Leave",

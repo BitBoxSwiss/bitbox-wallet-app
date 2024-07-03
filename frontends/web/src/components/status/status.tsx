@@ -16,8 +16,8 @@
  */
 
 import { ReactNode, useCallback, useEffect, useState } from 'react';
-import { getConfig, setConfig } from '../../utils/config';
-import { CloseXWhite } from '../icon';
+import { getConfig, setConfig } from '@/utils/config';
+import { CloseXWhite } from '@/components/icon';
 import style from './status.module.css';
 
 export type statusType = 'success' | 'warning' | 'info';

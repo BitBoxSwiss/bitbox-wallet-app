@@ -18,10 +18,10 @@ import '../../../__mocks__/i18n';
 import { useContext } from 'react';
 import { Mock, afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import { IBalance } from '../../api/account';
+import { IBalance } from '@/api/account';
 import { Balance } from './balance';
 
-vi.mock('../../utils/request', () => ({
+vi.mock('@/utils/request', () => ({
   apiGet: vi.fn().mockResolvedValue({}),
 }));
 

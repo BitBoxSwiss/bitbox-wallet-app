@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useDarkmode } from '../../hooks/darkmode';
+import { useDarkmode } from '@/hooks/darkmode';
 import { BitBox02StylizedDark, BitBox02StylizedLight, CaretDown } from './icon';
 import style from './combined.module.css';
 

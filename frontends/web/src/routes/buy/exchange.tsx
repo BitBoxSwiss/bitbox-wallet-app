@@ -13,31 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import 'flag-icons';
 import { useState, useEffect } from 'react';
-import { i18n } from '../../i18n/i18n';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../../components/forms';
-import * as exchangesAPI from '../../api/exchanges';
-import { AccountCode, IAccount } from '../../api/account';
-import { Header } from '../../components/layout';
+import { SingleValue } from 'react-select';
+import { i18n } from '@/i18n/i18n';
+import { Button } from '@/components/forms';
+import * as exchangesAPI from '@/api/exchanges';
+import { AccountCode, IAccount } from '@/api/account';
+import { Header } from '@/components/layout';
 import { BuyGuide } from './guide';
-import { findAccount, getCryptoName } from '../account/utils';
-import { route } from '../../utils/route';
-import { useLoad } from '../../hooks/api';
-import { getRegionNameFromLocale } from '../../i18n/utils';
+import { findAccount, getCryptoName } from '@/routes/account/utils';
+import { route } from '@/utils/route';
+import { useLoad } from '@/hooks/api';
+import { getRegionNameFromLocale } from '@/i18n/utils';
 import { findLowestFee, findBestDeal, getFormattedName, getExchangeSupportedAccounts } from './utils';
 import { ExchangeSelectionRadio } from './components/exchangeselectionradio';
-import { Spinner } from '../../components/spinner/Spinner';
+import { Spinner } from '@/components/spinner/Spinner';
 import { Info, FrontendExchangeDealsList } from './types';
-import { Dialog } from '../../components/dialog/dialog';
-import { InfoButton } from '../../components/infobutton/infobutton';
+import { Dialog } from '@/components/dialog/dialog';
+import { InfoButton } from '@/components/infobutton/infobutton';
 import { InfoContent } from './components/infocontent';
-import { getNativeLocale } from '../../api/nativelocale';
-import { getConfig, setConfig } from '../../utils/config';
-import { SingleValue } from 'react-select';
-import style from './exchange.module.css';
+import { getNativeLocale } from '@/api/nativelocale';
+import { getConfig, setConfig } from '@/utils/config';
 import { CountrySelect, TOption } from './components/countryselect';
+import style from './exchange.module.css';
 
 type TProps = {
     code: AccountCode;
@@ -78,7 +79,10 @@ export const Exchange = ({ code, accounts }: TProps) => {
       return;
     }
     const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' }) || '';
-    const regions = regionList.regions.map(region => ({ value: region.code, label: regionNames.of(region.code) } as TOption));
+    const regions: TOption[] = regionList.regions.map(region => ({
+      value: region.code,
+      label: regionNames.of(region.code) || region.code
+    }));
 
     regions.sort((a, b) => a.label.localeCompare(b.label, i18n.language));
     setRegions(regions);

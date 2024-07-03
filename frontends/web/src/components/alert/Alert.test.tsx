@@ -19,11 +19,11 @@ import { Mock, beforeAll, describe, expect, it, vi } from 'vitest';
 import { render, fireEvent, act } from '@testing-library/react';
 import { Alert, alertUser } from './Alert';
 
-vi.mock('../../utils/request', () => ({
+vi.mock('@/utils/request', () => ({
   apiGet: vi.fn().mockResolvedValue(null),
 }));
 
-import { apiGet } from '../../utils/request';
+import { apiGet } from '@/utils/request';
 
 (apiGet as Mock).mockImplementation(endpoint => {
   switch (endpoint) {

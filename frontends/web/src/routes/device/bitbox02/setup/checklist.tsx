@@ -16,8 +16,8 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, ViewButtons, ViewContent, ViewHeader } from '../../../../components/view/view';
-import { Button, Checkbox } from '../../../../components/forms';
+import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
+import { Button, Checkbox } from '@/components/forms';
 import style from './checklist.module.css';
 
 type Props = {

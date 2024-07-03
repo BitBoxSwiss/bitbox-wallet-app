@@ -15,7 +15,7 @@
  */
 import { ReactNode, createElement } from 'react';
 import { IWeb3Wallet } from '@walletconnect/web3wallet';
-import { ETHLogo } from '../components/icon';
+import { ETHLogo } from '@/components/icon';
 
 type TSupportedChainDetail = {
   [key: string]: { name: string; icon: ReactNode; }

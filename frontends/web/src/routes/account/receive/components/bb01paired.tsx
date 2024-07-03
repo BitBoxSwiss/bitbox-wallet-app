@@ -15,9 +15,9 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '../../../../hooks/api';
-import { hasMobileChannel } from '../../../../api/devices';
-import { Status } from '../../../../components/status/status';
+import { useLoad } from '@/hooks/api';
+import { hasMobileChannel } from '@/api/devices';
+import { Status } from '@/components/status/status';
 
 type TProps = {
     deviceID: string;

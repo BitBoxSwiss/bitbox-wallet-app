@@ -15,15 +15,15 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import * as accountApi from '../../../api/account';
-import { getAccountsPerCoin } from '../utils';
+import * as accountApi from '@/api/account';
+import { getAccountsPerCoin } from '@/routes/account/utils';
 import { Balances } from './accountssummary';
 import { BalanceRow } from './balancerow';
 import { SubTotalRow } from './subtotalrow';
-import { Amount } from '../../../components/amount/amount';
-import { Skeleton } from '../../../components/skeleton/skeleton';
-import { Badge } from '../../../components/badge/badge';
-import { USBSuccess } from '../../../components/icon';
+import { Amount } from '@/components/amount/amount';
+import { Skeleton } from '@/components/skeleton/skeleton';
+import { Badge } from '@/components/badge/badge';
+import { USBSuccess } from '@/components/icon';
 import style from './accountssummary.module.css';
 import { useLightning } from '../../../hooks/lightning';
 import { useCallback, useEffect, useState } from 'react';

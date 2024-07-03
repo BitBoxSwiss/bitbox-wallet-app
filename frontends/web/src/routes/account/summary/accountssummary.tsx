@@ -17,25 +17,25 @@
 
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as accountApi from '../../../api/account';
-import { TDevices } from '../../../api/devices';
-import { statusChanged, syncdone } from '../../../api/accountsync';
-import { unsubscribe } from '../../../utils/subscriptions';
-import { useMountedRef } from '../../../hooks/mount';
-import { useSDCard } from '../../../hooks/sdcard';
-import { Status } from '../../../components/status/status';
-import { GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
-import { View } from '../../../components/view/view';
+import * as accountApi from '@/api/account';
+import { TDevices } from '@/api/devices';
+import { statusChanged, syncdone } from '@/api/accountsync';
+import { unsubscribe } from '@/utils/subscriptions';
+import { useMountedRef } from '@/hooks/mount';
+import { useSDCard } from '@/hooks/sdcard';
+import { Status } from '@/components/status/status';
+import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
+import { View } from '@/components/view/view';
 import { Chart } from './chart';
 import { SummaryBalance } from './summarybalance';
 import { CoinBalance } from './coinbalance';
-import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
-import { Entry } from '../../../components/guide/entry';
-import { Guide } from '../../../components/guide/guide';
-import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
-import { AppContext } from '../../../contexts/AppContext';
-import { getAccountsByKeystore, isAmbiguiousName } from '../utils';
-import { RatesContext } from '../../../contexts/RatesContext';
+import { AddBuyReceiveOnEmptyBalances } from '@/routes/account/info/buyReceiveCTA';
+import { Entry } from '@/components/guide/entry';
+import { Guide } from '@/components/guide/guide';
+import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
+import { AppContext } from '@/contexts/AppContext';
+import { getAccountsByKeystore, isAmbiguiousName } from '@/routes/account/utils';
+import { RatesContext } from '@/contexts/RatesContext';
 
 type TProps = {
   accounts: accountApi.IAccount[];

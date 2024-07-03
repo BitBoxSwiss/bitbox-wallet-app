@@ -15,7 +15,7 @@
  */
 
 import { subscribeEndpoint, TUnsubscribe } from './subscribe';
-import { subscribe as subscribeLegacy } from '../utils/event-legacy';
+import { subscribe as subscribeLegacy } from '@/utils/event-legacy';
 import { TDevices } from './devices';
 
 /**
