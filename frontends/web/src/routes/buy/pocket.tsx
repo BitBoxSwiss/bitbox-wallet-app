@@ -52,8 +52,6 @@ export const Pocket = ({ code }: TProps) => {
   let signing = false;
   let resizeTimerID: any = undefined;
 
-  const name = 'Bitcoin';
-
   useEffect(() => {
     if (config) {
       setAgreedTerms(config.frontend.skipPocketDisclaimer);
@@ -215,7 +213,11 @@ export const Pocket = ({ code }: TProps) => {
     <div className="contentWithGuide">
       <div className="container">
         <div className={style.header}>
-          <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
+          <Header title={
+            <h2>
+              {t('generic.buy', { context: 'bitcoin' })}
+            </h2>
+          } />
         </div>
         <div ref={ref} className={style.container}>
           { !agreedTerms ? (
@@ -249,7 +251,7 @@ export const Pocket = ({ code }: TProps) => {
           </Dialog>
         </div>
       </div>
-      <BuyGuide name={name} exchange={'pocket'}/>
+      <BuyGuide exchange="pocket" translationContext="bitcoin" />
     </div>
   );
 };
