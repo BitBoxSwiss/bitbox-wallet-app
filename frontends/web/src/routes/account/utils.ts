@@ -24,16 +24,6 @@ export const findAccount = (
   return accounts.find(({ code }) => accountCode === code);
 };
 
-export const getCryptoName = (
-  cryptoLabel: string,
-  account?: IAccount,
-): string => {
-  if (account && isBitcoinOnly(account.coinCode)) {
-    return 'Bitcoin';
-  }
-  return cryptoLabel;
-};
-
 export const isBitcoinOnly = (coinCode: CoinCode): boolean => {
   switch (coinCode) {
   case 'btc':
