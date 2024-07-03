@@ -482,15 +482,11 @@
         "protection": {
           "descriptionGeneric_bitcoin": "The BitBoxApp does not collect any data when buying Bitcoin, the incoming funds are treated like a regular transaction. However partner exchanges need to collect some information to operate. Please refer to their respective privacy policies to see in more detail how the data is handled.",
           "descriptionGeneric_crypto": "The BitBoxApp does not collect any data when buying crypto, the incoming funds are treated like a regular transaction. However partner exchanges need to collect some information to operate. Please refer to their respective privacy policies to see in more detail how the data is handled.",
-          "description_bitcoin": "The BitBoxApp does not collect any data when buying Bitcoin, the incoming funds are treated like a regular transaction. MoonPay needs to collect some personal data to operate. Their Privacy Policy explains in detail how that data is handled.",
-          "description_crypto": "The BitBoxApp does not collect any data when buying crypto, the incoming funds are treated like a regular transaction. MoonPay needs to collect some personal data to operate. Their Privacy Policy explains in detail how that data is handled.",
           "title": "Data protection"
         },
         "security": {
           "descriptionGeneric_bitcoin": "When you buy Bitcoin via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
           "descriptionGeneric_crypto": "When you buy crypto via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
-          "description_bitcoin": "When you buy Bitcoin via MoonPay, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
-          "description_crypto": "When you buy crypto via MoonPay, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
           "link": "Security threat model",
           "title": "Security model"
         },
