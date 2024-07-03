@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240531104813-fa7f932bdd38
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519
-	github.com/btcsuite/btcd v0.24.0
+	github.com/btcsuite/btcd v0.24.2
 	github.com/btcsuite/btcd/btcec/v2 v2.3.3
 	github.com/btcsuite/btcd/btcutil v1.1.5
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
