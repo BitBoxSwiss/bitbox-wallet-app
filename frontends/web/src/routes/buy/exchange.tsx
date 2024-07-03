@@ -24,7 +24,7 @@ import * as exchangesAPI from '@/api/exchanges';
 import { AccountCode, IAccount } from '@/api/account';
 import { Header } from '@/components/layout';
 import { BuyGuide } from './guide';
-import { findAccount, getCryptoName } from '@/routes/account/utils';
+import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { route } from '@/utils/route';
 import { useLoad } from '@/hooks/api';
 import { getRegionNameFromLocale } from '@/i18n/utils';
@@ -64,7 +64,12 @@ export const Exchange = ({ code, accounts }: TProps) => {
   const config = useLoad(getConfig);
 
   const account = findAccount(accounts, code);
-  const name = getCryptoName(t('buy.info.crypto'), account);
+  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const isBitcoin = hasOnlyBTCAccounts || (account && isBitcoinOnly(account?.coinCode));
+
+  const title = t('generic.buy', {
+    context: isBitcoin ? 'bitcoin' : 'crypto',
+  });
 
   const hasOnlyOneSupportedExchange = allExchangeDeals ? allExchangeDeals.exchanges.filter(exchange => exchange.supported).length === 1 : false;
 
@@ -191,9 +196,9 @@ export const Exchange = ({ code, accounts }: TProps) => {
           {info && <InfoContent info={info} cardFee={cardFee} bankTransferFee={bankTransferFee} />}
         </Dialog>
         <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{t('buy.exchange.title', { name })}</h2>} />
+          <Header title={<h2>{title}</h2>} />
           <div className={[style.exchangeContainer, 'content', 'narrow', 'isVerticallyCentered'].join(' ')}>
-            <h1 className={style.title}>{t('buy.title', { name })}</h1>
+            <h1 className={style.title}>{title}</h1>
             <p className={style.label}>{t('buy.exchange.region')}</p>
             {regions.length ? (
               <>
@@ -245,7 +250,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
           </div>
         </div>
       </div>
-      <BuyGuide name={name} />
+      <BuyGuide translationContext={hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'} />
     </div>
   );
 };
