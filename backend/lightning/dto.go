@@ -81,6 +81,7 @@ type lnPaymentDetailsDto struct {
 	OpenChannelBolt11      *string             `json:"openChannelBolt11"`
 	LnurlSuccessAction     interface{}         `json:"lnurlSuccessAction"`
 	LnurlPayDomain         *string             `json:"lnurlPayDomain"`
+	LnurlPayComment        *string             `json:"lnurlPayComment"`
 	LnurlMetadata          *string             `json:"lnurlMetadata"`
 	LnAddress              *string             `json:"lnAddress"`
 	LnurlWithdrawEndpoint  *string             `json:"lnurlWithdrawEndpoint"`
@@ -106,6 +107,8 @@ type lnUrlPayRequestDataDto struct {
 	MetadataStr    string  `json:"metadataStr"`
 	CommentAllowed uint16  `json:"commentAllowed"`
 	Domain         string  `json:"domain"`
+	AllowsNostr    bool    `json:"allowsNostr"`
+	NostrPubkey    *string `json:"nostrPubkey"`
 	LnAddress      *string `json:"lnAddress"`
 }
 
@@ -190,6 +193,7 @@ type routeHintHopDto struct {
 type sendPaymentRequestDto struct {
 	Bolt11     string  `json:"bolt11"`
 	AmountMsat *uint64 `json:"amountMsat"`
+	Label      *string `json:"label"`
 }
 
 type sendPaymentResponseDto struct {

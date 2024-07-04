@@ -145,6 +145,7 @@ func toLnPaymentDetailsDto(lnPaymentDetails breez_sdk.LnPaymentDetails) (lnPayme
 		OpenChannelBolt11:      lnPaymentDetails.OpenChannelBolt11,
 		LnurlSuccessAction:     successActionProcessed,
 		LnurlPayDomain:         lnPaymentDetails.LnurlPayDomain,
+		LnurlPayComment:        lnPaymentDetails.LnurlPayComment,
 		LnurlMetadata:          lnPaymentDetails.LnurlMetadata,
 		LnAddress:              lnPaymentDetails.LnAddress,
 		LnurlWithdrawEndpoint:  lnPaymentDetails.LnurlWithdrawEndpoint,
@@ -176,6 +177,8 @@ func toLnUrlPayRequestDataDto(lnUrlPayRequestData breez_sdk.LnUrlPayRequestData)
 		MetadataStr:    lnUrlPayRequestData.MetadataStr,
 		CommentAllowed: lnUrlPayRequestData.CommentAllowed,
 		Domain:         lnUrlPayRequestData.Domain,
+		AllowsNostr:    lnUrlPayRequestData.AllowsNostr,
+		NostrPubkey:    lnUrlPayRequestData.NostrPubkey,
 		LnAddress:      lnUrlPayRequestData.LnAddress,
 	}
 }
