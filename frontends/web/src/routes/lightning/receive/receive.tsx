@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
+import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent } from '../../../components/view/view';
 import { Button, Input, OptionalLabel } from '../../../components/forms';
 import {
@@ -44,7 +44,7 @@ import { getBtcSatsAmount } from '../../../api/coins';
 import { IAmount } from '../../../api/account';
 import styles from './receive.module.css';
 
-type TStep = 'select-amount' | 'wait' | 'invoice' | 'success';
+type TStep = 'create-invoice' | 'wait' | 'invoice' | 'success';
 
 export function Receive() {
   const { t } = useTranslation();
@@ -56,34 +56,46 @@ export function Receive() {
   const [receivePaymentResponse, setReceivePaymentResponse] = useState<ReceivePaymentResponse>();
   const [receiveError, setReceiveError] = useState<string>();
   const [showOpenChannelWarning, setShowOpenChannelWarning] = useState<boolean>(false);
-  const [step, setStep] = useState<TStep>('select-amount');
+  const [step, setStep] = useState<TStep>('create-invoice');
   const [payments, setPayments] = useState<Payment[]>();
 
-  const back = () => {
+  const newInvoice = useCallback(() => {
+    setInputSatsText('');
+    setInvoiceAmount(undefined);
+    setDescription('');
+    setDisableConfirm(true);
+    setReceivePaymentResponse(undefined);
+    setReceiveError(undefined);
+    setShowOpenChannelWarning(false);
+    setStep('create-invoice');
+    setPayments(undefined);
+  }, []);
+
+  const back = useCallback(() => {
     switch (step) {
-    case 'select-amount':
-      setStep('invoice');
+    case 'create-invoice':
+      route('/lightning');
       break;
     case 'invoice':
     case 'success':
-      setStep('select-amount');
+      setStep('create-invoice');
       setReceiveError(undefined);
       if (step === 'success') {
         setInputSatsText('');
       }
       break;
     }
-  };
+  }, [step]);
 
-  const onAmountSatsChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const onAmountSatsChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
     setInputSatsText(target.value);
-  };
+  }, []);
 
-  const onDescriptionChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const onDescriptionChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
     setDescription(target.value);
-  };
+  }, []);
 
   const onPaymentsChange = useCallback(() => {
     getListPayments({ filters: [PaymentTypeFilter.RECEIVED], limit: 5 }).then((payments) => setPayments(payments));
@@ -129,7 +141,7 @@ export function Receive() {
     }
   }, [payments, receivePaymentResponse, step]);
 
-  const receivePayment = async () => {
+  const receivePayment = useCallback(async () => {
     setReceiveError(undefined);
     setStep('wait');
     try {
@@ -141,20 +153,20 @@ export function Receive() {
       setReceivePaymentResponse(receivePaymentResponse);
       setStep('invoice');
     } catch (e) {
-      setStep('select-amount');
+      setStep('create-invoice');
       if (e instanceof SdkError) {
         setReceiveError(e.message);
       } else {
         setReceiveError(String(e));
       }
     }
-  };
+  }, [description, inputSatsText, openChannelFeeResponse?.feeParams]);
 
   const renderSteps = () => {
     switch (step) {
-    case 'select-amount':
+    case 'create-invoice':
       return (
-        <View>
+        <View fitContent minHeight="100%">
           <ViewContent>
             <Grid col="1">
               <Column>
@@ -202,28 +214,28 @@ export function Receive() {
             <Grid col="1">
               <Column>
                 <h1 className={styles.title}>{t('lightning.receive.invoice.title')}</h1>
-                <div>
-                  <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
-                </div>
+                <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
                 <div className={styles.invoiceSummary}>
                   {inputSatsText} sats (<FiatConversion alwaysShowAmounts amount={invoiceAmount} noBtcZeroes />)
-                  {description && ` / ${description}`}
+                  <br />
+                  {description}
                 </div>
-                <ColumnButtons>
-                  <CopyButton data={receivePaymentResponse?.lnInvoice.bolt11} successText={t('lightning.receive.invoice.copied')}>
-                    {t('button.copy')}
-                  </CopyButton>
-                  <Button transparent onClick={back}>
-                    <EditActive className={styles.btnIcon} />
-                    {t('lightning.receive.invoice.edit')}
-                  </Button>
-                </ColumnButtons>
+                <Button transparent onClick={back}>
+                  <EditActive className={styles.btnIcon} />
+                  {t('lightning.receive.invoice.edit')}
+                </Button>
+                <CopyButton data={receivePaymentResponse?.lnInvoice.bolt11} successText={t('lightning.receive.invoice.copied')}>
+                  {t('button.copy')}
+                </CopyButton>
               </Column>
             </Grid>
           </ViewContent>
           <ViewButtons>
-            <Button secondary onClick={() => route('/lightning')}>
+            <Button primary onClick={() => route('/lightning')}>
               {t('button.done')}
+            </Button>
+            <Button secondary onClick={newInvoice}>
+              {t('lightning.receive.invoice.newInvoice')}
             </Button>
           </ViewButtons>
         </View>
@@ -241,15 +253,8 @@ export function Receive() {
             <Button primary onClick={() => route('/lightning')}>
               {t('button.done')}
             </Button>
-            <Button secondary onClick={() => {
-              setPayments(undefined);
-              setInvoiceAmount(undefined);
-              setReceiveError(undefined);
-              setInputSatsText('');
-              setDescription('');
-              setStep('select-amount');
-            }}>
-              New invoice
+            <Button secondary onClick={newInvoice}>
+              {t('lightning.receive.invoice.newInvoice')}
             </Button>
           </ViewButtons>
         </View>

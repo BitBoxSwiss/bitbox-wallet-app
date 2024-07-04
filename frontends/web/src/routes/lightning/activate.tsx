@@ -149,10 +149,12 @@ export const LightningActivate = () => {
         <View fitContent textCenter verticallyCentered>
           <ViewContent withIcon="success">
             <p>{t('lightning.activate.success.message')}</p>
+          </ViewContent>
+          <ViewButtons>
             <Button primary onClick={() => route('/lightning')}>
               {t('button.done')}
             </Button>
-          </ViewContent>
+          </ViewButtons>
         </View>
       );
     }
