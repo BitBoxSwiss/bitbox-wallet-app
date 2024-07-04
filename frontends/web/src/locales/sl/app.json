@@ -1,8 +1,8 @@
 {
   "account": {
-    "disconnect": "Povezava je prekinjena. Poizkušam ponovno...",
+    "disconnect": "Povezava je bila prekinjena. Poizkušam ponovno...",
     "export": "Izvoz",
-    "exportTransactions": "Izvozite transakcije v CSV datoteko in odložite v lokalno mapo.",
+    "exportTransactions": "Izvozite transakcije v CSV datoteki",
     "fatalError": "Ups, nepričakovana napaka",
     "incoming": "Dohodni",
     "initializing": "Pridobivam podatke iz verige blokov...",
@@ -18,8 +18,6 @@
   "accountInfo": {
     "address": "Naslov",
     "buyCTA": {
-      "buy": "Kupi {{unit}}",
-      "buyCrypto": "Kupi kripto",
       "information": {
         "looksEmpty": "Denarnica je prazna.",
         "start": "Začnite tako, da pošljete nekaj kovancev v denarnico ali jih kupite neposredno v aplikaciji BitBoxApp."
@@ -456,19 +454,18 @@
       },
       "noExchanges": "V tej regiji žal ni razpoložljivih menjalnic.",
       "region": "Regija",
-      "selectRegion": "Ni navedeno",
-      "title": "Kupi {{name}}"
+      "selectRegion": "Ni navedeno"
     },
     "info": {
       "continue": "Potrdi in nadaljuj",
       "crypto": "kripto",
       "disclaimer": {
         "intro": [
-          "V sodelovanju z MoonPay vam ponujamo možnost nakupa {{name}} neposredno znotraj BitBoxApp. S samo nekaj kliki.",
-          "MoonPay je regulirana platforma za finančne storitve, ki omogoča preprost in hiter nakup {{name}} v več kot 160 državah"
+          "V sodelovanju z MoonPay vam ponujamo možnost nakupa {{coinCode}} neposredno znotraj BitBoxApp. S samo nekaj kliki.",
+          "MoonPay je regulirana platforma za finančne storitve, ki omogoča preprost in hiter nakup {{coinCode}} v več kot 160 državah"
         ],
         "payment": {
-          "details": "{{name}} je možno kupiti takoj prek storitve MoonPay z naslednjimi načini plačila. Plačila s kreditno ali debetno kartico so takojšnja in priročna, vendar dražja. Za večje zneske priporočamo uporabo bančnega nakazila. Minimalna pristojbina je 4 EUR.",
+          "details": "{{coinCode}} je možno kupiti takoj prek storitve MoonPay z naslednjimi načini plačila. Plačila s kreditno ali debetno kartico so takojšnja in priročna, vendar dražja. Za večje zneske priporočamo uporabo bančnega nakazila. Minimalna pristojbina je 4 EUR.",
           "footnote": "Menjalni tečaji storitve MoonPay se lahko razlikujejo od tistih, ki se uporabljajo v BitBoxApp.",
           "table": {
             "1_description": "Najnižja provizija, lahko traja do 3 delovne dni",
@@ -483,23 +480,23 @@
         },
         "privacyPolicy": "Politika zasebnosti storitve MoonPay",
         "protection": {
-          "description": "BitBoxApp ne zbira nobenih podatkov ob nakupu {{name}} preko MoonPay. \nPrilivi se obravnavajo in so prikazani kot običajna transakcija. MoonPay za svoje delovanje zbira nekaj osebnih podatkov. Njihova politika zasebnosti podrobno pojasnjuje, kako ravna s temi podatki.",
-          "descriptionGeneric": "Aplikacija BitBoxApp ne zbira podatkov ob nakupu {{name}}, vhodna sredstva se obravnavajo kot običajna transakcija. Pričakujemo, da morajo partnerske borze zbrati nekaj vaših informacij za njihovo poslovanje. Oglejte si njihove pravilnike o zasebnosti, da vidite kako postopajo z vašimi podatki.",
+          "descriptionGeneric_bitcoin": "BitBoxApp pri nakupu Bitcoina ne zbira nobenih podatkov, dohodna sredstva se obravnavajo kot običajna transakcija. Na drugi strani pa imajo partnerska podjetja, menjalnice, zakonske obveze za zbiranje nekaj osebnih informacij. Oglejte si njihove pravilnike o zasebnosti, če želite podrobneje videti, kako se obravnavajo ti podatki.",
+          "descriptionGeneric_crypto": "BitBoxApp pri nakupu kriptovalut ne zbira nobenih podatkov, dohodna sredstva se obravnavajo kot običajna transakcija. Na drugi strani pa imajo partnerska podjetja, menjalnice, zakonske obveze za zbiranje nekaj osebnih informacij. Oglejte si njihove pravilnike o zasebnosti, če želite podrobneje videti, kako se obravnavajo ti podatki.",
           "title": "Zaščita podatkov"
         },
         "security": {
-          "description": "Za nakup {{name}} preko MoonPay uporabljate zunanjo storitev. Ta storitev ne sodi v obseg zaščite, ki jo nudi BitBox02 in temelji na varnosti in zaščiti okolja, v katerem deluje programska oprema BitBoxApp.",
-          "descriptionGeneric": "Pojasnilo: Ko uporabite partnerske menjalnice za nakup {{name}}, uporabljate zunanjo storitev. Le-ta ni del naše varnostne politike in ni del zaščite, ki jo ponuja BitBox02 temveč je odvisna od okolja (operacijski sistem, omrežje) na katerem uporabljate BitBoxApp.",
+          "descriptionGeneric_bitcoin": "Ko kupite Bitcoin preko partnerske menjalnice, uporabljate zunanjo storitev. Le-ta je izven varnostnega modela naprave BitBox02 in je odvisna od varnosti programske opreme na kateri teče BitBox App.",
+          "descriptionGeneric_crypto": "Ko kupite kripto preko partnerske menjalnice, uporabljate zunanjo storitev. Le-ta je izven varnostnega modela naprave BitBox02 in je odvisna od varnosti programske opreme na kateri teče BitBox App.",
           "link": "Več o varni uporabi",
           "title": "Model varnostnega sistema"
         },
-        "title": "Dobrodošli! Ste na pravem na mestu za nakup {{name}}"
+        "title_bitcoin": "Pozdravljeni na mestu, kjer lahko kupite Bitcoin",
+        "title_crypto": "Pozdravljeni na mestu, kjer lahko kupite kripto"
       },
       "next": "Naprej",
       "selectLabel": "Izberite svoj račun",
       "selectPlaceholder": "Izberi kovanec",
-      "skip": "Ne prikazuj več",
-      "title": "Kupi  {{name}}"
+      "skip": "Ne prikazuj več"
     },
     "pocket": {
       "data": {
@@ -531,8 +528,7 @@
         "p3": "S storitvijo Pocket lahko enostavno vzpostavite redni intervalni nakup bitcoina s pomočjo rednih bančnih nakazil. T.i. DCA (dollar-cost averaging) ",
         "title": "Dobrodošli na pravem mestu za nakup bitcoinov"
       }
-    },
-    "title": "Kupi {{name}}"
+    }
   },
   "changePin": {
     "newTitle": "Novo geslo naprave",
@@ -720,8 +716,14 @@
     "appVersion": "Različica aplikacije:"
   },
   "generic": {
+    "buy": "Kupi {{coinCode}}",
+    "buy_bitcoin": "Kupi Bitcoin",
+    "buy_crypto": "Kupi kripto",
     "enabled_false": "Onemogočeno",
-    "enabled_true": "Omogočeno"
+    "enabled_true": "Omogočeno",
+    "receive": "Prejmi {{coinCode}}",
+    "receive_bitcoin": "Prejmi Bitcoin",
+    "receive_crypto": "Prejmi kripto"
   },
   "genericError": "Pojavila se je napaka. Če opazite kakršne koli težave, znova zaženite aplikacijo.",
   "goal": {
@@ -987,6 +989,20 @@
         "text": "Ker je verzija čipa dobra informacija o varnosti naprave. Najsodobnejši čip je ATECC608B z izboljšanimi varnostnimi funkcijami v primerjavi s starejšimi modeli.",
         "title": "Zakaj prikazujemo model varnega čipa?"
       }
+    },
+    "guideTitle": {
+      "account": "Vodič po računih",
+      "accountInformation": "Vodič po računih",
+      "accountSummary": "Vodič po povzetku računov",
+      "advancedSettings": "Vodič po naprednih nastavitvah",
+      "appearance": "Kako nastaviti izgled",
+      "buy": "O postopku nakupa",
+      "insurance": "O zavarovanju",
+      "manageAccount": "Vodič po upravljanju računov",
+      "manageDevice": "Vodič po upravljanju naprave",
+      "receive": "Kako prejeti kovance",
+      "send": "Kako poslati kovance",
+      "walletConnect": "Vodič po WalletConnect"
     },
     "receive": {
       "address": {
@@ -1511,6 +1527,7 @@
     "button": "Podpiši in pošlji",
     "coincontrol": {
       "address": "Naslov",
+      "addressReused": "Naslov je bil že uporabljen",
       "outpoint": "",
       "title": "Pošlji iz (output):"
     },
@@ -1546,6 +1563,10 @@
         "low": "2 uri (12 blokov)",
         "low_eth": "5 minut ali manj",
         "low_ltc": "30 minut (12 blokov)",
+        "mEconomy": "-",
+        "mFastest": "10 minut (naslednji blok)",
+        "mHalfHour": "20 minut (2 bloka)",
+        "mHour": "30 minut (3 bloki)",
         "normal": "1 ura (6 blokov)",
         "normal_eth": "2 minuti ali manj",
         "normal_ltc": "15 minut (6 blokov)"
@@ -1556,6 +1577,10 @@
         "economy": "Ekonomična",
         "high": "Visoka",
         "low": "Nizka",
+        "mEconomy": "Neprioritetno",
+        "mFastest": "Visoka",
+        "mHalfHour": "Srednja",
+        "mHour": "Nizka",
         "normal": "Normalna"
       },
       "placeholder": "Preračunavam..."
@@ -1613,12 +1638,17 @@
         "description": "Povežete lahko svoje Electrum vozlišče.",
         "title": "Povežite svoje polno vozlišče"
       },
+      "exportLogs": {
+        "description": "Izvozite dnevnik operacij za pomoč pri odpravljanju težav.",
+        "title": "Izvoz dnevnika operacij"
+      },
       "fee": "Omogoči provizije po meri",
       "setProxyAddress": "Nastavite naslov proxy strežnika",
       "title": "Napredne nastavitve",
       "useProxy": "Omogoči tor proxy",
       "useSats": "Prikaži vrednosti v Satoshi-jih"
     },
+    "general": "Splošno",
     "header": {
       "home": "Domov"
     },
@@ -1627,6 +1657,25 @@
       "title": "Info",
       "up-to-date": "Aplikacija je posodobljena",
       "version": "Verzija aplikacije"
+    },
+    "notes": {
+      "export": {
+        "description": "Shranite opise transakcij in imena računov.",
+        "success": "Opisi transakcij uspešno izvoženi.",
+        "title": "Izvozi zapiske"
+      },
+      "import": {
+        "accountNames_one": "Uvoženo {{count}} ime računa",
+        "accountNames_other": "Uvoženo toliko računov: {{count}}",
+        "accountNames_zero": "Št. uvoženih računov je 0.",
+        "description": "Obnovite zapiske transakcij in imena računov iz arhivske datoteke.",
+        "title": "Uvozi zapiske",
+        "tooLarge": "Datoteka je prevelika.",
+        "transactionNotes_one": "Uvožen {{count}} opis transakcije. ",
+        "transactionNotes_other": "Št. uvoženih opisov transakcij: {{count}} ",
+        "transactionNotes_zero": "Opisi transakcij niso bili uvoženi."
+      },
+      "title": "Uredi zapiske"
     },
     "restart": "Znova zaženite BitBoxApp, da spremembe začnejo veljati.",
     "services": {
@@ -1637,7 +1686,6 @@
   },
   "setup": "Nastavitev naprave",
   "sidebar": {
-    "buy": "Kupite kripto",
     "device": "Upravljanje naprave",
     "insurance": "Zavarovanje",
     "leave": "Zapusti",
@@ -1727,13 +1775,15 @@
     "connect": {
       "button": "Poveži",
       "dappLabel": "Vnesi URI naslov za DApp",
-      "invalidPairingUri": "Napačen povezovalni URI"
+      "invalidPairingUri": "Napačen povezovalni URI",
+      "missingNamespace": "Napaka pri pridobovanju \"namespace\" ali \"connecting app request did not define necessary namespace\""
     },
     "dashboard": {
       "allSessions": "Vse seje",
       "disclaimer": "WalletConnect je protokol za povezavo z decentraliziranimi avtonomnimi aplikacijami (Dapps), ki temeljijo na Ethereumu. Te Dapps-e upravljajo tretje oseb (in ne Shift Crypto ali WalletConnect), zato se povežite le s tistimi, ki jim zaupate, in se prepričajte, da vedno veste, kaj podpisujete, ko opravljate transakcijo.",
       "newConnection": "Nova povezava",
-      "noConnectedSessions": "Noben račun ni povezan s katero od DApp-ov"
+      "noConnectedSessions": "Noben račun ni povezan s katero od DApp-ov",
+      "unspecifiedAccount": "Nedoločen račun"
     },
     "invalidPairingChain": "Napaka pri potrditvi povezave. Prepričajte se, da uporabljate eno od podprtih verig: {{chains}}",
     "pairingRequest": {
@@ -1762,6 +1812,7 @@
     "walletConnect": "WalletConnect"
   },
   "warning": {
+    "coincontrol": "Eden ali več UTXO (prejemov) je na naslovu, ki je bil večkrat uporabljen. Zavedajte se, da bo prejemnik videl vse UTXO (prejeme Bitcoina), povezane s temi naslovi.",
     "receivePairing": "Prosimo, da seznanite BitBox01 s pametnim telefonom, da si omogočite varno preverjanje naslovov. Pojdite na »Upravljanje naprave« v stranski vrstici.",
     "sdcard": "MicroSD kartico hranite ločeno od BitBoxa, razen ko upravljate z varnostnimi kopijami.",
     "sendPairing": "Za varno preverjanje podrobnosti o transakcijah seznanite BitBox\nz mobilno napravo. Pojdite na »Upravljanje naprave« v stranski vrstici."
@@ -1771,6 +1822,7 @@
     "getStarted": "Začnimo z namestitvijo strojne programske opreme (firmware)",
     "insertBitBox02": "Na BitBox02 se dotaknite željene strani zaslona. ",
     "insertDevice": "Za začetek, priključite denarnico",
+    "loadingAccounts": "Nalaganje računov",
     "title": "Dobrodošli"
   }
 }

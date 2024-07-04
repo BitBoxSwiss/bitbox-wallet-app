@@ -18,8 +18,6 @@
   "accountInfo": {
     "address": "アドレス",
     "buyCTA": {
-      "buy": "{{unit}}を購入する",
-      "buyCrypto": "仮想通貨を購入",
       "information": {
         "looksEmpty": "このウォレットは空のようです",
         "start": "いくつかのコインをウォレットに入金するか、BitBoxAppで直接購入して始めましょう"
@@ -456,19 +454,18 @@
       },
       "noExchanges": "申し訳ございませんが、この地域では利用可能な取引所はございません。",
       "region": "地域",
-      "selectRegion": "指定なし",
-      "title": "{{name}}購入"
+      "selectRegion": "指定なし"
     },
     "info": {
       "continue": "同意して続ける",
       "crypto": "仮想通貨",
       "disclaimer": {
         "intro": [
-          "私たちはMoonPayと提携し、BitBoxApp内で直接{{name}}を購入するためのシームレスな方法を提供しています。数回クリックするだけです。",
-          "MoonPayは、160以上の国で{{name}}を簡単かつ迅速に購入することができるプラットフォームです。"
+          "私たちはMoonPayと提携し、BitBoxApp内で直接{{coinCode}}を購入するためのシームレスな方法を提供しています。数回クリックするだけです。",
+          "MoonPayは、160以上の国で{{coinCode}}を簡単かつ迅速に購入することができるプラットフォームです。"
         ],
         "payment": {
-          "details": "MoonPay経由で、以下の支払い方法で{{name}}を即座に購入することができます。クレジットカードまたはデビットカードの注文は即座にできて便利ですが、チャージバックのリスクが高まるため、割高になります。大量の購入には銀行振込のご利用をお勧めします。最低手数料は4 USD/EURまたはそれに相当する金額です。",
+          "details": "MoonPay経由で、以下の支払い方法で{{coinCode}}を即座に購入することができます。クレジットカードまたはデビットカードの注文は即座にできて便利ですが、チャージバックのリスクが高まるため、割高になります。大量の購入には銀行振込のご利用をお勧めします。最低手数料は4 USD/EURまたはそれに相当する金額です。",
           "footnote": "MoonPayの為替レートはBitBoxAppで使用されているものと異なる場合があり、その結果、金額が若干異なることをご了承ください。",
           "table": {
             "1_description": "最安値の料金で、最大3営業日かかります。",
@@ -483,23 +480,21 @@
         },
         "privacyPolicy": "MoonPayのプライバシーポリシー",
         "protection": {
-          "description": "BitBoxAppは{{name}}を購入する際には一切のデータを収集しません。入金される資金は通常の取引として取り扱われます。MoonPayは運用のために一部の個人情報を収集する必要があります。そのプライバシーポリシーでは、そのデータがどのように取り扱われるかが詳細に説明されています。",
-          "descriptionGeneric": "BitBoxAppは{{name}}を購入する際には一切のデータを収集しません。入金される資金は通常の取引として取り扱われます。しかし、パートナーの取引所は運営のためにいくつかの情報を収集する必要があります。データがどのように取り扱われるのか、詳細は各々のプライバシーポリシーをご覧ください。",
+          "descriptionGeneric_bitcoin": "BitBoxAppはBitcoinを購入する際には一切のデータを収集しません。入金される資金は通常の取引として取り扱われます。しかし、パートナーの取引所は運営のためにいくつかの情報を収集する必要があります。データがどのように取り扱われるのか、詳細は各々のプライバシーポリシーをご覧ください。",
+          "descriptionGeneric_crypto": "BitBoxAppは仮想通貨を購入する際には一切のデータを収集しません。入金される資金は通常の取引として取り扱われます。しかし、パートナーの取引所は運営のためにいくつかの情報を収集する必要があります。データがどのように取り扱われるのか、詳細は各々のプライバシーポリシーをご覧ください。",
           "title": "データ保護"
         },
         "security": {
-          "description": "MoonPay経由で{{name}}を購入するとき、あなたは外部のサービスを利用しています。このサービスはBitBox02のセキュリティ脅威モデルの範囲外であり、BitBoxAppソフトウェアが動作している環境の安全性とセキュリティに依存しています。",
-          "descriptionGeneric": "パートナーの取引所経由で{{name}}を購入するとき、あなたは外部のサービスを利用しています。このサービスはBitBox02のセキュリティ脅威モデルの範囲外であり、BitBoxAppソフトウェアが動作している環境の安全性とセキュリティに依存しています。",
+          "descriptionGeneric_bitcoin": "パートナーの取引所経由でBitcoinを購入するとき、あなたは外部のサービスを利用しています。このサービスはBitBox02のセキュリティ脅威モデルの範囲外であり、BitBoxAppソフトウェアが動作している環境の安全性とセキュリティに依存しています。",
+          "descriptionGeneric_crypto": "パートナーの取引所経由で仮想通貨を購入するとき、あなたは外部のサービスを利用しています。このサービスはBitBox02のセキュリティ脅威モデルの範囲外であり、BitBoxAppソフトウェアが動作している環境の安全性とセキュリティに依存しています。",
           "link": "キュリティ脅威モデル",
           "title": "セキュリティモデル"
-        },
-        "title": "ようこそ、{{name}}を買うためのワンストップショップへ。"
+        }
       },
       "next": "次へ",
       "selectLabel": "アカウントを選択する",
       "selectPlaceholder": "コインを選択する",
-      "skip": "再表示しない",
-      "title": " {{name}}購入 "
+      "skip": "再表示しない"
     },
     "pocket": {
       "data": {
@@ -531,8 +526,7 @@
         "p3": "Pocketを利用すると、定期的な銀行注文を通じて定期的な購入も行うことができますので、簡単にDCA（ドルコスト平均法）を実践することができます。",
         "title": "ビットコインを購入するためのワンストップショップへようこそ"
       }
-    },
-    "title": "{{name}}を購入"
+    }
   },
   "changePin": {
     "newTitle": "新しいデバイスパスワード",
@@ -987,6 +981,20 @@
         "text": "この情報はセキュアチップのモデル番号を表示しています。最新のチップはATECC608Bで、旧モデルに比べてセキュリティ機能が向上しています。",
         "title": "セキュアチップモデルを見せる理由は？"
       }
+    },
+    "guideTitle": {
+      "account": "アカウントガイド",
+      "accountInformation": "アカウント情報ガイド",
+      "accountSummary": "アカウント概要ガイド",
+      "advancedSettings": "詳細設定ガイド",
+      "appearance": "アピアランスガイド",
+      "buy": "購入ガイド",
+      "insurance": "インシュアランスガイド",
+      "manageAccount": "アカウント管理ガイド",
+      "manageDevice": "デバイス管理ガイド",
+      "receive": "受信ガイド",
+      "send": "送信ガイド",
+      "walletConnect": "WalletConnectガイド"
     },
     "receive": {
       "address": {
@@ -1511,6 +1519,7 @@
     "button": "レビュー",
     "coincontrol": {
       "address": "アドレス",
+      "addressReused": "アドレス再利用",
       "outpoint": "アウトポイント",
       "title": "アウトプットから送信します。"
     },
@@ -1546,6 +1555,9 @@
         "low": "2時間（12ブロック）",
         "low_eth": "5分以内",
         "low_ltc": "30分（12ブロック）",
+        "mFastest": "10分（次のブロック）",
+        "mHalfHour": "20分（2ブロック）",
+        "mHour": "30分（3ブロック）",
         "normal": "1時間（6ブロック）",
         "normal_eth": "2分以内",
         "normal_ltc": "15分（6ブロック）"
@@ -1556,6 +1568,10 @@
         "economy": "エコノミー",
         "high": "高い",
         "low": "低い",
+        "mEconomy": "優先度なし",
+        "mFastest": "高い",
+        "mHalfHour": "中程度",
+        "mHour": "低い",
         "normal": "ノーマル"
       },
       "placeholder": "手数料を計算しています..."
@@ -1613,12 +1629,17 @@
         "description": "独自のElectrumフルノードに接続することができます。",
         "title": "自分のノードに接続"
       },
+      "exportLogs": {
+        "description": "トラブルシューティングとサポートのためにログファイルをエクスポートします。",
+        "title": "ログのエクスポート"
+      },
       "fee": "カスタム手数料を有効にします。",
       "setProxyAddress": "プロキシアドレスを設定します。",
       "title": "エキスパート設定",
       "useProxy": "Torプロキシを有効にします。",
       "useSats": "\nBTCの値をSatoshiで表示します。"
     },
+    "general": "一般",
     "header": {
       "home": "ホーム"
     },
@@ -1627,6 +1648,25 @@
       "title": "情報",
       "up-to-date": "お使いのアプリは最新版です。",
       "version": "アプリのバージョン"
+    },
+    "notes": {
+      "export": {
+        "description": "取引メモとアカウント名のバックアップを作成します。",
+        "success": "メモが正常にエクスポートされました。",
+        "title": "メモのエクスポート"
+      },
+      "import": {
+        "accountNames_one": " {{count}} 個のアカウント名がインポートされました。",
+        "accountNames_other": "{{count}}個のアカウント名がインポートされました。",
+        "accountNames_zero": "0個のアカウント名がインポートされました。",
+        "description": "以前に作成したバックアップファイルから取引メモとアカウント名を復元します。",
+        "title": "メモのインポート",
+        "tooLarge": "ファイルが大きすぎます",
+        "transactionNotes_one": "{{count}}件の取引メモがインポートされました。",
+        "transactionNotes_other": "{{count}}件の取引メモがインポートされました。",
+        "transactionNotes_zero": "0件の取引メモがインポートされました。"
+      },
+      "title": "メモの管理"
     },
     "restart": "変更が反映されるためには、BitBoxAppを再起動してください。",
     "services": {
@@ -1637,7 +1677,6 @@
   },
   "setup": "デバイスを設定",
   "sidebar": {
-    "buy": "仮想通貨を購入する",
     "device": "デバイス管理",
     "insurance": "ほけん",
     "leave": "離れる",
@@ -1727,13 +1766,15 @@
     "connect": {
       "button": "接続する",
       "dappLabel": "dappのURIアドレスを入力してください。",
-      "invalidPairingUri": "無効なペアリングURIです"
+      "invalidPairingUri": "無効なペアリングURIです",
+      "missingNamespace": "接続アプリのリクエストに必要なネームスペースが定義されていません。"
     },
     "dashboard": {
       "allSessions": "全セッション",
       "disclaimer": "Walletconnectは、EthereumベースのDappsに接続するためのプロトコルです。これらのdappsはサードパーティのサービスによって運営されているため、信頼できるdappsにのみ接続し、トランザクションを行う際には常に署名している内容を把握しておくことが重要です。",
       "newConnection": "新しい接続",
-      "noConnectedSessions": "現在、どのアカウントもdappsに接続されていません。"
+      "noConnectedSessions": "現在、どのアカウントもdappsに接続されていません。",
+      "unspecifiedAccount": "未指定のアカウント"
     },
     "invalidPairingChain": "ペアリングの承認にエラーが発生しました。サポートされているチェーンの一つを使用していることを確認してください：{{chains}}",
     "pairingRequest": {
@@ -1762,6 +1803,7 @@
     "walletConnect": "WalletConnect"
   },
   "warning": {
+    "coincontrol": "1つ以上のUTXOに再利用されたアドレスがあります。受信者はそれらのアドレスに関連するすべてのUTXOを確認できます。",
     "receivePairing": "安全なアドレス検証を有効にするために、BitBoxをペアリングしてください。サイドバーの「デバイスの管理」に移動してください。",
     "sdcard": "バックアップを管理したい場合を除き、BitBoxとマイクロSDカードを別々に保管してください。",
     "sendPairing": "トランザクションの詳細を安全に確認するために、BitBoxをペアリングしてください。サイドバーの「デバイスの管理」に移動してください。"
