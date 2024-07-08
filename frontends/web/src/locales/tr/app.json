@@ -1,30 +1,67 @@
 {
   "account": {
     "disconnect": "Bağlantı koptu. Tekrar deneniyor...",
+    "export": "Dışarı Aktar",
     "exportTransactions": "İşlemleri İndirilenler Klasörüne CSV Dosyası Olarak Dışa Aktar",
     "fatalError": "Beklenmeyen bir hata oluştu.",
     "incoming": "Gelen",
     "initializing": "Blockchain'den bilgi alınıyor…",
-    "reconnecting": "Bağlantı koptu, yeniden bağlantı kuruluyor..."
+    "insuranceExpired": "<strong>Hesap artık sigortalı değil</strong>\n\nBu hesabın sigorta planı değiştirildi.\nAyrıntılar için lütfen sigorta sayfasını kontrol edin.",
+    "insured": "Sigortalı hesap",
+    "maybeProxyError": "Tor proxy'si etkinleştirildi. Tor proxy'nizin düzgün çalıştığından emin olun veya proxy ayarını devre dışı bırakın.",
+    "reconnecting": "Bağlantı koptu, yeniden bağlantı kuruluyor...",
+    "syncedAddressesCount": "{{count}} adres tarandı",
+    "uncoveredFundsLink": "Paralarınızı nasıl taşıyacağınızla ilgili bu kılavuzu takip edin.",
+    "warning": "Uyarı!"
   },
   "accountInfo": {
     "address": "Adres",
+    "buyCTA": {
+      "information": {
+        "looksEmpty": "Görünüşe göre bu cüzdan boş.",
+        "start": "Cüzdanınıza biraz para yatırarak veya doğrudan BitBoxApp'te satın alarak başlayın."
+      }
+    },
     "extendedPublicKey": "Genişletilmiş Genel Anahtar",
     "label": "Hesap bilgileri",
     "title": "Hesap Bilgileri",
-    "verify": "Bu cihazda doğrula"
+    "verify": "Bu cihazda doğrula",
+    "xpubTypeChangeBtn": {
+      "p2tr": "Taproot görüntüle",
+      "p2wpkh": "Native Segwit görüntüle"
+    }
   },
   "accountSummary": {
+    "availableBalance": "Mevcut bakiye",
     "balance": "Bakiye",
     "exportSummary": "Hesap Özetini İndirilenler Klasörüne CSV Dosyası Olarak Dışa Aktar",
     "fiatBalance": "Fiat Bakiyesi",
     "name": "Hesap adı",
     "noAccount": "Gösterilecek hesap yok.",
+    "subtotalWithCoinName": "Toplam ({{coinName}})",
     "title": "Hesap Özeti",
-    "total": "Toplam"
+    "total": "Toplam",
+    "transactionHistory": "İşlem geçmişi"
   },
   "addAccount": {
+    "chooseName": {
+      "nextButton": "Hesap ekle"
+    },
+    "selectCoin": {
+      "nextButton": "Sonraki"
+    },
+    "success": {
+      "addAnotherAccount": "Başka bir hesap ekle",
+      "nextButton": "Bitti",
+      "step": "Tamamlandı",
+      "title": "Hesap eklendi"
+    },
     "title": "Hesap Ekle"
+  },
+  "aopp": {
+    "labelAddress": "Adres",
+    "labelMessage": "Mesaj",
+    "reverifyInfoText": "Adresi Doğrula"
   },
   "app": {
     "upgrade": "Bu uygulamanın yeni bir sürümü mevcut! Lütfen  {{current}} 'dan  {{version}}'a yükseltin."

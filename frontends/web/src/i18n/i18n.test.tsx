@@ -17,13 +17,13 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { waitFor } from '@testing-library/react';
 
-vi.mock('../utils/request', () => ({
-  ...vi.importActual('../utils/request'),
+vi.mock('@/utils/request', () => ({
+  ...vi.importActual('@/utils/request'),
   apiPost: vi.fn().mockImplementation(() => Promise.resolve()),
   apiGet: vi.fn().mockResolvedValue(''),
 }));
 
-import { apiGet, apiPost } from '../utils/request';
+import { apiGet, apiPost } from '@/utils/request';
 import { i18n } from './i18n';
 
 describe('i18n', () => {

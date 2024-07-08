@@ -17,16 +17,16 @@
 import '../../../../__mocks__/i18n';
 import { describe, expect, it, Mock, vi } from 'vitest';
 
-vi.mock('../../../utils/request', () => ({
+vi.mock('@/utils/request', () => ({
   apiGet: vi.fn().mockResolvedValue(''),
 }));
-vi.mock('../../../i18n/i18n');
+vi.mock('@/i18n/i18n');
 
 import { render, waitFor } from '@testing-library/react';
 import { FeeTargets } from './feetargets';
-import { apiGet } from '../../../utils/request';
+import { apiGet } from '@/utils/request';
 
-import * as utilsConfig from '../../../utils/config';
+import * as utilsConfig from '@/utils/config';
 const getConfig = vi.spyOn(utilsConfig, 'getConfig');
 
 describe('routes/account/send/feetargets', () => {

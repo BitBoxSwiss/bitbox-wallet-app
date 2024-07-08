@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { apiGet, apiPost } from '../utils/request';
-import { ChartData } from '../routes/account/summary/chart';
+import { apiGet, apiPost } from '@/utils/request';
+import type { ChartData } from '@/routes/account/summary/chart';
 import type { TDetailStatus } from './bitsurance';
-import { SuccessResponse } from './response';
+import type { SuccessResponse } from './response';
 
-export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
+export type NativeCoinCode = 'btc' | 'tbtc' | 'rbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
 
 export type AccountCode = string;
 
@@ -31,14 +31,18 @@ export type CoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'tsat' | 'TLTC' 
 
 export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'DAI';
 
+export type ERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 'eth-erc20-link' | 'eth-erc20-bat' | 'eth-erc20-mkr' | 'eth-erc20-zrx' | 'eth-erc20-wbtc' | 'eth-erc20-paxg' | 'eth-erc20-dai0x6b17';
+
+export type CoinCode = NativeCoinCode | ERC20CoinCode;
+
 export type Terc20Token = {
-  code: string;
+  code: ERC20CoinCode;
   name: string;
   unit: ERC20TokenUnit;
 };
 
 export interface IActiveToken {
-  tokenCode: string;
+  tokenCode: ERC20CoinCode;
   accountCode: AccountCode;
 }
 
@@ -70,11 +74,11 @@ export const getAccounts = (): Promise<IAccount[]> => {
 };
 
 export type TAccountsBalanceByCoin = {
-    [key: string]: IAmount;
+  [key in CoinCode]?: IAmount;
 };
 
 export type TAccountsBalance = {
-  [rootFingerprint: string]: TAccountsBalanceByCoin;
+  [rootFingerprint in TKeystore['rootFingerprint']]: TAccountsBalanceByCoin;
 };
 
 export const getAccountsBalance = (): Promise<TAccountsBalance> => {
@@ -87,7 +91,7 @@ export type TAccountTotalBalance = {
 };
 
 export type TAccountsTotalBalance = {
-    [key: string]: TAccountTotalBalance;
+  [rootFingerprint in TKeystore['rootFingerprint']]: TAccountTotalBalance;
 };
 
 export type TAccountsTotalBalanceResponse = {
@@ -103,9 +107,13 @@ export const getAccountsTotalBalance = (): Promise<TAccountsTotalBalanceResponse
   return apiGet('accounts/total-balance');
 };
 
-export type TCoinsTotalBalance = {
-  [key: string]: IAmount;
+type CoinFormattedAmount = {
+  coinCode: CoinCode;
+  coinName: string;
+  formattedAmount: IAmount;
 };
+
+export type TCoinsTotalBalance = CoinFormattedAmount[];
 
 export const getCoinsTotalBalance = (): Promise<TCoinsTotalBalance> => {
   return apiGet('accounts/coins-balance');

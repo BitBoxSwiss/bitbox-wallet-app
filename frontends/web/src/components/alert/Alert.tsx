@@ -17,9 +17,9 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MultilineMarkup } from '../../utils/markup';
-import { View, ViewButtons, ViewHeader } from '../view/view';
-import { Button } from '../forms';
+import { MultilineMarkup } from '@/utils/markup';
+import { View, ViewButtons, ViewHeader } from '@/components/view/view';
+import { Button } from '@/components/forms';
 
 /**
  * Function to activate global alert component with a message

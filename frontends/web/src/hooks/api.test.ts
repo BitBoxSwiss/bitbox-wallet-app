@@ -17,11 +17,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useState } from 'react';
-import { TSubscriptionCallback } from '../api/subscribe';
+import { TSubscriptionCallback } from '@/api/subscribe';
 import { useSubscribe, useLoad, useSync } from './api';
 import * as utils from './mount';
-import { TStatus } from '../api/coins';
-import { act } from 'react-dom/test-utils';
+import { TStatus } from '@/api/coins';
+import { act } from 'react';
 
 const useMountedRefSpy = vi.spyOn(utils, 'useMountedRef');
 

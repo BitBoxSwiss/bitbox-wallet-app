@@ -1,5 +1,4 @@
 /**
- * Copyright 2018 Shift Devices AG
  * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,30 +14,4 @@
  * limitations under the License.
  */
 
-import style from './InlineMessage.module.css';
-
-type TProps = {
-    type: string;
-    message: string;
-    align: string;
-    onEnd: () => void;
-}
-
-export const InlineMessage = ({
-  type,
-  message,
-  align,
-  onEnd
-}: TProps) => {
-
-  const handleDeactivate = () => {
-    onEnd();
-  };
-
-  return (
-    <div className={[style.inlineMessage, style[type], align ? style[align] : ''].join(' ')}>
-      {message}
-      <div className={style.close} onClick={handleDeactivate}>✕</div>
-    </div>
-  );
-};
+export { SubTitle } from './subtitle';

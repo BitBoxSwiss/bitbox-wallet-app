@@ -223,3 +223,13 @@ a.sidebarActive .single img,
     text-align: left;
     width: 100%;
 }
+
+.canUpgradeDot {
+    height: 8px;
+    left: 2px;
+    max-width: 8px;
+    position: relative;
+    top: -2px;
+    vertical-align: top;
+    width: 8px;
+}

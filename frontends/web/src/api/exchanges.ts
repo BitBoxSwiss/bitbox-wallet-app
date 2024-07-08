@@ -15,7 +15,7 @@
  */
 
 import { AccountCode } from './account';
-import { apiGet, apiPost } from '../utils/request';
+import { apiGet, apiPost } from '@/utils/request';
 
 export type ExchangeRegionList = {
   regions: ExchangeRegion[];

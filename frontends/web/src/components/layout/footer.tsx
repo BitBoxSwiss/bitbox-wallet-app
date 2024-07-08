@@ -15,7 +15,7 @@
  */
 
 import { ReactNode } from 'react';
-import { LanguageSwitch } from '../language/language';
+import { LanguageSwitch } from '@/components/language/language';
 import style from './footer.module.css';
 import { Version } from './version';
 

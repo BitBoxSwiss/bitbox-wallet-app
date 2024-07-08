@@ -16,8 +16,8 @@
 
 import React, { ReactChild } from 'react';
 import { Route, Routes, useParams } from 'react-router';
-import { IAccount } from '../api/account';
-import { TDevices } from '../api/devices';
+import { IAccount } from '@/api/account';
+import { TDevices } from '@/api/devices';
 import { AddAccount } from './account/add/add';
 import { Moonpay } from './exchange/moonpay';
 import { BuyInfo } from './exchange/info';
@@ -34,7 +34,7 @@ import { ElectrumSettings } from './settings/electrum';
 import { Passphrase } from './device/bitbox02/passphrase';
 import { Account } from './account/account';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
-import { Appearance } from './settings/appearance';
+import { General } from './settings/general';
 import { MobileSettings } from './settings/mobile-settings';
 import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
@@ -181,8 +181,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     />
   </InjectParams>;
 
-  const AppearanceEl = <InjectParams>
-    <Appearance
+  const GeneralEl = <InjectParams>
+    <General
       deviceIDs={deviceIDs}
       hasAccounts={hasAccounts}
     />
@@ -242,7 +242,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       </Route>
       <Route path="settings">
         <Route index element={MobileSettingsEl} />
-        <Route path="appearance" element={AppearanceEl} />
+        <Route path="general" element={GeneralEl} />
         <Route path="about" element={AboutEl} />
         <Route path="device-settings/:deviceID" element={Device} />
         <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />

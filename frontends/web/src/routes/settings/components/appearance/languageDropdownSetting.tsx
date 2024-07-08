@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import { SettingsItem } from '../settingsItem/settingsItem';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '../../../../hooks/api';
-import { getNativeLocale } from '../../../../api/nativelocale';
-import { defaultLanguages } from '../../../../components/language/types';
-import { getSelectedIndex } from '../../../../utils/language';
-import { SingleDropdown } from '../dropdowns/singledropdown';
-import { GlobeDark, GlobeLight } from '../../../../components/icon/icon';
-import { useDarkmode } from '../../../../hooks/darkmode';
+import { useLoad } from '@/hooks/api';
+import { getNativeLocale } from '@/api/nativelocale';
+import { defaultLanguages } from '@/components/language/types';
+import { getSelectedIndex } from '@/utils/language';
+import { SingleDropdown } from '@/routes/settings/components/dropdowns/singledropdown';
+import { GlobeDark, GlobeLight } from '@/components/icon/icon';
+import { useDarkmode } from '@/hooks/darkmode';
 import styles from './languageDropDownSetting.module.css';
 
 export const LanguageDropdownSetting = () => {

@@ -16,13 +16,13 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import * as bitbox02BootloaderAPI from '../../../api/bitbox02bootloader';
-import { useLoad, useSync } from '../../../hooks/api';
-import { useDarkmode } from '../../../hooks/darkmode';
-import { CenteredContent } from '../../centeredcontent/centeredcontent';
-import { Button } from '../../forms';
-import { BitBox02, BitBox02Inverted } from '../../icon/logo';
-import { Status } from '../../status/status';
+import * as bitbox02BootloaderAPI from '@/api/bitbox02bootloader';
+import { useLoad, useSync } from '@/hooks/api';
+import { useDarkmode } from '@/hooks/darkmode';
+import { CenteredContent } from '@/components/centeredcontent/centeredcontent';
+import { Button } from '@/components/forms';
+import { BitBox02, BitBox02Inverted } from '@/components/icon/logo';
+import { Status } from '@/components/status/status';
 import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
 
 type TProps = {

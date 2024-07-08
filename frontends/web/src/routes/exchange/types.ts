@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ExchangeDeal, ExchangeDeals } from '../../api/exchanges';
+import { ExchangeDeal, ExchangeDeals } from '@/api/exchanges';
 
 export type ExchangeDealWithBestDeal = ExchangeDeal & {
     isBestDeal?: boolean;

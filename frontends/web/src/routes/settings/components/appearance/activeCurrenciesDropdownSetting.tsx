@@ -16,10 +16,10 @@
 
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formattedCurrencies } from '../../../../components/rates/rates';
-import { SettingsItem } from '../settingsItem/settingsItem';
-import { ActiveCurrenciesDropdown } from '../dropdowns/activecurrenciesdropdown';
-import { RatesContext } from '../../../../contexts/RatesContext';
+import { formattedCurrencies } from '@/components/rates/rates';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { ActiveCurrenciesDropdown } from '@/routes/settings/components/dropdowns/activecurrenciesdropdown';
+import { RatesContext } from '@/contexts/RatesContext';
 
 const ActiveCurrenciesDropdownSetting = () => {
   const { t } = useTranslation();

@@ -15,8 +15,8 @@
  */
 
 import { FrontendExchangeDealsList, Info } from './types';
-import { IAccount } from '../../api/account';
-import { getExchangeBuySupported, getExchangeSellSupported } from '../../api/exchanges';
+import { IAccount } from '@/api/account';
+import { getExchangeBuySupported, getExchangeSellSupported } from '@/api/exchanges';
 
 /**
  * Finds the lowest fee among all `supported`

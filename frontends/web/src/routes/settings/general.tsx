@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import { Main, Header, GuideWrapper, GuidedContent } from '../../components/layout';
-import { View, ViewContent } from '../../components/view/view';
 import { useTranslation } from 'react-i18next';
+import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
+import { View, ViewContent } from '@/components/view/view';
 import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSetting';
+import { NotesImport } from './components/appearance/notesImport';
+import { NotesExport } from './components/appearance/notesExport';
 import { DefaultCurrencyDropdownSetting } from './components/appearance/defaultCurrencyDropdownSetting';
 import { DisplaySatsToggleSetting } from './components/appearance/displaySatsToggleSetting';
 import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
@@ -25,11 +27,12 @@ import { ActiveCurrenciesDropdownSetting } from './components/appearance/activeC
 import { HideAmountsSetting } from './components/appearance/hideAmountsSetting';
 import { WithSettingsTabs } from './components/tabs';
 import { MobileHeader } from './components/mobile-header';
-import { Guide } from '../../components/guide/guide';
-import { Entry } from '../../components/guide/entry';
+import { Guide } from '@/components/guide/guide';
+import { Entry } from '@/components/guide/entry';
+import { SubTitle } from '@/components/title';
 import { TPagePropsWithSettingsTabs } from './types';
 
-export const Appearance = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   return (
     <GuideWrapper>
@@ -40,30 +43,42 @@ export const Appearance = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTab
             title={
               <>
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader withGuide title={t('settings.appearance')} />
+                <MobileHeader withGuide title={t('settings.general')} />
               </>
             } />
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu deviceIDs={deviceIDs}>
+                <SubTitle className="m-top-default">
+                  {t('settings.appearance')}
+                </SubTitle>
+                <LanguageDropdownSetting />
                 <DefaultCurrencyDropdownSetting />
                 <ActiveCurrenciesDropdownSetting />
-                <LanguageDropdownSetting />
                 <DarkmodeToggleSetting />
                 <DisplaySatsToggleSetting />
                 <HideAmountsSetting />
+                { hasAccounts ? (
+                  <>
+                    <SubTitle className="m-top-default">
+                      {t('settings.notes.title')}
+                    </SubTitle>
+                    <NotesExport />
+                    <NotesImport />
+                  </>
+                ) : null }
               </WithSettingsTabs>
             </ViewContent>
           </View>
         </Main>
       </GuidedContent>
-      <AppearanceGuide />
+      <GeneralGuide />
     </GuideWrapper>
 
   );
 };
 
-const AppearanceGuide = () => {
+const GeneralGuide = () => {
   const { t } = useTranslation();
 
   return (

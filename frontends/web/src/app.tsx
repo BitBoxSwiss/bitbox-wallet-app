@@ -152,6 +152,7 @@ export const App = () => {
           <Sidebar
             accounts={activeAccounts}
             deviceIDs={deviceIDs}
+            devices={devices}
           />
           <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
             <Update />

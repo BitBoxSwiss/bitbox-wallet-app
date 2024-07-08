@@ -17,8 +17,6 @@
   "accountInfo": {
     "address": "Adresse",
     "buyCTA": {
-      "buy": "Acheter {{unit}}",
-      "buyCrypto": "Acheter de la Crypto",
       "information": {
         "looksEmpty": "On dirait que ce portefeuille est vide",
         "start": "Commencez par déposer des fonds dans le portefeuille ou bien achetez en directement dans l'application BitBoxApp."
@@ -441,19 +439,18 @@
       },
       "noExchanges": "Désolé, aucun échange disponible dans cette zone géographique",
       "region": "Zone Géographique",
-      "selectRegion": "Non spécifié",
-      "title": "Acheter du {{name}}"
+      "selectRegion": "Non spécifié"
     },
     "info": {
       "continue": "Accepter et continuer",
       "crypto": "crypto",
       "disclaimer": {
         "intro": [
-          "Nous avons un partenariat avec MoonPay afin de vous permettre d'acheter simplement des {{name}} directement depuis BitBoxApp. Quelques clics suffisent.",
-          "MoonPay est une plateforme qui permet d’acheter des {{name}} de manière simple et rapide dans plus de 160 pays."
+          "Nous avons un partenariat avec MoonPay afin de vous permettre d'acheter simplement des {{coinCode}} directement depuis BitBoxApp. Quelques clics suffisent.",
+          "MoonPay est une plateforme qui permet d’acheter des {{coinCode}} de manière simple et rapide dans plus de 160 pays."
         ],
         "payment": {
-          "details": "Vous pouvez acheter des {{name}} instantanément via MoonPay avec les méthodes de paiement suivantes. Les achats par carte de crédit ou de débit sont faciles et instantanés, mais plus chers en raison du risque de rétro-facturation plus élevé. Nous vous recommandons d'utiliser l'option du virement bancaire pour les montants plus importants. Les frais minimum sont de 4 USD/EUR ou équivalent.",
+          "details": "Vous pouvez acheter des {{coinCode}} instantanément via MoonPay avec les méthodes de paiement suivantes. Les achats par carte de crédit ou de débit sont faciles et instantanés, mais plus chers en raison du risque de rétro-facturation plus élevé. Nous vous recommandons d'utiliser l'option du virement bancaire pour les montants plus importants. Les frais minimum sont de 4 USD/EUR ou équivalent.",
           "footnote": "Veuillez noter que les taux de change de MoonPay peuvent différer de ceux utilisés dans BitBoxApp, ce qui peut entraîner potentiellement des montants légèrement différents.",
           "table": {
             "1_description": "Frais les plus bas, peut prendre jusqu'à 3 jours ouvrables",
@@ -468,23 +465,21 @@
         },
         "privacyPolicy": "Politique de confidentialité de MoonPay",
         "protection": {
-          "description": "BitBoxApp ne collecte aucune donnée lors de l'achat de {{name}}, les fonds entrants sont traités comme une transaction normale. MoonPay a besoin de collecter certaines données personnelles afin de fonctionner. Leur politique de confidentialité décrit en détail la façon dont ces données sont traitées.",
-          "descriptionGeneric": "BitBoxapp ne collecte aucune donnée lors de l'achat de {{nom}}, les fonds entrants sont traités comme une transaction normale. Cependant, les exchanges partenaires ont besoin de recueillir certaines informations pour fonctionner. Veuillez vous référer à leurs politiques de confidentialité respectives pour voir plus en détail comment sont traitées ces données.",
+          "descriptionGeneric_bitcoin": "BitBoxApp ne collecte aucune donnée lors de l'achat de Bitcoin, les fonds entrants sont traités comme une transaction normale. Cependant, les exchanges partenaires ont besoin de recueillir certaines informations pour fonctionner. Veuillez vous référer à leurs politiques de confidentialité respectives pour voir plus en détail comment sont traitées ces données.",
+          "descriptionGeneric_crypto": "BitBoxApp ne collecte aucune donnée lors de l'achat de crypto, les fonds entrants sont traités comme une transaction normale. Cependant, les exchanges partenaires ont besoin de recueillir certaines informations pour fonctionner. Veuillez vous référer à leurs politiques de confidentialité respectives pour voir plus en détail comment sont traitées ces données.",
           "title": "Protection des données"
         },
         "security": {
-          "description": "Lorsque vous achetez du {{name}} via MoonPay, vous utilisez un service externe. Ce service est hors de portée du modèle sécurité contre les menaces de BitBox02 et repose sur la sécurité de l'environnement dans lequel le logiciel BitBoxApp est déployé.",
-          "descriptionGeneric": "Lorsque vous achetez du {{nom}} via un exchange partenaire, vous utilisez un service externe. Ce service est hors de portée du modèle sécurité contre les menaces de BitBox02 et repose sur la sécurité de l'environnement dans lequel le logiciel BitBoxApp est déployé.",
+          "descriptionGeneric_bitcoin": "Lorsque vous achetez du Bitcoin via un exchange partenaire, vous utilisez un service externe. Ce service est hors de portée du modèle sécurité contre les menaces de BitBox02 et repose sur la sécurité de l'environnement dans lequel le logiciel BitBoxApp est déployé.",
+          "descriptionGeneric_crypto": "Lorsque vous achetez du crypto via un exchange partenaire, vous utilisez un service externe. Ce service est hors de portée du modèle sécurité contre les menaces de BitBox02 et repose sur la sécurité de l'environnement dans lequel le logiciel BitBoxApp est déployé.",
           "link": "Modèle de menace à la sécurité",
           "title": "Modèle de sécurité"
-        },
-        "title": "Bienvenue sur la boutique de votre site clé en main pour acheter du {{name}}"
+        }
       },
       "next": "Suivant",
       "selectLabel": "Sélectionnez votre compte",
       "selectPlaceholder": "Sélectionnez un coin (monnaie)",
-      "skip": "Ne plus montrer",
-      "title": "Acheter du {{name}}"
+      "skip": "Ne plus montrer"
     },
     "pocket": {
       "data": {
@@ -508,7 +503,7 @@
         "p1": "Lorsque vous achetez des bitcoins via Pocket, vous utilisez un service externe. Ce service est hors de portée du modèle de menace de sécurité de BitBox02 et repose sur la sécurité de l'environnement dans lequel le logiciel BitBoxApp est déployé. Cependant, nous collaborons dans le but de renforcer la sécurité en utilisant un mécanisme d'authentification à deux facteurs pour vérifier l'adresse sur laquelle vous les recevez.",
         "title": "Modèle de sécurité"
       },
-      "usedAddress": "L'adresse {{adresse}} a déjà été utilisée, veuillez recommencer avec une nouvelle adresse.",
+      "usedAddress": "L'adresse {{address}} a déjà été utilisée, veuillez recommencer avec une nouvelle adresse.",
       "verifyBitBox02": "Veuillez vérifier que l'adresse que vous avez reçue par email correspond à celle affichée sur votre Bitbox. Si vous en avez la possibilité, vous devriez ouvrir l'email sur un deuxième appareil pour plus de sécurité.",
       "welcome": {
         "p1": "Nous collaborons avec Pocket afin de vous offrir un processus simplifié pour vos achats de bitcoins directement dans l'application BitBox. Quelques clics suffisent.",
@@ -516,8 +511,7 @@
         "p3": "Avec Pocket, vous pouvez également effectuer des achats réguliers par le biais d'ordres bancaires récurrents, vous donnant ainsi la possibilité d'effectuer facilement un lissage de votre prix d'acquisition (DCA).",
         "title": "Bienvenue dans votre espace unique et complet dédié à l'achat de bitcoins."
       }
-    },
-    "title": "Acheter du {{name}}"
+    }
   },
   "changePin": {
     "newTitle": "Nouveau mot de passe de l'appareil",
@@ -1529,11 +1523,11 @@
       "add-server": "Ajouter",
       "check": "Vérifier",
       "checkFailed": "Échoué",
-      "checkSuccess": "Connexion à {{hôte}} réussie",
+      "checkSuccess": "Connexion à {{host}} réussie",
       "checking": "Vérification",
       "download-cert": "Télécharger le certificat distant",
       "remove-server": "Retirer",
-      "removeConfirm": "Supprimer {{serveur}} ?",
+      "removeConfirm": "Supprimer {{server}} ?",
       "reset": "Réinitialisation aux valeurs par défaut",
       "resetConfirm": "Voulez-vous retirer tous les serveurs et installer ceux \"par défaut\" ?",
       "servers": "Serveurs",
@@ -1581,7 +1575,6 @@
   },
   "setup": "Configuration de l'appareil",
   "sidebar": {
-    "buy": "Acheter de la crypto",
     "device": "Gérer l'appareil",
     "insurance": "Assurance",
     "leave": "Quitter",

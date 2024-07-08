@@ -17,18 +17,18 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
-import { getConfig } from '../../utils/config';
-import { Dialog } from '../../components/dialog/dialog';
-import { confirmation } from '../../components/confirm/Confirm';
-import { verifyAddress, getPocketURL } from '../../api/exchanges';
-import { AccountCode, getInfo, getTransactionList, signAddress } from '../../api/account';
-import { Header } from '../../components/layout';
-import { Spinner } from '../../components/spinner/Spinner';
-import { PocketTerms } from '../../components/terms/pocket-terms';
-import { useLoad } from '../../hooks/api';
-import { alertUser } from '../../components/alert/Alert';
+import { getConfig } from '@/utils/config';
+import { Dialog } from '@/components/dialog/dialog';
+import { confirmation } from '@/components/confirm/Confirm';
+import { verifyAddress, getPocketURL } from '@/api/exchanges';
+import { AccountCode, getInfo, getTransactionList, signAddress } from '@/api/account';
+import { Header } from '@/components/layout';
+import { Spinner } from '@/components/spinner/Spinner';
+import { PocketTerms } from '@/components/terms/pocket-terms';
+import { useLoad } from '@/hooks/api';
+import { alertUser } from '@/components/alert/Alert';
 import { BuyGuide } from './guide';
-import { convertScriptType } from '../../utils/request-addess';
+import { convertScriptType } from '@/utils/request-addess';
 import style from './iframe.module.css';
 
 interface TProps {
@@ -51,8 +51,6 @@ export const Pocket = ({ code }: TProps) => {
   const iframeRef = createRef<HTMLIFrameElement>();
   let signing = false;
   let resizeTimerID: any = undefined;
-
-  const name = 'Bitcoin';
 
   useEffect(() => {
     if (config) {
@@ -215,7 +213,11 @@ export const Pocket = ({ code }: TProps) => {
     <div className="contentWithGuide">
       <div className="container">
         <div className={style.header}>
-          <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
+          <Header title={
+            <h2>
+              {t('generic.buy', { context: 'bitcoin' })}
+            </h2>
+          } />
         </div>
         <div ref={ref} className={style.container}>
           { !agreedTerms ? (
@@ -249,7 +251,7 @@ export const Pocket = ({ code }: TProps) => {
           </Dialog>
         </div>
       </div>
-      <BuyGuide name={name} exchange={'pocket'}/>
+      <BuyGuide exchange="pocket" translationContext="bitcoin" />
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import { getBalance } from '../../api/account';
-import { TAccountsByKeystore, isAmbiguiousName } from '../../routes/account/utils';
+import { getBalance } from '@/api/account';
+import { TAccountsByKeystore, isAmbiguiousName } from '@/routes/account/utils';
 import { TGroupedOption, TOption } from './groupedaccountselector';
 
 export const createGroupedOptions = (accountsByKeystore: TAccountsByKeystore[]) => {

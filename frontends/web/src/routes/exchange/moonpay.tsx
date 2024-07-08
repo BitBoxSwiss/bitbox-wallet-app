@@ -17,16 +17,16 @@
 
 import { useState, useEffect, createRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '../../hooks/api';
-import { useDarkmode } from '../../hooks/darkmode';
-import { AccountCode, IAccount } from '../../api/account';
-import { getConfig } from '../../utils/config';
-import { getMoonpayBuyInfo } from '../../api/exchanges';
+import { useLoad } from '@/hooks/api';
+import { useDarkmode } from '@/hooks/darkmode';
+import { AccountCode, IAccount } from '@/api/account';
+import { getConfig } from '@/utils/config';
+import { getMoonpayBuyInfo } from '@/api/exchanges';
 import { BuyGuide } from './guide';
-import { Header } from '../../components/layout';
-import { Spinner } from '../../components/spinner/Spinner';
-import { findAccount, getCryptoName } from '../account/utils';
-import { MoonpayTerms } from '../../components/terms/moonpay-terms';
+import { Header } from '@/components/layout';
+import { Spinner } from '@/components/spinner/Spinner';
+import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
+import { MoonpayTerms } from '@/components/terms/moonpay-terms';
 import style from './iframe.module.css';
 
 type TProps = {
@@ -45,7 +45,6 @@ export const Moonpay = ({ accounts, code }: TProps) => {
   const moonpay = useLoad(getMoonpayBuyInfo(code));
 
   const account = findAccount(accounts, code);
-  const name = getCryptoName(t('buy.info.crypto'), account);
   const ref = createRef<HTMLDivElement>();
   let resizeTimerID: any;
 
@@ -78,12 +77,19 @@ export const Moonpay = ({ accounts, code }: TProps) => {
     return null;
   }
 
+  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
+
   return (
     <div className="contentWithGuide">
       <div className="container">
         <div className="innerContainer">
           <div className={style.header}>
-            <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
+            <Header title={
+              <h2>
+                {t('generic.buy', { context: translationContext })}
+              </h2>
+            } />
           </div>
           <div ref={ref} className={style.container}>
             { !agreedTerms ? (
@@ -114,7 +120,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
           </div>
         </div>
       </div>
-      <BuyGuide name={name} exchange={'moonpay'}/>
+      <BuyGuide exchange="moonpay" translationContext={translationContext} />
     </div>
   );
 };

@@ -15,13 +15,13 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Main, Header, GuideWrapper, GuidedContent } from '../../components/layout';
-import { View, ViewContent } from '../../components/view/view';
+import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
+import { View, ViewContent } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
 import { AppVersion } from './components/about/app-version-setting';
 import { MobileHeader } from './components/mobile-header';
-import { Guide } from '../../components/guide/guide';
-import { Entry } from '../../components/guide/entry';
+import { Guide } from '@/components/guide/guide';
+import { Entry } from '@/components/guide/entry';
 import { TPagePropsWithSettingsTabs } from './types';
 
 export const About = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {

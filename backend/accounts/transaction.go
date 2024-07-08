@@ -131,14 +131,17 @@ func (tx *TransactionData) isConfirmed() bool {
 
 // byHeight defines the methods needed to satisify sort.Interface to sort transactions by their
 // height. Special case for unconfirmed transactions (height <=0), which come last. If the height
-// is the same for two txs, they are sorted by the created (first seen) time instead.
+// is the same for two txs, or both txs are unconfirmed they are sorted by the created (first seen)
+// time instead.
 type byHeight []*TransactionData
 
 func (s byHeight) Len() int { return len(s) }
 func (s byHeight) Less(i, j int) bool {
 	// Secondary sort by the time we've first seen the tx in the app.
-	if s[i].Height == s[j].Height && s[i].CreatedTimestamp != nil && s[j].CreatedTimestamp != nil {
-		return s[i].CreatedTimestamp.Before(*s[j].CreatedTimestamp)
+	if s[i].CreatedTimestamp != nil && s[j].CreatedTimestamp != nil {
+		if (s[i].Height == s[j].Height) || (s[i].Height <= 0 && s[j].Height <= 0) {
+			return s[i].CreatedTimestamp.Before(*s[j].CreatedTimestamp)
+		}
 	}
 	if s[j].Height <= 0 {
 		return true

@@ -16,9 +16,9 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { IBalance } from '../../api/account';
-import { FiatConversion } from '../../components/rates/rates';
-import { Amount } from '../../components/amount/amount';
+import { IBalance } from '@/api/account';
+import { FiatConversion } from '@/components/rates/rates';
+import { Amount } from '@/components/amount/amount';
 import style from './balance.module.css';
 
 type TProps = {

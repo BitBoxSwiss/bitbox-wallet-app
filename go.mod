@@ -5,14 +5,14 @@ go 1.21
 require (
 	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240531104813-fa7f932bdd38
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519
-	github.com/btcsuite/btcd v0.24.0
+	github.com/btcsuite/btcd v0.24.2
 	github.com/btcsuite/btcd/btcec/v2 v2.3.3
 	github.com/btcsuite/btcd/btcutil v1.1.5
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
 	github.com/ethereum/go-ethereum v1.14.5
 	github.com/flynn/noise v1.1.0
 	github.com/gorilla/mux v1.8.1
-	github.com/gorilla/websocket v1.5.2
+	github.com/gorilla/websocket v1.5.3
 	github.com/karalabe/hid v1.0.1-0.20240306101548-573246063e52
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3

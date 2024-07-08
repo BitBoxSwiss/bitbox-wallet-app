@@ -16,7 +16,7 @@
  */
 
 import { ReactNode, SyntheticEvent } from 'react';
-import { open } from '../../api/system';
+import { open } from '@/api/system';
 import style from './anchor.module.css';
 
 type TProps = {

@@ -16,12 +16,12 @@
 
 import { Dispatch, SetStateAction, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDarkmode } from '../../../hooks/darkmode';
-import { Info, ExchangeDealsWithSupported, ExchangeDealWithBestDeal } from '../types';
-import { Bank, BankDark, CreditCard, CreditCardDark } from '../../../components/icon';
-import { InfoButton } from '../../../components/infobutton/infobutton';
-import { Badge } from '../../../components/badge/badge';
-import { getFormattedName } from '../utils';
+import { useDarkmode } from '@/hooks/darkmode';
+import { Info, ExchangeDealsWithSupported, ExchangeDealWithBestDeal } from '@/routes/exchange/types';
+import { Bank, BankDark, CreditCard, CreditCardDark } from '@/components/icon';
+import { InfoButton } from '@/components/infobutton/infobutton';
+import { Badge } from '@/components/badge/badge';
+import { getFormattedName } from '@/routes/exchange/utils';
 import style from './exchangeselectionradio.module.css';
 
 type RadioProps = {

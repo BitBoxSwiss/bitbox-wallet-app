@@ -16,10 +16,10 @@
 
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { checkSDCard } from '../../../api/bitbox02';
-import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
-import { Button, ButtonLink } from '../../../components/forms';
-import { HorizontallyCenteredSpinner } from '../../../components/spinner/SpinnerAnimation';
+import { checkSDCard } from '@/api/bitbox02';
+import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Button, ButtonLink } from '@/components/forms';
+import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimation';
 
 type TProps = {
   deviceID: string;

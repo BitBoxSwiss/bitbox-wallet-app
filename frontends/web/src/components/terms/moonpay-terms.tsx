@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-import { useTranslation } from 'react-i18next';
-import { getCryptoName } from '../../routes/account/utils';
 import { ChangeEvent } from 'react';
-import { Button, Checkbox } from '../forms';
-import { setConfig } from '../../utils/config';
-import { IAccount } from '../../api/account';
-import { A } from '../anchor/anchor';
+import { useTranslation } from 'react-i18next';
+import { isBitcoinOnly } from '@/routes/account/utils';
+import { Button, Checkbox } from '@/components/forms';
+import { setConfig } from '@/utils/config';
+import { IAccount } from '@/api/account';
+import { A } from '@/components/anchor/anchor';
 import style from './terms.module.css';
 
 type TProps = {
@@ -32,24 +32,27 @@ type TProps = {
 export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
 
-  const name = getCryptoName(t('buy.info.crypto'), account);
-
   const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
     setConfig({ frontend: { skipMoonpayDisclaimer: e.target.checked } });
   };
+
+  const coinCode = account.coinCode.toUpperCase();
+  const isBitcoin = isBitcoinOnly(account.coinCode);
 
   return (
     <div className={style.disclaimerContainer}>
       <div className={style.disclaimer}>
         <h2 className={style.title}>
-          {t('buy.info.disclaimer.title', { name })}
+          {t('buy.info.disclaimer.title', {
+            context: isBitcoin ? 'bitcoin' : 'crypto'
+          })}
         </h2>
-        <p>{t('buy.info.disclaimer.intro.0', { name })}</p>
-        <p>{t('buy.info.disclaimer.intro.1', { name })}</p>
+        <p>{t('buy.info.disclaimer.intro.0', { coinCode })}</p>
+        <p>{t('buy.info.disclaimer.intro.1', { coinCode })}</p>
         <h2 className={style.title}>
           {t('buy.info.disclaimer.payment.title')}
         </h2>
-        <p>{t('buy.info.disclaimer.payment.details', { name })}</p>
+        <p>{t('buy.info.disclaimer.payment.details', { coinCode })}</p>
         <div className={style.table}>
           <table>
             <colgroup>
@@ -82,7 +85,11 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
         <h2 className={style.title}>
           {t('buy.info.disclaimer.security.title')}
         </h2>
-        <p>{t('buy.info.disclaimer.security.description', { name })}</p>
+        <p>
+          {t('buy.info.disclaimer.security.descriptionGeneric', {
+            context: isBitcoin ? 'bitcoin' : 'crypto'
+          })}
+        </p>
         <p>
           <A href="https://bitbox.swiss/bitbox02/threat-model/">
             {t('buy.info.disclaimer.security.link')}
@@ -91,7 +98,11 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
         <h2 className={style.title}>
           {t('buy.info.disclaimer.protection.title')}
         </h2>
-        <p>{t('buy.info.disclaimer.protection.description', { name })}</p>
+        <p>
+          {t('buy.info.disclaimer.protection.descriptionGeneric', {
+            context: isBitcoin ? 'bitcoin' : 'crypto'
+          })}
+        </p>
         <p>
           <A href="https://www.moonpay.com/privacy_policy">
             {t('buy.info.disclaimer.privacyPolicy')}

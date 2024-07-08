@@ -15,10 +15,10 @@
  */
 
 import { useEffect } from 'react';
-import { View, ViewContent } from '../../components/view/view';
-import { Header, Main } from '../../components/layout';
-import { route } from '../../utils/route';
-import { useMediaQuery } from '../../hooks/mediaquery';
+import { View, ViewContent } from '@/components/view/view';
+import { Header, Main } from '@/components/layout';
+import { route } from '@/utils/route';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { Tabs } from './components/tabs';
 import { useTranslation } from 'react-i18next';
 import { TPagePropsWithSettingsTabs } from './types';
@@ -36,7 +36,7 @@ export const MobileSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetting
   const { t } = useTranslation();
   useEffect(() => {
     if (!isMobile) {
-      route('/settings/appearance');
+      route('/settings/general');
     }
   }, [isMobile]);
   return (

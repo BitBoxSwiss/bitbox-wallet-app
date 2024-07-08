@@ -16,15 +16,15 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { route } from '../../utils/route';
-import * as accountApi from '../../api/account';
+import { route } from '@/utils/route';
+import * as accountApi from '@/api/account';
 import { getExchangeSupportedAccounts } from './utils';
-import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
-import { Spinner } from '../../components/spinner/Spinner';
-import { isBitcoinOnly } from '../account/utils';
-import { View, ViewContent } from '../../components/view/view';
-import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
-import { GroupedAccountSelector } from '../../components/groupedaccountselector/groupedaccountselector';
+import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
+import { Spinner } from '@/components/spinner/Spinner';
+import { isBitcoinOnly } from '@/routes/account/utils';
+import { View, ViewContent } from '@/components/view/view';
+import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
+import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { BuyGuide } from './guide';
 
 type TProps = {
@@ -85,13 +85,17 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
   }
 
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
-  const name = hasOnlyBTCAccounts ? 'Bitcoin' : t('buy.info.crypto');
+  const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   return (
     <Main>
       <GuideWrapper>
         <GuidedContent>
-          <Header title={<h2>{t('exchange.exchangeCTA', { unit: name })}</h2>}>
+          <Header title={
+            <h2>
+              {t('exchange.exchangeCTA', { unit: translationContext })}
+            </h2>
+          }>
             <HideAmountsButton />
           </Header>
           <View width="550px" verticallyCentered fullscreen={false}>
@@ -102,7 +106,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
                 supportedAccounts && (
                   <GroupedAccountSelector
                     accounts={supportedAccounts}
-                    title={t('exchange.exchangeCTA', { unit: name })}
+                    title={t('exchange.exchangeCTA', { unit: translationContext })}
                     disabled={disabled}
                     selected={selected}
                     onChange={setSelected}
@@ -113,7 +117,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
             </ViewContent>
           </View>
         </GuidedContent>
-        <BuyGuide name={name} />
+        <BuyGuide translationContext={translationContext} />
       </GuideWrapper>
     </Main>
   );

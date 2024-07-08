@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { apiGet, apiPost } from '../utils/request';
+import { apiGet, apiPost } from '@/utils/request';
 import { SuccessResponse, FailResponse } from './response';
 
 // BitBox02 error codes.

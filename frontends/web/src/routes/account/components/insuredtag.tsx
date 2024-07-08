@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Shield } from '../../../components/icon';
+import { Shield } from '@/components/icon';
 import style from './insuredtag.module.css';
 
 export const Insured = () => {
