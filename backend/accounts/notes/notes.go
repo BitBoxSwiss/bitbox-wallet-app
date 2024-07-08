@@ -112,11 +112,12 @@ func (notes *Notes) SetTxNote(txID string, note string) (bool, error) {
 }
 
 // TxNote fetches a note for a transaction. Returns the empty string if no note was found.
-func (notes *Notes) TxNote(txID string) string {
+// NOTE: noteID is either txid or txid:n, n MIGHT NOT be the outpoint from the bitcoin transaction.
+func (notes *Notes) TxNote(noteID string) string {
 	notes.dataMu.RLock()
 	defer notes.dataMu.RUnlock()
 
-	return notes.data.TransactionNotes[txID]
+	return notes.data.TransactionNotes[noteID]
 }
 
 // Data retrieves all stored notes. You must not modify the returned object.
