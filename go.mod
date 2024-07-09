@@ -20,7 +20,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	go.etcd.io/bbolt v1.3.10
 	golang.org/x/crypto v0.25.0
-	golang.org/x/net v0.26.0
+	golang.org/x/net v0.27.0
 )
 
 // TODO: remove once https://github.com/karalabe/hid/pull/52 is merged.
