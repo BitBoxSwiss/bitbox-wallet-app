@@ -245,7 +245,7 @@ export interface ITransaction {
     size: number;
     status: 'complete' | 'pending' | 'failed';
     time: string | null;
-    type: 'send' | 'receive' | 'self';
+    type: 'send' | 'receive' | 'send_to_self';
     txID: string;
     vsize: number;
     weight: number;
