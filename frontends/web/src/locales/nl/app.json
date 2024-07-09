@@ -18,8 +18,6 @@
   "accountInfo": {
     "address": "Adres",
     "buyCTA": {
-      "buy": "Koop {{unit}}",
-      "buyCrypto": "Koop Crypto",
       "information": {
         "looksEmpty": "Het lijkt erop dat deze wallet leeg is.",
         "start": "Begin door coins naar deze wallet te sturen, of direct vanuit de BitBoxApp te kopen."
@@ -456,19 +454,18 @@
       },
       "noExchanges": "Sorry, er zijn geen exchanges beschikbaar in jouw regio",
       "region": "Regio",
-      "selectRegion": "Niet aangegeven",
-      "title": "Koop {{name}}"
+      "selectRegion": "Niet aangegeven"
     },
     "info": {
       "continue": "Akkoord, verder",
       "crypto": "crypto",
       "disclaimer": {
         "intro": [
-          "Samen met MoonPay bieden we je een naadloze manier om {{name}} direct in de BitBoxApp te kopen. Het is met een paar kliks gedaan.",
-          "MoonPay is een platform dat het snel en makkelijk maakt om {{name}} in meer dan 160 landen te kopen."
+          "Samen met MoonPay bieden we je een naadloze manier om {{coinCode}} direct in de BitBoxApp te kopen. Het is met een paar kliks gedaan.",
+          "MoonPay is een platform dat het snel en makkelijk maakt om {{coinCode}} in meer dan 160 landen te kopen."
         ],
         "payment": {
-          "details": "Je kunt via MoonPay direct {{name}} kopen met de volgende betaalmethodes. Credit- of debitcard aankopen zijn makkelijk en snel, maar zijn duurder omdat de transactie teruggedraaid kan worden. We raden aan om een bankoverschrijving te doen voor grotere hoeveelheden. De minimale kosten zijn 4 euro.",
+          "details": "Je kunt via MoonPay direct {{coinCode}} kopen met de volgende betaalmethodes. Credit- of debitcard aankopen zijn makkelijk en snel, maar zijn duurder omdat de transactie teruggedraaid kan worden. We raden aan om een bankoverschrijving te doen voor grotere hoeveelheden. De minimale kosten zijn 4 euro.",
           "footnote": "Houd er rekening mee dat de wisselkoers die MoonPay aanhoudt anders kan zijn dan die in de BitBoxApp, waardoor de hoeveelheden kunnen verschillen.",
           "table": {
             "1_description": "Laagste kosten, kan tot 3 werkdagen duren.",
@@ -483,23 +480,21 @@
         },
         "privacyPolicy": "MoonPay privacy policy",
         "protection": {
-          "description": "De BitBoxApp verzamelt geen data als je {{name}} koopt, de inkomende transactie wordt als gewone transactie behandeld. MoonPay moet wat persoonlijke data verzamelen om je hun diensten aan te bieden. Hun privacy policy legt in detail uit hoe die data behandeld wordt.",
-          "descriptionGeneric": "De BitBoxApp verzamelt geen informatie van je als je {{name}} koopt. De inkomende transactie wordt als een normale transactie behandeld. Onze partner-exchanges moeten echter wat informatie verzamelen om hun diensten te kunnen verlenen. Zie hun respectievelijke privacybeleid voor meer informatie over hoe ze met je data omgaan.",
+          "descriptionGeneric_bitcoin": "De BitBoxApp verzamelt geen informatie van je als je Bitcoin koopt. De inkomende transactie wordt als een normale transactie behandeld. Onze partner-exchanges moeten echter wat informatie verzamelen om hun diensten te kunnen verlenen. Zie hun respectievelijke privacybeleid voor meer informatie over hoe ze met je data omgaan.",
+          "descriptionGeneric_crypto": "De BitBoxApp verzamelt geen informatie van je als je crypto koopt. De inkomende transactie wordt als een normale transactie behandeld. Onze partner-exchanges moeten echter wat informatie verzamelen om hun diensten te kunnen verlenen. Zie hun respectievelijke privacybeleid voor meer informatie over hoe ze met je data omgaan.",
           "title": "Databescherming."
         },
         "security": {
-          "description": "Als je {{name}} koopt via MoonPay, gebruik je een externe dienst. Deze dienst valt buiten het BitBox02 Beveiligings- en bedreigingsmodel en vertrouwt op de beveiliging van de omgeving waarin je de BitBoxApp draait.",
-          "descriptionGeneric": "Als je {{name}} koopt via een van onze partner-exchanges, gebruik je een externe dienst. Deze diensten vallen buiten het beveiligings- en bedreigingsmodel van de BitBox02 en zijn afhankelijk van de veiligheid van de omgeving waarin de BitBoxApp software draait.",
+          "descriptionGeneric_bitcoin": "Als je Bitcoin koopt via een van onze partner-exchanges, gebruik je een externe dienst. Deze diensten vallen buiten het beveiligings- en bedreigingsmodel van de BitBox02 en zijn afhankelijk van de veiligheid van de omgeving waarin de BitBoxApp software draait.",
+          "descriptionGeneric_crypto": "Als je crypto koopt via een van onze partner-exchanges, gebruik je een externe dienst. Deze diensten vallen buiten het beveiligings- en bedreigingsmodel van de BitBox02 en zijn afhankelijk van de veiligheid van de omgeving waarin de BitBoxApp software draait.",
           "link": "Beveiliging- en bedreigingsmodel",
           "title": "Bedreigingsmodel"
-        },
-        "title": "Welkom bij jouw one-stop-shop om {{name}} te kopen"
+        }
       },
       "next": "Volgende",
       "selectLabel": "Kies je account",
       "selectPlaceholder": "Selecteer een coin",
-      "skip": "Niet nog eens weergeven",
-      "title": "Koop {{name}}"
+      "skip": "Niet nog eens weergeven"
     },
     "pocket": {
       "data": {
@@ -531,8 +526,7 @@
         "p3": "Met Pocket kun je ook regelmatige aankopen doen door een herhaalopdracht in te stellen bij je bank, zodat je makkelijk een DCA (dollar-cost-averaging) spaarplan in kunt stellen.",
         "title": "Welkom bij je one-stop-shop voor bitcoin-aankopen"
       }
-    },
-    "title": "Koop {{name}}"
+    }
   },
   "changePin": {
     "newTitle": "Nieuw BitBox02 wachtwoord",
@@ -987,6 +981,20 @@
         "text": "Deze informatie toont het modelnummer van de secure chip. De het nieuwste model is de ATECC608B, die verbeterde beveiligings-eigenschappen heeft vergleken met oudere modellen.",
         "title": "Waarom wordt het secure chip modelnummer getoond?"
       }
+    },
+    "guideTitle": {
+      "account": "Handleiding voor accounts",
+      "accountInformation": "Handleiding over accountinformatie",
+      "accountSummary": "Handleiding voor accountsamenvatting",
+      "advancedSettings": "Handleiding voor geavanceerde accountinstellingen",
+      "appearance": "Handleiding voor ",
+      "buy": "Koophandleiding",
+      "insurance": "Handleiding voor verzekeringen",
+      "manageAccount": "Handleiding voor accountbeheer",
+      "manageDevice": "Handleiding voor apparaatbeheer",
+      "receive": "Handleiding voor ontvangen",
+      "send": "Handleiding voor verzenden",
+      "walletConnect": "Handleiding voor WalletConnect"
     },
     "receive": {
       "address": {
@@ -1511,6 +1519,7 @@
     "button": "Controle",
     "coincontrol": {
       "address": "Adres",
+      "addressReused": "Adres hergebruikt",
       "outpoint": "Output",
       "title": "Verstuur uit output"
     },
@@ -1546,6 +1555,10 @@
         "low": "2 uur (12 blokken)",
         "low_eth": "5 minuten of minder",
         "low_ltc": "30 minuten (12 blokken)",
+        "mEconomy": "-",
+        "mFastest": "10 minuten (volgend blok)",
+        "mHalfHour": "20 minuten (2 blokken)",
+        "mHour": "30 minuten (3 blokken)",
         "normal": "1 uur (6 blokken)",
         "normal_eth": "2 minuten of minder",
         "normal_ltc": "15 minuten (6 blokken)"
@@ -1556,6 +1569,10 @@
         "economy": "Budget",
         "high": "Hoog",
         "low": "Laag",
+        "mEconomy": "Geen prioriteit",
+        "mFastest": "Hoog",
+        "mHalfHour": "Gemiddeld",
+        "mHour": "Laag",
         "normal": "Normaal"
       },
       "placeholder": "Netwerkkosten berekenen..."
@@ -1613,12 +1630,17 @@
         "description": "Je kunt hier met je eigen Electrum-fullnode verbinden.",
         "title": "Verbind met je eigen full node"
       },
+      "exportLogs": {
+        "description": "Logs exporteren om met ondersteuning en probleemoplossing te helpen",
+        "title": "Logs exporteren"
+      },
       "fee": "Custom fees aanzetten",
       "setProxyAddress": "Proxy adres instellen",
       "title": "Geavanceerde instellingen",
       "useProxy": "Tor proxy aanzetten",
       "useSats": "BTC-waarde in Satoshis weergeven"
     },
+    "general": "Algemeen",
     "header": {
       "home": "Home"
     },
@@ -1627,6 +1649,25 @@
       "title": "Info",
       "up-to-date": "Je app is bijgewerkt",
       "version": "App versie"
+    },
+    "notes": {
+      "export": {
+        "description": "Backup van je transactienotities en accountnamen maken",
+        "success": "Notities geëxporteerd",
+        "title": "Notities exporteren"
+      },
+      "import": {
+        "accountNames_one": "{{count}} accountnaam geïmporteerd",
+        "accountNames_other": "{{count}} accountnamen geïmporteerd",
+        "accountNames_zero": "Geen accountnamen geïmporteerd",
+        "description": "Je transactienotities en accountnamen uit een eerder gemaakt backupbestand herstellen",
+        "title": "Notities importeren",
+        "tooLarge": "Bestand te groot ",
+        "transactionNotes_one": "{{count}} transactienotitie geïmporteerd",
+        "transactionNotes_other": "{{count}} transactienotities geïmporteerd",
+        "transactionNotes_zero": "Geen transactienotities geïmporteerd"
+      },
+      "title": "Notities beheren"
     },
     "restart": "Start de BitBoxApp opnieuw op om de veranderde instellingen in te schakelen.",
     "services": {
@@ -1637,7 +1678,6 @@
   },
   "setup": "Apparaat instellen",
   "sidebar": {
-    "buy": "Crypto kopen",
     "device": "Apparaat beheren",
     "insurance": "Verzekeringen",
     "leave": "Verlaten",
@@ -1733,7 +1773,8 @@
       "allSessions": "Alle sessies",
       "disclaimer": "WalletConnect is een protocol om met op Ethereum gebaseerde DApps te verbinden. Deze DApps worden aangeboden door derder partijen, dus zorg ervoor dat je alleen met DApps verbindt die je vertrouwt. Zorg er ook altijd voor dat je weet wat je ondertekent als je een transactie aanmaakt.",
       "newConnection": "Nieuwe verbinding",
-      "noConnectedSessions": "Geen van je accounts zijn op dit moment met een DApp verbonden."
+      "noConnectedSessions": "Geen van je accounts zijn op dit moment met een DApp verbonden.",
+      "unspecifiedAccount": "Niet-gesprecificeerd account"
     },
     "invalidPairingChain": "Error met het toestaan van de koppeling. Zorg ervoor dat je een van deze ondersteunde chains gebruikt: {{chains}}",
     "pairingRequest": {
@@ -1762,6 +1803,7 @@
     "walletConnect": "WalletConnect"
   },
   "warning": {
+    "coincontrol": "Eén of meer UTXOs hebben een hergebruikt adres. Weet dat een eventuele ontvanger alle UTXOs die met deze adressen geassocieerd zijn zal kunnen zien",
     "receivePairing": "Koppel de BitBox om beveiligde adresverificatie in te schakelen. Ga naar 'Apparaat beheren' in de sidebar.",
     "sdcard": "Bewaar de microSD kaart apart van de BitBox, tenzij je je backups aan het beheren bent.",
     "sendPairing": "Koppel de BitBox om je transactiedetails beveiligd te kunnen verifiëren. Ga naar 'Manage device' in de sidebar."
@@ -1771,6 +1813,7 @@
     "getStarted": "Laten we beginnen door de firmware op je BitBox02 te installeren.",
     "insertBitBox02": "Tap de touch-sensoren op je BitBox02 om door te gaan.",
     "insertDevice": "Verbind je BitBox om te starten",
+    "loadingAccounts": "Accounts laden",
     "title": "Welkom"
   }
 }

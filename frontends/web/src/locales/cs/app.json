@@ -18,8 +18,6 @@
   "accountInfo": {
     "address": "Adresa",
     "buyCTA": {
-      "buy": "Koupit  {{unit}}",
-      "buyCrypto": "Koupit Krypto",
       "information": {
         "looksEmpty": "Zdá se, že tato peněženka je prázdná.",
         "start": "Začněte vkladem do peněženky, nebo nákupem přímo v BitBoxApp."
@@ -456,19 +454,18 @@
       },
       "noExchanges": "Je nám líto, ale v této oblasti nejsou k dispozici žádné burzy.",
       "region": "Oblast",
-      "selectRegion": "Není uvedeno",
-      "title": "Koupit {{name}}"
+      "selectRegion": "Není uvedeno"
     },
     "info": {
       "continue": "Souhlasím, pokračovat",
       "crypto": "krypto",
       "disclaimer": {
         "intro": [
-          "Spolupracujeme s MoonPay, abychom vám nabídli bezproblémový způsob nákupu {{name}} přímo v BitBoxApp. Je to jen pár kliknutí.",
-          "MoonPay je platforma, která usnadňuje a urychluje nákup {{name}} ve více než 160 zemích."
+          "Spolupracujeme s MoonPay, abychom vám nabídli bezproblémový způsob nákupu {{coinCode}} přímo v BitBoxApp. Je to jen pár kliknutí.",
+          "MoonPay je platforma, která usnadňuje a urychluje nákup {{coinCode}} ve více než 160 zemích."
         ],
         "payment": {
-          "details": "{{name}} si můžete okamžitě zakoupit přes MoonPay pomocí následujících platebních metod. Nákupy kreditní nebo debetní kartou jsou okamžité a pohodlné, ale dražší kvůli zvýšenému riziku chargebacku. Pro větší částky doporučujeme použít možnost bankovního převodu. Minimální poplatek je 4 USD/EUR nebo ekvivalentní částka.",
+          "details": "{{coinCode}} si můžete okamžitě zakoupit přes MoonPay pomocí následujících platebních metod. Nákupy kreditní nebo debetní kartou jsou okamžité a pohodlné, ale dražší kvůli zvýšenému riziku chargebacku. Pro větší částky doporučujeme použít možnost bankovního převodu. Minimální poplatek je 4 USD/EUR nebo ekvivalentní částka.",
           "footnote": "Vezměte prosím na vědomí, že směnné kurzy MoonPay se mohou lišit od kurzů používaných v BitBoxApp, což vede k mírně odlišným částkám.",
           "table": {
             "1_description": "Nejnižší poplatky, může trvat až tři pracovní dny",
@@ -483,23 +480,23 @@
         },
         "privacyPolicy": "Zásady ochrany osobních údajů MoonPay",
         "protection": {
-          "description": "BitBoxApp při nákupu {{name}} neshromažďuje žádné údaje, s příchozími prostředky se zachází jako s běžnou transakcí. MoonPay potřebuje ke své činnosti shromažďovat některé osobní údaje. Jejich Zásady ochrany osobních údajů podrobně vysvětlují, jak je s těmito údaji nakládáno.",
-          "descriptionGeneric": "BitBoxApp při nákupu {{name}} neshromažďuje žádné údaje, s příchozími prostředky se zachází jako s běžnou transakcí. Partnerské burzy však ke svému fungování potřebují shromažďovat určité informace. Podrobnější informace o tom, jak je s daty nakládáno, naleznete v jejich zásadách ochrany osobních údajů.",
+          "descriptionGeneric_bitcoin": "BitBoxApp při nákupu bitcoinu neshromažďuje žádné údaje, s příchozími prostředky se zachází jako s běžnou transakcí. Partnerské burzy však ke svému fungování potřebují shromažďovat určité informace. Podrobnější informace o tom, jak je s těmito údaji nakládáno, naleznete v jejich zásadách ochrany osobních údajů.",
+          "descriptionGeneric_crypto": "BitBoxApp při nákupu kryptoměn neshromažďuje žádné údaje, s příchozími prostředky se zachází jako s běžnou transakcí. Partnerské burzy však ke svému fungování potřebují shromažďovat určité informace. Podrobnější informace o tom, jak je s těmito údaji nakládáno, naleznete v jejich zásadách ochrany osobních údajů.",
           "title": "Ochrana dat"
         },
         "security": {
-          "description": "Při nákupu {{name}} přes MoonPay využíváte externí službu. Tato služba je mimo oblast působnosti modelu bezpečnostních hrozeb BitBox02 a spoléhá se na bezpečnost a zabezpečení prostředí, ve kterém je spuštena BitBoxApp.",
-          "descriptionGeneric": "Při nákupu {{name}} prostřednictvím partnerské burzy využíváte externí službu. Tato služba je mimo oblast působnosti modelu bezpečnostních hrozeb BitBox02 a spoléhá se na bezpečnost a zabezpečení prostředí, ve kterém je spuštena BitBoxApp.",
+          "descriptionGeneric_bitcoin": "Při nákupu bitcoinů prostřednictvím partnerské burzy využíváte externí službu. Tato služba je mimo oblast působnosti modelu bezpečnostních hrozeb BitBox02 a spoléhá se na bezpečnost a zabezpečení prostředí, ve kterém je spuštěn software BitBoxApp.",
+          "descriptionGeneric_crypto": "Při nákupu kryptoměn prostřednictvím partnerské burzy využíváte externí službu. Tato služba je mimo oblast působnosti modelu bezpečnostních hrozeb BitBox02 a spoléhá se na bezpečnost a zabezpečení prostředí, ve kterém je spuštěn software BitBoxApp.",
           "link": "Model bezpečnostních hrozeb",
           "title": "Bezpečnostní model"
         },
-        "title": "Vítejte ve vašem obchodě pro nákup {{name}}"
+        "title_bitcoin": "Vítejte v obchodě pro nákup bitcoinů",
+        "title_crypto": "Vítejte v obchodě pro nákup kryptoměn"
       },
       "next": "Další",
       "selectLabel": "Vyberte svůj účet",
       "selectPlaceholder": "Vyberte měnu",
-      "skip": "Znovu nezobrazovat",
-      "title": "Koupit {{name}}"
+      "skip": "Znovu nezobrazovat"
     },
     "pocket": {
       "data": {
@@ -531,8 +528,7 @@
         "p3": "S Pocket můžete také provádět pravidelné nákupy prostřednictvím trvalých bankovních příkazů, takže můžete snadno zprůměrovat své náklady (DCA - dollar-cost averaging).",
         "title": "Vítejte ve svém obchodě pro nákup bitcoinů"
       }
-    },
-    "title": "Koupit {{name}}"
+    }
   },
   "changePin": {
     "newTitle": "Nové heslo zařízení",
@@ -720,8 +716,14 @@
     "appVersion": "Verze aplikace:"
   },
   "generic": {
+    "buy": "Koupit {{coinCode}}",
+    "buy_bitcoin": "Koupit Bitcoin",
+    "buy_crypto": "Koupit crypto",
     "enabled_false": "Vypnuto",
-    "enabled_true": "Zapnuto"
+    "enabled_true": "Zapnuto",
+    "receive": "Přijmout {{coinCode}}",
+    "receive_bitcoin": "Přijmout Bitcoin",
+    "receive_crypto": "Přijmout crypto"
   },
   "genericError": "Došlo k chybě. Pokud zaznamenáte nějaké problémy, restartujte prosím aplikaci.",
   "goal": {
@@ -987,6 +989,20 @@
         "text": "Tato informace zobrazuje číslo modelu zabezpečeného čipu, nejnovější čip je ATECC608B s vylepšenými bezpečnostními funkcemi ve srovnání se staršími modely.",
         "title": "Proč zobrazovat model bezpečného čipu?"
       }
+    },
+    "guideTitle": {
+      "account": "Průvodce účtem",
+      "accountInformation": "Průvodce informacemi o účtu",
+      "accountSummary": "Průvodce přehledem účtu",
+      "advancedSettings": "Průvodce pokročilým nastavením",
+      "appearance": "Průvodce vzhledu",
+      "buy": "Průvodce pro koupi",
+      "insurance": "Průvodce pojištěním",
+      "manageAccount": "Průvodce správou účtů",
+      "manageDevice": "Průvodce pro správu zařízení",
+      "receive": "Průvodce pro příjem",
+      "send": "Průvodce pro odesílání",
+      "walletConnect": "Průvodce WalletConnect"
     },
     "receive": {
       "address": {
@@ -1511,6 +1527,7 @@
     "button": "Překontrolování",
     "coincontrol": {
       "address": "Adresa",
+      "addressReused": "Opakovaně použitá adresa",
       "outpoint": "Outpoint",
       "title": "Odeslat z outputu"
     },
@@ -1546,6 +1563,10 @@
         "low": "2 hodiny (12 bloků)",
         "low_eth": "5 minut nebo méně",
         "low_ltc": "30 minut (12 bloků)",
+        "mEconomy": "-",
+        "mFastest": "10 minut (další blok)",
+        "mHalfHour": "20 minut (2 bloky)",
+        "mHour": "30 minut (3 bloky)",
         "normal": "1 hodina (6 bloků)",
         "normal_eth": "2 minuty nebo méně",
         "normal_ltc": "15 minut (6 bloků)"
@@ -1556,6 +1577,10 @@
         "economy": "Úsporný",
         "high": "Vysoký",
         "low": "Nízký",
+        "mEconomy": "Bez priority",
+        "mFastest": "Vysoký",
+        "mHalfHour": "Střední",
+        "mHour": "Nízký",
         "normal": "Normální"
       },
       "placeholder": "Výpočet poplatku…"
@@ -1613,12 +1638,17 @@
         "description": "Můžete se připojit ke svému vlastnímu Electrum uzlu (full node).",
         "title": "Připojte svůj vlastní uzel (full node)"
       },
+      "exportLogs": {
+        "description": "Export souboru logů, který usnadní řešení potíží a technickou podporu.",
+        "title": "Export logů"
+      },
       "fee": "Aktivovat vlastní poplatky",
       "setProxyAddress": "Nastavit adresu proxy",
       "title": "Expertní nastavení",
       "useProxy": "Aktivovat tor proxy",
       "useSats": "Zobrazit hodnoty BTC v satoshi"
     },
+    "general": "Všeobecné",
     "header": {
       "home": "Domů"
     },
@@ -1627,6 +1657,25 @@
       "title": "Info",
       "up-to-date": "Vaše aplikace je aktuální",
       "version": "Verze aplikace"
+    },
+    "notes": {
+      "export": {
+        "description": "Vytvořit zálohu poznámek k transakcím a názvům účtů.",
+        "success": "Poznámky byly úspěšně exportovány.",
+        "title": "Exportovat poznámky"
+      },
+      "import": {
+        "accountNames_one": "Importováno {{count}} jméno účtu.",
+        "accountNames_other": "Importováno {{count}} názvů účtů.",
+        "accountNames_zero": "Importováno 0 názvů účtů.",
+        "description": "Obnovit poznámky k transakcím a názvům účtů z dříve vytvořeného záložního souboru.",
+        "title": "Importovat poznámky",
+        "tooLarge": "Soubor je příliš velký.",
+        "transactionNotes_one": "Importováno {{count}} poznámka k transakci.",
+        "transactionNotes_other": "Importováno {{count}} poznámek k transakcím.",
+        "transactionNotes_zero": "Importováno 0 poznámek k transakcím."
+      },
+      "title": "Správa poznámek"
     },
     "restart": "Restartujte BitBoxApp, aby se změny projevily.",
     "services": {
@@ -1637,7 +1686,6 @@
   },
   "setup": "Nastavení zařízení",
   "sidebar": {
-    "buy": "Koupit krypto",
     "device": "Spravovat zařízení",
     "insurance": "Pojištění",
     "leave": "Odejít",
@@ -1727,13 +1775,15 @@
     "connect": {
       "button": "Připojit",
       "dappLabel": "Zadejte URI adresu dapp",
-      "invalidPairingUri": "Neplatné párování uri"
+      "invalidPairingUri": "Neplatné párování uri",
+      "missingNamespace": "Požadavek na připojení aplikace neobsahoval definici potřebného namespace"
     },
     "dashboard": {
       "allSessions": "Všechny relace",
       "disclaimer": "Walletconnect je protokol pro připojení k Dapps založeným na Ethereu. Tyto dapps jsou provozovány službami třetích stran, takže se připojujte pouze k dapps, kterým důvěřujete, a vždy se ujistěte, že víte, co podepisujete při provádění transakce.",
       "newConnection": "Nové připojení",
-      "noConnectedSessions": "V této chvíli nejsou k dapps připojeny žádné účty."
+      "noConnectedSessions": "V této chvíli nejsou k dapps připojeny žádné účty.",
+      "unspecifiedAccount": "Nespecifikovaný účet"
     },
     "invalidPairingChain": "Chyba při schvalování párování. Ujistěte se, že používáte jednu z podporovaných sítí: {{chains}}",
     "pairingRequest": {
@@ -1762,6 +1812,7 @@
     "walletConnect": "WalletConnect"
   },
   "warning": {
+    "coincontrol": "Jedno nebo více UTXO má opakovaně použitou adresu. Mějte na paměti, že příjemce uvidí všechny UTXO spojené s těmito adresami.",
     "receivePairing": "Spárujte BitBox, abyste mohli bezpečně ověřit adresu. Přejděte na \"Spravovat zařízení\" v postranním panelu.",
     "sdcard": "MicroSD kartu mějte uloženou odděleně od BitBoxu, pokud ovšem nechcete spravovat zálohy.",
     "sendPairing": "Spárujte prosím BitBox a bezpečně ověřte údaje o transakci. Přejděte na \"Spravovat zařízení\" v postranním panelu."
@@ -1771,6 +1822,7 @@
     "getStarted": "Začněme instalací firmwaru na váš BitBox02.",
     "insertBitBox02": "Pro BitBox02 klepněte na zařízení a pokračujte.",
     "insertDevice": "Připojte své zařízení a začněte",
+    "loadingAccounts": "Načítání účtů",
     "title": "Vítejte"
   }
 }

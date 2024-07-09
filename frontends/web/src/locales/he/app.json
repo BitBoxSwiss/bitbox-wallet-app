@@ -236,9 +236,6 @@
     "update": "עדכן",
     "upgrade": "שדרג"
   },
-  "buy": {
-    "title": "קנה {{name}}"
-  },
   "changePin": {
     "newTitle": "סיסמת התקן חדשה",
     "oldLabel": "סיסמת התקן נוכחית"
