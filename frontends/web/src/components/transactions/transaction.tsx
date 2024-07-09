@@ -31,13 +31,11 @@ import style from './transaction.module.css';
 
 type Props = {
   accountCode: accountApi.AccountCode;
-  index: number;
   explorerURL: string;
 } & accountApi.ITransaction;
 
 export const Transaction = ({
   accountCode,
-  index,
   internalID,
   explorerURL,
   type,
@@ -56,7 +54,7 @@ export const Transaction = ({
   const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
 
   return (
-    <div className={`${style.container} ${index === 0 ? style.first : ''}`}>
+    <div className={style.container}>
       <div className={`${parentStyle.columns} ${style.row}`}>
         <div className={parentStyle.columnGroup}>
           <div className={parentStyle.type}>
