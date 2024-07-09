@@ -18,8 +18,6 @@
   "accountInfo": {
     "address": "Dirección",
     "buyCTA": {
-      "buy": "Comprar {{unit}}",
-      "buyCrypto": "Comprar Crypto",
       "information": {
         "looksEmpty": "Parece que esta cartera está vacía.",
         "start": "Comience depositando algunas monedas en la cartera o comprando directamente a través de la BitBoxApp."
@@ -398,7 +396,7 @@
         "moonpay": {
           "fees": {
             "bankTransfer": "Transferencia bancaria: {{fee}}%%.",
-            "creditDebitCard": "Tarjeta de crédito/débito: {{fee}}%%.",
+            "creditDebitCard": "Tarjeta de crédito/débito: {{fee}}%.",
             "learnMore": "Más información sobre Moonpay",
             "title": "Tasas"
           },
@@ -449,19 +447,18 @@
       },
       "noExchanges": "Lo sentimos, no hay intercambios disponibles en esta región.",
       "region": "Región",
-      "selectRegion": "No especificado",
-      "title": "Comprar {{nombre}}"
+      "selectRegion": "No especificado"
     },
     "info": {
       "continue": "Acepta y continua",
       "crypto": "crypto",
       "disclaimer": {
         "intro": [
-          "Nos asociamos con MoonPay para ofrecerte una forma sencilla de comprar {{name}} directamente con BitBoxApp. Con unos pocos clics.  ",
-          "MoonPay es una plataforma que hace fácil y rápida la compra de {{name}} en más de 160 países."
+          "Nos asociamos con MoonPay para ofrecerte una forma sencilla de comprar {{coinCode}} directamente con BitBoxApp. Con unos pocos clics.  ",
+          "MoonPay es una plataforma que hace fácil y rápida la compra de {{coinCode}} en más de 160 países."
         ],
         "payment": {
-          "details": "Puedes comprar {{name}} inmediatamente a través de MoonPay con los siguientes métodos de pago. Los pedidos con tarjeta de crédito o débito son inmediatos y prácticos, pero más caros debido al mayor riesgo de retrocesos de cargos a tarjetas. Recomendamos utilizar la opción de transferencia bancaria para grandes cantidades. La tarifa mínima es de 4 EUR.",
+          "details": "Puedes comprar {{coinCode}} inmediatamente a través de MoonPay con los siguientes métodos de pago. Los pedidos con tarjeta de crédito o débito son inmediatos y prácticos, pero más caros debido al mayor riesgo de retrocesos de cargos a tarjetas. Recomendamos utilizar la opción de transferencia bancaria para grandes cantidades. La tarifa mínima es de 4 EUR.",
           "footnote": "Tenga en cuenta que los tipos de cambio de MoonPay pueden diferenciarse de los utilizados en BitBoxApp, lo que se nota en cantidades ligeramente diferentes.",
           "table": {
             "1_description": "Tarifa baja, puede tardar 3 días laborales",
@@ -476,23 +473,21 @@
         },
         "privacyPolicy": "MoonPay política de privacidad",
         "protection": {
-          "description": "BitBoxApp no ​​recopila ningún dato al comprar {{name}}, los fondos entrantes se tratan como una transacción normal. MoonPay necesita recoger algunos datos personales para operar. Su Política de privacidad explica en detalle cómo se manejan esos datos.",
-          "descriptionGeneric": "BitBoxApp no recopila ningún dato cuando se compra {{name}}, los fondos entrantes se tratan como una transacción normal. Sin embargo, las bolsas asociadas necesitan recopilar cierta información para operar. Consulta sus respectivas políticas de privacidad para ver con más detalle cómo se gestionan los datos.",
+          "descriptionGeneric_bitcoin": "BitBoxApp no recopila ningún dato cuando se compra Bitcoin, los fondos entrantes se tratan como una transacción normal. Sin embargo, las bolsas asociadas necesitan recopilar cierta información para operar. Consulta sus respectivas políticas de privacidad para ver con más detalle cómo se gestionan los datos.",
+          "descriptionGeneric_crypto": "BitBoxApp no recopila ningún dato cuando se compra crypto, los fondos entrantes se tratan como una transacción normal. Sin embargo, las bolsas asociadas necesitan recopilar cierta información para operar. Consulta sus respectivas políticas de privacidad para ver con más detalle cómo se gestionan los datos.",
           "title": "Protección de Datos"
         },
         "security": {
-          "description": "Cuando compras {{name}} por MoonPay, utilizas un servicio externo. Este servicio está fuera del alcance de la modelación de riesgos de seguridad BitBox02 y depende de la seguridad y protección del entorno en el que se ejecuta el software BitBoxApp.\n\n",
-          "descriptionGeneric": "Cuando compras {{name}} a través de una casa de cambio asociada, estás utilizando un servicio externo. Este servicio está fuera del alcance del modelo de amenazas de seguridad de BitBox02 y depende de la seguridad del entorno en el que se ejecuta el software de BitBoxApp.",
+          "descriptionGeneric_bitcoin": "Cuando compras Bitcoin a través de una casa de cambio asociada, estás utilizando un servicio externo. Este servicio está fuera del alcance del modelo de amenazas de seguridad de BitBox02 y depende de la seguridad del entorno en el que se ejecuta el software de BitBoxApp.",
+          "descriptionGeneric_crypto": "Cuando compras crypto a través de una casa de cambio asociada, estás utilizando un servicio externo. Este servicio está fuera del alcance del modelo de amenazas de seguridad de BitBox02 y depende de la seguridad del entorno en el que se ejecuta el software de BitBoxApp.",
           "link": "Modelación de riesgos",
           "title": "Modelo de seguridad"
-        },
-        "title": "Bienvenido. Estas en el sitio correcto para comprar {{name}}"
+        }
       },
       "next": "Siguiente",
       "selectLabel": "Elige tu cuenta",
       "selectPlaceholder": "Seleccione una moneda",
-      "skip": "No mostrar de nuevo",
-      "title": "Comprar {{name}}"
+      "skip": "No mostrar de nuevo"
     },
     "pocket": {
       "data": {
@@ -524,8 +519,7 @@
         "p3": "Con Pocket, también puede hacer compras periódicas a través de órdenes bancarias permanentes, por lo que puede hacer DCA (dollar-cost averaging) con facilidad.",
         "title": "Bienvenido a su ventanilla única para comprar bitcoin"
       }
-    },
-    "title": "Comprar {{name}}"
+    }
   },
   "changePin": {
     "newTitle": "Nueva contraseña del dispositivo",
@@ -555,7 +549,7 @@
   "confirmOnDevice": "Por favor confirma en tu dispositivo.",
   "connectKeystore": {
     "promptNoName": "Por favor conecta tu BitBox02 para continuar",
-    "promptWithName": "Por favor, conecta tu BitBox02 llamada \"{{nombre}}\" para continuar "
+    "promptWithName": "Por favor, conecta tu BitBox02 llamada \"{{name}}\" para continuar "
   },
   "darkmode": {
     "toggle": "Modo oscuro"
@@ -1599,7 +1593,6 @@
   },
   "setup": "Dispositivo de configuración",
   "sidebar": {
-    "buy": "Compra criptomoneda",
     "device": "Administra dispositivo",
     "insurance": "Seguro",
     "leave": "Salir",
@@ -1697,7 +1690,7 @@
       "newConnection": "Nueva conexión",
       "noConnectedSessions": "Actualmente no hay cuentas conectadas a ninguna dapps."
     },
-    "invalidPairingChain": "Error al aprobar el emparejamiento. Asegúrese de utilizar una de las cadenas admitidas: {{cadenas}}",
+    "invalidPairingChain": "Error al aprobar el emparejamiento. Asegúrese de utilizar una de las cadenas admitidas: {{chains}}",
     "pairingRequest": {
       "approve": "Aprobar conexión",
       "reject": "Rechazar",

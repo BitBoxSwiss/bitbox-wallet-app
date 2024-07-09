@@ -17,13 +17,13 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '../../../hooks/api';
-import { useEsc } from '../../../hooks/keyboard';
-import { getInfo, IAccount, AccountCode } from '../../../api/account';
-import { route } from '../../../utils/route';
-import { isBitcoinBased } from '../utils';
-import { ButtonLink } from '../../../components/forms';
-import { Header } from '../../../components/layout';
+import { useLoad } from '@/hooks/api';
+import { useEsc } from '@/hooks/keyboard';
+import { getInfo, IAccount, AccountCode } from '@/api/account';
+import { route } from '@/utils/route';
+import { isBitcoinBased } from '@/routes/account/utils';
+import { ButtonLink } from '@/components/forms';
+import { Header } from '@/components/layout';
 import { SigningConfiguration } from './signingconfiguration';
 import { BitcoinBasedAccountInfoGuide } from './guide';
 import style from './info.module.css';

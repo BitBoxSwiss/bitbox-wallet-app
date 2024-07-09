@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { apiGet } from '../utils/request';
+import { apiGet } from '@/utils/request';
 
 export type DeviceInfo = {
   bootlock: boolean;

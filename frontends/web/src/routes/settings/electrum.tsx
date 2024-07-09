@@ -17,14 +17,14 @@
 
 import { MouseEventHandler, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { i18n } from '../../i18n/i18n';
+import { i18n } from '@/i18n/i18n';
 import { ElectrumServers } from './electrum-servers';
-import { getTesting } from '../../api/backend';
-import { Guide } from '../../components/guide/guide';
-import { Entry } from '../../components/guide/entry';
-import { Button, ButtonLink } from '../../components/forms';
-import { useLoad } from '../../hooks/api';
-import { Header } from '../../components/layout';
+import { getTesting } from '@/api/backend';
+import { Guide } from '@/components/guide/guide';
+import { Entry } from '@/components/guide/entry';
+import { Button, ButtonLink } from '@/components/forms';
+import { useLoad } from '@/hooks/api';
+import { Header } from '@/components/layout';
 
 export const ElectrumSettings = () => {
   const { t } = useTranslation();

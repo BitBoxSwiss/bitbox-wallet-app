@@ -36,3 +36,5 @@ if ! locize format frontends/web/src/locales --format json --dry true ; then
     echo "i18n files malformatted. Fix with: make locize-fix"
     exit 1
 fi
+
+./scripts/check-locize-placeholders.py

@@ -66,3 +66,11 @@ func APIGet(httpClient *http.Client, endpoint string, apiKey string, maxSize int
 	}
 	return res.StatusCode, nil
 }
+
+// TruncateString truncates `s` to size `size` if too long.
+func TruncateString(s string, size int) string {
+	if len(s) > size {
+		return s[:size]
+	}
+	return s
+}

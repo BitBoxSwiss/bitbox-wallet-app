@@ -16,12 +16,12 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IAccount } from '../../api/account';
-import { Header } from '../../components/layout';
-import { route } from '../../utils/route';
-import { isBitcoinOnly } from '../account/utils';
-import { View, ViewContent } from '../../components/view/view';
-import { GroupedAccountSelector } from '../../components/groupedaccountselector/groupedaccountselector';
+import { IAccount } from '@/api/account';
+import { Header } from '@/components/layout';
+import { route } from '@/utils/route';
+import { isBitcoinOnly } from '@/routes/account/utils';
+import { View, ViewContent } from '@/components/view/view';
+import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 
 type TReceiveAccountsSelector = {
     activeAccounts: IAccount[]
@@ -36,7 +36,9 @@ export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSele
 
   const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
-  const title = t('receive.title', { accountName: hasOnlyBTCAccounts ? 'Bitcoin' : t('buy.info.crypto') });
+  const title = t('generic.receive', {
+    context: hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'
+  });
 
   return (
     <>

@@ -15,12 +15,12 @@
  */
 
 import { ReactNode, useEffect, useState } from 'react';
-import { getConfig, setConfig } from '../utils/config';
+import { getConfig, setConfig } from '@/utils/config';
 import { AppContext } from './AppContext';
-import { useLoad } from '../hooks/api';
-import { useDefault } from '../hooks/default';
-import { getNativeLocale } from '../api/nativelocale';
-import { i18nextFormat } from '../i18n/utils';
+import { useLoad } from '@/hooks/api';
+import { useDefault } from '@/hooks/default';
+import { getNativeLocale } from '@/api/nativelocale';
+import { i18nextFormat } from '@/i18n/utils';
 import type { TChartDisplay, TSidebarStatus } from './AppContext';
 
 type TProps = {

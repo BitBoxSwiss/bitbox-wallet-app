@@ -16,29 +16,29 @@
  */
 
 import i18n from 'i18next';
-import { getNativeLocale } from '../api/nativelocale';
-import appTranslationsAR from '../locales/ar/app.json';
-import appTranslationsCS from '../locales/cs/app.json';
-import appTranslationsDE from '../locales/de/app.json';
-import appTranslationsEN from '../locales/en/app.json';
-import appTranslationsFR from '../locales/fr/app.json';
-import appTranslationsJA from '../locales/ja/app.json';
-import appTranslationsRU from '../locales/ru/app.json';
-import appTranslationsMS from '../locales/ms/app.json';
-import appTranslationsNL from '../locales/nl/app.json';
-import appTranslationsPT from '../locales/pt/app.json';
-import appTranslationsHI from '../locales/hi/app.json';
-import appTranslationsBG from '../locales/bg/app.json';
-import appTranslationsTR from '../locales/tr/app.json';
-import appTranslationsZH from '../locales/zh/app.json';
-import appTranslationsFA from '../locales/fa/app.json';
-import appTranslationsES from '../locales/es/app.json';
-import appTranslationsSL from '../locales/sl/app.json';
-import appTranslationsHE from '../locales/he/app.json';
-import appTranslationsIT from '../locales/it/app.json';
+import { getNativeLocale } from '@/api/nativelocale';
+import appTranslationsAR from '@/locales/ar/app.json';
+import appTranslationsCS from '@/locales/cs/app.json';
+import appTranslationsDE from '@/locales/de/app.json';
+import appTranslationsEN from '@/locales/en/app.json';
+import appTranslationsFR from '@/locales/fr/app.json';
+import appTranslationsJA from '@/locales/ja/app.json';
+import appTranslationsRU from '@/locales/ru/app.json';
+import appTranslationsMS from '@/locales/ms/app.json';
+import appTranslationsNL from '@/locales/nl/app.json';
+import appTranslationsPT from '@/locales/pt/app.json';
+import appTranslationsHI from '@/locales/hi/app.json';
+import appTranslationsBG from '@/locales/bg/app.json';
+import appTranslationsTR from '@/locales/tr/app.json';
+import appTranslationsZH from '@/locales/zh/app.json';
+import appTranslationsFA from '@/locales/fa/app.json';
+import appTranslationsES from '@/locales/es/app.json';
+import appTranslationsSL from '@/locales/sl/app.json';
+import appTranslationsHE from '@/locales/he/app.json';
+import appTranslationsIT from '@/locales/it/app.json';
 import { languageFromConfig } from './config';
 import { localeMainLanguage } from './utils';
-import { setConfig } from '../utils/config';
+import { setConfig } from '@/utils/config';
 
 const locizeProjectID = 'fe4e5a24-e4a2-4903-96fc-3d62c11fc502';
 

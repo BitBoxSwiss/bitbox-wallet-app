@@ -17,19 +17,19 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '../../../hooks/api';
-import { useEsc } from '../../../hooks/keyboard';
-import * as accountApi from '../../../api/account';
-import { route } from '../../../utils/route';
-import { getScriptName, isEthereumBased } from '../utils';
-import { CopyableInput } from '../../../components/copy/Copy';
-import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
-import { Button, ButtonLink, Radio } from '../../../components/forms';
-import { Message } from '../../../components/message/message';
+import { useLoad } from '@/hooks/api';
+import { useEsc } from '@/hooks/keyboard';
+import * as accountApi from '@/api/account';
+import { route } from '@/utils/route';
+import { getScriptName, isEthereumBased } from '@/routes/account/utils';
+import { CopyableInput } from '@/components/copy/Copy';
+import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Button, ButtonLink, Radio } from '@/components/forms';
+import { Message } from '@/components/message/message';
 import { ReceiveGuide } from './components/guide';
-import { Header } from '../../../components/layout';
-import { QRCode } from '../../../components/qrcode/qrcode';
-import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
+import { Header } from '@/components/layout';
+import { QRCode } from '@/components/qrcode/qrcode';
+import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
 import style from './receive.module.css';
 
 type TProps = {

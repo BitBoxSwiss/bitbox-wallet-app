@@ -13,32 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import 'flag-icons';
 import { useState, useEffect } from 'react';
-import { i18n } from '../../i18n/i18n';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../../components/forms';
-import * as exchangesAPI from '../../api/exchanges';
-import { AccountCode, IAccount } from '../../api/account';
-import { Header } from '../../components/layout';
+import { SingleValue } from 'react-select';
+import { i18n } from '@/i18n/i18n';
+import { Button } from '@/components/forms';
+import * as exchangesAPI from '@/api/exchanges';
+import { AccountCode, IAccount } from '@/api/account';
+import { Header } from '@/components/layout';
 import { BuyGuide } from './guide';
-import { findAccount, getCryptoName } from '../account/utils';
-import { route } from '../../utils/route';
-import { useLoad } from '../../hooks/api';
-import { getRegionNameFromLocale } from '../../i18n/utils';
+import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
+import { route } from '@/utils/route';
+import { useLoad } from '@/hooks/api';
+import { getRegionNameFromLocale } from '@/i18n/utils';
 import { findLowestFee, findBestDeal, getFormattedName, getExchangeSupportedAccounts } from './utils';
 import { ExchangeSelectionRadio } from './components/exchangeselectionradio';
-import { Spinner } from '../../components/spinner/Spinner';
+import { Spinner } from '@/components/spinner/Spinner';
 import { Info, FrontendExchangeDealsList } from './types';
-import { Dialog } from '../../components/dialog/dialog';
-import { InfoButton } from '../../components/infobutton/infobutton';
+import { Dialog } from '@/components/dialog/dialog';
+import { InfoButton } from '@/components/infobutton/infobutton';
 import { InfoContent } from './components/infocontent';
-import { getNativeLocale } from '../../api/nativelocale';
-import { getConfig, setConfig } from '../../utils/config';
-import { SingleValue } from 'react-select';
-import { CountrySelect, TOption } from './components/countryselect';
 import { ExchangeTab, TActiveTab } from './components/exchangetab';
 import { Sell } from './components/sell';
+import { getNativeLocale } from '@/api/nativelocale';
+import { getConfig, setConfig } from '@/utils/config';
+import { CountrySelect, TOption } from './components/countryselect';
 import style from './exchange.module.css';
 
 type TProps = {
@@ -67,7 +68,12 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   const config = useLoad(getConfig);
 
   const account = findAccount(accounts, code);
-  const name = getCryptoName(t('buy.info.crypto'), account);
+  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const isBitcoin = hasOnlyBTCAccounts || (account && isBitcoinOnly(account?.coinCode));
+
+  const title = t('exchange.exchangeCTA', {
+    unit: isBitcoin ? 'bitcoin' : 'crypto',
+  });
 
   const hasOnlyOneSupportedExchange = allExchangeDeals ? allExchangeDeals.exchanges.filter(exchange => exchange.supported).length === 1 : false;
 
@@ -82,7 +88,10 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
       return;
     }
     const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' }) || '';
-    const regions = regionList.regions.map(region => ({ value: region.code, label: regionNames.of(region.code) } as TOption));
+    const regions: TOption[] = regionList.regions.map(region => ({
+      value: region.code,
+      label: regionNames.of(region.code) || region.code
+    }));
 
     regions.sort((a, b) => a.label.localeCompare(b.label, i18n.language));
     setRegions(regions);
@@ -196,9 +205,9 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
           {info && <InfoContent info={info} cardFee={cardFee} bankTransferFee={bankTransferFee} />}
         </Dialog>
         <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{t('exchange.exchangeCTA', { unit: name })}</h2>} />
+          <Header title={<h2>{title}</h2>} />
           <div className={[style.exchangeContainer, 'content', 'narrow', 'isVerticallyCentered'].join(' ')}>
-            <h1 className={style.title}>{t('exchange.exchangeCTA', { unit: name })}</h1>
+            <h1 className={style.title}>{title}</h1>
             <p className={style.label}>{t('buy.exchange.region')}</p>
             {regions.length ? (
               <>
@@ -272,7 +281,7 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
           </div>
         </div>
       </div>
-      <BuyGuide name={name} />
+      <BuyGuide translationContext={hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'} />
     </div>
   );
 };

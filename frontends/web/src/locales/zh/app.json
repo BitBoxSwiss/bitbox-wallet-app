@@ -596,7 +596,7 @@
   },
   "loading": "载入中...",
   "notification": {
-    "newTxs_one": "{{count}} 新交易： {{accountName}}",
+    "newTxs_one": "新交易：{{accountName}}",
     "newTxs_other": "{{count}} 新交易： {{accountName}}"
   },
   "pairing": {

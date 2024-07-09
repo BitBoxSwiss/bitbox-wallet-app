@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { AccountCode, CoinCode } from './account';
-import { apiGet, apiPost } from '../utils/request';
-import { FailResponse, SuccessResponse } from './response';
+import type { AccountCode, CoinCode, ERC20CoinCode } from './account';
+import type { FailResponse, SuccessResponse } from './response';
+import { apiGet, apiPost } from '@/utils/request';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export interface ICoin {
@@ -40,7 +40,11 @@ export const setAccountActive = (accountCode: AccountCode, active: boolean): Pro
   return apiPost('set-account-active', { accountCode, active });
 };
 
-export const setTokenActive = (accountCode: AccountCode, tokenCode: string, active: boolean): Promise<ISuccess> => {
+export const setTokenActive = (
+  accountCode: AccountCode,
+  tokenCode: ERC20CoinCode,
+  active: boolean,
+): Promise<ISuccess> => {
   return apiPost('set-token-active', { accountCode, tokenCode, active });
 };
 
@@ -131,4 +135,20 @@ export const onAuthSettingChanged = (): Promise<void> => {
 
 export const exportLogs = (): Promise<ISuccess> => {
   return apiPost('export-log');
+};
+
+export const exportNotes = (): Promise<(FailResponse & { aborted: boolean; }) | SuccessResponse> => {
+  return apiPost('notes/export');
+};
+
+export type TImportNotes = {
+  accountCount: number;
+  transactionCount: number;
+};
+
+export const importNotes = (fileContents: ArrayBuffer): Promise<FailResponse | (SuccessResponse & { data: TImportNotes; })> => {
+  const hexString = Array.from(new Uint8Array(fileContents))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
+  return apiPost('notes/import', hexString);
 };

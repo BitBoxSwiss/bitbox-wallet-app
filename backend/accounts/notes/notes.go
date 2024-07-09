@@ -23,8 +23,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
-// maxNoteLen is the maximum length per note.
-const maxNoteLen = 1024
+// MaxNoteLen is the maximum length per note.
+const MaxNoteLen = 1024
 
 // Data is the notes JSON data serialized to disk.
 type Data struct {
@@ -88,18 +88,19 @@ func LoadNotes(filename string) (*Notes, error) {
 
 // SetTxNote stores a note for a transaction. An empty note will result in the entry being deleted
 // (or not written if it didn't exist), since `TxNote()` returns an empty string anyway if there is
-// no note.
-func (notes *Notes) SetTxNote(txID string, note string) error {
+// no note. Returns whether the note was modified.
+func (notes *Notes) SetTxNote(txID string, note string) (bool, error) {
 	notes.dataMu.Lock()
 	defer notes.dataMu.Unlock()
 
-	if len(note) > maxNoteLen {
-		return errp.Newf("Length of note must be smaller than %d. Got %d", maxNoteLen, len(note))
+	if len(note) > MaxNoteLen {
+		return false, errp.Newf("Length of note must be smaller than %d. Got %d", MaxNoteLen, len(note))
 	}
 
 	if notes.data.TransactionNotes == nil {
 		notes.data.TransactionNotes = map[string]string{}
 	}
+	changed := notes.data.TransactionNotes[txID] != note
 	if note == "" {
 		// Since not existing entries are returned as `""` anyway, there no need to actually store
 		// them in the JSON file.
@@ -107,10 +108,10 @@ func (notes *Notes) SetTxNote(txID string, note string) error {
 	} else {
 		notes.data.TransactionNotes[txID] = note
 	}
-	return write(notes.data, notes.filename)
+	return changed, write(notes.data, notes.filename)
 }
 
-// TxNote fetches a note for a transcation. Returns the empty string if no note was found.
+// TxNote fetches a note for a transaction. Returns the empty string if no note was found.
 func (notes *Notes) TxNote(txID string) string {
 	notes.dataMu.RLock()
 	defer notes.dataMu.RUnlock()

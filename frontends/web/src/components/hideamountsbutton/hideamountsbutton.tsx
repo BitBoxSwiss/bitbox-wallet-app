@@ -16,11 +16,11 @@
 
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '../../hooks/api';
-import { AppContext } from '../../contexts/AppContext';
-import { Button } from '../forms/button';
-import { EyeClosed, EyeOpened } from '../icon';
-import { getConfig } from '../../utils/config';
+import { useLoad } from '@/hooks/api';
+import { AppContext } from '@/contexts/AppContext';
+import { Button } from '@/components/forms/button';
+import { EyeClosed, EyeOpened } from '@/components/icon';
+import { getConfig } from '@/utils/config';
 import styles from './hideamountsbutton.module.css';
 
 export const HideAmountsButton = () => {

@@ -15,23 +15,13 @@
  * limitations under the License.
  */
 
-import { AccountCode, CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '../../api/account';
+import type { AccountCode, CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '@/api/account';
 
 export const findAccount = (
   accounts: IAccount[],
   accountCode: AccountCode
 ): IAccount | undefined => {
   return accounts.find(({ code }) => accountCode === code);
-};
-
-export const getCryptoName = (
-  cryptoLabel: string,
-  account?: IAccount,
-): string => {
-  if (account && isBitcoinOnly(account.coinCode)) {
-    return 'Bitcoin';
-  }
-  return cryptoLabel;
 };
 
 export const isBitcoinOnly = (coinCode: CoinCode): boolean => {
@@ -126,4 +116,17 @@ export const isAmbiguiousName = (
   accounts: TAccountsByKeystore[],
 ): boolean => {
   return accounts.filter(keystore => keystore.keystore.name === name).length > 1;
+};
+
+export type TAccountCoinMap = {
+  [code in CoinCode]?: IAccount[];
+};
+
+export const getAccountsPerCoin = (accounts: IAccount[]): TAccountCoinMap => {
+  return accounts.reduce<Partial<TAccountCoinMap>>((accountPerCoin, account) => {
+    accountPerCoin[account.coinCode]
+      ? accountPerCoin[account.coinCode]!.push(account)
+      : accountPerCoin[account.coinCode] = [account];
+    return accountPerCoin;
+  }, {});
 };
