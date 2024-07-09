@@ -18,8 +18,6 @@
   "accountInfo": {
     "address": "Endereço",
     "buyCTA": {
-      "buy": "Comprar {{unit}}",
-      "buyCrypto": "Comprar Cripto",
       "information": {
         "looksEmpty": "Parece que esta carteira está vazia.",
         "start": "Comece depositando algumas moedas na carteira ou comprando diretamente no BitBoxApp."
@@ -456,19 +454,18 @@
       },
       "noExchanges": "Desculpe, não há exchanges disponíveis nesta região.",
       "region": "Região",
-      "selectRegion": "Não especificada",
-      "title": "Comprar {{name}}"
+      "selectRegion": "Não especificada"
     },
     "info": {
       "continue": "Concordo e continue",
       "crypto": "crypto",
       "disclaimer": {
         "intro": [
-          "Somos parceiros da MoonPay para oferecer a você um modo perfeito de comprar {{name}} diretamente para o BitBoxApp. Em apenas alguns cliques.",
-          "MoonPay é uma plataforma simples e rápida para comprar {{name}} em mais de 160 países."
+          "Somos parceiros da MoonPay para oferecer a você um modo perfeito de comprar {{coinCode}} diretamente para o BitBoxApp. Em apenas alguns cliques.",
+          "MoonPay é uma plataforma simples e rápida para comprar {{coinCode}} em mais de 160 países."
         ],
         "payment": {
-          "details": "Você pode comprar {{name}} instantâneamente através da MoonPay com os seguintes métodos de pagamento. Compras com cartão de crédito ou débito são convenientes e instantâneas, mas são mais caras devido ao risco de estorno. Nós recomendamos que use a opção de transferência bancária para quantidades maiores. A taxa mínima é de 4 USD/EUR ou equivalente.",
+          "details": "Você pode comprar {{coinCode}} instantâneamente através da MoonPay com os seguintes métodos de pagamento. Compras com cartão de crédito ou débito são convenientes e instantâneas, mas são mais caras devido ao risco de estorno. Nós recomendamos que use a opção de transferência bancária para quantidades maiores. A taxa mínima é de 4 USD/EUR ou equivalente.",
           "footnote": "Por favor perceba que as taxas da corretora MoonPay pode ser diferente das utilizadas no BitBoxApp, resultando em valores ligeiramente diferentes.",
           "table": {
             "1_description": "Taxas baixas podem levar até 3 dias úteis.",
@@ -483,23 +480,21 @@
         },
         "privacyPolicy": "Política de privacidade da MoonPay",
         "protection": {
-          "description": "O BitBoxApp não coleta nenhum dado quando você compra {{name}}, o saldo recebido é tratado como uma transação regular. A MoonPay precisa coletar alguns dados pessoais para a operação. A Política de Privacidade da MoonPay explica detalhadamente como esses dados são tratados.",
-          "descriptionGeneric": "O BitBoxApp não coleta nenhum dado quando você compra {{name}}, os fundos recebidos são tratados como uma transação normal. No entanto, as exchanges parceiras precisam coletar algumas informações para operar. Consulte suas respectivas políticas de privacidade para ver com mais detalhes como os dados são tratados.",
+          "descriptionGeneric_bitcoin": "O BitBoxApp não coleta nenhum dado quando você compra Bitcoin, os fundos recebidos são tratados como uma transação normal. No entanto, as exchanges parceiras precisam coletar algumas informações para operar. Consulte suas respectivas políticas de privacidade para ver com mais detalhes como os dados são tratados.",
+          "descriptionGeneric_crypto": "O BitBoxApp não coleta nenhum dado quando você compra crypto, os fundos recebidos são tratados como uma transação normal. No entanto, as exchanges parceiras precisam coletar algumas informações para operar. Consulte suas respectivas políticas de privacidade para ver com mais detalhes como os dados são tratados.",
           "title": "Proteção dos dados"
         },
         "security": {
-          "description": "Quando você compra {{name}} através da MoonPay, você está usando um serviço externo. Esse serviço está fora do escopo do modelo de ameaças de segurança da BitBox02 e fora do ambiente de segurança onde o aplicativo BitBoxApp está rodando.",
-          "descriptionGeneric": "Quando você compra {{name}} através de uma exchange parceira, você está usando um serviço externo. Este serviço está fora do escopo do modelo de ameaças de segurança da BitBox02 e depende da proteção e segurança do ambiente em que o software BitBoxApp está sendo executado.",
+          "descriptionGeneric_bitcoin": "Quando você compra Bitcoin através de uma exchange parceira, você está usando um serviço externo. Este serviço está fora do escopo do modelo de ameaças de segurança da BitBox02 e depende da proteção e segurança do ambiente em que o software BitBoxApp está sendo executado.",
+          "descriptionGeneric_crypto": "Quando você compra crypto através de uma exchange parceira, você está usando um serviço externo. Este serviço está fora do escopo do modelo de ameaças de segurança da BitBox02 e depende da proteção e segurança do ambiente em que o software BitBoxApp está sendo executado.",
           "link": "Modelo de ameaças de segurança",
           "title": "Modelo de segurança"
-        },
-        "title": "Bem-vindo a sua loja virtual pessoal para comprar {{name}}"
+        }
       },
       "next": "Próximo",
       "selectLabel": "Seleciona sua conta",
       "selectPlaceholder": "Selecione uma moeda",
-      "skip": "Não mostre novamente",
-      "title": "Comprar {{name}}"
+      "skip": "Não mostre novamente"
     },
     "pocket": {
       "data": {
@@ -531,8 +526,7 @@
         "p3": "Com a Pocket, você também pode fazer compras regulares por meio de ordens bancárias recorrentes, para poder fazer DCA (dollar-cost averaging) com facilidade.",
         "title": "Bem-vindo ao seu balcão único para comprar bitcoin"
       }
-    },
-    "title": "Comprar {{name}}"
+    }
   },
   "changePin": {
     "newTitle": "Nova senha do dispositivo",
@@ -987,6 +981,20 @@
         "text": "Esta informação mostra o número do modelo do chip seguro, o chip mais atualizado é o ATECC608B com recursos de segurança aprimorados em comparação com modelos mais antigos.",
         "title": "Por que mostrar o modelo de chip seguro?"
       }
+    },
+    "guideTitle": {
+      "account": "Guia de conta",
+      "accountInformation": "Guia de informações de conta",
+      "accountSummary": "Guia de resumo de conta",
+      "advancedSettings": "Guia de configurações avançadas",
+      "appearance": "Guia de aparência",
+      "buy": "Guia de compra",
+      "insurance": "Guia de seguros",
+      "manageAccount": "Guia de gerenciamento de contas",
+      "manageDevice": "Guia de gerenciamento de dispositivos",
+      "receive": "Guia de recebimento",
+      "send": "Guia de envio",
+      "walletConnect": "Guia de WalletConnect"
     },
     "receive": {
       "address": {
@@ -1511,6 +1519,7 @@
     "button": "Revisar",
     "coincontrol": {
       "address": "Endereço",
+      "addressReused": "Endereço reutilizado",
       "outpoint": "Outpoint",
       "title": "Enviar da saída"
     },
@@ -1546,6 +1555,10 @@
         "low": "2 horas (12 blocos)",
         "low_eth": "5 minutos ou menos",
         "low_ltc": "30 minutos (12 blocos)",
+        "mEconomy": "-",
+        "mFastest": "10 minutos (próximo bloco)",
+        "mHalfHour": "20 minutos (2 blocos)",
+        "mHour": "30 minutos (3 blocos)",
         "normal": "1 hora (6 blocos)",
         "normal_eth": "2 minutos ou menos",
         "normal_ltc": "15 minutos (6 blocos)"
@@ -1556,6 +1569,10 @@
         "economy": "Econômica",
         "high": "Alta",
         "low": "Baixa",
+        "mEconomy": "Sem prioridade",
+        "mFastest": "Alta",
+        "mHalfHour": "Média",
+        "mHour": "Baixa",
         "normal": "Normal"
       },
       "placeholder": "Calculando a taxa ..."
@@ -1613,12 +1630,17 @@
         "description": "Você pode se conectar ao seu próprio nó completo Electrum.",
         "title": "Conectar seu próprio full node"
       },
+      "exportLogs": {
+        "description": "Exportar arquivo de registros para ajudar na solução de problemas e suporte.",
+        "title": "Exportar registros"
+      },
       "fee": "Habilitar taxas personalizadas",
       "setProxyAddress": "Configurar endereço de proxy",
       "title": "Configurações para especialistas",
       "useProxy": "Ativar proxy Tor",
       "useSats": "Exibir valores BTC em Satoshis"
     },
+    "general": "Geral",
     "header": {
       "home": "Início"
     },
@@ -1627,6 +1649,25 @@
       "title": "Informações",
       "up-to-date": "Seu aplicativo está atualizado",
       "version": "Versão do aplicativo"
+    },
+    "notes": {
+      "export": {
+        "description": "Criar um backup de suas notas de transação e nomes de contas.",
+        "success": "Notas exportadas com sucesso.",
+        "title": "Exportar notas"
+      },
+      "import": {
+        "accountNames_one": "{{count}} nome de conta importado.",
+        "accountNames_other": "{{count}} nomes de contas importados.",
+        "accountNames_zero": "0 nomes de conta importados.",
+        "description": "Restaure suas notas de transação e nomes de contas de um arquivo de backup feito anteriormente.",
+        "title": "Importar notas",
+        "tooLarge": "Arquivo muito grande.",
+        "transactionNotes_one": "{{count}} nota de transação importada.",
+        "transactionNotes_other": "{{count}} notas de transação importadas.",
+        "transactionNotes_zero": "0 notas de transação importadas."
+      },
+      "title": "Gerenciar notas"
     },
     "restart": "Por favor, reinicie o BitBoxApp para que as alterações façam efeito.",
     "services": {
@@ -1637,7 +1678,6 @@
   },
   "setup": "Configurar dispositivo",
   "sidebar": {
-    "buy": "Comprar crypto",
     "device": "Gerenciar dispositivo",
     "insurance": "Seguro",
     "leave": "Sair",
@@ -1727,13 +1767,15 @@
     "connect": {
       "button": "Conectar",
       "dappLabel": "Insira o endereço URI do dapp",
-      "invalidPairingUri": "Uri de emparelhamento inválido"
+      "invalidPairingUri": "Uri de emparelhamento inválido",
+      "missingNamespace": "A solicitação de conexão do aplicativo não definiu o namespace necessário."
     },
     "dashboard": {
       "allSessions": "Todas as sessões",
       "disclaimer": "Walletconnect é um protocolo para conectar-se a Dapps baseados em Ethereum. Esses dapps são executados por serviços de terceiros, portanto, conecte-se apenas a dapps em que você confia e sempre saiba o que está assinando ao fazer uma transação.",
       "newConnection": "Nova conexão",
-      "noConnectedSessions": "Nenhuma conta está atualmente conectada a nenhum dapps."
+      "noConnectedSessions": "Nenhuma conta está atualmente conectada a nenhum dapps.",
+      "unspecifiedAccount": "Conta não especificada"
     },
     "invalidPairingChain": "Erro ao aprovar o emparelhamento. Certifique-se de usar uma das cadeias suportadas: {{chains}}",
     "pairingRequest": {
@@ -1762,6 +1804,7 @@
     "walletConnect": "WalletConnect"
   },
   "warning": {
+    "coincontrol": "Um ou mais UTXOs possuem um endereço reutilizado. Esteja ciente de que o receptor verá todos os UTXOs associados a esses endereços.",
     "receivePairing": "Por favor, emparelhe a BitBox para ativar a verificação segura de endereço. Vá para 'Gerenciar dispositivo' na barra lateral.",
     "sdcard": "Mantenha o cartão microSD guardado separado da BitBox, a menos que você queira gerenciar os backups.",
     "sendPairing": "Por favor, emparelhe a BitBox para verificar com segurança os detalhes da transação. Vá para \"Gerenciar dispositivo\" na barra lateral."
@@ -1771,6 +1814,7 @@
     "getStarted": "Vamos começar instalando o firmware na sua BitBox02.",
     "insertBitBox02": "Para a BitBox02, por favor, toque no dispositivo para continuar.",
     "insertDevice": "Por favor, conecte seu dispositivo para iniciar",
+    "loadingAccounts": "Carregando contas",
     "title": "Bem-vindo"
   }
 }
