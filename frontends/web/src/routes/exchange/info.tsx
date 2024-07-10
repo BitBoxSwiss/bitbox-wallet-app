@@ -25,14 +25,14 @@ import { isBitcoinOnly } from '@/routes/account/utils';
 import { View, ViewContent } from '@/components/view/view';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
-import { BuyGuide } from './guide';
+import { ExchangeGuide } from './guide';
 
 type TProps = {
     accounts: accountApi.IAccount[];
     code: accountApi.AccountCode;
 }
 
-export const BuyInfo = ({ code, accounts }: TProps) => {
+export const ExchangeInfo = ({ code, accounts }: TProps) => {
   const [selected, setSelected] = useState<string>(code);
   const [disabled, setDisabled] = useState<boolean>(false);
   const [supportedAccounts, setSupportedAccounts] = useState<accountApi.IAccount[]>();
@@ -57,7 +57,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
       const accountCode = supportedAccounts[0].code;
       connectKeystore(accountCode).then(connected => {
         if (connected) {
-          route(`/buy/exchange/${accountCode}`);
+          route(`/exchange/select/${accountCode}`);
         }
       });
     }
@@ -68,7 +68,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
     try {
       const connected = await connectKeystore(selected);
       if (connected) {
-        route(`/buy/exchange/${selected}`);
+        route(`/exchange/select/${selected}`);
       }
     } finally {
       setDisabled(false);
@@ -117,7 +117,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
             </ViewContent>
           </View>
         </GuidedContent>
-        <BuyGuide translationContext={translationContext} />
+        <ExchangeGuide translationContext={translationContext} />
       </GuideWrapper>
     </Main>
   );

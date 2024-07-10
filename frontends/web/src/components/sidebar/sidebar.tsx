@@ -167,7 +167,7 @@ const Sidebar = ({
   const hidden = sidebarStatus === 'forceHidden';
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const accountsByKeystore = getAccountsByKeystore(accounts);
-  const userInSpecificAccountBuyPage = (pathname.startsWith('/buy'));
+  const userInSpecificAccountExchangePage = (pathname.startsWith('/exchange'));
 
   return (
     <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>
@@ -230,10 +230,10 @@ const Sidebar = ({
         <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (
           <>
-            <div key="buy" className={style.sidebarItem}>
+            <div key="exchange" className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive || userInSpecificAccountBuyPage ? style.sidebarActive : ''}
-                to="/buy/info">
+                className={({ isActive }) => isActive || userInSpecificAccountExchangePage ? style.sidebarActive : ''}
+                to="/exchange/info">
                 <div className={style.single}>
                   <img draggable={false} src={coins} />
                 </div>

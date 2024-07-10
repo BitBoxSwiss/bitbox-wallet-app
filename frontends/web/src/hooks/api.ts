@@ -72,6 +72,7 @@ export const useLoad = <T>(
     if (apiCall === null) {
       return;
     }
+    setResponse(undefined);
     apiCall().then((data) => {
       if (mounted.current) {
         setResponse(data);

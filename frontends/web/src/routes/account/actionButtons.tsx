@@ -66,7 +66,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeBuySupported, a
         <span>{t('button.receive')}</span>
       </Link>
       { exchangeBuySupported && (
-        <Link key="buy" to={`/buy/info/${code}`} className={style.buy}>
+        <Link key="buy" to={`/exchange/info/${code}`} className={style.buy}>
           <span>{t('button.buy')}</span>
         </Link>
       )}

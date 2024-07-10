@@ -248,8 +248,8 @@ public class MainActivity extends AppCompatActivity {
                         // external request
                         // allow if location is listed
                         List<Pattern> patterns = new ArrayList<>();
-                        patterns.add(Pattern.compile("^\"/buy/pocket/.*\"$"));
-                        patterns.add(Pattern.compile("^\"/buy/moonpay/.*\"$"));
+                        patterns.add(Pattern.compile("^\"/exchange/pocket/.*\"$"));
+                        patterns.add(Pattern.compile("^\"/exchange/moonpay/.*\"$"));
                         patterns.add(Pattern.compile("^\"/bitsurance/.*\"$"));
                         patterns.add(Pattern.compile("^\"/account/[^\\/]+/wallet-connect/.*\"$"));
                         for (Pattern pattern : patterns) {
