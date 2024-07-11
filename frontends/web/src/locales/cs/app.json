@@ -480,7 +480,7 @@
         },
         "privacyPolicy": "Zásady ochrany osobních údajů MoonPay",
         "protection": {
-          "descriptionGeneric_bitcoin": "BitBoxApp při nákupu kryptoměn neshromažďuje žádné údaje, s příchozími prostředky se zachází jako s běžnou transakcí. Partnerské burzy však ke svému fungování potřebují shromažďovat určité informace. Podrobnější informace o tom, jak je s těmito údaji nakládáno, naleznete v jejich zásadách ochrany osobních údajů.",
+          "descriptionGeneric_bitcoin": "BitBoxApp při nákupu bitcoinu neshromažďuje žádné údaje, s příchozími prostředky se zachází jako s běžnou transakcí. Partnerské burzy však ke svému fungování potřebují shromažďovat určité informace. Podrobnější informace o tom, jak je s těmito údaji nakládáno, naleznete v jejich zásadách ochrany osobních údajů.",
           "descriptionGeneric_crypto": "BitBoxApp při nákupu kryptoměn neshromažďuje žádné údaje, s příchozími prostředky se zachází jako s běžnou transakcí. Partnerské burzy však ke svému fungování potřebují shromažďovat určité informace. Podrobnější informace o tom, jak je s těmito údaji nakládáno, naleznete v jejich zásadách ochrany osobních údajů.",
           "title": "Ochrana dat"
         },
