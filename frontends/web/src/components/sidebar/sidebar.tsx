@@ -238,8 +238,8 @@ const Sidebar = ({
                   <img draggable={false} src={coins} />
                 </div>
                 <span className={style.sidebarLabel}>
-                  { t('exchange.exchangeCTA', {
-                    unit: hasOnlyBTCAccounts ? 'Bitcoin' : t('buy.info.crypto')
+                  { t('generic.exchange', {
+                    context: hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'
                   })}
                 </span>
               </NavLink>

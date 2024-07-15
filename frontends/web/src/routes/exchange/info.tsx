@@ -93,7 +93,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
         <GuidedContent>
           <Header title={
             <h2>
-              {t('exchange.exchangeCTA', { unit: translationContext })}
+              {t('generic.exchange', { context: translationContext })}
             </h2>
           }>
             <HideAmountsButton />
@@ -106,7 +106,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
                 supportedAccounts && (
                   <GroupedAccountSelector
                     accounts={supportedAccounts}
-                    title={t('exchange.exchangeCTA', { unit: translationContext })}
+                    title={t('generic.exchange', { context: translationContext })}
                     disabled={disabled}
                     selected={selected}
                     onChange={setSelected}

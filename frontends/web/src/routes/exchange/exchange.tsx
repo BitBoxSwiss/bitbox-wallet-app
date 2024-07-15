@@ -71,8 +71,8 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const isBitcoin = hasOnlyBTCAccounts || (account && isBitcoinOnly(account?.coinCode));
 
-  const title = t('exchange.exchangeCTA', {
-    unit: isBitcoin ? 'bitcoin' : 'crypto',
+  const title = t('generic.exchange', {
+    context: isBitcoin ? 'bitcoin' : 'crypto',
   });
 
   const hasOnlyOneSupportedExchange = allExchangeDeals ? allExchangeDeals.exchanges.filter(exchange => exchange.supported).length === 1 : false;

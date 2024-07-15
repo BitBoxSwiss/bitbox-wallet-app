@@ -707,9 +707,6 @@
     "wrongKeystore": "Wrong wallet connected. Please make sure to insert the correct device matching this account.",
     "wrongKeystore2": " If you are using the optional passphrase, make sure you have entered the correct passphrase for the account."
   },
-  "exchange": {
-    "exchangeCTA": "Exchange {{unit}}"
-  },
   "fiat": {
     "default": "default",
     "setDefault": "Set {{code}} as default",
@@ -724,6 +721,8 @@
     "buy_crypto": "Buy crypto",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "exchange_bitcoin": "Exchange Bitcoin",
+    "exchange_crypto": "Exchange crypto",
     "receive": "Receive {{coinCode}}",
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto"
