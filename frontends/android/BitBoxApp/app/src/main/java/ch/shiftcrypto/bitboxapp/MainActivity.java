@@ -75,8 +75,6 @@ public class MainActivity extends AppCompatActivity {
 
     GoService goService;
 
-    private String location = "";
-
     // This is for the file picker dialog invoked by file upload forms in the WebView.
     // Used by e.g. MoonPay's KYC forms.
     private ValueCallback<Uri[]> filePathCallback;
@@ -223,12 +221,6 @@ public class MainActivity extends AppCompatActivity {
 
         vw.setWebViewClient(new WebViewClient() {
             @Override
-            public void onPageFinished(WebView view, String url) {
-                // The url is not correctly updated when navigating to a new page. This allows to
-                // know the current location and to block external requests on that base.
-                view.evaluateJavascript("window.location.pathname", path -> location = path);
-            }
-            @Override
             public WebResourceResponse shouldInterceptRequest(final WebView view, WebResourceRequest request) {
                 if (request != null && request.getUrl() != null) {
                     String url = request.getUrl().toString();
@@ -246,30 +238,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                     } else {
                         // external request
-                        // allow if location is listed
-                        List<Pattern> patterns = new ArrayList<>();
-                        patterns.add(Pattern.compile("^\"/buy/pocket/.*\"$"));
-                        patterns.add(Pattern.compile("^\"/buy/moonpay/.*\"$"));
-                        patterns.add(Pattern.compile("^\"/bitsurance/.*\"$"));
-                        patterns.add(Pattern.compile("^\"/account/[^\\/]+/wallet-connect/.*\"$"));
-                        for (Pattern pattern : patterns) {
-                            if (pattern.matcher(location).matches()) {
-                                return super.shouldInterceptRequest(view, request);
-                            }
-                        }
-
-                        String domain = request.getUrl().getHost();
-                        if (domain != null) {
-                            // allow if domain is listed
-                            patterns = new ArrayList<>();
-                            patterns.add(Pattern.compile("^verify\\.walletconnect\\.com$"));
-                            for (Pattern pattern : patterns) {
-                                if (pattern.matcher(domain).matches()) {
-                                    return super.shouldInterceptRequest(view, request);
-                                }
-                            }
-                        }
-                        Util.log("Blocked: " + url);
+                        // Unlike the Qt app, we don't allow requests based on which URL we are in
+                        // currently within the React app, as it's very hard to figure what the
+                        // current app URL is without having the frontend itself inform us.
+                        return super.shouldInterceptRequest(view, request);
                     }
                 } else {
                     Util.log("Null request!");
@@ -365,12 +337,7 @@ public class MainActivity extends AppCompatActivity {
         final String javascriptVariableName = "android";
         vw.addJavascriptInterface(new JavascriptBridge(this), javascriptVariableName);
 
-        try {
-            String data = readRawText(getAssets().open("web/index.html"));
-            vw.loadDataWithBaseURL(BASE_URL, data, null, null, null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        vw.loadUrl(BASE_URL + "index.html");
 
         // We call updateDevice() here in case the app was started while the device was already connected.
         // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
