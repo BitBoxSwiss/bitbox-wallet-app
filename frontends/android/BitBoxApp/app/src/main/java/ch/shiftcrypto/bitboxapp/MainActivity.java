@@ -337,12 +337,7 @@ public class MainActivity extends AppCompatActivity {
         final String javascriptVariableName = "android";
         vw.addJavascriptInterface(new JavascriptBridge(this), javascriptVariableName);
 
-        try {
-            String data = readRawText(getAssets().open("web/index.html"));
-            vw.loadDataWithBaseURL(BASE_URL, data, null, null, null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        vw.loadUrl(BASE_URL + "index.html");
 
         // We call updateDevice() here in case the app was started while the device was already connected.
         // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
