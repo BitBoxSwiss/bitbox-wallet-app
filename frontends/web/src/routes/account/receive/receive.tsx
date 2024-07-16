@@ -37,7 +37,7 @@ type TProps = {
   code: accountApi.AccountCode;
 };
 
-type AddressDialog = { addressType: number } | undefined;
+type AddressTypeDialog = { addressType: number } | undefined;
 
 // For BTC/LTC: all possible address types we want to offer to the user, ordered by priority (first one is default).
 // Types that are not available in the addresses delivered by the backend should be ignored.
@@ -63,7 +63,7 @@ export const Receive = ({
   const [activeIndex, setActiveIndex] = useState<number>(0);
   // index into `availableScriptTypes`, or 0 if none are available.
   const [addressType, setAddressType] = useState<number>(0);
-  const [addressDialog, setAddressDialog] = useState<AddressDialog>();
+  const [addressTypeDialog, setAddressTypeDialog] = useState<AddressTypeDialog>();
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.IReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
@@ -76,9 +76,9 @@ export const Receive = ({
   const availableScriptTypes = useRef<accountApi.ScriptType[]>();
 
   const hasManyScriptTypes = availableScriptTypes.current && availableScriptTypes.current.length > 1;
-  const scriptTypeDialogOpened = !!(addressDialog && (hasManyScriptTypes || insured));
+  const addressTypeDialogOpened = !!(addressTypeDialog && (hasManyScriptTypes || insured));
 
-  useEsc(() => !scriptTypeDialogOpened && !verifying && route(`/account/${code}`));
+  useEsc(() => !addressTypeDialogOpened && !verifying && route(`/account/${code}`));
 
   useEffect(() => {
     if (receiveAddresses) {
@@ -99,11 +99,11 @@ export const Receive = ({
   }, [addressType, availableScriptTypes, receiveAddresses]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    if (addressDialog) {
+    if (addressTypeDialog) {
       e.preventDefault();
       setActiveIndex(0);
-      setAddressType(addressDialog.addressType);
-      setAddressDialog(undefined);
+      setAddressType(addressTypeDialog.addressType);
+      setAddressTypeDialog(undefined);
     }
   };
 
@@ -206,25 +206,25 @@ export const Receive = ({
                   { (hasManyScriptTypes || insured) && (
                     <button
                       className={style.changeType}
-                      onClick={() => setAddressDialog(!addressDialog ? { addressType } : undefined)}>
+                      onClick={() => setAddressTypeDialog(!addressTypeDialog ? { addressType } : undefined)}>
                       {t('receive.changeScriptType')}
                     </button>
                   )}
                   <form onSubmit={handleSubmit}>
-                    <Dialog open={scriptTypeDialogOpened} onClose={() => setAddressDialog(undefined)} medium title={t('receive.changeScriptType')} >
+                    <Dialog open={addressTypeDialogOpened} onClose={() => setAddressTypeDialog(undefined)} medium title={t('receive.changeScriptType')} >
                       {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
                         <div key={scriptType}>
-                          {addressDialog && (
+                          {addressTypeDialog && (
                             <>
                               <Radio
-                                checked={addressDialog.addressType === i}
+                                checked={addressTypeDialog.addressType === i}
                                 id={scriptType}
                                 name="scriptType"
-                                onChange={() => setAddressDialog({ addressType: i })}
+                                onChange={() => setAddressTypeDialog({ addressType: i })}
                                 title={getScriptName(scriptType)}>
                                 {t(`receive.scriptType.${scriptType}`)}
                               </Radio>
-                              {scriptType === 'p2tr' && addressDialog.addressType === i && (
+                              {scriptType === 'p2tr' && addressTypeDialog.addressType === i && (
                                 <Message type="warning">
                                   {t('receive.taprootWarning')}
                                 </Message>
