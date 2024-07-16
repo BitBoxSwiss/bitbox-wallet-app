@@ -29,7 +29,7 @@ import { TxDetailsDialog } from './components/details';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
 
-type Props = {
+type TProps = {
   accountCode: accountApi.AccountCode;
   explorerURL: string;
 } & accountApi.ITransaction;
@@ -46,7 +46,7 @@ export const Transaction = ({
   addresses,
   status,
   note = '',
-}: Props) => {
+}: TProps) => {
   const { t } = useTranslation();
   const [transactionDialog, setTransactionDialog] = useState<boolean>(false);
 
