@@ -37,7 +37,63 @@ type TProps = {
   code: accountApi.AccountCode;
 };
 
-type AddressTypeDialog = { addressType: number } | undefined;
+type TAddressTypeDialogProps = {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  preselectedAddressType: number;
+  availableScriptTypes?: accountApi.ScriptType[];
+  insured: boolean;
+  handleAddressTypeChosen: (addressType: number) => void;
+};
+
+const AddressTypeDialog = ({
+  open,
+  setOpen,
+  preselectedAddressType,
+  availableScriptTypes,
+  insured,
+  handleAddressTypeChosen,
+}: TAddressTypeDialogProps) => {
+  const { t } = useTranslation();
+  const [addressType, setAddressType] = useState<number>(preselectedAddressType);
+
+  return (
+    <Dialog open={open} onClose={() => setOpen(false)} medium title={t('receive.changeScriptType')} >
+      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        handleAddressTypeChosen(addressType);
+      }}>
+        {availableScriptTypes && availableScriptTypes.map((scriptType, i) => (
+          <div key={scriptType}>
+            <Radio
+              checked={addressType === i}
+              id={scriptType}
+              name="scriptType"
+              onChange={() => setAddressType(i)}
+              title={getScriptName(scriptType)}>
+              {t(`receive.scriptType.${scriptType}`)}
+            </Radio>
+            {scriptType === 'p2tr' && addressType === i && (
+              <Message type="warning">
+                {t('receive.taprootWarning')}
+              </Message>
+            )}
+          </div>
+        ))}
+        {insured && (
+          <Message type="warning">
+            {t('receive.bitsuranceWarning')}
+          </Message>
+        )}
+        <DialogButtons>
+          <Button primary type="submit">
+            {t('button.done')}
+          </Button>
+        </DialogButtons>
+      </form>
+    </Dialog>
+  );
+};
 
 // For BTC/LTC: all possible address types we want to offer to the user, ordered by priority (first one is default).
 // Types that are not available in the addresses delivered by the backend should be ignored.
@@ -63,7 +119,7 @@ export const Receive = ({
   const [activeIndex, setActiveIndex] = useState<number>(0);
   // index into `availableScriptTypes`, or 0 if none are available.
   const [addressType, setAddressType] = useState<number>(0);
-  const [addressTypeDialog, setAddressTypeDialog] = useState<AddressTypeDialog>();
+  const [addressTypeDialog, setAddressTypeDialog] = useState<boolean>(false);
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.IReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
@@ -77,7 +133,7 @@ export const Receive = ({
 
   const hasManyScriptTypes = availableScriptTypes.current && availableScriptTypes.current.length > 1;
 
-  useEsc(() => addressTypeDialog === undefined && !verifying && route(`/account/${code}`));
+  useEsc(() => !addressTypeDialog && !verifying && route(`/account/${code}`));
 
   useEffect(() => {
     if (receiveAddresses) {
@@ -97,13 +153,10 @@ export const Receive = ({
     }
   }, [addressType, availableScriptTypes, receiveAddresses]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    if (addressTypeDialog) {
-      e.preventDefault();
-      setActiveIndex(0);
-      setAddressType(addressTypeDialog.addressType);
-      setAddressTypeDialog(undefined);
-    }
+  const handleAddressTypeChosen = (addressType: number) => {
+    setActiveIndex(0);
+    setAddressType(addressType);
+    setAddressTypeDialog(false);
   };
 
   const verifyAddress = async (addressesIndex: number) => {
@@ -205,45 +258,20 @@ export const Receive = ({
                   { (hasManyScriptTypes || insured) && (
                     <button
                       className={style.changeType}
-                      onClick={() => setAddressTypeDialog(!addressTypeDialog ? { addressType } : undefined)}>
+                      onClick={() => setAddressTypeDialog(true)}>
                       {t('receive.changeScriptType')}
                     </button>
                   )}
-                  <form onSubmit={handleSubmit}>
-                    <Dialog open={addressTypeDialog !== undefined} onClose={() => setAddressTypeDialog(undefined)} medium title={t('receive.changeScriptType')} >
-                      {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
-                        <div key={scriptType}>
-                          {addressTypeDialog && (
-                            <>
-                              <Radio
-                                checked={addressTypeDialog.addressType === i}
-                                id={scriptType}
-                                name="scriptType"
-                                onChange={() => setAddressTypeDialog({ addressType: i })}
-                                title={getScriptName(scriptType)}>
-                                {t(`receive.scriptType.${scriptType}`)}
-                              </Radio>
-                              {scriptType === 'p2tr' && addressTypeDialog.addressType === i && (
-                                <Message type="warning">
-                                  {t('receive.taprootWarning')}
-                                </Message>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      ))}
-                      {insured && (
-                        <Message type="warning">
-                          {t('receive.bitsuranceWarning')}
-                        </Message>
-                      )}
-                      <DialogButtons>
-                        <Button primary type="submit">
-                          {t('button.done')}
-                        </Button>
-                      </DialogButtons>
-                    </Dialog>
-                  </form>
+
+                  <AddressTypeDialog
+                    open={addressTypeDialog}
+                    setOpen={setAddressTypeDialog}
+                    preselectedAddressType={addressType}
+                    availableScriptTypes={availableScriptTypes.current}
+                    insured={insured}
+                    handleAddressTypeChosen={handleAddressTypeChosen}
+                  />
+
                   <div className="buttons">
                     <Button
                       disabled={verifying !== false}
