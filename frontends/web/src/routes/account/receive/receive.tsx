@@ -76,9 +76,8 @@ export const Receive = ({
   const availableScriptTypes = useRef<accountApi.ScriptType[]>();
 
   const hasManyScriptTypes = availableScriptTypes.current && availableScriptTypes.current.length > 1;
-  const addressTypeDialogOpened = !!(addressTypeDialog && (hasManyScriptTypes || insured));
 
-  useEsc(() => !addressTypeDialogOpened && !verifying && route(`/account/${code}`));
+  useEsc(() => addressTypeDialog === undefined && !verifying && route(`/account/${code}`));
 
   useEffect(() => {
     if (receiveAddresses) {
@@ -211,7 +210,7 @@ export const Receive = ({
                     </button>
                   )}
                   <form onSubmit={handleSubmit}>
-                    <Dialog open={addressTypeDialogOpened} onClose={() => setAddressTypeDialog(undefined)} medium title={t('receive.changeScriptType')} >
+                    <Dialog open={addressTypeDialog !== undefined} onClose={() => setAddressTypeDialog(undefined)} medium title={t('receive.changeScriptType')} >
                       {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
                         <div key={scriptType}>
                           {addressTypeDialog && (
