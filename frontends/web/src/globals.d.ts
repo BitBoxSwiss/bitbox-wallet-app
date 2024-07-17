@@ -25,6 +25,8 @@ export declare global {
         onMobileCallResponse?: (queryID: number, response: unknown) => void;
         onMobilePushNotification?: (msg: TPayload) => void;
         runningOnIOS?: boolean;
+        // Called by Android when the back button is pressed.
+        onBackButtonPressed?: () => boolean;
         webkit?: {
           messageHandlers: {
             goCall: {

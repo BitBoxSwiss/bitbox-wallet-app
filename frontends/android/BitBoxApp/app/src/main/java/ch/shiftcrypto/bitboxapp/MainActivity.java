@@ -582,12 +582,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // The app cannot currently handle the back button action to allow users
-    // to move between screens back and forth. What happens is the app is "moved"
-    // to background as if "home" button were pressed.
-    // To avoid unexpected behaviour, we prompt users and force the app process
-    // to exit which helps with preserving phone's resources by shutting down
-    // all goroutines.
+    // Handle Android back button behavior:
+    //
+    // By default, if the webview can go back in browser history, we do that.
+    // If there is no more history, we prompt the user to quit the app. If
+    // confirmed, the app will be force quit.
+    //
+    // The default behavior can be modified by the frontend via the
+    // window.onBackButtonPressed() function. See the `useBackButton` React
+    // hook. It will be called first, and if it returns false, the default
+    // behavior is prevented, otherwise we proceed with the above default
+    // behavior.
     //
     // Without forced app process exit, some goroutines may remain active even after
     // the app resumption at which point new copies of goroutines are spun up.
@@ -601,20 +606,37 @@ public class MainActivity extends AppCompatActivity {
     // https://developer.android.com/guide/components/activities/tasks-and-back-stack
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(MainActivity.this)
-            .setTitle("Close BitBoxApp")
-            .setMessage("Do you really want to exit?")
-            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    Util.quit(MainActivity.this);
-                }
-            })
-            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            })
-            .setIcon(android.R.drawable.ic_dialog_alert)
-            .show();
+        runOnUiThread(new Runnable() {
+            final WebView vw = (WebView) findViewById(R.id.vw);
+            @Override
+            public void run() {
+                vw.evaluateJavascript("window.onBackButtonPressed();", value -> {
+                    boolean doDefault = Boolean.parseBoolean(value);
+                    if (doDefault) {
+                        // Default behavior: go back in history if we can, otherwise prompt user
+                        // if they want to quit the app.
+                        if (vw.canGoBack()) {
+                            vw.goBack();
+                            return;
+                        }
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("Close BitBoxApp")
+                                .setMessage("Do you really want to exit?")
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Util.quit(MainActivity.this);
+                                    }
+                                })
+                                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+                    }
+                });
+            }
+        });
     }
 }

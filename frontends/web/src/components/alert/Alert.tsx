@@ -18,6 +18,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MultilineMarkup } from '@/utils/markup';
+import { UseBackButton } from '@/hooks/backbutton';
 import { View, ViewButtons, ViewHeader } from '@/components/view/view';
 import { Button } from '@/components/forms';
 
@@ -62,6 +63,9 @@ const Alert = () => {
 
   return (active && message) ? (
     <form onSubmit={() => setActive(false)}>
+      <UseBackButton handler={() => {
+        setActive(false); return false;
+      }} />
       <View
         key="alert-overlay"
         dialog={asDialog}

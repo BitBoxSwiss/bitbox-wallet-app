@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router';
 import { useEffect, useState } from 'react';
 import { getDeviceInfo, setMnemonicPassphraseEnabled } from '@/api/bitbox02';
 import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
+import { UseDisableBackButton } from '@/hooks/backbutton';
 import { Main } from '@/components/layout';
 import { Button, Checkbox } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
@@ -62,7 +63,7 @@ export const Passphrase = ({ deviceID }: TProps) => {
     try {
       const result = await setMnemonicPassphraseEnabled(deviceID, enabled);
       if (!result.success) {
-        navigate(`/settings/device-settings/${deviceID}`);
+        navigate(-1);
         alertUser(t(`passphrase.error.e${result.code}`, {
           defaultValue: result.message || t('genericError'),
         }));
@@ -75,7 +76,7 @@ export const Passphrase = ({ deviceID }: TProps) => {
     }
   };
 
-  const handleAbort = () => navigate(`/settings/device-settings/${deviceID}`);
+  const handleAbort = () => navigate(-1);
 
   if (isEnabled === undefined) {
     return null;
@@ -114,6 +115,7 @@ export const Passphrase = ({ deviceID }: TProps) => {
                 : 'passphrase.progressEnable.message')} />
           </ViewHeader>
           <ViewContent>
+            <UseDisableBackButton />
             <PointToBitBox02 />
           </ViewContent>
         </View>
