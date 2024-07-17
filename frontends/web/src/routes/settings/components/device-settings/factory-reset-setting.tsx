@@ -32,7 +32,6 @@ type TProps = {
 type TDialog = {
     open: boolean;
     handleCloseDialog: () => void;
-    isConfirming: boolean;
     understand: boolean;
     handleUnderstandChange: (e: ChangeEvent<HTMLInputElement>) => void;
     handleReset: () => void;
@@ -84,7 +83,6 @@ const FactoryResetSetting = ({ deviceID }: TProps) => {
       <FactoryResetDialog
         open={activeDialog}
         handleCloseDialog={abort}
-        isConfirming={isConfirming}
         understand={understand}
         handleUnderstandChange={handleUnderstandChange}
         handleReset={reset}
@@ -98,7 +96,6 @@ const FactoryResetSetting = ({ deviceID }: TProps) => {
 const FactoryResetDialog = ({
   open,
   handleCloseDialog,
-  isConfirming,
   understand,
   handleUnderstandChange,
   handleReset
@@ -109,7 +106,6 @@ const FactoryResetDialog = ({
       open={open}
       title={t('reset.title')}
       onClose={handleCloseDialog}
-      disabledClose={isConfirming}
       small>
       <div className="columnsContainer half">
         <div className="columns">
