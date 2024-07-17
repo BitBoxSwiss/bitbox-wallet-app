@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark, WarningOutlined } from '@/components/icon';
+import { ChevronRightDark, WarningOutlined, PointToBitBox02 } from '@/components/icon';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button, Checkbox } from '@/components/forms';
 import { ChangeEvent, useState } from 'react';
@@ -142,6 +142,7 @@ const FactoryResetWaitDialog = ({ isConfirming }: TWaitDialog) => {
     <WaitDialog
       title={t('reset.title')} >
       {t('bitbox02Interact.followInstructions')}
+      <PointToBitBox02 />
     </WaitDialog>
   );
 
