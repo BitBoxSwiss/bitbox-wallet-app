@@ -44,6 +44,7 @@
     "no-undef": "off",
     "no-empty": "off",
     "react/display-name": "off",
+    "react-hooks/exhaustive-deps": "error",
     "@typescript-eslint/ban-ts-comment": "off",
     "no-async-promise-executor": "off"
   },
