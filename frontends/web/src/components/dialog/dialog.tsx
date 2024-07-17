@@ -29,7 +29,6 @@ type TProps = {
     centered?: boolean;
     disableEscape?: boolean;
     onClose?: (e?: Event) => void;
-    disabledClose?: boolean;
     children: React.ReactNode;
     open: boolean;
 }
@@ -43,7 +42,6 @@ export const Dialog = ({
   centered,
   disableEscape,
   onClose,
-  disabledClose,
   children,
   open,
 }: TProps) => {
@@ -204,7 +202,7 @@ export const Dialog = ({
               { onClose ? (
                 <button className={style.closeButton} onClick={() => {
                   deactivate(true);
-                }} disabled={disabledClose}>
+                }}>
                   <CloseXDark className="show-in-lightmode" />
                   <CloseXWhite className="show-in-darkmode" />
                 </button>
