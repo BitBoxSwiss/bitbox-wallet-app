@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import checker from 'vite-plugin-checker';
+import eslint from 'vite-plugin-eslint';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig((env) => {
@@ -18,7 +19,8 @@ export default defineConfig((env) => {
       checker({
         typescript: true,
       }),
-      tsconfigPaths()
+      tsconfigPaths(),
+      env.mode !== 'test' && eslint(),
     ],
     test: {
       css: false,
