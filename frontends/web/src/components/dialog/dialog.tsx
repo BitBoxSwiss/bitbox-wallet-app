@@ -28,7 +28,6 @@ type TProps = {
     large?: boolean;
     slim?: boolean;
     centered?: boolean;
-    disableEscape?: boolean;
     onClose?: (e?: Event) => void;
     children: React.ReactNode;
     open: boolean;
@@ -41,7 +40,6 @@ export const Dialog = ({
   large,
   slim,
   centered,
-  disableEscape,
   onClose,
   children,
   open,
@@ -169,10 +167,10 @@ export const Dialog = ({
     if (!renderDialog) {
       return;
     }
-    if (!disableEscape) {
+    if (onClose !== undefined) {
       deactivate(true);
     }
-  }, [renderDialog, disableEscape, deactivate]));
+  }, [renderDialog, onClose, deactivate]));
 
   useEffect(() => {
     if (open) {
