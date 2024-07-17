@@ -230,8 +230,16 @@ export const getBalance = (code: AccountCode): Promise<IBalance> => {
   return apiGet(`account/${code}/balance`);
 };
 
+export interface IAddressAndAmount {
+    address: string;
+    amount: IAmount;
+    amountAtTime: IAmount | null;
+    note: string;
+}
+
 export interface ITransaction {
     addresses: string[];
+    outputs: IAddressAndAmount[] | null;
     amount: IAmount;
     amountAtTime: IAmount | null;
     fee: IAmount;

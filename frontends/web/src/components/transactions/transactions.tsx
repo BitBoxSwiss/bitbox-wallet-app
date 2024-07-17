@@ -59,13 +59,34 @@ export const Transactions = ({
         <div className={style.action}>&nbsp;</div>
       </div>
       { (transactions && transactions.success && transactions.list.length > 0)
-        ? transactions.list.map((props, _) => (
-          <Transaction
-            accountCode={accountCode}
-            key={props.internalID}
-            explorerURL={explorerURL}
-            {...props} />
-        )) : (
+        ? transactions.list.map((tx, _) => {
+          if (tx.type === 'receive') {
+            return (
+              tx.outputs!.map((output, outputIndex) => (
+                <Transaction
+                  accountCode={accountCode}
+                  key={`${tx.internalID}:${outputIndex}`}
+                  explorerURL={explorerURL}
+                  outputIndex={outputIndex}
+                  {...tx}
+                  // Overwrite with output specific values.
+                  addresses={[output.address]}
+                  amount={output.amount}
+                  amountAtTime={output.amountAtTime}
+                  note={output.note}
+                />
+              ))
+            );
+          }
+          return (
+            <Transaction
+              accountCode={accountCode}
+              key={tx.internalID}
+              explorerURL={explorerURL}
+              {...tx}
+            />
+          );
+        }) : (
           <div className={`flex flex-row flex-center ${style.empty}`}>
             { transactions && !transactions.success ? (
               <p>{t('transactions.errorLoadTransactions')}</p>

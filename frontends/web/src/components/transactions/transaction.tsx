@@ -32,12 +32,14 @@ import style from './transaction.module.css';
 type TProps = {
   accountCode: accountApi.AccountCode;
   explorerURL: string;
+  outputIndex?: number;
 } & accountApi.ITransaction;
 
 export const Transaction = ({
   accountCode,
   internalID,
   explorerURL,
+  outputIndex,
   type,
   amount,
   numConfirmations,
@@ -119,10 +121,12 @@ export const Transaction = ({
         numConfirmations={numConfirmations}
         numConfirmationsComplete={numConfirmationsComplete}
         time={time}
+        addresses={addresses}
         amount={amount}
         sign={sign}
         typeClassName={typeClassName}
         explorerURL={explorerURL}
+        outputIndex={outputIndex}
       />
     </div>
   );
