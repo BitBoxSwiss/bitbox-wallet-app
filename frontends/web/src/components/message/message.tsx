@@ -18,8 +18,8 @@
 import { ReactNode } from 'react';
 import { StatusInfo, StatusSuccess, StatusWarning, StatusError } from '@/components/icon';
 import styles from './message.module.css';
+import { TMessageTypes } from '@/utils/types';
 
-type TMessageTypes = 'success' | 'info' | 'warning' | 'error';
 type TMessageIconProps = { type: TMessageTypes };
 
 const MessageIcon = ({ type }: TMessageIconProps) => {

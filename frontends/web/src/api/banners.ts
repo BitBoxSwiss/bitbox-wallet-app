@@ -15,8 +15,8 @@
  */
 
 import { apiGet } from '@/utils/request';
-import { statusType } from '@/components/status/status';
 import { subscribeEndpoint, TUnsubscribe } from './subscribe';
+import { TMessageTypes } from '@/utils/types';
 
 export type TBannerInfo = {
   id: string;
@@ -26,7 +26,7 @@ export type TBannerInfo = {
     text?: string;
   };
   dismissible?: boolean;
-  type?: statusType;
+  type?: TMessageTypes;
 }
 
 export const getBanner = (msgKey: string): Promise<TBannerInfo> => {

@@ -28,3 +28,4 @@ export type KeysOf<T> = Array<keyof T>;
 export type ObjectButNotFunction = object & { prototype?: never; };
 
 export type TDeviceNameError = undefined | 'tooShort' | 'tooLong' | 'invalidChars'
+export type TMessageTypes = 'success' | 'info' | 'warning' | 'error';

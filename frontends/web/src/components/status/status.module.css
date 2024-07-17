@@ -1,81 +1,27 @@
+.content {
+    margin-right: var(--space-half);
+}
+
 .container {
-    margin: 0 auto;
-    position: relative;
-    padding: calc(var(--space-default) * 1.5);
+    align-items: flex-start;
+    display: flex;
     width: 100%;
 }
 .container.withCloseBtn {
     padding-right: 60px;
 }
 
-:global(.padded) .container {
-    max-width: var(--content-width);
-}
-
-.status {
-    font-size: var(--size-subheader);
-    max-width: 800px;
-    text-align: left;
-}
-
-.success {
-    background-color: var(--color-success);
-}
-
-.warning {
-    background-color: var(--color-warning);
-}
-
-.info {
-    background-color: var(--color-info);
-}
-
-.success,
-.warning,
-.info,
-.success label, /* also force label elements to use color white */
-.warning label,
-.info label {
-    color: var(--color-alt);
-}
-
-.close-success {
-    background: var(--color-darkgreen);
-}
-
-.close-warning {
-    background: var(--color-swissred);
-}
-
-.close-info {
-    background: var(--color-darkblue);
-}
-
-.close {
+.closeButton {
+    background-color: transparent;
     border: none;
-    line-height: .5;
-    padding: var(--space-half);
-    position: absolute;
-    top: 0;
-    right: 0;
+    margin-left: auto;
 }
 
-.close svg {
-    width: 18px;
-    height: 18px;
+.closeButton img {
+    width: 16px;
+    height: 16px;
 }
 
-.withCloseBtn .status::before {
-    content: "";
-    float: right;
-    height: 18px;
-    padding-bottom: 2px;
-    padding-left: var(--space-default);
-    width: 18px;
-}
-
-@media (max-width: 1199px) {
-    .container {
-        padding: calc(var(--space-half) * 1.5);
-    }
+.messageWrapper {
+    margin-bottom: calc(var(--spacing-default) * -1);
 }
