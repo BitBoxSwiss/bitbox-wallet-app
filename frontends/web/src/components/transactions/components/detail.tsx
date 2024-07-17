@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-export const convertDateToLocaleString = (
-  date: string,
-  language: string
-) => {
-  return new Date(date).toLocaleString(language, {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
+import parentStyle from '@/components/transactions/transaction.module.css';
 
-export const parseTimeShort = (time: string, lang: string) => {
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  };
-  return new Date(Date.parse(time)).toLocaleString(lang, options);
+type TProps = React.PropsWithChildren<{
+  label: string;
+}>;
+
+export const TxDetail = ({
+  label,
+  children,
+}: TProps) => {
+  return (
+    <div className={parentStyle.detail}>
+      <label>{label}</label>
+      <p>{children}</p>
+    </div>
+  );
 };
