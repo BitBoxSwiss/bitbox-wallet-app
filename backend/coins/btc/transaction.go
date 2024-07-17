@@ -166,6 +166,9 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 
 	var txProposal *maketx.TxProposal
 	if args.Amount.SendAll() {
+		if len(args.PaymentRequests) > 0 {
+			return nil, nil, errp.New("Payment Requests do not allow send-all transaction proposals")
+		}
 		txProposal, err = maketx.NewTxSpendAll(
 			account.coin,
 			wireUTXO,
@@ -195,17 +198,24 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		if err != nil {
 			return nil, nil, err
 		}
+		txOut := wire.NewTxOut(parsedAmountInt64, pkScript)
 		account.log.Infof("Change address script type: %s", changeAddress.Configuration.ScriptType())
 		txProposal, err = maketx.NewTx(
 			account.coin,
 			wireUTXO,
-			wire.NewTxOut(parsedAmountInt64, pkScript),
+			txOut,
 			feeRatePerKb,
 			changeAddress,
 			account.log,
 		)
 		if err != nil {
 			return nil, nil, err
+		}
+
+		for _, paymentRequest := range args.PaymentRequests {
+			account.log.Info("Payment request tx proposal")
+			paymentRequest.TxOut = txOut
+			txProposal.PaymentRequest = append(txProposal.PaymentRequest, paymentRequest)
 		}
 	}
 	account.log.Debugf("creating tx with %d inputs, %d outputs",

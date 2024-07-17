@@ -514,6 +514,7 @@
         "p2": "Please note that Pocket’s exchange rates can differ from the ones used in the BitBoxApp, resulting in slightly different amounts.",
         "title": "Payment methods and fees"
       },
+      "paymentRequestNote": "Payment request from",
       "previousTransactions": "The transaction history of this account is not empty. Sharing this account will make all its past and future transactions visible for Pocket. Proceed anyway?",
       "security": {
         "link": "BitBox02 security threat model",
