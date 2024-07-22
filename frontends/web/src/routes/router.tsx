@@ -15,7 +15,7 @@
  */
 
 import React, { ReactChild } from 'react';
-import { Route, Routes, useParams } from 'react-router';
+import { Route, Routes, useParams } from 'react-router-dom';
 import { IAccount } from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { AddAccount } from './account/add/add';

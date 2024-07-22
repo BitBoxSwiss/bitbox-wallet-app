@@ -16,11 +16,11 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { useEsc } from '@/hooks/keyboard';
 import * as accountApi from '@/api/account';
-import { route } from '@/utils/route';
 import { getScriptName, isEthereumBased } from '@/routes/account/utils';
 import { alertUser } from '@/components/alert/Alert';
 import { CopyableInput } from '@/components/copy/Copy';
@@ -63,6 +63,7 @@ export const Receive = ({
   code,
   deviceID,
 }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState<boolean>(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -79,7 +80,7 @@ export const Receive = ({
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
   const secureOutput = useLoad(accountApi.hasSecureOutput(code));
 
-  useEsc(() => !verifying && route(`/account/${code}`));
+  useEsc(() => !verifying && navigate(`/account/${code}`));
 
   const availableScriptTypes = useRef<accountApi.ScriptType[]>();
 

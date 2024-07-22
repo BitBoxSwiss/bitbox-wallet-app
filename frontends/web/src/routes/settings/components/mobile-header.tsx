@@ -15,8 +15,8 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { ChevronLeftDark } from '@/components/icon';
-import { route } from '@/utils/route';
 import styles from './mobile-header.module.css';
 
 type TProps = {
@@ -25,10 +25,11 @@ type TProps = {
 }
 
 export const MobileHeader = ({ title, withGuide = false }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const handleClick = () => {
     //goes to the 'general settings' page
-    route('/settings');
+    navigate('/settings');
   };
   return (
     <div className={`${styles.container} ${withGuide ? `${styles.withGuide}` : ''}`}>

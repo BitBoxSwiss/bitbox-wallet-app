@@ -16,8 +16,8 @@
  */
 
 import { useState, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { route } from '@/utils/route';
 import { AccountCode, IAccount, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '@/api/account';
 import { getScriptName, isBitcoinBased } from '@/routes/account/utils';
 import { alertUser } from '@/components/alert/Alert';
@@ -35,6 +35,7 @@ type TProps = {
 }
 
 export const SigningConfiguration = ({ account, info, code, signingConfigIndex, children }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState(false);
 
@@ -111,7 +112,7 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
             {t('accountInfo.verify')}
           </Button>
         ) : (
-          <Button className={style.verifyButton} primary onClick={() => route(`/account/${code}/receive`)}>
+          <Button className={style.verifyButton} primary onClick={() => navigate(`/account/${code}/receive`)}>
             {t('receive.verify')}
           </Button>
         ) }

@@ -16,6 +16,7 @@
 
 import 'flag-icons';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
 import { i18n } from '@/i18n/i18n';
@@ -25,7 +26,6 @@ import { AccountCode, IAccount } from '@/api/account';
 import { Header } from '@/components/layout';
 import { BuyGuide } from './guide';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
-import { route } from '@/utils/route';
 import { useLoad } from '@/hooks/api';
 import { getRegionNameFromLocale } from '@/i18n/utils';
 import { findLowestFee, findBestDeal, getFormattedName, getExchangeSupportedAccounts } from './utils';
@@ -46,6 +46,7 @@ type TProps = {
 }
 
 export const Exchange = ({ code, accounts }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const [showPocket, setShowPocket] = useState(false);
@@ -171,7 +172,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
     if (!selectedExchange) {
       return;
     }
-    route(`/buy/${selectedExchange}/${code}`);
+    navigate(`/buy/${selectedExchange}/${code}`);
   };
 
   const handleChangeRegion = (newValue: SingleValue<TOption>) => {
@@ -234,7 +235,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
                     <Button
                       className={style.buttonBack}
                       secondary
-                      onClick={() => route('/buy/info')}>
+                      onClick={() => navigate('/buy/info')}>
                       {t('button.back')}
                     </Button>}
                     <Button

@@ -15,19 +15,20 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { ChevronRightDark } from '@/components/icon';
-import { route } from '@/utils/route';
 
 type TProps = {
   deviceID: string;
 }
 
 const ManageBackupSetting = ({ deviceID }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   return (
     <SettingsItem
-      onClick={() => route(`/manage-backups/${deviceID}`)}
+      onClick={() => navigate(`/manage-backups/${deviceID}`)}
       settingName={t('backup.title')}
       secondaryText={t('deviceSettings.backups.manageBackups.description')}
       extraComponent={<ChevronRightDark />}

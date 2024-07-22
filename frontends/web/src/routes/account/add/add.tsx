@@ -15,6 +15,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import * as backendAPI from '@/api/backend';
 import * as keystoresAPI from '@/api/keystores';
@@ -26,7 +27,6 @@ import { Step, Steps } from './components/steps';
 import { CoinDropDown } from './components/coin-dropdown';
 import { Check } from '@/components/icon/icon';
 import { AddAccountGuide } from './add-account-guide';
-import { route } from '@/utils/route';
 import { addAccount, CoinCode, TAddAccount, IAccount } from '@/api/account';
 import styles from './add.module.css';
 
@@ -37,6 +37,7 @@ type TAddAccountGuide = {
 type TStep = 'select-coin' | 'choose-name' | 'success';
 
 export const AddAccount = ({ accounts }: TAddAccountGuide) => {
+  const navigate = useNavigate();
   const [accountCode, setAccountCode] = useState<string>();
   const [accountName, setAccountName] = useState('');
   const [coinCode, setCoinCode] = useState<'choose' | CoinCode>('choose');
@@ -87,7 +88,7 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
   const back = () => {
     switch (step) {
     case 'select-coin':
-      route('/settings/manage-accounts');
+      navigate('/settings/manage-accounts');
       break;
     case 'choose-name':
       setStep('select-coin');
@@ -122,7 +123,7 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
       break;
     case 'success':
       if (accountCode) {
-        route(`/account/${accountCode}`);
+        navigate(`/account/${accountCode}`);
       }
       break;
     }

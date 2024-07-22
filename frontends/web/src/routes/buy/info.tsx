@@ -15,8 +15,8 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { route } from '@/utils/route';
 import * as accountApi from '@/api/account';
 import { getExchangeSupportedAccounts } from './utils';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
@@ -33,6 +33,7 @@ type TProps = {
 }
 
 export const BuyInfo = ({ code, accounts }: TProps) => {
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<string>(code);
   const [disabled, setDisabled] = useState<boolean>(false);
   const [supportedAccounts, setSupportedAccounts] = useState<accountApi.IAccount[]>();
@@ -57,18 +58,18 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
       const accountCode = supportedAccounts[0].code;
       connectKeystore(accountCode).then(connected => {
         if (connected) {
-          route(`/buy/exchange/${accountCode}`);
+          navigate(`/buy/exchange/${accountCode}`);
         }
       });
     }
-  }, [supportedAccounts]);
+  }, [supportedAccounts, navigate]);
 
   const handleProceed = async () => {
     setDisabled(true);
     try {
       const connected = await connectKeystore(selected);
       if (connected) {
-        route(`/buy/exchange/${selected}`);
+        navigate(`/buy/exchange/${selected}`);
       }
     } finally {
       setDisabled(false);
