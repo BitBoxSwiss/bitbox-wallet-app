@@ -133,7 +133,7 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                 <Button
                   className={style.button}
                   primary
-                  onClick={() => navigate('bitsurance/account')}
+                  onClick={() => navigate('/bitsurance/account')}
                   title={t('account.exportTransactions')}>
                   <span>+</span>
                   {t('bitsurance.dashboard.button')}

@@ -47,7 +47,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
 
   useEffect(() => {
     if (accounts.some(({ bitsuranceStatus }) => bitsuranceStatus)) {
-      navigate('bitsurance/dashboard');
+      navigate('/bitsurance/dashboard');
     } else {
       setRedirecting(false);
     }
@@ -70,7 +70,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
     setScanDone(true);
     setScanLoading(false);
     if (insured.length && redirectToDashboard) {
-      navigate('bitsurance/dashboard');
+      navigate('/bitsurance/dashboard');
     }
   };
 
@@ -87,7 +87,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
     // we force a detection to verify if there is any new insured account
     // before proceeding to the next step.
     await detect(false);
-    navigate('bitsurance/account');
+    navigate('/bitsurance/account');
   };
 
   if (redirecting) {
