@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getDeviceInfo, setMnemonicPassphraseEnabled } from '@/api/bitbox02';
 import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
 import { UseDisableBackButton } from '@/hooks/backbutton';

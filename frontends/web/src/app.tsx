@@ -16,8 +16,8 @@
  */
 
 import { useCallback, useEffect, Fragment } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { useSync } from './hooks/api';
 import { useDefault } from './hooks/default';
 import { usePrevious } from './hooks/previous';
