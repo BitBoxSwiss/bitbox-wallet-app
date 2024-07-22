@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AccountCode, CoinCode, IBalance } from '@/api/account';
 import { syncAddressesCount } from '@/api/accountsync';
 import { useSubscribe } from '@/hooks/api';
-import { route } from '@/utils/route';
 import { Logo } from '@/components/icon/logo';
 import { Amount } from '@/components/amount/amount';
 import { AsciiSpinner } from '@/components/spinner/ascii';
@@ -35,6 +35,7 @@ type TProps = {
 export const BalanceRow = (
   { code, name, coinCode, balance }: TProps
 ) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const syncStatus = useSubscribe(syncAddressesCount(code));
 
@@ -42,7 +43,7 @@ export const BalanceRow = (
     <td
       className={style.clickable}
       data-label={t('accountSummary.name')}
-      onClick={() => route(`/account/${code}`)}>
+      onClick={() => navigate(`/account/${code}`)}>
       <div className={style.coinName}>
         <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
         {name}

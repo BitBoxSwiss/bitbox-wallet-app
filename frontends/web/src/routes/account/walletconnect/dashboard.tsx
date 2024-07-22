@@ -15,12 +15,12 @@
  */
 
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { SessionTypes } from '@walletconnect/types';
 import { getSdkError } from '@walletconnect/utils';
 import { WCWeb3WalletContext } from '@/contexts/WCWeb3WalletContext';
-import { route } from '@/utils/route';
 import { getAddressFromEIPString, truncateAddress } from '@/utils/walletconnect';
 import { AccountCode, IAccount, getReceiveAddressList } from '@/api/account';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
@@ -37,6 +37,7 @@ type TProps = {
 }
 
 export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { web3wallet, isWalletInitialized, initializeWeb3Wallet } = useContext(WCWeb3WalletContext);
   const [sessions, setSessions] = useState<SessionTypes.Struct[]>();
@@ -100,7 +101,9 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
                   <p>{accountName}</p>
                   <p className={styles.receiveAddress}>{receiveAddress}</p>
                 </div>
-                <Button className={styles.buttonNewConnection} onClick={() => route(`/account/${code}/wallet-connect/connect`)} primary>{t('walletConnect.dashboard.newConnection')}</Button>
+                <Button className={styles.buttonNewConnection} onClick={() => navigate(`/account/${code}/wallet-connect/connect`)} primary>
+                  {t('walletConnect.dashboard.newConnection')}
+                </Button>
               </div>
               <hr className={styles.separator} />
               {hasSession &&

@@ -15,8 +15,8 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { route } from '@/utils/route';
 import { IAccount, connectKeystore } from '@/api/account';
 import { BitsuranceGuide } from './guide';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
@@ -32,6 +32,7 @@ type TProps = {
 }
 
 export const BitsuranceAccount = ({ code, accounts }: TProps) => {
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<string>(code);
   const [disabled, setDisabled] = useState<boolean>(false);
   const [btcAccounts, setBtcAccounts] = useState<IAccount[]>();
@@ -69,10 +70,10 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
         if (!connectResult.success) {
           return;
         }
-        route(`/bitsurance/widget/${btcAccounts[0].code}`);
+        navigate(`/bitsurance/widget/${btcAccounts[0].code}`);
       });
     }
-  }, [btcAccounts]);
+  }, [btcAccounts, navigate]);
 
   const handleProceed = async () => {
     setDisabled(true);
@@ -84,7 +85,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
     } finally {
       setDisabled(false);
     }
-    route(`/bitsurance/widget/${selected}`);
+    navigate(`/bitsurance/widget/${selected}`);
   };
 
   if (btcAccounts === undefined) {

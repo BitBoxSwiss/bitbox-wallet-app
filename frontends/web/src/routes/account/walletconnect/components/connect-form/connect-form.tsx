@@ -15,10 +15,10 @@
  */
 
 import { SetStateAction, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import * as accountAPI from '@/api/account';
 import { Button, Input } from '@/components/forms';
-import { route } from '@/utils/route';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { ScanQRButton } from '@/routes/account/send/components/inputs/receiver-address-input';
 import { ScanQRDialog } from '@/routes/account/send/components/dialogs/scan-qr-dialog';
@@ -52,6 +52,7 @@ export const WCConnectForm = ({
   onSubmit,
   connectLoading
 }: TWCConnectFormProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [activeScanQR, setActiveScanQR] = useState(isMobile); // default to true on mobile
@@ -95,7 +96,7 @@ export const WCConnectForm = ({
           <Button
             disabled={connectLoading}
             secondary
-            onClick={() => route(`/account/${code}/wallet-connect/dashboard`)}>
+            onClick={() => navigate(`/account/${code}/wallet-connect/dashboard`)}>
             {t('dialog.cancel')}
           </Button>
           <Button

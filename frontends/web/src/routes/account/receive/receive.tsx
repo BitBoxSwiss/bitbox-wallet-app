@@ -16,11 +16,11 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { useEsc } from '@/hooks/keyboard';
 import * as accountApi from '@/api/account';
-import { route } from '@/utils/route';
 import { getScriptName, isEthereumBased } from '@/routes/account/utils';
 import { CopyableInput } from '@/components/copy/Copy';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
@@ -114,6 +114,7 @@ export const Receive = ({
   accounts,
   code,
 }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState<false | 'secure' | 'insecure'>(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -133,7 +134,7 @@ export const Receive = ({
 
   const hasManyScriptTypes = availableScriptTypes.current && availableScriptTypes.current.length > 1;
 
-  useEsc(() => !addressTypeDialog && !verifying && route(`/account/${code}`));
+  useEsc(() => !addressTypeDialog && !verifying && navigate(`/account/${code}`));
 
   useEffect(() => {
     if (receiveAddresses) {

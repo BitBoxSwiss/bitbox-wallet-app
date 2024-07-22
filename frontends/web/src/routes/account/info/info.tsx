@@ -16,11 +16,11 @@
  */
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { useEsc } from '@/hooks/keyboard';
 import { getInfo, IAccount, AccountCode } from '@/api/account';
-import { route } from '@/utils/route';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { ButtonLink } from '@/components/forms';
 import { Header } from '@/components/layout';
@@ -37,12 +37,13 @@ export const Info = ({
   accounts,
   code,
 }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const info = useLoad(getInfo(code));
   const [viewXPub, setViewXPub] = useState<number>(0);
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
 
-  useEsc(() => route(`/account/${code}`));
+  useEsc(() => navigate(`/account/${code}`));
 
   if (!account || !info) {
     return null;
