@@ -17,6 +17,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
+import { UseBackButton } from '@/hooks/backbutton';
 import { useEsc, useKeydown } from '@/hooks/keyboard';
 import style from './dialog.module.css';
 
@@ -156,6 +157,13 @@ export const Dialog = ({
     }
   }, [deactivateModal]);
 
+  const closeHandler = useCallback(() => {
+    if (onClose !== undefined) {
+      deactivate(true);
+      return false;
+    }
+    return true;
+  }, [onClose, deactivate]);
 
   useEsc(useCallback(() => {
     if (!renderDialog) {
@@ -192,6 +200,7 @@ export const Dialog = ({
 
   return (
     <div className={style.overlay} ref={overlayRef}>
+      <UseBackButton handler={closeHandler}/>
       <div
         className={[style.modal, isSmall, isMedium, isLarge].join(' ')}
         ref={modalRef}>
