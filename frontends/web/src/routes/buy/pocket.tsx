@@ -245,7 +245,6 @@ export const Pocket = ({ code }: TProps) => {
           <Dialog
             open={verifying}
             title={t('receive.verifyBitBox02')}
-            disableEscape={true}
             medium centered>
             <div className="text-center">{t('buy.pocket.verifyBitBox02')}</div>
           </Dialog>

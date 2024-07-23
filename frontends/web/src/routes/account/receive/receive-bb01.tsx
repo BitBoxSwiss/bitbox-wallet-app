@@ -253,7 +253,6 @@ export const Receive = ({
                   <Dialog
                     open={((!!account) && forceVerification && verifying)}
                     title={verifyLabel}
-                    disableEscape={true}
                     medium centered>
                     <div className="text-center">
                       {account && <>

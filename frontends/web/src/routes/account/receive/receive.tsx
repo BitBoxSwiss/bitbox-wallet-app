@@ -292,9 +292,8 @@ export const Receive = ({
                   <Dialog
                     open={!!(account && verifying)}
                     title={t('receive.verifyBitBox02')}
-                    // disable escape for secure outputs like the BitBox02, where the dialog is
+                    // disable exit/escape for secure outputs like the BitBox02, where the dialog is
                     // dimissed by tapping the device
-                    disableEscape={verifying === 'secure'}
                     onClose={verifying === 'insecure' ? () => {
                       setVerifying(false);
                     } : undefined}
