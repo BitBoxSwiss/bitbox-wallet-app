@@ -20,13 +20,13 @@ import { getConfig, setConfig } from '@/utils/config';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import { useDarkmode } from '@/hooks/darkmode';
 import { Message } from '@/components/message/message';
-import style from './status.module.css';
 import { TMessageTypes } from '@/utils/types';
+import style from './status.module.css';
 
-
-type TPRops = {
+type TProps = {
   hidden?: boolean;
   type?: TMessageTypes;
+  noIcon?: boolean;
   // used as keyName in the config if dismissing the status should be persisted, so it is not
   // shown again. Use an empty string if it should be dismissible without storing it in the
   // config, so the status will be shown again the next time.
@@ -38,10 +38,11 @@ type TPRops = {
 export const Status = ({
   hidden,
   type = 'warning',
+  noIcon = false,
   dismissible,
   className = '',
   children,
-}: TPRops) => {
+}: TProps) => {
   const [show, setShow] = useState(dismissible ? false : true);
 
   const { isDarkMode } = useDarkmode();
@@ -75,7 +76,7 @@ export const Status = ({
 
   return (
     <div className={`${style.messageWrapper} ${className}`}>
-      <Message type={type}>
+      <Message noIcon={noIcon} type={type}>
         <div className={style.container}>
           <div className={style.content}>
             {children}
@@ -92,3 +93,4 @@ export const Status = ({
     </div>
   );
 };
+

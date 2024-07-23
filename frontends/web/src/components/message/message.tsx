@@ -50,6 +50,7 @@ type MessageProps = {
   small?: boolean;
   title?: string;
   type?: TMessageTypes;
+  noIcon?: boolean;
   children: ReactNode;
 }
 
@@ -58,6 +59,7 @@ export const Message = ({
   small,
   title,
   type = 'info',
+  noIcon = false,
   children,
 }: MessageProps) => {
   if (hidden) {
@@ -65,7 +67,7 @@ export const Message = ({
   }
   return (
     <div className={`${styles[type]} ${small ? styles.small : ''}`}>
-      <MessageIcon type={type} />
+      {!noIcon && <MessageIcon type={type} />}
       <div className={styles.content}>
         {title && (
           <h2 className={`subTitle ${styles.title}`}>{title}</h2>

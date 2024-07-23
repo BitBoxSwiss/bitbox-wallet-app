@@ -1,5 +1,5 @@
 .content {
-    margin-right: var(--space-half);
+    margin-right: var(--space-eight);
 }
 
 .container {
@@ -20,8 +20,4 @@
 .closeButton img {
     width: 16px;
     height: 16px;
-}
-
-.messageWrapper {
-    margin-bottom: calc(var(--spacing-default) * -1);
 }

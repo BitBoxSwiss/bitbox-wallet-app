@@ -211,7 +211,7 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
             <SimpleMarkup key="info-3" tagName="li" markup={t('passphrase.summary.understandList.2')} />
             <SimpleMarkup key="info-4" tagName="li" markup={t('passphrase.summary.understandList.3')} />
           </ul>
-          <Status type={understood ? 'success' : 'warning'}>
+          <Status noIcon type={understood ? 'success' : 'warning'}>
             <Checkbox
               onChange={e => setUnderstood(e.target.checked)}
               id="understood"

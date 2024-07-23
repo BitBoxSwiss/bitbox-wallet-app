@@ -1,0 +1,4 @@
+.parentContainer {
+    min-width: 0;
+    overflow: auto;
+}
