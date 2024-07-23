@@ -222,21 +222,21 @@ func (lightning *Lightning) connect(registerNode bool) error {
 
 		var greenlightCredentials *breez_sdk.GreenlightCredentials
 		if registerNode {
-			_, deviceKey, err := util.HTTPGet(lightning.httpClient, greenLightKeyUrl, "", int64(4096))
+			_, developerKey, err := util.HTTPGet(lightning.httpClient, greenLightKeyUrl, "", int64(4096))
 			if err != nil {
 				lightning.log.WithError(err).Error("Greenlight key fetch failed")
 				return err
 			}
 
-			_, deviceCert, err := util.HTTPGet(lightning.httpClient, greenLightCertUrl, "", int64(4096))
+			_, developerCert, err := util.HTTPGet(lightning.httpClient, greenLightCertUrl, "", int64(4096))
 			if err != nil {
 				lightning.log.WithError(err).Error("Greenlight cert fetch failed")
 				return err
 			}
 
 			greenlightCredentials = &breez_sdk.GreenlightCredentials{
-				DeviceKey:  deviceKey,
-				DeviceCert: deviceCert,
+				DeveloperKey:  developerKey,
+				DeveloperCert: developerCert,
 			}
 		}
 

@@ -52,11 +52,6 @@ export interface BackupFailedData {
   error: string;
 }
 
-export interface BackupStatus {
-  backedUp: boolean;
-  lastBackupTime?: number;
-}
-
 export interface BitcoinAddressData {
   address: string;
   network: Network;
@@ -65,86 +60,11 @@ export interface BitcoinAddressData {
   message?: string;
 }
 
-export interface BuyBitcoinRequest {
-  provider: BuyBitcoinProvider;
-  openingFeeParams?: OpeningFeeParams;
-}
-
-export interface BuyBitcoinResponse {
-  url: string;
-  openingFeeParams?: OpeningFeeParams;
-}
-
-export interface CheckMessageRequest {
-  message: string;
-  pubkey: string;
-  signature: string;
-}
-
-export interface CheckMessageResponse {
-  isValid: boolean;
-}
-
 export interface ClosedChannelPaymentDetails {
   state: ChannelState;
   fundingTxid: string;
   shortChannelId?: string;
   closingTxid?: string;
-}
-
-export interface Config {
-  breezserver: string;
-  chainnotifierUrl: string;
-  mempoolspaceUrl?: string;
-  workingDir: string;
-  network: Network;
-  paymentTimeoutSec: number;
-  defaultLspId?: string;
-  apiKey?: string;
-  maxfeePercent: number;
-  exemptfeeMsat: number;
-  nodeConfig: NodeConfig;
-}
-
-export interface ConfigureNodeRequest {
-  closeToAddress?: string;
-}
-
-export interface ConnectRequest {
-  config: Config;
-  seed: number[];
-  restoreOnly?: boolean;
-}
-
-export interface CurrencyInfo {
-  name: string;
-  fractionSize: number;
-  spacing?: number;
-  symbol?: SymbolType;
-  uniqSymbol?: SymbolType;
-  localizedName?: LocalizedName[];
-  localeOverrides?: LocaleOverrides[];
-}
-
-export interface FiatCurrency {
-  id: string;
-  info: CurrencyInfo;
-}
-
-export interface GreenlightCredentials {
-  deviceKey: number[];
-  deviceCert: number[];
-}
-
-export interface GreenlightNodeConfig {
-  partnerCredentials?: GreenlightCredentials;
-  inviteCode?: string;
-}
-
-export interface InvoicePaidDetails {
-  paymentHash: string;
-  bolt11: string;
-  payment?: Payment;
 }
 
 export interface LnInvoice {
@@ -249,40 +169,6 @@ export interface LnUrlWithdrawSuccessData {
   invoice: LnInvoice;
 }
 
-export interface LocaleOverrides {
-  locale: string;
-  spacing?: number;
-  symbol: SymbolType;
-}
-
-export interface LocalizedName {
-  locale: string;
-  name: string;
-}
-
-export interface LogEntry {
-  line: string;
-  level: string;
-}
-
-export interface LspInformation {
-  id: string;
-  name: string;
-  widgetUrl: string;
-  pubkey: string;
-  host: string;
-  baseFeeMsat: number;
-  feeRate: number;
-  timeLockDelta: number;
-  minHtlcMsat: number;
-  lspPubkey: number[];
-  openingFeeParamsList: OpeningFeeParamsMenu;
-}
-
-export interface MaxReverseSwapAmountResponse {
-  totalSat: number;
-}
-
 export interface MessageSuccessActionData {
   message: string;
 }
@@ -290,11 +176,6 @@ export interface MessageSuccessActionData {
 export interface MetadataFilter {
   jsonPath: string;
   jsonValue: string;
-}
-
-export interface MetadataItem {
-  key: string;
-  value: string;
 }
 
 export interface NodeState {
@@ -310,11 +191,6 @@ export interface NodeState {
   maxChanReserveMsats: number;
   connectedPeers: string[];
   inboundLiquidityMsats: number;
-}
-
-export interface OnchainPaymentLimitsResponse {
-  minSat: number;
-  maxSat: number;
 }
 
 export interface OpenChannelFeeRequest {
@@ -340,15 +216,6 @@ export interface OpeningFeeParamsMenu {
   values: OpeningFeeParams[];
 }
 
-export interface PayOnchainRequest {
-  recipientAddress: string;
-  prepareRes: PrepareOnchainPaymentResponse;
-}
-
-export interface PayOnchainResponse {
-  reverseSwapInfo: ReverseSwapInfo;
-}
-
 export interface Payment {
   id: string;
   paymentType: PaymentType;
@@ -360,59 +227,6 @@ export interface Payment {
   description?: string;
   details: PaymentDetails;
   metadata?: string;
-}
-
-export interface PaymentFailedData {
-  error: string;
-  nodeId: string;
-  invoice?: LnInvoice;
-  label?: string;
-}
-
-export interface PrepareOnchainPaymentRequest {
-  amountSat: number;
-  amountType: SwapAmountType;
-  claimTxFeerate: number;
-}
-
-export interface PrepareOnchainPaymentResponse {
-  feesHash: string;
-  feesPercentage: number;
-  feesLockup: number;
-  feesClaim: number;
-  senderAmountSat: number;
-  recipientAmountSat: number;
-  totalFees: number;
-}
-
-export interface PrepareRedeemOnchainFundsRequest {
-  toAddress: string;
-  satPerVbyte: number;
-}
-
-export interface PrepareRedeemOnchainFundsResponse {
-  txWeight: number;
-  txFeeSat: number;
-}
-
-export interface PrepareRefundRequest {
-  swapAddress: string;
-  toAddress: string;
-  satPerVbyte: number;
-}
-
-export interface PrepareRefundResponse {
-  refundTxWeight: number;
-  refundTxFeeSat: number;
-}
-
-export interface Rate {
-  coin: string;
-  value: number;
-}
-
-export interface ReceiveOnchainRequest {
-  openingFeeParams?: OpeningFeeParams;
 }
 
 export interface ReceivePaymentRequest {
@@ -431,43 +245,6 @@ export interface ReceivePaymentResponse {
   openingFeeMsat?: number;
 }
 
-export interface RecommendedFees {
-  fastestFee: number;
-  halfHourFee: number;
-  hourFee: number;
-  economyFee: number;
-  minimumFee: number;
-}
-
-export interface RedeemOnchainFundsRequest {
-  toAddress: string;
-  satPerVbyte: number;
-}
-
-export interface RedeemOnchainFundsResponse {
-  txid: number[];
-}
-
-export interface RefundRequest {
-  swapAddress: string;
-  toAddress: string;
-  satPerVbyte: number;
-}
-
-export interface RefundResponse {
-  refundTxId: string;
-}
-
-export interface ReportPaymentFailureDetails {
-  paymentHash: string;
-  comment?: string;
-}
-
-export interface ReverseSwapFeesRequest {
-  sendAmountSat?: number;
-  claimTxFeerate?: number;
-}
-
 export interface ReverseSwapInfo {
   id: string;
   claimPubkey: string;
@@ -475,16 +252,6 @@ export interface ReverseSwapInfo {
   claimTxid?: string;
   onchainAmountSat: number;
   status: ReverseSwapStatus;
-}
-
-export interface ReverseSwapPairInfo {
-  min: number;
-  max: number;
-  feesHash: string;
-  feesPercentage: number;
-  feesLockup: number;
-  feesClaim: number;
-  totalFees?: number;
 }
 
 export interface RouteHint {
@@ -499,17 +266,6 @@ export interface RouteHintHop {
   cltvExpiryDelta: number;
   htlcMinimumMsat?: number;
   htlcMaximumMsat?: number;
-}
-
-export interface SendOnchainRequest {
-  amountSat: number;
-  onchainRecipientAddress: string;
-  pairHash: string;
-  satPerVbyte: number;
-}
-
-export interface SendOnchainResponse {
-  reverseSwapInfo: ReverseSwapInfo;
 }
 
 export interface SendPaymentRequest {
@@ -527,26 +283,6 @@ export interface SendSpontaneousPaymentRequest {
   amountMsat: number;
   extraTlvs?: TlvEntry[];
   label?: string;
-}
-
-export interface ServiceHealthCheckResponse {
-  status: HealthCheckStatus;
-}
-
-export interface SignMessageRequest {
-  message: string;
-}
-
-export interface SignMessageResponse {
-  signature: string;
-}
-
-export interface StaticBackupRequest {
-  workingDir: string;
-}
-
-export interface StaticBackupResponse {
-  backup?: string[];
 }
 
 export interface SwapInfo {
@@ -574,13 +310,6 @@ export interface SwapInfo {
   lastRedeemError?: string;
   channelOpeningFees?: OpeningFeeParams;
   confirmedAt?: number;
-}
-
-export interface SymbolType {
-  grapheme?: string;
-  template?: string;
-  rtl?: boolean;
-  position?: number;
 }
 
 export interface TlvEntry {
@@ -616,79 +345,11 @@ export type AesSuccessActionDataResult =
       reason: string;
     };
 
-export enum BreezEventVariant {
-  NEW_BLOCK = 'newBlock',
-  INVOICE_PAID = 'invoicePaid',
-  SYNCED = 'synced',
-  PAYMENT_SUCCEED = 'paymentSucceed',
-  PAYMENT_FAILED = 'paymentFailed',
-  BACKUP_STARTED = 'backupStarted',
-  BACKUP_SUCCEEDED = 'backupSucceeded',
-  BACKUP_FAILED = 'backupFailed',
-  SWAP_UPDATED = 'swapUpdated'
-}
-
-export type BreezEvent =
-  | {
-      type: BreezEventVariant.NEW_BLOCK;
-      block: number;
-    }
-  | {
-      type: BreezEventVariant.INVOICE_PAID;
-      details: InvoicePaidDetails;
-    }
-  | {
-      type: BreezEventVariant.SYNCED;
-    }
-  | {
-      type: BreezEventVariant.PAYMENT_SUCCEED;
-      details: Payment;
-    }
-  | {
-      type: BreezEventVariant.PAYMENT_FAILED;
-      details: PaymentFailedData;
-    }
-  | {
-      type: BreezEventVariant.BACKUP_STARTED;
-    }
-  | {
-      type: BreezEventVariant.BACKUP_SUCCEEDED;
-    }
-  | {
-      type: BreezEventVariant.BACKUP_FAILED;
-      details: BackupFailedData;
-    }
-  | {
-      type: BreezEventVariant.SWAP_UPDATED;
-      details: SwapInfo;
-    };
-
-export enum BuyBitcoinProvider {
-  MOONPAY = 'moonpay'
-}
-
 export enum ChannelState {
   PENDING_OPEN = 'pendingOpen',
   OPENED = 'opened',
   PENDING_CLOSE = 'pendingClose',
   CLOSED = 'closed'
-}
-
-export enum EnvironmentType {
-  PRODUCTION = 'production',
-  STAGING = 'staging'
-}
-
-export enum FeeratePreset {
-  REGULAR = 'regular',
-  ECONOMY = 'economy',
-  PRIORITY = 'priority'
-}
-
-export enum HealthCheckStatus {
-  OPERATIONAL = 'operational',
-  MAINTENANCE = 'maintenance',
-  SERVICE_DISRUPTION = 'serviceDisruption'
 }
 
 export enum InputTypeVariant {
@@ -792,24 +453,6 @@ export enum Network {
   REGTEST = 'regtest'
 }
 
-export enum NodeConfigVariant {
-  GREENLIGHT = 'greenlight'
-}
-
-export interface NodeConfig {
-  type: NodeConfigVariant.GREENLIGHT;
-  config: GreenlightNodeConfig;
-}
-
-export enum NodeCredentialsVariant {
-  GREENLIGHT = 'greenlight'
-}
-
-export interface NodeCredentials {
-  type: NodeCredentialsVariant.GREENLIGHT;
-  credentials: GreenlightCredentials;
-}
-
 export enum PaymentDetailsVariant {
   LN = 'ln',
   CLOSED_CHANNEL = 'closedChannel'
@@ -843,15 +486,6 @@ export enum PaymentTypeFilter {
   CLOSED_CHANNEL = 'closedChannel'
 }
 
-export enum ReportIssueRequestVariant {
-  PAYMENT_FAILURE = 'paymentFailure'
-}
-
-export interface ReportIssueRequest {
-  type: ReportIssueRequestVariant.PAYMENT_FAILURE;
-  data: ReportPaymentFailureDetails;
-}
-
 export enum ReverseSwapStatus {
   INITIAL = 'initial',
   IN_PROGRESS = 'inProgress',
@@ -879,11 +513,6 @@ export type SuccessActionProcessed =
       type: SuccessActionProcessedVariant.URL;
       data: UrlSuccessActionData;
     };
-
-export enum SwapAmountType {
-  SEND = 'send',
-  RECEIVE = 'receive'
-}
 
 export enum SwapStatus {
   INITIAL = 'initial',
