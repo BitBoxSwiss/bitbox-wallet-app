@@ -37,7 +37,8 @@ export const MobileSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetting
   const { t } = useTranslation();
   useEffect(() => {
     if (!isMobile) {
-      navigate('/settings/general');
+      // replace current history item when redirecting so that the user can go back
+      navigate('/settings/general', { replace: true });
     }
   }, [isMobile, navigate]);
   return (

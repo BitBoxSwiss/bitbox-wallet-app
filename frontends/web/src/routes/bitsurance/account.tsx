@@ -70,7 +70,8 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
         if (!connectResult.success) {
           return;
         }
-        navigate(`/bitsurance/widget/${btcAccounts[0].code}`);
+        // replace current history item when redirecting so that the user can go back
+        navigate(`/bitsurance/widget/${btcAccounts[0].code}`, { replace: true });
       });
     }
   }, [btcAccounts, navigate]);
