@@ -83,8 +83,13 @@ export const App = () => {
       return;
     }
     // if no devices are registered on specified views route to /
-    if (Object.keys(devices).length === 0 &&
-        currentURL.startsWith('/settings/device-settings/')) {
+    if (
+      Object.keys(devices).length === 0
+      && (
+        currentURL.startsWith('/settings/device-settings/')
+        || currentURL.startsWith('/manage-backups/')
+      )
+    ) {
       navigate('/');
       return;
     }

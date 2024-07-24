@@ -16,7 +16,6 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { TDevices } from '@/api/devices';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Guide } from '@/components/guide/guide';
@@ -36,10 +35,8 @@ export const ManageBackups = ({
   devices,
 }: TProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   if (!deviceID || !devices[deviceID]) {
-    navigate('/');
     return null;
   }
 
