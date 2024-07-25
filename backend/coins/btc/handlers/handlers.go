@@ -74,6 +74,7 @@ func NewHandlers(
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
 	handleFunc("/sign-address", handlers.ensureAccountInitialized(handlers.postSignBTCAddress)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
+	handleFunc("/has-payment-request", handlers.ensureAccountInitialized(handlers.getHasPaymentRequest)).Methods("GET")
 	handleFunc("/propose-tx-note", handlers.ensureAccountInitialized(handlers.postProposeTxNote)).Methods("POST")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	handleFunc("/connect-keystore", handlers.ensureAccountInitialized(handlers.postConnectKeystore)).Methods("POST")
@@ -810,4 +811,31 @@ func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, erro
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	return response{Success: true, Address: address, Signature: signature}, nil
+}
+
+func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+	}
+
+	account, ok := handlers.account.(*btc.Account)
+	if !ok {
+		return response{
+			Success:      false,
+			ErrorMessage: "An account must be BTC based to support payment requests.",
+		}, nil
+	}
+
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	err = keystore.SupportsPaymentRequests()
+	if err != nil {
+		return response{Success: false, ErrorCode: err.Error()}, nil
+	}
+
+	return response{Success: true}, nil
 }

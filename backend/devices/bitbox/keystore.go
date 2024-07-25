@@ -276,3 +276,8 @@ func (keystore *keystore) SignETHWalletConnectTransaction(chainID uint64, tx *ty
 func (keystore *keystore) SupportsEIP1559() bool {
 	return false
 }
+
+// SupportsPaymentRequests implements keystore.Keystore.
+func (keystore *keystore) SupportsPaymentRequests() error {
+	return keystorePkg.ErrUnsupportedFeature
+}
