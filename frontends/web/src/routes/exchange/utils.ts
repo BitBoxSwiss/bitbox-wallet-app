@@ -14,53 +14,14 @@
  * limitations under the License.
  */
 
-import { FrontendExchangeDealsList, Info } from './types';
 import { IAccount } from '@/api/account';
-import { getExchangeBuySupported, getExchangeSellSupported } from '@/api/exchanges';
-
-/**
- * Finds the lowest fee among all `supported`
- * exchange providers for a given region.
- */
-export const findLowestFee = (providers: FrontendExchangeDealsList) => {
-  // all payment methods' fees of all
-  // supported providers (for a selected region)
-  let allFees: number[] = [];
-
-  providers.exchanges.forEach(provider => {
-    provider.deals.forEach(deal => {
-      if (provider.supported) {
-        allFees = [...allFees, deal.fee];
-      }
-    });
-  });
-
-  return Math.min(...allFees);
-};
-
-export const findBestDeal = (
-  providers: FrontendExchangeDealsList,
-  lowestFee: number,
-): FrontendExchangeDealsList => {
-  // for each provider's payment method
-  // mark it as "bestDeal" if the
-  // fee is equal to the lowest fee
-  // accross ALL supported providers
-  const hasMultipleSupportedExchanges = providers.exchanges.filter(p => p.supported).length > 1;
-  const exchanges = providers.exchanges.map(exchange => ({
-    ...exchange,
-    deals: exchange.deals.map(deal => ({
-      ...deal,
-      isBestDeal: deal.fee === lowestFee && hasMultipleSupportedExchanges
-    }))
-  }));
-  return { exchanges };
-};
+import { getExchangeSupported } from '@/api/exchanges';
+import { Info } from './components/infocontent';
 
 /**
  * Gets formatted name for exchange.
  */
-export const getFormattedName = (name: Omit<Info, 'region'>) => {
+export const getExchangeFormattedName = (name: Omit<Info, 'region'>) => {
   switch (name) {
   case 'moonpay':
     return 'MoonPay';
@@ -75,22 +36,7 @@ export const getFormattedName = (name: Omit<Info, 'region'>) => {
 export const getExchangeSupportedAccounts = async (accounts: IAccount[]): Promise<IAccount[]> => {
   const accountsWithFalsyValue = await Promise.all(
     accounts.map(async (account) => {
-      const supported = await getExchangeBuySupported(account.code)();
-      return supported.exchanges.length ? account : false;
-    })
-  );
-  return accountsWithFalsyValue.filter(result => result) as IAccount[];
-};
-
-
-/**
- * Filters a given accounts list, keeping only the accounts supported by at least one exchange for selling.
- */
-export const getSellExchangeSupportedAccounts = async (accounts: IAccount[]): Promise<IAccount[]> => {
-  const accountsWithFalsyValue = await Promise.all(
-    accounts.map(async (account) => {
-      //TODO: Remove the Promise.resolve mock and only use getExchangeSellSupported once BE is ready
-      const supported = account.coinCode !== 'btc' && account.coinCode !== 'tbtc' ? await Promise.resolve({ exchanges: [] }) : await getExchangeSellSupported();
+      const supported = await getExchangeSupported(account.code)();
       return supported.exchanges.length ? account : false;
     })
   );

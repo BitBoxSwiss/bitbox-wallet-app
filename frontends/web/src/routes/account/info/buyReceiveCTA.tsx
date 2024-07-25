@@ -52,7 +52,7 @@ export const BuyReceiveCTA = ({
   const isBitcoin = isBitcoinCoin(unit as CoinUnit);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const onBuyCTA = () => navigate(code ? `/buy/info/${code}` : '/buy/info');
+  const onBuyCTA = () => navigate(code ? `/exchange/info/${code}` : '/exchange/info');
   const onWalletConnect = () => navigate(`/account/${code}/wallet-connect/dashboard`);
   const onReceiveCTA = () => {
     if (balanceList) {

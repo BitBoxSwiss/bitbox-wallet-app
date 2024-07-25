@@ -23,7 +23,7 @@ interface BuyGuideProps {
   translationContext: 'bitcoin' | 'crypto';
 }
 
-export const BuyGuide = ({ exchange, translationContext }: BuyGuideProps) => {
+export const ExchangeGuide = ({ exchange, translationContext }: BuyGuideProps) => {
   const { t } = useTranslation();
 
   const pocketLink = {

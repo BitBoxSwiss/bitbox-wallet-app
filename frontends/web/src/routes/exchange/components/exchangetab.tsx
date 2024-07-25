@@ -16,12 +16,12 @@
 
 import { useTranslation } from 'react-i18next';
 import { PillButton, PillButtonGroup } from '../../../components/pillbuttongroup/pillbuttongroup';
+import { TExchangeAction } from '@/api/exchanges';
 
-export type TActiveTab = 'buy' | 'sell';
 
 type TProps = {
-  onChangeTab: (tab: TActiveTab) => void;
-  activeTab: TActiveTab;
+  onChangeTab: (tab: TExchangeAction) => void;
+  activeTab: TExchangeAction;
 }
 
 

@@ -19,28 +19,25 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
 import { i18n } from '@/i18n/i18n';
-import { Button } from '@/components/forms';
 import * as exchangesAPI from '@/api/exchanges';
 import { AccountCode, IAccount } from '@/api/account';
 import { Header } from '@/components/layout';
-import { BuyGuide } from './guide';
+import { ExchangeGuide } from './guide';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { route } from '@/utils/route';
 import { useLoad } from '@/hooks/api';
 import { getRegionNameFromLocale } from '@/i18n/utils';
-import { findLowestFee, findBestDeal, getFormattedName, getExchangeSupportedAccounts } from './utils';
-import { ExchangeSelectionRadio } from './components/exchangeselectionradio';
+import { getExchangeFormattedName, getExchangeSupportedAccounts } from './utils';
 import { Spinner } from '@/components/spinner/Spinner';
-import { Info, FrontendExchangeDealsList } from './types';
 import { Dialog } from '@/components/dialog/dialog';
 import { InfoButton } from '@/components/infobutton/infobutton';
-import { InfoContent } from './components/infocontent';
-import { ExchangeTab, TActiveTab } from './components/exchangetab';
-import { Sell } from './components/sell';
+import { ExchangeTab } from './components/exchangetab';
+import { BuySell } from './components/buysell';
 import { getNativeLocale } from '@/api/nativelocale';
 import { getConfig, setConfig } from '@/utils/config';
 import { CountrySelect, TOption } from './components/countryselect';
 import style from './exchange.module.css';
+import { InfoContent, TInfoContentProps } from './components/infocontent';
 
 type TProps = {
     accounts: IAccount[];
@@ -51,20 +48,15 @@ type TProps = {
 export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   const { t } = useTranslation();
 
-  const [showPocket, setShowPocket] = useState(false);
-  const [showMoonpay, setShowMoonpay] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedExchange, setSelectedExchange] = useState('');
   const [regions, setRegions] = useState<TOption[]>([]);
-  const [allExchangeDeals, setAllExchanges] = useState<FrontendExchangeDealsList>();
-  const [info, setInfo] = useState<Info>();
+  const [info, setInfo] = useState<TInfoContentProps>();
   const [supportedAccounts, setSupportedAccounts] = useState<IAccount[]>([]);
-  const [activeTab, setActiveTab] = useState<TActiveTab>('buy');
+  const [activeTab, setActiveTab] = useState<exchangesAPI.TExchangeAction>('buy');
 
   const regionList = useLoad(exchangesAPI.getExchangesByRegion(code));
-  const exchangeDeals = useLoad(exchangesAPI.getExchangeDeals);
   const nativeLocale = useLoad(getNativeLocale);
-  const supportedBuyProviders = useLoad<exchangesAPI.SupportedExchanges>(exchangesAPI.getExchangeBuySupported(code));
   const config = useLoad(getConfig);
 
   const account = findAccount(accounts, code);
@@ -74,8 +66,6 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   const title = t('generic.exchange', {
     context: isBitcoin ? 'bitcoin' : 'crypto',
   });
-
-  const hasOnlyOneSupportedExchange = allExchangeDeals ? allExchangeDeals.exchanges.filter(exchange => exchange.supported).length === 1 : false;
 
   // get the list of accounts supported by exchanges, needed to correctly handle back button.
   useEffect(() => {
@@ -116,71 +106,11 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   }, [regionList, config, nativeLocale]);
 
 
-  // get all exchanges to be rendered as the radio btns
-  useEffect(() => {
-    if (!exchangeDeals) {
-      return;
-    }
-
-    const deals = { exchanges: exchangeDeals.exchanges.map(ex => ({ ...ex, supported: ex.exchangeName === 'pocket' ? showPocket : showMoonpay })) };
-
-    const lowestFee = findLowestFee(deals);
-    const exchangesWithBestDeal = findBestDeal(deals, lowestFee);
-
-    setAllExchanges(exchangesWithBestDeal);
-  }, [selectedRegion, showMoonpay, showPocket, exchangeDeals]);
-
-  // update exchange list when:
-  // - pocket/moonpay supported async calls return
-  // - new region has been selected
-  // - regionList gets populated
-  useEffect(() => {
-    if (!hasOnlyOneSupportedExchange) {
-      setSelectedExchange('');
-    }
-
-    if (!supportedBuyProviders) {
-      setShowPocket(false);
-      setShowMoonpay(false);
-      return;
-    }
-
-    if (selectedRegion === '') {
-      setShowPocket(supportedBuyProviders.exchanges.includes('pocket'));
-      setShowMoonpay(supportedBuyProviders.exchanges.includes('moonpay'));
-      return;
-    }
-
-    if (!regionList) {
-      return;
-    }
-
-    setShowPocket(false);
-    setShowMoonpay(false);
-    regionList.regions.forEach(region => {
-      if (region.code === selectedRegion) {
-        setShowPocket(region.isPocketEnabled);
-        setShowMoonpay(region.isMoonpayEnabled);
-        return;
-      }
-    });
-
-  }, [selectedRegion, regionList, supportedBuyProviders, hasOnlyOneSupportedExchange, activeTab]);
-
-  // default select exchange if only has one supported exchange
-  useEffect(() => {
-    if (hasOnlyOneSupportedExchange && allExchangeDeals && selectedRegion !== '') {
-      const exchange = allExchangeDeals.exchanges.filter(exchange => exchange.supported);
-      //there's only one exchange at this point, which is the "supported" one.
-      setSelectedExchange(exchange[0].exchangeName);
-    }
-  }, [allExchangeDeals, hasOnlyOneSupportedExchange, selectedRegion, activeTab]);
-
   const goToExchange = () => {
     if (!selectedExchange) {
       return;
     }
-    route(`/buy/${selectedExchange}/${code}`);
+    route(`/exchange/${selectedExchange}/${activeTab}/${code}`);
   };
 
   const handleChangeRegion = (newValue: SingleValue<TOption>) => {
@@ -191,18 +121,11 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
     }
   };
 
-  const noExchangeAvailable = !showMoonpay && !showPocket;
-
-  /*These are fees that will be shown in the "info dialog" when user clicks on the "Info" button*/
-  const infoFeesDetail = exchangeDeals?.exchanges.find(exchange => exchange.exchangeName === info)?.deals;
-  const cardFee = infoFeesDetail && infoFeesDetail.find(feeDetail => feeDetail.payment === 'card')?.fee;
-  const bankTransferFee = infoFeesDetail && infoFeesDetail.find(feeDetail => feeDetail.payment === 'bank-transfer')?.fee;
-
   return (
     <div className="contentWithGuide">
       <div className="container">
-        <Dialog medium title={info && info !== 'region' ? getFormattedName(info) : t('buy.exchange.region')} onClose={() => setInfo(undefined)} open={!!info}>
-          {info && <InfoContent info={info} cardFee={cardFee} bankTransferFee={bankTransferFee} />}
+        <Dialog medium title={info && info.info !== 'region' ? getExchangeFormattedName(info.info) : t('buy.exchange.region')} onClose={() => setInfo(undefined)} open={!!info}>
+          {info && <InfoContent info={info.info} cardFee={info.cardFee} bankTransferFee={info.bankTransferFee} />}
         </Dialog>
         <div className="innerContainer scrollableContainer">
           <Header title={<h2>{title}</h2>} />
@@ -217,71 +140,34 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                     regions={regions}
                     selectedRegion={selectedRegion}
                   />
-                  <InfoButton onClick={() => setInfo('region')} />
+                  <InfoButton onClick={() => setInfo({ info: 'region' })} />
                 </div>
-
                 <ExchangeTab
                   onChangeTab={(tab) => {
                     setActiveTab(tab);
+                    setSelectedExchange('');
                   }}
                   activeTab={activeTab}
                 />
-
                 <div className={style.radioButtonsContainer}>
-                  {activeTab === 'buy' &&
-                    <>
-                      <div className={style.innerRadioButtonsContainer}>
-                        {noExchangeAvailable && (
-                          <p className={style.noExchangeText}>{t('buy.exchange.noExchanges')}</p>
-                        )}
-                        {!noExchangeAvailable && allExchangeDeals && allExchangeDeals.exchanges.map(exchange => exchange.supported && (
-                          <ExchangeSelectionRadio
-                            key={exchange.exchangeName}
-                            id={exchange.exchangeName}
-                            exchangeName={exchange.exchangeName}
-                            deals={exchange.deals}
-                            checked={selectedExchange === exchange.exchangeName}
-                            onChange={() => setSelectedExchange(exchange.exchangeName)}
-                            onClickInfoButton={setInfo}
-                          />
-                        ))}
-                      </div>
-                      {!noExchangeAvailable && <div className={style.buttonsContainer}>
-                        {supportedAccounts.length > 1 &&
-                            <Button
-                              className={style.buttonBack}
-                              secondary
-                              onClick={() => route('/buy/info')}>
-                              {t('button.back')}
-                            </Button>}
-                        <Button
-                          primary
-                          disabled={!selectedExchange}
-                          onClick={goToExchange} >
-                          {t('button.next')}
-                        </Button>
-                      </div>}
-                    </>
-                  }
-
-                  {activeTab === 'sell' &&
-                      <Sell
-                        accountCode={code}
-                        accounts={accounts}
-                        selectedRegion={selectedRegion}
-                        deviceIDs={deviceIDs}
-                        onSelectExchange={(exchange) => setSelectedExchange(exchange)}
-                        selectedExchange={selectedExchange}
-                      />
-                  }
-
+                  <BuySell
+                    accountCode={code}
+                    selectedRegion={selectedRegion}
+                    deviceIDs={deviceIDs}
+                    onSelectExchange={setSelectedExchange}
+                    selectedExchange={selectedExchange}
+                    goToExchange={goToExchange}
+                    showBackButton={supportedAccounts.length > 1}
+                    action={activeTab}
+                    setInfo={setInfo}
+                  />
                 </div>
               </>
             ) : <Spinner guideExists/>}
           </div>
         </div>
       </div>
-      <BuyGuide translationContext={hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'} />
+      <ExchangeGuide translationContext={hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'} />
     </div>
   );
 };

@@ -16,10 +16,11 @@
 
 import { useTranslation } from 'react-i18next';
 import { A } from '@/components/anchor/anchor';
-import { Info } from '@/routes/exchange/types';
 import style from './infocontent.module.css';
+import { ExchangeDeals } from '@/api/exchanges';
 
-type TInfoContentProps = {info: Info, cardFee?: number, bankTransferFee?: number};
+export type Info = ExchangeDeals['exchangeName'] | 'region';
+export type TInfoContentProps = {info: Info, cardFee?: number, bankTransferFee?: number};
 type TMoonPayInfo = {cardFee?: number, bankTransferFee?: number};
 type TPocketInfo = { bankTransferFee?: number };
 
