@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,12 @@
  */
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
-import { useEsc } from '@/hooks/keyboard';
 import { getInfo, IAccount, AccountCode } from '@/api/account';
 import { isBitcoinBased } from '@/routes/account/utils';
-import { ButtonLink } from '@/components/forms';
 import { Header } from '@/components/layout';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
 import { BitcoinBasedAccountInfoGuide } from './guide';
 import style from './info.module.css';
@@ -37,13 +35,10 @@ export const Info = ({
   accounts,
   code,
 }: TProps) => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const info = useLoad(getInfo(code));
   const [viewXPub, setViewXPub] = useState<number>(0);
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
-
-  useEsc(() => navigate(`/account/${code}`));
 
   if (!account || !info) {
     return null;
@@ -91,11 +86,9 @@ export const Info = ({
                 code={code}
                 info={config}
                 signingConfigIndex={viewXPub}>
-                <ButtonLink
-                  secondary
-                  to={`/account/${code}`}>
+                <BackButton enableEsc>
                   {t('button.back')}
-                </ButtonLink>
+                </BackButton>
               </SigningConfiguration>
             </div>
           </div>

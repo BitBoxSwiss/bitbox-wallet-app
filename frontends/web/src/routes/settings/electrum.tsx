@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,8 @@ import { ElectrumServers } from './electrum-servers';
 import { getTesting } from '@/api/backend';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
-import { Button, ButtonLink } from '@/components/forms';
+import { Button } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { useLoad } from '@/hooks/api';
 import { Header } from '@/components/layout';
 
@@ -75,11 +76,9 @@ export const ElectrumSettings = () => {
               )
             }
             <div style={{ marginBottom: 20 }}>
-              <ButtonLink
-                secondary
-                to={'/settings'}>
+              <BackButton>
                 {t('button.back')}
-              </ButtonLink>
+              </BackButton>
             </div>
           </div>
         </div>

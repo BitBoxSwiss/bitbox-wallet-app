@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
 import { i18n } from '@/i18n/i18n';
 import { Button } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import * as exchangesAPI from '@/api/exchanges';
 import { AccountCode, IAccount } from '@/api/account';
 import { Header } from '@/components/layout';
@@ -232,12 +233,9 @@ export const Exchange = ({ code, accounts }: TProps) => {
 
                   {!noExchangeAvailable && <div className={style.buttonsContainer}>
                     {supportedAccounts.length > 1 &&
-                    <Button
-                      className={style.buttonBack}
-                      secondary
-                      onClick={() => navigate('/buy/info')}>
+                    <BackButton className={style.buttonBack}>
                       {t('button.back')}
-                    </Button>}
+                    </BackButton>}
                     <Button
                       primary
                       disabled={!selectedExchange}

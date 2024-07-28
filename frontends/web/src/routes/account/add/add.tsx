@@ -88,7 +88,7 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
   const back = () => {
     switch (step) {
     case 'select-coin':
-      navigate('/settings/manage-accounts');
+      navigate(-1);
       break;
     case 'choose-name':
       setStep('select-coin');
