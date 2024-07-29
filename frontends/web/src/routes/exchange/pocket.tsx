@@ -203,7 +203,8 @@ export const Pocket = ({ code, action }: TProps) => {
     const txInput: TTxInput = {
       address: message.bitcoinAddress,
       amount: parsedAmount.amount,
-      feeTarget: 'high',
+      // feeTarget will be automatically set on the highest in the BE.
+      feeTarget: 'custom',
       customFee: '',
       sendAll: 'no',
       selectedUTXOs: [],
@@ -226,8 +227,10 @@ export const Pocket = ({ code, action }: TProps) => {
     } else {
       if (result.errorCode === 'insufficientFunds') {
         alertUser(t('buy.pocket.error.' + result.errorCode));
+      } else if (result.errorCode) {
+        alertUser(t('send.error.' + result.errorCode));
       } else {
-        alertUser(t('unknownError', { errorMessage: 'Error code: ' + result.errorCode }));
+        alertUser(t('genericError'));
       }
     }
   };

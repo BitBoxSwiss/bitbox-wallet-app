@@ -40,7 +40,8 @@ const unitSatoshi = 1e8
 // fee target (priority) if one is given, or the provided args.FeePerKb if the fee taret is
 // `FeeTargetCodeCustom`.
 func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amount, error) {
-	if args.FeeTargetCode == accounts.FeeTargetCodeCustom {
+	isPaymentRequest := len(args.PaymentRequests) > 0
+	if args.FeeTargetCode == accounts.FeeTargetCodeCustom && !isPaymentRequest {
 		float, err := strconv.ParseFloat(args.CustomFee, 64)
 		if err != nil {
 			return 0, err
@@ -58,11 +59,16 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 		}
 		return feePerKb, nil
 	}
+
 	var feeTarget *FeeTarget
-	for _, target := range account.feeTargets() {
-		if target.code == args.FeeTargetCode {
-			feeTarget = target
-			break
+	if isPaymentRequest {
+		feeTarget = account.feeTargets().highest()
+	} else {
+		for _, target := range account.feeTargets() {
+			if target.code == args.FeeTargetCode {
+				feeTarget = target
+				break
+			}
 		}
 	}
 	if feeTarget == nil || feeTarget.feeRatePerKb == nil {
