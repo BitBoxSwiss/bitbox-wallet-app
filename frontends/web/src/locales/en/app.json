@@ -504,6 +504,9 @@
         "p1": "The BitBoxApp does not collect any data when buying bitcoin, the incoming funds are treated like a regular transaction. Pocket needs to collect some personal data to operate. Their Privacy Policy explains in detail how that data is handled.",
         "title": "Data protection"
       },
+      "error": {
+        "insufficientFunds": "Insufficient funds on the selected account."
+      },
       "kyc": {
         "link": "Read Pocket FAQs",
         "p1": "Pocket tries to keep KYC to a minimum. For purchases under 950 EUR (1000 CHF) a day, no additional documents are required. For purchases over this amount, you will need to schedule a call with Pocket to complete the necessary KYC/AML process.",
