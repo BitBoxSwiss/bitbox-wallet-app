@@ -275,7 +275,7 @@ export const Pocket = ({ code, action }: TProps) => {
         <div className={style.header}>
           <Header title={
             <h2>
-              {t('generic.buy', { context: 'bitcoin' })}
+              {t('generic.exchange', { context: 'bitcoin' })}
             </h2>
           } />
         </div>

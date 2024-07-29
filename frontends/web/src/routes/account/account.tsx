@@ -255,7 +255,7 @@ export const Account = ({
     );
   }
 
-  const exchangeBuySupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
+  const exchangeSupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
 
   const isAccountEmpty = balance
     && !balance.hasAvailable
@@ -269,7 +269,7 @@ export const Account = ({
     code,
     coinCode: account.coinCode,
     canSend: balance && balance.hasAvailable,
-    exchangeBuySupported,
+    exchangeSupported,
     account
   };
 
@@ -316,7 +316,7 @@ export const Account = ({
               <BuyReceiveCTA
                 account={account}
                 code={code}
-                exchangeBuySupported={exchangeBuySupported}
+                exchangeSupported={exchangeSupported}
                 unit={balance.available.unit}
                 balanceList={[balance]}
               />
