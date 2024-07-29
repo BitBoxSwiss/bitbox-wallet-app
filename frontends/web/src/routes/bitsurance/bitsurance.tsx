@@ -47,7 +47,8 @@ export const Bitsurance = ({ accounts }: TProps) => {
 
   useEffect(() => {
     if (accounts.some(({ bitsuranceStatus }) => bitsuranceStatus)) {
-      navigate('/bitsurance/dashboard');
+      // replace current history item when redirecting so that the user can go back
+      navigate('/bitsurance/dashboard', { replace: true });
     } else {
       setRedirecting(false);
     }

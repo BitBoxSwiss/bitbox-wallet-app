@@ -58,7 +58,8 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
       const accountCode = supportedAccounts[0].code;
       connectKeystore(accountCode).then(connected => {
         if (connected) {
-          navigate(`/buy/exchange/${accountCode}`);
+          // replace current history item when redirecting so that the user can go back
+          navigate(`/buy/exchange/${accountCode}`, { replace: true });
         }
       });
     }
