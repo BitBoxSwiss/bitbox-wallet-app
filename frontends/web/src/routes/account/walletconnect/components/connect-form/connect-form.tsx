@@ -15,10 +15,9 @@
  */
 
 import { SetStateAction, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import * as accountAPI from '@/api/account';
 import { Button, Input } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { ScanQRButton } from '@/routes/account/send/components/inputs/receiver-address-input';
 import { ScanQRDialog } from '@/routes/account/send/components/dialogs/scan-qr-dialog';
@@ -26,7 +25,6 @@ import { ScanQRVideo } from '@/routes/account/send/components/inputs/scan-qr-vid
 import styles from './connect-form.module.css';
 
 type TWCConnectFormProps = {
-    code: accountAPI.AccountCode;
     connectLoading: boolean;
     uri: string;
     onInputChange: (value: SetStateAction<string>) => void;
@@ -46,13 +44,11 @@ const MobileQRScanner = ({ onQRScanned }: TMobileQRScannerProps) => {
 };
 
 export const WCConnectForm = ({
-  code,
   uri,
   onInputChange,
   onSubmit,
   connectLoading
 }: TWCConnectFormProps) => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [activeScanQR, setActiveScanQR] = useState(isMobile); // default to true on mobile
@@ -93,12 +89,9 @@ export const WCConnectForm = ({
           />
         )}
         <div className={styles.formButtonsContainer}>
-          <Button
-            disabled={connectLoading}
-            secondary
-            onClick={() => navigate(`/account/${code}/wallet-connect/dashboard`)}>
+          <BackButton disabled={connectLoading}>
             {t('dialog.cancel')}
-          </Button>
+          </BackButton>
           <Button
             disabled={connectLoading || !uri}
             type="submit"

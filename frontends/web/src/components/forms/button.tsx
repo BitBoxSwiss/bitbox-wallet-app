@@ -37,6 +37,8 @@ type TProps = TButtonStyleProp & {
   children: ReactNode;
 }
 
+type TButtonLink = LinkProps & TProps;
+
 export const ButtonLink = ({
   primary,
   secondary,
@@ -46,14 +48,14 @@ export const ButtonLink = ({
   children,
   disabled,
   ...props
-}: LinkProps & TProps) => {
+}: TButtonLink) => {
   const classNames = [
     style[
       (primary && 'primary')
-            || (secondary && 'secondary')
-            || (transparent && 'transparent')
-            || (danger && 'danger')
-            || 'button'
+      || (secondary && 'secondary')
+      || (transparent && 'transparent')
+      || (danger && 'danger')
+      || 'button'
     ], className
   ].join(' ');
 
@@ -75,6 +77,8 @@ export const ButtonLink = ({
   );
 };
 
+type TButton = TProps & ComponentPropsWithoutRef<'button'>;
+
 export const Button = ({
   type = 'button',
   primary,
@@ -84,13 +88,14 @@ export const Button = ({
   className = '',
   children,
   ...props
-}: TProps & ComponentPropsWithoutRef<'button'>) => {
+}: TButton) => {
   const classNames = [
-    style[(primary && 'primary')
-            || (secondary && 'secondary')
-            || (transparent && 'transparent')
-            || (danger && 'danger')
-            || 'button'
+    style[
+      (primary && 'primary')
+      || (secondary && 'secondary')
+      || (transparent && 'transparent')
+      || (danger && 'danger')
+      || 'button'
     ], className
   ].join(' ');
 

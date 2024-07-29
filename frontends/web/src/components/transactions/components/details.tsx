@@ -77,6 +77,10 @@ export const TxDetailsDialog = ({
     }
   }, [accountCode, internalID, open, transactionInfo]);
 
+  if (transactionInfo === null) {
+    return;
+  }
+
   // Amount and Confirmations info are displayed using props data
   // instead of transactionInfo because they are live updated.
   return (

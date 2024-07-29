@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,14 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
-import { useEsc } from '@/hooks/keyboard';
 import * as accountApi from '@/api/account';
 import { getScriptName, isEthereumBased } from '@/routes/account/utils';
 import { CopyableInput } from '@/components/copy/Copy';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
-import { Button, ButtonLink, Radio } from '@/components/forms';
+import { Button, Radio } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Message } from '@/components/message/message';
 import { ReceiveGuide } from './components/guide';
 import { Header } from '@/components/layout';
@@ -114,7 +113,6 @@ export const Receive = ({
   accounts,
   code,
 }: TProps) => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState<false | 'secure' | 'insecure'>(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -133,8 +131,6 @@ export const Receive = ({
   const availableScriptTypes = useRef<accountApi.ScriptType[]>();
 
   const hasManyScriptTypes = availableScriptTypes.current && availableScriptTypes.current.length > 1;
-
-  useEsc(() => !addressTypeDialog && !verifying && navigate(`/account/${code}`));
 
   useEffect(() => {
     if (receiveAddresses) {
@@ -280,11 +276,9 @@ export const Receive = ({
                       primary>
                       {t('receive.verifyBitBox02')}
                     </Button>
-                    <ButtonLink
-                      secondary
-                      to={`/account/${code}`}>
+                    <BackButton enableEsc={!addressTypeDialog && !verifying}>
                       {t('button.back')}
-                    </ButtonLink>
+                    </BackButton>
                   </div>
                   { verifying && (
                     <div className={style.hide}></div>
