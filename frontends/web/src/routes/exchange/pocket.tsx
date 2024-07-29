@@ -224,7 +224,11 @@ export const Pocket = ({ code, action }: TProps) => {
         proposeTxNote(code, '');
       }
     } else {
-      alertUser(t('unknownError', { errorMessage: 'Error code: ' + result.errorCode }));
+      if (result.errorCode === 'insufficientFunds') {
+        alertUser(t('buy.pocket.error.' + result.errorCode));
+      } else {
+        alertUser(t('unknownError', { errorMessage: 'Error code: ' + result.errorCode }));
+      }
     }
   };
 
