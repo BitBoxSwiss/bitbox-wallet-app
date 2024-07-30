@@ -187,14 +187,14 @@ func GetExchangeDeals(account accounts.Interface, regionCode string, action Exch
 	}
 
 	exchangeDealsLists := []*ExchangeDealsList{}
-	if moonpaySupportsCoin && userRegion.IsMoonpayEnabled {
-		deals := MoonpayDeals(action)
+	if pocketSupportsCoin && userRegion.IsPocketEnabled {
+		deals := PocketDeals()
 		if deals != nil {
 			exchangeDealsLists = append(exchangeDealsLists, deals)
 		}
 	}
-	if pocketSupportsCoin && userRegion.IsPocketEnabled {
-		deals := PocketDeals()
+	if moonpaySupportsCoin && userRegion.IsMoonpayEnabled {
+		deals := MoonpayDeals(action)
 		if deals != nil {
 			exchangeDealsLists = append(exchangeDealsLists, deals)
 		}
