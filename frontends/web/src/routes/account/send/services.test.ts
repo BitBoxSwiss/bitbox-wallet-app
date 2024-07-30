@@ -25,38 +25,35 @@ vi.mock('@/components/alert/Alert', () => ({
 describe('send services', () => {
   describe('txProposalErrorHandling', () => {
 
-    const mockRegisterEvents = vi.fn();
-    const mockUnregisterEvents = vi.fn();
-
     it('returns invalid address message on invalidAddress error', () => {
-      const result = txProposalErrorHandling(mockRegisterEvents, mockUnregisterEvents, 'invalidAddress');
+      const result = txProposalErrorHandling('invalidAddress');
       expect(result).toEqual({ addressError: 'send.error.invalidAddress' });
     });
 
     it('returns invalid amount message on invalidAmount error', () => {
-      const result = txProposalErrorHandling(mockRegisterEvents, mockUnregisterEvents, 'invalidAmount');
+      const result = txProposalErrorHandling('invalidAmount');
       expect(result).toEqual({ amountError: 'send.error.invalidAmount', proposedFee: undefined });
     });
 
     it('returns insufficient funds message on insufficientFunds error', () => {
-      const result = txProposalErrorHandling(mockRegisterEvents, mockUnregisterEvents, 'insufficientFunds');
+      const result = txProposalErrorHandling('insufficientFunds');
       expect(result).toEqual({ amountError: 'send.error.insufficientFunds', proposedFee: undefined });
     });
 
     it('returns fee too low message on feeTooLow error', () => {
-      const result = txProposalErrorHandling(mockRegisterEvents, mockUnregisterEvents, 'feeTooLow');
+      const result = txProposalErrorHandling('feeTooLow');
       expect(result).toEqual({ feeError: 'send.error.feeTooLow' });
     });
 
     it('returns fees not available message on feesNotAvailable error', () => {
-      const result = txProposalErrorHandling(mockRegisterEvents, mockUnregisterEvents, 'feesNotAvailable');
+      const result = txProposalErrorHandling('feesNotAvailable');
       expect(result).toEqual({ feeError: 'send.error.feesNotAvailable' });
     });
 
     it('returns proposed fee undefined and alerts the user when error is unknown', () => {
-      const result = txProposalErrorHandling(mockRegisterEvents, mockUnregisterEvents, 'unknownError');
+      const result = txProposalErrorHandling('unknownError');
       expect(result).toEqual({ proposedFee: undefined });
-      expect(alertUser).toHaveBeenCalledWith('unknownError', { callback: mockRegisterEvents });
+      expect(alertUser).toHaveBeenCalledWith('unknownError');
     });
 
   });

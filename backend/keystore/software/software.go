@@ -259,10 +259,8 @@ func (keystore *Keystore) SignTransaction(
 				}
 				keystore.log.Debug("Calculated legacy signature hash")
 			}
-			signature, err := ecdsa.SignCompact(prv, signatureHash, true)
-			if err != nil {
-				return err
-			}
+			signature := ecdsa.SignCompact(prv, signatureHash, true)
+
 			signatures[index] = &types.Signature{
 				R: new(big.Int).SetBytes(signature[1:33]),
 				S: new(big.Int).SetBytes(signature[33:]),

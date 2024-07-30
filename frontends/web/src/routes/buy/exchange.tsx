@@ -16,16 +16,17 @@
 
 import 'flag-icons';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
 import { i18n } from '@/i18n/i18n';
 import { Button } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import * as exchangesAPI from '@/api/exchanges';
 import { AccountCode, IAccount } from '@/api/account';
 import { Header } from '@/components/layout';
 import { BuyGuide } from './guide';
-import { findAccount, getCryptoName } from '@/routes/account/utils';
-import { route } from '@/utils/route';
+import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { useLoad } from '@/hooks/api';
 import { getRegionNameFromLocale } from '@/i18n/utils';
 import { findLowestFee, findBestDeal, getFormattedName, getExchangeSupportedAccounts } from './utils';
@@ -46,6 +47,7 @@ type TProps = {
 }
 
 export const Exchange = ({ code, accounts }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const [showPocket, setShowPocket] = useState(false);
@@ -64,7 +66,12 @@ export const Exchange = ({ code, accounts }: TProps) => {
   const config = useLoad(getConfig);
 
   const account = findAccount(accounts, code);
-  const name = getCryptoName(t('buy.info.crypto'), account);
+  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const isBitcoin = hasOnlyBTCAccounts || (account && isBitcoinOnly(account?.coinCode));
+
+  const title = t('generic.buy', {
+    context: isBitcoin ? 'bitcoin' : 'crypto',
+  });
 
   const hasOnlyOneSupportedExchange = allExchangeDeals ? allExchangeDeals.exchanges.filter(exchange => exchange.supported).length === 1 : false;
 
@@ -166,7 +173,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
     if (!selectedExchange) {
       return;
     }
-    route(`/buy/${selectedExchange}/${code}`);
+    navigate(`/buy/${selectedExchange}/${code}`);
   };
 
   const handleChangeRegion = (newValue: SingleValue<TOption>) => {
@@ -191,9 +198,9 @@ export const Exchange = ({ code, accounts }: TProps) => {
           {info && <InfoContent info={info} cardFee={cardFee} bankTransferFee={bankTransferFee} />}
         </Dialog>
         <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{t('buy.exchange.title', { name })}</h2>} />
+          <Header title={<h2>{title}</h2>} />
           <div className={[style.exchangeContainer, 'content', 'narrow', 'isVerticallyCentered'].join(' ')}>
-            <h1 className={style.title}>{t('buy.title', { name })}</h1>
+            <h1 className={style.title}>{title}</h1>
             <p className={style.label}>{t('buy.exchange.region')}</p>
             {regions.length ? (
               <>
@@ -226,12 +233,9 @@ export const Exchange = ({ code, accounts }: TProps) => {
 
                   {!noExchangeAvailable && <div className={style.buttonsContainer}>
                     {supportedAccounts.length > 1 &&
-                    <Button
-                      className={style.buttonBack}
-                      secondary
-                      onClick={() => route('/buy/info')}>
+                    <BackButton className={style.buttonBack}>
                       {t('button.back')}
-                    </Button>}
+                    </BackButton>}
                     <Button
                       primary
                       disabled={!selectedExchange}
@@ -245,7 +249,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
           </div>
         </div>
       </div>
-      <BuyGuide name={name} />
+      <BuyGuide translationContext={hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'} />
     </div>
   );
 };

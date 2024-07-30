@@ -212,6 +212,22 @@ func SetMaxProcs(max int) {
 	maxProcs = max
 }
 
+func numThreads(maxThreads int) int {
+	numThreads := maxProcs
+
+	// take into consideration the possility that application reduced
+	// GOMAXPROCS after |maxProcs| was initialized
+	numProcs := runtime.GOMAXPROCS(0)
+	if maxProcs > numProcs {
+		numThreads = numProcs
+	}
+
+	if maxThreads > 0 && numThreads > maxThreads {
+		return maxThreads
+	}
+	return numThreads
+}
+
 var cgo_pairingSizeOf = C.blst_pairing_sizeof()
 var cgo_p1Generator = *C.blst_p1_generator()
 var cgo_p2Generator = *C.blst_p2_generator()
@@ -633,13 +649,8 @@ func coreAggregateVerifyPkInG1(sigFn sigGetterP2, sigGroupcheck bool,
 	}
 
 	numCores := runtime.GOMAXPROCS(0)
-	numThreads := maxProcs
-	if numThreads > numCores {
-		numThreads = numCores
-	}
-	if numThreads > n {
-		numThreads = n
-	}
+	numThreads := numThreads(n)
+
 	// Each thread will determine next message to process by atomically
 	// incrementing curItem, process corresponding pk,msg[,aug] tuple and
 	// repeat until n is exceeded.  The resulting accumulations will be
@@ -830,14 +841,8 @@ func multipleAggregateVerifyPkInG1(paramsFn mulAggGetterPkInG1,
 		useHash = optional[0]
 	}
 
-	numCores := runtime.GOMAXPROCS(0)
-	numThreads := maxProcs
-	if numThreads > numCores {
-		numThreads = numCores
-	}
-	if numThreads > n {
-		numThreads = n
-	}
+	numThreads := numThreads(n)
+
 	// Each thread will determine next message to process by atomically
 	// incrementing curItem, process corresponding pk,msg[,aug] tuple and
 	// repeat until n is exceeded.  The resulting accumulations will be
@@ -921,6 +926,15 @@ func (agg *P2Aggregate) Aggregate(elmts []*P2Affine,
 	}
 	getter := func(i uint32, _ *P2Affine) *P2Affine { return elmts[i] }
 	return agg.coreAggregate(getter, groupcheck, len(elmts))
+}
+
+func (agg *P2Aggregate) AggregateWithRandomness(pointsIf interface{},
+	scalarsIf interface{}, nbits int, groupcheck bool) bool {
+	if groupcheck && !P2AffinesValidate(pointsIf) {
+		return false
+	}
+	agg.v = P2AffinesMult(pointsIf, scalarsIf, nbits)
+	return true
 }
 
 // Aggregate compressed elements
@@ -1235,13 +1249,8 @@ func coreAggregateVerifyPkInG2(sigFn sigGetterP1, sigGroupcheck bool,
 	}
 
 	numCores := runtime.GOMAXPROCS(0)
-	numThreads := maxProcs
-	if numThreads > numCores {
-		numThreads = numCores
-	}
-	if numThreads > n {
-		numThreads = n
-	}
+	numThreads := numThreads(n)
+
 	// Each thread will determine next message to process by atomically
 	// incrementing curItem, process corresponding pk,msg[,aug] tuple and
 	// repeat until n is exceeded.  The resulting accumulations will be
@@ -1432,14 +1441,8 @@ func multipleAggregateVerifyPkInG2(paramsFn mulAggGetterPkInG2,
 		useHash = optional[0]
 	}
 
-	numCores := runtime.GOMAXPROCS(0)
-	numThreads := maxProcs
-	if numThreads > numCores {
-		numThreads = numCores
-	}
-	if numThreads > n {
-		numThreads = n
-	}
+	numThreads := numThreads(n)
+
 	// Each thread will determine next message to process by atomically
 	// incrementing curItem, process corresponding pk,msg[,aug] tuple and
 	// repeat until n is exceeded.  The resulting accumulations will be
@@ -1523,6 +1526,15 @@ func (agg *P1Aggregate) Aggregate(elmts []*P1Affine,
 	}
 	getter := func(i uint32, _ *P1Affine) *P1Affine { return elmts[i] }
 	return agg.coreAggregate(getter, groupcheck, len(elmts))
+}
+
+func (agg *P1Aggregate) AggregateWithRandomness(pointsIf interface{},
+	scalarsIf interface{}, nbits int, groupcheck bool) bool {
+	if groupcheck && !P1AffinesValidate(pointsIf) {
+		return false
+	}
+	agg.v = P1AffinesMult(pointsIf, scalarsIf, nbits)
+	return true
 }
 
 // Aggregate compressed elements
@@ -1742,14 +1754,8 @@ func (_ *P1Affine) BatchUncompress(in [][]byte) []*P1Affine {
 	points := make([]P1Affine, n)
 	pointsPtrs := make([]*P1Affine, n)
 
-	numCores := runtime.GOMAXPROCS(0)
-	numThreads := maxProcs
-	if numThreads > numCores {
-		numThreads = numCores
-	}
-	if numThreads > n {
-		numThreads = n
-	}
+	numThreads := numThreads(n)
+
 	// Each thread will determine next message to process by atomically
 	// incrementing curItem, process corresponding point, and
 	// repeat until n is exceeded. Each thread will send a result (true for
@@ -2122,13 +2128,9 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
 		panic(fmt.Sprintf("unsupported type %T", val))
 	}
 
-	numThreads := maxProcs
-	numCores := runtime.GOMAXPROCS(0)
-	if numCores < maxProcs {
-		numThreads = numCores
-	}
+	numThreads := numThreads(0)
 
-	if numThreads < 2 || npoints < 32 {
+	if numThreads < 2 {
 		sz := int(C.blst_p1s_mult_pippenger_scratch_sizeof(C.size_t(npoints))) / 8
 		scratch := make([]uint64, sz)
 
@@ -2169,6 +2171,71 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
 		C.blst_p1s_mult_pippenger(&ret, p_points, C.size_t(npoints),
 			p_scalars, C.size_t(nbits),
 			(*C.limb_t)(&scratch[0]))
+
+		for i := range scalars {
+			scalars[i] = nil
+		}
+
+		return &ret
+	}
+
+	if npoints < 32 {
+		if numThreads > npoints {
+			numThreads = npoints
+		}
+
+		curItem := uint32(0)
+		msgs := make(chan P1, numThreads)
+
+		for tid := 0; tid < numThreads; tid++ {
+			go func() {
+				var acc P1
+
+				for {
+					workItem := int(atomic.AddUint32(&curItem, 1) - 1)
+					if workItem >= npoints {
+						break
+					}
+
+					var point *P1Affine
+					switch val := pointsIf.(type) {
+					case []*P1Affine:
+						point = val[workItem]
+					case []P1Affine:
+						point = &val[workItem]
+					case P1Affines:
+						point = &val[workItem]
+					}
+
+					var scalar *C.byte
+					switch val := scalarsIf.(type) {
+					case []byte:
+						scalar = (*C.byte)(&val[workItem*nbytes])
+					case [][]byte:
+						scalar = scalars[workItem]
+					case []Scalar:
+						if nbits > 248 {
+							scalar = &val[workItem].b[0]
+						} else {
+							scalar = scalars[workItem]
+						}
+					case []*Scalar:
+						scalar = scalars[workItem]
+					}
+
+					C.go_p1_mult_n_acc(&acc, &point.x, true,
+						scalar, C.size_t(nbits))
+				}
+
+				msgs <- acc
+			}()
+		}
+
+		ret := <-msgs
+		for tid := 1; tid < numThreads; tid++ {
+			point := <-msgs
+			C.blst_p1_add_or_double(&ret, &ret, &point)
+		}
 
 		for i := range scalars {
 			scalars[i] = nil
@@ -2320,6 +2387,94 @@ func (points P1Affines) Mult(scalarsIf interface{}, nbits int) *P1 {
 func (points P1s) Mult(scalarsIf interface{}, nbits int) *P1 {
 	return points.ToAffine().Mult(scalarsIf, nbits)
 }
+
+//
+// Group-check
+//
+
+func P1AffinesValidate(pointsIf interface{}) bool {
+	var npoints int
+	switch val := pointsIf.(type) {
+	case []*P1Affine:
+		npoints = len(val)
+	case []P1Affine:
+		npoints = len(val)
+	case P1Affines:
+		npoints = len(val)
+	default:
+		panic(fmt.Sprintf("unsupported type %T", val))
+	}
+
+	numThreads := numThreads(npoints)
+
+	if numThreads < 2 {
+		for i := 0; i < npoints; i++ {
+			var point *P1Affine
+
+			switch val := pointsIf.(type) {
+			case []*P1Affine:
+				point = val[i]
+			case []P1Affine:
+				point = &val[i]
+			case P1Affines:
+				point = &val[i]
+			default:
+				panic(fmt.Sprintf("unsupported type %T", val))
+			}
+
+			if !C.go_p1_affine_validate(point, true) {
+				return false
+			}
+		}
+
+		return true
+	}
+
+	valid := int32(1)
+	curItem := uint32(0)
+
+	var wg sync.WaitGroup
+	wg.Add(numThreads)
+
+	for tid := 0; tid < numThreads; tid++ {
+		go func() {
+			for atomic.LoadInt32(&valid) != 0 {
+				work := atomic.AddUint32(&curItem, 1) - 1
+				if work >= uint32(npoints) {
+					break
+				}
+
+				var point *P1Affine
+
+				switch val := pointsIf.(type) {
+				case []*P1Affine:
+					point = val[work]
+				case []P1Affine:
+					point = &val[work]
+				case P1Affines:
+					point = &val[work]
+				default:
+					panic(fmt.Sprintf("unsupported type %T", val))
+				}
+
+				if !C.go_p1_affine_validate(point, true) {
+					atomic.StoreInt32(&valid, 0)
+					break
+				}
+			}
+
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
+
+	return atomic.LoadInt32(&valid) != 0
+}
+
+func (points P1Affines) Validate() bool {
+	return P1AffinesValidate(points)
+}
 func PairingAggregatePkInG2(ctx Pairing, PK *P2Affine, pkValidate bool,
 	sig *P1Affine, sigGroupcheck bool, msg []byte,
 	optional ...[]byte) int { // aug
@@ -2404,14 +2559,8 @@ func (_ *P2Affine) BatchUncompress(in [][]byte) []*P2Affine {
 	points := make([]P2Affine, n)
 	pointsPtrs := make([]*P2Affine, n)
 
-	numCores := runtime.GOMAXPROCS(0)
-	numThreads := maxProcs
-	if numThreads > numCores {
-		numThreads = numCores
-	}
-	if numThreads > n {
-		numThreads = n
-	}
+	numThreads := numThreads(n)
+
 	// Each thread will determine next message to process by atomically
 	// incrementing curItem, process corresponding point, and
 	// repeat until n is exceeded. Each thread will send a result (true for
@@ -2784,13 +2933,9 @@ func P2AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P2 {
 		panic(fmt.Sprintf("unsupported type %T", val))
 	}
 
-	numThreads := maxProcs
-	numCores := runtime.GOMAXPROCS(0)
-	if numCores < maxProcs {
-		numThreads = numCores
-	}
+	numThreads := numThreads(0)
 
-	if numThreads < 2 || npoints < 32 {
+	if numThreads < 2 {
 		sz := int(C.blst_p2s_mult_pippenger_scratch_sizeof(C.size_t(npoints))) / 8
 		scratch := make([]uint64, sz)
 
@@ -2831,6 +2976,71 @@ func P2AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P2 {
 		C.blst_p2s_mult_pippenger(&ret, p_points, C.size_t(npoints),
 			p_scalars, C.size_t(nbits),
 			(*C.limb_t)(&scratch[0]))
+
+		for i := range scalars {
+			scalars[i] = nil
+		}
+
+		return &ret
+	}
+
+	if npoints < 32 {
+		if numThreads > npoints {
+			numThreads = npoints
+		}
+
+		curItem := uint32(0)
+		msgs := make(chan P2, numThreads)
+
+		for tid := 0; tid < numThreads; tid++ {
+			go func() {
+				var acc P2
+
+				for {
+					workItem := int(atomic.AddUint32(&curItem, 1) - 1)
+					if workItem >= npoints {
+						break
+					}
+
+					var point *P2Affine
+					switch val := pointsIf.(type) {
+					case []*P2Affine:
+						point = val[workItem]
+					case []P2Affine:
+						point = &val[workItem]
+					case P2Affines:
+						point = &val[workItem]
+					}
+
+					var scalar *C.byte
+					switch val := scalarsIf.(type) {
+					case []byte:
+						scalar = (*C.byte)(&val[workItem*nbytes])
+					case [][]byte:
+						scalar = scalars[workItem]
+					case []Scalar:
+						if nbits > 248 {
+							scalar = &val[workItem].b[0]
+						} else {
+							scalar = scalars[workItem]
+						}
+					case []*Scalar:
+						scalar = scalars[workItem]
+					}
+
+					C.go_p2_mult_n_acc(&acc, &point.x, true,
+						scalar, C.size_t(nbits))
+				}
+
+				msgs <- acc
+			}()
+		}
+
+		ret := <-msgs
+		for tid := 1; tid < numThreads; tid++ {
+			point := <-msgs
+			C.blst_p2_add_or_double(&ret, &ret, &point)
+		}
 
 		for i := range scalars {
 			scalars[i] = nil
@@ -2981,6 +3191,94 @@ func (points P2Affines) Mult(scalarsIf interface{}, nbits int) *P2 {
 
 func (points P2s) Mult(scalarsIf interface{}, nbits int) *P2 {
 	return points.ToAffine().Mult(scalarsIf, nbits)
+}
+
+//
+// Group-check
+//
+
+func P2AffinesValidate(pointsIf interface{}) bool {
+	var npoints int
+	switch val := pointsIf.(type) {
+	case []*P2Affine:
+		npoints = len(val)
+	case []P2Affine:
+		npoints = len(val)
+	case P2Affines:
+		npoints = len(val)
+	default:
+		panic(fmt.Sprintf("unsupported type %T", val))
+	}
+
+	numThreads := numThreads(npoints)
+
+	if numThreads < 2 {
+		for i := 0; i < npoints; i++ {
+			var point *P2Affine
+
+			switch val := pointsIf.(type) {
+			case []*P2Affine:
+				point = val[i]
+			case []P2Affine:
+				point = &val[i]
+			case P2Affines:
+				point = &val[i]
+			default:
+				panic(fmt.Sprintf("unsupported type %T", val))
+			}
+
+			if !C.go_p2_affine_validate(point, true) {
+				return false
+			}
+		}
+
+		return true
+	}
+
+	valid := int32(1)
+	curItem := uint32(0)
+
+	var wg sync.WaitGroup
+	wg.Add(numThreads)
+
+	for tid := 0; tid < numThreads; tid++ {
+		go func() {
+			for atomic.LoadInt32(&valid) != 0 {
+				work := atomic.AddUint32(&curItem, 1) - 1
+				if work >= uint32(npoints) {
+					break
+				}
+
+				var point *P2Affine
+
+				switch val := pointsIf.(type) {
+				case []*P2Affine:
+					point = val[work]
+				case []P2Affine:
+					point = &val[work]
+				case P2Affines:
+					point = &val[work]
+				default:
+					panic(fmt.Sprintf("unsupported type %T", val))
+				}
+
+				if !C.go_p2_affine_validate(point, true) {
+					atomic.StoreInt32(&valid, 0)
+					break
+				}
+			}
+
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
+
+	return atomic.LoadInt32(&valid) != 0
+}
+
+func (points P2Affines) Validate() bool {
+	return P2AffinesValidate(points)
 }
 
 func parseOpts(optional ...interface{}) ([]byte, [][]byte, bool, bool) {

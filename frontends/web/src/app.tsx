@@ -16,8 +16,8 @@
  */
 
 import { useCallback, useEffect, Fragment } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { useSync } from './hooks/api';
 import { useDefault } from './hooks/default';
 import { usePrevious } from './hooks/previous';
@@ -92,8 +92,13 @@ export const App = () => {
       return;
     }
     // if no devices are registered on specified views route to /
-    if (Object.keys(devices).length === 0 &&
-        currentURL.startsWith('/settings/device-settings/')) {
+    if (
+      Object.keys(devices).length === 0
+      && (
+        currentURL.startsWith('/settings/device-settings/')
+        || currentURL.startsWith('/manage-backups/')
+      )
+    ) {
       navigate('/');
       return;
     }
@@ -104,7 +109,8 @@ export const App = () => {
     }
     // if on index page and have at least 1 account, route to /account-summary
     if (isIndex && (accounts.length || !noLightningAccounts)) {
-      navigate('/account-summary');
+      // replace current history entry so that the user cannot go back to "index"
+      navigate('/account-summary', { replace: true });
       return;
     }
     // if on the /buy/ view and there are no accounts view route to /

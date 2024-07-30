@@ -14,7 +14,31 @@
  * limitations under the License.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+
+/**
+ * gets fired on each keydown and executes the provided callback.
+ */
+export const useKeydown = (
+  callback: (e: KeyboardEvent) => void
+) => {
+  // Avoid adding/removing the listener on each change of callback.
+  const callbackRef = useRef(callback);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (callbackRef.current) {
+        callbackRef.current(e);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [callbackRef]);
+};
 
 /**
  * useEsc handles ESC key.
@@ -23,13 +47,9 @@ import { useEffect } from 'react';
 export const useEsc = (
   callback: () => void
 ) => {
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        callback();
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [callback]);
+  useKeydown((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      callback();
+    }
+  });
 };

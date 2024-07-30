@@ -25,13 +25,13 @@ import { getDeviceInfo } from '@/api/bitbox01';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
-import { Button, ButtonLink } from '@/components/forms';
+import { Button } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { Status } from '@/components/status/status';
 import { translate, TranslateProps } from '@/decorators/translate';
 import { getConfig } from '@/utils/config';
 import { FeeTargets } from './feetargets';
-import { route } from '@/utils/route';
 import { signConfirm, signProgress, TSignProgress } from '@/api/devicessync';
 import { UnsubscribeList, unsubscribe } from '@/utils/subscriptions';
 import { isBitcoinBased, findAccount } from '@/routes/account/utils';
@@ -166,25 +166,13 @@ class Send extends Component<Props, State> {
         }
       }),
     ];
-
-    this.registerEvents();
   }
 
   public componentWillUnmount() {
-    this.unregisterEvents();
     unsubscribe(this.unsubscribeList);
     // Wipe proposed tx note.
     accountApi.proposeTxNote(this.getAccount()!.code, '');
   }
-
-  private registerEvents = () => document.addEventListener('keydown', this.handleKeyDown);
-  private unregisterEvents = () => document.removeEventListener('keydown', this.handleKeyDown);
-
-  private handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && !this.state.activeCoinControl && !this.state.activeScanQR) {
-      route(`/account/${this.props.code}`);
-    }
-  };
 
   private send = async () => {
     if (this.state.noMobileChannelError) {
@@ -330,7 +318,7 @@ class Send extends Component<Props, State> {
         this.convertToFiat(result.amount.amount);
       }
     } else {
-      const errorHandling = txProposalErrorHandling(this.registerEvents, this.unregisterEvents, result.errorCode);
+      const errorHandling = txProposalErrorHandling(result.errorCode);
       this.setState({ ...errorHandling, isUpdatingProposal: false });
     }
   };
@@ -484,7 +472,7 @@ class Send extends Component<Props, State> {
   };
 
   public render() {
-    const { t, code } = this.props;
+    const { t } = this.props;
     const {
       balance,
       proposedFee,
@@ -637,11 +625,11 @@ class Send extends Component<Props, State> {
                         disabled={!this.getValidTxInputData() || !valid || isUpdatingProposal}>
                         {t('send.button')}
                       </Button>
-                      <ButtonLink
-                        secondary
-                        to={`/account/${code}`}>
+                      <BackButton
+                        disabled={activeCoinControl || activeScanQR}
+                        enableEsc>
                         {t('button.back')}
-                      </ButtonLink>
+                      </BackButton>
                     </ColumnButtons>
                   </Column>
                 </Grid>

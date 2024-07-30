@@ -454,19 +454,18 @@
       },
       "noExchanges": "Sorry, there are no available exchanges in this region.",
       "region": "Region",
-      "selectRegion": "Not specified",
-      "title": "Buy {{name}}"
+      "selectRegion": "Not specified"
     },
     "info": {
       "continue": "Agree and continue",
       "crypto": "crypto",
       "disclaimer": {
         "intro": [
-          "We partner with MoonPay to offer you a seamless way to buy {{name}} directly within the BitBoxApp. It's just a few clicks.",
-          "MoonPay is a platform that makes it easy and quick to buy {{name}} in over 160+ countries."
+          "We partner with MoonPay to offer you a seamless way to buy {{coinCode}} directly within the BitBoxApp. It's just a few clicks.",
+          "MoonPay is a platform that makes it easy and quick to buy {{coinCode}} in over 160+ countries."
         ],
         "payment": {
-          "details": "You can buy {{name}} instantly via MoonPay with the following payment methods. Credit or debit card orders are instant and convenient, but more expensive due to increased chargeback risk. We recommend using the bank transfer option for larger amounts. The minimum fee is 4 USD/EUR or equivalent.",
+          "details": "You can buy {{coinCode}} instantly via MoonPay with the following payment methods. Credit or debit card orders are instant and convenient, but more expensive due to increased chargeback risk. We recommend using the bank transfer option for larger amounts. The minimum fee is 4 USD/EUR or equivalent.",
           "footnote": "Please note that MoonPay's exchange rates can differ from the ones used in the BitBoxApp, resulting in slightly different amounts.",
           "table": {
             "1_description": "Lowest fees, can take up to 3 working days",
@@ -481,23 +480,23 @@
         },
         "privacyPolicy": "MoonPay privacy policy",
         "protection": {
-          "description": "The BitBoxApp does not collect any data when buying {{name}}, the incoming funds are treated like a regular transaction. MoonPay needs to collect some personal data to operate. Their Privacy Policy explains in detail how that data is handled.",
-          "descriptionGeneric": "The BitBoxApp does not collect any data when buying {{name}}, the incoming funds are treated like a regular transaction. However partner exchanges need to collect some information to operate. Please refer to their respective privacy policies to see in more detail how the data is handled.",
+          "descriptionGeneric_bitcoin": "The BitBoxApp does not collect any data when buying Bitcoin, the incoming funds are treated like a regular transaction. However partner exchanges need to collect some information to operate. Please refer to their respective privacy policies to see in more detail how the data is handled.",
+          "descriptionGeneric_crypto": "The BitBoxApp does not collect any data when buying crypto, the incoming funds are treated like a regular transaction. However partner exchanges need to collect some information to operate. Please refer to their respective privacy policies to see in more detail how the data is handled.",
           "title": "Data protection"
         },
         "security": {
-          "description": "When you buy {{name}} via MoonPay, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
-          "descriptionGeneric": "When you buy {{name}} via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
+          "descriptionGeneric_bitcoin": "When you buy Bitcoin via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
+          "descriptionGeneric_crypto": "When you buy crypto via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
           "link": "Security threat model",
           "title": "Security model"
         },
-        "title": "Welcome to your one stop shop for buying {{name}}"
+        "title_bitcoin": "Welcome to your one stop shop for buying Bitcoin",
+        "title_crypto": "Welcome to your one stop shop for buying crypto"
       },
       "next": "Next",
       "selectLabel": "Choose your account",
       "selectPlaceholder": "Select a coin",
-      "skip": "Do not show again",
-      "title": "Buy {{name}}"
+      "skip": "Do not show again"
     },
     "pocket": {
       "data": {
@@ -529,8 +528,7 @@
         "p3": "With Pocket, you can also do regular buys through standing bank orders, so you can DCA (dollar-cost averaging) with ease.",
         "title": "Welcome to your one stop shop for buying bitcoin"
       }
-    },
-    "title": "Buy {{name}}"
+    }
   },
   "changePin": {
     "newTitle": "New device password",

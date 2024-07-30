@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-import { Component, createRef, ReactNode } from 'react';
+import React, { Component, createRef, ReactNode } from 'react';
 import { translate, TranslateProps } from '@/decorators/translate';
 import approve from '@/assets/icons/hold.png';
 import reject from '@/assets/icons/tap.png';
 import style from '@/components/dialog/dialog.module.css';
-import React from 'react';
+import { UseDisableBackButton } from '@/hooks/backbutton';
+
 
 interface WaitDialogProps {
     includeDefault?: boolean;
@@ -140,6 +141,7 @@ class WaitDialog extends Component<Props, State> {
         className={style.overlay}
         ref={this.overlay}
         style={{ zIndex: 10001 }}>
+        <UseDisableBackButton />
         <div className={[style.modal, style.open].join(' ')} ref={this.modal}>
           {
             title && (

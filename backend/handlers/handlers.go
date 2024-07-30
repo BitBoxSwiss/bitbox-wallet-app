@@ -243,7 +243,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/exchange/by-region/{code}", handlers.getExchangesByRegion).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/deals", handlers.getExchangeDeals).Methods("GET")
-	getAPIRouter(apiRouter)("/exchange/buy-supported/{code}", handlers.getExchangeBuySupported).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/buy-supported/{code}", handlers.getExchangeBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
@@ -1362,20 +1362,20 @@ func (handlers *Handlers) getExchangeDeals(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getExchangeBuySupported(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getExchangeBuySupported(r *http.Request) interface{} {
 	type supportedExchanges struct {
 		Exchanges []string `json:"exchanges"`
 	}
 
+	supported := supportedExchanges{Exchanges: []string{}}
 	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
-		return nil, err
+		return supported
 	}
 
-	supported := supportedExchanges{Exchanges: []string{}}
 	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
 	if !accountValid {
-		return supported, nil
+		return supported
 	}
 
 	if exchanges.IsMoonpaySupported(acct.Coin().Code()) {
@@ -1385,7 +1385,7 @@ func (handlers *Handlers) getExchangeBuySupported(r *http.Request) (interface{},
 		supported.Exchanges = append(supported.Exchanges, exchanges.PocketName)
 	}
 
-	return supported, nil
+	return supported
 }
 
 func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{}, error) {

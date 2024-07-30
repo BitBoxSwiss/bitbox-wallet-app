@@ -5,12 +5,14 @@
 }
 
 .backButton {
+    align-items: center;
     background-color: transparent;
     border: none;
     color: var(--color-default);
     display: flex;
-    align-items: center;
     font-size: var(--size-default);
+    height: auto;
+    min-width: 0;
     padding: var(--space-quarter);
     padding-left: 0;
     text-decoration: none;
