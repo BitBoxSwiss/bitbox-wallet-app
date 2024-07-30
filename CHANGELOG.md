@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add support for selling Bitcoin to Pocket using SLIP-0024 payment requests
 
 ## 4.43.0
 - New feature in advanced settings: Export logs
