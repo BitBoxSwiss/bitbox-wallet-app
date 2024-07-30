@@ -5,11 +5,11 @@ import { useContext, useEffect, useState } from 'react';
 import { ExchangeSelectionRadio } from './exchangeselectionradio';
 import { Button } from '@/components/forms/button';
 import { useTranslation } from 'react-i18next';
-import { getVersion } from '@/api/bitbox02';
 import style from '../exchange.module.css';
 import { AppContext } from '@/contexts/AppContext';
 import { TInfoContentProps } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
+import { hasPaymentRequest } from '@/api/account';
 
 type TProps = {
   accountCode: string;
@@ -38,19 +38,15 @@ export const BuySell = ({
   const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
 
   const exchangeDealsResponse = useLoad(() => exchangesAPI.getExchangeDeals(action, accountCode, selectedRegion), [action, selectedRegion]);
-  const [updateFirmwareToSell, setUpdateFirmwareToSell] = useState(false);
-  // FIXME: we should make a BE `can-sell` endpoint
-  const versionInfo = useLoad(() => getVersion(deviceIDs[0]), [deviceIDs[0]]);
+  const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(accountCode));
+  const [paymentRequestError, setPaymentRequestError] = useState(false);
   const navigate = useNavigate();
 
-  // checks if the device needs a firmware upgrade to enable the sell feature.
+  // enable paymentRequestError only when the action is sell.
   useEffect(() => {
-    if (action === 'sell' && (!versionInfo || (versionInfo && versionInfo.canUpgrade))) {
-      setUpdateFirmwareToSell(true);
-    } else {
-      setUpdateFirmwareToSell(false);
-    }
-  }, [action, versionInfo]);
+    setPaymentRequestError(action === 'sell' && hasPaymentRequestResponse?.success === false);
+  }, [hasPaymentRequestResponse, action]);
+
 
   // checks for the loaded exchange deals, and preselect if there is only one available.
   useEffect(() => {
@@ -62,13 +58,17 @@ export const BuySell = ({
   }, [exchangeDealsResponse, onSelectExchange]);
 
   const constructErrorMessage = (action: exchangesAPI.TExchangeAction): string | undefined => {
-    if (updateFirmwareToSell) {
-      return t('exchange.buySell.updateFirmware');
-    } else if (exchangeDealsResponse?.success === false) {
+    if (exchangeDealsResponse?.success === false) {
       if (exchangeDealsResponse.errorCode) {
         return t('exchange.buySell.' + exchangeDealsResponse.errorCode, { action });
       }
       return exchangeDealsResponse.errorMessage;
+    } else if (paymentRequestError) {
+      if (hasPaymentRequestResponse?.errorCode) {
+        return t('device.' + hasPaymentRequestResponse.errorCode);
+      } else {
+        return hasPaymentRequestResponse?.errorMessage || '';
+      }
     }
   };
 
@@ -82,10 +82,12 @@ export const BuySell = ({
     <>
       <div className={style.innerRadioButtonsContainer}>
         {!exchangeDealsResponse && <Skeleton/> }
-        {exchangeDealsResponse?.success === false || updateFirmwareToSell ? (
+        {exchangeDealsResponse?.success === false || paymentRequestError ? (
           <div className="flex flex-column">
             <p className={style.noExchangeText}>{constructErrorMessage(action)}</p>
-            {updateFirmwareToSell &&
+            {exchangeDealsResponse?.success &&
+              paymentRequestError &&
+              hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired' &&
               <Button
                 className={style.updateButton}
                 onClick={() => {

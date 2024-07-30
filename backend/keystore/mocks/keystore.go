@@ -4,10 +4,10 @@
 package mocks
 
 import (
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/ethereum/go-ethereum/core/types"
 	"sync"
 )
@@ -66,6 +66,9 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			},
 //			SupportsMultipleAccountsFunc: func() bool {
 //				panic("mock out the SupportsMultipleAccounts method")
+//			},
+//			SupportsPaymentRequestsFunc: func() error {
+//				panic("mock out the SupportsPaymentRequests method")
 //			},
 //			SupportsUnifiedAccountsFunc: func() bool {
 //				panic("mock out the SupportsUnifiedAccounts method")
@@ -130,6 +133,9 @@ type KeystoreMock struct {
 
 	// SupportsMultipleAccountsFunc mocks the SupportsMultipleAccounts method.
 	SupportsMultipleAccountsFunc func() bool
+
+	// SupportsPaymentRequestsFunc mocks the SupportsPaymentRequests method.
+	SupportsPaymentRequestsFunc func() error
 
 	// SupportsUnifiedAccountsFunc mocks the SupportsUnifiedAccounts method.
 	SupportsUnifiedAccountsFunc func() bool
@@ -228,6 +234,9 @@ type KeystoreMock struct {
 		// SupportsMultipleAccounts holds details about calls to the SupportsMultipleAccounts method.
 		SupportsMultipleAccounts []struct {
 		}
+		// SupportsPaymentRequests holds details about calls to the SupportsPaymentRequests method.
+		SupportsPaymentRequests []struct {
+		}
 		// SupportsUnifiedAccounts holds details about calls to the SupportsUnifiedAccounts method.
 		SupportsUnifiedAccounts []struct {
 		}
@@ -264,6 +273,7 @@ type KeystoreMock struct {
 	lockSupportsCoin                    sync.RWMutex
 	lockSupportsEIP1559                 sync.RWMutex
 	lockSupportsMultipleAccounts        sync.RWMutex
+	lockSupportsPaymentRequests         sync.RWMutex
 	lockSupportsUnifiedAccounts         sync.RWMutex
 	lockType                            sync.RWMutex
 	lockVerifyAddress                   sync.RWMutex
@@ -758,6 +768,33 @@ func (mock *KeystoreMock) SupportsMultipleAccountsCalls() []struct {
 	mock.lockSupportsMultipleAccounts.RLock()
 	calls = mock.calls.SupportsMultipleAccounts
 	mock.lockSupportsMultipleAccounts.RUnlock()
+	return calls
+}
+
+// SupportsPaymentRequests calls SupportsPaymentRequestsFunc.
+func (mock *KeystoreMock) SupportsPaymentRequests() error {
+	if mock.SupportsPaymentRequestsFunc == nil {
+		panic("KeystoreMock.SupportsPaymentRequestsFunc: method is nil but Keystore.SupportsPaymentRequests was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockSupportsPaymentRequests.Lock()
+	mock.calls.SupportsPaymentRequests = append(mock.calls.SupportsPaymentRequests, callInfo)
+	mock.lockSupportsPaymentRequests.Unlock()
+	return mock.SupportsPaymentRequestsFunc()
+}
+
+// SupportsPaymentRequestsCalls gets all the calls that were made to SupportsPaymentRequests.
+// Check the length with:
+//
+//	len(mockedKeystore.SupportsPaymentRequestsCalls())
+func (mock *KeystoreMock) SupportsPaymentRequestsCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockSupportsPaymentRequests.RLock()
+	calls = mock.calls.SupportsPaymentRequests
+	mock.lockSupportsPaymentRequests.RUnlock()
 	return calls
 }
 

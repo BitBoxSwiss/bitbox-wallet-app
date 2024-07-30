@@ -570,7 +570,9 @@
   },
   "device": {
     "appUpradeRequired": "Your BitBox is not compatible with this desktop application. Please download and install the latest version.",
-    "keystoreConnected": "Connected wallet"
+    "firmwareUpgradeRequired": "A firmware update is required to make use of this feature.",
+    "keystoreConnected": "Connected wallet",
+    "unsupportedFeature": "This feature is not available on this device."
   },
   "deviceLock": {
     "button": "Enable two factor authorization (2FA)",
@@ -716,7 +718,6 @@
     "buySell": {
       "coinNotSupported": "No {{action}} options available for this coin type.",
       "regionNotSupported": "No {{action}} options available for this region.",
-      "updateFirmware": "Update firmware to sell",
       "updateNow": "Update now"
     }
   },

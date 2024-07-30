@@ -397,6 +397,16 @@ export const hasSecureOutput = (code: AccountCode) => {
   };
 };
 
+type THasPaymentRequest = {
+  success: boolean;
+  errorMessage?: string;
+  errorCode?: 'firmwareUpgradeRequired' | 'unsupportedFeature';
+};
+
+export const hasPaymentRequest = (code: AccountCode): Promise<THasPaymentRequest> => {
+  return apiGet(`account/${code}/has-payment-request`);
+};
+
 export type TAddAccount = {
   success: boolean;
   accountCode?: string;
