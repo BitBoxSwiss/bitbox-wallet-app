@@ -27,7 +27,6 @@ export interface ILightningResponse<T> {
 }
 
 export type TLightningAccountConfig = {
-  mnemonic: string;
   rootFingerprint: string;
   code: AccountCode;
   num: number;

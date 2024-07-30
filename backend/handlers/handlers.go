@@ -1529,8 +1529,29 @@ func (handlers *Handlers) postExportLog(r *http.Request) interface{} {
 	return result{Success: true}
 }
 
+type lightningAccountConfigWithoutMnemonic struct {
+	RootFingerprint jsonp.HexBytes     `json:"rootFingerprint"`
+	Code            accountsTypes.Code `json:"code"`
+	Number          uint16             `json:"num"`
+}
+
+type lightningConfigWithoutMnemonic struct {
+	Accounts []*lightningAccountConfigWithoutMnemonic `json:"accounts"`
+}
+
 func (handlers *Handlers) getLightningConfigHandler(_ *http.Request) interface{} {
-	return handlers.backend.Config().LightningConfig()
+	lightningAccounts := handlers.backend.Config().LightningConfig().Accounts
+	accounts := make([]*lightningAccountConfigWithoutMnemonic, len(lightningAccounts))
+	for i, account := range lightningAccounts {
+		accounts[i] = &lightningAccountConfigWithoutMnemonic{
+			RootFingerprint: account.RootFingerprint,
+			Code:            account.Code,
+			Number:          account.Number,
+		}
+	}
+	return lightningConfigWithoutMnemonic{
+		Accounts: accounts,
+	}
 }
 
 func (handlers *Handlers) postLightningConfigHandler(r *http.Request) (interface{}, error) {
