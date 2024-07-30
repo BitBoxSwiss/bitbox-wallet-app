@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { ChevronRightDark } from '@/components/icon';
-import { route } from '@/utils/route';
 
 export const ConnectFullNodeSetting = () => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   return (
     <SettingsItem
       settingName={t('settings.expert.electrum.title')}
-      onClick={() => route('/settings/electrum')}
+      onClick={() => navigate('/settings/electrum')}
       secondaryText={t('settings.expert.electrum.description')}
       extraComponent={
         <ChevronRightDark

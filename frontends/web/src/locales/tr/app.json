@@ -17,8 +17,6 @@
   "accountInfo": {
     "address": "Adres",
     "buyCTA": {
-      "buy": "{{unit}} satın al",
-      "buyCrypto": "Kripto Satın Al",
       "information": {
         "looksEmpty": "Görünüşe göre bu cüzdan boş.",
         "start": "Cüzdanınıza biraz para yatırarak veya doğrudan BitBoxApp'te satın alarak başlayın."

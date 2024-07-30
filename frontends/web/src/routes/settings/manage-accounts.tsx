@@ -234,7 +234,7 @@ class ManageAccounts extends Component<Props, State> {
                   <Button
                     className={style.addAccountBtn}
                     primary
-                    onClick={() => route('/add-account', true)}>
+                    onClick={() => route('/add-account')}>
                     {t('addAccount.title')}
                   </Button>
                   <Grid col="1">

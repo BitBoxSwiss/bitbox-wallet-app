@@ -190,7 +190,7 @@ export function Receive() {
                   labelSection={<OptionalLabel>{t('lightning.receive.description.optional')}</OptionalLabel>}
                 />
                 <Status hidden={!showOpenChannelWarning} type="info">
-                  {t('lightning.receive.openChannelWarning', { feeSat: toSat(openChannelFeeResponse?.feeMsat!) })}
+                  {t('lightning.receive.openChannelWarning', { feeSat: toSat(openChannelFeeResponse?.feeMsat || 0) })}
                 </Status>
               </Column>
             </Grid>

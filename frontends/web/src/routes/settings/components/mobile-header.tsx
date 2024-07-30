@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { ChevronLeftDark } from '@/components/icon';
-import { route } from '@/utils/route';
 import styles from './mobile-header.module.css';
 
 type TProps = {
@@ -25,14 +24,14 @@ type TProps = {
 }
 
 export const MobileHeader = ({ title, withGuide = false }: TProps) => {
-  const { t } = useTranslation();
+  const navigate = useNavigate();
   const handleClick = () => {
     //goes to the 'general settings' page
-    route('/settings');
+    navigate('/settings');
   };
   return (
     <div className={`${styles.container} ${withGuide ? `${styles.withGuide}` : ''}`}>
-      <button onClick={handleClick} className={styles.backButton}><ChevronLeftDark /> <span>{t('button.back')}</span></button>
+      <button onClick={handleClick} className={styles.backButton}><ChevronLeftDark /></button>
       <h1 className={styles.headerText}>{title}</h1>
     </div>
   );

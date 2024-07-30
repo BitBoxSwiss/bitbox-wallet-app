@@ -16,9 +16,8 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { TDevices } from '@/api/devices';
-import { ButtonLink } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { Header } from '@/components/layout';
@@ -36,10 +35,8 @@ export const ManageBackups = ({
   devices,
 }: TProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   if (!deviceID || !devices[deviceID]) {
-    navigate('/');
     return null;
   }
 
@@ -71,6 +68,7 @@ const BackupsList = ({
   deviceID,
   devices,
 }: TProps) => {
+  const { t } = useTranslation();
   if (!deviceID) {
     return null;
   }
@@ -81,7 +79,9 @@ const BackupsList = ({
         deviceID={deviceID}
         showCreate={true}
         showRestore={false}>
-        <BackButton deviceID={deviceID} />
+        <BackButton>
+          {t('button.back')}
+        </BackButton>
       </Backups>
     );
   case 'bitbox02':
@@ -92,24 +92,15 @@ const BackupsList = ({
           showCreate={true}
           showRestore={false}
           showRadio={false}>
-          <BackButton deviceID={deviceID} />
+          <BackButton>
+            {t('button.back')}
+          </BackButton>
         </BackupsV2>
       </SDCardCheck>
     );
   default:
     return null;
   }
-};
-
-const BackButton = ({ deviceID }: { deviceID: string }) => {
-  const { t } = useTranslation();
-  return (
-    <ButtonLink
-      secondary
-      to={`/settings/device-settings/${deviceID}`}>
-      {t('button.back')}
-    </ButtonLink>
-  );
 };
 
 const ManageBackupGuide = ({

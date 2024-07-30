@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { getConfig } from '@/utils/config';
 import { ScriptType, signAddress } from '@/api/account';
@@ -27,15 +28,15 @@ import { useLoad } from '@/hooks/api';
 import { alertUser } from '@/components/alert/Alert';
 import { BitsuranceGuide } from './guide';
 import { getBitsuranceURL } from '@/api/bitsurance';
-import { route } from '@/utils/route';
-import style from './widget.module.css';
 import { convertScriptType } from '@/utils/request-addess';
+import style from './widget.module.css';
 
 type TProps = {
     code: string;
 };
 
 export const BitsuranceWidget = ({ code }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const [height, setHeight] = useState(0);
@@ -151,7 +152,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     try {
       let message = JSON.parse(m.data);
       if (message?.type === 'showInsuranceDashboard') {
-        route('bitsurance/dashboard');
+        navigate('/bitsurance/dashboard');
         return;
       }
 

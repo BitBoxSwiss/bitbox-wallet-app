@@ -18,8 +18,6 @@
   "accountInfo": {
     "address": "Adresse",
     "buyCTA": {
-      "buy": "{{unit}} kaufen",
-      "buyCrypto": "Krypto kaufen",
       "information": {
         "looksEmpty": "Sieht so aus, als wäre dieses Wallet leer.",
         "start": "Lege los, indem du einige Coins auf das Wallet einzahlst oder direkt in der BitBoxApp kaufst."
@@ -456,19 +454,18 @@
       },
       "noExchanges": "Leider sind in dieser Region keine Börsen verfügbar.",
       "region": "Region",
-      "selectRegion": "Nicht angegeben",
-      "title": "{{name}} kaufen "
+      "selectRegion": "Nicht angegeben"
     },
     "info": {
       "continue": "Zustimmen und fortfahren",
       "crypto": "Krypto",
       "disclaimer": {
         "intro": [
-          "Wir arbeiten mit MoonPay zusammen, damit du mit nur ein paar Klicks ganz einfach {{name}} direkt in der BitBoxApp kaufen kannst. ",
-          "MoonPay ist eine vollständig regulierte Finanzdienstleistungsplattform, die den Kauf von {{name}} in über 160 Ländern einfach und schnell macht."
+          "Wir arbeiten mit MoonPay zusammen, damit du mit nur ein paar Klicks ganz einfach {{coinCode}} direkt in der BitBoxApp kaufen kannst. ",
+          "MoonPay ist eine vollständig regulierte Finanzdienstleistungsplattform, die den Kauf von {{coinCode}} in über 160 Ländern einfach und schnell macht."
         ],
         "payment": {
-          "details": "Du kannst {{name}} über MoonPay mit den folgenden Zahlungsmethoden kaufen. Mit Kredit- oder Debitkarten geht es sofort und bequem, ist aber aufgrund des erhöhten Rückbuchungsrisikos teurer. Wir empfehlen die Verwendung der Überweisungsoption für größere Beträge. Die Mindestgebühr beträgt 4 USD / EUR oder gleichwertig.",
+          "details": "Du kannst {{coinCode}} über MoonPay mit den folgenden Zahlungsmethoden kaufen. Mit Kredit- oder Debitkarten geht es sofort und bequem, ist aber aufgrund des erhöhten Rückbuchungsrisikos teurer. Wir empfehlen die Verwendung der Überweisungsoption für größere Beträge. Die Mindestgebühr beträgt 4 USD / EUR oder gleichwertig.",
           "footnote": "Bitte beachte, dass die Wechselkurse von MoonPay von den in der BitBoxApp verwendeten abweichen können, was zu geringfügig unterschiedlichen Beträgen führen kann.",
           "table": {
             "1_description": "Niedrigste Gebühren, kann bis zu 3 Werktage dauern",
@@ -483,23 +480,21 @@
         },
         "privacyPolicy": "MoonPay-Datenschutzrichtlinie",
         "protection": {
-          "description": "Die BitBoxApp sammelt beim Kauf von {{name}} keine Daten. Die eingehenden Transaktionen werden wie reguläre Transaktion behandelt. MoonPay muss einige persönliche Daten sammeln, um funktionieren zu können. In deren Datenschutzbestimmungen wird ausführlich erläutert, wie mit diesen Daten umgegangen wird.",
-          "descriptionGeneric": "Die BitBoxApp erhebt beim Kauf von {{name}} keinerlei Daten, die eingehenden Gelder werden wie eine normale Transaktion behandelt. Partnerbörsen müssen jedoch einige Informationen sammeln, um zu funktionieren. Einzelheiten zum Umgang mit Daten kannst du der jeweiligen Datenschutzerklärung entnehmen.",
+          "descriptionGeneric_bitcoin": "Die BitBoxApp erhebt beim Kauf von Bitcoin keinerlei Daten, die eingehenden Gelder werden wie eine normale Transaktion behandelt. Partnerbörsen müssen jedoch einige Informationen sammeln, um zu funktionieren. Einzelheiten zum Umgang mit Daten kannst du der jeweiligen Datenschutzerklärung entnehmen.",
+          "descriptionGeneric_crypto": "Die BitBoxApp erhebt beim Kauf von Krypto keinerlei Daten, die eingehenden Gelder werden wie eine normale Transaktion behandelt. Partnerbörsen müssen jedoch einige Informationen sammeln, um zu funktionieren. Einzelheiten zum Umgang mit Daten kannst du der jeweiligen Datenschutzerklärung entnehmen.",
           "title": "Datenschutz"
         },
         "security": {
-          "description": "Wenn du {{name}} über MoonPay kaufst, dann nutzt du einen externen Dienst. Dieser Dienst liegt außerhalb des Anwendungsbereichs des BitBox02 Sicherheitsbedrohungsmodells und verlässt sich auf die Sicherheit des Geräts, auf dem die BitBoxApp Software läuft.",
-          "descriptionGeneric": "Wenn du {{name}} über eine Partnerbörse kaufst, nutzt du einen externen Dienst. Dieser Dienst liegt außerhalb des Geltungsbereichs des BitBox02-Sicherheitsbedrohungsmodells und hängt von der Sicherheit der Umgebung ab, in der die BitBoxApp-Software ausgeführt wird.",
+          "descriptionGeneric_bitcoin": "Wenn du Bitcoin über eine Partnerbörse kaufst, nutzt du einen externen Dienst. Dieser Dienst liegt außerhalb des Geltungsbereichs des BitBox02-Sicherheitsbedrohungsmodells und hängt von der Sicherheit der Umgebung ab, in der die BitBoxApp-Software ausgeführt wird.",
+          "descriptionGeneric_crypto": "Wenn du Krypto über eine Partnerbörse kaufst, nutzt du einen externen Dienst. Dieser Dienst liegt außerhalb des Geltungsbereichs des BitBox02-Sicherheitsbedrohungsmodells und hängt von der Sicherheit der Umgebung ab, in der die BitBoxApp-Software ausgeführt wird.",
           "link": "Sicherheitsbedrohungsmodells",
           "title": "Sicherheitsmodell"
-        },
-        "title": "Willkommen in deinem One-Stop-Shop zum Kauf von {{name}}"
+        }
       },
       "next": "Weiter",
       "selectLabel": "Konto wählen",
       "selectPlaceholder": "Wähle einen Coin",
-      "skip": "Nicht mehr anzeigen",
-      "title": "{{name}} kaufen "
+      "skip": "Nicht mehr anzeigen"
     },
     "pocket": {
       "data": {
@@ -531,8 +526,7 @@
         "p3": "Mit Pocket kannst du auch Sparpläne über Daueraufträge betreiben, sodass du mit Leichtigkeit DCA (Dollar-Cost-Average) durchführen kannst.",
         "title": "Willkommen in deinem One-Stop-Shop für den Kauf von Bitcoin"
       }
-    },
-    "title": "{{name}} kaufen"
+    }
   },
   "changePin": {
     "newTitle": "Neues Gerätepasswort",
@@ -609,7 +603,7 @@
         "description": "Erstelle \"Child Keys\" nach dem BIP85-Standard mit deiner BitBox-Wallet.",
         "disclaimer": "Ich verstehe die Funktionsweise der \"Child Keys\" und die damit verbundenen Sicherheitsaspekte.",
         "how": {
-          "description": "Die \"Child Keys\" werden als Wiederherstellungswörter auf deiner BitBox dargestellt. Du kannst beliebig viele \"Child Keys\" erstellen. Beim Erstellen eines \"Child Keys\" wirst du nach dem Key-Index (z.B. 1, 2, 3, etc.) und der gewünschten Anzahl an Wiederherstellungswörtern (12, 18 oder 24) gefragt. Es ist wichtig, dass du dir den Key-Index und die Anzahl der Wörter merkst, um später denselben \"Child Key\" erneut abrufen zu können.",
+          "description": "Die \"Child Keys\" werden als Mnemonic auf deiner BitBox angezeigt. Du kannst beliebig viele \"Child Keys\" erstellen. Beim Erstellen eines \"Child Keys\" wirst du nach dem Key-Index (z.B. 1, 2, 3, etc.) und der gewünschten Länge der Mnemonic (12, 18 oder 24 Recovery-Wörter) gefragt. Es ist wichtig, dass du dir den Key-Index und die Anzahl der Wörter merkst, um später denselben \"Child Key\" erneut anzeigen zu können.",
           "title": "Wie funktioniert es?"
         },
         "recover": {
@@ -987,6 +981,20 @@
         "text": "Diese Information zeigt die Modellnummer des Sicherheitschips. Der aktuellste Chip ist der ATECC608B mit verbesserten Sicherheitsfunktionen im Vergleich zu älteren Modellen.",
         "title": "Warum das Modell des Secure-Chips anzeigen?"
       }
+    },
+    "guideTitle": {
+      "account": "Konto Guide",
+      "accountInformation": "Konto Informationen Guide",
+      "accountSummary": "Kontenübersicht Guide",
+      "advancedSettings": "Erweiterte Einstellungen Guide",
+      "appearance": "Ansicht Guide",
+      "buy": "Kaufen Guide",
+      "insurance": "Versicherung Guide",
+      "manageAccount": "Konten verwalten Guide",
+      "manageDevice": "Gerät verwalten Guide",
+      "receive": "Empfangen Guide",
+      "send": "Senden Guide",
+      "walletConnect": "WalletConnect Guide "
     },
     "receive": {
       "address": {
@@ -1511,6 +1519,7 @@
     "button": "Prüfen",
     "coincontrol": {
       "address": "Adresse",
+      "addressReused": "Adresse mehrmals verwendet",
       "outpoint": "ID",
       "title": "Outputs wählen"
     },
@@ -1546,6 +1555,10 @@
         "low": "2 Stunden (12 Blöcke)",
         "low_eth": "5 Minuten oder weniger",
         "low_ltc": "30 Minuten (12 Blöcke)",
+        "mEconomy": "-",
+        "mFastest": "10 Minuten (nächster Block)",
+        "mHalfHour": "20 Minuten (2 Blöcke)",
+        "mHour": "30 Minuten (3 Blöcke)",
         "normal": "1 Stunde (6 Blöcke)",
         "normal_eth": "2 Minuten oder weniger",
         "normal_ltc": "15 Minuten (6 Blöcke)"
@@ -1556,6 +1569,10 @@
         "economy": "Sehr niedrig",
         "high": "Hoch",
         "low": "Niedrig",
+        "mEconomy": "Keine Priorität",
+        "mFastest": "Hoch",
+        "mHalfHour": "Mittel",
+        "mHour": "Niedrig",
         "normal": "Normal"
       },
       "placeholder": "Gebühr wird berechnet...."
@@ -1613,12 +1630,17 @@
         "description": "Du kannst dich mit deinem eigenen Electrum-Fullnode verbinden.",
         "title": "Eigenen Full Node verbinden"
       },
+      "exportLogs": {
+        "description": "Log-Datei für Fehlerbehebung und Support exportieren.",
+        "title": "Logs exportieren"
+      },
       "fee": "Eigene Gebühr aktivieren",
       "setProxyAddress": "Proxy Adresse eingeben",
       "title": "Erweiterte Einstellungen",
       "useProxy": "Tor Proxy aktivieren",
       "useSats": "BTC-Werte in Satoshis anzeigen"
     },
+    "general": "Allgemein",
     "header": {
       "home": "Home"
     },
@@ -1627,6 +1649,25 @@
       "title": "Info",
       "up-to-date": "Deine App ist auf dem neuesten Stand",
       "version": "App-Version"
+    },
+    "notes": {
+      "export": {
+        "description": "Erzeuge ein Backup deiner Transaktionsnotizen und Kontonamen.",
+        "success": "Notizen erfolgreich exportiert.",
+        "title": "Notizen exportieren"
+      },
+      "import": {
+        "accountNames_one": "{{count}} Kontoname importiert.",
+        "accountNames_other": "{{count}} Kontonamen importiert.",
+        "accountNames_zero": "0 Kontonamen importiert.",
+        "description": "Stelle deine Transaktionsnotizen und Kontonamen von einem zuvor erstellten Backup wieder her.",
+        "title": "Notizen importieren",
+        "tooLarge": "Datei zu groß.",
+        "transactionNotes_one": "{{count}} Transaktionsnotiz importiert.",
+        "transactionNotes_other": "{{count}} Transaktionsnotizen importiert.",
+        "transactionNotes_zero": "0 Transaktionsnotizen importiert."
+      },
+      "title": "Notizen verwalten"
     },
     "restart": "Bitte starte die BitBoxApp neu, damit die Änderungen wirksam werden.",
     "services": {
@@ -1637,7 +1678,6 @@
   },
   "setup": "Gerätepasswort festlegen",
   "sidebar": {
-    "buy": "Krypto kaufen",
     "device": "Gerät verwalten",
     "insurance": "Versicherung",
     "leave": "Verlassen",
@@ -1727,13 +1767,15 @@
     "connect": {
       "button": "Verbinden",
       "dappLabel": "Gebe die URI-Adresse der Dapp ein",
-      "invalidPairingUri": "Ungültige Pairing-URI"
+      "invalidPairingUri": "Ungültige Pairing-URI",
+      "missingNamespace": "Connecting app request did not define necessary namespace"
     },
     "dashboard": {
       "allSessions": "Alle Sitzungen",
       "disclaimer": "Walletconnect ist ein Protokoll zur Verbindung mit Ethereum basierten Dapps. Diese Dapps werden von Drittanbieterdiensten betrieben. Stelle daher nur eine Verbindung zu Dapps her, denen du vertraust, und stelle sicher, dass du bei einer Transaktion immer weißt, was du signierst.",
       "newConnection": "Neue Verbindung",
-      "noConnectedSessions": "Derzeit sind keine Konten mit Dapps verbunden."
+      "noConnectedSessions": "Derzeit sind keine Konten mit Dapps verbunden.",
+      "unspecifiedAccount": "Unbestimmtes Konto"
     },
     "invalidPairingChain": "Fehler beim Genehmigen des Pairing. Bitte stelle sicher, dass du eines der unterstützten Netzwerke verwendest: {{chains}}",
     "pairingRequest": {
@@ -1762,6 +1804,7 @@
     "walletConnect": "WalletConnect"
   },
   "warning": {
+    "coincontrol": "Ein oder mehrere UTXOs haben eine mehrfach verwendete Adresse. Beachte  dass der Empfänger alle UTXOs sehen wird welche mit diesen Adressen verbunden sind.",
     "receivePairing": "Bitte aktiviere 2FA, um Adressen sicher zu verifizieren. Klicke dazu auf \"Geräte verwalten\" im Menü auf der linken Seite.",
     "sdcard": "Bewahre deine microSD Karte separat von deiner BitBox auf. Die microSD Karte wird nur benötigt, wenn du deine Backups verwalten willst. Für den normalen Betrieb ist sie nicht erforderlich.",
     "sendPairing": "Bitte koppele deine BitBox mit einem Smartphone um Transaktionen sicher verifizieren zu können. Klicke dazu auf \"Geräte verwalten\" im Menü auf der linken Seite."
@@ -1771,6 +1814,7 @@
     "getStarted": "Beginnen wir mit der Installation der Firmware auf deiner BitBox02.",
     "insertBitBox02": "Tippe dann auf die BitBox02 zum weiter machen. ",
     "insertDevice": "Bitte verbinde dein Gerät, um loszulegen",
+    "loadingAccounts": "Lade Konten",
     "title": "Willkommen"
   }
 }

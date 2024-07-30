@@ -57,7 +57,7 @@ export const BuyReceiveCTA = ({
   const onReceiveCTA = () => {
     if (balanceList) {
       if (balanceList.length > 1) {
-        navigate('accounts/select-receive');
+        navigate('/accounts/select-receive');
         return;
       }
       navigate(`/account/${code}/receive`);

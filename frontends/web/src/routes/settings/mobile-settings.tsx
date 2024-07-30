@@ -15,9 +15,9 @@
  */
 
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { View, ViewContent } from '@/components/view/view';
 import { Header, Main } from '@/components/layout';
-import { route } from '@/utils/route';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Tabs } from './components/tabs';
 import { useTranslation } from 'react-i18next';
@@ -32,13 +32,15 @@ import { TPagePropsWithSettingsTabs } from './types';
  * of "tabs" on Mobile.
  **/
 export const MobileSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
+  const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { t } = useTranslation();
   useEffect(() => {
     if (!isMobile) {
-      route('/settings/general');
+      // replace current history item when redirecting so that the user can go back
+      navigate('/settings/general', { replace: true });
     }
-  }, [isMobile]);
+  }, [isMobile, navigate]);
   return (
     <Main>
       <Header title={<h2>{t('settings.title')}</h2>} />

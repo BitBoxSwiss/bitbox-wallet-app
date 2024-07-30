@@ -15,8 +15,8 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { route } from '@/utils/route';
 import * as accountApi from '@/api/account';
 import { getExchangeSupportedAccounts } from './utils';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
@@ -33,6 +33,7 @@ type TProps = {
 }
 
 export const BuyInfo = ({ code, accounts }: TProps) => {
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<string>(code);
   const [disabled, setDisabled] = useState<boolean>(false);
   const [supportedAccounts, setSupportedAccounts] = useState<accountApi.IAccount[]>();
@@ -57,18 +58,19 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
       const accountCode = supportedAccounts[0].code;
       connectKeystore(accountCode).then(connected => {
         if (connected) {
-          route(`/buy/exchange/${accountCode}`);
+          // replace current history item when redirecting so that the user can go back
+          navigate(`/buy/exchange/${accountCode}`, { replace: true });
         }
       });
     }
-  }, [supportedAccounts]);
+  }, [supportedAccounts, navigate]);
 
   const handleProceed = async () => {
     setDisabled(true);
     try {
       const connected = await connectKeystore(selected);
       if (connected) {
-        route(`/buy/exchange/${selected}`);
+        navigate(`/buy/exchange/${selected}`);
       }
     } finally {
       setDisabled(false);
@@ -85,13 +87,17 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
   }
 
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
-  const name = hasOnlyBTCAccounts ? 'Bitcoin' : t('buy.info.crypto');
+  const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   return (
     <Main>
       <GuideWrapper>
         <GuidedContent>
-          <Header title={<h2>{t('buy.info.title', { name })}</h2>}>
+          <Header title={
+            <h2>
+              {t('generic.buy', { context: translationContext })}
+            </h2>
+          }>
             <HideAmountsButton />
           </Header>
           <View width="550px" verticallyCentered fullscreen={false}>
@@ -99,20 +105,21 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
               { !supportedAccounts || supportedAccounts.length === 0 ? (
                 <div className="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
               ) : (
-                supportedAccounts &&
-                      <GroupedAccountSelector
-                        accounts={supportedAccounts}
-                        title={t('buy.title', { name })}
-                        disabled={disabled}
-                        selected={selected}
-                        onChange={setSelected}
-                        onProceed={handleProceed}
-                      />
+                supportedAccounts && (
+                  <GroupedAccountSelector
+                    accounts={supportedAccounts}
+                    title={t('generic.buy', { context: translationContext })}
+                    disabled={disabled}
+                    selected={selected}
+                    onChange={setSelected}
+                    onProceed={handleProceed}
+                  />
+                )
               )}
             </ViewContent>
           </View>
         </GuidedContent>
-        <BuyGuide name={name} />
+        <BuyGuide translationContext={translationContext} />
       </GuideWrapper>
     </Main>
   );

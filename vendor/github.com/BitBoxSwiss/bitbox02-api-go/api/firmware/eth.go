@@ -253,7 +253,7 @@ func (device *Device) ETHSignEIP1559(
 }
 
 // ETHSignMessage signs an Ethereum message. The provided msg will be prefixed with "\x19Ethereum
-// message\n" + len(msg) in the hardware, e.g. "\x19Ethereum\n5hello" (yes, the len prefix is the
+// Signed Message\n" + len(msg) in the hardware, e.g. "\x19Ethereum Signed dMessage\n5hello" (yes, the len prefix is the
 // ascii representation with no fixed size or delimiter, WTF).
 // 27 is added to the recID to denote an uncompressed pubkey.
 func (device *Device) ETHSignMessage(

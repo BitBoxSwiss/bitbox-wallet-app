@@ -24,7 +24,7 @@ export type TProposalError = {
     feeError: string;
 }
 
-export const txProposalErrorHandling = (registerEvents: () => void, unregisterEvents: () => void, errorCode?: string) => {
+export const txProposalErrorHandling = (errorCode?: string) => {
   const { t } = i18n;
   switch (errorCode) {
   case 'invalidAddress':
@@ -37,8 +37,7 @@ export const txProposalErrorHandling = (registerEvents: () => void, unregisterEv
     return { feeError: t(`send.error.${errorCode}`) };
   default:
     if (errorCode) {
-      unregisterEvents();
-      alertUser(errorCode, { callback: registerEvents });
+      alertUser(errorCode);
     }
     return { proposedFee: undefined };
   }

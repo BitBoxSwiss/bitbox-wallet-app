@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark, WarningOutlined } from '@/components/icon';
+import { ChevronRightDark, WarningOutlined, PointToBitBox02 } from '@/components/icon';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button, Checkbox } from '@/components/forms';
 import { ChangeEvent, useState } from 'react';
@@ -32,7 +32,6 @@ type TProps = {
 type TDialog = {
     open: boolean;
     handleCloseDialog: () => void;
-    isConfirming: boolean;
     understand: boolean;
     handleUnderstandChange: (e: ChangeEvent<HTMLInputElement>) => void;
     handleReset: () => void;
@@ -84,7 +83,6 @@ const FactoryResetSetting = ({ deviceID }: TProps) => {
       <FactoryResetDialog
         open={activeDialog}
         handleCloseDialog={abort}
-        isConfirming={isConfirming}
         understand={understand}
         handleUnderstandChange={handleUnderstandChange}
         handleReset={reset}
@@ -98,7 +96,6 @@ const FactoryResetSetting = ({ deviceID }: TProps) => {
 const FactoryResetDialog = ({
   open,
   handleCloseDialog,
-  isConfirming,
   understand,
   handleUnderstandChange,
   handleReset
@@ -109,7 +106,6 @@ const FactoryResetDialog = ({
       open={open}
       title={t('reset.title')}
       onClose={handleCloseDialog}
-      disabledClose={isConfirming}
       small>
       <div className="columnsContainer half">
         <div className="columns">
@@ -142,6 +138,7 @@ const FactoryResetWaitDialog = ({ isConfirming }: TWaitDialog) => {
     <WaitDialog
       title={t('reset.title')} >
       {t('bitbox02Interact.followInstructions')}
+      <PointToBitBox02 />
     </WaitDialog>
   );
 
