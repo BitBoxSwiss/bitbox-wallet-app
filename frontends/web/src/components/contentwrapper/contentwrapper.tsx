@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ReactNode } from 'react';
+import { forwardRef, ReactNode } from 'react';
 import style from './contentwrapper.module.css';
 
 type TProps = {
@@ -20,8 +20,8 @@ type TProps = {
     children: ReactNode
   }
 
-export const ContentWrapper = ({ className = '', children }: TProps) => {
+export const ContentWrapper = forwardRef<HTMLDivElement, TProps>(({ className = '', children }: TProps, ref) => {
   return (
-    <div className={`${className} ${style.contentWrapper}`}>{children}</div>
+    <div ref={ref} className={`${className} ${style.contentWrapper}`}>{children}</div>
   );
-};
+});

@@ -47,6 +47,7 @@ import { A } from '@/components/anchor/anchor';
 import { getConfig, setConfig } from '@/utils/config';
 import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { GlobalBanners } from '@/components/globalbanners/globalbanners';
 import style from './account.module.css';
 
 type Props = {
@@ -278,6 +279,7 @@ export const Account = ({
     <div className="contentWithGuide">
       <div className="container">
         <ContentWrapper>
+          <GlobalBanners />
           <Status hidden={!hasCard} type="warning">
             {t('warning.sdcard')}
           </Status>

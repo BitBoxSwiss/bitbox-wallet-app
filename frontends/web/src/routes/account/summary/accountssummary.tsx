@@ -37,6 +37,7 @@ import { AppContext } from '@/contexts/AppContext';
 import { getAccountsByKeystore, isAmbiguiousName } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { GlobalBanners } from '@/components/globalbanners/globalbanners';
 
 type TProps = {
   accounts: accountApi.IAccount[];
@@ -194,17 +195,17 @@ export const AccountsSummary = ({
     getAccountsBalance();
     getCoinsTotalBalance();
   }, [onStatusChanged, getAccountsBalance, getCoinsTotalBalance, accounts]);
+
   return (
     <GuideWrapper>
       <GuidedContent>
         <Main>
           <ContentWrapper>
+            <GlobalBanners />
             <Status hidden={!hasCard} type="warning">
               {t('warning.sdcard')}
             </Status>
           </ContentWrapper>
-
-
           <Header title={<h2>{t('accountSummary.title')}</h2>}>
             <HideAmountsButton />
           </Header>
