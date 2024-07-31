@@ -22,6 +22,7 @@ import { useSubscribeReset } from '@/hooks/api';
 import { Dialog, DialogButtons } from './dialog/dialog';
 import { BitBox02StylizedDark, BitBox02StylizedLight, Cancel, PointToBitBox02 } from './icon';
 import { useDarkmode } from '@/hooks/darkmode';
+import { UseBackButton } from '@/hooks/backbutton';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import styles from './keystoreconnectprompt.module.css';
 
@@ -63,6 +64,10 @@ export const KeystoreConnectPrompt = () => {
   case 'connect':
     return (
       <Dialog title={t('welcome.connect')} medium open>
+        <UseBackButton handler={() => {
+          cancelAndReset();
+          return false;
+        }} />
         <p className={styles.text}>{ data.keystoreName === '' ?
           t('connectKeystore.promptNoName') :
           t('connectKeystore.promptWithName', { name: data.keystoreName })
@@ -86,6 +91,10 @@ export const KeystoreConnectPrompt = () => {
     const err = errorMessage(data.errorCode);
     return (
       <Dialog title={t('welcome.connect')} medium open>
+        <UseBackButton handler={() => {
+          cancelAndReset();
+          return false;
+        }} />
         <p className={styles.text}>
           { err ? err : data.errorMessage }
         </p>
