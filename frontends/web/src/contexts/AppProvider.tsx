@@ -77,7 +77,6 @@ export const AppProvider = ({ children }: TProps) => {
         sidebarStatus,
         chartDisplay,
         setActiveSidebar,
-        setGuideShown,
         setGuideExists,
         setSidebarStatus,
         setHideAmounts,
