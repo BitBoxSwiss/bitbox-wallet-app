@@ -17,8 +17,8 @@
 
 import { ReactNode } from 'react';
 import { StatusInfo, StatusSuccess, StatusWarning, StatusError } from '@/components/icon';
-import styles from './message.module.css';
 import { TMessageTypes } from '@/utils/types';
+import styles from './message.module.css';
 
 type TMessageIconProps = { type: TMessageTypes };
 

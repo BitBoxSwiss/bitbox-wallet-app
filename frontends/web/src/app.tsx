@@ -32,18 +32,14 @@ import { notifyUser } from './api/system';
 import { ConnectedApp } from './connected';
 import { Alert } from './components/alert/Alert';
 import { Aopp } from './components/aopp/aopp';
-import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
 import { KeystoreConnectPrompt } from './components/keystoreconnectprompt';
-import { MobileDataWarning } from './components/mobiledatawarning';
 import { Sidebar } from './components/sidebar/sidebar';
-import { Update } from './components/update/update';
 import { RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { Providers } from './contexts/providers';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import styles from './app.module.css';
 
 export const App = () => {
@@ -156,47 +152,38 @@ export const App = () => {
       <Providers>
         <Darkmode />
         <div className="app">
-          <AuthRequired />
+          <AuthRequired/>
           <Sidebar
             accounts={activeAccounts}
             deviceIDs={deviceIDs}
             devices={devices}
           />
-          <div className={`appContent flex flex-column flex-1 ${styles.parentContainer}`}>
-            <div className="flex flex-column">
-              <ContentWrapper className={`flex flex-column ${styles.banners}`}>
-                <Update />
-                <MobileDataWarning />
-                <Banner msgKey="bitbox01" />
-                <Banner msgKey="bitbox02" />
-              </ContentWrapper>
-              <WCSigningRequest />
-              <Aopp />
-              <KeystoreConnectPrompt />
-              {
-                Object.entries(devices).map(([deviceID, productName]) => {
-                  if (productName === 'bitbox02') {
-                    return (
-                      <Fragment key={deviceID}>
-                        <BitBox02Wizard
-                          deviceID={deviceID}
-                        />
-                      </Fragment>
-                    );
-                  }
-                  return null;
-                })
-              }
-              <AppRouter
-                accounts={accounts}
-                activeAccounts={activeAccounts}
-                deviceIDs={deviceIDs}
-                devices={devices}
-                devicesKey={devicesKey}
-              />
-              <RouterWatcher />
-            </div>
-
+          <div className={styles.appContent}>
+            <WCSigningRequest />
+            <Aopp />
+            <KeystoreConnectPrompt />
+            {
+              Object.entries(devices).map(([deviceID, productName]) => {
+                if (productName === 'bitbox02') {
+                  return (
+                    <Fragment key={deviceID}>
+                      <BitBox02Wizard
+                        deviceID={deviceID}
+                      />
+                    </Fragment>
+                  );
+                }
+                return null;
+              })
+            }
+            <AppRouter
+              accounts={accounts}
+              activeAccounts={activeAccounts}
+              deviceIDs={deviceIDs}
+              devices={devices}
+              devicesKey={devicesKey}
+            />
+            <RouterWatcher />
           </div>
           <Alert />
           <Confirm />

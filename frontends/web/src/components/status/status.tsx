@@ -75,7 +75,7 @@ export const Status = ({
   }
 
   return (
-    <div className={`${style.messageWrapper} ${className}`}>
+    <div className={className}>
       <Message noIcon={noIcon} type={type}>
         <div className={style.container}>
           <div className={style.content}>

@@ -16,7 +16,7 @@
 
 import { apiGet } from '@/utils/request';
 import { subscribeEndpoint, TUnsubscribe } from './subscribe';
-import { TMessageTypes } from '@/utils/types';
+import type { TMessageTypes } from '@/utils/types';
 
 export type TBannerInfo = {
   id: string;

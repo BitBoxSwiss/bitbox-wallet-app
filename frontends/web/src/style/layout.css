@@ -65,19 +65,6 @@
     min-height: -webkit-fill-available;
 }
 
-.appContent {
-    height: 100vh;
-    /* mobile viewport bug fix */
-    max-height: -webkit-fill-available;
-}
-
-@media (max-width: 900px) {
-    .appContent {
-        position: absolute;
-        width: 100%;
-    }
-}
-
 @media (max-width: 768px) {
     .spaced > *:not(:last-child) {
         margin-right: var(--space-quarter);

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-import { ReactNode } from 'react';
-import style from './contentwrapper.module.css';
 
-type TProps = {
-    className?: string
-    children: ReactNode
-  }
+import { Banner } from '@/components/banner/banner';
+import { MobileDataWarning } from '@/components/mobiledatawarning';
+import { Update } from '@/components/update/update';
 
-export const ContentWrapper = (({ className = '', children }: TProps) => {
+export const GlobalBanners = () => {
   return (
-    <div className={`${className} ${style.contentWrapper}`}>{children}</div>
+    <>
+      <Update />
+      <Banner msgKey="bitbox01" />
+      <Banner msgKey="bitbox02" />
+      <MobileDataWarning />
+    </>
+
   );
-});
+};
