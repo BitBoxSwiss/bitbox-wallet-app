@@ -9,7 +9,8 @@ environment:
       GOTOOLCHAIN: local
       PLATFORM: amd64
       COMPILER: msvc
-
+# https://www.appveyor.com/docs/windows-images-software/#golang
+# If you change this, also change the GOROOT variable above to point to the right installation folder.
 stack: go 1.22
 
 install:
