@@ -86,6 +86,8 @@ linters:
     - wsl
     - execinquery
     - ireturn
+    - copyloopvar
+    - intrange
     - wrapcheck
     - varnamelen
     - tagliatelle
