@@ -42,14 +42,14 @@ type TProviderProps = {
 
 export const BackButtonProvider = ({ children }: TProviderProps) => {
   const [handlers, sethandlers] = useState<THandler[]>([]);
-  const { guideShown, setGuideShown } = useContext(AppContext);
+  const { guideShown, toggleGuide } = useContext(AppContext);
 
   const callTopHandler = useCallback(() => {
     // On mobile, the guide covers the whole screen.
     // Make the back button remove the guide first.
     // On desktop the guide does not cover everything and one can keep navigating while it is visible.
     if (runningOnMobile() && guideShown) {
-      setGuideShown(false);
+      toggleGuide();
       return false;
     }
 
@@ -58,7 +58,7 @@ export const BackButtonProvider = ({ children }: TProviderProps) => {
       return topHandler();
     }
     return true;
-  }, [handlers, guideShown, setGuideShown]);
+  }, [handlers, guideShown, toggleGuide]);
 
   const pushHandler = useCallback((handler: THandler) => {
     sethandlers((prevStack) => [...prevStack, handler]);
