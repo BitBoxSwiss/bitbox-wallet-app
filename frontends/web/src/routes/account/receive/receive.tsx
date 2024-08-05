@@ -18,6 +18,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
+import { UseBackButton } from '@/hooks/backbutton';
 import * as accountApi from '@/api/account';
 import { getScriptName, isEthereumBased } from '@/routes/account/utils';
 import { CopyableInput } from '@/components/copy/Copy';
@@ -292,25 +293,35 @@ export const Receive = ({
                       setVerifying(false);
                     } : undefined}
                     medium centered>
-                    {account && <>
-                      <div className="text-center">
-                        { isEthereumBased(account.coinCode) && (
-                          <p>
-                            <strong>
-                              {t('receive.onlyThisCoin.warning', {
-                                coinName: account.coinName,
-                              })}
-                            </strong><br />
-                            {t('receive.onlyThisCoin.description')}
-                          </p>
+                    {account && (
+                      <>
+                        {verifying && (
+                          <UseBackButton handler={() => {
+                            if (verifying === 'insecure') {
+                              setVerifying(false);
+                            }
+                            return false;
+                          }} />
                         )}
-                        <QRCode data={uriPrefix + address} />
-                        <p>{t('receive.verifyInstruction')}</p>
-                      </div>
-                      <div className="m-bottom-half">
-                        <CopyableInput value={address} flexibleHeight />
-                      </div>
-                    </>}
+                        <div className="text-center">
+                          { isEthereumBased(account.coinCode) && (
+                            <p>
+                              <strong>
+                                {t('receive.onlyThisCoin.warning', {
+                                  coinName: account.coinName,
+                                })}
+                              </strong><br />
+                              {t('receive.onlyThisCoin.description')}
+                            </p>
+                          )}
+                          <QRCode data={uriPrefix + address} />
+                          <p>{t('receive.verifyInstruction')}</p>
+                        </div>
+                        <div className="m-bottom-half">
+                          <CopyableInput value={address} flexibleHeight />
+                        </div>
+                      </>
+                    )}
                   </Dialog>
                 </div>
               )}
