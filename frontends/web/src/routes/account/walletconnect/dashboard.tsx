@@ -29,6 +29,7 @@ import { WCSessionCard } from './components/session-card/session-card';
 import { Button } from '@/components/forms';
 import { Status } from '@/components/status/status';
 import { WCGuide } from './guide';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import styles from './dashboard.module.css';
 
 type TProps = {
@@ -85,12 +86,14 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Status
-            type="info"
-            dismissible="walletConnectDisclaimerDismissed"
-          >
-            {t('walletConnect.dashboard.disclaimer')}
-          </Status>
+          <ContentWrapper>
+            <Status
+              type="info"
+              dismissible="walletConnectDisclaimerDismissed"
+            >
+              {t('walletConnect.dashboard.disclaimer')}
+            </Status>
+          </ContentWrapper>
           <Header
             title={<h2>{t('walletConnect.walletConnect')}</h2>}
           />
@@ -107,22 +110,22 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
               </div>
               <hr className={styles.separator} />
               {hasSession &&
-            <div className={styles.sessionCardsContainer}>
-              <p className={styles.allSessionsHeading}>{t('walletConnect.dashboard.allSessions')}</p>
-              {sessions.map(session => {
-                return (
-                  <WCSessionCard
-                    key={session.topic}
-                    receiveAddress={session.namespaces['eip155'].accounts[0] ? getAddressFromEIPString(session.namespaces['eip155'].accounts[0]) : ''}
-                    metadata={session.peer.metadata}
-                    onDisconnect={() => handleDisconnectSession(session.topic)}
-                  />
-                );
-              })}
-            </div>
+                <div className={styles.sessionCardsContainer}>
+                  <p className={styles.allSessionsHeading}>{t('walletConnect.dashboard.allSessions')}</p>
+                  {sessions.map(session => {
+                    return (
+                      <WCSessionCard
+                        key={session.topic}
+                        receiveAddress={session.namespaces['eip155'].accounts[0] ? getAddressFromEIPString(session.namespaces['eip155'].accounts[0]) : ''}
+                        metadata={session.peer.metadata}
+                        onDisconnect={() => handleDisconnectSession(session.topic)}
+                      />
+                    );
+                  })}
+                </div>
               }
               {!hasSession &&
-            <p className={styles.noConnectedSessions}>{t('walletConnect.dashboard.noConnectedSessions')}</p>
+                <p className={styles.noConnectedSessions}>{t('walletConnect.dashboard.noConnectedSessions')}</p>
               }
             </ViewContent>
           </View>
