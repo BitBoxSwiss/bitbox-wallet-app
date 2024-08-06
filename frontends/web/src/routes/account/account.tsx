@@ -70,7 +70,7 @@ export const Account = ({
   const [usesProxy, setUsesProxy] = useState<boolean>();
   const [insured, setInsured] = useState<boolean>(false);
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
-  const [stateCode, setStateCode] = useState<string>();
+  const [offlineErrorTextLines, setOfflineErrorTextLines] = useState<string[]>([]);
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeBuySupported(code), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
@@ -130,7 +130,10 @@ export const Account = ({
 
   const hasCard = useSDCard(devices, [code]);
 
-  const onAccountChanged = useCallback((code: accountApi.AccountCode, status: accountApi.IStatus | undefined) => {
+  const onAccountChanged = useCallback((
+    code: accountApi.AccountCode,
+    status: accountApi.IStatus | undefined,
+  ) => {
     if (!code || status === undefined || status.fatalError) {
       return;
     }
@@ -179,6 +182,19 @@ export const Account = ({
   }, [onAccountChanged, code]);
 
   useEffect(() => {
+    if (status && status.offlineError !== null) {
+      const errors = [
+        t('account.reconnecting'),
+        status.offlineError,
+      ];
+      if (usesProxy) {
+        errors.push(t('account.maybeProxyError'));
+      }
+      setOfflineErrorTextLines(errors);
+    }
+  }, [status, t, usesProxy]);
+
+  useEffect(() => {
     const subscriptions = [
       syncAddressesCount(code)(setSyncedAddressesCount),
       statusChanged((eventCode) => eventCode === code && onStatusChanged()),
@@ -201,7 +217,6 @@ export const Account = ({
   };
 
   useEffect(() => {
-    setStateCode(code);
     setBalance(undefined);
     setStatus(undefined);
     setSyncedAddressesCount(0);
@@ -211,32 +226,13 @@ export const Account = ({
 
   const hasDataLoaded = balance !== undefined && transactions !== undefined;
 
-  if (stateCode !== code) {
-    // Sync code property with stateCode to work around a re-render that
-    // happens briefly before `setStatus(undefined)` stops rendering again below.
-    return null;
-  }
-  if (!account || status === undefined) {
-    return null;
-  }
-
-  if (status.fatalError) {
+  if (status?.fatalError) {
     return (
       <Spinner guideExists text={t('account.fatalError')} />
     );
   }
-  if (status.offlineError !== null) {
-    const offlineErrorTextLines: string[] = [];
-    offlineErrorTextLines.push(t('account.reconnecting'));
-    offlineErrorTextLines.push(status.offlineError);
-    if (usesProxy) {
-      offlineErrorTextLines.push(t('account.maybeProxyError'));
-    }
-    return (
-      <Spinner guideExists text={offlineErrorTextLines.join('\n')} />
-    );
-  }
-  if (!status.synced) {
+
+  if (status && !status.synced && syncedAddressesCount) {
     const text =
       (syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
         '\n' + t('account.syncedAddressesCount', {
@@ -251,11 +247,6 @@ export const Account = ({
       } />
     );
   }
-  if (!hasDataLoaded) {
-    return (
-      <Spinner guideExists text={''} />
-    );
-  }
 
   const exchangeBuySupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
 
@@ -267,7 +258,7 @@ export const Account = ({
     && transactions.list.length === 0;
 
 
-  const actionButtonsProps = {
+  const actionButtonsProps = account && {
     code,
     coinCode: account.coinCode,
     canSend: balance && balance.hasAvailable,
@@ -280,26 +271,29 @@ export const Account = ({
       <div className="container">
         <ContentWrapper>
           <GlobalBanners />
-          <Status hidden={!hasCard} type="warning">
+          <Status key="sdcard" type="warning" hidden={!hasCard}>
             {t('warning.sdcard')}
+          </Status>
+          <Status key="offline" type="error" hidden={!offlineErrorTextLines.length}>
+            {offlineErrorTextLines.join('\n')}
           </Status>
         </ContentWrapper>
         <Dialog open={insured && uncoveredFunds.length !== 0} medium title={t('account.warning')} onClose={() => setUncoveredFunds([])}>
           <MultilineMarkup tagName="p" markup={t('account.uncoveredFunds', {
-            name: account.name,
+            name: account?.name,
             uncovered: uncoveredFunds,
           })} />
           <A href={getBitsuranceGuideLink()}>{t('account.uncoveredFundsLink')}</A>
         </Dialog>
         <Header
-          title={<h2><span>{account.name}</span>{insured && (<Insured />)}</h2>}>
+          title={<h2><span>{account?.name}</span>{insured && (<Insured />)}</h2>}>
           <HideAmountsButton />
           <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center m-left-half">
             <Info className={style.accountIcon} />
             <span>{t('accountInfo.label')}</span>
           </Link>
         </Header>
-        {status.synced && hasDataLoaded && isBitcoinBased(account.coinCode) && (
+        {status?.synced && hasDataLoaded && account && isBitcoinBased(account.coinCode) && (
           <HeadersSync coinCode={account.coinCode} />
         )}
         <div className="innerContainer scrollableContainer">
@@ -314,7 +308,9 @@ export const Account = ({
                 <label className="labelXLarge flex-self-start-mobile show-on-small">
                   {t('accountSummary.availableBalance')}
                 </label>
-                {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
+                {!isAccountEmpty && actionButtonsProps && (
+                  <ActionButtons {...actionButtonsProps} />
+                )}
               </div>
             </div>
             {isAccountEmpty && (
@@ -326,22 +322,26 @@ export const Account = ({
                 balanceList={[balance]}
               />
             )}
-            {!isAccountEmpty && <Transactions
-              accountCode={code}
-              handleExport={exportAccount}
-              explorerURL={account.blockExplorerTxPrefix}
-              transactions={transactions}
-            />}
+            {!isAccountEmpty && account && (
+              <Transactions
+                accountCode={code}
+                handleExport={exportAccount}
+                explorerURL={account.blockExplorerTxPrefix}
+                transactions={transactions}
+              />
+            )}
           </div>
         </div>
       </div>
-      <AccountGuide
-        account={account}
-        unit={balance?.available.unit}
-        hasIncomingBalance={balance && balance.hasIncoming}
-        hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
-        hasNoBalance={balance && balance.available.amount === '0'}
-      />
+      {account && (
+        <AccountGuide
+          account={account}
+          unit={balance?.available.unit}
+          hasIncomingBalance={balance && balance.hasIncoming}
+          hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
+          hasNoBalance={balance && balance.available.amount === '0'}
+        />
+      )}
     </div>
   );
 };
