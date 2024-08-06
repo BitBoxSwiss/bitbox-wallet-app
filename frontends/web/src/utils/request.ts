@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-import { i18n } from '@/i18n/i18n';
-import { alertUser } from '@/components/alert/Alert';
 import { call } from './transport-qt';
 import { mobileCall } from './transport-mobile';
 import { runningInQtWebEngine, runningOnMobile } from './env';
@@ -44,28 +42,6 @@ export const apiURL = (endpoint: string): string => {
   return (isTLS() ? 'https://' : 'http://') + 'localhost:' + apiPort + '/api/' + endpoint;
 };
 
-const handleError = (endpoint: string) => {
-  return (json: undefined | null | { error?: string }) => {
-    return new Promise((resolve, reject) => {
-      if (json && json.error) {
-        if (json.error.indexOf('hidapi: unknown failure') !== -1) {
-          // Ignore device communication errors. Usually
-          // happens when unplugged during an operation, in
-          // which case the result does not matter.
-          return;
-        }
-        console.error('error from endpoint', endpoint, json);
-        // TODO: remove i18n.t dependency because if cyclic i18n<->request dependency
-        // TODO: deprecate alertUser
-        alertUser(i18n.t('genericError'));
-        reject(json.error);
-        return;
-      }
-      resolve(json);
-    });
-  };
-};
-
 export const apiGet = (endpoint: string): Promise<any> => {
   // if apiGet() is invoked immediately this can error with:
   // request.js:64 Uncaught TypeError: Cannot read properties of undefined
@@ -86,7 +62,7 @@ export const apiGet = (endpoint: string): Promise<any> => {
   }
   return fetch(apiURL(endpoint), {
     method: 'GET'
-  }).then(response => response.json()).then(handleError(endpoint));
+  }).then(response => response.json());
 };
 
 export const apiPost = (
@@ -110,5 +86,5 @@ export const apiPost = (
   return fetch(apiURL(endpoint), {
     method: 'POST',
     body: JSON.stringify(body)
-  }).then(response => response.json()).then(handleError(endpoint));
+  }).then(response => response.json());
 };
