@@ -6,7 +6,7 @@ const (
 	// See the following for docs and details: https://www.coingecko.com/en/api.
 	coingeckoAPIV3 = "https://api.coingecko.com/api/v3"
 	// A mirror of CoinGecko API specifically for use with BitBoxApp.
-	shiftGeckoMirrorAPIV3 = "https://exchangerates.shiftcrypto.io/api/v3"
+	shiftGeckoMirrorAPIV3 = "https://exchangerates.shiftcrypto.io/api/v44"
 	// The maximum duration the updater is allowed to get exchange rates for
 	// in a single request. If increasing the range, make sure the response
 	// fits into LimitReader in fetchGeckoMarketRange.
