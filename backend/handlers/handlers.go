@@ -222,7 +222,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitialize).Methods("POST")
-	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoins).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystore).Methods("POST")
@@ -1207,8 +1207,19 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 		writeJSON(w, value)
 	})
 }
-func (handlers *Handlers) getAccountSummary(*http.Request) (interface{}, error) {
-	return handlers.backend.ChartData()
+
+func (handlers *Handlers) getAccountSummary(*http.Request) interface{} {
+	type Result struct {
+		Error   string         `json:"error,omitempty"`
+		Data    *backend.Chart `json:"data,omitempty"`
+		Success bool           `json:"success"`
+	}
+
+	data, err := handlers.backend.ChartData()
+	if err != nil {
+		return Result{Success: false, Error: err.Error()}
+	}
+	return Result{Success: true, Data: data}
 }
 
 // getSupportedCoinsHandler returns an array of coin codes for which you can add an account.

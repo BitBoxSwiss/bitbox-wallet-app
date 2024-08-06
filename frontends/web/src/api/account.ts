@@ -180,7 +180,15 @@ export const init = (code: AccountCode): Promise<null> => {
   return apiPost(`account/${code}/init`);
 };
 
-export interface ISummary {
+export type TSummaryResponse = {
+    success: true;
+    data: TSummary;
+} | {
+  success: false;
+  error: string;
+}
+
+export type TSummary = {
     chartDataMissing: boolean;
     chartDataDaily: ChartData;
     chartDataHourly: ChartData;
@@ -191,7 +199,7 @@ export interface ISummary {
     lastTimestamp: number;
 }
 
-export const getSummary = (): Promise<ISummary> => {
+export const getSummary = (): Promise<TSummaryResponse> => {
   return apiGet('account-summary');
 };
 
