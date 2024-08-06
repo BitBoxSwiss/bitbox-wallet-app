@@ -196,8 +196,8 @@ export const getSummary = (): Promise<ISummary> => {
 };
 
 export type Conversions = {
-    [key in Fiat]: string;
-}
+    [key in Fiat]?: string;
+};
 
 export interface IAmount {
     amount: string;

@@ -93,7 +93,7 @@ export const ConfirmingWaitDialog = ({
             <small>{(proposedAmount && proposedAmount.unit) || 'N/A'}</small>
           </span>
           {
-            proposedAmount && proposedAmount.conversions && (
+            proposedAmount && proposedAmount.conversions && proposedAmount.conversions[fiatUnit] && (
               <span>
                 <span className="text-gray"> / </span>
                 <Amount alwaysShowAmounts amount={proposedAmount.conversions[fiatUnit]} unit={baseCurrencyUnit}/>
@@ -117,7 +117,7 @@ export const ConfirmingWaitDialog = ({
             {' '}
             <small>{(proposedFee && proposedFee.unit) || 'N/A'}</small>
           </span>
-          {proposedFee && proposedFee.conversions && (
+          {proposedFee && proposedFee.conversions && proposedFee.conversions[fiatUnit] && (
             <span key="conversation">
               <span className="text-gray"> / </span>
               <Amount alwaysShowAmounts amount={proposedFee.conversions[fiatUnit]} unit={baseCurrencyUnit}/>
@@ -155,7 +155,7 @@ export const ConfirmingWaitDialog = ({
             {' '}
             <small>{(proposedTotal && proposedTotal.unit) || 'N/A'}</small>
           </span>
-          {(proposedTotal && proposedTotal.conversions) && (
+          {(proposedTotal && proposedTotal.conversions) && proposedTotal.conversions[fiatUnit] && (
             <span>
               <span className="text-gray"> / </span>
               <strong><Amount alwaysShowAmounts amount={proposedTotal.conversions[fiatUnit]} unit={baseCurrencyUnit}/></strong>
