@@ -19,6 +19,7 @@ import { useState, useEffect, createRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
+import { UseDisableBackButton } from '@/hooks/backbutton';
 import { AccountCode, IAccount } from '@/api/account';
 import { getConfig } from '@/utils/config';
 import { getMoonpayBuyInfo } from '@/api/exchanges';
@@ -99,6 +100,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
               />
             ) : (
               <div style={{ height }}>
+                <UseDisableBackButton />
                 {!iframeLoaded && <Spinner guideExists={false} text={t('loading')} />}
                 { moonpay && (
                   <iframe
