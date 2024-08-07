@@ -58,7 +58,7 @@ export const AccountsSummary = ({
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
 
-  const [summaryData, setSummaryData] = useState<accountApi.ISummary>();
+  const [summaryData, setSummaryData] = useState<accountApi.TSummary>();
   const [balancePerCoin, setBalancePerCoin] = useState<accountApi.TAccountsBalance>();
   const [accountsTotalBalance, setAccountsTotalBalance] = useState<accountApi.TAccountsTotalBalance>();
   const [coinsTotalBalance, setCoinsTotalBalance] = useState<accountApi.TCoinsTotalBalance>();
@@ -71,14 +71,14 @@ export const AccountsSummary = ({
     if (summaryReqTimerID.current) {
       window.clearTimeout(summaryReqTimerID.current);
     }
-    try {
-      const summaryData = await accountApi.getSummary();
-      if (!mounted.current) {
-        return;
-      }
-      setSummaryData(summaryData);
-    } catch (err) {
-      console.error(err);
+    const summary = await accountApi.getSummary();
+    if (!mounted.current) {
+      return;
+    }
+    if (summary.success) {
+      setSummaryData(summary.data);
+    } else {
+      console.error(summary.error);
     }
   }, [mounted]);
 
