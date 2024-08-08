@@ -104,6 +104,10 @@ export const PocketInfo = ({ bankTransferFee }: TPocketInfo) => {
           {t('buy.exchange.infoContent.pocket.learnMore')}
         </A>
       </p>
+      <br />
+      <p><b>{t('buy.exchange.infoContent.pocket.sell.title')}</b></p>
+      <br />
+      <p>{t('exchange.pocket.terms.fees.extraNote')}</p>
     </div>
   );
 };
