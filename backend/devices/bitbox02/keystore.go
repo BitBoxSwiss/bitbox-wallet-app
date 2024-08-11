@@ -421,29 +421,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			if err != nil {
 				return err
 			}
-
-			prevTxInputs := make([]*messages.BTCPrevTxInputRequest, len(prevTx.TxIn))
-			for prevInputIndex, prevTxIn := range prevTx.TxIn {
-				prevTxInputs[prevInputIndex] = &messages.BTCPrevTxInputRequest{
-					PrevOutHash:     prevTxIn.PreviousOutPoint.Hash[:],
-					PrevOutIndex:    prevTxIn.PreviousOutPoint.Index,
-					SignatureScript: prevTxIn.SignatureScript,
-					Sequence:        prevTxIn.Sequence,
-				}
-			}
-			prevTxOuputs := make([]*messages.BTCPrevTxOutputRequest, len(prevTx.TxOut))
-			for prevOutputIndex, prevTxOut := range prevTx.TxOut {
-				prevTxOuputs[prevOutputIndex] = &messages.BTCPrevTxOutputRequest{
-					Value:        uint64(prevTxOut.Value),
-					PubkeyScript: prevTxOut.PkScript,
-				}
-			}
-			inputs[inputIndex].PrevTx = &firmware.BTCPrevTx{
-				Version:  uint32(prevTx.Version),
-				Inputs:   prevTxInputs,
-				Outputs:  prevTxOuputs,
-				Locktime: prevTx.LockTime,
-			}
+			inputs[inputIndex].PrevTx = firmware.NewBTCPrevTxFromBtcd(prevTx)
 		}
 	}
 
