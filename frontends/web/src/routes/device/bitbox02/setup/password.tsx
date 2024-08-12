@@ -37,7 +37,7 @@ export const SetPassword = ({ errorText }: Props) => {
       width="600px">
       <ViewHeader title={t('bitbox02Wizard.stepPassword.title')}>
         {errorText && (
-          <Status type="warning">
+          <Status className="margin-bottom-default" type="warning">
             <span>{errorText}</span>
           </Status>
         )}

@@ -1,0 +1,24 @@
+.contentWrapper {
+    margin:  auto;
+    max-width: var(--content-width);
+    padding: 0 var(--space-default);
+    width: 100%;
+}
+
+.contentWrapper > div:first-child {
+    margin-top: var(--space-half);
+}
+
+.contentWrapper > div {
+    margin-bottom: var(--space-half);
+}
+
+.contentWrapper div:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .contentWrapper {
+        padding: 0 var(--space-half);
+    }
+}

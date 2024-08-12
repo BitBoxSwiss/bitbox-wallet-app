@@ -1,0 +1,16 @@
+.appContent {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: 100vh;
+    min-width: 0;
+    /* mobile viewport bug fix */
+    max-height: -webkit-fill-available;
+}
+
+@media (max-width: 900px) {
+    .appContent {
+        position: absolute;
+        width: 100%;
+    }
+}

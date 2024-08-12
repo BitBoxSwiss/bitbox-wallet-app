@@ -32,17 +32,15 @@ import { notifyUser } from './api/system';
 import { ConnectedApp } from './connected';
 import { Alert } from './components/alert/Alert';
 import { Aopp } from './components/aopp/aopp';
-import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
 import { KeystoreConnectPrompt } from './components/keystoreconnectprompt';
-import { MobileDataWarning } from './components/mobiledatawarning';
 import { Sidebar } from './components/sidebar/sidebar';
-import { Update } from './components/update/update';
 import { RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { Providers } from './contexts/providers';
+import styles from './app.module.css';
 
 export const App = () => {
   const { t } = useTranslation();
@@ -160,11 +158,7 @@ export const App = () => {
             deviceIDs={deviceIDs}
             devices={devices}
           />
-          <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
-            <Update />
-            <Banner msgKey="bitbox01" />
-            <Banner msgKey="bitbox02" />
-            <MobileDataWarning />
+          <div className={styles.appContent}>
             <WCSigningRequest />
             <Aopp />
             <KeystoreConnectPrompt />

@@ -44,6 +44,7 @@ import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
 import { TSelectedUTXOs, UTXOs } from './utxos';
 import { TProposalError, txProposalErrorHandling } from './services';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import style from './send.module.css';
 
 interface SendProps {
@@ -528,9 +529,11 @@ class Send extends Component<Props, State> {
       <GuideWrapper>
         <GuidedContent>
           <Main>
-            <Status type="warning" hidden={paired !== false}>
-              {t('warning.sendPairing')}
-            </Status>
+            <ContentWrapper>
+              <Status type="warning" hidden={paired !== false}>
+                {t('warning.sendPairing')}
+              </Status>
+            </ContentWrapper>
             <Header
               title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}
             >
