@@ -63,6 +63,7 @@ export const ActiveCurrenciesDropdown = ({
          ${dropdownStyles.select}
          ${activeCurrenciesDropdownStyle.select}
          ${search.length > 0 ? activeCurrenciesDropdownStyle.hideMultiSelect : ''}
+         ${formattedActiveCurrencies.length > 1 ? activeCurrenciesDropdownStyle.showComma : ''}
          `}
       classNamePrefix="react-select"
       isSearchable
