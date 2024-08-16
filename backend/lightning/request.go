@@ -68,6 +68,15 @@ func toListPaymentsRequest(listPaymentsRequest listPaymentsRequestDto) (breez_sd
 	}, nil
 }
 
+func toReportIssueRequest(reportPaymentFailureRequest reportPaymentFailureRequestDto) breez_sdk.ReportIssueRequest {
+	return breez_sdk.ReportIssueRequestPaymentFailure{
+		Data: breez_sdk.ReportPaymentFailureDetails{
+			PaymentHash: reportPaymentFailureRequest.PaymentHash,
+			Comment:     reportPaymentFailureRequest.Comment,
+		},
+	}
+}
+
 func toOpenChannelFeeRequestDto(params url.Values) (openChannelFeeRequestDto, error) {
 	amountMsat, err := getOptionalUint64(params, "amountMsat")
 	if err != nil {
