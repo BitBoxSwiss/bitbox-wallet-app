@@ -107,6 +107,7 @@ type Backend interface {
 	AOPPCancel()
 	AOPPApprove()
 	AOPPChooseAccount(code accountsTypes.Code)
+	AvailableExplorers() config.AvailableBlockExplorers
 	GetAccountFromCode(code accountsTypes.Code) (accounts.Interface, error)
 	HTTPClient() *http.Client
 	LookupInsuredAccounts(accountCode accountsTypes.Code) ([]bitsurance.AccountDetails, error)
@@ -257,6 +258,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/notes/export", handlers.postExportNotes).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/notes/import", handlers.postImportNotes).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/available-explorers", handlers.getAvailableExplorers).Methods("GET")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
@@ -1523,4 +1525,10 @@ func (handlers *Handlers) postImportNotes(r *http.Request) interface{} {
 		return result{Success: false, Message: err.Error()}
 	}
 	return result{Success: true, Data: data}
+}
+
+// getAvailableExplorers returns a struct containing arrays with block explorers for each
+// individual coin code.
+func (handlers *Handlers) getAvailableExplorers(*http.Request) interface{} {
+	return config.AvailableExplorers
 }

@@ -25,6 +25,16 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
 )
 
+type blockExplorers struct {
+	BTC    string `json:"btc"`
+	TBTC   string `json:"tbtc"`
+	LTC    string `json:"ltc"`
+	TLTC   string `json:"tltc"`
+	ETH    string `json:"eth"`
+	GOETH  string `json:"goeth"`
+	SEPETH string `json:"sepeth"`
+}
+
 // ServerInfo holds information about the backend server(s).
 type ServerInfo struct {
 	Server  string `json:"server"`
@@ -82,6 +92,8 @@ type Backend struct {
 	LTC  btcCoinConfig `json:"ltc"`
 	TLTC btcCoinConfig `json:"tltc"`
 	ETH  ethCoinConfig `json:"eth"`
+
+	BlockExplorers blockExplorers `json:"blockExplorers"`
 
 	// Removed in v4.35 - don't reuse these two keys.
 	TETH struct{} `json:"teth"`
@@ -227,6 +239,15 @@ func NewDefaultAppConfig() AppConfig {
 			},
 			ETH: ethCoinConfig{
 				DeprecatedActiveERC20Tokens: []string{},
+			},
+			BlockExplorers: blockExplorers{
+				BTC:    AvailableExplorers.Btc[0].Url,
+				TBTC:   AvailableExplorers.Tbtc[0].Url,
+				LTC:    AvailableExplorers.Ltc[0].Url,
+				TLTC:   AvailableExplorers.Tltc[0].Url,
+				ETH:    AvailableExplorers.Eth[0].Url,
+				GOETH:  AvailableExplorers.GoEth[0].Url,
+				SEPETH: AvailableExplorers.SepEth[0].Url,
 			},
 			// Copied from frontend/web/src/components/rates/rates.tsx.
 			FiatList: []string{rates.USD.String(), rates.EUR.String(), rates.CHF.String()},

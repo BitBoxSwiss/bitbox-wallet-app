@@ -22,6 +22,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"time"
 
@@ -71,14 +72,7 @@ var fixedURLWhitelist = []string{
 	"https://shiftcrypto.support/",
 	// Exchange rates.
 	"https://www.coingecko.com/",
-	// Block explorers.
-	"https://blockstream.info/tx/",
-	"https://blockstream.info/testnet/tx/",
-	"https://sochain.com/tx/LTCTEST/",
-	"https://blockchair.com/litecoin/transaction/",
-	"https://etherscan.io/tx/",
-	"https://goerli.etherscan.io/tx/",
-	"https://sepolia.etherscan.io/tx/",
+
 	// Moonpay onramp
 	"https://www.moonpay.com/",
 	"https://support.moonpay.com/",
@@ -490,43 +484,51 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", coinpkg.BtcUnitDefault, &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
 	case code == coinpkg.CodeTBTC:
+		blockExplorerPrefix := backend.config.AppConfig().Backend.BlockExplorers.TBTC
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTBTC, "Bitcoin Testnet", "TBTC", btcFormatUnit, &chaincfg.TestNet3Params, dbFolder, servers,
-			"https://blockstream.info/testnet/tx/", backend.socksProxy)
+			blockExplorerPrefix, backend.socksProxy)
 	case code == coinpkg.CodeBTC:
+		blockExplorerPrefix := backend.config.AppConfig().Backend.BlockExplorers.BTC
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", btcFormatUnit, &chaincfg.MainNetParams, dbFolder, servers,
-			"https://blockstream.info/tx/", backend.socksProxy)
+			blockExplorerPrefix, backend.socksProxy)
 	case code == coinpkg.CodeTLTC:
+		blockExplorerPrefix := backend.config.AppConfig().Backend.BlockExplorers.TLTC
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", coinpkg.BtcUnitDefault, &ltc.TestNet4Params, dbFolder, servers,
-			"https://sochain.com/tx/LTCTEST/", backend.socksProxy)
+			blockExplorerPrefix, backend.socksProxy)
 	case code == coinpkg.CodeLTC:
+		blockExplorerPrefix := backend.config.AppConfig().Backend.BlockExplorers.LTC
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
-			"https://blockchair.com/litecoin/transaction/", backend.socksProxy)
+			blockExplorerPrefix, backend.socksProxy)
 	case code == coinpkg.CodeETH:
+		blockExplorerPrefix := backend.config.AppConfig().Backend.BlockExplorers.ETH
 		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
-			"https://etherscan.io/tx/",
+			blockExplorerPrefix,
 			etherScan,
 			nil)
 	case code == coinpkg.CodeGOETH:
+		blockExplorerPrefix := backend.config.AppConfig().Backend.BlockExplorers.GOETH
 		etherScan := etherscan.NewEtherScan("https://api-goerli.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "Ethereum Goerli", "GOETH", "GOETH", params.GoerliChainConfig,
-			"https://goerli.etherscan.io/tx/",
+			blockExplorerPrefix,
 			etherScan,
 			nil)
 	case code == coinpkg.CodeSEPETH:
+		blockExplorerPrefix := backend.config.AppConfig().Backend.BlockExplorers.SEPETH
 		etherScan := etherscan.NewEtherScan("https://api-sepolia.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "Ethereum Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig,
-			"https://sepolia.etherscan.io/tx/",
+			blockExplorerPrefix,
 			etherScan,
 			nil)
 	case erc20Token != nil:
+		blockExplorerPrefix := backend.config.AppConfig().Backend.BlockExplorers.ETH
 		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
-			"https://etherscan.io/tx/",
+			blockExplorerPrefix,
 			etherScan,
 			erc20Token.token,
 		)
@@ -827,6 +829,16 @@ func (backend *Backend) SystemOpen(url string) error {
 		}
 	}
 
+	// Block explorers are not defined in the fixedURLWhiteList but in AvailableBlockexplorers.
+	var allAvailableExplorers = reflect.ValueOf(config.AvailableExplorers)
+	for i := 0; i < allAvailableExplorers.NumField(); i++ {
+		coinAvailableExplorers := allAvailableExplorers.Field(i).Interface().([]config.BlockExplorer)
+		for _, explorer := range coinAvailableExplorers {
+			if strings.HasPrefix(url, explorer.Url) {
+				return backend.environment.SystemOpen(url)
+			}
+		}
+	}
 	return errp.Newf("Blocked /open with url: %s", url)
 }
 
@@ -997,4 +1009,10 @@ func (backend *Backend) ExportLogs() error {
 		return err
 	}
 	return nil
+
+}
+
+// AvailableExplorers returns a struct containing all available block explorers for each coin.
+func (backend *Backend) AvailableExplorers() config.AvailableBlockExplorers {
+	return config.AvailableExplorers
 }

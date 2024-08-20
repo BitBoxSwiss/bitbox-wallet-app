@@ -72,6 +72,7 @@ export const Account = ({
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
   const [stateCode, setStateCode] = useState<string>();
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeBuySupported(code), [code]);
+  const [ blockExplorerTxPrefix, setBlockExplorerTxPrefix ] = useState<string>();
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
@@ -125,8 +126,17 @@ export const Account = ({
 
   useEffect(() => {
     maybeCheckBitsuranceStatus();
-    getConfig().then(({ backend }) => setUsesProxy(backend.proxy.useProxy));
-  }, [maybeCheckBitsuranceStatus]);
+    getConfig().then(({ backend }) => {
+      setUsesProxy(backend.proxy.useProxy);
+      if (account) {
+        if (backend[account.coinCode]) {
+          setBlockExplorerTxPrefix(backend.blockExplorers[account.coinCode]);
+        } else {
+          setBlockExplorerTxPrefix(account.blockExplorerTxPrefix);
+        }
+      }
+    });
+  }, [maybeCheckBitsuranceStatus, account]);
 
   const hasCard = useSDCard(devices, [code]);
 
@@ -329,7 +339,7 @@ export const Account = ({
             {!isAccountEmpty && <Transactions
               accountCode={code}
               handleExport={exportAccount}
-              explorerURL={account.blockExplorerTxPrefix}
+              explorerURL={blockExplorerTxPrefix ? blockExplorerTxPrefix : account.blockExplorerTxPrefix }
               transactions={transactions}
             />}
           </div>
