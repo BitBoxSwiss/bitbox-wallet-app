@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-import { currenciesWithDisplayName, formattedCurrencies } from '@/components/rates/rates';
-import { SingleDropdown } from '@/routes/settings/components/dropdowns/singledropdown';
-import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { Fiat } from '@/api/account';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { RatesContext } from '@/contexts/RatesContext';
+import { useLocalizedFormattedCurrencies } from '@/hooks/localized';
+import { SingleDropdown } from '@/routes/settings/components/dropdowns/singledropdown';
+import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { Fiat } from '@/api/account';
+
 
 export const DefaultCurrencyDropdownSetting = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currencyName = new Intl.DisplayNames([i18n.language], { type: 'currency' });
+  const { formattedCurrencies, currenciesWithDisplayName } = useLocalizedFormattedCurrencies(i18n.language);
   const { addToActiveCurrencies, updateDefaultCurrency, defaultCurrency, activeCurrencies } = useContext(RatesContext);
   const valueLabel = currenciesWithDisplayName.find(fiat => fiat.currency === defaultCurrency)?.displayName;
-  const defaultValueLabel = valueLabel ? `${valueLabel} (${defaultCurrency})` : defaultCurrency;
+  const defaultValueLabel = valueLabel ? `${currencyName.of(defaultCurrency)} (${defaultCurrency})` : defaultCurrency;
+
   return (
     <SettingsItem
       settingName={t('newSettings.appearance.defaultCurrency.title')}

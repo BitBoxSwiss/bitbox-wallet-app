@@ -35,6 +35,11 @@ export type ERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 
 
 export type CoinCode = NativeCoinCode | ERC20CoinCode;
 
+export type FiatWithDisplayName = {
+  currency: Fiat,
+  displayName: string
+}
+
 export type Terc20Token = {
   code: ERC20CoinCode;
   name: string;
