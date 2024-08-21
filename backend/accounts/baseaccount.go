@@ -20,7 +20,6 @@ import (
 	"io"
 	"os"
 	"path"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -72,9 +71,6 @@ type BaseAccount struct {
 
 	// notes handles transaction notes.
 	notes *notes.Notes
-
-	proposedTxNote   string
-	proposedTxNoteMu sync.Mutex
 
 	log *logrus.Entry
 }
@@ -223,25 +219,6 @@ func (account *BaseAccount) migrateLegacyNotes() error {
 		_ = os.Remove(notesFile)
 	}
 	return nil
-}
-
-// ProposeTxNote implements accounts.Account.
-func (account *BaseAccount) ProposeTxNote(note string) {
-	account.proposedTxNoteMu.Lock()
-	defer account.proposedTxNoteMu.Unlock()
-
-	account.proposedTxNote = note
-}
-
-// GetAndClearProposedTxNote returns the note previously set using ProposeTxNote(). If none was set,
-// the empty string is returned. The proposed note is cleared by calling this function.
-func (account *BaseAccount) GetAndClearProposedTxNote() string {
-	account.proposedTxNoteMu.Lock()
-	defer func() {
-		account.proposedTxNote = ""
-		account.proposedTxNoteMu.Unlock()
-	}()
-	return account.proposedTxNote
 }
 
 // SetTxNote implements accounts.Account.

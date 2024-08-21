@@ -670,7 +670,7 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 }
 
 // SendTx implements accounts.Interface.
-func (account *Account) SendTx() error {
+func (account *Account) SendTx(txNote string) error {
 	unlock := account.updateLock.RLock()
 	txProposal := account.activeTxProposal
 	unlock()
@@ -697,8 +697,7 @@ func (account *Account) SendTx() error {
 		return err
 	}
 
-	note := account.BaseAccount.GetAndClearProposedTxNote()
-	if err := account.SetTxNote(txProposal.Tx.Hash().Hex(), note); err != nil {
+	if err := account.SetTxNote(txProposal.Tx.Hash().Hex(), txNote); err != nil {
 		// Not critical.
 		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")
 	}
