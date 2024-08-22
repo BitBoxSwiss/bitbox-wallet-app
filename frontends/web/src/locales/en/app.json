@@ -26,6 +26,7 @@
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
     "scriptType": "Script type",
+    "taproot": "The Taproot extended public key is not shown to protect from accidental misuse, as raw formats for this script type are not widely supported. If you want to view this key, connect your device to wallet software that supports the output descriptor format.",
     "title": "Account information",
     "verify": "Verify on device",
     "xpubTypeChangeBtn": {
