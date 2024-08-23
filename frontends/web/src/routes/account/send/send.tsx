@@ -34,7 +34,7 @@ import { getConfig } from '@/utils/config';
 import { FeeTargets } from './feetargets';
 import { signConfirm, signProgress, TSignProgress } from '@/api/devicessync';
 import { UnsubscribeList, unsubscribe } from '@/utils/subscriptions';
-import { isBitcoinBased, findAccount } from '@/routes/account/utils';
+import { isBitcoinBased } from '@/routes/account/utils';
 import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
 import { SendGuide } from './send-guide';
 import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
@@ -48,8 +48,7 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import style from './send.module.css';
 
 interface SendProps {
-    accounts: accountApi.IAccount[];
-    code: accountApi.AccountCode;
+    account: accountApi.IAccount;
     devices: TDevices;
     deviceIDs: string[];
     activeCurrency: accountApi.Fiat;
@@ -119,37 +118,26 @@ class Send extends Component<Props, State> {
     customFee: '',
   };
 
-  private isBitcoinBased = () => {
-    const account = this.getAccount();
-    if (!account) {
-      return false;
-    }
-    return isBitcoinBased(account.coinCode);
-  };
-
   public componentDidMount() {
     const updateBalance = (code: string) => accountApi.getBalance(code)
       .then(balance => this.setState({ balance }))
       .catch(console.error);
 
-    if (this.props.code) {
-      updateBalance(this.props.code);
-    }
+    updateBalance(this.props.account.code);
 
     if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
       hasMobileChannel(this.props.deviceIDs[0])().then((mobileChannel: boolean) => {
         return getDeviceInfo(this.props.deviceIDs[0])
           .then(({ pairing }) => {
-            const account = this.getAccount();
             const paired = mobileChannel && pairing;
-            const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
+            const noMobileChannelError = pairing && !mobileChannel && isBitcoinBased(this.props.account.coinCode);
             this.setState(prevState => ({ ...prevState, paired, noMobileChannelError }));
           });
       }).catch(console.error);
     }
     getConfig().then(config => {
       this.setState({ btcUnit: config.backend.btcUnit });
-      if (this.isBitcoinBased()) {
+      if (isBitcoinBased(this.props.account.coinCode)) {
         this.setState({ coinControl: !!(config.frontend || {}).coinControl });
       }
     });
@@ -162,7 +150,7 @@ class Send extends Component<Props, State> {
         this.setState({ signConfirm: true })
       ),
       syncdone((code) => {
-        if (this.props.code === code) {
+        if (this.props.account.code === code) {
           updateBalance(code);
         }
       }),
@@ -172,7 +160,7 @@ class Send extends Component<Props, State> {
   public componentWillUnmount() {
     unsubscribe(this.unsubscribeList);
     // Wipe proposed tx note.
-    accountApi.proposeTxNote(this.getAccount()!.code, '');
+    accountApi.proposeTxNote(this.props.account.code, '');
   }
 
   private send = async () => {
@@ -180,7 +168,7 @@ class Send extends Component<Props, State> {
       alertUser(this.props.t('warning.sendPairing'));
       return;
     }
-    const code = this.getAccount()!.code;
+    const code = this.props.account.code;
     const connectResult = await accountApi.connectKeystore(code);
     if (!connectResult.success) {
       return;
@@ -270,7 +258,7 @@ class Send extends Component<Props, State> {
     this.setState({ isUpdatingProposal: true });
     // defer the transaction proposal
     this.proposeTimeout = setTimeout(async () => {
-      const proposePromise = accountApi.proposeTx(this.getAccount()!.code, txInput);
+      const proposePromise = accountApi.proposeTx(this.props.account.code, txInput);
       // keep this as the last known proposal
       this.lastProposal = proposePromise;
       try {
@@ -296,7 +284,7 @@ class Send extends Component<Props, State> {
     this.setState({
       'note': target.value,
     }, () => {
-      accountApi.proposeTxNote(this.getAccount()!.code, this.state.note);
+      accountApi.proposeTxNote(this.props.account.code, this.state.note);
     });
   };
 
@@ -331,7 +319,7 @@ class Send extends Component<Props, State> {
 
   private convertToFiat = async (amount: string) => {
     if (amount) {
-      const coinCode = this.getAccount()!.coinCode;
+      const coinCode = this.props.account.coinCode;
       const data = await convertToCurrency({
         amount,
         coinCode,
@@ -349,7 +337,7 @@ class Send extends Component<Props, State> {
 
   private convertFromFiat = async (amount: string) => {
     if (amount) {
-      const coinCode = this.getAccount()!.coinCode;
+      const coinCode = this.props.account.coinCode;
       const data = await convertFromCurrency({
         amount,
         coinCode,
@@ -381,13 +369,6 @@ class Send extends Component<Props, State> {
     return Object.keys(this.selectedUTXOs).length !== 0;
   };
 
-  private getAccount = (): accountApi.IAccount | undefined => {
-    if (!this.props.code) {
-      return undefined;
-    }
-    return findAccount(this.props.accounts, this.props.code);
-  };
-
   private toggleCoinControl = () => {
     this.setState(({ activeCoinControl }) => {
       if (activeCoinControl) {
@@ -411,7 +392,7 @@ class Send extends Component<Props, State> {
         return;
       }
       address = url.pathname;
-      if (this.isBitcoinBased()) {
+      if (isBitcoinBased(this.props.account.coinCode)) {
         amount = url.searchParams.get('amount') || '';
       }
     } catch {
@@ -423,7 +404,7 @@ class Send extends Component<Props, State> {
       fiatAmount: ''
     } as Pick<State, keyof State>;
 
-    const coinCode = this.getAccount()!.coinCode;
+    const coinCode = this.props.account.coinCode;
     if (amount) {
       if (coinCode === 'btc' || coinCode === 'tbtc') {
         const result = await parseExternalBtcAmount(amount);
@@ -473,7 +454,7 @@ class Send extends Component<Props, State> {
   };
 
   public render() {
-    const { t } = this.props;
+    const { account, t } = this.props;
     const {
       balance,
       proposedFee,
@@ -520,11 +501,6 @@ class Send extends Component<Props, State> {
       signConfirm
     };
 
-    const account = this.getAccount();
-    if (!account) {
-      return null;
-    }
-
     return (
       <GuideWrapper>
         <GuidedContent>
@@ -567,7 +543,7 @@ class Send extends Component<Props, State> {
                 <Grid col="1">
                   <Column>
                     <ReceiverAddressInput
-                      accountCode={this.getAccount()?.code}
+                      accountCode={account.code}
                       addressError={addressError}
                       onInputChange={this.onReceiverAddressInputChange}
                       recipientAddress={recipientAddress}
