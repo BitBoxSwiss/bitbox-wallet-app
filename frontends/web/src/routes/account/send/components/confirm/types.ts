@@ -31,7 +31,7 @@ export type TransactionDetails = {
     feeTarget?: FeeTargetCode;
     customFee: string;
     recipientAddress: string;
-    fiatUnit: Fiat;
+    activeCurrency: Fiat;
   }
 
 export type TConfirmSendProps = {
@@ -45,3 +45,4 @@ export type TConfirmSendProps = {
     transactionStatus: TransactionStatus;
     transactionDetails: TransactionDetails;
   }
+

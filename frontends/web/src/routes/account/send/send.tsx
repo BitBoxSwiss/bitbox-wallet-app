@@ -66,7 +66,6 @@ export type State = {
     valid: boolean;
     amount: string;
     fiatAmount: string;
-    fiatUnit: accountApi.Fiat;
     sendAll: boolean;
     feeTarget?: accountApi.FeeTargetCode;
     customFee: string;
@@ -108,7 +107,6 @@ class Send extends Component<Props, State> {
     isAborted: false,
     isUpdatingProposal: false,
     noMobileChannelError: false,
-    fiatUnit: this.props.activeCurrency,
     coinControl: false,
     activeCoinControl: false,
     activeScanQR: false,
@@ -317,7 +315,7 @@ class Send extends Component<Props, State> {
       const data = await convertToCurrency({
         amount,
         coinCode,
-        fiatUnit: this.state.fiatUnit,
+        fiatUnit: this.props.activeCurrency,
       });
       if (data.success) {
         this.setState({ fiatAmount: data.fiatAmount });
@@ -335,7 +333,7 @@ class Send extends Component<Props, State> {
       const data = await convertFromCurrency({
         amount,
         coinCode,
-        fiatUnit: this.state.fiatUnit,
+        fiatUnit: this.props.activeCurrency,
       });
       if (data.success) {
         this.setState({ amount: data.amount }, () => this.validateAndDisplayFee(false));
@@ -448,7 +446,7 @@ class Send extends Component<Props, State> {
   };
 
   public render() {
-    const { account, t } = this.props;
+    const { account, activeCurrency, t } = this.props;
     const {
       balance,
       proposedFee,
@@ -459,7 +457,6 @@ class Send extends Component<Props, State> {
       amount,
       /* data, */
       fiatAmount,
-      fiatUnit,
       sendAll,
       feeTarget,
       customFee,
@@ -486,7 +483,7 @@ class Send extends Component<Props, State> {
       customFee,
       feeTarget,
       recipientAddress,
-      fiatUnit,
+      activeCurrency,
     };
 
     const waitDialogTransactionStatus = {
@@ -568,7 +565,7 @@ class Send extends Component<Props, State> {
                       disabled={sendAll}
                       error={amountError}
                       fiatAmount={fiatAmount}
-                      label={fiatUnit}
+                      label={activeCurrency}
                     />
                   </Column>
                 </Grid>
@@ -578,7 +575,7 @@ class Send extends Component<Props, State> {
                       accountCode={account.code}
                       coinCode={account.coinCode}
                       disabled={!amount && !sendAll}
-                      fiatUnit={fiatUnit}
+                      fiatUnit={activeCurrency}
                       proposedFee={proposedFee}
                       customFee={customFee}
                       showCalculatingFeeLabel={isUpdatingProposal}
@@ -614,7 +611,7 @@ class Send extends Component<Props, State> {
                 <ConfirmSend
                   device={device}
                   paired={paired}
-                  baseCurrencyUnit={fiatUnit}
+                  baseCurrencyUnit={activeCurrency}
                   note={note}
                   hasSelectedUTXOs={this.hasSelectedUTXOs()}
                   selectedUTXOs={Object.keys(this.selectedUTXOs)}
