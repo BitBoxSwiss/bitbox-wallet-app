@@ -236,7 +236,7 @@ class Send extends Component<Props, State> {
     };
   };
 
-  private validateAndDisplayFee = (updateFiat: boolean = true) => {
+  private validateAndDisplayFee = () => {
     this.setState({
       proposedTotal: undefined,
       addressError: undefined,
@@ -261,7 +261,7 @@ class Send extends Component<Props, State> {
         const result = await proposePromise;
         // continue only if this is the most recent proposal
         if (proposePromise === this.lastProposal) {
-          this.txProposal(updateFiat, result);
+          this.txProposal(result);
         }
       } catch (error) {
         this.setState({ valid: false });
@@ -283,7 +283,6 @@ class Send extends Component<Props, State> {
   };
 
   private txProposal = (
-    updateFiat: boolean,
     result: accountApi.TTxProposalResult,
   ) => {
     this.setState({ valid: result.success });
@@ -297,9 +296,6 @@ class Send extends Component<Props, State> {
         proposedTotal: result.total,
         isUpdatingProposal: false,
       });
-      if (updateFiat) {
-        this.convertToFiat(result.amount.amount);
-      }
     } else {
       const errorHandling = txProposalErrorHandling(result.errorCode);
       this.setState({ ...errorHandling, isUpdatingProposal: false });
@@ -338,7 +334,7 @@ class Send extends Component<Props, State> {
         fiatUnit: this.state.fiatUnit,
       });
       if (data.success) {
-        this.setState({ amount: data.amount }, () => this.validateAndDisplayFee(false));
+        this.setState({ amount: data.amount }, () => this.validateAndDisplayFee());
       } else {
         this.setState({ amountError: this.props.t('send.error.invalidAmount') });
       }
@@ -350,13 +346,13 @@ class Send extends Component<Props, State> {
   private feeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
     this.setState(
       { feeTarget, customFee: '' },
-      () => this.validateAndDisplayFee(this.state.sendAll),
+      () => this.validateAndDisplayFee(),
     );
   };
 
   private onSelectedUTXOsChange = (selectedUTXOs: TSelectedUTXOs) => {
     this.selectedUTXOs = selectedUTXOs;
-    this.validateAndDisplayFee(true);
+    this.validateAndDisplayFee();
   };
 
   private hasSelectedUTXOs = (): boolean => {
@@ -416,7 +412,7 @@ class Send extends Component<Props, State> {
 
     this.setState(updateState, () => {
       this.convertToFiat(this.state.amount);
-      this.validateAndDisplayFee(true);
+      this.validateAndDisplayFee();
     });
   };
 
@@ -427,14 +423,14 @@ class Send extends Component<Props, State> {
 
   private onReceiverAddressInputChange = (recipientAddress: string) => {
     this.setState({ recipientAddress }, () => {
-      this.validateAndDisplayFee(true);
+      this.validateAndDisplayFee();
     });
   };
 
   private onCoinAmountChange = (amount: string) => {
     this.convertToFiat(amount);
     this.setState({ amount }, () => {
-      this.validateAndDisplayFee(true);
+      this.validateAndDisplayFee();
     });
   };
 
@@ -443,7 +439,7 @@ class Send extends Component<Props, State> {
       this.convertToFiat(this.state.amount);
     }
     this.setState({ sendAll }, () => {
-      this.validateAndDisplayFee(true);
+      this.validateAndDisplayFee();
     });
   };
 
