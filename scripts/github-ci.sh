@@ -33,9 +33,6 @@ if [ "$OS_NAME" == "osx" ]; then
     # this script.
     go version
     brew install qt@5
-    brew install nvm
-    source /usr/local/opt/nvm/nvm.sh
-    nvm install 20 # install this node version
     export PATH="/usr/local/opt/qt@5/bin:$PATH"
     export LDFLAGS="-L/usr/local/opt/qt@5/lib"
     export CPPFLAGS="-I/usr/local/opt/qt@5/include"
