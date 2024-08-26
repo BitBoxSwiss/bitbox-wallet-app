@@ -30,11 +30,11 @@ Build artifacts:
 
 ## MacOS
 
-Make sure you have `qt@5/bin`, `go@1.21/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`
+Make sure you have `qt@5/bin`, `go@1.22/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`
 
 ```bash
 export PATH="$PATH:/usr/local/opt/qt@5/bin"
-export PATH="$PATH:/usr/local/opt/go@1.21/bin"
+export PATH="$PATH:/usr/local/opt/go@1.22/bin"
 export PATH="$PATH:$HOME/go/bin"
 ```
 
@@ -73,7 +73,7 @@ xcrun altool --list-providers --username "APPLE_ID" --password "PASSWORD"
 The build requires `Microsoft Visual Studio 2019 Community Edition`, with the `MSVC v142 - VS 2019 C++ x64/x86 build tools (Latest)`
 individual component.
 
-It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.21`, `node@20`, `QT 5.15.2` with `qtwebengine`, `nsis`
+It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.22`, `node@20`, `QT 5.15.2` with `qtwebengine`, `nsis`
 and possibly other tools.
 
 Some of the tools are easy to install with `choco`:

@@ -4,11 +4,12 @@ CGO=1
 BUILDMODE=c-shared
 GOARCH=amd64
 GOOS=windows
+GOTOOLCHAIN=local
 
 windows:
 	CGO_CFLAGS="${GOWINSECFLAGS} ${CFLAGS}" \
 	CGO_LDFLAGS="${GOWINLDFLAGS} ${LFLAGS}" \
-	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} \
+	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} \
        	go build -x -mod=vendor \
         -buildmode="${BUILDMODE}" -o ${LIBNAME}.dll
 
@@ -17,7 +18,7 @@ windows-cross:
 	CC_FOR_TARGET=/usr/bin/x86_64-w64-mingw32-gcc \
 	CGO_CFLAGS="-g ${GOWINSECFLAGS} ${CFLAGS}" \
 	CGO_LDFLAGS="${GOWINLDFLAGS} ${LFLAGS}" \
-	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} \
+	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} \
        	go build -x -mod=vendor \
         -buildmode="${BUILDMODE}" -o ${LIBNAME}.dll
 

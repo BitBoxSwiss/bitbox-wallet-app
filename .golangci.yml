@@ -3,7 +3,7 @@
 
 # options for analysis running
 run:
-  go: "1.21"
+  go: "1.22"
 
   # default concurrency is a available CPU number
   concurrency: 4
@@ -86,6 +86,8 @@ linters:
     - wsl
     - execinquery
     - ireturn
+    - copyloopvar
+    - intrange
     - wrapcheck
     - varnamelen
     - tagliatelle
