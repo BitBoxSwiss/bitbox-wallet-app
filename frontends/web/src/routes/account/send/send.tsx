@@ -18,7 +18,7 @@
 import { ChangeEvent, Component } from 'react';
 import * as accountApi from '@/api/account';
 import { syncdone } from '@/api/accountsync';
-import { BtcUnit, convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
+import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
 import { View, ViewContent } from '@/components/view/view';
 import { TDevices, hasMobileChannel } from '@/api/devices';
 import { getDeviceInfo } from '@/api/bitbox01';
@@ -83,7 +83,6 @@ export type State = {
     // show visual BitBox in dialog when instructed to sign.
     signConfirm: boolean;
     coinControl: boolean;
-    btcUnit: BtcUnit;
     activeCoinControl: boolean;
     activeScanQR: boolean;
     note: string;
@@ -111,7 +110,6 @@ class Send extends Component<Props, State> {
     noMobileChannelError: false,
     fiatUnit: this.props.activeCurrency,
     coinControl: false,
-    btcUnit : 'default',
     activeCoinControl: false,
     activeScanQR: false,
     note: '',
@@ -136,7 +134,6 @@ class Send extends Component<Props, State> {
       }).catch(console.error);
     }
     getConfig().then(config => {
-      this.setState({ btcUnit: config.backend.btcUnit });
       if (isBitcoinBased(this.props.account.coinCode)) {
         this.setState({ coinControl: !!(config.frontend || {}).coinControl });
       }
