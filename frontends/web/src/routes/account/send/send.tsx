@@ -30,7 +30,6 @@ import { BackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { Status } from '@/components/status/status';
 import { translate, TranslateProps } from '@/decorators/translate';
-import { getConfig } from '@/utils/config';
 import { FeeTargets } from './feetargets';
 import { signConfirm, signProgress, TSignProgress } from '@/api/devicessync';
 import { UnsubscribeList, unsubscribe } from '@/utils/subscriptions';
@@ -42,9 +41,10 @@ import { ReceiverAddressInput } from './components/inputs/receiver-address-input
 import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
-import { TSelectedUTXOs, UTXOs } from './utxos';
+import { TSelectedUTXOs } from './utxos';
 import { TProposalError, txProposalErrorHandling } from './services';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { CoinControl } from './coin-control';
 import style from './send.module.css';
 
 interface SendProps {
@@ -81,8 +81,6 @@ export type State = {
     signProgress?: TSignProgress;
     // show visual BitBox in dialog when instructed to sign.
     signConfirm: boolean;
-    coinControl: boolean;
-    activeCoinControl: boolean;
     activeScanQR: boolean;
     note: string;
 }
@@ -107,8 +105,6 @@ class Send extends Component<Props, State> {
     isAborted: false,
     isUpdatingProposal: false,
     noMobileChannelError: false,
-    coinControl: false,
-    activeCoinControl: false,
     activeScanQR: false,
     note: '',
     customFee: '',
@@ -131,11 +127,6 @@ class Send extends Component<Props, State> {
           });
       }).catch(console.error);
     }
-    getConfig().then(config => {
-      if (isBitcoinBased(this.props.account.coinCode)) {
-        this.setState({ coinControl: !!(config.frontend || {}).coinControl });
-      }
-    });
 
     this.unsubscribeList = [
       signProgress((progress) =>
@@ -361,15 +352,6 @@ class Send extends Component<Props, State> {
     return Object.keys(this.selectedUTXOs).length !== 0;
   };
 
-  private toggleCoinControl = () => {
-    this.setState(({ activeCoinControl }) => {
-      if (activeCoinControl) {
-        this.selectedUTXOs = {};
-      }
-      return { activeCoinControl: !activeCoinControl };
-    });
-  };
-
   private setActiveScanQR = (activeScanQR: boolean) => {
     this.setState({ activeScanQR });
   };
@@ -416,11 +398,6 @@ class Send extends Component<Props, State> {
       this.convertToFiat(this.state.amount);
       this.validateAndDisplayFee(true);
     });
-  };
-
-
-  private deactivateCoinControl = () => {
-    this.setState({ activeCoinControl: false });
   };
 
   private onReceiverAddressInputChange = (recipientAddress: string) => {
@@ -470,8 +447,6 @@ class Send extends Component<Props, State> {
       paired,
       signProgress,
       signConfirm,
-      coinControl,
-      activeCoinControl,
       activeScanQR,
       note,
     } = this.state;
@@ -514,24 +489,12 @@ class Send extends Component<Props, State> {
                   <label className="labelXLarge">{t('send.availableBalance')}</label>
                 </div>
                 <Balance balance={balance} noRotateFiat/>
-                { coinControl && (
-                  <UTXOs
-                    accountCode={account.code}
-                    active={activeCoinControl}
-                    explorerURL={account.blockExplorerTxPrefix}
-                    onClose={this.deactivateCoinControl}
-                    onChange={this.onSelectedUTXOsChange} />
-                ) }
                 <div className={`flex flex-row flex-between ${style.container}`}>
                   <label className="labelXLarge">{t('send.transactionDetails')}</label>
-                  { coinControl && (
-                    <Button
-                      className="m-bottom-quarter p-right-none"
-                      transparent
-                      onClick={this.toggleCoinControl}>
-                      {t('send.toggleCoinControl')}
-                    </Button>
-                  )}
+                  <CoinControl
+                    account={account}
+                    onSelectedUTXOsChange={this.onSelectedUTXOsChange}
+                  />
                 </div>
                 <Grid col="1">
                   <Column>
@@ -598,7 +561,7 @@ class Send extends Component<Props, State> {
                         {t('send.button')}
                       </Button>
                       <BackButton
-                        disabled={activeCoinControl || activeScanQR}
+                        disabled={activeScanQR}
                         enableEsc>
                         {t('button.back')}
                       </BackButton>
