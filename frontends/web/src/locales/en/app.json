@@ -146,7 +146,8 @@
       "understand": "I understand that an incorrect recovery password will create a different wallet"
     },
     "showMnemonic": {
-      "description": "You will be presented with your recovery words on your BitBox02, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
+      "checkboxLabel": "I have read the information above",
+      "description": "The device will display the recovery words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
       "title": "Show recovery words",
       "warning": "<strong>Never share your recovery words with anyone.</strong> Your recovery words give full access to your wallet. If someone is asking you for your recovery words, it's a scammer, do not share them!"
     },
