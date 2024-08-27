@@ -605,7 +605,6 @@ class Send extends Component<Props, State> {
                         {t('send.button')}
                       </Button>
                       <BackButton
-                        disabled={activeCoinControl || activeScanQR}
                         enableEsc>
                         {t('button.back')}
                       </BackButton>
