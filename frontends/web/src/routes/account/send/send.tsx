@@ -81,7 +81,6 @@ export type State = {
     signProgress?: TSignProgress;
     // show visual BitBox in dialog when instructed to sign.
     signConfirm: boolean;
-    activeScanQR: boolean;
     note: string;
 }
 
@@ -105,7 +104,6 @@ class Send extends Component<Props, State> {
     isAborted: false,
     isUpdatingProposal: false,
     noMobileChannelError: false,
-    activeScanQR: false,
     note: '',
     customFee: '',
   };
@@ -352,10 +350,6 @@ class Send extends Component<Props, State> {
     return Object.keys(this.selectedUTXOs).length !== 0;
   };
 
-  private setActiveScanQR = (activeScanQR: boolean) => {
-    this.setState({ activeScanQR });
-  };
-
   private parseQRResult = async (uri: string) => {
     let address;
     let amount = '';
@@ -447,7 +441,6 @@ class Send extends Component<Props, State> {
       paired,
       signProgress,
       signConfirm,
-      activeScanQR,
       note,
     } = this.state;
 
@@ -504,8 +497,6 @@ class Send extends Component<Props, State> {
                       onInputChange={this.onReceiverAddressInputChange}
                       recipientAddress={recipientAddress}
                       parseQRResult={this.parseQRResult}
-                      activeScanQR={activeScanQR}
-                      onChangeActiveScanQR={this.setActiveScanQR}
                     />
                   </Column>
                 </Grid>
@@ -561,7 +552,6 @@ class Send extends Component<Props, State> {
                         {t('send.button')}
                       </Button>
                       <BackButton
-                        disabled={activeScanQR}
                         enableEsc>
                         {t('button.back')}
                       </BackButton>
