@@ -35,7 +35,7 @@ import { FeeTargets } from './feetargets';
 import { signConfirm, signProgress, TSignProgress } from '@/api/devicessync';
 import { UnsubscribeList, unsubscribe } from '@/utils/subscriptions';
 import { isBitcoinBased } from '@/routes/account/utils';
-import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
+import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
 import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
@@ -501,6 +501,8 @@ class Send extends Component<Props, State> {
       signConfirm
     };
 
+    const device = this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]];
+
     return (
       <GuideWrapper>
         <GuidedContent>
@@ -613,16 +615,21 @@ class Send extends Component<Props, State> {
                   </Column>
                 </Grid>
               </ViewContent>
-              <ConfirmingWaitDialog
-                paired={paired}
-                baseCurrencyUnit={fiatUnit}
-                note={note}
-                hasSelectedUTXOs={this.hasSelectedUTXOs()}
-                selectedUTXOs={Object.keys(this.selectedUTXOs)}
-                coinCode={account.coinCode}
-                transactionDetails={waitDialogTransactionDetails}
-                transactionStatus={waitDialogTransactionStatus}
-              />
+
+              {device && (
+                <ConfirmSend
+                  device={device}
+                  paired={paired}
+                  baseCurrencyUnit={fiatUnit}
+                  note={note}
+                  hasSelectedUTXOs={this.hasSelectedUTXOs()}
+                  selectedUTXOs={Object.keys(this.selectedUTXOs)}
+                  coinCode={account.coinCode}
+                  transactionDetails={waitDialogTransactionDetails}
+                  transactionStatus={waitDialogTransactionStatus}
+                />
+              )}
+
               <MessageWaitDialog isShown={isSent} messageType="sent" />
               <MessageWaitDialog isShown={isAborted} messageType="abort" />
             </View>
