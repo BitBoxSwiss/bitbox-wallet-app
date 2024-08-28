@@ -1534,8 +1534,10 @@
       "title": "Send from output"
     },
     "confirm": {
+      "infoMessage": "Carefully verify the amount and address are correct on the BitBox02",
       "selected-coins": "Selected coins",
       "title": "Confirm and send transaction",
+      "to": "To",
       "total": "Total"
     },
     "error": {
