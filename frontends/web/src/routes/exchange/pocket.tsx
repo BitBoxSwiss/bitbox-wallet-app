@@ -26,6 +26,7 @@ import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { PocketTerms } from '@/components/terms/pocket-terms';
 import { useLoad } from '@/hooks/api';
+import { UseDisableBackButton } from '@/hooks/backbutton';
 import { alertUser } from '@/components/alert/Alert';
 import { ExchangeGuide } from './guide';
 import { convertScriptType } from '@/utils/request-addess';
@@ -289,6 +290,7 @@ export const Pocket = ({ code, action }: TProps) => {
             />
           ) : (
             <div style={{ height }}>
+              <UseDisableBackButton />
               {!iframeLoaded && <Spinner guideExists={false} text={t('loading')} /> }
               <iframe
                 onLoad={() => {
@@ -308,7 +310,6 @@ export const Pocket = ({ code, action }: TProps) => {
           <Dialog
             open={verifying}
             title={t('receive.verifyBitBox02')}
-            disableEscape={true}
             medium centered>
             <div className="text-center">{t('buy.pocket.verifyBitBox02')}</div>
           </Dialog>

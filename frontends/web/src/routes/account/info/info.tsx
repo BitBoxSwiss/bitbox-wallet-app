@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
-import { useEsc } from '@/hooks/keyboard';
 import { getInfo, IAccount, AccountCode } from '@/api/account';
-import { route } from '@/utils/route';
 import { isBitcoinBased } from '@/routes/account/utils';
-import { ButtonLink } from '@/components/forms';
 import { Header } from '@/components/layout';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
 import { BitcoinBasedAccountInfoGuide } from './guide';
+import { Status } from '@/components/status/status';
 import style from './info.module.css';
 
 type TProps = {
@@ -41,8 +40,6 @@ export const Info = ({
   const info = useLoad(getInfo(code));
   const [viewXPub, setViewXPub] = useState<number>(0);
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
-
-  useEsc(() => route(`/account/${code}`));
 
   if (!account || !info) {
     return null;
@@ -84,18 +81,27 @@ export const Info = ({
                   </button>
                 </p>
               ) : null}
-              <SigningConfiguration
-                key={viewXPub}
-                account={account}
-                code={code}
-                info={config}
-                signingConfigIndex={viewXPub}>
-                <ButtonLink
-                  secondary
-                  to={`/account/${code}`}>
-                  {t('button.back')}
-                </ButtonLink>
-              </SigningConfiguration>
+              { (config.bitcoinSimple?.scriptType === 'p2tr') ? (
+                <>
+                  <Status type="info">
+                    {t('accountInfo.taproot')}
+                  </Status>
+                  <BackButton enableEsc>
+                    {t('button.back')}
+                  </BackButton>
+                </>
+              ) : (
+                <SigningConfiguration
+                  key={viewXPub}
+                  account={account}
+                  code={code}
+                  info={config}
+                  signingConfigIndex={viewXPub}>
+                  <BackButton enableEsc>
+                    {t('button.back')}
+                  </BackButton>
+                </SigningConfiguration>
+              )}
             </div>
           </div>
         </div>

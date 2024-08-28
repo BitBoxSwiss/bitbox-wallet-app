@@ -22,7 +22,7 @@ import { Skeleton } from '@/components/skeleton/skeleton';
 import style from './accountssummary.module.css';
 
 type TProps = {
-  summaryData?: accountApi.ISummary,
+  summaryData?: accountApi.TSummary,
   coinsBalances?: accountApi.TCoinsTotalBalance,
 }
 

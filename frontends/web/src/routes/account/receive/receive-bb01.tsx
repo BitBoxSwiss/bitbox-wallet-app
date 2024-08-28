@@ -18,14 +18,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
-import { useEsc } from '@/hooks/keyboard';
 import * as accountApi from '@/api/account';
-import { route } from '@/utils/route';
 import { getScriptName, isEthereumBased } from '@/routes/account/utils';
 import { alertUser } from '@/components/alert/Alert';
 import { CopyableInput } from '@/components/copy/Copy';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
-import { Button, ButtonLink, Radio } from '@/components/forms';
+import { Button, Radio } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Message } from '@/components/message/message';
 import { ReceiveGuide } from './components/guide';
 import { Header } from '@/components/layout';
@@ -78,8 +77,6 @@ export const Receive = ({
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
   const secureOutput = useLoad(accountApi.hasSecureOutput(code));
-
-  useEsc(() => !verifying && route(`/account/${code}`));
 
   const availableScriptTypes = useRef<accountApi.ScriptType[]>();
 
@@ -240,11 +237,9 @@ export const Receive = ({
                       disabled={verifying || secureOutput === undefined}
                       forceVerification={forceVerification}
                       onClick={() => verifyAddress(currentAddressIndex)}/>
-                    <ButtonLink
-                      secondary
-                      to={`/account/${code}`}>
+                    <BackButton enableEsc={!verifying}>
                       {t('button.back')}
-                    </ButtonLink>
+                    </BackButton>
                   </div>
                   { forceVerification && verifying && (
                     <div className={style.hide}></div>
@@ -252,7 +247,6 @@ export const Receive = ({
                   <Dialog
                     open={((!!account) && forceVerification && verifying)}
                     title={verifyLabel}
-                    disableEscape={true}
                     medium centered>
                     <div className="text-center">
                       {account && <>

@@ -20,10 +20,6 @@
     color: var(--color-default);
 }
 
-.select :global(.react-select__option.react-select__option--is-focused):not(:hover) {
-    outline: solid 1px var(--color-blue);
-}
-
 .select :global(.react-select__option.react-select__option--is-selected),
 .select :global(.react-select__option):hover {
     background-color: var(--background-custom-select-selected);

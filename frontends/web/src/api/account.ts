@@ -36,6 +36,11 @@ export type ERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 
 
 export type CoinCode = NativeCoinCode | ERC20CoinCode;
 
+export type FiatWithDisplayName = {
+  currency: Fiat,
+  displayName: string
+}
+
 export type Terc20Token = {
   code: ERC20CoinCode;
   name: string;
@@ -181,7 +186,15 @@ export const init = (code: AccountCode): Promise<null> => {
   return apiPost(`account/${code}/init`);
 };
 
-export interface ISummary {
+export type TSummaryResponse = {
+    success: true;
+    data: TSummary;
+} | {
+  success: false;
+  error: string;
+}
+
+export type TSummary = {
     chartDataMissing: boolean;
     chartDataDaily: ChartData;
     chartDataHourly: ChartData;
@@ -192,13 +205,13 @@ export interface ISummary {
     lastTimestamp: number;
 }
 
-export const getSummary = (): Promise<ISummary> => {
+export const getSummary = (): Promise<TSummaryResponse> => {
   return apiGet('account-summary');
 };
 
 export type Conversions = {
-    [key in Fiat]: string;
-}
+    [key in Fiat]?: string;
+};
 
 export interface IAmount {
     amount: string;

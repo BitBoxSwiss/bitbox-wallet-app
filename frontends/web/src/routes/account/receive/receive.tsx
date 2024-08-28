@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
-import { useEsc } from '@/hooks/keyboard';
+import { UseBackButton } from '@/hooks/backbutton';
 import * as accountApi from '@/api/account';
-import { route } from '@/utils/route';
 import { getScriptName, isEthereumBased } from '@/routes/account/utils';
 import { CopyableInput } from '@/components/copy/Copy';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
-import { Button, ButtonLink, Radio } from '@/components/forms';
+import { Button, Radio } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Message } from '@/components/message/message';
 import { ReceiveGuide } from './components/guide';
 import { Header } from '@/components/layout';
@@ -37,7 +37,63 @@ type TProps = {
   code: accountApi.AccountCode;
 };
 
-type AddressDialog = { addressType: number } | undefined;
+type TAddressTypeDialogProps = {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  preselectedAddressType: number;
+  availableScriptTypes?: accountApi.ScriptType[];
+  insured: boolean;
+  handleAddressTypeChosen: (addressType: number) => void;
+};
+
+const AddressTypeDialog = ({
+  open,
+  setOpen,
+  preselectedAddressType,
+  availableScriptTypes,
+  insured,
+  handleAddressTypeChosen,
+}: TAddressTypeDialogProps) => {
+  const { t } = useTranslation();
+  const [addressType, setAddressType] = useState<number>(preselectedAddressType);
+
+  return (
+    <Dialog open={open} onClose={() => setOpen(false)} medium title={t('receive.changeScriptType')} >
+      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        handleAddressTypeChosen(addressType);
+      }}>
+        {availableScriptTypes && availableScriptTypes.map((scriptType, i) => (
+          <div key={scriptType}>
+            <Radio
+              checked={addressType === i}
+              id={scriptType}
+              name="scriptType"
+              onChange={() => setAddressType(i)}
+              title={getScriptName(scriptType)}>
+              {t(`receive.scriptType.${scriptType}`)}
+            </Radio>
+            {scriptType === 'p2tr' && addressType === i && (
+              <Message type="warning">
+                {t('receive.taprootWarning')}
+              </Message>
+            )}
+          </div>
+        ))}
+        {insured && (
+          <Message type="warning">
+            {t('receive.bitsuranceWarning')}
+          </Message>
+        )}
+        <DialogButtons>
+          <Button primary type="submit">
+            {t('button.done')}
+          </Button>
+        </DialogButtons>
+      </form>
+    </Dialog>
+  );
+};
 
 // For BTC/LTC: all possible address types we want to offer to the user, ordered by priority (first one is default).
 // Types that are not available in the addresses delivered by the backend should be ignored.
@@ -63,7 +119,7 @@ export const Receive = ({
   const [activeIndex, setActiveIndex] = useState<number>(0);
   // index into `availableScriptTypes`, or 0 if none are available.
   const [addressType, setAddressType] = useState<number>(0);
-  const [addressDialog, setAddressDialog] = useState<AddressDialog>();
+  const [addressTypeDialog, setAddressTypeDialog] = useState<boolean>(false);
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.IReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
@@ -76,9 +132,6 @@ export const Receive = ({
   const availableScriptTypes = useRef<accountApi.ScriptType[]>();
 
   const hasManyScriptTypes = availableScriptTypes.current && availableScriptTypes.current.length > 1;
-  const scriptTypeDialogOpened = !!(addressDialog && (hasManyScriptTypes || insured));
-
-  useEsc(() => !scriptTypeDialogOpened && !verifying && route(`/account/${code}`));
 
   useEffect(() => {
     if (receiveAddresses) {
@@ -98,13 +151,10 @@ export const Receive = ({
     }
   }, [addressType, availableScriptTypes, receiveAddresses]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    if (addressDialog) {
-      e.preventDefault();
-      setActiveIndex(0);
-      setAddressType(addressDialog.addressType);
-      setAddressDialog(undefined);
-    }
+  const handleAddressTypeChosen = (addressType: number) => {
+    setActiveIndex(0);
+    setAddressType(addressType);
+    setAddressTypeDialog(false);
   };
 
   const verifyAddress = async (addressesIndex: number) => {
@@ -206,45 +256,20 @@ export const Receive = ({
                   { (hasManyScriptTypes || insured) && (
                     <button
                       className={style.changeType}
-                      onClick={() => setAddressDialog(!addressDialog ? { addressType } : undefined)}>
+                      onClick={() => setAddressTypeDialog(true)}>
                       {t('receive.changeScriptType')}
                     </button>
                   )}
-                  <form onSubmit={handleSubmit}>
-                    <Dialog open={scriptTypeDialogOpened} onClose={() => setAddressDialog(undefined)} medium title={t('receive.changeScriptType')} >
-                      {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
-                        <div key={scriptType}>
-                          {addressDialog && (
-                            <>
-                              <Radio
-                                checked={addressDialog.addressType === i}
-                                id={scriptType}
-                                name="scriptType"
-                                onChange={() => setAddressDialog({ addressType: i })}
-                                title={getScriptName(scriptType)}>
-                                {t(`receive.scriptType.${scriptType}`)}
-                              </Radio>
-                              {scriptType === 'p2tr' && addressDialog.addressType === i && (
-                                <Message type="warning">
-                                  {t('receive.taprootWarning')}
-                                </Message>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      ))}
-                      {insured && (
-                        <Message type="warning">
-                          {t('receive.bitsuranceWarning')}
-                        </Message>
-                      )}
-                      <DialogButtons>
-                        <Button primary type="submit">
-                          {t('button.done')}
-                        </Button>
-                      </DialogButtons>
-                    </Dialog>
-                  </form>
+
+                  <AddressTypeDialog
+                    open={addressTypeDialog}
+                    setOpen={setAddressTypeDialog}
+                    preselectedAddressType={addressType}
+                    availableScriptTypes={availableScriptTypes.current}
+                    insured={insured}
+                    handleAddressTypeChosen={handleAddressTypeChosen}
+                  />
+
                   <div className="buttons">
                     <Button
                       disabled={verifying !== false}
@@ -252,11 +277,9 @@ export const Receive = ({
                       primary>
                       {t('receive.verifyBitBox02')}
                     </Button>
-                    <ButtonLink
-                      secondary
-                      to={`/account/${code}`}>
+                    <BackButton enableEsc={!addressTypeDialog && !verifying}>
                       {t('button.back')}
-                    </ButtonLink>
+                    </BackButton>
                   </div>
                   { verifying && (
                     <div className={style.hide}></div>
@@ -264,32 +287,41 @@ export const Receive = ({
                   <Dialog
                     open={!!(account && verifying)}
                     title={t('receive.verifyBitBox02')}
-                    // disable escape for secure outputs like the BitBox02, where the dialog is
+                    // disable exit/escape for secure outputs like the BitBox02, where the dialog is
                     // dimissed by tapping the device
-                    disableEscape={verifying === 'secure'}
                     onClose={verifying === 'insecure' ? () => {
                       setVerifying(false);
                     } : undefined}
                     medium centered>
-                    {account && <>
-                      <div className="text-center">
-                        { isEthereumBased(account.coinCode) && (
-                          <p>
-                            <strong>
-                              {t('receive.onlyThisCoin.warning', {
-                                coinName: account.coinName,
-                              })}
-                            </strong><br />
-                            {t('receive.onlyThisCoin.description')}
-                          </p>
+                    {account && (
+                      <>
+                        {verifying && (
+                          <UseBackButton handler={() => {
+                            if (verifying === 'insecure') {
+                              setVerifying(false);
+                            }
+                            return false;
+                          }} />
                         )}
-                        <QRCode data={uriPrefix + address} />
-                        <p>{t('receive.verifyInstruction')}</p>
-                      </div>
-                      <div className="m-bottom-half">
-                        <CopyableInput value={address} flexibleHeight />
-                      </div>
-                    </>}
+                        <div className="text-center">
+                          { isEthereumBased(account.coinCode) && (
+                            <p>
+                              <strong>
+                                {t('receive.onlyThisCoin.warning', {
+                                  coinName: account.coinName,
+                                })}
+                              </strong><br />
+                              {t('receive.onlyThisCoin.description')}
+                            </p>
+                          )}
+                          <QRCode data={uriPrefix + address} />
+                          <p>{t('receive.verifyInstruction')}</p>
+                        </div>
+                        <div className="m-bottom-half">
+                          <CopyableInput value={address} flexibleHeight />
+                        </div>
+                      </>
+                    )}
                   </Dialog>
                 </div>
               )}

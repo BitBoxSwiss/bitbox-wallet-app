@@ -50,6 +50,7 @@ BITCOIND_PORT=12340
 BITCOIND_RPC_PORT=10332
 ELECTRS_RPC_PORT1=52001
 ELECTRS_RPC_PORT2=52002
+ELECTRS_MONITORING_PORT2=24225
 
 docker run -v $BITCOIN_DATADIR:/bitcoin/.bitcoin --name=bitcoind-regtest \
        -e DISABLEWALLET=0 \
@@ -97,6 +98,7 @@ docker run \
         --daemon-rpc-addr=${DOCKER_IP}:${BITCOIND_RPC_PORT} \
         --daemon-p2p-addr=${DOCKER_IP}:${BITCOIND_PORT} \
         --electrum-rpc-addr=127.0.0.1:${ELECTRS_RPC_PORT2} \
+        --monitoring-addr=127.0.0.1:${ELECTRS_MONITORING_PORT2} \
         --daemon-dir=/bitcoin/.bitcoin \
         --db-dir=/data &
 

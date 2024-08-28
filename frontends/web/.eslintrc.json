@@ -1,5 +1,15 @@
 {
-  "extends": ["react-app"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "rules": {
     "brace-style": ["error", "1tbs"],
     "comma-spacing": ["error", { "before": false, "after": true }],
@@ -21,7 +31,22 @@
     "arrow-spacing": "error",
     "space-infix-ops": "error",
     "react/no-unused-prop-types": "error",
-    "react/jsx-equals-spacing": ["error", "never"]
+    "react/jsx-equals-spacing": ["error", "never"],
+    "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "no-case-declarations": "off",
+    "react/no-children-prop": "off",
+    "prefer-const": "off",
+    "react/prop-types": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "no-extra-boolean-cast": "off",
+    "@typescript-eslint/ban-types": "off",
+    "no-undef": "off",
+    "no-empty": "off",
+    "react/display-name": "off",
+    "react-hooks/exhaustive-deps": "error",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "no-async-promise-executor": "off"
   },
   "overrides": [
     {

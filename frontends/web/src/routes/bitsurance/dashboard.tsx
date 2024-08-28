@@ -15,11 +15,11 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AccountCode, IAccount, getBalance } from '@/api/account';
 import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '@/api/bitsurance';
 import { useMountedRef } from '@/hooks/mount';
-import { route } from '@/utils/route';
 import { TAccountsByKeystore, getAccountsByKeystore, isAmbiguiousName } from '@/routes/account/utils';
 import { Button } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
@@ -64,6 +64,7 @@ const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
 };
 
 export const BitsuranceDashboard = ({ accounts }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const mounted = useMountedRef();
   const [balances, setBalances] = useState<Balances>();
@@ -132,7 +133,7 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                 <Button
                   className={style.button}
                   primary
-                  onClick={() => route('bitsurance/account')}
+                  onClick={() => navigate('/bitsurance/account')}
                   title={t('account.exportTransactions')}>
                   <span>+</span>
                   {t('bitsurance.dashboard.button')}

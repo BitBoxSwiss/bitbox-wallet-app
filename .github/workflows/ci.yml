@@ -21,7 +21,7 @@ env:
   # https://docs.github.com/en/packages/guides/pushing-and-pulling-docker-images
   #
   # Keep this in sync with default in scripts/github-ci.sh.
-  CI_IMAGE: ghcr.io/bitboxswiss/bitbox-wallet-app-ci:23
+  CI_IMAGE: ghcr.io/bitboxswiss/bitbox-wallet-app-ci:24
   GITHUB_BUILD_DIR: ${{github.workspace}}
 
 jobs:
@@ -95,7 +95,11 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.21.x
+          go-version: 1.22.x
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
       - name: Build macOS app
         run: >
           ./scripts/github-ci.sh qt-osx;

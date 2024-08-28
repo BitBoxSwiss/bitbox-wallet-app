@@ -19,6 +19,7 @@ set -x
 
 # Set go-langs data race detector options
 export GORACE="halt_on_error=1"
+export GOTOOLCHAIN="local"
 
 # This script has to be called from the project root directory.
 go build -mod=vendor ./...

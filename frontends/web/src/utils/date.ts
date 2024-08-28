@@ -27,3 +27,12 @@ export const convertDateToLocaleString = (
     minute: '2-digit',
   });
 };
+
+export const parseTimeShort = (time: string, lang: string) => {
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  };
+  return new Date(Date.parse(time)).toLocaleString(lang, options);
+};

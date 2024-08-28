@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { checkSDCard } from '@/api/bitbox02';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
-import { Button, ButtonLink } from '@/components/forms';
+import { Button } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimation';
 
 type TProps = {
@@ -57,11 +58,9 @@ const SDCardCheck = ({ deviceID, children }: TProps) => {
               onClick={check}>
               {t('button.ok')}
             </Button>
-            <ButtonLink
-              secondary
-              to={`/settings/device-settings/${deviceID}`}>
+            <BackButton>
               {t('button.back')}
-            </ButtonLink>
+            </BackButton>
           </DialogButtons>
         </Dialog> : children}
     </div>

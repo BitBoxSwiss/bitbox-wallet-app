@@ -30,7 +30,6 @@ type AppContextProps = {
     chartDisplay: TChartDisplay;
     setActiveSidebar: Dispatch<SetStateAction<boolean>>;
     setGuideExists: Dispatch<SetStateAction<boolean>>;
-    setGuideShown: Dispatch<SetStateAction<boolean>>;
     setSidebarStatus: Dispatch<SetStateAction<TSidebarStatus>>;
     setHideAmounts: Dispatch<SetStateAction<boolean>>;
     setChartDisplay: Dispatch<SetStateAction<TChartDisplay>>;

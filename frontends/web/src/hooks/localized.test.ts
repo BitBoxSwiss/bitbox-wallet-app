@@ -15,7 +15,7 @@
  */
 
 import { renderHook } from '@testing-library/react';
-import { useLocalizedPunctuation } from './localized';
+import { useLocalizedFormattedCurrencies, useLocalizedPunctuation } from './localized';
 import { describe, expect, it } from 'vitest';
 
 
@@ -158,5 +158,50 @@ describe('useLocalizedPunctuation', () => {
     });
   });
 
+
+});
+
+
+describe('useLocalizedFormattedCurrencies', () => {
+  it('should return currencies formatted in English (en)', () => {
+    const { result } = renderHook(() => useLocalizedFormattedCurrencies('en'));
+
+    const { formattedCurrencies } = result.current;
+
+    expect(formattedCurrencies).toEqual(
+      expect.arrayContaining([
+        { label: 'Australian Dollar (AUD)', value: 'AUD' },
+        { label: 'Brazilian Real (BRL)', value: 'BRL' },
+        { label: 'Canadian Dollar (CAD)', value: 'CAD' }
+      ])
+    );
+  });
+
+  it('should return currencies formatted in German (de)', () => {
+    const { result } = renderHook(() => useLocalizedFormattedCurrencies('de'));
+
+    const { formattedCurrencies } = result.current;
+
+    expect(formattedCurrencies).toEqual(
+      expect.arrayContaining([
+        { label: 'Australischer Dollar (AUD)', value: 'AUD' },
+        { label: 'Brasilianischer Real (BRL)', value: 'BRL' },
+        { label: 'Kanadischer Dollar (CAD)', value: 'CAD' }
+      ])
+    );
+  });
+
+  it('should not change the displayName for BTC and sat', () => {
+    const { result } = renderHook(() => useLocalizedFormattedCurrencies('de'));
+
+    const { formattedCurrencies } = result.current;
+
+    expect(formattedCurrencies).toEqual(
+      expect.arrayContaining([
+        { label: 'Bitcoin (BTC)', value: 'BTC' },
+        { label: 'Satoshi (sat)', value: 'sat' }
+      ])
+    );
+  });
 
 });

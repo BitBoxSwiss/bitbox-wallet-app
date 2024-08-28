@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { ChevronRightDark } from '@/components/icon';
-import { route } from '@/utils/route';
 
 type TProps = {
     deviceID: string;
@@ -25,10 +25,11 @@ type TProps = {
 }
 
 const PassphraseSetting = ({ deviceID, passphraseEnabled }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   return (
     <SettingsItem
-      onClick={() => route(`/settings/device-settings/passphrase/${deviceID}`)}
+      onClick={() => navigate(`/settings/device-settings/passphrase/${deviceID}`)}
       settingName={t('deviceSettings.expert.passphrase.title')}
       secondaryText={t('deviceSettings.expert.passphrase.description')}
       displayedValue={ passphraseEnabled

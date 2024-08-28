@@ -15,6 +15,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { IAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
@@ -25,16 +26,16 @@ import { Checked, Sync, SyncLight } from '@/components/icon';
 import { Column, ColumnButtons, Grid, GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { useDarkmode } from '@/hooks/darkmode';
-import { route } from '@/utils/route';
 import { BitsuranceGuide } from './guide';
-import style from './bitsurance.module.css';
 import { i18n } from '@/i18n/i18n';
+import style from './bitsurance.module.css';
 
 type TProps = {
     accounts: IAccount[];
 }
 
 export const Bitsurance = ({ accounts }: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   const [insuredAccounts, setInsuredAccounts] = useState<IAccount[]>([]);
@@ -46,13 +47,14 @@ export const Bitsurance = ({ accounts }: TProps) => {
 
   useEffect(() => {
     if (accounts.some(({ bitsuranceStatus }) => bitsuranceStatus)) {
-      route('bitsurance/dashboard');
+      // replace current history item when redirecting so that the user can go back
+      navigate('/bitsurance/dashboard', { replace: true });
     } else {
       setRedirecting(false);
     }
 
     return () => setInsuredAccounts([]);
-  }, [accounts]);
+  }, [accounts, navigate]);
 
   const detect = async (redirectToDashboard: boolean) => {
     setScanLoading(true);
@@ -69,7 +71,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
     setScanDone(true);
     setScanLoading(false);
     if (insured.length && redirectToDashboard) {
-      route('bitsurance/dashboard');
+      navigate('/bitsurance/dashboard');
     }
   };
 
@@ -86,7 +88,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
     // we force a detection to verify if there is any new insured account
     // before proceeding to the next step.
     await detect(false);
-    route('bitsurance/account');
+    navigate('/bitsurance/account');
   };
 
   if (redirecting) {

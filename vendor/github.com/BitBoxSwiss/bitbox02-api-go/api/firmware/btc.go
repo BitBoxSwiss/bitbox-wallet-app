@@ -24,6 +24,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/errp"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 	"github.com/btcsuite/btcd/btcutil/base58"
+	"github.com/btcsuite/btcd/wire"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -220,6 +221,33 @@ type BTCPrevTx struct {
 	Inputs   []*messages.BTCPrevTxInputRequest
 	Outputs  []*messages.BTCPrevTxOutputRequest
 	Locktime uint32
+}
+
+// NewBTCPrevTxFromBtcd converts a btcd transaction to a BTCPrevTx.
+func NewBTCPrevTxFromBtcd(tx *wire.MsgTx) *BTCPrevTx {
+	prevTxInputs := make([]*messages.BTCPrevTxInputRequest, len(tx.TxIn))
+	for prevInputIndex, prevTxIn := range tx.TxIn {
+		prevTxInputs[prevInputIndex] = &messages.BTCPrevTxInputRequest{
+			PrevOutHash:     prevTxIn.PreviousOutPoint.Hash[:],
+			PrevOutIndex:    prevTxIn.PreviousOutPoint.Index,
+			SignatureScript: prevTxIn.SignatureScript,
+			Sequence:        prevTxIn.Sequence,
+		}
+	}
+	prevTxOuputs := make([]*messages.BTCPrevTxOutputRequest, len(tx.TxOut))
+	for prevOutputIndex, prevTxOut := range tx.TxOut {
+		prevTxOuputs[prevOutputIndex] = &messages.BTCPrevTxOutputRequest{
+			Value:        uint64(prevTxOut.Value),
+			PubkeyScript: prevTxOut.PkScript,
+		}
+	}
+
+	return &BTCPrevTx{
+		Version:  uint32(tx.Version),
+		Inputs:   prevTxInputs,
+		Outputs:  prevTxOuputs,
+		Locktime: tx.LockTime,
+	}
 }
 
 // BTCTxInput contains the data needed to sign an input.

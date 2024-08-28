@@ -4,6 +4,8 @@
 - Add support for selling Bitcoin to Pocket using SLIP-0024 payment requests
 
 ## 4.43.0
+- Bundle BitBox02 firmware version v9.19.0
+- Add support for exporting and importing transaction notes and account names
 - New feature in advanced settings: Export logs
 - Add specific titles to guides replacing the generic "Guide" previously used on all pages
 - Android: enable transactions export feature

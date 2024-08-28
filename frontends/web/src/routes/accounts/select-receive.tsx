@@ -15,10 +15,10 @@
  */
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { IAccount } from '@/api/account';
 import { Header } from '@/components/layout';
-import { route } from '@/utils/route';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { View, ViewContent } from '@/components/view/view';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
@@ -27,11 +27,12 @@ type TReceiveAccountsSelector = {
     activeAccounts: IAccount[]
 }
 export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSelector) => {
-  const [code, setCode] = useState('');
+  const navigate = useNavigate();
   const { t } = useTranslation();
+  const [code, setCode] = useState('');
 
   const handleProceed = () => {
-    route(`/account/${code}/receive`);
+    navigate(`/account/${code}/receive`);
   };
 
   const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));

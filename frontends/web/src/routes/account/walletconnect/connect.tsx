@@ -121,7 +121,6 @@ export const ConnectScreenWalletConnect = ({
               {status === 'connect' && (
                 <WCConnectForm
                   connectLoading={loading}
-                  code={code}
                   uri={uri}
                   onInputChange={setUri}
                   onSubmit={async (uri) => {
