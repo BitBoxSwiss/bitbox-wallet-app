@@ -27,7 +27,7 @@
     padding-bottom: 14px;
 }
 
-.buy,
+.exchange,
 .receive,
 .walletConnect,
 .send {
@@ -59,7 +59,7 @@
 }
 
 
-.withWalletConnect .walletConnect { 
+.withWalletConnect .walletConnect {
     display: flex;
 }
 

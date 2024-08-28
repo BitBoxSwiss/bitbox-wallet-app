@@ -18,6 +18,7 @@ import { apiGet, apiPost } from '@/utils/request';
 import type { ChartData } from '@/routes/account/summary/chart';
 import type { TDetailStatus } from './bitsurance';
 import type { SuccessResponse } from './response';
+import { Slip24 } from 'request-address';
 
 export type NativeCoinCode = 'btc' | 'tbtc' | 'rbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
 
@@ -315,7 +316,8 @@ export type TTxInput = {
   feeTarget: FeeTargetCode;
   customFee: string;
   sendAll: 'yes' | 'no';
-  selectedUTXOs: string[],
+  selectedUTXOs: string[];
+  paymentRequest: Slip24 | null;
 };
 
 export type TTxProposalResult = {
@@ -406,6 +408,16 @@ export const hasSecureOutput = (code: AccountCode) => {
   return (): Promise<TSecureOutput> => {
     return apiGet(`account/${code}/has-secure-output`);
   };
+};
+
+type THasPaymentRequest = {
+  success: boolean;
+  errorMessage?: string;
+  errorCode?: 'firmwareUpgradeRequired' | 'unsupportedFeature';
+};
+
+export const hasPaymentRequest = (code: AccountCode): Promise<THasPaymentRequest> => {
+  return apiGet(`account/${code}/has-payment-request`);
 };
 
 export type TAddAccount = {

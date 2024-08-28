@@ -480,7 +480,7 @@ func (account *Account) Notifier() accounts.Notifier {
 // For the other coins or in case mempool.space is not available it fallbacks on Bitcoin Core.
 // The minimum relay fee is used as a last resource fallback in case also Bitcoin Core is
 // unavailable.
-func (account *Account) feeTargets() []*FeeTarget {
+func (account *Account) feeTargets() FeeTargets {
 	// for mainnet BTC we fetch mempool.space fees, as they should be more reliable.
 	var mempoolFees *accounts.MempoolSpaceFees
 	if account.coin.Code() == coin.CodeBTC {
@@ -493,16 +493,16 @@ func (account *Account) feeTargets() []*FeeTarget {
 	}
 
 	// feeTargets must be sorted by ascending priority.
-	var feeTargets []*FeeTarget
+	var feeTargets FeeTargets
 	if mempoolFees != nil {
-		feeTargets = []*FeeTarget{
+		feeTargets = FeeTargets{
 			{blocks: 12, code: accounts.FeeTargetCodeMempoolEconomy},
 			{blocks: 3, code: accounts.FeeTargetCodeMempoolHour},
 			{blocks: 2, code: accounts.FeeTargetCodeMempoolHalfHour},
 			{blocks: 1, code: accounts.FeeTargetCodeMempoolFastest},
 		}
 	} else {
-		feeTargets = []*FeeTarget{
+		feeTargets = FeeTargets{
 			{blocks: 24, code: accounts.FeeTargetCodeEconomy},
 			{blocks: 12, code: accounts.FeeTargetCodeLow},
 			{blocks: 6, code: accounts.FeeTargetCodeNormal},

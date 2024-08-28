@@ -16,27 +16,29 @@
 
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
-import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
+import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
 import { getConfig } from '@/utils/config';
 import { Dialog } from '@/components/dialog/dialog';
 import { confirmation } from '@/components/confirm/Confirm';
-import { verifyAddress, getPocketURL } from '@/api/exchanges';
-import { AccountCode, getInfo, getTransactionList, signAddress } from '@/api/account';
+import { verifyAddress, getPocketURL, TExchangeAction } from '@/api/exchanges';
+import { AccountCode, getInfo, getTransactionList, signAddress, proposeTx, sendTx, TTxInput, proposeTxNote } from '@/api/account';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { PocketTerms } from '@/components/terms/pocket-terms';
 import { useLoad } from '@/hooks/api';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { alertUser } from '@/components/alert/Alert';
-import { BuyGuide } from './guide';
+import { ExchangeGuide } from './guide';
 import { convertScriptType } from '@/utils/request-addess';
 import style from './iframe.module.css';
+import { parseExternalBtcAmount } from '@/api/coins';
 
 interface TProps {
     code: AccountCode;
+    action: TExchangeAction;
 }
 
-export const Pocket = ({ code }: TProps) => {
+export const Pocket = ({ code, action }: TProps) => {
   const { t } = useTranslation();
 
   const [height, setHeight] = useState(0);
@@ -44,7 +46,7 @@ export const Pocket = ({ code }: TProps) => {
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
-  const iframeURL = useLoad(getPocketURL);
+  const [iframeURL, setIframeUrl] = useState('');
   const config = useLoad(getConfig);
   const accountInfo = useLoad(getInfo(code));
 
@@ -52,6 +54,16 @@ export const Pocket = ({ code }: TProps) => {
   const iframeRef = createRef<HTMLIFrameElement>();
   let signing = false;
   let resizeTimerID: any = undefined;
+
+  useEffect(() => {
+    getPocketURL(action).then(response => {
+      if (response.success) {
+        setIframeUrl(response.url);
+      } else {
+        alertUser(t('unknownError', { errorMessage: response.errorMessage }));
+      }
+    });
+  }, [action, t]);
 
   useEffect(() => {
     if (config) {
@@ -176,11 +188,58 @@ export const Pocket = ({ code }: TProps) => {
     });
   };
 
+  const handlePaymentRequest = async (message: PaymentRequestV0Message) => {
+    if (!message.slip24) {
+      alertUser(t('unknownError', { errorMessage: 'Missing payment request data' }));
+      return;
+    }
+
+    // this allows to correctly handle sats mode
+    const parsedAmount = await parseExternalBtcAmount(message.amount.toString());
+    if (!parsedAmount.success) {
+      alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
+      return;
+    }
+
+    const txInput: TTxInput = {
+      address: message.bitcoinAddress,
+      amount: parsedAmount.amount,
+      // feeTarget will be automatically set on the highest in the BE.
+      feeTarget: 'custom',
+      customFee: '',
+      sendAll: 'no',
+      selectedUTXOs: [],
+      paymentRequest: message.slip24,
+    };
+
+    let result = await proposeTx(code, txInput);
+    if (result.success) {
+      let txNote = t('buy.pocket.paymentRequestNote') + ' ' + message.slip24.recipientName;
+      await proposeTxNote(code, txNote);
+      try {
+        const sendResult = await sendTx(code);
+        if (!sendResult.success && !sendResult.aborted) {
+          alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+        }
+      } finally {
+        //wipe tx note
+        proposeTxNote(code, '');
+      }
+    } else {
+      if (result.errorCode === 'insufficientFunds') {
+        alertUser(t('buy.pocket.error.' + result.errorCode));
+      } else if (result.errorCode) {
+        alertUser(t('send.error.' + result.errorCode));
+      } else {
+        alertUser(t('genericError'));
+      }
+    }
+  };
+
   const onMessage = (m: MessageEvent) => {
     if (!iframeURL || !code) {
       return;
     }
-
     // verify the origin of the received message
     if (m.origin !== new URL(iframeURL).origin) {
       return;
@@ -202,6 +261,10 @@ export const Pocket = ({ code }: TProps) => {
         break;
       case V0MessageType.RequestExtendedPublicKey:
         handleRequestXpub();
+        break;
+      case V0MessageType.PaymentRequest:
+        handlePaymentRequest(message);
+        break;
       }
     } catch (e) {
       console.log(e);
@@ -216,7 +279,7 @@ export const Pocket = ({ code }: TProps) => {
         <div className={style.header}>
           <Header title={
             <h2>
-              {t('generic.buy', { context: 'bitcoin' })}
+              {t('generic.exchange', { context: 'bitcoin' })}
             </h2>
           } />
         </div>
@@ -252,7 +315,7 @@ export const Pocket = ({ code }: TProps) => {
           </Dialog>
         </div>
       </div>
-      <BuyGuide exchange="pocket" translationContext="bitcoin" />
+      <ExchangeGuide exchange="pocket" translationContext="bitcoin" />
     </div>
   );
 };

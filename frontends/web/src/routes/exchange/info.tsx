@@ -25,14 +25,14 @@ import { isBitcoinOnly } from '@/routes/account/utils';
 import { View, ViewContent } from '@/components/view/view';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
-import { BuyGuide } from './guide';
+import { ExchangeGuide } from './guide';
 
 type TProps = {
     accounts: accountApi.IAccount[];
     code: accountApi.AccountCode;
 }
 
-export const BuyInfo = ({ code, accounts }: TProps) => {
+export const ExchangeInfo = ({ code, accounts }: TProps) => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string>(code);
   const [disabled, setDisabled] = useState<boolean>(false);
@@ -59,7 +59,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
       connectKeystore(accountCode).then(connected => {
         if (connected) {
           // replace current history item when redirecting so that the user can go back
-          navigate(`/buy/exchange/${accountCode}`, { replace: true });
+          navigate(`/exchange/select/${accountCode}`, { replace: true });
         }
       });
     }
@@ -70,7 +70,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
     try {
       const connected = await connectKeystore(selected);
       if (connected) {
-        navigate(`/buy/exchange/${selected}`);
+        navigate(`/exchange/select/${selected}`);
       }
     } finally {
       setDisabled(false);
@@ -95,7 +95,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
         <GuidedContent>
           <Header title={
             <h2>
-              {t('generic.buy', { context: translationContext })}
+              {t('generic.exchange', { context: translationContext })}
             </h2>
           }>
             <HideAmountsButton />
@@ -108,7 +108,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
                 supportedAccounts && (
                   <GroupedAccountSelector
                     accounts={supportedAccounts}
-                    title={t('generic.buy', { context: translationContext })}
+                    title={t('generic.exchange', { context: translationContext })}
                     disabled={disabled}
                     selected={selected}
                     onChange={setSelected}
@@ -119,7 +119,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
             </ViewContent>
           </View>
         </GuidedContent>
-        <BuyGuide translationContext={translationContext} />
+        <ExchangeGuide translationContext={translationContext} />
       </GuideWrapper>
     </Main>
   );

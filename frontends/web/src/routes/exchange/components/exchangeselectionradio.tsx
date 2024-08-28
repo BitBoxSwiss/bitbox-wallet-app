@@ -17,22 +17,23 @@
 import { Dispatch, SetStateAction, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDarkmode } from '@/hooks/darkmode';
-import { Info, ExchangeDealsWithSupported, ExchangeDealWithBestDeal } from '@/routes/buy/types';
 import { Bank, BankDark, CreditCard, CreditCardDark } from '@/components/icon';
 import { InfoButton } from '@/components/infobutton/infobutton';
 import { Badge } from '@/components/badge/badge';
-import { getFormattedName } from '@/routes/buy/utils';
+import { getExchangeFormattedName } from '@/routes/exchange/utils';
 import style from './exchangeselectionradio.module.css';
+import { ExchangeDeal, ExchangeDeals } from '@/api/exchanges';
+import { Info } from './infocontent';
 
 type RadioProps = {
-  deals: ExchangeDealsWithSupported['deals'];
-  exchangeName: ExchangeDealsWithSupported['exchangeName'];
+  deals: ExchangeDeal[];
+  exchangeName: ExchangeDeals['exchangeName'];
   onChange: () => void;
   onClickInfoButton: Dispatch<SetStateAction<Info | undefined>>;
 }
 
 type TRadioProps = RadioProps & JSX.IntrinsicElements['input'];
-type TPaymentMethodProps = { methodName: ExchangeDealWithBestDeal['payment'] };
+type TPaymentMethodProps = { methodName: ExchangeDeal['payment'] };
 
 const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
   const { t } = useTranslation();
@@ -57,13 +58,13 @@ const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
   }
 };
 
-const Deal = ({ deal }: { deal: ExchangeDealWithBestDeal }) => {
+const Deal = ({ deal }: { deal: ExchangeDeal }) => {
   const { t } = useTranslation();
   return (
     <div className={style.paymentMethodContainer}>
       <PaymentMethod methodName={deal.payment} />
       <div>
-        {deal.isBestDeal && (
+        {deal.isBest && (
           <Badge type="success">{t('buy.exchange.bestDeal')}</Badge>
         )}
         {deal.isFast && (
@@ -112,7 +113,7 @@ export const ExchangeSelectionRadio = ({
         <label className={style.radioLabel} htmlFor={id}>
           <div className={style.container}>
             <p className={[style.text, style.exchangeName].join(' ')}>
-              {getFormattedName(exchangeName)}
+              {getExchangeFormattedName(exchangeName)}
             </p>
             <div className={style.paymentMethodsContainer}>
               {deals.map(deal => <Deal key={deal.payment} deal={deal}/>)}

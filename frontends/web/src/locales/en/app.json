@@ -380,6 +380,7 @@
     "dismiss": "Dismiss",
     "done": "Done",
     "download": "Download",
+    "exchange": "Exchange",
     "hiddenwallet": "Create hidden wallet",
     "next": "Next",
     "ok": "OK",
@@ -428,23 +429,26 @@
         },
         "pocket": {
           "fees": {
-            "info": "Bank transfer: {{fee}}%",
+            "info": "{{fee}}% exchange fee, plus small network transaction fee",
             "title": "Fees"
           },
           "learnMore": "Learn more about Pocket",
           "payment": {
             "bankTransfer": "Bank transfer",
             "bankTransferDetails": {
-              "sepa": "SEPA and SEPA Instant (EUR transactions in SEPA countries only)",
+              "sepa": "SEPA and SEPA Instant (EUR)",
               "sic": "Swiss Interbank Clearing (CHF transactions in CH/LI only)",
-              "uk": "UK Faster Payments (GBP transactions in the UK only)"
+              "uk": "UK Faster Payments (GBP)"
             },
             "bankTransferReccuring": "How to set up recurring purchases with a standing order?",
             "title": "Payment methods"
           },
+          "sell": {
+            "title": "Sell Bitcoin"
+          },
           "supportedCurrencies": "Supports European currencies: EUR, GBP, and CHF.",
           "verification": {
-            "info": "Only requires identity verification above daily and annual thresholds.",
+            "info": "No identitiy verification for amounts below threshold (~950 EUR/day)",
             "link": "Find current thresholds here",
             "title": "Identity verification"
           }
@@ -500,35 +504,13 @@
       "skip": "Do not show again"
     },
     "pocket": {
-      "data": {
-        "link": "Pocket privacy policy",
-        "p1": "The BitBoxApp does not collect any data when buying bitcoin, the incoming funds are treated like a regular transaction. Pocket needs to collect some personal data to operate. Their Privacy Policy explains in detail how that data is handled.",
-        "title": "Data protection"
+      "error": {
+        "insufficientFunds": "Insufficient funds on the selected account."
       },
-      "kyc": {
-        "link": "Read Pocket FAQs",
-        "p1": "Pocket tries to keep KYC to a minimum. For purchases under 950 EUR (1000 CHF) a day, no additional documents are required. For purchases over this amount, you will need to schedule a call with Pocket to complete the necessary KYC/AML process.",
-        "title": "KYC/AML"
-      },
-      "payment": {
-        "p1": "You can buy bitcoin instantly with Pocket via SEPA bank transfer. The fee is 1.5% and the bitcoin is deposited to your BitBox as soon as possible after Pocket receives the bank transfer (usually within the same day).",
-        "p2": "Please note that Pocket’s exchange rates can differ from the ones used in the BitBoxApp, resulting in slightly different amounts.",
-        "title": "Payment methods and fees"
-      },
+      "paymentRequestNote": "Payment request from",
       "previousTransactions": "The transaction history of this account is not empty. Sharing this account will make all its past and future transactions visible for Pocket. Proceed anyway?",
-      "security": {
-        "link": "BitBox02 security threat model",
-        "p1": "When you buy bitcoin via Pocket, you are using an external service. This service is out of scope of the BitBox02 Security Threat model and relies on the safety and security of the environment which the BitBoxApp software is running in. However we work together to improve security by using a two factor authentication mechanism to verify the address you are receiving to.",
-        "title": "Security model"
-      },
       "usedAddress": "The address {{address}} has been already used, please start again with a new address.",
-      "verifyBitBox02": "Please verify that the address you received via email matches the one displayed on your Bitbox. If possible, you should open the email on a second device for better security.",
-      "welcome": {
-        "p1": "We partner with Pocket to offer you a seamless way to buy bitcoin directly within the BitBoxApp. It's just a few clicks.",
-        "p2": "Pocket is a Swiss platform that makes it quick and easy to buy bitcoin in most of Europe (anywhere where SEPA bank transfers are supported).",
-        "p3": "With Pocket, you can also do regular buys through standing bank orders, so you can DCA (dollar-cost averaging) with ease.",
-        "title": "Welcome to your one stop shop for buying bitcoin"
-      }
+      "verifyBitBox02": "Please verify that the address you received via email matches the one displayed on your Bitbox. If possible, you should open the email on a second device for better security."
     }
   },
   "changePin": {
@@ -566,7 +548,9 @@
   },
   "device": {
     "appUpradeRequired": "Your BitBox is not compatible with this desktop application. Please download and install the latest version.",
-    "keystoreConnected": "Connected wallet"
+    "firmwareUpgradeRequired": "A firmware update is required to make use of this feature.",
+    "keystoreConnected": "Connected wallet",
+    "unsupportedFeature": "This feature is not available on this device."
   },
   "deviceLock": {
     "button": "Enable two factor authorization (2FA)",
@@ -708,6 +692,46 @@
     "wrongKeystore": "Wrong wallet connected. Please make sure to insert the correct device matching this account.",
     "wrongKeystore2": " If you are using the optional passphrase, make sure you have entered the correct passphrase for the account."
   },
+  "exchange": {
+    "buySell": {
+      "coinNotSupported": "No {{action}} options available for this coin type.",
+      "regionNotSupported": "No {{action}} options available for this region.",
+      "updateNow": "Update now"
+    },
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "Pocket privacy policy",
+          "p1": "The BitBoxApp does not learn or collect any personal data. Pocket collects some personal data as explained in their Privacy Policy.",
+          "title": "Data Protection"
+        },
+        "fees": {
+          "extraNote": "Please note that you need to buy Bitcoin with Pocket first before you can sell.",
+          "note": "Note: Pocket's exchange rates may differ from the BitBoxApp rates.",
+          "p1": "<strong>Buying bitcoin:</strong> Use SEPA bank transfer to send EUR or CHF and get bitcoin delivered directly to your BitBox after Pocket receives the transfer, usually the same day.",
+          "p2": "<strong>Selling bitcoin:</strong> Send Bitcoin to Pocket and receive EUR or CHF in your registered bank account. The exchange rate is fixed when Pocket receives your Bitcoin.",
+          "title": "Payment Methods and Fees"
+        },
+        "kyc": {
+          "link": "Read Pocket FAQs",
+          "p1": "No additional documents are needed for exchanges up to 950 EUR (1000 CHF) per day.",
+          "p2": "For larger amounts, a call with Pocket is required to complete the KYC/AML process.",
+          "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
+        },
+        "security": {
+          "link": "BitBox02 security threat model",
+          "p1": "Using Pocket is an external service and is not covered by the BitBox02 Security Threat model. However, we closely work with Pocket to enhance overall security.",
+          "p2": "<strong>Buying bitcoin:</strong> You’ll get an email to confirm your bitcoin receive address through a second communication channel.",
+          "p3": "<strong>Selling bitcoin:</strong> The BitBox02 verifies the Bitcoin deposit address cryptographically and displays \"Pocket\" on the hardware wallet.",
+          "title": "Security"
+        },
+        "welcome": {
+          "p1": "We work with Pocket, a Swiss broker, to make buying and selling bitcoin easy within the BitBoxApp. This service is available across Europe where SEPA bank transfers are supported.",
+          "title": "Buy and sell bitcoin with Pocket"
+        }
+      }
+    }
+  },
   "fiat": {
     "default": "default",
     "setDefault": "Set {{code}} as default",
@@ -722,6 +746,9 @@
     "buy_crypto": "Buy crypto",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "exchange": "Exchange {{coinCode}}",
+    "exchange_bitcoin": "Exchange Bitcoin",
+    "exchange_crypto": "Exchange crypto",
     "receive": "Receive {{coinCode}}",
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto"

@@ -20,6 +20,7 @@ import (
 	"math/big"
 	"sync"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
@@ -402,7 +403,6 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 				ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
 				Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
 			})
-
 		}
 		outputs[index] = &messages.BTCSignOutputRequest{
 			Ours:              isOurs,
@@ -430,14 +430,52 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	if btcProposedTx.FormatUnit == coinpkg.BtcUnitSats {
 		formatUnit = messages.BTCSignInitRequest_SAT
 	}
+
+	// Payment request handling
+	newBTCPaymentRequest := func(txPaymentRequest *accounts.PaymentRequest) *messages.BTCPaymentRequestRequest {
+		memos := []*messages.BTCPaymentRequestRequest_Memo{}
+		for _, m := range txPaymentRequest.Memos {
+			memo := messages.BTCPaymentRequestRequest_Memo{
+				Memo: &messages.BTCPaymentRequestRequest_Memo_TextMemo_{
+					TextMemo: &messages.BTCPaymentRequestRequest_Memo_TextMemo{
+						Note: m.Note,
+					},
+				},
+			}
+			memos = append(memos, &memo)
+		}
+
+		return &messages.BTCPaymentRequestRequest{
+			RecipientName: txPaymentRequest.RecipientName,
+			Nonce:         txPaymentRequest.Nonce,
+			TotalAmount:   txPaymentRequest.TotalAmount,
+			Signature:     txPaymentRequest.Signature,
+			Memos:         memos,
+		}
+	}
+
+	var btcPaymentRequests []*messages.BTCPaymentRequestRequest
+	for prIndex, paymentRequest := range btcProposedTx.TXProposal.PaymentRequest {
+		btcPR := newBTCPaymentRequest(paymentRequest)
+		btcPaymentRequests = append(btcPaymentRequests, btcPR)
+		prIndex := uint32(prIndex)
+		for outIndex, txOut := range tx.TxOut {
+			if paymentRequest.TxOut == txOut {
+				// outputs indexing is the same as tx.TxOut
+				outputs[outIndex].PaymentRequestIndex = &prIndex
+			}
+		}
+	}
+
 	signatures, err := keystore.device.BTCSign(
 		msgCoin,
 		scriptConfigs,
 		&firmware.BTCTx{
-			Version:  uint32(tx.Version),
-			Inputs:   inputs,
-			Outputs:  outputs,
-			Locktime: tx.LockTime,
+			Version:         uint32(tx.Version),
+			Inputs:          inputs,
+			Outputs:         outputs,
+			Locktime:        tx.LockTime,
+			PaymentRequests: btcPaymentRequests,
 		},
 		formatUnit,
 	)
@@ -588,4 +626,12 @@ func (keystore *keystore) SignETHWalletConnectTransaction(chainId uint64, tx *et
 // SupportsEIP1559 implements keystore.Keystore.
 func (keystore *keystore) SupportsEIP1559() bool {
 	return keystore.device.Version().AtLeast(semver.NewSemVer(9, 16, 0))
+}
+
+// SupportsPaymentRequests implements keystore.Keystore.
+func (keystore *keystore) SupportsPaymentRequests() error {
+	if keystore.device.Version().AtLeast(semver.NewSemVer(9, 19, 0)) {
+		return nil
+	}
+	return keystorePkg.ErrFirmwareUpgradeRequired
 }

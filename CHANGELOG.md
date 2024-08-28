@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add support for selling Bitcoin to Pocket using SLIP-0024 payment requests
 
 ## 4.43.0
 - Bundle BitBox02 firmware version v9.19.0

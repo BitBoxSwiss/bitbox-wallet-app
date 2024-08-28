@@ -40,7 +40,8 @@ const unitSatoshi = 1e8
 // fee target (priority) if one is given, or the provided args.FeePerKb if the fee taret is
 // `FeeTargetCodeCustom`.
 func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amount, error) {
-	if args.FeeTargetCode == accounts.FeeTargetCodeCustom {
+	isPaymentRequest := len(args.PaymentRequests) > 0
+	if args.FeeTargetCode == accounts.FeeTargetCodeCustom && !isPaymentRequest {
 		float, err := strconv.ParseFloat(args.CustomFee, 64)
 		if err != nil {
 			return 0, err
@@ -58,11 +59,16 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 		}
 		return feePerKb, nil
 	}
+
 	var feeTarget *FeeTarget
-	for _, target := range account.feeTargets() {
-		if target.code == args.FeeTargetCode {
-			feeTarget = target
-			break
+	if isPaymentRequest {
+		feeTarget = account.feeTargets().highest()
+	} else {
+		for _, target := range account.feeTargets() {
+			if target.code == args.FeeTargetCode {
+				feeTarget = target
+				break
+			}
 		}
 	}
 	if feeTarget == nil || feeTarget.feeRatePerKb == nil {
@@ -166,6 +172,9 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 
 	var txProposal *maketx.TxProposal
 	if args.Amount.SendAll() {
+		if len(args.PaymentRequests) > 0 {
+			return nil, nil, errp.New("Payment Requests do not allow send-all transaction proposals")
+		}
 		txProposal, err = maketx.NewTxSpendAll(
 			account.coin,
 			wireUTXO,
@@ -195,17 +204,24 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		if err != nil {
 			return nil, nil, err
 		}
+		txOut := wire.NewTxOut(parsedAmountInt64, pkScript)
 		account.log.Infof("Change address script type: %s", changeAddress.Configuration.ScriptType())
 		txProposal, err = maketx.NewTx(
 			account.coin,
 			wireUTXO,
-			wire.NewTxOut(parsedAmountInt64, pkScript),
+			txOut,
 			feeRatePerKb,
 			changeAddress,
 			account.log,
 		)
 		if err != nil {
 			return nil, nil, err
+		}
+
+		for _, paymentRequest := range args.PaymentRequests {
+			account.log.Info("Payment request tx proposal")
+			paymentRequest.TxOut = txOut
+			txProposal.PaymentRequest = append(txProposal.PaymentRequest, paymentRequest)
 		}
 	}
 	account.log.Debugf("creating tx with %d inputs, %d outputs",
