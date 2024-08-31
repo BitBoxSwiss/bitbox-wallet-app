@@ -191,6 +191,7 @@ func (keystore *Keystore) SignTransaction(
 	keystore.log.Info("Sign transaction.")
 	transaction := btcProposedTx.TXProposal.Transaction
 	signatures := make([]*types.Signature, len(transaction.TxIn))
+	sigHashes := btcProposedTx.TXProposal.SigHashes()
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := btcProposedTx.TXProposal.PreviousOutputs[txIn.PreviousOutPoint]
 		if !ok {
@@ -211,7 +212,7 @@ func (keystore *Keystore) SignTransaction(
 		if address.Configuration.ScriptType() == signing.ScriptTypeP2TR {
 			prv = txscript.TweakTaprootPrivKey(*prv, nil)
 			signatureHash, err := txscript.CalcTaprootSignatureHash(
-				btcProposedTx.SigHashes, txscript.SigHashDefault, transaction,
+				sigHashes, txscript.SigHashDefault, transaction,
 				index, btcProposedTx.TXProposal.PreviousOutputs)
 			if err != nil {
 				return errp.Wrap(err, "Failed to calculate Taproot signature hash")
@@ -231,7 +232,7 @@ func (keystore *Keystore) SignTransaction(
 			isSegwit, subScript := address.ScriptForHashToSign()
 			if isSegwit {
 				var err error
-				signatureHash, err = txscript.CalcWitnessSigHash(subScript, btcProposedTx.SigHashes,
+				signatureHash, err = txscript.CalcWitnessSigHash(subScript, sigHashes,
 					txscript.SigHashAll, transaction, index, spentOutput.Value)
 				if err != nil {
 					return errp.Wrap(err, "Failed to calculate SegWit signature hash")
