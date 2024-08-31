@@ -156,8 +156,6 @@ class Send extends Component<Props, State> {
 
   public componentWillUnmount() {
     unsubscribe(this.unsubscribeList);
-    // Wipe proposed tx note.
-    accountApi.proposeTxNote(this.props.account.code, '');
   }
 
   private send = async () => {
@@ -173,7 +171,7 @@ class Send extends Component<Props, State> {
 
     this.setState({ signProgress: undefined, isConfirming: true });
     try {
-      const result = await accountApi.sendTx(code);
+      const result = await accountApi.sendTx(code, this.state.note);
       if (result.success) {
         this.setState({
           sendAll: false,
@@ -280,8 +278,6 @@ class Send extends Component<Props, State> {
     const target = event.target;
     this.setState({
       'note': target.value,
-    }, () => {
-      accountApi.proposeTxNote(this.props.account.code, this.state.note);
     });
   };
 

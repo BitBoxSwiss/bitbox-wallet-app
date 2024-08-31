@@ -264,10 +264,6 @@ export const postNotesTx = (code: AccountCode, {
   return apiPost(`account/${code}/notes/tx`, { internalTxID, note });
 };
 
-export const proposeTxNote = (code: AccountCode, note: string): Promise<null> => {
-  return apiPost(`account/${code}/propose-tx-note`, note);
-};
-
 export const getTransactionList = (code: AccountCode): Promise<TTransactions> => {
   return apiGet(`account/${code}/transactions`);
 };
@@ -342,8 +338,8 @@ export interface ISendTx {
     errorCode?: string;
 }
 
-export const sendTx = (code: AccountCode): Promise<ISendTx> => {
-  return apiPost(`account/${code}/sendtx`);
+export const sendTx = (code: AccountCode, txNote: string): Promise<ISendTx> => {
+  return apiPost(`account/${code}/sendtx`, txNote);
 };
 
 export type FeeTargetCode = 'custom' | 'low' | 'economy' | 'normal' | 'high';
