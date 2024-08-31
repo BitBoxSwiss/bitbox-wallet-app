@@ -29,6 +29,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/sirupsen/logrus"
 )
@@ -53,6 +54,11 @@ type TxProposal struct {
 	// ChangeAddress is the address of the wallet to which the change of the transaction is sent.
 	ChangeAddress   *addresses.AccountAddress
 	PreviousOutputs PreviousOutputs
+}
+
+// SigHashes computes the hashes cache to speed up per-input sighash computations.
+func (txProposal *TxProposal) SigHashes() *txscript.TxSigHashes {
+	return txscript.NewTxSigHashes(txProposal.Transaction, txProposal.PreviousOutputs)
 }
 
 // Total is amount+fee.

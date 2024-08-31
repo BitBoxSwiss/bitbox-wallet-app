@@ -154,6 +154,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	signatureHashes := [][]byte{}
 	keyPaths := []string{}
 	transaction := btcProposedTx.TXProposal.Transaction
+	sigHashes := btcProposedTx.TXProposal.SigHashes()
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := btcProposedTx.TXProposal.PreviousOutputs[txIn.PreviousOutPoint]
 		if !ok {
@@ -165,7 +166,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		var signatureHash []byte
 		if isSegwit {
 			var err error
-			signatureHash, err = txscript.CalcWitnessSigHash(subScript, btcProposedTx.SigHashes,
+			signatureHash, err = txscript.CalcWitnessSigHash(subScript, sigHashes,
 				txscript.SigHashAll, transaction, index, spentOutput.Value)
 			if err != nil {
 				return errp.Wrap(err, "Failed to calculate SegWit signature hash")
