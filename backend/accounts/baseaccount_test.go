@@ -173,12 +173,6 @@ func TestBaseAccount(t *testing.T) {
 			require.True(t, os.IsNotExist(err))
 		}
 
-		require.Equal(t, "", account.GetAndClearProposedTxNote())
-		account.ProposeTxNote("test note")
-		require.Equal(t, "test note", account.GetAndClearProposedTxNote())
-		// Was cleared by the previous call.
-		require.Equal(t, "", account.GetAndClearProposedTxNote())
-
 		require.NoError(t, account.SetTxNote("test-tx-id", "another test note"))
 		require.Equal(t, types.EventStatusChanged, checkEvent())
 		require.Equal(t, "another test note", account.TxNote("test-tx-id"))

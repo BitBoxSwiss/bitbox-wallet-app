@@ -75,7 +75,6 @@ func NewHandlers(
 	handleFunc("/sign-address", handlers.ensureAccountInitialized(handlers.postSignBTCAddress)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/has-payment-request", handlers.ensureAccountInitialized(handlers.getHasPaymentRequest)).Methods("GET")
-	handleFunc("/propose-tx-note", handlers.ensureAccountInitialized(handlers.postProposeTxNote)).Methods("POST")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	handleFunc("/connect-keystore", handlers.ensureAccountInitialized(handlers.postConnectKeystore)).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
@@ -465,7 +464,14 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 }
 
 func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
-	err := handlers.account.SendTx()
+	var txNote string
+	if err := json.NewDecoder(r.Body).Decode(&txNote); err != nil {
+		// In case unmarshaling of the tx. note fails for some reason we do not want to abort send
+		// because the tx. note is not critical for its functionality/correctness. This is why we do
+		// not return but only log an error here.
+		handlers.log.WithError(err).Error("Failed to unmarshal transaction note")
+	}
+	err := handlers.account.SendTx(txNote)
 	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return map[string]interface{}{"success": false, "aborted": true}, nil
 	}
@@ -642,15 +648,6 @@ func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, erro
 		"hasSecureOutput": hasSecureOutput,
 		"optional":        optional,
 	}, nil
-}
-
-func (handlers *Handlers) postProposeTxNote(r *http.Request) (interface{}, error) {
-	var note string
-	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	handlers.account.ProposeTxNote(note)
-	return nil, nil
 }
 
 func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {

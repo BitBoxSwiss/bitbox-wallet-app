@@ -21,7 +21,7 @@ import { getConfig } from '@/utils/config';
 import { Dialog } from '@/components/dialog/dialog';
 import { confirmation } from '@/components/confirm/Confirm';
 import { verifyAddress, getPocketURL, TExchangeAction } from '@/api/exchanges';
-import { AccountCode, getInfo, getTransactionList, signAddress, proposeTx, sendTx, TTxInput, proposeTxNote } from '@/api/account';
+import { AccountCode, getInfo, getTransactionList, signAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { PocketTerms } from '@/components/terms/pocket-terms';
@@ -215,15 +215,9 @@ export const Pocket = ({ code, action }: TProps) => {
     let result = await proposeTx(code, txInput);
     if (result.success) {
       let txNote = t('buy.pocket.paymentRequestNote') + ' ' + message.slip24.recipientName;
-      await proposeTxNote(code, txNote);
-      try {
-        const sendResult = await sendTx(code);
-        if (!sendResult.success && !sendResult.aborted) {
-          alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
-        }
-      } finally {
-        //wipe tx note
-        proposeTxNote(code, '');
+      const sendResult = await sendTx(code, txNote);
+      if (!sendResult.success && !sendResult.aborted) {
+        alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
       }
     } else {
       if (result.errorCode === 'insufficientFunds') {

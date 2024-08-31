@@ -18,7 +18,7 @@
 import { ChangeEvent, Component } from 'react';
 import * as accountApi from '@/api/account';
 import { syncdone } from '@/api/accountsync';
-import { BtcUnit, convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
+import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
 import { View, ViewContent } from '@/components/view/view';
 import { TDevices, hasMobileChannel } from '@/api/devices';
 import { getDeviceInfo } from '@/api/bitbox01';
@@ -35,7 +35,7 @@ import { FeeTargets } from './feetargets';
 import { signConfirm, signProgress, TSignProgress } from '@/api/devicessync';
 import { UnsubscribeList, unsubscribe } from '@/utils/subscriptions';
 import { isBitcoinBased } from '@/routes/account/utils';
-import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
+import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
 import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
@@ -83,7 +83,6 @@ export type State = {
     // show visual BitBox in dialog when instructed to sign.
     signConfirm: boolean;
     coinControl: boolean;
-    btcUnit: BtcUnit;
     activeCoinControl: boolean;
     activeScanQR: boolean;
     note: string;
@@ -111,7 +110,6 @@ class Send extends Component<Props, State> {
     noMobileChannelError: false,
     fiatUnit: this.props.activeCurrency,
     coinControl: false,
-    btcUnit : 'default',
     activeCoinControl: false,
     activeScanQR: false,
     note: '',
@@ -136,7 +134,6 @@ class Send extends Component<Props, State> {
       }).catch(console.error);
     }
     getConfig().then(config => {
-      this.setState({ btcUnit: config.backend.btcUnit });
       if (isBitcoinBased(this.props.account.coinCode)) {
         this.setState({ coinControl: !!(config.frontend || {}).coinControl });
       }
@@ -159,8 +156,6 @@ class Send extends Component<Props, State> {
 
   public componentWillUnmount() {
     unsubscribe(this.unsubscribeList);
-    // Wipe proposed tx note.
-    accountApi.proposeTxNote(this.props.account.code, '');
   }
 
   private send = async () => {
@@ -176,7 +171,7 @@ class Send extends Component<Props, State> {
 
     this.setState({ signProgress: undefined, isConfirming: true });
     try {
-      const result = await accountApi.sendTx(code);
+      const result = await accountApi.sendTx(code, this.state.note);
       if (result.success) {
         this.setState({
           sendAll: false,
@@ -284,8 +279,6 @@ class Send extends Component<Props, State> {
     const target = event.target;
     this.setState({
       'note': target.value,
-    }, () => {
-      accountApi.proposeTxNote(this.props.account.code, this.state.note);
     });
   };
 
@@ -502,6 +495,8 @@ class Send extends Component<Props, State> {
       signConfirm
     };
 
+    const device = this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]];
+
     return (
       <GuideWrapper>
         <GuidedContent>
@@ -614,16 +609,21 @@ class Send extends Component<Props, State> {
                   </Column>
                 </Grid>
               </ViewContent>
-              <ConfirmingWaitDialog
-                paired={paired}
-                baseCurrencyUnit={fiatUnit}
-                note={note}
-                hasSelectedUTXOs={this.hasSelectedUTXOs()}
-                selectedUTXOs={Object.keys(this.selectedUTXOs)}
-                coinCode={account.coinCode}
-                transactionDetails={waitDialogTransactionDetails}
-                transactionStatus={waitDialogTransactionStatus}
-              />
+
+              {device && (
+                <ConfirmSend
+                  device={device}
+                  paired={paired}
+                  baseCurrencyUnit={fiatUnit}
+                  note={note}
+                  hasSelectedUTXOs={this.hasSelectedUTXOs()}
+                  selectedUTXOs={Object.keys(this.selectedUTXOs)}
+                  coinCode={account.coinCode}
+                  transactionDetails={waitDialogTransactionDetails}
+                  transactionStatus={waitDialogTransactionStatus}
+                />
+              )}
+
               <MessageWaitDialog isShown={isSent} messageType="sent" />
               <MessageWaitDialog isShown={isAborted} messageType="abort" />
             </View>

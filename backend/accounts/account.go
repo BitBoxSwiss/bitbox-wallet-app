@@ -92,8 +92,8 @@ type Interface interface {
 	// Must enforce that initial sync is done before returning.
 	Balance() (*Balance, error)
 	// SendTx signs and sends the active tx proposal, set by TxProposal. Errors if none
-	// available. The note, if set by ProposeTxNote(), is persisted for the transaction.
-	SendTx() error
+	// available.
+	SendTx(txNote string) error
 	FeeTargets() ([]FeeTarget, FeeTargetCode)
 	TxProposal(*TxProposalArgs) (coin.Amount, coin.Amount, coin.Amount, error)
 	// GetUnusedReceiveAddresses gets a list of list of receive addresses. The result can be one
@@ -105,9 +105,6 @@ type Interface interface {
 
 	Notes() *notes.Notes
 	TxNote(txID string) string
-	// ProposeTxnote stores a note. The note is persisted in the notes database upon calling
-	// SendTx(). This function must be called before `SendTx()`.
-	ProposeTxNote(string)
 	// SetTxNote sets a tx note and refreshes the account.
 	SetTxNote(txID string, note string) error
 
