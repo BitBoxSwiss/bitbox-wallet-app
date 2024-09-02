@@ -33,7 +33,7 @@ import deviceSettings from '@/assets/icons/wallet-light.svg';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';
 import { CloseXWhite, RedDot, USBSuccess } from '@/components/icon';
-import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '@/routes/account/utils';
+import { getAccountsByKeystore, isAmbiguiousName } from '@/routes/account/utils';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { Badge } from '@/components/badge/badge';
 import { AppContext } from '@/contexts/AppContext';
@@ -164,7 +164,6 @@ const Sidebar = ({
   };
 
   const hidden = sidebarStatus === 'forceHidden';
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const accountsByKeystore = getAccountsByKeystore(accounts);
   const userInSpecificAccountExchangePage = (pathname.startsWith('/exchange'));
 
@@ -237,9 +236,7 @@ const Sidebar = ({
                   <img draggable={false} src={coins} />
                 </div>
                 <span className={style.sidebarLabel}>
-                  { t('generic.exchange', {
-                    context: hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'
-                  })}
+                  {t('generic.buySell')}
                 </span>
               </NavLink>
             </div>

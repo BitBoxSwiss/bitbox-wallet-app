@@ -39,7 +39,7 @@ export const ExchangeGuide = ({ exchange, translationContext }: BuyGuideProps) =
   const privacyLink = exchange === 'pocket' ? pocketLink : moonpayLink;
 
   return (
-    <Guide title={t('guide.guideTitle.exchange')}>
+    <Guide title={t('guide.guideTitle.buySell')}>
       <Entry key="guide.buy.protection" entry={{
         link: exchange ? privacyLink : undefined,
         text: t('buy.info.disclaimer.protection.descriptionGeneric', { context: translationContext }),
