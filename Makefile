@@ -26,7 +26,7 @@ envinit:
 	go install github.com/matryer/moq@latest
 	go install golang.org/x/tools/cmd/goimports@latest
 	# TODO: replace with go install golang.org/x/mobile/cmd/gomobile@latest once https://github.com/golang/mobile/pull/105 is merged.
-	git clone https://github.com/BitBoxSwiss/mobile.git && cd /tmp/mobile/cmd/gomobile && go install .
+	git clone https://github.com/BitBoxSwiss/mobile.git /tmp/mobile && cd /tmp/mobile/cmd/gomobile && go install .
 	gomobile init
 # Initializiation on MacOS
 #  - run make from $GOPATH/src/github.com/BitBoxSwiss/bitbox-wallet-app
