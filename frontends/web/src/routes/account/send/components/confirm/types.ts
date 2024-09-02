@@ -16,12 +16,6 @@
 
 import { ConversionUnit, CoinCode, FeeTargetCode, Fiat, IAmount } from '@/api/account';
 import { TProductName } from '@/api/devices';
-import { TSignProgress } from '@/api/devicessync';
-
-export type TransactionStatus = {
-    isConfirming: boolean;
-    signProgress?: TSignProgress;
-  }
 
 export type TransactionDetails = {
     proposedAmount?: IAmount;
@@ -38,9 +32,9 @@ export type TConfirmSendProps = {
     baseCurrencyUnit: ConversionUnit;
     note: string;
     hasSelectedUTXOs: boolean;
+    isConfirming: boolean;
     selectedUTXOs: string[];
     coinCode: CoinCode;
-    transactionStatus: TransactionStatus;
     transactionDetails: TransactionDetails;
   }
 

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { syncSignProgress, TSignProgress } from '@/api/devicessync';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { Amount } from '@/components/amount/amount';
 import { customFeeUnit } from '@/routes/account/utils';
@@ -25,13 +27,14 @@ export const ConfirmingWaitDialog = ({
   baseCurrencyUnit,
   note,
   hasSelectedUTXOs,
+  isConfirming,
   selectedUTXOs,
   coinCode,
-  transactionStatus,
   transactionDetails
 }: Omit<TConfirmSendProps, 'device'>) => {
   const { t } = useTranslation();
-  const { isConfirming, signProgress } = transactionStatus;
+  const [signProgress, setSignProgress] = useState<TSignProgress>();
+
   const {
     proposedFee,
     proposedAmount,
@@ -41,6 +44,19 @@ export const ConfirmingWaitDialog = ({
     recipientAddress,
     activeCurrency
   } = transactionDetails;
+
+  // Reset the signProgress state every time the dialog was closed (after send/abort).
+  const [prevIsConfirming, setPrevIsConfirming] = useState(isConfirming);
+  if (prevIsConfirming != isConfirming) {
+    setPrevIsConfirming(isConfirming);
+    if (!isConfirming) {
+      setSignProgress(undefined);
+    }
+  }
+
+  useEffect(() => {
+    return syncSignProgress(setSignProgress);
+  }, []);
 
   if (!isConfirming) {
     return null;
