@@ -1,7 +1,10 @@
 # Changelog
 
 ## Unreleased
-- Add support for selling Bitcoin to Pocket using SLIP-0024 payment requests
+
+## 4.44.0
+- Add support for selling bitcoin in-app via Pocket
+- Android: make Android back button go back instead of closing the app
 
 ## 4.43.0
 - Bundle BitBox02 firmware version v9.19.0
