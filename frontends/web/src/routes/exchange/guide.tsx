@@ -39,17 +39,7 @@ export const ExchangeGuide = ({ exchange, translationContext }: BuyGuideProps) =
   const privacyLink = exchange === 'pocket' ? pocketLink : moonpayLink;
 
   return (
-    <Guide title={t('guide.guideTitle.buy')}>
-      <Entry key="guide.buy.security" entry={{
-        link: {
-          text: t('buy.info.disclaimer.security.link'),
-          url: 'https://bitbox.swiss/bitbox02/threat-model/',
-        },
-        text: t('buy.info.disclaimer.security.descriptionGeneric', {
-          context: translationContext
-        }),
-        title: t('buy.info.disclaimer.security.title'),
-      }} shown={true} />
+    <Guide title={t('guide.guideTitle.exchange')}>
       <Entry key="guide.buy.protection" entry={{
         link: exchange ? privacyLink : undefined,
         text: t('buy.info.disclaimer.protection.descriptionGeneric', { context: translationContext }),
