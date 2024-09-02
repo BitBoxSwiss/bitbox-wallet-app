@@ -31,7 +31,7 @@ export const ExchangeTab = ({
 }: TProps) => {
   const { t } = useTranslation();
   return (
-    <PillButtonGroup>
+    <PillButtonGroup size="large">
       <PillButton
         active={activeTab === 'buy'}
         onClick={() => onChangeTab('buy')}
