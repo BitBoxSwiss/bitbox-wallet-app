@@ -21,6 +21,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
@@ -54,6 +55,7 @@ type TxProposal struct {
 	// ChangeAddress is the address of the wallet to which the change of the transaction is sent.
 	ChangeAddress   *addresses.AccountAddress
 	PreviousOutputs PreviousOutputs
+	PaymentRequest  []*accounts.PaymentRequest
 }
 
 // SigHashes computes the hashes cache to speed up per-input sighash computations.

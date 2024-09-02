@@ -35,6 +35,22 @@ const (
 	TypeSoftware Type = "software"
 )
 
+// KeystoreError represents errors related to the keystore.
+//
+//revive:disable-line:exported
+type KeystoreError string //revive:disable-line:exported
+
+func (err KeystoreError) Error() string {
+	return string(err)
+}
+
+var (
+	// ErrFirmwareUpgradeRequired is returned when the keystore device needs a FW upgrade.
+	ErrFirmwareUpgradeRequired = KeystoreError("firmwareUpgradeRequired")
+	// ErrUnsupportedFeature is returned when a certain feature is unsupported by the keystore.
+	ErrUnsupportedFeature = KeystoreError("unsupportedFeature")
+)
+
 // ErrSigningAborted is used when the user aborts a signing in process (e.g. abort on HW wallet).
 var ErrSigningAborted = errors.New("signing aborted by user")
 
@@ -119,4 +135,7 @@ type Keystore interface {
 
 	// SupportsEIP1559 returns whether the keystore supports EIP1559 type 2 transactions for Ethereum
 	SupportsEIP1559() bool
+
+	// SupportsPaymentRequests returns nil if the device supports silent payments, or an error indicating why it is not supported.
+	SupportsPaymentRequests() error
 }

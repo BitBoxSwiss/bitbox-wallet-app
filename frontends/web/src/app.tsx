@@ -102,8 +102,8 @@ export const App = () => {
       navigate('/account-summary', { replace: true });
       return;
     }
-    // if on the /buy/ view and there are no accounts view route to /
-    if (accounts.length === 0 && currentURL.startsWith('/buy/')) {
+    // if on the /exchange/ view and there are no accounts view route to /
+    if (accounts.length === 0 && currentURL.startsWith('/exchange/')) {
       navigate('/');
       return;
     }

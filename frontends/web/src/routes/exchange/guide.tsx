@@ -23,11 +23,11 @@ interface BuyGuideProps {
   translationContext: 'bitcoin' | 'crypto';
 }
 
-export const BuyGuide = ({ exchange, translationContext }: BuyGuideProps) => {
+export const ExchangeGuide = ({ exchange, translationContext }: BuyGuideProps) => {
   const { t } = useTranslation();
 
   const pocketLink = {
-    text: t('buy.pocket.data.link'),
+    text: t('exchange.pocket.terms.dataprotection.link'),
     url: 'https://pocketbitcoin.com/policy/privacy',
   };
 

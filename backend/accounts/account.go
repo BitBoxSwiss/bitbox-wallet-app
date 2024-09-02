@@ -33,15 +33,33 @@ type AddressList struct {
 	Addresses  []Address
 }
 
+// TextMemo represents a slip-0024 text memo.
+type TextMemo struct {
+	Note string
+}
+
+// PaymentRequest contains the data needed to fulfill a slip-0024 payment request.
+// Text memos are the only memo type supported, currently.
+type PaymentRequest struct {
+	RecipientName string
+	Memos         []TextMemo
+	Nonce         []byte
+	TotalAmount   uint64
+	Signature     []byte
+	// TxOut is a pointer to the TxOut which will satisfay the payment request.
+	TxOut *wire.TxOut
+}
+
 // TxProposalArgs are the arguments needed when creating a tx proposal.
 type TxProposalArgs struct {
 	RecipientAddress string
 	Amount           coin.SendAmount
 	FeeTargetCode    FeeTargetCode
 	// Only applies if FeeTargetCode == Custom. It is provided in sat/vB for BTC/LTC and Gwei for ETH.
-	CustomFee     string
-	SelectedUTXOs map[wire.OutPoint]struct{}
-	Note          string
+	CustomFee       string
+	SelectedUTXOs   map[wire.OutPoint]struct{}
+	Note            string
+	PaymentRequests []*PaymentRequest
 }
 
 // Interface is the API of a Account.

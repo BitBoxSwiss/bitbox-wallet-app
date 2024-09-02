@@ -50,3 +50,21 @@ func (feeTarget *FeeTarget) FormattedFeeRate() string {
 	feePerByte = strings.TrimRight(strings.TrimRight(feePerByte, "0"), ".")
 	return feePerByte + " sat/vB"
 }
+
+// FeeTargets represents an array of FeeTarget pointers.
+type FeeTargets []*FeeTarget
+
+// highest returns the feeTarget with the highest fee.
+func (feeTargets FeeTargets) highest() *FeeTarget {
+	var highestFeeTarget *FeeTarget
+	for _, feeTarget := range feeTargets {
+		if feeTarget == nil || feeTarget.feeRatePerKb == nil {
+			continue
+		}
+
+		if highestFeeTarget == nil || *feeTarget.feeRatePerKb > *highestFeeTarget.feeRatePerKb {
+			highestFeeTarget = feeTarget
+		}
+	}
+	return highestFeeTarget
+}

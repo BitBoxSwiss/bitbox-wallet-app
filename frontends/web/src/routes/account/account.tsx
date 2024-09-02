@@ -22,7 +22,7 @@ import * as accountApi from '@/api/account';
 import { statusChanged, syncAddressesCount, syncdone } from '@/api/accountsync';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { TDevices } from '@/api/devices';
-import { getExchangeBuySupported, SupportedExchanges } from '@/api/exchanges';
+import { getExchangeSupported, SupportedExchanges } from '@/api/exchanges';
 import { useSDCard } from '@/hooks/sdcard';
 import { unsubscribe } from '@/utils/subscriptions';
 import { alertUser } from '@/components/alert/Alert';
@@ -71,7 +71,7 @@ export const Account = ({
   const [insured, setInsured] = useState<boolean>(false);
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
   const [stateCode, setStateCode] = useState<string>();
-  const supportedExchanges = useLoad<SupportedExchanges>(getExchangeBuySupported(code), [code]);
+  const supportedExchanges = useLoad<SupportedExchanges>(getExchangeSupported(code), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
@@ -257,7 +257,7 @@ export const Account = ({
     );
   }
 
-  const exchangeBuySupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
+  const exchangeSupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
 
   const isAccountEmpty = balance
     && !balance.hasAvailable
@@ -271,7 +271,7 @@ export const Account = ({
     code,
     coinCode: account.coinCode,
     canSend: balance && balance.hasAvailable,
-    exchangeBuySupported,
+    exchangeSupported,
     account
   };
 
@@ -321,7 +321,7 @@ export const Account = ({
               <BuyReceiveCTA
                 account={account}
                 code={code}
-                exchangeBuySupported={exchangeBuySupported}
+                exchangeSupported={exchangeSupported}
                 unit={balance.available.unit}
                 balanceList={[balance]}
               />

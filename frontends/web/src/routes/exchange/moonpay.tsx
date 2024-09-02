@@ -23,7 +23,7 @@ import { UseDisableBackButton } from '@/hooks/backbutton';
 import { AccountCode, IAccount } from '@/api/account';
 import { getConfig } from '@/utils/config';
 import { getMoonpayBuyInfo } from '@/api/exchanges';
-import { BuyGuide } from './guide';
+import { ExchangeGuide } from './guide';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
@@ -122,7 +122,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
           </div>
         </div>
       </div>
-      <BuyGuide exchange="moonpay" translationContext={translationContext} />
+      <ExchangeGuide exchange="moonpay" translationContext={translationContext} />
     </div>
   );
 };

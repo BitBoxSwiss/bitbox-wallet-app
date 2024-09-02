@@ -22,7 +22,7 @@ import { CoinUnit, IAccount, IBalance } from '@/api/account';
 import { Button } from '@/components/forms';
 import { Balances } from '@/routes/account/summary/accountssummary';
 import { isBitcoinCoin, isEthereumBased } from '@/routes/account/utils';
-import { getExchangeSupportedAccounts } from '@/routes/buy/utils';
+import { getExchangeSupportedAccounts } from '@/routes/exchange/utils';
 import { WalletConnectLight } from '@/components/icon';
 import { useMountedRef } from '@/hooks/mount';
 import styles from './buyReceiveCTA.module.css';
@@ -31,7 +31,7 @@ type TBuyReceiveCTAProps = {
   balanceList?: IBalance[];
   code?: string;
   unit?: string;
-  exchangeBuySupported?: boolean;
+  exchangeSupported?: boolean;
   account?: IAccount;
 };
 
@@ -44,7 +44,7 @@ export const BuyReceiveCTA = ({
   balanceList,
   code,
   unit,
-  exchangeBuySupported = true,
+  exchangeSupported = true,
   account,
 }: TBuyReceiveCTAProps) => {
   const { t } = useTranslation();
@@ -52,7 +52,7 @@ export const BuyReceiveCTA = ({
   const isBitcoin = isBitcoinCoin(unit as CoinUnit);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const onBuyCTA = () => navigate(code ? `/buy/info/${code}` : '/buy/info');
+  const onExchangeCTA = () => navigate(code ? `/exchange/info/${code}` : '/exchange/info');
   const onWalletConnect = () => navigate(`/account/${code}/wallet-connect/dashboard`);
   const onReceiveCTA = () => {
     if (balanceList) {
@@ -82,10 +82,10 @@ export const BuyReceiveCTA = ({
             })}
           </Button>
         )}
-        {exchangeBuySupported && (
-          <Button primary onClick={onBuyCTA}>
-            {/* "Buy Bitcoin", "Buy crypto" or "Buy LTC" (via placeholder "Buy {{coinCode}}") */}
-            {t('generic.buy', {
+        {exchangeSupported && (
+          <Button primary onClick={onExchangeCTA}>
+            {/* "Exchange Bitcoin", "Exchange crypto" or "Exchange LTC" (via placeholder "Exchange {{coinCode}}") */}
+            {t('generic.exchange', {
               context: isBitcoin ? 'bitcoin' : (unit ? '' : 'crypto'),
               coinCode: unit
             })}
@@ -152,7 +152,7 @@ export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyRece
   return (
     <BuyReceiveCTA
       balanceList={balanceList}
-      exchangeBuySupported={supportedAccounts.length > 0}
+      exchangeSupported={supportedAccounts.length > 0}
     />
   );
 };
