@@ -48,7 +48,7 @@
 
 .selectContainer {
     position: relative;
-    margin-bottom: var(--space-half);
+    margin-bottom: var(--spacing-default);
 }
 
 .selectContainer > div {
@@ -77,6 +77,7 @@
 .radioButtonsContainer {
     line-height: 1.5;
     min-height: 180px;
+    margin-top: var(--spacing-half);
 }
 
 .innerRadioButtonsContainer {
