@@ -130,7 +130,7 @@ export const BuySell = ({
             }
             <Button
               primary
-              disabled={!selectedExchange}
+              disabled={!selectedExchange || paymentRequestError}
               onClick={goToExchange} >
               {t('button.next')}
             </Button>
