@@ -16,6 +16,7 @@
 
 import 'flag-icons';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
 import { i18n } from '@/i18n/i18n';
@@ -24,7 +25,6 @@ import { AccountCode, IAccount } from '@/api/account';
 import { Header } from '@/components/layout';
 import { ExchangeGuide } from './guide';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
-import { route } from '@/utils/route';
 import { useLoad } from '@/hooks/api';
 import { getRegionNameFromLocale } from '@/i18n/utils';
 import { getExchangeFormattedName, getExchangeSupportedAccounts } from './utils';
@@ -36,8 +36,8 @@ import { BuySell } from './components/buysell';
 import { getNativeLocale } from '@/api/nativelocale';
 import { getConfig, setConfig } from '@/utils/config';
 import { CountrySelect, TOption } from './components/countryselect';
-import style from './exchange.module.css';
 import { InfoContent, TInfoContentProps } from './components/infocontent';
+import style from './exchange.module.css';
 
 type TProps = {
     accounts: IAccount[];
@@ -47,7 +47,7 @@ type TProps = {
 
 export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   const { t } = useTranslation();
-
+  const navigate = useNavigate();
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedExchange, setSelectedExchange] = useState('');
   const [regions, setRegions] = useState<TOption[]>([]);
@@ -110,7 +110,7 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
     if (!selectedExchange) {
       return;
     }
-    route(`/exchange/${selectedExchange}/${activeTab}/${code}`);
+    navigate(`/exchange/${selectedExchange}/${activeTab}/${code}`);
   };
 
   const handleChangeRegion = (newValue: SingleValue<TOption>) => {
