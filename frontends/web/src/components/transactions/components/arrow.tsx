@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-import type { ITransaction } from '@/api/account';
+import type { TTransactionStatus, TTransactionType } from '@/api/account';
 import { Warning } from '@/components/icon/icon';
 import { ArrowIn, ArrowOut, ArrowSelf } from './icons';
 
-type TProps = Pick<ITransaction, 'status' | 'type'>;
+type TProps = {
+  status: TTransactionStatus;
+  type: TTransactionType;
+};
 
 export const Arrow = ({ status, type }: TProps) => {
   if (status === 'failed') {
