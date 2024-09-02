@@ -39,6 +39,11 @@ protocol SetMessageHandlersProtocol {
 }
 
 class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol {
+    func getSaveFilename(_ p0: String?) -> String {
+        // TODO
+        return ""
+    }
+
     func auth() {
         authenticateUser { success in
             // TODO: enabling auth but entering wrong passcode does not remove auth screen
