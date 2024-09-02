@@ -84,7 +84,6 @@ func NewHandlers(
 	handleFunc("/backups/restore", handlers.postBackupsRestore).Methods("POST")
 	handleFunc("/check-sdcard", handlers.getCheckSDCard).Methods("GET")
 	handleFunc("/insert-sdcard", handlers.postInsertSDCard).Methods("POST")
-	handleFunc("/remove-sdcard", handlers.postRemoveSDCard).Methods("POST")
 	handleFunc("/set-mnemonic-passphrase-enabled", handlers.postSetMnemonicPassphraseEnabled).Methods("POST")
 	handleFunc("/version", handlers.getVersionHandler).Methods("GET")
 	handleFunc("/upgrade-firmware", handlers.postUpgradeFirmwareHandler).Methods("POST")
@@ -271,15 +270,6 @@ func (handlers *Handlers) getCheckSDCard(_ *http.Request) interface{} {
 func (handlers *Handlers) postInsertSDCard(r *http.Request) interface{} {
 	handlers.log.Debug("Insert SD Card if not inserted")
 	err := handlers.device.InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_INSERT_CARD)
-	if err != nil {
-		return maybeBB02Err(err, handlers.log)
-	}
-	return map[string]interface{}{"success": true}
-}
-
-func (handlers *Handlers) postRemoveSDCard(r *http.Request) interface{} {
-	handlers.log.Debug("Remove SD Card if inserted")
-	err := handlers.device.InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_REMOVE_CARD)
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
