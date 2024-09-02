@@ -15,14 +15,14 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import type { ITransaction } from '@/api/account';
+import type { TTransactionStatus } from '@/api/account';
 import { ProgressRing } from '@/components/progressRing/progressRing';
 import { TxDetail } from './detail';
 import transactionStyle from '@/components/transactions/transactions.module.css';
 import parentStyle from '@/components/transactions/transaction.module.css';
 
 type TProps = {
-  status: ITransaction['status'];
+  status: TTransactionStatus;
   numConfirmations: number;
   numConfirmationsComplete: number;
 }
