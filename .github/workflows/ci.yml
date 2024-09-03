@@ -2,6 +2,10 @@
 # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
 name: ci
 on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   # Use alternative image when running on GitHub workflows CI to avoid potential
   # rate limiting when executing jobs in parallel: they can't cache docker images
