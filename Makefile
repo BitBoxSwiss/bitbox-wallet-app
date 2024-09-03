@@ -25,6 +25,8 @@ envinit:
 	go install github.com/vektra/mockery/v2@latest
 	go install github.com/matryer/moq@latest
 	go install golang.org/x/tools/cmd/goimports@latest
+	$(MAKE) gomobileinit
+gomobileinit:
 	# TODO: replace with go install golang.org/x/mobile/cmd/gomobile@latest once https://github.com/golang/mobile/pull/105 is merged.
 	git clone https://github.com/BitBoxSwiss/mobile.git /tmp/mobile && cd /tmp/mobile/cmd/gomobile && go install .
 	gomobile init
@@ -74,6 +76,8 @@ qt-windows:
 android:
 	$(MAKE) buildweb
 	cd frontends/android && ${MAKE} apk-debug
+ios:
+	cd frontends/ios && ${MAKE} build
 osx-sec-check:
 	@echo "Checking build output"
 	./scripts/osx-build-check.sh

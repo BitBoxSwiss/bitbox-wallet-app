@@ -124,3 +124,7 @@ jobs:
         with:
           path: BitBoxApp-macos.zip
           name: BitBoxApp-macos-${{github.sha}}.zip
+      - name: Build iOS app
+        run: |
+          make gomobileinit
+          (cd $GOPATH/$GO_SRC_DIR; make ios)
