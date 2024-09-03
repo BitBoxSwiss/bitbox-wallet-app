@@ -85,10 +85,7 @@ export const BuyReceiveCTA = ({
         {exchangeSupported && (
           <Button primary onClick={onExchangeCTA}>
             {/* "Exchange Bitcoin", "Exchange crypto" or "Exchange LTC" (via placeholder "Exchange {{coinCode}}") */}
-            {t('generic.exchange', {
-              context: isBitcoin ? 'bitcoin' : (unit ? '' : 'crypto'),
-              coinCode: unit
-            })}
+            {t('generic.buySell')}
           </Button>
         )}
         {account && isEthereumBased(account.coinCode) && !account.isToken && (

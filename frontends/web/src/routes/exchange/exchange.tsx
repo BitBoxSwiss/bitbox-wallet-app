@@ -24,7 +24,7 @@ import * as exchangesAPI from '@/api/exchanges';
 import { AccountCode, IAccount } from '@/api/account';
 import { Header } from '@/components/layout';
 import { ExchangeGuide } from './guide';
-import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinOnly } from '@/routes/account/utils';
 import { useLoad } from '@/hooks/api';
 import { getRegionNameFromLocale } from '@/i18n/utils';
 import { getExchangeFormattedName, getExchangeSupportedAccounts } from './utils';
@@ -59,13 +59,9 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   const nativeLocale = useLoad(getNativeLocale);
   const config = useLoad(getConfig);
 
-  const account = findAccount(accounts, code);
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
-  const isBitcoin = hasOnlyBTCAccounts || (account && isBitcoinOnly(account?.coinCode));
 
-  const title = t('generic.exchange', {
-    context: isBitcoin ? 'bitcoin' : 'crypto',
-  });
+  const title = t('generic.buySell');
 
   // get the list of accounts supported by exchanges, needed to correctly handle back button.
   useEffect(() => {

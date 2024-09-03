@@ -743,13 +743,11 @@
   },
   "generic": {
     "buy": "Buy {{coinCode}}",
+    "buySell": "Buy & sell",
     "buy_bitcoin": "Buy Bitcoin",
     "buy_crypto": "Buy crypto",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
-    "exchange": "Exchange {{coinCode}}",
-    "exchange_bitcoin": "Exchange Bitcoin",
-    "exchange_crypto": "Exchange crypto",
     "receive": "Receive {{coinCode}}",
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto"
@@ -1025,7 +1023,7 @@
       "accountSummary": "Account summary guide",
       "advancedSettings": "Advanced settings guide",
       "appearance": "Appearance guide",
-      "exchange": "Exchange guide",
+      "buySell": "Buy & sell guide",
       "insurance": "Insurance guide",
       "manageAccount": "Manage accounts guide",
       "manageDevice": "Manage device guide",
