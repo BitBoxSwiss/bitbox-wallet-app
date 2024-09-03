@@ -66,7 +66,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
       </Link>
       { exchangeSupported && (
         <Link key="exchange" to={`/exchange/info/${code}`} className={style.exchange}>
-          <span>{t('button.exchange')}</span>
+          <span>{t('generic.buySell')}</span>
         </Link>
       )}
       {walletConnectEnabled && <Link key="wallet-connect" to={`/account/${code}/wallet-connect/dashboard`} className={style.walletConnect}>
