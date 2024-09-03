@@ -86,31 +86,40 @@ jobs:
           path: frontends/qt/build/linux/bitbox-*.rpm
           name: BitBoxApp-linux-${{github.sha}}.rpm
   macos:
-    runs-on: macos-12
+    runs-on: macos-14
+    env:
+      GO_SRC_DIR: src/github.com/BitBoxSwiss/bitbox-wallet-app
     steps:
       - name: Clone the repo
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.22.x
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-      - name: Build macOS app
-        run: >
-          ./scripts/github-ci.sh qt-osx;
+      - name: Install Qt & Go
+        run: |
+          ./scripts/osx-brew.sh
+          echo "/usr/local/opt/go@1.22/bin" >> $GITHUB_PATH
+          echo "/usr/local/opt/qt@5/bin" >> $GITHUB_PATH
+          echo "GOPATH=$HOME/go" >> $GITHUB_ENV
+          echo "$HOME/go/bin" >> $GITHUB_PATH
+      - name: Copy repo to GOPATH
+        # This is needed as gomobile is still unaware of go modules, so the repo must be in GOPATH
+        run: |
+          mkdir -p $GOPATH/$(dirname $GO_SRC_DIR)
+          cp -a ${{github.workspace}} $GOPATH/$(dirname $GO_SRC_DIR)
+      - name: Build macOS Qt app
+        run: |
+          (cd $GOPATH/$GO_SRC_DIR; make qt-osx)
         env:
-          OS_NAME: osx
-      - name: Archive app
+          LDFLAGS: -L/usr/local/opt/qt@5/lib
+          CPPFLAGS: -I/usr/local/opt/qt@5/include
+      - name: Archive Qt app
         run: >
-          pushd ~/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/osx;
-          ditto -c -k --keepParent BitBox.app ${{github.workspace}}/BitBoxApp-macos.zip;
-          popd;
-      - name: Upload app
+          (cd $GOPATH/$GO_SRC_DIR/frontends/qt/build/osx; ditto -c -k --keepParent BitBox.app ${{github.workspace}}/BitBoxApp-macos.zip)
+      - name: Upload Qt app
         uses: actions/upload-artifact@v4
         with:
           path: BitBoxApp-macos.zip

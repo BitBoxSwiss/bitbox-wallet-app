@@ -26,24 +26,3 @@ if [ "$OS_NAME" == "linux" ]; then
            -i "${CI_IMAGE}" \
            bash -c "git config --global --add safe.directory \$GOPATH/${GO_SRC_DIR} && make -C \$GOPATH/${GO_SRC_DIR} ${WHAT}"
 fi
-
-# The following is executed only on macOS machines.
-if [ "$OS_NAME" == "osx" ]; then
-    # GitHub CI installs Go directly in the macos action, before executing
-    # this script.
-    go version
-    brew install qt@5
-    export PATH="/usr/local/opt/qt@5/bin:$PATH"
-    export LDFLAGS="-L/usr/local/opt/qt@5/lib"
-    export CPPFLAGS="-I/usr/local/opt/qt@5/include"
-    export GOPATH=~/go
-    export PATH=$PATH:~/go/bin
-    mkdir -p $GOPATH/$(dirname $GO_SRC_DIR)
-    # GitHub checkout action (git clone) seem to require current work dir
-    # to be the root of the repo during its clean up phase. So, we push it
-    # here and pop in the end.
-    pushd ../ && cp -a bitbox-wallet-app $GOPATH/$(dirname $GO_SRC_DIR)
-    cd $GOPATH/$GO_SRC_DIR
-    make "$WHAT"
-    popd
-fi
