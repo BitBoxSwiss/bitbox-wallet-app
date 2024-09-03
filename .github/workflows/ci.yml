@@ -115,3 +115,37 @@ jobs:
         with:
           path: BitBoxApp-macos.zip
           name: BitBoxApp-macos-${{github.sha}}.zip
+  ios:
+    runs-on: macos-14
+    env:
+      GO_SRC_DIR: src/github.com/BitBoxSwiss/bitbox-wallet-app
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          # Take Go version to install from go.mod.
+          go-version-file: 'go.mod'
+      - name: Set GOPATH
+        run: |
+          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+      - name: Copy repo to GOPATH
+        # This is needed as gomobile is still unaware of go modules, so the repo must be in GOPATH
+        run: |
+          mkdir -p $GOPATH/$(dirname $GO_SRC_DIR)
+          cp -a ${{github.workspace}} $GOPATH/$(dirname $GO_SRC_DIR)
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install Qt
+        run: |
+          brew install qt@5
+          echo "/opt/homebrew/opt/qt@5/bin" >> $GITHUB_PATH
+      - name: Build iOS app
+        run: |
+          make gomobileinit
+          (cd $GOPATH/$GO_SRC_DIR; make ios)
