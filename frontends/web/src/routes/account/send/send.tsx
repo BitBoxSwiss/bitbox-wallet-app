@@ -71,8 +71,7 @@ export type State = {
     feeTarget?: accountApi.FeeTargetCode;
     customFee: string;
     isConfirming: boolean;
-    isSent: boolean;
-    isAborted: boolean;
+    sendResult?: accountApi.ISendTx;
     isUpdatingProposal: boolean;
     addressError?: TProposalError['addressError'];
     amountError?: TProposalError['amountError'];
@@ -104,8 +103,6 @@ class Send extends Component<Props, State> {
     sendAll: false,
     isConfirming: false,
     signConfirm: false,
-    isSent: false,
-    isAborted: false,
     isUpdatingProposal: false,
     noMobileChannelError: false,
     fiatUnit: this.props.activeCurrency,
@@ -172,11 +169,15 @@ class Send extends Component<Props, State> {
     this.setState({ signProgress: undefined, isConfirming: true });
     try {
       const result = await accountApi.sendTx(code, this.state.note);
+      this.setState({ sendResult: result });
+      setTimeout(() => this.setState({
+        sendResult: undefined,
+        isConfirming: false,
+      }), 5000);
       if (result.success) {
         this.setState({
           sendAll: false,
           isConfirming: false,
-          isSent: true,
           recipientAddress: '',
           proposedAmount: undefined,
           proposedFee: undefined,
@@ -187,14 +188,7 @@ class Send extends Component<Props, State> {
           customFee: '',
         });
         this.selectedUTXOs = {};
-        setTimeout(() => this.setState({
-          isSent: false,
-          isConfirming: false,
-        }), 5000);
-      } else if (result.aborted) {
-        this.setState({ isAborted: true });
-        setTimeout(() => this.setState({ isAborted: false }), 5000);
-      } else {
+      } else if (result.errorCode) {
         switch (result.errorCode) {
         case 'erc20InsufficientGasFunds':
           alertUser(this.props.t(`send.error.${result.errorCode}`));
@@ -464,8 +458,7 @@ class Send extends Component<Props, State> {
       feeTarget,
       customFee,
       isConfirming,
-      isSent,
-      isAborted,
+      sendResult,
       isUpdatingProposal,
       addressError,
       amountError,
@@ -624,8 +617,7 @@ class Send extends Component<Props, State> {
                 />
               )}
 
-              <MessageWaitDialog isShown={isSent} messageType="sent" />
-              <MessageWaitDialog isShown={isAborted} messageType="abort" />
+              <MessageWaitDialog result={sendResult}/>
             </View>
           </Main>
         </GuidedContent>
