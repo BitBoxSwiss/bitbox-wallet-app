@@ -18,6 +18,7 @@ import (
 	"io"
 	"log"
 	"os/exec"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -41,6 +42,10 @@ var (
 //
 // This fix is copied from https://github.com/golang/go/issues/20455#issuecomment-342287698.
 func fixTimezone() {
+	if runtime.GOOS != "android" {
+		// Only run the fix on Android.
+		return
+	}
 	out, err := exec.Command("/system/bin/getprop", "persist.sys.timezone").Output()
 	if err != nil {
 		return
