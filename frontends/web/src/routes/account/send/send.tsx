@@ -169,11 +169,8 @@ class Send extends Component<Props, State> {
     this.setState({ signProgress: undefined, isConfirming: true });
     try {
       const result = await accountApi.sendTx(code, this.state.note);
-      this.setState({ sendResult: result });
-      setTimeout(() => this.setState({
-        sendResult: undefined,
-        isConfirming: false,
-      }), 5000);
+      this.setState({ sendResult: result, isConfirming: false });
+      setTimeout(() => this.setState({ sendResult: undefined }), 5000);
       if (result.success) {
         this.setState({
           sendAll: false,
@@ -188,19 +185,6 @@ class Send extends Component<Props, State> {
           customFee: '',
         });
         this.selectedUTXOs = {};
-      } else if (result.errorCode) {
-        switch (result.errorCode) {
-        case 'erc20InsufficientGasFunds':
-          alertUser(this.props.t(`send.error.${result.errorCode}`));
-          break;
-        default:
-          const { errorMessage } = result;
-          if (errorMessage) {
-            alertUser(this.props.t('unknownError', { errorMessage }));
-          } else {
-            alertUser(this.props.t('unknownError'));
-          }
-        }
       }
     } catch (err) {
       console.error(err);

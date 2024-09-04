@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { ISendTx } from '@/api/account';
 import { Cancel, Checked } from '@/components/icon/icon';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
+import { alertUser } from '@/components/alert/Alert';
 
 type TProps = {
     result: ISendTx | undefined;
@@ -11,6 +12,22 @@ export const MessageWaitDialog = ({ result }: TProps) => {
   const { t } = useTranslation();
 
   if (!result) {
+    return null;
+  }
+
+  if (!result.aborted && !result.success) {
+    switch (result.errorCode) {
+    case 'erc20InsufficientGasFunds':
+      alertUser(t(`send.error.${result.errorCode}`));
+      break;
+    default:
+      const { errorMessage } = result;
+      if (errorMessage) {
+        alertUser(t('unknownError', { errorMessage }));
+      } else {
+        alertUser(t('unknownError'));
+      }
+    }
     return null;
   }
   return (
