@@ -630,7 +630,7 @@ func (keystore *keystore) SupportsEIP1559() bool {
 
 // SupportsPaymentRequests implements keystore.Keystore.
 func (keystore *keystore) SupportsPaymentRequests() error {
-	if keystore.device.Version().AtLeast(semver.NewSemVer(9, 19, 0)) {
+	if keystore.device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
 		return nil
 	}
 	return keystorePkg.ErrFirmwareUpgradeRequired
