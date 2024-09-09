@@ -71,7 +71,7 @@ export const BB02ConfirmSend = ({
     customFee,
     feeTarget,
     recipientAddress,
-    fiatUnit
+    activeCurrency: fiatUnit
   } = transactionDetails;
 
 
@@ -225,3 +225,4 @@ const FiatValue = ({ baseCurrencyUnit, amount }: TFiatValueProps) => {
   )
   ;
 };
+
