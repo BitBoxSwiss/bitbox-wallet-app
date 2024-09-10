@@ -141,6 +141,22 @@ func (device *Device) handleSignerNonceCommitment(response *messages.ETHResponse
 	return signature, nil
 }
 
+// ETHIdentifyCase identifies the case of the recipient address given as hexadecimal string.
+// This function exists as a convenience to potentially help clients to determine the case of the
+// recipient address. The output of the function goes to ETHSign and ETHSignEIP1559 as the
+// recipientAddressCase parameter, which is forwarded to BitBox02 device to reconstruct the address
+// in the correct case(the one that the user enters).
+func ETHIdentifyCase(recipientAddress string) messages.ETHAddressCase {
+	switch {
+	case strings.ToUpper(recipientAddress) == recipientAddress:
+		return messages.ETHAddressCase_ETH_ADDRESS_CASE_UPPER
+	case strings.ToLower(recipientAddress) == recipientAddress:
+		return messages.ETHAddressCase_ETH_ADDRESS_CASE_LOWER
+	default:
+		return messages.ETHAddressCase_ETH_ADDRESS_CASE_MIXED
+	}
+}
+
 // ETHSign signs an ethereum transaction. It returns a 65 byte signature (R, S, and 1 byte recID).
 func (device *Device) ETHSign(
 	chainID uint64,
@@ -150,7 +166,8 @@ func (device *Device) ETHSign(
 	gasLimit uint64,
 	recipient [20]byte,
 	value *big.Int,
-	data []byte) ([]byte, error) {
+	data []byte,
+	recipientAddressCase messages.ETHAddressCase) ([]byte, error) {
 	supportsAntiklepto := device.version.AtLeast(semver.NewSemVer(9, 5, 0))
 
 	var hostNonceCommitment *messages.AntiKleptoHostNonceCommitment
@@ -168,6 +185,7 @@ func (device *Device) ETHSign(
 	if err != nil {
 		return nil, err
 	}
+
 	request := &messages.ETHRequest{
 		Request: &messages.ETHRequest_Sign{
 			Sign: &messages.ETHSignRequest{
@@ -181,6 +199,7 @@ func (device *Device) ETHSign(
 				Value:               value.Bytes(),
 				Data:                data,
 				HostNonceCommitment: hostNonceCommitment,
+				AddressCase:         recipientAddressCase,
 			},
 		},
 	}
@@ -213,7 +232,8 @@ func (device *Device) ETHSignEIP1559(
 	gasLimit uint64,
 	recipient [20]byte,
 	value *big.Int,
-	data []byte) ([]byte, error) {
+	data []byte,
+	recipientAddressCase messages.ETHAddressCase) ([]byte, error) {
 
 	if !device.version.AtLeast(semver.NewSemVer(9, 16, 0)) {
 		return nil, UnsupportedError("9.16.0")
@@ -237,6 +257,7 @@ func (device *Device) ETHSignEIP1559(
 				Value:                value.Bytes(),
 				Data:                 data,
 				HostNonceCommitment:  hostNonceCommitment,
+				AddressCase:          recipientAddressCase,
 			},
 		},
 	}

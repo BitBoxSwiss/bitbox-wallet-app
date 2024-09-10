@@ -25,7 +25,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
-	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -45,7 +44,7 @@ type BitBox02 interface {
 	CheckBackup(bool) (string, error)
 	RestoreBackup(string) error
 	CheckSDCard() (bool, error)
-	InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_SDCardAction) error
+	InsertSDCard() error
 	SetMnemonicPassphraseEnabled(bool) error
 	UpgradeFirmware() error
 	Attestation() *bool
@@ -269,7 +268,7 @@ func (handlers *Handlers) getCheckSDCard(_ *http.Request) interface{} {
 
 func (handlers *Handlers) postInsertSDCard(r *http.Request) interface{} {
 	handlers.log.Debug("Insert SD Card if not inserted")
-	err := handlers.device.InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_INSERT_CARD)
+	err := handlers.device.InsertSDCard()
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
