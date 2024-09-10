@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConversionUnit } from '@/api/account';
-import { syncSignProgress, TSignProgress } from '@/api/devicessync';
 import { Amount } from '@/components/amount/amount';
 import { customFeeUnit } from '@/routes/account/utils';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
@@ -62,7 +60,6 @@ export const BB02ConfirmSend = ({
 }: Omit<TConfirmSendProps, 'device'>) => {
 
   const { t } = useTranslation();
-  const [signProgress, setSignProgress] = useState<TSignProgress>();
   const {
     proposedFee,
     proposedAmount,
@@ -72,33 +69,6 @@ export const BB02ConfirmSend = ({
     recipientAddress,
     activeCurrency: fiatUnit
   } = transactionDetails;
-
-  // Reset the signProgress state every time the dialog was closed (after send/abort).
-  const [prevIsConfirming, setPrevIsConfirming] = useState(isConfirming);
-  if (prevIsConfirming != isConfirming) {
-    setPrevIsConfirming(isConfirming);
-    if (!isConfirming) {
-      setSignProgress(undefined);
-    }
-  }
-
-  useEffect(() => {
-    return syncSignProgress((progress) => setSignProgress(progress));
-  }, []);
-
-  const confirmPrequel = (signProgress && signProgress.steps > 0) ? (
-    <div className="m-top-none m-bottom-half">
-      <span>
-        {
-          t('send.signprogress.description', {
-            steps: signProgress.steps.toString(),
-          })
-        }
-        <br />
-        {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
-      </span>
-    </div>
-  ) : undefined;
 
 
   if (!isConfirming) {
@@ -114,7 +84,6 @@ export const BB02ConfirmSend = ({
     <View fullscreen width="740px">
       <ViewHeader title={<div className={style.title}>{t('send.confirm.title')}</div>} />
       <ViewContent>
-        {confirmPrequel}
         <Message type="info">
           {t('send.confirm.infoMessage')}
         </Message>
