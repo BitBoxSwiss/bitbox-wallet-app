@@ -74,9 +74,11 @@ const AddressTypeDialog = ({
               {t(`receive.scriptType.${scriptType}`)}
             </Radio>
             {scriptType === 'p2tr' && addressType === i && (
-              <Message type="warning">
-                {t('receive.taprootWarning')}
-              </Message>
+              <div className={style.messageContainer}>
+                <Message type="warning">
+                  {t('receive.taprootWarning')}
+                </Message>
+              </div>
             )}
           </div>
         ))}
