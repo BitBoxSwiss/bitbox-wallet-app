@@ -6,6 +6,7 @@
 - Bundle BitBox02 firmware version v9.20.0
 - Add support for selling bitcoin in-app via Pocket
 - Android: make Android back button go back instead of closing the app
+- Ethereum: display recipient address on the BitBox in the same case as the entered in the send screen
 
 ## 4.43.0
 - Bundle BitBox02 firmware version v9.19.0
