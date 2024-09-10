@@ -136,6 +136,9 @@ class Chart extends Component<Props, State> {
     if (this.props.data.chartFiat !== prev.data.chartFiat) {
       this.reinitializeChart();
     }
+    if (!this.hasData() && this.props.data.chartIsUpToDate) {
+      this.removeChart();
+    }
   }
 
   private hasData = (): boolean => {
