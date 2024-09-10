@@ -136,6 +136,9 @@ class Chart extends Component<Props, State> {
     if (this.props.data.chartFiat !== prev.data.chartFiat) {
       this.reinitializeChart();
     }
+    if (!this.hasData() && this.props.data.chartIsUpToDate) {
+      this.removeChart();
+    }
   }
 
   private hasData = (): boolean => {
@@ -528,7 +531,7 @@ class Chart extends Component<Props, State> {
     const disableFilters = !hasData || chartDataMissing;
     const disableWeeklyFilters = !hasHourlyData || chartDataMissing;
     const showMobileTotalValue = toolTipVisible && !!toolTipValue && isMobile;
-    const chartFiltersProps = {
+    const chartFiltersProps: TChartFiltersProps = {
       display: this.context.chartDisplay,
       disableFilters,
       disableWeeklyFilters,
@@ -536,7 +539,7 @@ class Chart extends Component<Props, State> {
       onDisplayMonth: this.displayMonth,
       onDisplayYear: this.displayYear,
       onDisplayAll: this.displayAll,
-    } as TChartFiltersProps;
+    };
     const chartHeight = `${!isMobile ? this.height : this.mobileHeight}px`;
     return (
       <section className={styles.chart}>
