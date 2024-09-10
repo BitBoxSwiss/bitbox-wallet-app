@@ -102,7 +102,7 @@ func GetMoonpaySupportedRegions(httpClient *http.Client) (map[string]BuyMoonpayR
 	var regionsList []BuyMoonpayRegion
 	endpoint := fmt.Sprintf("%s/countries", moonpayAPILiveURL)
 
-	_, err := util.APIGet(httpClient, endpoint, "", 81920, &regionsList)
+	_, err := util.APIGet(httpClient, endpoint, "", 1000000, &regionsList)
 	if err != nil {
 		return nil, err
 	}
