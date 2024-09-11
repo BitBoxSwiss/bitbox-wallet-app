@@ -1,3 +1,9 @@
 .container {
     margin-top: calc(var(--space-default) * 1.5);
 }
+
+
+.coinControlButtonContainer {
+    height: 50px;
+    margin-bottom: var(--space-quarter);
+}

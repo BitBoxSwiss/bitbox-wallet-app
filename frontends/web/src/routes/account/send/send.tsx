@@ -527,14 +527,16 @@ class Send extends Component<Props, State> {
                 ) }
                 <div className={`flex flex-row flex-between ${style.container}`}>
                   <label className="labelXLarge">{t('send.transactionDetails')}</label>
-                  { coinControl && (
-                    <Button
-                      className="m-bottom-quarter p-right-none"
-                      transparent
-                      onClick={this.toggleCoinControl}>
-                      {t('send.toggleCoinControl')}
-                    </Button>
-                  )}
+                  <div className={style.coinControlButtonContainer}>
+                    { coinControl && (
+                      <Button
+                        className="p-right-none"
+                        transparent
+                        onClick={this.toggleCoinControl}>
+                        {t('send.toggleCoinControl')}
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 <Grid col="1">
                   <Column>
