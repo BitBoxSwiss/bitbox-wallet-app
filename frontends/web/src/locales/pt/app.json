@@ -26,6 +26,7 @@
     "extendedPublicKey": "Chave pública estendida",
     "label": "Informações da conta",
     "scriptType": "Tipo de script",
+    "taproot": "A chave pública estendida Taproot não é mostrada para proteger contra uso indevido acidental, pois formatos raw para esse tipo de script não são amplamente suportados. Se você quiser visualizar essa chave, conecte seu dispositivo a um software de carteira que suporte o formato do descritor de saída.",
     "title": "Informações da conta",
     "verify": "Verificar no dispositivo",
     "xpubTypeChangeBtn": {
@@ -145,7 +146,8 @@
       "understand": "Eu entendo que uma senha de recuperação incorreta criará uma carteira diferente"
     },
     "showMnemonic": {
-      "description": "Serão mostradas suas palavras de recuperação na sua BitBox02, que formam um backup de sua carteira. Anote-as em um papel.\n\n<strong>Não as armazene digitalmente nem tire fotos delas.</strong>\n\n<strong>Não diga as palavras em voz alta.</strong>\n\n<strong>Este backup não é protegido por senha.</strong>\n\nDepois disso, você será solicitado a confirmar cada palavra.",
+      "checkboxLabel": "Eu li as informações acima",
+      "description": "O dispositivo exibirá as palavras de recuperação, que formam um backup da sua carteira. Anote-as em um papel.\n\n<strong>Não as armazene digitalmente nem tire fotos delas.</strong>\n\n<strong>Não diga as palavras em voz alta.</strong>\n\n<strong>Este backup não é protegido por senha.</strong>\n\nDepois, você será solicitado a confirmar cada palavra.",
       "title": "Mostrar frase de recuperação",
       "warning": "<strong>Nunca compartilhe suas palavras de recuperação com ninguém.</strong> Suas palavras de recuperação dão acesso total à sua carteira. Se alguém está pedindo suas palavras de recuperação, é um golpista, não as compartilhe!"
     },
@@ -441,6 +443,9 @@
             "bankTransferReccuring": "Como configurar compras recorrentes com uma ordem permanente?",
             "title": "Métodos de Pagamento"
           },
+          "sell": {
+            "title": "Vender Bitcoin"
+          },
           "supportedCurrencies": "Suporta moedas europeias: EUR, GBP e CHF.",
           "verification": {
             "info": "Requer apenas verificação de identidade acima dos limites diários e anuais.",
@@ -489,7 +494,9 @@
           "descriptionGeneric_crypto": "Quando você compra crypto através de uma exchange parceira, você está usando um serviço externo. Este serviço está fora do escopo do modelo de ameaças de segurança da BitBox02 e depende da proteção e segurança do ambiente em que o software BitBoxApp está sendo executado.",
           "link": "Modelo de ameaças de segurança",
           "title": "Modelo de segurança"
-        }
+        },
+        "title_bitcoin": "Bem-vindo ao seu balcão único para comprar Bitcoin",
+        "title_crypto": "Bem-vindo ao seu balcão único para comprar criptomoedas"
       },
       "next": "Próximo",
       "selectLabel": "Seleciona sua conta",
@@ -497,35 +504,13 @@
       "skip": "Não mostre novamente"
     },
     "pocket": {
-      "data": {
-        "link": "Política de privacidade da Pocket",
-        "p1": "O BitBoxApp não coleta nenhum dado ao comprar bitcoin, os fundos recebidos são tratados como uma transação regular. A Pocket precisa coletar alguns dados pessoais para operar. Sua Política de Privacidade explica em detalhes como esses dados são tratados.",
-        "title": "Proteção de dados"
+      "error": {
+        "insufficientFunds": "Fundos insuficientes na conta selecionada."
       },
-      "kyc": {
-        "link": "Leia as perguntas frequentes da Pocket",
-        "p1": "A Pocket tenta manter o KYC no mínimo. Para compras abaixo de 950 EUR (1000 CHF) por dia, não são necessários documentos adicionais. Para compras acima desse valor, será necessário agendar uma ligação com a Pocket para concluir o processo KYC/AML necessário.",
-        "title": "KYC/AML"
-      },
-      "payment": {
-        "p1": "Você pode comprar bitcoin instantaneamente com a Pocket via transferência bancária SEPA. A taxa é de 1,5% e o bitcoin é depositado em sua BitBox o mais rápido possível após a Pocket receber a transferência bancária (geralmente no mesmo dia).",
-        "p2": "Observe que as taxas de câmbio da Pocket podem diferir daquelas usadas no BitBoxApp, resultando em valores ligeiramente diferentes.",
-        "title": "Métodos de pagamento e taxas"
-      },
+      "paymentRequestNote": "Solicitação de pagamento de",
       "previousTransactions": "O histórico de transações desta conta não está vazio. Compartilhar esta conta tornará todas as transações passadas e futuras visíveis para a Pocket. Continuar mesmo assim?",
-      "security": {
-        "link": "Modelo de ameaças de segurança da BitBox02",
-        "p1": "Ao comprar bitcoin via Pocket, você está usando um serviço externo. Este serviço está fora do escopo do modelo de ameaças de segurança da BitBox02 e depende da proteção e segurança do ambiente em que o software BitBoxApp está sendo executado. No entanto, trabalhamos juntos para melhorar a segurança usando um mecanismo de autenticação de dois fatores para verificar o endereço em que você está recebendo.",
-        "title": "Modelo de segurança"
-      },
       "usedAddress": "O endereço {{address}} já foi usado, comece novamente com um novo endereço.",
-      "verifyBitBox02": "Verifique se o endereço que você recebeu por e-mail corresponde ao exibido em sua Bitbox. Se possível, você deve abrir o e-mail em um segundo dispositivo para maior segurança.",
-      "welcome": {
-        "p1": "Fizemos parceria com a Pocket para oferecer a você uma maneira perfeita de comprar bitcoin diretamente no BitBoxApp. São apenas alguns cliques.",
-        "p2": "Pocket é uma plataforma suíça que facilita e agiliza a compra de bitcoin na maior parte da Europa (em qualquer lugar onde as transferências bancárias SEPA sejam suportadas).",
-        "p3": "Com a Pocket, você também pode fazer compras regulares por meio de ordens bancárias recorrentes, para poder fazer DCA (dollar-cost averaging) com facilidade.",
-        "title": "Bem-vindo ao seu balcão único para comprar bitcoin"
-      }
+      "verifyBitBox02": "Verifique se o endereço que você recebeu por e-mail corresponde ao exibido em sua Bitbox. Se possível, você deve abrir o e-mail em um segundo dispositivo para maior segurança."
     }
   },
   "changePin": {
@@ -563,7 +548,9 @@
   },
   "device": {
     "appUpradeRequired": "Sua BitBox não é compatível com este aplicativo. Por favor, baixe e instale a versão mais recente.",
-    "keystoreConnected": "Carteira conectada"
+    "firmwareUpgradeRequired": "É necessária uma atualização de firmware para usar este recurso.",
+    "keystoreConnected": "Carteira conectada",
+    "unsupportedFeature": "Este recurso não está disponível neste dispositivo."
   },
   "deviceLock": {
     "button": "Ativar autorização de dois fatores (2FA)",
@@ -705,6 +692,46 @@
     "wrongKeystore": "Carteira errada conectada. Certifique-se de inserir o dispositivo correto que corresponde a esta conta.",
     "wrongKeystore2": " Se você estiver usando a frase secreta opcional, certifique-se de ter digitado a frase secreta correta para a conta."
   },
+  "exchange": {
+    "buySell": {
+      "coinNotSupported": "Não há opções disponíveis para este tipo de moeda.",
+      "regionNotSupported": "Não há opções disponíveis para esta região.",
+      "updateNow": "Atualizar agora"
+    },
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "Política de privacidade da Pocket",
+          "p1": "O BitBoxApp não aprende nem coleta nenhum dado pessoal. A Pocket coleta alguns dados pessoais conforme explicado em sua Política de Privacidade.",
+          "title": "Proteção de Dados"
+        },
+        "fees": {
+          "extraNote": "Observe que você precisa comprar Bitcoin com a Pocket antes de poder vender.",
+          "note": "Observação: as taxas de câmbio da Pocket podem ser diferentes das taxas do BitBoxApp.",
+          "p1": "<strong>Comprando bitcoin:</strong> Use a transferência bancária SEPA para enviar EUR ou CHF e receba bitcoins diretamente na sua BitBox depois que a Pocket receber a transferência, geralmente no mesmo dia.",
+          "p2": "<strong>Vendendo bitcoin:</strong> Envie Bitcoin para a Pocket e receba EUR ou CHF na sua conta bancária registrada. A taxa de câmbio é fixada quando a Pocket recebe seu Bitcoin.",
+          "title": "Métodos de pagamento e taxas"
+        },
+        "kyc": {
+          "link": "Leia as perguntas frequentes da Pocket",
+          "p1": "Nenhum documento adicional é necessário para trocas de até 950 EUR (1000 CHF) por dia.",
+          "p2": "Para valores maiores, é necessária uma ligação para a Pocket para concluir o processo KYC/AML.",
+          "title": "KYC/AML (Conheça seu cliente / Anti Lavagem de Dinheiro)"
+        },
+        "security": {
+          "link": "Modelo de ameaça à segurança da BitBox02",
+          "p1": "Usar a Pocket é um serviço externo e não é coberto pelo modelo de ameaças à segurança da BitBox02. No entanto, trabalhamos em conjunto com o Pocket para aprimorar a segurança geral.",
+          "p2": "<strong>Comprando bitcoin:</strong> Você receberá um e-mail para confirmar seu endereço de recebimento de bitcoin por meio de um segundo canal de comunicação.",
+          "p3": "<strong>Vendendo bitcoin:</strong> A BitBox02 verifica o endereço de depósito de Bitcoin criptograficamente e exibe \"Pocket\" na carteira de hardware.",
+          "title": "Segurança"
+        },
+        "welcome": {
+          "p1": "Trabalhamos com a Pocket, uma corretora suíça, para facilitar a compra e venda de bitcoins dentro do BitBoxApp. Este serviço está disponível em toda a Europa, onde transferências bancárias SEPA são suportadas.",
+          "title": "Compre e venda bitcoin com a Pocket"
+        }
+      }
+    }
+  },
   "fiat": {
     "default": "padrão",
     "setDefault": "Definir {{code}} como padrão",
@@ -714,8 +741,15 @@
     "appVersion": "Versão do aplicativo:"
   },
   "generic": {
+    "buy": "Comprar {{coinCode}}",
+    "buySell": "Comprar e vender",
+    "buy_bitcoin": "Comprar Bitcoin",
+    "buy_crypto": "Comprar criptomoedas",
     "enabled_false": "Desabilitado",
-    "enabled_true": "Habilitado"
+    "enabled_true": "Habilitado",
+    "receive": "Receber {{coinCode}}",
+    "receive_bitcoin": "Receber Bitcoin",
+    "receive_crypto": "Receber criptomoedas"
   },
   "genericError": "Um erro ocorreu. Se você notar algum problema, por favor, reinicie o aplicativo.",
   "goal": {
@@ -988,7 +1022,7 @@
       "accountSummary": "Guia de resumo de conta",
       "advancedSettings": "Guia de configurações avançadas",
       "appearance": "Guia de aparência",
-      "buy": "Guia de compra",
+      "buySell": "Guia de compra e venda",
       "insurance": "Guia de seguros",
       "manageAccount": "Guia de gerenciamento de contas",
       "manageDevice": "Guia de gerenciamento de dispositivos",
@@ -1524,8 +1558,10 @@
       "title": "Enviar da saída"
     },
     "confirm": {
+      "infoMessage": "Verifique cuidadosamente se o valor e o endereço estão corretos na BitBox02",
       "selected-coins": "Moedas selecionadas",
       "title": "Confirmar e enviar transação",
+      "to": "Para",
       "total": "Total"
     },
     "error": {
