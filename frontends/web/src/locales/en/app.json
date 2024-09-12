@@ -429,16 +429,16 @@
         },
         "pocket": {
           "fees": {
-            "info": "{{fee}}% exchange fee, plus small network transaction fee",
+            "info": "Bank transfer: {{fee}}%",
             "title": "Fees"
           },
           "learnMore": "Learn more about Pocket",
           "payment": {
             "bankTransfer": "Bank transfer",
             "bankTransferDetails": {
-              "sepa": "SEPA and SEPA Instant (EUR)",
+              "sepa": "SEPA and SEPA Instant (EUR transactions in SEPA countries only)",
               "sic": "Swiss Interbank Clearing (CHF transactions in CH/LI only)",
-              "uk": "UK Faster Payments (GBP)"
+              "uk": "UK Faster Payments (GBP transactions in the UK only)"
             },
             "bankTransferReccuring": "How to set up recurring purchases with a standing order?",
             "title": "Payment methods"
@@ -448,7 +448,7 @@
           },
           "supportedCurrencies": "Supports European currencies: EUR, GBP, and CHF.",
           "verification": {
-            "info": "No identitiy verification for amounts below threshold (~950 EUR/day)",
+            "info": "Only requires identity verification above daily and annual thresholds.",
             "link": "Find current thresholds here",
             "title": "Identity verification"
           }
