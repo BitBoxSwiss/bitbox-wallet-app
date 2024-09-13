@@ -70,8 +70,7 @@ export type State = {
     feeTarget?: accountApi.FeeTargetCode;
     customFee: string;
     isConfirming: boolean;
-    isSent: boolean;
-    isAborted: boolean;
+    sendResult?: accountApi.ISendTx;
     isUpdatingProposal: boolean;
     addressError?: TProposalError['addressError'];
     amountError?: TProposalError['amountError'];
@@ -101,8 +100,6 @@ class Send extends Component<Props, State> {
     sendAll: false,
     isConfirming: false,
     signConfirm: false,
-    isSent: false,
-    isAborted: false,
     isUpdatingProposal: false,
     noMobileChannelError: false,
     activeScanQR: false,
@@ -161,11 +158,12 @@ class Send extends Component<Props, State> {
     this.setState({ signProgress: undefined, isConfirming: true });
     try {
       const result = await accountApi.sendTx(code, this.state.note);
+      this.setState({ sendResult: result, isConfirming: false });
+      setTimeout(() => this.setState({ sendResult: undefined }), 5000);
       if (result.success) {
         this.setState({
           sendAll: false,
           isConfirming: false,
-          isSent: true,
           recipientAddress: '',
           proposedAmount: undefined,
           proposedFee: undefined,
@@ -176,26 +174,6 @@ class Send extends Component<Props, State> {
           customFee: '',
         });
         this.selectedUTXOs = {};
-        setTimeout(() => this.setState({
-          isSent: false,
-          isConfirming: false,
-        }), 5000);
-      } else if (result.aborted) {
-        this.setState({ isAborted: true });
-        setTimeout(() => this.setState({ isAborted: false }), 5000);
-      } else {
-        switch (result.errorCode) {
-        case 'erc20InsufficientGasFunds':
-          alertUser(this.props.t(`send.error.${result.errorCode}`));
-          break;
-        default:
-          const { errorMessage } = result;
-          if (errorMessage) {
-            alertUser(this.props.t('unknownError', { errorMessage }));
-          } else {
-            alertUser(this.props.t('unknownError'));
-          }
-        }
       }
     } catch (err) {
       console.error(err);
@@ -438,8 +416,7 @@ class Send extends Component<Props, State> {
       feeTarget,
       customFee,
       isConfirming,
-      isSent,
-      isAborted,
+      sendResult,
       isUpdatingProposal,
       addressError,
       amountError,
@@ -584,8 +561,7 @@ class Send extends Component<Props, State> {
                 />
               )}
 
-              <MessageWaitDialog isShown={isSent} messageType="sent" />
-              <MessageWaitDialog isShown={isAborted} messageType="abort" />
+              <MessageWaitDialog result={sendResult}/>
             </View>
           </Main>
         </GuidedContent>
