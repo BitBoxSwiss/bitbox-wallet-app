@@ -31,7 +31,7 @@ import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main 
 import { Status } from '@/components/status/status';
 import { translate, TranslateProps } from '@/decorators/translate';
 import { FeeTargets } from './feetargets';
-import { signConfirm, signProgress, TSignProgress } from '@/api/devicessync';
+import { signProgress, TSignProgress } from '@/api/devicessync';
 import { UnsubscribeList, unsubscribe } from '@/utils/subscriptions';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { ConfirmSend } from './components/confirm/confirm';
@@ -78,8 +78,6 @@ export type State = {
     paired?: boolean;
     noMobileChannelError?: boolean;
     signProgress?: TSignProgress;
-    // show visual BitBox in dialog when instructed to sign.
-    signConfirm: boolean;
     note: string;
 }
 
@@ -98,7 +96,6 @@ class Send extends Component<Props, State> {
     valid: false,
     sendAll: false,
     isConfirming: false,
-    signConfirm: false,
     isUpdatingProposal: false,
     noMobileChannelError: false,
     note: '',
@@ -125,10 +122,7 @@ class Send extends Component<Props, State> {
 
     this.unsubscribeList = [
       signProgress((progress) =>
-        this.setState({ signProgress: progress, signConfirm: false })
-      ),
-      signConfirm(() =>
-        this.setState({ signConfirm: true })
+        this.setState({ signProgress: progress })
       ),
       syncdone((code) => {
         if (this.props.account.code === code) {
@@ -177,7 +171,7 @@ class Send extends Component<Props, State> {
       console.error(err);
     } finally {
       // The following method allows pressing escape again.
-      this.setState({ isConfirming: false, signProgress: undefined, signConfirm: false });
+      this.setState({ isConfirming: false, signProgress: undefined });
     }
   };
 
@@ -417,7 +411,6 @@ class Send extends Component<Props, State> {
       feeError,
       paired,
       signProgress,
-      signConfirm,
       note,
     } = this.state;
 
@@ -434,7 +427,6 @@ class Send extends Component<Props, State> {
     const waitDialogTransactionStatus = {
       isConfirming,
       signProgress,
-      signConfirm
     };
 
     const device = this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]];
@@ -540,7 +532,6 @@ class Send extends Component<Props, State> {
               {device && (
                 <ConfirmSend
                   device={device}
-                  paired={paired}
                   baseCurrencyUnit={activeCurrency}
                   note={note}
                   hasSelectedUTXOs={this.hasSelectedUTXOs()}

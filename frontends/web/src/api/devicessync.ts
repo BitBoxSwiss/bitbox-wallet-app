@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,17 +89,6 @@ export const signProgress = (
   const unsubscribe = subscribeLegacy('signProgress', event => {
     if ('type' in event && event.type === 'device' && event.data === 'signProgress') {
       cb(event.meta);
-    }
-  });
-  return unsubscribe;
-};
-
-export const signConfirm = (
-  cb: () => void
-): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('signConfirm', event => {
-    if ('type' in event && event.type === 'device' && event.data === 'signConfirm') {
-      cb();
     }
   });
   return unsubscribe;
