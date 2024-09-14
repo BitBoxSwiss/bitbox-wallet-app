@@ -20,7 +20,6 @@ import { TSignProgress } from '@/api/devicessync';
 
 export type TransactionStatus = {
     isConfirming: boolean;
-    signConfirm: boolean;
     signProgress?: TSignProgress;
   }
 
@@ -35,7 +34,6 @@ export type TransactionDetails = {
   }
 
 export type TConfirmSendProps = {
-    paired?: boolean;
     device: TProductName;
     baseCurrencyUnit: ConversionUnit;
     note: string;

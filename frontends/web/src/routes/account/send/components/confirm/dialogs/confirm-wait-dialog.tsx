@@ -22,7 +22,6 @@ import { TConfirmSendProps } from '@/routes/account/send/components/confirm/type
 import style from './confirm-wait-dialog.module.css';
 
 export const ConfirmingWaitDialog = ({
-  paired,
   baseCurrencyUnit,
   note,
   hasSelectedUTXOs,
@@ -32,7 +31,7 @@ export const ConfirmingWaitDialog = ({
   transactionDetails
 }: Omit<TConfirmSendProps, 'device'>) => {
   const { t } = useTranslation();
-  const { isConfirming, signConfirm, signProgress } = transactionStatus;
+  const { isConfirming, signProgress } = transactionStatus;
   const {
     proposedFee,
     proposedAmount,
@@ -63,8 +62,6 @@ export const ConfirmingWaitDialog = ({
     <WaitDialog
       title={t('send.confirm.title')}
       prequel={confirmPrequel}
-      paired={paired}
-      touchConfirm={signConfirm}
       includeDefault>
       <div className={style.confirmItem}>
         <label>{t('send.address.label')}</label>

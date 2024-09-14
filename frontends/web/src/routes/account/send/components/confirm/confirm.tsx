@@ -31,20 +31,17 @@ type TFiatValueProps = {
 }
 
 export const ConfirmSend = (props: TConfirmSendProps) => {
-  const { device, ...bb01Props } = props;
-  const { paired, ...bb02Props } = bb01Props;
-
   switch (props.device) {
   case 'bitbox':
     return (
       <ConfirmingWaitDialog
-        {...bb01Props}
+        {...props}
       />
     );
   case 'bitbox02':
     return (
       <BB02ConfirmSend
-        {...bb02Props}
+        {...props}
       />
     );
   default:
@@ -60,7 +57,7 @@ export const BB02ConfirmSend = ({
   coinCode,
   transactionStatus,
   transactionDetails
-}: Omit<TConfirmSendProps, 'device' | 'paired'>) => {
+}: Omit<TConfirmSendProps, 'device'>) => {
 
   const { t } = useTranslation();
   const { isConfirming, signProgress } = transactionStatus;
