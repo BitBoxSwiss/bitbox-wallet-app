@@ -54,7 +54,7 @@ export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) 
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu deviceIDs={deviceIDs}>
-                <SubTitle className="m-top-default">
+                <SubTitle>
                   {t('settings.appearance')}
                 </SubTitle>
                 <LanguageDropdownSetting />
