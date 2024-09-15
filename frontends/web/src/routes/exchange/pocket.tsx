@@ -16,6 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
 import { getConfig } from '@/utils/config';
 import { Dialog } from '@/components/dialog/dialog';
@@ -40,6 +41,7 @@ interface TProps {
 
 export const Pocket = ({ code, action }: TProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const [height, setHeight] = useState(0);
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -258,6 +260,9 @@ export const Pocket = ({ code, action }: TProps) => {
         break;
       case V0MessageType.PaymentRequest:
         handlePaymentRequest(message);
+        break;
+      case V0MessageType.Close:
+        navigate(`/account/${code}`, { replace: true });
         break;
       }
     } catch (e) {
