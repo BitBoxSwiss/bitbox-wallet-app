@@ -482,35 +482,9 @@
       "skip": "Ne plus montrer"
     },
     "pocket": {
-      "data": {
-        "link": "Politique de confidentialité de Pocket",
-        "p1": "BitBoxApp ne recueille aucune donnée lors de l'achat de bitcoins, les fonds entrants sont traités comme une transaction ordinaire. Pocket a besoin de collecter certaines données personnelles pour son fonctionnement. La politique de confidentialité de Pocket expose en détail la manière dont elles sont exploitées.",
-        "title": "Protection des données"
-      },
-      "kyc": {
-        "link": "Lire la FAQ de Pocket",
-        "p1": "Pocket s'efforce de réduire au minimum le processus d’identification (KYC). Pour les achats inférieurs à 950 EUR (1000 CHF) par jour, aucun document supplémentaire n'est requis. Pour les achats supérieurs à ce montant, vous devrez fixer un rendez-vous téléphonique avec Pocket au préalable afin de compléter le processus Identification/Lutte Contre le Blanchiment (KYC/AML) nécessaire.",
-        "title": "Identification/Lutte Contre le Blanchiment (KYC/AML)"
-      },
-      "payment": {
-        "p1": "Vous avez la possibilité d’acheter des bitcoins instantanément avec Pocket via un transfert bancaire SEPA. Les frais sont de 1,5% et les bitcoins sont déposés dans votre BitBox dès que possible, une fois le virement bancaire  reçu par Pocket (généralement le jour même).",
-        "p2": "Veuillez noter que les taux de change de Pocket peuvent différer de ceux utilisés par BitBoxApp,et avoir pour effet des montants légèrement différents.",
-        "title": "Modes de paiement et frais"
-      },
       "previousTransactions": "L'historique des transactions de ce compte n'est pas vierge. En partageant ce compte, toutes ses transactions passées et futures seront exposées à Pocket. Souhaitez-vous continuer malgré tout ?",
-      "security": {
-        "link": "Modèle de menace de sécurité de BitBox02",
-        "p1": "Lorsque vous achetez des bitcoins via Pocket, vous utilisez un service externe. Ce service est hors de portée du modèle de menace de sécurité de BitBox02 et repose sur la sécurité de l'environnement dans lequel le logiciel BitBoxApp est déployé. Cependant, nous collaborons dans le but de renforcer la sécurité en utilisant un mécanisme d'authentification à deux facteurs pour vérifier l'adresse sur laquelle vous les recevez.",
-        "title": "Modèle de sécurité"
-      },
       "usedAddress": "L'adresse {{address}} a déjà été utilisée, veuillez recommencer avec une nouvelle adresse.",
-      "verifyBitBox02": "Veuillez vérifier que l'adresse que vous avez reçue par email correspond à celle affichée sur votre Bitbox. Si vous en avez la possibilité, vous devriez ouvrir l'email sur un deuxième appareil pour plus de sécurité.",
-      "welcome": {
-        "p1": "Nous collaborons avec Pocket afin de vous offrir un processus simplifié pour vos achats de bitcoins directement dans l'application BitBox. Quelques clics suffisent.",
-        "p2": "Pocket est une plateforme suisse qui permet d'acheter rapidement et facilement des bitcoins depuis la plupart des pays européens (partout où les transferts bancaires SEPA sont disponibles).",
-        "p3": "Avec Pocket, vous pouvez également effectuer des achats réguliers par le biais d'ordres bancaires récurrents, vous donnant ainsi la possibilité d'effectuer facilement un lissage de votre prix d'acquisition (DCA).",
-        "title": "Bienvenue dans votre espace unique et complet dédié à l'achat de bitcoins."
-      }
+      "verifyBitBox02": "Veuillez vérifier que l'adresse que vous avez reçue par email correspond à celle affichée sur votre Bitbox. Si vous en avez la possibilité, vous devriez ouvrir l'email sur un deuxième appareil pour plus de sécurité."
     }
   },
   "changePin": {

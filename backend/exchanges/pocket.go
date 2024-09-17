@@ -98,7 +98,7 @@ func GetPocketSupportedRegions(httpClient *http.Client) (map[string]PocketRegion
 	var regionsList []PocketRegion
 	endpoint := fmt.Sprintf("%s/availabilities", pocketAPILiveURL)
 
-	_, err := util.APIGet(httpClient, endpoint, "", 81920, &regionsList)
+	_, err := util.APIGet(httpClient, endpoint, "", 1000000, &regionsList)
 	if err != nil {
 		return nil, err
 	}

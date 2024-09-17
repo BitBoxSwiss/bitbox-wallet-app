@@ -118,11 +118,10 @@
 
     }
 
+    .exchange,
     .send,
     .receive,
-    .buy,
-    .walletConnect
-    {
+    .walletConnect {
         font-size: var(--size-small);
         margin-bottom: 0;
         width: auto;

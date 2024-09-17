@@ -37,12 +37,12 @@ func (device *Device) CheckSDCard() (bool, error) {
 	return sdCardInserted.CheckSdcard.Inserted, nil
 }
 
-// InsertRemoveSDCard sends a command to the device to insert of remove the sd card based on the workflow state.
-func (device *Device) InsertRemoveSDCard(action messages.InsertRemoveSDCardRequest_SDCardAction) error {
+// InsertSDCard sends a command to the device to prompt to insert the sd card.
+func (device *Device) InsertSDCard() error {
 	request := &messages.Request{
 		Request: &messages.Request_InsertRemoveSdcard{
 			InsertRemoveSdcard: &messages.InsertRemoveSDCardRequest{
-				Action: action,
+				Action: messages.InsertRemoveSDCardRequest_INSERT_CARD,
 			},
 		},
 	}

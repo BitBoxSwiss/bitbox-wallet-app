@@ -26,7 +26,8 @@
     "extendedPublicKey": "Public key lanjutan",
     "label": "Maklumat akaun",
     "scriptType": "Jenis skrip",
-    "title": "Maklumat Akaun",
+    "taproot": "Kunci awam lanjutan Taproot tidak ditunjukkan untuk melindungi daripada penyalahgunaan tidak sengaja, kerana format mentah untuk jenis skrip ini tidak disokong secara meluas. Jika anda ingin melihat kunci ini, sambungkan peranti anda kepada perisian dompet yang menyokong format deskriptor output.",
+    "title": "Maklumat akaun",
     "verify": "Sahkan pada peranti",
     "xpubTypeChangeBtn": {
       "p2pkh": "Lihat legacy P2PKH extended public key",
@@ -145,7 +146,8 @@
       "understand": "Saya faham bahawa kata laluan pemulihan yang salah akan membuat dompet yang berbeza"
     },
     "showMnemonic": {
-      "description": "Anda akan diberikan 24 perkataan pemulihan, yang membentuk sandaran dompet anda. Tulis mereka di atas kertas.\n\n<strong>Jangan menyimpannya secara digital atau mengambil gambar.</strong>\n\n<strong>Jangan mengucapkannya dengan lantang.</strong>\n\n<strong>Sandaran ini tidak dilindungi kata laluan.</strong>\n\nSelepas itu, anda akan diminta mengesahkan setiap perkataan.",
+      "checkboxLabel": "Saya telah membaca maklumat di atas",
+      "description": "Peranti akan memaparkan perkataan pemulihan, yang membentuk sandaran dompet anda. Tulis mereka di atas kertas.\n\n<strong>Jangan simpannya secara digital atau ambil gambarnya.</strong>\n\n<strong>Jangan sebut perkataan dengan kuat.</strong>\n\n<strong>Sandaran ini tidak dilindungi kata laluan.</strong>\n\nSelepas itu, anda akan diminta untuk mengesahkan setiap perkataan.",
       "title": "Tunjukkan perkataan pemulihan",
       "warning": "<strong>Jangan sekali-kali berkongsi kata-kata pemulihan anda dengan sesiapa pun.</strong> Perkataan pemulihan anda memberikan akses penuh kepada dompet anda. Jika seseorang meminta anda untuk kata-kata pemulihan anda, ia adalah penipu, jangan kongsikannya!"
     },
@@ -441,6 +443,9 @@
             "bankTransferReccuring": "Bagaimana cara menyiapkan pembelian berkala dengan standing order?",
             "title": "Cara bayaran"
           },
+          "sell": {
+            "title": "Jual Bitcoin"
+          },
           "supportedCurrencies": "Menyokong mata wang Eropah: EUR, GBP dan CHF.",
           "verification": {
             "info": "Hanya memerlukan pengesahan identiti melebihi ambang harian dan tahunan.",
@@ -489,7 +494,9 @@
           "descriptionGeneric_crypto": "Apabila anda membeli kripto melalui pertukaran rakan kongsi, anda menggunakan perkhidmatan luaran. Perkhidmatan ini berada di luar skop model ancaman keselamatan BitBox02 dan bergantung pada keselamatan dan keselamatan persekitaran tempat perisian BitBoxApp dijalankan.",
           "link": "Model \"security threat\"",
           "title": "Model security"
-        }
+        },
+        "title_bitcoin": "Selamat datang ke kedai sehenti anda untuk membeli Bitcoin",
+        "title_crypto": "Selamat datang ke kedai sehenti anda untuk membeli crypto"
       },
       "next": "Seterusnya",
       "selectLabel": "Pilih akaun anda",
@@ -497,35 +504,13 @@
       "skip": "Jangan tunjukkan lagi"
     },
     "pocket": {
-      "data": {
-        "link": "Dasar privasi poket",
-        "p1": "BitBoxApp tidak mengumpul sebarang data semasa membeli bitcoin, dana masuk dianggap seperti transaksi biasa. Pocket perlu mengumpul beberapa data peribadi untuk beroperasi. Dasar Privasi mereka menerangkan secara terperinci cara data tersebut dikendalikan.",
-        "title": "Perlindungan Data"
+      "error": {
+        "insufficientFunds": "Dana tidak mencukupi pada akaun yang dipilih."
       },
-      "kyc": {
-        "link": "Baca Soalan Lazim Poket",
-        "p1": "Pocket cuba mengekalkan KYC pada tahap minimum. Untuk pembelian di bawah 950 EUR (1000 CHF) sehari, tiada dokumen tambahan diperlukan. Untuk pembelian melebihi jumlah ini, anda perlu menjadualkan panggilan dengan Pocket untuk melengkapkan proses KYC/AML yang diperlukan.",
-        "title": "KYC/AML"
-      },
-      "payment": {
-        "p1": "Anda boleh membeli bitcoin serta-merta dengan Pocket melalui pindahan bank SEPA. Yuran adalah 1.5% dan bitcoin didepositkan ke BitBox anda secepat mungkin selepas Pocket menerima pindahan bank (biasanya dalam hari yang sama).",
-        "p2": "Sila ambil perhatian bahawa kadar pertukaran Pocket boleh berbeza daripada yang digunakan dalam BitBoxApp, menghasilkan jumlah yang sedikit berbeza.",
-        "title": "Kaedah pembayaran dan yuran"
-      },
+      "paymentRequestNote": "Permintaan bayaran daripada",
       "previousTransactions": "Sejarah transaksi akaun ini tidak kosong. Berkongsi akaun ini akan menjadikan semua urus niaga masa lalu dan masa depannya kelihatan untuk Pocket. Teruskan juga?",
-      "security": {
-        "link": "Model ancaman keselamatan BitBox02",
-        "p1": "Apabila anda membeli bitcoin melalui Pocket, anda menggunakan perkhidmatan luaran. Perkhidmatan ini di luar skop model Ancaman Keselamatan BitBox02 dan bergantung pada keselamatan dan keselamatan persekitaran yang dijalankan oleh perisian BitBoxApp. Walau bagaimanapun, kami bekerjasama untuk meningkatkan keselamatan dengan menggunakan mekanisme pengesahan dua faktor untuk mengesahkan alamat anda menerima ke.",
-        "title": "Model keselamatan"
-      },
       "usedAddress": "Alamat {{address}} telah digunakan, sila mulakan semula dengan alamat baharu.",
-      "verifyBitBox02": "Sila sahkan bahawa alamat yang anda terima melalui e-mel sepadan dengan alamat yang dipaparkan pada Bitbox anda. Jika boleh, anda harus membuka e-mel pada peranti kedua untuk keselamatan yang lebih baik.",
-      "welcome": {
-        "p1": "Kami bekerjasama dengan Pocket untuk menawarkan anda cara yang lancar untuk membeli bitcoin terus dalam BitBoxApp. Ia hanya beberapa klik.",
-        "p2": "Pocket ialah platform Switzerland yang menjadikannya cepat dan mudah untuk membeli bitcoin di kebanyakan Eropah (di mana-mana sahaja di mana pemindahan bank SEPA disokong).",
-        "p3": "Dengan Pocket, anda juga boleh melakukan pembelian biasa melalui pesanan bank tetap, jadi anda boleh DCA (purata kos dolar) dengan mudah.",
-        "title": "Selamat datang ke kedai sehenti anda untuk membeli bitcoin"
-      }
+      "verifyBitBox02": "Sila sahkan bahawa alamat yang anda terima melalui e-mel sepadan dengan alamat yang dipaparkan pada Bitbox anda. Jika boleh, anda harus membuka e-mel pada peranti kedua untuk keselamatan yang lebih baik."
     }
   },
   "changePin": {
@@ -563,7 +548,9 @@
   },
   "device": {
     "appUpradeRequired": "BitBox anda tidak sesuai dengan aplikasi desktop ini. Sila muat turun dan pasang versi terkini.",
-    "keystoreConnected": "Wallet bersambung"
+    "firmwareUpgradeRequired": "Kemas kini perisian tegar diperlukan untuk menggunakan ciri ini.",
+    "keystoreConnected": "Wallet bersambung",
+    "unsupportedFeature": "Ciri ini tidak tersedia pada peranti ini."
   },
   "deviceLock": {
     "button": "Membolehkan Pengesahan Dua Langkah (2FA)",
@@ -705,6 +692,46 @@
     "wrongKeystore": "Dompet salah disambungkan. Sila pastikan anda memasukkan peranti yang betul yang sepadan dengan akaun ini.",
     "wrongKeystore2": " Jika anda menggunakan frasa laluan pilihan, pastikan anda telah memasukkan frasa laluan yang betul untuk akaun tersebut."
   },
+  "exchange": {
+    "buySell": {
+      "coinNotSupported": "Tiada pilihan tersedia untuk jenis syiling ini.",
+      "regionNotSupported": "Tiada pilihan tersedia untuk wilayah ini.",
+      "updateNow": "Kemas kini sekarang"
+    },
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "Dasar privasi poket",
+          "p1": "BitBoxApp tidak mempelajari atau mengumpul sebarang data peribadi. Pocket mengumpul beberapa data peribadi seperti yang dijelaskan dalam Dasar Privasi mereka.",
+          "title": "Perlindungan Data"
+        },
+        "fees": {
+          "extraNote": "Sila ambil perhatian bahawa anda perlu membeli Bitcoin dengan Pocket terlebih dahulu sebelum anda boleh menjual.",
+          "note": "Nota: Kadar pertukaran Pocket mungkin berbeza daripada kadar BitBoxApp.",
+          "p1": "<strong>Membeli bitcoin:</strong> Gunakan pindahan bank SEPA untuk menghantar EUR atau CHF dan dapatkan bitcoin dihantar terus ke BitBox anda selepas Pocket menerima pemindahan, biasanya pada hari yang sama.",
+          "p2": "<strong>Menjual bitcoin:</strong> Hantar Bitcoin ke Pocket dan terima EUR atau CHF dalam akaun bank berdaftar anda. Kadar pertukaran ditetapkan apabila Pocket menerima Bitcoin anda.",
+          "title": "Kaedah Pembayaran dan Yuran"
+        },
+        "kyc": {
+          "link": "Baca Soalan Lazim Poket",
+          "p1": "Tiada dokumen tambahan diperlukan untuk pertukaran sehingga 950 EUR (1000 CHF) sehari.",
+          "p2": "Untuk jumlah yang lebih besar, panggilan dengan Pocket diperlukan untuk menyelesaikan proses KYC/AML.",
+          "title": "KYC/AML (Kenali Pelanggan Anda / Pencegahan Pengubahan Wang Haram)"
+        },
+        "security": {
+          "link": "Model ancaman keselamatan BitBox02",
+          "p1": "Menggunakan Pocket ialah perkhidmatan luaran dan tidak dilindungi oleh model Ancaman Keselamatan BitBox02. Walau bagaimanapun, kami bekerjasama rapat dengan Pocket untuk meningkatkan keselamatan keseluruhan.",
+          "p2": "<strong>Membeli bitcoin:</strong> Anda akan mendapat e-mel untuk mengesahkan bitcoin anda menerima alamat melalui saluran komunikasi kedua.",
+          "p3": "<strong>Menjual bitcoin:</strong> BitBox02 mengesahkan alamat deposit Bitcoin secara kriptografi dan memaparkan \"Poket\" pada dompet perkakasan.",
+          "title": "Keselamatan"
+        },
+        "welcome": {
+          "p1": "Kami bekerjasama dengan Pocket, broker Switzerland, untuk memudahkan pembelian dan penjualan bitcoin dalam BitBoxApp. Perkhidmatan ini tersedia di seluruh Eropah di mana pemindahan bank SEPA disokong.",
+          "title": "Beli dan jual bitcoin dengan Pocket"
+        }
+      }
+    }
+  },
   "fiat": {
     "default": "tetapan standard",
     "setDefault": "Tetapkan {{code}} sebagai tetapan standard",
@@ -714,8 +741,15 @@
     "appVersion": "Versi App:"
   },
   "generic": {
+    "buy": "Beli {{coinCode}}",
+    "buySell": "Beli & jual",
+    "buy_bitcoin": "Beli Bitcoin",
+    "buy_crypto": "Beli kripto",
     "enabled_false": "Dinyahaktifkan",
-    "enabled_true": "Diaktifkan"
+    "enabled_true": "Diaktifkan",
+    "receive": "terima {{coinCode}}",
+    "receive_bitcoin": "Terima Bitcoin",
+    "receive_crypto": "Terima crypto"
   },
   "genericError": "Kesalahan muncul. Sekiranya anda melihat sebarang masalah, sila mulakan semula aplikasi.",
   "goal": {
@@ -988,7 +1022,7 @@
       "accountSummary": "Panduan ringkasan akaun",
       "advancedSettings": "Panduan tetapan lanjutan",
       "appearance": "Panduan penampilan",
-      "buy": "Panduan membeli",
+      "buySell": "Panduan beli & jual",
       "insurance": "Panduan insurans",
       "manageAccount": "Panduan mengurus akaun",
       "manageDevice": "Urus panduan peranti",
@@ -1524,8 +1558,10 @@
       "title": "Hantar dari Output"
     },
     "confirm": {
+      "infoMessage": "Sahkan dengan teliti jumlah dan alamat adalah betul pada BitBox02",
       "selected-coins": "Syiling yang dipilih",
       "title": "Sahkan Transaksi",
+      "to": "Kepada",
       "total": "Jumlah"
     },
     "error": {

@@ -495,6 +495,10 @@ type TxProposal struct {
 	Signer types.Signer
 	// KeyPath is the location of this account's address/pubkey/privkey.
 	Keypath signing.AbsoluteKeypath
+	// Address of the ETH recipient (or ERC-20 address in case of an ERC-20 transaction).  This is
+	// not used in the transaction or signing except for making sure the BitBox displays the address
+	// with the same case (lowercase/uppercase/mixed) as the user entered.
+	RecipientAddress string
 }
 
 func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error) {
@@ -639,12 +643,13 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 	}
 
 	return &TxProposal{
-		Coin:    account.coin,
-		Tx:      tx,
-		Fee:     fee,
-		Value:   value,
-		Signer:  types.NewLondonSigner(account.coin.net.ChainID),
-		Keypath: account.signingConfiguration.AbsoluteKeypath(),
+		Coin:             account.coin,
+		Tx:               tx,
+		Fee:              fee,
+		Value:            value,
+		Signer:           types.NewLondonSigner(account.coin.net.ChainID),
+		Keypath:          account.signingConfiguration.AbsoluteKeypath(),
+		RecipientAddress: args.RecipientAddress,
 	}, nil
 }
 
