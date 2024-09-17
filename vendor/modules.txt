@@ -44,7 +44,7 @@ github.com/btcsuite/btcd/wire
 github.com/btcsuite/btcd/btcec/v2
 github.com/btcsuite/btcd/btcec/v2/ecdsa
 github.com/btcsuite/btcd/btcec/v2/schnorr
-# github.com/btcsuite/btcd/btcutil v1.1.5
+# github.com/btcsuite/btcd/btcutil v1.1.6
 ## explicit; go 1.16
 github.com/btcsuite/btcd/btcutil
 github.com/btcsuite/btcd/btcutil/base58
