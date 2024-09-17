@@ -31,7 +31,7 @@ import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main 
 import { Status } from '@/components/status/status';
 import { translate, TranslateProps } from '@/decorators/translate';
 import { FeeTargets } from './feetargets';
-import { signConfirm, signProgress, TSignProgress } from '@/api/devicessync';
+import { signProgress, TSignProgress } from '@/api/devicessync';
 import { UnsubscribeList, unsubscribe } from '@/utils/subscriptions';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { ConfirmSend } from './components/confirm/confirm';
@@ -70,8 +70,7 @@ export type State = {
     feeTarget?: accountApi.FeeTargetCode;
     customFee: string;
     isConfirming: boolean;
-    isSent: boolean;
-    isAborted: boolean;
+    sendResult?: accountApi.ISendTx;
     isUpdatingProposal: boolean;
     addressError?: TProposalError['addressError'];
     amountError?: TProposalError['amountError'];
@@ -79,9 +78,6 @@ export type State = {
     paired?: boolean;
     noMobileChannelError?: boolean;
     signProgress?: TSignProgress;
-    // show visual BitBox in dialog when instructed to sign.
-    signConfirm: boolean;
-    activeScanQR: boolean;
     note: string;
 }
 
@@ -100,12 +96,8 @@ class Send extends Component<Props, State> {
     valid: false,
     sendAll: false,
     isConfirming: false,
-    signConfirm: false,
-    isSent: false,
-    isAborted: false,
     isUpdatingProposal: false,
     noMobileChannelError: false,
-    activeScanQR: false,
     note: '',
     customFee: '',
   };
@@ -130,10 +122,7 @@ class Send extends Component<Props, State> {
 
     this.unsubscribeList = [
       signProgress((progress) =>
-        this.setState({ signProgress: progress, signConfirm: false })
-      ),
-      signConfirm(() =>
-        this.setState({ signConfirm: true })
+        this.setState({ signProgress: progress })
       ),
       syncdone((code) => {
         if (this.props.account.code === code) {
@@ -161,11 +150,12 @@ class Send extends Component<Props, State> {
     this.setState({ signProgress: undefined, isConfirming: true });
     try {
       const result = await accountApi.sendTx(code, this.state.note);
+      this.setState({ sendResult: result, isConfirming: false });
+      setTimeout(() => this.setState({ sendResult: undefined }), 5000);
       if (result.success) {
         this.setState({
           sendAll: false,
           isConfirming: false,
-          isSent: true,
           recipientAddress: '',
           proposedAmount: undefined,
           proposedFee: undefined,
@@ -176,32 +166,12 @@ class Send extends Component<Props, State> {
           customFee: '',
         });
         this.selectedUTXOs = {};
-        setTimeout(() => this.setState({
-          isSent: false,
-          isConfirming: false,
-        }), 5000);
-      } else if (result.aborted) {
-        this.setState({ isAborted: true });
-        setTimeout(() => this.setState({ isAborted: false }), 5000);
-      } else {
-        switch (result.errorCode) {
-        case 'erc20InsufficientGasFunds':
-          alertUser(this.props.t(`send.error.${result.errorCode}`));
-          break;
-        default:
-          const { errorMessage } = result;
-          if (errorMessage) {
-            alertUser(this.props.t('unknownError', { errorMessage }));
-          } else {
-            alertUser(this.props.t('unknownError'));
-          }
-        }
       }
     } catch (err) {
       console.error(err);
     } finally {
       // The following method allows pressing escape again.
-      this.setState({ isConfirming: false, signProgress: undefined, signConfirm: false });
+      this.setState({ isConfirming: false, signProgress: undefined });
     }
   };
 
@@ -352,10 +322,6 @@ class Send extends Component<Props, State> {
     return Object.keys(this.selectedUTXOs).length !== 0;
   };
 
-  private setActiveScanQR = (activeScanQR: boolean) => {
-    this.setState({ activeScanQR });
-  };
-
   private parseQRResult = async (uri: string) => {
     let address;
     let amount = '';
@@ -438,16 +404,13 @@ class Send extends Component<Props, State> {
       feeTarget,
       customFee,
       isConfirming,
-      isSent,
-      isAborted,
+      sendResult,
       isUpdatingProposal,
       addressError,
       amountError,
       feeError,
       paired,
       signProgress,
-      signConfirm,
-      activeScanQR,
       note,
     } = this.state;
 
@@ -464,7 +427,6 @@ class Send extends Component<Props, State> {
     const waitDialogTransactionStatus = {
       isConfirming,
       signProgress,
-      signConfirm
     };
 
     const device = this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]];
@@ -504,8 +466,6 @@ class Send extends Component<Props, State> {
                       onInputChange={this.onReceiverAddressInputChange}
                       recipientAddress={recipientAddress}
                       parseQRResult={this.parseQRResult}
-                      activeScanQR={activeScanQR}
-                      onChangeActiveScanQR={this.setActiveScanQR}
                     />
                   </Column>
                 </Grid>
@@ -561,7 +521,6 @@ class Send extends Component<Props, State> {
                         {t('send.button')}
                       </Button>
                       <BackButton
-                        disabled={activeScanQR}
                         enableEsc>
                         {t('button.back')}
                       </BackButton>
@@ -573,7 +532,6 @@ class Send extends Component<Props, State> {
               {device && (
                 <ConfirmSend
                   device={device}
-                  paired={paired}
                   baseCurrencyUnit={activeCurrency}
                   note={note}
                   hasSelectedUTXOs={this.hasSelectedUTXOs()}
@@ -584,8 +542,7 @@ class Send extends Component<Props, State> {
                 />
               )}
 
-              <MessageWaitDialog isShown={isSent} messageType="sent" />
-              <MessageWaitDialog isShown={isAborted} messageType="abort" />
+              <MessageWaitDialog result={sendResult}/>
             </View>
           </Main>
         </GuidedContent>

@@ -1,50 +1,51 @@
 import { useTranslation } from 'react-i18next';
+import { ISendTx } from '@/api/account';
 import { Cancel, Checked } from '@/components/icon/icon';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
+import { alertUser } from '@/components/alert/Alert';
 
 type TProps = {
-    isShown: boolean;
-    messageType: 'sent' | 'abort';
+    result: ISendTx | undefined;
 }
 
-type TIconProps = {
-    messageType: TProps['messageType']
-}
+export const MessageWaitDialog = ({ result }: TProps) => {
+  const { t } = useTranslation();
 
-export const MessageWaitDialog = ({ isShown, messageType }: TProps) => {
+  if (!result) {
+    return null;
+  }
 
-  if (!isShown) {
+  if (!result.aborted && !result.success) {
+    switch (result.errorCode) {
+    case 'erc20InsufficientGasFunds':
+      alertUser(t(`send.error.${result.errorCode}`));
+      break;
+    default:
+      const { errorMessage } = result;
+      if (errorMessage) {
+        alertUser(t('unknownError', { errorMessage }));
+      } else {
+        alertUser(t('unknownError'));
+      }
+    }
     return null;
   }
   return (
     <WaitDialog>
       <div className="flex flex-row flex-center flex-items-center">
-        <IconAndMessage messageType={messageType} />
+        {result.success && (
+          <>
+            <Checked style={{ height: 18, marginRight: '1rem' }} />
+            {t('send.success')}
+          </>
+        )}
+        {result.aborted && (
+          <>
+            <Cancel alt="Abort" style={{ height: 18, marginRight: '1rem' }} />
+            {t('send.abort')}
+          </>
+        )}
       </div>
     </WaitDialog>
   );
 };
-
-const IconAndMessage = ({ messageType }: TIconProps) => {
-  const { t } = useTranslation();
-  switch (messageType) {
-  case 'sent':
-    return (
-      <>
-        <Checked style={{ height: 18, marginRight: '1rem' }} />
-        {t('send.success')}
-      </>
-    );
-  case 'abort':
-    return (
-      <>
-        <Cancel alt="Abort" style={{ height: 18, marginRight: '1rem' }} />
-        {t('send.abort')}
-      </>
-    );
-  default:
-    return null;
-  }
-};
-
-

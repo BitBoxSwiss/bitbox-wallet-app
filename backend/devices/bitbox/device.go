@@ -1087,9 +1087,6 @@ func (dbb *Device) signBatch(
 
 	// Second call returns the signatures.
 
-	// Fire event that we are about to sign with a touch (in 2FA, this might be delayed until the
-	// user confirms on the mobile phone).
-	dbb.fireEvent(EventSignConfirm, nil)
 	var pin interface{}
 	if nonce != "" {
 		pin = map[string]interface{}{
