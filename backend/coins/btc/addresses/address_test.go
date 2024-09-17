@@ -15,6 +15,7 @@
 package addresses_test
 
 import (
+	"encoding/hex"
 	"os"
 	"testing"
 
@@ -78,20 +79,24 @@ func TestAddressP2TR(t *testing.T) {
 	keypath, err := signing.NewAbsoluteKeypath("m/86'/0'/0'")
 	require.NoError(t, err)
 	for _, test := range []struct {
-		path            string
-		expectedAddress string
+		path             string
+		expectedAddress  string
+		expectedPkScript string
 	}{
 		{
-			path:            "0/0",
-			expectedAddress: "bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr",
+			path:             "0/0",
+			expectedAddress:  "bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr",
+			expectedPkScript: "5120a60869f0dbcf1dc659c9cecbaf8050135ea9e8cdc487053f1dc6880949dc684c",
 		},
 		{
-			path:            "0/1",
-			expectedAddress: "bc1p4qhjn9zdvkux4e44uhx8tc55attvtyu358kutcqkudyccelu0was9fqzwh",
+			path:             "0/1",
+			expectedAddress:  "bc1p4qhjn9zdvkux4e44uhx8tc55attvtyu358kutcqkudyccelu0was9fqzwh",
+			expectedPkScript: "5120a82f29944d65b86ae6b5e5cc75e294ead6c59391a1edc5e016e3498c67fc7bbb",
 		},
 		{
-			path:            "1/0",
-			expectedAddress: "bc1p3qkhfews2uk44qtvauqyr2ttdsw7svhkl9nkm9s9c3x4ax5h60wqwruhk7",
+			path:             "1/0",
+			expectedAddress:  "bc1p3qkhfews2uk44qtvauqyr2ttdsw7svhkl9nkm9s9c3x4ax5h60wqwruhk7",
+			expectedPkScript: "5120882d74e5d0572d5a816cef0041a96b6c1de832f6f9676d9605c44d5e9a97d3dc",
 		},
 	} {
 		relKeypath, err := signing.NewRelativeKeypath(test.path)
@@ -108,5 +113,6 @@ func TestAddressP2TR(t *testing.T) {
 			logging.Get().WithGroup("addresses_test"),
 		)
 		require.Equal(t, test.expectedAddress, addr.EncodeForHumans())
+		require.Equal(t, test.expectedPkScript, hex.EncodeToString(addr.PubkeyScript()))
 	}
 }
