@@ -7,7 +7,7 @@ require (
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519
 	github.com/btcsuite/btcd v0.24.2
 	github.com/btcsuite/btcd/btcec/v2 v2.3.4
-	github.com/btcsuite/btcd/btcutil v1.1.5
+	github.com/btcsuite/btcd/btcutil v1.1.6
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
 	github.com/ethereum/go-ethereum v1.14.7
 	github.com/flynn/noise v1.1.0
