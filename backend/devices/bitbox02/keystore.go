@@ -515,6 +515,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 			*recipient,
 			tx.Value(),
 			tx.Data(),
+			firmware.ETHIdentifyCase(txProposal.RecipientAddress),
 		)
 	case txType == 0:
 		signature, err = keystore.device.ETHSign(
@@ -526,6 +527,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 			*recipient,
 			tx.Value(),
 			tx.Data(),
+			firmware.ETHIdentifyCase(txProposal.RecipientAddress),
 		)
 	default:
 		return errp.New("unsupported transaction type")
@@ -613,6 +615,7 @@ func (keystore *keystore) SignETHWalletConnectTransaction(chainId uint64, tx *et
 		*tx.To(),
 		tx.Value(),
 		tx.Data(),
+		messages.ETHAddressCase_ETH_ADDRESS_CASE_MIXED,
 	)
 	if firmware.IsErrorAbort(err) {
 		return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
@@ -630,7 +633,7 @@ func (keystore *keystore) SupportsEIP1559() bool {
 
 // SupportsPaymentRequests implements keystore.Keystore.
 func (keystore *keystore) SupportsPaymentRequests() error {
-	if keystore.device.Version().AtLeast(semver.NewSemVer(9, 19, 0)) {
+	if keystore.device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
 		return nil
 	}
 	return keystorePkg.ErrFirmwareUpgradeRequired

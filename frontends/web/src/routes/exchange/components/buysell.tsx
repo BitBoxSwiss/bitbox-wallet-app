@@ -73,10 +73,10 @@ export const BuySell = ({
     }
   }, [exchangeDealsResponse, onSelectExchange]);
 
-  const constructErrorMessage = (action: exchangesAPI.TExchangeAction): string | undefined => {
+  const constructErrorMessage = (): string | undefined => {
     if (exchangeDealsResponse?.success === false) {
       if (exchangeDealsResponse.errorCode) {
-        return t('exchange.buySell.' + exchangeDealsResponse.errorCode, { action });
+        return t('exchange.buySell.' + exchangeDealsResponse.errorCode);
       }
       return exchangeDealsResponse.errorMessage;
     } else if (paymentRequestError) {
@@ -100,7 +100,7 @@ export const BuySell = ({
         {!exchangeDealsResponse && <Skeleton/> }
         {exchangeDealsResponse?.success === false || paymentRequestError ? (
           <div className="flex flex-column">
-            <p className={style.noExchangeText}>{constructErrorMessage(action)}</p>
+            <p className={style.noExchangeText}>{constructErrorMessage()}</p>
             {exchangeDealsResponse?.success &&
               paymentRequestError &&
               hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired' &&

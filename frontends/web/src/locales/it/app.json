@@ -26,6 +26,7 @@
     "extendedPublicKey": "Chiave pubblica estesa",
     "label": "Informazioni sull'account",
     "scriptType": "Tipo di script",
+    "taproot": "La chiave pubblica estesa Taproot non è mostrata per proteggere da un uso improprio accidentale, poiché i formati raw per questo tipo di script non sono ampiamente supportati. Se vuoi visualizzare questa chiave, collega il tuo dispositivo al software wallet che supporta il formato output descriptor.",
     "title": "Informazioni sull'account",
     "verify": "Verifica sul dispositivo",
     "xpubTypeChangeBtn": {
@@ -145,7 +146,8 @@
       "understand": "Capisco che una password di recupero errata creerà un wallet diverso"
     },
     "showMnemonic": {
-      "description": "Ti verranno mostrate le parole di recupero, che formano un backup del tuo wallet. Scrivile su carta.\n\n<strong>Non custodirle digitalmente e non fotografarle.</strong>\n\n<strong>Non pronunciare le parole ad alta voce.</strong>\n\n<strong>Questo backup non è protetto da password.</strong>\n\nIn seguito ti sarà richiesto di confermare ogni parola.",
+      "checkboxLabel": "Ho letto le informazioni",
+      "description": "Il dispositivo ti mostrerà le parole di recupero, che formano un backup del tuo wallet. Scrivile su carta.\n\n<strong>Non custodirle digitalmente e non fotografarle.</strong>\n\n<strong>Non pronunciare le parole ad alta voce.</strong>\n\n<strong>Questo backup non è protetto da password.</strong>\n\nIn seguito ti sarà richiesto di confermare ogni parola.",
       "title": "Mostra le parole di recupero",
       "warning": "<strong>Non condividere le tue parole di recupero con nessuno.</strong> Le parole di recupero danno pieno accesso al tuo wallet. Se qualcuno ti chiede le tue parole di recupero, vuole truffarti. Non condividerle!"
     },
@@ -441,6 +443,9 @@
             "bankTransferReccuring": "Come impostare degli acquisti ricorrenti tramite un ordine permanente?",
             "title": "Metodi di pagamento"
           },
+          "sell": {
+            "title": "Vendi Bitcoin"
+          },
           "supportedCurrencies": "Supporta le seguenti valute Europee: EUR, GBP e CHF",
           "verification": {
             "info": "Richiede una verifica dell'identità solamente al di sopra delle soglie giornaliere ed annuali",
@@ -489,7 +494,9 @@
           "descriptionGeneric_crypto": "Quando acquisti crypto tramite un exchange partner, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del \\\"Securiy Threat model\\\" del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione.",
           "link": "Security threat model",
           "title": "Security model"
-        }
+        },
+        "title_bitcoin": "Benvenuto nel tuo punto di riferimento per acquistare Bitcoin",
+        "title_crypto": "Benvenuto nel tuo punto di riferimento per acquistare crypto"
       },
       "next": "Prossimo",
       "selectLabel": "Scegli un account",
@@ -497,35 +504,13 @@
       "skip": "Non mostrare più"
     },
     "pocket": {
-      "data": {
-        "link": "Privacy policy di Pocket",
-        "p1": "BitBoxApp non registra nessun dato durante l'acquisto di Bitcoin, i fondi in entrata sono trattati come comuni transazioni. Pocket ha bisogno di alcune informazioni personali per poter operare. La loro privacy policy spiega in dettaglio come i dati vengono gestiti.",
-        "title": "Protezione dei dati"
+      "error": {
+        "insufficientFunds": "Fondi insufficienti sul conto selezionato."
       },
-      "kyc": {
-        "link": "Leggi le FAQ di Pocket",
-        "p1": "Pocket cerca di mantenere al minimo il KYC. Per acquisti al di sotto dei 950 EUR (1000 CHF) al giorno, non è necessario nessun documento aggiuntivo. Per acquisti di importi superiori, sarà necessario programmare una call con Pocket per completare le necessarie procedure KYC/AML.",
-        "title": "KYC/AML"
-      },
-      "payment": {
-        "p1": "Puoi comprare Bitcoin istantaneamente con Pocket tramite un bonifico bancario SEPA. La commissione è del 1,5% e i Bitcoin vengono depositati sul tuo BitBox appena possibile una volta che Pocket ha ricevuto il bonifico (di solito in giornata).",
-        "p2": "Si prega di notare che i tassi di scambio utilizzati da Pocket potrebbero differire da quelli utilizzati nella BitBoxApp, risultando in importi leggermente diversi.",
-        "title": "Metodi di pagamento e commissioni"
-      },
+      "paymentRequestNote": "Richiesta di pagamento da",
       "previousTransactions": "Lo storico di transazioni di questo account non è vuoto. Condividere questo account renderà tutte le transazioni passate e future visibili per Pocket. Procedere comunque? ",
-      "security": {
-        "link": "\"BitBox02 security threat model\"",
-        "p1": "Quando acquisti Bitcoin tramite Pocket, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del \"Securiy Threat model\" del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione. Comunque, lavoriamo insieme per migliorare la sicurezza utilizzando un meccanismo di autenticazione a due fattori per verificare il tuo indirizzo di ricezione.",
-        "title": "Modello di sicurezza "
-      },
       "usedAddress": "L'indirizzo {{address}} è già stato utilizzato, per favore ricomincia da capo con un nuovo indirizzo.",
-      "verifyBitBox02": "Per favore, verifica che l'indirizzo che hai ricevuto via email corrisponda a quello visualizzato sul tuo BitBox. Se possibile, dovresti aprire la mail su un secondo dispositivo per maggiore sicurezza.",
-      "welcome": {
-        "p1": "Collaboriamo con Pocket per offrirti un modo fluido per acquistare Bitcoin direttamente nella BitBoxApp. Sono solo pochi click.",
-        "p2": "Pocket è una piattaforma Svizzera che rende semplice e veloce acquistare Bitcoin in gran parte dell'Europa (ovunque un bonifico bancario SEPA sia supportato).",
-        "p3": "Con Pocket, puoi anche acquistare regolarmente tramite singoli bonifici bancari, quindi puoi fare DCA (dollar-cost averaging) con semplicità.",
-        "title": "Benvenuto nel tuo sportello unico per l'acquisto di Bitcoin"
-      }
+      "verifyBitBox02": "Per favore, verifica che l'indirizzo che hai ricevuto via email corrisponda a quello visualizzato sul tuo BitBox. Se possibile, dovresti aprire la mail su un secondo dispositivo per maggiore sicurezza."
     }
   },
   "changePin": {
@@ -563,7 +548,9 @@
   },
   "device": {
     "appUpradeRequired": "Il tuo BitBox non è compatibile con questa versione dell'applicazione desktop. Installa l'ultima versione.",
-    "keystoreConnected": "Wallet connesso"
+    "firmwareUpgradeRequired": "Per poter utilizzare questa funzione è necessario un aggiornamento del firmware.",
+    "keystoreConnected": "Wallet connesso",
+    "unsupportedFeature": "Questa funzione non è disponibile su questo dispositivo."
   },
   "deviceLock": {
     "button": "Abilita autenticazione a due fattori (2FA)",
@@ -705,6 +692,46 @@
     "wrongKeystore": "Wallet connesso errato. Assicurati di inserire il dispositivo corretto per questo account.",
     "wrongKeystore2": "Se stai utilizzando la passphrase opzionale, assicurati di avere inserito quella corretta per questo account."
   },
+  "exchange": {
+    "buySell": {
+      "coinNotSupported": "Nessuna opzione disponibile per questo tipo di valuta.",
+      "regionNotSupported": "Nessuna opzione disponibile per questa regione.",
+      "updateNow": "Aggiorna ora"
+    },
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "Informativa sulla privacy di Pocket",
+          "p1": "BitBoxApp non apprende né raccoglie nessuna informazione personale. Pocket raccoglie alcuni dati personali, come spiegato nella loro Informativa sulla privacy.",
+          "title": "Protezione dei dati"
+        },
+        "fees": {
+          "extraNote": "Tieni presente che devi acquistare Bitcoin con Pocket prima di poter vendere.",
+          "note": "Nota: i tassi di cambio di Pocket possono differire dai tassi utilizzati dalla BitBoxApp.",
+          "p1": "<strong>Acquistare bitcoin:</strong> Utilizza un bonifico bancario SEPA per inviare EUR o CHF e ricevere bitcoin direttamente sul tuo BitBox dopo che Pocket ha ricevuto il trasferimento, solitamente lo stesso giorno.",
+          "p2": "<strong>Vendere bitcoin:</strong> Invia Bitcoin a Pocket e ricevi EUR o CHF sul tuo conto bancario registrato. Il tasso di cambio viene fissato quando Pocket riceve i tuoi Bitcoin.",
+          "title": "Metodi di pagamento e commissioni"
+        },
+        "kyc": {
+          "link": "Leggi le FAQ di Pocket",
+          "p1": "Non sono necessari documenti aggiuntivi per cambi fino a 950 EUR (1000 CHF) al giorno.",
+          "p2": "Per importi maggiori è necessaria una call con Pocket per completare la procedura KYC/AML.",
+          "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
+        },
+        "security": {
+          "link": "Modello di minaccia alla sicurezza di BitBox02",
+          "p1": "L'utilizzo di Pocket è un servizio esterno e non è coperto dal modello di minaccia alla sicurezza di BitBox02. Tuttavia, lavoriamo a stretto contatto con Pocket per migliorare la sicurezza complessiva.",
+          "p2": "<strong>Acquistare bitcoin:</strong> Riceverai un'e-mail per confermare il tuo indirizzo di ricezione bitcoin attraverso un secondo canale di comunicazione.",
+          "p3": "<strong>Vendere bitcoin:</strong> BitBox02 verifica crittograficamente l'indirizzo di deposito Bitcoin e visualizza \"Pocket\" sull'hardware wallet.",
+          "title": "Sicurezza"
+        },
+        "welcome": {
+          "p1": "Collaboriamo con Pocket, un broker svizzero, per semplificare l'acquisto e la vendita di bitcoin all'interno della BitBoxApp. Questo servizio è disponibile in tutta Europa, dove sono supportati i bonifici bancari SEPA.",
+          "title": "Acquista e vendi bitcoin con Pocket"
+        }
+      }
+    }
+  },
   "fiat": {
     "default": "predefinito",
     "setDefault": "Imposta {{code}} come valuta predefinita",
@@ -714,8 +741,15 @@
     "appVersion": "Versione dell'app:"
   },
   "generic": {
+    "buy": "Acquista {{coinCode}}",
+    "buySell": "Compra e vendi",
+    "buy_bitcoin": "Acquista Bitcoin",
+    "buy_crypto": "Acquista crypto",
     "enabled_false": "Disabilitato",
-    "enabled_true": "Abilitato"
+    "enabled_true": "Abilitato",
+    "receive": "Ricevi {{coinCode}}",
+    "receive_bitcoin": "Ricevi Bitcoin",
+    "receive_crypto": "Ricevi crypto"
   },
   "genericError": "Si è verificato un errore. Se noti qualche problema, riavvia l'applicazione.",
   "goal": {
@@ -988,7 +1022,7 @@
       "accountSummary": "Guida al riepilogo account",
       "advancedSettings": "Guida alle impostazioni avanzate",
       "appearance": "Guida alle impostaizoni di aspetto",
-      "buy": "Guida all'acquisto",
+      "buySell": "Guida all'acquisto e alla vendita",
       "insurance": "Guida all'assicurazione",
       "manageAccount": "Guida alla gestione degli account",
       "manageDevice": "Guida alla gestione del dispositivo",
@@ -1524,8 +1558,10 @@
       "title": "Invia da un output"
     },
     "confirm": {
+      "infoMessage": "Verificare attentamente che l'importo e l'indirizzo siano corretti sul BitBox02",
       "selected-coins": "Seleziona valute",
       "title": "Conferma ed invia transazione",
+      "to": "A",
       "total": "Totale"
     },
     "error": {

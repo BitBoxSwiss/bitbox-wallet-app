@@ -3,7 +3,7 @@ module github.com/BitBoxSwiss/bitbox-wallet-app
 go 1.22
 
 require (
-	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240726181108-383ad4bcada4
+	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240902202653-e992b2289ebe
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519
 	github.com/btcsuite/btcd v0.24.2
 	github.com/btcsuite/btcd/btcec/v2 v2.3.4
