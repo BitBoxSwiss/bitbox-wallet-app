@@ -18,7 +18,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/stretchr/testify v1.9.0
-	go.etcd.io/bbolt v1.3.10
+	go.etcd.io/bbolt v1.3.11
 	golang.org/x/crypto v0.27.0
 	golang.org/x/mobile v0.0.0-20240716161057-1ad2df20a8b6
 	golang.org/x/net v0.29.0
