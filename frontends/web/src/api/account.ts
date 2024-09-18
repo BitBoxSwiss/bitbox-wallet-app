@@ -377,8 +377,8 @@ export interface IFeeTarget {
 }
 
 export interface IFeeTargetList {
-    feeTargets: IFeeTarget[],
-    defaultFeeTarget: FeeTargetCode
+    feeTargets: IFeeTarget[];
+    defaultFeeTarget: FeeTargetCode;
 }
 
 export const getFeeTargetList = (code: AccountCode): Promise<IFeeTargetList> => {
@@ -446,7 +446,7 @@ export const connectKeystore = (code: AccountCode): Promise<{ success: boolean; 
 export type TSignMessage = { success: false, aborted?: boolean; errorMessage?: string; } | { success: true; signature: string; }
 
 export type TSignWalletConnectTx = {
-  success: false,
+  success: false;
   aborted?: boolean;
   errorMessage?: string;
 } | {
