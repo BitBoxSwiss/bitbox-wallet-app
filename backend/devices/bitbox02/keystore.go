@@ -336,6 +336,14 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
 		})
 
+		var bip352Pubkey []byte
+		if btcProposedTx.TXProposal.SilentPaymentAddress != "" {
+			var err error
+			bip352Pubkey, err = inputAddress.BIP352Pubkey()
+			if err != nil {
+				return err
+			}
+		}
 		inputs[inputIndex] = &firmware.BTCTxInput{
 			Input: &messages.BTCSignInputRequest{
 				PrevOutHash:       txIn.PreviousOutPoint.Hash[:],
@@ -345,6 +353,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 				Keypath:           inputAddress.Configuration.AbsoluteKeypath().ToUInt32(),
 				ScriptConfigIndex: uint32(scriptConfigIndex),
 			},
+			BIP352Pubkey: bip352Pubkey,
 		}
 	}
 
@@ -354,24 +363,34 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	// the output signing requests.
 	outputs := make([]*messages.BTCSignOutputRequest, len(tx.TxOut))
 	for index, txOut := range tx.TxOut {
-		outputAddress, err := util.AddressFromPkScript(txOut.PkScript, coin.Net())
-		if err != nil {
-			return err
-		}
 		var msgOutputType messages.BTCOutputType
-		switch outputAddress.(type) {
-		case *btcutil.AddressPubKeyHash:
-			msgOutputType = messages.BTCOutputType_P2PKH
-		case *btcutil.AddressScriptHash:
-			msgOutputType = messages.BTCOutputType_P2SH
-		case *btcutil.AddressWitnessPubKeyHash:
-			msgOutputType = messages.BTCOutputType_P2WPKH
-		case *btcutil.AddressWitnessScriptHash:
-			msgOutputType = messages.BTCOutputType_P2WSH
-		case *btcutil.AddressTaproot:
-			msgOutputType = messages.BTCOutputType_P2TR
-		default:
-			return errp.Newf("unsupported output type: %v", outputAddress)
+		var payload []byte
+		var silentPayment *messages.BTCSignOutputRequest_SilentPayment
+		isSilentPaymentOutput := index == btcProposedTx.TXProposal.OutIndex && btcProposedTx.TXProposal.SilentPaymentAddress != ""
+		if isSilentPaymentOutput {
+			silentPayment = &messages.BTCSignOutputRequest_SilentPayment{
+				Address: btcProposedTx.TXProposal.SilentPaymentAddress,
+			}
+		} else {
+			outputAddress, err := util.AddressFromPkScript(txOut.PkScript, coin.Net())
+			if err != nil {
+				return err
+			}
+			switch outputAddress.(type) {
+			case *btcutil.AddressPubKeyHash:
+				msgOutputType = messages.BTCOutputType_P2PKH
+			case *btcutil.AddressScriptHash:
+				msgOutputType = messages.BTCOutputType_P2SH
+			case *btcutil.AddressWitnessPubKeyHash:
+				msgOutputType = messages.BTCOutputType_P2WPKH
+			case *btcutil.AddressWitnessScriptHash:
+				msgOutputType = messages.BTCOutputType_P2WSH
+			case *btcutil.AddressTaproot:
+				msgOutputType = messages.BTCOutputType_P2TR
+			default:
+				return errp.Newf("unsupported output type: %v", outputAddress)
+			}
+			payload = outputAddress.ScriptAddress()
 		}
 
 		// Could also determine change using `outputAddress != nil AND second-to-last keypath element of outputAddress is 1`.
@@ -408,9 +427,10 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			Ours:              isOurs,
 			Type:              msgOutputType,
 			Value:             uint64(txOut.Value),
-			Payload:           outputAddress.ScriptAddress(),
+			Payload:           payload,
 			Keypath:           keypath,
 			ScriptConfigIndex: uint32(scriptConfigIndex),
+			SilentPayment:     silentPayment,
 		}
 	}
 
@@ -464,7 +484,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		outputs[btcProposedTx.TXProposal.OutIndex].PaymentRequestIndex = &prIndex
 	}
 
-	signatures, _, err := keystore.device.BTCSign(
+	signatures, generatedOutputs, err := keystore.device.BTCSign(
 		msgCoin,
 		scriptConfigs,
 		&firmware.BTCTx{
@@ -481,6 +501,13 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	}
 	if err != nil {
 		return err
+	}
+	for index, generatedOutput := range generatedOutputs {
+		isSilentPaymentOutput := index == btcProposedTx.TXProposal.OutIndex && btcProposedTx.TXProposal.SilentPaymentAddress != ""
+		if !isSilentPaymentOutput {
+			return errp.New("expected silent payment output")
+		}
+		btcProposedTx.TXProposal.Transaction.TxOut[index].PkScript = generatedOutput
 	}
 	for index, signature := range signatures {
 		btcProposedTx.Signatures[index] = &types.Signature{

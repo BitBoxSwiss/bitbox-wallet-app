@@ -138,9 +138,15 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 
 	account.log.Debug("Prepare new transaction")
 
-	pkScript, err := account.coin.AddressToPkScript(args.RecipientAddress)
-	if err != nil {
-		return nil, nil, err
+	var outputInfo *maketx.OutputInfo
+	if err := account.coin.ValidateSilentPaymentAddress(args.RecipientAddress); err == nil {
+		outputInfo = maketx.NewOutputInfoSilentPayment(args.RecipientAddress)
+	} else {
+		pkScript, err := account.coin.AddressToPkScript(args.RecipientAddress)
+		if err != nil {
+			return nil, nil, err
+		}
+		outputInfo = maketx.NewOutputInfo(pkScript)
 	}
 	utxo, err := account.transactions.SpendableOutputs()
 	if err != nil {
@@ -173,7 +179,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		txProposal, err = maketx.NewTxSpendAll(
 			account.coin,
 			wireUTXO,
-			pkScript,
+			outputInfo,
 			feeRatePerKb,
 			account.log,
 		)
@@ -199,12 +205,12 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		if err != nil {
 			return nil, nil, err
 		}
-		txOut := wire.NewTxOut(parsedAmountInt64, pkScript)
 		account.log.Infof("Change address script type: %s", changeAddress.Configuration.ScriptType())
 		txProposal, err = maketx.NewTx(
 			account.coin,
 			wireUTXO,
-			txOut,
+			outputInfo,
+			parsedAmountInt64,
 			feeRatePerKb,
 			changeAddress,
 			account.log,

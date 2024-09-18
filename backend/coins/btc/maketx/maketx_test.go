@@ -104,7 +104,8 @@ func (s *newTxSuite) newTx(
 	return maketx.NewTx(
 		s.coin,
 		utxo,
-		s.output(amount),
+		maketx.NewOutputInfo(s.outputPkScript),
+		int64(amount),
 		feePerKb,
 		s.changeAddress,
 		s.log,
