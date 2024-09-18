@@ -56,10 +56,10 @@ type TxProposalArgs struct {
 	Amount           coin.SendAmount
 	FeeTargetCode    FeeTargetCode
 	// Only applies if FeeTargetCode == Custom. It is provided in sat/vB for BTC/LTC and Gwei for ETH.
-	CustomFee       string
-	SelectedUTXOs   map[wire.OutPoint]struct{}
-	Note            string
-	PaymentRequests []*PaymentRequest
+	CustomFee      string
+	SelectedUTXOs  map[wire.OutPoint]struct{}
+	Note           string
+	PaymentRequest *PaymentRequest
 }
 
 // Interface is the API of a Account.

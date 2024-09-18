@@ -455,10 +455,12 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	}
 
 	var btcPaymentRequests []*messages.BTCPaymentRequestRequest
-	for prIndex, paymentRequest := range btcProposedTx.TXProposal.PaymentRequest {
-		btcPR := newBTCPaymentRequest(paymentRequest)
-		btcPaymentRequests = append(btcPaymentRequests, btcPR)
-		prIndex := uint32(prIndex)
+	paymentRequest := btcProposedTx.TXProposal.PaymentRequest
+	if paymentRequest != nil {
+		btcPaymentRequests = []*messages.BTCPaymentRequestRequest{
+			newBTCPaymentRequest(paymentRequest),
+		}
+		prIndex := uint32(0)
 		for outIndex, txOut := range tx.TxOut {
 			if paymentRequest.TxOut == txOut {
 				// outputs indexing is the same as tx.TxOut
