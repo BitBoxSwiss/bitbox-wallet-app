@@ -35,6 +35,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/sirupsen/logrus"
@@ -274,12 +275,38 @@ func (coin *Coin) decodeAddress(address string) (btcutil.Address, error) {
 
 // AddressToPkScript decodes a btc/ltc address, checking that the format matches the account coin
 // type, returning the pubKeyScript the address represents.
+//
+// For silent payment (BIP-352) addresses, `nil` is returned, as it does not encode a pubKeyScript -
+// the pubKeyScript is derived from it later.
 func (coin *Coin) AddressToPkScript(address string) ([]byte, error) {
 	addr, err := coin.decodeAddress(address)
 	if err != nil {
 		return nil, err
 	}
 	return util.PkScriptFromAddress(addr)
+}
+
+// ValidateSilentPaymentAddress checks if the address is a valid silent payment (BIP-352) address
+// matching the account coin type.
+func (coin *Coin) ValidateSilentPaymentAddress(address string) error {
+	hrp, _, _, err := firmware.DecodeSilentPaymentAddress(address)
+	if err != nil {
+		return err
+	}
+	var expectedHrp string
+	switch coin.Net().Net {
+	case chaincfg.MainNetParams.Net:
+		expectedHrp = "sp"
+	case chaincfg.TestNet3Params.Net:
+		expectedHrp = "tsp"
+	default:
+		return errp.WithStack(errors.ErrInvalidAddress)
+	}
+
+	if hrp != expectedHrp {
+		return errp.WithStack(errors.ErrInvalidAddress)
+	}
+	return nil
 }
 
 // Close implements coinpkg.Coin.

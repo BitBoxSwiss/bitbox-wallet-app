@@ -225,5 +225,20 @@ func (s *testSuite) TestAddressToPkScript() {
 		_, err := s.coin.AddressToPkScript(test.address)
 		s.Require().Equal(errors.ErrInvalidAddress, errp.Cause(err), test.address)
 	}
+}
 
+func (s *testSuite) TestValidateSilentPaymentAddress() {
+	validBTC := "sp1qqgste7k9hx0qftg6qmwlkqtwuy6cycyavzmzj85c6qdfhjdpdjtdgqjuexzk6murw56suy3e0rd2cgqvycxttddwsvgxe2usfpxumr70xc9pkqwv"
+	validTBTC := "tsp1qqgste7k9hx0qftg6qmwlkqtwuy6cycyavzmzj85c6qdfhjdpdjtdgqjuexzk6murw56suy3e0rd2cgqvycxttddwsvgxe2usfpxumr70xc3wk4yh"
+	switch s.code {
+	case coin.CodeTBTC:
+		s.Require().NoError(s.coin.ValidateSilentPaymentAddress(validTBTC))
+		s.Require().Error(s.coin.ValidateSilentPaymentAddress(validBTC))
+	case coin.CodeBTC:
+		s.Require().NoError(s.coin.ValidateSilentPaymentAddress(validBTC))
+		s.Require().Error(s.coin.ValidateSilentPaymentAddress(validTBTC))
+	default:
+		s.Require().Error(s.coin.ValidateSilentPaymentAddress(validBTC))
+		s.Require().Error(s.coin.ValidateSilentPaymentAddress(validTBTC))
+	}
 }
