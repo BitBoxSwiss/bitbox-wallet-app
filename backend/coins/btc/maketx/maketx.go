@@ -55,7 +55,7 @@ type TxProposal struct {
 	// ChangeAddress is the address of the wallet to which the change of the transaction is sent.
 	ChangeAddress   *addresses.AccountAddress
 	PreviousOutputs PreviousOutputs
-	PaymentRequest  []*accounts.PaymentRequest
+	PaymentRequest  *accounts.PaymentRequest
 }
 
 // SigHashes computes the hashes cache to speed up per-input sighash computations.

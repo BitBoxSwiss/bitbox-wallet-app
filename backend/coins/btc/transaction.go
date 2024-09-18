@@ -221,7 +221,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		if args.PaymentRequest != nil {
 			account.log.Info("Payment request tx proposal")
 			args.PaymentRequest.TxOut = txOut
-			txProposal.PaymentRequest = append(txProposal.PaymentRequest, args.PaymentRequest)
+			txProposal.PaymentRequest = args.PaymentRequest
 		}
 	}
 	account.log.Debugf("creating tx with %d inputs, %d outputs",
