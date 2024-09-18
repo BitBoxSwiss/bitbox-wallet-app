@@ -464,7 +464,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		outputs[btcProposedTx.TXProposal.OutIndex].PaymentRequestIndex = &prIndex
 	}
 
-	signatures, err := keystore.device.BTCSign(
+	signatures, _, err := keystore.device.BTCSign(
 		msgCoin,
 		scriptConfigs,
 		&firmware.BTCTx{
