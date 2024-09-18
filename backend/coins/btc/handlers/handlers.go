@@ -420,12 +420,12 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		SendAll   string `json:"sendAll"`
 		FeeTarget string `json:"feeTarget"`
 		// Provided in Sat/vByte for BTC/LTC and in Gwei for ETH.
-		CustomFee       string         `json:"customFee"`
-		Amount          string         `json:"amount"`
-		SelectedUTXOS   []string       `json:"selectedUTXOS"`
-		Note            string         `json:"note"`
-		Counter         int            `json:"counter"`
-		PaymentRequests *slip24Request `json:"paymentRequest"`
+		CustomFee      string         `json:"customFee"`
+		Amount         string         `json:"amount"`
+		SelectedUTXOS  []string       `json:"selectedUTXOS"`
+		Note           string         `json:"note"`
+		Counter        int            `json:"counter"`
+		PaymentRequest *slip24Request `json:"paymentRequest"`
 	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
@@ -453,8 +453,8 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		input.SelectedUTXOs[*outPoint] = struct{}{}
 	}
 	input.Note = jsonBody.Note
-	if jsonBody.PaymentRequests != nil {
-		paymentRequest, err := jsonBody.PaymentRequests.toPaymentRequest()
+	if jsonBody.PaymentRequest != nil {
+		paymentRequest, err := jsonBody.PaymentRequest.toPaymentRequest()
 		if err != nil {
 			return err
 		}
