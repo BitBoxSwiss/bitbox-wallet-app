@@ -20,8 +20,11 @@ import BB02StylizedDark from '@/assets/device/bitbox02-stylized-reflection-dark.
 import BB02StylizedLight from '@/assets/device/bitbox02-stylized-reflection-light.png';
 import info from './assets/icons/info.svg';
 import arrowDownSVG from './assets/icons/arrow-down-active.svg';
+import arrowDownGreenSVG from './assets/icons/arrow-down-green.svg';
 import arrowDownRedSVG from './assets/icons/arrow-down-red.svg';
+import arrowRightGraySVG from './assets/icons/arrow-right-gray.svg';
 import arrowUpGreenSVG from './assets/icons/arrow-up-green.svg';
+import arrowUpRedSVG from './assets/icons/arrow-up-red.svg';
 import arrowCircleLeftSVG from './assets/icons/arrow-circle-left.svg';
 import arrowCircleLeftActiveSVG from './assets/icons/arrow-circle-left-active.svg';
 import arrowCircleRightSVG from './assets/icons/arrow-circle-right.svg';
@@ -144,8 +147,11 @@ export const ExpandIcon = ({
 type ImgProps = JSX.IntrinsicElements['img'];
 
 export const ArrowDown = (props: ImgProps) => (<img src={arrowDownSVG} draggable={false} {...props} />);
+export const ArrowDownGreen = (props: ImgProps) => (<img src={arrowDownGreenSVG} draggable={false} {...props} />);
 export const ArrowDownRed = (props: ImgProps) => (<img src={arrowDownRedSVG} draggable={false} {...props} />);
+export const ArrowRightGray = (props: ImgProps) => (<img src={arrowRightGraySVG} draggable={false} {...props} />);
 export const ArrowUpGreen = (props: ImgProps) => (<img src={arrowUpGreenSVG} draggable={false} {...props} />);
+export const ArrowUpRed = (props: ImgProps) => (<img src={arrowUpRedSVG} draggable={false} {...props} />);
 export const ArrowCirlceLeft = (props: ImgProps) => (<img src={arrowCircleLeftSVG} draggable={false} {...props} />);
 export const ArrowCirlceLeftActive = (props: ImgProps) => (<img src={arrowCircleLeftActiveSVG} draggable={false} {...props} />);
 export const ArrowCirlceRight = (props: ImgProps) => (<img src={arrowCircleRightSVG} draggable={false} {...props} />);
