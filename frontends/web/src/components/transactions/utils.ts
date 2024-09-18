@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-import { useTranslation } from 'react-i18next';
-import { parseTimeShort } from '@/utils/date';
-import { TxDetail } from './detail';
-
-type TProps = {
-  time: string | null;
-}
-
-export const TxDateDetail = ({ time }: TProps) => {
-  const { i18n, t } = useTranslation();
-  const shortDate = time ? parseTimeShort(time, i18n.language) : '---';
-  return (
-    <TxDetail
-      label={t('transaction.details.date')}>
-      {shortDate}
-    </TxDetail>
-  );
+export const getTxSign = (type: string) => {
+  switch (type) {
+  case 'send':
+    return '−';
+  case 'receive':
+    return '+';
+  default:
+    return '';
+  }
 };

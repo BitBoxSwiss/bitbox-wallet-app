@@ -1,6 +1,5 @@
 /**
- * Copyright 2018 Shift Devices AG
- * Copyright 2021-2024 Shift Crypto AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,117 +14,231 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as accountApi from '@/api/account';
-import { FiatConversion } from '@/components/rates/rates';
+import type { IAmount, TTransactionStatus, TTransactionType, ITransaction } from '@/api/account';
+import { RatesContext } from '@/contexts/RatesContext';
+import { useMediaQuery } from '@/hooks/mediaquery';
+import { Loupe } from '@/components/icon/icon';
+import { parseTimeLong, parseTimeShort } from '@/utils/date';
+import { ProgressRing } from '@/components/progressRing/progressRing';
 import { Amount } from '@/components/amount/amount';
-import { Arrow } from './components/arrow';
-import { TxDate } from './components/date';
-import { TxStatus } from './components/status';
-import { ShowDetailsButton } from './components/show-details-button';
-import { TxAddress } from './components/address-or-txid';
-import { TxDetailsDialog } from './components/details';
-import parentStyle from './transactions.module.css';
-import style from './transaction.module.css';
+import { Arrow } from './components/arrows';
+import { getTxSign } from './utils';
+import styles from './transaction.module.css';
 
-type Props = {
-  accountCode: accountApi.AccountCode;
-  index: number;
-  explorerURL: string;
-} & accountApi.ITransaction;
+type TTransactionProps = ITransaction & {
+  onShowDetail: (internalID: ITransaction['internalID']) => void
+}
 
 export const Transaction = ({
-  accountCode,
-  index,
-  internalID,
-  explorerURL,
-  type,
+  addresses,
   amount,
+  onShowDetail,
+  internalID,
+  note,
   numConfirmations,
   numConfirmationsComplete,
-  time,
-  addresses,
   status,
-  note = '',
-}: Props) => {
-  const { t } = useTranslation();
-  const [transactionDialog, setTransactionDialog] = useState<boolean>(false);
-
-  const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
-  const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
+  time,
+  type,
+}: TTransactionProps) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   return (
-    <div className={`${style.container} ${index === 0 ? style.first : ''}`}>
-      <div className={`${parentStyle.columns} ${style.row}`}>
-        <div className={parentStyle.columnGroup}>
-          <div className={parentStyle.type}>
-            <Arrow
-              status={status}
-              type={type}
-            />
-          </div>
-          <TxDate time={time} />
-          {note ? (
-            <div className={parentStyle.activity}>
-              <span className={style.address}>
-                {note}
-              </span>
-            </div>
-          ) : (
-            <TxAddress
-              label={t(type === 'receive' ? 'transaction.tx.received' : 'transaction.tx.sent')}
-              addresses={addresses}
-            />
-          )}
-          <ShowDetailsButton
-            onClick={() => setTransactionDialog(true)}
-            expand={!transactionDialog}
-            hideOnMedium
-          />
-        </div>
-        <div className={parentStyle.columnGroup}>
-          <TxStatus
-            status={status}
-            numConfirmations={numConfirmations}
-            numConfirmationsComplete={numConfirmationsComplete}
-          />
-          <div className={parentStyle.fiat}>
-            <span className={`${style.fiat} ${typeClassName}`}>
-              <FiatConversion amount={amount} sign={sign} noAction />
-            </span>
-          </div>
-          <div className={`${parentStyle.currency} ${typeClassName}`}>
-            <span
-              className={`${style.amount} ${style.amountOverflow}`}
-              data-unit={` ${amount.unit}`}>
-              {sign}
-              <Amount amount={amount.amount} unit={amount.unit}/>
-              <span className={style.currencyUnit}>&nbsp;{amount.unit}</span>
-            </span>
-          </div>
-          <ShowDetailsButton
-            onClick={() => setTransactionDialog(true)}
-            expand={!transactionDialog}
-          />
-        </div>
+    <section className={styles.tx}
+      onClick={() => {
+        if (isMobile) {
+          onShowDetail(internalID);
+        }
+      }}>
+      <div className={styles.txContent}>
+        <span className={styles.txIcon}>
+          <Arrow status={status} type={type} />
+        </span>
+        <Status
+          addresses={addresses}
+          note={note}
+          numConfirmations={numConfirmations}
+          numConfirmationsComplete={numConfirmationsComplete}
+          status={status}
+          time={time}
+          type={type}
+        />
+        <Amounts amount={amount} type={type} />
+        <button
+          className={styles.txShowDetailBtn}
+          onClick={() => !isMobile && onShowDetail(internalID)}
+          type="button">
+          <Loupe className={styles.iconLoupe} />
+        </button>
       </div>
-      <TxDetailsDialog
-        open={transactionDialog}
-        onClose={() => setTransactionDialog(false)}
-        accountCode={accountCode}
-        internalID={internalID}
-        note={note}
-        status={status}
-        type={type}
-        numConfirmations={numConfirmations}
-        numConfirmationsComplete={numConfirmationsComplete}
-        time={time}
-        amount={amount}
-        sign={sign}
-        typeClassName={typeClassName}
-        explorerURL={explorerURL}
-      />
-    </div>
+    </section>
+  );
+};
+
+type TStatus = {
+  addresses: string[];
+  note?: ITransaction['note'];
+  numConfirmations: number;
+  numConfirmationsComplete: number;
+  status: TTransactionStatus;
+  time?: string | null;
+  type: TTransactionType;
+}
+
+const Status = ({
+  addresses,
+  note,
+  numConfirmations,
+  numConfirmationsComplete,
+  status,
+  time,
+  type,
+}: TStatus) => {
+  const { t } = useTranslation();
+  const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
+  const isComplete = numConfirmations >= numConfirmationsComplete;
+  // keep the progress ring for one more confirmation so it shows complete
+  const showProgress = !isComplete || numConfirmations === numConfirmationsComplete;
+
+  return (
+    <span className={styles.txInfoColumn}>
+      <span className={styles.txNote}>
+        {note || (
+          <Addresses
+            addresses={addresses}
+            status={status}
+            type={type}
+          />
+        )}
+      </span>
+      {(showProgress) && (
+        <span className={styles.txProgress}>
+          <span className={styles.txProgressText}>
+            {t(`transaction.status.${status}`, {
+              context: type
+            })}
+          </span>
+          <ProgressRing
+            className={styles.iconProgress}
+            width={18}
+            value={progress}
+            isComplete={isComplete}
+          />
+        </span>
+      )}
+      {' '}
+      {isComplete && !showProgress && time && (
+        <Date time={time} />
+      )}
+    </span>
+  );
+};
+
+type TAmountsProps = {
+  amount: IAmount;
+  type: TTransactionType;
+}
+
+const Amounts = ({
+  amount,
+  type,
+}: TAmountsProps) => {
+  const { defaultCurrency } = useContext(RatesContext);
+  const conversion = amount?.conversions && amount?.conversions[defaultCurrency];
+  const sign = getTxSign(type);
+  return (
+    <span className={styles.txAmountsColumn}>
+      {/* <data value={amount.amount}> */}
+      <span className={styles.txAmount}>
+        {sign}
+        <Amount amount={amount.amount} unit={amount.unit} />
+        <span className={styles.txUnit}>
+          {' '}
+          {amount.unit}
+        </span>
+      </span>
+      {/* </data> */}
+      { conversion ? (
+        <span className={styles.txConversionAmount}>
+          {sign}
+          <Amount amount={conversion} unit={defaultCurrency} />
+          <span className={styles.txUnit}>
+            {' '}
+            {defaultCurrency}
+          </span>
+        </span>
+      ) : null }
+    </span>
+  );
+};
+
+// <time dateTime="2018-07-07">July 7</time>
+
+type TDateProps = {
+  time: string | null;
+}
+
+const Date = ({
+  time,
+}: TDateProps) => {
+  const { i18n } = useTranslation();
+  if (!time) {
+    return '---';
+  }
+  return (
+    <span className={styles.txDate}>
+      <span className={styles.txDateShort}>
+        {parseTimeShort(time, i18n.language)}
+      </span>
+      <span className={styles.txDateLong}>
+        {parseTimeLong(time, i18n.language)}
+      </span>
+    </span>
+  );
+};
+
+type TAddresses = {
+  addresses: ITransaction['addresses'];
+  hidden?: boolean;
+  status: TTransactionStatus;
+  type: TTransactionType;
+}
+
+const Addresses = ({
+  addresses,
+  hidden = false,
+  status,
+  type,
+}: TAddresses) => {
+  const { t } = useTranslation();
+  const label = (
+    type === 'receive'
+      ? t('transaction.tx.receive', {
+        context: status
+      })
+      : t('transaction.tx.send', {
+        context: status
+      })
+    // TODO: support failed
+  );
+
+  return (
+    <span hidden={hidden}>
+      <span>
+        {label}
+      </span>
+      {' '}
+      <span className={styles.addresses}>
+        {addresses[0]}
+        {addresses.length > 1 && (
+          <span>
+            {' '}
+            (+{addresses.length - 1})
+          </span>
+        )}
+      </span>
+    </span>
   );
 };

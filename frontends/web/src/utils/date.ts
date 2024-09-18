@@ -36,3 +36,17 @@ export const parseTimeShort = (time: string, lang: string) => {
   };
   return new Date(Date.parse(time)).toLocaleString(lang, options);
 };
+
+export const parseTimeLong = (
+  time: string,
+  locale: string
+) => {
+  return (
+    new Date(Date.parse(time))
+      .toLocaleString(locale, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+  );
+};
