@@ -59,6 +59,7 @@ import eyeOpenedDarkSVG from './assets/icons/eye-opened-dark.svg';
 import globeDarkSVG from './assets/icons/globe-dark.svg';
 import globeLightSVG from './assets/icons/globe-light.svg';
 import guideSVG from './assets/icons/guide.svg';
+import loupeSVG from './assets/icons/loupe.svg';
 import menuDarkSVG from './assets/icons/menu-dark.svg';
 import menuLightSVG from './assets/icons/menu-light.svg';
 import walletConnectDarkSVG from './assets/icons/wallet-connect-dark.svg';
@@ -187,6 +188,7 @@ export const GlobeLight = (props: ImgProps) => (<img src={globeLightSVG} draggab
 export const GreenDot = (props: ImgProps) => (<img src={greenDotSVG} draggable={false} {...props} />);
 export const GuideActive = (props: ImgProps) => (<img src={guideSVG} draggable={false} {...props} />);
 export const Info = (props: ImgProps) => (<img src={info} draggable={false} {...props} />);
+export const Loupe = (props: ImgProps) => (<img src={loupeSVG} draggable={false} {...props} />);
 export const MenuDark = (props: ImgProps) => (<img src={menuDarkSVG} draggable={false} {...props} />);
 export const MenuLight = (props: ImgProps) => (<img src={menuLightSVG} draggable={false} {...props} />);
 export const OrangeDot = (props: ImgProps) => (<img src={orangeDotSVG} draggable={false} {...props} />);

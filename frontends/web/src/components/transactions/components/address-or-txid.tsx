@@ -15,34 +15,7 @@
  */
 
 import { CopyableInput } from '@/components/copy/Copy';
-import transactionStyle from '@/components/transactions/transactions.module.css';
-import parentStyle from '@/components/transactions/transaction.module.css';
-
-type TPropsTxAddress = {
-  label: string;
-  addresses: string[];
-}
-
-export const TxAddress = ({
-  label,
-  addresses,
-}: TPropsTxAddress) => {
-  return (
-    <div className={transactionStyle.activity}>
-      <span className={parentStyle.label}>
-        {label}
-      </span>
-      <span className={parentStyle.address}>
-        {addresses[0]}
-        {addresses.length > 1 && (
-          <span className={parentStyle.badge}>
-                    (+{addresses.length - 1})
-          </span>
-        )}
-      </span>
-    </div>
-  );
-};
+import styles from './details.module.css';
 
 type TPropsTxDetailCopyableValues = {
   label: string;
@@ -54,16 +27,16 @@ export const TxDetailCopyableValues = ({
   values,
 }: TPropsTxDetailCopyableValues) => {
   return (
-    <div className={`${parentStyle.detail} ${parentStyle.addresses}`}>
+    <div className={`${styles.detail} ${styles.addresses}`}>
       <label>{label}</label>
-      <div className={parentStyle.detailAddresses}>
+      <div className={styles.detailAddresses}>
         {values.map((addrOrTxID) => (
           <CopyableInput
             key={addrOrTxID}
             alignRight
             borderLess
             flexibleHeight
-            className={parentStyle.detailAddress}
+            className={styles.detailAddress}
             value={addrOrTxID}
           />
         ))}

@@ -1758,11 +1758,26 @@
     "status": {
       "complete": "Complete",
       "failed": "Failed",
-      "pending": "Pending"
+      "pending": "Pending",
+      "pending_receive": "Incoming transaction",
+      "pending_send": "Outgoing transaction",
+      "pending_send_to_self": "Pending transaction"
+    },
+    "statusShort": {
+      "complete": "Complete",
+      "failed": "Failed",
+      "pending": "Pending",
+      "pending_receive": "Incoming",
+      "pending_send": "Outgoing",
+      "pending_send_to_self": "Pending"
     },
     "tx": {
-      "received": "Received to",
-      "sent": "Sent to"
+      "receive_complete": "Received to",
+      "receive_failed": "Failed receiving to",
+      "receive_pending": "Received to",
+      "send_complete": "Sent to",
+      "send_failed": "Failed sending to",
+      "send_pending": "Sent to"
     },
     "vsize": "Virtual size",
     "weight": "Weight"

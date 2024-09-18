@@ -3,6 +3,7 @@
 ## Unreleased
 - Android: enable export logs feature
 - Label UTXOs that were created as change, as such, in coin control
+- Revamp transaction history in account overview to improve legibility
 
 # 4.45.0
 - Bundle BitBox02 firmware version v9.21.0
