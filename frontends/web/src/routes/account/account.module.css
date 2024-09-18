@@ -90,6 +90,19 @@
     margin-right: var(--space-eight);
 }
 
+.titleWithButton {
+    align-items: baseline;
+    color: var(--color-secondary);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-quarter) !important; /* overwrite default subTitle margin */
+}
+.titleWithButton button {
+    padding-left: var(--space-half);
+    padding-right: 0;
+    text-align: right;
+}
+
 @media (max-width: 768px) {
 
     .accountInfoLink {

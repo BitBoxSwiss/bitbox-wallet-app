@@ -28,17 +28,17 @@ export const Arrow = ({ status, type }: TProps) => {
       <Warning style={{ maxWidth: '18px' }} />
     );
   }
-  if (type === 'receive') {
+  switch (type) {
+  case 'send':
     return (
-      <ArrowUpRed style={{ maxWidth: '18px' }} />
+      <ArrowUpRed />
     );
-  }
-  if (type === 'send') {
+  case 'receive':
     return (
-      <ArrowDownGreen style={{ maxWidth: '18px' }} />
+      <ArrowDownGreen />
     );
   }
   return (
-    <ArrowRightGray style={{ maxWidth: '18px' }} />
+    <ArrowRightGray />
   );
 };

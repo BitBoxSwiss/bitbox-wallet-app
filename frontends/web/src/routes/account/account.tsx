@@ -32,7 +32,6 @@ import { Info } from '@/components/icon';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Status } from '@/components/status/status';
-import { Transactions } from '@/components/transactions/transactions';
 import { useLoad } from '@/hooks/api';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ActionButtons } from './actionButtons';
@@ -48,6 +47,10 @@ import { getConfig, setConfig } from '@/utils/config';
 import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { Transaction } from '@/components/transactions/transaction';
+import { TransactionDetails } from '@/components/transactions/details';
+import { Button } from '@/components/forms';
+import { SubTitle } from '@/components/title';
 import style from './account.module.css';
 
 type Props = {
@@ -71,7 +74,10 @@ export const Account = ({
   const [insured, setInsured] = useState<boolean>(false);
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
   const [stateCode, setStateCode] = useState<string>();
+  const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeSupported(code), [code]);
+
+  useEffect(() => setDetailID(null), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
@@ -275,6 +281,8 @@ export const Account = ({
     account
   };
 
+  const hasTransactions = transactions.success && transactions.list.length > 0;
+
   return (
     <div className="contentWithGuide">
       <div className="container">
@@ -328,12 +336,45 @@ export const Account = ({
                 balanceList={[balance]}
               />
             )}
-            {!isAccountEmpty && <Transactions
+
+            {!transactions.success ? (
+              <div className={`flex flex-row flex-center ${style.empty}`}>
+                <p>{t('transactions.errorLoadTransactions')}</p>
+              </div>
+            ) : (
+              <SubTitle className={style.titleWithButton}>
+                {t('accountSummary.transactionHistory')}
+                {hasTransactions && (
+                  <Button
+                    transparent
+                    onClick={exportAccount}
+                    title={t('account.exportTransactions')}>
+                    {t('account.export')}
+                  </Button>
+                )}
+              </SubTitle>
+            )}
+
+            {hasTransactions ? (
+              transactions.list.map(tx => (
+                <Transaction
+                  key={tx.internalID}
+                  onShowDetail={(internalID: accountApi.ITransaction['internalID']) => {
+                    setDetailID(internalID);
+                  }}
+                  {...tx}
+                />
+              ))
+            ) : transactions.success && (
+              <p>{t('transactions.placeholder')}</p>
+            )}
+
+            <TransactionDetails
               accountCode={code}
-              handleExport={exportAccount}
               explorerURL={account.blockExplorerTxPrefix}
-              transactions={transactions}
-            />}
+              internalID={detailID}
+              onClose={() => setDetailID(null)}
+            />
           </div>
         </div>
       </div>
