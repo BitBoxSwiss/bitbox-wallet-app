@@ -40,7 +40,7 @@ const unitSatoshi = 1e8
 // fee target (priority) if one is given, or the provided args.FeePerKb if the fee taret is
 // `FeeTargetCodeCustom`.
 func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amount, error) {
-	isPaymentRequest := len(args.PaymentRequests) > 0
+	isPaymentRequest := args.PaymentRequest != nil
 	if args.FeeTargetCode == accounts.FeeTargetCodeCustom && !isPaymentRequest {
 		float, err := strconv.ParseFloat(args.CustomFee, 64)
 		if err != nil {
@@ -172,7 +172,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 
 	var txProposal *maketx.TxProposal
 	if args.Amount.SendAll() {
-		if len(args.PaymentRequests) > 0 {
+		if args.PaymentRequest != nil {
 			return nil, nil, errp.New("Payment Requests do not allow send-all transaction proposals")
 		}
 		txProposal, err = maketx.NewTxSpendAll(
@@ -218,10 +218,10 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 			return nil, nil, err
 		}
 
-		for _, paymentRequest := range args.PaymentRequests {
+		if args.PaymentRequest != nil {
 			account.log.Info("Payment request tx proposal")
-			paymentRequest.TxOut = txOut
-			txProposal.PaymentRequest = append(txProposal.PaymentRequest, paymentRequest)
+			args.PaymentRequest.TxOut = txOut
+			txProposal.PaymentRequest = append(txProposal.PaymentRequest, args.PaymentRequest)
 		}
 	}
 	account.log.Debugf("creating tx with %d inputs, %d outputs",

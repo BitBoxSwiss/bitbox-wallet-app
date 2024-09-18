@@ -458,7 +458,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		if err != nil {
 			return err
 		}
-		input.PaymentRequests = append(input.PaymentRequests, paymentRequest)
+		input.PaymentRequest = paymentRequest
 	}
 	return nil
 }
