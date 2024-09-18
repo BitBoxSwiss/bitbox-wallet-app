@@ -27,6 +27,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/db/headersdb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -249,9 +250,9 @@ func (coin *Coin) SmallestUnit() string {
 	}
 }
 
-// DecodeAddress decodes a btc/ltc address, checking that the format matches the account coin
+// decodeAddress decodes a btc/ltc address, checking that the format matches the account coin
 // type.
-func (coin *Coin) DecodeAddress(address string) (btcutil.Address, error) {
+func (coin *Coin) decodeAddress(address string) (btcutil.Address, error) {
 	btcAddress, err := btcutil.DecodeAddress(address, coin.Net())
 	if err != nil {
 		return nil, errp.WithStack(errors.ErrInvalidAddress)
@@ -269,6 +270,16 @@ func (coin *Coin) DecodeAddress(address string) (btcutil.Address, error) {
 		}
 	}
 	return btcAddress, nil
+}
+
+// AddressToPkScript decodes a btc/ltc address, checking that the format matches the account coin
+// type, returning the pubKeyScript the address represents.
+func (coin *Coin) AddressToPkScript(address string) ([]byte, error) {
+	addr, err := coin.decodeAddress(address)
+	if err != nil {
+		return nil, err
+	}
+	return util.PkScriptFromAddress(addr)
 }
 
 // Close implements coinpkg.Coin.

@@ -25,7 +25,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -139,11 +138,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 
 	account.log.Debug("Prepare new transaction")
 
-	address, err := account.coin.DecodeAddress(args.RecipientAddress)
-	if err != nil {
-		return nil, nil, err
-	}
-	pkScript, err := util.PkScriptFromAddress(address)
+	pkScript, err := account.coin.AddressToPkScript(args.RecipientAddress)
 	if err != nil {
 		return nil, nil, err
 	}
