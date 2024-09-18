@@ -237,7 +237,7 @@ export const getBalance = (code: AccountCode): Promise<IBalance> => {
 };
 
 export type TTransactionStatus = 'complete' | 'pending' | 'failed';
-export type TTransactionType = 'send' | 'receive' | 'self';
+export type TTransactionType = 'send' | 'receive' | 'send_to_self';
 
 export interface ITransaction {
     addresses: string[];
