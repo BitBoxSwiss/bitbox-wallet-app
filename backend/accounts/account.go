@@ -46,8 +46,6 @@ type PaymentRequest struct {
 	Nonce         []byte
 	TotalAmount   uint64
 	Signature     []byte
-	// TxOut is a pointer to the TxOut which will satisfay the payment request.
-	TxOut *wire.TxOut
 }
 
 // TxProposalArgs are the arguments needed when creating a tx proposal.

@@ -56,6 +56,8 @@ type TxProposal struct {
 	ChangeAddress   *addresses.AccountAddress
 	PreviousOutputs PreviousOutputs
 	PaymentRequest  *accounts.PaymentRequest
+	// OutIndex is the index of the output we send to.
+	OutIndex int
 }
 
 // SigHashes computes the hashes cache to speed up per-input sighash computations.
@@ -192,6 +194,8 @@ func NewTxSpendAll(
 		Fee:             maxRequiredFee,
 		Transaction:     unsignedTransaction,
 		PreviousOutputs: previousOutputs,
+		// Only one output in send-all
+		OutIndex: 0,
 	}, nil
 }
 
@@ -269,6 +273,17 @@ func NewTx(
 
 		log.WithField("fee", finalFee).Debug("Preparing transaction")
 
+		outIndex := -1
+		for i, txOut := range unsignedTransaction.TxOut {
+			if txOut == output {
+				outIndex = i
+				break
+			}
+		}
+		if outIndex == -1 {
+			return nil, errp.New("could not identify output")
+		}
+
 		setRBF(coin, unsignedTransaction)
 		return &TxProposal{
 			Coin:            coin,
@@ -277,6 +292,7 @@ func NewTx(
 			Transaction:     unsignedTransaction,
 			ChangeAddress:   changeAddress,
 			PreviousOutputs: previousOutputs,
+			OutIndex:        outIndex,
 		}, nil
 	}
 }

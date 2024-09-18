@@ -220,7 +220,6 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 
 		if args.PaymentRequest != nil {
 			account.log.Info("Payment request tx proposal")
-			args.PaymentRequest.TxOut = txOut
 			txProposal.PaymentRequest = args.PaymentRequest
 		}
 	}
