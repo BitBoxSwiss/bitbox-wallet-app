@@ -1,5 +1,6 @@
 import style from './icons.module.css';
 
+// TODO: delete
 export const ArrowIn = () => (
   <svg
     className={`${style.txArrowType} ${style.txArrowTypeIn}`}
