@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Bitcoin: add support for sending to silent payment (BIP-352) addresses
 
 ## 4.44.0
 - Bundle BitBox02 firmware version v9.20.0

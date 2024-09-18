@@ -56,6 +56,9 @@ type TxProposal struct {
 	ChangeAddress   *addresses.AccountAddress
 	PreviousOutputs PreviousOutputs
 	PaymentRequest  *accounts.PaymentRequest
+	// If not empty, we are sending to a silent payment recipient. The keystore needs access to this
+	// to be able to generate the silent payment output. See BIP-352.
+	SilentPaymentAddress string
 	// OutIndex is the index of the output we send to.
 	OutIndex int
 }
@@ -145,11 +148,35 @@ func setRBF(coin coinpkg.Coin, tx *wire.MsgTx) {
 	}
 }
 
+// OutputInfo carries info for the transaction output script sending funds to the recipient.
+type OutputInfo struct {
+	silentPaymentAddress string
+	pkScript             []byte
+}
+
+func (o *OutputInfo) pkScriptLen() int {
+	if o.silentPaymentAddress != "" {
+		// Length of a Taproot output, which a silent payment output will result in.
+		return 34
+	}
+	return len(o.pkScript)
+}
+
+// NewOutputInfoSilentPayment creates an output info when sending to a silent payment address.
+func NewOutputInfoSilentPayment(address string) *OutputInfo {
+	return &OutputInfo{silentPaymentAddress: address}
+}
+
+// NewOutputInfo creates an output info when sending directly to a pubkey script.
+func NewOutputInfo(pkScript []byte) *OutputInfo {
+	return &OutputInfo{pkScript: pkScript}
+}
+
 // NewTxSpendAll creates a transaction which spends all available unspent outputs.
 func NewTxSpendAll(
 	coin coinpkg.Coin,
 	spendableOutputs map[wire.OutPoint]UTXO,
-	outputPkScript []byte,
+	outputInfo *OutputInfo,
 	feePerKb btcutil.Amount,
 	log *logrus.Entry,
 ) (*TxProposal, error) {
@@ -168,13 +195,13 @@ func NewTxSpendAll(
 	}
 	txSize := estimateTxSize(
 		toInputConfigurations(spendableOutputs, selectedOutPoints),
-		len(outputPkScript),
+		outputInfo.pkScriptLen(),
 		0)
 	maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
 	if outputsSum < maxRequiredFee {
 		return nil, errp.WithStack(errors.ErrInsufficientFunds)
 	}
-	output := wire.NewTxOut(int64(outputsSum-maxRequiredFee), outputPkScript)
+	output := wire.NewTxOut(int64(outputsSum-maxRequiredFee), outputInfo.pkScript)
 	unsignedTransaction := &wire.MsgTx{
 		Version:  wire.TxVersion,
 		TxIn:     inputs,
@@ -189,11 +216,12 @@ func NewTxSpendAll(
 
 	setRBF(coin, unsignedTransaction)
 	return &TxProposal{
-		Coin:            coin,
-		Amount:          btcutil.Amount(output.Value),
-		Fee:             maxRequiredFee,
-		Transaction:     unsignedTransaction,
-		PreviousOutputs: previousOutputs,
+		Coin:                 coin,
+		Amount:               btcutil.Amount(output.Value),
+		Fee:                  maxRequiredFee,
+		Transaction:          unsignedTransaction,
+		PreviousOutputs:      previousOutputs,
+		SilentPaymentAddress: outputInfo.silentPaymentAddress,
 		// Only one output in send-all
 		OutIndex: 0,
 	}, nil
@@ -206,11 +234,14 @@ func NewTxSpendAll(
 func NewTx(
 	coin coinpkg.Coin,
 	spendableOutputs map[wire.OutPoint]UTXO,
-	output *wire.TxOut,
+	outputInfo *OutputInfo,
+	outputAmount int64,
 	feePerKb btcutil.Amount,
 	changeAddress *addresses.AccountAddress,
 	log *logrus.Entry,
 ) (*TxProposal, error) {
+	output := wire.NewTxOut(outputAmount, outputInfo.pkScript)
+
 	targetAmount := btcutil.Amount(output.Value)
 	if targetAmount <= 0 {
 		panic("amount must be positive")
@@ -230,7 +261,7 @@ func NewTx(
 
 		txSize := estimateTxSize(
 			toInputConfigurations(spendableOutputs, selectedOutPoints),
-			len(output.PkScript),
+			outputInfo.pkScriptLen(),
 			len(changePKScript))
 		maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
 		if selectedOutputsSum-targetAmount < maxRequiredFee {
@@ -286,13 +317,14 @@ func NewTx(
 
 		setRBF(coin, unsignedTransaction)
 		return &TxProposal{
-			Coin:            coin,
-			Amount:          targetAmount,
-			Fee:             finalFee,
-			Transaction:     unsignedTransaction,
-			ChangeAddress:   changeAddress,
-			PreviousOutputs: previousOutputs,
-			OutIndex:        outIndex,
+			Coin:                 coin,
+			Amount:               targetAmount,
+			Fee:                  finalFee,
+			Transaction:          unsignedTransaction,
+			ChangeAddress:        changeAddress,
+			PreviousOutputs:      previousOutputs,
+			SilentPaymentAddress: outputInfo.silentPaymentAddress,
+			OutIndex:             outIndex,
 		}, nil
 	}
 }

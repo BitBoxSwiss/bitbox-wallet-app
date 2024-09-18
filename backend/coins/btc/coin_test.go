@@ -16,6 +16,7 @@
 package btc_test
 
 import (
+	"encoding/hex"
 	"math/big"
 	"os"
 	"testing"
@@ -147,64 +148,97 @@ func (s *testSuite) TestParseAmount() {
 	s.Require().Equal(intSatAmount, intAmount)
 }
 
-func (s *testSuite) TestDecodeAddress() {
-	tbtcValidAddresses := []string{
-		"myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",                             // p2pkh legacy
-		"2NBecb6J3HmBBC8RDB9PC2h7EgT9iyza1N3",                            // p2sh
-		"tb1qp4p8rtxsg3ddz62pntl64s2ddctgtjudkdsg27",                     // p2wpkh native segwit
-		"tb1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqp3mvzv", // p2tr
+func (s *testSuite) TestAddressToPkScript() {
+	type test struct {
+		address     string
+		pkScriptHex string
 	}
-	btcValidAddresses := []string{
-		"1GM1Wp6t3hJf6U5aq6dG62Pg3c9ePbiUQ9",                             // p2pkh legacy
-		"3GZFjFASPoYh3zuLoJLapYpKHw7ikiH63z",                             // p2sh
-		"bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej", // p2wpkh native segwit
-		"bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr", // p2tr
+	tbtcValidAddresses := []test{
+		// p2pkh legacy
+		{"myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL", "76a914c5a6c2d1cfdc329cd9d2f64de7655e152599c9b388ac"},
+		// p2sh
+		{"2NBecb6J3HmBBC8RDB9PC2h7EgT9iyza1N3", "a914c9deb2667a67c92b080b405fadd4ce12568b7c3287"},
+		// p2wpkh native segwit
+		{"tb1qp4p8rtxsg3ddz62pntl64s2ddctgtjudkdsg27", "00140d4271acd0445ad169419affaac14d6e1685cb8d"},
+		// p2tr
+		{"tb1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqp3mvzv", "5120a60869f0dbcf1dc659c9cecbaf8050135ea9e8cdc487053f1dc6880949dc684c"},
 	}
-	tltcValidAddresses := []string{
-		"mjWrpYaAg7jg5fSXo7Mjt7xwbzRzuEBA39",           // p2pkh legacy
-		"2N9JZjVcmguGeJHHnjaz4TuBkQdcKZxBC5H",          // p2sh
-		"tltc1q2n65aaawmc94xsyznyr5939uztwjdz3rhvveq0", // p2wpkh native segwit
+	btcValidAddresses := []test{
+		// p2pkh legacy
+		{"1GM1Wp6t3hJf6U5aq6dG62Pg3c9ePbiUQ9", "76a914a852a2934058f4ba584d38965965eb110ccb304488ac"},
+		// p2sh
+		{"3GZFjFASPoYh3zuLoJLapYpKHw7ikiH63z", "a914a3121543483fb34d13da19236b50aea601391b8f87"},
+		// p2wpkh native segwit
+		{"bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej", "0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d"},
+		// p2tr
+		{"bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr", "5120a60869f0dbcf1dc659c9cecbaf8050135ea9e8cdc487053f1dc6880949dc684c"},
 	}
-	ltcValidAddresses := []string{
-		"Lc88gfaqBup8k9588fwaP1o73esVsUADoZ",          // p2pkh legacy
-		"MLJ3Dyx49mc4PQf3SfeW8ixeAtTE2G9Y74",          // p2sh
-		"ltc1qzr0n0a4xs0404fy5l7pl7pj8yj8q34ml27rlcs", // p2wpkh native segwit
+	tltcValidAddresses := []test{
+		// p2pkh legacy
+		{"mjWrpYaAg7jg5fSXo7Mjt7xwbzRzuEBA39", "76a9142bdbeef518159dcf7192709c71a93de6230a3c4888ac"},
+		// p2sh
+		{"2N9JZjVcmguGeJHHnjaz4TuBkQdcKZxBC5H", "a914b023be234166b32144462038da9ff9102fd6db3b87"},
+		// p2wpkh native segwit
+		{"tltc1q2n65aaawmc94xsyznyr5939uztwjdz3rhvveq0", "001454f54ef7aede0b534082990742c4bc12dd268a23"},
+	}
+	ltcValidAddresses := []test{
+		// p2pkh legacy
+		{"Lc88gfaqBup8k9588fwaP1o73esVsUADoZ", "76a914b9605791ed1f22ab9193b9027ed49b73195dbb7188ac"},
+		// p2sh
+		{"MLJ3Dyx49mc4PQf3SfeW8ixeAtTE2G9Y74", "a91487f53a0e46928d96071cdff379378cefd813962787"},
+		// p2wpkh native segwit
+		{"ltc1qzr0n0a4xs0404fy5l7pl7pj8yj8q34ml27rlcs", "001410df37f6a683eafaa494ff83ff0647248e08d77f"},
 	}
 
-	var validAddresses []string
-	var invalidAddresses []string
+	var validAddresses []test
+	var invalidAddresses []test
 	switch s.code {
 	case coin.CodeTBTC:
 		validAddresses = tbtcValidAddresses
-		invalidAddresses = append([]string{}, btcValidAddresses...)
+		invalidAddresses = append([]test{}, btcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, ltcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, tltcValidAddresses[2])
 	case coin.CodeBTC:
 		validAddresses = btcValidAddresses
-		invalidAddresses = append([]string{}, tbtcValidAddresses...)
+		invalidAddresses = append([]test{}, tbtcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, tltcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, ltcValidAddresses...)
 	case coin.CodeTLTC:
 		validAddresses = tltcValidAddresses
-		invalidAddresses = append([]string{}, ltcValidAddresses...)
+		invalidAddresses = append([]test{}, ltcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, btcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, tbtcValidAddresses[2])
 	case coin.CodeLTC:
 		validAddresses = ltcValidAddresses
-		invalidAddresses = append([]string{}, tltcValidAddresses...)
+		invalidAddresses = append([]test{}, tltcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, tbtcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, btcValidAddresses...)
 	default:
 		s.Require().Fail("not all cases tested")
 	}
-	for _, validAddress := range validAddresses {
-		addr, err := s.coin.DecodeAddress(validAddress)
-		s.Require().NoError(err, validAddress)
-		s.Require().Equal(validAddress, addr.EncodeAddress())
+	for _, test := range validAddresses {
+		pkScript, err := s.coin.AddressToPkScript(test.address)
+		s.Require().NoError(err, test.address)
+		s.Require().Equal(test.pkScriptHex, hex.EncodeToString(pkScript), test.address)
 	}
-	for _, invalidAddress := range invalidAddresses {
-		_, err := s.coin.DecodeAddress(invalidAddress)
-		s.Require().Equal(errors.ErrInvalidAddress, errp.Cause(err), invalidAddress)
+	for _, test := range invalidAddresses {
+		_, err := s.coin.AddressToPkScript(test.address)
+		s.Require().Equal(errors.ErrInvalidAddress, errp.Cause(err), test.address)
 	}
+}
 
+func (s *testSuite) TestValidateSilentPaymentAddress() {
+	validBTC := "sp1qqgste7k9hx0qftg6qmwlkqtwuy6cycyavzmzj85c6qdfhjdpdjtdgqjuexzk6murw56suy3e0rd2cgqvycxttddwsvgxe2usfpxumr70xc9pkqwv"
+	validTBTC := "tsp1qqgste7k9hx0qftg6qmwlkqtwuy6cycyavzmzj85c6qdfhjdpdjtdgqjuexzk6murw56suy3e0rd2cgqvycxttddwsvgxe2usfpxumr70xc3wk4yh"
+	switch s.code {
+	case coin.CodeTBTC:
+		s.Require().NoError(s.coin.ValidateSilentPaymentAddress(validTBTC))
+		s.Require().Error(s.coin.ValidateSilentPaymentAddress(validBTC))
+	case coin.CodeBTC:
+		s.Require().NoError(s.coin.ValidateSilentPaymentAddress(validBTC))
+		s.Require().Error(s.coin.ValidateSilentPaymentAddress(validTBTC))
+	default:
+		s.Require().Error(s.coin.ValidateSilentPaymentAddress(validBTC))
+		s.Require().Error(s.coin.ValidateSilentPaymentAddress(validTBTC))
+	}
 }
