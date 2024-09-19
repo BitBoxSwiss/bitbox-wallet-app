@@ -22,6 +22,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/errp"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
+	"github.com/BitBoxSwiss/bitbox02-api-go/util/sleep"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -75,6 +76,8 @@ func (device *Device) rawQueryV7(msg []byte) ([]byte, error) {
 		break
 	}
 
+	isLongRunning := false
+
 	for {
 		switch status {
 		case hwwRspAck:
@@ -100,6 +103,11 @@ func (device *Device) rawQueryV7(msg []byte) ([]byte, error) {
 			}
 			return nil, errp.New("unexpected NACK response")
 		case hwwRspNotready:
+			if !isLongRunning {
+				isLongRunning = true
+				sleep.Prevent()
+				defer sleep.Allow()
+			}
 			time.Sleep(200 * time.Millisecond)
 			lastQueryTimes.Value = time.Now()
 			lastQueryTimes = lastQueryTimes.Next()

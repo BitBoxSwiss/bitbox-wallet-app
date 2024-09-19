@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Bitcoin: add support for sending to silent payment (BIP-352) addresses
+- Prevent macOS from going to sleep on long running interactions with the BitBox
 
 ## 4.44.0
 - Bundle BitBox02 firmware version v9.20.0
