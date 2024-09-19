@@ -13,7 +13,7 @@ require (
 	github.com/flynn/noise v1.1.0
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
-	github.com/karalabe/hid v1.0.1-0.20240306101548-573246063e52
+	github.com/karalabe/hid v1.0.1-0.20240919124526-821c38d2678e
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
@@ -23,9 +23,6 @@ require (
 	golang.org/x/mobile v0.0.0-20240716161057-1ad2df20a8b6
 	golang.org/x/net v0.29.0
 )
-
-// TODO: remove once https://github.com/karalabe/hid/pull/52 is merged.
-replace github.com/karalabe/hid => github.com/benma/hid v0.0.0-20240312170000-f050ee197113
 
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
