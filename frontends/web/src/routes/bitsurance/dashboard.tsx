@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { AccountCode, IAccount, getBalance } from '@/api/account';
 import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '@/api/bitsurance';
 import { useMountedRef } from '@/hooks/mount';
-import { TAccountsByKeystore, getAccountsByKeystore, isAmbiguiousName } from '@/routes/account/utils';
+import { TAccountsByKeystore, getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { Button } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
@@ -145,7 +145,7 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                   anyAccountInsured({ accounts, keystore }) && (
                     <div key={keystore.rootFingerprint}>
                       <p className={style.keystore}>{keystore.name}
-                        { isAmbiguiousName(keystore.name, accountsByKeystore) ? (
+                        { isAmbiguousName(keystore.name, accountsByKeystore) ? (
                         // Disambiguate accounts group by adding the fingerprint.
                         // The most common case where this would happen is when adding accounts from the
                         // same seed using different passphrases.

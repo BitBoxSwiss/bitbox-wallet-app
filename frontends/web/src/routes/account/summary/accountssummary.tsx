@@ -34,7 +34,7 @@ import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '@/contexts/AppContext';
-import { getAccountsByKeystore, isAmbiguiousName } from '@/routes/account/utils';
+import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/globalbanners/globalbanners';
@@ -227,7 +227,7 @@ export const AccountsSummary = ({
             {accountsByKeystore &&
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 <SummaryBalance
-                  keystoreDisambiguatorName={isAmbiguiousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
+                  keystoreDisambiguatorName={isAmbiguousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
                   connected={keystore.connected}
                   keystoreName={keystore.name}
                   key={keystore.rootFingerprint}
