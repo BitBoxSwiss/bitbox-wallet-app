@@ -33,7 +33,7 @@ import deviceSettings from '@/assets/icons/wallet-light.svg';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';
 import { CloseXWhite, RedDot, USBSuccess } from '@/components/icon';
-import { getAccountsByKeystore, isAmbiguiousName } from '@/routes/account/utils';
+import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { Badge } from '@/components/badge/badge';
 import { AppContext } from '@/contexts/AppContext';
@@ -205,7 +205,7 @@ const Sidebar = ({
                 hidden={!keystore.accounts.length}>
                 <span className="p-right-quarter">
                   {`${keystore.keystore.name} `}
-                  { isAmbiguiousName(keystore.keystore.name, accountsByKeystore) ? (
+                  { isAmbiguousName(keystore.keystore.name, accountsByKeystore) ? (
                     // Disambiguate accounts group by adding the fingerprint.
                     // The most common case where this would happen is when adding accounts from the
                     // same seed using different passphrases.

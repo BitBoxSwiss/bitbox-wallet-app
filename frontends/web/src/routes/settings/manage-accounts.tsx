@@ -15,7 +15,7 @@
  */
 
 import React, { Component } from 'react';
-import { getAccountsByKeystore, isAmbiguiousName } from '@/routes/account/utils';
+import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { route } from '@/utils/route';
 import * as accountAPI from '@/api/account';
 import * as backendAPI from '@/api/backend';
@@ -251,7 +251,7 @@ class ManageAccounts extends Component<Props, State> {
                           <h2 className={style.walletTitle}>
                             <span className="p-right-quarter">
                               {keystore.keystore.name}
-                              { isAmbiguiousName(keystore.keystore.name, accountsByKeystore) ? (
+                              { isAmbiguousName(keystore.keystore.name, accountsByKeystore) ? (
                                 // Disambiguate accounts group by adding the fingerprint.
                                 // The most common case where this would happen is when adding accounts from the
                                 // same seed using different passphrases.
