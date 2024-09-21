@@ -14,282 +14,186 @@
  * limitations under the License.
  */
 
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
-import { Component, createRef, ReactChild } from 'react';
-import { TSummary } from '@/api/account';
-import { translate, TranslateProps } from '@/decorators/translate';
+import type { TSummary, ChartData } from '@/api/account';
+import { usePrevious } from '@/hooks/previous';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { Amount } from '@/components/amount/amount';
 import { PercentageDiff } from './percentage-diff';
 import { Filters } from './filters';
 import { getDarkmode } from '@/components/darkmode/darkmode';
-import { TChartFiltersProps } from './types';
 import { DefaultCurrencyRotator } from '@/components/rates/rates';
 import { AppContext } from '@/contexts/AppContext';
 import styles from './chart.module.css';
 
-export interface FormattedLineData extends LineData {
-  formattedValue: string;
-}
-
-export type ChartData = FormattedLineData[];
-
-type ChartProps = {
-  data: TSummary;
-  noDataPlaceholder?: ReactChild;
-  hideAmounts: boolean;
+type TProps = {
+  data?: TSummary;
+  noDataPlaceholder?: JSX.Element;
+  hideAmounts?: boolean;
 };
 
-type State = {
-  source: 'daily' | 'hourly';
-  difference?: number;
-  diffSince?: string;
-  toolTipVisible: boolean;
-  toolTipValue?: string;
-  toolTipTop: number;
-  toolTipLeft: number;
-  toolTipTime: number;
-  isMobile: boolean;
-}
-
-type Props = ChartProps & TranslateProps;
+const defaultData: Readonly<TSummary> = {
+  chartDataMissing: true,
+  chartDataDaily: [],
+  chartDataHourly: [],
+  chartFiat: 'USD',
+  chartTotal: null,
+  formattedChartTotal: null,
+  chartIsUpToDate: false,
+  lastTimestamp: 0,
+};
 
 type FormattedData = {
   [key: number]: string;
 }
-class Chart extends Component<Props, State> {
-  static contextType = AppContext;
-  context!: React.ContextType<typeof AppContext>;
-  private ref = createRef<HTMLDivElement>();
-  private refToolTip = createRef<HTMLSpanElement>();
-  private chart?: IChartApi;
-  private lineSeries?: ISeriesApi<'Area'>;
-  private height: number = 300;
-  private mobileHeight: number = 150;
-  private formattedData?: FormattedData;
 
-  static readonly defaultProps: ChartProps = {
-    data: {
-      chartDataMissing: true,
-      chartDataDaily: [],
-      chartDataHourly: [],
-      chartFiat: 'USD',
-      chartTotal: null,
-      formattedChartTotal: null,
-      chartIsUpToDate: false,
-      lastTimestamp: 0,
-    },
-    hideAmounts: false,
+const getUTCRange = () => {
+  const now = new Date();
+  const utcYear = now.getUTCFullYear();
+  const utcMonth = now.getUTCMonth();
+  const utcDate = now.getUTCDate();
+  const utcHours = now.getUTCHours();
+  const to = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
+  const from = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
+  return {
+    utcYear,
+    utcMonth,
+    utcDate,
+    to,
+    from,
   };
+};
 
-  public readonly state: State = {
-    source: 'daily',
+const renderDate = (
+  date: number,
+  lang: string,
+  src: string
+) => {
+  return new Date(date).toLocaleString(
+    lang,
+    {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      ...(src === 'hourly' ? {
+        hour: '2-digit',
+        minute: '2-digit',
+      } : null)
+    }
+  );
+};
+
+export const Chart = ({
+  data = defaultData,
+  noDataPlaceholder,
+  hideAmounts = false
+}: TProps) => {
+  const height: number = 300;
+  const mobileHeight: number = 150;
+  const hasData = data.chartDataDaily && data.chartDataDaily.length > 0;
+  const hasHourlyData = data.chartDataHourly && data.chartDataHourly.length > 0;
+
+  const { t, i18n } = useTranslation();
+  const { chartDisplay, setChartDisplay } = useContext(AppContext);
+
+  const ref = useRef<HTMLDivElement>(null);
+  const refToolTip = useRef<HTMLSpanElement>(null);
+  const chart = useRef<IChartApi>();
+  const chartInitialized = useRef(false);
+  const lineSeries = useRef<ISeriesApi<'Area'>>();
+  const formattedData = useRef<FormattedData>({});
+
+  const [source, setSource] = useState<'daily' | 'hourly'>(chartDisplay === 'week' ? 'hourly' : 'daily');
+  const [difference, setDifference] = useState<number>();
+  const [diffSince, setDiffSince] = useState<string>();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
+  const [tooltipData, setTooltipData] = useState<{
+    toolTipVisible: boolean;
+    toolTipValue?: string;
+    toolTipTop: number;
+    toolTipLeft: number;
+    toolTipTime: number;
+  }>({
     toolTipVisible: false,
-    toolTipValue: undefined,
     toolTipTop: 0,
     toolTipLeft: 0,
     toolTipTime: 0,
-    isMobile: false,
-  };
+  });
 
-  public componentDidMount() {
-    if (this.state.source !== 'hourly' && this.context.chartDisplay === 'week') {
-      this.setState({ source: 'hourly' });
-    }
-    this.createChart();
-  }
+  const prevChartDataDaily = usePrevious(data.chartDataDaily);
+  const prevChartDataHourly = usePrevious(data.chartDataHourly);
+  const prevChartFiat = usePrevious(data.chartFiat);
+  const prevHideAmounts = usePrevious(hideAmounts);
 
-  public componentWillUnmount() {
-    window.removeEventListener('resize', this.onResize);
-    if (this.chart) {
-      this.chart.timeScale().unsubscribeVisibleLogicalRangeChange(this.calculateChange);
-      this.chart.unsubscribeCrosshairMove(this.handleCrosshair);
-    }
-  }
+  const setFormattedData = (chartData: ChartData) => {
+    formattedData.current = {};
 
-  public componentDidUpdate(prev: Props) {
-    const { chartDataDaily, chartDataHourly } = this.props.data;
-    if (!this.chart) {
-      this.createChart();
-    }
-    if (
-      (this.lineSeries && prev.data.chartDataDaily && prev.data.chartDataHourly && chartDataDaily && chartDataHourly)
-        && (
-          prev.data.chartDataDaily.length !== chartDataDaily.length
-          || prev.data.chartDataHourly.length !== chartDataHourly.length
-        )
-    ) {
-      const data = this.state.source === 'hourly' ? chartDataHourly : chartDataDaily;
-      this.lineSeries.setData(data);
-      this.chart?.timeScale().fitContent();
-      this.setFormattedData(data);
-    }
-
-    if (prev.hideAmounts !== this.props.hideAmounts) {
-      this.chart?.applyOptions({
-        leftPriceScale: {
-          visible: this.props.hideAmounts ? false : !this.state.isMobile,
-        }
-      });
-    }
-
-    if (this.props.data.chartFiat !== prev.data.chartFiat) {
-      this.reinitializeChart();
-    }
-    if (!this.hasData() && this.props.data.chartIsUpToDate) {
-      this.removeChart();
-    }
-  }
-
-  private hasData = (): boolean => {
-    return this.props.data.chartDataDaily && this.props.data.chartDataDaily.length > 0;
-  };
-
-  private hasHourlyData = (): boolean => {
-    return this.props.data.chartDataHourly && this.props.data.chartDataHourly.length > 0;
-  };
-
-  private setFormattedData(data: ChartData) {
-    this.formattedData = {} as FormattedData;
-
-    data.forEach(entry => {
-      if (this.formattedData) {
-        this.formattedData[entry.time as number] = entry.formattedValue;
+    chartData.forEach(entry => {
+      if (formattedData.current) {
+        formattedData.current[entry.time as number] = entry.formattedValue;
       }
     });
-  }
+  };
 
-  private createChart = () => {
-    const { data: { chartDataMissing } } = this.props;
-    const darkmode = getDarkmode();
-    if (this.ref.current && this.hasData() && !chartDataMissing) {
-      if (!this.chart) {
-        const isMobile = window.innerWidth <= 640;
-        this.setState({ isMobile });
-        const chartWidth = !isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
-        const chartHeight = !isMobile ? this.height : this.mobileHeight;
-        this.chart = createChart(this.ref.current, {
-          width: chartWidth,
-          height: chartHeight,
-          handleScroll: false,
-          handleScale: false,
-          crosshair: {
-            vertLine: {
-              visible: false,
-              labelVisible: false,
-            },
-            horzLine: {
-              visible: false,
-              labelVisible: false,
-            },
-            mode: 1,
-          },
-          grid: {
-            vertLines: {
-              visible: false,
-            },
-            horzLines: {
-              color: darkmode ? '#333333' : '#dedede',
-              style: LineStyle.Solid,
-              visible: !isMobile,
-            },
-          },
-          layout: {
-            background: {
-              type: ColorType.Solid,
-              color: darkmode ? '#1D1D1B' : '#F5F5F5',
-            },
-            fontSize: 11,
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-            textColor: darkmode ? '#F5F5F5' : '#1D1D1B',
-          },
-          leftPriceScale: {
-            borderVisible: false,
-            ticksVisible: false,
-            visible: this.props.hideAmounts ? false : !isMobile,
-            entireTextOnly: true,
-          },
-          localization: {
-            locale: this.props.i18n.language,
-          },
-          rightPriceScale: {
-            visible: false,
-            ticksVisible: false,
-          },
-          timeScale: {
-            borderVisible: false,
-            timeVisible: false,
-            visible: !isMobile,
-          },
-          trackingMode: {
-            exitMode: 0
-          }
-        });
-      }
-      this.lineSeries = this.chart.addAreaSeries({
-        priceLineVisible: false,
-        lastValueVisible: false,
-        priceFormat: {
-          type: 'volume',
-        },
-        topColor: darkmode ? '#5E94BF' : '#DFF1FF',
-        bottomColor: darkmode ? '#1D1D1B' : '#F5F5F5',
-        lineColor: 'rgba(94, 148, 192, 1)',
-        crosshairMarkerRadius: 6,
-      });
-      switch (this.context.chartDisplay) {
-      case 'week':
-        this.displayWeek();
-        break;
-      case 'month':
-        this.displayMonth();
-        break;
-      case 'year':
-        this.displayYear();
-        break;
-      }
-      const isChartDisplayWeekly = this.context.chartDisplay === 'week';
-      this.lineSeries.setData(
-        (isChartDisplayWeekly ?
-          this.props.data.chartDataHourly :
-          this.props.data.chartDataDaily) as ChartData
-      );
-      this.setFormattedData(
-        (isChartDisplayWeekly ?
-          this.props.data.chartDataHourly :
-          this.props.data.chartDataDaily) as ChartData
-      );
-      this.chart.timeScale().subscribeVisibleLogicalRangeChange(this.calculateChange);
-      this.chart.subscribeCrosshairMove(this.handleCrosshair);
-      this.chart.timeScale().fitContent();
-      window.addEventListener('resize', this.onResize);
-      this.ref.current?.classList.remove(styles.invisible);
+  const displayWeek = () => {
+    if (source !== 'hourly' && lineSeries.current && data.chartDataHourly && chart.current) {
+      lineSeries.current.setData(data.chartDataHourly || []);
+      setFormattedData(data.chartDataHourly || []);
+      chart.current.applyOptions({ timeScale: { timeVisible: true } });
     }
+    setChartDisplay('week');
+    setSource('hourly');
   };
 
-  private reinitializeChart = () => {
-    this.removeChart();
-    this.createChart();
-  };
-
-  private removeChart = () => {
-    if (this.chart) {
-      this.chart.remove();
-      this.chart = undefined;
-      window.removeEventListener('resize', this.onResize);
+  const displayMonth = () => {
+    if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
+      lineSeries.current.setData(data.chartDataDaily || []);
+      setFormattedData(data.chartDataDaily || []);
+      chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
+
+    setChartDisplay('month');
+
+    setSource('daily');
   };
 
-  private onResize = () => {
+  const displayYear = () => {
+    if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
+      lineSeries.current.setData(data.chartDataDaily);
+      setFormattedData(data.chartDataDaily);
+      chart.current.applyOptions({ timeScale: { timeVisible: false } });
+    }
+
+    setChartDisplay('year');
+
+    setSource('daily');
+
+  };
+
+  const displayAll = () => {
+    if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
+      lineSeries.current.setData(data.chartDataDaily);
+      setFormattedData(data.chartDataDaily);
+      chart.current.applyOptions({ timeScale: { timeVisible: false } });
+    }
+
+    setChartDisplay('all');
+
+    setSource('daily');
+  };
+
+  const onResize = useCallback(() => {
     const isMobile = window.innerWidth <= 640;
-    this.setState({ isMobile });
-    if (!this.chart || !this.ref.current) {
+    setIsMobile(isMobile);
+    if (!chart.current || !ref.current) {
       return;
     }
-    const chartWidth = !isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
-    const chartHeight = !isMobile ? this.height : this.mobileHeight;
-    this.chart.resize(chartWidth, chartHeight);
-    this.chart.applyOptions({
+    const chartWidth = !isMobile ? ref.current.offsetWidth : document.body.clientWidth;
+    const chartHeight = !isMobile ? height : mobileHeight;
+    chart.current.resize(chartWidth, chartHeight);
+    chart.current.applyOptions({
       grid: {
         horzLines: {
           visible: !isMobile
@@ -299,168 +203,79 @@ class Chart extends Component<Props, State> {
         visible: !isMobile
       },
       leftPriceScale: {
-        visible: this.props.hideAmounts ? false : !isMobile,
+        visible: hideAmounts ? false : !isMobile,
       },
     });
-    this.chart.timeScale().fitContent();
-  };
+    chart.current.timeScale().fitContent();
+  }, [hideAmounts]);
 
-  private getUTCRange = () => {
-    const now = new Date();
-    const utcYear = now.getUTCFullYear();
-    const utcMonth = now.getUTCMonth();
-    const utcDate = now.getUTCDate();
-    const utcHours = now.getUTCHours();
-    const to = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
-    const from = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
-    return {
-      utcYear,
-      utcMonth,
-      utcDate,
-      to,
-      from,
-    };
-  };
-
-  private displayWeek = () => {
-    if (this.state.source !== 'hourly' && this.lineSeries && this.props.data.chartDataHourly && this.chart) {
-      this.lineSeries.setData(this.props.data.chartDataHourly || []);
-      this.setFormattedData(this.props.data.chartDataHourly || []);
-      this.chart.applyOptions({ timeScale: { timeVisible: true } });
-    }
-    this.context.setChartDisplay('week');
-    this.setState(
-      { source: 'hourly' },
-      () => {
-        if (!this.chart) {
-          return;
-        }
-        const { utcDate, from, to } = this.getUTCRange();
-        from.setUTCDate(utcDate - 7);
-        this.chart.timeScale().setVisibleRange({
-          from: from.getTime() / 1000 as UTCTimestamp,
-          to: to.getTime() / 1000 as UTCTimestamp,
-        });
-      }
-    );
-  };
-
-  private displayMonth = () => {
-    if (this.state.source !== 'daily' && this.lineSeries && this.props.data.chartDataDaily && this.chart) {
-      this.lineSeries.setData(this.props.data.chartDataDaily || []);
-      this.setFormattedData(this.props.data.chartDataDaily || []);
-      this.chart.applyOptions({ timeScale: { timeVisible: false } });
-    }
-    this.context.setChartDisplay('month');
-    this.setState(
-      { source: 'daily' },
-      () => {
-        if (!this.chart) {
-          return;
-        }
-        const { utcMonth, from, to } = this.getUTCRange();
-        from.setUTCMonth(utcMonth - 1);
-        this.chart.timeScale().setVisibleRange({
-          from: from.getTime() / 1000 as UTCTimestamp,
-          to: to.getTime() / 1000 as UTCTimestamp,
-        });
-      }
-    );
-  };
-
-  private displayYear = () => {
-    if (this.state.source !== 'daily' && this.lineSeries && this.props.data.chartDataDaily && this.chart) {
-      this.lineSeries.setData(this.props.data.chartDataDaily);
-      this.setFormattedData(this.props.data.chartDataDaily);
-      this.chart.applyOptions({ timeScale: { timeVisible: false } });
-    }
-    this.context.setChartDisplay('year');
-    this.setState(
-      { source: 'daily' },
-      () => {
-        if (!this.chart) {
-          return;
-        }
-        const { utcYear, from, to } = this.getUTCRange();
-        from.setUTCFullYear(utcYear - 1);
-        this.chart && this.chart.timeScale().setVisibleRange({
-          from: from.getTime() / 1000 as UTCTimestamp,
-          to: to.getTime() / 1000 as UTCTimestamp,
-        });
-      }
-    );
-  };
-
-  private displayAll = () => {
-    if (this.state.source !== 'daily' && this.lineSeries && this.props.data.chartDataDaily && this.chart) {
-      this.lineSeries.setData(this.props.data.chartDataDaily);
-      this.setFormattedData(this.props.data.chartDataDaily);
-      this.chart.applyOptions({ timeScale: { timeVisible: false } });
-    }
-    this.context.setChartDisplay('all');
-    this.setState(
-      { source: 'daily' },
-      () => {
-        if (!this.chart) {
-          return;
-        }
-        this.chart.timeScale().fitContent();
-      }
-    );
-  };
-
-  private calculateChange = () => {
-    const data = this.props.data[this.state.source === 'daily' ? 'chartDataDaily' : 'chartDataHourly'];
-    if (!data || !this.chart || !this.lineSeries) {
+  const calculateChange = useCallback(() => {
+    const chartData = data[source === 'daily' ? 'chartDataDaily' : 'chartDataHourly'];
+    if (!chartData || !chart.current || !lineSeries.current) {
       return;
     }
-    const logicalrange = this.chart.timeScale().getVisibleLogicalRange() as LogicalRange;
-    const visiblerange = this.lineSeries.barsInLogicalRange(logicalrange);
+    const logicalrange = chart.current.timeScale().getVisibleLogicalRange() as LogicalRange;
+    const visiblerange = lineSeries.current.barsInLogicalRange(logicalrange);
     if (!visiblerange) {
       // if the chart is empty, during first load, barsInLogicalRange is null
       return;
     }
     const rangeFrom = Math.max(Math.floor(visiblerange.barsBefore), 0);
-    if (!data[rangeFrom]) {
+    if (!chartData[rangeFrom]) {
       // when data series have changed it triggers subscribeVisibleLogicalRangeChange
       // but at this point the setVisibleRange has not executed what the new range
       // should be and therefore barsBefore might still point to the old range
       // so we have to ignore this call and expect setVisibleRange with correct range
-      this.setState({ difference: 0, diffSince: '' });
+      setDifference(0);
+      setDiffSince('');
       return;
     }
     // data should always have at least two data points and when the first
     // value is 0 we take the next value as valueFrom to calculate valueDiff
-    const valueFrom = data[rangeFrom].value === 0 ? data[rangeFrom + 1].value : data[rangeFrom].value;
-    const valueTo = this.props.data.chartTotal;
+    const valueFrom = chartData[rangeFrom].value === 0 ? chartData[rangeFrom + 1].value : chartData[rangeFrom].value;
+    const valueTo = data.chartTotal;
     const valueDiff = valueTo ? valueTo - valueFrom : 0;
-    this.setState({
-      difference: ((valueDiff / valueFrom)),
-      diffSince: `${data[rangeFrom].formattedValue} (${this.renderDate(Number(data[rangeFrom].time) * 1000)})`
-    });
-  };
+    setDifference(valueDiff / valueFrom);
+    setDiffSince(`${chartData[rangeFrom].formattedValue} (${renderDate(Number(chartData[rangeFrom].time) * 1000, i18n.language, source)})`);
+  }, [data, i18n.language, source]);
 
-  private handleCrosshair = ({ point, time, seriesData }: MouseEventParams) => {
-    if (!this.refToolTip.current) {
+  const removeChart = useCallback(() => {
+    if (chartInitialized.current) {
+      window.removeEventListener('resize', onResize);
+      chart.current?.timeScale().unsubscribeVisibleLogicalRangeChange(calculateChange);
+      chart.current?.unsubscribeCrosshairMove(handleCrosshair);
+      chart.current?.remove();
+      chart.current = undefined;
+      chartInitialized.current = false;
+    }
+  }, [calculateChange, onResize]);
+
+  const handleCrosshair = ({
+    point,
+    time,
+    seriesData
+  }: MouseEventParams) => {
+    if (!refToolTip.current) {
       return;
     }
-    const tooltip = this.refToolTip.current;
+    const tooltip = refToolTip.current;
     const parent = tooltip.parentNode as HTMLDivElement;
     if (
-      !this.lineSeries || !point || !time
-            || point.x < 0 || point.x > parent.clientWidth
-            || point.y < 0 || point.y > parent.clientHeight
+      !lineSeries.current || !point || !time
+      || point.x < 0 || point.x > parent.clientWidth
+      || point.y < 0 || point.y > parent.clientHeight
     ) {
-      this.setState({
+      setTooltipData((tooltipData) => ({
+        ...tooltipData,
         toolTipVisible: false
-      });
+      }));
       return;
     }
-    const price = seriesData.get(this.lineSeries) as LineData<Time>;
+    const price = seriesData.get(lineSeries.current) as LineData<Time>;
     if (!price) {
       return;
     }
-    const coordinate = this.lineSeries.priceToCoordinate(price.value);
+    const coordinate = lineSeries.current.priceToCoordinate(price.value);
     if (!coordinate) {
       return;
     }
@@ -478,134 +293,273 @@ class Chart extends Component<Props, State> {
     const toolTipTop = Math.floor(Math.max(coordinateY, 0));
     const toolTipLeft = Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70)));
 
-    this.setState({
+    setTooltipData({
       toolTipVisible: true,
-      toolTipValue: this.formattedData ? this.formattedData[time as number] : '',
+      toolTipValue: formattedData.current ? formattedData.current[time as number] : '',
       toolTipTop,
       toolTipLeft,
       toolTipTime: time as number,
     });
   };
 
-  private renderDate = (date: number) => {
-    return new Date(date).toLocaleString(
-      this.props.i18n.language,
-      {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        ...(this.state.source === 'hourly' ? {
-          hour: '2-digit',
-          minute: '2-digit',
-        } : null)
-      }
-    );
+  const initChart = useCallback(() => {
+    const darkmode = getDarkmode();
+    if (ref.current && hasData && !data.chartDataMissing) {
+      const chartWidth = !isMobile ? ref.current.offsetWidth : document.body.clientWidth;
+      const chartHeight = !isMobile ? height : mobileHeight;
+      chart.current = createChart(ref.current, {
+        width: chartWidth,
+        height: chartHeight,
+        handleScroll: false,
+        handleScale: false,
+        crosshair: {
+          vertLine: {
+            visible: false,
+            labelVisible: false,
+          },
+          horzLine: {
+            visible: false,
+            labelVisible: false,
+          },
+          mode: 1,
+        },
+        grid: {
+          vertLines: {
+            visible: false,
+          },
+          horzLines: {
+            color: darkmode ? '#333333' : '#dedede',
+            style: LineStyle.Solid,
+            visible: !isMobile,
+          },
+        },
+        layout: {
+          background: {
+            type: ColorType.Solid,
+            color: darkmode ? '#1D1D1B' : '#F5F5F5',
+          },
+          fontSize: 11,
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+          textColor: darkmode ? '#F5F5F5' : '#1D1D1B',
+        },
+        leftPriceScale: {
+          borderVisible: false,
+          ticksVisible: false,
+          visible: hideAmounts ? false : !isMobile,
+          entireTextOnly: true,
+        },
+        localization: {
+          locale: i18n.language,
+        },
+        rightPriceScale: {
+          visible: false,
+          ticksVisible: false,
+        },
+        timeScale: {
+          borderVisible: false,
+          timeVisible: false,
+          visible: !isMobile,
+        },
+        trackingMode: {
+          exitMode: 0
+        }
+      });
+      lineSeries.current = chart.current.addAreaSeries({
+        priceLineVisible: false,
+        lastValueVisible: false,
+        priceFormat: {
+          type: 'volume',
+        },
+        topColor: darkmode ? '#5E94BF' : '#DFF1FF',
+        bottomColor: darkmode ? '#1D1D1B' : '#F5F5F5',
+        lineColor: 'rgba(94, 148, 192, 1)',
+        crosshairMarkerRadius: 6,
+      });
+      const isChartDisplayWeekly = chartDisplay === 'week';
+      lineSeries.current.setData(
+        (isChartDisplayWeekly ?
+          data.chartDataHourly :
+          data.chartDataDaily)
+      );
+      setFormattedData(
+        (isChartDisplayWeekly ?
+          data.chartDataHourly :
+          data.chartDataDaily)
+      );
+      chart.current.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
+      chart.current.subscribeCrosshairMove(handleCrosshair);
+      chart.current.timeScale().fitContent();
+      window.addEventListener('resize', onResize);
+      ref.current?.classList.remove(styles.invisible);
+      chartInitialized.current = true;
+    }
+  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile, onResize]);
+
+  const reinitializeChart = () => {
+    removeChart();
+    initChart();
   };
 
-  public render() {
-    const {
-      t,
-      data: {
-        lastTimestamp,
-        chartDataMissing,
-        chartFiat,
-        chartIsUpToDate,
-        chartTotal,
-        formattedChartTotal,
-      },
-      noDataPlaceholder,
-    } = this.props;
-    const {
-      difference,
-      diffSince,
-      toolTipVisible,
-      toolTipValue,
-      toolTipTop,
-      toolTipLeft,
-      toolTipTime,
-      isMobile
-    } = this.state;
-    const hasDifference = difference && Number.isFinite(difference);
-    const hasData = this.hasData();
-    const hasHourlyData = this.hasHourlyData();
-    const disableFilters = !hasData || chartDataMissing;
-    const disableWeeklyFilters = !hasHourlyData || chartDataMissing;
-    const showMobileTotalValue = toolTipVisible && !!toolTipValue && isMobile;
-    const chartFiltersProps: TChartFiltersProps = {
-      display: this.context.chartDisplay,
-      disableFilters,
-      disableWeeklyFilters,
-      onDisplayWeek: this.displayWeek,
-      onDisplayMonth: this.displayMonth,
-      onDisplayYear: this.displayYear,
-      onDisplayAll: this.displayAll,
-    };
-    const chartHeight = `${!isMobile ? this.height : this.mobileHeight}px`;
-    return (
-      <section className={styles.chart}>
-        <header>
-          <div className={styles.summary}>
-            <div className={styles.totalValue}>
-              {formattedChartTotal !== null ? (
-                // remove trailing zeroes for BTC fiat total
-                <Amount amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue} unit={chartFiat} removeBtcTrailingZeroes/>
-              ) : (
-                <Skeleton minWidth="220px" />
-              )}
-              <span className={styles.totalUnit}>
-                {chartTotal !== null && <DefaultCurrencyRotator tableRow={false}/>}
-              </span>
-            </div>
-            {!showMobileTotalValue ? (
-              <PercentageDiff
-                hasDifference={!!hasDifference}
-                difference={difference}
-                title={diffSince}
-              />
-            ) :
-              <span className={styles.diffValue}>
-                {this.renderDate(toolTipTime * 1000)}
-              </span>
-            }
-          </div>
-          {!isMobile && <Filters {...chartFiltersProps} />}
-        </header>
-        <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>
-          {chartDataMissing ? (
-            <div className={styles.chartUpdatingMessage} style={{ height: chartHeight }}>
-              {t('chart.dataMissing')}
-            </div>
-          ) : hasData ? !chartIsUpToDate && (
-            <div className={styles.chartUpdatingMessage}>
-              {t('chart.dataOldTimestamp', { time: new Date(lastTimestamp).toLocaleString(this.props.i18n.language), })}
-            </div>
-          ) : noDataPlaceholder}
-          <div ref={this.ref} className={styles.invisible}></div>
-          <span
-            ref={this.refToolTip}
-            className={styles.tooltip}
-            style={{ left: toolTipLeft, top: toolTipTop }}
-            hidden={!toolTipVisible || isMobile}>
-            {toolTipValue !== undefined ? (
-              <span>
-                <h2 className={styles.toolTipValue}>
-                  <Amount amount={toolTipValue} unit={chartFiat}/>
-                  <span className={styles.toolTipUnit}>{chartFiat}</span>
-                </h2>
-                <span className={styles.toolTipTime}>
-                  {this.renderDate(toolTipTime * 1000)}
-                </span>
-              </span>
-            ) : null}
-          </span>
-        </div>
-        {isMobile && <Filters {...chartFiltersProps} />}
-      </section>
-    );
+  if (source === 'daily' && prevChartDataDaily?.length !== data.chartDataDaily.length) {
+    lineSeries.current?.setData(data.chartDataDaily);
+    chart.current?.timeScale().fitContent();
+    setFormattedData(data.chartDataDaily);
   }
-}
 
+  if (source === 'hourly' && prevChartDataHourly?.length !== data.chartDataHourly.length) {
+    lineSeries.current?.setData(data.chartDataHourly);
+    chart.current?.timeScale().fitContent();
+    setFormattedData(data.chartDataHourly);
+  }
 
-const HOC = translate()(Chart);
+  if (prevChartFiat !== data.chartFiat) {
+    reinitializeChart();
+  }
 
-export { HOC as Chart };
+  if (prevHideAmounts !== hideAmounts) {
+    chart.current?.applyOptions({
+      leftPriceScale: {
+        visible: hideAmounts ? false : !isMobile,
+      }
+    });
+  }
+
+  useEffect(() => {
+    if (!chartInitialized.current) {
+      initChart();
+    }
+    return () => {
+      removeChart();
+    };
+  }, [initChart, removeChart]);
+
+  useEffect(() => {
+    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
+
+    switch (chartDisplay) {
+    case 'week': {
+      from.setUTCDate(utcDate - 7);
+      chart.current?.timeScale().setVisibleRange({
+        from: from.getTime() / 1000 as UTCTimestamp,
+        to: to.getTime() / 1000 as UTCTimestamp,
+      });
+      break;
+    }
+    case 'month': {
+      from.setUTCMonth(utcMonth - 1);
+      chart.current?.timeScale().setVisibleRange({
+        from: from.getTime() / 1000 as UTCTimestamp,
+        to: to.getTime() / 1000 as UTCTimestamp,
+      });
+      break;
+    }
+    case 'year': {
+      from.setUTCFullYear(utcYear - 1);
+      chart.current && chart.current.timeScale().setVisibleRange({
+        from: from.getTime() / 1000 as UTCTimestamp,
+        to: to.getTime() / 1000 as UTCTimestamp,
+      });
+      break;
+    }
+    case 'all': {
+      chart.current?.timeScale().fitContent();
+      break;
+    }
+    }
+  }, [source, chartDisplay]);
+
+  const {
+    lastTimestamp,
+    chartDataMissing,
+    chartFiat,
+    chartIsUpToDate,
+    chartTotal,
+    formattedChartTotal,
+  } = data;
+
+  const {
+    toolTipVisible,
+    toolTipValue,
+    toolTipTop,
+    toolTipLeft,
+    toolTipTime,
+  } = tooltipData;
+
+  const hasDifference = difference && Number.isFinite(difference);
+  const disableFilters = !hasData || chartDataMissing;
+  const disableWeeklyFilters = !hasHourlyData || chartDataMissing;
+  const showMobileTotalValue = toolTipVisible && !!toolTipValue && isMobile;
+  const chartFiltersProps = {
+    display: chartDisplay,
+    disableFilters,
+    disableWeeklyFilters,
+    onDisplayWeek: displayWeek,
+    onDisplayMonth: displayMonth,
+    onDisplayYear: displayYear,
+    onDisplayAll: displayAll,
+  };
+
+  const chartHeight = `${!isMobile ? height : mobileHeight}px`;
+
+  return (
+    <section className={styles.chart}>
+      <header>
+        <div className={styles.summary}>
+          <div className={styles.totalValue}>
+            {formattedChartTotal !== null ? (
+              // remove trailing zeroes for BTC fiat total
+              <Amount amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue} unit={chartFiat} removeBtcTrailingZeroes />
+            ) : (
+              <Skeleton minWidth="220px" />
+            )}
+            <span className={styles.totalUnit}>
+              {chartTotal !== null && <DefaultCurrencyRotator tableRow={false} />}
+            </span>
+          </div>
+          {!showMobileTotalValue ? (
+            <PercentageDiff
+              hasDifference={!!hasDifference}
+              difference={difference}
+              title={diffSince}
+            />
+          ) :
+            <span className={styles.diffValue}>
+              {renderDate(toolTipTime * 1000, i18n.language, source)}
+            </span>
+          }
+        </div>
+        {!isMobile && <Filters {...chartFiltersProps} />}
+      </header>
+      <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>
+        {chartDataMissing ? (
+          <div className={styles.chartUpdatingMessage} style={{ height: chartHeight }}>
+            {t('chart.dataMissing')}
+          </div>
+        ) : hasData ? !chartIsUpToDate && (
+          <div className={styles.chartUpdatingMessage}>
+            {t('chart.dataOldTimestamp', { time: new Date(lastTimestamp).toLocaleString(i18n.language), })}
+          </div>
+        ) : noDataPlaceholder}
+        <div ref={ref} className={styles.invisible}></div>
+        <span
+          ref={refToolTip}
+          className={styles.tooltip}
+          style={{ left: toolTipLeft, top: toolTipTop }}
+          hidden={!toolTipVisible || isMobile}>
+          {toolTipValue !== undefined ? (
+            <span>
+              <h2 className={styles.toolTipValue}>
+                <Amount amount={toolTipValue} unit={chartFiat} />
+                <span className={styles.toolTipUnit}>{chartFiat}</span>
+              </h2>
+              <span className={styles.toolTipTime}>
+                {renderDate(toolTipTime * 1000, i18n.language, source)}
+              </span>
+            </span>
+          ) : null}
+        </span>
+      </div>
+      {isMobile && <Filters {...chartFiltersProps} />}
+    </section>
+  );
+};
