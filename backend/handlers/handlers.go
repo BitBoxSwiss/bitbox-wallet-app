@@ -224,7 +224,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitialize).Methods("POST")
-	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoins).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystore).Methods("POST")
@@ -242,10 +242,10 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/electrum/check", handlers.postElectrumCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/exchange/by-region/{code}", handlers.getExchangesByRegion).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/deals", handlers.getExchangeDeals).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/buy-supported/{code}", handlers.getExchangeBuySupported).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/deals/{action}/{code}", handlers.getExchangeDeals).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/supported/{code}", handlers.getExchangeSupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url", handlers.getExchangePocketURL).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url/{action}", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/bitsurance/lookup", handlers.postBitsuranceLookup).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/bitsurance/url", handlers.getBitsuranceURL).Methods("GET")
@@ -1261,8 +1261,19 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 		writeJSON(w, value)
 	})
 }
-func (handlers *Handlers) getAccountSummary(*http.Request) (interface{}, error) {
-	return handlers.backend.ChartData()
+
+func (handlers *Handlers) getAccountSummary(*http.Request) interface{} {
+	type Result struct {
+		Error   string         `json:"error,omitempty"`
+		Data    *backend.Chart `json:"data,omitempty"`
+		Success bool           `json:"success"`
+	}
+
+	data, err := handlers.backend.ChartData()
+	if err != nil {
+		return Result{Success: false, Error: err.Error()}
+	}
+	return Result{Success: true, Data: data}
 }
 
 // getSupportedCoinsHandler returns an array of coin codes for which you can add an account.
@@ -1351,18 +1362,46 @@ func (handlers *Handlers) getBitsuranceURL(r *http.Request) interface{} {
 }
 func (handlers *Handlers) getExchangeDeals(r *http.Request) interface{} {
 	type exchangeDealsList struct {
-		Exchanges []exchanges.ExchangeDeals `json:"exchanges"`
+		Exchanges []*exchanges.ExchangeDealsList `json:"exchanges"`
+		Success   bool                           `json:"success"`
+	}
+	type errorResult struct {
+		ErrorCode    string `json:"errorCode,omitempty"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		Success      bool   `json:"success"`
+	}
+
+	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
+	if err != nil {
+		handlers.log.Error(err)
+		return errorResult{Success: false, ErrorMessage: err.Error()}
+	}
+
+	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
+	if !accountValid {
+		handlers.log.Error("Account not valid")
+		return errorResult{Success: false, ErrorMessage: "Account not valid"}
+	}
+
+	action, err := exchanges.ParseAction(mux.Vars(r)["action"])
+	if err != nil {
+		handlers.log.Error(err)
+		return errorResult{Success: false, ErrorMessage: err.Error()}
+	}
+
+	regionCode := r.URL.Query().Get("region")
+	exchangeDealsLists, err := exchanges.GetExchangeDeals(acct, regionCode, action, handlers.backend.HTTPClient())
+	if err != nil {
+		return errorResult{Success: false, ErrorCode: err.Error()}
 	}
 
 	return exchangeDealsList{
-		Exchanges: []exchanges.ExchangeDeals{
-			exchanges.PocketDeals(),
-			exchanges.MoonpayDeals(),
-		},
+		Success:   true,
+		Exchanges: exchangeDealsLists,
 	}
 }
 
-func (handlers *Handlers) getExchangeBuySupported(r *http.Request) interface{} {
+func (handlers *Handlers) getExchangeSupported(r *http.Request) interface{} {
 	type supportedExchanges struct {
 		Exchanges []string `json:"exchanges"`
 	}
@@ -1381,7 +1420,7 @@ func (handlers *Handlers) getExchangeBuySupported(r *http.Request) interface{} {
 	if exchanges.IsMoonpaySupported(acct.Coin().Code()) {
 		supported.Exchanges = append(supported.Exchanges, exchanges.MoonpayName)
 	}
-	if exchanges.IsPocketSupported(acct) {
+	if exchanges.IsPocketSupported(acct.Coin().Code()) {
 		supported.Exchanges = append(supported.Exchanges, exchanges.PocketName)
 	}
 
@@ -1426,8 +1465,20 @@ func (handlers *Handlers) getExchangePocketURL(r *http.Request) interface{} {
 		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
 	}
 
-	url := exchanges.PocketURL(handlers.backend.DevServers(), lang)
-	return url
+	action, err := exchanges.ParseAction(mux.Vars(r)["action"])
+	if err != nil {
+		return struct {
+			Success      bool   `json:"success"`
+			ErrorMessage string `json:"errorMessage"`
+		}{Success: false, ErrorMessage: err.Error()}
+	}
+	return struct {
+		Success bool   `json:"success"`
+		Url     string `json:"url"`
+	}{
+		Success: true,
+		Url:     exchanges.PocketURL(handlers.backend.DevServers(), lang, action),
+	}
 }
 
 func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interface{} {

@@ -89,7 +89,6 @@ class Unlock extends Component {
     const { t } = this.props;
     const {
       status,
-      password,
       errorCode,
       errorMessage,
       remainingAttempts,
@@ -135,12 +134,10 @@ class Unlock extends Component {
                         <PasswordSingleInput
                           autoFocus
                           id="password"
-                          type="password"
                           label={t('unlock.input.label')}
                           disabled={status === stateEnum.WAITING}
                           placeholder={t('unlock.input.placeholder')}
-                          onValidPassword={this.handleFormChange}
-                          value={password} />
+                          onValidPassword={this.handleFormChange}/>
                       </div>
                       <div className="buttons">
                         <Button

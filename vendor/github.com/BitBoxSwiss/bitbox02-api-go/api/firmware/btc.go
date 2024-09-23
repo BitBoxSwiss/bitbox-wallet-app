@@ -256,6 +256,16 @@ type BTCTxInput struct {
 	// PrevTx must be the transaction referenced by Input.PrevOutHash. Can be nil if
 	// `BTCSignNeedsPrevTxs()` returns false.
 	PrevTx *BTCPrevTx
+	// Required for silent payment address verification.
+	//
+	// Public key according to
+	// https://github.com/bitcoin/bips/blob/master/bip-0352.mediawiki#user-content-Inputs_For_Shared_Secret_Derivation.
+	// Must be 33 bytes for a regular pubkey, and 32 bytes in case of a Taproot x-only output
+	// pubkey.
+	//
+	// IMPORTANT: for Taproot inputs, you must provide the 32 byte x-only pubkey, not a 33 byte
+	// pubkey, otherwise the parity of the Y coordinate could be wrong.
+	BIP352Pubkey []byte
 }
 
 // BTCTx is the data needed to sign a btc transaction.
@@ -276,31 +286,45 @@ func (device *Device) BTCSign(
 	scriptConfigs []*messages.BTCScriptConfigWithKeypath,
 	tx *BTCTx,
 	formatUnit messages.BTCSignInitRequest_FormatUnit,
-) ([][]byte, error) {
+) ([][]byte, map[int][]byte, error) {
+	generatedOutputs := map[int][]byte{}
 	if !device.version.AtLeast(semver.NewSemVer(9, 10, 0)) {
 		for _, sc := range scriptConfigs {
 			if isTaproot(sc) {
-				return nil, UnsupportedError("9.10.0")
+				return nil, nil, UnsupportedError("9.10.0")
 			}
 		}
 	}
 
 	supportsAntiklepto := device.version.AtLeast(semver.NewSemVer(9, 4, 0))
 
+	containsSilentPaymentOutputs := false
+	for _, output := range tx.Outputs {
+		if output.SilentPayment != nil {
+			containsSilentPaymentOutputs = true
+			break
+		}
+	}
+
+	if containsSilentPaymentOutputs && !device.version.AtLeast(semver.NewSemVer(9, 21, 0)) {
+		return nil, nil, UnsupportedError("9.21.0")
+	}
+
 	signatures := make([][]byte, len(tx.Inputs))
 	next, err := device.queryBtcSign(&messages.Request{
 		Request: &messages.Request_BtcSignInit{
 			BtcSignInit: &messages.BTCSignInitRequest{
-				Coin:          coin,
-				ScriptConfigs: scriptConfigs,
-				Version:       tx.Version,
-				NumInputs:     uint32(len(tx.Inputs)),
-				NumOutputs:    uint32(len(tx.Outputs)),
-				Locktime:      tx.Locktime,
-				FormatUnit:    formatUnit,
+				Coin:                         coin,
+				ScriptConfigs:                scriptConfigs,
+				Version:                      tx.Version,
+				NumInputs:                    uint32(len(tx.Inputs)),
+				NumOutputs:                   uint32(len(tx.Outputs)),
+				Locktime:                     tx.Locktime,
+				FormatUnit:                   formatUnit,
+				ContainsSilentPaymentOutputs: containsSilentPaymentOutputs,
 			}}})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	isInputsPass2 := false
@@ -319,7 +343,7 @@ func (device *Device) BTCSign(
 			if performAntiklepto {
 				nonce, err := generateHostNonce()
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				hostNonce = nonce
 				input.HostNonceCommitment = &messages.AntiKleptoHostNonceCommitment{
@@ -331,12 +355,12 @@ func (device *Device) BTCSign(
 					BtcSignInput: input,
 				}})
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
 			if performAntiklepto {
 				if next.Type != messages.BTCSignNextResponse_HOST_NONCE || next.AntiKleptoSignerCommitment == nil {
-					return nil, errp.New("unexpected response; expected signer nonce commitment")
+					return nil, nil, errp.New("unexpected response; expected signer nonce commitment")
 				}
 				signerCommitment := next.AntiKleptoSignerCommitment.Commitment
 				next, err = device.nestedQueryBtcSign(
@@ -348,7 +372,7 @@ func (device *Device) BTCSign(
 						},
 					})
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				err := antikleptoVerify(
 					hostNonce,
@@ -356,12 +380,12 @@ func (device *Device) BTCSign(
 					next.Signature,
 				)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 			}
 			if isInputsPass2 {
 				if !next.HasSignature {
-					return nil, errp.New("unexpected response; expected signature")
+					return nil, nil, errp.New("unexpected response; expected signature")
 				}
 				signatures[inputIndex] = next.Signature
 			}
@@ -383,7 +407,7 @@ func (device *Device) BTCSign(
 					},
 				})
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		case messages.BTCSignNextResponse_PREVTX_INPUT:
 			prevtxInput := tx.Inputs[next.Index].PrevTx.Inputs[next.PrevIndex]
@@ -394,7 +418,7 @@ func (device *Device) BTCSign(
 					},
 				})
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		case messages.BTCSignNextResponse_PREVTX_OUTPUT:
 			prevtxOutput := tx.Inputs[next.Index].PrevTx.Outputs[next.PrevIndex]
@@ -405,7 +429,7 @@ func (device *Device) BTCSign(
 					},
 				})
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		case messages.BTCSignNextResponse_OUTPUT:
 			outputIndex := next.Index
@@ -414,12 +438,24 @@ func (device *Device) BTCSign(
 					BtcSignOutput: tx.Outputs[outputIndex],
 				}})
 			if err != nil {
-				return nil, err
+				return nil, nil, err
+			}
+			if next.GeneratedOutputPkscript != nil {
+				generatedOutputs[int(outputIndex)] = next.GeneratedOutputPkscript
+				err := silentPaymentOutputVerify(
+					tx,
+					int(outputIndex),
+					next.SilentPaymentDleqProof,
+					next.GeneratedOutputPkscript,
+				)
+				if err != nil {
+					return nil, nil, err
+				}
 			}
 		case messages.BTCSignNextResponse_PAYMENT_REQUEST:
 			paymentRequestIndex := next.Index
 			if int(paymentRequestIndex) >= len(tx.PaymentRequests) {
-				return nil, errp.New("payment request index out of bounds")
+				return nil, nil, errp.New("payment request index out of bounds")
 			}
 			paymentRequest := tx.PaymentRequests[paymentRequestIndex]
 			next, err = device.nestedQueryBtcSign(
@@ -430,10 +466,10 @@ func (device *Device) BTCSign(
 				},
 			)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		case messages.BTCSignNextResponse_DONE:
-			return signatures, nil
+			return signatures, generatedOutputs, nil
 		}
 	}
 }

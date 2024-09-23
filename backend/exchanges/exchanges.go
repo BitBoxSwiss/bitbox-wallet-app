@@ -18,6 +18,7 @@ import (
 	"net/http"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 )
 
@@ -40,6 +41,42 @@ var regionCodes = []string{
 	"ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO",
 	"TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI",
 	"VN", "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW"}
+
+// ExchangeError is an error code for exchange related issues.
+type ExchangeError string
+
+func (err ExchangeError) Error() string {
+	return string(err)
+}
+
+var (
+	// ErrCoinNotSupported is used when the exchange doesn't support a given coin type.
+	ErrCoinNotSupported = ExchangeError("coinNotSupported")
+	// ErrRegionNotSupported is used when the exchange doesn't operate in a given region.
+	ErrRegionNotSupported = ExchangeError("regionNotSupported")
+)
+
+// ExchangeAction identifies buy or sell actions.
+type ExchangeAction string
+
+const (
+	// BuyAction identifies a buy exchange action.
+	BuyAction ExchangeAction = "buy"
+	// SellAction identifies a sell exchange action.
+	SellAction ExchangeAction = "sell"
+)
+
+// ParseAction parses an action string and returns an ExchangeAction.
+func ParseAction(action string) (ExchangeAction, error) {
+	switch action {
+	case "buy":
+		return BuyAction, nil
+	case "sell":
+		return SellAction, nil
+	default:
+		return "", errp.New("Invalid Exchange action")
+	}
+}
 
 // ExchangeRegionList contains a list of ExchangeRegion objects.
 type ExchangeRegionList struct {
@@ -72,12 +109,13 @@ type ExchangeDeal struct {
 	Fee     float32       `json:"fee"`
 	Payment PaymentMethod `json:"payment"`
 	IsFast  bool          `json:"isFast"`
+	IsBest  bool          `json:"isBest"`
 }
 
-// ExchangeDeals list the name of a specific exchange and the list of available deals offered by that exchange.
-type ExchangeDeals struct {
-	ExchangeName string         `json:"exchangeName"`
-	Deals        []ExchangeDeal `json:"deals"`
+// ExchangeDealsList list the name of a specific exchange and the list of available deals offered by that exchange.
+type ExchangeDealsList struct {
+	ExchangeName string          `json:"exchangeName"`
+	Deals        []*ExchangeDeal `json:"deals"`
 }
 
 // ListExchangesByRegion populates an array of `ExchangeRegion` objects representing the availability
@@ -98,7 +136,7 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 	}
 
 	isMoonpaySupported := IsMoonpaySupported(account.Coin().Code())
-	isPocketSupported := IsPocketSupported(account)
+	isPocketSupported := IsPocketSupported(account.Coin().Code())
 
 	exchangeRegions := ExchangeRegionList{}
 	for _, code := range regionCodes {
@@ -118,4 +156,71 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 	}
 
 	return exchangeRegions
+}
+
+// GetExchangeDeals returns the exchange deals available for the specified account, region and action.
+func GetExchangeDeals(account accounts.Interface, regionCode string, action ExchangeAction, httpClient *http.Client) ([]*ExchangeDealsList, error) {
+	moonpaySupportsCoin := IsMoonpaySupported(account.Coin().Code()) && action == BuyAction
+	pocketSupportsCoin := IsPocketSupported(account.Coin().Code())
+	coinSupported := moonpaySupportsCoin || pocketSupportsCoin
+	if !coinSupported {
+		return nil, ErrCoinNotSupported
+	}
+
+	var userRegion *ExchangeRegion
+	if len(regionCode) > 0 {
+		exchangesByRegion := ListExchangesByRegion(account, httpClient)
+		for _, region := range exchangesByRegion.Regions {
+			if region.Code == regionCode {
+				// to avoid exporting loop refs
+				region := region
+				userRegion = &region
+				break
+			}
+		}
+	}
+	if userRegion == nil {
+		userRegion = &ExchangeRegion{
+			IsMoonpayEnabled: true,
+			IsPocketEnabled:  true,
+		}
+	}
+
+	exchangeDealsLists := []*ExchangeDealsList{}
+
+	if pocketSupportsCoin && userRegion.IsPocketEnabled {
+		deals := PocketDeals()
+		if deals != nil {
+			exchangeDealsLists = append(exchangeDealsLists, deals)
+		}
+	}
+	if moonpaySupportsCoin && userRegion.IsMoonpayEnabled {
+		deals := MoonpayDeals(action)
+		if deals != nil {
+			exchangeDealsLists = append(exchangeDealsLists, deals)
+		}
+	}
+	if len(exchangeDealsLists) == 0 {
+		return nil, ErrRegionNotSupported
+	}
+
+	deals := []*ExchangeDeal{}
+	for _, dealsList := range exchangeDealsLists {
+		if dealsList != nil {
+			deals = append(deals, dealsList.Deals...)
+		}
+	}
+
+	if len(deals) > 1 {
+		bestDealIndex := 0
+		for i, deal := range deals {
+			oldBestDeal := deals[bestDealIndex]
+			if deal.Fee < oldBestDeal.Fee {
+				bestDealIndex = i
+			}
+		}
+		deals[bestDealIndex].IsBest = true
+	}
+
+	return exchangeDealsLists, nil
 }

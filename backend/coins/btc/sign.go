@@ -36,7 +36,6 @@ type ProposedTransaction struct {
 	GetPrevTx                    func(chainhash.Hash) (*wire.MsgTx, error)
 	// Signatures collects the signatures, one per transaction input.
 	Signatures []*types.Signature
-	SigHashes  *txscript.TxSigHashes
 	FormatUnit coin.BtcUnit
 }
 
@@ -58,7 +57,6 @@ func (account *Account) signTransaction(
 		GetAccountAddress:            account.getAddress,
 		GetPrevTx:                    getPrevTx,
 		Signatures:                   make([]*types.Signature, len(txProposal.Transaction.TxIn)),
-		SigHashes:                    txscript.NewTxSigHashes(txProposal.Transaction, previousOutputs),
 		FormatUnit:                   account.coin.formatUnit,
 	}
 
@@ -82,7 +80,7 @@ func (account *Account) signTransaction(
 
 	// Sanity check: see if the created transaction is valid.
 	if err := txValidityCheck(txProposal.Transaction, previousOutputs,
-		proposedTransaction.SigHashes); err != nil {
+		txProposal.SigHashes()); err != nil {
 		account.log.WithError(err).Panic("Failed to pass transaction validity check.")
 	}
 

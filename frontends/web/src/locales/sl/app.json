@@ -26,6 +26,7 @@
     "extendedPublicKey": "Razširjen javni ključ",
     "label": "Podatki o računu",
     "scriptType": "Tip skripte",
+    "taproot": "Razširjeni javni ključ Taproot ni prikazan za zaščito pred nenamerno uporabo, saj surov format za to vrsto skripta ni splošno podprt. Če si želite ogledati ta ključ, povežite svojo napravo s programsko denarnico, ki podpira ta format zapisa.",
     "title": "Podatki o računu",
     "verify": "Potrdi na napravi",
     "xpubTypeChangeBtn": {
@@ -145,7 +146,8 @@
       "understand": "Razumem, da bo nepravilno geslo za obnovitev ustvarilo drugo, novo denarnico"
     },
     "showMnemonic": {
-      "description": "Na BitBox02 se bodo izpisale besede, ki tvorijo varnostno kopijo denarnice. Zapišite jih na papir.\n\n<strong>Ne hranite jih digitalno in ne fotografirajte jih!</strong>\n\n<strong>Ne izgovarjajte besed na glas.</strong>\n\n<strong>Ta varnostna kopija ni zaščitena z geslom.</strong>\n\nPo končanem prikazu besed boste morali vsako še potrditi na napravi.",
+      "checkboxLabel": "Prebral-a sem zgornje informacije",
+      "description": "Na BitBox02 se bodo izpisale besede, ki tvorijo varnostno kopijo denarnice. Zapišite jih na papir.\n\n<strong>Ne hranite jih digitalno in jih ne fotografirajte!</strong>\n\n<strong>Ne izgovarjajte besed na glas.</strong>\n\n<strong>Ta varnostna kopija ni zaščitena z geslom.</strong>\n\nPo končanem prikazu besed boste morali vsako še potrditi na napravi.",
       "title": "Prikaži seznam besed",
       "warning": "<strong>Nikoli ne delite obnovitvenih besed z nikomer.</strong> Te besede omogočajo popoln dostop do vaše denarnice. Če vas kdo sprašuje po teh besedah, gre zelo verjetno za prevaro. Ne delite jih z neznanci!"
     },
@@ -441,6 +443,9 @@
             "bankTransferReccuring": "Kako nastavimo ponavljajoče nakupe z enim naročilom?",
             "title": "Načini plačila"
           },
+          "sell": {
+            "title": "Prodaj Bitcoin"
+          },
           "supportedCurrencies": "Podpira evropske valute: EUR, GBP in CHF",
           "verification": {
             "info": "Preverjanje identitete je zahtevano le nad dnevnim in letnim limitom.",
@@ -487,7 +492,7 @@
         "security": {
           "descriptionGeneric_bitcoin": "Ko kupite Bitcoin preko partnerske menjalnice, uporabljate zunanjo storitev. Le-ta je izven varnostnega modela naprave BitBox02 in je odvisna od varnosti programske opreme na kateri teče BitBox App.",
           "descriptionGeneric_crypto": "Ko kupite kripto preko partnerske menjalnice, uporabljate zunanjo storitev. Le-ta je izven varnostnega modela naprave BitBox02 in je odvisna od varnosti programske opreme na kateri teče BitBox App.",
-          "link": "Več o varni uporabi",
+          "link": "Zaščita, ki jo nudi BitBox",
           "title": "Model varnostnega sistema"
         },
         "title_bitcoin": "Pozdravljeni na mestu, kjer lahko kupite Bitcoin",
@@ -499,35 +504,13 @@
       "skip": "Ne prikazuj več"
     },
     "pocket": {
-      "data": {
-        "link": "Varovanje zasebnosti storitve Pocket",
-        "p1": "Aplikacija BitBoxApp ne zbira podatkov ob nakupu bitcoina, vhodna sredstva se obravnavajo kot običajna transakcija. Pocket mora za svoje delovanje zbrati nekaj vaših osebnih podatkov. Njihov pravilnik o zasebnosti podrobno pojasnjuje, kako ravnajo s temi podatki.",
-        "title": "Varovanje podatkov"
+      "error": {
+        "insufficientFunds": "Na izbranem računu ni dovolj sredstev"
       },
-      "kyc": {
-        "link": "Preberite FAQ (odgovore na pogosta vprašanja) storitve Pocket",
-        "p1": "Storitev Pocket skuša število postopkov za KYC (know-your-customer; prepoznavo kupca) opraviti v najmanjši možni meri. Za nakupe pod 1000 CHF na dan dodatni dokumenti niso potrebni. Za nakupe nad tem zneskom se boste morali dogovoriti za klic z družbo Pocket, da opravite potreben postopek KYC/AML.",
-        "title": "KYC/AML"
-      },
-      "payment": {
-        "p1": "Bitcoin lahko zelo hitro kupite s storitvijo Pocket z bančnim nakazilom tipa SEPA. Provizija znaša 1,5 %, bitcoin pa se v vašo denarnico nakaže takoj, ko Pocket prejme vaše bančno nakazilo (običajno v istem dnevu).",
-        "p2": "Upoštevajte, da se lahko menjalni tečaji v aplikaciji BitBoxApp razlikujejo od menjalnih tečajev v aplikaciji Pocket, zaradi česar so zneski nekoliko drugačni.",
-        "title": "Načini plačila in provizije"
-      },
+      "paymentRequestNote": "Zahteva za plačilo iz",
       "previousTransactions": "Zgodovina transakcij tega računa ni prazna. Če boste ta račun delili, bodo vse pretekle in prihodnje transakcije na njem vidne storitvi Pocket. Ali vseeno nadaljujete?",
-      "security": {
-        "link": "Model varnosti in zaščite BitBox02",
-        "p1": "Ob nakupu bitcoina preko storitve Pocket, uporabljate zunanjo storitev. Le-ta je izven zaščite, ki jo nudi BitBox02. Varnost in zaščita sta odvisna od okolja v katerem uporabljate BitBoxApp. \nSkupaj s storitvijo Pocket delujemo na način, da z dvofaktorsko avtentikacijo preverjamo naslov na katerega prejemate bitcoin.",
-        "title": "Varnostni model storitve Pocket"
-      },
       "usedAddress": "Naslov {{address}} je bil že uporabljen. Prosimo začnite ponovno.",
-      "verifyBitBox02": "Preverite, ali se naslov, ki ste ga prejeli po e-pošti, ujema z naslovom, prikazanim na napravi. Še bolj varno je, da e-poštno sporočilo odprete in preberete v drugi napravi, če je to mogoče.",
-      "welcome": {
-        "p1": "S storitvijo Pocket sodelujemo, da bi vam omogočili enostaven način nakupa bitcoina neposredno v BitBoxApp. V le nekaj klikih.",
-        "p2": "Pocket je Švicarska platforma ki omogoča hiter in enostaven nakup bitcoina v večini Evropskih držav.",
-        "p3": "S storitvijo Pocket lahko enostavno vzpostavite redni intervalni nakup bitcoina s pomočjo rednih bančnih nakazil. T.i. DCA (dollar-cost averaging) ",
-        "title": "Dobrodošli na pravem mestu za nakup bitcoinov"
-      }
+      "verifyBitBox02": "Preverite, ali se naslov, ki ste ga prejeli po e-pošti, ujema z naslovom, prikazanim na napravi. Še bolj varno je, da e-poštno sporočilo odprete in preberete v drugi napravi, če je to mogoče."
     }
   },
   "changePin": {
@@ -565,7 +548,9 @@
   },
   "device": {
     "appUpradeRequired": "BitBox ni združljiv s to verzijo namizne aplikacije. Prenesite in namestite najnovejšo različico.",
-    "keystoreConnected": "Povezana denarnica"
+    "firmwareUpgradeRequired": "Za to funkcionanost je potrebna nadgradnja strojne programske opreme.",
+    "keystoreConnected": "Povezana denarnica",
+    "unsupportedFeature": "Na tej napravi željena funkcionalnost ni podprta."
   },
   "deviceLock": {
     "button": "Omogočite dvofaktorsko avtentikacijo (2FA)",
@@ -602,21 +587,21 @@
     },
     "expert": {
       "bip85": {
-        "description": "",
+        "description": "Ustvarite podrejene ključe s pomočjo vaše BitBox denarnice.",
         "disclaimer": "Razumem kako delujejo podrejeni ključi in varnostna tveganja",
         "how": {
-          "description": "",
+          "description": "Podrejeni ključi so prikazani kot obnovitvene besede na vašem BitBoxu. Ustvarite lahko poljubno število podrejenih ključev. Za prikaz podrejenega ključa boste pozvani k podrejeni številki (npr 1, 2, 3 itd.) in željenemu št. besed (12, 18 ali 24 obnovitvenih besed).\nNe pozabite, da si morate za kasnejši prikaz shraniti <strong>zaporedno število in število besed</strong> za prikaz istih obnovitvenih besed.",
           "title": "Kako to deluje?"
         },
         "recover": {
-          "description": "Obnovitvene besede lahko vedno prikažete ponovno. Kot omenjeno, zapomniti si morate <strong>številko ključa in število besed</strong> za ponoven prikaz željenega ključa. Nikoli ne vnesite glavnih obnovitvenih besed (ne-podrejenih) BitBox naprave v drugo denarnico. Vedno uporabite podrejene ključe za druge denarnice.",
+          "description": "Obnovitvene besede lahko vedno prikažete ponovno. Zapomniti si morate <strong>številko ključa in število besed</strong> za ponoven prikaz željenega ključa. \nV drugo denarnico nikoli ne vnesite glavnih obnovitvenih besed BitBoxa (ne-podrejenih). Vedno uporabite le podrejene ključe za druge denarnice.",
           "title": "Kako obnovim denarnico s podrejenim ključem na BitBoxu?"
         },
         "security": {
           "description": "Nikoli ne uporabite podrejenega ključa ponovno. Na primer: ne uporabite istega podrejenega ključa za \"vročo\" denarnico in nato še za strojno denarnico. Ključa, ki je bil enkrat uporabljen v spletni ali \"vroči\" denarnici ne smatramo kot varnega.",
           "title": "Varnostni pomisleki"
         },
-        "title": "Prikaži",
+        "title": "Upravljanje s podrejenimi ključi (BIP-85)",
         "what": {
           "description": "Podrejeni ključi (Child keys) so generirani iz glavnega zasebnega ključa oz. obnovitvenih besed. Lahko jih uporabite za ustvarjanje drugih denarnic, npr. izven BitBox denarnice, brez potrebe po arhiviranju teh besed za vsako ustvarjeno denarnico posebej. Na primer, ustvarite podrejeni ključ na BitBoxu in ga uvozite v neko mobilno denarnico. Tako vam ni potrebno vsakokrat arhivirati novih besed za vsako spletno/vročo/mobilno denarnico posebej.",
           "link": "Preberite si več o BIP-85",
@@ -707,6 +692,46 @@
     "wrongKeystore": "Priključena je napačna denarnica. Vstavite pravo napravo BitBox02, ki ustreza temu računu.",
     "wrongKeystore2": "Če uporabljate frazemsko geslo (passphrase), se prepričajte, da ste ga pravilno vnesli za ta račun."
   },
+  "exchange": {
+    "buySell": {
+      "coinNotSupported": "Za to vrsto kovanca ni na voljo nobenih možnosti.",
+      "regionNotSupported": "Za to regijo ni na voljo nobenih možnosti.",
+      "updateNow": "Posodobi"
+    },
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "Politika zasebnosti storitve Pocket",
+          "p1": "BitBoxApp ne zazna, ne prejme in ne hrani osebnih podatkov. Storitev Pocket zbira osebne podatke, kot je to opisano v njihovi Politiki zasebnosti.",
+          "title": "Zaščita podatkov"
+        },
+        "fees": {
+          "extraNote": "Predno prodate, morate Bitcoin kupiti.",
+          "note": "Opomba: Menjalni tečaji storitve Pocket se lahko razlikujejo od tečajev v BitBoxApp.",
+          "p1": "<strong>Nakup bitcoina:</strong> Uporabite bančno nakazilo SEPA za pošiljanje EUR (ali CHF) in prejmite Bitcoin neposredno v vaš BitBox. Viden bo, ko Pocket prejme nakazilo, to je običajno še isti dan.",
+          "p2": "<strong>Prodaja Bitcoina:</strong> Pošljite Bitcoin v Pocket in prejmite EUR ali CHF na svoj bančni račun, ki ste ga registrirali v Pocketu. Menjalni tečaj velja v trenutku, ko Pocket prejme vaš Bitcoin. ",
+          "title": "Načini plačila in provizije"
+        },
+        "kyc": {
+          "link": "Preberite FAQ storitve Pocket",
+          "p1": "Za menjave do 950 EUR (1000 CHF) na dan dodatni dokumenti niso potrebni.",
+          "p2": "Za višje zneske je potreben postopek prepoznave stranke (KYC/AML) s Pocketom.",
+          "title": "KYC/AML so kratice za Know Your Customer / Anti-Money Laundering."
+        },
+        "security": {
+          "link": "Pred čem varuje BitBox02",
+          "p1": "Pocket je zunanja storitev in ni zajeta v zaščitnem modelu denarnice BitBox02. S Pocketom tesno sodelujemo in skušamo izboljšati splošno varnost prenosa sredstev.",
+          "p2": "<strong>Nakup bitcoina:</strong> Prejeli boste e-poštno sporočilo s potrditvijo vašega naslova, na katerega že lite prejeti bitcoin. Preverite ga.",
+          "p3": "<strong>Prodaja bitcoina:</strong> BitBox02 kriptografsko preveri naslov na katerega prejme bitcoin in v kolikor je pravilen, na zaslonu naprave prikaže besedo \"Pocket\".",
+          "title": "Varnost"
+        },
+        "welcome": {
+          "p1": "S švicarskim posrednikom Pocket sodelujemo, da olajšamo nakup in prodajo Bitcoina v aplikaciji BitBoxApp. Storitev Pocket je na voljo po vsej Evropi, kjer so podprta bančna nakazila SEPA.",
+          "title": "Kupi in prodaj Bitcoin s Pocketom"
+        }
+      }
+    }
+  },
   "fiat": {
     "default": "Privzeto",
     "setDefault": "Nastavite {{code}} kot privzeto",
@@ -717,6 +742,7 @@
   },
   "generic": {
     "buy": "Kupi {{coinCode}}",
+    "buySell": "Kupi in prodaj",
     "buy_bitcoin": "Kupi Bitcoin",
     "buy_crypto": "Kupi kripto",
     "enabled_false": "Onemogočeno",
@@ -996,7 +1022,7 @@
       "accountSummary": "Vodič po povzetku računov",
       "advancedSettings": "Vodič po naprednih nastavitvah",
       "appearance": "Kako nastaviti izgled",
-      "buy": "O postopku nakupa",
+      "buySell": "Kako kupiti ali prodati",
       "insurance": "O zavarovanju",
       "manageAccount": "Vodič po upravljanju računov",
       "manageDevice": "Vodič po upravljanju naprave",
@@ -1532,8 +1558,10 @@
       "title": "Pošlji iz (output):"
     },
     "confirm": {
+      "infoMessage": "Na zaslonu naprave skrbno preverite, da sta znesek in naslov pravilna.",
       "selected-coins": "Izbrani kovanci",
       "title": "Potrdite in pošljite transakcijo",
+      "to": "Na",
       "total": "Skupaj"
     },
     "error": {
@@ -1601,7 +1629,7 @@
     "transactionDetails": "Podrobnosti transakcije"
   },
   "settings": {
-    "about": "Podatki o BitBoxApp",
+    "about": "O aplikaciji",
     "accounts": "Računi",
     "advancedSettings": "Napredne nastavitve",
     "appearance": "Izgled",

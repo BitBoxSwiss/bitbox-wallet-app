@@ -22,7 +22,7 @@ import * as accountApi from '@/api/account';
 import { statusChanged, syncAddressesCount, syncdone } from '@/api/accountsync';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { TDevices } from '@/api/devices';
-import { getExchangeBuySupported, SupportedExchanges } from '@/api/exchanges';
+import { getExchangeSupported, SupportedExchanges } from '@/api/exchanges';
 import { useSDCard } from '@/hooks/sdcard';
 import { unsubscribe } from '@/utils/subscriptions';
 import { alertUser } from '@/components/alert/Alert';
@@ -35,7 +35,6 @@ import { Status } from '@/components/status/status';
 import { Transactions } from '@/components/transactions/transactions';
 import { useLoad } from '@/hooks/api';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
-import style from './account.module.css';
 import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
 import { AccountGuide } from './guide';
@@ -47,6 +46,9 @@ import { Dialog } from '@/components/dialog/dialog';
 import { A } from '@/components/anchor/anchor';
 import { getConfig, setConfig } from '@/utils/config';
 import { i18n } from '@/i18n/i18n';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { GlobalBanners } from '@/components/globalbanners/globalbanners';
+import style from './account.module.css';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -69,7 +71,7 @@ export const Account = ({
   const [insured, setInsured] = useState<boolean>(false);
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
   const [stateCode, setStateCode] = useState<string>();
-  const supportedExchanges = useLoad<SupportedExchanges>(getExchangeBuySupported(code), [code]);
+  const supportedExchanges = useLoad<SupportedExchanges>(getExchangeSupported(code), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
@@ -255,7 +257,7 @@ export const Account = ({
     );
   }
 
-  const exchangeBuySupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
+  const exchangeSupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
 
   const isAccountEmpty = balance
     && !balance.hasAvailable
@@ -269,25 +271,28 @@ export const Account = ({
     code,
     coinCode: account.coinCode,
     canSend: balance && balance.hasAvailable,
-    exchangeBuySupported,
+    exchangeSupported,
     account
   };
 
   return (
     <div className="contentWithGuide">
       <div className="container">
-        <Status hidden={!hasCard} type="warning">
-          {t('warning.sdcard')}
-        </Status>
+        <ContentWrapper>
+          <GlobalBanners />
+          <Status hidden={!hasCard} type="warning">
+            {t('warning.sdcard')}
+          </Status>
+        </ContentWrapper>
         <Dialog open={insured && uncoveredFunds.length !== 0} medium title={t('account.warning')} onClose={() => setUncoveredFunds([])}>
           <MultilineMarkup tagName="p" markup={t('account.uncoveredFunds', {
             name: account.name,
             uncovered: uncoveredFunds,
-          })}/>
+          })} />
           <A href={getBitsuranceGuideLink()}>{t('account.uncoveredFundsLink')}</A>
         </Dialog>
         <Header
-          title={<h2><span>{account.name}</span>{insured && (<Insured/>)}</h2>}>
+          title={<h2><span>{account.name}</span>{insured && (<Insured />)}</h2>}>
           <HideAmountsButton />
           <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center m-left-half">
             <Info className={style.accountIcon} />
@@ -316,7 +321,7 @@ export const Account = ({
               <BuyReceiveCTA
                 account={account}
                 code={code}
-                exchangeBuySupported={exchangeBuySupported}
+                exchangeSupported={exchangeSupported}
                 unit={balance.available.unit}
                 balanceList={[balance]}
               />
@@ -326,7 +331,7 @@ export const Account = ({
               handleExport={exportAccount}
               explorerURL={account.blockExplorerTxPrefix}
               transactions={transactions}
-            /> }
+            />}
           </div>
         </div>
       </div>

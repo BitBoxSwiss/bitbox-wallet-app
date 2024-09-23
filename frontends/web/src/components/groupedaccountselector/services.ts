@@ -1,10 +1,10 @@
 import { getBalance } from '@/api/account';
-import { TAccountsByKeystore, isAmbiguiousName } from '@/routes/account/utils';
+import { TAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { TGroupedOption, TOption } from './groupedaccountselector';
 
 export const createGroupedOptions = (accountsByKeystore: TAccountsByKeystore[]) => {
   return accountsByKeystore.map(({ keystore, accounts }) => ({
-    label: `${keystore.name} ${isAmbiguiousName(keystore.name, accountsByKeystore) ? `(${keystore.rootFingerprint})` : ''}`,
+    label: `${keystore.name} ${isAmbiguousName(keystore.name, accountsByKeystore) ? `(${keystore.rootFingerprint})` : ''}`,
     connected: keystore.connected,
     options: accounts.map((account) => ({ label: account.name, value: account.code, coinCode: account.coinCode, disabled: false })) as TOption[]
   }));

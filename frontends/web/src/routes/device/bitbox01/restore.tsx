@@ -41,7 +41,7 @@ interface State {
     activeDialog: boolean;
     isLoading: boolean;
     understand: boolean;
-    password?: string;
+    password?: string | null;
 }
 
 class Restore extends Component<Props, State> {
@@ -109,7 +109,7 @@ class Restore extends Component<Props, State> {
     this.setState({ understand: e.target.checked });
   };
 
-  private setValidPassword = (password: string) => {
+  private setValidPassword = (password: string | null) => {
     this.setState({ password });
   };
 

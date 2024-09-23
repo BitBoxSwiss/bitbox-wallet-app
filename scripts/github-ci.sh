@@ -12,7 +12,7 @@ if [ "$OS_NAME" == "linux" ]; then
     # Which docker image to use to run the CI. Defaults to Docker Hub.
     # Overwrite with CI_IMAGE=docker/image/path environment variable.
     # Keep this in sync with .github/workflows/ci.yml.
-    : "${CI_IMAGE:=shiftcrypto/bitbox-wallet-app:23}"
+    : "${CI_IMAGE:=shiftcrypto/bitbox-wallet-app:24}"
     # Time image pull to compare in the future.
     time docker pull "$CI_IMAGE"
 
@@ -33,9 +33,6 @@ if [ "$OS_NAME" == "osx" ]; then
     # this script.
     go version
     brew install qt@5
-    brew install nvm
-    source /usr/local/opt/nvm/nvm.sh
-    nvm install 20 # install this node version
     export PATH="/usr/local/opt/qt@5/bin:$PATH"
     export LDFLAGS="-L/usr/local/opt/qt@5/lib"
     export CPPFLAGS="-I/usr/local/opt/qt@5/include"

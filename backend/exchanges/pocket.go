@@ -57,26 +57,32 @@ type PocketRegion struct {
 
 // PocketURL returns the url needed to incorporate the widget in the frontend, verifying
 // if the `devservers` argument is enabled.
-func PocketURL(devServers bool, locale string) string {
-	if devServers {
-		return pocketMainTestURL + "/" + locale + "/" + pocketWidgetTest
+func PocketURL(devServers bool, locale string, action ExchangeAction) string {
+	sellPath := ""
+	if action == SellAction {
+		sellPath = "/sell"
 	}
-	return pocketMainLiveURL + "/" + locale + "/" + pocketWidgetLive
+
+	if devServers {
+		return pocketMainTestURL + "/" + locale + "/" + pocketWidgetTest + sellPath
+	}
+	return pocketMainLiveURL + "/" + locale + "/" + pocketWidgetLive + sellPath
 }
 
 // IsPocketSupported is true if coin.Code is supported by Pocket.
-func IsPocketSupported(account accounts.Interface) bool {
-	coinCode := account.Coin().Code()
+func IsPocketSupported(coinCode coin.Code) bool {
 	// Pocket would also support tbtc, but at the moment testnet address signing is disabled on the
 	// BitBox02 firmware.
 	return coinCode == coin.CodeBTC || coinCode == coin.CodeTBTC
 }
 
 // PocketDeals returns the purchase conditions (fee and payment methods) offered by Pocket.
-func PocketDeals() ExchangeDeals {
-	return ExchangeDeals{
+func PocketDeals() *ExchangeDealsList {
+	// deals details are the same for both buy and sell. In the future we may need to use
+	// an action parameter to give different results.
+	return &ExchangeDealsList{
 		ExchangeName: PocketName,
-		Deals: []ExchangeDeal{
+		Deals: []*ExchangeDeal{
 			{
 				Fee:     0.015, // 1.5%
 				Payment: BankTransferPayment,
@@ -92,7 +98,7 @@ func GetPocketSupportedRegions(httpClient *http.Client) (map[string]PocketRegion
 	var regionsList []PocketRegion
 	endpoint := fmt.Sprintf("%s/availabilities", pocketAPILiveURL)
 
-	_, err := util.APIGet(httpClient, endpoint, "", 81920, &regionsList)
+	_, err := util.APIGet(httpClient, endpoint, "", 1000000, &regionsList)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +118,7 @@ func GetPocketSupportedRegions(httpClient *http.Client) (map[string]PocketRegion
 //		`PocketWidgetSignAddress`. Since this should be the first unused address, this function ranges
 //		among them to retrieve the ID needed for the verification.
 func PocketWidgetVerifyAddress(account accounts.Interface, address string) error {
-	if !IsPocketSupported(account) {
+	if !IsPocketSupported(account.Coin().Code()) {
 		return fmt.Errorf("Coin not supported %s", account.Coin().Code())
 	}
 

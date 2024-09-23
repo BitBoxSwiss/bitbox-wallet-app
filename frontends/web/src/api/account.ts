@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+import type { LineData } from 'lightweight-charts';
 import { apiGet, apiPost } from '@/utils/request';
-import type { ChartData } from '@/routes/account/summary/chart';
 import type { TDetailStatus } from './bitsurance';
 import type { SuccessResponse } from './response';
+import { Slip24 } from 'request-address';
 
 export type NativeCoinCode = 'btc' | 'tbtc' | 'rbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
 
@@ -34,6 +35,11 @@ export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 
 export type ERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 'eth-erc20-link' | 'eth-erc20-bat' | 'eth-erc20-mkr' | 'eth-erc20-zrx' | 'eth-erc20-wbtc' | 'eth-erc20-paxg' | 'eth-erc20-dai0x6b17';
 
 export type CoinCode = NativeCoinCode | ERC20CoinCode | 'lightning';
+
+export type FiatWithDisplayName = {
+  currency: Fiat,
+  displayName: string
+}
 
 export type Terc20Token = {
   code: ERC20CoinCode;
@@ -180,7 +186,21 @@ export const init = (code: AccountCode): Promise<null> => {
   return apiPost(`account/${code}/init`);
 };
 
-export interface ISummary {
+export type FormattedLineData = LineData & {
+  formattedValue: string;
+};
+
+export type ChartData = FormattedLineData[];
+
+export type TSummaryResponse = {
+    success: true;
+    data: TSummary;
+} | {
+  success: false;
+  error: string;
+}
+
+export type TSummary = {
     chartDataMissing: boolean;
     chartDataDaily: ChartData;
     chartDataHourly: ChartData;
@@ -191,13 +211,13 @@ export interface ISummary {
     lastTimestamp: number;
 }
 
-export const getSummary = (): Promise<ISummary> => {
+export const getSummary = (): Promise<TSummaryResponse> => {
   return apiGet('account-summary');
 };
 
 export type Conversions = {
-    [key in Fiat]: string;
-}
+    [key in Fiat]?: string;
+};
 
 export interface IAmount {
     amount: string;
@@ -251,10 +271,6 @@ export const postNotesTx = (code: AccountCode, {
   return apiPost(`account/${code}/notes/tx`, { internalTxID, note });
 };
 
-export const proposeTxNote = (code: AccountCode, note: string): Promise<null> => {
-  return apiPost(`account/${code}/propose-tx-note`, note);
-};
-
 export const getTransactionList = (code: AccountCode): Promise<TTransactions> => {
   return apiGet(`account/${code}/transactions`);
 };
@@ -302,7 +318,8 @@ export type TTxInput = {
   feeTarget: FeeTargetCode;
   customFee: string;
   sendAll: 'yes' | 'no';
-  selectedUTXOs: string[],
+  selectedUTXOs: string[];
+  paymentRequest: Slip24 | null;
 };
 
 export type TTxProposalResult = {
@@ -329,8 +346,8 @@ export interface ISendTx {
     errorCode?: string;
 }
 
-export const sendTx = (code: AccountCode): Promise<ISendTx> => {
-  return apiPost(`account/${code}/sendtx`);
+export const sendTx = (code: AccountCode, txNote: string): Promise<ISendTx> => {
+  return apiPost(`account/${code}/sendtx`, txNote);
 };
 
 export type FeeTargetCode = 'custom' | 'low' | 'economy' | 'normal' | 'high';
@@ -393,6 +410,16 @@ export const hasSecureOutput = (code: AccountCode) => {
   return (): Promise<TSecureOutput> => {
     return apiGet(`account/${code}/has-secure-output`);
   };
+};
+
+type THasPaymentRequest = {
+  success: boolean;
+  errorMessage?: string;
+  errorCode?: 'firmwareUpgradeRequired' | 'unsupportedFeature';
+};
+
+export const hasPaymentRequest = (code: AccountCode): Promise<THasPaymentRequest> => {
+  return apiGet(`account/${code}/has-payment-request`);
 };
 
 export type TAddAccount = {

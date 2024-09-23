@@ -33,15 +33,31 @@ type AddressList struct {
 	Addresses  []Address
 }
 
+// TextMemo represents a slip-0024 text memo.
+type TextMemo struct {
+	Note string
+}
+
+// PaymentRequest contains the data needed to fulfill a slip-0024 payment request.
+// Text memos are the only memo type supported, currently.
+type PaymentRequest struct {
+	RecipientName string
+	Memos         []TextMemo
+	Nonce         []byte
+	TotalAmount   uint64
+	Signature     []byte
+}
+
 // TxProposalArgs are the arguments needed when creating a tx proposal.
 type TxProposalArgs struct {
 	RecipientAddress string
 	Amount           coin.SendAmount
 	FeeTargetCode    FeeTargetCode
 	// Only applies if FeeTargetCode == Custom. It is provided in sat/vB for BTC/LTC and Gwei for ETH.
-	CustomFee     string
-	SelectedUTXOs map[wire.OutPoint]struct{}
-	Note          string
+	CustomFee      string
+	SelectedUTXOs  map[wire.OutPoint]struct{}
+	Note           string
+	PaymentRequest *PaymentRequest
 }
 
 // Interface is the API of a Account.
@@ -74,8 +90,8 @@ type Interface interface {
 	// Must enforce that initial sync is done before returning.
 	Balance() (*Balance, error)
 	// SendTx signs and sends the active tx proposal, set by TxProposal. Errors if none
-	// available. The note, if set by ProposeTxNote(), is persisted for the transaction.
-	SendTx() error
+	// available.
+	SendTx(txNote string) error
 	FeeTargets() ([]FeeTarget, FeeTargetCode)
 	TxProposal(*TxProposalArgs) (coin.Amount, coin.Amount, coin.Amount, error)
 	// GetUnusedReceiveAddresses gets a list of list of receive addresses. The result can be one
@@ -87,9 +103,6 @@ type Interface interface {
 
 	Notes() *notes.Notes
 	TxNote(txID string) string
-	// ProposeTxnote stores a note. The note is persisted in the notes database upon calling
-	// SendTx(). This function must be called before `SendTx()`.
-	ProposeTxNote(string)
 	// SetTxNote sets a tx note and refreshes the account.
 	SetTxNote(txID string, note string) error
 

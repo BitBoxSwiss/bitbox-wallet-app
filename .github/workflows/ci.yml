@@ -2,6 +2,10 @@
 # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
 name: ci
 on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   # Use alternative image when running on GitHub workflows CI to avoid potential
   # rate limiting when executing jobs in parallel: they can't cache docker images
@@ -21,7 +25,7 @@ env:
   # https://docs.github.com/en/packages/guides/pushing-and-pulling-docker-images
   #
   # Keep this in sync with default in scripts/github-ci.sh.
-  CI_IMAGE: ghcr.io/bitboxswiss/bitbox-wallet-app-ci:23
+  CI_IMAGE: ghcr.io/bitboxswiss/bitbox-wallet-app-ci:24
   GITHUB_BUILD_DIR: ${{github.workspace}}
 
 jobs:
@@ -95,7 +99,11 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.21.x
+          go-version: 1.22.x
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
       - name: Build macOS app
         run: >
           ./scripts/github-ci.sh qt-osx;
@@ -111,3 +119,37 @@ jobs:
         with:
           path: BitBoxApp-macos.zip
           name: BitBoxApp-macos-${{github.sha}}.zip
+  ios:
+    runs-on: macos-14
+    env:
+      GO_SRC_DIR: src/github.com/BitBoxSwiss/bitbox-wallet-app
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          # Take Go version to install from go.mod.
+          go-version-file: 'go.mod'
+      - name: Set GOPATH
+        run: |
+          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+      - name: Copy repo to GOPATH
+        # This is needed as gomobile is still unaware of go modules, so the repo must be in GOPATH
+        run: |
+          mkdir -p $GOPATH/$(dirname $GO_SRC_DIR)
+          cp -a ${{github.workspace}} $GOPATH/$(dirname $GO_SRC_DIR)
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install Qt
+        run: |
+          brew install qt@5
+          echo "/opt/homebrew/opt/qt@5/bin" >> $GITHUB_PATH
+      - name: Build iOS app
+        run: |
+          make gomobileinit
+          (cd $GOPATH/$GO_SRC_DIR; make ios)

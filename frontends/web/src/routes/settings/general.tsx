@@ -31,6 +31,8 @@ import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { SubTitle } from '@/components/title';
 import { TPagePropsWithSettingsTabs } from './types';
+import { GlobalBanners } from '@/components/globalbanners/globalbanners';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 
 export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
@@ -38,6 +40,9 @@ export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) 
     <GuideWrapper>
       <GuidedContent>
         <Main>
+          <ContentWrapper>
+            <GlobalBanners />
+          </ContentWrapper>
           <Header
             hideSidebarToggler
             title={
@@ -49,7 +54,7 @@ export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) 
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu deviceIDs={deviceIDs}>
-                <SubTitle className="m-top-default">
+                <SubTitle>
                   {t('settings.appearance')}
                 </SubTitle>
                 <LanguageDropdownSetting />

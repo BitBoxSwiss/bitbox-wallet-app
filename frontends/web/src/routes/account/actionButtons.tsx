@@ -27,11 +27,11 @@ type TProps = {
   canSend?: boolean;
   code: AccountCode;
   coinCode: CoinCode;
-  exchangeBuySupported?: boolean;
+  exchangeSupported?: boolean;
   account: IAccount;
 }
 
-export const ActionButtons = ({ canSend, code, coinCode, exchangeBuySupported, account }: TProps) => {
+export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, account }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const walletConnectEnabled = isEthereumBased(account.coinCode) && !account.isToken;
@@ -64,9 +64,9 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeBuySupported, a
       <Link key="receive" to={`/account/${code}/receive`} className={style.receive}>
         <span>{t('button.receive')}</span>
       </Link>
-      { exchangeBuySupported && (
-        <Link key="buy" to={`/buy/info/${code}`} className={style.buy}>
-          <span>{t('button.buy')}</span>
+      { exchangeSupported && (
+        <Link key="exchange" to={`/exchange/info/${code}`} className={style.exchange}>
+          <span>{t('generic.buySell')}</span>
         </Link>
       )}
       {walletConnectEnabled && <Link key="wallet-connect" to={`/account/${code}/wallet-connect/dashboard`} className={style.walletConnect}>

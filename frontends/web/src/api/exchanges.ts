@@ -37,6 +37,7 @@ export type ExchangeDeal = {
   fee: number;
   payment: 'card' | 'bank-transfer';
   isFast: boolean;
+  isBest: boolean;
 }
 
 export type ExchangeDeals = {
@@ -46,10 +47,21 @@ export type ExchangeDeals = {
 
 export type ExchangeDealsList = {
   exchanges: ExchangeDeals[];
+  success: true;
 }
 
-export const getExchangeDeals = (): Promise<ExchangeDealsList> => {
-  return apiGet('exchange/deals');
+export type ExchangeError = {
+  success: false;
+  errorCode?: 'coinNotSupported' | 'regionNotSupported';
+  errorMessage?: string;
+}
+
+export type TExchangeDealsResponse = ExchangeDealsList | ExchangeError
+
+export type TExchangeAction = 'buy' | 'sell';
+
+export const getExchangeDeals = (action: TExchangeAction, accountCode: AccountCode, region: ExchangeRegion['code']): Promise<TExchangeDealsResponse> => {
+  return apiGet(`exchange/deals/${action}/${accountCode}?region=${region}`);
 };
 
 export type MoonpayBuyInfo = {
@@ -73,16 +85,24 @@ export const verifyAddress = (address: string, accountCode: AccountCode): Promis
   return apiPost('exchange/pocket/verify-address', { address, accountCode });
 };
 
-export const getPocketURL = (): Promise<string> => {
-  return apiGet('exchange/pocket/api-url');
+export type TPocketUrlResponse = {
+  success: true;
+  url: string;
+} | {
+  success: false;
+  errorMessage: string;
+};
+
+export const getPocketURL = (action: TExchangeAction): Promise<TPocketUrlResponse> => {
+  return apiGet(`exchange/pocket/api-url/${action}`);
 };
 
 export type SupportedExchanges= {
   exchanges: string[];
 };
 
-export const getExchangeBuySupported = (code: AccountCode) => {
+export const getExchangeSupported = (code: AccountCode) => {
   return (): Promise<SupportedExchanges> => {
-    return apiGet(`exchange/buy-supported/${code}`);
+    return apiGet(`exchange/supported/${code}`);
   };
 };

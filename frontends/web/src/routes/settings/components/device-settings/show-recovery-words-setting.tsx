@@ -23,7 +23,7 @@ import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
 import { showMnemonic } from '@/api/bitbox02';
 import { Message } from '@/components/message/message';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
-import { Button } from '@/components/forms';
+import { Button, Checkbox } from '@/components/forms';
 
 type TProps = {
   deviceID: string;
@@ -37,14 +37,15 @@ const ShowRecoveryWordsSetting = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
   const [inProgress, setInProgress] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   const confirmShowWords = async () => {
     setShowDialog(false);
     setInProgress(true);
     await showMnemonic(deviceID);
     setInProgress(false);
-
   };
+
   return (
     <>
       <SettingsItem
@@ -65,8 +66,14 @@ const ShowRecoveryWordsSetting = ({ deviceID }: TProps) => {
             tagName="span"
             withBreaks />
         </p>
+        <Checkbox
+          id="confirmationCheckbox"
+          onChange={() => setChecked(prev => !prev)}
+          checked={checked}
+          label={t('backup.showMnemonic.checkboxLabel')}
+        />
         <DialogButtons>
-          <Button primary onClick={confirmShowWords}>{t('dialog.confirm')}</Button>
+          <Button disabled={!checked} primary onClick={confirmShowWords}>{t('button.next')}</Button>
           <Button secondary onClick={() => setShowDialog(false)}>{t('dialog.cancel')}</Button>
         </DialogButtons>
       </Dialog>

@@ -17,6 +17,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -73,7 +74,7 @@ func NewHandlers(
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
 	handleFunc("/sign-address", handlers.ensureAccountInitialized(handlers.postSignBTCAddress)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
-	handleFunc("/propose-tx-note", handlers.ensureAccountInitialized(handlers.postProposeTxNote)).Methods("POST")
+	handleFunc("/has-payment-request", handlers.ensureAccountInitialized(handlers.getHasPaymentRequest)).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	handleFunc("/connect-keystore", handlers.ensureAccountInitialized(handlers.postConnectKeystore)).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
@@ -357,6 +358,51 @@ func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) 
 	}, nil
 }
 
+type slip24Request struct {
+	RecipientName string `json:"recipientName"`
+	Nonce         string `json:"nonce"`
+	Memos         []struct {
+		Type string `json:"type"`
+		Text string `json:"text"`
+	} `json:"memos"`
+	Outputs []struct {
+		Amount  uint64 `json:"amount"`
+		Address string `json:"address"`
+	} `json:"outputs"`
+	Signature string `json:"signature"`
+}
+
+func (slip24 slip24Request) toPaymentRequest() (*accounts.PaymentRequest, error) {
+	if len(slip24.Outputs) != 1 {
+		return nil, errp.New("Missing or multiple payment request output unsupported")
+	}
+
+	if len(slip24.Nonce) > 0 {
+		return nil, errp.New("Nonce value unsupported")
+	}
+
+	sigBytes, err := base64.StdEncoding.DecodeString(slip24.Signature)
+	if err != nil {
+		return nil, err
+	}
+
+	memos := []accounts.TextMemo{}
+	for _, memo := range slip24.Memos {
+		if memo.Type != "text" {
+			return nil, errp.New("Payment request non-text memo unsupported")
+		}
+		memos = append(memos, accounts.TextMemo{Note: memo.Text})
+	}
+
+	return &accounts.PaymentRequest{
+		RecipientName: slip24.RecipientName,
+		Nonce:         nil,
+		Signature:     sigBytes,
+		TotalAmount:   slip24.Outputs[0].Amount,
+		Memos:         memos,
+	}, nil
+}
+
 type sendTxInput struct {
 	accounts.TxProposalArgs
 }
@@ -367,11 +413,12 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		SendAll   string `json:"sendAll"`
 		FeeTarget string `json:"feeTarget"`
 		// Provided in Sat/vByte for BTC/LTC and in Gwei for ETH.
-		CustomFee     string   `json:"customFee"`
-		Amount        string   `json:"amount"`
-		SelectedUTXOS []string `json:"selectedUTXOS"`
-		Note          string   `json:"note"`
-		Counter       int      `json:"counter"`
+		CustomFee      string         `json:"customFee"`
+		Amount         string         `json:"amount"`
+		SelectedUTXOS  []string       `json:"selectedUTXOS"`
+		Note           string         `json:"note"`
+		Counter        int            `json:"counter"`
+		PaymentRequest *slip24Request `json:"paymentRequest"`
 	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
@@ -399,11 +446,25 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		input.SelectedUTXOs[*outPoint] = struct{}{}
 	}
 	input.Note = jsonBody.Note
+	if jsonBody.PaymentRequest != nil {
+		paymentRequest, err := jsonBody.PaymentRequest.toPaymentRequest()
+		if err != nil {
+			return err
+		}
+		input.PaymentRequest = paymentRequest
+	}
 	return nil
 }
 
 func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
-	err := handlers.account.SendTx()
+	var txNote string
+	if err := json.NewDecoder(r.Body).Decode(&txNote); err != nil {
+		// In case unmarshaling of the tx. note fails for some reason we do not want to abort send
+		// because the tx. note is not critical for its functionality/correctness. This is why we do
+		// not return but only log an error here.
+		handlers.log.WithError(err).Error("Failed to unmarshal transaction note")
+	}
+	err := handlers.account.SendTx(txNote)
 	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return map[string]interface{}{"success": false, "aborted": true}, nil
 	}
@@ -582,15 +643,6 @@ func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, erro
 	}, nil
 }
 
-func (handlers *Handlers) postProposeTxNote(r *http.Request) (interface{}, error) {
-	var note string
-	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	handlers.account.ProposeTxNote(note)
-	return nil, nil
-}
-
 func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
 	var args struct {
 		InternalTxID string `json:"internalTxID"`
@@ -749,4 +801,31 @@ func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, erro
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	return response{Success: true, Address: address, Signature: signature}, nil
+}
+
+func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+	}
+
+	account, ok := handlers.account.(*btc.Account)
+	if !ok {
+		return response{
+			Success:      false,
+			ErrorMessage: "An account must be BTC based to support payment requests.",
+		}, nil
+	}
+
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	err = keystore.SupportsPaymentRequests()
+	if err != nil {
+		return response{Success: false, ErrorCode: err.Error()}, nil
+	}
+
+	return response{Success: true}, nil
 }

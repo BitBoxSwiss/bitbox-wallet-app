@@ -19,10 +19,10 @@ import { Route, Routes, useParams } from 'react-router-dom';
 import { IAccount } from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { AddAccount } from './account/add/add';
-import { Moonpay } from './buy/moonpay';
-import { BuyInfo } from './buy/info';
-import { Exchange } from './buy/exchange';
-import { Pocket } from './buy/pocket';
+import { Moonpay } from './exchange/moonpay';
+import { ExchangeInfo } from './exchange/info';
+import { Exchange } from './exchange/exchange';
+import { Pocket } from './exchange/pocket';
 import { Info } from './account/info/info';
 import { Receive } from './account/receive';
 import { SendWrapper } from './account/send/send-wrapper';
@@ -32,6 +32,7 @@ import { ManageBackups } from './device/manage-backups/manage-backups';
 import { ManageAccounts } from './settings/manage-accounts';
 import { ElectrumSettings } from './settings/electrum';
 import { Passphrase } from './device/bitbox02/passphrase';
+import { Bip85 } from './device/bitbox02/bip85';
 import { Account } from './account/account';
 import { Lightning } from './lightning';
 import { Receive as ReceiveLightning } from './lightning/receive';
@@ -171,8 +172,8 @@ export const AppRouter = ({
     <LightningDeactivate />
   </InjectParams>;
 
-  const BuyInfoEl = <InjectParams>
-    <BuyInfo
+  const ExchangeInfoEl = <InjectParams>
+    <ExchangeInfo
       code={''}
       accounts={activeAccounts} />
   </InjectParams>;
@@ -186,15 +187,27 @@ export const AppRouter = ({
   const ExchangeEl = <InjectParams>
     <Exchange
       code={''}
-      accounts={activeAccounts} />
+      accounts={activeAccounts}
+      deviceIDs={deviceIDs}
+    />
   </InjectParams>;
 
-  const PocketEl = <InjectParams>
+  const PocketBuyEl = <InjectParams>
     <Pocket
-      code={''} />
+      code={''}
+      action="buy"
+    />
+  </InjectParams>;
+
+  const PocketSellEl = <InjectParams>
+    <Pocket
+      code={''}
+      action="sell"
+    />
   </InjectParams>;
 
   const PassphraseEl = <InjectParams><Passphrase deviceID={''} /></InjectParams>;
+  const Bip85El = <InjectParams><Bip85 deviceID={''} /></InjectParams>;
 
   const ManageBackupsEl = <InjectParams><ManageBackups
     key={devicesKey('manage-backups')}
@@ -253,14 +266,15 @@ export const AppRouter = ({
       </Route>
       <Route path="add-account" element={<AddAccount accounts={accounts}/>} />
       <Route path="account-summary" element={AccountsSummaryEl} />
-      <Route path="buy">
-        <Route path="info" element={BuyInfoEl} >
-          <Route index element={BuyInfoEl} />
-          <Route path=":code" element={BuyInfoEl} />
+      <Route path="exchange">
+        <Route path="info" element={ExchangeInfoEl} >
+          <Route index element={ExchangeInfoEl} />
+          <Route path=":code" element={ExchangeInfoEl} />
         </Route>
-        <Route path="moonpay/:code" element={MoonpayEl} />
-        <Route path="pocket/:code" element={PocketEl} />
-        <Route path="exchange/:code" element={ExchangeEl} />
+        <Route path="moonpay/buy/:code" element={MoonpayEl} />
+        <Route path="pocket/buy/:code" element={PocketBuyEl} />
+        <Route path="pocket/sell/:code" element={PocketSellEl} />
+        <Route path="select/:code" element={ExchangeEl} />
       </Route>
       <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
       <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
@@ -282,6 +296,7 @@ export const AppRouter = ({
         <Route path="about" element={AboutEl} />
         <Route path="device-settings/:deviceID" element={Device} />
         <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
+        <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
         <Route path="advanced-settings" element={AdvancedSettingsEl} />
         <Route path="electrum" element={<ElectrumSettings />} />
         <Route path="manage-accounts" element={

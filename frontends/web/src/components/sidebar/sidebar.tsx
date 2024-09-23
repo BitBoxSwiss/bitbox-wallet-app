@@ -34,7 +34,7 @@ import deviceSettings from '@/assets/icons/wallet-light.svg';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';
 import { CloseXWhite, RedDot, USBSuccess } from '@/components/icon';
-import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '@/routes/account/utils';
+import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { Badge } from '@/components/badge/badge';
 import { AppContext } from '@/contexts/AppContext';
@@ -182,9 +182,8 @@ const Sidebar = ({
   };
 
   const hidden = sidebarStatus === 'forceHidden';
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const accountsByKeystore = getAccountsByKeystore(accounts);
-  const userInSpecificAccountBuyPage = (pathname.startsWith('/buy'));
+  const userInSpecificAccountExchangePage = (pathname.startsWith('/exchange'));
 
   return (
     <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>
@@ -228,7 +227,7 @@ const Sidebar = ({
                 hidden={!keystore.accounts.length}>
                 <span className="p-right-quarter">
                   {`${keystore.keystore.name} `}
-                  { isAmbiguiousName(keystore.keystore.name, accountsByKeystore) ? (
+                  { isAmbiguousName(keystore.keystore.name, accountsByKeystore) ? (
                     // Disambiguate accounts group by adding the fingerprint.
                     // The most common case where this would happen is when adding accounts from the
                     // same seed using different passphrases.
@@ -251,17 +250,15 @@ const Sidebar = ({
         <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (
           <>
-            <div key="buy" className={style.sidebarItem}>
+            <div key="exchange" className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive || userInSpecificAccountBuyPage ? style.sidebarActive : ''}
-                to="/buy/info">
+                className={({ isActive }) => isActive || userInSpecificAccountExchangePage ? style.sidebarActive : ''}
+                to="/exchange/info">
                 <div className={style.single}>
                   <img draggable={false} src={coins} />
                 </div>
                 <span className={style.sidebarLabel}>
-                  {t('generic.buy', {
-                    context: hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'
-                  })}
+                  {t('generic.buySell')}
                 </span>
               </NavLink>
             </div>

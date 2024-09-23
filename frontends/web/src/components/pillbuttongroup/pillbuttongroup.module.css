@@ -15,7 +15,15 @@
 	line-height: 1.75;
 	margin-bottom: var(--spacing-half);
 	margin-left: var(--spacing-half);
+}
+
+.pillbuttongroup.medium button {
 	padding: 0 calc(var(--spacing-default) * .75);
+}
+
+.pillbuttongroup.large button {
+	font-size: calc(var(--size-default) + 1px);
+	padding: 2px calc(var(--spacing-default) * 1.5);
 }
 
 .pillbuttongroup button:first-child {
@@ -51,4 +59,11 @@
 	background: var(--background-secondary);
 	border-color: var(--background-secondary);
 	color: var(--color-disabled);
+}
+
+@media (max-width: 768px) {
+	.pillbuttongroup.lg button {
+		font-size: calc(var(--size-default));
+		padding: 2px calc(var(--spacing-default) * 1.25);
+	}	
 }

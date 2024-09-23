@@ -102,7 +102,7 @@ func GetMoonpaySupportedRegions(httpClient *http.Client) (map[string]BuyMoonpayR
 	var regionsList []BuyMoonpayRegion
 	endpoint := fmt.Sprintf("%s/countries", moonpayAPILiveURL)
 
-	_, err := util.APIGet(httpClient, endpoint, "", 81920, &regionsList)
+	_, err := util.APIGet(httpClient, endpoint, "", 1000000, &regionsList)
 	if err != nil {
 		return nil, err
 	}
@@ -117,22 +117,25 @@ func GetMoonpaySupportedRegions(httpClient *http.Client) (map[string]BuyMoonpayR
 }
 
 // MoonpayDeals returns the purchase conditions (fee and payment methods) offered by Moonpay.
-func MoonpayDeals() ExchangeDeals {
-	return ExchangeDeals{
-		ExchangeName: MoonpayName,
-		Deals: []ExchangeDeal{
-			{
-				Fee:     0.049, // 4.9%
-				Payment: CardPayment,
-				IsFast:  true,
+func MoonpayDeals(action ExchangeAction) *ExchangeDealsList {
+	if action == BuyAction {
+		return &ExchangeDealsList{
+			ExchangeName: MoonpayName,
+			Deals: []*ExchangeDeal{
+				{
+					Fee:     0.049, // 4.9%
+					Payment: CardPayment,
+					IsFast:  true,
+				},
+				{
+					Fee:     0.019, // 1.9%
+					Payment: BankTransferPayment,
+					IsFast:  false,
+				},
 			},
-			{
-				Fee:     0.019, // 1.9%
-				Payment: BankTransferPayment,
-				IsFast:  false,
-			},
-		},
+		}
 	}
+	return nil
 }
 
 // MoonpayInfo returns info for the frontend to initiate an onramp flow.

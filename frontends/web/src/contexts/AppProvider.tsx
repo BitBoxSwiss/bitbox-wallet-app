@@ -35,6 +35,7 @@ export const AppProvider = ({ children }: TProps) => {
   const [activeSidebar, setActiveSidebar] = useState(false);
   const [sidebarStatus, setSidebarStatus] = useState<TSidebarStatus>('');
   const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('all');
+  const [firmwareUpdateDialogOpen, setFirmwareUpdateDialogOpen] = useState(false);
 
   const toggleGuide = () => {
     setConfig({ frontend: { guideShown: !guideShown } });
@@ -77,13 +78,14 @@ export const AppProvider = ({ children }: TProps) => {
         sidebarStatus,
         chartDisplay,
         setActiveSidebar,
-        setGuideShown,
         setGuideExists,
         setSidebarStatus,
         setHideAmounts,
         setChartDisplay,
         toggleHideAmounts,
         toggleSidebar,
+        setFirmwareUpdateDialogOpen,
+        firmwareUpdateDialogOpen
       }}>
       {children}
     </AppContext.Provider>
