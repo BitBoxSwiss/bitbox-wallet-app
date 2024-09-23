@@ -1,0 +1,100 @@
+/* Initial state for all divs */
+.fadeDiv {
+    opacity: 0;
+    animation-fill-mode: forwards; /* Ensure the final state is kept */
+    width: 100%;
+}
+
+/* Sequential fade-in for each div */
+.div1 {
+    animation: fadeIn 1s ease-in-out 0.5s forwards;
+}
+
+.div2 {
+    animation: fadeIn 1s ease-in-out 1.5s forwards;
+}
+
+.div3 {
+    animation: fadeIn 1s ease-in-out 2.5s forwards;
+}
+
+
+/* Keyframes for the fade-in */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Fade-out when the 'gone' class is added */
+.gone {
+    animation: fadeOut 1s ease-in-out forwards;
+}
+
+/* Keyframes for the fade-out */
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+
+.bitbox02 {
+    display: inline-block;
+    max-width: 360px;
+    position: absolute;
+    transform: translate(195%, 0%) rotate(270deg); 
+    transition: 1.5s all;
+    opacity: 0;
+}
+
+.flyIn {
+    animation: flyIn 1.5s ease-in-out forwards; 
+}
+
+
+@keyframes flyIn {
+    0% {
+        display: inline-block;
+        max-width: 360px;
+        position: absolute;
+        transform: translate(195%, 0%) rotate(270deg); 
+        transition: 1.5s all;
+        opacity: 1;
+    }
+    100% {
+        display: inline-block;
+        max-width: 360px;
+        position: absolute;
+        transform: translate(85%, 50%) rotate(180deg); /* Fly into center and rotate to 180deg */
+        transition: 1.5s all;
+        opacity: 1;
+    }
+}
+
+
+.freshinstallContainer {
+    display: flex;
+    flex-direction: row;
+    min-height: 400px;
+    background-color: transparent;
+    position: relative;
+    
+}
+
+.freshinstallContainer * {
+    margin: 0;
+}
+
+
+
+.bitbox02 img,
+.flyIn img {
+    width: 100%;
+}

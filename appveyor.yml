@@ -39,7 +39,6 @@ build_script:
 
 # Upload build artifacts but only for commits pushes, no pull requests.
 after_build:
-- if defined APPVEYOR_PULL_REQUEST_NUMBER appveyor exit
 # %APPVEYOR_BUILD_FOLDER% is the path to the git clone.
 - mkdir %APPVEYOR_BUILD_FOLDER%
 # Copy build artifacts back to the git clone dir because they can only be
