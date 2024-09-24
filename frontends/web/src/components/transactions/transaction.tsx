@@ -29,17 +29,17 @@ import { TxDetailsDialog } from './components/details';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
 
-type Props = {
+type TProps = {
   accountCode: accountApi.AccountCode;
-  index: number;
   explorerURL: string;
+  outputIndex?: number;
 } & accountApi.ITransaction;
 
 export const Transaction = ({
   accountCode,
-  index,
   internalID,
   explorerURL,
+  outputIndex,
   type,
   amount,
   numConfirmations,
@@ -48,7 +48,7 @@ export const Transaction = ({
   addresses,
   status,
   note = '',
-}: Props) => {
+}: TProps) => {
   const { t } = useTranslation();
   const [transactionDialog, setTransactionDialog] = useState<boolean>(false);
 
@@ -56,7 +56,7 @@ export const Transaction = ({
   const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
 
   return (
-    <div className={`${style.container} ${index === 0 ? style.first : ''}`}>
+    <div className={style.container}>
       <div className={`${parentStyle.columns} ${style.row}`}>
         <div className={parentStyle.columnGroup}>
           <div className={parentStyle.type}>
@@ -121,10 +121,12 @@ export const Transaction = ({
         numConfirmations={numConfirmations}
         numConfirmationsComplete={numConfirmationsComplete}
         time={time}
+        addresses={addresses}
         amount={amount}
         sign={sign}
         typeClassName={typeClassName}
         explorerURL={explorerURL}
+        outputIndex={outputIndex}
       />
     </div>
   );

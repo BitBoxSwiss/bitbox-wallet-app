@@ -232,10 +232,6 @@
         margin: 0 0 var(--space-quarter) 0;
     }
 
-    .container.first {
-        
-    }
-    
     .row {
         height: auto;
         padding: var(--space-half);

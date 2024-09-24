@@ -28,9 +28,15 @@ type Props = {
   internalID: string;
   // Contains the existing note.
   note: string;
+  outputIndex?: number;
 }
 
-export const Note = ({ accountCode, note, internalID }: Props) => {
+export const Note = ({
+  accountCode,
+  note,
+  internalID,
+  outputIndex,
+}: Props) => {
   const { isDarkMode } = useDarkmode();
   const { t } = useTranslation();
   const [newNote, setNewNote] = useState<string>(note);
@@ -53,7 +59,7 @@ export const Note = ({ accountCode, note, internalID }: Props) => {
     e.preventDefault();
     if (editMode && note !== newNote) {
       accountApi.postNotesTx(accountCode, {
-        internalTxID: internalID,
+        internalTxID: outputIndex !== undefined ? `${internalID}:${outputIndex}` : internalID,
         note: newNote,
       }).catch(console.error);
     }

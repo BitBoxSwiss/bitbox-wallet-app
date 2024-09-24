@@ -40,11 +40,20 @@ type TProps = {
   numConfirmations: number;
   numConfirmationsComplete: number;
   time: string | null;
+  addresses: string[];
   amount: IAmount;
   sign: string;
   typeClassName: string;
   explorerURL: string;
+  outputIndex?: number;
 }
+
+const getAmountAtTime = (tx: ITransaction, idx: number | undefined) => {
+  if (idx) {
+    return tx.outputs![idx].amountAtTime;
+  }
+  return tx.amount;
+};
 
 export const TxDetailsDialog = ({
   open,
@@ -57,10 +66,12 @@ export const TxDetailsDialog = ({
   numConfirmations,
   numConfirmationsComplete,
   time,
+  addresses,
   amount,
   sign,
   typeClassName,
   explorerURL,
+  outputIndex,
 }: TProps) => {
   const { t } = useTranslation();
 
@@ -96,6 +107,7 @@ export const TxDetailsDialog = ({
             accountCode={accountCode}
             internalID={internalID}
             note={note}
+            outputIndex={outputIndex}
           />
           <TxDetail label={t('transaction.details.type')}>
             <Arrow
@@ -117,8 +129,8 @@ export const TxDetailsDialog = ({
           </TxDetail>
           <TxDetail label={t('transaction.details.fiatAtTime')}>
             <span className={`${parentStyle.fiat} ${typeClassName}`}>
-              {transactionInfo.amountAtTime ?
-                <FiatConversion amount={transactionInfo.amountAtTime} sign={sign} noAction />
+              { getAmountAtTime(transactionInfo, outputIndex) ?
+                <FiatConversion amount={getAmountAtTime(transactionInfo, outputIndex)!} sign={sign} noAction />
                 :
                 <FiatConversion noAction />
               }
@@ -130,7 +142,7 @@ export const TxDetailsDialog = ({
               <Amount amount={amount.amount} unit={amount.unit} />
             </span>
             {' '}
-            <span className={`${parentStyle.currencyUnit} ${typeClassName}`}>{transactionInfo.amount.unit}</span>
+            <span className={`${parentStyle.currencyUnit} ${typeClassName}`}>{amount.unit}</span>
           </TxDetail>
           {
             transactionInfo.fee && transactionInfo.fee.amount ? (
@@ -145,7 +157,7 @@ export const TxDetailsDialog = ({
           }
           <TxDetailCopyableValues
             label={t('transaction.details.address')}
-            values={transactionInfo.addresses}
+            values={addresses}
           />
           {
             transactionInfo.gas ? (

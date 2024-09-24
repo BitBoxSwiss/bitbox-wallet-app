@@ -136,6 +136,15 @@ func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount, isFee boo
 	return handlers.formatAmountAsJSON(coin.NewAmountFromInt64(int64(amount)), isFee)
 }
 
+// TransactionOutput represents a single output in a transaction. Transaction includes a list
+// holding TransactionOutput for transactions that are of type receive.
+type TransactionOutput struct {
+	Address      string          `json:"address"`
+	Amount       FormattedAmount `json:"amount"`
+	AmountAtTime FormattedAmount `json:"amountAtTime"`
+	Note         string          `json:"note"`
+}
+
 // Transaction is the info returned per transaction by the /transactions and /transaction endpoint.
 type Transaction struct {
 	TxID                     string            `json:"txID"`
@@ -152,10 +161,11 @@ type Transaction struct {
 	Note                     string            `json:"note"`
 
 	// BTC specific fields.
-	VSize        int64           `json:"vsize"`
-	Size         int64           `json:"size"`
-	Weight       int64           `json:"weight"`
-	FeeRatePerKb FormattedAmount `json:"feeRatePerKb"`
+	Outputs      []TransactionOutput `json:"outputs"`
+	VSize        int64               `json:"vsize"`
+	Size         int64               `json:"size"`
+	Weight       int64               `json:"weight"`
+	FeeRatePerKb FormattedAmount     `json:"feeRatePerKb"`
 
 	// ETH specific fields
 	Gas   uint64  `json:"gas"`
@@ -190,8 +200,19 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 	}
 
 	addresses := []string{}
-	for _, addressAndAmount := range txInfo.Addresses {
+	outputs := []TransactionOutput{}
+	for idx, addressAndAmount := range txInfo.Addresses {
 		addresses = append(addresses, addressAndAmount.Address)
+		addrAndAmt := TransactionOutput{
+			Address: addressAndAmount.Address,
+			Amount:  handlers.formatAmountAsJSON(addressAndAmount.Amount, false),
+			Note:    handlers.account.TxNote(fmt.Sprintf("%s:%d", txInfo.InternalID, idx)),
+		}
+
+		if detail && txInfo.Timestamp != nil {
+			addrAndAmt.AmountAtTime = *handlers.formatAmountAtTimeAsJSON(txInfo.Amount, txInfo.Timestamp)
+		}
+		outputs = append(outputs, addrAndAmt)
 	}
 	txInfoJSON := Transaction{
 		TxID:                     txInfo.TxID,
@@ -208,6 +229,10 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 		Time:      formattedTime,
 		Addresses: addresses,
 		Note:      handlers.account.TxNote(txInfo.InternalID),
+	}
+
+	if txInfo.Type == accounts.TxTypeReceive {
+		txInfoJSON.Outputs = outputs
 	}
 
 	if detail {
