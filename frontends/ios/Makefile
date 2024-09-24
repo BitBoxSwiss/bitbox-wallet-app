@@ -10,3 +10,4 @@ prepare:
 build:
 	${MAKE} prepare
 	xcodebuild clean build -project BitBoxApp/BitBoxApp.xcodeproj -scheme BitBoxApp -configuration Release -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO
+	xcodebuild clean build -project BitBoxApp/BitBoxApp.xcodeproj -scheme "BitBoxApp Testnet" -configuration Release -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO

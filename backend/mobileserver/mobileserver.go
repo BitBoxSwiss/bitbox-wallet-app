@@ -176,7 +176,7 @@ func (hook goLogHook) Fire(entry *logrus.Entry) error {
 
 // Serve serves the BitBoxApp API for use in a mobile client. It is called when the application
 // is started or wakes up from sleep.
-func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterface) {
+func Serve(dataDir string, testnet bool, environment GoEnvironmentInterface, goAPI GoAPIInterface) {
 	once.Do(func() {
 		// SetAppDir can only be called once, but this is okay, since the data dir does not change
 		// between during sleep between Shutdown and Serve.
@@ -186,7 +186,6 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 		logging.Get().AddHook(goLogHook{})
 	})
 
-	testnet := false
 	bridgecommon.Serve(
 		testnet,
 		nil,
