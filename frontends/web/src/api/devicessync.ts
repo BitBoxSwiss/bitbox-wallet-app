@@ -83,7 +83,7 @@ export type TSignProgress = {
   step: number;
 }
 
-export const signProgress = (
+export const syncSignProgress = (
   cb: (progress: TSignProgress) => void
 ): TUnsubscribe => {
   const unsubscribe = subscribeLegacy('signProgress', event => {
