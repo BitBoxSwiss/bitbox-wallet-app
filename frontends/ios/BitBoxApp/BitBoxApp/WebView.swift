@@ -171,5 +171,17 @@ struct WebView: UIViewRepresentable {
             }
             return nil
         }
+
+
+        // Automatically grant camera permission when used in the webview.
+        // The camera permission was already granted at install time via
+        // the NSCameraUsageDescription Info.plist entry.
+        func webView(_ webView: WKWebView,
+                     requestMediaCapturePermissionFor origin: WKSecurityOrigin,
+                     initiatedByFrame frame: WKFrameInfo,
+                     type: WKMediaCaptureType,
+                     decisionHandler: @escaping (WKPermissionDecision) -> Void) {
+            decisionHandler(.grant)
+        }
     }
 }
