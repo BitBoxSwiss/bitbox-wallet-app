@@ -269,6 +269,9 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/lightning/parse-input", handlers.getLightningParseInput).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/lightning/receive-payment", handlers.postLightningReceivePayment).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/lightning/send-payment", handlers.postLightningSendPayment).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/diagnostic-data", handlers.getLightningDiagnosticData).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/report-payment-failure", handlers.postLightningReportPaymentFailure).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/service-health-check", handlers.getLightningServiceHealthCheck).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/notes/export", handlers.postExportNotes).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/notes/import", handlers.postImportNotes).Methods("POST")
 
@@ -1596,6 +1599,18 @@ func (handlers *Handlers) postLightningReceivePayment(r *http.Request) interface
 
 func (handlers *Handlers) postLightningSendPayment(r *http.Request) interface{} {
 	return handlers.backend.Lightning().PostSendPayment(r)
+}
+
+func (handlers *Handlers) getLightningDiagnosticData(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetDiagnosticData(r)
+}
+
+func (handlers *Handlers) postLightningReportPaymentFailure(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostReportPaymentFailure(r)
+}
+
+func (handlers *Handlers) getLightningServiceHealthCheck(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetServiceHealthCheck(r)
 }
 
 func (handlers *Handlers) postExportNotes(r *http.Request) interface{} {

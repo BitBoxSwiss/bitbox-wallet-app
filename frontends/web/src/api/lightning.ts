@@ -40,6 +40,15 @@ export type NodeSetup = {
   entropy: string;
 };
 
+export interface DiagnosticDataResponse {
+  diagnosticData: string;
+}
+
+export interface ReportPaymentFailureRequest {
+  paymentHash: string
+  comment?: string
+}
+
 // Breez SDK types
 
 export interface AesSuccessActionDataDecrypted {
@@ -284,6 +293,10 @@ export interface SendSpontaneousPaymentRequest {
   label?: string;
 }
 
+export interface ServiceHealthCheckResponse {
+  status: HealthCheckStatus
+}
+
 export interface SwapInfo {
   bitcoinAddress: string;
   createdAt: number;
@@ -349,6 +362,12 @@ export enum ChannelState {
   OPENED = 'opened',
   PENDING_CLOSE = 'pendingClose',
   CLOSED = 'closed'
+}
+
+export enum HealthCheckStatus {
+  OPERATIONAL = 'operational',
+  MAINTENANCE = 'maintenance',
+  SERVICE_DISRUPTION = 'serviceDisruption'
 }
 
 export enum InputTypeVariant {
@@ -637,6 +656,22 @@ export const postReceivePayment = async (data: ReceivePaymentRequest): Promise<R
     'lightning/receive-payment',
     data,
     'Error calling postReceivePayment'
+  );
+};
+
+export const getDiagnosticData = async (): Promise<DiagnosticDataResponse> => {
+  return getApiResponse<DiagnosticDataResponse>('lightning/diagnostic-data', 'Error calling getDiagnosticData');
+};
+
+export const getServiceHealthCheck = async (): Promise<ServiceHealthCheckResponse> => {
+  return getApiResponse<ServiceHealthCheckResponse>('lightning/service-health-check', 'Error calling getServiceHealthCheck');
+};
+
+export const postReportPaymentFailure = async (data: ReportPaymentFailureRequest): Promise<void> => {
+  return postApiResponse<void, ReportPaymentFailureRequest>(
+    'lightning/report-payment-failure',
+    data,
+    'Error calling postReportPaymentFailure'
   );
 };
 

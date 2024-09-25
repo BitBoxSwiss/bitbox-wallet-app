@@ -53,6 +53,24 @@ func toClosedChannelPaymentDetailsDto(closedChannelPaymentDetails breez_sdk.Clos
 	}, nil
 }
 
+func toDiagnosticDataDto(diagnosticData string) diagnosticDataDto {
+	return diagnosticDataDto{
+		DiagnosticData: diagnosticData,
+	}
+}
+
+func toHealthCheckStatusDto(status breez_sdk.HealthCheckStatus) (string, error) {
+	switch status {
+	case breez_sdk.HealthCheckStatusMaintenance:
+		return "maintenance", nil
+	case breez_sdk.HealthCheckStatusOperational:
+		return "operational", nil
+	case breez_sdk.HealthCheckStatusServiceDisruption:
+		return "serviceDisruption", nil
+	}
+	return "", errp.New("Invalid HealthCheckStatus")
+}
+
 func toInputTypeDto(inputType breez_sdk.InputType) (interface{}, error) {
 	switch typed := inputType.(type) {
 	case breez_sdk.InputTypeBitcoinAddress:
@@ -421,6 +439,16 @@ func toSendPaymentResponseDto(sendPaymentResponse breez_sdk.SendPaymentResponse)
 
 	return sendPaymentResponseDto{
 		Payment: payment,
+	}, nil
+}
+
+func toServiceHealthCheckResponseDto(serviceHealthCheckResponse breez_sdk.ServiceHealthCheckResponse) (serviceHealthCheckResponseDto, error) {
+	status, err := toHealthCheckStatusDto(serviceHealthCheckResponse.Status)
+	if err != nil {
+		return serviceHealthCheckResponseDto{}, err
+	}
+	return serviceHealthCheckResponseDto{
+		Status: status,
 	}, nil
 }
 

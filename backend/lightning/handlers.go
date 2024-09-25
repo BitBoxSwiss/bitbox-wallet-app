@@ -210,3 +210,56 @@ func (lightning *Lightning) PostSendPayment(r *http.Request) interface{} {
 
 	return responseDto{Success: true, Data: dto}
 }
+
+// GetDiagnosticData handles the GET request to retrieve the SDK diagnostic data.
+func (lightning *Lightning) GetDiagnosticData(_ *http.Request) interface{} {
+	if lightning.sdkService == nil {
+		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
+	}
+
+	diagnosticData, err := lightning.sdkService.GenerateDiagnosticData()
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	return responseDto{Success: true, Data: toDiagnosticDataDto(diagnosticData)}
+}
+
+// PostReportPaymentFailure handles the POST request to report a payment failure.
+func (lightning *Lightning) PostReportPaymentFailure(r *http.Request) interface{} {
+	if lightning.sdkService == nil {
+		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
+	}
+
+	var jsonBody reportPaymentFailureRequestDto
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	err := lightning.sdkService.ReportIssue(toReportIssueRequest(jsonBody))
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	return responseDto{Success: true}
+}
+
+// GetServiceHealthCheck handles the GET request to retrieve the SDK service health check.
+func (lightning *Lightning) GetServiceHealthCheck(_ *http.Request) interface{} {
+	breezApiKey, err := lightning.getBreezApiKey()
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	response, err := breez_sdk.ServiceHealthCheck(*breezApiKey)
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	dto, err := toServiceHealthCheckResponseDto(response)
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	return responseDto{Success: true, Data: dto}
+}

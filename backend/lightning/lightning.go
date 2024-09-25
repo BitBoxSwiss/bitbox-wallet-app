@@ -254,16 +254,12 @@ func (lightning *Lightning) connect(registerNode bool) error {
 			return err
 		}
 
-		_, breezApiKey, err := util.HTTPGet(lightning.httpClient, breezApiKeyUrl, "", int64(4096))
+		breezApiKey, err := lightning.getBreezApiKey()
 		if err != nil {
-			lightning.log.WithError(err).Error("Breez api key fetch failed")
 			return err
 		}
 
-		// fetched key could have an unwanted newline, we'll just trim invalid chars for safety.
-		trimmedKey := strings.TrimSpace(string(breezApiKey))
-
-		config := breez_sdk.DefaultConfig(breez_sdk.EnvironmentTypeProduction, trimmedKey, nodeConfig)
+		config := breez_sdk.DefaultConfig(breez_sdk.EnvironmentTypeProduction, *breezApiKey, nodeConfig)
 		config.WorkingDir = workingDir
 
 		connectRequest := breez_sdk.ConnectRequest{
@@ -279,6 +275,19 @@ func (lightning *Lightning) connect(registerNode bool) error {
 		lightning.sdkService = sdkService
 	}
 	return nil
+}
+
+func (lightning *Lightning) getBreezApiKey() (*string, error) {
+	_, breezApiKey, err := util.HTTPGet(lightning.httpClient, breezApiKeyUrl, "", int64(4096))
+	if err != nil {
+		lightning.log.WithError(err).Error("Breez api key fetch failed")
+		return nil, err
+	}
+
+	// fetched key could have an unwanted newline, we'll just trim invalid chars for safety.
+	trimmedKey := strings.TrimSpace(string(breezApiKey))
+
+	return &trimmedKey, nil
 }
 
 func (lightning *Lightning) setLightningConfig(config config.LightningConfig) error {

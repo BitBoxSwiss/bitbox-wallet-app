@@ -30,6 +30,10 @@ type closedChannelPaymentDetailsDto struct {
 	ClosingTxid    *string `json:"closingTxid"`
 }
 
+type diagnosticDataDto struct {
+	DiagnosticData string `json:"diagnosticData"`
+}
+
 type messageSuccessActionDataDto struct {
 	Message string `json:"message"`
 }
@@ -167,6 +171,11 @@ type receivePaymentResponseDto struct {
 	OpeningFeeMsat   *uint64              `json:"openingFeeMsat"`
 }
 
+type reportPaymentFailureRequestDto struct {
+	PaymentHash string  `json:"paymentHash"`
+	Comment     *string `json:"comment"`
+}
+
 type reverseSwapInfoDto struct {
 	Id               string  `json:"id"`
 	ClaimPubkey      string  `json:"claimPubkey"`
@@ -198,6 +207,10 @@ type sendPaymentRequestDto struct {
 
 type sendPaymentResponseDto struct {
 	Payment paymentDto `json:"payment"`
+}
+
+type serviceHealthCheckResponseDto struct {
+	Status string `json:"status"`
 }
 
 type typeDataDto struct {
