@@ -1,4 +1,4 @@
-# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240918121853-2221e9876d20
+# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240925080402-a2115fee878e
 ## explicit; go 1.21
 github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader
 github.com/BitBoxSwiss/bitbox02-api-go/api/common
@@ -7,6 +7,7 @@ github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages
 github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid
 github.com/BitBoxSwiss/bitbox02-api-go/util/errp
 github.com/BitBoxSwiss/bitbox02-api-go/util/semver
+github.com/BitBoxSwiss/bitbox02-api-go/util/sleep
 # github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519
 ## explicit; go 1.19
 github.com/BitBoxSwiss/block-client-go/electrum
