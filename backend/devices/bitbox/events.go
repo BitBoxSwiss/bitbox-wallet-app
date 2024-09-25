@@ -42,8 +42,4 @@ const (
 
 	// EventSignProgress is fired when starting to sign a new batch of hashes.
 	EventSignProgress event.Event = "signProgress"
-
-	// EventSignConfirmDevice is fired when the user is about to be prompted to sign the tx with the
-	// device.
-	EventSignConfirm event.Event = "signConfirm"
 )

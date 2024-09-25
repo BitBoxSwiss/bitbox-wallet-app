@@ -20,6 +20,7 @@ import { Button, Checkbox } from '@/components/forms';
 import { setConfig } from '@/utils/config';
 import { A } from '@/components/anchor/anchor';
 import style from './terms.module.css';
+import { SimpleMarkup } from '@/utils/markup';
 
 type TProps = {
   onAgreedTerms: () => void;
@@ -34,35 +35,44 @@ export const PocketTerms = ({ onAgreedTerms }: TProps) => {
   return (
     <div className={style.disclaimerContainer}>
       <div className={style.disclaimer}>
-        <h2 className={style.title}>{t('buy.pocket.welcome.title')}</h2>
-        <p>{t('buy.pocket.welcome.p1')}</p>
-        <p>{t('buy.pocket.welcome.p2')}</p>
-        <p>{t('buy.pocket.welcome.p3')}</p>
+        <h2 className={style.title}>{t('exchange.pocket.terms.welcome.title')}</h2>
+        <p>{t('exchange.pocket.terms.welcome.p1')}</p>
 
-        <h2 className={style.title}>{t('buy.pocket.payment.title')}</h2>
-        <p>{t('buy.pocket.payment.p1')}</p>
-        <p>{t('buy.pocket.payment.p2')}</p>
+        <h2 className={style.title}>{t('exchange.pocket.terms.fees.title')}</h2>
+        <ul>
+          <li><SimpleMarkup tagName="p" markup={t('exchange.pocket.terms.fees.p1')} /></li>
+          <li><SimpleMarkup tagName="p" markup={`${t('exchange.pocket.terms.fees.p2')} ${t('exchange.pocket.terms.fees.extraNote')}`} /></li>
+        </ul>
+        <p>{t('exchange.pocket.terms.fees.note')}</p>
 
-        <h2 className={style.title}>{t('buy.pocket.security.title')}</h2>
-        <p>{t('buy.pocket.security.p1')}</p>
+        <h2 className={style.title}>{t('exchange.pocket.terms.security.title')}</h2>
+        <p>{t('exchange.pocket.terms.security.p1')}</p>
+        <ul>
+          <li><SimpleMarkup tagName="p" markup={t('exchange.pocket.terms.security.p2')} /></li>
+          <li><SimpleMarkup tagName="p" markup={t('exchange.pocket.terms.security.p3')} /></li>
+        </ul>
         <p>
           <A href="https://bitbox.swiss/bitbox02/threat-model/">
-            {t('buy.pocket.security.link')}
-          </A>
-        </p>
-        <h2 className={style.title}>{t('buy.pocket.kyc.title')}</h2>
-        <p>{t('buy.pocket.kyc.p1')}</p>
-        <p>
-          <A href="https://pocketbitcoin.com/faq">
-            {t('buy.pocket.kyc.link')}
+            {t('exchange.pocket.terms.security.link')}
           </A>
         </p>
 
-        <h2 className={style.title}>{t('buy.pocket.data.title')}</h2>
-        <p>{t('buy.pocket.data.p1')}</p>
+        <h2 className={style.title}>{t('exchange.pocket.terms.kyc.title')}</h2>
+        <ul>
+          <li><p>{t('exchange.pocket.terms.kyc.p1')}</p></li>
+          <li><p>{t('exchange.pocket.terms.kyc.p2')}</p></li>
+        </ul>
+        <p>
+          <A href="https://pocketbitcoin.com/faq">
+            {t('exchange.pocket.terms.kyc.link')}
+          </A>
+        </p>
+
+        <h2 className={style.title}>{t('exchange.pocket.terms.dataprotection.title')}</h2>
+        <p>{t('exchange.pocket.terms.dataprotection.p1')}</p>
         <p>
           <A href="https://pocketbitcoin.com/policy/privacy">
-            {t('buy.pocket.data.link')}
+            {t('exchange.pocket.terms.dataprotection.link')}
           </A>
         </p>
       </div>

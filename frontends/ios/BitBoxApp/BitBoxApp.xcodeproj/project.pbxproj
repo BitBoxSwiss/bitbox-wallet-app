@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D705EF422B601E7400CAC90C /* Mobileserver.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D76518BB2B1F8F7400DC03A9 /* Mobileserver.xcframework */; };
+		D700B5F62C884C34000496D4 /* Mobileserver.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D76518BB2B1F8F7400DC03A9 /* Mobileserver.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D76516092B1F3B1300DC03A9 /* BitBoxAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76516082B1F3B1300DC03A9 /* BitBoxAppApp.swift */; };
 		D765160D2B1F3B1500DC03A9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D765160C2B1F3B1500DC03A9 /* Assets.xcassets */; };
 		D76516102B1F3B1500DC03A9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D765160F2B1F3B1500DC03A9 /* Preview Assets.xcassets */; };
@@ -36,7 +36,23 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		D700B5F72C884C34000496D4 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D700B5F62C884C34000496D4 /* Mobileserver.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		D700B5F82C888CB9000496D4 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		D700B5F92C986A3C000496D4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D76516052B1F3B1300DC03A9 /* BitBoxApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BitBoxApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D76516082B1F3B1300DC03A9 /* BitBoxAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitBoxAppApp.swift; sourceTree = "<group>"; };
 		D765160C2B1F3B1500DC03A9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -57,7 +73,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D705EF422B601E7400CAC90C /* Mobileserver.xcframework in Frameworks */,
 				D76518C22B1F911700DC03A9 /* libresolv.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -82,6 +97,7 @@
 		D76515FC2B1F3B1300DC03A9 = {
 			isa = PBXGroup;
 			children = (
+				D700B5F82C888CB9000496D4 /* Config.xcconfig */,
 				D76518BB2B1F8F7400DC03A9 /* Mobileserver.xcframework */,
 				D76516072B1F3B1300DC03A9 /* BitBoxApp */,
 				D76516182B1F3B1500DC03A9 /* BitBoxAppTests */,
@@ -104,6 +120,7 @@
 		D76516072B1F3B1300DC03A9 /* BitBoxApp */ = {
 			isa = PBXGroup;
 			children = (
+				D700B5F92C986A3C000496D4 /* Info.plist */,
 				D76518B52B1F45B300DC03A9 /* assets */,
 				D76516082B1F3B1300DC03A9 /* BitBoxAppApp.swift */,
 				D76516322B1F3D1A00DC03A9 /* WebView.swift */,
@@ -157,6 +174,7 @@
 				D76516012B1F3B1300DC03A9 /* Sources */,
 				D76516022B1F3B1300DC03A9 /* Frameworks */,
 				D76516032B1F3B1300DC03A9 /* Resources */,
+				D700B5F72C884C34000496D4 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -340,6 +358,7 @@
 /* Begin XCBuildConfiguration section */
 		D76516272B1F3B1500DC03A9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D700B5F82C888CB9000496D4 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -400,6 +419,7 @@
 		};
 		D76516282B1F3B1500DC03A9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D700B5F82C888CB9000496D4 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -458,11 +478,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"BitBoxApp/Preview Content\"";
 				DEVELOPMENT_TEAM = XK248TQN88;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BitBoxApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -473,7 +493,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = swiss.bitbox.BitBoxApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -488,11 +507,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"BitBoxApp/Preview Content\"";
 				DEVELOPMENT_TEAM = XK248TQN88;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BitBoxApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -503,7 +522,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = swiss.bitbox.BitBoxApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

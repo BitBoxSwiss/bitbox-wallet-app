@@ -19,11 +19,11 @@ import style from './subtitle.module.css';
 
 type Props = {
   children: ReactNode;
-  className: string;
+  className?: string;
 };
 
 export const SubTitle = ({
-  className,
+  className = '',
   children
 }: Props) => {
   const classNames = className ? `${style.subtitle} ${className}` : style.subtitle;

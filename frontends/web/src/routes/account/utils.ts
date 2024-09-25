@@ -110,12 +110,18 @@ export const getAccountsByKeystore = (accounts: IAccount[]): TAccountsByKeystore
   }, {} as Record<string, TAccountsByKeystore>));
 };
 
+type TKeystoreName = {
+  keystore: {
+    name: string;
+  }
+}
+
 // Returns true if more than one keystore has the given name.
-export const isAmbiguiousName = (
+export const isAmbiguousName = (
   name: string,
-  accounts: TAccountsByKeystore[],
+  keystoreNames: TKeystoreName[],
 ): boolean => {
-  return accounts.filter(keystore => keystore.keystore.name === name).length > 1;
+  return keystoreNames.filter(keystore => keystore.keystore.name === name).length > 1;
 };
 
 export type TAccountCoinMap = {

@@ -25,7 +25,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
-	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -45,7 +44,7 @@ type BitBox02 interface {
 	CheckBackup(bool) (string, error)
 	RestoreBackup(string) error
 	CheckSDCard() (bool, error)
-	InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_SDCardAction) error
+	InsertSDCard() error
 	SetMnemonicPassphraseEnabled(bool) error
 	UpgradeFirmware() error
 	Attestation() *bool
@@ -84,7 +83,6 @@ func NewHandlers(
 	handleFunc("/backups/restore", handlers.postBackupsRestore).Methods("POST")
 	handleFunc("/check-sdcard", handlers.getCheckSDCard).Methods("GET")
 	handleFunc("/insert-sdcard", handlers.postInsertSDCard).Methods("POST")
-	handleFunc("/remove-sdcard", handlers.postRemoveSDCard).Methods("POST")
 	handleFunc("/set-mnemonic-passphrase-enabled", handlers.postSetMnemonicPassphraseEnabled).Methods("POST")
 	handleFunc("/version", handlers.getVersionHandler).Methods("GET")
 	handleFunc("/upgrade-firmware", handlers.postUpgradeFirmwareHandler).Methods("POST")
@@ -270,16 +268,7 @@ func (handlers *Handlers) getCheckSDCard(_ *http.Request) interface{} {
 
 func (handlers *Handlers) postInsertSDCard(r *http.Request) interface{} {
 	handlers.log.Debug("Insert SD Card if not inserted")
-	err := handlers.device.InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_INSERT_CARD)
-	if err != nil {
-		return maybeBB02Err(err, handlers.log)
-	}
-	return map[string]interface{}{"success": true}
-}
-
-func (handlers *Handlers) postRemoveSDCard(r *http.Request) interface{} {
-	handlers.log.Debug("Remove SD Card if inserted")
-	err := handlers.device.InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_REMOVE_CARD)
+	err := handlers.device.InsertSDCard()
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}

@@ -30,8 +30,9 @@
 }
 
 .rotatable {
-    position: relative;
     cursor: default;
+    font-size: inherit;
+    position: relative;
 }
 
 .rotatable::after { 

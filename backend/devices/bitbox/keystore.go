@@ -164,6 +164,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	signatureHashes := [][]byte{}
 	keyPaths := []string{}
 	transaction := btcProposedTx.TXProposal.Transaction
+	sigHashes := btcProposedTx.TXProposal.SigHashes()
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := btcProposedTx.TXProposal.PreviousOutputs[txIn.PreviousOutPoint]
 		if !ok {
@@ -175,7 +176,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		var signatureHash []byte
 		if isSegwit {
 			var err error
-			signatureHash, err = txscript.CalcWitnessSigHash(subScript, btcProposedTx.SigHashes,
+			signatureHash, err = txscript.CalcWitnessSigHash(subScript, sigHashes,
 				txscript.SigHashAll, transaction, index, spentOutput.Value)
 			if err != nil {
 				return errp.Wrap(err, "Failed to calculate SegWit signature hash")
@@ -285,4 +286,9 @@ func (keystore *keystore) SignETHWalletConnectTransaction(chainID uint64, tx *ty
 // SupportsEIP1559 implements keystore.Keystore.
 func (keystore *keystore) SupportsEIP1559() bool {
 	return false
+}
+
+// SupportsPaymentRequests implements keystore.Keystore.
+func (keystore *keystore) SupportsPaymentRequests() error {
+	return keystorePkg.ErrUnsupportedFeature
 }

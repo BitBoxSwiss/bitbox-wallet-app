@@ -24,6 +24,7 @@ import { Header } from '@/components/layout';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
 import { BitcoinBasedAccountInfoGuide } from './guide';
+import { Status } from '@/components/status/status';
 import style from './info.module.css';
 
 type TProps = {
@@ -80,16 +81,27 @@ export const Info = ({
                   </button>
                 </p>
               ) : null}
-              <SigningConfiguration
-                key={viewXPub}
-                account={account}
-                code={code}
-                info={config}
-                signingConfigIndex={viewXPub}>
-                <BackButton enableEsc>
-                  {t('button.back')}
-                </BackButton>
-              </SigningConfiguration>
+              { (config.bitcoinSimple?.scriptType === 'p2tr') ? (
+                <>
+                  <Status type="info">
+                    {t('accountInfo.taproot')}
+                  </Status>
+                  <BackButton enableEsc>
+                    {t('button.back')}
+                  </BackButton>
+                </>
+              ) : (
+                <SigningConfiguration
+                  key={viewXPub}
+                  account={account}
+                  code={code}
+                  info={config}
+                  signingConfigIndex={viewXPub}>
+                  <BackButton enableEsc>
+                    {t('button.back')}
+                  </BackButton>
+                </SigningConfiguration>
+              )}
             </div>
           </div>
         </div>

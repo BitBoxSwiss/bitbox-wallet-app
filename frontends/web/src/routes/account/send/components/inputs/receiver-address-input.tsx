@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, useCallback, useContext } from 'react';
+import { ChangeEvent, useCallback, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { debug } from '@/utils/env';
 import { getReceiveAddressList } from '@/api/account';
+import { debug } from '@/utils/env';
 import { DarkModeContext } from '@/contexts/DarkmodeContext';
 import { Input } from '@/components/forms';
 import { QRCodeLight, QRCodeDark } from '@/components/icon';
@@ -33,9 +33,7 @@ type TReceiverAddressInputProps = {
     addressError?: string;
     onInputChange: (value: string) => void;
     recipientAddress: string;
-    activeScanQR: boolean;
     parseQRResult: (uri: string) => void;
-    onChangeActiveScanQR: (activeScanQR: boolean) => void
 }
 
 export const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
@@ -51,11 +49,10 @@ export const ReceiverAddressInput = ({
   addressError,
   onInputChange,
   recipientAddress,
-  activeScanQR,
   parseQRResult,
-  onChangeActiveScanQR
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
+  const [activeScanQR, setActiveScanQR] = useState(false);
 
   const handleSendToSelf = useCallback(async () => {
     if (!accountCode) {
@@ -71,20 +68,16 @@ export const ReceiverAddressInput = ({
     }
   }, [accountCode, onInputChange]);
 
-  const toggleScanQR = useCallback(() => {
-    if (activeScanQR) {
-      onChangeActiveScanQR(false);
-      return;
-    }
-    onChangeActiveScanQR(true);
-  }, [activeScanQR, onChangeActiveScanQR]);
+  const toggleScanQR = () => {
+    setActiveScanQR(activeScanQR => !activeScanQR);
+  };
 
   return (
     <>
       {activeScanQR && (
         <ScanQRDialog
           toggleScanQR={toggleScanQR}
-          onChangeActiveScanQR={onChangeActiveScanQR}
+          onChangeActiveScanQR={setActiveScanQR}
           parseQRResult={parseQRResult}
         />
       )}

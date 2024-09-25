@@ -19,8 +19,8 @@ import { useTranslation } from 'react-i18next';
 import * as bitbox02BootloaderAPI from '@/api/bitbox02bootloader';
 import { useLoad, useSync } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
-import { CenteredContent } from '@/components/centeredcontent/centeredcontent';
 import { Button } from '@/components/forms';
+import { View, ViewContent } from '@/components/view/view';
 import { BitBox02, BitBox02Inverted } from '@/components/icon/logo';
 import { Status } from '@/components/status/status';
 import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
@@ -79,7 +79,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     }
   } else {
     contents = (
-      <div className="box large" style={{ minHeight: 390 }}>
+      <div className="box large" style={{ minHeight: 340 }}>
         {versionInfo.erased && (
           <div>
             <h2>{t('welcome.title')}</h2>
@@ -125,12 +125,14 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     );
   }
   return (
-    <CenteredContent>
-      {isDarkMode ? <BitBox02Inverted /> : <BitBox02 />}
-      {status && status.errMsg && (
-        <Status type="warning">{status.errMsg}</Status>
-      )}
-      {contents}
-    </CenteredContent>
+    <View fitContent verticallyCentered width="600px">
+      <ViewContent>
+        {isDarkMode ? <BitBox02Inverted /> : <BitBox02 />}
+        {status && status.errMsg && (
+          <Status type="warning">{status.errMsg}</Status>
+        )}
+        {contents}
+      </ViewContent>
+    </View>
   );
 };

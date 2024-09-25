@@ -26,6 +26,7 @@
     "extendedPublicKey": "Veřejný klíč",
     "label": "Detaily účtu",
     "scriptType": "Typ účtu",
+    "taproot": "Taproot veřejný klíč (extended public key) není zobrazen z důvodu ochrany před náhodným zneužitím, protože raw formáty pro tento typ skriptu nejsou běžně podporovány. Pokud chcete tento klíč zobrazit, připojte zařízení k softwaru peněženky, který podporuje formát výstupního deskriptoru (output descriptor format).",
     "title": "Detaily účtu",
     "verify": "Ověřte na zařízení",
     "xpubTypeChangeBtn": {
@@ -145,6 +146,7 @@
       "understand": "Rozumím, že nesprávné heslo pro obnovení vytvoří jinou peněženku."
     },
     "showMnemonic": {
+      "checkboxLabel": "Přečetl jsem si výše uvedené informace",
       "description": "Zobrazí se vám slova pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova.",
       "title": "Zobrazit slova pro obnovení",
       "warning": "<strong> Nikdy nikomu nesdělujte svá slova pro obnovení.</strong> Vaše slova pro obnovení poskytují plný přístup k vaší peněžence. Pokud vás někdo žádá o vaše slova pro obnovení, jedná se o podvodníka, nesdílejte je!"
@@ -441,6 +443,9 @@
             "bankTransferReccuring": "Jak nastavit opakované nákupy pomocí trvalého příkazu?",
             "title": "Platební metody"
           },
+          "sell": {
+            "title": "Prodat Bitcoin"
+          },
           "supportedCurrencies": "Podpora evropských měn: EUR, GBP a CHF.",
           "verification": {
             "info": "Vyžaduje ověření identity pouze pokud jsou překročeny denní a roční limity.",
@@ -499,35 +504,13 @@
       "skip": "Znovu nezobrazovat"
     },
     "pocket": {
-      "data": {
-        "link": "Zásady ochrany osobních údajů Pocket",
-        "p1": "BitBoxApp při nákupu bitcoinů neshromažďuje žádné údaje, s příchozími prostředky se zachází jako s běžnou transakcí. Pocket potřebuje ke svému fungování shromažďovat některé osobní údaje. Jejich zásady ochrany osobních údajů podrobně vysvětlují, jak se s těmito údaji nakládá.",
-        "title": "Ochrana dat"
+      "error": {
+        "insufficientFunds": "Nedostatek prostředků na vybraném účtu."
       },
-      "kyc": {
-        "link": "Přečtěte si Pocket FAQ",
-        "p1": "Pocket se snaží omezit KYC na minimum. U nákupů do 950 EUR (1000 CHF) denně nejsou vyžadovány žádné další dokumenty. Při nákupech nad tuto částku si budete muset s Pocket domluvit hovor, abyste mohli dokončit potřebný proces KYC/AML.",
-        "title": "KYC/AML"
-      },
-      "payment": {
-        "p1": "Bitcoin si můžete koupit okamžitě pomocí služby Pocket bankovním převodem SEPA. Poplatek činí 1,5 % a bitcoiny jsou poslány do vašeho BitBoxu ihned poté, co Pocket obdrží bankovní převod (obvykle během téhož dne).",
-        "p2": "Upozorňujeme, že směnné kurzy v aplikaci Pocket se mohou lišit od kurzů používaných v aplikaci BitBoxApp, což vede k mírně odlišným částkám.",
-        "title": "Platební metody a poplatky"
-      },
+      "paymentRequestNote": "Žádost o platbu od",
       "previousTransactions": "Historie transakcí tohoto účtu není prázdná. Sdílením tohoto účtu se všechny jeho minulé a budoucí transakce stanou viditelnými pro Pocket. Pokračovat?",
-      "security": {
-        "link": "Model bezpečnostních hrozeb BitBox02",
-        "p1": "Při nákupu bitcoinů přes Pocket používáte externí službu. Tato služba je mimo oblast působnosti modelu bezpečnostních hrozeb BitBox02 a spoléhá se na bezpečnost a zabezpečení prostředí, ve kterém je spuštěn BitBoxApp. Společně pracujeme na zvýšení bezpečnosti pomocí dvoufaktorového ověřovacího mechanismu, který ověřuje adresu, na kterou přijímáte.",
-        "title": "Bezpečnostní model"
-      },
       "usedAddress": "Adresa {{address}} již byla použita, začněte prosím znovu s novou adresou.",
-      "verifyBitBox02": "Zkontrolujte, zda adresa, kterou jste obdrželi e-mailem, odpovídá adrese zobrazené na vašem Bitboxu. Pokud je to možné, měli byste e-mail otevřít na druhém zařízení kvůli lepšímu zabezpečení.",
-      "welcome": {
-        "p1": "Spolupracujeme se společností Pocket, abychom vám nabídli bezproblémový způsob nákupu bitcoinů přímo v BitBoxApp. Je to jen pár kliknutí.",
-        "p2": "Pocket je švýcarská platforma, která umožňuje rychlý a snadný nákup bitcoinů ve většině Evropy (kdekoli, kde jsou podporovány bankovní převody SEPA).",
-        "p3": "S Pocket můžete také provádět pravidelné nákupy prostřednictvím trvalých bankovních příkazů, takže můžete snadno zprůměrovat své náklady (DCA - dollar-cost averaging).",
-        "title": "Vítejte ve svém obchodě pro nákup bitcoinů"
-      }
+      "verifyBitBox02": "Zkontrolujte, zda adresa, kterou jste obdrželi e-mailem, odpovídá adrese zobrazené na vašem Bitboxu. Pokud je to možné, měli byste e-mail otevřít na druhém zařízení kvůli lepšímu zabezpečení."
     }
   },
   "changePin": {
@@ -565,7 +548,9 @@
   },
   "device": {
     "appUpradeRequired": "Váš BitBox není kompatibilní s touto aplikací. Stáhněte si a nainstalujte nejnovější verzi.",
-    "keystoreConnected": "Připojená peněženka"
+    "firmwareUpgradeRequired": "K využití této funkce je nutná aktualizace firmwaru.",
+    "keystoreConnected": "Připojená peněženka",
+    "unsupportedFeature": "Tato funkce není na tomto zařízení dostupná."
   },
   "deviceLock": {
     "button": "Aktivovat dvoufaktorovou autorizaci (2FA)",
@@ -707,6 +692,46 @@
     "wrongKeystore": "Byla připojena špatná peněženka. Ujistěte se, že jste vložili správné zařízení odpovídající tomuto účtu.",
     "wrongKeystore2": " Pokud používáte přístupovou frázi, zkontrolujte, zda jste zadali správnou přístupovou frázi pro tento účet."
   },
+  "exchange": {
+    "buySell": {
+      "coinNotSupported": "Pro tento typ mince nejsou k dispozici žádné možnosti.",
+      "regionNotSupported": "Pro tento region nejsou k dispozici žádné možnosti.",
+      "updateNow": "Aktualizujte nyní"
+    },
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "Pocket zásady ochrany osobních údajů",
+          "p1": "BitBoxApp se neučí ani neshromažďuje žádné osobní údaje. Pocket shromažďuje některé osobní údaje, jak je vysvětleno v jejich Zásadách ochrany osobních údajů.",
+          "title": "Ochrana dat"
+        },
+        "fees": {
+          "extraNote": "Vezměte prosím na vědomí, že před prodejem musíte nejprve nakoupit Bitcoiny pomocí služby Pocket.",
+          "note": "Poznámka: Směnné kurzy Pocket se mohou lišit od kurzů v  BitBoxApp.",
+          "p1": "<strong>Nákup Bitcoinů:</strong> Pomocí bankovního převodu SEPA pošlete EUR nebo CHF a dostanete Bitcoin přímo do svého BitBoxu poté, co Pocket obdrží převod, obvykle tentýž den.",
+          "p2": "<strong>Prodej Bitcoinů:</strong> Pošlete Bitcoin Pocketu a obdržíte EUR nebo CHF na svůj registrovaný bankovní účet. Směnný kurz je pevně stanoven v okamžiku, kdy Pocket obdrží vaše Bitcoiny.",
+          "title": "Platební metody a poplatky"
+        },
+        "kyc": {
+          "link": "Přečtěte si Pocket FAQ",
+          "p1": "Pro výměny do 950 EUR (1000 CHF) za den nejsou potřeba žádné další dokumenty.",
+          "p2": "U větších částek je k dokončení procesu KYC/AML vyžadován hovor s Pocket.",
+          "title": "KYC/AML (Know your customer / Anit-Money Laundering)"
+        },
+        "security": {
+          "link": "Model bezpečnostních hrozeb BitBox02",
+          "p1": "Pocket je externí služba a nevztahuje se na ni model bezpečnostních hrozeb BitBox02. S Pocket však úzce spolupracujeme na zvýšení celkové bezpečnosti.",
+          "p2": "<strong>Nakupování bitcoinů:</strong> Prostřednictvím druhého komunikačního kanálu vám přijde e-mail s potvrzením adresy pro příjem bitcoinů.",
+          "p3": "<strong>Prodej bitcoinů:</strong> BitBox02 kryptograficky ověří adresu pro vklad bitcoinů a na hardwarové peněžence zobrazí „Pocket“.",
+          "title": "Zabezpečení"
+        },
+        "welcome": {
+          "p1": "Spolupracujeme se švýcarským brokerem Pocket, abychom v  BitBoxApp usnadnili nákup a prodej bitcoinů. Tato služba je dostupná v celé Evropě, kde jsou podporovány bankovní převody SEPA.",
+          "title": "Nákup a prodej bitcoinů s Pocket"
+        }
+      }
+    }
+  },
   "fiat": {
     "default": "výchozí",
     "setDefault": "Nastavit {{code}} jako výchozí",
@@ -717,6 +742,7 @@
   },
   "generic": {
     "buy": "Koupit {{coinCode}}",
+    "buySell": "Nákup a prodej",
     "buy_bitcoin": "Koupit Bitcoin",
     "buy_crypto": "Koupit crypto",
     "enabled_false": "Vypnuto",
@@ -996,7 +1022,7 @@
       "accountSummary": "Průvodce přehledem účtu",
       "advancedSettings": "Průvodce pokročilým nastavením",
       "appearance": "Průvodce vzhledu",
-      "buy": "Průvodce pro koupi",
+      "buySell": "Průvodce nákupem a prodejem",
       "insurance": "Průvodce pojištěním",
       "manageAccount": "Průvodce správou účtů",
       "manageDevice": "Průvodce pro správu zařízení",
@@ -1532,8 +1558,10 @@
       "title": "Odeslat z outputu"
     },
     "confirm": {
+      "infoMessage": "Pečlivě zkontrolujte, zda jsou částka a adresa na BitBoxu správné.",
       "selected-coins": "Vybrané mince",
       "title": "Potvrďte a odešlete transakci",
+      "to": "Na",
       "total": "Celkem"
     },
     "error": {

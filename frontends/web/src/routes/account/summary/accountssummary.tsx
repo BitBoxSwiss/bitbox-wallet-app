@@ -34,8 +34,10 @@ import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '@/contexts/AppContext';
-import { getAccountsByKeystore, isAmbiguiousName } from '@/routes/account/utils';
+import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { GlobalBanners } from '@/components/globalbanners/globalbanners';
 
 type TProps = {
   accounts: accountApi.IAccount[];
@@ -58,7 +60,7 @@ export const AccountsSummary = ({
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
 
-  const [summaryData, setSummaryData] = useState<accountApi.ISummary>();
+  const [summaryData, setSummaryData] = useState<accountApi.TSummary>();
   const [balancePerCoin, setBalancePerCoin] = useState<accountApi.TAccountsBalance>();
   const [accountsTotalBalance, setAccountsTotalBalance] = useState<accountApi.TAccountsTotalBalance>();
   const [coinsTotalBalance, setCoinsTotalBalance] = useState<accountApi.TCoinsTotalBalance>();
@@ -71,14 +73,14 @@ export const AccountsSummary = ({
     if (summaryReqTimerID.current) {
       window.clearTimeout(summaryReqTimerID.current);
     }
-    try {
-      const summaryData = await accountApi.getSummary();
-      if (!mounted.current) {
-        return;
-      }
-      setSummaryData(summaryData);
-    } catch (err) {
-      console.error(err);
+    const summary = await accountApi.getSummary();
+    if (!mounted.current) {
+      return;
+    }
+    if (summary.success) {
+      setSummaryData(summary.data);
+    } else {
+      console.error(summary.error);
     }
   }, [mounted]);
 
@@ -197,13 +199,17 @@ export const AccountsSummary = ({
     getAccountsBalance();
     getCoinsTotalBalance();
   }, [onStatusChanged, getAccountsBalance, getCoinsTotalBalance, accounts]);
+
   return (
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Status hidden={!hasCard} type="warning">
-            {t('warning.sdcard')}
-          </Status>
+          <ContentWrapper>
+            <GlobalBanners />
+            <Status hidden={!hasCard} type="warning">
+              {t('warning.sdcard')}
+            </Status>
+          </ContentWrapper>
           <Header title={<h2>{t('accountSummary.title')}</h2>}>
             <HideAmountsButton />
           </Header>
@@ -226,11 +232,11 @@ export const AccountsSummary = ({
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 <SummaryBalance
                   key={keystore.rootFingerprint}
-                  keystoreDisambiguatorName={isAmbiguiousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
+                  keystoreDisambiguatorName={isAmbiguousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
                   accountsKeystore={keystore}
                   accounts={accounts}
-                  totalBalancePerCoin={ balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
-                  totalBalance={ accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
+                  totalBalancePerCoin={balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
+                  totalBalance={accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
                   balances={balances}
                 />
               ))}

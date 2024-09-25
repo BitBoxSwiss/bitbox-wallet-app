@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AppContext } from '@/contexts/AppContext';
 import { VersionInfo, upgradeDeviceFirmware } from '@/api/bitbox02';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
@@ -38,19 +39,19 @@ export type TUpgradeDialogProps = {
 
 const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) => {
   const { t } = useTranslation();
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const { setFirmwareUpdateDialogOpen, firmwareUpdateDialogOpen } = useContext(AppContext);
   const [confirming, setConfirming] = useState(false);
   const canUpgrade = versionInfo.canUpgrade;
   const secondaryText = canUpgrade ? t('deviceSettings.firmware.upgradeAvailable') : t('deviceSettings.firmware.upToDate');
   const extraComponent = canUpgrade ? <RedDot width={8} height={8}/> : <Checked />;
 
-  const handleOpenDialog = canUpgrade ? () => setDialogOpen(true) : undefined;
+  const handleOpenDialog = canUpgrade ? () => setFirmwareUpdateDialogOpen(true) : undefined;
 
   const handleUpgradeFirmware = async () => {
     setConfirming(true);
     await upgradeDeviceFirmware(deviceID);
     setConfirming(false);
-    setDialogOpen(false);
+    setFirmwareUpdateDialogOpen(false);
   };
 
   return (
@@ -71,11 +72,11 @@ const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) =>
         />
       )}
       <UpgradeDialog
-        open={dialogOpen && canUpgrade}
+        open={firmwareUpdateDialogOpen && canUpgrade}
         versionInfo={versionInfo}
         confirming={confirming}
         onUpgradeFirmware={handleUpgradeFirmware}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => setFirmwareUpdateDialogOpen(false)}
       />
     </>
   );

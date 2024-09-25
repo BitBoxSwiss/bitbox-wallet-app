@@ -15,38 +15,10 @@
  * limitations under the License.
  */
 import { useContext } from 'react';
-import { Fiat, ConversionUnit, IAmount } from '@/api/account';
+import { ConversionUnit, IAmount } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Amount } from '@/components/amount/amount';
 import style from './rates.module.css';
-
-type FiatWithDisplayName = {
-  currency: Fiat,
-  displayName: string
-}
-
-export const currenciesWithDisplayName: FiatWithDisplayName[] = [
-  { currency: 'AUD', displayName: 'Australian Dollar' },
-  { currency: 'BRL', displayName: 'Brazilian Real' },
-  { currency: 'CAD', displayName: 'Canadian Dollar' },
-  { currency: 'CHF', displayName: 'Swiss franc' },
-  { currency: 'CNY', displayName: 'Chinese Yuan' },
-  { currency: 'CZK', displayName: 'Czech Koruna' },
-  { currency: 'EUR', displayName: 'Euro' },
-  { currency: 'GBP', displayName: 'British Pound' },
-  { currency: 'HKD', displayName: 'Hong Kong Dollar' },
-  { currency: 'ILS', displayName: 'Israeli New Shekel' },
-  { currency: 'JPY', displayName: 'Japanese Yen' },
-  { currency: 'KRW', displayName: 'South Korean Won' },
-  { currency: 'NOK', displayName: 'Norwegian Krone' },
-  { currency: 'PLN', displayName: 'Polish Zloty' },
-  { currency: 'RUB', displayName: 'Russian ruble' },
-  { currency: 'SEK', displayName: 'Swedish Krona' },
-  { currency: 'SGD', displayName: 'Singapore Dollar' },
-  { currency: 'USD', displayName: 'United States Dollar' },
-  { currency: 'BTC', displayName: 'Bitcoin' },
-  { currency: 'sat', displayName: 'Satoshi' }
-];
 
 type TProvidedProps = {
     amount?: IAmount;
@@ -140,6 +112,5 @@ export const DefaultCurrencyRotator = ({
   return <td className={textStyle} onClick={rotateDefaultCurrency}>{displayedCurrency}</td>;
 };
 
-export const formattedCurrencies = currenciesWithDisplayName.map((fiat) => ({ label: `${fiat.displayName} (${fiat.currency})`, value: fiat.currency }));
 
 export const FiatConversion = Conversion;

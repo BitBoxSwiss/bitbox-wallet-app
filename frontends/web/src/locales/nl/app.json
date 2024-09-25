@@ -26,6 +26,7 @@
     "extendedPublicKey": "Uitgebreide publieke sleutel",
     "label": "Accountinformatie",
     "scriptType": "Script-type",
+    "taproot": "De uitgebreide publieke sleutel van je Taproot-adressen wordt niet weergegeven om ongelukken en misbruikt te voorkomen, aangezien dit scriptformaat over het algemeen toch niet ondersteund wordt. Als je de sleutel toch wilt weergeven, zul je je apparaat met een wallet-applicatie moeten verbinden dat dit formaat ondersteunt.",
     "title": "Accountinformatie",
     "verify": "Verifieer op je adres",
     "xpubTypeChangeBtn": {
@@ -145,6 +146,7 @@
       "understand": ""
     },
     "showMnemonic": {
+      "checkboxLabel": "Ik heb bovenstaande informatie gelezen",
       "description": "Je ziet zometeen de 24 herstelwoorden die de backup van je wallet vormen. Schrijf ze op papier op.\n<strong>Sla ze niet digitaal op en neem er geen foto's van</strong>\n<strong>Zeg de woorden niet hardop</strong>\n<strong>Deze backup is niet beschermd met een wachtwoord</strong>\nAchteraf word je gevraagd ieder woord te bevestigen.",
       "title": "Herstelwoorden tonen",
       "warning": "<strong>Deel je herstelwoorden nooit, met wie dan ook!</strong> Met je herstelwoorden kan iemand volledige toegang tot je wallet krijgen. Als iemand je om je herstelwoorden vraagt, is dit vrijwel altijd een oplichter."
@@ -441,6 +443,9 @@
             "bankTransferReccuring": "Hoe stel ik regelmatige aankopen in?",
             "title": "Betaalmethodes"
           },
+          "sell": {
+            "title": "Bitcoin verkopen"
+          },
           "supportedCurrencies": "EUR, GBP en CHF worden ondersteund",
           "verification": {
             "info": "Vereist alleen identiteitsverificatie boven een dagelijks/jaarlijks limiet",
@@ -489,7 +494,9 @@
           "descriptionGeneric_crypto": "Als je crypto koopt via een van onze partner-exchanges, gebruik je een externe dienst. Deze diensten vallen buiten het beveiligings- en bedreigingsmodel van de BitBox02 en zijn afhankelijk van de veiligheid van de omgeving waarin de BitBoxApp software draait.",
           "link": "Beveiliging- en bedreigingsmodel",
           "title": "Bedreigingsmodel"
-        }
+        },
+        "title_bitcoin": "Welkom bij de beste plek om Bitcoin te kopen",
+        "title_crypto": "Welkom bij de beste plek om crypto te kopen"
       },
       "next": "Volgende",
       "selectLabel": "Kies je account",
@@ -497,35 +504,13 @@
       "skip": "Niet nog eens weergeven"
     },
     "pocket": {
-      "data": {
-        "link": "Pocket's privacybeleid",
-        "p1": "De BitBoxApp verzamelt geen informatie van je als je bitcoin koopt. De inkomende transactie wordt als een normale transactie behandeld. Moet echter wat informatie verzamelen om hun diensten te kunnen verlenen. Pocket's privacybeleid legt in detail uit hoe ze met je data omgaan.",
-        "title": "Databescherming"
+      "error": {
+        "insufficientFunds": "Niet genoeg geld op het geselecteerde account"
       },
-      "kyc": {
-        "link": "Lees de Pocket-FAQs",
-        "p1": "Pocket probeert KYC tot een minimum te beperken. Voor aankopen van minder dan 950EUR (1000 CHF) per dag, is het uploaden van identificatie-documenten niet nodig. Als je meer dan dit wilt kopen, zul je een gesprek met Pocket in moeten plannen om de benodigde KYC/AML-procedure te doorlopen.",
-        "title": "KYC/AML"
-      },
-      "payment": {
-        "p1": "Je kunt bij Pocket direct bitcoin kopen met een simpele SEPA bankoverschrijving. De transactiekosten hiervoor zijn 1.5%, en de bitcoin wordt direct naar je BitBox gestuurd (zodra Pocket de bankoverschrijving heeft ontvangen - meestal dezelfde dag nog).",
-        "p2": "Let er op dat de wisselkoers die Pocket hanteert verschillend kan zijn dan die in de BitBoxApp wordt aangegeven, wat een klein verschil in de hoeveelheden kan opleveren.",
-        "title": "Betaalmethodes en transactiekosten"
-      },
+      "paymentRequestNote": "Betaalverzoek van",
       "previousTransactions": "Je deelt een bestaande en gebruikte account met Pocket. Als je dit doet kunnen ze je volledige transactiegeschiedenis en alle toekomstige transacties inzien. Wil je toch doorgaan?",
-      "security": {
-        "link": "BitBox02 beveiligings- en bedreigingsmodel",
-        "p1": "Als je bitcoin koopt via Pocket, gebruik je een externe dienst. Deze diensten vallen buiten het beveiligings- en bedreigingsmodel van de BitBox02 en zijn afhankelijk van de veiligheid van de omgeving waarin de BitBoxApp software draait. We werken echter samen met Pocket om de beveiliging te verbeteren door het adres waar je op ontvangt te controleren met een tweefactor-authenticatiemechanisme.",
-        "title": "Beveiligingsmodel"
-      },
       "usedAddress": "Het adres {{address}} is al gebruikt, probeer het opnieuw met een nieuw adres.",
-      "verifyBitBox02": "Verifieer alsjeblieft of het adres wat je via de mail is toegestuurd hetzelfde is als het adres dat op je BitBox wordt weergegeven. Als het kan, is het het beste om de email op een tweede apparaat te openen.",
-      "welcome": {
-        "p1": "Met Pocket kun je binnen een paar kliks direct in de BitBoxApp bitcoin kopen.",
-        "p2": "Pocket is een Zwitsers platform wat het makkelijk en snel maakt om bitcoin te kopen in bijna heel Europa (overal waar SEPA bankoverschrijvingen beschikbaar zijn).",
-        "p3": "Met Pocket kun je ook regelmatige aankopen doen door een herhaalopdracht in te stellen bij je bank, zodat je makkelijk een DCA (dollar-cost-averaging) spaarplan in kunt stellen.",
-        "title": "Welkom bij je one-stop-shop voor bitcoin-aankopen"
-      }
+      "verifyBitBox02": "Verifieer alsjeblieft of het adres wat je via de mail is toegestuurd hetzelfde is als het adres dat op je BitBox wordt weergegeven. Als het kan, is het het beste om de email op een tweede apparaat te openen."
     }
   },
   "changePin": {
@@ -563,7 +548,9 @@
   },
   "device": {
     "appUpradeRequired": "Je BitBox wordt niet ondersteund door deze desktop applicatie. Download en installeer de laatste versie.",
-    "keystoreConnected": "Verbonden wallet"
+    "firmwareUpgradeRequired": "Er is een firmware-update nodig om van deze functie gebruik te maken.",
+    "keystoreConnected": "Verbonden wallet",
+    "unsupportedFeature": "Deze functie is niet beschikbaar op dit apparaat."
   },
   "deviceLock": {
     "button": "Stel tweefactor authenticatie (2FA) in",
@@ -705,6 +692,46 @@
     "wrongKeystore": "Verkeerde wallet verbonden. Zorg ervoor dat je de juiste BitBox02 voor dit account verbindt.",
     "wrongKeystore2": "Als je de optionele passphrase hebt ingeschakeld, zorg er dan voor dat je de juiste passphrase voor dit account hebt ingevoerd."
   },
+  "exchange": {
+    "buySell": {
+      "coinNotSupported": "Geen opties beschikbaar voor dit coin-type.",
+      "regionNotSupported": "Geen opties beschikbaar in jouw regio.",
+      "updateNow": "Nu updaten"
+    },
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "Pocket's privacy policy",
+          "p1": "De BitBoxApp verzamelt geen persoonlijke gegevens. Pocket verzamelt enkele gegevens zoals uitgelegd in hun Privacy Policy.",
+          "title": "Gegevensbescherming"
+        },
+        "fees": {
+          "extraNote": "Let op dat je eerst Bitcoin moet kopen bij Pocket voordat je kunt verkopen.",
+          "note": "Let op: Pocket's wisselkoersen kunnen verschillen van de koersen die je in de BitBoxApp ziet.",
+          "p1": "<strong>Bitcoin kopen:</strong> Gebruik een SEPA bankoverschrijving om EUR of CHF te versturen, en krijg je bitcoin direct op je BitBox zodra Pocket de overschrijving ontvangt (over het algemeen op dezelfde dag). ",
+          "p2": "<strong>Bitcoin verkopen:</strong> Stuur Bitcoin naar Pocket en ontvang EUR of CHF op je geregistreerde bankrekening. De wisselkoerst wordt bepaald op het moment dat Pocket je Bitcoin ontvangt.",
+          "title": "Betaalmethodes en kosten"
+        },
+        "kyc": {
+          "link": "Lees Pocket's veelgestelde vragen",
+          "p1": "Je hebt geen extra documentatie nodig voor aan- en verkopen tot 950 EUR (1000 CHF) per dag.",
+          "p2": "Voor grotere bedragen is een telefoongesprek met Pocket vereist om het KYC/AML-proces te doorlopen.",
+          "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
+        },
+        "security": {
+          "link": "BitBox02 beveligingsrisicomodel",
+          "p1": "Pocket is een externe dienst, en valt dus niet binnen het toepassingsgebied van het beveiligingsrisicomodel van de BitBox02. We werken natuurlijk wel nauw samen met Pocket om de algehele veiligheid te waarborgen en te verbeteren.",
+          "p2": "<strong>Bitcoin kopen:</strong> Je krijgt een email om je bitcoinadres via een extern communicatiekanaal nogmaals te bevestigen.",
+          "p3": "<strong>Bitcoin verkopen:</strong> De BitBox02 verifieert cryptografisch het Bitcoin stortingsadres en laat \"Pocket\" zien op de hardware wallet.",
+          "title": "Beveiliging"
+        },
+        "welcome": {
+          "p1": "We werken met Pocket, een Zwitsers handelsbedrijf, om het kopen en verkopen van Bitcoin in de BitBoxApp makkelijk te maken. Deze dienst is overal in Europa beschikbaar, zo lang je een SEPA overschrijving kunt maken.",
+          "title": "Bitcoin kopen en verkopen met Pocket"
+        }
+      }
+    }
+  },
   "fiat": {
     "default": "Standaard",
     "setDefault": "Stel {{code}} in als standaard",
@@ -714,8 +741,15 @@
     "appVersion": "App versie:"
   },
   "generic": {
+    "buy": "{{coinCode}} kopen",
+    "buySell": "Kopen en verkopen",
+    "buy_bitcoin": "Bitcoin kopen",
+    "buy_crypto": "Crypto kopen",
     "enabled_false": "Uitgeschakeld",
-    "enabled_true": "Ingeschakeld"
+    "enabled_true": "Ingeschakeld",
+    "receive": "{{coinCode}} ontvangen",
+    "receive_bitcoin": "Bitcoin ontvangen",
+    "receive_crypto": "Crypto ontvangen"
   },
   "genericError": "Er is een fout opgetreden. Start de applicatie opnieuw op als je problemen tegenkomt.",
   "goal": {
@@ -988,7 +1022,7 @@
       "accountSummary": "Handleiding voor accountsamenvatting",
       "advancedSettings": "Handleiding voor geavanceerde accountinstellingen",
       "appearance": "Handleiding voor ",
-      "buy": "Koophandleiding",
+      "buySell": "Koop- en verkoophandleiding",
       "insurance": "Handleiding voor verzekeringen",
       "manageAccount": "Handleiding voor accountbeheer",
       "manageDevice": "Handleiding voor apparaatbeheer",
@@ -1524,8 +1558,10 @@
       "title": "Verstuur uit output"
     },
     "confirm": {
+      "infoMessage": "Controleer zorgvuldig op de BitBox02 of de hoeveelheid en het adres correct zijn",
       "selected-coins": "Geselecteerde coins",
       "title": "Bevestigen & transactie versturen",
+      "to": "Naar",
       "total": "Totaal"
     },
     "error": {
@@ -1767,7 +1803,8 @@
     "connect": {
       "button": "Verbinden",
       "dappLabel": "Voer het URI-address van de DApp in",
-      "invalidPairingUri": "Ongeldige koppel-URI"
+      "invalidPairingUri": "Ongeldige koppel-URI",
+      "missingNamespace": "De verbindende app heeft niet de juiste namespace gedefinieerd"
     },
     "dashboard": {
       "allSessions": "Alle sessies",

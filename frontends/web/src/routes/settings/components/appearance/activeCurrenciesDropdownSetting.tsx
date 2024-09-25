@@ -16,14 +16,15 @@
 
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formattedCurrencies } from '@/components/rates/rates';
+import { RatesContext } from '@/contexts/RatesContext';
+import { useLocalizedFormattedCurrencies } from '@/hooks/localized';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { ActiveCurrenciesDropdown } from '@/routes/settings/components/dropdowns/activecurrenciesdropdown';
-import { RatesContext } from '@/contexts/RatesContext';
 
 const ActiveCurrenciesDropdownSetting = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { activeCurrencies, defaultCurrency } = useContext(RatesContext);
+  const { formattedCurrencies } = useLocalizedFormattedCurrencies(i18n.language);
   return (
     <SettingsItem
       collapseOnSmall

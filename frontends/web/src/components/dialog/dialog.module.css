@@ -139,48 +139,6 @@
     line-height: 1.3;
     font-size: var(--size-default);
     font-weight: 400;
-    margin-top: var(--space-half);
-    padding-left: 24px;
-}
-
-.confirmationLabelNumber {
-    display: inline-block;
-    position: absolute;
-    left: 0;
-}
-
-.disabledLabel,
-.disabledLabel span {
-    color: var(--color-light) !important;
-}
-
-.noStep {
-    padding-left: 0;
-}
-
-.confirmationInstructions {
-    margin: 0;
-    padding: var(--space-half) 0 var(--space-quarter) 0;
-}
-
-.confirmationInstructions > div {
-  width: 50%;
-}
-
-.confirmationInstructions p {
-    line-height: 1;
-    margin-top: var(--space-quarter);
-}
-
-.confirmationInstructions.confirm {
-    text-align: center;
-    font-size: var(--size-subheader);
-    padding: var(--space-half) calc(var(--space-half) * 1.5);
-}
-
-.image {
-    height: 120px;
-    margin-right: var(--space-half);
 }
 
 .modalContent p {

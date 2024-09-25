@@ -18,7 +18,7 @@
 import { ChangeEvent, Component } from 'react';
 import * as accountApi from '@/api/account';
 import { syncdone } from '@/api/accountsync';
-import { BtcUnit, convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
+import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
 import { View, ViewContent } from '@/components/view/view';
 import { TDevices, hasMobileChannel } from '@/api/devices';
 import { getDeviceInfo } from '@/api/bitbox01';
@@ -30,25 +30,25 @@ import { BackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { Status } from '@/components/status/status';
 import { translate, TranslateProps } from '@/decorators/translate';
-import { getConfig } from '@/utils/config';
 import { FeeTargets } from './feetargets';
-import { signConfirm, signProgress, TSignProgress } from '@/api/devicessync';
+import { signProgress, TSignProgress } from '@/api/devicessync';
 import { UnsubscribeList, unsubscribe } from '@/utils/subscriptions';
-import { isBitcoinBased, findAccount } from '@/routes/account/utils';
-import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
+import { isBitcoinBased } from '@/routes/account/utils';
+import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
 import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
 import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
-import { TSelectedUTXOs, UTXOs } from './utxos';
+import { TSelectedUTXOs } from './utxos';
 import { TProposalError, txProposalErrorHandling } from './services';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { CoinControl } from './coin-control';
 import style from './send.module.css';
 
 interface SendProps {
-    accounts: accountApi.IAccount[];
-    code: accountApi.AccountCode;
+    account: accountApi.IAccount;
     devices: TDevices;
     deviceIDs: string[];
     activeCurrency: accountApi.Fiat;
@@ -66,13 +66,11 @@ export type State = {
     valid: boolean;
     amount: string;
     fiatAmount: string;
-    fiatUnit: accountApi.Fiat;
     sendAll: boolean;
     feeTarget?: accountApi.FeeTargetCode;
     customFee: string;
     isConfirming: boolean;
-    isSent: boolean;
-    isAborted: boolean;
+    sendResult?: accountApi.ISendTx;
     isUpdatingProposal: boolean;
     addressError?: TProposalError['addressError'];
     amountError?: TProposalError['amountError'];
@@ -80,12 +78,6 @@ export type State = {
     paired?: boolean;
     noMobileChannelError?: boolean;
     signProgress?: TSignProgress;
-    // show visual BitBox in dialog when instructed to sign.
-    signConfirm: boolean;
-    coinControl: boolean;
-    btcUnit: BtcUnit;
-    activeCoinControl: boolean;
-    activeScanQR: boolean;
     note: string;
 }
 
@@ -104,26 +96,10 @@ class Send extends Component<Props, State> {
     valid: false,
     sendAll: false,
     isConfirming: false,
-    signConfirm: false,
-    isSent: false,
-    isAborted: false,
     isUpdatingProposal: false,
     noMobileChannelError: false,
-    fiatUnit: this.props.activeCurrency,
-    coinControl: false,
-    btcUnit : 'default',
-    activeCoinControl: false,
-    activeScanQR: false,
     note: '',
     customFee: '',
-  };
-
-  private isBitcoinBased = () => {
-    const account = this.getAccount();
-    if (!account) {
-      return false;
-    }
-    return isBitcoinBased(account.coinCode);
   };
 
   public componentDidMount() {
@@ -131,37 +107,25 @@ class Send extends Component<Props, State> {
       .then(balance => this.setState({ balance }))
       .catch(console.error);
 
-    if (this.props.code) {
-      updateBalance(this.props.code);
-    }
+    updateBalance(this.props.account.code);
 
     if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
       hasMobileChannel(this.props.deviceIDs[0])().then((mobileChannel: boolean) => {
         return getDeviceInfo(this.props.deviceIDs[0])
           .then(({ pairing }) => {
-            const account = this.getAccount();
             const paired = mobileChannel && pairing;
-            const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
+            const noMobileChannelError = pairing && !mobileChannel && isBitcoinBased(this.props.account.coinCode);
             this.setState(prevState => ({ ...prevState, paired, noMobileChannelError }));
           });
       }).catch(console.error);
     }
-    getConfig().then(config => {
-      this.setState({ btcUnit: config.backend.btcUnit });
-      if (this.isBitcoinBased()) {
-        this.setState({ coinControl: !!(config.frontend || {}).coinControl });
-      }
-    });
 
     this.unsubscribeList = [
       signProgress((progress) =>
-        this.setState({ signProgress: progress, signConfirm: false })
-      ),
-      signConfirm(() =>
-        this.setState({ signConfirm: true })
+        this.setState({ signProgress: progress })
       ),
       syncdone((code) => {
-        if (this.props.code === code) {
+        if (this.props.account.code === code) {
           updateBalance(code);
         }
       }),
@@ -170,8 +134,6 @@ class Send extends Component<Props, State> {
 
   public componentWillUnmount() {
     unsubscribe(this.unsubscribeList);
-    // Wipe proposed tx note.
-    accountApi.proposeTxNote(this.getAccount()!.code, '');
   }
 
   private send = async () => {
@@ -179,7 +141,7 @@ class Send extends Component<Props, State> {
       alertUser(this.props.t('warning.sendPairing'));
       return;
     }
-    const code = this.getAccount()!.code;
+    const code = this.props.account.code;
     const connectResult = await accountApi.connectKeystore(code);
     if (!connectResult.success) {
       return;
@@ -187,12 +149,13 @@ class Send extends Component<Props, State> {
 
     this.setState({ signProgress: undefined, isConfirming: true });
     try {
-      const result = await accountApi.sendTx(code);
+      const result = await accountApi.sendTx(code, this.state.note);
+      this.setState({ sendResult: result, isConfirming: false });
+      setTimeout(() => this.setState({ sendResult: undefined }), 5000);
       if (result.success) {
         this.setState({
           sendAll: false,
           isConfirming: false,
-          isSent: true,
           recipientAddress: '',
           proposedAmount: undefined,
           proposedFee: undefined,
@@ -203,32 +166,12 @@ class Send extends Component<Props, State> {
           customFee: '',
         });
         this.selectedUTXOs = {};
-        setTimeout(() => this.setState({
-          isSent: false,
-          isConfirming: false,
-        }), 5000);
-      } else if (result.aborted) {
-        this.setState({ isAborted: true });
-        setTimeout(() => this.setState({ isAborted: false }), 5000);
-      } else {
-        switch (result.errorCode) {
-        case 'erc20InsufficientGasFunds':
-          alertUser(this.props.t(`send.error.${result.errorCode}`));
-          break;
-        default:
-          const { errorMessage } = result;
-          if (errorMessage) {
-            alertUser(this.props.t('unknownError', { errorMessage }));
-          } else {
-            alertUser(this.props.t('unknownError'));
-          }
-        }
       }
     } catch (err) {
       console.error(err);
     } finally {
       // The following method allows pressing escape again.
-      this.setState({ isConfirming: false, signProgress: undefined, signConfirm: false });
+      this.setState({ isConfirming: false, signProgress: undefined });
     }
   };
 
@@ -248,6 +191,7 @@ class Send extends Component<Props, State> {
       customFee: this.state.customFee,
       sendAll: (this.state.sendAll ? 'yes' : 'no'),
       selectedUTXOs: Object.keys(this.selectedUTXOs),
+      paymentRequest: null,
     };
   };
 
@@ -269,7 +213,7 @@ class Send extends Component<Props, State> {
     this.setState({ isUpdatingProposal: true });
     // defer the transaction proposal
     this.proposeTimeout = setTimeout(async () => {
-      const proposePromise = accountApi.proposeTx(this.getAccount()!.code, txInput);
+      const proposePromise = accountApi.proposeTx(this.props.account.code, txInput);
       // keep this as the last known proposal
       this.lastProposal = proposePromise;
       try {
@@ -294,8 +238,6 @@ class Send extends Component<Props, State> {
     const target = event.target;
     this.setState({
       'note': target.value,
-    }, () => {
-      accountApi.proposeTxNote(this.getAccount()!.code, this.state.note);
     });
   };
 
@@ -330,11 +272,11 @@ class Send extends Component<Props, State> {
 
   private convertToFiat = async (amount: string) => {
     if (amount) {
-      const coinCode = this.getAccount()!.coinCode;
+      const coinCode = this.props.account.coinCode;
       const data = await convertToCurrency({
         amount,
         coinCode,
-        fiatUnit: this.state.fiatUnit,
+        fiatUnit: this.props.activeCurrency,
       });
       if (data.success) {
         this.setState({ fiatAmount: data.fiatAmount });
@@ -348,11 +290,11 @@ class Send extends Component<Props, State> {
 
   private convertFromFiat = async (amount: string) => {
     if (amount) {
-      const coinCode = this.getAccount()!.coinCode;
+      const coinCode = this.props.account.coinCode;
       const data = await convertFromCurrency({
         amount,
         coinCode,
-        fiatUnit: this.state.fiatUnit,
+        fiatUnit: this.props.activeCurrency,
       });
       if (data.success) {
         this.setState({ amount: data.amount }, () => this.validateAndDisplayFee(false));
@@ -380,26 +322,6 @@ class Send extends Component<Props, State> {
     return Object.keys(this.selectedUTXOs).length !== 0;
   };
 
-  private getAccount = (): accountApi.IAccount | undefined => {
-    if (!this.props.code) {
-      return undefined;
-    }
-    return findAccount(this.props.accounts, this.props.code);
-  };
-
-  private toggleCoinControl = () => {
-    this.setState(({ activeCoinControl }) => {
-      if (activeCoinControl) {
-        this.selectedUTXOs = {};
-      }
-      return { activeCoinControl: !activeCoinControl };
-    });
-  };
-
-  private setActiveScanQR = (activeScanQR: boolean) => {
-    this.setState({ activeScanQR });
-  };
-
   private parseQRResult = async (uri: string) => {
     let address;
     let amount = '';
@@ -410,7 +332,7 @@ class Send extends Component<Props, State> {
         return;
       }
       address = url.pathname;
-      if (this.isBitcoinBased()) {
+      if (isBitcoinBased(this.props.account.coinCode)) {
         amount = url.searchParams.get('amount') || '';
       }
     } catch {
@@ -422,7 +344,7 @@ class Send extends Component<Props, State> {
       fiatAmount: ''
     } as Pick<State, keyof State>;
 
-    const coinCode = this.getAccount()!.coinCode;
+    const coinCode = this.props.account.coinCode;
     if (amount) {
       if (coinCode === 'btc' || coinCode === 'tbtc') {
         const result = await parseExternalBtcAmount(amount);
@@ -442,11 +364,6 @@ class Send extends Component<Props, State> {
       this.convertToFiat(this.state.amount);
       this.validateAndDisplayFee(true);
     });
-  };
-
-
-  private deactivateCoinControl = () => {
-    this.setState({ activeCoinControl: false });
   };
 
   private onReceiverAddressInputChange = (recipientAddress: string) => {
@@ -472,7 +389,7 @@ class Send extends Component<Props, State> {
   };
 
   public render() {
-    const { t } = this.props;
+    const { account, activeCurrency, t } = this.props;
     const {
       balance,
       proposedFee,
@@ -483,23 +400,17 @@ class Send extends Component<Props, State> {
       amount,
       /* data, */
       fiatAmount,
-      fiatUnit,
       sendAll,
       feeTarget,
       customFee,
       isConfirming,
-      isSent,
-      isAborted,
+      sendResult,
       isUpdatingProposal,
       addressError,
       amountError,
       feeError,
       paired,
       signProgress,
-      signConfirm,
-      coinControl,
-      activeCoinControl,
-      activeScanQR,
       note,
     } = this.state;
 
@@ -510,27 +421,25 @@ class Send extends Component<Props, State> {
       customFee,
       feeTarget,
       recipientAddress,
-      fiatUnit,
+      activeCurrency,
     };
 
     const waitDialogTransactionStatus = {
       isConfirming,
       signProgress,
-      signConfirm
     };
 
-    const account = this.getAccount();
-    if (!account) {
-      return null;
-    }
+    const device = this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]];
 
     return (
       <GuideWrapper>
         <GuidedContent>
           <Main>
-            <Status type="warning" hidden={paired !== false}>
-              {t('warning.sendPairing')}
-            </Status>
+            <ContentWrapper>
+              <Status type="warning" hidden={paired !== false}>
+                {t('warning.sendPairing')}
+              </Status>
+            </ContentWrapper>
             <Header
               title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}
             >
@@ -542,35 +451,21 @@ class Send extends Component<Props, State> {
                   <label className="labelXLarge">{t('send.availableBalance')}</label>
                 </div>
                 <Balance balance={balance} noRotateFiat/>
-                { coinControl && (
-                  <UTXOs
-                    accountCode={account.code}
-                    active={activeCoinControl}
-                    explorerURL={account.blockExplorerTxPrefix}
-                    onClose={this.deactivateCoinControl}
-                    onChange={this.onSelectedUTXOsChange} />
-                ) }
                 <div className={`flex flex-row flex-between ${style.container}`}>
                   <label className="labelXLarge">{t('send.transactionDetails')}</label>
-                  { coinControl && (
-                    <Button
-                      className="m-bottom-quarter p-right-none"
-                      transparent
-                      onClick={this.toggleCoinControl}>
-                      {t('send.toggleCoinControl')}
-                    </Button>
-                  )}
+                  <CoinControl
+                    account={account}
+                    onSelectedUTXOsChange={this.onSelectedUTXOsChange}
+                  />
                 </div>
                 <Grid col="1">
                   <Column>
                     <ReceiverAddressInput
-                      accountCode={this.getAccount()?.code}
+                      accountCode={account.code}
                       addressError={addressError}
                       onInputChange={this.onReceiverAddressInputChange}
                       recipientAddress={recipientAddress}
                       parseQRResult={this.parseQRResult}
-                      activeScanQR={activeScanQR}
-                      onChangeActiveScanQR={this.setActiveScanQR}
                     />
                   </Column>
                 </Grid>
@@ -593,7 +488,7 @@ class Send extends Component<Props, State> {
                       disabled={sendAll}
                       error={amountError}
                       fiatAmount={fiatAmount}
-                      label={fiatUnit}
+                      label={activeCurrency}
                     />
                   </Column>
                 </Grid>
@@ -603,7 +498,7 @@ class Send extends Component<Props, State> {
                       accountCode={account.code}
                       coinCode={account.coinCode}
                       disabled={!amount && !sendAll}
-                      fiatUnit={fiatUnit}
+                      fiatUnit={activeCurrency}
                       proposedFee={proposedFee}
                       customFee={customFee}
                       showCalculatingFeeLabel={isUpdatingProposal}
@@ -626,7 +521,6 @@ class Send extends Component<Props, State> {
                         {t('send.button')}
                       </Button>
                       <BackButton
-                        disabled={activeCoinControl || activeScanQR}
                         enableEsc>
                         {t('button.back')}
                       </BackButton>
@@ -634,18 +528,21 @@ class Send extends Component<Props, State> {
                   </Column>
                 </Grid>
               </ViewContent>
-              <ConfirmingWaitDialog
-                paired={paired}
-                baseCurrencyUnit={fiatUnit}
-                note={note}
-                hasSelectedUTXOs={this.hasSelectedUTXOs()}
-                selectedUTXOs={Object.keys(this.selectedUTXOs)}
-                coinCode={account.coinCode}
-                transactionDetails={waitDialogTransactionDetails}
-                transactionStatus={waitDialogTransactionStatus}
-              />
-              <MessageWaitDialog isShown={isSent} messageType="sent" />
-              <MessageWaitDialog isShown={isAborted} messageType="abort" />
+
+              {device && (
+                <ConfirmSend
+                  device={device}
+                  baseCurrencyUnit={activeCurrency}
+                  note={note}
+                  hasSelectedUTXOs={this.hasSelectedUTXOs()}
+                  selectedUTXOs={Object.keys(this.selectedUTXOs)}
+                  coinCode={account.coinCode}
+                  transactionDetails={waitDialogTransactionDetails}
+                  transactionStatus={waitDialogTransactionStatus}
+                />
+              )}
+
+              <MessageWaitDialog result={sendResult}/>
             </View>
           </Main>
         </GuidedContent>

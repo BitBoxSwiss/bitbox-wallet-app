@@ -21,6 +21,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	ourbtcutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -113,6 +114,23 @@ func NewAccountAddress(
 // ID implements accounts.Address.
 func (address *AccountAddress) ID() string {
 	return string(address.PubkeyScriptHashHex())
+}
+
+// BIP352Pubkey returns the pubkey used for silent payments:
+// - 33 byte compressed public key for p2pkh, p2wpkh, p2wpkh-p2sh.
+// - 32 byte x-only public key for p2tr
+// See https://github.com/bitcoin/bips/blob/master/bip-0352.mediawiki#user-content-Inputs_For_Shared_Secret_Derivation.
+func (address *AccountAddress) BIP352Pubkey() ([]byte, error) {
+	publicKey := address.Configuration.PublicKey()
+	switch address.Configuration.ScriptType() {
+	case signing.ScriptTypeP2PKH, signing.ScriptTypeP2WPKHP2SH, signing.ScriptTypeP2WPKH:
+		return publicKey.SerializeCompressed(), nil
+	case signing.ScriptTypeP2TR:
+		outputKey := txscript.ComputeTaprootKeyNoScript(publicKey)
+		return schnorr.SerializePubKey(outputKey), nil
+	default:
+		return nil, errp.New("unsupported script type for silent payments")
+	}
 }
 
 // EncodeForHumans implements accounts.Address.

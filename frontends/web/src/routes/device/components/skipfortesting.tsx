@@ -58,11 +58,9 @@ export const SkipForTesting = ({
       <Dialog open={dialog} title={title} onClose={() => setDialog(false)}>
         <form onSubmit={registerTestingDevice}>
           <PasswordSingleInput
-            type="password"
             autoFocus
             label="Test Password"
-            onValidPassword={setTestPIN}
-            value={testPIN} />
+            onValidPassword={(pw) => pw ? setTestPIN(pw) : setTestPIN('')}/>
           <DialogButtons>
             <Button primary type="submit">
               Unlock

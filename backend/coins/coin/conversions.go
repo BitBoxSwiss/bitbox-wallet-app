@@ -8,7 +8,7 @@ import (
 	ratesPkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 )
 
-// Btc2Sat is the sat equivalent of 1 BTC.
+// btc2SatUnit is the sat equivalent of 1 BTC.
 const btc2SatUnit = 1e8
 
 // Sat2Btc converts a big.Rat amount of Sat in an equivalent amount of BTC.

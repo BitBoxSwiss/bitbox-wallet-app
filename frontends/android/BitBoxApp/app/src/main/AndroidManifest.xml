@@ -12,6 +12,8 @@
 
     <!-- for Go backend service -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
 
     <!-- to allow external links and mailto -->
     <queries>
@@ -67,7 +69,7 @@
             <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
-        <service android:name=".GoService" />
+        <service android:name=".GoService" android:foregroundServiceType="dataSync" />
 
         <!-- to allow external apps to open local files (e.g. exported csv) -->
         <provider

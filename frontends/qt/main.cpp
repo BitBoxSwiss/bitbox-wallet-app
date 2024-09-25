@@ -119,19 +119,19 @@ public:
         auto currentUrl = mainPage->requestedUrl().toString();
         auto requestedUrl = info.requestUrl().toString();
 
-        // We treat the onramp page specially because we need to allow onramp
+        // We treat the exchange pages specially because we need to allow exchange
         // widgets to load in an iframe as well as let them open external links
         // in a browser.
-        bool onBuyPage = currentUrl.contains(QRegularExpression("^qrc:/buy/.*$"));
+        bool onExchangePage = currentUrl.contains(QRegularExpression("^qrc:/exchange/.*$"));
         bool onBitsurancePage = currentUrl.contains(QRegularExpression("^qrc:/bitsurance/.*$"));
-        if (onBuyPage || onBitsurancePage) {
-            if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
-                // A link with target=_blank was clicked.
-                systemOpen(info.requestUrl().toString().toUtf8().constData());
-                // No need to also load it in our page.
-                info.block(true);
-            }
-            return;
+        if (onExchangePage || onBitsurancePage) {
+          if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
+            // A link with target=_blank was clicked.
+            systemOpen(info.requestUrl().toString().toUtf8().constData());
+            // No need to also load it in our page.
+            info.block(true);
+          }
+          return;
         }
 
         // All the requests originated in the wallet-connect section are allowed, as they are needed to

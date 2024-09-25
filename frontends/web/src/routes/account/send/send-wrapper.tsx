@@ -18,6 +18,7 @@ import { useContext } from 'react';
 import { AccountCode, IAccount } from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { RatesContext } from '@/contexts/RatesContext';
+import { findAccount } from '@/routes/account/utils';
 import { Send } from './send';
 
 type TSendProps = {
@@ -29,13 +30,15 @@ type TSendProps = {
 
 export const SendWrapper = ({ accounts, code, deviceIDs, devices }: TSendProps) => {
   const { defaultCurrency } = useContext(RatesContext);
+  const account = findAccount(accounts, code);
   return (
-    <Send
-      accounts={accounts}
-      code={code}
-      devices={devices}
-      deviceIDs={deviceIDs}
-      activeCurrency={defaultCurrency}
-    />
+    account ? (
+      <Send
+        account={account}
+        devices={devices}
+        deviceIDs={deviceIDs}
+        activeCurrency={defaultCurrency}
+      />
+    ) : (null)
   );
 };

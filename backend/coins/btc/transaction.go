@@ -25,7 +25,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -40,7 +39,8 @@ const unitSatoshi = 1e8
 // fee target (priority) if one is given, or the provided args.FeePerKb if the fee taret is
 // `FeeTargetCodeCustom`.
 func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amount, error) {
-	if args.FeeTargetCode == accounts.FeeTargetCodeCustom {
+	isPaymentRequest := args.PaymentRequest != nil
+	if args.FeeTargetCode == accounts.FeeTargetCodeCustom && !isPaymentRequest {
 		float, err := strconv.ParseFloat(args.CustomFee, 64)
 		if err != nil {
 			return 0, err
@@ -58,11 +58,16 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 		}
 		return feePerKb, nil
 	}
+
 	var feeTarget *FeeTarget
-	for _, target := range account.feeTargets() {
-		if target.code == args.FeeTargetCode {
-			feeTarget = target
-			break
+	if isPaymentRequest {
+		feeTarget = account.feeTargets().highest()
+	} else {
+		for _, target := range account.feeTargets() {
+			if target.code == args.FeeTargetCode {
+				feeTarget = target
+				break
+			}
 		}
 	}
 	if feeTarget == nil || feeTarget.feeRatePerKb == nil {
@@ -133,13 +138,15 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 
 	account.log.Debug("Prepare new transaction")
 
-	address, err := account.coin.DecodeAddress(args.RecipientAddress)
-	if err != nil {
-		return nil, nil, err
-	}
-	pkScript, err := util.PkScriptFromAddress(address)
-	if err != nil {
-		return nil, nil, err
+	var outputInfo *maketx.OutputInfo
+	if err := account.coin.ValidateSilentPaymentAddress(args.RecipientAddress); err == nil {
+		outputInfo = maketx.NewOutputInfoSilentPayment(args.RecipientAddress)
+	} else {
+		pkScript, err := account.coin.AddressToPkScript(args.RecipientAddress)
+		if err != nil {
+			return nil, nil, err
+		}
+		outputInfo = maketx.NewOutputInfo(pkScript)
 	}
 	utxo, err := account.transactions.SpendableOutputs()
 	if err != nil {
@@ -166,10 +173,13 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 
 	var txProposal *maketx.TxProposal
 	if args.Amount.SendAll() {
+		if args.PaymentRequest != nil {
+			return nil, nil, errp.New("Payment Requests do not allow send-all transaction proposals")
+		}
 		txProposal, err = maketx.NewTxSpendAll(
 			account.coin,
 			wireUTXO,
-			pkScript,
+			outputInfo,
 			feeRatePerKb,
 			account.log,
 		)
@@ -199,13 +209,19 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		txProposal, err = maketx.NewTx(
 			account.coin,
 			wireUTXO,
-			wire.NewTxOut(parsedAmountInt64, pkScript),
+			outputInfo,
+			parsedAmountInt64,
 			feeRatePerKb,
 			changeAddress,
 			account.log,
 		)
 		if err != nil {
 			return nil, nil, err
+		}
+
+		if args.PaymentRequest != nil {
+			account.log.Info("Payment request tx proposal")
+			txProposal.PaymentRequest = args.PaymentRequest
 		}
 	}
 	account.log.Debugf("creating tx with %d inputs, %d outputs",
@@ -228,7 +244,7 @@ func (account *Account) getAddress(scriptHashHex blockchain.ScriptHashHex) *addr
 }
 
 // SendTx implements accounts.Interface.
-func (account *Account) SendTx() error {
+func (account *Account) SendTx(txNote string) error {
 	unlock := account.activeTxProposalLock.RLock()
 	txProposal := account.activeTxProposal
 	unlock()
@@ -246,8 +262,7 @@ func (account *Account) SendTx() error {
 		return err
 	}
 
-	note := account.BaseAccount.GetAndClearProposedTxNote()
-	if err := account.SetTxNote(txProposal.Transaction.TxHash().String(), note); err != nil {
+	if err := account.SetTxNote(txProposal.Transaction.TxHash().String(), txNote); err != nil {
 		// Not critical.
 		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")
 	}

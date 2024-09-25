@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,14 @@
 
 import React, { Component, createRef, ReactNode } from 'react';
 import { translate, TranslateProps } from '@/decorators/translate';
-import approve from '@/assets/icons/hold.png';
-import reject from '@/assets/icons/tap.png';
-import style from '@/components/dialog/dialog.module.css';
 import { UseDisableBackButton } from '@/hooks/backbutton';
+import style from '@/components/dialog/dialog.module.css';
 
 
 interface WaitDialogProps {
     includeDefault?: boolean;
     prequel?: JSX.Element;
     title?: string;
-    paired?: boolean;
-    touchConfirm?: boolean;
     children?: ReactNode;
 }
 
@@ -83,8 +79,6 @@ class WaitDialog extends Component<Props, State> {
       includeDefault,
       prequel,
       title,
-      paired = false,
-      touchConfirm = true,
       children,
     } = this.props;
     const defaultContent = (
@@ -94,44 +88,7 @@ class WaitDialog extends Component<Props, State> {
             <p className="m-top-none">{prequel}</p>
           )
         }
-        {
-          paired ? (
-            <div>
-              <p className={[style.confirmationLabel, touchConfirm && paired ? style.disabledLabel : '', 'm-top-none'].join(' ')}>
-                <span className={style.confirmationLabelNumber}>1.</span>
-                {t('confirm.infoWhenPaired')}
-              </p>
-              <p className={[style.confirmationLabel, !touchConfirm && paired ? style.disabledLabel : ''].join(' ')}>
-                <span className={style.confirmationLabelNumber}>2.</span>
-                {t('confirm.info')}
-              </p>
-            </div>
-          ) : (
-            <p className={[style.confirmationLabel, style.noStep, 'm-top-none'].join(' ')}>
-              {t('confirm.info')}
-            </p>
-          )
-        }
-        {
-          touchConfirm && (
-            <div className={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
-              <div className="flex flex-column flex-center flex-items-center">
-                <img className={style.image} src={reject} alt="Reject" />
-                <p>
-                  {t('confirm.abortInfo')}
-                  <span className="text-red">{t('confirm.abortInfoRedText')}</span>
-                </p>
-              </div>
-              <div className="flex flex-column flex-center flex-items-center">
-                <img className={style.image} src={approve} alt="Approve" />
-                <p>
-                  {t('confirm.approveInfo')}
-                  <span className="text-green">{t('confirm.approveInfoGreenText')}</span>
-                </p>
-              </div>
-            </div>
-          )
-        }
+        <p className={style.confirmationLabel}>{t('confirm.info')}</p>
       </div>
     );
 

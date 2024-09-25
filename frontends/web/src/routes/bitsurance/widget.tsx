@@ -25,6 +25,7 @@ import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { BitsuranceTerms } from '@/components/terms/bitsurance-terms';
 import { useLoad } from '@/hooks/api';
+import { UseDisableBackButton } from '@/hooks/backbutton';
 import { alertUser } from '@/components/alert/Alert';
 import { BitsuranceGuide } from './guide';
 import { getBitsuranceURL } from '@/api/bitsurance';
@@ -186,6 +187,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
             />
           ) : (
             <div style={{ height }}>
+              <UseDisableBackButton />
               {!iframeLoaded && <Spinner guideExists={false} text={t('loading')} /> }
               <iframe
                 onLoad={() => {
