@@ -132,7 +132,11 @@ struct BitBoxAppApp: App {
             print("Could not create Application Support directory: \(error)")
         }
         let goEnvironment = GoEnvironment()
-       
-        MobileserverServe(appSupportDirectory.path, goEnvironment, goAPI)
+        #if TARGET_TESTNET
+        let testnet = true;
+        #else
+        let testnet = false;
+        #endif
+        MobileserverServe(appSupportDirectory.path, testnet, goEnvironment, goAPI)
     }
 }
