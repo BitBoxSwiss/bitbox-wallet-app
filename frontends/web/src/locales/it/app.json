@@ -531,12 +531,7 @@
   "checkSDcard": "verifica della scheda microSD",
   "clickHere": "Clicca qui.",
   "confirm": {
-    "abortInfo": "Tocca per",
-    "abortInfoRedText": "interrompere",
-    "approveInfo": "Tocca per almeno 4 secondi per",
-    "approveInfoGreenText": "confermare",
-    "info": "Continua sul tuo BitBox",
-    "infoWhenPaired": "Prima sul cellulare accoppiato e poi sul tuo BitBox"
+    "info": "Continua sul tuo BitBox"
   },
   "confirmOnDevice": "Conferma sul tuo dispositivo.",
   "connectKeystore": {

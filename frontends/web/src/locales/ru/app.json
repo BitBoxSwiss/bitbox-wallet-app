@@ -352,12 +352,7 @@
   "checkSDcard": "Проверка карты памяти microSD",
   "clickHere": "Нажмите здесь.",
   "confirm": {
-    "abortInfo": "Нажмите, чтобы",
-    "abortInfoRedText": " прервать",
-    "approveInfo": "Удерживайте 4 секунды, чтобы",
-    "approveInfoGreenText": " подтвердить",
-    "info": "Продолжайте на Вашем устройстве BitBox. ",
-    "infoWhenPaired": "Сначала на присоединённом мобильном устройстве, а затем на BitBox"
+    "info": "Продолжайте на Вашем устройстве BitBox. "
   },
   "confirmOnDevice": "Пожалуйста, подтвердите на вашем устройстве.",
   "device": {

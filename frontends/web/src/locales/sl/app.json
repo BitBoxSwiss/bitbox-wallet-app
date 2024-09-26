@@ -531,12 +531,7 @@
   "checkSDcard": "preverjanje microSD kartice",
   "clickHere": "Kliknite tukaj.",
   "confirm": {
-    "abortInfo": "Hiter dotik za ",
-    "abortInfoRedText": "prekinitev",
-    "approveInfo": "Dotaknite se gumba za vsaj 4 sekunde ",
-    "approveInfoGreenText": " za potrditev",
-    "info": "Nadaljujte na BitBoxu.",
-    "infoWhenPaired": "Najprej na seznanjeni mobilni napravi in ​​nato na BitBoxu"
+    "info": "Nadaljujte na BitBoxu."
   },
   "confirmOnDevice": "Nadgradnjo potrdite na BitBox-u",
   "connectKeystore": {

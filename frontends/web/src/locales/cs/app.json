@@ -531,12 +531,7 @@
   "checkSDcard": "kontrola microSD karty",
   "clickHere": "Klikněte zde.",
   "confirm": {
-    "abortInfo": "Klepněte na ",
-    "abortInfoRedText": "zrušit",
-    "approveInfo": "Podržte 4 a více sekund ",
-    "approveInfoGreenText": "potvrdit",
-    "info": "Pokračujte na svém BitBoxu. ",
-    "infoWhenPaired": "Nejprve na spárovaném mobilu a poté na vašem BitBoxu"
+    "info": "Pokračujte na svém BitBoxu. "
   },
   "confirmOnDevice": "Potvrďte na svém zařízení.",
   "connectKeystore": {
