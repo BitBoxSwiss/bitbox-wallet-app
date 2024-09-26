@@ -24,7 +24,7 @@ before_build:
 
 build_script:
   - echo on
-  - choco install go --version=1.22.6
+  - choco install go --version=1.23.1
   - go version
   - go env
   - choco install make
