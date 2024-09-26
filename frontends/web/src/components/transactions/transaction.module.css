@@ -28,9 +28,15 @@
   flex-shrink: 0;
   text-align: center;
 }
+.txIcon img {
+  width: 32px;
+}
 @media (max-width: 768px) {
   .txIcon {
     flex-basis: 74px;
+  }
+  .txIcon img {
+    width: 24px;
   }
 }
 @media (max-width: 560px) {
@@ -206,6 +212,6 @@
   }
 }
 .iconLoupe {
-  max-width: 24px;
+  width: 28px;
   vertical-align: text-bottom;
 }
