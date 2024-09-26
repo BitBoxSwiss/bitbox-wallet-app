@@ -4,5 +4,7 @@
 <dict>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to the camera to scan QR codes.</string>
 </dict>
 </plist>
