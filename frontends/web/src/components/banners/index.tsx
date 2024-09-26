@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-
-import { Banner } from '@/components/banner/banner';
-import { MobileDataWarning } from '@/components/mobiledatawarning';
-import { Update } from '@/components/update/update';
+import { Update } from './update';
+import { Banner } from './banner';
+import { MobileDataWarning } from './mobiledatawarning';
 
 export const GlobalBanners = () => {
   return (
@@ -27,6 +26,5 @@ export const GlobalBanners = () => {
       <Banner msgKey="bitbox02" />
       <MobileDataWarning />
     </>
-
   );
 };

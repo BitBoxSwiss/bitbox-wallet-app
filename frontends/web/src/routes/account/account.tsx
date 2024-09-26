@@ -47,7 +47,7 @@ import { A } from '@/components/anchor/anchor';
 import { getConfig, setConfig } from '@/utils/config';
 import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/globalbanners/globalbanners';
+import { GlobalBanners } from '@/components/banners';
 import style from './account.module.css';
 
 type Props = {
