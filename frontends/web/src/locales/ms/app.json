@@ -531,12 +531,7 @@
   "checkSDcard": "memeriksa kad micro SD",
   "clickHere": "Tekan di sini.",
   "confirm": {
-    "abortInfo": "Sentuh untuk ",
-    "abortInfoRedText": "tinggalkan",
-    "approveInfo": "Tahan 4 detik untuk ",
-    "approveInfoGreenText": "sahkan",
-    "info": "Pada BitBox anda",
-    "infoWhenPaired": "Mula-mula pada telefon mudah alih yang dipasangkan dan kemudian BitBox anda"
+    "info": "Pada BitBox anda"
   },
   "confirmOnDevice": "Sila sahkan pada peranti anda.",
   "connectKeystore": {

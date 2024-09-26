@@ -531,12 +531,7 @@
   "checkSDcard": "microSD kaart aan het controleren",
   "clickHere": "Klik hier",
   "confirm": {
-    "abortInfo": "Klik om",
-    "abortInfoRedText": "annuleren",
-    "approveInfo": "Houd 4 seconden ingedrukt om te",
-    "approveInfoGreenText": "bevestigen",
-    "info": "Ga verder op je BitBox",
-    "infoWhenPaired": "Eerst op de gekoppelde telefoon en dan op je BitBox"
+    "info": "Ga verder op je BitBox"
   },
   "confirmOnDevice": "Bevestig op je BitBox",
   "connectKeystore": {

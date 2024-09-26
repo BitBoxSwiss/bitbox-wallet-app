@@ -226,12 +226,7 @@
   "checkSDcard": "بررسی حافظه microSD",
   "clickHere": "اینجا کلیک کنید.",
   "confirm": {
-    "abortInfo": "ضربه بزنید تا",
-    "abortInfoRedText": "لغو",
-    "approveInfo": "4 ثانیه نگه دارید تا",
-    "approveInfoGreenText": "تاييد ",
-    "info": "روی BitBox",
-    "infoWhenPaired": "اول بر روی موبایل و سپس BitBox"
+    "info": "روی BitBox"
   },
   "confirmOnDevice": "لطفاً بر روی دستگاه خود تأیید کنید.",
   "device": {

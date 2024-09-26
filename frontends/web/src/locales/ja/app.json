@@ -531,12 +531,7 @@
   "checkSDcard": "microSDカードを確認しています",
   "clickHere": "こちらをクリック",
   "confirm": {
-    "abortInfo": "タップしてください",
-    "abortInfoRedText": "中止する",
-    "approveInfo": "4秒以上長押ししてください",
-    "approveInfoGreenText": "確認",
-    "info": "BitBoxで続けてください",
-    "infoWhenPaired": "まずペアリングされたモバイルアプリで操作し、次にBitBox上で続けてください"
+    "info": "BitBoxで続けてください"
   },
   "confirmOnDevice": "デバイス上で確認してください。",
   "connectKeystore": {

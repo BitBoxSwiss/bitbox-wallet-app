@@ -531,12 +531,7 @@
   "checkSDcard": "Micro-SD-Karte wird überprüft",
   "clickHere": "Hier klicken.",
   "confirm": {
-    "abortInfo": "Tippe zum ",
-    "abortInfoRedText": "abbrechen",
-    "approveInfo": "4 Sekunden lang halten um zu ",
-    "approveInfoGreenText": "bestätigen",
-    "info": "Fahre auf deiner BitBox fort.",
-    "infoWhenPaired": "Zuerst auf deinem gepaarten Mobiltelefon und dann auf deiner BitBox"
+    "info": "Fahre auf deiner BitBox fort."
   },
   "confirmOnDevice": "Bitte bestätige auf deinem Gerät.",
   "connectKeystore": {
