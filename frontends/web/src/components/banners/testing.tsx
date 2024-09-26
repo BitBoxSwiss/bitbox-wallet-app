@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-import { Testing } from './testing';
-import { Update } from './update';
-import { Banner } from './banner';
-import { MobileDataWarning } from './mobiledatawarning';
+import { useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AppContext } from '@/contexts/AppContext';
+import { Status } from '@/components/status/status';
 
-export const GlobalBanners = () => {
+export const Testing = () => {
+  const { t } = useTranslation();
+  const { isTesting } = useContext(AppContext);
+
+  if (!isTesting) {
+    return null;
+  }
+
   return (
-    <>
-      <Testing />
-      <Update />
-      <Banner msgKey="bitbox01" />
-      <Banner msgKey="bitbox02" />
-      <MobileDataWarning />
-    </>
+    <Status type="warning">
+      {t('warning.testnet')}
+    </Status>
   );
 };
