@@ -32,15 +32,15 @@ var intermediateFirmwareBinaryBTCOnly_9_17_1 []byte
 //go:embed assets/firmware.v9.17.1.signed.bin.gz
 var intermediateFirmwareBinaryMulti_9_17_1 []byte
 
-//go:embed assets/firmware-btc.v9.20.0.signed.bin.gz
+//go:embed assets/firmware-btc.v9.21.0.signed.bin.gz
 var firmwareBinaryBTCOnly []byte
-var firmwareVersionBTCOnly = semver.NewSemVer(9, 20, 0)
-var firmwareMonotonicVersionBtcOnly uint32 = 40
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 21, 0)
+var firmwareMonotonicVersionBtcOnly uint32 = 41
 
-//go:embed assets/firmware.v9.20.0.signed.bin.gz
+//go:embed assets/firmware.v9.21.0.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 20, 0)
-var firmwareMonotonicVersionMulti uint32 = 40
+var firmwareVersionMulti = semver.NewSemVer(9, 21, 0)
+var firmwareMonotonicVersionMulti uint32 = 41
 
 type firmwareInfo struct {
 	version          *semver.SemVer
