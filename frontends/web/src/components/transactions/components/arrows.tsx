@@ -15,7 +15,7 @@
  */
 
 import type { TTransactionStatus, TTransactionType } from '@/api/account';
-import { ArrowDownGreen, ArrowRightGray, ArrowUpRed, Warning } from '@/components/icon/icon';
+import { ArrowFloorDownGreen, ArrowUTurn, ArrowFloorUpRed, Warning } from '@/components/icon/icon';
 
 type TProps = {
   status: TTransactionStatus;
@@ -25,20 +25,20 @@ type TProps = {
 export const Arrow = ({ status, type }: TProps) => {
   if (status === 'failed') {
     return (
-      <Warning style={{ maxWidth: '18px' }} />
+      <Warning />
     );
   }
   switch (type) {
   case 'send':
     return (
-      <ArrowUpRed />
+      <ArrowFloorUpRed />
     );
   case 'receive':
     return (
-      <ArrowDownGreen />
+      <ArrowFloorDownGreen />
     );
   }
   return (
-    <ArrowRightGray />
+    <ArrowUTurn />
   );
 };
