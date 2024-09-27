@@ -38,10 +38,12 @@ protocol SetMessageHandlersProtocol {
     func setMessageHandlers(handlers: MessageHandlersProtocol)
 }
 
-class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol {
-    func getSaveFilename(_ p0: String?) -> String {
-        // TODO
-        return ""
+class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDocumentInteractionControllerDelegate {
+    func getSaveFilename(_ fileName: String?) -> String {
+        let tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        // fileName cannot be nil this is called by Go and Go strings cannot be nil/null.
+        let fileURL = tempDirectory.appendingPathComponent(fileName!)
+        return fileURL.path
     }
 
     func auth() {
@@ -75,10 +77,44 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol {
     func setDarkTheme(_ p0: Bool) {
     }
 
-    func systemOpen(_ url: String?) throws {
-        guard let url = URL(string: url!) else { return }
-        if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url)
+    // Helper method to get the root view controller
+    private func getRootViewController() -> UIViewController? {
+        guard let scene = UIApplication.shared.connectedScenes
+                .filter({ $0.activationState == .foregroundActive })
+                .first as? UIWindowScene else {
+            return nil
+        }
+
+        return scene.windows.first(where: { $0.isKeyWindow })?.rootViewController
+    }
+
+    func systemOpen(_ urlString: String?) throws {
+        guard let urlString = urlString else { return }
+        // Check if it's a local file path (not a URL)
+        var url: URL
+        if urlString.hasPrefix("/") {
+            // This is a local file path, construct a file URL
+            url = URL(fileURLWithPath: urlString)
+        } else if let potentialURL = URL(string: urlString), potentialURL.scheme != nil {
+            // This is already a valid URL with a scheme
+            url = potentialURL
+        } else {
+            // Invalid URL or path
+            return
+        }
+        // Ensure we run on the main thread
+        DispatchQueue.main.async {
+            if url.isFileURL {
+                // Local file path, use UIDocumentInteractionController
+                if let rootViewController = self.getRootViewController() {
+                    let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                    rootViewController.present(activityViewController, animated: true, completion: nil)
+                }
+            } else {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url)
+                }
+            }
         }
     }
 
