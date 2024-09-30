@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Android: enable export logs feature
 
 # 4.45.0
 - Bundle BitBox02 firmware version v9.21.0
