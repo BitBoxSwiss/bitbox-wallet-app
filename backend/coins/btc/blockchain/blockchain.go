@@ -118,4 +118,5 @@ type Interface interface {
 	Close()
 	ConnectionError() error
 	RegisterOnConnectionErrorChangedEvent(func(error))
+	ManualReconnect()
 }

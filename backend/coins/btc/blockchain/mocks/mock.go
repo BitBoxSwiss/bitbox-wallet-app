@@ -39,6 +39,7 @@ type BlockchainMock struct {
 	MockConnectionError      func() error
 
 	MockRegisterOnConnectionErrorChangedEvent func(func(error))
+	MockManualReconnect                       func()
 }
 
 // ScriptHashGetHistory implements Interface.
@@ -133,5 +134,12 @@ func (b *BlockchainMock) ConnectionError() error {
 func (b *BlockchainMock) RegisterOnConnectionErrorChangedEvent(f func(error)) {
 	if b.MockRegisterOnConnectionErrorChangedEvent != nil {
 		b.MockRegisterOnConnectionErrorChangedEvent(f)
+	}
+}
+
+// ManualReconnect implements Interface.
+func (b *BlockchainMock) ManualReconnect() {
+	if b.MockManualReconnect != nil {
+		b.MockManualReconnect()
 	}
 }

@@ -227,8 +227,13 @@ func CancelAuth() {
 	bridgecommon.CancelAuth()
 }
 
-// AuthResult triggers an auth feeedback notification (auth-ok/auth-err) towards the frontend,
+// AuthResult triggers an auth feedback notification (auth-ok/auth-err) towards the frontend,
 // depending on the input value.
 func AuthResult(ok bool) {
 	bridgecommon.AuthResult(ok)
+}
+
+// ManualReconnect wraps bridgecommon.ManualReconnect.
+func ManualReconnect() {
+	bridgecommon.ManualReconnect()
 }

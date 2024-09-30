@@ -166,6 +166,18 @@ func UsingMobileDataChanged() {
 	})
 }
 
+// ManualReconnect exposes the ManualReconnect backend method.
+func ManualReconnect() {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.ManualReconnect()
+
+}
+
 // BackendEnvironment implements backend.Environment.
 type BackendEnvironment struct {
 	NotifyUserFunc      func(string)

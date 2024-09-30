@@ -91,7 +91,7 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol {
 
 class GoAPI: NSObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersProtocol {
     var handlers: MessageHandlersProtocol?
-    
+
     func pushNotify(_ msg: String?) {
         self.handlers?.pushNotificationHandler(msg: msg!)
     }
@@ -99,16 +99,15 @@ class GoAPI: NSObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersPro
     func respond(_ queryID: Int, response: String?) {
         self.handlers?.callResponseHandler(queryID: queryID, response: response!)
     }
-    
+
     func setMessageHandlers(handlers: MessageHandlersProtocol) {
         self.handlers = handlers
     }
 }
 
-
 @main
 struct BitBoxAppApp: App {
-   var body: some Scene {
+    var body: some Scene {
         WindowGroup {
             GridLayout(alignment: .leading) {
                 let goAPI = GoAPI()
@@ -118,12 +117,13 @@ struct BitBoxAppApp: App {
                         setupGoAPI(goAPI: goAPI)
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-                            MobileserverTriggerAuth()
+                        MobileserverManualReconnect()
+                        MobileserverTriggerAuth()
                     }
             }
         }
     }
-    
+
     func setupGoAPI(goAPI: MobileserverGoAPIInterfaceProtocol) {
         let appSupportDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         do {
