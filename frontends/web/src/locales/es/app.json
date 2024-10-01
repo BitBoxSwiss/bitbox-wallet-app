@@ -372,7 +372,6 @@
   "button": {
     "abort": "Cancel",
     "back": "Atrás",
-    "buy": "Comprar",
     "changepin": "Cambiar contraseña del dispositivo",
     "check": "Comprobar la copia de seguridad",
     "continue": "Continuar",
@@ -398,6 +397,7 @@
     "exchange": {
       "bankTransfer": "Transferencia bancaria",
       "bestDeal": "La mejor oferta",
+      "buy": "Compra",
       "creditCard": "Tarjeta de crédito",
       "fast": "Rápido",
       "fee": "tarifa",
@@ -459,7 +459,8 @@
       },
       "noExchanges": "Lo sentimos, no hay intercambios disponibles en esta región.",
       "region": "Región",
-      "selectRegion": "No especificado"
+      "selectRegion": "No especificado",
+      "sell": "Venta"
     },
     "info": {
       "continue": "Aceptar y continuar",
