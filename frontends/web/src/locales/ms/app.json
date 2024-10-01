@@ -372,7 +372,6 @@
   "button": {
     "abort": "Tinggalkan",
     "back": "Kembali",
-    "buy": "Beli",
     "changepin": "Ubah kata laluan peranti",
     "check": "Semak Backup",
     "continue": "Teruskan",
@@ -398,6 +397,7 @@
     "exchange": {
       "bankTransfer": "Transfer bank",
       "bestDeal": "Tawaran terbaik",
+      "buy": "Beli",
       "creditCard": "Kad kredit",
       "fast": "Cepat",
       "fee": "bayaran",
@@ -459,7 +459,8 @@
       },
       "noExchanges": "Maaf, tiada pertukaran tersedia di rantau ini.",
       "region": "Wilayah",
-      "selectRegion": "Tidak dinyatakan"
+      "selectRegion": "Tidak dinyatakan",
+      "sell": "jual"
     },
     "info": {
       "continue": "Setuju dan teruskan",
