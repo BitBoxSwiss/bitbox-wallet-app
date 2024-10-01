@@ -22,6 +22,7 @@
 
 .actionsContainer {
     display: flex;
+    flex-wrap: nowrap;
     transform: translateY(-36%);
     margin-top: calc(var(--space-quarter) * 2);
     padding-bottom: 14px;
@@ -31,17 +32,18 @@
 .receive,
 .walletConnect,
 .send {
+    align-items: center;
     background-color: var(--color-blue);
     border-radius: 2px;
     color: var(--color-alt);
-    display: inline-block;
+    display: inline-flex;
     font-size: var(--size-default);
-    height: calc(var(--item-height) / 1.5);
-    line-height: calc(var(--item-height) / 1.5);
+    justify-content: center;
     margin-bottom: var(--space-quarter);
     margin-left: var(--space-quarter);
+    min-height: calc(var(--item-height) / 1.5);
     min-width: calc(var(--item-height) * 2);
-    padding: 0 var(--space-half);
+    padding: var(--space-quarter) var(--space-half);
     text-align: center;
     text-decoration: none;
     transition: background-color ease-out 0.2s;
@@ -54,7 +56,6 @@
 }
 
 .withWalletConnect.actionsContainer {
-    flex-wrap: wrap;
     justify-content: flex-end;
 }
 
@@ -82,7 +83,6 @@
 
 @media (max-width: 768px) {
     .actionsContainer {
-        flex-wrap: wrap;
         justify-content: space-between;
         margin-bottom: var(--space-default);
         margin-left: auto;
