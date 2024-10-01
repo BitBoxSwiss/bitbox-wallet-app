@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## 4.44.1
+- Minor UI bugfixes
+
 ## 4.44.0
 - Bundle BitBox02 firmware version v9.20.0
 - Add support for selling bitcoin in-app via Pocket
