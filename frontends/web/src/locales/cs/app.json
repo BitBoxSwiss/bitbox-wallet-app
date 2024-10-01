@@ -372,7 +372,6 @@
   "button": {
     "abort": "Zrušit",
     "back": "Zpět",
-    "buy": "Koupit",
     "changepin": "Změňit heslo zařízení",
     "check": "Zkontrolovat zálohu",
     "continue": "Pokračovat",
@@ -398,6 +397,7 @@
     "exchange": {
       "bankTransfer": "Bankovní převod",
       "bestDeal": "Nejvýhodnější nabídka",
+      "buy": "Koupit",
       "creditCard": "Kreditní karta",
       "fast": "Rychle",
       "fee": "poplatek",
@@ -459,7 +459,8 @@
       },
       "noExchanges": "Je nám líto, ale v této oblasti nejsou k dispozici žádné burzy.",
       "region": "Oblast",
-      "selectRegion": "Není uvedeno"
+      "selectRegion": "Není uvedeno",
+      "sell": "Prodat"
     },
     "info": {
       "continue": "Souhlasím, pokračovat",
@@ -739,7 +740,7 @@
     "buy": "Koupit {{coinCode}}",
     "buySell": "Nákup a prodej",
     "buy_bitcoin": "Koupit Bitcoin",
-    "buy_crypto": "Koupit crypto",
+    "buy_crypto": "Koupit krypto",
     "enabled_false": "Vypnuto",
     "enabled_true": "Zapnuto",
     "receive": "Přijmout {{coinCode}}",
