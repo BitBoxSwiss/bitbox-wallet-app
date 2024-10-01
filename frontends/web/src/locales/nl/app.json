@@ -372,7 +372,6 @@
   "button": {
     "abort": "Annuleren",
     "back": "Terug",
-    "buy": "Koop",
     "changepin": "BitBox-wachtwoord veranderen",
     "check": "Backup controleren",
     "continue": "Verder",
@@ -398,6 +397,7 @@
     "exchange": {
       "bankTransfer": "Bankoverschrijving",
       "bestDeal": "Beste deal",
+      "buy": "Kopen",
       "creditCard": "Creditcard",
       "fast": "Snel",
       "fee": "transactiekosten",
@@ -459,7 +459,8 @@
       },
       "noExchanges": "Sorry, er zijn geen exchanges beschikbaar in jouw regio",
       "region": "Regio",
-      "selectRegion": "Niet aangegeven"
+      "selectRegion": "Niet aangegeven",
+      "sell": "Verkopen"
     },
     "info": {
       "continue": "Akkoord, verder",

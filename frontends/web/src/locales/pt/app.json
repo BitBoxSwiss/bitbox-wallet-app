@@ -372,7 +372,6 @@
   "button": {
     "abort": "Abortar",
     "back": "Voltar",
-    "buy": "Comprar",
     "changepin": "Mudar senha do dispositivo",
     "check": "Checar backup",
     "continue": "Continuar",
@@ -398,6 +397,7 @@
     "exchange": {
       "bankTransfer": "Transferência bancária",
       "bestDeal": "Melhor oferta",
+      "buy": "Comprar",
       "creditCard": "Cartão de crédito",
       "fast": "Rápido",
       "fee": "taxa",
@@ -459,7 +459,8 @@
       },
       "noExchanges": "Desculpe, não há exchanges disponíveis nesta região.",
       "region": "Região",
-      "selectRegion": "Não especificada"
+      "selectRegion": "Não especificada",
+      "sell": "Vender"
     },
     "info": {
       "continue": "Concordo e continue",

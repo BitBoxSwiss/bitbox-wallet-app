@@ -372,7 +372,6 @@
   "button": {
     "abort": "中止",
     "back": "戻る",
-    "buy": "購入",
     "changepin": "デバイスのパスワード変更",
     "check": "バックアップの確認",
     "continue": "続行",
@@ -398,6 +397,7 @@
     "exchange": {
       "bankTransfer": "銀行振込",
       "bestDeal": "最良の取引",
+      "buy": "買う",
       "creditCard": "クレジットカード",
       "fast": "高速",
       "fee": "手数料",
@@ -459,7 +459,8 @@
       },
       "noExchanges": "申し訳ございませんが、この地域では利用可能な取引所はございません。",
       "region": "地域",
-      "selectRegion": "指定なし"
+      "selectRegion": "指定なし",
+      "sell": "売る"
     },
     "info": {
       "continue": "同意して続ける",

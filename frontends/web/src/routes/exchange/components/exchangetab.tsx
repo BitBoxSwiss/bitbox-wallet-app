@@ -36,13 +36,13 @@ export const ExchangeTab = ({
         active={activeTab === 'buy'}
         onClick={() => onChangeTab('buy')}
       >
-        {t('Buy')}
+        {t('buy.exchange.buy')}
       </PillButton>
       <PillButton
         active={activeTab === 'sell'}
         onClick={() => onChangeTab('sell')}
       >
-        {t('Sell')}
+        {t('buy.exchange.sell')}
       </PillButton>
     </PillButtonGroup>
   );
