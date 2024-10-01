@@ -372,7 +372,6 @@
   "button": {
     "abort": "Prekini",
     "back": "Nazaj",
-    "buy": "Kupi",
     "changepin": "Spremenite geslo naprave",
     "check": "Preverite varnostno kopijo",
     "continue": "Nadaljujte",
@@ -398,6 +397,7 @@
     "exchange": {
       "bankTransfer": "Bančno nakazilo",
       "bestDeal": "Najboljša ponudba",
+      "buy": "Nakup",
       "creditCard": "Kreditna karica",
       "fast": "Hitro",
       "fee": "provizija",
@@ -459,7 +459,8 @@
       },
       "noExchanges": "V tej regiji žal ni razpoložljivih menjalnic.",
       "region": "Regija",
-      "selectRegion": "Ni navedeno"
+      "selectRegion": "Ni navedeno",
+      "sell": "Prodaja"
     },
     "info": {
       "continue": "Potrdi in nadaljuj",
