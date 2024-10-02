@@ -25,7 +25,7 @@ type AppContextProps = {
     guideExists: boolean;
     hideAmounts: boolean;
     nativeLocale: string;
-    sidebarStatus: string;
+    sidebarStatus: TSidebarStatus;
     firmwareUpdateDialogOpen: boolean;
     chartDisplay: TChartDisplay;
     setActiveSidebar: Dispatch<SetStateAction<boolean>>;
