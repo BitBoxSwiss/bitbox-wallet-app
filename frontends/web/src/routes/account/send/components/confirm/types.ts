@@ -15,7 +15,6 @@
  */
 
 import { ConversionUnit, CoinCode, FeeTargetCode, Fiat, IAmount } from '@/api/account';
-import { TProductName } from '@/api/devices';
 
 export type TransactionDetails = {
     proposedAmount?: IAmount;
@@ -28,7 +27,7 @@ export type TransactionDetails = {
   }
 
 export type TConfirmSendProps = {
-    device: TProductName;
+    bb01Paired: boolean | undefined;
     baseCurrencyUnit: ConversionUnit;
     note: string;
     hasSelectedUTXOs: boolean;
