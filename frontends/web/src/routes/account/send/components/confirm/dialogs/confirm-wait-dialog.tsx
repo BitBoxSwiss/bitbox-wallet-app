@@ -31,7 +31,7 @@ export const ConfirmingWaitDialog = ({
   selectedUTXOs,
   coinCode,
   transactionDetails
-}: Omit<TConfirmSendProps, 'bb01Paired'>) => {
+}: TConfirmSendProps) => {
   const { t } = useTranslation();
   const [signProgress, setSignProgress] = useState<TSignProgress>();
 

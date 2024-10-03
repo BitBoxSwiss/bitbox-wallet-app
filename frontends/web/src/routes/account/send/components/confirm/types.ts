@@ -27,7 +27,6 @@ export type TransactionDetails = {
   }
 
 export type TConfirmSendProps = {
-    bb01Paired: boolean | undefined;
     baseCurrencyUnit: ConversionUnit;
     note: string;
     hasSelectedUTXOs: boolean;
