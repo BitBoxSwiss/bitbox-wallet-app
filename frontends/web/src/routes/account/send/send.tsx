@@ -70,9 +70,7 @@ export type State = {
     isConfirming: boolean;
     sendResult?: accountApi.ISendTx;
     isUpdatingProposal: boolean;
-    addressError?: TProposalError['addressError'];
-    amountError?: TProposalError['amountError'];
-    feeError?: TProposalError['feeError'];
+    errorHandling: TProposalError;
     paired?: boolean;
     noMobileChannelError?: boolean;
     note: string;
@@ -97,6 +95,7 @@ class Send extends Component<Props, State> {
     noMobileChannelError: false,
     note: '',
     customFee: '',
+    errorHandling: {},
   };
 
   public componentDidMount() {
@@ -192,9 +191,7 @@ class Send extends Component<Props, State> {
   private validateAndDisplayFee = (updateFiat: boolean = true) => {
     this.setState({
       proposedTotal: undefined,
-      addressError: undefined,
-      amountError: undefined,
-      feeError: undefined,
+      errorHandling: {},
     });
     const txInput = this.getValidTxInputData();
     if (!txInput) {
@@ -242,9 +239,7 @@ class Send extends Component<Props, State> {
     this.setState({ valid: result.success });
     if (result.success) {
       this.setState({
-        addressError: undefined,
-        amountError: undefined,
-        feeError: undefined,
+        errorHandling: {},
         proposedFee: result.fee,
         proposedAmount: result.amount,
         proposedTotal: result.total,
@@ -255,7 +250,11 @@ class Send extends Component<Props, State> {
       }
     } else {
       const errorHandling = txProposalErrorHandling(result.errorCode);
-      this.setState({ ...errorHandling, isUpdatingProposal: false });
+      this.setState({ errorHandling, isUpdatingProposal: false });
+      if (errorHandling.amountError
+        || Object.keys(errorHandling).length === 0) {
+        this.setState({ proposedFee: undefined });
+      }
     }
   };
 
@@ -275,7 +274,7 @@ class Send extends Component<Props, State> {
       if (data.success) {
         this.setState({ fiatAmount: data.fiatAmount });
       } else {
-        this.setState({ amountError: this.props.t('send.error.invalidAmount') });
+        this.setState({ errorHandling: { amountError: this.props.t('send.error.invalidAmount') } });
       }
     } else {
       this.setState({ fiatAmount: '' });
@@ -293,7 +292,7 @@ class Send extends Component<Props, State> {
       if (data.success) {
         this.setState({ amount: data.amount }, () => this.validateAndDisplayFee(false));
       } else {
-        this.setState({ amountError: this.props.t('send.error.invalidAmount') });
+        this.setState({ errorHandling: { amountError: this.props.t('send.error.invalidAmount') } });
       }
     } else {
       this.setState({ amount: '' });
@@ -345,7 +344,7 @@ class Send extends Component<Props, State> {
         if (result.success) {
           updateState['amount'] = result.amount;
         } else {
-          updateState['amountError'] = this.props.t('send.error.invalidAmount');
+          updateState['errorHandling'] = { amountError: this.props.t('send.error.invalidAmount') };
           this.setState(updateState);
           return;
         }
@@ -400,9 +399,7 @@ class Send extends Component<Props, State> {
       isConfirming,
       sendResult,
       isUpdatingProposal,
-      addressError,
-      amountError,
-      feeError,
+      errorHandling,
       paired,
       note,
     } = this.state;
@@ -450,7 +447,7 @@ class Send extends Component<Props, State> {
                   <Column>
                     <ReceiverAddressInput
                       accountCode={account.code}
-                      addressError={addressError}
+                      addressError={errorHandling.addressError}
                       onInputChange={this.onReceiverAddressInputChange}
                       recipientAddress={recipientAddress}
                       parseQRResult={this.parseQRResult}
@@ -464,7 +461,7 @@ class Send extends Component<Props, State> {
                       onAmountChange={this.onCoinAmountChange}
                       onSendAllChange={this.onSendAllChange}
                       sendAll={sendAll}
-                      amountError={amountError}
+                      amountError={errorHandling.amountError}
                       proposedAmount={proposedAmount}
                       amount={amount}
                       hasSelectedUTXOs={this.hasSelectedUTXOs()}
@@ -474,7 +471,7 @@ class Send extends Component<Props, State> {
                     <FiatInput
                       onFiatChange={this.handleFiatInput}
                       disabled={sendAll}
-                      error={amountError}
+                      error={errorHandling.amountError}
                       fiatAmount={fiatAmount}
                       label={activeCurrency}
                     />
@@ -492,7 +489,7 @@ class Send extends Component<Props, State> {
                       showCalculatingFeeLabel={isUpdatingProposal}
                       onFeeTargetChange={this.feeTargetChange}
                       onCustomFee={customFee => this.setState({ customFee }, this.validateAndDisplayFee)}
-                      error={feeError} />
+                      error={errorHandling.feeError} />
                   </Column>
                   <Column>
                     <NoteInput
