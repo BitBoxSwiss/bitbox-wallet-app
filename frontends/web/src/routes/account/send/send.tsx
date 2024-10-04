@@ -28,7 +28,6 @@ import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbut
 import { Button } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
-import { Status } from '@/components/status/status';
 import { translate, TranslateProps } from '@/decorators/translate';
 import { FeeTargets } from './feetargets';
 import { isBitcoinBased } from '@/routes/account/utils';
@@ -41,7 +40,6 @@ import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
 import { TSelectedUTXOs } from './utxos';
 import { TProposalError, txProposalErrorHandling } from './services';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { CoinControl } from './coin-control';
 import style from './send.module.css';
 
@@ -55,7 +53,6 @@ interface SendProps {
 type Props = SendProps & TranslateProps;
 
 export type State = {
-    account?: accountApi.IAccount;
     balance?: accountApi.IBalance;
     proposedFee?: accountApi.IAmount;
     proposedTotal?: accountApi.IAmount;
@@ -73,7 +70,6 @@ export type State = {
     addressError?: TProposalError['addressError'];
     amountError?: TProposalError['amountError'];
     feeError?: TProposalError['feeError'];
-    paired?: boolean;
     noMobileChannelError?: boolean;
     note: string;
 }
@@ -403,7 +399,6 @@ class Send extends Component<Props, State> {
       addressError,
       amountError,
       feeError,
-      paired,
       note,
     } = this.state;
 
@@ -423,11 +418,6 @@ class Send extends Component<Props, State> {
       <GuideWrapper>
         <GuidedContent>
           <Main>
-            <ContentWrapper>
-              <Status type="warning" hidden={paired !== false}>
-                {t('warning.sendPairing')}
-              </Status>
-            </ContentWrapper>
             <Header
               title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}
             >
