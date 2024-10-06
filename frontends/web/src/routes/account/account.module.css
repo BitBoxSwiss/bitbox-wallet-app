@@ -9,15 +9,10 @@
     justify-content: flex-start;
 }
 
-.header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex: none;
-    margin: 0 auto;
-    padding: var(--spacing-large) var(--spacing-large) 0 var(--spacing-large);
-    width: 800px;
+@media (max-width: 768px) {
+    .accountHeader {
+        padding: 0 var(--space-half);
+    }
 }
 
 .actionsContainer {
