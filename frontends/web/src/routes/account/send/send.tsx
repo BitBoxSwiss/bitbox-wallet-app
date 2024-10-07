@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, Component } from 'react';
+import { Component } from 'react';
 import * as accountApi from '@/api/account';
 import { syncdone } from '@/api/accountsync';
 import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
@@ -200,13 +200,6 @@ class Send extends Component<Props, State> {
         }
       }
     }, 400); // Delay the proposal by 400 ms
-  };
-
-  private handleNoteInput = (event: ChangeEvent<HTMLInputElement>) => {
-    const target = event.target;
-    this.setState({
-      'note': target.value,
-    });
   };
 
   private txProposal = (
@@ -472,7 +465,7 @@ class Send extends Component<Props, State> {
                   <Column>
                     <NoteInput
                       note={note}
-                      onNoteChange={this.handleNoteInput}
+                      onNoteChange={note => this.setState({ note: note })}
                     />
                     <ColumnButtons
                       className="m-top-default m-bottom-xlarge"
