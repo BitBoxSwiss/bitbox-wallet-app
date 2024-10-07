@@ -68,6 +68,7 @@ github.com/consensys/bavard
 ## explicit; go 1.19
 github.com/consensys/gnark-crypto/ecc
 github.com/consensys/gnark-crypto/ecc/bls12-381
+github.com/consensys/gnark-crypto/ecc/bls12-381/bandersnatch
 github.com/consensys/gnark-crypto/ecc/bls12-381/fp
 github.com/consensys/gnark-crypto/ecc/bls12-381/fr
 github.com/consensys/gnark-crypto/ecc/bls12-381/internal/fptower
@@ -77,6 +78,16 @@ github.com/consensys/gnark-crypto/field/hash
 github.com/consensys/gnark-crypto/field/pool
 github.com/consensys/gnark-crypto/internal/generator/config
 github.com/consensys/gnark-crypto/internal/parallel
+# github.com/crate-crypto/go-ipa v0.0.0-20240223125850-b1e8a79f509c
+## explicit; go 1.18
+github.com/crate-crypto/go-ipa
+github.com/crate-crypto/go-ipa/bandersnatch
+github.com/crate-crypto/go-ipa/bandersnatch/fp
+github.com/crate-crypto/go-ipa/bandersnatch/fr
+github.com/crate-crypto/go-ipa/banderwagon
+github.com/crate-crypto/go-ipa/common
+github.com/crate-crypto/go-ipa/common/parallel
+github.com/crate-crypto/go-ipa/ipa
 # github.com/crate-crypto/go-kzg-4844 v1.1.0
 ## explicit; go 1.20
 github.com/crate-crypto/go-kzg-4844
@@ -100,8 +111,8 @@ github.com/decred/dcrd/dcrec/secp256k1/v4/schnorr
 # github.com/ethereum/c-kzg-4844 v1.0.3
 ## explicit; go 1.19
 github.com/ethereum/c-kzg-4844/bindings/go
-# github.com/ethereum/go-ethereum v1.14.8
-## explicit; go 1.21
+# github.com/ethereum/go-ethereum v1.14.11
+## explicit; go 1.22
 github.com/ethereum/go-ethereum
 github.com/ethereum/go-ethereum/accounts
 github.com/ethereum/go-ethereum/accounts/abi
@@ -129,6 +140,9 @@ github.com/ethereum/go-ethereum/rlp
 github.com/ethereum/go-ethereum/rlp/internal/rlpstruct
 github.com/ethereum/go-ethereum/rpc
 github.com/ethereum/go-ethereum/signer/core/apitypes
+# github.com/ethereum/go-verkle v0.1.1-0.20240829091221-dffa7562dbe9
+## explicit; go 1.22
+github.com/ethereum/go-verkle
 # github.com/flynn/noise v1.1.0
 ## explicit; go 1.16
 github.com/flynn/noise
