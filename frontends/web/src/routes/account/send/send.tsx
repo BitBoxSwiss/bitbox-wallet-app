@@ -190,6 +190,7 @@ class Send extends Component<Props, State> {
         this.setState({ valid: false });
         console.error('Failed to propose transaction:', error);
       } finally {
+        this.setState({ isUpdatingProposal: false });
         // cleanup regardless of success or failure
         if (proposePromise === this.lastProposal) {
           this.lastProposal = null;
@@ -204,21 +205,13 @@ class Send extends Component<Props, State> {
   ) => {
     this.setState({ valid: result.success });
     if (result.success) {
-      this.setState({
-        errorHandling: {},
-        isUpdatingProposal: false,
-        proposalResult: result,
-      });
+      this.setState({ errorHandling: {}, proposalResult: result });
       if (updateFiat) {
         this.convertToFiat(result.amount.amount);
       }
     } else {
       const errorHandling = txProposalErrorHandling(result.errorCode);
-      this.setState({
-        errorHandling,
-        isUpdatingProposal: false,
-        proposalResult: undefined,
-      });
+      this.setState({ errorHandling, proposalResult: undefined });
       // In case sendAll is true, but there is no proposedAmount we fall back to the last typed
       // amount. So we also need to convert it to fiat.
       if (this.state.sendAll) {
