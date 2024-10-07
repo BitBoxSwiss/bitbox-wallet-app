@@ -263,7 +263,7 @@ class Send extends Component<Props, State> {
 
   private feeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
     this.setState(
-      { feeTarget, customFee: '' },
+      { feeTarget },
       () => this.validateAndDisplayFee(this.state.sendAll),
     );
   };
