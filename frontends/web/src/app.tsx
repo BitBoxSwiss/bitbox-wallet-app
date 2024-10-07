@@ -99,7 +99,7 @@ export const App = () => {
     // if on index page and have at least 1 account, route to /account-summary
     if (isIndex && accounts.length) {
       // replace current history entry so that the user cannot go back to "index"
-      navigate('/account-summary', { replace: true });
+      navigate('/account-summary?with-chart-animation=true', { replace: true });
       return;
     }
     // if on the /exchange/ view and there are no accounts view route to /

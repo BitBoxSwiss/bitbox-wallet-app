@@ -27,6 +27,7 @@ import { getDarkmode } from '@/components/darkmode/darkmode';
 import { DefaultCurrencyRotator } from '@/components/rates/rates';
 import { AppContext } from '@/contexts/AppContext';
 import styles from './chart.module.css';
+import { useSearchParams } from 'react-router-dom';
 
 type TProps = {
   data?: TSummary;
@@ -97,6 +98,7 @@ export const Chart = ({
 
   const { t, i18n } = useTranslation();
   const { chartDisplay, setChartDisplay } = useContext(AppContext);
+  const [searchParams] = useSearchParams();
 
   const ref = useRef<HTMLDivElement>(null);
   const refToolTip = useRef<HTMLSpanElement>(null);
@@ -121,12 +123,15 @@ export const Chart = ({
     toolTipLeft: 0,
     toolTipTime: 0,
   });
+
   const [showAnimationOverlay, setAnimationOverlay] = useState(true);
 
   const prevChartDataDaily = usePrevious(data.chartDataDaily);
   const prevChartDataHourly = usePrevious(data.chartDataHourly);
   const prevChartFiat = usePrevious(data.chartFiat);
   const prevHideAmounts = usePrevious(hideAmounts);
+  const hasChartAnimationParam = searchParams.get('with-chart-animation');
+
 
   const setFormattedData = (chartData: ChartData) => {
     formattedData.current = {};
@@ -436,11 +441,11 @@ export const Chart = ({
   }, [initChart, removeChart]);
 
   useEffect(() => {
-    if (data.chartDataMissing) {
+    if (data.chartDataMissing || !hasChartAnimationParam) {
       return;
     }
     setAnimationOverlay(false);
-  }, [data.chartDataMissing]);
+  }, [data.chartDataMissing, hasChartAnimationParam]);
 
   useEffect(() => {
     const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
@@ -544,7 +549,7 @@ export const Chart = ({
         </div>
         {!isMobile && <Filters {...chartFiltersProps} />}
       </header>
-      {!chartDataMissing &&
+      {!chartDataMissing && hasChartAnimationParam &&
           <div
             style={{ minHeight: chartHeight }}
             className={`
