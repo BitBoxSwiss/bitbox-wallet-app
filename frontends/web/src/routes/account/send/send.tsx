@@ -52,11 +52,9 @@ type Props = SendProps & TranslateProps;
 
 export type State = {
     balance?: accountApi.IBalance;
-    proposedFee?: accountApi.IAmount;
-    proposedTotal?: accountApi.IAmount;
     recipientAddress: string;
-    proposedAmount?: accountApi.IAmount;
     valid: boolean;
+    proposalResult: accountApi.TTxProposalResult | undefined;
     amount: string;
     fiatAmount: string;
     sendAll: boolean;
@@ -88,6 +86,7 @@ class Send extends Component<Props, State> {
     note: '',
     customFee: '',
     errorHandling: {},
+    proposalResult: undefined,
   };
 
   public componentDidMount() {
@@ -127,13 +126,11 @@ class Send extends Component<Props, State> {
           sendAll: false,
           isConfirming: false,
           recipientAddress: '',
-          proposedAmount: undefined,
-          proposedFee: undefined,
-          proposedTotal: undefined,
           fiatAmount: '',
           amount: '',
           note: '',
           customFee: '',
+          proposalResult: undefined,
         });
         this.selectedUTXOs = {};
       }
@@ -167,7 +164,6 @@ class Send extends Component<Props, State> {
 
   private validateAndDisplayFee = (updateFiat: boolean = true) => {
     this.setState({
-      proposedTotal: undefined,
       errorHandling: {},
     });
     const txInput = this.getValidTxInputData();
@@ -210,20 +206,23 @@ class Send extends Component<Props, State> {
     if (result.success) {
       this.setState({
         errorHandling: {},
-        proposedFee: result.fee,
-        proposedAmount: result.amount,
-        proposedTotal: result.total,
         isUpdatingProposal: false,
+        proposalResult: result,
       });
       if (updateFiat) {
         this.convertToFiat(result.amount.amount);
       }
     } else {
       const errorHandling = txProposalErrorHandling(result.errorCode);
-      this.setState({ errorHandling, isUpdatingProposal: false });
-      if (errorHandling.amountError
-        || Object.keys(errorHandling).length === 0) {
-        this.setState({ proposedFee: undefined });
+      this.setState({
+        errorHandling,
+        isUpdatingProposal: false,
+        proposalResult: undefined,
+      });
+      // In case sendAll is true, but there is no proposedAmount we fall back to the last typed
+      // amount. So we also need to convert it to fiat.
+      if (this.state.sendAll) {
+        this.convertToFiat(this.state.amount);
       }
     }
   };
@@ -361,10 +360,7 @@ class Send extends Component<Props, State> {
 
     const {
       balance,
-      proposedFee,
-      proposedTotal,
       recipientAddress,
-      proposedAmount,
       valid,
       amount,
       /* data, */
@@ -377,7 +373,14 @@ class Send extends Component<Props, State> {
       isUpdatingProposal,
       errorHandling,
       note,
+      proposalResult
     } = this.state;
+
+    const {
+      fee: proposedFee,
+      amount: proposedAmount,
+      total: proposedTotal,
+    } = proposalResult?.success ? proposalResult : { fee: undefined, amount: undefined, total: undefined };
 
     const waitDialogTransactionDetails = {
       proposedFee,
@@ -432,7 +435,7 @@ class Send extends Component<Props, State> {
                       onAmountChange={this.onCoinAmountChange}
                       onSendAllChange={this.onSendAllChange}
                       sendAll={sendAll}
-                      amountError={errorHandling.amountError}
+                      errorHandling={errorHandling}
                       proposedAmount={proposedAmount}
                       amount={amount}
                       hasSelectedUTXOs={this.hasSelectedUTXOs()}
