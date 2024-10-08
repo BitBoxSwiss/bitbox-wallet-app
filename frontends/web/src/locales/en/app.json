@@ -1327,11 +1327,11 @@
         "memo": "Memo",
         "title": "Confirm transaction details"
       },
+      "invoice": {
+        "input": "Or paste your invoice here"
+      },
       "qrCode": {
         "label": "Scan lightning invoice"
-      },
-      "rawInput": {
-        "label": "Paste invoice from clipboard"
       },
       "sending": {
         "connecting": "Connecting to node",

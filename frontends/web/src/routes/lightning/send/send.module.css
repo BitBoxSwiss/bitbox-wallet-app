@@ -29,14 +29,26 @@
     color: var(--color-secondary);
 }
 
+.error {
+  height: 70px;
+}
+
 .successMessage strong {
     color: var(--color-default);
 }
 
+.camera video {
+    margin-bottom: var(--space-default);
+}
+
 @media (max-width: 768px) {
-    .camera,
     .camera video {
         max-height: 330px;
+        min-height:200px;
         position: relative;
+    }
+
+    .error {
+      height: 90px;
     }
 }

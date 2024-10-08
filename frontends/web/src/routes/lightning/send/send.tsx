@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
@@ -98,44 +98,64 @@ const PaymentInput = ({ input }: PaymentInputProps) => {
 
 type SendWorkflowProps = {
   onBack: () => void;
-  onCameraInput: (input: string) => void;
+  onInvoiceInput: (input: string) => void;
   onCustomAmount: (input: number) => void;
   onSend: () => void;
   parsedInput?: InputType;
-  rawInputError?: string;
+  inputError?: string;
   customAmount?: number;
   step: TStep;
 };
 
 const SendWorkflow = ({
   onBack,
-  onCameraInput,
+  onInvoiceInput,
   onCustomAmount,
   onSend,
   parsedInput,
-  rawInputError,
+  inputError,
   customAmount,
   step,
 }: SendWorkflowProps) => {
   const { t } = useTranslation();
+  const [lnInvoice, setLnInvoice] = useState('');
+
+  // Memoize the ScanQRVideo component to prevent unnecessary re-renders due to state updates.
+  const memoizedScanQRVideo = useMemo(() => (
+    <ScanQRVideo onResult={onInvoiceInput} />
+  ), [onInvoiceInput]);
+
   switch (step) {
   case 'select-invoice':
     return (
-      <View textCenter width="660px">
+      <View textCenter width="660px" >
         <ViewHeader title="Scan lightning invoice" />
         <ViewContent textAlign="center">
           <Grid col="1">
             <Column className={styles.camera}>
-              {rawInputError && <Status type="warning">{rawInputError}</Status>}
-              <ScanQRVideo onResult={onCameraInput} />
-              {/* temporary disabled paste button, reason: reading from HTML5 clipboard api is surpressed in Qt/Android WebView */}
-              {/* <Button transparent onClick={() => console.log('TODO: implement paste')}>
-                {t('lightning.send.rawInput.label')}
-              </Button> */}
+              { /* we need a cointainer for the error with a fixed height to avoid
+                layout shifts, that would cause the yellow target on the video
+                component to become misaligned due to the fact that it is memoized
+                and so it doesn't re-render when inputError changes.*/ }
+              <div className={styles.error}>
+                {inputError && <Status type="warning">{inputError}</Status>}
+              </div>
+              {memoizedScanQRVideo}
+              <Input
+                placeholder={t('lightning.send.invoice.input')}
+                onInput={(e: ChangeEvent<HTMLInputElement>) => setLnInvoice(e.target.value)}
+                value={lnInvoice}
+                autoFocus/>
             </Column>
           </Grid>
         </ViewContent>
-        <ViewButtons reverseRow>
+        <ViewButtons>
+          <Button disabled={!lnInvoice} primary onClick={() => {
+            onInvoiceInput(lnInvoice);
+            setLnInvoice('');
+          }}>
+            {t('button.send')}
+          </Button>
           <Button secondary onClick={onBack}>
             {t('button.back')}
           </Button>
@@ -310,11 +330,11 @@ export const Send = () => {
           <Header title={<h2>{t('lightning.send.title')}</h2>} />
           <SendWorkflow
             onBack={back}
-            onCameraInput={parseInput}
+            onInvoiceInput={parseInput}
             onCustomAmount={setCustomAmount}
             onSend={sendPayment}
             parsedInput={paymentDetails}
-            rawInputError={rawInputError}
+            inputError={rawInputError}
             customAmount={customAmount}
             step={step}
           />
