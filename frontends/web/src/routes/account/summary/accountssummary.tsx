@@ -27,7 +27,7 @@ import { Status } from '@/components/status/status';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View } from '@/components/view/view';
 import { Chart } from './chart';
-import { SummaryBalance } from './summarybalance';
+import { LightningBalance, SummaryBalance } from './summarybalance';
 import { CoinBalance } from './coinbalance';
 import { AddBuyReceiveOnEmptyBalances } from '@/routes/account/info/buyReceiveCTA';
 import { Entry } from '@/components/guide/entry';
@@ -36,6 +36,8 @@ import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbut
 import { AppContext } from '@/contexts/AppContext';
 import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
+import { useLightning } from '@/hooks/lightning';
+import { getLightningBalance, subscribeNodeState } from '../../../api/lightning';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/globalbanners/globalbanners';
 
@@ -65,8 +67,78 @@ export const AccountsSummary = ({
   const [accountsTotalBalance, setAccountsTotalBalance] = useState<accountApi.TAccountsTotalBalance>();
   const [coinsTotalBalance, setCoinsTotalBalance] = useState<accountApi.TCoinsTotalBalance>();
   const [balances, setBalances] = useState<Balances>();
+  const { lightningConfig } = useLightning();
+  const [lightningBalance, setLightningBalance] = useState<accountApi.IBalance>();
+  const [lightningKeystoreName, setLightningKeystoreName] = useState('');
 
   const hasCard = useSDCard(devices);
+
+  const fetchLightningBalance = useCallback(async () => {
+    try {
+      const balance = await getLightningBalance();
+      if (mounted.current) {
+        setLightningBalance(balance);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [mounted]);
+
+  const fetchLightningKeystoreName = useCallback(async () => {
+    if (!lightningConfig.accounts[0]) {
+      setLightningKeystoreName('');
+      return;
+    }
+    try {
+      const response = await accountApi.getKeystoreName(lightningConfig.accounts[0].rootFingerprint);
+      if (mounted.current) {
+        setLightningKeystoreName(response.success ? response.keystoreName : '');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [lightningConfig.accounts, mounted]);
+
+  const getCoinsTotalBalance = useCallback(async () => {
+    try {
+      const coinBalance = await accountApi.getCoinsTotalBalance();
+      if (!mounted.current) {
+        return;
+      }
+      setCoinsTotalBalance(coinBalance);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [mounted]);
+
+  // if there is an active lightning account subscribe to any node state changes.
+  useEffect(() => {
+    const lightningAccounts = lightningConfig.accounts;
+    if (lightningAccounts.length) {
+      fetchLightningBalance();
+      fetchLightningKeystoreName();
+      const subscriptions = [
+        subscribeNodeState(async () => {
+          await fetchLightningBalance();
+          await getCoinsTotalBalance();
+        })
+      ];
+      return () => unsubscribe(subscriptions);
+    }
+  }, [fetchLightningBalance, getCoinsTotalBalance, fetchLightningKeystoreName, lightningConfig]);
+
+  // lightning account exists but is not from any connected or remembered keystores
+  const hasLightningFromOtherKeystore = (
+    lightningConfig.accounts.length !== 0
+    && (
+      !accountsByKeystore.some(({ keystore }) => {
+        return keystore.rootFingerprint === lightningConfig.accounts[0].rootFingerprint;
+      })
+    )
+  );
+  const allKeystores = (lightningKeystoreName && hasLightningFromOtherKeystore)
+    ? [...accountsByKeystore, { keystore: { name: lightningKeystoreName } }]
+    : accountsByKeystore;
 
   const getAccountSummary = useCallback(async () => {
     // replace previous timer if present
@@ -136,18 +208,6 @@ export const AccountsSummary = ({
     },
     [mounted]
   );
-
-  const getCoinsTotalBalance = useCallback(async () => {
-    try {
-      const coinBalance = await accountApi.getCoinsTotalBalance();
-      if (!mounted.current) {
-        return;
-      }
-      setCoinsTotalBalance(coinBalance);
-    } catch (err) {
-      console.error(err);
-    }
-  }, [mounted]);
 
   const update = useCallback(
     (code: accountApi.AccountCode) => {
@@ -221,23 +281,41 @@ export const AccountsSummary = ({
                 accounts.length && accounts.length <= Object.keys(balances || {}).length ? (
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
-              } />
-            {accountsByKeystore.length > 1 && (
+              }
+              hideChartDetails={hasLightningFromOtherKeystore && allKeystores.length == 1}
+            />
+            {allKeystores.length > 1 && (
               <CoinBalance
                 summaryData={summaryData}
                 coinsBalances={coinsTotalBalance}
+              />
+            )}
+            {hasLightningFromOtherKeystore && (
+              <LightningBalance
+                lightningBalance={lightningBalance}
+                lightningAccountKeystoreName={lightningKeystoreName}
+                keystoreDisambiguatorName={
+                  isAmbiguousName(lightningKeystoreName, allKeystores)
+                    ? lightningConfig.accounts[0].rootFingerprint
+                    : undefined
+                }
               />
             )}
             {accountsByKeystore &&
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 <SummaryBalance
                   key={keystore.rootFingerprint}
-                  keystoreDisambiguatorName={isAmbiguousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
+                  keystoreDisambiguatorName={
+                    isAmbiguousName(keystore.name, allKeystores)
+                      ? keystore.rootFingerprint
+                      : undefined
+                  }
                   accountsKeystore={keystore}
                   accounts={accounts}
                   totalBalancePerCoin={balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
                   totalBalance={accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
                   balances={balances}
+                  lightningBalance={ (lightningConfig.accounts.length && lightningConfig.accounts[0].rootFingerprint === keystore.rootFingerprint) ? lightningBalance : undefined}
                 />
               ))}
           </View>
