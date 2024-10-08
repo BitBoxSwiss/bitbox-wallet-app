@@ -18,6 +18,10 @@
     text-decoration: none;
 }
 
+.backButton img {
+    height: 24px;
+}
+
 .backButton:focus {
     outline: none;
 }
