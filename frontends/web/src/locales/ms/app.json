@@ -372,7 +372,6 @@
   "button": {
     "abort": "Tinggalkan",
     "back": "Kembali",
-    "buy": "Beli",
     "changepin": "Ubah kata laluan peranti",
     "check": "Semak Backup",
     "continue": "Teruskan",
@@ -398,6 +397,7 @@
     "exchange": {
       "bankTransfer": "Transfer bank",
       "bestDeal": "Tawaran terbaik",
+      "buy": "Beli",
       "creditCard": "Kad kredit",
       "fast": "Cepat",
       "fee": "bayaran",
@@ -459,7 +459,8 @@
       },
       "noExchanges": "Maaf, tiada pertukaran tersedia di rantau ini.",
       "region": "Wilayah",
-      "selectRegion": "Tidak dinyatakan"
+      "selectRegion": "Tidak dinyatakan",
+      "sell": "jual"
     },
     "info": {
       "continue": "Setuju dan teruskan",
@@ -531,12 +532,7 @@
   "checkSDcard": "memeriksa kad micro SD",
   "clickHere": "Tekan di sini.",
   "confirm": {
-    "abortInfo": "Sentuh untuk ",
-    "abortInfoRedText": "tinggalkan",
-    "approveInfo": "Tahan 4 detik untuk ",
-    "approveInfoGreenText": "sahkan",
-    "info": "Pada BitBox anda",
-    "infoWhenPaired": "Mula-mula pada telefon mudah alih yang dipasangkan dan kemudian BitBox anda"
+    "info": "Pada BitBox anda"
   },
   "confirmOnDevice": "Sila sahkan pada peranti anda.",
   "connectKeystore": {

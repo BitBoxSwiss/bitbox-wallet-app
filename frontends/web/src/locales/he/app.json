@@ -217,7 +217,6 @@
   "button": {
     "abort": "בטל",
     "back": "חזור",
-    "buy": "קנה",
     "changepin": "החלף סיסמת התקן",
     "check": "בדוק גיבוי",
     "continue": "המשך",
@@ -253,12 +252,7 @@
   "checkSDcard": "בודק כרטיס זיכרון",
   "clickHere": ".לחץ כאן",
   "confirm": {
-    "abortInfo": "הקש כדי",
-    "abortInfoRedText": "לבטל",
-    "approveInfo": "החזק 4+ שניות כדי",
-    "approveInfoGreenText": "לאשר",
-    "info": ".המשך בביטבוקס",
-    "infoWhenPaired": "תחילה במכשיר המוצמד ואז בביטבוקס"
+    "info": ".המשך בביטבוקס"
   },
   "confirmOnDevice": ".אנא אשר בהתקן שלך",
   "device": {

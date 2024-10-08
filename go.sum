@@ -1,5 +1,5 @@
-github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240918121853-2221e9876d20 h1:ZXqJmnQtmF9p1AmK0TMSBjAxUkZXfyMS5NRGO6L49pA=
-github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240918121853-2221e9876d20/go.mod h1:Wzc1QpS2F8aV+8mZOfrrKA+D15byCzGRTGFkSRJC8J8=
+github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240925080402-a2115fee878e h1:wEIIFhiZ58RsVjoKfwSBBD0i75uZ7KATOI/elaBWOOY=
+github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240925080402-a2115fee878e/go.mod h1:Spf6hQRSylrvdjd7Cv4Tc8rFwlcamJAC8EuA61ARy7U=
 github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519 h1:diVA/i8TJFBl9ZyMNX15KjZBpI2Gu63xQTozu6FsTrA=
 github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519/go.mod h1:SJTiQZU9ggBzVKMni97rpNS9GddPKErndFXNSDrfEGc=
 github.com/DataDog/zstd v1.4.5 h1:EndNeuB0l9syBZhut0wns3gV1hL8zX8LIu6ZiVHWLIQ=
@@ -10,8 +10,6 @@ github.com/VictoriaMetrics/fastcache v1.12.2 h1:N0y9ASrJ0F6h0QaC3o6uJb3NIZ9VKLjC
 github.com/VictoriaMetrics/fastcache v1.12.2/go.mod h1:AmC+Nzz1+3G2eCPapF6UcsnkThDcMsQicp4xDukwJYI=
 github.com/aead/siphash v1.0.1 h1:FwHfE/T45KPKYuuSAKyyvE+oPWcaQ+CUmFW0bPlM+kg=
 github.com/aead/siphash v1.0.1/go.mod h1:Nywa3cDsYNNK3gaciGTWPwHt0wlpNV15vwmswBAUSII=
-github.com/benma/hid v0.0.0-20240312170000-f050ee197113 h1:iUeUyipcua6iGajzylKWamJkL6+OM3K/9qvmBxTyop0=
-github.com/benma/hid v0.0.0-20240312170000-f050ee197113/go.mod h1:qk1sX/IBgppQNcGCRoj90u6EGC056EBoIc1oEjCWla8=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/bits-and-blooms/bitset v1.13.0 h1:bAQ9OPNFYbGHV6Nez0tmNI0RiEu7/hxlYJRUA0wFAVE=
@@ -153,6 +151,8 @@ github.com/jackpal/go-nat-pmp v1.0.2/go.mod h1:QPH045xvCAeXUZOxsnwmrtiCoxIr9eob+
 github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jrick/logrotate v1.0.0/go.mod h1:LNinyqDIJnpAur+b8yyulnQw/wDuN1+BYKlTRt3OuAQ=
+github.com/karalabe/hid v1.0.1-0.20240919124526-821c38d2678e h1:ryNJIEs1fyZNVwJ/Dsz7+EFZTow0ggBdnAIVo8SAs+A=
+github.com/karalabe/hid v1.0.1-0.20240919124526-821c38d2678e/go.mod h1:qk1sX/IBgppQNcGCRoj90u6EGC056EBoIc1oEjCWla8=
 github.com/kkdai/bstream v0.0.0-20161212061736-f391b8402d23/go.mod h1:J+Gs4SYgM6CZQHDETBtE9HaSEkGmuNXF86RwHhHUvq4=
 github.com/kkdai/bstream v1.0.0 h1:Se5gHwgp2VT2uHfDrkbbgbgEvV9cimLELwrPJctSjg8=
 github.com/kkdai/bstream v1.0.0/go.mod h1:FDnDOHt5Yx4p3FaHcioFT0QjDOtgUpvjeZqAs+NVZZA=

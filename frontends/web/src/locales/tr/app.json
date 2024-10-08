@@ -262,12 +262,7 @@
   "checkSDcard": "Mikro SD kart kontrol ediliyor",
   "clickHere": "Buraya tıklayın.",
   "confirm": {
-    "abortInfo": "Dokunun",
-    "abortInfoRedText": "İptal et",
-    "approveInfo": "Şu tuşa 4 saniye basılı tut ",
-    "approveInfoGreenText": "doğrula",
-    "info": "BitBox'ınızda",
-    "infoWhenPaired": "Önce telefonla sonrasında Bitbox'la eşleştirin"
+    "info": "BitBox'ınızda"
   },
   "confirmOnDevice": "Lütfen cihazınızda onaylayın.",
   "device": {

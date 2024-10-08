@@ -83,7 +83,8 @@ public class GoService extends Service {
         Util.log("GoService: Starting server...");
         startedLock.lock();
         if (!started) {
-            Mobileserver.serve(filePath, goEnvironment, goAPI);
+            boolean testnet = false;
+            Mobileserver.serve(filePath, testnet, goEnvironment, goAPI);
             started = true;
             Util.log("server started!");
         } else {

@@ -372,7 +372,6 @@
   "button": {
     "abort": "Abortar",
     "back": "Voltar",
-    "buy": "Comprar",
     "changepin": "Mudar senha do dispositivo",
     "check": "Checar backup",
     "continue": "Continuar",
@@ -398,6 +397,7 @@
     "exchange": {
       "bankTransfer": "Transferência bancária",
       "bestDeal": "Melhor oferta",
+      "buy": "Comprar",
       "creditCard": "Cartão de crédito",
       "fast": "Rápido",
       "fee": "taxa",
@@ -459,7 +459,8 @@
       },
       "noExchanges": "Desculpe, não há exchanges disponíveis nesta região.",
       "region": "Região",
-      "selectRegion": "Não especificada"
+      "selectRegion": "Não especificada",
+      "sell": "Vender"
     },
     "info": {
       "continue": "Concordo e continue",
@@ -531,12 +532,7 @@
   "checkSDcard": "checando cartão microSD",
   "clickHere": "Clique aqui.",
   "confirm": {
-    "abortInfo": "Toque para ",
-    "abortInfoRedText": "abortar",
-    "approveInfo": "Segure 4 segundos ou mais para ",
-    "approveInfoGreenText": "confirmar",
-    "info": "Prossiga na sua BitBox.",
-    "infoWhenPaired": "Primeiro no celular emparelhado e depois na sua BitBox"
+    "info": "Prossiga na sua BitBox."
   },
   "confirmOnDevice": "Por favor, confirme no seu dispositivo.",
   "connectKeystore": {

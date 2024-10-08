@@ -53,14 +53,13 @@ export const BB02ConfirmSend = ({
   baseCurrencyUnit,
   note,
   hasSelectedUTXOs,
+  isConfirming,
   selectedUTXOs,
   coinCode,
-  transactionStatus,
   transactionDetails
 }: Omit<TConfirmSendProps, 'device'>) => {
 
   const { t } = useTranslation();
-  const { isConfirming, signProgress } = transactionStatus;
   const {
     proposedFee,
     proposedAmount,
@@ -70,21 +69,6 @@ export const BB02ConfirmSend = ({
     recipientAddress,
     activeCurrency: fiatUnit
   } = transactionDetails;
-
-
-  const confirmPrequel = (signProgress && signProgress.steps > 0) ? (
-    <div className="m-top-none m-bottom-half">
-      <span>
-        {
-          t('send.signprogress.description', {
-            steps: signProgress.steps.toString(),
-          })
-        }
-        <br />
-        {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
-      </span>
-    </div>
-  ) : undefined;
 
 
   if (!isConfirming) {
@@ -100,7 +84,6 @@ export const BB02ConfirmSend = ({
     <View fullscreen width="740px">
       <ViewHeader title={<div className={style.title}>{t('send.confirm.title')}</div>} />
       <ViewContent>
-        {confirmPrequel}
         <Message type="info">
           {t('send.confirm.infoMessage')}
         </Message>

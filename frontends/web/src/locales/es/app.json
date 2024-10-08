@@ -372,7 +372,6 @@
   "button": {
     "abort": "Cancel",
     "back": "Atrás",
-    "buy": "Comprar",
     "changepin": "Cambiar contraseña del dispositivo",
     "check": "Comprobar la copia de seguridad",
     "continue": "Continuar",
@@ -398,6 +397,7 @@
     "exchange": {
       "bankTransfer": "Transferencia bancaria",
       "bestDeal": "La mejor oferta",
+      "buy": "Comprar",
       "creditCard": "Tarjeta de crédito",
       "fast": "Rápido",
       "fee": "tarifa",
@@ -459,7 +459,8 @@
       },
       "noExchanges": "Lo sentimos, no hay intercambios disponibles en esta región.",
       "region": "Región",
-      "selectRegion": "No especificado"
+      "selectRegion": "No especificado",
+      "sell": "Vender"
     },
     "info": {
       "continue": "Aceptar y continuar",
@@ -531,12 +532,7 @@
   "checkSDcard": "comprobando tarjeta micro SD",
   "clickHere": "Haz clic aquí.",
   "confirm": {
-    "abortInfo": "Toque para ",
-    "abortInfoRedText": "Cancel",
-    "approveInfo": "Mantenga 4+ segundos para ",
-    "approveInfoGreenText": "confirmar",
-    "info": "Continua en tu Bitbox",
-    "infoWhenPaired": "Primero en el móvil sincronizado y luego tu BitBox"
+    "info": "Continua en tu Bitbox"
   },
   "confirmOnDevice": "Por favor confirma en tu dispositivo.",
   "connectKeystore": {
@@ -1020,7 +1016,7 @@
       "account": "Guía de cuentas",
       "accountInformation": "Guía de información de cuentas",
       "accountSummary": "Guía de resumen de cuentas",
-      "advancedSettings": "Guía de ajustes avanzados",
+      "advancedSettings": "Guía de Configuración avanzada",
       "appearance": "Guía de apariencia",
       "buySell": "Guía de compra y venta",
       "insurance": "Guía de seguros",
@@ -1404,7 +1400,7 @@
     "successDisabled": {
       "message": "Passphrase opcional <strong>activada satisfactoriamente</strong>!\nA partir de ahora se le solicitara introducir una passphrase.",
       "messageEnd": "Por favor vuelva a conectar ahora su BitBox02.",
-      "title": "Passphrase activado"
+      "title": "Passphrase activada"
     },
     "successEnabled": {
       "message": "Passphrase opcional <strong>desactivada satisfactoriamente</strong>!\nA partir de ahora no se le solicitará introducir una passphrase.",

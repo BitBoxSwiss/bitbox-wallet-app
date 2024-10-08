@@ -225,12 +225,7 @@
   "checkSDcard": "检查microSD卡",
   "clickHere": "点击这里。",
   "confirm": {
-    "abortInfo": "点按 ",
-    "abortInfoRedText": "中止",
-    "approveInfo": "保持4秒 ",
-    "approveInfoGreenText": "确认",
-    "info": "在您的BitBox设备上",
-    "infoWhenPaired": "首先在配对的手机上，然后在您的BitBox上"
+    "info": "在您的BitBox设备上"
   },
   "confirmOnDevice": "请在设备上进行确认",
   "device": {

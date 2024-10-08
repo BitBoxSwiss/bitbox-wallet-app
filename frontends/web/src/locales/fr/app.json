@@ -356,7 +356,6 @@
   "button": {
     "abort": "Abandonner",
     "back": "Retour",
-    "buy": "Acheter",
     "changepin": "Changer le mot de passe de l'appareil",
     "check": "Vérifier la sauvegarde",
     "continue": "Continuer",
@@ -505,12 +504,7 @@
   "checkSDcard": "vérification de la carte microSD",
   "clickHere": "Cliquez ici.",
   "confirm": {
-    "abortInfo": "Appuyez pour",
-    "abortInfoRedText": "abandonner",
-    "approveInfo": "Appuyez 4+ secondes pour",
-    "approveInfoGreenText": "confirmer",
-    "info": "Continuez sur votre BitBox",
-    "infoWhenPaired": "D'abord sur le mobile appairé, puis sur votre BitBox"
+    "info": "Continuez sur votre BitBox"
   },
   "confirmOnDevice": "Veuillez confirmer sur l'appareil.",
   "connectKeystore": {

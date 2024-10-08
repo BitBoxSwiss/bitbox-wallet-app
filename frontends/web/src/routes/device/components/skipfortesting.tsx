@@ -22,7 +22,7 @@ import { Button } from '@/components/forms';
 import { PasswordSingleInput } from '@/components/password';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { useLoad } from '@/hooks/api';
-import { debug } from '@/utils/env';
+import { debug, runningInIOS } from '@/utils/env';
 
 type TProps = {
   children?: ReactNode;
@@ -34,7 +34,7 @@ export const SkipForTesting = ({
   className,
 }: TProps) => {
   const [dialog, setDialog] = useState(false);
-  const show = useLoad(debug ? getTesting : () => Promise.resolve(false));
+  const show = useLoad(debug || runningInIOS() ? getTesting : () => Promise.resolve(false));
   const [testPIN, setTestPIN] = useState('');
   const registerTestingDevice = async (e: React.SyntheticEvent) => {
     e.preventDefault();

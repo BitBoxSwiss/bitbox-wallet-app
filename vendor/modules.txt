@@ -1,4 +1,4 @@
-# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240918121853-2221e9876d20
+# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240925080402-a2115fee878e
 ## explicit; go 1.21
 github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader
 github.com/BitBoxSwiss/bitbox02-api-go/api/common
@@ -7,6 +7,7 @@ github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages
 github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid
 github.com/BitBoxSwiss/bitbox02-api-go/util/errp
 github.com/BitBoxSwiss/bitbox02-api-go/util/semver
+github.com/BitBoxSwiss/bitbox02-api-go/util/sleep
 # github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519
 ## explicit; go 1.19
 github.com/BitBoxSwiss/block-client-go/electrum
@@ -163,7 +164,7 @@ github.com/gorilla/websocket
 # github.com/holiman/uint256 v1.3.1
 ## explicit; go 1.19
 github.com/holiman/uint256
-# github.com/karalabe/hid v1.0.1-0.20240306101548-573246063e52 => github.com/benma/hid v0.0.0-20240312170000-f050ee197113
+# github.com/karalabe/hid v1.0.1-0.20240919124526-821c38d2678e
 ## explicit; go 1.19
 github.com/karalabe/hid
 github.com/karalabe/hid/hidapi
@@ -346,4 +347,3 @@ gopkg.in/yaml.v3
 ## explicit; go 1.17
 rsc.io/tmplfunc
 rsc.io/tmplfunc/internal/parse
-# github.com/karalabe/hid => github.com/benma/hid v0.0.0-20240312170000-f050ee197113

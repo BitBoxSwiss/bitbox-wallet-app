@@ -118,6 +118,12 @@ struct WebView: UIViewRepresentable {
 
         // TODO: check if official - needed to allow loading the bundle with <script type="module" src="...">
         config.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
+
+        // The QR code scanner uses a <video> element with an playsInline attribute.
+        // This setting allows this attribute. Otherwise the QR code scanner would
+        // go full screen and contain player controls (pause button),
+        // a "livestream" label and casting abilities.
+        config.allowsInlineMediaPlayback = true;
         
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
@@ -170,6 +176,18 @@ struct WebView: UIViewRepresentable {
                 }
             }
             return nil
+        }
+
+
+        // Automatically grant camera permission when used in the webview.
+        // The camera permission was already granted at install time via
+        // the NSCameraUsageDescription Info.plist entry.
+        func webView(_ webView: WKWebView,
+                     requestMediaCapturePermissionFor origin: WKSecurityOrigin,
+                     initiatedByFrame frame: WKFrameInfo,
+                     type: WKMediaCaptureType,
+                     decisionHandler: @escaping (WKPermissionDecision) -> Void) {
+            decisionHandler(.grant)
         }
     }
 }

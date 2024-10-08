@@ -372,7 +372,6 @@
   "button": {
     "abort": "Abbrechen",
     "back": "Zurück",
-    "buy": "Kaufen",
     "changepin": "Gerätepasswort ändern",
     "check": "Backup überprüfen",
     "continue": "Weiter",
@@ -398,6 +397,7 @@
     "exchange": {
       "bankTransfer": "Überweisung",
       "bestDeal": "Bestes Angebot",
+      "buy": "Kaufen",
       "creditCard": "Kreditkarte",
       "fast": "Schnell",
       "fee": "Gebühr",
@@ -459,7 +459,8 @@
       },
       "noExchanges": "Leider sind in dieser Region keine Börsen verfügbar.",
       "region": "Region",
-      "selectRegion": "Nicht angegeben"
+      "selectRegion": "Nicht angegeben",
+      "sell": "Verkaufen"
     },
     "info": {
       "continue": "Zustimmen und fortfahren",
@@ -531,12 +532,7 @@
   "checkSDcard": "Micro-SD-Karte wird überprüft",
   "clickHere": "Hier klicken.",
   "confirm": {
-    "abortInfo": "Tippe zum ",
-    "abortInfoRedText": "abbrechen",
-    "approveInfo": "4 Sekunden lang halten um zu ",
-    "approveInfoGreenText": "bestätigen",
-    "info": "Fahre auf deiner BitBox fort.",
-    "infoWhenPaired": "Zuerst auf deinem gepaarten Mobiltelefon und dann auf deiner BitBox"
+    "info": "Fahre auf deiner BitBox fort."
   },
   "confirmOnDevice": "Bitte bestätige auf deinem Gerät.",
   "connectKeystore": {

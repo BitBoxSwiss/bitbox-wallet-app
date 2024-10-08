@@ -276,7 +276,6 @@
   "button": {
     "abort": "الايقاف",
     "back": "العودة",
-    "buy": "الشراء",
     "changepin": "قم بتغيير كلمة مرور الجهاز",
     "check": "قم بالتحقق من النسخة الاحتياطية",
     "continue": "الاستمرار",
@@ -352,12 +351,7 @@
   "checkSDcard": "التحقق من شريحة microSD",
   "clickHere": "اكبس هنا",
   "confirm": {
-    "abortInfo": "اضغط من اجل",
-    "abortInfoRedText": "الغاء",
-    "approveInfo": "استمر في الضغط لمدة 4 ثواني من اجل ",
-    "approveInfoGreenText": "التأكيد",
-    "info": "استمر في جهاز BitBox الخاص بك",
-    "infoWhenPaired": "أولاً على الهاتف المحمول المربوط ثم جهاز BitBox الخاص بك"
+    "info": "استمر في جهاز BitBox الخاص بك"
   },
   "confirmOnDevice": "يرجى التأكيد على جهازك",
   "device": {

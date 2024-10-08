@@ -225,12 +225,7 @@
   "checkSDcard": "माइक्रो एसडी कार्ड की जाँच हो रही है",
   "clickHere": "यहां क्लिक करे।",
   "confirm": {
-    "abortInfo": "टेप करे ",
-    "abortInfoRedText": "बीच में ही नष्ट करे",
-    "approveInfo": "4+ सेकंड के लिए होल्ड करें",
-    "approveInfoGreenText": " पुष्टि करने के लिए",
-    "info": "अपने BitBox पर",
-    "infoWhenPaired": "पहले आपका पेर किया हुआ मोबाइल और फिर आपका BitBox"
+    "info": "अपने BitBox पर"
   },
   "confirmOnDevice": "कृपया अपने डिवाइस पर पुष्टि करें।",
   "device": {

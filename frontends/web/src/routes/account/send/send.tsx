@@ -31,8 +31,6 @@ import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main 
 import { Status } from '@/components/status/status';
 import { translate, TranslateProps } from '@/decorators/translate';
 import { FeeTargets } from './feetargets';
-import { signProgress, TSignProgress } from '@/api/devicessync';
-import { UnsubscribeList, unsubscribe } from '@/utils/subscriptions';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
@@ -77,13 +75,12 @@ export type State = {
     feeError?: TProposalError['feeError'];
     paired?: boolean;
     noMobileChannelError?: boolean;
-    signProgress?: TSignProgress;
     note: string;
 }
 
 class Send extends Component<Props, State> {
   private selectedUTXOs: TSelectedUTXOs = {};
-  private unsubscribeList: UnsubscribeList = [];
+  private unsubscribe?: () => void;
 
   // in case there are multiple parallel tx proposals we can ignore all other but the last one
   private lastProposal: Promise<accountApi.TTxProposalResult> | null = null;
@@ -120,20 +117,17 @@ class Send extends Component<Props, State> {
       }).catch(console.error);
     }
 
-    this.unsubscribeList = [
-      signProgress((progress) =>
-        this.setState({ signProgress: progress })
-      ),
-      syncdone((code) => {
-        if (this.props.account.code === code) {
-          updateBalance(code);
-        }
-      }),
-    ];
+    this.unsubscribe = syncdone((code) => {
+      if (this.props.account.code === code) {
+        updateBalance(code);
+      }
+    });
   }
 
   public componentWillUnmount() {
-    unsubscribe(this.unsubscribeList);
+    if (this.unsubscribe) {
+      this.unsubscribe();
+    }
   }
 
   private send = async () => {
@@ -147,7 +141,7 @@ class Send extends Component<Props, State> {
       return;
     }
 
-    this.setState({ signProgress: undefined, isConfirming: true });
+    this.setState({ isConfirming: true });
     try {
       const result = await accountApi.sendTx(code, this.state.note);
       this.setState({ sendResult: result, isConfirming: false });
@@ -171,7 +165,7 @@ class Send extends Component<Props, State> {
       console.error(err);
     } finally {
       // The following method allows pressing escape again.
-      this.setState({ isConfirming: false, signProgress: undefined });
+      this.setState({ isConfirming: false, });
     }
   };
 
@@ -410,7 +404,6 @@ class Send extends Component<Props, State> {
       amountError,
       feeError,
       paired,
-      signProgress,
       note,
     } = this.state;
 
@@ -422,11 +415,6 @@ class Send extends Component<Props, State> {
       feeTarget,
       recipientAddress,
       activeCurrency,
-    };
-
-    const waitDialogTransactionStatus = {
-      isConfirming,
-      signProgress,
     };
 
     const device = this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]];
@@ -535,10 +523,10 @@ class Send extends Component<Props, State> {
                   baseCurrencyUnit={activeCurrency}
                   note={note}
                   hasSelectedUTXOs={this.hasSelectedUTXOs()}
+                  isConfirming={isConfirming}
                   selectedUTXOs={Object.keys(this.selectedUTXOs)}
                   coinCode={account.coinCode}
                   transactionDetails={waitDialogTransactionDetails}
-                  transactionStatus={waitDialogTransactionStatus}
                 />
               )}
 
