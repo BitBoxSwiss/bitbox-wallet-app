@@ -738,7 +738,7 @@
   },
   "generic": {
     "buy": "Comprar {{coinCode}} ",
-    "buySell": "Compra y venta",
+    "buySell": "Comprar y vender",
     "buy_bitcoin": "Comprar Bitcoin ",
     "buy_crypto": "Comprar criptomonedas",
     "enabled_false": "Desactivado",
