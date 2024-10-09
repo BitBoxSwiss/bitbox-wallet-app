@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -63,12 +64,15 @@ public class GoService extends Service {
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
                 .build();
-        startForeground(notificationId,notification);
 
         // The service goes in foreground to keep working normally even when the app is out of
         // focus. This is needed to avoid timeouts when the backend is polling the BitBox for e.g.
         // an address verification.
-        startForeground(notificationId, notification);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(notificationId, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC | ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+        } else {
+            startForeground(notificationId, notification);
+        }
         Util.log("GoService onCreate completed");
     }
 
