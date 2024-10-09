@@ -577,7 +577,7 @@
         "description": "La root fingerprint è un identificatore univoco del wallet attualmente in uso. Ti può aiutare a distinguere wallet diversi se usi la passphrase."
       },
       "securechip": {
-        "description": "Modello del secur chip."
+        "description": "Modello del secure chip."
       },
       "title": "Informazioni sul dispositivo"
     },
