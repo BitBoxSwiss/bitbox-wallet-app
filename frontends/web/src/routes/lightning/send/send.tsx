@@ -32,6 +32,7 @@ import { Spinner } from '../../../components/spinner/Spinner';
 import { getBtcSatsAmount } from '../../../api/coins';
 import { Skeleton } from '../../../components/skeleton/skeleton';
 import styles from './send.module.css';
+import { runningInAndroid, runningInIOS } from '@/utils/env';
 
 type TStep = 'select-invoice' | 'edit-invoice' | 'confirm' | 'sending' | 'success';
 
@@ -145,7 +146,8 @@ const SendWorkflow = ({
                 placeholder={t('lightning.send.invoice.input')}
                 onInput={(e: ChangeEvent<HTMLInputElement>) => setLnInvoice(e.target.value)}
                 value={lnInvoice}
-                autoFocus/>
+                // to prevent the virtual Android/iOS keyboard to be displayed by default.
+                autoFocus={!runningInAndroid() && !runningInIOS()}/>
             </Column>
           </Grid>
         </ViewContent>
