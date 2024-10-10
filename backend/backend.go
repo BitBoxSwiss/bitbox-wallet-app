@@ -538,6 +538,43 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	return coin, nil
 }
 
+// ManualReconnect triggers reconnecting to Electrum servers if their connection is down.
+// Only coin connections that were previously established are reconnected.
+// Calling this is a no-op for coins that are already connected.
+func (backend *Backend) ManualReconnect() {
+	var electrumCoinCodes []coinpkg.Code
+	if backend.arguments.Testing() {
+		electrumCoinCodes = []coinpkg.Code{
+			coinpkg.CodeTBTC,
+			coinpkg.CodeTLTC,
+		}
+	} else {
+		electrumCoinCodes = []coinpkg.Code{
+			coinpkg.CodeBTC,
+			coinpkg.CodeLTC,
+		}
+	}
+	backend.log.Info("Manually reconnecting")
+	for _, code := range electrumCoinCodes {
+		c, err := backend.Coin(code)
+		if err != nil {
+			backend.log.WithError(err).Errorf("could not find coin: %s", code)
+			continue
+		}
+		btcCoin, ok := c.(*btc.Coin)
+		if !ok {
+			backend.log.Errorf("Expected %s to be a btc coin", code)
+			continue
+		}
+		blockchain := btcCoin.Blockchain()
+		if blockchain == nil {
+			// Not initialized yet
+			continue
+		}
+		blockchain.ManualReconnect()
+	}
+}
+
 // Testing returns whether this backend is for testing only.
 func (backend *Backend) Testing() bool {
 	return backend.arguments.Testing()

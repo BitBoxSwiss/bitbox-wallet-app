@@ -121,6 +121,8 @@ type Failover[C Client] struct {
 	enableRetry   bool
 	subscriptions []func(client C, currentClientCounter int)
 
+	manualReconnect chan struct{}
+
 	closed   bool
 	closedMu sync.RWMutex
 }
@@ -145,6 +147,7 @@ func New[C Client](opts *Options[C]) *Failover[C] {
 		opts:               opts,
 		startServerIndex:   startServerIndex,
 		currentServerIndex: startServerIndex,
+		manualReconnect:    make(chan struct{}),
 	}
 }
 
@@ -157,7 +160,17 @@ func (f *Failover[C]) establishConnection() error {
 			if f.opts.OnRetry != nil {
 				go f.opts.OnRetry(f.lastErr)
 			}
-			time.Sleep(retryTimeout)
+
+			// Drain the manualReconnect channel to avoid stale reconnect signals
+			select {
+			case <-f.manualReconnect:
+			default:
+			}
+			// Wait for retry timeout or manual reconnect
+			select {
+			case <-time.After(retryTimeout):
+			case <-f.manualReconnect:
+			}
 		}
 		f.enableRetry = true
 
@@ -368,6 +381,16 @@ func (f *Failover[C]) isClosed() bool {
 	f.closedMu.RLock()
 	defer f.closedMu.RUnlock()
 	return f.closed
+}
+
+// ManualReconnect triggers a manual reconnect, non-blocking.
+// This re-tries connecting immediately without waiting for the retry timeout.
+// We we are not currently disconnected, this is a no-op.
+func (f *Failover[C]) ManualReconnect() {
+	select {
+	case f.manualReconnect <- struct{}{}:
+	default:
+	}
 }
 
 // Close closes the failover client and closes the current client, resulting in `ErrClosed` in all
