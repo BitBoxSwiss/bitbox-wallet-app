@@ -6,8 +6,8 @@ Wallet application.
 * Debian: 11 bullseye or newer
 * Ubuntu: 20.04+
 * Fedora: 36+
-* MacOS: 10.13+
-* Windows: Windows 7+
+* MacOS: 10.15+
+* Windows: Windows 10+
 
 ## Debian, Ubuntu, and Fedora GNU/Linux with Docker
 
