@@ -236,6 +236,9 @@ export const getBalance = (code: AccountCode): Promise<IBalance> => {
   return apiGet(`account/${code}/balance`);
 };
 
+export type TTransactionStatus = 'complete' | 'pending' | 'failed';
+export type TTransactionType = 'send' | 'receive' | 'send_to_self';
+
 export interface ITransaction {
     addresses: string[];
     amount: IAmount;
@@ -249,9 +252,9 @@ export interface ITransaction {
     numConfirmations: number;
     numConfirmationsComplete: number;
     size: number;
-    status: 'complete' | 'pending' | 'failed';
+    status: TTransactionStatus;
     time: string | null;
-    type: 'send' | 'receive' | 'self';
+    type: TTransactionType;
     txID: string;
     vsize: number;
     weight: number;
@@ -374,8 +377,8 @@ export interface IFeeTarget {
 }
 
 export interface IFeeTargetList {
-    feeTargets: IFeeTarget[],
-    defaultFeeTarget: FeeTargetCode
+    feeTargets: IFeeTarget[];
+    defaultFeeTarget: FeeTargetCode;
 }
 
 export const getFeeTargetList = (code: AccountCode): Promise<IFeeTargetList> => {
@@ -443,7 +446,7 @@ export const connectKeystore = (code: AccountCode): Promise<{ success: boolean; 
 export type TSignMessage = { success: false, aborted?: boolean; errorMessage?: string; } | { success: true; signature: string; }
 
 export type TSignWalletConnectTx = {
-  success: false,
+  success: false;
   aborted?: boolean;
   errorMessage?: string;
 } | {

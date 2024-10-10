@@ -16,7 +16,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ITransaction, IAmount, getTransaction } from '@/api/account';
+import { ITransaction, IAmount, getTransaction, TTransactionStatus, TTransactionType } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
 import { Dialog } from '@/components/dialog/dialog';
 import { FiatConversion } from '@/components/rates/rates';
@@ -35,8 +35,8 @@ type TProps = {
   accountCode: string;
   internalID: string;
   note: string;
-  status: ITransaction['status'];
-  type: ITransaction['type'];
+  status: TTransactionStatus;
+  type: TTransactionType;
   numConfirmations: number;
   numConfirmationsComplete: number;
   time: string | null;
