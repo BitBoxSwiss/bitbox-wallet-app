@@ -128,8 +128,9 @@ func toReceivePaymentRequest(receivePaymentRequest receivePaymentRequestDto) bre
 
 func toSendPaymentRequest(sendPaymentRequest sendPaymentRequestDto) breez_sdk.SendPaymentRequest {
 	return breez_sdk.SendPaymentRequest{
-		AmountMsat: sendPaymentRequest.AmountMsat,
-		Bolt11:     sendPaymentRequest.Bolt11,
-		Label:      sendPaymentRequest.Label,
+		AmountMsat:    sendPaymentRequest.AmountMsat,
+		UseTrampoline: sendPaymentRequest.UseTrampoline,
+		Bolt11:        sendPaymentRequest.Bolt11,
+		Label:         sendPaymentRequest.Label,
 	}
 }
