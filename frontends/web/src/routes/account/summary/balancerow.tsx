@@ -25,21 +25,16 @@ import { AsciiSpinner } from '@/components/spinner/ascii';
 import { FiatConversion } from '@/components/rates/rates';
 import style from './accountssummary.module.css';
 
-type TProps = {
+type TNameColProps = {
   code: AccountCode;
-  name: string;
   coinCode: CoinCode;
-  balance?: IBalance;
+  name: string;
 };
 
-export const BalanceRow = (
-  { code, name, coinCode, balance }: TProps
-) => {
-  const navigate = useNavigate();
+const NameCell = ({ code, name, coinCode }: TNameColProps) => {
   const { t } = useTranslation();
-  const syncStatus = useSubscribe(syncAddressesCount(code));
-
-  const nameCol = (
+  const navigate = useNavigate();
+  return (
     <td
       className={style.clickable}
       data-label={t('accountSummary.name')}
@@ -50,10 +45,25 @@ export const BalanceRow = (
       </div>
     </td>
   );
+};
+
+type TProps = {
+  balance?: IBalance;
+  code: AccountCode;
+  coinCode: CoinCode;
+  name: string;
+};
+
+export const BalanceRow = (
+  { code, name, coinCode, balance }: TProps
+) => {
+  const { t } = useTranslation();
+  const syncStatus = useSubscribe(syncAddressesCount(code));
+
   if (balance) {
     return (
       <tr key={`${code}_balance`}>
-        { nameCol }
+        <NameCell name={name} code={code} coinCode={coinCode} />
         <td data-label={t('accountSummary.balance')}>
           <span className={style.summaryTableBalance}>
             <Amount amount={balance.available.amount} unit={balance.available.unit}/>{' '}
@@ -68,7 +78,7 @@ export const BalanceRow = (
   }
   return (
     <tr key={`${code}_syncing`}>
-      { nameCol }
+      <NameCell name={name} code={code} coinCode={coinCode} />
       <td colSpan={2} className={style.syncText}>
         { t('account.syncedAddressesCount', {
           count: syncStatus,
