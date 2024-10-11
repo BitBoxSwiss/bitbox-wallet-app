@@ -112,10 +112,10 @@
 
     .actionsContainer a {
         flex: 1 0 30%;
+        margin-left: 0;
         margin-right: 0;
         max-width: 30%;
         min-width: unset;
-
     }
 
     .exchange,

@@ -63,6 +63,7 @@ export const Balance = ({
         balance.hasIncoming && (
           <p className={style.pendingBalance}>
             {t('account.incoming')}
+            {' '}
             <span data-testid="incomingBalance">
               +<Amount
                 amount={balance.incoming.amount}

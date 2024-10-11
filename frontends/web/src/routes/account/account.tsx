@@ -305,15 +305,12 @@ export const Account = ({
         <div className="innerContainer scrollableContainer">
           <div className="content padded">
 
-            <div className="flex flex-column flex-reverse-mobile">
-              <label className="labelXLarge flex-self-start-mobile hide-on-small">
+            <div className="flex flex-column">
+              <label className="labelXLarge">
                 {t('accountSummary.availableBalance')}
               </label>
-              <div className="flex flex-row flex-between flex-item-center flex-column-mobile flex-reverse-mobile">
+              <div className="flex flex-row flex-between flex-item-center flex-column-mobile">
                 <Balance balance={balance} />
-                <label className="labelXLarge flex-self-start-mobile show-on-small">
-                  {t('accountSummary.availableBalance')}
-                </label>
                 {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
               </div>
             </div>
