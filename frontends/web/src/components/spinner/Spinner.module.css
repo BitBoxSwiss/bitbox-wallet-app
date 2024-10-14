@@ -23,7 +23,8 @@
 
 .spinnerText {
     margin: 0;
-    /* font-weight: bold; */
+    padding: 0 var(--spacing-default);
+    text-align: center;
 }
 
 .spinner div {
