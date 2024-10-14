@@ -15,7 +15,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { CoinCode, IAccount } from '@/api/account';
+import { CoinCode, CoinUnit, IAccount } from '@/api/account';
 import { getAccountsByKeystore } from './utils';
 
 
@@ -31,7 +31,7 @@ const createAccount = ({
     code: 'v0-123de678-tbtc-0',
     coinCode: 'tbtc' as CoinCode,
     coinName: 'Bitcoin Testnet',
-    coinUnit: 'TBTC',
+    coinUnit: 'TBTC' as CoinUnit,
     isToken: false,
     keystore: {
       connected: false,

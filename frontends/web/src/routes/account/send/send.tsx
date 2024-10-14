@@ -20,8 +20,6 @@ import * as accountApi from '@/api/account';
 import { syncdone } from '@/api/accountsync';
 import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
 import { View, ViewContent } from '@/components/view/view';
-import { TDevices, hasMobileChannel } from '@/api/devices';
-import { getDeviceInfo } from '@/api/bitbox01';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
@@ -47,8 +45,8 @@ import style from './send.module.css';
 
 interface SendProps {
     account: accountApi.IAccount;
-    devices: TDevices;
-    deviceIDs: string[];
+    // undefined if bb02 is connected.
+    bb01Paired: boolean | undefined;
     activeCurrency: accountApi.Fiat;
 }
 
@@ -74,7 +72,6 @@ export type State = {
     amountError?: TProposalError['amountError'];
     feeError?: TProposalError['feeError'];
     paired?: boolean;
-    noMobileChannelError?: boolean;
     note: string;
 }
 
@@ -94,7 +91,6 @@ class Send extends Component<Props, State> {
     sendAll: false,
     isConfirming: false,
     isUpdatingProposal: false,
-    noMobileChannelError: false,
     note: '',
     customFee: '',
   };
@@ -105,17 +101,6 @@ class Send extends Component<Props, State> {
       .catch(console.error);
 
     updateBalance(this.props.account.code);
-
-    if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
-      hasMobileChannel(this.props.deviceIDs[0])().then((mobileChannel: boolean) => {
-        return getDeviceInfo(this.props.deviceIDs[0])
-          .then(({ pairing }) => {
-            const paired = mobileChannel && pairing;
-            const noMobileChannelError = pairing && !mobileChannel && isBitcoinBased(this.props.account.coinCode);
-            this.setState(prevState => ({ ...prevState, paired, noMobileChannelError }));
-          });
-      }).catch(console.error);
-    }
 
     this.unsubscribe = syncdone((code) => {
       if (this.props.account.code === code) {
@@ -131,10 +116,6 @@ class Send extends Component<Props, State> {
   }
 
   private send = async () => {
-    if (this.state.noMobileChannelError) {
-      alertUser(this.props.t('warning.sendPairing'));
-      return;
-    }
     const code = this.props.account.code;
     const connectResult = await accountApi.connectKeystore(code);
     if (!connectResult.success) {
@@ -383,7 +364,13 @@ class Send extends Component<Props, State> {
   };
 
   public render() {
-    const { account, activeCurrency, t } = this.props;
+    const {
+      account,
+      bb01Paired,
+      activeCurrency,
+      t,
+    } = this.props;
+
     const {
       balance,
       proposedFee,
@@ -416,8 +403,6 @@ class Send extends Component<Props, State> {
       recipientAddress,
       activeCurrency,
     };
-
-    const device = this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]];
 
     return (
       <GuideWrapper>
@@ -516,20 +501,16 @@ class Send extends Component<Props, State> {
                   </Column>
                 </Grid>
               </ViewContent>
-
-              {device && (
-                <ConfirmSend
-                  device={device}
-                  baseCurrencyUnit={activeCurrency}
-                  note={note}
-                  hasSelectedUTXOs={this.hasSelectedUTXOs()}
-                  isConfirming={isConfirming}
-                  selectedUTXOs={Object.keys(this.selectedUTXOs)}
-                  coinCode={account.coinCode}
-                  transactionDetails={waitDialogTransactionDetails}
-                />
-              )}
-
+              <ConfirmSend
+                bb01Paired={bb01Paired}
+                baseCurrencyUnit={activeCurrency}
+                note={note}
+                hasSelectedUTXOs={this.hasSelectedUTXOs()}
+                isConfirming={isConfirming}
+                selectedUTXOs={Object.keys(this.selectedUTXOs)}
+                coinCode={account.coinCode}
+                transactionDetails={waitDialogTransactionDetails}
+              />
               <MessageWaitDialog result={sendResult}/>
             </View>
           </Main>

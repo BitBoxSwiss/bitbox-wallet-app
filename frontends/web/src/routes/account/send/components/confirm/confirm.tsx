@@ -25,28 +25,23 @@ import { TConfirmSendProps } from '@/routes/account/send/components/confirm/type
 import { ConfirmingWaitDialog } from '@/routes/account/send/components/confirm/dialogs/confirm-wait-dialog';
 import style from './confirm.module.css';
 
+type TConfimrSend = { bb01Paired: boolean | undefined } & TConfirmSendProps;
+
 type TFiatValueProps = {
   baseCurrencyUnit: ConversionUnit;
   amount: string
 }
 
-export const ConfirmSend = (props: TConfirmSendProps) => {
-  switch (props.device) {
-  case 'bitbox':
-    return (
-      <ConfirmingWaitDialog
-        {...props}
-      />
-    );
-  case 'bitbox02':
-    return (
-      <BB02ConfirmSend
-        {...props}
-      />
-    );
-  default:
-    return null;
-  }
+export const ConfirmSend = (props: TConfimrSend) => {
+  return (props.bb01Paired !== undefined ? (
+    <ConfirmingWaitDialog
+      {...props}
+    />
+  ) : (
+    <BB02ConfirmSend
+      {...props}
+    />
+  ));
 };
 
 export const BB02ConfirmSend = ({
@@ -57,7 +52,7 @@ export const BB02ConfirmSend = ({
   selectedUTXOs,
   coinCode,
   transactionDetails
-}: Omit<TConfirmSendProps, 'device'>) => {
+}: TConfirmSendProps) => {
 
   const { t } = useTranslation();
   const {
