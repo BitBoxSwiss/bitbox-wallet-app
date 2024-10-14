@@ -45,31 +45,23 @@ export const Aopp = () => {
   const [accountCode, setAccountCode] = useState<accountAPI.AccountCode>('');
   const [aopp, setAopp] = useState<aoppAPI.Aopp>();
 
-
-  const setAccountCodeDefault = (aopp: aoppAPI.Aopp | undefined) => {
-    if (aopp === undefined || aopp.state !== 'choosing-account') {
-      return;
-    }
-    if (aopp.accounts.length) {
-      setAccountCode(aopp.accounts[0].code);
-    }
-  };
+  const [prevAopp, setPrevAopp] = useState(aopp);
 
   useEffect(() => {
-    setAccountCodeDefault(aopp);
-    const unsubscribe = aoppAPI.subscribeAOPP((new_aopp: aoppAPI.Aopp) => {
-      if (new_aopp?.state === 'choosing-account'
-        && (
-          aopp?.state !== 'choosing-account'
-          || !equal(new_aopp.accounts, aopp?.accounts)
-        )) {
-        setAccountCodeDefault(new_aopp);
+    aoppAPI.getAOPP().then(setAopp);
+    return aoppAPI.subscribeAOPP(setAopp);
+  }, []);
+
+  useEffect(() => {
+    if (aopp !== prevAopp) {
+      setPrevAopp(aopp);
+      if (aopp?.state === 'choosing-account'
+      && aopp.accounts.length
+      && (prevAopp?.state !== 'choosing-account' || !equal(aopp.accounts, prevAopp?.accounts))) {
+        setAccountCode(aopp.accounts[0].code);
       }
-      setAopp(new_aopp);
-    });
-    aoppAPI.getAOPP().then(aopp => setAopp(aopp));
-    return unsubscribe;
-  }, [aopp]);
+    }
+  }, [aopp, prevAopp]);
 
   const chooseAccount = (e: React.SyntheticEvent) => {
     if (accountCode) {
