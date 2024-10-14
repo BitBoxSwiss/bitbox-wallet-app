@@ -440,6 +440,18 @@ export const connectKeystore = (code: AccountCode): Promise<{ success: boolean; 
   return apiPost(`account/${code}/connect-keystore`);
 };
 
+export type TResponseKeystoreName = {
+  success: true,
+  keystoreName: string;
+} | {
+  success: false;
+}
+
+export const getKeystoreName = (rootFingerprint: string): Promise<TResponseKeystoreName> => {
+  return apiGet(`keystore-name?rootFingerprint=${rootFingerprint}`);
+};
+
+
 export type TSignMessage = { success: false, aborted?: boolean; errorMessage?: string; } | { success: true; signature: string; }
 
 export type TSignWalletConnectTx = {
