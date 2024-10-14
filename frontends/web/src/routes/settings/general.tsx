@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 /**
  * Copyright 2023-2024 Shift Crypto AG
  *
@@ -33,9 +35,16 @@ import { SubTitle } from '@/components/title';
 import { TPagePropsWithSettingsTabs } from './types';
 import { GlobalBanners } from '@/components/globalbanners/globalbanners';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { FreshInstall } from '@/components/devices/bitbox02bootloader/freshinstall';
 
 export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
+
+  return <View fitContent verticallyCentered width="960px">
+    <ViewContent>
+      <FreshInstall deviceID={deviceIDs[0]} />
+    </ViewContent>
+  </View>;
   return (
     <GuideWrapper>
       <GuidedContent>

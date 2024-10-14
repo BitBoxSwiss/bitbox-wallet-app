@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 /**
  * Copyright 2018 Shift Devices AG
  * Copyright 2023 Shift Crypto AG
@@ -24,6 +26,7 @@ import { View, ViewContent } from '@/components/view/view';
 import { BitBox02, BitBox02Inverted } from '@/components/icon/logo';
 import { Status } from '@/components/status/status';
 import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
+import { FreshInstall } from '@/components/devices/bitbox02bootloader/freshinstall';
 
 type TProps = {
   deviceID: string;
@@ -37,6 +40,13 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     bitbox02BootloaderAPI.syncStatus(deviceID),
   );
   const versionInfo = useLoad(() => bitbox02BootloaderAPI.getVersionInfo(deviceID));
+
+  return <View fitContent verticallyCentered width="960px">
+    <ViewContent>
+      <FreshInstall deviceID={deviceID} />
+    </ViewContent>
+  </View>;
+
 
   if (versionInfo === undefined) {
     return null;
