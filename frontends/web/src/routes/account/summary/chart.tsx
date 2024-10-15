@@ -508,7 +508,12 @@ export const Chart = ({
           <div className={styles.totalValue}>
             {formattedChartTotal !== null ? (
               // remove trailing zeroes for BTC fiat total
-              <Amount amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue} unit={chartFiat} removeBtcTrailingZeroes />
+              <Amount
+                amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue}
+                unit={chartFiat}
+                removeBtcTrailingZeroes
+                allowRotateCurrencyOnMobile
+              />
             ) : (
               <Skeleton minWidth="220px" />
             )}
