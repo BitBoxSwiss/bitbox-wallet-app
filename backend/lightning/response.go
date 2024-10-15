@@ -227,18 +227,19 @@ func toNetworkDto(network breez_sdk.Network) (string, error) {
 
 func toNodeStateDto(nodeState breez_sdk.NodeState) nodeStateDto {
 	return nodeStateDto{
-		Id:                         nodeState.Id,
-		BlockHeight:                nodeState.BlockHeight,
-		ChannelsBalanceMsat:        nodeState.ChannelsBalanceMsat,
-		OnchainBalanceMsat:         nodeState.OnchainBalanceMsat,
-		PendingOnchainBalanceMsat:  nodeState.PendingOnchainBalanceMsat,
-		Utxos:                      toUnspentTransactionOutputsDto(nodeState.Utxos),
-		MaxPayableMsat:             nodeState.MaxPayableMsat,
-		MaxReceivableMsat:          nodeState.MaxReceivableMsat,
-		MaxSinglePaymentAmountMsat: nodeState.MaxSinglePaymentAmountMsat,
-		MaxChanReserveMsats:        nodeState.MaxChanReserveMsats,
-		ConnectedPeers:             nodeState.ConnectedPeers,
-		InboundLiquidityMsats:      nodeState.InboundLiquidityMsats,
+		Id:                                   nodeState.Id,
+		BlockHeight:                          nodeState.BlockHeight,
+		ChannelsBalanceMsat:                  nodeState.ChannelsBalanceMsat,
+		OnchainBalanceMsat:                   nodeState.OnchainBalanceMsat,
+		PendingOnchainBalanceMsat:            nodeState.PendingOnchainBalanceMsat,
+		Utxos:                                toUnspentTransactionOutputsDto(nodeState.Utxos),
+		MaxPayableMsat:                       nodeState.MaxPayableMsat,
+		MaxReceivableMsat:                    nodeState.MaxReceivableMsat,
+		MaxSinglePaymentAmountMsat:           nodeState.MaxSinglePaymentAmountMsat,
+		MaxChanReserveMsats:                  nodeState.MaxChanReserveMsats,
+		ConnectedPeers:                       nodeState.ConnectedPeers,
+		MaxReceivableSinglePaymentAmountMsat: nodeState.MaxReceivableSinglePaymentAmountMsat,
+		TotalInboundLiquidityMsats:           nodeState.TotalInboundLiquidityMsats,
 	}
 }
 

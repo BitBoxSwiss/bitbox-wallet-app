@@ -138,6 +138,7 @@ export interface LnUrlPayErrorData {
 export interface LnUrlPayRequest {
   data: LnUrlPayRequestData;
   amountMsat: number;
+  useTrampoline: boolean;
   comment?: string;
   paymentLabel?: string;
 }
@@ -198,7 +199,8 @@ export interface NodeState {
   maxSinglePaymentAmountMsat: number;
   maxChanReserveMsats: number;
   connectedPeers: string[];
-  inboundLiquidityMsats: number;
+  maxReceivableSinglePaymentAmountMsat: number;
+  totalInboundLiquidityMsats: number;
 }
 
 export interface OpenChannelFeeRequest {
@@ -268,7 +270,7 @@ export interface RouteHint {
 
 export interface RouteHintHop {
   srcNodeId: string;
-  shortChannelId: number;
+  shortChannelId: string;
   feesBaseMsat: number;
   feesProportionalMillionths: number;
   cltvExpiryDelta: number;
@@ -278,6 +280,7 @@ export interface RouteHintHop {
 
 export interface SendPaymentRequest {
   bolt11: string;
+  useTrampoline: boolean;
   amountMsat?: number;
   label?: string;
 }

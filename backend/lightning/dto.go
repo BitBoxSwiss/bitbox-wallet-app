@@ -39,18 +39,19 @@ type messageSuccessActionDataDto struct {
 }
 
 type nodeStateDto struct {
-	Id                         string                        `json:"id"`
-	BlockHeight                uint32                        `json:"blockHeight"`
-	ChannelsBalanceMsat        uint64                        `json:"channelsBalanceMsat"`
-	OnchainBalanceMsat         uint64                        `json:"onchainBalanceMsat"`
-	PendingOnchainBalanceMsat  uint64                        `json:"pendingOnchainBalanceMsat"`
-	Utxos                      []unspentTransactionOutputDto `json:"utxos"`
-	MaxPayableMsat             uint64                        `json:"maxPayableMsat"`
-	MaxReceivableMsat          uint64                        `json:"maxReceivableMsat"`
-	MaxSinglePaymentAmountMsat uint64                        `json:"maxSinglePaymentAmountMsat"`
-	MaxChanReserveMsats        uint64                        `json:"maxChanReserveMsats"`
-	ConnectedPeers             []string                      `json:"connectedPeers"`
-	InboundLiquidityMsats      uint64                        `json:"inboundLiquidityMsats"`
+	Id                                   string                        `json:"id"`
+	BlockHeight                          uint32                        `json:"blockHeight"`
+	ChannelsBalanceMsat                  uint64                        `json:"channelsBalanceMsat"`
+	OnchainBalanceMsat                   uint64                        `json:"onchainBalanceMsat"`
+	PendingOnchainBalanceMsat            uint64                        `json:"pendingOnchainBalanceMsat"`
+	Utxos                                []unspentTransactionOutputDto `json:"utxos"`
+	MaxPayableMsat                       uint64                        `json:"maxPayableMsat"`
+	MaxReceivableMsat                    uint64                        `json:"maxReceivableMsat"`
+	MaxSinglePaymentAmountMsat           uint64                        `json:"maxSinglePaymentAmountMsat"`
+	MaxChanReserveMsats                  uint64                        `json:"maxChanReserveMsats"`
+	ConnectedPeers                       []string                      `json:"connectedPeers"`
+	MaxReceivableSinglePaymentAmountMsat uint64                        `json:"maxReceivableSinglePaymentAmountMsat"`
+	TotalInboundLiquidityMsats           uint64                        `json:"totalInboundLiquidityMsats"`
 }
 
 type listPaymentsRequestDto struct {
@@ -191,7 +192,7 @@ type routeHintDto struct {
 
 type routeHintHopDto struct {
 	SrcNodeId                  string  `json:"srcNodeId"`
-	ShortChannelId             uint64  `json:"shortChannelId"`
+	ShortChannelId             string  `json:"shortChannelId"`
 	FeesBaseMsat               uint32  `json:"feesBaseMsat"`
 	FeesProportionalMillionths uint32  `json:"feesProportionalMillionths"`
 	CltvExpiryDelta            uint64  `json:"cltvExpiryDelta"`
@@ -200,9 +201,10 @@ type routeHintHopDto struct {
 }
 
 type sendPaymentRequestDto struct {
-	Bolt11     string  `json:"bolt11"`
-	AmountMsat *uint64 `json:"amountMsat"`
-	Label      *string `json:"label"`
+	Bolt11        string  `json:"bolt11"`
+	UseTrampoline bool    `json:"useTrampoline"`
+	AmountMsat    *uint64 `json:"amountMsat"`
+	Label         *string `json:"label"`
 }
 
 type sendPaymentResponseDto struct {
