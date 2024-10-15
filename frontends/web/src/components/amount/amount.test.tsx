@@ -15,7 +15,7 @@
  */
 
 import { useContext } from 'react';
-import { Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Mock, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { Amount } from './amount';
 import { CoinUnit, ConversionUnit } from '@/api/account';
@@ -51,6 +51,20 @@ const validateSpacing = (values: string[], elements: Element[]) => {
 };
 
 describe('Amount formatting', () => {
+
+  beforeAll(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: (query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }),
+    });
+  });
 
   beforeEach(() => {
     (useContext as Mock).mockReturnValue({
