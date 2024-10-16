@@ -25,6 +25,10 @@ vi.mock('@/utils/request', () => ({
   apiGet: vi.fn().mockResolvedValue({}),
 }));
 
+vi.mock('@/hooks/mediaquery', () => ({
+  useMediaQuery: vi.fn().mockReturnValue(true)
+}));
+
 vi.mock('react', () => ({
   useMemo: vi.fn().mockImplementation((fn) => fn()),
   useContext: vi.fn(),
