@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,57 @@ export const convertDateToLocaleString = (
   });
 };
 
-export const parseTimeShort = (time: string, lang: string) => {
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  };
-  return new Date(Date.parse(time)).toLocaleString(lang, options);
+export const parseTimeShort = (
+  time: string,
+  locale: string,
+) => {
+  const date = new Date(Date.parse(time));
+  // Check if in the current year (UTC)
+  if (date.getUTCFullYear() === new Date().getUTCFullYear()) {
+    return (
+      date.toLocaleString(locale, {
+        month: 'short',
+        day: 'numeric',
+      })
+    );
+  }
+  return (
+    date.toLocaleString(locale, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  );
+};
+
+export const parseTimeLong = (
+  time: string,
+  locale: string
+) => {
+  const date = new Date(Date.parse(time));
+  // Check if in the current year (UTC)
+  if (date.getUTCFullYear() === new Date().getUTCFullYear()) {
+    return (
+      date.toLocaleDateString(locale, {
+        day: 'numeric',
+        month: 'long',
+        weekday: 'long',
+      })
+    );
+  }
+  return (
+    date.toLocaleString(locale, {
+      dateStyle: 'full',
+    })
+  );
+};
+
+export const parseTimeLongWithYear = (
+  time: string,
+  locale: string
+) => {
+  const date = new Date(Date.parse(time));
+  return date.toLocaleString(locale, {
+    dateStyle: 'full',
+  });
 };

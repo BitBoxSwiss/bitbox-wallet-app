@@ -17,7 +17,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark, Warning } from '@/components/icon';
+import { ChevronRightDark, WarningOLD } from '@/components/icon';
 
 type TProps = {
   deviceID: string;
@@ -33,7 +33,7 @@ export const Bip85Setting = ({ canBIP85, deviceID }: TProps) => {
       <SettingsItem
         settingName={t('deviceSettings.expert.bip85.title')}
         secondaryText={t('deviceSettings.expert.bip85.description')}
-        extraComponent={<Warning width={20} height={20} />}
+        extraComponent={<WarningOLD width={20} height={20} />}
         displayedValue={t('bitbox02Wizard.advanced.outOfDate')}
       />
     );

@@ -1,0 +1,100 @@
+.status {}
+
+.fiat {
+    font-variant: tabular-nums;
+}
+
+.amount {
+    font-variant: tabular-nums;
+    max-width: 100%;
+}
+
+.currencyUnit {
+    color: var(--color-secondary);
+    font-variant: normal;
+}
+
+.detail,
+.detailInput {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-height: var(--item-height);
+    padding: var(--space-half);
+}
+
+.detailInput {
+    padding: 0 0 0 var(--space-half);
+}
+
+.detailInput label {
+    margin-bottom: 0;
+}
+
+.textOnlyInput {
+    margin: 0;
+}
+
+.textOnlyInput input {
+    border: none;
+}
+
+.editButton {
+    background: none;
+    border: none;
+    height: 20px;
+    margin-right: var(--space-half);
+    padding: 0;
+    -webkit-appearance: none;
+    width: 20px;
+}
+
+.editButton:focus {
+    outline: none;
+}
+
+.editButton img {
+    opacity: 0.4;
+    vertical-align: text-bottom;
+    outline: none;
+}
+
+.editButton:hover img {
+    opacity: 0.55;
+}
+
+
+.detail:not(:first-child) {
+    border-top: solid 1px var(--background);
+}
+
+.detail label {
+    white-space: nowrap;
+    margin-right: var(--space-half) !important;
+}
+
+.detail label,
+.detail p {
+    margin: 0;
+    line-height: 1;
+}
+
+.detail.addresses {
+    align-items: baseline;
+    padding-bottom: 0;
+    padding-right: 0;
+    padding-top: 0;
+}
+
+.addresses label {
+    padding: var(--space-half) 0;
+}
+
+.detailAddresses {
+    flex-grow: 1;
+}
+
+.detailAddress + .detailAddress {
+    margin-top: calc(var(--space-quarter) * -1);
+}

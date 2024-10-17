@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import parentStyle from '@/components/transactions/transaction.module.css';
+import styles from './details.module.css';
 
 type TProps = React.PropsWithChildren<{
   label: string;
@@ -25,7 +25,7 @@ export const TxDetail = ({
   children,
 }: TProps) => {
   return (
-    <div className={parentStyle.detail}>
+    <div className={styles.detail}>
       <label>{label}</label>
       <p>{children}</p>
     </div>

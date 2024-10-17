@@ -21,13 +21,13 @@ import { A } from '@/components/anchor/anchor';
 import { Dialog } from '@/components/dialog/dialog';
 import { FiatConversion } from '@/components/rates/rates';
 import { Amount } from '@/components/amount/amount';
-import { Note } from '@/components/transactions/note';
+import { Note } from './note';
 import { TxDetail } from './detail';
-import { Arrow } from './arrow';
+import { Arrow } from './arrows';
 import { TxDateDetail } from './date';
 import { TxStatusDetail } from './status';
 import { TxDetailCopyableValues } from './address-or-txid';
-import parentStyle from '@/components/transactions/transaction.module.css';
+import styles from './details.module.css';
 
 type TProps = {
   open: boolean;
@@ -42,7 +42,6 @@ type TProps = {
   time: string | null;
   amount: IAmount;
   sign: string;
-  typeClassName: string;
   explorerURL: string;
 }
 
@@ -59,7 +58,6 @@ export const TxDetailsDialog = ({
   time,
   amount,
   sign,
-  typeClassName,
   explorerURL,
 }: TProps) => {
   const { t } = useTranslation();
@@ -111,12 +109,12 @@ export const TxDetailsDialog = ({
           />
           <TxDateDetail time={time} />
           <TxDetail label={t('transaction.details.fiat')}>
-            <span className={`${parentStyle.fiat} ${typeClassName}`}>
+            <span className={styles.fiat}>
               <FiatConversion amount={amount} sign={sign} noAction />
             </span>
           </TxDetail>
           <TxDetail label={t('transaction.details.fiatAtTime')}>
-            <span className={`${parentStyle.fiat} ${typeClassName}`}>
+            <span className={styles.fiat}>
               {transactionInfo.amountAtTime ?
                 <FiatConversion amount={transactionInfo.amountAtTime} sign={sign} noAction />
                 :
@@ -125,19 +123,19 @@ export const TxDetailsDialog = ({
             </span>
           </TxDetail>
           <TxDetail label={t('transaction.details.amount')}>
-            <span className={`${parentStyle.amount} ${typeClassName}`}>
+            <span className={styles.amount}>
               {sign}
               <Amount amount={amount.amount} unit={amount.unit} />
             </span>
             {' '}
-            <span className={`${parentStyle.currencyUnit} ${typeClassName}`}>{transactionInfo.amount.unit}</span>
+            <span className={styles.currencyUnit}>{transactionInfo.amount.unit}</span>
           </TxDetail>
           {
             transactionInfo.fee && transactionInfo.fee.amount ? (
               <TxDetail label={t('transaction.fee')}>
                 <Amount amount={transactionInfo.fee.amount} unit={transactionInfo.fee.unit} />
                 {' '}
-                <span className={parentStyle.currencyUnit}>{transactionInfo.fee.unit}</span>
+                <span className={styles.currencyUnit}>{transactionInfo.fee.unit}</span>
               </TxDetail>
             ) : (
               <TxDetail label={t('transaction.fee')}>---</TxDetail>
@@ -162,7 +160,7 @@ export const TxDetailsDialog = ({
               <TxDetail label={t('transaction.weight')}>
                 {transactionInfo.weight}
                 {' '}
-                <span className={parentStyle.currencyUnit}>WU</span>
+                <span className={styles.currencyUnit}>WU</span>
               </TxDetail>
             ) : null
           }
@@ -171,7 +169,7 @@ export const TxDetailsDialog = ({
               <TxDetail label={t('transaction.vsize')}>
                 {transactionInfo.vsize}
                 {' '}
-                <span className={parentStyle.currencyUnit}>b</span>
+                <span className={styles.currencyUnit}>b</span>
               </TxDetail>
             ) : null
           }
@@ -180,7 +178,7 @@ export const TxDetailsDialog = ({
               <TxDetail label={t('transaction.size')}>
                 {transactionInfo.size}
                 {' '}
-                <span className={parentStyle.currencyUnit}>b</span>
+                <span className={styles.currencyUnit}>b</span>
               </TxDetail>
             ) : null
           }
@@ -188,7 +186,7 @@ export const TxDetailsDialog = ({
             label={t('transaction.explorer')}
             values={[transactionInfo.txID]}
           />
-          <div className={`${parentStyle.detail} flex-center`}>
+          <div className={`${styles.detail} flex-center`}>
             <A
               href={explorerURL + transactionInfo.txID}
               title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}>

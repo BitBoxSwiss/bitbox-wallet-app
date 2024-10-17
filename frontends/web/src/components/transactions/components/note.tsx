@@ -20,8 +20,7 @@ import * as accountApi from '@/api/account';
 import { Input } from '@/components/forms';
 import { useDarkmode } from '@/hooks/darkmode';
 import { Edit, EditLight, Save, SaveLight } from '@/components/icon/icon';
-
-import style from './transaction.module.css';
+import style from './details.module.css';
 
 type Props = {
   accountCode: accountApi.AccountCode;
