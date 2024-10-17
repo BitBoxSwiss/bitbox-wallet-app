@@ -27,6 +27,7 @@ import { getDarkmode } from '@/components/darkmode/darkmode';
 import { DefaultCurrencyRotator } from '@/components/rates/rates';
 import { AppContext } from '@/contexts/AppContext';
 import styles from './chart.module.css';
+import { useSearchParams } from 'react-router-dom';
 
 type TProps = {
   data?: TSummary;
@@ -97,6 +98,7 @@ export const Chart = ({
 
   const { t, i18n } = useTranslation();
   const { chartDisplay, setChartDisplay } = useContext(AppContext);
+  const [searchParams] = useSearchParams();
 
   const ref = useRef<HTMLDivElement>(null);
   const refToolTip = useRef<HTMLSpanElement>(null);
@@ -122,10 +124,14 @@ export const Chart = ({
     toolTipTime: 0,
   });
 
+  const [showAnimationOverlay, setAnimationOverlay] = useState(true);
+
   const prevChartDataDaily = usePrevious(data.chartDataDaily);
   const prevChartDataHourly = usePrevious(data.chartDataHourly);
   const prevChartFiat = usePrevious(data.chartFiat);
   const prevHideAmounts = usePrevious(hideAmounts);
+  const hasChartAnimationParam = searchParams.get('with-chart-animation');
+
 
   const setFormattedData = (chartData: ChartData) => {
     formattedData.current = {};
@@ -427,6 +433,7 @@ export const Chart = ({
   useEffect(() => {
     if (!chartInitialized.current) {
       initChart();
+
     }
     return () => {
       removeChart();
@@ -434,8 +441,14 @@ export const Chart = ({
   }, [initChart, removeChart]);
 
   useEffect(() => {
-    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
+    if (data.chartDataMissing || !hasChartAnimationParam) {
+      return;
+    }
+    setAnimationOverlay(false);
+  }, [data.chartDataMissing, hasChartAnimationParam]);
 
+  useEffect(() => {
+    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
     switch (chartDisplay) {
     case 'week': {
       from.setUTCDate(utcDate - 7);
@@ -476,6 +489,7 @@ export const Chart = ({
     chartTotal,
     formattedChartTotal,
   } = data;
+
 
   const {
     toolTipVisible,
@@ -535,6 +549,13 @@ export const Chart = ({
         </div>
         {!isMobile && <Filters {...chartFiltersProps} />}
       </header>
+      {!chartDataMissing && hasChartAnimationParam &&
+          <div
+            style={{ minHeight: chartHeight }}
+            className={`
+          ${styles.transitionDiv}
+          ${showAnimationOverlay ? '' : styles.overlayRemove}`}
+          />}
       <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>
         {chartDataMissing ? (
           <div className={styles.chartUpdatingMessage} style={{ height: chartHeight }}>

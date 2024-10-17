@@ -56,7 +56,7 @@ export const Wizard = ({ deviceID }: TProps) => {
 
   const handleGetStarted = () => {
     setShowWizard(false);
-    navigate('/account-summary');
+    navigate('/account-summary?with-chart-animation=true');
   };
 
   useEffect(() => {
