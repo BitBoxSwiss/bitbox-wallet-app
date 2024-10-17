@@ -15,23 +15,22 @@
  * limitations under the License.
  */
 
-import { MouseEventHandler, useState } from 'react';
+import { MouseEventHandler, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AppContext } from '@/contexts/AppContext';
 import { i18n } from '@/i18n/i18n';
 import { ElectrumServers } from './electrum-servers';
-import { getTesting } from '@/api/backend';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { Button } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
-import { useLoad } from '@/hooks/api';
 import { Header } from '@/components/layout';
 
 export const ElectrumSettings = () => {
   const { t } = useTranslation();
+  const { isTesting } = useContext(AppContext);
 
   const [activeTab, setActiveTab] = useState<'btc' | 'ltc'>('btc');
-  const testing = useLoad(() => getTesting());
 
   const handleTab: MouseEventHandler = e => {
     const selectedTab = e.currentTarget.getAttribute('data-tab');
@@ -50,28 +49,28 @@ export const ElectrumSettings = () => {
             <div className="flex flex-row flex-between flex-items-center tabs">
               <div className={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>
                 <Button transparent onClick={handleTab} data-tab="btc">
-                  {t(`settings.electrum.title-${testing ? 'tbtc' : 'btc'}`)}
+                  {t(`settings.electrum.title-${isTesting ? 'tbtc' : 'btc'}`)}
                 </Button>
               </div>
               <div className={['tab', activeTab === 'ltc' ? 'active' : ''].join(' ')}>
                 <Button transparent onClick={handleTab} data-tab="ltc">
-                  {t(`settings.electrum.title-${testing ? 'tltc' : 'ltc'}`)}
+                  {t(`settings.electrum.title-${isTesting ? 'tltc' : 'ltc'}`)}
                 </Button>
               </div>
             </div>
             {
               activeTab === 'btc' && (
                 <ElectrumServers
-                  key={testing ? 'tbtc' : 'btc'}
-                  coin={testing ? 'tbtc' : 'btc'}
+                  key={isTesting ? 'tbtc' : 'btc'}
+                  coin={isTesting ? 'tbtc' : 'btc'}
                 />
               )
             }
             {
               activeTab === 'ltc' && (
                 <ElectrumServers
-                  key={testing ? 'tltc' : 'ltc'}
-                  coin={testing ? 'tltc' : 'ltc'}
+                  key={isTesting ? 'tltc' : 'ltc'}
+                  coin={isTesting ? 'tltc' : 'ltc'}
                 />
               )
             }

@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useContext, useState } from 'react';
+import { AppContext } from '@/contexts/AppContext';
 import { registerTest } from '@/api/keystores';
-import { getTesting } from '@/api/backend';
 import { Button } from '@/components/forms';
 import { PasswordSingleInput } from '@/components/password';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
-import { useLoad } from '@/hooks/api';
 import { debug, runningInIOS } from '@/utils/env';
 
 type TProps = {
@@ -33,8 +32,9 @@ export const SkipForTesting = ({
   children,
   className,
 }: TProps) => {
+  const { isTesting } = useContext(AppContext);
   const [dialog, setDialog] = useState(false);
-  const show = useLoad(debug || runningInIOS() ? getTesting : () => Promise.resolve(false));
+  const show = (debug || runningInIOS()) && isTesting;
   const [testPIN, setTestPIN] = useState('');
   const registerTestingDevice = async (e: React.SyntheticEvent) => {
     e.preventDefault();

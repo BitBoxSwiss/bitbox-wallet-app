@@ -38,7 +38,7 @@ import { Bip85Setting } from './components/device-settings/bip85-setting';
 import { ManageDeviceGuide } from '@/routes/device/bitbox02/settings-guide';
 import { MobileHeader } from './components/mobile-header';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/globalbanners/globalbanners';
+import { GlobalBanners } from '@/components/banners';
 import styles from './bb02-settings.module.css';
 
 type TProps = {

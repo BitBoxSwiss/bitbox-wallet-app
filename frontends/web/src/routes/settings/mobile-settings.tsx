@@ -23,7 +23,7 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 import { Tabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './types';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/globalbanners/globalbanners';
+import { GlobalBanners } from '@/components/banners';
 
 /**
  * The "index" page of the settings

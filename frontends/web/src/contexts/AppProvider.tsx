@@ -20,6 +20,7 @@ import { AppContext } from './AppContext';
 import { useLoad } from '@/hooks/api';
 import { useDefault } from '@/hooks/default';
 import { getNativeLocale } from '@/api/nativelocale';
+import { getTesting } from '@/api/backend';
 import { i18nextFormat } from '@/i18n/utils';
 import type { TChartDisplay, TSidebarStatus } from './AppContext';
 
@@ -29,6 +30,7 @@ type TProps = {
 
 export const AppProvider = ({ children }: TProps) => {
   const nativeLocale = i18nextFormat(useDefault(useLoad(getNativeLocale), 'de-CH'));
+  const isTesting = useDefault(useLoad(getTesting), false);
   const [guideShown, setGuideShown] = useState(false);
   const [guideExists, setGuideExists] = useState(false);
   const [hideAmounts, setHideAmounts] = useState(false);
@@ -74,6 +76,7 @@ export const AppProvider = ({ children }: TProps) => {
         guideShown,
         guideExists,
         hideAmounts,
+        isTesting,
         nativeLocale,
         sidebarStatus,
         chartDisplay,
