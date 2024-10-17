@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { AccountCode, CoinCode, IBalance } from '@/api/account';
 import { syncAddressesCount } from '@/api/accountsync';
 import { useSubscribe } from '@/hooks/api';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { Logo } from '@/components/icon/logo';
 import { Amount } from '@/components/amount/amount';
 import { AsciiSpinner } from '@/components/spinner/ascii';
@@ -26,19 +27,19 @@ import { FiatConversion } from '@/components/rates/rates';
 import style from './accountssummary.module.css';
 
 type TNameColProps = {
-  code: AccountCode;
   coinCode: CoinCode;
   name: string;
+  onClick?: () => void;
 };
 
-const NameCell = ({ code, name, coinCode }: TNameColProps) => {
+const NameCell = ({ coinCode, name, onClick }: TNameColProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   return (
     <td
       className={style.clickable}
       data-label={t('accountSummary.name')}
-      onClick={() => navigate(`/account/${code}`)}>
+      onClick={onClick}
+    >
       <div className={style.coinName}>
         <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
         {name}
@@ -59,11 +60,21 @@ export const BalanceRow = (
 ) => {
   const { t } = useTranslation();
   const syncStatus = useSubscribe(syncAddressesCount(code));
+  const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const handleClick = () => navigate(`/account/${code}`);
 
   if (balance) {
     return (
-      <tr key={`${code}_balance`}>
-        <NameCell name={name} code={code} coinCode={coinCode} />
+      <tr
+        key={`${code}_balance`}
+        onClick={() => isMobile && handleClick()}
+      >
+        <NameCell
+          coinCode={coinCode}
+          name={name}
+          onClick={() => !isMobile && handleClick()}
+        />
         <td data-label={t('accountSummary.balance')}>
           <span className={style.summaryTableBalance}>
             <Amount amount={balance.available.amount} unit={balance.available.unit}/>{' '}
@@ -78,7 +89,7 @@ export const BalanceRow = (
   }
   return (
     <tr key={`${code}_syncing`}>
-      <NameCell name={name} code={code} coinCode={coinCode} />
+      <NameCell name={name} coinCode={coinCode} />
       <td colSpan={2} className={style.syncText}>
         { t('account.syncedAddressesCount', {
           count: syncStatus,
