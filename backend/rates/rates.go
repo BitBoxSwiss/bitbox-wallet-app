@@ -336,10 +336,8 @@ func (updater *RateUpdater) updateLast(ctx context.Context) {
 	rates[SAT.String()] = sat
 
 	// Provide conversion rates for testnets as well, useful for testing.
-	for _, testnetUnit := range []string{"TBTC", "RBTC", "TLTC", "GOETH", "SEPETH"} {
+	for _, testnetUnit := range []string{"TBTC", "RBTC", "TLTC", "SEPETH"} {
 		switch testnetUnit {
-		case "GOETH":
-			rates[testnetUnit] = rates[testnetUnit[2:]]
 		case "SEPETH":
 			rates[testnetUnit] = rates[testnetUnit[3:]]
 		default:

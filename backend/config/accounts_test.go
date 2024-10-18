@@ -79,7 +79,7 @@ func TestLookupByXpub(t *testing.T) {
 
 func TestSetTokenActive(t *testing.T) {
 	// not an ETH account.
-	require.Error(t, (&Account{CoinCode: coin.CodeGOETH}).SetTokenActive("TOKEN", true))
+	require.Error(t, (&Account{CoinCode: coin.CodeSEPETH}).SetTokenActive("TOKEN", true))
 
 	acct := &Account{
 		CoinCode: coin.CodeETH,

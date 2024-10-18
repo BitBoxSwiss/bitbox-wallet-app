@@ -294,7 +294,6 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	// avoid hitting real API for ETH coins.
 	for _, code := range []coinpkg.Code{
 		coinpkg.CodeETH,
-		coinpkg.CodeGOETH,
 		coinpkg.CodeSEPETH,
 	} {
 		c, err := b.Coin(code)
