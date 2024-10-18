@@ -3,6 +3,7 @@
 ## Unreleased
 - Android: enable export logs feature
 - Label UTXOs that were created as change, as such, in coin control
+- Remove support for deprecated the Ethereum Goerli network
 
 # 4.45.0
 - Bundle BitBox02 firmware version v9.21.0

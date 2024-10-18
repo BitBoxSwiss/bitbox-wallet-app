@@ -30,8 +30,6 @@ const (
 	CodeTLTC Code = "tltc"
 	// CodeETH is Ethereum.
 	CodeETH Code = "eth"
-	// CodeGOETH is Ethereum Goerli.
-	CodeGOETH Code = "goeth"
 	// CodeSEPETH is Ethereum Sepolia.
 	CodeSEPETH Code = "sepeth"
 	// If you add coins, don't forget to update `testnetCoins` below.
@@ -53,6 +51,5 @@ const (
 var TestnetCoins = map[Code]struct{}{
 	CodeTBTC:   {},
 	CodeTLTC:   {},
-	CodeGOETH:  {},
 	CodeSEPETH: {},
 }

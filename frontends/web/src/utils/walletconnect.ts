@@ -26,10 +26,6 @@ export const SUPPORTED_CHAINS: TSupportedChainDetail = {
     name: 'Etherum mainnet',
     icon: createElement(ETHLogo)
   },
-  'eip155:5': {
-    name: 'Ethereum goerli',
-    icon: createElement(ETHLogo)
-  },
 };
 
 export const EIP155_SIGNING_METHODS = {

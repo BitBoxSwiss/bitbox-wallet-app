@@ -189,8 +189,6 @@ Get Bitcoin Testnet coins here: https://coinfaucet.eu/en/btc-testnet/
 
 Get Litecoin Testnet coins here: https://tltc.bitaps.com/
 
-Get Ethereum Goerli coins here: https://goerlifaucet.com/
-
 Get Ethereum Sepolia coins here: https://faucet.sepolia.dev/
 
 In case any of the Ethereum faucets are not working, you can try others from here: https://faucetlink.to (some require account creation)

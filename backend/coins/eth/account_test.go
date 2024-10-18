@@ -82,7 +82,7 @@ func newAccount(t *testing.T) *Account {
 			return 0, nil
 		},
 	}
-	coin := NewCoin(client, coin.CodeGOETH, "Goerli", "GOETH", "GOETH", params.GoerliChainConfig, "", nil, nil)
+	coin := NewCoin(client, coin.CodeSEPETH, "Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig, "", nil, nil)
 	acct := NewAccount(
 		&accounts.AccountConfig{
 			Config: &config.Account{

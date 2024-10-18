@@ -102,7 +102,7 @@ export const WCIncomingPairing = ({
       if (e.message.includes('Non conforming namespaces')) {
         alertUser(t('walletConnect.invalidPairingChain',
           {
-            chains: '\n•Ethereum \n•Ethereum (Goerli)'
+            chains: '\n•Ethereum'
           }));
       } else {
         //unexpected error, display native error message

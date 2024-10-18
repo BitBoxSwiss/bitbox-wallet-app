@@ -171,7 +171,6 @@ func TestSortAccounts(t *testing.T) {
 		{Code: "acct-btc-1", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/0'")},
 		{Code: "acct-btc-3", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/2'")},
 		{Code: "acct-btc-2", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/1'")},
-		{Code: "acct-goeth", CoinCode: coinpkg.CodeGOETH},
 		{Code: "acct-sepeth", CoinCode: coinpkg.CodeSEPETH},
 		{Code: "acct-ltc", CoinCode: coinpkg.CodeLTC},
 		{Code: "acct-tltc", CoinCode: coinpkg.CodeTLTC},
@@ -195,7 +194,6 @@ func TestSortAccounts(t *testing.T) {
 		"acct-eth-2",
 		"acct-eth-2-eth-erc20-bat",
 		"acct-eth-2-eth-erc20-usdt",
-		"acct-goeth",
 		"acct-sepeth",
 	}
 
@@ -312,7 +310,7 @@ func TestSupportedCoins(t *testing.T) {
 		b := newBackend(t, testnetEnabled, regtestDisabled)
 		defer b.Close()
 		require.Equal(t,
-			[]coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeGOETH, coinpkg.CodeSEPETH},
+			[]coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeSEPETH},
 			b.SupportedCoins(&keystoremock.KeystoreMock{
 				SupportsCoinFunc: func(coin coinpkg.Coin) bool {
 					return true

@@ -1023,8 +1023,6 @@ func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 	switch unit { // HACK: fake rates for testnet coins
 	case "TBTC", "TLTC":
 		unit = unit[1:]
-	case "GOETH":
-		unit = unit[2:]
 	case "SEPETH":
 		unit = unit[3:]
 	}
