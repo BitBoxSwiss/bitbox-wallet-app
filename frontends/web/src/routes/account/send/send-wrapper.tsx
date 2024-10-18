@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AccountCode, IAccount } from '@/api/account';
-import { TDevices } from '@/api/devices';
+import { hasMobileChannel, TDevices } from '@/api/devices';
+import { getDeviceInfo } from '@/api/bitbox01';
 import { RatesContext } from '@/contexts/RatesContext';
-import { findAccount } from '@/routes/account/utils';
+import { findAccount, isBitcoinBased } from '@/routes/account/utils';
+import { alertUser } from '@/components/alert/Alert';
 import { Send } from './send';
 
 type TSendProps = {
@@ -29,14 +32,40 @@ type TSendProps = {
 }
 
 export const SendWrapper = ({ accounts, code, deviceIDs, devices }: TSendProps) => {
+  const { t } = useTranslation();
   const { defaultCurrency } = useContext(RatesContext);
+
+  const [bb01Paired, setBB01Paired] = useState<boolean>();
+  const [noMobileChannelError, setNoMobileChannelError] = useState<boolean>();
+
   const account = findAccount(accounts, code);
+  const product = deviceIDs.length > 0 ? devices[deviceIDs[0]] : undefined;
+
+  useEffect(() => {
+    if (account && product && product === 'bitbox') {
+      const fetchData = async () => {
+        try {
+          const mobileChannel = await hasMobileChannel(product)();
+          const { pairing } = await getDeviceInfo(product);
+          setBB01Paired(mobileChannel && pairing);
+          setNoMobileChannelError(pairing && !mobileChannel && isBitcoinBased(account.coinCode));
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      fetchData();
+    }
+  }, [account, product]);
+
+  if (noMobileChannelError) {
+    alertUser(t('warning.sendPairing'));
+    return;
+  }
   return (
     account ? (
       <Send
         account={account}
-        devices={devices}
-        deviceIDs={deviceIDs}
+        bb01Paired={bb01Paired}
         activeCurrency={defaultCurrency}
       />
     ) : (null)
