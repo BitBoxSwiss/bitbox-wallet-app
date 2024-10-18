@@ -35,7 +35,7 @@ import { Badge } from '@/components/badge/badge';
 import { AccountGuide } from './manage-account-guide';
 import { WatchonlySetting } from './components/manage-accounts/watchonlySetting';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/globalbanners/globalbanners';
+import { GlobalBanners } from '@/components/banners';
 import style from './manage-accounts.module.css';
 
 interface ManageAccountsProps {
