@@ -75,13 +75,32 @@
     opacity: 0.4;
 }
 
+.accountInfoLink {
+    align-items: center;
+    display: flex;
+    font-size: var(--size-default);
+    margin-left: var(--space-half);
+    min-height: 50px;
+    text-decoration: none;
+}
+
 .accountIcon {
     width: 18px;
     height: 18px;
-    margin-right: calc(var(--space-quarter) / 2);
+    margin-right: var(--space-eight);
 }
 
 @media (max-width: 768px) {
+
+    .accountInfoLink {
+        margin-left: 0;
+        padding: 0 var(--space-quarter);
+    }
+
+    .accountIcon {
+        margin-right: 0;
+    }
+
     .actionsContainer {
         justify-content: space-between;
         margin-bottom: var(--space-default);
@@ -91,7 +110,6 @@
         transform: none;
         width: 100%;
     }
-
 
     .withWalletConnect.actionsContainer {
         justify-content: center;

@@ -62,7 +62,9 @@ export const Header = ({
               className={`${style.guideClose} ${guideShown ? style.disabled : ''}`}
             >
               <GuideActive />
-              {t('guide.toggle.open')}
+              <span className={`hide-on-small ${style.guideCloseText}`}>
+                {t('guide.toggle.open')}
+              </span>
             </Button>
           )}
         </div>
