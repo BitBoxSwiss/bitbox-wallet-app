@@ -71,15 +71,6 @@
     flex-wrap: wrap;
 }
 
-.header.narrow > *:nth-child(2) {
-    text-align: center;
-}
-
-.header.narrow > *:nth-child(2) > * {
-    max-width: 600px;
-    width: 100%;
-}
-
 .sidebarToggler {
     width: 32px;
     height: 32px;

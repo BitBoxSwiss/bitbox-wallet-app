@@ -24,13 +24,11 @@ import style from './header.module.css';
 
 type Props = {
   title?: string | JSX.Element | JSX.Element[];
-  narrow?: boolean;
   hideSidebarToggler?: boolean;
   children?: ReactNode;
 };
 
 export const Header = ({
-  narrow,
   title,
   hideSidebarToggler,
   children
@@ -49,7 +47,7 @@ export const Header = ({
 
   return (
     <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
-      <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
+      <div className={style.header}>
         <div className={`${style.sidebarToggler} ${hideSidebarToggler ? style.hideSidebarToggler : ''}`} onClick={toggleSidebar}>
           <MenuDark className="show-in-lightmode" />
           <MenuLight className="show-in-darkmode" />
