@@ -79,7 +79,7 @@
     align-items: center;
     display: flex;
     font-size: var(--size-default);
-    margin-left: var(--space-half);
+    margin-right: var(--space-half);
     min-height: 50px;
     text-decoration: none;
 }
@@ -93,7 +93,7 @@
 @media (max-width: 768px) {
 
     .accountInfoLink {
-        margin-left: 0;
+        margin-right: 0;
         padding: 0 var(--space-quarter);
     }
 

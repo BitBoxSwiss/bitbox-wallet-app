@@ -293,7 +293,6 @@ export const Account = ({
         </Dialog>
         <Header
           title={<h2><span>{account.name}</span>{insured && (<Insured />)}</h2>}>
-          <HideAmountsButton />
           <Link
             to={`/account/${code}/info`}
             title={t('accountInfo.title')}
@@ -303,6 +302,7 @@ export const Account = ({
               {t('accountInfo.label')}
             </span>
           </Link>
+          <HideAmountsButton />
         </Header>
         {status.synced && hasDataLoaded && isBitcoinBased(account.coinCode) && (
           <HeadersSync coinCode={account.coinCode} />
