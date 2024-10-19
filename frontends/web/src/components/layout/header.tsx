@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@ import React, { ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GuideActive, MenuLight, MenuDark } from '@/components/icon';
 import { AppContext } from '@/contexts/AppContext';
-import style from './header.module.css';
 import { Button } from '@/components/forms';
-interface HeaderProps {
-    title?: string | JSX.Element | JSX.Element[];
-    narrow?: boolean;
-    hideSidebarToggler?: boolean;
-    children?: ReactNode;
-}
-type Props = HeaderProps;
+import style from './header.module.css';
 
-const Header = ({
+type Props = {
+  title?: string | JSX.Element | JSX.Element[];
+  narrow?: boolean;
+  hideSidebarToggler?: boolean;
+  children?: ReactNode;
+};
+
+export const Header = ({
   narrow,
   title,
   hideSidebarToggler,
@@ -72,5 +72,3 @@ const Header = ({
     </div>
   );
 };
-
-export { Header };
