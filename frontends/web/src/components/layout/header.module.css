@@ -23,18 +23,6 @@
     width: 100%;
 }
 
-.container.fixed {
-    position: fixed;
-    left: var(--sidebar-width);
-    height: var(--header-height);
-    width: calc(100% - var(--sidebar-width));
-    z-index: 1001;
-}
-
-.forceHidden .sidebarToggler {
-    display: none !important;
-}
-
 .guideClose {
     align-items: center;
     display: flex;
