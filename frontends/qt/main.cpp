@@ -174,7 +174,11 @@ public:
             page()->action(QWebEnginePage::SelectAll),
             page()->action(QWebEnginePage::Unselect),
         };
+#if QT_VERSION_MAJOR >= 6
+        QMenu *menu = createStandardContextMenu();
+#else
         QMenu *menu = page()->createStandardContextMenu();
+#endif
         for (const auto action : menu->actions()) {
             if (whitelist.find(action) == whitelist.cend()) {
                 menu->removeAction(action);

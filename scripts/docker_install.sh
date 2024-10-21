@@ -40,7 +40,42 @@ apt-get install -y --no-install-recommends \
         file \
         libtiff-dev \
         libxkbcommon-x11-dev \
-        libxrandr-dev
+        libxrandr-dev \
+        libxcb-xinerama0 \
+        libxcb-xkb-dev \
+        libxcb-render-util0 \
+        libxcb-image0 \
+        libxcb-keysyms1 \
+        libxcb-icccm4 \
+        libxcb-randr0 \
+        libxcb-shape0 \
+        libxcb-xinput0 \
+        libcups2 \
+        libgl1-mesa-dev \
+        libegl1-mesa-dev \
+        libfontconfig1-dev \
+        libfreetype6-dev \
+        libxi-dev \
+        libxcursor-dev \
+        libxrender-dev \
+        libxss-dev \
+        libxcomposite-dev \
+        libasound2-dev \
+        libxtst-dev \
+        libxslt-dev \
+        libnss3-dev \
+        libicu-dev \
+        libpcre2-16-0 \
+        libxkbfile-dev
+
+# Install Qt libs. python3-dev is needed to compile aqtinstall.
+apt-get -y install --no-install-recommends python3-pip python3-dev
+pip install -U pip && pip install aqtinstall
+# Not sure why we need qtpositioning - app compilation fails without. Maybe the webengine depends on it.
+# qtpositioning depends on qtserialport.
+# qtwebechannel is for the JS/backend bridge.
+# qtwebengine is for rendering the frontend.
+aqt install-qt linux desktop 6.2.4 -m qtpositioning qtserialport qtwebchannel qtwebengine --outputdir /opt/qt6
 
 npm install -g npm@10
 npm install -g locize-cli
@@ -48,12 +83,12 @@ npm install -g locize-cli
 mkdir -p /opt/go_dist
 curl https://dl.google.com/go/go1.22.4.linux-amd64.tar.gz | tar -xz -C /opt/go_dist
 
-# Needed for qt5. fuse is needed to run the linuxdeployqt appimage.
+# fuse is needed to run the linuxdeployqt appimage.
 apt-get install -y --no-install-recommends fuse
 cd /opt && \
-    wget https://github.com/probonopd/linuxdeployqt/releases/download/7/linuxdeployqt-7-x86_64.AppImage && \
-    echo "645276306a801d7154d59e5b4b3c2fac3d34e09be57ec31f6d9a09814c6c162a /opt/linuxdeployqt-7-x86_64.AppImage" | sha256sum -c - && \
-    chmod +x /opt/linuxdeployqt-7-x86_64.AppImage
+    wget https://github.com/BitBoxSwiss/linuxdeployqt/releases/download/bitbox-1/linuxdeployqt-continuous-x86_64.AppImage  && \
+    echo "3850e767986be94cfb0818983df2da2d82bea6d8742aa373d810fba90eb5c65c /opt/linuxdeployqt-continuous-x86_64.AppImage" | sha256sum -c - && \
+    chmod +x /opt/linuxdeployqt-continuous-x86_64.AppImage
 
 # Install fpm to create deb/rpm packages
 apt-get install -y --no-install-recommends \

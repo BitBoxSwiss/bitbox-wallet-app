@@ -13,7 +13,9 @@
 # limitations under the License.
 FROM thyrlian/android-sdk:4.0 as android
 
-FROM shiftcrypto/qt5:4
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND noninteractive
 
 # Android
 COPY --from=android /opt/android-sdk /opt/android-sdk
@@ -28,6 +30,6 @@ ENV PATH $GOROOT/bin:$GOPATH/bin:$PATH
 ADD Makefile /tmp/
 RUN make -C /tmp/ envinit
 
-ENV PATH /opt/qt5/bin:$PATH
+ENV PATH /opt/qt6/6.2.4/gcc_64/bin:/opt/qt6/6.2.4/gcc_64/libexec:$PATH
 
 CMD ["bash"]
