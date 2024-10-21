@@ -25,10 +25,6 @@ import { Skeleton } from '@/components/skeleton/skeleton';
 import { Badge } from '@/components/badge/badge';
 import { USBSuccess } from '@/components/icon';
 import style from './accountssummary.module.css';
-import { useLightning } from '../../../hooks/lightning';
-import { useCallback, useEffect, useState } from 'react';
-import { getLightningBalance, subscribeNodeState } from '../../../api/lightning';
-import { unsubscribe } from '../../../utils/subscriptions';
 
 const TotalBalance = ({ total, fiatUnit }: accountApi.TAccountTotalBalance) => {
   return (
@@ -48,7 +44,14 @@ type TProps = {
   totalBalance?: accountApi.TAccountTotalBalance;
   balances?: Balances;
   keystoreDisambiguatorName?: string;
+  lightningBalance?: accountApi.IBalance;
 };
+
+type TLightningProps = {
+  lightningBalance?: accountApi.IBalance;
+  lightningAccountKeystoreName: string;
+  keystoreDisambiguatorName?: string;
+}
 
 export const SummaryBalance = ({
   accounts,
@@ -56,26 +59,10 @@ export const SummaryBalance = ({
   totalBalancePerCoin,
   totalBalance,
   balances,
-  keystoreDisambiguatorName
+  keystoreDisambiguatorName,
+  lightningBalance
 }: TProps) => {
   const { t } = useTranslation();
-  const { lightningConfig } = useLightning();
-  const [lightningBalance, setLightningBalance] = useState<accountApi.IBalance>();
-
-  const fetchLightningBalance = useCallback(async () => {
-    setLightningBalance(await getLightningBalance());
-  }, []);
-
-  // if there is an active lightning account derived from this keystore, subscribe to any node state changes.
-  useEffect(() => {
-    const lightningAccounts = lightningConfig.accounts;
-    if (lightningAccounts.length && lightningAccounts[0].rootFingerprint === accountsKeystore.rootFingerprint) {
-      fetchLightningBalance();
-      const subscriptions = [subscribeNodeState(fetchLightningBalance)];
-      return () => unsubscribe(subscriptions);
-    }
-  }, [fetchLightningBalance, accountsKeystore, lightningConfig]);
-
   const accountsPerCoin = getAccountsPerCoin(accounts);
   const coins = Object.keys(accountsPerCoin) as accountApi.CoinCode[];
 
@@ -153,6 +140,45 @@ export const SummaryBalance = ({
               </td>
             </tr>
           </tfoot>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+
+export const LightningBalance = ({
+  lightningBalance,
+  lightningAccountKeystoreName,
+  keystoreDisambiguatorName
+}: TLightningProps) => {
+  const { t } = useTranslation();
+  return (
+    <div>
+      <div className={style.accountName}>
+        <p>
+          {lightningAccountKeystoreName} {keystoreDisambiguatorName && `(${keystoreDisambiguatorName})`}
+        </p>
+      </div>
+      <div className={style.balanceTable}>
+        <table className={style.table}>
+          <colgroup>
+            <col width="33%" />
+            <col width="33%" />
+            <col width="*" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>{t('accountSummary.name')}</th>
+              <th>{t('accountSummary.balance')}</th>
+              <th>{t('accountSummary.fiatBalance')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lightningBalance && (
+              <BalanceRow key="lightning" code="lightning" name="Lightning" coinCode="lightning" balance={lightningBalance} />
+            )}
+          </tbody>
         </table>
       </div>
     </div>

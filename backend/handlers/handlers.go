@@ -216,6 +216,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/testing", handlers.getTesting).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/keystore-name", handlers.getKeystoreName).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/balance", handlers.getAccountsBalance).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/coins-balance", handlers.getCoinsTotalBalance).Methods("GET")
@@ -603,6 +604,30 @@ func (handlers *Handlers) getKeystores(*http.Request) interface{} {
 	return keystores
 }
 
+func (handlers *Handlers) getKeystoreName(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		KeystoreName string `json:"keystoreName,omitempty"`
+	}
+
+	rootFingerprint := r.URL.Query().Get("rootFingerprint")
+
+	hexFingerprint, err := hex.DecodeString(rootFingerprint)
+	if err != nil {
+		return response{Success: false}
+	}
+
+	keystore, err := handlers.backend.Config().AccountsConfig().LookupKeystore(jsonp.HexBytes(hexFingerprint))
+	if err != nil {
+		return response{Success: false}
+	}
+
+	return response{
+		Success:      true,
+		KeystoreName: keystore.Name,
+	}
+}
+
 func (handlers *Handlers) getAccounts(*http.Request) interface{} {
 	persistedAccounts := handlers.backend.Config().AccountsConfig()
 
@@ -807,6 +832,21 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, er
 		} else {
 			totalCoinsBalances[coinCode] = amount.BigInt()
 			sortedCoins = append(sortedCoins, coinCode)
+		}
+	}
+
+	if handlers.backend.Config().LightningConfig().LightningEnabled() {
+		lightningBalance, err := handlers.backend.Lightning().Balance()
+		if err != nil {
+			return nil, err
+		}
+		availableBalance := lightningBalance.Available().BigInt()
+
+		if bitcoinBalance, exists := totalCoinsBalances[coin.CodeBTC]; exists {
+			bitcoinBalance.Add(bitcoinBalance, availableBalance)
+		} else {
+			totalCoinsBalances[coin.CodeBTC] = availableBalance
+			sortedCoins = append([]coin.Code{coin.CodeBTC}, sortedCoins...)
 		}
 	}
 
