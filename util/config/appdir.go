@@ -83,8 +83,8 @@ func AppDir() string {
 
 // ExportsDir returns the absolute path to the folder which can be used to export files.
 func ExportsDir() (string, error) {
-	if runtime.GOOS == "android" {
-		// Android apps are sandboxed, we don't need to specify a folder.
+	if runtime.GOOS == "android" || runtime.GOOS == "ios" {
+		// Android/iOS apps are sandboxed, we don't need to specify a folder.
 		return "", nil
 	}
 	homeFolder := os.Getenv("HOME")
