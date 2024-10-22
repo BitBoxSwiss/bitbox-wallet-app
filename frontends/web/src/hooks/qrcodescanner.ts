@@ -66,14 +66,22 @@ export const useQRScanner = (
         }
       );
     }
-  });
+    return () => {
+      scanner.current?.stop();
+      scanner.current?.destroy();
+      scanner.current = null;
+    };
+  }, [onError, onResult, videoRef]);
 
   useEffect(() => {
     (async () => {
       try {
-        await scanner.current?.start();
-        if (onStart) {
-          onStart();
+        await new Promise(r => setTimeout(r, 300));
+        if (scanner.current) {
+          await scanner.current.start();
+          if (onStart) {
+            onStart();
+          }
         }
       } catch (error: any) {
         const stringifiedError = error.toString();
@@ -82,14 +90,6 @@ export const useQRScanner = (
       }
     })();
   }, [videoRef, onStart, onResult, onError, t]);
-
-  useEffect(() => {
-    return () => {
-      scanner.current?.stop();
-      scanner.current?.destroy();
-      scanner.current = null;
-    };
-  });
 
   return { initErrorMessage };
 };

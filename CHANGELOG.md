@@ -5,6 +5,7 @@
 - Label UTXOs that were created as change, as such, in coin control
 - Remove support for deprecated the Ethereum Goerli network
 - Revamp transaction history in account overview to improve legibility
+- Fix qrscanner when rotating the device or resizing the window
 
 # 4.45.0
 - Bundle BitBox02 firmware version v9.21.0
