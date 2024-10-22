@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,19 +27,18 @@ export const HideAmountsButton = () => {
   const { t } = useTranslation();
   const { hideAmounts, toggleHideAmounts } = useContext(AppContext);
   const config = useLoad(getConfig);
-  return (
-    <>
-      {
-        config && config.frontend.allowHideAmounts ?
-          <Button className={styles.button} onClick={toggleHideAmounts} transparent>
-            {hideAmounts ?
-              <><EyeClosed /> <span>{t('newSettings.appearance.hideAmounts.showAmounts')}</span></> :
-              <><EyeOpened /> <span>{t('newSettings.appearance.hideAmounts.hideAmounts')}</span></>
-            }
-          </Button> :
-          null
-      }
-    </>
 
+  if (!config || !config.frontend.allowHideAmounts) {
+    return null;
+  }
+  return (
+    <Button className={styles.button} onClick={toggleHideAmounts} transparent>
+      {hideAmounts ? <EyeClosed /> : <EyeOpened />}
+      <span className={`hide-on-small ${styles.buttonText}`}>
+        {hideAmounts
+          ? t('newSettings.appearance.hideAmounts.showAmounts')
+          : t('newSettings.appearance.hideAmounts.hideAmounts')}
+      </span>
+    </Button>
   );
 };

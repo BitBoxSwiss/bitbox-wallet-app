@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,16 @@ import React, { ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GuideActive, MenuLight, MenuDark } from '@/components/icon';
 import { AppContext } from '@/contexts/AppContext';
-import style from './header.module.css';
 import { Button } from '@/components/forms';
-interface HeaderProps {
-    title?: string | JSX.Element | JSX.Element[];
-    narrow?: boolean;
-    hideSidebarToggler?: boolean;
-    children?: ReactNode;
-}
-type Props = HeaderProps;
+import style from './header.module.css';
 
-const Header = ({
-  narrow,
+type Props = {
+  title?: string | JSX.Element | JSX.Element[];
+  hideSidebarToggler?: boolean;
+  children?: ReactNode;
+};
+
+export const Header = ({
   title,
   hideSidebarToggler,
   children
@@ -49,7 +47,7 @@ const Header = ({
 
   return (
     <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
-      <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
+      <div className={style.header}>
         <div className={`${style.sidebarToggler} ${hideSidebarToggler ? style.hideSidebarToggler : ''}`} onClick={toggleSidebar}>
           <MenuDark className="show-in-lightmode" />
           <MenuLight className="show-in-darkmode" />
@@ -64,7 +62,9 @@ const Header = ({
               className={`${style.guideClose} ${guideShown ? style.disabled : ''}`}
             >
               <GuideActive />
-              {t('guide.toggle.open')}
+              <span className={`hide-on-small ${style.guideCloseText}`}>
+                {t('guide.toggle.open')}
+              </span>
             </Button>
           )}
         </div>
@@ -72,5 +72,3 @@ const Header = ({
     </div>
   );
 };
-
-export { Header };
