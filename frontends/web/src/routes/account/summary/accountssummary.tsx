@@ -37,7 +37,7 @@ import { AppContext } from '@/contexts/AppContext';
 import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/globalbanners/globalbanners';
+import { GlobalBanners } from '@/components/banners';
 
 type TProps = {
   accounts: accountApi.IAccount[];
