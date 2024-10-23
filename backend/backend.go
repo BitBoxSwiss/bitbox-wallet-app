@@ -86,6 +86,8 @@ var fixedURLWhitelist = []string{
 	"https://help.moonpay.com/",
 	// PocketBitcoin
 	"https://pocketbitcoin.com/",
+	// BTCDirect
+	"https://btcdirect.eu/",
 	// Bitsurance
 	"https://www.bitsurance.eu/",
 	"https://get.bitsurance.eu/",
