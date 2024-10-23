@@ -81,7 +81,7 @@ npm install -g npm@10
 npm install -g locize-cli
 
 mkdir -p /opt/go_dist
-curl https://dl.google.com/go/go1.22.4.linux-amd64.tar.gz | tar -xz -C /opt/go_dist
+curl https://dl.google.com/go/go1.23.2.linux-amd64.tar.gz | tar -xz -C /opt/go_dist
 
 # fuse is needed to run the linuxdeployqt appimage.
 apt-get install -y --no-install-recommends fuse
