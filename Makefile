@@ -21,7 +21,7 @@ catch:
 	@echo "Choose a make target."
 envinit:
 	# Keep golangci-lint version in sync with what's in .github/workflows/ci.yml.
-	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin v1.59.0
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin v1.61.0
 	go install github.com/vektra/mockery/v2@latest
 	go install github.com/matryer/moq@latest
 	go install golang.org/x/tools/cmd/goimports@latest
@@ -33,7 +33,7 @@ gomobileinit:
 # Initializiation on MacOS
 #  - run make from $GOPATH/src/github.com/BitBoxSwiss/bitbox-wallet-app
 #  - additional dependencies: Qt 5.15 & Xcode command line tools
-#  - add to $PATH: /usr/local/opt/go@1.22/bin
+#  - add to $PATH: /usr/local/opt/go@1.23/bin
 osx-init:
 	./scripts/osx-brew.sh
 	$(MAKE) envinit
