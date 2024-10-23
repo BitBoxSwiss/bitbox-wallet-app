@@ -20,7 +20,7 @@
 
 .buttonsContainer {
     display: flex;
-    margin-top: var(--space-half);
+    margin-top: var(--space-default);
     justify-content: center;
 }
 
@@ -76,7 +76,7 @@
 
 .radioButtonsContainer {
     line-height: 1.5;
-    min-height: 180px;
+    min-height: 400px;
     margin-top: var(--spacing-half);
 }
 
@@ -94,4 +94,18 @@
 
 .updateButton {
     height: var(--item-height-small);
+}
+
+.infoContainer {
+    margin-top: var(--space-default);
+}
+
+.link {
+  color: var(--color-default);
+}
+
+.textIcon {
+    height: 1em;
+    margin-right: 0.5em;
+    vertical-align: text-bottom;
 }
