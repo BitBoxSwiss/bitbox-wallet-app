@@ -254,6 +254,7 @@ export const Send = () => {
   const [customAmount, setCustomAmount] = useState<number>();
   const [rawInputError, setRawInputError] = useState<string>();
   const [sendError, setSendError] = useState<string>();
+  const [useTrampoline] = useState<boolean>(true);
 
   const back = () => {
     switch (step) {
@@ -305,6 +306,7 @@ export const Send = () => {
       case InputTypeVariant.BOLT11:
         await postSendPayment({
           bolt11: paymentDetails.invoice.bolt11,
+          useTrampoline,
           // amountMsat is optional, if amount is missing the UI shows edit-invoice step for the user to enter a custom amountMsat which is passed here
           amountMsat: customAmount ? toMsat(customAmount) : undefined
         });
