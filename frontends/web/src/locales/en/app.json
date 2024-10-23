@@ -402,6 +402,11 @@
       "fast": "Fast",
       "fee": "fee",
       "infoContent": {
+        "btcdirect": {
+          "info": "Get a personal advisor, reduced fees and place orders directly through your contact at BTC Direct.",
+          "link": "Access BTC Direct - Private Trading Desk",
+          "title": "Buying or selling over €50,000?"
+        },
         "moonpay": {
           "fees": {
             "bankTransfer": "Bank Transfer: {{fee}}%",
