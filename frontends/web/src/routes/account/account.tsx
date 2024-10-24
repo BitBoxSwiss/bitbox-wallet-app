@@ -29,10 +29,9 @@ import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
 import { Info } from '@/components/icon';
-import { Header } from '@/components/layout';
+import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Status } from '@/components/status/status';
-import { Transactions } from '@/components/transactions/transactions';
 import { useLoad } from '@/hooks/api';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ActionButtons } from './actionButtons';
@@ -48,6 +47,11 @@ import { getConfig, setConfig } from '@/utils/config';
 import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { View, ViewContent } from '@/components/view/view';
+import { Transaction } from '@/components/transactions/transaction';
+import { TransactionDetails } from '@/components/transactions/details';
+import { Button } from '@/components/forms';
+import { SubTitle } from '@/components/title';
 import style from './account.module.css';
 
 type Props = {
@@ -71,7 +75,10 @@ export const Account = ({
   const [insured, setInsured] = useState<boolean>(false);
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
   const [stateCode, setStateCode] = useState<string>();
+  const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeSupported(code), [code]);
+
+  useEffect(() => setDetailID(null), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
@@ -275,68 +282,104 @@ export const Account = ({
     account
   };
 
-  return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <ContentWrapper>
-          <GlobalBanners />
-          <Status hidden={!hasCard} type="warning">
-            {t('warning.sdcard')}
-          </Status>
-        </ContentWrapper>
-        <Dialog open={insured && uncoveredFunds.length !== 0} medium title={t('account.warning')} onClose={() => setUncoveredFunds([])}>
-          <MultilineMarkup tagName="p" markup={t('account.uncoveredFunds', {
-            name: account.name,
-            uncovered: uncoveredFunds,
-          })} />
-          <A href={getBitsuranceGuideLink()}>{t('account.uncoveredFundsLink')}</A>
-        </Dialog>
-        <Header
-          title={<h2><span>{account.name}</span>{insured && (<Insured />)}</h2>}>
-          <Link
-            to={`/account/${code}/info`}
-            title={t('accountInfo.title')}
-            className={style.accountInfoLink}>
-            <Info className={style.accountIcon} />
-            <span className="hide-on-small">
-              {t('accountInfo.label')}
-            </span>
-          </Link>
-          <HideAmountsButton />
-        </Header>
-        {status.synced && hasDataLoaded && isBitcoinBased(account.coinCode) && (
-          <HeadersSync coinCode={account.coinCode} />
-        )}
-        <div className="innerContainer scrollableContainer">
-          <div className="content padded">
+  const hasTransactions = transactions.success && transactions.list.length > 0;
 
-            <div className="flex flex-column">
-              <label className="labelXLarge">
-                {t('accountSummary.availableBalance')}
-              </label>
-              <div className="flex flex-row flex-between flex-item-center flex-column-mobile">
-                <Balance balance={balance} />
-                {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
+  return (
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <ContentWrapper>
+            <GlobalBanners />
+            <Status hidden={!hasCard} type="warning">
+              {t('warning.sdcard')}
+            </Status>
+          </ContentWrapper>
+          <Dialog open={insured && uncoveredFunds.length !== 0} medium title={t('account.warning')} onClose={() => setUncoveredFunds([])}>
+            <MultilineMarkup tagName="p" markup={t('account.uncoveredFunds', {
+              name: account.name,
+              uncovered: uncoveredFunds,
+            })} />
+            <A href={getBitsuranceGuideLink()}>{t('account.uncoveredFundsLink')}</A>
+          </Dialog>
+          <Header
+            title={<h2><span>{account.name}</span>{insured && (<Insured />)}</h2>}>
+            <Link
+              to={`/account/${code}/info`}
+              title={t('accountInfo.title')}
+              className={style.accountInfoLink}>
+              <Info className={style.accountIcon} />
+              <span className="hide-on-small">
+                {t('accountInfo.label')}
+              </span>
+            </Link>
+            <HideAmountsButton />
+          </Header>
+          {status.synced && hasDataLoaded && isBitcoinBased(account.coinCode) && (
+            <HeadersSync coinCode={account.coinCode} />
+          )}
+          <View>
+            <ViewContent fullWidth>
+              <div className={style.accountHeader}>
+                <label className="labelXLarge">
+                  {t('accountSummary.availableBalance')}
+                </label>
+                <div className="flex flex-row flex-between flex-item-center flex-column-mobile">
+                  <Balance balance={balance} />
+                  {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
+                </div>
+                {isAccountEmpty && (
+                  <BuyReceiveCTA
+                    account={account}
+                    code={code}
+                    exchangeSupported={exchangeSupported}
+                    unit={balance.available.unit}
+                    balanceList={[balance]}
+                  />
+                )}
+
+                {!transactions?.success ? (
+                  <div className={`flex flex-row flex-center ${style.empty}`}>
+                    <p>{t('transactions.errorLoadTransactions')}</p>
+                  </div>
+                ) : (
+                  <SubTitle className={style.titleWithButton}>
+                    {t('accountSummary.transactionHistory')}
+                    {hasTransactions && (
+                      <Button
+                        transparent
+                        onClick={exportAccount}
+                        title={t('account.exportTransactions')}>
+                        {t('account.export')}
+                      </Button>
+                    )}
+                  </SubTitle>
+                )}
               </div>
-            </div>
-            {isAccountEmpty && (
-              <BuyReceiveCTA
-                account={account}
-                code={code}
-                exchangeSupported={exchangeSupported}
-                unit={balance.available.unit}
-                balanceList={[balance]}
+
+              {hasTransactions ? (
+                transactions.list.map(tx => (
+                  <Transaction
+                    key={tx.internalID}
+                    onShowDetail={(internalID: accountApi.ITransaction['internalID']) => {
+                      setDetailID(internalID);
+                    }}
+                    {...tx}
+                  />
+                ))
+              ) : transactions?.success && (
+                <p>{t('transactions.placeholder')}</p>
+              )}
+
+              <TransactionDetails
+                accountCode={code}
+                explorerURL={account.blockExplorerTxPrefix}
+                internalID={detailID}
+                onClose={() => setDetailID(null)}
               />
-            )}
-            {!isAccountEmpty && <Transactions
-              accountCode={code}
-              handleExport={exportAccount}
-              explorerURL={account.blockExplorerTxPrefix}
-              transactions={transactions}
-            />}
-          </div>
-        </div>
-      </div>
+            </ViewContent>
+          </View>
+        </Main>
+      </GuidedContent>
       <AccountGuide
         account={account}
         unit={balance?.available.unit}
@@ -344,6 +387,6 @@ export const Account = ({
         hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
         hasNoBalance={balance && balance.available.amount === '0'}
       />
-    </div>
+    </GuideWrapper>
   );
 };

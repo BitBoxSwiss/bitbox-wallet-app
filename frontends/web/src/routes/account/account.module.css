@@ -9,15 +9,10 @@
     justify-content: flex-start;
 }
 
-.header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex: none;
-    margin: 0 auto;
-    padding: var(--spacing-large) var(--spacing-large) 0 var(--spacing-large);
-    width: 800px;
+@media (max-width: 768px) {
+    .accountHeader {
+        padding: 0 var(--space-half);
+    }
 }
 
 .actionsContainer {
@@ -88,6 +83,19 @@
     width: 18px;
     height: 18px;
     margin-right: var(--space-eight);
+}
+
+.titleWithButton {
+    align-items: baseline;
+    color: var(--color-secondary);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-quarter) !important; /* overwrite default subTitle margin */
+}
+.titleWithButton button {
+    padding-left: var(--space-half);
+    padding-right: 0;
+    text-align: right;
 }
 
 @media (max-width: 768px) {
