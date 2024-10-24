@@ -121,6 +121,7 @@ export const Chart = ({
     toolTipLeft: 0,
     toolTipTime: 0,
   });
+  const [showAnimationOverlay, setAnimationOverlay] = useState(true);
 
   const prevChartDataDaily = usePrevious(data.chartDataDaily);
   const prevChartDataHourly = usePrevious(data.chartDataHourly);
@@ -427,6 +428,7 @@ export const Chart = ({
   useEffect(() => {
     if (!chartInitialized.current) {
       initChart();
+
     }
     return () => {
       removeChart();
@@ -434,8 +436,14 @@ export const Chart = ({
   }, [initChart, removeChart]);
 
   useEffect(() => {
-    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
+    if (data.chartDataMissing) {
+      return;
+    }
+    setAnimationOverlay(false);
+  }, [data.chartDataMissing]);
 
+  useEffect(() => {
+    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
     switch (chartDisplay) {
     case 'week': {
       from.setUTCDate(utcDate - 7);
@@ -476,6 +484,7 @@ export const Chart = ({
     chartTotal,
     formattedChartTotal,
   } = data;
+
 
   const {
     toolTipVisible,
@@ -535,6 +544,13 @@ export const Chart = ({
         </div>
         {!isMobile && <Filters {...chartFiltersProps} />}
       </header>
+      {!chartDataMissing &&
+          <div
+            style={{ minHeight: chartHeight }}
+            className={`
+          ${styles.transitionDiv}
+          ${showAnimationOverlay ? '' : styles.overlayRemove}`}
+          />}
       <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>
         {chartDataMissing ? (
           <div className={styles.chartUpdatingMessage} style={{ height: chartHeight }}>
