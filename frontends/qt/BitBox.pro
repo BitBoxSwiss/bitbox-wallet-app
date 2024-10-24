@@ -6,6 +6,11 @@
 
 QT       += core gui
 QT       += webenginewidgets
+win32 {
+    # For setting 'AlwaysActivate', see.
+    # See https://forum.qt.io/topic/133694/using-alwaysactivatewindow-to-gain-foreground-in-win10-using-qt6-2/2
+    QT += gui-private
+}
 
 TARGET = BitBox
 TEMPLATE = app
