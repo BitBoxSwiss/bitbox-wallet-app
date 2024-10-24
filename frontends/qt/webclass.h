@@ -14,6 +14,8 @@
 
 #include <QApplication>
 
+#define GO_CGO_EXPORT_PROLOGUE_H
+#define GO_CGO_PROLOGUE_H
 #include "server/libserver.h"
 
 class WebClass : public QObject

@@ -47,6 +47,9 @@
 #include <string.h>
 
 #include "filedialog.h"
+
+#define GO_CGO_EXPORT_PROLOGUE_H
+#define GO_CGO_PROLOGUE_H
 #include "server/libserver.h"
 #include "webclass.h"
 
