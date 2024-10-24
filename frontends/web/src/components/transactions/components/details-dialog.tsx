@@ -85,7 +85,7 @@ export const TxDetailsDialog = ({
     <Dialog
       open={open && !!transactionInfo}
       title={t('transaction.details.title')}
-      onClose={onClose}
+      onClose={open ? onClose : undefined}
       slim
       medium>
       {transactionInfo && (
