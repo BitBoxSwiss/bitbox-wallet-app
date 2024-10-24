@@ -26,6 +26,11 @@ import { AppContext } from '@/contexts/AppContext';
 import { TInfoContentProps } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { hasPaymentRequest } from '@/api/account';
+import { Message } from '@/components/message/message';
+import { ExternalLinkWhite, ExternalLinkBlack, Businessman } from '@/components/icon';
+import { useDarkmode } from '@/hooks/darkmode';
+import { i18n } from '@/i18n/i18n';
+import { A } from '@/components/anchor/anchor';
 
 type TProps = {
   accountCode: string;
@@ -52,6 +57,7 @@ export const BuySell = ({
 }: TProps) => {
   const { t } = useTranslation();
   const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
+  const { isDarkMode } = useDarkmode();
 
   const exchangeDealsResponse = useLoad(() => exchangesAPI.getExchangeDeals(action, accountCode, selectedRegion), [action, selectedRegion]);
   const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(accountCode));
@@ -94,6 +100,21 @@ export const BuySell = ({
     return { info: exchange.exchangeName, cardFee, bankTransferFee };
   };
 
+  const getBTCDirectLink = () => {
+    switch (i18n.resolvedLanguage) {
+    case 'de':
+      return 'https://btcdirect.eu/de-at/private-trading-contact?BitBox';
+    case 'nl':
+      return 'https://btcdirect.eu/nl-nl/private-trading-contact?BitBox';
+    case 'es':
+      return 'https://btcdirect.eu/es-es/private-trading-contactanos?BitBox';
+    case 'fr':
+      return 'https://btcdirect.eu/fr-fr/private-trading-contact?BitBox';
+    default:
+      return 'https://btcdirect.eu/en-eu/private-trading-contact?BitBox';
+    }
+  };
+
   return (
     <>
       <div className={style.innerRadioButtonsContainer}>
@@ -130,6 +151,21 @@ export const BuySell = ({
                 onClickInfoButton={() => setInfo(buildInfo(exchange))}
               />
             ))}
+            {exchangeDealsResponse?.exchanges.some(exchange => exchange.exchangeName === 'pocket') && (
+              <div className={style.infoContainer}>
+                <Message type="info" icon={<Businessman/>}>
+                  {t('buy.exchange.infoContent.btcdirect.title')}
+                  <p>{t('buy.exchange.infoContent.btcdirect.info')}</p>
+                  <p>
+                    <A href={getBTCDirectLink()} className={style.link}>
+                      {t('buy.exchange.infoContent.btcdirect.link')}
+                    </A>
+                    &nbsp;
+                    {isDarkMode ? <ExternalLinkWhite className={style.textIcon}/> : <ExternalLinkBlack className={style.textIcon}/>}
+                  </p>
+                </Message>
+              </div>
+            )}
           </div>
         )}
       </div>

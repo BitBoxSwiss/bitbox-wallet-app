@@ -20,9 +20,13 @@ import { StatusInfo, StatusSuccess, StatusWarning, StatusError } from '@/compone
 import { TMessageTypes } from '@/utils/types';
 import styles from './message.module.css';
 
-type TMessageIconProps = { type: TMessageTypes };
+type TMessageIconProps = { type: TMessageTypes, icon?: ReactNode };
 
-const MessageIcon = ({ type }: TMessageIconProps) => {
+const MessageIcon = ({ type, icon }: TMessageIconProps) => {
+  // optional custom icon
+  if (icon) {
+    return icon;
+  }
   switch (type) {
   case 'success':
     return (
@@ -50,6 +54,7 @@ type MessageProps = {
   small?: boolean;
   title?: string;
   type?: TMessageTypes;
+  icon?: ReactNode;
   noIcon?: boolean;
   children: ReactNode;
 }
@@ -59,6 +64,7 @@ export const Message = ({
   small,
   title,
   type = 'info',
+  icon,
   noIcon = false,
   children,
 }: MessageProps) => {
@@ -67,7 +73,7 @@ export const Message = ({
   }
   return (
     <div className={`${styles[type]} ${small ? styles.small : ''}`}>
-      {!noIcon && <MessageIcon type={type} />}
+      {!noIcon && <MessageIcon type={type} icon={icon} />}
       <div className={styles.content}>
         {title && (
           <h2 className={`subTitle ${styles.title}`}>{title}</h2>
