@@ -1,6 +1,6 @@
 module github.com/BitBoxSwiss/bitbox-wallet-app
 
-go 1.22
+go 1.23
 
 require (
 	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240925080402-a2115fee878e

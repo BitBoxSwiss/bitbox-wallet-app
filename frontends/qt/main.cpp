@@ -33,7 +33,11 @@
 #include <QMessageBox>
 #include <QtGlobal>
 #if defined(_WIN32)
+#if QT_VERSION_MAJOR >= 6
+#include <private/qguiapplication_p.h>
+#else
 #include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
 #endif
 
 #include <iostream>
@@ -43,6 +47,9 @@
 #include <string.h>
 
 #include "filedialog.h"
+
+#define GO_CGO_EXPORT_PROLOGUE_H
+#define GO_CGO_PROLOGUE_H
 #include "server/libserver.h"
 #include "webclass.h"
 
@@ -174,7 +181,11 @@ public:
             page()->action(QWebEnginePage::SelectAll),
             page()->action(QWebEnginePage::Unselect),
         };
+#if QT_VERSION_MAJOR >= 6
+        QMenu *menu = createStandardContextMenu();
+#else
         QMenu *menu = page()->createStandardContextMenu();
+#endif
         for (const auto action : menu->actions()) {
             if (whitelist.find(action) == whitelist.cend()) {
                 menu->removeAction(action);
@@ -397,7 +408,15 @@ int main(int argc, char *argv[])
 #if defined(_WIN32)
     // Allow existing app to be brought to the foreground. See `view->activateWindow()` above.
     // Without this, on Windows, only the taskbar entry would light up.
+#if QT_VERSION_MAJOR >= 6
+    // See See https://forum.qt.io/topic/133694/using-alwaysactivatewindow-to-gain-foreground-in-win10-using-qt6-2/2
+    // Later Qt versions may expose this API again officially. https://www.qt.io/blog/platform-apis-in-qt-6.
+    if (auto inf = a.nativeInterface<QNativeInterface::Private::QWindowsApplication>()) {
+        inf->setWindowActivationBehavior(QNativeInterface::Private::QWindowsApplication::AlwaysActivateWindow);
+    }
+#else
     QWindowsWindowFunctions::setWindowActivationBehavior(QWindowsWindowFunctions::AlwaysActivateWindow);
+#endif
 #endif
 
     // Receive and handle an URI sent by a secondary instance (see above).
