@@ -1,3 +1,7 @@
+.grid {
+    --row-min-height: 0;
+}
+
 .columnAsCard {
     background-color: var(--background-secondary);
     padding: var(--space-default);
@@ -51,7 +55,7 @@
     .grid {
         display: grid;
         gap: var(--space-default);
-        grid-auto-rows: minmax(100px, auto);
+        grid-auto-rows: minmax(var(--row-min-height), auto);
     }
 
     .grid-columns-1 {

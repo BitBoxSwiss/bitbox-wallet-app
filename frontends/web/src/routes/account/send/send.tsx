@@ -446,7 +446,7 @@ class Send extends Component<Props, State> {
                     onSelectedUTXOsChange={this.onSelectedUTXOsChange}
                   />
                 </div>
-                <Grid col="1">
+                <Grid col="1" style={{ '--row-min-height': '100px' }}>
                   <Column>
                     <ReceiverAddressInput
                       accountCode={account.code}
@@ -457,7 +457,7 @@ class Send extends Component<Props, State> {
                     />
                   </Column>
                 </Grid>
-                <Grid>
+                <Grid style={{ '--row-min-height': '100px' }}>
                   <Column>
                     <CoinInput
                       balance={balance}
@@ -480,7 +480,7 @@ class Send extends Component<Props, State> {
                     />
                   </Column>
                 </Grid>
-                <Grid>
+                <Grid style={{ '--row-min-height': '100px' }}>
                   <Column>
                     <FeeTargets
                       accountCode={account.code}

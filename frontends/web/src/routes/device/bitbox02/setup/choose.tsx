@@ -176,8 +176,8 @@ export const SetupOptions = ({
         </p>
       </ViewHeader>
       <ViewContent fullWidth>
-        <Grid>
-          <Column asCard className={style.cardHeight}>
+        <Grid style={{ '--row-min-height': '320px' }}>
+          <Column asCard>
             <h3 className="title">
               {t('button.create')}
             </h3>
@@ -202,7 +202,7 @@ export const SetupOptions = ({
               </Button>
             </ColumnButtons>
           </Column>
-          <Column asCard className={style.cardHeight}>
+          <Column asCard>
             <h3 className="title">
               {t('button.restore')}
             </h3>

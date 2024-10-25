@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,33 @@
  * limitations under the License.
  */
 
-import { ReactNode } from 'react';
-import style from './grid.module.css';
+import { CSSProperties, ReactNode } from 'react';
+import styles from './grid.module.css';
+
+type TGridStyleProperties = CSSProperties & {
+  '--row-min-height'?: string | number;
+}
 
 type TGridProps = {
   children: ReactNode;
   col?: '1' | '2';
+  style?: TGridStyleProperties;
   textAlign?: 'center' | 'left';
 }
 
 export const Grid = ({
   children,
   col = '2',
+  style,
   textAlign,
 }: TGridProps) => {
-  const styles = `
-    ${style.grid}
-    ${style[`grid-columns-${col}`]}
-    ${textAlign !== undefined ? style[textAlign] : ''}
+  const classes = `
+    ${styles.grid}
+    ${styles[`grid-columns-${col}`]}
+    ${textAlign !== undefined ? styles[textAlign] : ''}
   `;
   return (
-    <section className={styles}>
+    <section className={classes} style={style}>
       {children}
     </section>
   );
@@ -54,10 +60,10 @@ export const Column = ({
   textCenter,
 }: TColumnProps) => {
   const classNames = `
-    ${style.column}
-    ${asCard ? style.columnAsCard : ''}
+    ${styles.column}
+    ${asCard ? styles.columnAsCard : ''}
     ${className || ''}
-    ${textCenter ? style.textCenter : ''}
+    ${textCenter ? styles.textCenter : ''}
   `;
   return (
     <div className={classNames}>
@@ -77,8 +83,8 @@ export const ColumnButtons = ({
   className = '',
   inline,
 }: TColumnButtonsProps) => {
-  const classNames = `${style.columnButtons} ${
-    inline ? style.columnButtonsInline : ''
+  const classNames = `${styles.columnButtons} ${
+    inline ? styles.columnButtonsInline : ''
   } ${className}`;
   return (
     <div className={classNames}>
