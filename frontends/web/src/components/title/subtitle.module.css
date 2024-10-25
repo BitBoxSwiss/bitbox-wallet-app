@@ -4,3 +4,9 @@
   line-height: 1.5;
   margin: 0 0 calc(var(--space-half) * 1.5) 0;
 }
+
+@media (min-width: 1200px) {
+  .subtitle {
+    --size-subheader: 20px;
+  }
+}
