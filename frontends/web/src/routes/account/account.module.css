@@ -54,7 +54,6 @@
     justify-content: flex-end;
 }
 
-
 .withWalletConnect .walletConnect {
     display: flex;
 }
@@ -85,6 +84,10 @@
     margin-right: var(--space-eight);
 }
 
+.errorLoadTransactions {
+    text-align: center;
+}
+
 .titleWithButton {
     align-items: baseline;
     color: var(--color-secondary);
@@ -96,6 +99,11 @@
     padding-left: var(--space-half);
     padding-right: 0;
     text-align: right;
+}
+
+.emptyTransactions {
+    color: var(--color-secondary);
+    text-align: center;
 }
 
 @media (max-width: 768px) {
