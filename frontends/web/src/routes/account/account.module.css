@@ -9,6 +9,10 @@
     justify-content: flex-start;
 }
 
+.accountBalanceTitle {
+    margin-bottom: 0;
+}
+
 @media (max-width: 768px) {
     .accountHeader {
         padding: 0 var(--space-half);
@@ -16,11 +20,10 @@
 }
 
 .actionsContainer {
+    --size-default: 14px;
+    align-self: end;
     display: flex;
     flex-wrap: nowrap;
-    transform: translateY(-36%);
-    margin-top: calc(var(--space-quarter) * 2);
-    padding-bottom: 14px;
 }
 
 .exchange,
@@ -118,10 +121,11 @@
     }
 
     .actionsContainer {
+        --size-default: var(--size-small);
         justify-content: space-between;
         margin-bottom: var(--space-default);
+        margin-top: var(--space-half);
         padding-bottom: 0;
-        transform: none;
         width: 100%;
     }
 
@@ -152,7 +156,6 @@
     .send,
     .receive,
     .walletConnect {
-        font-size: var(--size-small);
         margin-bottom: 0;
         width: auto;
     }
