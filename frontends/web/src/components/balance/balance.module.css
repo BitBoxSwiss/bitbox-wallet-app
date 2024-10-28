@@ -27,11 +27,13 @@
 .balanceTable .availableAmount {
     padding-right: var(--space-quarter);
     text-align: right;
+    white-space: nowrap;
 }
 
 .balanceTable .availableUnit {
     color: var(--color-secondary);
     padding-right: var(--space-half);
+    white-space: nowrap;
 }
 
 .pendingBalance {

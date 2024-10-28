@@ -323,7 +323,7 @@ export const Account = ({
                 <label className="labelXLarge">
                   {t('accountSummary.availableBalance')}
                 </label>
-                <div className="flex flex-row flex-between flex-item-center flex-column-mobile">
+                <div className={style.balanceHeader}>
                   <Balance balance={balance} />
                   {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
                 </div>
