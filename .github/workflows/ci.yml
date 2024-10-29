@@ -145,10 +145,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-      - name: Install Qt
-        run: |
-          brew install qt@5
-          echo "/opt/homebrew/opt/qt@5/bin" >> $GITHUB_PATH
       - name: Build iOS app
         run: |
           make gomobileinit
