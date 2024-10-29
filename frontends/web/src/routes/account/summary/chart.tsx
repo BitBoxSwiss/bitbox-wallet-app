@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
 import type { TSummary, ChartData } from '@/api/account';
@@ -25,7 +25,7 @@ import { PercentageDiff } from './percentage-diff';
 import { Filters } from './filters';
 import { getDarkmode } from '@/components/darkmode/darkmode';
 import { DefaultCurrencyRotator } from '@/components/rates/rates';
-import { AppContext } from '@/contexts/AppContext';
+import { AppContext, TChartDisplay } from '@/contexts/AppContext';
 import styles from './chart.module.css';
 
 type TProps = {
@@ -64,6 +64,45 @@ const getUTCRange = () => {
     to,
     from,
   };
+};
+
+const updateRange = (
+  chart: MutableRefObject<IChartApi | undefined>,
+  chartDisplay: TChartDisplay,
+) => {
+  if (chart.current) {
+    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
+
+    switch (chartDisplay) {
+    case 'week': {
+      from.setUTCDate(utcDate - 7);
+      chart.current?.timeScale().setVisibleRange({
+        from: from.getTime() / 1000 as UTCTimestamp,
+        to: to.getTime() / 1000 as UTCTimestamp,
+      });
+      break;
+    }
+    case 'month': {
+      from.setUTCMonth(utcMonth - 1);
+      chart.current?.timeScale().setVisibleRange({
+        from: from.getTime() / 1000 as UTCTimestamp,
+        to: to.getTime() / 1000 as UTCTimestamp,
+      });
+      break;
+    }
+    case 'year': {
+      from.setUTCFullYear(utcYear - 1);
+      chart.current && chart.current.timeScale().setVisibleRange({
+        from: from.getTime() / 1000 as UTCTimestamp,
+        to: to.getTime() / 1000 as UTCTimestamp,
+      });
+      break;
+    }
+    case 'all':
+      chart.current?.timeScale().fitContent();
+      break;
+    }
+  }
 };
 
 const renderDate = (
@@ -184,6 +223,10 @@ export const Chart = ({
     setSource('daily');
   };
 
+  useEffect(() => {
+    updateRange(chart, chartDisplay);
+  }, [chart, chartDisplay]);
+
   const onResize = useCallback(() => {
     const isMobile = window.innerWidth <= 640;
     setIsMobile(isMobile);
@@ -206,8 +249,8 @@ export const Chart = ({
         visible: hideAmounts ? false : !isMobile,
       },
     });
-    chart.current.timeScale().fitContent();
-  }, [hideAmounts]);
+    updateRange(chart, chartDisplay);
+  }, [chartDisplay, hideAmounts]);
 
   const calculateChange = useCallback(() => {
     const chartData = data[source === 'daily' ? 'chartDataDaily' : 'chartDataHourly'];
@@ -392,6 +435,7 @@ export const Chart = ({
       window.addEventListener('resize', onResize);
       ref.current?.classList.remove(styles.invisible);
       chartInitialized.current = true;
+      updateRange(chart, chartDisplay);
     }
   }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile, onResize]);
 
@@ -432,41 +476,6 @@ export const Chart = ({
       removeChart();
     };
   }, [initChart, removeChart]);
-
-  useEffect(() => {
-    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
-
-    switch (chartDisplay) {
-    case 'week': {
-      from.setUTCDate(utcDate - 7);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'month': {
-      from.setUTCMonth(utcMonth - 1);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'year': {
-      from.setUTCFullYear(utcYear - 1);
-      chart.current && chart.current.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'all': {
-      chart.current?.timeScale().fitContent();
-      break;
-    }
-    }
-  }, [source, chartDisplay]);
 
   const {
     lastTimestamp,
