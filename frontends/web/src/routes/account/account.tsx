@@ -338,10 +338,10 @@ export const Account = ({
                 )}
 
                 {!transactions?.success ? (
-                  <div className={`flex flex-row flex-center ${style.empty}`}>
-                    <p>{t('transactions.errorLoadTransactions')}</p>
-                  </div>
-                ) : (
+                  <p className={style.errorLoadTransactions}>
+                    {t('transactions.errorLoadTransactions')}
+                  </p>
+                ) : !isAccountEmpty && (
                   <SubTitle className={style.titleWithButton}>
                     {t('accountSummary.transactionHistory')}
                     {hasTransactions && (
@@ -367,7 +367,9 @@ export const Account = ({
                   />
                 ))
               ) : transactions?.success && (
-                <p>{t('transactions.placeholder')}</p>
+                <p className={style.emptyTransactions}>
+                  {t('transactions.placeholder')}
+                </p>
               )}
 
               <TransactionDetails
