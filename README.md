@@ -53,14 +53,6 @@ To build the app or run the development workflow, the following dependencies nee
 - [Qt5](https://www.qt.io) version 5.15.2
   - install Qt for your platform, including the WebEngine component
 
-#### Environment variables
-
-Make sure the environment variables for qt, go and node are set, see also [docs/BUILD.md](./docs/BUILD.md) for platform specific instructions
-
-To initialize the build environment and install the required go utilities (linters, ...), call
-* `make envinit`, or
-* on MacOS `make osx-init`
-
 ## Build the BitBoxApp
 
 Clone this repository using `git clone --recursive`.

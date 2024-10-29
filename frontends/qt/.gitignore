@@ -1,5 +1,9 @@
 /build/
 /config/
 /server/libserver.h
+/server/libserver_arm64.h
+/server/libserver_amd64.h
 /server/libserver.so
+/server/libserver_arm64.so
+/server/libserver_amd64.so
 .qmake.stash

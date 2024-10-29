@@ -64,6 +64,8 @@ SOURCES += \
 HEADERS += libserver.h webclass.h filedialog.h
 
 unix:macx {
+    CONFIG += sdk_no_version_check
+    QMAKE_APPLE_DEVICE_ARCHS = x86_64 arm64
     # Those frameworks are needed for Go's http/net packages.
     # Waiting for https://github.com/golang/go/issues/11258 to be able to automatically capture link flags.
     LIBS += -framework CoreFoundation -framework Security

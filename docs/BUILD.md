@@ -30,16 +30,27 @@ Build artifacts:
 
 ## MacOS
 
-Make sure you have `qt@5/bin`, `go@1.23/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`
+Install Go, Qt and create-dmg. Note that qt@6 from homebrew does **not** work as it is missing the
+`rcc` tool.
+
+```
+# Install Go. Can also use the official installer
+brew install go@1.23
+brew install create-dmg
+# Install Qt. Can also use the official installer.
+pip install aqtinstall
+aqt list-qt mac desktop --arch 6.2.4
+aqt install-qt mac desktop 6.2.4 --modules qtpositioning qtserialport qtwebchannel qtwebengine --outputdir ~/Qt
+```
+
+Make sure you have `qt@6/bin`,  `qt@6/libexec`, `go@1.23/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`:
 
 ```bash
-export PATH="$PATH:/usr/local/opt/qt@5/bin"
+export PATH="$PATH:$HOME/Qt/6.2.4/macos/bin"
+export PATH="$PATH:$HOME/Qt/6.2.4/macos/libexec"
 export PATH="$PATH:/usr/local/opt/go@1.23/bin"
 export PATH="$PATH:$HOME/go/bin"
 ```
-
-Prepare the MacOS system to have the build environment:
-`make osx-init`
 
 Build the QT frontend for MacOS:
 `make qt-osx`
