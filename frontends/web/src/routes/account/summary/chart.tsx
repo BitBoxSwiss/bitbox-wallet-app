@@ -245,6 +245,11 @@ export const Chart = ({
     updateRange(chart, chartDisplay);
   }, [chartDisplay, hideAmounts]);
 
+  useEffect(() => {
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [onResize]);
+
   const calculateChange = useCallback(() => {
     const chartData = data[source === 'daily' ? 'chartDataDaily' : 'chartDataHourly'];
     if (!chartData || !chart.current || !lineSeries.current) {
@@ -277,14 +282,13 @@ export const Chart = ({
 
   const removeChart = useCallback(() => {
     if (chartInitialized.current) {
-      window.removeEventListener('resize', onResize);
       chart.current?.timeScale().unsubscribeVisibleLogicalRangeChange(calculateChange);
       chart.current?.unsubscribeCrosshairMove(handleCrosshair);
       chart.current?.remove();
       chart.current = undefined;
       chartInitialized.current = false;
     }
-  }, [calculateChange, onResize]);
+  }, [calculateChange]);
 
   const handleCrosshair = ({
     point,
@@ -426,12 +430,11 @@ export const Chart = ({
       chart.current.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
       chart.current.subscribeCrosshairMove(handleCrosshair);
       chart.current.timeScale().fitContent();
-      window.addEventListener('resize', onResize);
       ref.current?.classList.remove(styles.invisible);
       chartInitialized.current = true;
       updateRange(chart, chartDisplay);
     }
-  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile, onResize]);
+  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile]);
 
   const reinitializeChart = () => {
     removeChart();
