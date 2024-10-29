@@ -31,7 +31,7 @@ linux:
 	mv build/BitBox build/linux-tmp
 	cp build/assets.rcc build/linux-tmp/
 	cp server/libserver.so build/linux-tmp
-	cd build/linux-tmp && /opt/linuxdeployqt-7-x86_64.AppImage BitBox -bundle-non-qt-libs -unsupported-allow-new-glibc
+	cd build/linux-tmp && /opt/linuxdeployqt-continuous-x86_64.AppImage BitBox -bundle-non-qt-libs -unsupported-allow-new-glibc
 	cp /usr/lib/x86_64-linux-gnu/nss/* build/linux-tmp/lib
 	cp -aR resources/linux build/tmp-deb
 	cp resources/linux/usr/share/applications/bitbox.desktop build/linux-tmp
@@ -41,9 +41,8 @@ linux:
 	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v 4.45.0 -C ../tmp-deb/
 	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.45.0 -C ../tmp-deb/
 	# create AppImage
-	cd build/linux-tmp && /opt/linuxdeployqt-7-x86_64.AppImage BitBox -appimage -unsupported-allow-new-glibc
+	cd build/linux-tmp && /opt/linuxdeployqt-continuous-x86_64.AppImage BitBox -appimage -unsupported-allow-new-glibc
 	mv build/linux-tmp/BitBoxApp-*-x86_64.AppImage build/linux/
-	rm build/linux-tmp/libserver.so
 osx:
 	$(MAKE) clean
 	cd server && $(MAKE) macosx
