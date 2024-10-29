@@ -192,9 +192,7 @@ export const Chart = ({
       setFormattedData(data.chartDataDaily || []);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
-
     setChartDisplay('month');
-
     setSource('daily');
   };
 
@@ -204,11 +202,8 @@ export const Chart = ({
       setFormattedData(data.chartDataDaily);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
-
     setChartDisplay('year');
-
     setSource('daily');
-
   };
 
   const displayAll = () => {
@@ -217,9 +212,7 @@ export const Chart = ({
       setFormattedData(data.chartDataDaily);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
-
     setChartDisplay('all');
-
     setSource('daily');
   };
 
@@ -322,7 +315,7 @@ export const Chart = ({
     if (!coordinate) {
       return;
     }
-    const coordinateY =
+    const coordinateY = (
       (coordinate - tooltip.clientHeight > 0)
         ? coordinate - tooltip.clientHeight
         : Math.max(
@@ -331,7 +324,8 @@ export const Chart = ({
             parent.clientHeight - tooltip.clientHeight,
             coordinate + 70
           )
-        );
+        )
+    );
 
     const toolTipTop = Math.floor(Math.max(coordinateY, 0));
     const toolTipLeft = Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70)));
@@ -420,14 +414,14 @@ export const Chart = ({
       });
       const isChartDisplayWeekly = chartDisplay === 'week';
       lineSeries.current.setData(
-        (isChartDisplayWeekly ?
-          data.chartDataHourly :
-          data.chartDataDaily)
+        isChartDisplayWeekly
+          ? data.chartDataHourly
+          : data.chartDataDaily
       );
       setFormattedData(
-        (isChartDisplayWeekly ?
-          data.chartDataHourly :
-          data.chartDataDaily)
+        isChartDisplayWeekly
+          ? data.chartDataHourly
+          : data.chartDataDaily
       );
       chart.current.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
       chart.current.subscribeCrosshairMove(handleCrosshair);
@@ -551,7 +545,9 @@ export const Chart = ({
           </div>
         ) : hasData ? !chartIsUpToDate && (
           <div className={styles.chartUpdatingMessage}>
-            {t('chart.dataOldTimestamp', { time: new Date(lastTimestamp).toLocaleString(i18n.language), })}
+            {t('chart.dataOldTimestamp', {
+              time: new Date(lastTimestamp).toLocaleString(i18n.language)
+            })}
           </div>
         ) : noDataPlaceholder}
         <div ref={ref} className={styles.invisible}></div>
