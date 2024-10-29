@@ -29,6 +29,7 @@ SetCompressor /SOLID lzma
 !define ICONDIR "resources\win"
 !define APP_EXE "BitBox.exe"
 !define AOPP_EXE "$\"$INSTDIR\${APP_EXE}$\" $\"%1$\""
+!define APP_NAME "BitBoxApp"
 
 # MUI Symbol Definitions
 !define MUI_ICON "${ICONDIR}\icon.ico"
@@ -103,6 +104,9 @@ Section -Main SEC0000
     #File /r /x Makefile* @abs_top_srcdir@/doc\*.*
     SetOutPath $INSTDIR
     WriteRegStr HKCU "${REGKEY}\Components" Main 1
+
+    # Create a shortcut on the desktop
+    CreateShortCut "$DESKTOP\${APP_NAME}.lnk" "$INSTDIR\${APP_EXE}" "" "" 0
 SectionEnd
 
 Section -post SEC0001
