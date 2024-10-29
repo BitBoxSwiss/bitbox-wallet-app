@@ -121,7 +121,7 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
     <div className="contentWithGuide">
       <div className="container">
         <Dialog medium title={info && info.info !== 'region' ? getExchangeFormattedName(info.info) : t('buy.exchange.region')} onClose={() => setInfo(undefined)} open={!!info}>
-          {info && <InfoContent info={info.info} cardFee={info.cardFee} bankTransferFee={info.bankTransferFee} />}
+          {info && <InfoContent info={info.info} cardFee={info.cardFee} bankTransferFee={info.bankTransferFee} accounts={accounts} />}
         </Dialog>
         <div className="innerContainer scrollableContainer">
           <Header title={<h2>{title}</h2>} />

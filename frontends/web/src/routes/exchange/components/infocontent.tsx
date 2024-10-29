@@ -18,11 +18,15 @@ import { useTranslation } from 'react-i18next';
 import { A } from '@/components/anchor/anchor';
 import style from './infocontent.module.css';
 import { ExchangeDeals } from '@/api/exchanges';
+import { isBitcoinOnly } from '@/routes/account/utils';
+import { IAccount } from '@/api/account';
+import { getBTCDirectLink } from './buysell';
 
 export type Info = ExchangeDeals['exchangeName'] | 'region';
-export type TInfoContentProps = {info: Info, cardFee?: number, bankTransferFee?: number};
+export type TInfoContentProps = {info: Info, cardFee?: number, bankTransferFee?: number, accounts?: IAccount[]};
 type TMoonPayInfo = {cardFee?: number, bankTransferFee?: number};
 type TPocketInfo = { bankTransferFee?: number };
+type TBTCDirectInfo = { accounts?: IAccount[] }
 
 export const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfo) => {
   const { t } = useTranslation();
@@ -112,6 +116,37 @@ export const PocketInfo = ({ bankTransferFee }: TPocketInfo) => {
   );
 };
 
+export const BTCDirectInfo = ({ accounts }: TBTCDirectInfo) => {
+  const { t } = useTranslation();
+  const hasOnlyBTCAccounts = accounts?.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  return (
+    <div className={style.container}>
+      <p>
+        {t('buy.exchange.infoContent.btcdirect.infobox.intro', {
+          context: hasOnlyBTCAccounts ? 'btconly' : 'multi'
+        })}
+      </p>
+      <br />
+      <p>{t('buy.exchange.infoContent.btcdirect.infobox.manager')}</p>
+      <br />
+      <ul>
+        <li>{t('buy.exchange.infoContent.btcdirect.infobox.listItem1')}</li>
+        <li>{t('buy.exchange.infoContent.btcdirect.infobox.listItem2')}</li>
+        <li>{t('buy.exchange.infoContent.btcdirect.infobox.listItem3')}</li>
+        <li>{t('buy.exchange.infoContent.btcdirect.infobox.listItem4')}</li>
+      </ul>
+      <br />
+      <p>{t('buy.exchange.infoContent.btcdirect.infobox.kyc')}</p>
+      <br />
+      <p>
+        <A href={getBTCDirectLink()}>
+          {t('buy.exchange.infoContent.btcdirect.infobox.learnmore')}
+        </A>
+      </p>
+    </div>
+  );
+};
+
 const RegionInfo = () => {
   const { t } = useTranslation();
   return (
@@ -122,12 +157,14 @@ const RegionInfo = () => {
 };
 
 
-export const InfoContent = ({ info, cardFee, bankTransferFee }: TInfoContentProps) => {
+export const InfoContent = ({ info, cardFee, bankTransferFee, accounts }: TInfoContentProps) => {
   switch (info) {
   case 'moonpay':
     return <MoonPayInfo cardFee={cardFee} bankTransferFee={bankTransferFee} />;
   case 'pocket':
     return <PocketInfo bankTransferFee={bankTransferFee} />;
+  case 'btcdirect':
+    return <BTCDirectInfo accounts={accounts}/>;
   case 'region':
     return <RegionInfo />;
   }

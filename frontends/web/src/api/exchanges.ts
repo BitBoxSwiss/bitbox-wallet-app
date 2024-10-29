@@ -41,7 +41,7 @@ export type ExchangeDeal = {
 }
 
 export type ExchangeDeals = {
-  exchangeName: 'moonpay' | 'pocket';
+  exchangeName: 'moonpay' | 'pocket' | 'btcdirect';
   deals: ExchangeDeal[];
 }
 
