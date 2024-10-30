@@ -483,6 +483,11 @@ export const Chart = ({
     formattedChartTotal,
   } = data;
 
+  if (!hasData && chartIsUpToDate && difference) {
+    setDiffSince('');
+    setDifference(0);
+  }
+
   const {
     toolTipVisible,
     toolTipValue,
