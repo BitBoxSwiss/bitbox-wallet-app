@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { IBalance } from '@/api/account';
 import { FiatConversion } from '@/components/rates/rates';
 import { Amount } from '@/components/amount/amount';
+import { BalanceSkeleton } from '@/components/balance/balance-skeleton';
 import style from './balance.module.css';
 
 type TProps = {
@@ -33,7 +34,7 @@ export const Balance = ({
   const { t } = useTranslation();
   if (!balance) {
     return (
-      <header className={style.balance}></header>
+      <BalanceSkeleton />
     );
   }
 

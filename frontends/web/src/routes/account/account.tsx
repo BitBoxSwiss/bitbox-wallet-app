@@ -52,6 +52,7 @@ import { Transaction } from '@/components/transactions/transaction';
 import { TransactionDetails } from '@/components/transactions/details';
 import { Button } from '@/components/forms';
 import { SubTitle } from '@/components/title';
+import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
 import style from './account.module.css';
 
 type Props = {
@@ -232,37 +233,24 @@ export const Account = ({
       <Spinner guideExists text={t('account.fatalError')} />
     );
   }
+
+  // Status: offline error
+  const offlineErrorTextLines: string[] = [];
   if (status.offlineError !== null) {
-    const offlineErrorTextLines: string[] = [];
     offlineErrorTextLines.push(t('account.reconnecting'));
     offlineErrorTextLines.push(status.offlineError);
     if (usesProxy) {
       offlineErrorTextLines.push(t('account.maybeProxyError'));
     }
-    return (
-      <Spinner guideExists text={offlineErrorTextLines.join('\n')} />
-    );
   }
-  if (!status.synced) {
-    const text =
-      (syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
-        '\n' + t('account.syncedAddressesCount', {
-          count: syncedAddressesCount.toString(),
-          defaultValue: 0,
-        } as any)
-      ) : '';
 
-    return (
-      <Spinner guideExists text={
-        t('account.initializing') + text
-      } />
-    );
-  }
-  if (!hasDataLoaded) {
-    return (
-      <Spinner guideExists text={''} />
-    );
-  }
+  // Status: not synced
+  const notSyncedText = (!status.synced && syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
+    '\n' + t('account.syncedAddressesCount', {
+      count: syncedAddressesCount.toString(),
+      defaultValue: 0,
+    } as any)
+  ) : '';
 
   const exchangeSupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
 
@@ -276,13 +264,15 @@ export const Account = ({
 
   const actionButtonsProps = {
     code,
+    accountDataLoaded: hasDataLoaded,
     coinCode: account.coinCode,
     canSend: balance && balance.hasAvailable,
     exchangeSupported,
     account
   };
 
-  const hasTransactions = transactions.success && transactions.list.length > 0;
+  const loadingTransactions = transactions?.success === undefined;
+  const hasTransactions = transactions?.success && transactions.list.length > 0;
 
   return (
     <GuideWrapper>
@@ -292,6 +282,13 @@ export const Account = ({
             <GlobalBanners />
             <Status hidden={!hasCard} type="warning">
               {t('warning.sdcard')}
+            </Status>
+            <Status className={style.status} hidden={!status.offlineError} type="error">
+              {offlineErrorTextLines.join('\n')}
+            </Status>
+            <Status className={style.status} hidden={status.synced} type="info">
+              {t('account.initializing')}
+              {notSyncedText}
             </Status>
           </ContentWrapper>
           <Dialog open={insured && uncoveredFunds.length !== 0} medium title={t('account.warning')} onClose={() => setUncoveredFunds([])}>
@@ -337,24 +334,26 @@ export const Account = ({
                   />
                 )}
 
-                {!transactions?.success ? (
+                {transactions?.success === false ? (
                   <p className={style.errorLoadTransactions}>
                     {t('transactions.errorLoadTransactions')}
                   </p>
                 ) : !isAccountEmpty && (
                   <SubTitle className={style.titleWithButton}>
                     {t('accountSummary.transactionHistory')}
-                    {hasTransactions && (
-                      <Button
-                        transparent
-                        onClick={exportAccount}
-                        title={t('account.exportTransactions')}>
-                        {t('account.export')}
-                      </Button>
-                    )}
+                    <Button
+                      transparent
+                      disabled={!hasTransactions}
+                      className={style.exportButton}
+                      onClick={exportAccount}
+                      title={t('account.exportTransactions')}>
+                      {t('account.export')}
+                    </Button>
                   </SubTitle>
                 )}
               </div>
+
+              {loadingTransactions && <TransactionHistorySkeleton />}
 
               {hasTransactions ? (
                 transactions.list.map(tx => (
