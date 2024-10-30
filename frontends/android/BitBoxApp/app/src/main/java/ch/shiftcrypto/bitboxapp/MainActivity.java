@@ -221,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
         vw.getSettings().setMediaPlaybackRequiresUserGesture(false);
         vw.setVerticalScrollBarEnabled(true);
         vw.setScrollBarStyle(WebView.SCROLLBARS_INSIDE_OVERLAY);
+        vw.setScrollbarFadingEnabled(true); 
 
         vw.setWebViewClient(new WebViewClient() {
             @Override
