@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
 import type { TSummary, ChartData } from '@/api/account';
@@ -25,7 +25,7 @@ import { PercentageDiff } from './percentage-diff';
 import { Filters } from './filters';
 import { getDarkmode } from '@/components/darkmode/darkmode';
 import { DefaultCurrencyRotator } from '@/components/rates/rates';
-import { AppContext } from '@/contexts/AppContext';
+import { AppContext, TChartDisplay } from '@/contexts/AppContext';
 import styles from './chart.module.css';
 
 type TProps = {
@@ -64,6 +64,45 @@ const getUTCRange = () => {
     to,
     from,
   };
+};
+
+const updateRange = (
+  chart: MutableRefObject<IChartApi | undefined>,
+  chartDisplay: TChartDisplay,
+) => {
+  if (chart.current) {
+    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
+
+    switch (chartDisplay) {
+    case 'week': {
+      from.setUTCDate(utcDate - 7);
+      chart.current?.timeScale().setVisibleRange({
+        from: from.getTime() / 1000 as UTCTimestamp,
+        to: to.getTime() / 1000 as UTCTimestamp,
+      });
+      break;
+    }
+    case 'month': {
+      from.setUTCMonth(utcMonth - 1);
+      chart.current?.timeScale().setVisibleRange({
+        from: from.getTime() / 1000 as UTCTimestamp,
+        to: to.getTime() / 1000 as UTCTimestamp,
+      });
+      break;
+    }
+    case 'year': {
+      from.setUTCFullYear(utcYear - 1);
+      chart.current && chart.current.timeScale().setVisibleRange({
+        from: from.getTime() / 1000 as UTCTimestamp,
+        to: to.getTime() / 1000 as UTCTimestamp,
+      });
+      break;
+    }
+    case 'all':
+      chart.current?.timeScale().fitContent();
+      break;
+    }
+  }
 };
 
 const renderDate = (
@@ -153,9 +192,7 @@ export const Chart = ({
       setFormattedData(data.chartDataDaily || []);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
-
     setChartDisplay('month');
-
     setSource('daily');
   };
 
@@ -165,11 +202,8 @@ export const Chart = ({
       setFormattedData(data.chartDataDaily);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
-
     setChartDisplay('year');
-
     setSource('daily');
-
   };
 
   const displayAll = () => {
@@ -178,11 +212,13 @@ export const Chart = ({
       setFormattedData(data.chartDataDaily);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
-
     setChartDisplay('all');
-
     setSource('daily');
   };
+
+  useEffect(() => {
+    updateRange(chart, chartDisplay);
+  }, [chart, chartDisplay]);
 
   const onResize = useCallback(() => {
     const isMobile = window.innerWidth <= 640;
@@ -206,8 +242,13 @@ export const Chart = ({
         visible: hideAmounts ? false : !isMobile,
       },
     });
-    chart.current.timeScale().fitContent();
-  }, [hideAmounts]);
+    updateRange(chart, chartDisplay);
+  }, [chartDisplay, hideAmounts]);
+
+  useEffect(() => {
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [onResize]);
 
   const calculateChange = useCallback(() => {
     const chartData = data[source === 'daily' ? 'chartDataDaily' : 'chartDataHourly'];
@@ -241,14 +282,13 @@ export const Chart = ({
 
   const removeChart = useCallback(() => {
     if (chartInitialized.current) {
-      window.removeEventListener('resize', onResize);
       chart.current?.timeScale().unsubscribeVisibleLogicalRangeChange(calculateChange);
       chart.current?.unsubscribeCrosshairMove(handleCrosshair);
       chart.current?.remove();
       chart.current = undefined;
       chartInitialized.current = false;
     }
-  }, [calculateChange, onResize]);
+  }, [calculateChange]);
 
   const handleCrosshair = ({
     point,
@@ -279,7 +319,7 @@ export const Chart = ({
     if (!coordinate) {
       return;
     }
-    const coordinateY =
+    const coordinateY = (
       (coordinate - tooltip.clientHeight > 0)
         ? coordinate - tooltip.clientHeight
         : Math.max(
@@ -288,7 +328,8 @@ export const Chart = ({
             parent.clientHeight - tooltip.clientHeight,
             coordinate + 70
           )
-        );
+        )
+    );
 
     const toolTipTop = Math.floor(Math.max(coordinateY, 0));
     const toolTipLeft = Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70)));
@@ -377,23 +418,23 @@ export const Chart = ({
       });
       const isChartDisplayWeekly = chartDisplay === 'week';
       lineSeries.current.setData(
-        (isChartDisplayWeekly ?
-          data.chartDataHourly :
-          data.chartDataDaily)
+        isChartDisplayWeekly
+          ? data.chartDataHourly
+          : data.chartDataDaily
       );
       setFormattedData(
-        (isChartDisplayWeekly ?
-          data.chartDataHourly :
-          data.chartDataDaily)
+        isChartDisplayWeekly
+          ? data.chartDataHourly
+          : data.chartDataDaily
       );
       chart.current.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
       chart.current.subscribeCrosshairMove(handleCrosshair);
       chart.current.timeScale().fitContent();
-      window.addEventListener('resize', onResize);
       ref.current?.classList.remove(styles.invisible);
       chartInitialized.current = true;
+      updateRange(chart, chartDisplay);
     }
-  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile, onResize]);
+  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile]);
 
   const reinitializeChart = () => {
     removeChart();
@@ -432,41 +473,6 @@ export const Chart = ({
       removeChart();
     };
   }, [initChart, removeChart]);
-
-  useEffect(() => {
-    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
-
-    switch (chartDisplay) {
-    case 'week': {
-      from.setUTCDate(utcDate - 7);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'month': {
-      from.setUTCMonth(utcMonth - 1);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'year': {
-      from.setUTCFullYear(utcYear - 1);
-      chart.current && chart.current.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'all': {
-      chart.current?.timeScale().fitContent();
-      break;
-    }
-    }
-  }, [source, chartDisplay]);
 
   const {
     lastTimestamp,
@@ -542,7 +548,9 @@ export const Chart = ({
           </div>
         ) : hasData ? !chartIsUpToDate && (
           <div className={styles.chartUpdatingMessage}>
-            {t('chart.dataOldTimestamp', { time: new Date(lastTimestamp).toLocaleString(i18n.language), })}
+            {t('chart.dataOldTimestamp', {
+              time: new Date(lastTimestamp).toLocaleString(i18n.language)
+            })}
           </div>
         ) : noDataPlaceholder}
         <div ref={ref} className={styles.invisible}></div>
