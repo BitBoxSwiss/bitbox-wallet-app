@@ -9,6 +9,8 @@
         <!-- Scrollbar behavior -->
         <item name="android:scrollbarFadeDuration">250</item>
         <item name="android:scrollbarDefaultDelayBeforeFade">250</item>
+        <item name="android:scrollbarStyle">insideOverlay</item>
+        <item name="android:scrollbarSize">4dp</item>
     </style>
 
     <!-- declare the theme name that's actually applied in the manifest file -->
