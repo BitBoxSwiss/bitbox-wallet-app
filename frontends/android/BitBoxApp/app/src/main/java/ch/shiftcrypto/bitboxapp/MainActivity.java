@@ -220,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
         // For MoonPay WebRTC camera access.
         vw.getSettings().setMediaPlaybackRequiresUserGesture(false);
         vw.setVerticalScrollBarEnabled(true);
+        vw.setScrollBarStyle(WebView.SCROLLBARS_INSIDE_OVERLAY);
 
         vw.setWebViewClient(new WebViewClient() {
             @Override
