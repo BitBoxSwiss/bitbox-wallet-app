@@ -393,3 +393,17 @@
 .dark-mode .show-in-lightmode {
     display: none;
 }
+
+::-webkit-scrollbar {
+    width: 12px; /* Adjust for wider or thinner scrollbars */
+    height: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c0c0c0; /* Light gray - mimics native scrollbar */
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f0f0f0; /* Slightly lighter gray for track */
+}
