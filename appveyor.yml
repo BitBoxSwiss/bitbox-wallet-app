@@ -19,7 +19,7 @@ matrix:
   fast_finish: true
 
 before_build:
-  - set PATH=%QT5%\bin;C:\Qt\Tools\QtCreator\bin\;%GOROOT%\bin;C:\gopath\bin\;C:\Qt\6.2\msvc2019_64\bin\;C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;C:\MinGW\bin;%PATH%
+  - set PATH=C:\Qt\Tools\QtCreator\bin\;%GOROOT%\bin;C:\gopath\bin\;C:\Qt\6.2\msvc2019_64\bin\;C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;C:\MinGW\bin;%PATH%
   - set MINGW_BIN=/c/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/mingw64/bin
 
 build_script:
