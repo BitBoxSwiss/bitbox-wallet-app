@@ -62,6 +62,7 @@
     "build": "npm run typescript && vite build",
     "lint": "npm run typescript && eslint --ext .jsx,.js,.ts,.tsx ./src",
     "typescript": "tsc -p tsconfig.json",
-    "test": "vitest"
+    "test": "vitest",
+    "preview": "vite preview --port 8080"
   }
 }
