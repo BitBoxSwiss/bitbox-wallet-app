@@ -11,6 +11,8 @@
         android:id="@+id/vw"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:scrollbarStyle="insideOverlay"
         app:layout_constraintTop_toTopOf="parent">
     </WebView>
 </androidx.constraintlayout.widget.ConstraintLayout>
