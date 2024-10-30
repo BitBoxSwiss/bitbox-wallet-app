@@ -43,7 +43,7 @@ const SDCardCheck = ({ deviceID, children }: TProps) => {
 
   return (
     <div>
-      {!sdCardInserted ?
+      {!sdCardInserted ? (
         <Dialog open={!sdCardInserted} title="Check your device" small>
           <div className="columnsContainer half">
             <div className="columns">
@@ -62,7 +62,8 @@ const SDCardCheck = ({ deviceID, children }: TProps) => {
               {t('button.back')}
             </BackButton>
           </DialogButtons>
-        </Dialog> : children}
+        </Dialog>
+      ) : children}
     </div>
   );
 };

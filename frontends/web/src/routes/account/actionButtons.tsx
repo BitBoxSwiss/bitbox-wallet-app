@@ -69,9 +69,11 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
           <span>{t('generic.buySell')}</span>
         </Link>
       )}
-      {walletConnectEnabled && <Link key="wallet-connect" to={`/account/${code}/wallet-connect/dashboard`} className={style.walletConnect}>
-        <WalletConnectLight width={24}/> {!isLargeTablet && <span>Wallet Connect</span>}
-      </Link>}
+      {walletConnectEnabled && (
+        <Link key="wallet-connect" to={`/account/${code}/wallet-connect/dashboard`} className={style.walletConnect}>
+          <WalletConnectLight width={24}/> {!isLargeTablet && <span>Wallet Connect</span>}
+        </Link>
+      )}
     </div>
   );
 };

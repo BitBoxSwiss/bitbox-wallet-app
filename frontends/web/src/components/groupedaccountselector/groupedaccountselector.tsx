@@ -106,15 +106,19 @@ type GroupHeadingProps = {
 const GroupHeading = (
   { customData, ...props }: GroupHeadingProps
 ) => {
-  return (<div className={`${styles.groupHeader}`}>
-    <components.GroupHeading {...props} data={customData} />
-    {customData.connected &&
-      <Badge
-        icon={props => <USBSuccess {...props} />}
-        type="success"
-      />
-    }
-  </div>);
+  return (
+    <div className={`${styles.groupHeader}`}>
+      <components.GroupHeading {...props} data={customData} />
+      {customData.connected &&
+        (
+          <Badge
+            icon={props => <USBSuccess {...props} />}
+            type="success"
+          />
+        )
+      }
+    </div>
+  );
 };
 
 export const GroupedAccountSelector = ({ title, disabled, selected, onChange, onProceed, accounts }: TAccountSelector) => {

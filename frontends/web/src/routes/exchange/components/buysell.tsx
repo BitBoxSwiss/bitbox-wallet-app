@@ -104,15 +104,17 @@ export const BuySell = ({
             {exchangeDealsResponse?.success &&
               paymentRequestError &&
               hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired' &&
-              <Button
-                className={style.updateButton}
-                onClick={() => {
-                  setFirmwareUpdateDialogOpen(true);
-                  navigate(`/settings/device-settings/${deviceIDs[0]}`);
-                }}
-                transparent>
-                {t('exchange.buySell.updateNow')}
-              </Button>
+              (
+                <Button
+                  className={style.updateButton}
+                  onClick={() => {
+                    setFirmwareUpdateDialogOpen(true);
+                    navigate(`/settings/device-settings/${deviceIDs[0]}`);
+                  }}
+                  transparent>
+                  {t('exchange.buySell.updateNow')}
+                </Button>
+              )
             }
           </div>
         ) : (
@@ -134,23 +136,25 @@ export const BuySell = ({
         )}
       </div>
       {exchangeDealsResponse?.success &&
-          <div className={style.buttonsContainer}>
-            {showBackButton && (
+          (
+            <div className={style.buttonsContainer}>
+              {showBackButton && (
+                <Button
+                  className={style.buttonBack}
+                  secondary
+                  onClick={() => navigate('/exchange/info')}>
+                  {t('button.back')}
+                </Button>
+              )
+              }
               <Button
-                className={style.buttonBack}
-                secondary
-                onClick={() => navigate('/exchange/info')}>
-                {t('button.back')}
+                primary
+                disabled={!selectedExchange || paymentRequestError}
+                onClick={goToExchange} >
+                {t('button.next')}
               </Button>
-            )
-            }
-            <Button
-              primary
-              disabled={!selectedExchange || paymentRequestError}
-              onClick={goToExchange} >
-              {t('button.next')}
-            </Button>
-          </div>
+            </div>
+          )
       }
     </>
   );

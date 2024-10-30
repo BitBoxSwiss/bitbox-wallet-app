@@ -63,7 +63,7 @@ export const Confirm = () => {
   if (!active) {
     return null;
   }
-  return <DialogLegacy title={t('dialog.confirmTitle')} onClose={() => respond(false)}>
+  return (<DialogLegacy title={t('dialog.confirmTitle')} onClose={() => respond(false)}>
     <div className="columnsContainer half">
       <div className="columns">
         <div className="column">
@@ -83,5 +83,5 @@ export const Confirm = () => {
       <Button primary onClick={() => respond(true)}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
       <Button secondary onClick={() => respond(false)}>{t('dialog.cancel')}</Button>
     </DialogButtons>
-  </DialogLegacy>;
+  </DialogLegacy>);
 };

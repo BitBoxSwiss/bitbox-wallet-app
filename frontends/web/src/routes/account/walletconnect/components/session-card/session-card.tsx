@@ -37,7 +37,7 @@ type TWCSessionCardProps = {
 }
 
 const TextData = ({ accountName, receiveAddress, dAppName, dAppUrl, iconUrl }: TTextDataProps) => {
-  return <div className={styles.textDataContainer}>
+  return (<div className={styles.textDataContainer}>
 
     <div className={styles.accountNameAndWalletContainer}>
       <p className={styles.accountName}>{accountName}</p>
@@ -54,7 +54,7 @@ const TextData = ({ accountName, receiveAddress, dAppName, dAppUrl, iconUrl }: T
       {iconUrl && <img className="hide-on-small" src={iconUrl} alt="dApp icon" />}
     </div>
 
-  </div>;
+  </div>);
 };
 
 

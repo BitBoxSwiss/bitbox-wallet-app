@@ -35,7 +35,7 @@ export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
     setVerifying(false);
   };
 
-  return <div className="flex flex-column">
+  return (<div className="flex flex-column">
     <Button secondary onClick={verifyAddress}>
       {t('receive.verifyBitBox02')}
     </Button>
@@ -44,5 +44,5 @@ export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
         { address }
       </WaitDialog>
     ) : null }
-  </div>;
+  </div>);
 };

@@ -47,13 +47,15 @@ export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSele
       <View width="550px" verticallyCentered fullscreen={false}>
         <ViewContent>
           {activeAccounts && activeAccounts.length > 0 &&
-            <GroupedAccountSelector
-              title={t('receive.selectAccount')}
-              accounts={activeAccounts}
-              selected={code}
-              onChange={setCode}
-              onProceed={handleProceed}
-            />
+            (
+              <GroupedAccountSelector
+                title={t('receive.selectAccount')}
+                accounts={activeAccounts}
+                selected={code}
+                onChange={setCode}
+                onProceed={handleProceed}
+              />
+            )
           }
         </ViewContent>
       </View>

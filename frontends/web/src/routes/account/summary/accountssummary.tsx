@@ -226,16 +226,18 @@ export const AccountsSummary = ({
             )}
             {accountsByKeystore &&
               (accountsByKeystore.map(({ keystore, accounts }) =>
-                <SummaryBalance
-                  keystoreDisambiguatorName={isAmbiguousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
-                  connected={keystore.connected}
-                  keystoreName={keystore.name}
-                  key={keystore.rootFingerprint}
-                  accounts={accounts}
-                  totalBalancePerCoin={balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
-                  totalBalance={accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
-                  balances={balances}
-                />
+                (
+                  <SummaryBalance
+                    keystoreDisambiguatorName={isAmbiguousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
+                    connected={keystore.connected}
+                    keystoreName={keystore.name}
+                    key={keystore.rootFingerprint}
+                    accounts={accounts}
+                    totalBalancePerCoin={balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
+                    totalBalance={accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
+                    balances={balances}
+                  />
+                )
               ))}
           </View>
         </Main>
