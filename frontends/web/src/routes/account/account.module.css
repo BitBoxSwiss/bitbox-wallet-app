@@ -73,7 +73,7 @@
     background-color: var(--color-lightblue);
 }
 
-.send.disabled {
+.disabled {
     cursor: default;
     opacity: 0.4;
 }
@@ -154,7 +154,8 @@
         max-width: 15%;
     }
 
-    .actionsContainer a {
+    .actionsContainer a,
+    .actionsContainer > span {
         flex: 1 0 30%;
         max-width: 30%;
         min-width: unset;
@@ -175,4 +176,12 @@
     .walletConnect:first-child {
         margin-left: 0;
     }
+}
+
+.status {
+    white-space: pre-line;
+}
+
+.txHistorySkeleton {
+    margin-top: var(--space-quarter);
 }
