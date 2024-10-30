@@ -48,9 +48,7 @@ export const EnableCustomFeesToggleSetting = ({ frontendConfig, onChangeConfig }
             checked={frontendConfig?.expertFee || false}
             onChange={handleToggleFee}
           />
-        )
-          :
-          null
+        ) : null
       }
     />
   );

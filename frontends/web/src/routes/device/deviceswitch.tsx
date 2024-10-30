@@ -37,11 +37,13 @@ const DeviceSwitch = ({ deviceID, devices, hasAccounts }: TProps) => {
   case 'bitbox':
     return <BitBox01 deviceID={deviceID} />;
   case 'bitbox02':
-    return (<BitBox02
-      deviceID={deviceID}
-      deviceIDs={deviceIDs}
-      hasAccounts={hasAccounts}
-    />);
+    return (
+      <BitBox02
+        deviceID={deviceID}
+        deviceIDs={deviceIDs}
+        hasAccounts={hasAccounts}
+      />
+    );
   case 'bitbox02-bootloader':
     return <BitBox02Bootloader deviceID={deviceID} />;
   default:

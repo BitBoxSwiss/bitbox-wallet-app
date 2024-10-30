@@ -70,9 +70,7 @@ export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => 
             checked={backendConfig?.authentication || false}
             onChange={handleToggleAuth}
           />
-        )
-          :
-          null
+        ) : null
       }
     />
   );

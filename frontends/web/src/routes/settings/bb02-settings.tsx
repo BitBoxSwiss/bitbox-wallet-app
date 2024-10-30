@@ -162,8 +162,9 @@ const Content = ({ deviceID }: TProps) => {
               passphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
               deviceID={deviceID}
             />
-          ) :
+          ) : (
             <StyledSkeleton />
+          )
         }
         {
           versionInfo ? (

@@ -96,17 +96,15 @@ export const SummaryBalance = ({
           <tbody>
             { accounts.length > 0 ? (
               coins.map(coinCode => {
-                const balanceRows = accountsPerCoin[coinCode]?.map(account =>
-                  (
-                    <BalanceRow
-                      key={account.code}
-                      code={account.code}
-                      name={account.name}
-                      coinCode={account.coinCode}
-                      balance={balances && balances[account.code]}
-                    />
-                  )
-                );
+                const balanceRows = accountsPerCoin[coinCode]?.map(account => (
+                  <BalanceRow
+                    key={account.code}
+                    code={account.code}
+                    name={account.name}
+                    coinCode={account.coinCode}
+                    balance={balances && balances[account.code]}
+                  />
+                ));
                 if (balanceRows && balanceRows?.length > 1) {
                   const accountsForCoin = accountsPerCoin[coinCode];
                   if (accountsForCoin && accountsForCoin.length >= 1) {

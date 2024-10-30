@@ -103,19 +103,17 @@ export const BuySell = ({
             <p className={style.noExchangeText}>{constructErrorMessage()}</p>
             {exchangeDealsResponse?.success &&
               paymentRequestError &&
-              hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired' &&
-              (
-                <Button
-                  className={style.updateButton}
-                  onClick={() => {
-                    setFirmwareUpdateDialogOpen(true);
-                    navigate(`/settings/device-settings/${deviceIDs[0]}`);
-                  }}
-                  transparent>
-                  {t('exchange.buySell.updateNow')}
-                </Button>
-              )
-            }
+              hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired' && (
+              <Button
+                className={style.updateButton}
+                onClick={() => {
+                  setFirmwareUpdateDialogOpen(true);
+                  navigate(`/settings/device-settings/${deviceIDs[0]}`);
+                }}
+                transparent>
+                {t('exchange.buySell.updateNow')}
+              </Button>
+            )}
           </div>
         ) : (
           <div>
@@ -135,27 +133,24 @@ export const BuySell = ({
           </div>
         )}
       </div>
-      {exchangeDealsResponse?.success &&
-          (
-            <div className={style.buttonsContainer}>
-              {showBackButton && (
-                <Button
-                  className={style.buttonBack}
-                  secondary
-                  onClick={() => navigate('/exchange/info')}>
-                  {t('button.back')}
-                </Button>
-              )
-              }
-              <Button
-                primary
-                disabled={!selectedExchange || paymentRequestError}
-                onClick={goToExchange} >
-                {t('button.next')}
-              </Button>
-            </div>
-          )
-      }
+      {exchangeDealsResponse?.success && (
+        <div className={style.buttonsContainer}>
+          {showBackButton && (
+            <Button
+              className={style.buttonBack}
+              secondary
+              onClick={() => navigate('/exchange/info')}>
+              {t('button.back')}
+            </Button>
+          )}
+          <Button
+            primary
+            disabled={!selectedExchange || paymentRequestError}
+            onClick={goToExchange}>
+            {t('button.next')}
+          </Button>
+        </div>
+      )}
     </>
   );
 };

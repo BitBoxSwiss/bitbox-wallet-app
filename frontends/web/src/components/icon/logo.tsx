@@ -121,13 +121,14 @@ export const Logo = ({
   }
   return (
     <div>
-      { active ? <img draggable={false} src={logoMap[coinCode][0]} {...rest}/>
-        : (
-          <div className="stacked">
-            <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
-            <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
-          </div>
-        )}
+      { active ? (
+        <img draggable={false} src={logoMap[coinCode][0]} {...rest}/>
+      ) : (
+        <div className="stacked">
+          <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
+          <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
+        </div>
+      )}
     </div>
   );
 };

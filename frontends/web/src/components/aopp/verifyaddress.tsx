@@ -35,14 +35,16 @@ export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
     setVerifying(false);
   };
 
-  return (<div className="flex flex-column">
-    <Button secondary onClick={verifyAddress}>
-      {t('receive.verifyBitBox02')}
-    </Button>
-    { verifying ? (
-      <WaitDialog title={t('receive.verifyBitBox02')}>
-        { address }
-      </WaitDialog>
-    ) : null }
-  </div>);
+  return (
+    <div className="flex flex-column">
+      <Button secondary onClick={verifyAddress}>
+        {t('receive.verifyBitBox02')}
+      </Button>
+      { verifying ? (
+        <WaitDialog title={t('receive.verifyBitBox02')}>
+          { address }
+        </WaitDialog>
+      ) : null }
+    </div>
+  );
 };

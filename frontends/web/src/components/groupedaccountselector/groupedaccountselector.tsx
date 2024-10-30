@@ -109,14 +109,12 @@ const GroupHeading = (
   return (
     <div className={`${styles.groupHeader}`}>
       <components.GroupHeading {...props} data={customData} />
-      {customData.connected &&
-        (
-          <Badge
-            icon={props => <USBSuccess {...props} />}
-            type="success"
-          />
-        )
-      }
+      {customData.connected && (
+        <Badge
+          icon={props => <USBSuccess {...props} />}
+          type="success"
+        />
+      )}
     </div>
   );
 };

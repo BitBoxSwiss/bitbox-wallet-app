@@ -215,60 +215,62 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
 
-  return (<Routes>
-    <Route path="/">
-      <Route index element={Homepage} />
-      <Route path="account/:code">
-        <Route index element={Acc} />
-        <Route path="send" element={AccSend} />
-        <Route path="receive" element={AccReceive} />
-        <Route path="info" element={AccInfo} />
-        <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
-        <Route path="wallet-connect/dashboard" element={AccDashboardWC} />
-      </Route>
-      <Route path="add-account" element={<AddAccount accounts={accounts}/>} />
-      <Route path="account-summary" element={AccountsSummaryEl} />
-      <Route path="exchange">
-        <Route path="info" element={ExchangeInfoEl} >
-          <Route index element={ExchangeInfoEl} />
-          <Route path=":code" element={ExchangeInfoEl} />
+  return (
+    <Routes>
+      <Route path="/">
+        <Route index element={Homepage} />
+        <Route path="account/:code">
+          <Route index element={Acc} />
+          <Route path="send" element={AccSend} />
+          <Route path="receive" element={AccReceive} />
+          <Route path="info" element={AccInfo} />
+          <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
+          <Route path="wallet-connect/dashboard" element={AccDashboardWC} />
         </Route>
-        <Route path="moonpay/buy/:code" element={MoonpayEl} />
-        <Route path="pocket/buy/:code" element={PocketBuyEl} />
-        <Route path="pocket/sell/:code" element={PocketSellEl} />
-        <Route path="select/:code" element={ExchangeEl} />
-      </Route>
-      <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
-      <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
-      <Route path="bitsurance">
-        <Route path="bitsurance" element={<Bitsurance accounts={activeAccounts}/>}/>
-        <Route path="account" element={BitsuranceAccountEl} >
-          <Route index element={BitsuranceAccountEl} />
-          <Route path=":code" element={BitsuranceAccountEl} />
+        <Route path="add-account" element={<AddAccount accounts={accounts}/>} />
+        <Route path="account-summary" element={AccountsSummaryEl} />
+        <Route path="exchange">
+          <Route path="info" element={ExchangeInfoEl} >
+            <Route index element={ExchangeInfoEl} />
+            <Route path=":code" element={ExchangeInfoEl} />
+          </Route>
+          <Route path="moonpay/buy/:code" element={MoonpayEl} />
+          <Route path="pocket/buy/:code" element={PocketBuyEl} />
+          <Route path="pocket/sell/:code" element={PocketSellEl} />
+          <Route path="select/:code" element={ExchangeEl} />
         </Route>
-        <Route path="widget" element={BitsuranceWidgetEl} >
-          <Route index element={BitsuranceWidgetEl} />
-          <Route path=":code" element={BitsuranceWidgetEl} />
+        <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
+        <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
+        <Route path="bitsurance">
+          <Route path="bitsurance" element={<Bitsurance accounts={activeAccounts}/>}/>
+          <Route path="account" element={BitsuranceAccountEl} >
+            <Route index element={BitsuranceAccountEl} />
+            <Route path=":code" element={BitsuranceAccountEl} />
+          </Route>
+          <Route path="widget" element={BitsuranceWidgetEl} >
+            <Route index element={BitsuranceWidgetEl} />
+            <Route path=":code" element={BitsuranceWidgetEl} />
+          </Route>
+          <Route path="dashboard" element={<BitsuranceDashboard accounts={activeAccounts}/>}/>
         </Route>
-        <Route path="dashboard" element={<BitsuranceDashboard accounts={activeAccounts}/>}/>
+        <Route path="settings">
+          <Route index element={MobileSettingsEl} />
+          <Route path="general" element={GeneralEl} />
+          <Route path="about" element={AboutEl} />
+          <Route path="device-settings/:deviceID" element={Device} />
+          <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
+          <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
+          <Route path="advanced-settings" element={AdvancedSettingsEl} />
+          <Route path="electrum" element={<ElectrumSettings />} />
+          <Route path="manage-accounts" element={
+            <ManageAccounts
+              accounts={accounts}
+              key="manage-accounts"
+              deviceIDs={deviceIDs}
+              hasAccounts={hasAccounts} />
+          } />
+        </Route>
       </Route>
-      <Route path="settings">
-        <Route index element={MobileSettingsEl} />
-        <Route path="general" element={GeneralEl} />
-        <Route path="about" element={AboutEl} />
-        <Route path="device-settings/:deviceID" element={Device} />
-        <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
-        <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
-        <Route path="advanced-settings" element={AdvancedSettingsEl} />
-        <Route path="electrum" element={<ElectrumSettings />} />
-        <Route path="manage-accounts" element={
-          <ManageAccounts
-            accounts={accounts}
-            key="manage-accounts"
-            deviceIDs={deviceIDs}
-            hasAccounts={hasAccounts} />
-        } />
-      </Route>
-    </Route>
-  </Routes>);
+    </Routes>
+  );
 };

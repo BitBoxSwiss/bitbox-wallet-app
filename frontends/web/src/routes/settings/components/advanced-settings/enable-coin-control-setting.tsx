@@ -48,9 +48,7 @@ export const EnableCoinControlSetting = ({ frontendConfig, onChangeConfig }: TPr
             checked={frontendConfig?.coinControl || false}
             onChange={handleToggleFee}
           />
-        )
-          :
-          null
+        ) : null
       }
     />
   );
