@@ -340,6 +340,7 @@ public class MainActivity extends AppCompatActivity {
         vw.addJavascriptInterface(new JavascriptBridge(this), javascriptVariableName);
 
         vw.loadUrl(BASE_URL + "index.html");
+        vw.invalidate();
 
         // We call updateDevice() here in case the app was started while the device was already connected.
         // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
