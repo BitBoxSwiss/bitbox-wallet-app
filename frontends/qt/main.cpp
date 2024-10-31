@@ -130,6 +130,16 @@ public:
         bool onBitsurancePage = currentUrl.contains(QRegularExpression("^qrc:/bitsurance/.*$"));
         if (onExchangePage || onBitsurancePage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
+                // Ignore requests for certain file types (e.g., .js, .css) Somehow Moonpay loads
+                // https://buy.moonpay.com/serviceWorker.js in a way where `info.navigationType()`
+                // is Link (link clicked, see
+                // https://doc.qt.io/qt-6/qwebengineurlrequestinfo.html#NavigationType-enum). We
+                // can't figure out why that happens or how to easily identify the case other than
+                // to exclude such files from being handled here.
+                if (requestedUrl.endsWith(".js") || requestedUrl.endsWith(".css")) {
+                    return;
+                }
+
                 // A link with target=_blank was clicked.
                 systemOpen(info.requestUrl().toString().toUtf8().constData());
                 // No need to also load it in our page.
