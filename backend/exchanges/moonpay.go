@@ -34,7 +34,7 @@ const (
 	// moonpayAPILivePubKey is the production API key for real transactions.
 	// It is ok for it to be public.
 	moonpayBuyAPILivePubKey = "pk_live_jfhWEt55szMLar8DhQWWiDwteX1mftY"
-	moonpayBuyAPILiveURL    = "https://buy.moonpay.com"
+	moonpayBuyAPILiveURL    = "https://buy-sandbox.moonpay.com"
 
 	// moonpayAPILiveURL is the API url for REST calls.
 	moonpayAPILiveURL = "https://api.moonpay.com/v3"
