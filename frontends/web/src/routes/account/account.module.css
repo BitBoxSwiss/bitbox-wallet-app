@@ -28,9 +28,9 @@
     flex-grow: 1;
     flex-shrink: 0;
     flex-wrap: nowrap;
-    justify-content: end;
+    justify-content: flex-end;
     margin-top: var(--space-half);
-    padding-bottom: 24px;
+    padding-bottom: 0;
 }
 
 .exchange,
