@@ -77,6 +77,8 @@ full node.
 
 ### Local development
 
+Run `make envinit` to fetch golangci-lint and some other devtools.
+
 Run `make servewallet` and `make webdev` in seperate terminals.
 
 Before the first use of `make webdev`, you also need to run `make buildweb`, to install the dev
