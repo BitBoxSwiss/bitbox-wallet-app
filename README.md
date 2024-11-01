@@ -12,7 +12,7 @@ Please see the [contribution guidelines](CONTRIBUTING.md).
 The wallet UI is a [React](https://reactjs.org/) single page webapp. It sources its data from the
 backend written in Go.
 
-The Desktop app is a C++ Qt5 program containing only a `WebEngineView`, displaying the UI.
+The Desktop app is a C++ Qt program containing only a `WebEngineView`, displaying the UI.
 
 Static assets are sourced from a Qt rcc file, and the dynamic data is bridged from Go with
 WebChannels.
@@ -35,7 +35,7 @@ XCode project.
   backend. Manages addresses, outputs, tx creation, and everything else that a wallet needs to do.
 - `backend/`: The library that ties it all together. Uses the above packages to create a wallet
   talking Electrum using the BitBox for signing, and serve a high level HTTP API to control it.
-- `frontends/qt/`: the C++/Qt5 app which builds the wallet app for the desktop.
+- `frontends/qt/`: the C++/Qt app which builds the wallet app for the desktop.
 - `frontends/android/`: Android target
 - `frontends/web/`: home of the React UI.
 
@@ -50,16 +50,8 @@ To build the app or run the development workflow, the following dependencies nee
 - [Go](https://golang.org/doc/install) version 1.23
 - [Node.js](https://nodejs.org/) version 20.x
 - [NPM](https://docs.npmjs.com/about-npm-versions) version 10.x or newer
-- [Qt5](https://www.qt.io) version 5.15.2
+- [Qt](https://www.qt.io) version 6.2.4
   - install Qt for your platform, including the WebEngine component
-
-#### Environment variables
-
-Make sure the environment variables for qt, go and node are set, see also [docs/BUILD.md](./docs/BUILD.md) for platform specific instructions
-
-To initialize the build environment and install the required go utilities (linters, ...), call
-* `make envinit`, or
-* on MacOS `make osx-init`
 
 ## Build the BitBoxApp
 
@@ -84,6 +76,8 @@ full node.
 ## Development workflow
 
 ### Local development
+
+Run `make envinit` to fetch golangci-lint and some other devtools.
 
 Run `make servewallet` and `make webdev` in seperate terminals.
 

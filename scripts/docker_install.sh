@@ -73,7 +73,7 @@ apt-get -y install --no-install-recommends python3-pip python3-dev
 pip install -U pip && pip install aqtinstall
 # Not sure why we need qtpositioning - app compilation fails without. Maybe the webengine depends on it.
 # qtpositioning depends on qtserialport.
-# qtwebechannel is for the JS/backend bridge.
+# qtwebchannel is for the JS/backend bridge.
 # qtwebengine is for rendering the frontend.
 aqt install-qt linux desktop 6.2.4 -m qtpositioning qtserialport qtwebchannel qtwebengine --outputdir /opt/qt6
 

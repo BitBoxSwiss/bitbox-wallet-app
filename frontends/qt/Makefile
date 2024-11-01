@@ -17,9 +17,6 @@ include ../../env.mk.inc
 base:
 	mkdir build
 	./genassets.sh
-	qmake -set MACOS_MIN_VERSION $(MACOS_MIN_VERSION)
-	qmake -o build/Makefile
-	cd build && $(MAKE)
 clean:
 	-rm -rf build
 	cd server && $(MAKE) clean
@@ -27,6 +24,8 @@ linux:
 	$(MAKE) clean
 	cd server && $(MAKE) linux
 	$(MAKE) base
+	qmake -o build/Makefile
+	cd build && $(MAKE)
 	mkdir build/linux-tmp build/linux
 	mv build/BitBox build/linux-tmp
 	cp build/assets.rcc build/linux-tmp/
@@ -47,13 +46,15 @@ osx:
 	$(MAKE) clean
 	cd server && $(MAKE) macosx
 	$(MAKE) base
+	qmake -set MACOS_MIN_VERSION $(MACOS_MIN_VERSION)
+	# See https://stackoverflow.com/questions/77136519/qmake-failing-with-sdk-14-ventura-13-5-2
+	qmake -early QMAKE_DEFAULT_LIBDIRS=$(shell xcrun -show-sdk-path)/usr/lib -o build/Makefile
+	cd build && $(MAKE)
 	mkdir build/osx
 	mv build/BitBox.app build/osx/
 	cp resources/MacOS/Info.plist build/osx/BitBox.app/Contents/
 	cp resources/MacOS/icon.icns build/osx/BitBox.app/Contents/Resources/
-	# The `-executable` flag is needed to make the macOS build work when Qt is installed from homebrew.
-	# It works without it when Qt is installed using the official installer.
-	cd build/osx/ && macdeployqt BitBox.app -executable=BitBox.app/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess
+	cd build/osx/ && macdeployqt BitBox.app
 	cp server/libserver.so build/osx/BitBox.app/Contents/Frameworks
 	cp build/assets.rcc build/osx/BitBox.app/Contents/MacOS/
 	install_name_tool -change libserver.so @executable_path/../Frameworks/libserver.so build/osx/BitBox.app/Contents/MacOS/BitBox

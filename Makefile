@@ -30,13 +30,6 @@ gomobileinit:
 	# TODO: replace with go install golang.org/x/mobile/cmd/gomobile@latest once https://github.com/golang/mobile/pull/105 is merged.
 	git clone https://github.com/BitBoxSwiss/mobile.git /tmp/mobile && cd /tmp/mobile/cmd/gomobile && go install .
 	gomobile init
-# Initializiation on MacOS
-#  - run make from $GOPATH/src/github.com/BitBoxSwiss/bitbox-wallet-app
-#  - additional dependencies: Qt 5.15 & Xcode command line tools
-#  - add to $PATH: /usr/local/opt/go@1.23/bin
-osx-init:
-	./scripts/osx-brew.sh
-	$(MAKE) envinit
 servewallet:
 	go run -mod=vendor ./cmd/servewallet
 servewallet-mainnet:
