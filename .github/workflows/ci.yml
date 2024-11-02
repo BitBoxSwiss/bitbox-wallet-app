@@ -44,6 +44,8 @@ jobs:
           OS_NAME: linux
   android:
     runs-on: ubuntu-22.04
+    outputs:
+      artifact-url: ${{ steps.upload.outputs.artifact-url }}
     steps:
       - name: Clone the repo
         uses: actions/checkout@v4
@@ -59,12 +61,18 @@ jobs:
         env:
           OS_NAME: linux
       - name: Upload APK
+        id: upload
         uses: actions/upload-artifact@v4
         with:
           path: frontends/android/BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
           name: BitBoxApp-android-${{github.sha}}.apk
+          if-no-files-found: error
   qt-linux:
     runs-on: ubuntu-22.04
+    outputs:
+      artifact-url-ai: ${{ steps.upload-ai.outputs.artifact-url }}
+      artifact-url-deb: ${{ steps.upload-deb.outputs.artifact-url }}
+      artifact-url-rpm: ${{ steps.upload-rpm.outputs.artifact-url }}
     steps:
       - name: Clone the repo
         uses: actions/checkout@v4
@@ -75,22 +83,30 @@ jobs:
         env:
           OS_NAME: linux
       - name: Upload AppImage
+        id: upload-ai
         uses: actions/upload-artifact@v4
         with:
           path: frontends/qt/build/linux/BitBoxApp-*.AppImage
           name: BitBoxApp-linux-${{github.sha}}.AppImage
+          if-no-files-found: error
       - name: Upload deb
+        id: upload-deb
         uses: actions/upload-artifact@v4
         with:
           path: frontends/qt/build/linux/bitbox_*.deb
           name: BitBoxApp-linux-${{github.sha}}.deb
+          if-no-files-found: error
       - name: Upload rpm
+        id: upload-rpm
         uses: actions/upload-artifact@v4
         with:
           path: frontends/qt/build/linux/bitbox-*.rpm
           name: BitBoxApp-linux-${{github.sha}}.rpm
+          if-no-files-found: error
   macos:
     runs-on: macos-13
+    outputs:
+      artifact-url: ${{ steps.upload.outputs.artifact-url }}
     steps:
       - name: Clone the repo
         uses: actions/checkout@v4
@@ -129,10 +145,12 @@ jobs:
           ditto -c -k --keepParent BitBox.app ${{github.workspace}}/BitBoxApp-macos.zip;
           popd;
       - name: Upload app
+        id: upload
         uses: actions/upload-artifact@v4
         with:
           path: BitBoxApp-macos.zip
           name: BitBoxApp-macos-${{github.sha}}.zip
+          if-no-files-found: error
   ios:
     runs-on: macos-14
     env:
@@ -163,3 +181,42 @@ jobs:
         run: |
           make gomobileinit
           (cd $GOPATH/$GO_SRC_DIR; make ios)
+
+  report-artifacts:
+    needs: [android, qt-linux, macos]
+    runs-on: ubuntu-22.04
+    if: ${{ !cancelled() && github.event_name == 'push' }}
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v4
+      - name: Create vars
+        id: vars
+        run: |
+          echo "git_sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Message for success
+        uses: mattermost/action-mattermost-notify@master
+        continue-on-error: true
+        if: job.status == 'success'
+        with:
+          MATTERMOST_WEBHOOK_URL: ${{ secrets.MM_WEBHOOK_URL }}
+          PAYLOAD: |-
+            {
+              "channel": "eng-artifacts",
+              "text": "**New artifacts built**\n([${{ github.ref_name }}](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}), [${{ steps.vars.outputs.git_sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}), [artifacts](https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}#artifacts))\n* Android - [APK](${{needs.android.outputs.artifact-url}})\n* Linux - [AppImage](${{needs.qt-linux.outputs.artifact-url-ai}}), [DEB](${{needs.qt-linux.outputs.artifact-url-deb}}), [RPM](${{needs.qt-linux.outputs.artifact-url-rpm}})\n* MacOS - [Zip](${{needs.macos.outputs.artifact-url}})",
+              "icon_emoji": "white_check_mark",
+              "props": {"card": "Repository: [${{ github.repository }}](https://github.com/${{ github.repository }})"}
+            }
+
+      - name: Message for failure
+        uses: mattermost/action-mattermost-notify@master
+        continue-on-error: true
+        if: job.status == 'failure'
+        with:
+          MATTERMOST_WEBHOOK_URL: ${{ secrets.MM_WEBHOOK_URL }}
+          PAYLOAD: |-
+            {
+              "channel": "eng-build-failures",
+              "text": "**Oh no! [${{ steps.vars.outputs.git_sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) failed to build.**\nSee [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) form more details.",
+              "icon_emoji": "warning",
+              "props": {"card": "Repository: [${{ github.repository }}](https://github.com/${{ github.repository }})\n\nbranch: [${{ github.ref_name }}](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }})\n\ncommit: [${{ steps.vars.outputs.git_sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})"}
+            }
