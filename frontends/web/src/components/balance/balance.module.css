@@ -25,6 +25,7 @@
 }
 
 .balanceTable .availableAmount {
+    color: var(--color-default);
     padding-right: var(--space-quarter);
     text-align: right;
     white-space: nowrap;

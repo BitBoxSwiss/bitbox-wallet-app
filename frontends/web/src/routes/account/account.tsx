@@ -47,7 +47,7 @@ import { getConfig, setConfig } from '@/utils/config';
 import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
-import { View, ViewContent } from '@/components/view/view';
+import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Transaction } from '@/components/transactions/transaction';
 import { TransactionDetails } from '@/components/transactions/details';
 import { Button } from '@/components/forms';
@@ -315,15 +315,17 @@ export const Account = ({
             <HeadersSync coinCode={account.coinCode} />
           )}
           <View>
+            <ViewHeader>
+              <label className="labelXLarge">
+                {t('accountSummary.availableBalance')}
+              </label>
+              <div className={style.balanceHeader}>
+                <Balance balance={balance} />
+                {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
+              </div>
+            </ViewHeader>
             <ViewContent fullWidth>
               <div className={style.accountHeader}>
-                <label className="labelXLarge">
-                  {t('accountSummary.availableBalance')}
-                </label>
-                <div className={style.balanceHeader}>
-                  <Balance balance={balance} />
-                  {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
-                </div>
                 {isAccountEmpty && (
                   <BuyReceiveCTA
                     account={account}
