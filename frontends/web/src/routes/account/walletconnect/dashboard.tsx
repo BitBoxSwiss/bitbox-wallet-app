@@ -110,19 +110,21 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
               </div>
               <hr className={styles.separator} />
               {hasSession &&
-                <div className={styles.sessionCardsContainer}>
-                  <p className={styles.allSessionsHeading}>{t('walletConnect.dashboard.allSessions')}</p>
-                  {sessions.map(session => {
-                    return (
-                      <WCSessionCard
-                        key={session.topic}
-                        receiveAddress={session.namespaces['eip155'].accounts[0] ? getAddressFromEIPString(session.namespaces['eip155'].accounts[0]) : ''}
-                        metadata={session.peer.metadata}
-                        onDisconnect={() => handleDisconnectSession(session.topic)}
-                      />
-                    );
-                  })}
-                </div>
+                (
+                  <div className={styles.sessionCardsContainer}>
+                    <p className={styles.allSessionsHeading}>{t('walletConnect.dashboard.allSessions')}</p>
+                    {sessions.map(session => {
+                      return (
+                        <WCSessionCard
+                          key={session.topic}
+                          receiveAddress={session.namespaces['eip155'].accounts[0] ? getAddressFromEIPString(session.namespaces['eip155'].accounts[0]) : ''}
+                          metadata={session.peer.metadata}
+                          onDisconnect={() => handleDisconnectSession(session.topic)}
+                        />
+                      );
+                    })}
+                  </div>
+                )
               }
               {!hasSession &&
                 <p className={styles.noConnectedSessions}>{t('walletConnect.dashboard.noConnectedSessions')}</p>

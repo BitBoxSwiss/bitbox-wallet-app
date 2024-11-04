@@ -41,16 +41,20 @@ export const KeystoreConnectPrompt = () => {
   const errorMessage = (errorCode: TConnectKeystoreErrorCode | undefined): ReactElement | null => {
     switch (errorCode) {
     case 'wrongKeystore':
-      return (<>
-        {t('error.wrongKeystore')}
-        <br />
-        <br />
-        {t('error.wrongKeystore2')}
-      </>);
+      return (
+        <>
+          {t('error.wrongKeystore')}
+          <br />
+          <br />
+          {t('error.wrongKeystore2')}
+        </>
+      );
     case 'timeout':
-      return (<>
-        {t('error.keystoreTimeout')}
-      </>);
+      return (
+        <>
+          {t('error.keystoreTimeout')}
+        </>
+      );
     default:
       return null;
     }

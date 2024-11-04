@@ -533,11 +533,11 @@ export const Chart = ({
               difference={difference}
               title={diffSince}
             />
-          ) :
+          ) : (
             <span className={styles.diffValue}>
               {renderDate(toolTipTime * 1000, i18n.language, source)}
             </span>
-          }
+          )}
         </div>
         {!isMobile && <Filters {...chartFiltersProps} />}
       </header>

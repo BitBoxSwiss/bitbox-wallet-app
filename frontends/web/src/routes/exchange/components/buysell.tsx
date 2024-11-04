@@ -103,7 +103,7 @@ export const BuySell = ({
             <p className={style.noExchangeText}>{constructErrorMessage()}</p>
             {exchangeDealsResponse?.success &&
               paymentRequestError &&
-              hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired' &&
+              hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired' && (
               <Button
                 className={style.updateButton}
                 onClick={() => {
@@ -113,7 +113,7 @@ export const BuySell = ({
                 transparent>
                 {t('exchange.buySell.updateNow')}
               </Button>
-            }
+            )}
           </div>
         ) : (
           <div>
@@ -133,25 +133,24 @@ export const BuySell = ({
           </div>
         )}
       </div>
-      {exchangeDealsResponse?.success &&
-          <div className={style.buttonsContainer}>
-            {showBackButton && (
-              <Button
-                className={style.buttonBack}
-                secondary
-                onClick={() => navigate('/exchange/info')}>
-                {t('button.back')}
-              </Button>
-            )
-            }
+      {exchangeDealsResponse?.success && (
+        <div className={style.buttonsContainer}>
+          {showBackButton && (
             <Button
-              primary
-              disabled={!selectedExchange || paymentRequestError}
-              onClick={goToExchange} >
-              {t('button.next')}
+              className={style.buttonBack}
+              secondary
+              onClick={() => navigate('/exchange/info')}>
+              {t('button.back')}
             </Button>
-          </div>
-      }
+          )}
+          <Button
+            primary
+            disabled={!selectedExchange || paymentRequestError}
+            onClick={goToExchange}>
+            {t('button.next')}
+          </Button>
+        </div>
+      )}
     </>
   );
 };

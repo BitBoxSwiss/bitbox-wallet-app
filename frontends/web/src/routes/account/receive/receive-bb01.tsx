@@ -207,21 +207,23 @@ export const Receive = ({
                     <Dialog open={(!!addressDialog)} medium title={t('receive.changeScriptType')} >
                       {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
                         <div key={scriptType}>
-                          {addressDialog && <>
-                            <Radio
-                              checked={addressDialog.addressType === i}
-                              id={scriptType}
-                              name="scriptType"
-                              onChange={() => setAddressDialog({ addressType: i })}
-                              title={getScriptName(scriptType)}>
-                              {t(`receive.scriptType.${scriptType}`)}
-                            </Radio>
-                            {scriptType === 'p2tr' && addressDialog.addressType === i && (
-                              <Message type="warning">
-                                {t('receive.taprootWarning')}
-                              </Message>
-                            )}
-                          </>}
+                          {addressDialog && (
+                            <>
+                              <Radio
+                                checked={addressDialog.addressType === i}
+                                id={scriptType}
+                                name="scriptType"
+                                onChange={() => setAddressDialog({ addressType: i })}
+                                title={getScriptName(scriptType)}>
+                                {t(`receive.scriptType.${scriptType}`)}
+                              </Radio>
+                              {scriptType === 'p2tr' && addressDialog.addressType === i && (
+                                <Message type="warning">
+                                  {t('receive.taprootWarning')}
+                                </Message>
+                              )}
+                            </>
+                          )}
                         </div>
                       ))}
                       <DialogButtons>
@@ -249,20 +251,22 @@ export const Receive = ({
                     title={verifyLabel}
                     medium centered>
                     <div className="text-center">
-                      {account && <>
-                        { isEthereumBased(account.coinCode) && (
-                          <p>
-                            <strong>
-                              {t('receive.onlyThisCoin.warning', {
-                                coinName: account.coinName,
-                              })}
-                            </strong><br />
-                            {t('receive.onlyThisCoin.description')}
-                          </p>
-                        )}
-                        <QRCode tapToCopy={false} data={uriPrefix + address} />
-                        <p>{t('receive.verifyInstruction')}</p>
-                      </>}
+                      {account && (
+                        <>
+                          { isEthereumBased(account.coinCode) && (
+                            <p>
+                              <strong>
+                                {t('receive.onlyThisCoin.warning', {
+                                  coinName: account.coinName,
+                                })}
+                              </strong><br />
+                              {t('receive.onlyThisCoin.description')}
+                            </p>
+                          )}
+                          <QRCode tapToCopy={false} data={uriPrefix + address} />
+                          <p>{t('receive.verifyInstruction')}</p>
+                        </>
+                      )}
                     </div>
                     <div className="m-bottom-half">
                       <CopyableInput value={address} flexibleHeight />

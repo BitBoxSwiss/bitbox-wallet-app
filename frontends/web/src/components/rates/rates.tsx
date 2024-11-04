@@ -52,13 +52,15 @@ const Conversion = ({
   // amount.conversions[defaultCurrency] can be empty in recent transactions.
   if (amount && amount.conversions && amount.conversions[defaultCurrency] && amount.conversions[defaultCurrency] !== '') {
     isAvailable = true;
-    formattedAmount = <Amount
-      alwaysShowAmounts={alwaysShowAmounts}
-      amount={amount.conversions[defaultCurrency]}
-      unit={activeUnit}
-      removeBtcTrailingZeroes={!!noBtcZeroes}
-      allowRotateCurrencyOnMobile={!noAction}
-    />;
+    formattedAmount = (
+      <Amount
+        alwaysShowAmounts={alwaysShowAmounts}
+        amount={amount.conversions[defaultCurrency]}
+        unit={activeUnit}
+        removeBtcTrailingZeroes={!!noBtcZeroes}
+        allowRotateCurrencyOnMobile={!noAction}
+      />
+    );
   }
 
   if (tableRow) {

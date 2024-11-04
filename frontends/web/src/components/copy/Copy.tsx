@@ -68,33 +68,35 @@ export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, classN
     }
   };
 
-  return (<div className={[
-    'flex flex-row flex-start flex-items-start',
-    style.container,
-    className ? className : ''
-  ].join(' ')}>
-    <textarea
-      disabled={disabled}
-      readOnly
-      onFocus={onFocus}
-      value={value}
-      ref={textAreaRef}
-      rows={1}
-      className={[
-        style.inputField,
-        flexibleHeight && style.flexibleHeight,
-        alignLeft && style.alignLeft,
-        alignRight && style.alignRight,
-        borderLess && style.borderLess,
-      ].join(' ')} />
-    {disabled ? null : (
-      <button
-        onClick={copy}
-        className={[style.button, success && style.success, 'ignore'].join(' ')}
-        title={t('button.copy')}>
-        {success ? <Check /> : <Copy />}
-      </button>
-    )}
-  </div>);
+  return (
+    <div className={[
+      'flex flex-row flex-start flex-items-start',
+      style.container,
+      className ? className : ''
+    ].join(' ')}>
+      <textarea
+        disabled={disabled}
+        readOnly
+        onFocus={onFocus}
+        value={value}
+        ref={textAreaRef}
+        rows={1}
+        className={[
+          style.inputField,
+          flexibleHeight && style.flexibleHeight,
+          alignLeft && style.alignLeft,
+          alignRight && style.alignRight,
+          borderLess && style.borderLess,
+        ].join(' ')} />
+      {disabled ? null : (
+        <button
+          onClick={copy}
+          className={[style.button, success && style.success, 'ignore'].join(' ')}
+          title={t('button.copy')}>
+          {success ? <Check /> : <Copy />}
+        </button>
+      )}
+    </div>
+  );
 };
 

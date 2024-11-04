@@ -135,23 +135,25 @@ export const UTXOs = ({
                         {utxo.address}
                       </span>
                       <div className="m-left-quarter">
-                        {utxo.addressReused ?
+                        {utxo.addressReused ? (
                           <>
                             <Badge type="danger">
                               {t('send.coincontrol.addressReused')}
                             </Badge>
                             {' '}
                           </>
+                        )
                           :
                           null
                         }
-                        {utxo.isChange ?
+                        {utxo.isChange ? (
                           <>
                             <Badge type="info">
                               {t('send.coincontrol.change')}
                             </Badge>
                             {' '}
                           </>
+                        )
                           :
                           null
                         }
