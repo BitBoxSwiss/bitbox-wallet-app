@@ -64,7 +64,15 @@ func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.Ra
 }
 
 // ConversionsAtTime handles fiat conversions at a specific time.
-func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.RateUpdater, formatBtcAsSats bool, timeStamp *time.Time) map[string]string {
+// It returns the map of conversions and a bool indicating if the rates have been estimated
+// using the latest instead of the historical rates for recent transactions.
+func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.RateUpdater, formatBtcAsSats bool, timeStamp *time.Time) (map[string]string, bool) {
+	latestRatesTime := ratesUpdater.HistoryLatestTimestampCoin(string(coin.Code()))
+	historicalRatesNotAvailable := latestRatesTime.IsZero() || latestRatesTime.Before(*timeStamp)
+	if historicalRatesNotAvailable && time.Since(*timeStamp) < 2*time.Hour {
+		return Conversions(amount, coin, isFee, ratesUpdater, formatBtcAsSats), true
+	}
+
 	conversions := map[string]string{}
 	lastRates := ratesUpdater.LatestPrice()
 	if lastRates != nil {
@@ -79,5 +87,5 @@ func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *rates
 			}
 		}
 	}
-	return conversions
+	return conversions, false
 }

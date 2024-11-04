@@ -120,7 +120,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	fiat := backend.Config().AppConfig().Backend.MainFiat
 
 	// Chart data until this point in time.
-	until := backend.RatesUpdater().HistoryLatestTimestampAll(backend.allCoinCodes(), fiat)
+	until := backend.RatesUpdater().HistoryLatestTimestampFiat(backend.allCoinCodes(), fiat)
 	if until.IsZero() {
 		chartDataMissing = true
 		backend.log.Info("ChartDataMissing, until is zero")

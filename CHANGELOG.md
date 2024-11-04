@@ -7,6 +7,7 @@
 - Revamp transaction history in account overview to improve legibility
 - Fix qrscanner when rotating the device or resizing the window
 - macOS: create a universal build that runs natively on arm64 and amd64
+- Show fiat amount at the time of the transaction in transaction history
 
 # 4.45.0
 - Bundle BitBox02 firmware version v9.21.0

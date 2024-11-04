@@ -115,7 +115,7 @@ export const TxDetailsDialog = ({
           </TxDetail>
           <TxDetail label={t('transaction.details.fiatAtTime')}>
             <span className={styles.fiat}>
-              {transactionInfo.amountAtTime ?
+              {transactionInfo.amountAtTime?.estimated == false ?
                 <FiatConversion amount={transactionInfo.amountAtTime} sign={sign} noAction />
                 :
                 <FiatConversion noAction />

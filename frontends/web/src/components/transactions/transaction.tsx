@@ -33,7 +33,7 @@ type TTransactionProps = ITransaction & {
 
 export const Transaction = ({
   addresses,
-  amount,
+  amountAtTime,
   onShowDetail,
   internalID,
   note,
@@ -65,7 +65,7 @@ export const Transaction = ({
           time={time}
           type={type}
         />
-        <Amounts amount={amount} type={type} />
+        <Amounts amount={amountAtTime} type={type} />
         <button
           className={styles.txShowDetailBtn}
           onClick={() => !isMobile && onShowDetail(internalID)}
@@ -169,16 +169,14 @@ const Amounts = ({
         </span>
       </span>
       {/* </data> */}
-      { conversion ? (
-        <span className={styles.txConversionAmount}>
-          {sign}
-          <Amount amount={conversion} unit={defaultCurrency} />
-          <span className={styles.txUnit}>
-            {' '}
-            {defaultCurrency}
-          </span>
+      <span className={styles.txConversionAmount}>
+        {sign}
+        <Amount amount={conversion || ''} unit={defaultCurrency} estimated={amount.estimated}/>
+        <span className={styles.txUnit}>
+          {' '}
+          {defaultCurrency}
         </span>
-      ) : null }
+      </span>
     </span>
   );
 };

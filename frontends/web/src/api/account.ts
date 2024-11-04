@@ -223,6 +223,7 @@ export interface IAmount {
     amount: string;
     conversions?: Conversions;
     unit: CoinUnit;
+    estimated: boolean;
 }
 
 export interface IBalance {
@@ -242,7 +243,7 @@ export type TTransactionType = 'send' | 'receive' | 'send_to_self';
 export interface ITransaction {
     addresses: string[];
     amount: IAmount;
-    amountAtTime: IAmount | null;
+    amountAtTime: IAmount;
     fee: IAmount;
     feeRatePerKb: IAmount;
     gas: number;
