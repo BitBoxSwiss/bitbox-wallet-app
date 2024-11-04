@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-import style from './skeleton.module.css';
+import { TransactionSkeleton } from '@/components/transactions/transaction-skeleton';
+import style from './account.module.css';
 
-type TProps = {
-  className?: string;
-  fontSize?: string;
-  minWidth?: string;
-
-};
-
-export const Skeleton = ({
-  className = '',
-  fontSize,
-  minWidth = '100%',
-}: TProps) => {
+export const TransactionHistorySkeleton = () => {
   return (
-    <span className={`${style.skeleton} ${className}`} style={{ fontSize, minWidth }} />
+    <div className={style.txHistorySkeleton}>
+      {Array.from({ length: 5 }).map((_, index) => (
+        <TransactionSkeleton key={index} />
+      ))}
+    </div>
   );
 };

@@ -1,0 +1,10 @@
+
+.skeletonContainer {
+    display: flex;
+    margin-top: var(--space-eight);
+    width: 50%;
+}
+
+.skeletonBalance {
+    height: var(--size-large);
+}
