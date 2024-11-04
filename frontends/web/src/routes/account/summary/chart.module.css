@@ -56,10 +56,24 @@
   }
 }
 
+.transitionDiv {
+  display: none;
+}
+
 @media (max-width: 768px) {
-  .chart {
-    padding-left: var(--space-half);
-    padding-right: var(--space-half);
+  .transitionDiv {
+    background-color: var(--background);
+    display: block;
+    position: absolute;
+    right: 0;
+    transition: width 1s ease-in-out;
+    transform-origin: left;
+    width: 100%;
+    z-index: 99;
+  }
+  
+  .overlayRemove {
+    width: 0;
   }
 }
 
@@ -118,3 +132,4 @@
 .toolTipTime {
   white-space: nowrap;
 }
+

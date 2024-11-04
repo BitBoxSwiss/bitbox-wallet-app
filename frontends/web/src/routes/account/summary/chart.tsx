@@ -16,6 +16,7 @@
 
 import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
 import type { TSummary, ChartData } from '@/api/account';
 import { usePrevious } from '@/hooks/previous';
@@ -136,6 +137,7 @@ export const Chart = ({
 
   const { t, i18n } = useTranslation();
   const { chartDisplay, setChartDisplay } = useContext(AppContext);
+  const [searchParams] = useSearchParams();
 
   const ref = useRef<HTMLDivElement>(null);
   const refToolTip = useRef<HTMLSpanElement>(null);
@@ -161,10 +163,14 @@ export const Chart = ({
     toolTipTime: 0,
   });
 
+  const [showAnimationOverlay, setAnimationOverlay] = useState(true);
+
   const prevChartDataDaily = usePrevious(data.chartDataDaily);
   const prevChartDataHourly = usePrevious(data.chartDataHourly);
   const prevChartFiat = usePrevious(data.chartFiat);
   const prevHideAmounts = usePrevious(hideAmounts);
+  const hasChartAnimationParam = searchParams.get('with-chart-animation');
+
 
   const setFormattedData = (chartData: ChartData) => {
     formattedData.current = {};
@@ -474,6 +480,48 @@ export const Chart = ({
     };
   }, [initChart, removeChart]);
 
+  useEffect(() => {
+    if (data.chartDataMissing || !hasChartAnimationParam) {
+      return;
+    }
+    setAnimationOverlay(false);
+  }, [data.chartDataMissing, hasChartAnimationParam]);
+
+  useEffect(() => {
+    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
+
+    switch (chartDisplay) {
+    case 'week': {
+      from.setUTCDate(utcDate - 7);
+      chart.current?.timeScale().setVisibleRange({
+        from: from.getTime() / 1000 as UTCTimestamp,
+        to: to.getTime() / 1000 as UTCTimestamp,
+      });
+      break;
+    }
+    case 'month': {
+      from.setUTCMonth(utcMonth - 1);
+      chart.current?.timeScale().setVisibleRange({
+        from: from.getTime() / 1000 as UTCTimestamp,
+        to: to.getTime() / 1000 as UTCTimestamp,
+      });
+      break;
+    }
+    case 'year': {
+      from.setUTCFullYear(utcYear - 1);
+      chart.current && chart.current.timeScale().setVisibleRange({
+        from: from.getTime() / 1000 as UTCTimestamp,
+        to: to.getTime() / 1000 as UTCTimestamp,
+      });
+      break;
+    }
+    case 'all': {
+      chart.current?.timeScale().fitContent();
+      break;
+    }
+    }
+  }, [source, chartDisplay]);
+
   const {
     lastTimestamp,
     chartDataMissing,
@@ -546,6 +594,14 @@ export const Chart = ({
         </div>
         {!isMobile && <Filters {...chartFiltersProps} />}
       </header>
+      {!chartDataMissing && hasChartAnimationParam && (
+        <div
+          style={{ minHeight: chartHeight }}
+          className={`
+          ${styles.transitionDiv}
+          ${showAnimationOverlay ? '' : styles.overlayRemove}`}
+        />
+      )}
       <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>
         {chartDataMissing ? (
           <div className={styles.chartUpdatingMessage} style={{ height: chartHeight }}>
