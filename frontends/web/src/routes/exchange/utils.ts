@@ -27,6 +27,8 @@ export const getExchangeFormattedName = (name: Omit<Info, 'region'>) => {
     return 'MoonPay';
   case 'pocket':
     return 'Pocket';
+  case 'btcdirect':
+    return 'BTC Direct\'s Private Trading Desk';
   }
 };
 

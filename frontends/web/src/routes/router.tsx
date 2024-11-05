@@ -23,6 +23,7 @@ import { Moonpay } from './exchange/moonpay';
 import { ExchangeInfo } from './exchange/info';
 import { Exchange } from './exchange/exchange';
 import { Pocket } from './exchange/pocket';
+import { BTCDirect } from './exchange/btcdirect';
 import { Info } from './account/info/info';
 import { Receive } from './account/receive';
 import { SendWrapper } from './account/send/send-wrapper';
@@ -238,6 +239,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path="pocket/buy/:code" element={PocketBuyEl} />
           <Route path="pocket/sell/:code" element={PocketSellEl} />
           <Route path="select/:code" element={ExchangeEl} />
+          <Route path="btcdirect" element={<BTCDirect/>} />
         </Route>
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
         <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />

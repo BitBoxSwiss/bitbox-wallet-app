@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLoad } from '@/hooks/api';
 import * as exchangesAPI from '@/api/exchanges';
 import { useContext, useEffect, useState } from 'react';
@@ -26,6 +26,13 @@ import { AppContext } from '@/contexts/AppContext';
 import { TInfoContentProps } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { hasPaymentRequest } from '@/api/account';
+import { Message } from '@/components/message/message';
+import { ExternalLinkWhite, ExternalLinkBlack, Businessman } from '@/components/icon';
+import { useDarkmode } from '@/hooks/darkmode';
+import { i18n } from '@/i18n/i18n';
+import { A } from '@/components/anchor/anchor';
+import { InfoButton } from '@/components/infobutton/infobutton';
+import { getConfig } from '@/utils/config';
 
 type TProps = {
   accountCode: string;
@@ -38,6 +45,21 @@ type TProps = {
   action: exchangesAPI.TExchangeAction
   setInfo: (into: TInfoContentProps) => void;
 }
+
+export const getBTCDirectLink = () => {
+  switch (i18n.resolvedLanguage) {
+  case 'de':
+    return 'https://btcdirect.eu/de-at/private-trading-contact?BitBox';
+  case 'nl':
+    return 'https://btcdirect.eu/nl-nl/private-trading-contact?BitBox';
+  case 'es':
+    return 'https://btcdirect.eu/es-es/private-trading-contactanos?BitBox';
+  case 'fr':
+    return 'https://btcdirect.eu/fr-fr/private-trading-contact?BitBox';
+  default:
+    return 'https://btcdirect.eu/en-eu/private-trading-contact?BitBox';
+  }
+};
 
 export const BuySell = ({
   accountCode,
@@ -52,10 +74,13 @@ export const BuySell = ({
 }: TProps) => {
   const { t } = useTranslation();
   const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
+  const { isDarkMode } = useDarkmode();
 
   const exchangeDealsResponse = useLoad(() => exchangesAPI.getExchangeDeals(action, accountCode, selectedRegion), [action, selectedRegion]);
   const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(accountCode));
   const [paymentRequestError, setPaymentRequestError] = useState(false);
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const config = useLoad(getConfig);
   const navigate = useNavigate();
 
   // enable paymentRequestError only when the action is sell.
@@ -72,6 +97,12 @@ export const BuySell = ({
       onSelectExchange('');
     }
   }, [exchangeDealsResponse, onSelectExchange]);
+
+  useEffect(() => {
+    if (config) {
+      setAgreedTerms(config.frontend.skipBTCDirectDisclaimer);
+    }
+  }, [config]);
 
   const constructErrorMessage = (): string | undefined => {
     if (exchangeDealsResponse?.success === false) {
@@ -130,6 +161,28 @@ export const BuySell = ({
                 onClickInfoButton={() => setInfo(buildInfo(exchange))}
               />
             ))}
+            {exchangeDealsResponse?.exchanges.some(exchange => exchange.exchangeName === 'pocket') && (
+              <div className={style.infoContainer}>
+                <Message type="info" icon={<Businessman/>}>
+                  {t('buy.exchange.infoContent.btcdirect.title')}
+                  <p>{t('buy.exchange.infoContent.btcdirect.info')}</p>
+                  <p>
+                    {!agreedTerms ? (
+                      <Link to={'/exchange/btcdirect'} className={style.link}>
+                        {t('buy.exchange.infoContent.btcdirect.link')}
+                      </Link>
+                    ) : (
+                      <A href={getBTCDirectLink()} className={style.link}>
+                        {t('buy.exchange.infoContent.btcdirect.link')}
+                      </A>
+                    )}
+                    &nbsp;
+                    {isDarkMode ? <ExternalLinkWhite className={style.textIcon}/> : <ExternalLinkBlack className={style.textIcon}/>}
+                  </p>
+                </Message>
+                <InfoButton onClick={() => setInfo({ info: 'btcdirect' })} />
+              </div>
+            )}
           </div>
         )}
       </div>

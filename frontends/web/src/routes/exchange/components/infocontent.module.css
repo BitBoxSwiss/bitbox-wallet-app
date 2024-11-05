@@ -1,3 +1,7 @@
 .container p, .container ul{
     margin: 0;
 }
+
+.container li:not(:last-child) {
+  margin-bottom: 10px;
+}
