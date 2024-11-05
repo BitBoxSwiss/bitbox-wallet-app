@@ -402,6 +402,55 @@
       "fast": "Schnell",
       "fee": "Gebühr",
       "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "BTC Direct Datenschutzerklärung",
+              "text": "Die BitBoxApp sammelt keine personenbezogenen Daten. BTC Direct sammelt die erforderlichen Informationen gemäß ihrer Datenschutzerklärung, um die gesetzlichen Vorschriften zu erfüllen.",
+              "title": "Datenschutz"
+            },
+            "kyc": {
+              "text": "Für jeden Handel ist eine Verifizierung deiner Identität erforderlich. Dein Kundenberater wird dich durch den Prozess begleiten und jegliche Fragen beantworten.",
+              "title": "Identitätsverifizierung"
+            },
+            "partnership": {
+              "text": "In Zusammenarbeit mit BTC Direct, einem vertrauenswürdigen europäischen Broker, bietet BitBox über die BitBoxApp direkten Handel mit Bitcoin, Ethereum, Stablecoins und mehr mit fachkundiger Unterstützung in großem Umfang (OTC) an.",
+              "title": "Kaufe und verkaufe mit dem Private Trading Desk von BTC Direct"
+            },
+            "paymentMethods": {
+              "buy": "Bitcoin kaufen:",
+              "buy2": "Gib größere Kaufaufträge bei deinem Kundenbetreuer auf, sichere dir einen Festpreis und bezahle per Banküberweisung. Deine Kryptowährung wird nach Erhalt deiner Zahlung auf deine BitBox gesendet.",
+              "fee": "Es gelten Mindesthandelsbeträge von 50.000 € mit einer transparenten Gebühr zwischen 0,5 % und 1 %.",
+              "sell": "Bitcoin verkaufen:",
+              "sell2": "Sichere dir einen festen OTC-Preis, wenn du einen Verkaufsauftrag erteilst. Die Auszahlung in EUR erfolgt, sobald die Kryptowährung an BTC Direct gesendet wurde. Bei Bedarf steht persönliche Unterstützung zur Verfügung.",
+              "title": "Zahlungsmethoden und Gebühren"
+            },
+            "personal": {
+              "text": "Jedem Private-Trading-Kunden wird ein persönlicher Kundenbetreuer zugewiesen, der per Telefon, Videoanruf, E-Mail oder Chat individuelle Unterstützung bietet. Die Kauf- und Verkaufspreise werden sofort bei Auftragserteilung festgelegt, auch wenn die Abrechnung später erfolgt. Die Aufträge werden über das OTC-Desk von BTC Direct ausgeführt, wodurch Kursabweichung minimiert werden.",
+              "title": "Persönlicher Service mit festen Preisen"
+            },
+            "security": {
+              "link": "Sicherheitsbedrohungsmodell der BitBox02",
+              "text": "Der Private Trading Desk von BTC Direct ist ein externer Service, der nicht im Sicherheitsbedrohungsmodell der BitBox02 abgedeckt ist. BTC Direct ist jedoch gut mit BitBox-Produkten vertraut und bietet sichere, kompetente Unterstützung. BitBox-Produkte überprüfen Krypto-Adressen während Transaktionen, um eine sichere Ausführung zu gewährleisten.",
+              "title": "Sicherheit"
+            },
+            "title": "Haftungsausschluss"
+          },
+          "info": "Erhalte einen persönlichen Kundenberater, reduzierte Gebühren und platziere Bestellungen direkt über deinen Kontakt bei BTC Direct.",
+          "infobox": {
+            "intro_btconly": "Erhalte persönliche Unterstützung für grossvolumige, ausserbörsliche (OTC) Bitcoin-Transaktionen.",
+            "intro_multi": "Erhalte persönliche Unterstützung für grossvolumige ausserbörsliche (OTC) Transaktionen für Bitcoin, Ethereum Stablecoins und mehr.",
+            "kyc": "BTC Direct benötigt eine Identitätsverifizierung für alle Handelsgeschäfte, wobei dich dein persönlicher Kundenberater bei jedem Schritt unterstützt.",
+            "learnmore": "Erfahre mehr über das Private Trading Desk von BTC Direct",
+            "listItem1": "Kaufe und verkaufe jederzeit, indem du deinen persönlichen Kundenberater per Telefon, E-Mail, Videoanruf oder Chat kontaktierst.",
+            "listItem2": "Zahlungen werden nach der Auftragserteilung per Banküberweisung abgeschlossen.",
+            "listItem3": "Mindestauftragwert: 50.000 €.",
+            "listItem4": "Transparente Gebühren zwischen 0,5 % - 1 %, inklusive persönlicher Kundenbetreuung .",
+            "manager": "Du hast einen persönlichen Kundenberater, der dich bei jedem Schritt unterstützt und dir eine sichere, unkomplizierte Abwicklung mit festen Gebühren und minimaler Preisabweichung bietet."
+          },
+          "link": "Zugang zum BTC Direct - Private Trading Desk",
+          "title": "Kauf oder Verkauf über 50.000 €?"
+        },
         "moonpay": {
           "fees": {
             "bankTransfer": "Banküberweisung: {{fee}}%",
@@ -722,7 +771,7 @@
           "title": "Sicherheit"
         },
         "welcome": {
-          "p1": "Wir arbeiten mit Pocket, einem Schweizer Broker, zusammen um den Kauf und Verkauf innerhalb der BitBoxjapp einfach zu gestalten. Dieser Service ist in ganz Europa verfügbar, wo SEPA-Banküberweisungen unterstützt werden.",
+          "p1": "Wir arbeiten mit Pocket, einem Schweizer Broker, zusammen um den Kauf und Verkauf innerhalb der BitBoxApp einfach zu gestalten. Dieser Service ist in ganz Europa verfügbar, überall dort wo SEPA-Banküberweisungen unterstützt werden.",
           "title": "Kaufe und verkaufe Bitcoin mit Pocket"
         }
       }
@@ -1550,6 +1599,7 @@
     "coincontrol": {
       "address": "Adresse",
       "addressReused": "Adresse mehrmals verwendet",
+      "change": "Wechselgeld",
       "outpoint": "ID",
       "title": "Outputs wählen"
     },
@@ -1757,11 +1807,26 @@
     "status": {
       "complete": "Bestätigt",
       "failed": "Fehlgeschlagen",
-      "pending": "Ausstehend"
+      "pending": "Ausstehend",
+      "pending_receive": "Eingehende Transaktion",
+      "pending_send": "Ausgehende Transaktion",
+      "pending_send_to_self": "Ausstehende Transaktion"
+    },
+    "statusShort": {
+      "complete": "Abgeschlossen",
+      "failed": "Fehlgeschlagen",
+      "pending": "Ausstehend",
+      "pending_receive": "Eingehend",
+      "pending_send": "Ausgehend",
+      "pending_send_to_self": "Ausstehend"
     },
     "tx": {
-      "received": "Empfangen an",
-      "sent": "Gesendet an"
+      "receive_complete": "Empfangen an",
+      "receive_failed": "Fehlgeschlagener Empfang an",
+      "receive_pending": "Empfangen an",
+      "send_complete": "Gesendet an",
+      "send_failed": "Fehlgeschlagener Versand an",
+      "send_pending": "Gesendet an"
     },
     "vsize": "Virtuelle Größe",
     "weight": "Gewicht"
@@ -1839,7 +1904,8 @@
     "coincontrol": "Ein oder mehrere UTXOs haben eine mehrfach verwendete Adresse. Beachte  dass der Empfänger alle UTXOs sehen wird welche mit diesen Adressen verbunden sind.",
     "receivePairing": "Bitte aktiviere 2FA, um Adressen sicher zu verifizieren. Klicke dazu auf \"Geräte verwalten\" im Menü auf der linken Seite.",
     "sdcard": "Bewahre deine microSD Karte separat von deiner BitBox auf. Die microSD Karte wird nur benötigt, wenn du deine Backups verwalten willst. Für den normalen Betrieb ist sie nicht erforderlich.",
-    "sendPairing": "Bitte koppele deine BitBox mit einem Smartphone um Transaktionen sicher verifizieren zu können. Klicke dazu auf \"Geräte verwalten\" im Menü auf der linken Seite."
+    "sendPairing": "Bitte koppele deine BitBox mit einem Smartphone um Transaktionen sicher verifizieren zu können. Klicke dazu auf \"Geräte verwalten\" im Menü auf der linken Seite.",
+    "testnet": "Warnung: Du verwendest die Wallet derzeit im Testnet-Modus. Transaktionen und Guthaben hier sind nicht echt und erscheinen nicht im Mainnet. Das Testnet ist ausschließlich für Test- und Entwicklungszwecke gedacht."
   },
   "welcome": {
     "connect": "Verbinde eine BitBox02",

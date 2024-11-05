@@ -363,7 +363,7 @@
     "button": "Parpadeo"
   },
   "bootloader": {
-    "button": "Actualiza ahora el firmware",
+    "button": "Actualizar firmware ahora",
     "button_install": "Instalar el nuevo firmware ahora",
     "progress": "Actualizando: {{progress}}%",
     "progress_install": "Instalando: {{progress}}%",
@@ -379,7 +379,7 @@
     "create": "Crea",
     "dismiss": "Descartar",
     "done": "Hecho",
-    "download": "Descarga",
+    "download": "Descargar",
     "hiddenwallet": "Crea el monedero oculto",
     "next": "Siguiente",
     "ok": "OK",
@@ -390,7 +390,7 @@
     "select": "Selecciona",
     "send": "Enviar",
     "unlock": "Desbloquea",
-    "update": "Actualiza",
+    "update": "Actualizar",
     "upgrade": "Actualizar"
   },
   "buy": {
@@ -402,6 +402,55 @@
       "fast": "Rápido",
       "fee": "tarifa",
       "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "Política de privacidad de BTC Direct",
+              "text": "La BitBoxApp no recopila datos personales. BTC Direct recopila la información necesaria según su Política de privacidad para cumplir con los estándares regulatorios.",
+              "title": "Protección de datos"
+            },
+            "kyc": {
+              "text": "Se requiere la verificación de la identidad del cliente para todas las operaciones. Tu aministrador de cuenta te guiará a través del proceso y responderá cualquier pregunta que puedas tener.",
+              "title": "Verificación de identidad"
+            },
+            "partnership": {
+              "text": "En asociación con BTC Direct, un bróker europeo confiable, BitBox ofrece operaciones extrabursátiles (OTC) a gran escala para Bitcoin, Ethereum, monedas estables y más con soporte de expertos directamente en la BitBoxApp.",
+              "title": "Compra y vende con el Private Trading Desk de BTC Direct"
+            },
+            "paymentMethods": {
+              "buy": "Comprar bitcoin:",
+              "buy2": "Realiza pedidos de compras grandes con tu administrador de cuenta, fija un precio fijo y paga mediante transferencia bancaria. Tus criptomonedas se envían directamente a tu BitBox después del pago.",
+              "fee": "La operación mínima es de 50.000 €, con una comisión transparente entre el 0,5% y el 1%.",
+              "sell": "Vender bitcoin:",
+              "sell2": "Fija un precio OTC al realizar una orden de venta. El pago en EUR se realiza una vez que envías criptomonedas a BTC Direct. Hay asistencia personal disponible si es necesario.",
+              "title": "Métodos de pago y comisiones"
+            },
+            "personal": {
+              "text": "A cada cliente de Private Trading Desk se le asigna un administrador de cuenta exclusivo para brindarle asistencia personalizada por teléfono, videollamada, correo electrónico o chat. Los precios de compra y venta se fijan inmediatamente cuando se realiza la orden, incluso si la liquidación se produce más tarde. Las órdenes se ejecutan a través del servicio OTC de BTC Direct, lo que minimiza el deslizamiento.",
+              "title": "Servicio personalizado con precio fijo"
+            },
+            "security": {
+              "link": "Modelo de amenazas de seguridad de la BitBox02",
+              "text": "El Private Trading Desk de BTC Direct es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de la BitBox02. Sin embargo, BTC Direct está familiarizado con los productos de BitBox y ofrece orientación segura y experta. Los productos de BitBox verifican las direcciones de criptomonedas durante las transacciones para garantizar una entrega segura.",
+              "title": "Seguridad"
+            },
+            "title": "Descargo de responsabilidad"
+          },
+          "info": "Obtén un asesor personal, tarifas reducidas y realiza pedidos directamente a través de tu contacto en BTC Direct.",
+          "infobox": {
+            "intro_btconly": "Obtén asistencia personalizada para transacciones de Bitcoin de alto valor en mercados extrabursátiles (OTC).",
+            "intro_multi": "Obtén asistencia personal para transacciones extrabursátiles (OTC) de alto valor para Bitcoin, Ethereum, monedas estables y más.",
+            "kyc": "BTC Direct requiere verificación de identidad para todas las transacciones y tu administrador de cuenta te guiará en cada paso.",
+            "learnmore": "Obtén más información sobre Private Trading Desk de BTC Direct.",
+            "listItem1": "Compra y vende en cualquier momento contactando a tu administrador cuenta por teléfono, correo electrónico, videollamada o chat.",
+            "listItem2": "Los pagos se realizan mediante transferencia bancaria una vez realizado el pedido.",
+            "listItem3": "Importe mínimo del pedido: 50.000€.",
+            "listItem4": "Tarifas transparentes fijadas entre el 0,5% y el 1%, incluida asesoría personalizada.",
+            "manager": "Contarás con un administrador de cuenta dedicado que te guiará en cada paso, garantizando una experiencia segura y sencilla con tarifas fijas y un deslizamiento mínimo."
+          },
+          "link": "Acceso a BTC Direct - Private Trading Desk",
+          "title": "¿Quieres comprar o vender más de 50.000€?"
+        },
         "moonpay": {
           "fees": {
             "bankTransfer": "Transferencia bancaria: {{fee}}%%.",
@@ -1550,6 +1599,7 @@
     "coincontrol": {
       "address": "Dirección",
       "addressReused": "Dirección reutilizada",
+      "change": "Cambio",
       "outpoint": "Anotar",
       "title": "Enviar desde salida"
     },
@@ -1757,11 +1807,26 @@
     "status": {
       "complete": "Acabado",
       "failed": "Falló",
-      "pending": "Pendiente"
+      "pending": "Pendiente",
+      "pending_receive": "Transacción entrante",
+      "pending_send": "Transacción saliente",
+      "pending_send_to_self": "Transacción pendiente"
+    },
+    "statusShort": {
+      "complete": "Completado",
+      "failed": "Fallido",
+      "pending": "Pendiente",
+      "pending_receive": "Entrante",
+      "pending_send": "Saliente",
+      "pending_send_to_self": "Pendiente"
     },
     "tx": {
-      "received": "Recibido en",
-      "sent": "Enviado a"
+      "receive_complete": "Recibir a",
+      "receive_failed": "No se pudo recibir a",
+      "receive_pending": "Recibido a",
+      "send_complete": "Enviado a",
+      "send_failed": "Error en el envío a",
+      "send_pending": "Enviado a"
     },
     "vsize": "Tamaño virtual",
     "weight": "Peso"
@@ -1839,7 +1904,8 @@
     "coincontrol": "Uno o más UTXOs cuentan con una dirección reutilizada. Ten en cuenta que el receptor verá todos los UTXOs asociados con esas direcciones.",
     "receivePairing": "Por favor, sincroniza la BitBox para activar la verificación segura de la dirección. Ve a 'Administrar dispositivo' en la barra lateral.",
     "sdcard": "Manten la tarjeta micro SD guardada aparte de la BitBox, a menos que desees administrar las copias de seguridad.",
-    "sendPairing": "Por favor, sincroniza el BitBox para verificar con seguridad los detalles de la transacción. Ve a 'Administrar dispositivo' en la barra lateral."
+    "sendPairing": "Por favor, sincroniza el BitBox para verificar con seguridad los detalles de la transacción. Ve a 'Administrar dispositivo' en la barra lateral.",
+    "testnet": "Advertencia: Actualmente estás usando la billetera en modo Testnet. Las transacciones y los saldos aquí no son reales y no aparecerán en la red principal. Testnet está destinada únicamente a fines de prueba y desarrollo."
   },
   "welcome": {
     "connect": "Conecta tu BitBox02",

@@ -402,6 +402,55 @@
       "fast": "Cepat",
       "fee": "bayaran",
       "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "Dasar privasi BTC Direct",
+              "text": "BitBoxApp tidak mengumpul data peribadi. BTC Direct mengumpul maklumat yang diperlukan mengikut Dasar Privasi mereka untuk memenuhi piawaian kawal selia.",
+              "title": "Perlindungan Data"
+            },
+            "kyc": {
+              "text": "Pengesahan identiti pelanggan diperlukan untuk semua dagangan. Pengurus akaun anda akan membimbing anda melalui proses dan menjawab sebarang soalan yang mungkin anda ada.",
+              "title": "Pengesahan identiti"
+            },
+            "partnership": {
+              "text": "Dengan kerjasama BTC Direct, broker Eropah yang dipercayai, BitBox menawarkan dagangan over-the-counter (OTC) berskala besar untuk Bitcoin, Ethereum, stablecoin dan banyak lagi dengan sokongan pakar secara langsung dalam BitBoxApp.",
+              "title": "Beli dan jual dengan BTC Direct's Private Trading Desk"
+            },
+            "paymentMethods": {
+              "buy": "Membeli bitcoin:",
+              "buy2": "Buat pesanan belian yang besar dengan pengurus akaun anda, kunci harga tetap dan bayar melalui pindahan wang melalui bank. Kripto anda dihantar terus ke BitBox anda selepas pembayaran.",
+              "fee": "Jumlah dagangan minimum sebanyak €50,000 dikenakan, dengan bayaran telus antara 0.5% dan 1%.",
+              "sell": "Jual bitcoin:",
+              "sell2": "Kunci harga OTC tetap apabila membuat pesanan jual. Pembayaran EUR dibuat sebaik sahaja anda menghantar crypto ke BTC Direct. Bantuan peribadi disediakan jika diperlukan.",
+              "title": "Kaedah Pembayaran dan Yuran"
+            },
+            "personal": {
+              "text": "Setiap pelanggan Perdagangan Persendirian diberikan pengurus akaun khusus untuk bantuan diperibadikan melalui telefon, panggilan video, e-mel atau sembang. Harga beli dan jual segera ditetapkan apabila pesanan dibuat, walaupun penyelesaian berlaku kemudian. Pesanan dilaksanakan melalui meja OTC BTC Direct, meminimumkan gelinciran.",
+              "title": "Perkhidmatan peribadi dengan harga tetap"
+            },
+            "security": {
+              "link": "Model ancaman keselamatan BitBox02",
+              "text": "Meja Dagangan Persendirian BTC Direct ialah perkhidmatan luaran yang tidak dilindungi oleh model Ancaman Keselamatan BitBox02. Walau bagaimanapun, BTC Direct mengetahui dengan baik produk BitBox dan menawarkan panduan yang selamat dan berpengetahuan. Produk BitBox mengesahkan alamat crypto semasa transaksi untuk memastikan penghantaran selamat.",
+              "title": "Keselamatan"
+            },
+            "title": "Penafian"
+          },
+          "info": "Dapatkan penasihat peribadi, pengurangan yuran dan buat pesanan terus melalui hubungan anda di BTC Direct.",
+          "infobox": {
+            "intro_btconly": "Dapatkan bantuan peribadi untuk dagangan Bitcoin yang bernilai tinggi, tanpa kaunter (OTC).",
+            "intro_multi": "Dapatkan bantuan peribadi untuk dagangan over-the-counter (OTC) bernilai tinggi untuk Bitcoin, stablecoin Ethereum dan banyak lagi.",
+            "kyc": "BTC Direct memerlukan pengesahan identiti untuk semua dagangan, dengan pengurus akaun anda membimbing anda melalui setiap langkah.",
+            "learnmore": "Ketahui lebih lanjut mengenai Meja Dagangan Persendirian BTC Direct.",
+            "listItem1": "Beli dan jual pada bila-bila masa dengan menghubungi pengurus akaun anda melalui telefon, e-mel, panggilan video atau sembang.",
+            "listItem2": "Pembayaran diselesaikan melalui pindahan wang melalui bank selepas pesanan dibuat.",
+            "listItem3": "Jumlah pesanan minimum: €50,000.",
+            "listItem4": "Yuran telus ditetapkan pada 0.5%-1%, termasuk bimbingan peribadi.",
+            "manager": "Anda akan mempunyai pengurus akaun khusus yang membimbing anda pada setiap langkah, memastikan pengalaman yang selamat dan mudah dengan kadar tetap dan kegelinciran minimum."
+          },
+          "link": "Akses BTC Direct - Meja Dagangan Persendirian",
+          "title": "Membeli atau menjual lebih €50,000?"
+        },
         "moonpay": {
           "fees": {
             "bankTransfer": "Pemindahan bank: {{fee}}%",
@@ -1550,6 +1599,7 @@
     "coincontrol": {
       "address": "Alamat",
       "addressReused": "Alamat digunakan semula",
+      "change": "Berubah",
       "outpoint": "Outpoint",
       "title": "Hantar dari Output"
     },
@@ -1757,11 +1807,26 @@
     "status": {
       "complete": "lengkap",
       "failed": "Gagal",
-      "pending": "Yang belum selesai"
+      "pending": "Yang belum selesai",
+      "pending_receive": "Transaksi masuk",
+      "pending_send": "Urus niaga keluar",
+      "pending_send_to_self": "Transaksi Menunggu"
+    },
+    "statusShort": {
+      "complete": "lengkap",
+      "failed": "Gagal",
+      "pending": "Yang belum selesai",
+      "pending_receive": "Masuk",
+      "pending_send": "Keluar",
+      "pending_send_to_self": "Yang belum selesai"
     },
     "tx": {
-      "received": "Diterima kepada",
-      "sent": "Dihantar kepada"
+      "receive_complete": "Diterima kepada",
+      "receive_failed": "Gagal menerima ke",
+      "receive_pending": "Diterima kepada",
+      "send_complete": "Dihantar ke",
+      "send_failed": "Gagal menghantar ke",
+      "send_pending": "Dihantar ke"
     },
     "vsize": "Saiz maya",
     "weight": "Berat"
@@ -1839,7 +1904,8 @@
     "coincontrol": "Satu atau lebih UTXO mempunyai alamat yang digunakan semula. Berjaga jaga bahawa penerima akan melihat semua UTXO yang dikaitkan dengan alamat tersebut.",
     "receivePairing": "Sila pasangkan BitBox untuk membolehkan pengesahan alamat dengan selamat. Pergi ke 'Uruskan Peranti' pada bar sisi.",
     "sdcard": "Pastikan kad micro SD disimpan berasingan dari BitBox, kecuali jika anda mahu mengurus backup.",
-    "sendPairing": "Sila pasang BitBox untuk mengesahkan butiran transaksi dengan selamat. Pergi ke 'Urus Peranti' di bar sisi."
+    "sendPairing": "Sila pasang BitBox untuk mengesahkan butiran transaksi dengan selamat. Pergi ke 'Urus Peranti' di bar sisi.",
+    "testnet": "Amaran: Anda sedang menggunakan dompet dalam mod Testnet. Transaksi dan baki di sini adalah tidak benar dan tidak akan muncul di mainnet. Testnet bertujuan untuk tujuan pengujian dan pembangunan sahaja."
   },
   "welcome": {
     "connect": "Sambungkan BitBox02",

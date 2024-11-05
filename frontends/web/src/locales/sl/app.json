@@ -1759,10 +1759,6 @@
       "failed": "Ni uspelo",
       "pending": "V teku"
     },
-    "tx": {
-      "received": "Prejeto na",
-      "sent": "Poslano na"
-    },
     "vsize": "Virtualna velikost",
     "weight": "Utež"
   },

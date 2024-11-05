@@ -147,7 +147,7 @@
     },
     "showMnemonic": {
       "checkboxLabel": "Přečetl jsem si výše uvedené informace",
-      "description": "Zobrazí se vám slova pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova.",
+      "description": "Zobrazí se vám slova pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova. ",
       "title": "Zobrazit slova pro obnovení",
       "warning": "<strong> Nikdy nikomu nesdělujte svá slova pro obnovení.</strong> Vaše slova pro obnovení poskytují plný přístup k vaší peněžence. Pokud vás někdo žádá o vaše slova pro obnovení, jedná se o podvodníka, nesdílejte je!"
     },
@@ -402,6 +402,55 @@
       "fast": "Rychle",
       "fee": "poplatek",
       "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "Zásady ochrany osobních údajů BTC Direct",
+              "text": "BitBoxApp neshromažďuje osobní údaje. Společnost BTC Direct shromažďuje nezbytné informace podle svých zásad ochrany osobních údajů, aby splnila regulační normy.",
+              "title": "Ochrana dat"
+            },
+            "kyc": {
+              "text": "U všech obchodů je vyžadováno ověření totožnosti zákazníka. Váš account manager vás provede celým procesem a zodpoví všechny vaše případné dotazy.",
+              "title": "Ověření identity"
+            },
+            "partnership": {
+              "text": "Ve spolupráci s BTC Direct, důvěryhodným evropským brokerem, nabízí BitBox rozsáhlé mimoburzovní obchodování (over-the-counter) s bitcoiny, ethereem, stablecoiny a dalšími měnami s odbornou podporou přímo v BitBoxApp.",
+              "title": "Nákup a prodej s BTC Direct's Private Trading Desk"
+            },
+            "paymentMethods": {
+              "buy": "Nákup bitcoinů:",
+              "buy2": "Zadávejte velké nákupní příkazy svému account managerovi, uzamkněte si pevnou cenu a zaplaťte bankovním převodem. Kryptoměny vám budou po zaplacení doručeny přímo do vašeho BitBoxu.",
+              "fee": "",
+              "sell": "Prodej bitcoinů:",
+              "sell2": "Při zadávání prodejního příkazu si můžete uzamknout pevnou mimoburzovní (over-the-counter) cenu. Platba v EUR je provedena, jakmile odešlete krypto na BTC Direct. V případě potřeby je k dispozici osobní asistence.",
+              "title": "Platební metody a poplatky"
+            },
+            "personal": {
+              "text": "Každému klientovi Private Trading je přidělen specializovaný account manager, který mu poskytuje individuální asistenci prostřednictvím telefonu, videohovoru, e-mailu nebo chatu. Nákupní a prodejní ceny jsou stanoveny okamžitě po zadání příkazu, i když k vypořádání dojde později. Příkazy jsou prováděny prostřednictvím mimoburzovního trhu (over-the-counter desk) BTC Direct, což minimalizuje skluz.",
+              "title": "Osobní služby s pevnou cenou"
+            },
+            "security": {
+              "link": "Model bezpečnostních hrozeb BitBox02",
+              "text": "Private Trading Desk BTC Direct je externí služba, na kterou se nevztahuje model bezpečnostních hrozeb BitBox02. Společnost BTC Direct je však dobře obeznámena s produkty BitBox a nabízí bezpečné a kvalifikované poradenství. BitBox ověřuje adresy během transakcí, aby bylo zajištěno bezpečné doručení.",
+              "title": "Zabezpečení"
+            },
+            "title": "Prohlášení o vyloučení odpovědnosti"
+          },
+          "info": "Získejte osobního poradce, snížené poplatky a zadávejte objednávky přímo prostřednictvím svého kontaktu na BTC Direct.",
+          "infobox": {
+            "intro_btconly": "Získejte osobní asistenci pro nadstandardní mimoburzovní (OTC) obchody s bitcoiny.",
+            "intro_multi": "Získejte osobní asistenci pro nadstandardní mimoburzovní (over-the-counter) obchody s bitcoiny, stablecoiny, ethereem a dalšími.",
+            "kyc": "BTC Direct vyžaduje ověření totožnosti u všech obchodů, váš account manager vás provede každým krokem.",
+            "learnmore": "Další informace o BTC Direct Private Trading Desk.",
+            "listItem1": "Nakupujte a prodávejte kdykoli kontaktováním svého account manažera telefonicky, e-mailem, videohovorem nebo chatem.",
+            "listItem2": "Platby se provádějí bankovním převodem po zadání objednávky.",
+            "listItem3": "Minimální výše objednávky: €50,000.",
+            "listItem4": "Transparentní poplatky jsou stanoveny ve výši 0,5-1 %, včetně osobního poradenství.",
+            "manager": "Na každém kroku vás povede váš account manažer, který vám zajistí bezpečný a jednoduchý přístup s pevnými sazbami a minimálním slippage."
+          },
+          "link": "Přístup k BTC Direct – Private Trading Desk",
+          "title": "Nákup nebo prodej nad 50 000 EUR?"
+        },
         "moonpay": {
           "fees": {
             "bankTransfer": "Bankovní převod: {{fee}}%",
@@ -586,7 +635,7 @@
         "description": "Generujte child keys z BitBox peněženky.",
         "disclaimer": "Rozumím fungování child keys a bezpečnostním aspektům.",
         "how": {
-          "description": "Child keys se zobrazí jako slova (seed) na vašem BitBoxu. Můžete vytvořit libovolný počet child keys. Chcete-li zobrazit child key, budete vyzváni k zadání čísla child key (tj. 1., 2., 3. atd.) a požadované délky  (12, 18 nebo 24 slov pro obnovení). Nezapomeňte, že musíte sledovat <strong>číslo child key a počet slov</strong>, abyste mohli později zobrazit stejný seed.",
+          "description": "Child keys se zobrazí jako slova (seed) na vašem BitBoxu. Můžete vytvořit libovolný počet child keys. Chcete-li zobrazit child key, budete vyzváni k zadání čísla child key (tj. 1., 2., 3. atd.) a požadované délky  (12, 18 nebo 24 slov pro obnovení). Nezapomeňte, že musíte sledovat <strong>číslo child key a počet slov</strong>, abyste mohli později zobrazit stejný seed. ",
           "title": "Jak to funguje?"
         },
         "recover": {
@@ -870,7 +919,7 @@
         "link": {
           "text": "Zobrazit podporované kryptoměny"
         },
-        "text": "BitBoxApp podporuje Bitcoin, Litecoin, Ethereum a vybrané tokeny ERC20. Pro Cardano a další tokeny používejte BitBox02 s alternativním softwarem, jako je AdaLite nebo Rabby. Kompletní seznam všech podporovaných kryptoměn najdete na našich webových stránkách:",
+        "text": "BitBoxApp podporuje Bitcoin, Litecoin, Ethereum a vybrané tokeny ERC20. Pro Cardano a další tokeny používejte BitBox02 s alternativním softwarem, jako je AdaLite nebo Rabby. Kompletní seznam všech podporovaných kryptoměn najdete na našich webových stránkách:  ",
         "title": "Které kryptoměny jsou podporovány?"
       },
       "whatAreAccounts": {
@@ -1550,6 +1599,7 @@
     "coincontrol": {
       "address": "Adresa",
       "addressReused": "Opakovaně použitá adresa",
+      "change": "Change",
       "outpoint": "Outpoint",
       "title": "Odeslat z outputu"
     },
@@ -1757,11 +1807,26 @@
     "status": {
       "complete": "Dokončená",
       "failed": "Neúspěšná",
-      "pending": "Čekající"
+      "pending": "Čekající",
+      "pending_receive": "Příchozí transakce",
+      "pending_send": "Odchozí transakce",
+      "pending_send_to_self": "Čekající transakce"
+    },
+    "statusShort": {
+      "complete": "Dokončená",
+      "failed": "",
+      "pending": "Čekající",
+      "pending_receive": "Přicházející",
+      "pending_send": "Odchozí",
+      "pending_send_to_self": "Čekající"
     },
     "tx": {
-      "received": "Přijata na",
-      "sent": "Odeslána na"
+      "receive_complete": "Přijato na",
+      "receive_failed": "Neúspěšný příjem na",
+      "receive_pending": "Přijato na",
+      "send_complete": "Odesláno na",
+      "send_failed": "Neúspěšné odeslání na",
+      "send_pending": "Odesláno na"
     },
     "vsize": "Virtuální velikost",
     "weight": "Váha"
@@ -1839,7 +1904,8 @@
     "coincontrol": "Jedno nebo více UTXO má opakovaně použitou adresu. Mějte na paměti, že příjemce uvidí všechny UTXO spojené s těmito adresami.",
     "receivePairing": "Spárujte BitBox, abyste mohli bezpečně ověřit adresu. Přejděte na \"Spravovat zařízení\" v postranním panelu.",
     "sdcard": "MicroSD kartu mějte uloženou odděleně od BitBoxu, pokud ovšem nechcete spravovat zálohy.",
-    "sendPairing": "Spárujte prosím BitBox a bezpečně ověřte údaje o transakci. Přejděte na \"Spravovat zařízení\" v postranním panelu."
+    "sendPairing": "Spárujte prosím BitBox a bezpečně ověřte údaje o transakci. Přejděte na \"Spravovat zařízení\" v postranním panelu.",
+    "testnet": "Varování: V této chvíli používáte peněženku v režimu Testnet. Transakce a zůstatky zde nejsou skutečné a nezobrazí se v mainnetu. Testnet je určen pouze pro testovací a vývojové účely."
   },
   "welcome": {
     "connect": "Připojte BitBox02",

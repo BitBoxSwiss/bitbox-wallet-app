@@ -1759,10 +1759,6 @@
       "failed": "Falhou",
       "pending": "Pendente"
     },
-    "tx": {
-      "received": "Recebido para",
-      "sent": "Enviado para"
-    },
     "vsize": "Tamanho virtual",
     "weight": "Peso"
   },

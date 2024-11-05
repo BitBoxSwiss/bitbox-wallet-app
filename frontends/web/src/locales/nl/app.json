@@ -1759,10 +1759,6 @@
       "failed": "Niet gelukt",
       "pending": "In afwachting"
     },
-    "tx": {
-      "received": "Ontvangen naar",
-      "sent": "Verzonden naar"
-    },
     "vsize": "Virtuele grootte",
     "weight": "Gewicht"
   },
