@@ -24,6 +24,7 @@
 }
 
 .actionsContainer {
+    --size-default: 14px;
     display: flex;
     flex-grow: 1;
     flex-shrink: 0;
