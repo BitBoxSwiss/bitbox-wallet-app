@@ -14,9 +14,55 @@
  * limitations under the License.
  */
 
+const sha256 = async (content: ArrayBuffer) => {
+  const hashBuffer = await crypto.subtle.digest('SHA-256', content);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+};
+
 const onDrop = (event: DragEvent) => {
   event.preventDefault();
   event.stopPropagation();
+  const files: FileList | undefined = event.dataTransfer?.files;
+  if (!files || !files.length) {
+    return;
+  }
+  const shasums: string[] = [];
+  for (const file of files) {
+    if (
+      file.name.endsWith('.apk') // a use might check the apk on a laptop
+      || file.name.endsWith('.deb')
+      || file.name.endsWith('.dmg')
+      || file.name.endsWith('.exe')
+      || file.name.endsWith('.rpm')
+      || file.name.endsWith('.zip')
+    ) {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const content = event.target?.result;
+        if (content instanceof ArrayBuffer) {
+          try {
+            const shasum = await sha256(content);
+            if (shasum) {
+              shasums.push(`SHA256 checksum for:\n${file.name}\n${shasum}\n`);
+            } else {
+              shasums.push(`Could not find SHA256 checksum for ${file.name}\n`);
+            }
+          } catch (error) {
+            shasums.push(`Error trying to find SHA256 checksum for ${file.name}: ${error}\n`);
+          } finally {
+            if (shasums.length === files.length) {
+              alert(shasums.join('\n'));
+            }
+          }
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      shasums.push('');
+    }
+  }
 };
 
 /**
