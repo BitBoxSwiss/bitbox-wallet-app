@@ -241,6 +241,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/exchange/by-region/{code}", handlers.getExchangesByRegion).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/deals/{action}/{code}", handlers.getExchangeDeals).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/supported/{code}", handlers.getExchangeSupported).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/btcdirect/supported/{code}", handlers.getBtcDirectSupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url/{action}", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
@@ -1342,6 +1343,34 @@ func (handlers *Handlers) getExchangeDeals(r *http.Request) interface{} {
 	return exchangeDealsList{
 		Success:   true,
 		Exchanges: exchangeDealsLists,
+	}
+}
+
+func (handlers *Handlers) getBtcDirectSupported(r *http.Request) interface{} {
+	type Result struct {
+		Supported bool `json:"supported"`
+		Success   bool `json:"success"`
+	}
+	type errorResult struct {
+		Success bool `json:"success"`
+	}
+
+	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
+	if err != nil {
+		handlers.log.Error(err)
+		return errorResult{Success: false}
+	}
+
+	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
+	if !accountValid {
+		handlers.log.Error("Account not valid")
+		return errorResult{Success: false}
+	}
+
+	regionCode := r.URL.Query().Get("region")
+	return Result{
+		Success:   true,
+		Supported: exchanges.IsBtcDirectSupported(acct.Coin().Code(), regionCode),
 	}
 }
 

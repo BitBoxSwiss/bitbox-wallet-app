@@ -77,6 +77,7 @@ export const BuySell = ({
   const { isDarkMode } = useDarkmode();
 
   const exchangeDealsResponse = useLoad(() => exchangesAPI.getExchangeDeals(action, accountCode, selectedRegion), [action, selectedRegion]);
+  const btcDirectSupported = useLoad(exchangesAPI.getBtcDirectSupported(accountCode, selectedRegion), [selectedRegion]);
   const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(accountCode));
   const [paymentRequestError, setPaymentRequestError] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
@@ -161,28 +162,28 @@ export const BuySell = ({
                 onClickInfoButton={() => setInfo(buildInfo(exchange))}
               />
             ))}
-            {exchangeDealsResponse?.exchanges.some(exchange => exchange.exchangeName === 'pocket') && (
-              <div className={style.infoContainer}>
-                <Message type="info" icon={<Businessman/>}>
-                  {t('buy.exchange.infoContent.btcdirect.title')}
-                  <p>{t('buy.exchange.infoContent.btcdirect.info')}</p>
-                  <p>
-                    {!agreedTerms ? (
-                      <Link to={'/exchange/btcdirect'} className={style.link}>
-                        {t('buy.exchange.infoContent.btcdirect.link')}
-                      </Link>
-                    ) : (
-                      <A href={getBTCDirectLink()} className={style.link}>
-                        {t('buy.exchange.infoContent.btcdirect.link')}
-                      </A>
-                    )}
+          </div>
+        )}
+        {btcDirectSupported?.success && btcDirectSupported?.supported && (
+          <div className={style.infoContainer}>
+            <Message type="info" icon={<Businessman/>}>
+              {t('buy.exchange.infoContent.btcdirect.title')}
+              <p>{t('buy.exchange.infoContent.btcdirect.info')}</p>
+              <p>
+                {!agreedTerms ? (
+                  <Link to={'/exchange/btcdirect'} className={style.link}>
+                    {t('buy.exchange.infoContent.btcdirect.link')}
+                  </Link>
+                ) : (
+                  <A href={getBTCDirectLink()} className={style.link}>
+                    {t('buy.exchange.infoContent.btcdirect.link')}
+                  </A>
+                )}
                     &nbsp;
-                    {isDarkMode ? <ExternalLinkWhite className={style.textIcon}/> : <ExternalLinkBlack className={style.textIcon}/>}
-                  </p>
-                </Message>
-                <InfoButton onClick={() => setInfo({ info: 'btcdirect' })} />
-              </div>
-            )}
+                {isDarkMode ? <ExternalLinkWhite className={style.textIcon}/> : <ExternalLinkBlack className={style.textIcon}/>}
+              </p>
+            </Message>
+            <InfoButton onClick={() => setInfo({ info: 'btcdirect' })} />
           </div>
         )}
       </div>
