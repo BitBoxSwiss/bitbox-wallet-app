@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { useSync } from './hooks/api';
 import { useDefault } from './hooks/default';
 import { usePrevious } from './hooks/previous';
+import { useIgnoreDrop } from './hooks/drop';
 import { AppRouter } from './routes/router';
 import { Wizard as BitBox02Wizard } from './routes/device/bitbox02/wizard';
 import { getAccounts } from './api/account';
@@ -45,6 +46,7 @@ import styles from './app.module.css';
 export const App = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  useIgnoreDrop();
 
   const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
