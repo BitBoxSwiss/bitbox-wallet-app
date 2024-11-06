@@ -106,3 +106,16 @@ export const getExchangeSupported = (code: AccountCode) => {
     return apiGet(`exchange/supported/${code}`);
   };
 };
+
+export type TBtcDirectResponse = {
+  success: true;
+  supported: boolean;
+} | {
+  success: false;
+};
+
+export const getBtcDirectSupported = (code: AccountCode, region: ExchangeRegion['code']) => {
+  return (): Promise<TBtcDirectResponse> => {
+    return apiGet(`exchange/btcdirect/supported/${code}?region=${region}`);
+  };
+};
