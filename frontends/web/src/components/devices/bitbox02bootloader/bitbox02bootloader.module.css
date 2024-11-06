@@ -1,0 +1,29 @@
+.title {
+    font-size: var(--size-subheader);
+    font-weight: normal;
+    margin: 0;
+}
+
+.content {
+    font-size: 16px;
+    margin: 0;
+}
+
+.progressBar {
+    margin: var(--space-quarter) 0;
+}
+
+.additionalUpgrade {
+    font-size: 16px;
+    margin: 0;
+    margin-top: var(--space-eight);
+}
+
+@media (max-width: 768px) {
+    .content,
+    .additionalUpgrade
+    {
+        font-size: 14px;
+    }
+}
+

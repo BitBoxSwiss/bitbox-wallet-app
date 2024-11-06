@@ -24,6 +24,7 @@ import { View, ViewContent } from '@/components/view/view';
 import { BitBox02, BitBox02Inverted } from '@/components/icon/logo';
 import { Status } from '@/components/status/status';
 import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
+import style from './bitbox02bootloader.module.css';
 
 type TProps = {
   deviceID: string;
@@ -58,17 +59,17 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       const value = Math.round(status.progress * 100);
       contents = (
         <div className="box large">
-          <h2 className="subTitle">
+          <h2 className={style.title}>
             {t('bb02Bootloader.upgradeTitle', { context: (versionInfo.erased ? 'install' : '') })}
           </h2>
           { versionInfo.additionalUpgradeFollows ? (
             <>
-              <p>{t('bb02Bootloader.additionalUpgradeFollows1')}</p>
-              <p>{t('bb02Bootloader.additionalUpgradeFollows2')}</p>
+              <p className={style.additionalUpgrade}>{t('bb02Bootloader.additionalUpgradeFollows1')}</p>
+              <p className={style.additionalUpgrade}>{t('bb02Bootloader.additionalUpgradeFollows2')}</p>
             </>
           ) : null }
-          <progress value={value} max="100">{value}%</progress>
-          <p style={{ marginBottom: 0 }}>
+          <progress className={style.progressBar} value={value} max="100">{value}%</progress>
+          <p className={style.content}>
             {t('bootloader.progress', {
               progress: value.toString(),
               context: (versionInfo.erased ? 'install' : ''),
@@ -124,6 +125,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       </div>
     );
   }
+
   return (
     <View fitContent verticallyCentered width="600px">
       <ViewContent>
