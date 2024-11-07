@@ -39,19 +39,23 @@
     "name": "Hesap adı",
     "noAccount": "Gösterilecek hesap yok.",
     "subtotalWithCoinName": "Toplam ({{coinName}})",
-    "title": "Hesap Özeti",
+    "title": "Portföyüm",
     "total": "Toplam",
     "transactionHistory": "İşlem geçmişi"
   },
   "addAccount": {
     "chooseName": {
-      "nextButton": "Hesap ekle"
+      "nextButton": "Hesap ekle",
+      "step": "Hesap İsmi",
+      "title": "Hesabı İsimlendir"
     },
     "selectCoin": {
-      "nextButton": "Sonraki"
+      "nextButton": "Sonraki",
+      "step": "Coin Seç"
     },
     "success": {
       "addAnotherAccount": "Başka bir hesap ekle",
+      "message": "<strong>{{accountName}}</strong> artık hesaplarınıza eklendi.",
       "nextButton": "Bitti",
       "step": "Tamamlandı",
       "title": "Hesap eklendi"
@@ -59,9 +63,17 @@
     "title": "Hesap Ekle"
   },
   "aopp": {
+    "addressRequest": "{{host}} alıcı adresi istiyor.",
+    "addressRequestWithLogo": "alıcı adresi istiyor.",
+    "banner": "Adres isteği işleniyor. Devam etmek için lütfen cihazınızı bağlayın.",
+    "errorTitle": "Adres isteği sırasında hata",
     "labelAddress": "Adres",
     "labelMessage": "Mesaj",
-    "reverifyInfoText": "Adresi Doğrula"
+    "reverifyInfoText": "Adresi Doğrula",
+    "success": {
+      "title": "Adres başarıyla gönderildi."
+    },
+    "syncing": "Hesap eşzamanlanıyor, lütfen bekleyin."
   },
   "app": {
     "upgrade": "Bu uygulamanın yeni bir sürümü mevcut! Lütfen  {{current}} 'dan  {{version}}'a yükseltin."
@@ -116,6 +128,7 @@
       "understand": "Yanlış kurtarma şifresinin farklı bir cüzdan yaratacağını onaylıyorum"
     },
     "showMnemonic": {
+      "checkboxLabel": "Üstteki bilgilendirmeyi okudum",
       "description": "Cüzdanınızın yedeğini oluşturan 24 kelimeyi size sunacağız. Onları kağıda yazın.\n\n<strong>Bunları dijital olarak saklamayın veya fotoğraflarını çekmeyin.</strong>\n\n<strong>Kelimeleri yüksek sesle söyleme.</strong>\n\n<strong>Bu yedekleme şifre korumalı değildir.</strong>\n\nSonrasında, her bir kelimeyi tek tek onaylamanız istenecektir.",
       "title": "BIP39 Anımsatıcısını Göster"
     },
