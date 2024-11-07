@@ -43,7 +43,6 @@ func NewFeeTargetCode(code string) (FeeTargetCode, error) {
 	case string(FeeTargetCodeMempoolFastest):
 	case string(FeeTargetCodeMempoolHalfHour):
 	case string(FeeTargetCodeMempoolHour):
-	case string(FeeTargetCodeMempoolEconomy):
 	default:
 		return "", errp.WithStack(errp.Newf("Unrecognized fee target code %s", code))
 	}
@@ -72,9 +71,6 @@ const (
 	// FeeTargetCodeMempoolHour is the mempool hour fee target.
 	FeeTargetCodeMempoolHour FeeTargetCode = "mHour"
 
-	// FeeTargetCodeMempoolEconomy is the mempool economy fee target.
-	FeeTargetCodeMempoolEconomy FeeTargetCode = "mEconomy"
-
 	// FeeTargetCodeCustom means that the actual feerate is supplied separately instead of being
 	// estimated automatically.
 	FeeTargetCodeCustom FeeTargetCode = "custom"
@@ -92,7 +88,6 @@ type MempoolSpaceFees struct {
 	FastestFee  int64 `json:"fastestFee"`
 	HalfHourFee int64 `json:"halfHourFee"`
 	HourFee     int64 `json:"hourFee"`
-	EconomyFee  int64 `json:"economyFee"`
 	MinimumFee  int64 `json:"minimumFee"`
 }
 
@@ -106,8 +101,6 @@ func (fees MempoolSpaceFees) GetFeeRate(code FeeTargetCode) btcutil.Amount {
 		feeRatePerByte = fees.HalfHourFee
 	case FeeTargetCodeMempoolHour:
 		feeRatePerByte = fees.HourFee
-	case FeeTargetCodeMempoolEconomy:
-		feeRatePerByte = fees.EconomyFee
 	}
 	return btcutil.Amount(feeRatePerByte * 1000)
 }
