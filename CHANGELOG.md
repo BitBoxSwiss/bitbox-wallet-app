@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+# 4.46.0
 - Android: enable export logs feature
 - Label UTXOs that were created as change, as such, in coin control
 - Remove support for deprecated the Ethereum Goerli network
