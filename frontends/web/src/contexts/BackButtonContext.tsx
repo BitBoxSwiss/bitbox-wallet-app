@@ -41,7 +41,7 @@ type TProviderProps = {
 }
 
 export const BackButtonProvider = ({ children }: TProviderProps) => {
-  const [handlers, sethandlers] = useState<THandler[]>([]);
+  const [handlers, setHandlers] = useState<THandler[]>([]);
   const { guideShown, toggleGuide } = useContext(AppContext);
 
   const callTopHandler = useCallback(() => {
@@ -61,17 +61,18 @@ export const BackButtonProvider = ({ children }: TProviderProps) => {
   }, [handlers, guideShown, toggleGuide]);
 
   const pushHandler = useCallback((handler: THandler) => {
-    sethandlers((prevStack) => [...prevStack, handler]);
+    setHandlers((prevStack) => [...prevStack, handler]);
   }, []);
 
   const popHandler = useCallback((handler: THandler) => {
-    sethandlers((prevStack) => {
+    setHandlers((prevStack) => {
       const index = prevStack.indexOf(handler);
       if (index === -1) {
         // Should never happen.
         return prevStack;
       }
-      return prevStack.slice(index, 1);
+      const res = prevStack.slice(0, index).concat(prevStack.slice(index + 1));
+      return res;
     });
   }, []);
 
