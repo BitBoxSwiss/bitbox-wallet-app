@@ -28,7 +28,7 @@ github.com/aead/siphash
 # github.com/bits-and-blooms/bitset v1.13.0
 ## explicit; go 1.16
 github.com/bits-and-blooms/bitset
-# github.com/breez/breez-sdk-go v0.5.2
+# github.com/breez/breez-sdk-go v0.6.3-rc1
 ## explicit; go 1.19
 github.com/breez/breez-sdk-go/breez_sdk
 github.com/breez/breez-sdk-go/breez_sdk/lib

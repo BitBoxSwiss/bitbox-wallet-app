@@ -305,6 +305,7 @@ export const Send = () => {
       case InputTypeVariant.BOLT11:
         await postSendPayment({
           bolt11: paymentDetails.invoice.bolt11,
+          useTrampoline: true,
           // amountMsat is optional, if amount is missing the UI shows edit-invoice step for the user to enter a custom amountMsat which is passed here
           amountMsat: customAmount ? toMsat(customAmount) : undefined
         });
