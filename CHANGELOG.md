@@ -9,6 +9,7 @@
 - macOS: create a universal build that runs natively on arm64 and amd64
 - Show fiat amount at the time of the transaction in transaction history
 - Add BTC Direct private trading desk information
+- Android: fix stuck back button after closing a dialog
 
 # 4.45.0
 - Bundle BitBox02 firmware version v9.21.0
