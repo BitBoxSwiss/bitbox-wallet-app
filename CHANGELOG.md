@@ -1,7 +1,8 @@
 # Changelog
 
 ## Unreleased
-- Fix long transaction notes to show fully on multiple lines when necessary 
+- Fix long transaction notes to show fully on multiple lines when necessary
+- Improve send-to-self transactions in account overview
 
 # 4.46.2
 - Fix Linux blank screen issue related to the local mimetype database

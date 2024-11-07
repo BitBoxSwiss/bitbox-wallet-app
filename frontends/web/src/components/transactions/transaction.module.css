@@ -106,6 +106,15 @@
   font-size: 12px;
 }
 
+.txSmallInlineIcon img {
+  max-height: 15px;
+  max-width: 15px;
+  vertical-align: text-bottom;
+}
+.txConversionAmount .txSmallInlineIcon {
+  padding-right: var(--space-eight);
+}
+
 .txNote {
   color: var(--color-secondary);
   display: block;

@@ -16,6 +16,7 @@
 
 export const getTxSign = (type: string) => {
   switch (type) {
+  case 'send_to_self':
   case 'send':
     return '−';
   case 'receive':
