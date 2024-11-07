@@ -89,18 +89,21 @@ export const AuthRequired = () => {
         textCenter
         verticallyCentered
         withBottomBar>
-        <ViewHeader small title={t('auth.title')} />
-        <ViewContent children={undefined} minHeight="0" />
-        <ViewButtons>
-          <Button
-            autoFocus
-            primary
-            hidden={authForced.current}
-            disabled={authenticating}
-            onClick={newAuthentication}>
-            {t('auth.authButton')}
-          </Button>
-        </ViewButtons>
+        { !authenticating && (
+          <>
+            <ViewHeader small title={t('auth.title')} />
+            <ViewContent children={undefined} minHeight="0" />
+            <ViewButtons>
+              <Button
+                autoFocus
+                primary
+                hidden={authForced.current}
+                onClick={newAuthentication}>
+                {t('auth.authButton')}
+              </Button>
+            </ViewButtons>
+          </>
+        )}
       </View>
     </div>
   );
