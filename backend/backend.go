@@ -78,7 +78,6 @@ var fixedURLWhitelist = []string{
 	"https://sochain.com/tx/LTCTEST/",
 	"https://blockchair.com/litecoin/transaction/",
 	"https://etherscan.io/tx/",
-	"https://goerli.etherscan.io/tx/",
 	"https://sepolia.etherscan.io/tx/",
 	// Moonpay onramp
 	"https://www.moonpay.com/",
@@ -88,6 +87,8 @@ var fixedURLWhitelist = []string{
 	"https://help.moonpay.com/",
 	// PocketBitcoin
 	"https://pocketbitcoin.com/",
+	// BTCDirect
+	"https://btcdirect.eu/",
 	// Bitsurance
 	"https://www.bitsurance.eu/",
 	"https://get.bitsurance.eu/",
@@ -525,12 +526,6 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 			"https://etherscan.io/tx/",
 			etherScan,
 			nil)
-	case code == coinpkg.CodeGOETH:
-		etherScan := etherscan.NewEtherScan("https://api-goerli.etherscan.io/api", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, code, "Ethereum Goerli", "GOETH", "GOETH", params.GoerliChainConfig,
-			"https://goerli.etherscan.io/tx/",
-			etherScan,
-			nil)
 	case code == coinpkg.CodeSEPETH:
 		etherScan := etherscan.NewEtherScan("https://api-sepolia.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "Ethereum Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig,
@@ -550,6 +545,43 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	backend.coins[code] = coin
 	coin.Observe(backend.Notify)
 	return coin, nil
+}
+
+// ManualReconnect triggers reconnecting to Electrum servers if their connection is down.
+// Only coin connections that were previously established are reconnected.
+// Calling this is a no-op for coins that are already connected.
+func (backend *Backend) ManualReconnect() {
+	var electrumCoinCodes []coinpkg.Code
+	if backend.arguments.Testing() {
+		electrumCoinCodes = []coinpkg.Code{
+			coinpkg.CodeTBTC,
+			coinpkg.CodeTLTC,
+		}
+	} else {
+		electrumCoinCodes = []coinpkg.Code{
+			coinpkg.CodeBTC,
+			coinpkg.CodeLTC,
+		}
+	}
+	backend.log.Info("Manually reconnecting")
+	for _, code := range electrumCoinCodes {
+		c, err := backend.Coin(code)
+		if err != nil {
+			backend.log.WithError(err).Errorf("could not find coin: %s", code)
+			continue
+		}
+		btcCoin, ok := c.(*btc.Coin)
+		if !ok {
+			backend.log.Errorf("Expected %s to be a btc coin", code)
+			continue
+		}
+		blockchain := btcCoin.Blockchain()
+		if blockchain == nil {
+			// Not initialized yet
+			continue
+		}
+		blockchain.ManualReconnect()
+	}
 }
 
 // Testing returns whether this backend is for testing only.

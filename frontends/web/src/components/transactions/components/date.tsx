@@ -15,31 +15,16 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { parseTimeShort } from '@/utils/date';
+import { parseTimeLongWithYear } from '@/utils/date';
 import { TxDetail } from './detail';
-import transactionsStyle from '@/components/transactions/transactions.module.css';
-import parentStyle from '@/components/transactions/transaction.module.css';
 
 type TProps = {
   time: string | null;
 }
 
-export const TxDate = ({ time }: TProps) => {
-  const { i18n, t } = useTranslation();
-  const shortDate = time ? parseTimeShort(time, i18n.language) : '---';
-  return (
-    <div className={transactionsStyle.date}>
-      <span className={parentStyle.columnLabel}>
-        {t('transaction.details.date')}:
-      </span>
-      <span className={parentStyle.date}>{shortDate}</span>
-    </div>
-  );
-};
-
 export const TxDateDetail = ({ time }: TProps) => {
   const { i18n, t } = useTranslation();
-  const shortDate = time ? parseTimeShort(time, i18n.language) : '---';
+  const shortDate = time ? parseTimeLongWithYear(time, i18n.language) : '---';
   return (
     <TxDetail
       label={t('transaction.details.date')}>

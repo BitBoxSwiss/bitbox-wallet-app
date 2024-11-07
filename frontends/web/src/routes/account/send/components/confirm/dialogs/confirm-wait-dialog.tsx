@@ -98,7 +98,8 @@ export const ConfirmingWaitDialog = ({
                 <span className="text-gray"> / </span>
                 <Amount alwaysShowAmounts amount={proposedAmount.conversions[activeCurrency]} unit={baseCurrencyUnit}/>
                 {' '}<small>{baseCurrencyUnit}</small>
-              </span>)
+              </span>
+            )
           }
         </p>
       </div>

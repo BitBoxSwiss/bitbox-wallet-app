@@ -717,15 +717,7 @@ func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
 	if account.fatalError.Load() {
 		return nil, errp.New("can't call Transactions() after a fatal error")
 	}
-	return account.transactions.Transactions(
-		func(scriptHashHex blockchain.ScriptHashHex) bool {
-			for _, subacc := range account.subaccounts {
-				if subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil {
-					return true
-				}
-			}
-			return false
-		})
+	return account.transactions.Transactions(account.IsChange)
 }
 
 // GetUnusedReceiveAddresses returns a number of unused addresses. Returns nil if the account is not initialized.
@@ -861,6 +853,7 @@ type SpendableOutput struct {
 	*transactions.SpendableOutput
 	OutPoint wire.OutPoint
 	Address  *addresses.AccountAddress
+	IsChange bool
 }
 
 // SpendableOutputs returns the utxo set, sorted by the value descending.
@@ -873,12 +866,14 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 		panic(err)
 	}
 	for outPoint, txOut := range utxos {
+		scriptHashHex := blockchain.NewScriptHashHex(txOut.TxOut.PkScript)
 		result = append(
 			result,
 			&SpendableOutput{
 				OutPoint:        outPoint,
 				SpendableOutput: txOut,
-				Address:         account.getAddress(blockchain.NewScriptHashHex(txOut.TxOut.PkScript)),
+				Address:         account.getAddress(scriptHashHex),
+				IsChange:        account.IsChange(scriptHashHex),
 			})
 	}
 	return sortByAddresses(result)
@@ -905,6 +900,17 @@ func (account *Account) VerifyExtendedPublicKey(signingConfigIndex int) (bool, e
 		)
 	}
 	return false, nil
+}
+
+// IsChange returns true if there is an address corresponding to the provided scriptHashHex in our
+// accounts change address chain. It returns false if no address can be found.
+func (account *Account) IsChange(scriptHashHex blockchain.ScriptHashHex) bool {
+	for _, subacc := range account.subaccounts {
+		if subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil {
+			return true
+		}
+	}
+	return false
 }
 
 // SignBTCAddress returns an unused address and makes the user sign a message to prove ownership.

@@ -156,6 +156,10 @@ func (f *failoverClient) TransactionGet(txHash chainhash.Hash) (*wire.MsgTx, err
 	})
 }
 
+func (f *failoverClient) ManualReconnect() {
+	f.failover.ManualReconnect()
+}
+
 func (f *failoverClient) Close() {
 	f.failover.Close()
 }

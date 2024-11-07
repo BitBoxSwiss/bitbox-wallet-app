@@ -29,10 +29,9 @@ import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
 import { Info } from '@/components/icon';
-import { Header } from '@/components/layout';
+import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Status } from '@/components/status/status';
-import { Transactions } from '@/components/transactions/transactions';
 import { useLoad } from '@/hooks/api';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ActionButtons } from './actionButtons';
@@ -47,7 +46,13 @@ import { A } from '@/components/anchor/anchor';
 import { getConfig, setConfig } from '@/utils/config';
 import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/globalbanners/globalbanners';
+import { GlobalBanners } from '@/components/banners';
+import { View, ViewContent, ViewHeader } from '@/components/view/view';
+import { Transaction } from '@/components/transactions/transaction';
+import { TransactionDetails } from '@/components/transactions/details';
+import { Button } from '@/components/forms';
+import { SubTitle } from '@/components/title';
+import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
 import style from './account.module.css';
 
 type Props = {
@@ -71,7 +76,10 @@ export const Account = ({
   const [insured, setInsured] = useState<boolean>(false);
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
   const [stateCode, setStateCode] = useState<string>();
+  const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeSupported(code), [code]);
+
+  useEffect(() => setDetailID(null), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
@@ -225,37 +233,24 @@ export const Account = ({
       <Spinner guideExists text={t('account.fatalError')} />
     );
   }
+
+  // Status: offline error
+  const offlineErrorTextLines: string[] = [];
   if (status.offlineError !== null) {
-    const offlineErrorTextLines: string[] = [];
     offlineErrorTextLines.push(t('account.reconnecting'));
     offlineErrorTextLines.push(status.offlineError);
     if (usesProxy) {
       offlineErrorTextLines.push(t('account.maybeProxyError'));
     }
-    return (
-      <Spinner guideExists text={offlineErrorTextLines.join('\n')} />
-    );
   }
-  if (!status.synced) {
-    const text =
-      (syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
-        '\n' + t('account.syncedAddressesCount', {
-          count: syncedAddressesCount.toString(),
-          defaultValue: 0,
-        } as any)
-      ) : '';
 
-    return (
-      <Spinner guideExists text={
-        t('account.initializing') + text
-      } />
-    );
-  }
-  if (!hasDataLoaded) {
-    return (
-      <Spinner guideExists text={''} />
-    );
-  }
+  // Status: not synced
+  const notSyncedText = (!status.synced && syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
+    '\n' + t('account.syncedAddressesCount', {
+      count: syncedAddressesCount.toString(),
+      defaultValue: 0,
+    } as any)
+  ) : '';
 
   const exchangeSupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
 
@@ -269,72 +264,125 @@ export const Account = ({
 
   const actionButtonsProps = {
     code,
+    accountDataLoaded: hasDataLoaded,
     coinCode: account.coinCode,
     canSend: balance && balance.hasAvailable,
     exchangeSupported,
     account
   };
 
-  return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <ContentWrapper>
-          <GlobalBanners />
-          <Status hidden={!hasCard} type="warning">
-            {t('warning.sdcard')}
-          </Status>
-        </ContentWrapper>
-        <Dialog open={insured && uncoveredFunds.length !== 0} medium title={t('account.warning')} onClose={() => setUncoveredFunds([])}>
-          <MultilineMarkup tagName="p" markup={t('account.uncoveredFunds', {
-            name: account.name,
-            uncovered: uncoveredFunds,
-          })} />
-          <A href={getBitsuranceGuideLink()}>{t('account.uncoveredFundsLink')}</A>
-        </Dialog>
-        <Header
-          title={<h2><span>{account.name}</span>{insured && (<Insured />)}</h2>}>
-          <HideAmountsButton />
-          <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center m-left-half">
-            <Info className={style.accountIcon} />
-            <span>{t('accountInfo.label')}</span>
-          </Link>
-        </Header>
-        {status.synced && hasDataLoaded && isBitcoinBased(account.coinCode) && (
-          <HeadersSync coinCode={account.coinCode} />
-        )}
-        <div className="innerContainer scrollableContainer">
-          <div className="content padded">
+  const loadingTransactions = transactions?.success === undefined;
+  const hasTransactions = transactions?.success && transactions.list.length > 0;
 
-            <div className="flex flex-column flex-reverse-mobile">
-              <label className="labelXLarge flex-self-start-mobile hide-on-small">
+  return (
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <ContentWrapper>
+            <GlobalBanners />
+            <Status hidden={!hasCard} type="warning">
+              {t('warning.sdcard')}
+            </Status>
+            <Status className={style.status} hidden={!status.offlineError} type="error">
+              {offlineErrorTextLines.join('\n')}
+            </Status>
+            <Status className={style.status} hidden={status.synced || !!status.offlineError} type="info">
+              {t('account.initializing')}
+              {notSyncedText}
+            </Status>
+          </ContentWrapper>
+          <Dialog open={insured && uncoveredFunds.length !== 0} medium title={t('account.warning')} onClose={() => setUncoveredFunds([])}>
+            <MultilineMarkup tagName="p" markup={t('account.uncoveredFunds', {
+              name: account.name,
+              uncovered: uncoveredFunds,
+            })} />
+            <A href={getBitsuranceGuideLink()}>{t('account.uncoveredFundsLink')}</A>
+          </Dialog>
+          <Header
+            title={<h2><span>{account.name}</span>{insured && (<Insured />)}</h2>}>
+            <Link
+              to={`/account/${code}/info`}
+              title={t('accountInfo.title')}
+              className={style.accountInfoLink}>
+              <Info className={style.accountIcon} />
+              <span className="hide-on-small">
+                {t('accountInfo.label')}
+              </span>
+            </Link>
+            <HideAmountsButton />
+          </Header>
+          {status.synced && hasDataLoaded && isBitcoinBased(account.coinCode) && (
+            <HeadersSync coinCode={account.coinCode} />
+          )}
+          <View>
+            <ViewHeader>
+              <label className="labelXLarge">
                 {t('accountSummary.availableBalance')}
               </label>
-              <div className="flex flex-row flex-between flex-item-center flex-column-mobile flex-reverse-mobile">
+              <div className={style.balanceHeader}>
                 <Balance balance={balance} />
-                <label className="labelXLarge flex-self-start-mobile show-on-small">
-                  {t('accountSummary.availableBalance')}
-                </label>
                 {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
               </div>
-            </div>
-            {isAccountEmpty && (
-              <BuyReceiveCTA
-                account={account}
-                code={code}
-                exchangeSupported={exchangeSupported}
-                unit={balance.available.unit}
-                balanceList={[balance]}
+            </ViewHeader>
+            <ViewContent fullWidth>
+              <div className={style.accountHeader}>
+                {isAccountEmpty && (
+                  <BuyReceiveCTA
+                    account={account}
+                    code={code}
+                    exchangeSupported={exchangeSupported}
+                    unit={balance.available.unit}
+                    balanceList={[balance]}
+                  />
+                )}
+
+                {transactions?.success === false ? (
+                  <p className={style.errorLoadTransactions}>
+                    {t('transactions.errorLoadTransactions')}
+                  </p>
+                ) : !isAccountEmpty && (
+                  <SubTitle className={style.titleWithButton}>
+                    {t('accountSummary.transactionHistory')}
+                    <Button
+                      transparent
+                      disabled={!hasTransactions}
+                      className={style.exportButton}
+                      onClick={exportAccount}
+                      title={t('account.exportTransactions')}>
+                      {t('account.export')}
+                    </Button>
+                  </SubTitle>
+                )}
+              </div>
+
+              {loadingTransactions && <TransactionHistorySkeleton />}
+
+              {hasTransactions ? (
+                transactions.list.map(tx => (
+                  <Transaction
+                    key={tx.internalID}
+                    onShowDetail={(internalID: accountApi.ITransaction['internalID']) => {
+                      setDetailID(internalID);
+                    }}
+                    {...tx}
+                  />
+                ))
+              ) : transactions?.success && (
+                <p className={style.emptyTransactions}>
+                  {t('transactions.placeholder')}
+                </p>
+              )}
+
+              <TransactionDetails
+                accountCode={code}
+                explorerURL={account.blockExplorerTxPrefix}
+                internalID={detailID}
+                onClose={() => setDetailID(null)}
               />
-            )}
-            {!isAccountEmpty && <Transactions
-              accountCode={code}
-              handleExport={exportAccount}
-              explorerURL={account.blockExplorerTxPrefix}
-              transactions={transactions}
-            />}
-          </div>
-        </div>
-      </div>
+            </ViewContent>
+          </View>
+        </Main>
+      </GuidedContent>
       <AccountGuide
         account={account}
         unit={balance?.available.unit}
@@ -342,6 +390,6 @@ export const Account = ({
         hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
         hasNoBalance={balance && balance.available.amount === '0'}
       />
-    </div>
+    </GuideWrapper>
   );
 };

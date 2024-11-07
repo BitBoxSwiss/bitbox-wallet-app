@@ -38,7 +38,7 @@ import { Bip85Setting } from './components/device-settings/bip85-setting';
 import { ManageDeviceGuide } from '@/routes/device/bitbox02/settings-guide';
 import { MobileHeader } from './components/mobile-header';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/globalbanners/globalbanners';
+import { GlobalBanners } from '@/components/banners';
 import styles from './bb02-settings.module.css';
 
 type TProps = {
@@ -121,20 +121,22 @@ const Content = ({ deviceID }: TProps) => {
       {/*"Device information" section*/}
       <div className={styles.section}>
         <h3 className="subTitle">{t('deviceSettings.deviceInformation.title')}</h3>
-        {deviceInfo ?
+        {deviceInfo ? (
           <DeviceNameSetting
             deviceName={deviceInfo.name}
             deviceID={deviceID}
-          /> :
+          />
+        ) :
           <StyledSkeleton />
         }
         <AttestationCheckSetting deviceID={deviceID} />
         {
-          versionInfo ?
+          versionInfo ? (
             <FirmwareSetting
               deviceID={deviceID}
               versionInfo={versionInfo}
-            /> :
+            />
+          ) :
             <StyledSkeleton />
         }
         {
@@ -155,12 +157,14 @@ const Content = ({ deviceID }: TProps) => {
       <div className={styles.section}>
         <h3 className="subTitle">{t('settings.expert.title')}</h3>
         {
-          deviceInfo ?
+          deviceInfo ? (
             <PassphraseSetting
               passphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
               deviceID={deviceID}
-            /> :
+            />
+          ) : (
             <StyledSkeleton />
+          )
         }
         {
           versionInfo ? (

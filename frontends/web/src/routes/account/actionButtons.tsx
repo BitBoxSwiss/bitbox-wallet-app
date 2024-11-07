@@ -29,9 +29,10 @@ type TProps = {
   coinCode: CoinCode;
   exchangeSupported?: boolean;
   account: IAccount;
+  accountDataLoaded: boolean;
 }
 
-export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, account }: TProps) => {
+export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, account, accountDataLoaded }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const walletConnectEnabled = isEthereumBased(account.coinCode) && !account.isToken;
@@ -52,7 +53,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
 
   return (
     <div className={`${style.actionsContainer} ${walletConnectEnabled ? style.withWalletConnect : ''}`}>
-      {canSend ? (
+      {canSend && accountDataLoaded ? (
         <Link key="sendLink" to={sendLink} className={style.send} onClick={isEthereumBased(coinCode) ? maybeRouteSend : undefined}>
           <span>{t('button.send')}</span>
         </Link>
@@ -61,17 +62,40 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
           {t('button.send')}
         </span>
       )}
-      <Link key="receive" to={`/account/${code}/receive`} className={style.receive}>
-        <span>{t('button.receive')}</span>
-      </Link>
-      { exchangeSupported && (
-        <Link key="exchange" to={`/exchange/info/${code}`} className={style.exchange}>
-          <span>{t('generic.buySell')}</span>
+
+      {accountDataLoaded ? (
+        <Link key="receive" to={`/account/${code}/receive`} className={style.receive}>
+          <span>{t('button.receive')}</span>
         </Link>
+      ) : (
+        <span key="receiveDisabled" className={`${style.receive} ${style.disabled}`}>
+          {t('button.receive')}
+        </span>
       )}
-      {walletConnectEnabled && <Link key="wallet-connect" to={`/account/${code}/wallet-connect/dashboard`} className={style.walletConnect}>
-        <WalletConnectLight width={24}/> {!isLargeTablet && <span>Wallet Connect</span>}
-      </Link>}
+
+      {exchangeSupported && (
+        accountDataLoaded ? (
+          <Link key="exchange" to={`/exchange/info/${code}`} className={style.exchange}>
+            <span>{t('generic.buySell')}</span>
+          </Link>
+        ) : (
+          <span key="buySellDisabled" className={`${style.exchange} ${style.disabled}`}>
+            {t('generic.buySell')}
+          </span>
+        )
+      )}
+
+      {walletConnectEnabled && (
+        accountDataLoaded ? (
+          <Link key="wallet-connect" to={`/account/${code}/wallet-connect/dashboard`} className={style.walletConnect}>
+            <WalletConnectLight width={24}/> {!isLargeTablet && <span>Wallet Connect</span>}
+          </Link>
+        ) : (
+          <span key="wcDisabled" className={`${style.walletConnect} ${style.disabled}`}>
+            <WalletConnectLight width={24}/> {!isLargeTablet && <span>Wallet Connect</span>}
+          </span>
+        )
+      )}
     </div>
   );
 };

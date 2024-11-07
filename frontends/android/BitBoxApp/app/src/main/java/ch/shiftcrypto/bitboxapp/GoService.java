@@ -63,7 +63,6 @@ public class GoService extends Service {
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
                 .build();
-        startForeground(notificationId,notification);
 
         // The service goes in foreground to keep working normally even when the app is out of
         // focus. This is needed to avoid timeouts when the backend is polling the BitBox for e.g.

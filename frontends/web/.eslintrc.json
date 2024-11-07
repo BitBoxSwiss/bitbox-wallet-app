@@ -46,7 +46,13 @@
     "react/display-name": "off",
     "react-hooks/exhaustive-deps": "error",
     "@typescript-eslint/ban-ts-comment": "off",
-    "no-async-promise-executor": "off"
+    "no-async-promise-executor": "off",
+    "react/jsx-wrap-multilines": ["error", {
+      "arrow": "parens-new-line",
+      "assignment": "parens-new-line",
+      "condition": "parens-new-line",
+      "logical": "parens-new-line"
+    }]
   },
   "overrides": [
     {

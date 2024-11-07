@@ -24,3 +24,34 @@
 .successMessage strong {
     color: var(--color-default);
 }
+
+@media screen and (max-width: 640px) {
+    .button {
+        margin-left: var(--space-quarter);
+    }
+}
+
+
+.buttonsContainer {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: space-between;
+  }
+  
+  @media (max-width: 560px) {
+    .buttonsContainer {
+      flex-direction: column; 
+    }
+
+    .buttonsContainer button {
+        width: 100%; 
+        max-width: none; 
+        margin-top: 16px;
+    }
+
+    .buttonsContainer button:first-child {
+        margin-top: 0;
+      }
+  }
+  

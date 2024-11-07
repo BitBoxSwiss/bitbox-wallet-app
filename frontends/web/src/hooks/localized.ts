@@ -35,9 +35,7 @@ export const useLocalizedPunctuation = (
       );
       decimal = parts.find(part => part.type === 'decimal')?.value || decimal;
       group = parts.find(part => part.type === 'group')?.value || group;
-    } catch (error) {
-      console.warn(error);
-    }
+    } catch {}
     return { decimal, group };
   }, [locale]);
 

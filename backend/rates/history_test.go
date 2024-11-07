@@ -155,10 +155,10 @@ func TestHistoryEarliestLatest(t *testing.T) {
 
 	assert.Equal(t,
 		updater.history["ltcUSD"][1].timestamp,
-		updater.HistoryLatestTimestampAll([]string{"btc", "ltc"}, "USD"))
+		updater.HistoryLatestTimestampFiat([]string{"btc", "ltc"}, "USD"))
 
-	assert.Zero(t, updater.HistoryLatestTimestampAll([]string{"btc", "foo"}, "USD"))
-	assert.Zero(t, updater.HistoryLatestTimestampAll([]string{"foo", "btc"}, "USD"))
+	assert.Zero(t, updater.HistoryLatestTimestampFiat([]string{"btc", "foo"}, "USD"))
+	assert.Zero(t, updater.HistoryLatestTimestampFiat([]string{"foo", "btc"}, "USD"))
 }
 
 // TestLoadDumpUnusableDB ensures no panic when the RateUpdater.historyDB is unusable.
@@ -258,4 +258,26 @@ func BenchmarkLoadHistoryBucket(b *testing.B) {
 		require.NoError(b, err, "updater.loadHistoryBucket")
 		require.Len(b, rates, 5000, "len(rates)")
 	}
+}
+
+func TestHistoryLatestTimestampCoin(t *testing.T) {
+	updater := NewRateUpdater(nil, "/dev/null") // don't need to make HTTP requests or load DB
+	defer updater.Stop()
+	updater.history = map[string][]exchangeRate{
+		"btcUSD": {
+			{value: 2, timestamp: time.Date(2020, 9, 1, 0, 0, 0, 0, time.UTC)},
+			{value: 3, timestamp: time.Date(2020, 9, 2, 0, 0, 0, 0, time.UTC)},
+			{value: 5, timestamp: time.Date(2020, 9, 3, 0, 0, 0, 0, time.UTC)},
+			{value: 8, timestamp: time.Date(2020, 9, 4, 0, 0, 0, 0, time.UTC)},
+		},
+		"btcEUR": {
+			{value: 2, timestamp: time.Date(2020, 9, 1, 0, 0, 0, 0, time.UTC)},
+			{value: 3, timestamp: time.Date(2020, 9, 2, 0, 0, 0, 0, time.UTC)},
+			{value: 5, timestamp: time.Date(2020, 9, 3, 0, 0, 0, 0, time.UTC)},
+		},
+	}
+	assert.Equal(t, time.Time{}, updater.HistoryLatestTimestampCoin("eth"))
+	assert.Equal(t,
+		time.Date(2020, 9, 3, 0, 0, 0, 0, time.UTC),
+		updater.HistoryLatestTimestampCoin("btc"))
 }

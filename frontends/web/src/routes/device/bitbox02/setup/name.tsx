@@ -103,13 +103,15 @@ export const DeviceNameErrorMessage = ({ error, invalidChars }: TDeviceNameError
   if (error === 'tooShort') {
     return null;
   }
-  return (<span hidden={!error} className={style.errorMessage}>
-    {t(`bitbox02Wizard.stepCreate.error.${error}`, {
-      invalidChars
-    })}
-    {' '}
-    {t('bitbox02Wizard.stepCreate.error.genericMessage')}
-  </span>);
+  return (
+    <span hidden={!error} className={style.errorMessage}>
+      {t(`bitbox02Wizard.stepCreate.error.${error}`, {
+        invalidChars
+      })}
+      {' '}
+      {t('bitbox02Wizard.stepCreate.error.genericMessage')}
+    </span>
+  );
 };
 
 type TPropsWithSDCard = TProps & {

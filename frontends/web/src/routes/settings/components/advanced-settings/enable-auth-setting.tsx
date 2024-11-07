@@ -65,13 +65,12 @@ export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => 
       settingName={t('newSettings.advancedSettings.authentication.title')}
       secondaryText={t('newSettings.advancedSettings.authentication.description')}
       extraComponent={
-        backendConfig !== undefined ?
+        backendConfig !== undefined ? (
           <Toggle
             checked={backendConfig?.authentication || false}
             onChange={handleToggleAuth}
           />
-          :
-          null
+        ) : null
       }
     />
   );

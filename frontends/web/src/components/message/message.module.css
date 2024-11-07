@@ -22,6 +22,9 @@
 }
 
 @media (max-width: 768px) {
+    .message {
+      --size-default: 14px
+    }
     .message .title {
         --size-subheader: 18px;
     }

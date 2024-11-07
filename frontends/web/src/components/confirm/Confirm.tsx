@@ -63,25 +63,29 @@ export const Confirm = () => {
   if (!active) {
     return null;
   }
-  return <DialogLegacy title={t('dialog.confirmTitle')} onClose={() => respond(false)}>
-    <div className="columnsContainer half">
-      <div className="columns">
-        <div className="column">
-          {
-            message ? message.split('\n').map((line, i) => (
+  return (
+    <DialogLegacy title={t('dialog.confirmTitle')} onClose={() => respond(false)}>
+      <div className="columnsContainer half">
+        <div className="columns">
+          <div className="column">
+            { message ? message.split('\n').map((line, i) => (
               <p
                 key={i}
                 className={i === 0 ? 'first' : ''}>
                 <SimpleMarkup tagName="span" markup={line} />
               </p>
-            )) : null
-          }
+            )) : null }
+          </div>
         </div>
       </div>
-    </div>
-    <DialogButtons>
-      <Button primary onClick={() => respond(true)}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
-      <Button secondary onClick={() => respond(false)}>{t('dialog.cancel')}</Button>
-    </DialogButtons>
-  </DialogLegacy>;
+      <DialogButtons>
+        <Button primary onClick={() => respond(true)}>
+          {customButtonText ? customButtonText : t('dialog.confirm')}
+        </Button>
+        <Button secondary onClick={() => respond(false)}>
+          {t('dialog.cancel')}
+        </Button>
+      </DialogButtons>
+    </DialogLegacy>
+  );
 };

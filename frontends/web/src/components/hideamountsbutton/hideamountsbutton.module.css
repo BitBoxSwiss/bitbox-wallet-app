@@ -10,6 +10,13 @@
     height: 18px;
 }
 
-.button span {
+.buttonText {
     margin-left: var(--space-eight);
+}
+
+@media (max-width: 768px) {
+    .button {
+        min-width: auto;
+        padding: 0 var(--space-quarter);
+    }
 }

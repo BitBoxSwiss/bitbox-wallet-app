@@ -84,7 +84,6 @@ const logoMap: LogoMap = {
   'ltc': [LTC, LTC_GREY],
   'tltc': [LTC, LTC_GREY],
   'eth': [ETH, ETH_GREY],
-  'goeth': [ETH, ETH_GREY],
   'sepeth': [ETH, ETH_GREY],
   'erc20Test': [ETH, ETH_GREY],
 
@@ -126,11 +125,14 @@ export const Logo = ({
   }
   return (
     <div>
-      { active ? <img draggable={false} src={logoMap[coinCode][0]} {...rest}/>
-        : <div className="stacked">
+      { active ? (
+        <img draggable={false} src={logoMap[coinCode][0]} {...rest}/>
+      ) : (
+        <div className="stacked">
           <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
           <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
-        </div>}
+        </div>
+      )}
     </div>
   );
 };

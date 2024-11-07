@@ -25,6 +25,10 @@ vi.mock('@/utils/request', () => ({
   apiGet: vi.fn().mockResolvedValue({}),
 }));
 
+vi.mock('@/hooks/mediaquery', () => ({
+  useMediaQuery: vi.fn().mockReturnValue(true)
+}));
+
 vi.mock('react', () => ({
   useMemo: vi.fn().mockImplementation((fn) => fn()),
   useContext: vi.fn(),
@@ -44,11 +48,13 @@ describe('components/balance/balance', () => {
       hasIncoming: true,
       available: {
         amount: '0.005',
-        unit: 'BTC'
+        unit: 'BTC',
+        estimated: false,
       },
       incoming: {
         amount: '0.003',
         unit: 'BTC',
+        estimated: false,
         conversions: {
           BTC: '0.003',
           AUD: '512',
@@ -94,11 +100,13 @@ describe('components/balance/balance', () => {
       hasIncoming: true,
       available: {
         amount: '0.005',
-        unit: 'BTC'
+        unit: 'BTC',
+        estimated: false,
       },
       incoming: {
         amount: '0.003',
         unit: 'BTC',
+        estimated: false,
         conversions: {
           BTC: '0.003',
           AUD: '512',

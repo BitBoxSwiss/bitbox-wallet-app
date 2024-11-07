@@ -85,55 +85,57 @@ export const WCIncomingSignRequestDialog = ({
       <div className={styles.outerContainer}>
 
         {
-          stage !== 'accepted' && <>
-            <ul className={styles.listContainer}>
-              <li className={styles.item}>
-                <p className={styles.label}>{t('walletConnect.signingRequest.account')}</p>
-                <span className={styles.accountNameAndAddress}>
-                  <p className={styles.accountName}><b>{accountName}</b></p>
-                  <p className={styles.address}>{truncateAddress(accountAddress)}</p>
-                </span>
-              </li>
+          stage !== 'accepted' && (
+            <>
+              <ul className={styles.listContainer}>
+                <li className={styles.item}>
+                  <p className={styles.label}>{t('walletConnect.signingRequest.account')}</p>
+                  <span className={styles.accountNameAndAddress}>
+                    <p className={styles.accountName}><b>{accountName}</b></p>
+                    <p className={styles.address}>{truncateAddress(accountAddress)}</p>
+                  </span>
+                </li>
 
-              <li className={styles.item}>
-                <p className={styles.label}>{t('walletConnect.signingRequest.chain')}</p>
-                <div className={styles.chainContainer}>
-                  <p className={styles.itemText}>{formattedChain}</p>
-                  {chainIcon}
-                </div>
-              </li>
+                <li className={styles.item}>
+                  <p className={styles.label}>{t('walletConnect.signingRequest.chain')}</p>
+                  <div className={styles.chainContainer}>
+                    <p className={styles.itemText}>{formattedChain}</p>
+                    {chainIcon}
+                  </div>
+                </li>
 
-              <li className={styles.item}>
-                <p className={styles.label}>{t('walletConnect.signingRequest.dapp')}</p>
-                <p className={styles.itemText}>{metadata.name}</p>
-              </li>
+                <li className={styles.item}>
+                  <p className={styles.label}>{t('walletConnect.signingRequest.dapp')}</p>
+                  <p className={styles.itemText}>{metadata.name}</p>
+                </li>
 
-              <li className={styles.item}>
-                <p className={styles.label}>{t('transaction.details.type')}</p>
-                <p className={styles.itemText}>{method}</p>
-              </li>
+                <li className={styles.item}>
+                  <p className={styles.label}>{t('transaction.details.type')}</p>
+                  <p className={styles.itemText}>{method}</p>
+                </li>
 
-              {signingData &&
+                {signingData &&
             (
               <li className={styles.item}>
                 <p className={styles.label}>{t('walletConnect.signingRequest.data')}</p>
                 <textarea rows={textAreaRows} className={styles.textarea} readOnly value={signingData.toString()} />
               </li>
             )
-              }
-            </ul>
+                }
+              </ul>
 
-            {stage === 'confirming' && (
-              <ConfirmOnBB02 />
-            )}
+              {stage === 'confirming' && (
+                <ConfirmOnBB02 />
+              )}
 
-            {stage === 'initial' && (
-              <DialogButtons>
-                <Button onClick={onAccept} primary type="submit">{t('button.continue')}</Button>
-                <Button onClick={onReject} secondary type="submit">{t('dialog.cancel')}</Button>
-              </DialogButtons>
-            )}
-          </>
+              {stage === 'initial' && (
+                <DialogButtons>
+                  <Button onClick={onAccept} primary type="submit">{t('button.continue')}</Button>
+                  <Button onClick={onReject} secondary type="submit">{t('dialog.cancel')}</Button>
+                </DialogButtons>
+              )}
+            </>
+          )
         }
 
         {

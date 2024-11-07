@@ -17,7 +17,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { Checked, Warning } from '@/components/icon';
+import { Checked, WarningOLD } from '@/components/icon';
 import { verifyAttestation } from '@/api/bitbox02';
 import { StyledSkeleton } from '@/routes/settings/bb02-settings';
 
@@ -33,7 +33,7 @@ const AttestationCheckSetting = ({ deviceID }: TProps) => {
     verifyAttestation(deviceID).then(setAttestation);
   }, [deviceID]);
 
-  const icon = attestation ? <Checked /> : <Warning width={20} height={20} />;
+  const icon = attestation ? <Checked /> : <WarningOLD width={20} height={20} />;
 
   if (attestation === null) {
     return <StyledSkeleton />;

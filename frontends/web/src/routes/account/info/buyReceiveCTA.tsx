@@ -25,6 +25,7 @@ import { isBitcoinCoin, isEthereumBased } from '@/routes/account/utils';
 import { getExchangeSupportedAccounts } from '@/routes/exchange/utils';
 import { WalletConnectLight } from '@/components/icon';
 import { useMountedRef } from '@/hooks/mount';
+import { SubTitle } from '@/components/title';
 import styles from './buyReceiveCTA.module.css';
 
 type TBuyReceiveCTAProps = {
@@ -66,12 +67,12 @@ export const BuyReceiveCTA = ({
 
   return (
     <div className={`${styles.main}`}>
-      <h3 className="subTitle">
+      <SubTitle>
         {t('accountInfo.buyCTA.information.looksEmpty')}
-      </h3>
-      <h3 className="subTitle">
+      </SubTitle>
+      <p>
         {t('accountInfo.buyCTA.information.start')}
-      </h3>
+      </p>
       <div className={styles.container}>
         {balanceList && (
           <Button primary onClick={onReceiveCTA}>

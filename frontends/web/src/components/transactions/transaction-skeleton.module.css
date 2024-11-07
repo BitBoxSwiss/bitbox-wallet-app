@@ -1,0 +1,23 @@
+.txContentSkeleton {
+    background-color: var(--background-secondary);
+    display: flex;
+    height: 82px;
+    padding: var(--space-half);
+    padding-left: calc(var(--space-half) + var(--space-quarter));
+  }
+  
+  .txInfoColumnSkeleton {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  .txInfoColumnSkeleton > *:first-child {
+    margin-bottom: var(--space-quarter);
+  }
+  
+  .skeletonStatus {
+    height: var(--item-height-xsmall);
+    margin-left: calc(var(--space-half) + var(--space-quarter));
+    width: 100px;
+  }
+  

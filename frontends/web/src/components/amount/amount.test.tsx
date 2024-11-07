@@ -15,7 +15,7 @@
  */
 
 import { useContext } from 'react';
-import { Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Mock, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { Amount } from './amount';
 import { CoinUnit, ConversionUnit } from '@/api/account';
@@ -51,6 +51,20 @@ const validateSpacing = (values: string[], elements: Element[]) => {
 };
 
 describe('Amount formatting', () => {
+
+  beforeAll(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: (query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }),
+    });
+  });
 
   beforeEach(() => {
     (useContext as Mock).mockReturnValue({
@@ -236,7 +250,7 @@ describe('Amount formatting', () => {
   });
 
   describe('non BTC coins amounts', () => {
-    let coins: CoinUnit[] = ['ETH', 'GOETH', 'SEPETH'];
+    let coins: CoinUnit[] = ['ETH', 'SEPETH'];
     coins.forEach(coin => {
       it('10.00000000 ' + coin + ' with removeBtcTrailingZeroes enabled stays 10.00000000', () => {
         const { container } = render(<Amount amount="10.00000000" unit={coin} removeBtcTrailingZeroes/>);

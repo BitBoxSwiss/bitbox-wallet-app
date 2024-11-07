@@ -402,6 +402,55 @@
       "fast": "Fast",
       "fee": "fee",
       "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "BTC Direct privacy policy",
+              "text": "The BitBoxApp does not collect personal data. BTC Direct collects necessary information as per their Privacy Policy to meet regulatory standards.",
+              "title": "Data Protection"
+            },
+            "kyc": {
+              "text": "Customer identity verification is required for all trades. Your account manager will guide you through the process and answer any questions you might have.",
+              "title": "Identity verification"
+            },
+            "partnership": {
+              "text": "In partnership with BTC Direct, a trusted European broker, BitBox offers large-scale over-the-counter (OTC) trading for Bitcoin, Ethereum, stablecoins and more with expert support directly in the BitBoxApp.",
+              "title": "Buy and sell with BTC Direct's Private Trading Desk"
+            },
+            "paymentMethods": {
+              "buy": "Buying bitcoin:",
+              "buy2": "Place large buy orders with your account manager, lock in a fixed price, and pay via bank transfer. Your crypto is delivered directly to your BitBox after payment.",
+              "fee": "Minimum trade amounts of €50,000 apply, with a transparent fee between 0.5% and 1%.",
+              "sell": "Sell bitcoin:",
+              "sell2": "Lock in a fixed OTC price when placing a sell order. EUR payment is made once you send crypto to BTC Direct. Personal assistance is available if needed.",
+              "title": "Payment Methods and Fees"
+            },
+            "personal": {
+              "text": "Each Private Trading client is assigned a dedicated account manager for personalized assistance via phone, video call, email, or chat. Buy and sell prices are immediately fixed when the order is placed, even if settlement occurs later. Orders are executed through BTC Direct's OTC desk, minimizing slippage.",
+              "title": "Personal service with fixed pricing"
+            },
+            "security": {
+              "link": "BitBox02 security threat model",
+              "text": "BTC Direct's Private Trading Desk is an external service not covered by the BitBox02 Security Threat model. However, BTC Direct is well-acquainted with BitBox products and offers secure, knowledgeable guidance. BitBox products verify crypto addresses during transactions to ensure secure delivery.",
+              "title": "Security"
+            },
+            "title": "Disclaimer"
+          },
+          "info": "Get a personal advisor, reduced fees and place orders directly through your contact at BTC Direct.",
+          "infobox": {
+            "intro_btconly": "Get personal assistance for high-value, over-the-counter (OTC) Bitcoin trades.",
+            "intro_multi": "Get personal assistance for high-value over-the-counter (OTC) trades for Bitcoin, Ethereum stablecoins, and more.",
+            "kyc": "BTC Direct requires identity verification for all trades, with your account manager guiding you through every step.",
+            "learnmore": "Learn more about the BTC Direct's Private Trading Desk.",
+            "listItem1": "Buy and sell anytime by contacting your account manager by phone, email, video call, or chat.",
+            "listItem2": "Payments are completed via bank transfer after the order is placed.",
+            "listItem3": "Minimum order amount: €50,000.",
+            "listItem4": "Transparent fees fixed at 0.5%-1%, including personal guidance.",
+            "manager": "You'll have a dedicated account manager guiding you at every step, ensuring a secure, straightforward experience with fixed rates and minimal slippage."
+          },
+          "link": "Access BTC Direct - Private Trading Desk",
+          "title": "Buying or selling over €50,000?"
+        },
         "moonpay": {
           "fees": {
             "bankTransfer": "Bank Transfer: {{fee}}%",
@@ -1660,6 +1709,7 @@
     "coincontrol": {
       "address": "Address",
       "addressReused": "Address re-used",
+      "change": "Change",
       "outpoint": "Outpoint",
       "title": "Send from output"
     },
@@ -1867,11 +1917,26 @@
     "status": {
       "complete": "Complete",
       "failed": "Failed",
-      "pending": "Pending"
+      "pending": "Pending",
+      "pending_receive": "Incoming transaction",
+      "pending_send": "Outgoing transaction",
+      "pending_send_to_self": "Pending transaction"
+    },
+    "statusShort": {
+      "complete": "Complete",
+      "failed": "Failed",
+      "pending": "Pending",
+      "pending_receive": "Incoming",
+      "pending_send": "Outgoing",
+      "pending_send_to_self": "Pending"
     },
     "tx": {
-      "received": "Received to",
-      "sent": "Sent to"
+      "receive_complete": "Received to",
+      "receive_failed": "Failed receiving to",
+      "receive_pending": "Received to",
+      "send_complete": "Sent to",
+      "send_failed": "Failed sending to",
+      "send_pending": "Sent to"
     },
     "vsize": "Virtual size",
     "weight": "Weight"
@@ -1949,7 +2014,8 @@
     "coincontrol": "One or more UTXOs have a reused address. Be aware the receiver will see all UTXOs associated with those addresses.",
     "receivePairing": "Please pair the BitBox to enable secure address verification. Go to 'Manage device' in the sidebar.",
     "sdcard": "Keep the microSD card stored separate from the BitBox, unless you want to manage backups.",
-    "sendPairing": "Please pair the BitBox to securely verify transaction details. Go to 'Manage device' in the sidebar."
+    "sendPairing": "Please pair the BitBox to securely verify transaction details. Go to 'Manage device' in the sidebar.",
+    "testnet": "Warning: You are currently using the wallet in Testnet mode. Transactions and balances here are not real and will not appear on the mainnet. Testnet is intended for testing and development purposes only."
   },
   "welcome": {
     "connect": "Connect BitBox02",

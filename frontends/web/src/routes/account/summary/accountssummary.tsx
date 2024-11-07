@@ -39,7 +39,7 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { useLightning } from '@/hooks/lightning';
 import { getLightningBalance, subscribeNodeState } from '../../../api/lightning';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/globalbanners/globalbanners';
+import { GlobalBanners } from '@/components/banners';
 
 type TProps = {
   accounts: accountApi.IAccount[];
@@ -303,20 +303,22 @@ export const AccountsSummary = ({
             )}
             {accountsByKeystore &&
               (accountsByKeystore.map(({ keystore, accounts }) =>
-                <SummaryBalance
-                  key={keystore.rootFingerprint}
-                  keystoreDisambiguatorName={
-                    isAmbiguousName(keystore.name, allKeystores)
-                      ? keystore.rootFingerprint
-                      : undefined
-                  }
-                  accountsKeystore={keystore}
-                  accounts={accounts}
-                  totalBalancePerCoin={balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
-                  totalBalance={accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
-                  balances={balances}
-                  lightningBalance={ (lightningConfig.accounts.length && lightningConfig.accounts[0].rootFingerprint === keystore.rootFingerprint) ? lightningBalance : undefined}
-                />
+                (
+                  <SummaryBalance
+                    key={keystore.rootFingerprint}
+                    keystoreDisambiguatorName={
+                      isAmbiguousName(keystore.name, allKeystores)
+                        ? keystore.rootFingerprint
+                        : undefined
+                    }
+                    accountsKeystore={keystore}
+                    accounts={accounts}
+                    totalBalancePerCoin={balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
+                    totalBalance={accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
+                    balances={balances}
+                    lightningBalance={ (lightningConfig.accounts.length && lightningConfig.accounts[0].rootFingerprint === keystore.rootFingerprint) ? lightningBalance : undefined}
+                  />
+                )
               ))}
           </View>
         </Main>

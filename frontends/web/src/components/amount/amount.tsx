@@ -16,15 +16,18 @@
 
 import { useContext } from 'react';
 import { AppContext } from '@/contexts/AppContext';
+import { RatesContext } from '@/contexts/RatesContext';
+import { LocalizationContext } from '@/contexts/localization-context';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { CoinUnit, ConversionUnit } from '@/api/account';
 import style from './amount.module.css';
-import { LocalizationContext } from '@/contexts/localization-context';
 
 type TProps = {
   amount: string;
   unit: CoinUnit | ConversionUnit;
   removeBtcTrailingZeroes?: boolean;
   alwaysShowAmounts?: boolean
+  allowRotateCurrencyOnMobile?: boolean;
 };
 
 const formatSats = (amount: string): JSX.Element => {
@@ -94,9 +97,42 @@ export const Amount = ({
   unit,
   removeBtcTrailingZeroes,
   alwaysShowAmounts = false,
+  allowRotateCurrencyOnMobile = false,
+}: TProps) => {
+  const { rotateDefaultCurrency } = useContext(RatesContext);
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  const handleClick = () => {
+    if (!isMobile || !allowRotateCurrencyOnMobile) {
+      return;
+    }
+    rotateDefaultCurrency();
+  };
+
+  return (
+    <span onClick={handleClick}>
+      <FormattedAmount
+        amount={amount}
+        unit={unit}
+        removeBtcTrailingZeroes={removeBtcTrailingZeroes}
+        alwaysShowAmounts={alwaysShowAmounts}
+      />
+    </span>
+  );
+};
+
+export const FormattedAmount = ({
+  amount,
+  unit,
+  removeBtcTrailingZeroes,
+  alwaysShowAmounts = false,
 }: TProps) => {
   const { hideAmounts } = useContext(AppContext);
   const { decimal, group } = useContext(LocalizationContext);
+
+  if (!amount) {
+    return '---';
+  }
 
   if (hideAmounts && !alwaysShowAmounts) {
     return '***';

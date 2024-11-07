@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package btc_test
+package btc
 
 import (
 	"crypto/sha256"
@@ -24,7 +24,6 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	blockchainMock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -49,7 +48,7 @@ func mockKeystore() *keystoremock.KeystoreMock {
 	}
 }
 
-func mockAccount(t *testing.T, accountConfig *config.Account) *btc.Account {
+func mockAccount(t *testing.T, accountConfig *config.Account) *Account {
 	t.Helper()
 	code := coin.CodeTBTC
 	unit := "TBTC"
@@ -58,7 +57,7 @@ func mockAccount(t *testing.T, accountConfig *config.Account) *btc.Account {
 	dbFolder := test.TstTempDir("btc-dbfolder")
 	defer func() { _ = os.RemoveAll(dbFolder) }()
 
-	coin := btc.NewCoin(
+	coin := NewCoin(
 		code, "Bitcoin Testnet", unit, coin.BtcUnitDefault, net, dbFolder, nil, explorer, socksproxy.NewSocksProxy(false, ""))
 
 	blockchainMock := &blockchainMock.BlockchainMock{}
@@ -89,7 +88,7 @@ func mockAccount(t *testing.T, accountConfig *config.Account) *btc.Account {
 		accountConfig = defaultConfig
 	}
 
-	return btc.NewAccount(
+	return NewAccount(
 		&accounts.AccountConfig{
 			Config:          accountConfig,
 			DBFolder:        dbFolder,
@@ -122,7 +121,7 @@ func TestAccount(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, accounts.OrderedTransactions{}, transactions)
 
-	require.Equal(t, []*btc.SpendableOutput{}, account.SpendableOutputs())
+	require.Equal(t, []*SpendableOutput{}, account.SpendableOutputs())
 }
 
 func TestInsuredAccountAddresses(t *testing.T) {
@@ -190,11 +189,32 @@ func TestSignAddress(t *testing.T) {
 	account := mockAccount(t, nil)
 	require.NoError(t, account.Initialize())
 	// pt2r is not an available script type in the mocked account.
-	_, _, err := btc.SignBTCAddress(account, "Hello there", signing.ScriptTypeP2TR)
+	_, _, err := SignBTCAddress(account, "Hello there", signing.ScriptTypeP2TR)
 	require.Error(t, err)
-	address, signature, err := btc.SignBTCAddress(account, "Hello there", signing.ScriptTypeP2WPKH)
+	address, signature, err := SignBTCAddress(account, "Hello there", signing.ScriptTypeP2WPKH)
 	require.NoError(t, err)
 	require.NotEmpty(t, address)
 	require.Equal(t, base64.StdEncoding.EncodeToString([]byte("signature")), signature)
 
+}
+
+func TestIsChange(t *testing.T) {
+	account := mockAccount(t, nil)
+	require.NoError(t, account.Initialize())
+	require.True(t, account.Synced())
+	account.ensureAddresses()
+	for _, subaccunt := range account.subaccounts {
+		unusedReceiveAddresses, err := subaccunt.receiveAddresses.GetUnused()
+		require.NoError(t, err)
+		unusedChangeAddresses, err := subaccunt.changeAddresses.GetUnused()
+		require.NoError(t, err)
+		// check IsChange returns true for all change addresses
+		for _, changeAddress := range unusedChangeAddresses {
+			require.True(t, account.IsChange(changeAddress.PubkeyScriptHashHex()))
+		}
+		// ensure no false positives
+		for _, address := range unusedReceiveAddresses {
+			require.False(t, account.IsChange(address.PubkeyScriptHashHex()))
+		}
+	}
 }

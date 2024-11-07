@@ -73,19 +73,21 @@ export const SettingsItem = ({
   // otherwise, render as button
   return (
     <>
-      {notButton ?
+      {notButton ? (
         <div className={
           `${styles.container} ${className} 
           ${collapseOnSmall ? styles.collapse : ''}`
         } >
           {content}
-        </div> :
+        </div>
+      ) : (
         <button
           type="button"
           className={`${styles.container} ${styles.isButton} ${className}`}
           onClick={onClick}>
           {content}
-        </button> }
+        </button>
+      )}
     </>
   );
 };
