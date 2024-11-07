@@ -157,12 +157,16 @@ const Amounts = ({
   const conversion = amount?.conversions && amount?.conversions[defaultCurrency];
   const sign = getTxSign(type);
   const txTypeClass = `txAmount-${type}`;
+  const conversionPrefix = amount.estimated ? '\u2248' : null; // ≈
   return (
     <span className={`${styles.txAmountsColumn} ${styles[txTypeClass]}`}>
       {/* <data value={amount.amount}> */}
       <span className={styles.txAmount}>
         {sign}
-        <Amount amount={amount.amount} unit={amount.unit} />
+        <Amount
+          amount={amount.amount}
+          unit={amount.unit}
+        />
         <span className={styles.txUnit}>
           {' '}
           {amount.unit}
@@ -170,8 +174,17 @@ const Amounts = ({
       </span>
       {/* </data> */}
       <span className={styles.txConversionAmount}>
-        {sign}
-        <Amount amount={conversion || ''} unit={defaultCurrency} estimated={amount.estimated}/>
+        {conversionPrefix && (
+          <span className={styles.txPrefix}>
+            {conversionPrefix}
+            {' '}
+          </span>
+        )}
+        {conversion && sign}
+        <Amount
+          amount={conversion || ''}
+          unit={defaultCurrency}
+        />
         <span className={styles.txUnit}>
           {' '}
           {defaultCurrency}

@@ -28,7 +28,6 @@ type TProps = {
   removeBtcTrailingZeroes?: boolean;
   alwaysShowAmounts?: boolean
   allowRotateCurrencyOnMobile?: boolean;
-  estimated?: boolean;
 };
 
 const formatSats = (amount: string): JSX.Element => {
@@ -99,7 +98,6 @@ export const Amount = ({
   removeBtcTrailingZeroes,
   alwaysShowAmounts = false,
   allowRotateCurrencyOnMobile = false,
-  estimated = false
 }: TProps) => {
   const { rotateDefaultCurrency } = useContext(RatesContext);
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -118,7 +116,6 @@ export const Amount = ({
         unit={unit}
         removeBtcTrailingZeroes={removeBtcTrailingZeroes}
         alwaysShowAmounts={alwaysShowAmounts}
-        estimated={estimated}
       />
     </span>
   );
@@ -129,7 +126,6 @@ export const FormattedAmount = ({
   unit,
   removeBtcTrailingZeroes,
   alwaysShowAmounts = false,
-  estimated = false,
 }: TProps) => {
   const { hideAmounts } = useContext(AppContext);
   const { decimal, group } = useContext(LocalizationContext);
@@ -161,9 +157,5 @@ export const FormattedAmount = ({
     return formatSats(amount);
   }
 
-  let prefix = '';
-  if (estimated) {
-    prefix = '\u2248'; //≈
-  }
-  return prefix + formatLocalizedAmount(amount, group, decimal);
+  return formatLocalizedAmount(amount, group, decimal);
 };

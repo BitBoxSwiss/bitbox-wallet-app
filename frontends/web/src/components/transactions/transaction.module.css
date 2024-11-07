@@ -95,6 +95,7 @@
   color: var(--color-green);
 }
 
+.txPrefix,
 .txUnit {
   color: var(--color-secondary);
   font-size: 14px;
