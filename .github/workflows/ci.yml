@@ -199,13 +199,14 @@ jobs:
         if: job.status == 'success'
         with:
           MATTERMOST_WEBHOOK_URL: ${{ secrets.MM_WEBHOOK_URL }}
-          PAYLOAD: |-
-            {
-              "channel": "eng-artifacts",
-              "text": "**New artifacts built**\n([${{ github.ref_name }}](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}), [${{ steps.vars.outputs.git_sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}), [artifacts](https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}#artifacts))\n* Android - [APK](${{needs.android.outputs.artifact-url}})\n* Linux - [AppImage](${{needs.qt-linux.outputs.artifact-url-ai}}), [DEB](${{needs.qt-linux.outputs.artifact-url-deb}}), [RPM](${{needs.qt-linux.outputs.artifact-url-rpm}})\n* MacOS - [Zip](${{needs.macos.outputs.artifact-url}})",
-              "icon_emoji": "white_check_mark",
-              "props": {"card": "Repository: [${{ github.repository }}](https://github.com/${{ github.repository }})"}
-            }
+          MATTERMOST_ICON_URL: https://cdn4.iconfinder.com/data/icons/basic-ui-2-line/32/check-mark-checklist-complete-done-512.png
+          MATTERMOST_CHANNEL: eng-artifacts
+          TEXT: |
+            **New artifacts built**
+            ([${{ github.ref_name }}](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}), [${{ steps.vars.outputs.git_sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}), [artifacts](https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}#artifacts))
+            * Android - [APK](${{needs.android.outputs.artifact-url}})
+            * Linux - [AppImage](${{needs.qt-linux.outputs.artifact-url-ai}}), [DEB](${{needs.qt-linux.outputs.artifact-url-deb}}), [RPM](${{needs.qt-linux.outputs.artifact-url-rpm}})
+            * MacOS - [Zip](${{needs.macos.outputs.artifact-url}})
 
       - name: Message for failure
         uses: mattermost/action-mattermost-notify@master
@@ -213,10 +214,8 @@ jobs:
         if: job.status == 'failure'
         with:
           MATTERMOST_WEBHOOK_URL: ${{ secrets.MM_WEBHOOK_URL }}
-          PAYLOAD: |-
-            {
-              "channel": "eng-build-failures",
-              "text": "**Oh no! [${{ steps.vars.outputs.git_sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) failed to build.**\nSee [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) form more details.",
-              "icon_emoji": "warning",
-              "props": {"card": "Repository: [${{ github.repository }}](https://github.com/${{ github.repository }})\n\nbranch: [${{ github.ref_name }}](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }})\n\ncommit: [${{ steps.vars.outputs.git_sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})"}
-            }
+          MATTERMOST_ICON_URL: https://cdn4.iconfinder.com/data/icons/basic-ui-2-line/32/exclamation-mark-triangle-sign-caution-1024.png
+          MATTERMOST_CHANNEL: eng-build-failures
+          TEXT: |
+            **Oh no! [${{ steps.vars.outputs.git_sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) failed to build.**
+            See [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.
