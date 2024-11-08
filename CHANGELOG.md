@@ -4,8 +4,8 @@
 
 # 4.46.0
 - Android: enable export logs feature
-- Label UTXOs that were created as change, as such, in coin control
-- Remove support for deprecated the Ethereum Goerli network
+- Label change UTXOs as "change" in coin control
+- Remove support for the deprecated Ethereum Goerli network
 - Revamp transaction history in account overview to improve legibility
 - Fix qrscanner when rotating the device or resizing the window
 - macOS: create a universal build that runs natively on arm64 and amd64
