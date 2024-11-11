@@ -30,10 +30,6 @@
   padding: var(--space-quarter) 1em 1em 1em;
 }
 
-.disclaimer::-webkit-scrollbar-track {
-  background-color: #fff;
-}
-
 .disclaimer .title {
   font-size: .875rem;
   font-weight: bold;
