@@ -14,6 +14,7 @@
 - Android: fix stuck back button after closing a dialog
 - Fix authentication view glitch at startup
 - Remove "No priority" from fee options
+- Display skeleton screens (placeholder) in the account page during data loading to enhance UX
 
 # 4.45.0
 - Bundle BitBox02 firmware version v9.21.0
