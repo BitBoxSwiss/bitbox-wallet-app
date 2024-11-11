@@ -37,15 +37,19 @@ h1, h2, h3, h4, h5 {
     line-height: 1.25;
 }
 
-::-webkit-scrollbar {
+.os-linux ::-webkit-scrollbar,
+.os-windows ::-webkit-scrollbar {
     background-color: transparent;
     width: 4px;
 }
-::-webkit-scrollbar-track {
+
+.os-linux ::-webkit-scrollbar-track,
+.os-windows ::-webkit-scrollbar-track {
     background-color: transparent;
 }
 
-::-webkit-scrollbar-thumb {
+.os-linux ::-webkit-scrollbar-thumb,
+.os-windows ::-webkit-scrollbar-thumb {
     background-color: var(--color-secondary);
 }
 
