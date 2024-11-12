@@ -40,6 +40,11 @@
     will-change: margin-right, transform;
 }
 
+.guide::-webkit-scrollbar-thumb {
+    background-color: white;
+}
+
+
 .header {
     background-color: var(--color-blue);
     height: var(--header-height);
