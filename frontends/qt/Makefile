@@ -55,9 +55,14 @@ osx:
 	mv build/BitBox.app build/osx/
 	cp resources/MacOS/Info.plist build/osx/BitBox.app/Contents/
 	cp resources/MacOS/icon.icns build/osx/BitBox.app/Contents/Resources/
+	# Create a universal binary for libbreez_sdk_bindings.dylib
+	mkdir build/osx/BitBox.app/Contents/Frameworks
+	lipo -create \
+		../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-amd64/libbreez_sdk_bindings.dylib \
+		../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-aarch64/libbreez_sdk_bindings.dylib \
+		-output build/osx/BitBox.app/Contents/Frameworks/libbreez_sdk_bindings.dylib
 	cd build/osx/ && macdeployqt BitBox.app
 	cp server/libserver.so build/osx/BitBox.app/Contents/Frameworks
-	cp ../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-amd64/libbreez_sdk_bindings.dylib build/osx/BitBox.app/Contents/Frameworks
 	# The `-executable` flag is needed to have libserver.so resolve libbreez_sdk_bindings by rewiring the LC_RPATH and path to libbreez.
 	cd build/osx/ && macdeployqt BitBox.app -executable=BitBox.app/Contents/Frameworks/libserver.so
 	cp build/assets.rcc build/osx/BitBox.app/Contents/MacOS/
