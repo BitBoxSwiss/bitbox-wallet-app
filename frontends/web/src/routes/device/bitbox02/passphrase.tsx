@@ -202,7 +202,8 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
       {infoStep < FINAL_INFO_STEP && (
         <ViewContent>
           <MultilineMarkup tagName="p" markup={stepData[infoStep].messageKey} />
-        </ViewContent>)}
+        </ViewContent>
+      )}
       {infoStep >= FINAL_INFO_STEP && (
         <ViewContent>
           <ul>
@@ -219,7 +220,8 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
               label={t('passphrase.summary.understand')}
               checkboxStyle={understood ? 'success' : 'warning'} />
           </Status>
-        </ViewContent>)}
+        </ViewContent>
+      )}
       <ViewButtons>
         <Button primary onClick={handleContinue} disabled={infoStep >= FINAL_INFO_STEP && !understood}>
           {stepData[infoStep].buttonTextKey}

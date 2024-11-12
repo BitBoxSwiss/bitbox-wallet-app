@@ -69,14 +69,17 @@ export const SummaryBalance = ({
   return (
     <div>
       <div className={style.accountName}>
-        <p>
-          {accountsKeystore.name} {keystoreDisambiguatorName && `(${keystoreDisambiguatorName})`}
-        </p>
+        <p>{accountsKeystore.name} {keystoreDisambiguatorName && `(${keystoreDisambiguatorName})`}</p>
         {accountsKeystore.connected ? (
-          <Badge icon={(props) => <USBSuccess {...props} />} type="success">
+          <Badge
+            icon={props => <USBSuccess {...props} />}
+            type="success"
+          >
             {t('device.keystoreConnected')}
           </Badge>
-        ) : null}
+        ) :
+          null
+        }
       </div>
       <div className={style.balanceTable}>
         <table className={style.table}>
@@ -98,7 +101,7 @@ export const SummaryBalance = ({
             )}
             { accounts.length > 0 ? (
               coins.map(coinCode => {
-                const balanceRows = accountsPerCoin[coinCode]?.map(account =>
+                const balanceRows = accountsPerCoin[coinCode]?.map(account => (
                   <BalanceRow
                     key={account.code}
                     code={account.code}
@@ -106,7 +109,7 @@ export const SummaryBalance = ({
                     coinCode={account.coinCode}
                     balance={balances && balances[account.code]}
                   />
-                );
+                ));
                 if (balanceRows && balanceRows?.length > 1) {
                   const accountsForCoin = accountsPerCoin[coinCode];
                   if (accountsForCoin && accountsForCoin.length >= 1) {

@@ -41,7 +41,7 @@ export type ExchangeDeal = {
 }
 
 export type ExchangeDeals = {
-  exchangeName: 'moonpay' | 'pocket';
+  exchangeName: 'moonpay' | 'pocket' | 'btcdirect';
   deals: ExchangeDeal[];
 }
 
@@ -104,5 +104,18 @@ export type SupportedExchanges= {
 export const getExchangeSupported = (code: AccountCode) => {
   return (): Promise<SupportedExchanges> => {
     return apiGet(`exchange/supported/${code}`);
+  };
+};
+
+export type TBtcDirectResponse = {
+  success: true;
+  supported: boolean;
+} | {
+  success: false;
+};
+
+export const getBtcDirectSupported = (code: AccountCode, region: ExchangeRegion['code']) => {
+  return (): Promise<TBtcDirectResponse> => {
+    return apiGet(`exchange/btcdirect/supported/${code}?region=${region}`);
   };
 };

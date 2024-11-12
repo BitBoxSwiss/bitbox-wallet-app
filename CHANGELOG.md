@@ -1,12 +1,26 @@
 # Changelog
 
 ## Unreleased
+
+# 4.46.0
 - Android: enable export logs feature
+- Label UTXOs that were created as change, as such, in coin control
+- Remove support for deprecated the Ethereum Goerli network
+- Revamp transaction history in account overview to improve legibility
+- Fix qrscanner when rotating the device or resizing the window
+- macOS: create a universal build that runs natively on arm64 and amd64
+- Show fiat amount at the time of the transaction in transaction history
+- Add BTC Direct private trading desk information
+- Android: fix stuck back button after closing a dialog
+- Fix authentication view glitch at startup
 
 # 4.45.0
 - Bundle BitBox02 firmware version v9.21.0
 - Bitcoin: add support for sending to silent payment (BIP-352) addresses
 - Prevent macOS from going to sleep on long running interactions with the BitBox
+
+## 4.44.1
+- Minor UI bugfixes
 
 ## 4.44.0
 - Bundle BitBox02 firmware version v9.20.0

@@ -9,23 +9,29 @@
     justify-content: flex-start;
 }
 
-.header {
+@media (max-width: 768px) {
+    .accountHeader {
+        padding: 0 var(--space-half);
+    }
+}
+
+.balanceHeader {
+    align-items: center;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex: none;
-    margin: 0 auto;
-    padding: var(--spacing-large) var(--spacing-large) 0 var(--spacing-large);
-    width: 800px;
+    flex-wrap: wrap;
+    margin-bottom: var(--space-half);
 }
 
 .actionsContainer {
+    --size-default: 14px;
     display: flex;
+    flex-grow: 1;
+    flex-shrink: 0;
     flex-wrap: nowrap;
-    transform: translateY(-36%);
-    margin-top: calc(var(--space-quarter) * 2);
-    padding-bottom: 14px;
+    justify-content: flex-end;
+    margin-top: var(--space-half);
+    padding-bottom: 0;
 }
 
 .exchange,
@@ -39,8 +45,7 @@
     display: inline-flex;
     font-size: var(--size-default);
     justify-content: center;
-    margin-bottom: var(--space-quarter);
-    margin-left: var(--space-quarter);
+    margin: 0 0 var(--space-quarter) var(--space-quarter);
     min-height: calc(var(--item-height) / 1.5);
     min-width: calc(var(--item-height) * 2);
     padding: var(--space-quarter) var(--space-half);
@@ -59,7 +64,6 @@
     justify-content: flex-end;
 }
 
-
 .withWalletConnect .walletConnect {
     display: flex;
 }
@@ -70,31 +74,72 @@
     background-color: var(--color-lightblue);
 }
 
-.send.disabled {
+.disabled {
     cursor: default;
     opacity: 0.4;
+}
+
+.accountInfoLink {
+    align-items: center;
+    display: flex;
+    font-size: var(--size-default);
+    margin-right: var(--space-half);
+    min-height: 50px;
+    text-decoration: none;
 }
 
 .accountIcon {
     width: 18px;
     height: 18px;
-    margin-right: calc(var(--space-quarter) / 2);
+    margin-right: var(--space-eight);
+}
+
+.errorLoadTransactions {
+    text-align: center;
+}
+
+.titleWithButton {
+    align-items: baseline;
+    color: var(--color-secondary);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-quarter) !important; /* overwrite default subTitle margin */
+}
+.titleWithButton button {
+    padding-left: var(--space-half);
+    padding-right: 0;
+    text-align: right;
+}
+
+.emptyTransactions {
+    color: var(--color-secondary);
+    text-align: center;
 }
 
 @media (max-width: 768px) {
+
+    .accountInfoLink {
+        margin-right: 0;
+        padding: 0 var(--space-quarter);
+    }
+
+    .accountIcon {
+        margin-right: 0;
+    }
+
     .actionsContainer {
         justify-content: space-between;
-        margin-bottom: var(--space-default);
-        margin-left: auto;
-        margin-right: auto;
+        margin-bottom: var(--space-half);
         padding-bottom: 0;
-        transform: none;
         width: 100%;
     }
 
-
     .withWalletConnect.actionsContainer {
         justify-content: center;
+    }
+
+    .balanceHeader {
+        margin-bottom: 0;
     }
 
     .withWalletConnect .buy,
@@ -110,12 +155,11 @@
         max-width: 15%;
     }
 
-    .actionsContainer a {
+    .actionsContainer a,
+    .actionsContainer > span {
         flex: 1 0 30%;
-        margin-right: 0;
         max-width: 30%;
         min-width: unset;
-
     }
 
     .exchange,
@@ -123,7 +167,22 @@
     .receive,
     .walletConnect {
         font-size: var(--size-small);
-        margin-bottom: 0;
         width: auto;
     }
+
+
+    .exchange:first-child,
+    .send:first-child,
+    .receive:first-child,
+    .walletConnect:first-child {
+        margin-left: 0;
+    }
+}
+
+.status {
+    white-space: pre-line;
+}
+
+.txHistorySkeleton {
+    margin-top: var(--space-quarter);
 }

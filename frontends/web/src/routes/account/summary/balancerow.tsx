@@ -19,41 +19,62 @@ import { useTranslation } from 'react-i18next';
 import { AccountCode, CoinCode, IBalance } from '@/api/account';
 import { syncAddressesCount } from '@/api/accountsync';
 import { useSubscribe } from '@/hooks/api';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { Logo } from '@/components/icon/logo';
 import { Amount } from '@/components/amount/amount';
 import { AsciiSpinner } from '@/components/spinner/ascii';
 import { FiatConversion } from '@/components/rates/rates';
 import style from './accountssummary.module.css';
 
-type TProps = {
-  code: AccountCode;
-  name: string;
+type TNameColProps = {
   coinCode: CoinCode;
-  balance?: IBalance;
+  name: string;
+  onClick?: () => void;
 };
 
-export const BalanceRow = (
-  { code, name, coinCode, balance }: TProps
-) => {
-  const navigate = useNavigate();
+const NameCell = ({ coinCode, name, onClick }: TNameColProps) => {
   const { t } = useTranslation();
-  const syncStatus = useSubscribe(syncAddressesCount(code));
-
-  const nameCol = (
+  return (
     <td
       className={style.clickable}
       data-label={t('accountSummary.name')}
-      onClick={() => navigate(code === 'lightning' ? '/lightning' : `/account/${code}`)}>
+      onClick={onClick}
+    >
       <div className={style.coinName}>
         <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
         {name}
       </div>
     </td>
   );
+};
+
+type TProps = {
+  balance?: IBalance;
+  code: AccountCode;
+  coinCode: CoinCode;
+  name: string;
+};
+
+export const BalanceRow = (
+  { code, name, coinCode, balance }: TProps
+) => {
+  const { t } = useTranslation();
+  const syncStatus = useSubscribe(syncAddressesCount(code));
+  const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const handleClick = () => navigate(code === 'lightning' ? '/lightning' : `/account/${code}`);
+
   if (balance) {
     return (
-      <tr key={`${code}_balance`}>
-        { nameCol }
+      <tr
+        key={`${code}_balance`}
+        onClick={() => isMobile && handleClick()}
+      >
+        <NameCell
+          coinCode={coinCode}
+          name={name}
+          onClick={() => !isMobile && handleClick()}
+        />
         <td data-label={t('accountSummary.balance')}>
           <span className={style.summaryTableBalance}>
             <Amount amount={balance.available.amount} unit={balance.available.unit}/>{' '}
@@ -68,7 +89,7 @@ export const BalanceRow = (
   }
   return (
     <tr key={`${code}_syncing`}>
-      { nameCol }
+      <NameCell name={name} coinCode={coinCode} />
       <td colSpan={2} className={style.syncText}>
         { t('account.syncedAddressesCount', {
           count: syncStatus,

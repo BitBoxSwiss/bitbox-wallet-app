@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
+const onDrop = (event: DragEvent) => {
+  event.preventDefault();
+  event.stopPropagation();
+  if (event.dataTransfer) {
+    // surpress cursor icon
+    event.dataTransfer.dropEffect = 'none';
+  }
+};
 
-import { Banner } from '@/components/banner/banner';
-import { MobileDataWarning } from '@/components/mobiledatawarning';
-import { Update } from '@/components/update/update';
-
-export const GlobalBanners = () => {
-  return (
-    <>
-      <Update />
-      <Banner msgKey="bitbox01" />
-      <Banner msgKey="bitbox02" />
-      <MobileDataWarning />
-    </>
-
-  );
+/**
+ * Ignore files that are dropped into the window
+ */
+export const useIgnoreDrop = () => {
+  document.addEventListener('dragover', onDrop);
+  document.addEventListener('drop', onDrop);
+  return () => {
+    document.removeEventListener('dragover', onDrop);
+    document.removeEventListener('drop', onDrop);
+  };
 };

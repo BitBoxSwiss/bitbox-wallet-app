@@ -11,13 +11,16 @@
 .background {
     stroke: var(--color-mediumgray);
 }
+:global(.dark-mode) .background {
+    stroke: var(--color-gray);
+}
 
 .foreground {
     
 }
 
 .complete {
-    stroke: var(--color-success);
+    stroke: var(--color-darkgreen);
 }
 
 .pending,

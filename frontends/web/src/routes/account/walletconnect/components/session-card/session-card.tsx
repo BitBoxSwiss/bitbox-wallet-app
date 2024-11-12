@@ -37,26 +37,33 @@ type TWCSessionCardProps = {
 }
 
 const TextData = ({ accountName, receiveAddress, dAppName, dAppUrl, iconUrl }: TTextDataProps) => {
-  return <div className={styles.textDataContainer}>
-
-    <div className={styles.accountNameAndWalletContainer}>
-      <p className={styles.accountName}>{accountName}</p>
-      <p className={`${styles.receiveAddress} hide-on-small`}>{receiveAddress}</p>
-    </div>
-
-    <p className={`${styles.receiveAddress} show-on-small`}>{receiveAddress}</p>
-
-    <div className={styles.dAppMetadataAndIconContainer}>
-      <div className={styles.dAppNameAndUrlContainer}>
-        <p>{dAppName}</p>
-        <p className={styles.dappUrl}>{dAppUrl}</p>
+  return (
+    <div className={styles.textDataContainer}>
+      <div className={styles.accountNameAndWalletContainer}>
+        <p className={styles.accountName}>
+          {accountName}
+        </p>
+        <p className={`${styles.receiveAddress} hide-on-small`}>
+          {receiveAddress}
+        </p>
       </div>
-      {iconUrl && <img className="hide-on-small" src={iconUrl} alt="dApp icon" />}
+      <p className={`${styles.receiveAddress} show-on-small`}>
+        {receiveAddress}
+      </p>
+      <div className={styles.dAppMetadataAndIconContainer}>
+        <div className={styles.dAppNameAndUrlContainer}>
+          <p>{dAppName}</p>
+          <p className={styles.dappUrl}>
+            {dAppUrl}
+          </p>
+        </div>
+        {iconUrl && (
+          <img className="hide-on-small" src={iconUrl} alt="dApp icon" />
+        )}
+      </div>
     </div>
-
-  </div>;
+  );
 };
-
 
 export const WCSessionCard = ({ metadata, receiveAddress, onDisconnect }: TWCSessionCardProps) => {
   const { t } = useTranslation();
@@ -76,7 +83,9 @@ export const WCSessionCard = ({ metadata, receiveAddress, onDisconnect }: TWCSes
       />
       <div className={styles.buttonAndIconContainer}>
         <img className="show-on-small" src={icons[0]} alt="logo" />
-        <Button className={styles.buttonDisconnect} onClick={onDisconnect} danger>{t('settings.electrum.remove-server')}</Button>
+        <Button className={styles.buttonDisconnect} onClick={onDisconnect} danger>
+          {t('settings.electrum.remove-server')}
+        </Button>
       </div>
     </div>
   );

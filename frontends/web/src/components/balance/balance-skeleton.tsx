@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-import type { ITransaction } from '@/api/account';
-import { Warning } from '@/components/icon/icon';
-import { ArrowIn, ArrowOut, ArrowSelf } from './icons';
+import { Skeleton } from '@/components/skeleton/skeleton';
+import style from './balance-skeleton.module.css';
 
-type TProps = Pick<ITransaction, 'status' | 'type'>;
-
-export const Arrow = ({ status, type }: TProps) => {
-  if (status === 'failed') {
-    return <Warning style={{ maxWidth: '18px' }} />;
-  }
-  if (type === 'receive') {
-    return <ArrowIn />;
-  }
-  if (type === 'send') {
-    return <ArrowOut />;
-  }
-  return <ArrowSelf />;
+export const BalanceSkeleton = () => {
+  return (
+    <div className={style.skeletonContainer}>
+      <Skeleton className={style.skeletonBalance} minWidth="50%"/>
+    </div>
+  );
 };

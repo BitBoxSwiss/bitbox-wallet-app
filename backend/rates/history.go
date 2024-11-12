@@ -25,6 +25,7 @@ func (updater *RateUpdater) ReconfigureHistory(coins, fiats []string) {
 	for key, stop := range updater.historyGo {
 		stop()
 		delete(updater.historyGo, key)
+		delete(updater.history, key)
 	}
 	// Enable those requested.
 	for _, coin := range coins {
@@ -213,11 +214,33 @@ func (updater *RateUpdater) HistoryEarliestTimestamp(coin, fiat string) time.Tim
 	return t
 }
 
-// HistoryLatestTimestampAll returns the latest timestamp for which there an exchange rates is
+// HistoryLatestTimestampFiat returns the latest timestamp for which there an exchange rates is
 // available for all coins. In other words: the earliest of all latest timestamps.
-func (updater *RateUpdater) HistoryLatestTimestampAll(coins []string, fiat string) time.Time {
+func (updater *RateUpdater) HistoryLatestTimestampFiat(coins []string, fiat string) time.Time {
 	var result time.Time
 	for _, coin := range coins {
+		latest := updater.HistoryLatestTimestamp(coin, fiat)
+		if latest.IsZero() {
+			return latest
+		}
+		if result.IsZero() || latest.Before(result) {
+			result = latest
+		}
+	}
+	return result
+}
+
+// HistoryLatestTimestampCoin returns the latest time at which all the active
+// historical rates are available for a given coin.
+func (updater *RateUpdater) HistoryLatestTimestampCoin(coin string) time.Time {
+	updater.historyMu.RLock()
+	defer updater.historyMu.RUnlock()
+	var result time.Time
+	for _, fiat := range fromGeckoFiat {
+		if _, exists := updater.history[coin+fiat]; !exists {
+			// skipping inactive currencies
+			continue
+		}
 		latest := updater.HistoryLatestTimestamp(coin, fiat)
 		if latest.IsZero() {
 			return latest

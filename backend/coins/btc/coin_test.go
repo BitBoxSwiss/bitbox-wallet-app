@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package btc_test
+package btc
 
 import (
 	"encoding/hex"
@@ -22,7 +22,6 @@ import (
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	blockchainMock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -52,13 +51,13 @@ type testSuite struct {
 	net  *chaincfg.Params
 
 	dbFolder string
-	coin     *btc.Coin
+	coin     *Coin
 }
 
 func (s *testSuite) SetupTest() {
 	s.dbFolder = test.TstTempDir("btc-dbfolder")
 
-	s.coin = btc.NewCoin(s.code, "Some coin", s.unit, coin.BtcUnitDefault, s.net, s.dbFolder, nil,
+	s.coin = NewCoin(s.code, "Some coin", s.unit, coin.BtcUnitDefault, s.net, s.dbFolder, nil,
 		explorer, socksproxy.NewSocksProxy(false, ""))
 	blockchainMock := &blockchainMock.BlockchainMock{}
 	blockchainMock.MockHeadersSubscribe = func(

@@ -20,7 +20,7 @@ import type { TDetailStatus } from './bitsurance';
 import type { SuccessResponse } from './response';
 import { Slip24 } from 'request-address';
 
-export type NativeCoinCode = 'btc' | 'tbtc' | 'rbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
+export type NativeCoinCode = 'btc' | 'tbtc' | 'rbtc' | 'ltc' | 'tltc' | 'eth' | 'sepeth';
 
 export type AccountCode = string;
 
@@ -28,7 +28,7 @@ export type Fiat = 'AUD' | 'BRL' | 'BTC' | 'CAD' | 'CHF' | 'CNY' | 'CZK' | 'EUR'
 
 export type ConversionUnit = Fiat | 'sat'
 
-export type CoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'tsat' | 'TLTC' | 'GOETH' | 'SEPETH';
+export type CoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'tsat' | 'TLTC' | 'SEPETH';
 
 export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'DAI';
 
@@ -223,6 +223,7 @@ export interface IAmount {
     amount: string;
     conversions?: Conversions;
     unit: CoinUnit;
+    estimated: boolean;
 }
 
 export interface IBalance {
@@ -236,10 +237,13 @@ export const getBalance = (code: AccountCode): Promise<IBalance> => {
   return apiGet(`account/${code}/balance`);
 };
 
+export type TTransactionStatus = 'complete' | 'pending' | 'failed';
+export type TTransactionType = 'send' | 'receive' | 'send_to_self';
+
 export interface ITransaction {
     addresses: string[];
     amount: IAmount;
-    amountAtTime: IAmount | null;
+    amountAtTime: IAmount;
     fee: IAmount;
     feeRatePerKb: IAmount;
     gas: number;
@@ -249,9 +253,9 @@ export interface ITransaction {
     numConfirmations: number;
     numConfirmationsComplete: number;
     size: number;
-    status: 'complete' | 'pending' | 'failed';
+    status: TTransactionStatus;
     time: string | null;
-    type: 'send' | 'receive' | 'self';
+    type: TTransactionType;
     txID: string;
     vsize: number;
     weight: number;
@@ -374,8 +378,8 @@ export interface IFeeTarget {
 }
 
 export interface IFeeTargetList {
-    feeTargets: IFeeTarget[],
-    defaultFeeTarget: FeeTargetCode
+    feeTargets: IFeeTarget[];
+    defaultFeeTarget: FeeTargetCode;
 }
 
 export const getFeeTargetList = (code: AccountCode): Promise<IFeeTargetList> => {
@@ -395,6 +399,7 @@ export type TUTXO = {
   note: string;
   scriptType: ScriptType;
   addressReused: boolean;
+  isChange: boolean;
 };
 
 export const getUTXOs = (code: AccountCode): Promise<TUTXO[]> => {
@@ -455,7 +460,7 @@ export const getKeystoreName = (rootFingerprint: string): Promise<TResponseKeyst
 export type TSignMessage = { success: false, aborted?: boolean; errorMessage?: string; } | { success: true; signature: string; }
 
 export type TSignWalletConnectTx = {
-  success: false,
+  success: false;
   aborted?: boolean;
   errorMessage?: string;
 } | {

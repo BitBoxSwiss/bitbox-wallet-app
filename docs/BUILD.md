@@ -6,8 +6,8 @@ Wallet application.
 * Debian: 11 bullseye or newer
 * Ubuntu: 20.04+
 * Fedora: 36+
-* MacOS: 10.13+
-* Windows: Windows 7+
+* MacOS: 10.15+
+* Windows: Windows 10+
 
 ## Debian, Ubuntu, and Fedora GNU/Linux with Docker
 
@@ -30,16 +30,27 @@ Build artifacts:
 
 ## MacOS
 
-Make sure you have `qt@5/bin`, `go@1.22/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`
+Install Go, Qt and create-dmg. Note that qt@6 from homebrew does **not** work as it is missing the
+`rcc` tool.
 
-```bash
-export PATH="$PATH:/usr/local/opt/qt@5/bin"
-export PATH="$PATH:/usr/local/opt/go@1.22/bin"
-export PATH="$PATH:$HOME/go/bin"
+```
+# Install Go. Can also use the official installer
+brew install go@1.23
+brew install create-dmg
+# Install Qt. Can also use the official installer.
+pip install aqtinstall
+aqt list-qt mac desktop --arch 6.2.4
+aqt install-qt mac desktop 6.2.4 --modules qtpositioning qtserialport qtwebchannel qtwebengine --outputdir ~/Qt
 ```
 
-Prepare the MacOS system to have the build environment:
-`make osx-init`
+Make sure you have `qt@6/bin`,  `qt@6/libexec`, `go@1.23/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`:
+
+```bash
+export PATH="$PATH:$HOME/Qt/6.2.4/macos/bin"
+export PATH="$PATH:$HOME/Qt/6.2.4/macos/libexec"
+export PATH="$PATH:/usr/local/opt/go@1.23/bin"
+export PATH="$PATH:$HOME/go/bin"
+```
 
 Build the QT frontend for MacOS:
 `make qt-osx`
@@ -73,7 +84,7 @@ xcrun altool --list-providers --username "APPLE_ID" --password "PASSWORD"
 The build requires `Microsoft Visual Studio 2019 Community Edition`, with the `MSVC v142 - VS 2019 C++ x64/x86 build tools (Latest)`
 individual component.
 
-It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.22`, `node@20`, `QT 5.15.2` with `qtwebengine`, `nsis`
+It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.23`, `node@20`, `QT 5.15.2` with `qtwebengine`, `nsis`
 and possibly other tools.
 
 Some of the tools are easy to install with `choco`:

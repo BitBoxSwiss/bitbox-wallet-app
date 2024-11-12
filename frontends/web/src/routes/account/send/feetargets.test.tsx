@@ -51,6 +51,7 @@ describe('routes/account/send/feetargets', () => {
         fiatUnit="USD"
         proposedFee={{
           amount: '1',
+          estimated: false,
           unit: 'ETH',
           conversions: {
             AUD: '0.02',

@@ -15,42 +15,16 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import type { ITransaction } from '@/api/account';
+import type { TTransactionStatus } from '@/api/account';
 import { ProgressRing } from '@/components/progressRing/progressRing';
 import { TxDetail } from './detail';
-import transactionStyle from '@/components/transactions/transactions.module.css';
-import parentStyle from '@/components/transactions/transaction.module.css';
+import style from './details.module.css';
 
 type TProps = {
-  status: ITransaction['status'];
+  status: TTransactionStatus;
   numConfirmations: number;
   numConfirmationsComplete: number;
 }
-
-export const TxStatus = ({
-  status,
-  numConfirmations,
-  numConfirmationsComplete,
-}: TProps) => {
-  const { t } = useTranslation();
-  const statusText = t(`transaction.status.${status}`);
-  const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
-  const isComplete = numConfirmations >= numConfirmationsComplete;
-  return (
-    <div className={transactionStyle.status}>
-      <span className={parentStyle.columnLabel}>
-        {t('transaction.details.status')}:
-      </span>
-      <ProgressRing
-        className="m-right-quarter"
-        width={14}
-        value={progress}
-        isComplete={isComplete}
-      />
-      <span className={parentStyle.status}>{statusText}</span>
-    </div>
-  );
-};
 
 export const TxStatusDetail = ({
   status,
@@ -69,7 +43,7 @@ export const TxStatusDetail = ({
         value={progress}
         isComplete={isComplete}
       />
-      <span className={parentStyle.status}>
+      <span className={style.status}>
         {statusText}{status === 'pending' && <span> {`(${numConfirmations}/${numConfirmationsComplete})`}</span>}
       </span>
     </TxDetail>

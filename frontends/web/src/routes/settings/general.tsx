@@ -31,7 +31,7 @@ import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { SubTitle } from '@/components/title';
 import { TPagePropsWithSettingsTabs } from './types';
-import { GlobalBanners } from '@/components/globalbanners/globalbanners';
+import { GlobalBanners } from '@/components/banners';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 
 export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {

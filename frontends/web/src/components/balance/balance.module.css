@@ -25,13 +25,16 @@
 }
 
 .balanceTable .availableAmount {
+    color: var(--color-default);
     padding-right: var(--space-quarter);
     text-align: right;
+    white-space: nowrap;
 }
 
 .balanceTable .availableUnit {
     color: var(--color-secondary);
     padding-right: var(--space-half);
+    white-space: nowrap;
 }
 
 .pendingBalance {
@@ -56,11 +59,5 @@
 
     .pendingBalance {
         padding-top: var(--space-quarter);
-    }
-}
-
-@media (max-width: 560px) {
-    .balanceTable td {
-        font-size: var(--size-subheader);
     }
 }

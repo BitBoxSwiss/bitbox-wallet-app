@@ -237,7 +237,7 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
                   </Step>
                 </Steps>
               </div>
-              <div className="row flex flex-row flex-between m-bottom" style={{ flexDirection: 'row-reverse' }}>
+              <div className={styles.buttonsContainer} style={{ flexDirection: 'row-reverse' }}>
                 <Button
                   disabled={
                     (step === 'select-coin' && coinCode === 'choose')

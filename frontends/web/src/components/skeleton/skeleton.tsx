@@ -17,15 +17,18 @@
 import style from './skeleton.module.css';
 
 type TProps = {
-    fontSize?: string;
-    minWidth?: string;
+  className?: string;
+  fontSize?: string;
+  minWidth?: string;
+
 };
 
 export const Skeleton = ({
+  className = '',
   fontSize,
   minWidth = '100%',
 }: TProps) => {
   return (
-    <span className={style.skeleton} style={{ fontSize, minWidth }} />
+    <span className={`${style.skeleton} ${className}`} style={{ fontSize, minWidth }} />
   );
 };
