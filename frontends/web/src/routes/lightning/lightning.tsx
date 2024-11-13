@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,18 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
 import { getListPayments, subscribeListPayments, subscribeNodeState, Payment, getLightningBalance } from '../../api/lightning';
 import { Balance } from '../../components/balance/balance';
-import { View, ViewHeader } from '../../components/view/view';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { View, ViewContent, ViewHeader } from '../../components/view/view';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
-import { ActionButtons } from './actionButtons';
+import { ActionButtons } from './components/action-buttons';
 import { LightningGuide } from './guide';
 import { Payments } from './components/payments';
 import { unsubscribe } from '../../utils/subscriptions';
+import { GlobalBanners } from '@/components/banners';
 import { Status } from '../../components/status/status';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
+import styles from './lightning.module.css';
 
 export function Lightning() {
   const { t } = useTranslation();
@@ -87,11 +90,14 @@ export function Lightning() {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Status
-            dismissible="lightning-alpha-warning"
-            type="warning">
-            This is an alpha release intended for preview and testing. Only use lightning with a small amount of funds!
-          </Status>
+          <ContentWrapper>
+            <Status
+              dismissible="lightning-alpha-warning"
+              type="warning">
+              This is an alpha release intended for preview and testing. Only use lightning with a small amount of funds!
+            </Status>
+            <GlobalBanners />
+          </ContentWrapper>
           <Header
             title={
               <h2>
@@ -101,23 +107,21 @@ export function Lightning() {
           >
             <HideAmountsButton />
           </Header>
-          <div className="innerContainer scrollableContainer">
-            <div className="content padded">
-              <div className="flex flex-column flex-reverse-mobile">
-                <label className="labelXLarge flex-self-start-mobile hide-on-small">{t('accountSummary.availableBalance')}</label>
-                <div className="flex flex-row flex-between flex-item-center flex-column-mobile flex-reverse-mobile">
-                  <Balance balance={balance} />
-                  <label className="labelXLarge flex-self-start-mobile show-on-small">{t('accountSummary.availableBalance')}</label>
-                  <ActionButtons canSend={canSend} />
-                </div>
+          <View>
+            <ViewHeader>
+              <div className={styles.header}>
+                <Balance balance={balance} />
+                <ActionButtons canSend={canSend} />
               </div>
+            </ViewHeader>
+            <ViewContent>
               {offlineErrorTextLines.length || !hasDataLoaded ? (
                 <Spinner guideExists text={initializingSpinnerText} />
               ) : (
                 <Payments payments={payments} />
               )}
-            </div>
-          </div>
+            </ViewContent>
+          </View>
         </Main>
       </GuidedContent>
       <LightningGuide />
