@@ -1,6 +1,16 @@
 .header {
-  align-items: baseline;
+  align-items: center;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+  margin-bottom: var(--space-default);
+}
+
+.empty {
+  background-color: var(--background-secondary);
+  height: 52px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
