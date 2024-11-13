@@ -18,7 +18,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
-import { getListPayments, subscribeListPayments, subscribeNodeState, Payment as TPayment, getLightningBalance } from '../../api/lightning';
+import { getListPayments, subscribeListPayments, subscribeNodeState, Payment as IPayment, getLightningBalance } from '../../api/lightning';
 import { Balance } from '../../components/balance/balance';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { View, ViewContent, ViewHeader } from '../../components/view/view';
@@ -31,14 +31,17 @@ import { GlobalBanners } from '@/components/banners';
 import { Status } from '../../components/status/status';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 import { Transaction } from '@/components/transactions/transaction';
+import { PaymentDetails } from './components/payment-details';
+import { toSat } from '@/utils/conversion';
 import styles from './lightning.module.css';
 
 export const Lightning = () => {
   const { t } = useTranslation();
   const [balance, setBalance] = useState<accountApi.IBalance>();
   const [syncedAddressesCount] = useState<number>();
-  const [payments, setPayments] = useState<TPayment[]>();
+  const [payments, setPayments] = useState<IPayment[]>();
   const [error, setError] = useState<string>();
+  const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
 
   const onStateChange = useCallback(async () => {
     try {
@@ -124,7 +127,7 @@ export const Lightning = () => {
                       internalID: payment.id,
                       addresses: [],
                       amountAtTime: {
-                        amount: (payment.amountMsat * 0.001).toString(),
+                        amount: toSat(payment.amountMsat).toString(),
                         conversions: {}, // TODO: add conversions
                         unit: 'sat' as accountApi.CoinUnit,
                         estimated: false
@@ -162,7 +165,7 @@ export const Lightning = () => {
                       <Transaction
                         key={payment.internalID}
                         onShowDetail={(internalID: string) => {
-                          console.log('show details', internalID);
+                          setDetailID(internalID);
                         }}
                         {...payment}
                       />
@@ -173,6 +176,12 @@ export const Lightning = () => {
                   </div>
                 )
               )}
+
+              <PaymentDetails
+                id={detailID}
+                payment={payments?.find(payment => payment.id === detailID)}
+                onClose={() => setDetailID(null)}
+              />
             </ViewContent>
           </View>
         </Main>
