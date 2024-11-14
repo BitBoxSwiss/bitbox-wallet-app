@@ -149,7 +149,7 @@ export const Chart = ({
   const [source, setSource] = useState<'daily' | 'hourly'>(chartDisplay === 'week' ? 'hourly' : 'daily');
   const [difference, setDifference] = useState<number>();
   const [diffSince, setDiffSince] = useState<string>();
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [tooltipData, setTooltipData] = useState<{
     toolTipVisible: boolean;
     toolTipValue?: string;
@@ -227,7 +227,7 @@ export const Chart = ({
   }, [chart, chartDisplay]);
 
   const onResize = useCallback(() => {
-    const isMobile = window.innerWidth <= 640;
+    const isMobile = window.innerWidth <= 768;
     setIsMobile(isMobile);
     if (!chart.current || !ref.current) {
       return;
