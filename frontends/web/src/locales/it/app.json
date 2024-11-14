@@ -430,8 +430,8 @@
               "title": "Servizio personalizzato con prezzo fisso"
             },
             "security": {
-              "link": "Modello di minaccia alla sicurezza di BitBox02",
-              "text": "Il Private Trading Desk di BTC Direct è un servizio esterno non coperto dal modello di minaccia alla sicurezza di BitBox02. Tuttavia, BTC Direct conosce bene i prodotti BitBox epuò guidarti in maniera sicura e competente. I prodotti BitBox verificano gli indirizzi crittografici durante le transazioni per garantire una consegna sicura.",
+              "link": "Security threat model di BitBox02",
+              "text": "Il Private Trading Desk di BTC Direct è un servizio esterno non coperto dal security threat model di BitBox02. Tuttavia, BTC Direct conosce bene i prodotti BitBox epuò guidarti in maniera sicura e competente. I prodotti BitBox verificano gli indirizzi crittografici durante le transazioni per garantire una consegna sicura.",
               "title": "Sicurezza"
             },
             "title": "Disclaimer"
@@ -540,8 +540,8 @@
           "title": "Protezione dei dati"
         },
         "security": {
-          "descriptionGeneric_bitcoin": "Quando acquisti Bitcoin tramite un exchange partner, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del \\\"Securiy Threat model\\\" del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione.",
-          "descriptionGeneric_crypto": "Quando acquisti crypto tramite un exchange partner, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del \\\"Securiy Threat model\\\" del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione.",
+          "descriptionGeneric_bitcoin": "Quando acquisti Bitcoin tramite un exchange partner, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del Securiy Threat model del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione.",
+          "descriptionGeneric_crypto": "Quando acquisti crypto tramite un exchange partner, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del Securiy Threat model del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione.",
           "link": "Security threat model",
           "title": "Security model"
         },
@@ -764,8 +764,8 @@
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
-          "link": "Modello di minaccia alla sicurezza di BitBox02",
-          "p1": "L'utilizzo di Pocket è un servizio esterno e non è coperto dal modello di minaccia alla sicurezza di BitBox02. Tuttavia, lavoriamo a stretto contatto con Pocket per migliorare la sicurezza complessiva.",
+          "link": "Security threat model di BitBox02",
+          "p1": "L'utilizzo di Pocket è un servizio esterno e non è coperto dal security threat model di BitBox02. Tuttavia, lavoriamo a stretto contatto con Pocket per migliorare la sicurezza complessiva.",
           "p2": "<strong>Acquistare bitcoin:</strong> Riceverai un'e-mail per confermare il tuo indirizzo di ricezione bitcoin attraverso un secondo canale di comunicazione.",
           "p3": "<strong>Vendere bitcoin:</strong> BitBox02 verifica crittograficamente l'indirizzo di deposito Bitcoin e visualizza \"Pocket\" sull'hardware wallet.",
           "title": "Sicurezza"
