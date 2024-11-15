@@ -185,7 +185,6 @@ func NewTxSpendAll(
 	previousOutputs := make(PreviousOutputs, len(spendableOutputs))
 	outputsSum := btcutil.Amount(0)
 	for outPoint, output := range spendableOutputs {
-		outPoint := outPoint // avoid reference reuse due to range loop
 		selectedOutPoints = append(selectedOutPoints, outPoint)
 		outputsSum += btcutil.Amount(output.TxOut.Value)
 		inputs = append(inputs, wire.NewTxIn(&outPoint, nil, nil))
@@ -272,7 +271,6 @@ func NewTx(
 		inputs := make([]*wire.TxIn, len(selectedOutPoints))
 		previousOutputs := make(PreviousOutputs, len(selectedOutPoints))
 		for i, outPoint := range selectedOutPoints {
-			outPoint := outPoint // avoids referencing the same variable across loop iterations
 			inputs[i] = wire.NewTxIn(&outPoint, nil, nil)
 			previousOutputs[outPoint] = &transactions.SpendableOutput{
 				TxOut: spendableOutputs[outPoint].TxOut,

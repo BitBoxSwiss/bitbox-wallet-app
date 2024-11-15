@@ -153,7 +153,6 @@ func TestAOPPSuccess(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		test := test
 		t.Run("", func(t *testing.T) {
 			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				require.Equal(t, "POST", r.Method)
