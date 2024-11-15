@@ -91,9 +91,6 @@ i18Init.init({
   }
 });
 
-// load the default language first
-loadLanguage(defaultLang);
-
 i18n.on('languageChanged', async (lng) => {
   // changei18nLanguage triggers languageChanged, thus this check to prevent loop
   if (isChangingLanguage) {
@@ -125,6 +122,14 @@ i18n.on('languageChanged', async (lng) => {
   } finally {
     isChangingLanguage = false;
   }
+});
+
+i18n.on('initialized', () => {
+  languageFromConfig.detect((lang) => {
+    if (lang && typeof lang === 'string') {
+      changei18nLanguage(localeMainLanguage(lang));
+    }
+  });
 });
 
 export { i18n };
