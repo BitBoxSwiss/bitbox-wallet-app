@@ -5,12 +5,18 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.hardware.usb.UsbManager;
 
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -30,6 +36,20 @@ public class GoService extends Service {
     private final String channelId = "21";
 
     private final int notificationId = 8;
+
+    private ViewModelStoreOwner viewModelStoreOwner;
+
+    private final BroadcastReceiver usbStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (viewModelStoreOwner != null && UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                GoViewModel viewModel = new ViewModelProvider(viewModelStoreOwner).get(GoViewModel.class);
+                viewModel.setDevice(null);
+                Mobileserver.usbUpdate();
+            }
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -68,12 +88,26 @@ public class GoService extends Service {
         // focus. This is needed to avoid timeouts when the backend is polling the BitBox for e.g.
         // an address verification.
         startForeground(notificationId, notification);
+
+        // Register USB broadcast receiver to detect USB disconnects, even while the app is in the
+        // background.
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(usbStateReceiver, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(usbStateReceiver, filter);
+        }
+
         Util.log("GoService onCreate completed");
     }
 
     @Override
     public void onDestroy() {
         Util.log("GoService onDestroy()");
+        super.onDestroy();
+        unregisterReceiver(usbStateReceiver);
         // It would be nice to call MobileServer.shutdown() here, but that function
         // is currently incomplete and can lead to unpredictable results.
     }
@@ -96,6 +130,10 @@ public class GoService extends Service {
         GoService getService() {
             return GoService.this;
         }
+    }
+
+    public void setViewModelStoreOwner(ViewModelStoreOwner owner) {
+        this.viewModelStoreOwner = owner;
     }
 
     @Override
