@@ -337,7 +337,7 @@
       "text": "Pojistěte si svůj BitBox02 a bitcoiny v hodnotě až 100 000 EUR",
       "text2": "Pojistné plány začínají na 30 €/rok (2,50 €/měsíc). Více informací o společnosti Bitsurance a její přesné nabídce pojištění se dozvíte na stránce",
       "text3": "V současné době k dispozici v Německu, další regiony budou následovat.",
-      "title": "Začněte"
+      "title": "Začínáme"
     },
     "intro": {
       "link": "Web Bitsurance",
@@ -1359,7 +1359,7 @@
   },
   "note": {
     "input": {
-      "description": "(volitelný)",
+      "description": "(volitelné)",
       "placeholder": "Přidat poznámku…"
     },
     "title": "Poznámka"
@@ -1595,7 +1595,7 @@
       "placeholder": "Zadejte částku"
     },
     "availableBalance": "Dostupný zůstatek",
-    "button": "Překontrolování",
+    "button": "Kontrola",
     "coincontrol": {
       "address": "Adresa",
       "addressReused": "Opakovaně použitá adresa",
@@ -1773,7 +1773,7 @@
       "summary": "Zde je shrnutí toho, co jste udělali",
       "title": "Hotovo"
     },
-    "getstarted": "Začněte",
+    "getstarted": "Začínáme",
     "restore": {
       "summary": "Úspěšně jste obnovili peněženku ze zálohy.",
       "title": "Hotovo"
