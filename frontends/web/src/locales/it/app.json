@@ -1469,7 +1469,7 @@
         "La passphrase è un ulteriore livello di sicurezza oltre al backup.\n",
         "L'inserimento di una passphrase diversa genererà sempre un wallet diverso.",
         "Per ripristinare il wallet sono necessari <strong>sia la passphrase che il backup</strong>.",
-        "Se si dimentica la passphrase, <strong>non è più possibile accedere ai propri fondi</strong>.\n"
+        "Se si dimentica la passphrase, <strong>non è più possibile accedere ai propri fondi</strong>."
       ]
     },
     "what": {
@@ -1479,7 +1479,7 @@
     },
     "why": {
       "button": "Perchè usare una passphrase",
-      "message": "BitBox02 protegge il seed dall'estrazione dal dispositivo stesso, ma il backup (scheda microSD o parole di recupero) dà pieno accesso al wallet. Per questo motivo deve essere conservato in un luogo sicuro!\n\nPoiché una passphrase crea un nuovo wallet utilizzando il seed esistente, il wallet con la passphrase richiede sia il <strong>backup che la passphrase per il ripristino</strong>. Il vantaggio è che se qualcuno trova il tuo backup, ha comunque bisogno della passphrase per accedere al wallet con passphrase.\n\nInoltre, la funzione passphrase consente di creare piùwallet sullo stesso dispositivo, o \"wallet nascosti\", oltre a quello predefinito.",
+      "message": "BitBox02 protegge il seed dall'estrazione dal dispositivo stesso, ma il backup (scheda microSD o parole di recupero) dà pieno accesso al wallet. Per questo motivo deve essere conservato in un luogo sicuro!\n\nPoiché una passphrase crea un nuovo wallet utilizzando il seed esistente, il wallet con la passphrase richiede sia il <strong>backup che la passphrase per il ripristino</strong>. Il vantaggio è che se qualcuno trova il tuo backup, ha comunque bisogno della passphrase per accedere al wallet con passphrase.\n\nInoltre, la funzione passphrase consente di creare più wallet sullo stesso dispositivo, o \"wallet nascosti\", oltre a quello predefinito.",
       "title": "Perchè usare una passphrase?"
     }
   },
