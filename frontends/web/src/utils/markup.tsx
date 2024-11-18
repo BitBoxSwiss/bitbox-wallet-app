@@ -23,7 +23,7 @@ type TMarkupProps = {
     key?: string;
 } & React.HTMLAttributes<HTMLElement>;
 
-const captureStrongElement = /^(.*)<strong>(.*)<\/strong>(.*)$/;
+const captureStrongElement = /^(.*)<strong>(.*)<\/strong>(.*)$/m;
 
 /**
  * **SimpleMarkup** renders `foo <strong>bar</strong> baz` safely as

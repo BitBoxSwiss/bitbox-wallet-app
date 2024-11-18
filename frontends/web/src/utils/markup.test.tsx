@@ -20,10 +20,26 @@ import { MultilineMarkup, SimpleMarkup } from './markup';
 
 describe('SimpleMarkup', () => {
   it('contains a strong element with the text bar', () => {
-    const { container } = render(<SimpleMarkup tagName="p" markup="foo <strong>bar</strong> baz" />);
+    const { container } = render(<SimpleMarkup tagName="div" markup="foo <strong>bar</strong> baz" />);
     // container is a div that wraps whatever element that's being rendered
+    expect(container.firstElementChild?.nodeName).toBe('DIV');
+    expect(container.querySelector('strong')).toHaveTextContent('bar');
+  });
+  it('should ignore newlines', () => {
+    const { container } = render(<SimpleMarkup tagName="p" markup="foo <strong>bar</strong> baz.\n" />);
+    // container is a paragraph element that wraps whatever element that's being rendered
     expect(container.firstElementChild?.nodeName).toBe('P');
     expect(container.querySelector('strong')).toHaveTextContent('bar');
+  });
+  it('should ignore newlines 2', () => {
+    const { container } = render(<SimpleMarkup tagName="p" markup="foo \n<strong>bar</strong>\n baz.\n" />);
+    expect(container.firstElementChild?.nodeName).toBe('P');
+    expect(container.querySelector('strong')).toHaveTextContent('bar');
+  });
+  it('should ignore newlines 3', () => {
+    const { container } = render(<SimpleMarkup tagName="p" markup="foo \n<strong>bar\n bar\n</strong>\n baz.\n" />);
+    expect(container.firstElementChild?.nodeName).toBe('P');
+    expect(container.querySelector('strong')).toHaveTextContent(/bar(.*)bar(.*)$/i);
   });
   it('should but doesnt support multiple strong elements', () => {
     const { container } = render(<SimpleMarkup tagName="span" markup="<strong>foo</strong> <strong>bar</strong> <strong>baz</strong>" />);
