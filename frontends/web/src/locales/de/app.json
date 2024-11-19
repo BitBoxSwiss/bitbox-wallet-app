@@ -753,8 +753,8 @@
         "fees": {
           "extraNote": "Bitte beachte, dass du zuerst Bitcoin über Pocket kaufen musst, bevor du verkaufen kannst.",
           "note": "Hinweis: Pockets Wechselkurse können von den Wechselkursen in der BitBoxApp abweichen.",
-          "p1": "<strong>Bitcoin kaufen:</strong>Nutze SEPA-Banküberweisung zum Versenden von EUR oder CHF,  und erhalte Bitcoin direkt auf deine BitBox, sobald Pocket die Banküberweisung erhalten hat, normalerweise am selben Tag. ",
-          "p2": "<strong>Bitcoin verkaufen:</strong>Sende Bitcoin an Pocket, und erhalte EUR oder CHF in deinem angegebenen Bankkonto. Der Wechselkurs wird festgelegt, sobald Pocket deine Bitcoin erhalten hat.",
+          "p1": "<strong>Bitcoin kaufen:</strong> Nutze SEPA-Banküberweisung zum Versenden von EUR oder CHF,  und erhalte Bitcoin direkt auf deine BitBox, sobald Pocket die Banküberweisung erhalten hat, normalerweise am selben Tag. ",
+          "p2": "<strong>Bitcoin verkaufen:</strong> Sende Bitcoin an Pocket, und erhalte EUR oder CHF in deinem angegebenen Bankkonto. Der Wechselkurs wird festgelegt, sobald Pocket deine Bitcoin erhalten hat.",
           "title": "Zahlungsmethoden und Gebühren"
         },
         "kyc": {
@@ -766,8 +766,8 @@
         "security": {
           "link": "BitBox02 Sicherheitsbedrohungsmodell",
           "p1": "Die Verwendung von Pocket ist ein externer Dienst welcher nicht von dem BitBox02 Sicherheitsbedrohungsmodell abgedeckt ist. Jedoch arbeiten wir eng mit Pocket zusammen um die allgemeine Sicherheit zu erhöhen.",
-          "p2": "<strong>Bitcoin kaufen:</strong>Du erhältst eine E-Mail zur Bestätigung deiner Bitcoin Empfangsadresse durch einen zweiten Kommunikationskanal.",
-          "p3": "<strong>Bitcoin verkaufen:</strong>Die BitBox02 verifiziert die Bitcoin Einzahlungsadresse kryptografisch und zeigt \"Pocket\" auf dem Hardware Wallet an.",
+          "p2": "<strong>Bitcoin kaufen:</strong> Du erhältst eine E-Mail zur Bestätigung deiner Bitcoin Empfangsadresse durch einen zweiten Kommunikationskanal.",
+          "p3": "<strong>Bitcoin verkaufen:</strong> Die BitBox02 verifiziert die Bitcoin Einzahlungsadresse kryptografisch und zeigt \"Pocket\" auf dem Hardware Wallet an.",
           "title": "Sicherheit"
         },
         "welcome": {
