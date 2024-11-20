@@ -193,6 +193,8 @@ type Backend struct {
 
 	devices map[string]device.Interface
 
+	usbManager *usb.Manager
+
 	accountsAndKeystoreLock locker.Locker
 	accounts                AccountsList
 	// keystore is nil if no keystore is connected.
@@ -612,13 +614,14 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 // Start starts the background services. It returns a channel of events to handle by the library
 // client.
 func (backend *Backend) Start() <-chan interface{} {
-	usb.NewManager(
+	backend.usbManager = usb.NewManager(
 		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
 		backend.socksProxy,
 		backend.environment.DeviceInfos,
 		backend.Register,
-		backend.Deregister).Start()
+		backend.Deregister)
+	backend.usbManager.Start()
 
 	httpClient, err := backend.socksProxy.GetHTTPClient()
 	if err != nil {
@@ -636,6 +639,13 @@ func (backend *Backend) Start() <-chan interface{} {
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
 	return backend.events
+}
+
+// UsbUpdate triggers a scan of the USB devices to detect connects/disconnects.
+func (backend *Backend) UsbUpdate() {
+	if backend.usbManager != nil {
+		backend.usbManager.Update()
+	}
 }
 
 // DevicesRegistered returns a map of device IDs to device of registered devices.

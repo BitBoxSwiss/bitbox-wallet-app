@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Android: handle device disconnect while the app is in the background
 
 # 4.46.0
 - Android: enable export logs feature

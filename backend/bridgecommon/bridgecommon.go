@@ -359,3 +359,13 @@ func Shutdown() {
 		log.Info("Shutdown called, but backend not running")
 	}
 }
+
+// UsbUpdate wraps backend.UsbUpdate.
+func UsbUpdate() {
+	mu.RLock()
+	defer mu.RUnlock()
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.UsbUpdate()
+}

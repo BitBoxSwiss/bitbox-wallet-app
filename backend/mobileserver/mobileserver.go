@@ -155,6 +155,11 @@ func UsingMobileDataChanged() {
 	bridgecommon.UsingMobileDataChanged()
 }
 
+// UsbUpdate exposes `bridgecommon.UsbUpdate` to Java/Kotlin.
+func UsbUpdate() {
+	bridgecommon.UsbUpdate()
+}
+
 type goLogHook struct {
 }
 
