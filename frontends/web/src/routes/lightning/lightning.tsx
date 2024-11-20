@@ -164,6 +164,7 @@ export const Lightning = () => {
                     .map((payment) => (
                       <Transaction
                         key={payment.internalID}
+                        hideFiat
                         onShowDetail={(internalID: string) => {
                           setDetailID(internalID);
                         }}

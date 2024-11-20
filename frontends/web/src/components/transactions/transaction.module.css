@@ -61,6 +61,9 @@
   padding: 0 var(--space-quarter) 0 48px;
   text-align: right;
 }
+.txAmountsColumn.hideFiat {
+  align-content: center;
+}
 @media (max-width: 560px) {
   .txAmountsColumn {
     padding-left: 24px;
