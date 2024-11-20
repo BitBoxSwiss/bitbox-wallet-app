@@ -86,7 +86,7 @@ linters:
     - wsl
     - execinquery
     - ireturn
-    - copyloopvar
+    - exportloopref
     - intrange
     - wrapcheck
     - varnamelen

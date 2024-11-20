@@ -336,7 +336,6 @@ func (account *Account) Initialize() error {
 		account.coin.Blockchain(), account.notifier, account.log)
 
 	for _, signingConfiguration := range signingConfigurations {
-		signingConfiguration := signingConfiguration
 
 		var subacc subaccount
 		subacc.signingConfiguration = signingConfiguration

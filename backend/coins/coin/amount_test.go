@@ -27,7 +27,6 @@ import (
 
 func TestNewAmountFromString(t *testing.T) {
 	for decimals := 0; decimals <= 20; decimals++ {
-		decimals := decimals // avoids referencing the same variable across loop iterations
 		unit := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(decimals)), nil)
 		t.Run(fmt.Sprintf("decimals=%d", decimals), func(t *testing.T) {
 			require.NoError(t, quick.Check(func(amount int64) bool {
@@ -46,7 +45,6 @@ func TestNewAmountFromString(t *testing.T) {
 		"1/1000",
 		"0.123456789", // only up to 8 decimals allowed
 	} {
-		fail := fail // avoids referencing the same variable across loop iterations
 		t.Run(fail, func(t *testing.T) {
 			_, err := coin.NewAmountFromString(fail, big.NewInt(1e8))
 			require.Error(t, err)
