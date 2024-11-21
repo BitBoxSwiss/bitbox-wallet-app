@@ -15,6 +15,7 @@
 #include <singleapplication.h>
 #include <QApplication>
 #include <QCoreApplication>
+#include <QFile>
 #include <QWebEngineView>
 #include <QWebEngineProfile>
 #include <QWebEnginePage>
@@ -116,7 +117,7 @@ public:
     explicit RequestInterceptor() : QWebEngineUrlRequestInterceptor() { }
     void interceptRequest(QWebEngineUrlRequestInfo& info) override {
         // Do not block qrc:/ local pages or js blobs
-        if (info.requestUrl().scheme() == "qrc" || info.requestUrl().scheme() == "blob") {
+        if (info.requestUrl().scheme() == "qrc" || info.requestUrl().scheme() == "blob" || info.requestUrl().scheme() == "data") {
             return;
         }
 
@@ -203,6 +204,16 @@ public:
         }
     }
 };
+
+static QString loadHtmlFromQrc(const QString &filePath) {
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        std::cerr << "Failed to load file:" << filePath.toStdString() << std::endl;
+        return QString("Failed to load file");
+    }
+    QTextStream stream(&file);
+    return stream.readAll();
+}
 
 int main(int argc, char *argv[])
 {
@@ -385,7 +396,11 @@ int main(int argc, char *argv[])
     channel.registerObject("backend", webClass);
     view->page()->setWebChannel(&channel);
     view->show();
-    view->load(QUrl("qrc:/index.html"));
+    // We use setHtml instead of load() because on linux, the local mimetype database is changed
+    // when FireFox sets itself as the default browser, and .html files are delivered as
+    // "application/x-extension-html", making the webview show a blank page instead of our app.
+    // The qrc:/ base name is so Moonpay can load (they whitelisted this base domain :o).
+    view->setHtml(loadHtmlFromQrc(":/index.html"), QUrl("qrc:/"));
 
     // Create TrayIcon
     {
