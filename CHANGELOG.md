@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+# 4.46.2
+- Fix Linux blank screen issue related to the local mimetype database
+
 # 4.46.1
 - Fix Android app crash on old Android versions
 
