@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,30 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
-import { getListPayments, subscribeListPayments, subscribeNodeState, Payment, getLightningBalance } from '../../api/lightning';
+import { getListPayments, subscribeListPayments, subscribeNodeState, Payment as IPayment, getLightningBalance } from '../../api/lightning';
 import { Balance } from '../../components/balance/balance';
-import { View, ViewHeader } from '../../components/view/view';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { View, ViewContent, ViewHeader } from '../../components/view/view';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
-import { ActionButtons } from './actionButtons';
+import { ActionButtons } from './components/action-buttons';
 import { LightningGuide } from './guide';
-import { Payments } from './components/payments';
 import { unsubscribe } from '../../utils/subscriptions';
+import { GlobalBanners } from '@/components/banners';
 import { Status } from '../../components/status/status';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
+import { Transaction } from '@/components/transactions/transaction';
+import { PaymentDetails } from './components/payment-details';
+import { toSat } from '@/utils/conversion';
+import styles from './lightning.module.css';
 
-export function Lightning() {
+export const Lightning = () => {
   const { t } = useTranslation();
   const [balance, setBalance] = useState<accountApi.IBalance>();
   const [syncedAddressesCount] = useState<number>();
-  const [payments, setPayments] = useState<Payment[]>();
+  const [payments, setPayments] = useState<IPayment[]>();
   const [error, setError] = useState<string>();
+  const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
 
   const onStateChange = useCallback(async () => {
     try {
@@ -87,11 +93,14 @@ export function Lightning() {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Status
-            dismissible="lightning-alpha-warning"
-            type="warning">
-            This is an alpha release intended for preview and testing. Only use lightning with a small amount of funds!
-          </Status>
+          <ContentWrapper>
+            <Status
+              dismissible="lightning-alpha-warning"
+              type="warning">
+              This is an alpha release intended for preview and testing. Only use lightning with a small amount of funds!
+            </Status>
+            <GlobalBanners />
+          </ContentWrapper>
           <Header
             title={
               <h2>
@@ -101,26 +110,84 @@ export function Lightning() {
           >
             <HideAmountsButton />
           </Header>
-          <div className="innerContainer scrollableContainer">
-            <div className="content padded">
-              <div className="flex flex-column flex-reverse-mobile">
-                <label className="labelXLarge flex-self-start-mobile hide-on-small">{t('accountSummary.availableBalance')}</label>
-                <div className="flex flex-row flex-between flex-item-center flex-column-mobile flex-reverse-mobile">
-                  <Balance balance={balance} />
-                  <label className="labelXLarge flex-self-start-mobile show-on-small">{t('accountSummary.availableBalance')}</label>
-                  <ActionButtons canSend={canSend} />
-                </div>
+          <View>
+            <ViewHeader>
+              <div className={styles.header}>
+                <Balance balance={balance} />
+                <ActionButtons canSend={canSend} />
               </div>
+            </ViewHeader>
+            <ViewContent fullWidth>
               {offlineErrorTextLines.length || !hasDataLoaded ? (
                 <Spinner guideExists text={initializingSpinnerText} />
               ) : (
-                <Payments payments={payments} />
+                payments && payments.length > 0 ? (
+                  payments
+                    .map(payment => ({ // TODO: giant hack start
+                      internalID: payment.id,
+                      addresses: [],
+                      amountAtTime: {
+                        amount: toSat(payment.amountMsat).toString(),
+                        conversions: {}, // TODO: add conversions
+                        unit: 'sat' as accountApi.CoinUnit,
+                        estimated: false
+                      },
+                      amount: {
+                        amount: payment.amountMsat.toString(),
+                        unit: 'sat' as accountApi.CoinUnit,
+                        estimated: false
+                      },
+                      fee: {
+                        amount: payment.feeMsat.toString(),
+                        unit: 'sat' as accountApi.CoinUnit,
+                        estimated: false
+                      },
+                      feeRatePerKb: {
+                        amount: '',
+                        unit: 'sat' as accountApi.CoinUnit,
+                        estimated: false
+                      },
+                      type: payment.paymentType === 'received' ? 'receive' as accountApi.TTransactionType : 'send', // TODO: add payment.paymentType 'closedChannel'
+                      txID: payment.id,
+                      note: payment.description || '',
+                      status: payment.status,
+                      time: new Date(payment.paymentTime * 1000).toString(), // TODO: remove hack?
+                      // most of these are not for lightning
+                      gas: 0,
+                      nonce: null,
+                      numConfirmationsComplete: 0,
+                      size: 0,
+                      numConfirmations: 0,
+                      vsize: 0,
+                      weight: 0
+                    })) // TODO: giant hack end
+                    .map((payment) => (
+                      <Transaction
+                        key={payment.internalID}
+                        hideFiat
+                        onShowDetail={(internalID: string) => {
+                          setDetailID(internalID);
+                        }}
+                        {...payment}
+                      />
+                    ))
+                ) : (
+                  <div className={`flex flex-row flex-center ${styles.empty}`}>
+                    <p>{t('lightning.payments.placeholder')}</p>
+                  </div>
+                )
               )}
-            </div>
-          </div>
+
+              <PaymentDetails
+                id={detailID}
+                payment={payments?.find(payment => payment.id === detailID)}
+                onClose={() => setDetailID(null)}
+              />
+            </ViewContent>
+          </View>
         </Main>
       </GuidedContent>
       <LightningGuide />
     </GuideWrapper>
   );
-}
+};

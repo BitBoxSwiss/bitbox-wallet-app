@@ -17,7 +17,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import style from './lightning.module.css';
+import style from './action-buttons.module.css';
 
 type TProps = {
   canSend?: boolean;
@@ -36,7 +36,7 @@ export const ActionButtons = ({ canSend }: TProps) => {
           {t('button.send')}
         </span>
       )}
-      <Link key="receive" to={'/lightning/receive'} className={`${style.receive} ${style.disabled}`}>
+      <Link key="receive" to={'/lightning/receive'} className={style.receive}>
         <span>{t('button.receive')}</span>
       </Link>
     </div>

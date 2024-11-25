@@ -28,6 +28,7 @@ import { getTxSign } from './utils';
 import styles from './transaction.module.css';
 
 type TTransactionProps = ITransaction & {
+  hideFiat?: boolean; // TODO: temp added for lighning to hide conversion until implemented
   onShowDetail: (internalID: ITransaction['internalID']) => void
 }
 
@@ -35,6 +36,7 @@ export const Transaction = ({
   addresses,
   amountAtTime,
   onShowDetail,
+  hideFiat,
   internalID,
   note,
   numConfirmations,
@@ -65,7 +67,11 @@ export const Transaction = ({
           time={time}
           type={type}
         />
-        <Amounts amount={amountAtTime} type={type} />
+        <Amounts
+          amount={amountAtTime}
+          hideFiat={hideFiat}
+          type={type}
+        />
         <button
           className={styles.txShowDetailBtn}
           onClick={() => !isMobile && onShowDetail(internalID)}
@@ -146,11 +152,13 @@ const Status = ({
 
 type TAmountsProps = {
   amount: IAmount;
+  hideFiat?: boolean;
   type: TTransactionType;
 }
 
 const Amounts = ({
   amount,
+  hideFiat,
   type,
 }: TAmountsProps) => {
   const { defaultCurrency } = useContext(RatesContext);
@@ -159,7 +167,11 @@ const Amounts = ({
   const txTypeClass = `txAmount-${type}`;
   const conversionPrefix = amount.estimated ? '\u2248' : null; // ≈
   return (
-    <span className={`${styles.txAmountsColumn} ${styles[txTypeClass]}`}>
+    <span className={`
+      ${styles.txAmountsColumn}
+      ${styles[txTypeClass]}
+      ${hideFiat ? styles.hideFiat : ''}
+    `}>
       {/* <data value={amount.amount}> */}
       <span className={styles.txAmount}>
         {sign}
@@ -173,23 +185,25 @@ const Amounts = ({
         </span>
       </span>
       {/* </data> */}
-      <span className={styles.txConversionAmount}>
-        {conversionPrefix && (
-          <span className={styles.txPrefix}>
-            {conversionPrefix}
+      {!hideFiat ? (
+        <span className={styles.txConversionAmount}>
+          {conversionPrefix && (
+            <span className={styles.txPrefix}>
+              {conversionPrefix}
+              {' '}
+            </span>
+          )}
+          {conversion && sign}
+          <Amount
+            amount={conversion || ''}
+            unit={defaultCurrency}
+          />
+          <span className={styles.txUnit}>
             {' '}
+            {defaultCurrency}
           </span>
-        )}
-        {conversion && sign}
-        <Amount
-          amount={conversion || ''}
-          unit={defaultCurrency}
-        />
-        <span className={styles.txUnit}>
-          {' '}
-          {defaultCurrency}
         </span>
-      </span>
+      ) : null}
     </span>
   );
 };
