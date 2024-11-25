@@ -243,7 +243,7 @@ const Addresses = ({
   );
 
   return (
-    <span>
+    <span className={styles.txNoteWithAddress}>
       <span className={styles.txType}>
         {label}
       </span>

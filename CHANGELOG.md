@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fix long transaction notes to show fully on multiple lines when necessary 
 
 # 4.46.0
 - Android: enable export logs feature
