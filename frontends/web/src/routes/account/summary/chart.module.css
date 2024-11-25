@@ -37,7 +37,7 @@
   margin: var(--spacing-half) 0 0 0;
 }
 
-@media (max-width: 640px){
+@media (max-width: 768px){
   .chart{
     margin-bottom: var(--spacing-default);
   }

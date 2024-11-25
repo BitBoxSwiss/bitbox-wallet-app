@@ -15,6 +15,7 @@
 - Fix authentication view glitch at startup
 - Remove "No priority" from fee options
 - Display skeleton screens (placeholder) in the account page during data loading to enhance UX
+- Fix Moonpay widget loading issues
 
 # 4.45.0
 - Bundle BitBox02 firmware version v9.21.0
