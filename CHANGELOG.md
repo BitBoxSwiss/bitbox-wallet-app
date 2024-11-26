@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+# 4.46.3
+- Fix camera access on linux
+
 # 4.46.2
 - Fix Linux blank screen issue related to the local mimetype database
 
