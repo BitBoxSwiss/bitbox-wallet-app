@@ -25,7 +25,7 @@ env:
   # https://docs.github.com/en/packages/guides/pushing-and-pulling-docker-images
   #
   # Keep this in sync with default in scripts/github-ci.sh.
-  CI_IMAGE: ghcr.io/bitboxswiss/bitbox-wallet-app-ci:25
+  CI_IMAGE: ghcr.io/bitboxswiss/bitbox-wallet-app-ci:26
   GITHUB_BUILD_DIR: ${{github.workspace}}
 
 jobs:

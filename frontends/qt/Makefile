@@ -37,8 +37,8 @@ linux:
 	cp resources/linux/usr/share/icons/hicolor/128x128/apps/bitbox.png build/linux-tmp
 	mkdir build/tmp-deb/opt/
 	cp -aR build/linux-tmp build/tmp-deb/opt/bitbox
-	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v 4.46.0 -C ../tmp-deb/
-	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.46.0 -C ../tmp-deb/
+	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v 4.46.1 -C ../tmp-deb/
+	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.46.1 -C ../tmp-deb/
 	# create AppImage
 	cd build/linux-tmp && /opt/linuxdeployqt-continuous-x86_64.AppImage BitBox -appimage -unsupported-allow-new-glibc
 	mv build/linux-tmp/BitBoxApp-*-x86_64.AppImage build/linux/

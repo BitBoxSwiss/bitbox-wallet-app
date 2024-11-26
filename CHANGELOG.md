@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+# 4.46.1
+- Fix Android app crash on old Android versions
+
 # 4.46.0
 - Android: enable export logs feature
 - Label change UTXOs as "change" in coin control

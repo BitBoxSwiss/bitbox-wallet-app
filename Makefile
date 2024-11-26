@@ -22,8 +22,8 @@ catch:
 envinit:
 	# Keep golangci-lint version in sync with what's in .github/workflows/ci.yml.
 	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin v1.61.0
-	go install github.com/vektra/mockery/v2@latest
-	go install github.com/matryer/moq@latest
+	go install github.com/vektra/mockery/v2@v2.46.0
+	go install github.com/matryer/moq@v0.4.0
 	go install golang.org/x/tools/cmd/goimports@latest
 	$(MAKE) gomobileinit
 gomobileinit:
