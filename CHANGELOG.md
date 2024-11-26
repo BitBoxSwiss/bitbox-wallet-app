@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fix long transaction notes to show fully on multiple lines when necessary 
 
 # 4.46.1
 - Fix Android app crash on old Android versions
