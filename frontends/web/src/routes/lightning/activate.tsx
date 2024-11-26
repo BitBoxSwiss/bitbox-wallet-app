@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { Header, Main } from '../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../components/view/view';
 import { MultilineMarkup, SimpleMarkup } from '../../utils/markup';
-import { Button, Checkbox, Label } from '../../components/forms';
+import { Button, Checkbox } from '../../components/forms';
 import { PointToBitBox02 } from '../../components/icon';
 import { TKeystores, getKeystores, subscribeKeystores } from '../../api/keystores';
 import { unsubscribe } from '../../utils/subscriptions';
@@ -112,9 +112,12 @@ export const LightningActivate = () => {
               tagName="p"
               markup={t('lightning.activate.disclaimer.content')}
             />
-            <Label htmlFor="confirm">
-              <Checkbox id="confirm" onChange={() => setAgree(!agree)} checked={agree} />I have read the information above
-            </Label>
+            <Checkbox
+              id="confirm"
+              onChange={() => setAgree(!agree)}
+              checked={agree}>
+              I have read the information above
+            </Checkbox>
           </ViewContent>
           <ViewButtons>
             <Button primary disabled={!agree} onClick={() => waitForConnect()}>
