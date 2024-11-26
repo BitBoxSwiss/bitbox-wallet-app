@@ -28,12 +28,13 @@ import { getTxSign } from './utils';
 import styles from './transaction.module.css';
 
 type TTransactionProps = ITransaction & {
-  onShowDetail: (internalID: ITransaction['internalID']) => void
+  onShowDetail: (internalID: ITransaction['internalID']) => void;
 }
 
 export const Transaction = ({
   addresses,
   amountAtTime,
+  fee,
   onShowDetail,
   internalID,
   note,
@@ -65,7 +66,11 @@ export const Transaction = ({
           time={time}
           type={type}
         />
-        <Amounts amount={amountAtTime} type={type} />
+        <Amounts
+          amount={amountAtTime}
+          fee={fee}
+          type={type}
+        />
         <button
           className={styles.txShowDetailBtn}
           onClick={() => !isMobile && onShowDetail(internalID)}
@@ -146,11 +151,13 @@ const Status = ({
 
 type TAmountsProps = {
   amount: IAmount;
+  fee: IAmount;
   type: TTransactionType;
 }
 
 const Amounts = ({
   amount,
+  fee,
   type,
 }: TAmountsProps) => {
   const { defaultCurrency } = useContext(RatesContext);
@@ -158,36 +165,44 @@ const Amounts = ({
   const sign = getTxSign(type);
   const txTypeClass = `txAmount-${type}`;
   const conversionPrefix = amount.estimated ? '\u2248' : null; // ≈
+  const sendToSelf = type === 'send_to_self';
+  const conversionUnit = sendToSelf ? amount.unit : defaultCurrency;
+
   return (
     <span className={`${styles.txAmountsColumn} ${styles[txTypeClass]}`}>
       {/* <data value={amount.amount}> */}
       <span className={styles.txAmount}>
         {sign}
         <Amount
-          amount={amount.amount}
+          amount={sendToSelf ? fee.amount : amount.amount}
           unit={amount.unit}
         />
         <span className={styles.txUnit}>
           {' '}
-          {amount.unit}
+          {sendToSelf ? fee.unit : amount.unit}
         </span>
       </span>
       {/* </data> */}
       <span className={styles.txConversionAmount}>
+        {sendToSelf && (
+          <span className={styles.txSmallInlineIcon}>
+            <Arrow type="send_to_self" />
+          </span>
+        )}
         {conversionPrefix && (
           <span className={styles.txPrefix}>
             {conversionPrefix}
             {' '}
           </span>
         )}
-        {conversion && sign}
+        {conversion && !sendToSelf ? sign : null}
         <Amount
-          amount={conversion || ''}
-          unit={defaultCurrency}
+          amount={sendToSelf ? amount.amount : conversion || ''}
+          unit={conversionUnit}
         />
         <span className={styles.txUnit}>
           {' '}
-          {defaultCurrency}
+          {conversionUnit}
         </span>
       </span>
     </span>
