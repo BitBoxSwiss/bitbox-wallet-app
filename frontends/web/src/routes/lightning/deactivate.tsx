@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { Header, Main } from '../../components/layout';
 import { View, ViewButtons, ViewContent } from '../../components/view/view';
 import { MultilineMarkup } from '../../utils/markup';
-import { Button, Checkbox, Label } from '../../components/forms';
+import { Button, Checkbox } from '../../components/forms';
 import { postDeactivateNode } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { Spinner } from '../../components/spinner/Spinner';
@@ -60,9 +60,12 @@ export const LightningDeactivate = () => {
               markup={`Shutting down your lightning wallet will disconnect you from the Greenlight server and you will no longer be able to use your lightning wallet to send and receive.
               Funds on your lightning wallet are not affected, you can still access them again by enabling lightning in the settings and connecting the BitBox02 wallet used to make that wallet.`}
             />
-            <Label htmlFor="confirm">
-              <Checkbox id="confirm" onChange={() => setAgree(!agree)} checked={agree} />I have read the information above
-            </Label>
+            <Checkbox
+              id="confirm"
+              onChange={() => setAgree(!agree)}
+              checked={agree}>
+              I have read the information above
+            </Checkbox>
           </ViewContent>
           <ViewButtons>
             <Button danger disabled={!agree} onClick={() => dectivateNode()}>
