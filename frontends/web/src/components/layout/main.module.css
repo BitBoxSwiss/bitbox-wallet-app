@@ -1,4 +1,6 @@
 .main {
+    /* define background color so macOS renders native scrollbars with correct color */
+    background-color: var(--background);
     display: flex;
     flex-direction: column;
     flex-grow: 1;

@@ -22,6 +22,7 @@ import { useSync } from './hooks/api';
 import { useDefault } from './hooks/default';
 import { usePrevious } from './hooks/previous';
 import { useIgnoreDrop } from './hooks/drop';
+import { usePlatformClass } from './hooks/platform';
 import { AppRouter } from './routes/router';
 import { Wizard as BitBox02Wizard } from './routes/device/bitbox02/wizard';
 import { getAccounts } from './api/account';
@@ -44,6 +45,7 @@ import { Providers } from './contexts/providers';
 import styles from './app.module.css';
 
 export const App = () => {
+  usePlatformClass();
   const { t } = useTranslation();
   const navigate = useNavigate();
   useIgnoreDrop();

@@ -40,10 +40,11 @@
     will-change: margin-right, transform;
 }
 
-.guide::-webkit-scrollbar-thumb {
+:global(.os-linux) .guide::-webkit-scrollbar-thumb,
+:global(.os-windows) .guide::-webkit-scrollbar-thumb {
+    /* the guide is always blue regardless of darkmode so we can hardcode the scroll-thumb to white */
     background-color: white;
 }
-
 
 .header {
     background-color: var(--color-blue);
