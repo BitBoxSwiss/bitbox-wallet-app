@@ -184,8 +184,8 @@ public:
         // We treat the exchange pages specially because we need to allow exchange
         // widgets to load in an iframe as well as let them open external links
         // in a browser.
-        bool onExchangePage = currentUrl.contains(QRegularExpression(QString("^%1:/exchange/.*$").arg(scheme)));
-        bool onBitsurancePage = currentUrl.contains(QRegularExpression(QString("^%1:/bitsurance/.*$").arg(scheme)));
+        bool onExchangePage = currentUrl.contains(QRegularExpression(QString("^%1:/index\.html\#/exchange/.*$").arg(scheme)));
+        bool onBitsurancePage = currentUrl.contains(QRegularExpression(QString("^%1:/index\.html\#/bitsurance/.*$").arg(scheme)));
         if (onExchangePage || onBitsurancePage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
                 // Ignore requests for certain file types (e.g., .js, .css) Somehow Moonpay loads
@@ -208,7 +208,7 @@ public:
 
         // All the requests originated in the wallet-connect section are allowed, as they are needed to
         // load the Dapp logos and it is not easy to filter out non-images requests.
-        bool onWCPage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/account/[^\/]+/wallet-connect/.*$)").arg(scheme)));
+        bool onWCPage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/account/[^\/]+/wallet-connect/.*$)").arg(scheme)));
         if (onWCPage) {
             return;
         }
@@ -339,11 +339,8 @@ int main(int argc, char *argv[])
     }
 
     QWebEngineUrlScheme bbappScheme(scheme);
-    bbappScheme.setSyntax(QWebEngineUrlScheme::Syntax::HostAndPort);
-    bbappScheme.setFlags(
-        QWebEngineUrlScheme::LocalScheme |
-        QWebEngineUrlScheme::SecureScheme |
-        QWebEngineUrlScheme::LocalAccessAllowed);
+    bbappScheme.setSyntax(QWebEngineUrlScheme::Syntax::Path);
+    bbappScheme.setFlags(QWebEngineUrlScheme::SecureScheme);
     QWebEngineUrlScheme::registerScheme(bbappScheme);
 
     view = new WebEngineView();
