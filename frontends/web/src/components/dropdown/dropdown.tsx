@@ -34,14 +34,13 @@ export type TOption<T = any> = {
 
 type SelectProps<T = any, IsMulti extends boolean = false> = Omit<
   ReactSelectProps<TOption<T>>,
-  'onChange' | 'isMulti'
+  'onChange'
 > & {
   renderOptions: (selectedItem: TOption<T>) => ReactNode; // Function to render options and selected value for single dropdown
   onChange: (
     newValue: IsMulti extends true ? TOption<T>[] : TOption<T>,
     actionMeta: ActionMeta<TOption<T>>
   ) => void;
-  isMulti?: IsMulti;
 };
 
 const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (

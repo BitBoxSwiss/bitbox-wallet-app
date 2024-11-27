@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLocalizedFormattedCurrencies } from '@/hooks/localized';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ActiveCurrenciesDropdown } from '@/routes/settings/components/dropdowns/activecurrenciesdropdown';
+import { ActiveCurrenciesDropdown } from './activecurrenciesdropdown';
 
 const ActiveCurrenciesDropdownSetting = () => {
   const { t, i18n } = useTranslation();

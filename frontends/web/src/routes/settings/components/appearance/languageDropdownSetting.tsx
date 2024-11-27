@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,12 @@ import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { getNativeLocale } from '@/api/nativelocale';
 import { defaultLanguages } from '@/components/language/types';
+import { Dropdown } from '@/components/dropdown/dropdown';
 import { getSelectedIndex } from '@/utils/language';
-import { SingleDropdown } from '@/routes/settings/components/dropdowns/singledropdown';
 import { GlobeDark, GlobeLight } from '@/components/icon/icon';
 import { useDarkmode } from '@/hooks/darkmode';
 import styles from './languageDropDownSetting.module.css';
+import settingsDropdownStyles from './settingsdropdown.module.css';
 
 export const LanguageDropdownSetting = () => {
   const { i18n, t } = useTranslation();
@@ -39,9 +40,11 @@ export const LanguageDropdownSetting = () => {
       collapseOnSmall
       title={`Detected native locale: ${nativeLocale}`}
       extraComponent={
-        <SingleDropdown
+        <Dropdown
+          className={settingsDropdownStyles.select}
+          renderOptions={(o) => (o.label)}
           options={formattedLanguages}
-          handleChange={i18n.changeLanguage}
+          onChange={(selected) => i18n.changeLanguage(selected.value)}
           value={{ label: selectedLanguage.display, value: selectedLanguage.code }}
         />
       }

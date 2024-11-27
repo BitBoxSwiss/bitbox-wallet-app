@@ -17,8 +17,8 @@
 
 import { useTranslation } from 'react-i18next';
 import * as backendAPI from '@/api/backend';
-import Select, { components, SingleValueProps, OptionProps, SingleValue, DropdownIndicatorProps } from 'react-select';
 import { Logo } from '@/components/icon/logo';
+import { Dropdown } from '@/components/dropdown/dropdown';
 import styles from './coin-dropdown.module.css';
 
 type TCoinDropDownProps = {
@@ -30,45 +30,17 @@ type TCoinDropDownProps = {
 type TOption = {
   label: string;
   value: backendAPI.ICoin['coinCode'];
-  isDisabled: boolean;
 };
 
-const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => {
+const Option = ({ props }: { props: TOption }) => {
+  const { label, value } = props;
   return (
-    <components.DropdownIndicator {...props}>
-      <div className={styles.dropdown} />
-    </components.DropdownIndicator>
-  );
-};
-
-const SelectSingleValue = (props: SingleValueProps<TOption>) => {
-  const { value, label } = props.data;
-  return (
-    <div className={styles.singleValueContainer}>
-      <components.SingleValue {...props}>
-        <div className={styles.valueContainer}>
-          <Logo coinCode={value} alt={label} />
-          <span className={styles.selectLabelText}>{label}</span>
-        </div>
-      </components.SingleValue>
+    <div className={styles.valueContainer}>
+      <Logo coinCode={value} alt={label} />
+      <span className={styles.coinName}>{label}</span>
     </div>
   );
 };
-
-
-const SelectOption = (props: OptionProps<TOption>) => {
-  const { label, value } = props.data;
-
-  return (
-    <components.Option {...props}>
-      <div className={styles.valueContainer}>
-        <Logo coinCode={value} alt={label} />
-        <span className={styles.selectLabelText}>{label}</span>
-      </div>
-    </components.Option>
-  );
-};
-
 
 export const CoinDropDown = ({
   onChange,
@@ -77,38 +49,26 @@ export const CoinDropDown = ({
 }: TCoinDropDownProps) => {
   const { t } = useTranslation();
 
-  const options: TOption[] = [
-    ...supportedCoins.map(({ coinCode, name, canAddAccount }) => ({
-      value: coinCode,
-      label: name,
-      isDisabled: !canAddAccount,
-    })),
-  ];
+  const options = supportedCoins.map(({ coinCode, name, canAddAccount }) => ({
+    value: coinCode,
+    label: name,
+    isDisabled: !canAddAccount,
+  }));
 
   return (
-    <Select
-      className={styles.select}
-      classNamePrefix="react-select"
-      autoFocus
+    <Dropdown
       isSearchable={false}
-      options={options}
-      onChange={(e) => {
-        const selectedOption = e as SingleValue<TOption>;
-        if (selectedOption) {
-          const selectedCoin = supportedCoins.find(c => c.coinCode === selectedOption.value);
-          if (selectedCoin) {
-            onChange(selectedCoin);
-          }
+      placeholder={t('buy.info.selectPlaceholder')}
+      classNamePrefix="react-select"
+      value={options.find(option => option.value === value) || []}
+      renderOptions={o => <Option props={o} />}
+      onChange={(selected) => {
+        const selectedCoin = supportedCoins.find(c => c.coinCode === selected.value);
+        if (selectedCoin) {
+          onChange(selectedCoin);
         }
       }}
-      value={options.find(option => option.value === value)}
-      components={{
-        DropdownIndicator,
-        SingleValue: SelectSingleValue,
-        Option: SelectOption,
-        IndicatorSeparator: () => null,
-      }}
-      placeholder={t('buy.info.selectPlaceholder')}
+      options={options}
     />
   );
 };
