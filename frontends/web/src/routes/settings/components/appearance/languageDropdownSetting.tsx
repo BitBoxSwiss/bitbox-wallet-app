@@ -24,6 +24,7 @@ import { SingleDropdown } from '@/routes/settings/components/dropdowns/singledro
 import { GlobeDark, GlobeLight } from '@/components/icon/icon';
 import { useDarkmode } from '@/hooks/darkmode';
 import styles from './languageDropDownSetting.module.css';
+import { changei18nLanguage } from '@/i18n/i18n';
 
 export const LanguageDropdownSetting = () => {
   const { i18n, t } = useTranslation();
@@ -41,7 +42,7 @@ export const LanguageDropdownSetting = () => {
       extraComponent={
         <SingleDropdown
           options={formattedLanguages}
-          handleChange={i18n.changeLanguage}
+          handleChange={changei18nLanguage}
           value={{ label: selectedLanguage.display, value: selectedLanguage.code }}
         />
       }
