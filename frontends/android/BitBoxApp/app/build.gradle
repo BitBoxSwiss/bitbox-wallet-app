@@ -16,14 +16,27 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             resValue "string", "app_name", "BitBoxApp"
+            manifestPlaceholders = [
+                    appIcon: "@mipmap/ic_launcher",
+                    appRoundIcon: "@mipmap/ic_launcher_round",
+            ]
         }
         debug {
             applicationIdSuffix ".debug"
             resValue "string", "app_name", "BitBoxApp DEBUG"
+            manifestPlaceholders = [
+                    appIcon: "@mipmap/ic_launcher",
+                    appRoundIcon: "@mipmap/ic_launcher_round",
+            ]
         }
         lnalpha {
             applicationIdSuffix ".lnalpha"
-            resValue "string", "app_name", "BitBoxApp LN Alpha"
+            resValue "string", "app_name", "BBApp LN Alpha"
+            manifestPlaceholders = [
+                    appIcon: "@mipmap/ic_launcher_lnalpha",
+                    appRoundIcon: "@mipmap/ic_launcher_lnalpha_round",
+            ]
+            signingConfig signingConfigs.debug // Use debug signing
         }
     }
     namespace 'ch.shiftcrypto.bitboxapp'

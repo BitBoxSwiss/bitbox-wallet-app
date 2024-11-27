@@ -3,8 +3,11 @@ include ../../android-env.mk.inc
 apk-debug:
 	${MAKE} prepare-android
 	cd BitBoxApp && ./gradlew assemble
+	cd BitBoxApp && ./gradlew assembleLnalpha
 deploy-debug:
 	adb install -r ./BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
+deploy-ln:
+	adb install -r ./BitBoxApp/app/build/outputs/apk/lnalpha/app-lnalpha.apk
 clean:
 	cd BitBoxApp && ./gradlew clean
 prepare-android:
