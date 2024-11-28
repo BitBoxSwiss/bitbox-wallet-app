@@ -1,0 +1,7 @@
+.select {
+    width: 280px;
+}
+
+.select :global(.react-select__option) {
+    padding: var(--space-half) var(--space-quarter);
+}

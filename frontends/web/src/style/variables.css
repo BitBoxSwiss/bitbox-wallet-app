@@ -19,6 +19,7 @@
     --color-lightyellow: rgba(255, 252, 177, .15); /* #FFFCB1 */
     --color-darkblue: #4f7998;
     --color-blue: #5E94BF;
+    --color-blue-rgb: 94, 148, 191; /*#5E94BF */
     --color-lightblue: #73A5CD;
     --color-light-skyblue: #ECF7FF;
     --color-electric-blue: #2684FF;
@@ -130,8 +131,8 @@
     --background-focus: var(--color-light-skyblue);
     --background-tertiary: var(--color-gray-alt);
     --background-quaternary: var(--color-mediumgray);
-    --background-custom-select-hover: var(--color-powder-blue);
-    --background-custom-select-selected: var(--color-pale-ice-blue);
+    --background-custom-select-hover: rgba(var(--color-blue-rgb), .075);
+    --background-custom-select-selected: rgba(var(--color-blue-rgb), .3);
     --background-session-card: var(--color-white);
 }
 

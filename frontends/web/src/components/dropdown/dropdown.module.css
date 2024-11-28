@@ -1,0 +1,54 @@
+
+.dropdown {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-labelledby='chevron down' color='%23777'%3E%3Cdefs/%3E%3Cpolyline points='6 10 12 16 18 10'/%3E%3C/svg%3E%0A");
+    background-repeat: no-repeat;
+    font-weight: 400;
+    height: calc(var(--space-quarter) * 3);
+    padding: 0 calc(var(--space-quarter) + var(--space-eight));
+}
+
+
+.select :global(.react-select__input-container) {
+    color: var(--color-default);
+}
+
+.select :global(.react-select__placeholder) {
+    color: var(--color-default);
+}
+
+.select :global(.react-select__single-value) {
+    color: var(--color-default);
+}
+
+.select :global(.react-select__value-container) {
+    color: var(--color-default);
+}
+
+
+.select :global(.react-select__menu) {
+    background-color: var(--background-secondary);
+    z-index: 99;
+}
+
+.select :global(.react-select__option) {
+    background-color: var(--background-secondary);
+    color: var(--color-default);
+}
+
+/*Hovered option color*/
+.select :global(.react-select__option):hover {
+    background-color: var(--background-custom-select-hover);
+}
+
+/*Selected option color*/
+.select :global(.react-select__option--is-selected),
+.select :global(.react-select__option--is-selected):hover {
+    color: var(--color-default);
+    background-color: var(--background-custom-select-selected); 
+}
+
+.select :global(.react-select__control) {
+    background-color: var(--background-secondary);
+    padding: var(--space-quarter) var(--space-eight);
+}

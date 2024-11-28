@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
-import Select, { components, SingleValueProps, OptionProps, SingleValue, DropdownIndicatorProps } from 'react-select';
+import { SingleValue } from 'react-select';
 import { useDarkmode } from '@/hooks/darkmode';
+import { Dropdown } from '@/components/dropdown/dropdown';
 import { GlobeDark, GlobeLight } from '@/components/icon';
 import { i18n } from '@/i18n/i18n';
 import styles from './countryselect.module.css';
 
 export type TOption = {
-    label: string;
-    value: string;
+  label: string;
+  value: string;
 }
 
 type TProps = {
-    onChangeRegion: (newValue: SingleValue<TOption>) => void,
-    regions: TOption[]
-    selectedRegion: string;
+  onChangeRegion: (newValue: SingleValue<TOption>) => void;
+  regions: TOption[];
+  selectedRegion: string;
 }
 
 const SelectedRegionIcon = ({ regionCode }: { regionCode: string }) => {
@@ -43,37 +43,17 @@ const SelectedRegionIcon = ({ regionCode }: { regionCode: string }) => {
   );
 };
 
-const SelectSingleValue: FunctionComponent<SingleValueProps<TOption>> = (props) => {
-  const { label, value } = props.data;
+
+const Option = ({ props }: {props: TOption}) => {
+  const { label, value } = props;
   return (
-    <div className={styles.singleValueContainer}>
+    <div className={styles.optionsContainer}>
       <SelectedRegionIcon regionCode={value.toLowerCase()} />
-      <components.SingleValue {...props}>
-        <span className={styles.selectLabelText}>{label}</span>
-      </components.SingleValue>
+      <span className={styles.selectLabelText}>{label}</span>
     </div>
   );
 };
 
-const SelectOption: FunctionComponent<OptionProps<TOption>> = (props) => {
-  const { label, value } = props.data;
-  return (
-    <components.Option {...props}>
-      <div className={styles.optionsContainer}>
-        <SelectedRegionIcon regionCode={value.toLowerCase()} />
-        <span className={styles.selectLabelText}>{label}</span>
-      </div>
-    </components.Option>
-  );
-};
-
-const DropdownIndicator: FunctionComponent<DropdownIndicatorProps<TOption>> = (props) => {
-  return (
-    <components.DropdownIndicator {...props}>
-      <div className={styles.dropdown} />
-    </components.DropdownIndicator>
-  );
-};
 
 const CountrySelect = ({ onChangeRegion, regions, selectedRegion }: TProps) => {
   const { t } = useTranslation();
@@ -82,15 +62,12 @@ const CountrySelect = ({ onChangeRegion, regions, selectedRegion }: TProps) => {
     selectedRegionName = new Intl.DisplayNames([i18n.language], { type: 'region' }).of(selectedRegion) || '';
   }
   return (
-    <Select
-      className={styles.select}
-      classNamePrefix="react-select"
-      components={{ DropdownIndicator, SingleValue: SelectSingleValue, Option: SelectOption, IndicatorSeparator: () => null }}
+    <Dropdown
       defaultValue={{ label: selectedRegionName, value: selectedRegion }}
+      className={styles.select}
+      renderOptions={(o) => <Option props={o} />}
       isSearchable={true}
-      onChange={(e) =>
-        onChangeRegion(e as SingleValue<TOption>)
-      }
+      onChange={onChangeRegion}
       options={[{
         label: t('buy.exchange.selectRegion') || '',
         value: '',
