@@ -181,9 +181,53 @@ jobs:
         run: |
           make gomobileinit
           (cd $GOPATH/$GO_SRC_DIR; make ios)
+  windows:
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: bash
+    env:
+      MINGW_BIN: /C/mingw64/bin
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with: 
+          submodules: recursive
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          # Take Go version to install from go.mod
+          go-version-file: 'go.mod'
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.2'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2019_64'
+          modules: 'qtwebengine qtwebchannel qtpositioning'
+      - name: Link Visual Studio editions
+        # This is needed due to our build expecting the Community edition, but Enterprise being pre-installed
+        shell: cmd
+        run: |
+          mklink /J "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community" "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
+      - name: Build Windows app
+        run: |
+          make qt-windows
+          cd frontends/qt
+          makensis setup.nsi
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          path: frontends/qt/BitBox-installer.exe
+          name: BitBoxApp-Windows-${{ github.sha }}.exe
 
   report-artifacts:
-    needs: [android, qt-linux, macos]
+    needs: [android, qt-linux, macos, windows]
     runs-on: ubuntu-22.04
     if: ${{ !cancelled() && github.event_name == 'push' }}
     steps:
@@ -207,6 +251,7 @@ jobs:
             * Android - [APK](${{needs.android.outputs.artifact-url}})
             * Linux - [AppImage](${{needs.qt-linux.outputs.artifact-url-ai}}), [DEB](${{needs.qt-linux.outputs.artifact-url-deb}}), [RPM](${{needs.qt-linux.outputs.artifact-url-rpm}})
             * MacOS - [Zip](${{needs.macos.outputs.artifact-url}})
+            * Windows - [EXE](${{needs.windows.outputs.artifact-url}})
 
       - name: Message for failure
         uses: mattermost/action-mattermost-notify@master
