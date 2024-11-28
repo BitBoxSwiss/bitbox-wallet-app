@@ -5,3 +5,11 @@
 .select :global(.react-select__option) {
     padding: var(--space-half) var(--space-quarter);
 }
+
+
+@media (max-width: 768px) { 
+    .select {
+        margin-top: var(--space-quarter);
+        width: 100%;
+    }
+}
