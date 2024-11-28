@@ -249,7 +249,7 @@ class ManageAccounts extends Component<Props, State> {
                         asCard>
                         <div className={style.walletHeader}>
                           <h2 className={style.walletTitle}>
-                            <span className="p-right-quarter">
+                            <span className={style.keystoreName}>
                               {keystore.keystore.name}
                               { isAmbiguousName(keystore.keystore.name, accountsByKeystore) ? (
                                 // Disambiguate accounts group by adding the fingerprint.
