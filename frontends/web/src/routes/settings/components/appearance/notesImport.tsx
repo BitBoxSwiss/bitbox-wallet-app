@@ -33,7 +33,7 @@ export const NotesImport = () => {
         type="file"
         className={style.fileInput}
         ref={fileInputRef}
-        accept="text/*,.txt"
+        accept=".txt"
         onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
           setImportDisabled(e.target.files === null || e.target.files.length === 0);
           if (fileInputRef.current === null) {
