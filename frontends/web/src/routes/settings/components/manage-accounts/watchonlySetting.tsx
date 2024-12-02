@@ -21,8 +21,9 @@ import * as backendAPI from '@/api/backend';
 import * as accountAPI from '@/api/account';
 import { useLoad } from '@/hooks/api';
 import { getConfig } from '@/utils/config';
-import { Dialog, DialogButtons } from '@/components/dialog/dialog';
-import { Button, Label } from '@/components/forms';
+import { Label } from '@/components/forms';
+import { EnableRememberWalletDialog } from '@/routes/settings/components/manage-accounts/dialogs/enableRememberWalletDialog';
+import { DisableRememberWalletDialog } from '@/routes/settings/components/manage-accounts/dialogs/disableRememberWalletDialog';
 import style from './watchonlySettings.module.css';
 
 type Props = {
@@ -34,6 +35,7 @@ export const WatchonlySetting = ({ keystore }: Props) => {
   const [disabled, setDisabled] = useState<boolean>(false);
   const [watchonly, setWatchonly] = useState<boolean>();
   const [warningDialogOpen, setWarningDialogOpen] = useState(false);
+  const [walletRememberedDialogOpen, setWalletRememberedDialogOpen] = useState(false);
   const config = useLoad(getConfig);
 
   useEffect(() => {
@@ -49,6 +51,7 @@ export const WatchonlySetting = ({ keystore }: Props) => {
 
       if (success) {
         setWatchonly(!watchonly);
+        setWalletRememberedDialogOpen(true);
       }
       setDisabled(false);
       return;
@@ -74,13 +77,15 @@ export const WatchonlySetting = ({ keystore }: Props) => {
 
   return (
     <>
-      <Dialog title={t('newSettings.appearance.remebmerWallet.warningTitle')} medium onClose={handleCloseDialog} open={warningDialogOpen}>
-        <p>{t('newSettings.appearance.remebmerWallet.warning')}</p>
-        <DialogButtons>
-          <Button primary onClick={handleConfirmDisableWatchonly}>{t('dialog.confirm')}</Button>
-          <Button secondary onClick={handleCloseDialog}>{t('dialog.cancel')}</Button>
-        </DialogButtons>
-      </Dialog>
+      <DisableRememberWalletDialog
+        open={warningDialogOpen}
+        onClose={handleCloseDialog}
+        onConfirm={handleConfirmDisableWatchonly}
+      />
+      <EnableRememberWalletDialog
+        open={walletRememberedDialogOpen}
+        onClose={() => setWalletRememberedDialogOpen(false)}
+      />
       { watchonly !== undefined ? (
         <Label className={style.label}>
           <span className={style.labelText}>
