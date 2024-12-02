@@ -56,23 +56,22 @@ import PAXG_GREY from './assets/paxg-white.svg';
 import ShiftLogo from './assets/shift-cryptosecurity-logo.svg';
 import style from './logo.module.css';
 
-interface GenericProps {
-    [property: string]: any;
-}
 
-export const BitBox = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxLogo} alt="BitBox" className={style.logo} />;
-export const BitBox02 = (props: GenericProps) => <img {...props} draggable={false} src={BitBox02Logo} alt="BitBox02" className={style.logo} />;
-export const BitBox02Inverted = (props: GenericProps) => <img {...props} draggable={false} src={BitBox02InvertedLogo} alt="BitBox02" className={style.logo} />;
-export const AppLogo = (props: GenericProps) => <img {...props} draggable={false} src={AppLogoImg} alt="BitBox" className={style.logo} />;
-export const AppLogoInverted = (props: GenericProps) => <img {...props} draggable={false} src={AppLogoInvertedImg} alt="BitBox" className={style.logo} />;
-export const BitBoxSwiss = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissLogo} alt="BitBox" className={style.logo} />;
-export const BitBoxSwissInverted = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissInvertedLogo} alt="BitBox" className={style.logo} />;
-export const Shift = (props: GenericProps) => <img {...props} draggable={false} src={ShiftLogo} alt="Shift Crypto" className={style.logo} />;
-export const SwissMadeOpenSource = ({ large: boolean, className, ...props }: GenericProps) => <img {...props} draggable={false} src={SwissOpenSourceLight} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${props.large ? style.large : ''} ${className ? className : ''}`} />;
-export const SwissMadeOpenSourceDark = ({ large: boolean, className, ...props }: GenericProps) => <img {...props} draggable={false} src={SwissOpenSourceDark} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${props.large ? style.large : ''} ${className ? className : ''}`} />;
+type ImgProps = JSX.IntrinsicElements['img'];
+
+export const BitBox = (props: ImgProps) => <img {...props} draggable={false} src={BitBoxLogo} alt="BitBox" className={style.logo} />;
+export const BitBox02 = (props: ImgProps) => <img {...props} draggable={false} src={BitBox02Logo} alt="BitBox02" className={style.logo} />;
+export const BitBox02Inverted = (props: ImgProps) => <img {...props} draggable={false} src={BitBox02InvertedLogo} alt="BitBox02" className={style.logo} />;
+export const AppLogo = (props: ImgProps) => <img {...props} draggable={false} src={AppLogoImg} alt="BitBox" className={style.logo} />;
+export const AppLogoInverted = (props: ImgProps) => <img {...props} draggable={false} src={AppLogoInvertedImg} alt="BitBox" className={style.logo} />;
+export const BitBoxSwiss = (props: ImgProps) => <img {...props} draggable={false} src={BitBoxSwissLogo} alt="BitBox" className={style.logo} />;
+export const BitBoxSwissInverted = (props: ImgProps) => <img {...props} draggable={false} src={BitBoxSwissInvertedLogo} alt="BitBox" className={style.logo} />;
+export const Shift = (props: ImgProps) => <img {...props} draggable={false} src={ShiftLogo} alt="Shift Crypto" className={style.logo} />;
+export const SwissMadeOpenSource = ({ className, ...props }: ImgProps) => <img {...props} draggable={false} src={SwissOpenSourceLight} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${className ? className : ''}`} />;
+export const SwissMadeOpenSourceDark = ({ className, ...props }: ImgProps) => <img {...props} draggable={false} src={SwissOpenSourceDark} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${className ? className : ''}`} />;
 
 type LogoMap = {
-    [key in CoinCode]: string[];
+  [key in CoinCode]: string[];
 }
 
 const logoMap: LogoMap = {
@@ -96,12 +95,12 @@ const logoMap: LogoMap = {
   'eth-erc20-paxg': [PAXG, PAXG_GREY],
 };
 
-interface Props {
-    active?: boolean;
-    alt?: string;
-    className?: string;
-    coinCode: CoinCode;
-    stacked?: boolean;
+type LogoProps = {
+  active?: boolean;
+  alt?: string;
+  className?: string;
+  coinCode: CoinCode;
+  stacked?: boolean;
 }
 
 export const Logo = ({
@@ -109,7 +108,7 @@ export const Logo = ({
   active,
   stacked,
   ...rest
-}: Props) => {
+}: LogoProps) => {
   if (!logoMap[coinCode]) {
     console.error('logo undefined for ', coinCode);
     return null;

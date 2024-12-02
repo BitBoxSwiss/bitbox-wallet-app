@@ -26,22 +26,21 @@ import { customFeeUnit, getCoinCode, isEthereumBased } from '@/routes/account/ut
 import style from './feetargets.module.css';
 
 type Props = {
-    accountCode: accountApi.AccountCode;
-    coinCode: accountApi.CoinCode;
-    disabled: boolean;
-    fiatUnit: accountApi.ConversionUnit;
-    proposedFee?: accountApi.IAmount;
-    customFee: string;
-    showCalculatingFeeLabel?: boolean;
-    onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
-    onCustomFee: (customFee: string) => void;
-    error?: string;
+  accountCode: accountApi.AccountCode;
+  coinCode: accountApi.CoinCode;
+  disabled: boolean;
+  fiatUnit: accountApi.ConversionUnit;
+  proposedFee?: accountApi.IAmount;
+  customFee: string;
+  showCalculatingFeeLabel?: boolean;
+  onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
+  onCustomFee: (customFee: string) => void;
+  error?: string;
 }
 
-
 type TOptions = {
-    value: accountApi.FeeTargetCode;
-    text: string;
+  value: accountApi.FeeTargetCode;
+  text: string;
 }
 
 export const FeeTargets = ({
@@ -113,7 +112,8 @@ export const FeeTargets = ({
       return '';
     }
     const { amount, unit, conversions } = proposedFee;
-    return `${amount} ${unit} ${conversions ? ` = ${conversions[fiatUnit]} ${fiatUnit}` : ''}`;
+    const conversion = (conversions && conversions[fiatUnit]) ? ` = ${conversions[fiatUnit]} ${fiatUnit}` : '';
+    return `${amount} ${unit} ${conversion}`;
   };
 
   if (options === null) {

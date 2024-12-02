@@ -38,7 +38,7 @@ export const LanguageDropdownSetting = () => {
       settingName={<div className={styles.container}>{globe}{t('newSettings.appearance.language.title')}</div>}
       secondaryText={t('newSettings.appearance.language.description')}
       collapseOnSmall
-      title={`Detected native locale: ${nativeLocale}`}
+      title={nativeLocale && `Detected native locale: ${nativeLocale}`}
       extraComponent={
         <Dropdown
           className={settingsDropdownStyles.select}

@@ -54,14 +54,16 @@ export const BuyReceiveCTA = ({
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const onExchangeCTA = () => navigate(code ? `/exchange/info/${code}` : '/exchange/info');
-  const onWalletConnect = () => navigate(`/account/${code}/wallet-connect/dashboard`);
+  const onWalletConnect = () => code && navigate(`/account/${code}/wallet-connect/dashboard`);
   const onReceiveCTA = () => {
     if (balanceList) {
       if (balanceList.length > 1) {
         navigate('/accounts/select-receive');
         return;
       }
-      navigate(`/account/${code}/receive`);
+      if (code) {
+        navigate(`/account/${code}/receive`);
+      }
     }
   };
 
