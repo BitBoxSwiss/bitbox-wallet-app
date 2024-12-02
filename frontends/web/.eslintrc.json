@@ -59,6 +59,7 @@
       "files": ["**/*.ts?(x)"],
       "rules": {
         "@typescript-eslint/restrict-template-expressions": ["error", {
+          "allowNumber": true,
           "allowAny": false,
           "allowBoolean": false,
           "allowNullish": false
