@@ -1348,6 +1348,10 @@
         "title": "Language"
       },
       "remebmerWallet": {
+        "enable": {
+          "description": "You can now view the accounts associated with this wallet without inserting your BitBox device. However, the BitBox is still required for making transactions and displaying receive addresses.",
+          "title": "Wallet remembered"
+        },
         "name": "Remember wallet",
         "warning": "This will remove your remembered wallet. To see it again, you will need to plug in the BitBox02 for this wallet. Any coins on this wallet are not affected. Do you want to continue?",
         "warningTitle": "Disable remember wallet"
