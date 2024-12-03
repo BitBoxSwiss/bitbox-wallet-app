@@ -13,17 +13,25 @@
 }
 
 .walletHeader {
-    align-items: end;
+    align-items: flex-start;
     display: flex;
-    flex-wrap: wrap;
     justify-content: space-between;
     margin-bottom: var(--space-eight);
 }
 
 .walletTitle {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
     font-size: 20px;
     font-weight: 400;
     margin: 0 0 var(--space-quarter) 0;
+    width: 50%;
+}
+
+.keystoreName {
+    margin-bottom: var(--space-eight);
+    margin-right: var(--space-quarter);
 }
 
 .walletTitle small {
