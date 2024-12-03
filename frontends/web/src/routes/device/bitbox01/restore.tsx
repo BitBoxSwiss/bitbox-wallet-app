@@ -98,9 +98,11 @@ class Restore extends Component<Props, State> {
           route('/', true);
         }
       } else {
-        alertUser(this.props.t(`backup.restore.error.e${code}`, {
-          defaultValue: errorMessage,
-        }));
+        if (typeof code === 'string') {
+          alertUser(this.props.t(`backup.restore.error.e${code}`, {
+            defaultValue: errorMessage,
+          }));
+        }
       }
     });
   };

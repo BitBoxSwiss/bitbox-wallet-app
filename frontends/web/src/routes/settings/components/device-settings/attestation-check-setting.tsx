@@ -44,7 +44,7 @@ const AttestationCheckSetting = ({ deviceID }: TProps) => {
       settingName={t('deviceSettings.hardware.attestation.label')}
       secondaryText={t('deviceSettings.deviceInformation.attestation.description')}
       extraComponent={icon}
-      displayedValue={t(`deviceSettings.hardware.attestation.${attestation}`)}
+      displayedValue={t(`deviceSettings.hardware.attestation.${attestation ? 'true' : 'false'}`)}
       hideDisplayedValueOnSmall
     />
   );

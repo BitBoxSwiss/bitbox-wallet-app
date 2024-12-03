@@ -250,7 +250,7 @@ class SeedCreateNew extends Component {
               }
               {content}
               <div className="text-center m-top-large">
-                {getDarkmode() ? <SwissMadeOpenSourceDark large /> : <SwissMadeOpenSource large />}
+                {getDarkmode() ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
               </div>
             </div>
           </div>

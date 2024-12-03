@@ -29,20 +29,20 @@ import { apiPost } from '../../../../../utils/request';
 import { A } from '../../../../../components/anchor/anchor';
 import style from '../../bitbox01.module.css';
 
-interface PairingProps {
-    deviceID: string;
-    deviceLocked: boolean;
-    paired: boolean;
-    hasMobileChannel: boolean;
-    onPairingEnabled: () => void;
+type PairingProps = {
+  deviceID: string;
+  deviceLocked: boolean;
+  paired: boolean;
+  hasMobileChannel: boolean;
+  onPairingEnabled: () => void;
 }
 
 type Props = PairingProps & TranslateProps;
 
-interface State {
-    channel: string | null;
-    status: string | boolean;
-    showQRCode: boolean;
+type State = {
+  channel: string | null;
+  status: string | false;
+  showQRCode: boolean;
 }
 
 class MobilePairing extends Component<Props, State> {
@@ -206,14 +206,14 @@ class MobilePairing extends Component<Props, State> {
       );
     } else if (status === 'connectOnly') {
       content = (<QRCode tapToCopy={false} data={JSON.stringify({ channel, connectOnly: true })} />);
-    } else {
+    } else if (status) {
       content = (<p className="m-top-none">{t(`pairing.${status}.text`)}</p>);
     }
     return (
       <div>
         <SettingsButton
           onClick={hasMobileChannel && !paired ? this.reconnectUnpaired : this.startPairing}
-          optionalText={t(`deviceSettings.pairing.status.${paired}`)}>
+          optionalText={t(`deviceSettings.pairing.status.${paired ? 'true' : 'false' }`)}>
           { deviceLocked ? (
             hasMobileChannel ? t('pairing.reconnectOnly.button') : t('pairing.connectOnly.button')
           ) : (
