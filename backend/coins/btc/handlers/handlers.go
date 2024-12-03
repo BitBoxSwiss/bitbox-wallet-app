@@ -209,10 +209,10 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 		Time:         formattedTime,
 		Addresses:    addresses,
 		Note:         handlers.account.TxNote(txInfo.InternalID),
+		Fee:          feeString,
 	}
 
 	if detail {
-		txInfoJSON.Fee = feeString
 		switch handlers.account.Coin().(type) {
 		case *btc.Coin:
 			txInfoJSON.VSize = txInfo.VSize

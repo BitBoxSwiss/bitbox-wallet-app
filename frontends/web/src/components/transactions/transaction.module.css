@@ -51,6 +51,7 @@
   flex-direction: column;
   flex-grow: 1;
   flex-shrink: 1;
+  overflow: hidden;
 }
 
 .txAmountsColumn {
@@ -108,11 +109,22 @@
   font-size: 12px;
 }
 
+.txSmallInlineIcon img {
+  max-height: 15px;
+  max-width: 15px;
+  vertical-align: text-bottom;
+}
+.txConversionAmount .txSmallInlineIcon {
+  padding-right: var(--space-eight);
+}
+
 .txNote {
+  color: var(--color-secondary);
   display: block;
   padding: 3px 0;
 }
 .txNoteText {
+  color: var(--color-default);
   font-size: 16px;
   line-height: 1.25;
 }
@@ -120,13 +132,6 @@
   .txNote {
     padding: 3px 0 4px 0;
   }
-}
-
-.txInfoColumn,
-.txNote {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .txDate,
@@ -149,8 +154,6 @@
 .txProgressTextShort {
   flex-grow: 0;
   flex-shrink: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
   padding-right: var(--space-eight);
 }
 .txProgressTextShort {
@@ -171,6 +174,13 @@
   vertical-align: text-bottom;
 }
 
+.txNoteWithAddress {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .addresses {
   color: var(--color-secondary);
   font-size: 14px;
@@ -178,6 +188,7 @@
   line-height: 1.285714;
 }
 .txType {
+  color: var(--color-default);
   font-size: 16px;
   line-height: 1.25;
 }
@@ -205,6 +216,8 @@
   cursor: pointer;
   display: block;
   flex-basis: 61px;
+  flex-grow: 0;
+  flex-shrink: 0;
   font-size: inherit;
   line-height: inherit;
   margin: 0 var(--space-quarter) 0 0;

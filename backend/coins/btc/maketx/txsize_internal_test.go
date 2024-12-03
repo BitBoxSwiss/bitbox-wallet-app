@@ -141,14 +141,11 @@ func TestEstimateTxSize(t *testing.T) {
 	}
 
 	for _, useSegwit := range []bool{false, true} {
-		useSegwit := useSegwit
 		for _, outputScriptType := range scriptTypes {
-			outputScriptType := outputScriptType
 			t.Run(fmt.Sprintf("output=%s,noChange,segwit=%v", outputScriptType, useSegwit), func(t *testing.T) {
 				testEstimateTxSize(t, useSegwit, outputScriptType, "")
 			})
 			for _, changeScriptType := range scriptTypes {
-				changeScriptType := changeScriptType
 				t.Run(fmt.Sprintf("output=%s,change=%s,segwit=%v", outputScriptType, changeScriptType, useSegwit), func(t *testing.T) {
 					testEstimateTxSize(t, useSegwit, outputScriptType, changeScriptType)
 				})

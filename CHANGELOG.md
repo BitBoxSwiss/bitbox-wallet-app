@@ -1,11 +1,23 @@
 # Changelog
 
 ## Unreleased
+- Fix long transaction notes to show fully on multiple lines when necessary
+- Improve send-to-self transactions in account overview
+- Use native scrollbars on macOS, iOS and Android
+
+# 4.46.3
+- Fix camera access on linux
+
+# 4.46.2
+- Fix Linux blank screen issue related to the local mimetype database
+
+# 4.46.1
+- Fix Android app crash on old Android versions
 
 # 4.46.0
 - Android: enable export logs feature
-- Label UTXOs that were created as change, as such, in coin control
-- Remove support for deprecated the Ethereum Goerli network
+- Label change UTXOs as "change" in coin control
+- Remove support for the deprecated Ethereum Goerli network
 - Revamp transaction history in account overview to improve legibility
 - Fix qrscanner when rotating the device or resizing the window
 - macOS: create a universal build that runs natively on arm64 and amd64
@@ -13,6 +25,9 @@
 - Add BTC Direct private trading desk information
 - Android: fix stuck back button after closing a dialog
 - Fix authentication view glitch at startup
+- Remove "No priority" from fee options
+- Display skeleton screens (placeholder) in the account page during data loading to enhance UX
+- Fix Moonpay widget loading issues
 
 # 4.45.0
 - Bundle BitBox02 firmware version v9.21.0

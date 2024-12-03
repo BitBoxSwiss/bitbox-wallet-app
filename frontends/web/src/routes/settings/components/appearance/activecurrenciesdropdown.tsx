@@ -1,16 +1,33 @@
+/**
+ * Copyright 2023-2024 Shift Crypto AG
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { useContext, useEffect, useState } from 'react';
-import Select, { ActionMeta, DropdownIndicatorProps, OptionProps, components } from 'react-select';
+import { ActionMeta } from 'react-select';
 import { Fiat } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
 import { SelectedCheckLight } from '@/components/icon';
-import dropdownStyles from './dropdowns.module.css';
-import activeCurrenciesDropdownStyle from './activecurrenciesdropdown.module.css';
+import { Dropdown } from '@/components/dropdown/dropdown';
 import { useTranslation } from 'react-i18next';
+import activeCurrenciesDropdownStyle from './activecurrenciesdropdown.module.css';
+import settingsDropdownStyles from './settingsdropdown.module.css';
 
 type SelectOption = {
-    label: String;
+    label: string;
     value: Fiat;
-  }
+}
 
 type TSelectProps = {
   options: SelectOption[];
@@ -18,14 +35,12 @@ type TSelectProps = {
   activeCurrencies: Fiat[];
 };
 
-// a multi-select dropdown
 export const ActiveCurrenciesDropdown = ({
   options,
   defaultCurrency,
   activeCurrencies
 }: TSelectProps) => {
   const [formattedActiveCurrencies, setFormattedActiveCurrencies] = useState<SelectOption[]>([]);
-  const [search, setSearch] = useState('');
   const { t } = useTranslation();
 
   const { removeFromActiveCurrencies, addToActiveCurrencies } = useContext(RatesContext);
@@ -37,43 +52,28 @@ export const ActiveCurrenciesDropdown = ({
     }
   }, [activeCurrencies]);
 
-  const DropdownIndicator = (props: DropdownIndicatorProps<SelectOption, true>) => {
-    return (
-      <components.DropdownIndicator {...props}>
-        <div className={dropdownStyles.dropdown} />
-      </components.DropdownIndicator>
-    );
-  };
-
-  const Option = (props: OptionProps<SelectOption, true>) => {
-    const { label, value } = props.data;
+  const Options = ({ props }: { props: SelectOption }) => {
+    const { label, value } = props;
     const selected = formattedActiveCurrencies.findIndex(currency => currency.value === value) >= 0;
     const isDefaultCurrency = defaultCurrency === value;
     return (
-      <components.Option {...props} className={`${isDefaultCurrency ? activeCurrenciesDropdownStyle.defaultCurrency : ''}`}>
+      <div
+        className={`${activeCurrenciesDropdownStyle.optionContainer} 
+        ${isDefaultCurrency ? activeCurrenciesDropdownStyle.defaultCurrency : ''}`}
+      >
         <span>{label}</span>
         {isDefaultCurrency ? <p className={activeCurrenciesDropdownStyle.defaultLabel}>{t('fiat.default')}</p> : null}
         {selected && !isDefaultCurrency ? <SelectedCheckLight /> : null}
-      </components.Option>
+      </div>
     );
   };
+
   return (
-    <Select
-      className={`
-         ${dropdownStyles.select}
-         ${activeCurrenciesDropdownStyle.select}
-         ${search.length > 0 ? activeCurrenciesDropdownStyle.hideMultiSelect : ''}
-         ${formattedActiveCurrencies.length > 1 ? activeCurrenciesDropdownStyle.showComma : ''}
-         `}
-      classNamePrefix="react-select"
-      isSearchable
-      isClearable={false}
-      components={{ DropdownIndicator, IndicatorSeparator: () => null, MultiValueRemove: () => null, Option }}
+    <Dropdown
       isMulti
       closeMenuOnSelect={false}
-      hideSelectedOptions={false}
-      value={[...formattedActiveCurrencies].reverse()}
-      onInputChange={(newValue) => setSearch(newValue)}
+      options={options}
+      value={formattedActiveCurrencies}
       onChange={async (_, meta: ActionMeta<SelectOption>) => {
         switch (meta.action) {
         case 'select-option':
@@ -87,6 +87,10 @@ export const ActiveCurrenciesDropdown = ({
           }
         }
       }}
-      options={options}
-    />);
+      isSearchable
+      className={settingsDropdownStyles.select}
+      renderOptions={(o) => <Options props={o} />}
+      classNamePrefix="react-select"
+    />
+  );
 };

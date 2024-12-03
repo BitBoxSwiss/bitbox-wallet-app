@@ -441,10 +441,13 @@ class Send extends Component<Props, State> {
                 <Balance balance={balance} noRotateFiat/>
                 <div className={`flex flex-row flex-between ${style.container}`}>
                   <label className="labelXLarge">{t('send.transactionDetails')}</label>
-                  <CoinControl
-                    account={account}
-                    onSelectedUTXOsChange={this.onSelectedUTXOsChange}
-                  />
+                  <div className={style.coinControlButtonContainer}>
+                    <CoinControl
+                      account={account}
+                      onSelectedUTXOsChange={this.onSelectedUTXOsChange}
+                    />
+                  </div>
+
                 </div>
                 <Grid col="1">
                   <Column>

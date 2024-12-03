@@ -201,12 +201,10 @@ func TestTxQuick(t *testing.T) {
 		) bool {
 			txInRefs := make([]*wire.TxIn, len(txIns))
 			for k, v := range txIns {
-				v := v
 				txInRefs[k] = &v
 			}
 			txOutRefs := make([]*wire.TxOut, len(txOuts))
 			for k, v := range txOuts {
-				v := v
 				txOutRefs[k] = &v
 			}
 			expectedTx := &wire.MsgTx{
@@ -248,7 +246,6 @@ func TestTxQuick(t *testing.T) {
 		require.NoError(t, quick.Check(f, nil))
 
 		for txHash := range allUnverifiedTxHashes {
-			txHash := txHash
 			t.Run("", func(t *testing.T) {
 				expectedHeaderTimestamp := time.Unix(time.Now().Unix(), 123)
 				require.NoError(t, tx.MarkTxVerified(txHash, expectedHeaderTimestamp))
@@ -348,7 +345,6 @@ func TestInputQuick(t *testing.T) {
 		require.NoError(t, quick.Check(f, nil))
 
 		for _, outPoint := range allOutpoints {
-			outPoint := outPoint
 			t.Run("", func(t *testing.T) {
 				tx.DeleteInput(outPoint)
 				txHash, err := tx.Input(outPoint)
@@ -447,7 +443,6 @@ func TestOutputsQuick(t *testing.T) {
 
 		// Test deletion
 		for outPoint := range allOutputs {
-			outPoint := outPoint
 			t.Run("", func(t *testing.T) {
 				delete(allOutputs, outPoint)
 				tx.DeleteOutput(outPoint)

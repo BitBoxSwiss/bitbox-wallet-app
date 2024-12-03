@@ -1,0 +1,15 @@
+
+.valueContainer {
+    align-items: center;
+    color: var(--color-default);
+    display: flex;
+}
+
+.valueContainer > img {
+    width: 20px;
+    height: 20px;
+}
+
+.coinName {
+    margin-left: 6px;
+}
