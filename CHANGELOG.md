@@ -4,6 +4,7 @@
 - Fix long transaction notes to show fully on multiple lines when necessary
 - Improve send-to-self transactions in account overview
 - Use native scrollbars on macOS, iOS and Android
+- Fix address signing fail on screen rotation for Pocket and Bitsurance
 
 # 4.46.3
 - Fix camera access on linux
