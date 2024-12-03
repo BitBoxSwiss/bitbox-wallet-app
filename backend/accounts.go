@@ -1192,7 +1192,6 @@ func (backend *Backend) initPersistedAccounts() {
 	// will not be loaded, unless they have been marked as watch-only.
 outer:
 	for _, account := range backend.filterAccounts(&persistedAccounts, keystoreConnectedOrWatch) {
-		account := account
 		coin, err := backend.Coin(account.CoinCode)
 		if err != nil {
 			backend.log.Errorf("skipping persisted account %s/%s, could not find coin",
@@ -1379,7 +1378,6 @@ func (backend *Backend) ReinitializeAccounts() {
 func (backend *Backend) uninitAccounts(force bool) {
 	keep := []accounts.Interface{}
 	for _, account := range backend.accounts {
-		account := account
 
 		belongsToKeystore := false
 		if backend.keystore != nil {

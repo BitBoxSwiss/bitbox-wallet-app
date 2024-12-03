@@ -152,7 +152,6 @@ func NewElectrumConnection(serverInfos []*config.ServerInfo, log *logrus.Entry, 
 	retryTimeout := 30 * time.Second
 
 	for _, serverInfo := range serverInfos {
-		serverInfo := serverInfo
 		servers = append(servers, &failover.Server[*client]{
 			Name: serverInfo.Server,
 			Connect: func() (*client, error) {

@@ -31,7 +31,7 @@
 }
 
 .radio input + label::before {
-    border: 1px solid rgb(220, 220, 220);
+    border: 1px solid var(--background-tertiary);
     border-radius: 1em;
 }
 

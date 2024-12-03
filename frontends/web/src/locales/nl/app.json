@@ -402,6 +402,55 @@
       "fast": "Snel",
       "fee": "transactiekosten",
       "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "BTC Direct privacybeleid",
+              "text": "De BitBoxApp verzamelt geen persoonlijke gegevens. BTC Direct verzamelt de benodigde informatie volgens hun Privacybeleid om te voldoen aan de wettelijke normen.",
+              "title": "Gegevensbescherming"
+            },
+            "kyc": {
+              "text": "Verificatie van de identiteit van de klant is vereist voor alle transacties. Je accountmanager zal je door het proces begeleiden en al je vragen beantwoorden.",
+              "title": "Identiteitsverificatie"
+            },
+            "partnership": {
+              "text": "In samenwerking met BTC Direct, een vertrouwde Europese broker, biedt BitBox grootschalige over-the-counter (OTC) handel voor Bitcoin, Ethereum, stablecoins en meer met deskundige ondersteuning direct in de BitBoxApp.",
+              "title": "Koop en verkoop met de BTC Direct Private Trading Desk"
+            },
+            "paymentMethods": {
+              "buy": "Bitcoin kopen:",
+              "buy2": "Plaats grote kooporders bij je accountmanager, zet een prijs vast en betaal via bankoverschrijving. Je crypto wordt na betaling direct geleverd aan je BitBox.",
+              "fee": "Minimum handelsbedragen van €50.000 zijn van toepassing, met een transparante vergoeding tussen 0,5% en 1%.",
+              "sell": "Bitcoin verkopen:",
+              "sell2": "Zet een OTC-prijs vast wanneer je een verkooporder plaatst. De betaling van EUR vindt plaats zodra je je crypto hebt verstuurd naar BTC Direct. Persoonlijke assistentie is beschikbaar indien nodig.",
+              "title": "Betaalmethoden en kosten"
+            },
+            "personal": {
+              "text": "Elke Private Trading klant krijgt een toegewijde accountmanager toegewezen voor persoonlijke hulp via telefoon, videogesprek, e-mail of chat. Koop- en verkoopprijzen worden onmiddellijk vastgesteld wanneer de order wordt geplaatst, zelfs als de afwikkeling later plaatsvindt. Orders worden uitgevoerd via de OTC-desk van BTC Direct, waardoor slippage wordt geminimaliseerd.",
+              "title": "Persoonlijke service met vaste prijzen"
+            },
+            "security": {
+              "link": "BitBox02 bedreigingsmodel",
+              "text": "De Private Trading Desk van BTC Direct is een externe dienst die niet valt onder het BitBox02 Security Threat model. BTC Direct is echter goed bekend met BitBox-producten en biedt veilige, deskundige begeleiding. BitBox-producten verifiëren cryptoadressen tijdens transacties om een veilige levering te garanderen.",
+              "title": "Beveiliging"
+            },
+            "title": "Disclaimer"
+          },
+          "info": "Krijg een persoonlijke adviseur, lagere kosten en plaats orders direct via je contactpersoon bij BTC Direct.",
+          "infobox": {
+            "intro_btconly": "Krijg persoonlijke hulp bij over-the-counter (OTC) Bitcoin-transacties van grote waarde.",
+            "intro_multi": "Krijg persoonlijke hulp bij over-the-counter (OTC) transacties van grote waarde voor Bitcoin, Ethereum, stablecoins en meer.",
+            "kyc": "BTC Direct vereist identiteitsverificatie voor alle transacties, waarbij je accountmanager je bij elke stap begeleidt.",
+            "learnmore": "Meer informatie over de BTC Direct Private Trading Desk.",
+            "listItem1": "Koop en verkoop op elk moment door contact op te nemen met je accountmanager via telefoon, e-mail, videogesprek of chat.",
+            "listItem2": "Betalingen worden voltooid via bankoverschrijving nadat de order is geplaatst.",
+            "listItem3": "Minimum orderbedrag: €50,000.",
+            "listItem4": "Transparante kosten vastgesteld op 0,5%-1%, inclusief persoonlijke begeleiding.",
+            "manager": "Een toegewijde accountmanager begeleidt je bij elke stap en zorgt voor een veilige, ongecompliceerde ervaring met vaste tarieven en minimale slippage."
+          },
+          "link": "Toegang BTC Direct - Private Trading Desk",
+          "title": "Koop of verkoop je meer dan € 50.000?"
+        },
         "moonpay": {
           "fees": {
             "bankTransfer": "Bankoverschrijving: {{fee}}%",
@@ -1758,10 +1807,6 @@
       "complete": "Afgerond",
       "failed": "Niet gelukt",
       "pending": "In afwachting"
-    },
-    "tx": {
-      "received": "Ontvangen naar",
-      "sent": "Verzonden naar"
     },
     "vsize": "Virtuele grootte",
     "weight": "Gewicht"

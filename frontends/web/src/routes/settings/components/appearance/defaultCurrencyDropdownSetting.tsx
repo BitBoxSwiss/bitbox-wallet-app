@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,9 @@ import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLocalizedFormattedCurrencies } from '@/hooks/localized';
-import { SingleDropdown } from '@/routes/settings/components/dropdowns/singledropdown';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { Fiat } from '@/api/account';
-
+import { Dropdown } from '@/components/dropdown/dropdown';
+import settingsDropdownStyles from './settingsdropdown.module.css';
 
 export const DefaultCurrencyDropdownSetting = () => {
   const { t, i18n } = useTranslation();
@@ -37,9 +36,13 @@ export const DefaultCurrencyDropdownSetting = () => {
       secondaryText={t('newSettings.appearance.defaultCurrency.description')}
       collapseOnSmall
       extraComponent={
-        <SingleDropdown
+        <Dropdown
+          className={settingsDropdownStyles.select}
+          renderOptions={(o) => (o.label)}
+          isMulti={false}
           options={formattedCurrencies}
-          handleChange={async (fiat: Fiat) => {
+          onChange={async (selected) => {
+            const fiat = selected.value;
             updateDefaultCurrency(fiat);
             if (!activeCurrencies.includes(fiat)) {
               await addToActiveCurrencies(fiat);

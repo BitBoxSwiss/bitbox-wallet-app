@@ -402,6 +402,55 @@
       "fast": "Rápido",
       "fee": "taxa",
       "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "Política de privacidade da BTC Direct",
+              "text": "O BitBoxApp não coleta dados pessoais. A BTC Direct coleta as informações necessárias conforme sua Política de Privacidade para atender aos padrões regulatórios.",
+              "title": "Proteção de Dados"
+            },
+            "kyc": {
+              "text": "A verificação da identidade do cliente é necessária para todas as negociações. Seu gerente de conta o guiará pelo processo e responderá a quaisquer perguntas que você possa ter.",
+              "title": "Verificação de Identidade"
+            },
+            "partnership": {
+              "text": "Em parceria com a BTC Direct, uma corretora europeia confiável, a BitBox oferece negociações de balcão (OTC) em larga escala para Bitcoin, Ethereum, stablecoins e mais, com suporte especializado diretamente no BitBoxApp.",
+              "title": "Compre e venda com o Private Trading Desk da BTC Direct"
+            },
+            "paymentMethods": {
+              "buy": "Comprando bitcoin:",
+              "buy2": "Faça grandes ordens de compra com seu gerente de conta, fixe um preço e pague via transferência bancária. Sua cripto é entregue diretamente em sua BitBox após o pagamento.",
+              "fee": "Valores mínimos de negociação de €50.000 são aplicáveis, com uma taxa transparente entre 0,5% e 1%.",
+              "sell": "Vender bitcoin:",
+              "sell2": "Fixe um preço OTC ao colocar uma ordem de venda. O pagamento em EUR é feito assim que você enviar as criptomoedas para a BTC Direct. Assistência pessoal está disponível se necessário.",
+              "title": "Métodos de pagamento e taxas"
+            },
+            "personal": {
+              "text": "Cada cliente do Private Trading recebe um gerente de conta dedicado para assistência personalizada por telefone, videochamada, e-mail ou chat. Os preços de compra e venda são imediatamente fixados quando a ordem é colocada, mesmo que a liquidação ocorra mais tarde. As ordens são executadas por meio do balcão OTC da BTC Direct, minimizando o slippage.",
+              "title": "Atendimento personalizado com preço fixo"
+            },
+            "security": {
+              "link": "Modelo de ameaça à segurança da BitBox02",
+              "text": "O Private Trading Desk da BTC Direct é um serviço externo não coberto pelo modelo de ameaças à segurança da BitBox02. No entanto, a BTC Direct está bem familiarizada com os produtos BitBox e oferece orientação segura e informada. Os produtos BitBox verificam endereços de criptomoedas durante as transações para garantir uma entrega segura.",
+              "title": "Segurança"
+            },
+            "title": "Aviso Legal"
+          },
+          "info": "Obtenha um consultor pessoal, taxas reduzidas e faça ordens diretamente por meio do seu contato na BTC Direct.",
+          "infobox": {
+            "intro_btconly": "Obtenha assistência pessoal para negociações de Bitcoin de alto valor no mercado de balcão (OTC).",
+            "intro_multi": "Obtenha assistência pessoal para negociações de alto valor no mercado de balcão (OTC) para Bitcoin, Ethereum, stablecoins e mais.",
+            "kyc": "A BTC Direct exige verificação de identidade para todas as negociações, com seu gerente de conta orientando você em cada etapa.",
+            "learnmore": "Saiba mais sobre o Private Trading Desk da BTC Direct.",
+            "listItem1": "Compre e venda a qualquer momento entrando em contato com seu gerente de conta por telefone, e-mail, videochamada ou chat.",
+            "listItem2": "Os pagamentos são concluídos via transferência bancária após o pedido ser feito.",
+            "listItem3": "Valor mínimo do pedido: €50.000.",
+            "listItem4": "Taxas transparentes fixadas em 0,5%-1%, incluindo orientação pessoal.",
+            "manager": "Você terá um gerente de conta dedicado orientando você em cada etapa, garantindo uma experiência segura e direta com taxas fixas e slippage mínimo."
+          },
+          "link": "Acesse BTC Direct - Private Trading Desk",
+          "title": "Comprando ou vendendo mais de €50.000?"
+        },
         "moonpay": {
           "fees": {
             "bankTransfer": "Transferência bancária: {{fee}}%",
@@ -1550,6 +1599,7 @@
     "coincontrol": {
       "address": "Endereço",
       "addressReused": "Endereço reutilizado",
+      "change": "Mudar",
       "outpoint": "Outpoint",
       "title": "Enviar da saída"
     },
@@ -1757,11 +1807,26 @@
     "status": {
       "complete": "Completa",
       "failed": "Falhou",
-      "pending": "Pendente"
+      "pending": "Pendente",
+      "pending_receive": "Transação de entrada",
+      "pending_send": "Transação de saída",
+      "pending_send_to_self": "Transação pendente"
+    },
+    "statusShort": {
+      "complete": "Completa",
+      "failed": "Falhou",
+      "pending": "Pendente",
+      "pending_receive": "Recebimento",
+      "pending_send": "Envio",
+      "pending_send_to_self": "Pendente"
     },
     "tx": {
-      "received": "Recebido para",
-      "sent": "Enviado para"
+      "receive_complete": "Recebido para",
+      "receive_failed": "Falha ao receber para",
+      "receive_pending": "Recebido para",
+      "send_complete": "Enviado para",
+      "send_failed": "Falha ao enviar para",
+      "send_pending": "Enviado para"
     },
     "vsize": "Tamanho virtual",
     "weight": "Peso"
@@ -1839,7 +1904,8 @@
     "coincontrol": "Um ou mais UTXOs possuem um endereço reutilizado. Esteja ciente de que o receptor verá todos os UTXOs associados a esses endereços.",
     "receivePairing": "Por favor, emparelhe a BitBox para ativar a verificação segura de endereço. Vá para 'Gerenciar dispositivo' na barra lateral.",
     "sdcard": "Mantenha o cartão microSD guardado separado da BitBox, a menos que você queira gerenciar os backups.",
-    "sendPairing": "Por favor, emparelhe a BitBox para verificar com segurança os detalhes da transação. Vá para \"Gerenciar dispositivo\" na barra lateral."
+    "sendPairing": "Por favor, emparelhe a BitBox para verificar com segurança os detalhes da transação. Vá para \"Gerenciar dispositivo\" na barra lateral.",
+    "testnet": "Aviso: Você está usando a carteira no modo Testnet. Transações e saldos aqui não são reais e não aparecerão na mainnet. A Testnet é destinada apenas para fins de teste e desenvolvimento."
   },
   "welcome": {
     "connect": "Conecte a BitBox02",

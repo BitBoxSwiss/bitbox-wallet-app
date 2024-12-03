@@ -63,7 +63,6 @@ func TestFeeTargets(t *testing.T) {
 
 	// non-empty slice, with all nil feeRates
 	feeTargets = FeeTargets{
-		{blocks: 12, code: accounts.FeeTargetCodeMempoolEconomy},
 		{blocks: 3, code: accounts.FeeTargetCodeMempoolHour},
 		{blocks: 2, code: accounts.FeeTargetCodeMempoolHalfHour},
 		{blocks: 1, code: accounts.FeeTargetCodeMempoolFastest},
@@ -72,7 +71,6 @@ func TestFeeTargets(t *testing.T) {
 
 	// non-empty slice, with all nil feeRates
 	feeTargets = FeeTargets{
-		{blocks: 12, code: accounts.FeeTargetCodeMempoolEconomy},
 		{blocks: 3, code: accounts.FeeTargetCodeMempoolHour},
 		{blocks: 2, code: accounts.FeeTargetCodeMempoolHalfHour},
 		{blocks: 1, code: accounts.FeeTargetCodeMempoolFastest},
@@ -81,22 +79,20 @@ func TestFeeTargets(t *testing.T) {
 
 	// non-empty slice, with some nil feeRates
 	feeTargetsSlice := []*FeeTarget{
-		{blocks: 12, code: accounts.FeeTargetCodeMempoolEconomy},
 		{blocks: 3, code: accounts.FeeTargetCodeMempoolHour, feeRatePerKb: amt(12)},
 		{blocks: 2, code: accounts.FeeTargetCodeMempoolHalfHour},
 		{blocks: 1, code: accounts.FeeTargetCodeMempoolFastest, feeRatePerKb: amt(123)},
 	}
 	feeTargets = feeTargetsSlice
-	require.Equal(t, feeTargetsSlice[3], feeTargets.highest())
+	require.Equal(t, feeTargetsSlice[2], feeTargets.highest())
 
 	// non-empty slice, with unsorted not-nil feeRates
 	feeTargetsSlice = []*FeeTarget{
 		{blocks: 3, code: accounts.FeeTargetCodeMempoolHour, feeRatePerKb: amt(12)},
-		{blocks: 12, code: accounts.FeeTargetCodeMempoolEconomy, feeRatePerKb: amt(1)},
 		{blocks: 1, code: accounts.FeeTargetCodeMempoolFastest, feeRatePerKb: amt(1234)},
 		{blocks: 2, code: accounts.FeeTargetCodeMempoolHalfHour, feeRatePerKb: amt(123)},
 	}
 	feeTargets = feeTargetsSlice
-	require.Equal(t, feeTargetsSlice[2], feeTargets.highest())
+	require.Equal(t, feeTargetsSlice[1], feeTargets.highest())
 
 }

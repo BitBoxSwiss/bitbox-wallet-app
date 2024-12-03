@@ -1592,10 +1592,6 @@
       "failed": "Échoué",
       "pending": "En attente"
     },
-    "tx": {
-      "received": "Reçu de",
-      "sent": "Envoyé à"
-    },
     "vsize": "Taille virtuelle",
     "weight": "Poids"
   },

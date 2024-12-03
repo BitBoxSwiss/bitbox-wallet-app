@@ -34,7 +34,7 @@ func GetBtcDirectSupportedRegions() []string {
 // IsBtcDirectSupported is true if coin.Code and region are supported by BtcDirect.
 func IsBtcDirectSupported(coinCode coin.Code, region string) bool {
 	supportedCoins := []coin.Code{
-		coin.CodeBTC, coin.CodeTBTC, coin.CodeETH, coin.CodeSEPETH,
+		coin.CodeBTC, coin.CodeTBTC, coin.CodeLTC, coin.CodeTLTC, coin.CodeETH, coin.CodeSEPETH,
 		"eth-erc20-usdt", "eth-erc20-usdc", "eth-erc20-link"}
 
 	coinSupported := slices.Contains(supportedCoins, coinCode)

@@ -336,7 +336,6 @@ func (account *Account) Initialize() error {
 		account.coin.Blockchain(), account.notifier, account.log)
 
 	for _, signingConfiguration := range signingConfigurations {
-		signingConfiguration := signingConfiguration
 
 		var subacc subaccount
 		subacc.signingConfiguration = signingConfiguration
@@ -496,7 +495,6 @@ func (account *Account) feeTargets() FeeTargets {
 	var feeTargets FeeTargets
 	if mempoolFees != nil {
 		feeTargets = FeeTargets{
-			{blocks: 12, code: accounts.FeeTargetCodeMempoolEconomy},
 			{blocks: 3, code: accounts.FeeTargetCodeMempoolHour},
 			{blocks: 2, code: accounts.FeeTargetCodeMempoolHalfHour},
 			{blocks: 1, code: accounts.FeeTargetCodeMempoolFastest},

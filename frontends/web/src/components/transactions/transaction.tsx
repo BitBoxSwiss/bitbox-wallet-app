@@ -35,6 +35,7 @@ type TTransactionProps = ITransaction & {
 export const Transaction = ({
   addresses,
   amountAtTime,
+  fee,
   onShowDetail,
   hideFiat,
   internalID,
@@ -70,6 +71,7 @@ export const Transaction = ({
         <Amounts
           amount={amountAtTime}
           hideFiat={hideFiat}
+          fee={fee}
           type={type}
         />
         <button
@@ -153,12 +155,14 @@ const Status = ({
 type TAmountsProps = {
   amount: IAmount;
   hideFiat?: boolean;
+  fee: IAmount;
   type: TTransactionType;
 }
 
 const Amounts = ({
   amount,
   hideFiat,
+  fee,
   type,
 }: TAmountsProps) => {
   const { defaultCurrency } = useContext(RatesContext);
@@ -166,6 +170,9 @@ const Amounts = ({
   const sign = getTxSign(type);
   const txTypeClass = `txAmount-${type}`;
   const conversionPrefix = amount.estimated ? '\u2248' : null; // ≈
+  const sendToSelf = type === 'send_to_self';
+  const conversionUnit = sendToSelf ? amount.unit : defaultCurrency;
+
   return (
     <span className={`
       ${styles.txAmountsColumn}
@@ -176,31 +183,36 @@ const Amounts = ({
       <span className={styles.txAmount}>
         {sign}
         <Amount
-          amount={amount.amount}
+          amount={sendToSelf ? fee.amount : amount.amount}
           unit={amount.unit}
         />
         <span className={styles.txUnit}>
           {' '}
-          {amount.unit}
+          {sendToSelf ? fee.unit : amount.unit}
         </span>
       </span>
       {/* </data> */}
       {!hideFiat ? (
         <span className={styles.txConversionAmount}>
+          {sendToSelf && (
+            <span className={styles.txSmallInlineIcon}>
+              <Arrow type="send_to_self" />
+            </span>
+          )}
           {conversionPrefix && (
             <span className={styles.txPrefix}>
               {conversionPrefix}
               {' '}
             </span>
           )}
-          {conversion && sign}
+          {conversion && !sendToSelf ? sign : null}
           <Amount
-            amount={conversion || ''}
-            unit={defaultCurrency}
+            amount={sendToSelf ? amount.amount : conversion || ''}
+            unit={conversionUnit}
           />
           <span className={styles.txUnit}>
             {' '}
-            {defaultCurrency}
+            {conversionUnit}
           </span>
         </span>
       ) : null}
@@ -257,7 +269,7 @@ const Addresses = ({
   );
 
   return (
-    <span>
+    <span className={styles.txNoteWithAddress}>
       <span className={styles.txType}>
         {label}
       </span>

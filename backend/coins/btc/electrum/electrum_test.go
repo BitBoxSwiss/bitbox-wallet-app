@@ -34,7 +34,6 @@ func TestDownloadCert(t *testing.T) {
 		{"1.2.3.4:123", ""},
 	}
 	for _, testcase := range tt {
-		testcase := testcase
 		t.Run(testcase.targetServer, func(t *testing.T) {
 			// Set up a fake ElectrumX node.
 			var didHandshake bool
@@ -84,7 +83,6 @@ func TestEstablishConnectionTLS(t *testing.T) {
 		{"1.2.3.4:123", ""},
 	}
 	for _, testcase := range tt {
-		testcase := testcase
 		t.Run(testcase.targetServer, func(t *testing.T) {
 			// Set up a fake ElectrumX node.
 			var didHandshake bool

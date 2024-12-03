@@ -22,6 +22,7 @@ import { useSync } from './hooks/api';
 import { useDefault } from './hooks/default';
 import { usePrevious } from './hooks/previous';
 import { useIgnoreDrop } from './hooks/drop';
+import { usePlatformClass } from './hooks/platform';
 import { AppRouter } from './routes/router';
 import { Wizard as BitBox02Wizard } from './routes/device/bitbox02/wizard';
 import { getAccounts } from './api/account';
@@ -45,6 +46,7 @@ import { getLightningConfig, subscribeLightningConfig } from './api/lightning';
 import styles from './app.module.css';
 
 export const App = () => {
+  usePlatformClass();
   const { t } = useTranslation();
   const navigate = useNavigate();
   useIgnoreDrop();
@@ -64,8 +66,8 @@ export const App = () => {
   }, [t]);
 
   const maybeRoute = useCallback(() => {
-    const currentURL = window.location.pathname;
-    const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html' || currentURL.endsWith('/assets/web/index.html');
+    const currentURL = window.location.hash.replace(/^#/, '');
+    const isIndex = currentURL === '' || currentURL === '/';
     const inAccounts = currentURL.startsWith('/account/');
     const noLightningAccounts = lightningConfig.accounts.length === 0;
 

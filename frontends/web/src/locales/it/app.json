@@ -402,6 +402,55 @@
       "fast": "Rapido",
       "fee": "commissione",
       "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "Informativa sulla privacy di BTC Direct",
+              "text": "La BitBoxApp non raccoglie dati personali. BTC Direct raccoglie le informazioni necessarie secondo la propria Informativa sulla privacy per soddisfare gli standard normativi.",
+              "title": "Protezione dei dati"
+            },
+            "kyc": {
+              "text": "La verifica dell'identità del cliente è richiesta per tutte le operazioni. Il tuo account manager ti guiderà attraverso il processo e risponderà a qualsiasi domanda tu possa avere.",
+              "title": "Verifica dell'identità"
+            },
+            "partnership": {
+              "text": "In collaborazione con BTC Direct, un broker europeo affidabile, BitBox offre trading over-the-counter (OTC) su larga scala per Bitcoin, Ethereum, stablecoin e altro ancora, con supporto di esperti, direttamente nella BitBoxApp.",
+              "title": "Compra e vendi con il Private Trading Desk di BTC Direct"
+            },
+            "paymentMethods": {
+              "buy": "Acquistare bitcoin:",
+              "buy2": "Effettua ordini di acquisto di grandi dimensioni con il tuo account manager, blocca un prezzo fisso e paga tramite bonifico bancario. Le tue cripto vengono consegnate direttamente al tuo BitBox dopo il pagamento.",
+              "fee": "Si applicano importi minimi di negoziazione di €50.000, con una commissione trasparente compresa tra lo 0,5% e l'1%.",
+              "sell": "Vendi bitcoin:",
+              "sell2": "Blocca un prezzo OTC fisso quando effettui un ordine di vendita. Il pagamento in EUR viene effettuato una volta inviate le cripto a BTC Direct. L'assistenza personale è disponibile in caso di necessità.",
+              "title": "Metodi di pagamento e commissioni"
+            },
+            "personal": {
+              "text": "Ad ogni cliente di Private Trading viene assegnato un account manager dedicato per un'assistenza personalizzata tramite telefono, videochiamata, e-mail o chat. I prezzi di acquisto e di vendita vengono fissati immediatamente al momento dell'ordine, anche se la liquidazione avviene in un secondo momento. Gli ordini vengono eseguiti tramite il banco OTC di BTC Direct, riducendo al minimo lo slippage.",
+              "title": "Servizio personalizzato con prezzo fisso"
+            },
+            "security": {
+              "link": "Security threat model di BitBox02",
+              "text": "Il Private Trading Desk di BTC Direct è un servizio esterno non coperto dal security threat model di BitBox02. Tuttavia, BTC Direct conosce bene i prodotti BitBox epuò guidarti in maniera sicura e competente. I prodotti BitBox verificano gli indirizzi crittografici durante le transazioni per garantire una consegna sicura.",
+              "title": "Sicurezza"
+            },
+            "title": "Disclaimer"
+          },
+          "info": "Ottieni un consulente personale, commissioni ridotte ed effettua ordini direttamente tramite il tuo contatto su BTC Direct.",
+          "infobox": {
+            "intro_btconly": "Ottieni assistenza personale per operazioni Bitcoin over-the-counter (OTC) di valore elevato.",
+            "intro_multi": "Ricevi assistenza personalizzata per le tue operazioni OTC (over-the-counter) di alto valore su Bitcoin, stablecoin Ethereum e altro ancora.",
+            "kyc": "BTC Direct richiede la verifica dell'identità per tutte le negoziazioni. Il tuo account manager ti guiderà in ogni fase.",
+            "learnmore": "Scopri di più sul Private Trading Desk di BTC Direct.",
+            "listItem1": "Acquista e vendi in qualsiasi momento contattando il tuo account manager per telefono, e-mail, videochiamata o chat.",
+            "listItem2": "I pagamenti vengono completati tramite bonifico bancario dopo l'invio dell'ordine.",
+            "listItem3": "Importo minimo dell'ordine: €50.000.",
+            "listItem4": "Commissioni trasparenti fissate allo 0,5%-1%, inclusa l'assistenza personalizzata.",
+            "manager": "Avrai un account manager dedicato che ti guiderà in ogni fase, garantendo un'esperienza semplice e sicura con tariffe fisse e minimo slippage."
+          },
+          "link": "Accesso a BTC Direct - Private Trading Desk",
+          "title": "Vuoi comprare o vendere più di 50.000€?"
+        },
         "moonpay": {
           "fees": {
             "bankTransfer": "Bonifico Bancario: {{fee}}%",
@@ -491,8 +540,8 @@
           "title": "Protezione dei dati"
         },
         "security": {
-          "descriptionGeneric_bitcoin": "Quando acquisti Bitcoin tramite un exchange partner, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del \\\"Securiy Threat model\\\" del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione.",
-          "descriptionGeneric_crypto": "Quando acquisti crypto tramite un exchange partner, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del \\\"Securiy Threat model\\\" del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione.",
+          "descriptionGeneric_bitcoin": "Quando acquisti Bitcoin tramite un exchange partner, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del Securiy Threat model del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione.",
+          "descriptionGeneric_crypto": "Quando acquisti crypto tramite un exchange partner, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del Securiy Threat model del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione.",
           "link": "Security threat model",
           "title": "Security model"
         },
@@ -715,8 +764,8 @@
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
-          "link": "Modello di minaccia alla sicurezza di BitBox02",
-          "p1": "L'utilizzo di Pocket è un servizio esterno e non è coperto dal modello di minaccia alla sicurezza di BitBox02. Tuttavia, lavoriamo a stretto contatto con Pocket per migliorare la sicurezza complessiva.",
+          "link": "Security threat model di BitBox02",
+          "p1": "L'utilizzo di Pocket è un servizio esterno e non è coperto dal security threat model di BitBox02. Tuttavia, lavoriamo a stretto contatto con Pocket per migliorare la sicurezza complessiva.",
           "p2": "<strong>Acquistare bitcoin:</strong> Riceverai un'e-mail per confermare il tuo indirizzo di ricezione bitcoin attraverso un secondo canale di comunicazione.",
           "p3": "<strong>Vendere bitcoin:</strong> BitBox02 verifica crittograficamente l'indirizzo di deposito Bitcoin e visualizza \"Pocket\" sull'hardware wallet.",
           "title": "Sicurezza"
@@ -1420,7 +1469,7 @@
         "La passphrase è un ulteriore livello di sicurezza oltre al backup.\n",
         "L'inserimento di una passphrase diversa genererà sempre un wallet diverso.",
         "Per ripristinare il wallet sono necessari <strong>sia la passphrase che il backup</strong>.",
-        "Se si dimentica la passphrase, <strong>non è più possibile accedere ai propri fondi</strong>.\n"
+        "Se si dimentica la passphrase, <strong>non è più possibile accedere ai propri fondi</strong>."
       ]
     },
     "what": {
@@ -1430,7 +1479,7 @@
     },
     "why": {
       "button": "Perchè usare una passphrase",
-      "message": "BitBox02 protegge il seed dall'estrazione dal dispositivo stesso, ma il backup (scheda microSD o parole di recupero) dà pieno accesso al wallet. Per questo motivo deve essere conservato in un luogo sicuro!\n\nPoiché una passphrase crea un nuovo wallet utilizzando il seed esistente, il wallet con la passphrase richiede sia il <strong>backup che la passphrase per il ripristino</strong>. Il vantaggio è che se qualcuno trova il tuo backup, ha comunque bisogno della passphrase per accedere al wallet con passphrase.\n\nInoltre, la funzione passphrase consente di creare piùwallet sullo stesso dispositivo, o \"wallet nascosti\", oltre a quello predefinito.",
+      "message": "BitBox02 protegge il seed dall'estrazione dal dispositivo stesso, ma il backup (scheda microSD o parole di recupero) dà pieno accesso al wallet. Per questo motivo deve essere conservato in un luogo sicuro!\n\nPoiché una passphrase crea un nuovo wallet utilizzando il seed esistente, il wallet con la passphrase richiede sia il <strong>backup che la passphrase per il ripristino</strong>. Il vantaggio è che se qualcuno trova il tuo backup, ha comunque bisogno della passphrase per accedere al wallet con passphrase.\n\nInoltre, la funzione passphrase consente di creare più wallet sullo stesso dispositivo, o \"wallet nascosti\", oltre a quello predefinito.",
       "title": "Perchè usare una passphrase?"
     }
   },
@@ -1550,6 +1599,7 @@
     "coincontrol": {
       "address": "Indirizzo",
       "addressReused": "Indirizzo riutilizzato",
+      "change": "Resto",
       "outpoint": "Outpoint",
       "title": "Invia da un output"
     },
@@ -1757,11 +1807,26 @@
     "status": {
       "complete": "Completata",
       "failed": "Fallita",
-      "pending": "In sospeso"
+      "pending": "In sospeso",
+      "pending_receive": "Transazione in entrata",
+      "pending_send": "Transazione in uscita",
+      "pending_send_to_self": "Transazione in attesa"
+    },
+    "statusShort": {
+      "complete": "Completata",
+      "failed": "Fallita",
+      "pending": "In attesa",
+      "pending_receive": "In entrata",
+      "pending_send": "In uscita",
+      "pending_send_to_self": "In attesa"
     },
     "tx": {
-      "received": "Ricevuta a",
-      "sent": "Inviata a"
+      "receive_complete": "Ricevuta su",
+      "receive_failed": "Ricezione fallita su",
+      "receive_pending": "Ricevuta su",
+      "send_complete": "Inviata a",
+      "send_failed": "Invio fallito a",
+      "send_pending": "Inviata a"
     },
     "vsize": "Dimensione virtuale",
     "weight": "Peso"
@@ -1839,7 +1904,8 @@
     "coincontrol": "Una o più UTXO hanno un indirizzo riutilizzato. Sappi che il destinatario vedrà tutte le UTXO associate a tali indirizzi.",
     "receivePairing": "Si prega di associare il BitBox per abilitare la verifica sicura dell'indirizzo. Vai su \"Gestisci dispositivo\" nella barra laterale.",
     "sdcard": "Tenere la scheda microSD separata dal BitBox, a meno che non si vogliano gestire i backup.",
-    "sendPairing": "Si prega di abbinare il BitBox per verificare in modo sicuro i dettagli della transazione. Vai su 'Gestisci dispositivo' nella barra laterale."
+    "sendPairing": "Si prega di abbinare il BitBox per verificare in modo sicuro i dettagli della transazione. Vai su 'Gestisci dispositivo' nella barra laterale.",
+    "testnet": "AVVERTENZA: al momento stai utilizzando il wallet in modalità Testnet. Le transazioni e i saldi qui non sono reali e non appariranno sulla mainnet. Testnet è destinato esclusivamente a scopi di test e sviluppo."
   },
   "welcome": {
     "connect": "Connetti BitBox02",

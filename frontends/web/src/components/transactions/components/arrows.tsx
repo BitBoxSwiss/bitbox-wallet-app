@@ -18,7 +18,7 @@ import type { TTransactionStatus, TTransactionType } from '@/api/account';
 import { ArrowFloorDownGreen, ArrowUTurn, ArrowFloorUpRed, Warning } from '@/components/icon/icon';
 
 type TProps = {
-  status: TTransactionStatus;
+  status?: TTransactionStatus;
   type: TTransactionType;
 };
 

@@ -12,6 +12,11 @@
   margin-bottom: calc(var(--space-half) + var(--space-quarter));
 }
 
+.confirmItem label {
+  color: var(--color-secondary);
+  margin: 0 !important;
+}
+
 .confirmItem p {
   margin: 0;
   word-break: break-all;
@@ -31,11 +36,6 @@
 .unit {
   color: var(--color-secondary);
   font-size: var(--size-default);
-}
-
-label {
-  color: var(--color-secondary);
-  margin: 0 !important;
 }
 
 .title {
