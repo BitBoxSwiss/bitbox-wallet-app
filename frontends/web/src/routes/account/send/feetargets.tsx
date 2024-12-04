@@ -41,6 +41,7 @@ type Props = {
 type TOptions = {
   value: accountApi.FeeTargetCode;
   text: string;
+  disabled: boolean;
 }
 
 export const FeeTargets = ({
@@ -80,11 +81,13 @@ export const FeeTargets = ({
     const options = feeTargets.feeTargets.map(({ code, feeRateInfo }) => ({
       value: code,
       text: t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ` (${feeRateInfo})` : ''),
+      disabled: false,
     }));
     if (expert) {
       options.push({
         value: 'custom',
         text: t('send.feeTarget.label.custom'),
+        disabled,
       });
     }
     setOptions(options);
@@ -94,7 +97,7 @@ export const FeeTargets = ({
       setNoFeeTargets(true);
     }
     focusInput();
-  }, [t, feeTargets, focusInput, accountCode, config, onFeeTargetChange]);
+  }, [t, feeTargets, focusInput, accountCode, config, onFeeTargetChange, disabled]);
 
   const handleFeeTargetChange = (event: React.SyntheticEvent) => {
     const target = event.target as HTMLSelectElement;
@@ -149,7 +152,6 @@ export const FeeTargets = ({
               className={style.priority}
               label={t('send.priority')}
               id="feeTarget"
-              disabled={disabled}
               onChange={handleFeeTargetChange}
               value={feeTarget}
               options={options} />
@@ -166,7 +168,6 @@ export const FeeTargets = ({
                 className={style.priority}
                 label={t('send.priority')}
                 id="feeTarget"
-                disabled={disabled}
                 onChange={handleFeeTargetChange}
                 value={feeTarget}
                 options={options} />
