@@ -37,7 +37,7 @@ export const useSDCard = (
       switch (devices[deviceID]) {
       case 'bitbox':
         return getBitBox01DeviceInfo(deviceID)
-          .then(({ sdcard }) => sdcard);
+          .then(deviceInfo => deviceInfo ? deviceInfo.sdcard : Promise.reject(`Could get device info for ${deviceID}`));
       case 'bitbox02':
         return checkSDCard(deviceID);
       default:
