@@ -64,8 +64,8 @@ jobs:
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          path: frontends/android/BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
-          name: BitBoxApp-android-${{github.sha}}.apk
+          path: frontends/android/BitBoxApp/app/build/outputs/apk/lnalpha/app-lnalpha.apk
+          name: BitBoxApp-android-ln-${{github.sha}}.apk
           if-no-files-found: error
   qt-linux:
     runs-on: ubuntu-22.04
