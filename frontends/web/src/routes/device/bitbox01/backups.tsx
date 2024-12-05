@@ -64,7 +64,11 @@ class Backups extends Component<Props, State> {
 
   private refresh = () => {
     getDeviceInfo(this.props.deviceID)
-      .then(({ lock }) => this.setState({ lock }));
+      .then(deviceInfo => {
+        if (deviceInfo) {
+          this.setState({ lock: deviceInfo.lock });
+        }
+      });
     apiGet('devices/' + this.props.deviceID + '/backups/list').then(({ sdCardInserted, backupList, success, errorMessage }) => {
       if (success) {
         this.setState({

@@ -48,8 +48,8 @@ class SeedRestore extends Component {
 
   checkSDcard = () => {
     getDeviceInfo(this.props.deviceID)
-      .then(({ sdcard }) => {
-        if (sdcard) {
+      .then((deviceInfo) => {
+        if (deviceInfo?.sdcard) {
           return this.setState({ status: STATUS.DEFAULT, error: '' });
         }
         this.setState({

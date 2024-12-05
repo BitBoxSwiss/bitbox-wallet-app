@@ -46,9 +46,11 @@ export const SendWrapper = ({ accounts, code, deviceIDs, devices }: TSendProps) 
       const fetchData = async () => {
         try {
           const mobileChannel = await hasMobileChannel(deviceIDs[0])();
-          const { pairing } = await getDeviceInfo(deviceIDs[0]);
-          setBB01Paired(mobileChannel && pairing);
-          setNoMobileChannelError(pairing && !mobileChannel && isBitcoinBased(account.coinCode));
+          const deviceInfo = await getDeviceInfo(deviceIDs[0]);
+          if (deviceInfo) {
+            setBB01Paired(mobileChannel && deviceInfo.pairing);
+            setNoMobileChannelError(deviceInfo.pairing && !mobileChannel && isBitcoinBased(account.coinCode));
+          }
         } catch (error) {
           console.error(error);
         }

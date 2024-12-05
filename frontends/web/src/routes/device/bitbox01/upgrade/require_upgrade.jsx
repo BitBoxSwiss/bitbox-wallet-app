@@ -29,10 +29,12 @@ class RequireUpgrade extends Component {
 
   componentDidMount() {
     getDeviceInfo(this.props.deviceID)
-      .then(({ version }) => {
-        this.setState({
-          firmwareVersion: version.replace('v', ''),
-        });
+      .then(deviceInfo => {
+        if (deviceInfo) {
+          this.setState({
+            firmwareVersion: deviceInfo.version.replace('v', ''),
+          });
+        }
       });
   }
 
