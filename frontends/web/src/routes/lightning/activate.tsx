@@ -17,6 +17,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { UseDisableBackButton } from '@/hooks/backbutton';
 import { Header, Main } from '../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../components/view/view';
 import { MultilineMarkup, SimpleMarkup } from '../../utils/markup';
@@ -26,7 +27,6 @@ import { TKeystores, getKeystores, subscribeKeystores } from '../../api/keystore
 import { unsubscribe } from '../../utils/subscriptions';
 import { postActivateNode } from '../../api/lightning';
 import { Status } from '../../components/status/status';
-import { Spinner } from '../../components/spinner/Spinner';
 import { route } from '../../utils/route';
 
 const CONTENT_MIN_HEIGHT = '38em';
@@ -146,7 +146,24 @@ export const LightningActivate = () => {
         </View>
       );
     case 'wait':
-      return <Spinner text={t('lightning.activate.wait.title')} guideExists={false} />;
+      return (
+        <View
+          key="step-create"
+          fullscreen
+          textCenter
+          verticallyCentered>
+          <UseDisableBackButton />
+          <ViewHeader title={t('lightning.activate.wait.title')}>
+            Confirm on your BitBox that you want to create a lightning wallet.
+          </ViewHeader>
+          <ViewContent minHeight="280px">
+            <PointToBitBox02 />
+          </ViewContent>
+          <ViewButtons>
+            {/* Empty ViewButtons to avoid layout shift changing between different views */}
+          </ViewButtons>
+        </View>
+      );
     case 'success':
       return (
         <View fitContent textCenter verticallyCentered>
