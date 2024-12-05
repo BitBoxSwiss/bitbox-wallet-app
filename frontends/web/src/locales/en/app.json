@@ -1324,7 +1324,7 @@
       },
       "title": "Create lightning wallet",
       "wait": {
-        "title": "Creating lightning wallet..."
+        "title": "Create lightning wallet"
       }
     },
     "deactivate": {
