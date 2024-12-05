@@ -189,7 +189,7 @@ const Amounts = ({
             <Arrow type="send_to_self" />
           </span>
         )}
-        {conversionPrefix && (
+        {(conversionPrefix && !sendToSelf) && (
           <span className={styles.txPrefix}>
             {conversionPrefix}
             {' '}
