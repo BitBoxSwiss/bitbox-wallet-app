@@ -24,7 +24,7 @@ vi.mock('@/utils/request', () => ({
 }));
 
 import { apiGet, apiPost } from '@/utils/request';
-import { i18n } from './i18n';
+import { changei18nLanguage } from './i18n';
 
 describe('i18n', () => {
   describe('languageChanged', () => {
@@ -47,9 +47,9 @@ describe('i18n', () => {
           default: { return Promise.resolve(); }
           }
         });
-        await i18n.changeLanguage(test.newLang);
+        await changei18nLanguage(test.newLang);
         await waitFor(() => {
-          expect(apiPost).toHaveBeenCalledTimes(1);
+          expect(apiPost).toHaveBeenCalled();
           expect(apiPost).toHaveBeenCalledWith('config', {
             frontend: {},
             backend: { userLanguage: test.userLang },

@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { getNativeLocale } from '@/api/nativelocale';
 import { defaultLanguages } from '@/components/language/types';
+import { changei18nLanguage } from '@/i18n/i18n';
 import { Dropdown } from '@/components/dropdown/dropdown';
 import { getSelectedIndex } from '@/utils/language';
 import { GlobeDark, GlobeLight } from '@/components/icon/icon';
@@ -44,7 +45,7 @@ export const LanguageDropdownSetting = () => {
           className={settingsDropdownStyles.select}
           renderOptions={(o) => (o.label)}
           options={formattedLanguages}
-          onChange={(selected) => i18n.changeLanguage(selected.value)}
+          onChange={(selected) => changei18nLanguage(selected.value)}
           value={{ label: selectedLanguage.display, value: selectedLanguage.code }}
         />
       }
