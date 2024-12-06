@@ -20,17 +20,18 @@ import { getNativeLocale } from '@/api/nativelocale';
 import { languageFromConfig } from './config';
 import { localeMainLanguage } from './utils';
 import { setConfig } from '@/utils/config';
+import appTranslationsEN from '@/locales/en/app.json';
 
 const locizeProjectID = 'fe4e5a24-e4a2-4903-96fc-3d62c11fc502';
 
 let isChangingLanguage = false;
-const defaultLang = 'en';
+const defaultFallbackLang = 'en';
 
 const languageResources = {
   ar: () => import('@/locales/ar/app.json'),
   cs: () => import('@/locales/cs/app.json'),
   de: () => import('@/locales/de/app.json'),
-  en: () => import('@/locales/en/app.json'),
+  en: () => Promise.resolve({ default: appTranslationsEN }),
   fr: () => import('@/locales/fr/app.json'),
   ja: () => import('@/locales/ja/app.json'),
   ru: () => import('@/locales/ru/app.json'),
@@ -69,7 +70,7 @@ export const changei18nLanguage = async (language: string) => {
 let i18Init = i18n.use(languageFromConfig);
 
 i18Init.init({
-  fallbackLng: defaultLang,
+  fallbackLng: defaultFallbackLang,
 
   // have a common namespace used around the full app
   ns: ['app', 'wallet'],
@@ -87,9 +88,12 @@ i18Init.init({
 
   backend: {
     projectId: locizeProjectID,
-    referenceLng: defaultLang
+    referenceLng: defaultFallbackLang
   }
 });
+
+// always include 'en' so we have a fallback for keys that are not translated
+i18n.addResourceBundle(defaultFallbackLang, 'app', appTranslationsEN);
 
 i18n.on('languageChanged', async (lng) => {
   // changei18nLanguage triggers languageChanged, thus this check to prevent loop
