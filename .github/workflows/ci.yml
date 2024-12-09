@@ -205,7 +205,7 @@ jobs:
           # Take Go version to install from go.mod
           go-version-file: 'go.mod'
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: '6.2'
           host: 'windows'
