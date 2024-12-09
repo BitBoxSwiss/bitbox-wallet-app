@@ -288,6 +288,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Please insert a microSD card into your BitBox02 to continue.",
+      "insertSDCardToSeeBackups": "Please insert the microSD card into your BitBox02 to see your backups.",
       "insertSDcardTitle": "Insert microSD card"
     },
     "stepPassword": {
