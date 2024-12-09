@@ -17,8 +17,9 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { checkSDCard } from '@/api/bitbox02';
-import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
+import { PointToBitBox02 } from '@/components/icon';
+import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimation';
 
@@ -44,25 +45,24 @@ const SDCardCheck = ({ deviceID, children }: TProps) => {
   return (
     <div>
       {!sdCardInserted ? (
-        <Dialog open={!sdCardInserted} title="Check your device" small>
-          <div className="columnsContainer half">
-            <div className="columns">
-              <div className="column">
-                <p>{t('backup.insert')}</p>
-              </div>
-            </div>
-          </div>
-          <DialogButtons>
+        <View textCenter>
+          <ViewHeader title={t('bitbox02Wizard.stepInsertSD.insertSDcardTitle')}>
+            {t('bitbox02Wizard.stepInsertSD.insertSDCardToSeeBackups')}
+          </ViewHeader>
+          <ViewContent minHeight="280px">
+            <PointToBitBox02 />
+          </ViewContent>
+          <ViewButtons>
             <Button
               primary
               onClick={check}>
               {t('button.ok')}
             </Button>
-            <BackButton>
+            <BackButton enableEsc>
               {t('button.back')}
             </BackButton>
-          </DialogButtons>
-        </Dialog>
+          </ViewButtons>
+        </View>
       ) : children}
     </div>
   );

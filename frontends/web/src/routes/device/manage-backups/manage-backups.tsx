@@ -48,7 +48,6 @@ export const ManageBackups = ({
             title={<h2>{t('backup.title')}</h2>}
           />
           <div className="content padded">
-            <h3 className="subTitle">{t('backup.list')}</h3>
             <BackupsList
               deviceID={deviceID}
               devices={devices}
@@ -74,15 +73,19 @@ const BackupsList = ({
   }
   switch (devices[deviceID]) {
   case 'bitbox':
+
     return (
-      <Backups
-        deviceID={deviceID}
-        showCreate={true}
-        showRestore={false}>
-        <BackButton>
-          {t('button.back')}
-        </BackButton>
-      </Backups>
+      <>
+        <h3 className="subTitle">{t('backup.list')}</h3>
+        <Backups
+          deviceID={deviceID}
+          showCreate={true}
+          showRestore={false}>
+          <BackButton>
+            {t('button.back')}
+          </BackButton>
+        </Backups>
+      </>
     );
   case 'bitbox02':
     return (
