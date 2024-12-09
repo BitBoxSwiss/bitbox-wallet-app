@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
+import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/forms';
 import style from './note-input.module.css';
-import { ChangeEvent } from 'react';
 
 type TProps = {
-    onNoteChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    onNoteChange: (note: string) => void;
     note: string;
 }
 
@@ -35,7 +35,7 @@ export const NoteInput = ({ onNoteChange, note }: TProps) => {
         </span>
       }
       id="note"
-      onInput={onNoteChange}
+      onInput={(e: ChangeEvent<HTMLInputElement>) => onNoteChange(e.target.value)}
       value={note}
       placeholder={t('note.input.placeholder')}
     />
