@@ -65,7 +65,7 @@ export interface IAccount {
   active: boolean;
   watch: boolean;
   coinCode: CoinCode;
-  coinUnit: string;
+  coinUnit: CoinUnit;
   coinName: string;
   code: AccountCode;
   name: string;

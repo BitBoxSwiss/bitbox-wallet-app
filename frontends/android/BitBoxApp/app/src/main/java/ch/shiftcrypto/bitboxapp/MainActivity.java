@@ -332,7 +332,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
                 MainActivity.this.filePathCallback = filePathCallback;
-                mGetContent.launch("*/*");
+                String[] mimeTypes = fileChooserParams.getAcceptTypes();
+                String fileType = "*/*";
+                if (mimeTypes.length == 1) {
+                    // import notes form uses .txt file type, but is not supported here.
+                    if (".txt".equals(mimeTypes[0])) {
+                        fileType = "text/plain";
+                    } else if (MimeTypeMap.getSingleton().hasMimeType(mimeTypes[0])) {
+                        fileType = mimeTypes[0];
+                    }
+                }
+                mGetContent.launch(fileType);
                 return true;
             }
         });

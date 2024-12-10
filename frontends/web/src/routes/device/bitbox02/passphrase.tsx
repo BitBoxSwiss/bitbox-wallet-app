@@ -64,9 +64,11 @@ export const Passphrase = ({ deviceID }: TProps) => {
       const result = await setMnemonicPassphraseEnabled(deviceID, enabled);
       if (!result.success) {
         navigate(-1);
-        alertUser(t(`passphrase.error.e${result.code}`, {
-          defaultValue: result.message || t('genericError'),
-        }));
+        if (result.code) {
+          alertUser(t(`passphrase.error.e${result.code}`, {
+            defaultValue: result.message || t('genericError'),
+          }));
+        }
         return null;
       }
       setIsEnabled(enabled);

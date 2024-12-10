@@ -188,12 +188,13 @@ const SendWorkflow = ({
                 autoFocus
               />
               <Input
+                type="text"
                 label={t('lightning.receive.description.label')}
                 placeholder="This invoice has no description"
                 id="descriptionInput"
                 readOnly
                 disabled
-                value={`${parsedInput.invoice.description}`}
+                value={parsedInput.invoice.description}
               />
             </Column>
           </Grid>

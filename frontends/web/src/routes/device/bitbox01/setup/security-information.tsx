@@ -25,16 +25,16 @@ import { SimpleMarkup } from '../../../../utils/markup';
 import { getDarkmode } from '../../../../components/darkmode/darkmode';
 import style from '../bitbox01.module.css';
 
-interface SecurityInformationProps {
-    goBack: () => void;
-    goal: string | null;
-    children: ReactNode;
+type SecurityInformationProps = {
+  goBack: () => void;
+  goal: string | null;
+  children: ReactNode;
 }
 
 type Props = SecurityInformationProps & TranslateProps;
 
-interface State {
-    showInfo: boolean;
+type State = {
+  showInfo: boolean;
 }
 
 class SecurityInformation extends Component<Props, State> {
@@ -63,7 +63,9 @@ class SecurityInformation extends Component<Props, State> {
           </Header>
           <div className="innerContainer">
             <div className="content padded narrow isVerticallyCentered">
-              <h1 className={[style.title, 'text-center'].join(' ')}>{t(`securityInformation.${goal}.title`)}</h1>
+              <h1 className={[style.title, 'text-center'].join(' ')}>
+                {goal && t(`securityInformation.${goal}.title`)}
+              </h1>
               {
                 goal === 'create' ? (
                   <div className="box large">
@@ -110,7 +112,7 @@ class SecurityInformation extends Component<Props, State> {
                 )
               }
               <div className="text-center m-top-large">
-                {getDarkmode() ? <SwissMadeOpenSourceDark large /> : <SwissMadeOpenSource large />}
+                {getDarkmode() ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
               </div>
             </div>
           </div>

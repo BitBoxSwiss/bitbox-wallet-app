@@ -23,8 +23,8 @@ import { useLoad } from '@/hooks/api';
 import { getConfig, setConfig } from '@/utils/config';
 
 type TProps = {
-    children: ReactNode;
-  }
+  children: ReactNode;
+}
 
 export const WCWeb3WalletProvider = ({ children }: TProps) => {
   const { t } = useTranslation();
@@ -83,13 +83,13 @@ export const WCWeb3WalletProvider = ({ children }: TProps) => {
       }
       await web3wallet?.core.pairing.pair({ uri });
       setConfig({ frontend: { hasUsedWalletConnect: true } });
-    } catch (e: any) {
-      console.error(`Wallet connect attempt to pair error ${e}`);
-      if (e.message.includes('Pairing already exists')) {
+    } catch (error: any) {
+      console.error('Wallet connect attempt to pair error', error);
+      if (error?.message?.includes('Pairing already exists')) {
         throw new Error(t('walletConnect.useNewUri'));
       }
       //unexpected error, display native error message
-      throw new Error(e.message);
+      throw new Error(error.message);
     }
   };
 

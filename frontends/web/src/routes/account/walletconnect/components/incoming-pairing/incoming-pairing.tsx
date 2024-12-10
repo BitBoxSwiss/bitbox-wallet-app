@@ -96,9 +96,8 @@ export const WCIncomingPairing = ({
 
       onApprove();
     } catch (e: any) {
-      console.error(`Wallet connect approve pairing error ${e}`);
+      console.error('Wallet connect approve pairing error', e);
 
-      console.error(e);
       if (e.message.includes('Non conforming namespaces')) {
         alertUser(t('walletConnect.invalidPairingChain',
           {

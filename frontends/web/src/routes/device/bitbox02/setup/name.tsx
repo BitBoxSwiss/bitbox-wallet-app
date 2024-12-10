@@ -105,7 +105,7 @@ export const DeviceNameErrorMessage = ({ error, invalidChars }: TDeviceNameError
   }
   return (
     <span hidden={!error} className={style.errorMessage}>
-      {t(`bitbox02Wizard.stepCreate.error.${error}`, {
+      {error && t(`bitbox02Wizard.stepCreate.error.${error}`, {
         invalidChars
       })}
       {' '}

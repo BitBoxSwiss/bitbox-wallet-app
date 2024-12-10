@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, createRef } from 'react';
+import { useState, useEffect, createRef, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
 import { getConfig } from '@/utils/config';
@@ -53,7 +53,7 @@ export const Pocket = ({ code, action }: TProps) => {
   const accountInfo = useLoad(getInfo(code));
 
   const ref = createRef<HTMLDivElement>();
-  const iframeRef = createRef<HTMLIFrameElement>();
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   let signing = false;
   let resizeTimerID: any = undefined;
 

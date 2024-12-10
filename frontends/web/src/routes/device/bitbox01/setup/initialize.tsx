@@ -105,13 +105,15 @@ class Initialize extends Component<Props, State> {
       formSubmissionState = <Message type="info">{t('initialize.creating')}</Message>;
       break;
     case stateEnum.ERROR:
-      formSubmissionState = (
-        <Message type="error">
-          {t(`initialize.error.e${errorCode}`, {
-            defaultValue: errorMessage,
-          })}
-        </Message>
-      );
+      if (errorCode !== null) {
+        formSubmissionState = (
+          <Message type="error">
+            {t(`initialize.error.e${errorCode}`, {
+              defaultValue: errorMessage,
+            })}
+          </Message>
+        );
+      }
     }
 
     const content = showInfo ? (
@@ -170,7 +172,7 @@ class Initialize extends Component<Props, State> {
               {formSubmissionState}
               {content}
               <div className="text-center m-top-large">
-                {getDarkmode() ? <SwissMadeOpenSourceDark large /> : <SwissMadeOpenSource large />}
+                {getDarkmode() ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
               </div>
             </div>
           </div>

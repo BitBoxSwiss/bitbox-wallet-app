@@ -28,8 +28,8 @@ import { Status } from '@/components/status/status';
 import style from './info.module.css';
 
 type TProps = {
-    accounts: IAccount[];
-    code: AccountCode;
+  accounts: IAccount[];
+  code: AccountCode;
 };
 
 export const Info = ({
@@ -57,6 +57,8 @@ export const Info = ({
     setViewXPub((viewXPub + 1) % numberOfXPubs);
   };
 
+  const xpubType = xpubTypes[(viewXPub + 1) % numberOfXPubs];
+
   return (
     <div className="contentWithGuide">
       <div className="container">
@@ -75,10 +77,13 @@ export const Info = ({
                     current: `${viewXPub + 1}`,
                     numberOfXPubs: numberOfXPubs.toString(),
                     scriptType: config.bitcoinSimple.scriptType.toUpperCase(),
-                  })}<br />
-                  <button className={style.nextButton} onClick={showNextXPub}>
-                    {t(`accountInfo.xpubTypeChangeBtn.${xpubTypes[(viewXPub + 1) % numberOfXPubs]}`)}
-                  </button>
+                  })}
+                  <br />
+                  {xpubType && (
+                    <button className={style.nextButton} onClick={showNextXPub}>
+                      {t(`accountInfo.xpubTypeChangeBtn.${xpubType}`)}
+                    </button>
+                  )}
                 </p>
               ) : null}
               { (config.bitcoinSimple?.scriptType === 'p2tr') ? (
