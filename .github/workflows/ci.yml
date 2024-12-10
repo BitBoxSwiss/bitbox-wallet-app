@@ -183,6 +183,8 @@ jobs:
           (cd $GOPATH/$GO_SRC_DIR; make ios)
   windows:
     runs-on: windows-2019
+    outputs:
+      artifact-url: ${{ steps.upload.outputs.artifact-url }}
     defaults:
       run:
         shell: bash
@@ -221,10 +223,12 @@ jobs:
           cd frontends/qt
           makensis setup.nsi
       - name: Upload Installer
+        id: upload
         uses: actions/upload-artifact@v4
         with:
           path: frontends/qt/BitBox-installer.exe
-          name: BitBoxApp-Windows-${{ github.sha }}.exe
+          name: BitBoxApp-windows-${{ github.sha }}.exe
+          if-no-files-found: error
 
   report-artifacts:
     needs: [android, qt-linux, macos, windows]

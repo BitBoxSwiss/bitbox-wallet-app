@@ -28,7 +28,8 @@ export const DefaultCurrencyDropdownSetting = () => {
   const { formattedCurrencies, currenciesWithDisplayName } = useLocalizedFormattedCurrencies(i18n.language);
   const { addToActiveCurrencies, updateDefaultCurrency, defaultCurrency, activeCurrencies } = useContext(RatesContext);
   const valueLabel = currenciesWithDisplayName.find(fiat => fiat.currency === defaultCurrency)?.displayName;
-  const defaultValueLabel = valueLabel ? `${currencyName.of(defaultCurrency)} (${defaultCurrency})` : defaultCurrency;
+  const currencyNameOfDefaultCurrency = currencyName.of(defaultCurrency) || '';
+  const defaultValueLabel = valueLabel ? `${currencyNameOfDefaultCurrency} (${defaultCurrency})` : defaultCurrency;
 
   return (
     <SettingsItem

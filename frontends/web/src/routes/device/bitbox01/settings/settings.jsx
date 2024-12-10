@@ -54,25 +54,29 @@ class Settings extends Component {
 
   componentDidMount() {
     getDeviceInfo(this.props.deviceID)
-      .then(({
-        lock,
-        name,
-        new_hidden_wallet,
-        pairing,
-        sdcard,
-        serial,
-        version,
-      }) => {
-        this.setState({
-          firmwareVersion: version.replace('v', ''),
-          lock,
-          name,
-          newHiddenWallet: new_hidden_wallet,
-          pairing,
-          sdcard,
-          serial,
-          spinner: false,
-        });
+      .then(deviceInfo => {
+        if (deviceInfo) {
+          const {
+            lock,
+            name,
+            new_hidden_wallet,
+            pairing,
+            sdcard,
+            serial,
+            version,
+          } = deviceInfo;
+
+          this.setState({
+            firmwareVersion: version.replace('v', ''),
+            lock,
+            name,
+            newHiddenWallet: new_hidden_wallet,
+            pairing,
+            sdcard,
+            serial,
+            spinner: false,
+          });
+        }
       });
 
     apiGet('devices/' + this.props.deviceID + '/has-mobile-channel').then(mobileChannel => {

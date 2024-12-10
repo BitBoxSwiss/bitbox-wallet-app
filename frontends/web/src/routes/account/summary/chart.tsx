@@ -26,6 +26,7 @@ import { PercentageDiff } from './percentage-diff';
 import { Filters } from './filters';
 import { getDarkmode } from '@/components/darkmode/darkmode';
 import { DefaultCurrencyRotator } from '@/components/rates/rates';
+import { RatesContext } from '@/contexts/RatesContext';
 import { AppContext, TChartDisplay } from '@/contexts/AppContext';
 import { TChartFiltersProps } from './types';
 import styles from './chart.module.css';
@@ -140,6 +141,7 @@ export const Chart = ({
 
   const { t, i18n } = useTranslation();
   const { chartDisplay, setChartDisplay } = useContext(AppContext);
+  const { defaultCurrency } = useContext(RatesContext);
   const [searchParams] = useSearchParams();
 
   const ref = useRef<HTMLDivElement>(null);
@@ -165,6 +167,15 @@ export const Chart = ({
     toolTipLeft: 0,
     toolTipTime: 0,
   });
+
+  useEffect(() => {
+    setTooltipData({
+      toolTipVisible: false,
+      toolTipTop: 0,
+      toolTipLeft: 0,
+      toolTipTime: 0,
+    });
+  }, [defaultCurrency]);
 
   const [showAnimationOverlay, setAnimationOverlay] = useState(true);
 

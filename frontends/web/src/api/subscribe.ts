@@ -42,7 +42,7 @@ export const subscribeEndpoint = <T>(
         .catch(console.error);
       break;
     default:
-      throw new Error(`Event: ${event} not supported`);
+      throw new Error(`Event: ${JSON.stringify(event)} not supported`);
     }
   });
 };

@@ -41,7 +41,7 @@ export const Select = ({
       <select id={id} {...props}>
         {options.map(({ value, text, disabled = false }) => (
           <option
-            key={`${value}`}
+            key={String(value)}
             value={value}
             disabled={disabled}
           >
