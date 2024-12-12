@@ -9,7 +9,7 @@
 	appearance: none;
 	background: var(--background-secondary);
 	border: 2px solid var(--background-secondary);
-	border-radius: 2rem;
+	border-radius: 32px;
 	color: var(--color-default);
 	font-size: var(--size-default);
 	line-height: 1.75;
