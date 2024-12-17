@@ -345,9 +345,13 @@ export const proposeTx = (
 };
 
 export type TSendTx = {
-  aborted?: boolean;
-  success?: boolean;
-  errorMessage?: string;
+  success: true;
+} | {
+  success: false;
+  aborted: true;
+} | {
+  success: false;
+  errorMessage: string;
   errorCode?: string;
 };
 

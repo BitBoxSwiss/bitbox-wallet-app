@@ -218,7 +218,7 @@ export const Pocket = ({ code, action }: TProps) => {
     if (result.success) {
       let txNote = t('buy.pocket.paymentRequestNote') + ' ' + message.slip24.recipientName;
       const sendResult = await sendTx(code, txNote);
-      if (!sendResult.success && !sendResult.aborted) {
+      if (!sendResult.success && !('aborted' in sendResult)) {
         alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
       }
     } else {
