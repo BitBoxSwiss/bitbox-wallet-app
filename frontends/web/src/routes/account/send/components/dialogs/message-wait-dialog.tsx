@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { ISendTx } from '@/api/account';
+import type { TSendTx } from '@/api/account';
 import { Cancel, Checked } from '@/components/icon/icon';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { alertUser } from '@/components/alert/Alert';
 
 type TProps = {
-    result: ISendTx | undefined;
-}
+  result: TSendTx | undefined;
+};
 
 export const MessageWaitDialog = ({ result }: TProps) => {
   const { t } = useTranslation();
