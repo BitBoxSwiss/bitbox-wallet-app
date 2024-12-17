@@ -63,7 +63,7 @@ export type State = {
     feeTarget?: accountApi.FeeTargetCode;
     customFee: string;
     isConfirming: boolean;
-    sendResult?: accountApi.ISendTx;
+    sendResult?: accountApi.TSendTx;
     isUpdatingProposal: boolean;
     errorHandling: TProposalError;
     note: string;
