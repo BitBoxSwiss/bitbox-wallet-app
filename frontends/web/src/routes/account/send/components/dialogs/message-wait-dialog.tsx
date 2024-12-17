@@ -31,7 +31,7 @@ export const MessageWaitDialog = ({ result }: TProps) => {
     return null;
   }
 
-  if (!result.aborted && !result.success) {
+  if (!result.success && !('aborted' in result)) {
     switch (result.errorCode) {
     case 'erc20InsufficientGasFunds':
       alertUser(t(`send.error.${result.errorCode}`));
@@ -55,7 +55,7 @@ export const MessageWaitDialog = ({ result }: TProps) => {
             {t('send.success')}
           </>
         )}
-        {result.aborted && (
+        {!result.success && result.aborted && (
           <>
             <Cancel alt="Abort" style={{ height: 18, marginRight: '1rem' }} />
             {t('send.abort')}
