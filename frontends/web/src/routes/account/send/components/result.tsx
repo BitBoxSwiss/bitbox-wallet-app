@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import type { TSendTx } from '@/api/account';
+import type { AccountCode, TSendTx } from '@/api/account';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
+import { Button } from '@/components/forms/button';
 import { alertUser } from '@/components/alert/Alert';
 
 type TProps = {
+  code: AccountCode;
+  onContinue: () => void;
   result: TSendTx | undefined;
 };
 
@@ -28,7 +32,12 @@ type TProps = {
  * @param result response type TSendTx
  * @returns view
  */
-export const SendResult = ({ result }: TProps) => {
+export const SendResult = ({
+  code,
+  result,
+  onContinue,
+}: TProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   if (!result) {
@@ -53,7 +62,7 @@ export const SendResult = ({ result }: TProps) => {
     return null;
   }
   return (
-    <View fullscreen textCenter verticallyCentered>
+    <View fullscreen textCenter verticallyCentered width="520px">
       <ViewHeader />
       <ViewContent withIcon={result.success ? 'success' : 'error'}>
         <p>
@@ -61,6 +70,8 @@ export const SendResult = ({ result }: TProps) => {
         </p>
       </ViewContent>
       <ViewButtons>
+        <Button primary onClick={() => navigate(`/account/${code}`)}>Done</Button>
+        <Button secondary onClick={() => onContinue()}>New transaction</Button>
       </ViewButtons>
     </View>
   );
