@@ -16,22 +16,28 @@
 
 import { useTranslation } from 'react-i18next';
 import type { TSendTx } from '@/api/account';
-import { Cancel, Checked } from '@/components/icon/icon';
-import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
+import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { alertUser } from '@/components/alert/Alert';
 
 type TProps = {
   result: TSendTx | undefined;
 };
 
-export const MessageWaitDialog = ({ result }: TProps) => {
+/**
+ * Renders the final step of send workflow, either success or error message
+ * @param result response type TSendTx
+ * @returns view
+ */
+export const SendResult = ({ result }: TProps) => {
   const { t } = useTranslation();
 
   if (!result) {
     return null;
   }
 
-  if (!result.success && !('aborted' in result)) {
+  const isAborted = 'aborted' in result;
+
+  if (!result.success && !isAborted) {
     switch (result.errorCode) {
     case 'erc20InsufficientGasFunds':
       alertUser(t(`send.error.${result.errorCode}`));
@@ -47,21 +53,15 @@ export const MessageWaitDialog = ({ result }: TProps) => {
     return null;
   }
   return (
-    <WaitDialog>
-      <div className="flex flex-row flex-center flex-items-center">
-        {result.success && (
-          <>
-            <Checked style={{ height: 18, marginRight: '1rem' }} />
-            {t('send.success')}
-          </>
-        )}
-        {!result.success && result.aborted && (
-          <>
-            <Cancel alt="Abort" style={{ height: 18, marginRight: '1rem' }} />
-            {t('send.abort')}
-          </>
-        )}
-      </div>
-    </WaitDialog>
+    <View fullscreen textCenter verticallyCentered>
+      <ViewHeader />
+      <ViewContent withIcon={result.success ? 'success' : 'error'}>
+        <p>
+          { result.success ? t('send.success') : t('send.abort') }
+        </p>
+      </ViewContent>
+      <ViewButtons>
+      </ViewButtons>
+    </View>
   );
 };

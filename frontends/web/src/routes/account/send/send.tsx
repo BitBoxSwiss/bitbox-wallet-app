@@ -31,7 +31,7 @@ import { FeeTargets } from './feetargets';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
-import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
+import { SendResult } from './components/result';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
 import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
@@ -494,7 +494,7 @@ class Send extends Component<Props, State> {
                 coinCode={account.coinCode}
                 transactionDetails={waitDialogTransactionDetails}
               />
-              <MessageWaitDialog result={sendResult}/>
+              <SendResult result={sendResult} />
             </View>
           </Main>
         </GuidedContent>
