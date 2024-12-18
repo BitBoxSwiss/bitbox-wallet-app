@@ -121,7 +121,6 @@ class Send extends Component<Props, State> {
     try {
       const result = await accountApi.sendTx(code, this.state.note);
       this.setState({ sendResult: result, isConfirming: false });
-      setTimeout(() => this.setState({ sendResult: undefined }), 5000);
       if (result.success) {
         this.setState({
           sendAll: false,
@@ -494,7 +493,11 @@ class Send extends Component<Props, State> {
                 coinCode={account.coinCode}
                 transactionDetails={waitDialogTransactionDetails}
               />
-              <SendResult result={sendResult} />
+              <SendResult
+                code={account.code}
+                result={sendResult || { success: true }}
+                onContinue={() => this.setState({ sendResult: undefined })}
+              />
             </View>
           </Main>
         </GuidedContent>
