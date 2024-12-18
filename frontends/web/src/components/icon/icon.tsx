@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import abortSVG from './assets/icons/abort.svg';
 import alert from './assets/icons/alert-triangle.svg';
 import BB02StylizedDark from '@/assets/device/bitbox02-stylized-reflection-dark.png';
 import BB02StylizedLight from '@/assets/device/bitbox02-stylized-reflection-light.png';
@@ -154,6 +155,7 @@ export const ExpandIcon = ({
 
 type ImgProps = JSX.IntrinsicElements['img'];
 
+export const Abort = (props: ImgProps) => (<img src={abortSVG} draggable={false} {...props} />);
 export const ArrowDown = (props: ImgProps) => (<img src={arrowDownSVG} draggable={false} {...props} />);
 export const ArrowDownGreen = (props: ImgProps) => (<img src={arrowDownGreenSVG} draggable={false} {...props} />);
 export const ArrowDownRed = (props: ImgProps) => (<img src={arrowDownRedSVG} draggable={false} {...props} />);
