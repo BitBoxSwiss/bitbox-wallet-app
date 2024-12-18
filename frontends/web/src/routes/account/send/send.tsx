@@ -389,6 +389,12 @@ class Send extends Component<Props, State> {
       activeCurrency,
     };
 
+    if (sendResult) {
+      return (
+        <SendResult result={sendResult} />
+      );
+    }
+
     return (
       <GuideWrapper>
         <GuidedContent>
@@ -494,7 +500,6 @@ class Send extends Component<Props, State> {
                 coinCode={account.coinCode}
                 transactionDetails={waitDialogTransactionDetails}
               />
-              <SendResult result={sendResult} />
             </View>
           </Main>
         </GuidedContent>
