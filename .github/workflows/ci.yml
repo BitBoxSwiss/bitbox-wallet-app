@@ -121,7 +121,7 @@ jobs:
         with:
           node-version: '20.x'
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
       - name: Install Qt
