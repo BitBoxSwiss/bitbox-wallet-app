@@ -110,6 +110,22 @@ class Send extends Component<Props, State> {
     }
   }
 
+  private reset = () => {
+    this.setState({
+      sendAll: false,
+      isConfirming: false,
+      recipientAddress: '',
+      proposedAmount: undefined,
+      proposedFee: undefined,
+      proposedTotal: undefined,
+      fiatAmount: '',
+      amount: '',
+      note: '',
+      customFee: '',
+    });
+    this.selectedUTXOs = {};
+  };
+
   private send = async () => {
     const code = this.props.account.code;
     const connectResult = await accountApi.connectKeystore(code);
@@ -122,19 +138,7 @@ class Send extends Component<Props, State> {
       const result = await accountApi.sendTx(code, this.state.note);
       this.setState({ sendResult: result, isConfirming: false });
       if (result.success) {
-        this.setState({
-          sendAll: false,
-          isConfirming: false,
-          recipientAddress: '',
-          proposedAmount: undefined,
-          proposedFee: undefined,
-          proposedTotal: undefined,
-          fiatAmount: '',
-          amount: '',
-          note: '',
-          customFee: '',
-        });
-        this.selectedUTXOs = {};
+        this.reset();
       }
     } catch (err) {
       console.error(err);
