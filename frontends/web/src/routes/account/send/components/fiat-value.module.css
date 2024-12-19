@@ -1,0 +1,8 @@
+.fiatValue {
+  color: var(--color-default);
+}
+
+.unit {
+  color: var(--color-secondary);
+  font-size: var(--size-default);
+}
