@@ -1600,6 +1600,7 @@
     },
     "availableBalance": "Available balance",
     "button": "Review",
+    "buyEth": "Buy ETH",
     "coincontrol": {
       "address": "Address",
       "addressReused": "Address re-used",
@@ -1614,6 +1615,7 @@
       "to": "To",
       "total": "Total"
     },
+    "edit": "Edit transaction",
     "error": {
       "erc20InsufficientGasFunds": "It seems like you do not have enough Ether to pay for this ERC20 transaction. Please make sure you hold enough Ether in your wallet",
       "feeTooLow": "fee too low",
@@ -1665,6 +1667,7 @@
     },
     "maximum": "Send all",
     "maximumSelectedCoins": "Send selected coins",
+    "newTransaction": "New transaction",
     "noFeeTargets": "Fee rate estimations are currently unavailable. Please try again later or enter a custom fee.",
     "priority": "Priority",
     "scanQR": "Scan QR code",
