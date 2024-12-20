@@ -27,6 +27,7 @@ import { Button } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { translate, TranslateProps } from '@/decorators/translate';
+import { Amount } from '@/components/amount/amount';
 import { FeeTargets } from './feetargets';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { ConfirmSend } from './components/confirm/confirm';
@@ -36,6 +37,7 @@ import { ReceiverAddressInput } from './components/inputs/receiver-address-input
 import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
+import { FiatValue } from './components/fiat-value';
 import { TSelectedUTXOs } from './utxos';
 import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
@@ -137,9 +139,6 @@ class Send extends Component<Props, State> {
     try {
       const result = await accountApi.sendTx(code, this.state.note);
       this.setState({ sendResult: result, isConfirming: false });
-      if (result.success) {
-        this.reset();
-      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -354,6 +353,13 @@ class Send extends Component<Props, State> {
     });
   };
 
+  private handleContinue = () => {
+    this.setState({
+      sendResult: undefined,
+    });
+    this.reset();
+  };
+
   public render() {
     const {
       account,
@@ -497,11 +503,25 @@ class Send extends Component<Props, State> {
                 coinCode={account.coinCode}
                 transactionDetails={waitDialogTransactionDetails}
               />
-              <SendResult
-                code={account.code}
-                result={sendResult || { success: true }}
-                onContinue={() => this.setState({ sendResult: undefined })}
-              />
+              {sendResult && (
+                <SendResult
+                  code={account.code}
+                  result={sendResult}
+                  onContinue={this.handleContinue}
+                  onRetry={() => this.setState({ sendResult: undefined })}>
+                  <p>
+                    {(proposedAmount &&
+                    <Amount alwaysShowAmounts amount={proposedAmount.amount} unit={proposedAmount.unit}/>) || 'N/A'}
+                    {' '}
+                    <span className={style.unit}>
+                      {(proposedAmount && proposedAmount.unit) || 'N/A'}
+                    </span>
+                  </p>
+                  {(proposedAmount && proposedAmount.conversions && proposedAmount.conversions[activeCurrency]) ? (
+                    <FiatValue baseCurrencyUnit={activeCurrency} amount={proposedAmount.conversions[activeCurrency] || ''} />
+                  ) : null}
+                </SendResult>
+              )}
             </View>
           </Main>
         </GuidedContent>

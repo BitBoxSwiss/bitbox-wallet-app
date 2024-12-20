@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
+import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, TSendTx } from '@/api/account';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Button } from '@/components/forms/button';
-import { alertUser } from '@/components/alert/Alert';
 
 type TProps = {
+  children?: ReactNode;
   code: AccountCode;
   onContinue: () => void;
+  onRetry: () => void;
   result: TSendTx | undefined;
 };
 
@@ -33,45 +35,99 @@ type TProps = {
  * @returns view
  */
 export const SendResult = ({
+  children,
   code,
   result,
   onContinue,
+  onRetry,
 }: TProps) => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   if (!result) {
     return null;
   }
 
-  const isAborted = 'aborted' in result;
-
-  if (!result.success && !isAborted) {
+  if (!result.success) {
+    if ('aborted' in result) {
+      return (
+        <View fullscreen textCenter verticallyCentered width="520px">
+          <ViewHeader />
+          <ViewContent withIcon="error">
+            <p>
+              {t('send.abort')}
+            </p>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={() => navigate(`/account/${code}`)}>
+              {t('button.done')}
+            </Button>
+            <Button secondary onClick={() => onRetry()}>
+              {t('send.edit')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
+    }
     switch (result.errorCode) {
     case 'erc20InsufficientGasFunds':
-      alertUser(t(`send.error.${result.errorCode}`));
-      break;
+      return (
+        <View fullscreen textCenter verticallyCentered width="520px">
+          <ViewHeader />
+          <ViewContent withIcon="error">
+            <p>
+              {t(`send.error.${result.errorCode}`)}
+            </p>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={() => navigate(`/account/${code}`)}>
+              {t('button.done')}
+            </Button>
+            <Button secondary onClick={() => navigate(`/exchange/select/${code}`, { replace: true })}>
+              {t('send.buyEth')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
     default:
       const { errorMessage } = result;
-      if (errorMessage) {
-        alertUser(t('unknownError', { errorMessage }));
-      } else {
-        alertUser(t('unknownError'));
-      }
+      return (
+        <View fullscreen textCenter verticallyCentered width="520px">
+          <ViewHeader />
+          <ViewContent withIcon="error">
+            <p>
+              {t('unknownError', { errorMessage })}
+            </p>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={() => navigate(`/account/${code}`)}>
+              {t('button.done')}
+            </Button>
+            <Button secondary onClick={() => onRetry()}>
+              {t('send.edit')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
     }
-    return null;
   }
+
   return (
     <View fullscreen textCenter verticallyCentered width="520px">
       <ViewHeader />
-      <ViewContent withIcon={result.success ? 'success' : 'error'}>
+      <ViewContent withIcon="success">
         <p>
-          { result.success ? t('send.success') : t('send.abort') }
+          {t('send.success')}
         </p>
+        {children}
       </ViewContent>
       <ViewButtons>
-        <Button primary onClick={() => navigate(`/account/${code}`)}>Done</Button>
-        <Button secondary onClick={() => onContinue()}>New transaction</Button>
+        <Button primary onClick={() => navigate(`/account/${code}`)}>
+          {t('button.done')}
+        </Button>
+        <Button secondary onClick={() => onContinue()}>
+          {t('send.newTransaction')}
+        </Button>
       </ViewButtons>
     </View>
   );
