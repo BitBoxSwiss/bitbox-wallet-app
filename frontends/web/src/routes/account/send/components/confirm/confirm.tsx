@@ -44,7 +44,7 @@ export const ConfirmSend = (props: TConfirmSend) => {
   ));
 };
 
-export const BB02ConfirmSend = ({
+const BB02ConfirmSend = ({
   baseCurrencyUnit,
   note,
   hasSelectedUTXOs,
