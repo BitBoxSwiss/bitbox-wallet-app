@@ -29,7 +29,7 @@ import { View } from '@/components/view/view';
 import { Chart } from './chart';
 import { SummaryBalance } from './summarybalance';
 import { CoinBalance } from './coinbalance';
-import { AddBuyReceiveOnEmptyBalances } from '@/routes/account/info/buyReceiveCTA';
+import { AddBuyReceiveOnEmptyBalances } from '@/routes/account/info/buy-receive-cta';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';

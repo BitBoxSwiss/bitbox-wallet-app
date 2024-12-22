@@ -37,7 +37,7 @@ import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbut
 import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
 import { AccountGuide } from './guide';
-import { BuyReceiveCTA } from './info/buyReceiveCTA';
+import { BuyReceiveCTA } from './info/buy-receive-cta';
 import { isBitcoinBased } from './utils';
 import { getScriptName } from './utils';
 import { MultilineMarkup } from '@/utils/markup';

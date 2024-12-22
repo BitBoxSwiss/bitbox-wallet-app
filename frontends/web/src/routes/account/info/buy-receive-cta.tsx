@@ -26,7 +26,7 @@ import { getExchangeSupportedAccounts } from '@/routes/exchange/utils';
 import { WalletConnectLight } from '@/components/icon';
 import { useMountedRef } from '@/hooks/mount';
 import { SubTitle } from '@/components/title';
-import styles from './buyReceiveCTA.module.css';
+import styles from './buy-receive-cta.module.css';
 
 type TBuyReceiveCTAProps = {
   balanceList?: IBalance[];
