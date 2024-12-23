@@ -15,5 +15,5 @@ linux:
 		-extldflags="${GOLNXEXTLDFLAGS}" -o ${LIBNAME}.so
 
 clean:
-	-rm ${LIBNAME}.so
-	-rm ${LIBNAME}.h
+	-rm -f ${LIBNAME}.so
+	-rm -f ${LIBNAME}.h
