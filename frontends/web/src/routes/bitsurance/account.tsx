@@ -90,7 +90,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   };
 
   if (btcAccounts === undefined) {
-    return <Spinner guideExists={false} text={t('loading')} />;
+    return <Spinner text={t('loading')} />;
   }
 
   return (
