@@ -17,7 +17,7 @@
 
 import { useContext } from 'react';
 import { AppContext } from '@/contexts/AppContext';
-import { MenuDark } from '@/components/icon';
+import { MenuDark, MenuLight } from '@/components/icon';
 import { SpinnerAnimation } from './SpinnerAnimation';
 import style from './Spinner.module.css';
 
@@ -33,7 +33,8 @@ const Spinner = ({ text }: TProps) => {
       <div className={style.togglersContainer}>
         <div className={style.togglerContainer}>
           <div className={style.toggler} onClick={toggleSidebar}>
-            <MenuDark />
+            <MenuDark className="show-in-lightmode" />
+            <MenuLight className="show-in-darkmode" />
           </div>
         </div>
       </div>
