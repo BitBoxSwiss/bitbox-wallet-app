@@ -1,0 +1,14 @@
+.container {
+    padding: calc(var(--space-default) * 1.5) 0;
+    text-align: center;
+}
+
+.buttons {
+    display: flex;
+    gap: var(--space-half);
+    justify-content: center;
+}
+
+.walletConnect span {
+    margin-left: var(--space-eight);
+}

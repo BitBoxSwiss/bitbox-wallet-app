@@ -624,7 +624,11 @@ export const Chart = ({
               time: new Date(lastTimestamp).toLocaleString(i18n.language)
             })}
           </div>
-        ) : noDataPlaceholder}
+        ) : (
+          <div className={styles.placeholderContainer}>
+            {noDataPlaceholder}
+          </div>
+        )}
         <div ref={ref} className={styles.invisible}></div>
         <span
           ref={refToolTip}

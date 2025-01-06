@@ -26,7 +26,7 @@ import { getExchangeSupportedAccounts } from '@/routes/exchange/utils';
 import { WalletConnectLight } from '@/components/icon';
 import { useMountedRef } from '@/hooks/mount';
 import { SubTitle } from '@/components/title';
-import styles from './buyReceiveCTA.module.css';
+import styles from './buy-receive-cta.module.css';
 
 type TBuyReceiveCTAProps = {
   balanceList?: IBalance[];
@@ -68,14 +68,14 @@ export const BuyReceiveCTA = ({
   };
 
   return (
-    <div className={`${styles.main}`}>
+    <div className={styles.container}>
       <SubTitle>
         {t('accountInfo.buyCTA.information.looksEmpty')}
       </SubTitle>
       <p>
         {t('accountInfo.buyCTA.information.start')}
       </p>
-      <div className={styles.container}>
+      <div className={styles.buttons}>
         {balanceList && (
           <Button primary onClick={onReceiveCTA}>
             {/* "Receive Bitcoin", "Receive crypto" or "Receive LTC" (via placeholder "Receive {{coinCode}}") */}
