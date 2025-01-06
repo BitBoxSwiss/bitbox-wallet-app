@@ -230,7 +230,7 @@ export const Account = ({
 
   if (status.fatalError) {
     return (
-      <Spinner guideExists text={t('account.fatalError')} />
+      <Spinner text={t('account.fatalError')} />
     );
   }
 

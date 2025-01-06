@@ -83,7 +83,7 @@ export const ExchangeInfo = ({ code, accounts }: TProps) => {
   };
 
   if (supportedAccounts === undefined) {
-    return <Spinner guideExists={false} text={t('loading')} />;
+    return <Spinner text={t('loading')} />;
   }
 
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));

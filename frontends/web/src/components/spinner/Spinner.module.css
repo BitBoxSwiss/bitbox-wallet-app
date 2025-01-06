@@ -109,22 +109,6 @@
     align-items: center;
 }
 
-.guideToggler {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    height: 32px;
-    color: var(--color-primary);
-    font-size: var(--size-default);
-    cursor: default;
-}
-
-.guideToggler svg {
-    width: 18px;
-    height: 18px;
-    margin-right: calc(var(--space-quarter) / 2);
-}
-
 .toggler {
     width: 32px;
     height: 32px;
