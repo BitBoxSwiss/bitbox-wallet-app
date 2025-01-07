@@ -1,5 +1,5 @@
 /**
- * Copyright 2023-2024 Shift Crypto AG
+ * Copyright 2023-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,15 @@
 
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '@/hooks/api';
 import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/forms/button';
 import { EyeClosed, EyeOpened } from '@/components/icon';
-import { getConfig } from '@/utils/config';
 import styles from './hideamountsbutton.module.css';
 
 export const HideAmountsButton = () => {
   const { t } = useTranslation();
   const { hideAmounts, toggleHideAmounts } = useContext(AppContext);
-  const config = useLoad(getConfig);
 
-  if (!config || !config.frontend.allowHideAmounts) {
-    return null;
-  }
   return (
     <Button className={styles.button} onClick={toggleHideAmounts} transparent>
       {hideAmounts ? <EyeClosed /> : <EyeOpened />}
