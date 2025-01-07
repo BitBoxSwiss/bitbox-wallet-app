@@ -41,7 +41,7 @@ dockerdev () {
     fi
 
     # A container based on a different image version is running. Let's stop and remove it.
-    if $RUNTIME ps | grep -q $container_name; then
+    if $RUNTIME ps -a | grep -q $container_name; then
       $RUNTIME stop $container_name
       $RUNTIME rm $container_name
     fi
