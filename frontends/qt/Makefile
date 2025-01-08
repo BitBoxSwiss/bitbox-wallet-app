@@ -30,7 +30,13 @@ linux:
 	mv build/BitBox build/linux-tmp
 	cp build/assets.rcc build/linux-tmp/
 	cp server/libserver.so build/linux-tmp
-	cd build/linux-tmp && /opt/linuxdeployqt-continuous-x86_64.AppImage BitBox -bundle-non-qt-libs -unsupported-allow-new-glibc
+	cd build/linux-tmp && /opt/linuxdeployqt-continuous-x86_64.AppImage BitBox \
+		-bundle-non-qt-libs \
+		-unsupported-allow-new-glibc \
+		# Add Wayland libs so the app can run natively on Wayland too.
+		# The linuxdeployqt maintainer unfortunately refuses to support it automatically: https://github.com/probonopd/linuxdeployqt/issues/189
+		# The list of related plugins was found by: `find $(qmake -query QT_INSTALL_PLUGINS) | grep wayland`
+		-extra-plugins=platforms/libqwayland-generic.so,platforms/libqwayland-egl.so,wayland-graphics-integration-client,wayland-decoration-client,wayland-shell-integration
 	cp /usr/lib/x86_64-linux-gnu/nss/* build/linux-tmp/lib
 	cp -aR resources/linux build/tmp-deb
 	cp resources/linux/usr/share/applications/bitbox.desktop build/linux-tmp

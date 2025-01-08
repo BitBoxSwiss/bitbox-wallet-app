@@ -50,6 +50,8 @@ apt-get install -y --no-install-recommends \
         libxcb-randr0 \
         libxcb-shape0 \
         libxcb-xinput0 \
+        libwayland-cursor0 \
+        libwayland-egl1 \
         libcups2 \
         libgl1-mesa-dev \
         libegl1-mesa-dev \
