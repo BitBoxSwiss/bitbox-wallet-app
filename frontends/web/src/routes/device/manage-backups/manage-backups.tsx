@@ -17,6 +17,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { TDevices } from '@/api/devices';
+import { SubTitle } from '@/components/title';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
@@ -48,7 +49,6 @@ export const ManageBackups = ({
             title={<h2>{t('backup.title')}</h2>}
           />
           <div className="content padded">
-            <h3 className="subTitle">{t('backup.list')}</h3>
             <BackupsList
               deviceID={deviceID}
               devices={devices}
@@ -74,15 +74,19 @@ const BackupsList = ({
   }
   switch (devices[deviceID]) {
   case 'bitbox':
+
     return (
-      <Backups
-        deviceID={deviceID}
-        showCreate={true}
-        showRestore={false}>
-        <BackButton>
-          {t('button.back')}
-        </BackButton>
-      </Backups>
+      <>
+        <SubTitle>{t('backup.list')}</SubTitle>
+        <Backups
+          deviceID={deviceID}
+          showCreate={true}
+          showRestore={false}>
+          <BackButton>
+            {t('button.back')}
+          </BackButton>
+        </Backups>
+      </>
     );
   case 'bitbox02':
     return (
