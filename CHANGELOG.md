@@ -7,6 +7,7 @@
 - Fix address signing fail on screen rotation for Pocket and Bitsurance
 - Restrict selection to text files when importing notes
 - Display the hide amount button by default and remove its settings
+- Linux: add support for Wayland
 
 # 4.46.3
 - Fix camera access on linux
