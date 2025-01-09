@@ -6,6 +6,7 @@
 - Use native scrollbars on macOS, iOS and Android
 - Fix address signing fail on screen rotation for Pocket and Bitsurance
 - Restrict selection to text files when importing notes
+- Display the hide amount button by default and remove its settings
 
 # 4.46.3
 - Fix camera access on linux

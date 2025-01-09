@@ -1,5 +1,5 @@
 /**
- * Copyright 2023-2024 Shift Crypto AG
+ * Copyright 2023-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import { DefaultCurrencyDropdownSetting } from './components/appearance/defaultC
 import { DisplaySatsToggleSetting } from './components/appearance/displaySatsToggleSetting';
 import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
 import { ActiveCurrenciesDropdownSetting } from './components/appearance/activeCurrenciesDropdownSetting';
-import { HideAmountsSetting } from './components/appearance/hideAmountsSetting';
 import { WithSettingsTabs } from './components/tabs';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
@@ -62,7 +61,6 @@ export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) 
                 <ActiveCurrenciesDropdownSetting />
                 <DarkmodeToggleSetting />
                 <DisplaySatsToggleSetting />
-                <HideAmountsSetting />
                 { hasAccounts ? (
                   <>
                     <SubTitle className="m-top-default">
