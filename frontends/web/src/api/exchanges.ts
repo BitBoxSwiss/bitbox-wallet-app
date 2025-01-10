@@ -114,7 +114,7 @@ export type TBtcDirectResponse = {
   success: false;
 };
 
-export const getBtcDirectSupported = (code: AccountCode, region: ExchangeRegion['code']) => {
+export const getBtcDirectOTCSupported = (code: AccountCode, region: ExchangeRegion['code']) => {
   return (): Promise<TBtcDirectResponse> => {
     return apiGet(`exchange/btcdirect/supported/${code}?region=${region}`);
   };

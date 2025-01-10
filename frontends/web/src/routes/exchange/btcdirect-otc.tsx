@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import { BTCDirectTerms } from '@/components/terms/btcdirect-terms';
+import { BTCDirectOTCTerms } from '@/components/terms/btcdirect-otc-terms';
 import { getBTCDirectLink } from './components/buysell';
 import { useNavigate } from 'react-router-dom';
-import style from './iframe.module.css';
 import { Header } from '@/components/layout';
 import { useTranslation } from 'react-i18next';
 import { open } from '@/api/system';
+import style from './iframe.module.css';
 
-export const BTCDirect = () => {
+export const BTCDirectOTC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -38,7 +38,7 @@ export const BTCDirect = () => {
           <Header title={<h2>{t('buy.exchange.infoContent.btcdirect.disclaimer.title')}</h2>} />
         </div>
         <div className={style.container}>
-          <BTCDirectTerms
+          <BTCDirectOTCTerms
             onContinue={() => openBTCDirect()}
           />
         </div>
