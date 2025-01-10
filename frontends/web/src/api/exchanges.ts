@@ -40,8 +40,10 @@ export type ExchangeDeal = {
   isBest: boolean;
 }
 
+export type TExchangeName = 'moonpay' | 'pocket' | 'btcdirect';
+
 export type ExchangeDeals = {
-  exchangeName: 'moonpay' | 'pocket' | 'btcdirect';
+  exchangeName: TExchangeName;
   deals: ExchangeDeal[];
 }
 

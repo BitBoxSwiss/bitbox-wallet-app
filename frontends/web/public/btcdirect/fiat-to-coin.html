@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTC Direct - Buy</title>
+
+<link href="./btcdirect.css" rel="stylesheet">
+
+<div class="btcdirect-widget"></div>
+<script src="./polyfill.js"></script>
+
+<script lang="js">
+  ;(() => {
+    const {
+      address,
+      apiKey,
+      baseCurrency,
+      mode,
+      quoteCurrency,
+    } = window.frameElement?.dataset;
+
+    if (mode === 'debug') {
+      console.info(window.frameElement?.dataset);
+    }
+
+    if ( // this should never happen, but if it does we stop here
+      !address
+      || !baseCurrency
+      || !quoteCurrency
+    ) {
+      document.body.append(
+        Object.assign(document.createElement('h1'), {
+          style: 'color: red; padding: 1rem;',
+          textContent: `Unexpected error:
+            ${!address ? 'Address missing' : ''}
+            ${!baseCurrency ? 'BaseCurrency missing' : ''}
+            ${!quoteCurrency ? 'QuoteCurrency missing' : ''}
+          `
+        })
+      );
+      return;
+    }
+
+    const currency = baseCurrency.toUpperCase();
+
+    // add the btcdirect CSS
+    document.head.appendChild(
+      Object.assign(document.createElement('link'), {
+        href: (
+          mode === 'production'
+          ? 'https://cdn.btcdirect.eu/fiat-to-coin/fiat-to-coin.css'
+          : 'https://cdn-sandbox.btcdirect.eu/fiat-to-coin/fiat-to-coin.css'
+        ),
+        rel: 'stylesheet',
+      })
+    );
+
+    // add the btcdirect script
+    (function (btc, d, i, r, e, c, t) {
+      btc[r] = btc[r] || function () {
+        (btc[r].q = btc[r].q || []).push(arguments)
+      };
+      c = d.createElement(i);
+      c.id = r; c.src = e; c.async = true;
+      c.type = 'module'; c.dataset.btcdirect = '';
+      t = d.getElementsByTagName(i)[0];
+      t.parentNode.insertBefore(c, t);
+    })(window, document, 'script', 'btcdirect',
+      mode === 'production'
+      ? 'https://cdn.btcdirect.eu/fiat-to-coin/fiat-to-coin.js'
+      : 'https://cdn-sandbox.btcdirect.eu/fiat-to-coin/fiat-to-coin.js'
+    );
+
+    btcdirect('init', {
+      token: apiKey,
+      debug: mode === 'debug',
+      locale: window.frameElement?.dataset.locale || 'en-US',
+      theme: window.frameElement?.dataset.theme || 'light',
+    });
+
+    // fiat to coin order
+    btcdirect('wallet-addresses', {
+      addresses: {
+        address,
+        currency,
+        id: 'BitBox',
+        walletName: 'BitBox'
+      }
+    });
+
+    btcdirect('set-parameters',
+      mode === 'production' ? {
+        baseCurrency: currency,
+        fixedCurrency: true,
+        quoteCurrency,
+        // paymentMethod: any of 'bancontact', 'bankTransfer', 'creditCard', 'giropay', 'iDeal', 'sofort', 'applepay'
+        showWalletAddress: false,
+      } : {
+        baseCurrency: currency,
+        fixedCurrency: true,
+        paymentMethod: 'sofort', // sandbox currently only supports sofort payment method
+        quoteCurrency,
+        showWalletAddress: false,
+      }
+    );
+
+    window.addEventListener('btcdirect-embeddable-fiat-to-coin-order-confirmed', (event) => {
+      consoel.log('btcdirect-embeddable-fiat-to-coin-order-confirmed', event);
+      // Handle the event
+      // Note that the sent information from the widget is found inside event.detail
+    });
+
+  })();
+</script>

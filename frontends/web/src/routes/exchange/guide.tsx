@@ -15,11 +15,12 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import type { TExchangeName } from '@/api/exchanges';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 
 interface BuyGuideProps {
-  exchange?: 'pocket' | 'moonpay';
+  exchange?: TExchangeName;
   translationContext: 'bitcoin' | 'crypto';
 }
 
