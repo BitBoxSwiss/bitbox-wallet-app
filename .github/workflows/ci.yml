@@ -40,8 +40,7 @@ jobs:
           #
           # Keep this in sync with default in scripts/github-ci.sh.
           CI_IMAGE_VERSION=$(cat .containerversion)
-          echo "CI_IMAGE=ghcr.io/bitboxswiss/bitbox-wallet-app-ci:$CI_IMAGE_VERSION" >> $GITHUB_ENV
-          echo "::set-output name=ci_image::ghcr.io/bitboxswiss/bitbox-wallet-app-ci:$CI_IMAGE_VERSION"
+          echo "ci_image=ghcr.io/bitboxswiss/bitbox-wallet-app-ci:$CI_IMAGE_VERSION" >> $GITHUB_OUTPUT
 
   test-lint:
     runs-on: ubuntu-22.04
