@@ -167,6 +167,7 @@ const Amounts = ({
   const conversionPrefix = amount.estimated ? '\u2248' : null; // ≈
   const sendToSelf = type === 'send_to_self';
   const conversionUnit = sendToSelf ? amount.unit : defaultCurrency;
+  const conversionIsFiat = conversionUnit !== 'BTC' && conversionUnit !== 'sat';
 
   return (
     <span className={`${styles.txAmountsColumn} ${styles[txTypeClass]}`}>
@@ -189,7 +190,7 @@ const Amounts = ({
             <Arrow type="send_to_self" />
           </span>
         )}
-        {(conversionPrefix && !sendToSelf) && (
+        {(conversionPrefix && !sendToSelf && conversionIsFiat) && (
           <span className={styles.txPrefix}>
             {conversionPrefix}
             {' '}
