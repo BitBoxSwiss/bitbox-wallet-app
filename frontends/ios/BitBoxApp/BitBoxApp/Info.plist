@@ -6,5 +6,9 @@
 	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to the camera to scan QR codes.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>This app uses Bluetooth to connect to devices.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Bluetooth is needed for communication with devices.</string>
 </dict>
 </plist>
