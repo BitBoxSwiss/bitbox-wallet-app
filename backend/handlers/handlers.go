@@ -24,6 +24,7 @@ import (
 	"io"
 	"math/big"
 	"net/http"
+	"os"
 	"runtime/debug"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
@@ -1195,7 +1196,11 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 		if devMode {
 			// This enables us to run a server on a different port serving just the UI, while still
 			// allowing it to access the API.
-			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+			vitePort, ok := os.LookupEnv("VITE_PORT")
+			if !ok {
+				vitePort = "8080"
+			}
+			w.Header().Set("Access-Control-Allow-Origin", fmt.Sprintf("http://localhost:%s", vitePort))
 		}
 		value, err := h(r)
 		if err != nil {
