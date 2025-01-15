@@ -35,6 +35,7 @@ export const Transaction = ({
   addresses,
   amountAtTime,
   fee,
+  deductedAmount,
   onShowDetail,
   internalID,
   note,
@@ -67,7 +68,7 @@ export const Transaction = ({
           type={type}
         />
         <Amounts
-          amount={amountAtTime}
+          amount={type === 'send' ? deductedAmount : amountAtTime}
           fee={fee}
           type={type}
         />
