@@ -301,7 +301,7 @@ export const Pocket = ({ code, action }: TProps) => {
                 height={height}
                 frameBorder="0"
                 className={style.iframe}
-                allow="camera; payment"
+                allow="camera; payment; clipboard-write;"
                 src={iframeURL}>
               </iframe>
             </div>
