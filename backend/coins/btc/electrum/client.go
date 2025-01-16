@@ -18,6 +18,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
+	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -120,7 +123,8 @@ func (c *client) TransactionBroadcast(transaction *wire.MsgTx) error {
 	rawTxHex := hex.EncodeToString(rawTx.Bytes())
 	txID, err := c.client.TransactionBroadcast(context.Background(), rawTxHex)
 	if err != nil {
-		return err
+		// Return a new error, stripping the rawTxHex from it, if it is there.
+		return errors.New(strings.ReplaceAll(err.Error(), fmt.Sprintf("[%s]", rawTxHex), ""))
 	}
 	if txID != transaction.TxHash().String() {
 		return errp.New("Response is unexpected (transaction hash mismatch)")
