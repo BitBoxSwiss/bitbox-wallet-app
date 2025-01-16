@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IAmount, TTransactionStatus, TTransactionType, ITransaction } from '@/api/account';
-import { RatesContext } from '@/contexts/RatesContext';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Loupe } from '@/components/icon/icon';
 import { parseTimeLong, parseTimeShort } from '@/utils/date';
 import { ProgressRing } from '@/components/progressRing/progressRing';
 import { Amount } from '@/components/amount/amount';
+import { ConversionAmount } from '@/components/amount/conversion-amount';
 import { Arrow } from './components/arrows';
-import { getTxSign } from './utils';
+import { getTxSign } from '@/utils/transaction';
 import styles from './transaction.module.css';
 
 type TTransactionProps = ITransaction & {
@@ -146,56 +145,6 @@ const Status = ({
       {isComplete && !showProgress && time && (
         <Date time={time} />
       )}
-    </span>
-  );
-};
-
-type TConversionAmountProps = {
-  amount: IAmount;
-  type: TTransactionType;
-}
-
-const btcUnits: Readonly<string[]> = ['BTC', 'TBTC', 'sat', 'tsat'];
-
-/**
- * Renders a formattted conversion amount optionally with send-to-self icon or estimate symbol
- */
-export const ConversionAmount = ({
-  amount,
-  type,
-}: TConversionAmountProps) => {
-  const { defaultCurrency } = useContext(RatesContext);
-  const conversion = amount?.conversions && amount?.conversions[defaultCurrency];
-  const sign = getTxSign(type);
-  const estimatedPrefix = '\u2248'; // ≈
-  const sendToSelf = type === 'send_to_self';
-  const conversionUnit = sendToSelf ? amount.unit : defaultCurrency;
-
-  // we skip the estimated conversion prefix when the Tx is send to self, or both coin and conversion are in BTC units.
-  const skipEstimatedPrefix = sendToSelf || (btcUnits.includes(conversionUnit) && btcUnits.includes(amount.unit));
-
-  return (
-    <span className={styles.txConversionAmount}>
-      {sendToSelf && (
-        <span className={styles.txSmallInlineIcon}>
-          <Arrow type="send_to_self" />
-        </span>
-      )}
-      {amount.estimated && !skipEstimatedPrefix && (
-        <span className={styles.txPrefix}>
-          {estimatedPrefix}
-          {' '}
-        </span>
-      )}
-      {conversion && !sendToSelf ? sign : null}
-      <Amount
-        amount={sendToSelf ? amount.amount : conversion || ''}
-        unit={conversionUnit}
-      />
-      <span className={styles.txUnit}>
-        {' '}
-        {conversionUnit}
-      </span>
     </span>
   );
 };

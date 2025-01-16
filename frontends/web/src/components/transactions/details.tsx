@@ -19,7 +19,7 @@ import type { AccountCode, ITransaction } from '@/api/account';
 import { getTransaction } from '@/api/account';
 import { usePrevious } from '@/hooks/previous';
 import { TxDetailsDialog } from './components/details-dialog';
-import { getTxSign } from './utils';
+import { getTxSign } from '@/utils/transaction';
 
 type TProps = {
   accountCode: AccountCode;
