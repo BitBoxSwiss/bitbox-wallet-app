@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-export const getTxSign = (type: string) => {
+import type { TTransactionType } from '@/api/account';
+
+export const getTxSign = (type: TTransactionType) => {
   switch (type) {
   case 'send_to_self':
   case 'send':
