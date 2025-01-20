@@ -24,6 +24,7 @@ import styles from './conversion-amount.module.css';
 
 type TConversionAmountProps = {
   amount: IAmount;
+  deductedAmount: IAmount;
   type: TTransactionType;
 }
 
@@ -34,6 +35,7 @@ const btcUnits: Readonly<string[]> = ['BTC', 'TBTC', 'sat', 'tsat'];
  */
 export const ConversionAmount = ({
   amount,
+  deductedAmount,
   type,
 }: TConversionAmountProps) => {
   const { defaultCurrency } = useContext(RatesContext);
@@ -41,10 +43,12 @@ export const ConversionAmount = ({
   const sign = getTxSign(type);
   const estimatedPrefix = '\u2248'; // ≈
   const sendToSelf = type === 'send_to_self';
-  const conversionUnit = sendToSelf ? amount.unit : defaultCurrency;
+  const recv = type === 'receive';
+  const amountToShow = recv || sendToSelf ? amount : deductedAmount;
+  const conversionUnit = sendToSelf ? amountToShow.unit : defaultCurrency;
 
   // we skip the estimated conversion prefix when the Tx is send to self, or both coin and conversion are in BTC units.
-  const skipEstimatedPrefix = sendToSelf || (btcUnits.includes(conversionUnit) && btcUnits.includes(amount.unit));
+  const skipEstimatedPrefix = sendToSelf || (btcUnits.includes(conversionUnit) && btcUnits.includes(amountToShow.unit));
 
   return (
     <span className={styles.txConversionAmount}>
@@ -53,7 +57,7 @@ export const ConversionAmount = ({
           <Arrow type="send_to_self" />
         </span>
       )}
-      {amount.estimated && !skipEstimatedPrefix && (
+      {amountToShow.estimated && !skipEstimatedPrefix && (
         <span className={styles.txPrefix}>
           {estimatedPrefix}
           {' '}
@@ -61,7 +65,7 @@ export const ConversionAmount = ({
       )}
       {conversion && !sendToSelf ? sign : null}
       <Amount
-        amount={sendToSelf ? amount.amount : conversion || ''}
+        amount={sendToSelf ? amountToShow.amount : conversion || ''}
         unit={conversionUnit}
       />
       <span className={styles.txUnit}>

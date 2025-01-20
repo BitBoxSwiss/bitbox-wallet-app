@@ -33,8 +33,7 @@ type TTransactionProps = ITransaction & {
 export const Transaction = ({
   addresses,
   amountAtTime,
-  fee,
-  deductedAmount,
+  deductedAmountAtTime,
   onShowDetail,
   internalID,
   note,
@@ -67,8 +66,8 @@ export const Transaction = ({
           type={type}
         />
         <Amounts
-          amount={type === 'send' ? deductedAmount : amountAtTime}
-          fee={fee}
+          amount={amountAtTime}
+          deductedAmount={deductedAmountAtTime}
           type={type}
         />
         <button
@@ -151,18 +150,18 @@ const Status = ({
 
 type TAmountsProps = {
   amount: IAmount;
-  fee: IAmount;
+  deductedAmount: IAmount,
   type: TTransactionType;
 }
 
 const Amounts = ({
   amount,
-  fee,
+  deductedAmount,
   type,
 }: TAmountsProps) => {
   const txTypeClass = `txAmount-${type}`;
-  const sendToSelf = type === 'send_to_self';
   const sign = getTxSign(type);
+  const recv = type === 'receive';
 
   return (
     <span className={`${styles.txAmountsColumn} ${styles[txTypeClass]}`}>
@@ -170,16 +169,16 @@ const Amounts = ({
       <span className={styles.txAmount}>
         {sign}
         <Amount
-          amount={sendToSelf ? fee.amount : amount.amount}
-          unit={amount.unit}
+          amount={recv ? amount.amount : deductedAmount.amount}
+          unit={recv ? amount.unit : deductedAmount.unit}
         />
         <span className={styles.txUnit}>
           {' '}
-          {sendToSelf ? fee.unit : amount.unit}
+          {deductedAmount.unit}
         </span>
       </span>
       {/* </data> */}
-      <ConversionAmount amount={amount} type={type} />
+      <ConversionAmount amount={amount} deductedAmount={deductedAmount} type={type} />
     </span>
   );
 };

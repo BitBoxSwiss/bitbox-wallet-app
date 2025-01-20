@@ -96,6 +96,10 @@ type TransactionData struct {
 	Type TxType
 	// Amount is always >0 and is the amount received or sent (not including the fee).
 	Amount coin.Amount
+	// DeductedAmount is the amount sent, including the fee.
+	// This field is only used if Type is equal to either Send or SendToSelf.
+	// Whem the type is SendToSelf, DeductedAmount is equal to only the fee.
+	DeductedAmount coin.Amount
 	// Balance is balance of the account at the time of this transaction. It is the sum of all
 	// transactions up to this point.
 	// This value is only valid as part of `OrderedTransactions`.
@@ -163,6 +167,7 @@ func NewOrderedTransactions(txs []*TransactionData) OrderedTransactions {
 
 	balance := big.NewInt(0)
 	for i := len(txs) - 1; i >= 0; i-- {
+		deductedAmount := coin.NewAmountFromInt64(0)
 		tx := txs[i]
 		switch tx.Type {
 		case TxTypeReceive:
@@ -177,15 +182,18 @@ func NewOrderedTransactions(txs []*TransactionData) OrderedTransactions {
 			// mined.
 			if tx.Fee != nil && !tx.FeeIsDifferentUnit {
 				balance.Sub(balance, tx.Fee.BigInt())
+				deductedAmount = coin.SumAmounts(tx.Amount, *tx.Fee)
 			}
 		case TxTypeSendSelf:
 			// Subtract only fee. Ethereum: it is deducted even if the tx failed, as the tx was
 			// mined.
 			if tx.Fee != nil && !tx.FeeIsDifferentUnit {
 				balance.Sub(balance, tx.Fee.BigInt())
+				deductedAmount = *tx.Fee
 			}
 		}
 		tx.Balance = coin.NewAmount(balance)
+		tx.DeductedAmount = deductedAmount
 	}
 	return txs
 }

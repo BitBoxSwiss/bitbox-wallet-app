@@ -151,7 +151,7 @@ type Transaction struct {
 	Status                   accounts.TxStatus `json:"status"`
 	Amount                   FormattedAmount   `json:"amount"`
 	AmountAtTime             FormattedAmount   `json:"amountAtTime"`
-	DeductedAmount           FormattedAmount   `json:"deductedAmount"`
+	DeductedAmountAtTime     FormattedAmount   `json:"deductedAmountAtTime"`
 	Fee                      FormattedAmount   `json:"fee"`
 	Time                     *string           `json:"time"`
 	Addresses                []string          `json:"addresses"`
@@ -190,18 +190,17 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 		Unit:   amount.Unit,
 	}
 	var formattedTime *string
-	var deductedAmount FormattedAmount
 	timestamp := txInfo.Timestamp
 	if timestamp == nil {
 		timestamp = txInfo.CreatedTimestamp
 	}
+
+	var deductedAmountAtTime FormattedAmount
 	if timestamp != nil {
 		t := timestamp.Format(time.RFC3339)
 		formattedTime = &t
 		amountAtTime = handlers.formatAmountAtTimeAsJSON(txInfo.Amount, timestamp)
-		if txInfo.Fee != nil && txInfo.Type == accounts.TxTypeSend {
-			deductedAmount = handlers.formatAmountAtTimeAsJSON(coin.SumAmounts(txInfo.Amount, *txInfo.Fee), timestamp)
-		}
+		deductedAmountAtTime = handlers.formatAmountAtTimeAsJSON(txInfo.DeductedAmount, timestamp)
 	}
 
 	addresses := []string{}
@@ -218,14 +217,14 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 			accounts.TxTypeSend:     "send",
 			accounts.TxTypeSendSelf: "send_to_self",
 		}[txInfo.Type],
-		Status:         txInfo.Status,
-		Amount:         amount,
-		AmountAtTime:   amountAtTime,
-		DeductedAmount: deductedAmount,
-		Time:           formattedTime,
-		Addresses:      addresses,
-		Note:           handlers.account.TxNote(txInfo.InternalID),
-		Fee:            feeString,
+		Status:               txInfo.Status,
+		Amount:               amount,
+		AmountAtTime:         amountAtTime,
+		DeductedAmountAtTime: deductedAmountAtTime,
+		Time:                 formattedTime,
+		Addresses:            addresses,
+		Note:                 handlers.account.TxNote(txInfo.InternalID),
+		Fee:                  feeString,
 	}
 
 	if detail {

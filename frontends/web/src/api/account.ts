@@ -246,7 +246,7 @@ export interface ITransaction {
     amountAtTime: IAmount;
     fee: IAmount;
     feeRatePerKb: IAmount;
-    deductedAmount: IAmount;
+    deductedAmountAtTime: IAmount;
     gas: number;
     nonce: number | null;
     internalID: string;

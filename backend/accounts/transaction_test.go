@@ -231,3 +231,58 @@ func TestOrderedTransactionsWithFailedTransactions(t *testing.T) {
 		require.Equal(t, coin.NewAmountFromInt64(expectedBalances[i]), ordered[i].Balance, i)
 	}
 }
+
+func requireAmountIsEqualTo(t *testing.T, amount coin.Amount, total int64) {
+	t.Helper()
+	value, err := amount.Int64()
+	require.NoError(t, err)
+	require.Equal(t, total, value)
+}
+
+func TestOrderedTransactionsDeductedAmount(t *testing.T) {
+	tt := func(t time.Time) *time.Time { return &t }
+	amount := coin.NewAmountFromInt64(100)
+	fee := coin.NewAmountFromInt64(10)
+	txs := []*TransactionData{
+		{
+			// Send tx, deductedAmount is amount+fee
+			Timestamp: tt(time.Date(2020, 9, 15, 12, 0, 0, 0, time.UTC)),
+			Height:    15,
+			Type:      TxTypeSend,
+			Amount:    amount,
+			Fee:       &fee,
+		},
+		{
+			// SendToSelf tx, deductedAmount is equal to just the fee.
+			Timestamp: tt(time.Date(2020, 9, 16, 12, 0, 0, 0, time.UTC)),
+			Height:    15,
+			Type:      TxTypeSendSelf,
+			Amount:    amount,
+			Fee:       &fee,
+		},
+		{
+			// Recv tx, deductedAmount is empty
+			Timestamp: tt(time.Date(2020, 9, 17, 12, 0, 0, 0, time.UTC)),
+			Height:    15,
+			Type:      TxTypeReceive,
+			Amount:    amount,
+			Fee:       &fee,
+		},
+		{
+			// Fee is in different unit (e.g. erc20 tx), deductedAmount is empty.
+			Timestamp:          tt(time.Date(2020, 9, 17, 12, 0, 0, 0, time.UTC)),
+			Height:             15,
+			Type:               TxTypeSend,
+			FeeIsDifferentUnit: true,
+			Amount:             amount,
+			Fee:                &fee,
+		},
+	}
+
+	orderedTxs := NewOrderedTransactions(txs)
+
+	requireAmountIsEqualTo(t, orderedTxs[0].DeductedAmount, 110)
+	requireAmountIsEqualTo(t, orderedTxs[1].DeductedAmount, 10)
+	requireAmountIsEqualTo(t, orderedTxs[2].DeductedAmount, 0)
+	requireAmountIsEqualTo(t, orderedTxs[3].DeductedAmount, 0)
+}
