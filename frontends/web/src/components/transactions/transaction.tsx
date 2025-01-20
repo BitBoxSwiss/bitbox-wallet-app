@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IAmount, TTransactionStatus, TTransactionType, ITransaction } from '@/api/account';
-import { RatesContext } from '@/contexts/RatesContext';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Loupe } from '@/components/icon/icon';
 import { parseTimeLong, parseTimeShort } from '@/utils/date';
 import { ProgressRing } from '@/components/progressRing/progressRing';
 import { Amount } from '@/components/amount/amount';
+import { ConversionAmount } from '@/components/amount/conversion-amount';
 import { Arrow } from './components/arrows';
-import { getTxSign } from './utils';
+import { getTxSign } from '@/utils/transaction';
 import styles from './transaction.module.css';
 
 type TTransactionProps = ITransaction & {
@@ -161,14 +160,9 @@ const Amounts = ({
   fee,
   type,
 }: TAmountsProps) => {
-  const { defaultCurrency } = useContext(RatesContext);
-  const conversion = amount?.conversions && amount?.conversions[defaultCurrency];
-  const sign = getTxSign(type);
   const txTypeClass = `txAmount-${type}`;
-  const conversionPrefix = amount.estimated ? '\u2248' : null; // ≈
   const sendToSelf = type === 'send_to_self';
-  const conversionUnit = sendToSelf ? amount.unit : defaultCurrency;
-  const conversionIsFiat = conversionUnit !== 'BTC' && conversionUnit !== 'sat';
+  const sign = getTxSign(type);
 
   return (
     <span className={`${styles.txAmountsColumn} ${styles[txTypeClass]}`}>
@@ -185,28 +179,7 @@ const Amounts = ({
         </span>
       </span>
       {/* </data> */}
-      <span className={styles.txConversionAmount}>
-        {sendToSelf && (
-          <span className={styles.txSmallInlineIcon}>
-            <Arrow type="send_to_self" />
-          </span>
-        )}
-        {(conversionPrefix && !sendToSelf && conversionIsFiat) && (
-          <span className={styles.txPrefix}>
-            {conversionPrefix}
-            {' '}
-          </span>
-        )}
-        {conversion && !sendToSelf ? sign : null}
-        <Amount
-          amount={sendToSelf ? amount.amount : conversion || ''}
-          unit={conversionUnit}
-        />
-        <span className={styles.txUnit}>
-          {' '}
-          {conversionUnit}
-        </span>
-      </span>
+      <ConversionAmount amount={amount} type={type} />
     </span>
   );
 };
