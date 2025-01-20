@@ -35,11 +35,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+	"golang.org/x/time/rate"
 )
 
-// CallInterval is the duration between etherscan requests.
+// CallsPerSec is thenumber of etherscanr equests allowed
+// per second.
 // Etherscan rate limits to one request per 0.2 seconds.
-var CallInterval = 260 * time.Millisecond
+var CallsPerSec = 3.8
 
 const apiKey = "X3AFAGQT2QCAFTFPIH9VJY88H9PIQ2UWP7"
 
@@ -50,6 +52,7 @@ const ERC20GasErr = "insufficient funds for gas * price + value"
 type EtherScan struct {
 	url        string
 	httpClient *http.Client
+	limiter    *rate.Limiter
 }
 
 // NewEtherScan creates a new instance of EtherScan.
@@ -57,10 +60,14 @@ func NewEtherScan(url string, httpClient *http.Client) *EtherScan {
 	return &EtherScan{
 		url:        url,
 		httpClient: httpClient,
+		limiter:    rate.NewLimiter(rate.Limit(CallsPerSec), 1),
 	}
 }
 
-func (etherScan *EtherScan) call(params url.Values, result interface{}) error {
+func (etherScan *EtherScan) call(ctx context.Context, params url.Values, result interface{}) error {
+	if err := etherScan.limiter.Wait(ctx); err != nil {
+		return errp.WithStack(err)
+	}
 	params.Set("apikey", apiKey)
 	response, err := etherScan.httpClient.Get(etherScan.url + "?" + params.Encode())
 	if err != nil {
@@ -323,7 +330,7 @@ func (etherScan *EtherScan) Transactions(
 	result := struct {
 		Result []*Transaction
 	}{}
-	if err := etherScan.call(params, &result); err != nil {
+	if err := etherScan.call(context.TODO(), params, &result); err != nil {
 		return nil, err
 	}
 	isERC20 := erc20Token != nil
@@ -338,7 +345,7 @@ func (etherScan *EtherScan) Transactions(
 		resultInternal := struct {
 			Result []*Transaction
 		}{}
-		if err := etherScan.call(params, &resultInternal); err != nil {
+		if err := etherScan.call(context.TODO(), params, &resultInternal); err != nil {
 			return nil, err
 		}
 		var err error
@@ -353,7 +360,7 @@ func (etherScan *EtherScan) Transactions(
 
 // ----- RPC node proxy methods follow
 
-func (etherScan *EtherScan) rpcCall(params url.Values, result interface{}) error {
+func (etherScan *EtherScan) rpcCall(ctx context.Context, params url.Values, result interface{}) error {
 	params.Set("module", "proxy")
 
 	var wrapped struct {
@@ -364,7 +371,7 @@ func (etherScan *EtherScan) rpcCall(params url.Values, result interface{}) error
 		} `json:"error"`
 		Result *json.RawMessage `json:"result"`
 	}
-	if err := etherScan.call(params, &wrapped); err != nil {
+	if err := etherScan.call(ctx, params, &wrapped); err != nil {
 		return err
 	}
 	if wrapped.Error != nil {
@@ -389,7 +396,7 @@ func (etherScan *EtherScan) TransactionReceiptWithBlockNumber(
 	params.Set("action", "eth_getTransactionReceipt")
 	params.Set("txhash", hash.Hex())
 	var result *rpcclient.RPCTransactionReceipt
-	if err := etherScan.rpcCall(params, &result); err != nil {
+	if err := etherScan.rpcCall(ctx, params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
@@ -402,7 +409,7 @@ func (etherScan *EtherScan) TransactionByHash(
 	params.Set("action", "eth_getTransactionByHash")
 	params.Set("txhash", hash.Hex())
 	var result rpcclient.RPCTransaction
-	if err := etherScan.rpcCall(params, &result); err != nil {
+	if err := etherScan.rpcCall(ctx, params, &result); err != nil {
 		return nil, false, err
 	}
 	return &result.Transaction, result.BlockNumber == nil, nil
@@ -415,7 +422,7 @@ func (etherScan *EtherScan) BlockNumber(ctx context.Context) (*big.Int, error) {
 	params.Set("tag", "latest")
 	params.Set("boolean", "false")
 	var header *types.Header
-	if err := etherScan.rpcCall(params, &header); err != nil {
+	if err := etherScan.rpcCall(ctx, params, &header); err != nil {
 		return nil, err
 	}
 	return header.Number, nil
@@ -434,7 +441,7 @@ func (etherScan *EtherScan) Balance(ctx context.Context, account common.Address)
 	params.Set("action", "balance")
 	params.Set("address", account.Hex())
 	params.Set("tag", "latest")
-	if err := etherScan.call(params, &result); err != nil {
+	if err := etherScan.call(ctx, params, &result); err != nil {
 		return nil, err
 	}
 	if result.Status != "1" {
@@ -461,7 +468,7 @@ func (etherScan *EtherScan) ERC20Balance(account common.Address, erc20Token *erc
 	params.Set("address", account.Hex())
 	params.Set("contractaddress", erc20Token.ContractAddress().Hex())
 	params.Set("tag", "latest")
-	if err := etherScan.call(params, &result); err != nil {
+	if err := etherScan.call(context.TODO(), params, &result); err != nil {
 		return nil, err
 	}
 	if result.Status != "1" {
@@ -485,7 +492,7 @@ func (etherScan *EtherScan) CallContract(ctx context.Context, msg ethereum.CallM
 		panic("not implemented")
 	}
 	var result hexutil.Bytes
-	if err := etherScan.rpcCall(params, &result); err != nil {
+	if err := etherScan.rpcCall(ctx, params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
@@ -515,7 +522,7 @@ func (etherScan *EtherScan) EstimateGas(ctx context.Context, msg ethereum.CallMs
 	callMsgParams(&params, msg)
 
 	var result hexutil.Uint64
-	if err := etherScan.rpcCall(params, &result); err != nil {
+	if err := etherScan.rpcCall(ctx, params, &result); err != nil {
 		return 0, err
 	}
 	return uint64(result), nil
@@ -528,7 +535,7 @@ func (etherScan *EtherScan) PendingNonceAt(ctx context.Context, account common.A
 	params.Set("address", account.Hex())
 	params.Set("tag", "pending")
 	var result hexutil.Uint64
-	if err := etherScan.rpcCall(params, &result); err != nil {
+	if err := etherScan.rpcCall(ctx, params, &result); err != nil {
 		return 0, err
 	}
 	return uint64(result), nil
@@ -544,7 +551,7 @@ func (etherScan *EtherScan) SendTransaction(ctx context.Context, tx *types.Trans
 	params := url.Values{}
 	params.Set("action", "eth_sendRawTransaction")
 	params.Set("hex", hexutil.Encode(encodedTx))
-	return etherScan.rpcCall(params, nil)
+	return etherScan.rpcCall(ctx, params, nil)
 }
 
 // SuggestGasPrice implements rpc.Interface.
@@ -552,7 +559,7 @@ func (etherScan *EtherScan) SuggestGasPrice(ctx context.Context) (*big.Int, erro
 	params := url.Values{}
 	params.Set("action", "eth_gasPrice")
 	var result hexutil.Big
-	if err := etherScan.rpcCall(params, &result); err != nil {
+	if err := etherScan.rpcCall(ctx, params, &result); err != nil {
 		return nil, err
 	}
 	return (*big.Int)(&result), nil
@@ -581,7 +588,7 @@ func (etherScan *EtherScan) FeeTargets(ctx context.Context) ([]*ethtypes.FeeTarg
 	params := url.Values{}
 	params.Set("module", "gastracker")
 	params.Set("action", "gasoracle")
-	if err := etherScan.call(params, &result); err != nil {
+	if err := etherScan.call(ctx, params, &result); err != nil {
 		return nil, err
 	}
 	// Convert string fields to int64

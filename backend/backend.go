@@ -51,7 +51,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/ratelimit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/ethereum/go-ethereum/params"
@@ -193,6 +192,8 @@ type Backend struct {
 
 	devices map[string]device.Interface
 
+	usbManager *usb.Manager
+
 	accountsAndKeystoreLock locker.Locker
 	accounts                AccountsList
 	// keystore is nil if no keystore is connected.
@@ -277,7 +278,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.notifier = notifier
 	backend.socksProxy = backendProxy
 	backend.httpClient = hclient
-	backend.etherScanHTTPClient = ratelimit.FromTransport(hclient.Transport, etherscan.CallInterval)
+	backend.etherScanHTTPClient = hclient
 
 	ratesCache := filepath.Join(arguments.CacheDirectoryPath(), "exchangerates")
 	if err := os.MkdirAll(ratesCache, 0700); err != nil {
@@ -612,13 +613,14 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 // Start starts the background services. It returns a channel of events to handle by the library
 // client.
 func (backend *Backend) Start() <-chan interface{} {
-	usb.NewManager(
+	backend.usbManager = usb.NewManager(
 		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
 		backend.socksProxy,
 		backend.environment.DeviceInfos,
 		backend.Register,
-		backend.Deregister).Start()
+		backend.Deregister)
+	backend.usbManager.Start()
 
 	httpClient, err := backend.socksProxy.GetHTTPClient()
 	if err != nil {
@@ -636,6 +638,13 @@ func (backend *Backend) Start() <-chan interface{} {
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
 	return backend.events
+}
+
+// UsbUpdate triggers a scan of the USB devices to detect connects/disconnects.
+func (backend *Backend) UsbUpdate() {
+	if backend.usbManager != nil {
+		backend.usbManager.Update()
+	}
 }
 
 // DevicesRegistered returns a map of device IDs to device of registered devices.

@@ -2,8 +2,12 @@
     margin-top: calc(var(--space-default) * 1.5);
 }
 
-
 .coinControlButtonContainer {
     height: 58px;
     margin-bottom: var(--space-quarter);
+}
+
+.unit {
+    color: var(--color-secondary);
+    font-size: var(--size-default);
 }

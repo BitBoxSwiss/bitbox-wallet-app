@@ -344,14 +344,21 @@ export const proposeTx = (
   return apiPost(`account/${accountCode}/tx-proposal`, txInput);
 };
 
-export interface ISendTx {
-    aborted?: boolean;
-    success?: boolean;
-    errorMessage?: string;
-    errorCode?: string;
-}
+export type TSendTx = {
+  success: true;
+} | {
+  success: false;
+  aborted: true;
+} | {
+  success: false;
+  errorMessage: string;
+  errorCode?: string;
+};
 
-export const sendTx = (code: AccountCode, txNote: string): Promise<ISendTx> => {
+export const sendTx = (
+  code: AccountCode,
+  txNote: string,
+): Promise<TSendTx> => {
   return apiPost(`account/${code}/sendtx`, txNote);
 };
 

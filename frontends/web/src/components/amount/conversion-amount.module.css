@@ -1,5 +1,14 @@
+.skeletonContainer {
+  max-width: 64px;
+  width: 100%;
+}
+
 .txConversionAmount {
+  align-items: baseline;
+  display: flex;
   font-variant: tabular-nums;
+  justify-content: end;
+  gap: var(--space-eight);
 }
 
 .txPrefix,

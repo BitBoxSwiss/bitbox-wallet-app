@@ -86,6 +86,8 @@ type Manager struct {
 	onRegister   func(device.Interface) error
 	onUnregister func(string)
 
+	updateCh chan struct{}
+
 	socksProxy socksproxy.SocksProxy
 
 	log *logrus.Entry
@@ -111,6 +113,7 @@ func NewManager(
 		deviceInfos:       deviceInfos,
 		onRegister:        onRegister,
 		onUnregister:      onUnregister,
+		updateCh:          make(chan struct{}),
 		socksProxy:        socksProxy,
 
 		log: logging.Get().WithGroup("manager"),
@@ -255,8 +258,19 @@ func (manager *Manager) checkIfRemoved(deviceID string) bool {
 	return true
 }
 
+// Update triggers a scan of the USB devices to detect connects/disconnects.
+func (manager *Manager) Update() {
+	go func() {
+		manager.updateCh <- struct{}{}
+	}()
+}
+
 func (manager *Manager) listen() {
 	for {
+		select {
+		case <-manager.updateCh:
+		case <-time.After(time.Second):
+		}
 		for deviceID, device := range manager.devices {
 			// Check if device was removed.
 			if manager.checkIfRemoved(deviceID) {
@@ -310,11 +324,11 @@ func (manager *Manager) listen() {
 				manager.log.WithError(err).Error("Failed to execute on-register")
 			}
 		}
-		time.Sleep(time.Second)
 	}
 }
 
 // Start listens for inserted/removed devices forever.
 func (manager *Manager) Start() {
 	go manager.listen()
+	manager.Update()
 }

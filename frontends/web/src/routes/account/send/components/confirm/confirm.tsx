@@ -15,7 +15,6 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { ConversionUnit } from '@/api/account';
 import { Amount } from '@/components/amount/amount';
 import { customFeeUnit } from '@/routes/account/utils';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
@@ -23,14 +22,10 @@ import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
 import { TConfirmSendProps } from '@/routes/account/send/components/confirm/types';
 import { ConfirmingWaitDialog } from '@/routes/account/send/components/confirm/dialogs/confirm-wait-dialog';
+import { FiatValue } from '../fiat-value';
 import style from './confirm.module.css';
 
 type TConfirmSend = { bb01Paired: boolean | undefined } & TConfirmSendProps;
-
-type TFiatValueProps = {
-  baseCurrencyUnit: ConversionUnit;
-  amount: string
-}
 
 export const ConfirmSend = (props: TConfirmSend) => {
   return (props.bb01Paired !== undefined ? (
@@ -44,7 +39,7 @@ export const ConfirmSend = (props: TConfirmSend) => {
   ));
 };
 
-export const BB02ConfirmSend = ({
+const BB02ConfirmSend = ({
   baseCurrencyUnit,
   note,
   hasSelectedUTXOs,
@@ -176,9 +171,13 @@ export const BB02ConfirmSend = ({
               {' '}
               <span className={style.unit}>{(proposedTotal && proposedTotal.unit) || 'N/A'}</span>
             </p>
-            {canShowTotalFiatValue &&
-             (<FiatValue baseCurrencyUnit={baseCurrencyUnit} amount={proposedTotal.conversions![fiatUnit] || ''} />)
-            }
+            {canShowTotalFiatValue && (
+              <FiatValue
+                className={style.totalFiatValue}
+                baseCurrencyUnit={baseCurrencyUnit}
+                amount={proposedTotal.conversions![fiatUnit] || ''}
+              />
+            )}
           </div>
         </div>
 
@@ -187,17 +186,3 @@ export const BB02ConfirmSend = ({
   );
 
 };
-
-
-const FiatValue = ({ baseCurrencyUnit, amount }: TFiatValueProps) => {
-  return (
-    <p className={style.fiatValue}>
-      <span>
-        <Amount alwaysShowAmounts amount={amount} unit={baseCurrencyUnit} />
-        {' '}<span className={style.unit}>{baseCurrencyUnit}</span>
-      </span>
-    </p>
-  )
-  ;
-};
-
