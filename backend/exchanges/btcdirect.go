@@ -21,9 +21,9 @@ import (
 )
 
 var regions = []string{
-	"AD", "AT", "BE", "BG", "CH", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR",
-	"HR", "HU", "IS", "IT", "LI", "LT", "LU", "LV", "MD", "ME", "MK", "NL", "NO",
-	"PL", "PT", "RO", "RS", "SE", "SI", "SK", "SM"}
+	"AT", "BE", "BG", "CH", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR",
+	"HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MC", "MT", "NL", "NO",
+	"PL", "PT", "RO", "SE", "SI", "SK", "SM"}
 
 // GetBtcDirectSupportedRegions reutrn a string slice of the regions where BTC direct services
 // are available.
