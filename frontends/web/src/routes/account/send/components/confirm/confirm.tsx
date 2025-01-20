@@ -76,7 +76,7 @@ export const BB02ConfirmSend = ({
 
 
   return (
-    <View fullscreen width="740px">
+    <View fullscreen width="840px">
       <ViewHeader title={<div className={style.title}>{t('send.confirm.title')}</div>} />
       <ViewContent>
         <Message type="info">
