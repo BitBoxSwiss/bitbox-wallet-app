@@ -42,7 +42,7 @@ type TProps = {
   selectedExchange: string;
   goToExchange: () => void;
   showBackButton: boolean;
-  action: exchangesAPI.TExchangeAction
+  action: exchangesAPI.TExchangeAction;
   setInfo: (into: TInfoContentProps) => void;
 }
 
@@ -77,10 +77,10 @@ export const BuySell = ({
   const { isDarkMode } = useDarkmode();
 
   const exchangeDealsResponse = useLoad(() => exchangesAPI.getExchangeDeals(action, accountCode, selectedRegion), [action, selectedRegion]);
-  const btcDirectSupported = useLoad(exchangesAPI.getBtcDirectSupported(accountCode, selectedRegion), [selectedRegion]);
+  const btcDirectOTCSupported = useLoad(exchangesAPI.getBtcDirectOTCSupported(accountCode, selectedRegion), [selectedRegion]);
   const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(accountCode));
   const [paymentRequestError, setPaymentRequestError] = useState(false);
-  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
   const config = useLoad(getConfig);
   const navigate = useNavigate();
 
@@ -101,7 +101,7 @@ export const BuySell = ({
 
   useEffect(() => {
     if (config) {
-      setAgreedTerms(config.frontend.skipBTCDirectDisclaimer);
+      setAgreedBTCDirectOTCTerms(config.frontend.skipBTCDirectOTCDisclaimer);
     }
   }, [config]);
 
@@ -162,16 +162,48 @@ export const BuySell = ({
                 onClickInfoButton={() => setInfo(buildInfo(exchange))}
               />
             ))}
+            {/* TODO: 'BTC Direct' should come from exchangeDealsResponse */}
+            { action === 'buy' && (
+              <ExchangeSelectionRadio
+                key={'btcdirect'}
+                id={'BTC Direct'}
+                exchangeName={'btcdirect'}
+                deals={[{
+                  fee: 2,
+                  payment: 'card',
+                  isFast: true,
+                  isBest: false,
+                }, {
+                  fee: 2,
+                  payment: 'bank-transfer',
+                  isFast: false,
+                  isBest: false,
+                }]}
+                checked={selectedExchange === 'btcdirect'}
+                onChange={() => {
+                  onSelectExchange('btcdirect');
+                }}
+                onClickInfoButton={() => setInfo(buildInfo({
+                  exchangeName: 'btcdirect',
+                  deals: [{
+                    fee: 2,
+                    payment: 'card',
+                    isFast: true,
+                    isBest: false,
+                  }],
+                }))}
+              />
+            )}
           </div>
         )}
-        {btcDirectSupported?.success && btcDirectSupported?.supported && (
+        {btcDirectOTCSupported?.success && btcDirectOTCSupported?.supported && (
           <div className={style.infoContainer}>
             <Message type="info" icon={<Businessman/>}>
               {t('buy.exchange.infoContent.btcdirect.title')}
               <p>{t('buy.exchange.infoContent.btcdirect.info')}</p>
               <p>
-                {!agreedTerms ? (
-                  <Link to={'/exchange/btcdirect'} className={style.link}>
+                {!agreedBTCDirectOTCTerms ? (
+                  <Link to={'/exchange/btcdirect-otc'} className={style.link}>
                     {t('buy.exchange.infoContent.btcdirect.link')}
                   </Link>
                 ) : (

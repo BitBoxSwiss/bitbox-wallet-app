@@ -165,6 +165,7 @@ export const InfoContent = ({ info, cardFee, bankTransferFee, accounts }: TInfoC
     return <PocketInfo bankTransferFee={bankTransferFee} />;
   case 'btcdirect':
     return <BTCDirectInfo accounts={accounts}/>;
+  // TODO: case 'btcdirect-otc'
   case 'region':
     return <RegionInfo />;
   }
