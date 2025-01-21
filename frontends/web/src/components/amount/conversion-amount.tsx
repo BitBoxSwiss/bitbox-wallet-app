@@ -21,12 +21,13 @@ import { Arrow } from '@/components/transactions/components/arrows';
 import { Amount } from '@/components/amount/amount';
 import { getTxSign } from '@/utils/transaction';
 import styles from './conversion-amount.module.css';
+import { Skeleton } from '@/components/skeleton/skeleton';
 
 type TConversionAmountProps = {
   amount: IAmount;
   deductedAmount: IAmount;
   type: TTransactionType;
-}
+};
 
 const btcUnits: Readonly<string[]> = ['BTC', 'TBTC', 'sat', 'tsat'];
 
@@ -40,6 +41,7 @@ export const ConversionAmount = ({
 }: TConversionAmountProps) => {
   const { defaultCurrency } = useContext(RatesContext);
   const conversion = amount?.conversions && amount?.conversions[defaultCurrency];
+
   const sign = getTxSign(type);
   const estimatedPrefix = '\u2248'; // ≈
   const sendToSelf = type === 'send_to_self';
@@ -52,26 +54,28 @@ export const ConversionAmount = ({
 
   return (
     <span className={styles.txConversionAmount}>
-      {sendToSelf && (
-        <span className={styles.txSmallInlineIcon}>
-          <Arrow type="send_to_self" />
-        </span>
+      {conversion && amountToShow ? (
+        <>
+          {sendToSelf && (
+            <span className={styles.txSmallInlineIcon}>
+              <Arrow type="send_to_self" />
+            </span>
+          )}
+          {amountToShow.estimated && !skipEstimatedPrefix && (
+            <span className={styles.txPrefix}>{estimatedPrefix}{' '}</span>
+          )}
+          {conversion && !sendToSelf ? sign : null}
+          <Amount
+            amount={sendToSelf ? amountToShow.amount : conversion || ''}
+            unit={conversionUnit}
+          />
+        </>
+      ) : (
+        <div className={styles.skeletonContainer}>
+          <Skeleton />
+        </div>
       )}
-      {amountToShow.estimated && !skipEstimatedPrefix && (
-        <span className={styles.txPrefix}>
-          {estimatedPrefix}
-          {' '}
-        </span>
-      )}
-      {conversion && !sendToSelf ? sign : null}
-      <Amount
-        amount={sendToSelf ? amountToShow.amount : conversion || ''}
-        unit={conversionUnit}
-      />
-      <span className={styles.txUnit}>
-        {' '}
-        {conversionUnit}
-      </span>
+      <span className={styles.txUnit}>{' '}{conversionUnit}</span>
     </span>
   );
 };

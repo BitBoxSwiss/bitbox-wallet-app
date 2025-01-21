@@ -126,7 +126,7 @@ export const FormattedAmount = ({
   unit,
   removeBtcTrailingZeroes,
   alwaysShowAmounts = false,
-}: TProps) => {
+}: Omit<TProps, 'allowRotateCurrencyOnMobile'>) => {
   const { hideAmounts } = useContext(AppContext);
   const { decimal, group } = useContext(LocalizationContext);
 
