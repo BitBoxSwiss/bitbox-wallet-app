@@ -1003,7 +1003,7 @@ func (backend *Backend) ExportLogs() error {
 		backend.log.WithError(err).Error("error creating new log file")
 		return err
 	}
-	logFilePath := filepath.Join(utilConfig.AppDir(), "log.txt")
+	logFilePath := filepath.Join(backend.arguments.MainDirectoryPath(), "log.txt")
 
 	existingLogFile, err := os.Open(logFilePath)
 	if err != nil {
