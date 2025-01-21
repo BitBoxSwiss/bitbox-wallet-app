@@ -118,6 +118,6 @@ export type TBtcDirectResponse = {
 
 export const getBtcDirectOTCSupported = (code: AccountCode, region: ExchangeRegion['code']) => {
   return (): Promise<TBtcDirectResponse> => {
-    return apiGet(`exchange/btcdirect/supported/${code}?region=${region}`);
+    return apiGet(`exchange/btcdirect-otc/supported/${code}?region=${region}`);
   };
 };

@@ -16,6 +16,7 @@ package exchanges
 
 import (
 	"net/http"
+	"slices"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -86,9 +87,10 @@ type ExchangeRegionList struct {
 // ExchangeRegion contains the ISO 3166-1 alpha-2 code of a specific region and a boolean
 // for each exchange, indicating if that exchange is enabled for the region.
 type ExchangeRegion struct {
-	Code             string `json:"code"`
-	IsMoonpayEnabled bool   `json:"isMoonpayEnabled"`
-	IsPocketEnabled  bool   `json:"isPocketEnabled"`
+	Code               string `json:"code"`
+	IsMoonpayEnabled   bool   `json:"isMoonpayEnabled"`
+	IsPocketEnabled    bool   `json:"isPocketEnabled"`
+	IsBtcDirectEnabled bool   `json:"isBtcDirectEnabled"`
 }
 
 // PaymentMethod type is used for payment options in exchange deals.
@@ -135,8 +137,11 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 		log.Error(pocketError)
 	}
 
+	btcDirectRegions := GetBtcDirectSupportedRegions()
+
 	isMoonpaySupported := IsMoonpaySupported(account.Coin().Code())
 	isPocketSupported := IsPocketSupported(account.Coin().Code())
+	isBtcDirectSupported := IsBtcDirectSupported(account.Coin().Code())
 
 	exchangeRegions := ExchangeRegionList{}
 	for _, code := range regionCodes {
@@ -148,10 +153,13 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 		if pocketError == nil {
 			_, pocketEnabled = pocketRegions[code]
 		}
+		btcDirectEnabled := slices.Contains(btcDirectRegions, code)
+
 		exchangeRegions.Regions = append(exchangeRegions.Regions, ExchangeRegion{
-			Code:             code,
-			IsMoonpayEnabled: moonpayEnabled && isMoonpaySupported,
-			IsPocketEnabled:  pocketEnabled && isPocketSupported,
+			Code:               code,
+			IsMoonpayEnabled:   moonpayEnabled && isMoonpaySupported,
+			IsPocketEnabled:    pocketEnabled && isPocketSupported,
+			IsBtcDirectEnabled: btcDirectEnabled && isBtcDirectSupported,
 		})
 	}
 
@@ -162,7 +170,8 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 func GetExchangeDeals(account accounts.Interface, regionCode string, action ExchangeAction, httpClient *http.Client) ([]*ExchangeDealsList, error) {
 	moonpaySupportsCoin := IsMoonpaySupported(account.Coin().Code()) && action == BuyAction
 	pocketSupportsCoin := IsPocketSupported(account.Coin().Code())
-	coinSupported := moonpaySupportsCoin || pocketSupportsCoin
+	btcDirectSupportsCoin := IsBtcDirectSupported(account.Coin().Code()) && action == BuyAction
+	coinSupported := moonpaySupportsCoin || pocketSupportsCoin || btcDirectSupportsCoin
 	if !coinSupported {
 		return nil, ErrCoinNotSupported
 	}
@@ -181,8 +190,9 @@ func GetExchangeDeals(account accounts.Interface, regionCode string, action Exch
 	}
 	if userRegion == nil {
 		userRegion = &ExchangeRegion{
-			IsMoonpayEnabled: true,
-			IsPocketEnabled:  true,
+			IsMoonpayEnabled:   true,
+			IsPocketEnabled:    true,
+			IsBtcDirectEnabled: true,
 		}
 	}
 
@@ -200,6 +210,13 @@ func GetExchangeDeals(account accounts.Interface, regionCode string, action Exch
 			exchangeDealsLists = append(exchangeDealsLists, deals)
 		}
 	}
+	if btcDirectSupportsCoin && userRegion.IsBtcDirectEnabled {
+		deals := BtcDirectDeals()
+		if deals != nil {
+			exchangeDealsLists = append(exchangeDealsLists, deals)
+		}
+	}
+
 	if len(exchangeDealsLists) == 0 {
 		return nil, ErrRegionNotSupported
 	}
