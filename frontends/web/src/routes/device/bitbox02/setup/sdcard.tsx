@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { checkSDCard, insertSDCard } from '@/api/bitbox02';
 import { View, ViewHeader } from '@/components/view/view';
@@ -34,8 +34,13 @@ export const WithSDCard = ({
 }: Props) => {
   const { t } = useTranslation();
   const [hasSDCard, setSDCard] = useState<boolean>();
+  const hasCheckedSDCard = useRef(false);
 
   const ensureSDCard = useCallback(async () => {
+    if (hasCheckedSDCard.current) {
+      return;
+    }
+    hasCheckedSDCard.current = true;
     try {
       const sdCardInserted = await checkSDCard(deviceID);
       setSDCard(sdCardInserted);
