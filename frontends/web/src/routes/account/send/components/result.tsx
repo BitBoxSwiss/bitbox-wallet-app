@@ -20,6 +20,8 @@ import { useTranslation } from 'react-i18next';
 import type { AccountCode, TSendTx } from '@/api/account';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Button } from '@/components/forms/button';
+import { SubTitle } from '@/components/title';
+import { CopyableInput } from '@/components/copy/Copy';
 
 type TProps = {
   children?: ReactNode;
@@ -92,12 +94,17 @@ export const SendResult = ({
     default:
       const { errorMessage } = result;
       return (
-        <View fullscreen textCenter verticallyCentered width="520px">
+        <View fullscreen textCenter verticallyCentered width="640px">
           <ViewHeader />
           <ViewContent withIcon="error">
-            <p>
-              {t('unknownError', { errorMessage })}
-            </p>
+            <SubTitle>
+              {t('unknownError', { errorMessage: '' })}
+            </SubTitle>
+            <CopyableInput
+              alignLeft
+              flexibleHeight
+              value={errorMessage}
+            />
           </ViewContent>
           <ViewButtons>
             <Button primary onClick={() => navigate(`/account/${code}`)}>
