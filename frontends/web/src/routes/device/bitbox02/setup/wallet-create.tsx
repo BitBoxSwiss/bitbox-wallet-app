@@ -121,7 +121,7 @@ export const CreateWallet = ({
       switch (backupType) {
       case 'sdcard':
         return (
-          <WithSDCard deviceID={deviceID}>
+          <WithSDCard onAbort={onAbort} deviceID={deviceID}>
             <ChecklistWalletCreate onContinue={createBackup} />
           </WithSDCard>
         );

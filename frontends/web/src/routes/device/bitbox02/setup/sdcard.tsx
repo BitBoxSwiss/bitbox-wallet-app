@@ -24,11 +24,13 @@ import { Wait } from './wait';
 type Props = {
   children: JSX.Element;
   deviceID: string;
+  onAbort: () => void;
 };
 
 export const WithSDCard = ({
   children,
   deviceID,
+  onAbort
 }: Props) => {
   const { t } = useTranslation();
   const [hasSDCard, setSDCard] = useState<boolean>();
@@ -46,12 +48,12 @@ export const WithSDCard = ({
         return;
       }
       if (result.message) {
-        alertUser(result.message, { asDialog: false });
+        alertUser(result.message, { asDialog: false, callback: onAbort });
       }
     } catch (error) {
       console.error(error);
     }
-  }, [deviceID]);
+  }, [deviceID, onAbort]);
 
   useEffect(() => {
     ensureSDCard();
