@@ -224,6 +224,17 @@ public class MainActivity extends AppCompatActivity {
 
         vw.setWebViewClient(new WebViewClient() {
             @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // override the default readText method, that doesn't work
+                // because of read permission denied.
+                view.evaluateJavascript(
+                        "navigator.clipboard.readText = () => {" +
+                        "    return androidClipboard.readFromClipboard();" +
+                        "};", null);
+            }
+
+            @Override
             public WebResourceResponse shouldInterceptRequest(final WebView view, WebResourceRequest request) {
                 if (request != null && request.getUrl() != null) {
                     String url = request.getUrl().toString();
@@ -349,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
 
         final String javascriptVariableName = "android";
         vw.addJavascriptInterface(new JavascriptBridge(this), javascriptVariableName);
-
+        vw.addJavascriptInterface(new ClipboardHandler(this), "androidClipboard");
         vw.loadUrl(BASE_URL + "index.html");
 
         // We call updateDevice() here in case the app was started while the device was already connected.

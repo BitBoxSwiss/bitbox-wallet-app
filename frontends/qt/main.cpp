@@ -23,6 +23,7 @@
 #include <QWebEngineUrlScheme>
 #include <QWebEngineUrlSchemeHandler>
 #include <QWebEngineUrlRequestJob>
+#include <QWebEngineSettings>
 #include <QMimeDatabase>
 #include <QFile>
 #include <QContextMenuEvent>
@@ -453,6 +454,8 @@ int main(int argc, char *argv[])
     QWebChannel channel;
     channel.registerObject("backend", webClass);
     view->page()->setWebChannel(&channel);
+    view->settings()->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, true);
+    view->settings()->setAttribute(QWebEngineSettings::JavascriptCanPaste, true);
     view->show();
     view->load(QUrl(QString("%1:/index.html").arg(scheme)));
 

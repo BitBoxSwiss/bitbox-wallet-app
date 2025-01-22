@@ -39,28 +39,35 @@ protocol SetMessageHandlersProtocol {
 }
 
 class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDocumentInteractionControllerDelegate {
+    private let bluetoothManager: BluetoothManager
+    
+    init(bluetoothManager: BluetoothManager) {
+        self.bluetoothManager = bluetoothManager
+    }
+    
     func getSaveFilename(_ fileName: String?) -> String {
         let tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         // fileName cannot be nil this is called by Go and Go strings cannot be nil/null.
         let fileURL = tempDirectory.appendingPathComponent(fileName!)
         return fileURL.path
     }
-
+    
     func auth() {
         authenticateUser { success in
             // TODO: enabling auth but entering wrong passcode does not remove auth screen
             MobileserverAuthResult(success)
         }
     }
-
+    
     func detectDarkTheme() -> Bool {
         return UIScreen.main.traitCollection.userInterfaceStyle == .dark
     }
-
+    
     func deviceInfo() -> MobileserverGoDeviceInfoInterfaceProtocol? {
-        // Return an instance conforming to GoserverGoDeviceInfoInterface
-        // Replace 'GoDeviceInfo' with your implementation
-        return nil
+        if !bluetoothManager.isConnected() {
+            return nil
+        }
+        return BluetoothDeviceInfo(bluetoothManager: bluetoothManager)
     }
 
     func nativeLocale() -> String {
@@ -143,6 +150,8 @@ class GoAPI: NSObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersPro
 
 @main
 struct BitBoxAppApp: App {
+    @StateObject private var bluetoothManager = BluetoothManager()
+    
     var body: some Scene {
         WindowGroup {
             GridLayout(alignment: .leading) {
@@ -167,7 +176,7 @@ struct BitBoxAppApp: App {
         } catch {
             print("Could not create Application Support directory: \(error)")
         }
-        let goEnvironment = GoEnvironment()
+        let goEnvironment = GoEnvironment(bluetoothManager: bluetoothManager)
         #if TARGET_TESTNET
         let testnet = true;
         #else

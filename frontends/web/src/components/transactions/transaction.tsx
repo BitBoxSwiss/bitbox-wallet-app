@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IAmount, TTransactionStatus, TTransactionType, ITransaction } from '@/api/account';
-import { RatesContext } from '@/contexts/RatesContext';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Loupe } from '@/components/icon/icon';
 import { parseTimeLong, parseTimeShort } from '@/utils/date';
 import { ProgressRing } from '@/components/progressRing/progressRing';
 import { Amount } from '@/components/amount/amount';
+import { ConversionAmount } from '@/components/amount/conversion-amount';
 import { Arrow } from './components/arrows';
-import { getTxSign } from './utils';
+import { getTxSign } from '@/utils/transaction';
 import styles from './transaction.module.css';
 
 type TTransactionProps = ITransaction & {
@@ -34,7 +33,7 @@ type TTransactionProps = ITransaction & {
 export const Transaction = ({
   addresses,
   amountAtTime,
-  fee,
+  deductedAmountAtTime,
   onShowDetail,
   internalID,
   note,
@@ -68,7 +67,7 @@ export const Transaction = ({
         />
         <Amounts
           amount={amountAtTime}
-          fee={fee}
+          deductedAmount={deductedAmountAtTime}
           type={type}
         />
         <button
@@ -151,22 +150,18 @@ const Status = ({
 
 type TAmountsProps = {
   amount: IAmount;
-  fee: IAmount;
+  deductedAmount: IAmount,
   type: TTransactionType;
 }
 
 const Amounts = ({
   amount,
-  fee,
+  deductedAmount,
   type,
 }: TAmountsProps) => {
-  const { defaultCurrency } = useContext(RatesContext);
-  const conversion = amount?.conversions && amount?.conversions[defaultCurrency];
-  const sign = getTxSign(type);
   const txTypeClass = `txAmount-${type}`;
-  const conversionPrefix = amount.estimated ? '\u2248' : null; // ≈
-  const sendToSelf = type === 'send_to_self';
-  const conversionUnit = sendToSelf ? amount.unit : defaultCurrency;
+  const sign = getTxSign(type);
+  const recv = type === 'receive';
 
   return (
     <span className={`${styles.txAmountsColumn} ${styles[txTypeClass]}`}>
@@ -174,37 +169,16 @@ const Amounts = ({
       <span className={styles.txAmount}>
         {sign}
         <Amount
-          amount={sendToSelf ? fee.amount : amount.amount}
-          unit={amount.unit}
+          amount={recv ? amount.amount : deductedAmount.amount}
+          unit={recv ? amount.unit : deductedAmount.unit}
         />
         <span className={styles.txUnit}>
           {' '}
-          {sendToSelf ? fee.unit : amount.unit}
+          {deductedAmount.unit}
         </span>
       </span>
       {/* </data> */}
-      <span className={styles.txConversionAmount}>
-        {sendToSelf && (
-          <span className={styles.txSmallInlineIcon}>
-            <Arrow type="send_to_self" />
-          </span>
-        )}
-        {(conversionPrefix && !sendToSelf) && (
-          <span className={styles.txPrefix}>
-            {conversionPrefix}
-            {' '}
-          </span>
-        )}
-        {conversion && !sendToSelf ? sign : null}
-        <Amount
-          amount={sendToSelf ? amount.amount : conversion || ''}
-          unit={conversionUnit}
-        />
-        <span className={styles.txUnit}>
-          {' '}
-          {conversionUnit}
-        </span>
-      </span>
+      <ConversionAmount amount={amount} deductedAmount={deductedAmount} type={type} />
     </span>
   );
 };

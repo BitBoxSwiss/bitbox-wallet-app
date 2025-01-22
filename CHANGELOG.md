@@ -8,6 +8,7 @@
 - Restrict selection to text files when importing notes
 - Display the hide amount button by default and remove its settings
 - Linux: add support for Wayland
+- Fix the copy buttons in the Pocket order confirmation page
 
 # 4.46.3
 - Fix camera access on linux
