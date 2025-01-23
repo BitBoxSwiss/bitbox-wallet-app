@@ -99,6 +99,28 @@ export const getPocketURL = (action: TExchangeAction): Promise<TPocketUrlRespons
   return apiGet(`exchange/pocket/api-url/${action}`);
 };
 
+export type TBTCDirectInfoResponse = {
+  success: true;
+  url: string;
+  apiKey: string;
+} | {
+  success: false;
+  errorMessage: string;
+};
+
+export const getBTCDirectInfo = (
+  action: TExchangeAction,
+): Promise<TBTCDirectInfoResponse> => {
+  console.log(action);
+  // TODO: change to return apiGet(`exchange/btc-direct/info/${action}`); or similar
+  return Promise.resolve({
+    success: true,
+    url: '/btcdirect/fiat-to-coin.html', // local static file for testing
+    apiKey: '6ed4d42bd02eeac1776a6bb54fa3126f779c04d5c228fe5128bb74e89ef61f83', // debug
+    // apiKey: '7d71f633626901d5c4d06d91f7d0db2c15cdf524ddd0ebcd36f4d9c4e04694cd', // prod
+  });
+};
+
 export type SupportedExchanges= {
   exchanges: string[];
 };
