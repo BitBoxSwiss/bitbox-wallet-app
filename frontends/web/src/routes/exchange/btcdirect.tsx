@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { useState, useEffect, createRef, useContext } from 'react';
+import { useState, useEffect, createRef, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getMoonpayBuyInfo } from '@/api/exchanges';
+import { getBTCDirectInfo } from '@/api/exchanges';
 import { AppContext } from '@/contexts/AppContext';
 import { AccountCode, getReceiveAddressList, IAccount } from '@/api/account';
 import { useLoad } from '@/hooks/api';
@@ -50,6 +50,9 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
   const { isTesting } = useContext(AppContext);
   const { isDarkMode } = useDarkmode();
 
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const btcdirectInfo = useLoad(() => getBTCDirectInfo('buy'));
+
   const receiveAddresses = useLoad(getReceiveAddressList(code));
 
   // TODO: address should probably come from the backend, i.e. ETH address
@@ -61,7 +64,6 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
   const [height, setHeight] = useState(0);
 
   const config = useLoad(getConfig);
-  const moonpay = useLoad(getMoonpayBuyInfo(code)); // TODO: getBTCDirectBuyInfo(code)
 
   const account = findAccount(accounts, code);
   const ref = createRef<HTMLDivElement>();
@@ -122,12 +124,13 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
               <div style={{ height }}>
                 <UseDisableBackButton />
                 {!iframeLoaded && <Spinner text={t('loading')} />}
-                { address && moonpay && (
+                { address && btcdirectInfo?.success && (
                   <iframe
                     onLoad={() => {
                       setIframeLoaded(true);
                       onResize();
                     }}
+                    ref={iframeRef}
                     title="BTC Direct"
                     width="100%"
                     height={height}
@@ -142,13 +145,8 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
                     data-mode={
                       isTesting || debug ? 'debug' : 'production'
                     }
-                    data-api-key={
-                      // TODO: apiKey should come from the backend
-                      isTesting
-                        ? '6ed4d42bd02eeac1776a6bb54fa3126f779c04d5c228fe5128bb74e89ef61f83'
-                        : '7d71f633626901d5c4d06d91f7d0db2c15cdf524ddd0ebcd36f4d9c4e04694cd'
-                    }
-                    src="/btcdirect/fiat-to-coin.html">
+                    data-api-key={btcdirectInfo.apiKey}
+                    src={btcdirectInfo.url}>
                   </iframe>
                 )}
               </div>
