@@ -242,7 +242,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/exchange/by-region/{code}", handlers.getExchangesByRegion).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/deals/{action}/{code}", handlers.getExchangeDeals).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/supported/{code}", handlers.getExchangeSupported).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/btcdirect/supported/{code}", handlers.getBtcDirectSupported).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/btcdirect-otc/supported/{code}", handlers.getExchangeBtcDirectOTCSupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url/{action}", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
@@ -1351,7 +1351,7 @@ func (handlers *Handlers) getExchangeDeals(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getBtcDirectSupported(r *http.Request) interface{} {
+func (handlers *Handlers) getExchangeBtcDirectOTCSupported(r *http.Request) interface{} {
 	type Result struct {
 		Supported bool `json:"supported"`
 		Success   bool `json:"success"`
@@ -1375,7 +1375,7 @@ func (handlers *Handlers) getBtcDirectSupported(r *http.Request) interface{} {
 	regionCode := r.URL.Query().Get("region")
 	return Result{
 		Success:   true,
-		Supported: exchanges.IsBtcDirectSupported(acct.Coin().Code(), regionCode),
+		Supported: exchanges.IsBtcDirectOTCSupportedForCoinInRegion(acct.Coin().Code(), regionCode),
 	}
 }
 
@@ -1400,6 +1400,9 @@ func (handlers *Handlers) getExchangeSupported(r *http.Request) interface{} {
 	}
 	if exchanges.IsPocketSupported(acct.Coin().Code()) {
 		supported.Exchanges = append(supported.Exchanges, exchanges.PocketName)
+	}
+	if exchanges.IsBtcDirectSupported(acct.Coin().Code()) {
+		supported.Exchanges = append(supported.Exchanges, exchanges.BTCDirectName)
 	}
 
 	return supported

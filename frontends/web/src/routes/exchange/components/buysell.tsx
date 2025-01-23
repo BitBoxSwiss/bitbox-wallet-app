@@ -162,38 +162,6 @@ export const BuySell = ({
                 onClickInfoButton={() => setInfo(buildInfo(exchange))}
               />
             ))}
-            {/* TODO: 'BTC Direct' should come from exchangeDealsResponse */}
-            { action === 'buy' && (
-              <ExchangeSelectionRadio
-                key={'btcdirect'}
-                id={'BTC Direct'}
-                exchangeName={'btcdirect'}
-                deals={[{
-                  fee: 2,
-                  payment: 'card',
-                  isFast: true,
-                  isBest: false,
-                }, {
-                  fee: 2,
-                  payment: 'bank-transfer',
-                  isFast: false,
-                  isBest: false,
-                }]}
-                checked={selectedExchange === 'btcdirect'}
-                onChange={() => {
-                  onSelectExchange('btcdirect');
-                }}
-                onClickInfoButton={() => setInfo(buildInfo({
-                  exchangeName: 'btcdirect',
-                  deals: [{
-                    fee: 2,
-                    payment: 'card',
-                    isFast: true,
-                    isBest: false,
-                  }],
-                }))}
-              />
-            )}
           </div>
         )}
         {btcDirectOTCSupported?.success && btcDirectOTCSupported?.supported && (
