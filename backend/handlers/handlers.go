@@ -243,6 +243,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/exchange/deals/{action}/{code}", handlers.getExchangeDeals).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/supported/{code}", handlers.getExchangeSupported).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/btcdirect-otc/supported/{code}", handlers.getExchangeBtcDirectOTCSupported).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/btcdirect/info/{action}/{code}", handlers.getExchangeBtcDirectInfo).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url/{action}", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
@@ -1436,6 +1437,33 @@ func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{
 		Address: buy.Address,
 	}
 	return resp, nil
+}
+
+func (handlers *Handlers) getExchangeBtcDirectInfo(r *http.Request) interface{} {
+	type result struct {
+		Success      bool    `json:"success"`
+		ErrorMessage string  `json:"errorMessage"`
+		Url          string  `json:"url"`
+		ApiKey       string  `json:"apiKey"`
+		Address      *string `json:"address"`
+	}
+
+	code := accountsTypes.Code(mux.Vars(r)["code"])
+	acct, err := handlers.backend.GetAccountFromCode(code)
+	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
+	if err != nil || !accountValid {
+		return result{Success: false, ErrorMessage: "Account is not valid."}
+	}
+
+	action := exchanges.ExchangeAction(mux.Vars(r)["action"])
+	btcInfo := exchanges.BtcDirectInfo(action, acct, handlers.backend.DevServers())
+
+	return result{
+		Success: true,
+		Url:     btcInfo.Url,
+		ApiKey:  btcInfo.ApiKey,
+		Address: btcInfo.Address,
+	}
 }
 
 func (handlers *Handlers) getExchangePocketURL(r *http.Request) interface{} {
