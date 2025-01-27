@@ -51,7 +51,7 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
   const { isDarkMode } = useDarkmode();
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const btcdirectInfo = useLoad(() => getBTCDirectInfo('buy'));
+  const btcdirectInfo = useLoad(() => getBTCDirectInfo('buy', code));
 
   const receiveAddresses = useLoad(getReceiveAddressList(code));
 

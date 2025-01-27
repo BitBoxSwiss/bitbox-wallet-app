@@ -103,6 +103,7 @@ export type TBTCDirectInfoResponse = {
   success: true;
   url: string;
   apiKey: string;
+  address?: string;
 } | {
   success: false;
   errorMessage: string;
@@ -110,15 +111,9 @@ export type TBTCDirectInfoResponse = {
 
 export const getBTCDirectInfo = (
   action: TExchangeAction,
+  code: string,
 ): Promise<TBTCDirectInfoResponse> => {
-  console.log(action);
-  // TODO: change to return apiGet(`exchange/btc-direct/info/${action}`); or similar
-  return Promise.resolve({
-    success: true,
-    url: '/btcdirect/fiat-to-coin.html', // local static file for testing
-    apiKey: '6ed4d42bd02eeac1776a6bb54fa3126f779c04d5c228fe5128bb74e89ef61f83', // debug
-    // apiKey: '7d71f633626901d5c4d06d91f7d0db2c15cdf524ddd0ebcd36f4d9c4e04694cd', // prod
-  });
+  return apiGet(`exchange/btcdirect/info/${action}/${code}`);
 };
 
 export type SupportedExchanges= {
@@ -140,6 +135,6 @@ export type TBtcDirectResponse = {
 
 export const getBtcDirectOTCSupported = (code: AccountCode, region: ExchangeRegion['code']) => {
   return (): Promise<TBtcDirectResponse> => {
-    return apiGet(`exchange/btcdirect-otc/supported/${code}?region=${region}`);
+    return apiGet(`exchange/btcdirect/supported/${code}?region=${region}`);
   };
 };
