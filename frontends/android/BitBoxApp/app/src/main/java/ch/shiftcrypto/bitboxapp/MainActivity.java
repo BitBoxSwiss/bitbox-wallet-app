@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
                                        IBinder service) {
             GoService.GoServiceBinder binder = (GoService.GoServiceBinder) service;
             goService = binder.getService();
+            goService.setViewModelStoreOwner(MainActivity.this);
             Util.log("Bind connection completed!");
             startServer();
         }
