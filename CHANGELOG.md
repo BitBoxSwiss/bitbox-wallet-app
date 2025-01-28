@@ -10,6 +10,7 @@
 - Linux: add support for Wayland
 - Fix the copy buttons in the Pocket order confirmation page
 - Android: handle device disconnect while the app is in the background
+- Improve send result view show relevant infos and options to make a new transaction or go back
 
 # 4.46.3
 - Fix camera access on linux
