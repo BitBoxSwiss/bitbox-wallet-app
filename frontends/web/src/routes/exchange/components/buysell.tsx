@@ -18,10 +18,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useLoad } from '@/hooks/api';
 import * as exchangesAPI from '@/api/exchanges';
 import { useContext, useEffect, useState } from 'react';
-import { ExchangeSelectionRadio } from './exchangeselectionradio';
 import { Button } from '@/components/forms/button';
 import { useTranslation } from 'react-i18next';
-import style from '../exchange.module.css';
 import { AppContext } from '@/contexts/AppContext';
 import { TInfoContentProps } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -33,14 +31,15 @@ import { i18n } from '@/i18n/i18n';
 import { A } from '@/components/anchor/anchor';
 import { InfoButton } from '@/components/infobutton/infobutton';
 import { getConfig } from '@/utils/config';
+import { ActionableItem } from '@/components/actionable-item/actionable-item';
+import { ExchangeProviders } from '@/routes/exchange/components/exchange-providers';
+import style from '../exchange.module.css';
 
 type TProps = {
   accountCode: string;
   deviceIDs: string[];
   selectedRegion: string;
-  onSelectExchange: (exchange: string) => void;
-  selectedExchange: string;
-  goToExchange: () => void;
+  goToExchange: (exchange: string) => void;
   showBackButton: boolean;
   action: exchangesAPI.TExchangeAction
   setInfo: (into: TInfoContentProps) => void;
@@ -65,8 +64,6 @@ export const BuySell = ({
   accountCode,
   deviceIDs,
   selectedRegion,
-  onSelectExchange,
-  selectedExchange,
   goToExchange,
   showBackButton,
   action,
@@ -89,15 +86,6 @@ export const BuySell = ({
     setPaymentRequestError(action === 'sell' && hasPaymentRequestResponse?.success === false);
   }, [hasPaymentRequestResponse, action]);
 
-
-  // checks for the loaded exchange deals, and preselect if there is only one available.
-  useEffect(() => {
-    if (exchangeDealsResponse?.success && exchangeDealsResponse.exchanges.length === 1) {
-      onSelectExchange(exchangeDealsResponse.exchanges[0].exchangeName);
-    } else {
-      onSelectExchange('');
-    }
-  }, [exchangeDealsResponse, onSelectExchange]);
 
   useEffect(() => {
     if (config) {
@@ -129,7 +117,7 @@ export const BuySell = ({
   return (
     <>
       <div className={style.innerRadioButtonsContainer}>
-        {!exchangeDealsResponse && <Skeleton/> }
+        {!exchangeDealsResponse && <Skeleton />}
         {exchangeDealsResponse?.success === false || paymentRequestError ? (
           <div className="flex flex-column">
             <p className={style.noExchangeText}>{constructErrorMessage()}</p>
@@ -148,19 +136,22 @@ export const BuySell = ({
             )}
           </div>
         ) : (
-          <div>
+          <div className={style.exchangeProvidersContainer}>
             {exchangeDealsResponse?.exchanges.map(exchange => (
-              <ExchangeSelectionRadio
-                key={exchange.exchangeName}
-                id={exchange.exchangeName}
-                exchangeName={exchange.exchangeName}
-                deals={exchange.deals}
-                checked={selectedExchange === exchange.exchangeName}
-                onChange={() => {
-                  onSelectExchange(exchange.exchangeName);
-                }}
-                onClickInfoButton={() => setInfo(buildInfo(exchange))}
-              />
+              <div key={exchange.exchangeName} className={style.actionableItemContainer}>
+                <ActionableItem
+                  key={exchange.exchangeName}
+                  onClick={() => {
+                    goToExchange(exchange.exchangeName);
+                  }}>
+                  <ExchangeProviders
+                    deals={exchange.deals}
+                    exchangeName={exchange.exchangeName}
+                  />
+                </ActionableItem>
+
+                <InfoButton onClick={() => setInfo(buildInfo(exchange))} />
+              </div>
             ))}
           </div>
         )}
@@ -197,12 +188,6 @@ export const BuySell = ({
               {t('button.back')}
             </Button>
           )}
-          <Button
-            primary
-            disabled={!selectedExchange || paymentRequestError}
-            onClick={goToExchange}>
-            {t('button.next')}
-          </Button>
         </div>
       )}
     </>
