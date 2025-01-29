@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useState, useEffect, createRef, useContext, useRef } from 'react';
+import { useState, useEffect, createRef, useContext, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getBTCDirectInfo } from '@/api/exchanges';
 import { AppContext } from '@/contexts/AppContext';
@@ -94,14 +94,44 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
     }, 200);
   };
 
+  const locale = i18n.resolvedLanguage ? localeMapping[i18n.resolvedLanguage] : 'en-GB';
+
+  const onMessage = useCallback((event: MessageEvent) => {
+    // if (!isDevserver && event.origin !== 'https://shiftcrypto.io') { return; }
+
+    if (!account || !btcdirectInfo?.success) {
+      return;
+    }
+    switch (event.data.action) {
+    case 'request-configuration':
+      event.source?.postMessage({
+        action: 'configuration',
+        address,
+        locale,
+        theme: isDarkMode ? 'dark' : 'light',
+        baseCurrency: getCoinCode(account.coinCode),
+        quoteCurrency: 'EUR',
+        mode: isTesting || debug ? 'debug' : 'production',
+        apiKey: btcdirectInfo.apiKey,
+      }, {
+        targetOrigin: event.origin
+      });
+      break;
+    }
+
+  }, [account, address, btcdirectInfo, locale, isDarkMode, isTesting]);
+
+  useEffect(() => {
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  });
+
   if (!account || !config) {
     return null;
   }
 
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
-
-  const locale = i18n.resolvedLanguage ? localeMapping[i18n.resolvedLanguage] : 'en-GB';
 
   return (
     <div className="contentWithGuide">
@@ -137,15 +167,6 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
                     frameBorder="0"
                     className={`${style.iframe} ${!iframeLoaded ? style.hide : ''}`}
                     allow="camera"
-                    data-locale={locale}
-                    data-theme={isDarkMode ? 'dark' : 'light'}
-                    data-base-currency={getCoinCode(account.coinCode)}
-                    data-quote-currency={'EUR'}
-                    data-address={address}
-                    data-mode={
-                      isTesting || debug ? 'debug' : 'production'
-                    }
-                    data-api-key={btcdirectInfo.apiKey}
                     src={btcdirectInfo.url}>
                   </iframe>
                 )}
