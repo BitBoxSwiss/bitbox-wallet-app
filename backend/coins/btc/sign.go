@@ -39,6 +39,20 @@ type ProposedTransaction struct {
 	FormatUnit coin.BtcUnit
 }
 
+// Finalize adds the signatureScript/witness for each input based on the available signatures and
+// input address configurations.
+func (p *ProposedTransaction) Finalize() error {
+	for index, input := range p.TXProposal.Transaction.TxIn {
+		address := p.TXProposal.PreviousOutputs[input.PreviousOutPoint].Address
+		signature := p.Signatures[index]
+		if signature == nil {
+			return errp.New("Signature missing")
+		}
+		input.SignatureScript, input.Witness = address.SignatureScript(*signature)
+	}
+	return nil
+}
+
 // signTransaction signs all inputs. It assumes all outputs spent belong to this
 // wallet. previousOutputs must contain all outputs which are spent by the transaction.
 func (account *Account) signTransaction(
@@ -68,13 +82,9 @@ func (account *Account) signTransaction(
 		return err
 	}
 
-	for index, input := range txProposal.Transaction.TxIn {
-		address := previousOutputs[input.PreviousOutPoint].Address
-		signature := proposedTransaction.Signatures[index]
-		if signature == nil {
-			return errp.New("Signature missing")
-		}
-		input.SignatureScript, input.Witness = address.SignatureScript(*signature)
+	// Insert signatureScripts/witnesses.
+	if err := proposedTransaction.Finalize(); err != nil {
+		return err
 	}
 
 	// Sanity check: see if the created transaction is valid.

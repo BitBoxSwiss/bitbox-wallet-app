@@ -10,7 +10,10 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License.
+// limitations under the Liceense.
+
+//go:build bitbox02_simulator
+// +build bitbox02_simulator
 
 package bitbox02
 
@@ -397,14 +400,7 @@ func TestSimulatorSignBTCTransactionMixedInputs(t *testing.T) {
 		}
 
 		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
-		// Insert sigs
-		for index, input := range txProposal.Transaction.TxIn {
-			address := txProposal.PreviousOutputs[input.PreviousOutPoint].Address
-			signature := proposedTransaction.Signatures[index]
-			require.NotNil(t, signature)
-			input.SignatureScript, input.Witness = address.SignatureScript(*signature)
-		}
-
+		require.NoError(t, proposedTransaction.Finalize())
 		require.NoError(t, btc.TxValidityCheck(txProposal.Transaction, txProposal.PreviousOutputs, txProposal.SigHashes()))
 	})
 }
