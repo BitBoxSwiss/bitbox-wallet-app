@@ -393,7 +393,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			payload = outputAddress.ScriptAddress()
 		}
 
-		// Could also determine change using `outputAddress != nil AND second-to-last keypath element of outputAddress is 1`.
+		// Could also determine change using `outputAccountAddress != nil AND second-to-last keypath element of outputAddress is 1`.
 		isChange := txChangeAddress != nil && bytes.Equal(
 			txChangeAddress.PubkeyScript(),
 			txOut.PkScript,
