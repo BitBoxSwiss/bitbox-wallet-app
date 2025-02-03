@@ -161,13 +161,13 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			keystore.log.Error("There needs to be exactly one output being spent per input.")
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
-		address := btcProposedTx.GetAccountAddress(spentOutput.ScriptHashHex())
+		address := spentOutput.Address
 		isSegwit, subScript := address.ScriptForHashToSign()
 		var signatureHash []byte
 		if isSegwit {
 			var err error
 			signatureHash, err = txscript.CalcWitnessSigHash(subScript, sigHashes,
-				txscript.SigHashAll, transaction, index, spentOutput.Value)
+				txscript.SigHashAll, transaction, index, spentOutput.TxOut.Value)
 			if err != nil {
 				return errp.Wrap(err, "Failed to calculate SegWit signature hash")
 			}

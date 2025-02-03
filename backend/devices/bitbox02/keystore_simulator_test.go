@@ -361,9 +361,9 @@ func TestSimulatorSignBTCTransactionMixedInputs(t *testing.T) {
 		outputPkScript := addresses.NewAccountAddress(configurations[0], signing.NewEmptyRelativeKeypath().Child(0, false).Child(10, false), net, log).PubkeyScript()
 
 		spendableOutputs := map[wire.OutPoint]maketx.UTXO{
-			*wire.NewOutPoint(&prevTxHash, 0): maketx.UTXO{prevTx.TxOut[0], inputAddress0.Configuration},
-			*wire.NewOutPoint(&prevTxHash, 1): maketx.UTXO{prevTx.TxOut[1], inputAddress1.Configuration},
-			*wire.NewOutPoint(&prevTxHash, 2): maketx.UTXO{prevTx.TxOut[2], inputAddress2.Configuration},
+			*wire.NewOutPoint(&prevTxHash, 0): maketx.UTXO{prevTx.TxOut[0], inputAddress0},
+			*wire.NewOutPoint(&prevTxHash, 1): maketx.UTXO{prevTx.TxOut[1], inputAddress1},
+			*wire.NewOutPoint(&prevTxHash, 2): maketx.UTXO{prevTx.TxOut[2], inputAddress2},
 		}
 		outputAmount := int64(250_000_000)
 		feePerKb := btcutil.Amount(1000)
@@ -399,8 +399,7 @@ func TestSimulatorSignBTCTransactionMixedInputs(t *testing.T) {
 		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
 		// Insert sigs
 		for index, input := range txProposal.Transaction.TxIn {
-			spentOutput := txProposal.PreviousOutputs[input.PreviousOutPoint]
-			address := proposedTransaction.GetAccountAddress(spentOutput.ScriptHashHex())
+			address := txProposal.PreviousOutputs[input.PreviousOutPoint].Address
 			signature := proposedTransaction.Signatures[index]
 			require.NotNil(t, signature)
 			input.SignatureScript, input.Witness = address.SignatureScript(*signature)

@@ -121,8 +121,8 @@ func (s *newTxSuite) buildUTXO(satoshis ...int64) map[wire.OutPoint]maketx.UTXO 
 	utxo := map[wire.OutPoint]maketx.UTXO{}
 	for i, satoshi := range satoshis {
 		utxo[s.outpoint(i)] = maketx.UTXO{
-			TxOut:         wire.NewTxOut(satoshi, s.someAddresses[0].PubkeyScript()),
-			Configuration: s.inputConfiguration,
+			TxOut:   wire.NewTxOut(satoshi, s.someAddresses[0].PubkeyScript()),
+			Address: s.someAddresses[0],
 		}
 	}
 	return utxo

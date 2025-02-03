@@ -102,7 +102,7 @@ func (account *Account) pickChangeAddress(utxos map[wire.OutPoint]maketx.UTXO) (
 	if p2trIndex >= 0 {
 		// Check if there is at least one taproot UTXO.
 		for _, utxo := range utxos {
-			if utxo.Configuration.ScriptType() == signing.ScriptTypeP2TR {
+			if utxo.Address.Configuration.ScriptType() == signing.ScriptTypeP2TR {
 				// Found a taproot UTXO.
 				unusedAddresses, err := account.subaccounts[p2trIndex].changeAddresses.GetUnused()
 				if err != nil {
@@ -162,8 +162,8 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		}
 		wireUTXO[outPoint] = maketx.UTXO{
 			TxOut: txOut.TxOut,
-			Configuration: account.getAddress(
-				blockchain.NewScriptHashHex(txOut.TxOut.PkScript)).Configuration,
+			Address: account.getAddress(
+				blockchain.NewScriptHashHex(txOut.TxOut.PkScript)),
 		}
 	}
 	feeRatePerKb, err := account.getFeePerKb(args)

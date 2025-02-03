@@ -69,8 +69,7 @@ func (account *Account) signTransaction(
 	}
 
 	for index, input := range txProposal.Transaction.TxIn {
-		spentOutput := previousOutputs[input.PreviousOutPoint]
-		address := proposedTransaction.GetAccountAddress(spentOutput.ScriptHashHex())
+		address := previousOutputs[input.PreviousOutPoint].Address
 		signature := proposedTransaction.Signatures[index]
 		if signature == nil {
 			return errp.New("Signature missing")
@@ -95,8 +94,8 @@ func TxValidityCheck(transaction *wire.MsgTx, previousOutputs maketx.PreviousOut
 		if !ok {
 			return errp.New("There needs to be exactly one output being spent per input!")
 		}
-		engine, err := txscript.NewEngine(spentOutput.PkScript, transaction, index,
-			txscript.StandardVerifyFlags, nil, sigHashes, spentOutput.Value, previousOutputs)
+		engine, err := txscript.NewEngine(spentOutput.TxOut.PkScript, transaction, index,
+			txscript.StandardVerifyFlags, nil, sigHashes, spentOutput.TxOut.Value, previousOutputs)
 		if err != nil {
 			return errp.WithStack(err)
 		}
