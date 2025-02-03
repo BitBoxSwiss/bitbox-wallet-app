@@ -288,3 +288,19 @@ jobs:
           TEXT: |
             **Oh no! [${{ steps.vars.outputs.git_sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) failed to build.**
             See [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.
+  bitbox02-simulator:
+    # This is a separate job because the simulator runs on Ubuntu 22.04+, while the
+    # Docker CI image is still on Ubuntu 20.04 (the min supported version for BitBoxApp).
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+      - name: Run simulator tests
+        run: |
+          go test -mod=vendor -tags=bitbox02_simulator ./... -count=1 -v -run 'TestSimulator*'

@@ -79,7 +79,7 @@ func (account *Account) signTransaction(
 	}
 
 	// Sanity check: see if the created transaction is valid.
-	if err := txValidityCheck(txProposal.Transaction, previousOutputs,
+	if err := TxValidityCheck(txProposal.Transaction, previousOutputs,
 		txProposal.SigHashes()); err != nil {
 		account.log.WithError(err).Panic("Failed to pass transaction validity check.")
 	}
@@ -87,7 +87,8 @@ func (account *Account) signTransaction(
 	return nil
 }
 
-func txValidityCheck(transaction *wire.MsgTx, previousOutputs maketx.PreviousOutputs,
+// TxValidityCheck checks if the transaction is valid, including signature/witness checks.
+func TxValidityCheck(transaction *wire.MsgTx, previousOutputs maketx.PreviousOutputs,
 	sigHashes *txscript.TxSigHashes) error {
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := previousOutputs[txIn.PreviousOutPoint]
