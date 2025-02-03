@@ -9,7 +9,7 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.3.4
 	github.com/btcsuite/btcd/btcutil v1.1.6
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
-	github.com/ethereum/go-ethereum v1.14.12
+	github.com/ethereum/go-ethereum v1.14.13
 	github.com/flynn/noise v1.1.0
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
