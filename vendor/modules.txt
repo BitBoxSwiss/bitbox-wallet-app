@@ -111,7 +111,7 @@ github.com/decred/dcrd/dcrec/secp256k1/v4/schnorr
 # github.com/ethereum/c-kzg-4844 v1.0.3
 ## explicit; go 1.19
 github.com/ethereum/c-kzg-4844/bindings/go
-# github.com/ethereum/go-ethereum v1.14.12
+# github.com/ethereum/go-ethereum v1.14.13
 ## explicit; go 1.22
 github.com/ethereum/go-ethereum
 github.com/ethereum/go-ethereum/accounts
