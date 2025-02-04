@@ -44,6 +44,14 @@ type TProps = {
   code: AccountCode;
 }
 
+const getURLOrigin = (uri: string): string | null => {
+  try {
+    return new URL(uri).origin;
+  } catch (e) {
+    return null;
+  }
+};
+
 export const BTCDirect = ({ accounts, code }: TProps) => {
   const { i18n, t } = useTranslation();
   const { isDevServers } = useContext(AppContext);
@@ -93,7 +101,10 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
     if (
       !account
       || !btcdirectInfo?.success
-      || (!isDevServers && event.origin !== 'https://bitboxapp.shiftcrypto.io')
+      || (
+        !isDevServers // if prod check that event is from same origin as btcdirectInfo.url
+        && event.origin !== getURLOrigin(btcdirectInfo.url)
+      )
     ) {
       return;
     }
