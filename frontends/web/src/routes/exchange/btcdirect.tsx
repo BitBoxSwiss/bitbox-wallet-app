@@ -18,7 +18,7 @@ import { useState, useEffect, createRef, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getBTCDirectInfo } from '@/api/exchanges';
 import { AppContext } from '@/contexts/AppContext';
-import { AccountCode, getReceiveAddressList, IAccount } from '@/api/account';
+import { AccountCode, IAccount } from '@/api/account';
 import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -51,13 +51,7 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
   const { isDarkMode } = useDarkmode();
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const btcdirectInfo = useLoad(() => getBTCDirectInfo('buy'));
-
-  const receiveAddresses = useLoad(getReceiveAddressList(code));
-
-  // TODO: address should probably come from the backend, i.e. ETH address
-  const p2wpkhAddresses = receiveAddresses?.find(({ scriptType }) => scriptType === 'p2wpkh')?.addresses || [];
-  const address = p2wpkhAddresses[0]?.address || '';
+  const btcdirectInfo = useLoad(() => getBTCDirectInfo('buy', code));
 
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -124,7 +118,7 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
               <div style={{ height }}>
                 <UseDisableBackButton />
                 {!iframeLoaded && <Spinner text={t('loading')} />}
-                { address && btcdirectInfo?.success && (
+                { btcdirectInfo?.success && (
                   <iframe
                     onLoad={() => {
                       setIframeLoaded(true);
@@ -141,7 +135,7 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
                     data-theme={isDarkMode ? 'dark' : 'light'}
                     data-base-currency={getCoinCode(account.coinCode)}
                     data-quote-currency={'EUR'}
-                    data-address={address}
+                    data-address={btcdirectInfo.address}
                     data-mode={
                       isTesting || debug ? 'debug' : 'production'
                     }

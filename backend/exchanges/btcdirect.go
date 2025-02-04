@@ -17,13 +17,28 @@ package exchanges
 import (
 	"slices"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 )
 
 const (
 	// BTCDirectName is the name of the exchange, it is unique among all the supported exchanges.
 	BTCDirectName = "btcdirect"
+
+	btcDirectTestApiKey = "6ed4d42bd02eeac1776a6bb54fa3126f779c04d5c228fe5128bb74e89ef61f83"
+
+	btcDirectProdAPiKey = "7d71f633626901d5c4d06d91f7d0db2c15cdf524ddd0ebcd36f4d9c4e04694cd"
+
+	btcDirectTestUrl = "/btcdirect/fiat-to-coin.html"
+
+	btcDirectProdUrl = "https://bitboxapp.shiftcrypto.io/widgets/btcdirect/v1/fiat-to-coin.html"
 )
+
+type btcDirectInfo struct {
+	Url     string
+	ApiKey  string
+	Address *string
+}
 
 var regions = []string{
 	"AT", "BE", "BG", "CH", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR",
@@ -75,4 +90,24 @@ func BtcDirectDeals() *ExchangeDealsList {
 			},
 		},
 	}
+}
+
+// BtcDirectInfo returns the information needed to interact with BtcDirect.
+// If `devServers` is true, it returns testing URL and ApiKey.
+func BtcDirectInfo(action ExchangeAction, acct accounts.Interface, devServers bool) btcDirectInfo {
+	res := btcDirectInfo{
+		Url:    btcDirectProdUrl,
+		ApiKey: btcDirectProdAPiKey,
+	}
+
+	if devServers {
+		res.Url = btcDirectTestUrl
+		res.ApiKey = btcDirectTestApiKey
+	}
+
+	if action == BuyAction {
+		addr := acct.GetUnusedReceiveAddresses()[0].Addresses[0].EncodeForHumans()
+		res.Address = &addr
+	}
+	return res
 }

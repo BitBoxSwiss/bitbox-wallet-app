@@ -49,8 +49,9 @@ type Arguments struct {
 	regtest bool
 
 	// devservers stores wether the app should connect to the dev servers.
-	// This also applies to the Pocket widget environment: if devserver is true, the widget
-	// will be loaded from the staging environment, otherwise from production.
+	// This also applies to the Pocket and BTCDirect widget environments:
+	// if devserver is true, the widgets will be loaded from the staging environment,
+	// otherwise from production.
 	// The devservers configuration is not persisted when switching back to production.
 	devservers bool
 
