@@ -25,6 +25,7 @@ type AppContextProps = {
     guideExists: boolean;
     hideAmounts: boolean;
     isTesting: boolean;
+    isDevServers: boolean;
     nativeLocale: string;
     sidebarStatus: TSidebarStatus;
     firmwareUpdateDialogOpen: boolean;
