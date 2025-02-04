@@ -213,6 +213,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/detect-dark-theme", handlers.getDetectDarkTheme).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/version", handlers.getVersion).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/testing", handlers.getTesting).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/dev-servers", handlers.getDevServers).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
@@ -539,6 +540,10 @@ func (handlers *Handlers) getVersion(*http.Request) interface{} {
 
 func (handlers *Handlers) getTesting(*http.Request) interface{} {
 	return handlers.backend.Testing()
+}
+
+func (handlers *Handlers) getDevServers(*http.Request) interface{} {
+	return handlers.backend.DevServers()
 }
 
 func (handlers *Handlers) postAddAccount(r *http.Request) interface{} {

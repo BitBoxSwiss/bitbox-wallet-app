@@ -23,7 +23,6 @@ import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { getConfig } from '@/utils/config';
-import { debug } from '@/utils/env';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, getCoinCode, isBitcoinOnly } from '@/routes/account/utils';
@@ -47,7 +46,7 @@ type TProps = {
 
 export const BTCDirect = ({ accounts, code }: TProps) => {
   const { i18n, t } = useTranslation();
-  const { isTesting } = useContext(AppContext);
+  const { isDevServers } = useContext(AppContext);
   const { isDarkMode } = useDarkmode();
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -136,8 +135,7 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
                     data-base-currency={getCoinCode(account.coinCode)}
                     data-quote-currency={'EUR'}
                     data-address={btcdirectInfo.address}
-                    data-mode={
-                      isTesting || debug ? 'debug' : 'production'
+                    data-mode={isDevServers ? 'debug' : 'production'
                     }
                     data-api-key={btcdirectInfo.apiKey}
                     src={btcdirectInfo.url}>
