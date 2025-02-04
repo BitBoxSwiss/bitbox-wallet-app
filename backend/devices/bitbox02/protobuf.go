@@ -16,18 +16,18 @@
 package bitbox02
 
 import (
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
 )
 
 // conversions from types used by the wallet to types defined in the protobuf messages.
 
-var btcMsgCoinMap = map[coin.Code]messages.BTCCoin{
-	coin.CodeBTC:  messages.BTCCoin_BTC,
-	coin.CodeTBTC: messages.BTCCoin_TBTC,
-	coin.CodeLTC:  messages.BTCCoin_LTC,
-	coin.CodeTLTC: messages.BTCCoin_TLTC,
+var btcMsgCoinMap = map[coinpkg.Code]messages.BTCCoin{
+	coinpkg.CodeBTC:  messages.BTCCoin_BTC,
+	coinpkg.CodeTBTC: messages.BTCCoin_TBTC,
+	coinpkg.CodeLTC:  messages.BTCCoin_LTC,
+	coinpkg.CodeTLTC: messages.BTCCoin_TLTC,
 }
 
 var btcMsgScriptTypeMap = map[signing.ScriptType]messages.BTCScriptConfig_SimpleType{

@@ -42,12 +42,12 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	event "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
@@ -60,6 +60,12 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/stretchr/testify/require"
+)
+
+var (
+	log     = logging.Get().WithGroup("simulator tx signing test")
+	network = &chaincfg.MainNetParams
+	coin    = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", coinpkg.BtcUnitDefault, network, ".", []*config.ServerInfo{}, "https://blockstream.info/testnet/tx/", socksproxy.NewSocksProxy(false, ""))
 )
 
 func mustKeypath(keypath string) signing.AbsoluteKeypath {
@@ -280,9 +286,6 @@ func TestSimulatorRootFingerprint(t *testing.T) {
 func TestSimulatorExtendedPublicKeyBTC(t *testing.T) {
 	testInitializedSimulators(t, func(t *testing.T, device *Device) {
 		t.Helper()
-		dbFolder := test.TstTempDir("btc-dbfolder")
-		defer func() { _ = os.RemoveAll(dbFolder) }()
-		coin := btc.NewCoin(coinpkg.CodeTBTC, "Bitcoin Testnet", "TBTC", coinpkg.BtcUnitDefault, &chaincfg.TestNet3Params, dbFolder, nil, "", socksproxy.NewSocksProxy(false, ""))
 		keypath := mustKeypath("m/84'/1'/0'")
 		xpub, err := device.Keystore().ExtendedPublicKey(coin, keypath)
 		require.NoError(t, err)
@@ -293,114 +296,156 @@ func TestSimulatorExtendedPublicKeyBTC(t *testing.T) {
 	})
 }
 
+func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.ProposedTransaction {
+	t.Helper()
+	makeConfig := func(scriptType signing.ScriptType, keypath signing.AbsoluteKeypath) *signing.Configuration {
+		xpubStr, err := device.BTCXPub(messages.BTCCoin_BTC, keypath.ToUInt32(), messages.BTCPubRequest_XPUB, false)
+		require.NoError(t, err)
+		xpub, err := hdkeychain.NewKeyFromString(xpubStr)
+		require.NoError(t, err)
+		rootFingerprint := []byte{1, 2, 3, 4}
+		return signing.NewBitcoinConfiguration(scriptType, rootFingerprint, keypath, xpub)
+	}
+
+	configurations := []*signing.Configuration{
+		makeConfig(signing.ScriptTypeP2TR, mustKeypath("m/86'/0'/0'")),
+		makeConfig(signing.ScriptTypeP2WPKH, mustKeypath("m/84'/0'/0'")),
+		makeConfig(signing.ScriptTypeP2WPKHP2SH, mustKeypath("m/49'/0'/0'")),
+	}
+	inputAddress0 := addresses.NewAccountAddress(configurations[0], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), network, log)
+	inputAddress1 := addresses.NewAccountAddress(configurations[1], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), network, log)
+	inputAddress2 := addresses.NewAccountAddress(configurations[2], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), network, log)
+	changeAddress := addresses.NewAccountAddress(configurations[0], signing.NewEmptyRelativeKeypath().Child(1, false).Child(0, false), network, log)
+
+	prevTx := &wire.MsgTx{
+		Version: 2,
+		TxIn: []*wire.TxIn{
+			{
+				PreviousOutPoint: *mustOutpoint("3131313131313131313131313131313131313131313131313131313131313131:0"),
+				Sequence:         0xFFFFFFFF,
+			},
+		},
+		TxOut: []*wire.TxOut{
+			{
+				Value: 100_000_000,
+				PkScript: func() []byte {
+					return inputAddress0.PubkeyScript()
+
+				}(),
+			},
+			{
+				Value: 100_000_000,
+				PkScript: func() []byte {
+					return inputAddress1.PubkeyScript()
+				}(),
+			},
+			{
+				Value: 100_000_000,
+				PkScript: func() []byte {
+					return inputAddress2.PubkeyScript()
+				}(),
+			},
+		},
+		LockTime: 0,
+	}
+	prevTxHash := prevTx.TxHash()
+
+	addrs := []*addresses.AccountAddress{
+		inputAddress0,
+		inputAddress1,
+		inputAddress2,
+		changeAddress,
+	}
+
+	spendableOutputs := map[wire.OutPoint]maketx.UTXO{
+		*wire.NewOutPoint(&prevTxHash, 0): maketx.UTXO{prevTx.TxOut[0], inputAddress0},
+		*wire.NewOutPoint(&prevTxHash, 1): maketx.UTXO{prevTx.TxOut[1], inputAddress1},
+		*wire.NewOutPoint(&prevTxHash, 2): maketx.UTXO{prevTx.TxOut[2], inputAddress2},
+	}
+	outputAmount := int64(250_000_000)
+	feePerKb := btcutil.Amount(1000)
+	txProposal, err := maketx.NewTx(
+		coin,
+		spendableOutputs,
+		recipient,
+		outputAmount,
+		feePerKb,
+		changeAddress,
+		log,
+	)
+	require.NoError(t, err)
+
+	return &btc.ProposedTransaction{
+		TXProposal:                   txProposal,
+		AccountSigningConfigurations: configurations,
+		GetAccountAddress: func(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
+			for _, address := range addrs {
+				if address.PubkeyScriptHashHex() == scriptHashHex {
+					return address
+				}
+			}
+			return nil
+		},
+		GetPrevTx: func(chainhash.Hash) (*wire.MsgTx, error) {
+			return prevTx, nil
+		},
+		Signatures: make([]*types.Signature, len(txProposal.Transaction.TxIn)),
+		FormatUnit: coinpkg.BtcUnitDefault,
+	}
+
+}
+
 func TestSimulatorSignBTCTransactionMixedInputs(t *testing.T) {
 	testInitializedSimulators(t, func(t *testing.T, device *Device) {
 		t.Helper()
-		log := logging.Get().WithGroup("simulator tx sign test")
-		net := &chaincfg.MainNetParams
-		dbFolder := test.TstTempDir("btc-dbfolder")
-		defer func() { _ = os.RemoveAll(dbFolder) }()
-		coin := btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", coinpkg.BtcUnitDefault, net, dbFolder, nil, "", socksproxy.NewSocksProxy(false, ""))
 
-		makeConfig := func(scriptType signing.ScriptType, keypath signing.AbsoluteKeypath) *signing.Configuration {
-			xpubStr, err := device.BTCXPub(messages.BTCCoin_BTC, keypath.ToUInt32(), messages.BTCPubRequest_XPUB, false)
-			require.NoError(t, err)
-			xpub, err := hdkeychain.NewKeyFromString(xpubStr)
-			require.NoError(t, err)
-			rootFingerprint := []byte{1, 2, 3, 4}
-			return signing.NewBitcoinConfiguration(scriptType, rootFingerprint, keypath, xpub)
-		}
-
-		configurations := []*signing.Configuration{
-			makeConfig(signing.ScriptTypeP2TR, mustKeypath("m/86'/0'/0'")),
-			makeConfig(signing.ScriptTypeP2WPKH, mustKeypath("m/84'/0'/0'")),
-			makeConfig(signing.ScriptTypeP2WPKHP2SH, mustKeypath("m/49'/0'/0'")),
-		}
-		inputAddress0 := addresses.NewAccountAddress(configurations[0], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), net, log)
-		inputAddress1 := addresses.NewAccountAddress(configurations[1], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), net, log)
-		inputAddress2 := addresses.NewAccountAddress(configurations[2], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), net, log)
-		changeAddress := addresses.NewAccountAddress(configurations[0], signing.NewEmptyRelativeKeypath().Child(1, false).Child(0, false), net, log)
-
-		prevTx := &wire.MsgTx{
-			Version: 2,
-			TxIn: []*wire.TxIn{
-				{
-					PreviousOutPoint: *mustOutpoint("3131313131313131313131313131313131313131313131313131313131313131:0"),
-					Sequence:         0xFFFFFFFF,
-				},
-			},
-			TxOut: []*wire.TxOut{
-				{
-					Value: 100_000_000,
-					PkScript: func() []byte {
-						return inputAddress0.PubkeyScript()
-
-					}(),
-				},
-				{
-					Value: 100_000_000,
-					PkScript: func() []byte {
-						return inputAddress1.PubkeyScript()
-					}(),
-				},
-				{
-					Value: 100_000_000,
-					PkScript: func() []byte {
-						return inputAddress2.PubkeyScript()
-					}(),
-				},
-			},
-			LockTime: 0,
-		}
-		prevTxHash := prevTx.TxHash()
-
-		addrs := []*addresses.AccountAddress{
-			inputAddress0,
-			inputAddress1,
-			inputAddress2,
-			changeAddress,
-		}
-
-		outputPkScript := addresses.NewAccountAddress(configurations[0], signing.NewEmptyRelativeKeypath().Child(0, false).Child(10, false), net, log).PubkeyScript()
-
-		spendableOutputs := map[wire.OutPoint]maketx.UTXO{
-			*wire.NewOutPoint(&prevTxHash, 0): maketx.UTXO{prevTx.TxOut[0], inputAddress0},
-			*wire.NewOutPoint(&prevTxHash, 1): maketx.UTXO{prevTx.TxOut[1], inputAddress1},
-			*wire.NewOutPoint(&prevTxHash, 2): maketx.UTXO{prevTx.TxOut[2], inputAddress2},
-		}
-		outputAmount := int64(250_000_000)
-		feePerKb := btcutil.Amount(1000)
-		txProposal, err := maketx.NewTx(
-			coin,
-			spendableOutputs,
-			maketx.NewOutputInfo(outputPkScript),
-			outputAmount,
-			feePerKb,
-			changeAddress,
-			log,
-		)
+		pkScript, err := hex.DecodeString("76a91455ae51684c43435da751ac8d2173b2652eb6410588ac")
 		require.NoError(t, err)
+		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(pkScript))
 
-		proposedTransaction := &btc.ProposedTransaction{
-			TXProposal:                   txProposal,
-			AccountSigningConfigurations: configurations,
-			GetAccountAddress: func(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
-				for _, address := range addrs {
-					if address.PubkeyScriptHashHex() == scriptHashHex {
-						return address
-					}
-				}
-				return nil
-			},
-			GetPrevTx: func(chainhash.Hash) (*wire.MsgTx, error) {
-				return prevTx, nil
-			},
-			Signatures: make([]*types.Signature, len(txProposal.Transaction.TxIn)),
-			FormatUnit: coinpkg.BtcUnitDefault,
+		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
+		require.NoError(t, proposedTransaction.Finalize())
+		require.NoError(
+			t,
+			btc.TxValidityCheck(
+				proposedTransaction.TXProposal.Transaction,
+				proposedTransaction.TXProposal.PreviousOutputs,
+				proposedTransaction.TXProposal.SigHashes()))
+	})
+}
+
+func TestSimulatorSignBTCTransactionSilentPayment(t *testing.T) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device) {
+		t.Helper()
+
+		proposedTransaction := makeTx(t, device,
+			maketx.NewOutputInfoSilentPayment("sp1qqgste7k9hx0qftg6qmwlkqtwuy6cycyavzmzj85c6qdfhjdpdjtdgqjuexzk6murw56suy3e0rd2cgqvycxttddwsvgxe2usfpxumr70xc9pkqwv"))
+
+		if !device.Version().AtLeast(semver.NewSemVer(9, 21, 0)) {
+			require.EqualError(t,
+				device.Keystore().SignTransaction(proposedTransaction),
+				firmware.UnsupportedError("9.21.0").Error(),
+			)
+			return
 		}
 
 		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
 		require.NoError(t, proposedTransaction.Finalize())
-		require.NoError(t, btc.TxValidityCheck(txProposal.Transaction, txProposal.PreviousOutputs, txProposal.SigHashes()))
+		require.NoError(
+			t,
+			btc.TxValidityCheck(
+				proposedTransaction.TXProposal.Transaction,
+				proposedTransaction.TXProposal.PreviousOutputs,
+				proposedTransaction.TXProposal.SigHashes()))
+
+		found := false
+		expectedSilentPaymentOutputPkScript := "5120d826829cb603fc008e5ef99d0818f2126d3569c3ab8a6cd069f07a20e892bd59"
+		for _, o := range proposedTransaction.TXProposal.Transaction.TxOut {
+			if hex.EncodeToString(o.PkScript) == expectedSilentPaymentOutputPkScript {
+				found = true
+				break
+			}
+		}
+		require.True(t, found)
 	})
 }
