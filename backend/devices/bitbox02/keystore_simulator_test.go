@@ -18,6 +18,8 @@
 package bitbox02
 
 import (
+	"bufio"
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -84,13 +86,29 @@ func mustOutpoint(s string) *wire.OutPoint {
 	return outPoint
 }
 
-func runSimulator(filename string) (func() error, *Device, error) {
-	cmd := exec.Command(filename)
-	if err := cmd.Start(); err != nil {
-		return nil, nil, err
+func runSimulator(filename string) (func() error, *Device, *bytes.Buffer, error) {
+	//
+	cmd := exec.Command("stdbuf", "-oL", filename)
+
+	// Create pipe before starting process
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, nil, nil, err
 	}
+	if err := cmd.Start(); err != nil {
+		return nil, nil, nil, err
+	}
+
+	var stdoutBuf bytes.Buffer
+	scanner := bufio.NewScanner(stdout)
+	go func() {
+		for scanner.Scan() {
+			stdoutBuf.Write(scanner.Bytes())
+			stdoutBuf.WriteByte('\n')
+		}
+	}()
+
 	var conn net.Conn
-	var err error
 	for range 200 {
 		conn, err = net.Dial("tcp", "localhost:15423")
 		if err == nil {
@@ -99,18 +117,18 @@ func runSimulator(filename string) (func() error, *Device, error) {
 		time.Sleep(10 * time.Millisecond)
 	}
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	const bitboxCMD = 0x80 + 0x40 + 0x01
 
 	communication := u2fhid.NewCommunication(conn, bitboxCMD)
 	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(filename)
 	if len(match) != 2 {
-		return nil, nil, errp.New("could not find simulator firmware version")
+		return nil, nil, nil, errp.New("could not find simulator firmware version")
 	}
 	version, err := semver.NewSemVerFromString(match[1])
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	device := NewDevice("ID", version, common.ProductBitBox02Multi,
 		&mocks.Config{}, communication,
@@ -120,7 +138,7 @@ func runSimulator(filename string) (func() error, *Device, error) {
 			return err
 		}
 		return cmd.Process.Kill()
-	}, device, nil
+	}, device, &stdoutBuf, nil
 }
 
 // Download BitBox simulators based on testdata/simulators.json to testdata/simulators/*.
@@ -209,7 +227,7 @@ func downloadSimulators() ([]string, error) {
 var downloadSimulatorsOnce = sync.OnceValues(downloadSimulators)
 
 // Runs tests against a simulator which is not initialized (not paired, not seeded).
-func testSimulators(t *testing.T, run func(*testing.T, *Device)) {
+func testSimulators(t *testing.T, run func(*testing.T, *Device, *bytes.Buffer)) {
 	t.Helper()
 	if runtime.GOOS != "linux" || runtime.GOARCH != "amd64" {
 		t.Skip("Skipping simulator tests: not running on linux-amd64")
@@ -227,18 +245,18 @@ func testSimulators(t *testing.T, run func(*testing.T, *Device)) {
 
 	for _, simulatorFilename := range simulatorFilenames {
 		t.Run(filepath.Base(simulatorFilename), func(t *testing.T) {
-			teardown, device, err := runSimulator(simulatorFilename)
+			teardown, device, stdOut, err := runSimulator(simulatorFilename)
 			require.NoError(t, err)
 			defer func() { require.NoError(t, teardown()) }()
-			run(t, device)
+			run(t, device, stdOut)
 		})
 	}
 }
 
 // Runs tests against a simulator which is not initialized, but paired (not seeded).
-func testSimulatorsAfterPairing(t *testing.T, run func(*testing.T, *Device)) {
+func testSimulatorsAfterPairing(t *testing.T, run func(*testing.T, *Device, *bytes.Buffer)) {
 	t.Helper()
-	testSimulators(t, func(t *testing.T, device *Device) {
+	testSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
 		t.Helper()
 		paired := make(chan struct{})
 		device.SetOnEvent(func(ev event.Event, obj interface{}) {
@@ -258,24 +276,24 @@ func testSimulatorsAfterPairing(t *testing.T, run func(*testing.T, *Device)) {
 		case <-time.After(15 * time.Second):
 			require.Fail(t, "pairing timed out")
 		}
-		run(t, device)
+		run(t, device, stdOut)
 	})
 }
 
 // Runs tests againt a simulator that is seeded with this mnemonic: boring mistake dish oyster truth
 // pigeon viable emerge sort crash wire portion cannon couple enact box walk height pull today solid
 // off enable tide
-func testInitializedSimulators(t *testing.T, run func(*testing.T, *Device)) {
+func testInitializedSimulators(t *testing.T, run func(*testing.T, *Device, *bytes.Buffer)) {
 	t.Helper()
-	testSimulatorsAfterPairing(t, func(t *testing.T, device *Device) {
+	testSimulatorsAfterPairing(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
 		t.Helper()
 		require.NoError(t, device.RestoreFromMnemonic())
-		run(t, device)
+		run(t, device, stdOut)
 	})
 }
 
 func TestSimulatorRootFingerprint(t *testing.T) {
-	testInitializedSimulators(t, func(t *testing.T, device *Device) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
 		t.Helper()
 		fp, err := device.Keystore().RootFingerprint()
 		require.NoError(t, err)
@@ -284,7 +302,7 @@ func TestSimulatorRootFingerprint(t *testing.T) {
 }
 
 func TestSimulatorExtendedPublicKeyBTC(t *testing.T) {
-	testInitializedSimulators(t, func(t *testing.T, device *Device) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
 		t.Helper()
 		keypath := mustKeypath("m/84'/1'/0'")
 		xpub, err := device.Keystore().ExtendedPublicKey(coin, keypath)
@@ -295,22 +313,23 @@ func TestSimulatorExtendedPublicKeyBTC(t *testing.T) {
 		)
 	})
 }
+func makeConfig(t *testing.T, device *Device, scriptType signing.ScriptType, keypath signing.AbsoluteKeypath) *signing.Configuration {
+	t.Helper()
+	xpubStr, err := device.BTCXPub(messages.BTCCoin_BTC, keypath.ToUInt32(), messages.BTCPubRequest_XPUB, false)
+	require.NoError(t, err)
+	xpub, err := hdkeychain.NewKeyFromString(xpubStr)
+	require.NoError(t, err)
+	rootFingerprint := []byte{1, 2, 3, 4}
+	return signing.NewBitcoinConfiguration(scriptType, rootFingerprint, keypath, xpub)
+}
 
 func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.ProposedTransaction {
 	t.Helper()
-	makeConfig := func(scriptType signing.ScriptType, keypath signing.AbsoluteKeypath) *signing.Configuration {
-		xpubStr, err := device.BTCXPub(messages.BTCCoin_BTC, keypath.ToUInt32(), messages.BTCPubRequest_XPUB, false)
-		require.NoError(t, err)
-		xpub, err := hdkeychain.NewKeyFromString(xpubStr)
-		require.NoError(t, err)
-		rootFingerprint := []byte{1, 2, 3, 4}
-		return signing.NewBitcoinConfiguration(scriptType, rootFingerprint, keypath, xpub)
-	}
 
 	configurations := []*signing.Configuration{
-		makeConfig(signing.ScriptTypeP2TR, mustKeypath("m/86'/0'/0'")),
-		makeConfig(signing.ScriptTypeP2WPKH, mustKeypath("m/84'/0'/0'")),
-		makeConfig(signing.ScriptTypeP2WPKHP2SH, mustKeypath("m/49'/0'/0'")),
+		makeConfig(t, device, signing.ScriptTypeP2TR, mustKeypath("m/86'/0'/0'")),
+		makeConfig(t, device, signing.ScriptTypeP2WPKH, mustKeypath("m/84'/0'/0'")),
+		makeConfig(t, device, signing.ScriptTypeP2WPKHP2SH, mustKeypath("m/49'/0'/0'")),
 	}
 	inputAddress0 := addresses.NewAccountAddress(configurations[0], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), network, log)
 	inputAddress1 := addresses.NewAccountAddress(configurations[1], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), network, log)
@@ -396,7 +415,7 @@ func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.Pro
 }
 
 func TestSimulatorSignBTCTransactionMixedInputs(t *testing.T) {
-	testInitializedSimulators(t, func(t *testing.T, device *Device) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
 		t.Helper()
 
 		pkScript, err := hex.DecodeString("76a91455ae51684c43435da751ac8d2173b2652eb6410588ac")
@@ -411,11 +430,44 @@ func TestSimulatorSignBTCTransactionMixedInputs(t *testing.T) {
 				proposedTransaction.TXProposal.Transaction,
 				proposedTransaction.TXProposal.PreviousOutputs,
 				proposedTransaction.TXProposal.SigHashes()))
+
+		// Before simulator v9.20, address confirmation data was not written to stdout.
+		if device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
+			require.Contains(t, stdOut.String(), "ADDRESS: 18p3G8gQ3oKy4U9EqnWs7UZswdqAMhE3r8")
+		}
+	})
+}
+
+func TestSimulatorSignBTCTransactionSendSelfSameAccount(t *testing.T) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
+		t.Helper()
+
+		cfg := makeConfig(t, device, signing.ScriptTypeP2TR, mustKeypath("m/86'/0'/0'"))
+		selfAddress := addresses.NewAccountAddress(
+			cfg,
+			signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false),
+			network,
+			log)
+		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(selfAddress.PubkeyScript()))
+
+		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
+		require.NoError(t, proposedTransaction.Finalize())
+		require.NoError(
+			t,
+			btc.TxValidityCheck(
+				proposedTransaction.TXProposal.Transaction,
+				proposedTransaction.TXProposal.PreviousOutputs,
+				proposedTransaction.TXProposal.SigHashes()))
+
+		// Before simulator v9.20, address confirmation data was not written to stdout.
+		if device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
+			require.Contains(t, stdOut.String(), "ADDRESS: This BitBox02: bc1pg848p0rvmj0r3j064prlpw0gecyzkwlpt7ndzdlmh2mvkyu299psetgxhf")
+		}
 	})
 }
 
 func TestSimulatorSignBTCTransactionSilentPayment(t *testing.T) {
-	testInitializedSimulators(t, func(t *testing.T, device *Device) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
 		t.Helper()
 
 		proposedTransaction := makeTx(t, device,
