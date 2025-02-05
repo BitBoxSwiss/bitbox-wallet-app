@@ -131,6 +131,8 @@ type AOPP struct {
 	coinCode coinpkg.Code
 	// format is the requested format. Available for all states except aoppStateInactive.
 	format string
+	// XpubRequired is true if we need to include the extended public key in the callback.
+	XpubRequired bool `json:"xpubRequired"`
 }
 
 // AOPP returns the current AOPP state.
@@ -279,6 +281,10 @@ func (backend *Backend) handleAOPP(uri url.URL) {
 
 	backend.aopp.format = q.Get("format")
 
+	if q.Has("xpub_required") {
+		backend.aopp.XpubRequired = true
+	}
+
 	backend.aopp.State = aoppStateUserApproval
 	backend.notifyAOPP()
 }
@@ -358,6 +364,10 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 	backend.notifyAOPP()
 
 	var signature []byte
+	var xpub string
+	if backend.aopp.XpubRequired {
+		xpub = account.Config().Config.SigningConfigurations[signingConfigIdx].ExtendedPublicKey().String()
+	}
 	switch account.Coin().Code() {
 	case coinpkg.CodeBTC:
 		sig, err := backend.keystore.SignBTCMessage(
@@ -402,10 +412,12 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 		Version   int    `json:"version"`
 		Address   string `json:"address"`
 		Signature []byte `json:"signature"` // is base64 encoded
+		Xpub      string `json:"xpub,omitempty"`
 	}{
 		Version:   0,
 		Address:   addr.EncodeForHumans(),
 		Signature: signature,
+		Xpub:      xpub,
 	})
 	if err != nil {
 		log.WithError(err).Error("JSON error")
