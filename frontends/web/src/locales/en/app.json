@@ -1318,6 +1318,9 @@
       "customFees": {
         "description": "Lets you enter your own fee when sending."
       },
+      "restartInTestnet": {
+        "description": "Explore and test features by using testnet."
+      },
       "torProxy": {
         "description": "Connect over Tor for better privacy."
       }
@@ -1725,6 +1728,7 @@
         "title": "Export logs"
       },
       "fee": "Enable custom fees",
+      "restartInTestnet": "Testnet mode",
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",
       "useProxy": "Enable tor proxy",

@@ -232,20 +232,23 @@ type Backend struct {
 	tstCheckAccountUsed func(accounts.Interface) bool
 	// For unit tests, called when `backend.maybeAddHiddenUnusedAccounts()` has run.
 	tstMaybeAddHiddenUnusedAccounts func()
+
+	// testing tells us whether the app is in testing mode
+	testing bool
 }
 
 // NewBackend creates a new backend with the given arguments.
 func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backend, error) {
 	log := logging.Get().WithGroup("backend")
-	config, err := config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename())
+	backendConfig, err := config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename())
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
-	log.Infof("backend config: %+v", config.AppConfig().Backend)
-	log.Infof("frontend config: %+v", config.AppConfig().Frontend)
+	log.Infof("backend config: %+v", backendConfig.AppConfig().Backend)
+	log.Infof("frontend config: %+v", backendConfig.AppConfig().Frontend)
 	backendProxy := socksproxy.NewSocksProxy(
-		config.AppConfig().Backend.Proxy.UseProxy,
-		config.AppConfig().Backend.Proxy.ProxyAddress,
+		backendConfig.AppConfig().Backend.Proxy.UseProxy,
+		backendConfig.AppConfig().Backend.Proxy.ProxyAddress,
 	)
 	hclient, err := backendProxy.GetHTTPClient()
 	if err != nil {
@@ -255,7 +258,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend := &Backend{
 		arguments:   arguments,
 		environment: environment,
-		config:      config,
+		config:      backendConfig,
 		events:      make(chan interface{}, 1000),
 
 		devices:  map[string]device.Interface{},
@@ -271,7 +274,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		},
 
 		log: log,
+
+		testing: backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
 	}
+
 	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
 	if err != nil {
 		return nil, err
@@ -540,7 +546,7 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 // Calling this is a no-op for coins that are already connected.
 func (backend *Backend) ManualReconnect() {
 	var electrumCoinCodes []coinpkg.Code
-	if backend.arguments.Testing() {
+	if backend.Testing() {
 		electrumCoinCodes = []coinpkg.Code{
 			coinpkg.CodeTBTC,
 			coinpkg.CodeTLTC,
@@ -574,7 +580,7 @@ func (backend *Backend) ManualReconnect() {
 
 // Testing returns whether this backend is for testing only.
 func (backend *Backend) Testing() bool {
-	return backend.arguments.Testing()
+	return backend.testing
 }
 
 // Accounts returns the current accounts of the backend.
@@ -638,6 +644,12 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.configureHistoryExchangeRates()
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
+
+	if backend.DefaultAppConfig().Backend.StartInTestnet {
+		if err := backend.config.ModifyAppConfig(func(c *config.AppConfig) error { c.Backend.StartInTestnet = false; return nil }); err != nil {
+			backend.log.WithError(err).Error("Can't set StartInTestnet to false")
+		}
+	}
 	return backend.events
 }
 
