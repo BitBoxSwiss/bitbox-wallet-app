@@ -25,7 +25,7 @@ import { UseDisableBackButton } from '@/hooks/backbutton';
 import { getConfig } from '@/utils/config';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
-import { findAccount, getCoinCode, isBitcoinOnly } from '@/routes/account/utils';
+import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { BTCDirectTerms } from '@/components/terms/btcdirect-terms';
 import { ExchangeGuide } from './guide';
 import style from './iframe.module.css';
@@ -115,7 +115,7 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
         address: btcdirectInfo.address,
         locale,
         theme: isDarkMode ? 'dark' : 'light',
-        baseCurrency: getCoinCode(account.coinCode),
+        baseCurrency: account.coinUnit,
         quoteCurrency: 'EUR', // BTC Direct currently only accepts EURO
         mode: isDevServers ? 'debug' : 'production',
         apiKey: btcdirectInfo.apiKey,
