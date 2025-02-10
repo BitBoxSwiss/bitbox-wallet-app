@@ -1,0 +1,39 @@
+.container {
+  align-items: center;
+  background-color: var(--background-secondary);
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  text-align: left;
+  width: 100%;
+}
+
+.isButton {
+  cursor: pointer;
+}
+
+.leftContent {
+  align-items: center;
+  display: flex;
+  width: 100%;
+}
+
+.rightContent {
+  align-items: center;
+  display: flex;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .collapse {
+    padding: 12px;
+  }
+
+  .hideDisplayedValueOnSmall {
+    display: none;
+  }
+}

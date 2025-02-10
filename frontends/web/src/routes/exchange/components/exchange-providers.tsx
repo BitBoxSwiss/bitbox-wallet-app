@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-import { Dispatch, SetStateAction, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDarkmode } from '@/hooks/darkmode';
 import { Bank, BankDark, CreditCard, CreditCardDark } from '@/components/icon';
-import { InfoButton } from '@/components/infobutton/infobutton';
 import { Badge } from '@/components/badge/badge';
 import { getExchangeFormattedName } from '@/routes/exchange/utils';
-import style from './exchangeselectionradio.module.css';
 import { ExchangeDeal, ExchangeDeals } from '@/api/exchanges';
-import { Info } from './infocontent';
+import style from './exchange-provider.module.css';
 
-type RadioProps = {
+type Props = {
   deals: ExchangeDeal[];
   exchangeName: ExchangeDeals['exchangeName'];
-  onChange: () => void;
-  onClickInfoButton: Dispatch<SetStateAction<Info | undefined>>;
 }
 
-type TRadioProps = RadioProps & JSX.IntrinsicElements['input'];
 type TPaymentMethodProps = { methodName: ExchangeDeal['payment'] };
 
 const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
@@ -63,7 +57,7 @@ const Deal = ({ deal }: { deal: ExchangeDeal }) => {
   return (
     <div className={style.paymentMethodContainer}>
       <PaymentMethod methodName={deal.payment} />
-      <div>
+      <div className={style.badgeContainer}>
         {deal.isBest && (
           <Badge type="success">{t('buy.exchange.bestDeal')}</Badge>
         )}
@@ -75,54 +69,21 @@ const Deal = ({ deal }: { deal: ExchangeDeal }) => {
   );
 };
 
-export const ExchangeSelectionRadio = ({
-  disabled = false,
-  id,
-  children,
-  checked,
+
+export const ExchangeProviders = ({
   deals,
-  onChange,
   exchangeName,
-  onClickInfoButton,
-  ...props
-}: TRadioProps) => {
-
-  const handleClick = () => {
-    if (!disabled) {
-      onChange();
-    }
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLSpanElement>) => {
-    if (!disabled && e.key === 'Enter') {
-      onChange();
-    }
-  };
-
+}: Props) => {
   return (
-    <div className={style.outerContainer}>
-      <span aria-checked={checked} onKeyDown={handleKeyDown} aria-disabled={disabled} role="radio" tabIndex={0} onClick={handleClick} className={style.radio}>
-        <input
-          checked={checked}
-          type="radio"
-          id={id}
-          disabled={disabled}
-          onChange={onChange}
-          {...props}
-        />
-        <label className={style.radioLabel} htmlFor={id}>
-          <div className={style.container}>
-            <p className={[style.text, style.exchangeName].join(' ')}>
-              {getExchangeFormattedName(exchangeName)}
-            </p>
-            <div className={style.paymentMethodsContainer}>
-              {deals.map(deal => <Deal key={deal.payment} deal={deal}/>)}
-            </div>
-          </div>
-        </label>
-      </span>
-      <InfoButton onClick={() => onClickInfoButton(exchangeName)} />
+    <div className={style.exchangeContainer}>
+      <div className={style.container}>
+        <p className={[style.text, style.exchangeName].join(' ')}>
+          {getExchangeFormattedName(exchangeName)}
+        </p>
+        <div className={style.paymentMethodsContainer}>
+          {deals.map(deal => <Deal key={deal.payment} deal={deal}/>)}
+        </div>
+      </div>
     </div>
-
   );
 };
