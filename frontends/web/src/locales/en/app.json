@@ -73,8 +73,8 @@
   "aopp": {
     "addressRequest": "{{host}} is requesting a receiving address.",
     "addressRequestWithLogo": "is requesting a receiving address.",
-    "addressRequestWithLogoAndXPub": "is requesting a receiving address and public key (xPub).",
-    "addressRequestWithXPub": "{{host}} is requesting a receiving address and public key (xPub).",
+    "addressRequestWithLogoAndXPub": "is requesting a receiving address and public key (xpub).",
+    "addressRequestWithXPub": "{{host}} is requesting a receiving address and public key (xpub).",
     "banner": "Address request in progress. Please connect your device to continue.",
     "errorTitle": "Error during address request ",
     "labelAddress": "Address",
@@ -87,7 +87,7 @@
     },
     "syncing": "Syncing the account, please wait.",
     "title": "Address request",
-    "xpubRequested": "Sharing your xPub lets external services see your account addresses. Your coins are still safe and remain in your control."
+    "xpubRequested": "Sharing your xpub lets external services see your account addresses. Your coins are still safe and remain in your control."
   },
   "app": {
     "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."

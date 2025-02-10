@@ -120,9 +120,7 @@ export const Aopp = () => {
           {
             aopp.xpubRequired ?
               (
-                <div>
-                  <Message type="info"> {t('aopp.xpubRequested', { host: `${host}` })} </Message>
-                </div>
+                <Message type="info"> {t('aopp.xpubRequested', { host: `${host}` })} </Message>
               ) : ''
           }
         </ViewContent>
