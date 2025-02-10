@@ -14,6 +14,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     var discoveredPeripheral: CBPeripheral?
     var pWriter: CBCharacteristic?
     var pReader: CBCharacteristic?
+    var pProduct: CBCharacteristic?
 
     private var readBuffer = Data()
     private let readBufferLock = NSLock() // Ensure thread-safe buffer access
@@ -89,6 +90,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
                 if c.uuid == CBUUID(string: "0002") {
                     pReader = c
                 }
+                if c.uuid == CBUUID(string: "0003") {
+                    print("Found product characteristic")
+                    peripheral.setNotifyValue(true, for: c)
+                    pProduct = c
+                }
             }
         }
     }
@@ -115,6 +121,13 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
             // Signal the semaphore to unblock `readBlocking`
             semaphore.signal()
+        }
+        if characteristic == pProduct, let val = characteristic.value {
+            print("Bluetooth product changed: \(val)")
+            // Invoke device manager to scan now, which will make it detect the device being connected
+            // (or disconnected, in case the product string indicates that) now instead of waiting for
+            // the next scan.
+            MobileserverUsbUpdate()
         }
     }
 
@@ -156,6 +169,16 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
         return data
     }
+    
+    func productStr() -> String {
+        guard let pProduct = self.pProduct else {
+            return ""
+        }
+        guard let value = pProduct.value else {
+            return ""
+        }
+        return String(data: value, encoding: .utf8) ?? ""
+    }
 }
 
 // The interface is currently geared towards USB. For now we pretend to be a USB BitBox02 device.
@@ -166,10 +189,16 @@ class BluetoothDeviceInfo: NSObject, MobileserverGoDeviceInfoInterfaceProtocol {
 
     init(bluetoothManager: BluetoothManager) {
         self.bluetoothManager = bluetoothManager
+        super.init()
+
     }
 
     func identifier() -> String {
-        return bluetoothManager.discoveredPeripheral!.identifier.uuidString
+        guard let discoveredPeripheral = bluetoothManager.discoveredPeripheral else {
+            return ""
+        }
+
+        return discoveredPeripheral.identifier.uuidString
     }
 
     func interface() -> Int {
@@ -181,6 +210,7 @@ class BluetoothDeviceInfo: NSObject, MobileserverGoDeviceInfoInterfaceProtocol {
     }
 
     func product() -> String {
+        // TODO: return bluetoothManager.productStr() and have the backend identify and handle it
         return "BitBox02BTC"
     }
 
