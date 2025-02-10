@@ -67,6 +67,14 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
         if !bluetoothManager.isConnected() {
             return nil
         }
+        print("Bluetooth product string: \(bluetoothManager.productStr())")
+
+        let productStr = bluetoothManager.productStr();
+        if productStr == "" || productStr == "no connection" {
+            // Not ready or explicitly not connected (waiting for the device to enter
+            // firmware or bootloader)
+            return nil
+        }
         return BluetoothDeviceInfo(bluetoothManager: bluetoothManager)
     }
 
