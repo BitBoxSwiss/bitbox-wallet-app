@@ -245,6 +245,7 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 		"Amount",
 		"Unit",
 		"Fee",
+		"Fee Unit",
 		"Address",
 		"Transaction ID",
 		"Note",
@@ -260,11 +261,17 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 			TxTypeSendSelf: "sent_to_yourself",
 		}[transaction.Type]
 		feeString := ""
+		feeUnit := ""
 		fee := transaction.Fee
 		if fee != nil {
 			feeString = fee.BigInt().String()
+			feeUnit = account.Coin().SmallestUnit()
 		}
 		unit := account.Coin().SmallestUnit()
+		if transaction.IsErc20 {
+			unit = account.Coin().Unit(false)
+		}
+
 		timeString := ""
 		if transaction.Timestamp != nil {
 			timeString = transaction.Timestamp.Format(time.RFC3339)
@@ -273,12 +280,21 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 			if transactionType == "sent" && addressAndAmount.Ours {
 				transactionType = "sent_to_yourself"
 			}
+
+			amount := addressAndAmount.Amount.BigInt().String()
+
+			// When dealing with ERC20 tokens, we need to format the amount
+			// based on the number of decimals for that token.
+			if transaction.IsErc20 {
+				amount = account.Coin().FormatAmount(addressAndAmount.Amount, false)
+			}
 			err := writer.Write([]string{
 				timeString,
 				transactionType,
-				addressAndAmount.Amount.BigInt().String(),
+				amount,
 				unit,
 				feeString,
+				feeUnit,
 				addressAndAmount.Address,
 				transaction.TxID,
 				account.TxNote(transaction.InternalID),
@@ -289,6 +305,7 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 			// a multitx is output in one row per receive address. Show the tx fee only in the
 			// first row.
 			feeString = ""
+			feeUnit = ""
 		}
 	}
 	writer.Flush()

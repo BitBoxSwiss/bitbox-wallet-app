@@ -13,6 +13,7 @@
 - Improve send result view show relevant infos and options to make a new transaction or go back
 - Added an option in advanced settings to allow the app to start in testnet at the next restart.
 - Improve the UI of buy & sell page for mobile devices
+- Fixed export to CSV for ERC20 tokens.
 
 # 4.46.3
 - Fix camera access on linux
