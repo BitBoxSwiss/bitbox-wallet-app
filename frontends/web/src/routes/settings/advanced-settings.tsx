@@ -28,6 +28,7 @@ import { ConnectFullNodeSetting } from './components/advanced-settings/connect-f
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
 import { EnableLightning } from './components/advanced-settings/enable-lightning-setting';
 import { DisableLightning } from './components/advanced-settings/disable-lightning-setting';
+import { RestartInTestnetSetting } from './components/advanced-settings/restart-in-testnet-setting';
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
 import { getConfig } from '@/utils/config';
 import { MobileHeader } from './components/mobile-header';
@@ -50,7 +51,8 @@ export type TFrontendConfig = {
 export type TBackendConfig = {
   proxy?: TProxyConfig;
   authentication?: boolean;
-};
+  restartInTestnet?: boolean;
+}
 
 export type TConfig = {
   backend?: TBackendConfig;
@@ -95,6 +97,7 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
                 <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
                 <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
+                <RestartInTestnetSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
                 <ConnectFullNodeSetting />
                 <ExportLogSetting />
               </WithSettingsTabs>

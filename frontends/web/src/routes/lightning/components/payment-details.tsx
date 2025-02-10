@@ -22,9 +22,9 @@ import { FiatConversion } from '@/components/rates/rates';
 import { TxDetail } from '@/components/transactions/components/detail';
 import { TxDateDetail } from '@/components/transactions/components/date';
 import { TxDetailCopyableValues } from '@/components/transactions/components/address-or-txid';
-import { getTxSign } from '@/components/transactions/utils';
 import { toSat } from '@/utils/conversion';
 import styles from '@/components/transactions/components/details.module.css';
+import { getTxSign } from '@/utils/transaction';
 
 type TTxDetailsDialog = {
   open: boolean;

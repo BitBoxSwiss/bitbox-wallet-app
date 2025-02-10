@@ -27,15 +27,17 @@ import { Button } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { translate, TranslateProps } from '@/decorators/translate';
+import { Amount } from '@/components/amount/amount';
 import { FeeTargets } from './feetargets';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
-import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
+import { SendResult } from './components/result';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
 import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
+import { FiatValue } from './components/fiat-value';
 import { TSelectedUTXOs } from './utxos';
 import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
@@ -63,7 +65,7 @@ export type State = {
     feeTarget?: accountApi.FeeTargetCode;
     customFee: string;
     isConfirming: boolean;
-    sendResult?: accountApi.ISendTx;
+    sendResult?: accountApi.TSendTx;
     isUpdatingProposal: boolean;
     errorHandling: TProposalError;
     note: string;
@@ -110,6 +112,22 @@ class Send extends Component<Props, State> {
     }
   }
 
+  private reset = () => {
+    this.setState({
+      sendAll: false,
+      isConfirming: false,
+      recipientAddress: '',
+      proposedAmount: undefined,
+      proposedFee: undefined,
+      proposedTotal: undefined,
+      fiatAmount: '',
+      amount: '',
+      note: '',
+      customFee: '',
+    });
+    this.selectedUTXOs = {};
+  };
+
   private send = async () => {
     const code = this.props.account.code;
     const connectResult = await accountApi.connectKeystore(code);
@@ -121,22 +139,6 @@ class Send extends Component<Props, State> {
     try {
       const result = await accountApi.sendTx(code, this.state.note);
       this.setState({ sendResult: result, isConfirming: false });
-      setTimeout(() => this.setState({ sendResult: undefined }), 5000);
-      if (result.success) {
-        this.setState({
-          sendAll: false,
-          isConfirming: false,
-          recipientAddress: '',
-          proposedAmount: undefined,
-          proposedFee: undefined,
-          proposedTotal: undefined,
-          fiatAmount: '',
-          amount: '',
-          note: '',
-          customFee: '',
-        });
-        this.selectedUTXOs = {};
-      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -351,6 +353,13 @@ class Send extends Component<Props, State> {
     });
   };
 
+  private handleContinue = () => {
+    this.setState({
+      sendResult: undefined,
+    });
+    this.reset();
+  };
+
   public render() {
     const {
       account,
@@ -494,7 +503,25 @@ class Send extends Component<Props, State> {
                 coinCode={account.coinCode}
                 transactionDetails={waitDialogTransactionDetails}
               />
-              <MessageWaitDialog result={sendResult}/>
+              {sendResult && (
+                <SendResult
+                  code={account.code}
+                  result={sendResult}
+                  onContinue={this.handleContinue}
+                  onRetry={() => this.setState({ sendResult: undefined })}>
+                  <p>
+                    {(proposedAmount &&
+                    <Amount alwaysShowAmounts amount={proposedAmount.amount} unit={proposedAmount.unit}/>) || 'N/A'}
+                    {' '}
+                    <span className={style.unit}>
+                      {(proposedAmount && proposedAmount.unit) || 'N/A'}
+                    </span>
+                  </p>
+                  {(proposedAmount && proposedAmount.conversions && proposedAmount.conversions[activeCurrency]) ? (
+                    <FiatValue baseCurrencyUnit={activeCurrency} amount={proposedAmount.conversions[activeCurrency] || ''} />
+                  ) : null}
+                </SendResult>
+              )}
             </View>
           </Main>
         </GuidedContent>

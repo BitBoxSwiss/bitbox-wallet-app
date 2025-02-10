@@ -206,7 +206,7 @@ export function Receive() {
         </View>
       );
     case 'wait':
-      return <Spinner text={t('lightning.receive.invoice.creating')} guideExists={false} />;
+      return <Spinner text={t('lightning.receive.invoice.creating')} />;
     case 'invoice':
       return (
         <View fitContent minHeight="100%">

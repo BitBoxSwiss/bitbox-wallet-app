@@ -14,6 +14,7 @@
 # limitations under the License.
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+CONTAINER_VERSION="$(cat $DIR/../.containerversion)"
 
 if [ -n "$CONTAINER_RUNTIME" ]; then
   RUNTIME="$CONTAINER_RUNTIME"
@@ -25,11 +26,7 @@ fi
 
 dockerdev () {
     local container_name=bitbox-wallet-dev
-
-    if ! $RUNTIME images | grep -q bitbox-wallet-app; then
-        echo "No bitbox-wallet docker image found! Maybe you need to run 'make dockerinit'?" >&2
-        exit 1
-    fi
+    local image_name=shiftcrypto/bitbox-wallet-app
 
     USERFLAG=""
     if [ "$RUNTIME" = "docker" ] ; then
@@ -38,13 +35,15 @@ dockerdev () {
     fi
 
     # If already running, enter the container.
-    if $RUNTIME ps | grep -q $container_name; then
+    if $RUNTIME ps | grep $image_name:$CONTAINER_VERSION | grep -q $container_name; then
         $RUNTIME exec $USERFLAG -it $container_name /opt/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/scripts/docker_init.sh
         return
     fi
 
+    # A container based on a different image version is running. Let's stop and remove it.
     if $RUNTIME ps -a | grep -q $container_name; then
-        $RUNTIME rm $container_name
+      $RUNTIME stop $container_name
+      $RUNTIME rm $container_name
     fi
 
     local repo_path="$DIR/.."
@@ -58,7 +57,7 @@ dockerdev () {
            --add-host="dev1.shiftcrypto.ch:176.9.28.155" \
            --add-host="dev2.shiftcrypto.ch:176.9.28.156" \
            -v "$repo_path":/opt/go/src/github.com/BitBoxSwiss/bitbox-wallet-app \
-           shiftcrypto/bitbox-wallet-app bash
+           $image_name:$CONTAINER_VERSION bash
 
     if [ "$RUNTIME" = "docker" ] ; then
         # Use same user/group id as on the host, so that files are not created as root in the

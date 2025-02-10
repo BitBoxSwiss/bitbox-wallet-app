@@ -37,6 +37,13 @@ type FormattedAmount struct {
 	Estimated bool `json:"estimated"`
 }
 
+// SumAmounts returns the sum of two amounts.
+func SumAmounts(amount1, amount2 Amount) Amount {
+	var z big.Int
+	z.Add(amount1.n, amount2.n)
+	return NewAmount(&z)
+}
+
 // NewAmount creates a new amount.
 func NewAmount(amount *big.Int) Amount {
 	return Amount{n: new(big.Int).Set(amount)}

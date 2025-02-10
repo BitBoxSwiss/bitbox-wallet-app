@@ -62,9 +62,8 @@ export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, classN
   };
 
   const copy = () => {
-    textAreaRef.current?.focus();
-    textAreaRef.current?.select();
-    if (document.execCommand('copy')) {
+    if (textAreaRef.current) {
+      navigator.clipboard.writeText(textAreaRef.current.value);
       setSuccess(true);
     }
   };

@@ -31,7 +31,7 @@ windows-legacy:
 		-o libserver.dll -Wl,--out-implib,libserver.lib
 
 clean:
-	-rm ${LIBNAME}.dll
-	-rm ${LIBNAME}.h
-	-rm ${LIBNAME}.a
-	-rm ${LIBNAME}.lib
+	-rm -f ${LIBNAME}.dll
+	-rm -f ${LIBNAME}.h
+	-rm -f ${LIBNAME}.a
+	-rm -f ${LIBNAME}.lib

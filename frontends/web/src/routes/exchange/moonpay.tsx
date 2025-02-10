@@ -101,7 +101,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
             ) : (
               <div style={{ height }}>
                 <UseDisableBackButton />
-                {!iframeLoaded && <Spinner guideExists={false} text={t('loading')} />}
+                {!iframeLoaded && <Spinner text={t('loading')} />}
                 { moonpay && (
                   <iframe
                     onLoad={() => {

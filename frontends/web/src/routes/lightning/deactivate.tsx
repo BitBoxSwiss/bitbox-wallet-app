@@ -78,7 +78,7 @@ export const LightningDeactivate = () => {
         </View>
       );
     case 'wait':
-      return <Spinner text={t('lightning.deactivate.wait.title')} guideExists={false} />;
+      return <Spinner text={t('lightning.deactivate.wait.title')} />;
     case 'success':
       return (
         <View fitContent textCenter verticallyCentered>
