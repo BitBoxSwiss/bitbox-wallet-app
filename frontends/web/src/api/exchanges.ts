@@ -35,7 +35,7 @@ export const getExchangesByRegion = (code: string) => {
 
 export type ExchangeDeal = {
   fee: number;
-  payment: 'card' | 'bank-transfer';
+  payment: 'card' | 'bank-transfer' | 'sofort' | 'bancontact';
   isFast: boolean;
   isBest: boolean;
 }

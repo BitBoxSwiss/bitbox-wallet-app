@@ -101,10 +101,14 @@ const (
 	CardPayment PaymentMethod = "card"
 	// BankTransferPayment is a payment with bank transfer.
 	BankTransferPayment PaymentMethod = "bank-transfer"
+	// SOFORTPayment is a payment method in the SEPA region.
+	SOFORTPayment PaymentMethod = "sofort"
+	// BancontactPayment is a payment method in the SEPA region.
+	BancontactPayment PaymentMethod = "bancontact"
 )
 
 // ExchangeDeal represents a specific purchase option of an exchange.
-// - Fee indicates form the percentage that goes to the exchange in a float representation (e.g. 0.01 -> 1%).
+// - Fee that goes to the exchange in percentage.
 // - Payment is the payment method offered in the deal (usually different payment methods bring different fees).
 // - IsFast is usually associated with card payments. It is used by the frontend to display the `fast` tag in deals list.
 type ExchangeDeal struct {

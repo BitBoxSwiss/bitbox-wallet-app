@@ -131,6 +131,8 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
               info={info.info}
               cardFee={info.cardFee}
               bankTransferFee={info.bankTransferFee}
+              bancontactFee={info.bancontactFee}
+              sofortFee={info.sofortFee}
             />
           )}
         </Dialog>

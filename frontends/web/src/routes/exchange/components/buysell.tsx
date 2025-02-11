@@ -93,9 +93,17 @@ export const BuySell = ({
   };
 
   const buildInfo = (exchange: exchangesAPI.ExchangeDeals): TInfoContentProps => {
-    const cardFee = exchange.deals && exchange.deals.find(feeDetail => feeDetail.payment === 'card')?.fee;
-    const bankTransferFee = exchange.deals && exchange.deals.find(feeDetail => feeDetail.payment === 'bank-transfer')?.fee;
-    return { info: exchange.exchangeName, cardFee, bankTransferFee };
+    const cardFee = exchange.deals.find(feeDetail => feeDetail.payment === 'card')?.fee;
+    const bankTransferFee = exchange.deals.find(feeDetail => feeDetail.payment === 'bank-transfer')?.fee;
+    const bancontactFee = exchange.deals.find(feeDetail => feeDetail.payment === 'bancontact')?.fee;
+    const sofortFee = exchange.deals.find(feeDetail => feeDetail.payment === 'sofort')?.fee;
+    return {
+      info: exchange.exchangeName,
+      cardFee,
+      bancontactFee,
+      bankTransferFee,
+      sofortFee,
+    };
   };
 
   return (

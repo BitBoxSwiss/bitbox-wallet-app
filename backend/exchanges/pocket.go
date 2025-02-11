@@ -84,7 +84,7 @@ func PocketDeals() *ExchangeDealsList {
 		ExchangeName: PocketName,
 		Deals: []*ExchangeDeal{
 			{
-				Fee:     0.015, // 1.5%
+				Fee:     1.5, // 1.5%
 				Payment: BankTransferPayment,
 				IsFast:  false,
 			},

@@ -59,8 +59,6 @@ type TMoonPayInfoProps = {
 
 const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfoProps) => {
   const { t } = useTranslation();
-  const formattedCardFee = cardFee && cardFee * 100;
-  const formattedBankTransferFee = bankTransferFee && bankTransferFee * 100;
   return (
     <div className={style.container}>
       <p>{t('buy.exchange.infoContent.moonpay.supportedCurrencies')}</p>
@@ -86,8 +84,8 @@ const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfoProps) => {
       <br />
       <p><b>{t('buy.exchange.infoContent.moonpay.fees.title')}</b></p>
       <ul>
-        <li>{t('buy.exchange.infoContent.moonpay.fees.creditDebitCard', { fee: formattedCardFee })}</li>
-        <li>{t('buy.exchange.infoContent.moonpay.fees.bankTransfer', { fee: formattedBankTransferFee })}</li>
+        <li>{t('buy.exchange.infoContent.moonpay.fees.creditDebitCard', { fee: cardFee })}</li>
+        <li>{t('buy.exchange.infoContent.moonpay.fees.bankTransfer', { fee: bankTransferFee })}</li>
       </ul>
       <br />
       <p><A href="https://www.moonpay.com/">{t('buy.exchange.infoContent.moonpay.fees.learnMore')}</A></p>
@@ -101,7 +99,6 @@ type TPocketInfoProps = {
 
 const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
   const { t } = useTranslation();
-  const fee = bankTransferFee && bankTransferFee * 100;
   return (
     <div className={style.container}>
       <p>{t('buy.exchange.infoContent.pocket.supportedCurrencies')}</p>
@@ -133,7 +130,9 @@ const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
       <br />
       <p><b>{t('buy.exchange.infoContent.pocket.fees.title')}</b></p>
       <ul>
-        <li>{t('buy.exchange.infoContent.pocket.fees.info', { fee })}</li>
+        <li>
+          {t('buy.exchange.infoContent.pocket.fees.info', { fee: bankTransferFee })}
+        </li>
       </ul>
       <br />
       <p>
@@ -198,10 +197,6 @@ const BTCDirectInfo = ({
   bancontactFee,
 }: TBTCDirectInfoProps) => {
   const { t } = useTranslation();
-  const formattedCardFee = cardFee && cardFee * 100;
-  const formattedBankTransferFee = bankTransferFee && bankTransferFee * 100;
-  const formattedSofortFee = sofortFee && sofortFee * 100;
-  const formattedBancontactFee = bancontactFee && bancontactFee * 100;
   return (
     <div className={style.container}>
       <p>{t('buy.exchange.infoContent.btcdirectWidget.infobox.intro')}</p>
@@ -219,16 +214,16 @@ const BTCDirectInfo = ({
       <br />
       <ul>
         <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bankTransfer', {
-          fee: formattedBankTransferFee
+          fee: bankTransferFee
         })}</li>
         <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.creditDebitCard', {
-          fee: formattedCardFee
+          fee: cardFee
         })}</li>
         <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.sofort', {
-          fee: formattedSofortFee
+          fee: sofortFee
         })}</li>
         <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bancontact', {
-          fee: formattedBancontactFee
+          fee: bancontactFee
         })}</li>
       </ul>
       <br />

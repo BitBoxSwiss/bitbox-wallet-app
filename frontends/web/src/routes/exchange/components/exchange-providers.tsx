@@ -47,6 +47,10 @@ const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
         {t('buy.exchange.creditCard')}
       </span>
     );
+  case 'sofort':
+  case 'bancontact':
+    // hide these payment methods in the overview
+    return '';
   default:
     return <>{methodName}</>;
   }
