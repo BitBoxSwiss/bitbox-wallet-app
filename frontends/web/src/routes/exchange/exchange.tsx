@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,6 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedRegion, setSelectedRegion] = useState('');
-  const [selectedExchange, setSelectedExchange] = useState('');
   const [regions, setRegions] = useState<TOption[]>([]);
   const [info, setInfo] = useState<TInfoContentProps>();
   const [supportedAccounts, setSupportedAccounts] = useState<IAccount[]>([]);
@@ -102,11 +101,11 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   }, [regionList, config, nativeLocale]);
 
 
-  const goToExchange = () => {
-    if (!selectedExchange) {
+  const goToExchange = (exchange: string) => {
+    if (!exchange) {
       return;
     }
-    navigate(`/exchange/${selectedExchange}/${activeTab}/${code}`);
+    navigate(`/exchange/${exchange}/${activeTab}/${code}`);
   };
 
   const handleChangeRegion = (newValue: SingleValue<TOption>) => {
@@ -140,7 +139,6 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                 <ExchangeTab
                   onChangeTab={(tab) => {
                     setActiveTab(tab);
-                    setSelectedExchange('');
                   }}
                   activeTab={activeTab}
                 />
@@ -149,8 +147,6 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                     accountCode={code}
                     selectedRegion={selectedRegion}
                     deviceIDs={deviceIDs}
-                    onSelectExchange={setSelectedExchange}
-                    selectedExchange={selectedExchange}
                     goToExchange={goToExchange}
                     showBackButton={supportedAccounts.length > 1}
                     action={activeTab}

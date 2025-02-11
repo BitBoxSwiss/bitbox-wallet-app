@@ -53,7 +53,7 @@ export const RestoreFromSDCard = ({
   switch (status) {
   case 'restore':
     return (
-      <WithSDCard deviceID={deviceID}>
+      <WithSDCard onAbort={onAbort} deviceID={deviceID}>
         <RestoreFromSDCardBackup
           deviceID={deviceID}
           onSelectBackup={onSelectBackup}
