@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
+import { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import * as exchangesAPI from '@/api/exchanges';
-import { useContext, useEffect, useState } from 'react';
 import { Button } from '@/components/forms/button';
-import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
-import { TInfoContentProps } from './infocontent';
+import { getBTCDirectLink, TInfoContentProps } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { hasPaymentRequest } from '@/api/account';
 import { Message } from '@/components/message/message';
 import { ExternalLinkWhite, ExternalLinkBlack, Businessman } from '@/components/icon';
 import { useDarkmode } from '@/hooks/darkmode';
-import { i18n } from '@/i18n/i18n';
 import { A } from '@/components/anchor/anchor';
 import { InfoButton } from '@/components/infobutton/infobutton';
 import { getConfig } from '@/utils/config';
@@ -42,23 +41,8 @@ type TProps = {
   goToExchange: (exchange: string) => void;
   showBackButton: boolean;
   action: exchangesAPI.TExchangeAction;
-  setInfo: (into: TInfoContentProps) => void;
+  setInfo: (info: TInfoContentProps) => void;
 }
-
-export const getBTCDirectLink = () => {
-  switch (i18n.resolvedLanguage) {
-  case 'de':
-    return 'https://btcdirect.eu/de-at/private-trading-contact?BitBox';
-  case 'nl':
-    return 'https://btcdirect.eu/nl-nl/private-trading-contact?BitBox';
-  case 'es':
-    return 'https://btcdirect.eu/es-es/private-trading-contactanos?BitBox';
-  case 'fr':
-    return 'https://btcdirect.eu/fr-fr/private-trading-contact?BitBox';
-  default:
-    return 'https://btcdirect.eu/en-eu/private-trading-contact?BitBox';
-  }
-};
 
 export const BuySell = ({
   accountCode,
@@ -174,7 +158,7 @@ export const BuySell = ({
                 {isDarkMode ? <ExternalLinkWhite className={style.textIcon}/> : <ExternalLinkBlack className={style.textIcon}/>}
               </p>
             </Message>
-            <InfoButton onClick={() => setInfo({ info: 'btcdirect' })} />
+            <InfoButton onClick={() => setInfo({ info: 'btcdirect-otc' })} />
           </div>
         )}
       </div>

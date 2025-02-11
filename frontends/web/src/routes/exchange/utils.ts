@@ -29,6 +29,8 @@ export const getExchangeFormattedName = (
   case 'pocket':
     return 'Pocket';
   case 'btcdirect':
+    return 'BTC Direct';
+  case 'btcdirect-otc':
     return 'BTC Direct\'s Private Trading Desk';
   }
 };
