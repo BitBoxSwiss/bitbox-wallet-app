@@ -20,6 +20,7 @@ import alert from './assets/icons/alert-triangle.svg';
 import BB02StylizedDark from '@/assets/device/bitbox02-stylized-reflection-dark.png';
 import BB02StylizedLight from '@/assets/device/bitbox02-stylized-reflection-light.png';
 import info from './assets/icons/info.svg';
+import arbitrumColorSVG from './assets/arbitrum-color.svg';
 import arrowDownSVG from './assets/icons/arrow-down-active.svg';
 import arrowDownGreenSVG from './assets/icons/arrow-down-green.svg';
 import arrowDownRedSVG from './assets/icons/arrow-down-red.svg';
@@ -35,6 +36,7 @@ import arrowCircleRightSVG from './assets/icons/arrow-circle-right.svg';
 import arrowCircleRightActiveSVG from './assets/icons/arrow-circle-right-active.svg';
 import bankDarkSVG from './assets/icons/bank.svg';
 import bankLightSVG from './assets/icons/bank-light.svg';
+import baseColorSVG from './assets/base-color.svg';
 import businessmanSVG from './assets/icons/businessman.svg';
 import buyInfoSVG from './assets/icons/buy-info.svg';
 import checkedSmallSVG from './assets/icons/checked-small.svg';
@@ -69,6 +71,7 @@ import guideSVG from './assets/icons/guide.svg';
 import loupeSVG from './assets/icons/loupe.svg';
 import menuDarkSVG from './assets/icons/menu-dark.svg';
 import menuLightSVG from './assets/icons/menu-light.svg';
+import optimismColorSVG from './assets/optimism-color.svg';
 import walletConnectDarkSVG from './assets/icons/wallet-connect-dark.svg';
 import walletConnectLightSVG from './assets/icons/wallet-connect-light.svg';
 import walletConnectDefaultSVG from './assets/icons/wallet-connect-default.svg';
@@ -156,6 +159,7 @@ export const ExpandIcon = ({
 type ImgProps = JSX.IntrinsicElements['img'];
 
 export const Abort = (props: ImgProps) => (<img src={abortSVG} draggable={false} {...props} />);
+export const ArbitrumLogo = (props: ImgProps) => (<img src={arbitrumColorSVG} draggable={false} {...props} />);
 export const ArrowDown = (props: ImgProps) => (<img src={arrowDownSVG} draggable={false} {...props} />);
 export const ArrowDownGreen = (props: ImgProps) => (<img src={arrowDownGreenSVG} draggable={false} {...props} />);
 export const ArrowDownRed = (props: ImgProps) => (<img src={arrowDownRedSVG} draggable={false} {...props} />);
@@ -171,6 +175,7 @@ export const ArrowCirlceRight = (props: ImgProps) => (<img src={arrowCircleRight
 export const ArrowCirlceRightActive = (props: ImgProps) => (<img src={arrowCircleRightActiveSVG} draggable={false} {...props} />);
 export const BankDark = (props: ImgProps) => (<img src={bankDarkSVG} draggable={false} {...props} />);
 export const Bank = (props: ImgProps) => (<img src={bankLightSVG} draggable={false} {...props} />);
+export const BaseLogo = (props: ImgProps) => (<img src={baseColorSVG} draggable={false} {...props} />);
 export const BitBox02StylizedDark = (props: ImgProps) => (<img src={BB02StylizedDark} draggable={false} {...props} />);
 export const BitBox02StylizedLight = (props: ImgProps) => (<img src={BB02StylizedLight} draggable={false} {...props} />);
 export const Businessman = (props: ImgProps) => (<img src={businessmanSVG} draggable={false} {...props} />);
@@ -206,6 +211,7 @@ export const Info = (props: ImgProps) => (<img src={info} draggable={false} {...
 export const Loupe = (props: ImgProps) => (<img src={loupeSVG} draggable={false} {...props} />);
 export const MenuDark = (props: ImgProps) => (<img src={menuDarkSVG} draggable={false} {...props} />);
 export const MenuLight = (props: ImgProps) => (<img src={menuLightSVG} draggable={false} {...props} />);
+export const OptimismLogo = (props: ImgProps) => (<img src={optimismColorSVG} draggable={false} {...props} />);
 export const OrangeDot = (props: ImgProps) => (<img src={orangeDotSVG} draggable={false} {...props} />);
 export const WalletConnectDark = (props: ImgProps) => (<img src={walletConnectDarkSVG} draggable={false} {...props} />);
 export const WalletConnectLight = (props: ImgProps) => (<img src={walletConnectLightSVG} draggable={false} {...props} />);

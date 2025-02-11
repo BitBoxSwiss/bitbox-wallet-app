@@ -15,7 +15,7 @@
  */
 import { ReactNode, createElement } from 'react';
 import { IWalletKit } from '@reown/walletkit';
-import { ETHLogo } from '@/components/icon';
+import { ArbitrumLogo, OptimismLogo, BaseLogo, ETHLogo } from '@/components/icon';
 
 type TSupportedChainDetail = {
   [key: string]: { name: string; icon: ReactNode; }
@@ -25,6 +25,18 @@ export const SUPPORTED_CHAINS: TSupportedChainDetail = {
   'eip155:1': {
     name: 'Ethereum mainnet',
     icon: createElement(ETHLogo)
+  },
+  'eip155:10': {
+    name: 'Optimism',
+    icon: createElement(OptimismLogo)
+  },
+  'eip155:8453': {
+    name: 'Base',
+    icon: createElement(BaseLogo)
+  },
+  'eip155:42161': {
+    name: 'Arbitrum One',
+    icon: createElement(ArbitrumLogo)
   },
   'eip155:11155111': {
     name: 'Ethereum Sepolia testnet',
