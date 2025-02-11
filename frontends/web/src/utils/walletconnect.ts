@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { ReactNode, createElement } from 'react';
-import { IWeb3Wallet } from '@walletconnect/web3wallet';
+import { IWalletKit } from '@reown/walletkit';
 import { ETHLogo } from '@/components/icon';
 
 type TSupportedChainDetail = {
@@ -72,7 +72,7 @@ export const getTopicFromURI = (wcURI: string) => {
 // This "invalid pairing" won't request a new session and
 // also won't throw any error (on the first attempt) rendering it
 // non functional and potentially confuses the user.
-export const pairingHasEverBeenRejected = (topic: string, web3wallet: IWeb3Wallet) => {
+export const pairingHasEverBeenRejected = (topic: string, web3wallet: IWalletKit) => {
   return web3wallet.core.history.values.findIndex(history =>
     history.topic === topic &&
         history.response &&

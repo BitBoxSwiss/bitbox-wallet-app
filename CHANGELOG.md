@@ -16,6 +16,7 @@
 - Fixed export to CSV for ERC20 tokens.
 - Added support for xpub_required in AOPP.
 - Create desktop shortcut by default on Windows during installation
+- Migrate from deprecated Walletconnect web3wallet to Reown
 
 # 4.46.3
 - Fix camera access on linux
