@@ -269,7 +269,7 @@ func TestOrderedTransactionsDeductedAmount(t *testing.T) {
 			Fee:       &fee,
 		},
 		{
-			// Fee is in different unit (e.g. erc20 tx), deductedAmount is empty.
+			// Fee is in different unit (e.g. erc20 tx), deductedAmount is the amount but not the fee.
 			Timestamp:          tt(time.Date(2020, 9, 17, 12, 0, 0, 0, time.UTC)),
 			Height:             15,
 			Type:               TxTypeSend,
@@ -284,5 +284,5 @@ func TestOrderedTransactionsDeductedAmount(t *testing.T) {
 	requireAmountIsEqualTo(t, orderedTxs[0].DeductedAmount, 110)
 	requireAmountIsEqualTo(t, orderedTxs[1].DeductedAmount, 10)
 	requireAmountIsEqualTo(t, orderedTxs[2].DeductedAmount, 0)
-	requireAmountIsEqualTo(t, orderedTxs[3].DeductedAmount, 0)
+	requireAmountIsEqualTo(t, orderedTxs[3].DeductedAmount, 100)
 }
