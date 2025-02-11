@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@ import { isBitcoinOnly } from '@/routes/account/utils';
 import { getBTCDirectLink } from './buysell';
 import style from './infocontent.module.css';
 
-export type Info = TExchangeName | 'region';
+type Info = TExchangeName | 'region';
 export type TInfoContentProps = {info: Info, cardFee?: number, bankTransferFee?: number, accounts?: IAccount[]};
 type TMoonPayInfo = {cardFee?: number, bankTransferFee?: number};
 type TPocketInfo = { bankTransferFee?: number };
 type TBTCDirectInfo = { accounts?: IAccount[] }
 
-export const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfo) => {
+const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfo) => {
   const { t } = useTranslation();
   const formattedCardFee = cardFee && cardFee * 100;
   const formattedBankTransferFee = bankTransferFee && bankTransferFee * 100;
@@ -66,7 +66,7 @@ export const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfo) => {
   );
 };
 
-export const PocketInfo = ({ bankTransferFee }: TPocketInfo) => {
+const PocketInfo = ({ bankTransferFee }: TPocketInfo) => {
   const { t } = useTranslation();
   const fee = bankTransferFee && bankTransferFee * 100;
   return (
@@ -116,7 +116,7 @@ export const PocketInfo = ({ bankTransferFee }: TPocketInfo) => {
   );
 };
 
-export const BTCDirectInfo = ({ accounts }: TBTCDirectInfo) => {
+const BTCDirectInfo = ({ accounts }: TBTCDirectInfo) => {
   const { t } = useTranslation();
   const hasOnlyBTCAccounts = accounts?.every(({ coinCode }) => isBitcoinOnly(coinCode));
   return (
