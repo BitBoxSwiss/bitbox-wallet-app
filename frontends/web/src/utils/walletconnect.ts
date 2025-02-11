@@ -23,7 +23,11 @@ type TSupportedChainDetail = {
 
 export const SUPPORTED_CHAINS: TSupportedChainDetail = {
   'eip155:1': {
-    name: 'Etherum mainnet',
+    name: 'Ethereum mainnet',
+    icon: createElement(ETHLogo)
+  },
+  'eip155:11155111': {
+    name: 'Ethereum Sepolia testnet',
     icon: createElement(ETHLogo)
   },
 };
