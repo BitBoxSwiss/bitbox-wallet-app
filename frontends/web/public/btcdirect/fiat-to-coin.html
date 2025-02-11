@@ -96,6 +96,10 @@
           }
         });
 
+        btcdirect('include-dca', {
+          include: true
+        });
+
         btcdirect('set-parameters',
           mode === 'production' ? {
             baseCurrency: currency,
