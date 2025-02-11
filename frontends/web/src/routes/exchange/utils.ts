@@ -15,13 +15,14 @@
  */
 
 import { IAccount } from '@/api/account';
-import { getExchangeSupported } from '@/api/exchanges';
-import { Info } from './components/infocontent';
+import { getExchangeSupported, TExchangeName } from '@/api/exchanges';
 
 /**
  * Gets formatted name for exchange.
  */
-export const getExchangeFormattedName = (name: Omit<Info, 'region'>) => {
+export const getExchangeFormattedName = (
+  name: TExchangeName,
+) => {
   switch (name) {
   case 'moonpay':
     return 'MoonPay';

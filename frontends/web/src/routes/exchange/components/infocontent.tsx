@@ -15,14 +15,14 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import type { IAccount } from '@/api/account';
+import type { TExchangeName } from '@/api/exchanges';
 import { A } from '@/components/anchor/anchor';
-import style from './infocontent.module.css';
-import { ExchangeDeals } from '@/api/exchanges';
 import { isBitcoinOnly } from '@/routes/account/utils';
-import { IAccount } from '@/api/account';
 import { getBTCDirectLink } from './buysell';
+import style from './infocontent.module.css';
 
-export type Info = ExchangeDeals['exchangeName'] | 'region';
+export type Info = TExchangeName | 'region';
 export type TInfoContentProps = {info: Info, cardFee?: number, bankTransferFee?: number, accounts?: IAccount[]};
 type TMoonPayInfo = {cardFee?: number, bankTransferFee?: number};
 type TPocketInfo = { bankTransferFee?: number };
