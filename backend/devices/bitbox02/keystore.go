@@ -324,7 +324,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
 
-		inputAddress := btcProposedTx.GetAccountAddress(prevOut.ScriptHashHex())
+		inputAddress := prevOut.Address
 
 		accountConfiguration := inputAddress.AccountConfiguration
 		msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
@@ -348,7 +348,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			Input: &messages.BTCSignInputRequest{
 				PrevOutHash:       txIn.PreviousOutPoint.Hash[:],
 				PrevOutIndex:      txIn.PreviousOutPoint.Index,
-				PrevOutValue:      uint64(prevOut.Value),
+				PrevOutValue:      uint64(prevOut.TxOut.Value),
 				Sequence:          txIn.Sequence,
 				Keypath:           inputAddress.Configuration.AbsoluteKeypath().ToUInt32(),
 				ScriptConfigIndex: uint32(scriptConfigIndex),
@@ -393,7 +393,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			payload = outputAddress.ScriptAddress()
 		}
 
-		// Could also determine change using `outputAddress != nil AND second-to-last keypath element of outputAddress is 1`.
+		// Could also determine change using `outputAccountAddress != nil AND second-to-last keypath element of outputAddress is 1`.
 		isChange := txChangeAddress != nil && bytes.Equal(
 			txChangeAddress.PubkeyScript(),
 			txOut.PkScript,

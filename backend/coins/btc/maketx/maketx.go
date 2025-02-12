@@ -24,7 +24,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -36,7 +35,7 @@ import (
 )
 
 // PreviousOutputs represents a UTXO set. It also implements `txscript.PrevOutputFetcher`.
-type PreviousOutputs map[wire.OutPoint]*transactions.SpendableOutput
+type PreviousOutputs map[wire.OutPoint]UTXO
 
 // FetchPrevOutput implements `txscript.PrevOutputFetcher`.
 func (p PreviousOutputs) FetchPrevOutput(op wire.OutPoint) *wire.TxOut {
@@ -75,8 +74,8 @@ func (txProposal *TxProposal) Total() btcutil.Amount {
 
 // UTXO contains the data needed of a spendable UTXO in a new tx.
 type UTXO struct {
-	TxOut         *wire.TxOut
-	Configuration *signing.Configuration
+	TxOut   *wire.TxOut
+	Address *addresses.AccountAddress
 }
 
 type byValue struct {
@@ -128,7 +127,7 @@ func toInputConfigurations(
 ) []*signing.Configuration {
 	inputConfigurations := make([]*signing.Configuration, len(selectedOutPoints))
 	for i, outPoint := range selectedOutPoints {
-		inputConfigurations[i] = spendableOutputs[outPoint].Configuration
+		inputConfigurations[i] = spendableOutputs[outPoint].Address.Configuration
 	}
 	return inputConfigurations
 }
@@ -182,15 +181,11 @@ func NewTxSpendAll(
 ) (*TxProposal, error) {
 	selectedOutPoints := []wire.OutPoint{}
 	inputs := []*wire.TxIn{}
-	previousOutputs := make(PreviousOutputs, len(spendableOutputs))
 	outputsSum := btcutil.Amount(0)
 	for outPoint, output := range spendableOutputs {
 		selectedOutPoints = append(selectedOutPoints, outPoint)
 		outputsSum += btcutil.Amount(output.TxOut.Value)
 		inputs = append(inputs, wire.NewTxIn(&outPoint, nil, nil))
-		previousOutputs[outPoint] = &transactions.SpendableOutput{
-			TxOut: spendableOutputs[outPoint].TxOut,
-		}
 	}
 	txSize := estimateTxSize(
 		toInputConfigurations(spendableOutputs, selectedOutPoints),
@@ -219,7 +214,7 @@ func NewTxSpendAll(
 		Amount:               btcutil.Amount(output.Value),
 		Fee:                  maxRequiredFee,
 		Transaction:          unsignedTransaction,
-		PreviousOutputs:      previousOutputs,
+		PreviousOutputs:      spendableOutputs,
 		SilentPaymentAddress: outputInfo.silentPaymentAddress,
 		// Only one output in send-all
 		OutIndex: 0,
@@ -272,9 +267,7 @@ func NewTx(
 		previousOutputs := make(PreviousOutputs, len(selectedOutPoints))
 		for i, outPoint := range selectedOutPoints {
 			inputs[i] = wire.NewTxIn(&outPoint, nil, nil)
-			previousOutputs[outPoint] = &transactions.SpendableOutput{
-				TxOut: spendableOutputs[outPoint].TxOut,
-			}
+			previousOutputs[outPoint] = spendableOutputs[outPoint]
 		}
 		unsignedTransaction := &wire.MsgTx{
 			Version:  wire.TxVersion,
