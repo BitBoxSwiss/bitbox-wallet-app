@@ -150,10 +150,12 @@ func (s *newTxSuite) check(
 	// Check invariants independent of the particular coin selection algorithm.
 	s.Require().Equal(s.coin, txProposal.Coin)
 	var output *wire.TxOut
+	var outputIdx int
 	if expectedChange == 0 {
 		s.Require().Nil(txProposal.ChangeAddress)
 		s.Require().Len(tx.TxOut, 1)
 		output = tx.TxOut[0]
+		outputIdx = 0
 	} else {
 		s.Require().Equal(s.changeAddress, txProposal.ChangeAddress)
 		s.Require().Len(tx.TxOut, 2)
@@ -161,9 +163,11 @@ func (s *newTxSuite) check(
 		if bytes.Equal(s.changeAddress.PubkeyScript(), tx.TxOut[0].PkScript) {
 			changeOutput = tx.TxOut[0]
 			output = tx.TxOut[1]
+			outputIdx = 1
 		} else {
 			changeOutput = tx.TxOut[1]
 			output = tx.TxOut[0]
+			outputIdx = 0
 		}
 		// Do we receive the correct change on the change address?
 		s.Require().Equal(int64(expectedChange), changeOutput.Value)
@@ -171,6 +175,8 @@ func (s *newTxSuite) check(
 	}
 	// Are we sending the right amount to the right recipient?
 	s.Require().Equal(s.output(expectedAmount), output)
+
+	s.Require().Equal(outputIdx, txProposal.OutIndex)
 
 	for _, txIn := range tx.TxIn {
 		s.Require().Nil(txIn.SignatureScript)
