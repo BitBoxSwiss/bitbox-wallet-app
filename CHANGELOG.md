@@ -15,6 +15,7 @@
 - Improve the UI of buy & sell page for mobile devices
 - Fixed export to CSV for ERC20 tokens.
 - Added support for xpub_required in AOPP.
+- Create desktop shortcut by default on Windows during installation
 
 # 4.46.3
 - Fix camera access on linux
