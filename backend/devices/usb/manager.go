@@ -61,16 +61,20 @@ func isBitBox(deviceInfo DeviceInfo) bool {
 }
 
 func isBitBox02(deviceInfo DeviceInfo) bool {
-	return (deviceInfo.Product() == bitbox02common.FirmwareHIDProductStringStandard ||
-		deviceInfo.Product() == bitbox02common.FirmwareHIDProductStringBTCOnly) &&
+	return (deviceInfo.Product() == bitbox02common.FirmwareDeviceProductStringBitBox02Multi ||
+		deviceInfo.Product() == bitbox02common.FirmwareDeviceProductStringBitBox02BTCOnly ||
+		deviceInfo.Product() == bitbox02common.FirmwareDeviceProductStringBitBox02PlusMulti ||
+		deviceInfo.Product() == bitbox02common.FirmwareDeviceProductStringBitBox02PlusBTCOnly) &&
 		deviceInfo.VendorID() == bitbox02VendorID &&
 		deviceInfo.ProductID() == bitbox02ProductID &&
 		(deviceInfo.UsagePage() == 0xffff || deviceInfo.Interface() == 0)
 }
 
 func isBitBox02Bootloader(deviceInfo DeviceInfo) bool {
-	return (deviceInfo.Product() == bitbox02common.BootloaderHIDProductStringStandard ||
-		deviceInfo.Product() == bitbox02common.BootloaderHIDProductStringBTCOnly) &&
+	return (deviceInfo.Product() == bitbox02common.BootloaderDeviceProductStringBitBox02Multi ||
+		deviceInfo.Product() == bitbox02common.BootloaderDeviceProductStringBitBox02BTCOnly ||
+		deviceInfo.Product() == bitbox02common.BootloaderDeviceProductStringBitBox02PlusMulti ||
+		deviceInfo.Product() == bitbox02common.BootloaderDeviceProductStringBitBox02PlusBTCOnly) &&
 		deviceInfo.VendorID() == bitbox02VendorID &&
 		deviceInfo.ProductID() == bitbox02ProductID &&
 		(deviceInfo.UsagePage() == 0xffff || deviceInfo.Interface() == 0)
@@ -198,7 +202,7 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 	if err != nil {
 		return nil, err
 	}
-	product, err := bitbox02common.ProductFromHIDProductString(deviceInfo.Product())
+	product, err := bitbox02common.ProductFromDeviceProductString(deviceInfo.Product())
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +230,7 @@ func (manager *Manager) makeBitBox02Bootloader(deviceInfo DeviceInfo) (
 	if err != nil {
 		return nil, err
 	}
-	product, err := bitbox02common.ProductFromHIDProductString(deviceInfo.Product())
+	product, err := bitbox02common.ProductFromDeviceProductString(deviceInfo.Product())
 	if err != nil {
 		return nil, err
 	}
