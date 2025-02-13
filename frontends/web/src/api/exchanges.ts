@@ -33,9 +33,11 @@ export const getExchangesByRegion = (code: string) => {
   };
 };
 
+export type TPaymentMethod = 'card' | 'bank-transfer' | 'bancontact' | 'sofort';
+
 export type ExchangeDeal = {
   fee: number;
-  payment: 'card' | 'bank-transfer' | 'sofort' | 'bancontact';
+  payment: TPaymentMethod;
   isFast: boolean;
   isBest: boolean;
   isHidden: boolean;

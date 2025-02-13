@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import type { IAccount } from '@/api/account';
-import type { TExchangeName } from '@/api/exchanges';
+import type { TExchangeName, TPaymentMethod } from '@/api/exchanges';
 import { i18n } from '@/i18n/i18n';
 import { A } from '@/components/anchor/anchor';
 import { isBitcoinOnly } from '@/routes/account/utils';
@@ -247,42 +247,40 @@ const RegionInfo = () => {
 
 type Info = TExchangeName | 'region';
 
+export type TPaymentFee = {
+  [payment in TPaymentMethod]?: number;
+};
+
 export type TInfoContentProps = {
   accounts?: IAccount[];
-  bancontactFee?: number;
-  bankTransferFee?: number;
-  cardFee?: number;
+  paymentFees: TPaymentFee;
   info: Info;
-  sofortFee?: number;
 };
 
 export const InfoContent = ({
   accounts,
-  bancontactFee,
-  bankTransferFee,
-  cardFee,
+  paymentFees,
   info,
-  sofortFee,
 }: TInfoContentProps) => {
   switch (info) {
   case 'moonpay':
     return (
       <MoonPayInfo
-        cardFee={cardFee}
-        bankTransferFee={bankTransferFee}
+        cardFee={paymentFees['card']}
+        bankTransferFee={paymentFees['bank-transfer']}
       />
     );
   case 'pocket':
     return (
-      <PocketInfo bankTransferFee={bankTransferFee} />
+      <PocketInfo bankTransferFee={paymentFees['bank-transfer']} />
     );
   case 'btcdirect':
     return (
       <BTCDirectInfo
-        cardFee={cardFee}
-        bankTransferFee={bankTransferFee}
-        bancontactFee={bancontactFee}
-        sofortFee={sofortFee}
+        cardFee={paymentFees['card']}
+        bankTransferFee={paymentFees['bank-transfer']}
+        bancontactFee={paymentFees['bancontact']}
+        sofortFee={paymentFees['sofort']}
       />
     );
   case 'btcdirect-otc':
