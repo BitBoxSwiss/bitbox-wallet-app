@@ -101,11 +101,12 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 	},
 }
 
-// BundledFirmwareVersion returns the version of newest bundled firmware.
+// BundledFirmwareVersion returns the version of newest bundled firmware. Returns nil if none is
+// available.
 func BundledFirmwareVersion(product bitbox02common.Product) *semver.SemVer {
 	firmwares, ok := bundledFirmwares[product]
 	if !ok {
-		panic("unrecognized product")
+		return nil
 	}
 
 	return firmwares[len(firmwares)-1].version

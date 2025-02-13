@@ -289,10 +289,15 @@ func (handlers *Handlers) postSetMnemonicPassphraseEnabled(r *http.Request) inte
 func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 	currentVersion := handlers.device.Version()
 	newVersion := bitbox02bootloader.BundledFirmwareVersion(handlers.device.Product())
-
+	var newVersionStr string
+	var canUpgrade bool
+	if newVersion != nil {
+		newVersionStr = newVersion.String()
+		canUpgrade = newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String()
+	}
 	return struct {
 		CurrentVersion         string `json:"currentVersion"`
-		NewVersion             string `json:"newVersion"`
+		NewVersion             string `json:"newVersion,omitempty"`
 		CanUpgrade             bool   `json:"canUpgrade"`
 		CanGotoStartupSettings bool   `json:"canGotoStartupSettings"`
 		// If true, creating a backup using the mnemonic recovery words instead of the microSD card
@@ -309,8 +314,8 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 		CanBIP85         bool `json:"canBIP85"`
 	}{
 		CurrentVersion:             currentVersion.String(),
-		NewVersion:                 newVersion.String(),
-		CanUpgrade:                 newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String(),
+		NewVersion:                 newVersionStr,
+		CanUpgrade:                 canUpgrade,
 		CanGotoStartupSettings:     currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
 		CanBackupWithRecoveryWords: currentVersion.AtLeast(semver.NewSemVer(9, 13, 0)),
 		CanCreate12Words:           currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
