@@ -90,7 +90,7 @@ func (device *Device) rawQueryV7(msg []byte) ([]byte, error) {
 				device.log.Debug("unexpected NACK response in first loop iteration")
 			} else {
 				logStr := "unexpected NACK response; last successful retry query intervals (newest first) were: "
-				for i := 0; i < lastQueryTimes.Len()-1; i++ {
+				for range lastQueryTimes.Len() - 1 {
 					if lastQueryTimes.Value == nil || lastQueryTimes.Prev().Value == nil {
 						break
 					}

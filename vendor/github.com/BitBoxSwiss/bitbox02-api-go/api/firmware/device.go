@@ -167,10 +167,15 @@ func (device *Device) info() (*semver.SemVer, common.Product, bool, error) {
 	platformByte, response := response[0], response[1:]
 	editionByte, response := response[0], response[1:]
 	const platformBitBox02 = 0x00
+	const platformBitBox02Plus = 0x02
 	products := map[byte]map[byte]common.Product{
 		platformBitBox02: {
 			0x00: common.ProductBitBox02Multi,
 			0x01: common.ProductBitBox02BTCOnly,
+		},
+		platformBitBox02Plus: {
+			0x00: common.ProductBitBox02PlusMulti,
+			0x01: common.ProductBitBox02PlusBTCOnly,
 		},
 	}
 	editions, ok := products[platformByte]
@@ -211,8 +216,8 @@ func (device *Device) inferVersionAndProduct() error {
 	if device.version == nil {
 		version, product, _, err := device.info()
 		if err != nil {
-			return errp.New(
-				"OP_INFO unavailable; need to provide version and product via the USB HID descriptor")
+			return errp.Newf(
+				"OP_INFO unavailable; need to provide version and product via the USB HID descriptor.")
 		}
 		device.log.Info(fmt.Sprintf("OP_INFO: version=%s, product=%s", version, product))
 
@@ -326,9 +331,13 @@ func (device *Device) Product() common.Product {
 	return *device.product
 }
 
+func (device *Device) isMultiEdition() bool {
+	return *device.product == common.ProductBitBox02Multi || *device.product == common.ProductBitBox02PlusMulti
+}
+
 // SupportsETH returns true if ETH is supported by the device api.
 func (device *Device) SupportsETH(chainID uint64) bool {
-	if *device.product != common.ProductBitBox02Multi {
+	if !device.isMultiEdition() {
 		return false
 	}
 	if device.version.AtLeast(semver.NewSemVer(9, 10, 0)) {
@@ -348,7 +357,7 @@ func (device *Device) SupportsETH(chainID uint64) bool {
 // For now, this list only contains tokens relevant to the BitBoxApp, otherwise the bitbox02-api-js
 // library size would blow up. TODO: move this to the bitbox-wallet-app repo.
 func (device *Device) SupportsERC20(contractAddress string) bool {
-	if *device.product != common.ProductBitBox02Multi {
+	if !device.isMultiEdition() {
 		return false
 	}
 	if device.version.AtLeast(semver.NewSemVer(4, 0, 0)) {
@@ -384,5 +393,5 @@ func (device *Device) SupportsERC20(contractAddress string) bool {
 
 // SupportsLTC returns true if LTC is supported by the device api.
 func (device *Device) SupportsLTC() bool {
-	return *device.product == common.ProductBitBox02Multi
+	return device.isMultiEdition()
 }

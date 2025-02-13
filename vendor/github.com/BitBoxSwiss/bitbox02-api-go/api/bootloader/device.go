@@ -1,4 +1,5 @@
 // Copyright 2018-2019 Shift Cryptosecurity AG
+// Copyright 2025 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,8 +44,10 @@ const (
 )
 
 var sigDataMagic = map[common.Product]uint32{
-	common.ProductBitBox02Multi:   0x653f362b,
-	common.ProductBitBox02BTCOnly: 0x11233B0B,
+	common.ProductBitBox02Multi:       0x653f362b,
+	common.ProductBitBox02BTCOnly:     0x11233B0B,
+	common.ProductBitBox02PlusMulti:   0x5b648ceb,
+	common.ProductBitBox02PlusBTCOnly: 0x48714774,
 }
 
 // Communication contains functions needed to communicate with the device.
@@ -72,6 +75,7 @@ func toByte(b bool) byte {
 // Device provides the API to communicate with the BitBox02 bootloader.
 type Device struct {
 	communication   Communication
+	version         *semver.SemVer
 	product         common.Product
 	status          *Status
 	onStatusChanged func(*Status)
@@ -86,6 +90,7 @@ func NewDevice(
 ) *Device {
 	return &Device{
 		communication:   communication,
+		version:         version,
 		product:         product,
 		status:          &Status{},
 		onStatusChanged: onStatusChanged,
@@ -181,6 +186,52 @@ func (device *Device) Reboot() error {
 func (device *Device) ScreenRotate() error {
 	_, err := device.query('f', nil)
 	return err
+}
+
+// SecureChipModel enumerates the secure chip models in use.
+type SecureChipModel string
+
+const (
+	// SecureChipModelATECC refers to the ATECC chips (e.g. ATECC608A, ATECC608B).
+	SecureChipModelATECC SecureChipModel = "ATECC"
+	// SecureChipModelOptiga refers to the Optiga chip (e.g. Optiga Trust M V3).
+	SecureChipModelOptiga SecureChipModel = "Optiga"
+)
+
+// Hardware contains hardware info, returned by `Hardware()`.
+type Hardware struct {
+	// SecureChipModel contains which securechip model is on the device.
+	SecureChipModel SecureChipModel
+}
+
+// Hardware returns hardware info.
+func (device *Device) Hardware() (*Hardware, error) {
+	// OP_HARDWARE was introduced in v1.1.0.
+	if !device.version.AtLeast(semver.NewSemVer(1, 1, 0)) {
+		return &Hardware{
+			SecureChipModel: SecureChipModelATECC,
+		}, nil
+	}
+	response, err := device.query('W', nil)
+	if err != nil {
+		return nil, err
+	}
+	if len(response) < 1 {
+		return nil, errp.New("unexpected response")
+	}
+
+	var securechipModel SecureChipModel
+	switch response[0] {
+	case 0x00:
+		securechipModel = SecureChipModelATECC
+	case 0x01:
+		securechipModel = SecureChipModelOptiga
+	default:
+		return nil, errp.Newf("Unrecognized securechip model: %d", response[0])
+	}
+	return &Hardware{
+		SecureChipModel: securechipModel,
+	}, nil
 }
 
 func (device *Device) erase(firmwareNumChunks uint8) error {

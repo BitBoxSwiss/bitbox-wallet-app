@@ -81,7 +81,7 @@ func (version *SemVer) String() string {
 }
 
 // MarshalJSON implements json.Marshaler.
-func (version SemVer) MarshalJSON() ([]byte, error) {
+func (version *SemVer) MarshalJSON() ([]byte, error) {
 	return json.Marshal(version.String())
 }
 
