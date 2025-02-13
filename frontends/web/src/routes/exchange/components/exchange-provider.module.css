@@ -3,7 +3,7 @@
 }
 
 .exchangeName {
-    width: 40px;
+    width: 110px;
 }
 
 .exchangeContainer {
@@ -37,7 +37,7 @@
 .paymentMethodsContainer {
     display: flex;
     flex-direction: column;
-    margin-left: 40px;
+    margin-left: 20px;
     width: 100%;
     padding-right: var(--space-quarter);
 }
@@ -46,6 +46,7 @@
     color: var(--color-default);
     display: inline-block;
     font-weight: 400;
+    line-height: 1.6;
     margin: 0;
 }
 .paymentMethodName img {
@@ -176,7 +177,7 @@ span[role="radio"]:focus{
 
 @media (max-width: 400px) {
     .exchangeName {
-        width: 50px;
+        width: 150px;
     }
 
     .badgeContainer {

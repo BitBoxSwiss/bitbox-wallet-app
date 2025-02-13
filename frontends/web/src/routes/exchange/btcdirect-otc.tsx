@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { BTCDirectOTCTerms } from '@/components/terms/btcdirect-otc-terms';
-import { getBTCDirectLink } from './components/buysell';
-import { useNavigate } from 'react-router-dom';
-import { Header } from '@/components/layout';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { BTCDirectOTCTerms } from '@/components/terms/btcdirect-otc-terms';
+import { getBTCDirectLink } from './components/infocontent';
+import { Header } from '@/components/layout';
 import { open } from '@/api/system';
 import style from './iframe.module.css';
 
