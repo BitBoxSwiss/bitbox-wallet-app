@@ -108,14 +108,17 @@ const (
 )
 
 // ExchangeDeal represents a specific purchase option of an exchange.
-// - Fee that goes to the exchange in percentage.
-// - Payment is the payment method offered in the deal (usually different payment methods bring different fees).
-// - IsFast is usually associated with card payments. It is used by the frontend to display the `fast` tag in deals list.
 type ExchangeDeal struct {
-	Fee     float32       `json:"fee"`
+	// Fee that goes to the exchange in percentage.
+	Fee float32 `json:"fee"`
+	// Payment is the payment method offered in the deal (usually different payment methods bring different fees).
 	Payment PaymentMethod `json:"payment"`
-	IsFast  bool          `json:"isFast"`
-	IsBest  bool          `json:"isBest"`
+	// IsFast is usually associated with card payments. It is used by the frontend to display the `fast` badge in deals list.
+	IsFast bool `json:"isFast"`
+	// IsBest is assigned to the deal with the lowest fee, it is used to show the `best deal` badge in the frontend.
+	IsBest bool `json:"isBest"`
+	// IsHidden deals are not explicitly listed in the frontend deals list.
+	IsHidden bool `json:"isHidden"`
 }
 
 // ExchangeDealsList list the name of a specific exchange and the list of available deals offered by that exchange.
@@ -236,7 +239,7 @@ func GetExchangeDeals(account accounts.Interface, regionCode string, action Exch
 		bestDealIndex := 0
 		for i, deal := range deals {
 			oldBestDeal := deals[bestDealIndex]
-			if deal.Fee < oldBestDeal.Fee {
+			if !deal.IsHidden && deal.Fee < oldBestDeal.Fee {
 				bestDealIndex = i
 			}
 		}
