@@ -15,6 +15,7 @@
  */
 
 import { useState, useEffect, createRef, useContext, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getBTCDirectInfo } from '@/api/exchanges';
 import { AppContext } from '@/contexts/AppContext';
@@ -56,6 +57,7 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
   const { i18n, t } = useTranslation();
   const { isDevServers } = useContext(AppContext);
   const { isDarkMode } = useDarkmode();
+  const navigate = useNavigate();
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const btcdirectInfo = useLoad(() => getBTCDirectInfo('buy', code));
@@ -123,9 +125,12 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
         targetOrigin: event.origin
       });
       break;
+    case 'back-to-app':
+      navigate(`/account/${code}`);
+      break;
     }
 
-  }, [account, btcdirectInfo, locale, isDarkMode, isDevServers]);
+  }, [account, btcdirectInfo, code, isDarkMode, isDevServers, locale, navigate]);
 
   useEffect(() => {
     window.addEventListener('message', onMessage);
