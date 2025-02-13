@@ -38,6 +38,7 @@ export type ExchangeDeal = {
   payment: 'card' | 'bank-transfer' | 'sofort' | 'bancontact';
   isFast: boolean;
   isBest: boolean;
+  isHidden: boolean;
 }
 
 export type TExchangeName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc';

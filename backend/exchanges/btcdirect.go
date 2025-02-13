@@ -89,12 +89,14 @@ func BtcDirectDeals() *ExchangeDealsList {
 				Payment: BankTransferPayment,
 			},
 			{
-				Fee:     4.9, // 4.9%
-				Payment: SOFORTPayment,
+				Fee:      4.9, // 4.9%
+				Payment:  SOFORTPayment,
+				IsHidden: true,
 			},
 			{
-				Fee:     3.6, // 3.6%
-				Payment: BancontactPayment,
+				Fee:      3.6, // 3.6%
+				Payment:  BancontactPayment,
+				IsHidden: true,
 			},
 		},
 	}

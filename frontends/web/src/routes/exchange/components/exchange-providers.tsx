@@ -49,8 +49,6 @@ const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
     );
   case 'sofort':
   case 'bancontact':
-    // hide these payment methods in the overview
-    return '';
   default:
     return <>{methodName}</>;
   }
@@ -85,7 +83,7 @@ export const ExchangeProviders = ({
           {getExchangeFormattedName(exchangeName)}
         </p>
         <div className={style.paymentMethodsContainer}>
-          {deals.map(deal => <Deal key={deal.payment} deal={deal}/>)}
+          {deals.map(deal => !deal.isHidden && <Deal key={deal.payment} deal={deal}/>)}
         </div>
       </div>
     </div>

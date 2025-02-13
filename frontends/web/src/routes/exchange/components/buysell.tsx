@@ -129,22 +129,25 @@ export const BuySell = ({
           </div>
         ) : (
           <div className={style.exchangeProvidersContainer}>
-            {exchangeDealsResponse?.exchanges.map(exchange => (
-              <div key={exchange.exchangeName} className={style.actionableItemContainer}>
-                <ActionableItem
-                  key={exchange.exchangeName}
-                  onClick={() => {
-                    goToExchange(exchange.exchangeName);
-                  }}>
-                  <ExchangeProviders
-                    deals={exchange.deals}
-                    exchangeName={exchange.exchangeName}
-                  />
-                </ActionableItem>
+            {exchangeDealsResponse?.exchanges
+              // skip the exchanges that have only hidden deals.
+              .filter(exchange => (exchange.deals.some(deal => !deal.isHidden)))
+              .map(exchange => (
+                <div key={exchange.exchangeName} className={style.actionableItemContainer}>
+                  <ActionableItem
+                    key={exchange.exchangeName}
+                    onClick={() => {
+                      goToExchange(exchange.exchangeName);
+                    }}>
+                    <ExchangeProviders
+                      deals={exchange.deals}
+                      exchangeName={exchange.exchangeName}
+                    />
+                  </ActionableItem>
 
-                <InfoButton onClick={() => setInfo(buildInfo(exchange))} />
-              </div>
-            ))}
+                  <InfoButton onClick={() => setInfo(buildInfo(exchange))} />
+                </div>
+              ))}
           </div>
         )}
         {btcDirectOTCSupported?.success && btcDirectOTCSupported?.supported && (
