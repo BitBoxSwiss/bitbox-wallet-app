@@ -37,7 +37,7 @@ export const getBTCDirectOTCLink = () => {
   }
 };
 
-export const getBTCDirectLink = () => {
+export const getBTCDirectAboutUsLink = () => {
   switch (i18n.resolvedLanguage) {
   case 'de':
     return 'https://btcdirect.eu/de-at/uber-uns?BitBox';
@@ -228,8 +228,8 @@ const BTCDirectInfo = ({
       </ul>
       <br />
       <p>
-        <A href={getBTCDirectLink()}>
-          {t('buy.exchange.infoContent.btcdirectWidget.infobox.learnmore')}
+        <A href={getBTCDirectAboutUsLink()}>
+          {t('buy.exchange.infoContent.btcdirectWidget.learnmore')}
         </A>
       </p>
     </div>
