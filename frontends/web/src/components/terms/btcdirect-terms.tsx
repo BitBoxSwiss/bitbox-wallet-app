@@ -32,7 +32,7 @@ export const BTCDirectTerms = ({ account, onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
 
   const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
-    setConfig({ frontend: { skipBTCDirectDisclaimer: e.target.checked } });
+    setConfig({ frontend: { skipBTCDirectWidgetDisclaimer: e.target.checked } });
   };
 
   const coinCode = account.coinCode.toUpperCase();

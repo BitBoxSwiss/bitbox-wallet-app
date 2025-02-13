@@ -72,7 +72,7 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
 
   useEffect(() => {
     if (config) {
-      setAgreedTerms(config.frontend.skipBTCDirectDisclaimer);
+      setAgreedTerms(config.frontend.skipBTCDirectWidgetDisclaimer);
     }
   }, [config]);
 
