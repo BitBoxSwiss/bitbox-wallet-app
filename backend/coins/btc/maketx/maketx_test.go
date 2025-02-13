@@ -112,6 +112,18 @@ func (s *newTxSuite) newTx(
 	)
 }
 
+func (s *newTxSuite) newTxSpendAll(
+	feePerKb btcutil.Amount,
+	utxo map[wire.OutPoint]maketx.UTXO) (*maketx.TxProposal, error) {
+	return maketx.NewTxSpendAll(
+		s.coin,
+		utxo,
+		maketx.NewOutputInfo(s.outputPkScript),
+		feePerKb,
+		s.log,
+	)
+}
+
 func (s *newTxSuite) outpoint(i int) wire.OutPoint {
 	return wire.OutPoint{Hash: chainhash.HashH([]byte(`some-tx`)), Index: uint32(i)}
 }
@@ -135,6 +147,7 @@ func (s *newTxSuite) TestNewTxNoCoins() {
 }
 
 func (s *newTxSuite) check(
+	spendAll bool,
 	expectedAmount btcutil.Amount,
 	feePerKb btcutil.Amount,
 	utxo map[wire.OutPoint]maketx.UTXO,
@@ -142,18 +155,27 @@ func (s *newTxSuite) check(
 	expectedDustDonation btcutil.Amount,
 	selectedCoins map[int]struct{},
 ) {
-	txProposal, err := s.newTx(expectedAmount, feePerKb, utxo)
-	s.Require().NoError(err)
+	var txProposal *maketx.TxProposal
+	var err error
+	if spendAll {
+		txProposal, err = s.newTxSpendAll(feePerKb, utxo)
+		s.Require().NoError(err)
+	} else {
+		txProposal, err = s.newTx(expectedAmount, feePerKb, utxo)
+		s.Require().NoError(err)
+	}
 
 	tx := txProposal.Transaction
 
 	// Check invariants independent of the particular coin selection algorithm.
 	s.Require().Equal(s.coin, txProposal.Coin)
 	var output *wire.TxOut
+	var outputIdx int
 	if expectedChange == 0 {
 		s.Require().Nil(txProposal.ChangeAddress)
 		s.Require().Len(tx.TxOut, 1)
 		output = tx.TxOut[0]
+		outputIdx = 0
 	} else {
 		s.Require().Equal(s.changeAddress, txProposal.ChangeAddress)
 		s.Require().Len(tx.TxOut, 2)
@@ -161,9 +183,11 @@ func (s *newTxSuite) check(
 		if bytes.Equal(s.changeAddress.PubkeyScript(), tx.TxOut[0].PkScript) {
 			changeOutput = tx.TxOut[0]
 			output = tx.TxOut[1]
+			outputIdx = 1
 		} else {
 			changeOutput = tx.TxOut[1]
 			output = tx.TxOut[0]
+			outputIdx = 0
 		}
 		// Do we receive the correct change on the change address?
 		s.Require().Equal(int64(expectedChange), changeOutput.Value)
@@ -171,6 +195,8 @@ func (s *newTxSuite) check(
 	}
 	// Are we sending the right amount to the right recipient?
 	s.Require().Equal(s.output(expectedAmount), output)
+
+	s.Require().Equal(outputIdx, txProposal.OutIndex)
 
 	for _, txIn := range tx.TxIn {
 		s.Require().Nil(txIn.SignatureScript)
@@ -199,9 +225,13 @@ func (s *newTxSuite) check(
 		inputConfigurations[i] = s.inputConfiguration
 	}
 
+	changeLen := 0
+	if !spendAll {
+		changeLen = len(s.changeAddress.PubkeyScript())
+	}
 	expectedFee := maketx.TstFeeForSerializeSize(
 		feePerKb,
-		maketx.TstEstimateTxSize(inputConfigurations, len(output.PkScript), len(s.changeAddress.PubkeyScript())),
+		maketx.TstEstimateTxSize(inputConfigurations, len(output.PkScript), changeLen),
 		s.log) + expectedDustDonation
 	s.Require().Equal(expectedFee, txFee)
 	s.Require().Equal(expectedFee, txProposal.Fee)
@@ -210,7 +240,7 @@ func (s *newTxSuite) check(
 	// Check the coin selection related results.
 
 	// Check the selected coins match the expected selected coins.
-	s.Require().Equal(len(tx.TxIn), len(selectedCoins))
+	s.Require().Len(tx.TxIn, len(selectedCoins))
 	for i := range selectedCoins {
 		coin := s.outpoint(i)
 		found := false
@@ -239,13 +269,12 @@ func (s *newTxSuite) change(value int64) btcutil.Amount {
 func (s *newTxSuite) TestNewTxNoFee() {
 	feePerKb := btcutil.Amount(0)
 
-	_, err := s.newTx(1, feePerKb, s.buildUTXO())
-	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
+	s.check(false, btcutil.Amount(1), feePerKb, s.buildUTXO(1), s.change(0), noDust, s.selectCoins(0))
+	s.check(false, btcutil.Amount(1), feePerKb, s.buildUTXO(1, 2), s.change(1), noDust, s.selectCoins(1))
+	s.check(false, btcutil.Amount(1), feePerKb, s.buildUTXO(1, 2, 3), s.change(2), noDust, s.selectCoins(2))
+	s.check(false, btcutil.Amount(1), feePerKb, s.buildUTXO(2), s.change(1), noDust, s.selectCoins(0))
 
-	s.check(btcutil.Amount(1), feePerKb, s.buildUTXO(1), s.change(0), noDust, s.selectCoins(0))
-	s.check(btcutil.Amount(1), feePerKb, s.buildUTXO(1, 2), s.change(1), noDust, s.selectCoins(1))
-	s.check(btcutil.Amount(1), feePerKb, s.buildUTXO(1, 2, 3), s.change(2), noDust, s.selectCoins(2))
-	s.check(btcutil.Amount(1), feePerKb, s.buildUTXO(2), s.change(1), noDust, s.selectCoins(0))
+	s.check(true, btcutil.Amount(1), feePerKb, s.buildUTXO(1), s.change(0), noDust, s.selectCoins(0))
 }
 
 func (s *newTxSuite) TestNewTxDust() {
@@ -257,9 +286,9 @@ func (s *newTxSuite) TestNewTxDust() {
 	const maxDust = 545              // dust threshold for a p2pkh change output.
 	for baseAmount := int64(500); baseAmount <= 5000000000; baseAmount += 5000000000 / 10 {
 		for dust := int64(0); dust <= maxDust; dust++ {
-			s.check(btcutil.Amount(baseAmount), feePerKb, s.buildUTXO(400, baseAmount+txSizeOneInput+dust, 450), s.change(0), btcutil.Amount(dust), s.selectCoins(1))
+			s.check(false, btcutil.Amount(baseAmount), feePerKb, s.buildUTXO(400, baseAmount+txSizeOneInput+dust, 450), s.change(0), btcutil.Amount(dust), s.selectCoins(1))
 		}
-		s.check(btcutil.Amount(baseAmount), feePerKb, s.buildUTXO(400, baseAmount+txSizeOneInput+maxDust+1, 450), s.change(maxDust+1), noDust, s.selectCoins(1))
+		s.check(false, btcutil.Amount(baseAmount), feePerKb, s.buildUTXO(400, baseAmount+txSizeOneInput+maxDust+1, 450), s.change(maxDust+1), noDust, s.selectCoins(1))
 	}
 }
 
@@ -270,6 +299,9 @@ func (s *newTxSuite) TestNewTxInsufficientFunds() {
 	feePerKb := btcutil.Amount(1000) // 1 sat / vbyte
 
 	_, err := s.newTx(amount, feePerKb, s.buildUTXO())
+	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
+
+	_, err = s.newTxSpendAll(feePerKb, s.buildUTXO())
 	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
 
 	// Using one coin.
@@ -307,8 +339,11 @@ func (s *newTxSuite) TestNewTxCoinSelection() {
 
 	feePerKb := btcutil.Amount(1000) // 1 sat / vbyte
 
-	s.check(amount, feePerKb, s.buildUTXO(mBTC, 2*mBTC, 1000*mBTC+txSizeOneInput), s.change(0), noDust, s.selectCoins(2))
-	s.check(amount, feePerKb, s.buildUTXO(mBTC, 1000*mBTC), s.change(mBTC-txSizeTwoInputs), noDust, s.selectCoins(0, 1))
+	s.check(false, amount, feePerKb, s.buildUTXO(mBTC, 2*mBTC, 1000*mBTC+txSizeOneInput), s.change(0), noDust, s.selectCoins(2))
+	s.check(false, amount, feePerKb, s.buildUTXO(mBTC, 1000*mBTC), s.change(mBTC-txSizeTwoInputs), noDust, s.selectCoins(0, 1))
 	// coins: .5, .3, .1, .1, .9, .8, .6. select .5+.3+.1+.1 to get 1BTC, take .9 to cover the fees.
-	s.check(amount, feePerKb, s.buildUTXO(500*mBTC, 300*mBTC, 100*mBTC, 100*mBTC, 90*mBTC, 80*mBTC, 70*mBTC), s.change(90*mBTC-txSizeFiveInputs), noDust, s.selectCoins(0, 1, 2, 3, 4))
+	s.check(false, amount, feePerKb, s.buildUTXO(500*mBTC, 300*mBTC, 100*mBTC, 100*mBTC, 90*mBTC, 80*mBTC, 70*mBTC), s.change(90*mBTC-txSizeFiveInputs), noDust, s.selectCoins(0, 1, 2, 3, 4))
+
+	s.check(true, btcutil.Amount(100299738), feePerKb, s.buildUTXO(mBTC, 2*mBTC, 1000*mBTC+txSizeOneInput), s.change(0), noDust, s.selectCoins(0, 1, 2))
+
 }
