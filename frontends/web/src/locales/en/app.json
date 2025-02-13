@@ -453,6 +453,25 @@
           "title": "Buying or selling over €50,000?"
         },
         "btcdirectWidget": {
+          "disclaimer": {
+            "description": "We work with BTC Direct, a trusted European broker, to make buying cryptocurrencies easy within the BitBoxApp. This service is available across Europe using bank transfers, credit cards and many local payment methods.",
+            "kyc": {
+              "description": "Customer identity verification is required for all trades. You’ll need to take a selfie and take a picture of an official document.",
+              "title": "Identity verification"
+            },
+            "paymentMethods": {
+              "buy": "Buying: Pay in EUR to get the coins delivered directly to your BitBox. You can choose between one-time and recurring buys. For bank transfers, the exchange rate is fixed when BTC Direct receives the money. Instant methods use a fixed conversion rate for a limited time.",
+              "note": "Note: BTC Direct exchange rates may differ slightly from the BitBoxApp rates.",
+              "title": "Payment Methods and Fees"
+            },
+            "security": {
+              "description": "BTC Direct is an external service not covered by the BitBox02 security threat model. We closely work with BTC Direct to enhance overall security.",
+              "link": "BitBox02 security threat model",
+              "title": "Security"
+            },
+            "title_bitcoin": "Buy bitcoin with BTC Direct",
+            "title_crypto": "Buy crypto with BTC Direct"
+          },
           "infobox": {
             "feesBuying": {
               "bancontact": "Bancontact: {{fee}}%",
@@ -462,7 +481,6 @@
               "title": "Fees for Buying"
             },
             "intro": "European buying of cryptocurrencies with EUR.",
-            "learnmore": "Learn more about BTC Direct",
             "payment": {
               "bancontact": "Bancontact",
               "bankTransfer": "Bank transfer, SEPA Instant, iDEAL",
@@ -470,7 +488,8 @@
               "sofort": "Sofort",
               "title": "Payment methods"
             }
-          }
+          },
+          "learnmore": "Learn more about BTC Direct"
         },
         "moonpay": {
           "fees": {

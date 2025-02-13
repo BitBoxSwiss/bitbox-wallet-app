@@ -21,6 +21,8 @@ import { Button, Checkbox } from '@/components/forms';
 import { setConfig } from '@/utils/config';
 import { IAccount } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
+import { getBTCDirectAboutUsLink } from '@/routes/exchange/components/infocontent';
+import { getBTCDirectPrivacyLink } from './btcdirect-otc-terms';
 import style from './terms.module.css';
 
 type TProps = {
@@ -28,85 +30,52 @@ type TProps = {
   onAgreedTerms: () => void;
 }
 
+const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
+  setConfig({ frontend: { skipBTCDirectWidgetDisclaimer: e.target.checked } });
+};
+
 export const BTCDirectTerms = ({ account, onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
 
-  const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
-    setConfig({ frontend: { skipBTCDirectDisclaimer: e.target.checked } });
-  };
-
-  const coinCode = account.coinCode.toUpperCase();
   const isBitcoin = isBitcoinOnly(account.coinCode);
 
-  // TODO: change the copy of MoonPay terms to BTCDirect
   return (
     <div className={style.disclaimerContainer}>
       <div className={style.disclaimer}>
-        BTC Direct
         <h2 className={style.title}>
-          {t('buy.info.disclaimer.title', {
+          {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.title', {
             context: isBitcoin ? 'bitcoin' : 'crypto'
           })}
         </h2>
-        <p>{t('buy.info.disclaimer.intro.0', { coinCode })}</p>
-        <p>{t('buy.info.disclaimer.intro.1', { coinCode })}</p>
+        <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.description')}</p>
         <h2 className={style.title}>
-          {t('buy.info.disclaimer.payment.title')}
+          {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.title')}
         </h2>
-        <p>{t('buy.info.disclaimer.payment.details', { coinCode })}</p>
-        <div className={style.table}>
-          <table>
-            <colgroup>
-              <col width="*" />
-              <col width="50px" />
-              <col width="*" />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>{t('buy.info.disclaimer.payment.table.method')}</th>
-                <th>{t('buy.info.disclaimer.payment.table.fee')}</th>
-                <th>{t('buy.info.disclaimer.payment.table.description')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{t('buy.info.disclaimer.payment.table.1_method')}</td>
-                <td className={style.nowrap}>1.9 %</td>
-                <td>{t('buy.info.disclaimer.payment.table.1_description')}</td>
-              </tr>
-              <tr>
-                <td>{t('buy.info.disclaimer.payment.table.2_method')}</td>
-                <td className={style.nowrap}>4.9 %</td>
-                <td>{t('buy.info.disclaimer.payment.table.2_description')}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p>{t('buy.info.disclaimer.payment.footnote')}</p>
-        <h2 className={style.title}>
-          {t('buy.info.disclaimer.security.title')}
-        </h2>
+        <ul>
+          <li>
+            <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.buy')}</p>
+          </li>
+        </ul>
+        <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.note')}</p>
         <p>
-          {t('buy.info.disclaimer.security.descriptionGeneric', {
-            context: isBitcoin ? 'bitcoin' : 'crypto'
-          })}
-        </p>
-        <p>
-          <A href="https://bitbox.swiss/bitbox02/threat-model/">
-            {t('buy.info.disclaimer.security.link')}
+          <A href={getBTCDirectAboutUsLink()}>
+            {t('buy.exchange.infoContent.btcdirectWidget.learnmore')}
           </A>
         </p>
         <h2 className={style.title}>
-          {t('buy.info.disclaimer.protection.title')}
+          {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.security.title')}
         </h2>
+        <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.security.description')}</p>
         <p>
-          {t('buy.info.disclaimer.protection.descriptionGeneric', {
-            context: isBitcoin ? 'bitcoin' : 'crypto'
-          })}
+          <A href="https://bitbox.swiss/bitbox02/threat-model/">
+            {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.security.link')}
+          </A>
         </p>
+        <h2 className={style.title}>{t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.title')}</h2>
+        <p>{t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.text')}</p>
         <p>
-          <A href="https://www.moonpay.com/privacy_policy">
-            {t('buy.info.disclaimer.privacyPolicy')}
+          <A href={getBTCDirectPrivacyLink()}>
+            {t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.link')}
           </A>
         </p>
       </div>

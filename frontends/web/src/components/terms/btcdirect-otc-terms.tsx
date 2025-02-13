@@ -26,26 +26,27 @@ type TProps = {
   onContinue: () => void;
 }
 
+export const getBTCDirectPrivacyLink = () => {
+  switch (i18n.resolvedLanguage) {
+  case 'de':
+    return 'https://btcdirect.eu/de-at/datenschutzenklaerung?BitBox';
+  case 'nl':
+    return 'https://btcdirect.eu/nl-nl/privacy-policy?BitBox';
+  case 'es':
+    return 'https://btcdirect.eu/es-es/privacy-policy?BitBox';
+  case 'fr':
+    return 'https://btcdirect.eu/fr-fr/privacy-policy?BitBox';
+  default:
+    return 'https://btcdirect.eu/en-eu/privacy-policy?BitBox';
+  }
+};
+
+const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
+  setConfig({ frontend: { skipBTCDirectOTCDisclaimer: e.target.checked } });
+};
+
 export const BTCDirectOTCTerms = ({ onContinue }: TProps) => {
   const { t } = useTranslation();
-  const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
-    setConfig({ frontend: { skipBTCDirectOTCDisclaimer: e.target.checked } });
-  };
-
-  const getPrivacyLink = () => {
-    switch (i18n.resolvedLanguage) {
-    case 'de':
-      return 'https://btcdirect.eu/de-at/datenschutzenklaerung?BitBox';
-    case 'nl':
-      return 'https://btcdirect.eu/nl-nl/privacy-policy?BitBox';
-    case 'es':
-      return 'https://btcdirect.eu/es-es/privacy-policy?BitBox';
-    case 'fr':
-      return 'https://btcdirect.eu/fr-fr/privacy-policy?BitBox';
-    default:
-      return 'https://btcdirect.eu/en-eu/privacy-policy?BitBox';
-    }
-  };
 
   return (
     <div className={style.disclaimerContainer}>
@@ -84,7 +85,7 @@ export const BTCDirectOTCTerms = ({ onContinue }: TProps) => {
         <h2 className={style.title}>{t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.title')}</h2>
         <p>{t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.text')}</p>
         <p>
-          <A href={getPrivacyLink()}>
+          <A href={getBTCDirectPrivacyLink()}>
             {t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.link')}
           </A>
         </p>

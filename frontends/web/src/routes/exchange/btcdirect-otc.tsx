@@ -17,7 +17,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { BTCDirectOTCTerms } from '@/components/terms/btcdirect-otc-terms';
-import { getBTCDirectLink } from './components/infocontent';
+import { getBTCDirectAboutUsLink } from './components/infocontent';
 import { Header } from '@/components/layout';
 import { open } from '@/api/system';
 import style from './iframe.module.css';
@@ -27,7 +27,7 @@ export const BTCDirectOTC = () => {
   const navigate = useNavigate();
 
   const openBTCDirect = () => {
-    open(getBTCDirectLink());
+    open(getBTCDirectAboutUsLink());
     navigate(-1);
   };
 
