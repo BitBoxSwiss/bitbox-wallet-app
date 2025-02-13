@@ -94,9 +94,9 @@ export const BuySell = ({
 
   const buildInfo = (exchange: exchangesAPI.ExchangeDeals): TInfoContentProps => {
     let paymentFees: TPaymentFee = {};
-    exchange.deals.map(deal => paymentFees[deal.payment] = deal.fee);
+    exchange.deals.forEach(deal => paymentFees[deal.payment] = deal.fee);
     return {
-      info: exchange.exchangeName,
+      exchangeName: exchange.exchangeName,
       paymentFees,
     };
   };
@@ -164,7 +164,7 @@ export const BuySell = ({
                 {isDarkMode ? <ExternalLinkWhite className={style.textIcon}/> : <ExternalLinkBlack className={style.textIcon}/>}
               </p>
             </Message>
-            <InfoButton onClick={() => setInfo({ info: 'btcdirect-otc', paymentFees: {} })} />
+            <InfoButton onClick={() => setInfo({ exchangeName: 'btcdirect-otc', paymentFees: {} })} />
           </div>
         )}
       </div>

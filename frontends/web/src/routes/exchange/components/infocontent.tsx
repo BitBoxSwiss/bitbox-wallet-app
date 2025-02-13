@@ -245,7 +245,7 @@ const RegionInfo = () => {
   );
 };
 
-type Info = TExchangeName | 'region';
+type TExchangeNameOrRegion = TExchangeName | 'region';
 
 export type TPaymentFee = {
   [payment in TPaymentMethod]?: number;
@@ -254,13 +254,13 @@ export type TPaymentFee = {
 export type TInfoContentProps = {
   accounts?: IAccount[];
   paymentFees: TPaymentFee;
-  info: Info;
+  exchangeName: TExchangeNameOrRegion;
 };
 
 export const InfoContent = ({
   accounts,
   paymentFees,
-  info,
+  exchangeName: info,
 }: TInfoContentProps) => {
   switch (info) {
   case 'moonpay':

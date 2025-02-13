@@ -54,7 +54,7 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   const [supportedAccounts, setSupportedAccounts] = useState<IAccount[]>([]);
   const [activeTab, setActiveTab] = useState<exchangesAPI.TExchangeAction>('buy');
 
-  const regionList = useLoad(exchangesAPI.getExchangesByRegion(code));
+  const regionCodes = useLoad(exchangesAPI.getExchangeRegionCodes);
   const nativeLocale = useLoad(getNativeLocale);
   const config = useLoad(getConfig);
 
@@ -69,13 +69,13 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
 
   // update region Select component when `regionList` or `config` gets populated.
   useEffect(() => {
-    if (!regionList || !config) {
+    if (!regionCodes || !config) {
       return;
     }
     const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' }) || '';
-    const regions: TOption[] = regionList.regions.map(region => ({
-      value: region.code,
-      label: regionNames.of(region.code) || region.code
+    const regions: TOption[] = regionCodes.map(code => ({
+      value: code,
+      label: regionNames.of(code) || code
     }));
 
     regions.sort((a, b) => a.label.localeCompare(b.label, i18n.language));
@@ -95,10 +95,10 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
     // user never selected a region preference, will derive it from native locale.
     const userRegion = getRegionNameFromLocale(nativeLocale || '');
     //Region is available in the list
-    const regionAvailable = !!(regionList.regions.find(region => region.code === userRegion));
+    const regionAvailable = !!(regionCodes.find(code => code === userRegion));
     //Pre-selecting the region
     setSelectedRegion(regionAvailable ? userRegion : '');
-  }, [regionList, config, nativeLocale]);
+  }, [regionCodes, config, nativeLocale]);
 
 
   const goToExchange = (exchange: string) => {
@@ -121,14 +121,14 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
       <div className="container">
         <Dialog
           medium
-          title={info && info.info !== 'region' ? getExchangeFormattedName(info.info) : t('buy.exchange.region')}
+          title={info && info.exchangeName !== 'region' ? getExchangeFormattedName(info.exchangeName) : t('buy.exchange.region')}
           onClose={() => setInfo(undefined)}
           open={!!info}
         >
           {info && (
             <InfoContent
               accounts={accounts}
-              info={info.info}
+              exchangeName={info.exchangeName}
               paymentFees={info.paymentFees}
             />
           )}
@@ -145,7 +145,7 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                     regions={regions}
                     selectedRegion={selectedRegion}
                   />
-                  <InfoButton onClick={() => setInfo({ info: 'region', paymentFees: {} })} />
+                  <InfoButton onClick={() => setInfo({ exchangeName: 'region', paymentFees: {} })} />
                 </div>
                 <ExchangeTab
                   onChangeTab={(tab) => {
