@@ -215,7 +215,7 @@ public:
         }
 
         // Needed for the wallet connect workflow.
-        bool verifyWCRequest = requestedUrl.contains(QRegularExpression(R"(^https://verify\.walletconnect\.com/.*$)"));
+        bool verifyWCRequest = requestedUrl.contains(QRegularExpression(R"(^https://verify\.walletconnect\.org/.*$)"));
         if (verifyWCRequest) {
             return;
         }

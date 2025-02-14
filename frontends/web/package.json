@@ -28,7 +28,7 @@
   "dependencies": {
     "@walletconnect/jsonrpc-types": "1.0.4",
     "@walletconnect/types": "2.17.2",
-    "@walletconnect/web3wallet": "1.16.0",
+    "@reown/walletkit": "1.2.0",
     "flag-icons": "7.2.3",
     "i18next": "23.11.5",
     "lightweight-charts": "4.1.4",
