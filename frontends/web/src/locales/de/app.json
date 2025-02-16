@@ -760,7 +760,7 @@
         "kyc": {
           "link": "Lese die Pocket FAQs",
           "p1": "Für den Handel bis zu 950 EUR (1000 CHF) pro Tag sind keine weiteren Dokumente erforderlich.",
-          "p2": "Für größere Beträte ist ein Telefonat mit Pocket notwendig, um den KYC/AML Prozess abzuschließen.",
+          "p2": "Für größere Beträge ist ein Telefonat mit Pocket notwendig, um den KYC/AML Prozess abzuschließen.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
