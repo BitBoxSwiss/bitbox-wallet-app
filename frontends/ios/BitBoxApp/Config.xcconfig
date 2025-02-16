@@ -2,8 +2,8 @@
 // https://help.apple.com/xcode/#/dev745c5c974
 
 // App version
-MARKETING_VERSION = 4.46.3
+MARKETING_VERSION = 4.47.0
 
 // Build number, increment this for every separate publication,
 // even if the app version is the same.
-CURRENT_PROJECT_VERSION = 6
+CURRENT_PROJECT_VERSION = 7
