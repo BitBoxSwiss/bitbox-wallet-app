@@ -47,6 +47,8 @@ const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
         {t('buy.exchange.creditCard')}
       </span>
     );
+  case 'sofort':
+  case 'bancontact':
   default:
     return <>{methodName}</>;
   }
@@ -81,7 +83,7 @@ export const ExchangeProviders = ({
           {getExchangeFormattedName(exchangeName)}
         </p>
         <div className={style.paymentMethodsContainer}>
-          {deals.map(deal => <Deal key={deal.payment} deal={deal}/>)}
+          {deals.map(deal => !deal.isHidden && <Deal key={deal.payment} deal={deal}/>)}
         </div>
       </div>
     </div>

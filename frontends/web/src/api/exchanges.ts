@@ -17,31 +17,24 @@
 import { AccountCode } from './account';
 import { apiGet, apiPost } from '@/utils/request';
 
-export type ExchangeRegionList = {
-  regions: ExchangeRegion[];
-}
-
-export type ExchangeRegion = {
-  code: string;
-  isMoonpayEnabled: boolean;
-  isPocketEnabled: boolean;
-}
-
-export const getExchangesByRegion = (code: string) => {
-  return (): Promise<ExchangeRegionList> => {
-    return apiGet(`exchange/by-region/${code}`);
-  };
+export const getExchangeRegionCodes = (): Promise<string[]> => {
+  return apiGet('exchange/region-codes');
 };
+
+export type TPaymentMethod = 'card' | 'bank-transfer' | 'bancontact' | 'sofort';
 
 export type ExchangeDeal = {
   fee: number;
-  payment: 'card' | 'bank-transfer';
+  payment: TPaymentMethod;
   isFast: boolean;
   isBest: boolean;
+  isHidden: boolean;
 }
 
+export type TExchangeName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc';
+
 export type ExchangeDeals = {
-  exchangeName: 'moonpay' | 'pocket' | 'btcdirect';
+  exchangeName: TExchangeName;
   deals: ExchangeDeal[];
 }
 
@@ -60,7 +53,7 @@ export type TExchangeDealsResponse = ExchangeDealsList | ExchangeError
 
 export type TExchangeAction = 'buy' | 'sell';
 
-export const getExchangeDeals = (action: TExchangeAction, accountCode: AccountCode, region: ExchangeRegion['code']): Promise<TExchangeDealsResponse> => {
+export const getExchangeDeals = (action: TExchangeAction, accountCode: AccountCode, region: string): Promise<TExchangeDealsResponse> => {
   return apiGet(`exchange/deals/${action}/${accountCode}?region=${region}`);
 };
 
@@ -97,6 +90,23 @@ export const getPocketURL = (action: TExchangeAction): Promise<TPocketUrlRespons
   return apiGet(`exchange/pocket/api-url/${action}`);
 };
 
+export type TBTCDirectInfoResponse = {
+  success: true;
+  url: string;
+  apiKey: string;
+  address?: string;
+} | {
+  success: false;
+  errorMessage: string;
+};
+
+export const getBTCDirectInfo = (
+  action: TExchangeAction,
+  code: string,
+): Promise<TBTCDirectInfoResponse> => {
+  return apiGet(`exchange/btcdirect/info/${action}/${code}`);
+};
+
 export type SupportedExchanges= {
   exchanges: string[];
 };
@@ -114,8 +124,8 @@ export type TBtcDirectResponse = {
   success: false;
 };
 
-export const getBtcDirectSupported = (code: AccountCode, region: ExchangeRegion['code']) => {
+export const getBtcDirectOTCSupported = (code: AccountCode, region: string) => {
   return (): Promise<TBtcDirectResponse> => {
-    return apiGet(`exchange/btcdirect/supported/${code}?region=${region}`);
+    return apiGet(`exchange/btcdirect-otc/supported/${code}?region=${region}`);
   };
 };

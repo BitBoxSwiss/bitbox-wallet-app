@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,50 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import type { IAccount } from '@/api/account';
+import type { TExchangeName, TPaymentMethod } from '@/api/exchanges';
+import { i18n } from '@/i18n/i18n';
 import { A } from '@/components/anchor/anchor';
-import style from './infocontent.module.css';
-import { ExchangeDeals } from '@/api/exchanges';
 import { isBitcoinOnly } from '@/routes/account/utils';
-import { IAccount } from '@/api/account';
-import { getBTCDirectLink } from './buysell';
+import style from './infocontent.module.css';
 
-export type Info = ExchangeDeals['exchangeName'] | 'region';
-export type TInfoContentProps = {info: Info, cardFee?: number, bankTransferFee?: number, accounts?: IAccount[]};
-type TMoonPayInfo = {cardFee?: number, bankTransferFee?: number};
-type TPocketInfo = { bankTransferFee?: number };
-type TBTCDirectInfo = { accounts?: IAccount[] }
+export const getBTCDirectOTCLink = () => {
+  switch (i18n.resolvedLanguage) {
+  case 'de':
+    return 'https://btcdirect.eu/de-at/private-trading-contact?BitBox';
+  case 'nl':
+    return 'https://btcdirect.eu/nl-nl/private-trading-contact?BitBox';
+  case 'es':
+    return 'https://btcdirect.eu/es-es/private-trading-contactanos?BitBox';
+  case 'fr':
+    return 'https://btcdirect.eu/fr-fr/private-trading-contact?BitBox';
+  default:
+    return 'https://btcdirect.eu/en-eu/private-trading-contact?BitBox';
+  }
+};
 
-export const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfo) => {
+export const getBTCDirectAboutUsLink = () => {
+  switch (i18n.resolvedLanguage) {
+  case 'de':
+    return 'https://btcdirect.eu/de-at/uber-uns?BitBox';
+  case 'nl':
+    return 'https://btcdirect.eu/nl-nl/over-ons?BitBox';
+  case 'es':
+    return 'https://btcdirect.eu/es-es/sobre-nosotros?BitBox';
+  case 'fr':
+    return 'https://btcdirect.eu/fr-fr/a-propos-de-nous?BitBox';
+  default:
+    return 'https://btcdirect.eu/en-eu/about-btc-direct?BitBox';
+  }
+};
+
+type TMoonPayInfoProps = {
+  cardFee?: number;
+  bankTransferFee?: number;
+};
+
+const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfoProps) => {
   const { t } = useTranslation();
-  const formattedCardFee = cardFee && cardFee * 100;
-  const formattedBankTransferFee = bankTransferFee && bankTransferFee * 100;
   return (
     <div className={style.container}>
       <p>{t('buy.exchange.infoContent.moonpay.supportedCurrencies')}</p>
@@ -57,8 +84,8 @@ export const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfo) => {
       <br />
       <p><b>{t('buy.exchange.infoContent.moonpay.fees.title')}</b></p>
       <ul>
-        <li>{t('buy.exchange.infoContent.moonpay.fees.creditDebitCard', { fee: formattedCardFee })}</li>
-        <li>{t('buy.exchange.infoContent.moonpay.fees.bankTransfer', { fee: formattedBankTransferFee })}</li>
+        <li>{t('buy.exchange.infoContent.moonpay.fees.creditDebitCard', { fee: cardFee })}</li>
+        <li>{t('buy.exchange.infoContent.moonpay.fees.bankTransfer', { fee: bankTransferFee })}</li>
       </ul>
       <br />
       <p><A href="https://www.moonpay.com/">{t('buy.exchange.infoContent.moonpay.fees.learnMore')}</A></p>
@@ -66,9 +93,12 @@ export const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfo) => {
   );
 };
 
-export const PocketInfo = ({ bankTransferFee }: TPocketInfo) => {
+type TPocketInfoProps = {
+  bankTransferFee?: number
+};
+
+const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
   const { t } = useTranslation();
-  const fee = bankTransferFee && bankTransferFee * 100;
   return (
     <div className={style.container}>
       <p>{t('buy.exchange.infoContent.pocket.supportedCurrencies')}</p>
@@ -100,7 +130,9 @@ export const PocketInfo = ({ bankTransferFee }: TPocketInfo) => {
       <br />
       <p><b>{t('buy.exchange.infoContent.pocket.fees.title')}</b></p>
       <ul>
-        <li>{t('buy.exchange.infoContent.pocket.fees.info', { fee })}</li>
+        <li>
+          {t('buy.exchange.infoContent.pocket.fees.info', { fee: bankTransferFee })}
+        </li>
       </ul>
       <br />
       <p>
@@ -116,7 +148,11 @@ export const PocketInfo = ({ bankTransferFee }: TPocketInfo) => {
   );
 };
 
-export const BTCDirectInfo = ({ accounts }: TBTCDirectInfo) => {
+type TBTCDirectOTCInfoProps = {
+  accounts?: IAccount[];
+};
+
+const BTCDirectOTCInfo = ({ accounts }: TBTCDirectOTCInfoProps) => {
   const { t } = useTranslation();
   const hasOnlyBTCAccounts = accounts?.every(({ coinCode }) => isBitcoinOnly(coinCode));
   return (
@@ -139,8 +175,61 @@ export const BTCDirectInfo = ({ accounts }: TBTCDirectInfo) => {
       <p>{t('buy.exchange.infoContent.btcdirect.infobox.kyc')}</p>
       <br />
       <p>
-        <A href={getBTCDirectLink()}>
+        <A href={getBTCDirectOTCLink()}>
           {t('buy.exchange.infoContent.btcdirect.infobox.learnmore')}
+        </A>
+      </p>
+    </div>
+  );
+};
+
+type TBTCDirectInfoProps = {
+  cardFee?: number;
+  bankTransferFee?: number;
+  sofortFee?: number;
+  bancontactFee?: number;
+};
+
+const BTCDirectInfo = ({
+  cardFee,
+  bankTransferFee,
+  sofortFee,
+  bancontactFee,
+}: TBTCDirectInfoProps) => {
+  const { t } = useTranslation();
+  return (
+    <div className={style.container}>
+      <p>{t('buy.exchange.infoContent.btcdirectWidget.infobox.intro')}</p>
+      <br />
+      <p><b>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.title')}</b></p>
+      <br />
+      <ul>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.bankTransfer')}</li>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.creditDebitCard')}</li>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.sofort')}</li>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.bancontact')}</li>
+      </ul>
+      <br />
+      <p><b>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.title')}</b></p>
+      <br />
+      <ul>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bankTransfer', {
+          fee: bankTransferFee
+        })}</li>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.creditDebitCard', {
+          fee: cardFee
+        })}</li>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.sofort', {
+          fee: sofortFee
+        })}</li>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bancontact', {
+          fee: bancontactFee
+        })}</li>
+      </ul>
+      <br />
+      <p>
+        <A href={getBTCDirectAboutUsLink()}>
+          {t('buy.exchange.infoContent.btcdirectWidget.learnmore')}
         </A>
       </p>
     </div>
@@ -156,17 +245,52 @@ const RegionInfo = () => {
   );
 };
 
+type TExchangeNameOrRegion = TExchangeName | 'region';
 
-export const InfoContent = ({ info, cardFee, bankTransferFee, accounts }: TInfoContentProps) => {
+export type TPaymentFee = {
+  [payment in TPaymentMethod]?: number;
+};
+
+export type TInfoContentProps = {
+  accounts?: IAccount[];
+  paymentFees: TPaymentFee;
+  exchangeName: TExchangeNameOrRegion;
+};
+
+export const InfoContent = ({
+  accounts,
+  paymentFees,
+  exchangeName: info,
+}: TInfoContentProps) => {
   switch (info) {
   case 'moonpay':
-    return <MoonPayInfo cardFee={cardFee} bankTransferFee={bankTransferFee} />;
+    return (
+      <MoonPayInfo
+        cardFee={paymentFees['card']}
+        bankTransferFee={paymentFees['bank-transfer']}
+      />
+    );
   case 'pocket':
-    return <PocketInfo bankTransferFee={bankTransferFee} />;
+    return (
+      <PocketInfo bankTransferFee={paymentFees['bank-transfer']} />
+    );
   case 'btcdirect':
-    return <BTCDirectInfo accounts={accounts}/>;
+    return (
+      <BTCDirectInfo
+        cardFee={paymentFees['card']}
+        bankTransferFee={paymentFees['bank-transfer']}
+        bancontactFee={paymentFees['bancontact']}
+        sofortFee={paymentFees['sofort']}
+      />
+    );
+  case 'btcdirect-otc':
+    return (
+      <BTCDirectOTCInfo accounts={accounts} />
+    );
   case 'region':
-    return <RegionInfo />;
+    return (
+      <RegionInfo />
+    );
   }
-  return <></>;
+  return null;
 };
