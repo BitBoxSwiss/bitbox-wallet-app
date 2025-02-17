@@ -24,6 +24,7 @@ import { useSync } from '@/hooks/api';
 import { useKeystores } from '@/hooks/backend';
 import { useDarkmode } from '@/hooks/darkmode';
 import { useDefault } from '@/hooks/default';
+import { Bluetooth } from '@/components/bluetooth/bluetooth';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -64,6 +65,7 @@ export const Waiting = () => {
               <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
               <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
             </div>
+            <Bluetooth />
           </div>
         </div>
         <Footer>

@@ -244,6 +244,8 @@ func (e environment) Auth() {}
 
 func (e environment) OnAuthSettingChanged(bool) {}
 
+func (e environment) BluetoothConnect(string) {}
+
 type mockTransactionsSource struct {
 }
 
