@@ -240,7 +240,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownload).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/electrum/check", handlers.postElectrumCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/exchange/by-region/{code}", handlers.getExchangesByRegion).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/region-codes", handlers.getExchangeRegionCodes).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/deals/{action}/{code}", handlers.getExchangeDeals).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/supported/{code}", handlers.getExchangeSupported).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/btcdirect-otc/supported/{code}", handlers.getExchangeBtcDirectOTCSupported).Methods("GET")
@@ -1262,24 +1262,8 @@ func (handlers *Handlers) getSupportedCoins(*http.Request) interface{} {
 	return result
 }
 
-func (handlers *Handlers) getExchangesByRegion(r *http.Request) interface{} {
-	type errorResult struct {
-		Error string `json:"error"`
-	}
-
-	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
-	if err != nil {
-		handlers.log.Error(err)
-		return errorResult{Error: err.Error()}
-	}
-
-	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
-	if !accountValid {
-		handlers.log.Error("Account not valid")
-		return errorResult{Error: "Account not valid"}
-	}
-
-	return exchanges.ListExchangesByRegion(acct, handlers.backend.HTTPClient())
+func (handlers *Handlers) getExchangeRegionCodes(r *http.Request) interface{} {
+	return exchanges.RegionCodes
 }
 
 func (handlers *Handlers) postBitsuranceLookup(r *http.Request) interface{} {

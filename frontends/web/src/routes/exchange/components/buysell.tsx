@@ -21,7 +21,7 @@ import { useLoad } from '@/hooks/api';
 import * as exchangesAPI from '@/api/exchanges';
 import { Button } from '@/components/forms/button';
 import { AppContext } from '@/contexts/AppContext';
-import { getBTCDirectAboutUsLink, TInfoContentProps } from './infocontent';
+import { getBTCDirectAboutUsLink, TInfoContentProps, TPaymentFee } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { hasPaymentRequest } from '@/api/account';
 import { Message } from '@/components/message/message';
@@ -93,16 +93,11 @@ export const BuySell = ({
   };
 
   const buildInfo = (exchange: exchangesAPI.ExchangeDeals): TInfoContentProps => {
-    const cardFee = exchange.deals.find(feeDetail => feeDetail.payment === 'card')?.fee;
-    const bankTransferFee = exchange.deals.find(feeDetail => feeDetail.payment === 'bank-transfer')?.fee;
-    const bancontactFee = exchange.deals.find(feeDetail => feeDetail.payment === 'bancontact')?.fee;
-    const sofortFee = exchange.deals.find(feeDetail => feeDetail.payment === 'sofort')?.fee;
+    let paymentFees: TPaymentFee = {};
+    exchange.deals.forEach(deal => paymentFees[deal.payment] = deal.fee);
     return {
-      info: exchange.exchangeName,
-      cardFee,
-      bancontactFee,
-      bankTransferFee,
-      sofortFee,
+      exchangeName: exchange.exchangeName,
+      paymentFees,
     };
   };
 
@@ -169,7 +164,7 @@ export const BuySell = ({
                 {isDarkMode ? <ExternalLinkWhite className={style.textIcon}/> : <ExternalLinkBlack className={style.textIcon}/>}
               </p>
             </Message>
-            <InfoButton onClick={() => setInfo({ info: 'btcdirect-otc' })} />
+            <InfoButton onClick={() => setInfo({ exchangeName: 'btcdirect-otc', paymentFees: {} })} />
           </div>
         )}
       </div>

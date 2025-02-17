@@ -23,9 +23,9 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 )
 
-// regionCodes is an array containing ISO 3166-1 alpha-2 code of all regions.
+// RegionCodes is an array containing ISO 3166-1 alpha-2 code of all regions.
 // Source: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-var regionCodes = []string{
+var RegionCodes = []string{
 	"AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ",
 	"BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS",
 	"BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN",
@@ -151,7 +151,7 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 	isBtcDirectSupported := IsBtcDirectSupported(account.Coin().Code())
 
 	exchangeRegions := ExchangeRegionList{}
-	for _, code := range regionCodes {
+	for _, code := range RegionCodes {
 		// default behavior is to show the exchange if the supported regions check fails.
 		moonpayEnabled, pocketEnabled := true, true
 		if moonpayError == nil {
