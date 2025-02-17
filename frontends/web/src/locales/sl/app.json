@@ -402,6 +402,15 @@
       "fast": "Hitro",
       "fee": "provizija",
       "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "paymentMethods": {
+              "sell": "Prodaj bitcoin:"
+            },
+            "title": "Pojasnilo"
+          },
+          "title": "Kupujete ali prodajate več kot 50.000 EUR?"
+        },
         "moonpay": {
           "fees": {
             "bankTransfer": "Bančno nakazilo: {{fee}}%",

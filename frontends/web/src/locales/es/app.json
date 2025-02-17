@@ -97,7 +97,7 @@
     "check": {
       "checking": "Comprobando copia de seguridad ...",
       "confirmTitle": "Comprobar copia de seguridad",
-      "notOK": "La copia de seguridad NO coincide con el monedero.",
+      "notOK": "La copia de seguridad NO coincide con la billetera.",
       "ok": "La copia de seguridad coincide con el monedero.",
       "password": {
         "label": "Contraseña de recuperación",
@@ -197,8 +197,8 @@
       "title": "Establece el nombre de la BitBox02"
     },
     "gotoStartupSettings": {
-      "description": "Esto reiniciará tu BitBox02 y entrará en la configuración de inicio.",
-      "title": "Ir a configuración de inicio"
+      "description": "Esto reiniciará tu BitBox02 y entrará en la configuración de arranque.",
+      "title": "Ir a configuración de arranque"
     }
   },
   "bitbox02Wizard": {
@@ -212,7 +212,7 @@
       "skipSDCardText": "Siempre tienes la opción de crear una copia de seguridad de la tarjeta microSD o escribir tus palabras de recuperación después de la configuración. Esto se puede hacer desde los ajustes.",
       "title": "Opciones avanzadas de copia de seguridad"
     },
-    "attestationFailed": "La comprobación genuina del dispositivo ha fallado, que puede ser debido al reinicio de la aplicación mientras el dispositivo estaba esperando la interacción por parte del usuario. Por favor conecte de nuevo y inténtelo otra vez. Por favor contacte con support@bitbox.swiss si el error persiste.",
+    "attestationFailed": "La comprobación de autenticidad ha fallado, esto se pudo haber debido a que la aplicación fue reiniciada mientras el dispositivo esperaba la interacción del usuario. Por favor, reconéctalo e intenta otra vez. Si el problema persiste, contacta a support@bitbox.swiss.",
     "backup": {
       "point1": "Selecciona una copia de seguridad de la tarjeta microSD",
       "point2": "Establece una contraseña para tu dispositivo",
@@ -284,7 +284,7 @@
     "stepCreateSuccess": {
       "removeMicroSD": "Por favor, extrae la tarjeta microSD de tu BitBox02 y guárdala en un lugar seguro. ",
       "storeMnemonic": "Guarde sus palabras de recuperación en un lugar seguro",
-      "success": "Ha creado su copia de seguridad con éxito."
+      "success": "Has creado una copia de seguridad con éxito."
     },
     "stepInsertSD": {
       "insertSDCard": "Por favor, introduce una microSD en tu BitBox02 para continuar.",
@@ -389,7 +389,7 @@
     "restore": "Restaurar",
     "select": "Selecciona",
     "send": "Enviar",
-    "unlock": "Desbloquea",
+    "unlock": "Desbloquea tu billetera",
     "update": "Actualizar",
     "upgrade": "Actualizar"
   },
@@ -632,7 +632,7 @@
     },
     "expert": {
       "bip85": {
-        "description": "Genere claves hijas desde su billetera BitBox.",
+        "description": "Genera llaves hijas desde tu BitBox.",
         "disclaimer": "Entiendo como funcionan las llaves hijas sus consideraciones de seguridad",
         "how": {
           "description": "Las llaves hijas se muestran como su propias frases de recuperación (frase mnemonica) en tu BitBox. Puedes crear tantas llaves hijas como quieras. Para mostrar una llave hija, se te pedirá el número de esta (es decir, 1.º, 2.º, 3.º, etc.) y la longitud deseada de la frase mnemónica (12, 18 o 24 palabras de recuperación). Recuerda que debes realizar un seguimiento de <strong>número de la llave hija y número de palabras</strong> para poder mostrar la misma frase mnemónica más tarde.",
@@ -1105,7 +1105,7 @@
         "title": "¿Por qué hay tantas direcciones?"
       },
       "whyVerify": {
-        "text": "Una de las razones por las que comprar una cartera de hardware como la BitBox es que no debes confiar en tu ordenador debido a sus numerosos vectores de ataque. No debes confiar en que tu ordenador genere y muestre direcciones auténticas. El botón para verificar la dirección de manera segura hace que BitBox envíe la dirección a un teléfono móvil sincronizado, desde el cual también puedes escanear y verificar el código QR.",
+        "text": "No es recomendable confiar en tu ordenador para generar y mostrar direcciones auténticas. Su amplia superficie de ataque lo hace significativamente más vulnerable que una billetera de hardware. En la BitBox01, el botón para verificar la dirección envía de manera segura la dirección a un teléfono móvil emparejado, desde donde también puedes escanear y verificar el código QR. En la BitBox02, la dirección se puede verificar directamente en la pantalla de la BitBox02.",
         "title": "¿Por qué debo verificar la dirección de forma segura?"
       }
     },
@@ -1648,9 +1648,9 @@
       "estimate": "Tiempo de espera estimado:",
       "label": {
         "custom": "A medida",
-        "economy": "Económico",
-        "high": "Alto",
-        "low": "Bajo",
+        "economy": "Económica",
+        "high": "Alta",
+        "low": "Baja",
         "mEconomy": "Sin prioridad",
         "mFastest": "Alta",
         "mHalfHour": "Media",
@@ -1671,7 +1671,7 @@
     },
     "success": "La transacción ha sido firmada y enviada.",
     "title": "Enviar {{accountName}}",
-    "toggleCoinControl": "Activar/Desactivar control de monedas",
+    "toggleCoinControl": "Control de monedas",
     "transactionDetails": "Detalles de la transacción"
   },
   "settings": {
@@ -1687,7 +1687,7 @@
       "checkSuccess": "La conexión a {{host}} se ha establecido con éxito",
       "checking": "Comprobando",
       "download-cert": "Descargar certificado remoto",
-      "remove-server": "Elimina",
+      "remove-server": "Eliminar",
       "removeConfirm": "Eliminar {{server}}?",
       "reset": "Restablecer a predeterminados",
       "resetConfirm": "¿Deseas eliminar todos los servidores e instalar los servidores predeterminados?",
@@ -1700,7 +1700,7 @@
       "step3": "3",
       "step3-text": "Comprueba la conexión y añade el servidor.",
       "step4": "4",
-      "step4-text": "Reinicia el monedero. Si no eliminas los servidores predeterminados, tu propio nodo se agregará como redundancia.",
+      "step4-text": "Reinicia tu billetera. Si no eliminas los servidores predeterminados, tu propio nodo se agregará como redundancia.",
       "title-btc": "Servidores Electrum de Bitcoin",
       "title-ltc": "Servidores Electrum de Litecoin",
       "title-tbtc": "Servidores  Electrum de Bitcoin Testnet",
@@ -1756,14 +1756,14 @@
       "title": "Servicios"
     },
     "success": "Por favor desenchufa y vuelva a enchufar tu BitBox para que los cambios tengan efecto.",
-    "title": "Ajustes"
+    "title": "Configuración"
   },
   "setup": "Configurar dispositivo",
   "sidebar": {
     "device": "Administrar dispositivo",
     "insurance": "Seguro",
     "leave": "Salir",
-    "settings": "Ajustes"
+    "settings": "Configuración"
   },
   "success": {
     "create": {
@@ -1773,7 +1773,7 @@
       "summary": "Aquí hay un resumen de lo que has hecho.",
       "title": "Éxito"
     },
-    "getstarted": "Empieza",
+    "getstarted": "Empezar",
     "restore": {
       "summary": "Has restaurado con éxito un monedero desde una copia de seguridad.",
       "title": "Éxito"
@@ -1821,7 +1821,7 @@
       "pending_send_to_self": "Pendiente"
     },
     "tx": {
-      "receive_complete": "Recibir a",
+      "receive_complete": "Recibido en",
       "receive_failed": "No se pudo recibir a",
       "receive_pending": "Recibido a",
       "send_complete": "Enviado a",
@@ -1841,7 +1841,7 @@
     "error": {
       "e109_normal": "Contraseña incorrecta del dispositivo. Te queda(n) {{remainingAttempts}} intento(s) antes de que el dispositivo se reinicie.",
       "e109_touch": "$t(unlock.error.e109_normal) El siguiente inicio de sesión requiere mantener presionado el botón táctil.",
-      "e113": "Debido a muchos intentos de inicio de sesión, el siguiente inicio de sesión requiere mantener presionado el botón táctil durante 4 segundos."
+      "e113": "Debido a que has intentado desbloquear muchas veces, el siguiente intento de desbloqueo requerirá mantener presionado el botón táctil durante 4 segundos."
     },
     "input": {
       "label": "Contraseña del dispositivo",
