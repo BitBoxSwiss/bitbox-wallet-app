@@ -73,7 +73,7 @@ export const Lightning = () => {
 
   if (!balance) {
     // Wait for the nodeState to become available
-    return <Spinner guideExists={false} />;
+    return <Spinner />;
   }
 
   const canSend = balance && balance.hasAvailable;
@@ -119,7 +119,7 @@ export const Lightning = () => {
             </ViewHeader>
             <ViewContent fullWidth>
               {offlineErrorTextLines.length || !hasDataLoaded ? (
-                <Spinner guideExists text={initializingSpinnerText} />
+                <Spinner text={initializingSpinnerText} />
               ) : (
                 payments && payments.length > 0 ? (
                   payments
@@ -128,6 +128,12 @@ export const Lightning = () => {
                       addresses: [],
                       amountAtTime: {
                         amount: toSat(payment.amountMsat).toString(),
+                        conversions: {}, // TODO: add conversions
+                        unit: 'sat' as accountApi.CoinUnit,
+                        estimated: false
+                      },
+                      deductedAmountAtTime: {
+                        amount: payment.paymentType === 'sent' ? toSat(payment.amountMsat + payment.feeMsat).toString() : '',
                         conversions: {}, // TODO: add conversions
                         unit: 'sat' as accountApi.CoinUnit,
                         estimated: false

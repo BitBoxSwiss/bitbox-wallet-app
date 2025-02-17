@@ -19,7 +19,7 @@ import { useDarkmode } from '@/hooks/darkmode';
 import { LanguageSwitch } from '@/components/language/language';
 import { Version } from '@/components/layout/version';
 import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '@/components/icon/logo';
-import { AnimatedChecked, Close } from '@/components/icon/icon';
+import { AnimatedChecked, Abort, Close } from '@/components/icon/icon';
 import style from './view.module.css';
 
 type TViewProps = {
@@ -106,12 +106,28 @@ export const View = ({
 };
 
 type TViewContentProps = {
-    children: ReactNode;
-    fullWidth?: boolean;
-    minHeight?: string;
-    textAlign?: 'center' | 'left';
-    withIcon?: 'success';
+  children: ReactNode;
+  fullWidth?: boolean;
+  minHeight?: string;
+  textAlign?: 'center' | 'left';
+  withIcon?: 'success' | 'error';
 }
+
+const ViewIcon = ({
+  withIcon,
+}: Pick<TViewContentProps, 'withIcon'>) => {
+  switch (withIcon) {
+  case 'error':
+    return (
+      <Abort className={style.largeIcon} />
+    );
+  case 'success':
+    return (
+      <AnimatedChecked className={style.largeIcon} />
+    );
+  }
+  return null;
+};
 
 /**
  * ViewContent useful for all sorts of content, text, images, grids and forms
@@ -136,9 +152,7 @@ export const ViewContent = ({
       className={classes}
       style={minHeight ? { minHeight } : {}}
       {...props}>
-      {withIcon === 'success' && (
-        <AnimatedChecked className={style.largeIcon} />
-      )}
+      <ViewIcon withIcon={withIcon} />
       {children}
     </div>
   );

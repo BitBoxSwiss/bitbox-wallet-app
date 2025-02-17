@@ -45,7 +45,7 @@ const SendingSpinner = () => {
     setStep(t('lightning.send.sending.message'));
   }, 4000);
 
-  return <Spinner text={message} guideExists={false} />;
+  return <Spinner text={message} />;
 };
 
 type InvoiceInputProps = {

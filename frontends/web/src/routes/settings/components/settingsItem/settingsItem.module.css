@@ -32,6 +32,8 @@
 .rightContentContainer {
     align-items: center;
     display: flex;
+    justify-content: flex-end;
+    width: 50%;
 }
 
 .displayedValue {

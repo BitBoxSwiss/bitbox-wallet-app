@@ -76,6 +76,10 @@
   .overlayRemove {
     width: 0;
   }
+
+  .placeholderContainer {
+    padding: 0 var(--space-half);
+  }
 }
 
 .totalValue {

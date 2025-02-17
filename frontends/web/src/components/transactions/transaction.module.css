@@ -88,34 +88,12 @@
     padding-bottom: 4px;
   }
 }
-.txConversionAmount {
-  font-variant: tabular-nums;
-}
 
 .txAmount-receive {
   color: var(--color-darkgreen);
 }
 :global(.dark-mode) .txAmount-receive {
   color: var(--color-green);
-}
-
-.txPrefix,
-.txUnit {
-  color: var(--color-secondary);
-  font-size: 14px;
-  line-height: 1.285714;
-}
-.txConversionAmount .txUnit {
-  font-size: 12px;
-}
-
-.txSmallInlineIcon img {
-  max-height: 15px;
-  max-width: 15px;
-  vertical-align: text-bottom;
-}
-.txConversionAmount .txSmallInlineIcon {
-  padding-right: var(--space-eight);
 }
 
 .txNote {

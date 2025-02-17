@@ -126,7 +126,6 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
         <div className="innerContainer scrollableContainer">
           <Header title={<h2>{title}</h2>} />
           <div className={[style.exchangeContainer, 'content', 'narrow', 'isVerticallyCentered'].join(' ')}>
-            <h1 className={style.title}>{title}</h1>
             <p className={style.label}>{t('buy.exchange.region')}</p>
             {regions.length ? (
               <>
@@ -159,7 +158,7 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                   />
                 </div>
               </>
-            ) : <Spinner guideExists/>}
+            ) : <Spinner />}
           </div>
         </div>
       </div>

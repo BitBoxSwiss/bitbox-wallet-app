@@ -288,6 +288,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Please insert a microSD card into your BitBox02 to continue.",
+      "insertSDCardToSeeBackups": "Please insert the microSD card into your BitBox02 to see your backups.",
       "insertSDcardTitle": "Insert microSD card"
     },
     "stepPassword": {
@@ -1427,6 +1428,9 @@
       "customFees": {
         "description": "Lets you enter your own fee when sending."
       },
+      "restartInTestnet": {
+        "description": "Explore and test features by using testnet."
+      },
       "torProxy": {
         "description": "Connect over Tor for better privacy."
       }
@@ -1710,6 +1714,7 @@
     },
     "availableBalance": "Available balance",
     "button": "Review",
+    "buyEth": "Buy ETH",
     "coincontrol": {
       "address": "Address",
       "addressReused": "Address re-used",
@@ -1724,6 +1729,7 @@
       "to": "To",
       "total": "Total"
     },
+    "edit": "Edit transaction",
     "error": {
       "erc20InsufficientGasFunds": "It seems like you do not have enough Ether to pay for this ERC20 transaction. Please make sure you hold enough Ether in your wallet",
       "feeTooLow": "fee too low",
@@ -1775,6 +1781,7 @@
     },
     "maximum": "Send all",
     "maximumSelectedCoins": "Send selected coins",
+    "newTransaction": "New transaction",
     "noFeeTargets": "Fee rate estimations are currently unavailable. Please try again later or enter a custom fee.",
     "priority": "Priority",
     "scanQR": "Scan QR code",
@@ -1831,6 +1838,7 @@
         "title": "Export logs"
       },
       "fee": "Enable custom fees",
+      "restartInTestnet": "Testnet mode",
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",
       "useProxy": "Enable tor proxy",

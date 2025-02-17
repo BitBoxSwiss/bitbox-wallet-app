@@ -1,0 +1,21 @@
+.container {
+    padding: calc(var(--space-default) * 1.5) 0;
+    text-align: center;
+}
+
+.buttons {
+    display: flex;
+    gap: var(--space-half);
+    justify-content: center;
+}
+
+.walletConnect span {
+    margin-left: var(--space-eight);
+}
+
+@media (max-width: 425px) {
+    .buttons button {
+        padding: var(--space-quarter);
+        font-size: 14px;
+    }
+}

@@ -218,7 +218,7 @@ export const Pocket = ({ code, action }: TProps) => {
     if (result.success) {
       let txNote = t('buy.pocket.paymentRequestNote') + ' ' + message.slip24.recipientName;
       const sendResult = await sendTx(code, txNote);
-      if (!sendResult.success && !sendResult.aborted) {
+      if (!sendResult.success && !('aborted' in sendResult)) {
         alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
       }
     } else {
@@ -290,7 +290,7 @@ export const Pocket = ({ code, action }: TProps) => {
           ) : (
             <div style={{ height }}>
               <UseDisableBackButton />
-              {!iframeLoaded && <Spinner guideExists={false} text={t('loading')} /> }
+              {!iframeLoaded && <Spinner text={t('loading')} /> }
               <iframe
                 onLoad={() => {
                   setIframeLoaded(true);
@@ -301,7 +301,7 @@ export const Pocket = ({ code, action }: TProps) => {
                 height={height}
                 frameBorder="0"
                 className={style.iframe}
-                allow="camera; payment"
+                allow="camera; payment; clipboard-write;"
                 src={iframeURL}>
               </iframe>
             </div>

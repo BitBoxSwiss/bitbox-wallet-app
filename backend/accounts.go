@@ -1237,7 +1237,7 @@ outer:
 // a user-facing setting. Now we simply use it for migration to decide which coins to add by
 // default.
 func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore, accountsConfig *config.AccountsConfig) error {
-	if backend.arguments.Testing() {
+	if backend.Testing() {
 		if backend.arguments.Regtest() {
 			if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinpkg.CodeRBTC) {
 				if _, err := backend.createAndPersistAccountConfig(
@@ -1499,7 +1499,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 	switch {
 	case backend.arguments.Regtest():
 		coinCodes = []coinpkg.Code{coinpkg.CodeRBTC}
-	case backend.arguments.Testing():
+	case backend.Testing():
 		coinCodes = []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC}
 	default:
 		coinCodes = []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC}

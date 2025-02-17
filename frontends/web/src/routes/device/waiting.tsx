@@ -38,7 +38,7 @@ export const Waiting = () => {
 
   if (loadingAccounts) {
     return (
-      <Spinner guideExists text={t('welcome.loadingAccounts')} />
+      <Spinner text={t('welcome.loadingAccounts')} />
     );
   }
   return (
