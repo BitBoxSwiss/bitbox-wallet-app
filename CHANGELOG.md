@@ -3,6 +3,7 @@
 ## Unreleased
 
 # 4.47.0
+- Bundle BitBox02 firmware version v9.22.0
 - Fix long transaction notes to show fully on multiple lines when necessary
 - Improve send-to-self transactions in account overview
 - Use native scrollbars on macOS, iOS and Android
