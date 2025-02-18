@@ -203,7 +203,7 @@ func (keystore *Keystore) BTCXPubs(
 
 func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	keystore.log.Info("Sign transaction.")
-	transaction := btcProposedTx.TXProposal.Transaction
+	transaction := btcProposedTx.TXProposal.Psbt.UnsignedTx
 	signatures := make([]*types.Signature, len(transaction.TxIn))
 	sigHashes := btcProposedTx.TXProposal.SigHashes()
 	for index, txIn := range transaction.TxIn {

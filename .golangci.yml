@@ -120,6 +120,7 @@ linters:
     - predeclared
     - tenv
     - recvcheck
+    - godot
   disable-all: false
 
 issues:
