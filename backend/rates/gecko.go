@@ -16,21 +16,21 @@ const (
 	maxGeckoRange = 364 * 24 * time.Hour
 )
 
-// apiRateLimit specifies the minimal interval between equally spaced API calls
+// apiRateLimit specifies the maximum number of API calls per second
 // to one of the supported exchange rates providers.
-func apiRateLimit(baseURL string) time.Duration {
+func apiRateLimit(baseURL string) float64 {
 	switch baseURL {
 	default:
-		return time.Second // arbitrary; localhost, staging, etc.
+		return 1 // arbitrary; localhost, staging, etc.
 	case coingeckoAPIV3:
 		// API calls. From https://www.coingecko.com/en/api:
 		// > Generous rate limits with up to 100 requests/minute
 		// We use slightly lower value.
-		return 2 * time.Second
+		return 0.5
 	case shiftGeckoMirrorAPIV3:
 		// Avoid zero to prevent unexpected panics like in time.NewTicker
 		// and leave some room to breathe.
-		return 10 * time.Millisecond
+		return 100
 	}
 }
 
