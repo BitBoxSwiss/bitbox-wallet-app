@@ -645,7 +645,7 @@ func (backend *Backend) Start() <-chan interface{} {
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
 
-	if backend.DefaultAppConfig().Backend.StartInTestnet {
+	if backend.config.AppConfig().Backend.StartInTestnet {
 		if err := backend.config.ModifyAppConfig(func(c *config.AppConfig) error { c.Backend.StartInTestnet = false; return nil }); err != nil {
 			backend.log.WithError(err).Error("Can't set StartInTestnet to false")
 		}

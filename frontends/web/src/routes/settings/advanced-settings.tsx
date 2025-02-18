@@ -48,7 +48,7 @@ export type TFrontendConfig = {
 export type TBackendConfig = {
   proxy?: TProxyConfig
   authentication?: boolean;
-  restartInTestnet?: boolean;
+  startInTestnet?: boolean;
 }
 
 export type TConfig = {
