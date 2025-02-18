@@ -231,7 +231,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		}
 	}
 	account.log.Debugf("creating tx with %d inputs, %d outputs",
-		len(txProposal.Transaction.TxIn), len(txProposal.Transaction.TxOut))
+		len(txProposal.Psbt.UnsignedTx.TxIn), len(txProposal.Psbt.UnsignedTx.TxOut))
 	return utxo, txProposal, nil
 }
 
@@ -259,20 +259,21 @@ func (account *Account) SendTx(txNote string) (string, error) {
 	}
 
 	account.log.Info("Signing and sending transaction")
-	if err := account.signTransaction(txProposal, account.coin.Blockchain().TransactionGet); err != nil {
+	signedTx, err := account.signTransaction(txProposal, account.coin.Blockchain().TransactionGet)
+	if err != nil {
 		return "", errp.WithMessage(err, "Failed to sign transaction")
 	}
 
 	account.log.Info("Signed transaction is broadcasted")
-	if err := account.coin.Blockchain().TransactionBroadcast(txProposal.Transaction); err != nil {
+	if err := account.coin.Blockchain().TransactionBroadcast(signedTx); err != nil {
 		return "", err
 	}
 
-	if err := account.SetTxNote(txProposal.Transaction.TxHash().String(), txNote); err != nil {
+	if err := account.SetTxNote(signedTx.TxHash().String(), txNote); err != nil {
 		// Not critical.
 		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")
 	}
-	return txProposal.Transaction.TxID(), nil
+	return signedTx.TxID(), nil
 }
 
 // TxProposal creates a tx from the relevant input and returns information about it for display in

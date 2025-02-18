@@ -28,6 +28,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/btcutil/psbt"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
@@ -49,8 +50,7 @@ type TxProposal struct {
 	// Amount is the amount that is sent out. The fee is not included and is deducted on top.
 	Amount btcutil.Amount
 	// Fee is the mining fee used.
-	Fee         btcutil.Amount
-	Transaction *wire.MsgTx
+	Fee btcutil.Amount
 	// ChangeAddress is the address of the wallet to which the change of the transaction is sent.
 	ChangeAddress   *addresses.AccountAddress
 	PreviousOutputs PreviousOutputs
@@ -60,11 +60,12 @@ type TxProposal struct {
 	SilentPaymentAddress string
 	// OutIndex is the index of the output we send to.
 	OutIndex int
+	Psbt     *psbt.Packet
 }
 
 // SigHashes computes the hashes cache to speed up per-input sighash computations.
 func (txProposal *TxProposal) SigHashes() *txscript.TxSigHashes {
-	return txscript.NewTxSigHashes(txProposal.Transaction, txProposal.PreviousOutputs)
+	return txscript.NewTxSigHashes(txProposal.Psbt.UnsignedTx, txProposal.PreviousOutputs)
 }
 
 // Total is amount+fee.
@@ -209,15 +210,19 @@ func NewTxSpendAll(
 	log.WithField("fee", maxRequiredFee).Debug("Preparing transaction to spend all outputs")
 
 	setRBF(coin, unsignedTransaction)
+	psbt, err := psbt.NewFromUnsignedTx(unsignedTransaction)
+	if err != nil {
+		return nil, err
+	}
 	return &TxProposal{
 		Coin:                 coin,
 		Amount:               btcutil.Amount(output.Value),
 		Fee:                  maxRequiredFee,
-		Transaction:          unsignedTransaction,
 		PreviousOutputs:      spendableOutputs,
 		SilentPaymentAddress: outputInfo.silentPaymentAddress,
 		// Only one output in send-all
 		OutIndex: 0,
+		Psbt:     psbt,
 	}, nil
 }
 
@@ -307,15 +312,20 @@ func NewTx(
 		}
 
 		setRBF(coin, unsignedTransaction)
+		psbt, err := psbt.NewFromUnsignedTx(unsignedTransaction)
+		if err != nil {
+			return nil, err
+		}
+
 		return &TxProposal{
 			Coin:                 coin,
 			Amount:               targetAmount,
 			Fee:                  finalFee,
-			Transaction:          unsignedTransaction,
 			ChangeAddress:        changeAddress,
 			PreviousOutputs:      previousOutputs,
 			SilentPaymentAddress: outputInfo.silentPaymentAddress,
 			OutIndex:             outIndex,
+			Psbt:                 psbt,
 		}, nil
 	}
 }
