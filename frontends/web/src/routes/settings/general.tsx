@@ -33,7 +33,7 @@ import { TPagePropsWithSettingsTabs } from './types';
 import { GlobalBanners } from '@/components/banners';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 
-export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   return (
     <GuideWrapper>
@@ -52,7 +52,7 @@ export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) 
             } />
           <View fullscreen={false}>
             <ViewContent>
-              <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu deviceIDs={deviceIDs}>
+              <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu devices={devices}>
                 <SubTitle>
                   {t('settings.appearance')}
                 </SubTitle>

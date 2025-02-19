@@ -29,6 +29,7 @@ import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Message } from '@/components/message/message';
 import { translate, TranslateProps } from '@/decorators/translate';
 import { WithSettingsTabs } from './components/tabs';
+import { TPagePropsWithSettingsTabs } from './types';
 import { View, ViewContent } from '@/components/view/view';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { Badge } from '@/components/badge/badge';
@@ -40,11 +41,9 @@ import style from './manage-accounts.module.css';
 
 interface ManageAccountsProps {
   accounts: accountAPI.IAccount[];
-  deviceIDs: string[];
-  hasAccounts: boolean;
 }
 
-type Props = ManageAccountsProps & TranslateProps;
+type Props = ManageAccountsProps & TPagePropsWithSettingsTabs & TranslateProps;
 
 type TShowTokens = {
   readonly [key in string]: boolean;
@@ -215,7 +214,7 @@ class ManageAccounts extends Component<Props, State> {
   };
 
   public render() {
-    const { t, accounts, deviceIDs, hasAccounts } = this.props;
+    const { t, accounts, devices, hasAccounts } = this.props;
     const { editErrorMessage, currentlyEditedAccount } = this.state;
     const accountsByKeystore = getAccountsByKeystore(accounts);
     return (
@@ -235,7 +234,7 @@ class ManageAccounts extends Component<Props, State> {
               } />
             <View fullscreen={false}>
               <ViewContent>
-                <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts}>
+                <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>
                   <Button
                     className={style.addAccountBtn}
                     primary

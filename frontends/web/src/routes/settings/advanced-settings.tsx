@@ -56,7 +56,7 @@ export type TConfig = {
   frontend?: TFrontendConfig
 }
 
-export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   const fetchedConfig = useLoad(getConfig) as TConfig;
   const [config, setConfig] = useState<TConfig>();
@@ -87,7 +87,7 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs
-                deviceIDs={deviceIDs}
+                devices={devices}
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >

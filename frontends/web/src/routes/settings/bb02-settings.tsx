@@ -55,7 +55,7 @@ export const StyledSkeleton = () => {
   );
 };
 
-const BB02Settings = ({ deviceID, deviceIDs, hasAccounts }: TWrapperProps) => {
+const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
   const { t } = useTranslation();
   return (
     <Main>
@@ -75,7 +75,7 @@ const BB02Settings = ({ deviceID, deviceIDs, hasAccounts }: TWrapperProps) => {
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs
-                deviceIDs={deviceIDs}
+                devices={devices}
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >

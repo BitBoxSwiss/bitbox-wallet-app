@@ -16,17 +16,18 @@
  */
 
 import { getStatus } from '@/api/bitbox02';
+import type { TDevices } from '@/api/devices';
 import { statusChanged } from '@/api/devicessync';
 import { useSync } from '@/hooks/api';
 import { BB02Settings } from '@/routes/settings/bb02-settings';
 
 type TProps = {
   deviceID: string;
-  deviceIDs: string[];
+  devices: TDevices;
   hasAccounts: boolean;
 }
 
-export const BitBox02 = ({ deviceID, deviceIDs, hasAccounts }: TProps) => {
+export const BitBox02 = ({ deviceID, devices, hasAccounts }: TProps) => {
   const status = useSync(
     () => getStatus(deviceID),
     cb => statusChanged(deviceID, () => {
@@ -37,5 +38,5 @@ export const BitBox02 = ({ deviceID, deviceIDs, hasAccounts }: TProps) => {
   if (status !== 'initialized') {
     return null;
   }
-  return <BB02Settings deviceID={deviceID} deviceIDs={deviceIDs} hasAccounts={hasAccounts} />;
+  return <BB02Settings deviceID={deviceID} devices={devices} hasAccounts={hasAccounts} />;
 };
