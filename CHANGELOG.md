@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Reduced support for BitBox01
 
 # 4.47.0
 - Bundle BitBox02 firmware version v9.22.0
