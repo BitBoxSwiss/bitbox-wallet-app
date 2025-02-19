@@ -21,6 +21,7 @@ import (
 	"math/big"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -110,7 +111,7 @@ func TestAccount(t *testing.T) {
 	account := mockAccount(t, nil)
 	require.False(t, account.Synced())
 	require.NoError(t, account.Initialize())
-	require.True(t, account.Synced())
+	require.Eventually(t, func() bool { return account.Synced() }, time.Second, time.Millisecond*200)
 
 	balance, err := account.Balance()
 	require.NoError(t, err)
@@ -201,7 +202,7 @@ func TestSignAddress(t *testing.T) {
 func TestIsChange(t *testing.T) {
 	account := mockAccount(t, nil)
 	require.NoError(t, account.Initialize())
-	require.True(t, account.Synced())
+	require.Eventually(t, func() bool { return account.Synced() }, time.Second, time.Millisecond*200)
 	account.ensureAddresses()
 	for _, subaccunt := range account.subaccounts {
 		unusedReceiveAddresses, err := subaccunt.receiveAddresses.GetUnused()
