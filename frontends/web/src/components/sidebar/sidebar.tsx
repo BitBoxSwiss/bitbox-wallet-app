@@ -41,7 +41,6 @@ import { Button } from '@/components/forms';
 import style from './sidebar.module.css';
 
 type SidebarProps = {
-  deviceIDs: string[];
   devices: TDevices;
   accounts: IAccount[];
 };
@@ -76,7 +75,6 @@ const eject = (e: React.SyntheticEvent): void => {
 };
 
 const Sidebar = ({
-  deviceIDs,
   devices,
   accounts,
 }: SidebarProps) => {
@@ -84,6 +82,8 @@ const Sidebar = ({
   const { pathname } = useLocation();
   const [ canUpgrade, setCanUpgrade ] = useState(false);
   const { activeSidebar, sidebarStatus, toggleSidebar } = useContext(AppContext);
+
+  const deviceIDs: string[] = Object.keys(devices);
 
   useEffect(() => {
     const checkUpgradableDevices = async () => {

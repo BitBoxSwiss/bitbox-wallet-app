@@ -159,7 +159,6 @@ export const App = () => {
           <AuthRequired/>
           <Sidebar
             accounts={activeAccounts}
-            deviceIDs={deviceIDs}
             devices={devices}
           />
           <div className={styles.appContent}>
