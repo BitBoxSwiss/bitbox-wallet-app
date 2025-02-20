@@ -42,7 +42,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
-	electrumTypes "github.com/BitBoxSwiss/block-client-go/electrum/types"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -352,8 +351,8 @@ func (account *Account) Initialize() error {
 
 		account.subaccounts = append(account.subaccounts, subacc)
 	}
-	account.ensureAddresses()
-	account.coin.Blockchain().HeadersSubscribe(account.onNewHeader)
+
+	go account.ensureAddresses()
 
 	return account.BaseAccount.Initialize(accountIdentifier)
 }
@@ -422,14 +421,6 @@ func (account *Account) Info() *accounts.Info {
 	return &accounts.Info{
 		SigningConfigurations: signingConfigurations,
 	}
-}
-
-func (account *Account) onNewHeader(header *electrumTypes.Header) {
-	if account.isClosed() {
-		account.log.Debug("Ignoring new header after the account was closed")
-		return
-	}
-	account.log.WithField("block-height", header.Height).Debug("Received new header")
 }
 
 // FatalError returns true if the account had a fatal error.
