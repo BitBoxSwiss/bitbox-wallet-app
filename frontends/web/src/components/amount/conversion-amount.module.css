@@ -7,7 +7,7 @@
   align-items: baseline;
   display: flex;
   font-variant: tabular-nums;
-  justify-content: end;
+  margin-left: auto;
   gap: var(--space-eight);
 }
 
