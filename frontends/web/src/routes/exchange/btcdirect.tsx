@@ -177,7 +177,7 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
                     height={height}
                     frameBorder="0"
                     className={`${style.iframe} ${!iframeLoaded ? style.hide : ''}`}
-                    allow="camera"
+                    allow="camera; clipboard-write;"
                     src={btcdirectInfo.url}>
                   </iframe>
                 )}
