@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Reduced support for BitBox01
 
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
 

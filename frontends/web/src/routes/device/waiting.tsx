@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { i18n } from '@/i18n/i18n';
 import { getDeviceList } from '@/api/devices';
 import { syncDeviceList } from '@/api/devicessync';
 import { useSync } from '@/hooks/api';
 import { useKeystores } from '@/hooks/backend';
 import { useDarkmode } from '@/hooks/darkmode';
+import { useDefault } from '@/hooks/default';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -31,9 +34,18 @@ import style from './bitbox01/bitbox01.module.css';
 export const Waiting = () => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
-
+  const navigate = useNavigate();
   const keystores = useKeystores();
-  const devices = useSync(getDeviceList, syncDeviceList);
+  const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
+
+  // BitBox01 does not have any accounts anymore, so we route directly to the device settings.
+  useEffect(() => {
+    const deviceValues = Object.values(devices);
+    if (deviceValues.length === 1 && deviceValues[0] === 'bitbox') {
+      navigate(`settings/device-settings/${Object.keys(devices)[0]}`);
+    }
+  }, [devices, navigate]);
+
   const loadingAccounts = (keystores !== undefined && keystores.length) || (devices !== undefined && Object.keys(devices).length);
 
   if (loadingAccounts) {

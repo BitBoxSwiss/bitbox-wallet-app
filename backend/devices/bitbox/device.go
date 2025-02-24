@@ -265,12 +265,6 @@ func (dbb *Device) fireEvent(event event.Event, data interface{}) {
 
 func (dbb *Device) onStatusChanged() {
 	dbb.fireEvent(EventStatusChanged, nil)
-	switch dbb.Status() {
-	case StatusSeeded:
-		dbb.fireEvent(event.EventKeystoreAvailable, nil)
-	case StatusUninitialized:
-		dbb.fireEvent(event.EventKeystoreGone, nil)
-	}
 }
 
 // Status returns the device state. See the Status* constants.
@@ -1205,32 +1199,6 @@ func (dbb *Device) Sign(
 	return signatures, nil
 }
 
-// displayAddress triggers the display of the address at the given key path.
-func (dbb *Device) displayAddress(keyPath string, typ string) error {
-	if dbb.bootloaderStatus != nil {
-		return errp.WithStack(errNoBootloader)
-	}
-	if dbb.channel == nil {
-		dbb.log.Debug("The address is not displayed because no pairing was found.")
-		return nil
-	}
-	reply, err := dbb.sendKV("xpub", keyPath, dbb.pin)
-	if err != nil {
-		dbb.log.WithError(err).Error("Could not retrieve the xpub from the BitBox.")
-		return nil
-	}
-	xpubEcho, ok := reply["echo"].(string)
-	if !ok {
-		dbb.log.Error("The echo from the BitBox to display the address is not a string.")
-		return nil
-	}
-	if err := dbb.channel.SendXpubEcho(xpubEcho, typ); err != nil {
-		dbb.log.WithError(err).Error("Sending the xpub echo to the mobile failed.")
-		return nil
-	}
-	return nil
-}
-
 // ecdhPKhash passes the hash of the ECDH public key of the mobile to the device and returns its response.
 func (dbb *Device) ecdhPKhash(mobileECDHPKhash string) (interface{}, error) {
 	if dbb.bootloaderStatus != nil {
@@ -1372,13 +1340,7 @@ func (dbb *Device) ExtendedPublicKey(keypath signing.AbsoluteKeypath) (*hdkeycha
 
 // Keystore implements device.Interface.
 func (dbb *Device) Keystore() keystoreInterface.Keystore {
-	if dbb.Status() != StatusSeeded {
-		return nil
-	}
-	return &keystore{
-		dbb: dbb,
-		log: dbb.log,
-	}
+	panic("BitBox01 keystore unavailable")
 }
 
 // Lock locks the device for 2FA. Returns true if successful and false if aborted by the user.
