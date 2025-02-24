@@ -21,7 +21,7 @@ import { useLoad } from '@/hooks/api';
 import * as exchangesAPI from '@/api/exchanges';
 import { Button } from '@/components/forms/button';
 import { AppContext } from '@/contexts/AppContext';
-import { getBTCDirectAboutUsLink, TInfoContentProps, TPaymentFee } from './infocontent';
+import { getBTCDirectOTCLink, TInfoContentProps, TPaymentFee } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { hasPaymentRequest } from '@/api/account';
 import { Message } from '@/components/message/message';
@@ -156,7 +156,7 @@ export const BuySell = ({
                     {t('buy.exchange.infoContent.btcdirect.link')}
                   </Link>
                 ) : (
-                  <A href={getBTCDirectAboutUsLink()} className={style.link}>
+                  <A href={getBTCDirectOTCLink()} className={style.link}>
                     {t('buy.exchange.infoContent.btcdirect.link')}
                   </A>
                 )}
