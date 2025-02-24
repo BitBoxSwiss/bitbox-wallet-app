@@ -17,6 +17,7 @@
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
+import type { TDevices, TProductName } from '@/api/devices';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
 import { SettingsItem } from './settingsItem/settingsItem';
@@ -25,7 +26,7 @@ import styles from './tabs.module.css';
 
 type TWithSettingsTabsProps = {
   children: ReactNode;
-  deviceIDs: string[];
+  devices: TDevices;
   hasAccounts: boolean;
   hideMobileMenu?: boolean;
 }
@@ -38,14 +39,14 @@ type TTab = {
 }
 
 type TTabs = {
-  deviceIDs: string[];
+  devices: TDevices;
   hasAccounts: boolean;
   hideMobileMenu?: boolean;
 }
 
 export const WithSettingsTabs = ({
   children,
-  deviceIDs,
+  devices,
   hideMobileMenu,
   hasAccounts,
 }: TWithSettingsTabsProps) => {
@@ -54,7 +55,7 @@ export const WithSettingsTabs = ({
       <div className="hide-on-small">
         <Tabs
           hideMobileMenu={hideMobileMenu}
-          deviceIDs={deviceIDs}
+          devices={devices}
           hasAccounts={hasAccounts}
         />
       </div>
@@ -100,12 +101,12 @@ export const Tab = ({
 
 type TTabWithVersionCheck = TTab & {
   deviceID: string;
+  device: TProductName;
 }
 
-const TabWithVersionCheck = ({ deviceID, ...props }: TTabWithVersionCheck) => {
-
-  const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
-
+const TabWithVersionCheck = ({ deviceID, device, ...props }: TTabWithVersionCheck) => {
+  const isBitBox02 = device === 'bitbox02';
+  const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID]);
   return (
     <Tab
       canUpgrade={versionInfo ? versionInfo.canUpgrade : false}
@@ -114,7 +115,7 @@ const TabWithVersionCheck = ({ deviceID, ...props }: TTabWithVersionCheck) => {
   );
 };
 
-export const Tabs = ({ deviceIDs, hideMobileMenu, hasAccounts }: TTabs) => {
+export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
   const { t } = useTranslation();
   return (
     <div className={styles.container}>
@@ -132,10 +133,11 @@ export const Tabs = ({ deviceIDs, hideMobileMenu, hasAccounts }: TTabs) => {
           url="/settings/manage-accounts"
         />
       ) : null}
-      {deviceIDs.map(id => (
+      {Object.keys(devices).map(id => (
         <TabWithVersionCheck
           key={`device-${id}`}
           deviceID={id}
+          device={devices[id]}
           hideMobileMenu={hideMobileMenu}
           name={t('sidebar.device')}
           url={`/settings/device-settings/${id}`}

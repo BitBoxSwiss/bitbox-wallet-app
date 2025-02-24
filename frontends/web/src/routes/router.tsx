@@ -194,7 +194,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const MobileSettingsEl = (<InjectParams>
     <MobileSettings
-      deviceIDs={deviceIDs}
+      devices={devices}
       hasAccounts={hasAccounts}
 
     />
@@ -202,21 +202,21 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const GeneralEl = (<InjectParams>
     <General
-      deviceIDs={deviceIDs}
+      devices={devices}
       hasAccounts={hasAccounts}
     />
   </InjectParams>);
 
   const AboutEl = (<InjectParams>
     <About
-      deviceIDs={deviceIDs}
+      devices={devices}
       hasAccounts={hasAccounts}
     />
   </InjectParams>);
 
   const AdvancedSettingsEl = (<InjectParams>
     <AdvancedSettings
-      deviceIDs={deviceIDs}
+      devices={devices}
       hasAccounts={hasAccounts}
     />
   </InjectParams>);
@@ -276,7 +276,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
             <ManageAccounts
               accounts={accounts}
               key="manage-accounts"
-              deviceIDs={deviceIDs}
+              devices={devices}
               hasAccounts={hasAccounts} />
           } />
         </Route>

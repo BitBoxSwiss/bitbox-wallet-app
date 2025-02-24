@@ -33,7 +33,7 @@ import { GlobalBanners } from '@/components/banners';
  * we see on Desktop, as it's the equivalent
  * of "tabs" on Mobile.
  **/
-export const MobileSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const MobileSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { t } = useTranslation();
@@ -51,7 +51,7 @@ export const MobileSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetting
       <Header title={<h2>{t('settings.title')}</h2>} />
       <View fullscreen={false}>
         <ViewContent>
-          <Tabs deviceIDs={deviceIDs} hasAccounts={hasAccounts} />
+          <Tabs devices={devices} hasAccounts={hasAccounts} />
         </ViewContent>
       </View>
     </Main>
