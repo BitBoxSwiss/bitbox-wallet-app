@@ -19,6 +19,7 @@ package bridgecommon
 import (
 	"bytes"
 	"encoding/hex"
+	"encoding/json"
 	"net/http"
 	"runtime"
 	"runtime/debug"
@@ -28,6 +29,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bluetooth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
@@ -192,6 +194,7 @@ type BackendEnvironment struct {
 	DetectDarkThemeFunc      func() bool
 	AuthFunc                 func()
 	OnAuthSettingChangedFunc func(bool)
+	BluetoothConnectFunc     func(string)
 }
 
 // NotifyUser implements backend.Environment.
@@ -267,6 +270,13 @@ func (env *BackendEnvironment) Auth() {
 func (env *BackendEnvironment) OnAuthSettingChanged(enabled bool) {
 	if env.OnAuthSettingChangedFunc != nil {
 		env.OnAuthSettingChangedFunc(enabled)
+	}
+}
+
+// BluetoothConnect implements backend.Environment.
+func (env *BackendEnvironment) BluetoothConnect(identifier string) {
+	if env.BluetoothConnectFunc != nil {
+		env.BluetoothConnectFunc(identifier)
 	}
 }
 
@@ -368,4 +378,20 @@ func UsbUpdate() {
 		return
 	}
 	globalBackend.UsbUpdate()
+}
+
+// BluetoothSetState wraps backend.Bluetooth().SetState.
+// The json byte are parsed according to `bluetooth.State`.
+func BluetoothSetState(jsonState string) error {
+	mu.RLock()
+	defer mu.RUnlock()
+	if globalBackend == nil {
+		return nil
+	}
+	var state bluetooth.State
+	if err := json.Unmarshal([]byte(jsonState), &state); err != nil {
+		return err
+	}
+	globalBackend.Bluetooth().SetState(&state)
+	return nil
 }
