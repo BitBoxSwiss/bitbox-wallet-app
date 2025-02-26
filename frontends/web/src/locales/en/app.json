@@ -735,6 +735,7 @@
       "title": "Hardware"
     },
     "loading": "Retrieving device info…",
+    "noDevice": "No devices connected",
     "pairing": {
       "lock": {
         "false": "Disabled",

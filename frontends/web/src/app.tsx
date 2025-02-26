@@ -68,6 +68,7 @@ export const App = () => {
     const currentURL = window.location.hash.replace(/^#/, '');
     const isIndex = currentURL === '' || currentURL === '/';
     const inAccounts = currentURL.startsWith('/account/');
+    const deviceIDs = Object.keys(devices);
 
     // QT and Android start their apps in '/index.html' and '/android_asset/web/index.html' respectively
     // This re-routes them to '/' so we have a simpler uri structure
@@ -86,13 +87,21 @@ export const App = () => {
     }
     // if no devices are registered on specified views route to /
     if (
-      Object.keys(devices).length === 0
+      deviceIDs.length === 0
       && (
         currentURL.startsWith('/settings/device-settings/')
         || currentURL.startsWith('/manage-backups/')
       )
     ) {
       navigate('/');
+      return;
+    }
+    // if device is connected route to device settings
+    if (
+      deviceIDs.length === 1
+      && currentURL === '/settings/no-device-connected'
+    ) {
+      navigate(`/settings/device-settings/${deviceIDs[0]}`);
       return;
     }
     // if on an account that isn't registered route to /

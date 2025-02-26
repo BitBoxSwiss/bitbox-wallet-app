@@ -30,6 +30,7 @@ import { Receive } from './account/receive';
 import { SendWrapper } from './account/send/send-wrapper';
 import { AccountsSummary } from './account/summary/accountssummary';
 import { DeviceSwitch } from './device/deviceswitch';
+import { NoDeviceConnected } from './device/no-device-connected';
 import { ManageBackups } from './device/manage-backups/manage-backups';
 import { ManageAccounts } from './settings/manage-accounts';
 import { ElectrumSettings } from './settings/electrum';
@@ -82,6 +83,16 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       hasAccounts={hasAccounts}
     />
   </InjectParams>);
+
+  const NoDevice = (
+    <InjectParams>
+      <NoDeviceConnected
+        key="no-device-connected"
+        devices={devices}
+        hasAccounts={hasAccounts}
+      />
+    </InjectParams>
+  );
 
   const Acc = (<InjectParams>
     <Account
@@ -268,6 +279,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path="general" element={GeneralEl} />
           <Route path="about" element={AboutEl} />
           <Route path="device-settings/:deviceID" element={Device} />
+          <Route path="no-device-connected" element={NoDevice} />
           <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
           <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
           <Route path="advanced-settings" element={AdvancedSettingsEl} />
