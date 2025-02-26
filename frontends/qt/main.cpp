@@ -379,11 +379,7 @@ int main(int argc, char *argv[])
         preferredLocale = uiLangs.first();
     }
 
-    QThread workerThread;
     webClass = new WebClass();
-    // Run client queries in a separate thread to not block the UI.
-    webClass->moveToThread(&workerThread);
-    workerThread.start();
 
     serve(
         // cppHeapFree
@@ -480,8 +476,6 @@ int main(int argc, char *argv[])
         delete view;
         view = nullptr;
         webClassMutex.unlock();
-        workerThread.quit();
-        workerThread.wait();
     });
 
 #if defined(_WIN32)
