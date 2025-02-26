@@ -32,8 +32,6 @@ if [ "$OS_NAME" == "osx" ]; then
     # GitHub CI installs Go and Qt directly in the macos action, before executing
     # this script.
     go version
-    export LDFLAGS="-L~/Qt/6.2.4/macos/lib"
-    export CPPFLAGS="-I~/Qt/6.2.4/macos/include"
     export GOPATH=~/go
     export PATH="$PATH:~/go/bin"
     mkdir -p $GOPATH/$(dirname $GO_SRC_DIR)

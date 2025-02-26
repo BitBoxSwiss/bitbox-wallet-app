@@ -68,7 +68,8 @@ apt-get install -y --no-install-recommends \
         libnss3-dev \
         libicu-dev \
         libpcre2-16-0 \
-        libxkbfile-dev
+        libxkbfile-dev \
+        libxcb-cursor0
 
 # Install Qt libs. python3-dev is needed to compile aqtinstall.
 apt-get -y install --no-install-recommends python3-pip python3-dev
@@ -77,7 +78,7 @@ pip install -U pip && pip install aqtinstall
 # qtpositioning depends on qtserialport.
 # qtwebchannel is for the JS/backend bridge.
 # qtwebengine is for rendering the frontend.
-aqt install-qt linux desktop 6.2.4 -m qtpositioning qtserialport qtwebchannel qtwebengine --outputdir /opt/qt6
+aqt install-qt linux desktop 6.8.2 -m qtpositioning qtserialport qtwebchannel qtwebengine --outputdir /opt/qt6
 
 npm install -g npm@10
 npm install -g locize-cli
