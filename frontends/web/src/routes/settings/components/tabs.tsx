@@ -117,6 +117,7 @@ const TabWithVersionCheck = ({ deviceID, device, ...props }: TTabWithVersionChec
 
 export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
   const { t } = useTranslation();
+  const deviceIDs = Object.keys(devices);
   return (
     <div className={styles.container}>
       <Tab
@@ -132,8 +133,15 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
           name={t('manageAccounts.title')}
           url="/settings/manage-accounts"
         />
-      ) : null}
-      {Object.keys(devices).map(id => (
+      ) : (
+        <Tab
+          key="no-accounts"
+          hideMobileMenu={hideMobileMenu}
+          name={t('manageAccounts.title')}
+          url="/settings/no-accounts"
+        />
+      )}
+      {deviceIDs.length ? deviceIDs.map(id => (
         <TabWithVersionCheck
           key={`device-${id}`}
           deviceID={id}
@@ -142,7 +150,14 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
           name={t('sidebar.device')}
           url={`/settings/device-settings/${id}`}
         />
-      )) }
+      )) : (
+        <Tab
+          key="no-device"
+          hideMobileMenu={hideMobileMenu}
+          name={t('sidebar.device')}
+          url="/settings/no-device-connected"
+        />
+      )}
       <Tab
         key="advanced-settings"
         hideMobileMenu={hideMobileMenu}
