@@ -280,6 +280,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path="about" element={AboutEl} />
           <Route path="device-settings/:deviceID" element={Device} />
           <Route path="no-device-connected" element={NoDevice} />
+          <Route path="no-accounts" element={NoDevice} />
           <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
           <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
           <Route path="advanced-settings" element={AdvancedSettingsEl} />

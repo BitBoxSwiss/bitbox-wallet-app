@@ -125,6 +125,11 @@ export const App = () => {
       navigate('/');
       return;
     }
+    // if in no-accounts settings and has account go to manage-accounts
+    if (accounts.length && currentURL === '/settings/no-accounts') {
+      navigate('/settings/manage-accounts');
+      return;
+    }
 
   }, [accounts, devices, navigate]);
 

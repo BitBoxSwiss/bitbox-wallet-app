@@ -133,7 +133,14 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
           name={t('manageAccounts.title')}
           url="/settings/manage-accounts"
         />
-      ) : null}
+      ) : (
+        <Tab
+          key="no-accounts"
+          hideMobileMenu={hideMobileMenu}
+          name={t('manageAccounts.title')}
+          url="/settings/no-accounts"
+        />
+      )}
       {deviceIDs.length ? deviceIDs.map(id => (
         <TabWithVersionCheck
           key={`device-${id}`}
