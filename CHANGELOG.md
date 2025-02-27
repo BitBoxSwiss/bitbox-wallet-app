@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Removed the BTC/sat switch from the general settings in favor of a rotating unit in the account balance.
 - Reduced support for BitBox01
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
 - Replace sidebar with bottom navigation bar for mobile devices
