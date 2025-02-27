@@ -4,6 +4,7 @@
 - Reduced support for BitBox01
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
 - Upgraded to Qt 6.8.2, dropping support for macOS 11 and Ubuntu 20.04.
+- Removed the BTC/sat switch from the general settings in favor of a rotating unit in the account balance.
 
 # 4.47.0
 - Bundle BitBox02 firmware version v9.22.0
