@@ -354,12 +354,22 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 
 	addressCounts := make(map[string]int)
 
-	for _, output := range t.SpendableOutputs() {
+	spendableOutputs, err := t.SpendableOutputs()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, output := range spendableOutputs {
 		address := output.Address.EncodeForHumans()
 		addressCounts[address]++
 	}
 
-	for _, output := range t.SpendableOutputs() {
+	spendableOutputs, err = t.SpendableOutputs()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, output := range spendableOutputs {
 		address := output.Address.EncodeForHumans()
 		addressReused := addressCounts[address] > 1
 
@@ -381,15 +391,29 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 }
 
 func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) {
-	balance, err := handlers.account.Balance()
-	if err != nil {
-		return nil, err
+	type balance struct {
+		HasAvailable bool            `json:"hasAvailable"`
+		Available    FormattedAmount `json:"available"`
+		HasIncoming  bool            `json:"hasIncoming"`
+		Incoming     FormattedAmount `json:"incoming"`
 	}
-	return map[string]interface{}{
-		"hasAvailable": balance.Available().BigInt().Sign() > 0,
-		"available":    handlers.formatAmountAsJSON(balance.Available(), false),
-		"hasIncoming":  balance.Incoming().BigInt().Sign() > 0,
-		"incoming":     handlers.formatAmountAsJSON(balance.Incoming(), false),
+
+	type result struct {
+		Success bool    `json:"success"`
+		Balance balance `json:"balance,omitempty"`
+	}
+	accountBalance, err := handlers.account.Balance()
+	if err != nil {
+		return result{Success: false}, nil
+	}
+	return result{
+		Success: true,
+		Balance: balance{
+			HasAvailable: accountBalance.Available().BigInt().Sign() > 0,
+			Available:    handlers.formatAmountAsJSON(accountBalance.Available(), false),
+			HasIncoming:  accountBalance.Incoming().BigInt().Sign() > 0,
+			Incoming:     handlers.formatAmountAsJSON(accountBalance.Incoming(), false),
+		},
 	}, nil
 }
 

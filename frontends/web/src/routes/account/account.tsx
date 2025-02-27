@@ -155,7 +155,12 @@ const RemountAccount = ({
     }
     if (status.synced && status.offlineError === null) {
       Promise.all([
-        accountApi.getBalance(code).then(setBalance),
+        accountApi.getBalance(code).then(
+          balance => {
+            if (balance.success) {
+              setBalance(balance.balance);
+            }
+          }),
         accountApi.getTransactionList(code).then(setTransactions),
       ])
         .catch(console.error);

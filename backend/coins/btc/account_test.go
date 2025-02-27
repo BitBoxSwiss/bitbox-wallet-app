@@ -120,7 +120,9 @@ func TestAccount(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, accounts.OrderedTransactions{}, transactions)
 
-	require.Equal(t, []*SpendableOutput{}, account.SpendableOutputs())
+	spendableOutputs, err := account.SpendableOutputs()
+	require.NoError(t, err)
+	require.Equal(t, []*SpendableOutput{}, spendableOutputs)
 }
 
 func TestInsuredAccountAddresses(t *testing.T) {

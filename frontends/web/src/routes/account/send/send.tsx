@@ -94,7 +94,12 @@ class Send extends Component<Props, State> {
 
   public componentDidMount() {
     const updateBalance = (code: string) => accountApi.getBalance(code)
-      .then(balance => this.setState({ balance }))
+      .then(balance => {
+        if (!balance.success) {
+          return;
+        }
+        this.setState({ balance: balance.balance });
+      })
       .catch(console.error);
 
     updateBalance(this.props.account.code);
