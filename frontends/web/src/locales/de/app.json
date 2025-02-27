@@ -73,6 +73,8 @@
   "aopp": {
     "addressRequest": "{{host}} fordert eine Empfangsadresse an.",
     "addressRequestWithLogo": "fordert eine Empfangsadresse an",
+    "addressRequestWithLogoAndXPub": "fordert eine Empfangsadresse und öffentlichen Schlüssel (xpub) an.",
+    "addressRequestWithXPub": "{{host}} fordert eine Empfangsadresse und öffentlichen Schlüssel (xpub) an.",
     "banner": "Adressanfrage in Bearbeitung. Bitte verbinde dein Gerät um fortzufahren.",
     "errorTitle": "Fehler während Adressanfrage",
     "labelAddress": "Adresse",
@@ -84,7 +86,8 @@
       "title": "Adresse erfolgreich übermittelt"
     },
     "syncing": "Konto wird synchronisiert, bitte warten.",
-    "title": "Adressanfrage"
+    "title": "Adressanfrage",
+    "xpubRequested": "Das Teilen eines xpub ermöglicht externen Anbietern die Adressen des Accounts zu sehen. Deine Coins bleiben sicher und unter deiner Kontrolle."
   },
   "app": {
     "upgrade": "Eine neue Version der App ist verfügbar! Bitte aktualisiere von {{current}} auf {{version}}."
@@ -288,6 +291,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Bitte stecke die microSD Karte in deine BitBox02 um fortzufahren",
+      "insertSDCardToSeeBackups": "Bitte stecke die microSD-Karte in deine BitBox02, um deine Backups zu sehen.",
       "insertSDcardTitle": "MicroSD Karte einstecken"
     },
     "stepPassword": {
@@ -450,6 +454,45 @@
           },
           "link": "Zugang zum BTC Direct - Private Trading Desk",
           "title": "Kauf oder Verkauf über 50.000 €?"
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "description": "Wir arbeiten mit BTC Direct, einem bewährten europäischen Broker, um den Kauf von Kryptowährungen in der BitBoxApp einfach zu gestalten. Dieser Service ist in ganz Europa verfügbar und unterstützt Banküberweisungen, Kreditkarten und viele lokale Zahlungsmethoden.",
+            "kyc": {
+              "description": "Eine Identitätsverifizierung (KYC) ist für Kunden bei allen Transaktionen notwendig. Dafür erstellst du ein Bild von dir und von einem offiziellen Dokument.",
+              "title": "Identitätsverifizierung"
+            },
+            "paymentMethods": {
+              "buy": "Kaufen: Zahle mit EUR und erhalte deine Coins direkt auf deine BitBox. Du kannst zwischen einmaligen und wiederkehrenden Käufen auswählen. Bei Banküberweisungen greift der Wechselkurs zu dem Zeitpunkt, wenn BTC Direct das Geld erhält. Direkte Zahlungsmethoden nutzen einen für eine kurze Zeit festgelegten Wechselkurs.",
+              "note": "Hinweis: Wechselkurse von BTC Direct können leicht von denen der BitBoxApp abweichen.",
+              "title": "Zahlungsmethoden und Gebühren"
+            },
+            "security": {
+              "description": "BTC Direct ist ein externer Service, der nicht vom Bedrohungsmodell der BitBox02 abgedeckt wird. Wir arbeiten eng mit BTC Direct zusammen, um für eine insgesamt bessere Sicherheit zu sorgen.",
+              "link": "Bedrohungsmodell der BitBox02",
+              "title": "Sicherheit"
+            },
+            "title_bitcoin": "Kaufe Bitcoin mit BTC Direct",
+            "title_crypto": "Kaufe Krypto mit BTC Direct"
+          },
+          "infobox": {
+            "feesBuying": {
+              "bancontact": "Bancontact: {{fee}}%",
+              "bankTransfer": "Banküberweisung, SEPA, iDEAL: {{fee}}%",
+              "creditDebitCard": "Kreditkarten, Cartes Bancaires: {{fee}}%",
+              "sofort": "Sofort: {{fee}}%",
+              "title": "Gebühren beim Kauf"
+            },
+            "intro": "Europäisches Kaufen von Kryptowährungen mit EUR.",
+            "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "Banküberweisung, SEPA Instant, iDEAL",
+              "creditDebitCard": "Kreditkarten (Mastercard, Visa), Cartes Bancaires",
+              "sofort": "Sofort",
+              "title": "Zahlungsmethoden"
+            }
+          },
+          "learnmore": "Erfahre mehr über BTC Direct"
         },
         "moonpay": {
           "fees": {
@@ -1317,6 +1360,9 @@
       "customFees": {
         "description": "Ermöglicht es dir, beim Senden deine eigene Gebühr festzulegen."
       },
+      "restartInTestnet": {
+        "description": "Entdecke und teste Funktionen im Testnet."
+      },
       "torProxy": {
         "description": "Stelle für mehr Privatsphäre eine Verbindung über Tor her."
       }
@@ -1348,6 +1394,10 @@
         "title": "Sprache"
       },
       "remebmerWallet": {
+        "enable": {
+          "description": "Die Konten dieser Wallet sind nun sichtbar, ohne die BitBox anzuschließen. Die BitBox wird weiterhin benötigt, um Transaktionen zu erstellen und Empfangsadressen anzuzeigen.",
+          "title": "Wallet gemerkt"
+        },
         "name": "Wallet merken",
         "warning": "Dies wird dein gemerktes Wallet entfernen. Um es wieder zu sehen musst du die BitBox02 für dieses Wallet verbinden. Alle Coins auf diesem Wallet werden nicht beeinflusst. Möchtest du fortfahren?",
         "warningTitle": "Deaktiviere \"Wallet merken\""
@@ -1596,6 +1646,7 @@
     },
     "availableBalance": "Kontostand",
     "button": "Prüfen",
+    "buyEth": "ETH kaufen",
     "coincontrol": {
       "address": "Adresse",
       "addressReused": "Adresse mehrmals verwendet",
@@ -1610,6 +1661,7 @@
       "to": "An",
       "total": "Gesamt"
     },
+    "edit": "Transaktion bearbeiten",
     "error": {
       "erc20InsufficientGasFunds": "Es scheint, als hättest du nicht genug Ether, um für diese ERC20-Transaktion zu bezahlen. Bitte vergewissere dich, dass du genug Ether in deiner Wallet hast.",
       "feeTooLow": "Gebühr zu niedrig",
@@ -1661,6 +1713,7 @@
     },
     "maximum": "Alles senden",
     "maximumSelectedCoins": "Ausgewählte Coins senden",
+    "newTransaction": "Neue Transaktion",
     "noFeeTargets": "Gebührenschätzungen sind derzeit nicht verfügbar. Bitte versuche es später erneut oder gib eine benutzerdefinierte Gebühr ein.",
     "priority": "Priorität",
     "scanQR": "QR Code scannen",
@@ -1717,6 +1770,7 @@
         "title": "Logs exportieren"
       },
       "fee": "Eigene Gebühr aktivieren",
+      "restartInTestnet": "Testnet-Modus",
       "setProxyAddress": "Proxy Adresse eingeben",
       "title": "Erweiterte Einstellungen",
       "useProxy": "Tor Proxy aktivieren",

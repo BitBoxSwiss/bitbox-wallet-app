@@ -62,17 +62,19 @@
       "title": "Izberi kriptovaluto"
     },
     "success": {
-      "addAnotherAccount": "Dodajte nov račun",
+      "addAnotherAccount": "Dodaj nov račun",
       "message": "<strong> {{accountName}} </strong> je zdaj dodan med vaše račune.",
       "nextButton": "OK",
       "step": "Zaklljučeno",
       "title": "Račun dodan"
     },
-    "title": "Dodajte račun"
+    "title": "Dodaj račun"
   },
   "aopp": {
     "addressRequest": "{{host}} zahteva naslov prejemnika.",
     "addressRequestWithLogo": "zahteva naslov prejemnika",
+    "addressRequestWithLogoAndXPub": "zahteva naslov za prejem in javni ključ (xpub).",
+    "addressRequestWithXPub": "{{host}} zahteva naslov za prejem in javni ključ (xpub).",
     "banner": "Zahteva po naslovu je v teku. Priklopite BitBox02 za nadaljevanje.",
     "errorTitle": "Napaka med zahtevo za naslov",
     "labelAddress": "Naslov",
@@ -84,7 +86,8 @@
       "title": "Naslov uspešno poslan"
     },
     "syncing": "Počakajte trenutek, poteka sinhronizacija računa.",
-    "title": "Zahteva za naslov"
+    "title": "Zahteva za naslov",
+    "xpubRequested": "Če delite svoj xpub, lahko zunanja storitev vidi naslove in vrednsoti na vaših računih (naslovih). Vaši kovanci so kljub temu na varnem in pod vašim nadzorom."
   },
   "app": {
     "upgrade": "Na voljo je nova verzija te aplikacije! Prosimo vas, da jo nadgradite iz verzije  {{current}} na {{version}}."
@@ -288,6 +291,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Vstavite microSD kartico v BitBox02.",
+      "insertSDCardToSeeBackups": "Vstavite microSD kartico v BitBox02 za pregled shranjenih varnostnih kopij.",
       "insertSDcardTitle": "Vstavite microSD kartico"
     },
     "stepPassword": {
@@ -390,26 +394,105 @@
     "select": "Izberite",
     "send": "Pošlji",
     "unlock": "Odklenite denarnico",
-    "update": "Osveži",
+    "update": "Shrani",
     "upgrade": "Nadgradi"
   },
   "buy": {
     "exchange": {
       "bankTransfer": "Bančno nakazilo",
       "bestDeal": "Najboljša ponudba",
-      "buy": "Nakup",
+      "buy": "Kupi",
       "creditCard": "Kreditna karica",
       "fast": "Hitro",
       "fee": "provizija",
       "infoContent": {
         "btcdirect": {
           "disclaimer": {
+            "dataProtection": {
+              "link": "Politika zasebnosti BTC Direct",
+              "text": "BitBoxApp ne zbira osebnih podatkov. BTC Direct zbira osebne podatke v skladu s svojo politiko zasebnosti, da izpolnjujejo regulativne standarde.",
+              "title": "Varnost podatkov"
+            },
+            "kyc": {
+              "text": "Za vse posle je potrebno preverjanje identitete stranke. Vaš upravitelj računa vas bo vodil skozi postopek in odgovoril na morebitna vprašanja.",
+              "title": "Preverjanje identitete"
+            },
+            "partnership": {
+              "text": "V sodelovanju z BTC Direct, zaupanja vrednim evropskim posrednikom, BitBox ponuja trgovanje na prostem trgu (OTC) za Bitcoin, Ethereum, stabilne kovance in drugo s strokovno podporo neposredno v aplikaciji BitBoxApp.",
+              "title": "Kupite ali prodajte z osebnim računom pri BTC Direct"
+            },
             "paymentMethods": {
-              "sell": "Prodaj bitcoin:"
+              "buy": "Nakup bitcoina:",
+              "buy2": "Pri svojem upravitelju računa oddajte naročila večje vrednosti, pridobite fiksno ceno storitve in plačajte z bančnim nakazilom. Vaša kripto sredstva bodo po plačilu prenešena neposredno v vaš BitBox.",
+              "fee": "Minimalni znesek trgovanja je 50.000 € s provizijo med 0,5 % in 1 %, ki je v naprej predstavljena.",
+              "sell": "Prodaj bitcoin:",
+              "sell2": "Pri oddaji prodajnega naročila pridobite fiksno ceno na OTC oz. prostem trgu. Ko pošljete kripto sredstva na BTC Direct oni izvedejo nakazilo v EUR. Po potrebi je na voljo osebna pomoč.",
+              "title": "Načini plačila in provizije"
+            },
+            "personal": {
+              "text": "Vsaki stranki Private Trading je dodeljen namenski upravitelj računa za prilagojeno pomoč prek telefona, video klica, e-pošte ali klepeta. Nakupne in prodajne cene se določijo takoj, ko je naročilo oddano, tudi če do poravnave pride pozneje. Naročila se izvajajo prek mize OTC BTC Direct, kar zmanjšuje odstopanje od trenu.tnih cen.",
+              "title": "Osebna storitev s fiksno ceno"
+            },
+            "security": {
+              "link": "Pred čem varuje BitBox02",
+              "text": "Private Trading Desk družbe BTC Direct je zunanja storitev, ki je varnosni model denarnice BitBox02 ne ščiti. Kljub vsemu BTC Direct dobro pozna produkte BitBox in ponuja varno, strokovno vodenje. BitBox preverjaja naslove med transakcijami in tako omogoča varen prejem kriptovalut.",
+              "title": "Varnost"
             },
             "title": "Pojasnilo"
           },
+          "info": "Z osebnim svetovalcem in z znižano provizijo oddajte naročila neposredno prek vašega kontakta v BTC Direct.",
+          "infobox": {
+            "intro_btconly": "Zagotovite si osebno pomoč pri trgovanju z bitcoini v prosti prodaji (OTC) pri naročilih visoke vrednosti.",
+            "intro_multi": "Zagotovite si osebno pomoč pri trgovanju na prostem trgu (OTC) z naročili visokih vrednosti za Bitcoin, stabilne kovance na omrežju Ethereum in drugim.",
+            "kyc": "BTC Direct zahteva preverjanje identitete za trgovanje pri njih, vaš upravitelj računa pa vas vodi skozi vse korake.",
+            "learnmore": "Kako deluje zasebni trgovalni račun pri BTC Direct.",
+            "listItem1": "Kupite in prodajte kadar koli tako, da se obrnete na svojega upravitelja računa po telefonu, e-pošti, video klicu ali klepetu.",
+            "listItem2": "Plačila se izvedejo z bančnim nakazilom po oddaji naročila.",
+            "listItem3": "Minimalni znesek naročila: 50.000 €.",
+            "listItem4": "Provizije so določene na 0,5 %-1 %, kar vključuje osebno vodenje skozi postopek.",
+            "manager": "Imeli boste osebnega upravitelja računa, ki vas bo vodil pri vsakem koraku in zagotavljal varno, preprosto izkušnjo s fiksnimi provizijami oz. minimalnim odstopanjem."
+          },
+          "link": "Dostop do BTC Direct - Private Trading Desk",
           "title": "Kupujete ali prodajate več kot 50.000 EUR?"
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "description": "Sodelujemo z BTC Direct, zaupanja vrednim evropskim posrednikom, da olajšamo nakup kriptovalut v aplikaciji BitBoxApp. Ta storitev je na voljo po vsej Evropi z uporabo bančnih nakazil, kreditnih kartic in številnih lokalnih načinov plačila.",
+            "kyc": {
+              "description": "Za vse posle je potrebno preverjanje identitete stranke. Posneti boste morali selfi in fotografirati uradni dokument.",
+              "title": "Preverjanje identitete"
+            },
+            "paymentMethods": {
+              "buy": "Nakup: Plačajte z EUR, da prejmete kovance neposredno v vaš BitBox. Izbirate lahko med enkratnimi ali ponavljajočimi se nakupi. Za bančna nakazila je menjalni tečaj fiksen, ko BTC Direct prejme denar. Hitrejše metode plačil (Instant SEPA) ponujajo fiksni tečaj le za omejen čas.",
+              "note": "Opomba: menjalni tečaji pri BTC Direct se lahko nekoliko razlikujejo od tečajev v BitBoxApp.",
+              "title": "Načini plačila in provizije"
+            },
+            "security": {
+              "description": "BTC Direct je zunanja storitev, ki je varnostni model denarnice BitBox02 ne ščiti. Seveda sodelujemo z BTC Direct da je varnost transakcij in podatkov najvišja možna.",
+              "link": "Pred čem varuje BitBox02",
+              "title": "Varnost"
+            },
+            "title_bitcoin": "Kupite bitcoin preko BTC Direct",
+            "title_crypto": "Kupi kriptovalute pri BTC Direct"
+          },
+          "infobox": {
+            "feesBuying": {
+              "bancontact": "Bancontact: {{fee}}%",
+              "bankTransfer": "Bančno nakazilo, SEPA, iDEAL: {{fee}}%",
+              "creditDebitCard": "Kreditne kartice, Cartes Bancaires: {{fee}}%",
+              "sofort": "Sofort: {{fee}}%",
+              "title": "Provizije za nakup"
+            },
+            "intro": "Nakup kriptovalut z EUR za Evropejce.",
+            "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "Bančno nakazilo, SEPA Instant, iDEAL",
+              "creditDebitCard": "Kreditne kartice (Mastercard, Visa), Cartes Bancaires",
+              "sofort": "Sofort",
+              "title": "Načini plačila"
+            }
+          },
+          "learnmore": "Več o BTC Direct"
         },
         "moonpay": {
           "fees": {
@@ -469,7 +552,7 @@
       "noExchanges": "V tej regiji žal ni razpoložljivih menjalnic.",
       "region": "Regija",
       "selectRegion": "Ni navedeno",
-      "sell": "Prodaja"
+      "sell": "Prodaj"
     },
     "info": {
       "continue": "Potrdi in nadaljuj",
@@ -1277,6 +1360,9 @@
       "customFees": {
         "description": "To vam omogoča vnos poljubne višine provizije za transakcijo."
       },
+      "restartInTestnet": {
+        "description": "Preizkusite funkcije z uporabo testnega omrežja \"testnet\""
+      },
       "torProxy": {
         "description": "Povežite se preko Tor omrežja za več zasebnosti."
       }
@@ -1308,6 +1394,10 @@
         "title": "Jezik"
       },
       "remebmerWallet": {
+        "enable": {
+          "description": "Zdaj si lahko ogledate račune, povezane s to denarnico, ne da bi BitBox vstavili v računalnik ali telefon. Seveda je BitBox še vedno potreben za izvajanje transakcij in prikaz prejemnih naslovov.",
+          "title": ""
+        },
         "name": "Zapomni si denarnico",
         "warning": "Odstranili boste prikaz denarnice, ko BitBox02 ni priključen. Vsebina denarnice in vsa sredstva s tem ostanejo varna in nedotaknjena, le BitBoxApp jo bo pozabil. Nadaljujem?",
         "warningTitle": "Pozabi denarnico"
@@ -1556,9 +1646,11 @@
     },
     "availableBalance": "Razpoložljivo stanje",
     "button": "Podpiši in pošlji",
+    "buyEth": "Kupi ETH",
     "coincontrol": {
       "address": "Naslov",
       "addressReused": "Naslov je bil že uporabljen",
+      "change": "Drobiž",
       "outpoint": "",
       "title": "Pošlji iz (output):"
     },
@@ -1569,6 +1661,7 @@
       "to": "Na",
       "total": "Skupaj"
     },
+    "edit": "Uredi transakcijo",
     "error": {
       "erc20InsufficientGasFunds": "Kot kaže na vašem računu ni dovolj ETH za plačilo transakcije za premik ERC02 žetona. Poskrbite za zadostno količino ETH na vašem Ethereum računu.",
       "feeTooLow": "Omrežnina je prenizka",
@@ -1620,6 +1713,7 @@
     },
     "maximum": "Pošlji vse",
     "maximumSelectedCoins": "Pošlji izbrane kovance",
+    "newTransaction": "Nova transakcija",
     "noFeeTargets": "Generirane provizije trenutno niso dostopne. Prosimo poizkusite ponovno ali vnesite poljubno višino provizije.",
     "priority": "Omrežnina",
     "scanQR": "Skenirajte QR kodo",
@@ -1676,6 +1770,7 @@
         "title": "Izvoz dnevnika operacij"
       },
       "fee": "Omogoči provizije po meri",
+      "restartInTestnet": "Način Testnet",
       "setProxyAddress": "Nastavite naslov proxy strežnika",
       "title": "Napredne nastavitve",
       "useProxy": "Omogoči tor proxy",
@@ -1766,7 +1861,26 @@
     "status": {
       "complete": "Zaključeno",
       "failed": "Ni uspelo",
-      "pending": "V teku"
+      "pending": "V teku",
+      "pending_receive": "Dohodna transakcija",
+      "pending_send": "Odhodna transakcija",
+      "pending_send_to_self": "Transakcija v teku"
+    },
+    "statusShort": {
+      "complete": "Zaključeno",
+      "failed": "Ni uspelo",
+      "pending": "V teku",
+      "pending_receive": "Dohodni",
+      "pending_send": "Odhodni",
+      "pending_send_to_self": "V teku"
+    },
+    "tx": {
+      "receive_complete": "Prejeto na",
+      "receive_failed": "Prejem ni uspel",
+      "receive_pending": "Prejeto na",
+      "send_complete": "Poslano na",
+      "send_failed": "Pošiljanje ni uspelo",
+      "send_pending": "Poslano na"
     },
     "vsize": "Virtualna velikost",
     "weight": "Utež"
@@ -1844,7 +1958,8 @@
     "coincontrol": "Eden ali več UTXO (prejemov) je na naslovu, ki je bil večkrat uporabljen. Zavedajte se, da bo prejemnik videl vse UTXO (prejeme Bitcoina), povezane s temi naslovi.",
     "receivePairing": "Prosimo, da seznanite BitBox01 s pametnim telefonom, da si omogočite varno preverjanje naslovov. Pojdite na »Upravljanje naprave« v stranski vrstici.",
     "sdcard": "MicroSD kartico hranite ločeno od BitBoxa, razen ko upravljate z varnostnimi kopijami.",
-    "sendPairing": "Za varno preverjanje podrobnosti o transakcijah seznanite BitBox\nz mobilno napravo. Pojdite na »Upravljanje naprave« v stranski vrstici."
+    "sendPairing": "Za varno preverjanje podrobnosti o transakcijah seznanite BitBox\nz mobilno napravo. Pojdite na »Upravljanje naprave« v stranski vrstici.",
+    "testnet": "Opozorilo: trenutno uporabljate denarnico v načinu Testnet. Transakcije in stanja tukaj niso resnični in ne bodo prikazani v glavnem omrežju. Omrežje testnet je namenjen samo za testiranje in razvoj."
   },
   "welcome": {
     "connect": "Vklopi BitBox02",
