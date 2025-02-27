@@ -479,13 +479,19 @@ func (account *Account) Notifier() accounts.Notifier {
 
 // Transactions implements accounts.Interface.
 func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
-	account.Synchronizer.WaitSynchronized()
+	//account.Synchronizer.WaitSynchronized()]
+	if !account.Synced() || account.Offline() != nil {
+		return nil, accounts.ErrSyncInProgress
+	}
 	return accounts.NewOrderedTransactions(account.transactions), nil
 }
 
 // Balance implements accounts.Interface.
 func (account *Account) Balance() (*accounts.Balance, error) {
-	account.Synchronizer.WaitSynchronized()
+	//account.Synchronizer.WaitSynchronized()
+	if !account.Synced() || account.Offline() != nil {
+		return nil, accounts.ErrSyncInProgress
+	}
 	return accounts.NewBalance(account.balance, coin.NewAmountFromInt64(0)), nil
 }
 

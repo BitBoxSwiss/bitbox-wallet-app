@@ -383,13 +383,26 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) {
 	balance, err := handlers.account.Balance()
 	if err != nil {
-		return nil, err
+		return struct {
+			Success      bool   `json:"success"`
+			ErrorMessage string `json:"ErrorMessage"`
+		}{
+			Success:      false,
+			ErrorMessage: err.Error(),
+		}, nil
 	}
-	return map[string]interface{}{
-		"hasAvailable": balance.Available().BigInt().Sign() > 0,
-		"available":    handlers.formatAmountAsJSON(balance.Available(), false),
-		"hasIncoming":  balance.Incoming().BigInt().Sign() > 0,
-		"incoming":     handlers.formatAmountAsJSON(balance.Incoming(), false),
+	//TODO bznein: returning nil always as an error here makes no sense
+	return struct {
+		Success bool                   `json:"success"`
+		Balance map[string]interface{} `json:"balance"`
+	}{
+		Success: true,
+		Balance: map[string]interface{}{
+			"hasAvailable": balance.Available().BigInt().Sign() > 0,
+			"available":    handlers.formatAmountAsJSON(balance.Available(), false),
+			"hasIncoming":  balance.Incoming().BigInt().Sign() > 0,
+			"incoming":     handlers.formatAmountAsJSON(balance.Incoming(), false),
+		},
 	}, nil
 }
 

@@ -83,11 +83,20 @@ export type TAccountsBalanceByCoin = {
   [key in CoinCode]?: IAmount;
 };
 
+export type TAccountsBalanceResponse = {
+  success: true;
+  balance: TAccountsBalance;
+
+} | {
+  success: false;
+  errorMessage?: string;
+}
+
 export type TAccountsBalance = {
   [rootFingerprint in TKeystore['rootFingerprint']]: TAccountsBalanceByCoin;
 };
 
-export const getAccountsBalance = (): Promise<TAccountsBalance> => {
+export const getAccountsBalance = (): Promise<TAccountsBalanceResponse> => {
   return apiGet('accounts/balance');
 };
 
@@ -105,7 +114,7 @@ export type TAccountsTotalBalanceResponse = {
     totalBalance: TAccountsTotalBalance;
 } | {
     success: false;
-    errorCode?: 'ratesNotAvailable';
+    errorCode?: string;
     errorMessage?: string;
 }
 
@@ -119,9 +128,17 @@ type CoinFormattedAmount = {
   formattedAmount: IAmount;
 };
 
+export type TCoinsTotalBalanceResponse = {
+  success: true;
+  coinsTotalBalance: TCoinsTotalBalance;
+} | {
+  success: false;
+  errorMessage: string;
+}
+
 export type TCoinsTotalBalance = CoinFormattedAmount[];
 
-export const getCoinsTotalBalance = (): Promise<TCoinsTotalBalance> => {
+export const getCoinsTotalBalance = (): Promise<TCoinsTotalBalanceResponse> => {
   return apiGet('accounts/coins-balance');
 };
 
@@ -197,7 +214,7 @@ export type TSummaryResponse = {
     data: TSummary;
 } | {
   success: false;
-  error: string;
+  errorMessage: string;
 }
 
 export type TSummary = {
@@ -233,7 +250,15 @@ export interface IBalance {
     incoming: IAmount;
 }
 
-export const getBalance = (code: AccountCode): Promise<IBalance> => {
+export type BalanceResponse = {
+  success: true;
+  balance: IBalance;
+} | {
+  success: false;
+  errorMessage: string
+}
+
+export const getBalance = (code: AccountCode): Promise<BalanceResponse> => {
   return apiGet(`account/${code}/balance`);
 };
 
