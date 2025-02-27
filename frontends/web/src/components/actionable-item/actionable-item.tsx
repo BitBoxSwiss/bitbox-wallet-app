@@ -34,7 +34,7 @@ export const ActionableItem = ({
   const notButton = disabled || onClick === undefined;
 
   const content = (
-    <div className={styles.leftContent}>
+    <div className={styles.content}>
       {children}
       <ChevronRightDark />
     </div>
