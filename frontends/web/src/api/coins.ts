@@ -16,7 +16,6 @@
 
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
 import type { CoinCode, Fiat } from './account';
-import type { ISuccess } from './backend';
 import { apiPost, apiGet } from '@/utils/request';
 
 export type BtcUnit = 'default' | 'sat';
@@ -34,7 +33,11 @@ export const subscribeCoinHeaders = (coinCode: CoinCode) => (
   )
 );
 
-export const setBtcUnit = (unit: BtcUnit): Promise<ISuccess> => {
+export type TSetBtcUnitResponse = {
+  success: boolean;
+};
+
+export const setBtcUnit = (unit: BtcUnit): Promise<TSetBtcUnitResponse> => {
   return apiPost('coins/btc/set-unit', { unit });
 };
 

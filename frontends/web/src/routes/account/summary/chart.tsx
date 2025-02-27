@@ -25,9 +25,9 @@ import { Amount } from '@/components/amount/amount';
 import { PercentageDiff } from './percentage-diff';
 import { Filters } from './filters';
 import { getDarkmode } from '@/components/darkmode/darkmode';
-import { DefaultCurrencyRotator } from '@/components/rates/rates';
 import { RatesContext } from '@/contexts/RatesContext';
 import { AppContext, TChartDisplay } from '@/contexts/AppContext';
+import { AmountUnit } from '@/components/amount/amount-with-unit';
 import styles from './chart.module.css';
 
 type TProps = {
@@ -138,7 +138,7 @@ export const Chart = ({
 
   const { t, i18n } = useTranslation();
   const { chartDisplay, setChartDisplay } = useContext(AppContext);
-  const { defaultCurrency } = useContext(RatesContext);
+  const { defaultCurrency, rotateDefaultCurrency } = useContext(RatesContext);
   const [searchParams] = useSearchParams();
 
   const ref = useRef<HTMLDivElement>(null);
@@ -582,13 +582,13 @@ export const Chart = ({
                 amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue}
                 unit={chartFiat}
                 removeBtcTrailingZeroes
-                allowRotateCurrencyOnMobile
+                onMobileClick={rotateDefaultCurrency}
               />
             ) : (
               <Skeleton minWidth="220px" />
             )}
             <span className={styles.totalUnit}>
-              {chartTotal !== null && <DefaultCurrencyRotator tableRow={false} />}
+              {chartTotal !== null && <AmountUnit unit={chartFiat} rotateUnit={rotateDefaultCurrency}/>}
             </span>
           </div>
           {!showMobileTotalValue ? (
