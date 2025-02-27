@@ -111,12 +111,14 @@ public:
     WebEnginePage(QObject* parent) : QWebEnginePage(parent) {}
 
     QWebEnginePage* createWindow(QWebEnginePage::WebWindowType type) {
+        Q_UNUSED(type);
         return externalPage;
     }
 
     virtual void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID)
     {
         // Log frontend console messages to the Go log.txt.
+        Q_UNUSED(level);
         QString formattedMsg = QString("msg: %1; line %2; source: %3").arg(message).arg(lineNumber).arg(sourceID);
         goLog(formattedMsg.toUtf8().constData());
     }
@@ -185,8 +187,8 @@ public:
         // We treat the exchange pages specially because we need to allow exchange
         // widgets to load in an iframe as well as let them open external links
         // in a browser.
-        bool onExchangePage = currentUrl.contains(QRegularExpression(QString("^%1:/index\.html\#/exchange/.*$").arg(scheme)));
-        bool onBitsurancePage = currentUrl.contains(QRegularExpression(QString("^%1:/index\.html\#/bitsurance/.*$").arg(scheme)));
+        bool onExchangePage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/exchange/.*$)").arg(scheme)));
+        bool onBitsurancePage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/bitsurance/.*$)").arg(scheme)));
         if (onExchangePage || onBitsurancePage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
                 // Ignore requests for certain file types (e.g., .js, .css) Somehow Moonpay loads
@@ -265,9 +267,6 @@ public:
 
 int main(int argc, char *argv[])
 {
-    // Enable auto HiDPI scaling to correctly manage scale factor on bigger screens
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
     // Make `@media (prefers-color-scheme: light/dark)` CSS rules work.
     // See https://github.com/qutebrowser/qutebrowser/issues/5915#issuecomment-737115530
     // This might only be needed for Qt 5.15.2, should revisit this when updating Qt.
@@ -436,17 +435,13 @@ int main(int argc, char *argv[])
 
     QObject::connect(
         view->page(),
-        &QWebEnginePage::featurePermissionRequested,
-        [&](const QUrl& securityOrigin, QWebEnginePage::Feature feature) {
-            if (feature == QWebEnginePage::MediaVideoCapture) {
-                // Allow video capture for QR code scanning.
-                view->page()->setFeaturePermission(
-                    securityOrigin,
-                    feature,
-                    QWebEnginePage::PermissionGrantedByUser);
+        &QWebEnginePage::permissionRequested,
+        [&](QWebEnginePermission permission) {
+            // Allow video capture for QR code scanning.
+            if (permission.permissionType() == QWebEnginePermission::PermissionType::MediaVideoCapture) {
+                permission.grant();
             }
         });
-
     QWebChannel channel;
     channel.registerObject("backend", webClass);
     view->page()->setWebChannel(&channel);
@@ -497,6 +492,7 @@ int main(int argc, char *argv[])
         &a,
         &SingleApplication::receivedMessage,
         [&](int instanceId, QByteArray message) {
+            Q_UNUSED(instanceId)
             QString arg = QString::fromUtf8(message);
             qDebug() << "Received arg from secondary instance:" << arg;
             handleURI(arg.toUtf8().constData());
