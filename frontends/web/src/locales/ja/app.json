@@ -73,6 +73,8 @@
   "aopp": {
     "addressRequest": "{{host}}は受け取りアドレスを要求しています",
     "addressRequestWithLogo": "受け取りアドレスを要求しています",
+    "addressRequestWithLogoAndXPub": "受信アドレスと公開鍵（xpub）を要求しています。",
+    "addressRequestWithXPub": "{{host}} が受信アドレスと公開鍵（xpub）を要求しています。",
     "banner": "アドレスの要求が進行中です。続行するためにデバイスを接続してください。",
     "errorTitle": "アドレスのリクエスト中にエラーが起きました",
     "labelAddress": "アドレス",
@@ -84,7 +86,8 @@
       "title": "アドレスの送信に成功"
     },
     "syncing": "アカウントを同期しています、お待ちください",
-    "title": "アドレスリクエスト"
+    "title": "アドレスリクエスト",
+    "xpubRequested": "xpub を共有すると、外部サービスがあなたのアカウントのアドレスを確認できるようになります。ただし、コインは安全であり、引き続きあなたの管理下にあります。"
   },
   "app": {
     "upgrade": "アプリの新しいバージョンが利用可能です！{{current}}から{{version}}にアップグレードしてください。"
@@ -288,6 +291,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "次へ進むにはBitBox02にmicroSDカードを挿入してください。",
+      "insertSDCardToSeeBackups": "バックアップを確認するには、microSDカードをBitBox02に挿入してください。",
       "insertSDcardTitle": "microSDカードを挿入してください。"
     },
     "stepPassword": {
@@ -450,6 +454,45 @@
           },
           "link": "BTC Direct - プライベートトレーディングデスクにアクセスする。",
           "title": "50,000ユーロ以上の売買をお考えですか？"
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "description": "私たちは、信頼できる欧州のブローカーであるBTC Directと提携し、BitBoxApp内で簡単に仮想通貨を購入できるようにしています。このサービスは、銀行振込、クレジットカード、その他多くの地域の支払い方法を利用して、ヨーロッパ全域でご利用いただけます。",
+            "kyc": {
+              "description": "すべての取引には顧客の本人確認が必要です。セルフィー（自撮り）と、公的な書類の写真を撮影して提出してください。",
+              "title": "本人確認"
+            },
+            "paymentMethods": {
+              "buy": "購入：EURで支払いを行うと、コインが直接BitBoxに送られます。一回限りの購入と定期購入のどちらかを選択できます。銀行振込の場合、BTC Directが資金を受け取った時点で為替レートが固定されます。即時決済方法では、一定時間固定された換算レートが適用されます。",
+              "note": "注意：BTC Directの為替レートは、BitBoxAppのレートと若干異なる場合があります。",
+              "title": "支払い方法と手数料"
+            },
+            "security": {
+              "description": "BTC Directは、BitBox02のセキュリティ脅威モデルの対象外となる外部サービスです。私たちはBTC Directと緊密に連携し、全体的なセキュリティの向上に努めています。",
+              "link": "BitBox02のセキュリティ脅威モデル",
+              "title": "セキュリティ"
+            },
+            "title_bitcoin": "BTC Directでビットコインを購入",
+            "title_crypto": "BTC Directで仮想通貨を購入"
+          },
+          "infobox": {
+            "feesBuying": {
+              "bancontact": "Bancontact：{{fee}}%",
+              "bankTransfer": "銀行振込、SEPA、iDEAL：{{fee}}%",
+              "creditDebitCard": "クレジットカード、Cartes Bancaires：{{fee}}%",
+              "sofort": "Sofort：{{fee}}%",
+              "title": "購入手数料"
+            },
+            "intro": "EURを使ったヨーロッパでの仮想通貨購入",
+            "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "銀行振込、SEPA Instant、iDEAL",
+              "creditDebitCard": "クレジットカード（Mastercard、Visa）、Cartes Bancaires",
+              "sofort": "Sofort",
+              "title": "支払い方法"
+            }
+          },
+          "learnmore": "BTC Directについて詳しく見る"
         },
         "moonpay": {
           "fees": {
@@ -1317,6 +1360,9 @@
       "customFees": {
         "description": "送信時に独自の手数料を入力することができます。"
       },
+      "restartInTestnet": {
+        "description": "テストネットを使用して機能を試し、探索しましょう。"
+      },
       "torProxy": {
         "description": "プライバシーを向上させるために、Tor経由で接続してください。"
       }
@@ -1348,6 +1394,10 @@
         "title": "言語"
       },
       "remebmerWallet": {
+        "enable": {
+          "description": "BitBoxデバイスを挿入せずに、このウォレットに関連付けられたアカウントを閲覧できるようになりました。ただし、取引の実行や受取用アドレスの表示には、BitBoxが引き続き必要です。",
+          "title": "ウォレットが保存されました"
+        },
         "name": "ウォレットを記憶する",
         "warning": "これで記憶していたウォレットが削除されます。再び表示するには、このウォレットの ためにBitBox02 を接続する必要があります。このウォレット内のコインは影響を受けません。続行しますか？\n",
         "warningTitle": "ウォレットを記憶しない"
@@ -1596,6 +1646,7 @@
     },
     "availableBalance": "利用可能な残高",
     "button": "レビュー",
+    "buyEth": "イーサリアムを購入",
     "coincontrol": {
       "address": "アドレス",
       "addressReused": "アドレス再利用",
@@ -1610,6 +1661,7 @@
       "to": "To",
       "total": "総額"
     },
+    "edit": "取引内容を変更",
     "error": {
       "erc20InsufficientGasFunds": "このERC20トランザクションの手数料を支払うために十分なイーサがないようです。ウォレットに十分なイーサが保有されているか確認してください。",
       "feeTooLow": "手数料が低すぎます。",
@@ -1661,6 +1713,7 @@
     },
     "maximum": "全て送信",
     "maximumSelectedCoins": "選択したコインを送信します。",
+    "newTransaction": "新規取引",
     "noFeeTargets": "現在、手数料率の見積もりは利用できません。後でもう一度試すか、カスタム手数料を入力してください",
     "priority": "優先",
     "scanQR": "QRコードをスキャン",
@@ -1717,6 +1770,7 @@
         "title": "ログのエクスポート"
       },
       "fee": "カスタム手数料を有効にします。",
+      "restartInTestnet": "テストネットモード",
       "setProxyAddress": "プロキシアドレスを設定します。",
       "title": "エキスパート設定",
       "useProxy": "Torプロキシを有効にします。",

@@ -59,7 +59,7 @@
     "selectCoin": {
       "nextButton": "Avanti",
       "step": "Seleziona valuta",
-      "title": "Seleziona cryptovaluta"
+      "title": "Seleziona criptovaluta"
     },
     "success": {
       "addAnotherAccount": "Aggiungi un nuovo account",
@@ -68,11 +68,13 @@
       "step": "Finito",
       "title": "Account aggiunto"
     },
-    "title": "Aggiungi account"
+    "title": "+ Aggiungi account"
   },
   "aopp": {
     "addressRequest": "{{host}} richiede un indirizzo di ricezione.",
     "addressRequestWithLogo": "richiede un indirizzo di ricezione\n",
+    "addressRequestWithLogoAndXPub": "sta richiedendo un indirizzo di ricezione e una chiave pubblica (xpub).",
+    "addressRequestWithXPub": "{{host}} sta richiedendo un indirizzo di ricezione e una chiave pubblica (xpub).\n\n",
     "banner": "Richiesta dell'indirizzo in corso. Connetti il dispositivo per continuare.",
     "errorTitle": "Errore durante la richiesta dell'indirizzo",
     "labelAddress": "Indirizzo",
@@ -84,7 +86,8 @@
       "title": "Indirizzo inviato con successo"
     },
     "syncing": "Sincronizzazione dell'account, attendere prego.\n",
-    "title": "Richiesta di indirizzo"
+    "title": "Richiesta di indirizzo",
+    "xpubRequested": "Condividere la tua xpub consente a servizi esterni di vedere gli indirizzi del tuo account. I tuoi fondi sono ancora al sicuro e rimangono in tuo controllo."
   },
   "app": {
     "upgrade": "E' disponibile una nuova versione di questa app! Aggiorna dalla {{current}} alla {{version}}."
@@ -136,7 +139,7 @@
       "password": {
         "label": "Password di recupero o password di recupero nascosta",
         "placeholder": "Password di recupero",
-        "repeatPlaceholder": "Ripeti password di recupero",
+        "repeatPlaceholder": "Ripeti la password di recupero",
         "showLabel": "Password di recupero"
       },
       "restoring": "Ripristino backup...",
@@ -185,7 +188,7 @@
     "confirmWordsText": "In seguito il BitBox02 ti chiederà di confermare ogni parola per verificare la correttezza del tuo backup.",
     "followInstructions": "Segui le istruzioni sul tuo BitBox02",
     "followInstructionsMnemonic": "Segui le istruzioni sul tuo BitBox02 per ripristinare utilizzando le parole di recupero.",
-    "followInstructionsMnemonicTitle": "Ripristina da parole di recupero\n"
+    "followInstructionsMnemonicTitle": "Ripristina utilizzando le parole di recupero"
   },
   "bitbox02Settings": {
     "deviceName": {
@@ -288,6 +291,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Inserisci la scheda microSD nel BitBox02 per continuare.",
+      "insertSDCardToSeeBackups": "Per favore, inserisci la scheda microSD nel tuo BitBox02 per visualizzare i tuoi backup.",
       "insertSDcardTitle": "Inserire la scheda microSD"
     },
     "stepPassword": {
@@ -373,7 +377,7 @@
     "abort": "Interrompere",
     "back": "Indietro",
     "changepin": "Cambia la password del dispositivo",
-    "check": "Verifica il backup",
+    "check": "Verifica backup",
     "continue": "Continua",
     "copy": "Copia",
     "create": "Creare",
@@ -381,7 +385,7 @@
     "done": "Fatto",
     "download": "Scarica",
     "hiddenwallet": "Crea un wallet nascosto",
-    "next": "Successivo",
+    "next": "Avanti",
     "ok": "OK",
     "previous": "Precedente",
     "proceedOnBitBox": "Procedi sul tuo BitBox",
@@ -430,7 +434,7 @@
               "title": "Servizio personalizzato con prezzo fisso"
             },
             "security": {
-              "link": "Security threat model di BitBox02",
+              "link": "Security threat model del BitBox02",
               "text": "Il Private Trading Desk di BTC Direct è un servizio esterno non coperto dal security threat model di BitBox02. Tuttavia, BTC Direct conosce bene i prodotti BitBox epuò guidarti in maniera sicura e competente. I prodotti BitBox verificano gli indirizzi crittografici durante le transazioni per garantire una consegna sicura.",
               "title": "Sicurezza"
             },
@@ -451,6 +455,45 @@
           "link": "Accesso a BTC Direct - Private Trading Desk",
           "title": "Vuoi comprare o vendere più di 50.000€?"
         },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "description": "Collaboriamo con BTC Direct, un fidato broker europeo, per semplificare l'acquisto di criptovalute all'interno della BitBoxApp. Questo servizio è disponibile in tutta Europa tramite bonifico bancario, carte di credito e altri metodi di pagamento locali.",
+            "kyc": {
+              "description": "Per effettuare qualsiasi transazione, è richiesta la verifica della tua identità. Ti verrà richiesto di scattare un selfie e di caricare una foto di un documento d'identità ufficiale.",
+              "title": "Verifica dell'identità"
+            },
+            "paymentMethods": {
+              "buy": "Acquisto: Paga in EUR per ricevere i fondi direttamente sul tuo BitBox. Puoi scegliere tra acquisti singoli e acquisti ricorrenti. Per i bonifici bancari, il tasso di cambio viene fissato quando BTC Direct riceve il denaro. I metodi istantanei usano un tasso di cambio fisso per un periodo limitato.",
+              "note": "Nota: i tassi di cambio di BTC Direct potrebbero differire leggermente dai tassi della BitBoxApp.",
+              "title": "Metodi di pagamento e commissioni"
+            },
+            "security": {
+              "description": "BTC Direct è un servizio terzo non coperto dal security threat model del BitBox02. Collaboriamo strettamente con BTC Direct per migliorare la sicurezza complessiva.",
+              "link": "Security threat model del BitBox02",
+              "title": "Sicurezza"
+            },
+            "title_bitcoin": "Compra bitcoin con BTC Direct",
+            "title_crypto": "Compra criptovalute con BTC Direct"
+          },
+          "infobox": {
+            "feesBuying": {
+              "bancontact": "Bancontact: {{fee}}%",
+              "bankTransfer": "Bonifico bancario, SEPA, iDEAL: {{fee}}%\n\n",
+              "creditDebitCard": "Carte di credito, Cartes Bancaires: {{fee}}%\n",
+              "sofort": "Sofort: {{fee}}%",
+              "title": "Commissioni per l'acquisto"
+            },
+            "intro": "Acquisto di criptovalute in Europa con EUR.",
+            "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "Bonifico bancario, SEPA Instant, iDEAL",
+              "creditDebitCard": "Carte di credito (Mastercard, Visa), Cartes Bancaires",
+              "sofort": "Sofort",
+              "title": "Metodi di pagamento"
+            }
+          },
+          "learnmore": "Scopri di più su BTC Direct"
+        },
         "moonpay": {
           "fees": {
             "bankTransfer": "Bonifico Bancario: {{fee}}%",
@@ -464,7 +507,7 @@
             "bankTransfer": "Bonifico bancario*",
             "bankTransferDetails": {
               "pix": "PIX (Transazioni BR esclusivamente in Brasile)",
-              "sepa": "SEPA e SEPA istantaneo (transazioni EUR esclusivamente in Paesi SEPA)",
+              "sepa": "SEPA e SEPA Istantaneo (transazioni EUR esclusivamente in Paesi SEPA)",
               "uk": "UK Faster Payments (transazioni GBP esclusivamente in UK)"
             },
             "creditDebitCard": "Carta di credito/debito",
@@ -485,9 +528,9 @@
           "payment": {
             "bankTransfer": "Bonifico bancario",
             "bankTransferDetails": {
-              "sepa": "SEPA e SEPA istantaneo (per le transazioni in EUR nei Paesi SEPA)",
+              "sepa": "SEPA e SEPA Istantaneo (transazioni EUR esclusivamente in Paesi SEPA)",
               "sic": "Swiss Interbank Clearing (per le transazioni in CHF in CH/LI)",
-              "uk": "UK Faster Payments (per le transazioni GBP in UK)"
+              "uk": "UK Faster Payments (transazioni GBP esclusivamente in UK)"
             },
             "bankTransferReccuring": "Come impostare degli acquisti ricorrenti tramite un ordine permanente?",
             "title": "Metodi di pagamento"
@@ -548,7 +591,7 @@
         "title_bitcoin": "Benvenuto nel tuo punto di riferimento per acquistare Bitcoin",
         "title_crypto": "Benvenuto nel tuo punto di riferimento per acquistare crypto"
       },
-      "next": "Prossimo",
+      "next": "Avanti",
       "selectLabel": "Scegli un account",
       "selectPlaceholder": "Seleziona una valuta",
       "skip": "Non mostrare più"
@@ -711,7 +754,7 @@
       "title": "Abbinamento"
     },
     "secrets": {
-      "manageBackups": "Gestione backup",
+      "manageBackups": "Gestisci i backup",
       "title": "Segreti"
     }
   },
@@ -759,12 +802,12 @@
         },
         "kyc": {
           "link": "Leggi le FAQ di Pocket",
-          "p1": "Non sono necessari documenti aggiuntivi per cambi fino a 950 EUR (1000 CHF) al giorno.",
+          "p1": "Non sono necessari documenti aggiuntivi per cambi fino a 1000 EUR/CHF in un periodo di 30 giorni.",
           "p2": "Per importi maggiori è necessaria una call con Pocket per completare la procedura KYC/AML.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
-          "link": "Security threat model di BitBox02",
+          "link": "Security threat model del BitBox02",
           "p1": "L'utilizzo di Pocket è un servizio esterno e non è coperto dal security threat model di BitBox02. Tuttavia, lavoriamo a stretto contatto con Pocket per migliorare la sicurezza complessiva.",
           "p2": "<strong>Acquistare bitcoin:</strong> Riceverai un'e-mail per confermare il tuo indirizzo di ricezione bitcoin attraverso un secondo canale di comunicazione.",
           "p3": "<strong>Vendere bitcoin:</strong> BitBox02 verifica crittograficamente l'indirizzo di deposito Bitcoin e visualizza \"Pocket\" sull'hardware wallet.",
@@ -799,7 +842,7 @@
   "genericError": "Si è verificato un errore. Se noti qualche problema, riavvia l'applicazione.",
   "goal": {
     "buttons": {
-      "create": "Creare un nuovo wallet",
+      "create": "Crea un nuovo wallet ",
       "restore": "Ripristina un wallet dal backup"
     },
     "paragraph": "Seleziona una delle seguenti opzioni:",
@@ -812,7 +855,7 @@
         "title": "Dispositivo"
       },
       "3-create": {
-        "description": "Crea un nuovo wallet",
+        "description": "Crea un nuovo wallet ",
         "title": "Wallet"
       },
       "3-restore": {
@@ -820,10 +863,10 @@
         "title": "Ripristina"
       },
       "4-create": {
-        "title": "Riassunto"
+        "title": "Riepilogo"
       },
       "4-restore": {
-        "title": "Riassunto"
+        "title": "Riepilogo"
       }
     }
   },
@@ -1317,6 +1360,9 @@
       "customFees": {
         "description": "Ti permette di inserire una fee a tua discrezione all'invio."
       },
+      "restartInTestnet": {
+        "description": "Esplora e testa le funzionalità utilizzando la testnet."
+      },
       "torProxy": {
         "description": "Connettiti tramite Tor per una migliore privacy."
       }
@@ -1348,6 +1394,10 @@
         "title": "Lingua"
       },
       "remebmerWallet": {
+        "enable": {
+          "description": "Ora puoi visualizzare gli account associati a questo wallet senza inserire il tuo dispositivo BitBox. Tuttavia, il BitBox è ancora necessario per effettuare transazioni e visualizzare gli indirizzi di ricezione.",
+          "title": "Wallet memorizzato"
+        },
         "name": "Ricorda wallet",
         "warning": "Questo farà dimenticare il tuo wallet. Per vederlo di nuovo, dovrai collegare il relativo BitBox02. I fondi presenti sul wallet non saranno modificati. Vuoi continuare?",
         "warningTitle": "Disattiva \"Ricorda wallet\""
@@ -1416,7 +1466,7 @@
   },
   "passphrase": {
     "considerations": {
-      "button": "Considerazioni sul backup\n",
+      "button": "Considerazioni sul backup",
       "message": "La passphrase aggiunge un livello di protezione al backup del wallet (scheda microSD o parole di recupero). Se qualcuno ha accesso al tuo backup, avrà bisogno anche della passphrase per accedere al tuo wallet.\n\nTuttavia, questo significa che saranno necessari <strong>sia la passphrase che il backup del wallet</strong> per ripristinare il wallet con passphrase, nel caso in cui il BitBox02 venga perso o rotto. Se si dimentica o si perde la passphrase, si perde l'accesso a tutti i fondi del wallet.\n\nTi consigliamo di conservare la passphrase in un luogo separato rispetto al backup. In questo modo, se qualcuno trova il backup, non troverà anche la passphrase.",
       "title": "Considerazioni sul backup"
     },
@@ -1462,7 +1512,7 @@
       "title": "Passphrase disabilitata"
     },
     "summary": {
-      "button": "Passphrase disabilitata",
+      "button": "Abilita la passphrase",
       "title": "Riepilogo",
       "understand": "Ho capito come funziona la passphrase e i rischi ad essa associati.\n",
       "understandList": [
@@ -1508,7 +1558,7 @@
       "p2wpkh": "Native Segwit (predefinito)",
       "p2wpkh-p2sh": "Wrapped Segwit (formato compatibile)"
     },
-    "selectAccount": "Scegli un account",
+    "selectAccount": "Seleziona un account",
     "showFull": "Mostra e verifica l'indirizzo completo sul dispositivo",
     "taprootWarning": "Nota: Taproot è una nuova funzione di Bitcoin e non è ancora ampiamente adottata. I fondi ricevuti sugli indirizzi Taproot potrebbero non essere visibili nei wallet di terze parti. Molti wallet e exchange non sono ancora in grado di inviare ad indirizzi Taproot.",
     "title": "Ricevi {{accountName}}",
@@ -1534,13 +1584,13 @@
       "description3": "La prima è la <strong>password del dispositivo</strong> che sblocca il tuo dispositivo BitBox e può essere cambiata in seguito.",
       "description4": "La seconda è la <strong>password di recupero</strong> che sblocca il tuo wallet. Questa password non può essere cambiata in seguito.",
       "description5": "Il wallet creato sarà salvato in un file sulla scheda microSD fornita. Questo può essere utilizzato in caso di emergenza per recuperare i tuoi fondi utilizzando la tua <strong>password di recupero</strong>.",
-      "title": "Informazioni di sicurezza"
+      "title": "Informazioni sulla sicurezza"
     },
     "restore": {
       "description1": "Ti verrà chiesto di inserire la scheda microSD che hai usato per memorizzare il tuo backup.",
       "description2": "Per ripristinare il tuo dispositivo avrai bisogno della tua password di recupero. ",
       "description3": "Fai attenzione quando inserisci la password di recupero. Qualsiasi password inserita creerà un wallet valido. Se inserisci la password sbagliata, potrebbe esserti mostrato un saldo del wallet che non ti aspetti.",
-      "title": "Informazioni di sicurezza"
+      "title": "Informazioni sulla sicurezza"
     }
   },
   "seed": {
@@ -1553,7 +1603,7 @@
     "creating": "Creazione del wallet",
     "description": "Capisco che:",
     "error": {
-      "e102": "La password deve essere composta da almeno 4 caratteri.",
+      "e102": "La password deve essere di almeno 4 caratteri.",
       "e200": "È necessario inserire una scheda microSD nel tuo BitBox per creare un wallet, così un backup può essere creato automaticamente."
     },
     "info": {
@@ -1562,7 +1612,7 @@
       "description2": "Scegli una password di recupero per il wallet e seleziona \"Imposta password di recupero ora\".",
       "description3": "Il backup su scheda microSD e la password di recupero sono l'unico metodo per recuperare i tuoi fondi in caso di perdita o furto del dispositivo BitBox.",
       "description4": "Non è possibile cambiare la password di recupero in futuro senza dover trasferire i tuoi fondi.",
-      "title": "Crea un nuovo wallet"
+      "title": "Crea un nuovo wallet "
     },
     "password": {
       "label": "Password di recupero",
@@ -1596,6 +1646,7 @@
     },
     "availableBalance": "Saldo disponibile",
     "button": "Controlla",
+    "buyEth": "Compra ETH",
     "coincontrol": {
       "address": "Indirizzo",
       "addressReused": "Indirizzo riutilizzato",
@@ -1610,8 +1661,9 @@
       "to": "A",
       "total": "Totale"
     },
+    "edit": "Modifica la transazione",
     "error": {
-      "erc20InsufficientGasFunds": "Sembra che tu non abbia abbastanza Ether per pagare questa transazione ERC20. Per favore, assicurati di avere abbastanza Ether nel tuo wallet.",
+      "erc20InsufficientGasFunds": "Sembra che tu non abbia abbastanza Ether per pagare questa transazione ERC20. Per favore, assicurati di avere abbastanza Ether nel tuo wallet e prova di nuovo.",
       "feeTooLow": "commissione troppo bassa",
       "feesNotAvailable": "Impossibile stimare le commissioni\n",
       "insufficientFunds": "fondi insufficienti.",
@@ -1661,6 +1713,7 @@
     },
     "maximum": "Invia tutto",
     "maximumSelectedCoins": "Invia le valute selezionate\n",
+    "newTransaction": "Nuova transazione",
     "noFeeTargets": "La stima delle fee al momento non è disponibile. Inserisci una fee a tua discrezione o riprova più tardi.",
     "priority": "Priorità",
     "scanQR": "Leggi il QR code",
@@ -1683,7 +1736,7 @@
       "add": "Aggiungi un server",
       "add-server": "Aggiungi",
       "check": "Verifica",
-      "checkFailed": "Fallito",
+      "checkFailed": "Fallita",
       "checkSuccess": "Connessione stabilita con {{host}}",
       "checking": "Verifico",
       "download-cert": "Scarica certificato remoto",
@@ -1717,6 +1770,7 @@
         "title": "Esporta i log"
       },
       "fee": "Abilitare commissioni personalizzate",
+      "restartInTestnet": "Modalità testnet",
       "setProxyAddress": "Imposta indirizzo proxy",
       "title": "Impostazioni avanzate",
       "useProxy": "Abilita il proxy per tor",
@@ -1761,7 +1815,7 @@
   "setup": "Imposta il dispositivo",
   "sidebar": {
     "device": "Gestisci il dispositivo",
-    "insurance": "Assicura",
+    "insurance": "Assicurazione",
     "leave": "Esci",
     "settings": "Impostazioni"
   },
@@ -1802,12 +1856,12 @@
       "edit": "Modifica nota",
       "save": "Salva nota"
     },
-    "pending": "Transazione in sospeso",
+    "pending": "Transazione in attesa",
     "size": "Dimensione",
     "status": {
       "complete": "Completata",
       "failed": "Fallita",
-      "pending": "In sospeso",
+      "pending": "In attesa",
       "pending_receive": "Transazione in entrata",
       "pending_send": "Transazione in uscita",
       "pending_send_to_self": "Transazione in attesa"

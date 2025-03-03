@@ -73,6 +73,8 @@
   "aopp": {
     "addressRequest": "{{host}} požaduje přijímací adresu.",
     "addressRequestWithLogo": "požaduje přijímací adresu.",
+    "addressRequestWithLogoAndXPub": "požaduje přijímací adresu a veřejný klíč (xpub).",
+    "addressRequestWithXPub": "{{host}} požaduje přijímací adresu a veřejný klíč (xpub).",
     "banner": "Probíhá žádost o adresu. Pro pokračování připojte zařízení.",
     "errorTitle": "Chyba při požadavku na adresu ",
     "labelAddress": "Adresa",
@@ -84,7 +86,8 @@
       "title": "Adresa byla úspěšně odeslána"
     },
     "syncing": "Synchronizace účtu, vyčkejte prosím.",
-    "title": "Požadavek na adresu"
+    "title": "Požadavek na adresu",
+    "xpubRequested": "Sdílení vašeho xpub umožňuje externím službám vidět adresy vašeho účtu. Vaše mince jsou stále v bezpečí a zůstávají pod vaší kontrolou."
   },
   "app": {
     "upgrade": "K dispozici je nová verze této aplikace! Aktualizuje prosím z {{current}} na {{version}}."
@@ -288,6 +291,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Chcete-li pokračovat, vložte do svého BitBox02 microSD kartu.",
+      "insertSDCardToSeeBackups": "Chcete-li zobrazit zálohy, vložte kartu microSD do BitBoxu.",
       "insertSDcardTitle": "Vložte microSD kartu"
     },
     "stepPassword": {
@@ -450,6 +454,45 @@
           },
           "link": "Přístup k BTC Direct – Private Trading Desk",
           "title": "Nákup nebo prodej nad 50 000 EUR?"
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "description": "Spolupracujeme s BTC Direct, důvěryhodným evropským brokerem, abychom vám usnadnili nákup kryptoměn v BitBoxApp. Tato služba je dostupná v celé Evropě a je možné ji využívat pomocí bankovních převodů, kreditních karet a mnoha místních platebních metod.",
+            "kyc": {
+              "description": "U všech obchodů je vyžadováno ověření totožnosti zákazníka. Budete si muset vyfotit selfie a pořídit snímek oficiálního dokladu.",
+              "title": "Ověření totožnosti"
+            },
+            "paymentMethods": {
+              "buy": "Nákup: Zaplaťte v eurech a mince vám budou doručeny přímo do vašeho BitBoxu. Můžete si vybrat mezi jednorázovým nebo opakovaným nákupem. U bankovních převodů je směnný kurz pevně stanoven v okamžiku přijetí peněz společností BTC Direct. Okamžité metody používají pevný směnný kurz po omezenou dobu.",
+              "note": "Poznámka: Směnné kurzy BTC Direct se mohou mírně lišit od kurzů v BitBoxApp.",
+              "title": "Platební metody a poplatky"
+            },
+            "security": {
+              "description": "BTC Direct je externí služba, na kterou se nevztahuje model bezpečnostních hrozeb BitBox02. S BTC Direct úzce spolupracujeme na zvýšení celkové bezpečnosti.",
+              "link": "Model bezpečnostních hrozeb BitBox02",
+              "title": "Zabezpečení"
+            },
+            "title_bitcoin": "Koupit Bitcoin s BTC Direct",
+            "title_crypto": "Koupit krypto s BTC Direct"
+          },
+          "infobox": {
+            "feesBuying": {
+              "bancontact": "Bancontact: {{fee}}%",
+              "bankTransfer": "Bankovní převod, SEPA, iDEAL: {{fee}}%",
+              "creditDebitCard": "Kreditní karty, Cartes Bancaires: {{fee}}%",
+              "sofort": "Sofort: {{fee}}%",
+              "title": "Poplatky za nákup"
+            },
+            "intro": "Evropský nákup kryptoměn za EUR.",
+            "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "Bankovní převod, SEPA Instant, iDEAL",
+              "creditDebitCard": "Kreditní karty (Mastercard, Visa), Cartes Bancaires",
+              "sofort": "Sofort",
+              "title": "Platební metody"
+            }
+          },
+          "learnmore": "Více informací o BTC Direct"
         },
         "moonpay": {
           "fees": {
@@ -1317,6 +1360,9 @@
       "customFees": {
         "description": "Umožňuje zadat vlastní poplatek při odesílání."
       },
+      "restartInTestnet": {
+        "description": "Prozkoumejte a otestujte funkce prostřednictvím testnetu."
+      },
       "torProxy": {
         "description": "Připojte se přes Tor pro lepší soukromí."
       }
@@ -1348,6 +1394,10 @@
         "title": "Jazyk"
       },
       "remebmerWallet": {
+        "enable": {
+          "description": "Nyní můžete zobrazit účty spojené s touto peněženkou, aniž byste museli připojit svůj BitBox. Pro provádění transakcí a zobrazování přijímacích adres je však BitBox stále nutný.",
+          "title": "Zapamatovaná peněženka"
+        },
         "name": "Zapamatovat peněženku",
         "warning": "Tím odstraníte zapamatovanou peněženku. Chcete-li ji znovu zobrazit, musíte připojit BitBox02 pro tuto peněženku. Žádné prostředky v této peněžence nebudou ovlivněny. Chcete pokračovat?",
         "warningTitle": "Deaktivovat zapamatování peněženky"
@@ -1596,6 +1646,7 @@
     },
     "availableBalance": "Dostupný zůstatek",
     "button": "Kontrola",
+    "buyEth": "Koupit ETH",
     "coincontrol": {
       "address": "Adresa",
       "addressReused": "Opakovaně použitá adresa",
@@ -1610,6 +1661,7 @@
       "to": "Na",
       "total": "Celkem"
     },
+    "edit": "Upravit transakci",
     "error": {
       "erc20InsufficientGasFunds": "Zdá se, že nemáte dostatek etherů na zaplacení této ERC20 transakce. Ujistěte se prosím, že máte v peněžence dostatek etherů.",
       "feeTooLow": "poplatek příliš nízký",
@@ -1661,6 +1713,7 @@
     },
     "maximum": "Poslat vše",
     "maximumSelectedCoins": "Poslat vybrané mince",
+    "newTransaction": "Nová transakce",
     "noFeeTargets": "Odhady výše poplatků nejsou v současné době k dispozici. Zkuste to prosím později nebo zadejte vlastní poplatek.",
     "priority": "Priorita",
     "scanQR": "Naskenujte QR kód",
@@ -1717,6 +1770,7 @@
         "title": "Export logů"
       },
       "fee": "Aktivovat vlastní poplatky",
+      "restartInTestnet": "Režim Testnet",
       "setProxyAddress": "Nastavit adresu proxy",
       "title": "Expertní nastavení",
       "useProxy": "Aktivovat tor proxy",

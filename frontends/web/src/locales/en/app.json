@@ -479,7 +479,7 @@
             "feesBuying": {
               "bancontact": "Bancontact: {{fee}}%",
               "bankTransfer": "Bank transfer, SEPA, iDEAL: {{fee}}%",
-              "creditDebitCard": "Credit cards, ApplePay, GooglePay, Cartes Bancaires: {{fee}}%",
+              "creditDebitCard": "Credit cards, Cartes Bancaires: {{fee}}%",
               "sofort": "Sofort: {{fee}}%",
               "title": "Fees for Buying"
             },
@@ -487,7 +487,7 @@
             "payment": {
               "bancontact": "Bancontact",
               "bankTransfer": "Bank transfer, SEPA Instant, iDEAL",
-              "creditDebitCard": "Credit cards (Mastercard, Visa), ApplePay, Google Pay, Cartes Bancaires",
+              "creditDebitCard": "Credit cards (Mastercard, Visa), Cartes Bancaires",
               "sofort": "Sofort",
               "title": "Payment methods"
             }
