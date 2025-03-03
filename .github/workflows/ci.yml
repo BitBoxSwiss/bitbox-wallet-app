@@ -124,7 +124,7 @@ jobs:
           name: BitBoxApp-linux-${{github.sha}}.rpm
           if-no-files-found: error
   macos:
-    runs-on: macos-13
+    runs-on: macos-14
     outputs:
       artifact-url: ${{ steps.upload.outputs.artifact-url }}
     steps:
@@ -151,9 +151,9 @@ jobs:
         # qtwebengine is for rendering the frontend.
         run: |
           pip install aqtinstall
-          aqt install-qt mac desktop 6.2.4 --modules qtpositioning qtserialport qtwebchannel qtwebengine --outputdir ~/Qt
-          echo "$HOME/Qt/6.2.4/macos/bin" >> $GITHUB_PATH
-          echo "$HOME/Qt/6.2.4/macos/libexec" >> $GITHUB_PATH
+          aqt install-qt mac desktop 6.8.2 --modules qtpositioning qtserialport qtwebchannel qtwebengine --outputdir ~/Qt
+          echo "$HOME/Qt/6.8.2/macos/bin" >> $GITHUB_PATH
+          echo "$HOME/Qt/6.8.2/macos/libexec" >> $GITHUB_PATH
       - name: Build macOS app
         run: >
           ./scripts/github-ci.sh qt-osx;
@@ -202,7 +202,7 @@ jobs:
           make gomobileinit
           (cd $GOPATH/$GO_SRC_DIR; make ios)
   windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
     outputs:
       artifact-url: ${{ steps.upload.outputs.artifact-url }}
     defaults:
@@ -227,16 +227,16 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.2'
+          version: '6.8.2'
           host: 'windows'
           target: 'desktop'
-          arch: 'win64_msvc2019_64'
+          arch: 'win64_msvc2022_64'
           modules: 'qtwebengine qtwebchannel qtpositioning'
       - name: Link Visual Studio editions
         # This is needed due to our build expecting the Community edition, but Enterprise being pre-installed
         shell: cmd
         run: |
-          mklink /J "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community" "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
+          mklink /J "C:\Program Files\Microsoft Visual Studio\2022\Community" "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
       - name: Build Windows app
         run: |
           make qt-windows
@@ -289,8 +289,7 @@ jobs:
             **Oh no! [${{ steps.vars.outputs.git_sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) failed to build.**
             See [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.
   bitbox02-simulator:
-    # This is a separate job because the simulator runs on Ubuntu 22.04+, while the
-    # Docker CI image is still on Ubuntu 20.04 (the min supported version for BitBoxApp).
+    # This is a separate job because the simulator platform requirements are independent of our CI image Ubuntu version.
     runs-on: ubuntu-22.04
     steps:
       - name: Clone the repo

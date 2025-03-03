@@ -2,8 +2,8 @@
 
 ## Unreleased
 - Reduced support for BitBox01
-
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
+- Upgraded to Qt 6.8.2, dropping support for macOS 11 and Ubuntu 20.04.
 
 # 4.47.0
 - Bundle BitBox02 firmware version v9.22.0
