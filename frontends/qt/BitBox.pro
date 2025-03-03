@@ -42,7 +42,7 @@ win32 {
     #QMAKE_LFLAGS += -Wl,--nxcompat
     #QMAKE_LFLAGS += -Wl,--dynamicbase
 } else {
-    QMAKE_CXXFLAGS += -std=c++11
+    QMAKE_CXXFLAGS += -std=c++17
     LIBS += -L$$PWD/server -lserver
     QMAKE_CXXFLAGS += $$CFORTIFY
     QMAKE_CXXFLAGS += $$CSTACK

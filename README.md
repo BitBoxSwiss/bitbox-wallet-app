@@ -50,7 +50,7 @@ To build the app or run the development workflow, the following dependencies nee
 - [Go](https://golang.org/doc/install) version 1.23
 - [Node.js](https://nodejs.org/) version 20.x
 - [NPM](https://docs.npmjs.com/about-npm-versions) version 10.x or newer
-- [Qt](https://www.qt.io) version 6.2.4
+- [Qt](https://www.qt.io) version 6.8.2
   - install Qt for your platform, including the WebEngine component
 
 ## Build the BitBoxApp

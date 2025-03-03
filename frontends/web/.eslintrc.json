@@ -5,6 +5,7 @@
     "plugin:react/recommended",
     "plugin:react-hooks/recommended"
   ],
+  "ignorePatterns": ["src/utils/qwebchannel.js"],
   "settings": {
     "react": {
       "version": "detect"

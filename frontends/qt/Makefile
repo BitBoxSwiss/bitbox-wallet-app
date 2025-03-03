@@ -38,6 +38,8 @@ linux:
 		# The list of related plugins was found by: `find $(qmake -query QT_INSTALL_PLUGINS) | grep wayland`
 		-extra-plugins=platforms/libqwayland-generic.so,platforms/libqwayland-egl.so,wayland-graphics-integration-client,wayland-decoration-client,wayland-shell-integration
 	cp /usr/lib/x86_64-linux-gnu/nss/* build/linux-tmp/lib
+	# See https://github.com/probonopd/linuxdeployqt/issues/554#issuecomment-1761834180
+	cp "$(shell qmake -query QT_INSTALL_DATA)/resources/v8_context_snapshot.bin" build/linux-tmp/resources
 	cp -aR resources/linux build/tmp-deb
 	cp resources/linux/usr/share/applications/bitbox.desktop build/linux-tmp
 	cp resources/linux/usr/share/icons/hicolor/128x128/apps/bitbox.png build/linux-tmp
@@ -59,6 +61,7 @@ osx:
 	mkdir build/osx
 	mv build/BitBox.app build/osx/
 	cp resources/MacOS/Info.plist build/osx/BitBox.app/Contents/
+	mkdir -p build/osx/BitBox.app/Contents/Resources
 	cp resources/MacOS/icon.icns build/osx/BitBox.app/Contents/Resources/
 	cd build/osx/ && macdeployqt BitBox.app
 	cp server/libserver.so build/osx/BitBox.app/Contents/Frameworks

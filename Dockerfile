@@ -13,7 +13,7 @@
 # limitations under the License.
 FROM thyrlian/android-sdk:4.0 as android
 
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -30,6 +30,6 @@ ENV PATH $GOROOT/bin:$GOPATH/bin:$PATH
 ADD Makefile /tmp/
 RUN make -C /tmp/ envinit
 
-ENV PATH /opt/qt6/6.2.4/gcc_64/bin:/opt/qt6/6.2.4/gcc_64/libexec:$PATH
+ENV PATH /opt/qt6/6.8.2/gcc_64/bin:/opt/qt6/6.8.2/gcc_64/libexec:$PATH
 
 CMD ["bash"]
