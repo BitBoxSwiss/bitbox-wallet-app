@@ -3,6 +3,7 @@
   align-items: center;
   background-color: var(--background-secondary);
   border: none;
+  color: var(--color-default);
   display: flex;
   font-size: var(--size-default);
   justify-content: space-between;
@@ -16,9 +17,10 @@
   cursor: pointer;
 }
 
-.leftContent {
+.content {
   align-items: center;
   display: flex;
+  justify-content: space-between;
   width: 100%;
 }
 
