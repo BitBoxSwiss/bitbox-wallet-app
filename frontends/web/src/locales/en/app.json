@@ -68,7 +68,7 @@
       "step": "Finished",
       "title": "Account added"
     },
-    "title": "+ Add account"
+    "title": "Add account"
   },
   "aopp": {
     "addressRequest": "{{host}} is requesting a receiving address.",
