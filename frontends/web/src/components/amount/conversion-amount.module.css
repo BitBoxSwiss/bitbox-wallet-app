@@ -20,6 +20,7 @@
 
 .txConversionAmount .txUnit {
   font-size: 12px;
+  flex-shrink: 0;
 }
 
 .txSmallInlineIcon img {
