@@ -277,6 +277,14 @@ func TestOrderedTransactionsDeductedAmount(t *testing.T) {
 			Amount:             amount,
 			Fee:                &fee,
 		},
+		{
+			// timestamp is nil, deductedAmount is still set
+			Timestamp: nil,
+			Height:    15,
+			Type:      TxTypeSend,
+			Amount:    amount,
+			Fee:       &fee,
+		},
 	}
 
 	orderedTxs := NewOrderedTransactions(txs)
@@ -285,4 +293,5 @@ func TestOrderedTransactionsDeductedAmount(t *testing.T) {
 	requireAmountIsEqualTo(t, orderedTxs[1].DeductedAmount, 10)
 	requireAmountIsEqualTo(t, orderedTxs[2].DeductedAmount, 0)
 	requireAmountIsEqualTo(t, orderedTxs[3].DeductedAmount, 100)
+	requireAmountIsEqualTo(t, orderedTxs[4].DeductedAmount, 110)
 }

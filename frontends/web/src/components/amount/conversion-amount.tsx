@@ -54,7 +54,7 @@ export const ConversionAmount = ({
 
   return (
     <span className={styles.txConversionAmount}>
-      {conversion && amountToShow ? (
+      {(conversion || sendToSelf) && amountToShow ? (
         <>
           {sendToSelf && (
             <span className={styles.txSmallInlineIcon}>

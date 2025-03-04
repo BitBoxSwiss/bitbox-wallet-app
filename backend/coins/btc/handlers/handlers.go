@@ -121,14 +121,18 @@ func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, isFee bool) For
 
 func (handlers *Handlers) formatAmountAtTimeAsJSON(amount coin.Amount, timeStamp *time.Time) FormattedAmount {
 	accountCoin := handlers.account.Coin()
-	conversions, estimated := coin.ConversionsAtTime(
-		amount,
-		handlers.account.Coin(),
-		false,
-		handlers.account.Config().RateUpdater,
-		util.FormatBtcAsSat(handlers.account.Config().BtcCurrencyUnit),
-		timeStamp,
-	)
+	conversions := map[string]string{}
+	estimated := false
+	if timeStamp != nil {
+		conversions, estimated = coin.ConversionsAtTime(
+			amount,
+			handlers.account.Coin(),
+			false,
+			handlers.account.Config().RateUpdater,
+			util.FormatBtcAsSat(handlers.account.Config().BtcCurrencyUnit),
+			timeStamp,
+		)
+	}
 	return FormattedAmount{
 		Amount:      accountCoin.FormatAmount(amount, false),
 		Unit:        accountCoin.GetFormatUnit(false),
@@ -195,12 +199,12 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 		timestamp = txInfo.CreatedTimestamp
 	}
 
-	var deductedAmountAtTime FormattedAmount
+	deductedAmountAtTime := handlers.formatAmountAtTimeAsJSON(txInfo.DeductedAmount, timestamp)
+
 	if timestamp != nil {
 		t := timestamp.Format(time.RFC3339)
 		formattedTime = &t
 		amountAtTime = handlers.formatAmountAtTimeAsJSON(txInfo.Amount, timestamp)
-		deductedAmountAtTime = handlers.formatAmountAtTimeAsJSON(txInfo.DeductedAmount, timestamp)
 	}
 
 	addresses := []string{}
