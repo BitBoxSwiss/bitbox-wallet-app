@@ -42,6 +42,7 @@ import { Darkmode } from './components/darkmode/darkmode';
 import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { Providers } from './contexts/providers';
+import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
 import styles from './app.module.css';
 
 export const App = () => {
@@ -202,6 +203,7 @@ export const App = () => {
             />
             <RouterWatcher />
           </div>
+          <BottomNavigation />
           <Alert />
           <Confirm />
         </div>
