@@ -29,7 +29,9 @@ import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { Spinner } from '@/components/spinner/Spinner';
 import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '@/components/icon/logo';
-import { Footer, Header } from '@/components/layout';
+import { Footer, GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
+import { View, ViewContent } from '@/components/view/view';
+import { OutlinedSettingsButton } from '@/components/settingsButton/outlined-settings-button';
 import style from './bitbox01/bitbox01.module.css';
 
 export const Waiting = () => {
@@ -55,23 +57,29 @@ export const Waiting = () => {
     );
   }
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <Header title={<h2>{t('welcome.title')}</h2>} />
-        <div className="content padded narrow isVerticallyCentered">
-          <div>
-            {isDarkMode ? (<AppLogoInverted />) : (<AppLogo />)}
-            <div className="box large">
-              <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
-              <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
-            </div>
-            <Bluetooth />
-          </div>
-        </div>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <Header title={<h2>{t('welcome.title')}</h2>}>
+            <OutlinedSettingsButton />
+          </Header>
+          <View verticallyCentered width="550px" fitContent>
+            <ViewContent>
+              <div>
+                {isDarkMode ? (<AppLogoInverted />) : (<AppLogo />)}
+                <div className="box large">
+                  <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
+                  <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
+                </div>
+                <Bluetooth />
+              </div>
+            </ViewContent>
+          </View>
+        </Main>
         <Footer>
           {isDarkMode ? (<SwissMadeOpenSourceDark />) : (<SwissMadeOpenSource />)}
         </Footer>
-      </div>
+      </GuidedContent>
       <Guide>
         <Entry entry={t('guide.waiting.welcome', { returnObjects: true })} shown={true} />
         <Entry entry={{
@@ -96,6 +104,6 @@ export const Waiting = () => {
         <Entry entry={t('guide.waiting.deviceNotRecognized', { returnObjects: true })} />
         <Entry entry={t('guide.waiting.useWithoutDevice', { returnObjects: true })} />
       </Guide>
-    </div>
+    </GuideWrapper>
   );
 };

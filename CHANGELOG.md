@@ -3,6 +3,7 @@
 ## Unreleased
 - Reduced support for BitBox01
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
+- Replace sidebar with bottom navigation bar for mobile devices
 
 # 4.47.1
 - Linux: fix support for Wayland
