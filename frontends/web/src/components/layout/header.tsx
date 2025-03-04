@@ -45,10 +45,11 @@ export const Header = ({
     return false;
   };
 
+
   return (
     <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
       <div className={style.header}>
-        <div className={`${style.sidebarToggler} ${hideSidebarToggler ? style.hideSidebarToggler : ''}`} onClick={toggleSidebar}>
+        <div className={`hide-on-small ${style.sidebarToggler} ${hideSidebarToggler ? style.hideSidebarToggler : ''}`} onClick={toggleSidebar}>
           <MenuDark className="show-in-lightmode" />
           <MenuLight className="show-in-darkmode" />
         </div>

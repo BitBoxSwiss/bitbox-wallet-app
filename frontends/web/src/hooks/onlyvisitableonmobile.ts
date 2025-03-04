@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-import { ReactNode } from 'react';
-import style from './settingsButton.module.css';
+import { useMediaQuery } from '@/hooks/mediaquery';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-type TProps = {
-  optionalText?: string;
-  optionalIcon?: JSX.Element;
-  children: ReactNode;
-}
-export const SettingsItem = ({ optionalText, optionalIcon, children }: TProps) => {
-  return (
-    <div className={[style.container, style.item].join(' ')}>
-      {children}
-      {optionalText && <span className={style.optionalText}>{optionalText}</span>}
-      {optionalIcon}
-    </div>
-  );
-
+export const useOnlyVisitableOnMobile = (redirectUrl: string) => {
+  const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  useEffect(() => {
+    if (!isMobile) {
+      navigate(redirectUrl, { replace: true });
+    }
+  }, [isMobile, navigate, redirectUrl]);
 };

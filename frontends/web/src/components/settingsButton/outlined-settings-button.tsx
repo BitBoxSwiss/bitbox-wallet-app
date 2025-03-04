@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-import { ReactNode } from 'react';
-import style from './settingsButton.module.css';
+import { Button } from '@/components/forms';
+import { useNavigate } from 'react-router-dom';
+import { Cog } from '@/components/icon/icon';
+import styles from './outlined-settings-button.module.css';
 
-type TProps = {
-  optionalText?: string;
-  optionalIcon?: JSX.Element;
-  children: ReactNode;
-}
-export const SettingsItem = ({ optionalText, optionalIcon, children }: TProps) => {
+export const OutlinedSettingsButton = () => {
+  const navigate = useNavigate();
   return (
-    <div className={[style.container, style.item].join(' ')}>
-      {children}
-      {optionalText && <span className={style.optionalText}>{optionalText}</span>}
-      {optionalIcon}
-    </div>
+    <Button className={styles.button} onClick={() => navigate('/settings')} transparent>
+      <Cog />
+    </Button>
   );
-
 };

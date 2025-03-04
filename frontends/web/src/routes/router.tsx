@@ -48,6 +48,8 @@ import { BitsuranceWidget } from './bitsurance/widget';
 import { BitsuranceDashboard } from './bitsurance/dashboard';
 import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
+import { AllAccounts } from '@/routes/accounts/all-accounts';
+import { More } from '@/routes/settings/more';
 
 type TAppRouterProps = {
     devices: TDevices;
@@ -211,6 +213,10 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     />
   </InjectParams>);
 
+  const MoreEl = (<InjectParams>
+    <More />
+  </InjectParams>);
+
   const GeneralEl = (<InjectParams>
     <General
       devices={devices}
@@ -233,6 +239,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   </InjectParams>);
 
   const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
+
+  const AllAccountsEl = <InjectParams><AllAccounts accounts={activeAccounts} /></InjectParams>;
 
   return (
     <Routes>
@@ -262,6 +270,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         </Route>
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
         <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
+        <Route path="accounts/all" element={AllAccountsEl} />
         <Route path="bitsurance">
           <Route path="bitsurance" element={<Bitsurance accounts={activeAccounts}/>}/>
           <Route path="account" element={BitsuranceAccountEl} >
@@ -276,6 +285,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         </Route>
         <Route path="settings">
           <Route index element={MobileSettingsEl} />
+          <Route path="more" element={MoreEl} />
           <Route path="general" element={GeneralEl} />
           <Route path="about" element={AboutEl} />
           <Route path="device-settings/:deviceID" element={Device} />
