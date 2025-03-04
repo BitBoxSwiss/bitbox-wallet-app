@@ -95,6 +95,12 @@
   color: var(--color-green);
 }
 
+.txUnit {
+  color: var(--color-secondary);
+  font-size: 14px;
+  line-height: 1.285714;
+}
+
 .txNote {
   color: var(--color-secondary);
   display: block;
