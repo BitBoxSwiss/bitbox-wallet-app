@@ -110,7 +110,7 @@ export const Amount = ({
   };
 
   return (
-    <span onClick={handleClick}>
+    <span className={style.amount} onClick={handleClick}>
       <FormattedAmount
         amount={amount}
         unit={unit}
