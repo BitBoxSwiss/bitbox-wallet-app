@@ -59,9 +59,10 @@ unix:!macx {
 
 SOURCES += \
         main.cpp \
-        filedialog.cpp
+        filedialog.cpp \
+        urlhandler.cpp
 
-HEADERS += libserver.h webclass.h filedialog.h
+HEADERS += libserver.h webclass.h filedialog.h urlhandler.h
 
 unix:macx {
     CONFIG += sdk_no_version_check
