@@ -80,7 +80,7 @@ func BtcDirectDeals() *ExchangeDealsList {
 		ExchangeName: BTCDirectName,
 		Deals: []*ExchangeDeal{
 			{
-				Fee:     3, // 3%
+				Fee:     3.9, // 3.9%
 				Payment: CardPayment,
 				IsFast:  true,
 			},
