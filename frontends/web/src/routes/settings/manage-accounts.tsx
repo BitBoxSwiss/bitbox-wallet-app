@@ -22,7 +22,7 @@ import * as backendAPI from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
 import { Button, Input, Label } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
-import { EditActive, EyeOpenedDark, USBSuccess } from '@/components/icon';
+import { EditActive, EyeOpenedDark, Plus, USBSuccess } from '@/components/icon';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { Toggle } from '@/components/toggle/toggle';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
@@ -240,6 +240,7 @@ class ManageAccounts extends Component<Props, State> {
                     className={style.addAccountBtn}
                     primary
                     onClick={() => route('/add-account')}>
+                    <Plus className="m-right-quarter" width="12" height="12" />
                     {t('addAccount.title')}
                   </Button>
                   <Grid col="1">
