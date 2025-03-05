@@ -1,0 +1,33 @@
+.container {
+  background-color: var(--background-secondary);
+  bottom: 0;
+  border-top: 2.5px solid var(--color-mediumgray);
+  display: none;
+  padding: var(--space-half);
+  position: fixed;
+  width: 100%;
+  height: 84px;
+  justify-content: space-between;
+}
+
+.link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--color-text);
+}
+
+.link.active {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 7px;
+    text-decoration-thickness: 3px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        display: flex;
+    }
+}
