@@ -26,13 +26,17 @@ var pairedDeviceIdentifiers: Set<String> {
 
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var discoveredPeripherals: [UUID: PeripheralMetadata] = [:]
-
+    
     var centralManager: CBCentralManager!
     var connectedPeripheral: CBPeripheral?
     var pWriter: CBCharacteristic?
     var pReader: CBCharacteristic?
     var pProduct: CBCharacteristic?
-
+    
+    // Peripherals in this set will not be auto-connected even if previously paired.
+    // This is for failed connections to not enter an infinite connect loop.
+    private var dontAutoConnectSet: Set<UUID> = []
+    
     private var readBuffer = Data()
     private let readBufferLock = NSLock()  // Ensure thread-safe buffer access
     private let semaphore = DispatchSemaphore(value: 0)
@@ -52,20 +56,31 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         centralManager.connect(metadata.peripheral, options: nil)
     }
 
+    private func restartScan() {
+        guard centralManager.state == .poweredOn,
+              !centralManager.isScanning,
+              connectedPeripheral == nil else { return }
+        discoveredPeripherals.removeAll()
+        updateBackendState()
+        centralManager.scanForPeripherals(
+          withServices: [CBUUID(string: "e1511a45-f3db-44c0-82b8-6c880790d1f1")],
+          options: nil
+        )
+    }
+
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
         case .poweredOn:
             print("BLE: on")
-            discoveredPeripherals.removeAll()
-            centralManager.scanForPeripherals(
-                withServices: [CBUUID(string: "e1511a45-f3db-44c0-82b8-6c880790d1f1")],
-                options: nil)
+            restartScan()
         case .poweredOff, .unauthorized, .unsupported, .resetting, .unknown:
             print("BLE: unavailable or not supported")
             connectedPeripheral = nil
             pReader = nil
             pWriter = nil
             pProduct = nil
+            discoveredPeripherals.removeAll()
+            updateBackendState()
         @unknown default:
             print("BLE: Unknown Bluetooth state")
         }
@@ -84,10 +99,15 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
                 print("BLE: manufacturer data: \(data.hexEncodedString())")
             }
 
-            // Auto-connect if previously paired
+            // Auto-connect if previously paired.
+            // Skip if previously failed, so we don't go into an infinite connect loop.
             if pairedDeviceIdentifiers.contains(identifier.uuidString) {
-                print("BLE: Found bonded device, connecting...")
-                connect(to: identifier)
+                if !dontAutoConnectSet.contains(identifier) {
+                    print("BLE: found bonded device \(identifier.uuidString), connecting...")
+                    connect(to: identifier)
+                } else {
+                    print("BLE: skip auto-connect for device \(identifier.uuidString)")
+                }
             }
 
             updateBackendState()
@@ -109,7 +129,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         discoveredPeripherals[peripheral.identifier]?.connectionFailed = true
-        print("Connection failed to \(peripheral.name ?? "unknown device")")
+        dontAutoConnectSet.insert(peripheral.identifier)
+        print("BLE: connection failed to \(peripheral.name ?? "unknown device")")
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -205,7 +226,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         pWriter = nil;
         pProduct = nil;
 
-        // TODO: start scanning again.
+        restartScan()
     }
 
     func readBlocking(length: Int) -> Data? {
