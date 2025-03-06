@@ -20,7 +20,7 @@ import { subscribeEndpoint, TUnsubscribe } from './subscribe';
 export type TPeripheral = {
   identifier: string;
   name: string;
-  connectionFailed: boolean;
+  connectionError?: string;
 };
 
 export type TState = {

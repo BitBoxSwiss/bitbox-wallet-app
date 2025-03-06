@@ -11,7 +11,7 @@ import Mobileserver
 struct PeripheralMetadata {
     let peripheral: CBPeripheral
     let discoveredDate: Date
-    var connectionFailed: Bool = false
+    var connectionError: String? = nil
 }
 
 private let pairedDevicesKey = "pairedDeviceIdentifiers"
@@ -26,17 +26,17 @@ var pairedDeviceIdentifiers: Set<String> {
 
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var discoveredPeripherals: [UUID: PeripheralMetadata] = [:]
-    
+
     var centralManager: CBCentralManager!
     var connectedPeripheral: CBPeripheral?
     var pWriter: CBCharacteristic?
     var pReader: CBCharacteristic?
     var pProduct: CBCharacteristic?
-    
+
     // Peripherals in this set will not be auto-connected even if previously paired.
     // This is for failed connections to not enter an infinite connect loop.
     private var dontAutoConnectSet: Set<UUID> = []
-    
+
     private var readBuffer = Data()
     private let readBufferLock = NSLock()  // Ensure thread-safe buffer access
     private let semaphore = DispatchSemaphore(value: 0)
@@ -53,6 +53,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     func connect(to peripheralID: UUID) {
         guard let metadata = discoveredPeripherals[peripheralID] else { return }
         centralManager.stopScan()
+        discoveredPeripherals[peripheralID]?.connectionError = nil
+        updateBackendState()
         centralManager.connect(metadata.peripheral, options: nil)
     }
 
@@ -117,7 +119,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("BLE: Connected to \(peripheral.name ?? "unknown device")")
 
-        discoveredPeripherals[peripheral.identifier]?.connectionFailed = false
+        discoveredPeripherals[peripheral.identifier]?.connectionError = nil
+        updateBackendState()
 
         // Add to paired devices
         pairedDeviceIdentifiers.insert(peripheral.identifier.uuidString)
@@ -128,9 +131,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        discoveredPeripherals[peripheral.identifier]?.connectionFailed = true
+        let errorMessage = error?.localizedDescription ?? "unknown error"
+        discoveredPeripherals[peripheral.identifier]?.connectionError = errorMessage
         dontAutoConnectSet.insert(peripheral.identifier)
-        print("BLE: connection failed to \(peripheral.name ?? "unknown device")")
+        updateBackendState()
+        print("BLE: connection failed to \(peripheral.name ?? "unknown device"): \(error?.localizedDescription)")
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -272,7 +277,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         struct PeripheralJSON: Codable {
             let identifier: String
             let name: String
-            let connectionFailed: Bool
+            let connectionError: String?
         }
 
         struct StateJSON: Codable {
@@ -284,7 +289,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             PeripheralJSON(
                 identifier: metadata.peripheral.identifier.uuidString,
                 name: metadata.peripheral.name ?? "BitBox",
-                connectionFailed: metadata.connectionFailed
+                connectionError: metadata.connectionError
             )
         }
 

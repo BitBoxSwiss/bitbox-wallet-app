@@ -23,9 +23,9 @@ import (
 
 // Peripheral is a bluetooth peripheral.
 type Peripheral struct {
-	Identifier       string `json:"identifier"`
-	Name             string `json:"name"`
-	ConnectionFailed bool   `json:"connectionFailed"`
+	Identifier      string  `json:"identifier"`
+	Name            string  `json:"name"`
+	ConnectionError *string `json:"connectionError,omitempty"`
 }
 
 // State contains everything needed to render bluetooth peripherals and other data in the frontend.

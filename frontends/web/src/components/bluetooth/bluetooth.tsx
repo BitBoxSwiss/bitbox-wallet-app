@@ -42,12 +42,16 @@ const _Bluetooth = () => {
               <span>
                 { peripheral.name !== '' ? peripheral.name : peripheral.identifier }
                 {' '}
-                { peripheral.connectionFailed ? (
+                { peripheral.connectionError ? (
                   <Badge type="danger">
                     {t('bluetooth.connectionFailed')}
                   </Badge>
                 ) : null }
+                { peripheral.connectionError ? (
+                  <p>{ peripheral.connectionError }</p>
+                ) : null }
               </span>
+
             </ActionableItem>
           );
         })}
