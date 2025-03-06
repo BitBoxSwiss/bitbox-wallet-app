@@ -30,8 +30,10 @@ type Peripheral struct {
 
 // State contains everything needed to render bluetooth peripherals and other data in the frontend.
 type State struct {
-	Peripherals []*Peripheral `json:"peripherals"`
-	Connecting  bool          `json:"connecting"`
+	// BluetoothAvailable is false if bluetooth is powered off or otherwise unavailable.
+	BluetoothAvailable bool          `json:"bluetoothAvailable"`
+	Peripherals        []*Peripheral `json:"peripherals"`
+	Connecting         bool          `json:"connecting"`
 }
 
 // Bluetooth manages a list of peripherals.

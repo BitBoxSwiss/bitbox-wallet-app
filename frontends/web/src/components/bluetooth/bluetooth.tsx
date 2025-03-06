@@ -28,6 +28,9 @@ const _Bluetooth = () => {
   if (!state) {
     return null;
   }
+  if (!state.bluetoothAvailable) {
+    return <>Please turn on Bluetooth</>;
+  }
   return (
     <>
       <div className={styles.label}>

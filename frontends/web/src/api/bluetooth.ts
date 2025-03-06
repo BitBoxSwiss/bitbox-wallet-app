@@ -24,6 +24,7 @@ export type TPeripheral = {
 };
 
 export type TState = {
+  bluetoothAvailable: boolean;
   peripherals: TPeripheral[];
   connecting: boolean;
 };

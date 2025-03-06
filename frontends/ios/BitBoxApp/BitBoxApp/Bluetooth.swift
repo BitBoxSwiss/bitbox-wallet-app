@@ -9,6 +9,7 @@ import CoreBluetooth
 import Mobileserver
 
 struct State {
+    var bluetoothAvailable: Bool
     var discoveredPeripherals: [UUID: PeripheralMetadata]
     var connecting: Bool
 }
@@ -30,7 +31,7 @@ var pairedDeviceIdentifiers: Set<String> {
 }
 
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
-    private var state: State = State(discoveredPeripherals: [:], connecting: false)
+    private var state: State = State(bluetoothAvailable: false, discoveredPeripherals: [:], connecting: false)
     
     var centralManager: CBCentralManager!
     var connectedPeripheral: CBPeripheral?
@@ -49,6 +50,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     override init() {
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
+        state.bluetoothAvailable = centralManager.state == .poweredOn
+        updateBackendState()
     }
 
     func isConnected() -> Bool {
@@ -77,6 +80,9 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        state.bluetoothAvailable = centralManager.state == .poweredOn
+        updateBackendState()
+        
         switch central.state {
         case .poweredOn:
             print("BLE: on")
@@ -285,6 +291,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         }
 
         struct StateJSON: Codable {
+            let bluetoothAvailable: Bool
             let peripherals: [PeripheralJSON]
             let connecting: Bool
         }
@@ -298,7 +305,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             )
         }
 
-        let state = StateJSON(peripherals: peripherals, connecting: state.connecting)
+        let state = StateJSON(bluetoothAvailable: state.bluetoothAvailable, peripherals: peripherals, connecting: state.connecting)
 
         do {
             let encoder = JSONEncoder()
