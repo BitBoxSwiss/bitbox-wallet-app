@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import * as accountApi from '@/api/account';
@@ -54,6 +54,7 @@ import { Button } from '@/components/forms';
 import { SubTitle } from '@/components/title';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
 import style from './account.module.css';
+import { RatesContext } from '@/contexts/RatesContext';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -67,6 +68,8 @@ export const Account = ({
   devices,
 }: Props) => {
   const { t } = useTranslation();
+
+  const { btcUnit } = useContext(RatesContext);
 
   const [balance, setBalance] = useState<accountApi.IBalance>();
   const [status, setStatus] = useState<accountApi.IStatus>();
@@ -194,6 +197,10 @@ export const Account = ({
     ];
     return () => unsubscribe(subscriptions);
   }, [code, onAccountChanged, onStatusChanged, status]);
+
+  useEffect(() => {
+    onAccountChanged(code, status);
+  }, [btcUnit, onAccountChanged, code, status]);
 
   const exportAccount = () => {
     if (status === undefined || status.fatalError) {
