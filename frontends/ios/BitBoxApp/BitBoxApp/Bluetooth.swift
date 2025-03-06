@@ -14,6 +14,16 @@ struct PeripheralMetadata {
     var connectionFailed: Bool = false
 }
 
+private let pairedDevicesKey = "pairedDeviceIdentifiers"
+var pairedDeviceIdentifiers: Set<String> {
+    get {
+        Set(UserDefaults.standard.stringArray(forKey: pairedDevicesKey) ?? [])
+    }
+    set {
+        UserDefaults.standard.set(Array(newValue), forKey: pairedDevicesKey)
+    }
+}
+
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var discoveredPeripherals: [UUID: PeripheralMetadata] = [:]
 
@@ -74,6 +84,12 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
                 print("BLE: manufacturer data: \(data.hexEncodedString())")
             }
 
+            // Auto-connect if previously paired
+            if pairedDeviceIdentifiers.contains(identifier.uuidString) {
+                print("BLE: Found bonded device, connecting...")
+                connect(to: identifier)
+            }
+
             updateBackendState()
         }
     }
@@ -82,6 +98,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         print("BLE: Connected to \(peripheral.name ?? "unknown device")")
 
         discoveredPeripherals[peripheral.identifier]?.connectionFailed = false
+
+        // Add to paired devices
+        pairedDeviceIdentifiers.insert(peripheral.identifier.uuidString)
+
         connectedPeripheral = peripheral
         peripheral.delegate = self
         peripheral.discoverServices(nil)
