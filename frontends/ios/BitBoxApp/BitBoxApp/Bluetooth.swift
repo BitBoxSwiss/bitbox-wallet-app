@@ -8,6 +8,17 @@
 import CoreBluetooth
 import Mobileserver
 
+struct ProductInfo: Codable {
+    let product: String
+    let version: String
+
+    // map struct fields to json keys
+    enum CodingKeys: String, CodingKey {
+        case product = "p"
+        case version = "v"
+    }
+}
+
 struct State {
     var bluetoothAvailable: Bool
     var discoveredPeripherals: [UUID: PeripheralMetadata]
@@ -32,7 +43,7 @@ var pairedDeviceIdentifiers: Set<String> {
 
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     private var state: State = State(bluetoothAvailable: false, discoveredPeripherals: [:], connecting: false)
-    
+
     var centralManager: CBCentralManager!
     var connectedPeripheral: CBPeripheral?
     var pWriter: CBCharacteristic?
@@ -82,7 +93,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         state.bluetoothAvailable = centralManager.state == .poweredOn
         updateBackendState()
-        
+
         switch central.state {
         case .poweredOn:
             print("BLE: on")
@@ -229,8 +240,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             // Signal the semaphore to unblock `readBlocking`
             semaphore.signal()
         }
-        if characteristic == pProduct, let val = characteristic.value {
-            print("BLE: product changed: \(val)")
+        if characteristic == pProduct {
+            print("BLE: product changed: \(String(describing: parseProduct()))")
             // Invoke device manager to scan now, which will make it detect the device being connected
             // (or disconnected, in case the product string indicates that) now instead of waiting for
             // the next scan.
@@ -271,14 +282,20 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         return data
     }
 
-    func productStr() -> String {
-        guard let pProduct = self.pProduct else {
-            return ""
+    func parseProduct() -> ProductInfo? {
+        guard let pProduct = self.pProduct,
+              let value = pProduct.value else {
+            return nil
         }
-        guard let value = pProduct.value else {
-            return ""
+
+        do {
+            let decoder = JSONDecoder()
+            let productInfo = try decoder.decode(ProductInfo.self, from: value)
+            return productInfo
+        } catch {
+            print("BLE: Failed to parse product JSON: \(error)")
+            return nil
         }
-        return String(data: value, encoding: .utf8) ?? ""
     }
 
     // Encode the Bluetooth state as JSON so it can be sent to the backend-
@@ -335,9 +352,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 // product, version, etc.
 class BluetoothDeviceInfo: NSObject, MobileserverGoDeviceInfoInterfaceProtocol {
     private let bluetoothManager: BluetoothManager
+    private let productInfo: ProductInfo
 
-    init(bluetoothManager: BluetoothManager) {
+    init(bluetoothManager: BluetoothManager, productInfo: ProductInfo) {
         self.bluetoothManager = bluetoothManager
+        self.productInfo = productInfo
         super.init()
 
     }
@@ -360,7 +379,7 @@ class BluetoothDeviceInfo: NSObject, MobileserverGoDeviceInfoInterfaceProtocol {
 
     func product() -> String {
         // TODO: return bluetoothManager.productStr() and have the backend identify and handle it
-        return "BitBox02BTC"
+        return productInfo.product
     }
 
     func vendorID() -> Int {
@@ -372,7 +391,7 @@ class BluetoothDeviceInfo: NSObject, MobileserverGoDeviceInfoInterfaceProtocol {
     }
 
     func serial() -> String {
-        return "v9.21.0"
+        return "v" + productInfo.version
     }
 
     func usagePage() -> Int {
