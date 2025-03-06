@@ -22,14 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { TLanguagesList } from './types';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: vi.fn(),
-  hasResourceBundle: vi.fn(),
-  addResourceBundle: vi.fn(),
-  changeLanguage: vi.fn()
-}));
-
-vi.mock('@/i18n/i18n', () => ({
-  changei18nLanguage: vi.fn()
+  useTranslation: vi.fn()
 }));
 
 describe('components/language/language', () => {

@@ -39,7 +39,7 @@ export const RestartInTestnetSetting = ({ backendConfig, onChangeConfig }: TProp
     setShowRestartMessage(e.target.checked);
     const config = await setConfig({
       backend: {
-        'restartInTestnet': e.target.checked
+        'startInTestnet': e.target.checked
       },
     }) as TConfig;
     onChangeConfig(config);
@@ -58,7 +58,7 @@ export const RestartInTestnetSetting = ({ backendConfig, onChangeConfig }: TProp
         extraComponent={
           backendConfig !== undefined ? (
             <Toggle
-              checked={backendConfig?.restartInTestnet || false}
+              checked={backendConfig?.startInTestnet || false}
               onChange={handleToggleRestartInTestnet}
             />
           ) : null

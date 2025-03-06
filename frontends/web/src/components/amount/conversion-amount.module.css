@@ -7,8 +7,8 @@
   align-items: baseline;
   display: flex;
   font-variant: tabular-nums;
-  justify-content: end;
-  gap: var(--space-eight);
+  margin-left: auto;
+  gap: 3px;
 }
 
 .txPrefix,
@@ -16,10 +16,12 @@
   color: var(--color-secondary);
   font-size: 14px;
   line-height: 1.285714;
+  white-space: nowrap;
 }
 
 .txConversionAmount .txUnit {
   font-size: 12px;
+  flex-shrink: 0;
 }
 
 .txSmallInlineIcon img {

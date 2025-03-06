@@ -3,7 +3,6 @@
 ## Unreleased
 - Reduced support for BitBox01
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
-- Upgraded to Qt 6.8.2, dropping support for macOS 11 and Ubuntu 20.04.
 
 # 4.47.0
 - Bundle BitBox02 firmware version v9.22.0
@@ -24,6 +23,7 @@
 - Create desktop shortcut by default on Windows during installation
 - Migrate from deprecated Walletconnect web3wallet to Reown, add Sepolia, Arbitrum, Base, and Optimism to supported chains
 - Added BTC Direct buy option
+- Upgraded to Qt 6.8.2, dropping support for macOS 11 and Ubuntu 20.04.
 
 # 4.46.3
 - Fix camera access on linux
