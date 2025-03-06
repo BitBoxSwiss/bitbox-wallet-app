@@ -73,6 +73,8 @@
   "aopp": {
     "addressRequest": "{{host}} está solicitando una dirección de recepción.",
     "addressRequestWithLogo": "está solicitando una dirección de recepción",
+    "addressRequestWithLogoAndXPub": "solicita una dirección de recepción y una clave pública (xpub).",
+    "addressRequestWithXPub": "{{host}} solicita una dirección de recepción y una clave pública (xpub).",
     "banner": "Solicitud de dirección en curso. Conecta tu dispositivo para continuar.",
     "errorTitle": "Error durante la solicitud de dirección",
     "labelAddress": "Dirección",
@@ -84,7 +86,8 @@
       "title": "Dirección enviada con éxito"
     },
     "syncing": "Sincronizando la cuenta, por favor espera un poco.",
-    "title": "Solicitud de dirección"
+    "title": "Solicitud de dirección",
+    "xpubRequested": "Al compartir tu xpub, los servicios externos pueden ver las direcciones de tu cuenta. Tus monedas siguen estando seguras y bajo tu control."
   },
   "app": {
     "upgrade": "Una nueva versión de esta aplicación está disponible! Por favor actualiza desde {{current}} a {{version}}."
@@ -288,6 +291,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Por favor, introduce una microSD en tu BitBox02 para continuar.",
+      "insertSDCardToSeeBackups": "Inserta la tarjeta microSD en tu BitBox02 para ver tus copias de seguridad.",
       "insertSDcardTitle": "Introduce la tarjeta microSD"
     },
     "stepPassword": {
@@ -450,6 +454,45 @@
           },
           "link": "Acceso a BTC Direct - Private Trading Desk",
           "title": "¿Quieres comprar o vender más de 50.000€?"
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "description": "Trabajamos con BTC Direct, un bróker europeo de confianza, para facilitar la compra de criptomonedas en la BitBoxApp. Este servicio está disponible en toda Europa mediante transferencias bancarias, tarjetas de crédito y muchos métodos de pago locales.",
+            "kyc": {
+              "description": "Para todas las transacciones es necesaria la verificación de la identidad del cliente. Deberás tomarte una selfie y sacar una foto de un documento oficial.",
+              "title": "Verificación de identidad"
+            },
+            "paymentMethods": {
+              "buy": "Comprar: Paga en EUR para recibir las monedas directamente en tu BitBox. Puedes elegir entre compras únicas o recurrentes. En el caso de las transferencias bancarias, el tipo de cambio se fija cuando BTC Direct recibe el dinero. Los métodos instantáneos utilizan un tipo de cambio fijo durante un tiempo limitado.",
+              "note": "Nota: los tipos de cambio de BTC Direct pueden diferir ligeramente de los tipos de la BitBoxApp.",
+              "title": "Métodos de pago y comisiones"
+            },
+            "security": {
+              "description": "BTC Direct es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de la BitBox02. Trabajamos en estrecha colaboración con BTC Direct para mejorar la seguridad general.",
+              "link": "Modelo de amenazas de seguridad de la BitBox02",
+              "title": "Seguridad"
+            },
+            "title_bitcoin": "Compra bitcoin con BTC Direct",
+            "title_crypto": "Compra criptomonedas con BTC Direct"
+          },
+          "infobox": {
+            "feesBuying": {
+              "bancontact": "Bancontact: {{fee}}%",
+              "bankTransfer": "Transferencia bancaria, SEPA, iDEAL: {{fee}}%",
+              "creditDebitCard": "Tarjetas de crédito, Cartes Bancaires: {{fee}}%",
+              "sofort": "Sofort: {{fee}}%",
+              "title": "Tarifas por compra"
+            },
+            "intro": "Compra europea de criptomonedas con EUR.",
+            "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "Transferencia bancaria, SEPA Instant, iDEAL",
+              "creditDebitCard": "Tarjetas de crédito (Mastercard, Visa), Cartes Bancaires",
+              "sofort": "Sofort",
+              "title": "Formas de pago"
+            }
+          },
+          "learnmore": "Más información sobre BTC Direct"
         },
         "moonpay": {
           "fees": {
@@ -1317,6 +1360,9 @@
       "customFees": {
         "description": "Le permite introducir su propia tarifa al enviar."
       },
+      "restartInTestnet": {
+        "description": "Explora y prueba funciones utilizando testnet."
+      },
       "torProxy": {
         "description": "Conéctate a través de Tor para mejorar la privacidad."
       }
@@ -1348,6 +1394,10 @@
         "title": "Idioma"
       },
       "remebmerWallet": {
+        "enable": {
+          "description": "Ahora puedes ver las cuentas asociadas a esta billetera sin insertar tu dispositivo BitBox. Sin embargo, tu BitBox sigue siendo necesaria para realizar transacciones y mostrar las direcciones de recepción.",
+          "title": "Billetera recordada"
+        },
         "name": "Recordar esta billetera",
         "warning": "La BitBoxApp dejará de recordar esta billetera. Para verla de nuevo, necesitarás conectar la BitBox02 correspondiente a esta billetera. Las monedas de esta billetera no se verán afectadas. ¿Deseas continuar?",
         "warningTitle": "Dejar de recordar esta billetera"
@@ -1596,6 +1646,7 @@
     },
     "availableBalance": "Saldo disponible",
     "button": "Revisar ",
+    "buyEth": "Comprar ETH",
     "coincontrol": {
       "address": "Dirección",
       "addressReused": "Dirección reutilizada",
@@ -1610,6 +1661,7 @@
       "to": "A",
       "total": "Total"
     },
+    "edit": "Editar transacción",
     "error": {
       "erc20InsufficientGasFunds": "Parece que no tienes suficiente Ether para pagar esta transacción ERC20. Por favor, asegúrate de que tienes suficiente Ether en tu billetera.",
       "feeTooLow": "La tarifa de red es demasiado baja",
@@ -1661,6 +1713,7 @@
     },
     "maximum": "Enviar todo",
     "maximumSelectedCoins": "Enviar monedas seleccionadas",
+    "newTransaction": "Nueva transacción",
     "noFeeTargets": "Las estimaciones de tarifas no están disponibles actualmente. Vuelva a intentarlo más tarde o introduce una tarifa personalizada.",
     "priority": "Prioridad",
     "scanQR": "Escanear código QR",
@@ -1717,6 +1770,7 @@
         "title": "Exportar logs"
       },
       "fee": "Activar tarifas de red personalizadas",
+      "restartInTestnet": "Modo Testnet",
       "setProxyAddress": "Establecer dirección proxy",
       "title": "Configuración avanzada",
       "useProxy": "Activar proxy TOR",

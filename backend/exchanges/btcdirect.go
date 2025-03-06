@@ -61,7 +61,7 @@ func isRegionSupportedBtcDirect(region string) bool {
 func IsBtcDirectSupported(coinCode coin.Code) bool {
 	supportedCoins := []coin.Code{
 		coin.CodeBTC, coin.CodeTBTC, coin.CodeLTC, coin.CodeTLTC, coin.CodeETH, coin.CodeSEPETH,
-		"eth-erc20-usdt", "eth-erc20-usdc", "eth-erc20-link"}
+		"eth-erc20-usdc", "eth-erc20-link"}
 
 	coinSupported := slices.Contains(supportedCoins, coinCode)
 
@@ -80,7 +80,7 @@ func BtcDirectDeals() *ExchangeDealsList {
 		ExchangeName: BTCDirectName,
 		Deals: []*ExchangeDeal{
 			{
-				Fee:     3, // 3%
+				Fee:     3.9, // 3.9%
 				Payment: CardPayment,
 				IsFast:  true,
 			},

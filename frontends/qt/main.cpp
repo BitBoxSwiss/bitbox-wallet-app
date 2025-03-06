@@ -38,6 +38,7 @@
 #include <QSystemTrayIcon>
 #include <QMessageBox>
 #include <QtGlobal>
+#include <QtSystemDetection>
 #if defined(_WIN32)
 #if QT_VERSION_MAJOR >= 6
 #include <private/qguiapplication_p.h>
@@ -55,6 +56,7 @@
 #include "filedialog.h"
 #include "libserver.h"
 #include "webclass.h"
+#include "urlhandler.h"
 
 #define APPNAME "BitBoxApp"
 
@@ -85,25 +87,6 @@ public:
         Mode::User | Mode::SecondaryNotification | Mode::ExcludeAppVersion | Mode::ExcludeAppPath)
     {
     }
-
-#if defined(Q_OS_MACOS)
-    bool event(QEvent *event) override
-    {
-        if (event->type() == QEvent::FileOpen) {
-            QFileOpenEvent* openEvent = static_cast<QFileOpenEvent*>(event);
-            if (!openEvent->url().isEmpty()) {
-                // This is only supported on macOS and is used to handle URIs that are opened with
-                // the BitBoxApp, such as "aopp:..." links. The event is received and handled both
-                // if the BitBoxApp is launched and also when it is already running, in which case
-                // it is brought to the foreground automatically.
-
-                handleURI(openEvent->url().toString().toUtf8().constData());
-            }
-        }
-
-        return QApplication::event(event);
-    }
-#endif
 };
 
 class WebEnginePage : public QWebEnginePage {
@@ -318,6 +301,12 @@ int main(int argc, char *argv[])
     }
 
     BitBoxApp a(argc, argv);
+    // The URI scheme handler for aopp is handled via OS events on macOS. The other platforms invoke
+    // the process with the uri as a command line param.
+#if defined(Q_OS_MACOS)
+    UrlHandler url_handler;
+    url_handler.setup();
+#endif
     // These three are part of the SingleApplication instance ID - if changed, the user should close
     // th existing app before launching the new one.
     // See https://github.com/BitBoxSwiss/SingleApplication/blob/c557da5d0cb63b8002c1ba99ec18f257620009b1/singleapplication_p.cpp#L135-L137

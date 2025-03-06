@@ -103,18 +103,6 @@ func (webdevEnvironment) NativeLocale() string {
 	if v == "" {
 		v = os.Getenv("LANG")
 	}
-	// try macOS specific AppleLocale
-	if v == "" && runtime.GOOS == "darwin" {
-		cmd := exec.Command("defaults", "read", "-g", "AppleLocale") // may return something like en_US@rg=chzzzz
-		out, err := cmd.Output()
-		if err == nil {
-			v = strings.Split(string(out), "@")[0]
-		}
-	}
-	// If still empty, provide a default
-	if v == "" {
-		v = "en_US" // Default to English (United States)
-	}
 	// Strip charset from the LANG. It is unsupported by JS Date formatting
 	// used in the frontend and breaks UI in unexpected ways.
 	// We are always UTF-8 anyway.
