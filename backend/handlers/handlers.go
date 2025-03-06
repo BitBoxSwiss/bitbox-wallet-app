@@ -45,6 +45,7 @@ import (
 	bitbox02Handlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02/handlers"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02bootloader"
 	bitbox02bootloaderHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02bootloader/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bluetooth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/exchanges"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -117,6 +118,7 @@ type Backend interface {
 	CancelConnectKeystore()
 	SetWatchonly(rootFingerprint []byte, watchonly bool) error
 	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
+	Bluetooth() *bluetooth.Bluetooth
 }
 
 // Handlers provides a web api to the backend.
@@ -261,6 +263,9 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/notes/export", handlers.postExportNotes).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/notes/import", handlers.postImportNotes).Methods("POST")
+
+	getAPIRouterNoError(apiRouter)("/bluetooth/state", handlers.getBluetoothState).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/bluetooth/connect", handlers.postBluetoothConnect).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
@@ -1615,4 +1620,19 @@ func (handlers *Handlers) postImportNotes(r *http.Request) interface{} {
 		return result{Success: false, Message: err.Error()}
 	}
 	return result{Success: true, Data: data}
+}
+
+func (handlers *Handlers) getBluetoothState(r *http.Request) interface{} {
+	return handlers.backend.Bluetooth().State()
+}
+
+func (handlers *Handlers) postBluetoothConnect(r *http.Request) interface{} {
+	var identifier string
+	if err := json.NewDecoder(r.Body).Decode(&identifier); err != nil {
+		// We assume this will never fail to simplify handling in the frontend.
+		return nil
+	}
+
+	handlers.backend.Environment().BluetoothConnect(identifier)
+	return nil
 }

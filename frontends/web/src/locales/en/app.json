@@ -366,6 +366,10 @@
   "blink": {
     "button": "Blink"
   },
+  "bluetooth": {
+    "connectionFailed": "failed",
+    "select": "Select your BitBox"
+  },
   "bootloader": {
     "button": "Upgrade firmware now",
     "button_install": "Install firmware now",

@@ -136,6 +136,9 @@ public class GoViewModel extends AndroidViewModel {
             authSetting.postValue(enabled);
         }
 
+        public void bluetoothConnect(String identifier) {
+        }
+
         public boolean usingMobileData() {
             // Adapted from https://stackoverflow.com/a/53243938
 

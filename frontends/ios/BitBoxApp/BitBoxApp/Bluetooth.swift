@@ -8,12 +8,40 @@
 import CoreBluetooth
 import Mobileserver
 
+struct State {
+    var bluetoothAvailable: Bool
+    var discoveredPeripherals: [UUID: PeripheralMetadata]
+    var connecting: Bool
+}
+
+struct PeripheralMetadata {
+    let peripheral: CBPeripheral
+    let discoveredDate: Date
+    var connectionError: String? = nil
+}
+
+private let pairedDevicesKey = "pairedDeviceIdentifiers"
+var pairedDeviceIdentifiers: Set<String> {
+    get {
+        Set(UserDefaults.standard.stringArray(forKey: pairedDevicesKey) ?? [])
+    }
+    set {
+        UserDefaults.standard.set(Array(newValue), forKey: pairedDevicesKey)
+    }
+}
+
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
+    private var state: State = State(bluetoothAvailable: false, discoveredPeripherals: [:], connecting: false)
+    
     var centralManager: CBCentralManager!
-    var discoveredPeripheral: CBPeripheral?
+    var connectedPeripheral: CBPeripheral?
     var pWriter: CBCharacteristic?
     var pReader: CBCharacteristic?
     var pProduct: CBCharacteristic?
+
+    // Peripherals in this set will not be auto-connected even if previously paired.
+    // This is for failed connections to not enter an infinite connect loop.
+    private var dontAutoConnectSet: Set<UUID> = []
 
     private var readBuffer = Data()
     private let readBufferLock = NSLock()  // Ensure thread-safe buffer access
@@ -22,50 +50,107 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     override init() {
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
+        state.bluetoothAvailable = centralManager.state == .poweredOn
+        updateBackendState()
     }
 
     func isConnected() -> Bool {
-        return discoveredPeripheral != nil && pReader != nil && pWriter != nil
+        return connectedPeripheral != nil && pReader != nil && pWriter != nil;
+    }
+
+    func connect(to peripheralID: UUID) {
+        guard let metadata = state.discoveredPeripherals[peripheralID] else { return }
+        centralManager.stopScan()
+        state.discoveredPeripherals[peripheralID]?.connectionError = nil
+        state.connecting = true
+        updateBackendState()
+        centralManager.connect(metadata.peripheral, options: nil)
+    }
+
+    private func restartScan() {
+        guard centralManager.state == .poweredOn,
+              !centralManager.isScanning,
+              connectedPeripheral == nil else { return }
+        state.discoveredPeripherals.removeAll()
+        updateBackendState()
+        centralManager.scanForPeripherals(
+          withServices: [CBUUID(string: "e1511a45-f3db-44c0-82b8-6c880790d1f1")],
+          options: nil
+        )
     }
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        state.bluetoothAvailable = centralManager.state == .poweredOn
+        updateBackendState()
+        
         switch central.state {
         case .poweredOn:
             print("BLE: on")
-            centralManager.scanForPeripherals(
-                withServices: [CBUUID(string: "e1511a45-f3db-44c0-82b8-6c880790d1f1")],
-                options: nil)
+            restartScan()
         case .poweredOff, .unauthorized, .unsupported, .resetting, .unknown:
-            print("BLE: Bluetooth Unavailable or not supported")
-            discoveredPeripheral = nil
+            print("BLE: unavailable or not supported")
+            connectedPeripheral = nil
             pReader = nil
             pWriter = nil
+            pProduct = nil
+            state.discoveredPeripherals.removeAll()
+            state.connecting = false
+            updateBackendState()
         @unknown default:
             print("BLE: Unknown Bluetooth state")
         }
     }
 
-    func centralManager(
-        _ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
-        advertisementData: [String: Any], rssi RSSI: NSNumber
-    ) {
-        print("BLE: discovered \(peripheral.name ?? "unknown device")")
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
+        let identifier = peripheral.identifier
+        if state.discoveredPeripherals[identifier] == nil {
+            state.discoveredPeripherals[identifier] = PeripheralMetadata(
+                peripheral: peripheral,
+                discoveredDate: Date()
+            )
+            print("BLE: discovered \(peripheral.name ?? "unknown device")")
+            if let data = advertisementData["kCBAdvDataManufacturerData"] as? Data {
+                let data = data.advanced(by: 2)  // 2 bytes for manufacturer ID
+                print("BLE: manufacturer data: \(data.hexEncodedString())")
+            }
 
-        if let data = advertisementData["kCBAdvDataManufacturerData"] as? Data {
-            let data = data.advanced(by: 2)  // 2 bytes for manufacturer ID
-            print("BLE: manufacturer data: \(data.hexEncodedString())")
+            // Auto-connect if previously paired.
+            // Skip if previously failed, so we don't go into an infinite connect loop.
+            if pairedDeviceIdentifiers.contains(identifier.uuidString) {
+                if !dontAutoConnectSet.contains(identifier) {
+                    print("BLE: found bonded device \(identifier.uuidString), connecting...")
+                    connect(to: identifier)
+                } else {
+                    print("BLE: skip auto-connect for device \(identifier.uuidString)")
+                }
+            }
+
+            updateBackendState()
         }
-
-        discoveredPeripheral = peripheral
-        centralManager.stopScan()
-        centralManager.connect(peripheral, options: nil)
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("BLE: Connected to \(peripheral.name ?? "unknown device")")
 
+        state.discoveredPeripherals[peripheral.identifier]?.connectionError = nil
+        state.connecting = false
+        updateBackendState()
+
+        // Add to paired devices
+        pairedDeviceIdentifiers.insert(peripheral.identifier.uuidString)
+
+        connectedPeripheral = peripheral
         peripheral.delegate = self
         peripheral.discoverServices(nil)
+    }
+
+    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        let errorMessage = error?.localizedDescription ?? "unknown error"
+        state.discoveredPeripherals[peripheral.identifier]?.connectionError = errorMessage
+        state.connecting = false
+        dontAutoConnectSet.insert(peripheral.identifier)
+        updateBackendState()
+        print("BLE: connection failed to \(peripheral.name ?? "unknown device"): \(errorMessage)")
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -154,24 +239,18 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
 
     // This method gets called if the peripheral disconnects
-    func centralManager(
-        _ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?
-    ) {
-        print("BLE: perhipheral disconnected")
-        discoveredPeripheral = nil
-        pReader = nil
-        pWriter = nil
+    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        print("BLE: peripheral disconnected")
+        connectedPeripheral = nil;
+        pReader = nil;
+        pWriter = nil;
+        pProduct = nil;
 
-        // TODO: start scanning again.
+        restartScan()
     }
 
     func readBlocking(length: Int) -> Data? {
-        guard let pReader = pReader else {
-            print("pReader is not set")
-            return nil
-        }
-        guard let peripheral = discoveredPeripheral else {
-            print("discoveredPeripheral is not set")
+        if !isConnected() {
             return nil
         }
         print("BLE: wants to read \(length)")
@@ -201,6 +280,54 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         }
         return String(data: value, encoding: .utf8) ?? ""
     }
+
+    // Encode the Bluetooth state as JSON so it can be sent to the backend-
+    func toJSON() -> String? {
+        // Create a mirror of the Go structure
+        struct PeripheralJSON: Codable {
+            let identifier: String
+            let name: String
+            let connectionError: String?
+        }
+
+        struct StateJSON: Codable {
+            let bluetoothAvailable: Bool
+            let peripherals: [PeripheralJSON]
+            let connecting: Bool
+        }
+
+        // Convert discoveredPeripherals to the JSON structure
+        let peripherals = Array(state.discoveredPeripherals.values).map { metadata in
+            PeripheralJSON(
+                identifier: metadata.peripheral.identifier.uuidString,
+                name: metadata.peripheral.name ?? "BitBox",
+                connectionError: metadata.connectionError
+            )
+        }
+
+        let state = StateJSON(bluetoothAvailable: state.bluetoothAvailable, peripherals: peripherals, connecting: state.connecting)
+
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            let jsonData = try encoder.encode(state)
+            return String(data: jsonData, encoding: .utf8)
+        } catch {
+            print("JSON encoding error: \(error)")
+            return nil
+        }
+    }
+
+    func updateBackendState() {
+        guard let jsonStr = toJSON() else {
+            return
+        }
+        var error: NSError?
+        let success = MobileserverBluetoothSetState(jsonStr, &error)
+        if !success {
+            print("Failed to set Bluetooth backend state: \(error?.localizedDescription ?? "Unknown error")")
+        }
+    }
 }
 
 // The interface is currently geared towards USB. For now we pretend to be a USB BitBox02 device.
@@ -216,11 +343,11 @@ class BluetoothDeviceInfo: NSObject, MobileserverGoDeviceInfoInterfaceProtocol {
     }
 
     func identifier() -> String {
-        guard let discoveredPeripheral = bluetoothManager.discoveredPeripheral else {
+        guard let connectedPeripheral = bluetoothManager.connectedPeripheral else {
             return ""
         }
 
-        return discoveredPeripheral.identifier.uuidString
+        return connectedPeripheral.identifier.uuidString
     }
 
     func interface() -> Int {
@@ -274,7 +401,7 @@ class BluetoothReadWriteCloser: NSObject, MobileserverGoReadWriteCloserInterface
 
         print("BLE: write data: \(data!.hexEncodedString())")
 
-        bluetoothManager.discoveredPeripheral!.writeValue(data!, for: pWriter, type: .withResponse)
+        bluetoothManager.connectedPeripheral!.writeValue(data!, for: pWriter, type: .withResponse)
         n!.pointee = data!.count
     }
 }

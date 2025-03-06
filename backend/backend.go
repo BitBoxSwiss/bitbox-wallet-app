@@ -39,6 +39,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bluetooth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device"
 	deviceevent "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
@@ -176,6 +177,9 @@ type Environment interface {
 	// OnAuthSettingChanged is called when the authentication (screen lock) setting is changed.
 	// This is also called when the app launches with the current setting.
 	OnAuthSettingChanged(enabled bool)
+	// BluetoothConnect tries to connect to the peripheral by the given identifier.
+	// Use `backend.bluetooth.State()` to track failure.
+	BluetoothConnect(identifier string)
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
@@ -194,6 +198,7 @@ type Backend struct {
 	devices map[string]device.Interface
 
 	usbManager *usb.Manager
+	bluetooth  *bluetooth.Bluetooth
 
 	accountsAndKeystoreLock locker.Locker
 	accounts                AccountsList
@@ -265,7 +270,6 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		coins:    map[coinpkg.Code]coinpkg.Coin{},
 		accounts: []accounts.Interface{},
 		aopp:     AOPP{State: aoppStateInactive},
-
 		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, log *logrus.Entry) accounts.Interface {
 			return btc.NewAccount(config, coin, gapLimits, log, hclient)
 		},
@@ -296,6 +300,9 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 
 	backend.banners = banners.NewBanners()
 	backend.banners.Observe(backend.Notify)
+
+	backend.bluetooth = bluetooth.New(log)
+	backend.bluetooth.Observe(backend.Notify)
 
 	return backend, nil
 }
@@ -1051,4 +1058,9 @@ func (backend *Backend) ExportLogs() error {
 		return err
 	}
 	return nil
+}
+
+// Bluetooth returns the backend's bluetooth instance.
+func (backend *Backend) Bluetooth() *bluetooth.Bluetooth {
+	return backend.bluetooth
 }
