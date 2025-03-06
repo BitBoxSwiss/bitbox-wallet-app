@@ -25,6 +25,7 @@ export type TPeripheral = {
 
 export type TState = {
   peripherals: TPeripheral[];
+  connecting: boolean;
 };
 
 export const getState = (): Promise<TState> => {

@@ -8,6 +8,11 @@
 import CoreBluetooth
 import Mobileserver
 
+struct State {
+    var discoveredPeripherals: [UUID: PeripheralMetadata]
+    var connecting: Bool
+}
+
 struct PeripheralMetadata {
     let peripheral: CBPeripheral
     let discoveredDate: Date
@@ -25,8 +30,8 @@ var pairedDeviceIdentifiers: Set<String> {
 }
 
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
-    var discoveredPeripherals: [UUID: PeripheralMetadata] = [:]
-
+    private var state: State = State(discoveredPeripherals: [:], connecting: false)
+    
     var centralManager: CBCentralManager!
     var connectedPeripheral: CBPeripheral?
     var pWriter: CBCharacteristic?
@@ -51,9 +56,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
 
     func connect(to peripheralID: UUID) {
-        guard let metadata = discoveredPeripherals[peripheralID] else { return }
+        guard let metadata = state.discoveredPeripherals[peripheralID] else { return }
         centralManager.stopScan()
-        discoveredPeripherals[peripheralID]?.connectionError = nil
+        state.discoveredPeripherals[peripheralID]?.connectionError = nil
+        state.connecting = true
         updateBackendState()
         centralManager.connect(metadata.peripheral, options: nil)
     }
@@ -62,7 +68,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         guard centralManager.state == .poweredOn,
               !centralManager.isScanning,
               connectedPeripheral == nil else { return }
-        discoveredPeripherals.removeAll()
+        state.discoveredPeripherals.removeAll()
         updateBackendState()
         centralManager.scanForPeripherals(
           withServices: [CBUUID(string: "e1511a45-f3db-44c0-82b8-6c880790d1f1")],
@@ -81,7 +87,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             pReader = nil
             pWriter = nil
             pProduct = nil
-            discoveredPeripherals.removeAll()
+            state.discoveredPeripherals.removeAll()
+            state.connecting = false
             updateBackendState()
         @unknown default:
             print("BLE: Unknown Bluetooth state")
@@ -90,8 +97,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
         let identifier = peripheral.identifier
-        if discoveredPeripherals[identifier] == nil {
-            discoveredPeripherals[identifier] = PeripheralMetadata(
+        if state.discoveredPeripherals[identifier] == nil {
+            state.discoveredPeripherals[identifier] = PeripheralMetadata(
                 peripheral: peripheral,
                 discoveredDate: Date()
             )
@@ -119,7 +126,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("BLE: Connected to \(peripheral.name ?? "unknown device")")
 
-        discoveredPeripherals[peripheral.identifier]?.connectionError = nil
+        state.discoveredPeripherals[peripheral.identifier]?.connectionError = nil
+        state.connecting = false
         updateBackendState()
 
         // Add to paired devices
@@ -132,7 +140,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         let errorMessage = error?.localizedDescription ?? "unknown error"
-        discoveredPeripherals[peripheral.identifier]?.connectionError = errorMessage
+        state.discoveredPeripherals[peripheral.identifier]?.connectionError = errorMessage
+        state.connecting = false
         dontAutoConnectSet.insert(peripheral.identifier)
         updateBackendState()
         print("BLE: connection failed to \(peripheral.name ?? "unknown device"): \(error?.localizedDescription)")
@@ -282,10 +291,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
         struct StateJSON: Codable {
             let peripherals: [PeripheralJSON]
+            let connecting: Bool
         }
 
         // Convert discoveredPeripherals to the JSON structure
-        let peripherals = Array(discoveredPeripherals.values).map { metadata in
+        let peripherals = Array(state.discoveredPeripherals.values).map { metadata in
             PeripheralJSON(
                 identifier: metadata.peripheral.identifier.uuidString,
                 name: metadata.peripheral.name ?? "BitBox",
@@ -293,7 +303,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             )
         }
 
-        let state = StateJSON(peripherals: peripherals)
+        let state = StateJSON(peripherals: peripherals, connecting: state.connecting)
 
         do {
             let encoder = JSONEncoder()

@@ -34,6 +34,7 @@ const _Bluetooth = () => {
         {t('bluetooth.select')}
       </div>
       <div className={styles.container}>
+        { state.connecting ? <p>connecting</p> : null }
         {state.peripherals.map(peripheral => {
           return (
             <ActionableItem
