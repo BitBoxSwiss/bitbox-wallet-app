@@ -68,13 +68,13 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
             return nil
         }
        
-        let productStr = bluetoothManager.productStr();
-        if productStr == "" || productStr == "no connection" {
+        let productInfo = bluetoothManager.parseProduct();
+        guard let productInfo = productInfo else {
             // Not ready or explicitly not connected (waiting for the device to enter
             // firmware or bootloader)
             return nil
         }
-        return BluetoothDeviceInfo(bluetoothManager: bluetoothManager)
+        return BluetoothDeviceInfo(bluetoothManager: bluetoothManager, productInfo: productInfo)
     }
 
     func nativeLocale() -> String {
