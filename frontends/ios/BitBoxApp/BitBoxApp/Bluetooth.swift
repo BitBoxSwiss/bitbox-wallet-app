@@ -144,7 +144,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         state.connecting = false
         dontAutoConnectSet.insert(peripheral.identifier)
         updateBackendState()
-        print("BLE: connection failed to \(peripheral.name ?? "unknown device"): \(error?.localizedDescription)")
+        print("BLE: connection failed to \(peripheral.name ?? "unknown device"): \(errorMessage)")
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -244,12 +244,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
 
     func readBlocking(length: Int) -> Data? {
-        guard let pReader = pReader else {
-            print("pReader is not set")
-            return nil
-        }
-        guard let peripheral = connectedPeripheral else {
-            print("connectedPeripheral is not set")
+        if !isConnected() {
             return nil
         }
         print("BLE: wants to read \(length)")
