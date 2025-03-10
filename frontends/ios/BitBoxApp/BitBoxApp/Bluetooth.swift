@@ -49,6 +49,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     var pWriter: CBCharacteristic?
     var pReader: CBCharacteristic?
     var pProduct: CBCharacteristic?
+    
+    private var isPaired: Bool = false
 
     // Peripherals in this set will not be auto-connected even if previously paired.
     // This is for failed connections to not enter an infinite connect loop.
@@ -66,7 +68,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
 
     func isConnected() -> Bool {
-        return connectedPeripheral != nil && pReader != nil && pWriter != nil;
+        return isPaired && connectedPeripheral != nil && pReader != nil && pWriter != nil;
     }
 
     func connect(to peripheralID: UUID) {
@@ -100,13 +102,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             restartScan()
         case .poweredOff, .unauthorized, .unsupported, .resetting, .unknown:
             print("BLE: unavailable or not supported")
-            connectedPeripheral = nil
-            pReader = nil
-            pWriter = nil
-            pProduct = nil
-            state.discoveredPeripherals.removeAll()
-            state.connecting = false
-            updateBackendState()
+            handleDisconnect()
         @unknown default:
             print("BLE: Unknown Bluetooth state")
         }
@@ -242,22 +238,36 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         }
         if characteristic == pProduct {
             print("BLE: product changed: \(String(describing: parseProduct()))")
+            // We can only read the product characteristic when paired.
+            isPaired = true
             // Invoke device manager to scan now, which will make it detect the device being connected
             // (or disconnected, in case the product string indicates that) now instead of waiting for
             // the next scan.
             MobileserverUsbUpdate()
         }
     }
+    
+    func handleDisconnect() {
+        connectedPeripheral = nil
+        pReader = nil
+        pWriter = nil
+        pProduct = nil
+        state.discoveredPeripherals.removeAll()
+        state.connecting = false
+        isPaired = false
+        updateBackendState()
+        
+        // Have the backend scan right away, which will make it detect that we disconnected.
+        // Otherwise there would be up to a second of delay (the backend device manager scan interval).
+        MobileserverUsbUpdate()
+        
+        restartScan()
+    }
 
     // This method gets called if the peripheral disconnects
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         print("BLE: peripheral disconnected")
-        connectedPeripheral = nil;
-        pReader = nil;
-        pWriter = nil;
-        pProduct = nil;
-
-        restartScan()
+        handleDisconnect()
     }
 
     func readBlocking(length: Int) -> Data? {
