@@ -297,6 +297,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
               let value = pProduct.value else {
             return nil
         }
+        
+        if value.isEmpty {
+            return nil
+        }
 
         do {
             let decoder = JSONDecoder()
