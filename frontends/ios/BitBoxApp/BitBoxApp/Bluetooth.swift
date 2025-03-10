@@ -366,7 +366,7 @@ class BluetoothDeviceInfo: NSObject, MobileserverGoDeviceInfoInterfaceProtocol {
             return ""
         }
 
-        return connectedPeripheral.identifier.uuidString
+        return connectedPeripheral.identifier.uuidString + "-" + productInfo.product
     }
 
     func interface() -> Int {
