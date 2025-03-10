@@ -3,7 +3,7 @@ systems may be possible but it is explicitly unsupported. The following
 platforms should be viable for development, building, and use of the BitBox
 Wallet application.
 
-* Debian: 11 bullseye or newer
+* Debian: 11.6+
 * Ubuntu: 22.04+
 * Fedora: 36+
 * MacOS: 12+
