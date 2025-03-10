@@ -4,6 +4,9 @@
 - Reduced support for BitBox01
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
 
+# 4.47.1
+- Linux: fix support for Wayland
+
 # 4.47.0
 - Bundle BitBox02 firmware version v9.22.0
 - Fix long transaction notes to show fully on multiple lines when necessary
