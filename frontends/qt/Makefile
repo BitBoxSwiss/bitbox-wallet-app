@@ -30,12 +30,12 @@ linux:
 	mv build/BitBox build/linux-tmp
 	cp build/assets.rcc build/linux-tmp/
 	cp server/libserver.so build/linux-tmp
+	# Add Wayland libs so the app can run natively on Wayland too.
+	# The linuxdeployqt maintainer unfortunately refuses to support it automatically: https://github.com/probonopd/linuxdeployqt/issues/189
+	# The list of related plugins was found by: `find $(qmake -query QT_INSTALL_PLUGINS) | grep wayland`
 	cd build/linux-tmp && /opt/linuxdeployqt-continuous-x86_64.AppImage BitBox \
 		-bundle-non-qt-libs \
 		-unsupported-allow-new-glibc \
-		# Add Wayland libs so the app can run natively on Wayland too.
-		# The linuxdeployqt maintainer unfortunately refuses to support it automatically: https://github.com/probonopd/linuxdeployqt/issues/189
-		# The list of related plugins was found by: `find $(qmake -query QT_INSTALL_PLUGINS) | grep wayland`
 		-extra-plugins=platforms/libqwayland-generic.so,platforms/libqwayland-egl.so,wayland-graphics-integration-client,wayland-decoration-client,wayland-shell-integration
 	cp /usr/lib/x86_64-linux-gnu/nss/* build/linux-tmp/lib
 	# See https://github.com/probonopd/linuxdeployqt/issues/554#issuecomment-1761834180
@@ -45,8 +45,8 @@ linux:
 	cp resources/linux/usr/share/icons/hicolor/128x128/apps/bitbox.png build/linux-tmp
 	mkdir build/tmp-deb/opt/
 	cp -aR build/linux-tmp build/tmp-deb/opt/bitbox
-	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v 4.47.0 -C ../tmp-deb/
-	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.47.0 -C ../tmp-deb/
+	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v 4.47.1 -C ../tmp-deb/
+	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.47.1 -C ../tmp-deb/
 	# create AppImage
 	cd build/linux-tmp && /opt/linuxdeployqt-continuous-x86_64.AppImage BitBox -appimage -unsupported-allow-new-glibc
 	mv build/linux-tmp/BitBoxApp-*-x86_64.AppImage build/linux/
