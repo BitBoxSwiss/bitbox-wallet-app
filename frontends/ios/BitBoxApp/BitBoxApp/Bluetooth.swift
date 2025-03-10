@@ -143,9 +143,6 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         state.connecting = false
         updateBackendState()
 
-        // Add to paired devices
-        pairedDeviceIdentifiers.insert(peripheral.identifier.uuidString)
-
         connectedPeripheral = peripheral
         peripheral.delegate = self
         peripheral.discoverServices(nil)
@@ -239,7 +236,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         if characteristic == pProduct {
             print("BLE: product changed: \(String(describing: parseProduct()))")
             // We can only read the product characteristic when paired.
-            isPaired = true
+            if !isPaired {
+                isPaired = true
+                // Add to paired devices
+                pairedDeviceIdentifiers.insert(peripheral.identifier.uuidString)
+            }
             // Invoke device manager to scan now, which will make it detect the device being connected
             // (or disconnected, in case the product string indicates that) now instead of waiting for
             // the next scan.
