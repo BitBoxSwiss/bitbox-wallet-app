@@ -891,11 +891,16 @@ func (backend *Backend) Environment() Environment {
 
 // Close shuts down the backend. After this, no other method should be called.
 func (backend *Backend) Close() error {
+	backend.ratesUpdater.Stop()
+	// Call this without `accountsAndKeystoreLock` as it eventually calls `DeregisterKeystore()`,
+	// which acquires the same lock.
+	if backend.usbManager != nil {
+		backend.usbManager.Close()
+	}
+
 	defer backend.accountsAndKeystoreLock.Lock()()
 
 	errors := []string{}
-
-	backend.ratesUpdater.Stop()
 
 	backend.uninitAccounts(true)
 

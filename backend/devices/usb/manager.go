@@ -91,6 +91,7 @@ type Manager struct {
 	onUnregister func(string)
 
 	updateCh chan struct{}
+	quitCh   chan struct{}
 
 	socksProxy socksproxy.SocksProxy
 
@@ -118,6 +119,7 @@ func NewManager(
 		onRegister:        onRegister,
 		onUnregister:      onUnregister,
 		updateCh:          make(chan struct{}),
+		quitCh:            make(chan struct{}),
 		socksProxy:        socksProxy,
 
 		log: logging.Get().WithGroup("manager"),
@@ -272,6 +274,14 @@ func (manager *Manager) Update() {
 func (manager *Manager) listen() {
 	for {
 		select {
+		case <-manager.quitCh:
+			return
+		default:
+		}
+
+		select {
+		case <-manager.quitCh:
+			return
 		case <-manager.updateCh:
 		case <-time.After(time.Second):
 		}
@@ -335,4 +345,16 @@ func (manager *Manager) listen() {
 func (manager *Manager) Start() {
 	go manager.listen()
 	manager.Update()
+}
+
+// Close closes and unregisters all devices.
+func (manager *Manager) Close() {
+	manager.log.Info("Closing devices manager")
+	close(manager.quitCh)
+	for deviceID, device := range manager.devices {
+		manager.log.WithField("device-id", deviceID).Info("manager: closing device")
+		device.Close()
+		delete(manager.devices, deviceID)
+		manager.onUnregister(deviceID)
+	}
 }

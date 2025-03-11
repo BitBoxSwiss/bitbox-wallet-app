@@ -6,6 +6,7 @@
 
 # 4.47.1
 - Linux: fix support for Wayland
+- Linux: release device upon app close, enabling other apps to connect to the BitBox after the BitBoxApp closes
 
 # 4.47.0
 - Bundle BitBox02 firmware version v9.22.0

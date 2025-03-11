@@ -353,8 +353,9 @@ func Shutdown() {
 
 	log := logging.Get().WithGroup("server")
 	if globalShutdown != nil {
+		log.Info("Shutdown about to be called")
 		globalShutdown()
-		log.Info("Shutdown called")
+		log.Info("Shutdown finished")
 	} else {
 		log.Info("Shutdown called, but backend not running")
 	}

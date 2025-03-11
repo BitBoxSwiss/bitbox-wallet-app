@@ -205,6 +205,11 @@ func goLog(msg *C.cchar_t) {
 	logging.Get().WithGroup("qt-frontend").Info(goMsg)
 }
 
+//export backendShutdown
+func backendShutdown() {
+	bridgecommon.Shutdown()
+}
+
 func authResult(ok bool) {
 	bridgecommon.AuthResult(ok)
 }
