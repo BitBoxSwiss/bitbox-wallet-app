@@ -128,6 +128,10 @@ struct WebView: UIViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
+        
+        // Disables automatic content inset adjustment to prevent safe area issues
+        // https://developer.apple.com/documentation/uikit/uiscrollview/contentinsetadjustmentbehavior-swift.property
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
 
         setHandlers.setMessageHandlers(handlers: MessageHandlers(webView: webView))
         let source = """

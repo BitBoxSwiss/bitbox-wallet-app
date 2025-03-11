@@ -49,8 +49,8 @@
     background-color: var(--background);
     cursor: default;
     display: flex;
-    height: var(--item-height);
-    padding: 0 var(--space-half);
+    padding: 13.5px var(--space-half);
+    padding-top: calc(13.5px + env(safe-area-inset-top, 0));
     position: relative;
 }
 
