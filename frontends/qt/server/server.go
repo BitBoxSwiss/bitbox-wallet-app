@@ -69,6 +69,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bridgecommon"
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/system"
 )
@@ -112,8 +113,6 @@ func serve(
 	preferredLocale *C.cchar_t,
 	getSaveFilenameFn C.getSaveFilenameCallback,
 ) {
-	log := logging.Get().WithGroup("server")
-	log.WithField("args", os.Args).Info("Started Qt application")
 	testnet := flag.Bool("testnet", false, "activate testnets")
 
 	if runtime.GOOS == "darwin" {
@@ -129,8 +128,17 @@ func serve(
 
 	gapLimitsReceive := flag.Uint("gapLimitReceive", 0, "gap limit for receive addresses. Do not use this unless you know what this means.")
 	gapLimitsChange := flag.Uint("gapLimitChange", 0, "gap limit for change addresses. Do not use this unless you know what this means.")
+	var dataDir *string
+	dataDir = flag.String("dataDir", "", "location where BitBoxApp's data files are stored.")
 
 	flag.Parse()
+
+	if *dataDir != "" {
+		config.SetAppDir(*dataDir)
+	}
+
+	log := logging.Get().WithGroup("server")
+	log.WithField("args", os.Args).Info("Started Qt application")
 
 	var gapLimits *btctypes.GapLimits
 	if *gapLimitsReceive != 0 || *gapLimitsChange != 0 {
