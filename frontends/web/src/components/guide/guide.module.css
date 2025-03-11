@@ -51,8 +51,8 @@
 .header {
     background-color: var(--color-blue);
     flex-shrink: 0;
-    height: var(--header-height);
-    padding: 0 var(--space-default);
+    padding: 23px var(--space-default);
+    padding-top: calc(23px + env(safe-area-inset-top, 0));
 }
 
 .header h2 {
@@ -71,6 +71,7 @@
     flex-direction: column;
     flex-grow: 1;
     padding: 0 var(--space-default);
+    padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 .content h1 {
