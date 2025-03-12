@@ -33,7 +33,9 @@ type State struct {
 	// BluetoothAvailable is false if bluetooth is powered off or otherwise unavailable.
 	BluetoothAvailable bool          `json:"bluetoothAvailable"`
 	Peripherals        []*Peripheral `json:"peripherals"`
-	Connecting         bool          `json:"connecting"`
+	// Connecting is true from the moment we try to connect until after we are paired (or until
+	// either step fails).
+	Connecting bool `json:"connecting"`
 }
 
 // Bluetooth manages a list of peripherals.

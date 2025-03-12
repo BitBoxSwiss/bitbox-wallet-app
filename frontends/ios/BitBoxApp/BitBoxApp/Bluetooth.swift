@@ -22,6 +22,7 @@ struct ProductInfo: Codable {
 struct State {
     var bluetoothAvailable: Bool
     var discoveredPeripherals: [UUID: PeripheralMetadata]
+    // true from the moment we try to connect until after we are paired (or until either step fails).
     var connecting: Bool
 }
 
@@ -140,8 +141,6 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         print("BLE: Connected to \(peripheral.name ?? "unknown device")")
 
         state.discoveredPeripherals[peripheral.identifier]?.connectionError = nil
-        state.connecting = false
-        updateBackendState()
 
         connectedPeripheral = peripheral
         peripheral.delegate = self
@@ -241,6 +240,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
                 // Add to paired devices
                 pairedDeviceIdentifiers.insert(peripheral.identifier.uuidString)
             }
+            state.connecting = false
+            updateBackendState()
             // Invoke device manager to scan now, which will make it detect the device being connected
             // (or disconnected, in case the product string indicates that) now instead of waiting for
             // the next scan.
