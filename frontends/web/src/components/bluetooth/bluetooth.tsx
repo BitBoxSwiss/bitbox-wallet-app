@@ -37,7 +37,7 @@ const _Bluetooth = () => {
         {t('bluetooth.select')}
       </div>
       <div className={styles.container}>
-        { state.connecting ? <p>connecting</p> : null }
+        { state.scanning ? 'scanning' : null }
         {state.peripherals.map(peripheral => {
           return (
             <ActionableItem
@@ -46,14 +46,14 @@ const _Bluetooth = () => {
               <span>
                 { peripheral.name !== '' ? peripheral.name : peripheral.identifier }
                 {' '}
-                { peripheral.connectionError ? (
+                { peripheral.connectionState === 'error' ? (
                   <Badge type="danger">
                     {t('bluetooth.connectionFailed')}
                   </Badge>
                 ) : null }
-                { peripheral.connectionError ? (
+                { peripheral.connectionState === 'error' ? (
                   <p>{ peripheral.connectionError }</p>
-                ) : null }
+                ) : peripheral.connectionState }
               </span>
 
             </ActionableItem>

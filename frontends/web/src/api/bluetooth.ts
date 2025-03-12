@@ -20,13 +20,20 @@ import { subscribeEndpoint, TUnsubscribe } from './subscribe';
 export type TPeripheral = {
   identifier: string;
   name: string;
-  connectionError?: string;
-};
+} & (
+  | {
+      connectionState: 'discovered' | 'connecting' | 'connected';
+    }
+  | {
+      connectionState: 'error';
+      connectionError: string;
+    }
+);
 
 export type TState = {
   bluetoothAvailable: boolean;
+  scanning: boolean;
   peripherals: TPeripheral[];
-  connecting: boolean;
 };
 
 export const getState = (): Promise<TState> => {
