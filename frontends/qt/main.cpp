@@ -460,6 +460,7 @@ int main(int argc, char *argv[])
         delete view;
         view = nullptr;
         webClassMutex.unlock();
+        backendShutdown();
     });
 
 #if defined(_WIN32)
