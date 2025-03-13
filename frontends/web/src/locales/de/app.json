@@ -832,7 +832,7 @@
     "buy": "Kaufe {{coinCode}}",
     "buySell": "Kaufen & Verkaufen",
     "buy_bitcoin": "Kaufe Bitcoin",
-    "buy_crypto": "Kaufe Crypto",
+    "buy_crypto": "Krypto kaufen",
     "enabled_false": "Deaktiviert",
     "enabled_true": "Aktiviert",
     "receive": "Erhalte {{coinCode}}",
