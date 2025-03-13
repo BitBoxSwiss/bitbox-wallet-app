@@ -242,13 +242,8 @@
     "createBackupAborted": "Création de la sauvegarde interrompue.",
     "createBackupFailed": "La création de la sauvegarde a échoué, veuillez réessayer.",
     "initialize": {
-      "passwordText": "Définissons maintenant un mot de passe pour votre appareil. Utilisez les commandes de votre BitBox pour entrer et choisir un mot de passe.",
-      "passwordTitle": "Définissez un mot de passe pour votre BitBox",
-      "text": "Votre BitBox02 a été appairé avec succès ! Initialisons maintenant votre appareil. Commencez par choisir de créer un nouveau portefeuille ou de restaurer un portefeuille à partir d'une sauvegarde existante. <strong>Veuillez vous assurer que vous avez une carte micro SD insérée dans votre BitBox02</strong>.",
-      "tip": "Nous recommandons de continuer dans un environnement sécurisé.",
-      "title": "Initialiser votre BitBox"
+      "tip": "Nous recommandons de continuer dans un environnement sécurisé."
     },
-    "insertSDCard": "<strong>Assurez-vous d'avoir une carte micro SD insérée dans votre BitBox02.</strong>",
     "noPasswordMatch": "Le mot de ",
     "pairing": {
       "failed": "Appariement non confirmé. Veuillez rebrancher votre BitBox02.",
@@ -307,7 +302,6 @@
       "title": "Configurez votre BitBox02"
     },
     "success": {
-      "text": "Hourra ! Votre BitBox02 est maintenant prêt à l'emploi. \n\nPour plus d'informations sur l'utilisation de l'application BitBox, veuillez utiliser le guide d'utilisation en cliquant sur le point d'interrogation situé dans le coin supérieur droit.",
       "title": "Vous êtes prêt !"
     }
   },

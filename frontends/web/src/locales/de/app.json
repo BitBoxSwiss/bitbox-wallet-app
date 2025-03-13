@@ -242,13 +242,8 @@
     "createBackupAborted": "Backup-Erstellung abgebrochen.",
     "createBackupFailed": "Erstellung des Backups fehlgeschlagen, erneut versuchen.",
     "initialize": {
-      "passwordText": "Lass uns nun ein Passwort für deine BitBox festlegen. Schaue dir die Animation unten an und benutze dann die Touch Slider auf den Seiten deiner BitBox, um ein Passwort einzugeben. ",
-      "passwordTitle": "Setze ein Passwort für deine BitBox",
-      "text": "BitBox02 erfolgreich gekoppelt. Jetzt initialisieren wir deine BitBox02. Wähle zuerst aus, ob du eine neue Wallet erstellen oder von einem Backup wieder herstellen möchtest.  <strong>Wenn du von einem Backup wieder herstellen möchtest, stelle sicher, dass deine microSD Karte in deiner BitBox02 eingesteckt ist.</strong>",
-      "tip": "Bitte fahre in einer sichern Umgebung fort. ",
-      "title": "Initialisiere deine BitBox"
+      "tip": "Bitte fahre in einer sichern Umgebung fort. "
     },
-    "insertSDCard": "<strong>Bitte stelle sicher, dass du die microSD Karte in der BitBox02 eingesteckt hast.</strong>",
     "noPasswordMatch": "Passwörter stimmen nicht überein. Bitte versuche es erneut.",
     "pairing": {
       "failed": "Kopplungscode nicht bestätigt. Bitte BitBox02 aus und wieder ein stecken.",
@@ -307,7 +302,6 @@
       "title": "Richte deine Wallet ein"
     },
     "success": {
-      "text": "Hurra! Deine BitBox02 ist bereit.\n\nFür weitere Informationen klicke auf das Fragezeichen Symbol in der oberen rechten Ecke. ",
       "title": "Es kann los gehen!"
     }
   },
@@ -832,7 +826,7 @@
     "buy": "Kaufe {{coinCode}}",
     "buySell": "Kaufen & Verkaufen",
     "buy_bitcoin": "Kaufe Bitcoin",
-    "buy_crypto": "Kaufe Crypto",
+    "buy_crypto": "Krypto kaufen",
     "enabled_false": "Deaktiviert",
     "enabled_true": "Aktiviert",
     "receive": "Erhalte {{coinCode}}",

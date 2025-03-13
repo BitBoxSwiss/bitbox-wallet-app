@@ -239,13 +239,8 @@
     "createBackupAborted": "Criação de backup abortada.",
     "createBackupFailed": "Falha na criação do backup, tente novamente.",
     "initialize": {
-      "passwordText": "Agora vamos definir uma senha para o seu dispositivo. Use os controles da sua BitBox para entrar e escolher uma senha.",
-      "passwordTitle": "Definir uma senha para a sua BitBox",
-      "text": "Sucesso ao emparelhar sua BitBox02! Agora vamos inicializar seu dispositivo. Comece escolhendo criar uma nova carteira ou restaurar uma carteira a partir de um backup existente. <strong>Por favor, verifique se você tem um cartão microSD inserido na sua BitBox02</strong>",
-      "tip": "Recomendamos que você proceda em um ambiente seguro.",
-      "title": "Inicialize sua BitBox"
+      "tip": "Recomendamos que você proceda em um ambiente seguro."
     },
-    "insertSDCard": "<strong>Por favor, verifique se você tem um cartão microSD inserido em sua BitBox02.</strong>",
     "noPasswordMatch": "Senhas não conferem, tente novamente.",
     "pairing": {
       "failed": "Pareamento não confirmado. Por favor, reconecte sua BitBox02.",
@@ -303,7 +298,6 @@
       "title": "Configure sua carteira"
     },
     "success": {
-      "text": "Oba! Sua BitBox02 agora está pronta para uso.\n\nPara obter mais informações sobre como usar o BitBoxApp, use o guia no aplicativo clicando no ponto de interrogação no canto superior direito.",
       "title": "Você está pronto para começar!"
     }
   },
