@@ -21,7 +21,7 @@ export const getExchangeRegionCodes = (): Promise<string[]> => {
   return apiGet('exchange/region-codes');
 };
 
-export type TPaymentMethod = 'card' | 'bank-transfer' | 'bancontact' | 'sofort';
+export type TPaymentMethod = 'card' | 'bank-transfer' | 'bancontact' | 'sofort' | 'spend';
 
 export type ExchangeDeal = {
   fee: number;
@@ -31,7 +31,7 @@ export type ExchangeDeal = {
   isHidden: boolean;
 }
 
-export type TExchangeName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc';
+export type TExchangeName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc' | 'bitrefill';
 
 export type ExchangeDeals = {
   exchangeName: TExchangeName;
@@ -51,7 +51,7 @@ export type ExchangeError = {
 
 export type TExchangeDealsResponse = ExchangeDealsList | ExchangeError
 
-export type TExchangeAction = 'buy' | 'sell';
+export type TExchangeAction = 'buy' | 'sell' | 'spend';
 
 export const getExchangeDeals = (action: TExchangeAction, accountCode: AccountCode, region: string): Promise<TExchangeDealsResponse> => {
   return apiGet(`exchange/deals/${action}/${accountCode}?region=${region}`);
@@ -105,6 +105,23 @@ export const getBTCDirectInfo = (
   code: string,
 ): Promise<TBTCDirectInfoResponse> => {
   return apiGet(`exchange/btcdirect/info/${action}/${code}`);
+};
+
+export type TBitrefillInfoResponse = {
+  success: true;
+  url: string;
+  ref: string;
+  address?: string;
+} | {
+  success: false;
+  errorMessage: string;
+};
+
+export const getBitrefillInfo = (
+  action: TExchangeAction,
+  code: string,
+): Promise<TBitrefillInfoResponse> => {
+  return apiGet(`exchange/bitrefill/info/${action}/${code}`);
 };
 
 export type SupportedExchanges= {

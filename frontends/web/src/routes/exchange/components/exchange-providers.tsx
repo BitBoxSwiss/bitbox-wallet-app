@@ -27,9 +27,20 @@ type Props = {
   exchangeName: ExchangeDeals['exchangeName'];
 }
 
-type TPaymentMethodProps = { methodName: ExchangeDeal['payment'] };
+type TDealProps = {
+  deal: ExchangeDeal;
+  exchangeName: ExchangeDeals['exchangeName'];
+};
 
-const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
+type TPaymentMethodProps = {
+  methodName: ExchangeDeal['payment'];
+  exchangeName: ExchangeDeals['exchangeName'];
+};
+
+const PaymentMethod = ({
+  methodName,
+  exchangeName
+}: TPaymentMethodProps) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   switch (methodName) {
@@ -47,6 +58,12 @@ const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
         {t('buy.exchange.creditCard')}
       </span>
     );
+  case 'spend':
+    return (
+      <span className={style.paymentMethodName}>
+        {t('buy.exchange.spend', { context: exchangeName })}
+      </span>
+    );
   case 'sofort':
   case 'bancontact':
   default:
@@ -54,11 +71,14 @@ const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
   }
 };
 
-const Deal = ({ deal }: { deal: ExchangeDeal }) => {
+const Deal = ({
+  deal,
+  exchangeName
+}: TDealProps) => {
   const { t } = useTranslation();
   return (
     <div className={style.paymentMethodContainer}>
-      <PaymentMethod methodName={deal.payment} />
+      <PaymentMethod methodName={deal.payment} exchangeName={exchangeName}/>
       <div className={style.badgeContainer}>
         {deal.isBest && (
           <Badge type="success">{t('buy.exchange.bestDeal')}</Badge>
@@ -83,7 +103,7 @@ export const ExchangeProviders = ({
           {getExchangeFormattedName(exchangeName)}
         </p>
         <div className={style.paymentMethodsContainer}>
-          {deals.map(deal => !deal.isHidden && <Deal key={deal.payment} deal={deal}/>)}
+          {deals.map(deal => !deal.isHidden && <Deal key={deal.payment} deal={deal} exchangeName={exchangeName}/>)}
         </div>
       </div>
     </div>
