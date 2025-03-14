@@ -368,6 +368,7 @@
   },
   "bluetooth": {
     "connectionFailed": "failed",
+    "enable": "Please turn on Bluetooth",
     "select": "Select your BitBox"
   },
   "bootloader": {

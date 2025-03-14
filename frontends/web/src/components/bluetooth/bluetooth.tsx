@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { useSync } from '@/hooks/api';
 import { connect, getState, syncState } from '@/api/bluetooth';
 import { runningInIOS } from '@/utils/env';
+import { Status } from '@/components/status/status';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { Badge } from '@/components/badge/badge';
 import styles from './bluetooth.module.css';
@@ -29,7 +30,11 @@ const _Bluetooth = () => {
     return null;
   }
   if (!state.bluetoothAvailable) {
-    return <>Please turn on Bluetooth</>;
+    return (
+      <Status type="warning">
+        {t('bluetooth.enable')}
+      </Status>
+    );
   }
   return (
     <>
