@@ -316,7 +316,7 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 	}
 }
 
-// getTransactionsCached requires transactions lock.
+// getTransactionCached requires transactions lock.
 func (transactions *Transactions) getTransactionCached(
 	dbTx DBTxInterface,
 	txHash chainhash.Hash,

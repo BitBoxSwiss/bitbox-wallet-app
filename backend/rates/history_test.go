@@ -161,7 +161,7 @@ func TestHistoryEarliestLatest(t *testing.T) {
 	assert.Zero(t, updater.HistoryLatestTimestampFiat([]string{"foo", "btc"}, "USD"))
 }
 
-// TestLoadDumpUnusableDB ensures no panic when the RateUpdater.historyDB is unusable.
+// TestLoadDumpBucketUnusableDB ensures no panic when the RateUpdater.historyDB is unusable.
 func TestLoadDumpBucketUnusableDB(t *testing.T) {
 	updater := NewRateUpdater(nil, "/dev/null")
 	defer updater.Stop()

@@ -616,7 +616,7 @@ func (keystore *keystore) SignETHMessage(message []byte, keypath signing.Absolut
 	return signature, nil
 }
 
-// SignETHTypedData implements keystore.Keystore.
+// SignETHTypedMessage implements keystore.Keystore.
 func (keystore *keystore) SignETHTypedMessage(chainId uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 	signature, err := keystore.device.ETHSignTypedMessage(chainId, keypath.ToUInt32(), data)
 	if firmware.IsErrorAbort(err) {
