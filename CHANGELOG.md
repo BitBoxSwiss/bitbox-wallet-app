@@ -4,6 +4,9 @@
 - Reduced support for BitBox01
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
 
+# v4.47.2
+- Linux: fix compatiblity with some versions of Mesa that are incompatible with the bundled wayland libraries
+
 # 4.47.1
 - Linux: fix support for Wayland
 - Linux: release device upon app close, enabling other apps to connect to the BitBox after the BitBoxApp closes
