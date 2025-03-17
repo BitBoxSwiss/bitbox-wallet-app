@@ -14,14 +14,12 @@
 
 SHELL    := /bin/bash
 WEBROOT  := frontends/web
-GOPATH   ?= $(HOME)/go
-PATH     := $(PATH):$(GOPATH)/bin
 
 catch:
 	@echo "Choose a make target."
 envinit:
 	# Keep golangci-lint version in sync with what's in .github/workflows/ci.yml.
-	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin v1.61.0
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.61.0
 	go install github.com/vektra/mockery/v2@v2.46.0
 	go install github.com/matryer/moq@v0.4.0
 	go install golang.org/x/tools/cmd/goimports@latest
@@ -84,8 +82,11 @@ clean:
 	cd frontends/qt && $(MAKE) clean
 	cd frontends/android && $(MAKE) clean
 	cd backend/mobileserver && $(MAKE) clean
+
+# The container image only supports amd64 bercause of "thyrlian/android-sdk"
+# that downloads amd64 specific binaries
 dockerinit:
-	./scripts/container.sh build --pull --force-rm -t shiftcrypto/bitbox-wallet-app .
+	./scripts/container.sh build --platform linux/amd64 --pull -t shiftcrypto/bitbox-wallet-app:$(shell cat .containerversion) .
 dockerdev:
 	./scripts/dockerdev.sh
 locize-push:

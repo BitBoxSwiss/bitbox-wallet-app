@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 apt-get update
 apt-get install -y --no-install-recommends curl ca-certificates
 
@@ -83,8 +82,7 @@ aqt install-qt linux desktop 6.8.2 -m qtpositioning qtserialport qtwebchannel qt
 npm install -g npm@10
 npm install -g locize-cli
 
-mkdir -p /opt/go_dist
-curl https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz | tar -xz -C /opt/go_dist
+curl https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz | tar -xz -C /usr/local
 
 # fuse is needed to run the linuxdeployqt appimage.
 apt-get install -y --no-install-recommends fuse
