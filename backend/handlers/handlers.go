@@ -246,6 +246,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url/{action}", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/exchange/bitrefill/info/{action}/{code}", handlers.getExchangeBitrefillInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/bitsurance/lookup", handlers.postBitsuranceLookup).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/bitsurance/url", handlers.getBitsuranceURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/aopp", handlers.getAOPP).Methods("GET")
@@ -1509,6 +1510,33 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interfa
 	}
 	return response{Success: true}
 
+}
+
+func (handlers *Handlers) getExchangeBitrefillInfo(r *http.Request) interface{} {
+	type result struct {
+		Success      bool    `json:"success"`
+		ErrorMessage string  `json:"errorMessage"`
+		Url          string  `json:"url"`
+		Ref          string  `json:"ref"`
+		Address      *string `json:"address"`
+	}
+
+	code := accountsTypes.Code(mux.Vars(r)["code"])
+	acct, err := handlers.backend.GetAccountFromCode(code)
+	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
+	if err != nil || !accountValid {
+		return result{Success: false, ErrorMessage: "Account is not valid."}
+	}
+
+	action := exchanges.ExchangeAction(mux.Vars(r)["action"])
+	bitrefillInfo := exchanges.BitrefillInfo(action, acct)
+
+	return result{
+		Success: true,
+		Url:     bitrefillInfo.Url,
+		Ref:     bitrefillInfo.Ref,
+		Address: bitrefillInfo.Address,
+	}
 }
 
 func (handlers *Handlers) getAOPP(r *http.Request) interface{} {

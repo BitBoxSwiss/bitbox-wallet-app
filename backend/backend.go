@@ -91,6 +91,9 @@ var fixedURLWhitelist = []string{
 	// BTCDirect
 	"https://btcdirect.eu/",
 	"https://start.btcdirect.eu/",
+	// Bitrefill
+	"https://www.bitrefill.com/",
+	"https://embed.bitrefill.com/",
 	// Bitsurance
 	"https://www.bitsurance.eu/",
 	"https://get.bitsurance.eu/",
