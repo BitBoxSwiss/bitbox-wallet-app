@@ -60,6 +60,10 @@ import java.util.regex.Pattern;
 import mobileserver.Mobileserver;
 
 public class MainActivity extends AppCompatActivity {
+    static {
+        System.loadLibrary("signal_handler");
+    }
+    public native void initsignalhandler();
     private final int PERMISSIONS_REQUEST_CAMERA_QRCODE = 0;
     private static final String ACTION_USB_PERMISSION = "ch.shiftcrypto.bitboxapp.USB_PERMISSION";
     // The WebView is configured with this as the base URL. The purpose is so that requests made
@@ -123,13 +127,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Mobileserver.usingMobileDataChanged();
-         }
+        }
     };
 
 
-
     @Override
-    public void onConfigurationChanged(Configuration newConfig){
+    public void onConfigurationChanged(Configuration newConfig) {
         int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
         switch (currentNightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
@@ -171,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Util.log("lifecycle: onCreate");
+
+        initsignalhandler();
 
         getSupportActionBar().hide(); // hide title bar with app name.
         onConfigurationChanged(getResources().getConfiguration());
