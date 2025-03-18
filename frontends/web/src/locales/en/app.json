@@ -367,6 +367,7 @@
     "button": "Blink"
   },
   "bluetooth": {
+    "connected": "connected",
     "connectionFailed": "failed",
     "enable": "Please turn on Bluetooth",
     "select": "Select your BitBox"
