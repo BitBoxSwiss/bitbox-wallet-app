@@ -127,13 +127,13 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
         let identifier = peripheral.identifier
+        print("BLE: discovered \(peripheral.name ?? "unknown device")")
         if state.discoveredPeripherals[identifier] == nil {
             state.discoveredPeripherals[identifier] = PeripheralMetadata(
                 peripheral: peripheral,
                 discoveredDate: Date(),
                 connectionState: .discovered
             )
-            print("BLE: discovered \(peripheral.name ?? "unknown device")")
             if let data = advertisementData["kCBAdvDataManufacturerData"] as? Data {
                 let data = data.advanced(by: 2)  // 2 bytes for manufacturer ID
                 print("BLE: manufacturer data: \(data.hexEncodedString())")
@@ -149,9 +149,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
                     print("BLE: skip auto-connect for device \(identifier.uuidString)")
                 }
             }
-
-            updateBackendState()
         }
+
+        // We update the state for the frontend even if we had already registered the device as the name may have been updated.
+        updateBackendState()
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -162,6 +163,13 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         connectedPeripheral = peripheral
         peripheral.delegate = self
         peripheral.discoverServices(nil)
+    }
+
+    func peripheralDidUpdateName(_ peripheral: CBPeripheral) {
+        print("BLE: didUpdateName, new name: \(peripheral.name ?? "unknown device")")
+        // The peripheral is already in our state, so we just update the frontend to show
+        // the new name.
+        updateBackendState()
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
