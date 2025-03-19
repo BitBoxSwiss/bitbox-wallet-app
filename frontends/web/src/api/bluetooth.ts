@@ -21,22 +21,21 @@ export type TPeripheral = {
   identifier: string;
   name: string;
 } & (
-  | {
-      connectionState: 'discovered' | 'connecting' | 'connected';
-    }
-  | {
-      connectionState: 'error';
-      connectionError: string;
-    }
+  {
+    connectionState: 'discovered' | 'connecting' | 'connected';
+  } | {
+    connectionState: 'error';
+    connectionError: string;
+  }
 );
 
-export type TState = {
+type TBluetoothState = {
   bluetoothAvailable: boolean;
   scanning: boolean;
   peripherals: TPeripheral[];
 };
 
-export const getState = (): Promise<TState> => {
+export const getState = (): Promise<TBluetoothState> => {
   return apiGet('bluetooth/state');
 };
 
@@ -45,7 +44,7 @@ export const connect = (identifier: string): Promise<void> => {
 };
 
 export const syncState = (
-  cb: (state: TState) => void
+  cb: (state: TBluetoothState) => void
 ): TUnsubscribe => {
   return subscribeEndpoint('bluetooth/state', cb);
 };
