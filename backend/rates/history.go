@@ -278,38 +278,38 @@ func (updater *RateUpdater) fetchGeckoMarketRange(ctx context.Context, coin, fia
 	}
 
 	// Make the call, abiding the upstream rate limits.
-	msg := fmt.Sprintf("fetch coingecko coin=%s fiat=%s start=%s", coin, fiat, timeRange.start)
 	var jsonBody struct{ Prices [][2]float64 } // [timestamp in milliseconds, value]
-	callErr := updater.geckoLimiter.Call(ctx, msg, func() error {
-		param := url.Values{
-			"from":        {strconv.FormatInt(timeRange.start.Unix(), 10)},
-			"to":          {strconv.FormatInt(timeRange.end().Unix(), 10)},
-			"vs_currency": {gfiat},
-		}
-		endpoint := fmt.Sprintf("%s/coins/%s/market_chart/range?%s", updater.coingeckoURL, gcoin, param.Encode())
-		req, err := http.NewRequest(http.MethodGet, endpoint, nil)
-		if err != nil {
-			return err
-		}
-
-		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-		defer cancel()
-		res, err := updater.httpClient.Do(req.WithContext(ctx))
-		if err != nil {
-			return err
-		}
-		defer res.Body.Close() //nolint:errcheck
-		if res.StatusCode != http.StatusOK {
-			return fmt.Errorf("fetchGeckoMarketRange: bad response code %d", res.StatusCode)
-		}
-		// 1Mb is more than enough for a single response, but make sure initial
-		// download with empty cache fits here. See maxGeckoRange.
-		return json.NewDecoder(io.LimitReader(res.Body, 1<<20)).Decode(&jsonBody)
-	})
-	if callErr != nil {
-		return nil, callErr
+	if err := updater.geckoLimiter.Wait(ctx); err != nil {
+		return nil, err
 	}
 
+	param := url.Values{
+		"from":        {strconv.FormatInt(timeRange.start.Unix(), 10)},
+		"to":          {strconv.FormatInt(timeRange.end().Unix(), 10)},
+		"vs_currency": {gfiat},
+	}
+	endpoint := fmt.Sprintf("%s/coins/%s/market_chart/range?%s", updater.coingeckoURL, gcoin, param.Encode())
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	res, err := updater.httpClient.Do(req.WithContext(ctx))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close() //nolint:errcheck
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("fetchGeckoMarketRange: bad response code %d", res.StatusCode)
+	}
+
+	// 1Mb is more than enough for a single response, but make sure initial
+	// download with empty cache fits here. See maxGeckoRange
+	if err := json.NewDecoder(io.LimitReader(res.Body, 1<<20)).Decode(&jsonBody); err != nil {
+		return nil, err
+	}
 	// Transform the response into a usable result.
 	rates := make([]exchangeRate, len(jsonBody.Prices))
 	for i, v := range jsonBody.Prices {
