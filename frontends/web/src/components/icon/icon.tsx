@@ -87,6 +87,8 @@ import starInactiveSVG from './assets/icons/star-inactive.svg';
 import syncSVG from './assets/icons/sync.svg';
 import syncLightSVG from './assets/icons/sync-light.svg';
 import selectedCheckLightSVG from './assets/icons/selected-check-light.svg';
+import spinnerRingDarkSVG from './assets/icons/spinner-ring-dark.svg';
+import spinnerRingLightSVG from './assets/icons/spinner-ring-light.svg';
 import usbSuccessSVG from './assets/icons/usb-success.svg';
 import statusInfoSVG from './assets/icons/icon-info.svg';
 import statusSuccessSVG from './assets/icons/icon-success.svg';
@@ -223,6 +225,8 @@ export const RedDot = (props: ImgProps) => (<img src={redDotSVG} draggable={fals
 export const Save = (props: ImgProps) => (<img src={saveSVG} draggable={false} {...props} />);
 export const SaveLight = (props: ImgProps) => (<img src={saveLightSVG} draggable={false} {...props} />);
 export const Shield = (props: ImgProps) => (<img src={shieldSVG} draggable={false} {...props} />);
+export const SpinnerRingDark = (props: ImgProps) => (<img src={spinnerRingDarkSVG} draggable={false} {...props} />);
+export const SpinnerRingLight = (props: ImgProps) => (<img src={spinnerRingLightSVG} draggable={false} {...props} />);
 export const Star = (props: ImgProps) => (<img src={starSVG} draggable={false} {...props} />);
 export const StarInactive = (props: ImgProps) => (<img src={starInactiveSVG} draggable={false} {...props} />);
 export const Sync = (props: ImgProps) => (<img src={syncSVG} draggable={false} {...props} />);
