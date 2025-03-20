@@ -19,12 +19,15 @@ type Event string
 
 const (
 	// EventStatusChanged is fired when the status changes. Check the status using Initialized().
-	EventStatusChanged Event = "statusChanged"
+	EventStatusChanged Event = "status-changed"
 
 	// EventSyncDone happens when a sync is completed, i.e. when the wallet is updated (new
 	// transactions, confirmations, etc.).
-	EventSyncDone Event = "syncdone"
+	EventSyncDone Event = "sync-done"
 
 	// EventHeadersSynced is fired when the headers finished syncing.
 	EventHeadersSynced Event = "headersSynced"
+
+	// EventSyncedAddressesCount is emitted when the frontend should receives a sync progress update.
+	EventSyncedAddressesCount Event = "synced-addresses-count"
 )

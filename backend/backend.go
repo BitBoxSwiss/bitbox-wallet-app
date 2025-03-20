@@ -121,13 +121,6 @@ type deviceEvent struct {
 	Meta interface{} `json:"meta"`
 }
 
-// AccountEvent models an event triggered by an account.
-type AccountEvent struct {
-	Type string             `json:"type"`
-	Code accountsTypes.Code `json:"code"`
-	Data string             `json:"data"`
-}
-
 type authEventType string
 
 const (
