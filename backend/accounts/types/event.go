@@ -25,9 +25,6 @@ const (
 	// transactions, confirmations, etc.).
 	EventSyncDone Event = "sync-done"
 
-	// EventHeadersSynced is fired when the headers finished syncing.
-	EventHeadersSynced Event = "headersSynced"
-
 	// EventSyncedAddressesCount is emitted when the frontend should receives a sync progress update.
 	EventSyncedAddressesCount Event = "synced-addresses-count"
 )
