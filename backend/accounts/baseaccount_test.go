@@ -132,7 +132,6 @@ func TestBaseAccount(t *testing.T) {
 	t.Run("synchronizer", func(t *testing.T) {
 		require.False(t, account.Synced())
 		done := account.Synchronizer.IncRequestsCounter()
-		require.Equal(t, types.EventSyncStarted, checkEvent())
 		require.False(t, account.Synced())
 		done()
 		require.Equal(t, types.EventStatusChanged, checkEvent()) // synced changed
@@ -141,7 +140,6 @@ func TestBaseAccount(t *testing.T) {
 
 		// no status changed event when syncing again (syncing is already true)
 		done = account.Synchronizer.IncRequestsCounter()
-		require.Equal(t, types.EventSyncStarted, checkEvent())
 		done()
 		require.Equal(t, types.EventSyncDone, checkEvent())
 

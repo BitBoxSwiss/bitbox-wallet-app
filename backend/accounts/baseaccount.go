@@ -83,7 +83,6 @@ func NewBaseAccount(config *AccountConfig, coin coin.Coin, log *logrus.Entry) *B
 		log:    log,
 	}
 	account.Synchronizer = synchronizer.NewSynchronizer(
-		func() { config.OnEvent(types.EventSyncStarted) },
 		func() {
 			if account.synced.CompareAndSwap(false, true) {
 				config.OnEvent(types.EventStatusChanged)
