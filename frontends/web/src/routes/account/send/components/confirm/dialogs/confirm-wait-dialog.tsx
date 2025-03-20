@@ -47,7 +47,7 @@ export const ConfirmingWaitDialog = ({
 
   // Reset the signProgress state every time the dialog was closed (after send/abort).
   const [prevIsConfirming, setPrevIsConfirming] = useState(isConfirming);
-  if (prevIsConfirming != isConfirming) {
+  if (prevIsConfirming !== isConfirming) {
     setPrevIsConfirming(isConfirming);
     if (!isConfirming) {
       setSignProgress(undefined);
