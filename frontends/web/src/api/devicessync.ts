@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { subscribeEndpoint, TUnsubscribe } from './subscribe';
+import { subscribeEndpoint, TSubscriptionCallback, TUnsubscribe } from './subscribe';
 import { TDevices } from './devices';
 
 /**
@@ -23,7 +23,7 @@ import { TDevices } from './devices';
  * Returns a method to unsubscribe.
  */
 export const syncDeviceList = (
-  cb: (accounts: TDevices,) => void
+  cb: TSubscriptionCallback<TDevices>,
 ): TUnsubscribe => {
   return subscribeEndpoint('devices/registered', cb);
 };
