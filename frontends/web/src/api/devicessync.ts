@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import { subscribeEndpoint, TSubscriptionCallback, TUnsubscribe } from './subscribe';
+import { subscribeEndpoint, TUnsubscribe } from './subscribe';
 import { subscribe as subscribeLegacy } from '@/utils/event-legacy';
 import { TDevices } from './devices';
-import { TStatus } from './bitbox02';
 
 /**
  * Subscribes the given function on the "devices/registered" event
@@ -28,39 +27,6 @@ export const syncDeviceList = (
   cb: (accounts: TDevices,) => void
 ): TUnsubscribe => {
   return subscribeEndpoint('devices/registered', cb);
-};
-
-/**
- * Fires when status of a device changed.
- * Returns a method to unsubscribe.
- */
-export const statusChanged = (
-  deviceID: string,
-  cb: TSubscriptionCallback<TStatus>,
-): TUnsubscribe => {
-  return subscribeEndpoint(`devices/bitbox02/${deviceID}/status`, cb);
-};
-
-/**
- * Fires when attestation hash of a device changed.
- * Returns a method to unsubscribe.
- */
-export const channelHashChanged = (
-  deviceID: string,
-  cb: () => void,
-): TUnsubscribe => {
-  return subscribeEndpoint(`devices/bitbox02/${deviceID}/channelHashChanged`, cb);
-};
-
-/**
- * Fires when attestation check of a device is done.
- * Returns a method to unsubscribe.
- */
-export const attestationCheckDone = (
-  deviceID: string,
-  cb: () => void,
-): TUnsubscribe => {
-  return subscribeEndpoint(`devices/bitbox02/${deviceID}/attestationCheckDone`, cb);
 };
 
 export type TSignProgress = {
