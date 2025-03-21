@@ -21,7 +21,6 @@ import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSet
 import { NotesImport } from './components/appearance/notesImport';
 import { NotesExport } from './components/appearance/notesExport';
 import { DefaultCurrencyDropdownSetting } from './components/appearance/defaultCurrencyDropdownSetting';
-import { DisplaySatsToggleSetting } from './components/appearance/displaySatsToggleSetting';
 import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
 import { ActiveCurrenciesDropdownSetting } from './components/appearance/activeCurrenciesDropdownSetting';
 import { WithSettingsTabs } from './components/tabs';
@@ -60,7 +59,6 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
                 <DefaultCurrencyDropdownSetting />
                 <ActiveCurrenciesDropdownSetting />
                 <DarkmodeToggleSetting />
-                <DisplaySatsToggleSetting />
                 { hasAccounts ? (
                   <>
                     <SubTitle className="m-top-default">

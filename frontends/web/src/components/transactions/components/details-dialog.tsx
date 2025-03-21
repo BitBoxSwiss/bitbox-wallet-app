@@ -19,7 +19,6 @@ import { useTranslation } from 'react-i18next';
 import { ITransaction, IAmount, getTransaction, TTransactionStatus, TTransactionType } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
 import { Dialog } from '@/components/dialog/dialog';
-import { FiatConversion } from '@/components/rates/rates';
 import { Amount } from '@/components/amount/amount';
 import { Note } from './note';
 import { TxDetail } from './detail';
@@ -28,6 +27,7 @@ import { TxDateDetail } from './date';
 import { TxStatusDetail } from './status';
 import { TxDetailCopyableValues } from './address-or-txid';
 import styles from './details.module.css';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 
 type TProps = {
   open: boolean;
@@ -110,18 +110,17 @@ export const TxDetailsDialog = ({
           <TxDateDetail time={time} />
           <TxDetail label={t('transaction.details.fiat')}>
             <span className={styles.fiat}>
-              <FiatConversion amount={amount} sign={sign} noAction />
+              <AmountWithUnit amount={amount} sign={sign} convertToFiat/>
             </span>
           </TxDetail>
-          <TxDetail label={t('transaction.details.fiatAtTime')}>
-            <span className={styles.fiat}>
-              {transactionInfo.amountAtTime?.estimated == false ?
-                <FiatConversion amount={transactionInfo.amountAtTime} sign={sign} noAction />
-                :
-                <FiatConversion noAction />
-              }
-            </span>
-          </TxDetail>
+          {transactionInfo.amountAtTime?.estimated === false &&
+          (
+            <TxDetail label={t('transaction.details.fiatAtTime')}>
+              <span className={styles.fiat}>
+                <AmountWithUnit amount={transactionInfo.amountAtTime} sign={sign} convertToFiat/>
+              </span>
+            </TxDetail>
+          )}
           <TxDetail label={t('transaction.details.amount')}>
             <span className={styles.amount}>
               {sign}
