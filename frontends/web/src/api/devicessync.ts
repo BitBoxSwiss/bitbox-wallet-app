@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import { subscribeEndpoint, TUnsubscribe } from './subscribe';
+import { subscribeEndpoint, TSubscriptionCallback, TUnsubscribe } from './subscribe';
 import { subscribe as subscribeLegacy } from '@/utils/event-legacy';
 import { TDevices } from './devices';
+import { TStatus } from './bitbox02';
 
 /**
  * Subscribes the given function on the "devices/registered" event
@@ -30,20 +31,14 @@ export const syncDeviceList = (
 };
 
 /**
- * Fires when status of a device changed, mostly
- * used as event to call bitbox02.getStatus(deviceID).
+ * Fires when status of a device changed.
  * Returns a method to unsubscribe.
  */
 export const statusChanged = (
   deviceID: string,
-  cb: () => void,
+  cb: TSubscriptionCallback<TStatus>,
 ): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('statusChanged', event => {
-    if (event.type === 'device' && event.deviceID === deviceID) {
-      cb();
-    }
-  });
-  return unsubscribe;
+  return subscribeEndpoint(`devices/bitbox02/${deviceID}/status`, cb);
 };
 
 /**

@@ -30,11 +30,8 @@ type TProps = {
 export const BitBox02 = ({ deviceID, devices, hasAccounts }: TProps) => {
   const status = useSync(
     () => getStatus(deviceID),
-    cb => statusChanged(deviceID, () => {
-      getStatus(deviceID).then(cb);
-    })
+    cb => statusChanged(deviceID, cb)
   );
-
   if (status !== 'initialized') {
     return null;
   }

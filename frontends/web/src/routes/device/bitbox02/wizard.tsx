@@ -49,11 +49,8 @@ export const Wizard = ({ deviceID }: TProps) => {
   const [unlockOnly, setUnlockOnly] = useState<boolean>(true);
   const status = useSync(
     () => getStatus(deviceID),
-    cb => statusChanged(deviceID, () => {
-      getStatus(deviceID).then(cb);
-    })
+    cb => statusChanged(deviceID, cb)
   );
-
   const handleGetStarted = () => {
     setShowWizard(false);
     navigate('/account-summary?with-chart-animation=true');

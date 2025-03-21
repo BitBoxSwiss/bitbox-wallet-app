@@ -17,9 +17,6 @@
 package bitbox02
 
 import (
-	"fmt"
-	"sync"
-
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	deviceevent "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -41,8 +38,6 @@ const ProductName = "bitbox02"
 type Device struct {
 	firmware.Device
 	deviceID string
-	mu       sync.RWMutex
-	onEvent  func(event.Event, interface{})
 	log      *logrus.Entry
 
 	observable.Implementation
@@ -74,13 +69,20 @@ func NewDevice(
 		log:      log,
 	}
 	device.Device.SetOnEvent(func(ev firmware.Event, meta interface{}) {
-		// Old-school
-		device.fireEvent(event.Event(ev))
-		// New-school
-		device.Notify(observable.Event{
-			Subject: string(ev),
-			Action:  action.Replace,
-		})
+		switch ev {
+		case firmware.EventStatusChanged:
+			device.Notify(observable.Event{
+				Subject: "status",
+				Action:  action.Replace,
+				Object:  device.Device.Status(),
+			})
+		default:
+			device.Notify(observable.Event{
+				Subject: string(ev),
+				Action:  action.Replace,
+			})
+		}
+
 		switch ev {
 		case firmware.EventStatusChanged:
 			switch device.Device.Status() {
@@ -130,21 +132,8 @@ func (device *Device) Keystore() keystoreInterface.Keystore {
 	}
 }
 
-func (device *Device) fireEvent(event event.Event) {
-	device.mu.RLock()
-	f := device.onEvent
-	device.mu.RUnlock()
-	if f != nil {
-		device.log.Info(fmt.Sprintf("fire event: %s", event))
-		f(event, nil)
-	}
-}
-
 // SetOnEvent implements device.Device.
 func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
-	device.mu.Lock()
-	defer device.mu.Unlock()
-	device.onEvent = onEvent
 }
 
 // Reset factory resets the device.
