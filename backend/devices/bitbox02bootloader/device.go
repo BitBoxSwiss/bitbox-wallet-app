@@ -149,7 +149,7 @@ func (device *Device) fireEvent() {
 
 		// New-school
 		device.Notify(observable.Event{
-			Subject: fmt.Sprintf("devices/bitbox02-bootloader/%s/status", device.deviceID),
+			Subject: fmt.Sprintf("status"),
 			Action:  action.Replace,
 			Object:  device.Status(),
 		})

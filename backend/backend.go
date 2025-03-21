@@ -779,7 +779,15 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 
 	mainKeystore := len(backend.devices) == 1
 	theDevice.SetOnEvent(func(event deviceevent.Event, data interface{}) {
-		switch event {
+		backend.events <- deviceEvent{
+			DeviceID: theDevice.Identifier(),
+			Type:     "device",
+			Data:     string(event),
+			Meta:     data,
+		}
+	})
+	theDevice.Observe(func(event observable.Event) {
+		switch deviceevent.Event(event.Subject) {
 		case deviceevent.EventKeystoreGone:
 			backend.DeregisterKeystore()
 		case deviceevent.EventKeystoreAvailable:
@@ -788,12 +796,15 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 				backend.registerKeystore(theDevice.Keystore())
 			}
 		}
-		backend.events <- deviceEvent{
-			DeviceID: theDevice.Identifier(),
-			Type:     "device",
-			Data:     string(event),
-			Meta:     data,
-		}
+		backend.Notify(observable.Event{
+			Subject: fmt.Sprintf(
+				"devices/%s/%s/%s",
+				theDevice.ProductName(),
+				theDevice.Identifier(),
+				event.Subject),
+			Action: event.Action,
+			Object: event.Object,
+		})
 	})
 
 	backend.onDeviceInit(theDevice)
@@ -801,7 +812,6 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		backend.onDeviceUninit(theDevice.Identifier())
 		return err
 	}
-	theDevice.Observe(backend.Notify)
 
 	// Old-school
 	select {

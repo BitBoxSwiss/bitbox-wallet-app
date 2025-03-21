@@ -20,7 +20,8 @@ import (
 	"fmt"
 	"sync"
 
-	event "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
+	deviceevent "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
@@ -78,7 +79,10 @@ func NewDevice(
 		case firmware.EventStatusChanged:
 			switch device.Device.Status() {
 			case firmware.StatusInitialized:
-				device.fireEvent(event.EventKeystoreAvailable)
+				device.Notify(observable.Event{
+					Subject: string(deviceevent.EventKeystoreAvailable),
+					Action:  action.Replace,
+				})
 			}
 		}
 	})
@@ -142,7 +146,10 @@ func (device *Device) Reset() error {
 	if err := device.Device.Reset(); err != nil {
 		return err
 	}
-	device.fireEvent(event.EventKeystoreGone)
+	device.Notify(observable.Event{
+		Subject: string(deviceevent.EventKeystoreGone),
+		Action:  action.Replace,
+	})
 	device.init()
 	return nil
 }
@@ -153,7 +160,7 @@ func (device *Device) CreateBackup() error {
 		return err
 	}
 	device.Notify(observable.Event{
-		Subject: fmt.Sprintf("devices/bitbox02/%s/backups/list", device.deviceID),
+		Subject: "backups/list",
 		Action:  action.Reload,
 	})
 	return nil
