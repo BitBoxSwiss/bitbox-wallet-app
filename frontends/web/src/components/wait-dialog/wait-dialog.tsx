@@ -23,7 +23,6 @@ import style from '@/components/dialog/dialog.module.css';
 
 interface WaitDialogProps {
     includeDefault?: boolean;
-    prequel?: JSX.Element;
     title?: string;
     children?: ReactNode;
 }
@@ -77,17 +76,11 @@ class WaitDialog extends Component<Props, State> {
     const {
       t,
       includeDefault,
-      prequel,
       title,
       children,
     } = this.props;
     const defaultContent = (
       <div>
-        {
-          prequel && (
-            <p className="m-top-none">{prequel}</p>
-          )
-        }
         <p className={style.confirmationLabel}>{t('confirm.info')}</p>
       </div>
     );

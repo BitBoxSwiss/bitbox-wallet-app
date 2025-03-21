@@ -28,6 +28,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/stretchr/testify/require"
@@ -65,7 +66,6 @@ func TestBaseAccount(t *testing.T) {
 		},
 		DBFolder:        test.TstTempDir("baseaccount_test_dbfolder"),
 		NotesFolder:     test.TstTempDir("baseaccount_test_notesfolder"),
-		OnEvent:         func(event types.Event) { events <- event },
 		RateUpdater:     nil,
 		GetNotifier:     nil,
 		GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
@@ -122,6 +122,9 @@ func TestBaseAccount(t *testing.T) {
 		},
 	}
 	account := NewBaseAccount(cfg, mockCoin, logging.Get().WithGroup("baseaccount_test"))
+	account.Observe(func(event observable.Event) {
+		events <- types.Event(event.Subject)
+	})
 	require.NoError(t, account.Initialize(accountIdentifier))
 
 	t.Run("config", func(t *testing.T) {
@@ -132,7 +135,6 @@ func TestBaseAccount(t *testing.T) {
 	t.Run("synchronizer", func(t *testing.T) {
 		require.False(t, account.Synced())
 		done := account.Synchronizer.IncRequestsCounter()
-		require.Equal(t, types.EventSyncStarted, checkEvent())
 		require.False(t, account.Synced())
 		done()
 		require.Equal(t, types.EventStatusChanged, checkEvent()) // synced changed
@@ -141,7 +143,6 @@ func TestBaseAccount(t *testing.T) {
 
 		// no status changed event when syncing again (syncing is already true)
 		done = account.Synchronizer.IncRequestsCounter()
-		require.Equal(t, types.EventSyncStarted, checkEvent())
 		done()
 		require.Equal(t, types.EventSyncDone, checkEvent())
 

@@ -30,7 +30,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/db/transactionsdb"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
@@ -325,11 +324,6 @@ func (account *Account) Initialize() error {
 	account.SetOffline(account.coin.Blockchain().ConnectionError())
 	account.coin.Blockchain().RegisterOnConnectionErrorChangedEvent(onConnectionStatusChanged)
 	theHeaders := account.coin.Headers()
-	theHeaders.SubscribeEvent(func(event headers.Event) {
-		if event == headers.EventSynced {
-			account.Config().OnEvent(accountsTypes.EventHeadersSynced)
-		}
-	})
 	account.transactions = transactions.NewTransactions(
 		account.coin.Net(), account.db, theHeaders, account.Synchronizer,
 		account.coin.Blockchain(), account.notifier, account.log)
@@ -451,7 +445,11 @@ func (account *Account) Close() {
 		account.log.Info("Closed DB")
 	}
 
-	account.Config().OnEvent(accountsTypes.EventStatusChanged)
+	account.Notify(observable.Event{
+		Subject: string(accountsTypes.EventStatusChanged),
+		Action:  action.Replace,
+		Object:  nil,
+	})
 	account.closed = true
 }
 
@@ -588,7 +586,7 @@ func (account *Account) incAndEmitSyncCounter() {
 	if !account.Synced() {
 		synced := atomic.AddUint32(&account.syncedAddressesCount, 1)
 		account.Notify(observable.Event{
-			Subject: fmt.Sprintf("account/%s/synced-addresses-count", account.Config().Config.Code),
+			Subject: string(accountsTypes.EventSyncedAddressesCount),
 			Action:  action.Replace,
 			Object:  synced,
 		})
@@ -642,7 +640,11 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 		// We are not closing client.blockchain here, as it is reused per coin with
 		// different accounts.
 		account.fatalError.Store(true)
-		account.Config().OnEvent(accountsTypes.EventStatusChanged)
+		account.Notify(observable.Event{
+			Subject: string(accountsTypes.EventStatusChanged),
+			Action:  action.Replace,
+			Object:  nil,
+		})
 		return
 	}
 	// Safe some work in case account was closed in the meantime.

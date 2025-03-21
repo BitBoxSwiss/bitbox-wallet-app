@@ -17,8 +17,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoad, useSync } from '@/hooks/api';
-import { getStatus, getVersion, verifyAttestation } from '@/api/bitbox02';
-import { attestationCheckDone, statusChanged } from '@/api/devicessync';
+import { attestationCheckDone, getStatus, getVersion, verifyAttestation, statusChanged } from '@/api/bitbox02';
 import { AppUpgradeRequired } from '@/components/appupgraderequired';
 import { FirmwareUpgradeRequired } from '@/routes/device/upgrade-firmware-required';
 import { Main } from '@/components/layout';
@@ -49,11 +48,8 @@ export const Wizard = ({ deviceID }: TProps) => {
   const [unlockOnly, setUnlockOnly] = useState<boolean>(true);
   const status = useSync(
     () => getStatus(deviceID),
-    cb => statusChanged(deviceID, () => {
-      getStatus(deviceID).then(cb);
-    })
+    cb => statusChanged(deviceID, cb)
   );
-
   const handleGetStarted = () => {
     setShowWizard(false);
     navigate('/account-summary?with-chart-animation=true');

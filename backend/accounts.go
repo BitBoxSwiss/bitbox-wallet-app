@@ -742,7 +742,16 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.accounts = append(backend.accounts, account)
 	sortAccounts(backend.accounts)
 
-	account.Observe(backend.Notify)
+	account.Observe(func(event observable.Event) {
+		backend.Notify(observable.Event{
+			Subject: fmt.Sprintf("account/%s/%s", account.Config().Config.Code, event.Subject),
+			Action:  event.Action,
+			Object:  event.Object,
+		})
+		if event.Subject == string(accountsTypes.EventSyncDone) {
+			backend.notifyNewTxs(account)
+		}
+	})
 	if backend.onAccountInit != nil {
 		backend.onAccountInit(account)
 	}
@@ -855,15 +864,6 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 				})
 			}
 			return ks, err
-		},
-		OnEvent: func(event accountsTypes.Event) {
-			backend.events <- AccountEvent{
-				Type: "account", Code: persistedConfig.Code,
-				Data: string(event),
-			}
-			if account != nil && event == accountsTypes.EventSyncDone {
-				backend.notifyNewTxs(account)
-			}
 		},
 		RateUpdater: backend.ratesUpdater,
 		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {

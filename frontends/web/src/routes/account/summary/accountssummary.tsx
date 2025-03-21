@@ -21,6 +21,7 @@ import * as accountApi from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import { unsubscribe } from '@/utils/subscriptions';
+import { TUnsubscribe } from '@/utils/transport-common';
 import { useMountedRef } from '@/hooks/mount';
 import { useSDCard } from '@/hooks/sdcard';
 import { Status } from '@/components/status/status';
@@ -158,12 +159,14 @@ export const AccountsSummary = ({
   useEffect(() => {
     // for subscriptions and unsubscriptions
     // runs only on component mount and unmount.
-    const subscriptions = [
-      statusChanged(update),
-      syncdone(update)
-    ];
+    const subscriptions: TUnsubscribe[] = [];
+    accounts.forEach(account => {
+      const currentCode = account.code;
+      subscriptions.push(statusChanged(account.code, () => currentCode === account.code && update(account.code)));
+      subscriptions.push(syncdone(account.code, () => currentCode === account.code && update(account.code)));
+    });
     return () => unsubscribe(subscriptions);
-  }, [update]);
+  }, [update, accounts]);
 
 
   useEffect(() => {

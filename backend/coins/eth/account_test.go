@@ -23,7 +23,6 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
-	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -91,7 +90,6 @@ func newAccount(t *testing.T) *Account {
 				SigningConfigurations: signingConfigurations,
 			},
 			DBFolder:        dbFolder,
-			OnEvent:         func(accountsTypes.Event) {},
 			RateUpdater:     nil,
 			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
 			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },

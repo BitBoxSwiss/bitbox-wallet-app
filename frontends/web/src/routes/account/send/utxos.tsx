@@ -66,8 +66,9 @@ export const UTXOs = ({
   }, [accountCode]);
 
   useEffect(() => {
-    const unsubscribe = syncdone((code) => {
-      if (accountCode === code) {
+    const currentCode = accountCode;
+    const unsubscribe = syncdone(currentCode, () => {
+      if (accountCode === currentCode) {
         getUTXOs(accountCode).then(setUtxos);
       }
     });

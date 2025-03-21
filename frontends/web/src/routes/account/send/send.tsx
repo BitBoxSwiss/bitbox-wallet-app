@@ -99,9 +99,10 @@ class Send extends Component<Props, State> {
 
     updateBalance(this.props.account.code);
 
-    this.unsubscribe = syncdone((code) => {
-      if (this.props.account.code === code) {
-        updateBalance(code);
+    const currentCode = this.props.account.code;
+    this.unsubscribe = syncdone(currentCode, () => {
+      if (this.props.account.code === currentCode) {
+        updateBalance(currentCode);
       }
     });
   }

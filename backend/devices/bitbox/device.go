@@ -254,17 +254,17 @@ func (dbb *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
 // fireEvent calls dbb.onEvent callback if non-nil.
 // It blocks for the entire duration of the call.
 // The read-only lock is released before calling dbb.onEvent.
-func (dbb *Device) fireEvent(event event.Event, data interface{}) {
+func (dbb *Device) fireEvent(event event.Event) {
 	dbb.mu.RLock()
 	f := dbb.onEvent
 	dbb.mu.RUnlock()
 	if f != nil {
-		f(event, data)
+		f(event, nil)
 	}
 }
 
 func (dbb *Device) onStatusChanged() {
-	dbb.fireEvent(EventStatusChanged, nil)
+	dbb.fireEvent(EventStatusChanged)
 }
 
 // Status returns the device state. See the Status* constants.
@@ -1133,22 +1133,11 @@ func (dbb *Device) Sign(
 		return nil, errp.WithMessage(err, "Failed to load the device info for signing.")
 	}
 	signatures := []SignatureWithRecID{}
-	steps := len(signatureHashes) / signatureBatchSize
-	if len(signatureHashes)%signatureBatchSize != 0 {
-		steps++
-	}
 	for i := 0; i < len(signatureHashes); i += signatureBatchSize {
 		upper := i + signatureBatchSize
 		if upper > len(signatureHashes) {
 			upper = len(signatureHashes)
 		}
-		dbb.fireEvent(EventSignProgress, struct {
-			Step  int `json:"step"`
-			Steps int `json:"steps"`
-		}{
-			Step:  i / signatureBatchSize,
-			Steps: steps,
-		})
 		reply, err := dbb.signBatch(
 			btcProposedTx,
 			signatureHashes[i:upper],
@@ -1267,7 +1256,7 @@ func (dbb *Device) StartPairing() (*relay.Channel, error) {
 	}
 	dbb.mu.Unlock()
 	if removed {
-		dbb.fireEvent("pairingFalse", nil)
+		dbb.fireEvent("pairingFalse")
 	}
 
 	channel := relay.NewChannelWithRandomKey(dbb.socksProxy)
@@ -1307,9 +1296,9 @@ func (dbb *Device) listenForMobile() {
 		}
 
 		if dbb.PingMobile() != nil {
-			dbb.fireEvent("mobileDisconnected", nil)
+			dbb.fireEvent("mobileDisconnected")
 		} else {
-			dbb.fireEvent("mobileConnected", nil)
+			dbb.fireEvent("mobileConnected")
 		}
 		time.Sleep(10 * time.Second)
 	}
