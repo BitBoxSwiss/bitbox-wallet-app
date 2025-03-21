@@ -115,12 +115,6 @@ const (
 	eventNewTxs event = "new-txs"
 )
 
-type backendEvent struct {
-	Type string      `json:"type"`
-	Data string      `json:"data"`
-	Meta interface{} `json:"meta"`
-}
-
 type deviceEvent struct {
 	DeviceID string `json:"deviceID"`
 	Type     string `json:"type"`
@@ -813,15 +807,6 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		return err
 	}
 
-	// Old-school
-	select {
-	case backend.events <- backendEvent{
-		Type: "devices",
-		Data: "registeredChanged",
-	}:
-	default:
-	}
-	// New-school
 	backend.Notify(observable.Event{
 		Subject: "devices/registered",
 		Action:  action.Reload,
@@ -843,9 +828,6 @@ func (backend *Backend) Deregister(deviceID string) {
 		delete(backend.devices, deviceID)
 		backend.DeregisterKeystore()
 
-		// Old-school
-		backend.events <- backendEvent{Type: "devices", Data: "registeredChanged"}
-		// New-school
 		backend.Notify(observable.Event{
 			Subject: "devices/registered",
 			Action:  action.Reload,
