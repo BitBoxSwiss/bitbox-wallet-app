@@ -66,8 +66,12 @@ func NewDevice(
 		version,
 		product,
 		communication,
-		func(*bootloader.Status) {
-			device.fireEvent()
+		func(status *bootloader.Status) {
+			device.Notify(observable.Event{
+				Subject: "status",
+				Action:  action.Replace,
+				Object:  status,
+			})
 		},
 	)
 
@@ -126,14 +130,6 @@ func (device *Device) Keystore() keystoreInterface.Keystore {
 
 // SetOnEvent implements device.Device.
 func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
-}
-
-func (device *Device) fireEvent() {
-	device.Notify(observable.Event{
-		Subject: "status",
-		Action:  action.Replace,
-		Object:  device.Status(),
-	})
 }
 
 // firmwareBootRequired returns true if the currently flashed firmware has to be booted/run before
