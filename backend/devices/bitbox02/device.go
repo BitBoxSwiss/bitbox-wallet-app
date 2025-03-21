@@ -74,7 +74,13 @@ func NewDevice(
 		log:      log,
 	}
 	device.Device.SetOnEvent(func(ev firmware.Event, meta interface{}) {
+		// Old-school
 		device.fireEvent(event.Event(ev))
+		// New-school
+		device.Notify(observable.Event{
+			Subject: string(ev),
+			Action:  action.Replace,
+		})
 		switch ev {
 		case firmware.EventStatusChanged:
 			switch device.Device.Status() {

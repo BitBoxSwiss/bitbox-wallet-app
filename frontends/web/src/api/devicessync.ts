@@ -52,14 +52,9 @@ export const statusChanged = (
  */
 export const channelHashChanged = (
   deviceID: string,
-  cb: (deviceID: string) => void,
+  cb: () => void,
 ): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('channelHashChanged', event => {
-    if (event.type === 'device' && event.deviceID === deviceID) {
-      cb(deviceID);
-    }
-  });
-  return unsubscribe;
+  return subscribeEndpoint(`devices/bitbox02/${deviceID}/channelHashChanged`, cb);
 };
 
 /**
@@ -70,12 +65,7 @@ export const attestationCheckDone = (
   deviceID: string,
   cb: () => void,
 ): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('attestationCheckDone', event => {
-    if (event.type === 'device' && event.deviceID === deviceID) {
-      cb();
-    }
-  });
-  return unsubscribe;
+  return subscribeEndpoint(`devices/bitbox02/${deviceID}/attestationCheckDone`, cb);
 };
 
 export type TSignProgress = {
