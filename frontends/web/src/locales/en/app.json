@@ -242,13 +242,8 @@
     "createBackupAborted": "Creating backup aborted.",
     "createBackupFailed": "Creating backup failed, try again.",
     "initialize": {
-      "passwordText": "Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.",
-      "passwordTitle": "Set a password for your BitBox",
-      "text": "Successfully paired your BitBox02! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. <strong>Please make sure you have a microSD card inserted in your BitBox02</strong>",
-      "tip": "We recommend that you proceed in a secure location.",
-      "title": "Initialize your BitBox"
+      "tip": "We recommend that you proceed in a secure location."
     },
-    "insertSDCard": "<strong>Please make sure you have a microSD card inserted in your BitBox02.</strong>",
     "noPasswordMatch": "Passwords did not match, please try again.",
     "pairing": {
       "failed": "Unconfirmed pairing. Please replug your BitBox02.",
@@ -307,7 +302,6 @@
       "title": "Setup your wallet"
     },
     "success": {
-      "text": "Hooray! Your BitBox02 is now ready to use. \n\nFor further information on how to use the BitBoxApp, please use the in-app guide by clicking the question mark on the top right corner.",
       "title": "You're ready to go!"
     }
   },
