@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-import { subscribe as subscribeLegacy } from '@/utils/event-legacy';
+import { TUnsubscribe } from '@/utils/transport-common';
+import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
-export const syncNewTxs = (
-  cb: (
-    meta: {
-      count: number,
-      accountName: string,
-    }
-  ) => void,
-) => {
-  return subscribeLegacy('newTxs', event => {
-    if (event.type === 'backend') {
-      cb(event.meta);
-    }
-  });
+export type TNewTxs = {
+  count: number,
+  accountName: string,
+};
+
+export const syncNewTxs = (cb: TSubscriptionCallback<TNewTxs>): TUnsubscribe => {
+  return subscribeEndpoint('new-txs', cb);
 };

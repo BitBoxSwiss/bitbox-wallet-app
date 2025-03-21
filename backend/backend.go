@@ -107,6 +107,14 @@ var fixedURLWhitelist = []string{
 	"https://cointracking.info/import/bitbox/",
 }
 
+// event are events emitted by the backend.
+type event string
+
+const (
+	// eventNewTxs is emitted when the user should be notified of new transactions.
+	eventNewTxs event = "new-txs"
+)
+
 type backendEvent struct {
 	Type string      `json:"type"`
 	Data string      `json:"data"`
@@ -326,11 +334,14 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 		return
 	}
 	if unnotifiedCount != 0 {
-		backend.events <- backendEvent{Type: "backend", Data: "newTxs", Meta: map[string]interface{}{
-			"count":       unnotifiedCount,
-			"accountName": account.Config().Config.Name,
-		}}
-
+		backend.Notify(observable.Event{
+			Subject: string(eventNewTxs),
+			Action:  action.Replace,
+			Object: map[string]interface{}{
+				"count":       unnotifiedCount,
+				"accountName": account.Config().Config.Name,
+			},
+		})
 		if err := notifier.MarkAllNotified(); err != nil {
 			backend.log.WithError(err).Error("error marking notified")
 		}
