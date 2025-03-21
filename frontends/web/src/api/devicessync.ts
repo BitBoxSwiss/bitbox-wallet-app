@@ -15,7 +15,6 @@
  */
 
 import { subscribeEndpoint, TUnsubscribe } from './subscribe';
-import { subscribe as subscribeLegacy } from '@/utils/event-legacy';
 import { TDevices } from './devices';
 
 /**
@@ -27,20 +26,4 @@ export const syncDeviceList = (
   cb: (accounts: TDevices,) => void
 ): TUnsubscribe => {
   return subscribeEndpoint('devices/registered', cb);
-};
-
-export type TSignProgress = {
-  steps: number;
-  step: number;
-}
-
-export const syncSignProgress = (
-  cb: (progress: TSignProgress) => void
-): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('signProgress', event => {
-    if ('type' in event && event.type === 'device' && event.data === 'signProgress') {
-      cb(event.meta);
-    }
-  });
-  return unsubscribe;
 };
