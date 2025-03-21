@@ -19,8 +19,6 @@ package bitbox02bootloader
 import (
 	"bytes"
 	"encoding/hex"
-	"fmt"
-	"sync"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -42,16 +40,10 @@ type Device struct {
 	bootloader.Device
 	deviceID string
 
-	mu      sync.RWMutex
-	onEvent func(event.Event, interface{})
-
 	log *logrus.Entry
 
 	observable.Implementation
 }
-
-// EventStatusChanged is fired when the status changes. Check the status using Status().
-const EventStatusChanged event.Event = "statusChanged"
 
 // NewDevice creates a new instance of Device.
 func NewDevice(
@@ -134,26 +126,14 @@ func (device *Device) Keystore() keystoreInterface.Keystore {
 
 // SetOnEvent implements device.Device.
 func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
-	device.mu.Lock()
-	defer device.mu.Unlock()
-	device.onEvent = onEvent
 }
 
 func (device *Device) fireEvent() {
-	device.mu.RLock()
-	f := device.onEvent
-	device.mu.RUnlock()
-	if f != nil {
-		// Old-school
-		f(EventStatusChanged, nil)
-
-		// New-school
-		device.Notify(observable.Event{
-			Subject: fmt.Sprintf("status"),
-			Action:  action.Replace,
-			Object:  device.Status(),
-		})
-	}
+	device.Notify(observable.Event{
+		Subject: "status",
+		Action:  action.Replace,
+		Object:  device.Status(),
+	})
 }
 
 // firmwareBootRequired returns true if the currently flashed firmware has to be booted/run before
