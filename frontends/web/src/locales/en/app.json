@@ -45,6 +45,7 @@
     "fiatBalance": "Fiat balance",
     "name": "Account name",
     "noAccount": "There are no accounts to show.",
+    "portfolio": "Portfolio",
     "subtotalWithCoinName": "Total ({{coinName}})",
     "title": "My portfolio",
     "total": "Total",
@@ -1793,6 +1794,7 @@
       "up-to-date": "Your app is up to date",
       "version": "App Version"
     },
+    "more": "More",
     "notes": {
       "export": {
         "description": "Create a backup of your transaction notes and account names.",

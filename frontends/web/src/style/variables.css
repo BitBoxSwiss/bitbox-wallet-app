@@ -134,6 +134,8 @@
     --background-custom-select-hover: rgba(var(--color-blue-rgb), .075);
     --background-custom-select-selected: rgba(var(--color-blue-rgb), .3);
     --background-session-card: var(--color-white);
+    
+    --bottom-navigation-border-color: var(--color-mediumgray);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -161,6 +163,8 @@
         --background-custom-select-hover: var(--color-dark);
         --background-custom-select-selected: var(--color-dark);
         --background-session-card: var(--color-softblack);
+
+        --bottom-navigation-border-color: var(--color-gray);
     }
 }
 @media (prefers-color-scheme: light) {
@@ -188,6 +192,8 @@
         --background-custom-select-hover: var(--color-dark);
         --background-custom-select-selected: var(--color-dark);
         --background-session-card: var(--color-softblack);
+        
+        --bottom-navigation-border-color: var(--color-gray);
     }
 }
 

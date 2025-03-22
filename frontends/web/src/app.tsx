@@ -42,6 +42,7 @@ import { Darkmode } from './components/darkmode/darkmode';
 import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { Providers } from './contexts/providers';
+import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
 import styles from './app.module.css';
 
 export const App = () => {
@@ -165,6 +166,9 @@ export const App = () => {
 
   const deviceIDs: string[] = Object.keys(devices);
   const activeAccounts = accounts.filter(acct => acct.active);
+
+  const showBottomNavigation = deviceIDs.length > 0 || activeAccounts.length > 0;
+
   return (
     <ConnectedApp>
       <Providers>
@@ -175,7 +179,7 @@ export const App = () => {
             accounts={activeAccounts}
             devices={devices}
           />
-          <div className={styles.appContent}>
+          <div className={`${styles.appContent} ${showBottomNavigation ? styles.hasBottomNavigation : ''}`}>
             <WCSigningRequest />
             <Aopp />
             <KeystoreConnectPrompt />
@@ -202,6 +206,7 @@ export const App = () => {
             />
             <RouterWatcher />
           </div>
+          {showBottomNavigation && <BottomNavigation />}
           <Alert />
           <Confirm />
         </div>
