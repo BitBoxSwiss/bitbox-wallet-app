@@ -34,6 +34,7 @@ import { FiatConversion } from '@/components/rates/rates';
 import { getScriptName } from '@/routes/account/utils';
 import { Message } from '@/components/message/message';
 import { Badge } from '@/components/badge/badge';
+import { Date } from '@/components/transactions/transaction';
 import style from './utxos.module.css';
 
 export type TSelectedUTXOs = {
@@ -126,6 +127,14 @@ export const UTXOs = ({
                         </span>
                       </span>
                       <FiatConversion alwaysShowAmounts amount={utxo.amount} unstyled noAction/>
+                    </div>
+                    <div className={style.date}>
+                      <span className={style.label}>
+                        {t('send.coincontrol.receivedDate')}:
+                      </span>
+                      <span className={style.shrink}>
+                        <Date time={utxo.headerTimestamp} />
+                      </span>
                     </div>
                     <div className={style.address}>
                       <span className={style.label}>
