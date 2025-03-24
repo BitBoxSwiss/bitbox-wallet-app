@@ -1,0 +1,42 @@
+.container {
+  background-color: var(--background-secondary);
+  bottom: 0;
+  border-top: 2px solid var(--bottom-navigation-border-color);
+  display: none;
+  padding: var(--space-half);
+  position: fixed;
+  width: 100%;
+  height: var(--bottom-navigation-height);
+  justify-content: space-between;
+}
+
+.link {
+    align-items: center;
+    color: var(--color-text);
+    display: flex;
+    font-size: 12px;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+    text-align: center;
+    text-decoration: none;
+}
+
+.link svg {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+}
+
+.link.active {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 7px;
+    text-decoration-thickness: 3px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        display: flex;
+    }
+}

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-import { ReactNode } from 'react';
-import style from './settingsButton.module.css';
+import { useTranslation } from 'react-i18next';
+import { Entry } from '@/components/guide/entry';
+import { Guide } from '@/components/guide/guide';
 
-type TProps = {
-  optionalText?: string;
-  optionalIcon?: JSX.Element;
-  children: ReactNode;
-}
-export const SettingsItem = ({ optionalText, optionalIcon, children }: TProps) => {
+export const AllAccountsGuide = () => {
+  const { t } = useTranslation();
   return (
-    <div className={[style.container, style.item].join(' ')}>
-      {children}
-      {optionalText && <span className={style.optionalText}>{optionalText}</span>}
-      {optionalIcon}
-    </div>
+    <Guide title={t('guide.guideTitle.account')}>
+      <Entry key="whatAreAccounts" entry={t('guide.accounts.whatAreAccounts', { returnObjects: true })} />
+    </Guide>
   );
-
 };

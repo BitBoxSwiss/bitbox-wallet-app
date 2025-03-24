@@ -35,8 +35,12 @@
     font-weight: 400;
     margin: 0 auto;
     position: absolute;
-    left: calc(50% + 16px);
+    left: calc(50%);
     transform: translateX(calc(-50% + 16px));
+}
+
+.headerTextNoGuide {
+    transform: translateX(-50%);
 }
 
 @media (max-width: 768px) {
