@@ -106,11 +106,13 @@ var fixedURLWhitelist = []string{
 	"https://cointracking.info/import/bitbox/",
 }
 
-type backendEvent struct {
-	Type string      `json:"type"`
-	Data string      `json:"data"`
-	Meta interface{} `json:"meta"`
-}
+// event are events emitted by the backend.
+type event string
+
+const (
+	// eventNewTxs is emitted when the user should be notified of new transactions.
+	eventNewTxs event = "new-txs"
+)
 
 type deviceEvent struct {
 	DeviceID string `json:"deviceID"`
@@ -118,13 +120,6 @@ type deviceEvent struct {
 	Data     string `json:"data"`
 	// TODO: rename Data to Event, Meta to Data.
 	Meta interface{} `json:"meta"`
-}
-
-// AccountEvent models an event triggered by an account.
-type AccountEvent struct {
-	Type string             `json:"type"`
-	Code accountsTypes.Code `json:"code"`
-	Data string             `json:"data"`
 }
 
 type authEventType string
@@ -332,11 +327,14 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 		return
 	}
 	if unnotifiedCount != 0 {
-		backend.events <- backendEvent{Type: "backend", Data: "newTxs", Meta: map[string]interface{}{
-			"count":       unnotifiedCount,
-			"accountName": account.Config().Config.Name,
-		}}
-
+		backend.Notify(observable.Event{
+			Subject: string(eventNewTxs),
+			Action:  action.Replace,
+			Object: map[string]interface{}{
+				"count":       unnotifiedCount,
+				"accountName": account.Config().Config.Name,
+			},
+		})
 		if err := notifier.MarkAllNotified(); err != nil {
 			backend.log.WithError(err).Error("error marking notified")
 		}
@@ -774,7 +772,15 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 
 	mainKeystore := len(backend.devices) == 1
 	theDevice.SetOnEvent(func(event deviceevent.Event, data interface{}) {
-		switch event {
+		backend.events <- deviceEvent{
+			DeviceID: theDevice.Identifier(),
+			Type:     "device",
+			Data:     string(event),
+			Meta:     data,
+		}
+	})
+	theDevice.Observe(func(event observable.Event) {
+		switch deviceevent.Event(event.Subject) {
 		case deviceevent.EventKeystoreGone:
 			backend.DeregisterKeystore()
 		case deviceevent.EventKeystoreAvailable:
@@ -783,12 +789,15 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 				backend.registerKeystore(theDevice.Keystore())
 			}
 		}
-		backend.events <- deviceEvent{
-			DeviceID: theDevice.Identifier(),
-			Type:     "device",
-			Data:     string(event),
-			Meta:     data,
-		}
+		backend.Notify(observable.Event{
+			Subject: fmt.Sprintf(
+				"devices/%s/%s/%s",
+				theDevice.ProductName(),
+				theDevice.Identifier(),
+				event.Subject),
+			Action: event.Action,
+			Object: event.Object,
+		})
 	})
 
 	backend.onDeviceInit(theDevice)
@@ -796,17 +805,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		backend.onDeviceUninit(theDevice.Identifier())
 		return err
 	}
-	theDevice.Observe(backend.Notify)
 
-	// Old-school
-	select {
-	case backend.events <- backendEvent{
-		Type: "devices",
-		Data: "registeredChanged",
-	}:
-	default:
-	}
-	// New-school
 	backend.Notify(observable.Event{
 		Subject: "devices/registered",
 		Action:  action.Reload,
@@ -828,9 +827,6 @@ func (backend *Backend) Deregister(deviceID string) {
 		delete(backend.devices, deviceID)
 		backend.DeregisterKeystore()
 
-		// Old-school
-		backend.events <- backendEvent{Type: "devices", Data: "registeredChanged"}
-		// New-school
 		backend.Notify(observable.Event{
 			Subject: "devices/registered",
 			Action:  action.Reload,

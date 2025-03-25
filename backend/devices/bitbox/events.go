@@ -39,7 +39,4 @@ const (
 
 	// EventPairingSuccess is fired when the pairing successfully finished.
 	EventPairingSuccess event.Event = "pairingSuccess"
-
-	// EventSignProgress is fired when starting to sign a new batch of hashes.
-	EventSignProgress event.Event = "signProgress"
 )

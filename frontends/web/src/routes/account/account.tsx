@@ -141,8 +141,8 @@ export const Account = ({
 
   const hasCard = useSDCard(devices, [code]);
 
-  const onAccountChanged = useCallback((code: accountApi.AccountCode, status: accountApi.IStatus | undefined) => {
-    if (!code || status === undefined || status.fatalError) {
+  const onAccountChanged = useCallback((status: accountApi.IStatus | undefined) => {
+    if (status === undefined || status.fatalError) {
       return;
     }
     if (status.synced && status.offlineError === null) {
@@ -168,7 +168,7 @@ export const Account = ({
       setBalance(undefined);
       setTransactions(undefined);
     }
-  }, []);
+  }, [code]);
 
   const onStatusChanged = useCallback(() => {
     const currentCode = code;
@@ -184,16 +184,17 @@ export const Account = ({
       if (!status.disabled && !status.synced) {
         await accountApi.init(currentCode).catch(console.error);
       }
-      onAccountChanged(code, status);
+      onAccountChanged(status);
     })
       .catch(console.error);
   }, [onAccountChanged, code]);
 
   useEffect(() => {
+    const currentCode = code;
     const subscriptions = [
       syncAddressesCount(code)(setSyncedAddressesCount),
-      statusChanged((eventCode) => eventCode === code && onStatusChanged()),
-      syncdone((eventCode) => eventCode === code && onAccountChanged(code, status)),
+      statusChanged(currentCode, () => currentCode === code && onStatusChanged()),
+      syncdone(currentCode, () => currentCode === code && onAccountChanged(status)),
     ];
     return () => unsubscribe(subscriptions);
   }, [code, onAccountChanged, onStatusChanged, status]);

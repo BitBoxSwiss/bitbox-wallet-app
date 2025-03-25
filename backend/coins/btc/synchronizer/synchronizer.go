@@ -23,19 +23,17 @@ import (
 // that run in goroutines.
 type Synchronizer struct {
 	requestsCounter int32
-	onSyncStarted   func()
 	onSyncFinished  func()
 	wait            chan struct{}
 	waitLock        locker.Locker
 	log             *logrus.Entry
 }
 
-// NewSynchronizer creates a new Synchronizer. onSyncStarted is called when the counter is first
-// incremented. onSyncFinished is called when the counter is last decremented.
-func NewSynchronizer(onSyncStarted func(), onSyncFinished func(), log *logrus.Entry) *Synchronizer {
+// NewSynchronizer creates a new Synchronizer. onSyncFinished is called when the counter is last
+// decremented.
+func NewSynchronizer(onSyncFinished func(), log *logrus.Entry) *Synchronizer {
 	synchronizer := &Synchronizer{
 		requestsCounter: 0,
-		onSyncStarted:   onSyncStarted,
 		onSyncFinished:  onSyncFinished,
 		wait:            nil,
 		log:             log.WithField("group", "synchronizer"),
@@ -49,7 +47,6 @@ func (synchronizer *Synchronizer) IncRequestsCounter() func() {
 	defer synchronizer.waitLock.Lock()()
 	synchronizer.requestsCounter++
 	if synchronizer.requestsCounter == 1 {
-		synchronizer.onSyncStarted()
 		synchronizer.wait = make(chan struct{})
 	}
 	return synchronizer.decRequestsCounter

@@ -17,7 +17,6 @@
 import { TUnsubscribe } from '@/utils/transport-common';
 import * as accountAPI from './account';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
-import { subscribe as subscribeLegacy } from '@/utils/event-legacy';
 
 /**
  * Subscribes the given function on the "account" event and receives the
@@ -53,14 +52,10 @@ export const syncAddressesCount = (code: accountAPI.AccountCode) => {
  * Returns a method to unsubscribe.
  */
 export const statusChanged = (
-  cb: (code: accountAPI.AccountCode) => void,
+  code: accountAPI.AccountCode,
+  cb: () => void,
 ): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('statusChanged', event => {
-    if (event.type === 'account' && event.code) {
-      cb(event.code);
-    }
-  });
-  return unsubscribe;
+  return subscribeEndpoint(`account/${code}/status-changed`, cb);
 };
 
 /**
@@ -68,11 +63,8 @@ export const statusChanged = (
  * Returns a method to unsubscribe.
  */
 export const syncdone = (
-  cb: (code: accountAPI.AccountCode) => void,
+  code: accountAPI.AccountCode,
+  cb: () => void,
 ): TUnsubscribe => {
-  return subscribeLegacy('syncdone', event => {
-    if (event.type === 'account' && event.code) {
-      cb(event.code);
-    }
-  });
+  return subscribeEndpoint(`account/${code}/sync-done`, cb);
 };
