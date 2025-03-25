@@ -23,12 +23,9 @@ import { FirmwareSetting } from '@/routes/settings/components/device-settings/fi
 type TProps = {
   deviceID: string;
   versionInfo: VersionInfo;
-}
+};
 
-export const FirmwareUpgradeRequired = ({
-  deviceID,
-  versionInfo,
-}: TProps) => {
+export const FirmwareUpgradeRequired = ({ deviceID, versionInfo }: TProps) => {
   const { t } = useTranslation();
   return (
     <Main>
@@ -38,14 +35,16 @@ export const FirmwareUpgradeRequired = ({
         verticallyCentered
         textCenter
         width="840px"
-        withBottomBar>
+        withBottomBar
+      >
         <ViewHeader title={t('upgradeFirmware.label')} />
         <ViewButtons>
           <div>
             <FirmwareSetting
               asButton
               deviceID={deviceID}
-              versionInfo={versionInfo} />
+              versionInfo={versionInfo}
+            />
           </div>
         </ViewButtons>
       </View>

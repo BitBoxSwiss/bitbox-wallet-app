@@ -20,22 +20,22 @@ import { Link, LinkProps } from 'react-router-dom';
 import style from './button.module.css';
 
 type TButtonStyleProp =
-  ({ danger: true } & Omit<TButtonStyleBase, 'danger'>)
+  | ({ danger: true } & Omit<TButtonStyleBase, 'danger'>)
   | ({ primary: true } & Omit<TButtonStyleBase, 'primary'>)
   | ({ secondary: true } & Omit<TButtonStyleBase, 'secondary'>)
-  | ({ transparent: true } & Omit<TButtonStyleBase, 'transparent'>)
+  | ({ transparent: true } & Omit<TButtonStyleBase, 'transparent'>);
 
 type TButtonStyleBase = {
   danger?: false;
   primary?: false;
   secondary?: false;
   transparent?: false;
-}
+};
 
 type TProps = TButtonStyleProp & {
   disabled?: boolean;
   children: ReactNode;
-}
+};
 
 type TButtonLink = LinkProps & TProps;
 
@@ -51,27 +51,24 @@ export const ButtonLink = ({
 }: TButtonLink) => {
   const classNames = [
     style[
-      (primary && 'primary')
-      || (secondary && 'secondary')
-      || (transparent && 'transparent')
-      || (danger && 'danger')
-      || 'button'
-    ], className
+      (primary && 'primary') ||
+        (secondary && 'secondary') ||
+        (transparent && 'transparent') ||
+        (danger && 'danger') ||
+        'button'
+    ],
+    className,
   ].join(' ');
 
   if (disabled) {
     return (
-      <button
-        className={classNames}
-        disabled>
+      <button className={classNames} disabled>
         {children}
       </button>
     );
   }
   return (
-    <Link
-      className={classNames}
-      {...props}>
+    <Link className={classNames} {...props}>
       {children}
     </Link>
   );
@@ -91,19 +88,17 @@ export const Button = ({
 }: TButton) => {
   const classNames = [
     style[
-      (primary && 'primary')
-      || (secondary && 'secondary')
-      || (transparent && 'transparent')
-      || (danger && 'danger')
-      || 'button'
-    ], className
+      (primary && 'primary') ||
+        (secondary && 'secondary') ||
+        (transparent && 'transparent') ||
+        (danger && 'danger') ||
+        'button'
+    ],
+    className,
   ].join(' ');
 
   return (
-    <button
-      type={type}
-      className={classNames}
-      {...props}>
+    <button type={type} className={classNames} {...props}>
       {children}
     </button>
   );

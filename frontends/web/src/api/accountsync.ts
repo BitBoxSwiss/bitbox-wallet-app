@@ -25,7 +25,7 @@ import { subscribe as subscribeLegacy } from '@/utils/event-legacy';
  * Returns a method to unsubscribe.
  */
 export const syncAccountsList = (
-  cb: (accounts: accountAPI.IAccount[],) => void
+  cb: (accounts: accountAPI.IAccount[]) => void,
 ): TUnsubscribe => {
   return subscribeEndpoint('accounts', cb);
 };
@@ -36,14 +36,13 @@ export const syncAccountsList = (
  * Meant to be used with `useSubscribe`.
  */
 export const syncAddressesCount = (code: accountAPI.AccountCode) => {
-  return (
-    cb: TSubscriptionCallback<number>
-  ) => {
-    return subscribeEndpoint(`account/${code}/synced-addresses-count`, (
-      count: number,
-    ) => {
-      cb(count);
-    });
+  return (cb: TSubscriptionCallback<number>) => {
+    return subscribeEndpoint(
+      `account/${code}/synced-addresses-count`,
+      (count: number) => {
+        cb(count);
+      },
+    );
   };
 };
 
@@ -55,7 +54,7 @@ export const syncAddressesCount = (code: accountAPI.AccountCode) => {
 export const statusChanged = (
   cb: (code: accountAPI.AccountCode) => void,
 ): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('statusChanged', event => {
+  const unsubscribe = subscribeLegacy('statusChanged', (event) => {
     if (event.type === 'account' && event.code) {
       cb(event.code);
     }
@@ -70,7 +69,7 @@ export const statusChanged = (
 export const syncdone = (
   cb: (code: accountAPI.AccountCode) => void,
 ): TUnsubscribe => {
-  return subscribeLegacy('syncdone', event => {
+  return subscribeLegacy('syncdone', (event) => {
     if (event.type === 'account' && event.code) {
       cb(event.code);
     }

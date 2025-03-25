@@ -17,14 +17,9 @@
 import { subscribe as subscribeLegacy } from '@/utils/event-legacy';
 
 export const syncNewTxs = (
-  cb: (
-    meta: {
-      count: number,
-      accountName: string,
-    }
-  ) => void,
+  cb: (meta: { count: number; accountName: string }) => void,
 ) => {
-  return subscribeLegacy('newTxs', event => {
+  return subscribeLegacy('newTxs', (event) => {
     if (event.type === 'backend') {
       cb(event.meta);
     }

@@ -26,12 +26,9 @@ import { debug, runningInIOS } from '@/utils/env';
 type TProps = {
   children?: ReactNode;
   className?: string;
-}
+};
 
-export const SkipForTesting = ({
-  children,
-  className,
-}: TProps) => {
+export const SkipForTesting = ({ children, className }: TProps) => {
   const { isTesting } = useContext(AppContext);
   const [dialog, setDialog] = useState(false);
   const show = (debug || runningInIOS()) && isTesting;
@@ -48,11 +45,7 @@ export const SkipForTesting = ({
   const title = 'Unlock software keystore';
   return (
     <>
-      <Button
-        className={className}
-        onClick={() => setDialog(true)}
-        primary
-      >
+      <Button className={className} onClick={() => setDialog(true)} primary>
         {children ? children : title}
       </Button>
       <Dialog open={dialog} title={title} onClose={() => setDialog(false)}>
@@ -60,7 +53,8 @@ export const SkipForTesting = ({
           <PasswordSingleInput
             autoFocus
             label="Test Password"
-            onValidPassword={(pw) => pw ? setTestPIN(pw) : setTestPIN('')}/>
+            onValidPassword={(pw) => (pw ? setTestPIN(pw) : setTestPIN(''))}
+          />
           <DialogButtons>
             <Button primary type="submit">
               Unlock

@@ -23,40 +23,50 @@ import { getBTCDirectPrivacyLink } from '@/components/terms/btcdirect-otc-terms'
 type BuyGuideProps = {
   exchange?: TExchangeName;
   translationContext: 'bitcoin' | 'crypto';
-}
+};
 
 const usePrivacyLink = (exchange?: TExchangeName) => {
   const { t } = useTranslation();
   switch (exchange) {
-  case 'btcdirect':
-    return ({
-      text: t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.link'),
-      url: getBTCDirectPrivacyLink(),
-    });
-  case 'moonpay':
-    return ({
-      text: t('buy.info.disclaimer.privacyPolicy'),
-      url: 'https://www.moonpay.com/privacy_policy',
-    });
-  case 'pocket':
-    return ({
-      text: t('exchange.pocket.terms.dataprotection.link'),
-      url: 'https://pocketbitcoin.com/policy/privacy',
-    });
+    case 'btcdirect':
+      return {
+        text: t(
+          'buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.link',
+        ),
+        url: getBTCDirectPrivacyLink(),
+      };
+    case 'moonpay':
+      return {
+        text: t('buy.info.disclaimer.privacyPolicy'),
+        url: 'https://www.moonpay.com/privacy_policy',
+      };
+    case 'pocket':
+      return {
+        text: t('exchange.pocket.terms.dataprotection.link'),
+        url: 'https://pocketbitcoin.com/policy/privacy',
+      };
   }
 };
 
-export const ExchangeGuide = ({ exchange, translationContext }: BuyGuideProps) => {
+export const ExchangeGuide = ({
+  exchange,
+  translationContext,
+}: BuyGuideProps) => {
   const { t } = useTranslation();
   const link = usePrivacyLink(exchange);
 
   return (
     <Guide title={t('guide.guideTitle.buySell')}>
-      <Entry key="guide.buy.protection" entry={{
-        link,
-        text: t('buy.info.disclaimer.protection.descriptionGeneric', { context: translationContext }),
-        title: t('buy.info.disclaimer.protection.title'),
-      }} />
+      <Entry
+        key="guide.buy.protection"
+        entry={{
+          link,
+          text: t('buy.info.disclaimer.protection.descriptionGeneric', {
+            context: translationContext,
+          }),
+          title: t('buy.info.disclaimer.protection.title'),
+        }}
+      />
     </Guide>
   );
 };

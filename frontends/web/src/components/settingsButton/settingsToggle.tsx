@@ -22,10 +22,7 @@ type Props = TToggleProps & {
   children: ReactNode;
 };
 
-export const SettingsToggle = ({
-  children,
-  ...props
-}: Props) => {
+export const SettingsToggle = ({ children, ...props }: Props) => {
   return (
     <div className={style.setting}>
       {children}

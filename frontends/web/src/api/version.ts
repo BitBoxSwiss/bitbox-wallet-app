@@ -20,10 +20,10 @@ import { apiGet } from '@/utils/request';
  * Describes the file that is loaded from 'https://bitbox.swiss/updates/desktop.json'.
  */
 export type TUpdateFile = {
-    current: string;
-    version: string;
-    description: string;
-}
+  current: string;
+  version: string;
+  description: string;
+};
 
 export const getVersion = (): Promise<string> => {
   return apiGet('version');

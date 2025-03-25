@@ -25,11 +25,13 @@ import { i18nextFormat } from '@/i18n/utils';
 import type { TChartDisplay, TSidebarStatus } from './AppContext';
 
 type TProps = {
-    children: ReactNode;
-}
+  children: ReactNode;
+};
 
 export const AppProvider = ({ children }: TProps) => {
-  const nativeLocale = i18nextFormat(useDefault(useLoad(getNativeLocale), 'de-CH'));
+  const nativeLocale = i18nextFormat(
+    useDefault(useLoad(getNativeLocale), 'de-CH'),
+  );
   const isTesting = useDefault(useLoad(getTesting), false);
   const isDevServers = useDefault(useLoad(getDevServers), false);
   const [guideShown, setGuideShown] = useState(false);
@@ -38,20 +40,21 @@ export const AppProvider = ({ children }: TProps) => {
   const [activeSidebar, setActiveSidebar] = useState(false);
   const [sidebarStatus, setSidebarStatus] = useState<TSidebarStatus>('');
   const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('all');
-  const [firmwareUpdateDialogOpen, setFirmwareUpdateDialogOpen] = useState(false);
+  const [firmwareUpdateDialogOpen, setFirmwareUpdateDialogOpen] =
+    useState(false);
 
   const toggleGuide = () => {
     setConfig({ frontend: { guideShown: !guideShown } });
-    setGuideShown(prev => !prev);
+    setGuideShown((prev) => !prev);
   };
 
   const toggleHideAmounts = () => {
     setConfig({ frontend: { hideAmounts: !hideAmounts } });
-    setHideAmounts(prev => !prev);
+    setHideAmounts((prev) => !prev);
   };
 
   const toggleSidebar = () => {
-    setActiveSidebar(prev => !prev);
+    setActiveSidebar((prev) => !prev);
   };
 
   useEffect(() => {
@@ -90,10 +93,10 @@ export const AppProvider = ({ children }: TProps) => {
         toggleHideAmounts,
         toggleSidebar,
         setFirmwareUpdateDialogOpen,
-        firmwareUpdateDialogOpen
-      }}>
+        firmwareUpdateDialogOpen,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );
 };
-

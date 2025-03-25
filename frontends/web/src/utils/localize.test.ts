@@ -58,6 +58,5 @@ describe('rates utils', () => {
     it('formats large negative number with separators, rounds to 2 digits', () => {
       expect(localizePercentage(-1234.56789, 'en-US')).toBe('-123,456.79');
     });
-
   });
 });

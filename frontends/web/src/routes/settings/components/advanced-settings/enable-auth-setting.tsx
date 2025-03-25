@@ -20,15 +20,23 @@ import { Toggle } from '@/components/toggle/toggle';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { TBackendConfig, TConfig } from '@/routes/settings/advanced-settings';
 import { setConfig } from '@/utils/config';
-import { onAuthSettingChanged, TAuthEventObject, subscribeAuth, forceAuth } from '@/api/backend';
+import {
+  onAuthSettingChanged,
+  TAuthEventObject,
+  subscribeAuth,
+  forceAuth,
+} from '@/api/backend';
 import { runningInAndroid, runningInIOS } from '@/utils/env';
 
 type TProps = {
   backendConfig?: TBackendConfig;
   onChangeConfig: Dispatch<TConfig>;
-}
+};
 
-export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => {
+export const EnableAuthSetting = ({
+  backendConfig,
+  onChangeConfig,
+}: TProps) => {
   const { t } = useTranslation();
 
   const handleToggleAuth = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -49,9 +57,9 @@ export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => 
   };
 
   const updateConfig = async (auth: boolean) => {
-    const config = await setConfig({
+    const config = (await setConfig({
       backend: { authentication: auth },
-    }) as TConfig;
+    })) as TConfig;
     onAuthSettingChanged();
     onChangeConfig(config);
   };
@@ -63,7 +71,9 @@ export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => 
   return (
     <SettingsItem
       settingName={t('newSettings.advancedSettings.authentication.title')}
-      secondaryText={t('newSettings.advancedSettings.authentication.description')}
+      secondaryText={t(
+        'newSettings.advancedSettings.authentication.description',
+      )}
       extraComponent={
         backendConfig !== undefined ? (
           <Toggle

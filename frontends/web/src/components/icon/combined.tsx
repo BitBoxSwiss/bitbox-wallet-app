@@ -23,10 +23,11 @@ export const PointToBitBox02 = () => {
   return (
     <div className={style.point2bitbox02}>
       <CaretDown className={style.caret} />
-      { isDarkMode
-        ? (<BitBox02StylizedLight className={style.bitbox02} />)
-        : (<BitBox02StylizedDark className={style.bitbox02} />)
-      }
+      {isDarkMode ? (
+        <BitBox02StylizedLight className={style.bitbox02} />
+      ) : (
+        <BitBox02StylizedDark className={style.bitbox02} />
+      )}
     </div>
   );
 };

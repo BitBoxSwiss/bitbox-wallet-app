@@ -17,18 +17,17 @@
 import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../components/forms';
-import { SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../../components/icon/logo';
+import {
+  SwissMadeOpenSource,
+  SwissMadeOpenSourceDark,
+} from '../../../../components/icon/logo';
 import { Header } from '../../../../components/layout';
 import { LanguageSwitch } from '../../../../components/language/language';
 import { getDarkmode } from '../../../../components/darkmode/darkmode';
 
 class Goal extends Component {
   render() {
-    const {
-      t,
-      onCreate,
-      onRestore,
-    } = this.props;
+    const { t, onCreate, onRestore } = this.props;
     return (
       <div className="contentWithGuide">
         <div className="container">
@@ -49,7 +48,11 @@ class Goal extends Component {
                 </div>
               </div>
               <div className="text-center m-top-large">
-                {getDarkmode() ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
+                {getDarkmode() ? (
+                  <SwissMadeOpenSourceDark />
+                ) : (
+                  <SwissMadeOpenSource />
+                )}
               </div>
             </div>
           </div>

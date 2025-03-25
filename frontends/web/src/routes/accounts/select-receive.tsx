@@ -24,9 +24,11 @@ import { View, ViewContent } from '@/components/view/view';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 
 type TReceiveAccountsSelector = {
-    activeAccounts: IAccount[]
-}
-export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSelector) => {
+  activeAccounts: IAccount[];
+};
+export const ReceiveAccountsSelector = ({
+  activeAccounts,
+}: TReceiveAccountsSelector) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [code, setCode] = useState('');
@@ -35,10 +37,12 @@ export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSele
     navigate(`/account/${code}/receive`);
   };
 
-  const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) =>
+    isBitcoinOnly(coinCode),
+  );
 
   const title = t('generic.receive', {
-    context: hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'
+    context: hasOnlyBTCAccounts ? 'bitcoin' : 'crypto',
   });
 
   return (

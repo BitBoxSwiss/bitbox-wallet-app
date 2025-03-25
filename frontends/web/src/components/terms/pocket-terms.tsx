@@ -24,7 +24,7 @@ import { SimpleMarkup } from '@/utils/markup';
 
 type TProps = {
   onAgreedTerms: () => void;
-}
+};
 
 export const PocketTerms = ({ onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
@@ -35,21 +35,45 @@ export const PocketTerms = ({ onAgreedTerms }: TProps) => {
   return (
     <div className={style.disclaimerContainer}>
       <div className={style.disclaimer}>
-        <h2 className={style.title}>{t('exchange.pocket.terms.welcome.title')}</h2>
+        <h2 className={style.title}>
+          {t('exchange.pocket.terms.welcome.title')}
+        </h2>
         <p>{t('exchange.pocket.terms.welcome.p1')}</p>
 
         <h2 className={style.title}>{t('exchange.pocket.terms.fees.title')}</h2>
         <ul>
-          <li><SimpleMarkup tagName="p" markup={t('exchange.pocket.terms.fees.p1')} /></li>
-          <li><SimpleMarkup tagName="p" markup={`${t('exchange.pocket.terms.fees.p2')} ${t('exchange.pocket.terms.fees.extraNote')}`} /></li>
+          <li>
+            <SimpleMarkup
+              tagName="p"
+              markup={t('exchange.pocket.terms.fees.p1')}
+            />
+          </li>
+          <li>
+            <SimpleMarkup
+              tagName="p"
+              markup={`${t('exchange.pocket.terms.fees.p2')} ${t('exchange.pocket.terms.fees.extraNote')}`}
+            />
+          </li>
         </ul>
         <p>{t('exchange.pocket.terms.fees.note')}</p>
 
-        <h2 className={style.title}>{t('exchange.pocket.terms.security.title')}</h2>
+        <h2 className={style.title}>
+          {t('exchange.pocket.terms.security.title')}
+        </h2>
         <p>{t('exchange.pocket.terms.security.p1')}</p>
         <ul>
-          <li><SimpleMarkup tagName="p" markup={t('exchange.pocket.terms.security.p2')} /></li>
-          <li><SimpleMarkup tagName="p" markup={t('exchange.pocket.terms.security.p3')} /></li>
+          <li>
+            <SimpleMarkup
+              tagName="p"
+              markup={t('exchange.pocket.terms.security.p2')}
+            />
+          </li>
+          <li>
+            <SimpleMarkup
+              tagName="p"
+              markup={t('exchange.pocket.terms.security.p3')}
+            />
+          </li>
         </ul>
         <p>
           <A href="https://bitbox.swiss/bitbox02/threat-model/">
@@ -59,8 +83,12 @@ export const PocketTerms = ({ onAgreedTerms }: TProps) => {
 
         <h2 className={style.title}>{t('exchange.pocket.terms.kyc.title')}</h2>
         <ul>
-          <li><p>{t('exchange.pocket.terms.kyc.p1')}</p></li>
-          <li><p>{t('exchange.pocket.terms.kyc.p2')}</p></li>
+          <li>
+            <p>{t('exchange.pocket.terms.kyc.p1')}</p>
+          </li>
+          <li>
+            <p>{t('exchange.pocket.terms.kyc.p2')}</p>
+          </li>
         </ul>
         <p>
           <A href="https://pocketbitcoin.com/faq">
@@ -68,7 +96,9 @@ export const PocketTerms = ({ onAgreedTerms }: TProps) => {
           </A>
         </p>
 
-        <h2 className={style.title}>{t('exchange.pocket.terms.dataprotection.title')}</h2>
+        <h2 className={style.title}>
+          {t('exchange.pocket.terms.dataprotection.title')}
+        </h2>
         <p>{t('exchange.pocket.terms.dataprotection.p1')}</p>
         <p>
           <A href="https://pocketbitcoin.com/policy/privacy">
@@ -80,12 +110,11 @@ export const PocketTerms = ({ onAgreedTerms }: TProps) => {
         <Checkbox
           id="skip_disclaimer"
           label={t('buy.info.skip')}
-          onChange={handleSkipDisclaimer} />
+          onChange={handleSkipDisclaimer}
+        />
       </div>
       <div className="buttons text-center m-bottom-xlarge">
-        <Button
-          primary
-          onClick={onAgreedTerms}>
+        <Button primary onClick={onAgreedTerms}>
           {t('buy.info.continue')}
         </Button>
       </div>

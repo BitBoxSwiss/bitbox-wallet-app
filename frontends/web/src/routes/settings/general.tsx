@@ -32,7 +32,10 @@ import { TPagePropsWithSettingsTabs } from './types';
 import { GlobalBanners } from '@/components/banners';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 
-export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const General = ({
+  devices,
+  hasAccounts,
+}: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   return (
     <GuideWrapper>
@@ -48,18 +51,21 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
                 <MobileHeader withGuide title={t('settings.general')} />
               </>
-            } />
+            }
+          />
           <View fullscreen={false}>
             <ViewContent>
-              <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu devices={devices}>
-                <SubTitle>
-                  {t('settings.appearance')}
-                </SubTitle>
+              <WithSettingsTabs
+                hasAccounts={hasAccounts}
+                hideMobileMenu
+                devices={devices}
+              >
+                <SubTitle>{t('settings.appearance')}</SubTitle>
                 <LanguageDropdownSetting />
                 <DefaultCurrencyDropdownSetting />
                 <ActiveCurrenciesDropdownSetting />
                 <DarkmodeToggleSetting />
-                { hasAccounts ? (
+                {hasAccounts ? (
                   <>
                     <SubTitle className="m-top-default">
                       {t('settings.notes.title')}
@@ -67,7 +73,7 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
                     <NotesExport />
                     <NotesImport />
                   </>
-                ) : null }
+                ) : null}
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -75,7 +81,6 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
       </GuidedContent>
       <GeneralGuide />
     </GuideWrapper>
-
   );
 };
 
@@ -84,16 +89,21 @@ const GeneralGuide = () => {
 
   return (
     <Guide title={t('guide.guideTitle.appearance')}>
-      <Entry key="guide.settings.sats" entry={t('guide.settings.sats', { returnObjects: true })} />
-      <Entry key="guide.accountRates" entry={{
-        link: {
-          text: 'www.coingecko.com',
-          url: 'https://www.coingecko.com/'
-        },
-        text: t('guide.accountRates.text'),
-        title: t('guide.accountRates.title')
-      }} />
-
+      <Entry
+        key="guide.settings.sats"
+        entry={t('guide.settings.sats', { returnObjects: true })}
+      />
+      <Entry
+        key="guide.accountRates"
+        entry={{
+          link: {
+            text: 'www.coingecko.com',
+            url: 'https://www.coingecko.com/',
+          },
+          text: t('guide.accountRates.text'),
+          title: t('guide.accountRates.title'),
+        }}
+      />
     </Guide>
   );
 };

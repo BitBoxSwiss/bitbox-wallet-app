@@ -18,10 +18,10 @@
 import style from './radio.module.css';
 
 interface IRadioProps {
-    label?: string;
+  label?: string;
 }
 
-type TRadioProps = IRadioProps & JSX.IntrinsicElements['input']
+type TRadioProps = IRadioProps & JSX.IntrinsicElements['input'];
 
 export const Radio = ({
   disabled = false,
@@ -32,12 +32,7 @@ export const Radio = ({
 }: TRadioProps) => {
   return (
     <span className={style.radio}>
-      <input
-        type="radio"
-        id={id}
-        disabled={disabled}
-        {...props}
-      />
+      <input type="radio" id={id} disabled={disabled} {...props} />
       <label htmlFor={id}>
         {label}
         {children}

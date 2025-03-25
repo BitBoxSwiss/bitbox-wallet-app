@@ -16,7 +16,13 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ITransaction, IAmount, getTransaction, TTransactionStatus, TTransactionType } from '@/api/account';
+import {
+  ITransaction,
+  IAmount,
+  getTransaction,
+  TTransactionStatus,
+  TTransactionType,
+} from '@/api/account';
 import { A } from '@/components/anchor/anchor';
 import { Dialog } from '@/components/dialog/dialog';
 import { Amount } from '@/components/amount/amount';
@@ -43,7 +49,7 @@ type TProps = {
   amount: IAmount;
   sign: string;
   explorerURL: string;
-}
+};
 
 export const TxDetailsDialog = ({
   open,
@@ -62,16 +68,20 @@ export const TxDetailsDialog = ({
 }: TProps) => {
   const { t } = useTranslation();
 
-  const [transactionInfo, setTransactionInfo] = useState<ITransaction | null>(null);
+  const [transactionInfo, setTransactionInfo] = useState<ITransaction | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!transactionInfo && open) {
-      getTransaction(accountCode, internalID).then(transaction => {
-        if (!transaction) {
-          console.error(`Unable to retrieve transaction ${internalID}`);
-        }
-        setTransactionInfo(transaction);
-      }).catch(console.error);
+      getTransaction(accountCode, internalID)
+        .then((transaction) => {
+          if (!transaction) {
+            console.error(`Unable to retrieve transaction ${internalID}`);
+          }
+          setTransactionInfo(transaction);
+        })
+        .catch(console.error);
     }
   }, [accountCode, internalID, open, transactionInfo]);
 
@@ -87,21 +97,17 @@ export const TxDetailsDialog = ({
       title={t('transaction.details.title')}
       onClose={onClose}
       slim
-      medium>
+      medium
+    >
       {transactionInfo && (
         <>
-          <Note
-            accountCode={accountCode}
-            internalID={internalID}
-            note={note}
-          />
+          <Note accountCode={accountCode} internalID={internalID} note={note} />
           <TxDetail label={t('transaction.details.type')}>
-            <Arrow
-              status={status}
-              type={type}
-            />
+            <Arrow status={status} type={type} />
           </TxDetail>
-          <TxDetail label={t('transaction.confirmation')}>{numConfirmations}</TxDetail>
+          <TxDetail label={t('transaction.confirmation')}>
+            {numConfirmations}
+          </TxDetail>
           <TxStatusDetail
             status={status}
             numConfirmations={numConfirmations}
@@ -110,14 +116,17 @@ export const TxDetailsDialog = ({
           <TxDateDetail time={time} />
           <TxDetail label={t('transaction.details.fiat')}>
             <span className={styles.fiat}>
-              <AmountWithUnit amount={amount} sign={sign} convertToFiat/>
+              <AmountWithUnit amount={amount} sign={sign} convertToFiat />
             </span>
           </TxDetail>
-          {transactionInfo.amountAtTime?.estimated === false &&
-          (
+          {transactionInfo.amountAtTime?.estimated === false && (
             <TxDetail label={t('transaction.details.fiatAtTime')}>
               <span className={styles.fiat}>
-                <AmountWithUnit amount={transactionInfo.amountAtTime} sign={sign} convertToFiat/>
+                <AmountWithUnit
+                  amount={transactionInfo.amountAtTime}
+                  sign={sign}
+                  convertToFiat
+                />
               </span>
             </TxDetail>
           )}
@@ -125,62 +134,54 @@ export const TxDetailsDialog = ({
             <span className={styles.amount}>
               {sign}
               <Amount amount={amount.amount} unit={amount.unit} />
+            </span>{' '}
+            <span className={styles.currencyUnit}>
+              {transactionInfo.amount.unit}
             </span>
-            {' '}
-            <span className={styles.currencyUnit}>{transactionInfo.amount.unit}</span>
           </TxDetail>
-          {
-            transactionInfo.fee && transactionInfo.fee.amount ? (
-              <TxDetail label={t('transaction.fee')}>
-                <Amount amount={transactionInfo.fee.amount} unit={transactionInfo.fee.unit} />
-                {' '}
-                <span className={styles.currencyUnit}>{transactionInfo.fee.unit}</span>
-              </TxDetail>
-            ) : (
-              <TxDetail label={t('transaction.fee')}>---</TxDetail>
-            )
-          }
+          {transactionInfo.fee && transactionInfo.fee.amount ? (
+            <TxDetail label={t('transaction.fee')}>
+              <Amount
+                amount={transactionInfo.fee.amount}
+                unit={transactionInfo.fee.unit}
+              />{' '}
+              <span className={styles.currencyUnit}>
+                {transactionInfo.fee.unit}
+              </span>
+            </TxDetail>
+          ) : (
+            <TxDetail label={t('transaction.fee')}>---</TxDetail>
+          )}
           <TxDetailCopyableValues
             label={t('transaction.details.address')}
             values={transactionInfo.addresses}
           />
-          {
-            transactionInfo.gas ? (
-              <TxDetail label={t('transaction.gas')}>{transactionInfo.gas}</TxDetail>
-            ) : null
-          }
-          {
-            transactionInfo.nonce ? (
-              <TxDetail label="Nonce">{transactionInfo.nonce}</TxDetail>
-            ) : null
-          }
-          {
-            transactionInfo.weight ? (
-              <TxDetail label={t('transaction.weight')}>
-                {transactionInfo.weight}
-                {' '}
-                <span className={styles.currencyUnit}>WU</span>
-              </TxDetail>
-            ) : null
-          }
-          {
-            transactionInfo.vsize ? (
-              <TxDetail label={t('transaction.vsize')}>
-                {transactionInfo.vsize}
-                {' '}
-                <span className={styles.currencyUnit}>b</span>
-              </TxDetail>
-            ) : null
-          }
-          {
-            transactionInfo.size ? (
-              <TxDetail label={t('transaction.size')}>
-                {transactionInfo.size}
-                {' '}
-                <span className={styles.currencyUnit}>b</span>
-              </TxDetail>
-            ) : null
-          }
+          {transactionInfo.gas ? (
+            <TxDetail label={t('transaction.gas')}>
+              {transactionInfo.gas}
+            </TxDetail>
+          ) : null}
+          {transactionInfo.nonce ? (
+            <TxDetail label="Nonce">{transactionInfo.nonce}</TxDetail>
+          ) : null}
+          {transactionInfo.weight ? (
+            <TxDetail label={t('transaction.weight')}>
+              {transactionInfo.weight}{' '}
+              <span className={styles.currencyUnit}>WU</span>
+            </TxDetail>
+          ) : null}
+          {transactionInfo.vsize ? (
+            <TxDetail label={t('transaction.vsize')}>
+              {transactionInfo.vsize}{' '}
+              <span className={styles.currencyUnit}>b</span>
+            </TxDetail>
+          ) : null}
+          {transactionInfo.size ? (
+            <TxDetail label={t('transaction.size')}>
+              {transactionInfo.size}{' '}
+              <span className={styles.currencyUnit}>b</span>
+            </TxDetail>
+          ) : null}
           <TxDetailCopyableValues
             label={t('transaction.explorer')}
             values={[transactionInfo.txID]}
@@ -188,7 +189,8 @@ export const TxDetailsDialog = ({
           <div className={`${styles.detail} flex-center`}>
             <A
               href={explorerURL + transactionInfo.txID}
-              title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}>
+              title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}
+            >
               {t('transaction.explorerTitle')}
             </A>
           </div>

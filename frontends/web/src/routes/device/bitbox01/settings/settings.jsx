@@ -53,39 +53,42 @@ class Settings extends Component {
   };
 
   componentDidMount() {
-    getDeviceInfo(this.props.deviceID)
-      .then(deviceInfo => {
-        if (deviceInfo) {
-          const {
-            lock,
-            name,
-            new_hidden_wallet,
-            pairing,
-            sdcard,
-            serial,
-            version,
-          } = deviceInfo;
+    getDeviceInfo(this.props.deviceID).then((deviceInfo) => {
+      if (deviceInfo) {
+        const {
+          lock,
+          name,
+          new_hidden_wallet,
+          pairing,
+          sdcard,
+          serial,
+          version,
+        } = deviceInfo;
 
-          this.setState({
-            firmwareVersion: version.replace('v', ''),
-            lock,
-            name,
-            newHiddenWallet: new_hidden_wallet,
-            pairing,
-            sdcard,
-            serial,
-            spinner: false,
-          });
-        }
-      });
-
-    apiGet('devices/' + this.props.deviceID + '/has-mobile-channel').then(mobileChannel => {
-      this.setState({ mobileChannel });
+        this.setState({
+          firmwareVersion: version.replace('v', ''),
+          lock,
+          name,
+          newHiddenWallet: new_hidden_wallet,
+          pairing,
+          sdcard,
+          serial,
+          spinner: false,
+        });
+      }
     });
 
-    apiGet('devices/' + this.props.deviceID + '/bundled-firmware-version').then(version => {
-      this.setState({ newVersion: version.replace('v', '') });
-    });
+    apiGet('devices/' + this.props.deviceID + '/has-mobile-channel').then(
+      (mobileChannel) => {
+        this.setState({ mobileChannel });
+      },
+    );
+
+    apiGet('devices/' + this.props.deviceID + '/bundled-firmware-version').then(
+      (version) => {
+        this.setState({ newVersion: version.replace('v', '') });
+      },
+    );
 
     this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
       if (type === 'device') {
@@ -93,22 +96,21 @@ class Settings extends Component {
           return;
         }
         switch (data) {
-        case 'mobileDisconnected':
-          this.setState({ connected: false });
-          break;
-        case 'mobileConnected':
-          this.setState({ connected: true });
-          break;
-        case 'pairingSuccess':
-          this.setState({ pairing: true, mobileChannel: true });
-          break;
-        case 'pairingFalse':
-          this.setState({ mobileChannel: false });
-          break;
-        default:
-          break;
+          case 'mobileDisconnected':
+            this.setState({ connected: false });
+            break;
+          case 'mobileConnected':
+            this.setState({ connected: true });
+            break;
+          case 'pairingSuccess':
+            this.setState({ pairing: true, mobileChannel: true });
+            break;
+          case 'pairingFalse':
+            this.setState({ mobileChannel: false });
+            break;
+          default:
+            break;
         }
-
       }
     });
   }
@@ -120,10 +122,7 @@ class Settings extends Component {
   }
 
   render() {
-    const {
-      t,
-      deviceID,
-    } = this.props;
+    const { t, deviceID } = this.props;
     const {
       firmwareVersion,
       newVersion,
@@ -148,31 +147,41 @@ class Settings extends Component {
               <div className="columnsContainer">
                 <div className="columns">
                   <div className="column column-1-2">
-                    <h3 className="subTitle">{t('deviceSettings.secrets.title')}</h3>
+                    <h3 className="subTitle">
+                      {t('deviceSettings.secrets.title')}
+                    </h3>
                     <div className="box slim divide">
-                      <SettingsButton onClick={() => route(`/manage-backups/${deviceID}`)}>
+                      <SettingsButton
+                        onClick={() => route(`/manage-backups/${deviceID}`)}
+                      >
                         {t('deviceSettings.secrets.manageBackups')}
                       </SettingsButton>
                       <ChangePIN deviceID={deviceID} />
-                      {
-                        newHiddenWallet ? (
-                          <HiddenWallet deviceID={deviceID} disabled={lock} />
-                        ) : (
-                          <LegacyHiddenWallet
-                            deviceID={deviceID}
-                            newHiddenWallet={newHiddenWallet}
-                            disabled={lock}
-                            onChange={value => this.setState({ newHiddenWallet: value })}
-                          />
-                        )
-                      }
+                      {newHiddenWallet ? (
+                        <HiddenWallet deviceID={deviceID} disabled={lock} />
+                      ) : (
+                        <LegacyHiddenWallet
+                          deviceID={deviceID}
+                          newHiddenWallet={newHiddenWallet}
+                          disabled={lock}
+                          onChange={(value) =>
+                            this.setState({ newHiddenWallet: value })
+                          }
+                        />
+                      )}
                       <Reset deviceID={deviceID} />
                     </div>
                   </div>
                   <div className="column column-1-2">
-                    <h3 className="subTitle">{t('deviceSettings.pairing.title')}</h3>
+                    <h3 className="subTitle">
+                      {t('deviceSettings.pairing.title')}
+                    </h3>
                     <div className="box slim divide">
-                      <SettingsItem optionalText={t(`deviceSettings.pairing.mobile.${connected}`)}>
+                      <SettingsItem
+                        optionalText={t(
+                          `deviceSettings.pairing.mobile.${connected}`,
+                        )}
+                      >
                         {t('deviceSettings.pairing.mobile.label')}
                       </SettingsItem>
                       <MobilePairing
@@ -180,38 +189,52 @@ class Settings extends Component {
                         deviceLocked={lock}
                         hasMobileChannel={mobileChannel}
                         paired={paired}
-                        onPairingEnabled={() => this.setState({ pairing: true })}
+                        onPairingEnabled={() =>
+                          this.setState({ pairing: true })
+                        }
                       />
                       <DeviceLock
                         lock={lock}
                         deviceID={deviceID}
                         onLock={() => this.setState({ lock: true })}
-                        disabled={lock || !paired} />
+                        disabled={lock || !paired}
+                      />
                     </div>
                   </div>
                 </div>
                 <div className="columns">
                   <div className="column column-1-2">
-                    <h3 className="subTitle">{t('deviceSettings.firmware.title')}</h3>
+                    <h3 className="subTitle">
+                      {t('deviceSettings.firmware.title')}
+                    </h3>
                     <div className="box slim divide">
-                      {
-                        canUpgrade ? (
-                          <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
-                        ) : (
-                          <SettingsItem optionalText={`${t('deviceSettings.firmware.version.label')} ${firmwareVersion ? firmwareVersion : t('loading')}`}>
-                            {t('deviceSettings.firmware.upToDate')}
-                          </SettingsItem>
-                        )
-                      }
+                      {canUpgrade ? (
+                        <UpgradeFirmware
+                          deviceID={deviceID}
+                          currentVersion={firmwareVersion}
+                        />
+                      ) : (
+                        <SettingsItem
+                          optionalText={`${t('deviceSettings.firmware.version.label')} ${firmwareVersion ? firmwareVersion : t('loading')}`}
+                        >
+                          {t('deviceSettings.firmware.upToDate')}
+                        </SettingsItem>
+                      )}
                     </div>
                   </div>
                   <div className="column column-1-2">
-                    <h3 className="subTitle">{t('deviceSettings.hardware.title')}</h3>
+                    <h3 className="subTitle">
+                      {t('deviceSettings.hardware.title')}
+                    </h3>
                     <div className="box slim divide">
                       <SettingsItem optionalText={serial}>
                         Serial number
                       </SettingsItem>
-                      <SettingsItem optionalText={t(`deviceSettings.hardware.sdcard.${sdcard}`)}>
+                      <SettingsItem
+                        optionalText={t(
+                          `deviceSettings.hardware.sdcard.${sdcard}`,
+                        )}
+                      >
                         {t('deviceSettings.hardware.sdcard.label')}
                       </SettingsItem>
                       <RandomNumber apiPrefix={'devices/' + deviceID} />
@@ -221,27 +244,43 @@ class Settings extends Component {
                 </div>
               </div>
             </div>
-            { spinner && <Spinner guideExists text={t('deviceSettings.loading')} /> }
+            {spinner && (
+              <Spinner guideExists text={t('deviceSettings.loading')} />
+            )}
           </div>
         </div>
         <Guide>
-          <Entry key="guide.bitbox.ejectBitbox" entry={t('guide.bitbox.ejectBitbox')} />
+          <Entry
+            key="guide.bitbox.ejectBitbox"
+            entry={t('guide.bitbox.ejectBitbox')}
+          />
           <Entry key="guide.bitbox.ejectSD" entry={t('guide.bitbox.ejectSD')} />
-          <Entry key="guide.bitbox.hiddenWallet" entry={t('guide.bitbox.hiddenWallet')} />
-          { !lock && newHiddenWallet && (
-            <Entry key="guide.bitbox.legacyHiddenWallet" entry={t('guide.bitbox.legacyHiddenWallet')}>
+          <Entry
+            key="guide.bitbox.hiddenWallet"
+            entry={t('guide.bitbox.hiddenWallet')}
+          />
+          {!lock && newHiddenWallet && (
+            <Entry
+              key="guide.bitbox.legacyHiddenWallet"
+              entry={t('guide.bitbox.legacyHiddenWallet')}
+            >
               <p>
                 <LegacyHiddenWallet
                   deviceID={deviceID}
                   newHiddenWallet={newHiddenWallet}
-                  onChange={value => this.setState({ newHiddenWallet: value })}
+                  onChange={(value) =>
+                    this.setState({ newHiddenWallet: value })
+                  }
                 />
               </p>
             </Entry>
           )}
           <Entry key="guide.bitbox.pairing" entry={t('guide.bitbox.pairing')} />
           <Entry key="guide.bitbox.2FA" entry={t('guide.bitbox.2FA')} />
-          <Entry key="guide.bitbox.disable2FA" entry={t('guide.bitbox.disable2FA')} />
+          <Entry
+            key="guide.bitbox.disable2FA"
+            entry={t('guide.bitbox.disable2FA')}
+          />
         </Guide>
       </div>
     );

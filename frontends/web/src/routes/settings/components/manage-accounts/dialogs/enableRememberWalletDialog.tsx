@@ -8,7 +8,7 @@ import { getConfig, setConfig } from '@/utils/config';
 type Props = {
   open: boolean;
   onClose: () => void;
-}
+};
 export const EnableRememberWalletDialog = ({ open, onClose }: Props) => {
   const { t } = useTranslation();
   const config = useLoad(getConfig);
@@ -26,7 +26,11 @@ export const EnableRememberWalletDialog = ({ open, onClose }: Props) => {
   }
 
   return (
-    <Dialog title={t('newSettings.appearance.remebmerWallet.enable.title')} medium open={open}>
+    <Dialog
+      title={t('newSettings.appearance.remebmerWallet.enable.title')}
+      medium
+      open={open}
+    >
       <p>{t('newSettings.appearance.remebmerWallet.enable.description')}</p>
       <Checkbox
         id="dont_show_enable_remember_wallet"
@@ -35,13 +39,18 @@ export const EnableRememberWalletDialog = ({ open, onClose }: Props) => {
         onChange={(e) => setChecked(e.target.checked)}
       />
       <DialogButtons>
-        <Button primary onClick={() => {
-          onClose();
-          if (checked) {
-            setConfig({ frontend: { hideEnableRememberWalletDialog: true } });
-            setShouldNotShowDialog(true);
-          }
-        }}>{t('button.ok')}</Button>
+        <Button
+          primary
+          onClick={() => {
+            onClose();
+            if (checked) {
+              setConfig({ frontend: { hideEnableRememberWalletDialog: true } });
+              setShouldNotShowDialog(true);
+            }
+          }}
+        >
+          {t('button.ok')}
+        </Button>
       </DialogButtons>
     </Dialog>
   );

@@ -24,17 +24,20 @@ import { setConfig } from '@/utils/config';
 type TProps = {
   frontendConfig?: TFrontendConfig;
   onChangeConfig: Dispatch<TConfig>;
-}
+};
 
-export const EnableCoinControlSetting = ({ frontendConfig, onChangeConfig }: TProps) => {
+export const EnableCoinControlSetting = ({
+  frontendConfig,
+  onChangeConfig,
+}: TProps) => {
   const { t } = useTranslation();
 
   const handleToggleFee = async (e: ChangeEvent<HTMLInputElement>) => {
-    const config = await setConfig({
+    const config = (await setConfig({
       frontend: {
-        'coinControl': e.target.checked
+        coinControl: e.target.checked,
       },
-    }) as TConfig;
+    })) as TConfig;
     onChangeConfig(config);
   };
 

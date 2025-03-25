@@ -28,8 +28,19 @@ import { Bluetooth } from '@/components/bluetooth/bluetooth';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { Spinner } from '@/components/spinner/Spinner';
-import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '@/components/icon/logo';
-import { Footer, GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
+import {
+  AppLogo,
+  AppLogoInverted,
+  SwissMadeOpenSource,
+  SwissMadeOpenSourceDark,
+} from '@/components/icon/logo';
+import {
+  Footer,
+  GuidedContent,
+  GuideWrapper,
+  Header,
+  Main,
+} from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { OutlinedSettingsButton } from '@/components/settingsButton/outlined-settings-button';
 import style from './bitbox01/bitbox01.module.css';
@@ -49,12 +60,12 @@ export const Waiting = () => {
     }
   }, [devices, navigate]);
 
-  const loadingAccounts = (keystores !== undefined && keystores.length) || (devices !== undefined && Object.keys(devices).length);
+  const loadingAccounts =
+    (keystores !== undefined && keystores.length) ||
+    (devices !== undefined && Object.keys(devices).length);
 
   if (loadingAccounts) {
-    return (
-      <Spinner text={t('welcome.loadingAccounts')} />
-    );
+    return <Spinner text={t('welcome.loadingAccounts')} />;
   }
   return (
     <GuideWrapper>
@@ -66,10 +77,14 @@ export const Waiting = () => {
           <View verticallyCentered width="550px" fitContent>
             <ViewContent>
               <div>
-                {isDarkMode ? (<AppLogoInverted />) : (<AppLogo />)}
+                {isDarkMode ? <AppLogoInverted /> : <AppLogo />}
                 <div className="box large">
-                  <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
-                  <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
+                  <h3 className={style.waitingText}>
+                    {t('welcome.insertDevice')}
+                  </h3>
+                  <p className={style.waitingDescription}>
+                    {t('welcome.insertBitBox02')}
+                  </p>
                 </div>
                 <Bluetooth />
               </div>
@@ -77,32 +92,46 @@ export const Waiting = () => {
           </View>
         </Main>
         <Footer>
-          {isDarkMode ? (<SwissMadeOpenSourceDark />) : (<SwissMadeOpenSource />)}
+          {isDarkMode ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
         </Footer>
       </GuidedContent>
       <Guide>
-        <Entry entry={t('guide.waiting.welcome', { returnObjects: true })} shown={true} />
-        <Entry entry={{
-          link: {
-            text: t('guide.waiting.getDevice.link.text'),
-            url: 'https://bitbox.shop/',
-          },
-          text: t('guide.waiting.getDevice.text'),
-          title: t('guide.waiting.getDevice.title'),
-        }} />
-        <Entry entry={{
-          link: {
-            text: t('guide.waiting.lostDevice.link.text'),
-            url: (i18n.resolvedLanguage === 'de')
-              ? 'https://bitbox.swiss/redirects/restore-wallet-without-bitbox-de/'
-              : 'https://bitbox.swiss/redirects/restore-wallet-without-bitbox-en/',
-          },
-          text: t('guide.waiting.lostDevice.text'),
-          title: t('guide.waiting.lostDevice.title'),
-        }} />
+        <Entry
+          entry={t('guide.waiting.welcome', { returnObjects: true })}
+          shown={true}
+        />
+        <Entry
+          entry={{
+            link: {
+              text: t('guide.waiting.getDevice.link.text'),
+              url: 'https://bitbox.shop/',
+            },
+            text: t('guide.waiting.getDevice.text'),
+            title: t('guide.waiting.getDevice.title'),
+          }}
+        />
+        <Entry
+          entry={{
+            link: {
+              text: t('guide.waiting.lostDevice.link.text'),
+              url:
+                i18n.resolvedLanguage === 'de'
+                  ? 'https://bitbox.swiss/redirects/restore-wallet-without-bitbox-de/'
+                  : 'https://bitbox.swiss/redirects/restore-wallet-without-bitbox-en/',
+            },
+            text: t('guide.waiting.lostDevice.text'),
+            title: t('guide.waiting.lostDevice.title'),
+          }}
+        />
         <Entry entry={t('guide.waiting.internet', { returnObjects: true })} />
-        <Entry entry={t('guide.waiting.deviceNotRecognized', { returnObjects: true })} />
-        <Entry entry={t('guide.waiting.useWithoutDevice', { returnObjects: true })} />
+        <Entry
+          entry={t('guide.waiting.deviceNotRecognized', {
+            returnObjects: true,
+          })}
+        />
+        <Entry
+          entry={t('guide.waiting.useWithoutDevice', { returnObjects: true })}
+        />
       </Guide>
     </GuideWrapper>
   );

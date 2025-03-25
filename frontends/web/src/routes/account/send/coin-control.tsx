@@ -25,12 +25,9 @@ import { isBitcoinBased } from '../utils';
 type TProps = {
   account: IAccount;
   onSelectedUTXOsChange: (selectedUTXOs: TSelectedUTXOs) => void;
-}
+};
 
-export const CoinControl = ({
-  account,
-  onSelectedUTXOsChange,
-}: TProps) => {
+export const CoinControl = ({ account, onSelectedUTXOsChange }: TProps) => {
   const { t } = useTranslation();
 
   const [coinControlEnabled, setCoinControlEnabled] = useState(false);
@@ -38,32 +35,32 @@ export const CoinControl = ({
 
   useEffect(() => {
     if (isBitcoinBased(account.coinCode)) {
-      getConfig().then(config => {
+      getConfig().then((config) => {
         setCoinControlEnabled(!!(config.frontend || {}).coinControl);
       });
     }
   }, [account.coinCode]);
 
-  return (
-    coinControlEnabled ? (
-      <>
-        <UTXOs
-          accountCode={account.code}
-          active={showUTXODialog}
-          explorerURL={account.blockExplorerTxPrefix}
-          onClose={() => {
-            setShowUTXODialog(false);
-          }}
-          onChange={onSelectedUTXOsChange} />
-        <Button
-          className="m-bottom-quarter p-right-none"
-          transparent
-          onClick={() => {
-            setShowUTXODialog(showUTXODialog => !showUTXODialog);
-          }}>
-          {t('send.toggleCoinControl')}
-        </Button>
-      </>
-    ) : (null)
-  );
+  return coinControlEnabled ? (
+    <>
+      <UTXOs
+        accountCode={account.code}
+        active={showUTXODialog}
+        explorerURL={account.blockExplorerTxPrefix}
+        onClose={() => {
+          setShowUTXODialog(false);
+        }}
+        onChange={onSelectedUTXOsChange}
+      />
+      <Button
+        className="m-bottom-quarter p-right-none"
+        transparent
+        onClick={() => {
+          setShowUTXODialog((showUTXODialog) => !showUTXODialog);
+        }}
+      >
+        {t('send.toggleCoinControl')}
+      </Button>
+    </>
+  ) : null;
 };

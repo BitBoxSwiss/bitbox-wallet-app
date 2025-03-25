@@ -24,8 +24,8 @@ import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { useTranslation } from 'react-i18next';
 
 type TProps = {
-    deviceID: string;
-}
+  deviceID: string;
+};
 
 export const Create = ({ deviceID }: TProps) => {
   const [creatingBackup, setCreatingBackup] = useState(false);
@@ -50,7 +50,7 @@ export const Create = ({ deviceID }: TProps) => {
     try {
       const check = await checkBackup(deviceID, true);
       if (check.success) {
-        confirmation(t('backup.create.alreadyExists'), result => {
+        confirmation(t('backup.create.alreadyExists'), (result) => {
           if (result) {
             createBackup();
           } else {
@@ -67,13 +67,10 @@ export const Create = ({ deviceID }: TProps) => {
 
   return (
     <span>
-      <Button
-        primary
-        disabled={disabled}
-        onClick={maybeCreateBackup}>
+      <Button primary disabled={disabled} onClick={maybeCreateBackup}>
         {t('backup.create.title')}
       </Button>
-      { creatingBackup && (
+      {creatingBackup && (
         <WaitDialog title={t('backup.create.title')}>
           {t('bitbox02Interact.followInstructions')}
         </WaitDialog>

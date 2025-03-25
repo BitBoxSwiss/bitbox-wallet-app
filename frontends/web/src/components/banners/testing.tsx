@@ -27,9 +27,5 @@ export const Testing = () => {
     return null;
   }
 
-  return (
-    <Status type="warning">
-      {t('warning.testnet')}
-    </Status>
-  );
+  return <Status type="warning">{t('warning.testnet')}</Status>;
 };

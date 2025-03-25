@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-export const localizePercentage = (
-  amount: number,
-  locale: string,
-): string => {
-
+export const localizePercentage = (amount: number, locale: string): string => {
   let formatter;
 
   try {
@@ -28,16 +24,10 @@ export const localizePercentage = (
       signDisplay: 'auto',
       style: 'percent',
     });
-  } catch (error) {
-  }
+  } catch (error) {}
 
   if (formatter) {
-    return (
-      formatter
-        .format(amount)
-        .replace('%', '')
-        .trim()
-    );
+    return formatter.format(amount).replace('%', '').trim();
   }
 
   return (amount * 100).toFixed(2);

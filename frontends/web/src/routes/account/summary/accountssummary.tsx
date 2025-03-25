@@ -48,10 +48,7 @@ export type Balances = {
   [code: string]: accountApi.IBalance;
 };
 
-export const AccountsSummary = ({
-  accounts,
-  devices,
-}: TProps) => {
+export const AccountsSummary = ({ accounts, devices }: TProps) => {
   const { t } = useTranslation();
   const summaryReqTimerID = useRef<number>();
   const mounted = useMountedRef();
@@ -61,9 +58,12 @@ export const AccountsSummary = ({
   const accountsByKeystore = getAccountsByKeystore(accounts);
 
   const [summaryData, setSummaryData] = useState<accountApi.TSummary>();
-  const [balancePerCoin, setBalancePerCoin] = useState<accountApi.TAccountsBalance>();
-  const [accountsTotalBalance, setAccountsTotalBalance] = useState<accountApi.TAccountsTotalBalance>();
-  const [coinsTotalBalance, setCoinsTotalBalance] = useState<accountApi.TCoinsTotalBalance>();
+  const [balancePerCoin, setBalancePerCoin] =
+    useState<accountApi.TAccountsBalance>();
+  const [accountsTotalBalance, setAccountsTotalBalance] =
+    useState<accountApi.TAccountsTotalBalance>();
+  const [coinsTotalBalance, setCoinsTotalBalance] =
+    useState<accountApi.TCoinsTotalBalance>();
   const [balances, setBalances] = useState<Balances>();
 
   const hasCard = useSDCard(devices);
@@ -125,46 +125,46 @@ export const AccountsSummary = ({
     }
   }, [mounted]);
 
-  const onStatusChanged = useCallback(async (
-    code: accountApi.AccountCode,
-  ) => {
-    if (!mounted.current) {
-      return;
-    }
-    const status = await accountApi.getStatus(code);
-    if (status.disabled || !mounted.current) {
-      return;
-    }
-    if (!status.synced) {
-      return accountApi.init(code);
-    }
-    const balance = await accountApi.getBalance(code);
-    if (!mounted.current) {
-      return;
-    }
-    setBalances((prevBalances) => ({
-      ...prevBalances,
-      [code]: balance
-    }));
-  }, [mounted]);
+  const onStatusChanged = useCallback(
+    async (code: accountApi.AccountCode) => {
+      if (!mounted.current) {
+        return;
+      }
+      const status = await accountApi.getStatus(code);
+      if (status.disabled || !mounted.current) {
+        return;
+      }
+      if (!status.synced) {
+        return accountApi.init(code);
+      }
+      const balance = await accountApi.getBalance(code);
+      if (!mounted.current) {
+        return;
+      }
+      setBalances((prevBalances) => ({
+        ...prevBalances,
+        [code]: balance,
+      }));
+    },
+    [mounted],
+  );
 
-  const update = useCallback((code: accountApi.AccountCode) => {
-    if (mounted.current) {
-      onStatusChanged(code);
-      getAccountSummary();
-    }
-  }, [getAccountSummary, mounted, onStatusChanged]);
+  const update = useCallback(
+    (code: accountApi.AccountCode) => {
+      if (mounted.current) {
+        onStatusChanged(code);
+        getAccountSummary();
+      }
+    },
+    [getAccountSummary, mounted, onStatusChanged],
+  );
 
   useEffect(() => {
     // for subscriptions and unsubscriptions
     // runs only on component mount and unmount.
-    const subscriptions = [
-      statusChanged(update),
-      syncdone(update)
-    ];
+    const subscriptions = [statusChanged(update), syncdone(update)];
     return () => unsubscribe(subscriptions);
   }, [update]);
-
 
   useEffect(() => {
     // handles fetching data and runs on component mount
@@ -173,12 +173,18 @@ export const AccountsSummary = ({
     getAccountsBalance();
     getAccountsTotalBalance();
     getCoinsTotalBalance();
-  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, getCoinsTotalBalance, defaultCurrency]);
+  }, [
+    getAccountSummary,
+    getAccountsBalance,
+    getAccountsTotalBalance,
+    getCoinsTotalBalance,
+    defaultCurrency,
+  ]);
 
   // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
     // set new timer
-    const delay = (!summaryData || summaryData.chartDataMissing) ? 1000 : 10000;
+    const delay = !summaryData || summaryData.chartDataMissing ? 1000 : 10000;
     summaryReqTimerID.current = window.setTimeout(getAccountSummary, delay);
     return () => {
       // replace previous timer if present
@@ -189,7 +195,7 @@ export const AccountsSummary = ({
   }, [summaryData, getAccountSummary]);
 
   useEffect(() => {
-    accounts.forEach(account => {
+    accounts.forEach((account) => {
       onStatusChanged(account.code);
     });
     getAccountsBalance();
@@ -214,10 +220,15 @@ export const AccountsSummary = ({
               hideAmounts={hideAmounts}
               data={summaryData}
               noDataPlaceholder={
-                (accounts.length && accounts.length <= Object.keys(balances || {}).length) ? (
-                  <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
+                accounts.length &&
+                accounts.length <= Object.keys(balances || {}).length ? (
+                  <AddBuyReceiveOnEmptyBalances
+                    accounts={accounts}
+                    balances={balances}
+                  />
                 ) : undefined
-              } />
+              }
+            />
             {accountsByKeystore.length > 1 && (
               <CoinBalance
                 summaryData={summaryData}
@@ -225,34 +236,53 @@ export const AccountsSummary = ({
               />
             )}
             {accountsByKeystore &&
-              (accountsByKeystore.map(({ keystore, accounts }) =>
-                (
-                  <SummaryBalance
-                    keystoreDisambiguatorName={isAmbiguousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
-                    connected={keystore.connected}
-                    keystoreName={keystore.name}
-                    key={keystore.rootFingerprint}
-                    accounts={accounts}
-                    totalBalancePerCoin={balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
-                    totalBalance={accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
-                    balances={balances}
-                  />
-                )
+              accountsByKeystore.map(({ keystore, accounts }) => (
+                <SummaryBalance
+                  keystoreDisambiguatorName={
+                    isAmbiguousName(keystore.name, accountsByKeystore)
+                      ? keystore.rootFingerprint
+                      : undefined
+                  }
+                  connected={keystore.connected}
+                  keystoreName={keystore.name}
+                  key={keystore.rootFingerprint}
+                  accounts={accounts}
+                  totalBalancePerCoin={
+                    balancePerCoin
+                      ? balancePerCoin[keystore.rootFingerprint]
+                      : undefined
+                  }
+                  totalBalance={
+                    accountsTotalBalance
+                      ? accountsTotalBalance[keystore.rootFingerprint]
+                      : undefined
+                  }
+                  balances={balances}
+                />
               ))}
           </View>
         </Main>
       </GuidedContent>
       <Guide title={t('guide.guideTitle.accountSummary')}>
-        <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription', { returnObjects: true })} />
-        <Entry key="accountSummaryAmount" entry={{
-          link: {
-            text: 'www.coingecko.com',
-            url: 'https://www.coingecko.com/'
-          },
-          text: t('guide.accountSummaryAmount.text'),
-          title: t('guide.accountSummaryAmount.title')
-        }} />
-        <Entry key="trackingModePortfolioChart" entry={t('guide.trackingModePortfolioChart', { returnObjects: true })} />
+        <Entry
+          key="accountSummaryDescription"
+          entry={t('guide.accountSummaryDescription', { returnObjects: true })}
+        />
+        <Entry
+          key="accountSummaryAmount"
+          entry={{
+            link: {
+              text: 'www.coingecko.com',
+              url: 'https://www.coingecko.com/',
+            },
+            text: t('guide.accountSummaryAmount.text'),
+            title: t('guide.accountSummaryAmount.title'),
+          }}
+        />
+        <Entry
+          key="trackingModePortfolioChart"
+          entry={t('guide.trackingModePortfolioChart', { returnObjects: true })}
+        />
       </Guide>
     </GuideWrapper>
   );

@@ -28,23 +28,26 @@ import { GroupedAccountSelector } from '@/components/groupedaccountselector/grou
 import { ExchangeGuide } from './guide';
 
 type TProps = {
-    accounts: accountApi.IAccount[];
-    code: accountApi.AccountCode;
-}
+  accounts: accountApi.IAccount[];
+  code: accountApi.AccountCode;
+};
 
 export const ExchangeInfo = ({ code, accounts }: TProps) => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string>(code);
   const [disabled, setDisabled] = useState<boolean>(false);
-  const [supportedAccounts, setSupportedAccounts] = useState<accountApi.IAccount[]>();
+  const [supportedAccounts, setSupportedAccounts] =
+    useState<accountApi.IAccount[]>();
 
   const { t } = useTranslation();
 
   useEffect(() => {
     try {
-      getExchangeSupportedAccounts(accounts).then(exchangeSupportedAccounts => {
-        setSupportedAccounts(exchangeSupportedAccounts);
-      });
+      getExchangeSupportedAccounts(accounts).then(
+        (exchangeSupportedAccounts) => {
+          setSupportedAccounts(exchangeSupportedAccounts);
+        },
+      );
     } catch (e) {
       console.error(e);
     }
@@ -56,7 +59,7 @@ export const ExchangeInfo = ({ code, accounts }: TProps) => {
       // and they don't have the correct device connected
       // they'll be prompted to do so.
       const accountCode = supportedAccounts[0].code;
-      connectKeystore(accountCode).then(connected => {
+      connectKeystore(accountCode).then((connected) => {
         if (connected) {
           // replace current history item when redirecting so that the user can go back
           navigate(`/exchange/select/${accountCode}`, { replace: true });
@@ -86,29 +89,29 @@ export const ExchangeInfo = ({ code, accounts }: TProps) => {
     return <Spinner text={t('loading')} />;
   }
 
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) =>
+    isBitcoinOnly(coinCode),
+  );
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   return (
     <Main>
       <GuideWrapper>
         <GuidedContent>
-          <Header title={
-            <h2>
-              {t('generic.buySell')}
-            </h2>
-          }>
+          <Header title={<h2>{t('generic.buySell')}</h2>}>
             <HideAmountsButton />
           </Header>
           <View width="550px" verticallyCentered fullscreen={false}>
             <ViewContent>
-              { !supportedAccounts || supportedAccounts.length === 0 ? (
-                <div className="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
+              {!supportedAccounts || supportedAccounts.length === 0 ? (
+                <div className="content narrow isVerticallyCentered">
+                  {t('accountSummary.noAccount')}
+                </div>
               ) : (
                 supportedAccounts && (
                   <GroupedAccountSelector
                     accounts={supportedAccounts}
-                    title={ t('receive.selectAccount')}
+                    title={t('receive.selectAccount')}
                     disabled={disabled}
                     selected={selected}
                     onChange={setSelected}

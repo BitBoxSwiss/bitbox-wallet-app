@@ -29,9 +29,7 @@ type Props = {
   coin: 'btc' | 'tbtc' | 'ltc' | 'tltc';
 };
 
-export const ElectrumServers = ({
-  coin
-}: Props) => {
+export const ElectrumServers = ({ coin }: Props) => {
   const { t } = useTranslation();
   const [config, setConfigState] = useState<any>();
   const loadConfig = () => {
@@ -41,7 +39,8 @@ export const ElectrumServers = ({
   if (config === undefined) {
     return null;
   }
-  const electrumServers: TElectrumServer[] = config.backend[coin].electrumServers;
+  const electrumServers: TElectrumServer[] =
+    config.backend[coin].electrumServers;
 
   const save = async (newElectrumServers: TElectrumServer[]) => {
     const currentConfig = await getConfig();
@@ -62,22 +61,25 @@ export const ElectrumServers = ({
   };
 
   const resetToDefault = () => {
-    confirmation(t('settings.electrum.resetConfirm'), response => {
+    confirmation(t('settings.electrum.resetConfirm'), (response) => {
       if (response) {
-        getDefaultConfig().then(config => {
+        getDefaultConfig().then((config) => {
           save(config.backend[coin].electrumServers);
         });
       }
     });
   };
 
-  const onRemoveCb = (server: TElectrumServer, index: number) => (() => {
-    confirmation(t('settings.electrum.removeConfirm', { server: server.server }), confirmed => {
-      if (confirmed) {
-        onRemove(index);
-      }
-    });
-  });
+  const onRemoveCb = (server: TElectrumServer, index: number) => () => {
+    confirmation(
+      t('settings.electrum.removeConfirm', { server: server.server }),
+      (confirmed) => {
+        if (confirmed) {
+          onRemove(index);
+        }
+      },
+    );
+  };
 
   return (
     <div className={style.serversContainer}>
@@ -87,20 +89,21 @@ export const ElectrumServers = ({
           <Button
             transparent
             className={style.resetLink}
-            onClick={resetToDefault}>
+            onClick={resetToDefault}
+          >
             {t('settings.electrum.reset')}
           </Button>
         </div>
         <ul className={style.servers}>
-          {
-            electrumServers.map((server, index) => (
-              <ElectrumServer
-                key={server.server + server.tls.toString() + '-' + index.toString()}
-                server={server}
-                onRemove={onRemoveCb(server, index)}
-              />
-            ))
-          }
+          {electrumServers.map((server, index) => (
+            <ElectrumServer
+              key={
+                server.server + server.tls.toString() + '-' + index.toString()
+              }
+              server={server}
+              onRemove={onRemoveCb(server, index)}
+            />
+          ))}
         </ul>
       </div>
       <hr />

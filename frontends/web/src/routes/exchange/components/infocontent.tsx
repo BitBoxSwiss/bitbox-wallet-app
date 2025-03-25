@@ -24,31 +24,31 @@ import style from './infocontent.module.css';
 
 export const getBTCDirectOTCLink = () => {
   switch (i18n.resolvedLanguage) {
-  case 'de':
-    return 'https://start.btcdirect.eu/de/private-trading-bitbox';
-  case 'nl':
-    return 'https://start.btcdirect.eu/nl/private-trading-bitbox';
-  case 'es':
-    return 'https://start.btcdirect.eu/es/private-trading-bitbox';
-  case 'fr':
-    return 'https://start.btcdirect.eu/fr/private-trading-bitbox';
-  default:
-    return 'https://start.btcdirect.eu/private-trading-bitbox';
+    case 'de':
+      return 'https://start.btcdirect.eu/de/private-trading-bitbox';
+    case 'nl':
+      return 'https://start.btcdirect.eu/nl/private-trading-bitbox';
+    case 'es':
+      return 'https://start.btcdirect.eu/es/private-trading-bitbox';
+    case 'fr':
+      return 'https://start.btcdirect.eu/fr/private-trading-bitbox';
+    default:
+      return 'https://start.btcdirect.eu/private-trading-bitbox';
   }
 };
 
 export const getBTCDirectAboutUsLink = () => {
   switch (i18n.resolvedLanguage) {
-  case 'de':
-    return 'https://btcdirect.eu/de-at/uber-uns?BitBox';
-  case 'nl':
-    return 'https://btcdirect.eu/nl-nl/over-ons?BitBox';
-  case 'es':
-    return 'https://btcdirect.eu/es-es/sobre-nosotros?BitBox';
-  case 'fr':
-    return 'https://btcdirect.eu/fr-fr/a-propos-de-nous?BitBox';
-  default:
-    return 'https://btcdirect.eu/en-eu/about-btc-direct?BitBox';
+    case 'de':
+      return 'https://btcdirect.eu/de-at/uber-uns?BitBox';
+    case 'nl':
+      return 'https://btcdirect.eu/nl-nl/over-ons?BitBox';
+    case 'es':
+      return 'https://btcdirect.eu/es-es/sobre-nosotros?BitBox';
+    case 'fr':
+      return 'https://btcdirect.eu/fr-fr/a-propos-de-nous?BitBox';
+    default:
+      return 'https://btcdirect.eu/en-eu/about-btc-direct?BitBox';
   }
 };
 
@@ -63,38 +63,78 @@ const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfoProps) => {
     <div className={style.container}>
       <p>{t('buy.exchange.infoContent.moonpay.supportedCurrencies')}</p>
       <br />
-      <p><A href="https://support.moonpay.com/hc/en-gb/articles/360011931457-Which-fiat-currencies-are-supported-">{t('buy.exchange.infoContent.moonpay.fullCurrenciesList')}</A></p>
+      <p>
+        <A href="https://support.moonpay.com/hc/en-gb/articles/360011931457-Which-fiat-currencies-are-supported-">
+          {t('buy.exchange.infoContent.moonpay.fullCurrenciesList')}
+        </A>
+      </p>
       <br />
-      <p><b>{t('buy.exchange.infoContent.moonpay.payment.title')}</b></p>
+      <p>
+        <b>{t('buy.exchange.infoContent.moonpay.payment.title')}</b>
+      </p>
       <br />
       <p>{t('buy.exchange.infoContent.moonpay.payment.creditDebitCard')}</p>
       <ul>
-        <li>{t('buy.exchange.infoContent.moonpay.payment.creditDebitCardDetails.cards')}</li>
+        <li>
+          {t(
+            'buy.exchange.infoContent.moonpay.payment.creditDebitCardDetails.cards',
+          )}
+        </li>
       </ul>
       <p>{t('buy.exchange.infoContent.moonpay.payment.bankTransfer')}</p>
       <ul>
-        <li>{t('buy.exchange.infoContent.moonpay.payment.bankTransferDetails.sepa')}</li>
-        <li>{t('buy.exchange.infoContent.moonpay.payment.bankTransferDetails.uk')}</li>
-        <li>{t('buy.exchange.infoContent.moonpay.payment.bankTransferDetails.pix')}</li>
+        <li>
+          {t(
+            'buy.exchange.infoContent.moonpay.payment.bankTransferDetails.sepa',
+          )}
+        </li>
+        <li>
+          {t('buy.exchange.infoContent.moonpay.payment.bankTransferDetails.uk')}
+        </li>
+        <li>
+          {t(
+            'buy.exchange.infoContent.moonpay.payment.bankTransferDetails.pix',
+          )}
+        </li>
       </ul>
-      <br/>
-      <p><i>{t('buy.exchange.infoContent.moonpay.payment.asteriskText')}</i></p>
       <br />
-      <p><A href="https://support.moonpay.com/hc/en-gb/articles/4406210084113-What-payment-methods-do-you-support-">{t('buy.exchange.infoContent.moonpay.payment.learnMore')}</A></p>
+      <p>
+        <i>{t('buy.exchange.infoContent.moonpay.payment.asteriskText')}</i>
+      </p>
       <br />
-      <p><b>{t('buy.exchange.infoContent.moonpay.fees.title')}</b></p>
+      <p>
+        <A href="https://support.moonpay.com/hc/en-gb/articles/4406210084113-What-payment-methods-do-you-support-">
+          {t('buy.exchange.infoContent.moonpay.payment.learnMore')}
+        </A>
+      </p>
+      <br />
+      <p>
+        <b>{t('buy.exchange.infoContent.moonpay.fees.title')}</b>
+      </p>
       <ul>
-        <li>{t('buy.exchange.infoContent.moonpay.fees.creditDebitCard', { fee: cardFee })}</li>
-        <li>{t('buy.exchange.infoContent.moonpay.fees.bankTransfer', { fee: bankTransferFee })}</li>
+        <li>
+          {t('buy.exchange.infoContent.moonpay.fees.creditDebitCard', {
+            fee: cardFee,
+          })}
+        </li>
+        <li>
+          {t('buy.exchange.infoContent.moonpay.fees.bankTransfer', {
+            fee: bankTransferFee,
+          })}
+        </li>
       </ul>
       <br />
-      <p><A href="https://www.moonpay.com/">{t('buy.exchange.infoContent.moonpay.fees.learnMore')}</A></p>
+      <p>
+        <A href="https://www.moonpay.com/">
+          {t('buy.exchange.infoContent.moonpay.fees.learnMore')}
+        </A>
+      </p>
     </div>
   );
 };
 
 type TPocketInfoProps = {
-  bankTransferFee?: number
+  bankTransferFee?: number;
 };
 
 const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
@@ -103,22 +143,34 @@ const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
     <div className={style.container}>
       <p>{t('buy.exchange.infoContent.pocket.supportedCurrencies')}</p>
       <br />
-      <p><b>{t('buy.exchange.infoContent.pocket.payment.title')}</b></p>
+      <p>
+        <b>{t('buy.exchange.infoContent.pocket.payment.title')}</b>
+      </p>
       <br />
       <p>{t('buy.exchange.infoContent.pocket.payment.bankTransfer')}</p>
       <ul>
-        <li>{t('buy.exchange.infoContent.pocket.payment.bankTransferDetails.sepa')}</li>
-        <li>{t('buy.exchange.infoContent.pocket.payment.bankTransferDetails.uk')}</li>
-        <li>{t('buy.exchange.infoContent.pocket.payment.bankTransferDetails.sic')}</li>
+        <li>
+          {t(
+            'buy.exchange.infoContent.pocket.payment.bankTransferDetails.sepa',
+          )}
+        </li>
+        <li>
+          {t('buy.exchange.infoContent.pocket.payment.bankTransferDetails.uk')}
+        </li>
+        <li>
+          {t('buy.exchange.infoContent.pocket.payment.bankTransferDetails.sic')}
+        </li>
       </ul>
-      <br/>
+      <br />
       <p>
         <A href="https://pocketbitcoin.com/faq/how-do-I-set-up-my-standing-order">
           {t('buy.exchange.infoContent.pocket.payment.bankTransferReccuring')}
         </A>
       </p>
       <br />
-      <p><b>{t('buy.exchange.infoContent.pocket.verification.title')}</b></p>
+      <p>
+        <b>{t('buy.exchange.infoContent.pocket.verification.title')}</b>
+      </p>
       <br />
       <p>{t('buy.exchange.infoContent.pocket.verification.info')}</p>
       <br />
@@ -128,10 +180,14 @@ const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
         </A>
       </p>
       <br />
-      <p><b>{t('buy.exchange.infoContent.pocket.fees.title')}</b></p>
+      <p>
+        <b>{t('buy.exchange.infoContent.pocket.fees.title')}</b>
+      </p>
       <ul>
         <li>
-          {t('buy.exchange.infoContent.pocket.fees.info', { fee: bankTransferFee })}
+          {t('buy.exchange.infoContent.pocket.fees.info', {
+            fee: bankTransferFee,
+          })}
         </li>
       </ul>
       <br />
@@ -141,7 +197,9 @@ const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
         </A>
       </p>
       <br />
-      <p><b>{t('buy.exchange.infoContent.pocket.sell.title')}</b></p>
+      <p>
+        <b>{t('buy.exchange.infoContent.pocket.sell.title')}</b>
+      </p>
       <br />
       <p>{t('exchange.pocket.terms.fees.extraNote')}</p>
     </div>
@@ -154,12 +212,14 @@ type TBTCDirectOTCInfoProps = {
 
 const BTCDirectOTCInfo = ({ accounts }: TBTCDirectOTCInfoProps) => {
   const { t } = useTranslation();
-  const hasOnlyBTCAccounts = accounts?.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const hasOnlyBTCAccounts = accounts?.every(({ coinCode }) =>
+    isBitcoinOnly(coinCode),
+  );
   return (
     <div className={style.container}>
       <p>
         {t('buy.exchange.infoContent.btcdirect.infobox.intro', {
-          context: hasOnlyBTCAccounts ? 'btconly' : 'multi'
+          context: hasOnlyBTCAccounts ? 'btconly' : 'multi',
         })}
       </p>
       <br />
@@ -201,30 +261,74 @@ const BTCDirectInfo = ({
     <div className={style.container}>
       <p>{t('buy.exchange.infoContent.btcdirectWidget.infobox.intro')}</p>
       <br />
-      <p><b>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.title')}</b></p>
+      <p>
+        <b>
+          {t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.title')}
+        </b>
+      </p>
       <br />
       <ul>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.bankTransfer')}</li>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.creditDebitCard')}</li>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.sofort')}</li>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.bancontact')}</li>
+        <li>
+          {t(
+            'buy.exchange.infoContent.btcdirectWidget.infobox.payment.bankTransfer',
+          )}
+        </li>
+        <li>
+          {t(
+            'buy.exchange.infoContent.btcdirectWidget.infobox.payment.creditDebitCard',
+          )}
+        </li>
+        <li>
+          {t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.sofort')}
+        </li>
+        <li>
+          {t(
+            'buy.exchange.infoContent.btcdirectWidget.infobox.payment.bancontact',
+          )}
+        </li>
       </ul>
       <br />
-      <p><b>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.title')}</b></p>
+      <p>
+        <b>
+          {t(
+            'buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.title',
+          )}
+        </b>
+      </p>
       <br />
       <ul>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bankTransfer', {
-          fee: bankTransferFee
-        })}</li>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.creditDebitCard', {
-          fee: cardFee
-        })}</li>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.sofort', {
-          fee: sofortFee
-        })}</li>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bancontact', {
-          fee: bancontactFee
-        })}</li>
+        <li>
+          {t(
+            'buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bankTransfer',
+            {
+              fee: bankTransferFee,
+            },
+          )}
+        </li>
+        <li>
+          {t(
+            'buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.creditDebitCard',
+            {
+              fee: cardFee,
+            },
+          )}
+        </li>
+        <li>
+          {t(
+            'buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.sofort',
+            {
+              fee: sofortFee,
+            },
+          )}
+        </li>
+        <li>
+          {t(
+            'buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bancontact',
+            {
+              fee: bancontactFee,
+            },
+          )}
+        </li>
       </ul>
       <br />
       <p>
@@ -263,34 +367,28 @@ export const InfoContent = ({
   exchangeName: info,
 }: TInfoContentProps) => {
   switch (info) {
-  case 'moonpay':
-    return (
-      <MoonPayInfo
-        cardFee={paymentFees['card']}
-        bankTransferFee={paymentFees['bank-transfer']}
-      />
-    );
-  case 'pocket':
-    return (
-      <PocketInfo bankTransferFee={paymentFees['bank-transfer']} />
-    );
-  case 'btcdirect':
-    return (
-      <BTCDirectInfo
-        cardFee={paymentFees['card']}
-        bankTransferFee={paymentFees['bank-transfer']}
-        bancontactFee={paymentFees['bancontact']}
-        sofortFee={paymentFees['sofort']}
-      />
-    );
-  case 'btcdirect-otc':
-    return (
-      <BTCDirectOTCInfo accounts={accounts} />
-    );
-  case 'region':
-    return (
-      <RegionInfo />
-    );
+    case 'moonpay':
+      return (
+        <MoonPayInfo
+          cardFee={paymentFees['card']}
+          bankTransferFee={paymentFees['bank-transfer']}
+        />
+      );
+    case 'pocket':
+      return <PocketInfo bankTransferFee={paymentFees['bank-transfer']} />;
+    case 'btcdirect':
+      return (
+        <BTCDirectInfo
+          cardFee={paymentFees['card']}
+          bankTransferFee={paymentFees['bank-transfer']}
+          bancontactFee={paymentFees['bancontact']}
+          sofortFee={paymentFees['sofort']}
+        />
+      );
+    case 'btcdirect-otc':
+      return <BTCDirectOTCInfo accounts={accounts} />;
+    case 'region':
+      return <RegionInfo />;
   }
   return null;
 };

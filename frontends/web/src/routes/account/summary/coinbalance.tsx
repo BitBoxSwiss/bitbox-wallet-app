@@ -22,14 +22,11 @@ import { Skeleton } from '@/components/skeleton/skeleton';
 import style from './accountssummary.module.css';
 
 type TProps = {
-  summaryData?: accountApi.TSummary,
-  coinsBalances?: accountApi.TCoinsTotalBalance,
-}
+  summaryData?: accountApi.TSummary;
+  coinsBalances?: accountApi.TCoinsTotalBalance;
+};
 
-export const CoinBalance = ({
-  summaryData,
-  coinsBalances = [],
-}: TProps) => {
+export const CoinBalance = ({ summaryData, coinsBalances = [] }: TProps) => {
   const { t } = useTranslation();
 
   return (
@@ -52,16 +49,16 @@ export const CoinBalance = ({
             </tr>
           </thead>
           <tbody>
-            {coinsBalances.length > 0 ? (
-              coinsBalances.map((balance) => (
-                <SubTotalCoinRow
-                  key={balance.coinCode}
-                  coinCode={balance.coinCode}
-                  coinName={balance.coinName}
-                  balance={balance.formattedAmount}
-                />
-              ))
-            ) : null}
+            {coinsBalances.length > 0
+              ? coinsBalances.map((balance) => (
+                  <SubTotalCoinRow
+                    key={balance.coinCode}
+                    coinCode={balance.coinCode}
+                    coinName={balance.coinName}
+                    balance={balance.formattedAmount}
+                  />
+                ))
+              : null}
           </tbody>
           <tfoot>
             <tr>
@@ -69,17 +66,21 @@ export const CoinBalance = ({
                 <strong>{t('accountSummary.total')}</strong>
               </th>
               <td colSpan={2}>
-                {(summaryData && summaryData.formattedChartTotal !== null) ? (
+                {summaryData && summaryData.formattedChartTotal !== null ? (
                   <>
                     <strong>
-                      <Amount amount={summaryData.formattedChartTotal} unit={summaryData.chartFiat}/>
-                    </strong>
-                    {' '}
+                      <Amount
+                        amount={summaryData.formattedChartTotal}
+                        unit={summaryData.chartFiat}
+                      />
+                    </strong>{' '}
                     <span className={style.coinUnit}>
                       {summaryData.chartFiat}
                     </span>
                   </>
-                ) : (<Skeleton />) }
+                ) : (
+                  <Skeleton />
+                )}
               </td>
             </tr>
           </tfoot>

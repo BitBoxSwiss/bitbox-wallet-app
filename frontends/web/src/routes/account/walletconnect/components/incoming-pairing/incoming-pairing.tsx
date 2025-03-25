@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2023 Shift Crypto AG
  *
@@ -25,14 +24,18 @@ import { SUPPORTED_CHAINS } from '@/utils/walletconnect';
 import styles from './incoming-pairing.module.css';
 
 type TIncomingPairingProps = {
-    currentProposal: SignClientTypes.EventArguments['session_proposal'];
-    pairingMetadata: CoreTypes.Metadata;
-    receiveAddress: string;
-    onReject: () => void;
-    onApprove: () => void;
-}
+  currentProposal: SignClientTypes.EventArguments['session_proposal'];
+  pairingMetadata: CoreTypes.Metadata;
+  receiveAddress: string;
+  onReject: () => void;
+  onApprove: () => void;
+};
 
-const PairingContainer = ({ pairingMetadata }: {pairingMetadata: TIncomingPairingProps['pairingMetadata']}) => {
+const PairingContainer = ({
+  pairingMetadata,
+}: {
+  pairingMetadata: TIncomingPairingProps['pairingMetadata'];
+}) => {
   const { name, description, url, icons } = pairingMetadata;
   const hasIcon = icons && icons.length > 0;
   return (
@@ -52,7 +55,7 @@ export const WCIncomingPairing = ({
   pairingMetadata,
   receiveAddress,
   onReject,
-  onApprove
+  onApprove,
 }: TIncomingPairingProps) => {
   const [pairingLoading, setPairingLoading] = useState(false);
   const { web3wallet } = useContext(WCWeb3WalletContext);
@@ -62,17 +65,26 @@ export const WCIncomingPairing = ({
     try {
       const { id, params } = currentProposal;
       const { requiredNamespaces, optionalNamespaces } = params;
-      const eipList = Object.keys(requiredNamespaces).length !== 0 ? Object.values(requiredNamespaces) : Object.values(optionalNamespaces);
+      const eipList =
+        Object.keys(requiredNamespaces).length !== 0
+          ? Object.values(requiredNamespaces)
+          : Object.values(optionalNamespaces);
       if (!eipList) {
         alertUser(`${t('walletConnect.connect.missingNamespace')}`);
         await handleRejectPairing();
         setPairingLoading(false);
         return;
       }
-      const accounts = eipList.flatMap(eip => eip.chains?.map(chain => `${chain}:${receiveAddress}`) || []);
+      const accounts = eipList.flatMap(
+        (eip) => eip.chains?.map((chain) => `${chain}:${receiveAddress}`) || [],
+      );
       // For supported chains, use an intersection of supported chains and required chains, default to mainnet if no chains present
-      const chains: string[] = eipList.flatMap(proposal =>
-        proposal.chains ? proposal.chains.filter(chain => Object.keys(SUPPORTED_CHAINS).includes(chain)) : ['eip155:1']
+      const chains: string[] = eipList.flatMap((proposal) =>
+        proposal.chains
+          ? proposal.chains.filter((chain) =>
+              Object.keys(SUPPORTED_CHAINS).includes(chain),
+            )
+          : ['eip155:1'],
       );
 
       // buildApprovedNamespaces is a
@@ -82,16 +94,23 @@ export const WCIncomingPairing = ({
         supportedNamespaces: {
           eip155: {
             chains,
-            methods: ['eth_sendTransaction', 'eth_signTransaction', 'eth_sign', 'personal_sign', 'eth_signTypedData', 'eth_signTypedData_v4'],
+            methods: [
+              'eth_sendTransaction',
+              'eth_signTransaction',
+              'eth_sign',
+              'personal_sign',
+              'eth_signTypedData',
+              'eth_signTypedData_v4',
+            ],
             events: ['accountsChanged', 'chainChanged'],
-            accounts
+            accounts,
           },
         },
       });
 
       await web3wallet?.approveSession({
         id,
-        namespaces
+        namespaces,
       });
 
       onApprove();
@@ -99,10 +118,11 @@ export const WCIncomingPairing = ({
       console.error('Wallet connect approve pairing error', e);
 
       if (e.message.includes('Non conforming namespaces')) {
-        alertUser(t('walletConnect.invalidPairingChain',
-          {
-            chains: '\n•Ethereum'
-          }));
+        alertUser(
+          t('walletConnect.invalidPairingChain', {
+            chains: '\n•Ethereum',
+          }),
+        );
       } else {
         //unexpected error, display native error message
         alertUser(e.messsage);
@@ -117,7 +137,7 @@ export const WCIncomingPairing = ({
     setPairingLoading(true);
     await web3wallet?.rejectSession({
       id: currentProposal.id,
-      reason: getSdkError('USER_REJECTED_METHODS')
+      reason: getSdkError('USER_REJECTED_METHODS'),
     });
     onReject();
     setPairingLoading(false);
@@ -125,12 +145,28 @@ export const WCIncomingPairing = ({
 
   return (
     <div className={styles.container}>
-      <p className={styles.connectionRequest}>{t('walletConnect.pairingRequest.title')}:</p>
+      <p className={styles.connectionRequest}>
+        {t('walletConnect.pairingRequest.title')}:
+      </p>
       <PairingContainer pairingMetadata={pairingMetadata} />
-      <p className={styles.receiveAddress}>{t('accountInfo.address')}: {receiveAddress}</p>
+      <p className={styles.receiveAddress}>
+        {t('accountInfo.address')}: {receiveAddress}
+      </p>
       <div className={styles.buttonsContainer}>
-        <Button disabled={pairingLoading} secondary onClick={handleRejectPairing}>{t('walletConnect.pairingRequest.reject')}</Button>
-        <Button disabled={pairingLoading} primary onClick={handleApprovePairing}>{t('walletConnect.pairingRequest.approve')}</Button>
+        <Button
+          disabled={pairingLoading}
+          secondary
+          onClick={handleRejectPairing}
+        >
+          {t('walletConnect.pairingRequest.reject')}
+        </Button>
+        <Button
+          disabled={pairingLoading}
+          primary
+          onClick={handleApprovePairing}
+        >
+          {t('walletConnect.pairingRequest.approve')}
+        </Button>
       </div>
     </div>
   );

@@ -28,15 +28,11 @@ import style from './confirm.module.css';
 type TConfirmSend = { bb01Paired: boolean | undefined } & TConfirmSendProps;
 
 export const ConfirmSend = (props: TConfirmSend) => {
-  return (props.bb01Paired !== undefined ? (
-    <ConfirmingWaitDialog
-      {...props}
-    />
+  return props.bb01Paired !== undefined ? (
+    <ConfirmingWaitDialog {...props} />
   ) : (
-    <BB02ConfirmSend
-      {...props}
-    />
-  ));
+    <BB02ConfirmSend {...props} />
+  );
 };
 
 const BB02ConfirmSend = ({
@@ -46,9 +42,8 @@ const BB02ConfirmSend = ({
   isConfirming,
   selectedUTXOs,
   coinCode,
-  transactionDetails
+  transactionDetails,
 }: TConfirmSendProps) => {
-
   const { t } = useTranslation();
   const {
     proposedFee,
@@ -57,26 +52,31 @@ const BB02ConfirmSend = ({
     customFee,
     feeTarget,
     recipientAddress,
-    activeCurrency: fiatUnit
+    activeCurrency: fiatUnit,
   } = transactionDetails;
-
 
   if (!isConfirming) {
     return null;
   }
 
-  const canShowSendAmountFiatValue = proposedAmount && proposedAmount.conversions && proposedAmount.conversions[fiatUnit];
-  const canShowFeeFiatValue = proposedFee && proposedFee.conversions && proposedFee.conversions[fiatUnit];
-  const canShowTotalFiatValue = (proposedTotal && proposedTotal.conversions) && proposedTotal.conversions[fiatUnit];
-
+  const canShowSendAmountFiatValue =
+    proposedAmount &&
+    proposedAmount.conversions &&
+    proposedAmount.conversions[fiatUnit];
+  const canShowFeeFiatValue =
+    proposedFee && proposedFee.conversions && proposedFee.conversions[fiatUnit];
+  const canShowTotalFiatValue =
+    proposedTotal &&
+    proposedTotal.conversions &&
+    proposedTotal.conversions[fiatUnit];
 
   return (
     <View fullscreen width="840px">
-      <ViewHeader title={<div className={style.title}>{t('send.confirm.title')}</div>} />
+      <ViewHeader
+        title={<div className={style.title}>{t('send.confirm.title')}</div>}
+      />
       <ViewContent>
-        <Message type="info">
-          {t('send.confirm.infoMessage')}
-        </Message>
+        <Message type="info">{t('send.confirm.infoMessage')}</Message>
         <div className={style.bitBoxContainer}>
           <PointToBitBox02 />
         </div>
@@ -86,16 +86,24 @@ const BB02ConfirmSend = ({
           <label>{t('button.send')}</label>
           <div className={style.confirmationItemWrapper}>
             <p className={style.valueOriginalLarge}>
-              {(proposedAmount &&
-              <Amount alwaysShowAmounts amount={proposedAmount.amount} unit={proposedAmount.unit}/>) || 'N/A'}
-              {' '}
+              {(proposedAmount && (
+                <Amount
+                  alwaysShowAmounts
+                  amount={proposedAmount.amount}
+                  unit={proposedAmount.unit}
+                />
+              )) ||
+                'N/A'}{' '}
               <span className={style.unit}>
                 {(proposedAmount && proposedAmount.unit) || 'N/A'}
               </span>
             </p>
-            {canShowSendAmountFiatValue &&
-            (<FiatValue baseCurrencyUnit={baseCurrencyUnit} amount={proposedAmount.conversions![fiatUnit] || ''} />)
-            }
+            {canShowSendAmountFiatValue && (
+              <FiatValue
+                baseCurrencyUnit={baseCurrencyUnit}
+                amount={proposedAmount.conversions![fiatUnit] || ''}
+              />
+            )}
           </div>
         </div>
 
@@ -118,43 +126,51 @@ const BB02ConfirmSend = ({
         ) : null}
 
         {/*Selected UTXOs*/}
-        {
-          hasSelectedUTXOs && (
-            <div className={style.confirmItem}>
-              <label>{t('send.confirm.selected-coins')}</label>
-              <ul>
-                {
-                  selectedUTXOs.map((uxto, i) => (
-                    <li className={style.valueOriginal} key={`selectedCoin-${i}`}>{uxto}</li>
-                  ))
-                }
-
-              </ul>
-
-            </div>
-          )
-        }
-
+        {hasSelectedUTXOs && (
+          <div className={style.confirmItem}>
+            <label>{t('send.confirm.selected-coins')}</label>
+            <ul>
+              {selectedUTXOs.map((uxto, i) => (
+                <li className={style.valueOriginal} key={`selectedCoin-${i}`}>
+                  {uxto}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/*Fee*/}
         <div className={style.confirmItem}>
-          <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
+          <label>
+            {t('send.fee.label')}
+            {feeTarget
+              ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')'
+              : ''}
+          </label>
           <div className={style.confirmationItemWrapper}>
             <p className={style.valueOriginal}>
-              {(proposedFee &&
-              <Amount alwaysShowAmounts amount={proposedFee.amount} unit={proposedFee.unit}/>) || 'N/A'} {' '}
+              {(proposedFee && (
+                <Amount
+                  alwaysShowAmounts
+                  amount={proposedFee.amount}
+                  unit={proposedFee.unit}
+                />
+              )) ||
+                'N/A'}{' '}
               <span className={style.unit}>
                 {(proposedFee && proposedFee.unit) || 'N/A'}
               </span>
               {customFee ? (
                 <small>
-                  <br/>
-                  ({customFee} {customFeeUnit(coinCode)})
+                  <br />({customFee} {customFeeUnit(coinCode)})
                 </small>
               ) : null}
             </p>
             {canShowFeeFiatValue && (
-              <FiatValue baseCurrencyUnit={baseCurrencyUnit} amount={proposedFee.conversions![fiatUnit] || ''} />
+              <FiatValue
+                baseCurrencyUnit={baseCurrencyUnit}
+                amount={proposedFee.conversions![fiatUnit] || ''}
+              />
             )}
           </div>
         </div>
@@ -165,11 +181,18 @@ const BB02ConfirmSend = ({
             <label>{t('send.confirm.total')}</label>
             <p className={style.valueOriginal}>
               <strong>
-                {(proposedTotal &&
-              <Amount alwaysShowAmounts amount={proposedTotal.amount} unit={proposedTotal.unit}/>) || 'N/A'}
-              </strong>
-              {' '}
-              <span className={style.unit}>{(proposedTotal && proposedTotal.unit) || 'N/A'}</span>
+                {(proposedTotal && (
+                  <Amount
+                    alwaysShowAmounts
+                    amount={proposedTotal.amount}
+                    unit={proposedTotal.unit}
+                  />
+                )) ||
+                  'N/A'}
+              </strong>{' '}
+              <span className={style.unit}>
+                {(proposedTotal && proposedTotal.unit) || 'N/A'}
+              </span>
             </p>
             {canShowTotalFiatValue && (
               <FiatValue
@@ -180,9 +203,7 @@ const BB02ConfirmSend = ({
             )}
           </div>
         </div>
-
       </ViewContent>
     </View>
   );
-
 };

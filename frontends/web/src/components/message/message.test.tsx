@@ -21,17 +21,29 @@ import '@testing-library/jest-dom'; // TODO needed?
 
 describe('components/message/message', () => {
   it('should have child nodes', () => {
-    const msg = render(<Message><span>hello</span></Message>);
+    const msg = render(
+      <Message>
+        <span>hello</span>
+      </Message>,
+    );
     expect(msg.container.firstChild!).toMatchSnapshot();
   });
 
   it('should return return null', () => {
-    const msg = render(<Message hidden><span>hello</span></Message>);
+    const msg = render(
+      <Message hidden>
+        <span>hello</span>
+      </Message>,
+    );
     expect(msg.container).toBeEmptyDOMElement();
   });
 
   it('should preserve text', () => {
-    const msg = render(<Message><span>hello world</span></Message>);
+    const msg = render(
+      <Message>
+        <span>hello world</span>
+      </Message>,
+    );
     expect(msg.findByText('hello world')).not.toBeNull();
   });
 });

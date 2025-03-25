@@ -32,14 +32,13 @@ type TProps = {
   code: AccountCode;
 };
 
-export const Info = ({
-  accounts,
-  code,
-}: TProps) => {
+export const Info = ({ accounts, code }: TProps) => {
   const { t } = useTranslation();
   const info = useLoad(getInfo(code));
   const [viewXPub, setViewXPub] = useState<number>(0);
-  const account = accounts.find(({ code: accountCode }) => accountCode === code);
+  const account = accounts.find(
+    ({ code: accountCode }) => accountCode === code,
+  );
 
   if (!account || !info) {
     return null;
@@ -47,7 +46,9 @@ export const Info = ({
 
   const config = info.signingConfigurations[viewXPub];
   const numberOfXPubs = info.signingConfigurations.length;
-  const xpubTypes = info.signingConfigurations.map(cfg => cfg.bitcoinSimple?.scriptType);
+  const xpubTypes = info.signingConfigurations.map(
+    (cfg) => cfg.bitcoinSimple?.scriptType,
+  );
 
   const showNextXPub = () => {
     if (!info) {
@@ -66,12 +67,12 @@ export const Info = ({
           <Header title={<h2>{t('accountInfo.title')}</h2>} />
           <div className="content padded">
             <div className="box larger">
-              { isBitcoinBased(account.coinCode) ? (
+              {isBitcoinBased(account.coinCode) ? (
                 <h2 className={style.title}>
                   {t('accountInfo.extendedPublicKey')}
                 </h2>
-              ) : null }
-              { (config.bitcoinSimple !== undefined && numberOfXPubs > 1) ? (
+              ) : null}
+              {config.bitcoinSimple !== undefined && numberOfXPubs > 1 ? (
                 <p className={style.xPubInfo}>
                   {t('accountInfo.xpubTypeInfo', {
                     current: `${viewXPub + 1}`,
@@ -86,14 +87,10 @@ export const Info = ({
                   )}
                 </p>
               ) : null}
-              { (config.bitcoinSimple?.scriptType === 'p2tr') ? (
+              {config.bitcoinSimple?.scriptType === 'p2tr' ? (
                 <>
-                  <Status type="info">
-                    {t('accountInfo.taproot')}
-                  </Status>
-                  <BackButton enableEsc>
-                    {t('button.back')}
-                  </BackButton>
+                  <Status type="info">{t('accountInfo.taproot')}</Status>
+                  <BackButton enableEsc>{t('button.back')}</BackButton>
                 </>
               ) : (
                 <SigningConfiguration
@@ -101,19 +98,18 @@ export const Info = ({
                   account={account}
                   code={code}
                   info={config}
-                  signingConfigIndex={viewXPub}>
-                  <BackButton enableEsc>
-                    {t('button.back')}
-                  </BackButton>
+                  signingConfigIndex={viewXPub}
+                >
+                  <BackButton enableEsc>{t('button.back')}</BackButton>
                 </SigningConfiguration>
               )}
             </div>
           </div>
         </div>
       </div>
-      { isBitcoinBased(account.coinCode) ? (
+      {isBitcoinBased(account.coinCode) ? (
         <BitcoinBasedAccountInfoGuide coinName={account.coinName} />
-      ) : null }
+      ) : null}
     </div>
   );
 };

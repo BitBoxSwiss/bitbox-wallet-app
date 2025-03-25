@@ -38,7 +38,7 @@ class Check extends Component {
     });
   };
 
-  handleFormChange = event => {
+  handleFormChange = (event) => {
     this.setState({ [event.target.id]: event.target.value });
   };
 
@@ -46,7 +46,7 @@ class Check extends Component {
     return this.props.selectedBackup && this.state.password;
   };
 
-  check = event => {
+  check = (event) => {
     event.preventDefault();
     if (!this.validate()) {
       return;
@@ -56,76 +56,70 @@ class Check extends Component {
     apiPost('devices/' + this.props.deviceID + '/backups/check', {
       password: this.state.password,
       filename: this.props.selectedBackup,
-    }).catch(() => {}).then(({ success, matches, errorMessage }) => {
-      let message;
-      if (success) {
-        if (matches) {
-          message = this.props.t('backup.check.ok');
-        } else {
-          message = this.props.t('backup.check.notOK');
+    })
+      .catch(() => {})
+      .then(({ success, matches, errorMessage }) => {
+        let message;
+        if (success) {
+          if (matches) {
+            message = this.props.t('backup.check.ok');
+          } else {
+            message = this.props.t('backup.check.notOK');
+          }
+        } else if (errorMessage) {
+          message = errorMessage;
         }
-      } else if (errorMessage) {
-        message = errorMessage;
-      }
-      this.setState({ message });
-    });
+        this.setState({ message });
+      });
   };
 
-  setValidPassword = password => {
+  setValidPassword = (password) => {
     this.setState({ password });
   };
 
   render() {
-    const {
-      t,
-      selectedBackup,
-    } = this.props;
-    const {
-      activeDialog,
-      message,
-    } = this.state;
+    const { t, selectedBackup } = this.props;
+    const { activeDialog, message } = this.state;
     return (
       <div>
         <Button
           secondary
           disabled={selectedBackup === null}
-          onClick={() => this.setState({ activeDialog: true })}>
+          onClick={() => this.setState({ activeDialog: true })}
+        >
           {t('button.check')}
         </Button>
-        {
-          activeDialog && (
-            <DialogLegacy
-              title={t('backup.check.title')}
-              onClose={this.abort}>
-              { message ? (
-                <div>
-                  <p style={{ minHeight: '3rem' }}>{message}</p>
-                  <div className={style.actions}>
-                    <Button secondary onClick={this.abort}>
-                      {t('button.back')}
-                    </Button>
-                  </div>
+        {activeDialog && (
+          <DialogLegacy title={t('backup.check.title')} onClose={this.abort}>
+            {message ? (
+              <div>
+                <p style={{ minHeight: '3rem' }}>{message}</p>
+                <div className={style.actions}>
+                  <Button secondary onClick={this.abort}>
+                    {t('button.back')}
+                  </Button>
                 </div>
-              ) : (
-                <form onSubmit={this.check}>
-                  <PasswordSingleInput
-                    label={t('backup.check.password.label')}
-                    placeholder={t('backup.check.password.placeholder')}
-                    showLabel={t('backup.check.password.showLabel')}
-                    onValidPassword={this.setValidPassword} />
-                  <div className={style.actions}>
-                    <Button type="submit" primary disabled={!this.validate()}>
-                      {t('button.check')}
-                    </Button>
-                    <Button secondary onClick={this.abort}>
-                      {t('button.back')}
-                    </Button>
-                  </div>
-                </form>
-              )}
-            </DialogLegacy>
-          )
-        }
+              </div>
+            ) : (
+              <form onSubmit={this.check}>
+                <PasswordSingleInput
+                  label={t('backup.check.password.label')}
+                  placeholder={t('backup.check.password.placeholder')}
+                  showLabel={t('backup.check.password.showLabel')}
+                  onValidPassword={this.setValidPassword}
+                />
+                <div className={style.actions}>
+                  <Button type="submit" primary disabled={!this.validate()}>
+                    {t('button.check')}
+                  </Button>
+                  <Button secondary onClick={this.abort}>
+                    {t('button.back')}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </DialogLegacy>
+        )}
       </div>
     );
   }

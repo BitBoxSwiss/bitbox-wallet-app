@@ -27,7 +27,7 @@ type Props = {
   internalID: string;
   // Contains the existing note.
   note: string;
-}
+};
 
 export const Note = ({ accountCode, note, internalID }: Props) => {
   const { isDarkMode } = useDarkmode();
@@ -51,10 +51,12 @@ export const Note = ({ accountCode, note, internalID }: Props) => {
   const handleEdit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (editMode && note !== newNote) {
-      accountApi.postNotesTx(accountCode, {
-        internalTxID: internalID,
-        note: newNote,
-      }).catch(console.error);
+      accountApi
+        .postNotesTx(accountCode, {
+          internalTxID: internalID,
+          note: newNote,
+        })
+        .catch(console.error);
     }
     setEditMode(!editMode);
   };
@@ -74,18 +76,26 @@ export const Note = ({ accountCode, note, internalID }: Props) => {
         value={newNote}
         maxLength={256}
         onInput={handleNoteInput}
-        ref={inputRef}/>
+        ref={inputRef}
+      />
       <button
         className={style.editButton}
         onClick={handleEdit}
         title={t(`transaction.note.${editMode ? 'save' : 'edit'}`)}
         type="button"
-        ref={editButtonRef}>
-        {
-          editMode
-            ? isDarkMode ? <SaveLight /> : <Save />
-            : isDarkMode ? <EditLight /> : <Edit />
-        }
+        ref={editButtonRef}
+      >
+        {editMode ? (
+          isDarkMode ? (
+            <SaveLight />
+          ) : (
+            <Save />
+          )
+        ) : isDarkMode ? (
+          <EditLight />
+        ) : (
+          <Edit />
+        )}
       </button>
     </form>
   );

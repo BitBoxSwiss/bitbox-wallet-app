@@ -25,26 +25,33 @@ import styles from './countryselect.module.css';
 export type TOption = {
   label: string;
   value: string;
-}
+};
 
 type TProps = {
   onChangeRegion: (newValue: SingleValue<TOption>) => void;
   regions: TOption[];
   selectedRegion: string;
-}
+};
 
 const SelectedRegionIcon = ({ regionCode }: { regionCode: string }) => {
   const { isDarkMode } = useDarkmode();
-  const globe = isDarkMode ? <GlobeLight className={styles.globe} /> : <GlobeDark className={styles.globe} />;
+  const globe = isDarkMode ? (
+    <GlobeLight className={styles.globe} />
+  ) : (
+    <GlobeDark className={styles.globe} />
+  );
   return (
     <span>
-      {regionCode === '' ? globe : <span className={`fi fi-${regionCode} ${styles.flag}`}></span>}
+      {regionCode === '' ? (
+        globe
+      ) : (
+        <span className={`fi fi-${regionCode} ${styles.flag}`}></span>
+      )}
     </span>
   );
 };
 
-
-const Option = ({ props }: {props: TOption}) => {
+const Option = ({ props }: { props: TOption }) => {
   const { label, value } = props;
   return (
     <div className={styles.optionsContainer}>
@@ -54,12 +61,14 @@ const Option = ({ props }: {props: TOption}) => {
   );
 };
 
-
 const CountrySelect = ({ onChangeRegion, regions, selectedRegion }: TProps) => {
   const { t } = useTranslation();
   let selectedRegionName = t('buy.exchange.selectRegion');
   if (selectedRegion) {
-    selectedRegionName = new Intl.DisplayNames([i18n.language], { type: 'region' }).of(selectedRegion) || '';
+    selectedRegionName =
+      new Intl.DisplayNames([i18n.language], { type: 'region' }).of(
+        selectedRegion,
+      ) || '';
   }
   return (
     <Dropdown
@@ -68,11 +77,13 @@ const CountrySelect = ({ onChangeRegion, regions, selectedRegion }: TProps) => {
       renderOptions={(o) => <Option props={o} />}
       isSearchable={true}
       onChange={onChangeRegion}
-      options={[{
-        label: t('buy.exchange.selectRegion') || '',
-        value: '',
-      },
-      ...regions]}
+      options={[
+        {
+          label: t('buy.exchange.selectRegion') || '',
+          value: '',
+        },
+        ...regions,
+      ]}
     />
   );
 };

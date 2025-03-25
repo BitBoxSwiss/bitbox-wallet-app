@@ -22,7 +22,7 @@ import { ChevronRightDark, WarningOLD } from '@/components/icon';
 type TProps = {
   deviceID: string;
   canBIP85: boolean;
-}
+};
 
 export const Bip85Setting = ({ canBIP85, deviceID }: TProps) => {
   const navigate = useNavigate();

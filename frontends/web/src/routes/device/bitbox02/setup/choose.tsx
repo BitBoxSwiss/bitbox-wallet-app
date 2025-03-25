@@ -24,7 +24,10 @@ import { Toggle } from '@/components/toggle/toggle';
 import { Info } from '@/components/icon';
 import style from './choose.module.css';
 
-export type TWalletSetupChoices = 'create-wallet' | 'restore-sdcard' | 'restore-mnemonic';
+export type TWalletSetupChoices =
+  | 'create-wallet'
+  | 'restore-sdcard'
+  | 'restore-mnemonic';
 
 export type TWalletCreateOptions = {
   withMnemonic: boolean;
@@ -37,12 +40,9 @@ type Props = {
     options?: TWalletCreateOptions,
   ) => void;
   versionInfo: VersionInfo;
-}
+};
 
-export const SetupOptions = ({
-  onSelectSetup,
-  versionInfo,
-}: Props) => {
+export const SetupOptions = ({ onSelectSetup, versionInfo }: Props) => {
   const { t } = useTranslation();
   const [advanced, setAdvanced] = useState(false);
   const [withMnemonic, setWithMnemonic] = useState(false);
@@ -59,30 +59,30 @@ export const SetupOptions = ({
         textCenter
         verticallyCentered
         withBottomBar
-        width="1100px">
+        width="1100px"
+      >
         <ViewHeader small title={t('seed.create')} />
         <ViewContent fullWidth>
           <Grid col="1" textAlign="left">
             <Column asCard>
-              <h3 className="title">
-                {t('bitbox02Wizard.advanced.title')}
-              </h3>
+              <h3 className="title">{t('bitbox02Wizard.advanced.title')}</h3>
               <div>
                 <div className={style.toggle}>
                   <Label
                     htmlFor="with-mnemonic"
                     className={style.toggleLabel}
                     style={{
-                      ...(!canBackupWithRecoveryWords && { color: 'var(--color-disabled)' }),
-                    }}>
+                      ...(!canBackupWithRecoveryWords && {
+                        color: 'var(--color-disabled)',
+                      }),
+                    }}
+                  >
                     <strong>
                       {t('bitbox02Wizard.advanced.skipSDCardLabel')}
-                    </strong>
-                    {' '}
-                    { !canBackupWithRecoveryWords && (
+                    </strong>{' '}
+                    {!canBackupWithRecoveryWords && (
                       <span style={{ color: 'var(--color-warning)' }}>
-                        <br />
-                        ({t('bitbox02Wizard.advanced.outOfDate')})
+                        <br />({t('bitbox02Wizard.advanced.outOfDate')})
                       </span>
                     )}
                   </Label>
@@ -90,12 +90,11 @@ export const SetupOptions = ({
                     checked={withMnemonic}
                     disabled={!canBackupWithRecoveryWords}
                     id="with-mnemonic"
-                    onChange={() => setWithMnemonic(!withMnemonic)} />
+                    onChange={() => setWithMnemonic(!withMnemonic)}
+                  />
                 </div>
                 <p className="m-top-quarter m-bottom-default">
-                  <small>
-                    {t('bitbox02Wizard.advanced.skipSDCardText')}
-                  </small>
+                  <small>{t('bitbox02Wizard.advanced.skipSDCardText')}</small>
                 </p>
               </div>
 
@@ -105,16 +104,17 @@ export const SetupOptions = ({
                     htmlFor="with-12words"
                     className={style.toggleLabel}
                     style={{
-                      ...(!canCreate12Words && { color: 'var(--color-disabled)' }),
-                    }}>
+                      ...(!canCreate12Words && {
+                        color: 'var(--color-disabled)',
+                      }),
+                    }}
+                  >
                     <strong>
                       {t('bitbox02Wizard.advanced.seed12WordLabel')}
-                    </strong>
-                    {' '}
-                    { !canCreate12Words && (
+                    </strong>{' '}
+                    {!canCreate12Words && (
                       <span style={{ color: 'var(--color-warning)' }}>
-                        <br />
-                        ({t('bitbox02Wizard.advanced.outOfDate')})
+                        <br />({t('bitbox02Wizard.advanced.outOfDate')})
                       </span>
                     )}
                   </Label>
@@ -122,12 +122,11 @@ export const SetupOptions = ({
                     checked={with12Words}
                     disabled={!canCreate12Words}
                     id="with-12words"
-                    onChange={() => setWith12Words(!with12Words)} />
+                    onChange={() => setWith12Words(!with12Words)}
+                  />
                 </div>
                 <p className="m-top-quarter m-bottom-default">
-                  <small>
-                    {t('bitbox02Wizard.advanced.seed12WordText')}
-                  </small>
+                  <small>{t('bitbox02Wizard.advanced.seed12WordText')}</small>
                 </p>
                 <p className="m-top-quarter m-bottom-default">
                   <small>
@@ -138,11 +137,14 @@ export const SetupOptions = ({
               </div>
               <ColumnButtons inline>
                 <Button
-                  onClick={() => onSelectSetup('create-wallet', {
-                    withMnemonic,
-                    with12Words,
-                  })}
-                  primary>
+                  onClick={() =>
+                    onSelectSetup('create-wallet', {
+                      withMnemonic,
+                      with12Words,
+                    })
+                  }
+                  primary
+                >
                   {t('seed.create')}
                 </Button>
                 <Button
@@ -151,7 +153,8 @@ export const SetupOptions = ({
                     setWith12Words(false);
                     setAdvanced(false);
                   }}
-                  secondary>
+                  secondary
+                >
                   {t('button.back')}
                 </Button>
               </ColumnButtons>
@@ -163,12 +166,7 @@ export const SetupOptions = ({
   }
 
   return (
-    <View
-      fullscreen
-      textCenter
-      verticallyCentered
-      withBottomBar
-      width="1100px">
+    <View fullscreen textCenter verticallyCentered withBottomBar width="1100px">
       <ViewHeader small title={t('bitbox02Wizard.stepUninitialized.title')}>
         <p>
           <Info className={style.textIcon} />
@@ -178,46 +176,36 @@ export const SetupOptions = ({
       <ViewContent fullWidth>
         <Grid>
           <Column asCard className={style.cardHeight}>
-            <h3 className="title">
-              {t('button.create')}
-            </h3>
-            <p>
-              {t('bitbox02Wizard.stepUninitialized.create')}
-            </p>
+            <h3 className="title">{t('button.create')}</h3>
+            <p>{t('bitbox02Wizard.stepUninitialized.create')}</p>
             <ColumnButtons>
               <Button
                 primary
-                onClick={() => onSelectSetup('create-wallet', {
-                  withMnemonic: false,
-                  with12Words: false,
-                })}>
+                onClick={() =>
+                  onSelectSetup('create-wallet', {
+                    withMnemonic: false,
+                    with12Words: false,
+                  })
+                }
+              >
                 {t('seed.create')}
               </Button>
-              <Button
-                onClick={() => setAdvanced(true)}
-                transparent>
-                <small>
-                  {t('bitbox02Wizard.advanced.button')}
-                </small>
+              <Button onClick={() => setAdvanced(true)} transparent>
+                <small>{t('bitbox02Wizard.advanced.button')}</small>
               </Button>
             </ColumnButtons>
           </Column>
           <Column asCard className={style.cardHeight}>
-            <h3 className="title">
-              {t('button.restore')}
-            </h3>
-            <p>
-              {t('bitbox02Wizard.stepUninitialized.restore')}
-            </p>
+            <h3 className="title">{t('button.restore')}</h3>
+            <p>{t('bitbox02Wizard.stepUninitialized.restore')}</p>
             <ColumnButtons>
-              <Button
-                onClick={() => onSelectSetup('restore-sdcard')}
-                secondary>
+              <Button onClick={() => onSelectSetup('restore-sdcard')} secondary>
                 {t('bitbox02Wizard.stepUninitialized.restoreMicroSD')}
               </Button>
               <Button
                 onClick={() => onSelectSetup('restore-mnemonic')}
-                secondary>
+                secondary
+              >
                 {t('bitbox02Wizard.stepUninitialized.restoreMnemonic')}
               </Button>
             </ColumnButtons>

@@ -24,28 +24,41 @@ import { Checked, RedDot } from '@/components/icon';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 
 export type TProps = {
-    deviceID: string;
-    versionInfo: VersionInfo;
-    asButton?: boolean;
-}
+  deviceID: string;
+  versionInfo: VersionInfo;
+  asButton?: boolean;
+};
 
 export type TUpgradeDialogProps = {
-    open: boolean;
-    versionInfo: VersionInfo;
-    confirming: boolean;
-    onUpgradeFirmware: () => void;
-    onClose: () => void;
-}
+  open: boolean;
+  versionInfo: VersionInfo;
+  confirming: boolean;
+  onUpgradeFirmware: () => void;
+  onClose: () => void;
+};
 
-const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) => {
+const FirmwareSetting = ({
+  deviceID,
+  versionInfo,
+  asButton = false,
+}: TProps) => {
   const { t } = useTranslation();
-  const { setFirmwareUpdateDialogOpen, firmwareUpdateDialogOpen } = useContext(AppContext);
+  const { setFirmwareUpdateDialogOpen, firmwareUpdateDialogOpen } =
+    useContext(AppContext);
   const [confirming, setConfirming] = useState(false);
   const canUpgrade = versionInfo.canUpgrade;
-  const secondaryText = canUpgrade ? t('deviceSettings.firmware.upgradeAvailable') : t('deviceSettings.firmware.upToDate');
-  const extraComponent = canUpgrade ? <RedDot width={8} height={8}/> : <Checked />;
+  const secondaryText = canUpgrade
+    ? t('deviceSettings.firmware.upgradeAvailable')
+    : t('deviceSettings.firmware.upToDate');
+  const extraComponent = canUpgrade ? (
+    <RedDot width={8} height={8} />
+  ) : (
+    <Checked />
+  );
 
-  const handleOpenDialog = canUpgrade ? () => setFirmwareUpdateDialogOpen(true) : undefined;
+  const handleOpenDialog = canUpgrade
+    ? () => setFirmwareUpdateDialogOpen(true)
+    : undefined;
 
   const handleUpgradeFirmware = async () => {
     setConfirming(true);
@@ -56,10 +69,8 @@ const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) =>
 
   return (
     <>
-      { asButton ? (
-        <Button
-          onClick={handleOpenDialog}
-          primary>
+      {asButton ? (
+        <Button onClick={handleOpenDialog} primary>
           {t('button.upgrade')}
         </Button>
       ) : (
@@ -87,7 +98,7 @@ const UpgradeDialog = ({
   versionInfo,
   confirming,
   onUpgradeFirmware,
-  onClose
+  onClose,
 }: TUpgradeDialogProps) => {
   const { t } = useTranslation();
   if (!versionInfo.canUpgrade) {
@@ -95,17 +106,19 @@ const UpgradeDialog = ({
   }
   return (
     <Dialog onClose={onClose} open={open} title={t('upgradeFirmware.title')}>
-      {confirming ? t('confirmOnDevice') : (
-        <p>{t('upgradeFirmware.description', {
-          currentVersion: versionInfo.currentVersion,
-          newVersion: versionInfo.newVersion,
-        })}</p>
+      {confirming ? (
+        t('confirmOnDevice')
+      ) : (
+        <p>
+          {t('upgradeFirmware.description', {
+            currentVersion: versionInfo.currentVersion,
+            newVersion: versionInfo.newVersion,
+          })}
+        </p>
       )}
-      { !confirming && (
+      {!confirming && (
         <DialogButtons>
-          <Button
-            primary
-            onClick={onUpgradeFirmware}>
+          <Button primary onClick={onUpgradeFirmware}>
             {t('button.upgrade')}
           </Button>
           <Button secondary onClick={onClose}>

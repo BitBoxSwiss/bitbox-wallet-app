@@ -35,5 +35,5 @@ root.render(
         </HashRouter>
       </React.Suspense>
     </I18nextProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

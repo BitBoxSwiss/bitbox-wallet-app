@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2018 Shift Devices AG
  *
@@ -30,14 +29,14 @@ import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimati
 import backupStyle from '@/routes/device/components/backups.module.css';
 
 type TProps = {
-    deviceID: string;
-    showRestore?: boolean;
-    showCreate?: boolean;
-    showRadio: boolean;
-    onSelectBackup?: (backup: Backup) => void;
-    onRestoreBackup?: (success: boolean) => void;
-    children?: ReactNode;
-}
+  deviceID: string;
+  showRestore?: boolean;
+  showCreate?: boolean;
+  showRadio: boolean;
+  onSelectBackup?: (backup: Backup) => void;
+  onRestoreBackup?: (success: boolean) => void;
+  children?: ReactNode;
+};
 
 export const BackupsV2 = ({
   deviceID,
@@ -46,14 +45,17 @@ export const BackupsV2 = ({
   showRadio,
   onSelectBackup,
   onRestoreBackup,
-  children
+  children,
 }: TProps) => {
   const { t } = useTranslation();
   const [selectedBackup, setSelectedBackup] = useState<string>();
   const [restoring, setRestoring] = useState(false);
   const [errorText, setErrorText] = useState('');
 
-  const backups = useSync(() => getBackupList(deviceID), subscribeBackupList(deviceID));
+  const backups = useSync(
+    () => getBackupList(deviceID),
+    subscribeBackupList(deviceID),
+  );
   const hasBackups = backups && backups.success && backups !== undefined;
   const hasMoreThanOneBackups = hasBackups && backups.backups.length > 1;
 
@@ -65,7 +67,6 @@ export const BackupsV2 = ({
     if (backups.backups.length === 1) {
       setSelectedBackup(backups.backups[0].id);
     }
-
   }, [backups, hasBackups]);
 
   const restore = () => {
@@ -75,20 +76,19 @@ export const BackupsV2 = ({
     if (!selectedBackup) {
       return;
     }
-    const backup = backups.backups.find(b => b.id === selectedBackup);
+    const backup = backups.backups.find((b) => b.id === selectedBackup);
     if (!backup) {
       return;
     }
     setRestoring(true);
     onSelectBackup && onSelectBackup(backup);
-    restoreBackup(deviceID, selectedBackup)
-      .then(({ success }) => {
-        setRestoring(false);
-        setErrorText(success ? '' : t('backup.restore.error.general'));
-        if (onRestoreBackup) {
-          onRestoreBackup(success);
-        }
-      });
+    restoreBackup(deviceID, selectedBackup).then(({ success }) => {
+      setRestoring(false);
+      setErrorText(success ? '' : t('backup.restore.error.general'));
+      if (onRestoreBackup) {
+        onRestoreBackup(success);
+      }
+    });
   };
 
   if (!hasBackups) {
@@ -101,62 +101,50 @@ export const BackupsV2 = ({
   return (
     <div>
       <div className={backupStyle.stepContext}>
-        {
-          errorText && (
-            <Toast theme="warning">
-              {errorText}
-            </Toast>
-          )
-        }
-        {showRadio && hasMoreThanOneBackups ? <p className="m-none m-bottom-large">{t('backup.restore.subtitle')}</p> : null}
+        {errorText && <Toast theme="warning">{errorText}</Toast>}
+        {showRadio && hasMoreThanOneBackups ? (
+          <p className="m-none m-bottom-large">
+            {t('backup.restore.subtitle')}
+          </p>
+        ) : null}
         <div className={backupStyle.backupsList}>
-          {
-            backups.backups.length ? (
-              <div className={backupStyle.listContainer}>
-                {
-                  backups.backups.map(backup => (
-                    <div key={backup.id} className={backupStyle.item}>
-                      <BackupsListItem
-                        disabled={restoring}
-                        backup={backup}
-                        selectedBackup={selectedBackup}
-                        handleChange={(b => setSelectedBackup(b))}
-                        onFocus={() => undefined}
-                        radio={showRadio} />
-                    </div>
-                  ))
-                }
-              </div>
-            ) : (
-              <p className="text-center">{t('backup.noBackups')}</p>
-            )
-          }
+          {backups.backups.length ? (
+            <div className={backupStyle.listContainer}>
+              {backups.backups.map((backup) => (
+                <div key={backup.id} className={backupStyle.item}>
+                  <BackupsListItem
+                    disabled={restoring}
+                    backup={backup}
+                    selectedBackup={selectedBackup}
+                    handleChange={(b) => setSelectedBackup(b)}
+                    onFocus={() => undefined}
+                    radio={showRadio}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center">{t('backup.noBackups')}</p>
+          )}
         </div>
         <div className={backupStyle.backupButtons}>
-          {
-            showRestore && (
-              <Button
-                primary={true}
-                disabled={!selectedBackup || restoring}
-                onClick={restore}>
-                {t('button.restore')}
-              </Button>
-            )
-          }
-          {
-            showCreate && (
-              <Create deviceID={deviceID} />
-            )
-          }
-          {
-            showCreate && (
-              <Check
-                deviceID={deviceID}
-                backups={backups.backups ? backups.backups : []}
-                disabled={backups.backups.length === 0}
-              />
-            )
-          }
+          {showRestore && (
+            <Button
+              primary={true}
+              disabled={!selectedBackup || restoring}
+              onClick={restore}
+            >
+              {t('button.restore')}
+            </Button>
+          )}
+          {showCreate && <Create deviceID={deviceID} />}
+          {showCreate && (
+            <Check
+              deviceID={deviceID}
+              backups={backups.backups ? backups.backups : []}
+              disabled={backups.backups.length === 0}
+            />
+          )}
           {children}
         </div>
       </div>

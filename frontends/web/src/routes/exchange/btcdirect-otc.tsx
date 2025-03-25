@@ -35,12 +35,16 @@ export const BTCDirectOTC = () => {
     <div className="contentWithGuide">
       <div className="container">
         <div className={style.header}>
-          <Header title={<h2>{t('buy.exchange.infoContent.btcdirect.disclaimer.title')}</h2>} />
+          <Header
+            title={
+              <h2>
+                {t('buy.exchange.infoContent.btcdirect.disclaimer.title')}
+              </h2>
+            }
+          />
         </div>
         <div className={style.container}>
-          <BTCDirectOTCTerms
-            onContinue={() => openBTCDirect()}
-          />
+          <BTCDirectOTCTerms onContinue={() => openBTCDirect()} />
         </div>
       </div>
     </div>

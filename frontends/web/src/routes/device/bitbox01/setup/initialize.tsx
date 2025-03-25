@@ -16,7 +16,10 @@
 
 import { Component, SyntheticEvent } from 'react';
 import { Button } from '../../../../components/forms';
-import { SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../../components/icon/logo';
+import {
+  SwissMadeOpenSource,
+  SwissMadeOpenSourceDark,
+} from '../../../../components/icon/logo';
 import { LanguageSwitch } from '../../../../components/language/language';
 import { Header } from '../../../../components/layout';
 import { Message } from '../../../../components/message/message';
@@ -34,18 +37,18 @@ const stateEnum = Object.freeze({
 });
 
 interface InitializeProps {
-    goBack: () => void;
-    deviceID: string;
+  goBack: () => void;
+  deviceID: string;
 }
 
 type Props = InitializeProps & TranslateProps;
 
 interface State {
-    showInfo: boolean;
-    password: string | null;
-    status: string;
-    errorCode: string | null;
-    errorMessage: string;
+  showInfo: boolean;
+  password: string | null;
+  status: string;
+  errorCode: string | null;
+  errorMessage: string;
 }
 
 class Initialize extends Component<Props, State> {
@@ -72,7 +75,7 @@ class Initialize extends Component<Props, State> {
     });
     apiPost('devices/' + this.props.deviceID + '/set-password', {
       password: this.state.password,
-    }).then(data => {
+    }).then((data) => {
       if (!data.success) {
         if (data.code) {
           this.setState({ errorCode: data.code });
@@ -98,22 +101,24 @@ class Initialize extends Component<Props, State> {
     const { showInfo, password, status, errorCode, errorMessage } = this.state;
     let formSubmissionState;
     switch (status) {
-    case stateEnum.DEFAULT:
-      formSubmissionState = null;
-      break;
-    case stateEnum.WAITING:
-      formSubmissionState = <Message type="info">{t('initialize.creating')}</Message>;
-      break;
-    case stateEnum.ERROR:
-      if (errorCode !== null) {
+      case stateEnum.DEFAULT:
+        formSubmissionState = null;
+        break;
+      case stateEnum.WAITING:
         formSubmissionState = (
-          <Message type="error">
-            {t(`initialize.error.e${errorCode}`, {
-              defaultValue: errorMessage,
-            })}
-          </Message>
+          <Message type="info">{t('initialize.creating')}</Message>
         );
-      }
+        break;
+      case stateEnum.ERROR:
+        if (errorCode !== null) {
+          formSubmissionState = (
+            <Message type="error">
+              {t(`initialize.error.e${errorCode}`, {
+                defaultValue: errorMessage,
+              })}
+            </Message>
+          );
+        }
     }
 
     const content = showInfo ? (
@@ -128,9 +133,7 @@ class Initialize extends Component<Props, State> {
           <Button primary onClick={this.handleStart}>
             {t('button.continue')}
           </Button>
-          <Button
-            secondary
-            onClick={goBack}>
+          <Button secondary onClick={goBack}>
             {t('button.abort')}
           </Button>
         </div>
@@ -143,17 +146,17 @@ class Initialize extends Component<Props, State> {
           repeatLabel={t('initialize.input.labelRepeat')}
           repeatPlaceholder={t('initialize.input.placeholderRepeat')}
           disabled={status === stateEnum.WAITING}
-          onValidPassword={this.setValidPassword} />
+          onValidPassword={this.setValidPassword}
+        />
         <div className="buttons">
           <Button
             type="submit"
             primary
-            disabled={!password || status === stateEnum.WAITING}>
+            disabled={!password || status === stateEnum.WAITING}
+          >
             {t('initialize.create')}
           </Button>
-          <Button
-            secondary
-            onClick={goBack}>
+          <Button secondary onClick={goBack}>
             {t('button.abort')}
           </Button>
         </div>
@@ -168,19 +171,23 @@ class Initialize extends Component<Props, State> {
           </Header>
           <div className="innerContainer">
             <div className="content padded narrow isVerticallyCentered">
-              <h1 className={[style.title, 'text-center'].join(' ')}>{t(showInfo ? 'initialize.info.title' : 'setup')}</h1>
+              <h1 className={[style.title, 'text-center'].join(' ')}>
+                {t(showInfo ? 'initialize.info.title' : 'setup')}
+              </h1>
               {formSubmissionState}
               {content}
               <div className="text-center m-top-large">
-                {getDarkmode() ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
+                {getDarkmode() ? (
+                  <SwissMadeOpenSourceDark />
+                ) : (
+                  <SwissMadeOpenSource />
+                )}
               </div>
             </div>
           </div>
-          {
-            status === stateEnum.WAITING && (
-              <Spinner text={t('initialize.creating')} />
-            )
-          }
+          {status === stateEnum.WAITING && (
+            <Spinner text={t('initialize.creating')} />
+          )}
         </div>
       </div>
     );

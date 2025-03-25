@@ -41,7 +41,12 @@ const NameCell = ({ coinCode, name, onClick }: TNameColProps) => {
       onClick={onClick}
     >
       <div className={style.coinName}>
-        <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
+        <Logo
+          className={style.coincode}
+          coinCode={coinCode}
+          active={true}
+          alt={coinCode}
+        />
         {name}
       </div>
     </td>
@@ -55,9 +60,7 @@ type TProps = {
   name: string;
 };
 
-export const BalanceRow = (
-  { code, name, coinCode, balance }: TProps
-) => {
+export const BalanceRow = ({ code, name, coinCode, balance }: TProps) => {
   const { t } = useTranslation();
   const syncStatus = useSubscribe(syncAddressesCount(code));
   const navigate = useNavigate();
@@ -66,10 +69,7 @@ export const BalanceRow = (
 
   if (balance) {
     return (
-      <tr
-        key={`${code}_balance`}
-        onClick={() => isMobile && handleClick()}
-      >
+      <tr key={`${code}_balance`} onClick={() => isMobile && handleClick()}>
         <NameCell
           coinCode={coinCode}
           name={name}
@@ -77,12 +77,15 @@ export const BalanceRow = (
         />
         <td data-label={t('accountSummary.balance')}>
           <span className={style.summaryTableBalance}>
-            <Amount amount={balance.available.amount} unit={balance.available.unit}/>{' '}
+            <Amount
+              amount={balance.available.amount}
+              unit={balance.available.unit}
+            />{' '}
             <span className={style.coinUnit}>{balance.available.unit}</span>
           </span>
         </td>
         <td data-label={t('accountSummary.fiatBalance')}>
-          <AmountWithUnit amount={balance.available} convertToFiat/>
+          <AmountWithUnit amount={balance.available} convertToFiat />
         </td>
       </tr>
     );
@@ -91,10 +94,10 @@ export const BalanceRow = (
     <tr key={`${code}_syncing`}>
       <NameCell name={name} coinCode={coinCode} />
       <td colSpan={2} className={style.syncText}>
-        { t('account.syncedAddressesCount', {
+        {t('account.syncedAddressesCount', {
           count: syncStatus,
           defaultValue: 0,
-        }) }
+        })}
         <AsciiSpinner />
       </td>
     </tr>

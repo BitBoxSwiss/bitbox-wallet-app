@@ -26,4 +26,3 @@ describe('useMountedRef', () => {
     expect(result.current).toEqual({ current: false });
   });
 });
-

@@ -19,22 +19,20 @@ import { useEffect, useMemo, useState } from 'react';
 
 export const useLocalizedPunctuation = (
   // fallback to 'de-CH' if native locale is an empty string
-  locale = 'de-CH'
+  locale = 'de-CH',
 ) => {
-
   const { decimal, group } = useMemo(() => {
     // defaults
     let decimal = '.';
     let group = '’';
     // try to find decimal and group separators for locale
     try {
-      const parts = (
-        Intl
-          .NumberFormat(locale, { style: 'currency', currency: 'USD' })
-          .formatToParts(1234567.89)
-      );
-      decimal = parts.find(part => part.type === 'decimal')?.value || decimal;
-      group = parts.find(part => part.type === 'group')?.value || group;
+      const parts = Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: 'USD',
+      }).formatToParts(1234567.89);
+      decimal = parts.find((part) => part.type === 'decimal')?.value || decimal;
+      group = parts.find((part) => part.type === 'group')?.value || group;
     } catch {}
     return { decimal, group };
   }, [locale]);
@@ -42,9 +40,10 @@ export const useLocalizedPunctuation = (
   return { decimal, group };
 };
 
-
 export const useLocalizedFormattedCurrencies = (selectedLang = 'en') => {
-  const [currenciesWithDisplayName, setCurrenciesWithDisplayName] = useState<FiatWithDisplayName[]>([
+  const [currenciesWithDisplayName, setCurrenciesWithDisplayName] = useState<
+    FiatWithDisplayName[]
+  >([
     { currency: 'AUD', displayName: 'Australian Dollar' },
     { currency: 'BRL', displayName: 'Brazilian Real' },
     { currency: 'CAD', displayName: 'Canadian Dollar' },
@@ -64,23 +63,31 @@ export const useLocalizedFormattedCurrencies = (selectedLang = 'en') => {
     { currency: 'SGD', displayName: 'Singapore Dollar' },
     { currency: 'USD', displayName: 'United States Dollar' },
     { currency: 'BTC', displayName: 'Bitcoin' },
-    { currency: 'sat', displayName: 'Satoshi' }
+    { currency: 'sat', displayName: 'Satoshi' },
   ]);
 
   useEffect(() => {
-    const currencyName = new Intl.DisplayNames([selectedLang], { type: 'currency' });
+    const currencyName = new Intl.DisplayNames([selectedLang], {
+      type: 'currency',
+    });
 
-    setCurrenciesWithDisplayName(prev =>
-      prev.map(currencyDetail => ({
+    setCurrenciesWithDisplayName((prev) =>
+      prev.map((currencyDetail) => ({
         ...currencyDetail,
         displayName:
-          (currencyDetail.currency === 'BTC' || currencyDetail.currency === 'sat') ?
-            currencyDetail.displayName : (currencyName.of(currencyDetail.currency) || currencyDetail.displayName)
-      }))
+          currencyDetail.currency === 'BTC' || currencyDetail.currency === 'sat'
+            ? currencyDetail.displayName
+            : currencyName.of(currencyDetail.currency) ||
+              currencyDetail.displayName,
+      })),
     );
-
   }, [selectedLang]);
 
-  return { formattedCurrencies: currenciesWithDisplayName.map((fiat) => ({ label: `${fiat.displayName} (${fiat.currency})`, value: fiat.currency })), currenciesWithDisplayName };
-
+  return {
+    formattedCurrencies: currenciesWithDisplayName.map((fiat) => ({
+      label: `${fiat.displayName} (${fiat.currency})`,
+      value: fiat.currency,
+    })),
+    currenciesWithDisplayName,
+  };
 };

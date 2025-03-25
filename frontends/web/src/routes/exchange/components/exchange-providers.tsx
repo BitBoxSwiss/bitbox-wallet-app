@@ -25,7 +25,7 @@ import style from './exchange-provider.module.css';
 type Props = {
   deals: ExchangeDeal[];
   exchangeName: ExchangeDeals['exchangeName'];
-}
+};
 
 type TPaymentMethodProps = { methodName: ExchangeDeal['payment'] };
 
@@ -33,24 +33,24 @@ const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   switch (methodName) {
-  case 'bank-transfer':
-    return (
-      <span className={style.paymentMethodName}>
-        {isDarkMode ? <Bank /> : <BankDark />}
-        {t('buy.exchange.bankTransfer')}
-      </span>
-    );
-  case 'card':
-    return (
-      <span className={style.paymentMethodName}>
-        {isDarkMode ? <CreditCard /> : <CreditCardDark />}
-        {t('buy.exchange.creditCard')}
-      </span>
-    );
-  case 'sofort':
-  case 'bancontact':
-  default:
-    return <>{methodName}</>;
+    case 'bank-transfer':
+      return (
+        <span className={style.paymentMethodName}>
+          {isDarkMode ? <Bank /> : <BankDark />}
+          {t('buy.exchange.bankTransfer')}
+        </span>
+      );
+    case 'card':
+      return (
+        <span className={style.paymentMethodName}>
+          {isDarkMode ? <CreditCard /> : <CreditCardDark />}
+          {t('buy.exchange.creditCard')}
+        </span>
+      );
+    case 'sofort':
+    case 'bancontact':
+    default:
+      return <>{methodName}</>;
   }
 };
 
@@ -63,19 +63,13 @@ const Deal = ({ deal }: { deal: ExchangeDeal }) => {
         {deal.isBest && (
           <Badge type="success">{t('buy.exchange.bestDeal')}</Badge>
         )}
-        {deal.isFast && (
-          <Badge type="warning">{t('buy.exchange.fast')}</Badge>
-        )}
+        {deal.isFast && <Badge type="warning">{t('buy.exchange.fast')}</Badge>}
       </div>
     </div>
   );
 };
 
-
-export const ExchangeProviders = ({
-  deals,
-  exchangeName,
-}: Props) => {
+export const ExchangeProviders = ({ deals, exchangeName }: Props) => {
   return (
     <div className={style.exchangeContainer}>
       <div className={style.container}>
@@ -83,7 +77,9 @@ export const ExchangeProviders = ({
           {getExchangeFormattedName(exchangeName)}
         </p>
         <div className={style.paymentMethodsContainer}>
-          {deals.map(deal => !deal.isHidden && <Deal key={deal.payment} deal={deal}/>)}
+          {deals.map(
+            (deal) => !deal.isHidden && <Deal key={deal.payment} deal={deal} />,
+          )}
         </div>
       </div>
     </div>

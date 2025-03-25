@@ -31,9 +31,9 @@ import { MoonpayTerms } from '@/components/terms/moonpay-terms';
 import style from './iframe.module.css';
 
 type TProps = {
-    accounts: IAccount[];
-    code: AccountCode;
-}
+  accounts: IAccount[];
+  code: AccountCode;
+};
 
 export const Moonpay = ({ accounts, code }: TProps) => {
   const { t } = useTranslation();
@@ -78,7 +78,9 @@ export const Moonpay = ({ accounts, code }: TProps) => {
     return null;
   }
 
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) =>
+    isBitcoinOnly(coinCode),
+  );
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   return (
@@ -86,14 +88,14 @@ export const Moonpay = ({ accounts, code }: TProps) => {
       <div className="container">
         <div className="innerContainer">
           <div className={style.header}>
-            <Header title={
-              <h2>
-                {t('generic.buy', { context: translationContext })}
-              </h2>
-            } />
+            <Header
+              title={
+                <h2>{t('generic.buy', { context: translationContext })}</h2>
+              }
+            />
           </div>
           <div ref={ref} className={style.container}>
-            { !agreedTerms ? (
+            {!agreedTerms ? (
               <MoonpayTerms
                 account={account}
                 onAgreedTerms={() => setAgreedTerms(true)}
@@ -102,7 +104,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
               <div style={{ height }}>
                 <UseDisableBackButton />
                 {!iframeLoaded && <Spinner text={t('loading')} />}
-                { moonpay && (
+                {moonpay && (
                   <iframe
                     onLoad={() => {
                       setIframeLoaded(true);
@@ -114,15 +116,18 @@ export const Moonpay = ({ accounts, code }: TProps) => {
                     frameBorder="0"
                     className={`${style.iframe} ${!iframeLoaded ? style.hide : ''}`}
                     allow="camera; payment"
-                    src={`${moonpay.url}&colorCode=%235E94BF&theme=${isDarkMode ? 'dark' : 'light'}`}>
-                  </iframe>
+                    src={`${moonpay.url}&colorCode=%235E94BF&theme=${isDarkMode ? 'dark' : 'light'}`}
+                  ></iframe>
                 )}
               </div>
             )}
           </div>
         </div>
       </div>
-      <ExchangeGuide exchange="moonpay" translationContext={translationContext} />
+      <ExchangeGuide
+        exchange="moonpay"
+        translationContext={translationContext}
+      />
     </div>
   );
 };

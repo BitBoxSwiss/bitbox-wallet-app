@@ -39,17 +39,25 @@ export const getConfig = (): Promise<any> => {
  * returns a promise and passes the new config
  */
 export const setConfig = (object: TConfig) => {
-  return getConfig()
-    .then((currentConfig = {}) => {
-      const nextConfig = Object.assign(currentConfig, {
-        backend: Object.assign({}, currentConfig.backend, pendingConfig.backend, object.backend),
-        frontend: Object.assign({}, currentConfig.frontend, pendingConfig.frontend, object.frontend)
-      });
-      pendingConfig = nextConfig;
-      return apiPost('config', nextConfig)
-        .then(() => {
-          pendingConfig = {};
-          return nextConfig;
-        });
+  return getConfig().then((currentConfig = {}) => {
+    const nextConfig = Object.assign(currentConfig, {
+      backend: Object.assign(
+        {},
+        currentConfig.backend,
+        pendingConfig.backend,
+        object.backend,
+      ),
+      frontend: Object.assign(
+        {},
+        currentConfig.frontend,
+        pendingConfig.frontend,
+        object.frontend,
+      ),
     });
+    pendingConfig = nextConfig;
+    return apiPost('config', nextConfig).then(() => {
+      pendingConfig = {};
+      return nextConfig;
+    });
+  });
 };

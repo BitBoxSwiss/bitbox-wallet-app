@@ -20,7 +20,10 @@ import { route } from '../../../utils/route';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
-import { DialogLegacy, DialogButtons } from '../../../components/dialog/dialog-legacy';
+import {
+  DialogLegacy,
+  DialogButtons,
+} from '../../../components/dialog/dialog-legacy';
 import { Button, Checkbox } from '../../../components/forms';
 import { PasswordRepeatInput } from '../../../components/password';
 import { Spinner } from '../../../components/spinner/Spinner';
@@ -28,20 +31,20 @@ import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 import style from '../components/backups.module.css';
 
 interface RestoreProps {
-    selectedBackup?: string;
-    requireConfirmation: boolean;
-    deviceID: string;
-    onRestore: () => void;
+  selectedBackup?: string;
+  requireConfirmation: boolean;
+  deviceID: string;
+  onRestore: () => void;
 }
 
 type Props = RestoreProps & TranslateProps;
 
 interface State {
-    isConfirming: boolean;
-    activeDialog: boolean;
-    isLoading: boolean;
-    understand: boolean;
-    password?: string | null;
+  isConfirming: boolean;
+  activeDialog: boolean;
+  isLoading: boolean;
+  understand: boolean;
+  password?: string | null;
 }
 
 class Restore extends Component<Props, State> {
@@ -86,7 +89,7 @@ class Restore extends Component<Props, State> {
     apiPost('devices/' + this.props.deviceID + '/backups/restore', {
       password: this.state.password,
       filename: this.props.selectedBackup,
-    }).then(data => {
+    }).then((data) => {
       const { success, didRestore, errorMessage, code } = data;
       this.abort();
       if (success) {
@@ -99,9 +102,11 @@ class Restore extends Component<Props, State> {
         }
       } else {
         if (typeof code === 'string') {
-          alertUser(this.props.t(`backup.restore.error.e${code}`, {
-            defaultValue: errorMessage,
-          }));
+          alertUser(
+            this.props.t(`backup.restore.error.e${code}`, {
+              defaultValue: errorMessage,
+            }),
+          );
         }
       }
     });
@@ -116,73 +121,62 @@ class Restore extends Component<Props, State> {
   };
 
   public render() {
-    const {
-      t,
-      selectedBackup,
-      requireConfirmation,
-    } = this.props;
-    const {
-      isConfirming,
-      activeDialog,
-      isLoading,
-      understand,
-    } = this.state;
+    const { t, selectedBackup, requireConfirmation } = this.props;
+    const { isConfirming, activeDialog, isLoading, understand } = this.state;
     return (
       <span>
         <Button
           {...(requireConfirmation ? { danger: true } : { primary: true })}
           disabled={!selectedBackup}
-          onClick={() => this.setState({ activeDialog: true })}>
+          onClick={() => this.setState({ activeDialog: true })}
+        >
           {t('button.restore')}
         </Button>
-        {
-          activeDialog && (
-            <DialogLegacy
-              title={t('backup.restore.title')}
-              disableEscape={isConfirming || isLoading}
-              onClose={this.abort}>
-              <form onSubmit={this.restore}>
-                <PasswordRepeatInput
-                  label={t('backup.restore.password.label')}
-                  placeholder={t('backup.restore.password.placeholder')}
-                  repeatPlaceholder={t('backup.restore.password.repeatPlaceholder')}
-                  showLabel={t('backup.restore.password.showLabel')}
-                  onValidPassword={this.setValidPassword} />
-                <div className={style.agreements}>
-                  <Checkbox
-                    id="funds_access"
-                    label={t('backup.restore.understand')}
-                    checked={understand}
-                    onChange={this.handleUnderstandChange} />
-                </div>
-                <DialogButtons>
-                  <Button
-                    type="submit"
-                    {...(requireConfirmation ? { danger: true } : { primary: true })}
-                    disabled={!understand || !this.validate() || isConfirming}>
-                    {t('button.restore')}
-                  </Button>
-                  <Button
-                    secondary
-                    onClick={this.abort}
-                    disabled={isConfirming}>
-                    {t('button.back')}
-                  </Button>
-                </DialogButtons>
-              </form>
-            </DialogLegacy>
-          )
-        }
-        {
-          (isConfirming && requireConfirmation) && (
-            <WaitDialog title={t('backup.restore.confirmTitle')} />
-          )
-        }
-        {
-          isLoading && (
-            <Spinner text={t('backup.restore.restoring')} />
-          )
-        }
+        {activeDialog && (
+          <DialogLegacy
+            title={t('backup.restore.title')}
+            disableEscape={isConfirming || isLoading}
+            onClose={this.abort}
+          >
+            <form onSubmit={this.restore}>
+              <PasswordRepeatInput
+                label={t('backup.restore.password.label')}
+                placeholder={t('backup.restore.password.placeholder')}
+                repeatPlaceholder={t(
+                  'backup.restore.password.repeatPlaceholder',
+                )}
+                showLabel={t('backup.restore.password.showLabel')}
+                onValidPassword={this.setValidPassword}
+              />
+              <div className={style.agreements}>
+                <Checkbox
+                  id="funds_access"
+                  label={t('backup.restore.understand')}
+                  checked={understand}
+                  onChange={this.handleUnderstandChange}
+                />
+              </div>
+              <DialogButtons>
+                <Button
+                  type="submit"
+                  {...(requireConfirmation
+                    ? { danger: true }
+                    : { primary: true })}
+                  disabled={!understand || !this.validate() || isConfirming}
+                >
+                  {t('button.restore')}
+                </Button>
+                <Button secondary onClick={this.abort} disabled={isConfirming}>
+                  {t('button.back')}
+                </Button>
+              </DialogButtons>
+            </form>
+          </DialogLegacy>
+        )}
+        {isConfirming && requireConfirmation && (
+          <WaitDialog title={t('backup.restore.confirmTitle')} />
+        )}
+        {isLoading && <Spinner text={t('backup.restore.restoring')} />}
       </span>
     );
   }

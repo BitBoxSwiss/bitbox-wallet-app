@@ -14,25 +14,30 @@
  * limitations under the License.
  */
 
-import { ConversionUnit, CoinCode, FeeTargetCode, Fiat, IAmount } from '@/api/account';
+import {
+  ConversionUnit,
+  CoinCode,
+  FeeTargetCode,
+  Fiat,
+  IAmount,
+} from '@/api/account';
 
 export type TransactionDetails = {
-    proposedAmount?: IAmount;
-    proposedFee?: IAmount;
-    proposedTotal?: IAmount;
-    feeTarget?: FeeTargetCode;
-    customFee: string;
-    recipientAddress: string;
-    activeCurrency: Fiat;
-  }
+  proposedAmount?: IAmount;
+  proposedFee?: IAmount;
+  proposedTotal?: IAmount;
+  feeTarget?: FeeTargetCode;
+  customFee: string;
+  recipientAddress: string;
+  activeCurrency: Fiat;
+};
 
 export type TConfirmSendProps = {
-    baseCurrencyUnit: ConversionUnit;
-    note: string;
-    hasSelectedUTXOs: boolean;
-    isConfirming: boolean;
-    selectedUTXOs: string[];
-    coinCode: CoinCode;
-    transactionDetails: TransactionDetails;
-  }
-
+  baseCurrencyUnit: ConversionUnit;
+  note: string;
+  hasSelectedUTXOs: boolean;
+  isConfirming: boolean;
+  selectedUTXOs: string[];
+  coinCode: CoinCode;
+  transactionDetails: TransactionDetails;
+};

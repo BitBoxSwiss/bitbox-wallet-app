@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2024 Shift Crypto AG
  *
@@ -39,7 +38,7 @@ type SelectProps<T = any, IsMulti extends boolean = false> = Omit<
   renderOptions: (selectedItem: TOption<T>) => ReactNode; // Function to render options and selected value for single dropdown
   onChange: (
     newValue: IsMulti extends true ? TOption<T>[] : TOption<T>,
-    actionMeta: ActionMeta<TOption<T>>
+    actionMeta: ActionMeta<TOption<T>>,
   ) => void;
 };
 
@@ -49,7 +48,9 @@ const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
   </components.DropdownIndicator>
 );
 
-const SelectSingleValue = (props: SingleValueProps<TOption> & { selectProps: any }) => {
+const SelectSingleValue = (
+  props: SingleValueProps<TOption> & { selectProps: any },
+) => {
   const { renderOptions } = props.selectProps;
 
   return (
@@ -113,20 +114,36 @@ export const Dropdown = <T, IsMulti extends boolean = false>({
       hideSelectedOptions={false}
       components={{
         DropdownIndicator,
-        SingleValue: (props) => props.isMulti ? undefined : <SelectSingleValue {...props} selectProps={{ ...props.selectProps, renderOptions }} />,
-        Option: (props) => <Option {...props} selectProps={{ ...props.selectProps, renderOptions }} />,
+        SingleValue: (props) =>
+          props.isMulti ? undefined : (
+            <SelectSingleValue
+              {...props}
+              selectProps={{ ...props.selectProps, renderOptions }}
+            />
+          ),
+        Option: (props) => (
+          <Option
+            {...props}
+            selectProps={{ ...props.selectProps, renderOptions }}
+          />
+        ),
         MultiValue: props.isMulti ? CustomMultiValue : undefined, // uses MultiValue only for multi-select
         IndicatorSeparator: () => null,
         MultiValueRemove: () => null,
       }}
       onChange={(selected, actionMeta) => {
         const handleChange = props.isMulti
-          ? (onChange as (value: TOption<T>[], actionMeta: ActionMeta<TOption<T>>) => void)
-          : (onChange as (value: TOption<T>, actionMeta: ActionMeta<TOption<T>>) => void);
+          ? (onChange as (
+              value: TOption<T>[],
+              actionMeta: ActionMeta<TOption<T>>,
+            ) => void)
+          : (onChange as (
+              value: TOption<T>,
+              actionMeta: ActionMeta<TOption<T>>,
+            ) => void);
         handleChange(selected as any, actionMeta);
       }}
       {...props}
     />
   );
 };
-

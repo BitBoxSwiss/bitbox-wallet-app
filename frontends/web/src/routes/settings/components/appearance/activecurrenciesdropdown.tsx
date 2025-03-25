@@ -25,9 +25,9 @@ import activeCurrenciesDropdownStyle from './activecurrenciesdropdown.module.css
 import settingsDropdownStyles from './settingsdropdown.module.css';
 
 type SelectOption = {
-    label: string;
-    value: Fiat;
-}
+  label: string;
+  value: Fiat;
+};
 
 type TSelectProps = {
   options: SelectOption[];
@@ -38,23 +38,32 @@ type TSelectProps = {
 export const ActiveCurrenciesDropdown = ({
   options,
   defaultCurrency,
-  activeCurrencies
+  activeCurrencies,
 }: TSelectProps) => {
-  const [formattedActiveCurrencies, setFormattedActiveCurrencies] = useState<SelectOption[]>([]);
+  const [formattedActiveCurrencies, setFormattedActiveCurrencies] = useState<
+    SelectOption[]
+  >([]);
   const { t } = useTranslation();
 
-  const { removeFromActiveCurrencies, addToActiveCurrencies } = useContext(RatesContext);
+  const { removeFromActiveCurrencies, addToActiveCurrencies } =
+    useContext(RatesContext);
 
   useEffect(() => {
     if (activeCurrencies.length > 0) {
-      const formattedSelectedCurrencies = activeCurrencies.map(currency => ({ label: currency, value: currency }));
+      const formattedSelectedCurrencies = activeCurrencies.map((currency) => ({
+        label: currency,
+        value: currency,
+      }));
       setFormattedActiveCurrencies(formattedSelectedCurrencies);
     }
   }, [activeCurrencies]);
 
   const Options = ({ props }: { props: SelectOption }) => {
     const { label, value } = props;
-    const selected = formattedActiveCurrencies.findIndex(currency => currency.value === value) >= 0;
+    const selected =
+      formattedActiveCurrencies.findIndex(
+        (currency) => currency.value === value,
+      ) >= 0;
     const isDefaultCurrency = defaultCurrency === value;
     return (
       <div
@@ -62,7 +71,11 @@ export const ActiveCurrenciesDropdown = ({
         ${isDefaultCurrency ? activeCurrenciesDropdownStyle.defaultCurrency : ''}`}
       >
         <span>{label}</span>
-        {isDefaultCurrency ? <p className={activeCurrenciesDropdownStyle.defaultLabel}>{t('fiat.default')}</p> : null}
+        {isDefaultCurrency ? (
+          <p className={activeCurrenciesDropdownStyle.defaultLabel}>
+            {t('fiat.default')}
+          </p>
+        ) : null}
         {selected && !isDefaultCurrency ? <SelectedCheckLight /> : null}
       </div>
     );
@@ -76,15 +89,15 @@ export const ActiveCurrenciesDropdown = ({
       value={formattedActiveCurrencies}
       onChange={async (_, meta: ActionMeta<SelectOption>) => {
         switch (meta.action) {
-        case 'select-option':
-          if (meta.option) {
-            await addToActiveCurrencies(meta.option.value);
-          }
-          break;
-        case 'deselect-option':
-          if (meta.option && meta.option.value !== defaultCurrency) {
-            await removeFromActiveCurrencies(meta.option.value);
-          }
+          case 'select-option':
+            if (meta.option) {
+              await addToActiveCurrencies(meta.option.value);
+            }
+            break;
+          case 'deselect-option':
+            if (meta.option && meta.option.value !== defaultCurrency) {
+              await removeFromActiveCurrencies(meta.option.value);
+            }
         }
       }}
       isSearchable

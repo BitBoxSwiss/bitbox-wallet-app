@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2024 Shift Crypto AG
  *
@@ -22,17 +21,25 @@ type TPillTabProps = {
   children: ReactNode;
   className?: string;
   size?: 'medium' | 'large';
-}
+};
 
 type TPillTabButtonProps = {
-    active: boolean;
-    children: ReactNode;
-    disabled?: boolean;
-    onClick: () => void;
-}
+  active: boolean;
+  children: ReactNode;
+  disabled?: boolean;
+  onClick: () => void;
+};
 
-export const PillButtonGroup = ({ className = '', size = 'medium', children }: TPillTabProps) => {
-  return <div className={`${styles.pillbuttongroup} ${styles[size]} ${className}`}>{children}</div>;
+export const PillButtonGroup = ({
+  className = '',
+  size = 'medium',
+  children,
+}: TPillTabProps) => {
+  return (
+    <div className={`${styles.pillbuttongroup} ${styles[size]} ${className}`}>
+      {children}
+    </div>
+  );
 };
 
 export const PillButton = ({

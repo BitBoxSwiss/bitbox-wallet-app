@@ -28,7 +28,7 @@ import style from './terms.module.css';
 type TProps = {
   account: IAccount;
   onAgreedTerms: () => void;
-}
+};
 
 const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
   setConfig({ frontend: { skipBTCDirectWidgetDisclaimer: e.target.checked } });
@@ -44,38 +44,68 @@ export const BTCDirectTerms = ({ account, onAgreedTerms }: TProps) => {
       <div className={style.disclaimer}>
         <h2 className={style.title}>
           {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.title', {
-            context: isBitcoin ? 'bitcoin' : 'crypto'
+            context: isBitcoin ? 'bitcoin' : 'crypto',
           })}
         </h2>
-        <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.description')}</p>
+        <p>
+          {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.description')}
+        </p>
         <h2 className={style.title}>
-          {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.title')}
+          {t(
+            'buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.title',
+          )}
         </h2>
         <ul>
           <li>
-            <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.buy')}</p>
+            <p>
+              {t(
+                'buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.buy',
+              )}
+            </p>
           </li>
         </ul>
-        <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.note')}</p>
+        <p>
+          {t(
+            'buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.note',
+          )}
+        </p>
         <p>
           <A href={getBTCDirectAboutUsLink()}>
             {t('buy.exchange.infoContent.btcdirectWidget.learnmore')}
           </A>
         </p>
         <h2 className={style.title}>
-          {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.security.title')}
+          {t(
+            'buy.exchange.infoContent.btcdirectWidget.disclaimer.security.title',
+          )}
         </h2>
-        <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.security.description')}</p>
+        <p>
+          {t(
+            'buy.exchange.infoContent.btcdirectWidget.disclaimer.security.description',
+          )}
+        </p>
         <p>
           <A href="https://bitbox.swiss/bitbox02/threat-model/">
-            {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.security.link')}
+            {t(
+              'buy.exchange.infoContent.btcdirectWidget.disclaimer.security.link',
+            )}
           </A>
         </p>
-        <h2 className={style.title}>{t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.title')}</h2>
-        <p>{t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.text')}</p>
+        <h2 className={style.title}>
+          {t(
+            'buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.title',
+          )}
+        </h2>
+        <p>
+          {t(
+            'buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.text',
+          )}
+        </p>
         <p>
           <A href={getBTCDirectPrivacyLink()}>
-            {t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.link')}
+            {t(
+              'buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.link',
+            )}
           </A>
         </p>
       </div>
@@ -83,12 +113,11 @@ export const BTCDirectTerms = ({ account, onAgreedTerms }: TProps) => {
         <Checkbox
           id="skip_disclaimer"
           label={t('buy.info.skip')}
-          onChange={handleSkipDisclaimer} />
+          onChange={handleSkipDisclaimer}
+        />
       </div>
       <div className="buttons text-center m-bottom-xlarge">
-        <Button
-          primary
-          onClick={onAgreedTerms}>
+        <Button primary onClick={onAgreedTerms}>
           {t('buy.info.continue')}
         </Button>
       </div>

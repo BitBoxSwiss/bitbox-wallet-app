@@ -16,7 +16,11 @@
 
 import { Component, ReactNode } from 'react';
 import { Button } from '../../../../components/forms';
-import { Alert, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../../components/icon';
+import {
+  Alert,
+  SwissMadeOpenSource,
+  SwissMadeOpenSourceDark,
+} from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
 import { Header } from '../../../../components/layout';
 import { Message } from '../../../../components/message/message';
@@ -29,13 +33,13 @@ type SecurityInformationProps = {
   goBack: () => void;
   goal: string | null;
   children: ReactNode;
-}
+};
 
 type Props = SecurityInformationProps & TranslateProps;
 
 type State = {
   showInfo: boolean;
-}
+};
 
 class SecurityInformation extends Component<Props, State> {
   constructor(props: Props) {
@@ -66,53 +70,66 @@ class SecurityInformation extends Component<Props, State> {
               <h1 className={[style.title, 'text-center'].join(' ')}>
                 {goal && t(`securityInformation.${goal}.title`)}
               </h1>
-              {
-                goal === 'create' ? (
-                  <div className="box large">
-                    <SimpleMarkup tagName="p" markup={t('securityInformation.create.description1')} />
-                    <SimpleMarkup tagName="p" markup={t('securityInformation.create.description2')} />
-                    <ul className={[style.list, 'first'].join(' ')}>
-                      <SimpleMarkup tagName="li" markup={t('securityInformation.create.description3')} />
-                      <SimpleMarkup tagName="li" markup={t('securityInformation.create.description4')} />
-                    </ul>
-                    <SimpleMarkup tagName="p" markup={t('securityInformation.create.description5')} />
-                    <div className="buttons">
-                      <Button primary onClick={this.handleStart}>
-                        {t('button.continue')}
-                      </Button>
-                      <Button
-                        secondary
-                        onClick={goBack}>
-                        {t('button.abort')}
-                      </Button>
-                    </div>
+              {goal === 'create' ? (
+                <div className="box large">
+                  <SimpleMarkup
+                    tagName="p"
+                    markup={t('securityInformation.create.description1')}
+                  />
+                  <SimpleMarkup
+                    tagName="p"
+                    markup={t('securityInformation.create.description2')}
+                  />
+                  <ul className={[style.list, 'first'].join(' ')}>
+                    <SimpleMarkup
+                      tagName="li"
+                      markup={t('securityInformation.create.description3')}
+                    />
+                    <SimpleMarkup
+                      tagName="li"
+                      markup={t('securityInformation.create.description4')}
+                    />
+                  </ul>
+                  <SimpleMarkup
+                    tagName="p"
+                    markup={t('securityInformation.create.description5')}
+                  />
+                  <div className="buttons">
+                    <Button primary onClick={this.handleStart}>
+                      {t('button.continue')}
+                    </Button>
+                    <Button secondary onClick={goBack}>
+                      {t('button.abort')}
+                    </Button>
                   </div>
-                ) : (
-                  <div className="box large">
-                    <ul className={[style.list, 'first'].join(' ')}>
-                      <li>{t('securityInformation.restore.description1')}</li>
-                      <li>{t('securityInformation.restore.description2')}</li>
-                    </ul>
-                    <p>{t('securityInformation.restore.description3')}</p>
-                    <Message type="warning">
-                      <Alert />
-                      <p className="first">{t('deviceTampered')}</p>
-                    </Message>
-                    <div className="buttons">
-                      <Button primary onClick={this.handleStart}>
-                        {t('button.continue')}
-                      </Button>
-                      <Button
-                        secondary
-                        onClick={goBack}>
-                        {t('button.abort')}
-                      </Button>
-                    </div>
+                </div>
+              ) : (
+                <div className="box large">
+                  <ul className={[style.list, 'first'].join(' ')}>
+                    <li>{t('securityInformation.restore.description1')}</li>
+                    <li>{t('securityInformation.restore.description2')}</li>
+                  </ul>
+                  <p>{t('securityInformation.restore.description3')}</p>
+                  <Message type="warning">
+                    <Alert />
+                    <p className="first">{t('deviceTampered')}</p>
+                  </Message>
+                  <div className="buttons">
+                    <Button primary onClick={this.handleStart}>
+                      {t('button.continue')}
+                    </Button>
+                    <Button secondary onClick={goBack}>
+                      {t('button.abort')}
+                    </Button>
                   </div>
-                )
-              }
+                </div>
+              )}
               <div className="text-center m-top-large">
-                {getDarkmode() ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
+                {getDarkmode() ? (
+                  <SwissMadeOpenSourceDark />
+                ) : (
+                  <SwissMadeOpenSource />
+                )}
               </div>
             </div>
           </div>

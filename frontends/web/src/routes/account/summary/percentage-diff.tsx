@@ -35,17 +35,14 @@ export const PercentageDiff = ({
   const positive = difference && difference > 0;
   const style = difference && positive ? 'up' : 'down';
   const className = hasDifference ? styles[style] : '';
-  const formattedDifference = difference && localizePercentage(difference, nativeLocale);
+  const formattedDifference =
+    difference && localizePercentage(difference, nativeLocale);
   return (
     <span className={className} title={title}>
       {hasDifference ? (
         <>
           <span className={styles.arrow}>
-            {positive ? (
-              <ArrowUpGreen />
-            ) : (
-              <ArrowDownRed />
-            )}
+            {positive ? <ArrowUpGreen /> : <ArrowDownRed />}
           </span>
           <span className={styles.diffValue}>
             {hideAmounts ? '***' : formattedDifference}

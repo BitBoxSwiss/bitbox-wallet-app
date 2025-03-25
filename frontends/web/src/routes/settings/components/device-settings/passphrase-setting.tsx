@@ -20,21 +20,25 @@ import { SettingsItem } from '@/routes/settings/components/settingsItem/settings
 import { ChevronRightDark } from '@/components/icon';
 
 type TProps = {
-    deviceID: string;
-    passphraseEnabled: boolean;
-}
+  deviceID: string;
+  passphraseEnabled: boolean;
+};
 
 const PassphraseSetting = ({ deviceID, passphraseEnabled }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   return (
     <SettingsItem
-      onClick={() => navigate(`/settings/device-settings/passphrase/${deviceID}`)}
+      onClick={() =>
+        navigate(`/settings/device-settings/passphrase/${deviceID}`)
+      }
       settingName={t('deviceSettings.expert.passphrase.title')}
       secondaryText={t('deviceSettings.expert.passphrase.description')}
-      displayedValue={ passphraseEnabled
-        ? t('generic.enabled_true')
-        : t('generic.enabled_false')}
+      displayedValue={
+        passphraseEnabled
+          ? t('generic.enabled_true')
+          : t('generic.enabled_false')
+      }
       extraComponent={<ChevronRightDark />}
     />
   );

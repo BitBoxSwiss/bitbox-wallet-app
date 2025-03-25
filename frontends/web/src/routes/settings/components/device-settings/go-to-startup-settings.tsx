@@ -22,14 +22,16 @@ import { SettingsItem } from '@/routes/settings/components/settingsItem/settings
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 
 type TGoToStartupSettingsProps = {
-    deviceID: string;
-}
+  deviceID: string;
+};
 
 type TStartupSettingsWaitDialogProps = {
-    show: boolean;
-}
+  show: boolean;
+};
 
-const StartupSettingsWaitDialog = ({ show }: TStartupSettingsWaitDialogProps) => {
+const StartupSettingsWaitDialog = ({
+  show,
+}: TStartupSettingsWaitDialogProps) => {
   const { t } = useTranslation();
 
   if (!show) {
@@ -37,8 +39,7 @@ const StartupSettingsWaitDialog = ({ show }: TStartupSettingsWaitDialogProps) =>
   }
 
   return (
-    <WaitDialog
-      title={t('bitbox02Settings.gotoStartupSettings.title')} >
+    <WaitDialog title={t('bitbox02Settings.gotoStartupSettings.title')}>
       {t('bitbox02Settings.gotoStartupSettings.description')}
     </WaitDialog>
   );
@@ -56,7 +57,9 @@ const GoToStartupSettings = ({ deviceID }: TGoToStartupSettingsProps) => {
     <>
       <SettingsItem
         settingName={t('bitbox02Settings.gotoStartupSettings.title')}
-        secondaryText={t('deviceSettings.expert.goToStartupSettings.description')}
+        secondaryText={t(
+          'deviceSettings.expert.goToStartupSettings.description',
+        )}
         extraComponent={<ChevronRightDark />}
         onClick={handleGoToStartupSettings}
       />

@@ -40,7 +40,9 @@ describe('components/guide/entry', () => {
         title: 'A title',
         text: 'Some text',
       };
-      const { container } = render(<Entry key={'key'} entry={EntryProps} shown />);
+      const { container } = render(
+        <Entry key={'key'} entry={EntryProps} shown />,
+      );
 
       expect(container).toHaveTextContent('A title');
       expect(container).toHaveTextContent('Some text');
@@ -52,10 +54,12 @@ describe('components/guide/entry', () => {
         text: 'Some text',
         link: {
           url: 'http://someurl.com',
-          text: 'some url'
-        }
+          text: 'some url',
+        },
       };
-      const { container, queryByTestId } = render(<Entry key={'key'} entry={EntryProps} />);
+      const { container, queryByTestId } = render(
+        <Entry key={'key'} entry={EntryProps} />,
+      );
 
       const link = queryByTestId('link');
 
@@ -71,10 +75,12 @@ describe('components/guide/entry', () => {
         text: 'Some text',
         link: {
           url: 'http://someurl.com',
-          text: 'some url'
-        }
+          text: 'some url',
+        },
       };
-      const { container, getByTestId } = render(<Entry key={'key'} entry={EntryProps} shown />);
+      const { container, getByTestId } = render(
+        <Entry key={'key'} entry={EntryProps} shown />,
+      );
 
       const link = getByTestId('link');
 

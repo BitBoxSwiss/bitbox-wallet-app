@@ -23,7 +23,7 @@ import { BackButtonContext, THandler } from '@/contexts/BackButtonContext';
  * - return false to stop any further action
  * - return true for Android to perform the default back operation, which is going back in browser
  * history if possible, or prompting to quit the app.
-*/
+ */
 export const useBackButton = (handler: THandler) => {
   const { pushHandler, popHandler } = useContext(BackButtonContext);
 

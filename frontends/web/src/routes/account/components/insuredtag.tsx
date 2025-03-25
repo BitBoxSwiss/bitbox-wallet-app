@@ -24,7 +24,7 @@ export const Insured = () => {
   return (
     <Link className={style.insured} to="/bitsurance/dashboard">
       <div>
-        <Shield/>
+        <Shield />
         <span>{t('account.insured')}</span>
       </div>
     </Link>
@@ -34,7 +34,7 @@ export const Insured = () => {
 export const InsuredShield = () => {
   return (
     <div className={`${style.insured} ${style.insuredShield}`}>
-      <Shield/>
+      <Shield />
     </div>
   );
 };

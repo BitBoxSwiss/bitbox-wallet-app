@@ -25,7 +25,7 @@ type TProps = {
   href: string;
   icon?: ReactNode;
   title?: string;
-}
+};
 
 /**
  * Renders a link to an external URL or file, which will open in the native browser or application.
@@ -39,13 +39,7 @@ type TProps = {
  *
  * @param {LinkProps} props - The props object containing properties for the Link component.
  */
-export const A = ({
-  href,
-  icon,
-  className,
-  children,
-  ...props
-}: TProps) => {
+export const A = ({ href, icon, className, children, ...props }: TProps) => {
   return (
     <span
       className={`${style.link} ${className || ''}`}
@@ -55,7 +49,8 @@ export const A = ({
         open(href).catch(console.error);
       }}
       tabIndex={0}
-      {...props}>
+      {...props}
+    >
       {icon ? icon : null}
       {children}
     </span>

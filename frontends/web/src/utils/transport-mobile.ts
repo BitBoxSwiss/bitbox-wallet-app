@@ -26,10 +26,7 @@ export const mobileCall = (query: string): Promise<unknown> => {
   return new Promise((resolve, reject) => {
     if (runningOnMobile()) {
       if (typeof window.onMobileCallResponse === 'undefined') {
-        window.onMobileCallResponse = (
-          queryID: number,
-          response: unknown,
-        ) => {
+        window.onMobileCallResponse = (queryID: number, response: unknown) => {
           queryPromises[queryID].resolve(response);
           delete queryPromises[queryID];
         };
@@ -51,7 +48,7 @@ export const mobileCall = (query: string): Promise<unknown> => {
 export const mobileSubscribePushNotifications = (msgCallback: TMsgCallback) => {
   if (typeof window.onMobilePushNotification === 'undefined') {
     window.onMobilePushNotification = (msg: TPayload) => {
-      currentListeners.forEach(listener => listener(msg));
+      currentListeners.forEach((listener) => listener(msg));
     };
   }
 

@@ -30,21 +30,21 @@ import Create from './create';
 import { Restore } from './restore';
 
 interface BackupsProps {
-    deviceID: string;
-    showCreate?: boolean;
-    showRestore?: boolean;
-    requireConfirmation?: boolean;
-    onRestore?: () => void;
-    children: ReactNode;
+  deviceID: string;
+  showCreate?: boolean;
+  showRestore?: boolean;
+  requireConfirmation?: boolean;
+  onRestore?: () => void;
+  children: ReactNode;
 }
 
 type Props = BackupsProps & TranslateProps;
 
 interface State {
-    backupList: Backup[];
-    selectedBackup?: string;
-    sdCardInserted: boolean | null;
-    lock?: boolean;
+  backupList: Backup[];
+  selectedBackup?: string;
+  sdCardInserted: boolean | null;
+  lock?: boolean;
 }
 
 class Backups extends Component<Props, State> {
@@ -63,22 +63,23 @@ class Backups extends Component<Props, State> {
   }
 
   private refresh = () => {
-    getDeviceInfo(this.props.deviceID)
-      .then(deviceInfo => {
-        if (deviceInfo) {
-          this.setState({ lock: deviceInfo.lock });
-        }
-      });
-    apiGet('devices/' + this.props.deviceID + '/backups/list').then(({ sdCardInserted, backupList, success, errorMessage }) => {
-      if (success) {
-        this.setState({
-          sdCardInserted,
-          backupList,
-        });
-      } else if (errorMessage) {
-        alertUser(errorMessage);
+    getDeviceInfo(this.props.deviceID).then((deviceInfo) => {
+      if (deviceInfo) {
+        this.setState({ lock: deviceInfo.lock });
       }
     });
+    apiGet('devices/' + this.props.deviceID + '/backups/list').then(
+      ({ sdCardInserted, backupList, success, errorMessage }) => {
+        if (success) {
+          this.setState({
+            sdCardInserted,
+            backupList,
+          });
+        } else if (errorMessage) {
+          alertUser(errorMessage);
+        }
+      },
+    );
   };
 
   private handleBackuplistChange = (backupID: string) => {
@@ -95,7 +96,10 @@ class Backups extends Component<Props, State> {
     if (offsetTop > this.scrollableContainer.current.scrollTop + offsetHeight) {
       return;
     }
-    const top = Math.max((offsetTop + offsetHeight) - this.scrollableContainer.current.offsetHeight, 0);
+    const top = Math.max(
+      offsetTop + offsetHeight - this.scrollableContainer.current.offsetHeight,
+      0,
+    );
     this.scrollableContainer.current.scroll({ top, behavior: 'smooth' });
   };
 
@@ -134,48 +138,38 @@ class Backups extends Component<Props, State> {
         <SimpleMarkup tagName="p" markup={t('backup.description')} />
         <div className={style.backupsList} ref={this.scrollableContainer}>
           <div className={style.listContainer}>
-            {
-              backupList.length ? backupList.map(backup => (
+            {backupList.length ? (
+              backupList.map((backup) => (
                 <div key={backup.id} className={style.item}>
                   <BackupsListItem
                     backup={backup}
                     selectedBackup={selectedBackup}
                     handleChange={this.handleBackuplistChange}
                     onFocus={this.scrollIntoView}
-                    radio={true} />
+                    radio={true}
+                  />
                 </div>
-              )) : (
-                <p className={style.emptyText}>
-                  {t('backup.noBackups')}
-                </p>
-              )
-            }
+              ))
+            ) : (
+              <p className={style.emptyText}>{t('backup.noBackups')}</p>
+            )}
           </div>
         </div>
         <div className="buttons">
-          {
-            showCreate && !lock && (
-              <Create
-                onCreate={this.refresh}
-                deviceID={deviceID} />
-            )
-          }
-          {
-            showCreate && (
-              <Check
-                selectedBackup={selectedBackup}
-                deviceID={deviceID} />
-            )
-          }
-          {
-            showRestore && onRestore && (
-              <Restore
-                selectedBackup={selectedBackup}
-                deviceID={deviceID}
-                onRestore={onRestore}
-                requireConfirmation={requireConfirmation} />
-            )
-          }
+          {showCreate && !lock && (
+            <Create onCreate={this.refresh} deviceID={deviceID} />
+          )}
+          {showCreate && (
+            <Check selectedBackup={selectedBackup} deviceID={deviceID} />
+          )}
+          {showRestore && onRestore && (
+            <Restore
+              selectedBackup={selectedBackup}
+              deviceID={deviceID}
+              onRestore={onRestore}
+              requireConfirmation={requireConfirmation}
+            />
+          )}
           {/*
                       <Erase
                       selectedBackup={selectedBackup}

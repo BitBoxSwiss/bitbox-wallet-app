@@ -17,7 +17,10 @@
 import { Component } from 'react';
 import { route } from '../../../../utils/route';
 import { withTranslation } from 'react-i18next';
-import { SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../../components/icon';
+import {
+  SwissMadeOpenSource,
+  SwissMadeOpenSourceDark,
+} from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
 import { Header } from '../../../../components/layout';
 import { Button } from '../../../../components/forms';
@@ -25,17 +28,12 @@ import { getDarkmode } from '../../../../components/darkmode/darkmode';
 import style from '../bitbox01.module.css';
 
 class Success extends Component {
-
   handleGetStarted = () => {
     route('/account-summary', true);
   };
 
   render() {
-    const {
-      t,
-      handleHideSuccess,
-      goal,
-    } = this.props;
+    const { t, handleHideSuccess, goal } = this.props;
     return (
       <div className="contentWithGuide">
         <div className="container">
@@ -44,12 +42,14 @@ class Success extends Component {
               <LanguageSwitch />
             </Header>
             <div className="content padded narrow isVerticallyCentered">
-              <h1 className={[style.title, 'text-center'].join(' ')}>{t(`success.${goal}.title`)}</h1>
+              <h1 className={[style.title, 'text-center'].join(' ')}>
+                {t(`success.${goal}.title`)}
+              </h1>
               <div className="box large">
                 <p style={{ textAlign: 'center' }}>
                   {t(`success.${goal}.summary`)}
                 </p>
-                { goal === 'create' ? (
+                {goal === 'create' ? (
                   <ul className={style.summary}>
                     <li>{t('success.create.info1')}</li>
                     <li>{t('success.create.info2')}</li>
@@ -66,7 +66,11 @@ class Success extends Component {
                 </div>
               </div>
               <div className="text-center m-top-large">
-                {getDarkmode() ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
+                {getDarkmode() ? (
+                  <SwissMadeOpenSourceDark />
+                ) : (
+                  <SwissMadeOpenSource />
+                )}
               </div>
             </div>
           </div>

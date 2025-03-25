@@ -16,11 +16,16 @@
  */
 
 import { ReactNode } from 'react';
-import { StatusInfo, StatusSuccess, StatusWarning, StatusError } from '@/components/icon';
+import {
+  StatusInfo,
+  StatusSuccess,
+  StatusWarning,
+  StatusError,
+} from '@/components/icon';
 import { TMessageTypes } from '@/utils/types';
 import styles from './message.module.css';
 
-type TMessageIconProps = { type: TMessageTypes, icon?: ReactNode };
+type TMessageIconProps = { type: TMessageTypes; icon?: ReactNode };
 
 const MessageIcon = ({ type, icon }: TMessageIconProps) => {
   // optional custom icon
@@ -28,24 +33,16 @@ const MessageIcon = ({ type, icon }: TMessageIconProps) => {
     return icon;
   }
   switch (type) {
-  case 'success':
-    return (
-      <StatusSuccess />
-    );
-  case 'info':
-    return (
-      <StatusInfo />
-    );
-  case 'error':
-    return (
-      <StatusError />
-    );
-  case 'warning':
-    return (
-      <StatusWarning />
-    );
-  default:
-    return null;
+    case 'success':
+      return <StatusSuccess />;
+    case 'info':
+      return <StatusInfo />;
+    case 'error':
+      return <StatusError />;
+    case 'warning':
+      return <StatusWarning />;
+    default:
+      return null;
   }
 };
 
@@ -57,7 +54,7 @@ type MessageProps = {
   icon?: ReactNode;
   noIcon?: boolean;
   children: ReactNode;
-}
+};
 
 export const Message = ({
   hidden,
@@ -75,9 +72,7 @@ export const Message = ({
     <div className={`${styles[type]} ${small ? styles.small : ''}`}>
       {!noIcon && <MessageIcon type={type} icon={icon} />}
       <div className={styles.content}>
-        {title && (
-          <h2 className={`subTitle ${styles.title}`}>{title}</h2>
-        )}
+        {title && <h2 className={`subTitle ${styles.title}`}>{title}</h2>}
         {children}
       </div>
     </div>

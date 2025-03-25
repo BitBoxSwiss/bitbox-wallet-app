@@ -29,7 +29,7 @@ class Bootloader extends Component {
       upgrading: false,
       errMsg: null,
       progress: 0,
-      upgradeSuccessful: false
+      upgradeSuccessful: false,
     };
   }
 
@@ -44,29 +44,30 @@ class Bootloader extends Component {
     }
   }
 
-  onEvent = data => {
+  onEvent = (data) => {
     if (data.type !== 'device') {
       return;
     }
     switch (data.data) {
-    case 'bootloaderStatusChanged':
-      this.onStatusChanged();
-      break;
-    default:
-      break;
+      case 'bootloaderStatusChanged':
+        this.onStatusChanged();
+        break;
+      default:
+        break;
     }
   };
 
   onStatusChanged = () => {
-    apiGet('devices/' + this.props.deviceID + '/bootloader-status')
-      .then(({ upgrading, progress, upgradeSuccessful, errMsg }) => {
+    apiGet('devices/' + this.props.deviceID + '/bootloader-status').then(
+      ({ upgrading, progress, upgradeSuccessful, errMsg }) => {
         this.setState({
           upgrading,
           progress,
           upgradeSuccessful,
           errMsg,
         });
-      });
+      },
+    );
   };
 
   upgradeFirmware = () => {
@@ -75,12 +76,7 @@ class Bootloader extends Component {
 
   render() {
     const { t } = this.props;
-    const {
-      upgrading,
-      progress,
-      upgradeSuccessful,
-      errMsg,
-    } = this.state;
+    const { upgrading, progress, upgradeSuccessful, errMsg } = this.state;
     let UpgradeOrStatus;
 
     if (upgrading) {
@@ -90,19 +86,21 @@ class Bootloader extends Component {
         const value = Math.round(progress * 100);
         UpgradeOrStatus = (
           <div>
-            <progress value={value} max="100">{value}%</progress>
-            <p className="m-bottom-none text-center">{t('bootloader.progress', {
-              progress: value
-            })}</p>
+            <progress value={value} max="100">
+              {value}%
+            </progress>
+            <p className="m-bottom-none text-center">
+              {t('bootloader.progress', {
+                progress: value,
+              })}
+            </p>
           </div>
         );
       }
     } else {
       UpgradeOrStatus = (
         <div className="buttons m-top-none">
-          <Button
-            primary
-            onClick={this.upgradeFirmware}>
+          <Button primary onClick={this.upgradeFirmware}>
             {t('bootloader.button')}
           </Button>
         </div>
@@ -117,11 +115,7 @@ class Bootloader extends Component {
                 <BitBox />
                 <div className="box large">
                   {UpgradeOrStatus}
-                  {
-                    errMsg && (
-                      <p className="m-bottom-none">{ errMsg }</p>
-                    )
-                  }
+                  {errMsg && <p className="m-bottom-none">{errMsg}</p>}
                 </div>
               </div>
             </div>

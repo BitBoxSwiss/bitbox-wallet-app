@@ -26,11 +26,17 @@ const excludeKeys = /^(Shift|Alt|Backspace|CapsLock|Tab)$/i;
 const hasCaps = (event: KeyboardEvent) => {
   const key = event.key;
   // will return null, when we cannot clearly detect if capsLock is active or not
-  if (key.length > 1 || key.toUpperCase() === key.toLowerCase() || excludeKeys.test(key)) {
+  if (
+    key.length > 1 ||
+    key.toUpperCase() === key.toLowerCase() ||
+    excludeKeys.test(key)
+  ) {
     return null;
   }
   // ideally we return event.getModifierState('CapsLock')) but this currently does always return false in Qt
-  return key.toUpperCase() === key && key.toLowerCase() !== key && !event.shiftKey;
+  return (
+    key.toUpperCase() === key && key.toLowerCase() !== key && !event.shiftKey
+  );
 };
 
 type TPropsPasswordInput = {
@@ -41,14 +47,12 @@ type TPropsPasswordInput = {
   placeholder?: string;
   onInput?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
-}
-export const PasswordInput = ({ seePlaintext, ...rest }: TPropsPasswordInput) => {
-  return (
-    <Input
-      type={seePlaintext ? 'text' : 'password'}
-      {...rest}
-    />
-  );
+};
+export const PasswordInput = ({
+  seePlaintext,
+  ...rest
+}: TPropsPasswordInput) => {
+  return <Input type={seePlaintext ? 'text' : 'password'} {...rest} />;
 };
 
 type TProps = {
@@ -61,7 +65,7 @@ type TProps = {
   title?: string;
   showLabel?: string;
   onValidPassword: (password: string | null) => void;
-}
+};
 
 type TPasswordSingleInputProps = TProps & TranslateProps;
 
@@ -69,15 +73,18 @@ type TState = {
   password: string;
   seePlaintext: boolean;
   capsLock: boolean;
-}
+};
 
-class PasswordSingleInputClass extends Component<TPasswordSingleInputProps, TState> {
+class PasswordSingleInputClass extends Component<
+  TPasswordSingleInputProps,
+  TState
+> {
   private regex?: RegExp;
 
   state = {
     password: '',
     seePlaintext: false,
-    capsLock: false
+    capsLock: false,
   };
 
   password = createRef<HTMLInputElement>();
@@ -112,9 +119,11 @@ class PasswordSingleInputClass extends Component<TPasswordSingleInputProps, TSta
     const target = event.currentTarget;
     if (target.type === 'password') {
       event.preventDefault();
-      alertUser(this.props.t('password.warning.paste', {
-        label: this.props.label
-      }));
+      alertUser(
+        this.props.t('password.warning.paste', {
+          label: this.props.label,
+        }),
+      );
     }
   };
 
@@ -122,12 +131,16 @@ class PasswordSingleInputClass extends Component<TPasswordSingleInputProps, TSta
     this.setState({
       password: '',
       seePlaintext: false,
-      capsLock: false
+      capsLock: false,
     });
   };
 
   validate = () => {
-    if (this.regex && this.password.current && !this.password.current.validity.valid) {
+    if (
+      this.regex &&
+      this.password.current &&
+      !this.password.current.validity.valid
+    ) {
       return this.props.onValidPassword(null);
     }
     if (this.state.password) {
@@ -142,28 +155,23 @@ class PasswordSingleInputClass extends Component<TPasswordSingleInputProps, TSta
     if (event.target.type === 'checkbox') {
       value = event.target.checked;
     }
-    const stateKey = event.target.id.slice(this.idPrefix().length) as keyof TState;
-    this.setState({ [stateKey]: value } as Pick<TState, keyof TState>, this.validate);
+    const stateKey = event.target.id.slice(
+      this.idPrefix().length,
+    ) as keyof TState;
+    this.setState(
+      { [stateKey]: value } as Pick<TState, keyof TState>,
+      this.validate,
+    );
   };
 
   render() {
-    const {
-      t,
-      disabled,
-      label,
-      placeholder,
-      pattern,
-      title,
-      showLabel,
-    } = this.props;
-    const {
-      password,
-      seePlaintext,
-      capsLock,
-    } = this.state;
-    const warning = (capsLock && !seePlaintext) && (
-      <span className={style.capsWarning}
-        title={t('password.warning.caps')}>⇪</span>
+    const { t, disabled, label, placeholder, pattern, title, showLabel } =
+      this.props;
+    const { password, seePlaintext, capsLock } = this.state;
+    const warning = capsLock && !seePlaintext && (
+      <span className={style.capsWarning} title={t('password.warning.caps')}>
+        ⇪
+      </span>
     );
     return (
       <Input
@@ -185,19 +193,19 @@ class PasswordSingleInputClass extends Component<TPasswordSingleInputProps, TSta
             onChange={this.handleFormChange}
             checked={seePlaintext}
             label={t('password.show', {
-              label: showLabel || label
-            })} />
-        }>
+              label: showLabel || label,
+            })}
+          />
+        }
+      >
         {warning}
       </Input>
     );
   }
-
 }
 
 const HOC = translate(undefined, { withRef: true })(PasswordSingleInputClass);
 export { HOC as PasswordSingleInput };
-
 
 type TPasswordRepeatProps = TPasswordSingleInputProps & {
   repeatLabel?: string;
@@ -211,7 +219,7 @@ class PasswordRepeatInputClass extends Component<TPasswordRepeatProps, TState> {
     password: '',
     passwordRepeat: '',
     seePlaintext: false,
-    capsLock: false
+    capsLock: false,
   };
 
   password = createRef<HTMLInputElement>();
@@ -220,7 +228,6 @@ class PasswordRepeatInputClass extends Component<TPasswordRepeatProps, TState> {
   idPrefix = () => {
     return this.props.idPrefix || '';
   };
-
 
   handleCheckCaps = (event: KeyboardEvent) => {
     const capsLock = hasCaps(event);
@@ -248,20 +255,28 @@ class PasswordRepeatInputClass extends Component<TPasswordRepeatProps, TState> {
     const target = event.currentTarget;
     if (target.type === 'password') {
       event.preventDefault();
-      alertUser(this.props.t('password.warning.paste', {
-        label: this.props.label
-      }));
+      alertUser(
+        this.props.t('password.warning.paste', {
+          label: this.props.label,
+        }),
+      );
     }
   };
 
   validate = () => {
     if (
-      this.regex && this.password.current && this.passwordRepeat.current
-      && (!this.password.current.validity.valid || !this.passwordRepeat.current.validity.valid)
+      this.regex &&
+      this.password.current &&
+      this.passwordRepeat.current &&
+      (!this.password.current.validity.valid ||
+        !this.passwordRepeat.current.validity.valid)
     ) {
       return this.props.onValidPassword(null);
     }
-    if (this.state.password && this.state.password === this.state.passwordRepeat) {
+    if (
+      this.state.password &&
+      this.state.password === this.state.passwordRepeat
+    ) {
       this.props.onValidPassword(this.state.password);
     } else {
       this.props.onValidPassword(null);
@@ -274,7 +289,10 @@ class PasswordRepeatInputClass extends Component<TPasswordRepeatProps, TState> {
       value = event.target.checked;
     }
     const stateKey = event.target.id.slice(this.idPrefix().length);
-    this.setState({ [stateKey]: value } as Pick<TState, keyof TState>, this.validate);
+    this.setState(
+      { [stateKey]: value } as Pick<TState, keyof TState>,
+      this.validate,
+    );
   };
 
   render() {
@@ -289,15 +307,11 @@ class PasswordRepeatInputClass extends Component<TPasswordRepeatProps, TState> {
       repeatPlaceholder,
       showLabel,
     } = this.props;
-    const {
-      password,
-      passwordRepeat,
-      seePlaintext,
-      capsLock,
-    } = this.state;
-    const warning = (capsLock && !seePlaintext) && (
-      <span className={style.capsWarning}
-        title={t('password.warning.caps')}>⇪</span>
+    const { password, passwordRepeat, seePlaintext, capsLock } = this.state;
+    const warning = capsLock && !seePlaintext && (
+      <span className={style.capsWarning} title={t('password.warning.caps')}>
+        ⇪
+      </span>
     );
     return (
       <div>
@@ -313,13 +327,11 @@ class PasswordRepeatInputClass extends Component<TPasswordRepeatProps, TState> {
           onInput={this.handleFormChange}
           onPaste={this.tryPaste}
           ref={this.password}
-          value={password}>
+          value={password}
+        >
           {warning}
         </Input>
-        <MatchesPattern
-          regex={this.regex}
-          text={title}
-          value={password} />
+        <MatchesPattern regex={this.regex} text={title} value={password} />
         <Input
           disabled={disabled}
           type={seePlaintext ? 'text' : 'password'}
@@ -331,42 +343,44 @@ class PasswordRepeatInputClass extends Component<TPasswordRepeatProps, TState> {
           onInput={this.handleFormChange}
           onPaste={this.tryPaste}
           ref={this.password}
-          value={passwordRepeat}>
+          value={passwordRepeat}
+        >
           {warning}
         </Input>
         <MatchesPattern
           regex={this.regex}
           text={title}
-          value={passwordRepeat} />
+          value={passwordRepeat}
+        />
         <Field>
           <Checkbox
             id={this.idPrefix() + 'seePlaintext'}
             onChange={this.handleFormChange}
             checked={seePlaintext}
             label={t('password.show', {
-              label: showLabel || label
-            })} />
+              label: showLabel || label,
+            })}
+          />
         </Field>
       </div>
     );
   }
 }
 
-const HOCRepeat = translate(undefined, { withRef: true })(PasswordRepeatInputClass);
+const HOCRepeat = translate(undefined, { withRef: true })(
+  PasswordRepeatInputClass,
+);
 export { HOCRepeat as PasswordRepeatInput };
 
 type MatchesPatternProps = {
   regex: RegExp | undefined;
   value: string;
   text: string | undefined;
-}
+};
 const MatchesPattern = ({ regex, value = '', text }: MatchesPatternProps) => {
   if (!regex || !value.length || regex.test(value)) {
     return null;
   }
 
-  return (
-    <p style={{ color: 'var(--color-error)' }}>{text}</p>
-  );
+  return <p style={{ color: 'var(--color-error)' }}>{text}</p>;
 };
-

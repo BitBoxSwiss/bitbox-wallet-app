@@ -15,32 +15,37 @@
  */
 import { ReactNode, createElement } from 'react';
 import { IWalletKit } from '@reown/walletkit';
-import { ArbitrumLogo, OptimismLogo, BaseLogo, ETHLogo } from '@/components/icon';
+import {
+  ArbitrumLogo,
+  OptimismLogo,
+  BaseLogo,
+  ETHLogo,
+} from '@/components/icon';
 
 type TSupportedChainDetail = {
-  [key: string]: { name: string; icon: ReactNode; }
-}
+  [key: string]: { name: string; icon: ReactNode };
+};
 
 export const SUPPORTED_CHAINS: TSupportedChainDetail = {
   'eip155:1': {
     name: 'Ethereum mainnet',
-    icon: createElement(ETHLogo)
+    icon: createElement(ETHLogo),
   },
   'eip155:10': {
     name: 'Optimism',
-    icon: createElement(OptimismLogo)
+    icon: createElement(OptimismLogo),
   },
   'eip155:8453': {
     name: 'Base',
-    icon: createElement(BaseLogo)
+    icon: createElement(BaseLogo),
   },
   'eip155:42161': {
     name: 'Arbitrum One',
-    icon: createElement(ArbitrumLogo)
+    icon: createElement(ArbitrumLogo),
   },
   'eip155:11155111': {
     name: 'Ethereum Sepolia testnet',
-    icon: createElement(ETHLogo)
+    icon: createElement(ETHLogo),
   },
 };
 
@@ -49,15 +54,15 @@ export const EIP155_SIGNING_METHODS = {
   ETH_SIGN: 'eth_sign',
   ETH_SIGN_TRANSACTION: 'eth_signTransaction',
   /**
-     * Many dapps will request an 'eth_signTypedData' but in reality expect 'eth_signTypedData_v4'
-     * because that's basically the standard. V4 is assumed, but not necessarily asked for specifically.
-     * There aren't many uses of V3 in the wild, but leaving in just in case and returning a v4 signature instead,
-     * the dapp can validate this anyway
-     */
+   * Many dapps will request an 'eth_signTypedData' but in reality expect 'eth_signTypedData_v4'
+   * because that's basically the standard. V4 is assumed, but not necessarily asked for specifically.
+   * There aren't many uses of V3 in the wild, but leaving in just in case and returning a v4 signature instead,
+   * the dapp can validate this anyway
+   */
   ETH_SIGN_TYPED_DATA: 'eth_signTypedData',
   ETH_SIGN_TYPED_DATA_V3: 'eth_signTypedData_v3',
   ETH_SIGN_TYPED_DATA_V4: 'eth_signTypedData_v4',
-  ETH_SEND_TRANSACTION: 'eth_sendTransaction'
+  ETH_SEND_TRANSACTION: 'eth_sendTransaction',
 };
 
 export const getAddressFromEIPString = (address: string) => {
@@ -88,12 +93,18 @@ export const getTopicFromURI = (wcURI: string) => {
 // This "invalid pairing" won't request a new session and
 // also won't throw any error (on the first attempt) rendering it
 // non functional and potentially confuses the user.
-export const pairingHasEverBeenRejected = (topic: string, web3wallet: IWalletKit) => {
-  return web3wallet.core.history.values.findIndex(history =>
-    history.topic === topic &&
+export const pairingHasEverBeenRejected = (
+  topic: string,
+  web3wallet: IWalletKit,
+) => {
+  return (
+    web3wallet.core.history.values.findIndex(
+      (history) =>
+        history.topic === topic &&
         history.response &&
-        'error' in history.response)
-        >= 0;
+        'error' in history.response,
+    ) >= 0
+  );
 };
 
 export const rejectMessage = (id: number) => {
@@ -102,8 +113,8 @@ export const rejectMessage = (id: number) => {
     jsonrpc: '2.0',
     error: {
       code: 5000,
-      message: 'User rejected.'
-    }
+      message: 'User rejected.',
+    },
   };
 };
 

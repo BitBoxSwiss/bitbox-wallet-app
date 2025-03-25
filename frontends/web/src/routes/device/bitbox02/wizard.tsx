@@ -24,23 +24,32 @@ import { FirmwareUpgradeRequired } from '@/routes/device/upgrade-firmware-requir
 import { Main } from '@/components/layout';
 import { Unlock } from './unlock';
 import { Pairing } from './setup/pairing';
-import { SetupOptions, TWalletCreateOptions, TWalletSetupChoices } from './setup/choose';
+import {
+  SetupOptions,
+  TWalletCreateOptions,
+  TWalletSetupChoices,
+} from './setup/choose';
 import { CreateWallet } from './setup/wallet-create';
 import { RestoreFromSDCard, RestoreFromMnemonic } from './setup/wallet-restore';
-import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
+import {
+  CreateWalletSuccess,
+  RestoreFromMnemonicSuccess,
+  RestoreFromSDCardSuccess,
+} from './setup/success';
 
 type TProps = {
   deviceID: string;
-}
+};
 
 export const Wizard = ({ deviceID }: TProps) => {
   const navigate = useNavigate();
   const versionInfo = useLoad(() => getVersion(deviceID));
   const attestation = useSync(
     () => verifyAttestation(deviceID),
-    cb => attestationCheckDone(deviceID, () => {
-      verifyAttestation(deviceID).then(cb);
-    })
+    (cb) =>
+      attestationCheckDone(deviceID, () => {
+        verifyAttestation(deviceID).then(cb);
+      }),
   );
   const [appStatus, setAppStatus] = useState<'' | TWalletSetupChoices>('');
   const [createOptions, setCreateOptions] = useState<TWalletCreateOptions>();
@@ -49,9 +58,10 @@ export const Wizard = ({ deviceID }: TProps) => {
   const [unlockOnly, setUnlockOnly] = useState<boolean>(true);
   const status = useSync(
     () => getStatus(deviceID),
-    cb => statusChanged(deviceID, () => {
-      getStatus(deviceID).then(cb);
-    })
+    (cb) =>
+      statusChanged(deviceID, () => {
+        getStatus(deviceID).then(cb);
+      }),
   );
 
   const handleGetStarted = () => {
@@ -63,7 +73,16 @@ export const Wizard = ({ deviceID }: TProps) => {
     if (status === undefined) {
       return;
     }
-    if (!showWizard && ['connected', 'unpaired', 'pairingFailed', 'uninitialized', 'seeded'].includes(status)) {
+    if (
+      !showWizard &&
+      [
+        'connected',
+        'unpaired',
+        'pairingFailed',
+        'uninitialized',
+        'seeded',
+      ].includes(status)
+    ) {
       setShowWizard(true);
     }
     if (unlockOnly && ['uninitialized', 'seeded'].includes(status)) {
@@ -83,13 +102,11 @@ export const Wizard = ({ deviceID }: TProps) => {
   }
   if (status === 'require_firmware_upgrade') {
     return (
-      <FirmwareUpgradeRequired
-        deviceID={deviceID}
-        versionInfo={versionInfo} />
+      <FirmwareUpgradeRequired deviceID={deviceID} versionInfo={versionInfo} />
     );
   }
   if (status === 'require_app_upgrade') {
-    return <AppUpgradeRequired/>;
+    return <AppUpgradeRequired />;
   }
   if (!showWizard) {
     return null;
@@ -100,21 +117,20 @@ export const Wizard = ({ deviceID }: TProps) => {
   }
   return (
     <Main>
-      { (status === 'connected') ? (
-        <Unlock
-          key="unlock"
-          attestation={attestation} />
-      ) : null }
+      {status === 'connected' ? (
+        <Unlock key="unlock" attestation={attestation} />
+      ) : null}
 
-      { (status === 'unpaired' || status === 'pairingFailed') && (
+      {(status === 'unpaired' || status === 'pairingFailed') && (
         <Pairing
           key="pairing"
           deviceID={deviceID}
           attestation={attestation}
-          pairingFailed={status === 'pairingFailed'} />
+          pairingFailed={status === 'pairingFailed'}
+        />
       )}
 
-      { (!unlockOnly && appStatus === '') && (
+      {!unlockOnly && appStatus === '' && (
         <SetupOptions
           key="choose-setup"
           versionInfo={versionInfo}
@@ -124,44 +140,59 @@ export const Wizard = ({ deviceID }: TProps) => {
           ) => {
             setAppStatus(type);
             setCreateOptions(createOptions);
-          }} />
+          }}
+        />
       )}
 
-      { (!unlockOnly && appStatus === 'create-wallet') && (
+      {!unlockOnly && appStatus === 'create-wallet' && (
         <CreateWallet
-          backupType={(createOptions?.withMnemonic ? 'mnemonic' : 'sdcard')}
+          backupType={createOptions?.withMnemonic ? 'mnemonic' : 'sdcard'}
           backupSeedLength={createOptions?.with12Words ? 16 : 32}
           deviceID={deviceID}
           isSeeded={status === 'seeded'}
-          onAbort={handleAbort} />
+          onAbort={handleAbort}
+        />
       )}
 
       {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
-      { (!unlockOnly && appStatus === 'restore-sdcard' && status !== 'initialized') && (
-        <RestoreFromSDCard
-          key="restore-sdcard"
-          deviceID={deviceID}
-          onAbort={handleAbort} />
-      )}
+      {!unlockOnly &&
+        appStatus === 'restore-sdcard' &&
+        status !== 'initialized' && (
+          <RestoreFromSDCard
+            key="restore-sdcard"
+            deviceID={deviceID}
+            onAbort={handleAbort}
+          />
+        )}
 
-      { (!unlockOnly && appStatus === 'restore-mnemonic' && status !== 'initialized') && (
-        <RestoreFromMnemonic
-          key="restore-mnemonic"
-          deviceID={deviceID}
-          onAbort={handleAbort} />
-      )}
+      {!unlockOnly &&
+        appStatus === 'restore-mnemonic' &&
+        status !== 'initialized' && (
+          <RestoreFromMnemonic
+            key="restore-mnemonic"
+            deviceID={deviceID}
+            onAbort={handleAbort}
+          />
+        )}
 
-      { (appStatus === 'create-wallet' && status === 'initialized') && (
+      {appStatus === 'create-wallet' && status === 'initialized' && (
         <CreateWalletSuccess
           key="success"
-          backupType={(createOptions?.withMnemonic ? 'mnemonic' : 'sdcard')}
-          onContinue={handleGetStarted} />
+          backupType={createOptions?.withMnemonic ? 'mnemonic' : 'sdcard'}
+          onContinue={handleGetStarted}
+        />
       )}
-      { (appStatus === 'restore-sdcard' && status === 'initialized') && (
-        <RestoreFromSDCardSuccess key="backup-success" onContinue={handleGetStarted} />
+      {appStatus === 'restore-sdcard' && status === 'initialized' && (
+        <RestoreFromSDCardSuccess
+          key="backup-success"
+          onContinue={handleGetStarted}
+        />
       )}
-      { (appStatus === 'restore-mnemonic' && status === 'initialized') && (
-        <RestoreFromMnemonicSuccess key="backup-mnemonic-success" onContinue={handleGetStarted} />
+      {appStatus === 'restore-mnemonic' && status === 'initialized' && (
+        <RestoreFromMnemonicSuccess
+          key="backup-mnemonic-success"
+          onContinue={handleGetStarted}
+        />
       )}
     </Main>
   );

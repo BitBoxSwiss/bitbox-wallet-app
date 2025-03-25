@@ -15,20 +15,18 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { PillButton, PillButtonGroup } from '../../../components/pillbuttongroup/pillbuttongroup';
+import {
+  PillButton,
+  PillButtonGroup,
+} from '../../../components/pillbuttongroup/pillbuttongroup';
 import { TExchangeAction } from '@/api/exchanges';
-
 
 type TProps = {
   onChangeTab: (tab: TExchangeAction) => void;
   activeTab: TExchangeAction;
-}
+};
 
-
-export const ExchangeTab = ({
-  onChangeTab,
-  activeTab
-}: TProps) => {
+export const ExchangeTab = ({ onChangeTab, activeTab }: TProps) => {
   const { t } = useTranslation();
   return (
     <PillButtonGroup size="large">

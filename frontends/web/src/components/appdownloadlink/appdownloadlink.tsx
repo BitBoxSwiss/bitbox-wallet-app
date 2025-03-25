@@ -22,12 +22,12 @@ import { A } from '@/components/anchor/anchor';
 
 export const downloadLinkByLanguage = () => {
   switch (i18n.resolvedLanguage) {
-  case 'de':
-    return URL_CONSTANTS.DOWNLOAD_LINK_DE;
-  case 'es':
-    return URL_CONSTANTS.DOWNLOAD_LINK_ES;
-  default:
-    return URL_CONSTANTS.DOWNLOAD_LINK_GLOBAL;
+    case 'de':
+      return URL_CONSTANTS.DOWNLOAD_LINK_DE;
+    case 'es':
+      return URL_CONSTANTS.DOWNLOAD_LINK_ES;
+    default:
+      return URL_CONSTANTS.DOWNLOAD_LINK_GLOBAL;
   }
 };
 
@@ -46,9 +46,7 @@ export const AppDownloadButton = ({ ...props }) => {
   // button as child of an anchor element would be invalid HTML, but our A component does not use <a> element. However Button should probably accept href directly so that <A> isn't needed.
   return (
     <A href={downloadLinkByLanguage()} {...props}>
-      <Button primary>
-        {t('button.download')}
-      </Button>
+      <Button primary>{t('button.download')}</Button>
     </A>
   );
 };

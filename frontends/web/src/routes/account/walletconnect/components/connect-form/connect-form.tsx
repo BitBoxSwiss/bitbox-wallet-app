@@ -25,15 +25,15 @@ import { ScanQRVideo } from '@/routes/account/send/components/inputs/scan-qr-vid
 import styles from './connect-form.module.css';
 
 type TWCConnectFormProps = {
-    connectLoading: boolean;
-    uri: string;
-    onInputChange: (value: SetStateAction<string>) => void;
-    onSubmit: (uri: string) => void;
-}
+  connectLoading: boolean;
+  uri: string;
+  onInputChange: (value: SetStateAction<string>) => void;
+  onSubmit: (uri: string) => void;
+};
 
 type TMobileQRScannerProps = {
   onQRScanned: (uri: string) => void;
-}
+};
 
 const MobileQRScanner = ({ onQRScanned }: TMobileQRScannerProps) => {
   return (
@@ -47,7 +47,7 @@ export const WCConnectForm = ({
   uri,
   onInputChange,
   onSubmit,
-  connectLoading
+  connectLoading,
 }: TWCConnectFormProps) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -55,7 +55,6 @@ export const WCConnectForm = ({
 
   const showMobileQRReader = isMobile;
   const showQRButton = !isMobile;
-
 
   const toggleScanQR = () => {
     if (activeScanQR) {
@@ -72,14 +71,18 @@ export const WCConnectForm = ({
         onSubmit={(e) => {
           e.preventDefault();
           onSubmit(uri);
-        }}>
+        }}
+      >
         <Input
           label={t('walletConnect.connect.dappLabel')}
           className={showQRButton ? styles.inputWithIcon : ''}
           value={uri}
           readOnly={connectLoading}
-          onInput={(e) => onInputChange(e.target.value.replace(/\s/g, ''))}>
-          {(showQRButton && !connectLoading) && <ScanQRButton onClick={toggleScanQR} />}
+          onInput={(e) => onInputChange(e.target.value.replace(/\s/g, ''))}
+        >
+          {showQRButton && !connectLoading && (
+            <ScanQRButton onClick={toggleScanQR} />
+          )}
         </Input>
         {activeScanQR && !isMobile && (
           <ScanQRDialog
@@ -92,11 +95,7 @@ export const WCConnectForm = ({
           <BackButton disabled={connectLoading}>
             {t('dialog.cancel')}
           </BackButton>
-          <Button
-            disabled={connectLoading || !uri}
-            type="submit"
-            primary
-          >
+          <Button disabled={connectLoading || !uri} type="submit" primary>
             {t('walletConnect.connect.button')}
           </Button>
         </div>

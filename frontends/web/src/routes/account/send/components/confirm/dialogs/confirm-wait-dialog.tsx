@@ -30,7 +30,7 @@ export const ConfirmingWaitDialog = ({
   isConfirming,
   selectedUTXOs,
   coinCode,
-  transactionDetails
+  transactionDetails,
 }: TConfirmSendProps) => {
   const { t } = useTranslation();
   const [signProgress, setSignProgress] = useState<TSignProgress>();
@@ -42,7 +42,7 @@ export const ConfirmingWaitDialog = ({
     customFee,
     feeTarget,
     recipientAddress,
-    activeCurrency
+    activeCurrency,
   } = transactionDetails;
 
   // Reset the signProgress state every time the dialog was closed (after send/abort).
@@ -62,23 +62,23 @@ export const ConfirmingWaitDialog = ({
     return null;
   }
 
-  const confirmPrequel = (signProgress && signProgress.steps > 1) ? (
-    <span>
-      {
-        t('send.signprogress.description', {
+  const confirmPrequel =
+    signProgress && signProgress.steps > 1 ? (
+      <span>
+        {t('send.signprogress.description', {
           steps: signProgress.steps.toString(),
-        })
-      }
-      <br />
-      {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
-    </span>
-  ) : undefined;
+        })}
+        <br />
+        {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
+      </span>
+    ) : undefined;
 
   return (
     <WaitDialog
       title={t('send.confirm.title')}
       prequel={confirmPrequel}
-      includeDefault>
+      includeDefault
+    >
       <div className={style.confirmItem}>
         <label>{t('send.address.label')}</label>
         <p>{recipientAddress || 'N/A'}</p>
@@ -87,20 +87,29 @@ export const ConfirmingWaitDialog = ({
         <label>{t('send.amount.label')}</label>
         <p>
           <span key="proposedAmount">
-            {(proposedAmount &&
-              <Amount alwaysShowAmounts amount={proposedAmount.amount} unit={proposedAmount.unit}/>) || 'N/A'}
-            {' '}
+            {(proposedAmount && (
+              <Amount
+                alwaysShowAmounts
+                amount={proposedAmount.amount}
+                unit={proposedAmount.unit}
+              />
+            )) ||
+              'N/A'}{' '}
             <small>{(proposedAmount && proposedAmount.unit) || 'N/A'}</small>
           </span>
-          {
-            proposedAmount && proposedAmount.conversions && proposedAmount.conversions[activeCurrency] && (
+          {proposedAmount &&
+            proposedAmount.conversions &&
+            proposedAmount.conversions[activeCurrency] && (
               <span>
                 <span className="text-gray"> / </span>
-                <Amount alwaysShowAmounts amount={proposedAmount.conversions[activeCurrency]} unit={baseCurrencyUnit}/>
-                {' '}<small>{baseCurrencyUnit}</small>
+                <Amount
+                  alwaysShowAmounts
+                  amount={proposedAmount.conversions[activeCurrency]}
+                  unit={baseCurrencyUnit}
+                />{' '}
+                <small>{baseCurrencyUnit}</small>
               </span>
-            )
-          }
+            )}
         </p>
       </div>
       {note ? (
@@ -110,63 +119,88 @@ export const ConfirmingWaitDialog = ({
         </div>
       ) : null}
       <div className={style.confirmItem}>
-        <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
+        <label>
+          {t('send.fee.label')}
+          {feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}
+        </label>
         <p>
           <span key="amount">
-            {(proposedFee &&
-              <Amount alwaysShowAmounts amount={proposedFee.amount} unit={proposedFee.unit}/>) || 'N/A'}
-            {' '}
+            {(proposedFee && (
+              <Amount
+                alwaysShowAmounts
+                amount={proposedFee.amount}
+                unit={proposedFee.unit}
+              />
+            )) ||
+              'N/A'}{' '}
             <small>{(proposedFee && proposedFee.unit) || 'N/A'}</small>
           </span>
-          {proposedFee && proposedFee.conversions && proposedFee.conversions[activeCurrency] && (
-            <span key="conversation">
-              <span className="text-gray"> / </span>
-              <Amount alwaysShowAmounts amount={proposedFee.conversions[activeCurrency]} unit={baseCurrencyUnit}/>
-              {' '}<small>{baseCurrencyUnit}</small>
-            </span>
-          )}
+          {proposedFee &&
+            proposedFee.conversions &&
+            proposedFee.conversions[activeCurrency] && (
+              <span key="conversation">
+                <span className="text-gray"> / </span>
+                <Amount
+                  alwaysShowAmounts
+                  amount={proposedFee.conversions[activeCurrency]}
+                  unit={baseCurrencyUnit}
+                />{' '}
+                <small>{baseCurrencyUnit}</small>
+              </span>
+            )}
           {customFee ? (
             <span key="customFee">
-              <br/>
-              <small>({customFee} {customFeeUnit(coinCode)})</small>
+              <br />
+              <small>
+                ({customFee} {customFeeUnit(coinCode)})
+              </small>
             </span>
           ) : null}
         </p>
       </div>
-      {
-        hasSelectedUTXOs && (
-          <div className={[style.confirmItem].join(' ')}>
-            <label>{t('send.confirm.selected-coins')}</label>
-            {
-              selectedUTXOs.map((uxto, i) => (
-                <p className={style.confirmationValue} key={`selectedCoin-${i}`}>{uxto}</p>
-              ))
-            }
-          </div>
-        )
-      }
+      {hasSelectedUTXOs && (
+        <div className={[style.confirmItem].join(' ')}>
+          <label>{t('send.confirm.selected-coins')}</label>
+          {selectedUTXOs.map((uxto, i) => (
+            <p className={style.confirmationValue} key={`selectedCoin-${i}`}>
+              {uxto}
+            </p>
+          ))}
+        </div>
+      )}
       <div className={[style.confirmItem, style.total].join(' ')}>
         <label>{t('send.confirm.total')}</label>
         <p>
           <span>
             <strong>
-              {(proposedTotal &&
-              <Amount alwaysShowAmounts amount={proposedTotal.amount} unit={proposedTotal.unit}/>) || 'N/A'}
-            </strong>
-            {' '}
+              {(proposedTotal && (
+                <Amount
+                  alwaysShowAmounts
+                  amount={proposedTotal.amount}
+                  unit={proposedTotal.unit}
+                />
+              )) ||
+                'N/A'}
+            </strong>{' '}
             <small>{(proposedTotal && proposedTotal.unit) || 'N/A'}</small>
           </span>
-          {(proposedTotal && proposedTotal.conversions) && proposedTotal.conversions[activeCurrency] && (
-            <span>
-              <span className="text-gray"> / </span>
-              <strong><Amount alwaysShowAmounts amount={proposedTotal.conversions[activeCurrency]} unit={baseCurrencyUnit}/></strong>
-              {' '}<small>{baseCurrencyUnit}</small>
-            </span>
-          )}
+          {proposedTotal &&
+            proposedTotal.conversions &&
+            proposedTotal.conversions[activeCurrency] && (
+              <span>
+                <span className="text-gray"> / </span>
+                <strong>
+                  <Amount
+                    alwaysShowAmounts
+                    amount={proposedTotal.conversions[activeCurrency]}
+                    unit={baseCurrencyUnit}
+                  />
+                </strong>{' '}
+                <small>{baseCurrencyUnit}</small>
+              </span>
+            )}
         </p>
       </div>
     </WaitDialog>
-  )
-  ;
+  );
 };
-

@@ -22,14 +22,14 @@ import { isBitcoinCoin } from '@/routes/account/utils';
 import style from './amount-with-unit.module.css';
 
 type TAmountWithUnitProps = {
-    amount: IAmount;
-    tableRow?: boolean;
-    enableRotateUnit?: boolean;
-    sign?: string;
-    removeBtcTrailingZeroes?: boolean;
-    alwaysShowAmounts?: boolean;
-    convertToFiat?: boolean;
-}
+  amount: IAmount;
+  tableRow?: boolean;
+  enableRotateUnit?: boolean;
+  sign?: string;
+  removeBtcTrailingZeroes?: boolean;
+  alwaysShowAmounts?: boolean;
+  convertToFiat?: boolean;
+};
 
 export const AmountWithUnit = ({
   amount,
@@ -38,9 +38,10 @@ export const AmountWithUnit = ({
   sign,
   removeBtcTrailingZeroes,
   convertToFiat,
-  alwaysShowAmounts = false
+  alwaysShowAmounts = false,
 }: TAmountWithUnitProps) => {
-  const { rotateDefaultCurrency, defaultCurrency, rotateBtcUnit } = useContext(RatesContext);
+  const { rotateDefaultCurrency, defaultCurrency, rotateBtcUnit } =
+    useContext(RatesContext);
 
   let displayedAmount: string = '';
   let displayedUnit: CoinUnit | ConversionUnit;
@@ -59,19 +60,26 @@ export const AmountWithUnit = ({
     onClick = rotateBtcUnit;
   }
 
-  const enableClick = rotateUnit && (convertToFiat || isBitcoinCoin(amount.unit));
-  const formattedAmount = !!displayedAmount ?
-    (
-      <Amount
-        alwaysShowAmounts={alwaysShowAmounts}
-        amount={displayedAmount}
-        unit={displayedUnit}
-        removeBtcTrailingZeroes={!!removeBtcTrailingZeroes}
-        onMobileClick={enableClick ? onClick : undefined}
-      />
-    ) : '---';
+  const enableClick =
+    rotateUnit && (convertToFiat || isBitcoinCoin(amount.unit));
+  const formattedAmount = !!displayedAmount ? (
+    <Amount
+      alwaysShowAmounts={alwaysShowAmounts}
+      amount={displayedAmount}
+      unit={displayedUnit}
+      removeBtcTrailingZeroes={!!removeBtcTrailingZeroes}
+      onMobileClick={enableClick ? onClick : undefined}
+    />
+  ) : (
+    '---'
+  );
 
-  const amountUnit = <AmountUnit unit={displayedUnit} rotateUnit={enableClick ? onClick : undefined}/>;
+  const amountUnit = (
+    <AmountUnit
+      unit={displayedUnit}
+      rotateUnit={enableClick ? onClick : undefined}
+    />
+  );
 
   if (tableRow) {
     return (
@@ -82,11 +90,11 @@ export const AmountWithUnit = ({
     );
   }
   return (
-    <span className={ `${style.rates} ${!displayedAmount ? style.notAvailable : ''}`}>
+    <span
+      className={`${style.rates} ${!displayedAmount ? style.notAvailable : ''}`}
+    >
       {!!displayedAmount ? sign : ''}
-      {formattedAmount}
-      {' '}
-      {amountUnit}
+      {formattedAmount} {amountUnit}
     </span>
   );
 };
@@ -94,10 +102,14 @@ export const AmountWithUnit = ({
 type TAmountUnitProps = {
   rotateUnit?: () => Promise<void>;
   unit: ConversionUnit | CoinUnit;
-}
+};
 
 export const AmountUnit = ({ rotateUnit, unit }: TAmountUnitProps) => {
   const classRototable = rotateUnit ? style.rotatable : '';
   const textStyle = `${style.unit} ${classRototable}`;
-  return <span className={textStyle} onClick={rotateUnit}>{unit}</span>;
+  return (
+    <span className={textStyle} onClick={rotateUnit}>
+      {unit}
+    </span>
+  );
 };

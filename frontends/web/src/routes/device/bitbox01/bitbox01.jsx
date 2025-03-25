@@ -38,12 +38,12 @@ const DeviceStatus = Object.freeze({
   LOGGED_IN: 'logged_in',
   SEEDED: 'seeded',
   REQUIRE_FIRMWARE_UPGRADE: 'require_firmware_upgrade',
-  REQUIRE_APP_UPGRADE: 'require_app_upgrade'
+  REQUIRE_APP_UPGRADE: 'require_app_upgrade',
 });
 
 const GOAL = Object.freeze({
   CREATE: 'create',
-  RESTORE: 'restore'
+  RESTORE: 'restore',
 });
 
 class Device extends Component {
@@ -64,7 +64,11 @@ class Device extends Component {
       if (type === 'devices' && data === 'registeredChanged') {
         this.onDevicesRegisteredChanged();
       }
-      if (type === 'device' && data === 'statusChanged' && deviceID === this.getDeviceID()) {
+      if (
+        type === 'device' &&
+        data === 'statusChanged' &&
+        deviceID === this.getDeviceID()
+      ) {
         this.onDeviceStatusChanged();
       }
     });
@@ -83,32 +87,37 @@ class Device extends Component {
   }
 
   onDevicesRegisteredChanged = () => {
-    apiGet('devices/registered').then(devices => {
+    apiGet('devices/registered').then((devices) => {
       const deviceIDs = Object.keys(devices);
       const deviceRegistered = deviceIDs.includes(this.getDeviceID());
 
-      this.setState({
-        deviceRegistered,
-        deviceStatus: null
-      }, () => {
-        // only if deviceRegistered or softwarekeystore
-        if (this.state.deviceRegistered) {
-          this.onDeviceStatusChanged();
-        }
-      });
+      this.setState(
+        {
+          deviceRegistered,
+          deviceStatus: null,
+        },
+        () => {
+          // only if deviceRegistered or softwarekeystore
+          if (this.state.deviceRegistered) {
+            this.onDeviceStatusChanged();
+          }
+        },
+      );
     });
   };
 
   onDeviceStatusChanged = () => {
     if (this.state.deviceRegistered) {
-      apiGet('devices/' + this.props.deviceID + '/status').then(deviceStatus => {
-        if (['seeded', 'initialized'].includes(deviceStatus)) {
-          this.context.setSidebarStatus('');
-        } else {
-          this.context.setSidebarStatus('forceHidden');
-        }
-        this.setState({ deviceStatus });
-      });
+      apiGet('devices/' + this.props.deviceID + '/status').then(
+        (deviceStatus) => {
+          if (['seeded', 'initialized'].includes(deviceStatus)) {
+            this.context.setSidebarStatus('');
+          } else {
+            this.context.setSidebarStatus('forceHidden');
+          }
+          this.setState({ deviceStatus });
+        },
+      );
     }
   };
 
@@ -133,64 +142,69 @@ class Device extends Component {
   };
 
   render() {
-    const {
-      deviceID,
-    } = this.props;
-    const {
-      deviceRegistered,
-      deviceStatus,
-      goal,
-      success,
-    } = this.state;
+    const { deviceID } = this.props;
+    const { deviceRegistered, deviceStatus, goal, success } = this.state;
     if (!deviceRegistered || !deviceStatus) {
       return null;
     }
     if (success) {
-      return <Success goal={goal} handleHideSuccess={() => this.setState({ success: null })} />;
+      return (
+        <Success
+          goal={goal}
+          handleHideSuccess={() => this.setState({ success: null })}
+        />
+      );
     }
     switch (deviceStatus) {
-    case DeviceStatus.BOOTLOADER:
-      return <Bootloader deviceID={deviceID} />;
-    case DeviceStatus.REQUIRE_FIRMWARE_UPGRADE:
-      return <RequireUpgrade deviceID={deviceID} />;
-    case DeviceStatus.REQUIRE_APP_UPGRADE:
-      return <AppUpgradeRequired />;
-    case DeviceStatus.INITIALIZED:
-      return <Unlock deviceID={deviceID} />;
-    case DeviceStatus.UNINITIALIZED:
-      if (!goal) {
-        return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} />;
-      }
-      return (
-        <SecurityInformation goal={goal} goBack={this.handleBack}>
-          <Initialize goBack={this.handleBack} deviceID={deviceID} />
-        </SecurityInformation>
-      );
-    case DeviceStatus.LOGGED_IN:
-      switch (goal) {
-      case GOAL.CREATE:
+      case DeviceStatus.BOOTLOADER:
+        return <Bootloader deviceID={deviceID} />;
+      case DeviceStatus.REQUIRE_FIRMWARE_UPGRADE:
+        return <RequireUpgrade deviceID={deviceID} />;
+      case DeviceStatus.REQUIRE_APP_UPGRADE:
+        return <AppUpgradeRequired />;
+      case DeviceStatus.INITIALIZED:
+        return <Unlock deviceID={deviceID} />;
+      case DeviceStatus.UNINITIALIZED:
+        if (!goal) {
+          return (
+            <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} />
+          );
+        }
         return (
-          <SeedCreateNew
-            goBack={this.handleBack}
-            onSuccess={this.handleSuccess}
-            deviceID={deviceID}
-          />
+          <SecurityInformation goal={goal} goBack={this.handleBack}>
+            <Initialize goBack={this.handleBack} deviceID={deviceID} />
+          </SecurityInformation>
         );
-      case GOAL.RESTORE:
-        return (
-          <SeedRestore
-            goBack={this.handleBack}
-            onSuccess={this.handleSuccess}
-            deviceID={deviceID}
-          />
-        );
+      case DeviceStatus.LOGGED_IN:
+        switch (goal) {
+          case GOAL.CREATE:
+            return (
+              <SeedCreateNew
+                goBack={this.handleBack}
+                onSuccess={this.handleSuccess}
+                deviceID={deviceID}
+              />
+            );
+          case GOAL.RESTORE:
+            return (
+              <SeedRestore
+                goBack={this.handleBack}
+                onSuccess={this.handleSuccess}
+                deviceID={deviceID}
+              />
+            );
+          default:
+            return (
+              <Goal
+                onCreate={this.handleCreate}
+                onRestore={this.handleRestore}
+              />
+            );
+        }
+      case DeviceStatus.SEEDED:
+        return <Settings deviceID={deviceID} />;
       default:
-        return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} />;
-      }
-    case DeviceStatus.SEEDED:
-      return <Settings deviceID={deviceID} />;
-    default:
-      return null;
+        return null;
     }
   }
 }

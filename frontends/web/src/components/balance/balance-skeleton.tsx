@@ -20,7 +20,7 @@ import style from './balance-skeleton.module.css';
 export const BalanceSkeleton = () => {
   return (
     <div className={style.skeletonContainer}>
-      <Skeleton className={style.skeletonBalance} minWidth="50%"/>
+      <Skeleton className={style.skeletonBalance} minWidth="50%" />
     </div>
   );
 };

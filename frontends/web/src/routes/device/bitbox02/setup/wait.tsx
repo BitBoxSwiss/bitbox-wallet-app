@@ -22,16 +22,12 @@ import { UseDisableBackButton } from '@/hooks/backbutton';
 type Props = {
   title: string;
   text?: string;
-}
+};
 
 export const Wait = ({ title, text }: Props) => {
   const { t } = useTranslation();
   return (
-    <View
-      fullscreen
-      width="720px"
-      verticallyCentered
-      textCenter>
+    <View fullscreen width="720px" verticallyCentered textCenter>
       <UseDisableBackButton />
       <ViewHeader title={title}>
         <p>{text ? text : t('bitbox02Interact.followInstructions')}</p>

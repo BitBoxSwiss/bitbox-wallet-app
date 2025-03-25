@@ -25,31 +25,36 @@ vi.mock('@/utils/request', () => ({
 
 import { apiGet } from '@/utils/request';
 
-(apiGet as Mock).mockImplementation(endpoint => {
+(apiGet as Mock).mockImplementation((endpoint) => {
   switch (endpoint) {
-  case 'config': { return Promise.resolve({ backend: { userLanguage: 'it' } }); }
-  // case 'native-locale': { return Promise.resolve('de'); }
-  default: { return Promise.resolve(); }
+    case 'config': {
+      return Promise.resolve({ backend: { userLanguage: 'it' } });
+    }
+    // case 'native-locale': { return Promise.resolve('de'); }
+    default: {
+      return Promise.resolve();
+    }
   }
 });
 
 describe('Alert', () => {
-
   beforeAll(() => {
-    window.matchMedia = window.matchMedia || function(query) {
-      return {
-        matches: false,
-        media: query,
-        onchange: null,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
+    window.matchMedia =
+      window.matchMedia ||
+      function (query) {
+        return {
+          matches: false,
+          media: query,
+          onchange: null,
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
+        };
       };
-    };
   });
 
   function renderAlert() {
-    return render(<Alert/>);
+    return render(<Alert />);
   }
 
   it('should render the Alert component properly', () => {

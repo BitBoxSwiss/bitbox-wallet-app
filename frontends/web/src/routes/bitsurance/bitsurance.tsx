@@ -23,7 +23,15 @@ import { alertUser } from '@/components/alert/Alert';
 import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
 import { Checked, Sync, SyncLight } from '@/components/icon';
-import { Column, ColumnButtons, Grid, GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
+import {
+  Column,
+  ColumnButtons,
+  Grid,
+  GuidedContent,
+  GuideWrapper,
+  Header,
+  Main,
+} from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { useDarkmode } from '@/hooks/darkmode';
 import { BitsuranceGuide } from './guide';
@@ -31,8 +39,8 @@ import { i18n } from '@/i18n/i18n';
 import style from './bitsurance.module.css';
 
 type TProps = {
-    accounts: IAccount[];
-}
+  accounts: IAccount[];
+};
 
 export const Bitsurance = ({ accounts }: TProps) => {
   const navigate = useNavigate();
@@ -65,8 +73,12 @@ export const Bitsurance = ({ accounts }: TProps) => {
       alertUser(response.errorMessage);
       return;
     }
-    const insuredAccountsCodes = response.bitsuranceAccounts.map(account => account.status ? account.code : null);
-    const insured = accounts.filter(({ code }) => insuredAccountsCodes.includes(code));
+    const insuredAccountsCodes = response.bitsuranceAccounts.map((account) =>
+      account.status ? account.code : null,
+    );
+    const insured = accounts.filter(({ code }) =>
+      insuredAccountsCodes.includes(code),
+    );
     setInsuredAccounts(insured);
     setScanDone(true);
     setScanLoading(false);
@@ -77,10 +89,10 @@ export const Bitsurance = ({ accounts }: TProps) => {
 
   const getBitsurancePageLink = (): string => {
     switch (i18n.resolvedLanguage) {
-    case 'de':
-      return 'https://www.bitsurance.eu/de/bitbox/';
-    default:
-      return 'https://www.bitsurance.eu/en/bitbox/';
+      case 'de':
+        return 'https://www.bitsurance.eu/de/bitbox/';
+      default:
+        return 'https://www.bitsurance.eu/en/bitbox/';
     }
   };
 
@@ -102,22 +114,38 @@ export const Bitsurance = ({ accounts }: TProps) => {
           <Header title={<h2>{t('sidebar.insurance')}</h2>} />
           <View fullscreen={false}>
             <ViewContent>
-              <p className={style.noVspace}>{t('bitsurance.intro.text1', { amount })}</p>
+              <p className={style.noVspace}>
+                {t('bitsurance.intro.text1', { amount })}
+              </p>
               <div className={style.gridContainer}>
                 <Grid col="2" textAlign="left">
                   <Column asCard>
                     <h3 className={style.title}>
                       {t('bitsurance.insure.title')}
                     </h3>
-                    <p className={style.cardBody}>{t('bitsurance.insure.text')}</p>
+                    <p className={style.cardBody}>
+                      {t('bitsurance.insure.text')}
+                    </p>
                     <ul className={style.clean}>
-                      <li><Checked/><span>{t('bitsurance.insure.listItem1')}</span></li>
-                      <li><Checked/><span>{t('bitsurance.insure.listItem2')}</span></li>
-                      <li><Checked/><span>{t('bitsurance.insure.listItem3')}</span></li>
+                      <li>
+                        <Checked />
+                        <span>{t('bitsurance.insure.listItem1')}</span>
+                      </li>
+                      <li>
+                        <Checked />
+                        <span>{t('bitsurance.insure.listItem2')}</span>
+                      </li>
+                      <li>
+                        <Checked />
+                        <span>{t('bitsurance.insure.listItem3')}</span>
+                      </li>
                     </ul>
                     <p className={style.cardBody2}>
-                      {t('bitsurance.insure.text2')} {' '}
-                      <A href={getBitsurancePageLink()}>{t('bitsurance.intro.link')}</A>.
+                      {t('bitsurance.insure.text2')}{' '}
+                      <A href={getBitsurancePageLink()}>
+                        {t('bitsurance.intro.link')}
+                      </A>
+                      .
                     </p>
                     <p className={style.cardBody2}>
                       {t('bitsurance.insure.text3')}
@@ -132,9 +160,13 @@ export const Bitsurance = ({ accounts }: TProps) => {
                     <h3 className={style.title}>
                       {t('bitsurance.detect.title')}
                     </h3>
-                    <p className={style.cardBody}>{t('bitsurance.detect.text')}</p>
+                    <p className={style.cardBody}>
+                      {t('bitsurance.detect.text')}
+                    </p>
                     {!insuredAccounts.length && scanDone && (
-                      <p className={`${style.cardBody2} ${style.errorMessage}`}>{t('bitsurance.detect.notInsured')}</p>
+                      <p className={`${style.cardBody2} ${style.errorMessage}`}>
+                        {t('bitsurance.detect.notInsured')}
+                      </p>
                     )}
                     <ColumnButtons className={style.ctaButton}>
                       <Button
@@ -142,18 +174,17 @@ export const Bitsurance = ({ accounts }: TProps) => {
                         disabled={scanLoading}
                         secondary
                       >
-                        {isDarkMode ? <SyncLight/> : <Sync/>}
+                        {isDarkMode ? <SyncLight /> : <Sync />}
                         {t('bitsurance.detect.button')}
                       </Button>
                     </ColumnButtons>
-
                   </Column>
                 </Grid>
               </div>
             </ViewContent>
           </View>
         </GuidedContent>
-        <BitsuranceGuide/>
+        <BitsuranceGuide />
       </GuideWrapper>
     </Main>
   );

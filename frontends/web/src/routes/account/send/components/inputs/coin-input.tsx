@@ -5,15 +5,15 @@ import { IAmount, IBalance } from '@/api/account';
 import style from './coin-input.module.css';
 
 type TProps = {
-    balance?: IBalance
-    onAmountChange: (amount: string) => void;
-    onSendAllChange: (sendAll: boolean) => void;
-    sendAll: boolean;
-    amountError?: string;
-    proposedAmount?: IAmount;
-    amount: string;
-    hasSelectedUTXOs: boolean;
-}
+  balance?: IBalance;
+  onAmountChange: (amount: string) => void;
+  onSendAllChange: (sendAll: boolean) => void;
+  sendAll: boolean;
+  amountError?: string;
+  proposedAmount?: IAmount;
+  amount: string;
+  hasSelectedUTXOs: boolean;
+};
 
 export const CoinInput = ({
   balance,
@@ -23,7 +23,7 @@ export const CoinInput = ({
   amountError,
   proposedAmount,
   amount,
-  hasSelectedUTXOs
+  hasSelectedUTXOs,
 }: TProps) => {
   const { t } = useTranslation();
   return (
@@ -33,18 +33,25 @@ export const CoinInput = ({
       min="0"
       label={balance ? balance.available.unit : t('send.amount.label')}
       id="amount"
-      onInput={(e: ChangeEvent<HTMLInputElement>) => onAmountChange(e.target.value)}
+      onInput={(e: ChangeEvent<HTMLInputElement>) =>
+        onAmountChange(e.target.value)
+      }
       disabled={sendAll}
       error={amountError}
       value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}
       placeholder={t('send.amount.placeholder')}
       labelSection={
         <Checkbox
-          label={t(hasSelectedUTXOs ? 'send.maximumSelectedCoins' : 'send.maximum')}
+          label={t(
+            hasSelectedUTXOs ? 'send.maximumSelectedCoins' : 'send.maximum',
+          )}
           id="sendAll"
-          onChange={(e: ChangeEvent<HTMLInputElement>) => onSendAllChange(e.target.checked)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            onSendAllChange(e.target.checked)
+          }
           checked={sendAll}
-          className={style.maxAmount} />
+          className={style.maxAmount}
+        />
       }
     />
   );

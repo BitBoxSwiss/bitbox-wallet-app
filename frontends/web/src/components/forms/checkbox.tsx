@@ -19,10 +19,10 @@ import { FunctionComponent } from 'react';
 import styles from './checkbox.module.css';
 
 type CheckboxProps = JSX.IntrinsicElements['input'] & {
-    label?: string;
-    id: string;
-    checkboxStyle?: 'default' | 'info' | 'warning' | 'success';
-}
+  label?: string;
+  id: string;
+  checkboxStyle?: 'default' | 'info' | 'warning' | 'success';
+};
 
 export const Checkbox: FunctionComponent<CheckboxProps> = ({
   disabled = false,
@@ -34,14 +34,13 @@ export const Checkbox: FunctionComponent<CheckboxProps> = ({
   ...props
 }) => {
   return (
-    <span className={`${styles.checkbox} ${className} ${styles[checkboxStyle] || ''}`}>
-      <input
-        type="checkbox"
-        id={id}
-        disabled={disabled}
-        {...props}
-      />
-      <label htmlFor={id}>{label} {children}</label>
+    <span
+      className={`${styles.checkbox} ${className} ${styles[checkboxStyle] || ''}`}
+    >
+      <input type="checkbox" id={id} disabled={disabled} {...props} />
+      <label htmlFor={id}>
+        {label} {children}
+      </label>
     </span>
   );
 };

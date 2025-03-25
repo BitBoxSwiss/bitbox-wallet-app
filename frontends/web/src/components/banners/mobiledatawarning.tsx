@@ -22,7 +22,10 @@ import { Status } from '@/components/status/status';
 
 export const MobileDataWarning = () => {
   const { t } = useTranslation();
-  const isUsingMobileData = useSync(getUsingMobileData, subscribeUsingMobileData);
+  const isUsingMobileData = useSync(
+    getUsingMobileData,
+    subscribeUsingMobileData,
+  );
   if (isUsingMobileData === undefined) {
     return null;
   }
@@ -30,7 +33,8 @@ export const MobileDataWarning = () => {
     <Status
       dismissible="mobile-data-warning"
       type="warning"
-      hidden={!isUsingMobileData}>
+      hidden={!isUsingMobileData}
+    >
       {t('mobile.usingMobileDataWarning')}
     </Status>
   );

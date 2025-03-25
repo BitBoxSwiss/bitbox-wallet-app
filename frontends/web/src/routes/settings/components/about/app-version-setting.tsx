@@ -29,7 +29,9 @@ export const AppVersion = () => {
   const version = useLoad(getVersion);
   const update = useLoad(getUpdate);
 
-  const secondaryText = !!update ? t('settings.info.out-of-date') : t('settings.info.up-to-date');
+  const secondaryText = !!update
+    ? t('settings.info.out-of-date')
+    : t('settings.info.up-to-date');
   const icon = !!update ? <RedDot width={8} height={8} /> : <Checked />;
   const versionNumber = !!version ? version : '-';
 

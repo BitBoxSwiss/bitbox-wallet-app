@@ -27,24 +27,14 @@ type TProps = {
 };
 
 export const Receive = (props: TProps) => {
-  const {
-    devices,
-    deviceIDs,
-  } = props;
+  const { devices, deviceIDs } = props;
   const deviceID = deviceIDs[0];
   const device = deviceIDs.length ? devices[deviceID] : undefined;
   switch (device) {
-  case 'bitbox':
-    return (
-      <ReceiveBB01
-        deviceID={deviceID}
-        {...props} />
-    );
-  case 'bitbox02':
-  default: // software keystore
-    return (
-      <ReceiveBB02
-        {...props} />
-    );
+    case 'bitbox':
+      return <ReceiveBB01 deviceID={deviceID} {...props} />;
+    case 'bitbox02':
+    default: // software keystore
+      return <ReceiveBB02 {...props} />;
   }
 };

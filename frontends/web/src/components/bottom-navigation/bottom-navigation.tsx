@@ -16,7 +16,12 @@
 
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
-import { AccountIconSVG, ExchangeIconSVG, MoreIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
+import {
+  AccountIconSVG,
+  ExchangeIconSVG,
+  MoreIconSVG,
+  PortfolioIconSVG,
+} from '@/components/bottom-navigation/menu-icons';
 import styles from './bottom-navigation.module.css';
 
 export const BottomNavigation = () => {

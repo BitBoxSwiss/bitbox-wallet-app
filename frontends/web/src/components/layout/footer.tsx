@@ -21,11 +21,16 @@ import { Version } from './version';
 
 type TProps = {
   children: ReactNode;
-}
+};
 
 export const Footer = ({ children }: TProps) => {
   return (
-    <footer className={[style.footer, 'flex flex-row flex-items-center flex-end'].join(' ')}>
+    <footer
+      className={[
+        style.footer,
+        'flex flex-row flex-items-center flex-end',
+      ].join(' ')}
+    >
       {children}
       <div className="m-right-half hide-on-small">
         <Version />

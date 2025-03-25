@@ -30,7 +30,7 @@ import nameStyle from '@/routes/device/bitbox02/setup/name.module.css';
 type TDeviceNameSettingProps = {
   deviceName: string;
   deviceID: string;
-}
+};
 
 type TDialogProps = {
   open: boolean;
@@ -39,13 +39,16 @@ type TDialogProps = {
   onInputChange: (value: string) => void;
   name: string;
   handleUpdateName: () => void;
-}
+};
 
 type TWaitDialogProps = {
   inProgress: boolean;
-}
+};
 
-const DeviceNameSetting = ({ deviceName, deviceID }: TDeviceNameSettingProps) => {
+const DeviceNameSetting = ({
+  deviceName,
+  deviceID,
+}: TDeviceNameSettingProps) => {
   const { t } = useTranslation();
 
   const [active, setActive] = useState(false);
@@ -83,7 +86,9 @@ const DeviceNameSetting = ({ deviceName, deviceID }: TDeviceNameSettingProps) =>
     <>
       <SettingsItem
         settingName={t('bitbox02Settings.deviceName.input')}
-        secondaryText={t('deviceSettings.deviceInformation.deviceName.description')}
+        secondaryText={t(
+          'deviceSettings.deviceInformation.deviceName.description',
+        )}
         displayedValue={currentName}
         extraComponent={<ChevronRightDark />}
         onClick={() => setActive(true)}
@@ -102,7 +107,14 @@ const DeviceNameSetting = ({ deviceName, deviceID }: TDeviceNameSettingProps) =>
   );
 };
 
-const SetDeviceNameDialog = ({ open, onClose, currentName, onInputChange, name, handleUpdateName }: TDialogProps) => {
+const SetDeviceNameDialog = ({
+  open,
+  onClose,
+  currentName,
+  onInputChange,
+  name,
+  handleUpdateName,
+}: TDialogProps) => {
   const { t } = useTranslation();
   const { error, invalidChars, nameIsTooShort } = useValidateDeviceName(name);
 
@@ -111,16 +123,13 @@ const SetDeviceNameDialog = ({ open, onClose, currentName, onInputChange, name, 
       open={open}
       onClose={onClose}
       title={t('bitbox02Settings.deviceName.title')}
-      small>
+      small
+    >
       <div className="columnsContainer half">
         <div className="columns half">
           <div className="column">
-            <label>
-              {t('bitbox02Settings.deviceName.current')}
-            </label>
-            <p className="m-bottom-half">
-              {currentName}
-            </p>
+            <label>{t('bitbox02Settings.deviceName.current')}</label>
+            <p className="m-bottom-half">{currentName}</p>
           </div>
           <div className="column">
             <Input
@@ -136,11 +145,7 @@ const SetDeviceNameDialog = ({ open, onClose, currentName, onInputChange, name, 
         </div>
       </div>
       <DialogButtons>
-        <Button
-          primary
-          disabled={!!error}
-          onClick={handleUpdateName}
-        >
+        <Button primary disabled={!!error} onClick={handleUpdateName}>
           {t('button.ok')}
         </Button>
       </DialogButtons>
@@ -155,11 +160,7 @@ const SetDeviceNameWaitDialog = ({ inProgress }: TWaitDialogProps) => {
     return null;
   }
 
-  return (
-    <WaitDialog>
-      {t('bitbox02Interact.followInstructions')}
-    </WaitDialog>
-  );
+  return <WaitDialog>{t('bitbox02Interact.followInstructions')}</WaitDialog>;
 };
 
 export { DeviceNameSetting };

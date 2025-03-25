@@ -14,9 +14,26 @@
  * limitations under the License.
  */
 
-export type TActiveLanguageCodes = 'ar' | 'bg' | 'cs' |'de'
-  | 'en' | 'es' | 'fa' | 'fr' | 'hi' | 'he' | 'it' | 'ja'
-  | 'ms' | 'nl' | 'pt' | 'ru' | 'sl' | 'tr' | 'zh';
+export type TActiveLanguageCodes =
+  | 'ar'
+  | 'bg'
+  | 'cs'
+  | 'de'
+  | 'en'
+  | 'es'
+  | 'fa'
+  | 'fr'
+  | 'hi'
+  | 'he'
+  | 'it'
+  | 'ja'
+  | 'ms'
+  | 'nl'
+  | 'pt'
+  | 'ru'
+  | 'sl'
+  | 'tr'
+  | 'zh';
 
 export type TLanguage = {
   code: TActiveLanguageCodes;

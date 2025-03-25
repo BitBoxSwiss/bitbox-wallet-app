@@ -21,11 +21,17 @@ import { runningInIOS } from '@/utils/env';
 import { Status } from '@/components/status/status';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { Badge } from '@/components/badge/badge';
-import { HorizontallyCenteredSpinner, SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
+import {
+  HorizontallyCenteredSpinner,
+  SpinnerRingAnimated,
+} from '@/components/spinner/SpinnerAnimation';
 import styles from './bluetooth.module.css';
 
 const isConnectedOrConnecting = (peripheral: TPeripheral) => {
-  return peripheral.connectionState === 'connecting' || peripheral.connectionState === 'connected';
+  return (
+    peripheral.connectionState === 'connecting' ||
+    peripheral.connectionState === 'connected'
+  );
 };
 
 const _Bluetooth = () => {
@@ -35,52 +41,47 @@ const _Bluetooth = () => {
     return null;
   }
   if (!state.bluetoothAvailable) {
-    return (
-      <Status type="warning">
-        {t('bluetooth.enable')}
-      </Status>
-    );
+    return <Status type="warning">{t('bluetooth.enable')}</Status>;
   }
   const hasConnection = state.peripherals.some(isConnectedOrConnecting);
   return (
     <>
-      <div className={styles.label}>
-        {t('bluetooth.select')}
-      </div>
+      <div className={styles.label}>{t('bluetooth.select')}</div>
       <div className={styles.container}>
-        {state.peripherals.map(peripheral => {
-          const onClick = !hasConnection ? () => connect(peripheral.identifier) : undefined;
-          const connectingIcon = peripheral.connectionState === 'connecting' ? (
-            <SpinnerRingAnimated />
-          ) : undefined;
+        {state.peripherals.map((peripheral) => {
+          const onClick = !hasConnection
+            ? () => connect(peripheral.identifier)
+            : undefined;
+          const connectingIcon =
+            peripheral.connectionState === 'connecting' ? (
+              <SpinnerRingAnimated />
+            ) : undefined;
           return (
             <ActionableItem
               key={peripheral.identifier}
               icon={connectingIcon}
-              onClick={onClick}>
+              onClick={onClick}
+            >
               <span>
-                { peripheral.name !== '' ? peripheral.name : peripheral.identifier }
-                {' '}
-                { peripheral.connectionState === 'connected' ? (
-                  <Badge type="success">
-                    {t('bluetooth.connected')}
-                  </Badge>
-                ) : null }
-                { peripheral.connectionState === 'error' ? (
+                {peripheral.name !== ''
+                  ? peripheral.name
+                  : peripheral.identifier}{' '}
+                {peripheral.connectionState === 'connected' ? (
+                  <Badge type="success">{t('bluetooth.connected')}</Badge>
+                ) : null}
+                {peripheral.connectionState === 'error' ? (
                   <Badge type="danger">
                     <span style={{ whiteSpace: 'wrap' }}>
                       {peripheral.connectionError}
                     </span>
                   </Badge>
-                ) : null }
+                ) : null}
               </span>
             </ActionableItem>
           );
         })}
       </div>
-      {state.scanning && (
-        <HorizontallyCenteredSpinner />
-      )}
+      {state.scanning && <HorizontallyCenteredSpinner />}
     </>
   );
 };

@@ -18,7 +18,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getChannelHash, verifyChannelHash } from '@/api/bitbox02';
 import { channelHashChanged } from '@/api/devicessync';
-import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
+import {
+  View,
+  ViewButtons,
+  ViewContent,
+  ViewHeader,
+} from '@/components/view/view';
 import { Status } from '@/components/status/status';
 import { PointToBitBox02 } from '@/components/icon';
 import { Button } from '@/components/forms';
@@ -27,13 +32,9 @@ type Props = {
   attestation: boolean | null | undefined;
   deviceID: string;
   pairingFailed: boolean;
-}
+};
 
-export const Pairing = ({
-  attestation,
-  deviceID,
-  pairingFailed,
-}: Props) => {
+export const Pairing = ({ attestation, deviceID, pairingFailed }: Props) => {
   const { t } = useTranslation();
   const [hash, setHash] = useState('');
   const [deviceVerified, setDeviceVerified] = useState(false);
@@ -55,43 +56,36 @@ export const Pairing = ({
   }, [deviceID, onChannelHashChanged]);
 
   return (
-    <View
-      fullscreen
-      textCenter
-      verticallyCentered
-      withBottomBar
-      width="670px">
+    <View fullscreen textCenter verticallyCentered withBottomBar width="670px">
       <ViewHeader title={t('bitbox02Wizard.pairing.title')}>
-        { pairingFailed ? (
+        {pairingFailed ? (
           <Status key="pairingFailed" type="warning">
             {t('bitbox02Wizard.pairing.failed')}
           </Status>
         ) : (
           <p>
-            { deviceVerified
+            {deviceVerified
               ? t('bitbox02Wizard.pairing.paired')
-              : t('bitbox02Wizard.pairing.unpaired') }
+              : t('bitbox02Wizard.pairing.unpaired')}
           </p>
         )}
       </ViewHeader>
       <ViewContent fullWidth>
-        { (attestation === false && !pairingFailed) && (
+        {attestation === false && !pairingFailed && (
           <Status type="warning" className="m-bottom-half">
             {t('bitbox02Wizard.attestationFailed')}
           </Status>
         )}
-        { !pairingFailed && (
+        {!pairingFailed && (
           <>
             <pre>{hash}</pre>
-            { !deviceVerified && <PointToBitBox02 /> }
+            {!deviceVerified && <PointToBitBox02 />}
           </>
         )}
       </ViewContent>
       <ViewButtons>
-        { (!pairingFailed && deviceVerified) && (
-          <Button
-            primary
-            onClick={() => verifyChannelHash(deviceID, true)}>
+        {!pairingFailed && deviceVerified && (
+          <Button primary onClick={() => verifyChannelHash(deviceID, true)}>
             {t('button.continue')}
           </Button>
         )}

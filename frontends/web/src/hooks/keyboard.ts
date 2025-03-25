@@ -19,9 +19,7 @@ import { useEffect, useRef } from 'react';
 /**
  * gets fired on each keydown and executes the provided callback.
  */
-export const useKeydown = (
-  callback: (e: KeyboardEvent) => void
-) => {
+export const useKeydown = (callback: (e: KeyboardEvent) => void) => {
   // Avoid adding/removing the listener on each change of callback.
   const callbackRef = useRef(callback);
 
@@ -44,9 +42,7 @@ export const useKeydown = (
  * useEsc handles ESC key.
  * gets fired on ESC keydown and executes the provided callback.
  */
-export const useEsc = (
-  callback: () => void
-) => {
+export const useEsc = (callback: () => void) => {
   useKeydown((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       callback();

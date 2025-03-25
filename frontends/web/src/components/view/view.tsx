@@ -18,21 +18,26 @@ import { ReactNode } from 'react';
 import { useDarkmode } from '@/hooks/darkmode';
 import { LanguageSwitch } from '@/components/language/language';
 import { Version } from '@/components/layout/version';
-import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '@/components/icon/logo';
+import {
+  AppLogo,
+  AppLogoInverted,
+  SwissMadeOpenSource,
+  SwissMadeOpenSourceDark,
+} from '@/components/icon/logo';
 import { AnimatedChecked, Abort, Close } from '@/components/icon/icon';
 import style from './view.module.css';
 
 type TViewProps = {
-    dialog?: boolean;
-    fitContent?: boolean;
-    fullscreen?: boolean;
-    children: ReactNode;
-    minHeight?: string;
-    onClose?: () => void;
-    textCenter?: boolean;
-    verticallyCentered?: boolean;
-    width?: string;
-    withBottomBar?: boolean;
+  dialog?: boolean;
+  fitContent?: boolean;
+  fullscreen?: boolean;
+  children: ReactNode;
+  minHeight?: string;
+  onClose?: () => void;
+  textCenter?: boolean;
+  verticallyCentered?: boolean;
+  width?: string;
+  withBottomBar?: boolean;
 };
 
 /**
@@ -60,13 +65,9 @@ export const View = ({
   withBottomBar,
 }: TViewProps) => {
   const { isDarkMode } = useDarkmode();
-  const containerClasses = `${
-    style[fullscreen ? 'fullscreen' : 'fill']
-  } ${
+  const containerClasses = `${style[fullscreen ? 'fullscreen' : 'fill']} ${
     verticallyCentered ? style.verticallyCentered : ''
-  } ${
-    dialog ? style.dialog : ''
-  }`;
+  } ${dialog ? style.dialog : ''}`;
   let classNames = style.inner;
   if (fitContent) {
     classNames += ` ${style.fit}`;
@@ -80,9 +81,7 @@ export const View = ({
   };
   return (
     <div className={containerClasses}>
-      <div
-        className={classNames}
-        style={inlineStyles}>
+      <div className={classNames} style={inlineStyles}>
         {children}
       </div>
       {onClose && (
@@ -93,7 +92,7 @@ export const View = ({
       {withBottomBar && (
         <div style={{ marginTop: 'auto' }}>
           <footer className={style.footer}>
-            {isDarkMode ? (<SwissMadeOpenSourceDark />) : (<SwissMadeOpenSource />)}
+            {isDarkMode ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
             <div className="m-right-half hide-on-small">
               <Version />
             </div>
@@ -111,20 +110,14 @@ type TViewContentProps = {
   minHeight?: string;
   textAlign?: 'center' | 'left';
   withIcon?: 'success' | 'error';
-}
+};
 
-const ViewIcon = ({
-  withIcon,
-}: Pick<TViewContentProps, 'withIcon'>) => {
+const ViewIcon = ({ withIcon }: Pick<TViewContentProps, 'withIcon'>) => {
   switch (withIcon) {
-  case 'error':
-    return (
-      <Abort className={style.largeIcon} />
-    );
-  case 'success':
-    return (
-      <AnimatedChecked className={style.largeIcon} />
-    );
+    case 'error':
+      return <Abort className={style.largeIcon} />;
+    case 'success':
+      return <AnimatedChecked className={style.largeIcon} />;
   }
   return null;
 };
@@ -148,10 +141,7 @@ export const ViewContent = ({
   const containerWidth = fullWidth ? style.fullWidth : '';
   const classes = `${style.content} ${containerWidth} ${align}`;
   return (
-    <div
-      className={classes}
-      style={minHeight ? { minHeight } : {}}
-      {...props}>
+    <div className={classes} style={minHeight ? { minHeight } : {}} {...props}>
       <ViewIcon withIcon={withIcon} />
       {children}
     </div>
@@ -159,11 +149,11 @@ export const ViewContent = ({
 };
 
 type THeaderProps = {
-    small?: boolean;
-    title?: ReactNode;
-    withAppLogo?: boolean;
-    children?: ReactNode;
-}
+  small?: boolean;
+  title?: ReactNode;
+  withAppLogo?: boolean;
+  children?: ReactNode;
+};
 
 /**
  * ViewHeader component to render the view's title and a byline
@@ -178,15 +168,13 @@ export const ViewHeader = ({
   withAppLogo,
 }: THeaderProps) => {
   const { isDarkMode } = useDarkmode();
-  const headerStyles = small ? `${style.header} ${style.smallHeader}` : style.header;
+  const headerStyles = small
+    ? `${style.header} ${style.smallHeader}`
+    : style.header;
   return (
     <header className={headerStyles}>
-      {withAppLogo && (
-        isDarkMode ? <AppLogoInverted /> : <AppLogo />
-      )}
-      {title && (
-        <h1 className={style.title}>{title}</h1>
-      )}
+      {withAppLogo && (isDarkMode ? <AppLogoInverted /> : <AppLogo />)}
+      {title && <h1 className={style.title}>{title}</h1>}
       {children}
     </header>
   );
@@ -195,16 +183,12 @@ export const ViewHeader = ({
 type TViewButtonsProps = {
   reverseRow?: boolean;
   children?: ReactNode;
-}
+};
 
 /**
  * ViewButtons component use as container for buttons
  */
 export const ViewButtons = ({ reverseRow, children }: TViewButtonsProps) => {
   const classNames = `${style.buttons} ${reverseRow ? style.reverseRow : ''}`;
-  return (
-    <div className={classNames}>
-      {children}
-    </div>
-  );
+  return <div className={classNames}>{children}</div>;
 };

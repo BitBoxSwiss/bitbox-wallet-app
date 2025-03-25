@@ -23,7 +23,7 @@ import style from './Spinner.module.css';
 
 type TProps = {
   text?: string;
-}
+};
 
 export const Spinner = ({ text }: TProps) => {
   const { toggleSidebar } = useContext(AppContext);
@@ -41,11 +41,12 @@ export const Spinner = ({ text }: TProps) => {
       <div className={style.spinner}>
         <SpinnerRingAnimated />
       </div>
-      {
-        text && text.split('\n').map((line, i) => (
-          <p key={`${line}-${i}`} className={style.spinnerText}>{line}</p>
-        ))
-      }
+      {text &&
+        text.split('\n').map((line, i) => (
+          <p key={`${line}-${i}`} className={style.spinnerText}>
+            {line}
+          </p>
+        ))}
       <div className={style.overlay}></div>
     </div>
   );

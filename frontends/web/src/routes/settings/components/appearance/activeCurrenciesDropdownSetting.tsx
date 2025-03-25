@@ -24,7 +24,9 @@ import { ActiveCurrenciesDropdown } from './activecurrenciesdropdown';
 const ActiveCurrenciesDropdownSetting = () => {
   const { t, i18n } = useTranslation();
   const { activeCurrencies, defaultCurrency } = useContext(RatesContext);
-  const { formattedCurrencies } = useLocalizedFormattedCurrencies(i18n.language);
+  const { formattedCurrencies } = useLocalizedFormattedCurrencies(
+    i18n.language,
+  );
   return (
     <SettingsItem
       collapseOnSmall

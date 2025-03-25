@@ -52,39 +52,49 @@ import { AllAccounts } from '@/routes/accounts/all-accounts';
 import { More } from '@/routes/settings/more';
 
 type TAppRouterProps = {
-    devices: TDevices;
-    deviceIDs: string[];
-    accounts: IAccount[];
-    activeAccounts: IAccount[];
-    devicesKey: ((input: string) => string)
-}
+  devices: TDevices;
+  deviceIDs: string[];
+  accounts: IAccount[];
+  activeAccounts: IAccount[];
+  devicesKey: (input: string) => string;
+};
 
 type TInjectParamsProps = {
   children: ReactChild;
-}
+};
 
 const InjectParams = ({ children }: TInjectParamsProps) => {
   const params = useParams();
   return React.cloneElement(children as React.ReactElement, params);
 };
 
-export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
+export const AppRouter = ({
+  devices,
+  deviceIDs,
+  devicesKey,
+  accounts,
+  activeAccounts,
+}: TAppRouterProps) => {
   const hasAccounts = accounts.length > 0;
-  const Homepage = (<DeviceSwitch
-    key={devicesKey('device-switch-default')}
-    deviceID={null}
-    devices={devices}
-    hasAccounts={hasAccounts}
-  />);
-
-  const Device = (<InjectParams>
+  const Homepage = (
     <DeviceSwitch
-      key={devicesKey('device-switch')}
+      key={devicesKey('device-switch-default')}
       deviceID={null}
       devices={devices}
       hasAccounts={hasAccounts}
     />
-  </InjectParams>);
+  );
+
+  const Device = (
+    <InjectParams>
+      <DeviceSwitch
+        key={devicesKey('device-switch')}
+        deviceID={null}
+        devices={devices}
+        hasAccounts={hasAccounts}
+      />
+    </InjectParams>
+  );
 
   const NoDevice = (
     <InjectParams>
@@ -96,151 +106,175 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     </InjectParams>
   );
 
-  const Acc = (<InjectParams>
-    <Account
-      code={'' /* dummy to satisfy TS */}
-      devices={devices}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const Acc = (
+    <InjectParams>
+      <Account
+        code={'' /* dummy to satisfy TS */}
+        devices={devices}
+        accounts={activeAccounts}
+      />
+    </InjectParams>
+  );
 
-  const AccountsSummaryEl = (<InjectParams>
-    <AccountsSummary
-      devices={devices}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const AccountsSummaryEl = (
+    <InjectParams>
+      <AccountsSummary devices={devices} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const AccSend = (<InjectParams>
-    <SendWrapper
-      code={'' /* dummy to satisfy TS */}
-      devices={devices}
-      deviceIDs={deviceIDs}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const AccSend = (
+    <InjectParams>
+      <SendWrapper
+        code={'' /* dummy to satisfy TS */}
+        devices={devices}
+        deviceIDs={deviceIDs}
+        accounts={activeAccounts}
+      />
+    </InjectParams>
+  );
 
-  const AccReceive = (<InjectParams>
-    <Receive
-      code={'' /* dummy to satisfy TS */}
-      devices={devices}
-      deviceIDs={deviceIDs}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const AccReceive = (
+    <InjectParams>
+      <Receive
+        code={'' /* dummy to satisfy TS */}
+        devices={devices}
+        deviceIDs={deviceIDs}
+        accounts={activeAccounts}
+      />
+    </InjectParams>
+  );
 
-  const AccInfo = (<InjectParams>
-    <Info
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const AccInfo = (
+    <InjectParams>
+      <Info code={''} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const BitsuranceAccountEl = (<InjectParams>
-    <BitsuranceAccount
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const BitsuranceAccountEl = (
+    <InjectParams>
+      <BitsuranceAccount code={''} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const BitsuranceWidgetEl = (<InjectParams>
-    <BitsuranceWidget
-      code={''} />
-  </InjectParams>);
+  const BitsuranceWidgetEl = (
+    <InjectParams>
+      <BitsuranceWidget code={''} />
+    </InjectParams>
+  );
 
-  const AccDashboardWC = (<InjectParams>
-    <DashboardWalletConnect
-      accounts={activeAccounts}
-      code={''}
-    />
-  </InjectParams>);
+  const AccDashboardWC = (
+    <InjectParams>
+      <DashboardWalletConnect accounts={activeAccounts} code={''} />
+    </InjectParams>
+  );
 
-  const AccConnectScreenWC = (<InjectParams>
-    <ConnectScreenWalletConnect
-      code={'' /* dummy to satisfy TS */}
-      accounts={activeAccounts}
-    />
-  </InjectParams>);
+  const AccConnectScreenWC = (
+    <InjectParams>
+      <ConnectScreenWalletConnect
+        code={'' /* dummy to satisfy TS */}
+        accounts={activeAccounts}
+      />
+    </InjectParams>
+  );
 
-  const ExchangeInfoEl = (<InjectParams>
-    <ExchangeInfo
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const ExchangeInfoEl = (
+    <InjectParams>
+      <ExchangeInfo code={''} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const MoonpayEl = (<InjectParams>
-    <Moonpay
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const MoonpayEl = (
+    <InjectParams>
+      <Moonpay code={''} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const BTCDirectEl = (<InjectParams>
-    <BTCDirect
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const BTCDirectEl = (
+    <InjectParams>
+      <BTCDirect code={''} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const ExchangeEl = (<InjectParams>
-    <Exchange
-      code={''}
-      accounts={activeAccounts}
-      deviceIDs={deviceIDs}
-    />
-  </InjectParams>);
+  const ExchangeEl = (
+    <InjectParams>
+      <Exchange code={''} accounts={activeAccounts} deviceIDs={deviceIDs} />
+    </InjectParams>
+  );
 
-  const PocketBuyEl = (<InjectParams>
-    <Pocket
-      code={''}
-      action="buy"
-    />
-  </InjectParams>);
+  const PocketBuyEl = (
+    <InjectParams>
+      <Pocket code={''} action="buy" />
+    </InjectParams>
+  );
 
-  const PocketSellEl = (<InjectParams>
-    <Pocket
-      code={''}
-      action="sell"
-    />
-  </InjectParams>);
+  const PocketSellEl = (
+    <InjectParams>
+      <Pocket code={''} action="sell" />
+    </InjectParams>
+  );
 
-  const PassphraseEl = <InjectParams><Passphrase deviceID={''} /></InjectParams>;
-  const Bip85El = <InjectParams><Bip85 deviceID={''} /></InjectParams>;
+  const PassphraseEl = (
+    <InjectParams>
+      <Passphrase deviceID={''} />
+    </InjectParams>
+  );
+  const Bip85El = (
+    <InjectParams>
+      <Bip85 deviceID={''} />
+    </InjectParams>
+  );
 
-  const ManageBackupsEl = (<InjectParams><ManageBackups
-    key={devicesKey('manage-backups')}
-    deviceID={null}
-    devices={devices}
-  /></InjectParams>);
+  const ManageBackupsEl = (
+    <InjectParams>
+      <ManageBackups
+        key={devicesKey('manage-backups')}
+        deviceID={null}
+        devices={devices}
+      />
+    </InjectParams>
+  );
 
-  const MobileSettingsEl = (<InjectParams>
-    <MobileSettings
-      devices={devices}
-      hasAccounts={hasAccounts}
+  const MobileSettingsEl = (
+    <InjectParams>
+      <MobileSettings devices={devices} hasAccounts={hasAccounts} />
+    </InjectParams>
+  );
 
-    />
-  </InjectParams>);
+  const MoreEl = (
+    <InjectParams>
+      <More />
+    </InjectParams>
+  );
 
-  const MoreEl = (<InjectParams>
-    <More />
-  </InjectParams>);
+  const GeneralEl = (
+    <InjectParams>
+      <General devices={devices} hasAccounts={hasAccounts} />
+    </InjectParams>
+  );
 
-  const GeneralEl = (<InjectParams>
-    <General
-      devices={devices}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>);
+  const AboutEl = (
+    <InjectParams>
+      <About devices={devices} hasAccounts={hasAccounts} />
+    </InjectParams>
+  );
 
-  const AboutEl = (<InjectParams>
-    <About
-      devices={devices}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>);
+  const AdvancedSettingsEl = (
+    <InjectParams>
+      <AdvancedSettings devices={devices} hasAccounts={hasAccounts} />
+    </InjectParams>
+  );
 
-  const AdvancedSettingsEl = (<InjectParams>
-    <AdvancedSettings
-      devices={devices}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>);
+  const ReceiveAccountsSelectorEl = (
+    <InjectParams>
+      <ReceiveAccountsSelector activeAccounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
-
-  const AllAccountsEl = <InjectParams><AllAccounts accounts={activeAccounts} /></InjectParams>;
+  const AllAccountsEl = (
+    <InjectParams>
+      <AllAccounts accounts={activeAccounts} />
+    </InjectParams>
+  );
 
   return (
     <Routes>
@@ -254,10 +288,13 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
           <Route path="wallet-connect/dashboard" element={AccDashboardWC} />
         </Route>
-        <Route path="add-account" element={<AddAccount accounts={accounts}/>} />
+        <Route
+          path="add-account"
+          element={<AddAccount accounts={accounts} />}
+        />
         <Route path="account-summary" element={AccountsSummaryEl} />
         <Route path="exchange">
-          <Route path="info" element={ExchangeInfoEl} >
+          <Route path="info" element={ExchangeInfoEl}>
             <Route index element={ExchangeInfoEl} />
             <Route path=":code" element={ExchangeInfoEl} />
           </Route>
@@ -266,22 +303,31 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path="pocket/buy/:code" element={PocketBuyEl} />
           <Route path="pocket/sell/:code" element={PocketSellEl} />
           <Route path="select/:code" element={ExchangeEl} />
-          <Route path="btcdirect-otc" element={<BTCDirectOTC/>} />
+          <Route path="btcdirect-otc" element={<BTCDirectOTC />} />
         </Route>
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
-        <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
+        <Route
+          path="accounts/select-receive"
+          element={ReceiveAccountsSelectorEl}
+        />
         <Route path="accounts/all" element={AllAccountsEl} />
         <Route path="bitsurance">
-          <Route path="bitsurance" element={<Bitsurance accounts={activeAccounts}/>}/>
-          <Route path="account" element={BitsuranceAccountEl} >
+          <Route
+            path="bitsurance"
+            element={<Bitsurance accounts={activeAccounts} />}
+          />
+          <Route path="account" element={BitsuranceAccountEl}>
             <Route index element={BitsuranceAccountEl} />
             <Route path=":code" element={BitsuranceAccountEl} />
           </Route>
-          <Route path="widget" element={BitsuranceWidgetEl} >
+          <Route path="widget" element={BitsuranceWidgetEl}>
             <Route index element={BitsuranceWidgetEl} />
             <Route path=":code" element={BitsuranceWidgetEl} />
           </Route>
-          <Route path="dashboard" element={<BitsuranceDashboard accounts={activeAccounts}/>}/>
+          <Route
+            path="dashboard"
+            element={<BitsuranceDashboard accounts={activeAccounts} />}
+          />
         </Route>
         <Route path="settings">
           <Route index element={MobileSettingsEl} />
@@ -291,17 +337,24 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path="device-settings/:deviceID" element={Device} />
           <Route path="no-device-connected" element={NoDevice} />
           <Route path="no-accounts" element={NoDevice} />
-          <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
+          <Route
+            path="device-settings/passphrase/:deviceID"
+            element={PassphraseEl}
+          />
           <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
           <Route path="advanced-settings" element={AdvancedSettingsEl} />
           <Route path="electrum" element={<ElectrumSettings />} />
-          <Route path="manage-accounts" element={
-            <ManageAccounts
-              accounts={accounts}
-              key="manage-accounts"
-              devices={devices}
-              hasAccounts={hasAccounts} />
-          } />
+          <Route
+            path="manage-accounts"
+            element={
+              <ManageAccounts
+                accounts={accounts}
+                key="manage-accounts"
+                devices={devices}
+                hasAccounts={hasAccounts}
+              />
+            }
+          />
         </Route>
       </Route>
     </Routes>

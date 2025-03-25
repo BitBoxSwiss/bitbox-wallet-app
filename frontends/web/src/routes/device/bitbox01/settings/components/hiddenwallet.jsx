@@ -19,7 +19,10 @@ import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { alertUser } from '../../../../../components/alert/Alert';
-import { DialogLegacy, DialogButtons } from '../../../../../components/dialog/dialog-legacy';
+import {
+  DialogLegacy,
+  DialogButtons,
+} from '../../../../../components/dialog/dialog-legacy';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 import { PasswordRepeatInput } from '../../../../../components/password';
 import { apiPost } from '../../../../../utils/request';
@@ -42,7 +45,7 @@ class HiddenWallet extends Component {
     });
   };
 
-  handleFormChange = event => {
+  handleFormChange = (event) => {
     this.setState({ [event.target.id]: event.target.value });
   };
 
@@ -50,7 +53,7 @@ class HiddenWallet extends Component {
     return this.state.password && this.state.pin;
   };
 
-  createHiddenWallet = event => {
+  createHiddenWallet = (event) => {
     event.preventDefault();
     if (!this.validate()) {
       return;
@@ -62,81 +65,78 @@ class HiddenWallet extends Component {
     apiPost('devices/' + this.props.deviceID + '/set-hidden-password', {
       pin: this.state.pin,
       backupPassword: this.state.password,
-    }).catch(() => {}).then(({ success, didCreate, errorMessage, code }) => {
-      this.abort();
-      if (success) {
-        if (didCreate) {
-          alertUser(this.props.t('hiddenWallet.success'));
+    })
+      .catch(() => {})
+      .then(({ success, didCreate, errorMessage, code }) => {
+        this.abort();
+        if (success) {
+          if (didCreate) {
+            alertUser(this.props.t('hiddenWallet.success'));
+          }
+        } else {
+          alertUser(
+            this.props.t(`bitbox.error.e${code}`, {
+              defaultValue: errorMessage,
+            }),
+          );
         }
-      } else {
-        alertUser(this.props.t(`bitbox.error.e${code}`, {
-          defaultValue: errorMessage
-        }));
-      }
-    });
+      });
   };
 
-  setValidPassword = password => {
+  setValidPassword = (password) => {
     this.setState({ password });
   };
 
-  setValidPIN = pin => {
+  setValidPIN = (pin) => {
     this.setState({ pin });
   };
 
   render() {
-    const {
-      t,
-      disabled,
-    } = this.props;
-    const {
-      isConfirming,
-      activeDialog,
-    } = this.state;
+    const { t, disabled } = this.props;
+    const { isConfirming, activeDialog } = this.state;
     return (
       <div>
         <SettingsButton
           disabled={disabled}
-          onClick={() => this.setState({ activeDialog: true })}>
+          onClick={() => this.setState({ activeDialog: true })}
+        >
           {t('button.hiddenwallet')}
         </SettingsButton>
-        {
-          activeDialog && (
-            <DialogLegacy title={t('button.hiddenwallet')}
-              onClose={this.abort}>
-              <SimpleMarkup tagName="p" markup={t('hiddenWallet.info1HTML')} />
-              <SimpleMarkup tagName="p" markup={t('hiddenWallet.info2HTML')} />
-              <form onSubmit={this.createHiddenWallet}>
-                <PasswordRepeatInput
-                  idPrefix="pin"
-                  pattern="^.{4,}$"
-                  label={t('hiddenWallet.pinLabel')}
-                  repeatLabel={t('hiddenWallet.pinRepeatLabel')}
-                  repeatPlaceholder={t('hiddenWallet.pinRepeatPlaceholder')}
-                  onValidPassword={this.setValidPIN} />
-                <PasswordRepeatInput
-                  idPrefix="password"
-                  label={t('hiddenWallet.passwordLabel')}
-                  repeatPlaceholder={t('hiddenWallet.passwordPlaceholder')}
-                  onValidPassword={this.setValidPassword}
-                />
-                <DialogButtons>
-                  <Button type="submit" danger disabled={!this.validate() || isConfirming}>
-                    {t('button.hiddenwallet')}
-                  </Button>
-                  <Button secondary onClick={this.abort} disabled={isConfirming}>
-                    {t('button.abort')}
-                  </Button>
-                </DialogButtons>
-              </form>
-            </DialogLegacy>
-          )
-        }
-        {
-          isConfirming && (
-            <WaitDialog title={t('button.hiddenwallet')} />
-          )
-        }
+        {activeDialog && (
+          <DialogLegacy title={t('button.hiddenwallet')} onClose={this.abort}>
+            <SimpleMarkup tagName="p" markup={t('hiddenWallet.info1HTML')} />
+            <SimpleMarkup tagName="p" markup={t('hiddenWallet.info2HTML')} />
+            <form onSubmit={this.createHiddenWallet}>
+              <PasswordRepeatInput
+                idPrefix="pin"
+                pattern="^.{4,}$"
+                label={t('hiddenWallet.pinLabel')}
+                repeatLabel={t('hiddenWallet.pinRepeatLabel')}
+                repeatPlaceholder={t('hiddenWallet.pinRepeatPlaceholder')}
+                onValidPassword={this.setValidPIN}
+              />
+              <PasswordRepeatInput
+                idPrefix="password"
+                label={t('hiddenWallet.passwordLabel')}
+                repeatPlaceholder={t('hiddenWallet.passwordPlaceholder')}
+                onValidPassword={this.setValidPassword}
+              />
+              <DialogButtons>
+                <Button
+                  type="submit"
+                  danger
+                  disabled={!this.validate() || isConfirming}
+                >
+                  {t('button.hiddenwallet')}
+                </Button>
+                <Button secondary onClick={this.abort} disabled={isConfirming}>
+                  {t('button.abort')}
+                </Button>
+              </DialogButtons>
+            </form>
+          </DialogLegacy>
+        )}
+        {isConfirming && <WaitDialog title={t('button.hiddenwallet')} />}
       </div>
     );
   }

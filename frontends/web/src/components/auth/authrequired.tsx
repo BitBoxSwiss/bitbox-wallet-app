@@ -17,7 +17,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TAuthEventObject, authenticate, subscribeAuth } from '@/api/backend';
-import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
+import {
+  View,
+  ViewButtons,
+  ViewContent,
+  ViewHeader,
+} from '@/components/view/view';
 import { Button } from '@/components/forms';
 import style from './authrequired.module.css';
 
@@ -35,38 +40,38 @@ export const AuthRequired = () => {
   useEffect(() => {
     const unsubscribe = subscribeAuth((data: TAuthEventObject) => {
       switch (data.typ) {
-      case 'auth-forced':
-        authForced.current = true;
-        break;
-      case 'auth-required':
-        // It is a bit strange to call authenticate inside `setAuthRequired`,
-        // but doing so we avoid declaring `authRequired` as a useEffect's
-        // dependency, which would cause it to unsubscribe/subscribe every
-        // time the state changes.
-        setAuthRequired((prevAuthRequired) => {
-          if (!prevAuthRequired) {
-            newAuthentication();
+        case 'auth-forced':
+          authForced.current = true;
+          break;
+        case 'auth-required':
+          // It is a bit strange to call authenticate inside `setAuthRequired`,
+          // but doing so we avoid declaring `authRequired` as a useEffect's
+          // dependency, which would cause it to unsubscribe/subscribe every
+          // time the state changes.
+          setAuthRequired((prevAuthRequired) => {
+            if (!prevAuthRequired) {
+              newAuthentication();
+            }
+            return true;
+          });
+          break;
+        case 'auth-err':
+          setAuthenticating(false);
+          break;
+        case 'auth-canceled':
+          if (authForced.current) {
+            // forced auth can be dismissed and won't be repeated, as it is
+            // tied to a specific UI event (e.g. enabling the auth toggle in
+            // the advanced settings.
+            setAuthRequired(false);
+            authForced.current = false;
+          } else {
+            setAuthenticating(false);
           }
-          return true;
-        });
-        break;
-      case 'auth-err':
-        setAuthenticating(false);
-        break;
-      case 'auth-canceled':
-        if (authForced.current) {
-          // forced auth can be dismissed and won't be repeated, as it is
-          // tied to a specific UI event (e.g. enabling the auth toggle in
-          // the advanced settings.
+          break;
+        case 'auth-ok':
           setAuthRequired(false);
           authForced.current = false;
-        } else {
-          setAuthenticating(false);
-        }
-        break;
-      case 'auth-ok':
-        setAuthRequired(false);
-        authForced.current = false;
       }
     });
 
@@ -84,12 +89,8 @@ export const AuthRequired = () => {
 
   return (
     <div className={style.auth}>
-      <View
-        fullscreen
-        textCenter
-        verticallyCentered
-        withBottomBar>
-        { !authenticating && (
+      <View fullscreen textCenter verticallyCentered withBottomBar>
+        {!authenticating && (
           <>
             <ViewHeader small title={t('auth.title')} />
             <ViewContent children={undefined} minHeight="0" />
@@ -98,7 +99,8 @@ export const AuthRequired = () => {
                 autoFocus
                 primary
                 hidden={authForced.current}
-                onClick={newAuthentication}>
+                onClick={newAuthentication}
+              >
                 {t('auth.authButton')}
               </Button>
             </ViewButtons>

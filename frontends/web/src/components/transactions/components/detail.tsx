@@ -20,10 +20,7 @@ type TProps = React.PropsWithChildren<{
   label: string;
 }>;
 
-export const TxDetail = ({
-  label,
-  children,
-}: TProps) => {
+export const TxDetail = ({ label, children }: TProps) => {
   return (
     <div className={styles.detail}>
       <label>{label}</label>

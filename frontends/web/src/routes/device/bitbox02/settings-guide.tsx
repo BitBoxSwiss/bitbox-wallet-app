@@ -21,12 +21,12 @@ import { Guide } from '@/components/guide/guide';
 
 const getLink = () => {
   switch (i18n.resolvedLanguage) {
-  case 'de':
-    return 'https://bitbox.swiss/de/bitbox02/sicherheit/#device-authenticity-check';
-  case 'es':
-    return 'https://bitbox.swiss/es/bitbox02/seguridad/#device-authenticity-check';
-  default:
-    return 'https://bitbox.swiss/bitbox02/security-features/#device-authenticity-check';
+    case 'de':
+      return 'https://bitbox.swiss/de/bitbox02/sicherheit/#device-authenticity-check';
+    case 'es':
+      return 'https://bitbox.swiss/es/bitbox02/seguridad/#device-authenticity-check';
+    default:
+      return 'https://bitbox.swiss/bitbox02/security-features/#device-authenticity-check';
   }
 };
 
@@ -34,23 +34,32 @@ export const ManageDeviceGuide = () => {
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.manageDevice')}>
-      <Entry key="whatAreAccounts" entry={t('guide.device.name', { returnObjects: true })} />
-      <Entry key="guide.device.secure-chip" entry={{
-        link: {
-          text: t('guide.device.secure-chip.link.text'),
-          url: 'https://bitbox.swiss/blog/bitbox-05-2021-masnee-update/#check-your-secure-chip-variant'
-        },
-        text: t('guide.device.secure-chip.text'),
-        title: t('guide.device.secure-chip.title')
-      }} />
-      <Entry key="guide.device.attestation" entry={{
-        link: {
-          text: t('guide.device.attestation.link.text'),
-          url: getLink(),
-        },
-        text: t('guide.device.attestation.text'),
-        title: t('guide.device.attestation.title')
-      }} />
+      <Entry
+        key="whatAreAccounts"
+        entry={t('guide.device.name', { returnObjects: true })}
+      />
+      <Entry
+        key="guide.device.secure-chip"
+        entry={{
+          link: {
+            text: t('guide.device.secure-chip.link.text'),
+            url: 'https://bitbox.swiss/blog/bitbox-05-2021-masnee-update/#check-your-secure-chip-variant',
+          },
+          text: t('guide.device.secure-chip.text'),
+          title: t('guide.device.secure-chip.title'),
+        }}
+      />
+      <Entry
+        key="guide.device.attestation"
+        entry={{
+          link: {
+            text: t('guide.device.attestation.link.text'),
+            url: getLink(),
+          },
+          text: t('guide.device.attestation.text'),
+          title: t('guide.device.attestation.title'),
+        }}
+      />
     </Guide>
   );
 };

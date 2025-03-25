@@ -19,12 +19,8 @@ import style from './main.module.css';
 
 type TMainProps = {
   children: ReactNode;
-}
+};
 
 export const Main = ({ children }: TMainProps) => {
-  return (
-    <main className={style.main}>
-      {children}
-    </main>
-  );
+  return <main className={style.main}>{children}</main>;
 };

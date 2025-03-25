@@ -15,9 +15,11 @@
  */
 
 import { renderHook } from '@testing-library/react';
-import { useLocalizedFormattedCurrencies, useLocalizedPunctuation } from './localized';
+import {
+  useLocalizedFormattedCurrencies,
+  useLocalizedPunctuation,
+} from './localized';
 import { describe, expect, it } from 'vitest';
-
 
 describe('useLocalizedPunctuation', () => {
   describe('de-AT', () => {
@@ -26,7 +28,6 @@ describe('useLocalizedPunctuation', () => {
       expect(result.current).toEqual({ group: '.', decimal: ',' });
     });
   });
-
 
   describe('de-CH', () => {
     it('should use apostrophe for thousand and dot for decimal', () => {
@@ -74,9 +75,7 @@ describe('useLocalizedPunctuation', () => {
     it('should use dot for thousand and comma for decimal', () => {
       const { result } = renderHook(() => useLocalizedPunctuation('es-ES'));
       expect(result.current).toEqual({ group: '.', decimal: ',' });
-
     });
-
   });
 
   describe('es-419', () => {
@@ -99,8 +98,6 @@ describe('useLocalizedPunctuation', () => {
       expect(result.current).toEqual({ group: '.', decimal: ',' });
     });
   });
-
-
 
   describe('it-IT', () => {
     it('should use dot for thousand and comma for decimal', () => {
@@ -157,10 +154,7 @@ describe('useLocalizedPunctuation', () => {
       expect(result.current).toEqual({ group: ',', decimal: '.' });
     });
   });
-
-
 });
-
 
 describe('useLocalizedFormattedCurrencies', () => {
   it('should return currencies formatted in English (en)', () => {
@@ -172,8 +166,8 @@ describe('useLocalizedFormattedCurrencies', () => {
       expect.arrayContaining([
         { label: 'Australian Dollar (AUD)', value: 'AUD' },
         { label: 'Brazilian Real (BRL)', value: 'BRL' },
-        { label: 'Canadian Dollar (CAD)', value: 'CAD' }
-      ])
+        { label: 'Canadian Dollar (CAD)', value: 'CAD' },
+      ]),
     );
   });
 
@@ -186,8 +180,8 @@ describe('useLocalizedFormattedCurrencies', () => {
       expect.arrayContaining([
         { label: 'Australischer Dollar (AUD)', value: 'AUD' },
         { label: 'Brasilianischer Real (BRL)', value: 'BRL' },
-        { label: 'Kanadischer Dollar (CAD)', value: 'CAD' }
-      ])
+        { label: 'Kanadischer Dollar (CAD)', value: 'CAD' },
+      ]),
     );
   });
 
@@ -199,9 +193,8 @@ describe('useLocalizedFormattedCurrencies', () => {
     expect(formattedCurrencies).toEqual(
       expect.arrayContaining([
         { label: 'Bitcoin (BTC)', value: 'BTC' },
-        { label: 'Satoshi (sat)', value: 'sat' }
-      ])
+        { label: 'Satoshi (sat)', value: 'sat' },
+      ]),
     );
   });
-
 });

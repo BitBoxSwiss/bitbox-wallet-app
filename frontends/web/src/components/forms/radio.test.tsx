@@ -21,6 +21,8 @@ import { Radio } from './radio';
 describe('components/forms/radio', () => {
   it('renders radio button properly', () => {
     render(<Radio id="radio" label="my radio label"></Radio>);
-    expect(screen.getByRole('radio', { name: 'my radio label' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('radio', { name: 'my radio label' }),
+    ).toBeInTheDocument();
   });
 });

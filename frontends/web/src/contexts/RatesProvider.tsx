@@ -23,12 +23,16 @@ import { reinitializeAccounts } from '@/api/backend';
 import { equal } from '@/utils/equal';
 
 type TProps = {
-    children: ReactNode;
-}
+  children: ReactNode;
+};
 
 export const RatesProvider = ({ children }: TProps) => {
   const [defaultCurrency, setDefaultCurrency] = useState<Fiat>('USD');
-  const [activeCurrencies, setActiveCurrencies] = useState<Fiat[]>(['USD', 'EUR', 'CHF']);
+  const [activeCurrencies, setActiveCurrencies] = useState<Fiat[]>([
+    'USD',
+    'EUR',
+    'CHF',
+  ]);
   const [btcUnit, setBtcUnit] = useState<BtcUnit>('default');
 
   useEffect(() => {
@@ -85,7 +89,7 @@ export const RatesProvider = ({ children }: TProps) => {
   // this is a method to unselect / remove a currency
   // from the active currencies list
   const removeFromActiveCurrencies = async (fiat: Fiat) => {
-    const selected = activeCurrencies.filter(item => !equal(item, fiat));
+    const selected = activeCurrencies.filter((item) => !equal(item, fiat));
     await setConfig({ backend: { fiatList: selected } });
     handleChangeSelectedFiat(selected);
   };

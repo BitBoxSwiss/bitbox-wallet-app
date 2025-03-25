@@ -21,16 +21,14 @@ import style from './scan-qr-video.module.css';
 
 type TProps = {
   onResult: (result: string) => void;
-}
+};
 
-export const ScanQRVideo = ({
-  onResult,
-}: TProps) => {
+export const ScanQRVideo = ({ onResult }: TProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const { initErrorMessage } = useQRScanner(videoRef, {
-    onResult: result => onResult(result.data),
-    onError: err => console.error(err),
+    onResult: (result) => onResult(result.data),
+    onError: (err) => console.error(err),
   });
 
   return (

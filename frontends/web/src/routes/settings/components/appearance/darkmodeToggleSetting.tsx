@@ -26,7 +26,12 @@ export const DarkmodeToggleSetting = () => {
     <SettingsItem
       settingName={t('darkmode.toggle')}
       secondaryText={t('newSettings.appearance.darkmode.description')}
-      extraComponent={<Toggle checked={isDarkMode} onChange={() => toggleDarkmode(!isDarkMode)} />}
+      extraComponent={
+        <Toggle
+          checked={isDarkMode}
+          onChange={() => toggleDarkmode(!isDarkMode)}
+        />
+      }
     />
   );
 };

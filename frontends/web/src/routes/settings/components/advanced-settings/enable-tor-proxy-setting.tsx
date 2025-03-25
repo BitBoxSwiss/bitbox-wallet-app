@@ -26,9 +26,12 @@ import styles from './enable-tor-proxy-setting.module.css';
 type TProps = {
   proxyConfig?: TProxyConfig;
   onChangeConfig: Dispatch<any>;
-}
+};
 
-export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) => {
+export const EnableTorProxySetting = ({
+  proxyConfig,
+  onChangeConfig,
+}: TProps) => {
   const { t } = useTranslation();
   const [showTorProxyDialog, setShowTorProxyDialog] = useState(false);
   const [showRestartMessage, setShowRestartMessage] = useState(false);
@@ -37,17 +40,17 @@ export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) =
 
   return (
     <>
-      { showRestartMessage ? (
-        <Message type="warning">
-          {t('settings.restart')}
-        </Message>
-      ) : null }
+      {showRestartMessage ? (
+        <Message type="warning">{t('settings.restart')}</Message>
+      ) : null}
       <SettingsItem
         className={styles.settingItem}
         settingName={t('settings.expert.useProxy')}
         onClick={() => setShowTorProxyDialog(true)}
         secondaryText={t('newSettings.advancedSettings.torProxy.description')}
-        displayedValue={proxyEnabled ? t('generic.enabled_true') : t('generic.enabled_false')}
+        displayedValue={
+          proxyEnabled ? t('generic.enabled_true') : t('generic.enabled_false')
+        }
         extraComponent={<ChevronRightDark width={24} height={24} />}
       />
       <TorProxyDialog

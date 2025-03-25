@@ -21,11 +21,19 @@ import { useLoad } from '@/hooks/api';
 import * as exchangesAPI from '@/api/exchanges';
 import { Button } from '@/components/forms/button';
 import { AppContext } from '@/contexts/AppContext';
-import { getBTCDirectOTCLink, TInfoContentProps, TPaymentFee } from './infocontent';
+import {
+  getBTCDirectOTCLink,
+  TInfoContentProps,
+  TPaymentFee,
+} from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { hasPaymentRequest } from '@/api/account';
 import { Message } from '@/components/message/message';
-import { ExternalLinkWhite, ExternalLinkBlack, Businessman } from '@/components/icon';
+import {
+  ExternalLinkWhite,
+  ExternalLinkBlack,
+  Businessman,
+} from '@/components/icon';
 import { useDarkmode } from '@/hooks/darkmode';
 import { A } from '@/components/anchor/anchor';
 import { InfoButton } from '@/components/infobutton/infobutton';
@@ -42,7 +50,7 @@ type TProps = {
   showBackButton: boolean;
   action: exchangesAPI.TExchangeAction;
   setInfo: (info: TInfoContentProps) => void;
-}
+};
 
 export const BuySell = ({
   accountCode,
@@ -57,9 +65,17 @@ export const BuySell = ({
   const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
   const { isDarkMode } = useDarkmode();
 
-  const exchangeDealsResponse = useLoad(() => exchangesAPI.getExchangeDeals(action, accountCode, selectedRegion), [action, selectedRegion]);
-  const btcDirectOTCSupported = useLoad(exchangesAPI.getBtcDirectOTCSupported(accountCode, selectedRegion), [selectedRegion]);
-  const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(accountCode));
+  const exchangeDealsResponse = useLoad(
+    () => exchangesAPI.getExchangeDeals(action, accountCode, selectedRegion),
+    [action, selectedRegion],
+  );
+  const btcDirectOTCSupported = useLoad(
+    exchangesAPI.getBtcDirectOTCSupported(accountCode, selectedRegion),
+    [selectedRegion],
+  );
+  const hasPaymentRequestResponse = useLoad(() =>
+    hasPaymentRequest(accountCode),
+  );
   const [paymentRequestError, setPaymentRequestError] = useState(false);
   const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
   const config = useLoad(getConfig);
@@ -67,9 +83,10 @@ export const BuySell = ({
 
   // enable paymentRequestError only when the action is sell.
   useEffect(() => {
-    setPaymentRequestError(action === 'sell' && hasPaymentRequestResponse?.success === false);
+    setPaymentRequestError(
+      action === 'sell' && hasPaymentRequestResponse?.success === false,
+    );
   }, [hasPaymentRequestResponse, action]);
-
 
   useEffect(() => {
     if (config) {
@@ -92,9 +109,11 @@ export const BuySell = ({
     }
   };
 
-  const buildInfo = (exchange: exchangesAPI.ExchangeDeals): TInfoContentProps => {
+  const buildInfo = (
+    exchange: exchangesAPI.ExchangeDeals,
+  ): TInfoContentProps => {
     let paymentFees: TPaymentFee = {};
-    exchange.deals.forEach(deal => paymentFees[deal.payment] = deal.fee);
+    exchange.deals.forEach((deal) => (paymentFees[deal.payment] = deal.fee));
     return {
       exchangeName: exchange.exchangeName,
       paymentFees,
@@ -110,30 +129,38 @@ export const BuySell = ({
             <p className={style.noExchangeText}>{constructErrorMessage()}</p>
             {exchangeDealsResponse?.success &&
               paymentRequestError &&
-              hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired' && (
-              <Button
-                className={style.updateButton}
-                onClick={() => {
-                  setFirmwareUpdateDialogOpen(true);
-                  navigate(`/settings/device-settings/${deviceIDs[0]}`);
-                }}
-                transparent>
-                {t('exchange.buySell.updateNow')}
-              </Button>
-            )}
+              hasPaymentRequestResponse?.errorCode ===
+                'firmwareUpgradeRequired' && (
+                <Button
+                  className={style.updateButton}
+                  onClick={() => {
+                    setFirmwareUpdateDialogOpen(true);
+                    navigate(`/settings/device-settings/${deviceIDs[0]}`);
+                  }}
+                  transparent
+                >
+                  {t('exchange.buySell.updateNow')}
+                </Button>
+              )}
           </div>
         ) : (
           <div className={style.exchangeProvidersContainer}>
             {exchangeDealsResponse?.exchanges
               // skip the exchanges that have only hidden deals.
-              .filter(exchange => (exchange.deals.some(deal => !deal.isHidden)))
-              .map(exchange => (
-                <div key={exchange.exchangeName} className={style.actionableItemContainer}>
+              .filter((exchange) =>
+                exchange.deals.some((deal) => !deal.isHidden),
+              )
+              .map((exchange) => (
+                <div
+                  key={exchange.exchangeName}
+                  className={style.actionableItemContainer}
+                >
                   <ActionableItem
                     key={exchange.exchangeName}
                     onClick={() => {
                       goToExchange(exchange.exchangeName);
-                    }}>
+                    }}
+                  >
                     <ExchangeProviders
                       deals={exchange.deals}
                       exchangeName={exchange.exchangeName}
@@ -147,7 +174,7 @@ export const BuySell = ({
         )}
         {btcDirectOTCSupported?.success && btcDirectOTCSupported?.supported && (
           <div className={style.infoContainer}>
-            <Message type="info" icon={<Businessman/>}>
+            <Message type="info" icon={<Businessman />}>
               {t('buy.exchange.infoContent.btcdirect.title')}
               <p>{t('buy.exchange.infoContent.btcdirect.info')}</p>
               <p>
@@ -160,11 +187,19 @@ export const BuySell = ({
                     {t('buy.exchange.infoContent.btcdirect.link')}
                   </A>
                 )}
-                    &nbsp;
-                {isDarkMode ? <ExternalLinkWhite className={style.textIcon}/> : <ExternalLinkBlack className={style.textIcon}/>}
+                &nbsp;
+                {isDarkMode ? (
+                  <ExternalLinkWhite className={style.textIcon} />
+                ) : (
+                  <ExternalLinkBlack className={style.textIcon} />
+                )}
               </p>
             </Message>
-            <InfoButton onClick={() => setInfo({ exchangeName: 'btcdirect-otc', paymentFees: {} })} />
+            <InfoButton
+              onClick={() =>
+                setInfo({ exchangeName: 'btcdirect-otc', paymentFees: {} })
+              }
+            />
           </div>
         )}
       </div>
@@ -174,7 +209,8 @@ export const BuySell = ({
             <Button
               className={style.buttonBack}
               secondary
-              onClick={() => navigate('/exchange/info')}>
+              onClick={() => navigate('/exchange/info')}
+            >
               {t('button.back')}
             </Button>
           )}

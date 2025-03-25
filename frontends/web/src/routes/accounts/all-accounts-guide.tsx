@@ -22,7 +22,10 @@ export const AllAccountsGuide = () => {
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.account')}>
-      <Entry key="whatAreAccounts" entry={t('guide.accounts.whatAreAccounts', { returnObjects: true })} />
+      <Entry
+        key="whatAreAccounts"
+        entry={t('guide.accounts.whatAreAccounts', { returnObjects: true })}
+      />
     </Guide>
   );
 };

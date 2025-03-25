@@ -41,7 +41,13 @@ export const isTLS = (): boolean => {
 };
 
 export const apiURL = (endpoint: string): string => {
-  return (isTLS() ? 'https://' : 'http://') + 'localhost:' + apiPort + '/api/' + endpoint;
+  return (
+    (isTLS() ? 'https://' : 'http://') +
+    'localhost:' +
+    apiPort +
+    '/api/' +
+    endpoint
+  );
 };
 
 const handleError = (endpoint: string) => {
@@ -73,20 +79,26 @@ export const apiGet = (endpoint: string): Promise<any> => {
   // TODO: maybe use extConfig('{{ ENGINE_QTWEB }}', 'no') === 'yes' instead of runningInQtWebEngine()?
   // drawback: not treeshakeable
   if (runningInQtWebEngine()) {
-    return call(JSON.stringify({
-      method: 'GET',
-      endpoint,
-    }));
+    return call(
+      JSON.stringify({
+        method: 'GET',
+        endpoint,
+      }),
+    );
   }
   if (runningOnMobile()) {
-    return mobileCall(JSON.stringify({
-      method: 'GET',
-      endpoint,
-    }));
+    return mobileCall(
+      JSON.stringify({
+        method: 'GET',
+        endpoint,
+      }),
+    );
   }
   return fetch(apiURL(endpoint), {
-    method: 'GET'
-  }).then(response => response.json()).then(handleError(endpoint));
+    method: 'GET',
+  })
+    .then((response) => response.json())
+    .then(handleError(endpoint));
 };
 
 export const apiPost = (
@@ -94,21 +106,27 @@ export const apiPost = (
   body?: object | number | string | boolean, // any is not safe to use, for example Set and Map are stringified to empty "{}"
 ): Promise<any> => {
   if (runningInQtWebEngine()) {
-    return call(JSON.stringify({
-      method: 'POST',
-      endpoint,
-      body: JSON.stringify(body)
-    }));
+    return call(
+      JSON.stringify({
+        method: 'POST',
+        endpoint,
+        body: JSON.stringify(body),
+      }),
+    );
   }
   if (runningOnMobile()) {
-    return mobileCall(JSON.stringify({
-      method: 'POST',
-      endpoint,
-      body: JSON.stringify(body)
-    }));
+    return mobileCall(
+      JSON.stringify({
+        method: 'POST',
+        endpoint,
+        body: JSON.stringify(body),
+      }),
+    );
   }
   return fetch(apiURL(endpoint), {
     method: 'POST',
-    body: JSON.stringify(body)
-  }).then(response => response.json()).then(handleError(endpoint));
+    body: JSON.stringify(body),
+  })
+    .then((response) => response.json())
+    .then(handleError(endpoint));
 };

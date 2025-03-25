@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2021-2024 Shift Crypto AG
  *
@@ -60,10 +59,12 @@ export const CoinDropDown = ({
       isSearchable={false}
       placeholder={t('buy.info.selectPlaceholder')}
       classNamePrefix="react-select"
-      value={options.find(option => option.value === value) || []}
-      renderOptions={o => <Option props={o} />}
+      value={options.find((option) => option.value === value) || []}
+      renderOptions={(o) => <Option props={o} />}
       onChange={(selected) => {
-        const selectedCoin = supportedCoins.find(c => c.coinCode === selected.value);
+        const selectedCoin = supportedCoins.find(
+          (c) => c.coinCode === selected.value,
+        );
         if (selectedCoin) {
           onChange(selectedCoin);
         }

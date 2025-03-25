@@ -21,27 +21,18 @@ import { PasswordEntry } from './components/password-entry/password-entry';
 
 type Props = {
   attestation: boolean | null | undefined;
-}
+};
 
 export const Unlock = ({ attestation }: Props) => {
   const { t } = useTranslation();
   return (
-    <View
-      fullscreen
-      textCenter
-      verticallyCentered
-      withBottomBar
-      width="690px">
+    <View fullscreen textCenter verticallyCentered withBottomBar width="690px">
       <ViewHeader title={t('button.unlock')}>
-        <p>
-          {t('bitbox02Wizard.stepConnected.unlock')}
-        </p>
+        <p>{t('bitbox02Wizard.stepConnected.unlock')}</p>
       </ViewHeader>
       <ViewContent fullWidth>
         {attestation === false ? (
-          <Status>
-            {t('bitbox02Wizard.attestationFailed')}
-          </Status>
+          <Status>{t('bitbox02Wizard.attestationFailed')}</Status>
         ) : (
           <PasswordEntry />
         )}

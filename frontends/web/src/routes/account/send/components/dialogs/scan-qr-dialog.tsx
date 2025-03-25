@@ -24,7 +24,7 @@ type TProps = {
   toggleScanQR: () => void;
   onChangeActiveScanQR: (active: boolean) => void;
   parseQRResult: (result: string) => void;
-}
+};
 
 export const ScanQRDialog = ({
   parseQRResult,
@@ -35,19 +35,15 @@ export const ScanQRDialog = ({
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   return (
-    <View
-      fitContent
-      fullscreen
-      dialog={!isMobile}>
+    <View fitContent fullscreen dialog={!isMobile}>
       <ScanQRVideo
-        onResult={result => {
+        onResult={(result) => {
           parseQRResult(result);
           onChangeActiveScanQR(false);
-        }} />
+        }}
+      />
       <ViewButtons reverseRow>
-        <Button
-          secondary
-          onClick={toggleScanQR}>
+        <Button secondary onClick={toggleScanQR}>
           {t('button.back')}
         </Button>
       </ViewButtons>

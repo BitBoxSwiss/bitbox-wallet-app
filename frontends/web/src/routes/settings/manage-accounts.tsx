@@ -23,7 +23,14 @@ import { alertUser } from '@/components/alert/Alert';
 import { Button, Input, Label } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
 import { EditActive, EyeOpenedDark, Plus, USBSuccess } from '@/components/icon';
-import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
+import {
+  Column,
+  Grid,
+  GuideWrapper,
+  GuidedContent,
+  Header,
+  Main,
+} from '@/components/layout';
 import { Toggle } from '@/components/toggle/toggle';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Message } from '@/components/message/message';
@@ -47,7 +54,7 @@ type Props = ManageAccountsProps & TPagePropsWithSettingsTabs & TranslateProps;
 
 type TShowTokens = {
   readonly [key in string]: boolean;
-}
+};
 
 interface State {
   editErrorMessage?: string;
@@ -65,67 +72,98 @@ class ManageAccounts extends Component<Props, State> {
   private renderAccounts = (accounts: accountAPI.IAccount[]) => {
     const { showTokens } = this.state;
     const { t } = this.props;
-    return accounts.filter(account => !account.isToken).map(account => {
-      const active = account.active;
-      const tokensVisible = showTokens[account.code];
-      return (
-        <div key={account.code} className={style.setting}>
-          <div
-            className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
-            onClick={() => active && route(`/account/${account.code}`)}>
-            <Logo stacked active={account.active} className={`${style.coinLogo} m-right-half`} coinCode={account.coinCode} alt={account.coinUnit} />
-            <span className={!account.active ? style.accountNameInactive : ''}>
-              {account.name}
-              {' '}
-              <span className="unit">({account.coinUnit})</span>
-            </span>
-          </div>
-          <div className="flex flex-items-center">
-            {!account.active ? <p className={`text-small ${style.disabledText}`}>{t('generic.enabled_false')}</p> : null}
-            <Button
-              className={style.editBtn}
-              onClick={() => this.setState({ currentlyEditedAccount: account })}
-              transparent>
-              <EditActive />
-              <span className="hide-on-small">
-                {t('manageAccounts.editAccount')}
+    return accounts
+      .filter((account) => !account.isToken)
+      .map((account) => {
+        const active = account.active;
+        const tokensVisible = showTokens[account.code];
+        return (
+          <div key={account.code} className={style.setting}>
+            <div
+              className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
+              onClick={() => active && route(`/account/${account.code}`)}
+            >
+              <Logo
+                stacked
+                active={account.active}
+                className={`${style.coinLogo} m-right-half`}
+                coinCode={account.coinCode}
+                alt={account.coinUnit}
+              />
+              <span
+                className={!account.active ? style.accountNameInactive : ''}
+              >
+                {account.name}{' '}
+                <span className="unit">({account.coinUnit})</span>
               </span>
-            </Button>
-          </div>
-          {active && account.coinCode === 'eth' ? (
-            <div className={style.tokenSection}>
-              <div className={`${style.tokenContainer} ${tokensVisible ? style.tokenContainerOpen : ''}`}>
-                {this.renderTokens(account.code, account.activeTokens)}
-              </div>
+            </div>
+            <div className="flex flex-items-center">
+              {!account.active ? (
+                <p className={`text-small ${style.disabledText}`}>
+                  {t('generic.enabled_false')}
+                </p>
+              ) : null}
               <Button
-                className={`${style.expandBtn} ${tokensVisible ? style.expandBtnOpen : ''}`}
-                onClick={() => this.toggleShowTokens(account.code)}
-                transparent>
-                {t(tokensVisible ? 'manageAccounts.settings.hideTokens' : 'manageAccounts.settings.showTokens', {
-                  activeTokenCount: `${account.activeTokens?.length || 0}`
-                })}
+                className={style.editBtn}
+                onClick={() =>
+                  this.setState({ currentlyEditedAccount: account })
+                }
+                transparent
+              >
+                <EditActive />
+                <span className="hide-on-small">
+                  {t('manageAccounts.editAccount')}
+                </span>
               </Button>
             </div>
-          ) : null}
-        </div>
-      );
-    });
+            {active && account.coinCode === 'eth' ? (
+              <div className={style.tokenSection}>
+                <div
+                  className={`${style.tokenContainer} ${tokensVisible ? style.tokenContainerOpen : ''}`}
+                >
+                  {this.renderTokens(account.code, account.activeTokens)}
+                </div>
+                <Button
+                  className={`${style.expandBtn} ${tokensVisible ? style.expandBtnOpen : ''}`}
+                  onClick={() => this.toggleShowTokens(account.code)}
+                  transparent
+                >
+                  {t(
+                    tokensVisible
+                      ? 'manageAccounts.settings.hideTokens'
+                      : 'manageAccounts.settings.showTokens',
+                    {
+                      activeTokenCount: `${account.activeTokens?.length || 0}`,
+                    },
+                  )}
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        );
+      });
   };
 
-  private toggleAccount = (accountCode: accountAPI.AccountCode, active: boolean) => {
-    return backendAPI.setAccountActive(accountCode, active).then(({ success, errorMessage }) => {
-      if (!success && errorMessage) {
-        alertUser(errorMessage);
-      }
-    });
+  private toggleAccount = (
+    accountCode: accountAPI.AccountCode,
+    active: boolean,
+  ) => {
+    return backendAPI
+      .setAccountActive(accountCode, active)
+      .then(({ success, errorMessage }) => {
+        if (!success && errorMessage) {
+          alertUser(errorMessage);
+        }
+      });
   };
 
   private toggleShowTokens = (accountCode: accountAPI.AccountCode) => {
     this.setState(({ showTokens }) => ({
       showTokens: {
         ...showTokens,
-        [accountCode]: (accountCode in showTokens) ? !showTokens[accountCode] : true,
-      }
+        [accountCode]:
+          accountCode in showTokens ? !showTokens[accountCode] : true,
+      },
     }));
   };
 
@@ -141,22 +179,34 @@ class ManageAccounts extends Component<Props, State> {
     { code: 'eth-erc20-dai0x6b17', name: 'Dai', unit: 'DAI' },
   ];
 
-  private renderTokens = (ethAccountCode: accountAPI.AccountCode, activeTokens?: accountAPI.IActiveToken[]) => {
-    return this.erc20Tokens.map(token => {
-      const activeToken = (activeTokens || []).find(t => t.tokenCode === token.code);
+  private renderTokens = (
+    ethAccountCode: accountAPI.AccountCode,
+    activeTokens?: accountAPI.IActiveToken[],
+  ) => {
+    return this.erc20Tokens.map((token) => {
+      const activeToken = (activeTokens || []).find(
+        (t) => t.tokenCode === token.code,
+      );
       const active = activeToken !== undefined;
       return (
-        <div key={token.code}
-          className={`${style.token} ${!active ? style.tokenInactive : ''}`}>
+        <div
+          key={token.code}
+          className={`${style.token} ${!active ? style.tokenInactive : ''}`}
+        >
           <div
             className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
-            onClick={() => activeToken !== undefined && route(`/account/${activeToken.accountCode}`)}>
+            onClick={() =>
+              activeToken !== undefined &&
+              route(`/account/${activeToken.accountCode}`)
+            }
+          >
             <Logo
               active={active}
               alt={token.name}
               className={style.tokenIcon}
               coinCode={token.code}
-              stacked />
+              stacked
+            />
             <span className={style.tokenName}>
               {token.name} ({token.unit})
             </span>
@@ -165,7 +215,10 @@ class ManageAccounts extends Component<Props, State> {
             checked={active}
             className={style.toggle}
             id={token.code}
-            onChange={() => this.toggleToken(ethAccountCode, token.code, !active)} />
+            onChange={() =>
+              this.toggleToken(ethAccountCode, token.code, !active)
+            }
+          />
         </div>
       );
     });
@@ -176,11 +229,13 @@ class ManageAccounts extends Component<Props, State> {
     tokenCode: accountAPI.ERC20CoinCode,
     active: boolean,
   ) => {
-    backendAPI.setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {
-      if (!success && errorMessage) {
-        alertUser(errorMessage);
-      }
-    });
+    backendAPI
+      .setTokenActive(ethAccountCode, tokenCode, active)
+      .then(({ success, errorMessage }) => {
+        if (!success && errorMessage) {
+          alertUser(errorMessage);
+        }
+      });
   };
 
   private updateAccount = (event: React.SyntheticEvent) => {
@@ -192,19 +247,27 @@ class ManageAccounts extends Component<Props, State> {
       return;
     }
 
-    backendAPI.renameAccount(currentlyEditedAccount.code, currentlyEditedAccount.name)
-      .then(result => {
+    backendAPI
+      .renameAccount(currentlyEditedAccount.code, currentlyEditedAccount.name)
+      .then((result) => {
         if (!result.success) {
           if (result.errorCode) {
-            this.setState({ editErrorMessage: this.props.t(`error.${result.errorCode}`) });
+            this.setState({
+              editErrorMessage: this.props.t(`error.${result.errorCode}`),
+            });
           } else if (result.errorMessage) {
             this.setState({ editErrorMessage: result.errorMessage });
           }
           return;
         }
-        const account = accounts.find(({ code }) => currentlyEditedAccount.code === code);
+        const account = accounts.find(
+          ({ code }) => currentlyEditedAccount.code === code,
+        );
         if (currentlyEditedAccount.active !== account?.active) {
-          this.toggleAccount(currentlyEditedAccount.code, currentlyEditedAccount.active);
+          this.toggleAccount(
+            currentlyEditedAccount.code,
+            currentlyEditedAccount.active,
+          );
         }
         this.setState({
           editErrorMessage: undefined,
@@ -231,38 +294,49 @@ class ManageAccounts extends Component<Props, State> {
                   <h2 className="hide-on-small">{t('settings.title')}</h2>
                   <MobileHeader withGuide title={t('manageAccounts.title')} />
                 </>
-              } />
+              }
+            />
             <View fullscreen={false}>
               <ViewContent>
-                <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>
+                <WithSettingsTabs
+                  devices={devices}
+                  hideMobileMenu
+                  hasAccounts={hasAccounts}
+                >
                   <Button
                     className={style.addAccountBtn}
                     primary
-                    onClick={() => route('/add-account')}>
+                    onClick={() => route('/add-account')}
+                  >
                     <Plus className="m-right-quarter" width="12" height="12" />
                     {t('addAccount.title')}
                   </Button>
                   <Grid col="1">
-                    { accountsByKeystore.map(keystore => (
-                      <Column
-                        key={keystore.keystore.rootFingerprint}
-                        asCard>
+                    {accountsByKeystore.map((keystore) => (
+                      <Column key={keystore.keystore.rootFingerprint} asCard>
                         <div className={style.walletHeader}>
                           <h2 className={style.walletTitle}>
                             <span className={style.keystoreName}>
                               {keystore.keystore.name}
-                              { isAmbiguousName(keystore.keystore.name, accountsByKeystore) ? (
+                              {isAmbiguousName(
+                                keystore.keystore.name,
+                                accountsByKeystore,
+                              ) ? (
                                 // Disambiguate accounts group by adding the fingerprint.
                                 // The most common case where this would happen is when adding accounts from the
                                 // same seed using different passphrases.
-                                <small> {keystore.keystore.rootFingerprint}</small>
-                              ) : null }
+                                <small>
+                                  {' '}
+                                  {keystore.keystore.rootFingerprint}
+                                </small>
+                              ) : null}
                             </span>
                             {keystore.keystore.connected ? (
                               <Badge
                                 className="m-right-quarter"
-                                icon={props => <USBSuccess {...props} />}
-                                type="success">
+                                icon={(props) => <USBSuccess {...props} />}
+                                type="success"
+                              >
                                 {t('device.keystoreConnected')}
                               </Badge>
                             ) : null}
@@ -271,24 +345,35 @@ class ManageAccounts extends Component<Props, State> {
                         </div>
                         {this.renderAccounts(keystore.accounts)}
                       </Column>
-                    )) }
+                    ))}
                   </Grid>
                   {currentlyEditedAccount && (
                     <Dialog
-                      open={!!(currentlyEditedAccount)}
-                      onClose={() => this.setState({ currentlyEditedAccount: undefined })}
-                      title={t('manageAccounts.editAccountNameTitle')}>
+                      open={!!currentlyEditedAccount}
+                      onClose={() =>
+                        this.setState({ currentlyEditedAccount: undefined })
+                      }
+                      title={t('manageAccounts.editAccountNameTitle')}
+                    >
                       <form onSubmit={this.updateAccount}>
                         <Message type="error" hidden={!editErrorMessage}>
                           {editErrorMessage}
                         </Message>
                         <Input
-                          onInput={e => this.setState({ currentlyEditedAccount: { ...currentlyEditedAccount, name: e.target.value } })}
+                          onInput={(e) =>
+                            this.setState({
+                              currentlyEditedAccount: {
+                                ...currentlyEditedAccount,
+                                name: e.target.value,
+                              },
+                            })
+                          }
                           value={currentlyEditedAccount.name}
                         />
                         <Label
                           className={style.toggleLabel}
-                          htmlFor={currentlyEditedAccount.code}>
+                          htmlFor={currentlyEditedAccount.code}
+                        >
                           <span className={style.toggleLabelText}>
                             <EyeOpenedDark />
                             {t('newSettings.appearance.enableAccount.title')}
@@ -299,20 +384,29 @@ class ManageAccounts extends Component<Props, State> {
                             id={currentlyEditedAccount.code}
                             onChange={(event) => {
                               event.target.disabled = true;
-                              this.setState({
-                                currentlyEditedAccount: {
-                                  ...currentlyEditedAccount,
-                                  active: event.target.checked,
-                                }
-                              }, () => event.target.disabled = false);
-                            }} />
+                              this.setState(
+                                {
+                                  currentlyEditedAccount: {
+                                    ...currentlyEditedAccount,
+                                    active: event.target.checked,
+                                  },
+                                },
+                                () => (event.target.disabled = false),
+                              );
+                            }}
+                          />
                         </Label>
-                        <p>{t('newSettings.appearance.enableAccount.description')}</p>
+                        <p>
+                          {t(
+                            'newSettings.appearance.enableAccount.description',
+                          )}
+                        </p>
                         <DialogButtons>
                           <Button
                             disabled={!currentlyEditedAccount.name}
                             primary
-                            type="submit">
+                            type="submit"
+                          >
                             {t('button.update')}
                           </Button>
                         </DialogButtons>
@@ -324,7 +418,7 @@ class ManageAccounts extends Component<Props, State> {
             </View>
           </Main>
         </GuidedContent>
-        <AccountGuide accounts={accounts}/>
+        <AccountGuide accounts={accounts} />
       </GuideWrapper>
     );
   }

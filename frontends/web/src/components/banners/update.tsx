@@ -35,8 +35,7 @@ export const Update = () => {
         current: file.current,
         version: file.version,
       })}
-      {file.description}
-      {' '}
+      {file.description}{' '}
       {/* Don't show download link on Android because they should update from stores */}
       {!runningInAndroid() && <AppDownloadLink className={style.link} />}
     </Status>

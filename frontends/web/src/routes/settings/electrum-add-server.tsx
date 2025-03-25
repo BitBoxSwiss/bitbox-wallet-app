@@ -25,9 +25,7 @@ type Props = {
   onAdd: (server: TElectrumServer) => void;
 };
 
-export const ElectrumAddServer = ({
-  onAdd,
-}: Props) => {
+export const ElectrumAddServer = ({ onAdd }: Props) => {
   const { t } = useTranslation();
   const [valid, setValid] = useState<boolean>();
   const [electrumServer, setElectrumServer] = useState<string>('');
@@ -66,15 +64,21 @@ export const ElectrumAddServer = ({
     if (response.success) {
       alertUser(t('settings.electrum.checkSuccess', { host: electrumServer }));
     } else {
-      alertUser(t('settings.electrum.checkFailed') + ':\n' + response.errorMessage);
+      alertUser(
+        t('settings.electrum.checkFailed') + ':\n' + response.errorMessage,
+      );
     }
     setValid(response.success);
     setLoadingCheck(false);
   };
 
-  const downloadCertButtonDisabled: boolean = electrumServer.trim().length === 0 || electrumCert.trim().length > 0 || loadingCert;
+  const downloadCertButtonDisabled: boolean =
+    electrumServer.trim().length === 0 ||
+    electrumCert.trim().length > 0 ||
+    loadingCert;
 
-  const checkConnectionButtonDisabled: boolean = electrumServer.trim().length === 0 || loadingCheck;
+  const checkConnectionButtonDisabled: boolean =
+    electrumServer.trim().length === 0 || loadingCheck;
 
   return (
     <div className={style.addServer}>
@@ -86,7 +90,7 @@ export const ElectrumAddServer = ({
       </div>
       <Input
         name="electrumServer"
-        onInput={event => setElectrumServer(event.target.value)}
+        onInput={(event) => setElectrumServer(event.target.value)}
         value={electrumServer}
         placeholder="host:port"
       />
@@ -102,19 +106,25 @@ export const ElectrumAddServer = ({
         rows={10}
         cols={80}
         name="electrumCert"
-        onInput={event => setElectrumCert((event.target as HTMLTextAreaElement).value)}
+        onInput={(event) =>
+          setElectrumCert((event.target as HTMLTextAreaElement).value)
+        }
         value={electrumCert}
-        placeholder={'-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----'}
+        placeholder={
+          '-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----'
+        }
       />
       <div className={[style.block, 'flex flex-row flex-end'].join(' ')}>
-        <Button primary disabled={downloadCertButtonDisabled} onClick={downloadCertificate}>
-          {
-            loadingCert && (
-              <div className={style.miniSpinnerContainer}>
-                <div className={style.miniSpinner}></div>
-              </div>
-            )
-          }
+        <Button
+          primary
+          disabled={downloadCertButtonDisabled}
+          onClick={downloadCertificate}
+        >
+          {loadingCert && (
+            <div className={style.miniSpinnerContainer}>
+              <div className={style.miniSpinner}></div>
+            </div>
+          )}
           {t('settings.electrum.download-cert')}
         </Button>
       </div>
@@ -125,17 +135,23 @@ export const ElectrumAddServer = ({
         </div>
       </div>
       <div className={['flex flex-row flex-end spaced', style.block].join(' ')}>
-        <Button primary disabled={checkConnectionButtonDisabled} onClick={check}>
-          {
-            loadingCheck && (
-              <div className={style.miniSpinnerContainer}>
-                <div className={style.miniSpinner}></div>
-              </div>
-            )
-          }
-          { loadingCheck ? t('settings.electrum.checking') : t('settings.electrum.check') }
+        <Button
+          primary
+          disabled={checkConnectionButtonDisabled}
+          onClick={check}
+        >
+          {loadingCheck && (
+            <div className={style.miniSpinnerContainer}>
+              <div className={style.miniSpinner}></div>
+            </div>
+          )}
+          {loadingCheck
+            ? t('settings.electrum.checking')
+            : t('settings.electrum.check')}
         </Button>
-        <Button primary disabled={!valid} onClick={add}>{t('settings.electrum.add-server')}</Button>
+        <Button primary disabled={!valid} onClick={add}>
+          {t('settings.electrum.add-server')}
+        </Button>
       </div>
       <div className="flex flex-row flex-start flex-wrap">
         <p className={style.badge}>{t('settings.electrum.step4')}</p>

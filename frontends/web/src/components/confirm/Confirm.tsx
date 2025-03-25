@@ -26,12 +26,16 @@ type TCallback = (response: boolean) => void;
  * @deprecated
  * shows an alert when called, triggers the callback with user reply
  */
-export let confirmation: (message: string, callback: TCallback, customButtonText?: string) => void;
+export let confirmation: (
+  message: string,
+  callback: TCallback,
+  customButtonText?: string,
+) => void;
 
 interface State {
-    active: boolean;
-    message?: string;
-    customButtonText?: string;
+  active: boolean;
+  message?: string;
+  customButtonText?: string;
 }
 
 /**
@@ -43,7 +47,11 @@ export const Confirm = () => {
   const { t } = useTranslation();
   const callback = useRef<TCallback>(() => {});
 
-  confirmation = (message: string, cb: TCallback, customButtonText?: string) => {
+  confirmation = (
+    message: string,
+    cb: TCallback,
+    customButtonText?: string,
+  ) => {
     callback.current = cb;
     setState({
       active: true,
@@ -64,17 +72,20 @@ export const Confirm = () => {
     return null;
   }
   return (
-    <DialogLegacy title={t('dialog.confirmTitle')} onClose={() => respond(false)}>
+    <DialogLegacy
+      title={t('dialog.confirmTitle')}
+      onClose={() => respond(false)}
+    >
       <div className="columnsContainer half">
         <div className="columns">
           <div className="column">
-            { message ? message.split('\n').map((line, i) => (
-              <p
-                key={i}
-                className={i === 0 ? 'first' : ''}>
-                <SimpleMarkup tagName="span" markup={line} />
-              </p>
-            )) : null }
+            {message
+              ? message.split('\n').map((line, i) => (
+                  <p key={i} className={i === 0 ? 'first' : ''}>
+                    <SimpleMarkup tagName="span" markup={line} />
+                  </p>
+                ))
+              : null}
           </div>
         </div>
       </div>

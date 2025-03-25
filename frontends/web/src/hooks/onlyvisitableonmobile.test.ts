@@ -21,11 +21,11 @@ import * as mediaQueryHooks from '@/hooks/mediaquery';
 import * as reactRouterDom from 'react-router-dom';
 
 vi.mock('@/hooks/mediaquery', () => ({
-  useMediaQuery: vi.fn()
+  useMediaQuery: vi.fn(),
 }));
 
 vi.mock('react-router-dom', () => ({
-  useNavigate: vi.fn()
+  useNavigate: vi.fn(),
 }));
 
 describe('useOnlyVisitableOnMobile', () => {

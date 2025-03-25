@@ -55,7 +55,8 @@ export const BackupsListItem = ({
       label={backup.name && backup.name !== '' ? backup.name : backup.id}
       value={backup.id}
       onFocus={onFocus}
-      className={style.backupItem}>
+      className={style.backupItem}
+    >
       <span className="text-small text-gray">{date}</span>
       <span className="text-small text-gray">ID: {backup.id}</span>
     </Radio>

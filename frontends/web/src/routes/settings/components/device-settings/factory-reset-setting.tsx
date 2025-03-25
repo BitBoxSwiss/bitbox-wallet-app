@@ -16,7 +16,11 @@
 
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark, WarningOutlined, PointToBitBox02 } from '@/components/icon';
+import {
+  ChevronRightDark,
+  WarningOutlined,
+  PointToBitBox02,
+} from '@/components/icon';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button, Checkbox } from '@/components/forms';
 import { ChangeEvent, useState } from 'react';
@@ -26,20 +30,20 @@ import styles from './factory-reset-setting.module.css';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 
 type TProps = {
-    deviceID: string;
-}
+  deviceID: string;
+};
 
 type TDialog = {
-    open: boolean;
-    handleCloseDialog: () => void;
-    understand: boolean;
-    handleUnderstandChange: (e: ChangeEvent<HTMLInputElement>) => void;
-    handleReset: () => void;
-}
+  open: boolean;
+  handleCloseDialog: () => void;
+  understand: boolean;
+  handleUnderstandChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleReset: () => void;
+};
 
 type TWaitDialog = {
-    isConfirming: boolean;
-}
+  isConfirming: boolean;
+};
 
 const FactoryResetSetting = ({ deviceID }: TProps) => {
   const [understand, setUnderstand] = useState(false);
@@ -67,10 +71,14 @@ const FactoryResetSetting = ({ deviceID }: TProps) => {
     }
   };
 
-  const settingName = (<div className={styles.settingNameContainer}>
-    <WarningOutlined width={16} height={16} />
-    <p className={styles.settingName}>{t('deviceSettings.expert.factoryReset.title')}</p>
-  </div>);
+  const settingName = (
+    <div className={styles.settingNameContainer}>
+      <WarningOutlined width={16} height={16} />
+      <p className={styles.settingName}>
+        {t('deviceSettings.expert.factoryReset.title')}
+      </p>
+    </div>
+  );
 
   return (
     <>
@@ -89,7 +97,6 @@ const FactoryResetSetting = ({ deviceID }: TProps) => {
       />
       <FactoryResetWaitDialog isConfirming={isConfirming} />
     </>
-
   );
 };
 
@@ -98,7 +105,7 @@ const FactoryResetDialog = ({
   handleCloseDialog,
   understand,
   handleUnderstandChange,
-  handleReset
+  handleReset,
 }: TDialog) => {
   const { t } = useTranslation();
   return (
@@ -106,7 +113,8 @@ const FactoryResetDialog = ({
       open={open}
       title={t('reset.title')}
       onClose={handleCloseDialog}
-      small>
+      small
+    >
       <div className="columnsContainer half">
         <div className="columns">
           <div className="column">
@@ -116,7 +124,8 @@ const FactoryResetDialog = ({
                 id="reset_understand"
                 label={t('reset.understandBB02')}
                 checked={understand}
-                onChange={handleUnderstandChange} />
+                onChange={handleUnderstandChange}
+              />
             </div>
           </div>
         </div>
@@ -126,7 +135,8 @@ const FactoryResetDialog = ({
           {t('reset.title')}
         </Button>
       </DialogButtons>
-    </Dialog>);
+    </Dialog>
+  );
 };
 
 const FactoryResetWaitDialog = ({ isConfirming }: TWaitDialog) => {
@@ -135,13 +145,11 @@ const FactoryResetWaitDialog = ({ isConfirming }: TWaitDialog) => {
     return null;
   }
   return (
-    <WaitDialog
-      title={t('reset.title')} >
+    <WaitDialog title={t('reset.title')}>
       {t('bitbox02Interact.followInstructions')}
       <PointToBitBox02 />
     </WaitDialog>
   );
-
 };
 
 export { FactoryResetSetting };

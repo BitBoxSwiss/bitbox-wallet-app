@@ -35,7 +35,9 @@ export const NotesImport = () => {
         ref={fileInputRef}
         accept=".txt"
         onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-          setImportDisabled(e.target.files === null || e.target.files.length === 0);
+          setImportDisabled(
+            e.target.files === null || e.target.files.length === 0,
+          );
           if (fileInputRef.current === null) {
             return;
           }
@@ -56,10 +58,10 @@ export const NotesImport = () => {
             if (result.success) {
               const { accountCount, transactionCount } = result.data;
               alertUser(`${t('settings.notes.import.accountNames', {
-                count: accountCount
+                count: accountCount,
               })}
     ${t('settings.notes.import.transactionNotes', {
-      count: transactionCount
+      count: transactionCount,
     })}`);
               fileInput.value = '';
             } else if (result.message) {
@@ -80,12 +82,7 @@ export const NotesImport = () => {
           }
         }}
         secondaryText={t('settings.notes.import.description')}
-        extraComponent={
-          <ChevronRightDark
-            width={24}
-            height={24}
-          />
-        }
+        extraComponent={<ChevronRightDark width={24} height={24} />}
       />
     </form>
   );

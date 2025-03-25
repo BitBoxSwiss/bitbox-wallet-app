@@ -30,17 +30,15 @@ import * as utilsConfig from '@/utils/config';
 const getConfig = vi.spyOn(utilsConfig, 'getConfig');
 
 describe('routes/account/send/feetargets', () => {
-
   it('should match the snapshot', async () => {
-    getConfig.mockReturnValue(Promise.resolve({
-      frontend: { expertFee: false }
-    }));
+    getConfig.mockReturnValue(
+      Promise.resolve({
+        frontend: { expertFee: false },
+      }),
+    );
     (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'economy',
-      feeTargets: [
-        { code: 'low' },
-        { code: 'economy' },
-      ],
+      feeTargets: [{ code: 'low' }, { code: 'economy' }],
     });
 
     const { container } = render(
@@ -78,13 +76,16 @@ describe('routes/account/send/feetargets', () => {
         }}
         customFee=""
         onCustomFee={vi.fn()}
-        onFeeTargetChange={vi.fn()} />,
+        onFeeTargetChange={vi.fn()}
+      />,
     );
     waitFor(() => expect(container).toMatchSnapshot());
   });
 
   it('should match the snapshot with empty feetargets', async () => {
-    getConfig.mockReturnValue(Promise.resolve({ frontend: { expertFee: false } }));
+    getConfig.mockReturnValue(
+      Promise.resolve({ frontend: { expertFee: false } }),
+    );
     (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: '',
       feeTargets: [],
@@ -98,36 +99,38 @@ describe('routes/account/send/feetargets', () => {
         fiatUnit="EUR"
         customFee=""
         onCustomFee={vi.fn()}
-        onFeeTargetChange={vi.fn()} />,
+        onFeeTargetChange={vi.fn()}
+      />,
     );
     await waitFor(() => expect(container).toMatchSnapshot());
   });
 
-  it('should call onFeeTargetChange with default', () => new Promise<void>(async done => {
-    getConfig.mockReturnValue(Promise.resolve({ frontend: { expertFee: false } }));
-    const apiGetMock = (apiGet as Mock).mockResolvedValue({
-      defaultFeeTarget: 'normal',
-      feeTargets: [
-        { code: 'low' },
-        { code: 'economy' },
-      ],
-    });
+  it('should call onFeeTargetChange with default', () =>
+    new Promise<void>(async (done) => {
+      getConfig.mockReturnValue(
+        Promise.resolve({ frontend: { expertFee: false } }),
+      );
+      const apiGetMock = (apiGet as Mock).mockResolvedValue({
+        defaultFeeTarget: 'normal',
+        feeTargets: [{ code: 'low' }, { code: 'economy' }],
+      });
 
-    const onFeeTargetChangeCB = (code: string) => {
-      expect(code).toBe('normal');
-      done();
-    };
+      const onFeeTargetChangeCB = (code: string) => {
+        expect(code).toBe('normal');
+        done();
+      };
 
-    render(
-      <FeeTargets
-        accountCode="btc"
-        coinCode="btc"
-        disabled={false}
-        fiatUnit="USD"
-        customFee=""
-        onCustomFee={vi.fn()}
-        onFeeTargetChange={onFeeTargetChangeCB} />,
-    );
-    await waitFor(() => expect(apiGetMock).toHaveBeenCalled());
-  }));
+      render(
+        <FeeTargets
+          accountCode="btc"
+          coinCode="btc"
+          disabled={false}
+          fiatUnit="USD"
+          customFee=""
+          onCustomFee={vi.fn()}
+          onFeeTargetChange={onFeeTargetChangeCB}
+        />,
+      );
+      await waitFor(() => expect(apiGetMock).toHaveBeenCalled());
+    }));
 });

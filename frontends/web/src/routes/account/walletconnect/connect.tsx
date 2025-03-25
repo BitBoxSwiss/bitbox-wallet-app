@@ -32,18 +32,17 @@ import { WCSuccessPairing } from './components/success-pairing/success-pairing';
 
 type TProps = {
   code: accountApi.AccountCode;
-  accounts: accountApi.IAccount[]
+  accounts: accountApi.IAccount[];
 };
 
-export const ConnectScreenWalletConnect = ({
-  code,
-  accounts
-}: TProps) => {
+export const ConnectScreenWalletConnect = ({ code, accounts }: TProps) => {
   const [uri, setUri] = useState('');
   const [status, setStatus] = useState<TConnectStatus>('connect');
   const [loading, setLoading] = useState(false);
-  const { web3wallet, isWalletInitialized, pair } = useContext(WCWeb3WalletContext);
-  const [currentProposal, setCurrentProposal] = useState<SignClientTypes.EventArguments['session_proposal']>();
+  const { web3wallet, isWalletInitialized, pair } =
+    useContext(WCWeb3WalletContext);
+  const [currentProposal, setCurrentProposal] =
+    useState<SignClientTypes.EventArguments['session_proposal']>();
   const { t } = useTranslation();
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
   const onSessionProposal = useCallback(
@@ -53,7 +52,7 @@ export const ConnectScreenWalletConnect = ({
       setStatus('incoming_pairing');
       setCurrentProposal(proposal);
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -99,7 +98,8 @@ export const ConnectScreenWalletConnect = ({
     return null;
   }
 
-  const accountName = (accounts && accounts.find(acct => acct.code === code))?.name || '';
+  const accountName =
+    (accounts && accounts.find((acct) => acct.code === code))?.name || '';
   const receiveAddress = receiveAddresses[0].addresses[0].address;
 
   return (
@@ -107,10 +107,7 @@ export const ConnectScreenWalletConnect = ({
       <GuidedContent>
         <Main>
           <Header />
-          <View
-            fitContent
-            verticallyCentered
-            width="620px">
+          <View fitContent verticallyCentered width="620px">
             <ViewHeader>
               <WCHeader
                 accountName={accountName}
@@ -128,7 +125,7 @@ export const ConnectScreenWalletConnect = ({
                   }}
                 />
               )}
-              {(status === 'incoming_pairing' && currentProposal) && (
+              {status === 'incoming_pairing' && currentProposal && (
                 <WCIncomingPairing
                   currentProposal={currentProposal}
                   pairingMetadata={currentProposal.params.proposer.metadata}

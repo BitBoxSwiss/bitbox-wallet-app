@@ -32,7 +32,10 @@ import { useNavigate } from 'react-router-dom';
  * we see on Desktop, as it's the equivalent
  * of "tabs" on Mobile.
  **/
-export const MobileSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const MobileSettings = ({
+  devices,
+  hasAccounts,
+}: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   useOnlyVisitableOnMobile('/settings/general');
@@ -49,9 +52,11 @@ export const MobileSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsT
       <ContentWrapper>
         <GlobalBanners />
       </ContentWrapper>
-      <Header title={
-        <MobileHeader onClick={handleClick} title={t('settings.title')} />
-      } />
+      <Header
+        title={
+          <MobileHeader onClick={handleClick} title={t('settings.title')} />
+        }
+      />
       <View fullscreen={false}>
         <ViewContent>
           <Tabs devices={devices} hasAccounts={hasAccounts} />

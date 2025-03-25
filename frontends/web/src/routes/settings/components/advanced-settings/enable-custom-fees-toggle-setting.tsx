@@ -24,17 +24,20 @@ import { setConfig } from '@/utils/config';
 type TProps = {
   frontendConfig?: TFrontendConfig;
   onChangeConfig: Dispatch<TConfig>;
-}
+};
 
-export const EnableCustomFeesToggleSetting = ({ frontendConfig, onChangeConfig }: TProps) => {
+export const EnableCustomFeesToggleSetting = ({
+  frontendConfig,
+  onChangeConfig,
+}: TProps) => {
   const { t } = useTranslation();
 
   const handleToggleFee = async (e: ChangeEvent<HTMLInputElement>) => {
-    const config = await setConfig({
+    const config = (await setConfig({
       frontend: {
-        'expertFee': e.target.checked
+        expertFee: e.target.checked,
       },
-    }) as TConfig;
+    })) as TConfig;
     onChangeConfig(config);
   };
 

@@ -27,7 +27,9 @@ class Blink extends Component {
   render() {
     const { t } = this.props;
     return (
-      <SettingsButton onClick={this.blinkDevice}>{t('blink.button')}</SettingsButton>
+      <SettingsButton onClick={this.blinkDevice}>
+        {t('blink.button')}
+      </SettingsButton>
     );
   }
 }

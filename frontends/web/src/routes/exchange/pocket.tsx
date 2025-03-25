@@ -17,12 +17,27 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
+import {
+  RequestAddressV0Message,
+  MessageVersion,
+  parseMessage,
+  serializeMessage,
+  V0MessageType,
+  PaymentRequestV0Message,
+} from 'request-address';
 import { getConfig } from '@/utils/config';
 import { Dialog } from '@/components/dialog/dialog';
 import { confirmation } from '@/components/confirm/Confirm';
 import { verifyAddress, getPocketURL, TExchangeAction } from '@/api/exchanges';
-import { AccountCode, getInfo, getTransactionList, signAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
+import {
+  AccountCode,
+  getInfo,
+  getTransactionList,
+  signAddress,
+  proposeTx,
+  sendTx,
+  TTxInput,
+} from '@/api/account';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { PocketTerms } from '@/components/terms/pocket-terms';
@@ -35,8 +50,8 @@ import style from './iframe.module.css';
 import { parseExternalBtcAmount } from '@/api/coins';
 
 interface TProps {
-    code: AccountCode;
-    action: TExchangeAction;
+  code: AccountCode;
+  action: TExchangeAction;
 }
 
 export const Pocket = ({ code, action }: TProps) => {
@@ -58,7 +73,7 @@ export const Pocket = ({ code, action }: TProps) => {
   let resizeTimerID: any = undefined;
 
   useEffect(() => {
-    getPocketURL(action).then(response => {
+    getPocketURL(action).then((response) => {
       if (response.success) {
         setIframeUrl(response.url);
       } else {
@@ -115,42 +130,40 @@ export const Pocket = ({ code, action }: TProps) => {
 
   const handleRequestAddress = (message: RequestAddressV0Message) => {
     signing = true;
-    const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
-    const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
-    signAddress(
-      addressType,
-      withMessageSignature,
-      code)
-      .then(response => {
-        signing = false;
-        if (response.success) {
-          sendAddress(response.address, response.signature);
-        } else {
-          if (response.errorCode !== 'userAbort') {
-            alertUser(t('unknownError', { errorMessage: response.errorMessage }));
-            console.log('error: ' + response.errorMessage);
-          }
+    const addressType = message.withScriptType
+      ? convertScriptType(message.withScriptType)
+      : '';
+    const withMessageSignature = message.withMessageSignature
+      ? message.withMessageSignature
+      : '';
+    signAddress(addressType, withMessageSignature, code).then((response) => {
+      signing = false;
+      if (response.success) {
+        sendAddress(response.address, response.signature);
+      } else {
+        if (response.errorCode !== 'userAbort') {
+          alertUser(t('unknownError', { errorMessage: response.errorMessage }));
+          console.log('error: ' + response.errorMessage);
         }
-      });
-
+      }
+    });
   };
 
   const handleVerifyAddress = (address: string) => {
     setVerifying(true);
-    verifyAddress(address, code)
-      .then(response => {
-        setVerifying(false);
-        if (!response.success) {
-          if (response.errorCode === 'addressNotFound') {
-            // This should not happen, unless the user receives a tx on the same address between the message signing
-            // and the address verification.
-            alertUser(t('buy.pocket.usedAddress', { address:  address }));
-          } else {
-            alertUser(t('unknownError', { errorMessage: response.errorMessage }));
-            console.log('error: ' + response.errorMessage);
-          }
+    verifyAddress(address, code).then((response) => {
+      setVerifying(false);
+      if (!response.success) {
+        if (response.errorCode === 'addressNotFound') {
+          // This should not happen, unless the user receives a tx on the same address between the message signing
+          // and the address verification.
+          alertUser(t('buy.pocket.usedAddress', { address: address }));
+        } else {
+          alertUser(t('unknownError', { errorMessage: response.errorMessage }));
+          console.log('error: ' + response.errorMessage);
         }
-      });
+      }
+    });
   };
 
   const sendXpub = () => {
@@ -173,13 +186,13 @@ export const Pocket = ({ code, action }: TProps) => {
   };
 
   const handleRequestXpub = () => {
-    getTransactionList(code).then(txs => {
+    getTransactionList(code).then((txs) => {
       if (!txs.success) {
         alertUser(t('transactions.errorLoadTransactions'));
         return;
       }
       if (txs.list.length > 0) {
-        confirmation(t('buy.pocket.previousTransactions'), result => {
+        confirmation(t('buy.pocket.previousTransactions'), (result) => {
           if (result) {
             sendXpub();
           }
@@ -192,12 +205,16 @@ export const Pocket = ({ code, action }: TProps) => {
 
   const handlePaymentRequest = async (message: PaymentRequestV0Message) => {
     if (!message.slip24) {
-      alertUser(t('unknownError', { errorMessage: 'Missing payment request data' }));
+      alertUser(
+        t('unknownError', { errorMessage: 'Missing payment request data' }),
+      );
       return;
     }
 
     // this allows to correctly handle sats mode
-    const parsedAmount = await parseExternalBtcAmount(message.amount.toString());
+    const parsedAmount = await parseExternalBtcAmount(
+      message.amount.toString(),
+    );
     if (!parsedAmount.success) {
       alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
       return;
@@ -216,7 +233,8 @@ export const Pocket = ({ code, action }: TProps) => {
 
     let result = await proposeTx(code, txInput);
     if (result.success) {
-      let txNote = t('buy.pocket.paymentRequestNote') + ' ' + message.slip24.recipientName;
+      let txNote =
+        t('buy.pocket.paymentRequestNote') + ' ' + message.slip24.recipientName;
       const sendResult = await sendTx(code, txNote);
       if (!sendResult.success && !('aborted' in sendResult)) {
         alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
@@ -245,25 +263,25 @@ export const Pocket = ({ code, action }: TProps) => {
     try {
       const message = parseMessage(m.data);
       switch (message.type) {
-      case V0MessageType.RequestAddress:
-        if (!signing) {
-          handleRequestAddress(message);
-        }
-        break;
-      case V0MessageType.VerifyAddress:
-        if (!verifying) {
-          handleVerifyAddress(message.bitcoinAddress);
-        }
-        break;
-      case V0MessageType.RequestExtendedPublicKey:
-        handleRequestXpub();
-        break;
-      case V0MessageType.PaymentRequest:
-        handlePaymentRequest(message);
-        break;
-      case V0MessageType.Close:
-        navigate(`/account/${code}`, { replace: true });
-        break;
+        case V0MessageType.RequestAddress:
+          if (!signing) {
+            handleRequestAddress(message);
+          }
+          break;
+        case V0MessageType.VerifyAddress:
+          if (!verifying) {
+            handleVerifyAddress(message.bitcoinAddress);
+          }
+          break;
+        case V0MessageType.RequestExtendedPublicKey:
+          handleRequestXpub();
+          break;
+        case V0MessageType.PaymentRequest:
+          handlePaymentRequest(message);
+          break;
+        case V0MessageType.Close:
+          navigate(`/account/${code}`, { replace: true });
+          break;
       }
     } catch (e) {
       console.log(e);
@@ -276,21 +294,15 @@ export const Pocket = ({ code, action }: TProps) => {
     <div className="contentWithGuide">
       <div className="container">
         <div className={style.header}>
-          <Header title={
-            <h2>
-              {t('generic.buySell')}
-            </h2>
-          } />
+          <Header title={<h2>{t('generic.buySell')}</h2>} />
         </div>
         <div ref={ref} className={style.container}>
-          { !agreedTerms ? (
-            <PocketTerms
-              onAgreedTerms={() => setAgreedTerms(true)}
-            />
+          {!agreedTerms ? (
+            <PocketTerms onAgreedTerms={() => setAgreedTerms(true)} />
           ) : (
             <div style={{ height }}>
               <UseDisableBackButton />
-              {!iframeLoaded && <Spinner text={t('loading')} /> }
+              {!iframeLoaded && <Spinner text={t('loading')} />}
               <iframe
                 onLoad={() => {
                   setIframeLoaded(true);
@@ -302,14 +314,16 @@ export const Pocket = ({ code, action }: TProps) => {
                 frameBorder="0"
                 className={style.iframe}
                 allow="camera; payment; clipboard-write;"
-                src={iframeURL}>
-              </iframe>
+                src={iframeURL}
+              ></iframe>
             </div>
           )}
           <Dialog
             open={verifying}
             title={t('receive.verifyBitBox02')}
-            medium centered>
+            medium
+            centered
+          >
             <div className="text-center">{t('buy.pocket.verifyBitBox02')}</div>
           </Dialog>
         </div>

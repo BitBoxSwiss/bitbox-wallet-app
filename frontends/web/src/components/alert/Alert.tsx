@@ -45,9 +45,7 @@ const Alert = () => {
   const { t } = useTranslation();
 
   alertUser = (message: string, options: AlertUserOptions = {}) => {
-    const {
-      asDialog = true,
-    } = options;
+    const { asDialog = true } = options;
     callback = options.callback;
     setActive(true);
     setAsDialog(asDialog);
@@ -61,23 +59,26 @@ const Alert = () => {
     setActive(false);
   };
 
-  return (active && message) ? (
+  return active && message ? (
     <form onSubmit={() => setActive(false)}>
-      <UseBackButton handler={() => {
-        setActive(false); return false;
-      }} />
+      <UseBackButton
+        handler={() => {
+          setActive(false);
+          return false;
+        }}
+      />
       <View
         key="alert-overlay"
         dialog={asDialog}
         fullscreen
         textCenter={!asDialog}
-        verticallyCentered>
-        <ViewHeader title={<MultilineMarkup tagName="span" markup={message} />} />
+        verticallyCentered
+      >
+        <ViewHeader
+          title={<MultilineMarkup tagName="span" markup={message} />}
+        />
         <ViewButtons>
-          <Button
-            autoFocus
-            primary
-            onClick={handleClose}>
+          <Button autoFocus primary onClick={handleClose}>
             {t('button.ok')}
           </Button>
         </ViewButtons>

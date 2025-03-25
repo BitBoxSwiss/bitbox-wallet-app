@@ -29,38 +29,46 @@ export type ExchangeDeal = {
   isFast: boolean;
   isBest: boolean;
   isHidden: boolean;
-}
+};
 
-export type TExchangeName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc';
+export type TExchangeName =
+  | 'moonpay'
+  | 'pocket'
+  | 'btcdirect'
+  | 'btcdirect-otc';
 
 export type ExchangeDeals = {
   exchangeName: TExchangeName;
   deals: ExchangeDeal[];
-}
+};
 
 export type ExchangeDealsList = {
   exchanges: ExchangeDeals[];
   success: true;
-}
+};
 
 export type ExchangeError = {
   success: false;
   errorCode?: 'coinNotSupported' | 'regionNotSupported';
   errorMessage?: string;
-}
+};
 
-export type TExchangeDealsResponse = ExchangeDealsList | ExchangeError
+export type TExchangeDealsResponse = ExchangeDealsList | ExchangeError;
 
 export type TExchangeAction = 'buy' | 'sell';
 
-export const getExchangeDeals = (action: TExchangeAction, accountCode: AccountCode, region: string): Promise<TExchangeDealsResponse> => {
+export const getExchangeDeals = (
+  action: TExchangeAction,
+  accountCode: AccountCode,
+  region: string,
+): Promise<TExchangeDealsResponse> => {
   return apiGet(`exchange/deals/${action}/${accountCode}?region=${region}`);
 };
 
 export type MoonpayBuyInfo = {
   url: string;
   address: string;
-}
+};
 
 export const getMoonpayBuyInfo = (code: AccountCode) => {
   return (): Promise<MoonpayBuyInfo> => {
@@ -72,33 +80,42 @@ export type AddressVerificationResponse = {
   success: boolean;
   errorMessage?: string;
   errorCode?: 'addressNotFound' | 'userAbort';
-}
+};
 
-export const verifyAddress = (address: string, accountCode: AccountCode): Promise<AddressVerificationResponse> => {
+export const verifyAddress = (
+  address: string,
+  accountCode: AccountCode,
+): Promise<AddressVerificationResponse> => {
   return apiPost('exchange/pocket/verify-address', { address, accountCode });
 };
 
-export type TPocketUrlResponse = {
-  success: true;
-  url: string;
-} | {
-  success: false;
-  errorMessage: string;
-};
+export type TPocketUrlResponse =
+  | {
+      success: true;
+      url: string;
+    }
+  | {
+      success: false;
+      errorMessage: string;
+    };
 
-export const getPocketURL = (action: TExchangeAction): Promise<TPocketUrlResponse> => {
+export const getPocketURL = (
+  action: TExchangeAction,
+): Promise<TPocketUrlResponse> => {
   return apiGet(`exchange/pocket/api-url/${action}`);
 };
 
-export type TBTCDirectInfoResponse = {
-  success: true;
-  url: string;
-  apiKey: string;
-  address?: string;
-} | {
-  success: false;
-  errorMessage: string;
-};
+export type TBTCDirectInfoResponse =
+  | {
+      success: true;
+      url: string;
+      apiKey: string;
+      address?: string;
+    }
+  | {
+      success: false;
+      errorMessage: string;
+    };
 
 export const getBTCDirectInfo = (
   action: TExchangeAction,
@@ -107,7 +124,7 @@ export const getBTCDirectInfo = (
   return apiGet(`exchange/btcdirect/info/${action}/${code}`);
 };
 
-export type SupportedExchanges= {
+export type SupportedExchanges = {
   exchanges: string[];
 };
 
@@ -117,12 +134,14 @@ export const getExchangeSupported = (code: AccountCode) => {
   };
 };
 
-export type TBtcDirectResponse = {
-  success: true;
-  supported: boolean;
-} | {
-  success: false;
-};
+export type TBtcDirectResponse =
+  | {
+      success: true;
+      supported: boolean;
+    }
+  | {
+      success: false;
+    };
 
 export const getBtcDirectOTCSupported = (code: AccountCode, region: string) => {
   return (): Promise<TBtcDirectResponse> => {

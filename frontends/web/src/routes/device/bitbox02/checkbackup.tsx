@@ -24,10 +24,10 @@ import { Button } from '@/components/forms';
 import { useTranslation } from 'react-i18next';
 
 type TProps = {
-    deviceID: string;
-    backups: Backup[];
-    disabled: boolean;
-}
+  deviceID: string;
+  backups: Backup[];
+  disabled: boolean;
+};
 
 export const Check = ({ deviceID, backups, disabled }: TProps) => {
   const [activeDialog, setActiveDialog] = useState(false);
@@ -42,7 +42,9 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
       const result = await bitbox02API.checkBackup(deviceID, true);
       if (result.success) {
         const { backupID } = result;
-        const foundBackup = backups.find((backup: Backup) => backup.id === backupID);
+        const foundBackup = backups.find(
+          (backup: Backup) => backup.id === backupID,
+        );
         if (!foundBackup) {
           alertUser(t('unknownError', { errorMessage: 'Not found' }));
           return;
@@ -66,32 +68,24 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
 
   return (
     <div>
-      <Button
-        primary
-        disabled={disabled}
-        onClick={checkBackup}
-      >
+      <Button primary disabled={disabled} onClick={checkBackup}>
         {t('button.check')}
       </Button>
       <Dialog open={activeDialog} title={message}>
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          setActiveDialog(false);
-          setUserVerified(false);
-        }}>
-          { foundBackup !== undefined && (
-            <BackupsListItem
-              backup={foundBackup}
-              radio={false} />
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setActiveDialog(false);
+            setUserVerified(false);
+          }}
+        >
+          {foundBackup !== undefined && (
+            <BackupsListItem backup={foundBackup} radio={false} />
           )}
           <DialogButtons>
             {userVerified && (
-              <Button
-                autoFocus
-                disabled={!userVerified}
-                primary
-                type="submit">
-                { userVerified ? t('button.ok') : t('accountInfo.verify') }
+              <Button autoFocus disabled={!userVerified} primary type="submit">
+                {userVerified ? t('button.ok') : t('accountInfo.verify')}
               </Button>
             )}
           </DialogButtons>

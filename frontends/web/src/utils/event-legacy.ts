@@ -28,7 +28,7 @@ type Observer = (event: TEventLegacy) => void;
  * This interface describes how the subscriptions are stored.
  */
 interface ISubscriptions {
-    [subject: string]: Observer[];
+  [subject: string]: Observer[];
 }
 
 /**
@@ -41,11 +41,11 @@ const subscriptions: ISubscriptions = {};
  */
 const handleMessages = (payload: TPayload): void => {
   if (
-    'type' in payload
-    && payload.data
-    && typeof payload.data === 'string'
-    && payload.data in subscriptions
-    && subscriptions[payload.data].length
+    'type' in payload &&
+    payload.data &&
+    typeof payload.data === 'string' &&
+    payload.data in subscriptions &&
+    subscriptions[payload.data].length
   ) {
     for (const observer of subscriptions[payload.data]) {
       observer(payload);
@@ -56,7 +56,10 @@ const handleMessages = (payload: TPayload): void => {
 /**
  * Subscribes the given observer on events of the given subject and returns a method to unsubscribe.
  */
-export const subscribe = (subject: TSubject, observer: Observer): TUnsubscribe => {
+export const subscribe = (
+  subject: TSubject,
+  observer: Observer,
+): TUnsubscribe => {
   if (!subscriptions[subject]) {
     subscriptions[subject] = [];
   }

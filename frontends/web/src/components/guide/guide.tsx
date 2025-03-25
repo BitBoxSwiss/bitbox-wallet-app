@@ -23,11 +23,10 @@ import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/forms';
 import style from './guide.module.css';
 
-
 export type TProps = {
-    children?: ReactNode;
-    title?: string
-}
+  children?: ReactNode;
+  title?: string;
+};
 
 const Guide = ({ children, title = t('guide.title') }: TProps) => {
   const { guideShown, toggleGuide, setGuideExists } = useContext(AppContext);
@@ -42,9 +41,17 @@ const Guide = ({ children, title = t('guide.title') }: TProps) => {
   const { t } = useTranslation();
   return (
     <div className={style.wrapper}>
-      <div className={[style.overlay, guideShown && style.show].join(' ')} onClick={toggleGuide}></div>
+      <div
+        className={[style.overlay, guideShown && style.show].join(' ')}
+        onClick={toggleGuide}
+      ></div>
       <div className={[style.guide, guideShown && style.show].join(' ')}>
-        <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
+        <div
+          className={[
+            style.header,
+            'flex flex-row flex-between flex-items-center',
+          ].join(' ')}
+        >
           <h2>{title}</h2>
 
           <Button transparent className={style.close} onClick={toggleGuide}>
@@ -54,8 +61,7 @@ const Guide = ({ children, title = t('guide.title') }: TProps) => {
         <div className={style.content}>
           {children}
           <div className={style.appendix}>
-            {t('guide.appendix.text')}
-            {' '}
+            {t('guide.appendix.text')}{' '}
             <A className={style.link} href="https://bitbox.swiss/support/">
               {t('guide.appendix.link')}
             </A>

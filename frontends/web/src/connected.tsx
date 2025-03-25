@@ -19,14 +19,14 @@ import { ReactNode, useEffect, useState } from 'react';
 import { backendConnected } from './api/subscribe';
 
 type TProps = {
-    children: ReactNode;
-}
+  children: ReactNode;
+};
 
 export const ConnectedApp = ({ children }: TProps) => {
   const [connected, setConnected] = useState(true);
 
   useEffect(() => {
-    return backendConnected(connected => {
+    return backendConnected((connected) => {
       setConnected(connected);
     });
   }, []);

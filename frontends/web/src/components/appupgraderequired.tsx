@@ -30,7 +30,8 @@ export const AppUpgradeRequired = () => {
         textCenter
         verticallyCentered
         width="840px"
-        withBottomBar>
+        withBottomBar
+      >
         <ViewHeader title={t('device.appUpradeRequired')} />
         <ViewButtons>
           <AppDownloadButton />

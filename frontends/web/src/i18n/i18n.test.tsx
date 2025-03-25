@@ -40,11 +40,17 @@ describe('i18n', () => {
     ];
     table.forEach((test) => {
       it(`sets userLanguage to ${test.userLang || 'null'} if native-locale is ${test.nativeLocale}`, async () => {
-        (apiGet as Mock).mockImplementation(endpoint => {
+        (apiGet as Mock).mockImplementation((endpoint) => {
           switch (endpoint) {
-          case 'config': { return Promise.resolve({}); }
-          case 'native-locale': { return Promise.resolve(test.nativeLocale); }
-          default: { return Promise.resolve(); }
+            case 'config': {
+              return Promise.resolve({});
+            }
+            case 'native-locale': {
+              return Promise.resolve(test.nativeLocale);
+            }
+            default: {
+              return Promise.resolve();
+            }
           }
         });
         await i18n.changeLanguage(test.newLang);

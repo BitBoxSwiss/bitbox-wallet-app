@@ -25,13 +25,18 @@ import { alertUser } from '@/components/alert/Alert';
 import { Send } from './send';
 
 type TSendProps = {
-    accounts: IAccount[];
-    code: AccountCode;
-    devices: TDevices;
-    deviceIDs: string[];
-}
+  accounts: IAccount[];
+  code: AccountCode;
+  devices: TDevices;
+  deviceIDs: string[];
+};
 
-export const SendWrapper = ({ accounts, code, deviceIDs, devices }: TSendProps) => {
+export const SendWrapper = ({
+  accounts,
+  code,
+  deviceIDs,
+  devices,
+}: TSendProps) => {
   const { t } = useTranslation();
   const { defaultCurrency } = useContext(RatesContext);
 
@@ -49,7 +54,11 @@ export const SendWrapper = ({ accounts, code, deviceIDs, devices }: TSendProps) 
           const deviceInfo = await getDeviceInfo(deviceIDs[0]);
           if (deviceInfo) {
             setBB01Paired(mobileChannel && deviceInfo.pairing);
-            setNoMobileChannelError(deviceInfo.pairing && !mobileChannel && isBitcoinBased(account.coinCode));
+            setNoMobileChannelError(
+              deviceInfo.pairing &&
+                !mobileChannel &&
+                isBitcoinBased(account.coinCode),
+            );
           }
         } catch (error) {
           console.error(error);
@@ -62,13 +71,11 @@ export const SendWrapper = ({ accounts, code, deviceIDs, devices }: TSendProps) 
   if (noMobileChannelError) {
     alertUser(t('warning.sendPairing'));
   }
-  return (
-    account ? (
-      <Send
-        account={account}
-        bb01Paired={bb01Paired}
-        activeCurrency={defaultCurrency}
-      />
-    ) : (null)
-  );
+  return account ? (
+    <Send
+      account={account}
+      bb01Paired={bb01Paired}
+      activeCurrency={defaultCurrency}
+    />
+  ) : null;
 };

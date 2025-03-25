@@ -29,7 +29,12 @@ import { Message } from '@/components/message/message';
 import { ReceiveGuide } from './components/guide';
 import { Header } from '@/components/layout';
 import { QRCode } from '@/components/qrcode/qrcode';
-import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
+import {
+  ArrowCirlceLeft,
+  ArrowCirlceLeftActive,
+  ArrowCirlceRight,
+  ArrowCirlceRightActive,
+} from '@/components/icon';
 import { PairedWarning } from './components/bb01paired';
 import { useVerifyLabel, VerifyButton } from './components/verifybutton';
 import style from './receive.module.css';
@@ -49,29 +54,30 @@ const scriptTypes: accountApi.ScriptType[] = ['p2wpkh', 'p2tr', 'p2wpkh-p2sh'];
 // Find index in list of receive addresses that matches the given script type, or -1 if not found.
 const getIndexOfMatchingScriptType = (
   receiveAddresses: accountApi.ReceiveAddressList[],
-  scriptType: accountApi.ScriptType
+  scriptType: accountApi.ScriptType,
 ): number => {
   if (!receiveAddresses) {
     return -1;
   }
-  return receiveAddresses.findIndex(addrs => addrs.scriptType !== null && scriptType === addrs.scriptType);
+  return receiveAddresses.findIndex(
+    (addrs) => addrs.scriptType !== null && scriptType === addrs.scriptType,
+  );
 };
 
-export const Receive = ({
-  accounts,
-  code,
-  deviceID,
-}: TProps) => {
+export const Receive = ({ accounts, code, deviceID }: TProps) => {
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState<boolean>(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);
   // index into `availableScriptTypes`, or 0 if none are available.
   const [addressType, setAddressType] = useState<number>(0);
   const [addressDialog, setAddressDialog] = useState<AddressDialog>();
-  const [currentAddresses, setCurrentAddresses] = useState<accountApi.IReceiveAddress[]>();
+  const [currentAddresses, setCurrentAddresses] =
+    useState<accountApi.IReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
-  const account = accounts.find(({ code: accountCode }) => accountCode === code);
+  const account = accounts.find(
+    ({ code: accountCode }) => accountCode === code,
+  );
   const verifyLabel = useVerifyLabel('bitbox');
 
   // first array index: address types. second array index: unused addresses of that address type.
@@ -83,13 +89,21 @@ export const Receive = ({
   useEffect(() => {
     if (receiveAddresses) {
       // All script types that are present in the addresses delivered by the backend. Will be empty for if there are no such addresses, e.g. in Ethereum.
-      availableScriptTypes.current = scriptTypes.filter(sc => getIndexOfMatchingScriptType(receiveAddresses, sc) >= 0);
+      availableScriptTypes.current = scriptTypes.filter(
+        (sc) => getIndexOfMatchingScriptType(receiveAddresses, sc) >= 0,
+      );
     }
   }, [receiveAddresses]);
 
   useEffect(() => {
     if (receiveAddresses && availableScriptTypes.current) {
-      let addressIndex = availableScriptTypes.current.length > 0 ? getIndexOfMatchingScriptType(receiveAddresses, availableScriptTypes.current[addressType]) : 0;
+      let addressIndex =
+        availableScriptTypes.current.length > 0
+          ? getIndexOfMatchingScriptType(
+              receiveAddresses,
+              availableScriptTypes.current[addressType],
+            )
+          : 0;
       if (addressIndex === -1) {
         addressIndex = 0;
       }
@@ -108,7 +122,11 @@ export const Receive = ({
         return;
       }
       setVerifying(true);
-      accountApi.verifyAddress(code, receiveAddresses[addressesIndex].addresses[activeIndex].addressID)
+      accountApi
+        .verifyAddress(
+          code,
+          receiveAddresses[addressesIndex].addresses[activeIndex].addressID,
+        )
         .then(() => setVerifying(false));
     }
   };
@@ -128,7 +146,10 @@ export const Receive = ({
   };
 
   // enable copying only after verification has been invoked if verification is possible and not optional.
-  const forceVerification = secureOutput === undefined ? true : (secureOutput.hasSecureOutput && !secureOutput.optional);
+  const forceVerification =
+    secureOutput === undefined
+      ? true
+      : secureOutput.hasSecureOutput && !secureOutput.optional;
   const enableCopy = !forceVerification;
 
   let uriPrefix = '';
@@ -148,84 +169,127 @@ export const Receive = ({
     }
   }
 
-  const hasManyScriptTypes = availableScriptTypes.current && availableScriptTypes.current.length > 1;
+  const hasManyScriptTypes =
+    availableScriptTypes.current && availableScriptTypes.current.length > 1;
 
   return (
     <div className="contentWithGuide">
       <div className="container">
         <PairedWarning deviceID={deviceID} />
         <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{t('receive.title', { accountName: account?.coinName })}</h2>} />
+          <Header
+            title={
+              <h2>{t('receive.title', { accountName: account?.coinName })}</h2>
+            }
+          />
           <div className="content narrow isVerticallyCentered">
             <div className="box large text-center">
-              { currentAddresses && (
+              {currentAddresses && (
                 <div style={{ position: 'relative' }}>
                   <div className={style.qrCodeContainer}>
-                    <QRCode tapToCopy={false} data={enableCopy ? uriPrefix + address : undefined} />
+                    <QRCode
+                      tapToCopy={false}
+                      data={enableCopy ? uriPrefix + address : undefined}
+                    />
                   </div>
                   <div className={style.labels}>
-                    { currentAddresses.length > 1 && (
-                      <button
-                        className={style.previous}
-                        onClick={previous}>
-                        {(verifying || activeIndex === 0) ? (
+                    {currentAddresses.length > 1 && (
+                      <button className={style.previous} onClick={previous}>
+                        {verifying || activeIndex === 0 ? (
                           <ArrowCirlceLeft height="24" width="24" />
                         ) : (
-                          <ArrowCirlceLeftActive height="24" width="24" title={t('button.previous')} />
+                          <ArrowCirlceLeftActive
+                            height="24"
+                            width="24"
+                            title={t('button.previous')}
+                          />
                         )}
                       </button>
                     )}
                     <p className={style.label}>
-                      {t('receive.label')} {currentAddresses.length > 1 ? `(${activeIndex + 1}/${currentAddresses.length})` : ''}
+                      {t('receive.label')}{' '}
+                      {currentAddresses.length > 1
+                        ? `(${activeIndex + 1}/${currentAddresses.length})`
+                        : ''}
                     </p>
-                    { currentAddresses.length > 1 && (
+                    {currentAddresses.length > 1 && (
                       <button
                         className={style.next}
-                        onClick={e => next(e, currentAddresses.length)}>
-                        {(verifying || activeIndex >= currentAddresses.length - 1) ? (
+                        onClick={(e) => next(e, currentAddresses.length)}
+                      >
+                        {verifying ||
+                        activeIndex >= currentAddresses.length - 1 ? (
                           <ArrowCirlceRight height="24" width="24" />
                         ) : (
-                          <ArrowCirlceRightActive height="24" width="24" title={t('button.next')} />
+                          <ArrowCirlceRightActive
+                            height="24"
+                            width="24"
+                            title={t('button.next')}
+                          />
                         )}
                       </button>
                     )}
                   </div>
-                  <CopyableInput disabled={!enableCopy} value={address} flexibleHeight />
-                  { hasManyScriptTypes && (
+                  <CopyableInput
+                    disabled={!enableCopy}
+                    value={address}
+                    flexibleHeight
+                  />
+                  {hasManyScriptTypes && (
                     <button
                       className={style.changeType}
-                      onClick={() => setAddressDialog(!addressDialog ? { addressType } : undefined)}>
+                      onClick={() =>
+                        setAddressDialog(
+                          !addressDialog ? { addressType } : undefined,
+                        )
+                      }
+                    >
                       {t('receive.changeScriptType')}
                     </button>
                   )}
-                  <form onSubmit={e => {
-                    e.preventDefault();
-                    setActiveIndex(0);
-                    setAddressType(addressDialog ? addressDialog?.addressType : addressType);
-                    setAddressDialog(undefined);
-                  }}>
-                    <Dialog open={(!!addressDialog)} medium title={t('receive.changeScriptType')} >
-                      {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
-                        <div key={scriptType}>
-                          {addressDialog && (
-                            <>
-                              <Radio
-                                checked={addressDialog.addressType === i}
-                                id={scriptType}
-                                name="scriptType"
-                                onChange={() => setAddressDialog({ addressType: i })}
-                                title={getScriptName(scriptType)}>
-                                {t(`receive.scriptType.${scriptType}`)}
-                              </Radio>
-                              {scriptType === 'p2tr' && addressDialog.addressType === i && (
-                                <Message type="warning">
-                                  {t('receive.taprootWarning')}
-                                </Message>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      ))}
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      setActiveIndex(0);
+                      setAddressType(
+                        addressDialog
+                          ? addressDialog?.addressType
+                          : addressType,
+                      );
+                      setAddressDialog(undefined);
+                    }}
+                  >
+                    <Dialog
+                      open={!!addressDialog}
+                      medium
+                      title={t('receive.changeScriptType')}
+                    >
+                      {availableScriptTypes.current &&
+                        availableScriptTypes.current.map((scriptType, i) => (
+                          <div key={scriptType}>
+                            {addressDialog && (
+                              <>
+                                <Radio
+                                  checked={addressDialog.addressType === i}
+                                  id={scriptType}
+                                  name="scriptType"
+                                  onChange={() =>
+                                    setAddressDialog({ addressType: i })
+                                  }
+                                  title={getScriptName(scriptType)}
+                                >
+                                  {t(`receive.scriptType.${scriptType}`)}
+                                </Radio>
+                                {scriptType === 'p2tr' &&
+                                  addressDialog.addressType === i && (
+                                    <Message type="warning">
+                                      {t('receive.taprootWarning')}
+                                    </Message>
+                                  )}
+                              </>
+                            )}
+                          </div>
+                        ))}
                       <DialogButtons>
                         <Button primary type="submit">
                           {t('button.done')}
@@ -238,32 +302,39 @@ export const Receive = ({
                       device="bitbox"
                       disabled={verifying || secureOutput === undefined}
                       forceVerification={forceVerification}
-                      onClick={() => verifyAddress(currentAddressIndex)}/>
+                      onClick={() => verifyAddress(currentAddressIndex)}
+                    />
                     <BackButton enableEsc={!verifying}>
                       {t('button.back')}
                     </BackButton>
                   </div>
-                  { forceVerification && verifying && (
+                  {forceVerification && verifying && (
                     <div className={style.hide}></div>
                   )}
                   <Dialog
-                    open={((!!account) && forceVerification && verifying)}
+                    open={!!account && forceVerification && verifying}
                     title={verifyLabel}
-                    medium centered>
+                    medium
+                    centered
+                  >
                     <div className="text-center">
                       {account && (
                         <>
-                          { isEthereumBased(account.coinCode) && (
+                          {isEthereumBased(account.coinCode) && (
                             <p>
                               <strong>
                                 {t('receive.onlyThisCoin.warning', {
                                   coinName: account.coinName,
                                 })}
-                              </strong><br />
+                              </strong>
+                              <br />
                               {t('receive.onlyThisCoin.description')}
                             </p>
                           )}
-                          <QRCode tapToCopy={false} data={uriPrefix + address} />
+                          <QRCode
+                            tapToCopy={false}
+                            data={uriPrefix + address}
+                          />
                           <p>{t('receive.verifyInstruction')}</p>
                         </>
                       )}
@@ -279,8 +350,12 @@ export const Receive = ({
         </div>
       </div>
       <ReceiveGuide
-        hasMultipleAddresses={currentAddresses ? currentAddresses.length > 1 : false}
-        hasDifferentFormats={receiveAddresses ? receiveAddresses.length > 1 : false}
+        hasMultipleAddresses={
+          currentAddresses ? currentAddresses.length > 1 : false
+        }
+        hasDifferentFormats={
+          receiveAddresses ? receiveAddresses.length > 1 : false
+        }
       />
     </div>
   );

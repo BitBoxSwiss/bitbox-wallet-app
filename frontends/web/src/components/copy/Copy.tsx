@@ -21,16 +21,24 @@ import { Check, Copy } from '@/components/icon/icon';
 import style from './Copy.module.css';
 
 type TProps = {
-    alignLeft?: boolean;
-    alignRight?: boolean;
-    borderLess?: boolean;
-    className?: string;
-    disabled?: boolean;
-    flexibleHeight?: boolean;
-    value: string;
-}
+  alignLeft?: boolean;
+  alignRight?: boolean;
+  borderLess?: boolean;
+  className?: string;
+  disabled?: boolean;
+  flexibleHeight?: boolean;
+  value: string;
+};
 
-export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, className, disabled, flexibleHeight }: TProps) => {
+export const CopyableInput = ({
+  alignLeft,
+  alignRight,
+  borderLess,
+  value,
+  className,
+  disabled,
+  flexibleHeight,
+}: TProps) => {
   const [success, setSuccess] = useState(false);
   const { t } = useTranslation();
 
@@ -51,13 +59,20 @@ export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, classN
     if (!textarea) {
       return;
     }
-    const fontSize = window.getComputedStyle(textarea, null).getPropertyValue('font-size');
+    const fontSize = window
+      .getComputedStyle(textarea, null)
+      .getPropertyValue('font-size');
     const units = Number(fontSize.replace('px', '')) + 2;
     textarea.setAttribute('rows', '1');
-    textarea.setAttribute('rows', String(Math.round((textarea.scrollHeight / units) - 2)));
+    textarea.setAttribute(
+      'rows',
+      String(Math.round(textarea.scrollHeight / units - 2)),
+    );
   };
 
-  const onFocus = (e: React.SyntheticEvent<HTMLTextAreaElement, FocusEvent>) => {
+  const onFocus = (
+    e: React.SyntheticEvent<HTMLTextAreaElement, FocusEvent>,
+  ) => {
     e.currentTarget.focus();
   };
 
@@ -69,11 +84,13 @@ export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, classN
   };
 
   return (
-    <div className={[
-      'flex flex-row flex-start flex-items-start',
-      style.container,
-      className ? className : ''
-    ].join(' ')}>
+    <div
+      className={[
+        'flex flex-row flex-start flex-items-start',
+        style.container,
+        className ? className : '',
+      ].join(' ')}
+    >
       <textarea
         disabled={disabled}
         readOnly
@@ -87,16 +104,19 @@ export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, classN
           alignLeft && style.alignLeft,
           alignRight && style.alignRight,
           borderLess && style.borderLess,
-        ].join(' ')} />
+        ].join(' ')}
+      />
       {disabled ? null : (
         <button
           onClick={copy}
-          className={[style.button, success && style.success, 'ignore'].join(' ')}
-          title={t('button.copy')}>
+          className={[style.button, success && style.success, 'ignore'].join(
+            ' ',
+          )}
+          title={t('button.copy')}
+        >
           {success ? <Check /> : <Copy />}
         </button>
       )}
     </div>
   );
 };
-

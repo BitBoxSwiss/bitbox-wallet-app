@@ -22,14 +22,9 @@ type Props = {
   className?: string;
 };
 
-export const SubTitle = ({
-  className = '',
-  children
-}: Props) => {
-  const classNames = className ? `${style.subtitle} ${className}` : style.subtitle;
-  return (
-    <h2 className={classNames}>
-      {children}
-    </h2>
-  );
+export const SubTitle = ({ className = '', children }: Props) => {
+  const classNames = className
+    ? `${style.subtitle} ${className}`
+    : style.subtitle;
+  return <h2 className={classNames}>{children}</h2>;
 };

@@ -19,10 +19,10 @@ import { ReactNode, useEffect, useState } from 'react';
 import style from './Toast.module.css';
 
 type TProps = {
-    theme: string;
-    withGuide?: boolean;
-    children: ReactNode;
-}
+  theme: string;
+  withGuide?: boolean;
+  children: ReactNode;
+};
 
 export const Toast = ({ theme, withGuide = false, children }: TProps) => {
   const [active, setActive] = useState(false);
@@ -33,10 +33,14 @@ export const Toast = ({ theme, withGuide = false, children }: TProps) => {
 
   return (
     <div
-      className={[style.toast, style[theme], active ? style.active : '', withGuide ? style.shifted : ''].join(' ')}>
+      className={[
+        style.toast,
+        style[theme],
+        active ? style.active : '',
+        withGuide ? style.shifted : '',
+      ].join(' ')}
+    >
       <p>{children}</p>
     </div>
   );
 };
-
-

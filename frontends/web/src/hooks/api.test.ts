@@ -32,14 +32,18 @@ describe('hooks for api calls', () => {
 
   describe('useLoad', () => {
     it('should load promise and return the correct resolved value', async () => {
-      const mockApiCall = vi.fn().mockImplementation(() => Promise.resolve(true));
+      const mockApiCall = vi
+        .fn()
+        .mockImplementation(() => Promise.resolve(true));
       const { result } = renderHook(() => useLoad(mockApiCall));
       await waitFor(() => expect(result.current).toBe(true));
     });
 
     it('re-calls apiCall when dependencies change', async () => {
       // mock apiCall function
-      const mockApiCall = vi.fn().mockImplementation(() => Promise.resolve(true));
+      const mockApiCall = vi
+        .fn()
+        .mockImplementation(() => Promise.resolve(true));
 
       // initialize hook with mock apiCall function and initial dependencies
       const { result } = renderHook(() => {
@@ -67,19 +71,25 @@ describe('hooks for api calls', () => {
       const MOCK_RETURN_STATUS: TStatus = {
         tipAtInitTime: 2408855,
         tip: 2408940,
-        tipHashHex: '0000000000000015f61742c773181dd368527575a6ac02ea5ecbace8e73cc083',
-        targetHeight: 2408940
+        tipHashHex:
+          '0000000000000015f61742c773181dd368527575a6ac02ea5ecbace8e73cc083',
+        targetHeight: 2408940,
       };
 
-      const mockSubscribe = vi.fn().mockImplementation(() => (cb: TSubscriptionCallback<any>) => mockSubscribeEndpoint(cb));
-      const mockSubscribeEndpoint = vi.fn().mockImplementation((cb) => cb(MOCK_RETURN_STATUS));
+      const mockSubscribe = vi
+        .fn()
+        .mockImplementation(
+          () => (cb: TSubscriptionCallback<any>) => mockSubscribeEndpoint(cb),
+        );
+      const mockSubscribeEndpoint = vi
+        .fn()
+        .mockImplementation((cb) => cb(MOCK_RETURN_STATUS));
 
       const { result } = renderHook(() => useSubscribe(mockSubscribe()));
 
       expect(result.current).toBe(MOCK_RETURN_STATUS);
     });
   });
-
 
   describe('useSync', () => {
     it('should load promise and sync to a subscription function', async () => {
@@ -99,7 +109,9 @@ describe('hooks for api calls', () => {
       });
 
       //Renders the hook
-      const { result } = renderHook(() => useSync(mockApiCall, mockSubscription));
+      const { result } = renderHook(() =>
+        useSync(mockApiCall, mockSubscription),
+      );
 
       // This waits for the hook to be rendered
       // and then when the state changes the first time.

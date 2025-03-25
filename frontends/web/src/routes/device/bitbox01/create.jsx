@@ -41,7 +41,7 @@ class Create extends Component {
     });
   };
 
-  handleFormChange = event => {
+  handleFormChange = (event) => {
     this.setState({ [event.target.id]: event.target.value });
   };
 
@@ -49,7 +49,7 @@ class Create extends Component {
     return !this.state.waiting && this.state.backupName !== '';
   };
 
-  create = event => {
+  create = (event) => {
     event.preventDefault();
     if (!this.validate()) {
       return;
@@ -58,7 +58,7 @@ class Create extends Component {
     apiPost('devices/' + this.props.deviceID + '/backups/create', {
       backupName: this.state.backupName,
       recoveryPassword: this.state.recoveryPassword,
-    }).then(data => {
+    }).then((data) => {
       this.abort();
       if (!data.success) {
         alertUser(data.errorMessage);
@@ -73,51 +73,46 @@ class Create extends Component {
 
   render() {
     const { t } = this.props;
-    const {
-      waiting,
-      recoveryPassword,
-      backupName,
-      activeDialog,
-    } = this.state;
+    const { waiting, recoveryPassword, backupName, activeDialog } = this.state;
     return (
       <div>
-        <Button
-          primary
-          onClick={() => this.setState({ activeDialog: true })}>
+        <Button primary onClick={() => this.setState({ activeDialog: true })}>
           {t('button.create')}
         </Button>
-        {
-          activeDialog && (
-            <DialogLegacy
-              title={t('backup.create.title')}
-              onClose={this.abort}>
-              <form onSubmit={this.create}>
-                <Input
-                  autoFocus
-                  id="backupName"
-                  label={t('backup.create.name.label')}
-                  placeholder={t('backup.create.name.placeholder')}
-                  onInput={this.handleFormChange}
-                  value={backupName} />
-                <p>{t('backup.create.info')}</p>
-                <PasswordInput
-                  id="recoveryPassword"
-                  label={t('backup.create.password.label')}
-                  placeholder={t('backup.create.password.placeholder')}
-                  onInput={this.handleFormChange}
-                  value={recoveryPassword} />
-                <div className={style.actions}>
-                  <Button type="submit" primary disabled={waiting || !this.validate()}>
-                    {t('button.create')}
-                  </Button>
-                  <Button secondary onClick={this.abort}>
-                    {t('button.abort')}
-                  </Button>
-                </div>
-              </form>
-            </DialogLegacy>
-          )
-        }
+        {activeDialog && (
+          <DialogLegacy title={t('backup.create.title')} onClose={this.abort}>
+            <form onSubmit={this.create}>
+              <Input
+                autoFocus
+                id="backupName"
+                label={t('backup.create.name.label')}
+                placeholder={t('backup.create.name.placeholder')}
+                onInput={this.handleFormChange}
+                value={backupName}
+              />
+              <p>{t('backup.create.info')}</p>
+              <PasswordInput
+                id="recoveryPassword"
+                label={t('backup.create.password.label')}
+                placeholder={t('backup.create.password.placeholder')}
+                onInput={this.handleFormChange}
+                value={recoveryPassword}
+              />
+              <div className={style.actions}>
+                <Button
+                  type="submit"
+                  primary
+                  disabled={waiting || !this.validate()}
+                >
+                  {t('button.create')}
+                </Button>
+                <Button secondary onClick={this.abort}>
+                  {t('button.abort')}
+                </Button>
+              </div>
+            </form>
+          </DialogLegacy>
+        )}
       </div>
     );
   }

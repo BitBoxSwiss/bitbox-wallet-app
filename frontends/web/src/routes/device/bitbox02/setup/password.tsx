@@ -24,17 +24,12 @@ import { convertDateToLocaleString } from '@/utils/date';
 
 type Props = {
   errorText: string | undefined;
-}
+};
 
 export const SetPassword = ({ errorText }: Props) => {
   const { t } = useTranslation();
   return (
-    <View
-      fullscreen
-      textCenter
-      verticallyCentered
-      withBottomBar
-      width="600px">
+    <View fullscreen textCenter verticallyCentered withBottomBar width="600px">
       <ViewHeader title={t('bitbox02Wizard.stepPassword.title')}>
         {errorText && (
           <Status className="margin-bottom-default" type="warning">
@@ -52,33 +47,28 @@ export const SetPassword = ({ errorText }: Props) => {
 
 type PropsWithBackup = {
   forBackup?: Backup;
-}
+};
 
-export const SetPasswordWithBackup = ({
-  forBackup,
-}: PropsWithBackup) => {
+export const SetPasswordWithBackup = ({ forBackup }: PropsWithBackup) => {
   const { i18n, t } = useTranslation();
   return (
-    <View
-      fullscreen
-      textCenter
-      verticallyCentered
-      withBottomBar
-      width="700px">
+    <View fullscreen textCenter verticallyCentered withBottomBar width="700px">
       <ViewHeader title={t('backup.restore.confirmTitle')}>
-        { forBackup ? (
+        {forBackup ? (
           <div>
-            <MultilineMarkup tagName="div" markup={t('backup.restore.selectedBackup', {
-              backupName: forBackup.name,
-              createdDateTime: convertDateToLocaleString(forBackup.date, i18n.language),
-            })}/>
-            <p className="text-small text-ellipsis">
-              ID:
-              {' '}
-              {forBackup.id}
-            </p>
+            <MultilineMarkup
+              tagName="div"
+              markup={t('backup.restore.selectedBackup', {
+                backupName: forBackup.name,
+                createdDateTime: convertDateToLocaleString(
+                  forBackup.date,
+                  i18n.language,
+                ),
+              })}
+            />
+            <p className="text-small text-ellipsis">ID: {forBackup.id}</p>
           </div>
-        ) : null }
+        ) : null}
       </ViewHeader>
       <ViewContent>
         <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>

@@ -24,7 +24,7 @@ import { i18n } from '@/i18n/i18n';
 
 type TProps = {
   onAgreedTerms: () => void;
-}
+};
 
 export const BitsuranceTerms = ({ onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
@@ -33,13 +33,12 @@ export const BitsuranceTerms = ({ onAgreedTerms }: TProps) => {
   };
   const getPrivacyLink = (): string => {
     switch (i18n.resolvedLanguage) {
-    case 'de':
-      return 'https://www.bitsurance.eu/datenschutz';
-    default:
-      return 'https://www.bitsurance.eu/en/dataprotection/';
+      case 'de':
+        return 'https://www.bitsurance.eu/datenschutz';
+      default:
+        return 'https://www.bitsurance.eu/en/dataprotection/';
     }
   };
-
 
   return (
     <div className={style.disclaimerContainer}>
@@ -49,23 +48,19 @@ export const BitsuranceTerms = ({ onAgreedTerms }: TProps) => {
         <p>{t('bitsurance.terms.text3')}</p>
         <p>{t('bitsurance.terms.text4')}</p>
         <p>
-          {t('bitsurance.terms.text5')}
-          {' '}
-          <A href={getPrivacyLink()}>
-            {t('bitsurance.terms.link')}.
-          </A>
+          {t('bitsurance.terms.text5')}{' '}
+          <A href={getPrivacyLink()}>{t('bitsurance.terms.link')}.</A>
         </p>
       </div>
       <div className="text-center m-bottom-quarter">
         <Checkbox
           id="skip_disclaimer"
           label={t('buy.info.skip')}
-          onChange={handleSkipDisclaimer} />
+          onChange={handleSkipDisclaimer}
+        />
       </div>
       <div className="buttons text-center m-bottom-xlarge">
-        <Button
-          primary
-          onClick={onAgreedTerms}>
+        <Button primary onClick={onAgreedTerms}>
           {t('buy.info.continue')}
         </Button>
       </div>

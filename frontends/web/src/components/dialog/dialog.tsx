@@ -22,16 +22,16 @@ import { useEsc, useKeydown } from '@/hooks/keyboard';
 import style from './dialog.module.css';
 
 type TProps = {
-    title?: string;
-    small?: boolean;
-    medium?: boolean;
-    large?: boolean;
-    slim?: boolean;
-    centered?: boolean;
-    onClose?: (e?: Event) => void;
-    children: React.ReactNode;
-    open: boolean;
-}
+  title?: string;
+  small?: boolean;
+  medium?: boolean;
+  large?: boolean;
+  slim?: boolean;
+  centered?: boolean;
+  onClose?: (e?: Event) => void;
+  children: React.ReactNode;
+  open: boolean;
+};
 
 export const Dialog = ({
   title,
@@ -51,47 +51,65 @@ export const Dialog = ({
   const modalContentRef = useRef<HTMLDivElement>(null);
   const timerIdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const getFocusables = useCallback((): (NodeListOf<HTMLElement> | null) => {
+  const getFocusables = useCallback((): NodeListOf<HTMLElement> | null => {
     if (!modalContentRef.current) {
       return null;
     }
-    return modalContentRef.current.querySelectorAll('a, button, input, textarea');
+    return modalContentRef.current.querySelectorAll(
+      'a, button, input, textarea',
+    );
   }, [modalContentRef]);
 
-  const getNextIndex = useCallback((elements: NodeListOf<HTMLElement>, isNext: boolean): number => {
-    const focusables = Array.from(elements);
-    const arr = isNext ? focusables : focusables.reverse();
-    const current = isNext ? currentTab : (arr.length - 1) - currentTab;
-    let next = isNext ? currentTab + 1 : arr.length - currentTab;
-    next = arr.findIndex((item, i) => (i >= next && !item.hasAttribute('disabled')));
-    next = next < 0 ? arr.findIndex((item, i) => (i <= current && !item.hasAttribute('disabled'))) : next;
-    return isNext ? next : (arr.length - 1) - next;
-  }, [currentTab]);
+  const getNextIndex = useCallback(
+    (elements: NodeListOf<HTMLElement>, isNext: boolean): number => {
+      const focusables = Array.from(elements);
+      const arr = isNext ? focusables : focusables.reverse();
+      const current = isNext ? currentTab : arr.length - 1 - currentTab;
+      let next = isNext ? currentTab + 1 : arr.length - currentTab;
+      next = arr.findIndex(
+        (item, i) => i >= next && !item.hasAttribute('disabled'),
+      );
+      next =
+        next < 0
+          ? arr.findIndex(
+              (item, i) => i <= current && !item.hasAttribute('disabled'),
+            )
+          : next;
+      return isNext ? next : arr.length - 1 - next;
+    },
+    [currentTab],
+  );
 
-  const updateIndex = useCallback((isNext: boolean) => {
-    const focusables = getFocusables();
-    if (!focusables) {
-      return;
-    }
-    const target = getNextIndex(focusables, isNext);
-    setCurrentTab(target);
-    focusables[target].focus();
-  }, [getFocusables, getNextIndex, setCurrentTab]);
-
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!renderDialog) {
-      return;
-    }
-    const isTab = e.keyCode === 9;
-    if (isTab) {
-      e.preventDefault();
-      if (e.shiftKey) {
-        updateIndex(false);
-      } else {
-        updateIndex(true);
+  const updateIndex = useCallback(
+    (isNext: boolean) => {
+      const focusables = getFocusables();
+      if (!focusables) {
+        return;
       }
-    }
-  }, [updateIndex, renderDialog]);
+      const target = getNextIndex(focusables, isNext);
+      setCurrentTab(target);
+      focusables[target].focus();
+    },
+    [getFocusables, getNextIndex, setCurrentTab],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!renderDialog) {
+        return;
+      }
+      const isTab = e.keyCode === 9;
+      if (isTab) {
+        e.preventDefault();
+        if (e.shiftKey) {
+          updateIndex(false);
+        } else {
+          updateIndex(true);
+        }
+      }
+    },
+    [updateIndex, renderDialog],
+  );
 
   useKeydown(handleKeyDown);
 
@@ -104,56 +122,78 @@ export const Dialog = ({
     }
     overlayRef.current.classList.add(style.activeOverlay);
     // Minor delay
-    timerIdRef.current = setTimeout(() => modalRef.current?.classList.add(style.open), 10);
+    timerIdRef.current = setTimeout(
+      () => modalRef.current?.classList.add(style.open),
+      10,
+    );
 
     // Focus first
     const focusables = getFocusables();
-    if (focusables && focusables.length && focusables[0].getAttribute('autofocus') !== 'false') {
+    if (
+      focusables &&
+      focusables.length &&
+      focusables[0].getAttribute('autofocus') !== 'false'
+    ) {
       focusables[0].focus();
     }
   }, [getFocusables, modalRef, overlayRef, timerIdRef]);
 
-  const deactivateModal = useCallback((fireOnCloseProp: boolean) => {
-    if (!modalRef.current || !overlayRef.current) {
-      return;
-    }
-    overlayRef.current.classList.remove(style.closingOverlay);
-    setRenderDialog(false);
-    if (onClose && fireOnCloseProp) {
-      onClose();
-    }
-  }, [modalRef, overlayRef, setRenderDialog, onClose]);
-
-  const deactivate = useCallback((fireOnCloseProp: boolean) => {
-    if (!modalRef.current || !overlayRef.current) {
-      return;
-    }
-
-    if (timerIdRef.current) {
-      clearTimeout(timerIdRef.current);
-    }
-
-    overlayRef.current.classList.remove(style.activeOverlay);
-    overlayRef.current.classList.add(style.closingOverlay);
-    modalRef.current?.classList.remove(style.open);
-
-    const onTransitionEnd = (event: TransitionEvent) => {
-      if (event.target === modalRef.current) {
-        deactivateModal(fireOnCloseProp);
-        modalRef.current?.removeEventListener('transitionend', onTransitionEnd);
+  const deactivateModal = useCallback(
+    (fireOnCloseProp: boolean) => {
+      if (!modalRef.current || !overlayRef.current) {
+        return;
       }
-    };
+      overlayRef.current.classList.remove(style.closingOverlay);
+      setRenderDialog(false);
+      if (onClose && fireOnCloseProp) {
+        onClose();
+      }
+    },
+    [modalRef, overlayRef, setRenderDialog, onClose],
+  );
 
-    const hasTransition = parseFloat(window.getComputedStyle(modalRef.current).transitionDuration) > 0;
+  const deactivate = useCallback(
+    (fireOnCloseProp: boolean) => {
+      if (!modalRef.current || !overlayRef.current) {
+        return;
+      }
 
-    if (hasTransition) {
-      modalRef.current.addEventListener('transitionend', onTransitionEnd);
-      // fallback in-case the 'transitionend' event didn't fire
-      timerIdRef.current = setTimeout(() => deactivateModal(fireOnCloseProp), 400);
-    } else {
-      deactivateModal(fireOnCloseProp);
-    }
-  }, [deactivateModal]);
+      if (timerIdRef.current) {
+        clearTimeout(timerIdRef.current);
+      }
+
+      overlayRef.current.classList.remove(style.activeOverlay);
+      overlayRef.current.classList.add(style.closingOverlay);
+      modalRef.current?.classList.remove(style.open);
+
+      const onTransitionEnd = (event: TransitionEvent) => {
+        if (event.target === modalRef.current) {
+          deactivateModal(fireOnCloseProp);
+          modalRef.current?.removeEventListener(
+            'transitionend',
+            onTransitionEnd,
+          );
+        }
+      };
+
+      const hasTransition =
+        parseFloat(
+          window.getComputedStyle(modalRef.current).transitionDuration,
+        ) > 0;
+
+      if (hasTransition) {
+        modalRef.current.addEventListener('transitionend', onTransitionEnd);
+        // fallback in-case the 'transitionend' event didn't fire
+        timerIdRef.current = setTimeout(
+          () => deactivateModal(fireOnCloseProp),
+          400,
+        );
+      } else {
+        deactivateModal(fireOnCloseProp);
+      }
+    },
+    [deactivateModal],
+  );
 
   const closeHandler = useCallback(() => {
     if (onClose !== undefined) {
@@ -163,14 +203,16 @@ export const Dialog = ({
     return true;
   }, [onClose, deactivate]);
 
-  useEsc(useCallback(() => {
-    if (!renderDialog) {
-      return;
-    }
-    if (onClose !== undefined) {
-      deactivate(true);
-    }
-  }, [renderDialog, onClose, deactivate]));
+  useEsc(
+    useCallback(() => {
+      if (!renderDialog) {
+        return;
+      }
+      if (onClose !== undefined) {
+        deactivate(true);
+      }
+    }, [renderDialog, onClose, deactivate]),
+  );
 
   useEffect(() => {
     if (open) {
@@ -198,31 +240,32 @@ export const Dialog = ({
 
   return (
     <div className={style.overlay} ref={overlayRef}>
-      <UseBackButton handler={closeHandler}/>
+      <UseBackButton handler={closeHandler} />
       <div
         className={[style.modal, isSmall, isMedium, isLarge].join(' ')}
-        ref={modalRef}>
-        {
-          title && (
-            <div className={[style.header, isCentered].join(' ')}>
-              <h3 className={style.title}>{title}</h3>
-              { onClose ? (
-                <button className={style.closeButton} onClick={() => {
+        ref={modalRef}
+      >
+        {title && (
+          <div className={[style.header, isCentered].join(' ')}>
+            <h3 className={style.title}>{title}</h3>
+            {onClose ? (
+              <button
+                className={style.closeButton}
+                onClick={() => {
                   deactivate(true);
-                }}>
-                  <CloseXDark className="show-in-lightmode" />
-                  <CloseXWhite className="show-in-darkmode" />
-                </button>
-              ) : null }
-            </div>
-          )
-        }
+                }}
+              >
+                <CloseXDark className="show-in-lightmode" />
+                <CloseXWhite className="show-in-darkmode" />
+              </button>
+            ) : null}
+          </div>
+        )}
         <div
           className={[style.contentContainer, isSlim].join(' ')}
-          ref={modalContentRef}>
-          <div className={style.content}>
-            {children}
-          </div>
+          ref={modalContentRef}
+        >
+          <div className={style.content}>{children}</div>
         </div>
       </div>
     </div>
@@ -249,11 +292,9 @@ export const Dialog = ({
  */
 
 interface DialogButtonsProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export const DialogButtons = ({ children }: DialogButtonsProps) => {
-  return (
-    <div className={style.dialogButtons}>{children}</div>
-  );
+  return <div className={style.dialogButtons}>{children}</div>;
 };

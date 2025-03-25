@@ -45,11 +45,15 @@ export const More = () => {
           <View fullscreen={false}>
             <ViewContent>
               <div className={styles.container}>
-                <ActionableItem
-                  onClick={() => navigate('/settings')}
-                >
+                <ActionableItem onClick={() => navigate('/settings')}>
                   <div className={styles.item}>
-                    <img width={22} height={22} draggable={false} src={settingsIcon} alt={t('sidebar.settings')} />
+                    <img
+                      width={22}
+                      height={22}
+                      draggable={false}
+                      src={settingsIcon}
+                      alt={t('sidebar.settings')}
+                    />
                     {t('sidebar.settings')}
                   </div>
                 </ActionableItem>
@@ -57,7 +61,13 @@ export const More = () => {
                   onClick={() => navigate('/bitsurance/bitsurance')}
                 >
                   <div className={styles.item}>
-                    <img width={22} height={22} draggable={false} src={shieldIcon} alt={t('sidebar.insurance')} />
+                    <img
+                      width={22}
+                      height={22}
+                      draggable={false}
+                      src={shieldIcon}
+                      alt={t('sidebar.insurance')}
+                    />
                     {t('sidebar.insurance')}
                   </div>
                 </ActionableItem>

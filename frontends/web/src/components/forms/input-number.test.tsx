@@ -25,7 +25,11 @@ describe('components/forms/input-number', () => {
   });
 
   it('should have children', () => {
-    render(<NumberInput defaultValue=""><span>label</span></NumberInput>);
+    render(
+      <NumberInput defaultValue="">
+        <span>label</span>
+      </NumberInput>,
+    );
     expect(screen.getByText('label')).toBeTruthy();
   });
 
@@ -35,28 +39,30 @@ describe('components/forms/input-number', () => {
   });
 
   it('should preserve text', () => {
-    render(<NumberInput label="Label" error="text too short" defaultValue="" />);
+    render(
+      <NumberInput label="Label" error="text too short" defaultValue="" />,
+    );
     expect(screen.getByText('text too short')).toBeTruthy();
   });
 
   it('should paste supported number formats', async () => {
     const mockCallback = vi.fn();
-    render(
-      <NumberInput placeholder="Number input" onChange={mockCallback} />
-    );
+    render(<NumberInput placeholder="Number input" onChange={mockCallback} />);
     const input = screen.queryByPlaceholderText('Number input');
     if (!input) {
       throw new Error('Input not found');
     }
     fireEvent.paste(input, {
       clipboardData: {
-        getData: () => '1,000,000.50'
-      }
+        getData: () => '1,000,000.50',
+      },
     });
     expect(mockCallback).toHaveBeenCalledTimes(1);
-    expect(mockCallback).toHaveBeenCalledWith(expect.objectContaining({
-      target: expect.objectContaining({ value: '1000000.50' })
-    }));
+    expect(mockCallback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        target: expect.objectContaining({ value: '1000000.50' }),
+      }),
+    );
 
     fireEvent.paste(input, { clipboardData: { getData: () => '100.50' } });
     expect(mockCallback).toHaveBeenCalledTimes(2);
@@ -119,27 +125,43 @@ describe('components/forms/input-number', () => {
     expect(mockCallback.mock.calls[0][0].target.value).toBe('.99');
 
     mockCallback.mockClear();
-    fireEvent.paste(input, { clipboardData: { getData: () => '0.0000000000000000001' } });
-    expect(mockCallback.mock.calls[0][0].target.value).toBe('0.0000000000000000001');
+    fireEvent.paste(input, {
+      clipboardData: { getData: () => '0.0000000000000000001' },
+    });
+    expect(mockCallback.mock.calls[0][0].target.value).toBe(
+      '0.0000000000000000001',
+    );
 
     mockCallback.mockClear();
-    fireEvent.paste(input, { clipboardData: { getData: () => '0,0000000000000000001' } });
-    expect(mockCallback.mock.calls[0][0].target.value).toBe('0.0000000000000000001');
+    fireEvent.paste(input, {
+      clipboardData: { getData: () => '0,0000000000000000001' },
+    });
+    expect(mockCallback.mock.calls[0][0].target.value).toBe(
+      '0.0000000000000000001',
+    );
 
     mockCallback.mockClear();
-    fireEvent.paste(input, { clipboardData: { getData: () => '1\'000\'000.50' } });
+    fireEvent.paste(input, {
+      clipboardData: { getData: () => "1'000'000.50" },
+    });
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000000.50');
 
     mockCallback.mockClear();
-    fireEvent.paste(input, { clipboardData: { getData: () => '1\'000\'000,50' } });
+    fireEvent.paste(input, {
+      clipboardData: { getData: () => "1'000'000,50" },
+    });
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000000.50');
 
     mockCallback.mockClear();
-    fireEvent.paste(input, { clipboardData: { getData: () => '1 000 000.50' } });
+    fireEvent.paste(input, {
+      clipboardData: { getData: () => '1 000 000.50' },
+    });
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000000.50');
 
     mockCallback.mockClear();
-    fireEvent.paste(input, { clipboardData: { getData: () => '1.000.000,50' } });
+    fireEvent.paste(input, {
+      clipboardData: { getData: () => '1.000.000,50' },
+    });
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000000.50');
 
     mockCallback.mockClear();
@@ -155,15 +177,15 @@ describe('components/forms/input-number', () => {
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000.50');
 
     mockCallback.mockClear();
-    fireEvent.paste(input, { clipboardData: { getData: () => '1,000,000.50' } });
+    fireEvent.paste(input, {
+      clipboardData: { getData: () => '1,000,000.50' },
+    });
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000000.50');
   });
 
   it('has some unsupported number formats', async () => {
     const mockCallback = vi.fn();
-    render(
-      <NumberInput placeholder="Weird formats" onChange={mockCallback} />
-    );
+    render(<NumberInput placeholder="Weird formats" onChange={mockCallback} />);
     const input = screen.queryByPlaceholderText('Weird formats');
     if (!input) {
       throw new Error('Input not found');
@@ -174,7 +196,9 @@ describe('components/forms/input-number', () => {
     expect(mockCallback.mock.calls[0][0].target.value).toBe('');
 
     mockCallback.mockClear();
-    fireEvent.paste(input, { clipboardData: { getData: () => '1,000.000,50' } });
+    fireEvent.paste(input, {
+      clipboardData: { getData: () => '1,000.000,50' },
+    });
     expect(mockCallback).toHaveBeenCalledTimes(0);
 
     mockCallback.mockClear();
@@ -184,7 +208,5 @@ describe('components/forms/input-number', () => {
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1,000' } });
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1.000');
-
   });
-
 });

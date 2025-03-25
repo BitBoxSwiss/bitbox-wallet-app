@@ -23,7 +23,7 @@ import { StyledSkeleton } from '@/routes/settings/bb02-settings';
 
 type TProps = {
   deviceID: string;
-}
+};
 
 const AttestationCheckSetting = ({ deviceID }: TProps) => {
   const [attestation, setAttestation] = useState<boolean | null>(null);
@@ -33,7 +33,11 @@ const AttestationCheckSetting = ({ deviceID }: TProps) => {
     verifyAttestation(deviceID).then(setAttestation);
   }, [deviceID]);
 
-  const icon = attestation ? <Checked /> : <WarningOLD width={20} height={20} />;
+  const icon = attestation ? (
+    <Checked />
+  ) : (
+    <WarningOLD width={20} height={20} />
+  );
 
   if (attestation === null) {
     return <StyledSkeleton />;
@@ -42,9 +46,13 @@ const AttestationCheckSetting = ({ deviceID }: TProps) => {
   return (
     <SettingsItem
       settingName={t('deviceSettings.hardware.attestation.label')}
-      secondaryText={t('deviceSettings.deviceInformation.attestation.description')}
+      secondaryText={t(
+        'deviceSettings.deviceInformation.attestation.description',
+      )}
       extraComponent={icon}
-      displayedValue={t(`deviceSettings.hardware.attestation.${attestation ? 'true' : 'false'}`)}
+      displayedValue={t(
+        `deviceSettings.hardware.attestation.${attestation ? 'true' : 'false'}`,
+      )}
       hideDisplayedValueOnSmall
     />
   );

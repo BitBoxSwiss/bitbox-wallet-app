@@ -16,7 +16,15 @@
 
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Select, { components, SingleValueProps, OptionProps, SingleValue, DropdownIndicatorProps, GroupProps, GroupHeadingProps as ReactSelectGroupHeadingProps } from 'react-select';
+import Select, {
+  components,
+  SingleValueProps,
+  OptionProps,
+  SingleValue,
+  DropdownIndicatorProps,
+  GroupProps,
+  GroupHeadingProps as ReactSelectGroupHeadingProps,
+} from 'react-select';
 import { AccountCode, IAccount } from '@/api/account';
 import { Button } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
@@ -25,14 +33,17 @@ import { USBSuccess } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
 import { InsuredShield } from '@/routes/account/components/insuredtag';
 import { getAccountsByKeystore } from '@/routes/account/utils';
-import { createGroupedOptions, getBalancesForGroupedAccountSelector } from './services';
+import {
+  createGroupedOptions,
+  getBalancesForGroupedAccountSelector,
+} from './services';
 import styles from './groupedaccountselector.module.css';
 
 export type TGroupedOption = {
   label: string;
   connected: boolean;
   options: TOption[];
-}
+};
 
 export type TOption = {
   label: string;
@@ -41,7 +52,7 @@ export type TOption = {
   coinCode?: IAccount['coinCode'];
   balance?: string;
   insured?: boolean;
-}
+};
 
 type TAccountSelector = {
   title: string;
@@ -49,8 +60,8 @@ type TAccountSelector = {
   selected?: string;
   onChange: (value: string) => void;
   onProceed: () => void;
-  accounts: IAccount[]
-}
+  accounts: IAccount[];
+};
 
 const SelectSingleValue = (props: SingleValueProps<TOption>) => {
   const { hideAmounts } = useContext(AppContext);
@@ -61,8 +72,12 @@ const SelectSingleValue = (props: SingleValueProps<TOption>) => {
         <div className={styles.valueContainer}>
           {coinCode ? <Logo coinCode={coinCode} alt={coinCode} /> : null}
           <span className={styles.selectLabelText}>{label}</span>
-          {insured && <InsuredShield/>}
-          {coinCode && balance && <span className={styles.balanceSingleValue}>{hideAmounts ? `*** ${coinCode}` : balance}</span>}
+          {insured && <InsuredShield />}
+          {coinCode && balance && (
+            <span className={styles.balanceSingleValue}>
+              {hideAmounts ? `*** ${coinCode}` : balance}
+            </span>
+          )}
         </div>
       </components.SingleValue>
     </div>
@@ -78,8 +93,12 @@ const SelectOption = (props: OptionProps<TOption>) => {
       <div className={styles.valueContainer}>
         {coinCode ? <Logo coinCode={coinCode} alt={coinCode} /> : null}
         <span className={styles.selectLabelText}>{label}</span>
-        {insured && <InsuredShield/>}
-        {coinCode && balance && <span className={styles.balance}>{hideAmounts ? `*** ${coinCode}` : balance}</span>}
+        {insured && <InsuredShield />}
+        {coinCode && balance && (
+          <span className={styles.balance}>
+            {hideAmounts ? `*** ${coinCode}` : balance}
+          </span>
+        )}
       </div>
     </components.Option>
   );
@@ -100,33 +119,36 @@ const Group = (props: GroupProps<TOption>) => (
 );
 
 type GroupHeadingProps = {
-  customData: TGroupedOption
-} & ReactSelectGroupHeadingProps<TOption>
+  customData: TGroupedOption;
+} & ReactSelectGroupHeadingProps<TOption>;
 
-const GroupHeading = (
-  { customData, ...props }: GroupHeadingProps
-) => {
+const GroupHeading = ({ customData, ...props }: GroupHeadingProps) => {
   return (
     <div className={`${styles.groupHeader}`}>
       <components.GroupHeading {...props} data={customData} />
       {customData.connected && (
-        <Badge
-          icon={props => <USBSuccess {...props} />}
-          type="success"
-        />
+        <Badge icon={(props) => <USBSuccess {...props} />} type="success" />
       )}
     </div>
   );
 };
 
-export const GroupedAccountSelector = ({ title, disabled, selected, onChange, onProceed, accounts }: TAccountSelector) => {
+export const GroupedAccountSelector = ({
+  title,
+  disabled,
+  selected,
+  onChange,
+  onProceed,
+  accounts,
+}: TAccountSelector) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<TGroupedOption[]>();
 
   useEffect(() => {
     //setting options without balance
     const accountsByKeystore = getAccountsByKeystore(accounts);
-    const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore);
+    const groupedOpts: TGroupedOption[] =
+      createGroupedOptions(accountsByKeystore);
     setOptions(groupedOpts);
     //asynchronously fetching each account's balance
     getBalancesForGroupedAccountSelector(groupedOpts).then(setOptions);
@@ -144,34 +166,41 @@ export const GroupedAccountSelector = ({ title, disabled, selected, onChange, on
         classNamePrefix="react-select"
         options={options}
         isSearchable={false}
-        value={selected === '' ? {
-          label: t('buy.info.selectLabel'),
-          value: 'choose',
-          disabled: true
-        } : options.flatMap(o => o.options).find(opt => opt.value === selected)}
+        value={
+          selected === ''
+            ? {
+                label: t('buy.info.selectLabel'),
+                value: 'choose',
+                disabled: true,
+              }
+            : options
+                .flatMap((o) => o.options)
+                .find((opt) => opt.value === selected)
+        }
         onChange={(e) => {
           const value = (e as SingleValue<TOption>)?.value || '';
           onChange(value);
         }}
         components={{
           Group,
-          GroupHeading: (props) => <GroupHeading customData={props.data as TGroupedOption} {...props} />,
+          GroupHeading: (props) => (
+            <GroupHeading
+              customData={props.data as TGroupedOption}
+              {...props}
+            />
+          ),
           DropdownIndicator,
           Option: SelectOption,
           SingleValue: SelectSingleValue,
-          IndicatorSeparator: () => null
+          IndicatorSeparator: () => null,
         }}
         defaultValue={options[0].options[0]}
       />
       <div className="buttons text-center">
-        <Button
-          primary
-          onClick={onProceed}
-          disabled={!selected || disabled}>
+        <Button primary onClick={onProceed} disabled={!selected || disabled}>
           {t('buy.info.next')}
         </Button>
       </div>
     </>
-
   );
 };

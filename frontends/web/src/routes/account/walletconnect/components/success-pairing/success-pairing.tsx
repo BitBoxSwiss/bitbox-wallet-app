@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2023 Shift Crypto AG
  *
@@ -23,8 +22,8 @@ import { AnimatedChecked } from '@/components/icon';
 import styles from './success-pairing.module.css';
 
 type TProps = {
-    accountCode: accountAPI.AccountCode;
-}
+  accountCode: accountAPI.AccountCode;
+};
 
 export const WCSuccessPairing = ({ accountCode }: TProps) => {
   const navigate = useNavigate();
@@ -33,7 +32,12 @@ export const WCSuccessPairing = ({ accountCode }: TProps) => {
     <div className={styles.container}>
       <AnimatedChecked className={styles.successIcon} />
       <p className={styles.successText}>{t('walletConnect.pairingSuccess')}</p>
-      <Button primary onClick={() => navigate(`/account/${accountCode}/wallet-connect/dashboard`)}>
+      <Button
+        primary
+        onClick={() =>
+          navigate(`/account/${accountCode}/wallet-connect/dashboard`)
+        }
+      >
         {t('button.done')}
       </Button>
     </div>

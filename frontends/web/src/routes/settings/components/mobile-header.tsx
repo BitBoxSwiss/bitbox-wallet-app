@@ -22,7 +22,7 @@ type TProps = {
   title: string;
   withGuide?: boolean;
   onClick?: () => void;
-}
+};
 
 export const MobileHeader = ({ title, withGuide = false, onClick }: TProps) => {
   const navigate = useNavigate();
@@ -35,9 +35,17 @@ export const MobileHeader = ({ title, withGuide = false, onClick }: TProps) => {
     }
   };
   return (
-    <div className={`${styles.container} ${withGuide ? `${styles.withGuide}` : ''}`}>
-      <button onClick={handleClick} className={styles.backButton}><ChevronLeftDark /></button>
-      <h1 className={`${styles.headerText} ${withGuide ? '' : styles.headerTextNoGuide}`}>{title}</h1>
+    <div
+      className={`${styles.container} ${withGuide ? `${styles.withGuide}` : ''}`}
+    >
+      <button onClick={handleClick} className={styles.backButton}>
+        <ChevronLeftDark />
+      </button>
+      <h1
+        className={`${styles.headerText} ${withGuide ? '' : styles.headerTextNoGuide}`}
+      >
+        {title}
+      </h1>
     </div>
   );
 };

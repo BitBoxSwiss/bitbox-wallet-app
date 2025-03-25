@@ -27,11 +27,7 @@ type Props = {
   onAbort: () => void;
 };
 
-export const WithSDCard = ({
-  children,
-  deviceID,
-  onAbort
-}: Props) => {
+export const WithSDCard = ({ children, deviceID, onAbort }: Props) => {
   const { t } = useTranslation();
   const [hasSDCard, setSDCard] = useState<boolean>();
   const hasCheckedSDCard = useRef(false);
@@ -77,6 +73,7 @@ export const WithSDCard = ({
   return (
     <Wait
       title={t('bitbox02Wizard.stepInsertSD.insertSDcardTitle')}
-      text={t('bitbox02Wizard.stepInsertSD.insertSDCard')} />
+      text={t('bitbox02Wizard.stepInsertSD.insertSDCard')}
+    />
   );
 };

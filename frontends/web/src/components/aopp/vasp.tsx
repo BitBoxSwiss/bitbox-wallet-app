@@ -22,15 +22,15 @@ import BityLogo from '@/assets/exchanges/logos/bity.png';
 import PocketBitcoinLogo from '@/assets/exchanges/logos/pocketbitcoin.svg';
 
 type TVASPProps = {
-    fallback?: JSX.Element;
-    hostname: string;
-    prominent?: boolean;
-    withLogoText?: string;
-}
+  fallback?: JSX.Element;
+  hostname: string;
+  prominent?: boolean;
+  withLogoText?: string;
+};
 
 type TVASPMap = {
-    [hostname: string]: string
-}
+  [hostname: string]: string;
+};
 
 const VASPLogoMap: TVASPMap = {
   'demo.aopp.group': AOPPGroupLogo,
@@ -54,16 +54,18 @@ export const Vasp = ({
 }: TVASPProps) => {
   const hasLogo = hostname in VASPLogoMap;
   if (!hasLogo) {
-    return fallback || (<p className={styles.hostname}>{hostname}</p>);
+    return fallback || <p className={styles.hostname}>{hostname}</p>;
   }
-  const logoClasses = prominent ? `${styles.logo} ${styles.prominent}` : styles.logo;
+  const logoClasses = prominent
+    ? `${styles.logo} ${styles.prominent}`
+    : styles.logo;
   return (
     <div>
       <img className={logoClasses} src={VASPLogoMap[hostname]} alt={hostname} />
       <p className={`${styles.hostname} ${styles.capitalized}`}>
         {hostname in VASPHostnameMap ? VASPHostnameMap[hostname] : hostname}
       </p>
-      {withLogoText ? (<p>{withLogoText}</p>) : null}
+      {withLogoText ? <p>{withLogoText}</p> : null}
     </div>
   );
 };

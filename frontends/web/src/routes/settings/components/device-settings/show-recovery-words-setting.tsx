@@ -27,11 +27,11 @@ import { Button, Checkbox } from '@/components/forms';
 
 type TProps = {
   deviceID: string;
-}
+};
 
 type TDialog = {
   inProgress: boolean;
-}
+};
 
 const ShowRecoveryWordsSetting = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
@@ -50,31 +50,45 @@ const ShowRecoveryWordsSetting = ({ deviceID }: TProps) => {
     <>
       <SettingsItem
         settingName={t('backup.showMnemonic.title')}
-        secondaryText={t('deviceSettings.backups.showRecoveryWords.description')}
+        secondaryText={t(
+          'deviceSettings.backups.showRecoveryWords.description',
+        )}
         extraComponent={<ChevronRightDark />}
         onClick={() => setShowDialog(true)}
       />
       <ShowMnemonicWaitDialog inProgress={inProgress} />
 
-      <Dialog title={t('backup.showMnemonic.title')} open={showDialog} onClose={() => setShowDialog(false)}>
+      <Dialog
+        title={t('backup.showMnemonic.title')}
+        open={showDialog}
+        onClose={() => setShowDialog(false)}
+      >
         <Message type="warning">
-          <SimpleMarkup tagName="span" markup={t('backup.showMnemonic.warning')}/>
+          <SimpleMarkup
+            tagName="span"
+            markup={t('backup.showMnemonic.warning')}
+          />
         </Message>
         <p>
           <MultilineMarkup
             markup={t('backup.showMnemonic.description')}
             tagName="span"
-            withBreaks />
+            withBreaks
+          />
         </p>
         <Checkbox
           id="confirmationCheckbox"
-          onChange={() => setChecked(prev => !prev)}
+          onChange={() => setChecked((prev) => !prev)}
           checked={checked}
           label={t('backup.showMnemonic.checkboxLabel')}
         />
         <DialogButtons>
-          <Button disabled={!checked} primary onClick={confirmShowWords}>{t('button.next')}</Button>
-          <Button secondary onClick={() => setShowDialog(false)}>{t('dialog.cancel')}</Button>
+          <Button disabled={!checked} primary onClick={confirmShowWords}>
+            {t('button.next')}
+          </Button>
+          <Button secondary onClick={() => setShowDialog(false)}>
+            {t('dialog.cancel')}
+          </Button>
         </DialogButtons>
       </Dialog>
     </>
@@ -91,18 +105,21 @@ const ShowMnemonicWaitDialog = ({ inProgress }: TDialog) => {
   return (
     <WaitDialog title={t('backup.showMnemonic.title')}>
       <Message type="warning">
-        <SimpleMarkup tagName="span" markup={t('backup.showMnemonic.warning')}/>
+        <SimpleMarkup
+          tagName="span"
+          markup={t('backup.showMnemonic.warning')}
+        />
       </Message>
       <p>
         <MultilineMarkup
           markup={t('backup.showMnemonic.description')}
           tagName="span"
-          withBreaks />
+          withBreaks
+        />
       </p>
       <p>{t('bitbox02Interact.followInstructions')}</p>
     </WaitDialog>
   );
 };
-
 
 export { ShowRecoveryWordsSetting };

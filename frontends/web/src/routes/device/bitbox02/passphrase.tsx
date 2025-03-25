@@ -24,7 +24,12 @@ import { UseDisableBackButton } from '@/hooks/backbutton';
 import { Main } from '@/components/layout';
 import { Button, Checkbox } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
-import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
+import {
+  View,
+  ViewButtons,
+  ViewContent,
+  ViewHeader,
+} from '@/components/view/view';
 import { PointToBitBox02 } from '@/components/icon';
 import { Status } from '@/components/status/status';
 
@@ -34,8 +39,8 @@ const FINAL_INFO_STEP = 5;
 const CONTENT_MIN_HEIGHT = '38em';
 
 type TProps = {
-    deviceID: string;
-}
+  deviceID: string;
+};
 
 type TStatus = 'info' | 'progress' | 'success';
 
@@ -47,15 +52,17 @@ export const Passphrase = ({ deviceID }: TProps) => {
   const [isEnabled, setIsEnabled] = useState<boolean>();
 
   useEffect(() => {
-    getDeviceInfo(deviceID).then(result => {
-      if (!result.success) {
-        console.error(result.message);
-        alertUser(t('genericError'));
-        return;
-      }
-      const { mnemonicPassphraseEnabled } = result.deviceInfo;
-      setIsEnabled(mnemonicPassphraseEnabled);
-    }).catch(console.error);
+    getDeviceInfo(deviceID)
+      .then((result) => {
+        if (!result.success) {
+          console.error(result.message);
+          alertUser(t('genericError'));
+          return;
+        }
+        const { mnemonicPassphraseEnabled } = result.deviceInfo;
+        setIsEnabled(mnemonicPassphraseEnabled);
+      })
+      .catch(console.error);
   }, [deviceID, t]);
 
   const setPassphrase = async (enabled: boolean) => {
@@ -65,9 +72,11 @@ export const Passphrase = ({ deviceID }: TProps) => {
       if (!result.success) {
         navigate(-1);
         if (result.code) {
-          alertUser(t(`passphrase.error.e${result.code}`, {
-            defaultValue: result.message || t('genericError'),
-          }));
+          alertUser(
+            t(`passphrase.error.e${result.code}`, {
+              defaultValue: result.message || t('genericError'),
+            }),
+          );
         }
         return null;
       }
@@ -86,35 +95,38 @@ export const Passphrase = ({ deviceID }: TProps) => {
 
   return (
     <Main>
-      {status === 'info' && (
-        isEnabled ? (
+      {status === 'info' &&
+        (isEnabled ? (
           <DisableInfo
             handleAbort={handleAbort}
             setPassphrase={setPassphrase}
           />
         ) : (
-          <EnableInfo
-            handleAbort={handleAbort}
-            setPassphrase={setPassphrase}
-          />
-        )
-      )}
+          <EnableInfo handleAbort={handleAbort} setPassphrase={setPassphrase} />
+        ))}
       {status === 'progress' && (
         <View
           key="progress"
           fullscreen
           minHeight={CONTENT_MIN_HEIGHT}
           textCenter
-          verticallyCentered>
+          verticallyCentered
+        >
           <ViewHeader
-            title={t(isEnabled
-              ? 'passphrase.progressDisable.title'
-              : 'passphrase.progressEnable.title')}>
+            title={t(
+              isEnabled
+                ? 'passphrase.progressDisable.title'
+                : 'passphrase.progressEnable.title',
+            )}
+          >
             <SimpleMarkup
               tagName="p"
-              markup={t(isEnabled
-                ? 'passphrase.progressDisable.message'
-                : 'passphrase.progressEnable.message')} />
+              markup={t(
+                isEnabled
+                  ? 'passphrase.progressDisable.message'
+                  : 'passphrase.progressEnable.message',
+              )}
+            />
           </ViewHeader>
           <ViewContent>
             <UseDisableBackButton />
@@ -123,30 +135,46 @@ export const Passphrase = ({ deviceID }: TProps) => {
         </View>
       )}
       {status === 'success' && (
-        <View
-          key="success"
-          fullscreen
-          verticallyCentered>
+        <View key="success" fullscreen verticallyCentered>
           <ViewHeader
             small
-            title={t(isEnabled
-              ? 'passphrase.successDisabled.title'
-              : 'passphrase.successEnabled.title')} >
-          </ViewHeader>
+            title={t(
+              isEnabled
+                ? 'passphrase.successDisabled.title'
+                : 'passphrase.successEnabled.title',
+            )}
+          ></ViewHeader>
           <ViewContent>
-            <MultilineMarkup tagName="p" markup={t(isEnabled
-              ? 'passphrase.successDisabled.message'
-              : 'passphrase.successEnabled.message')} />
+            <MultilineMarkup
+              tagName="p"
+              markup={t(
+                isEnabled
+                  ? 'passphrase.successDisabled.message'
+                  : 'passphrase.successEnabled.message',
+              )}
+            />
             {isEnabled && (
               <ul style={{ paddingLeft: 'var(--space-default)' }}>
-                <SimpleMarkup key="tip-1" tagName="li" markup={t('passphrase.successEnabled.tipsList.0')} />
-                <SimpleMarkup key="tip-2" tagName="li" markup={t('passphrase.successEnabled.tipsList.1')} />
+                <SimpleMarkup
+                  key="tip-1"
+                  tagName="li"
+                  markup={t('passphrase.successEnabled.tipsList.0')}
+                />
+                <SimpleMarkup
+                  key="tip-2"
+                  tagName="li"
+                  markup={t('passphrase.successEnabled.tipsList.1')}
+                />
               </ul>
             )}
-            <SimpleMarkup tagName="p" markup={t(
-              isEnabled
-                ? 'passphrase.successDisabled.messageEnd'
-                : 'passphrase.successEnabled.messageEnd')} />
+            <SimpleMarkup
+              tagName="p"
+              markup={t(
+                isEnabled
+                  ? 'passphrase.successDisabled.messageEnd'
+                  : 'passphrase.successEnabled.messageEnd',
+              )}
+            />
           </ViewContent>
         </View>
       )}
@@ -157,7 +185,7 @@ export const Passphrase = ({ deviceID }: TProps) => {
 type TInfoProps = {
   handleAbort: () => void;
   setPassphrase: (enabled: boolean) => void;
-}
+};
 
 const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
   const { t } = useTranslation();
@@ -181,15 +209,43 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
     setInfoStep((infoStep) => infoStep + 1);
   };
 
-  type TStepData = { titleKey: string; messageKey: string; buttonTextKey: string; }[]
+  type TStepData = {
+    titleKey: string;
+    messageKey: string;
+    buttonTextKey: string;
+  }[];
 
   const stepData: TStepData = [
-    { titleKey: t('passphrase.intro.title'), messageKey: t('passphrase.intro.message'), buttonTextKey: t('passphrase.what.button') },
-    { titleKey: t('passphrase.what.title'), messageKey: t('passphrase.what.message'), buttonTextKey: t('passphrase.why.button') },
-    { titleKey: t('passphrase.why.title'), messageKey: t('passphrase.why.message'), buttonTextKey: t('passphrase.considerations.button') },
-    { titleKey: t('passphrase.considerations.title'), messageKey: t('passphrase.considerations.message'), buttonTextKey: t('passphrase.how.button') },
-    { titleKey: t('passphrase.how.title'), messageKey: t('passphrase.how.message'), buttonTextKey: t('passphrase.summary.button') },
-    { titleKey: t('passphrase.summary.title'), messageKey: t('passphrase.summary.understandList'), buttonTextKey: t('passphrase.enable') },
+    {
+      titleKey: t('passphrase.intro.title'),
+      messageKey: t('passphrase.intro.message'),
+      buttonTextKey: t('passphrase.what.button'),
+    },
+    {
+      titleKey: t('passphrase.what.title'),
+      messageKey: t('passphrase.what.message'),
+      buttonTextKey: t('passphrase.why.button'),
+    },
+    {
+      titleKey: t('passphrase.why.title'),
+      messageKey: t('passphrase.why.message'),
+      buttonTextKey: t('passphrase.considerations.button'),
+    },
+    {
+      titleKey: t('passphrase.considerations.title'),
+      messageKey: t('passphrase.considerations.message'),
+      buttonTextKey: t('passphrase.how.button'),
+    },
+    {
+      titleKey: t('passphrase.how.title'),
+      messageKey: t('passphrase.how.message'),
+      buttonTextKey: t('passphrase.summary.button'),
+    },
+    {
+      titleKey: t('passphrase.summary.title'),
+      messageKey: t('passphrase.summary.understandList'),
+      buttonTextKey: t('passphrase.enable'),
+    },
   ];
 
   return (
@@ -209,23 +265,44 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
       {infoStep >= FINAL_INFO_STEP && (
         <ViewContent>
           <ul>
-            <SimpleMarkup key="info-1" tagName="li" markup={t('passphrase.summary.understandList.0')} />
-            <SimpleMarkup key="info-2" tagName="li" markup={t('passphrase.summary.understandList.1')} />
-            <SimpleMarkup key="info-3" tagName="li" markup={t('passphrase.summary.understandList.2')} />
-            <SimpleMarkup key="info-4" tagName="li" markup={t('passphrase.summary.understandList.3')} />
+            <SimpleMarkup
+              key="info-1"
+              tagName="li"
+              markup={t('passphrase.summary.understandList.0')}
+            />
+            <SimpleMarkup
+              key="info-2"
+              tagName="li"
+              markup={t('passphrase.summary.understandList.1')}
+            />
+            <SimpleMarkup
+              key="info-3"
+              tagName="li"
+              markup={t('passphrase.summary.understandList.2')}
+            />
+            <SimpleMarkup
+              key="info-4"
+              tagName="li"
+              markup={t('passphrase.summary.understandList.3')}
+            />
           </ul>
           <Status noIcon type={understood ? 'success' : 'warning'}>
             <Checkbox
-              onChange={e => setUnderstood(e.target.checked)}
+              onChange={(e) => setUnderstood(e.target.checked)}
               id="understood"
               checked={understood}
               label={t('passphrase.summary.understand')}
-              checkboxStyle={understood ? 'success' : 'warning'} />
+              checkboxStyle={understood ? 'success' : 'warning'}
+            />
           </Status>
         </ViewContent>
       )}
       <ViewButtons>
-        <Button primary onClick={handleContinue} disabled={infoStep >= FINAL_INFO_STEP && !understood}>
+        <Button
+          primary
+          onClick={handleContinue}
+          disabled={infoStep >= FINAL_INFO_STEP && !understood}
+        >
           {stepData[infoStep].buttonTextKey}
         </Button>
         <Button secondary onClick={handleBack}>
@@ -245,10 +322,14 @@ const DisableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
       fullscreen
       minHeight={CONTENT_MIN_HEIGHT}
       onClose={handleAbort}
-      verticallyCentered>
+      verticallyCentered
+    >
       <ViewHeader title={t('passphrase.disable')} />
       <ViewContent>
-        <MultilineMarkup tagName="p" markup={t('passphrase.disableInfo.message')} />
+        <MultilineMarkup
+          tagName="p"
+          markup={t('passphrase.disableInfo.message')}
+        />
       </ViewContent>
       <ViewButtons>
         <Button primary onClick={() => setPassphrase(false)}>

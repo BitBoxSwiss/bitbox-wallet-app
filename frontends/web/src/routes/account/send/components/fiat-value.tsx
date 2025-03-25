@@ -22,27 +22,20 @@ type TFiatValueProps = {
   amount: string;
   baseCurrencyUnit: ConversionUnit;
   className?: string;
-}
+};
 
 export const FiatValue = ({
   amount,
   baseCurrencyUnit,
   className,
 }: TFiatValueProps) => {
-
   const classNames = `${style.fiatValue} ${className ? className : ''}`;
 
   return (
     <p className={classNames}>
       <span>
-        <Amount
-          alwaysShowAmounts
-          amount={amount}
-          unit={baseCurrencyUnit} />
-        {' '}
-        <span className={style.unit}>
-          {baseCurrencyUnit}
-        </span>
+        <Amount alwaysShowAmounts amount={amount} unit={baseCurrencyUnit} />{' '}
+        <span className={style.unit}>{baseCurrencyUnit}</span>
       </span>
     </p>
   );

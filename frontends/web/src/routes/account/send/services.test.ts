@@ -4,7 +4,9 @@ import { txProposalErrorHandling } from './services';
 import { alertUser } from '@/components/alert/Alert';
 
 vi.mock('i18next', async () => {
-  const actualI18next: { default: interfacei18n } = await vi.importActual('i18next') as { default: interfacei18n };
+  const actualI18next: { default: interfacei18n } = (await vi.importActual(
+    'i18next',
+  )) as { default: interfacei18n };
   return {
     default: {
       ...actualI18next.default,
@@ -12,19 +14,18 @@ vi.mock('i18next', async () => {
       init: vi.fn(),
       addResourceBundle: vi.fn(),
       on: vi.fn(),
-      t: vi.fn().mockImplementation((key: string) => key)
+      t: vi.fn().mockImplementation((key: string) => key),
     },
   };
 });
 
 vi.mock('@/components/alert/Alert', () => ({
   ...vi.importActual('@/components/alert/Alert'),
-  alertUser: vi.fn()
+  alertUser: vi.fn(),
 }));
 
 describe('send services', () => {
   describe('txProposalErrorHandling', () => {
-
     it('returns invalid address message on invalidAddress error', () => {
       const result = txProposalErrorHandling('invalidAddress');
       expect(result).toEqual({ addressError: 'send.error.invalidAddress' });
@@ -32,12 +33,18 @@ describe('send services', () => {
 
     it('returns invalid amount message on invalidAmount error', () => {
       const result = txProposalErrorHandling('invalidAmount');
-      expect(result).toEqual({ amountError: 'send.error.invalidAmount', proposedFee: undefined });
+      expect(result).toEqual({
+        amountError: 'send.error.invalidAmount',
+        proposedFee: undefined,
+      });
     });
 
     it('returns insufficient funds message on insufficientFunds error', () => {
       const result = txProposalErrorHandling('insufficientFunds');
-      expect(result).toEqual({ amountError: 'send.error.insufficientFunds', proposedFee: undefined });
+      expect(result).toEqual({
+        amountError: 'send.error.insufficientFunds',
+        proposedFee: undefined,
+      });
     });
 
     it('returns fee too low message on feeTooLow error', () => {
@@ -55,6 +62,5 @@ describe('send services', () => {
       expect(result).toEqual({ proposedFee: undefined });
       expect(alertUser).toHaveBeenCalledWith('unknownError');
     });
-
   });
 });

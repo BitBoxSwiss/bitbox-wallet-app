@@ -19,9 +19,15 @@ import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { alertUser } from '../../../../../components/alert/Alert';
-import { DialogLegacy, DialogButtons } from '../../../../../components/dialog/dialog-legacy';
+import {
+  DialogLegacy,
+  DialogButtons,
+} from '../../../../../components/dialog/dialog-legacy';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
-import { PasswordInput, PasswordRepeatInput } from '../../../../../components/password';
+import {
+  PasswordInput,
+  PasswordRepeatInput,
+} from '../../../../../components/password';
 import { apiPost } from '../../../../../utils/request';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 
@@ -47,7 +53,7 @@ class ChangePIN extends Component {
     return this.state.newPIN && this.state.oldPIN;
   };
 
-  changePin = event => {
+  changePin = (event) => {
     event.preventDefault();
     if (!this.validate()) {
       return;
@@ -59,77 +65,73 @@ class ChangePIN extends Component {
     apiPost('devices/' + this.props.deviceID + '/change-password', {
       oldPIN: this.state.oldPIN,
       newPIN: this.state.newPIN,
-    }).catch(() => {}).then(data => {
-      this.abort();
-      if (!data.success) {
-        alertUser(this.props.t(`bitbox.error.e${data.code}`, {
-          defaultValue: data.errorMessage,
-        }));
-      }
-    });
+    })
+      .catch(() => {})
+      .then((data) => {
+        this.abort();
+        if (!data.success) {
+          alertUser(
+            this.props.t(`bitbox.error.e${data.code}`, {
+              defaultValue: data.errorMessage,
+            }),
+          );
+        }
+      });
   };
 
-  setValidOldPIN = e => {
+  setValidOldPIN = (e) => {
     this.setState({ oldPIN: e.target.value });
   };
 
-  setValidNewPIN = newPIN => {
+  setValidNewPIN = (newPIN) => {
     this.setState({ newPIN });
   };
 
   render() {
-    const {
-      t,
-      disabled,
-    } = this.props;
-    const {
-      oldPIN,
-      isConfirming,
-      activeDialog,
-    } = this.state;
+    const { t, disabled } = this.props;
+    const { oldPIN, isConfirming, activeDialog } = this.state;
     return (
       <div>
         <SettingsButton
           disabled={disabled}
-          onClick={() => this.setState({ activeDialog: true })}>
+          onClick={() => this.setState({ activeDialog: true })}
+        >
           {t('button.changepin')}
         </SettingsButton>
-        {
-          activeDialog && (
-            <DialogLegacy
-              title={t('button.changepin')}
-              onClose={this.abort}>
-              <form onSubmit={this.changePin}>
-                <PasswordInput
-                  idPrefix="oldPIN"
-                  label={t('changePin.oldLabel')}
-                  value={oldPIN}
-                  onInput={this.setValidOldPIN} />
-                {t('changePin.newTitle') && <h4>{t('changePin.newTitle')}</h4>}
-                <PasswordRepeatInput
-                  idPrefix="newPIN"
-                  pattern="^.{4,}$"
-                  label={t('initialize.input.label')}
-                  repeatLabel={t('initialize.input.labelRepeat')}
-                  repeatPlaceholder={t('initialize.input.placeholderRepeat')}
-                  onValidPassword={this.setValidNewPIN} />
-                <DialogButtons>
-                  <Button type="submit" danger disabled={!this.validate() || isConfirming}>
-                    {t('button.changepin')}
-                  </Button>
-                  <Button secondary onClick={this.abort} disabled={isConfirming}>
-                    {t('button.back')}
-                  </Button>
-                </DialogButtons>
-              </form>
-            </DialogLegacy>
-          )
-        }
-        {
-          isConfirming && (
-            <WaitDialog title={t('button.changepin')} />
-          )
-        }
+        {activeDialog && (
+          <DialogLegacy title={t('button.changepin')} onClose={this.abort}>
+            <form onSubmit={this.changePin}>
+              <PasswordInput
+                idPrefix="oldPIN"
+                label={t('changePin.oldLabel')}
+                value={oldPIN}
+                onInput={this.setValidOldPIN}
+              />
+              {t('changePin.newTitle') && <h4>{t('changePin.newTitle')}</h4>}
+              <PasswordRepeatInput
+                idPrefix="newPIN"
+                pattern="^.{4,}$"
+                label={t('initialize.input.label')}
+                repeatLabel={t('initialize.input.labelRepeat')}
+                repeatPlaceholder={t('initialize.input.placeholderRepeat')}
+                onValidPassword={this.setValidNewPIN}
+              />
+              <DialogButtons>
+                <Button
+                  type="submit"
+                  danger
+                  disabled={!this.validate() || isConfirming}
+                >
+                  {t('button.changepin')}
+                </Button>
+                <Button secondary onClick={this.abort} disabled={isConfirming}>
+                  {t('button.back')}
+                </Button>
+              </DialogButtons>
+            </form>
+          </DialogLegacy>
+        )}
+        {isConfirming && <WaitDialog title={t('button.changepin')} />}
       </div>
     );
   }

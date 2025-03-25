@@ -27,9 +27,9 @@ import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
 
 type TProps = {
-    accounts: IAccount[];
-    code: string;
-}
+  accounts: IAccount[];
+  code: string;
+};
 
 export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   const navigate = useNavigate();
@@ -51,10 +51,13 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
     }
     // btc accounts that have never been insured, or with a canceled
     // insurance contract, can be used to make a new contract.
-    const insurableAccounts = accounts.filter(account => account.coinCode === 'btc' &&
-        (!account.bitsuranceStatus
-         || account.bitsuranceStatus === 'canceled'
-        || account.bitsuranceStatus === 'refused'));
+    const insurableAccounts = accounts.filter(
+      (account) =>
+        account.coinCode === 'btc' &&
+        (!account.bitsuranceStatus ||
+          account.bitsuranceStatus === 'canceled' ||
+          account.bitsuranceStatus === 'refused'),
+    );
     setBtcAccounts(insurableAccounts);
   }, [accounts]);
 
@@ -66,12 +69,14 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   // if there is only one account available let's automatically redirect to the widget
   useEffect(() => {
     if (btcAccounts !== undefined && btcAccounts.length === 1) {
-      connectKeystore(btcAccounts[0].code).then(connectResult => {
+      connectKeystore(btcAccounts[0].code).then((connectResult) => {
         if (!connectResult.success) {
           return;
         }
         // replace current history item when redirecting so that the user can go back
-        navigate(`/bitsurance/widget/${btcAccounts[0].code}`, { replace: true });
+        navigate(`/bitsurance/widget/${btcAccounts[0].code}`, {
+          replace: true,
+        });
       });
     }
   }, [btcAccounts, navigate]);
@@ -100,7 +105,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
           <Header title={<h2>{t('bitsuranceAccount.title')}</h2>} />
           <View width="550px" verticallyCentered fullscreen={false}>
             <ViewContent>
-              { btcAccounts.length === 0 ? (
+              {btcAccounts.length === 0 ? (
                 <div>{t('bitsuranceAccount.noAccount')}</div>
               ) : (
                 <GroupedAccountSelector
@@ -115,7 +120,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
             </ViewContent>
           </View>
         </GuidedContent>
-        <BitsuranceGuide/>
+        <BitsuranceGuide />
       </GuideWrapper>
     </Main>
   );

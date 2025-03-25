@@ -24,7 +24,7 @@ import { TDevices } from './devices';
  * Returns a method to unsubscribe.
  */
 export const syncDeviceList = (
-  cb: (accounts: TDevices,) => void
+  cb: (accounts: TDevices) => void,
 ): TUnsubscribe => {
   return subscribeEndpoint('devices/registered', cb);
 };
@@ -38,7 +38,7 @@ export const statusChanged = (
   deviceID: string,
   cb: () => void,
 ): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('statusChanged', event => {
+  const unsubscribe = subscribeLegacy('statusChanged', (event) => {
     if (event.type === 'device' && event.deviceID === deviceID) {
       cb();
     }
@@ -54,7 +54,7 @@ export const channelHashChanged = (
   deviceID: string,
   cb: (deviceID: string) => void,
 ): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('channelHashChanged', event => {
+  const unsubscribe = subscribeLegacy('channelHashChanged', (event) => {
     if (event.type === 'device' && event.deviceID === deviceID) {
       cb(deviceID);
     }
@@ -70,7 +70,7 @@ export const attestationCheckDone = (
   deviceID: string,
   cb: () => void,
 ): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('attestationCheckDone', event => {
+  const unsubscribe = subscribeLegacy('attestationCheckDone', (event) => {
     if (event.type === 'device' && event.deviceID === deviceID) {
       cb();
     }
@@ -81,13 +81,17 @@ export const attestationCheckDone = (
 export type TSignProgress = {
   steps: number;
   step: number;
-}
+};
 
 export const syncSignProgress = (
-  cb: (progress: TSignProgress) => void
+  cb: (progress: TSignProgress) => void,
 ): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('signProgress', event => {
-    if ('type' in event && event.type === 'device' && event.data === 'signProgress') {
+  const unsubscribe = subscribeLegacy('signProgress', (event) => {
+    if (
+      'type' in event &&
+      event.type === 'device' &&
+      event.data === 'signProgress'
+    ) {
       cb(event.meta);
     }
   });

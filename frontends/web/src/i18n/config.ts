@@ -31,7 +31,7 @@ export const languageFromConfig: LanguageDetectorAsyncModule = {
         cb(backend.userLanguage);
         return;
       }
-      getNativeLocale().then(locale => {
+      getNativeLocale().then((locale) => {
         if (typeof locale === 'string' && locale) {
           try {
             new Date().toLocaleString(i18nextFormat(locale));
@@ -47,5 +47,5 @@ export const languageFromConfig: LanguageDetectorAsyncModule = {
     });
   },
   init: () => {},
-  cacheUserLanguage: () => {}
+  cacheUserLanguage: () => {},
 };

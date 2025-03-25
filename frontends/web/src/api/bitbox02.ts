@@ -21,18 +21,20 @@ import { SuccessResponse, FailResponse } from './response';
 export const errUserAbort = 104;
 
 export type DeviceInfo = {
-    initialized: boolean;
-    mnemonicPassphraseEnabled: boolean;
-    name: string;
-    securechipModel: string;
-    version: string;
-}
-
-type DeviceInfoResponse = SuccessResponse & {
-    deviceInfo: DeviceInfo;
+  initialized: boolean;
+  mnemonicPassphraseEnabled: boolean;
+  name: string;
+  securechipModel: string;
+  version: string;
 };
 
-export const resetDevice = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+type DeviceInfoResponse = SuccessResponse & {
+  deviceInfo: DeviceInfo;
+};
+
+export const resetDevice = (
+  deviceID: string,
+): Promise<SuccessResponse | FailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/reset`);
 };
 
@@ -42,9 +44,7 @@ export const getDeviceInfo = (
   return apiGet(`devices/bitbox02/${deviceID}/info`);
 };
 
-export const checkSDCard = (
-  deviceID: string,
-): Promise<boolean> => {
+export const checkSDCard = (deviceID: string): Promise<boolean> => {
   return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`);
 };
 
@@ -59,7 +59,7 @@ export const setDeviceName = (
   newDeviceName: string,
 ): Promise<SuccessResponse | FailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/set-device-name`, {
-    name: newDeviceName
+    name: newDeviceName,
   });
 };
 
@@ -76,15 +76,12 @@ type VersionInfoCommon = {
   canBackupWithRecoveryWords: boolean;
   canCreate12Words: boolean;
   canBIP85: boolean;
-}
+};
 
-export type VersionInfo = VersionInfoCommon & (
-  { canUpgrade: true, newVersion: string; } |
-  { canUpgrade: false; })
+export type VersionInfo = VersionInfoCommon &
+  ({ canUpgrade: true; newVersion: string } | { canUpgrade: false });
 
-export const getVersion = (
-  deviceID: string
-): Promise<VersionInfo> => {
+export const getVersion = (deviceID: string): Promise<VersionInfo> => {
   return apiGet(`devices/bitbox02/${deviceID}/version`);
 };
 
@@ -92,7 +89,10 @@ export const setMnemonicPassphraseEnabled = (
   deviceID: string,
   enabled: boolean,
 ): Promise<SuccessResponse | FailResponse> => {
-  return apiPost(`devices/bitbox02/${deviceID}/set-mnemonic-passphrase-enabled`, enabled);
+  return apiPost(
+    `devices/bitbox02/${deviceID}/set-mnemonic-passphrase-enabled`,
+    enabled,
+  );
 };
 
 export const verifyAttestation = (
@@ -104,7 +104,7 @@ export const verifyAttestation = (
 export const checkBackup = (
   deviceID: string,
   silent: boolean,
-): Promise<FailResponse | (SuccessResponse & { backupID: string; })> => {
+): Promise<FailResponse | (SuccessResponse & { backupID: string })> => {
   return apiPost(`devices/bitbox02/${deviceID}/backups/check`, { silent });
 };
 
@@ -121,7 +121,10 @@ export const restoreBackup = (
   deviceID: string,
   selectedBackup: string,
 ): Promise<FailResponse | SuccessResponse> => {
-  return apiPost(`devices/bitbox02/${deviceID}/backups/restore`, selectedBackup);
+  return apiPost(
+    `devices/bitbox02/${deviceID}/backups/restore`,
+    selectedBackup,
+  );
 };
 
 export const upgradeDeviceFirmware = (deviceID: string): Promise<void> => {
@@ -138,7 +141,8 @@ export const restoreFromMnemonic = (
   return apiPost(`devices/bitbox02/${deviceID}/restore-from-mnemonic`);
 };
 
-export type TStatus = 'connected'
+export type TStatus =
+  | 'connected'
   | 'initialized'
   | 'pairingFailed'
   | 'require_firmware_upgrade'
@@ -175,12 +179,14 @@ export const setPassword = (
 };
 
 export const getRootFingerprint = (
-  deviceID: string
+  deviceID: string,
 ): Promise<(SuccessResponse & { rootFingerprint: string }) | FailResponse> => {
   return apiGet(`devices/bitbox02/${deviceID}/root-fingerprint`);
 };
 
-export const invokeBIP85 = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+export const invokeBIP85 = (
+  deviceID: string,
+): Promise<SuccessResponse | FailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/invoke-bip85`);
 };
 

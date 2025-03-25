@@ -20,7 +20,12 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { Button } from '../../../components/forms';
 import { PasswordSingleInput } from '../../../components/password';
 import { Message } from '../../../components/message/message';
-import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../components/icon/logo';
+import {
+  AppLogo,
+  AppLogoInverted,
+  SwissMadeOpenSource,
+  SwissMadeOpenSourceDark,
+} from '../../../components/icon/logo';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { Header, Footer } from '../../../components/layout';
@@ -31,7 +36,7 @@ import { getDarkmode } from '../../../components/darkmode/darkmode';
 const stateEnum = Object.freeze({
   DEFAULT: 'default',
   WAITING: 'waiting',
-  ERROR: 'error'
+  ERROR: 'error',
 });
 
 class Unlock extends Component {
@@ -44,7 +49,7 @@ class Unlock extends Component {
     password: '',
   };
 
-  handleFormChange = password => {
+  handleFormChange = (password) => {
     this.setState({ password });
   };
 
@@ -52,17 +57,19 @@ class Unlock extends Component {
     return this.state.password !== '';
   };
 
-  handleSubmit = event => {
+  handleSubmit = (event) => {
     event.preventDefault();
     if (!this.validate()) {
       return;
     }
     this.setState({
-      status: stateEnum.WAITING
+      status: stateEnum.WAITING,
     });
-    apiPost('devices/' + this.props.deviceID + '/login', { password: this.state.password }).then(data => {
+    apiPost('devices/' + this.props.deviceID + '/login', {
+      password: this.state.password,
+    }).then((data) => {
       if (data.success) {
-        apiGet('devices/' + this.props.deviceID + '/status').then(status => {
+        apiGet('devices/' + this.props.deviceID + '/status').then((status) => {
           if (status === 'seeded') {
             console.info('unlock.jsx route to /account-summary');
             route('/account-summary', true);
@@ -79,7 +86,10 @@ class Unlock extends Component {
         if (data.needsLongTouch) {
           this.setState({ needsLongTouch: data.needsLongTouch });
         }
-        this.setState({ status: stateEnum.ERROR, errorMessage: data.errorMessage });
+        this.setState({
+          status: stateEnum.ERROR,
+          errorMessage: data.errorMessage,
+        });
       }
     });
     this.setState({ password: '' });
@@ -96,25 +106,25 @@ class Unlock extends Component {
     } = this.state;
     let submissionState = null;
     switch (status) {
-    case stateEnum.DEFAULT:
-      submissionState = <p>{t('unlock.description')}</p>;
-      break;
-    case stateEnum.WAITING:
-      submissionState = <Spinner guideExists text={t('unlock.unlocking')} />;
-      break;
-    case stateEnum.ERROR:
-      submissionState = (
-        <Message type="error">
-          {t(`unlock.error.e${errorCode}`, {
-            defaultValue: errorMessage,
-            remainingAttempts,
-            context: needsLongTouch ? 'touch' : 'normal'
-          })}
-        </Message>
-      );
-      break;
-    default:
-      break;
+      case stateEnum.DEFAULT:
+        submissionState = <p>{t('unlock.description')}</p>;
+        break;
+      case stateEnum.WAITING:
+        submissionState = <Spinner guideExists text={t('unlock.unlocking')} />;
+        break;
+      case stateEnum.ERROR:
+        submissionState = (
+          <Message type="error">
+            {t(`unlock.error.e${errorCode}`, {
+              defaultValue: errorMessage,
+              remainingAttempts,
+              context: needsLongTouch ? 'touch' : 'normal',
+            })}
+          </Message>
+        );
+        break;
+      default:
+        break;
     }
 
     const darkmode = getDarkmode();
@@ -127,29 +137,31 @@ class Unlock extends Component {
               {darkmode ? <AppLogoInverted /> : <AppLogo />}
               <div className="box large">
                 {submissionState}
-                {
-                  status !== stateEnum.WAITING && (
-                    <form onSubmit={this.handleSubmit}>
-                      <div className="m-top-default">
-                        <PasswordSingleInput
-                          autoFocus
-                          id="password"
-                          label={t('unlock.input.label')}
-                          disabled={status === stateEnum.WAITING}
-                          placeholder={t('unlock.input.placeholder')}
-                          onValidPassword={this.handleFormChange}/>
-                      </div>
-                      <div className="buttons">
-                        <Button
-                          primary
-                          type="submit"
-                          disabled={!this.validate() || status === stateEnum.WAITING}>
-                          {t('button.unlock')}
-                        </Button>
-                      </div>
-                    </form>
-                  )
-                }
+                {status !== stateEnum.WAITING && (
+                  <form onSubmit={this.handleSubmit}>
+                    <div className="m-top-default">
+                      <PasswordSingleInput
+                        autoFocus
+                        id="password"
+                        label={t('unlock.input.label')}
+                        disabled={status === stateEnum.WAITING}
+                        placeholder={t('unlock.input.placeholder')}
+                        onValidPassword={this.handleFormChange}
+                      />
+                    </div>
+                    <div className="buttons">
+                      <Button
+                        primary
+                        type="submit"
+                        disabled={
+                          !this.validate() || status === stateEnum.WAITING
+                        }
+                      >
+                        {t('button.unlock')}
+                      </Button>
+                    </div>
+                  </form>
+                )}
               </div>
             </div>
             <Footer>
@@ -158,7 +170,10 @@ class Unlock extends Component {
           </div>
         </div>
         <Guide>
-          <Entry key="guide.unlock.forgotDevicePassword" entry={t('guide.unlock.forgotDevicePassword')} />
+          <Entry
+            key="guide.unlock.forgotDevicePassword"
+            entry={t('guide.unlock.forgotDevicePassword')}
+          />
           <Entry key="guide.unlock.reset" entry={t('guide.unlock.reset')} />
         </Guide>
       </div>

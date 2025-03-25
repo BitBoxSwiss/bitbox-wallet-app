@@ -21,12 +21,13 @@ export type TPeripheral = {
   identifier: string;
   name: string;
 } & (
-  {
-    connectionState: 'discovered' | 'connecting' | 'connected';
-  } | {
-    connectionState: 'error';
-    connectionError: string;
-  }
+  | {
+      connectionState: 'discovered' | 'connecting' | 'connected';
+    }
+  | {
+      connectionState: 'error';
+      connectionError: string;
+    }
 );
 
 type TBluetoothState = {
@@ -44,7 +45,7 @@ export const connect = (identifier: string): Promise<void> => {
 };
 
 export const syncState = (
-  cb: (state: TBluetoothState) => void
+  cb: (state: TBluetoothState) => void,
 ): TUnsubscribe => {
   return subscribeEndpoint('bluetooth/state', cb);
 };

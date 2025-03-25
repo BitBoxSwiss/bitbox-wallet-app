@@ -35,7 +35,6 @@ const { getDeviceInfo } = bitbox01Apis;
 
 describe('useSDCard', () => {
   describe('using any valid device, should call the appropriate checking method and return proper value', () => {
-
     beforeEach(() => {
       useMountedRefSpy.mockReturnValue({ current: true });
     });
@@ -74,8 +73,5 @@ describe('useSDCard', () => {
 
       await waitFor(() => expect(result.current).toBe(true));
     });
-
   });
-
 });
-

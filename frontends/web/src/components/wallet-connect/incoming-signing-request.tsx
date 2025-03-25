@@ -14,30 +14,58 @@
  * limitations under the License.
  */
 
-import { MutableRefObject, useContext, useEffect, useRef, useState } from 'react';
+import {
+  MutableRefObject,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { t } from 'i18next';
 import { WCWeb3WalletContext } from '@/contexts/WCWeb3WalletContext';
 import { SignClientTypes } from '@walletconnect/types';
-import { TEthSignHandlerParams, TLaunchSignDialog, TRequestDialogContent, handleWcEthSignRequest } from '@/utils/walletconnect-eth-sign-handlers';
+import {
+  TEthSignHandlerParams,
+  TLaunchSignDialog,
+  TRequestDialogContent,
+  handleWcEthSignRequest,
+} from '@/utils/walletconnect-eth-sign-handlers';
 import { alertUser } from '@/components/alert/Alert';
 import { rejectMessage } from '@/utils/walletconnect';
-import { TStage, WCIncomingSignRequestDialog } from './incoming-signing-request-dialog';
+import {
+  TStage,
+  WCIncomingSignRequestDialog,
+} from './incoming-signing-request-dialog';
 
 type TSigningRequestData = {
   topic: string;
   id: number;
-}
+};
 
 export const WCSigningRequest = () => {
   const { web3wallet, isWalletInitialized } = useContext(WCWeb3WalletContext);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<TRequestDialogContent>();
   const [stage, setStage] = useState<TStage>('initial');
-  const signMessageApiCallerRef: MutableRefObject<(() => Promise<any>) | undefined> = useRef();
+  const signMessageApiCallerRef: MutableRefObject<
+    (() => Promise<any>) | undefined
+  > = useRef();
   const requestDataRef = useRef<TSigningRequestData>();
 
-  const launchSignDialog = ({ topic, id, apiCaller, dialogContent }: TLaunchSignDialog) => {
-    const { signingData, currentSession, accountAddress, accountName, chain, method } = dialogContent;
+  const launchSignDialog = ({
+    topic,
+    id,
+    apiCaller,
+    dialogContent,
+  }: TLaunchSignDialog) => {
+    const {
+      signingData,
+      currentSession,
+      accountAddress,
+      accountName,
+      chain,
+      method,
+    } = dialogContent;
 
     // storing data to be used whenever
     // user accepts or rejects later
@@ -54,7 +82,7 @@ export const WCSigningRequest = () => {
       signingData,
       chain,
       currentSession,
-      method
+      method,
     });
 
     // opening the dialog
@@ -65,10 +93,16 @@ export const WCSigningRequest = () => {
     if (!web3wallet && !isWalletInitialized) {
       return;
     }
-    const onSessionRequest = async (requestEvent: SignClientTypes.EventArguments['session_request']) => {
+    const onSessionRequest = async (
+      requestEvent: SignClientTypes.EventArguments['session_request'],
+    ) => {
       const { topic, params, id } = requestEvent;
-      const activeSessions = Object.values(web3wallet?.getActiveSessions() || {});
-      const currentSession = activeSessions.find(session => session.topic === topic);
+      const activeSessions = Object.values(
+        web3wallet?.getActiveSessions() || {},
+      );
+      const currentSession = activeSessions.find(
+        (session) => session.topic === topic,
+      );
       if (currentSession) {
         const handlerArgs: TEthSignHandlerParams = {
           topic,
@@ -91,7 +125,10 @@ export const WCSigningRequest = () => {
     const requestData = requestDataRef.current;
     if (requestData) {
       const { topic, id } = requestData;
-      await web3wallet?.respondSessionRequest({ topic, response: rejectMessage(id) });
+      await web3wallet?.respondSessionRequest({
+        topic,
+        response: rejectMessage(id),
+      });
     }
   };
 
@@ -100,7 +137,7 @@ export const WCSigningRequest = () => {
     const requestData = requestDataRef.current;
     if (apiCaller && requestData) {
       setStage('confirming');
-      const { topic, id, } = requestData;
+      const { topic, id } = requestData;
       const { response, success, error } = await apiCaller();
       if (success) {
         //user proceeds to sign in BB02 device
@@ -114,7 +151,10 @@ export const WCSigningRequest = () => {
         //rejected from BB02 device
         setStage('initial');
         setDialogOpen(false);
-        await web3wallet?.respondSessionRequest({ topic, response: rejectMessage(id) });
+        await web3wallet?.respondSessionRequest({
+          topic,
+          response: rejectMessage(id),
+        });
       } else {
         setStage('initial');
         const { errorMessage } = error;

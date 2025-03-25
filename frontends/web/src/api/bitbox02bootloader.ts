@@ -24,17 +24,16 @@ export type TStatus = {
   upgradeSuccessful: boolean;
 };
 
-export const getStatus = (
-  deviceID: string,
-): Promise<TStatus> => {
+export const getStatus = (deviceID: string): Promise<TStatus> => {
   return apiGet(`devices/bitbox02-bootloader/${deviceID}/status`);
 };
 
 export const syncStatus = (deviceID: string) => {
-  return (
-    cb: TSubscriptionCallback<TStatus>
-  ) => {
-    return subscribeEndpoint(`devices/bitbox02-bootloader/${deviceID}/status`, cb);
+  return (cb: TSubscriptionCallback<TStatus>) => {
+    return subscribeEndpoint(
+      `devices/bitbox02-bootloader/${deviceID}/status`,
+      cb,
+    );
   };
 };
 
@@ -49,40 +48,31 @@ export type TVersionInfo = {
   additionalUpgradeFollows: boolean;
 };
 
-export const getVersionInfo = (
-  deviceID: string,
-): Promise<TVersionInfo> => {
+export const getVersionInfo = (deviceID: string): Promise<TVersionInfo> => {
   return apiGet(`devices/bitbox02-bootloader/${deviceID}/version-info`);
 };
 
-export const upgradeFirmware = (
-  deviceID: string,
-): Promise<void> => {
+export const upgradeFirmware = (deviceID: string): Promise<void> => {
   return apiPost(`devices/bitbox02-bootloader/${deviceID}/upgrade-firmware`);
 };
 
-export const reboot = (
-  deviceID: string,
-): Promise<void> => {
+export const reboot = (deviceID: string): Promise<void> => {
   return apiPost(`devices/bitbox02-bootloader/${deviceID}/reboot`);
 };
 
-export const screenRotate = (
-  deviceID: string,
-): Promise<void> => {
+export const screenRotate = (deviceID: string): Promise<void> => {
   return apiPost(`devices/bitbox02-bootloader/${deviceID}/screen-rotate`);
 };
 
 export const getShowFirmwareHash = (deviceID: string) => {
   return (): Promise<boolean> => {
-    return apiGet(`devices/bitbox02-bootloader/${deviceID}/show-firmware-hash-enabled`);
+    return apiGet(
+      `devices/bitbox02-bootloader/${deviceID}/show-firmware-hash-enabled`,
+    );
   };
 };
 
-export const setShowFirmwareHash = (
-  deviceID: string,
-  enabled: boolean,
-) => {
+export const setShowFirmwareHash = (deviceID: string, enabled: boolean) => {
   return apiPost(
     `devices/bitbox02-bootloader/${deviceID}/set-firmware-hash-enabled`,
     enabled,

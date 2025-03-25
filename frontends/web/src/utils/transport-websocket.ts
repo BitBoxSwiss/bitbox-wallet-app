@@ -22,10 +22,14 @@ let socket: WebSocket | undefined;
 
 const currentListeners: TMsgCallback[] = [];
 
-export const webSubscribePushNotifications = (msgCallback: TMsgCallback): TUnsubscribe => {
+export const webSubscribePushNotifications = (
+  msgCallback: TMsgCallback,
+): TUnsubscribe => {
   currentListeners.push(msgCallback);
   if (!socket) {
-    socket = new WebSocket((isTLS() ? 'wss://' : 'ws://') + 'localhost:' + apiPort + '/api/events');
+    socket = new WebSocket(
+      (isTLS() ? 'wss://' : 'ws://') + 'localhost:' + apiPort + '/api/events',
+    );
 
     socket.onopen = () => {
       if (socket) {
@@ -40,11 +44,17 @@ export const webSubscribePushNotifications = (msgCallback: TMsgCallback): TUnsub
     // Listen for messages
     socket.onmessage = (event) => {
       const payload = JSON.parse(event.data);
-      currentListeners.forEach(listener => listener(payload));
+      currentListeners.forEach((listener) => listener(payload));
     };
 
     socket.onclose = () => {
-      currentListeners.forEach(listener => listener({ subject: 'backend/connected', action: 'replace', object: false }));
+      currentListeners.forEach((listener) =>
+        listener({
+          subject: 'backend/connected',
+          action: 'replace',
+          object: false,
+        }),
+      );
     };
   }
   return () => {

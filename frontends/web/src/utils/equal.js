@@ -24,7 +24,11 @@ export function equal(a, b) {
   }
 
   if (a && b && typeof a === 'object' && typeof b === 'object') {
-    let arrA = isArray(a), arrB = isArray(b), i, length, key;
+    let arrA = isArray(a),
+      arrB = isArray(b),
+      i,
+      length,
+      key;
 
     if (arrA && arrB) {
       length = a.length;

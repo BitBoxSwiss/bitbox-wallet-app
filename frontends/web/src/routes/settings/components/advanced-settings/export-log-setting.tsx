@@ -37,12 +37,7 @@ export const ExportLogSetting = () => {
         }
       }}
       secondaryText={t('settings.expert.exportLogs.description')}
-      extraComponent={
-        <ChevronRightDark
-          width={24}
-          height={24}
-        />
-      }
+      extraComponent={<ChevronRightDark width={24} height={24} />}
     />
   );
 };

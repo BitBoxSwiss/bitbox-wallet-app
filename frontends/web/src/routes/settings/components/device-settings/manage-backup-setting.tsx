@@ -21,7 +21,7 @@ import { ChevronRightDark } from '@/components/icon';
 
 type TProps = {
   deviceID: string;
-}
+};
 
 const ManageBackupSetting = ({ deviceID }: TProps) => {
   const navigate = useNavigate();
@@ -35,6 +35,5 @@ const ManageBackupSetting = ({ deviceID }: TProps) => {
     />
   );
 };
-
 
 export { ManageBackupSetting };

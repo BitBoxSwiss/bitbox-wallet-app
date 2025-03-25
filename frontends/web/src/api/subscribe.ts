@@ -32,17 +32,17 @@ export const subscribeEndpoint = <T>(
 ): TUnsubscribe => {
   return apiSubscribe(endpoint, (event: TEvent) => {
     switch (event.action) {
-    case 'replace':
-      cb(event.object);
-      break;
-    case 'reload':
-      // TODO: backend should push data with "replace" and not use "reload"
-      apiGet(event.subject)
-        .then(object => cb(object))
-        .catch(console.error);
-      break;
-    default:
-      throw new Error(`Event: ${JSON.stringify(event)} not supported`);
+      case 'replace':
+        cb(event.object);
+        break;
+      case 'reload':
+        // TODO: backend should push data with "replace" and not use "reload"
+        apiGet(event.subject)
+          .then((object) => cb(object))
+          .catch(console.error);
+        break;
+      default:
+        throw new Error(`Event: ${JSON.stringify(event)} not supported`);
     }
   });
 };
@@ -54,7 +54,7 @@ export const subscribeEndpoint = <T>(
  * See utils/websocket.js
  */
 export const backendConnected = (
-  cb: (connected: boolean) => void
+  cb: (connected: boolean) => void,
 ): TUnsubscribe => {
   return subscribeEndpoint('backend/connected', cb);
 };

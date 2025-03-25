@@ -28,14 +28,15 @@ import style from './watchonlySettings.module.css';
 
 type Props = {
   keystore: accountAPI.TKeystore;
-}
+};
 
 export const WatchonlySetting = ({ keystore }: Props) => {
   const { t } = useTranslation();
   const [disabled, setDisabled] = useState<boolean>(false);
   const [watchonly, setWatchonly] = useState<boolean>();
   const [warningDialogOpen, setWarningDialogOpen] = useState(false);
-  const [walletRememberedDialogOpen, setWalletRememberedDialogOpen] = useState(false);
+  const [walletRememberedDialogOpen, setWalletRememberedDialogOpen] =
+    useState(false);
   const config = useLoad(getConfig);
 
   useEffect(() => {
@@ -47,7 +48,10 @@ export const WatchonlySetting = ({ keystore }: Props) => {
   const toggleWatchonly = async () => {
     if (!watchonly) {
       setDisabled(true);
-      const { success } = await backendAPI.setWatchonly(keystore.rootFingerprint, !watchonly);
+      const { success } = await backendAPI.setWatchonly(
+        keystore.rootFingerprint,
+        !watchonly,
+      );
 
       if (success) {
         setWatchonly(!watchonly);
@@ -60,7 +64,6 @@ export const WatchonlySetting = ({ keystore }: Props) => {
     setWarningDialogOpen(true);
     setDisabled(false);
   };
-
 
   const handleCloseDialog = () => {
     setWarningDialogOpen(false);
@@ -86,7 +89,7 @@ export const WatchonlySetting = ({ keystore }: Props) => {
         open={walletRememberedDialogOpen}
         onClose={() => setWalletRememberedDialogOpen(false)}
       />
-      { watchonly !== undefined ? (
+      {watchonly !== undefined ? (
         <Label className={style.label}>
           <span className={style.labelText}>
             {t('newSettings.appearance.remebmerWallet.name')}

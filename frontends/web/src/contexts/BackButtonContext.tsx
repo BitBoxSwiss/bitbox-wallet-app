@@ -6,7 +6,7 @@
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
-*
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import { ReactNode, useContext, createContext, useEffect, useState, useCallback } from 'react';
+import {
+  ReactNode,
+  useContext,
+  createContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 import { runningOnMobile } from '@/utils/env';
 import { AppContext } from './AppContext';
 
@@ -23,7 +30,7 @@ export type THandler = () => boolean;
 type TProps = {
   pushHandler: (handler: THandler) => void;
   popHandler: (handler: THandler) => void;
-}
+};
 
 export const BackButtonContext = createContext<TProps>({
   pushHandler: () => {
@@ -38,7 +45,7 @@ export const BackButtonContext = createContext<TProps>({
 
 type TProviderProps = {
   children: ReactNode;
-}
+};
 
 export const BackButtonProvider = ({ children }: TProviderProps) => {
   const [handlers, setHandlers] = useState<THandler[]>([]);
@@ -83,7 +90,6 @@ export const BackButtonProvider = ({ children }: TProviderProps) => {
       delete window.onBackButtonPressed;
     };
   }, [callTopHandler]);
-
 
   return (
     <BackButtonContext.Provider value={{ pushHandler, popHandler }}>

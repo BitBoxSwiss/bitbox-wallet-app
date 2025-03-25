@@ -30,9 +30,15 @@ type TProps = {
   onCloseDialog: () => void;
   onChangeConfig: (config: any) => void;
   handleShowRestartMessage: Dispatch<boolean>;
-}
+};
 
-export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfig, handleShowRestartMessage }: TProps) => {
+export const TorProxyDialog = ({
+  open,
+  proxyConfig,
+  onCloseDialog,
+  onChangeConfig,
+  handleShowRestartMessage,
+}: TProps) => {
   const [proxyAddress, setProxyAddress] = useState<string>();
   const { t } = useTranslation();
 
@@ -41,7 +47,6 @@ export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfi
       setProxyAddress(proxyConfig.proxyAddress);
     }
   }, [proxyConfig]);
-
 
   const handleSetProxyButton = async () => {
     if (!proxyConfig || proxyAddress === undefined) {
@@ -61,9 +66,9 @@ export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfi
   };
 
   const setProxyConfig = async (proxyConfig: TProxyConfig) => {
-    const config = await setConfig({
+    const config = (await setConfig({
       backend: { proxy: proxyConfig },
-    }) as TConfig;
+    })) as TConfig;
     setProxyAddress(proxyConfig.proxyAddress);
     onChangeConfig(config);
     handleShowRestartMessage(true);
@@ -88,13 +93,19 @@ export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfi
   }
 
   return (
-    <Dialog open={open} onClose={onCloseDialog} title={t('settings.expert.setProxyAddress')} small>
+    <Dialog
+      open={open}
+      onClose={onCloseDialog}
+      title={t('settings.expert.setProxyAddress')}
+      small
+    >
       <div className="flex flex-row flex-between flex-items-center">
         <p className="m-none">{t('settings.expert.useProxy')}</p>
         <Toggle
           id="useProxy"
           checked={proxyConfig.useProxy}
-          onChange={handleToggleProxy} />
+          onChange={handleToggleProxy}
+        />
       </div>
       <div className="m-top-half">
         <Input
@@ -105,9 +116,13 @@ export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfi
           disabled={!proxyConfig.useProxy}
         />
         <DialogButtons>
-          <Button primary
+          <Button
+            primary
             onClick={handleSetProxyButton}
-            disabled={!proxyConfig.useProxy || proxyAddress === proxyConfig.proxyAddress}>
+            disabled={
+              !proxyConfig.useProxy || proxyAddress === proxyConfig.proxyAddress
+            }
+          >
             {t('settings.expert.setProxyAddress')}
           </Button>
         </DialogButtons>

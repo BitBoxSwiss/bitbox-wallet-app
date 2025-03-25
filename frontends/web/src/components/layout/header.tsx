@@ -28,14 +28,11 @@ type Props = {
   children?: ReactNode;
 };
 
-export const Header = ({
-  title,
-  hideSidebarToggler,
-  children
-}: Props) => {
+export const Header = ({ title, hideSidebarToggler, children }: Props) => {
   const { t } = useTranslation();
 
-  const { guideShown, guideExists, toggleGuide, toggleSidebar, sidebarStatus } = useContext(AppContext);
+  const { guideShown, guideExists, toggleGuide, toggleSidebar, sidebarStatus } =
+    useContext(AppContext);
 
   const toggle = (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -45,18 +42,25 @@ export const Header = ({
     return false;
   };
 
-
   return (
-    <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
+    <div
+      className={[
+        style.container,
+        sidebarStatus ? style[sidebarStatus] : '',
+      ].join(' ')}
+    >
       <div className={style.header}>
-        <div className={`hide-on-small ${style.sidebarToggler} ${hideSidebarToggler ? style.hideSidebarToggler : ''}`} onClick={toggleSidebar}>
+        <div
+          className={`hide-on-small ${style.sidebarToggler} ${hideSidebarToggler ? style.hideSidebarToggler : ''}`}
+          onClick={toggleSidebar}
+        >
           <MenuDark className="show-in-lightmode" />
           <MenuLight className="show-in-darkmode" />
         </div>
         <div className={style.title}>{title}</div>
         <div className={style.children}>
           {children}
-          { guideExists && (
+          {guideExists && (
             <Button
               transparent
               onClick={toggle}

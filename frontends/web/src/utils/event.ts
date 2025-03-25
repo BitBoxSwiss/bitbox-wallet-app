@@ -29,7 +29,7 @@ export type Observer = (event: TEvent) => void;
  * This interface describes how the subscriptions are stored.
  */
 interface Subscriptions {
-    [subject: string]: Observer[]; // TypeScript does not allow the type alias Subject there.
+  [subject: string]: Observer[]; // TypeScript does not allow the type alias Subject there.
 }
 
 /**
@@ -41,10 +41,7 @@ const subscriptions: Subscriptions = {};
  * This function dispatches the events from the websocket to the observers.
  */
 const handleEvent = (payload: TPayload): void => {
-  if (
-    'subject' in payload
-    && typeof payload.subject === 'string'
-  ) {
+  if ('subject' in payload && typeof payload.subject === 'string') {
     if (subscriptions[payload.subject]) {
       for (const observer of subscriptions[payload.subject]) {
         observer(payload);
@@ -63,7 +60,7 @@ let subscribed: TUnsubscribe | null = null;
  */
 export const apiSubscribe = (
   subject: TSubject,
-  observer: Observer
+  observer: Observer,
 ): TUnsubscribe => {
   if (!subscribed) {
     subscribed = apiWebsocket(handleEvent);

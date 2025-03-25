@@ -17,7 +17,13 @@
 import { useState, useEffect, createRef, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
+import {
+  RequestAddressV0Message,
+  MessageVersion,
+  parseMessage,
+  serializeMessage,
+  V0MessageType,
+} from 'request-address';
 import { getConfig } from '@/utils/config';
 import { ScriptType, signAddress } from '@/api/account';
 import { getInfo } from '@/api/account';
@@ -33,7 +39,7 @@ import { convertScriptType } from '@/utils/request-addess';
 import style from './widget.module.css';
 
 type TProps = {
-    code: string;
+  code: string;
 };
 
 export const BitsuranceWidget = ({ code }: TProps) => {
@@ -101,42 +107,43 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   };
 
   const getXPub = (wantedScriptType: ScriptType) => {
-    let xpubConfig = accountInfo?.signingConfigurations.find(config =>
-      config.bitcoinSimple?.scriptType === wantedScriptType
+    let xpubConfig = accountInfo?.signingConfigurations.find(
+      (config) => config.bitcoinSimple?.scriptType === wantedScriptType,
     );
     return xpubConfig?.bitcoinSimple?.keyInfo.xpub;
   };
 
   const handleRequestAddress = (message: RequestAddressV0Message) => {
     signing = true;
-    const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
-    const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
+    const addressType = message.withScriptType
+      ? convertScriptType(message.withScriptType)
+      : '';
+    const withMessageSignature = message.withMessageSignature
+      ? message.withMessageSignature
+      : '';
     const withExtendedPublicKey = !!message.withExtendedPublicKey;
-    signAddress(
-      addressType,
-      withMessageSignature,
-      code)
-      .then(response => {
-        signing = false;
-        if (response.success) {
-          if (withExtendedPublicKey) {
-            const xpub = getXPub(addressType as ScriptType);
-            if (xpub) {
-              sendAddressWithXPub(response.address, response.signature, xpub);
-            } else {
-              alertUser(t('bitsuranceAccount.errorNoXpub'));
-            }
+    signAddress(addressType, withMessageSignature, code).then((response) => {
+      signing = false;
+      if (response.success) {
+        if (withExtendedPublicKey) {
+          const xpub = getXPub(addressType as ScriptType);
+          if (xpub) {
+            sendAddressWithXPub(response.address, response.signature, xpub);
           } else {
-            sendAddressWithXPub(response.address, response.signature, '');
+            alertUser(t('bitsuranceAccount.errorNoXpub'));
           }
         } else {
-          if (!['userAbort', 'wrongKeystore'].includes(response.errorCode || '')) {
-            alertUser(t('unknownError', { errorMessage: response.errorMessage }));
-            console.log('error: ' + response.errorMessage);
-          }
+          sendAddressWithXPub(response.address, response.signature, '');
         }
-      });
-
+      } else {
+        if (
+          !['userAbort', 'wrongKeystore'].includes(response.errorCode || '')
+        ) {
+          alertUser(t('unknownError', { errorMessage: response.errorMessage }));
+          console.log('error: ' + response.errorMessage);
+        }
+      }
+    });
   };
 
   const onMessage = (m: MessageEvent) => {
@@ -159,13 +166,13 @@ export const BitsuranceWidget = ({ code }: TProps) => {
 
       message = parseMessage(m.data);
       switch (message.type) {
-      case V0MessageType.RequestAddress:
-        // we ignore further signing requests
-        // while there is an ongoing one
-        if (!signing) {
-          handleRequestAddress(message);
-        }
-        break;
+        case V0MessageType.RequestAddress:
+          // we ignore further signing requests
+          // while there is an ongoing one
+          if (!signing) {
+            handleRequestAddress(message);
+          }
+          break;
       }
     } catch (e) {
       console.log(e);
@@ -181,14 +188,12 @@ export const BitsuranceWidget = ({ code }: TProps) => {
           <Header title={<h2>{t('bitsuranceAccount.title')}</h2>} />
         </div>
         <div ref={ref} className={style.container}>
-          { !agreedTerms ? (
-            <BitsuranceTerms
-              onAgreedTerms={() => setAgreedTerms(true)}
-            />
+          {!agreedTerms ? (
+            <BitsuranceTerms onAgreedTerms={() => setAgreedTerms(true)} />
           ) : (
             <div style={{ height }}>
               <UseDisableBackButton />
-              {!iframeLoaded && <Spinner text={t('loading')} /> }
+              {!iframeLoaded && <Spinner text={t('loading')} />}
               <iframe
                 onLoad={() => {
                   setIframeLoaded(true);
@@ -200,13 +205,13 @@ export const BitsuranceWidget = ({ code }: TProps) => {
                 frameBorder="0"
                 className={style.iframe}
                 allow="camera; payment"
-                src={iframeURL}>
-              </iframe>
+                src={iframeURL}
+              ></iframe>
             </div>
           )}
         </div>
       </div>
-      <BitsuranceGuide/>
+      <BitsuranceGuide />
     </div>
   );
 };

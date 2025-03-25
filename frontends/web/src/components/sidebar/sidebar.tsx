@@ -45,23 +45,27 @@ type SidebarProps = {
   accounts: IAccount[];
 };
 
-type TGetAccountLinkProps = IAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) };
+type TGetAccountLinkProps = IAccount & {
+  handleSidebarItemClick: (e: React.SyntheticEvent) => void;
+};
 
 const GetAccountLink = ({
   coinCode,
   code,
   name,
-  handleSidebarItemClick
+  handleSidebarItemClick,
 }: TGetAccountLinkProps) => {
   const { pathname } = useLocation();
-  const active = (pathname === `/account/${code}`) || (pathname.startsWith(`/account/${code}/`));
+  const active =
+    pathname === `/account/${code}` || pathname.startsWith(`/account/${code}/`);
   return (
     <div className={style.sidebarItem}>
       <Link
         className={active ? style.sidebarActive : ''}
         to={`/account/${code}`}
         onClick={handleSidebarItemClick}
-        title={name}>
+        title={name}
+      >
         <Logo stacked coinCode={coinCode} alt={name} />
         <span className={style.sidebarLabel}>{name}</span>
       </Link>
@@ -74,21 +78,21 @@ const eject = (e: React.SyntheticEvent): void => {
   e.preventDefault();
 };
 
-const Sidebar = ({
-  devices,
-  accounts,
-}: SidebarProps) => {
+const Sidebar = ({ devices, accounts }: SidebarProps) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const [ canUpgrade, setCanUpgrade ] = useState(false);
-  const { activeSidebar, sidebarStatus, toggleSidebar } = useContext(AppContext);
+  const [canUpgrade, setCanUpgrade] = useState(false);
+  const { activeSidebar, sidebarStatus, toggleSidebar } =
+    useContext(AppContext);
 
   const deviceIDs: string[] = Object.keys(devices);
 
   useEffect(() => {
     const checkUpgradableDevices = async () => {
       setCanUpgrade(false);
-      const bitbox02Devices = Object.keys(devices).filter(deviceID => devices[deviceID] === 'bitbox02');
+      const bitbox02Devices = Object.keys(devices).filter(
+        (deviceID) => devices[deviceID] === 'bitbox02',
+      );
 
       for (const deviceID of bitbox02Devices) {
         const { canUpgrade } = await getVersion(deviceID);
@@ -118,9 +122,9 @@ const Sidebar = ({
 
     const handleTouchMove = (event: TouchEvent) => {
       if (
-        sidebarStatus !== 'forceHidden'
-        && event.changedTouches
-        && event.changedTouches.length
+        sidebarStatus !== 'forceHidden' &&
+        event.changedTouches &&
+        event.changedTouches.length
       ) {
         swipe.active = true;
       }
@@ -131,10 +135,14 @@ const Sidebar = ({
         const touch = event.changedTouches[0];
         const travelX = Math.abs(touch.clientX - swipe.x);
         const travelY = Math.abs(touch.clientY - swipe.y);
-        const validSwipe = window.innerWidth <= 901 && swipe.active && travelY < 100 && travelX > 70;
+        const validSwipe =
+          window.innerWidth <= 901 &&
+          swipe.active &&
+          travelY < 100 &&
+          travelX > 70;
         if (
-          (!activeSidebar && validSwipe && swipe.x < 60)
-          || (activeSidebar && validSwipe && swipe.x > 230)
+          (!activeSidebar && validSwipe && swipe.x < 60) ||
+          (activeSidebar && validSwipe && swipe.x > 230)
         ) {
           toggleSidebar();
         }
@@ -165,16 +173,32 @@ const Sidebar = ({
 
   const hidden = sidebarStatus === 'forceHidden';
   const accountsByKeystore = getAccountsByKeystore(accounts);
-  const userInSpecificAccountExchangePage = (pathname.startsWith('/exchange'));
+  const userInSpecificAccountExchangePage = pathname.startsWith('/exchange');
 
   return (
-    <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>
-      <div key="overlay" className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
-      <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')}>
+    <div
+      className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(
+        ' ',
+      )}
+    >
+      <div
+        key="overlay"
+        className={[
+          style.sidebarOverlay,
+          activeSidebar ? style.active : '',
+        ].join(' ')}
+        onClick={toggleSidebar}
+      ></div>
+      <nav
+        className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(
+          ' ',
+        )}
+      >
         <div key="app-logo" className={style.sidebarLogoContainer}>
           <Link
             to={accounts.length ? '/account-summary' : '/'}
-            onClick={handleSidebarItemClick}>
+            onClick={handleSidebarItemClick}
+          >
             <AppLogoInverted className={style.sidebarLogo} />
           </Link>
           <button className={style.closeButton} onClick={toggleSidebar}>
@@ -182,56 +206,85 @@ const Sidebar = ({
           </button>
         </div>
 
-        { accounts.length ? (
-          <div key="account-summary" className={`${style.sidebarItem} ${style.sidebarPortfolio}`}>
+        {accounts.length ? (
+          <div
+            key="account-summary"
+            className={`${style.sidebarItem} ${style.sidebarPortfolio}`}
+          >
             <NavLink
-              className={({ isActive }) => isActive ? style.sidebarActive : ''}
+              className={({ isActive }) =>
+                isActive ? style.sidebarActive : ''
+              }
               to={'/account-summary'}
               title={t('accountSummary.title')}
-              onClick={handleSidebarItemClick}>
+              onClick={handleSidebarItemClick}
+            >
               <div className={style.single}>
                 <img draggable={false} src={linechart} />
               </div>
-              <span className={style.sidebarLabel}>{t('accountSummary.title')}</span>
+              <span className={style.sidebarLabel}>
+                {t('accountSummary.title')}
+              </span>
             </NavLink>
           </div>
-        ) : null }
+        ) : null}
 
-        { accountsByKeystore.map(keystore => (
+        {accountsByKeystore.map((keystore) => (
           <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
             <div className={style.sidebarHeaderContainer}>
               <span
                 className={style.sidebarHeader}
-                hidden={!keystore.accounts.length}>
+                hidden={!keystore.accounts.length}
+              >
                 <span className="p-right-quarter">
                   {`${keystore.keystore.name} `}
-                  { isAmbiguousName(keystore.keystore.name, accountsByKeystore) ? (
+                  {isAmbiguousName(
+                    keystore.keystore.name,
+                    accountsByKeystore,
+                  ) ? (
                     // Disambiguate accounts group by adding the fingerprint.
                     // The most common case where this would happen is when adding accounts from the
                     // same seed using different passphrases.
                     <> ({keystore.keystore.rootFingerprint})</>
-                  ) : null }
+                  ) : null}
                 </span>
                 <Badge
-                  className={keystore.keystore.connected ? style.sidebarIconVisible : style.sidebarIconHidden}
-                  icon={props => <USBSuccess {...props} />}
+                  className={
+                    keystore.keystore.connected
+                      ? style.sidebarIconVisible
+                      : style.sidebarIconHidden
+                  }
+                  icon={(props) => <USBSuccess {...props} />}
                   type="success"
-                  title={t('device.keystoreConnected')} />
+                  title={t('device.keystoreConnected')}
+                />
               </span>
             </div>
-            { keystore.accounts.map(acc => (
-              <GetAccountLink key={`account-${acc.code}`} {...acc} handleSidebarItemClick={handleSidebarItemClick} />
+            {keystore.accounts.map((acc) => (
+              <GetAccountLink
+                key={`account-${acc.code}`}
+                {...acc}
+                handleSidebarItemClick={handleSidebarItemClick}
+              />
             ))}
           </div>
-        )) }
+        ))}
 
-        <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
-        { accounts.length ? (
+        <div
+          key="services"
+          className={[style.sidebarHeaderContainer, style.end].join(' ')}
+        ></div>
+        {accounts.length ? (
           <>
             <div key="exchange" className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive || userInSpecificAccountExchangePage ? style.sidebarActive : ''}
-                to="/exchange/info">
+                className={({ isActive }) =>
+                  isActive || userInSpecificAccountExchangePage
+                    ? style.sidebarActive
+                    : ''
+                }
+                to="/exchange/info"
+              >
                 <div className={style.single}>
                   <img draggable={false} src={coins} />
                 </div>
@@ -242,27 +295,44 @@ const Sidebar = ({
             </div>
             <div key="insurance" className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive ? style.sidebarActive : ''}
+                className={({ isActive }) =>
+                  isActive ? style.sidebarActive : ''
+                }
                 to="/bitsurance/bitsurance"
               >
                 <div className={style.single}>
-                  <img draggable={false} src={shieldIcon} alt={t('sidebar.insurance')} />
+                  <img
+                    draggable={false}
+                    src={shieldIcon}
+                    alt={t('sidebar.insurance')}
+                  />
                 </div>
-                <span className={style.sidebarLabel}>{t('sidebar.insurance')}</span>
+                <span className={style.sidebarLabel}>
+                  {t('sidebar.insurance')}
+                </span>
               </NavLink>
             </div>
           </>
-        ) : null }
+        ) : null}
 
         <div key="settings" className={style.sidebarItem}>
           <NavLink
-            className={({ isActive }) => isActive ? style.sidebarActive : ''}
+            className={({ isActive }) => (isActive ? style.sidebarActive : '')}
             to={'/settings'}
             title={t('sidebar.settings')}
-            onClick={handleSidebarItemClick}>
+            onClick={handleSidebarItemClick}
+          >
             <div className="stacked">
-              <img draggable={false} src={settingsGrey} alt={t('sidebar.settings')} />
-              <img draggable={false} src={settings} alt={t('sidebar.settings')} />
+              <img
+                draggable={false}
+                src={settingsGrey}
+                alt={t('sidebar.settings')}
+              />
+              <img
+                draggable={false}
+                src={settings}
+                alt={t('sidebar.settings')}
+              />
             </div>
             <span className={style.sidebarLabel}>
               {t('sidebar.settings')}
@@ -273,33 +343,38 @@ const Sidebar = ({
           </NavLink>
         </div>
 
-        { !keystores || keystores.length === 0 ? (
+        {!keystores || keystores.length === 0 ? (
           <div key="unlock-software-keystore" className={style.sidebarItem}>
             <SkipForTesting className={style.closeSoftwareKeystore}>
               <div className={style.single}>
                 <img src={deviceSettings} />
               </div>
-              <span className={style.sidebarLabel}>
-                Software keystore
-              </span>
+              <span className={style.sidebarLabel}>Software keystore</span>
             </SkipForTesting>
           </div>
-        ) : null }
-        {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
-          <div key="eject" className={style.sidebarItem}>
-            <Button transparent onClick={eject} className={style.closeSoftwareKeystore}>
-              <div className={style.single}>
-                <img
-                  draggable={false}
-                  src={ejectIcon}
-                  alt={t('sidebar.leave')} />
-              </div>
-              <span className={style.sidebarLabel}>
-                Eject software keystore
-              </span>
-            </Button>
-          </div>
-        )}
+        ) : null}
+        {debug &&
+          keystores?.some(({ type }) => type === 'software') &&
+          deviceIDs.length === 0 && (
+            <div key="eject" className={style.sidebarItem}>
+              <Button
+                transparent
+                onClick={eject}
+                className={style.closeSoftwareKeystore}
+              >
+                <div className={style.single}>
+                  <img
+                    draggable={false}
+                    src={ejectIcon}
+                    alt={t('sidebar.leave')}
+                  />
+                </div>
+                <span className={style.sidebarLabel}>
+                  Eject software keystore
+                </span>
+              </Button>
+            </div>
+          )}
       </nav>
     </div>
   );

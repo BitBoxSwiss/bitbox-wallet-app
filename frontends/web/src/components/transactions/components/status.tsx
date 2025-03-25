@@ -24,7 +24,7 @@ type TProps = {
   status: TTransactionStatus;
   numConfirmations: number;
   numConfirmationsComplete: number;
-}
+};
 
 export const TxStatusDetail = ({
   status,
@@ -33,7 +33,10 @@ export const TxStatusDetail = ({
 }: TProps) => {
   const { t } = useTranslation();
   const statusText = t(`transaction.status.${status}`);
-  const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
+  const progress =
+    numConfirmations < numConfirmationsComplete
+      ? (numConfirmations / numConfirmationsComplete) * 100
+      : 100;
   const isComplete = numConfirmations >= numConfirmationsComplete;
   return (
     <TxDetail label={t('transaction.details.status')}>
@@ -44,7 +47,10 @@ export const TxStatusDetail = ({
         isComplete={isComplete}
       />
       <span className={style.status}>
-        {statusText}{status === 'pending' && <span> {`(${numConfirmations}/${numConfirmationsComplete})`}</span>}
+        {statusText}
+        {status === 'pending' && (
+          <span> {`(${numConfirmations}/${numConfirmationsComplete})`}</span>
+        )}
       </span>
     </TxDetail>
   );

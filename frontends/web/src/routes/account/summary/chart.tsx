@@ -14,10 +14,28 @@
  * limitations under the License.
  */
 
-import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+  MutableRefObject,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
+import {
+  createChart,
+  IChartApi,
+  LineData,
+  LineStyle,
+  LogicalRange,
+  ISeriesApi,
+  UTCTimestamp,
+  MouseEventParams,
+  ColorType,
+  Time,
+} from 'lightweight-charts';
 import type { TSummary, ChartData } from '@/api/account';
 import { usePrevious } from '@/hooks/previous';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -49,7 +67,7 @@ const defaultData: Readonly<TSummary> = {
 
 type FormattedData = {
   [key: number]: string;
-}
+};
 
 const getUTCRange = () => {
   const now = new Date();
@@ -58,7 +76,9 @@ const getUTCRange = () => {
   const utcDate = now.getUTCDate();
   const utcHours = now.getUTCHours();
   const to = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
-  const from = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
+  const from = new Date(
+    Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0),
+  );
   return {
     utcYear,
     utcMonth,
@@ -76,60 +96,56 @@ const updateRange = (
     const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
 
     switch (chartDisplay) {
-    case 'week': {
-      from.setUTCDate(utcDate - 7);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'month': {
-      from.setUTCMonth(utcMonth - 1);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'year': {
-      from.setUTCFullYear(utcYear - 1);
-      chart.current && chart.current.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'all':
-      chart.current?.timeScale().fitContent();
-      break;
+      case 'week': {
+        from.setUTCDate(utcDate - 7);
+        chart.current?.timeScale().setVisibleRange({
+          from: (from.getTime() / 1000) as UTCTimestamp,
+          to: (to.getTime() / 1000) as UTCTimestamp,
+        });
+        break;
+      }
+      case 'month': {
+        from.setUTCMonth(utcMonth - 1);
+        chart.current?.timeScale().setVisibleRange({
+          from: (from.getTime() / 1000) as UTCTimestamp,
+          to: (to.getTime() / 1000) as UTCTimestamp,
+        });
+        break;
+      }
+      case 'year': {
+        from.setUTCFullYear(utcYear - 1);
+        chart.current &&
+          chart.current.timeScale().setVisibleRange({
+            from: (from.getTime() / 1000) as UTCTimestamp,
+            to: (to.getTime() / 1000) as UTCTimestamp,
+          });
+        break;
+      }
+      case 'all':
+        chart.current?.timeScale().fitContent();
+        break;
     }
   }
 };
 
-const renderDate = (
-  date: number,
-  lang: string,
-  src: string
-) => {
-  return new Date(date).toLocaleString(
-    lang,
-    {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      ...(src === 'hourly' ? {
-        hour: '2-digit',
-        minute: '2-digit',
-      } : null)
-    }
-  );
+const renderDate = (date: number, lang: string, src: string) => {
+  return new Date(date).toLocaleString(lang, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    ...(src === 'hourly'
+      ? {
+          hour: '2-digit',
+          minute: '2-digit',
+        }
+      : null),
+  });
 };
 
 export const Chart = ({
   data = defaultData,
   noDataPlaceholder,
-  hideAmounts = false
+  hideAmounts = false,
 }: TProps) => {
   const height: number = 300;
   const mobileHeight: number = 150;
@@ -148,7 +164,9 @@ export const Chart = ({
   const lineSeries = useRef<ISeriesApi<'Area'>>();
   const formattedData = useRef<FormattedData>({});
 
-  const [source, setSource] = useState<'daily' | 'hourly'>(chartDisplay === 'week' ? 'hourly' : 'daily');
+  const [source, setSource] = useState<'daily' | 'hourly'>(
+    chartDisplay === 'week' ? 'hourly' : 'daily',
+  );
   const [difference, setDifference] = useState<number>();
   const [diffSince, setDiffSince] = useState<string>();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -182,11 +200,10 @@ export const Chart = ({
   const prevHideAmounts = usePrevious(hideAmounts);
   const hasChartAnimationParam = searchParams.get('with-chart-animation');
 
-
   const setFormattedData = (chartData: ChartData) => {
     formattedData.current = {};
 
-    chartData.forEach(entry => {
+    chartData.forEach((entry) => {
       if (formattedData.current) {
         formattedData.current[entry.time as number] = entry.formattedValue;
       }
@@ -194,7 +211,12 @@ export const Chart = ({
   };
 
   const displayWeek = () => {
-    if (source !== 'hourly' && lineSeries.current && data.chartDataHourly && chart.current) {
+    if (
+      source !== 'hourly' &&
+      lineSeries.current &&
+      data.chartDataHourly &&
+      chart.current
+    ) {
       lineSeries.current.setData(data.chartDataHourly || []);
       setFormattedData(data.chartDataHourly || []);
       chart.current.applyOptions({ timeScale: { timeVisible: true } });
@@ -204,7 +226,12 @@ export const Chart = ({
   };
 
   const displayMonth = () => {
-    if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
+    if (
+      source !== 'daily' &&
+      lineSeries.current &&
+      data.chartDataDaily &&
+      chart.current
+    ) {
       lineSeries.current.setData(data.chartDataDaily || []);
       setFormattedData(data.chartDataDaily || []);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
@@ -214,7 +241,12 @@ export const Chart = ({
   };
 
   const displayYear = () => {
-    if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
+    if (
+      source !== 'daily' &&
+      lineSeries.current &&
+      data.chartDataDaily &&
+      chart.current
+    ) {
       lineSeries.current.setData(data.chartDataDaily);
       setFormattedData(data.chartDataDaily);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
@@ -224,7 +256,12 @@ export const Chart = ({
   };
 
   const displayAll = () => {
-    if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
+    if (
+      source !== 'daily' &&
+      lineSeries.current &&
+      data.chartDataDaily &&
+      chart.current
+    ) {
       lineSeries.current.setData(data.chartDataDaily);
       setFormattedData(data.chartDataDaily);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
@@ -243,17 +280,19 @@ export const Chart = ({
     if (!chart.current || !ref.current) {
       return;
     }
-    const chartWidth = !isMobile ? ref.current.offsetWidth : document.body.clientWidth;
+    const chartWidth = !isMobile
+      ? ref.current.offsetWidth
+      : document.body.clientWidth;
     const chartHeight = !isMobile ? height : mobileHeight;
     chart.current.resize(chartWidth, chartHeight);
     chart.current.applyOptions({
       grid: {
         horzLines: {
-          visible: !isMobile
-        }
+          visible: !isMobile,
+        },
       },
       timeScale: {
-        visible: !isMobile
+        visible: !isMobile,
       },
       leftPriceScale: {
         visible: hideAmounts ? false : !isMobile,
@@ -268,11 +307,14 @@ export const Chart = ({
   }, [onResize]);
 
   const calculateChange = useCallback(() => {
-    const chartData = data[source === 'daily' ? 'chartDataDaily' : 'chartDataHourly'];
+    const chartData =
+      data[source === 'daily' ? 'chartDataDaily' : 'chartDataHourly'];
     if (!chartData || !chart.current || !lineSeries.current) {
       return;
     }
-    const logicalrange = chart.current.timeScale().getVisibleLogicalRange() as LogicalRange;
+    const logicalrange = chart.current
+      .timeScale()
+      .getVisibleLogicalRange() as LogicalRange;
     const visiblerange = lineSeries.current.barsInLogicalRange(logicalrange);
     if (!visiblerange) {
       // if the chart is empty, during first load, barsInLogicalRange is null
@@ -290,16 +332,23 @@ export const Chart = ({
     }
     // data should always have at least two data points and when the first
     // value is 0 we take the next value as valueFrom to calculate valueDiff
-    const valueFrom = chartData[rangeFrom].value === 0 ? chartData[rangeFrom + 1].value : chartData[rangeFrom].value;
+    const valueFrom =
+      chartData[rangeFrom].value === 0
+        ? chartData[rangeFrom + 1].value
+        : chartData[rangeFrom].value;
     const valueTo = data.chartTotal;
     const valueDiff = valueTo ? valueTo - valueFrom : 0;
     setDifference(valueDiff / valueFrom);
-    setDiffSince(`${chartData[rangeFrom].formattedValue} (${renderDate(Number(chartData[rangeFrom].time) * 1000, i18n.language, source)})`);
+    setDiffSince(
+      `${chartData[rangeFrom].formattedValue} (${renderDate(Number(chartData[rangeFrom].time) * 1000, i18n.language, source)})`,
+    );
   }, [data, i18n.language, source]);
 
   const removeChart = useCallback(() => {
     if (chartInitialized.current) {
-      chart.current?.timeScale().unsubscribeVisibleLogicalRangeChange(calculateChange);
+      chart.current
+        ?.timeScale()
+        .unsubscribeVisibleLogicalRangeChange(calculateChange);
       chart.current?.unsubscribeCrosshairMove(handleCrosshair);
       chart.current?.remove();
       chart.current = undefined;
@@ -307,24 +356,24 @@ export const Chart = ({
     }
   }, [calculateChange]);
 
-  const handleCrosshair = ({
-    point,
-    time,
-    seriesData
-  }: MouseEventParams) => {
+  const handleCrosshair = ({ point, time, seriesData }: MouseEventParams) => {
     if (!refToolTip.current) {
       return;
     }
     const tooltip = refToolTip.current;
     const parent = tooltip.parentNode as HTMLDivElement;
     if (
-      !lineSeries.current || !point || !time
-      || point.x < 0 || point.x > parent.clientWidth
-      || point.y < 0 || point.y > parent.clientHeight
+      !lineSeries.current ||
+      !point ||
+      !time ||
+      point.x < 0 ||
+      point.x > parent.clientWidth ||
+      point.y < 0 ||
+      point.y > parent.clientHeight
     ) {
       setTooltipData((tooltipData) => ({
         ...tooltipData,
-        toolTipVisible: false
+        toolTipVisible: false,
       }));
       return;
     }
@@ -336,24 +385,27 @@ export const Chart = ({
     if (!coordinate) {
       return;
     }
-    const coordinateY = (
-      (coordinate - tooltip.clientHeight > 0)
+    const coordinateY =
+      coordinate - tooltip.clientHeight > 0
         ? coordinate - tooltip.clientHeight
         : Math.max(
-          0,
-          Math.min(
-            parent.clientHeight - tooltip.clientHeight,
-            coordinate + 70
-          )
-        )
-    );
+            0,
+            Math.min(
+              parent.clientHeight - tooltip.clientHeight,
+              coordinate + 70,
+            ),
+          );
 
     const toolTipTop = Math.floor(Math.max(coordinateY, 0));
-    const toolTipLeft = Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70)));
+    const toolTipLeft = Math.floor(
+      Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70)),
+    );
 
     setTooltipData({
       toolTipVisible: true,
-      toolTipValue: formattedData.current ? formattedData.current[time as number] : '',
+      toolTipValue: formattedData.current
+        ? formattedData.current[time as number]
+        : '',
       toolTipTop,
       toolTipLeft,
       toolTipTime: time as number,
@@ -363,7 +415,9 @@ export const Chart = ({
   const initChart = useCallback(() => {
     const darkmode = getDarkmode();
     if (ref.current && hasData && !data.chartDataMissing) {
-      const chartWidth = !isMobile ? ref.current.offsetWidth : document.body.clientWidth;
+      const chartWidth = !isMobile
+        ? ref.current.offsetWidth
+        : document.body.clientWidth;
       const chartHeight = !isMobile ? height : mobileHeight;
       chart.current = createChart(ref.current, {
         width: chartWidth,
@@ -397,7 +451,8 @@ export const Chart = ({
             color: darkmode ? '#1D1D1B' : '#F5F5F5',
           },
           fontSize: 11,
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+          fontFamily:
+            '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
           textColor: darkmode ? '#F5F5F5' : '#1D1D1B',
         },
         leftPriceScale: {
@@ -419,8 +474,8 @@ export const Chart = ({
           visible: !isMobile,
         },
         trackingMode: {
-          exitMode: 0
-        }
+          exitMode: 0,
+        },
       });
       lineSeries.current = chart.current.addAreaSeries({
         priceLineVisible: false,
@@ -435,36 +490,50 @@ export const Chart = ({
       });
       const isChartDisplayWeekly = chartDisplay === 'week';
       lineSeries.current.setData(
-        isChartDisplayWeekly
-          ? data.chartDataHourly
-          : data.chartDataDaily
+        isChartDisplayWeekly ? data.chartDataHourly : data.chartDataDaily,
       );
       setFormattedData(
-        isChartDisplayWeekly
-          ? data.chartDataHourly
-          : data.chartDataDaily
+        isChartDisplayWeekly ? data.chartDataHourly : data.chartDataDaily,
       );
-      chart.current.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
+      chart.current
+        .timeScale()
+        .subscribeVisibleLogicalRangeChange(calculateChange);
       chart.current.subscribeCrosshairMove(handleCrosshair);
       chart.current.timeScale().fitContent();
       ref.current?.classList.remove(styles.invisible);
       chartInitialized.current = true;
       updateRange(chart, chartDisplay);
     }
-  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile]);
+  }, [
+    calculateChange,
+    chartDisplay,
+    data.chartDataDaily,
+    data.chartDataHourly,
+    data.chartDataMissing,
+    hasData,
+    hideAmounts,
+    i18n.language,
+    isMobile,
+  ]);
 
   const reinitializeChart = () => {
     removeChart();
     initChart();
   };
 
-  if (source === 'daily' && prevChartDataDaily?.length !== data.chartDataDaily.length) {
+  if (
+    source === 'daily' &&
+    prevChartDataDaily?.length !== data.chartDataDaily.length
+  ) {
     lineSeries.current?.setData(data.chartDataDaily);
     chart.current?.timeScale().fitContent();
     setFormattedData(data.chartDataDaily);
   }
 
-  if (source === 'hourly' && prevChartDataHourly?.length !== data.chartDataHourly.length) {
+  if (
+    source === 'hourly' &&
+    prevChartDataHourly?.length !== data.chartDataHourly.length
+  ) {
     lineSeries.current?.setData(data.chartDataHourly);
     chart.current?.timeScale().fitContent();
     setFormattedData(data.chartDataHourly);
@@ -478,7 +547,7 @@ export const Chart = ({
     chart.current?.applyOptions({
       leftPriceScale: {
         visible: hideAmounts ? false : !isMobile,
-      }
+      },
     });
   }
 
@@ -502,34 +571,35 @@ export const Chart = ({
     const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
 
     switch (chartDisplay) {
-    case 'week': {
-      from.setUTCDate(utcDate - 7);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'month': {
-      from.setUTCMonth(utcMonth - 1);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'year': {
-      from.setUTCFullYear(utcYear - 1);
-      chart.current && chart.current.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'all': {
-      chart.current?.timeScale().fitContent();
-      break;
-    }
+      case 'week': {
+        from.setUTCDate(utcDate - 7);
+        chart.current?.timeScale().setVisibleRange({
+          from: (from.getTime() / 1000) as UTCTimestamp,
+          to: (to.getTime() / 1000) as UTCTimestamp,
+        });
+        break;
+      }
+      case 'month': {
+        from.setUTCMonth(utcMonth - 1);
+        chart.current?.timeScale().setVisibleRange({
+          from: (from.getTime() / 1000) as UTCTimestamp,
+          to: (to.getTime() / 1000) as UTCTimestamp,
+        });
+        break;
+      }
+      case 'year': {
+        from.setUTCFullYear(utcYear - 1);
+        chart.current &&
+          chart.current.timeScale().setVisibleRange({
+            from: (from.getTime() / 1000) as UTCTimestamp,
+            to: (to.getTime() / 1000) as UTCTimestamp,
+          });
+        break;
+      }
+      case 'all': {
+        chart.current?.timeScale().fitContent();
+        break;
+      }
     }
   }, [source, chartDisplay]);
 
@@ -547,13 +617,8 @@ export const Chart = ({
     setDifference(0);
   }
 
-  const {
-    toolTipVisible,
-    toolTipValue,
-    toolTipTop,
-    toolTipLeft,
-    toolTipTime,
-  } = tooltipData;
+  const { toolTipVisible, toolTipValue, toolTipTop, toolTipLeft, toolTipTime } =
+    tooltipData;
 
   const hasDifference = difference && Number.isFinite(difference);
   const disableFilters = !hasData || chartDataMissing;
@@ -579,7 +644,9 @@ export const Chart = ({
             {formattedChartTotal !== null ? (
               // remove trailing zeroes for BTC fiat total
               <Amount
-                amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue}
+                amount={
+                  !showMobileTotalValue ? formattedChartTotal : toolTipValue
+                }
                 unit={chartFiat}
                 removeBtcTrailingZeroes
                 onMobileClick={rotateDefaultCurrency}
@@ -588,7 +655,12 @@ export const Chart = ({
               <Skeleton minWidth="220px" />
             )}
             <span className={styles.totalUnit}>
-              {chartTotal !== null && <AmountUnit unit={chartFiat} rotateUnit={rotateDefaultCurrency}/>}
+              {chartTotal !== null && (
+                <AmountUnit
+                  unit={chartFiat}
+                  rotateUnit={rotateDefaultCurrency}
+                />
+              )}
             </span>
           </div>
           {!showMobileTotalValue ? (
@@ -615,26 +687,30 @@ export const Chart = ({
       )}
       <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>
         {chartDataMissing ? (
-          <div className={styles.chartUpdatingMessage} style={{ height: chartHeight }}>
+          <div
+            className={styles.chartUpdatingMessage}
+            style={{ height: chartHeight }}
+          >
             {t('chart.dataMissing')}
           </div>
-        ) : hasData ? !chartIsUpToDate && (
-          <div className={styles.chartUpdatingMessage}>
-            {t('chart.dataOldTimestamp', {
-              time: new Date(lastTimestamp).toLocaleString(i18n.language)
-            })}
-          </div>
+        ) : hasData ? (
+          !chartIsUpToDate && (
+            <div className={styles.chartUpdatingMessage}>
+              {t('chart.dataOldTimestamp', {
+                time: new Date(lastTimestamp).toLocaleString(i18n.language),
+              })}
+            </div>
+          )
         ) : (
-          <div className={styles.placeholderContainer}>
-            {noDataPlaceholder}
-          </div>
+          <div className={styles.placeholderContainer}>{noDataPlaceholder}</div>
         )}
         <div ref={ref} className={styles.invisible}></div>
         <span
           ref={refToolTip}
           className={styles.tooltip}
           style={{ left: toolTipLeft, top: toolTipTop }}
-          hidden={!toolTipVisible || isMobile}>
+          hidden={!toolTipVisible || isMobile}
+        >
           {toolTipValue !== undefined ? (
             <span>
               <h2 className={styles.toolTipValue}>

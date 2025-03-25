@@ -28,7 +28,7 @@ type TProps = {
   secondaryText?: string;
   settingName: string | ReactNode;
   title?: string;
-}
+};
 
 export const SettingsItem = ({
   className = '',
@@ -46,45 +46,48 @@ export const SettingsItem = ({
 
   const rightContent = (
     <div className={styles.rightContentContainer}>
-      <p className={
-        `
+      <p
+        className={`
         ${displayedValue ? styles.displayedValue : ''}
         ${extraComponent ? styles.withMargin : ''}
         ${hideDisplayedValueOnSmall ? styles.hideDisplayedValueOnSmall : ''}
        `}
-      >{displayedValue}</p>
-      {extraComponent ? extraComponent : null }
+      >
+        {displayedValue}
+      </p>
+      {extraComponent ? extraComponent : null}
     </div>
   );
 
-  const content =
-    (<>
+  const content = (
+    <>
       <span className={styles.content} title={title}>
         <div className={styles.primaryText}>{settingName}</div>
-        { secondaryText ? (
+        {secondaryText ? (
           <p className={styles.secondaryText}>{secondaryText}</p>
-        ) : null }
+        ) : null}
       </span>
       {rightContent}
     </>
-    );
+  );
 
   // render as div when it's notButton
   // otherwise, render as button
   return (
     <>
       {notButton ? (
-        <div className={
-          `${styles.container} ${className} 
-          ${collapseOnSmall ? styles.collapse : ''}`
-        } >
+        <div
+          className={`${styles.container} ${className} 
+          ${collapseOnSmall ? styles.collapse : ''}`}
+        >
           {content}
         </div>
       ) : (
         <button
           type="button"
           className={`${styles.container} ${styles.isButton} ${className}`}
-          onClick={onClick}>
+          onClick={onClick}
+        >
           {content}
         </button>
       )}
@@ -95,14 +98,9 @@ export const SettingsItem = ({
 type TSettingsValueProps = {
   children: ReactNode;
   wrap?: boolean;
-}
+};
 
-export const SettingsValue = ({
-  children,
-  wrap,
-}: TSettingsValueProps) => {
+export const SettingsValue = ({ children, wrap }: TSettingsValueProps) => {
   const classNames = wrap ? '' : styles.nowrap;
-  return (
-    <span className={classNames}>{children}</span>
-  );
+  return <span className={classNames}>{children}</span>;
 };

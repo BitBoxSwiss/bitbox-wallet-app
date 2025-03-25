@@ -96,88 +96,86 @@ export const UTXOs = ({
   };
 
   const renderUTXOs = (scriptType: ScriptType) => {
-    const filteredUTXOs = utxos.filter(utxo => utxo.scriptType === scriptType);
+    const filteredUTXOs = utxos.filter(
+      (utxo) => utxo.scriptType === scriptType,
+    );
     if (filteredUTXOs.length === 0) {
       return null;
     }
     return (
       <div key={'utxos-' + scriptType}>
-        <h2 className="subTitle">{ getScriptName(scriptType) }</h2>
+        <h2 className="subTitle">{getScriptName(scriptType)}</h2>
         <ul className={style.utxosList}>
-          { filteredUTXOs.map(utxo => (
+          {filteredUTXOs.map((utxo) => (
             <li key={'utxo-' + utxo.outPoint} className={style.utxo}>
               <Checkbox
                 checked={!!selectedUTXOs[utxo.outPoint]}
                 id={'utxo-' + utxo.outPoint}
-                onChange={event => handleUTXOChange(event, utxo)}>
+                onChange={(event) => handleUTXOChange(event, utxo)}
+              >
                 {utxo.note && (
                   <div className={style.note}>
-                    <strong>{utxo.note}{' '}</strong>
+                    <strong>{utxo.note} </strong>
                   </div>
                 )}
                 <div className={style.utxoContent}>
                   <div className={style.utxoData}>
                     <div className={style.amounts}>
                       <span className={style.amount}>
-                        <Amount alwaysShowAmounts amount={utxo.amount.amount} unit={utxo.amount.unit}/>
-                        {' '}
-                        <span className={style.unit}>
-                          {utxo.amount.unit}
-                        </span>
+                        <Amount
+                          alwaysShowAmounts
+                          amount={utxo.amount.amount}
+                          unit={utxo.amount.unit}
+                        />{' '}
+                        <span className={style.unit}>{utxo.amount.unit}</span>
                       </span>
-                      <AmountWithUnit alwaysShowAmounts amount={utxo.amount} convertToFiat/>
+                      <AmountWithUnit
+                        alwaysShowAmounts
+                        amount={utxo.amount}
+                        convertToFiat
+                      />
                     </div>
                     <div className={style.address}>
                       <span className={style.label}>
                         {t('send.coincontrol.address')}:
                       </span>
-                      <span className={style.shrink}>
-                        {utxo.address}
-                      </span>
+                      <span className={style.shrink}>{utxo.address}</span>
                       <div className="m-left-quarter">
                         {utxo.addressReused ? (
                           <>
                             <Badge type="danger">
                               {t('send.coincontrol.addressReused')}
-                            </Badge>
-                            {' '}
+                            </Badge>{' '}
                           </>
-                        )
-                          :
-                          null
-                        }
+                        ) : null}
                         {utxo.isChange ? (
                           <>
                             <Badge type="info">
                               {t('send.coincontrol.change')}
-                            </Badge>
-                            {' '}
+                            </Badge>{' '}
                           </>
-                        )
-                          :
-                          null
-                        }
+                        ) : null}
                       </div>
                     </div>
                     <div className={style.transaction}>
                       <span className={style.label}>
                         {t('send.coincontrol.outpoint')}:
                       </span>
-                      <span className={style.shrink}>
-                        {utxo.txId}
-                      </span>:{utxo.txOutput}
+                      <span className={style.shrink}>{utxo.txId}</span>:
+                      {utxo.txOutput}
                     </div>
                   </div>
                   <A
                     className={style.utxoExplorer}
                     href={explorerURL + utxo.txId}
-                    title={t('transaction.explorerTitle')}>
+                    title={t('transaction.explorerTitle')}
+                  >
                     <ExternalLink />
                   </A>
                 </div>
               </Checkbox>
             </li>
-          )) }
+          ))}
         </ul>
       </div>
     );
@@ -188,16 +186,15 @@ export const UTXOs = ({
       open={active}
       title={t('send.coincontrol.title')}
       large
-      onClose={onClose}>
+      onClose={onClose}
+    >
       <div>
-        {(reusedAddressUTXOs > 0) && (
-          <Message type="warning">
-            {t('warning.coincontrol')}
-          </Message>
+        {reusedAddressUTXOs > 0 && (
+          <Message type="warning">{t('warning.coincontrol')}</Message>
         )}
       </div>
       <div>
-        { allScriptTypes.map(renderUTXOs) }
+        {allScriptTypes.map(renderUTXOs)}
         <div className="buttons text-center m-top-none m-bottom-half">
           <Button primary onClick={onClose}>
             {t('button.continue')}

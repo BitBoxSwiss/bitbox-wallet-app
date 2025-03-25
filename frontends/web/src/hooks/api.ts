@@ -26,7 +26,7 @@ import { useMountedRef } from './mount';
  * the value to `undefined`.
  */
 export const useSubscribeReset = <T>(
-  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
+  subscription: (callback: TSubscriptionCallback<T>) => TUnsubscribe,
 ): [T | undefined, () => void] => {
   const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
@@ -40,7 +40,7 @@ export const useSubscribeReset = <T>(
   useEffect(
     () => subscribe(),
     // empty dependencies because it's only subscribed once
-    [] // eslint-disable-line react-hooks/exhaustive-deps
+    [], // eslint-disable-line react-hooks/exhaustive-deps
   );
   return [response, () => setResponse(undefined)];
 };
@@ -51,8 +51,8 @@ export const useSubscribeReset = <T>(
  * re-renders on every update.
  */
 export const useSubscribe = <T>(
-  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
-): (T | undefined) => {
+  subscription: (callback: TSubscriptionCallback<T>) => TUnsubscribe,
+): T | undefined => {
   const [response] = useSubscribeReset(subscription);
   return response;
 };
@@ -65,7 +65,7 @@ export const useSubscribe = <T>(
 export const useLoad = <T>(
   apiCall: (() => Promise<T>) | null,
   dependencies?: DependencyList,
-): (T | undefined) => {
+): T | undefined => {
   const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
   const load = () => {
@@ -82,7 +82,7 @@ export const useLoad = <T>(
   useEffect(
     () => load(),
     // By default no dependencies are passed to only query once
-    dependencies || [] // eslint-disable-line react-hooks/exhaustive-deps
+    dependencies || [], // eslint-disable-line react-hooks/exhaustive-deps
   );
   return response;
 };
@@ -95,8 +95,8 @@ export const useLoad = <T>(
  */
 export const useSync = <T>(
   apiCall: () => Promise<T>,
-  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
-): (T | undefined) => {
+  subscription: (callback: TSubscriptionCallback<T>) => TUnsubscribe,
+): T | undefined => {
   const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
   const onData = (data: T) => {
@@ -109,6 +109,8 @@ export const useSync = <T>(
       apiCall().then(onData);
       return subscription(onData);
     }, // we pass no dependencies because it's only queried once
-    []); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
   return response;
 };

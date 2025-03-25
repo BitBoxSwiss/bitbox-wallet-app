@@ -21,8 +21,5 @@ export const getUsingMobileData = (): Promise<boolean> => {
   return apiGet('using-mobile-data');
 };
 
-export const subscribeUsingMobileData = (
-  cb: TSubscriptionCallback<boolean>
-) => (
-  subscribeEndpoint('using-mobile-data', cb)
-);
+export const subscribeUsingMobileData = (cb: TSubscriptionCallback<boolean>) =>
+  subscribeEndpoint('using-mobile-data', cb);

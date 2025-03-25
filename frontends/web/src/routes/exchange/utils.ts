@@ -20,30 +20,30 @@ import { getExchangeSupported, TExchangeName } from '@/api/exchanges';
 /**
  * Gets formatted name for exchange.
  */
-export const getExchangeFormattedName = (
-  name: TExchangeName,
-) => {
+export const getExchangeFormattedName = (name: TExchangeName) => {
   switch (name) {
-  case 'moonpay':
-    return 'MoonPay';
-  case 'pocket':
-    return 'Pocket';
-  case 'btcdirect':
-    return 'BTC Direct';
-  case 'btcdirect-otc':
-    return 'BTC Direct\'s Private Trading Desk';
+    case 'moonpay':
+      return 'MoonPay';
+    case 'pocket':
+      return 'Pocket';
+    case 'btcdirect':
+      return 'BTC Direct';
+    case 'btcdirect-otc':
+      return "BTC Direct's Private Trading Desk";
   }
 };
 
 /**
  * Filters a given accounts list, keeping only the accounts supported by at least one exchange.
  */
-export const getExchangeSupportedAccounts = async (accounts: IAccount[]): Promise<IAccount[]> => {
+export const getExchangeSupportedAccounts = async (
+  accounts: IAccount[],
+): Promise<IAccount[]> => {
   const accountsWithFalsyValue = await Promise.all(
     accounts.map(async (account) => {
       const supported = await getExchangeSupported(account.code)();
       return supported.exchanges.length ? account : false;
-    })
+    }),
   );
-  return accountsWithFalsyValue.filter(result => result) as IAccount[];
+  return accountsWithFalsyValue.filter((result) => result) as IAccount[];
 };

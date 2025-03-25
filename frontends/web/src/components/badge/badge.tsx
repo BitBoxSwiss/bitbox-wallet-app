@@ -33,11 +33,12 @@ export const Badge = ({
   ...props
 }: TProps) => {
   const withChildrenStyle = children !== undefined ? style.withChildren : '';
-  const iconOnlyStyle = (children === undefined && icon) ? style.iconOnly : '';
+  const iconOnlyStyle = children === undefined && icon ? style.iconOnly : '';
   return (
     <span
       className={`${style.badge} ${style[type]} ${withChildrenStyle} ${iconOnlyStyle} ${className || ''}`}
-      {...props}>
+      {...props}
+    >
       {icon && icon({ className: style.badgeIcon })}
       {children}
     </span>

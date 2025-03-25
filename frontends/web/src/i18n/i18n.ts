@@ -42,8 +42,7 @@ import { setConfig } from '@/utils/config';
 
 const locizeProjectID = 'fe4e5a24-e4a2-4903-96fc-3d62c11fc502';
 
-let i18Init = i18n
-  .use(languageFromConfig);
+let i18Init = i18n.use(languageFromConfig);
 
 i18Init.init({
   fallbackLng: 'en',
@@ -55,16 +54,16 @@ i18Init.init({
   debug: false,
 
   interpolation: {
-    escapeValue: false // not needed for react
+    escapeValue: false, // not needed for react
   },
 
   react: {
-    useSuspense : true, // Not using Suspense you will need to handle the not ready state yourself
+    useSuspense: true, // Not using Suspense you will need to handle the not ready state yourself
   },
 
   backend: {
     projectId: locizeProjectID,
-    referenceLng: 'en'
+    referenceLng: 'en',
   },
 });
 

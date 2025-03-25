@@ -15,14 +15,24 @@
  * limitations under the License.
  */
 
-import React, { useState, useEffect, useRef, ChangeEvent, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  ChangeEvent,
+  useCallback,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
 import { getConfig } from '@/utils/config';
 import { Input, Select } from '@/components/forms';
 import { Message } from '@/components/message/message';
-import { customFeeUnit, getCoinCode, isEthereumBased } from '@/routes/account/utils';
+import {
+  customFeeUnit,
+  getCoinCode,
+  isEthereumBased,
+} from '@/routes/account/utils';
 import style from './feetargets.module.css';
 
 type Props = {
@@ -36,13 +46,13 @@ type Props = {
   onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
   onCustomFee: (customFee: string) => void;
   error?: string;
-}
+};
 
 type TOptions = {
   value: accountApi.FeeTargetCode;
   text: string;
   disabled: boolean;
-}
+};
 
 export const FeeTargets = ({
   accountCode,
@@ -54,7 +64,7 @@ export const FeeTargets = ({
   showCalculatingFeeLabel,
   onFeeTargetChange,
   onCustomFee,
-  error
+  error,
 }: Props) => {
   const { t } = useTranslation();
   const config = useLoad(getConfig);
@@ -72,15 +82,17 @@ export const FeeTargets = ({
     }
   }, [disabled]);
 
-
   useEffect(() => {
     if (!config || !feeTargets) {
       return;
     }
-    const expert = config.frontend.expertFee || feeTargets.feeTargets.length === 0;
+    const expert =
+      config.frontend.expertFee || feeTargets.feeTargets.length === 0;
     const options = feeTargets.feeTargets.map(({ code, feeRateInfo }) => ({
       value: code,
-      text: t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ` (${feeRateInfo})` : ''),
+      text:
+        t(`send.feeTarget.label.${code}`) +
+        (expert && feeRateInfo ? ` (${feeRateInfo})` : ''),
       disabled: false,
     }));
     if (expert) {
@@ -97,11 +109,20 @@ export const FeeTargets = ({
       setNoFeeTargets(true);
     }
     focusInput();
-  }, [t, feeTargets, focusInput, accountCode, config, onFeeTargetChange, disabled]);
+  }, [
+    t,
+    feeTargets,
+    focusInput,
+    accountCode,
+    config,
+    onFeeTargetChange,
+    disabled,
+  ]);
 
   const handleFeeTargetChange = (event: React.SyntheticEvent) => {
     const target = event.target as HTMLSelectElement;
-    const value = target.options[target.selectedIndex].value as accountApi.FeeTargetCode;
+    const value = target.options[target.selectedIndex]
+      .value as accountApi.FeeTargetCode;
     setFeeTarget(value);
     onFeeTargetChange(value);
   };
@@ -115,7 +136,10 @@ export const FeeTargets = ({
       return '';
     }
     const { amount, unit, conversions } = proposedFee;
-    const conversion = (conversions && conversions[fiatUnit]) ? ` = ${conversions[fiatUnit]} ${fiatUnit}` : '';
+    const conversion =
+      conversions && conversions[fiatUnit]
+        ? ` = ${conversions[fiatUnit]} ${fiatUnit}`
+        : '';
     return `${amount} ${unit} ${conversion}`;
   };
 
@@ -127,109 +151,112 @@ export const FeeTargets = ({
         placeholder={t('send.feeTarget.placeholder')}
         disabled
         value=""
-        transparent />
+        transparent
+      />
     );
   }
 
   const isCustom = feeTarget === 'custom';
   const hasOptions = options.length > 0;
   const proposeFeeText = getProposeFeeText();
-  const preventFocus = document.activeElement && document.activeElement.nodeName === 'INPUT';
+  const preventFocus =
+    document.activeElement && document.activeElement.nodeName === 'INPUT';
 
-  return (
-    hasOptions ? (
-      <div>
-        {!isCustom ? (
-          showCalculatingFeeLabel ? (
-            <Input
-              disabled
-              label={t('send.priority')}
-              placeholder={t('send.feeTarget.placeholder')}
-              value=""
-              transparent />
-          ) : (
+  return hasOptions ? (
+    <div>
+      {!isCustom ? (
+        showCalculatingFeeLabel ? (
+          <Input
+            disabled
+            label={t('send.priority')}
+            placeholder={t('send.feeTarget.placeholder')}
+            value=""
+            transparent
+          />
+        ) : (
+          <Select
+            className={style.priority}
+            label={t('send.priority')}
+            id="feeTarget"
+            onChange={handleFeeTargetChange}
+            value={feeTarget}
+            options={options}
+          />
+        )
+      ) : (
+        <div className={style.rowCustomFee}>
+          {noFeeTargets ? (
+            <Message small type="warning">
+              {t('send.noFeeTargets')}
+            </Message>
+          ) : null}
+          <div className={style.column}>
             <Select
               className={style.priority}
               label={t('send.priority')}
               id="feeTarget"
               onChange={handleFeeTargetChange}
               value={feeTarget}
-              options={options} />
-          )
-        ) : (
-          <div className={style.rowCustomFee}>
-            { noFeeTargets ? (
-              <Message small type="warning">
-                {t('send.noFeeTargets')}
-              </Message>
-            ) : null }
-            <div className={style.column}>
-              <Select
-                className={style.priority}
-                label={t('send.priority')}
-                id="feeTarget"
-                onChange={handleFeeTargetChange}
-                value={feeTarget}
-                options={options} />
-            </div>
-            <div className={style.column}>
-              <Input
-                type={disabled ? 'text' : 'number'}
-                min="0"
-                step="any"
-                autoFocus={!preventFocus}
-                align="right"
-                className={`${style.fee} ${style.feeCustom}`}
-                disabled={disabled}
-                label={t('send.feeTarget.customLabel', {
-                  context: isEthereumBased(coinCode) ? 'eth' : ''
-                })}
-                id="proposedFee"
-                placeholder={t('send.fee.customPlaceholder')}
-                error={error}
-                transparent
-                onInput={handleCustomFee}
-                ref={inputRef}
-                value={customFee}
-              >
-                <span className={style.customFeeUnit}>
-                  { customFeeUnit(coinCode) }
-                </span>
-              </Input>
-            </div>
+              options={options}
+            />
           </div>
-        )}
-        { feeTarget && (
-          <div>
-            {(showCalculatingFeeLabel || proposeFeeText ? (
-              <p className={style.feeProposed}>
-                {t('send.fee.label')}:
-                {' '}
-                {showCalculatingFeeLabel ? t('send.feeTarget.placeholder') : proposeFeeText}
-              </p>
-            ) : null)}
-            { !isCustom ? (
-              <p className={style.feeDescription}>
-                {t('send.feeTarget.estimate')}
-                {' '}
-                {t(`send.feeTarget.description.${feeTarget}`, {
-                  context: getCoinCode(coinCode) || '',
-                })}
-              </p>
-            ) : null }
+          <div className={style.column}>
+            <Input
+              type={disabled ? 'text' : 'number'}
+              min="0"
+              step="any"
+              autoFocus={!preventFocus}
+              align="right"
+              className={`${style.fee} ${style.feeCustom}`}
+              disabled={disabled}
+              label={t('send.feeTarget.customLabel', {
+                context: isEthereumBased(coinCode) ? 'eth' : '',
+              })}
+              id="proposedFee"
+              placeholder={t('send.fee.customPlaceholder')}
+              error={error}
+              transparent
+              onInput={handleCustomFee}
+              ref={inputRef}
+              value={customFee}
+            >
+              <span className={style.customFeeUnit}>
+                {customFeeUnit(coinCode)}
+              </span>
+            </Input>
           </div>
-        )}
-      </div>
-    ) : (
-      <Input
-        disabled
-        label={t('send.fee.label')}
-        id="proposedFee"
-        placeholder={t('send.fee.placeholder')}
-        error={error}
-        transparent
-        value={proposeFeeText}
-      />
-    )
+        </div>
+      )}
+      {feeTarget && (
+        <div>
+          {showCalculatingFeeLabel || proposeFeeText ? (
+            <p className={style.feeProposed}>
+              {t('send.fee.label')}:{' '}
+              {showCalculatingFeeLabel
+                ? t('send.feeTarget.placeholder')
+                : proposeFeeText}
+            </p>
+          ) : null}
+          {!isCustom ? (
+            <p className={style.feeDescription}>
+              {t('send.feeTarget.estimate')}{' '}
+              {t(`send.feeTarget.description.${feeTarget}`, {
+                context: getCoinCode(coinCode) || '',
+              })}
+            </p>
+          ) : null}
+        </div>
+      )}
+    </div>
+  ) : (
+    <Input
+      disabled
+      label={t('send.fee.label')}
+      id="proposedFee"
+      placeholder={t('send.fee.placeholder')}
+      error={error}
+      transparent
+      value={proposeFeeText}
+    />
   );
 };

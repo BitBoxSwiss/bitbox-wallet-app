@@ -38,25 +38,28 @@ import { GlobalBanners } from '@/components/banners';
 export type TProxyConfig = {
   proxyAddress: string;
   useProxy: boolean;
-}
+};
 
 export type TFrontendConfig = {
   expertFee?: boolean;
   coinControl?: boolean;
-}
+};
 
 export type TBackendConfig = {
-  proxy?: TProxyConfig
+  proxy?: TProxyConfig;
   authentication?: boolean;
   startInTestnet?: boolean;
-}
+};
 
 export type TConfig = {
-  backend?: TBackendConfig
-  frontend?: TFrontendConfig
-}
+  backend?: TBackendConfig;
+  frontend?: TFrontendConfig;
+};
 
-export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const AdvancedSettings = ({
+  devices,
+  hasAccounts,
+}: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   const fetchedConfig = useLoad(getConfig) as TConfig;
   const [config, setConfig] = useState<TConfig>();
@@ -81,9 +84,13 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
             title={
               <>
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader withGuide title={t('settings.advancedSettings')} />
+                <MobileHeader
+                  withGuide
+                  title={t('settings.advancedSettings')}
+                />
               </>
-            } />
+            }
+          />
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs
@@ -91,11 +98,26 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
-                <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
-                <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
-                <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
-                <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
-                <RestartInTestnetSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
+                <EnableCustomFeesToggleSetting
+                  frontendConfig={frontendConfig}
+                  onChangeConfig={setConfig}
+                />
+                <EnableCoinControlSetting
+                  frontendConfig={frontendConfig}
+                  onChangeConfig={setConfig}
+                />
+                <EnableAuthSetting
+                  backendConfig={backendConfig}
+                  onChangeConfig={setConfig}
+                />
+                <EnableTorProxySetting
+                  proxyConfig={proxyConfig}
+                  onChangeConfig={setConfig}
+                />
+                <RestartInTestnetSetting
+                  backendConfig={backendConfig}
+                  onChangeConfig={setConfig}
+                />
                 <ConnectFullNodeSetting />
                 <ExportLogSetting />
               </WithSettingsTabs>
@@ -105,18 +127,22 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
       </GuidedContent>
       <AdvancedSettingsGuide />
     </GuideWrapper>
-
   );
 };
-
 
 const AdvancedSettingsGuide = () => {
   const { t } = useTranslation();
 
   return (
     <Guide title={t('guide.guideTitle.advancedSettings')}>
-      <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why', { returnObjects: true })} />
-      <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor', { returnObjects: true })} />
+      <Entry
+        key="guide.settings-electrum.why"
+        entry={t('guide.settings-electrum.why', { returnObjects: true })}
+      />
+      <Entry
+        key="guide.settings-electrum.tor"
+        entry={t('guide.settings-electrum.tor', { returnObjects: true })}
+      />
     </Guide>
   );
 };

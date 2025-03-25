@@ -26,7 +26,11 @@ describe('components/forms/input', () => {
   });
 
   it('should have children', () => {
-    render(<Input defaultValue=""><span>label</span></Input>);
+    render(
+      <Input defaultValue="">
+        <span>label</span>
+      </Input>,
+    );
     expect(screen.getByText('label')).toBeTruthy();
   });
 

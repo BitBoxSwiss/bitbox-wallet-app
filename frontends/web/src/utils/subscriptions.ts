@@ -16,7 +16,7 @@
 
 import { TUnsubscribe } from './transport-common';
 
-export type UnsubscribeList = Array<(TUnsubscribe)>;
+export type UnsubscribeList = Array<TUnsubscribe>;
 
 /**
  * Helper function that takes an array of unsubscribe callbacks.

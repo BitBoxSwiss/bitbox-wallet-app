@@ -33,7 +33,7 @@ type TProps = {
   dismissible?: string;
   className?: string;
   children: ReactNode;
-}
+};
 
 export const Status = ({
   hidden,
@@ -65,7 +65,7 @@ export const Status = ({
     setConfig({
       frontend: {
         [dismissible]: true,
-      }
+      },
     });
     setShow(false);
   };
@@ -78,9 +78,7 @@ export const Status = ({
     <div className={className}>
       <Message noIcon={noIcon} type={type}>
         <div className={style.container}>
-          <div className={style.content}>
-            {children}
-          </div>
+          <div className={style.content}>{children}</div>
           <button
             hidden={!dismissible}
             className={style.closeButton}
@@ -93,4 +91,3 @@ export const Status = ({
     </div>
   );
 };
-

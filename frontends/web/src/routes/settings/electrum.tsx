@@ -32,7 +32,7 @@ export const ElectrumSettings = () => {
 
   const [activeTab, setActiveTab] = useState<'btc' | 'ltc'>('btc');
 
-  const handleTab: MouseEventHandler = e => {
+  const handleTab: MouseEventHandler = (e) => {
     const selectedTab = e.currentTarget.getAttribute('data-tab');
     if (selectedTab !== 'btc' && selectedTab !== 'ltc') {
       console.error('Unrecognized tab ID');
@@ -47,57 +47,80 @@ export const ElectrumSettings = () => {
           <Header title={<h2>{t('settings.expert.electrum.title')}</h2>} />
           <div className="content padded">
             <div className="flex flex-row flex-between flex-items-center tabs">
-              <div className={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>
+              <div
+                className={['tab', activeTab === 'btc' ? 'active' : ''].join(
+                  ' ',
+                )}
+              >
                 <Button transparent onClick={handleTab} data-tab="btc">
                   {t(`settings.electrum.title-${isTesting ? 'tbtc' : 'btc'}`)}
                 </Button>
               </div>
-              <div className={['tab', activeTab === 'ltc' ? 'active' : ''].join(' ')}>
+              <div
+                className={['tab', activeTab === 'ltc' ? 'active' : ''].join(
+                  ' ',
+                )}
+              >
                 <Button transparent onClick={handleTab} data-tab="ltc">
                   {t(`settings.electrum.title-${isTesting ? 'tltc' : 'ltc'}`)}
                 </Button>
               </div>
             </div>
-            {
-              activeTab === 'btc' && (
-                <ElectrumServers
-                  key={isTesting ? 'tbtc' : 'btc'}
-                  coin={isTesting ? 'tbtc' : 'btc'}
-                />
-              )
-            }
-            {
-              activeTab === 'ltc' && (
-                <ElectrumServers
-                  key={isTesting ? 'tltc' : 'ltc'}
-                  coin={isTesting ? 'tltc' : 'ltc'}
-                />
-              )
-            }
+            {activeTab === 'btc' && (
+              <ElectrumServers
+                key={isTesting ? 'tbtc' : 'btc'}
+                coin={isTesting ? 'tbtc' : 'btc'}
+              />
+            )}
+            {activeTab === 'ltc' && (
+              <ElectrumServers
+                key={isTesting ? 'tltc' : 'ltc'}
+                coin={isTesting ? 'tltc' : 'ltc'}
+              />
+            )}
             <div style={{ marginBottom: 20 }}>
-              <BackButton>
-                {t('button.back')}
-              </BackButton>
+              <BackButton>{t('button.back')}</BackButton>
             </div>
           </div>
         </div>
       </div>
       <Guide>
-        <Entry key="guide.settings-electrum.what" entry={t('guide.settings-electrum.what', { returnObjects: true })} />
-        <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why', { returnObjects: true })} />
-        <Entry key="guide.settings-electrum.options" entry={t('guide.settings-electrum.options', { returnObjects: true })} />
-        <Entry key="guide.settings-electrum.connection" entry={t('guide.settings-electrum.connection', { returnObjects: true })} />
-        <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor', { returnObjects: true })} />
-        <Entry key="guide.settings-electrum.instructions" entry={{
-          link: {
-            text: t('guide.settings-electrum.instructions.link.text'),
-            url: (i18n.resolvedLanguage === 'de')
-              ? 'https://bitbox.swiss/redirects/connect-your-own-full-node-de/'
-              : 'https://bitbox.swiss/redirects/connect-your-own-full-node-en/'
-          },
-          text: t('guide.settings-electrum.instructions.text'),
-          title: t('guide.settings-electrum.instructions.title')
-        }} />
+        <Entry
+          key="guide.settings-electrum.what"
+          entry={t('guide.settings-electrum.what', { returnObjects: true })}
+        />
+        <Entry
+          key="guide.settings-electrum.why"
+          entry={t('guide.settings-electrum.why', { returnObjects: true })}
+        />
+        <Entry
+          key="guide.settings-electrum.options"
+          entry={t('guide.settings-electrum.options', { returnObjects: true })}
+        />
+        <Entry
+          key="guide.settings-electrum.connection"
+          entry={t('guide.settings-electrum.connection', {
+            returnObjects: true,
+          })}
+        />
+        <Entry
+          key="guide.settings-electrum.tor"
+          entry={t('guide.settings-electrum.tor', { returnObjects: true })}
+        />
+        <Entry
+          key="guide.settings-electrum.instructions"
+          entry={{
+            link: {
+              text: t('guide.settings-electrum.instructions.link.text'),
+              url:
+                i18n.resolvedLanguage === 'de'
+                  ? 'https://bitbox.swiss/redirects/connect-your-own-full-node-de/'
+                  : 'https://bitbox.swiss/redirects/connect-your-own-full-node-en/',
+            },
+            text: t('guide.settings-electrum.instructions.text'),
+            title: t('guide.settings-electrum.instructions.title'),
+          }}
+        />
       </Guide>
     </div>
   );

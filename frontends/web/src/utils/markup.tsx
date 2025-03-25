@@ -18,9 +18,9 @@
 import React, { Fragment, createElement } from 'react';
 
 type TMarkupProps = {
-    tagName: keyof JSX.IntrinsicElements;
-    markup: string;
-    key?: string;
+  tagName: keyof JSX.IntrinsicElements;
+  markup: string;
+  key?: string;
 } & React.HTMLAttributes<HTMLElement>;
 
 const captureStrongElement = /^(.*)<strong>(.*)<\/strong>(.*)$/m;
@@ -43,7 +43,13 @@ export const SimpleMarkup = ({ tagName, markup, ...props }: TMarkupProps) => {
   if (simpleMarkupChunks === null || simpleMarkupChunks.length !== 4) {
     return createElement(tagName, props, markup);
   }
-  return createElement(tagName, props, simpleMarkupChunks[1], createElement('strong', null, simpleMarkupChunks[2]), simpleMarkupChunks[3]);
+  return createElement(
+    tagName,
+    props,
+    simpleMarkupChunks[1],
+    createElement('strong', null, simpleMarkupChunks[2]),
+    simpleMarkupChunks[3],
+  );
 };
 
 type TMultiMarkupProps = {
@@ -54,15 +60,20 @@ type TMultiMarkupProps = {
  * **<MultilineMarkup>** splits a text by newline and renders each
  * line with the `<SimmpleMarkup>` component.
  */
-export const MultilineMarkup = ({ tagName, markup, withBreaks, ...props }: TMultiMarkupProps) => {
+export const MultilineMarkup = ({
+  tagName,
+  markup,
+  withBreaks,
+  ...props
+}: TMultiMarkupProps) => {
   return (
     <>
-      { markup.split('\n').map((line: string, i: number) => (
+      {markup.split('\n').map((line: string, i: number) => (
         <Fragment key={`${line}-${i}`}>
           <SimpleMarkup tagName={tagName} markup={line} {...props} />
-          {withBreaks && (<br />)}
+          {withBreaks && <br />}
         </Fragment>
-      )) }
+      ))}
     </>
   );
 };

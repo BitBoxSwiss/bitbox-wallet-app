@@ -32,8 +32,6 @@ export type DeviceInfo = {
   version: string;
 };
 
-export const getDeviceInfo = (
-  deviceID: string,
-): Promise<DeviceInfo | null> => {
+export const getDeviceInfo = (deviceID: string): Promise<DeviceInfo | null> => {
   return apiGet(`devices/${deviceID}/info`);
 };

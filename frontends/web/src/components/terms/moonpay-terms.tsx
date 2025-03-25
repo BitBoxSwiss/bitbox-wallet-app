@@ -27,7 +27,7 @@ import style from './terms.module.css';
 type TProps = {
   account: IAccount;
   onAgreedTerms: () => void;
-}
+};
 
 export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
@@ -44,7 +44,7 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
       <div className={style.disclaimer}>
         <h2 className={style.title}>
           {t('buy.info.disclaimer.title', {
-            context: isBitcoin ? 'bitcoin' : 'crypto'
+            context: isBitcoin ? 'bitcoin' : 'crypto',
           })}
         </h2>
         <p>{t('buy.info.disclaimer.intro.0', { coinCode })}</p>
@@ -87,7 +87,7 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
         </h2>
         <p>
           {t('buy.info.disclaimer.security.descriptionGeneric', {
-            context: isBitcoin ? 'bitcoin' : 'crypto'
+            context: isBitcoin ? 'bitcoin' : 'crypto',
           })}
         </p>
         <p>
@@ -100,7 +100,7 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
         </h2>
         <p>
           {t('buy.info.disclaimer.protection.descriptionGeneric', {
-            context: isBitcoin ? 'bitcoin' : 'crypto'
+            context: isBitcoin ? 'bitcoin' : 'crypto',
           })}
         </p>
         <p>
@@ -113,12 +113,11 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
         <Checkbox
           id="skip_disclaimer"
           label={t('buy.info.skip')}
-          onChange={handleSkipDisclaimer} />
+          onChange={handleSkipDisclaimer}
+        />
       </div>
       <div className="buttons text-center m-bottom-xlarge">
-        <Button
-          primary
-          onClick={onAgreedTerms}>
+        <Button primary onClick={onAgreedTerms}>
           {t('buy.info.continue')}
         </Button>
       </div>

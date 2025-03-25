@@ -18,14 +18,26 @@
 import { Component } from 'react';
 import * as accountApi from '@/api/account';
 import { syncdone } from '@/api/accountsync';
-import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
+import {
+  convertFromCurrency,
+  convertToCurrency,
+  parseExternalBtcAmount,
+} from '@/api/coins';
 import { View, ViewContent } from '@/components/view/view';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { Button } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
-import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
+import {
+  Column,
+  ColumnButtons,
+  Grid,
+  GuideWrapper,
+  GuidedContent,
+  Header,
+  Main,
+} from '@/components/layout';
 import { translate, TranslateProps } from '@/decorators/translate';
 import { Amount } from '@/components/amount/amount';
 import { FeeTargets } from './feetargets';
@@ -44,32 +56,32 @@ import { CoinControl } from './coin-control';
 import style from './send.module.css';
 
 interface SendProps {
-    account: accountApi.IAccount;
-    // undefined if bb02 is connected.
-    bb01Paired: boolean | undefined;
-    activeCurrency: accountApi.Fiat;
+  account: accountApi.IAccount;
+  // undefined if bb02 is connected.
+  bb01Paired: boolean | undefined;
+  activeCurrency: accountApi.Fiat;
 }
 
 type Props = SendProps & TranslateProps;
 
 export type State = {
-    balance?: accountApi.IBalance;
-    proposedFee?: accountApi.IAmount;
-    proposedTotal?: accountApi.IAmount;
-    recipientAddress: string;
-    proposedAmount?: accountApi.IAmount;
-    valid: boolean;
-    amount: string;
-    fiatAmount: string;
-    sendAll: boolean;
-    feeTarget?: accountApi.FeeTargetCode;
-    customFee: string;
-    isConfirming: boolean;
-    sendResult?: accountApi.TSendTx;
-    isUpdatingProposal: boolean;
-    errorHandling: TProposalError;
-    note: string;
-}
+  balance?: accountApi.IBalance;
+  proposedFee?: accountApi.IAmount;
+  proposedTotal?: accountApi.IAmount;
+  recipientAddress: string;
+  proposedAmount?: accountApi.IAmount;
+  valid: boolean;
+  amount: string;
+  fiatAmount: string;
+  sendAll: boolean;
+  feeTarget?: accountApi.FeeTargetCode;
+  customFee: string;
+  isConfirming: boolean;
+  sendResult?: accountApi.TSendTx;
+  isUpdatingProposal: boolean;
+  errorHandling: TProposalError;
+  note: string;
+};
 
 class Send extends Component<Props, State> {
   private selectedUTXOs: TSelectedUTXOs = {};
@@ -93,9 +105,11 @@ class Send extends Component<Props, State> {
   };
 
   public componentDidMount() {
-    const updateBalance = (code: string) => accountApi.getBalance(code)
-      .then(balance => this.setState({ balance }))
-      .catch(console.error);
+    const updateBalance = (code: string) =>
+      accountApi
+        .getBalance(code)
+        .then((balance) => this.setState({ balance }))
+        .catch(console.error);
 
     updateBalance(this.props.account.code);
 
@@ -143,16 +157,16 @@ class Send extends Component<Props, State> {
       console.error(err);
     } finally {
       // The following method allows pressing escape again.
-      this.setState({ isConfirming: false, });
+      this.setState({ isConfirming: false });
     }
   };
 
   private getValidTxInputData = (): Required<accountApi.TTxInput> | false => {
     if (
-      !this.state.recipientAddress
-      || this.state.feeTarget === undefined
-      || (!this.state.sendAll && !this.state.amount)
-      || (this.state.feeTarget === 'custom' && !this.state.customFee)
+      !this.state.recipientAddress ||
+      this.state.feeTarget === undefined ||
+      (!this.state.sendAll && !this.state.amount) ||
+      (this.state.feeTarget === 'custom' && !this.state.customFee)
     ) {
       return false;
     }
@@ -161,7 +175,7 @@ class Send extends Component<Props, State> {
       amount: this.state.amount,
       feeTarget: this.state.feeTarget,
       customFee: this.state.customFee,
-      sendAll: (this.state.sendAll ? 'yes' : 'no'),
+      sendAll: this.state.sendAll ? 'yes' : 'no',
       selectedUTXOs: Object.keys(this.selectedUTXOs),
       paymentRequest: null,
     };
@@ -183,7 +197,10 @@ class Send extends Component<Props, State> {
     this.setState({ isUpdatingProposal: true });
     // defer the transaction proposal
     this.proposeTimeout = setTimeout(async () => {
-      const proposePromise = accountApi.proposeTx(this.props.account.code, txInput);
+      const proposePromise = accountApi.proposeTx(
+        this.props.account.code,
+        txInput,
+      );
       // keep this as the last known proposal
       this.lastProposal = proposePromise;
       try {
@@ -223,8 +240,10 @@ class Send extends Component<Props, State> {
     } else {
       const errorHandling = txProposalErrorHandling(result.errorCode);
       this.setState({ errorHandling, isUpdatingProposal: false });
-      if (errorHandling.amountError
-        || Object.keys(errorHandling).length === 0) {
+      if (
+        errorHandling.amountError ||
+        Object.keys(errorHandling).length === 0
+      ) {
         this.setState({ proposedFee: undefined });
       }
     }
@@ -246,7 +265,11 @@ class Send extends Component<Props, State> {
       if (data.success) {
         this.setState({ fiatAmount: data.fiatAmount });
       } else {
-        this.setState({ errorHandling: { amountError: this.props.t('send.error.invalidAmount') } });
+        this.setState({
+          errorHandling: {
+            amountError: this.props.t('send.error.invalidAmount'),
+          },
+        });
       }
     } else {
       this.setState({ fiatAmount: '' });
@@ -262,9 +285,15 @@ class Send extends Component<Props, State> {
         fiatUnit: this.props.activeCurrency,
       });
       if (data.success) {
-        this.setState({ amount: data.amount }, () => this.validateAndDisplayFee(false));
+        this.setState({ amount: data.amount }, () =>
+          this.validateAndDisplayFee(false),
+        );
       } else {
-        this.setState({ errorHandling: { amountError: this.props.t('send.error.invalidAmount') } });
+        this.setState({
+          errorHandling: {
+            amountError: this.props.t('send.error.invalidAmount'),
+          },
+        });
       }
     } else {
       this.setState({ amount: '' });
@@ -272,9 +301,8 @@ class Send extends Component<Props, State> {
   };
 
   private feeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
-    this.setState(
-      { feeTarget, customFee: '' },
-      () => this.validateAndDisplayFee(this.state.sendAll),
+    this.setState({ feeTarget, customFee: '' }, () =>
+      this.validateAndDisplayFee(this.state.sendAll),
     );
   };
 
@@ -292,7 +320,11 @@ class Send extends Component<Props, State> {
     let amount = '';
     try {
       const url = new URL(uri);
-      if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:' && url.protocol !== 'ethereum:') {
+      if (
+        url.protocol !== 'bitcoin:' &&
+        url.protocol !== 'litecoin:' &&
+        url.protocol !== 'ethereum:'
+      ) {
         alertUser(this.props.t('invalidFormat'));
         return;
       }
@@ -306,7 +338,7 @@ class Send extends Component<Props, State> {
     let updateState = {
       recipientAddress: address,
       sendAll: false,
-      fiatAmount: ''
+      fiatAmount: '',
     } as Pick<State, keyof State>;
 
     const coinCode = this.props.account.coinCode;
@@ -316,7 +348,9 @@ class Send extends Component<Props, State> {
         if (result.success) {
           updateState['amount'] = result.amount;
         } else {
-          updateState['errorHandling'] = { amountError: this.props.t('send.error.invalidAmount') };
+          updateState['errorHandling'] = {
+            amountError: this.props.t('send.error.invalidAmount'),
+          };
           this.setState(updateState);
           return;
         }
@@ -361,12 +395,7 @@ class Send extends Component<Props, State> {
   };
 
   public render() {
-    const {
-      account,
-      bb01Paired,
-      activeCurrency,
-      t,
-    } = this.props;
+    const { account, bb01Paired, activeCurrency, t } = this.props;
 
     const {
       balance,
@@ -403,25 +432,32 @@ class Send extends Component<Props, State> {
         <GuidedContent>
           <Main>
             <Header
-              title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}
+              title={
+                <h2>{t('send.title', { accountName: account.coinName })}</h2>
+              }
             >
               <HideAmountsButton />
             </Header>
             <View>
               <ViewContent>
                 <div>
-                  <label className="labelXLarge">{t('send.availableBalance')}</label>
+                  <label className="labelXLarge">
+                    {t('send.availableBalance')}
+                  </label>
                 </div>
-                <Balance balance={balance} noRotateFiat/>
-                <div className={`flex flex-row flex-between ${style.container}`}>
-                  <label className="labelXLarge">{t('send.transactionDetails')}</label>
+                <Balance balance={balance} noRotateFiat />
+                <div
+                  className={`flex flex-row flex-between ${style.container}`}
+                >
+                  <label className="labelXLarge">
+                    {t('send.transactionDetails')}
+                  </label>
                   <div className={style.coinControlButtonContainer}>
                     <CoinControl
                       account={account}
                       onSelectedUTXOsChange={this.onSelectedUTXOsChange}
                     />
                   </div>
-
                 </div>
                 <Grid col="1">
                   <Column>
@@ -468,27 +504,33 @@ class Send extends Component<Props, State> {
                       customFee={customFee}
                       showCalculatingFeeLabel={isUpdatingProposal}
                       onFeeTargetChange={this.feeTargetChange}
-                      onCustomFee={customFee => this.setState({ customFee }, this.validateAndDisplayFee)}
-                      error={errorHandling.feeError} />
+                      onCustomFee={(customFee) =>
+                        this.setState({ customFee }, this.validateAndDisplayFee)
+                      }
+                      error={errorHandling.feeError}
+                    />
                   </Column>
                   <Column>
                     <NoteInput
                       note={note}
-                      onNoteChange={note => this.setState({ note: note })}
+                      onNoteChange={(note) => this.setState({ note: note })}
                     />
                     <ColumnButtons
                       className="m-top-default m-bottom-xlarge"
-                      inline>
+                      inline
+                    >
                       <Button
                         primary
                         onClick={this.send}
-                        disabled={!this.getValidTxInputData() || !valid || isUpdatingProposal}>
+                        disabled={
+                          !this.getValidTxInputData() ||
+                          !valid ||
+                          isUpdatingProposal
+                        }
+                      >
                         {t('send.button')}
                       </Button>
-                      <BackButton
-                        enableEsc>
-                        {t('button.back')}
-                      </BackButton>
+                      <BackButton enableEsc>{t('button.back')}</BackButton>
                     </ColumnButtons>
                   </Column>
                 </Grid>
@@ -508,17 +550,28 @@ class Send extends Component<Props, State> {
                   code={account.code}
                   result={sendResult}
                   onContinue={this.handleContinue}
-                  onRetry={() => this.setState({ sendResult: undefined })}>
+                  onRetry={() => this.setState({ sendResult: undefined })}
+                >
                   <p>
-                    {(proposedAmount &&
-                    <Amount alwaysShowAmounts amount={proposedAmount.amount} unit={proposedAmount.unit}/>) || 'N/A'}
-                    {' '}
+                    {(proposedAmount && (
+                      <Amount
+                        alwaysShowAmounts
+                        amount={proposedAmount.amount}
+                        unit={proposedAmount.unit}
+                      />
+                    )) ||
+                      'N/A'}{' '}
                     <span className={style.unit}>
                       {(proposedAmount && proposedAmount.unit) || 'N/A'}
                     </span>
                   </p>
-                  {(proposedAmount && proposedAmount.conversions && proposedAmount.conversions[activeCurrency]) ? (
-                    <FiatValue baseCurrencyUnit={activeCurrency} amount={proposedAmount.conversions[activeCurrency] || ''} />
+                  {proposedAmount &&
+                  proposedAmount.conversions &&
+                  proposedAmount.conversions[activeCurrency] ? (
+                    <FiatValue
+                      baseCurrencyUnit={activeCurrency}
+                      amount={proposedAmount.conversions[activeCurrency] || ''}
+                    />
                   ) : null}
                 </SendResult>
               )}
@@ -527,7 +580,6 @@ class Send extends Component<Props, State> {
         </GuidedContent>
         <SendGuide coinCode={account.coinCode} />
       </GuideWrapper>
-
     );
   }
 }

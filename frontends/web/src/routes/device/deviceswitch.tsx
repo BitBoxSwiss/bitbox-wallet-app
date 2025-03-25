@@ -23,8 +23,8 @@ import { Waiting } from './waiting';
 type TProps = {
   devices: TDevices;
   deviceID: string | null;
-  hasAccounts: boolean,
-}
+  hasAccounts: boolean;
+};
 
 const DeviceSwitch = ({ deviceID, devices, hasAccounts }: TProps) => {
   const deviceIDs = Object.keys(devices);
@@ -34,20 +34,20 @@ const DeviceSwitch = ({ deviceID, devices, hasAccounts }: TProps) => {
   }
 
   switch (devices[deviceID]) {
-  case 'bitbox':
-    return <BitBox01 deviceID={deviceID} />;
-  case 'bitbox02':
-    return (
-      <BitBox02
-        deviceID={deviceID}
-        devices={devices}
-        hasAccounts={hasAccounts}
-      />
-    );
-  case 'bitbox02-bootloader':
-    return <BitBox02Bootloader deviceID={deviceID} />;
-  default:
-    return <Waiting />;
+    case 'bitbox':
+      return <BitBox01 deviceID={deviceID} />;
+    case 'bitbox02':
+      return (
+        <BitBox02
+          deviceID={deviceID}
+          devices={devices}
+          hasAccounts={hasAccounts}
+        />
+      );
+    case 'bitbox02-bootloader':
+      return <BitBox02Bootloader deviceID={deviceID} />;
+    default:
+      return <Waiting />;
   }
 };
 

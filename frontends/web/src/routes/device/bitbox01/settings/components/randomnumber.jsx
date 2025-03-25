@@ -18,7 +18,10 @@ import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { apiPost } from '../../../../../utils/request';
-import { DialogLegacy, DialogButtons } from '../../../../../components/dialog/dialog-legacy';
+import {
+  DialogLegacy,
+  DialogButtons,
+} from '../../../../../components/dialog/dialog-legacy';
 import { CopyableInput } from '../../../../../components/copy/Copy';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 
@@ -32,7 +35,7 @@ class RandomNumber extends Component {
   }
 
   getRandomNumber = () => {
-    apiPost(this.props.apiPrefix + '/random-number').then(number => {
+    apiPost(this.props.apiPrefix + '/random-number').then((number) => {
       this.setState({
         active: true,
         number,
@@ -62,16 +65,20 @@ class RandomNumber extends Component {
               <div className="columnsContainer half">
                 <div className="columns">
                   <div className="column">
-                    <p>{t('random.description', {
-                      // @ts-ignore
-                      bits: number.length * 4
-                    })}</p>
+                    <p>
+                      {t('random.description', {
+                        // @ts-ignore
+                        bits: number.length * 4,
+                      })}
+                    </p>
                     <CopyableInput value={number} flexibleHeight />
                   </div>
                 </div>
               </div>
               <DialogButtons>
-                <Button primary onClick={this.abort}>{t('button.ok')}</Button>
+                <Button primary onClick={this.abort}>
+                  {t('button.ok')}
+                </Button>
               </DialogButtons>
             </DialogLegacy>
           ) : null

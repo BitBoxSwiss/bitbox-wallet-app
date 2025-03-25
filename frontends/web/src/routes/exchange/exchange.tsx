@@ -27,7 +27,10 @@ import { ExchangeGuide } from './guide';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { useLoad } from '@/hooks/api';
 import { getRegionNameFromLocale } from '@/i18n/utils';
-import { getExchangeFormattedName, getExchangeSupportedAccounts } from './utils';
+import {
+  getExchangeFormattedName,
+  getExchangeSupportedAccounts,
+} from './utils';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Dialog } from '@/components/dialog/dialog';
 import { InfoButton } from '@/components/infobutton/infobutton';
@@ -40,10 +43,10 @@ import { InfoContent, TInfoContentProps } from './components/infocontent';
 import style from './exchange.module.css';
 
 type TProps = {
-    accounts: IAccount[];
-    code: AccountCode;
-    deviceIDs: string[];
-}
+  accounts: IAccount[];
+  code: AccountCode;
+  deviceIDs: string[];
+};
 
 export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   const { t } = useTranslation();
@@ -52,13 +55,16 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   const [regions, setRegions] = useState<TOption[]>([]);
   const [info, setInfo] = useState<TInfoContentProps>();
   const [supportedAccounts, setSupportedAccounts] = useState<IAccount[]>([]);
-  const [activeTab, setActiveTab] = useState<exchangesAPI.TExchangeAction>('buy');
+  const [activeTab, setActiveTab] =
+    useState<exchangesAPI.TExchangeAction>('buy');
 
   const regionCodes = useLoad(exchangesAPI.getExchangeRegionCodes);
   const nativeLocale = useLoad(getNativeLocale);
   const config = useLoad(getConfig);
 
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) =>
+    isBitcoinOnly(coinCode),
+  );
 
   const title = t('generic.buySell');
 
@@ -72,10 +78,11 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
     if (!regionCodes || !config) {
       return;
     }
-    const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' }) || '';
-    const regions: TOption[] = regionCodes.map(code => ({
+    const regionNames =
+      new Intl.DisplayNames([i18n.language], { type: 'region' }) || '';
+    const regions: TOption[] = regionCodes.map((code) => ({
       value: code,
-      label: regionNames.of(code) || code
+      label: regionNames.of(code) || code,
     }));
 
     regions.sort((a, b) => a.label.localeCompare(b.label, i18n.language));
@@ -95,11 +102,10 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
     // user never selected a region preference, will derive it from native locale.
     const userRegion = getRegionNameFromLocale(nativeLocale || '');
     //Region is available in the list
-    const regionAvailable = !!(regionCodes.find(code => code === userRegion));
+    const regionAvailable = !!regionCodes.find((code) => code === userRegion);
     //Pre-selecting the region
     setSelectedRegion(regionAvailable ? userRegion : '');
   }, [regionCodes, config, nativeLocale]);
-
 
   const goToExchange = (exchange: string) => {
     if (!exchange) {
@@ -121,7 +127,11 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
       <div className="container">
         <Dialog
           medium
-          title={info && info.exchangeName !== 'region' ? getExchangeFormattedName(info.exchangeName) : t('buy.exchange.region')}
+          title={
+            info && info.exchangeName !== 'region'
+              ? getExchangeFormattedName(info.exchangeName)
+              : t('buy.exchange.region')
+          }
           onClose={() => setInfo(undefined)}
           open={!!info}
         >
@@ -135,7 +145,14 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
         </Dialog>
         <div className="innerContainer scrollableContainer">
           <Header title={<h2>{title}</h2>} />
-          <div className={[style.exchangeContainer, 'content', 'narrow', 'isVerticallyCentered'].join(' ')}>
+          <div
+            className={[
+              style.exchangeContainer,
+              'content',
+              'narrow',
+              'isVerticallyCentered',
+            ].join(' ')}
+          >
             <p className={style.label}>{t('buy.exchange.region')}</p>
             {regions.length ? (
               <>
@@ -145,7 +162,11 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                     regions={regions}
                     selectedRegion={selectedRegion}
                   />
-                  <InfoButton onClick={() => setInfo({ exchangeName: 'region', paymentFees: {} })} />
+                  <InfoButton
+                    onClick={() =>
+                      setInfo({ exchangeName: 'region', paymentFees: {} })
+                    }
+                  />
                 </div>
                 <ExchangeTab
                   onChangeTab={(tab) => {
@@ -165,11 +186,15 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                   />
                 </div>
               </>
-            ) : <Spinner />}
+            ) : (
+              <Spinner />
+            )}
           </div>
         </div>
       </div>
-      <ExchangeGuide translationContext={hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'} />
+      <ExchangeGuide
+        translationContext={hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'}
+      />
     </div>
   );
 };

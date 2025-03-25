@@ -36,7 +36,7 @@ class DeviceLock extends Component {
       activeDialog: false,
       isConfirming: true,
     });
-    apiPost('devices/' + this.props.deviceID + '/lock').then(didLock => {
+    apiPost('devices/' + this.props.deviceID + '/lock').then((didLock) => {
       this.setState({
         isConfirming: false,
       });
@@ -51,48 +51,34 @@ class DeviceLock extends Component {
   };
 
   render() {
-    const {
-      t,
-      disabled,
-      lock,
-    } = this.props;
-    const {
-      isConfirming,
-      activeDialog,
-    } = this.state;
+    const { t, disabled, lock } = this.props;
+    const { isConfirming, activeDialog } = this.state;
     return (
       <div>
         <SettingsButton
           danger
           onClick={() => this.setState({ activeDialog: true })}
           disabled={disabled}
-          optionalText={t(`deviceSettings.pairing.lock.${lock}`)}>
+          optionalText={t(`deviceSettings.pairing.lock.${lock}`)}
+        >
           {t('deviceLock.button')}
         </SettingsButton>
-        {
-          activeDialog && (
-            <DialogLegacy
-              title={t('deviceLock.title')}
-              onClose={this.abort}>
-              <p>{t('deviceLock.condition1')}</p>
-              <p>{t('deviceLock.condition2')}</p>
-              <p>{t('deviceLock.condition3')}</p>
-              <div className={style.actions}>
-                <Button danger onClick={this.resetDevice}>
-                  {t('deviceLock.confirm')}
-                </Button>
-                <Button secondary onClick={this.abort}>
-                  {t('button.back')}
-                </Button>
-              </div>
-            </DialogLegacy>
-          )
-        }
-        {
-          isConfirming && (
-            <WaitDialog title={t('deviceLock.title')} />
-          )
-        }
+        {activeDialog && (
+          <DialogLegacy title={t('deviceLock.title')} onClose={this.abort}>
+            <p>{t('deviceLock.condition1')}</p>
+            <p>{t('deviceLock.condition2')}</p>
+            <p>{t('deviceLock.condition3')}</p>
+            <div className={style.actions}>
+              <Button danger onClick={this.resetDevice}>
+                {t('deviceLock.confirm')}
+              </Button>
+              <Button secondary onClick={this.abort}>
+                {t('button.back')}
+              </Button>
+            </div>
+          </DialogLegacy>
+        )}
+        {isConfirming && <WaitDialog title={t('deviceLock.title')} />}
       </div>
     );
   }

@@ -24,18 +24,17 @@ import style from '../bitbox01.module.css';
 
 class RequireUpgrade extends Component {
   state = {
-    firmwareVersion: null
+    firmwareVersion: null,
   };
 
   componentDidMount() {
-    getDeviceInfo(this.props.deviceID)
-      .then(deviceInfo => {
-        if (deviceInfo) {
-          this.setState({
-            firmwareVersion: deviceInfo.version.replace('v', ''),
-          });
-        }
-      });
+    getDeviceInfo(this.props.deviceID).then((deviceInfo) => {
+      if (deviceInfo) {
+        this.setState({
+          firmwareVersion: deviceInfo.version.replace('v', ''),
+        });
+      }
+    });
   }
 
   render() {
@@ -48,7 +47,11 @@ class RequireUpgrade extends Component {
           <div className="box">
             <p className="m-top-none">{t('upgradeFirmware.label')}</p>
             <div className="buttons m-top-half">
-              <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} asButton />
+              <UpgradeFirmware
+                deviceID={deviceID}
+                currentVersion={firmwareVersion}
+                asButton
+              />
             </div>
           </div>
         </div>

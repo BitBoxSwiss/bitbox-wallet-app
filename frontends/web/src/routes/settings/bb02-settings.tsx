@@ -25,7 +25,12 @@ import { ManageBackupSetting } from './components/device-settings/manage-backup-
 import { ShowRecoveryWordsSetting } from './components/device-settings/show-recovery-words-setting';
 import { GoToStartupSettings } from './components/device-settings/go-to-startup-settings';
 import { PassphraseSetting } from './components/device-settings/passphrase-setting';
-import { DeviceInfo, getDeviceInfo, getVersion, getRootFingerprint } from '@/api/bitbox02';
+import {
+  DeviceInfo,
+  getDeviceInfo,
+  getVersion,
+  getRootFingerprint,
+} from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { AttestationCheckSetting } from './components/device-settings/attestation-check-setting';
@@ -43,7 +48,7 @@ import styles from './bb02-settings.module.css';
 
 type TProps = {
   deviceID: string;
-}
+};
 
 type TWrapperProps = TProps & TPagePropsWithSettingsTabs;
 
@@ -71,7 +76,8 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
                 <MobileHeader withGuide title={t('sidebar.device')} />
               </>
-            }/>
+            }
+          />
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs
@@ -95,11 +101,14 @@ const Content = ({ deviceID }: TProps) => {
 
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
   const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
-  const rootFingerprintResult = useLoad(() => getRootFingerprint(deviceID), [deviceID]);
+  const rootFingerprintResult = useLoad(
+    () => getRootFingerprint(deviceID),
+    [deviceID],
+  );
 
   useEffect(() => {
     getDeviceInfo(deviceID)
-      .then(result => {
+      .then((result) => {
         if (!result.success) {
           alertUser(t('genericError'));
           return;
@@ -120,62 +129,50 @@ const Content = ({ deviceID }: TProps) => {
 
       {/*"Device information" section*/}
       <div className={styles.section}>
-        <h3 className="subTitle">{t('deviceSettings.deviceInformation.title')}</h3>
+        <h3 className="subTitle">
+          {t('deviceSettings.deviceInformation.title')}
+        </h3>
         {deviceInfo ? (
-          <DeviceNameSetting
-            deviceName={deviceInfo.name}
-            deviceID={deviceID}
-          />
-        ) :
+          <DeviceNameSetting deviceName={deviceInfo.name} deviceID={deviceID} />
+        ) : (
           <StyledSkeleton />
-        }
+        )}
         <AttestationCheckSetting deviceID={deviceID} />
-        {
-          versionInfo ? (
-            <FirmwareSetting
-              deviceID={deviceID}
-              versionInfo={versionInfo}
-            />
-          ) :
-            <StyledSkeleton />
-        }
-        {
-          deviceInfo && deviceInfo.securechipModel !== '' ?
-            <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
-            :
-            <StyledSkeleton />
-        }
-        {
-          rootFingerprintResult && rootFingerprintResult.success ?
-            <RootFingerprintSetting rootFingerprint={rootFingerprintResult.rootFingerprint} />
-            :
-            <StyledSkeleton />
-        }
+        {versionInfo ? (
+          <FirmwareSetting deviceID={deviceID} versionInfo={versionInfo} />
+        ) : (
+          <StyledSkeleton />
+        )}
+        {deviceInfo && deviceInfo.securechipModel !== '' ? (
+          <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
+        ) : (
+          <StyledSkeleton />
+        )}
+        {rootFingerprintResult && rootFingerprintResult.success ? (
+          <RootFingerprintSetting
+            rootFingerprint={rootFingerprintResult.rootFingerprint}
+          />
+        ) : (
+          <StyledSkeleton />
+        )}
       </div>
 
       {/*"Expert settings" section*/}
       <div className={styles.section}>
         <h3 className="subTitle">{t('settings.expert.title')}</h3>
-        {
-          deviceInfo ? (
-            <PassphraseSetting
-              passphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
-              deviceID={deviceID}
-            />
-          ) : (
-            <StyledSkeleton />
-          )
-        }
-        {
-          versionInfo ? (
-            <Bip85Setting
-              canBIP85={versionInfo.canBIP85}
-              deviceID={deviceID}
-            />
-          ) : (
-            <StyledSkeleton />
-          )
-        }
+        {deviceInfo ? (
+          <PassphraseSetting
+            passphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
+            deviceID={deviceID}
+          />
+        ) : (
+          <StyledSkeleton />
+        )}
+        {versionInfo ? (
+          <Bip85Setting canBIP85={versionInfo.canBIP85} deviceID={deviceID} />
+        ) : (
+          <StyledSkeleton />
+        )}
         <GoToStartupSettings deviceID={deviceID} />
         <FactoryResetSetting deviceID={deviceID} />
       </div>

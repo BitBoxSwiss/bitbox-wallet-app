@@ -26,7 +26,11 @@ const Version = () => {
   if (!version) {
     return null;
   }
-  return <p>{t('footer.appVersion')} {version}</p>;
+  return (
+    <p>
+      {t('footer.appVersion')} {version}
+    </p>
+  );
 };
 
 export { Version };

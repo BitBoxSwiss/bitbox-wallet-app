@@ -20,23 +20,26 @@ import { apiGet, apiPost } from '@/utils/request';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export interface ICoin {
-    coinCode: CoinCode;
-    name: string;
-    canAddAccount: boolean;
-    suggestedAccountName: string;
+  coinCode: CoinCode;
+  name: string;
+  canAddAccount: boolean;
+  suggestedAccountName: string;
 }
 
 export interface ISuccess {
-    success: boolean;
-    errorMessage?: string;
-    errorCode?: string;
+  success: boolean;
+  errorMessage?: string;
+  errorCode?: string;
 }
 
 export const getSupportedCoins = (): Promise<ICoin[]> => {
   return apiGet('supported-coins');
 };
 
-export const setAccountActive = (accountCode: AccountCode, active: boolean): Promise<ISuccess> => {
+export const setAccountActive = (
+  accountCode: AccountCode,
+  active: boolean,
+): Promise<ISuccess> => {
   return apiPost('set-account-active', { accountCode, active });
 };
 
@@ -48,7 +51,10 @@ export const setTokenActive = (
   return apiPost('set-token-active', { accountCode, tokenCode, active });
 };
 
-export const renameAccount = (accountCode: AccountCode, name: string): Promise<ISuccess> => {
+export const renameAccount = (
+  accountCode: AccountCode,
+  name: string,
+): Promise<ISuccess> => {
   return apiPost('rename-account', { accountCode, name });
 };
 
@@ -64,7 +70,7 @@ export const getDevServers = (): Promise<boolean> => {
   return apiGet('dev-servers');
 };
 
-export type TQRCode = FailResponse | (SuccessResponse & { data: string; });
+export type TQRCode = FailResponse | (SuccessResponse & { data: string });
 
 export const getQRCode = (data: string) => {
   return (): Promise<TQRCode> => {
@@ -82,28 +88,30 @@ export const socksProxyCheck = (proxyAddress: string): Promise<ISuccess> => {
 
 export type TConnectKeystoreErrorCode = 'wrongKeystore' | 'timeout';
 
-export type TSyncConnectKeystore = null | {
-  typ: 'connect';
-  keystoreName: string;
-} | {
-  typ: 'error';
-  errorCode?: TConnectKeystoreErrorCode;
-  errorMessage: string;
-};
+export type TSyncConnectKeystore =
+  | null
+  | {
+      typ: 'connect';
+      keystoreName: string;
+    }
+  | {
+      typ: 'error';
+      errorCode?: TConnectKeystoreErrorCode;
+      errorMessage: string;
+    };
 
 /**
  * Returns a function that subscribes a callback on a "connect-keystore".
  * Meant to be used with `useSubscribe`.
  */
 export const syncConnectKeystore = () => {
-  return (
-    cb: TSubscriptionCallback<TSyncConnectKeystore>
-  ) => {
-    return subscribeEndpoint('connect-keystore', (
-      obj: TSyncConnectKeystore,
-    ) => {
-      cb(obj);
-    });
+  return (cb: TSubscriptionCallback<TSyncConnectKeystore>) => {
+    return subscribeEndpoint(
+      'connect-keystore',
+      (obj: TSyncConnectKeystore) => {
+        cb(obj);
+      },
+    );
   };
 };
 
@@ -111,7 +119,10 @@ export const cancelConnectKeystore = (): Promise<void> => {
   return apiPost('cancel-connect-keystore');
 };
 
-export const setWatchonly = (rootFingerprint: string, watchonly: boolean): Promise<ISuccess> => {
+export const setWatchonly = (
+  rootFingerprint: string,
+  watchonly: boolean,
+): Promise<ISuccess> => {
   return apiPost('set-watchonly', { rootFingerprint, watchonly });
 };
 
@@ -124,14 +135,16 @@ export const forceAuth = (): Promise<void> => {
 };
 
 export type TAuthEventObject = {
-  typ: 'auth-required' | 'auth-forced' | 'auth-canceled' | 'auth-ok' | 'auth-err' ;
+  typ:
+    | 'auth-required'
+    | 'auth-forced'
+    | 'auth-canceled'
+    | 'auth-ok'
+    | 'auth-err';
 };
 
-export const subscribeAuth = (
-  cb: TSubscriptionCallback<TAuthEventObject>
-) => (
-  subscribeEndpoint('auth', cb)
-);
+export const subscribeAuth = (cb: TSubscriptionCallback<TAuthEventObject>) =>
+  subscribeEndpoint('auth', cb);
 
 export const onAuthSettingChanged = (): Promise<void> => {
   return apiPost('on-auth-setting-changed');
@@ -141,7 +154,9 @@ export const exportLogs = (): Promise<ISuccess> => {
   return apiPost('export-log');
 };
 
-export const exportNotes = (): Promise<(FailResponse & { aborted: boolean; }) | SuccessResponse> => {
+export const exportNotes = (): Promise<
+  (FailResponse & { aborted: boolean }) | SuccessResponse
+> => {
   return apiPost('notes/export');
 };
 
@@ -150,9 +165,11 @@ export type TImportNotes = {
   transactionCount: number;
 };
 
-export const importNotes = (fileContents: ArrayBuffer): Promise<FailResponse | (SuccessResponse & { data: TImportNotes; })> => {
+export const importNotes = (
+  fileContents: ArrayBuffer,
+): Promise<FailResponse | (SuccessResponse & { data: TImportNotes })> => {
   const hexString = Array.from(new Uint8Array(fileContents))
-    .map(byte => byte.toString(16).padStart(2, '0'))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
     .join('');
   return apiPost('notes/import', hexString);
 };

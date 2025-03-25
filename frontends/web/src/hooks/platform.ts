@@ -22,26 +22,26 @@ const getPlatformFromUA = (userAgent: string) => {
   } else if (userAgent.includes('mac')) {
     // IOS userAgents will include Mac
     if (
-      userAgent.includes('iphone') || userAgent.includes('ipad') || userAgent.includes('ipod')
+      userAgent.includes('iphone') ||
+      userAgent.includes('ipad') ||
+      userAgent.includes('ipod')
     ) {
       return 'ios';
     }
     return 'macos';
   } else if (userAgent.includes('linux')) {
     // Android userAgent will also include Linux.
-    if (userAgent.includes('android')
-      || userAgent.includes('samsungbrowser')
-    ) {
+    if (userAgent.includes('android') || userAgent.includes('samsungbrowser')) {
       return 'android';
     }
     return 'linux';
   } else if (userAgent.includes('cros') || userAgent.includes('chromebook')) {
     return 'chromeos';
   } else if (
-    userAgent.includes('bsd')
-    || userAgent.includes('freebsd')
-    || userAgent.includes('openbsd')
-    || userAgent.includes('netbsd')
+    userAgent.includes('bsd') ||
+    userAgent.includes('freebsd') ||
+    userAgent.includes('openbsd') ||
+    userAgent.includes('netbsd')
   ) {
     return 'bsd';
   } else {
@@ -69,5 +69,4 @@ export const usePlatformClass = () => {
       document.body.classList.add(`os-${platform}`);
     }
   }, [userAgent]);
-
 };

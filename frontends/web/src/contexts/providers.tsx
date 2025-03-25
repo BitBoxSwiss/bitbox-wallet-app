@@ -33,9 +33,7 @@ export const Providers = ({ children }: Props) => {
         <DarkModeProvider>
           <LocalizationProvider>
             <RatesProvider>
-              <WCWeb3WalletProvider>
-                {children}
-              </WCWeb3WalletProvider>
+              <WCWeb3WalletProvider>{children}</WCWeb3WalletProvider>
             </RatesProvider>
           </LocalizationProvider>
         </DarkModeProvider>

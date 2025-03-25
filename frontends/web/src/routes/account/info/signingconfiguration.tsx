@@ -18,7 +18,14 @@
 import { useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AccountCode, IAccount, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '@/api/account';
+import {
+  AccountCode,
+  IAccount,
+  TBitcoinSimple,
+  TEthereumSimple,
+  TSigningConfiguration,
+  verifyXPub,
+} from '@/api/account';
 import { getScriptName, isBitcoinBased } from '@/routes/account/utils';
 import { alertUser } from '@/components/alert/Alert';
 import { CopyableInput } from '@/components/copy/Copy';
@@ -27,14 +34,20 @@ import { QRCode } from '@/components/qrcode/qrcode';
 import style from './info.module.css';
 
 type TProps = {
-    account: IAccount;
-    info: TSigningConfiguration;
-    code: AccountCode;
-    signingConfigIndex: number;
-    children: ReactNode;
-}
+  account: IAccount;
+  info: TSigningConfiguration;
+  code: AccountCode;
+  signingConfigIndex: number;
+  children: ReactNode;
+};
 
-export const SigningConfiguration = ({ account, info, code, signingConfigIndex, children }: TProps) => {
+export const SigningConfiguration = ({
+  account,
+  info,
+  code,
+  signingConfigIndex,
+  children,
+}: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState(false);
@@ -51,13 +64,10 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
   return (
     <div className={style.address}>
       <div className={style.qrCode}>
-        { bitcoinBased ? (
-          <QRCode
-            data={config.keyInfo.xpub} />
-        ) : null }
+        {bitcoinBased ? <QRCode data={config.keyInfo.xpub} /> : null}
       </div>
       <div className={style.details}>
-        { account.isToken ? null : (
+        {account.isToken ? null : (
           <div key="accountname" className={style.entry}>
             {/* borrowing translation from accountSummary */}
             <strong>{t('accountSummary.name')}:</strong>
@@ -68,7 +78,7 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
           <strong>Keypath:</strong>
           <code>{config.keyInfo.keypath}</code>
         </div>
-        { ('scriptType' in config) ? (
+        {'scriptType' in config ? (
           <div key="scriptName" className={style.entry}>
             <strong>{t('accountInfo.scriptType')}:</strong>
             <span>{getScriptName(config.scriptType)}</span>
@@ -80,9 +90,11 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
         </div>
         <div key="coinName" className={style.entry}>
           <strong>{account.isToken ? 'Token' : 'Coin'}:</strong>
-          <span>{account.coinName} ({account.coinUnit})</span>
+          <span>
+            {account.coinName} ({account.coinUnit})
+          </span>
         </div>
-        { bitcoinBased ? (
+        {bitcoinBased ? (
           <div key="xpub" className={`${style.entry} ${style.largeEntry}`}>
             <strong className="m-right-half">
               {t('accountInfo.extendedPublicKey')}:
@@ -91,31 +103,40 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
               className="flex-grow"
               alignLeft
               flexibleHeight
-              value={config.keyInfo.xpub} />
+              value={config.keyInfo.xpub}
+            />
           </div>
-        ) : null }
+        ) : null}
       </div>
       <div className={style.buttons}>
-        { bitcoinBased ? (
-          <Button className={style.verifyButton} primary disabled={verifying} onClick={async () => {
-            setVerifying(true);
-            try {
-              const result = await verifyXPub(code, signingConfigIndex);
-              if (!result.success) {
-                alertUser(result.errorMessage);
+        {bitcoinBased ? (
+          <Button
+            className={style.verifyButton}
+            primary
+            disabled={verifying}
+            onClick={async () => {
+              setVerifying(true);
+              try {
+                const result = await verifyXPub(code, signingConfigIndex);
+                if (!result.success) {
+                  alertUser(result.errorMessage);
+                }
+              } finally {
+                setVerifying(false);
               }
-            } finally {
-              setVerifying(false);
-            }
-          }
-          }>
+            }}
+          >
             {t('accountInfo.verify')}
           </Button>
         ) : (
-          <Button className={style.verifyButton} primary onClick={() => navigate(`/account/${code}/receive`)}>
+          <Button
+            className={style.verifyButton}
+            primary
+            onClick={() => navigate(`/account/${code}/receive`)}
+          >
             {t('receive.verify')}
           </Button>
-        ) }
+        )}
         {children}
       </div>
     </div>

@@ -32,13 +32,16 @@ export const SubTotalRow = ({ coinCode, coinName, balance }: TProps) => {
   const nameCol = (
     <td data-label={t('accountSummary.total')}>
       <div className={style.coinName}>
-        <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
+        <Logo
+          className={style.coincode}
+          coinCode={coinCode}
+          active={true}
+          alt={coinCode}
+        />
         <strong className={style.showOnTableView}>
           {t('accountSummary.subtotalWithCoinName', { coinName })}
         </strong>
-        <strong className={style.showInCollapsedView}>
-          { coinName }
-        </strong>
+        <strong className={style.showInCollapsedView}>{coinName}</strong>
       </div>
     </td>
   );
@@ -47,19 +50,18 @@ export const SubTotalRow = ({ coinCode, coinName, balance }: TProps) => {
   }
   return (
     <tr key={`${coinCode}_subtotal`} className={style.subTotal}>
-      { nameCol }
+      {nameCol}
       <td data-label={t('accountSummary.balance')}>
         <span className={style.summaryTableBalance}>
           <strong>
-            <Amount amount={balance.amount} unit={balance.unit}/>
-          </strong>
-          {' '}
+            <Amount amount={balance.amount} unit={balance.unit} />
+          </strong>{' '}
           <span className={style.coinUnit}>{balance.unit}</span>
         </span>
       </td>
       <td data-label={t('accountSummary.fiatBalance')}>
         <strong>
-          <AmountWithUnit amount={balance} convertToFiat/>
+          <AmountWithUnit amount={balance} convertToFiat />
         </strong>
       </td>
     </tr>
@@ -71,10 +73,13 @@ export const SubTotalCoinRow = ({ coinCode, coinName, balance }: TProps) => {
   const nameCol = (
     <td data-label={t('accountSummary.total')}>
       <div className={style.coinName}>
-        <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
-        <span className={style.showOnTableView}>
-          {coinName}
-        </span>
+        <Logo
+          className={style.coincode}
+          coinCode={coinCode}
+          active={true}
+          alt={coinCode}
+        />
+        <span className={style.showOnTableView}>{coinName}</span>
       </div>
     </td>
   );
@@ -83,16 +88,15 @@ export const SubTotalCoinRow = ({ coinCode, coinName, balance }: TProps) => {
   }
   return (
     <tr key={`${coinCode}_subtotal`} className={style.subTotal}>
-      { nameCol }
+      {nameCol}
       <td data-label={t('accountSummary.balance')}>
         <span className={style.summaryTableBalance}>
-          <Amount amount={balance.amount} unit={balance.unit}/>
-          {' '}
+          <Amount amount={balance.amount} unit={balance.unit} />{' '}
           <span className={style.coinUnit}>{balance.unit}</span>
         </span>
       </td>
       <td data-label={t('accountSummary.fiatBalance')}>
-        <AmountWithUnit amount={balance} convertToFiat/>
+        <AmountWithUnit amount={balance} convertToFiat />
       </td>
     </tr>
   );

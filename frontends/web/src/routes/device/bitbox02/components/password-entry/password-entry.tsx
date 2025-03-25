@@ -19,7 +19,12 @@ import PasswordGestureVideo from './assets/password-gestures.webm';
 import styles from './password-entry.module.css';
 
 const isVideoPlaying = (video: HTMLVideoElement): boolean => {
-  return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2;
+  return (
+    video.currentTime > 0 &&
+    !video.paused &&
+    !video.ended &&
+    video.readyState > 2
+  );
 };
 
 const replayVideo = (ref: HTMLVideoElement): void => {
@@ -47,7 +52,8 @@ export const PasswordEntry = () => {
         loop
         muted
         height="338"
-        width="600">
+        width="600"
+      >
         <source src={PasswordGestureVideo} type="video/webm" />
       </video>
     </div>

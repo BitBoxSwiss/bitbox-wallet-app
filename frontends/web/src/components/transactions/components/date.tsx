@@ -20,15 +20,10 @@ import { TxDetail } from './detail';
 
 type TProps = {
   time: string | null;
-}
+};
 
 export const TxDateDetail = ({ time }: TProps) => {
   const { i18n, t } = useTranslation();
   const shortDate = time ? parseTimeLongWithYear(time, i18n.language) : '---';
-  return (
-    <TxDetail
-      label={t('transaction.details.date')}>
-      {shortDate}
-    </TxDetail>
-  );
+  return <TxDetail label={t('transaction.details.date')}>{shortDate}</TxDetail>;
 };

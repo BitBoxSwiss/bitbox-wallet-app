@@ -18,7 +18,12 @@ import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, TSendTx } from '@/api/account';
-import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
+import {
+  View,
+  ViewButtons,
+  ViewContent,
+  ViewHeader,
+} from '@/components/view/view';
 import { Button } from '@/components/forms/button';
 import { SubTitle } from '@/components/title';
 import { CopyableInput } from '@/components/copy/Copy';
@@ -56,9 +61,7 @@ export const SendResult = ({
         <View fullscreen textCenter verticallyCentered width="520px">
           <ViewHeader />
           <ViewContent withIcon="error">
-            <p>
-              {t('send.abort')}
-            </p>
+            <p>{t('send.abort')}</p>
           </ViewContent>
           <ViewButtons>
             <Button primary onClick={() => navigate(`/account/${code}`)}>
@@ -72,50 +75,47 @@ export const SendResult = ({
       );
     }
     switch (result.errorCode) {
-    case 'erc20InsufficientGasFunds':
-      return (
-        <View fullscreen textCenter verticallyCentered width="520px">
-          <ViewHeader />
-          <ViewContent withIcon="error">
-            <p>
-              {t(`send.error.${result.errorCode}`)}
-            </p>
-          </ViewContent>
-          <ViewButtons>
-            <Button primary onClick={() => navigate(`/account/${code}`)}>
-              {t('button.done')}
-            </Button>
-            <Button secondary onClick={() => navigate(`/exchange/select/${code}`, { replace: true })}>
-              {t('send.buyEth')}
-            </Button>
-          </ViewButtons>
-        </View>
-      );
-    default:
-      const { errorMessage } = result;
-      return (
-        <View fullscreen textCenter verticallyCentered width="640px">
-          <ViewHeader />
-          <ViewContent withIcon="error">
-            <SubTitle>
-              {t('unknownError', { errorMessage: '' })}
-            </SubTitle>
-            <CopyableInput
-              alignLeft
-              flexibleHeight
-              value={errorMessage}
-            />
-          </ViewContent>
-          <ViewButtons>
-            <Button primary onClick={() => navigate(`/account/${code}`)}>
-              {t('button.done')}
-            </Button>
-            <Button secondary onClick={() => onRetry()}>
-              {t('send.edit')}
-            </Button>
-          </ViewButtons>
-        </View>
-      );
+      case 'erc20InsufficientGasFunds':
+        return (
+          <View fullscreen textCenter verticallyCentered width="520px">
+            <ViewHeader />
+            <ViewContent withIcon="error">
+              <p>{t(`send.error.${result.errorCode}`)}</p>
+            </ViewContent>
+            <ViewButtons>
+              <Button primary onClick={() => navigate(`/account/${code}`)}>
+                {t('button.done')}
+              </Button>
+              <Button
+                secondary
+                onClick={() =>
+                  navigate(`/exchange/select/${code}`, { replace: true })
+                }
+              >
+                {t('send.buyEth')}
+              </Button>
+            </ViewButtons>
+          </View>
+        );
+      default:
+        const { errorMessage } = result;
+        return (
+          <View fullscreen textCenter verticallyCentered width="640px">
+            <ViewHeader />
+            <ViewContent withIcon="error">
+              <SubTitle>{t('unknownError', { errorMessage: '' })}</SubTitle>
+              <CopyableInput alignLeft flexibleHeight value={errorMessage} />
+            </ViewContent>
+            <ViewButtons>
+              <Button primary onClick={() => navigate(`/account/${code}`)}>
+                {t('button.done')}
+              </Button>
+              <Button secondary onClick={() => onRetry()}>
+                {t('send.edit')}
+              </Button>
+            </ViewButtons>
+          </View>
+        );
     }
   }
 
@@ -123,9 +123,7 @@ export const SendResult = ({
     <View fullscreen textCenter verticallyCentered width="520px">
       <ViewHeader />
       <ViewContent withIcon="success">
-        <p>
-          {t('send.success')}
-        </p>
+        <p>{t('send.success')}</p>
         {children}
       </ViewContent>
       <ViewButtons>

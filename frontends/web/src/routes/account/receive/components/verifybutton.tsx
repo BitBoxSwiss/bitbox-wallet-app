@@ -29,8 +29,8 @@ export const useVerifyLabel = (device?: TProductName): string => {
 };
 
 type TProps = JSX.IntrinsicElements['button'] & {
-    device?: TProductName;
-    forceVerification: boolean;
+  device?: TProductName;
+  forceVerification: boolean;
 };
 
 export const VerifyButton = ({
@@ -42,7 +42,7 @@ export const VerifyButton = ({
   const verifyLabel = useVerifyLabel(device);
   return (
     <Button primary {...props}>
-      { forceVerification ? t('receive.showFull') : verifyLabel }
+      {forceVerification ? t('receive.showFull') : verifyLabel}
     </Button>
   );
 };

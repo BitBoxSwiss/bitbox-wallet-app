@@ -25,27 +25,29 @@ import { useMountedRef } from './mount';
  * @param devices which to check
  * @param dependencies optional array to re-run the check if any of the dependency change, devices is automatically added to the dependencies list
  */
-export const useSDCard = (
-  devices: TDevices,
-  dependencies?: DependencyList,
-) => {
+export const useSDCard = (devices: TDevices, dependencies?: DependencyList) => {
   const [sdcard, setSDCard] = useState<boolean>(false);
   const mounted = useMountedRef();
   useEffect(() => {
     const deviceIDs = Object.keys(devices);
-    Promise.all(deviceIDs.map(deviceID => {
-      switch (devices[deviceID]) {
-      case 'bitbox':
-        return getBitBox01DeviceInfo(deviceID)
-          .then(deviceInfo => deviceInfo ? deviceInfo.sdcard : Promise.reject(`Could get device info for ${deviceID}`));
-      case 'bitbox02':
-        return checkSDCard(deviceID);
-      default:
-        return false;
-      }
-    }))
-      .then(sdcards => sdcards.some(sdcard => sdcard))
-      .then(result => {
+    Promise.all(
+      deviceIDs.map((deviceID) => {
+        switch (devices[deviceID]) {
+          case 'bitbox':
+            return getBitBox01DeviceInfo(deviceID).then((deviceInfo) =>
+              deviceInfo
+                ? deviceInfo.sdcard
+                : Promise.reject(`Could get device info for ${deviceID}`),
+            );
+          case 'bitbox02':
+            return checkSDCard(deviceID);
+          default:
+            return false;
+        }
+      }),
+    )
+      .then((sdcards) => sdcards.some((sdcard) => sdcard))
+      .then((result) => {
         if (mounted.current) {
           setSDCard(result);
         }

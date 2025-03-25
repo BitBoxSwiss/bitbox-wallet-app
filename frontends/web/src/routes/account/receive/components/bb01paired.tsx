@@ -20,12 +20,10 @@ import { hasMobileChannel } from '@/api/devices';
 import { Status } from '@/components/status/status';
 
 type TProps = {
-    deviceID: string;
-}
+  deviceID: string;
+};
 
-export const PairedWarning = ({
-  deviceID,
-}: TProps) => {
+export const PairedWarning = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
   const paired = useLoad(hasMobileChannel(deviceID));
   if (paired) {

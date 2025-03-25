@@ -23,10 +23,14 @@ describe('components/forms/select', () => {
     const MOCK_OPTIONS: TOption[] = [
       { value: '1', text: 'one', disabled: false },
       { value: '2', text: 'two', disabled: false },
-      { value: '3', text: 'three', disabled: false }
+      { value: '3', text: 'three', disabled: false },
     ];
-    render(<Select label="my select label" options={MOCK_OPTIONS} id="select" />);
-    expect(screen.getByRole('combobox', { name: 'my select label' })).toBeInTheDocument();
+    render(
+      <Select label="my select label" options={MOCK_OPTIONS} id="select" />,
+    );
+    expect(
+      screen.getByRole('combobox', { name: 'my select label' }),
+    ).toBeInTheDocument();
     expect(screen.getAllByRole('option')).toHaveLength(3);
   });
 });

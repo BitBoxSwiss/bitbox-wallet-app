@@ -22,7 +22,7 @@ import { useEsc } from './keyboard';
 describe('useEsc', () => {
   it('should fire its callback when escape key gets pressed', () => {
     const mock = vi.fn();
-    renderHook((() => useEsc(mock)));
+    renderHook(() => useEsc(mock));
     act(() => {
       fireEvent.keyDown(document, { key: 'Escape', code: 27 });
     });

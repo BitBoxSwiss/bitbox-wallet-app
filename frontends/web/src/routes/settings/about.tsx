@@ -42,10 +42,15 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
                 <MobileHeader withGuide title={t('settings.about')} />
               </>
-            } />
+            }
+          />
           <View fullscreen={false}>
             <ViewContent>
-              <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>
+              <WithSettingsTabs
+                devices={devices}
+                hideMobileMenu
+                hasAccounts={hasAccounts}
+              >
                 <AppVersion />
               </WithSettingsTabs>
             </ViewContent>
@@ -57,12 +62,14 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   );
 };
 
-
 const AboutGuide = () => {
   const { t } = useTranslation();
   return (
     <Guide>
-      <Entry key="guide.settings.servers" entry={t('guide.settings.servers', { returnObjects: true })} />
+      <Entry
+        key="guide.settings.servers"
+        entry={t('guide.settings.servers', { returnObjects: true })}
+      />
     </Guide>
   );
 };

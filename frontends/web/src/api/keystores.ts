@@ -22,9 +22,7 @@ export type { TUnsubscribe };
 type TKeystore = { type: 'hardware' | 'software' };
 export type TKeystores = TKeystore[];
 
-export const subscribeKeystores = (
-  cb: (keystores: TKeystores) => void
-) => {
+export const subscribeKeystores = (cb: (keystores: TKeystores) => void) => {
   return subscribeEndpoint('keystores', cb);
 };
 

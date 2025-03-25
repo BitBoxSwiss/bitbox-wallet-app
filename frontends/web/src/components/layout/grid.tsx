@@ -21,23 +21,15 @@ type TGridProps = {
   children: ReactNode;
   col?: '1' | '2';
   textAlign?: 'center' | 'left';
-}
+};
 
-export const Grid = ({
-  children,
-  col = '2',
-  textAlign,
-}: TGridProps) => {
+export const Grid = ({ children, col = '2', textAlign }: TGridProps) => {
   const styles = `
     ${style.grid}
     ${style[`grid-columns-${col}`]}
     ${textAlign !== undefined ? style[textAlign] : ''}
   `;
-  return (
-    <section className={styles}>
-      {children}
-    </section>
-  );
+  return <section className={styles}>{children}</section>;
 };
 
 type TColumnProps = {
@@ -45,7 +37,7 @@ type TColumnProps = {
   className?: string;
   children: ReactNode;
   textCenter?: boolean;
-}
+};
 
 export const Column = ({
   asCard,
@@ -59,18 +51,14 @@ export const Column = ({
     ${className || ''}
     ${textCenter ? style.textCenter : ''}
   `;
-  return (
-    <div className={classNames}>
-      {children}
-    </div>
-  );
+  return <div className={classNames}>{children}</div>;
 };
 
 type TColumnButtonsProps = {
   children: ReactNode;
   className?: string;
   inline?: boolean;
-}
+};
 
 export const ColumnButtons = ({
   children,
@@ -80,9 +68,5 @@ export const ColumnButtons = ({
   const classNames = `${style.columnButtons} ${
     inline ? style.columnButtonsInline : ''
   } ${className}`;
-  return (
-    <div className={classNames}>
-      {children}
-    </div>
-  );
+  return <div className={classNames}>{children}</div>;
 };

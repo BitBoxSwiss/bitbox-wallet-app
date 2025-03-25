@@ -20,12 +20,20 @@ import * as bitbox02 from '@/api/bitbox02';
 import { useMountedRef } from '@/hooks/mount';
 import { alertUser } from '@/components/alert/Alert';
 import { Wait } from './wait';
-import { ChecklistWalletCreate, ChecklistWalletCreateMnemonic } from './checklist';
+import {
+  ChecklistWalletCreate,
+  ChecklistWalletCreateMnemonic,
+} from './checklist';
 import { SetDeviceName, SetDeviceNameWithSDCard } from './name';
 import { SetPassword } from './password';
 import { WithSDCard } from './sdcard';
 
-type TCreateWalletStatus = 'intro' | 'setName' | 'setPassword' | 'showDisclaimer' | 'createBackup';
+type TCreateWalletStatus =
+  | 'intro'
+  | 'setName'
+  | 'setPassword'
+  | 'showDisclaimer'
+  | 'createBackup';
 
 type Props = {
   backupType: 'sdcard' | 'mnemonic';
@@ -79,9 +87,10 @@ export const CreateWallet = ({
     try {
       const result = await bitbox02.setDeviceName(deviceID, deviceName);
       if (!result.success) {
-        const errorText = result.code === bitbox02.errUserAbort
-          ? t('bitbox02Settings.deviceName.error_104')
-          : result.message;
+        const errorText =
+          result.code === bitbox02.errUserAbort
+            ? t('bitbox02Settings.deviceName.error_104')
+            : result.message;
         alertUser(errorText || t('genericError'), {
           asDialog: false,
           callback: () => onAbort(),
@@ -108,7 +117,9 @@ export const CreateWallet = ({
             callback: () => onAbort(),
           });
         } else {
-          alertUser(t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
+          alertUser(t('bitbox02Wizard.createBackupFailed'), {
+            asDialog: false,
+          });
         }
       }
     } catch (error) {
@@ -119,68 +130,65 @@ export const CreateWallet = ({
   if (isSeeded) {
     if (status === 'showDisclaimer') {
       switch (backupType) {
-      case 'sdcard':
-        return (
-          <WithSDCard onAbort={onAbort} deviceID={deviceID}>
-            <ChecklistWalletCreate onContinue={createBackup} />
-          </WithSDCard>
-        );
-      case 'mnemonic':
-        return (
-          <ChecklistWalletCreateMnemonic onContinue={createBackup} />
-        );
+        case 'sdcard':
+          return (
+            <WithSDCard onAbort={onAbort} deviceID={deviceID}>
+              <ChecklistWalletCreate onContinue={createBackup} />
+            </WithSDCard>
+          );
+        case 'mnemonic':
+          return <ChecklistWalletCreateMnemonic onContinue={createBackup} />;
       }
     }
     if (status === 'createBackup') {
       switch (backupType) {
-      case 'sdcard':
-        return (
-          <Wait
-            title={t('bitbox02Interact.confirmDate')}
-            text={t('bitbox02Interact.confirmDateText')} />
-        );
-      case 'mnemonic':
-        return (
-          <Wait
-            title={t('bitbox02Interact.confirmWords', {
-              amount: backupSeedLength === 16 ? '12' : '24'
-            })}
-            text={t('bitbox02Interact.confirmWordsText')} />
-        );
+        case 'sdcard':
+          return (
+            <Wait
+              title={t('bitbox02Interact.confirmDate')}
+              text={t('bitbox02Interact.confirmDateText')}
+            />
+          );
+        case 'mnemonic':
+          return (
+            <Wait
+              title={t('bitbox02Interact.confirmWords', {
+                amount: backupSeedLength === 16 ? '12' : '24',
+              })}
+              text={t('bitbox02Interact.confirmWordsText')}
+            />
+          );
       }
     }
   }
 
   switch (status) {
-  case 'intro':
-    switch (backupType) {
-    case 'sdcard':
-      return (
-        <SetDeviceNameWithSDCard
-          key="set-devicename-sdcard"
-          deviceID={deviceID}
-          onDeviceName={setDeviceName}
-          onBack={onAbort} />
-      );
-    case 'mnemonic':
-      return (
-        <SetDeviceName
-          key="set-devicename-mnemonic"
-          onDeviceName={setDeviceName}
-          onBack={onAbort} />
-      );
-    }
-    break;
-  case 'setName':
-    return (
-      <Wait title={t('bitbox02Interact.confirmName')} />
-    );
-  case 'setPassword':
-    return (
-      <SetPassword
-        errorText={errorText} />
-    );
-  default:
-    return null;
+    case 'intro':
+      switch (backupType) {
+        case 'sdcard':
+          return (
+            <SetDeviceNameWithSDCard
+              key="set-devicename-sdcard"
+              deviceID={deviceID}
+              onDeviceName={setDeviceName}
+              onBack={onAbort}
+            />
+          );
+        case 'mnemonic':
+          return (
+            <SetDeviceName
+              key="set-devicename-mnemonic"
+              onDeviceName={setDeviceName}
+              onBack={onAbort}
+            />
+          );
+      }
+      break;
+    case 'setName':
+      return <Wait title={t('bitbox02Interact.confirmName')} />;
+    case 'setPassword':
+      return <SetPassword errorText={errorText} />;
+    default:
+      return null;
   }
 };

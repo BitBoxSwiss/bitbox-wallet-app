@@ -25,7 +25,7 @@ type TProps = {
   disabled: boolean;
   error?: string;
   fiatAmount: string;
-}
+};
 
 export const FiatInput = ({
   label,
@@ -41,7 +41,9 @@ export const FiatInput = ({
       min="0"
       label={label}
       id="fiatAmount"
-      onChange={(event: ChangeEvent<HTMLInputElement>) => onFiatChange(event.target.value)}
+      onChange={(event: ChangeEvent<HTMLInputElement>) =>
+        onFiatChange(event.target.value)
+      }
       disabled={disabled}
       error={error}
       value={fiatAmount}

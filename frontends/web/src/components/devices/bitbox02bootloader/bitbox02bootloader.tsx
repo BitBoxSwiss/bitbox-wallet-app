@@ -29,7 +29,7 @@ import style from './bitbox02bootloader.module.css';
 
 type TProps = {
   deviceID: string;
-}
+};
 
 export const BitBox02Bootloader = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
@@ -38,7 +38,9 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     () => bitbox02BootloaderAPI.getStatus(deviceID),
     bitbox02BootloaderAPI.syncStatus(deviceID),
   );
-  const versionInfo = useLoad(() => bitbox02BootloaderAPI.getVersionInfo(deviceID));
+  const versionInfo = useLoad(() =>
+    bitbox02BootloaderAPI.getVersionInfo(deviceID),
+  );
 
   if (versionInfo === undefined) {
     return null;
@@ -51,7 +53,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
         <div className="box large">
           <p style={{ marginBottom: 0 }}>
             {t('bb02Bootloader.success', {
-              context: (versionInfo.erased ? 'install' : ''),
+              context: versionInfo.erased ? 'install' : '',
             })}
           </p>
         </div>
@@ -61,19 +63,27 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       contents = (
         <div className="box large">
           <SubTitle>
-            {t('bb02Bootloader.upgradeTitle', { context: (versionInfo.erased ? 'install' : '') })}
+            {t('bb02Bootloader.upgradeTitle', {
+              context: versionInfo.erased ? 'install' : '',
+            })}
           </SubTitle>
-          { versionInfo.additionalUpgradeFollows ? (
+          {versionInfo.additionalUpgradeFollows ? (
             <>
-              <p className={style.additionalUpgrade}>{t('bb02Bootloader.additionalUpgradeFollows1')}</p>
-              <p className={style.additionalUpgrade}>{t('bb02Bootloader.additionalUpgradeFollows2')}</p>
+              <p className={style.additionalUpgrade}>
+                {t('bb02Bootloader.additionalUpgradeFollows1')}
+              </p>
+              <p className={style.additionalUpgrade}>
+                {t('bb02Bootloader.additionalUpgradeFollows2')}
+              </p>
             </>
-          ) : null }
-          <progress className={style.progressBar} value={value} max="100">{value}%</progress>
+          ) : null}
+          <progress className={style.progressBar} value={value} max="100">
+            {value}%
+          </progress>
           <p className={style.content}>
             {t('bootloader.progress', {
               progress: value.toString(),
-              context: (versionInfo.erased ? 'install' : ''),
+              context: versionInfo.erased ? 'install' : '',
             })}
           </p>
         </div>
@@ -89,18 +99,24 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           </div>
         )}
         <div className="buttons">
-          { versionInfo.canUpgrade ? (
+          {versionInfo.canUpgrade ? (
             <Button
               primary
-              onClick={() => bitbox02BootloaderAPI.upgradeFirmware(deviceID)}>
-              {t('bootloader.button', { context: (versionInfo.erased ? 'install' : '') })}
+              onClick={() => bitbox02BootloaderAPI.upgradeFirmware(deviceID)}
+            >
+              {t('bootloader.button', {
+                context: versionInfo.erased ? 'install' : '',
+              })}
             </Button>
-          ) : null }
-          { !versionInfo.erased && (
+          ) : null}
+          {!versionInfo.erased && (
             <Button
               secondary
-              onClick={() => bitbox02BootloaderAPI.reboot(deviceID)}>
-              {t('bb02Bootloader.abort', { context: !versionInfo.canUpgrade ? 'noUpgrade' : '' })}
+              onClick={() => bitbox02BootloaderAPI.reboot(deviceID)}
+            >
+              {t('bb02Bootloader.abort', {
+                context: !versionInfo.canUpgrade ? 'noUpgrade' : '',
+              })}
             </Button>
           )}
         </div>
@@ -109,15 +125,14 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           <Button
             onClick={() => bitbox02BootloaderAPI.screenRotate(deviceID)}
             style={{ height: 'auto', padding: 0, textDecoration: 'underline' }}
-            transparent>
+            transparent
+          >
             {t('bb02Bootloader.flipscreen')}
           </Button>
         </div>
-        <hr/>
+        <hr />
         <details>
-          <summary>
-            {t('bb02Bootloader.advanced.label')}
-          </summary>
+          <summary>{t('bb02Bootloader.advanced.label')}</summary>
           <div>
             <br />
             <ToggleShowFirmwareHash deviceID={deviceID} />

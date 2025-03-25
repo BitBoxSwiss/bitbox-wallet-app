@@ -25,7 +25,7 @@ type Props = {
   onSelectBackup: (backup: Backup) => void;
   onRestoreBackup: (success: boolean) => void;
   onBack: () => void;
-}
+};
 
 export const RestoreFromSDCardBackup = ({
   deviceID,
@@ -35,12 +35,7 @@ export const RestoreFromSDCardBackup = ({
 }: Props) => {
   const { t } = useTranslation();
   return (
-    <View
-      fullscreen
-      textCenter
-      verticallyCentered
-      withBottomBar
-      width="700px">
+    <View fullscreen textCenter verticallyCentered withBottomBar width="700px">
       <ViewHeader title={t('backup.restore.confirmTitle')} />
       <ViewContent>
         <BackupsV2
@@ -50,9 +45,7 @@ export const RestoreFromSDCardBackup = ({
           onSelectBackup={onSelectBackup}
           onRestoreBackup={onRestoreBackup}
         >
-          <Button
-            secondary
-            onClick={onBack}>
+          <Button secondary onClick={onBack}>
             {t('button.back')}
           </Button>
         </BackupsV2>

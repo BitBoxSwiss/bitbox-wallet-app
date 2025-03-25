@@ -21,10 +21,10 @@ import { Button } from '@/components/forms';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 
 type TProps = {
-    accountCode: accountAPI.AccountCode;
-    address: string;
-    addressID: string;
-}
+  accountCode: accountAPI.AccountCode;
+  address: string;
+  addressID: string;
+};
 
 export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
   const [verifying, setVerifying] = useState(false);
@@ -40,11 +40,9 @@ export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
       <Button secondary onClick={verifyAddress}>
         {t('receive.verifyBitBox02')}
       </Button>
-      { verifying ? (
-        <WaitDialog title={t('receive.verifyBitBox02')}>
-          { address }
-        </WaitDialog>
-      ) : null }
+      {verifying ? (
+        <WaitDialog title={t('receive.verifyBitBox02')}>{address}</WaitDialog>
+      ) : null}
     </div>
   );
 };

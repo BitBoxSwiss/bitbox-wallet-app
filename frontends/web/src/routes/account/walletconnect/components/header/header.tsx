@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2023 Shift Crypto AG
  *
@@ -22,9 +21,12 @@ import styles from './header.module.css';
 type TWalletConnectProps = {
   receiveAddress: string;
   accountName: string;
-}
+};
 
-export const WCHeader = ({ receiveAddress, accountName }: TWalletConnectProps) => {
+export const WCHeader = ({
+  receiveAddress,
+  accountName,
+}: TWalletConnectProps) => {
   const displayedReceiveAddress = truncateAddress(receiveAddress);
   return (
     <div className={styles.headerContainer}>

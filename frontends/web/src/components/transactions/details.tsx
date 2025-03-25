@@ -26,7 +26,7 @@ type TProps = {
   explorerURL: string;
   internalID: ITransaction['internalID'] | null;
   onClose: () => void;
-}
+};
 
 export const TransactionDetails = ({
   accountCode,
@@ -35,7 +35,9 @@ export const TransactionDetails = ({
   onClose,
 }: TProps) => {
   const [open, setOpen] = useState(false);
-  const [transactionInfo, setTransactionInfo] = useState<ITransaction | null>(null);
+  const [transactionInfo, setTransactionInfo] = useState<ITransaction | null>(
+    null,
+  );
   const prevInternalID = usePrevious(internalID);
 
   useEffect(() => setOpen(false), [accountCode]);
@@ -48,13 +50,15 @@ export const TransactionDetails = ({
 
   useEffect(() => {
     if (internalID && !transactionInfo) {
-      getTransaction(accountCode, internalID).then(transaction => {
-        if (!transaction) {
-          console.error(`Unable to retrieve transaction ${internalID}`);
-        }
-        setTransactionInfo(transaction);
-        setOpen(true);
-      }).catch(console.error);
+      getTransaction(accountCode, internalID)
+        .then((transaction) => {
+          if (!transaction) {
+            console.error(`Unable to retrieve transaction ${internalID}`);
+          }
+          setTransactionInfo(transaction);
+          setOpen(true);
+        })
+        .catch(console.error);
     } else {
       setOpen(true);
     }

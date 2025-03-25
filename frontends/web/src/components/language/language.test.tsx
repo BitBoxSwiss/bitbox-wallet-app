@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { TLanguagesList } from './types';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: vi.fn()
+  useTranslation: vi.fn(),
 }));
 
 describe('components/language/language', () => {
@@ -52,7 +52,7 @@ describe('components/language/language', () => {
         (useTranslation as Mock).mockReturnValue({
           t: vi.fn(),
           i18n: {
-            language: lang.code
+            language: lang.code,
           },
         });
 
@@ -66,7 +66,7 @@ describe('components/language/language', () => {
       (useTranslation as Mock).mockReturnValue({
         t: vi.fn(),
         i18n: {
-          language: 'de'
+          language: 'de',
         },
       });
       const { getByTestId } = renderSwitchAndOpenDialog();
@@ -78,7 +78,7 @@ describe('components/language/language', () => {
       (useTranslation as Mock).mockReturnValue({
         t: vi.fn(),
         i18n: {
-          language: 'it'
+          language: 'it',
         },
       });
       const { getByTestId } = renderSwitchAndOpenDialog();

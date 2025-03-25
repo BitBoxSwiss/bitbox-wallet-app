@@ -20,18 +20,17 @@ import { translate, TranslateProps } from '@/decorators/translate';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import style from '@/components/dialog/dialog.module.css';
 
-
 interface WaitDialogProps {
-    includeDefault?: boolean;
-    prequel?: JSX.Element;
-    title?: string;
-    children?: ReactNode;
+  includeDefault?: boolean;
+  prequel?: JSX.Element;
+  title?: string;
+  children?: ReactNode;
 }
 
 type Props = WaitDialogProps & TranslateProps;
 
 interface State {
-    active: boolean;
+  active: boolean;
 }
 
 class WaitDialog extends Component<Props, State> {
@@ -74,20 +73,10 @@ class WaitDialog extends Component<Props, State> {
   };
 
   public render() {
-    const {
-      t,
-      includeDefault,
-      prequel,
-      title,
-      children,
-    } = this.props;
+    const { t, includeDefault, prequel, title, children } = this.props;
     const defaultContent = (
       <div>
-        {
-          prequel && (
-            <p className="m-top-none">{prequel}</p>
-          )
-        }
+        {prequel && <p className="m-top-none">{prequel}</p>}
         <p className={style.confirmationLabel}>{t('confirm.info')}</p>
       </div>
     );
@@ -97,24 +86,23 @@ class WaitDialog extends Component<Props, State> {
       <div
         className={style.overlay}
         ref={this.overlay}
-        style={{ zIndex: 10001 }}>
+        style={{ zIndex: 10001 }}
+      >
         <UseDisableBackButton />
         <div className={[style.modal, style.open].join(' ')} ref={this.modal}>
-          {
-            title && (
-              <div className={style.header}>
-                <h3 className={style.title}>{title}</h3>
-              </div>
-            )
-          }
+          {title && (
+            <div className={style.header}>
+              <h3 className={style.title}>{title}</h3>
+            </div>
+          )}
           <div className={style.contentContainer}>
             <div className={style.content}>
-              { (hasChildren && includeDefault) ? defaultContent : null }
-              { hasChildren ? (
-                <div className="flex flex-column flex-start">
-                  {children}
-                </div>
-              ) : defaultContent }
+              {hasChildren && includeDefault ? defaultContent : null}
+              {hasChildren ? (
+                <div className="flex flex-column flex-start">{children}</div>
+              ) : (
+                defaultContent
+              )}
             </div>
           </div>
         </div>

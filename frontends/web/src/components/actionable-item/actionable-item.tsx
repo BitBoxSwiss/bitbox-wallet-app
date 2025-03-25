@@ -24,7 +24,7 @@ type TProps = {
   children: ReactNode;
   icon?: ReactNode;
   onClick?: () => void;
-}
+};
 
 export const ActionableItem = ({
   className = '',
@@ -46,11 +46,10 @@ export const ActionableItem = ({
         <button
           type="button"
           className={`${styles.container} ${styles.isButton} ${className}`}
-          onClick={onClick}>
+          onClick={onClick}
+        >
           {children}
-          {icon ? icon : (
-            <ChevronRightDark />
-          )}
+          {icon ? icon : <ChevronRightDark />}
         </button>
       )}
     </>

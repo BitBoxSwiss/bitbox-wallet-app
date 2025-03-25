@@ -38,17 +38,12 @@ class LegacyHiddenWallet extends Component {
   };
 
   render() {
-    const {
-      t,
-      disabled,
-      newHiddenWallet,
-    } = this.props;
+    const { t, disabled, newHiddenWallet } = this.props;
     return (
-      <Button
-        danger
-        disabled={disabled}
-        onclick={this.toggle}>
-        { newHiddenWallet ? t('legacyhiddenwallet.enable') : t('legacyhiddenwallet.disable') }
+      <Button danger disabled={disabled} onclick={this.toggle}>
+        {newHiddenWallet
+          ? t('legacyhiddenwallet.enable')
+          : t('legacyhiddenwallet.disable')}
       </Button>
     );
   }

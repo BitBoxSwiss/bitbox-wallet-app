@@ -1,16 +1,21 @@
 import { t } from 'i18next';
 import { SessionTypes } from '@walletconnect/types';
 import { EIP155_SIGNING_METHODS, decodeEthMessage } from './walletconnect';
-import { ethSignMessage, ethSignTypedMessage, ethSignWalletConnectTx, getEthAccountCodeAndNameByAddress } from '@/api/account';
+import {
+  ethSignMessage,
+  ethSignTypedMessage,
+  ethSignWalletConnectTx,
+  getEthAccountCodeAndNameByAddress,
+} from '@/api/account';
 import { alertUser } from '@/components/alert/Alert';
 
 type TWCParams = {
   request: {
-    method: string,
-    params: any[]
+    method: string;
+    params: any[];
   };
   chainId: string;
-}
+};
 
 export type TEthSignHandlerParams = {
   topic: string;
@@ -27,14 +32,14 @@ export type TRequestDialogContent = {
   signingData: string; // data / message coming from dapp
   currentSession: SessionTypes.Struct;
   method: string;
-}
+};
 
 export type TLaunchSignDialog = {
-  topic: string,
-  id: number,
+  topic: string;
+  id: number;
   apiCaller: () => Promise<any>;
-  dialogContent: TRequestDialogContent
-}
+  dialogContent: TRequestDialogContent;
+};
 
 const fetchAccountNameAndAddress = async (address: string) => {
   const accountDetail = await getEthAccountCodeAndNameByAddress(address);
@@ -51,35 +56,38 @@ export const handleWcEthSignRequest = async (
   args: TEthSignHandlerParams,
 ) => {
   switch (method) {
-  case EIP155_SIGNING_METHODS.ETH_SIGN:
-  case EIP155_SIGNING_METHODS.PERSONAL_SIGN:
-    await ethSignHandler(args, method);
-    break;
-  case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA:
-  case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V3:
-  case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V4:
-    await ethSignTypedDataHandler(args);
-    break;
-  case EIP155_SIGNING_METHODS.ETH_SIGN_TRANSACTION:
-  case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
-    await ethSignOrSendTransactionHandler(args, method);
-    break;
-  default:
-    console.log(`${method} is unsupported`);
+    case EIP155_SIGNING_METHODS.ETH_SIGN:
+    case EIP155_SIGNING_METHODS.PERSONAL_SIGN:
+      await ethSignHandler(args, method);
+      break;
+    case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA:
+    case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V3:
+    case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V4:
+      await ethSignTypedDataHandler(args);
+      break;
+    case EIP155_SIGNING_METHODS.ETH_SIGN_TRANSACTION:
+    case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
+      await ethSignOrSendTransactionHandler(args, method);
+      break;
+    default:
+      console.log(`${method} is unsupported`);
   }
 };
 
 /**
  * Wallet Connect's ETH_SIGN gives the params as [address, message]
  * while PERSONAL_SIGN gives them as [message, address]
-*/
-const ethSignHandler = async ({
-  params,
-  launchSignDialog,
-  topic,
-  id,
-  currentSession
-}: TEthSignHandlerParams, method: string) => {
+ */
+const ethSignHandler = async (
+  {
+    params,
+    launchSignDialog,
+    topic,
+    id,
+    currentSession,
+  }: TEthSignHandlerParams,
+  method: string,
+) => {
   const isPersonalSign = method === EIP155_SIGNING_METHODS.PERSONAL_SIGN;
   const requestParams = params.request.params;
   const accountAddress = isPersonalSign ? requestParams[1] : requestParams[0];
@@ -89,7 +97,8 @@ const ethSignHandler = async ({
     alertUser(t('walletConnect.signingRequest.decodeError'));
     return;
   }
-  const { accountName, accountCode } = await fetchAccountNameAndAddress(accountAddress);
+  const { accountName, accountCode } =
+    await fetchAccountNameAndAddress(accountAddress);
   const apiCaller = async () => {
     const result = await ethSignMessage(accountCode, signingData);
     if (!result.success) {
@@ -97,7 +106,7 @@ const ethSignHandler = async ({
     }
     return {
       response: { id, jsonrpc: '2.0', result: result.signature },
-      success: true
+      success: true,
     };
   };
 
@@ -111,8 +120,8 @@ const ethSignHandler = async ({
       accountName,
       accountAddress,
       chain: params.chainId,
-      method: t('walletConnect.signingRequest.method.signMessage')
-    }
+      method: t('walletConnect.signingRequest.method.signMessage'),
+    },
   });
 };
 
@@ -121,13 +130,14 @@ const ethSignTypedDataHandler = async ({
   launchSignDialog,
   topic,
   id,
-  currentSession
+  currentSession,
 }: TEthSignHandlerParams) => {
   const requestParams = params.request.params;
   const accountAddress = requestParams[0];
   const data = requestParams[1];
   let typedData: any;
-  const { accountName, accountCode } = await fetchAccountNameAndAddress(accountAddress);
+  const { accountName, accountCode } =
+    await fetchAccountNameAndAddress(accountAddress);
 
   try {
     typedData = JSON.parse(data);
@@ -141,9 +151,9 @@ const ethSignTypedDataHandler = async ({
   const apiCaller = async () => {
     // If the typed data to be signed includes its own chainId, we use that.
     // Otherwise, use the id in the params.
-    const chainId = typedData?.domain?.chainId ?
-      Number(typedData.domain.chainId) :
-      Number(params.chainId.replace(/^eip155:/, ''));
+    const chainId = typedData?.domain?.chainId
+      ? Number(typedData.domain.chainId)
+      : Number(params.chainId.replace(/^eip155:/, ''));
     const result = await ethSignTypedMessage(accountCode, chainId, data);
     if (result.success) {
       const response = { id, jsonrpc: '2.0', result: result.signature };
@@ -163,8 +173,8 @@ const ethSignTypedDataHandler = async ({
       accountName,
       accountAddress,
       chain: params.chainId,
-      method: t('walletConnect.signingRequest.method.signTypedData')
-    }
+      method: t('walletConnect.signingRequest.method.signTypedData'),
+    },
   });
 };
 
@@ -180,21 +190,31 @@ const ethSignOrSendTransactionHandler = async (
   // requestParams[] instaed of 2.
   const accountAddress = requestParams[0].from; // this is our wallet address
   const data = requestParams[0];
-  const { accountName, accountCode } = await fetchAccountNameAndAddress(accountAddress);
+  const { accountName, accountCode } =
+    await fetchAccountNameAndAddress(accountAddress);
   const apiCaller = async () => {
     // If the typed data to be signed includes its own chainId, we use that, otherwise use the id in the params
     const chainId = Number(params.chainId.replace(/^eip155:/, ''));
-    const result = await ethSignWalletConnectTx(accountCode, isSendAndSign, chainId, data);
+    const result = await ethSignWalletConnectTx(
+      accountCode,
+      isSendAndSign,
+      chainId,
+      data,
+    );
     if (result.success) {
-      const response = { id, jsonrpc: '2.0', result: isSendAndSign ? result.txHash : result.rawTx };
+      const response = {
+        id,
+        jsonrpc: '2.0',
+        result: isSendAndSign ? result.txHash : result.rawTx,
+      };
       return { response, success: true };
     }
 
     return { success: false, error: result };
   };
-  const formattedMethod = isSendAndSign ?
-    t('walletConnect.signingRequest.method.sendTransaction') :
-    t('walletConnect.signingRequest.method.signTransaction');
+  const formattedMethod = isSendAndSign
+    ? t('walletConnect.signingRequest.method.sendTransaction')
+    : t('walletConnect.signingRequest.method.signTransaction');
 
   launchSignDialog({
     topic,
@@ -207,7 +227,6 @@ const ethSignOrSendTransactionHandler = async (
       accountAddress,
       chain: params.chainId,
       method: formattedMethod,
-    }
+    },
   });
 };
-

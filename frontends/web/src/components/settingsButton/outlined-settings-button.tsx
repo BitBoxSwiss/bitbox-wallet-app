@@ -22,7 +22,11 @@ import styles from './outlined-settings-button.module.css';
 export const OutlinedSettingsButton = () => {
   const navigate = useNavigate();
   return (
-    <Button className={styles.button} onClick={() => navigate('/settings')} transparent>
+    <Button
+      className={styles.button}
+      onClick={() => navigate('/settings')}
+      transparent
+    >
       <Cog />
     </Button>
   );

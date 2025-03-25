@@ -24,7 +24,7 @@ import style from './banner.module.css';
 
 type TBannerProps = {
   msgKey: 'bitbox01' | 'bitbox02';
-}
+};
 
 export const Banner = ({ msgKey }: TBannerProps) => {
   const { i18n, t } = useTranslation();
@@ -35,11 +35,7 @@ export const Banner = ({ msgKey }: TBannerProps) => {
     syncBanner(msgKey, setBanner);
   }, [msgKey]);
 
-  if (
-    !banner
-    || !i18n.options.fallbackLng
-    || !i18n.resolvedLanguage
-  ) {
+  if (!banner || !i18n.options.fallbackLng || !i18n.resolvedLanguage) {
     return null;
   }
   const { message, link } = banner;
@@ -47,8 +43,10 @@ export const Banner = ({ msgKey }: TBannerProps) => {
   return (
     <Status
       dismissible={banner.dismissible ? `banner-${msgKey}-${banner.id}` : ''}
-      type={banner.type ? banner.type : 'warning'}>
-      {message[i18n.resolvedLanguage] || message[(i18n.options.fallbackLng as string[])[0]]}
+      type={banner.type ? banner.type : 'warning'}
+    >
+      {message[i18n.resolvedLanguage] ||
+        message[(i18n.options.fallbackLng as string[])[0]]}
       &nbsp;
       {link && (
         <A href={link.href} className={style.link}>

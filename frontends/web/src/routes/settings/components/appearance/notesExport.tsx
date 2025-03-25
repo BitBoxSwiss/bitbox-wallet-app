@@ -44,12 +44,7 @@ export const NotesExport = () => {
         }
       }}
       secondaryText={t('settings.notes.export.description')}
-      extraComponent={
-        <ChevronRightDark
-          width={24}
-          height={24}
-        />
-      }
+      extraComponent={<ChevronRightDark width={24} height={24} />}
     />
   );
 };

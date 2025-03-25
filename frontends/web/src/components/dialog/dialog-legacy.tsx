@@ -19,21 +19,21 @@ import React, { Component, createRef } from 'react';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import style from './dialog-legacy.module.css';
 interface Props {
-    title?: string;
-    small?: boolean;
-    medium?: boolean;
-    large?: boolean;
-    slim?: boolean;
-    centered?: boolean;
-    disableEscape?: boolean;
-    onClose?: (e?: Event) => void;
-    disabledClose?: boolean;
-    children: React.ReactNode;
+  title?: string;
+  small?: boolean;
+  medium?: boolean;
+  large?: boolean;
+  slim?: boolean;
+  centered?: boolean;
+  disableEscape?: boolean;
+  onClose?: (e?: Event) => void;
+  disabledClose?: boolean;
+  children: React.ReactNode;
 }
 
 interface State {
-    active: boolean;
-    currentTab: number;
+  active: boolean;
+  currentTab: number;
 }
 
 class DialogLegacy extends Component<Props, State> {
@@ -63,7 +63,9 @@ class DialogLegacy extends Component<Props, State> {
 
   private focusWithin = () => {
     if (this.modalContent.current) {
-      this.focusableChildren = this.modalContent.current.querySelectorAll('a, button, input, textarea');
+      this.focusableChildren = this.modalContent.current.querySelectorAll(
+        'a, button, input, textarea',
+      );
       const focusables = Array.from(this.focusableChildren);
       for (const c of focusables) {
         c.classList.add('tabbable');
@@ -76,7 +78,10 @@ class DialogLegacy extends Component<Props, State> {
 
   private focusFirst = () => {
     const focusables = this.focusableChildren;
-    if (focusables.length && focusables[0].getAttribute('autofocus') !== 'false') {
+    if (
+      focusables.length &&
+      focusables[0].getAttribute('autofocus') !== 'false'
+    ) {
       focusables[0].focus();
     }
   };
@@ -92,11 +97,18 @@ class DialogLegacy extends Component<Props, State> {
     const { currentTab } = this.state;
     const focusables = Array.from(this.focusableChildren);
     const arr = isNext ? focusables : focusables.reverse();
-    const current = isNext ? currentTab : (arr.length - 1) - currentTab;
+    const current = isNext ? currentTab : arr.length - 1 - currentTab;
     let next = isNext ? currentTab + 1 : arr.length - currentTab;
-    next = arr.findIndex((item, i) => (i >= next && !item.hasAttribute('disabled')));
-    next = next < 0 ? arr.findIndex((item, i) => (i <= current && !item.hasAttribute('disabled'))) : next;
-    return isNext ? next : (arr.length - 1) - next;
+    next = arr.findIndex(
+      (item, i) => i >= next && !item.hasAttribute('disabled'),
+    );
+    next =
+      next < 0
+        ? arr.findIndex(
+            (item, i) => i <= current && !item.hasAttribute('disabled'),
+          )
+        : next;
+    return isNext ? next : arr.length - 1 - next;
   }
 
   private handleKeyDown = (e: KeyboardEvent) => {
@@ -162,26 +174,28 @@ class DialogLegacy extends Component<Props, State> {
       <div className={style.overlay} ref={this.overlay}>
         <div
           className={[style.modal, isSmall, isMedium, isLarge].join(' ')}
-          ref={this.modal}>
-          {
-            title && (
-              <div className={[style.header, isCentered].join(' ')}>
-                <h3 className={style.title}>{title}</h3>
-                { onClose ? (
-                  <button className={style.closeButton} onClick={this.deactivate} disabled={disabledClose}>
-                    <CloseXDark className="show-in-lightmode" />
-                    <CloseXWhite className="show-in-darkmode" />
-                  </button>
-                ) : null }
-              </div>
-            )
-          }
+          ref={this.modal}
+        >
+          {title && (
+            <div className={[style.header, isCentered].join(' ')}>
+              <h3 className={style.title}>{title}</h3>
+              {onClose ? (
+                <button
+                  className={style.closeButton}
+                  onClick={this.deactivate}
+                  disabled={disabledClose}
+                >
+                  <CloseXDark className="show-in-lightmode" />
+                  <CloseXWhite className="show-in-darkmode" />
+                </button>
+              ) : null}
+            </div>
+          )}
           <div
             className={[style.contentContainer, isSlim].join(' ')}
-            ref={this.modalContent}>
-            <div className={style.content}>
-              {children}
-            </div>
+            ref={this.modalContent}
+          >
+            <div className={style.content}>{children}</div>
           </div>
         </div>
       </div>
@@ -209,13 +223,11 @@ class DialogLegacy extends Component<Props, State> {
  */
 
 interface DialogButtonsProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 const DialogButtons = ({ children }: DialogButtonsProps) => {
-  return (
-    <div className={style.dialogButtons}>{children}</div>
-  );
+  return <div className={style.dialogButtons}>{children}</div>;
 };
 
 export { DialogLegacy, DialogButtons };

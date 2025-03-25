@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2025 Shift Crypto AG
  *
@@ -28,33 +27,37 @@ import styles from './enable-tor-proxy-setting.module.css';
 type TProps = {
   backendConfig?: TBackendConfig;
   onChangeConfig: Dispatch<TConfig>;
-}
+};
 
-export const RestartInTestnetSetting = ({ backendConfig, onChangeConfig }: TProps) => {
+export const RestartInTestnetSetting = ({
+  backendConfig,
+  onChangeConfig,
+}: TProps) => {
   const { t } = useTranslation();
   const [showRestartMessage, setShowRestartMessage] = useState(false);
 
-
-  const handleToggleRestartInTestnet = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleToggleRestartInTestnet = async (
+    e: ChangeEvent<HTMLInputElement>,
+  ) => {
     setShowRestartMessage(e.target.checked);
-    const config = await setConfig({
+    const config = (await setConfig({
       backend: {
-        'startInTestnet': e.target.checked
+        startInTestnet: e.target.checked,
       },
-    }) as TConfig;
+    })) as TConfig;
     onChangeConfig(config);
   };
   return (
     <>
-      { showRestartMessage ? (
-        <Message type="warning">
-          {t('settings.restart')}
-        </Message>
-      ) : null }
+      {showRestartMessage ? (
+        <Message type="warning">{t('settings.restart')}</Message>
+      ) : null}
       <SettingsItem
         className={styles.settingItem}
         settingName={t('settings.expert.restartInTestnet')}
-        secondaryText={t('newSettings.advancedSettings.restartInTestnet.description')}
+        secondaryText={t(
+          'newSettings.advancedSettings.restartInTestnet.description',
+        )}
         extraComponent={
           backendConfig !== undefined ? (
             <Toggle

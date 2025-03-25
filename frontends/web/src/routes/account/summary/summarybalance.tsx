@@ -30,25 +30,22 @@ const TotalBalance = ({ total, fiatUnit }: accountApi.TAccountTotalBalance) => {
   return (
     <>
       <strong>
-        <Amount amount={total} unit={fiatUnit}/>
-      </strong>
-      {' '}
-      <span className={style.coinUnit}>
-        {fiatUnit}
-      </span>
+        <Amount amount={total} unit={fiatUnit} />
+      </strong>{' '}
+      <span className={style.coinUnit}>{fiatUnit}</span>
     </>
   );
 };
 
 type TProps = {
-  accounts: accountApi.IAccount[],
+  accounts: accountApi.IAccount[];
   connected: boolean;
   keystoreName: string;
-  totalBalancePerCoin?: accountApi.TAccountsBalanceByCoin,
-  totalBalance?: accountApi.TAccountTotalBalance,
-  balances?: Balances,
-  keystoreDisambiguatorName?: string
-}
+  totalBalancePerCoin?: accountApi.TAccountsBalanceByCoin;
+  totalBalance?: accountApi.TAccountTotalBalance;
+  balances?: Balances;
+  keystoreDisambiguatorName?: string;
+};
 
 export const SummaryBalance = ({
   accounts,
@@ -57,7 +54,7 @@ export const SummaryBalance = ({
   totalBalancePerCoin,
   totalBalance,
   balances,
-  keystoreDisambiguatorName
+  keystoreDisambiguatorName,
 }: TProps) => {
   const { t } = useTranslation();
 
@@ -67,17 +64,15 @@ export const SummaryBalance = ({
   return (
     <div>
       <div className={style.accountName}>
-        <p>{keystoreName} {keystoreDisambiguatorName && `(${keystoreDisambiguatorName})`}</p>
+        <p>
+          {keystoreName}{' '}
+          {keystoreDisambiguatorName && `(${keystoreDisambiguatorName})`}
+        </p>
         {connected ? (
-          <Badge
-            icon={props => <USBSuccess {...props} />}
-            type="success"
-          >
+          <Badge icon={(props) => <USBSuccess {...props} />} type="success">
             {t('device.keystoreConnected')}
           </Badge>
-        ) :
-          null
-        }
+        ) : null}
       </div>
       <div className={style.balanceTable}>
         <table className={style.table}>
@@ -94,17 +89,19 @@ export const SummaryBalance = ({
             </tr>
           </thead>
           <tbody>
-            { accounts.length > 0 ? (
-              coins.map(coinCode => {
-                const balanceRows = accountsPerCoin[coinCode]?.map(account => (
-                  <BalanceRow
-                    key={account.code}
-                    code={account.code}
-                    name={account.name}
-                    coinCode={account.coinCode}
-                    balance={balances && balances[account.code]}
-                  />
-                ));
+            {accounts.length > 0 ? (
+              coins.map((coinCode) => {
+                const balanceRows = accountsPerCoin[coinCode]?.map(
+                  (account) => (
+                    <BalanceRow
+                      key={account.code}
+                      code={account.code}
+                      name={account.name}
+                      coinCode={account.coinCode}
+                      balance={balances && balances[account.code]}
+                    />
+                  ),
+                );
                 if (balanceRows && balanceRows?.length > 1) {
                   const accountsForCoin = accountsPerCoin[coinCode];
                   if (accountsForCoin && accountsForCoin.length >= 1) {
@@ -114,8 +111,11 @@ export const SummaryBalance = ({
                         key={account.coinCode}
                         coinCode={account.coinCode}
                         coinName={account.coinName}
-                        balance={totalBalancePerCoin && totalBalancePerCoin[coinCode]}
-                      />);
+                        balance={
+                          totalBalancePerCoin && totalBalancePerCoin[coinCode]
+                        }
+                      />,
+                    );
                   }
                 }
                 return balanceRows;
@@ -135,8 +135,13 @@ export const SummaryBalance = ({
               </th>
               <td colSpan={2}>
                 {totalBalance ? (
-                  <TotalBalance total={totalBalance.total} fiatUnit={totalBalance.fiatUnit}/>
-                ) : (<Skeleton />) }
+                  <TotalBalance
+                    total={totalBalance.total}
+                    fiatUnit={totalBalance.fiatUnit}
+                  />
+                ) : (
+                  <Skeleton />
+                )}
               </td>
             </tr>
           </tfoot>

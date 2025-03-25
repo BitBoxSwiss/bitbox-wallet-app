@@ -22,14 +22,11 @@ type TUseQRScannerOptions = {
   onStart?: () => void;
   onResult: (result: QrScanner.ScanResult) => void;
   onError: (error: any) => void;
-}
+};
 
 export const useQRScanner = (
-  videoRef: RefObject<HTMLVideoElement>, {
-    onStart,
-    onResult,
-    onError,
-  }: TUseQRScannerOptions
+  videoRef: RefObject<HTMLVideoElement>,
+  { onStart, onResult, onError }: TUseQRScannerOptions,
 ) => {
   const { t } = useTranslation();
   const [initErrorMessage, setInitErrorMessage] = useState();
@@ -45,17 +42,18 @@ export const useQRScanner = (
       }
 
       while (loading.current) {
-        await new Promise(r => setTimeout(r, 100));
+        await new Promise((r) => setTimeout(r, 100));
       }
       try {
         loading.current = true;
         scanner.current = new QrScanner(
           videoRef.current,
-          result => {
+          (result) => {
             scanner.current?.stop();
             onResult(result);
-          }, {
-            onDecodeError: err => {
+          },
+          {
+            onDecodeError: (err) => {
               const errorString = err.toString();
               if (err && !errorString.includes('No QR code found')) {
                 onError(err);
@@ -67,20 +65,22 @@ export const useQRScanner = (
               const videoWidth = v.videoWidth;
               const videoHeight = v.videoHeight;
               const factor = 0.5;
-              const size = Math.floor(Math.min(videoWidth, videoHeight) * factor);
+              const size = Math.floor(
+                Math.min(videoWidth, videoHeight) * factor,
+              );
               return {
                 x: (videoWidth - size) / 2,
                 y: (videoHeight - size) / 2,
                 width: size,
-                height: size
+                height: size,
               };
-            }
-          }
+            },
+          },
         );
         // Somehow, the new QrScanner may return before it is ready to be started.
         // We don't have a way to know when it is ready, but this 300ms wait seems
         // to work well enough.
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise((r) => setTimeout(r, 300));
         await scanner.current?.start();
         loading.current = false;
         if (onStart) {
@@ -90,15 +90,17 @@ export const useQRScanner = (
         const stringifiedError = error.toString();
         loading.current = false;
         const cameraNotFound = stringifiedError === 'Camera not found.';
-        setInitErrorMessage(cameraNotFound ? t('send.scanQRNoCameraMessage') : stringifiedError);
+        setInitErrorMessage(
+          cameraNotFound ? t('send.scanQRNoCameraMessage') : stringifiedError,
+        );
         onError(error);
       }
     })();
 
     return () => {
-      (async() => {
+      (async () => {
         while (loading.current) {
-          await new Promise(r => setTimeout(r, 100));
+          await new Promise((r) => setTimeout(r, 100));
         }
         if (scanner.current) {
           loading.current = true;

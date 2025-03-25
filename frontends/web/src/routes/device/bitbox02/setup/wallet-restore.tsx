@@ -30,10 +30,7 @@ type Props = {
   onAbort: () => void;
 };
 
-export const RestoreFromSDCard = ({
-  deviceID,
-  onAbort,
-}: Props) => {
+export const RestoreFromSDCard = ({ deviceID, onAbort }: Props) => {
   const [status, setStatus] = useState<'restore' | 'setPassword'>('restore');
   const [backup, setBackup] = useState<Backup>();
 
@@ -51,37 +48,37 @@ export const RestoreFromSDCard = ({
   };
 
   switch (status) {
-  case 'restore':
-    return (
-      <WithSDCard onAbort={onAbort} deviceID={deviceID}>
-        <RestoreFromSDCardBackup
-          deviceID={deviceID}
-          onSelectBackup={onSelectBackup}
-          onRestoreBackup={onRestoreBackup}
-          onBack={onAbort} />
-      </WithSDCard>
-    );
-  case 'setPassword':
-    return (
-      <SetPasswordWithBackup forBackup={backup} />
-    );
+    case 'restore':
+      return (
+        <WithSDCard onAbort={onAbort} deviceID={deviceID}>
+          <RestoreFromSDCardBackup
+            deviceID={deviceID}
+            onSelectBackup={onSelectBackup}
+            onRestoreBackup={onRestoreBackup}
+            onBack={onAbort}
+          />
+        </WithSDCard>
+      );
+    case 'setPassword':
+      return <SetPasswordWithBackup forBackup={backup} />;
   }
 };
 
-export const RestoreFromMnemonic = ({
-  deviceID,
-  onAbort,
-}: Props) => {
+export const RestoreFromMnemonic = ({ deviceID, onAbort }: Props) => {
   const { t } = useTranslation();
-  const [status, setStatus] = useState<'intro' | 'setName' | 'restoreMnemonic'>('intro');
+  const [status, setStatus] = useState<'intro' | 'setName' | 'restoreMnemonic'>(
+    'intro',
+  );
 
   const restoreMnemonic = () => {
-    bitbox02.restoreFromMnemonic(deviceID)
-      .then(result => {
+    bitbox02
+      .restoreFromMnemonic(deviceID)
+      .then((result) => {
         if (!result.success) {
-          const errorText = result.code === bitbox02.errUserAbort
-            ? t('bitbox02Wizard.restoreFromMnemonic.e104')
-            : t('bitbox02Wizard.restoreFromMnemonic.failed');
+          const errorText =
+            result.code === bitbox02.errUserAbort
+              ? t('bitbox02Wizard.restoreFromMnemonic.e104')
+              : t('bitbox02Wizard.restoreFromMnemonic.failed');
           alertUser(errorText, {
             asDialog: false,
             callback: () => onAbort(),
@@ -96,9 +93,10 @@ export const RestoreFromMnemonic = ({
       setStatus('setName');
       const result = await bitbox02.setDeviceName(deviceID, deviceName);
       if (!result.success) {
-        const errorText = result.code === bitbox02.errUserAbort
-          ? t('bitbox02Settings.deviceName.error_104')
-          : result.message;
+        const errorText =
+          result.code === bitbox02.errUserAbort
+            ? t('bitbox02Settings.deviceName.error_104')
+            : result.message;
         alertUser(errorText || t('genericError'), {
           asDialog: false,
           callback: () => onAbort(),
@@ -113,22 +111,22 @@ export const RestoreFromMnemonic = ({
   };
 
   switch (status) {
-  case 'intro':
-    return (
-      <SetDeviceName
-        missingSDCardWarning={false}
-        onDeviceName={setDeviceName}
-        onBack={onAbort} />
-    );
-  case 'setName':
-    return (
-      <Wait title={t('bitbox02Interact.confirmName')} />
-    );
-  case 'restoreMnemonic':
-    return (
-      <Wait
-        title={t('bitbox02Interact.followInstructionsMnemonicTitle')}
-        text={t('bitbox02Interact.followInstructionsMnemonic')} />
-    );
+    case 'intro':
+      return (
+        <SetDeviceName
+          missingSDCardWarning={false}
+          onDeviceName={setDeviceName}
+          onBack={onAbort}
+        />
+      );
+    case 'setName':
+      return <Wait title={t('bitbox02Interact.confirmName')} />;
+    case 'restoreMnemonic':
+      return (
+        <Wait
+          title={t('bitbox02Interact.followInstructionsMnemonicTitle')}
+          text={t('bitbox02Interact.followInstructionsMnemonic')}
+        />
+      );
   }
 };

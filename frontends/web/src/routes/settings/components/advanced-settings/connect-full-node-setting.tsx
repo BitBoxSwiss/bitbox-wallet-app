@@ -28,12 +28,7 @@ export const ConnectFullNodeSetting = () => {
       settingName={t('settings.expert.electrum.title')}
       onClick={() => navigate('/settings/electrum')}
       secondaryText={t('settings.expert.electrum.description')}
-      extraComponent={
-        <ChevronRightDark
-          width={24}
-          height={24}
-        />
-      }
+      extraComponent={<ChevronRightDark width={24} height={24} />}
     />
   );
 };

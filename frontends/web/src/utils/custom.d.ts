@@ -30,11 +30,12 @@ declare module '*.png';
 declare module '*.svg';
 
 // Extends preact's HTML attributes.
-declare namespace JSX { // tslint:disable-line:no-namespace
-    interface HTMLAttributes {
-        align?: 'left' | 'right' | 'center';
-        allow?: string;
-        autocorrect?: 'on' | 'off';
-        spellcheck?: boolean;
-    }
+declare namespace JSX {
+  // tslint:disable-line:no-namespace
+  interface HTMLAttributes {
+    align?: 'left' | 'right' | 'center';
+    allow?: string;
+    autocorrect?: 'on' | 'off';
+    spellcheck?: boolean;
+  }
 }

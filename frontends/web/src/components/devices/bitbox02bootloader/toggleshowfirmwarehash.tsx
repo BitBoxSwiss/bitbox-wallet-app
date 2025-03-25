@@ -18,7 +18,10 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
-import { getShowFirmwareHash, setShowFirmwareHash } from '@/api/bitbox02bootloader';
+import {
+  getShowFirmwareHash,
+  setShowFirmwareHash,
+} from '@/api/bitbox02bootloader';
 import { Toggle } from '@/components/toggle/toggle';
 
 type Props = {
@@ -44,11 +47,14 @@ export const ToggleShowFirmwareHash = ({ deviceID }: Props) => {
 
   return (
     <div className="flex flex-row flex-between flex-items-center">
-      <p className="m-none">{t('bb02Bootloader.advanced.toggleShowFirmwareHash')}</p>
+      <p className="m-none">
+        {t('bb02Bootloader.advanced.toggleShowFirmwareHash')}
+      </p>
       <Toggle
         checked={enabledState}
         id="togggle-show-firmware-hash"
-        onChange={handleToggle} />
+        onChange={handleToggle}
+      />
     </div>
   );
 };

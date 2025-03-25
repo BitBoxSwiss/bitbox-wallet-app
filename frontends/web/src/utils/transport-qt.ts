@@ -32,21 +32,20 @@ const initTransport = async () => {
     return webChannel;
   }
   const initWebChannel = (channel: any) => {
-    channel.objects.backend.gotResponse.connect((
-      queryID: number,
-      response: string,
-    ) => {
-      queryPromises[queryID].resolve(JSON.parse(response));
-      delete queryPromises[queryID];
-    });
+    channel.objects.backend.gotResponse.connect(
+      (queryID: number, response: string) => {
+        queryPromises[queryID].resolve(JSON.parse(response));
+        delete queryPromises[queryID];
+      },
+    );
     channel.objects.backend.pushNotify.connect((msg: string) => {
-      currentListeners.forEach(listener => listener(JSON.parse(msg)));
+      currentListeners.forEach((listener) => listener(JSON.parse(msg)));
     });
     webChannel = channel;
   };
-  new QWebChannel((window.qt!).webChannelTransport, initWebChannel);
+  new QWebChannel(window.qt!.webChannelTransport, initWebChannel);
   while (!webChannel) {
-    await new Promise(r => setTimeout(r, 1));
+    await new Promise((r) => setTimeout(r, 1));
   }
   return webChannel;
 };

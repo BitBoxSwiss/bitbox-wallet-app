@@ -36,7 +36,13 @@ type AllAccountsProps = {
   accounts?: accountApi.IAccount[];
 };
 
-const AccountItem = ({ account, hideAmounts }: { account: accountApi.IAccount, hideAmounts: boolean }) => {
+const AccountItem = ({
+  account,
+  hideAmounts,
+}: {
+  account: accountApi.IAccount;
+  hideAmounts: boolean;
+}) => {
   const [balance, setBalance] = useState<string>('');
   const mounted = useMountedRef();
 
@@ -53,7 +59,11 @@ const AccountItem = ({ account, hideAmounts }: { account: accountApi.IAccount, h
           setBalance('0');
         }
       } catch (error) {
-        console.error('Failed to fetch balance for account', account.code, error);
+        console.error(
+          'Failed to fetch balance for account',
+          account.code,
+          error,
+        );
       }
     };
 
@@ -65,17 +75,13 @@ const AccountItem = ({ account, hideAmounts }: { account: accountApi.IAccount, h
       <div className={styles.accountIcon}>
         <Logo coinCode={account.coinCode} alt={account.name} />
       </div>
-      <p className={styles.accountName}>
-        {account.name}
-      </p>
+      <p className={styles.accountName}>{account.name}</p>
 
       <div className={styles.accountBalanceContainer}>
         <div className={styles.accountBalance}>
           {balance ? (hideAmounts ? '***' : balance) : '...'}
         </div>
-        <div className={styles.coinUnit}>
-          {balance ? account.coinUnit : ''}
-        </div>
+        <div className={styles.coinUnit}>{balance ? account.coinUnit : ''}</div>
       </div>
       <div className={styles.chevron}>
         <ChevronRightDark />
@@ -83,7 +89,6 @@ const AccountItem = ({ account, hideAmounts }: { account: accountApi.IAccount, h
     </Link>
   );
 };
-
 
 /**
  * This component will only be shown on mobile.
@@ -95,7 +100,6 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
   useOnlyVisitableOnMobile('/settings/manage-accounts');
 
   return (
-
     <Main>
       <Header title={<h2>{t('settings.accounts')}</h2>}>
         <HideAmountsButton />
@@ -103,27 +107,34 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
       <View width="700px" fullscreen={false}>
         <ViewContent>
           <div className={styles.container}>
-            {accountsByKeystore.map(keystore => (
+            {accountsByKeystore.map((keystore) => (
               <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
                 <div className={styles.keystoreHeader}>
                   {keystore.keystore.name}
-                  { isAmbiguousName(keystore.keystore.name, accountsByKeystore) ? (
+                  {isAmbiguousName(
+                    keystore.keystore.name,
+                    accountsByKeystore,
+                  ) ? (
                     // Disambiguate accounts group by adding the fingerprint.
                     // The most common case where this would happen is when adding accounts from the
                     // same seed using different passphrases.
                     <> ({keystore.keystore.rootFingerprint})</>
-                  ) : null }
+                  ) : null}
                   {keystore.keystore.connected && (
                     <Badge
-                      icon={props => <USBSuccess {...props} />}
+                      icon={(props) => <USBSuccess {...props} />}
                       type="success"
-                      title={t('device.keystoreConnected')} />
+                      title={t('device.keystoreConnected')}
+                    />
                   )}
-
                 </div>
                 <div className={styles.accountsList}>
-                  {keystore.accounts.map(account => (
-                    <AccountItem hideAmounts={hideAmounts} key={`account-${account.code}`} account={account} />
+                  {keystore.accounts.map((account) => (
+                    <AccountItem
+                      hideAmounts={hideAmounts}
+                      key={`account-${account.code}`}
+                      account={account}
+                    />
                   ))}
                 </div>
               </div>
@@ -132,7 +143,6 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
         </ViewContent>
       </View>
       <AllAccountsGuide />
-    </Main >
-
+    </Main>
   );
 };

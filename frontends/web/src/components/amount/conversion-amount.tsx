@@ -39,7 +39,8 @@ export const ConversionAmount = ({
   type,
 }: TConversionAmountProps) => {
   const { defaultCurrency } = useContext(RatesContext);
-  const conversion = amount?.conversions && amount?.conversions[defaultCurrency];
+  const conversion =
+    amount?.conversions && amount?.conversions[defaultCurrency];
 
   const sign = getTxSign(type);
   const estimatedPrefix = '\u2248'; // ≈
@@ -49,7 +50,9 @@ export const ConversionAmount = ({
   const conversionUnit = sendToSelf ? amountToShow.unit : defaultCurrency;
 
   // we skip the estimated conversion prefix when the Tx is send to self, or both coin and conversion are in BTC units.
-  const skipEstimatedPrefix = sendToSelf || (btcUnits.includes(conversionUnit) && btcUnits.includes(amountToShow.unit));
+  const skipEstimatedPrefix =
+    sendToSelf ||
+    (btcUnits.includes(conversionUnit) && btcUnits.includes(amountToShow.unit));
 
   return (
     <span className={styles.txConversionAmount}>
@@ -61,19 +64,16 @@ export const ConversionAmount = ({
             </span>
           )}
           {amountToShow.estimated && !skipEstimatedPrefix && (
-            <span className={styles.txPrefix}>{estimatedPrefix}{' '}</span>
+            <span className={styles.txPrefix}>{estimatedPrefix} </span>
           )}
           {conversion && !sendToSelf ? sign : null}
           <Amount
             amount={sendToSelf ? amountToShow.amount : conversion || ''}
             unit={conversionUnit}
           />
-          <span className={styles.txUnit}>
-            {' '}
-            {conversionUnit}
-          </span>
+          <span className={styles.txUnit}> {conversionUnit}</span>
         </>
-      ) : null }
+      ) : null}
     </span>
   );
 };

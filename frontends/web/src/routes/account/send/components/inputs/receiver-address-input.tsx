@@ -25,23 +25,24 @@ import { ScanQRDialog } from '@/routes/account/send/components/dialogs/scan-qr-d
 import style from './receiver-address-input.module.css';
 
 type TToggleScanQRButtonProps = {
-    onClick: () => void;
-}
+  onClick: () => void;
+};
 
 type TReceiverAddressInputProps = {
-    accountCode?: string;
-    addressError?: string;
-    onInputChange: (value: string) => void;
-    recipientAddress: string;
-    parseQRResult: (uri: string) => void;
-}
+  accountCode?: string;
+  addressError?: string;
+  onInputChange: (value: string) => void;
+  recipientAddress: string;
+  parseQRResult: (uri: string) => void;
+};
 
 export const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
   const { isDarkMode } = useContext(DarkModeContext);
   return (
     <button type="button" onClick={onClick} className={style.qrButton}>
       {isDarkMode ? <QRCodeLight /> : <QRCodeDark />}
-    </button>);
+    </button>
+  );
 };
 
 export const ReceiverAddressInput = ({
@@ -60,7 +61,11 @@ export const ReceiverAddressInput = ({
     }
     try {
       const receiveAddresses = await getReceiveAddressList(accountCode)();
-      if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 1) {
+      if (
+        receiveAddresses &&
+        receiveAddresses.length > 0 &&
+        receiveAddresses[0].addresses.length > 1
+      ) {
         onInputChange(receiveAddresses[0].addresses[0].address);
       }
     } catch (e) {
@@ -69,7 +74,7 @@ export const ReceiverAddressInput = ({
   }, [accountCode, onInputChange]);
 
   const toggleScanQR = () => {
-    setActiveScanQR(activeScanQR => !activeScanQR);
+    setActiveScanQR((activeScanQR) => !activeScanQR);
   };
 
   return (
@@ -86,15 +91,24 @@ export const ReceiverAddressInput = ({
         placeholder={t('send.address.placeholder')}
         id="recipientAddress"
         error={addressError}
-        onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
+        onInput={(e: ChangeEvent<HTMLInputElement>) =>
+          onInputChange(e.target.value)
+        }
         value={recipientAddress}
         className={style.inputWithIcon}
-        labelSection={debug ? (
-          <span id="sendToSelf" className={style.action} onClick={handleSendToSelf}>
-            Send to self
-          </span>
-        ) : undefined}
-        autoFocus>
+        labelSection={
+          debug ? (
+            <span
+              id="sendToSelf"
+              className={style.action}
+              onClick={handleSendToSelf}
+            >
+              Send to self
+            </span>
+          ) : undefined
+        }
+        autoFocus
+      >
         <ScanQRButton onClick={toggleScanQR} />
       </Input>
     </>

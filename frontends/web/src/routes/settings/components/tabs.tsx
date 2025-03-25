@@ -29,20 +29,20 @@ type TWithSettingsTabsProps = {
   devices: TDevices;
   hasAccounts: boolean;
   hideMobileMenu?: boolean;
-}
+};
 
 type TTab = {
   name: string;
   url: string;
   hideMobileMenu?: boolean;
   canUpgrade?: boolean;
-}
+};
 
 type TTabs = {
   devices: TDevices;
   hasAccounts: boolean;
   hideMobileMenu?: boolean;
-}
+};
 
 export const WithSettingsTabs = ({
   children,
@@ -64,12 +64,7 @@ export const WithSettingsTabs = ({
   );
 };
 
-export const Tab = ({
-  name,
-  url,
-  hideMobileMenu,
-  canUpgrade,
-}: TTab) => {
+export const Tab = ({ name, url, hideMobileMenu, canUpgrade }: TTab) => {
   const navigate = useNavigate();
   const upgradeDot = canUpgrade ? (
     <RedDot className={styles.canUpgradeDot} width={8} height={8} />
@@ -82,7 +77,8 @@ export const Tab = ({
         <SettingsItem
           settingName={name}
           onClick={() => navigate(url)}
-          extraComponent={upgradeDot ? upgradeDot : <ChevronRightDark />} />
+          extraComponent={upgradeDot ? upgradeDot : <ChevronRightDark />}
+        />
       </div>
     );
   }
@@ -90,7 +86,9 @@ export const Tab = ({
   return (
     <NavLink
       key={url}
-      className={({ isActive }) => isActive ? `${styles.active} hide-on-small` : 'hide-on-small'}
+      className={({ isActive }) =>
+        isActive ? `${styles.active} hide-on-small` : 'hide-on-small'
+      }
       to={url}
     >
       {name}
@@ -102,16 +100,19 @@ export const Tab = ({
 type TTabWithVersionCheck = TTab & {
   deviceID: string;
   device: TProductName;
-}
+};
 
-const TabWithVersionCheck = ({ deviceID, device, ...props }: TTabWithVersionCheck) => {
+const TabWithVersionCheck = ({
+  deviceID,
+  device,
+  ...props
+}: TTabWithVersionCheck) => {
   const isBitBox02 = device === 'bitbox02';
-  const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID]);
+  const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [
+    deviceID,
+  ]);
   return (
-    <Tab
-      canUpgrade={versionInfo ? versionInfo.canUpgrade : false}
-      {...props}
-    />
+    <Tab canUpgrade={versionInfo ? versionInfo.canUpgrade : false} {...props} />
   );
 };
 
@@ -141,16 +142,18 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
           url="/settings/no-accounts"
         />
       )}
-      {deviceIDs.length ? deviceIDs.map(id => (
-        <TabWithVersionCheck
-          key={`device-${id}`}
-          deviceID={id}
-          device={devices[id]}
-          hideMobileMenu={hideMobileMenu}
-          name={t('sidebar.device')}
-          url={`/settings/device-settings/${id}`}
-        />
-      )) : (
+      {deviceIDs.length ? (
+        deviceIDs.map((id) => (
+          <TabWithVersionCheck
+            key={`device-${id}`}
+            deviceID={id}
+            device={devices[id]}
+            hideMobileMenu={hideMobileMenu}
+            name={t('sidebar.device')}
+            url={`/settings/device-settings/${id}`}
+          />
+        ))
+      ) : (
         <Tab
           key="no-device"
           hideMobileMenu={hideMobileMenu}

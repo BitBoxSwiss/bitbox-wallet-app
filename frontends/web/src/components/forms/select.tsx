@@ -29,22 +29,13 @@ type TSelectProps = {
   options: TOption[];
 } & JSX.IntrinsicElements['select'];
 
-export const Select = ({
-  id,
-  label,
-  options = [],
-  ...props
-}: TSelectProps) => {
+export const Select = ({ id, label, options = [], ...props }: TSelectProps) => {
   return (
     <div className={styles.select}>
       {label && <label htmlFor={id}>{label}</label>}
       <select id={id} {...props}>
         {options.map(({ value, text, disabled = false }) => (
-          <option
-            key={String(value)}
-            value={value}
-            disabled={disabled}
-          >
+          <option key={String(value)} value={value} disabled={disabled}>
             {text}
           </option>
         ))}

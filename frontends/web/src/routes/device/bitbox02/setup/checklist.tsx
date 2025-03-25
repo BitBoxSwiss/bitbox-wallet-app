@@ -16,15 +16,20 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
+import {
+  View,
+  ViewButtons,
+  ViewContent,
+  ViewHeader,
+} from '@/components/view/view';
 import { Button, Checkbox } from '@/components/forms';
 import style from './checklist.module.css';
 
 type Props = {
   onContinue: () => void;
-}
+};
 
-export const ChecklistWalletCreate = ({ onContinue, }: Props) => {
+export const ChecklistWalletCreate = ({ onContinue }: Props) => {
   const { t } = useTranslation();
   const [agree1, setAgree1] = useState(false);
   const [agree2, setAgree2] = useState(false);
@@ -48,7 +53,8 @@ export const ChecklistWalletCreate = ({ onContinue, }: Props) => {
         textCenter
         verticallyCentered
         withBottomBar
-        width="700px">
+        width="700px"
+      >
         <ViewHeader title={t('backup.create.title')}>
           <p>{t('bitbox02Wizard.stepBackup.createBackup')}</p>
         </ViewHeader>
@@ -59,37 +65,43 @@ export const ChecklistWalletCreate = ({ onContinue, }: Props) => {
             className={style.wizardCheckbox}
             id="agreement1"
             checked={agree1}
-            label={t('bitbox02Wizard.backup.userConfirmation1')} />
+            label={t('bitbox02Wizard.backup.userConfirmation1')}
+          />
           <Checkbox
             onChange={() => setAgree2(!agree2)}
             className={style.wizardCheckbox}
             id="agreement2"
             checked={agree2}
-            label={t('bitbox02Wizard.backup.userConfirmation2')} />
+            label={t('bitbox02Wizard.backup.userConfirmation2')}
+          />
           <Checkbox
             onChange={() => setAgree3(!agree3)}
             className={style.wizardCheckbox}
             id="agreement3"
             checked={agree3}
-            label={t('bitbox02Wizard.backup.userConfirmation3')} />
+            label={t('bitbox02Wizard.backup.userConfirmation3')}
+          />
           <Checkbox
             onChange={() => setAgree4(!agree4)}
             className={style.wizardCheckbox}
             id="agreement4"
             checked={agree4}
-            label={t('bitbox02Wizard.backup.userConfirmation4')} />
+            label={t('bitbox02Wizard.backup.userConfirmation4')}
+          />
           <Checkbox
             onChange={() => setAgree5(!agree5)}
             className={style.wizardCheckbox}
             id="agreement5"
             checked={agree5}
-            label={t('bitbox02Wizard.backup.userConfirmation5')} />
+            label={t('bitbox02Wizard.backup.userConfirmation5')}
+          />
         </ViewContent>
         <ViewButtons>
           <Button
             primary
             onClick={handleContinue}
-            disabled={!(agree1 && agree2 && agree3 && agree4 && agree5)}>
+            disabled={!(agree1 && agree2 && agree3 && agree4 && agree5)}
+          >
             {t('button.continue')}
           </Button>
         </ViewButtons>
@@ -98,7 +110,7 @@ export const ChecklistWalletCreate = ({ onContinue, }: Props) => {
   );
 };
 
-export const ChecklistWalletCreateMnemonic = ({ onContinue, }: Props) => {
+export const ChecklistWalletCreateMnemonic = ({ onContinue }: Props) => {
   const { t } = useTranslation();
   const [agree1, setAgree1] = useState(false);
   const [agree2, setAgree2] = useState(false);
@@ -122,7 +134,8 @@ export const ChecklistWalletCreateMnemonic = ({ onContinue, }: Props) => {
         textCenter
         verticallyCentered
         withBottomBar
-        width="700px">
+        width="700px"
+      >
         <ViewHeader title={t('backup.create.title')}>
           <p>{t('bitbox02Wizard.stepBackup.createBackupMnemonic')}</p>
         </ViewHeader>
@@ -133,37 +146,43 @@ export const ChecklistWalletCreateMnemonic = ({ onContinue, }: Props) => {
             className={style.wizardCheckbox}
             id="agreement1"
             checked={agree1}
-            label={t('bitbox02Wizard.backup.userConfirmation1')} />
+            label={t('bitbox02Wizard.backup.userConfirmation1')}
+          />
           <Checkbox
             onChange={() => setAgree2(!agree2)}
             className={style.wizardCheckbox}
             id="agreement2"
             checked={agree2}
-            label={t('bitbox02Wizard.backup.userConfirmation2')} />
+            label={t('bitbox02Wizard.backup.userConfirmation2')}
+          />
           <Checkbox
             onChange={() => setAgree3(!agree3)}
             className={style.wizardCheckbox}
             id="agreement3"
             checked={agree3}
-            label={t('bitbox02Wizard.backup.userConfirmation3')} />
+            label={t('bitbox02Wizard.backup.userConfirmation3')}
+          />
           <Checkbox
             onChange={() => setAgree4(!agree4)}
             className={style.wizardCheckbox}
             id="agreement4"
             checked={agree4}
-            label={t('bitbox02Wizard.backup.userConfirmation4')} />
+            label={t('bitbox02Wizard.backup.userConfirmation4')}
+          />
           <Checkbox
             onChange={() => setAgree5(!agree5)}
             className={style.wizardCheckbox}
             id="agreement5"
             checked={agree5}
-            label={t('bitbox02Wizard.backup.userConfirmation5mnemonic')} />
+            label={t('bitbox02Wizard.backup.userConfirmation5mnemonic')}
+          />
         </ViewContent>
         <ViewButtons>
           <Button
             primary
             onClick={handleContinue}
-            disabled={!(agree1 && agree2 && agree3 && agree4 && agree5)}>
+            disabled={!(agree1 && agree2 && agree3 && agree4 && agree5)}
+          >
             {t('button.continue')}
           </Button>
         </ViewButtons>
