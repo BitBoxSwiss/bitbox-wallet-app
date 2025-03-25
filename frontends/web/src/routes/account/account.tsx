@@ -200,8 +200,8 @@ export const Account = ({
   }, [code, onAccountChanged, onStatusChanged, status]);
 
   useEffect(() => {
-    onAccountChanged(code, status);
-  }, [btcUnit, onAccountChanged, code, status]);
+    onAccountChanged(status);
+  }, [btcUnit, onAccountChanged, status]);
 
   const exportAccount = () => {
     if (status === undefined || status.fatalError) {
