@@ -17,9 +17,9 @@
 
 import { useTranslation } from 'react-i18next';
 import { IBalance } from '@/api/account';
-import { FiatConversion } from '@/components/rates/rates';
 import { Amount } from '@/components/amount/amount';
 import { BalanceSkeleton } from '@/components/balance/balance-skeleton';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import style from './balance.module.css';
 
 type TProps = {
@@ -41,22 +41,19 @@ export const Balance = ({
   return (
     <header className={style.balance}>
       <table className={style.balanceTable}>
-        <tbody>
-          <tr data-testid="availableBalance">
-            <td className={style.availableAmount}>
-              <Amount
-                amount={balance.available.amount}
-                unit={balance.available.unit}
-                removeBtcTrailingZeroes
-              />
-            </td>
-            <td className={style.availableUnit}>{balance.available.unit}</td>
-          </tr>
-          <FiatConversion
+        <tbody data-testid="availableBalance">
+          <AmountWithUnit
             amount={balance.available}
             tableRow
-            noAction={noRotateFiat}
-            noBtcZeroes
+            enableRotateUnit={!noRotateFiat}
+            removeBtcTrailingZeroes
+          />
+          <AmountWithUnit
+            amount={balance.available}
+            tableRow
+            enableRotateUnit={!noRotateFiat}
+            removeBtcTrailingZeroes
+            convertToFiat
           />
         </tbody>
       </table>
@@ -73,7 +70,7 @@ export const Balance = ({
               {' '}{balance.incoming.unit} /
               <span className={style.incomingConversion}>
                 {' '}
-                <FiatConversion amount={balance.incoming} noBtcZeroes/>
+                <AmountWithUnit amount={balance.incoming} removeBtcTrailingZeroes convertToFiat/>
               </span>
             </span>
           </p>

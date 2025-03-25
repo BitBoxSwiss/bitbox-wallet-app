@@ -50,6 +50,28 @@ describe('components/balance/balance', () => {
         amount: '0.005',
         unit: 'BTC',
         estimated: false,
+        conversions: {
+          BTC: '0.005',
+          AUD: '512',
+          BRL: '512',
+          CAD: '512',
+          CHF: '512',
+          CNY: '512',
+          CZK: '512',
+          EUR: '512',
+          GBP: '512',
+          HKD: '512',
+          ILS: '512',
+          JPY: '512',
+          KRW: '512',
+          NOK: '512',
+          PLN: '512',
+          RUB: '512',
+          sat: '512',
+          SEK: '512',
+          SGD: '512',
+          USD: '512',
+        }
       },
       incoming: {
         amount: '0.003',
@@ -80,7 +102,7 @@ describe('components/balance/balance', () => {
       }
     };
     const { getByTestId } = render(<Balance balance={MOCK_BALANCE} />);
-    expect(getByTestId('availableBalance').textContent).toBe('0.005BTC');
+    expect(getByTestId('availableBalance').textContent).toBe('0.005BTC512USD');
     expect(getByTestId('incomingBalance').textContent).toBe('+0.003 BTC / 512 USD');
   });
 });
@@ -102,6 +124,28 @@ describe('components/balance/balance', () => {
         amount: '0.005',
         unit: 'BTC',
         estimated: false,
+        conversions: {
+          BTC: '0.005',
+          AUD: '512',
+          BRL: '512',
+          CAD: '512',
+          CHF: '512',
+          CNY: '512',
+          CZK: '512',
+          EUR: '512',
+          GBP: '512',
+          HKD: '512',
+          ILS: '512',
+          JPY: '512',
+          KRW: '512',
+          NOK: '512',
+          PLN: '512',
+          RUB: '512',
+          sat: '512',
+          SEK: '512',
+          SGD: '512',
+          USD: '512',
+        },
       },
       incoming: {
         amount: '0.003',
@@ -132,7 +176,7 @@ describe('components/balance/balance', () => {
       }
     };
     const { getByTestId } = render(<Balance balance={MOCK_BALANCE} />);
-    expect(getByTestId('availableBalance').textContent).toBe('0.005BTC');
+    expect(getByTestId('availableBalance').textContent).toBe('0.005BTC512USD');
     expect(getByTestId('incomingBalance').textContent).toBe('+0.003 BTC / 1,511.99 USD');
   });
   afterEach(() => {

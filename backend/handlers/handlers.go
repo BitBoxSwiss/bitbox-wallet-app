@@ -674,8 +674,7 @@ func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
 
 func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 	type response struct {
-		Success      bool   `json:"success"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
+		Success bool `json:"success"`
 	}
 
 	var request struct {

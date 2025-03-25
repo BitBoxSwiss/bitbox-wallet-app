@@ -30,11 +30,11 @@ import { Dialog } from '@/components/dialog/dialog';
 import { Button, Checkbox } from '@/components/forms';
 import { ExternalLink } from '@/components/icon';
 import { Amount } from '@/components/amount/amount';
-import { FiatConversion } from '@/components/rates/rates';
 import { getScriptName } from '@/routes/account/utils';
 import { Message } from '@/components/message/message';
 import { Badge } from '@/components/badge/badge';
 import style from './utxos.module.css';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 
 export type TSelectedUTXOs = {
   [key: string]: boolean;
@@ -125,7 +125,7 @@ export const UTXOs = ({
                           {utxo.amount.unit}
                         </span>
                       </span>
-                      <FiatConversion alwaysShowAmounts amount={utxo.amount} unstyled noAction/>
+                      <AmountWithUnit alwaysShowAmounts amount={utxo.amount} convertToFiat/>
                     </div>
                     <div className={style.address}>
                       <span className={style.label}>
