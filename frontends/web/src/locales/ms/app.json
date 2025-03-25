@@ -239,13 +239,8 @@
     "createBackupAborted": "Membuat sandaran dihentikan.",
     "createBackupFailed": "Gagal membuat sandaran, cuba lagi.",
     "initialize": {
-      "passwordText": "Sekarang mari kita tetapkan kata laluan untuk peranti anda. Gunakan kawalan pada BitBox anda untuk memasukkan dan memilih kata laluan.",
-      "passwordTitle": "Tetapkan kata laluan untuk BitBox anda",
-      "text": "Berjaya berpasangan dengan BitBox02 anda! Sekarang mari kita inisialisasi peranti anda. Mulailah dengan memilih untuk membuat wallet baru, atau untuk memulihkan wallet dari backup yang sudah ada. <strong>Sila pastikan anda mempunyai kad microSD yang sudah dimasukkan dalam BitBox02 anda</strong>",
-      "tip": "Sebelum meneruskan, sangat disyorkan supaya anda meneruskan di persekitaran yang selamat.",
-      "title": "Inisialisasi BitBox anda"
+      "tip": "Sebelum meneruskan, sangat disyorkan supaya anda meneruskan di persekitaran yang selamat."
     },
-    "insertSDCard": "<strong>Sila pastikan anda mempunyai kad microSD yang dimasukkan ke dalam BitBox02 anda.</strong>",
     "noPasswordMatch": "Kata laluan tidak sepadan, sila cuba lagi.",
     "pairing": {
       "failed": "Pasangan tidak berjaya disahkan. Sila tancap ulang BitBox02 anda.",
@@ -303,7 +298,6 @@
       "title": "Sediakan BitBox02 anda"
     },
     "success": {
-      "text": "Hooray! BitBox02 anda kini siap untuk digunakan.\n\nUntuk maklumat lanjut mengenai cara menggunakan aplikasi BitBox, sila gunakan panduan dalam aplikasi dengan mengklik tanda tanya di sudut kanan atas.",
       "title": "Anda sudah bersedia untuk pergi!"
     }
   },

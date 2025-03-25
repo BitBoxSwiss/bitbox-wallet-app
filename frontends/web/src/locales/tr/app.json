@@ -186,13 +186,8 @@
       "text": "Tamam, hadi yeni bir cüzdan yaratalım!"
     },
     "initialize": {
-      "passwordText": "Şimdi cihazınız için bir şifre ayarlayalım. Bir şifre girmek ve bir şifre seçmek için BitBox'ınızdaki kontrolleri kullanın.",
-      "passwordTitle": "BitBox'ınız için bir şifre belirleyin",
-      "text": "BitBox02 cihazınız başarıyla eşleştirildi! Şimdi cihazınızı başlatalım. Yeni bir cüzdan oluşturmayı veya cüzdanı mevcut bir yedekten geri yüklemeyi seçerek başlayın. <strong>Lütfen BitBox02 cihazınıza takılı bir microSD kartın olduğundan emin olun.</strong>",
-      "tip": "Başlamadan önce, işlemlere güvenli bir ortamda devam etmeniz şiddetle tavsiye edilir.",
-      "title": "BitBox'ınızı başlatın"
+      "tip": "Başlamadan önce, işlemlere güvenli bir ortamda devam etmeniz şiddetle tavsiye edilir."
     },
-    "insertSDCard": "<strong>Lütfen BitBox02 cihazınıza takılı bir microSD kartın olduğundan emin olun.</strong>",
     "pairing": {
       "failed": "Onaylanmamış eşleştirme. Lütfen BitBox02'nizi değiştirin.",
       "paired": "Cihazınızda kodun eşleştiğini onayladınız. Bu doğruysa, aşağıdaki düğmeye tıklayarak devam edebilirsiniz.",
@@ -235,7 +230,6 @@
       "title": "BitBox02 cihazınızı kurun"
     },
     "success": {
-      "text": "Yaşasın! BitBox02'niz artık kullanıma hazır.\n\nBitBox Uygulaması'nın nasıl kullanılacağı hakkında daha fazla bilgi için, lütfen sağ üst köşedeki soru işaretini tıklayarak uygulama içi kılavuzunu kullanın.",
       "title": "Başlamaya hazırsın!"
     }
   },

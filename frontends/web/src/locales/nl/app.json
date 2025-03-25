@@ -242,13 +242,8 @@
     "createBackupAborted": "Backup afgebroken",
     "createBackupFailed": "Het maken van een backup is niet gelukt, probeer het opnieuw.",
     "initialize": {
-      "passwordText": "Gebruik de touch-sensors op je BitBox om een wachtwoord in te stellen.",
-      "passwordTitle": "Stel een wachtwoord in voor je BitBox.",
-      "text": "Je BitBox02 is gekoppeld. Stel hem in door te kiezen voor het maken van een nieuwe wallet, of het herstellen van een backup. <strong>Zorg ervoor dat je een microSD kaart in je BitBox02 hebt zitten</strong>",
-      "tip": "We raden je aan in een veilige omgeving door te gaan.",
-      "title": "Initializeer je BitBox"
+      "tip": "We raden je aan in een veilige omgeving door te gaan."
     },
-    "insertSDCard": "<strong>Zorg ervoor dat je een microSD kaart in je BitBox02 hebt zitten</strong>",
     "noPasswordMatch": "De wachtwoorden kwamen niet overeen, probeer het op nieuw.",
     "pairing": {
       "failed": "Koppeling niet bevestigd. Plug je BitBox opnieuw in.",
@@ -307,7 +302,6 @@
       "title": "Maak je wallet aan"
     },
     "success": {
-      "text": "Gefeliciteerd! Je BitBox02 is nu klaar om te gebruiken.\nVoor meer informatie over het gebruik van de BitBoxApp check je de applicatiehulp door op het icoon rechtsbovenin te klikken.",
       "title": "Je bent helemaal klaar!"
     }
   },
