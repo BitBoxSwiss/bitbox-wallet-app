@@ -184,10 +184,9 @@ export const Account = ({
       if (!status.disabled && !status.synced) {
         await accountApi.init(currentCode).catch(console.error);
       }
-      onAccountChanged(status);
     })
       .catch(console.error);
-  }, [onAccountChanged, code]);
+  }, [code]);
 
   useEffect(() => {
     const currentCode = code;
