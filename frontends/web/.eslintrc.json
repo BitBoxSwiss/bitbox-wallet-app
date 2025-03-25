@@ -12,28 +12,12 @@
     }
   },
   "rules": {
-    "brace-style": ["error", "1tbs"],
-    "comma-spacing": ["error", { "before": false, "after": true }],
+    "prettier/prettier": "error",
     "curly": "error",
-    "indent": ["error", 2, { "SwitchCase": 0 }],
     "jsx-a11y/anchor-is-valid": 0,
-    "jsx-a11y/alt-text" : 0,
-    "jsx-quotes": ["error", "prefer-double"],
-    "keyword-spacing": "error",
+    "jsx-a11y/alt-text": 0,
     "eqeqeq": "error",
-    "no-multi-spaces": "error",
-    "no-trailing-spaces": "error",
-    "object-curly-spacing": ["error", "always"],
-    "quotes": ["error", "single"],
-    "semi": "error",
-    "space-before-blocks": ["error", "always"],
-    "space-in-parens": ["error", "never"],
-    "no-extra-semi": "error",
-    "@typescript-eslint/type-annotation-spacing": "error",
-    "arrow-spacing": "error",
-    "space-infix-ops": "error",
     "react/no-unused-prop-types": "error",
-    "react/jsx-equals-spacing": ["error", "never"],
     "react/react-in-jsx-scope": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "no-case-declarations": "off",
@@ -48,14 +32,9 @@
     "react/display-name": "off",
     "react-hooks/exhaustive-deps": "error",
     "@typescript-eslint/ban-ts-comment": "off",
-    "no-async-promise-executor": "off",
-    "react/jsx-wrap-multilines": ["error", {
-      "arrow": "parens-new-line",
-      "assignment": "parens-new-line",
-      "condition": "parens-new-line",
-      "logical": "parens-new-line"
-    }]
+    "no-async-promise-executor": "off"
   },
+  "plugins": ["prettier"],
   "overrides": [
     {
       "files": ["**/*.ts?(x)"],
@@ -74,7 +53,7 @@
     {
       "files": ["**/*.test.ts?(x)"],
       "rules": {
-        "import/first": 0
+        "import/first": "off"
       }
     }
   ]
