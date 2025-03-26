@@ -9,26 +9,6 @@ import SwiftUI
 import Mobileserver
 import LocalAuthentication
 
-func authenticateUser(completion: @escaping (Bool) -> Void) {
-    let context = LAContext()
-    var error: NSError?
-
-    if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-        // TODO: localize the reason string.
-        let reason = "Authentication required"
-        context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
-            DispatchQueue.main.async {
-                completion(success)
-            }
-        }
-    } else {
-        // Biometric authentication not available
-        DispatchQueue.main.async {
-            completion(false)
-        }
-    }
-}
-
 protocol MessageHandlersProtocol {
     func callResponseHandler(queryID: Int, response: String)
     func pushNotificationHandler(msg: String)
@@ -53,9 +33,31 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
     }
 
     func auth() {
-        authenticateUser { success in
-            // TODO: enabling auth but entering wrong passcode does not remove auth screen
-            MobileserverAuthResult(success)
+        let context = LAContext()
+        var error: NSError?
+
+        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+            // TODO: localize the reason string.
+            let reason = "Authentication required"
+            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
+                DispatchQueue.main.async {
+                    if success {
+                        MobileserverAuthResult(true);
+                    } else {
+                        if let laError = authenticationError as? LAError,
+                           laError.code == .userCancel {
+                            MobileserverCancelAuth();
+                        } else {
+                            MobileserverAuthResult(false);
+                        }
+                    }
+                }
+            }
+        } else {
+            // Biometric authentication not available
+            DispatchQueue.main.async {
+                MobileserverAuthResult(false);
+            }
         }
     }
 
@@ -67,7 +69,7 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
         if !bluetoothManager.isConnected() {
             return nil
         }
-       
+
         let productInfo = bluetoothManager.parseProduct();
         guard let productInfo = productInfo else {
             // Not ready or explicitly not connected (waiting for the device to enter
