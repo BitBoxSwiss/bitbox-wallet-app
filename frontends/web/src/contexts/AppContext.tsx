@@ -16,7 +16,6 @@
 
 import { Dispatch, SetStateAction, createContext } from 'react';
 
-export type TSidebarStatus = '' | 'forceHidden'
 export type TChartDisplay = 'week' | 'month' | 'year' | 'all';
 
 type AppContextProps = {
@@ -27,12 +26,10 @@ type AppContextProps = {
     isTesting: boolean;
     isDevServers: boolean;
     nativeLocale: string;
-    sidebarStatus: TSidebarStatus;
     firmwareUpdateDialogOpen: boolean;
     chartDisplay: TChartDisplay;
     setActiveSidebar: Dispatch<SetStateAction<boolean>>;
     setGuideExists: Dispatch<SetStateAction<boolean>>;
-    setSidebarStatus: Dispatch<SetStateAction<TSidebarStatus>>;
     setHideAmounts: Dispatch<SetStateAction<boolean>>;
     setChartDisplay: Dispatch<SetStateAction<TChartDisplay>>;
     setFirmwareUpdateDialogOpen: Dispatch<SetStateAction<boolean>>;

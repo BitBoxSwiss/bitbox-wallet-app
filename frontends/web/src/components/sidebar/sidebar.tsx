@@ -81,7 +81,7 @@ const Sidebar = ({
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const [ canUpgrade, setCanUpgrade ] = useState(false);
-  const { activeSidebar, sidebarStatus, toggleSidebar } = useContext(AppContext);
+  const { activeSidebar, toggleSidebar } = useContext(AppContext);
 
   const deviceIDs: string[] = Object.keys(devices);
 
@@ -118,8 +118,7 @@ const Sidebar = ({
 
     const handleTouchMove = (event: TouchEvent) => {
       if (
-        sidebarStatus !== 'forceHidden'
-        && event.changedTouches
+        event.changedTouches
         && event.changedTouches.length
       ) {
         swipe.active = true;
@@ -127,21 +126,19 @@ const Sidebar = ({
     };
 
     const handleTouchEnd = (event: TouchEvent) => {
-      if (sidebarStatus !== 'forceHidden') {
-        const touch = event.changedTouches[0];
-        const travelX = Math.abs(touch.clientX - swipe.x);
-        const travelY = Math.abs(touch.clientY - swipe.y);
-        const validSwipe = window.innerWidth <= 901 && swipe.active && travelY < 100 && travelX > 70;
-        if (
-          (!activeSidebar && validSwipe && swipe.x < 60)
-          || (activeSidebar && validSwipe && swipe.x > 230)
-        ) {
-          toggleSidebar();
-        }
-        swipe.x = 0;
-        swipe.y = 0;
-        swipe.active = false;
+      const touch = event.changedTouches[0];
+      const travelX = Math.abs(touch.clientX - swipe.x);
+      const travelY = Math.abs(touch.clientY - swipe.y);
+      const validSwipe = window.innerWidth <= 901 && swipe.active && travelY < 100 && travelX > 70;
+      if (
+        (!activeSidebar && validSwipe && swipe.x < 60)
+        || (activeSidebar && validSwipe && swipe.x > 230)
+      ) {
+        toggleSidebar();
       }
+      swipe.x = 0;
+      swipe.y = 0;
+      swipe.active = false;
     };
 
     document.addEventListener('touchstart', handleTouchStart);
@@ -152,7 +149,7 @@ const Sidebar = ({
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [activeSidebar, sidebarStatus, toggleSidebar]);
+  }, [activeSidebar, toggleSidebar]);
 
   const keystores = useKeystores();
 
@@ -163,12 +160,11 @@ const Sidebar = ({
     }
   };
 
-  const hidden = sidebarStatus === 'forceHidden';
   const accountsByKeystore = getAccountsByKeystore(accounts);
   const userInSpecificAccountExchangePage = (pathname.startsWith('/exchange'));
 
   return (
-    <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>
+    <div className={style.sidebarContainer}>
       <div key="overlay" className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
       <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')}>
         <div key="app-logo" className={style.sidebarLogoContainer}>

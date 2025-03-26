@@ -35,7 +35,7 @@ export const Header = ({
 }: Props) => {
   const { t } = useTranslation();
 
-  const { guideShown, guideExists, toggleGuide, toggleSidebar, sidebarStatus } = useContext(AppContext);
+  const { guideShown, guideExists, toggleGuide, toggleSidebar } = useContext(AppContext);
 
   const toggle = (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -45,9 +45,8 @@ export const Header = ({
     return false;
   };
 
-
   return (
-    <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
+    <div className={style.container}>
       <div className={style.header}>
         <div className={`hide-on-small ${style.sidebarToggler} ${hideSidebarToggler ? style.hideSidebarToggler : ''}`} onClick={toggleSidebar}>
           <MenuDark className="show-in-lightmode" />
