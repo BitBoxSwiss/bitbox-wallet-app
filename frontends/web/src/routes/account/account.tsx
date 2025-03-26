@@ -24,7 +24,6 @@ import { bitsuranceLookup } from '@/api/bitsurance';
 import { TDevices } from '@/api/devices';
 import { getExchangeSupported, SupportedExchanges } from '@/api/exchanges';
 import { useSDCard } from '@/hooks/sdcard';
-import { unsubscribe } from '@/utils/subscriptions';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
@@ -32,7 +31,7 @@ import { Info } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Status } from '@/components/status/status';
-import { useLoad, useSync } from '@/hooks/api';
+import { useLoad, useSubscribe, useSync } from '@/hooks/api';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
@@ -85,7 +84,7 @@ const RemountAccount = ({
     () => accountApi.getStatus(code),
     cb => statusChanged(code, cb),
   );
-  const [syncedAddressesCount, setSyncedAddressesCount] = useState<number>();
+  const syncedAddressesCount = useSubscribe(syncAddressesCount(code));
   const [transactions, setTransactions] = useState<accountApi.TTransactions>();
   const [usesProxy, setUsesProxy] = useState<boolean>();
   const [insured, setInsured] = useState<boolean>(false);
@@ -173,11 +172,7 @@ const RemountAccount = ({
   }, [code, status]);
 
   useEffect(() => {
-    const subscriptions = [
-      syncAddressesCount(code)(setSyncedAddressesCount),
-      syncdone(code, () => onAccountChanged(status)),
-    ];
-    return () => unsubscribe(subscriptions);
+    return syncdone(code, () => onAccountChanged(status));
   }, [code, onAccountChanged, status]);
 
   useEffect(() => {
