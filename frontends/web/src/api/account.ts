@@ -320,12 +320,18 @@ export const getReceiveAddressList = (code: AccountCode) => {
 export type TTxInput = {
   address: string;
   amount: string;
-  feeTarget: FeeTargetCode;
-  customFee: string;
   sendAll: 'yes' | 'no';
   selectedUTXOs: string[];
   paymentRequest: Slip24 | null;
-};
+} & (
+  {
+    useHighestFee: false;
+    customFee: string;
+    feeTarget: FeeTargetCode;
+  } | {
+    useHighestFee: true;
+  }
+);
 
 export type TTxProposalResult = {
   amount: IAmount;

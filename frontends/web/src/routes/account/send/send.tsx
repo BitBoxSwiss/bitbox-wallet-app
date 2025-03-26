@@ -165,6 +165,7 @@ class Send extends Component<Props, State> {
       sendAll: (this.state.sendAll ? 'yes' : 'no'),
       selectedUTXOs: Object.keys(this.selectedUTXOs),
       paymentRequest: null,
+      useHighestFee: false
     };
   };
 
