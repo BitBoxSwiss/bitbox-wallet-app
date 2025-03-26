@@ -10,6 +10,11 @@ android {
         versionCode 59
         versionName "android-4.47.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags '-std=c++11'
+            }
+        }
     }
     buildTypes {
         release {
@@ -23,6 +28,12 @@ android {
         }
     }
     namespace 'ch.shiftcrypto.bitboxapp'
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.31.6'
+        }
+    }
 }
 
 dependencies {

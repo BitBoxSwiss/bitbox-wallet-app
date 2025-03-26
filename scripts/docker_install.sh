@@ -82,7 +82,7 @@ aqt install-qt linux desktop 6.8.2 -m qtpositioning qtserialport qtwebchannel qt
 npm install -g npm@10
 npm install -g locize-cli
 
-curl https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz | tar -xz -C /usr/local
+curl https://dl.google.com/go/go1.23.7.linux-amd64.tar.gz | tar -xz -C /usr/local
 
 # fuse is needed to run the linuxdeployqt appimage.
 apt-get install -y --no-install-recommends fuse
@@ -101,4 +101,4 @@ gem install --no-document fpm
 # Needed for Android.
 apt-get install -y --no-install-recommends openjdk-17-jdk
 # Keep versions in sync with build.gradle and frontends/android/Makefile.
-/opt/android-sdk/cmdline-tools/tools/bin/sdkmanager "ndk;21.2.6472646" "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+/opt/android-sdk/cmdline-tools/tools/bin/sdkmanager "ndk;21.2.6472646" "platforms;android-34" "build-tools;34.0.0" "platform-tools" "cmake;3.31.6"
