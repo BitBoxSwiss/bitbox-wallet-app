@@ -78,7 +78,6 @@ export const Account = ({
   const [usesProxy, setUsesProxy] = useState<boolean>();
   const [insured, setInsured] = useState<boolean>(false);
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
-  const [stateCode, setStateCode] = useState<string>();
   const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeSupported(code), [code]);
 
@@ -217,7 +216,6 @@ export const Account = ({
   };
 
   useEffect(() => {
-    setStateCode(code);
     setBalance(undefined);
     setStatus(undefined);
     setSyncedAddressesCount(0);
@@ -227,16 +225,11 @@ export const Account = ({
 
   const hasDataLoaded = balance !== undefined && transactions !== undefined;
 
-  if (stateCode !== code) {
-    // Sync code property with stateCode to work around a re-render that
-    // happens briefly before `setStatus(undefined)` stops rendering again below.
-    return null;
-  }
-  if (!account || status === undefined) {
+  if (!account) {
     return null;
   }
 
-  if (status.fatalError) {
+  if (status?.fatalError) {
     return (
       <Spinner text={t('account.fatalError')} />
     );
@@ -244,7 +237,7 @@ export const Account = ({
 
   // Status: offline error
   const offlineErrorTextLines: string[] = [];
-  if (status.offlineError !== null) {
+  if (status !== undefined && status.offlineError !== null) {
     offlineErrorTextLines.push(t('account.reconnecting'));
     offlineErrorTextLines.push(status.offlineError);
     if (usesProxy) {
@@ -253,7 +246,7 @@ export const Account = ({
   }
 
   // Status: not synced
-  const notSyncedText = (!status.synced && syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
+  const notSyncedText = (status !== undefined && !status.synced && syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
     '\n' + t('account.syncedAddressesCount', {
       count: syncedAddressesCount.toString(),
       defaultValue: 0,
@@ -291,10 +284,10 @@ export const Account = ({
             <Status hidden={!hasCard} type="warning">
               {t('warning.sdcard')}
             </Status>
-            <Status className={style.status} hidden={!status.offlineError} type="error">
+            <Status className={style.status} hidden={status === undefined || !status.offlineError} type="error">
               {offlineErrorTextLines.join('\n')}
             </Status>
-            <Status className={style.status} hidden={status.synced || !!status.offlineError} type="info">
+            <Status className={style.status} hidden={status === undefined || status.synced || !!status.offlineError} type="info">
               {t('account.initializing')}
               {notSyncedText}
             </Status>
@@ -319,7 +312,7 @@ export const Account = ({
             </Link>
             <HideAmountsButton />
           </Header>
-          {status.synced && hasDataLoaded && isBitcoinBased(account.coinCode) && (
+          {status !== undefined && status.synced && hasDataLoaded && isBitcoinBased(account.coinCode) && (
             <HeadersSync coinCode={account.coinCode} />
           )}
           <View>
