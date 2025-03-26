@@ -73,11 +73,6 @@ class Device extends Component {
 
   onDeviceStatusChanged = () => {
     apiGet('devices/' + this.props.deviceID + '/status').then(deviceStatus => {
-      if (['seeded', 'initialized'].includes(deviceStatus)) {
-        this.context.setSidebarStatus('');
-      } else {
-        this.context.setSidebarStatus('forceHidden');
-      }
       this.setState({ deviceStatus });
     });
   };

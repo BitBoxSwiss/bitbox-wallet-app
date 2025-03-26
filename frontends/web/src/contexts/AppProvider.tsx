@@ -22,7 +22,7 @@ import { useDefault } from '@/hooks/default';
 import { getNativeLocale } from '@/api/nativelocale';
 import { getDevServers, getTesting } from '@/api/backend';
 import { i18nextFormat } from '@/i18n/utils';
-import type { TChartDisplay, TSidebarStatus } from './AppContext';
+import type { TChartDisplay } from './AppContext';
 
 type TProps = {
     children: ReactNode;
@@ -36,7 +36,6 @@ export const AppProvider = ({ children }: TProps) => {
   const [guideExists, setGuideExists] = useState(false);
   const [hideAmounts, setHideAmounts] = useState(false);
   const [activeSidebar, setActiveSidebar] = useState(false);
-  const [sidebarStatus, setSidebarStatus] = useState<TSidebarStatus>('');
   const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('all');
   const [firmwareUpdateDialogOpen, setFirmwareUpdateDialogOpen] = useState(false);
 
@@ -80,11 +79,9 @@ export const AppProvider = ({ children }: TProps) => {
         isTesting,
         isDevServers,
         nativeLocale,
-        sidebarStatus,
         chartDisplay,
         setActiveSidebar,
         setGuideExists,
-        setSidebarStatus,
         setHideAmounts,
         setChartDisplay,
         toggleHideAmounts,
