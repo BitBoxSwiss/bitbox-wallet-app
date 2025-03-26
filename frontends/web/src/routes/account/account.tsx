@@ -155,22 +155,9 @@ const RemountAccount = ({
       return;
     }
     if (status.synced && status.offlineError === null) {
-      const currentCode = code;
       Promise.all([
-        accountApi.getBalance(currentCode).then(newBalance => {
-          if (currentCode !== code) {
-            // Results came in after the account was switched. Ignore.
-            return;
-          }
-          setBalance(newBalance);
-        }),
-        accountApi.getTransactionList(code).then(newTransactions => {
-          if (currentCode !== code) {
-            // Results came in after the account was switched. Ignore.
-            return;
-          }
-          setTransactions(newTransactions);
-        })
+        accountApi.getBalance(code).then(setBalance),
+        accountApi.getTransactionList(code).then(setTransactions),
       ])
         .catch(console.error);
     } else {
@@ -186,10 +173,9 @@ const RemountAccount = ({
   }, [code, status]);
 
   useEffect(() => {
-    const currentCode = code;
     const subscriptions = [
       syncAddressesCount(code)(setSyncedAddressesCount),
-      syncdone(currentCode, () => currentCode === code && onAccountChanged(status)),
+      syncdone(code, () => onAccountChanged(status)),
     ];
     return () => unsubscribe(subscriptions);
   }, [code, onAccountChanged, status]);
