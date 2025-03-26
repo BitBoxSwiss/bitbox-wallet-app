@@ -114,7 +114,7 @@ func runSimulator(filename string) (func() error, *Device, *bytes.Buffer, error)
 		if err == nil {
 			break
 		}
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(50 * time.Millisecond)
 	}
 	if err != nil {
 		return nil, nil, nil, err
