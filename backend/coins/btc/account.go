@@ -447,7 +447,7 @@ func (account *Account) Close() {
 
 	account.Notify(observable.Event{
 		Subject: string(accountsTypes.EventStatusChanged),
-		Action:  action.Replace,
+		Action:  action.Reload,
 		Object:  nil,
 	})
 	account.closed = true
@@ -642,7 +642,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 		account.fatalError.Store(true)
 		account.Notify(observable.Event{
 			Subject: string(accountsTypes.EventStatusChanged),
-			Action:  action.Replace,
+			Action:  action.Reload,
 			Object:  nil,
 		})
 		return

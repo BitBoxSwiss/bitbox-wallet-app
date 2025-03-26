@@ -32,7 +32,7 @@ import { Info } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Status } from '@/components/status/status';
-import { useLoad } from '@/hooks/api';
+import { useLoad, useSync } from '@/hooks/api';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
@@ -81,7 +81,10 @@ const RemountAccount = ({
   const { btcUnit } = useContext(RatesContext);
 
   const [balance, setBalance] = useState<accountApi.IBalance>();
-  const [status, setStatus] = useState<accountApi.IStatus>();
+  const status: accountApi.IStatus | undefined = useSync(
+    () => accountApi.getStatus(code),
+    cb => statusChanged(code, cb),
+  );
   const [syncedAddressesCount, setSyncedAddressesCount] = useState<number>();
   const [transactions, setTransactions] = useState<accountApi.TTransactions>();
   const [usesProxy, setUsesProxy] = useState<boolean>();
@@ -176,21 +179,6 @@ const RemountAccount = ({
     }
   }, [code]);
 
-  const onStatusChanged = useCallback(() => {
-    const currentCode = code;
-    if (!currentCode) {
-      return;
-    }
-    accountApi.getStatus(currentCode).then(async status => {
-      if (currentCode !== code) {
-        // Results came in after the account was switched. Ignore.
-        return;
-      }
-      setStatus(status);
-    })
-      .catch(console.error);
-  }, [code]);
-
   useEffect(() => {
     if (status !== undefined && !status.disabled && !status.synced) {
       accountApi.init(code).catch(console.error);
@@ -201,11 +189,10 @@ const RemountAccount = ({
     const currentCode = code;
     const subscriptions = [
       syncAddressesCount(code)(setSyncedAddressesCount),
-      statusChanged(currentCode, () => currentCode === code && onStatusChanged()),
       syncdone(currentCode, () => currentCode === code && onAccountChanged(status)),
     ];
     return () => unsubscribe(subscriptions);
-  }, [code, onAccountChanged, onStatusChanged, status]);
+  }, [code, onAccountChanged, status]);
 
   useEffect(() => {
     onAccountChanged(status);
