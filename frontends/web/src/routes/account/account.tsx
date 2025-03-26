@@ -62,7 +62,16 @@ type Props = {
   devices: TDevices;
 };
 
-export const Account = ({
+export const Account = (props: Props) => {
+  if (!props.code) {
+    return null;
+  }
+  // The `key` prop forces a re-mount when `code` changes.
+  return <RemountAccount key={props.code} {...props} />;
+};
+
+// Re-mounted when `code` changes, and `code` is guaranteed to be non-empty.
+const RemountAccount = ({
   accounts,
   code,
   devices,
@@ -80,8 +89,6 @@ export const Account = ({
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
   const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeSupported(code), [code]);
-
-  useEffect(() => setDetailID(null), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
@@ -185,7 +192,7 @@ export const Account = ({
   }, [code]);
 
   useEffect(() => {
-    if (code !== '' && status !== undefined && !status.disabled && !status.synced) {
+    if (status !== undefined && !status.disabled && !status.synced) {
       accountApi.init(code).catch(console.error);
     }
   }, [code, status]);
@@ -216,14 +223,6 @@ export const Account = ({
       })
       .catch(console.error);
   };
-
-  useEffect(() => {
-    setBalance(undefined);
-    setStatus(undefined);
-    setSyncedAddressesCount(0);
-    setTransactions(undefined);
-    onStatusChanged();
-  }, [code, onStatusChanged]);
 
   const hasDataLoaded = balance !== undefined && transactions !== undefined;
 
