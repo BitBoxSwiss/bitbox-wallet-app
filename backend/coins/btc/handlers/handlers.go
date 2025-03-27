@@ -454,6 +454,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		Note           string         `json:"note"`
 		Counter        int            `json:"counter"`
 		PaymentRequest *slip24Request `json:"paymentRequest"`
+		UseHighestFee  bool           `json:"useHighestFee"`
 	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
@@ -488,6 +489,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		}
 		input.PaymentRequest = paymentRequest
 	}
+	input.UseHighestFee = jsonBody.UseHighestFee
 	return nil
 }
 

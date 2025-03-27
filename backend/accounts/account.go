@@ -54,7 +54,9 @@ type TxProposalArgs struct {
 	Amount           coin.SendAmount
 	FeeTargetCode    FeeTargetCode
 	// Only applies if FeeTargetCode == Custom. It is provided in sat/vB for BTC/LTC and Gwei for ETH.
-	CustomFee      string
+	CustomFee string
+	// Option to always use the highest fee rate without specifying FeeTargetCode or CustomFee
+	UseHighestFee  bool
 	SelectedUTXOs  map[wire.OutPoint]struct{}
 	Note           string
 	PaymentRequest *PaymentRequest
