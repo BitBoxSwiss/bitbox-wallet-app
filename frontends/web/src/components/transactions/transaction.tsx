@@ -190,7 +190,7 @@ type TDateProps = {
   time: string | null;
 }
 
-const Date = ({
+export const Date = ({
   time,
 }: TDateProps) => {
   const { i18n } = useTranslation();

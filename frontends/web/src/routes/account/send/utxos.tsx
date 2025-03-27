@@ -33,6 +33,7 @@ import { Amount } from '@/components/amount/amount';
 import { getScriptName } from '@/routes/account/utils';
 import { Message } from '@/components/message/message';
 import { Badge } from '@/components/badge/badge';
+import { Date } from '@/components/transactions/transaction';
 import style from './utxos.module.css';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 
@@ -127,6 +128,14 @@ export const UTXOs = ({
                         </span>
                       </span>
                       <AmountWithUnit alwaysShowAmounts amount={utxo.amount} convertToFiat/>
+                    </div>
+                    <div className={style.date}>
+                      <span className={style.label}>
+                        {t('send.coincontrol.receivedDate')}:
+                      </span>
+                      <span className={style.shrink}>
+                        <Date time={utxo.headerTimestamp} />
+                      </span>
                     </div>
                     <div className={style.address}>
                       <span className={style.label}>

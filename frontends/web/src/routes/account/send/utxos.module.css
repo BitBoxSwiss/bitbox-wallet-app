@@ -69,6 +69,7 @@
 }
 
 .address,
+.date,
 .transaction {
     display: flex;
     font-size: var(--size-default);

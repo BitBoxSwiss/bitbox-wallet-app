@@ -23,6 +23,7 @@ import (
 	"path"
 	"sort"
 	"sync/atomic"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -842,9 +843,10 @@ func sortByAddresses(result []*SpendableOutput) []*SpendableOutput {
 // SpendableOutput is an unspent coin.
 type SpendableOutput struct {
 	*transactions.SpendableOutput
-	OutPoint wire.OutPoint
-	Address  *addresses.AccountAddress
-	IsChange bool
+	OutPoint        wire.OutPoint
+	Address         *addresses.AccountAddress
+	IsChange        bool
+	HeaderTimestamp *time.Time
 }
 
 // SpendableOutputs returns the utxo set, sorted by the value descending.
@@ -858,6 +860,10 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 	}
 	for outPoint, txOut := range utxos {
 		scriptHashHex := blockchain.NewScriptHashHex(txOut.TxOut.PkScript)
+		headerTimestamp, err := account.transactions.GetHeaderTimestamp(outPoint.Hash)
+		if err != nil {
+			headerTimestamp = nil
+		}
 		result = append(
 			result,
 			&SpendableOutput{
@@ -865,6 +871,7 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 				SpendableOutput: txOut,
 				Address:         account.getAddress(scriptHashHex),
 				IsChange:        account.IsChange(scriptHashHex),
+				HeaderTimestamp: headerTimestamp,
 			})
 	}
 	return sortByAddresses(result)

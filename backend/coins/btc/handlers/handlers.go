@@ -365,15 +365,16 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 
 		result = append(result,
 			map[string]interface{}{
-				"outPoint":      output.OutPoint.String(),
-				"txId":          output.OutPoint.Hash.String(),
-				"txOutput":      output.OutPoint.Index,
-				"amount":        handlers.formatBTCAmountAsJSON(btcutil.Amount(output.TxOut.Value), false),
-				"address":       address,
-				"scriptType":    output.Address.Configuration.ScriptType(),
-				"note":          handlers.account.TxNote(output.OutPoint.Hash.String()),
-				"addressReused": addressReused,
-				"isChange":      output.IsChange,
+				"outPoint":        output.OutPoint.String(),
+				"txId":            output.OutPoint.Hash.String(),
+				"txOutput":        output.OutPoint.Index,
+				"amount":          handlers.formatBTCAmountAsJSON(btcutil.Amount(output.TxOut.Value), false),
+				"address":         address,
+				"scriptType":      output.Address.Configuration.ScriptType(),
+				"note":            handlers.account.TxNote(output.OutPoint.Hash.String()),
+				"addressReused":   addressReused,
+				"isChange":        output.IsChange,
+				"headerTimestamp": output.HeaderTimestamp,
 			})
 	}
 
