@@ -259,7 +259,9 @@ func testSimulatorsAfterPairing(t *testing.T, run func(*testing.T, *Device, *byt
 	testSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
 		t.Helper()
 		paired := make(chan struct{})
+		fmt.Println("LOL 1")
 		device.Observe(func(event observable.Event) {
+			fmt.Println("LOL 2", event.Subject)
 			if event.Subject == string(firmware.EventChannelHashChanged) {
 				_, deviceVerified := device.ChannelHash()
 				if deviceVerified {

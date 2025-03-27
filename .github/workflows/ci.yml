@@ -291,6 +291,15 @@ jobs:
   bitbox02-simulator:
     # This is a separate job because the simulator platform requirements are independent of our CI image Ubuntu version.
     runs-on: ubuntu-22.04
+    # This job does not actually need any of these, but we do not want it to run in parallel to the
+    # others, but in isolation. The reason is that the other checks seem to starve this check and so
+    # sometimes the connection to the simulator would stall and timeout during the pairing step.
+    needs:
+      - test-lint
+      - android
+      - qt-linux
+      - macos
+      - windows
     steps:
       - name: Clone the repo
         uses: actions/checkout@v4
