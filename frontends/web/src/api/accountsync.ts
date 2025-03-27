@@ -38,11 +38,7 @@ export const syncAddressesCount = (code: accountAPI.AccountCode) => {
   return (
     cb: TSubscriptionCallback<number>
   ) => {
-    return subscribeEndpoint(`account/${code}/synced-addresses-count`, (
-      count: number,
-    ) => {
-      cb(count);
-    });
+    return subscribeEndpoint(`account/${code}/synced-addresses-count`, cb);
   };
 };
 
@@ -53,9 +49,9 @@ export const syncAddressesCount = (code: accountAPI.AccountCode) => {
  */
 export const statusChanged = (
   code: accountAPI.AccountCode,
-  cb: () => void,
+  cb: TSubscriptionCallback<accountAPI.IStatus>,
 ): TUnsubscribe => {
-  return subscribeEndpoint(`account/${code}/status-changed`, cb);
+  return subscribeEndpoint(`account/${code}/status`, cb);
 };
 
 /**

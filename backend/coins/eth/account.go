@@ -467,7 +467,7 @@ func (account *Account) Close() {
 	account.closed = true
 	account.Notify(observable.Event{
 		Subject: string(accountsTypes.EventStatusChanged),
-		Action:  action.Replace,
+		Action:  action.Reload,
 		Object:  nil,
 	})
 }

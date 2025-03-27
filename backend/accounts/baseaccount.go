@@ -87,7 +87,7 @@ func NewBaseAccount(config *AccountConfig, coin coin.Coin, log *logrus.Entry) *B
 			if account.synced.CompareAndSwap(false, true) {
 				account.Notify(observable.Event{
 					Subject: string(types.EventStatusChanged),
-					Action:  action.Replace,
+					Action:  action.Reload,
 					Object:  nil,
 				})
 			}
@@ -134,7 +134,7 @@ func (account *BaseAccount) SetOffline(offline error) {
 	account.offline = offline
 	account.Notify(observable.Event{
 		Subject: string(types.EventStatusChanged),
-		Action:  action.Replace,
+		Action:  action.Reload,
 		Object:  nil,
 	})
 }
@@ -236,7 +236,7 @@ func (account *BaseAccount) SetTxNote(txID string, note string) error {
 	// Prompt refresh.
 	account.Notify(observable.Event{
 		Subject: string(types.EventStatusChanged),
-		Action:  action.Replace,
+		Action:  action.Reload,
 		Object:  nil,
 	})
 	return nil

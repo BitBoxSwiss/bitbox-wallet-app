@@ -18,8 +18,8 @@ package types
 type Event string
 
 const (
-	// EventStatusChanged is fired when the status changes. Check the status using Initialized().
-	EventStatusChanged Event = "status-changed"
+	// EventStatusChanged is fired when the status changes.
+	EventStatusChanged Event = "status"
 
 	// EventSyncDone happens when a sync is completed, i.e. when the wallet is updated (new
 	// transactions, confirmations, etc.).

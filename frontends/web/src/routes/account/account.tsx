@@ -24,7 +24,6 @@ import { bitsuranceLookup } from '@/api/bitsurance';
 import { TDevices } from '@/api/devices';
 import { getExchangeSupported, SupportedExchanges } from '@/api/exchanges';
 import { useSDCard } from '@/hooks/sdcard';
-import { unsubscribe } from '@/utils/subscriptions';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
@@ -32,7 +31,7 @@ import { Info } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Status } from '@/components/status/status';
-import { useLoad } from '@/hooks/api';
+import { useLoad, useSubscribe, useSync } from '@/hooks/api';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
@@ -62,7 +61,16 @@ type Props = {
   devices: TDevices;
 };
 
-export const Account = ({
+export const Account = (props: Props) => {
+  if (!props.code) {
+    return null;
+  }
+  // The `key` prop forces a re-mount when `code` changes.
+  return <RemountAccount key={props.code} {...props} />;
+};
+
+// Re-mounted when `code` changes, and `code` is guaranteed to be non-empty.
+const RemountAccount = ({
   accounts,
   code,
   devices,
@@ -72,16 +80,17 @@ export const Account = ({
   const { btcUnit } = useContext(RatesContext);
 
   const [balance, setBalance] = useState<accountApi.IBalance>();
-  const [status, setStatus] = useState<accountApi.IStatus>();
-  const [syncedAddressesCount, setSyncedAddressesCount] = useState<number>();
+  const status: accountApi.IStatus | undefined = useSync(
+    () => accountApi.getStatus(code),
+    cb => statusChanged(code, cb),
+  );
+  const syncedAddressesCount = useSubscribe(syncAddressesCount(code));
   const [transactions, setTransactions] = useState<accountApi.TTransactions>();
   const [usesProxy, setUsesProxy] = useState<boolean>();
   const [insured, setInsured] = useState<boolean>(false);
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
   const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeSupported(code), [code]);
-
-  useEffect(() => setDetailID(null), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
@@ -145,22 +154,9 @@ export const Account = ({
       return;
     }
     if (status.synced && status.offlineError === null) {
-      const currentCode = code;
       Promise.all([
-        accountApi.getBalance(currentCode).then(newBalance => {
-          if (currentCode !== code) {
-            // Results came in after the account was switched. Ignore.
-            return;
-          }
-          setBalance(newBalance);
-        }),
-        accountApi.getTransactionList(code).then(newTransactions => {
-          if (currentCode !== code) {
-            // Results came in after the account was switched. Ignore.
-            return;
-          }
-          setTransactions(newTransactions);
-        })
+        accountApi.getBalance(code).then(setBalance),
+        accountApi.getTransactionList(code).then(setTransactions),
       ])
         .catch(console.error);
     } else {
@@ -169,36 +165,15 @@ export const Account = ({
     }
   }, [code]);
 
-  const onStatusChanged = useCallback(() => {
-    const currentCode = code;
-    if (!currentCode) {
-      return;
-    }
-    accountApi.getStatus(currentCode).then(async status => {
-      if (currentCode !== code) {
-        // Results came in after the account was switched. Ignore.
-        return;
-      }
-      setStatus(status);
-    })
-      .catch(console.error);
-  }, [code]);
-
   useEffect(() => {
-    if (code !== '' && status !== undefined && !status.disabled && !status.synced) {
+    if (status !== undefined && !status.disabled && !status.synced) {
       accountApi.init(code).catch(console.error);
     }
   }, [code, status]);
 
   useEffect(() => {
-    const currentCode = code;
-    const subscriptions = [
-      syncAddressesCount(code)(setSyncedAddressesCount),
-      statusChanged(currentCode, () => currentCode === code && onStatusChanged()),
-      syncdone(currentCode, () => currentCode === code && onAccountChanged(status)),
-    ];
-    return () => unsubscribe(subscriptions);
-  }, [code, onAccountChanged, onStatusChanged, status]);
+    return syncdone(code, () => onAccountChanged(status));
+  }, [code, onAccountChanged, status]);
 
   useEffect(() => {
     onAccountChanged(status);
@@ -216,14 +191,6 @@ export const Account = ({
       })
       .catch(console.error);
   };
-
-  useEffect(() => {
-    setBalance(undefined);
-    setStatus(undefined);
-    setSyncedAddressesCount(0);
-    setTransactions(undefined);
-    onStatusChanged();
-  }, [code, onStatusChanged]);
 
   const hasDataLoaded = balance !== undefined && transactions !== undefined;
 
