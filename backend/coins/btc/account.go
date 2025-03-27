@@ -576,8 +576,8 @@ func (account *Account) Balance() (*accounts.Balance, error) {
 	}
 	balance, err := account.transactions.Balance()
 	if err != nil {
-		// TODO
-		panic(err)
+		// TODO bznein
+		return nil, err
 	}
 	return balance, nil
 }
@@ -716,7 +716,10 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
 	if !account.isInitialized() {
 		return nil
 	}
-	account.Synchronizer.WaitSynchronized()
+	// account.Synchronizer.WaitSynchronized()
+	if !account.Synced() {
+		return nil //TODO bznein: changed this function to return an error instead?
+	}
 	account.log.Debug("Get unused receive address")
 	var addresses []accounts.AddressList
 	for _, subacc := range account.subaccounts {
@@ -752,7 +755,10 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if !account.isInitialized() {
 		return false, errp.New("account must be initialized")
 	}
-	account.Synchronizer.WaitSynchronized()
+	// account.Synchronizer.WaitSynchronized()
+	if !account.Synced() {
+		return false, accounts.ErrSyncInProgress
+	}
 
 	keystore, err := account.Config().ConnectKeystore()
 	if err != nil {
@@ -849,7 +855,10 @@ type SpendableOutput struct {
 
 // SpendableOutputs returns the utxo set, sorted by the value descending.
 func (account *Account) SpendableOutputs() []*SpendableOutput {
-	account.Synchronizer.WaitSynchronized()
+	// account.Synchronizer.WaitSynchronized()
+	if !account.Synced() {
+		return nil //TODO(bznein) change this to return an error?
+	}
 	result := []*SpendableOutput{}
 	utxos, err := account.transactions.SpendableOutputs()
 	if err != nil {

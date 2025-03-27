@@ -76,3 +76,9 @@ func (synchronizer *Synchronizer) WaitSynchronized() {
 	}
 	<-wait
 }
+
+// TODO
+func (synchronizer *Synchronizer) IsSynced() bool {
+	defer synchronizer.waitLock.RLock()()
+	return synchronizer.requestsCounter == 0
+}

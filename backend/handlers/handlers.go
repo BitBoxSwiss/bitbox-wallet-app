@@ -217,8 +217,8 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
-	getAPIRouter(apiRouter)("/accounts/balance", handlers.getAccountsBalance).Methods("GET")
-	getAPIRouter(apiRouter)("/accounts/coins-balance", handlers.getCoinsTotalBalance).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/accounts/balance", handlers.getAccountsBalance).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/accounts/coins-balance", handlers.getCoinsTotalBalance).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/total-balance", handlers.getAccountsTotalBalance).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
@@ -702,11 +702,16 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 }
 
 // getAccountsBalanceHandler returns the balance of all the accounts, grouped by keystore and coin.
-func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountsBalance(*http.Request) interface{} {
+	type response struct {
+		Success      bool                                                     `json:"success"`
+		ErrorMessage string                                                   `json:"errorMessage"`
+		TotalAmount  map[string]map[coin.Code]accountHandlers.FormattedAmount `json:"formattedAmount"`
+	}
 	totalAmount := make(map[string]map[coin.Code]accountHandlers.FormattedAmount)
 	accountsByKeystore, err := handlers.backend.AccountsByKeystore()
 	if err != nil {
-		return nil, err
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	for rootFingerprint, accountList := range accountsByKeystore {
 		totalPerCoin := make(map[coin.Code]*big.Int)
@@ -720,12 +725,12 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 			}
 			err := account.Initialize()
 			if err != nil {
-				return nil, err
+				return response{Success: false, ErrorMessage: err.Error()}
 			}
 			coinCode := account.Coin().Code()
 			b, err := account.Balance()
 			if err != nil {
-				return nil, err
+				return response{Success: false, ErrorMessage: err.Error()}
 			}
 			amount := b.Available()
 			if _, ok := totalPerCoin[coinCode]; !ok {
@@ -747,7 +752,7 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 		for k, v := range totalPerCoin {
 			currentCoin, err := handlers.backend.Coin(k)
 			if err != nil {
-				return nil, err
+				return response{Success: false, ErrorMessage: err.Error()}
 			}
 			totalAmount[rootFingerprint][k] = accountHandlers.FormattedAmount{
 				Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
@@ -757,7 +762,10 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 		}
 	}
 
-	return totalAmount, nil
+	return response{
+		Success:     true,
+		TotalAmount: totalAmount,
+	}
 }
 
 type coinFormattedAmount struct {
@@ -767,7 +775,12 @@ type coinFormattedAmount struct {
 }
 
 // getCoinsTotalBalance returns the total balances grouped by coins.
-func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) interface{} {
+	type result struct {
+		Success           bool                  `json:"success"`
+		CoinsTotalBalance []coinFormattedAmount `json:"coinsTotalBalance"`
+		ErrorMessage      string                `json:"errorMessage"`
+	}
 	var coinFormattedAmounts []coinFormattedAmount
 	var sortedCoins []coin.Code
 	totalCoinsBalances := make(map[coin.Code]*big.Int)
@@ -781,12 +794,12 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, er
 		}
 		err := account.Initialize()
 		if err != nil {
-			return nil, err
+			return result{Success: false, ErrorMessage: err.Error()}
 		}
 		coinCode := account.Coin().Code()
 		b, err := account.Balance()
 		if err != nil {
-			return nil, err
+			return result{Success: false, ErrorMessage: err.Error()}
 		}
 		amount := b.Available()
 
@@ -801,7 +814,7 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, er
 	for _, coinCode := range sortedCoins {
 		currentCoin, err := handlers.backend.Coin(coinCode)
 		if err != nil {
-			return nil, err
+			return result{Success: false, ErrorMessage: err.Error()}
 		}
 		coinFormattedAmounts = append(coinFormattedAmounts, coinFormattedAmount{
 			CoinCode: coinCode,
@@ -819,7 +832,10 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, er
 			},
 		})
 	}
-	return coinFormattedAmounts, nil
+	return result{
+		Success:           true,
+		CoinsTotalBalance: coinFormattedAmounts,
+	}
 }
 
 // getAccountsTotalBalanceHandler returns the total balance of all the accounts, gruped by keystore.
@@ -833,7 +849,7 @@ func (handlers *Handlers) getAccountsTotalBalance(*http.Request) (interface{}, e
 
 	totalBalance, err := handlers.backend.AccountsTotalBalanceByKeystore()
 	if err != nil {
-		if errp.Cause(err) == rates.ErrRatesNotAvailable {
+		if errp.Cause(err) == rates.ErrRatesNotAvailable || errp.Cause(err) == accounts.ErrSyncInProgress {
 			return response{Success: false, ErrorCode: err.Error()}, nil
 		}
 		return response{Success: false, ErrorMessage: err.Error()}, nil
@@ -1217,14 +1233,14 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 
 func (handlers *Handlers) getAccountSummary(*http.Request) interface{} {
 	type Result struct {
-		Error   string         `json:"error,omitempty"`
-		Data    *backend.Chart `json:"data,omitempty"`
-		Success bool           `json:"success"`
+		ErrorMessage string         `json:"errorMessage,omitempty"`
+		Data         *backend.Chart `json:"data,omitempty"`
+		Success      bool           `json:"success"`
 	}
 
 	data, err := handlers.backend.ChartData()
 	if err != nil {
-		return Result{Success: false, Error: err.Error()}
+		return Result{Success: false, ErrorMessage: err.Error()}
 	}
 	return Result{Success: true, Data: data}
 }

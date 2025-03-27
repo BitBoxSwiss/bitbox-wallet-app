@@ -148,11 +148,11 @@ export const Account = ({
       const currentCode = code;
       Promise.all([
         accountApi.getBalance(currentCode).then(newBalance => {
-          if (currentCode !== code) {
+          if (currentCode !== code || !newBalance.success) {
             // Results came in after the account was switched. Ignore.
             return;
           }
-          setBalance(newBalance);
+          setBalance(newBalance.balance);
         }),
         accountApi.getTransactionList(code).then(newTransactions => {
           if (currentCode !== code) {
