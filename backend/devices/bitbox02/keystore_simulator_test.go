@@ -137,7 +137,11 @@ func runSimulator(filename string) (func() error, *Device, *bytes.Buffer, error)
 		if err := conn.Close(); err != nil {
 			return err
 		}
-		return cmd.Process.Kill()
+		if err := cmd.Process.Kill(); err != nil {
+			return err
+		}
+		_, err := cmd.Process.Wait()
+		return err
 	}, device, &stdoutBuf, nil
 }
 
