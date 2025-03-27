@@ -45,10 +45,10 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
-	event "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
@@ -259,8 +259,8 @@ func testSimulatorsAfterPairing(t *testing.T, run func(*testing.T, *Device, *byt
 	testSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
 		t.Helper()
 		paired := make(chan struct{})
-		device.SetOnEvent(func(ev event.Event, obj interface{}) {
-			if ev == event.Event(firmware.EventChannelHashChanged) {
+		device.Observe(func(event observable.Event) {
+			if event.Subject == string(firmware.EventChannelHashChanged) {
 				_, deviceVerified := device.ChannelHash()
 				if deviceVerified {
 					// Accept pairing.
