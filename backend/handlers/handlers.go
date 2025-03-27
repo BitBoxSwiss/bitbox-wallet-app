@@ -113,7 +113,6 @@ type Backend interface {
 	HTTPClient() *http.Client
 	LookupInsuredAccounts(accountCode accountsTypes.Code) ([]bitsurance.AccountDetails, error)
 	Authenticate(force bool)
-	TriggerAuth()
 	ForceAuth()
 	CancelConnectKeystore()
 	SetWatchonly(rootFingerprint []byte, watchonly bool) error
@@ -209,7 +208,6 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBanners).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileData).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/authenticate", handlers.postAuthenticate).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/trigger-auth", handlers.postTriggerAuth).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/force-auth", handlers.postForceAuth).Methods("POST")
 	getAPIRouter(apiRouter)("/set-dark-theme", handlers.postDarkTheme).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/detect-dark-theme", handlers.getDetectDarkTheme).Methods("GET")
@@ -513,11 +511,6 @@ func (handlers *Handlers) postAuthenticate(r *http.Request) interface{} {
 	}
 
 	handlers.backend.Authenticate(force)
-	return nil
-}
-
-func (handlers *Handlers) postTriggerAuth(r *http.Request) interface{} {
-	handlers.backend.TriggerAuth()
 	return nil
 }
 
