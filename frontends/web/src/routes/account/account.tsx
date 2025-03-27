@@ -180,13 +180,15 @@ export const Account = ({
         return;
       }
       setStatus(status);
-      if (!status.disabled && !status.synced) {
-        await accountApi.init(currentCode).catch(console.error);
-      }
-      onAccountChanged(status);
     })
       .catch(console.error);
-  }, [onAccountChanged, code]);
+  }, [code]);
+
+  useEffect(() => {
+    if (code !== '' && status !== undefined && !status.disabled && !status.synced) {
+      accountApi.init(code).catch(console.error);
+    }
+  }, [code, status]);
 
   useEffect(() => {
     const currentCode = code;
