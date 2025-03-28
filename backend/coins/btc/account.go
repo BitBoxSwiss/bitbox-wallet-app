@@ -153,14 +153,6 @@ func (account *Account) String() string {
 	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.Config().Config.Code)
 }
 
-// FilesFolder implements accounts.Interface.
-func (account *Account) FilesFolder() string {
-	if account.dbSubfolder == "" {
-		panic("Initialize() must be run first")
-	}
-	return account.dbSubfolder
-}
-
 // defaultGapLimits returns the default gap limits for this account.
 func (account *Account) defaultGapLimits(signingConfiguration *signing.Configuration) types.GapLimits {
 	limits := types.GapLimits{
