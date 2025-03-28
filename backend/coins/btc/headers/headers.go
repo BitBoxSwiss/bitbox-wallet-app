@@ -362,13 +362,6 @@ func (headers *Headers) canConnect(db DBInterface, tip int, header *wire.BlockHe
 	return nil
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 func (headers *Headers) reorg(db DBInterface, tip int) {
 	// Simple reorg method: re-fetch headers up to the maximum reorg limit. The server can shorten
 	// our chain by sending a fake header and set us back by `reorgLimit` blocks, but it needs to
