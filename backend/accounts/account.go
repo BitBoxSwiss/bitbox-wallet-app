@@ -70,11 +70,6 @@ type Interface interface {
 
 	Info() *Info
 	Config() *AccountConfig
-	// FilesFolder is path to a directory for account files, like databases, etc. Only available
-	// after Initialize(). It must be unique not only up to the type, but also the exact
-	// keystores/signing configuration (e.g. a btc-p2wpkh account for one xpub/xprv should have a
-	// different ID).
-	FilesFolder() string
 	Coin() coin.Coin
 	// Initialize only starts the synchronization, the account is not synced right afterwards.
 	Initialize() error
