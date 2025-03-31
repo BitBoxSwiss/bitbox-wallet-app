@@ -1,6 +1,7 @@
 module github.com/BitBoxSwiss/bitbox-wallet-app
 
 go 1.23
+toolchain go1.24.1
 
 require (
 	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250212204931-2b90fadfc774
@@ -22,7 +23,7 @@ require (
 	golang.org/x/crypto v0.32.0
 	golang.org/x/mobile v0.0.0-20240716161057-1ad2df20a8b6
 	golang.org/x/net v0.34.0
-	golang.org/x/time v0.10.0
+	golang.org/x/time v0.11.0
 )
 
 require (
