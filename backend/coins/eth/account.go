@@ -143,14 +143,6 @@ func (account *Account) Info() *accounts.Info {
 	}
 }
 
-// FilesFolder implements accounts.Interface.
-func (account *Account) FilesFolder() string {
-	if account.dbSubfolder == "" {
-		panic("Initialize() must be run first")
-	}
-	return account.dbSubfolder
-}
-
 func (account *Account) isClosed() bool {
 	defer account.initializedLock.RLock()()
 	return account.closed
