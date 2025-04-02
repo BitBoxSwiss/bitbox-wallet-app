@@ -228,7 +228,6 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoins).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystore).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/rates", handlers.getRates).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiat).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTLTC)).Methods("GET")
@@ -935,10 +934,6 @@ func (handlers *Handlers) postRegisterTestKeystore(r *http.Request) (interface{}
 func (handlers *Handlers) postDeregisterTestKeystore(*http.Request) interface{} {
 	handlers.backend.DeregisterKeystore()
 	return nil
-}
-
-func (handlers *Handlers) getRates(*http.Request) interface{} {
-	return handlers.backend.RatesUpdater().LatestPrice()
 }
 
 func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) interface{} {
