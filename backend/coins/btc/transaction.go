@@ -89,6 +89,9 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 // watch-only tools can fix it by moving the coins back to P2WPKH, and not have them go a Taproot
 // change again by accident.
 func (account *Account) pickChangeAddress(utxos map[wire.OutPoint]maketx.UTXO) (*addresses.AccountAddress, error) {
+	if len(account.subaccounts) == 0 {
+		return nil, errp.New("Account has no subaccounts")
+	}
 	if len(account.subaccounts) == 1 {
 		unusedAddresses, err := account.subaccounts[0].changeAddresses.GetUnused()
 		if err != nil {
