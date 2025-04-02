@@ -25,6 +25,9 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	blockchainMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -42,6 +45,46 @@ func mustKeypath(t *testing.T, keypath string) signing.AbsoluteKeypath {
 		t.Fatal(err)
 	}
 	return kp
+}
+
+func testAccount(t *testing.T, config *config.Account) *Account {
+	t.Helper()
+	account := mockAccount(t, config)
+	account.coin.TstSetMakeBlockchain(func() blockchain.Interface {
+		return &blockchainMocks.BlockchainMock{
+			MockRelayFee: func() (btcutil.Amount, error) {
+				return btcutil.Amount(1001), nil
+			},
+			MockEstimateFee: func(number int) (btcutil.Amount, error) {
+				switch number {
+				case 2:
+					return btcutil.Amount(10e7), nil
+				case 6:
+					return btcutil.Amount(10e6), nil
+				case 12:
+					return btcutil.Amount(10e5), nil
+				case 24:
+					return btcutil.Amount(10e4), nil
+				default:
+					return btcutil.Amount(10e6), nil
+				}
+			},
+		}
+	})
+	account.coin.blockchain = account.coin.makeBlockchain()
+	require.NoError(t, account.Initialize())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
+	addresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+	require.NoError(t, err)
+	account.transactions = &mocks.InterfaceMock{
+		SpendableOutputsFunc: func() (map[wire.OutPoint]*transactions.SpendableOutput, error) {
+			return map[wire.OutPoint]*transactions.SpendableOutput{
+				*wire.NewOutPoint(&chainhash.Hash{}, 0): {TxOut: wire.NewTxOut(1000000000, addresses[0].PubkeyScript())},
+				*wire.NewOutPoint(&chainhash.Hash{}, 1): {TxOut: wire.NewTxOut(1000000, addresses[0].PubkeyScript())},
+			}, nil
+		},
+	}
+	return account
 }
 
 func TestGetFeePerKb(t *testing.T) {
@@ -106,29 +149,7 @@ func TestGetFeePerKb(t *testing.T) {
 			wantErr: errp.New("Fee could not be estimated"),
 		},
 	}
-	account := mockAccount(t, nil)
-	account.coin.TstSetMakeBlockchain(func() blockchain.Interface {
-		return &blockchainMocks.BlockchainMock{
-			MockRelayFee: func() (btcutil.Amount, error) {
-				return btcutil.Amount(1001), nil
-			},
-			MockEstimateFee: func(number int) (btcutil.Amount, error) {
-				switch number {
-				case 2:
-					return btcutil.Amount(10e7), nil
-				case 6:
-					return btcutil.Amount(10e6), nil
-				case 12:
-					return btcutil.Amount(10e5), nil
-				case 24:
-					return btcutil.Amount(10e4), nil
-				default:
-					return btcutil.Amount(10e6), nil
-				}
-			},
-		}
-	})
-	account.coin.blockchain = account.coin.makeBlockchain()
+	account := testAccount(t, nil)
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			gotAmount, err := account.getFeePerKb(tc.args)
@@ -154,7 +175,6 @@ func utxo(scriptType signing.ScriptType) maketx.UTXO {
 		},
 	}
 }
-
 func TestPickChangeAddressSucceeds(t *testing.T) {
 	rootFingerprint := []byte{1, 2, 3, 4}
 	baseSigningConfigurations := signing.Configurations{
@@ -243,7 +263,6 @@ func TestPickChangeAddressSucceeds(t *testing.T) {
 				SigningConfigurations: tc.signingConfigurations,
 			})
 			require.NoError(t, account.Initialize())
-			account.ensureAddresses()
 			require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 
 			address, err := account.pickChangeAddress(tc.utxos)
@@ -269,10 +288,115 @@ func TestPickChangeAddressFails(t *testing.T) {
 		SigningConfigurations: signingConfiguration,
 	})
 	require.NoError(t, account.Initialize())
-	account.ensureAddresses()
 	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 
 	account.subaccounts = subaccounts{}
 	_, err := account.pickChangeAddress(nil)
 	require.ErrorContains(t, err, "Account has no subaccounts")
+}
+
+func TestTxProposal(t *testing.T) {
+	testCases := []struct {
+		name       string
+		args       *accounts.TxProposalArgs
+		wantAmount coin.Amount
+		wantFee    coin.Amount
+		wantTotal  coin.Amount
+		satoshi    bool
+		wantErr    error
+	}{
+		{
+			name: "Success",
+			args: &accounts.TxProposalArgs{
+				RecipientAddress: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",
+				FeeTargetCode:    accounts.FeeTargetCodeCustom,
+				CustomFee:        "100",
+				Amount:           coin.NewSendAmount("1"),
+			},
+			wantAmount: coin.NewAmountFromInt64(100000000),
+			wantFee:    coin.NewAmountFromInt64(14400),
+			wantTotal:  coin.NewAmountFromInt64(100014400),
+		},
+		{
+			name: "Sendall - success",
+			args: &accounts.TxProposalArgs{
+				RecipientAddress: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",
+				Amount:           coin.NewSendAmountAll(),
+				FeeTargetCode:    accounts.FeeTargetCodeCustom,
+				CustomFee:        "100",
+			},
+			wantAmount: coin.NewAmountFromInt64(1000981900),
+			wantFee:    coin.NewAmountFromInt64(18100),
+			wantTotal:  coin.NewAmountFromInt64(1001000000),
+		},
+		{
+			name: "Satoshi mode - success",
+			args: &accounts.TxProposalArgs{
+				RecipientAddress: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",
+				Amount:           coin.NewSendAmount("100000000"),
+				FeeTargetCode:    accounts.FeeTargetCodeCustom,
+				CustomFee:        "100",
+			},
+			satoshi:    true,
+			wantAmount: coin.NewAmountFromInt64(100000000),
+			wantFee:    coin.NewAmountFromInt64(14400),
+			wantTotal:  coin.NewAmountFromInt64(100014400),
+		},
+		{
+			name: "UTXO control with SendAll - success",
+			args: &accounts.TxProposalArgs{
+				RecipientAddress: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",
+				Amount:           coin.NewSendAmountAll(),
+				FeeTargetCode:    accounts.FeeTargetCodeCustom,
+				CustomFee:        "10",
+				SelectedUTXOs: map[wire.OutPoint]struct{}{
+					*wire.NewOutPoint(&chainhash.Hash{}, 1): {},
+				},
+			},
+			wantAmount: coin.NewAmountFromInt64(998870),
+			wantFee:    coin.NewAmountFromInt64(1130),
+			wantTotal:  coin.NewAmountFromInt64(1000000),
+		},
+		{
+			name: "UTXO control with specific amount - success",
+			args: &accounts.TxProposalArgs{
+				RecipientAddress: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",
+				Amount:           coin.NewSendAmount("0.0001"),
+				FeeTargetCode:    accounts.FeeTargetCodeCustom,
+				CustomFee:        "10",
+				SelectedUTXOs: map[wire.OutPoint]struct{}{
+					*wire.NewOutPoint(&chainhash.Hash{}, 1): {},
+				},
+			},
+			wantAmount: coin.NewAmountFromInt64(10000),
+			wantFee:    coin.NewAmountFromInt64(1440),
+			wantTotal:  coin.NewAmountFromInt64(11440),
+		},
+		{
+			name: "Failure - Invalid address",
+			args: &accounts.TxProposalArgs{
+				RecipientAddress: "invalidaddress",
+			},
+			wantErr: errors.ErrInvalidAddress,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			account := testAccount(t, nil)
+			if tc.satoshi {
+				account.coin.SetFormatUnit(coin.BtcUnitSats)
+			}
+			amount, fee, total, err := account.TxProposal(tc.args)
+			if tc.wantErr == nil {
+				require.NoError(t, err)
+				require.Equal(t, tc.wantAmount, amount)
+				require.Equal(t, tc.wantFee, fee)
+				require.Equal(t, tc.wantTotal, total)
+			} else {
+				require.ErrorContains(t, err, tc.wantErr.Error())
+			}
+
+		})
+	}
 }

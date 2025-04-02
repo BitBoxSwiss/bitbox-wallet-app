@@ -99,7 +99,7 @@ type Account struct {
 	// instead.
 	syncedAddressesCount uint32
 
-	transactions *transactions.Transactions
+	transactions transactions.Interface
 
 	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
 	activeTxProposal     *maketx.TxProposal
