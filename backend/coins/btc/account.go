@@ -566,10 +566,12 @@ func (account *Account) Balance() (*accounts.Balance, error) {
 	if account.fatalError.Load() {
 		return nil, errp.New("can't call Balance() after a fatal error")
 	}
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
 	balance, err := account.transactions.Balance()
 	if err != nil {
-		// TODO
-		panic(err)
+		return nil, err
 	}
 	return balance, nil
 }
@@ -700,6 +702,9 @@ func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
 	if account.fatalError.Load() {
 		return nil, errp.New("can't call Transactions() after a fatal error")
 	}
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
 	return account.transactions.Transactions(account.IsChange)
 }
 
@@ -708,7 +713,9 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
 	if !account.isInitialized() {
 		return nil
 	}
-	account.Synchronizer.WaitSynchronized()
+	if !account.Synced() {
+		return nil
+	}
 	account.log.Debug("Get unused receive address")
 	var addresses []accounts.AddressList
 	for _, subacc := range account.subaccounts {
@@ -744,7 +751,9 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if !account.isInitialized() {
 		return false, errp.New("account must be initialized")
 	}
-	account.Synchronizer.WaitSynchronized()
+	if !account.Synced() {
+		return false, accounts.ErrSyncInProgress
+	}
 
 	keystore, err := account.Config().ConnectKeystore()
 	if err != nil {
@@ -840,13 +849,14 @@ type SpendableOutput struct {
 }
 
 // SpendableOutputs returns the utxo set, sorted by the value descending.
-func (account *Account) SpendableOutputs() []*SpendableOutput {
-	account.Synchronizer.WaitSynchronized()
+func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
 	result := []*SpendableOutput{}
 	utxos, err := account.transactions.SpendableOutputs()
 	if err != nil {
-		// TODO
-		panic(err)
+		return nil, err
 	}
 	for outPoint, txOut := range utxos {
 		scriptHashHex := blockchain.NewScriptHashHex(txOut.TxOut.PkScript)
@@ -859,7 +869,7 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 				IsChange:        account.IsChange(scriptHashHex),
 			})
 	}
-	return sortByAddresses(result)
+	return sortByAddresses(result), nil
 }
 
 // VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output

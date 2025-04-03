@@ -43,10 +43,14 @@ const AccountItem = ({ account, hideAmounts }: { account: accountApi.IAccount, h
   useEffect(() => {
     const fetchBalance = async () => {
       try {
-        const balanceData = await getBalance(account.code);
+        const balance = await getBalance(account.code);
         if (!mounted.current) {
           return;
         }
+        if (!balance.success) {
+          return;
+        }
+        const balanceData = balance.balance;
         if (balanceData.hasAvailable) {
           setBalance(balanceData.available.amount);
         } else {

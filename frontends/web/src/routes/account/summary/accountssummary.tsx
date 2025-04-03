@@ -80,20 +80,16 @@ export const AccountsSummary = ({
     }
     if (summary.success) {
       setSummaryData(summary.data);
-    } else {
-      console.error(summary.error);
     }
   }, [mounted]);
 
   const getAccountsBalance = useCallback(async () => {
-    try {
-      const balance = await accountApi.getAccountsBalance();
-      if (!mounted.current) {
-        return;
-      }
-      setBalancePerCoin(balance);
-    } catch (err) {
-      console.error(err);
+    const balance = await accountApi.getAccountsBalance();
+    if (!mounted.current) {
+      return;
+    }
+    if (balance.success) {
+      setBalancePerCoin(balance.balance);
     }
   }, [mounted]);
 
@@ -104,25 +100,16 @@ export const AccountsSummary = ({
     }
     if (totalBalance.success) {
       setAccountsTotalBalance(totalBalance.totalBalance);
-    } else {
-      // if rates are not available, balance will be reloaded later.
-      if (totalBalance.errorCode !== 'ratesNotAvailable') {
-        console.error(totalBalance.errorMessage);
-      } else {
-        console.log('rates not available');
-      }
     }
   }, [mounted]);
 
   const getCoinsTotalBalance = useCallback(async () => {
-    try {
-      const coinBalance = await accountApi.getCoinsTotalBalance();
-      if (!mounted.current) {
-        return;
-      }
-      setCoinsTotalBalance(coinBalance);
-    } catch (err) {
-      console.error(err);
+    const coinBalance = await accountApi.getCoinsTotalBalance();
+    if (!mounted.current) {
+      return;
+    }
+    if (coinBalance.success) {
+      setCoinsTotalBalance(coinBalance.coinsTotalBalance);
     }
   }, [mounted]);
 
@@ -143,9 +130,12 @@ export const AccountsSummary = ({
     if (!mounted.current) {
       return;
     }
+    if (!balance.success) {
+      return;
+    }
     setBalances((prevBalances) => ({
       ...prevBalances,
-      [code]: balance
+      [code]: balance.balance
     }));
   }, [mounted]);
 
@@ -153,8 +143,11 @@ export const AccountsSummary = ({
     if (mounted.current) {
       onStatusChanged(code);
       getAccountSummary();
+      getAccountsBalance();
+      getAccountsTotalBalance();
+      getCoinsTotalBalance();
     }
-  }, [getAccountSummary, mounted, onStatusChanged]);
+  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, getCoinsTotalBalance, mounted, onStatusChanged]);
 
   useEffect(() => {
     // for subscriptions and unsubscriptions
@@ -163,7 +156,12 @@ export const AccountsSummary = ({
     accounts.forEach(account => {
       const currentCode = account.code;
       subscriptions.push(statusChanged(account.code, () => currentCode === account.code && update(account.code)));
-      subscriptions.push(syncdone(account.code, () => currentCode === account.code && update(account.code)));
+      subscriptions.push(syncdone(account.code, () => {
+        if (currentCode === account.code) {
+          update(account.code);
+        }
+      }
+      ));
     });
     return () => unsubscribe(subscriptions);
   }, [update, accounts]);
