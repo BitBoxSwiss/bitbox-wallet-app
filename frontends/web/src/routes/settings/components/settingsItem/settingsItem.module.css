@@ -89,7 +89,8 @@
     }
 
     .container.collapse .rightContentContainer {
-        width: 100%
+        width: 100%;
+        justify-content: flex-start;
     }
 
     .hideDisplayedValueOnSmall {

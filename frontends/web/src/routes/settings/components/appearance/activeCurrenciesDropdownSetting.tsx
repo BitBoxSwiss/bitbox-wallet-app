@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLocalizedFormattedCurrencies } from '@/hooks/localized';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
@@ -25,13 +26,20 @@ const ActiveCurrenciesDropdownSetting = () => {
   const { t, i18n } = useTranslation();
   const { activeCurrencies, defaultCurrency } = useContext(RatesContext);
   const { formattedCurrencies } = useLocalizedFormattedCurrencies(i18n.language);
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   return (
     <SettingsItem
+      disabled={!isMobile}
       collapseOnSmall
       settingName={t('newSettings.appearance.activeCurrencies.title')}
       secondaryText={t('newSettings.appearance.activeCurrencies.description')}
+      onClick={() => setIsMobileDropdownOpen(true)}
       extraComponent={
         <ActiveCurrenciesDropdown
+          isOpen={isMobileDropdownOpen}
+          onOpenChange={(isOpen) => setIsMobileDropdownOpen(isOpen)}
           options={formattedCurrencies}
           defaultCurrency={defaultCurrency}
           activeCurrencies={activeCurrencies}

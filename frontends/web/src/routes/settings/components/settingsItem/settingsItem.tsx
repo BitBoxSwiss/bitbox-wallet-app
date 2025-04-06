@@ -83,7 +83,8 @@ export const SettingsItem = ({
       ) : (
         <button
           type="button"
-          className={`${styles.container} ${styles.isButton} ${className}`}
+          className={`${styles.container} ${styles.isButton} ${className} 
+          ${collapseOnSmall ? styles.collapse : ''}`}
           onClick={onClick}>
           {content}
         </button>
