@@ -150,6 +150,10 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		}
 		outputInfo = maketx.NewOutputInfo(pkScript)
 	}
+
+	if !account.Synced() {
+		return nil, nil, accounts.ErrSyncInProgress
+	}
 	utxo, err := account.transactions.SpendableOutputs()
 	if err != nil {
 		return nil, nil, err

@@ -64,15 +64,3 @@ func (synchronizer *Synchronizer) decRequestsCounter() {
 		panic("request counter cannot be negative")
 	}
 }
-
-// WaitSynchronized blocks until all pending synchronization tasks are finished.
-func (synchronizer *Synchronizer) WaitSynchronized() {
-	unlock := synchronizer.waitLock.RLock()
-	n := synchronizer.requestsCounter
-	wait := synchronizer.wait
-	unlock()
-	if n == 0 {
-		return
-	}
-	<-wait
-}

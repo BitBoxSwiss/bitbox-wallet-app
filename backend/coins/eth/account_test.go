@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
@@ -113,7 +114,7 @@ func newAccount(t *testing.T) *Account {
 func TestTxProposal(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	acct.Synchronizer.WaitSynchronized()
+	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	t.Run("valid", func(t *testing.T) {
 		value, fee, total, err := acct.TxProposal(&accounts.TxProposalArgs{
@@ -170,7 +171,7 @@ func TestTxProposal(t *testing.T) {
 func TestMatchesAddress(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	acct.Synchronizer.WaitSynchronized()
+	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	// Test invalid Ethereum address
 	t.Run("Invalid Ethereum address", func(t *testing.T) {
