@@ -206,12 +206,11 @@ export const Pocket = ({ code, action }: TProps) => {
     const txInput: TTxInput = {
       address: message.bitcoinAddress,
       amount: parsedAmount.amount,
-      // feeTarget will be automatically set on the highest in the BE.
-      feeTarget: 'custom',
-      customFee: '',
+      // Always use the highest fee rate for Pocket sell
+      useHighestFee: true,
       sendAll: 'no',
       selectedUTXOs: [],
-      paymentRequest: message.slip24,
+      paymentRequest: message.slip24
     };
 
     let result = await proposeTx(code, txInput);

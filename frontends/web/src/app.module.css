@@ -2,7 +2,7 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     min-width: 0;
     /* mobile viewport bug fix */
     max-height: -webkit-fill-available;
@@ -12,5 +12,11 @@
     .appContent {
         position: absolute;
         width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .appContent.hasBottomNavigation {
+       height: calc(100dvh - var(--bottom-navigation-height));
     }
 }

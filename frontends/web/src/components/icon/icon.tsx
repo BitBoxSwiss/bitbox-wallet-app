@@ -87,12 +87,15 @@ import starInactiveSVG from './assets/icons/star-inactive.svg';
 import syncSVG from './assets/icons/sync.svg';
 import syncLightSVG from './assets/icons/sync-light.svg';
 import selectedCheckLightSVG from './assets/icons/selected-check-light.svg';
+import spinnerRingDarkSVG from './assets/icons/spinner-ring-dark.svg';
+import spinnerRingLightSVG from './assets/icons/spinner-ring-light.svg';
 import usbSuccessSVG from './assets/icons/usb-success.svg';
 import statusInfoSVG from './assets/icons/icon-info.svg';
 import statusSuccessSVG from './assets/icons/icon-success.svg';
 import statusWarningSVG from './assets/icons/icon-warning.svg';
 import statusErrorSVG from './assets/icons/icon-error.svg';
 import plusSVG from './assets/icons/plus.svg';
+import cogSVG from './assets/icons/cog.svg';
 import style from './icon.module.css';
 
 export const ExpandOpen = () => (
@@ -223,6 +226,8 @@ export const RedDot = (props: ImgProps) => (<img src={redDotSVG} draggable={fals
 export const Save = (props: ImgProps) => (<img src={saveSVG} draggable={false} {...props} />);
 export const SaveLight = (props: ImgProps) => (<img src={saveLightSVG} draggable={false} {...props} />);
 export const Shield = (props: ImgProps) => (<img src={shieldSVG} draggable={false} {...props} />);
+export const SpinnerRingDark = (props: ImgProps) => (<img src={spinnerRingDarkSVG} draggable={false} {...props} />);
+export const SpinnerRingLight = (props: ImgProps) => (<img src={spinnerRingLightSVG} draggable={false} {...props} />);
 export const Star = (props: ImgProps) => (<img src={starSVG} draggable={false} {...props} />);
 export const StarInactive = (props: ImgProps) => (<img src={starInactiveSVG} draggable={false} {...props} />);
 export const Sync = (props: ImgProps) => (<img src={syncSVG} draggable={false} {...props} />);
@@ -238,6 +243,7 @@ export const StatusInfo = (props: ImgProps) => (<img src={statusInfoSVG} draggab
 export const StatusWarning = (props: ImgProps) => (<img src={statusWarningSVG} draggable={false} {...props} />);
 export const StatusError = (props: ImgProps) => (<img src={statusErrorSVG} draggable={false} {...props} />);
 export const Plus = (props: ImgProps) => (<img src={plusSVG} draggable={false} {...props} />);
+export const Cog = (props: ImgProps) => (<img src={cogSVG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
  */

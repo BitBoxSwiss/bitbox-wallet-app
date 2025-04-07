@@ -52,7 +52,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/ratelimit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/ethereum/go-ethereum/params"
@@ -89,6 +88,7 @@ var fixedURLWhitelist = []string{
 	"https://pocketbitcoin.com/",
 	// BTCDirect
 	"https://btcdirect.eu/",
+	"https://start.btcdirect.eu/",
 	// Bitsurance
 	"https://www.bitsurance.eu/",
 	"https://get.bitsurance.eu/",
@@ -106,11 +106,13 @@ var fixedURLWhitelist = []string{
 	"https://cointracking.info/import/bitbox/",
 }
 
-type backendEvent struct {
-	Type string      `json:"type"`
-	Data string      `json:"data"`
-	Meta interface{} `json:"meta"`
-}
+// event are events emitted by the backend.
+type event string
+
+const (
+	// eventNewTxs is emitted when the user should be notified of new transactions.
+	eventNewTxs event = "new-txs"
+)
 
 type deviceEvent struct {
 	DeviceID string `json:"deviceID"`
@@ -118,13 +120,6 @@ type deviceEvent struct {
 	Data     string `json:"data"`
 	// TODO: rename Data to Event, Meta to Data.
 	Meta interface{} `json:"meta"`
-}
-
-// AccountEvent models an event triggered by an account.
-type AccountEvent struct {
-	Type string             `json:"type"`
-	Code accountsTypes.Code `json:"code"`
-	Data string             `json:"data"`
 }
 
 type authEventType string
@@ -289,7 +284,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.notifier = notifier
 	backend.socksProxy = backendProxy
 	backend.httpClient = hclient
-	backend.etherScanHTTPClient = ratelimit.FromTransport(hclient.Transport, etherscan.CallInterval)
+	backend.etherScanHTTPClient = hclient
 
 	ratesCache := filepath.Join(arguments.CacheDirectoryPath(), "exchangerates")
 	if err := os.MkdirAll(ratesCache, 0700); err != nil {
@@ -332,11 +327,14 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 		return
 	}
 	if unnotifiedCount != 0 {
-		backend.events <- backendEvent{Type: "backend", Data: "newTxs", Meta: map[string]interface{}{
-			"count":       unnotifiedCount,
-			"accountName": account.Config().Config.Name,
-		}}
-
+		backend.Notify(observable.Event{
+			Subject: string(eventNewTxs),
+			Action:  action.Replace,
+			Object: map[string]interface{}{
+				"count":       unnotifiedCount,
+				"accountName": account.Config().Config.Name,
+			},
+		})
 		if err := notifier.MarkAllNotified(); err != nil {
 			backend.log.WithError(err).Error("error marking notified")
 		}
@@ -774,7 +772,15 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 
 	mainKeystore := len(backend.devices) == 1
 	theDevice.SetOnEvent(func(event deviceevent.Event, data interface{}) {
-		switch event {
+		backend.events <- deviceEvent{
+			DeviceID: theDevice.Identifier(),
+			Type:     "device",
+			Data:     string(event),
+			Meta:     data,
+		}
+	})
+	theDevice.Observe(func(event observable.Event) {
+		switch deviceevent.Event(event.Subject) {
 		case deviceevent.EventKeystoreGone:
 			backend.DeregisterKeystore()
 		case deviceevent.EventKeystoreAvailable:
@@ -783,12 +789,15 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 				backend.registerKeystore(theDevice.Keystore())
 			}
 		}
-		backend.events <- deviceEvent{
-			DeviceID: theDevice.Identifier(),
-			Type:     "device",
-			Data:     string(event),
-			Meta:     data,
-		}
+		backend.Notify(observable.Event{
+			Subject: fmt.Sprintf(
+				"devices/%s/%s/%s",
+				theDevice.ProductName(),
+				theDevice.Identifier(),
+				event.Subject),
+			Action: event.Action,
+			Object: event.Object,
+		})
 	})
 
 	backend.onDeviceInit(theDevice)
@@ -796,17 +805,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		backend.onDeviceUninit(theDevice.Identifier())
 		return err
 	}
-	theDevice.Observe(backend.Notify)
 
-	// Old-school
-	select {
-	case backend.events <- backendEvent{
-		Type: "devices",
-		Data: "registeredChanged",
-	}:
-	default:
-	}
-	// New-school
 	backend.Notify(observable.Event{
 		Subject: "devices/registered",
 		Action:  action.Reload,
@@ -828,9 +827,6 @@ func (backend *Backend) Deregister(deviceID string) {
 		delete(backend.devices, deviceID)
 		backend.DeregisterKeystore()
 
-		// Old-school
-		backend.events <- backendEvent{Type: "devices", Data: "registeredChanged"}
-		// New-school
 		backend.Notify(observable.Event{
 			Subject: "devices/registered",
 			Action:  action.Reload,
@@ -898,11 +894,16 @@ func (backend *Backend) Environment() Environment {
 
 // Close shuts down the backend. After this, no other method should be called.
 func (backend *Backend) Close() error {
+	backend.ratesUpdater.Stop()
+	// Call this without `accountsAndKeystoreLock` as it eventually calls `DeregisterKeystore()`,
+	// which acquires the same lock.
+	if backend.usbManager != nil {
+		backend.usbManager.Close()
+	}
+
 	defer backend.accountsAndKeystoreLock.Lock()()
 
 	errors := []string{}
-
-	backend.ratesUpdater.Stop()
 
 	backend.uninitAccounts(true)
 

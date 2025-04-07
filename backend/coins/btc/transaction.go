@@ -39,8 +39,7 @@ const unitSatoshi = 1e8
 // fee target (priority) if one is given, or the provided args.FeePerKb if the fee taret is
 // `FeeTargetCodeCustom`.
 func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amount, error) {
-	isPaymentRequest := args.PaymentRequest != nil
-	if args.FeeTargetCode == accounts.FeeTargetCodeCustom && !isPaymentRequest {
+	if args.FeeTargetCode == accounts.FeeTargetCodeCustom && !args.UseHighestFee {
 		float, err := strconv.ParseFloat(args.CustomFee, 64)
 		if err != nil {
 			return 0, err
@@ -60,7 +59,7 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 	}
 
 	var feeTarget *FeeTarget
-	if isPaymentRequest {
+	if args.UseHighestFee {
 		feeTarget = account.feeTargets().highest()
 	} else {
 		for _, target := range account.feeTargets() {
@@ -90,6 +89,9 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 // watch-only tools can fix it by moving the coins back to P2WPKH, and not have them go a Taproot
 // change again by accident.
 func (account *Account) pickChangeAddress(utxos map[wire.OutPoint]maketx.UTXO) (*addresses.AccountAddress, error) {
+	if len(account.subaccounts) == 0 {
+		return nil, errp.New("Account has no subaccounts")
+	}
 	if len(account.subaccounts) == 1 {
 		unusedAddresses, err := account.subaccounts[0].changeAddresses.GetUnused()
 		if err != nil {
@@ -147,6 +149,10 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 			return nil, nil, err
 		}
 		outputInfo = maketx.NewOutputInfo(pkScript)
+	}
+
+	if !account.Synced() {
+		return nil, nil, accounts.ErrSyncInProgress
 	}
 	utxo, err := account.transactions.SpendableOutputs()
 	if err != nil {

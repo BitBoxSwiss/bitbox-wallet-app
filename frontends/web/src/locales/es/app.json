@@ -101,7 +101,7 @@
       "checking": "Comprobando copia de seguridad ...",
       "confirmTitle": "Comprobar copia de seguridad",
       "notOK": "La copia de seguridad NO coincide con la billetera.",
-      "ok": "La copia de seguridad coincide con el monedero.",
+      "ok": "La copia de seguridad coincide con la billetera.",
       "password": {
         "label": "Contraseña de recuperación",
         "placeholder": "Contraseña de recuperación",
@@ -113,7 +113,7 @@
     "create": {
       "alreadyExists": "Ya tienes una copia de seguridad válida. ¿Quieres volverla a crear?",
       "fail": "La creación de la copia de seguridad ha FALLADO!",
-      "info": "Por favor ingresa la contraseña de recuperación del monedero actual para su verificación.",
+      "info": "Por favor ingresa la contraseña de recuperación de la billetera actual para su verificación.",
       "name": {
         "label": "Nombre de la copia de seguridad",
         "placeholder": "Por favor dale un nombre a la copia de seguridad"
@@ -125,7 +125,7 @@
       "title": "Crear una copia de seguridad",
       "verificationFailed": "La contraseña de recuperación NO COINCIDE con el monedero actual. La copia de seguridad ha sido creada. Por favor utiliza 'Comprobar copia de seguridad' para verificar tu contraseña de recuperación nuevamente."
     },
-    "description": "Seleccionar <strong>archivo de copia de seguridad del monedero</strong>",
+    "description": "Seleccionar <strong>archivo de copia de seguridad de la billetera</strong>",
     "insert": "Por favor, inserta la tarjeta micro SD para administrar las copias de seguridad.",
     "insertButton": "He insertado la tarjeta micro SD",
     "list": "Tus copias de seguridad en la microSD",
@@ -146,7 +146,7 @@
       "selectedBackup": "<strong>{{backupName}}</strong> creada en {{createdDateTime}} será restaurada.",
       "subtitle": "Por favor selecciona una copia de seguridad para continuar",
       "title": "Restaurar",
-      "understand": "Entiendo que una contraseña de recuperación incorrecta creará un monedero diferente"
+      "understand": "Entiendo que una contraseña de recuperación incorrecta creará una billetera diferente"
     },
     "showMnemonic": {
       "checkboxLabel": "He leído la información anterior.",
@@ -208,7 +208,7 @@
     "advanced": {
       "button": "Opciones avanzadas",
       "outOfDate": "Se requiere actualización del firmware",
-      "seed12WordInfo": "Tenga en cuenta que el número de palabras no se puede cambiar después de crear la billetera.",
+      "seed12WordInfo": "Ten en cuenta que el número de palabras no se puede cambiar después de crear la billetera.",
       "seed12WordLabel": "Crear semilla de 12 palabras en lugar de 24 palabras",
       "seed12WordText": "Predeterminadamente, la BitBox02 utiliza una semilla de 24 palabras. Ambas longitudes de semilla son seguras contra la fuerza bruta en la práctica. Algunos usuarios pueden preferir la conveniencia de la semilla de 12 palabras.",
       "skipSDCardLabel": "Omitir la copia de seguridad de la tarjeta microSD y escribir las palabras de recuperación en su lugar",
@@ -233,7 +233,7 @@
     "create": {
       "button": "Dale un nombre al dispositivo y continua",
       "info": "Aquí están los pasos básicos que seguirás para instalar tu BitBox:",
-      "inputTitle": "Nombre del monedero",
+      "inputTitle": "Nombre de la billetera",
       "point1": "Dale un nombre a tu dispositivo",
       "point2": "Establece una contraseña para tu dispositivo",
       "point3": "Crea una copia de seguridad",
@@ -242,13 +242,8 @@
     "createBackupAborted": "Creación de copia de seguridad abortada.",
     "createBackupFailed": "Creación de copia de seguridad fallida, vuelve a intentarlo.",
     "initialize": {
-      "passwordText": "Ahora establezcamos una contraseña para tu dispositivo. Utiliza los controles en tu BitBox para introducir y escoger una contraseña.",
-      "passwordTitle": "Establece una contraseña para tu BitBox",
-      "text": "Tu BitBox02 se ha conectado con éxito! Ahora vamos a iniciar tu dispositivo. Empecemos seleccionando crear una billetera nueva o restablecer una billetera desde una copia de seguridad existente.<strong>Por favor asegúrate de tener una tarjeta microSD introducida en tu BitBox02</strong>",
-      "tip": "Te recomendamos que continues en un entorno seguro.",
-      "title": "Inicia tu BitBox"
+      "tip": "Te recomendamos que continues en un entorno seguro."
     },
-    "insertSDCard": "<strong>Por favor asegúrate de haber introducido una tarjeta microSD en tu BitBox02.</strong>",
     "noPasswordMatch": "Las contraseñas no coinciden, por favor, vuelve a intentarlo.",
     "pairing": {
       "failed": "Conexión no confirmada. Por favor vuelve a conectar tu BitBox02.",
@@ -302,12 +297,11 @@
     "stepUninitialized": {
       "create": "Quiero crear una nueva billetera con mi BitBox02.",
       "restore": "Quiero recuperar mi billetera desde una copia de seguridad.",
-      "restoreMicroSD": "Recupera desde una tarjeta microSD",
+      "restoreMicroSD": "Restaurar desde una tarjeta microSD",
       "restoreMnemonic": "Restaurar desde las palabras de recuperación",
       "title": "Configure su billetera"
     },
     "success": {
-      "text": "Perfecto! Tu BitBox02 está lista para ser usada. \n\nPara más información sobre cómo usar la BitBoxApp, por favor utiliza la guía in-app haciendo clic en el signo de interrogación de la esquina superior derecha. ",
       "title": "Estas preparado para usar la billetera BitBox."
     }
   },
@@ -380,11 +374,11 @@
     "check": "Comprobar la copia de seguridad",
     "continue": "Continuar",
     "copy": "Copia",
-    "create": "Crea",
+    "create": "Crear",
     "dismiss": "Descartar",
     "done": "Hecho",
     "download": "Descargar",
-    "hiddenwallet": "Crea el monedero oculto",
+    "hiddenwallet": "Crea billetera oculta",
     "next": "Siguiente",
     "ok": "OK",
     "previous": "Anterior",
@@ -564,7 +558,7 @@
         ],
         "payment": {
           "details": "Puedes comprar {{coinCode}} inmediatamente a través de MoonPay con los siguientes métodos de pago. Los pedidos con tarjeta de crédito o débito son inmediatos y prácticos, pero más caros debido al mayor riesgo de retrocesos de cargos a tarjetas. Recomendamos utilizar la opción de transferencia bancaria para grandes cantidades. La tarifa mínima es de 4 EUR.",
-          "footnote": "Tenga en cuenta que los tipos de cambio de MoonPay pueden diferenciarse de los utilizados en BitBoxApp, lo que se nota en cantidades ligeramente diferentes.",
+          "footnote": "Ten en cuenta que los tipos de cambio de MoonPay pueden diferenciarse de los utilizados en la BitBoxApp, lo que se nota en cantidades ligeramente diferentes.",
           "table": {
             "1_description": "Tarifa baja, puede tardar 3 días laborales",
             "1_method": "Transferencias bancarias (SEPA)",
@@ -1033,11 +1027,11 @@
       },
       "hiddenWallet": {
         "text": "Es un segundo monedero en el mismo dispositivo protegido por una contraseña de dispositivo y una contraseña de recuperación diferentes, que puedes usar para una negación creíble. La misma semilla de copia de seguridad se usa para tu monedero normal y oculto, por lo que no se requiere una copia de seguridad adicional.",
-        "title": "¿Qué es un monedero oculto?"
+        "title": "¿Qué es una billetera oculta?"
       },
       "legacyHiddenWallet": {
         "text": "Primero haz clic en el botón de abajo (disponible si el BitBox está desbloqueado con la contraseña del dispositivo principal y la 2FA está desactivada), luego vuelve a conectar su Bitbox y desbloquea con la contraseña oculta del dispositivo.",
-        "title": "¿Cómo accedo el monedero oculto heredado?"
+        "title": "¿Cómo accedo a la billetera oculta heredado?"
       },
       "pairing": {
         "text": "Después de haber descargado nuestra aplicación móvil para iOS o Android, escanea el código QR mostrado, que establece un canal seguro entre la aplicación móvil y esta aplicación. Una vez escaneado, sige las instrucciones en la aplicación móvil.",
@@ -1294,7 +1288,7 @@
     "pinLabel": "Contraseña oculta del dispositivo",
     "pinRepeatLabel": "Repita la contraseña oculta del dispositivo",
     "pinRepeatPlaceholder": "Por favor confirma la contraseña oculta del dispositivo",
-    "success": "Monedero oculto creado con éxito. Vuelve a enchufar tu BitBox para desbloquearlo."
+    "success": "Billetera oculta creada con éxito. Vuelve a enchufar tu BitBox para desbloquearla."
   },
   "initialize": {
     "create": "Establecer contraseña del dispositivo",
@@ -1320,9 +1314,9 @@
     "title": "Selecciona el idioma"
   },
   "legacyhiddenwallet": {
-    "disable": "Desactiva monedero oculto heredado",
-    "enable": "Activa monedero oculto heredado",
-    "successDisable": "Se desactivó con éxito el legado del monedero oculto.",
+    "disable": "Desactivar billetera oculta heredada",
+    "enable": "Activar billetera oculto heredada",
+    "successDisable": "Se desactivó con éxito la billetera oculta heredada.",
     "successEnable": "El monedero oculto heredado se habilitó con éxito. Vuelva a enchufar su BitBox e ingresa la contraseña del dispositivo oculto para acceder al monedero oculto heredado."
   },
   "loading": "cargando…",
@@ -1599,8 +1593,8 @@
       "password-change": "NO podré cambiar la contraseña de recuperación más tarde",
       "password-required": "La contraseña de recuperación es necesaria para restaurar un monedero desde una copia de seguridad"
     },
-    "create": "Crear monedero",
-    "creating": "Creando monedero",
+    "create": "Crear billetera",
+    "creating": "Creando billetera",
     "description": "Entiendo que:",
     "error": {
       "e102": "La contraseña debe contener al menos 4 caracteres.",
@@ -1619,7 +1613,7 @@
       "repeatPlaceholder": "Repite la contraseña de recuperación"
     },
     "walletName": {
-      "label": "Nombre del monedero"
+      "label": "Nombre de la billetera"
     }
   },
   "seedRestore": {
@@ -1631,7 +1625,7 @@
       "description2": "Elije una copia de seguridad y haz clic en \"Restablecer\"",
       "description3": "Ingresa la contraseña de recuperación",
       "description4": "Debes confirmar para entender que una contraseña incorrecta creará una cartera diferente.",
-      "title": "Cómo restaurar un monedero desde una copia de seguridad"
+      "title": "Cómo restaurar una billetera desde una copia de seguridad"
     }
   },
   "send": {
@@ -1829,7 +1823,7 @@
     },
     "getstarted": "Empezar",
     "restore": {
-      "summary": "Has restaurado con éxito un monedero desde una copia de seguridad.",
+      "summary": "Has restaurado con éxito una billetera desde una copia de seguridad.",
       "title": "Éxito"
     }
   },

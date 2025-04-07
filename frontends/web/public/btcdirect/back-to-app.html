@@ -3,7 +3,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BTC Direct - Back to app</title>
 
+<link href="./btcdirect.css" rel="stylesheet">
+
 <script>
+// NOTE: please note this static page is for development purposes only and may not be in sync with the actual version
+document.addEventListener('DOMContentLoaded', () => {
   if (window.top === window) {
     showError('Unexpected error');
     return;
@@ -22,4 +26,5 @@
       })
     );
   }
+});
 </script>

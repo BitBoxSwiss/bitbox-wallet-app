@@ -10,5 +10,7 @@
 	<string>This app uses Bluetooth to connect to devices.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Bluetooth is needed for communication with devices.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Authenticate to access your BitBoxApp.</string>
 </dict>
 </plist>

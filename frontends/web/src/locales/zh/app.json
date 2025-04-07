@@ -136,13 +136,8 @@
       "text": "好的，让我们开始创建一个新的钱包！"
     },
     "initialize": {
-      "passwordText": "现在，让我们为您的设备设置密码。参考以下视频指导，通过BitBox设备的边框触控功能进行密码设置。",
-      "passwordTitle": "为您的BitBox设置密码",
-      "text": "已成功配对您的BitBox02！现在，让我们进行设备的初始化。请选择您是要创建一个新的钱包，或是需要从已有(私钥)备份中恢复原来的钱包。 <strong>请确保您的BitBox02中插入了microSD卡</strong>",
-      "tip": "我们建议您在安全的环境中进行操作。",
-      "title": "初始化您的BitBox"
+      "tip": "我们建议您在安全的环境中进行操作。"
     },
-    "insertSDCard": "<strong>请确保您的BitBox02设备上已插入了microSD卡。</strong>",
     "pairing": {
       "failed": "未确认的配对。请重新插入您的BitBox02。",
       "paired": "您已在设备上确认代码匹配。如果确认无误，则可以单击下面的按钮以继续。",
@@ -185,7 +180,6 @@
       "title": "设置您的BitBox02"
     },
     "success": {
-      "text": "太棒了！您可以开始使用BitBox02了。\n\n如需获取如何使用BitBoxApp的信息，请单击右上角的问号访问应用程序指南。",
       "title": "您已准备就绪！"
     }
   },

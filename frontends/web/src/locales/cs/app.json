@@ -242,13 +242,8 @@
     "createBackupAborted": "Vytváření zálohy bylo zrušeno.",
     "createBackupFailed": "Vytvoření zálohy se nezdařilo, zkuste to znovu.",
     "initialize": {
-      "passwordText": "Nyní nastavíme heslo pro vaše zařízení. K zadání a výběru hesla použijte ovládací prvky na BitBoxu.",
-      "passwordTitle": "Nastavte heslo pro svůj BitBox",
-      "text": "Váš BitBox02 byl úspěšně spárován! Nyní inicializujeme vaše zařízení. Začněte výběrem vytvořit novou peněženku nebo obnovit peněženku ze zálohy. <strong>Ujistěte se, že je v Bitboxu vložena microSD karta</strong>",
-      "tip": "Doporučujeme, abyste pokračovali na bezpečném místě.",
-      "title": "Inicializujte svůj BitBox"
+      "tip": "Doporučujeme, abyste pokračovali na bezpečném místě."
     },
-    "insertSDCard": "<strong>Ujistěte se, že je ve vašem BitBoxu vložena microSD karta.</strong>",
     "noPasswordMatch": "Hesla se neshodují, zkuste to prosím znovu.",
     "pairing": {
       "failed": "Spárování nepotvrzeno. Znovu připojte svůj BitBox02.",
@@ -307,7 +302,6 @@
       "title": "Nastavení peněženky"
     },
     "success": {
-      "text": "Hurá! Váš BitBox02 je nyní připraven k použití.\n\nChcete-li získat další informace o tom, jak používat BitBoxApp, použijte průvodce v aplikaci kliknutím na otazník v pravém horním rohu.",
       "title": "Jste připraveni!"
     }
   },

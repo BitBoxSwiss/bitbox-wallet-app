@@ -16,8 +16,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getChannelHash, verifyChannelHash } from '@/api/bitbox02';
-import { channelHashChanged } from '@/api/devicessync';
+import { channelHashChanged, getChannelHash, verifyChannelHash } from '@/api/bitbox02';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Status } from '@/components/status/status';
 import { PointToBitBox02 } from '@/components/icon';

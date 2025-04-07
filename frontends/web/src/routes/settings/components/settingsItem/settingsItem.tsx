@@ -59,7 +59,7 @@ export const SettingsItem = ({
 
   const content =
     (<>
-      <span title={title}>
+      <span className={styles.content} title={title}>
         <div className={styles.primaryText}>{settingName}</div>
         { secondaryText ? (
           <p className={styles.secondaryText}>{secondaryText}</p>

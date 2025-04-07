@@ -224,6 +224,10 @@ jobs:
         with:
           # Take Go version to install from go.mod
           go-version-file: 'go.mod'
+      # We need to install wheel otherwise the below will fail
+      # with "invalid command 'bdist_wheel'"
+      # See https://github.com/jurplel/install-qt-action/issues/281
+      - run: pip install wheel
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:

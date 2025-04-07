@@ -25,15 +25,15 @@ import style from './infocontent.module.css';
 export const getBTCDirectOTCLink = () => {
   switch (i18n.resolvedLanguage) {
   case 'de':
-    return 'https://btcdirect.eu/de-at/private-trading-contact?BitBox';
+    return 'https://start.btcdirect.eu/de/private-trading-bitbox';
   case 'nl':
-    return 'https://btcdirect.eu/nl-nl/private-trading-contact?BitBox';
+    return 'https://start.btcdirect.eu/nl/private-trading-bitbox';
   case 'es':
-    return 'https://btcdirect.eu/es-es/private-trading-contactanos?BitBox';
+    return 'https://start.btcdirect.eu/es/private-trading-bitbox';
   case 'fr':
-    return 'https://btcdirect.eu/fr-fr/private-trading-contact?BitBox';
+    return 'https://start.btcdirect.eu/fr/private-trading-bitbox';
   default:
-    return 'https://btcdirect.eu/en-eu/private-trading-contact?BitBox';
+    return 'https://start.btcdirect.eu/private-trading-bitbox';
   }
 };
 

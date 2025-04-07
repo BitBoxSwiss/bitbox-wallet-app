@@ -1,8 +1,17 @@
 # Changelog
 
 ## Unreleased
+- Removed the BTC/sat switch from the general settings in favor of a rotating unit in the account balance.
 - Reduced support for BitBox01
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
+- Replace sidebar with bottom navigation bar for mobile devices
+
+# v4.47.2
+- Linux: fix compatiblity with some versions of Mesa that are incompatible with the bundled wayland libraries
+
+# 4.47.1
+- Linux: fix support for Wayland
+- Linux: release device upon app close, enabling other apps to connect to the BitBox after the BitBoxApp closes
 
 # 4.47.0
 - Bundle BitBox02 firmware version v9.22.0

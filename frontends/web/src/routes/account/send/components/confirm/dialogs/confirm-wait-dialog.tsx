@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { syncSignProgress, TSignProgress } from '@/api/devicessync';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { Amount } from '@/components/amount/amount';
 import { customFeeUnit } from '@/routes/account/utils';
@@ -33,7 +31,6 @@ export const ConfirmingWaitDialog = ({
   transactionDetails
 }: TConfirmSendProps) => {
   const { t } = useTranslation();
-  const [signProgress, setSignProgress] = useState<TSignProgress>();
 
   const {
     proposedFee,
@@ -45,39 +42,13 @@ export const ConfirmingWaitDialog = ({
     activeCurrency
   } = transactionDetails;
 
-  // Reset the signProgress state every time the dialog was closed (after send/abort).
-  const [prevIsConfirming, setPrevIsConfirming] = useState(isConfirming);
-  if (prevIsConfirming != isConfirming) {
-    setPrevIsConfirming(isConfirming);
-    if (!isConfirming) {
-      setSignProgress(undefined);
-    }
-  }
-
-  useEffect(() => {
-    return syncSignProgress(setSignProgress);
-  }, []);
-
   if (!isConfirming) {
     return null;
   }
 
-  const confirmPrequel = (signProgress && signProgress.steps > 1) ? (
-    <span>
-      {
-        t('send.signprogress.description', {
-          steps: signProgress.steps.toString(),
-        })
-      }
-      <br />
-      {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
-    </span>
-  ) : undefined;
-
   return (
     <WaitDialog
       title={t('send.confirm.title')}
-      prequel={confirmPrequel}
       includeDefault>
       <div className={style.confirmItem}>
         <label>{t('send.address.label')}</label>
@@ -169,4 +140,3 @@ export const ConfirmingWaitDialog = ({
   )
   ;
 };
-

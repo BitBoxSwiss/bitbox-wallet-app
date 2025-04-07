@@ -121,15 +121,27 @@ func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, isFee bool) For
 
 func (handlers *Handlers) formatAmountAtTimeAsJSON(amount coin.Amount, timeStamp *time.Time) FormattedAmount {
 	accountCoin := handlers.account.Coin()
-	conversions := map[string]string{}
-	estimated := false
-	if timeStamp != nil {
+	rateUpdater := handlers.account.Config().RateUpdater
+	formatBtcAsSat := util.FormatBtcAsSat(handlers.account.Config().BtcCurrencyUnit)
+	var conversions map[string]string
+	var estimated bool
+
+	if timeStamp == nil {
+		conversions = coin.Conversions(
+			amount,
+			accountCoin,
+			false,
+			rateUpdater,
+			formatBtcAsSat,
+		)
+		estimated = true
+	} else {
 		conversions, estimated = coin.ConversionsAtTime(
 			amount,
-			handlers.account.Coin(),
+			accountCoin,
 			false,
-			handlers.account.Config().RateUpdater,
-			util.FormatBtcAsSat(handlers.account.Config().BtcCurrencyUnit),
+			rateUpdater,
+			formatBtcAsSat,
 			timeStamp,
 		)
 	}
@@ -189,10 +201,6 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 		feeString = handlers.formatAmountAsJSON(*txInfo.Fee, true)
 	}
 	amount := handlers.formatAmountAsJSON(txInfo.Amount, false)
-	amountAtTime := FormattedAmount{
-		Amount: amount.Amount,
-		Unit:   amount.Unit,
-	}
 	var formattedTime *string
 	timestamp := txInfo.Timestamp
 	if timestamp == nil {
@@ -200,11 +208,11 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 	}
 
 	deductedAmountAtTime := handlers.formatAmountAtTimeAsJSON(txInfo.DeductedAmount, timestamp)
+	amountAtTime := handlers.formatAmountAtTimeAsJSON(txInfo.Amount, timestamp)
 
 	if timestamp != nil {
 		t := timestamp.Format(time.RFC3339)
 		formattedTime = &t
-		amountAtTime = handlers.formatAmountAtTimeAsJSON(txInfo.Amount, timestamp)
 	}
 
 	addresses := []string{}
@@ -346,12 +354,22 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 
 	addressCounts := make(map[string]int)
 
-	for _, output := range t.SpendableOutputs() {
+	spendableOutputs, err := t.SpendableOutputs()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, output := range spendableOutputs {
 		address := output.Address.EncodeForHumans()
 		addressCounts[address]++
 	}
 
-	for _, output := range t.SpendableOutputs() {
+	spendableOutputs, err = t.SpendableOutputs()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, output := range spendableOutputs {
 		address := output.Address.EncodeForHumans()
 		addressReused := addressCounts[address] > 1
 
@@ -373,15 +391,29 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 }
 
 func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) {
-	balance, err := handlers.account.Balance()
-	if err != nil {
-		return nil, err
+	type balance struct {
+		HasAvailable bool            `json:"hasAvailable"`
+		Available    FormattedAmount `json:"available"`
+		HasIncoming  bool            `json:"hasIncoming"`
+		Incoming     FormattedAmount `json:"incoming"`
 	}
-	return map[string]interface{}{
-		"hasAvailable": balance.Available().BigInt().Sign() > 0,
-		"available":    handlers.formatAmountAsJSON(balance.Available(), false),
-		"hasIncoming":  balance.Incoming().BigInt().Sign() > 0,
-		"incoming":     handlers.formatAmountAsJSON(balance.Incoming(), false),
+
+	type result struct {
+		Success bool    `json:"success"`
+		Balance balance `json:"balance,omitempty"`
+	}
+	accountBalance, err := handlers.account.Balance()
+	if err != nil {
+		return result{Success: false}, nil
+	}
+	return result{
+		Success: true,
+		Balance: balance{
+			HasAvailable: accountBalance.Available().BigInt().Sign() > 0,
+			Available:    handlers.formatAmountAsJSON(accountBalance.Available(), false),
+			HasIncoming:  accountBalance.Incoming().BigInt().Sign() > 0,
+			Incoming:     handlers.formatAmountAsJSON(accountBalance.Incoming(), false),
+		},
 	}, nil
 }
 
@@ -446,6 +478,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		Note           string         `json:"note"`
 		Counter        int            `json:"counter"`
 		PaymentRequest *slip24Request `json:"paymentRequest"`
+		UseHighestFee  bool           `json:"useHighestFee"`
 	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
@@ -480,6 +513,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		}
 		input.PaymentRequest = paymentRequest
 	}
+	input.UseHighestFee = jsonBody.UseHighestFee
 	return nil
 }
 

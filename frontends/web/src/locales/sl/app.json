@@ -242,13 +242,8 @@
     "createBackupAborted": "Kreiranje varnostne kopije je prekinjeno.",
     "createBackupFailed": "Ustvarjanje varnostne kopije ni uspelo, poskusite znova.",
     "initialize": {
-      "passwordText": "Zdaj pa določite geslo za vašo napravo. Za vnos in izbiro gesla uporabite kontrolne drsnike na BitBoxu.",
-      "passwordTitle": "Nastavite geslo za vaš BitBox",
-      "text": "Seznanjanje je bilo uspešno! Zdaj pa pripravimo vašo napravo. Začnite z ustvarjanjem nove denarnice ali obnovitvijo denarnice iz obstoječe varnostne kopije. <strong>Prepričajte se, da imate v BitBox02 vstavljeno microSD kartico </strong>",
-      "tip": "Priporočamo vam, da te postopke opravite v varnem in zasebnem okolju.",
-      "title": "Zaženite in nastavite BitBox02"
+      "tip": "Priporočamo vam, da te postopke opravite v varnem in zasebnem okolju."
     },
-    "insertSDCard": "<strong>Prepričajte se, da imate v BitBox02 vstavljeno microSD kartico.</strong>",
     "noPasswordMatch": "Gesli se nista ujemali. Poskusite znova.",
     "pairing": {
       "failed": "Seznanjanje je bilo prekinjeno. Ponovno priklopite BitBox02.",
@@ -307,7 +302,6 @@
       "title": "Nastavite denarnico"
     },
     "success": {
-      "text": "Bravo! Vaš BitBox02 je zdaj pripravljen za uporabo.\n\nZa dodatne informacije o uporabi aplikacije BitBoxApp uporabite vodnik. Na voljo je s klikom na vprašaj v zgornjem desnem kotu.",
       "title": "Zdaj ste pripravljeni za delo z BitBox denarnico!"
     }
   },

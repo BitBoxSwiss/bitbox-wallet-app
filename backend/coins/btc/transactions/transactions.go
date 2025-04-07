@@ -194,7 +194,6 @@ func (transactions *Transactions) allInputsOurs(dbTx DBTxInterface, transaction 
 // include all unspent outputs of confirmed transactions, and unconfirmed outputs that we created
 // ourselves.
 func (transactions *Transactions) SpendableOutputs() (map[wire.OutPoint]*SpendableOutput, error) {
-	transactions.synchronizer.WaitSynchronized()
 	return DBView(transactions.db, func(dbTx DBTxInterface) (map[wire.OutPoint]*SpendableOutput, error) {
 		outputs, err := dbTx.Outputs()
 		if err != nil {
@@ -316,7 +315,7 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 	}
 }
 
-// getTransactionsCached requires transactions lock.
+// getTransactionCached requires transactions lock.
 func (transactions *Transactions) getTransactionCached(
 	dbTx DBTxInterface,
 	txHash chainhash.Hash,
@@ -337,7 +336,6 @@ func (transactions *Transactions) getTransactionCached(
 
 // Balance computes the confirmed and unconfirmed balance of the account.
 func (transactions *Transactions) Balance() (*accounts.Balance, error) {
-	transactions.synchronizer.WaitSynchronized()
 	return DBView(transactions.db, func(dbTx DBTxInterface) (*accounts.Balance, error) {
 		outputs, err := dbTx.Outputs()
 		if err != nil {
@@ -499,7 +497,6 @@ func (transactions *Transactions) txInfo(
 // Transactions returns an ordered list of transactions.
 func (transactions *Transactions) Transactions(
 	isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error) {
-	transactions.synchronizer.WaitSynchronized()
 	return DBView(transactions.db, func(dbTx DBTxInterface) (accounts.OrderedTransactions, error) {
 		txs := []*accounts.TransactionData{}
 		txHashes, err := dbTx.Transactions()

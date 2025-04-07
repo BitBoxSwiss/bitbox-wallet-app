@@ -17,6 +17,9 @@
     margin-bottom: var(--size-default);
 }
 
+.content {
+    width: 100%;
+}
 
 .primaryText {
     color: var(--color-default);

@@ -16,6 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import type { TPagePropsWithSettingsTabs } from '../settings/types';
+import { Bluetooth } from '@/components/bluetooth/bluetooth';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { ViewContent, View } from '@/components/view/view';
@@ -56,6 +57,7 @@ export const NoDeviceConnected = ({
                 <div className={styles.noDevice}>
                   {t('deviceSettings.noDevice')}
                 </div>
+                <Bluetooth />
               </WithSettingsTabs>
             </ViewContent>
           </View>

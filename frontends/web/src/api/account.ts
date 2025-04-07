@@ -83,11 +83,19 @@ export type TAccountsBalanceByCoin = {
   [key in CoinCode]?: IAmount;
 };
 
+export type TAccountsBalanceResponse = {
+  success: true;
+  balance: TAccountsBalance;
+
+} | {
+  success: false;
+}
+
 export type TAccountsBalance = {
   [rootFingerprint in TKeystore['rootFingerprint']]: TAccountsBalanceByCoin;
 };
 
-export const getAccountsBalance = (): Promise<TAccountsBalance> => {
+export const getAccountsBalance = (): Promise<TAccountsBalanceResponse> => {
   return apiGet('accounts/balance');
 };
 
@@ -105,8 +113,6 @@ export type TAccountsTotalBalanceResponse = {
     totalBalance: TAccountsTotalBalance;
 } | {
     success: false;
-    errorCode?: 'ratesNotAvailable';
-    errorMessage?: string;
 }
 
 export const getAccountsTotalBalance = (): Promise<TAccountsTotalBalanceResponse> => {
@@ -119,9 +125,16 @@ type CoinFormattedAmount = {
   formattedAmount: IAmount;
 };
 
+export type TCoinsTotalBalanceResponse = {
+  success: true;
+  coinsTotalBalance: TCoinsTotalBalance;
+} | {
+  success: false;
+}
+
 export type TCoinsTotalBalance = CoinFormattedAmount[];
 
-export const getCoinsTotalBalance = (): Promise<TCoinsTotalBalance> => {
+export const getCoinsTotalBalance = (): Promise<TCoinsTotalBalanceResponse> => {
   return apiGet('accounts/coins-balance');
 };
 
@@ -197,7 +210,6 @@ export type TSummaryResponse = {
     data: TSummary;
 } | {
   success: false;
-  error: string;
 }
 
 export type TSummary = {
@@ -233,7 +245,14 @@ export interface IBalance {
     incoming: IAmount;
 }
 
-export const getBalance = (code: AccountCode): Promise<IBalance> => {
+export type TBalanceResponse = {
+  success: true;
+  balance: IBalance;
+} | {
+  success: false;
+}
+
+export const getBalance = (code: AccountCode): Promise<TBalanceResponse> => {
   return apiGet(`account/${code}/balance`);
 };
 
@@ -320,12 +339,18 @@ export const getReceiveAddressList = (code: AccountCode) => {
 export type TTxInput = {
   address: string;
   amount: string;
-  feeTarget: FeeTargetCode;
-  customFee: string;
   sendAll: 'yes' | 'no';
   selectedUTXOs: string[];
   paymentRequest: Slip24 | null;
-};
+} & (
+  {
+    useHighestFee: false;
+    customFee: string;
+    feeTarget: FeeTargetCode;
+  } | {
+    useHighestFee: true;
+  }
+);
 
 export type TTxProposalResult = {
   amount: IAmount;

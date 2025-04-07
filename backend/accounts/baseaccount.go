@@ -33,7 +33,13 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	// ErrSyncInProgress is returned when the initial account sync is still in progress.
+	ErrSyncInProgress errp.ErrorCode = "syncInProgress"
 )
 
 // AccountConfig holds account configuration.
@@ -45,7 +51,6 @@ type AccountConfig struct {
 	// NotesFolder is the folder where the transaction notes are stored. Full path.
 	NotesFolder     string
 	ConnectKeystore func() (keystore.Keystore, error)
-	OnEvent         func(types.Event)
 	RateUpdater     *rates.RateUpdater
 	GetNotifier     func(signing.Configurations) Notifier
 	GetSaveFilename func(suggestedFilename string) string
@@ -83,12 +88,15 @@ func NewBaseAccount(config *AccountConfig, coin coin.Coin, log *logrus.Entry) *B
 		log:    log,
 	}
 	account.Synchronizer = synchronizer.NewSynchronizer(
-		func() { config.OnEvent(types.EventSyncStarted) },
 		func() {
 			if account.synced.CompareAndSwap(false, true) {
-				config.OnEvent(types.EventStatusChanged)
+				account.Notify(observable.Event{
+					Subject: string(types.EventStatusChanged),
+					Action:  action.Reload,
+					Object:  nil,
+				})
 			}
-			config.OnEvent(types.EventSyncDone)
+			account.notifySyncDone()
 		},
 		log,
 	)
@@ -129,7 +137,11 @@ func (account *BaseAccount) Offline() error {
 // changed.
 func (account *BaseAccount) SetOffline(offline error) {
 	account.offline = offline
-	account.config.OnEvent(types.EventStatusChanged)
+	account.Notify(observable.Event{
+		Subject: string(types.EventStatusChanged),
+		Action:  action.Reload,
+		Object:  nil,
+	})
 }
 
 // Initialize initializes the account. `accountIdentifier` is used as part of the filename of
@@ -153,7 +165,7 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 	if account.config.RateUpdater != nil {
 		account.config.RateUpdater.Observe(func(e observable.Event) {
 			if e.Subject == rates.RatesEventSubject {
-				account.config.OnEvent(types.EventSyncDone)
+				account.notifySyncDone()
 			}
 		})
 	}
@@ -227,7 +239,11 @@ func (account *BaseAccount) SetTxNote(txID string, note string) error {
 		return err
 	}
 	// Prompt refresh.
-	account.config.OnEvent(types.EventStatusChanged)
+	account.Notify(observable.Event{
+		Subject: string(types.EventStatusChanged),
+		Action:  action.Reload,
+		Object:  nil,
+	})
 	return nil
 }
 
@@ -310,4 +326,12 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 	}
 	writer.Flush()
 	return writer.Error()
+}
+
+func (account *BaseAccount) notifySyncDone() {
+	account.Notify(observable.Event{
+		Subject: string(types.EventSyncDone),
+		Action:  action.Replace,
+		Object:  nil,
+	})
 }
