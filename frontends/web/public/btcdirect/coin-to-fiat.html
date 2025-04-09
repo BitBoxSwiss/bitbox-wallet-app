@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTC Direct - Sell</title>
+
+<link href="./btcdirect.css" rel="stylesheet">
+
+<div class="btcdirect-widget"></div>
+
+<script lang="js">
+  ;(() => {
+
+    if (window.top === window) {
+      showError('Unexpected error');
+      return;
+    }
+
+    // polyfill if crypto.randomUUID is not available, i.e. in Qt WebEngine
+    if (!crypto.randomUUID) {
+      crypto.randomUUID = function () {
+        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+          (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+      };
+    }
+
+    const onMessage = (event) => {
+      switch (event.data?.action) {
+      case 'configuration':
+        const {
+          apiKey,
+          baseCurrency,
+          locale,
+          mode,
+          quoteCurrency,
+          theme,
+        } = event.data || {};
+
+        if ( // this should never happen, but if it does we stop here
+          !baseCurrency
+          || !quoteCurrency
+        ) {
+          showError(`Unexpected error:
+            ${!baseCurrency ? 'BaseCurrency missing' : ''}
+            ${!quoteCurrency ? 'QuoteCurrency missing' : ''}
+          `);
+          return;
+        }
+        const currency = baseCurrency.toUpperCase();
+
+        // add the btcdirect CSS
+        document.head.appendChild(
+          Object.assign(document.createElement('link'), {
+            href: (
+              mode === 'production'
+              ? 'https://cdn.btcdirect.eu/coin-to-fiat/coin-to-fiat.css'
+              : 'https://cdn-sandbox.btcdirect.eu/coin-to-fiat/coin-to-fiat.css'
+            ),
+            rel: 'stylesheet',
+          })
+        );
+
+        // add the btcdirect script
+        (function (btc, d, i, r, e, c, t) {
+          btc[r] = btc[r] || function () {
+            (btc[r].q = btc[r].q || []).push(arguments)
+          };
+          c = d.createElement(i);
+          c.id = r; c.src = e; c.async = true;
+          c.type = 'module'; c.dataset.btcdirect = '';
+          t = d.getElementsByTagName(i)[0];
+          t.parentNode.insertBefore(c, t);
+        })(window, document, 'script', 'btcdirect',
+          mode === 'production'
+          ? 'https://cdn.btcdirect.eu/coin-to-fiat/coin-to-fiat.js'
+          : 'https://cdn-sandbox.btcdirect.eu/coin-to-fiat/coin-to-fiat.js'
+        );
+
+        btcdirect('init', {
+          token: apiKey,
+          debug: mode === 'debug',
+          locale: locale || 'en-GB',
+          returnUrl: 'https://bitboxapp.shiftcrypto.io/widgets/btcdirect/v1/back-to-app.html',
+          theme: theme || 'light',
+        });
+
+        btcdirect('set-parameters',
+          mode === 'production' ? {
+            baseCurrency: currency,
+            fixedCurrency: true,
+            quoteCurrency,
+            // paymentMethod: any of 'bancontact', 'bankTransfer', 'creditCard', 'giropay', 'iDeal', 'sofort', 'applepay'
+            // showWalletAddress: false,
+          } : {
+            baseCurrency: currency,
+            fixedCurrency: true,
+            paymentMethod: 'sofort', // sandbox currently only supports sofort payment method
+            quoteCurrency,
+            // showWalletAddress: false,
+          }
+        );
+
+        break;
+      }
+    };
+
+    window.addEventListener('message', onMessage);
+    window.addEventListener('btcdirect-embeddable-coin-to-fiat-order-requested', (e) => {
+
+      window.parent.postMessage({
+        action: 'request-payment',
+        amount: String(e.detail?.amount),
+        currency: e.detail?.currency,
+        // orderId: e.detail?.orderId,
+      }, '*');
+
+    });
+
+    // Request the parent to send attributes
+    window.parent.postMessage({
+      action: 'request-configuration'
+    }, '*');
+
+    function showError(message) {
+      document.body.append(
+        Object.assign(document.createElement('h1'), {
+          style: 'color: red; padding: 1rem;',
+          textContent: message,
+        })
+      );
+    }
+
+  })();
+</script>
