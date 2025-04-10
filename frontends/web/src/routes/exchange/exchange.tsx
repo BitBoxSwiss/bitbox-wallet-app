@@ -72,7 +72,7 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
     if (!regionCodes || !config) {
       return;
     }
-    const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' }) || '';
+    const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' });
     const regions: TOption[] = regionCodes.map(code => ({
       value: code,
       label: regionNames.of(code) || code
