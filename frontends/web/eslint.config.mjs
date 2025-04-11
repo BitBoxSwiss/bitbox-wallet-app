@@ -2,6 +2,7 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
+import stylistic from '@stylistic/eslint-plugin';
 
 export default tseslint.config(
   {
@@ -13,6 +14,7 @@ export default tseslint.config(
     'plugins': {
       react: pluginReact,
       'react-hooks': pluginReactHooks,
+      '@stylistic': stylistic,
     },
     'settings': {
       'react': {
@@ -57,14 +59,14 @@ export default tseslint.config(
         'assignment': 'parens-new-line',
         'condition': 'parens-new-line',
         'logical': 'parens-new-line'
-      }]
+      }],
+      '@stylistic/type-generic-spacing': ['error'],
     },
   },
   {
     'files': ['**/*.ts?(x)'],
     'rules': {
       '@typescript-eslint/no-explicit-any': 'off',
-      // '@typescript-eslint/type-annotation-spacing': 'error', // TODO use @stylistic/plus/type-generic-spacing: ['error']
       '@typescript-eslint/no-unused-expressions': 'off',
       '@typescript-eslint/ban-types': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
