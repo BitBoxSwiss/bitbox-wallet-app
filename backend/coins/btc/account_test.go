@@ -99,7 +99,7 @@ func mockAccount(t *testing.T, accountConfig *config.Account) *Account {
 				return mockKeystore(), nil
 			},
 		},
-		coin, nil,
+		coin, nil, nil,
 		logging.Get().WithGroup("account_test"),
 		nil,
 	)

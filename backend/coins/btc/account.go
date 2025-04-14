@@ -120,6 +120,8 @@ type Account struct {
 	log *logrus.Entry
 
 	httpClient *http.Client
+
+	getAddressFromDifferentAccounts func(blockchain.ScriptHashHex) *addresses.AccountAddress
 }
 
 // NewAccount creates a new account.
@@ -129,6 +131,7 @@ func NewAccount(
 	config *accounts.AccountConfig,
 	coin *Coin,
 	forceGapLimits *types.GapLimits,
+	getAddress func(blockchain.ScriptHashHex) *addresses.AccountAddress,
 	log *logrus.Entry,
 	httpClient *http.Client,
 ) *Account {
@@ -137,13 +140,13 @@ func NewAccount(
 	log.Debug("Creating new account")
 
 	account := &Account{
-		BaseAccount:    accounts.NewBaseAccount(config, coin, log),
-		coin:           coin,
-		dbSubfolder:    "", // set in Initialize()
-		forceGapLimits: forceGapLimits,
-
-		log:        log,
-		httpClient: httpClient,
+		BaseAccount:                     accounts.NewBaseAccount(config, coin, log),
+		coin:                            coin,
+		dbSubfolder:                     "", // set in Initialize()
+		forceGapLimits:                  forceGapLimits,
+		getAddressFromDifferentAccounts: getAddress,
+		log:                             log,
+		httpClient:                      httpClient,
 	}
 	return account
 }
@@ -865,7 +868,7 @@ func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
 			&SpendableOutput{
 				OutPoint:        outPoint,
 				SpendableOutput: txOut,
-				Address:         account.getAddress(scriptHashHex),
+				Address:         account.GetAddress(scriptHashHex),
 				IsChange:        account.IsChange(scriptHashHex),
 			})
 	}

@@ -168,7 +168,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		}
 		wireUTXO[outPoint] = maketx.UTXO{
 			TxOut: txOut.TxOut,
-			Address: account.getAddress(
+			Address: account.GetAddress(
 				blockchain.NewScriptHashHex(txOut.TxOut.PkScript)),
 		}
 	}
@@ -235,9 +235,9 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	return utxo, txProposal, nil
 }
 
-// getAddress returns the address in the account with the given `scriptHashHex`. Returns nil if the
+// GetAddress returns the address in the account with the given `scriptHashHex`. Returns nil if the
 // address does not exist in the account.
-func (account *Account) getAddress(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
+func (account *Account) GetAddress(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
 	for _, subacc := range account.subaccounts {
 		if address := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
 			return address

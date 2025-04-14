@@ -334,11 +334,14 @@ func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.Pro
 		makeConfig(t, device, signing.ScriptTypeP2TR, mustKeypath("m/86'/0'/0'")),
 		makeConfig(t, device, signing.ScriptTypeP2WPKH, mustKeypath("m/84'/0'/0'")),
 		makeConfig(t, device, signing.ScriptTypeP2WPKHP2SH, mustKeypath("m/49'/0'/0'")),
+		makeConfig(t, device, signing.ScriptTypeP2WPKH, mustKeypath("m/84'/0'/1'")),
 	}
 	inputAddress0 := addresses.NewAccountAddress(configurations[0], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), network, log)
 	inputAddress1 := addresses.NewAccountAddress(configurations[1], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), network, log)
 	inputAddress2 := addresses.NewAccountAddress(configurations[2], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), network, log)
 	changeAddress := addresses.NewAccountAddress(configurations[0], signing.NewEmptyRelativeKeypath().Child(1, false).Child(0, false), network, log)
+
+	inputAddress3 := addresses.NewAccountAddress(configurations[3], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), network, log)
 
 	prevTx := &wire.MsgTx{
 		Version: 2,
@@ -380,6 +383,10 @@ func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.Pro
 		changeAddress,
 	}
 
+	addrsInDifferentAccount := []*addresses.AccountAddress{
+		inputAddress3,
+	}
+
 	spendableOutputs := map[wire.OutPoint]maketx.UTXO{
 		*wire.NewOutPoint(&prevTxHash, 0): maketx.UTXO{prevTx.TxOut[0], inputAddress0},
 		*wire.NewOutPoint(&prevTxHash, 1): maketx.UTXO{prevTx.TxOut[1], inputAddress1},
@@ -412,10 +419,46 @@ func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.Pro
 		GetPrevTx: func(chainhash.Hash) (*wire.MsgTx, error) {
 			return prevTx, nil
 		},
+		GetAddress: func(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
+			for _, address := range addrsInDifferentAccount {
+				if address.PubkeyScriptHashHex() == scriptHashHex {
+					return address
+				}
+			}
+			return nil
+		},
 		Signatures: make([]*types.Signature, len(txProposal.Transaction.TxIn)),
 		FormatUnit: coinpkg.BtcUnitDefault,
 	}
 
+}
+
+func TestSimulatorSignBTCTransactionSendSelfDifferentAccount(t *testing.T) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
+		t.Helper()
+
+		cfg := makeConfig(t, device, signing.ScriptTypeP2WPKH, mustKeypath("m/84'/0'/1'"))
+		selfAddress := addresses.NewAccountAddress(
+			cfg,
+			signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false),
+			network,
+			log)
+		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(selfAddress.PubkeyScript()))
+
+		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
+		require.NoError(t, proposedTransaction.Finalize())
+		require.NoError(
+			t,
+			btc.TxValidityCheck(
+				proposedTransaction.TXProposal.Transaction,
+				proposedTransaction.TXProposal.PreviousOutputs,
+				proposedTransaction.TXProposal.SigHashes()))
+
+		// Before simulator v9.20, address confirmation data was not written to stdout.
+		if device.Version().AtLeast(semver.NewSemVer(9, 22, 0)) {
+			require.Contains(t, stdOut.String(), "ADDRESS: This BitBox (account #2): bc1qeunlpt8umlyyv0mpzpe3uauqlezsh39ctwg4e5")
+		}
+	})
 }
 
 func TestSimulatorSignBTCTransactionMixedInputs(t *testing.T) {
@@ -465,7 +508,11 @@ func TestSimulatorSignBTCTransactionSendSelfSameAccount(t *testing.T) {
 
 		// Before simulator v9.20, address confirmation data was not written to stdout.
 		if device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
-			require.Contains(t, stdOut.String(), "ADDRESS: This BitBox02: bc1pg848p0rvmj0r3j064prlpw0gecyzkwlpt7ndzdlmh2mvkyu299psetgxhf")
+			if device.Version().AtLeast(semver.NewSemVer(9, 22, 0)) {
+				require.Contains(t, stdOut.String(), "ADDRESS: This BitBox (same account): bc1pg848p0rvmj0r3j064prlpw0gecyzkwlpt7ndzdlmh2mvkyu299psetgxhf")
+			} else {
+				require.Contains(t, stdOut.String(), "ADDRESS: This BitBox02: bc1pg848p0rvmj0r3j064prlpw0gecyzkwlpt7ndzdlmh2mvkyu299psetgxhf")
+			}
 		}
 	})
 }
