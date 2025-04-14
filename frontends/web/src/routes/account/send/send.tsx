@@ -43,11 +43,9 @@ import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
 import style from './send.module.css';
 
-interface SendProps {
-    account: accountApi.IAccount;
-    // undefined if bb02 is connected.
-    bb01Paired: boolean | undefined;
-    activeCurrency: accountApi.Fiat;
+type SendProps = {
+  account: accountApi.IAccount;
+  activeCurrency: accountApi.Fiat;
 }
 
 type Props = SendProps & TranslateProps;
@@ -370,7 +368,6 @@ class Send extends Component<Props, State> {
   public render() {
     const {
       account,
-      bb01Paired,
       activeCurrency,
       t,
     } = this.props;
@@ -501,7 +498,6 @@ class Send extends Component<Props, State> {
                 </Grid>
               </ViewContent>
               <ConfirmSend
-                bb01Paired={bb01Paired}
                 baseCurrencyUnit={activeCurrency}
                 note={note}
                 hasSelectedUTXOs={this.hasSelectedUTXOs()}
