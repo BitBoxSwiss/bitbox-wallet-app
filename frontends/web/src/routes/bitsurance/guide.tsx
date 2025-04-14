@@ -41,7 +41,14 @@ export const BitsuranceGuide = () => {
   const { t } = useTranslation();
 
   return (
-    <Guide title={t('guide.guideTitle.insurance')}>
+    <Guide
+      service={{
+        name: 'Bitsurance',
+        link: 'service@bitsurance.eu',
+        linkDisplay: 'service@bitsurance.eu'
+      }}
+      title={t('guide.guideTitle.insurance')}
+    >
       <Entry key="guide.bitsurance.why" entry={t('guide.bitsurance.why', { returnObjects: true })} shown={true} />
       <Entry key="guide.bitsurance.who" entry={t('guide.bitsurance.who', { returnObjects: true })} />
       <Entry key="guide.bitsurance.what" entry={t('guide.bitsurance.what', { returnObjects: true })} />
