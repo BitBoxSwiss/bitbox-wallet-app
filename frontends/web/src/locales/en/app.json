@@ -1654,6 +1654,7 @@
       "addressReused": "Address re-used",
       "change": "Change",
       "outpoint": "Outpoint",
+      "receivedDate": "Received date",
       "title": "Send from output"
     },
     "confirm": {

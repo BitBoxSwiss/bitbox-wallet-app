@@ -15,6 +15,8 @@
 package transactions
 
 import (
+	"time"
+
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
@@ -241,6 +243,18 @@ func (transactions *Transactions) SpendableOutputs() (map[wire.OutPoint]*Spendab
 			}
 		}
 		return result, nil
+	})
+}
+
+// GetHeaderTimestamp retrieves the header timestamp for a given transaction hash.
+func (transactions *Transactions) GetHeaderTimestamp(txHash chainhash.Hash) (*time.Time, error) {
+	transactions.synchronizer.WaitSynchronized()
+	return DBView(transactions.db, func(dbTx DBTxInterface) (*time.Time, error) {
+		txInfo, err := dbTx.TxInfo(txHash)
+		if err != nil {
+			return nil, err
+		}
+		return txInfo.HeaderTimestamp, nil
 	})
 }
 
