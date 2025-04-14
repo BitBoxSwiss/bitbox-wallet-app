@@ -27,6 +27,8 @@ import (
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -872,12 +874,41 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 		BtcCurrencyUnit:  backend.config.AppConfig().Backend.BtcUnit,
 	}
 
+	// This function is passed as a callback to the BTC account constructor. It is called when the
+	// keystore needs to determine whether an address belongs to an account on its same keystore.
+	getAddressCallback := func(askingAccount *btc.Account, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error) {
+		accountsByKeystore, err := backend.AccountsByKeystore()
+		if err != nil {
+			return nil, false, err
+		}
+		rootFingerprint, err := backend.keystore.RootFingerprint()
+		if err != nil {
+			return nil, false, err
+		}
+		for _, account := range accountsByKeystore[hex.EncodeToString(rootFingerprint)] {
+			// This only makes sense for BTC accounts.
+			btcAccount, ok := account.(*btc.Account)
+			if !ok {
+				continue
+			}
+			// Only return an address if the coin codes match.
+			if btcAccount.Coin().Code() != askingAccount.Coin().Code() {
+				continue
+			}
+			if address := btcAccount.GetAddress(scriptHashHex); address != nil {
+				return address, askingAccount == btcAccount, nil
+			}
+		}
+		return nil, false, nil
+	}
+
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		account = backend.makeBtcAccount(
 			accountConfig,
 			specificCoin,
 			backend.arguments.GapLimits(),
+			getAddressCallback,
 			backend.log,
 		)
 		backend.addAccount(account)

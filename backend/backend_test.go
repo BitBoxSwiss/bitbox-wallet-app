@@ -271,7 +271,7 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	}
 	b.ratesUpdater.SetCoingeckoURL("unused") // avoid hitting real API
 
-	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, log *logrus.Entry) accounts.Interface {
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
 		return MockBtcAccount(t, config, coin, gapLimits, log)
 	}
 	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {

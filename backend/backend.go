@@ -30,6 +30,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/banners"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -203,7 +205,7 @@ type Backend struct {
 
 	// makeBtcAccount creates a BTC account. In production this is `btc.NewAccount`, but can be
 	// overridden in unit tests for mocking.
-	makeBtcAccount func(*accounts.AccountConfig, *btc.Coin, *types.GapLimits, *logrus.Entry) accounts.Interface
+	makeBtcAccount func(*accounts.AccountConfig, *btc.Coin, *types.GapLimits, func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), *logrus.Entry) accounts.Interface
 	// makeEthAccount creates an ETH account. In production this is `eth.NewAccount`, but can be
 	// overridden in unit tests for mocking.
 	makeEthAccount func(*accounts.AccountConfig, *eth.Coin, *http.Client, *logrus.Entry) accounts.Interface
@@ -262,8 +264,8 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		coins:    map[coinpkg.Code]coinpkg.Coin{},
 		accounts: []accounts.Interface{},
 		aopp:     AOPP{State: aoppStateInactive},
-		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, log *logrus.Entry) accounts.Interface {
-			return btc.NewAccount(config, coin, gapLimits, log, hclient)
+		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
+			return btc.NewAccount(config, coin, gapLimits, getAddress, log, hclient)
 		},
 		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
 			return eth.NewAccount(config, coin, httpClient, log)

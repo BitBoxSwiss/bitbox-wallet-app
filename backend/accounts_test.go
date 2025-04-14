@@ -24,6 +24,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
@@ -1449,7 +1451,7 @@ func TestAccountsTotalBalanceByKeystore(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, log *logrus.Entry) accounts.Interface {
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
 		accountMock := MockBtcAccount(t, config, coin, gapLimits, log)
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coinpkg.NewAmountFromInt64(100000), coinpkg.NewAmountFromInt64(0)), nil
