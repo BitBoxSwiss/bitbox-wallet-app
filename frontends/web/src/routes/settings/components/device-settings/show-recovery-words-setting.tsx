@@ -17,7 +17,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark } from '@/components/icon';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
 import { showMnemonic } from '@/api/bitbox02';
@@ -51,7 +50,6 @@ const ShowRecoveryWordsSetting = ({ deviceID }: TProps) => {
       <SettingsItem
         settingName={t('backup.showMnemonic.title')}
         secondaryText={t('deviceSettings.backups.showRecoveryWords.description')}
-        extraComponent={<ChevronRightDark />}
         onClick={() => setShowDialog(true)}
       />
       <ShowMnemonicWaitDialog inProgress={inProgress} />

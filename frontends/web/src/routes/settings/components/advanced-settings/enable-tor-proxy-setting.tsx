@@ -17,7 +17,6 @@
 import { Dispatch, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark } from '@/components/icon';
 import { TorProxyDialog } from './tor-proxy-dialog';
 import { Message } from '@/components/message/message';
 import { TProxyConfig } from '@/routes/settings/advanced-settings';
@@ -48,7 +47,6 @@ export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) =
         onClick={() => setShowTorProxyDialog(true)}
         secondaryText={t('newSettings.advancedSettings.torProxy.description')}
         displayedValue={proxyEnabled ? t('generic.enabled_true') : t('generic.enabled_false')}
-        extraComponent={<ChevronRightDark width={24} height={24} />}
       />
       <TorProxyDialog
         open={showTorProxyDialog}

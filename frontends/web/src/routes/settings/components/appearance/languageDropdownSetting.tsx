@@ -30,7 +30,7 @@ import styles from './languageDropDownSetting.module.css';
 
 export const LanguageDropdownSetting = () => {
   const { i18n, t } = useTranslation();
-  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+  const [isMobileSelectorOpen, setIsMobileSelectorOpen] = useState(false);
   const nativeLocale = useLoad(getNativeLocale);
   const selectedLanguage = defaultLanguages[getSelectedIndex(defaultLanguages, i18n)];
   const formattedLanguages = defaultLanguages.map(lang => ({ label: lang.display, value: lang.code }));
@@ -40,15 +40,15 @@ export const LanguageDropdownSetting = () => {
   return (
     <SettingsItem
       disabled={!isMobile}
-      onClick={() => setIsMobileDropdownOpen(true)}
+      onClick={!isMobileSelectorOpen ? () => setIsMobileSelectorOpen(true) : undefined}
       settingName={<div className={styles.container}>{globe}{t('newSettings.appearance.language.title')}</div>}
       secondaryText={t('newSettings.appearance.language.description')}
       collapseOnSmall
       title={nativeLocale && `Detected native locale: ${nativeLocale}`}
       extraComponent={
         <Dropdown
-          isOpen={isMobileDropdownOpen}
-          onOpenChange={(isOpen) => setIsMobileDropdownOpen(isOpen)}
+          isOpen={isMobileSelectorOpen}
+          onOpenChange={(isOpen) => setIsMobileSelectorOpen(isOpen)}
           mobileFullScreen
           className={settingsDropdownStyles.select}
           renderOptions={(o) => (o.label)}

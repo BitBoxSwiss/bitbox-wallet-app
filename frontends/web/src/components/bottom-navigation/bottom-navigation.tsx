@@ -47,7 +47,7 @@ export const BottomNavigation = () => {
         {t('generic.buySell')}
       </Link>
       <Link
-        className={`${styles.link} ${pathname.startsWith('/settings/') || pathname.startsWith('/bitsurance/') ? styles.active : ''}`}
+        className={`${styles.link} ${pathname.startsWith('/settings') || pathname.startsWith('/bitsurance/') ? styles.active : ''}`}
         to="/settings/more"
       >
         <MoreIconSVG />

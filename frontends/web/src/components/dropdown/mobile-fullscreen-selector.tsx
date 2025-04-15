@@ -112,14 +112,21 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
         return false;
       }}
       />
-      <button
-        className={styles.mobileDropdownTrigger}
-        onClick={handleOpen}
-        type="button"
-      >
-        <span className={styles.mobileDropdownValue}>{displayValue}</span>
-        <div className={styles.dropdown} />
-      </button>
+      {onOpenChange ? (
+        <div
+          className={styles.mobileSelectorTrigger}
+        >
+          <span className={styles.mobileSelectorValue}>{displayValue}</span>
+        </div>
+      ) : (
+        <button
+          className={styles.mobileSelectorTrigger}
+          onClick={handleOpen}
+        >
+          <span className={styles.mobileSelectorValue}>{displayValue}</span>
+        </button>
+      )
+      }
 
       {isOpen && (
         <div className={styles.fullscreenOverlay}>
@@ -156,7 +163,6 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
                     key={String(option.value)}
                     className={`${styles.optionItem} ${isSelected(option) ? styles.selectedOption : ''}`}
                     onClick={(e) => handleSelect(option, e)}
-                    type="button"
                   >
                     <div className={styles.optionContent}>{renderOptions(option)}</div>
                   </button>

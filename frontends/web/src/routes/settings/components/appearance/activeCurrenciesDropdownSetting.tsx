@@ -26,7 +26,7 @@ const ActiveCurrenciesDropdownSetting = () => {
   const { t, i18n } = useTranslation();
   const { activeCurrencies, defaultCurrency } = useContext(RatesContext);
   const { formattedCurrencies } = useLocalizedFormattedCurrencies(i18n.language);
-  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+  const [isMobileSelectorOpen, setIsMobileSelectorOpen] = useState(false);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   return (
@@ -35,11 +35,11 @@ const ActiveCurrenciesDropdownSetting = () => {
       collapseOnSmall
       settingName={t('newSettings.appearance.activeCurrencies.title')}
       secondaryText={t('newSettings.appearance.activeCurrencies.description')}
-      onClick={() => setIsMobileDropdownOpen(true)}
+      onClick={!isMobileSelectorOpen ? () => setIsMobileSelectorOpen(true) : undefined}
       extraComponent={
         <ActiveCurrenciesDropdown
-          isOpen={isMobileDropdownOpen}
-          onOpenChange={(isOpen) => setIsMobileDropdownOpen(isOpen)}
+          isOpen={isMobileSelectorOpen}
+          onOpenChange={(isOpen) => setIsMobileSelectorOpen(isOpen)}
           options={formattedCurrencies}
           defaultCurrency={defaultCurrency}
           activeCurrencies={activeCurrencies}

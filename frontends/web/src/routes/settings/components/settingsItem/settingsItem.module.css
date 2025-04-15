@@ -17,6 +17,14 @@
     margin-bottom: var(--size-default);
 }
 
+.chevronRight {
+    bottom: 0;
+    margin: auto;
+    position: absolute;
+    right: var(--space-quarter);
+    top: 3px;
+}
+
 .content {
     width: 100%;
 }
@@ -25,6 +33,10 @@
     color: var(--color-default);
     font-size: 16px;
     margin: 0;
+}
+
+.isButton {
+    position: relative;
 }
 
 .isButton:hover {
@@ -37,6 +49,10 @@
     display: flex;
     justify-content: flex-end;
     width: 50%;
+}
+
+.extraPadding {
+    padding-right: var(--space-half);
 }
 
 .displayedValue {

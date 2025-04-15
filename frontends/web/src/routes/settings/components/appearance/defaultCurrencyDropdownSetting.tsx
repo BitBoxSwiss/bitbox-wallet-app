@@ -25,7 +25,7 @@ import settingsDropdownStyles from './settingsdropdown.module.css';
 
 export const DefaultCurrencyDropdownSetting = () => {
   const { t, i18n } = useTranslation();
-  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+  const [isMobileSelectorOpen, setIsMobileSelectorOpen] = useState(false);
   const currencyName = new Intl.DisplayNames([i18n.language], { type: 'currency' });
   const { formattedCurrencies, currenciesWithDisplayName } = useLocalizedFormattedCurrencies(i18n.language);
   const { addToActiveCurrencies, updateDefaultCurrency, defaultCurrency, activeCurrencies } = useContext(RatesContext);
@@ -39,7 +39,7 @@ export const DefaultCurrencyDropdownSetting = () => {
       settingName={t('newSettings.appearance.defaultCurrency.title')}
       secondaryText={t('newSettings.appearance.defaultCurrency.description')}
       collapseOnSmall
-      onClick={() => setIsMobileDropdownOpen(true)}
+      onClick={!isMobileSelectorOpen ? () => setIsMobileSelectorOpen(true) : undefined}
       extraComponent={
         <Dropdown
           className={settingsDropdownStyles.select}
@@ -48,8 +48,8 @@ export const DefaultCurrencyDropdownSetting = () => {
           options={formattedCurrencies}
           title={t('newSettings.appearance.defaultCurrency.title')}
           mobileFullScreen
-          isOpen={isMobileDropdownOpen}
-          onOpenChange={(isOpen) => setIsMobileDropdownOpen(isOpen)}
+          isOpen={isMobileSelectorOpen}
+          onOpenChange={(isOpen) => setIsMobileSelectorOpen(isOpen)}
           onChange={async (selected) => {
             const fiat = selected.value;
             updateDefaultCurrency(fiat);
