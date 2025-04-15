@@ -21,6 +21,7 @@ import { route } from '../../../../utils/route';
 import { getDeviceInfo } from '../../../../api/bitbox01';
 import { apiGet } from '../../../../utils/request';
 import { apiWebsocket } from '../../../../utils/websocket';
+import { hasMobileChannel } from '@/api/devices';
 import { Guide } from '../../../../components/guide/guide';
 import { Entry } from '../../../../components/guide/entry';
 import { Header } from '../../../../components/layout';
@@ -79,7 +80,7 @@ class Settings extends Component {
         }
       });
 
-    apiGet('devices/' + this.props.deviceID + '/has-mobile-channel').then(mobileChannel => {
+    hasMobileChannel(this.props.deviceID).then(mobileChannel => {
       this.setState({ mobileChannel });
     });
 

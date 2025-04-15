@@ -15,31 +15,36 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, IAmount } from '@/api/account';
 import { Amount } from '@/components/amount/amount';
 import { customFeeUnit } from '@/routes/account/utils';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
-import { TConfirmSendProps } from '@/routes/account/send/components/confirm/types';
-import { ConfirmingWaitDialog } from '@/routes/account/send/components/confirm/dialogs/confirm-wait-dialog';
 import { FiatValue } from '../fiat-value';
 import style from './confirm.module.css';
 
-type TConfirmSend = { bb01Paired: boolean | undefined } & TConfirmSendProps;
-
-export const ConfirmSend = (props: TConfirmSend) => {
-  return (props.bb01Paired !== undefined ? (
-    <ConfirmingWaitDialog
-      {...props}
-    />
-  ) : (
-    <BB02ConfirmSend
-      {...props}
-    />
-  ));
+type TransactionDetails = {
+  proposedAmount?: IAmount;
+  proposedFee?: IAmount;
+  proposedTotal?: IAmount;
+  feeTarget?: FeeTargetCode;
+  customFee: string;
+  recipientAddress: string;
+  activeCurrency: Fiat;
 };
 
-const BB02ConfirmSend = ({
+type TConfirmSendProps = {
+  baseCurrencyUnit: ConversionUnit;
+  note: string;
+  hasSelectedUTXOs: boolean;
+  isConfirming: boolean;
+  selectedUTXOs: string[];
+  coinCode: CoinCode;
+  transactionDetails: TransactionDetails;
+}
+
+export const ConfirmSend = ({
   baseCurrencyUnit,
   note,
   hasSelectedUTXOs,
