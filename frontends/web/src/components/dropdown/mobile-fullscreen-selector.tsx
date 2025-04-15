@@ -112,14 +112,19 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
         return false;
       }}
       />
-      <button
+      <div
         className={styles.mobileDropdownTrigger}
         onClick={handleOpen}
-        type="button"
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            handleOpen();
+          }
+        }}
       >
         <span className={styles.mobileDropdownValue}>{displayValue}</span>
-        <div className={styles.dropdown} />
-      </button>
+      </div>
 
       {isOpen && (
         <div className={styles.fullscreenOverlay}>
@@ -152,14 +157,20 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
             <div className={styles.optionsList}>
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option) => (
-                  <button
+                  <div
                     key={String(option.value)}
                     className={`${styles.optionItem} ${isSelected(option) ? styles.selectedOption : ''}`}
                     onClick={(e) => handleSelect(option, e)}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        handleSelect(option, e as any);
+                      }
+                    }}
                   >
                     <div className={styles.optionContent}>{renderOptions(option)}</div>
-                  </button>
+                  </div>
                 ))
               ) : (
                 <div className={styles.noOptions}>{t('generic.noOptions')}</div>
