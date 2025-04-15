@@ -23,13 +23,18 @@ import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/forms';
 import style from './guide.module.css';
 
-
+export type Service = {
+  link: string;
+  name: string;
+  linkDisplay: string;
+}
 export type TProps = {
-    children?: ReactNode;
-    title?: string
+  children?: ReactNode;
+  title?: string;
+  service?: Service;
 }
 
-const Guide = ({ children, title = t('guide.title') }: TProps) => {
+const Guide = ({ children, title = t('guide.title'), service }: TProps) => {
   const { guideShown, toggleGuide, setGuideExists } = useContext(AppContext);
 
   useEffect(() => {
@@ -54,11 +59,35 @@ const Guide = ({ children, title = t('guide.title') }: TProps) => {
         <div className={style.content}>
           {children}
           <div className={style.appendix}>
-            {t('guide.appendix.text')}
-            {' '}
-            <A className={style.link} href="https://bitbox.swiss/support/">
-              {t('guide.appendix.link')}
-            </A>
+            {service ? (
+              <>
+                <span className={style.question}>{t('guide.appendix.questionService', { serviceName: service.name })}</span>
+                <br />
+                <br />
+                {t('guide.appendix.textService', { serviceName: service.name })}
+                {' '}
+                {service.linkDisplay.includes('@') ? (
+                  <span className={style.link}>
+                    {t('guide.appendix.linkService', { link: service.linkDisplay })}
+                  </span>
+                ) :
+                  (
+                    <A className={style.link} href={service.link}>
+                      {t('guide.appendix.linkService', { link: service.linkDisplay })}
+                    </A>
+                  )
+                }
+              </>
+            ) : (
+              <>
+                {t('guide.appendix.text')}
+                {' '}
+                <A className={style.link} href="https://bitbox.swiss/support/">
+                  {t('guide.appendix.link')}
+                </A>
+              </>
+            )}
+
             <br />
             <br />
           </div>

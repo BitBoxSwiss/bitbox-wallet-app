@@ -122,7 +122,15 @@ export const Moonpay = ({ accounts, code }: TProps) => {
           </div>
         </div>
       </div>
-      <ExchangeGuide exchange="moonpay" translationContext={translationContext} />
+      <ExchangeGuide
+        service={{
+          name: 'MoonPay',
+          linkDisplay: 'support.moonpay.com',
+          link: 'https://support.moonpay.com'
+        }}
+        exchange="moonpay"
+        translationContext={translationContext}
+      />
     </div>
   );
 };

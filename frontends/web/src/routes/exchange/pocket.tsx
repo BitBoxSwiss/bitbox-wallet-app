@@ -313,7 +313,13 @@ export const Pocket = ({ code, action }: TProps) => {
           </Dialog>
         </div>
       </div>
-      <ExchangeGuide exchange="pocket" translationContext="bitcoin" />
+      <ExchangeGuide exchange="pocket" translationContext="bitcoin"
+        service={{
+          name: 'Pocket Bitcoin',
+          linkDisplay: 'pocketbitcoin.com/contact',
+          link: 'https://pocketbitcoin.com/contact'
+        }}
+      />
     </div>
   );
 };

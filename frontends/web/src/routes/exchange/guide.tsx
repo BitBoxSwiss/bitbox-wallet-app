@@ -17,12 +17,13 @@
 import { useTranslation } from 'react-i18next';
 import type { TExchangeName } from '@/api/exchanges';
 import { Entry } from '@/components/guide/entry';
-import { Guide } from '@/components/guide/guide';
+import { Guide, Service } from '@/components/guide/guide';
 import { getBTCDirectPrivacyLink } from '@/components/terms/btcdirect-otc-terms';
 
 type BuyGuideProps = {
   exchange?: TExchangeName;
   translationContext: 'bitcoin' | 'crypto';
+  service?: Service;
 }
 
 const usePrivacyLink = (exchange?: TExchangeName) => {
@@ -46,12 +47,12 @@ const usePrivacyLink = (exchange?: TExchangeName) => {
   }
 };
 
-export const ExchangeGuide = ({ exchange, translationContext }: BuyGuideProps) => {
+export const ExchangeGuide = ({ exchange, translationContext, service }: BuyGuideProps) => {
   const { t } = useTranslation();
   const link = usePrivacyLink(exchange);
 
   return (
-    <Guide title={t('guide.guideTitle.buySell')}>
+    <Guide title={t('guide.guideTitle.buySell')} service={service}>
       <Entry key="guide.buy.protection" entry={{
         link,
         text: t('buy.info.disclaimer.protection.descriptionGeneric', { context: translationContext }),

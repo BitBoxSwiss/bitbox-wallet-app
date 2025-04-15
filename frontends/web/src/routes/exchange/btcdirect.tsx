@@ -186,7 +186,15 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
           </div>
         </div>
       </div>
-      <ExchangeGuide exchange="btcdirect" translationContext={translationContext} />
+      <ExchangeGuide
+        service={{
+          name: 'BTC Direct',
+          linkDisplay: 'btcdirect.eu/contact',
+          link: 'https://btcdirect.eu/contact'
+        }}
+        exchange="btcdirect"
+        translationContext={translationContext}
+      />
     </div>
   );
 };

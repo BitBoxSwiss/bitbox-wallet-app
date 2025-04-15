@@ -27,6 +27,10 @@
     position: relative;
 }
 
+.question {
+    font-weight: 600;
+}
+
 .guide {
     background-color: var(--color-lightblue);
     color: white;
