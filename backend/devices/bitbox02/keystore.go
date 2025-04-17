@@ -359,6 +359,21 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 
 	txChangeAddress := btcProposedTx.TXProposal.ChangeAddress
 
+	// outputScriptConfigs represent the script configurations of a specific account and include the
+	// script type (e.g. p2wpkh, p2tr..) and the account keypath
+	outputScriptConfigs := []*messages.BTCScriptConfigWithKeypath{}
+	// addOutputScriptConfig returns the index of the scriptConfig in outputScriptConfigs, adding it if it isn't
+	// present. Must be a Simple configuration.
+	addOutputScriptConfig := func(scriptConfig *messages.BTCScriptConfigWithKeypath) uint32 {
+		for i, sc := range outputScriptConfigs {
+			if sc.ScriptConfig.Config.(*messages.BTCScriptConfig_SimpleType_).SimpleType == scriptConfig.ScriptConfig.Config.(*messages.BTCScriptConfig_SimpleType_).SimpleType {
+				return uint32(i)
+			}
+		}
+		outputScriptConfigs = append(outputScriptConfigs, scriptConfig)
+		return uint32(len(outputScriptConfigs) - 1)
+	}
+
 	// iterate over tx outputs to add the related scriptconfigs, flag internal addresses and build
 	// the output signing requests.
 	outputs := make([]*messages.BTCSignOutputRequest, len(tx.TxOut))
@@ -411,6 +426,8 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 
 		var keypath []uint32
 		var scriptConfigIndex int
+		var outputScriptIndex *uint32
+		var outputScriptConfigIndex uint32
 		if isOurs {
 			keypath = outputAccountAddress.Configuration.AbsoluteKeypath().ToUInt32()
 			accountConfiguration := outputAccountAddress.AccountConfiguration
@@ -422,15 +439,33 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 				ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
 				Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
 			})
+		} else if keystore.device.Version().AtLeast(semver.NewSemVer(9, 22, 0)) {
+			outputAccountAddress = btcProposedTx.GetAddress(blockchain.NewScriptHashHex(txOut.PkScript))
+			if outputAccountAddress != nil {
+				keypath = outputAccountAddress.Configuration.AbsoluteKeypath().ToUInt32()
+				accountConfiguration := outputAccountAddress.AccountConfiguration
+				msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
+				if !ok {
+					return errp.Newf("Unsupported script type %s", accountConfiguration.ScriptType())
+				}
+				outputScriptConfigIndex = addOutputScriptConfig(&messages.BTCScriptConfigWithKeypath{
+					ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
+					Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
+				})
+				outputScriptIndex = &outputScriptConfigIndex
+				isOurs = true
+			}
 		}
+
 		outputs[index] = &messages.BTCSignOutputRequest{
-			Ours:              isOurs,
-			Type:              msgOutputType,
-			Value:             uint64(txOut.Value),
-			Payload:           payload,
-			Keypath:           keypath,
-			ScriptConfigIndex: uint32(scriptConfigIndex),
-			SilentPayment:     silentPayment,
+			Ours:                    isOurs,
+			Type:                    msgOutputType,
+			Value:                   uint64(txOut.Value),
+			Payload:                 payload,
+			Keypath:                 keypath,
+			ScriptConfigIndex:       uint32(scriptConfigIndex),
+			SilentPayment:           silentPayment,
+			OutputScriptConfigIndex: outputScriptIndex,
 		}
 	}
 
@@ -489,6 +524,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	signatures, generatedOutputs, err := keystore.device.BTCSign(
 		msgCoin,
 		scriptConfigs,
+		outputScriptConfigs,
 		&firmware.BTCTx{
 			Version:         uint32(tx.Version),
 			Inputs:          inputs,

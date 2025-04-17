@@ -37,6 +37,7 @@ type ProposedTransaction struct {
 	// Signatures collects the signatures, one per transaction input.
 	Signatures []*types.Signature
 	FormatUnit coin.BtcUnit
+	GetAddress func(blockchain.ScriptHashHex) *addresses.AccountAddress
 }
 
 // Finalize adds the signatureScript/witness for each input based on the available signatures and
@@ -68,7 +69,8 @@ func (account *Account) signTransaction(
 	proposedTransaction := &ProposedTransaction{
 		TXProposal:                   txProposal,
 		AccountSigningConfigurations: signingConfigs,
-		GetAccountAddress:            account.getAddress,
+		GetAccountAddress:            account.GetAddress,
+		GetAddress:                   account.getAddressFromDifferentAccounts,
 		GetPrevTx:                    getPrevTx,
 		Signatures:                   make([]*types.Signature, len(txProposal.Transaction.TxIn)),
 		FormatUnit:                   account.coin.formatUnit,

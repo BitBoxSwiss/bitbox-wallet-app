@@ -28,6 +28,8 @@ import (
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
@@ -874,12 +876,30 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 		BtcCurrencyUnit:  backend.config.AppConfig().Backend.BtcUnit,
 	}
 
+	// This function is passed as a callback to the BTC account constructor. It is called when the
+	// keystore needs to determine whether an address belongs to a different account on the same
+	// keystore.
+	getAddressCallback := func(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
+		for _, account := range backend.accounts {
+			// This only makes sense for BTC accounts.
+			btcAccount, ok := account.(*btc.Account)
+			if !ok {
+				continue
+			}
+			if address := btcAccount.GetAddress(scriptHashHex); address != nil {
+				return address
+			}
+		}
+		return nil
+	}
+
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		account = backend.makeBtcAccount(
 			accountConfig,
 			specificCoin,
 			backend.arguments.GapLimits(),
+			getAddressCallback,
 			backend.log,
 		)
 		backend.addAccount(account)
