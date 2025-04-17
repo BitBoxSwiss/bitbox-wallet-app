@@ -16,6 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, IAmount } from '@/api/account';
+import { UseDisableBackButton } from '@/hooks/backbutton';
 import { Amount } from '@/components/amount/amount';
 import { customFeeUnit } from '@/routes/account/utils';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
@@ -74,9 +75,9 @@ export const ConfirmSend = ({
   const canShowFeeFiatValue = proposedFee && proposedFee.conversions && proposedFee.conversions[fiatUnit];
   const canShowTotalFiatValue = (proposedTotal && proposedTotal.conversions) && proposedTotal.conversions[fiatUnit];
 
-
   return (
     <View fullscreen width="840px">
+      <UseDisableBackButton />
       <ViewHeader title={<div className={style.title}>{t('send.confirm.title')}</div>} />
       <ViewContent>
         <Message type="info">
