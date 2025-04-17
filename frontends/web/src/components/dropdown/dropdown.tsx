@@ -1,6 +1,5 @@
-
 /**
- * Copyright 2024 Shift Crypto AG
+ * Copyright 2024-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +24,8 @@ import Select, {
   Props as ReactSelectProps,
   ActionMeta,
 } from 'react-select';
+import { useMediaQuery } from '@/hooks/mediaquery';
+import { MobileFullscreenSelector } from './mobile-fullscreen-selector';
 import styles from './dropdown.module.css';
 
 export type TOption<T = any> = {
@@ -41,6 +42,10 @@ type SelectProps<T = any, IsMulti extends boolean = false> = Omit<
     newValue: IsMulti extends true ? TOption<T>[] : TOption<T>,
     actionMeta: ActionMeta<TOption<T>>
   ) => void;
+  mobileFullScreen?: boolean;
+  isOpen?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
+  title?: string;
 };
 
 const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
@@ -89,7 +94,7 @@ const CustomMultiValue = ({ index, getValue }: MultiValueProps<TOption>) => {
   const hiddenCount = selectedValues.length - maxVisible;
 
   return (
-    <div className={styles.valueContainer}>
+    <div>
       {hiddenCount > 0 ? `${displayedValues}...` : displayedValues}
     </div>
   );
@@ -100,8 +105,39 @@ export const Dropdown = <T, IsMulti extends boolean = false>({
   renderOptions,
   className,
   onChange,
+  title = '',
+  mobileFullScreen = false,
+  isOpen,
+  onOpenChange,
   ...props
 }: SelectProps<T, IsMulti>) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  if (isMobile && mobileFullScreen) {
+    const options: TOption<T>[] = props.options
+      ? (props.options as TOption<T>[]).filter(
+        (option): option is TOption<T> =>
+          option !== null &&
+            typeof option === 'object' &&
+            'value' in option &&
+            'label' in option
+      )
+      : [];
+
+    return (
+      <MobileFullscreenSelector
+        title={title}
+        options={options}
+        renderOptions={renderOptions}
+        value={props.value as any}
+        onSelect={onChange}
+        isMulti={props.isMulti}
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+      />
+    );
+  }
+
   return (
     <Select
       className={`

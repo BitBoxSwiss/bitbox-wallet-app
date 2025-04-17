@@ -17,7 +17,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark } from '@/components/icon';
 
 export const ConnectFullNodeSetting = () => {
   const navigate = useNavigate();
@@ -28,12 +27,6 @@ export const ConnectFullNodeSetting = () => {
       settingName={t('settings.expert.electrum.title')}
       onClick={() => navigate('/settings/electrum')}
       secondaryText={t('settings.expert.electrum.description')}
-      extraComponent={
-        <ChevronRightDark
-          width={24}
-          height={24}
-        />
-      }
     />
   );
 };

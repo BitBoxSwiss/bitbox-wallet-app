@@ -15,6 +15,7 @@
  */
 
 import { ReactNode } from 'react';
+import { ChevronRightDark } from '@/components/icon';
 import styles from './settingsItem.module.css';
 
 type TProps = {
@@ -45,7 +46,11 @@ export const SettingsItem = ({
   const notButton = disabled || onClick === undefined;
 
   const rightContent = (
-    <div className={styles.rightContentContainer}>
+    <div className={`
+    ${styles.rightContentContainer} 
+    ${!notButton ? styles.extraPadding : ''}
+    `}
+    >
       <p className={
         `
         ${displayedValue ? styles.displayedValue : ''}
@@ -53,7 +58,7 @@ export const SettingsItem = ({
         ${hideDisplayedValueOnSmall ? styles.hideDisplayedValueOnSmall : ''}
        `}
       >{displayedValue}</p>
-      {extraComponent ? extraComponent : null }
+      {extraComponent ? extraComponent : null}
     </div>
   );
 
@@ -83,9 +88,15 @@ export const SettingsItem = ({
       ) : (
         <button
           type="button"
-          className={`${styles.container} ${styles.isButton} ${className}`}
+          className={`${styles.container} ${styles.isButton} ${className} 
+          ${collapseOnSmall ? styles.collapse : ''}`}
           onClick={onClick}>
           {content}
+          <ChevronRightDark
+            className={styles.chevronRight}
+            width={24}
+            height={24}
+          />
         </button>
       )}
     </>
