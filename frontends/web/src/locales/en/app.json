@@ -1561,16 +1561,11 @@
       "p2wpkh-p2sh": "Wrapped Segwit (compatible format)"
     },
     "selectAccount": "Select account",
-    "showFull": "Show and verify full address on device",
     "taprootWarning": "Note: Taproot is a new Bitcoin feature and is not yet widely adopted. Funds received on Taproot addresses may not be visible in third party watch-only wallets. Many wallets and exchanges are not yet able to send to Taproot addresses.",
     "title": "Receive {{accountName}}",
     "verify": "Verify address securely",
-    "verifyBitBox01": "Verify address on mobile app",
     "verifyBitBox02": "Verify address on BitBox",
-    "verifyInstruction": "Please verify that the following address matches the one displayed on your device.",
-    "warning": {
-      "secureOutput": "Please pair your BitBox with your mobile device to enable secure address verification. Go to 'Manage device' in the sidebar."
-    }
+    "verifyInstruction": "Please verify that the following address matches the one displayed on your device."
   },
   "reset": {
     "description": "All data will be deleted from this device. That includes your Private Key!",
