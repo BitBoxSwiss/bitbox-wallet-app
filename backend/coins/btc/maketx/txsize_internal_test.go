@@ -20,7 +20,6 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	addressesTest "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
@@ -119,7 +118,7 @@ func TestSigScriptWitnessSize(t *testing.T) {
 
 	// Test all singlesig configurations.
 	for _, scriptType := range scriptTypes {
-		address := test.GetAddress(scriptType)
+		address := addressesTest.GetAddress(scriptType)
 		t.Run(address.Configuration.String(), func(t *testing.T) {
 			sigScriptSize, witnessSize := sigScriptWitnessSize(address.Configuration)
 			sigScript, witness := address.SignatureScript(sig)
