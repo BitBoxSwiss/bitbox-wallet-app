@@ -958,7 +958,9 @@
     },
     "appendix": {
       "link": "Contact us!",
-      "text": "Another question?"
+      "questionService": "Having issues with {{serviceName}}?",
+      "text": "Another question?",
+      "textService": "If you are having issues with {{serviceName}}, please contact them directly:"
     },
     "backups": {
       "check": {

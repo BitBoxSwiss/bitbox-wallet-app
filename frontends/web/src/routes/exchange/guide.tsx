@@ -46,9 +46,33 @@ const usePrivacyLink = (exchange?: TExchangeName) => {
   }
 };
 
+const useServiceLink = (exchange?: TExchangeName) => {
+  switch (exchange) {
+  case 'btcdirect':
+    return ({
+      name: 'BTC Direct',
+      text: 'btcdirect.eu/contact',
+      url: 'https://btcdirect.eu/contact',
+    });
+  case 'moonpay':
+    return ({
+      name: 'MoonPay',
+      text: 'support.moonpay.com',
+      url: 'https://support.moonpay.com/',
+    });
+  case 'pocket':
+    return ({
+      name: 'Pocket Bitcoin',
+      text: 'pocketbitcoin.com/contact',
+      url: 'https://pocketbitcoin.com/contact',
+    });
+  }
+};
+
 export const ExchangeGuide = ({ exchange, translationContext }: BuyGuideProps) => {
   const { t } = useTranslation();
   const link = usePrivacyLink(exchange);
+  const serviceLink = useServiceLink(exchange);
 
   return (
     <Guide title={t('guide.guideTitle.buySell')}>
@@ -56,7 +80,19 @@ export const ExchangeGuide = ({ exchange, translationContext }: BuyGuideProps) =
         link,
         text: t('buy.info.disclaimer.protection.descriptionGeneric', { context: translationContext }),
         title: t('buy.info.disclaimer.protection.title'),
-      }} />
+      }}
+      />
+      <Entry
+        key="guide.appendix.questionService"
+        entry={{
+          title: t('guide.appendix.questionService', { serviceName: serviceLink?.name }),
+          text: t('guide.appendix.textService', { serviceName: serviceLink?.name }),
+          link: {
+            text: serviceLink?.text || '',
+            url: serviceLink?.url,
+          },
+        }}
+      />
     </Guide>
   );
 };

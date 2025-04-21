@@ -47,6 +47,7 @@ export const BitsuranceGuide = () => {
       <Entry key="guide.bitsurance.what" entry={t('guide.bitsurance.what', { returnObjects: true })} />
       <Entry key="guide.bitsurance.status" entry={t('guide.bitsurance.status', { returnObjects: true })} />
       <Entry key="guide.bitsurance.renew" entry={t('guide.bitsurance.renew', { returnObjects: true })} />
+
       <Entry key="guide.bitsurance.privacy" entry={{
         link: {
           text: t('guide.bitsurance.privacy.link.text'),
@@ -63,6 +64,16 @@ export const BitsuranceGuide = () => {
         text: t('guide.bitsurance.faq.text'),
         title: t('guide.bitsurance.faq.title'),
       }} />
+      <Entry
+        key="guide.appendix.questionService"
+        entry={{
+          title: t('guide.appendix.questionService', { serviceName: 'Bitsurance' }),
+          text: t('guide.appendix.textService', { serviceName: 'Bitsurance' }),
+          link: {
+            text: 'service@bitsurance.eu',
+          },
+        }}
+      />
     </Guide>
   );
 };
