@@ -19,7 +19,6 @@ import { useTranslation } from 'react-i18next';
 import { exportNotes } from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark } from '@/components/icon';
 
 export const NotesExport = () => {
   const { t } = useTranslation();
@@ -44,12 +43,6 @@ export const NotesExport = () => {
         }
       }}
       secondaryText={t('settings.notes.export.description')}
-      extraComponent={
-        <ChevronRightDark
-          width={24}
-          height={24}
-        />
-      }
     />
   );
 };

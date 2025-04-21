@@ -16,7 +16,6 @@
 
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark } from '@/components/icon';
 import { debug } from '@/utils/env';
 import { alertUser } from '@/components/alert/Alert';
 import { exportLogs } from '@/api/backend';
@@ -37,12 +36,6 @@ export const ExportLogSetting = () => {
         }
       }}
       secondaryText={t('settings.expert.exportLogs.description')}
-      extraComponent={
-        <ChevronRightDark
-          width={24}
-          height={24}
-        />
-      }
     />
   );
 };

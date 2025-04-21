@@ -837,9 +837,11 @@
     "buy_crypto": "Buy crypto",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "noOptions": "No options found",
     "receive": "Receive {{coinCode}}",
     "receive_bitcoin": "Receive Bitcoin",
-    "receive_crypto": "Receive crypto"
+    "receive_crypto": "Receive crypto",
+    "search": "Search…"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {
