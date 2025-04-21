@@ -26,7 +26,7 @@ import { Pocket } from './exchange/pocket';
 import { BTCDirect } from './exchange/btcdirect';
 import { BTCDirectOTC } from './exchange/btcdirect-otc';
 import { Info } from './account/info/info';
-import { Receive } from './account/receive';
+import { Receive } from './account/receive/receive';
 import { SendWrapper } from './account/send/send-wrapper';
 import { AccountsSummary } from './account/summary/accountssummary';
 import { DeviceSwitch } from './device/deviceswitch';
@@ -118,8 +118,6 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   const AccReceive = (<InjectParams>
     <Receive
       code={'' /* dummy to satisfy TS */}
-      devices={devices}
-      deviceIDs={deviceIDs}
       accounts={activeAccounts} />
   </InjectParams>);
 
