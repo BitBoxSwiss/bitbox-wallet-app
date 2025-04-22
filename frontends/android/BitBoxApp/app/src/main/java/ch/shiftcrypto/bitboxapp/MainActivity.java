@@ -51,6 +51,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -352,13 +353,8 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.filePathCallback = filePathCallback;
                 String[] mimeTypes = fileChooserParams.getAcceptTypes();
                 String fileType = "*/*";
-                if (mimeTypes.length == 1) {
-                    // import notes form uses .txt file type, but is not supported here.
-                    if (".txt".equals(mimeTypes[0])) {
-                        fileType = "text/plain";
-                    } else if (MimeTypeMap.getSingleton().hasMimeType(mimeTypes[0])) {
-                        fileType = mimeTypes[0];
-                    }
+                if (mimeTypes.length == 1 && MimeTypeMap.getSingleton().hasMimeType(mimeTypes[0])) {
+                    fileType = mimeTypes[0];
                 }
                 mGetContent.launch(fileType);
                 return true;
