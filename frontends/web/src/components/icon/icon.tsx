@@ -90,8 +90,6 @@ import saveSVG from './assets/icons/save.svg';
 import saveLightSVG from './assets/icons/save-light.svg';
 import shieldSVG from './assets/icons/shield.svg';
 import shieldGreySVG from './assets/icons/shield-gray.svg';
-import starSVG from './assets/icons/star.svg';
-import starInactiveSVG from './assets/icons/star-inactive.svg';
 import syncSVG from './assets/icons/sync.svg';
 import syncLightSVG from './assets/icons/sync-light.svg';
 import selectedCheckLightSVG from './assets/icons/selected-check-light.svg';
@@ -243,13 +241,13 @@ export const Shield = (props: ImgProps) => (<img src={shieldSVG} draggable={fals
 export const ShieldGray = (props: ImgProps) => (<img src={shieldGreySVG} draggable={false} {...props} />);
 export const SpinnerRingDark = (props: ImgProps) => (<img src={spinnerRingDarkSVG} draggable={false} {...props} />);
 export const SpinnerRingLight = (props: ImgProps) => (<img src={spinnerRingLightSVG} draggable={false} {...props} />);
-export const Star = (props: ImgProps) => (<img src={starSVG} draggable={false} {...props} />);
-export const StarInactive = (props: ImgProps) => (<img src={starInactiveSVG} draggable={false} {...props} />);
 export const Sync = (props: ImgProps) => (<img src={syncSVG} draggable={false} {...props} />);
 export const SyncLight = (props: ImgProps) => (<img src={syncLightSVG} draggable={false} {...props} />);
 export const SelectedCheckLight = (props: ImgProps) => (<img src={selectedCheckLightSVG} draggable={false} {...props} />);
 export const Warning = (props: ImgProps) => (<img src={warningSVG} draggable={false} {...props} />);
+/* WarningOLD is only used in attestation-check-settings and bip-85-settings */
 export const WarningOLD = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);
+/* WarningOutlined is only used in factory reset */
 export const WarningOutlined = (props: ImgProps) => (<img src={warningOutlinedSVG} draggable={false} {...props} />);
 export const YellowDot = (props: ImgProps) => (<img src={yellowDotSVG} draggable={false} {...props} />);
 export const USBSuccess = (props: ImgProps) => (<img src={usbSuccessSVG} draggable={false} {...props} />);
