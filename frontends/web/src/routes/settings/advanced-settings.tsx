@@ -25,6 +25,7 @@ import { EnableCustomFeesToggleSetting } from './components/advanced-settings/en
 import { EnableCoinControlSetting } from './components/advanced-settings/enable-coin-control-setting';
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
+import { UnlockSoftwareKeystore } from './components/advanced-settings/unlock-software-keystore';
 import { RestartInTestnetSetting } from './components/advanced-settings/restart-in-testnet-setting';
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
 import { getConfig } from '@/utils/config';
@@ -69,6 +70,8 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
     setConfig(fetchedConfig);
   }, [fetchedConfig]);
 
+  const deviceIDs = Object.keys(devices);
+
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -96,6 +99,7 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
                 <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
                 <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
                 <RestartInTestnetSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
+                <UnlockSoftwareKeystore deviceIDs={deviceIDs}/>
                 <ConnectFullNodeSetting />
                 <ExportLogSetting />
               </WithSettingsTabs>

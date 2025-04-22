@@ -7,6 +7,7 @@
 - Replace sidebar with bottom navigation bar for mobile devices
 - Introduce full screen selector for mobile in place of dropdown
 - Fix wrong estimated confirmation time for ERC20 tokens.
+- Enable unlock test wallet in testnet
 
 # v4.47.2
 - Linux: fix compatiblity with some versions of Mesa that are incompatible with the bundled wayland libraries

@@ -221,7 +221,7 @@ const Sidebar = ({
                 <Device />
               </div>
               <span className={style.sidebarLabel}>
-                Software keystore
+                {t('testWallet.connect.title')}
               </span>
             </SkipForTesting>
           </div>
@@ -233,7 +233,7 @@ const Sidebar = ({
                 <Eject alt={t('sidebar.leave')} />
               </div>
               <span className={style.sidebarLabel}>
-                Eject software keystore
+                {t('testWallet.disconnect.title')}
               </span>
             </Button>
           </div>

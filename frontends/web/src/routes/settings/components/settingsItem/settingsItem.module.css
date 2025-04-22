@@ -14,7 +14,7 @@
     font-weight: 400;
     padding: 16px 24px;
     color: var(--color-dark);
-    margin-bottom: var(--size-default);
+    margin-bottom: var(--space-half);
 }
 
 .chevronRight {

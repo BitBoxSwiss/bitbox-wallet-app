@@ -1829,6 +1829,21 @@
       "title": "Success"
     }
   },
+  "testWallet": {
+    "connect": {
+      "description": "A software test wallet to test without a device in Testnet.",
+      "title": "Test wallet"
+    },
+    "disconnect": {
+      "description": "Removes the software test wallet.",
+      "title": "Disconnect test wallet"
+    },
+    "prompt": {
+      "button": "Unlock",
+      "passwordLabel": "Test Password",
+      "title": "Unlock test wallet"
+    }
+  },
   "transaction": {
     "confirmation": "Confirmations",
     "details": {
