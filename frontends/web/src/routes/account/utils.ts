@@ -64,6 +64,9 @@ export const getCoinCode = (coinCode: CoinCode): CoinCode | undefined => {
   case 'sepeth':
     return 'eth';
   }
+  if (coinCode.startsWith('eth-erc20-')) {
+    return 'eth';
+  }
 };
 
 export const getScriptName = (scriptType: ScriptType): string => {
