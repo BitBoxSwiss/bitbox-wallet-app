@@ -91,7 +91,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
 
     func isConnected() -> Bool {
-        return isPaired && connectedPeripheral != nil && pReader != nil && pWriter != nil;
+        return isPaired && connectedPeripheral != nil && pReader != nil && pWriter != nil
     }
 
     func connect(to peripheralID: UUID) {
@@ -110,14 +110,15 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
     private func restartScan() {
         guard centralManager.state == .poweredOn,
-              !centralManager.isScanning,
-              connectedPeripheral == nil else { return }
+            !centralManager.isScanning,
+            connectedPeripheral == nil
+        else { return }
         state.discoveredPeripherals.removeAll()
         state.scanning = true
         updateBackendState()
         centralManager.scanForPeripherals(
-          withServices: [CBUUID(string: "e1511a45-f3db-44c0-82b8-6c880790d1f1")],
-          options: nil
+            withServices: [CBUUID(string: "e1511a45-f3db-44c0-82b8-6c880790d1f1")],
+            options: nil
         )
     }
 
@@ -137,7 +138,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         }
     }
 
-    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
+    func centralManager(
+        _ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
+        advertisementData: [String: Any], rssi RSSI: NSNumber
+    ) {
         let identifier = peripheral.identifier
         print("BLE: discovered \(peripheral.name ?? "unknown device")")
         if state.discoveredPeripherals[identifier] == nil {
@@ -184,7 +188,9 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         updateBackendState()
     }
 
-    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+    func centralManager(
+        _ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?
+    ) {
         let errorMessage = error?.localizedDescription ?? "unknown error"
         state.discoveredPeripherals[peripheral.identifier]?.connectionState = .error
         state.discoveredPeripherals[peripheral.identifier]?.connectionError = errorMessage
@@ -246,7 +252,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             print("BLE: Error writing data: \(error)")
             return
         }
-        print("BLE: write ok")
+        //print("BLE: write ok")
     }
 
     func peripheral(
@@ -317,7 +323,9 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
 
     // This method gets called if the peripheral disconnects
-    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+    func centralManager(
+        _ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?
+    ) {
         print("BLE: peripheral disconnected")
         handleDisconnect()
     }
@@ -325,7 +333,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     struct ReadError: Error {
         let message: String
     }
-    
+
     func readBlocking(length: Int) throws -> Data {
         if !isConnected() {
             throw ReadError(message: "not connected")
@@ -338,8 +346,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             throw ReadError(message: "no connection context")
         }
         currentContextLock.unlock()
-        
-        let currentID = ctx.identifier;
+
+        let currentID = ctx.identifier
 
         var data = Data()
 
@@ -347,7 +355,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         while data.count < length {
             // Block until BLE reader callback notifies us or the peripheral is disconnected.
             ctx.semaphore.wait()
-            
+
             if !isConnected() {
                 throw ReadError(message: "the peripheral has disconnected while reading")
             }
@@ -357,10 +365,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             if exit {
                 throw ReadError(message: "the peripheral has disconnected while reading")
             }
-            
+
             ctx.readBufferLock.lock()
             data.append(ctx.readBuffer.prefix(64))
-            ctx.readBuffer = ctx.readBuffer.advanced(by: 64)
+            ctx.readBuffer.removeSubrange(..<64)
             ctx.readBufferLock.unlock()
         }
         print("BLE: got \(data.count)")
@@ -370,7 +378,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
     func parseProduct() -> ProductInfo? {
         guard let pProduct = self.pProduct,
-              let value = pProduct.value else {
+            let value = pProduct.value
+        else {
             return nil
         }
 
@@ -438,7 +447,9 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         var error: NSError?
         let success = MobileserverBluetoothSetState(jsonStr, &error)
         if !success {
-            print("Failed to set Bluetooth backend state: \(error?.localizedDescription ?? "Unknown error")")
+            print(
+                "Failed to set Bluetooth backend state: \(error?.localizedDescription ?? "Unknown error")"
+            )
         }
     }
 }
@@ -497,9 +508,18 @@ class BluetoothDeviceInfo: NSObject, MobileserverGoDeviceInfoInterfaceProtocol {
 
 class BluetoothReadWriteCloser: NSObject, MobileserverGoReadWriteCloserInterfaceProtocol {
     private let bluetoothManager: BluetoothManager
+    private var max_mtu_len: Int
 
     init(bluetoothManager: BluetoothManager) {
         self.bluetoothManager = bluetoothManager
+        self.max_mtu_len = 64
+        // Maximum number of bytes that fit based on MTU
+        guard let p = bluetoothManager.connectedPeripheral else {
+            return
+        }
+        self.max_mtu_len =
+            ((p.maximumWriteValueLength(for: CBCharacteristicWriteType.withoutResponse)) / 64)
+            * 64
     }
 
     func close() throws {
@@ -510,14 +530,23 @@ class BluetoothReadWriteCloser: NSObject, MobileserverGoReadWriteCloserInterface
     }
 
     func write(_ data: Data?, n: UnsafeMutablePointer<Int>?) throws {
-        guard let pWriter = bluetoothManager.pWriter else {
+        guard let data = data, let p = bluetoothManager.connectedPeripheral,
+            let pWriter = bluetoothManager.pWriter
+        else {
+            n!.pointee = 0
             return
         }
 
-        print("BLE: write data: \(data!.hexEncodedString())")
+        // This is the max char len according to BLE firmware
+        // only multiples of 64 are allowed
+        let max_char_len = 5 * 64
 
-        bluetoothManager.connectedPeripheral!.writeValue(data!, for: pWriter, type: .withResponse)
-        n!.pointee = data!.count
+        let len = min(max_char_len, max_mtu_len, data.count)
+
+        bluetoothManager.connectedPeripheral!.writeValue(
+            data[..<len], for: pWriter, type: .withResponse)
+        n!.pointee = len
+        print("BLE: write data (\(len) bytes): \(data[..<8].hexEncodedString())...")
     }
 }
 
