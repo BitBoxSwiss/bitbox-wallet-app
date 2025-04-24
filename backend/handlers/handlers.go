@@ -35,7 +35,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/handlers"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -703,17 +702,17 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 // getAccountsBalanceHandler returns the balance of all the accounts, grouped by keystore and coin.
 func (handlers *Handlers) getAccountsBalance(*http.Request) interface{} {
 	type response struct {
-		Success bool                                                     `json:"success"`
-		Balance map[string]map[coin.Code]accountHandlers.FormattedAmount `json:"balance,omitempty"`
+		Success bool                                                        `json:"success"`
+		Balance map[string]map[coinpkg.Code]accountHandlers.FormattedAmount `json:"balance,omitempty"`
 	}
-	totalAmount := make(map[string]map[coin.Code]accountHandlers.FormattedAmount)
+	totalAmount := make(map[string]map[coinpkg.Code]accountHandlers.FormattedAmount)
 	accountsByKeystore, err := handlers.backend.AccountsByKeystore()
 	if err != nil {
 		return response{Success: false}
 	}
 	for rootFingerprint, accountList := range accountsByKeystore {
-		totalPerCoin := make(map[coin.Code]*big.Int)
-		conversionsPerCoin := make(map[coin.Code]map[string]string)
+		totalPerCoin := make(map[coinpkg.Code]*big.Int)
+		conversionsPerCoin := make(map[coinpkg.Code]map[string]string)
 		for _, account := range accountList {
 			if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
 				continue
@@ -738,22 +737,22 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) interface{} {
 				totalPerCoin[coinCode] = new(big.Int).Add(totalPerCoin[coinCode], amount.BigInt())
 			}
 
-			conversionsPerCoin[coinCode] = coin.Conversions(
-				coin.NewAmount(totalPerCoin[coinCode]),
+			conversionsPerCoin[coinCode] = coinpkg.Conversions(
+				coinpkg.NewAmount(totalPerCoin[coinCode]),
 				account.Coin(),
 				false,
 				account.Config().RateUpdater,
 				util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit))
 		}
 
-		totalAmount[rootFingerprint] = make(map[coin.Code]accountHandlers.FormattedAmount)
+		totalAmount[rootFingerprint] = make(map[coinpkg.Code]accountHandlers.FormattedAmount)
 		for k, v := range totalPerCoin {
 			currentCoin, err := handlers.backend.Coin(k)
 			if err != nil {
 				return response{Success: false}
 			}
 			totalAmount[rootFingerprint][k] = accountHandlers.FormattedAmount{
-				Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
+				Amount:      currentCoin.FormatAmount(coinpkg.NewAmount(v), false),
 				Unit:        currentCoin.GetFormatUnit(false),
 				Conversions: conversionsPerCoin[k],
 			}
@@ -767,7 +766,7 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) interface{} {
 }
 
 type coinFormattedAmount struct {
-	CoinCode        coin.Code                       `json:"coinCode"`
+	CoinCode        coinpkg.Code                    `json:"coinCode"`
 	CoinName        string                          `json:"coinName"`
 	FormattedAmount accountHandlers.FormattedAmount `json:"formattedAmount"`
 }
@@ -779,8 +778,8 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) interface{} {
 		CoinsTotalBalance []coinFormattedAmount `json:"coinsTotalBalance,omitempty"`
 	}
 	var coinFormattedAmounts []coinFormattedAmount
-	var sortedCoins []coin.Code
-	totalCoinsBalances := make(map[coin.Code]*big.Int)
+	var sortedCoins []coinpkg.Code
+	totalCoinsBalances := make(map[coinpkg.Code]*big.Int)
 
 	for _, account := range handlers.backend.Accounts() {
 		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
@@ -817,10 +816,10 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) interface{} {
 			CoinCode: coinCode,
 			CoinName: currentCoin.Name(),
 			FormattedAmount: accountHandlers.FormattedAmount{
-				Amount: currentCoin.FormatAmount(coin.NewAmount(totalCoinsBalances[coinCode]), false),
+				Amount: currentCoin.FormatAmount(coinpkg.NewAmount(totalCoinsBalances[coinCode]), false),
 				Unit:   currentCoin.GetFormatUnit(false),
-				Conversions: coin.Conversions(
-					coin.NewAmount(totalCoinsBalances[coinCode]),
+				Conversions: coinpkg.Conversions(
+					coinpkg.NewAmount(totalCoinsBalances[coinCode]),
 					currentCoin,
 					false,
 					handlers.backend.RatesUpdater(),
@@ -1037,7 +1036,7 @@ func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 	}
 
 	rate := handlers.backend.RatesUpdater().LatestPrice()[unit][from]
-	result := coin.NewAmountFromInt64(0)
+	result := coinpkg.NewAmountFromInt64(0)
 	if rate != 0.0 {
 		amountRat := new(big.Rat).Quo(fiatRat, new(big.Rat).SetFloat64(rate))
 		result = currentCoin.SetAmount(amountRat, false)
