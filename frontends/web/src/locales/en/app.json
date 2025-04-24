@@ -1844,6 +1844,18 @@
       "title": "Unlock test wallet"
     }
   },
+  "testnet": {
+    "activate": {
+      "description": "Restart the app in testnet mode to explore and test features.",
+      "prompt": "Please close the app and start again to enter testnet mode",
+      "title": "Start testnet mode"
+    },
+    "deactivate": {
+      "description": "Restart app to exit testnet mode.",
+      "prompt": "Please close the app to exit testnet mode",
+      "title": "Exit testnet mode"
+    }
+  },
   "transaction": {
     "confirmation": "Confirmations",
     "details": {
