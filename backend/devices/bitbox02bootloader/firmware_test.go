@@ -81,12 +81,21 @@ func TestFirmwaresOrdered(t *testing.T) {
 
 func TestNextFirmware(t *testing.T) {
 	for product, firmwares := range bundledFirmwares {
-		fwInfo, err := nextFirmware(product, 1)
-		require.NoError(t, err)
-		require.Equal(t, uint32(36), fwInfo.monotonicVersion)
+		switch product {
+		case bitbox02common.ProductBitBox02Multi, bitbox02common.ProductBitBox02BTCOnly:
+			fwInfo, err := nextFirmware(product, 1)
+			require.NoError(t, err)
+			require.Equal(t, uint32(36), fwInfo.monotonicVersion)
 
-		fwInfo, err = nextFirmware(product, 36)
-		require.NoError(t, err)
-		require.Equal(t, &firmwares[len(firmwares)-1], fwInfo)
+			fwInfo, err = nextFirmware(product, 36)
+			require.NoError(t, err)
+			require.Equal(t, &firmwares[len(firmwares)-1], fwInfo)
+		case bitbox02common.ProductBitBox02PlusMulti, bitbox02common.ProductBitBox02PlusBTCOnly:
+			fwInfo, err := nextFirmware(product, 1)
+			require.NoError(t, err)
+			require.Equal(t, &firmwares[len(firmwares)-1], fwInfo)
+		default:
+			require.Fail(t, "unknown product")
+		}
 	}
 }
