@@ -45,6 +45,7 @@ export const UnlockSoftwareKeystore = ({
         settingName={t('testWallet.disconnect.title')}
         secondaryText={t('testWallet.disconnect.description')}
         onClick={() => deregisterTest()}
+        hideChevron
         extraComponent={
           <Eject
             className={styles.ejectIconRight}
@@ -61,7 +62,6 @@ export const UnlockSoftwareKeystore = ({
       <SettingsItem
         settingName={t('testWallet.connect.title')}
         secondaryText={t('testWallet.connect.description')}
-        hideChevron
         extraComponent={
           <ChevronRightDark
             className={styles.chevronRight}
