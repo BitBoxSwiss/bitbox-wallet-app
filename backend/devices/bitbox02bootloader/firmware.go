@@ -32,6 +32,8 @@ var intermediateFirmwareBinaryBTCOnly_9_17_1 []byte
 //go:embed assets/firmware.v9.17.1.signed.bin.gz
 var intermediateFirmwareBinaryMulti_9_17_1 []byte
 
+// BitBox02
+
 //go:embed assets/firmware-btc.v9.22.0.signed.bin.gz
 var firmwareBinaryBTCOnly []byte
 var firmwareVersionBTCOnly = semver.NewSemVer(9, 22, 0)
@@ -41,6 +43,18 @@ var firmwareMonotonicVersionBtcOnly uint32 = 42
 var firmwareBinaryMulti []byte
 var firmwareVersionMulti = semver.NewSemVer(9, 22, 0)
 var firmwareMonotonicVersionMulti uint32 = 42
+
+// BitBox02 Plus. TODO: these are placeholder entries.
+
+//go:embed assets/firmware-bb02plus-btconly.v9.22.0.signed.bin.gz
+var firmwareBB02PlusBinaryBTCOnly []byte
+var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 22, 0)
+var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 42
+
+//go:embed assets/firmware-bb02plus-multi.v9.22.0.signed.bin.gz
+var firmwareBB02PlusBinaryMulti []byte
+var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 22, 0)
+var firmwareBB02PlusMonotonicVersionMulti uint32 = 42
 
 type firmwareInfo struct {
 	version          *semver.SemVer
@@ -75,6 +89,7 @@ func (fi firmwareInfo) firmwareHash() ([]byte, error) {
 // The intermediate upgrades, when run, bump the monotonic version by one so we know whether it has
 // booted/run at least once.
 var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
+	// BitBox02
 	bitbox02common.ProductBitBox02Multi: {
 		{
 			version:          semver.NewSemVer(9, 17, 1),
@@ -97,6 +112,21 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 			version:          firmwareVersionBTCOnly,
 			monotonicVersion: firmwareMonotonicVersionBtcOnly,
 			binaryGzip:       firmwareBinaryBTCOnly,
+		},
+	},
+	// BitBox02 Plus.
+	bitbox02common.ProductBitBox02PlusMulti: {
+		{
+			version:          firmwareBB02PlusVersionMulti,
+			monotonicVersion: firmwareBB02PlusMonotonicVersionMulti,
+			binaryGzip:       firmwareBB02PlusBinaryMulti,
+		},
+	},
+	bitbox02common.ProductBitBox02PlusBTCOnly: {
+		{
+			version:          firmwareBB02PlusVersionBTCOnly,
+			monotonicVersion: firmwareBB02PlusMonotonicVersionBtcOnly,
+			binaryGzip:       firmwareBB02PlusBinaryBTCOnly,
 		},
 	},
 }
