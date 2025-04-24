@@ -24,6 +24,7 @@ type TProps = {
   collapseOnSmall?: boolean;
   displayedValue?: string | ReactNode;
   extraComponent?: ReactNode;
+  hideChevron?: boolean;
   hideDisplayedValueOnSmall?: boolean;
   onClick?: () => void;
   secondaryText?: string;
@@ -37,6 +38,7 @@ export const SettingsItem = ({
   collapseOnSmall = false,
   displayedValue = '',
   extraComponent,
+  hideChevron = false,
   hideDisplayedValueOnSmall = false,
   onClick,
   secondaryText,
@@ -62,8 +64,8 @@ export const SettingsItem = ({
     </div>
   );
 
-  const content =
-    (<>
+  const content = (
+    <>
       <span className={styles.content} title={title}>
         <div className={styles.primaryText}>{settingName}</div>
         { secondaryText ? (
@@ -72,7 +74,7 @@ export const SettingsItem = ({
       </span>
       {rightContent}
     </>
-    );
+  );
 
   // render as div when it's notButton
   // otherwise, render as button
@@ -92,11 +94,13 @@ export const SettingsItem = ({
           ${collapseOnSmall ? styles.collapse : ''}`}
           onClick={onClick}>
           {content}
-          <ChevronRightDark
-            className={styles.chevronRight}
-            width={24}
-            height={24}
-          />
+          {!hideChevron && (
+            <ChevronRightDark
+              className={styles.chevronRight}
+              width={24}
+              height={24}
+            />
+          )}
         </button>
       )}
     </>
