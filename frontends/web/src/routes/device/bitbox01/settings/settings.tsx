@@ -20,8 +20,6 @@ import { useTranslation } from 'react-i18next';
 import { route } from '../../../../utils/route';
 import { getDeviceInfo } from '../../../../api/bitbox01';
 import { apiGet } from '../../../../utils/request';
-import { apiWebsocket } from '../../../../utils/websocket';
-import { hasMobileChannel } from '@/api/devices';
 import { Guide } from '../../../../components/guide/guide';
 import { Entry } from '../../../../components/guide/entry';
 import { Header } from '../../../../components/layout';
@@ -32,12 +30,9 @@ import RandomNumber from './components/randomnumber';
 import HiddenWallet from './components/hiddenwallet';
 import ChangePIN from './components/changepin';
 import Reset from './components/reset';
-import { MobilePairing } from './components/mobile-pairing';
-import DeviceLock from './components/device-lock';
 import UpgradeFirmware from '../components/upgradefirmware';
 import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../../../components/settingsButton/settingsItem';
-import { TEventLegacy } from '@/utils/transport-common';
 
 type Props = {
   deviceID: string;
@@ -53,14 +48,9 @@ export const Settings = ({ deviceID }: Props) => {
   const [spinner, setSpinner] = useState(true);
   const [sdcard, setSdcard] = useState(false);
   const [serial, setSerial] = useState('');
-  const [pairing, setPairing] = useState(false);
-  const [mobileChannel, setMobileChannel] = useState(false);
-  const [connected, setConnected] = useState(false);
   const [newHiddenWallet, setNewHiddenWallet] = useState(true);
 
   useEffect(() => {
-    let unsubscribe: () => void;
-
     const init = async () => {
       const deviceInfo = await getDeviceInfo(deviceID);
       if (deviceInfo) {
@@ -68,7 +58,6 @@ export const Settings = ({ deviceID }: Props) => {
           lock,
           name,
           new_hidden_wallet,
-          pairing,
           sdcard,
           serial,
           version,
@@ -78,53 +67,20 @@ export const Settings = ({ deviceID }: Props) => {
         setLock(lock);
         setName(name);
         setNewHiddenWallet(new_hidden_wallet);
-        setPairing(pairing);
         setSdcard(sdcard);
         setSerial(serial);
         setSpinner(false);
       }
 
-      const mobile = await hasMobileChannel(deviceID)();
-      setMobileChannel(mobile);
-
       const bundledVersion = await apiGet(`devices/${deviceID}/bundled-firmware-version`);
       setNewVersion(bundledVersion.replace('v', ''));
-
-      unsubscribe = apiWebsocket((arg) => {
-        const { type, data, deviceID: id } = arg as TEventLegacy;
-        if (type === 'device' && id === deviceID) {
-          switch (data) {
-          case 'mobileDisconnected':
-            setConnected(false);
-            break;
-          case 'mobileConnected':
-            setConnected(true);
-            break;
-          case 'pairingSuccess':
-            setPairing(true);
-            setMobileChannel(true);
-            break;
-          case 'pairingFalse':
-            setMobileChannel(false);
-            break;
-          default:
-            break;
-          }
-        }
-      });
     };
 
     init();
 
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
   }, [deviceID]);
 
   const canUpgrade = firmwareVersion && newVersion !== firmwareVersion;
-  const paired = pairing && mobileChannel;
 
   return (
     <div className="contentWithGuide">
@@ -155,29 +111,6 @@ export const Settings = ({ deviceID }: Props) => {
                   </div>
                 </div>
                 <div className="column column-1-2">
-                  <h3 className="subTitle">{t('deviceSettings.pairing.title')}</h3>
-                  <div className="box slim divide">
-                    <SettingsItem optionalText={t(`deviceSettings.pairing.mobile.${connected ? 'true' : 'false'}`)}>
-                      {t('deviceSettings.pairing.mobile.label')}
-                    </SettingsItem>
-                    <MobilePairing
-                      deviceID={deviceID}
-                      deviceLocked={lock}
-                      hasMobileChannel={mobileChannel}
-                      paired={paired}
-                      onPairingEnabled={() => setPairing(true)}
-                    />
-                    <DeviceLock
-                      lock={lock}
-                      deviceID={deviceID}
-                      onLock={() => setLock(true)}
-                      disabled={lock || !paired}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column column-1-2">
                   <h3 className="subTitle">{t('deviceSettings.firmware.title')}</h3>
                   <div className="box slim divide">
                     {canUpgrade ? (
@@ -188,9 +121,7 @@ export const Settings = ({ deviceID }: Props) => {
                       </SettingsItem>
                     )}
                   </div>
-                </div>
-                <div className="column column-1-2">
-                  <h3 className="subTitle">{t('deviceSettings.hardware.title')}</h3>
+                  <h3 className="subTitle m-top-default">{t('deviceSettings.hardware.title')}</h3>
                   <div className="box slim divide">
                     <SettingsItem optionalText={serial}>Serial number</SettingsItem>
                     <SettingsItem optionalText={t(`deviceSettings.hardware.sdcard.${sdcard ? 'true' : 'false' }`)}>
@@ -221,9 +152,6 @@ export const Settings = ({ deviceID }: Props) => {
             </p>
           </Entry>
         )}
-        <Entry key="guide.bitbox.pairing" entry={t('guide.bitbox.pairing', { returnObjects: true })} />
-        <Entry key="guide.bitbox.2FA" entry={t('guide.bitbox.2FA', { returnObjects: true })} />
-        <Entry key="guide.bitbox.disable2FA" entry={t('guide.bitbox.disable2FA', { returnObjects: true })} />
       </Guide>
     </div>
   );

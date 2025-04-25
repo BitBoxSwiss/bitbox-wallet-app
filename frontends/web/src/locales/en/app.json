@@ -641,14 +641,6 @@
     "keystoreConnected": "Connected wallet",
     "unsupportedFeature": "This feature is not available on this device."
   },
-  "deviceLock": {
-    "button": "Enable two factor authorization (2FA)",
-    "condition1": "Do you have a backup?",
-    "condition2": "Is mobile app verification working?",
-    "condition3": "2FA DISABLES backups and mobile app pairing. The device must be RESET to exit 2FA!",
-    "confirm": "Enable two factor authorization (2FA)",
-    "title": "Enable two factor authorization (2FA)"
-  },
   "deviceSettings": {
     "backups": {
       "manageBackups": {
@@ -737,24 +729,6 @@
     },
     "loading": "Retrieving device info…",
     "noDevice": "No devices connected",
-    "pairing": {
-      "lock": {
-        "false": "Disabled",
-        "label": "Two factor authorization (2FA)",
-        "true": "Enabled"
-      },
-      "mobile": {
-        "false": "Closed",
-        "label": "Mobile app",
-        "true": "Open"
-      },
-      "status": {
-        "false": "Not paired",
-        "label": "Status",
-        "true": "Paired"
-      },
-      "title": "Pairing"
-    },
     "secrets": {
       "manageBackups": "Manage backups",
       "title": "Secrets"
@@ -1019,14 +993,6 @@
       }
     },
     "bitbox": {
-      "2FA": {
-        "text": "When 2FA is enabled, all transactions have to be approved on the paired mobile phone in order to spend coins. Under the hood, an encrypted single-use number is sent to the mobile app, decrypted there, and returned to the BitBox when pressing the Accept button. This communication with the device is done via the channel between the mobile phone and this desktop app established during pairing.\n\nBe sure to backup your wallet and pair the mobile app before enabling 2FA. Once enabled, the micro SD slot and mobile app pairing are disabled. They can be re-enabled by resetting the BitBox, which erases the device.",
-        "title": "How does Two factor authorization (2FA) work?"
-      },
-      "disable2FA": {
-        "text": "In order to disable 2FA, you need to reset your BitBox and then restore the wallet from its backup. Make sure that you still have the microSD card with the backup and that you still remember the recovery password. Then press 'Reset device'. Set a new device password and choose 'Or restore a backup'. Select the backup you have made from the wallet, click 'Restore' and enter the recovery password you used when creating the wallet.",
-        "title": "How can I disable two factor authorization (2FA)?"
-      },
       "ejectBitbox": {
         "text": "You can unplug the BitBox at any time without having to eject it first.",
         "title": "How can I eject the BitBox?"
@@ -1042,10 +1008,6 @@
       "legacyHiddenWallet": {
         "text": "First click the button below (available if the BitBox is unlocked with the main device password and 2FA is disabled), then replug your Bitbox and unlock it with your hidden device password.",
         "title": "How do I access the legacy hidden wallet?"
-      },
-      "pairing": {
-        "text": "After having downloaded our mobile app for either iOS or Android, you scan the displayed QR code, which sets up a secure channel between the mobile app and this application. Once scanned, follow the instructions in the mobile app.",
-        "title": "How to securely pair with your phone"
       }
     },
     "bitsurance": {
@@ -1421,52 +1383,6 @@
   "notification": {
     "newTxs_one": "New transaction in: {{accountName}}",
     "newTxs_other": "{{count}} new transactions in: {{accountName}}"
-  },
-  "pairing": {
-    "aborted": {
-      "text": "The pairing has been aborted from the mobile app.",
-      "title": "Aborted"
-    },
-    "button": "Pair mobile app",
-    "confirm": "Are you sure you want to pair your BitBox? Note that after, the mobile phone is required to perform a transaction.",
-    "connectOnly": {
-      "button": "Connect mobile app",
-      "title": "Scan with our mobile app by selecting the menu item 'Connect to new desktop app'"
-    },
-    "error": {
-      "text": "Something went wrong. Please start again.",
-      "title": "Error"
-    },
-    "pullFailed": {
-      "text": "Failed to pull a message from your mobile through the relay server. The relay server might be offline, please contact support.",
-      "title": "Pull failed"
-    },
-    "reconnectOnly": {
-      "button": "Reconnect mobile app"
-    },
-    "scanningFailed": {
-      "text": "Mobile was not able to scan the message successfully. Please try again.",
-      "title": "Scanning Failed"
-    },
-    "start": {
-      "hideAppQRCode": "Hide QR code",
-      "revealAppQRCode": "Show QR code",
-      "step1": "If you do not have the mobile app, you can scan the QR code for the Apple App Store or the Google Play Store depending on which phone you have.",
-      "step2": "Scan with our mobile app, which you can find under the name 'Digital Bitbox 2FA' in the app stores for iOS and Android:"
-    },
-    "started": {
-      "text": "Now please follow the instructions in the mobile app.",
-      "title": "Great"
-    },
-    "success": {
-      "text": "Congratulations, you successfully paired your BitBox with the mobile app!",
-      "title": "Success"
-    },
-    "timeout": {
-      "text": "The pairing timed out after two minutes. Start again if you still want to pair the mobile app.",
-      "title": "Timeout"
-    },
-    "title": "Mobile pairing"
   },
   "passphrase": {
     "considerations": {
@@ -1979,7 +1895,6 @@
   },
   "warning": {
     "coincontrol": "One or more UTXOs have a reused address. Be aware the receiver will see all UTXOs associated with those addresses.",
-    "receivePairing": "Please pair the BitBox to enable secure address verification. Go to 'Manage device' in the sidebar.",
     "sdcard": "Keep the microSD card stored separate from the BitBox, unless you want to manage backups.",
     "testnet": "Warning: You are currently using the wallet in Testnet mode. Transactions and balances here are not real and will not appear on the mainnet. Testnet is intended for testing and development purposes only."
   },
