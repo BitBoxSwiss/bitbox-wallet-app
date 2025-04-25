@@ -25,9 +25,7 @@ import { Entry } from '../../../../components/guide/entry';
 import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import Blink from './components/blink';
-import LegacyHiddenWallet from './components/legacyhiddenwallet';
 import RandomNumber from './components/randomnumber';
-import HiddenWallet from './components/hiddenwallet';
 import ChangePIN from './components/changepin';
 import Reset from './components/reset';
 import UpgradeFirmware from '../components/upgradefirmware';
@@ -43,30 +41,24 @@ export const Settings = ({ deviceID }: Props) => {
 
   const [firmwareVersion, setFirmwareVersion] = useState<string | null>(null);
   const [newVersion, setNewVersion] = useState<string | null>(null);
-  const [lock, setLock] = useState(true);
   const [name, setName] = useState<string | null>(null);
   const [spinner, setSpinner] = useState(true);
   const [sdcard, setSdcard] = useState(false);
   const [serial, setSerial] = useState('');
-  const [newHiddenWallet, setNewHiddenWallet] = useState(true);
 
   useEffect(() => {
     const init = async () => {
       const deviceInfo = await getDeviceInfo(deviceID);
       if (deviceInfo) {
         const {
-          lock,
           name,
-          new_hidden_wallet,
           sdcard,
           serial,
           version,
         } = deviceInfo;
 
         setFirmwareVersion(version.replace('v', ''));
-        setLock(lock);
         setName(name);
-        setNewHiddenWallet(new_hidden_wallet);
         setSdcard(sdcard);
         setSerial(serial);
         setSpinner(false);
@@ -97,16 +89,6 @@ export const Settings = ({ deviceID }: Props) => {
                       {t('deviceSettings.secrets.manageBackups')}
                     </SettingsButton>
                     <ChangePIN deviceID={deviceID} />
-                    {newHiddenWallet ? (
-                      <HiddenWallet deviceID={deviceID} disabled={lock} />
-                    ) : (
-                      <LegacyHiddenWallet
-                        deviceID={deviceID}
-                        newHiddenWallet={newHiddenWallet}
-                        disabled={lock}
-                        onChange={setNewHiddenWallet}
-                      />
-                    )}
                     <Reset deviceID={deviceID} />
                   </div>
                 </div>
@@ -140,18 +122,6 @@ export const Settings = ({ deviceID }: Props) => {
       <Guide>
         <Entry key="guide.bitbox.ejectBitbox" entry={t('guide.bitbox.ejectBitbox', { returnObjects: true })} />
         <Entry key="guide.bitbox.ejectSD" entry={t('guide.bitbox.ejectSD', { returnObjects: true })} />
-        <Entry key="guide.bitbox.hiddenWallet" entry={t('guide.bitbox.hiddenWallet', { returnObjects: true })} />
-        {!lock && newHiddenWallet && (
-          <Entry key="guide.bitbox.legacyHiddenWallet" entry={t('guide.bitbox.legacyHiddenWallet', { returnObjects: true })}>
-            <p>
-              <LegacyHiddenWallet
-                deviceID={deviceID}
-                newHiddenWallet={newHiddenWallet}
-                onChange={setNewHiddenWallet}
-              />
-            </p>
-          </Entry>
-        )}
       </Guide>
     </div>
   );
