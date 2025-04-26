@@ -34,7 +34,17 @@ export const isBitcoinOnly = (coinCode: CoinCode): boolean => {
   }
 };
 
-export const isBitcoinCoin = (coin: CoinUnit) => (coin === 'BTC') || (coin === 'TBTC') || (coin === 'sat') || (coin === 'tsat');
+export const isBitcoinCoin = (coin: CoinUnit | undefined) => {
+  switch (coin) {
+  case 'BTC':
+  case 'TBTC':
+  case 'sat':
+  case 'tsat':
+    return true;
+  default:
+    return false;
+  }
+};
 
 export const isBitcoinBased = (coinCode: CoinCode): boolean => {
   switch (coinCode) {

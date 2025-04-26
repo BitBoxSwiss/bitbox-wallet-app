@@ -50,7 +50,7 @@ export const BuyReceiveCTA = ({
 }: TBuyReceiveCTAProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const isBitcoin = isBitcoinCoin(unit as CoinUnit);
+  const isBitcoin = isBitcoinCoin(unit);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const onExchangeCTA = () => navigate(code ? `/exchange/info/${code}` : '/exchange/info');
