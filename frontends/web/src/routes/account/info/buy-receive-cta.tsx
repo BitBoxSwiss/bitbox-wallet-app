@@ -85,7 +85,7 @@ export const BuyReceiveCTA = ({
             })}
           </Button>
         )}
-        {exchangeSupported && (
+        {(exchangeSupported && !isMobile) && (
           <Button primary onClick={onExchangeCTA}>
             {/* "Exchange Bitcoin", "Exchange crypto" or "Exchange LTC" (via placeholder "Exchange {{coinCode}}") */}
             {t('generic.buySell')}
