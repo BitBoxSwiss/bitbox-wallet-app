@@ -371,6 +371,7 @@ export const proposeTx = (
 
 export type TSendTx = {
   success: true;
+  txId: string;
 } | {
   success: false;
   aborted: true;
