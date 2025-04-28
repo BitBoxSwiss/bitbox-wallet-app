@@ -150,6 +150,15 @@ export const BTCDirect = ({
     if (txPropsal.success) {
       const txNote = t('buy.pocket.paymentRequestNote') + ' BTC Direct'; // TODO: change to generic sell message with name placeholder 'Payment request from {name}'
       const sendResult = await sendTx(code, txNote);
+      if (sendResult.success) {
+        const { txId } = sendResult;
+        event.source?.postMessage({
+          action: 'confirm-transaction-id',
+          transactionId: txId
+        });
+        // stop here and continue in the widget
+        return;
+      }
       if (!sendResult.success && !('aborted' in sendResult)) {
         alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
       }

@@ -24,6 +24,8 @@
       };
     }
 
+    let orderId = '';
+
     const onMessage = (event) => {
       switch (event.data?.action) {
       case 'configuration':
@@ -101,11 +103,26 @@
         );
 
         break;
+
+      case 'confirm-transaction-id':
+
+        const { transactionId } = event.data || {};
+
+        btcdirect('transaction-id-confirmation', {
+          orderId,
+          transactionId,
+        });
+
+        break;
+
       }
     };
 
     window.addEventListener('message', onMessage);
     window.addEventListener('btcdirect-embeddable-coin-to-fiat-order-requested', (e) => {
+
+      // keep the BTC Direct order-id to pass it later to transaction-id-confirmation
+      orderId = e.detail?.orderId;
 
       window.parent.postMessage({
         action: 'request-payment',
