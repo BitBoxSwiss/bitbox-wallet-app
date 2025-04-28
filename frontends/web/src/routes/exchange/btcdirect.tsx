@@ -171,6 +171,12 @@ export const BTCDirect = ({
         alertUser(t('genericError'));
       }
     }
+
+    // cancel the sell order here if txProposal or sendTx was unsuccessful
+    event.source?.postMessage({
+      action: 'cancel-order',
+    });
+
   }, [code, t]);
 
   const locale = i18n.resolvedLanguage ? localeMapping[i18n.resolvedLanguage] : 'en-GB';
