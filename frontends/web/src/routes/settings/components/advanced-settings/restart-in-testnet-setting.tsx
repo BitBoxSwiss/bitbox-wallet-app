@@ -20,8 +20,7 @@ import { useTranslation } from 'react-i18next';
 import type { TConfig } from '@/routes/settings/advanced-settings';
 import { AppContext } from '@/contexts/AppContext';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
-import { PointToBitBox02 } from '@/components/icon';
+import { View, ViewButtons, ViewHeader } from '@/components/view/view';
 import { Button } from '@/components/forms';
 import { setConfig } from '@/utils/config';
 import { UseBackButton } from '@/hooks/backbutton';
@@ -74,9 +73,6 @@ export const RestartInTestnetSetting = ({ onChangeConfig }: TProps) => {
             : t('testnet.activate.prompt')
           }
         </ViewHeader>
-        <ViewContent minHeight="260px">
-          <PointToBitBox02 />
-        </ViewContent>
         <ViewButtons>
           <Button secondary onClick={handleReset}>
             {t('dialog.cancel')}
