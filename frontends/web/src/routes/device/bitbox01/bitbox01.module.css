@@ -123,19 +123,6 @@
     text-align: center;
 }
 
-.waitingText {
-    margin-top: 0;
-    margin-bottom: var(--space-half);
-    text-align: center;
-    font-weight: 400;
-    font-size: var(--size-subheader);
-}
-
-.waitingDescription {
-    text-align: center;
-    margin-bottom: 0;
-}
-
 @media screen and (max-width: 640px) {
     .qrcodeContainer {
         width: 50%;

@@ -34,7 +34,7 @@ import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark 
 import { Footer, GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { OutlinedSettingsButton } from '@/components/settingsButton/outlined-settings-button';
-import style from './bitbox01/bitbox01.module.css';
+import style from './waiting.module.css';
 
 export const Waiting = () => {
   const { t } = useTranslation();
@@ -69,13 +69,12 @@ export const Waiting = () => {
             <OutlinedSettingsButton />
           </Header>
           <View verticallyCentered width="550px" fitContent>
-            <ViewContent>
+            <ViewContent textAlign="center">
               <div>
                 {isDarkMode ? (<AppLogoInverted />) : (<AppLogo />)}
-                <div className="box large">
-                  <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
-                  <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
-                </div>
+                <p className={style.waitingText}>
+                  {t('welcome.message')}
+                </p>
                 <Bluetooth />
               </div>
             </ViewContent>

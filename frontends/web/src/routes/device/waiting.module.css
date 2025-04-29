@@ -1,0 +1,7 @@
+.waitingText {
+  margin-top: 0;
+  margin-bottom: var(--space-half);
+  font-size: var(--size-subheader);
+  font-weight: 400;
+  text-align: center;
+}

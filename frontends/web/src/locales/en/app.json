@@ -1901,9 +1901,8 @@
   "welcome": {
     "connect": "Connect your BitBox",
     "getStarted": "Let's get started by installing firmware on your BitBox.",
-    "insertBitBox02": "For the BitBox02, please tap the device to continue.",
-    "insertDevice": "Please connect your device to get started",
     "loadingAccounts": "Loading accounts",
+    "message": "Please connect your BitBox and tap the side to continue.",
     "title": "Welcome"
   }
 }
