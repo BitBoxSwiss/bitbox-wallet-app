@@ -17,7 +17,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { gotoStartupSettings } from '@/api/bitbox02';
-import { ChevronRightDark } from '@/components/icon';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 
@@ -57,7 +56,6 @@ const GoToStartupSettings = ({ deviceID }: TGoToStartupSettingsProps) => {
       <SettingsItem
         settingName={t('bitbox02Settings.gotoStartupSettings.title')}
         secondaryText={t('deviceSettings.expert.goToStartupSettings.description')}
-        extraComponent={<ChevronRightDark />}
         onClick={handleGoToStartupSettings}
       />
       <StartupSettingsWaitDialog show={show} />

@@ -17,7 +17,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark } from '@/components/icon';
 
 type TProps = {
     deviceID: string;
@@ -35,7 +34,6 @@ const PassphraseSetting = ({ deviceID, passphraseEnabled }: TProps) => {
       displayedValue={ passphraseEnabled
         ? t('generic.enabled_true')
         : t('generic.enabled_false')}
-      extraComponent={<ChevronRightDark />}
     />
   );
 };

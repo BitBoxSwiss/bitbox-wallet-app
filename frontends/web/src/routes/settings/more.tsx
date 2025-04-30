@@ -22,9 +22,8 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
+import { Cog, ShieldGray } from '@/components/icon';
 import styles from './more.module.css';
-import shieldIcon from '@/assets/icons/shield_grey.svg';
-import settingsIcon from '@/assets/icons/settings-alt.svg';
 
 /**
  * This component will only be shown on mobile.
@@ -49,7 +48,7 @@ export const More = () => {
                   onClick={() => navigate('/settings')}
                 >
                   <div className={styles.item}>
-                    <img width={22} height={22} draggable={false} src={settingsIcon} alt={t('sidebar.settings')} />
+                    <Cog width={22} height={22} alt={t('sidebar.settings')} />
                     {t('sidebar.settings')}
                   </div>
                 </ActionableItem>
@@ -57,7 +56,7 @@ export const More = () => {
                   onClick={() => navigate('/bitsurance/bitsurance')}
                 >
                   <div className={styles.item}>
-                    <img width={22} height={22} draggable={false} src={shieldIcon} alt={t('sidebar.insurance')} />
+                    <ShieldGray width={22} height={22} alt={t('sidebar.insurance')} />
                     {t('sidebar.insurance')}
                   </div>
                 </ActionableItem>

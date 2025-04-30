@@ -17,7 +17,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark, WarningOLD } from '@/components/icon';
+import { WarningOLD } from '@/components/icon';
 
 type TProps = {
   deviceID: string;
@@ -43,7 +43,6 @@ export const Bip85Setting = ({ canBIP85, deviceID }: TProps) => {
       onClick={() => navigate(`/settings/device-settings/bip85/${deviceID}`)}
       settingName={t('deviceSettings.expert.bip85.title')}
       secondaryText={t('deviceSettings.expert.bip85.description')}
-      extraComponent={<ChevronRightDark />}
     />
   );
 };

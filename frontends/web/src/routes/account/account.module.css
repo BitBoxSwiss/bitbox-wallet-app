@@ -132,7 +132,7 @@
     }
 
     .actionsContainer {
-        justify-content: space-between;
+        justify-content: center;
         margin-bottom: var(--space-half);
         padding-bottom: 0;
         width: 100%;

@@ -14,59 +14,26 @@
  * limitations under the License.
  */
 
-import { useContext, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useContext } from 'react';
 import { AccountCode, IAccount } from '@/api/account';
-import { hasMobileChannel, TDevices } from '@/api/devices';
-import { getDeviceInfo } from '@/api/bitbox01';
 import { RatesContext } from '@/contexts/RatesContext';
-import { findAccount, isBitcoinBased } from '@/routes/account/utils';
-import { alertUser } from '@/components/alert/Alert';
+import { findAccount } from '@/routes/account/utils';
 import { Send } from './send';
 
 type TSendProps = {
-    accounts: IAccount[];
-    code: AccountCode;
-    devices: TDevices;
-    deviceIDs: string[];
+  accounts: IAccount[];
+  code: AccountCode;
 }
 
-export const SendWrapper = ({ accounts, code, deviceIDs, devices }: TSendProps) => {
-  const { t } = useTranslation();
+export const SendWrapper = ({ accounts, code }: TSendProps) => {
   const { defaultCurrency } = useContext(RatesContext);
-
-  const [bb01Paired, setBB01Paired] = useState<boolean>();
-  const [noMobileChannelError, setNoMobileChannelError] = useState<boolean>();
 
   const account = findAccount(accounts, code);
 
-  useEffect(() => {
-    const product = deviceIDs.length > 0 ? devices[deviceIDs[0]] : undefined;
-    if (account && product === 'bitbox') {
-      const fetchData = async () => {
-        try {
-          const mobileChannel = await hasMobileChannel(deviceIDs[0])();
-          const deviceInfo = await getDeviceInfo(deviceIDs[0]);
-          if (deviceInfo) {
-            setBB01Paired(mobileChannel && deviceInfo.pairing);
-            setNoMobileChannelError(deviceInfo.pairing && !mobileChannel && isBitcoinBased(account.coinCode));
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      fetchData();
-    }
-  }, [account, deviceIDs, devices]);
-
-  if (noMobileChannelError) {
-    alertUser(t('warning.sendPairing'));
-  }
   return (
     account ? (
       <Send
         account={account}
-        bb01Paired={bb01Paired}
         activeCurrency={defaultCurrency}
       />
     ) : (null)

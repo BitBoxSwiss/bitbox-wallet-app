@@ -15,55 +15,88 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, Dispatch } from 'react';
-import { useState } from 'react';
+import { Dispatch, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TConfig } from '@/routes/settings/advanced-settings';
+import { AppContext } from '@/contexts/AppContext';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { Toggle } from '@/components/toggle/toggle';
-import { TConfig, TBackendConfig } from '@/routes/settings/advanced-settings';
-import { Message } from '@/components/message/message';
+import { View, ViewButtons, ViewHeader } from '@/components/view/view';
+import { Button } from '@/components/forms';
 import { setConfig } from '@/utils/config';
-import styles from './enable-tor-proxy-setting.module.css';
+import { UseBackButton } from '@/hooks/backbutton';
 
 type TProps = {
-  backendConfig?: TBackendConfig;
   onChangeConfig: Dispatch<TConfig>;
 }
 
-export const RestartInTestnetSetting = ({ backendConfig, onChangeConfig }: TProps) => {
+export const RestartInTestnetSetting = ({ onChangeConfig }: TProps) => {
   const { t } = useTranslation();
   const [showRestartMessage, setShowRestartMessage] = useState(false);
+  const { isTesting } = useContext(AppContext);
 
-
-  const handleToggleRestartInTestnet = async (e: ChangeEvent<HTMLInputElement>) => {
-    setShowRestartMessage(e.target.checked);
+  const handleRestart = async () => {
+    setShowRestartMessage(true);
     const config = await setConfig({
       backend: {
-        'startInTestnet': e.target.checked
+        startInTestnet: !isTesting
       },
-    }) as TConfig;
+    });
     onChangeConfig(config);
   };
-  return (
-    <>
-      { showRestartMessage ? (
-        <Message type="warning">
-          {t('settings.restart')}
-        </Message>
-      ) : null }
+
+  const handleReset = async () => {
+    setShowRestartMessage(false);
+    if (!isTesting) {
+      const config = await setConfig({
+        backend: {
+          startInTestnet: false
+        },
+      });
+      onChangeConfig(config);
+    }
+  };
+
+  if (showRestartMessage) {
+    return (
+      <View fullscreen textCenter verticallyCentered>
+        <UseBackButton handler={() => {
+          handleReset();
+          return false;
+        }} />
+        <ViewHeader title={
+          isTesting
+            ? t('testnet.deactivate.title')
+            : t('testnet.activate.title')
+        }>
+          {isTesting
+            ? t('testnet.deactivate.prompt')
+            : t('testnet.activate.prompt')
+          }
+        </ViewHeader>
+        <ViewButtons>
+          <Button secondary onClick={handleReset}>
+            {t('dialog.cancel')}
+          </Button>
+        </ViewButtons>
+      </View>
+    );
+  }
+
+  if (isTesting) {
+    return (
       <SettingsItem
-        className={styles.settingItem}
-        settingName={t('settings.expert.restartInTestnet')}
-        secondaryText={t('newSettings.advancedSettings.restartInTestnet.description')}
-        extraComponent={
-          backendConfig !== undefined ? (
-            <Toggle
-              checked={backendConfig?.startInTestnet || false}
-              onChange={handleToggleRestartInTestnet}
-            />
-          ) : null
-        }
+        settingName={t('testnet.deactivate.title')}
+        secondaryText={t('testnet.deactivate.description')}
+        onClick={handleRestart}
       />
-    </>
+    );
+  }
+
+  return (
+    <SettingsItem
+      settingName={t('testnet.activate.title')}
+      secondaryText={t('testnet.activate.description')}
+      onClick={handleRestart}
+    />
   );
 };

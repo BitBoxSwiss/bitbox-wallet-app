@@ -7,11 +7,11 @@
 }
 
 .skeletonWrapper {
-    margin-bottom: var(--size-default);
+    margin-bottom: var(--space-half);
 }
 
 
-@media (max-width: 768px) { 
+@media (max-width: 768px) {
     .skeletonWrapper {
          margin-bottom: 2px;
     }

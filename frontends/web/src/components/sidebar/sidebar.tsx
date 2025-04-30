@@ -23,16 +23,9 @@ import type { TDevices } from '@/api/devices';
 import type { IAccount } from '@/api/account';
 import { deregisterTest } from '@/api/keystores';
 import { getVersion } from '@/api/bitbox02';
-import coins from '@/assets/icons/coins.svg';
-import ejectIcon from '@/assets/icons/eject.svg';
-import shieldIcon from '@/assets/icons/shield_grey.svg';
-import linechart from '@/assets/icons/linechart.svg';
-import settings from '@/assets/icons/settings-alt.svg';
-import settingsGrey from '@/assets/icons/settings-alt_disabled.svg';
-import deviceSettings from '@/assets/icons/wallet-light.svg';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';
-import { CloseXWhite, RedDot, USBSuccess } from '@/components/icon';
+import { CloseXWhite, Cog, CogGray, Coins, Device, Eject, Linechart, RedDot, ShieldGray, USBSuccess } from '@/components/icon';
 import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { Badge } from '@/components/badge/badge';
@@ -103,54 +96,6 @@ const Sidebar = ({
     checkUpgradableDevices();
   }, [devices]);
 
-  useEffect(() => {
-    const swipe = {
-      active: false,
-      x: 0,
-      y: 0,
-    };
-
-    const handleTouchStart = (event: TouchEvent) => {
-      const touch = event.touches[0];
-      swipe.x = touch.clientX;
-      swipe.y = touch.clientY;
-    };
-
-    const handleTouchMove = (event: TouchEvent) => {
-      if (
-        event.changedTouches
-        && event.changedTouches.length
-      ) {
-        swipe.active = true;
-      }
-    };
-
-    const handleTouchEnd = (event: TouchEvent) => {
-      const touch = event.changedTouches[0];
-      const travelX = Math.abs(touch.clientX - swipe.x);
-      const travelY = Math.abs(touch.clientY - swipe.y);
-      const validSwipe = window.innerWidth <= 901 && swipe.active && travelY < 100 && travelX > 70;
-      if (
-        (!activeSidebar && validSwipe && swipe.x < 60)
-        || (activeSidebar && validSwipe && swipe.x > 230)
-      ) {
-        toggleSidebar();
-      }
-      swipe.x = 0;
-      swipe.y = 0;
-      swipe.active = false;
-    };
-
-    document.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('touchmove', handleTouchMove);
-    document.addEventListener('touchend', handleTouchEnd);
-    return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [activeSidebar, toggleSidebar]);
-
   const keystores = useKeystores();
 
   const handleSidebarItemClick = (event: React.SyntheticEvent) => {
@@ -186,7 +131,7 @@ const Sidebar = ({
               title={t('accountSummary.title')}
               onClick={handleSidebarItemClick}>
               <div className={style.single}>
-                <img draggable={false} src={linechart} />
+                <Linechart />
               </div>
               <span className={style.sidebarLabel}>{t('accountSummary.title')}</span>
             </NavLink>
@@ -229,7 +174,7 @@ const Sidebar = ({
                 className={({ isActive }) => isActive || userInSpecificAccountExchangePage ? style.sidebarActive : ''}
                 to="/exchange/info">
                 <div className={style.single}>
-                  <img draggable={false} src={coins} />
+                  <Coins />
                 </div>
                 <span className={style.sidebarLabel}>
                   {t('generic.buySell')}
@@ -242,7 +187,7 @@ const Sidebar = ({
                 to="/bitsurance/bitsurance"
               >
                 <div className={style.single}>
-                  <img draggable={false} src={shieldIcon} alt={t('sidebar.insurance')} />
+                  <ShieldGray alt={t('sidebar.insurance')} />
                 </div>
                 <span className={style.sidebarLabel}>{t('sidebar.insurance')}</span>
               </NavLink>
@@ -257,8 +202,8 @@ const Sidebar = ({
             title={t('sidebar.settings')}
             onClick={handleSidebarItemClick}>
             <div className="stacked">
-              <img draggable={false} src={settingsGrey} alt={t('sidebar.settings')} />
-              <img draggable={false} src={settings} alt={t('sidebar.settings')} />
+              <CogGray alt={t('sidebar.settings')} />
+              <Cog alt={t('sidebar.settings')} />
             </div>
             <span className={style.sidebarLabel}>
               {t('sidebar.settings')}
@@ -273,10 +218,10 @@ const Sidebar = ({
           <div key="unlock-software-keystore" className={style.sidebarItem}>
             <SkipForTesting className={style.closeSoftwareKeystore}>
               <div className={style.single}>
-                <img src={deviceSettings} />
+                <Device />
               </div>
               <span className={style.sidebarLabel}>
-                Software keystore
+                {t('testWallet.connect.title')}
               </span>
             </SkipForTesting>
           </div>
@@ -285,13 +230,10 @@ const Sidebar = ({
           <div key="eject" className={style.sidebarItem}>
             <Button transparent onClick={eject} className={style.closeSoftwareKeystore}>
               <div className={style.single}>
-                <img
-                  draggable={false}
-                  src={ejectIcon}
-                  alt={t('sidebar.leave')} />
+                <Eject alt={t('sidebar.leave')} />
               </div>
               <span className={style.sidebarLabel}>
-                Eject software keystore
+                {t('testWallet.disconnect.title')}
               </span>
             </Button>
           </div>

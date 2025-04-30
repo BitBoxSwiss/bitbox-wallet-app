@@ -14,7 +14,15 @@
     font-weight: 400;
     padding: 16px 24px;
     color: var(--color-dark);
-    margin-bottom: var(--size-default);
+    margin-bottom: var(--space-half);
+}
+
+.chevronRight {
+    bottom: 0;
+    margin: auto;
+    position: absolute;
+    right: var(--space-quarter);
+    top: 3px;
 }
 
 .content {
@@ -27,6 +35,10 @@
     margin: 0;
 }
 
+.isButton {
+    position: relative;
+}
+
 .isButton:hover {
     cursor: pointer;
 }
@@ -37,6 +49,10 @@
     display: flex;
     justify-content: flex-end;
     width: 50%;
+}
+
+.extraPadding {
+    padding-right: var(--space-half);
 }
 
 .displayedValue {
@@ -89,7 +105,8 @@
     }
 
     .container.collapse .rightContentContainer {
-        width: 100%
+        width: 100%;
+        justify-content: flex-start;
     }
 
     .hideDisplayedValueOnSmall {
