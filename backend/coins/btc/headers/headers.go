@@ -366,10 +366,7 @@ func (headers *Headers) reorg(db DBInterface, tip int) {
 	// Simple reorg method: re-fetch headers up to the maximum reorg limit. The server can shorten
 	// our chain by sending a fake header and set us back by `reorgLimit` blocks, but it needs to
 	// contain the correct PoW to do so.
-	newTip := tip - reorgLimit
-	if newTip < -1 {
-		newTip = -1
-	}
+	newTip := max(tip-reorgLimit, -1)
 	if err := db.RevertTo(newTip); err != nil {
 		panic(err)
 	}
