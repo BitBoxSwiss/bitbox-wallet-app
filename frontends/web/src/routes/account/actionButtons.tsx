@@ -37,6 +37,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
   const navigate = useNavigate();
   const walletConnectEnabled = isEthereumBased(account.coinCode) && !account.isToken;
   const isLargeTablet = useMediaQuery('(max-width: 830px)');
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // When clicking 'Send', for Ethereum based accounts we first prompt to connect the keystore
   // before proceeding. The reason is that in ETH, we need to know what keystore (which BitBox02
@@ -73,7 +74,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
         </span>
       )}
 
-      {exchangeSupported && (
+      {(exchangeSupported && !isMobile) && (
         accountDataLoaded ? (
           <Link key="exchange" to={`/exchange/info/${code}`} className={style.exchange}>
             <span>{t('generic.buySell')}</span>
