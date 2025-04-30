@@ -146,22 +146,37 @@ export const BTCDirect = ({
       useHighestFee: true,
     };
 
-    const txPropsal = await proposeTx(code, txInput);
-    if (txPropsal.success) {
+    const txProposal = await proposeTx(code, txInput);
+    if (txProposal.success) {
       const txNote = t('buy.pocket.paymentRequestNote') + ' BTC Direct'; // TODO: change to generic sell message with name placeholder 'Payment request from {name}'
       const sendResult = await sendTx(code, txNote);
+      if (sendResult.success) {
+        const { txId } = sendResult;
+        event.source?.postMessage({
+          action: 'confirm-transaction-id',
+          transactionId: txId
+        });
+        // stop here and continue in the widget
+        return;
+      }
       if (!sendResult.success && !('aborted' in sendResult)) {
         alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
       }
     } else {
-      if (txPropsal.errorCode === 'insufficientFunds') {
-        alertUser(t('buy.pocket.error.' + txPropsal.errorCode)); // TODO: using pocket error here, 'Insufficient funds on the selected account.'
-      } else if (txPropsal.errorCode) {
-        alertUser(t('send.error.' + txPropsal.errorCode));
+      if (txProposal.errorCode === 'insufficientFunds') {
+        alertUser(t('buy.pocket.error.' + txProposal.errorCode)); // TODO: using pocket error here, 'Insufficient funds on the selected account.'
+      } else if (txProposal.errorCode) {
+        alertUser(t('send.error.' + txProposal.errorCode));
       } else {
         alertUser(t('genericError'));
       }
     }
+
+    // cancel the sell order here if txProposal or sendTx was unsuccessful
+    event.source?.postMessage({
+      action: 'cancel-order',
+    });
+
   }, [code, t]);
 
   const locale = i18n.resolvedLanguage ? localeMapping[i18n.resolvedLanguage] : 'en-GB';
