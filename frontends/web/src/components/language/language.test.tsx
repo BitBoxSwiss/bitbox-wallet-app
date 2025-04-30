@@ -25,6 +25,10 @@ vi.mock('react-i18next', () => ({
   useTranslation: vi.fn()
 }));
 
+vi.mock('@/hooks/mediaquery', () => ({
+  useMediaQuery: vi.fn().mockReturnValue(true)
+}));
+
 describe('components/language/language', () => {
   const supportedLangs = [
     { code: 'ar', display: 'Arabic' },
