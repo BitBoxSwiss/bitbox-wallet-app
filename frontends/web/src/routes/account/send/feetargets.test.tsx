@@ -78,7 +78,9 @@ describe('routes/account/send/feetargets', () => {
         }}
         customFee=""
         onCustomFee={vi.fn()}
-        onFeeTargetChange={vi.fn()} />,
+        onFeeTargetChange={vi.fn()}
+        // value="normal"
+      />,
     );
     waitFor(() => expect(container).toMatchSnapshot());
   });
@@ -98,7 +100,9 @@ describe('routes/account/send/feetargets', () => {
         fiatUnit="EUR"
         customFee=""
         onCustomFee={vi.fn()}
-        onFeeTargetChange={vi.fn()} />,
+        onFeeTargetChange={vi.fn()}
+        // value="normal"
+      />,
     );
     await waitFor(() => expect(container).toMatchSnapshot());
   });
@@ -126,7 +130,9 @@ describe('routes/account/send/feetargets', () => {
         fiatUnit="USD"
         customFee=""
         onCustomFee={vi.fn()}
-        onFeeTargetChange={onFeeTargetChangeCB} />,
+        onFeeTargetChange={onFeeTargetChangeCB}
+        // value="normal"
+      />,
     );
     await waitFor(() => expect(apiGetMock).toHaveBeenCalled());
   }));

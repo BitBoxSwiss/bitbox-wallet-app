@@ -364,7 +364,7 @@ export const sendTx = (
   return apiPost(`account/${code}/sendtx`, txNote);
 };
 
-export type FeeTargetCode = 'custom' | 'low' | 'economy' | 'normal' | 'high';
+export type FeeTargetCode = 'custom' | 'low' | 'economy' | 'normal' | 'high' | 'mHour' | 'mHalfHour' | 'mFastest';
 
 export interface IProposeTxData {
     address?: string;
