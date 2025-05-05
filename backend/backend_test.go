@@ -151,7 +151,7 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 			for _, signingConfig := range config.Config.SigningConfigurations {
 				addressChain := addresses.NewAddressChain(
 					signingConfig,
-					coin.Net(), 20, 0,
+					coin.Net(), 20, false,
 					func(*addresses.AccountAddress) (bool, error) {
 						return false, nil
 					},

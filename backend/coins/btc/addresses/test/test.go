@@ -16,6 +16,7 @@ package test
 
 import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
@@ -48,7 +49,7 @@ func NewAddressChain(
 	}
 	configuration := signing.NewBitcoinConfiguration(
 		signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, derivationPath, xpub)
-	return configuration, addresses.NewAddressChain(configuration, net, 20, 0, isAddressUsed, log)
+	return configuration, addresses.NewAddressChain(configuration, net, 20, false, isAddressUsed, log)
 }
 
 // GetAddress returns a dummy address for a given address type.
@@ -61,7 +62,7 @@ func GetAddress(scriptType signing.ScriptType) *addresses.AccountAddress {
 		scriptType, []byte{1, 2, 3, 4}, absoluteKeypath, extendedPublicKey)
 	return addresses.NewAccountAddress(
 		configuration,
-		signing.NewEmptyRelativeKeypath(),
+		types.Derivation{Change: false, AddressIndex: 0},
 		net,
 		logging.Get().WithGroup("addresses_test"),
 	)

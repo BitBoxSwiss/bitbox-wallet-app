@@ -335,10 +335,10 @@ func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.Pro
 		makeConfig(t, device, signing.ScriptTypeP2WPKH, mustKeypath("m/84'/0'/0'")),
 		makeConfig(t, device, signing.ScriptTypeP2WPKHP2SH, mustKeypath("m/49'/0'/0'")),
 	}
-	inputAddress0 := addresses.NewAccountAddress(configurations[0], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), network, log)
-	inputAddress1 := addresses.NewAccountAddress(configurations[1], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), network, log)
-	inputAddress2 := addresses.NewAccountAddress(configurations[2], signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false), network, log)
-	changeAddress := addresses.NewAccountAddress(configurations[0], signing.NewEmptyRelativeKeypath().Child(1, false).Child(0, false), network, log)
+	inputAddress0 := addresses.NewAccountAddress(configurations[0], types.Derivation{Change: false, AddressIndex: 0}, network, log)
+	inputAddress1 := addresses.NewAccountAddress(configurations[1], types.Derivation{Change: false, AddressIndex: 0}, network, log)
+	inputAddress2 := addresses.NewAccountAddress(configurations[2], types.Derivation{Change: false, AddressIndex: 0}, network, log)
+	changeAddress := addresses.NewAccountAddress(configurations[0], types.Derivation{Change: true, AddressIndex: 1}, network, log)
 
 	prevTx := &wire.MsgTx{
 		Version: 2,
@@ -449,7 +449,7 @@ func TestSimulatorSignBTCTransactionSendSelfSameAccount(t *testing.T) {
 		cfg := makeConfig(t, device, signing.ScriptTypeP2TR, mustKeypath("m/86'/0'/0'"))
 		selfAddress := addresses.NewAccountAddress(
 			cfg,
-			signing.NewEmptyRelativeKeypath().Child(0, false).Child(0, false),
+			types.Derivation{Change: false, AddressIndex: 0},
 			network,
 			log)
 		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(selfAddress.PubkeyScript()))

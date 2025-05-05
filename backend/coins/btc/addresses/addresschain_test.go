@@ -32,7 +32,7 @@ type addressChainTestSuite struct {
 	addresses     *addresses.AddressChain
 	xpub          *hdkeychain.ExtendedKey
 	gapLimit      int
-	chainIndex    uint32
+	change        bool
 	isAddressUsed func(*addresses.AccountAddress) bool
 	log           *logrus.Entry
 }
@@ -46,14 +46,14 @@ func (s *addressChainTestSuite) SetupTest() {
 		panic(err)
 	}
 	s.gapLimit = 6
-	s.chainIndex = 1
+	s.change = true
 	s.xpub = xpub
 	s.addresses = addresses.NewAddressChain(
 		signing.NewBitcoinConfiguration(
 			signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, signing.NewEmptyAbsoluteKeypath(), xpub),
 		net,
 		s.gapLimit,
-		s.chainIndex,
+		s.change,
 		func(address *addresses.AccountAddress) (bool, error) {
 			return s.isAddressUsed(address), nil
 		},
@@ -122,7 +122,11 @@ func (s *addressChainTestSuite) TestEnsureAddresses() {
 	s.Require().Len(newAddresses, s.gapLimit)
 	// Check that the pubkeys behind the new addresses are derived in sequence from the root xpub.
 	getPubKey := func(index int) *btcec.PublicKey {
-		chain, err := s.xpub.Derive(s.chainIndex)
+		chainIndex := uint32(0)
+		if s.change {
+			chainIndex = 1
+		}
+		chain, err := s.xpub.Derive(chainIndex)
 		if err != nil {
 			panic(err)
 		}
