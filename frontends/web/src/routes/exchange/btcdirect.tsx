@@ -155,6 +155,8 @@ export const BTCDirect = ({
         event.source?.postMessage({
           action: 'confirm-transaction-id',
           transactionId: txId
+        }, {
+          targetOrigin: event.origin
         });
         // stop here and continue in the widget
         return;
@@ -175,6 +177,8 @@ export const BTCDirect = ({
     // cancel the sell order here if txProposal or sendTx was unsuccessful
     event.source?.postMessage({
       action: 'cancel-order',
+    }, {
+      targetOrigin: event.origin
     });
 
   }, [code, t]);
