@@ -53,14 +53,16 @@ type EtherScan struct {
 	url        string
 	httpClient *http.Client
 	limiter    *rate.Limiter
+	chainId    string
 }
 
 // NewEtherScan creates a new instance of EtherScan.
-func NewEtherScan(url string, httpClient *http.Client) *EtherScan {
+func NewEtherScan(chainId string, httpClient *http.Client) *EtherScan {
 	return &EtherScan{
-		url:        url,
+		url:        "https://api.etherscan.io/v2/api",
 		httpClient: httpClient,
 		limiter:    rate.NewLimiter(rate.Limit(callsPerSec), 1),
+		chainId:    chainId,
 	}
 }
 
@@ -69,6 +71,7 @@ func (etherScan *EtherScan) call(ctx context.Context, params url.Values, result 
 		return errp.WithStack(err)
 	}
 	params.Set("apikey", apiKey)
+	params.Set("chainId", etherScan.chainId)
 	response, err := etherScan.httpClient.Get(etherScan.url + "?" + params.Encode())
 	if err != nil {
 		return errp.WithStack(err)
