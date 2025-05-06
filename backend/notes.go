@@ -158,7 +158,7 @@ func (backend *Backend) ExportNotes() error {
 	if err != nil {
 		return err
 	}
-	name := fmt.Sprintf("%s-notes.txt", time.Now().Format("2006-01-02-at-15-04-05"))
+	name := fmt.Sprintf("%s-notes.jsonl", time.Now().Format("2006-01-02-at-15-04-05"))
 	suggestedPath := filepath.Join(exportsDir, name)
 	path := backend.Environment().GetSaveFilename(suggestedPath)
 	if path == "" {
