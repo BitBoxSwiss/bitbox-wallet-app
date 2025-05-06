@@ -815,7 +815,10 @@
     "receive": "Receive {{coinCode}}",
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto",
-    "search": "Search…"
+    "search": "Search…",
+    "sell": "Sell {{coinCode}}",
+    "sell_bitcoin": "Sell Bitcoin",
+    "sell_crypto": "Sell crypto"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {
