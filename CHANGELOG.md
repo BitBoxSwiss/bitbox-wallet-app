@@ -4,6 +4,9 @@
 - Reduced support for BitBox01
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
 
+# v4.47.3
+- Upgrade Etherscan API to V2
+
 # v4.47.2
 - Linux: fix compatiblity with some versions of Mesa that are incompatible with the bundled wayland libraries
 

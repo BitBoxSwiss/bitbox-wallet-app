@@ -50,18 +50,21 @@ const ERC20GasErr = "insufficient funds for gas * price + value"
 type EtherScan struct {
 	url        string
 	httpClient *http.Client
+	chainId    string
 }
 
 // NewEtherScan creates a new instance of EtherScan.
-func NewEtherScan(url string, httpClient *http.Client) *EtherScan {
+func NewEtherScan(chainId string, httpClient *http.Client) *EtherScan {
 	return &EtherScan{
-		url:        url,
+		url:        "https://api.etherscan.io/v2/api",
 		httpClient: httpClient,
+		chainId:    chainId,
 	}
 }
 
 func (etherScan *EtherScan) call(params url.Values, result interface{}) error {
 	params.Set("apikey", apiKey)
+	params.Set("chainId", etherScan.chainId)
 	response, err := etherScan.httpClient.Get(etherScan.url + "?" + params.Encode())
 	if err != nil {
 		return errp.WithStack(err)
