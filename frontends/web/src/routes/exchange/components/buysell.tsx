@@ -106,40 +106,6 @@ export const BuySell = ({
       <div className={style.innerRadioButtonsContainer}>
         {!exchangeDealsResponse && <Skeleton />}
 
-        {action === 'sell' ? ( // TODO: this can be removed once backend side is updated
-          <div key={'btcdirect-sell'} className={style.actionableItemContainer}>
-            ----START Testing: BTC Direct sell
-            <ActionableItem
-              key={'btcdirect-sell'}
-              onClick={() => {
-                goToExchange('btcdirect');
-              }}>
-              <ExchangeProviders
-                deals={[{
-                  fee: 4.9,
-                  payment: 'card',
-                  isFast: true,
-                  isBest: false,
-                  isHidden: false,
-                }, {
-                  fee: 2,
-                  payment: 'bank-transfer',
-                  isFast: false,
-                  isBest: false,
-                  isHidden: false,
-                }]}
-                exchangeName={'btcdirect'}
-              />
-            </ActionableItem>
-
-            <InfoButton onClick={() => setInfo(buildInfo({
-              exchangeName: 'btcdirect',
-              deals: [],
-            }))} />
-            ----END Testing: BTC Direct sell
-          </div>
-        ) : null}
-
         {exchangeDealsResponse?.success === false || paymentRequestError ? (
           <div className="flex flex-column">
             <p className={style.noExchangeText}>{constructErrorMessage()}</p>

@@ -74,11 +74,13 @@ func IsBtcDirectOTCSupportedForCoinInRegion(coinCode coin.Code, region string) b
 	return IsBtcDirectSupported(coinCode) && isRegionSupportedBtcDirect(region)
 }
 
-// BtcDirectDeals returns the purchase conditions (fee and payment methods) offered by BTCDirect.
-func BtcDirectDeals() *ExchangeDealsList {
-	return &ExchangeDealsList{
-		ExchangeName: BTCDirectName,
-		Deals: []*ExchangeDeal{
+// BtcDirectDeals returns the purchase conditions (fee and payment methods) offered by BTCDirect,
+// based on the action.
+func BtcDirectDeals(action ExchangeAction) *ExchangeDealsList {
+	var deals []*ExchangeDeal
+	switch action {
+	case BuyAction:
+		deals = []*ExchangeDeal{
 			{
 				Fee:     3.9, // 3.9%
 				Payment: CardPayment,
@@ -98,7 +100,19 @@ func BtcDirectDeals() *ExchangeDealsList {
 				Payment:  BancontactPayment,
 				IsHidden: true,
 			},
-		},
+		}
+	case SellAction:
+		deals = []*ExchangeDeal{
+			{
+				Fee:     2, // 2%
+				Payment: BankTransferPayment,
+			},
+		}
+	}
+
+	return &ExchangeDealsList{
+		ExchangeName: BTCDirectName,
+		Deals:        deals,
 	}
 }
 
