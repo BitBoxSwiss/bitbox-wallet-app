@@ -17,7 +17,6 @@
 package bitbox02
 
 import (
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	deviceevent "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -133,7 +132,7 @@ func (device *Device) Keystore() keystoreInterface.Keystore {
 }
 
 // SetOnEvent implements device.Device.
-func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
+func (device *Device) SetOnEvent(onEvent func(deviceevent.Event, interface{})) {
 }
 
 // Reset factory resets the device.

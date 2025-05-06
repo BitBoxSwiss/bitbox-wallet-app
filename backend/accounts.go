@@ -24,11 +24,9 @@ import (
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -253,7 +251,7 @@ func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat stri
 		return nil, err
 	}
 
-	coinDecimals := coin.DecimalsExp(account.Coin())
+	coinDecimals := coinpkg.DecimalsExp(account.Coin())
 	price, err := backend.RatesUpdater().LatestPriceForPair(account.Coin().Unit(false), fiat)
 	if err != nil {
 		return nil, err
@@ -357,9 +355,9 @@ func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([
 					if !ok {
 						frontendConfig = make(map[string]interface{})
 					}
-					canceledAccounts, ok := frontendConfig["bitsuranceNotifyCancellation"].([]types.Code)
+					canceledAccounts, ok := frontendConfig["bitsuranceNotifyCancellation"].([]accountsTypes.Code)
 					if !ok {
-						frontendConfig["bitsuranceNotifyCancellation"] = []types.Code{bitsuranceAccount.AccountCode}
+						frontendConfig["bitsuranceNotifyCancellation"] = []accountsTypes.Code{bitsuranceAccount.AccountCode}
 					} else {
 						canceledAccounts = append(canceledAccounts, bitsuranceAccount.AccountCode)
 						frontendConfig["bitsuranceNotifyCancellation"] = canceledAccounts
@@ -413,12 +411,12 @@ func (backend *Backend) createAndPersistAccountConfig(
 	if err != nil {
 		return "", err
 	}
-	coin, err := backend.Coin(coinCode)
+	accountCoin, err := backend.Coin(coinCode)
 	if err != nil {
 		return "", err
 	}
 	if name == "" {
-		name = defaultAccountName(coin, accountNumber)
+		name = defaultAccountName(accountCoin, accountNumber)
 	}
 
 	// v0 prefix: in case this code turns out to be not unique in the future, we can switch to 'v1-'
@@ -438,7 +436,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 		if coinCode == coinpkg.CodeBTC {
 			bip44Coin = hardenedKeystart
 		}
-		return accountCode, backend.persistBTCAccountConfig(keystore, coin,
+		return accountCode, backend.persistBTCAccountConfig(keystore, accountCoin,
 			accountCode,
 			hiddenBecauseUnused,
 			name,
@@ -455,7 +453,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 		if coinCode == coinpkg.CodeLTC {
 			bip44Coin = 2 + hardenedKeystart
 		}
-		return accountCode, backend.persistBTCAccountConfig(keystore, coin,
+		return accountCode, backend.persistBTCAccountConfig(keystore, accountCoin,
 			accountCode,
 			hiddenBecauseUnused,
 			name,
@@ -471,7 +469,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 			bip44Coin = "60'"
 		}
 		return accountCode, backend.persistETHAccountConfig(
-			keystore, coin, accountCode, hiddenBecauseUnused,
+			keystore, accountCoin, accountCode, hiddenBecauseUnused,
 			// TODO: Use []uint32 instead of a string keypath
 			fmt.Sprintf("m/44'/%s/0'/0/%d", bip44Coin, accountNumber),
 			name,
@@ -1254,11 +1252,11 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 		if account.CoinCode == coinpkg.CodeBTC ||
 			account.CoinCode == coinpkg.CodeTBTC ||
 			account.CoinCode == coinpkg.CodeRBTC {
-			coin, err := backend.Coin(account.CoinCode)
+			accountCoin, err := backend.Coin(account.CoinCode)
 			if err != nil {
 				return err
 			}
-			if keystore.SupportsAccount(coin, signing.ScriptTypeP2TR) &&
+			if keystore.SupportsAccount(accountCoin, signing.ScriptTypeP2TR) &&
 				account.SigningConfigurations.FindScriptType(signing.ScriptTypeP2TR) == -1 {
 				rootFingerprint, err := backend.keystore.RootFingerprint()
 				if err != nil {
@@ -1276,7 +1274,7 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 					86+hdkeychain.HardenedKeyStart,
 					bip44Coin,
 					uint32(accountNumber)+hdkeychain.HardenedKeyStart)
-				extendedPublicKey, err := keystore.ExtendedPublicKey(coin, keypath)
+				extendedPublicKey, err := keystore.ExtendedPublicKey(accountCoin, keypath)
 				if err != nil {
 					return err
 				}
