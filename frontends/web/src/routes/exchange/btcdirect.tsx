@@ -247,7 +247,12 @@ export const BTCDirect = ({
           <div className={style.header}>
             <Header title={
               <h2>
-                {t('generic.buy', { context: translationContext })}
+                {action === 'buy' ? (
+                  t('generic.buy', { context: translationContext })
+                ) : (
+                  t('generic.sell', { context: translationContext })
+                )}
+                {}
               </h2>
             } />
           </div>
