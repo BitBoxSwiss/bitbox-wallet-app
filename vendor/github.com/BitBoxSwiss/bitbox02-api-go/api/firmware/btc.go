@@ -284,6 +284,7 @@ type BTCTx struct {
 func (device *Device) BTCSign(
 	coin messages.BTCCoin,
 	scriptConfigs []*messages.BTCScriptConfigWithKeypath,
+	outputScriptConfigs []*messages.BTCScriptConfigWithKeypath,
 	tx *BTCTx,
 	formatUnit messages.BTCSignInitRequest_FormatUnit,
 ) ([][]byte, map[int][]byte, error) {
@@ -310,6 +311,10 @@ func (device *Device) BTCSign(
 		return nil, nil, UnsupportedError("9.21.0")
 	}
 
+	if len(outputScriptConfigs) > 0 && !device.version.AtLeast(semver.NewSemVer(9, 22, 0)) {
+		return nil, nil, UnsupportedError("9.22.0")
+	}
+
 	signatures := make([][]byte, len(tx.Inputs))
 	next, err := device.queryBtcSign(&messages.Request{
 		Request: &messages.Request_BtcSignInit{
@@ -322,6 +327,7 @@ func (device *Device) BTCSign(
 				Locktime:                     tx.Locktime,
 				FormatUnit:                   formatUnit,
 				ContainsSilentPaymentOutputs: containsSilentPaymentOutputs,
+				OutputScriptConfigs:          outputScriptConfigs,
 			}}})
 	if err != nil {
 		return nil, nil, err

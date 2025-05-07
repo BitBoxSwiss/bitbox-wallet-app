@@ -17,6 +17,7 @@ package firmware
 import (
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/errp"
+	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 )
 
 // queryCardano is like query, but nested one level deeper for Cardano.
@@ -92,6 +93,12 @@ func (device *Device) CardanoAddress(
 func (device *Device) CardanoSignTransaction(
 	transaction *messages.CardanoSignTransactionRequest,
 ) (*messages.CardanoSignTransactionResponse, error) {
+	if transaction.TagCborSets {
+		if !device.version.AtLeast(semver.NewSemVer(9, 22, 0)) {
+			return nil, UnsupportedError("9.22.0")
+		}
+	}
+
 	request := &messages.CardanoRequest{
 		Request: &messages.CardanoRequest_SignTransaction{
 			SignTransaction: transaction,
