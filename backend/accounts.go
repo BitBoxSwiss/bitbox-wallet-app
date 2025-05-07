@@ -1533,6 +1533,9 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		log.WithError(err).Error("error initializing account")
 		return
 	}
+	for !account.Synced() {
+		time.Sleep(100 * time.Millisecond)
+	}
 	txs, err := account.Transactions()
 	if err != nil {
 		log.WithError(err).Error("discoverAccount")
