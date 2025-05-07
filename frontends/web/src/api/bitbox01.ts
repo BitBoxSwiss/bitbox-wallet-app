@@ -21,7 +21,6 @@ export type DeviceInfo = {
   id: string;
   lock: boolean;
   name: string;
-  new_hidden_wallet: boolean;
   seeded: boolean;
   serial: string;
   sdcard: boolean;

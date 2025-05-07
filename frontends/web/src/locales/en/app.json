@@ -177,8 +177,7 @@
     "error": {
       "e10000": "Current device password incorrect.",
       "e10001": "Failed to replace device password",
-      "e102": "The password must consist of at least 4 characters.",
-      "e112": "Hidden device password cannot be the same as the main device password."
+      "e102": "The password must consist of at least 4 characters."
     }
   },
   "bitbox02Interact": {
@@ -385,7 +384,6 @@
     "dismiss": "Dismiss",
     "done": "Done",
     "download": "Download",
-    "hiddenwallet": "Create hidden wallet",
     "next": "Next",
     "ok": "OK",
     "previous": "Previous",
@@ -1002,14 +1000,6 @@
       "ejectSD": {
         "text": "You can remove the microSD card from the BitBox at any time as long as you are not in the process of creating or restoring a backup.",
         "title": "How can I eject the microSD card?"
-      },
-      "hiddenWallet": {
-        "text": "It is a second wallet on the same device protected by a different device password and recovery password, which you can use for plausible deniability. The same backup seed is used for both your normal and hidden wallet, so no additional backup is required.",
-        "title": "What is a hidden wallet?"
-      },
-      "legacyHiddenWallet": {
-        "text": "First click the button below (available if the BitBox is unlocked with the main device password and 2FA is disabled), then replug your Bitbox and unlock it with your hidden device password.",
-        "title": "How do I access the legacy hidden wallet?"
       }
     },
     "bitsurance": {
@@ -1254,16 +1244,6 @@
   "headerssync": {
     "blocksSynced": "{{blocks}} blocks synced"
   },
-  "hiddenWallet": {
-    "info1HTML": "For plausible deniability purposes, a hidden wallet can be created based on a <strong>different</strong> device password + recovery password combination.",
-    "info2HTML": "Define the device password and recovery password you want to associate with your hidden wallet below. The device password and recovery password must be <strong>different</strong> from the ones you defined for your primary wallet.",
-    "passwordLabel": "Hidden recovery password",
-    "passwordPlaceholder": "Please confirm hidden recovery password",
-    "pinLabel": "Hidden device password",
-    "pinRepeatLabel": "Repeat hidden device password",
-    "pinRepeatPlaceholder": "Please confirm hidden device password",
-    "success": "Hidden wallet created successfully. Replug your BitBox to unlock it."
-  },
   "initialize": {
     "create": "Set device password",
     "creating": "Setting device password…",
@@ -1286,12 +1266,6 @@
   "invalidFormat": "Invalid format",
   "language": {
     "title": "Select language"
-  },
-  "legacyhiddenwallet": {
-    "disable": "Disable legacy hidden wallet",
-    "enable": "Enable legacy hidden wallet",
-    "successDisable": "Successfully disabled the legacy hidden wallet.",
-    "successEnable": "Successfully enabled the legacy hidden wallet. Replug your BitBox and enter the hidden device password to access the legacy hidden wallet."
   },
   "loading": "loading…",
   "manageAccounts": {
