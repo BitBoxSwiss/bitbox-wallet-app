@@ -822,7 +822,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, keystore.VerifyAddress(account.signingConfiguration, account.Coin())
+		return true, keystore.VerifyAddressETH(account.signingConfiguration, account.Coin())
 	}
 	return false, nil
 }
