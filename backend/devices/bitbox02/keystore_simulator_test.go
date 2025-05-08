@@ -621,7 +621,7 @@ func TestSimulatorVerifyAddressBTC(t *testing.T) {
 					Child(test.derivation.AddressIndex, signing.NonHardened),
 			)
 			require.NoError(t, err)
-			require.NoError(t, device.Keystore().VerifyAddress(addressConfiguration, test.coin))
+			require.NoError(t, device.Keystore().VerifyAddressBTC(addressConfiguration, test.coin))
 			require.Eventually(t,
 				func() bool {
 					return strings.Contains(
@@ -663,7 +663,7 @@ func TestSimulatorVerifyAddressETH(t *testing.T) {
 			addressConfiguration := signing.NewEthereumConfiguration(
 				[]byte{1, 2, 3, 4}, test.keypath, xpub)
 
-			require.NoError(t, device.Keystore().VerifyAddress(addressConfiguration, coinETH))
+			require.NoError(t, device.Keystore().VerifyAddressETH(addressConfiguration, coinETH))
 			require.Eventually(t,
 				func() bool {
 					return strings.Contains(

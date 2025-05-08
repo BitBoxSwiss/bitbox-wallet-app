@@ -156,8 +156,13 @@ func (keystore *Keystore) CanVerifyAddress(coin.Coin) (bool, bool, error) {
 	return false, false, nil
 }
 
-// VerifyAddress implements keystore.Keystore.
-func (keystore *Keystore) VerifyAddress(*signing.Configuration, coin.Coin) error {
+// VerifyAddressBTC implements keystore.Keystore.
+func (keystore *Keystore) VerifyAddressBTC(*signing.Configuration, coin.Coin) error {
+	return errp.New("The software-based keystore has no secure output to display the address.")
+}
+
+// VerifyAddressETH implements keystore.Keystore.
+func (keystore *Keystore) VerifyAddressETH(*signing.Configuration, coin.Coin) error {
 	return errp.New("The software-based keystore has no secure output to display the address.")
 }
 

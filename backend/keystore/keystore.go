@@ -92,9 +92,13 @@ type Keystore interface {
 	// verify.
 	CanVerifyAddress(coin.Coin) (secureOutput bool, optional bool, err error)
 
-	// VerifyAddress outputs the public key at the given configuration for the given coin.
+	// VerifyAddressBTC displays a Bitcoin address for verification.
 	// Please note that this is only supported if the keystore has a secure output channel.
-	VerifyAddress(*signing.Configuration, coin.Coin) error
+	VerifyAddressBTC(*signing.Configuration, coin.Coin) error
+
+	// VerifyAddressBTC displays an Ethereum address for verification.
+	// Please note that this is only supported if the keystore has a secure output channel.
+	VerifyAddressETH(*signing.Configuration, coin.Coin) error
 
 	// CanVerifyExtendedPublicKey returns whether the keystore supports to output an xpub/zpub/tbup/ypub securely.
 	CanVerifyExtendedPublicKey() bool

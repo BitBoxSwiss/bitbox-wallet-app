@@ -143,8 +143,8 @@ func (keystore *keystore) CanVerifyAddress(coin coinpkg.Coin) (bool, bool, error
 	return false, false, nil
 }
 
-// VerifyAddress implements keystore.Keystore.
-func (keystore *keystore) VerifyAddress(
+// VerifyAddressBTC implements keystore.Keystore.
+func (keystore *keystore) VerifyAddressBTC(
 	configuration *signing.Configuration, coin coinpkg.Coin) error {
 	canVerifyAddress, _, err := keystore.CanVerifyAddress(coin)
 	if err != nil {
@@ -153,46 +153,48 @@ func (keystore *keystore) VerifyAddress(
 	if !canVerifyAddress {
 		panic("CanVerifyAddress must be true")
 	}
-	switch specificCoin := coin.(type) {
-	case *btc.Coin:
-		msgScriptType, ok := btcMsgScriptTypeMap[configuration.ScriptType()]
-		if !ok {
-			panic("unsupported scripttype")
-		}
-		_, err = keystore.device.BTCAddress(
-			btcMsgCoinMap[coin.Code()],
-			configuration.AbsoluteKeypath().ToUInt32(),
-			firmware.NewBTCScriptConfigSimple(msgScriptType),
-			true,
-		)
-		if firmware.IsErrorAbort(err) {
-			// No special action on user abort.
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-	case *eth.Coin:
-		// No contract address, displays 'Ethereum' etc. depending on `msgCoin`.
-		contractAddress := []byte{}
-		if specificCoin.ERC20Token() != nil {
-			// Displays the erc20 unit based on the contract.
-			contractAddress = specificCoin.ERC20Token().ContractAddress().Bytes()
-		}
-		_, err := keystore.device.ETHPub(
-			specificCoin.ChainID(), configuration.AbsoluteKeypath().ToUInt32(),
-			messages.ETHPubRequest_ADDRESS, true, contractAddress)
-		if firmware.IsErrorAbort(err) {
-			// No special action on user abort.
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-	default:
-		return errp.New("unsupported coin")
+	msgScriptType, ok := btcMsgScriptTypeMap[configuration.ScriptType()]
+	if !ok {
+		panic("unsupported scripttype")
 	}
-	return nil
+	_, err = keystore.device.BTCAddress(
+		btcMsgCoinMap[coin.Code()],
+		configuration.AbsoluteKeypath().ToUInt32(),
+		firmware.NewBTCScriptConfigSimple(msgScriptType),
+		true,
+	)
+	if firmware.IsErrorAbort(err) {
+		// No special action on user abort.
+		return nil
+	}
+	return err
+}
+
+// VerifyAddressETH implements keystore.Keystore.
+func (keystore *keystore) VerifyAddressETH(
+	configuration *signing.Configuration, coin coinpkg.Coin) error {
+	canVerifyAddress, _, err := keystore.CanVerifyAddress(coin)
+	if err != nil {
+		return err
+	}
+	if !canVerifyAddress {
+		panic("CanVerifyAddress must be true")
+	}
+	specificCoin := coin.(*eth.Coin)
+	// No contract address, displays 'Ethereum' etc. depending on `msgCoin`.
+	contractAddress := []byte{}
+	if specificCoin.ERC20Token() != nil {
+		// Displays the erc20 unit based on the contract.
+		contractAddress = specificCoin.ERC20Token().ContractAddress().Bytes()
+	}
+	_, err = keystore.device.ETHPub(
+		specificCoin.ChainID(), configuration.AbsoluteKeypath().ToUInt32(),
+		messages.ETHPubRequest_ADDRESS, true, contractAddress)
+	if firmware.IsErrorAbort(err) {
+		// No special action on user abort.
+		return nil
+	}
+	return err
 }
 
 // CanVerifyExtendedPublicKey implements keystore.Keystore.

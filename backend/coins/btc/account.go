@@ -781,7 +781,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, keystore.VerifyAddress(address.Configuration, account.Coin())
+		return true, keystore.VerifyAddressBTC(address.Configuration, account.Coin())
 	}
 	return false, nil
 }
