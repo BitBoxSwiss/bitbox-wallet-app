@@ -49,20 +49,25 @@ type AccountAddress struct {
 // NewAccountAddress creates a new account address.
 func NewAccountAddress(
 	accountConfiguration *signing.Configuration,
-	keyPath signing.RelativeKeypath,
+	derivation types.Derivation,
 	net *chaincfg.Params,
 	log *logrus.Entry,
 ) *AccountAddress {
 
 	var address btcutil.Address
 	var redeemScript []byte
-	configuration, err := accountConfiguration.Derive(keyPath)
+	configuration, err := accountConfiguration.Derive(
+		signing.NewEmptyRelativeKeypath().
+			Child(derivation.SimpleChainIndex(), signing.NonHardened).
+			Child(derivation.AddressIndex, signing.NonHardened),
+	)
 	if err != nil {
 		log.WithError(err).Panic("Failed to derive the configuration.")
 	}
 	log = log.WithFields(logrus.Fields{
-		"key-path":      configuration.AbsoluteKeypath().Encode(),
-		"configuration": configuration.String(),
+		"accountConfiguration": accountConfiguration.String(),
+		"change":               derivation.Change,
+		"addressIndex":         derivation.AddressIndex,
 	})
 	log.Debug("Creating new account address")
 

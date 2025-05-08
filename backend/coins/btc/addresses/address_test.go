@@ -22,6 +22,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	testlog "github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
@@ -38,8 +39,6 @@ func TestMain(m *testing.M) {
 
 var net = &chaincfg.TestNet3Params
 
-var absoluteKeypath = signing.NewEmptyAbsoluteKeypath().Child(0, false).Child(10, false)
-
 type addressTestSuite struct {
 	suite.Suite
 
@@ -53,21 +52,24 @@ func TestAddressTestSuite(t *testing.T) {
 }
 
 func (s *addressTestSuite) TestNewAddress() {
-	s.Require().Equal(absoluteKeypath, s.address.Configuration.AbsoluteKeypath())
-	s.Require().Equal("n2gAErwJCuPmnQuhzPkkWi2haGz9oQxjnX", s.address.EncodeAddress())
+	expectedKeypath := signing.NewEmptyAbsoluteKeypath().
+		Child(0, false).
+		Child(10, false).
+		Child(0, false).
+		Child(0, false)
+	s.Require().Equal(expectedKeypath, s.address.Configuration.AbsoluteKeypath())
+	s.Require().Equal("moTM88EgqzATgCjSrcNfahXaT9uCy3FHh3", s.address.EncodeAddress())
 	s.Require().True(s.address.IsForNet(net))
 }
 
 func (s *addressTestSuite) TestPubkeyScript() {
-	payToAddrScript := []byte{
-		0x76, 0xa9, 0x14, 0xe8, 0x18, 0x5b, 0x34, 0x52, 0x22, 0xbe, 0x2b, 0x77, 0x2f,
-		0x7a, 0xef, 0x16, 0x2c, 0x11, 0x85, 0x73, 0x2, 0x9d, 0xf4, 0x88, 0xac}
+	payToAddrScript := []byte{0x76, 0xa9, 0x14, 0x57, 0x12, 0x66, 0x22, 0x63, 0x8b, 0x8d, 0xb3, 0x25, 0xa6, 0x1, 0x35, 0xe2, 0xfd, 0x88, 0x53, 0x74, 0x91, 0xa1, 0xe0, 0x88, 0xac}
 	s.Require().Equal(payToAddrScript, s.address.PubkeyScript())
 }
 
 func (s *addressTestSuite) TestScriptHashHex() {
 	s.Require().Equal(
-		blockchain.ScriptHashHex("0466d0029406f583feadaccb91c7b5b855eb5d6782316cafa4f390b7c784436b"),
+		blockchain.ScriptHashHex("1f4444773ff74188b4d8ccff2a2efec0cae61efce152cafef97b6fadb96382b5"),
 		s.address.PubkeyScriptHashHex())
 }
 
@@ -79,27 +81,30 @@ func TestAddressP2TR(t *testing.T) {
 	keypath, err := signing.NewAbsoluteKeypath("m/86'/0'/0'")
 	require.NoError(t, err)
 	for _, test := range []struct {
-		path             string
+		change           bool
+		addressIndex     uint32
 		expectedAddress  string
 		expectedPkScript string
 	}{
 		{
-			path:             "0/0",
+			change:           false,
+			addressIndex:     0,
 			expectedAddress:  "bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr",
 			expectedPkScript: "5120a60869f0dbcf1dc659c9cecbaf8050135ea9e8cdc487053f1dc6880949dc684c",
 		},
 		{
-			path:             "0/1",
+			change:           false,
+			addressIndex:     1,
 			expectedAddress:  "bc1p4qhjn9zdvkux4e44uhx8tc55attvtyu358kutcqkudyccelu0was9fqzwh",
 			expectedPkScript: "5120a82f29944d65b86ae6b5e5cc75e294ead6c59391a1edc5e016e3498c67fc7bbb",
 		},
 		{
-			path:             "1/0",
+			change:           true,
+			addressIndex:     0,
 			expectedAddress:  "bc1p3qkhfews2uk44qtvauqyr2ttdsw7svhkl9nkm9s9c3x4ax5h60wqwruhk7",
 			expectedPkScript: "5120882d74e5d0572d5a816cef0041a96b6c1de832f6f9676d9605c44d5e9a97d3dc",
 		},
 	} {
-		relKeypath, err := signing.NewRelativeKeypath(test.path)
 		require.NoError(t, err)
 		addr := addresses.NewAccountAddress(
 			signing.NewBitcoinConfiguration(
@@ -108,7 +113,7 @@ func TestAddressP2TR(t *testing.T) {
 				keypath,
 				extendedPublicKey,
 			),
-			relKeypath,
+			types.Derivation{Change: test.change, AddressIndex: test.addressIndex},
 			&chaincfg.MainNetParams,
 			logging.Get().WithGroup("addresses_test"),
 		)
