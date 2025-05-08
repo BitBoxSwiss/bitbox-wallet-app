@@ -34,6 +34,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -44,6 +45,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -61,13 +64,16 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
 )
 
 var (
 	log     = logging.Get().WithGroup("simulator tx signing test")
 	network = &chaincfg.MainNetParams
-	coin    = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", coinpkg.BtcUnitDefault, network, ".", []*config.ServerInfo{}, "https://blockstream.info/testnet/tx/", socksproxy.NewSocksProxy(false, ""))
+	coinBTC = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", coinpkg.BtcUnitDefault, network, ".", []*config.ServerInfo{}, "https://blockstream.info/testnet/tx/", socksproxy.NewSocksProxy(false, ""))
+	coinLTC = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, ".", []*config.ServerInfo{}, "", socksproxy.NewSocksProxy(false, ""))
+	coinETH = eth.NewCoin(nil, "Etheruem", "ETH", "ETH", "ETH", params.MainnetChainConfig, "", nil, nil)
 )
 
 func mustKeypath(keypath string) signing.AbsoluteKeypath {
@@ -309,7 +315,7 @@ func TestSimulatorExtendedPublicKeyBTC(t *testing.T) {
 	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
 		t.Helper()
 		keypath := mustKeypath("m/84'/1'/0'")
-		xpub, err := device.Keystore().ExtendedPublicKey(coin, keypath)
+		xpub, err := device.Keystore().ExtendedPublicKey(coinBTC, keypath)
 		require.NoError(t, err)
 		require.Equal(t,
 			"xpub6CAkM5q77qFTdrsoqguwTxAnnPVRd4hyHntZaYr9FTcefWi3AaTevG1YTvWzkNuqtshjQnJxpw1YjKLtuQvfvDiDiLVx2XYKZW5baGsRUuC",
@@ -317,6 +323,7 @@ func TestSimulatorExtendedPublicKeyBTC(t *testing.T) {
 		)
 	})
 }
+
 func makeConfig(t *testing.T, device *Device, scriptType signing.ScriptType, keypath signing.AbsoluteKeypath) *signing.Configuration {
 	t.Helper()
 	xpubStr, err := device.BTCXPub(messages.BTCCoin_BTC, keypath.ToUInt32(), messages.BTCPubRequest_XPUB, false)
@@ -395,7 +402,7 @@ func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.Pro
 	outputAmount := int64(250_000_000)
 	feePerKb := btcutil.Amount(1000)
 	txProposal, err := maketx.NewTx(
-		coin,
+		coinBTC,
 		spendableOutputs,
 		recipient,
 		outputAmount,
@@ -548,5 +555,124 @@ func TestSimulatorSignBTCTransactionSilentPayment(t *testing.T) {
 			}
 		}
 		require.True(t, found)
+	})
+}
+
+func TestSimulatorVerifyAddressBTC(t *testing.T) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
+		t.Helper()
+
+		type test struct {
+			coin                 coinpkg.Coin
+			accountConfiguration *signing.Configuration
+			derivation           types.Derivation
+			expectedAddress      string
+		}
+		tests := []test{
+			{
+				coin:                 coinBTC,
+				accountConfiguration: makeConfig(t, device, signing.ScriptTypeP2TR, mustKeypath("m/86'/0'/0'")),
+				derivation:           types.Derivation{Change: false, AddressIndex: 0},
+				expectedAddress:      "bc1pg848p0rvmj0r3j064prlpw0gecyzkwlpt7ndzdlmh2mvkyu299psetgxhf",
+			},
+			{
+				coin:                 coinBTC,
+				accountConfiguration: makeConfig(t, device, signing.ScriptTypeP2TR, mustKeypath("m/86'/0'/0'")),
+				derivation:           types.Derivation{Change: true, AddressIndex: 10},
+				expectedAddress:      "bc1pru6697hz78fxc7dvz36qvgkne59kht86eyk7cefc6hpvgud4z76qxjc8we",
+			},
+			{
+				coin:                 coinBTC,
+				accountConfiguration: makeConfig(t, device, signing.ScriptTypeP2WPKH, mustKeypath("m/84'/0'/0'")),
+				derivation:           types.Derivation{Change: false, AddressIndex: 0},
+				expectedAddress:      "bc1qljxfdh29amtq6u2xgltc0e6d9vemtt5m6mc5nd",
+			},
+			{
+				coin:                 coinBTC,
+				accountConfiguration: makeConfig(t, device, signing.ScriptTypeP2WPKHP2SH, mustKeypath("m/49'/0'/0'")),
+				derivation:           types.Derivation{Change: false, AddressIndex: 0},
+				expectedAddress:      "3PSdXEXzzmqVXSV6DECyaaaaDYVyaHQ8AD",
+			},
+		}
+		if device.Version().AtLeast(semver.NewSemVer(9, 23, 0)) {
+			// Litecoin was not enabled in the simulator before v9.23.0.
+			tests = append(tests,
+				test{
+					coin:                 coinLTC,
+					accountConfiguration: makeConfig(t, device, signing.ScriptTypeP2WPKH, mustKeypath("m/84'/2'/0'")),
+					derivation:           types.Derivation{Change: false, AddressIndex: 0},
+					expectedAddress:      "ltc1qmgh3jwrt636mya08dytcsm7gxsxva8ckcu93jm",
+				},
+				test{
+					coin:                 coinLTC,
+					accountConfiguration: makeConfig(t, device, signing.ScriptTypeP2WPKHP2SH, mustKeypath("m/49'/2'/0'")),
+					derivation:           types.Derivation{Change: false, AddressIndex: 0},
+					expectedAddress:      "MFbeAVCwWdVvi5SeZh4zTpyz2gfPFdhs9c",
+				},
+			)
+		}
+
+		for _, test := range tests {
+			stdOut.Truncate(0)
+
+			addressConfiguration, err := test.accountConfiguration.Derive(
+				signing.NewEmptyRelativeKeypath().
+					Child(test.derivation.SimpleChainIndex(), signing.NonHardened).
+					Child(test.derivation.AddressIndex, signing.NonHardened),
+			)
+			require.NoError(t, err)
+			require.NoError(t, device.Keystore().VerifyAddress(addressConfiguration, test.coin))
+			require.Eventually(t,
+				func() bool {
+					return strings.Contains(
+						stdOut.String(),
+						fmt.Sprintf(
+							"CONFIRM SCREEN START\nTITLE: %s\nBODY: %s\nCONFIRM SCREEN END\n",
+							test.coin.Name(), test.expectedAddress))
+				},
+				time.Second, 10*time.Millisecond)
+		}
+	})
+}
+
+func TestSimulatorVerifyAddressETH(t *testing.T) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
+		t.Helper()
+
+		type test struct {
+			keypath         signing.AbsoluteKeypath
+			expectedAddress string
+		}
+
+		tests := []test{
+			{
+				keypath:         mustKeypath("m/44'/60'/0'/0/0"),
+				expectedAddress: "0x416E88840Eb6353E49252Da2a2c140eA1f969D1a",
+			},
+			{
+				keypath:         mustKeypath("m/44'/60'/0'/0/1"),
+				expectedAddress: "0x6A2A567cB891DeF8eA8C215C85f93d2f0F844ceB",
+			},
+		}
+
+		for _, test := range tests {
+			xpub, err := device.Keystore().ExtendedPublicKey(coinETH, test.keypath)
+			require.NoError(t, err)
+			stdOut.Truncate(0)
+
+			addressConfiguration := signing.NewEthereumConfiguration(
+				[]byte{1, 2, 3, 4}, test.keypath, xpub)
+
+			require.NoError(t, device.Keystore().VerifyAddress(addressConfiguration, coinETH))
+			require.Eventually(t,
+				func() bool {
+					return strings.Contains(
+						stdOut.String(),
+						fmt.Sprintf(
+							"CONFIRM SCREEN START\nTITLE: Ethereum\nBODY: %s\nCONFIRM SCREEN END\n",
+							test.expectedAddress))
+				},
+				time.Second, 10*time.Millisecond)
+		}
 	})
 }
