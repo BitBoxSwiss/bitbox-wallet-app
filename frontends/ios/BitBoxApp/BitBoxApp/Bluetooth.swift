@@ -51,6 +51,13 @@ var pairedDeviceIdentifiers: Set<String> {
     }
 }
 
+class BLEConnectionContext {
+    let identifier = UUID()
+    let semaphore = DispatchSemaphore(value: 0)
+    var readBuffer = Data()
+    var readBufferLock = NSLock()
+}
+
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     private var state: State = State(
         bluetoothAvailable: false,
@@ -70,9 +77,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     // This is for failed connections to not enter an infinite connect loop.
     private var dontAutoConnectSet: Set<UUID> = []
 
-    private var readBuffer = Data()
-    private let readBufferLock = NSLock()  // Ensure thread-safe buffer access
-    private let semaphore = DispatchSemaphore(value: 0)
+    private var currentContext: BLEConnectionContext?
+    // Locks access to the `currentContext` var only, not to its contents. This is important, as
+    // one can't keep the context locked while waiting for the semaphore, which would lead to a
+    // deadlock.
+    private let currentContextLock = NSLock()
 
     override init() {
         super.init()
@@ -93,6 +102,9 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         state.discoveredPeripherals[peripheralID] = metadata
         state.scanning = false
         updateBackendState()
+        currentContextLock.lock()
+        currentContext = BLEConnectionContext()
+        currentContextLock.unlock()
         centralManager.connect(metadata.peripheral, options: nil)
     }
 
@@ -246,17 +258,24 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             return
         }
 
+        currentContextLock.lock()
+        guard let ctx = currentContext else {
+            currentContextLock.unlock()
+            return
+        }
+        currentContextLock.unlock()
+
         if characteristic == pReader, let data = characteristic.value {
             if data.count != 64 {
                 print("BLE: ERROR, expected 64 bytes")
             }
             print("BLE: received data: \(data.hexEncodedString())")
-            readBufferLock.lock()
-            readBuffer.append(data)
-            readBufferLock.unlock()
+            ctx.readBufferLock.lock()
+            ctx.readBuffer.append(data)
+            ctx.readBufferLock.unlock()
 
             // Signal the semaphore to unblock `readBlocking`
-            semaphore.signal()
+            ctx.semaphore.signal()
         }
         if characteristic == pProduct {
             print("BLE: product changed: \(String(describing: parseProduct()))")
@@ -281,12 +300,18 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         pWriter = nil
         pProduct = nil
         state.discoveredPeripherals.removeAll()
-       isPaired = false
+        isPaired = false
         updateBackendState()
 
         // Have the backend scan right away, which will make it detect that we disconnected.
         // Otherwise there would be up to a second of delay (the backend device manager scan interval).
         MobileserverUsbUpdate()
+
+        // Unblock a pending readBlocking() call if there is one.
+        currentContextLock.lock()
+        currentContext?.semaphore.signal()
+        currentContext = nil
+        currentContextLock.unlock()
 
         restartScan()
     }
@@ -297,22 +322,46 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         handleDisconnect()
     }
 
-    func readBlocking(length: Int) -> Data? {
+    struct ReadError: Error {
+        let message: String
+    }
+    
+    func readBlocking(length: Int) throws -> Data {
         if !isConnected() {
-            return nil
+            throw ReadError(message: "not connected")
         }
         print("BLE: wants to read \(length)")
+
+        currentContextLock.lock()
+        guard let ctx = currentContext else {
+            currentContextLock.unlock()
+            throw ReadError(message: "no connection context")
+        }
+        currentContextLock.unlock()
+        
+        let currentID = ctx.identifier;
 
         var data = Data()
 
         // Loop until we've read the required amount of data
         while data.count < length {
-            // Block until BLE reader callback notifies us
-            semaphore.wait()
-            readBufferLock.lock()
-            data.append(readBuffer.prefix(64))
-            readBuffer = readBuffer.advanced(by: 64)
-            readBufferLock.unlock()
+            // Block until BLE reader callback notifies us or the peripheral is disconnected.
+            ctx.semaphore.wait()
+            
+            if !isConnected() {
+                throw ReadError(message: "the peripheral has disconnected while reading")
+            }
+            currentContextLock.lock()
+            let exit = currentContext?.identifier != currentID
+            currentContextLock.unlock()
+            if exit {
+                throw ReadError(message: "the peripheral has disconnected while reading")
+            }
+            
+            ctx.readBufferLock.lock()
+            data.append(ctx.readBuffer.prefix(64))
+            ctx.readBuffer = ctx.readBuffer.advanced(by: 64)
+            ctx.readBufferLock.unlock()
         }
         print("BLE: got \(data.count)")
 
@@ -457,7 +506,7 @@ class BluetoothReadWriteCloser: NSObject, MobileserverGoReadWriteCloserInterface
     }
 
     func read(_ n: Int) throws -> Data {
-        return bluetoothManager.readBlocking(length: n)!
+        try bluetoothManager.readBlocking(length: n)
     }
 
     func write(_ data: Data?, n: UnsafeMutablePointer<Int>?) throws {
