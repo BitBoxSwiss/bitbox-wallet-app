@@ -94,13 +94,26 @@ type Device struct {
 	// nonces must match the incrementing of the device nonces, so the decryption works. Avoid the
 	// situation where we Encrypt() locally twice, and send the queries out of order, which will
 	// result in a failed decryption on the device.
+	//
+	// Also, every request is followed by a response, so this lock ensures the responses is matched
+	// to the request.
 	queryLock sync.Mutex
+	// While `queryLock` ensures that the response matches the request, `apiLock` ensures that a
+	// series of request<>response pairs does not get interrupted. Some API calls require a series
+	// of calls, like signing a BTC transactions.
+	apiLock sync.Mutex
 
 	status Status
 
 	mu      sync.RWMutex
 	onEvent func(Event, interface{})
 	log     Logger
+}
+
+// BluetoothInfo contains Bluetooth-related info.
+type BluetoothInfo struct {
+	// FirmwareHash is the hex-encoded 32 byte Bluetooth firmware hash.
+	FirmwareHash string `json:"firmwareHash"`
 }
 
 // DeviceInfo is the data returned from the device info api call.
@@ -112,6 +125,8 @@ type DeviceInfo struct {
 	// This information is only available since firmwae v9.6.0. Will be an empty string for older
 	// firmware versions.
 	SecurechipModel string `json:"securechipModel"`
+	// Available on Bluetooth-enabled devices, Will be `nil` otherwise.
+	Bluetooth *BluetoothInfo `json:"bluetooth"`
 }
 
 // NewDevice creates a new instance of Device.
@@ -350,6 +365,11 @@ func (device *Device) SupportsETH(chainID uint64) bool {
 		}
 	}
 	return false
+}
+
+// SupportsBluetooth returns true if this device supports Bluetooth.
+func (device *Device) SupportsBluetooth() bool {
+	return *device.product == common.ProductBitBox02PlusMulti || *device.product == common.ProductBitBox02PlusBTCOnly
 }
 
 // SupportsERC20 returns true if an ERC20 token is supported by the device api.

@@ -519,7 +519,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		outputs[btcProposedTx.TXProposal.OutIndex].PaymentRequestIndex = &prIndex
 	}
 
-	signatures, generatedOutputs, err := keystore.device.BTCSign(
+	signResult, err := keystore.device.BTCSign(
 		msgCoin,
 		scriptConfigs,
 		outputScriptConfigs,
@@ -538,14 +538,14 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	if err != nil {
 		return err
 	}
-	for index, generatedOutput := range generatedOutputs {
+	for index, generatedOutput := range signResult.GeneratedOutputs {
 		isSilentPaymentOutput := index == btcProposedTx.TXProposal.OutIndex && btcProposedTx.TXProposal.SilentPaymentAddress != ""
 		if !isSilentPaymentOutput {
 			return errp.New("expected silent payment output")
 		}
 		btcProposedTx.TXProposal.Transaction.TxOut[index].PkScript = generatedOutput
 	}
-	for index, signature := range signatures {
+	for index, signature := range signResult.Signatures {
 		btcProposedTx.Signatures[index] = &types.Signature{
 			R: big.NewInt(0).SetBytes(signature[:32]),
 			S: big.NewInt(0).SetBytes(signature[32:]),
@@ -629,7 +629,7 @@ func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.Absolut
 	if !ok {
 		return nil, errp.Newf("scriptType not supported: %s", scriptType)
 	}
-	_, _, electrum65, err := keystore.device.BTCSignMessage(
+	signResult, err := keystore.device.BTCSignMessage(
 		messages.BTCCoin_BTC,
 		&messages.BTCScriptConfigWithKeypath{
 			ScriptConfig: firmware.NewBTCScriptConfigSimple(sc),
@@ -637,7 +637,7 @@ func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.Absolut
 		},
 		message,
 	)
-	return electrum65, err
+	return signResult.ElectrumSig65, err
 }
 
 // SignETHMessage implements keystore.Keystore.
