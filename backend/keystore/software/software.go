@@ -25,6 +25,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -109,7 +110,7 @@ func (keystore *Keystore) Configuration() *signing.Configuration {
 // SupportsCoin implements keystore.Keystore.
 func (keystore *Keystore) SupportsCoin(coin coin.Coin) bool {
 	switch coin.(type) {
-	case *btc.Coin:
+	case *btc.Coin, *eth.Coin:
 		return true
 	default:
 		return false
@@ -128,7 +129,8 @@ func (keystore *Keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool
 			scriptType == signing.ScriptTypeP2WPKHP2SH ||
 			scriptType == signing.ScriptTypeP2WPKH ||
 			scriptType == signing.ScriptTypeP2TR
-
+	case *eth.Coin:
+		return true
 	default:
 		return false
 	}
@@ -180,14 +182,7 @@ func (keystore *Keystore) ExtendedPublicKey(
 	return extendedPrivateKey.Neuter()
 }
 
-// SignTransaction implements keystore.Keystore.
-func (keystore *Keystore) SignTransaction(
-	proposedTransaction interface{},
-) error {
-	btcProposedTx, ok := proposedTransaction.(*btc.ProposedTransaction)
-	if !ok {
-		panic("Only BTC supported for now.")
-	}
+func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	keystore.log.Info("Sign transaction.")
 	transaction := btcProposedTx.TXProposal.Transaction
 	signatures := make([]*types.Signature, len(transaction.TxIn))
@@ -261,6 +256,33 @@ func (keystore *Keystore) SignTransaction(
 
 	btcProposedTx.Signatures = signatures
 	return nil
+}
+
+func (keystore *Keystore) signETHTransaction(tx *eth.TxProposal) error {
+	xprv, err := tx.Keypath.Derive(keystore.master)
+	if err != nil {
+		return errp.Newf("failed to derive key: %v", err)
+	}
+	privKey, err := xprv.ECPrivKey()
+	if err != nil {
+		return errp.Newf("failed to get private key: %v", err)
+	}
+	tx.Tx, err = ethTypes.SignTx(tx.Tx, tx.Signer, privKey.ToECDSA())
+	return err
+}
+
+// SignTransaction implements keystore.Keystore.
+func (keystore *Keystore) SignTransaction(
+	proposedTransaction interface{},
+) error {
+	switch specificProposedTx := proposedTransaction.(type) {
+	case *btc.ProposedTransaction:
+		return keystore.signBTCTransaction(specificProposedTx)
+	case *eth.TxProposal:
+		return keystore.signETHTransaction(specificProposedTx)
+	default:
+		panic("unknown proposal type")
+	}
 }
 
 // CanSignMessage implements keystore.Keystore.
