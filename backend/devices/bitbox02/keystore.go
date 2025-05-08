@@ -356,7 +356,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 				PrevOutIndex:      txIn.PreviousOutPoint.Index,
 				PrevOutValue:      uint64(prevOut.TxOut.Value),
 				Sequence:          txIn.Sequence,
-				Keypath:           inputAddress.Configuration.AbsoluteKeypath().ToUInt32(),
+				Keypath:           inputAddress.AbsoluteKeypath().ToUInt32(),
 				ScriptConfigIndex: uint32(scriptConfigIndex),
 			},
 			BIP352Pubkey: bip352Pubkey,
@@ -444,13 +444,13 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			}
 			switch {
 			case sameAccount:
-				keypath = outputAddress.Configuration.AbsoluteKeypath().ToUInt32()
+				keypath = outputAddress.AbsoluteKeypath().ToUInt32()
 				scriptConfigIndex = addScriptConfig(&messages.BTCScriptConfigWithKeypath{
 					ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
 					Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
 				})
 			case keystore.device.Version().AtLeast(semver.NewSemVer(9, 22, 0)):
-				keypath = outputAddress.Configuration.AbsoluteKeypath().ToUInt32()
+				keypath = outputAddress.AbsoluteKeypath().ToUInt32()
 				outputScriptConfigIdx := addOutputScriptConfig(&messages.BTCScriptConfigWithKeypath{
 					ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
 					Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),

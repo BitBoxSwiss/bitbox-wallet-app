@@ -142,8 +142,8 @@ func (s *addressChainTestSuite) TestEnsureAddresses() {
 	}
 	s.Require().Len(newAddresses, s.gapLimit)
 	for index, address := range newAddresses {
-		s.Require().Equal(uint32(index), address.Configuration.AbsoluteKeypath().ToUInt32()[1])
-		s.Require().Equal(getPubKey(index), address.Configuration.PublicKey())
+		s.Require().Equal(uint32(index), address.AbsoluteKeypath().ToUInt32()[1])
+		s.Require().Equal(getPubKey(index), address.TstPublicKey())
 	}
 	// Address statuses are still the same, so calling it again won't produce more addresses.
 	addrs, err := s.addresses.EnsureAddresses()
@@ -157,7 +157,7 @@ func (s *addressChainTestSuite) TestEnsureAddresses() {
 	moreAddresses, err := s.addresses.EnsureAddresses()
 	s.Require().NoError(err)
 	s.Require().Len(moreAddresses, s.gapLimit)
-	s.Require().Equal(uint32(s.gapLimit), moreAddresses[0].Configuration.AbsoluteKeypath().ToUInt32()[1])
+	s.Require().Equal(uint32(s.gapLimit), moreAddresses[0].Derivation.AddressIndex)
 
 	// Repeating it does not add more the unused addresses are the same.
 	addrs, err = s.addresses.EnsureAddresses()
