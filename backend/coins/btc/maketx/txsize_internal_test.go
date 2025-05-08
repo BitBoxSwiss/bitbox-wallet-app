@@ -92,7 +92,7 @@ func testEstimateTxSize(
 				Witness:         witness,
 				Sequence:        0,
 			})
-			inputConfigurations = append(inputConfigurations, inputAddress.Configuration)
+			inputConfigurations = append(inputConfigurations, inputAddress.AccountConfiguration)
 		}
 	}
 	changePkScriptSize := 0
@@ -119,8 +119,8 @@ func TestSigScriptWitnessSize(t *testing.T) {
 	// Test all singlesig configurations.
 	for _, scriptType := range scriptTypes {
 		address := addressesTest.GetAddress(scriptType)
-		t.Run(address.Configuration.String(), func(t *testing.T) {
-			sigScriptSize, witnessSize := sigScriptWitnessSize(address.Configuration)
+		t.Run(address.AccountConfiguration.String(), func(t *testing.T) {
+			sigScriptSize, witnessSize := sigScriptWitnessSize(address.AccountConfiguration)
 			sigScript, witness := address.SignatureScript(sig)
 			require.Equal(t, len(sigScript), sigScriptSize)
 			if witness != nil {

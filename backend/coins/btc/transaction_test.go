@@ -167,7 +167,7 @@ func TestGetFeePerKb(t *testing.T) {
 func utxo(scriptType signing.ScriptType) maketx.UTXO {
 	return maketx.UTXO{
 		Address: &addresses.AccountAddress{
-			Configuration: &signing.Configuration{
+			AccountConfiguration: &signing.Configuration{
 				BitcoinSimple: &signing.BitcoinSimple{
 					ScriptType: scriptType,
 				},

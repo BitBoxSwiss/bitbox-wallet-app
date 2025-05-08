@@ -203,7 +203,7 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			return err
 		}
 
-		xprv, err := address.Configuration.AbsoluteKeypath().Derive(keystore.master)
+		xprv, err := address.AbsoluteKeypath().Derive(keystore.master)
 		if err != nil {
 			return err
 		}
@@ -212,7 +212,7 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			return errp.WithStack(err)
 		}
 
-		if address.Configuration.ScriptType() == signing.ScriptTypeP2TR {
+		if address.AccountConfiguration.ScriptType() == signing.ScriptTypeP2TR {
 			prv = txscript.TweakTaprootPrivKey(*prv, nil)
 			signatureHash, err := txscript.CalcTaprootSignatureHash(
 				sigHashes, txscript.SigHashDefault, transaction,
