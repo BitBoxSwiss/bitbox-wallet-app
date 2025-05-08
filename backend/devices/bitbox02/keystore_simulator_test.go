@@ -614,14 +614,10 @@ func TestSimulatorVerifyAddressBTC(t *testing.T) {
 
 		for _, test := range tests {
 			stdOut.Truncate(0)
-
-			addressConfiguration, err := test.accountConfiguration.Derive(
-				signing.NewEmptyRelativeKeypath().
-					Child(test.derivation.SimpleChainIndex(), signing.NonHardened).
-					Child(test.derivation.AddressIndex, signing.NonHardened),
-			)
-			require.NoError(t, err)
-			require.NoError(t, device.Keystore().VerifyAddressBTC(addressConfiguration, test.coin))
+			require.NoError(t, device.Keystore().VerifyAddressBTC(
+				test.accountConfiguration,
+				test.derivation,
+				test.coin))
 			require.Eventually(t,
 				func() bool {
 					return strings.Contains(

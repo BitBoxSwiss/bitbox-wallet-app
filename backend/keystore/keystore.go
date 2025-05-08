@@ -18,6 +18,7 @@ package keystore
 import (
 	"errors"
 
+	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
@@ -94,7 +95,10 @@ type Keystore interface {
 
 	// VerifyAddressBTC displays a Bitcoin address for verification.
 	// Please note that this is only supported if the keystore has a secure output channel.
-	VerifyAddressBTC(*signing.Configuration, coin.Coin) error
+	VerifyAddressBTC(
+		accountConfiguration *signing.Configuration,
+		derivation btctypes.Derivation,
+		coin coin.Coin) error
 
 	// VerifyAddressBTC displays an Ethereum address for verification.
 	// Please note that this is only supported if the keystore has a secure output channel.

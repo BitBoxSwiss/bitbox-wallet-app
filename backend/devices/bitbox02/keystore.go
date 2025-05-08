@@ -145,7 +145,8 @@ func (keystore *keystore) CanVerifyAddress(coin coinpkg.Coin) (bool, bool, error
 
 // VerifyAddressBTC implements keystore.Keystore.
 func (keystore *keystore) VerifyAddressBTC(
-	configuration *signing.Configuration, coin coinpkg.Coin) error {
+	accountConfiguration *signing.Configuration,
+	derivation types.Derivation, coin coinpkg.Coin) error {
 	canVerifyAddress, _, err := keystore.CanVerifyAddress(coin)
 	if err != nil {
 		return err
@@ -153,13 +154,16 @@ func (keystore *keystore) VerifyAddressBTC(
 	if !canVerifyAddress {
 		panic("CanVerifyAddress must be true")
 	}
-	msgScriptType, ok := btcMsgScriptTypeMap[configuration.ScriptType()]
+	msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
 	if !ok {
 		panic("unsupported scripttype")
 	}
+	keypath := accountConfiguration.AbsoluteKeypath().
+		Child(derivation.SimpleChainIndex(), false).
+		Child(derivation.AddressIndex, false)
 	_, err = keystore.device.BTCAddress(
 		btcMsgCoinMap[coin.Code()],
-		configuration.AbsoluteKeypath().ToUInt32(),
+		keypath.ToUInt32(),
 		firmware.NewBTCScriptConfigSimple(msgScriptType),
 		true,
 	)
