@@ -212,7 +212,7 @@
       "seed12WordLabel": "Erstelle einen Seed mit 12 Wörtern statt mit 24 Wörtern",
       "seed12WordText": "Standardmäßig verwendet die BitBox02 einen 24-Wörter-Seed. Beide Seed-Längen sind in der Praxis sicher gegen Brute-Forcing. Einige Benutzer bevorzugen möglicherweise die Bequemlichkeit eines 12-Wörter-Seeds.",
       "skipSDCardLabel": "Überspringe die Sicherung auf der MicroSD-Karte und notiere stattdessen die Wiederherstellungswörter",
-      "skipSDCardText": "Du hast jederzeit die Möglichkeit, nach der Einrichtung ein Backup auf der MicroSD-Karte zu erstellen und deine Wiederherstellungswörter aufzuschreiben. Dies kannst über die Einstellungen tun.",
+      "skipSDCardText": "Du hast jederzeit die Möglichkeit, nach der Einrichtung ein Backup auf der MicroSD-Karte zu erstellen und deine Wiederherstellungswörter aufzuschreiben. Dies kannst du über die Einstellungen tun.",
       "title": "Erweiterte Backup-Optionen"
     },
     "attestationFailed": "Echtheitsprüfung fehlgeschlagen. Bitte stecke die BitBox aus und wieder ein.  Bitte kontaktiere support@bitbox.swiss, falls dieses Problem weiterhin besteht.",
@@ -1288,7 +1288,7 @@
     "pinLabel": "Verstecktes Gerätepasswort",
     "pinRepeatLabel": "Wiederhole das versteckte Gerätepasswort",
     "pinRepeatPlaceholder": "Bitte bestätige das versteckte Gerätepasswort",
-    "success": "Versteckte Wallet erfolgreich erstellt. Stecke die BitBox erneut ein und gib das versteckete Gerätepasswort ein, um diese zu entsperren."
+    "success": "Versteckte Wallet erfolgreich erstellt. Stecke die BitBox erneut ein und gib das versteckte Gerätepasswort ein, um diese zu entsperren."
   },
   "initialize": {
     "create": "Gerätepasswort speichern",
@@ -1574,7 +1574,7 @@
   "securityInformation": {
     "create": {
       "description1": "Bitte richte dein Gerät in einer sicheren Umgebung ein, sodass niemand sehen kann, welches Passwort du wählst.",
-      "description2": "Während der Einrichtung wirst du aufgefordert, zwei verschiendene Passworter zu erstellen. ",
+      "description2": "Während der Einrichtung wirst du aufgefordert, zwei verschiedene Passwörter zu erstellen. ",
       "description3": "Das erste Passwort ist das <strong> Gerätepasswort </strong>, welches deine BitBox entsperrt und später geändert werden kann.",
       "description4": "Das zweite ist das <strong> Wiederherstellungspasswort </strong>, mit dem dein Wallet gesichert wird. Dieses Passwort kann später nicht geändert werden",
       "description5": "Die von dir erstellte Wallet wird in einer Datei auf der mitgelieferten microSD Karte gespeichert. Dieses Backup kann im Notfall verwendet werden, um den Zugriff auf deine Coins mithilfe deines <strong> Wiederherstellungskennworts </strong> wieder herzustellen.",
@@ -1610,7 +1610,7 @@
     },
     "password": {
       "label": "Wiederherstellungspasswort",
-      "repeatPlaceholder": "Wiederhestellungspasswort wiederholen"
+      "repeatPlaceholder": "Wiederherstellungspasswort wiederholen"
     },
     "walletName": {
       "label": "Wallet Name"
