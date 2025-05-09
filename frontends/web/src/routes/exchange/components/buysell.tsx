@@ -70,7 +70,6 @@ export const BuySell = ({
     setPaymentRequestError(action === 'sell' && hasPaymentRequestResponse?.success === false);
   }, [hasPaymentRequestResponse, action]);
 
-
   useEffect(() => {
     if (config) {
       setAgreedBTCDirectOTCTerms(config.frontend.skipBTCDirectOTCDisclaimer);
@@ -84,9 +83,12 @@ export const BuySell = ({
       }
       return exchangeDealsResponse.errorMessage;
     } else if (paymentRequestError) {
-      if (hasPaymentRequestResponse?.errorCode) {
-        return t('device.' + hasPaymentRequestResponse.errorCode);
-      } else {
+      switch (hasPaymentRequestResponse?.errorCode) {
+      case 'firmwareUpgradeRequired':
+        return t('exchange.buySell.firmwareUpgradeRequired');
+      case 'unsupportedFeature':
+        return t('device.unsupportedFeature');
+      default:
         return hasPaymentRequestResponse?.errorMessage || '';
       }
     }
@@ -106,24 +108,7 @@ export const BuySell = ({
       <div className={style.innerRadioButtonsContainer}>
         {!exchangeDealsResponse && <Skeleton />}
 
-        {exchangeDealsResponse?.success === false || paymentRequestError ? (
-          <div className="flex flex-column">
-            <p className={style.noExchangeText}>{constructErrorMessage()}</p>
-            {exchangeDealsResponse?.success &&
-              paymentRequestError &&
-              hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired' && (
-              <Button
-                className={style.updateButton}
-                onClick={() => {
-                  setFirmwareUpdateDialogOpen(true);
-                  navigate(`/settings/device-settings/${deviceIDs[0]}`);
-                }}
-                transparent>
-                {t('exchange.buySell.updateNow')}
-              </Button>
-            )}
-          </div>
-        ) : (
+        {exchangeDealsResponse?.success && (
           <div className={style.exchangeProvidersContainer}>
             {exchangeDealsResponse?.exchanges
               // skip the exchanges that have only hidden deals.
@@ -146,6 +131,28 @@ export const BuySell = ({
               ))}
           </div>
         )}
+
+        {(exchangeDealsResponse?.success === false || paymentRequestError) && (
+          <div className="flex flex-column">
+            <p className={style.noExchangeText}>
+              {constructErrorMessage()}
+            </p>
+            {exchangeDealsResponse?.success &&
+              paymentRequestError &&
+              hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired' && (
+              <Button
+                className={style.updateButton}
+                onClick={() => {
+                  setFirmwareUpdateDialogOpen(true);
+                  navigate(`/settings/device-settings/${deviceIDs[0]}`);
+                }}
+                transparent>
+                {t('exchange.buySell.updateNow')}
+              </Button>
+            )}
+          </div>
+        )}
+
         {btcDirectOTCSupported?.success && btcDirectOTCSupported?.supported && (
           <div className={style.infoContainer}>
             <Message type="info" icon={<Businessman/>}>
