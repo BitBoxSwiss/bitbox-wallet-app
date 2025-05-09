@@ -875,7 +875,7 @@ func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, er
 	if !ok {
 		return response{
 			Success:      false,
-			ErrorMessage: "An account must be BTC based to support payment requests.",
+			ErrorMessage: "",
 		}, nil
 	}
 

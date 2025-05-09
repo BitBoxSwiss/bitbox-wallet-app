@@ -637,7 +637,6 @@
   },
   "device": {
     "appUpradeRequired": "Your BitBox is not compatible with this desktop application. Please download and install the latest version.",
-    "firmwareUpgradeRequired": "A firmware update is required to make use of this feature.",
     "keystoreConnected": "Connected wallet",
     "unsupportedFeature": "This feature is not available on this device."
   },
@@ -759,6 +758,7 @@
   "exchange": {
     "buySell": {
       "coinNotSupported": "No options available for this coin type.",
+      "firmwareUpgradeRequired": "A firmware update is required to use all options.",
       "regionNotSupported": "No options available for this region.",
       "updateNow": "Update now"
     },
