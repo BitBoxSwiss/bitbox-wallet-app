@@ -37,9 +37,14 @@ import { parseExternalBtcAmount } from '@/api/coins';
 interface TProps {
     code: AccountCode;
     action: TExchangeAction;
+    region: string;
 }
 
-export const Pocket = ({ code, action }: TProps) => {
+export const Pocket = ({
+  code,
+  action,
+  region,
+}: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -60,12 +65,16 @@ export const Pocket = ({ code, action }: TProps) => {
   useEffect(() => {
     getPocketURL(action).then(response => {
       if (response.success) {
-        setIframeUrl(response.url);
+        const url = new URL(response.url);
+        if (region) {
+          url.searchParams.set('region', region);
+        }
+        setIframeUrl(url.href);
       } else {
         alertUser(t('unknownError', { errorMessage: response.errorMessage }));
       }
     });
-  }, [action, t]);
+  }, [action, region, t]);
 
   useEffect(() => {
     if (config) {
