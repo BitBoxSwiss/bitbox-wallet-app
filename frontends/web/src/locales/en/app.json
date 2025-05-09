@@ -1872,7 +1872,7 @@
   "warning": {
     "coincontrol": "One or more UTXOs have a reused address. Be aware the receiver will see all UTXOs associated with those addresses.",
     "sdcard": "Keep the microSD card stored separate from the BitBox, unless you want to manage backups.",
-    "testnet": "Warning: You are currently using the wallet in Testnet mode. Transactions and balances here are not real and will not appear on the mainnet. Testnet is intended for testing and development purposes only."
+    "testnet": "You are using Testnet mode. Transactions and coins here are not real and have no value. Only use for testing purposes."
   },
   "welcome": {
     "connect": "Connect your BitBox",

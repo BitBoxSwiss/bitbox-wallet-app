@@ -176,8 +176,7 @@
     "error": {
       "e10000": "Aktuelles Gerätepasswort ist falsch.",
       "e10001": "Fehler beim Ändern des Gerätepassworts",
-      "e102": "Das Passwort muss aus 4 Zeichen bestehen.",
-      "e112": "Das versteckte Gerätepasswort und das normale Gerätepasswort können nicht identisch sein."
+      "e102": "Das Passwort muss aus 4 Zeichen bestehen."
     }
   },
   "bitbox02Interact": {
@@ -212,7 +211,7 @@
       "seed12WordLabel": "Erstelle einen Seed mit 12 Wörtern statt mit 24 Wörtern",
       "seed12WordText": "Standardmäßig verwendet die BitBox02 einen 24-Wörter-Seed. Beide Seed-Längen sind in der Praxis sicher gegen Brute-Forcing. Einige Benutzer bevorzugen möglicherweise die Bequemlichkeit eines 12-Wörter-Seeds.",
       "skipSDCardLabel": "Überspringe die Sicherung auf der MicroSD-Karte und notiere stattdessen die Wiederherstellungswörter",
-      "skipSDCardText": "Du hast jederzeit die Möglichkeit, nach der Einrichtung ein Backup auf der MicroSD-Karte zu erstellen und deine Wiederherstellungswörter aufzuschreiben. Dies kannst über die Einstellungen tun.",
+      "skipSDCardText": "Du hast jederzeit die Möglichkeit, nach der Einrichtung ein Backup auf der MicroSD-Karte zu erstellen und deine Wiederherstellungswörter aufzuschreiben. Dies kannst du über die Einstellungen tun.",
       "title": "Erweiterte Backup-Optionen"
     },
     "attestationFailed": "Echtheitsprüfung fehlgeschlagen. Bitte stecke die BitBox aus und wieder ein.  Bitte kontaktiere support@bitbox.swiss, falls dieses Problem weiterhin besteht.",
@@ -378,7 +377,6 @@
     "dismiss": "Ausblenden",
     "done": "Fertig",
     "download": "Herunterladen",
-    "hiddenwallet": "Versteckte Wallet erstellen",
     "next": "Weiter",
     "ok": "OK",
     "previous": "Zurück",
@@ -634,14 +632,6 @@
     "keystoreConnected": "Verbundene Wallet",
     "unsupportedFeature": "Diese Funktion ist auf diesem Gerät nicht verfügbar."
   },
-  "deviceLock": {
-    "button": "Zwei-Faktor-Autorisierung (2FA) aktivieren",
-    "condition1": "Hast du ein Backup?",
-    "condition2": "Funktioniert die Verifikation auf deinem Smartphone?",
-    "condition3": "Wenn du 2FA aktivierst wird \"Backups verwalten\", \"Versteckte Wallet erstellen\" und \"Mit Smartphone App\" koppeln deaktiviert. Um 2FA zu deaktivieren muss das Gerät auf Werkseinstellungen zurück gesetzt werden.   ",
-    "confirm": "Zwei-Faktor Authentifizierung (2FA) aktivieren\n",
-    "title": "Zwei-Faktor-Autorisierung (2FA) aktivieren"
-  },
   "deviceSettings": {
     "backups": {
       "manageBackups": {
@@ -729,24 +719,6 @@
       "title": "Hardware"
     },
     "loading": "Geräteinformationen werden abgerufen...\n\n",
-    "pairing": {
-      "lock": {
-        "false": "Deaktiviert",
-        "label": "Zwei-Faktor Autorisierung (2FA)",
-        "true": "Eingeschaltet"
-      },
-      "mobile": {
-        "false": "Geschlossen",
-        "label": "Smartphone App",
-        "true": "Offen"
-      },
-      "status": {
-        "false": "Nicht gekoppelt",
-        "label": "Status",
-        "true": "Gekoppelt"
-      },
-      "title": "Zwei-Faktor Autorisierung (2FA)"
-    },
     "secrets": {
       "manageBackups": "Backups verwalten",
       "title": "Sicherheit"
@@ -1009,14 +981,6 @@
       }
     },
     "bitbox": {
-      "2FA": {
-        "text": "Wenn 2FA aktiviert ist, müssen alle Transaktionen auf dem gekoppelten Mobiltelefon genehmigt werden, um Coins zu versenden. Unter der Haube: Eine verschlüsselte einmalige Nummer wird an die App gesendet, dort wird sie entschlüsselt und beim Drücken der Schaltfläche \"Akzeptieren\" zur BitBox zurückgegeben. Diese Kommunikation mit der BitBox erfolgt über den Kanal zwischen dem Mobiltelefon und dieser Desktop-App, der während des Pairings eingerichtet wurde.  \n\nStelle sicher, dass du ein Backup deiner Wallet erstellst und die App verbindest, bevor du 2FA aktivierst. Nach der Aktivierung werden der Mikro-SD Kartenslot und das Mobile-App-Pairing deaktiviert. Du kannst es nur erneut aktivieren, indem du die BitBox zurücksetzt, wodurch das Gerät gelöscht wird.",
-        "title": "Wie funktioniert die Zwei-Faktor-Autorisierung (2FA)?"
-      },
-      "disable2FA": {
-        "text": "Um 2FA zu deaktivieren, musst du deine BitBox zurücksetzen und anschließend deine Wallet von deinem Backup wiederherstellen. Stelle sicher, dass du deine MicroSD-Karte mit deinem Backup hast und du das Wiederherstellungspasswort kennst. Dann drücke 'Reset Device'. Lege ein neues Gerätekennwort fest und wähle \"Backup wiederherstellen\". Wähle Backup aus und klicke auf \"Wiederherstellen\". Dann gib dein Wiederherstellungskennwort ein, das du beim Erstellen der Wallet verwendet hast.",
-        "title": "Wie schalte ich die Zwei-Faktor-Autorisierung (2FA) aus?"
-      },
       "ejectBitbox": {
         "text": "Du kannst deine BitBox einfach aus dem Computer ziehen ohne sie vorher auszuwerfen.",
         "title": "Wie werfe ich meine BitBox aus?"
@@ -1024,18 +988,6 @@
       "ejectSD": {
         "text": "Du kannst die Micro SD Karte jederzeit aus der BitBox entfernen, solange du nicht dabei bist, ein Backup zu erstellen oder zu überprüfen",
         "title": "Wie kann ich die Micro-SD-Karte auswerfen?"
-      },
-      "hiddenWallet": {
-        "text": "Es ist eine sekundäre Wallet, auf der selben BitBox, das mit einem anderen Passwort geschützt ist. Dies erlaubt dir, einem Erpresser ein anderes Wallet zu öffnen, in welchem sich nur eine geringe Menge Coins befindet. Info: Für beide Wallets, normal und versteckt, wird der selbe Seed verwendet, somit muss kein weiteres Backup erzeugt werden",
-        "title": "Was ist eine versteckte Wallet?"
-      },
-      "legacyHiddenWallet": {
-        "text": "Klicke zunächst auf den Knopf unten (dazu muss die BitBox mit dem Hauptgerätekennwort entsperrt sein und 2FA deaktiviert sein), schließe dann deine Bitbox an und entsperre diese mit deinem versteckten Gerätekennwort.",
-        "title": "Wie greife ich auf die versteckte Wallet des Legacy Kontos zu?"
-      },
-      "pairing": {
-        "text": "Nachdem du unsere mobile App für iOS oder Android heruntergeladen hast, scanne den angezeigten QR-Code. Dadurch wird ein sicherer Kanal zwischen der mobilen App und dieser Anwendung eingerichtet. Befolge nach dem Scannen die Anweisungen in der Smartphone App.",
-        "title": "So, koppelst du dein Telefon sicher mit der BitBox"
       }
     },
     "bitsurance": {
@@ -1280,16 +1232,6 @@
   "headerssync": {
     "blocksSynced": "{{blocks}} Blöcke synchronisiert\n"
   },
-  "hiddenWallet": {
-    "info1HTML": "Zur glaubhaften Abstreitbarkeit kann eine versteckte Wallet erstellt werden, das auf einer <strong> anderen </strong> Geräte- und Wiederherstellungspasswort Kombination basiert.",
-    "info2HTML": "Gib das Gerätepasswort und das Wiederherstellungspasswort ein, die du für deine versteckte Wallet verwenden möchtest. Das Gerätepasswort und das Wiederherstellungspasswort müssen sich von <strong> denen unterscheiden </strong> , die du für dein primäres Wallet verwendest.",
-    "passwordLabel": "Versteckte Wallet Passwort",
-    "passwordPlaceholder": "Bitte bestätige das versteckte Wiederherstellungspasswort",
-    "pinLabel": "Verstecktes Gerätepasswort",
-    "pinRepeatLabel": "Wiederhole das versteckte Gerätepasswort",
-    "pinRepeatPlaceholder": "Bitte bestätige das versteckte Gerätepasswort",
-    "success": "Versteckte Wallet erfolgreich erstellt. Stecke die BitBox erneut ein und gib das versteckete Gerätepasswort ein, um diese zu entsperren."
-  },
   "initialize": {
     "create": "Gerätepasswort speichern",
     "creating": "Gerätekennwort wird eingestellt...",
@@ -1312,12 +1254,6 @@
   "invalidFormat": "Ungültiges Format",
   "language": {
     "title": "Sprache auswählen"
-  },
-  "legacyhiddenwallet": {
-    "disable": "Versteckte Legacy Wallet deaktivieren",
-    "enable": "Versteckte Legacy Wallet aktivieren",
-    "successDisable": "Versteckte Legacy Wallet erfolgreich deaktiviert",
-    "successEnable": "Die versteckte legacy Wallet wurde erfolgreich aktiviert. Stecke deine BitBox erneut ein und gib das versteckte Gerätepasswort ein, um auf die versteckte Wallet zuzugreifen."
   },
   "loading": "laden...",
   "manageAccounts": {
@@ -1411,52 +1347,6 @@
   "notification": {
     "newTxs_one": "Neue Transaktion in: {{accountName}}",
     "newTxs_other": "{{count}} neue Transaktionen in: {{accountName}}"
-  },
-  "pairing": {
-    "aborted": {
-      "text": "Der Kopplungsprozess wurde von der Smartphone App abgebrochen.",
-      "title": "Abgebrochen"
-    },
-    "button": "Mit Smartphone App koppeln",
-    "confirm": "Möchtest du deine BitBox wirklich koppeln? Danach wird dein Mobiltelefon zur Durchführung einer Transaktion unbedingt erforderlich sein.",
-    "connectOnly": {
-      "button": "Smartphone App verbinden",
-      "title": "Scanne den Code mit der Smartphone App. "
-    },
-    "error": {
-      "text": "Etwas ist schief gelaufen. Bitte fang erneut an.",
-      "title": "Fehler"
-    },
-    "pullFailed": {
-      "text": "Fehler beim Abrufen einer Nachricht von deinem Mobiltelefon über den Relay-Server. Der Relay-Server ist möglicherweise offline. Wende dich an den Support.",
-      "title": "Laden fehlgeschlagen"
-    },
-    "reconnectOnly": {
-      "button": "Smartphone App erneut verbinden"
-    },
-    "scanningFailed": {
-      "text": "Das Handy konnte die Nachricht nicht scannen. Bitte versuche es erneut.",
-      "title": "Scannen fehlgeschlagen"
-    },
-    "start": {
-      "hideAppQRCode": "QR Code ausblenden",
-      "revealAppQRCode": "QR Code anzeigen",
-      "step1": "Wenn du nicht über die Smartphone App verfügst, kannst du den QR-Code für den Apple App Store oder den Google Play Store scannen.",
-      "step2": "Scanne den Code mit der Smartphone App, die du im App Stores für iOS und Android findst, wenn du nach 'Digital Bitbox 2FA' suchst."
-    },
-    "started": {
-      "text": "Folge nun den Anweisungen in der mobilen App.",
-      "title": "Gut gemacht!"
-    },
-    "success": {
-      "text": "Herzlichen Glückwunsch, du hast deine BitBox erfolgreich mit der mobilen App gekoppelt!",
-      "title": "Erfolg"
-    },
-    "timeout": {
-      "text": "Der Kopplungsprozess ist nach 2 Minuten abgelaufen. Bitte versuche es erneut.",
-      "title": "Zeitüberschreitung"
-    },
-    "title": "Smartphone Kopplung"
   },
   "passphrase": {
     "considerations": {
@@ -1553,16 +1443,11 @@
       "p2wpkh-p2sh": "Wrapped-Segwit (kompatibles Format)"
     },
     "selectAccount": "Konto auswählen",
-    "showFull": "Adresse auf BitBox bestätigen",
     "taprootWarning": "Hinweis: Taproot ist ein neues Adressformat und noch nicht weit verbreitet. Gelder, die über Taproot-Adressen eingehen, sind möglicherweise nicht in Watch-Only-Wallets von Drittanbietern sichtbar. Viele Wallets und Börsen sind noch nicht in der Lage, an Taproot-Adressen zu senden.",
     "title": "{{accountName}} empfangen",
     "verify": "Adresse sicher verifizieren",
-    "verifyBitBox01": "Adresse auf Smartphone überprüfen",
     "verifyBitBox02": "Adresse auf BitBox02 überprüfen",
-    "verifyInstruction": "Bitte bestätige, dass die folgende Adresse mit der Adresse auf deinem Gerät übereinstimmt.",
-    "warning": {
-      "secureOutput": "Bitte koppele deine BitBox mit deinem Smartphone, um eine sichere Adressüberprüfung zu ermöglichen. Klicke in der Seitenleiste auf \"Gerät verwalten\"."
-    }
+    "verifyInstruction": "Bitte bestätige, dass die folgende Adresse mit der Adresse auf deinem Gerät übereinstimmt."
   },
   "reset": {
     "description": "Alle Daten auf dem Gerät werden gelöscht. Inklusive deiner Private-Keys!",
@@ -1574,7 +1459,7 @@
   "securityInformation": {
     "create": {
       "description1": "Bitte richte dein Gerät in einer sicheren Umgebung ein, sodass niemand sehen kann, welches Passwort du wählst.",
-      "description2": "Während der Einrichtung wirst du aufgefordert, zwei verschiendene Passworter zu erstellen. ",
+      "description2": "Während der Einrichtung wirst du aufgefordert, zwei verschiedene Passworter zu erstellen. ",
       "description3": "Das erste Passwort ist das <strong> Gerätepasswort </strong>, welches deine BitBox entsperrt und später geändert werden kann.",
       "description4": "Das zweite ist das <strong> Wiederherstellungspasswort </strong>, mit dem dein Wallet gesichert wird. Dieses Passwort kann später nicht geändert werden",
       "description5": "Die von dir erstellte Wallet wird in einer Datei auf der mitgelieferten microSD Karte gespeichert. Dieses Backup kann im Notfall verwendet werden, um den Zugriff auf deine Coins mithilfe deines <strong> Wiederherstellungskennworts </strong> wieder herzustellen.",
@@ -1610,7 +1495,7 @@
     },
     "password": {
       "label": "Wiederherstellungspasswort",
-      "repeatPlaceholder": "Wiederhestellungspasswort wiederholen"
+      "repeatPlaceholder": "Wiederherstellungspasswort wiederholen"
     },
     "walletName": {
       "label": "Wallet Name"
@@ -1712,10 +1597,6 @@
     "priority": "Priorität",
     "scanQR": "QR Code scannen",
     "scanQRNoCameraMessage": "Kamera nicht gefunden. Bitte stelle sicher, dass dein Gerät eine Kamera unterstützt und die Berechtigungen korrekt eingestellt sind.",
-    "signprogress": {
-      "description": "Dies ist eine Transaktion, die viele Daten enthält. Um die Transaktion vollständig zu signieren, wirst du aufgefordert, {{steps}} mal auf der BitBox zu bestätigen.",
-      "label": "Fortschritt"
-    },
     "success": "Die Transaktion wurde signiert und versendet.",
     "title": "{{accountName}} senden",
     "toggleCoinControl": "Coin Control",
@@ -1950,16 +1831,12 @@
   },
   "warning": {
     "coincontrol": "Ein oder mehrere UTXOs haben eine mehrfach verwendete Adresse. Beachte  dass der Empfänger alle UTXOs sehen wird welche mit diesen Adressen verbunden sind.",
-    "receivePairing": "Bitte aktiviere 2FA, um Adressen sicher zu verifizieren. Klicke dazu auf \"Geräte verwalten\" im Menü auf der linken Seite.",
     "sdcard": "Bewahre deine microSD Karte separat von deiner BitBox auf. Die microSD Karte wird nur benötigt, wenn du deine Backups verwalten willst. Für den normalen Betrieb ist sie nicht erforderlich.",
-    "sendPairing": "Bitte koppele deine BitBox mit einem Smartphone um Transaktionen sicher verifizieren zu können. Klicke dazu auf \"Geräte verwalten\" im Menü auf der linken Seite.",
     "testnet": "Warnung: Du verwendest die Wallet derzeit im Testnet-Modus. Transaktionen und Guthaben hier sind nicht echt und erscheinen nicht im Mainnet. Das Testnet ist ausschließlich für Test- und Entwicklungszwecke gedacht."
   },
   "welcome": {
     "connect": "Verbinde eine BitBox02",
     "getStarted": "Beginnen wir mit der Installation der Firmware auf deiner BitBox02.",
-    "insertBitBox02": "Tippe dann auf die BitBox02 zum weiter machen. ",
-    "insertDevice": "Bitte verbinde dein Gerät, um loszulegen",
     "loadingAccounts": "Lade Konten",
     "title": "Willkommen"
   }
