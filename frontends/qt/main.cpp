@@ -425,6 +425,7 @@ int main(int argc, char *argv[])
 
     QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/QtWebEngineProfile";
     view->page()->profile()->setPersistentStoragePath(path);
+    view->page()->profile()->setPersistentCookiesPolicy(QWebEngineProfile::AllowPersistentCookies);
 
     QObject::connect(
         view->page(),
