@@ -23,6 +23,7 @@
 #include <QWebEngineUrlScheme>
 #include <QWebEngineUrlSchemeHandler>
 #include <QWebEngineUrlRequestJob>
+#include <QStandardPaths>
 #include <QWebEngineSettings>
 #include <QMimeDatabase>
 #include <QFile>
@@ -421,6 +422,10 @@ int main(int argc, char *argv[])
     // For manual mimetype resolution.
     SchemeHandler schemeHandler;
     view->page()->profile()->installUrlSchemeHandler(scheme, &schemeHandler);
+
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/QtWebEngineProfile";
+    view->page()->profile()->setPersistentStoragePath(path);
+    view->page()->profile()->setPersistentCookiesPolicy(QWebEngineProfile::AllowPersistentCookies);
 
     QObject::connect(
         view->page(),
