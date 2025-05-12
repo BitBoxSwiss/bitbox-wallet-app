@@ -498,7 +498,10 @@ class BluetoothDeviceInfo: NSObject, MobileserverGoDeviceInfoInterfaceProtocol {
     }
 
     func serial() -> String {
-        return "v" + productInfo.version
+        // BitBox delivers the version with the `v` prefix, and adding it manually here can be
+        // dropped at some point. Only testing firmwares before the first release did not include
+        // the prefix.
+        return productInfo.version.hasPrefix("v") ? productInfo.version : "v" + productInfo.version
     }
 
     func usagePage() -> Int {
