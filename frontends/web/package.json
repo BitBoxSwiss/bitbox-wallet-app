@@ -46,16 +46,6 @@
       "react-app/jest"
     ]
   },
-  "browserslist": {
-    "production": [
-      "chrome >= 83"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "scripts": {
     "dev": "npm run start",
     "start": "vite --cors --host",
