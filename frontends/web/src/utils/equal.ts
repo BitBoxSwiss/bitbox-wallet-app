@@ -18,13 +18,13 @@ const isArray = Array.isArray;
 const keyList = Object.keys;
 const hasProp = Object.prototype.hasOwnProperty;
 
-export function equal(a, b) {
+export function equal(a: any, b: any): boolean {
   if (Object.is(a, b)) {
     return true;
   }
 
   if (a && b && typeof a === 'object' && typeof b === 'object') {
-    let arrA = isArray(a), arrB = isArray(b), i, length, key;
+    let arrA = isArray(a), arrB = isArray(b), i: number, length: number, key: string;
 
     if (arrA && arrB) {
       length = a.length;
