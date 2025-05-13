@@ -15,12 +15,44 @@
  */
 
 const isArray = Array.isArray;
-const keyList = Object.keys;
 const hasProp = Object.prototype.hasOwnProperty;
+const typedKeys = <T extends object>(obj: Readonly<T>): readonly (keyof T)[] => {
+  return Object.keys(obj) as (keyof T)[];
+};
 
-export const equal = (a: any, b: any): boolean => {
+/**
+ * Performs a deep equality check between two values.
+ *
+ * This function compares primitive types, arrays, plain objects, Date instances,
+ * and RegExp objects. It returns true if the values are deeply equal, false otherwise.
+ *
+ * - Uses `Object.is` for primitive comparison (handles `NaN`, `-0`, etc.)
+ * - Recursively checks array contents and object properties
+ * - Properly compares Date and RegExp objects
+ * - Returns false for functions, symbols, maps, sets, or class instances (not handled)
+ *
+ * @param a - The first value to compare.
+ * @param b - The second value to compare.
+ * @returns `true` if values are deeply equal, `false` otherwise.
+ */
+export const equal = (a: unknown, b: unknown): boolean => {
   if (Object.is(a, b)) {
     return true;
+  }
+
+  if (a instanceof Date && b instanceof Date) {
+    return a.getTime() === b.getTime();
+  }
+
+  if (a instanceof RegExp && b instanceof RegExp) {
+    return a.toString() === b.toString();
+  }
+
+  if (
+    (a instanceof Date) !== (b instanceof Date)
+    || (a instanceof RegExp) !== (b instanceof RegExp)
+  ) {
+    return false;
   }
 
   if (a && b && typeof a === 'object' && typeof b === 'object') {
@@ -40,19 +72,18 @@ export const equal = (a: any, b: any): boolean => {
       return false;
     }
 
-    const length = keyList(a).length;
-    if (length !== keyList(b).length) {
+    const aKeys = typedKeys(a);
+    const bKeys = typedKeys(b);
+
+    if (aKeys.length !== bKeys.length) {
       return false;
     }
 
-    for (let i = 0; i < length; i++) {
-      if (!hasProp.call(b, keyList(a)[i])) {
+    for (const key of aKeys) {
+      if (!hasProp.call(b, key)) {
         return false;
       }
-    }
-
-    for (let i = 0; i < length; i++) {
-      if (!equal(a[keyList(a)[i]], b[keyList(a)[i]])) {
+      if (!equal(a[key], b[key])) {
         return false;
       }
     }
@@ -61,4 +92,4 @@ export const equal = (a: any, b: any): boolean => {
   }
 
   return false;
-}
+};
