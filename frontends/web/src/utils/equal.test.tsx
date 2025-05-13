@@ -114,5 +114,33 @@ describe('equal', () => {
       expect(equal(a, null)).toBeFalsy();
       expect(equal(null, a)).toBeFalsy();
     });
+
+    it('deep compares nested structures', () => {
+      const a = { foo: [1, { bar: 'baz' }] };
+      const b = { foo: [1, { bar: 'baz' }] };
+      expect(equal(a, b)).toBeTruthy();
+    });
+
   });
+
+  describe('RegExp, functions and dates are currently not supported', () => {
+
+    it('compares RegExp objects correctly', () => {
+      expect(equal(/foo/g, /foo/g)).toBeTruthy();
+      expect(equal(/foo/g, /bar/g)).toBeFalsy();
+    });
+
+    it('compares Date objects correctly', () => {
+      expect(equal(new Date('2020-01-01'), new Date('2020-01-01'))).toBeTruthy();
+      expect(equal(new Date('2020-01-01'), new Date('2021-01-01'))).toBeFalsy();
+    });
+
+    it('does not consider functions equal', () => {
+      const a = () => {};
+      const b = () => {};
+      expect(equal(a, b)).toBeFalsy();
+    });
+
+  });
+
 });
