@@ -759,8 +759,7 @@
   "exchange": {
     "buySell": {
       "coinNotSupported": "No options available for this coin type.",
-      "regionNotSupported": "No options available for this region.",
-      "updateNow": "Update now"
+      "regionNotSupported": "No options available for this region."
     },
     "pocket": {
       "terms": {

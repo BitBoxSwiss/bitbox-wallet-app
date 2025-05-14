@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import * as exchangesAPI from '@/api/exchanges';
 import { Button } from '@/components/forms/button';
-import { AppContext } from '@/contexts/AppContext';
 import { getBTCDirectOTCLink, TInfoContentProps, TPaymentFee } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
-import { hasPaymentRequest } from '@/api/account';
 import { Message } from '@/components/message/message';
 import { ExternalLinkWhite, ExternalLinkBlack, Businessman } from '@/components/icon';
 import { useDarkmode } from '@/hooks/darkmode';
@@ -36,7 +34,6 @@ import style from '../exchange.module.css';
 
 type TProps = {
   accountCode: string;
-  deviceIDs: string[];
   selectedRegion: string;
   goToExchange: (exchange: string) => void;
   showBackButton: boolean;
@@ -46,7 +43,6 @@ type TProps = {
 
 export const BuySell = ({
   accountCode,
-  deviceIDs,
   selectedRegion,
   goToExchange,
   showBackButton,
@@ -54,43 +50,19 @@ export const BuySell = ({
   setInfo,
 }: TProps) => {
   const { t } = useTranslation();
-  const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
   const { isDarkMode } = useDarkmode();
 
   const exchangeDealsResponse = useLoad(() => exchangesAPI.getExchangeDeals(action, accountCode, selectedRegion), [action, selectedRegion]);
   const btcDirectOTCSupported = useLoad(exchangesAPI.getBtcDirectOTCSupported(accountCode, selectedRegion), [selectedRegion]);
-  const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(accountCode));
-  const [paymentRequestError, setPaymentRequestError] = useState(false);
   const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
   const config = useLoad(getConfig);
   const navigate = useNavigate();
-
-  // enable paymentRequestError only when the action is sell.
-  useEffect(() => {
-    setPaymentRequestError(action === 'sell' && hasPaymentRequestResponse?.success === false);
-  }, [hasPaymentRequestResponse, action]);
-
 
   useEffect(() => {
     if (config) {
       setAgreedBTCDirectOTCTerms(config.frontend.skipBTCDirectOTCDisclaimer);
     }
   }, [config]);
-
-  const constructErrorMessage = (): string | undefined => {
-    if (exchangeDealsResponse?.success === false) {
-      if (exchangeDealsResponse.errorCode) {
-        return t('exchange.buySell.' + exchangeDealsResponse.errorCode);
-      }
-      return exchangeDealsResponse.errorMessage;
-    } else if (paymentRequestError) {
-      if (hasPaymentRequestResponse?.errorCode) {
-        return t('device.' + hasPaymentRequestResponse.errorCode);
-      } else {
-        return hasPaymentRequestResponse?.errorMessage || '';
-      }
-    }
-  };
 
   const buildInfo = (exchange: exchangesAPI.ExchangeDeals): TInfoContentProps => {
     let paymentFees: TPaymentFee = {};
@@ -105,23 +77,15 @@ export const BuySell = ({
     <>
       <div className={style.innerRadioButtonsContainer}>
         {!exchangeDealsResponse && <Skeleton />}
-
-        {exchangeDealsResponse?.success === false || paymentRequestError ? (
+        {exchangeDealsResponse?.success === false ? (
           <div className="flex flex-column">
-            <p className={style.noExchangeText}>{constructErrorMessage()}</p>
-            {exchangeDealsResponse?.success &&
-              paymentRequestError &&
-              hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired' && (
-              <Button
-                className={style.updateButton}
-                onClick={() => {
-                  setFirmwareUpdateDialogOpen(true);
-                  navigate(`/settings/device-settings/${deviceIDs[0]}`);
-                }}
-                transparent>
-                {t('exchange.buySell.updateNow')}
-              </Button>
-            )}
+            <p className={style.noExchangeText}>
+              {exchangeDealsResponse?.success === false && (
+                exchangeDealsResponse.errorCode
+                  ? t('exchange.buySell.' + exchangeDealsResponse.errorCode)
+                  : exchangeDealsResponse.errorMessage
+              )}
+            </p>
           </div>
         ) : (
           <div className={style.exchangeProvidersContainer}>
