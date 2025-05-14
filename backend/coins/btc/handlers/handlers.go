@@ -871,15 +871,7 @@ func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, er
 		ErrorCode    string `json:"errorCode,omitempty"`
 	}
 
-	account, ok := handlers.account.(*btc.Account)
-	if !ok {
-		return response{
-			Success:      false,
-			ErrorMessage: "An account must be BTC based to support payment requests.",
-		}, nil
-	}
-
-	keystore, err := account.Config().ConnectKeystore()
+	keystore, err := handlers.account.Config().ConnectKeystore()
 	if err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
