@@ -29,6 +29,7 @@ import { parseExternalBtcAmount } from '@/api/coins';
 import { useLoad } from '@/hooks/api';
 import { BitrefillTerms, localeMapping } from '@/components/terms/bitrefill-terms';
 import { getBitrefillInfo } from '@/api/exchanges';
+import { getURLOrigin } from '@/utils/url';
 
 // Map coins supported by Bitrefill
 const coinMapping: Readonly<Record<string, string>> = {
@@ -43,14 +44,6 @@ const coinMapping: Readonly<Record<string, string>> = {
 type TProps = {
   accounts: IAccount[];
   code: AccountCode;
-};
-
-const getURLOrigin = (uri: string): string | null => {
-  try {
-    return new URL(uri).origin;
-  } catch (e) {
-    return null;
-  }
 };
 
 export const Bitrefill = ({ accounts, code }: TProps) => {
