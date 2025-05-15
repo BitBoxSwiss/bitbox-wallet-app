@@ -65,6 +65,7 @@
 // their CSP response headers.
 static const char* scheme = "bitboxapp";
 
+static QWebEngineProfile* profile;
 static QWebEngineView* view;
 static QWebEnginePage* mainPage;
 static QWebEnginePage* externalPage;
@@ -91,7 +92,7 @@ public:
 
 class WebEnginePage : public QWebEnginePage {
 public:
-    WebEnginePage(QObject* parent) : QWebEnginePage(parent) {}
+    WebEnginePage(QWebEngineProfile* profile) : QWebEnginePage(profile) {}
 
     QWebEnginePage* createWindow(QWebEnginePage::WebWindowType type) {
         Q_UNUSED(type);
@@ -353,7 +354,8 @@ int main(int argc, char *argv[])
     }
 
     externalPage = new QWebEnginePage(view);
-    mainPage = new WebEnginePage(view);
+    profile = new QWebEngineProfile("BitBoxApp");
+    mainPage = new WebEnginePage(profile);
     view->setPage(mainPage);
 
     pageLoaded = false;
@@ -459,6 +461,12 @@ int main(int argc, char *argv[])
         webClass = nullptr;
         delete view;
         view = nullptr;
+        // Make sure mainPage is deleted before the profile. This is a requirement for the profile
+        // to be able to flush to disk properly.
+        delete mainPage;
+        mainPage = nullptr;
+        delete profile;
+        profile = nullptr;
         webClassMutex.unlock();
         backendShutdown();
     });

@@ -55,7 +55,6 @@ describe('useSDCard', () => {
         id: '0001',
         lock: false,
         name: 'some name',
-        new_hidden_wallet: false,
         seeded: false,
         serial: 'anystring',
         sdcard: true,

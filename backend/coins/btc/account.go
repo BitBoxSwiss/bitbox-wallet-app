@@ -120,15 +120,20 @@ type Account struct {
 	log *logrus.Entry
 
 	httpClient *http.Client
+
+	// getAddressFromSameKeystore is a function that retrieves an address from any account on the same keystore as this one.
+	getAddressFromSameKeystore func(*Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error)
 }
 
 // NewAccount creates a new account.
 //
 // forceGaplimits: if not nil, these limits will be used and persisted for future use.
+// getAddressFromSameKeystore: function to retrieve an address from any account on the same keystore.
 func NewAccount(
 	config *accounts.AccountConfig,
 	coin *Coin,
 	forceGapLimits *types.GapLimits,
+	getAddressFromSameKeystore func(*Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error),
 	log *logrus.Entry,
 	httpClient *http.Client,
 ) *Account {
@@ -137,13 +142,13 @@ func NewAccount(
 	log.Debug("Creating new account")
 
 	account := &Account{
-		BaseAccount:    accounts.NewBaseAccount(config, coin, log),
-		coin:           coin,
-		dbSubfolder:    "", // set in Initialize()
-		forceGapLimits: forceGapLimits,
-
-		log:        log,
-		httpClient: httpClient,
+		BaseAccount:                accounts.NewBaseAccount(config, coin, log),
+		coin:                       coin,
+		dbSubfolder:                "", // set in Initialize()
+		forceGapLimits:             forceGapLimits,
+		getAddressFromSameKeystore: getAddressFromSameKeystore,
+		log:                        log,
+		httpClient:                 httpClient,
 	}
 	return account
 }
@@ -331,9 +336,9 @@ func (account *Account) Initialize() error {
 		account.log.Infof("gap limits: receive=%d, change=%d", gapLimits.Receive, gapLimits.Change)
 
 		subacc.receiveAddresses = addresses.NewAddressChain(
-			signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.isAddressUsed, account.log)
+			signingConfiguration, account.coin.Net(), int(gapLimits.Receive), false, account.isAddressUsed, account.log)
 		subacc.changeAddresses = addresses.NewAddressChain(
-			signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.isAddressUsed, account.log)
+			signingConfiguration, account.coin.Net(), int(gapLimits.Change), true, account.isAddressUsed, account.log)
 
 		account.subaccounts = append(account.subaccounts, subacc)
 	}
@@ -865,7 +870,7 @@ func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
 			&SpendableOutput{
 				OutPoint:        outPoint,
 				SpendableOutput: txOut,
-				Address:         account.getAddress(scriptHashHex),
+				Address:         account.GetAddress(scriptHashHex),
 				IsChange:        account.IsChange(scriptHashHex),
 			})
 	}

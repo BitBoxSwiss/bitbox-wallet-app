@@ -95,44 +95,57 @@ func (communication *Communication) sendFrame(msg string) error {
 	if dataLen == 0 {
 		return nil
 	}
-	send := func(header []byte, readFrom *bytes.Buffer) error {
-		buf := newBuffer()
-		buf.Write(header)
-		buf.Write(readFrom.Next(writeReportSize - buf.Len()))
-		for buf.Len() < writeReportSize {
-			buf.WriteByte(0xee)
-		}
-		x := buf.Bytes() // needs to be in a var: https://github.com/golang/go/issues/14210#issuecomment-346402945
-		_, err := communication.device.Write(x)
-		return errp.WithMessage(errp.WithStack(err), "Failed to send message")
-	}
+
 	readBuffer := bytes.NewBufferString(msg)
+	out := newBuffer()
+
+	// Calculate how large the `out` buffer should be. Round up to an equal
+	// number of writeReportSize sized bytes
+	outLen := writeReportSize
+	initPayloadSize := writeReportSize - 7
+	contPayloadSize := writeReportSize - 5
+	if dataLen > initPayloadSize {
+		contLen := dataLen - initPayloadSize
+		outLen += ((contLen + contPayloadSize - 1) / contPayloadSize) * writeReportSize
+	}
+	out.Grow(outLen)
+
 	// init frame
-	header := newBuffer()
-	if err := binary.Write(header, binary.BigEndian, cid); err != nil {
+	if err := binary.Write(out, binary.BigEndian, cid); err != nil {
 		return errp.WithStack(err)
 	}
-	if err := binary.Write(header, binary.BigEndian, communication.cmd); err != nil {
+	if err := binary.Write(out, binary.BigEndian, communication.cmd); err != nil {
 		return errp.WithStack(err)
 	}
-	if err := binary.Write(header, binary.BigEndian, uint16(dataLen&0xFFFF)); err != nil {
+	if err := binary.Write(out, binary.BigEndian, uint16(dataLen&0xFFFF)); err != nil {
 		return errp.WithStack(err)
 	}
-	if err := send(header.Bytes(), readBuffer); err != nil {
-		return err
-	}
+	out.Write(readBuffer.Next(initPayloadSize))
+
+	// cont frames
 	for seq := 0; readBuffer.Len() > 0; seq++ {
-		// cont frame
-		header = newBuffer()
-		if err := binary.Write(header, binary.BigEndian, cid); err != nil {
+		if err := binary.Write(out, binary.BigEndian, cid); err != nil {
 			return errp.WithStack(err)
 		}
-		if err := binary.Write(header, binary.BigEndian, uint8(seq)); err != nil {
+		if err := binary.Write(out, binary.BigEndian, uint8(seq)); err != nil {
 			return errp.WithStack(err)
 		}
-		if err := send(header.Bytes(), readBuffer); err != nil {
-			return err
+		out.Write(readBuffer.Next(contPayloadSize))
+	}
+
+	// Pad to multiple of writeReportSize
+	for range (writeReportSize - (out.Len() % writeReportSize)) % writeReportSize {
+		out.WriteByte(0xEE)
+	}
+
+	// Write out packets, write as many bytes as possible in each iteration
+	for out.Len() > 0 {
+		x := out.Bytes() // needs to be in a var: https://github.com/golang/go/issues/14210#issuecomment-346402945
+		n, err := communication.device.Write(x)
+		if err != nil {
+			return errp.WithMessage(errp.WithStack(err), "Failed to send message")
 		}
+		out.Next(n)
 	}
 	return nil
 }
