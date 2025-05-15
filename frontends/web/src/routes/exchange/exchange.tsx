@@ -127,6 +127,7 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
         >
           {info && (
             <InfoContent
+              action={info.action}
               accounts={accounts}
               exchangeName={info.exchangeName}
               paymentFees={info.paymentFees}
@@ -145,7 +146,11 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                     regions={regions}
                     selectedRegion={selectedRegion}
                   />
-                  <InfoButton onClick={() => setInfo({ exchangeName: 'region', paymentFees: {} })} />
+                  <InfoButton onClick={() => setInfo({
+                    action: activeTab,
+                    exchangeName: 'region',
+                    paymentFees: {}
+                  })} />
                 </div>
                 <ExchangeTab
                   onChangeTab={(tab) => {

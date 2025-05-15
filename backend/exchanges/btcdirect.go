@@ -104,7 +104,7 @@ func BtcDirectDeals(action ExchangeAction) *ExchangeDealsList {
 	case SellAction:
 		deals = []*ExchangeDeal{
 			{
-				Fee:     2, // 2%
+				Fee:     2.5, // 2.5%
 				Payment: BankTransferPayment,
 			},
 		}
