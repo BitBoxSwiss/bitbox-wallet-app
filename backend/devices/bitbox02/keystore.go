@@ -143,8 +143,39 @@ func (keystore *keystore) CanVerifyAddress(coin coinpkg.Coin) (bool, bool, error
 	return false, false, nil
 }
 
-// VerifyAddress implements keystore.Keystore.
-func (keystore *keystore) VerifyAddress(
+// VerifyAddressBTC implements keystore.Keystore.
+func (keystore *keystore) VerifyAddressBTC(
+	accountConfiguration *signing.Configuration,
+	derivation types.Derivation, coin coinpkg.Coin) error {
+	canVerifyAddress, _, err := keystore.CanVerifyAddress(coin)
+	if err != nil {
+		return err
+	}
+	if !canVerifyAddress {
+		panic("CanVerifyAddress must be true")
+	}
+	msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
+	if !ok {
+		panic("unsupported scripttype")
+	}
+	keypath := accountConfiguration.AbsoluteKeypath().
+		Child(derivation.SimpleChainIndex(), false).
+		Child(derivation.AddressIndex, false)
+	_, err = keystore.device.BTCAddress(
+		btcMsgCoinMap[coin.Code()],
+		keypath.ToUInt32(),
+		firmware.NewBTCScriptConfigSimple(msgScriptType),
+		true,
+	)
+	if firmware.IsErrorAbort(err) {
+		// No special action on user abort.
+		return nil
+	}
+	return err
+}
+
+// VerifyAddressETH implements keystore.Keystore.
+func (keystore *keystore) VerifyAddressETH(
 	configuration *signing.Configuration, coin coinpkg.Coin) error {
 	canVerifyAddress, _, err := keystore.CanVerifyAddress(coin)
 	if err != nil {
@@ -153,46 +184,21 @@ func (keystore *keystore) VerifyAddress(
 	if !canVerifyAddress {
 		panic("CanVerifyAddress must be true")
 	}
-	switch specificCoin := coin.(type) {
-	case *btc.Coin:
-		msgScriptType, ok := btcMsgScriptTypeMap[configuration.ScriptType()]
-		if !ok {
-			panic("unsupported scripttype")
-		}
-		_, err = keystore.device.BTCAddress(
-			btcMsgCoinMap[coin.Code()],
-			configuration.AbsoluteKeypath().ToUInt32(),
-			firmware.NewBTCScriptConfigSimple(msgScriptType),
-			true,
-		)
-		if firmware.IsErrorAbort(err) {
-			// No special action on user abort.
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-	case *eth.Coin:
-		// No contract address, displays 'Ethereum' etc. depending on `msgCoin`.
-		contractAddress := []byte{}
-		if specificCoin.ERC20Token() != nil {
-			// Displays the erc20 unit based on the contract.
-			contractAddress = specificCoin.ERC20Token().ContractAddress().Bytes()
-		}
-		_, err := keystore.device.ETHPub(
-			specificCoin.ChainID(), configuration.AbsoluteKeypath().ToUInt32(),
-			messages.ETHPubRequest_ADDRESS, true, contractAddress)
-		if firmware.IsErrorAbort(err) {
-			// No special action on user abort.
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-	default:
-		return errp.New("unsupported coin")
+	specificCoin := coin.(*eth.Coin)
+	// No contract address, displays 'Ethereum' etc. depending on `msgCoin`.
+	contractAddress := []byte{}
+	if specificCoin.ERC20Token() != nil {
+		// Displays the erc20 unit based on the contract.
+		contractAddress = specificCoin.ERC20Token().ContractAddress().Bytes()
 	}
-	return nil
+	_, err = keystore.device.ETHPub(
+		specificCoin.ChainID(), configuration.AbsoluteKeypath().ToUInt32(),
+		messages.ETHPubRequest_ADDRESS, true, contractAddress)
+	if firmware.IsErrorAbort(err) {
+		// No special action on user abort.
+		return nil
+	}
+	return err
 }
 
 // CanVerifyExtendedPublicKey implements keystore.Keystore.
@@ -350,7 +356,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 				PrevOutIndex:      txIn.PreviousOutPoint.Index,
 				PrevOutValue:      uint64(prevOut.TxOut.Value),
 				Sequence:          txIn.Sequence,
-				Keypath:           inputAddress.Configuration.AbsoluteKeypath().ToUInt32(),
+				Keypath:           inputAddress.AbsoluteKeypath().ToUInt32(),
 				ScriptConfigIndex: uint32(scriptConfigIndex),
 			},
 			BIP352Pubkey: bip352Pubkey,
@@ -438,13 +444,13 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			}
 			switch {
 			case sameAccount:
-				keypath = outputAddress.Configuration.AbsoluteKeypath().ToUInt32()
+				keypath = outputAddress.AbsoluteKeypath().ToUInt32()
 				scriptConfigIndex = addScriptConfig(&messages.BTCScriptConfigWithKeypath{
 					ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
 					Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
 				})
 			case keystore.device.Version().AtLeast(semver.NewSemVer(9, 22, 0)):
-				keypath = outputAddress.Configuration.AbsoluteKeypath().ToUInt32()
+				keypath = outputAddress.AbsoluteKeypath().ToUInt32()
 				outputScriptConfigIdx := addOutputScriptConfig(&messages.BTCScriptConfigWithKeypath{
 					ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
 					Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
