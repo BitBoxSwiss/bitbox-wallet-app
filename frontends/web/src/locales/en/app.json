@@ -820,6 +820,7 @@
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
     "noOptions": "No options found",
+    "paymentRequestNote": "{{name}} payment {{orderId}}",
     "receive": "Receive {{coinCode}}",
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto",

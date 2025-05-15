@@ -152,7 +152,10 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
 
       let result = await proposeTx(code, txInput);
       if (result.success) {
-        const txNote = `${t('buy.bitrefill.transactionNote')} (${String(invoiceId)})`;
+        const txNote = t('generic.paymentRequestNote', {
+          name: 'Bitrefill',
+          orderId: invoiceId,
+        });
         const sendResult = await sendTx(code, txNote);
         if (!sendResult.success && !('aborted' in sendResult)) {
           alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
