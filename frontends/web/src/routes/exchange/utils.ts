@@ -32,6 +32,8 @@ export const getExchangeFormattedName = (
     return 'BTC Direct';
   case 'btcdirect-otc':
     return 'BTC Direct\'s Private Trading Desk';
+  case 'bitrefill':
+    return 'Bitrefill';
   }
 };
 

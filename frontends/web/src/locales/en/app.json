@@ -397,6 +397,12 @@
     "upgrade": "Upgrade"
   },
   "buy": {
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": "Insufficient funds to buy gift card."
+      },
+      "transactionNote": "Sent to Bitrefill"
+    },
     "exchange": {
       "bankTransfer": "Bank transfer",
       "bestDeal": "Best deal",
@@ -551,7 +557,9 @@
       "noExchanges": "Sorry, there are no available exchanges in this region.",
       "region": "Region",
       "selectRegion": "Not specified",
-      "sell": "Sell"
+      "sell": "Sell",
+      "spend": "Spend",
+      "spend_bitrefill": "Shop gift cards, phone refills & more"
     },
     "info": {
       "continue": "Agree and continue",
@@ -804,16 +812,19 @@
   },
   "generic": {
     "buy": "Buy {{coinCode}}",
-    "buySell": "Buy & sell",
+    "buySell": "Marketplace",
     "buy_bitcoin": "Buy Bitcoin",
     "buy_crypto": "Buy crypto",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
     "noOptions": "No options found",
+    "paymentRequestNote": "{{name}} payment {{orderId}}",
     "receive": "Receive {{coinCode}}",
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto",
-    "search": "Search…"
+    "search": "Search…",
+    "spend_bitcoin": "Spend bitcoin",
+    "spend_crypto": "Spend crypto"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {

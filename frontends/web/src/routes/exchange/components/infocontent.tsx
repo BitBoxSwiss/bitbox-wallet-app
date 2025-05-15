@@ -236,6 +236,42 @@ const BTCDirectInfo = ({
   );
 };
 
+type TBitrefillInfoProps = {
+  fee?: number;
+};
+
+const BitrefillInfo = ({
+  fee
+}: TBitrefillInfoProps) => {
+  const { t } = useTranslation();
+  return (
+    <div className={style.container}>
+      <p>{t('buy.exchange.infoContent.btcdirectWidget.infobox.intro')}</p>
+      <br />
+      <p><b>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.title')}</b></p>
+      <br />
+      <ul>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.bankTransfer')}</li>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.creditDebitCard')}</li>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.sofort')}</li>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.bancontact')}</li>
+      </ul>
+      <br />
+      <p><b>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.title')}</b></p>
+      <br />
+      <ul>
+        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bankTransfer', { fee })}</li>
+      </ul>
+      <br />
+      <p>
+        <A href={getBTCDirectAboutUsLink()}>
+          {t('buy.exchange.infoContent.btcdirectWidget.learnmore')}
+        </A>
+      </p>
+    </div>
+  );
+};
+
 const RegionInfo = () => {
   const { t } = useTranslation();
   return (
@@ -286,6 +322,10 @@ export const InfoContent = ({
   case 'btcdirect-otc':
     return (
       <BTCDirectOTCInfo accounts={accounts} />
+    );
+  case 'bitrefill':
+    return (
+      <BitrefillInfo fee={paymentFees['spend']} />
     );
   case 'region':
     return (

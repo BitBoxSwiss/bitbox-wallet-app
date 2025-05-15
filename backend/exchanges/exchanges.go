@@ -65,6 +65,8 @@ const (
 	BuyAction ExchangeAction = "buy"
 	// SellAction identifies a sell exchange action.
 	SellAction ExchangeAction = "sell"
+	// SpendAction identifies a spend exchange action.
+	SpendAction ExchangeAction = "spend"
 )
 
 // ParseAction parses an action string and returns an ExchangeAction.
@@ -74,6 +76,8 @@ func ParseAction(action string) (ExchangeAction, error) {
 		return BuyAction, nil
 	case "sell":
 		return SellAction, nil
+	case "spend":
+		return SpendAction, nil
 	default:
 		return "", errp.New("Invalid Exchange action")
 	}
@@ -91,6 +95,7 @@ type ExchangeRegion struct {
 	IsMoonpayEnabled   bool   `json:"isMoonpayEnabled"`
 	IsPocketEnabled    bool   `json:"isPocketEnabled"`
 	IsBtcDirectEnabled bool   `json:"isBtcDirectEnabled"`
+	IsBitrefillEnabled bool   `json:"IsBitrefillEnabled"`
 }
 
 // PaymentMethod type is used for payment options in exchange deals.
@@ -105,6 +110,8 @@ const (
 	SOFORTPayment PaymentMethod = "sofort"
 	// BancontactPayment is a payment method in the SEPA region.
 	BancontactPayment PaymentMethod = "bancontact"
+	// SpendPayment is a payment method using the BitBox wallet.
+	SpendPayment PaymentMethod = "spend"
 )
 
 // ExchangeDeal represents a specific purchase option of an exchange.
@@ -145,10 +152,12 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 	}
 
 	btcDirectRegions := GetBtcDirectSupportedRegions()
+	bitrefillRegions := GetBitrefillSupportedRegions()
 
 	isMoonpaySupported := IsMoonpaySupported(account.Coin().Code())
 	isPocketSupported := IsPocketSupported(account.Coin().Code())
 	isBtcDirectSupported := IsBtcDirectSupported(account.Coin().Code())
+	isBitrefillSupported := IsBitrefillSupported(account.Coin().Code())
 
 	exchangeRegions := ExchangeRegionList{}
 	for _, code := range RegionCodes {
@@ -161,12 +170,14 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 			_, pocketEnabled = pocketRegions[code]
 		}
 		btcDirectEnabled := slices.Contains(btcDirectRegions, code)
+		bitrefillEnabled := slices.Contains(bitrefillRegions, code)
 
 		exchangeRegions.Regions = append(exchangeRegions.Regions, ExchangeRegion{
 			Code:               code,
 			IsMoonpayEnabled:   moonpayEnabled && isMoonpaySupported,
 			IsPocketEnabled:    pocketEnabled && isPocketSupported,
 			IsBtcDirectEnabled: btcDirectEnabled && isBtcDirectSupported,
+			IsBitrefillEnabled: bitrefillEnabled && isBitrefillSupported,
 		})
 	}
 
@@ -176,9 +187,10 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 // GetExchangeDeals returns the exchange deals available for the specified account, region and action.
 func GetExchangeDeals(account accounts.Interface, regionCode string, action ExchangeAction, httpClient *http.Client) ([]*ExchangeDealsList, error) {
 	moonpaySupportsCoin := IsMoonpaySupported(account.Coin().Code()) && action == BuyAction
-	pocketSupportsCoin := IsPocketSupported(account.Coin().Code())
+	pocketSupportsCoin := IsPocketSupported(account.Coin().Code()) && (action == BuyAction || action == SellAction)
 	btcDirectSupportsCoin := IsBtcDirectSupported(account.Coin().Code()) && action == BuyAction
-	coinSupported := moonpaySupportsCoin || pocketSupportsCoin || btcDirectSupportsCoin
+	bitrefillSupportsCoin := IsBitrefillSupported(account.Coin().Code()) && action == SpendAction
+	coinSupported := moonpaySupportsCoin || pocketSupportsCoin || btcDirectSupportsCoin || bitrefillSupportsCoin
 	if !coinSupported {
 		return nil, ErrCoinNotSupported
 	}
@@ -200,6 +212,7 @@ func GetExchangeDeals(account accounts.Interface, regionCode string, action Exch
 			IsMoonpayEnabled:   true,
 			IsPocketEnabled:    true,
 			IsBtcDirectEnabled: true,
+			IsBitrefillEnabled: true,
 		}
 	}
 
@@ -219,6 +232,12 @@ func GetExchangeDeals(account accounts.Interface, regionCode string, action Exch
 	}
 	if btcDirectSupportsCoin && userRegion.IsBtcDirectEnabled {
 		deals := BtcDirectDeals()
+		if deals != nil {
+			exchangeDealsLists = append(exchangeDealsLists, deals)
+		}
+	}
+	if bitrefillSupportsCoin && userRegion.IsBitrefillEnabled {
+		deals := BitrefillDeals()
 		if deals != nil {
 			exchangeDealsLists = append(exchangeDealsLists, deals)
 		}

@@ -134,7 +134,11 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
           )}
         </Dialog>
         <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{title}</h2>} />
+          <Header title={<h2>{ activeTab === 'spend' ? (
+            t('generic.spend', { context: hasOnlyBTCAccounts ? 'bitcoin' : 'crypto' })
+          ) : (
+            title
+          )}</h2>}/>
           <div className={[style.exchangeContainer, 'content', 'narrow', 'isVerticallyCentered'].join(' ')}>
             <p className={style.label}>{t('buy.exchange.region')}</p>
             {regions.length ? (
