@@ -68,6 +68,7 @@ export const BuySell = ({
     let paymentFees: TPaymentFee = {};
     exchange.deals.forEach(deal => paymentFees[deal.payment] = deal.fee);
     return {
+      action,
       exchangeName: exchange.exchangeName,
       paymentFees,
     };
@@ -129,7 +130,11 @@ export const BuySell = ({
                 {isDarkMode ? <ExternalLinkWhite className={style.textIcon}/> : <ExternalLinkBlack className={style.textIcon}/>}
               </p>
             </Message>
-            <InfoButton onClick={() => setInfo({ exchangeName: 'btcdirect-otc', paymentFees: {} })} />
+            <InfoButton onClick={() => setInfo({
+              action,
+              exchangeName: 'btcdirect-otc',
+              paymentFees: {}
+            })} />
           </div>
         )}
       </div>

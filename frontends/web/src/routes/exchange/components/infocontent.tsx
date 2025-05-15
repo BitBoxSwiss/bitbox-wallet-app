@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import type { IAccount } from '@/api/account';
-import type { TExchangeName, TPaymentMethod } from '@/api/exchanges';
+import type { TExchangeAction, TExchangeName, TPaymentMethod } from '@/api/exchanges';
 import { i18n } from '@/i18n/i18n';
 import { A } from '@/components/anchor/anchor';
 import { isBitcoinOnly } from '@/routes/account/utils';
@@ -184,6 +184,7 @@ const BTCDirectOTCInfo = ({ accounts }: TBTCDirectOTCInfoProps) => {
 };
 
 type TBTCDirectInfoProps = {
+  action: TExchangeAction;
   cardFee?: number;
   bankTransferFee?: number;
   sofortFee?: number;
@@ -191,6 +192,7 @@ type TBTCDirectInfoProps = {
 };
 
 const BTCDirectInfo = ({
+  action,
   cardFee,
   bankTransferFee,
   sofortFee,
@@ -201,32 +203,48 @@ const BTCDirectInfo = ({
     <div className={style.container}>
       <p>{t('buy.exchange.infoContent.btcdirectWidget.infobox.intro')}</p>
       <br />
-      <p><b>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.title')}</b></p>
-      <br />
-      <ul>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.bankTransfer')}</li>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.creditDebitCard')}</li>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.sofort')}</li>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.bancontact')}</li>
-      </ul>
-      <br />
-      <p><b>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.title')}</b></p>
-      <br />
-      <ul>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bankTransfer', {
-          fee: bankTransferFee
-        })}</li>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.creditDebitCard', {
-          fee: cardFee
-        })}</li>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.sofort', {
-          fee: sofortFee
-        })}</li>
-        <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bancontact', {
-          fee: bancontactFee
-        })}</li>
-      </ul>
-      <br />
+      {action === 'buy' && (
+        <>
+          <p><b>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.title')}</b></p>
+          <br />
+          <ul>
+            <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.bankTransfer')}</li>
+            <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.creditDebitCard')}</li>
+            <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.sofort')}</li>
+            <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.payment.bancontact')}</li>
+          </ul>
+          <br />
+          <p><b>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.title')}</b></p>
+          <br />
+          <ul>
+            <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bankTransfer', {
+              fee: bankTransferFee
+            })}</li>
+            <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.creditDebitCard', {
+              fee: cardFee
+            })}</li>
+            <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.sofort', {
+              fee: sofortFee
+            })}</li>
+            <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesBuying.bancontact', {
+              fee: bancontactFee
+            })}</li>
+          </ul>
+          <br />
+        </>
+      )}
+      {action === 'sell' && (
+        <>
+          <p><b>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesSelling.title')}</b></p>
+          <br />
+          <ul>
+            <li>{t('buy.exchange.infoContent.btcdirectWidget.infobox.feesSelling.bankTransfer', {
+              fee: bankTransferFee
+            })}</li>
+          </ul>
+          <br />
+        </>
+      )}
       <p>
         <A href={getBTCDirectAboutUsLink()}>
           {t('buy.exchange.infoContent.btcdirectWidget.learnmore')}
@@ -253,12 +271,14 @@ export type TPaymentFee = {
 
 export type TInfoContentProps = {
   accounts?: IAccount[];
+  action: TExchangeAction;
   paymentFees: TPaymentFee;
   exchangeName: TExchangeNameOrRegion;
 };
 
 export const InfoContent = ({
   accounts,
+  action,
   paymentFees,
   exchangeName: info,
 }: TInfoContentProps) => {
@@ -277,6 +297,7 @@ export const InfoContent = ({
   case 'btcdirect':
     return (
       <BTCDirectInfo
+        action={action}
         cardFee={paymentFees['card']}
         bankTransferFee={paymentFees['bank-transfer']}
         bancontactFee={paymentFees['bancontact']}

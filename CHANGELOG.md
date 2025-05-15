@@ -10,6 +10,7 @@
 - Enable unlock test wallet in testnet
 - Added support to show on the BitBox when a transaction's recipient is an address of a different account on the device.
 - Persist third party widget sessions
+- Added BTC Direct sell option
 
 # v4.47.2
 - Linux: fix compatiblity with some versions of Mesa that are incompatible with the bundled wayland libraries

@@ -129,6 +129,7 @@ export const Exchange = ({
         >
           {info && (
             <InfoContent
+              action={info.action}
               accounts={accounts}
               exchangeName={info.exchangeName}
               paymentFees={info.paymentFees}
@@ -147,7 +148,11 @@ export const Exchange = ({
                     regions={regions}
                     selectedRegion={selectedRegion}
                   />
-                  <InfoButton onClick={() => setInfo({ exchangeName: 'region', paymentFees: {} })} />
+                  <InfoButton onClick={() => setInfo({
+                    action: activeTab,
+                    exchangeName: 'region',
+                    paymentFees: {}
+                  })} />
                 </div>
                 <ExchangeTab
                   onChangeTab={(tab) => {
