@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
+import { createRef, useContext, useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, createRef, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
+import { AppContext } from '@/contexts/AppContext';
 import { getConfig } from '@/utils/config';
-import { Dialog } from '@/components/dialog/dialog';
+import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { confirmation } from '@/components/confirm/Confirm';
 import { verifyAddress, getPocketURL, TExchangeAction } from '@/api/exchanges';
-import { AccountCode, getInfo, getTransactionList, signAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { AccountCode, getInfo, getTransactionList, hasPaymentRequest, signAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { PocketTerms } from '@/components/terms/pocket-terms';
@@ -31,17 +32,28 @@ import { UseDisableBackButton } from '@/hooks/backbutton';
 import { alertUser } from '@/components/alert/Alert';
 import { ExchangeGuide } from './guide';
 import { convertScriptType } from '@/utils/request-addess';
-import style from './iframe.module.css';
 import { parseExternalBtcAmount } from '@/api/coins';
+import style from './iframe.module.css';
+import { Button } from '@/components/forms';
 
-interface TProps {
-    code: AccountCode;
-    action: TExchangeAction;
+type TProps = {
+  action: TExchangeAction;
+  code: AccountCode;
+  deviceIDs: string[];
 }
 
-export const Pocket = ({ code, action }: TProps) => {
+export const Pocket = ({
+  action,
+  code,
+  deviceIDs,
+}: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  // Pocket sell only works if the FW supports payment requests
+  const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(code));
+  const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
+  const [fwRequiredDialog, setFwRequiredDialog] = useState(false);
 
   const [height, setHeight] = useState(0);
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -66,6 +78,19 @@ export const Pocket = ({ code, action }: TProps) => {
       }
     });
   }, [action, t]);
+
+  useEffect(() => {
+    // enable paymentRequestError only when the action is sell.
+    if (action === 'sell' && hasPaymentRequestResponse?.success === false) {
+      if (hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired') {
+        setFwRequiredDialog(true);
+      } else if (hasPaymentRequestResponse?.errorCode) {
+        alertUser(t('device.' + hasPaymentRequestResponse.errorCode));
+      } else if (hasPaymentRequestResponse?.errorMessage) {
+        alertUser(hasPaymentRequestResponse?.errorMessage);
+      }
+    }
+  }, [action, deviceIDs, hasPaymentRequestResponse, navigate, setFirmwareUpdateDialogOpen, t]);
 
   useEffect(() => {
     if (config) {
@@ -310,6 +335,27 @@ export const Pocket = ({ code, action }: TProps) => {
             title={t('receive.verifyBitBox02')}
             medium centered>
             <div className="text-center">{t('buy.pocket.verifyBitBox02')}</div>
+          </Dialog>
+          <Dialog title={t('upgradeFirmware.title')} open={fwRequiredDialog}>
+            {t('device.firmwareUpgradeRequired')}
+            <DialogButtons>
+              <Button
+                primary
+                onClick={() => {
+                  setFirmwareUpdateDialogOpen(true);
+                  navigate(`/settings/device-settings/${deviceIDs[0]}`);
+                }}>
+                {t('upgradeFirmware.button')}
+              </Button>
+              <Button
+                secondary
+                onClick={() => {
+                  setFwRequiredDialog(false);
+                  navigate(-1);
+                }}>
+                {t('dialog.cancel')}
+              </Button>
+            </DialogButtons>
           </Dialog>
         </div>
       </div>

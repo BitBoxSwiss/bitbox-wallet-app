@@ -42,10 +42,12 @@ import style from './exchange.module.css';
 type TProps = {
     accounts: IAccount[];
     code: AccountCode;
-    deviceIDs: string[];
 }
 
-export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
+export const Exchange = ({
+  accounts,
+  code,
+}: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -157,7 +159,6 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                   <BuySell
                     accountCode={code}
                     selectedRegion={selectedRegion}
-                    deviceIDs={deviceIDs}
                     goToExchange={goToExchange}
                     showBackButton={supportedAccounts.length > 1}
                     action={activeTab}

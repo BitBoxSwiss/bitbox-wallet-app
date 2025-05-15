@@ -180,23 +180,24 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const ExchangeEl = (<InjectParams>
     <Exchange
-      code={''}
       accounts={activeAccounts}
-      deviceIDs={deviceIDs}
+      code={''}
     />
   </InjectParams>);
 
   const PocketBuyEl = (<InjectParams>
     <Pocket
-      code={''}
       action="buy"
+      code={''}
+      deviceIDs={deviceIDs}
     />
   </InjectParams>);
 
   const PocketSellEl = (<InjectParams>
     <Pocket
-      code={''}
       action="sell"
+      code={''}
+      deviceIDs={deviceIDs}
     />
   </InjectParams>);
 
