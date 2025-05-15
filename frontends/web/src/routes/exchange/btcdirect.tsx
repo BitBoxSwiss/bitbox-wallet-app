@@ -105,7 +105,7 @@ export const BTCDirect = ({
   };
 
   const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
-    const { amount, currency } = event.data;
+    const { amount, currency, orderId } = event.data;
 
     if (
       typeof currency !== 'string'
@@ -148,7 +148,10 @@ export const BTCDirect = ({
 
     const txProposal = await proposeTx(code, txInput);
     if (txProposal.success) {
-      const txNote = t('buy.pocket.paymentRequestNote') + ' BTC Direct'; // TODO: change to generic sell message with name placeholder 'Payment request from {name}'
+      const txNote = t('generic.paymentRequestNote', {
+        name: 'BTC Direct',
+        orderId,
+      });
       const sendResult = await sendTx(code, txNote);
       if (sendResult.success) {
         const { txId } = sendResult;
