@@ -22,6 +22,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -590,7 +591,7 @@ func (backend *Backend) Testing() bool {
 // Accounts returns the current accounts of the backend.
 func (backend *Backend) Accounts() AccountsList {
 	defer backend.accountsAndKeystoreLock.RLock()()
-	return backend.accounts
+	return slices.Clone(backend.accounts)
 }
 
 // KeystoreTotalAmount represents the total balance amount of the accounts belonging to a keystore.

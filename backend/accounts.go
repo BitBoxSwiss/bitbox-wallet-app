@@ -750,12 +750,16 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 		})
 		if event.Subject == string(accountsTypes.EventSyncDone) {
 			backend.notifyNewTxs(account)
+			go backend.checkAccountUsed(account)
 		}
 	})
+	if err := account.Initialize(); err != nil {
+		backend.log.WithError(err).Error("error initializing account")
+		return
+	}
 	if backend.onAccountInit != nil {
 		backend.onAccountInit(account)
 	}
-	go backend.checkAccountUsed(account)
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
@@ -1529,10 +1533,6 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		}
 	}
 	log := backend.log.WithField("accountCode", account.Config().Config.Code)
-	if err := account.Initialize(); err != nil {
-		log.WithError(err).Error("error initializing account")
-		return
-	}
 	txs, err := account.Transactions()
 	if err != nil {
 		log.WithError(err).Error("discoverAccount")
