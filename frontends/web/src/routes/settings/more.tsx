@@ -40,9 +40,10 @@ export const More = () => {
           <ContentWrapper>
             <GlobalBanners />
           </ContentWrapper>
-          <Header title={<h2>{t('settings.more')}</h2>} />
+          <Header
+            title={<h2>{t('settings.more')}</h2>} />
           <View fullscreen={false}>
-            <ViewContent>
+            <ViewContent fullWidth>
               <div className={styles.container}>
                 <ActionableItem
                   onClick={() => navigate('/settings')}

@@ -31,7 +31,7 @@ type Props = {
 export const Header = ({
   title,
   hideSidebarToggler,
-  children
+  children,
 }: Props) => {
   const { t } = useTranslation();
 

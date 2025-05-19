@@ -89,6 +89,7 @@
 @media (max-width: 768px) {
     .header {
         padding: var(--space-half);
+        padding-bottom: 0;
     }
 
     .title {

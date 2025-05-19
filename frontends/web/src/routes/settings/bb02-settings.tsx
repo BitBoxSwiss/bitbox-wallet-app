@@ -39,6 +39,7 @@ import { ManageDeviceGuide } from '@/routes/device/bitbox02/settings-guide';
 import { MobileHeader } from './components/mobile-header';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { SubTitle } from '@/components/title';
 import styles from './bb02-settings.module.css';
 
 type TProps = {
@@ -73,7 +74,7 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
               </>
             }/>
           <View fullscreen={false}>
-            <ViewContent>
+            <ViewContent fullWidth>
               <WithSettingsTabs
                 devices={devices}
                 hideMobileMenu
@@ -113,14 +114,14 @@ const Content = ({ deviceID }: TProps) => {
     <>
       {/*"Backups" section*/}
       <div className={styles.section}>
-        <h3 className="subTitle">{t('deviceSettings.backups.title')}</h3>
+        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.backups.title')}</SubTitle>
         <ManageBackupSetting deviceID={deviceID} />
         <ShowRecoveryWordsSetting deviceID={deviceID} />
       </div>
 
       {/*"Device information" section*/}
       <div className={styles.section}>
-        <h3 className="subTitle">{t('deviceSettings.deviceInformation.title')}</h3>
+        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceInformation.title')}</SubTitle>
         {deviceInfo ? (
           <DeviceNameSetting
             deviceName={deviceInfo.name}
@@ -155,7 +156,7 @@ const Content = ({ deviceID }: TProps) => {
 
       {/*"Expert settings" section*/}
       <div className={styles.section}>
-        <h3 className="subTitle">{t('settings.expert.title')}</h3>
+        <SubTitle className={styles.withMobilePadding}>{t('settings.expert.title')}</SubTitle>
         {
           deviceInfo ? (
             <PassphraseSetting
