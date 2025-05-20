@@ -380,7 +380,7 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 				"txOutput":      output.OutPoint.Index,
 				"amount":        handlers.formatBTCAmountAsJSON(btcutil.Amount(output.TxOut.Value), false),
 				"address":       address,
-				"scriptType":    output.Address.Configuration.ScriptType(),
+				"scriptType":    output.Address.AccountConfiguration.ScriptType(),
 				"note":          handlers.account.TxNote(output.OutPoint.Hash.String()),
 				"addressReused": addressReused,
 				"isChange":      output.IsChange,

@@ -156,8 +156,13 @@ func (keystore *Keystore) CanVerifyAddress(coin.Coin) (bool, bool, error) {
 	return false, false, nil
 }
 
-// VerifyAddress implements keystore.Keystore.
-func (keystore *Keystore) VerifyAddress(*signing.Configuration, coin.Coin) error {
+// VerifyAddressBTC implements keystore.Keystore.
+func (keystore *Keystore) VerifyAddressBTC(*signing.Configuration, types.Derivation, coin.Coin) error {
+	return errp.New("The software-based keystore has no secure output to display the address.")
+}
+
+// VerifyAddressETH implements keystore.Keystore.
+func (keystore *Keystore) VerifyAddressETH(*signing.Configuration, coin.Coin) error {
 	return errp.New("The software-based keystore has no secure output to display the address.")
 }
 
@@ -198,7 +203,7 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			return err
 		}
 
-		xprv, err := address.Configuration.AbsoluteKeypath().Derive(keystore.master)
+		xprv, err := address.AbsoluteKeypath().Derive(keystore.master)
 		if err != nil {
 			return err
 		}
@@ -207,7 +212,7 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			return errp.WithStack(err)
 		}
 
-		if address.Configuration.ScriptType() == signing.ScriptTypeP2TR {
+		if address.AccountConfiguration.ScriptType() == signing.ScriptTypeP2TR {
 			prv = txscript.TweakTaprootPrivKey(*prv, nil)
 			signatureHash, err := txscript.CalcTaprootSignatureHash(
 				sigHashes, txscript.SigHashDefault, transaction,
