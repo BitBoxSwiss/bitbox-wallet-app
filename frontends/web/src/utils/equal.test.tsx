@@ -85,6 +85,11 @@ describe('equal', () => {
       expect(equal(a, b)).toBeFalsy();
       expect(equal(b, a)).toBeFalsy();
     });
+
+    it('compares sparse array vs defined array', () => {
+      expect(equal([1, , 3], [1, undefined, 3])).toBeFalsy();
+      expect(equal([1, , 3], [1, , 3])).toBeTruthy();
+    });
   });
 
   describe('objects', () => {
