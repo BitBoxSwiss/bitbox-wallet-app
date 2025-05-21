@@ -87,7 +87,9 @@ describe('equal', () => {
     });
 
     it('compares sparse array vs defined array', () => {
+      /*eslint no-sparse-arrays: "off"*/
       expect(equal([1, , 3], [1, undefined, 3])).toBeFalsy();
+      /*eslint no-sparse-arrays: "off"*/
       expect(equal([1, , 3], [1, , 3])).toBeTruthy();
     });
   });

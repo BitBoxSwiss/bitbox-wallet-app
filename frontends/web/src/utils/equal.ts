@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +62,12 @@ export const equal = (a: unknown, b: unknown): boolean => {
         return false;
       }
       for (let i = 0; i < a.length; i++) {
-        if (!equal(a[i], b[i])) {
+        // handle sparse arrays
+        const hasA = i in a;
+        if (hasA !== i in b) {
+          return false;
+        }
+        if (hasA && !equal(a[i], b[i])) {
           return false;
         }
       }
