@@ -20,13 +20,14 @@ import { useTranslation } from 'react-i18next';
 import { getBTCDirectInfo, TExchangeAction } from '@/api/exchanges';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { AppContext } from '@/contexts/AppContext';
-import { AccountCode, IAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { AccountCode, IAccount, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
 import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { getConfig } from '@/utils/config';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
+import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { BTCDirectTerms } from '@/components/terms/btcdirect-terms';
 import { ExchangeGuide } from './guide';
@@ -69,6 +70,7 @@ export const BTCDirect = ({
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const btcdirectInfo = useLoad(() => getBTCDirectInfo(action, code));
 
+  const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>();
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [height, setHeight] = useState(0);
@@ -152,7 +154,12 @@ export const BTCDirect = ({
         name: 'BTC Direct',
         orderId,
       });
+      setVerifyPaymentRequest({
+        address: address as string,
+        ...txProposal
+      });
       const sendResult = await sendTx(code, txNote);
+      setVerifyPaymentRequest(false);
       if (sendResult.success) {
         const { txId } = sendResult;
         event.source?.postMessage({
@@ -284,6 +291,20 @@ export const BTCDirect = ({
                     allow="camera; clipboard-write;"
                     src={btcdirectInfo.url}>
                   </iframe>
+                )}
+                { verifyPaymentRequest && verifyPaymentRequest.success && (
+                  <WaitDialog title={t('receive.verifyBitBox02')}>
+                    Address: { verifyPaymentRequest.address }
+                    <br />
+                    Amount:
+                    { verifyPaymentRequest.amount.amount }
+                    { verifyPaymentRequest.amount.unit }
+                    <br />
+                    Fee:
+                    { verifyPaymentRequest.fee.amount }
+                    { verifyPaymentRequest.fee.unit }
+
+                  </WaitDialog>
                 )}
               </div>
             )}
