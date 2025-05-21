@@ -108,6 +108,8 @@ type Device struct {
 	mu      sync.RWMutex
 	onEvent func(Event, interface{})
 	log     Logger
+
+	options *deviceOptions
 }
 
 // BluetoothInfo contains Bluetooth-related info.
@@ -144,9 +146,14 @@ func NewDevice(
 	config ConfigInterface,
 	communication Communication,
 	log Logger,
+	opts ...DeviceOption,
 ) *Device {
 	if (version == nil) != (product == nil) {
 		panic("both version and product have to be specified, or none")
+	}
+	options := &deviceOptions{}
+	for _, opt := range opts {
+		opt(options)
 	}
 	return &Device{
 		communication: communication,
@@ -155,6 +162,7 @@ func NewDevice(
 		config:        config,
 		status:        StatusConnected,
 		log:           log,
+		options:       options,
 	}
 }
 

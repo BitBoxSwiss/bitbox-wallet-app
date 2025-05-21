@@ -484,6 +484,10 @@ class BluetoothDeviceInfo: NSObject, MobileserverGoDeviceInfoInterfaceProtocol {
         return BluetoothReadWriteCloser(bluetoothManager: bluetoothManager)
     }
 
+    func isBluetooth() -> Bool {
+        return true
+    }
+
     func product() -> String {
         // TODO: return bluetoothManager.productStr() and have the backend identify and handle it
         return productInfo.product
