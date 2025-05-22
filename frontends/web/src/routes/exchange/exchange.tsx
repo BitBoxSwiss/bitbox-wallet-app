@@ -105,7 +105,7 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
     if (!exchange) {
       return;
     }
-    navigate(`/exchange/${exchange}/${activeTab}/${code}`);
+    navigate(`/exchange/${exchange}/${activeTab}/${code}/${selectedRegion}`);
   };
 
   const handleChangeRegion = (newValue: SingleValue<TOption>) => {
