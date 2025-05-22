@@ -22,19 +22,27 @@ const typedKeys = <T extends object>(obj: Readonly<T>): readonly (keyof T)[] => 
 };
 
 /**
- * Performs a deep equality check between two values.
+ * Performs a deep comparison between two values to determine if they are equivalent.
  *
- * This function compares primitive types, arrays, plain objects, Date instances,
- * and RegExp objects. It returns true if the values are deeply equal, false otherwise.
+ * Handles comparison for:
+ * - Primitives (`number`, `string`, `boolean`, `null`, `undefined`, `symbol`, `bigint`)
+ * - `NaN` (considers `NaN` equal to `NaN`)
+ * - Arrays (including sparse arrays)
+ * - Plain objects (including nested structures)
+ * - `Date` objects (compared by timestamp)
+ * - `RegExp` objects (compared by pattern and flags)
+ * - Symbols (only same references are equal)
+ * - Functions (only same references are equal)
  *
- * - Uses `Object.is` for primitive comparison (handles `NaN`, `-0`, etc.)
- * - Recursively checks array contents and object properties
- * - Properly compares Date and RegExp objects
- * - Returns false for functions, symbols, maps, sets, or class instances (not handled)
+ * Returns false for:
+ * - Differing types
+ * - Different array orders or lengths
+ * - Objects with different keys or values
+ * - Mismatched sparse vs dense arrays
  *
  * @param a - The first value to compare.
  * @param b - The second value to compare.
- * @returns `true` if values are deeply equal, `false` otherwise.
+ * @returns `true` if the values are deeply equal, otherwise `false`.
  */
 export const equal = (a: unknown, b: unknown): boolean => {
   if (Object.is(a, b)) {
