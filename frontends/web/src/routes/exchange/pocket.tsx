@@ -45,6 +45,7 @@ export const Pocket = ({ code, action }: TProps) => {
 
   const [height, setHeight] = useState(0);
   const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [blocking, setBlocking] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
@@ -216,7 +217,9 @@ export const Pocket = ({ code, action }: TProps) => {
     let result = await proposeTx(code, txInput);
     if (result.success) {
       let txNote = t('buy.pocket.paymentRequestNote') + ' ' + message.slip24.recipientName;
+      setBlocking(true);
       const sendResult = await sendTx(code, txNote);
+      setBlocking(false);
       if (!sendResult.success && !('aborted' in sendResult)) {
         alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
       }
@@ -290,6 +293,9 @@ export const Pocket = ({ code, action }: TProps) => {
             <div style={{ height }}>
               <UseDisableBackButton />
               {!iframeLoaded && <Spinner text={t('loading')} /> }
+              {blocking && (
+                <div className={style.blocking}></div>
+              )}
               <iframe
                 onLoad={() => {
                   setIframeLoaded(true);
