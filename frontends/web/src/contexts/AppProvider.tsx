@@ -23,6 +23,8 @@ import { getNativeLocale } from '@/api/nativelocale';
 import { getDevServers, getTesting } from '@/api/backend';
 import { i18nextFormat } from '@/i18n/utils';
 import type { TChartDisplay } from './AppContext';
+import { useOrientation } from '@/hooks/orientation';
+import { useMediaQuery } from '@/hooks/mediaquery';
 
 type TProps = {
     children: ReactNode;
@@ -39,6 +41,9 @@ export const AppProvider = ({ children }: TProps) => {
   const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('all');
   const [firmwareUpdateDialogOpen, setFirmwareUpdateDialogOpen] = useState(false);
 
+  const orientation = useOrientation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   const toggleGuide = () => {
     setConfig({ frontend: { guideShown: !guideShown } });
     setGuideShown(prev => !prev);
@@ -52,6 +57,12 @@ export const AppProvider = ({ children }: TProps) => {
   const toggleSidebar = () => {
     setActiveSidebar(prev => !prev);
   };
+
+  useEffect(() => {
+    if (activeSidebar && isMobile && orientation === 'portrait') {
+      setActiveSidebar(false);
+    }
+  }, [activeSidebar, isMobile, orientation]);
 
   useEffect(() => {
     getConfig().then(({ frontend }) => {
