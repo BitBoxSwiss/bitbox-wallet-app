@@ -2,6 +2,7 @@ button,
 input[type="checkbox"],
 input[type="radio"] {
     user-select: none;
+    -webkit-user-select: none;
 }
 
 input[type="number"],
