@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,20 @@
 
 import { useState, useEffect } from 'react';
 
-export const useMediaQuery = (query: string) => {
-  const getMatches = (query: string) => window.matchMedia(query).matches;
-  const [matches, setMatches] = useState(getMatches(query));
+type TOrientation = 'landscape' | 'portrait';
+
+const getLegacyOrientation = (): TOrientation => {
+  return window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+};
+
+export const useOrientation = (): TOrientation => {
+  const [orientation, setOrientation] = useState(getLegacyOrientation());
 
   useEffect(() => {
-    const handleChange = () => {
-      setMatches(getMatches(query));
-    };
-    const matchMedia = window.matchMedia(query);
-    handleChange();
+    const handleOrientation = () => setOrientation(getLegacyOrientation());
+    window.addEventListener('resize', handleOrientation);
+    return () => window.removeEventListener('resize', handleOrientation);
+  }, []);
 
-    matchMedia.addEventListener('change', handleChange);
-
-    return () => {
-      matchMedia.removeEventListener('change', handleChange);
-    };
-  }, [query]);
-
-  return matches;
+  return orientation;
 };
