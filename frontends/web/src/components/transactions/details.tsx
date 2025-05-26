@@ -51,8 +51,12 @@ export const TransactionDetails = ({
     if (!internalID) {
       return;
     }
+    const currentID = internalID;
     getTransaction(accountCode, internalID)
       .then(transaction => {
+        if (internalID !== currentID) {
+          return; // Ignore if internalID has changed since the request was made.
+        }
         if (!transaction) {
           console.error(`Unable to retrieve transaction ${internalID}`);
           return;
@@ -68,11 +72,8 @@ export const TransactionDetails = ({
   }, [fetchTransaction]);
 
   useEffect(() => {
-    if (!internalID) {
-      return;
-    }
-    return syncdone(accountCode, fetchTransaction)
-  }, [accountCode, internalID, fetchTransaction]);
+    return syncdone(accountCode, fetchTransaction);
+  }, [accountCode, fetchTransaction]);
 
   if (!transactionInfo) {
     return null;
