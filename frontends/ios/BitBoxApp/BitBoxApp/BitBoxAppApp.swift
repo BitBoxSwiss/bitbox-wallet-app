@@ -185,6 +185,9 @@ struct BitBoxAppApp: App {
                         MobileserverTriggerAuth()
                     }
             }
+            .onOpenURL { url in
+                MobileserverHandleURI(url.absoluteString)
+            }
         }
     }
 
