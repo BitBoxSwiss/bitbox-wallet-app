@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { AccountCode, ITransaction } from '@/api/account';
 import { getTransaction } from '@/api/account';
+import { syncdone } from '@/api/accountsync';
 import { usePrevious } from '@/hooks/previous';
 import { TxDetailsDialog } from './components/details-dialog';
 import { getTxSign } from '@/utils/transaction';
@@ -46,19 +47,32 @@ export const TransactionDetails = ({
     }
   }, [internalID, prevInternalID]);
 
-  useEffect(() => {
-    if (internalID && !transactionInfo) {
-      getTransaction(accountCode, internalID).then(transaction => {
+  const fetchTransaction = useCallback(() => {
+    if (!internalID) {
+      return;
+    }
+    getTransaction(accountCode, internalID)
+      .then(transaction => {
         if (!transaction) {
           console.error(`Unable to retrieve transaction ${internalID}`);
+          return;
         }
         setTransactionInfo(transaction);
         setOpen(true);
-      }).catch(console.error);
-    } else {
-      setOpen(true);
+      })
+      .catch(console.error);
+  }, [accountCode, internalID]);
+
+  useEffect(() => {
+    fetchTransaction();
+  }, [fetchTransaction]);
+
+  useEffect(() => {
+    if (!internalID) {
+      return;
     }
-  }, [accountCode, internalID, transactionInfo]);
+    return syncdone(accountCode, fetchTransaction)
+  }, [accountCode, internalID, fetchTransaction]);
 
   if (!transactionInfo) {
     return null;
