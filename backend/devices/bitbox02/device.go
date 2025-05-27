@@ -51,6 +51,7 @@ func NewDevice(
 	product bitbox02common.Product,
 	config firmware.ConfigInterface,
 	communication firmware.Communication,
+	opts ...firmware.DeviceOption,
 ) *Device {
 	log := logging.Get().
 		WithGroup("device").
@@ -64,7 +65,9 @@ func NewDevice(
 			version,
 			&product,
 			config,
-			communication, logger{log},
+			communication,
+			logger{log},
+			opts...,
 		),
 		deviceID: deviceID,
 		log:      log,

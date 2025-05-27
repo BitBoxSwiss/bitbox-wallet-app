@@ -80,6 +80,9 @@ public class GoViewModel extends AndroidViewModel {
 
 
         }
+        public boolean isBluetooth() {
+            return false;
+        }
         public String product() {
             return device.getProductName();
         }
