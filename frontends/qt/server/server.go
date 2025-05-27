@@ -188,6 +188,8 @@ func serve(
 			},
 			OnAuthSettingChangedFunc: func(bool) {},
 			BluetoothConnectFunc:     func(string) {},
+			BluetoothStartScanFunc:   func() {},
+			BluetoothStopScanFunc:    func() {},
 		},
 	)
 }

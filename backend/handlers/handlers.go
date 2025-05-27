@@ -262,6 +262,8 @@ func NewHandlers(
 
 	getAPIRouterNoError(apiRouter)("/bluetooth/state", handlers.getBluetoothState).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/bluetooth/connect", handlers.postBluetoothConnect).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/bluetooth/start-scan", handlers.postBluetoothStartScan).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/bluetooth/stop-scan", handlers.postBluetoothStopScan).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
@@ -1628,5 +1630,15 @@ func (handlers *Handlers) postBluetoothConnect(r *http.Request) interface{} {
 	}
 
 	handlers.backend.Environment().BluetoothConnect(identifier)
+	return nil
+}
+
+func (handlers *Handlers) postBluetoothStartScan(r *http.Request) interface{} {
+	handlers.backend.Environment().BluetoothStartScan()
+	return nil
+}
+
+func (handlers *Handlers) postBluetoothStopScan(r *http.Request) interface{} {
+	handlers.backend.Environment().BluetoothStopScan()
 	return nil
 }

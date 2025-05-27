@@ -138,6 +138,10 @@ public class GoViewModel extends AndroidViewModel {
 
         public void bluetoothConnect(String identifier) {
         }
+        public void bluetoothStartScan() {
+        }
+        public void bluetoothStopScan() {
+        }
 
         public boolean usingMobileData() {
             // Adapted from https://stackoverflow.com/a/53243938

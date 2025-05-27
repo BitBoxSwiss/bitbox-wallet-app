@@ -101,6 +101,8 @@ type GoEnvironmentInterface interface {
 	Auth()
 	OnAuthSettingChanged(bool)
 	BluetoothConnect(string)
+	BluetoothStartScan()
+	BluetoothStopScan()
 }
 
 // readWriteCloser implements io.ReadWriteCloser, translating from GoReadWriteCloserInterface. All methods
@@ -214,6 +216,8 @@ func Serve(dataDir string, testnet bool, environment GoEnvironmentInterface, goA
 			AuthFunc:                 environment.Auth,
 			OnAuthSettingChangedFunc: environment.OnAuthSettingChanged,
 			BluetoothConnectFunc:     environment.BluetoothConnect,
+			BluetoothStartScanFunc:   environment.BluetoothStartScan,
+			BluetoothStopScanFunc:    environment.BluetoothStopScan,
 		},
 	)
 }

@@ -75,6 +75,10 @@ func (e environment) OnAuthSettingChanged(bool) {}
 
 func (e environment) BluetoothConnect(string) {}
 
+func (e environment) BluetoothStartScan() {}
+
+func (e environment) BluetoothStopScan() {}
+
 // TestServeShutdownServe checks that you can call Serve twice in a row.
 func TestServeShutdownServe(t *testing.T) {
 	bridgecommon.Serve(

@@ -175,6 +175,10 @@ type Environment interface {
 	// BluetoothConnect tries to connect to the peripheral by the given identifier.
 	// Use `backend.bluetooth.State()` to track failure.
 	BluetoothConnect(identifier string)
+	// BluetoothStartScan activates scanning for peripherals on Bluetooth-enabled hosts.
+	BluetoothStartScan()
+	// BluetoothStopScan stops scanning for peripherals on Bluetooth-enabled hosts.
+	BluetoothStopScan()
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.

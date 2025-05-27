@@ -195,6 +195,8 @@ type BackendEnvironment struct {
 	AuthFunc                 func()
 	OnAuthSettingChangedFunc func(bool)
 	BluetoothConnectFunc     func(string)
+	BluetoothStartScanFunc   func()
+	BluetoothStopScanFunc    func()
 }
 
 // NotifyUser implements backend.Environment.
@@ -277,6 +279,20 @@ func (env *BackendEnvironment) OnAuthSettingChanged(enabled bool) {
 func (env *BackendEnvironment) BluetoothConnect(identifier string) {
 	if env.BluetoothConnectFunc != nil {
 		env.BluetoothConnectFunc(identifier)
+	}
+}
+
+// BluetoothStartScan implements backend.Environment.
+func (env *BackendEnvironment) BluetoothStartScan() {
+	if env.BluetoothStartScanFunc != nil {
+		env.BluetoothStartScanFunc()
+	}
+}
+
+// BluetoothStopScan implements backend.Environment.
+func (env *BackendEnvironment) BluetoothStopScan() {
+	if env.BluetoothStopScanFunc != nil {
+		env.BluetoothStopScanFunc()
 	}
 }
 

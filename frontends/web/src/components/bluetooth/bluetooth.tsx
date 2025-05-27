@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSync } from '@/hooks/api';
-import { connect, getState, syncState, TPeripheral } from '@/api/bluetooth';
+import { connect, getState, startScan, stopScan, syncState, TPeripheral } from '@/api/bluetooth';
 import { runningInIOS } from '@/utils/env';
 import { Status } from '@/components/status/status';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
@@ -31,9 +32,18 @@ const isConnectedOrConnecting = (peripheral: TPeripheral) => {
 const _Bluetooth = () => {
   const { t } = useTranslation();
   const state = useSync(getState, syncState);
+
+  useEffect(() => {
+    startScan();
+    return () => {
+      stopScan();
+    };
+  }, []);
+
   if (!state) {
     return null;
   }
+
   if (!state.bluetoothAvailable) {
     return (
       <Status type="warning">

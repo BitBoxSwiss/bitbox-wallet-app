@@ -100,6 +100,14 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
         bluetoothManager.connect(to: uuid)
     }
 
+    func bluetoothStartScan() {
+        bluetoothManager.startScan()
+    }
+
+    func bluetoothStopScan() {
+        bluetoothManager.stopScan()
+    }
+
     func setDarkTheme(_ p0: Bool) {
     }
 

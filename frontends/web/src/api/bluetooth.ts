@@ -43,6 +43,14 @@ export const connect = (identifier: string): Promise<void> => {
   return apiPost('bluetooth/connect', identifier);
 };
 
+export const startScan = (): Promise<void> => {
+  return apiPost('bluetooth/start-scan');
+};
+
+export const stopScan = (): Promise<void> => {
+  return apiPost('bluetooth/stop-scan');
+};
+
 export const syncState = (
   cb: (state: TBluetoothState) => void
 ): TUnsubscribe => {

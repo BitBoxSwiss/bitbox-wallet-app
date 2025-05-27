@@ -100,6 +100,14 @@ func (webdevEnvironment) OnAuthSettingChanged(enabled bool) {
 func (webdevEnvironment) BluetoothConnect(identifier string) {
 }
 
+// BluetoothStartScan implements backend.Environment.
+func (webdevEnvironment) BluetoothStartScan() {
+}
+
+// BluetoothStopScan implements backend.Environment.
+func (webdevEnvironment) BluetoothStopScan() {
+}
+
 // NativeLocale naively implements backend.Environment.
 // This version is unlikely to work on Windows.
 func (webdevEnvironment) NativeLocale() string {

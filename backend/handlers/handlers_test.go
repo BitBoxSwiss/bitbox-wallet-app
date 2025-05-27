@@ -61,6 +61,8 @@ func (e *backendEnv) DetectDarkTheme() bool         { return false }
 func (e *backendEnv) Auth()                         {}
 func (e *backendEnv) OnAuthSettingChanged(bool)     {}
 func (e *backendEnv) BluetoothConnect(string)       {}
+func (e *backendEnv) BluetoothStartScan()           {}
+func (e *backendEnv) BluetoothStopScan()            {}
 
 func TestGetNativeLocale(t *testing.T) {
 	const ptLocale = "pt"

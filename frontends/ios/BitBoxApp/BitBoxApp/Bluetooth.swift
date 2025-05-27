@@ -77,6 +77,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     // This is for failed connections to not enter an infinite connect loop.
     private var dontAutoConnectSet: Set<UUID> = []
 
+    // Indicates if we want to be scanning peripehrals. Maybe it is not possible if Bluetooth is
+    // turned off - then this flag lets the manager know to start scanning when turned on.
+    private var wantToScan: Bool = false
+
     private var currentContext: BLEConnectionContext?
     // Locks access to the `currentContext` var only, not to its contents. This is important, as
     // one can't keep the context locked while waiting for the semaphore, which would lead to a
@@ -96,19 +100,17 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
     func connect(to peripheralID: UUID) {
         guard var metadata = state.discoveredPeripherals[peripheralID] else { return }
-        centralManager.stopScan()
         metadata.connectionError = nil
         metadata.connectionState = .connecting
         state.discoveredPeripherals[peripheralID] = metadata
-        state.scanning = false
-        updateBackendState()
         currentContextLock.lock()
         currentContext = BLEConnectionContext()
         currentContextLock.unlock()
         centralManager.connect(metadata.peripheral, options: nil)
     }
 
-    private func restartScan() {
+    func startScan() {
+        wantToScan = true
         guard centralManager.state == .poweredOn,
             !centralManager.isScanning,
             connectedPeripheral == nil
@@ -122,6 +124,13 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         )
     }
 
+    func stopScan() {
+        wantToScan = false
+        centralManager.stopScan()
+        state.scanning = false
+        updateBackendState()
+    }
+
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         state.bluetoothAvailable = centralManager.state == .poweredOn
         updateBackendState()
@@ -129,7 +138,9 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         switch central.state {
         case .poweredOn:
             print("BLE: on")
-            restartScan()
+            if wantToScan {
+                startScan()
+            }
         case .poweredOff, .unauthorized, .unsupported, .resetting, .unknown:
             print("BLE: unavailable or not supported")
             handleDisconnect()
@@ -197,7 +208,6 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         updateBackendState()
         dontAutoConnectSet.insert(peripheral.identifier)
         print("BLE: connection failed to \(peripheral.name ?? "unknown device"): \(errorMessage)")
-        restartScan()
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -318,8 +328,6 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         currentContext?.semaphore.signal()
         currentContext = nil
         currentContextLock.unlock()
-
-        restartScan()
     }
 
     // This method gets called if the peripheral disconnects
