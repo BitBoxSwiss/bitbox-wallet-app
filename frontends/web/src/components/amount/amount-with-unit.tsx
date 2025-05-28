@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 import { useContext } from 'react';
-import { CoinUnit, ConversionUnit, IAmount } from '@/api/account';
+import { CoinUnit, ConversionUnit, TAmountWithConversions } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Amount } from '@/components/amount/amount';
 import { isBitcoinCoin } from '@/routes/account/utils';
 import style from './amount-with-unit.module.css';
 
 type TAmountWithUnitProps = {
-    amount: IAmount;
+    amount: TAmountWithConversions;
     tableRow?: boolean;
     enableRotateUnit?: boolean;
     sign?: string;

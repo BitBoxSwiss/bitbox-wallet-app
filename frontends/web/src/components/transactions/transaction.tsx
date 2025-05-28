@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import type { IAmount, TTransactionStatus, TTransactionType, ITransaction } from '@/api/account';
+import type { TAmountWithConversions, TTransactionStatus, TTransactionType, ITransaction } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Loupe } from '@/components/icon/icon';
 import { parseTimeLong, parseTimeShort } from '@/utils/date';
@@ -149,8 +149,8 @@ const Status = ({
 };
 
 type TAmountsProps = {
-  amount: IAmount;
-  deductedAmount: IAmount,
+  amount: TAmountWithConversions;
+  deductedAmount: TAmountWithConversions,
   type: TTransactionType;
 }
 

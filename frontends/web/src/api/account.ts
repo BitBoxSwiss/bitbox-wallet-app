@@ -80,7 +80,7 @@ export const getAccounts = (): Promise<IAccount[]> => {
 };
 
 export type TAccountsBalanceByCoin = {
-  [key in CoinCode]?: IAmount;
+  [key in CoinCode]?: TAmountWithConversions;
 };
 
 export type TAccountsBalanceResponse = {
@@ -122,7 +122,7 @@ export const getAccountsTotalBalance = (): Promise<TAccountsTotalBalanceResponse
 type CoinFormattedAmount = {
   coinCode: CoinCode;
   coinName: string;
-  formattedAmount: IAmount;
+  formattedAmount: TAmountWithConversions;
 };
 
 export type TCoinsTotalBalanceResponse = {
@@ -231,18 +231,18 @@ export type Conversions = {
     [key in Fiat]?: string;
 };
 
-export interface IAmount {
+export type TAmountWithConversions = {
     amount: string;
     conversions?: Conversions;
     unit: CoinUnit;
     estimated: boolean;
-}
+};
 
 export interface IBalance {
     hasAvailable: boolean;
-    available: IAmount;
+    available: TAmountWithConversions;
     hasIncoming: boolean;
-    incoming: IAmount;
+    incoming: TAmountWithConversions;
 }
 
 export type TBalanceResponse = {
@@ -261,11 +261,11 @@ export type TTransactionType = 'send' | 'receive' | 'send_to_self';
 
 export interface ITransaction {
     addresses: string[];
-    amount: IAmount;
-    amountAtTime: IAmount;
-    fee: IAmount;
-    feeRatePerKb: IAmount;
-    deductedAmountAtTime: IAmount;
+    amount: TAmountWithConversions;
+    amountAtTime: TAmountWithConversions;
+    fee: TAmountWithConversions;
+    feeRatePerKb: TAmountWithConversions;
+    deductedAmountAtTime: TAmountWithConversions;
     gas: number;
     nonce: number | null;
     internalID: string;
@@ -353,10 +353,10 @@ export type TTxInput = {
 );
 
 export type TTxProposalResult = {
-  amount: IAmount;
-  fee: IAmount;
+  amount: TAmountWithConversions;
+  fee: TAmountWithConversions;
   success: true;
-  total: IAmount;
+  total: TAmountWithConversions;
 } | {
   errorCode: string;
   success: false;
@@ -428,7 +428,7 @@ export type TUTXO = {
   txId: string;
   txOutput: number;
   address: string;
-  amount: IAmount;
+  amount: TAmountWithConversions;
   note: string;
   scriptType: ScriptType;
   addressReused: boolean;
