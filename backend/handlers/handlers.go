@@ -34,7 +34,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/handlers"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -691,21 +690,16 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 	}
 	btcCoin.(*btc.Coin).SetFormatUnit(unit)
 
-	// update BTC format unit for fiat conversions
-	for _, account := range handlers.backend.Accounts() {
-		account.Config().BtcCurrencyUnit = unit
-	}
-
 	return response{Success: true}
 }
 
 // getAccountsBalanceHandler returns the balance of all the accounts, grouped by keystore and coin.
 func (handlers *Handlers) getAccountsBalance(*http.Request) interface{} {
 	type response struct {
-		Success bool                                                        `json:"success"`
-		Balance map[string]map[coinpkg.Code]accountHandlers.FormattedAmount `json:"balance,omitempty"`
+		Success bool                                                               `json:"success"`
+		Balance map[string]map[coinpkg.Code]coinpkg.FormattedAmountWithConversions `json:"balance,omitempty"`
 	}
-	totalAmount := make(map[string]map[coinpkg.Code]accountHandlers.FormattedAmount)
+	totalAmount := make(map[string]map[coinpkg.Code]coinpkg.FormattedAmountWithConversions)
 	accountsByKeystore, err := handlers.backend.AccountsByKeystore()
 	if err != nil {
 		return response{Success: false}
@@ -741,17 +735,16 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) interface{} {
 				coinpkg.NewAmount(totalPerCoin[coinCode]),
 				account.Coin(),
 				false,
-				account.Config().RateUpdater,
-				util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit))
+				account.Config().RateUpdater)
 		}
 
-		totalAmount[rootFingerprint] = make(map[coinpkg.Code]accountHandlers.FormattedAmount)
+		totalAmount[rootFingerprint] = make(map[coinpkg.Code]coinpkg.FormattedAmountWithConversions)
 		for k, v := range totalPerCoin {
 			currentCoin, err := handlers.backend.Coin(k)
 			if err != nil {
 				return response{Success: false}
 			}
-			totalAmount[rootFingerprint][k] = accountHandlers.FormattedAmount{
+			totalAmount[rootFingerprint][k] = coinpkg.FormattedAmountWithConversions{
 				Amount:      currentCoin.FormatAmount(coinpkg.NewAmount(v), false),
 				Unit:        currentCoin.GetFormatUnit(false),
 				Conversions: conversionsPerCoin[k],
@@ -766,9 +759,9 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) interface{} {
 }
 
 type coinFormattedAmount struct {
-	CoinCode        coinpkg.Code                    `json:"coinCode"`
-	CoinName        string                          `json:"coinName"`
-	FormattedAmount accountHandlers.FormattedAmount `json:"formattedAmount"`
+	CoinCode        coinpkg.Code                           `json:"coinCode"`
+	CoinName        string                                 `json:"coinName"`
+	FormattedAmount coinpkg.FormattedAmountWithConversions `json:"formattedAmount"`
 }
 
 // getCoinsTotalBalance returns the total balances grouped by coins.
@@ -815,7 +808,7 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) interface{} {
 		coinFormattedAmounts = append(coinFormattedAmounts, coinFormattedAmount{
 			CoinCode: coinCode,
 			CoinName: currentCoin.Name(),
-			FormattedAmount: accountHandlers.FormattedAmount{
+			FormattedAmount: coinpkg.FormattedAmountWithConversions{
 				Amount: currentCoin.FormatAmount(coinpkg.NewAmount(totalCoinsBalances[coinCode]), false),
 				Unit:   currentCoin.GetFormatUnit(false),
 				Conversions: coinpkg.Conversions(
@@ -823,7 +816,6 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) interface{} {
 					currentCoin,
 					false,
 					handlers.backend.RatesUpdater(),
-					util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit),
 				),
 			},
 		})

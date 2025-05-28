@@ -875,7 +875,6 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 		},
 		GetSaveFilename:  backend.environment.GetSaveFilename,
 		UnsafeSystemOpen: backend.environment.SystemOpen,
-		BtcCurrencyUnit:  backend.config.AppConfig().Backend.BtcUnit,
 	}
 
 	// This function is passed as a callback to the BTC account constructor. It is called when the
