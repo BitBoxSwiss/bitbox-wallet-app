@@ -22,6 +22,7 @@ import (
 	"testing/quick"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/stretchr/testify/require"
 )
 
@@ -100,4 +101,14 @@ func TestSendAmount(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, int64(0), amount.BigInt().Int64())
 
+}
+
+func TestFormatWithConversionsAtTime(t *testing.T) {
+	testCoin := mockCoin(t)
+	rateUpdater := rates.MockRateUpdater()
+
+	amount := coin.NewAmountFromInt64(12345678)
+	formattedAmount := amount.FormatWithConversionsAtTime(&testCoin, nil, rateUpdater)
+	// conversions are tested separately, we just check for the estimated flag when timestamp is nil.
+	require.True(t, formattedAmount.Estimated)
 }
