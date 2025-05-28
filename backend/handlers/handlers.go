@@ -31,6 +31,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/banners"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitrefill"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/handlers"
@@ -246,6 +247,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url/{action}", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/bitrefill/info/{code}", handlers.getBitrefillInfo).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/bitrefill/supported/{code}/{region}", handlers.isBitrefillSupported).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/bitsurance/lookup", handlers.postBitsuranceLookup).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/bitsurance/url", handlers.getBitsuranceURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/aopp", handlers.getAOPP).Methods("GET")
@@ -1509,6 +1512,48 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interfa
 	}
 	return response{Success: true}
 
+}
+
+func (handlers *Handlers) isBitrefillSupported(r *http.Request) interface{} {
+	type result struct {
+		Success   bool `json:"success"`
+		Supported bool `json:"supported"`
+	}
+	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
+	if err != nil {
+		handlers.log.Error(err)
+		return result{Success: false}
+	}
+	regionCode := r.URL.Query().Get("region")
+
+	return result{
+		Success:   true,
+		Supported: bitrefill.IsSupportedForCoinInRegion(acct.Coin().Code(), regionCode),
+	}
+}
+
+func (handlers *Handlers) getBitrefillInfo(r *http.Request) interface{} {
+	type result struct {
+		Success      bool    `json:"success"`
+		ErrorMessage string  `json:"errorMessage"`
+		URL          string  `json:"url"`
+		Ref          string  `json:"ref"`
+		Address      *string `json:"address"`
+	}
+	code := accountsTypes.Code(mux.Vars(r)["code"])
+	acct, err := handlers.backend.GetAccountFromCode(code)
+	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
+	if err != nil || !accountValid {
+		return result{Success: false, ErrorMessage: "Account is not valid."}
+	}
+
+	bitrefillinfo := bitrefill.Info(acct)
+	return result{
+		Success: true,
+		URL:     bitrefillinfo.Url,
+		Ref:     bitrefillinfo.Ref,
+		Address: bitrefillinfo.Address,
+	}
 }
 
 func (handlers *Handlers) getAOPP(r *http.Request) interface{} {
