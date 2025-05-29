@@ -25,6 +25,7 @@ import { Exchange } from './exchange/exchange';
 import { Pocket } from './exchange/pocket';
 import { BTCDirect } from './exchange/btcdirect';
 import { BTCDirectOTC } from './exchange/btcdirect-otc';
+import { Bitrefill } from './exchange/bitrefill';
 import { Info } from './account/info/info';
 import { Receive } from './account/receive/receive';
 import { SendWrapper } from './account/send/send-wrapper';
@@ -170,6 +171,12 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       accounts={activeAccounts} />
   </InjectParams>);
 
+  const BitrefillEl = (<InjectParams>
+    <Bitrefill
+      code={''}
+      accounts={activeAccounts} />
+  </InjectParams>);
+
   const ExchangeEl = (<InjectParams>
     <Exchange
       code={''}
@@ -258,6 +265,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
             <Route path=":code" element={ExchangeInfoEl} />
           </Route>
           <Route path="btcdirect/buy/:code" element={BTCDirectEl} />
+          <Route path="bitrefill/spend/:code" element={BitrefillEl} />
           <Route path="moonpay/buy/:code" element={MoonpayEl} />
           <Route path="pocket/buy/:code" element={PocketBuyEl} />
           <Route path="pocket/sell/:code" element={PocketSellEl} />

@@ -145,7 +145,7 @@ export const BuySell = ({
               ))}
           </div>
         )}
-        {btcDirectOTCSupported?.success && btcDirectOTCSupported?.supported && (
+        {btcDirectOTCSupported?.success && btcDirectOTCSupported?.supported && action !== 'spend' && (
           <div className={style.infoContainer}>
             <Message type="info" icon={<Businessman/>}>
               {t('buy.exchange.infoContent.btcdirect.title')}

@@ -24,6 +24,7 @@ import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { getConfig } from '@/utils/config';
+import { getURLOrigin } from '@/utils/url';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
@@ -44,14 +45,6 @@ type TProps = {
   accounts: IAccount[];
   code: AccountCode;
 }
-
-const getURLOrigin = (uri: string): string | null => {
-  try {
-    return new URL(uri).origin;
-  } catch (e) {
-    return null;
-  }
-};
 
 export const BTCDirect = ({ accounts, code }: TProps) => {
   const { i18n, t } = useTranslation();
