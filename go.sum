@@ -1,5 +1,5 @@
-github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250526110026-4c21ece5b081 h1:57aszTkvQz1aQcL9pbNUpyVepFuRlrBaoNyKV0rMdIM=
-github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250526110026-4c21ece5b081/go.mod h1:lyYwD22hA6TQ8XNXx37VE75Exp6qYdgZgUAO4+lyhSU=
+github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250602095742-99d65ac9bfd5 h1:WKXE2PZ798SFqlj9lSnnqGej8pi3hNnxAjAsPSus5tg=
+github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250602095742-99d65ac9bfd5/go.mod h1:lyYwD22hA6TQ8XNXx37VE75Exp6qYdgZgUAO4+lyhSU=
 github.com/BitBoxSwiss/block-client-go v0.0.0-20241009081439-924dde98b9c1 h1:5hjP8mYSVKFibesrz8L6U0Vp5zSJt0LwXB3DSZGhnSo=
 github.com/BitBoxSwiss/block-client-go v0.0.0-20241009081439-924dde98b9c1/go.mod h1:SJTiQZU9ggBzVKMni97rpNS9GddPKErndFXNSDrfEGc=
 github.com/DataDog/zstd v1.4.5 h1:EndNeuB0l9syBZhut0wns3gV1hL8zX8LIu6ZiVHWLIQ=
