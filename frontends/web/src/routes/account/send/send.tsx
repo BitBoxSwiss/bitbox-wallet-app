@@ -52,10 +52,10 @@ type Props = SendProps & TranslateProps;
 
 export type State = {
     balance?: accountApi.IBalance;
-    proposedFee?: accountApi.IAmount;
-    proposedTotal?: accountApi.IAmount;
+    proposedFee?: accountApi.TAmountWithConversions;
+    proposedTotal?: accountApi.TAmountWithConversions;
     recipientAddress: string;
-    proposedAmount?: accountApi.IAmount;
+    proposedAmount?: accountApi.TAmountWithConversions;
     valid: boolean;
     amount: string;
     fiatAmount: string;

@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, IAmount } from '@/api/account';
+import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, TAmountWithConversions } from '@/api/account';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { Amount } from '@/components/amount/amount';
 import { customFeeUnit } from '@/routes/account/utils';
@@ -26,9 +26,9 @@ import { FiatValue } from '../fiat-value';
 import style from './confirm.module.css';
 
 type TransactionDetails = {
-  proposedAmount?: IAmount;
-  proposedFee?: IAmount;
-  proposedTotal?: IAmount;
+  proposedAmount?: TAmountWithConversions;
+  proposedFee?: TAmountWithConversions;
+  proposedTotal?: TAmountWithConversions;
   feeTarget?: FeeTargetCode;
   customFee: string;
   recipientAddress: string;

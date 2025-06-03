@@ -18,7 +18,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil"
@@ -68,9 +67,4 @@ func AddressFromPkScript(pkScript []byte, net *chaincfg.Params) (btcutil.Address
 		return nil, errp.New("Taproot not supported on Litecoin")
 	}
 	return addresses[0], nil
-}
-
-// FormatBtcAsSat returns true if the btcUnit param is `[t]sat`.
-func FormatBtcAsSat(btcUnit coin.BtcUnit) bool {
-	return btcUnit == coin.BtcUnitSats
 }
