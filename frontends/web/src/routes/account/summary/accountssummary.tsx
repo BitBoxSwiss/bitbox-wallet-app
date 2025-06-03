@@ -28,7 +28,7 @@ import { Status } from '@/components/status/status';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View } from '@/components/view/view';
 import { Chart } from './chart';
-import { SummaryBalance } from './summarybalance';
+import { KeystoreBalance } from './keystorebalance';
 import { CoinBalance } from './coinbalance';
 import { AddBuyReceiveOnEmptyBalances } from '@/routes/account/info/buy-receive-cta';
 import { Entry } from '@/components/guide/entry';
@@ -61,55 +61,33 @@ export const AccountsSummary = ({
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
 
-  const [summaryData, setSummaryData] = useState<accountApi.TSummary>();
-  const [balancePerCoin, setBalancePerCoin] = useState<accountApi.TAccountsBalance>();
-  const [accountsTotalBalance, setAccountsTotalBalance] = useState<accountApi.TAccountsTotalBalance>();
-  const [coinsTotalBalance, setCoinsTotalBalance] = useState<accountApi.TCoinsTotalBalance>();
+  const [chartData, setChartData] = useState<accountApi.TChartData>();
+  const [accountsBalanceSummary, setAccountsBalanceSummary] = useState<accountApi.TAccountsBalanceSummary>();
   const [balances, setBalances] = useState<Balances>();
 
   const hasCard = useSDCard(devices);
 
-  const getAccountSummary = useCallback(async () => {
+  const getChartData = useCallback(async () => {
     // replace previous timer if present
     if (summaryReqTimerID.current) {
       window.clearTimeout(summaryReqTimerID.current);
     }
-    const summary = await accountApi.getSummary();
+    const chartDataResponse = await accountApi.getChartData();
     if (!mounted.current) {
       return;
     }
-    if (summary.success) {
-      setSummaryData(summary.data);
+    if (chartDataResponse.success) {
+      setChartData(chartDataResponse.data);
     }
   }, [mounted]);
 
-  const getAccountsBalance = useCallback(async () => {
-    const balance = await accountApi.getAccountsBalance();
+  const getAccountsBalanceSummary = useCallback(async () => {
+    const response = await accountApi.getAccountsBalanceSummary();
     if (!mounted.current) {
       return;
     }
-    if (balance.success) {
-      setBalancePerCoin(balance.balance);
-    }
-  }, [mounted]);
-
-  const getAccountsTotalBalance = useCallback(async () => {
-    const totalBalance = await accountApi.getAccountsTotalBalance();
-    if (!mounted.current) {
-      return;
-    }
-    if (totalBalance.success) {
-      setAccountsTotalBalance(totalBalance.totalBalance);
-    }
-  }, [mounted]);
-
-  const getCoinsTotalBalance = useCallback(async () => {
-    const coinBalance = await accountApi.getCoinsTotalBalance();
-    if (!mounted.current) {
-      return;
-    }
-    if (coinBalance.success) {
-      setCoinsTotalBalance(coinBalance.coinsTotalBalance);
+    if (response.success) {
+      setAccountsBalanceSummary(response.accountsBalanceSummary);
     }
   }, [mounted]);
 
@@ -142,12 +120,10 @@ export const AccountsSummary = ({
   const update = useCallback((code: accountApi.AccountCode) => {
     if (mounted.current) {
       onStatusChanged(code);
-      getAccountSummary();
-      getAccountsBalance();
-      getAccountsTotalBalance();
-      getCoinsTotalBalance();
+      getChartData();
+      getAccountsBalanceSummary();
     }
-  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, getCoinsTotalBalance, mounted, onStatusChanged]);
+  }, [getChartData, getAccountsBalanceSummary, mounted, onStatusChanged]);
 
   useEffect(() => {
     // for subscriptions and unsubscriptions
@@ -170,32 +146,29 @@ export const AccountsSummary = ({
   useEffect(() => {
     // handles fetching data and runs on component mount
     // & whenever any of the dependencies change.
-    getAccountSummary();
-    getAccountsBalance();
-    getAccountsTotalBalance();
-    getCoinsTotalBalance();
-  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, getCoinsTotalBalance, defaultCurrency]);
+    getChartData();
+    getAccountsBalanceSummary();
+  }, [getChartData, getAccountsBalanceSummary, defaultCurrency]);
 
   // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
     // set new timer
-    const delay = (!summaryData || summaryData.chartDataMissing) ? 1000 : 10000;
-    summaryReqTimerID.current = window.setTimeout(getAccountSummary, delay);
+    const delay = (!chartData || chartData.chartDataMissing) ? 1000 : 10000;
+    summaryReqTimerID.current = window.setTimeout(getChartData, delay);
     return () => {
       // replace previous timer if present
       if (summaryReqTimerID.current) {
         window.clearTimeout(summaryReqTimerID.current);
       }
     };
-  }, [summaryData, getAccountSummary]);
+  }, [chartData, getChartData]);
 
   useEffect(() => {
     accounts.forEach(account => {
       onStatusChanged(account.code);
     });
-    getAccountsBalance();
-    getCoinsTotalBalance();
-  }, [onStatusChanged, getAccountsBalance, getCoinsTotalBalance, accounts]);
+    getAccountsBalanceSummary();
+  }, [onStatusChanged, getAccountsBalanceSummary, accounts]);
 
   return (
     <GuideWrapper>
@@ -213,7 +186,7 @@ export const AccountsSummary = ({
           <View>
             <Chart
               hideAmounts={hideAmounts}
-              data={summaryData}
+              data={chartData}
               noDataPlaceholder={
                 (accounts.length && accounts.length <= Object.keys(balances || {}).length) ? (
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
@@ -221,21 +194,20 @@ export const AccountsSummary = ({
               } />
             {accountsByKeystore.length > 1 && (
               <CoinBalance
-                summaryData={summaryData}
-                coinsBalances={coinsTotalBalance}
+                summaryData={chartData}
+                coinsBalances={accountsBalanceSummary?.coinsTotalBalance}
               />
             )}
             {accountsByKeystore &&
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 (
-                  <SummaryBalance
+                  <KeystoreBalance
                     keystoreDisambiguatorName={isAmbiguousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
                     connected={keystore.connected}
                     keystoreName={keystore.name}
                     key={keystore.rootFingerprint}
                     accounts={accounts}
-                    totalBalancePerCoin={balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
-                    totalBalance={accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
+                    keystoreBalance={accountsBalanceSummary?.keystoresBalance[keystore.rootFingerprint]}
                     balances={balances}
                   />
                 )
