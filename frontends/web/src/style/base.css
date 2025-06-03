@@ -64,6 +64,16 @@ a {
     cursor: pointer;
 }
 
+a,
+button,
+[role="button"],
+[tabindex],
+input,
+select,
+textarea {
+    -webkit-tap-highlight-color: transparent;
+}
+
 img,
 button {
     user-select: none;
