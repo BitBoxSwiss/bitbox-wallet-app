@@ -92,7 +92,7 @@ func TestModifyAccountsConfig(t *testing.T) {
 	}))
 }
 
-// TestMigrationSaved tests that migrations are applied when a config is loaded, and that the
+// TestMigrationsAtLoad tests that migrations are applied when a config is loaded, and that the
 // migrations are persisted.
 func TestMigrationsAtLoad(t *testing.T) {
 	appConfigFilename := test.TstTempFile("appConfig")

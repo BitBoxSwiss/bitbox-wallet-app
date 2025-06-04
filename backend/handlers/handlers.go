@@ -460,7 +460,7 @@ func (handlers *Handlers) postAppConfig(r *http.Request) (interface{}, error) {
 	return nil, handlers.backend.Config().SetAppConfig(appConfig)
 }
 
-// getNativeLocaleHandler returns user preferred UI language as reported
+// getNativeLocale returns user preferred UI language as reported
 // by the native app layer.
 // The response value may be invalid or unsupported by the app.
 func (handlers *Handlers) getNativeLocale(*http.Request) interface{} {
@@ -693,7 +693,7 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 	return response{Success: true}
 }
 
-// getAccountsBalanceHandler returns the balance of all the accounts, grouped by keystore and coin.
+// getAccountsBalance returns the balance of all the accounts, grouped by keystore and coin.
 func (handlers *Handlers) getAccountsBalance(*http.Request) interface{} {
 	type response struct {
 		Success bool                                                               `json:"success"`
@@ -826,7 +826,7 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) interface{} {
 	}
 }
 
-// getAccountsTotalBalanceHandler returns the total balance of all the accounts, gruped by keystore.
+// getAccountsTotalBalance returns the total balance of all the accounts, gruped by keystore.
 func (handlers *Handlers) getAccountsTotalBalance(*http.Request) (interface{}, error) {
 	type response struct {
 		Success      bool                                   `json:"success"`
@@ -1223,7 +1223,7 @@ func (handlers *Handlers) getAccountSummary(*http.Request) interface{} {
 	return Result{Success: true, Data: data}
 }
 
-// getSupportedCoinsHandler returns an array of coin codes for which you can add an account.
+// getSupportedCoins returns an array of coin codes for which you can add an account.
 // Exactly one keystore must be connected, otherwise an empty array is returned.
 func (handlers *Handlers) getSupportedCoins(*http.Request) interface{} {
 	type element struct {
