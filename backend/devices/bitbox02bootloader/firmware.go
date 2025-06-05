@@ -46,17 +46,17 @@ var firmwareMonotonicVersionMulti uint32 = 42
 
 // BitBox02 Plus. TODO: these are placeholder entries.
 
-//go:embed assets/firmware-bb02plus-btconly.v9.22.0.signed.bin.gz
+//go:embed assets/firmware-bb02plus-btconly.v9.23.0.signed.bin.gz
 var firmwareBB02PlusBinaryBTCOnly []byte
-var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 22, 0)
+var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 23, 0)
 var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 42
 
 // TODO: set to false / remove before production. This is only to allow upgrading unsigned firmware.
 const plusIsPlaceholder = true
 
-//go:embed assets/firmware-bb02plus-multi.v9.22.0.signed.bin.gz
+//go:embed assets/firmware-bb02plus-multi.v9.23.0.signed.bin.gz
 var firmwareBB02PlusBinaryMulti []byte
-var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 22, 0)
+var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 23, 0)
 var firmwareBB02PlusMonotonicVersionMulti uint32 = 42
 
 type firmwareInfo struct {
