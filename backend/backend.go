@@ -70,7 +70,7 @@ func init() {
 var fixedURLWhitelist = []string{
 	// Shift Crypto owned domains.
 	"https://bitbox.swiss/",
-	"https://bitbox.shop/",
+	"https://shop.bitbox.swiss/",
 	"https://shiftcrypto.support/",
 	// Exchange rates.
 	"https://www.coingecko.com/",
