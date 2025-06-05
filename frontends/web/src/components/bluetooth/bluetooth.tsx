@@ -55,6 +55,7 @@ const _Bluetooth = () => {
           ) : undefined;
           return (
             <ActionableItem
+              className={styles.innerContainer}
               key={peripheral.identifier}
               icon={connectingIcon}
               onClick={onClick}>
