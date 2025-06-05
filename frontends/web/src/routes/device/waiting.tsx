@@ -34,6 +34,7 @@ import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark 
 import { Footer, GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { OutlinedSettingsButton } from '@/components/settingsButton/outlined-settings-button';
+import { runningInIOS } from '@/utils/env';
 import style from './waiting.module.css';
 
 export const Waiting = () => {
@@ -86,6 +87,16 @@ export const Waiting = () => {
       </GuidedContent>
       <Guide>
         <Entry entry={t('guide.waiting.welcome', { returnObjects: true })} shown={true} />
+        { runningInIOS() && (
+          <Entry entry={{
+            link: {
+              text: t('guide.waiting.worksWithIos.link.text'),
+              url: 'https://shop.bitbox.swiss/',
+            },
+            text: t('guide.waiting.worksWithIos.text'),
+            title: t('guide.waiting.worksWithIos.title'),
+          }} />
+        )}
         <Entry entry={{
           link: {
             text: t('guide.waiting.getDevice.link.text'),
