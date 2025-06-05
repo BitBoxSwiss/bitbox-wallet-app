@@ -100,7 +100,7 @@ export const Waiting = () => {
         <Entry entry={{
           link: {
             text: t('guide.waiting.getDevice.link.text'),
-            url: 'https://bitbox.shop/',
+            url: 'https://shop.bitbox.swiss/',
           },
           text: t('guide.waiting.getDevice.text'),
           title: t('guide.waiting.getDevice.title'),
