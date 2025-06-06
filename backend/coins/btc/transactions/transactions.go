@@ -15,6 +15,8 @@
 package transactions
 
 import (
+	"time"
+
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
@@ -34,7 +36,8 @@ import (
 
 // SpendableOutput is an unspent coin.
 type SpendableOutput struct {
-	*wire.TxOut
+	TxOut           *wire.TxOut
+	HeaderTimestamp *time.Time
 }
 
 // ScriptHashHex returns the hash of the PkScript of the output, in hex format.
@@ -232,10 +235,14 @@ func (transactions *Transactions) SpendableOutputs() (map[wire.OutPoint]*Spendab
 					return nil, err
 				}
 				confirmed := txInfo.Height > 0
-
+				timestamp := txInfo.HeaderTimestamp
+				if timestamp == nil {
+					timestamp = txInfo.CreatedTimestamp
+				}
 				if confirmed || transactions.allInputsOurs(dbTx, txInfo.Tx) {
 					result[outPoint] = &SpendableOutput{
-						TxOut: txOut,
+						TxOut:           txOut,
+						HeaderTimestamp: timestamp,
 					}
 				}
 			}
@@ -498,7 +505,7 @@ func (transactions *Transactions) txInfo(
 	}
 	return &accounts.TransactionData{
 		Fee:                      feeP,
-		Timestamp:                txInfo.HeaderTimestamp,
+		HeaderTimestamp:          txInfo.HeaderTimestamp,
 		TxID:                     txInfo.TxHash.String(),
 		InternalID:               txInfo.TxHash.String(),
 		NumConfirmations:         numConfirmations,

@@ -74,7 +74,7 @@ type TransactionData struct {
 	// ERC20-token account).
 	FeeIsDifferentUnit bool
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
-	Timestamp *time.Time
+	HeaderTimestamp *time.Time
 	// TxID is the tx ID.
 	TxID string
 	// InternalID is an ID for identifying this transaction. Usually it is the same as TxID(), but
@@ -126,6 +126,15 @@ type TransactionData struct {
 	Gas     uint64
 	Nonce   *uint64
 	IsErc20 bool
+}
+
+// Timestamp returns Header Timestamp, if the tx hasn't been confirmed yet, it returns Created Timestamp.
+func (tx *TransactionData) Timestamp() *time.Time {
+	timestamp := tx.HeaderTimestamp
+	if timestamp == nil {
+		timestamp = tx.CreatedTimestamp
+	}
+	return timestamp
 }
 
 // isConfirmed returns true if the transaction has at least one confirmation.
@@ -225,8 +234,8 @@ func (c *TimeseriesEntry) MarshalJSON() ([]byte, error) {
 func (txs OrderedTransactions) EarliestTime() (time.Time, error) {
 	if len(txs) > 0 {
 		tx := txs[len(txs)-1]
-		if tx.Timestamp != nil {
-			return *tx.Timestamp, nil
+		if tx.HeaderTimestamp != nil {
+			return *tx.HeaderTimestamp, nil
 		}
 		if tx.isConfirmed() {
 			return time.Time{}, errp.WithStack(errors.ErrNotAvailable)
@@ -240,7 +249,7 @@ func (txs OrderedTransactions) EarliestTime() (time.Time, error) {
 func (txs OrderedTransactions) Timeseries(
 	start, end time.Time, interval time.Duration) ([]TimeseriesEntry, error) {
 	for _, tx := range txs {
-		if tx.isConfirmed() && tx.Timestamp == nil {
+		if tx.isConfirmed() && tx.HeaderTimestamp == nil {
 			return nil, errp.WithStack(errors.ErrNotAvailable)
 		}
 	}
@@ -257,7 +266,7 @@ func (txs OrderedTransactions) Timeseries(
 			if !tx.isConfirmed() {
 				return false
 			}
-			return tx.Timestamp.Before(currentTime) || tx.Timestamp.Equal(currentTime)
+			return tx.HeaderTimestamp.Before(currentTime) || tx.HeaderTimestamp.Equal(currentTime)
 		})
 		var value coin.Amount
 		if nextIndex == len(txs) {
