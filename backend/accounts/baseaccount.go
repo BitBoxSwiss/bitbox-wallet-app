@@ -287,8 +287,8 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 		}
 
 		timeString := ""
-		if transaction.Timestamp != nil {
-			timeString = transaction.Timestamp.Format(time.RFC3339)
+		if transaction.HeaderTimestamp != nil {
+			timeString = transaction.HeaderTimestamp.Format(time.RFC3339)
 		}
 		for _, addressAndAmount := range transaction.Addresses {
 			if transactionType == "sent" && addressAndAmount.Ours {

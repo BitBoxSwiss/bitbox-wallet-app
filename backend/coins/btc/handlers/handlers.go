@@ -140,10 +140,7 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 	}
 	amount := txInfo.Amount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
 	var formattedTime *string
-	timestamp := txInfo.Timestamp
-	if timestamp == nil {
-		timestamp = txInfo.CreatedTimestamp
-	}
+	timestamp := txInfo.Timestamp()
 
 	deductedAmountAtTime := txInfo.DeductedAmount.FormatWithConversionsAtTime(handlers.account.Coin(), timestamp, accountConfig.RateUpdater)
 	amountAtTime := txInfo.Amount.FormatWithConversionsAtTime(handlers.account.Coin(), timestamp, accountConfig.RateUpdater)
@@ -314,15 +311,16 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 
 		result = append(result,
 			map[string]interface{}{
-				"outPoint":      output.OutPoint.String(),
-				"txId":          output.OutPoint.Hash.String(),
-				"txOutput":      output.OutPoint.Index,
-				"amount":        coin.ConvertBTCAmount(handlers.account.Coin(), btcutil.Amount(output.TxOut.Value), false, accountConfig.RateUpdater),
-				"address":       address,
-				"scriptType":    output.Address.AccountConfiguration.ScriptType(),
-				"note":          handlers.account.TxNote(output.OutPoint.Hash.String()),
-				"addressReused": addressReused,
-				"isChange":      output.IsChange,
+				"outPoint":        output.OutPoint.String(),
+				"txId":            output.OutPoint.Hash.String(),
+				"txOutput":        output.OutPoint.Index,
+				"amount":          coin.ConvertBTCAmount(handlers.account.Coin(), btcutil.Amount(output.TxOut.Value), false, accountConfig.RateUpdater),
+				"address":         address,
+				"scriptType":      output.Address.AccountConfiguration.ScriptType(),
+				"note":            handlers.account.TxNote(output.OutPoint.Hash.String()),
+				"addressReused":   addressReused,
+				"isChange":        output.IsChange,
+				"headerTimestamp": output.HeaderTimestamp,
 			})
 	}
 

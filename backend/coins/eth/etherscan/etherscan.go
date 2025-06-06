@@ -164,7 +164,7 @@ func (tx *Transaction) TransactionData(isERC20 bool) *accounts.TransactionData {
 	return &accounts.TransactionData{
 		Fee:                      tx.fee(),
 		FeeIsDifferentUnit:       isERC20,
-		Timestamp:                &timestamp,
+		HeaderTimestamp:          &timestamp,
 		TxID:                     tx.TxID(),
 		InternalID:               tx.internalID(),
 		Height:                   int(tx.jsonTransaction.BlockNumber.BigInt().Uint64()),

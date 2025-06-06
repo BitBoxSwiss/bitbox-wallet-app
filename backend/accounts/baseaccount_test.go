@@ -213,11 +213,11 @@ func TestBaseAccount(t *testing.T) {
 `,
 			export(account, []*TransactionData{
 				{
-					Type:       TxTypeSend,
-					TxID:       "some-tx-id",
-					InternalID: "some-internal-tx-id",
-					Fee:        &fee,
-					Timestamp:  &timestamp,
+					Type:            TxTypeSend,
+					TxID:            "some-tx-id",
+					InternalID:      "some-internal-tx-id",
+					Fee:             &fee,
+					HeaderTimestamp: &timestamp,
 					Addresses: []AddressAndAmount{
 						{
 							Address: "some-address",
@@ -232,11 +232,11 @@ func TestBaseAccount(t *testing.T) {
 					},
 				},
 				{
-					Type:       TxTypeReceive,
-					TxID:       "some-tx-id-2",
-					InternalID: "some-internal-tx-id-2",
-					Fee:        nil,
-					Timestamp:  &timestamp,
+					Type:            TxTypeReceive,
+					TxID:            "some-tx-id-2",
+					InternalID:      "some-internal-tx-id-2",
+					Fee:             nil,
+					HeaderTimestamp: &timestamp,
 					Addresses: []AddressAndAmount{
 						{
 							Address: "some-address-2",
@@ -279,12 +279,12 @@ func TestBaseAccount(t *testing.T) {
 `,
 			export(account, []*TransactionData{
 				{
-					Type:       TxTypeSend,
-					TxID:       "some-tx-id",
-					InternalID: "some-internal-tx-id",
-					Fee:        &fee,
-					Timestamp:  &timestamp,
-					IsErc20:    true,
+					Type:            TxTypeSend,
+					TxID:            "some-tx-id",
+					InternalID:      "some-internal-tx-id",
+					Fee:             &fee,
+					HeaderTimestamp: &timestamp,
+					IsErc20:         true,
 					Addresses: []AddressAndAmount{
 						{
 							Address: "some-address",
@@ -299,12 +299,12 @@ func TestBaseAccount(t *testing.T) {
 					},
 				},
 				{
-					Type:       TxTypeReceive,
-					TxID:       "some-tx-id-2",
-					InternalID: "some-internal-tx-id-2",
-					Fee:        nil,
-					Timestamp:  &timestamp,
-					IsErc20:    true,
+					Type:            TxTypeReceive,
+					TxID:            "some-tx-id-2",
+					InternalID:      "some-internal-tx-id-2",
+					Fee:             nil,
+					HeaderTimestamp: &timestamp,
+					IsErc20:         true,
 					Addresses: []AddressAndAmount{
 						{
 							Address: "some-address-2",
