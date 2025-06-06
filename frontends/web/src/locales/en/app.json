@@ -1195,10 +1195,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "The device should blink once when inserted. Make sure that it is inserted the right way around. If you are having trouble, please contact us through the link below.\n\nThe BitBox01 is not supported on mobile. Please use the BitBoxApp on desktop to connect your BitBox01.",
-        "title": "My BitBox01 is not recognized"
-      },
       "getDevice": {
         "link": {
           "text": "Order a BitBox"
