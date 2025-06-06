@@ -594,14 +594,6 @@ func (backend *Backend) Accounts() AccountsList {
 	return slices.Clone(backend.accounts)
 }
 
-// KeystoreTotalAmount represents the total balance amount of the accounts belonging to a keystore.
-type KeystoreTotalAmount = struct {
-	// FiatUnit is the fiat unit of the total amount
-	FiatUnit string `json:"fiatUnit"`
-	// Total formatted for frontend visualization
-	Total string `json:"total"`
-}
-
 // OnAccountInit installs a callback to be called when an account is initialized.
 func (backend *Backend) OnAccountInit(f func(accounts.Interface)) {
 	backend.onAccountInit = f
