@@ -116,7 +116,6 @@ export const Waiting = () => {
           title: t('guide.waiting.lostDevice.title'),
         }} />
         <Entry entry={t('guide.waiting.internet', { returnObjects: true })} />
-        <Entry entry={t('guide.waiting.deviceNotRecognized', { returnObjects: true })} />
         <Entry entry={t('guide.waiting.useWithoutDevice', { returnObjects: true })} />
       </Guide>
     </GuideWrapper>
