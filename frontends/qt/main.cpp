@@ -286,7 +286,6 @@ int main(int argc, char *argv[])
         // issues were observed on Windows and the app crashes on some Linux systems.
         qputenv("QMLSCENE_DEVICE", "softwarecontext");
         qputenv("QT_QUICK_BACKEND", "software");
-        goLog("BITBOXAPP_RENDER=software");
     } else if (renderMode == "auto") {
         // Do nothing: leave it to Qt to decide the rendering backend, which is usually hardware
         // accelerated if available.
@@ -294,10 +293,8 @@ int main(int argc, char *argv[])
         // In rare cases, this can lead to rendering artefacts and crashes, which is why it is not
         // enabled by default.
         std::cerr << "Rendering mode: automatic (usually hardware accelerated)" << std::endl;
-        goLog("BITBOXAPP_RENDER=auto");
     } else {
         std::cerr << "Invalid value for BITBOXAPP_RENDER" << std::endl;
-        goLog("Invalid value for BITBOXAPP_RENDER");
         return 1;
     }
 
@@ -317,7 +314,7 @@ int main(int argc, char *argv[])
     a.setWindowIcon(QIcon(QCoreApplication::applicationDirPath() + "/bitbox.png"));
 
     if(a.isSecondary()) {
-        // The application is already running. If there is exactly one positional argument, we send
+        // The application is already running. If there is exactly one positional argument, we
         // assume it is an URI click and send it to the primary instance to parse, validate and
         // handle.
 
@@ -416,6 +413,10 @@ int main(int argc, char *argv[])
             memcpy(result, cString, strlen(cString)+1);
             return result;
         });
+
+    char renderLog[1000] = {0};
+    snprintf(renderLog, sizeof(renderLog), "BITBOXAPP_RENDER=%s", renderMode.toStdString().c_str());
+    goLog(renderLog);
 
     RequestInterceptor interceptor;
     view->page()->profile()->setUrlRequestInterceptor(&interceptor);
