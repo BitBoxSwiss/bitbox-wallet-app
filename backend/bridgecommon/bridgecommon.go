@@ -111,6 +111,17 @@ func BackendCall(queryID int, jsonQuery string) {
 	}(globalHandlers, globalCommunication)
 }
 
+// ForceConnectivityCheck forces a connectivity check in the backend.
+func ForceConnectivityCheck() {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.ForceCheckConnection()
+}
+
 // HandleURI handles an external URI click for registered protocols, e.g. 'aopp:?...' URIs. The
 // schemes are registered and handled on each platform (e.g. .desktop entry on Linux, Info.plist on
 // macOS, etc.). All platforms then call this function to handle the URI in the backend.

@@ -18,12 +18,14 @@ package backend
 import (
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -235,6 +237,12 @@ type Backend struct {
 
 	// testing tells us whether the app is in testing mode
 	testing bool
+
+	// online tells us whether the backend is able to connect to the internet.
+	online atomic.Bool
+
+	// onlineChecked is true if the backend has checked the connectivity at least once.
+	onlineChecked bool
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -299,7 +307,64 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.bluetooth = bluetooth.New(log)
 	backend.bluetooth.Observe(backend.Notify)
 
+	// Launch a goroutine that periodically checks the connectivity.
+	go backend.monitorConnectivity()
+
 	return backend, nil
+}
+
+func (backend *Backend) checkConnectivity() {
+	curValue := backend.online.Load()
+	backend.onlineChecked = true
+	client := &http.Client{
+		Timeout: time.Second,
+		Transport: &http.Transport{
+			Proxy: http.ProxyFromEnvironment,
+			DialContext: (&net.Dialer{
+				Timeout: 3 * time.Second,
+			}).DialContext,
+		},
+	}
+	// Perform connectivity check.
+	resp, err := client.Get("https://clients3.google.com/generate_204")
+	if err != nil || resp.StatusCode != http.StatusNoContent {
+		backend.online.Store(false)
+	} else {
+		backend.online.Store(true)
+	}
+	backend.Notify(observable.Event{
+		Subject: "online",
+		Action:  action.Reload,
+		Object:  backend.online.Load(),
+	})
+	if resp != nil {
+		err := resp.Body.Close()
+		if err != nil {
+			backend.log.WithError(err).Error("Error closing response body")
+		}
+	}
+	// If we were offline and now we are online, we try to reconnect.
+	if backend.onlineChecked && !curValue && backend.online.Load() {
+		backend.ManualReconnect()
+		for _, account := range backend.accounts {
+			ethAccount, ok := account.(*eth.Account)
+			if !ok {
+				continue
+			}
+			ethAccount.EnqueueUpdate()
+		}
+	}
+	backend.onlineChecked = true
+}
+
+// monitorConnectivity periodically checks the connectivity.
+func (backend *Backend) monitorConnectivity() {
+	ticker := time.NewTicker(3 * time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		backend.checkConnectivity()
+	}
 }
 
 // configureHistoryExchangeRates changes backend.ratesUpdater settings.
@@ -1064,4 +1129,17 @@ func (backend *Backend) ExportLogs() error {
 // Bluetooth returns the backend's bluetooth instance.
 func (backend *Backend) Bluetooth() *bluetooth.Bluetooth {
 	return backend.bluetooth
+}
+
+// ForceCheckConnection forces a connectivity check.
+func (backend *Backend) ForceCheckConnection() {
+	backend.checkConnectivity()
+}
+
+// IsOnline returns whether the backend is online or not.
+func (backend *Backend) IsOnline() (bool, error) {
+	if !backend.onlineChecked {
+		return false, errp.New("connectivity check not performed yet.")
+	}
+	return backend.online.Load(), nil
 }

@@ -116,6 +116,8 @@ type Backend interface {
 	SetWatchonly(rootFingerprint []byte, watchonly bool) error
 	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
 	Bluetooth() *bluetooth.Bluetooth
+	IsOnline() (bool, error)
+	ForceCheckConnection()
 }
 
 // Handlers provides a web api to the backend.
@@ -261,6 +263,8 @@ func NewHandlers(
 
 	getAPIRouterNoError(apiRouter)("/bluetooth/state", handlers.getBluetoothState).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/bluetooth/connect", handlers.postBluetoothConnect).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/online", handlers.getOnline).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/forceOnlineCheck", handlers.postForceCheck).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
@@ -1621,4 +1625,43 @@ func (handlers *Handlers) postBluetoothConnect(r *http.Request) interface{} {
 
 	handlers.backend.Environment().BluetoothConnect(identifier)
 	return nil
+}
+
+func (handlers *Handlers) getOnline(r *http.Request) interface{} {
+	type response struct {
+		Success bool `json:"success"`
+		Online  bool `json:"online"`
+	}
+	online, err := handlers.backend.IsOnline()
+	if err != nil {
+		return response{
+			Success: false,
+		}
+	}
+	return response{
+		Success: true,
+		Online:  online,
+	}
+}
+
+func (handlers *Handlers) postForceCheck(r *http.Request) interface{} {
+	type response struct {
+		Success bool `json:"success"`
+		Online  bool `json:"online"`
+	}
+	// Trigger a connection check on the backend
+	handlers.backend.ForceCheckConnection()
+
+	online, err := handlers.backend.IsOnline()
+
+	if err != nil {
+		return response{
+			Success: false,
+		}
+	}
+
+	return response{
+		Success: true,
+		Online:  online,
+	}
 }

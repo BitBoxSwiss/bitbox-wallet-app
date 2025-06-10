@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Shift Crypto AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { useTranslation } from 'react-i18next';
+import { Status } from '@/components/status/status';
+import { getOnline, syncOnline } from '@/api/online';
+import { useSync } from '@/hooks/api';
 
-import { Testing } from './testing';
-import { Update } from './update';
-import { Banner } from './banner';
-import { MobileDataWarning } from './mobiledatawarning';
-import { Offline } from './offline';
+export const Offline = () => {
+  const { t } = useTranslation();
+  const online = useSync(getOnline, syncOnline);
 
-export const GlobalBanners = () => {
+  if (online === undefined || online === null) {
+    return null;
+  }
+
+  if (!online.success || online.online) {
+    return null;
+  }
+
   return (
-    <>
-      <Testing />
-      <Update />
-      <Banner msgKey="bitbox01" />
-      <Banner msgKey="bitbox02" />
-      <MobileDataWarning />
-      <Offline />
-    </>
+    <Status type="warning">
+      {t('warning.offline')}
+    </Status>
   );
 };

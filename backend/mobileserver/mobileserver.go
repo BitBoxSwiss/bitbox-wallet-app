@@ -152,6 +152,11 @@ func HandleURI(uri string) {
 	bridgecommon.HandleURI(uri)
 }
 
+// ForceConnectivityCheck exposes `bridgecommon.ForceConnectivityCheck` to Java/Kotlin.
+func ForceConnectivityCheck() {
+	bridgecommon.ForceConnectivityCheck()
+}
+
 // UsingMobileDataChanged exposes `bridgecommon.UsingMobileDataChanged` to Java/Kotlin.
 func UsingMobileDataChanged() {
 	bridgecommon.UsingMobileDataChanged()

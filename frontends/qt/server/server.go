@@ -94,6 +94,11 @@ func backendCall(queryID C.int, s *C.cchar_t) {
 	bridgecommon.BackendCall(int(queryID), C.GoString(s))
 }
 
+//export forceConnectivityCheck
+func forceConnectivityCheck() {
+	bridgecommon.ForceConnectivityCheck()
+}
+
 //export handleURI
 func handleURI(uri *C.cchar_t) {
 	bridgecommon.HandleURI(C.GoString(uri))
