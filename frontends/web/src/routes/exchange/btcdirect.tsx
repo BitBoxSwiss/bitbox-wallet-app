@@ -71,6 +71,7 @@ export const BTCDirect = ({
 
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [blocking, setBlocking] = useState(false);
   const [height, setHeight] = useState(0);
 
   const config = useLoad(getConfig);
@@ -152,7 +153,9 @@ export const BTCDirect = ({
         name: 'BTC Direct',
         orderId,
       });
+      setBlocking(true);
       const sendResult = await sendTx(code, txNote);
+      setBlocking(false);
       if (sendResult.success) {
         const { txId } = sendResult;
         event.source?.postMessage({
@@ -269,6 +272,9 @@ export const BTCDirect = ({
               <div style={{ height }}>
                 <UseDisableBackButton />
                 {!iframeLoaded && <Spinner text={t('loading')} />}
+                {blocking && (
+                  <div className={style.blocking}></div>
+                )}
                 { btcdirectInfo?.success && (
                   <iframe
                     onLoad={() => {
