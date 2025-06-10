@@ -12,14 +12,17 @@
 - Persist third party widget sessions
 - Added BTC Direct sell option
 
-# v4.47.2
+## v4.47.3
+- Upgrade Etherscan API to V2
+
+## v4.47.2
 - Linux: fix compatiblity with some versions of Mesa that are incompatible with the bundled wayland libraries
 
 # 4.47.1
 - Linux: fix support for Wayland
 - Linux: release device upon app close, enabling other apps to connect to the BitBox after the BitBoxApp closes
 
-# 4.47.0
+## 4.47.0
 - Bundle BitBox02 firmware version v9.22.0
 - Fix long transaction notes to show fully on multiple lines when necessary
 - Improve send-to-self transactions in account overview
@@ -40,16 +43,16 @@
 - Added BTC Direct buy option
 - Upgraded to Qt 6.8.2, dropping support for macOS 11 and Ubuntu 20.04.
 
-# 4.46.3
+## 4.46.3
 - Fix camera access on linux
 
-# 4.46.2
+## 4.46.2
 - Fix Linux blank screen issue related to the local mimetype database
 
-# 4.46.1
+## 4.46.1
 - Fix Android app crash on old Android versions
 
-# 4.46.0
+## 4.46.0
 - Android: enable export logs feature
 - Label change UTXOs as "change" in coin control
 - Remove support for the deprecated Ethereum Goerli network
@@ -64,7 +67,7 @@
 - Display skeleton screens (placeholder) in the account page during data loading to enhance UX
 - Fix Moonpay widget loading issues
 
-# 4.45.0
+## 4.45.0
 - Bundle BitBox02 firmware version v9.21.0
 - Bitcoin: add support for sending to silent payment (BIP-352) addresses
 - Prevent macOS from going to sleep on long running interactions with the BitBox

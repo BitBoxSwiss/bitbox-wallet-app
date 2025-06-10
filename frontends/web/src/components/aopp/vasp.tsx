@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,17 @@ import BitcoinSuisseLogo from '@/assets/exchanges/logos/bitcoin_suisse.png';
 import BittrLogo from '@/assets/exchanges/logos/bittr.png';
 import BityLogo from '@/assets/exchanges/logos/bity.png';
 import PocketBitcoinLogo from '@/assets/exchanges/logos/pocketbitcoin.svg';
+import RelaiLogo from '@/assets/exchanges/logos/relai.svg';
 
 type TVASPProps = {
-    fallback?: JSX.Element;
-    hostname: string;
-    prominent?: boolean;
-    withLogoText?: string;
+  fallback?: JSX.Element;
+  hostname: string;
+  prominent?: boolean;
+  withLogoText?: string;
 }
 
 type TVASPMap = {
-    [hostname: string]: string
+  [hostname: string]: string;
 }
 
 const VASPLogoMap: TVASPMap = {
@@ -39,6 +40,7 @@ const VASPLogoMap: TVASPMap = {
   'bity.com': BityLogo,
   'getbittr.com': BittrLogo,
   'pocketbitcoin.com': PocketBitcoinLogo,
+  'relai.app': RelaiLogo,
 };
 
 const VASPHostnameMap: TVASPMap = {
@@ -52,16 +54,21 @@ export const Vasp = ({
   prominent,
   withLogoText,
 }: TVASPProps) => {
-  const hasLogo = hostname in VASPLogoMap;
-  if (!hasLogo) {
-    return fallback || (<p className={styles.hostname}>{hostname}</p>);
+  const subdomainOfVasp = Object.keys(VASPLogoMap).find((vasp) => hostname.endsWith(vasp));
+  const knownVasp = subdomainOfVasp || (hostname in VASPLogoMap && hostname);
+
+  if (!knownVasp) {
+    return fallback || (
+      <p className={styles.hostname}>{hostname}</p>
+    );
   }
+
   const logoClasses = prominent ? `${styles.logo} ${styles.prominent}` : styles.logo;
   return (
     <div>
-      <img className={logoClasses} src={VASPLogoMap[hostname]} alt={hostname} />
+      <img className={logoClasses} src={VASPLogoMap[knownVasp]} alt={knownVasp} />
       <p className={`${styles.hostname} ${styles.capitalized}`}>
-        {hostname in VASPHostnameMap ? VASPHostnameMap[hostname] : hostname}
+        {knownVasp in VASPHostnameMap ? VASPHostnameMap[knownVasp] : knownVasp}
       </p>
       {withLogoText ? (<p>{withLogoText}</p>) : null}
     </div>

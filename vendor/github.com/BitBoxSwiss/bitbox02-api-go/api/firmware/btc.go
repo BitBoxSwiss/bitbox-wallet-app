@@ -121,6 +121,18 @@ func NewBTCScriptConfigMultisig(
 	return scriptConfig, nil
 }
 
+// NewBTCScriptConfigPolicy is a helper to construct the a BIP-388 wallet policy script config.
+func NewBTCScriptConfigPolicy(policy string, keys []*messages.KeyOriginInfo) *messages.BTCScriptConfig {
+	return &messages.BTCScriptConfig{
+		Config: &messages.BTCScriptConfig_Policy_{
+			Policy: &messages.BTCScriptConfig_Policy{
+				Policy: policy,
+				Keys:   keys,
+			},
+		},
+	}
+}
+
 // BTCXPub queries the device for a btc, ltc, tbtc, tltc xpubs.
 func (device *Device) BTCXPub(
 	coin messages.BTCCoin,

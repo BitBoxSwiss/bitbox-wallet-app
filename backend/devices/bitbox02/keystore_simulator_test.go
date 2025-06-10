@@ -10,7 +10,7 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the Liceense.
+// limitations under the License.
 
 //go:build bitbox02_simulator
 // +build bitbox02_simulator
@@ -614,14 +614,10 @@ func TestSimulatorVerifyAddressBTC(t *testing.T) {
 
 		for _, test := range tests {
 			stdOut.Truncate(0)
-
-			addressConfiguration, err := test.accountConfiguration.Derive(
-				signing.NewEmptyRelativeKeypath().
-					Child(test.derivation.SimpleChainIndex(), signing.NonHardened).
-					Child(test.derivation.AddressIndex, signing.NonHardened),
-			)
-			require.NoError(t, err)
-			require.NoError(t, device.Keystore().VerifyAddress(addressConfiguration, test.coin))
+			require.NoError(t, device.Keystore().VerifyAddressBTC(
+				test.accountConfiguration,
+				test.derivation,
+				test.coin))
 			require.Eventually(t,
 				func() bool {
 					return strings.Contains(
@@ -663,7 +659,7 @@ func TestSimulatorVerifyAddressETH(t *testing.T) {
 			addressConfiguration := signing.NewEthereumConfiguration(
 				[]byte{1, 2, 3, 4}, test.keypath, xpub)
 
-			require.NoError(t, device.Keystore().VerifyAddress(addressConfiguration, coinETH))
+			require.NoError(t, device.Keystore().VerifyAddressETH(addressConfiguration, coinETH))
 			require.Eventually(t,
 				func() bool {
 					return strings.Contains(

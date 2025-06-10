@@ -44,7 +44,7 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
               </>
             } />
           <View fullscreen={false}>
-            <ViewContent>
+            <ViewContent fullWidth>
               <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>
                 <AppVersion />
               </WithSettingsTabs>

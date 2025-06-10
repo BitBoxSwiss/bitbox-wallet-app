@@ -11,6 +11,7 @@
     right: 0;
     top: 0;
     padding-top: env(safe-area-inset-top, 0);
+    padding-bottom: env(safe-area-inset-top, 0);
     /* z-index between sidebar (~4000) and wait-dialog (~10000) */
     z-index: 5100;
 }
@@ -178,7 +179,7 @@
     left: 0;
     position: absolute;
     text-align: center;
-    top: 0;
+    top: env(safe-area-inset-top, 0);
     width: var(--header-height);
 }
 

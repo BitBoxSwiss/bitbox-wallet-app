@@ -77,6 +77,7 @@ type GoReadWriteCloserInterface interface {
 
 // GoDeviceInfoInterface adapts usb.DeviceInfo's Open method to return the adapted ReadWriteCloser.
 type GoDeviceInfoInterface interface {
+	IsBluetooth() bool
 	VendorID() int
 	ProductID() int
 	UsagePage() int

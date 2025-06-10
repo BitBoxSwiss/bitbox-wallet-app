@@ -484,9 +484,20 @@ class BluetoothDeviceInfo: NSObject, MobileserverGoDeviceInfoInterfaceProtocol {
         return BluetoothReadWriteCloser(bluetoothManager: bluetoothManager)
     }
 
+    func isBluetooth() -> Bool {
+        return true
+    }
+
     func product() -> String {
-        // TODO: return bluetoothManager.productStr() and have the backend identify and handle it
-        return productInfo.product
+        // The characteristic product string is kept short, we translate it to the USB descriptor
+        // string here, which the Go backend uses to identify the product.
+        switch productInfo.product {
+        case "bb02p-multi": return "BitBox02 Nova Multi"
+        case "bb02p-btconly": return "BitBox02 Nova BTC-only"
+        case "bb02p-bl-multi": return "BitBox02 Nova Multi bl"
+        case "bb02p-bl-btconly": return "BitBox02 Nova BTC-only bl"
+        default: return productInfo.product
+        }
     }
 
     func vendorID() -> Int {
