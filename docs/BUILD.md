@@ -39,15 +39,15 @@ brew install go@1.23
 brew install create-dmg
 # Install Qt. Can also use the official installer.
 pip install aqtinstall
-aqt list-qt mac desktop --arch 6.8.2
-aqt install-qt mac desktop 6.8.2 --modules qtpositioning qtserialport qtwebchannel qtwebengine --outputdir ~/Qt
+aqt list-qt mac desktop --arch 6.8.3
+aqt install-qt mac desktop 6.8.3 --modules qtpositioning qtserialport qtwebchannel qtwebengine --outputdir ~/Qt
 ```
 
 Make sure you have `qt@6/bin`,  `qt@6/libexec`, `go@1.23/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`:
 
 ```bash
-export PATH="$PATH:$HOME/Qt/6.8.2/macos/bin"
-export PATH="$PATH:$HOME/Qt/6.8.2/macos/libexec"
+export PATH="$PATH:$HOME/Qt/6.8.3/macos/bin"
+export PATH="$PATH:$HOME/Qt/6.8.3/macos/libexec"
 export PATH="$PATH:/usr/local/opt/go@1.23/bin"
 export PATH="$PATH:$HOME/go/bin"
 ```
@@ -84,7 +84,7 @@ xcrun altool --list-providers --username "APPLE_ID" --password "PASSWORD"
 The build requires `Microsoft Visual Studio 2022 Community Edition`, with the `MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)`
 individual component.
 
-It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.23`, `node@20`, `QT 6.8.2` with `qtwebengine`, `nsis`
+It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.23`, `node@20`, `QT 6.8.3` with `qtwebengine`, `nsis`
 and possibly other tools.
 
 Some of the tools are easy to install with `choco`:
@@ -98,7 +98,7 @@ Add a system environment variable `MINGW_BIN` pointing to the bin directory of m
 (e.g. `/c/MinGW/bin` or `/c/Program Files/Git/mingw64/bin`).
 
 Add to the system environment variable `PATH`:
-- Location of `qmake`, e.g. `C:\Qt\6.8.2\msvc2022_64\bin`
+- Location of `qmake`, e.g. `C:\Qt\6.8.3\msvc2022_64\bin`
 - Location of nsis, e.g. `C:\Program Files (x86)\NSIS\Bin`
 
 Build the QT frontend for Windows: `make qt-windows`

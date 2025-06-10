@@ -26,6 +26,6 @@ ENV PATH=${SYS_GOPATH}/bin:/usr/local/go/bin:$PATH
 
 RUN --mount=target=/mnt/Makefile,source=Makefile GOPATH=${SYS_GOPATH} make -C /mnt envinit
 
-ENV PATH=/opt/qt6/6.8.2/gcc_64/bin:/opt/qt6/6.8.2/gcc_64/libexec:$PATH
+ENV PATH=/opt/qt6/6.8.3/gcc_64/bin:/opt/qt6/6.8.3/gcc_64/libexec:$PATH
 
 CMD ["bash"]

@@ -151,9 +151,9 @@ jobs:
         # qtwebengine is for rendering the frontend.
         run: |
           pip install aqtinstall
-          aqt install-qt mac desktop 6.8.2 --modules qtpositioning qtserialport qtwebchannel qtwebengine --outputdir ~/Qt
-          echo "$HOME/Qt/6.8.2/macos/bin" >> $GITHUB_PATH
-          echo "$HOME/Qt/6.8.2/macos/libexec" >> $GITHUB_PATH
+          aqt install-qt mac desktop 6.8.3 --modules qtpositioning qtserialport qtwebchannel qtwebengine --outputdir ~/Qt
+          echo "$HOME/Qt/6.8.3/macos/bin" >> $GITHUB_PATH
+          echo "$HOME/Qt/6.8.3/macos/libexec" >> $GITHUB_PATH
       - name: Build macOS app
         run: >
           ./scripts/github-ci.sh qt-osx;
@@ -231,7 +231,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.8.2'
+          version: '6.8.3'
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2022_64'
