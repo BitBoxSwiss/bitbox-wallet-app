@@ -17,12 +17,14 @@
 import { useTranslation } from 'react-i18next';
 import { ReactElement } from 'react';
 import { Button } from './forms';
+import { Bluetooth } from '@/components/bluetooth/bluetooth';
 import { TConnectKeystoreErrorCode, cancelConnectKeystore, syncConnectKeystore } from '@/api/backend';
 import { useSubscribeReset } from '@/hooks/api';
 import { Dialog, DialogButtons } from './dialog/dialog';
 import { BitBox02StylizedDark, BitBox02StylizedLight, Cancel, PointToBitBox02 } from './icon';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseBackButton } from '@/hooks/backbutton';
+import { runningInIOS } from '@/utils/env';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import styles from './keystoreconnectprompt.module.css';
 
@@ -82,13 +84,19 @@ export const KeystoreConnectPrompt = () => {
           Software keystore is unlocked from the app, so we add the SkipForTesting button here (only for development).
           The BitBox02 unlock is triggered by inserting it using the globally mounted BitBox02Wizard.
           The BitBox01 is ignored - BitBox01 users will simply need to unlock before being prompted.
+          For iOS, the device picker is needed.
           */}
-          <PointToBitBox02 />
-          <SkipForTesting />
+          { !runningInIOS() ? <PointToBitBox02 /> : null }
+          <Bluetooth peripheralContainerClassName={styles.bluetoothPeripheralContainer} />
+          <div className={!runningInIOS() ? '' : styles.unlockTestButtonContainer}>
+            <SkipForTesting />
+          </div>
         </div>
-        <DialogButtons>
-          <Button secondary onClick={cancelConnectKeystore}>{t('dialog.cancel')}</Button>
-        </DialogButtons>
+        <div className={styles.dialogButtonsContainer}>
+          <DialogButtons>
+            <Button secondary onClick={cancelConnectKeystore}>{t('dialog.cancel')}</Button>
+          </DialogButtons>
+        </div>
       </Dialog>
     );
   case 'error':

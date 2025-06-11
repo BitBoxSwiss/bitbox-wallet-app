@@ -28,7 +28,11 @@ const isConnectedOrConnecting = (peripheral: TPeripheral) => {
   return peripheral.connectionState === 'connecting' || peripheral.connectionState === 'connected';
 };
 
-const _Bluetooth = () => {
+type Props = {
+  peripheralContainerClassName?: string;
+}
+
+const _Bluetooth = ({ peripheralContainerClassName }: Props) => {
   const { t } = useTranslation();
   const state = useSync(getState, syncState);
   if (!state) {
@@ -55,6 +59,7 @@ const _Bluetooth = () => {
           ) : undefined;
           return (
             <ActionableItem
+              className={peripheralContainerClassName}
               key={peripheral.identifier}
               icon={connectingIcon}
               onClick={onClick}>
@@ -79,15 +84,17 @@ const _Bluetooth = () => {
         })}
       </div>
       {state.scanning && (
-        <HorizontallyCenteredSpinner />
+        <div>
+          <HorizontallyCenteredSpinner />
+        </div>
       )}
     </>
   );
 };
 
-export const Bluetooth = () => {
+export const Bluetooth = ({ peripheralContainerClassName = '' }: Props) => {
   if (!runningInIOS()) {
     return null;
   }
-  return <_Bluetooth />;
+  return <_Bluetooth peripheralContainerClassName={peripheralContainerClassName} />;
 };
