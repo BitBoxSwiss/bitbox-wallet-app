@@ -22,9 +22,9 @@ import { Skeleton } from '@/components/skeleton/skeleton';
 import style from './accountssummary.module.css';
 
 type TProps = {
-  summaryData?: accountApi.TSummary,
-  coinsBalances?: accountApi.TCoinsTotalBalance,
-}
+  summaryData?: accountApi.TChartData,
+  coinsBalances?: accountApi.CoinFormattedAmount[];
+};
 
 export const CoinBalance = ({
   summaryData,
