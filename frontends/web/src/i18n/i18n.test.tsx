@@ -24,7 +24,7 @@ vi.mock('@/utils/request', () => ({
 }));
 
 import { apiGet, apiPost } from '@/utils/request';
-import { changei18nLanguage } from './i18n';
+import { i18n } from './i18n';
 
 describe('i18n', () => {
   describe('languageChanged', () => {
@@ -37,9 +37,6 @@ describe('i18n', () => {
       { nativeLocale: 'de-DE', newLang: 'de', userLang: null },
       { nativeLocale: 'pt_BR', newLang: 'pt', userLang: null },
       { nativeLocale: 'fr', newLang: 'en', userLang: 'en' },
-      { nativeLocale: 'WAGA_WAGA', newLang: 'en', userLang: 'en' }, // unknown locale
-      { nativeLocale: '', newLang: 'fr', userLang: 'fr' }, // empty locale
-      { nativeLocale: '-_-_', newLang: 'de', userLang: 'de' }, // with invalid locale
     ];
     table.forEach((test) => {
       it(`sets userLanguage to ${test.userLang || 'null'} if native-locale is ${test.nativeLocale}`, async () => {
@@ -50,9 +47,9 @@ describe('i18n', () => {
           default: { return Promise.resolve(); }
           }
         });
-        await changei18nLanguage(test.newLang);
+        await i18n.changeLanguage(test.newLang);
         await waitFor(() => {
-          expect(apiPost).toHaveBeenCalled();
+          expect(apiPost).toHaveBeenCalledTimes(1);
           expect(apiPost).toHaveBeenCalledWith('config', {
             frontend: {},
             backend: { userLanguage: test.userLang },

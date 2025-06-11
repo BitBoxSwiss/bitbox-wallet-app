@@ -23,7 +23,7 @@ export type TEntryProp = {
     title: string;
     text: string;
     link?: {
-        url: string;
+        url?: string;
         text: string;
     };
 }
@@ -55,15 +55,21 @@ export const Entry = (props: TProps) => {
       <div className={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
         {shown ? (
           <div className="flex-1">
-            {entry?.text?.trim().split('\n').map((p, idx) => <p key={idx}>{p}</p>)}
+            {entry.text.trim().split('\n').map((p, idx) => <p key={idx}>{p}</p>)}
             {entry.link && (
               <p>
-                <A
-                  className={style.link}
-                  data-testid="link"
-                  href={entry.link.url}>
-                  {entry.link.text}
-                </A>
+                {entry.link.url ? (
+                  <A
+                    className={style.link}
+                    data-testid="link"
+                    href={entry.link.url}>
+                    {entry.link.text}
+                  </A>
+                ) : (
+                  <span className={style.link}>
+                    {entry.link.text}
+                  </span>
+                )}
               </p>
             )}
             {props.children}

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
 import { getListPayments, subscribeListPayments, subscribeNodeState, Payment as IPayment, getLightningBalance } from '../../api/lightning';
@@ -34,9 +34,11 @@ import { Transaction } from '@/components/transactions/transaction';
 import { PaymentDetails } from './components/payment-details';
 import { toSat } from '@/utils/conversion';
 import styles from './lightning.module.css';
+import { RatesContext } from '@/contexts/RatesContext';
 
 export const Lightning = () => {
   const { t } = useTranslation();
+  const { btcUnit } = useContext(RatesContext);
   const [balance, setBalance] = useState<accountApi.IBalance>();
   const [syncedAddressesCount] = useState<number>();
   const [payments, setPayments] = useState<IPayment[]>();
@@ -59,7 +61,7 @@ export const Lightning = () => {
 
     const subscriptions = [subscribeNodeState(onStateChange), subscribeListPayments(onStateChange)];
     return () => unsubscribe(subscriptions);
-  }, [onStateChange]);
+  }, [onStateChange, btcUnit]);
 
   const hasDataLoaded = balance !== undefined;
 

@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import type { IAmount, TTransactionStatus, TTransactionType, ITransaction } from '@/api/account';
+import type { TAmountWithConversions, TTransactionStatus, TTransactionType, ITransaction } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Loupe } from '@/components/icon/icon';
 import { parseTimeLong, parseTimeShort } from '@/utils/date';
@@ -152,9 +152,9 @@ const Status = ({
 };
 
 type TAmountsProps = {
-  amount: IAmount;
+  amount: TAmountWithConversions;
   hideFiat?: boolean;
-  deductedAmount: IAmount;
+  deductedAmount: TAmountWithConversions,
   type: TTransactionType;
 }
 
@@ -165,8 +165,9 @@ const Amounts = ({
   type,
 }: TAmountsProps) => {
   const txTypeClass = `txAmount-${type}`;
-  const sign = getTxSign(type);
   const recv = type === 'receive';
+  const displayAmount = recv ? amount.amount : deductedAmount.amount;
+  const sign = displayAmount ? getTxSign(type) : '';
 
   return (
     <span className={`
@@ -178,7 +179,7 @@ const Amounts = ({
       <span className={styles.txAmount}>
         {sign}
         <Amount
-          amount={recv ? amount.amount : deductedAmount.amount}
+          amount={displayAmount}
           unit={recv ? amount.unit : deductedAmount.unit}
         />
         <span className={styles.txUnit}>

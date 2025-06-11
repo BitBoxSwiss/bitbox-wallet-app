@@ -90,6 +90,9 @@ const UpgradeDialog = ({
   onClose
 }: TUpgradeDialogProps) => {
   const { t } = useTranslation();
+  if (!versionInfo.canUpgrade) {
+    return null;
+  }
   return (
     <Dialog onClose={onClose} open={open} title={t('upgradeFirmware.title')}>
       {confirming ? t('confirmOnDevice') : (

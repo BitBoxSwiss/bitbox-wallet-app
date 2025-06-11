@@ -102,24 +102,28 @@ func TestAOPPSuccess(t *testing.T) {
 	keystoreHelper := software.NewKeystore(rootKey)
 
 	tests := []struct {
-		asset       string
-		coinCode    coinpkg.Code
-		format      string
-		scriptType  *signing.ScriptType
-		address     string
-		addressID   string
-		accountCode accountsTypes.Code
-		accountName string
+		asset        string
+		coinCode     coinpkg.Code
+		format       string
+		scriptType   *signing.ScriptType
+		address      string
+		addressID    string
+		accountCode  accountsTypes.Code
+		accountName  string
+		xpubRequired bool
+		expectedXpub string
 	}{
 		{
-			asset:       "btc",
-			coinCode:    coinpkg.CodeBTC,
-			format:      "any", // defaults to p2wpkh
-			scriptType:  scriptTypeRef(signing.ScriptTypeP2WPKH),
-			address:     "bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3",
-			addressID:   "9959e354fad09a47b0a5b0ac8af1b5f95924526241689b3ed7c472e79d95bde6",
-			accountCode: "v0-55555555-btc-0",
-			accountName: "Bitcoin",
+			asset:        "btc",
+			coinCode:     coinpkg.CodeBTC,
+			format:       "any", // defaults to p2wpkh
+			scriptType:   scriptTypeRef(signing.ScriptTypeP2WPKH),
+			address:      "bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3",
+			addressID:    "9959e354fad09a47b0a5b0ac8af1b5f95924526241689b3ed7c472e79d95bde6",
+			accountCode:  "v0-55555555-btc-0",
+			accountName:  "Bitcoin",
+			xpubRequired: true,
+			expectedXpub: "xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn",
 		},
 		{
 			asset:       "btc",
@@ -142,13 +146,15 @@ func TestAOPPSuccess(t *testing.T) {
 			accountName: "Bitcoin",
 		},
 		{
-			asset:       "eth",
-			coinCode:    coinpkg.CodeETH,
-			format:      "any",
-			address:     "0xB7C853464BE7Ae39c366C9C2A9D4b95340a708c7",
-			addressID:   "0xB7C853464BE7Ae39c366C9C2A9D4b95340a708c7",
-			accountCode: "v0-55555555-eth-0",
-			accountName: "Ethereum",
+			asset:        "eth",
+			coinCode:     coinpkg.CodeETH,
+			format:       "any",
+			address:      "0xB7C853464BE7Ae39c366C9C2A9D4b95340a708c7",
+			addressID:    "0xB7C853464BE7Ae39c366C9C2A9D4b95340a708c7",
+			accountCode:  "v0-55555555-eth-0",
+			accountName:  "Ethereum",
+			xpubRequired: true,
+			expectedXpub: "xpub6GP83vJASH1kS7dQPWXFjVHDfYajopbG8U3j8peBH67CRCnb8QmDxZJfWpbgCQNHAzCDJ4MyVYjoh7Yv9yo7PQuZ9YyktgrtD9vmeo67Y4E",
 		},
 	}
 
@@ -163,8 +169,12 @@ func TestAOPPSuccess(t *testing.T) {
 				body, err := io.ReadAll(r.Body)
 				require.NoError(t, err)
 
+				jsonBody := fmt.Sprintf(`{"version": 0, "address": "%s", "signature": "c2lnbmF0dXJl"}`, test.address)
+				if test.xpubRequired {
+					jsonBody = fmt.Sprintf(`{"version": 0, "address": "%s", "signature": "c2lnbmF0dXJl", "xpub": "%s"}`, test.address, test.expectedXpub)
+				}
 				require.JSONEq(t,
-					fmt.Sprintf(`{"version": 0, "address": "%s", "signature": "c2lnbmF0dXJl"}`, test.address),
+					jsonBody,
 					string(body),
 				)
 				w.WriteHeader(http.StatusNoContent)
@@ -194,15 +204,20 @@ func TestAOPPSuccess(t *testing.T) {
 			params.Set("format", test.format)
 			params.Set("callback", callback)
 
+			if test.xpubRequired {
+				params.Set("xpub_required", "1")
+			}
+
 			require.Equal(t, AOPP{State: aoppStateInactive}, b.AOPP())
 			b.HandleURI(uriPrefix + params.Encode())
 			require.Equal(t,
 				AOPP{
-					State:    aoppStateUserApproval,
-					Callback: callback,
-					Message:  dummyMsg,
-					coinCode: test.coinCode,
-					format:   test.format,
+					State:        aoppStateUserApproval,
+					Callback:     callback,
+					Message:      dummyMsg,
+					coinCode:     test.coinCode,
+					format:       test.format,
+					XpubRequired: test.xpubRequired,
 				},
 				b.AOPP(),
 			)
@@ -210,11 +225,12 @@ func TestAOPPSuccess(t *testing.T) {
 			b.AOPPApprove()
 			require.Equal(t,
 				AOPP{
-					State:    aoppStateAwaitingKeystore,
-					Callback: callback,
-					Message:  dummyMsg,
-					coinCode: test.coinCode,
-					format:   test.format,
+					State:        aoppStateAwaitingKeystore,
+					Callback:     callback,
+					Message:      dummyMsg,
+					coinCode:     test.coinCode,
+					format:       test.format,
+					XpubRequired: test.xpubRequired,
 				},
 				b.AOPP(),
 			)
@@ -228,10 +244,11 @@ func TestAOPPSuccess(t *testing.T) {
 						{Name: test.accountName, Code: test.accountCode},
 						{Name: "Second account", Code: regularAccountCode(rootFingerprint1, test.coinCode, 1)},
 					},
-					Callback: callback,
-					Message:  dummyMsg,
-					coinCode: test.coinCode,
-					format:   test.format,
+					Callback:     callback,
+					Message:      dummyMsg,
+					coinCode:     test.coinCode,
+					format:       test.format,
+					XpubRequired: test.xpubRequired,
 				},
 				b.AOPP(),
 			)
@@ -244,13 +261,14 @@ func TestAOPPSuccess(t *testing.T) {
 						{Name: test.accountName, Code: test.accountCode},
 						{Name: "Second account", Code: regularAccountCode(rootFingerprint1, test.coinCode, 1)},
 					},
-					AccountCode: test.accountCode,
-					Address:     test.address,
-					AddressID:   test.addressID,
-					Callback:    callback,
-					Message:     dummyMsg,
-					coinCode:    test.coinCode,
-					format:      test.format,
+					AccountCode:  test.accountCode,
+					Address:      test.address,
+					AddressID:    test.addressID,
+					Callback:     callback,
+					Message:      dummyMsg,
+					coinCode:     test.coinCode,
+					format:       test.format,
+					XpubRequired: test.xpubRequired,
 				},
 				b.AOPP(),
 			)

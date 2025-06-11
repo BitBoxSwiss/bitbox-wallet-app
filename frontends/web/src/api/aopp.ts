@@ -38,6 +38,7 @@ export type Aopp = {
     state: 'user-approval' | 'awaiting-keystore' | 'syncing';
     message: string;
     callback: string;
+    xpubRequired: boolean;
 } | {
     state: 'choosing-account';
     accounts: Accounts;

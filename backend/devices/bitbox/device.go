@@ -16,32 +16,25 @@
 package bitbox
 
 import (
-	"bytes"
 	"crypto/sha512"
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"math/big"
 	"regexp"
 	"sort"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox/relay"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/pbkdf2"
 )
@@ -69,10 +62,6 @@ const (
 	// EventBootloaderStatusChanged is fired when the bootloader status changes. Check the status
 	// using BootloaderStatus().
 	EventBootloaderStatusChanged event.Event = "bootloaderStatusChanged"
-
-	// signatureBatchSize is the amount of signatures that can be handled by the Bitbox in one batch
-	// (with one long-touch).
-	signatureBatchSize = 15
 
 	// ProductName is the name of the bitbox.
 	// If you change this, be sure to check the frontend and other places which assume this is a
@@ -254,23 +243,17 @@ func (dbb *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
 // fireEvent calls dbb.onEvent callback if non-nil.
 // It blocks for the entire duration of the call.
 // The read-only lock is released before calling dbb.onEvent.
-func (dbb *Device) fireEvent(event event.Event, data interface{}) {
+func (dbb *Device) fireEvent(event event.Event) {
 	dbb.mu.RLock()
 	f := dbb.onEvent
 	dbb.mu.RUnlock()
 	if f != nil {
-		f(event, data)
+		f(event, nil)
 	}
 }
 
 func (dbb *Device) onStatusChanged() {
-	dbb.fireEvent(EventStatusChanged, nil)
-	switch dbb.Status() {
-	case StatusSeeded:
-		dbb.fireEvent(event.EventKeystoreAvailable, nil)
-	case StatusUninitialized:
-		dbb.fireEvent(event.EventKeystoreGone, nil)
-	}
+	dbb.fireEvent(EventStatusChanged)
 }
 
 // Status returns the device state. See the Status* constants.
@@ -807,39 +790,6 @@ func (dbb *Device) Reset(pin string) (bool, error) {
 	return true, nil
 }
 
-// xpub returns the extended publickey at the path.
-func (dbb *Device) xpub(path string) (*hdkeychain.ExtendedKey, error) {
-	if dbb.bootloaderStatus != nil {
-		return nil, errp.WithStack(errNoBootloader)
-	}
-	dbb.log.WithField("path", path).Info("XPub")
-	getXPub := func() (*hdkeychain.ExtendedKey, error) {
-		reply, err := dbb.sendKV("xpub", path, dbb.pin)
-		if err != nil {
-			return nil, err
-		}
-		xpubStr, ok := reply["xpub"].(string)
-		if !ok {
-			return nil, errp.WithStack(errp.New("Unexpected reply"))
-		}
-		return hdkeychain.NewKeyFromString(xpubStr)
-	}
-	// Call the device twice, to reduce the likelihood of a hardware error.
-	xpub1, err := getXPub()
-	if err != nil {
-		return nil, err
-	}
-	xpub2, err := getXPub()
-	if err != nil {
-		return nil, err
-	}
-	if xpub1.String() != xpub2.String() {
-		dbb.log.WithField("path", path).Error("The device returned inconsistent xpubs")
-		return nil, errp.WithStack(errp.New("Critical: the device returned inconsistent xpubs"))
-	}
-	return xpub1, nil
-}
-
 // Random generates a 16 byte random number, hex encoded. typ can be either "true" or "pseudo".
 func (dbb *Device) Random(typ string) (string, error) {
 	if dbb.bootloaderStatus != nil {
@@ -995,242 +945,6 @@ func (dbb *Device) LockBootloader() error {
 	return nil
 }
 
-// Signs a batch of at most 15 signatures. The method returns signatures for the provided hashes.
-// The private keys used to sign them are derived using the provided keyPaths.
-func (dbb *Device) signBatch(
-	btcProposedTx *btc.ProposedTransaction,
-	signatureHashes [][]byte,
-	keyPaths []string,
-	paired bool,
-) (map[string]interface{}, error) {
-	if len(signatureHashes) != len(keyPaths) {
-		dbb.log.WithFields(logrus.Fields{"signature-hashes-length": len(signatureHashes),
-			"keypath-lengths": len(keyPaths)}).Panic("Length of keyPaths must match length of signatureHashes")
-		panic("length of keyPaths must match length of signatureHashes")
-	}
-	if len(signatureHashes) > signatureBatchSize {
-		dbb.log.WithFields(logrus.Fields{"signature-hashes-length": len(signatureHashes),
-			"signature-batch-size": signatureBatchSize}).Panic("This amount of signature hashes " +
-			"cannot be signed in one batch")
-		panic(fmt.Sprintf("only up to %d signature hashes can be signed in one batch", signatureBatchSize))
-	}
-
-	data := []map[string]string{}
-	for i, signatureHash := range signatureHashes {
-		data = append(data, map[string]string{
-			"hash":    hex.EncodeToString(signatureHash),
-			"keypath": keyPaths[i],
-		})
-	}
-
-	command := map[string]map[string]interface{}{
-		"sign": {
-			"data": data,
-		},
-	}
-
-	var transaction string
-	if btcProposedTx != nil {
-		buffer := new(bytes.Buffer)
-		if err := btcProposedTx.TXProposal.Transaction.Serialize(buffer); err != nil {
-			return nil, errp.Wrap(err, "Could not serialize the transaction.")
-		}
-		transaction = hex.EncodeToString(buffer.Bytes())
-		command["sign"]["meta"] = hex.EncodeToString(chainhash.DoubleHashB([]byte(transaction)))
-
-		if btcProposedTx.TXProposal.ChangeAddress != nil {
-			configuration := btcProposedTx.TXProposal.ChangeAddress.Configuration
-			publicKey := configuration.PublicKey()
-			command["sign"]["checkpub"] = []map[string]interface{}{{
-				"pubkey":  hex.EncodeToString(publicKey.SerializeCompressed()),
-				"keypath": configuration.AbsoluteKeypath().Encode(),
-			}}
-		}
-	}
-
-	// First call returns the echo.
-	echo, err := dbb.send(command, dbb.pin)
-	if err != nil {
-		return nil, errp.WithMessage(err, "Failed to sign batch (1)")
-	}
-
-	mobchan := dbb.mobileChannel()
-	if btcProposedTx != nil && paired && mobchan != nil {
-		signingEcho, ok := echo["echo"].(string)
-		if !ok {
-			return nil, errp.WithMessage(err, "The signing echo from the BitBox was not a string.")
-		}
-
-		if len(btcProposedTx.AccountSigningConfigurations) != 1 {
-			return nil, errp.New("BitBox01 does not support mixed input/change script types")
-		}
-		typ := string(btcProposedTx.AccountSigningConfigurations[0].ScriptType())
-		if err := mobchan.SendSigningEcho(signingEcho, btcProposedTx.TXProposal.Coin.Code(), typ, transaction); err != nil {
-			return nil, errp.WithMessage(err, "Could not send the signing echo to the mobile.")
-		}
-	}
-
-	// If the device paired, wait for up to two minutes for the signing "PIN"/nonce.
-	var nonce string
-	if paired && btcProposedTx != nil {
-		if dbb.channel == nil {
-			return nil, errp.New("Signing failed because the device is paired but has no channel.")
-		}
-		nonce, err = dbb.channel.WaitForSigningPin(2 * time.Minute)
-		if err != nil {
-			return nil, errp.WithMessage(err, "waiting for signing pin failed")
-		}
-		if nonce == "abort" {
-			return nil, errp.WithStack(NewError("Aborted from mobile", ErrTouchAbort))
-		}
-	}
-
-	// Second call returns the signatures.
-
-	var pin interface{}
-	if nonce != "" {
-		pin = map[string]interface{}{
-			"pin": nonce,
-		}
-	} else {
-		pin = ""
-	}
-	command2 := map[string]interface{}{
-		"sign": pin,
-	}
-	reply, err := dbb.send(command2, dbb.pin)
-	if err != nil {
-		return nil, errp.WithMessage(err, "Failed to sign batch (2)")
-	}
-	return reply, nil
-}
-
-// SignatureWithRecID also contains the recoverable ID, with which one can more efficiently recover
-// the public key.
-type SignatureWithRecID struct {
-	types.Signature
-	RecID int64
-}
-
-// Sign returns signatures for the provided hashes. The private keys used to sign them are derived
-// using the provided keyPaths.
-func (dbb *Device) Sign(
-	btcProposedTx *btc.ProposedTransaction,
-	signatureHashes [][]byte,
-	keyPaths []string,
-) ([]SignatureWithRecID, error) {
-	if dbb.bootloaderStatus != nil {
-		return nil, errp.WithStack(errNoBootloader)
-	}
-	dbb.log.WithFields(logrus.Fields{"signature-hashes": signatureHashes, "keypaths": keyPaths}).Info("Sign")
-	if len(signatureHashes) != len(keyPaths) {
-		dbb.log.WithFields(logrus.Fields{"signature-hashes-length": len(signatureHashes),
-			"keypath-lengths": len(keyPaths)}).Panic("Length of keyPaths must match length of signatureHashes")
-		panic("len of keyPaths must match len of signatureHashes")
-	}
-	if len(signatureHashes) == 0 {
-		dbb.log.WithField("signature-hashes-length", len(signatureHashes)).Panic("Non-empty list of signature hashes and keypaths expected")
-		panic("non-empty list of signature hashes and keypaths expected")
-	}
-
-	deviceInfo, err := dbb.DeviceInfo()
-	if err != nil {
-		dbb.log.WithError(err).Error("Failed to load the device info for signing.")
-		return nil, errp.WithMessage(err, "Failed to load the device info for signing.")
-	}
-	signatures := []SignatureWithRecID{}
-	steps := len(signatureHashes) / signatureBatchSize
-	if len(signatureHashes)%signatureBatchSize != 0 {
-		steps++
-	}
-	for i := 0; i < len(signatureHashes); i += signatureBatchSize {
-		upper := i + signatureBatchSize
-		if upper > len(signatureHashes) {
-			upper = len(signatureHashes)
-		}
-		dbb.fireEvent(EventSignProgress, struct {
-			Step  int `json:"step"`
-			Steps int `json:"steps"`
-		}{
-			Step:  i / signatureBatchSize,
-			Steps: steps,
-		})
-		reply, err := dbb.signBatch(
-			btcProposedTx,
-			signatureHashes[i:upper],
-			keyPaths[i:upper],
-			deviceInfo.Pairing,
-		)
-		if err != nil {
-			return nil, err
-		}
-		sigs, ok := reply["sign"].([]interface{})
-		if !ok {
-			return nil, errp.New("Unexpected reply: field 'sign' is missing")
-		}
-		for _, sig := range sigs {
-			sigMap, ok := sig.(map[string]interface{})
-			if !ok {
-				return nil, errp.New("Unexpected reply: 'sign' must be a map")
-			}
-			hexSig, ok := sigMap["sig"].(string)
-			if !ok {
-				return nil, errp.New("Unexpected reply: field 'sig' is missing in 'sign' map")
-			}
-			if len(hexSig) != 128 {
-				return nil, errp.New("Unexpected reply: field 'sig' must be 128 byte long")
-			}
-			sigR, ok := big.NewInt(0).SetString(hexSig[:64], 16)
-			if !ok {
-				return nil, errp.New("Unexpected reply: R in 'sig' must be a hex value")
-			}
-			sigS, ok := big.NewInt(0).SetString(hexSig[64:], 16)
-			if !ok {
-				return nil, errp.New("Unexpected reply: S in 'sig' must be a hex value")
-			}
-			sigRecID, ok := sigMap["recid"].(string)
-			if !ok {
-				return nil, errp.New("Unexpected reply: field 'recid' is missing in 'sign' map")
-			}
-			sigRecIDNum, ok := big.NewInt(0).SetString(sigRecID, 16)
-			if !ok {
-				return nil, errp.New("Unexpected reply: 'recid' must be a hex value")
-			}
-			signatures = append(signatures, SignatureWithRecID{
-				Signature: types.Signature{R: sigR, S: sigS},
-				RecID:     sigRecIDNum.Int64(),
-			})
-		}
-	}
-	return signatures, nil
-}
-
-// displayAddress triggers the display of the address at the given key path.
-func (dbb *Device) displayAddress(keyPath string, typ string) error {
-	if dbb.bootloaderStatus != nil {
-		return errp.WithStack(errNoBootloader)
-	}
-	if dbb.channel == nil {
-		dbb.log.Debug("The address is not displayed because no pairing was found.")
-		return nil
-	}
-	reply, err := dbb.sendKV("xpub", keyPath, dbb.pin)
-	if err != nil {
-		dbb.log.WithError(err).Error("Could not retrieve the xpub from the BitBox.")
-		return nil
-	}
-	xpubEcho, ok := reply["echo"].(string)
-	if !ok {
-		dbb.log.Error("The echo from the BitBox to display the address is not a string.")
-		return nil
-	}
-	if err := dbb.channel.SendXpubEcho(xpubEcho, typ); err != nil {
-		dbb.log.WithError(err).Error("Sending the xpub echo to the mobile failed.")
-		return nil
-	}
-	return nil
-}
-
 // ecdhPKhash passes the hash of the ECDH public key of the mobile to the device and returns its response.
 func (dbb *Device) ecdhPKhash(mobileECDHPKhash string) (interface{}, error) {
 	if dbb.bootloaderStatus != nil {
@@ -1299,7 +1013,7 @@ func (dbb *Device) StartPairing() (*relay.Channel, error) {
 	}
 	dbb.mu.Unlock()
 	if removed {
-		dbb.fireEvent("pairingFalse", nil)
+		dbb.fireEvent("pairingFalse")
 	}
 
 	channel := relay.NewChannelWithRandomKey(dbb.socksProxy)
@@ -1339,9 +1053,9 @@ func (dbb *Device) listenForMobile() {
 		}
 
 		if dbb.PingMobile() != nil {
-			dbb.fireEvent("mobileDisconnected", nil)
+			dbb.fireEvent("mobileDisconnected")
 		} else {
-			dbb.fireEvent("mobileConnected", nil)
+			dbb.fireEvent("mobileConnected")
 		}
 		time.Sleep(10 * time.Second)
 	}
@@ -1365,20 +1079,9 @@ func (dbb *Device) Identifier() string {
 	return dbb.deviceID
 }
 
-// ExtendedPublicKey implements device.Interface.
-func (dbb *Device) ExtendedPublicKey(keypath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
-	return dbb.xpub(keypath.Encode())
-}
-
 // Keystore implements device.Interface.
 func (dbb *Device) Keystore() keystoreInterface.Keystore {
-	if dbb.Status() != StatusSeeded {
-		return nil
-	}
-	return &keystore{
-		dbb: dbb,
-		log: dbb.log,
-	}
+	panic("BitBox01 keystore unavailable")
 }
 
 // Lock locks the device for 2FA. Returns true if successful and false if aborted by the user.

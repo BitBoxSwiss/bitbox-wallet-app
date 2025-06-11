@@ -101,8 +101,7 @@ func (device *Device) pair() error {
 		panic(errp.New("expected 32 byte remote static pubkey"))
 	}
 
-	pairingVerificationRequiredByApp := !device.config.ContainsDeviceStaticPubkey(
-		device.deviceNoiseStaticPubkey)
+	pairingVerificationRequiredByApp := !device.options.optionalNoisePairingConfirmation && !device.config.ContainsDeviceStaticPubkey(device.deviceNoiseStaticPubkey)
 	pairingVerificationRequiredByDevice := string(responseBytes) == "\x01"
 
 	if pairingVerificationRequiredByDevice || pairingVerificationRequiredByApp {
@@ -157,9 +156,9 @@ func (device *Device) ChannelHashVerify(ok bool) {
 		_ = device.config.AddDeviceStaticPubkey(device.deviceNoiseStaticPubkey)
 		requireUpgrade := false
 		switch *device.product {
-		case common.ProductBitBox02Multi:
+		case common.ProductBitBox02Multi, common.ProductBitBox02PlusMulti:
 			requireUpgrade = !device.version.AtLeast(lowestSupportedFirmwareVersion)
-		case common.ProductBitBox02BTCOnly:
+		case common.ProductBitBox02BTCOnly, common.ProductBitBox02PlusBTCOnly:
 			requireUpgrade = !device.version.AtLeast(lowestSupportedFirmwareVersionBTCOnly)
 		default:
 			device.log.Error(fmt.Sprintf("unrecognized product: %s", *device.product), nil)

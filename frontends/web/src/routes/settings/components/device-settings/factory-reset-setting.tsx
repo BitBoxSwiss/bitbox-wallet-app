@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark, WarningOutlined, PointToBitBox02 } from '@/components/icon';
+import { WarningOutlined, PointToBitBox02 } from '@/components/icon';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button, Checkbox } from '@/components/forms';
 import { ChangeEvent, useState } from 'react';
@@ -77,7 +77,6 @@ const FactoryResetSetting = ({ deviceID }: TProps) => {
       <SettingsItem
         settingName={settingName}
         secondaryText={t('deviceSettings.expert.factoryReset.description')}
-        extraComponent={<ChevronRightDark />}
         onClick={() => setActiveDialog(true)}
       />
       <FactoryResetDialog

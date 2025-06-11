@@ -198,7 +198,7 @@ a.sidebarActive .single img,
 }
 
 @media (min-width: 1200px) {
-    .sidebarContainer:not(.forceHide) .sidebar {
+    .sidebar {
         position: relative;
         margin-left: 0;
         width: var(--sidebar-width-large);

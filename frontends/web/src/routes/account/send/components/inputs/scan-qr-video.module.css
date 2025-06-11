@@ -9,6 +9,10 @@
 .spinnerAnimationContainer p {
   padding: 0 var(--space-default);
 }
+.spinnerAnimationContainer img {
+  height: 36px;
+  width: 36px;
+}
 
 .qrVideo {
   display: block;

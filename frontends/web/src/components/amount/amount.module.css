@@ -1,3 +1,9 @@
+.amount {
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .space {
     margin-left: 0.33ch;
 }

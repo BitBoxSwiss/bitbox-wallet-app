@@ -46,9 +46,6 @@ var _ accounts.Interface = &InterfaceMock{}
 //			FeeTargetsFunc: func() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
 //				panic("mock out the FeeTargets method")
 //			},
-//			FilesFolderFunc: func() string {
-//				panic("mock out the FilesFolder method")
-//			},
 //			GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
 //				panic("mock out the GetUnusedReceiveAddresses method")
 //			},
@@ -69,9 +66,6 @@ var _ accounts.Interface = &InterfaceMock{}
 //			},
 //			OfflineFunc: func() error {
 //				panic("mock out the Offline method")
-//			},
-//			ProposeTxNoteFunc: func(s string)  {
-//				panic("mock out the ProposeTxNote method")
 //			},
 //			SendTxFunc: func(txNote string) error {
 //				panic("mock out the SendTx method")
@@ -125,9 +119,6 @@ type InterfaceMock struct {
 	// FeeTargetsFunc mocks the FeeTargets method.
 	FeeTargetsFunc func() ([]accounts.FeeTarget, accounts.FeeTargetCode)
 
-	// FilesFolderFunc mocks the FilesFolder method.
-	FilesFolderFunc func() string
-
 	// GetUnusedReceiveAddressesFunc mocks the GetUnusedReceiveAddresses method.
 	GetUnusedReceiveAddressesFunc func() []accounts.AddressList
 
@@ -148,9 +139,6 @@ type InterfaceMock struct {
 
 	// OfflineFunc mocks the Offline method.
 	OfflineFunc func() error
-
-	// ProposeTxNoteFunc mocks the ProposeTxNote method.
-	ProposeTxNoteFunc func(s string)
 
 	// SendTxFunc mocks the SendTx method.
 	SendTxFunc func(txNote string) error
@@ -203,9 +191,6 @@ type InterfaceMock struct {
 		// FeeTargets holds details about calls to the FeeTargets method.
 		FeeTargets []struct {
 		}
-		// FilesFolder holds details about calls to the FilesFolder method.
-		FilesFolder []struct {
-		}
 		// GetUnusedReceiveAddresses holds details about calls to the GetUnusedReceiveAddresses method.
 		GetUnusedReceiveAddresses []struct {
 		}
@@ -229,13 +214,10 @@ type InterfaceMock struct {
 		// Offline holds details about calls to the Offline method.
 		Offline []struct {
 		}
-		// ProposeTxNote holds details about calls to the ProposeTxNote method.
-		ProposeTxNote []struct {
-			// S is the s argument value.
-			S string
-		}
 		// SendTx holds details about calls to the SendTx method.
 		SendTx []struct {
+			// TxNote is the txNote argument value.
+			TxNote string
 		}
 		// SetTxNote holds details about calls to the SetTxNote method.
 		SetTxNote []struct {
@@ -274,7 +256,6 @@ type InterfaceMock struct {
 	lockExportCSV                 sync.RWMutex
 	lockFatalError                sync.RWMutex
 	lockFeeTargets                sync.RWMutex
-	lockFilesFolder               sync.RWMutex
 	lockGetUnusedReceiveAddresses sync.RWMutex
 	lockInfo                      sync.RWMutex
 	lockInitialize                sync.RWMutex
@@ -282,7 +263,6 @@ type InterfaceMock struct {
 	lockNotifier                  sync.RWMutex
 	lockObserve                   sync.RWMutex
 	lockOffline                   sync.RWMutex
-	lockProposeTxNote             sync.RWMutex
 	lockSendTx                    sync.RWMutex
 	lockSetTxNote                 sync.RWMutex
 	lockSynced                    sync.RWMutex
@@ -517,33 +497,6 @@ func (mock *InterfaceMock) FeeTargetsCalls() []struct {
 	return calls
 }
 
-// FilesFolder calls FilesFolderFunc.
-func (mock *InterfaceMock) FilesFolder() string {
-	if mock.FilesFolderFunc == nil {
-		panic("InterfaceMock.FilesFolderFunc: method is nil but Interface.FilesFolder was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockFilesFolder.Lock()
-	mock.calls.FilesFolder = append(mock.calls.FilesFolder, callInfo)
-	mock.lockFilesFolder.Unlock()
-	return mock.FilesFolderFunc()
-}
-
-// FilesFolderCalls gets all the calls that were made to FilesFolder.
-// Check the length with:
-//
-//	len(mockedInterface.FilesFolderCalls())
-func (mock *InterfaceMock) FilesFolderCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockFilesFolder.RLock()
-	calls = mock.calls.FilesFolder
-	mock.lockFilesFolder.RUnlock()
-	return calls
-}
-
 // GetUnusedReceiveAddresses calls GetUnusedReceiveAddressesFunc.
 func (mock *InterfaceMock) GetUnusedReceiveAddresses() []accounts.AddressList {
 	if mock.GetUnusedReceiveAddressesFunc == nil {
@@ -738,49 +691,20 @@ func (mock *InterfaceMock) OfflineCalls() []struct {
 	return calls
 }
 
-// ProposeTxNote calls ProposeTxNoteFunc.
-func (mock *InterfaceMock) ProposeTxNote(s string) {
-	if mock.ProposeTxNoteFunc == nil {
-		panic("InterfaceMock.ProposeTxNoteFunc: method is nil but Interface.ProposeTxNote was just called")
-	}
-	callInfo := struct {
-		S string
-	}{
-		S: s,
-	}
-	mock.lockProposeTxNote.Lock()
-	mock.calls.ProposeTxNote = append(mock.calls.ProposeTxNote, callInfo)
-	mock.lockProposeTxNote.Unlock()
-	mock.ProposeTxNoteFunc(s)
-}
-
-// ProposeTxNoteCalls gets all the calls that were made to ProposeTxNote.
-// Check the length with:
-//
-//	len(mockedInterface.ProposeTxNoteCalls())
-func (mock *InterfaceMock) ProposeTxNoteCalls() []struct {
-	S string
-} {
-	var calls []struct {
-		S string
-	}
-	mock.lockProposeTxNote.RLock()
-	calls = mock.calls.ProposeTxNote
-	mock.lockProposeTxNote.RUnlock()
-	return calls
-}
-
 // SendTx calls SendTxFunc.
 func (mock *InterfaceMock) SendTx(txNote string) error {
 	if mock.SendTxFunc == nil {
 		panic("InterfaceMock.SendTxFunc: method is nil but Interface.SendTx was just called")
 	}
 	callInfo := struct {
-	}{}
+		TxNote string
+	}{
+		TxNote: txNote,
+	}
 	mock.lockSendTx.Lock()
 	mock.calls.SendTx = append(mock.calls.SendTx, callInfo)
 	mock.lockSendTx.Unlock()
-	return mock.SendTxFunc("")
+	return mock.SendTxFunc(txNote)
 }
 
 // SendTxCalls gets all the calls that were made to SendTx.
@@ -788,8 +712,10 @@ func (mock *InterfaceMock) SendTx(txNote string) error {
 //
 //	len(mockedInterface.SendTxCalls())
 func (mock *InterfaceMock) SendTxCalls() []struct {
+	TxNote string
 } {
 	var calls []struct {
+		TxNote string
 	}
 	mock.lockSendTx.RLock()
 	calls = mock.calls.SendTx

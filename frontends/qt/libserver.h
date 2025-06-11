@@ -49,7 +49,7 @@ extern void handleURI(cchar_t* uri);
 extern void serve(cppHeapFree cppHeapFreeFn, pushNotificationsCallback pushNotificationsFn, responseCallback responseFn, notifyUserCallback notifyUserFn, cchar_t* preferredLocale, getSaveFilenameCallback getSaveFilenameFn);
 extern void systemOpen(cchar_t* url);
 extern void goLog(cchar_t* msg);
-
+extern void backendShutdown();
 #ifdef __cplusplus
 }
 #endif

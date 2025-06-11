@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
+import { SpinnerRingDark, SpinnerRingLight } from '../icon';
 import style from './Spinner.module.css';
 
-const SpinnerAnimation = () => {
+export const SpinnerRingAnimated = () => {
   return (
-    <div className={style.spinner}>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
+    <>
+      <SpinnerRingDark className="show-in-lightmode" />
+      <SpinnerRingLight className="show-in-darkmode" />
+    </>
   );
 };
 
-const HorizontallyCenteredSpinner = () => {
+export const HorizontallyCenteredSpinner = () => {
   return (
     <div className={style.horizontallyCentered}>
-      <SpinnerAnimation />
+      <SpinnerRingAnimated />
     </div>
   );
 };
-
-export { SpinnerAnimation, HorizontallyCenteredSpinner };

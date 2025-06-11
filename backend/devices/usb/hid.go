@@ -53,6 +53,11 @@ type hidDeviceInfo struct {
 	hid.DeviceInfo
 }
 
+// IsBluetooth implements DeviceInfo.
+func (info hidDeviceInfo) IsBluetooth() bool {
+	return false
+}
+
 // VendorID implements DeviceInfo.
 func (info hidDeviceInfo) VendorID() int {
 	return int(info.DeviceInfo.VendorID)

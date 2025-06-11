@@ -18,19 +18,19 @@
 import { useContext } from 'react';
 import { AppContext } from '@/contexts/AppContext';
 import { MenuDark, MenuLight } from '@/components/icon';
-import { SpinnerAnimation } from './SpinnerAnimation';
+import { SpinnerRingAnimated } from './SpinnerAnimation';
 import style from './Spinner.module.css';
 
 type TProps = {
   text?: string;
 }
 
-const Spinner = ({ text }: TProps) => {
+export const Spinner = ({ text }: TProps) => {
   const { toggleSidebar } = useContext(AppContext);
 
   return (
     <div className={style.spinnerContainer}>
-      <div className={style.togglersContainer}>
+      <div className={`${style.togglersContainer} hide-on-small`}>
         <div className={style.togglerContainer}>
           <div className={style.toggler} onClick={toggleSidebar}>
             <MenuDark className="show-in-lightmode" />
@@ -38,15 +38,15 @@ const Spinner = ({ text }: TProps) => {
           </div>
         </div>
       </div>
+      <div className={style.spinner}>
+        <SpinnerRingAnimated />
+      </div>
       {
         text && text.split('\n').map((line, i) => (
           <p key={`${line}-${i}`} className={style.spinnerText}>{line}</p>
         ))
       }
-      <SpinnerAnimation />
       <div className={style.overlay}></div>
     </div>
   );
 };
-
-export { Spinner };

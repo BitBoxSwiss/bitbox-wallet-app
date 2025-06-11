@@ -189,29 +189,6 @@ func (configuration *Configuration) PublicKey() *btcec.PublicKey {
 	return publicKey
 }
 
-// Derive derives a subkeypath from the configuration's base absolute keypath.
-func (configuration *Configuration) Derive(relativeKeypath RelativeKeypath) (*Configuration, error) {
-	btc := configuration.BitcoinSimple
-	if btc != nil {
-		if relativeKeypath.Hardened() {
-			return nil, errp.New("A configuration can only be derived with a non-hardened relative keypath.")
-		}
-
-		derivedPublicKey, err := relativeKeypath.Derive(btc.KeyInfo.ExtendedPublicKey)
-		if err != nil {
-			return nil, err
-		}
-		return NewBitcoinConfiguration(
-			btc.ScriptType,
-			btc.KeyInfo.RootFingerprint,
-			btc.KeyInfo.AbsoluteKeypath.Append(relativeKeypath),
-			derivedPublicKey,
-		), nil
-	}
-
-	return nil, errp.New("Can only call this on a bitcoin configuration")
-}
-
 // String returns a short summary of the configuration to be used in logs, etc.
 func (configuration *Configuration) String() string {
 	if configuration.BitcoinSimple != nil {

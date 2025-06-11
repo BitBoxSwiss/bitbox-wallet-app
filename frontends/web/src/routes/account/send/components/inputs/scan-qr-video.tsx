@@ -16,7 +16,7 @@
 
 import { useRef } from 'react';
 import { useQRScanner } from '@/hooks/qrcodescanner';
-import { SpinnerAnimation } from '@/components/spinner/SpinnerAnimation';
+import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import style from './scan-qr-video.module.css';
 
 type TProps = {
@@ -39,7 +39,7 @@ export const ScanQRVideo = ({
       be hidden once the camera / video component
        gets loaded.*/}
       <div className={style.spinnerAnimationContainer}>
-        {initErrorMessage ? <p>{initErrorMessage}</p> : <SpinnerAnimation />}
+        {initErrorMessage ? <p>{initErrorMessage}</p> : <SpinnerRingAnimated />}
       </div>
       <video
         className={style.qrVideo}

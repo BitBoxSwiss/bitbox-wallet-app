@@ -17,8 +17,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import type { AccountCode, CoinUnit, IAccount, IBalance } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { CoinUnit, IAccount, IBalance } from '@/api/account';
 import { Button } from '@/components/forms';
 import { Balances } from '@/routes/account/summary/accountssummary';
 import { isBitcoinCoin, isEthereumBased } from '@/routes/account/utils';
@@ -30,8 +30,8 @@ import styles from './buy-receive-cta.module.css';
 
 type TBuyReceiveCTAProps = {
   balanceList?: IBalance[];
-  code?: string;
-  unit?: string;
+  code?: AccountCode;
+  unit?: CoinUnit;
   exchangeSupported?: boolean;
   account?: IAccount;
 };
@@ -50,7 +50,7 @@ export const BuyReceiveCTA = ({
 }: TBuyReceiveCTAProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const isBitcoin = isBitcoinCoin(unit as CoinUnit);
+  const isBitcoin = isBitcoinCoin(unit);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const onExchangeCTA = () => navigate(code ? `/exchange/info/${code}` : '/exchange/info');
@@ -85,9 +85,8 @@ export const BuyReceiveCTA = ({
             })}
           </Button>
         )}
-        {exchangeSupported && (
+        {(exchangeSupported && !isMobile) && (
           <Button primary onClick={onExchangeCTA}>
-            {/* "Exchange Bitcoin", "Exchange crypto" or "Exchange LTC" (via placeholder "Exchange {{coinCode}}") */}
             {t('generic.buySell')}
           </Button>
         )}

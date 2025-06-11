@@ -16,19 +16,10 @@
 
 import { useContext } from 'react';
 import { AppContext } from '@/contexts/AppContext';
-import { RatesContext } from '@/contexts/RatesContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { CoinUnit, ConversionUnit } from '@/api/account';
 import style from './amount.module.css';
-
-type TProps = {
-  amount: string;
-  unit: CoinUnit | ConversionUnit;
-  removeBtcTrailingZeroes?: boolean;
-  alwaysShowAmounts?: boolean
-  allowRotateCurrencyOnMobile?: boolean;
-};
 
 const formatSats = (amount: string): JSX.Element => {
   const blocks: JSX.Element[] = [];
@@ -92,25 +83,31 @@ const formatBtc = (
   );
 };
 
+type TProps = {
+  amount: string;
+  unit: CoinUnit | ConversionUnit;
+  removeBtcTrailingZeroes?: boolean;
+  alwaysShowAmounts?: boolean;
+  onMobileClick?: () => Promise<void>;
+};
+
 export const Amount = ({
   amount,
   unit,
   removeBtcTrailingZeroes,
   alwaysShowAmounts = false,
-  allowRotateCurrencyOnMobile = false,
+  onMobileClick,
 }: TProps) => {
-  const { rotateDefaultCurrency } = useContext(RatesContext);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const handleClick = () => {
-    if (!isMobile || !allowRotateCurrencyOnMobile) {
-      return;
+    if (isMobile && onMobileClick) {
+      onMobileClick();
     }
-    rotateDefaultCurrency();
   };
 
   return (
-    <span onClick={handleClick}>
+    <span className={style.amount} onClick={handleClick}>
       <FormattedAmount
         amount={amount}
         unit={unit}

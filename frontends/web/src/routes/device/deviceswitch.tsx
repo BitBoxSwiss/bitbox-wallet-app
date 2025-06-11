@@ -40,7 +40,7 @@ const DeviceSwitch = ({ deviceID, devices, hasAccounts }: TProps) => {
     return (
       <BitBox02
         deviceID={deviceID}
-        deviceIDs={deviceIDs}
+        devices={devices}
         hasAccounts={hasAccounts}
       />
     );

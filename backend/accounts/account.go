@@ -54,7 +54,9 @@ type TxProposalArgs struct {
 	Amount           coin.SendAmount
 	FeeTargetCode    FeeTargetCode
 	// Only applies if FeeTargetCode == Custom. It is provided in sat/vB for BTC/LTC and Gwei for ETH.
-	CustomFee      string
+	CustomFee string
+	// Option to always use the highest fee rate without specifying FeeTargetCode or CustomFee
+	UseHighestFee  bool
 	SelectedUTXOs  map[wire.OutPoint]struct{}
 	Note           string
 	PaymentRequest *PaymentRequest
@@ -68,11 +70,6 @@ type Interface interface {
 
 	Info() *Info
 	Config() *AccountConfig
-	// FilesFolder is path to a directory for account files, like databases, etc. Only available
-	// after Initialize(). It must be unique not only up to the type, but also the exact
-	// keystores/signing configuration (e.g. a btc-p2wpkh account for one xpub/xprv should have a
-	// different ID).
-	FilesFolder() string
 	Coin() coin.Coin
 	// Initialize only starts the synchronization, the account is not synced right afterwards.
 	Initialize() error

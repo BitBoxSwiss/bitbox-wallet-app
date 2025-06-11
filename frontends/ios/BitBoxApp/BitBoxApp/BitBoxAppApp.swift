@@ -9,26 +9,6 @@ import SwiftUI
 import Mobileserver
 import LocalAuthentication
 
-func authenticateUser(completion: @escaping (Bool) -> Void) {
-    let context = LAContext()
-    var error: NSError?
-
-    if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-        // TODO: localize the reason string.
-        let reason = "Authentication required"
-        context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
-            DispatchQueue.main.async {
-                completion(success)
-            }
-        }
-    } else {
-        // Biometric authentication not available
-        DispatchQueue.main.async {
-            completion(false)
-        }
-    }
-}
-
 protocol MessageHandlersProtocol {
     func callResponseHandler(queryID: Int, response: String)
     func pushNotificationHandler(msg: String)
@@ -40,34 +20,63 @@ protocol SetMessageHandlersProtocol {
 
 class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDocumentInteractionControllerDelegate {
     private let bluetoothManager: BluetoothManager
-    
+
     init(bluetoothManager: BluetoothManager) {
         self.bluetoothManager = bluetoothManager
     }
-    
+
     func getSaveFilename(_ fileName: String?) -> String {
         let tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         // fileName cannot be nil this is called by Go and Go strings cannot be nil/null.
         let fileURL = tempDirectory.appendingPathComponent(fileName!)
         return fileURL.path
     }
-    
+
     func auth() {
-        authenticateUser { success in
-            // TODO: enabling auth but entering wrong passcode does not remove auth screen
-            MobileserverAuthResult(success)
+        let context = LAContext()
+        var error: NSError?
+
+        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+            // TODO: localize the reason string.
+            let reason = "Authentication required"
+            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
+                DispatchQueue.main.async {
+                    if success {
+                        MobileserverAuthResult(true);
+                    } else {
+                        if let laError = authenticationError as? LAError,
+                           laError.code == .userCancel {
+                            MobileserverCancelAuth();
+                        } else {
+                            MobileserverAuthResult(false);
+                        }
+                    }
+                }
+            }
+        } else {
+            // Biometric authentication not available
+            DispatchQueue.main.async {
+                MobileserverAuthResult(false);
+            }
         }
     }
-    
+
     func detectDarkTheme() -> Bool {
         return UIScreen.main.traitCollection.userInterfaceStyle == .dark
     }
-    
+
     func deviceInfo() -> MobileserverGoDeviceInfoInterfaceProtocol? {
         if !bluetoothManager.isConnected() {
             return nil
         }
-        return BluetoothDeviceInfo(bluetoothManager: bluetoothManager)
+
+        let productInfo = bluetoothManager.parseProduct();
+        guard let productInfo = productInfo else {
+            // Not ready or explicitly not connected (waiting for the device to enter
+            // firmware or bootloader)
+            return nil
+        }
+        return BluetoothDeviceInfo(bluetoothManager: bluetoothManager, productInfo: productInfo)
     }
 
     func nativeLocale() -> String {
@@ -79,6 +88,16 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
 
     func onAuthSettingChanged(_ p0: Bool) {
         // TODO: hide app window contents in app switcher, maybe always not just when auth is on.
+    }
+
+    func bluetoothConnect(_ identifier: String?) {
+        guard let identifier = identifier else {
+            return
+        }
+        guard let uuid = UUID(uuidString: identifier) else {
+            return
+        }
+        bluetoothManager.connect(to: uuid)
     }
 
     func setDarkTheme(_ p0: Bool) {
@@ -151,7 +170,7 @@ class GoAPI: NSObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersPro
 @main
 struct BitBoxAppApp: App {
     @StateObject private var bluetoothManager = BluetoothManager()
-    
+
     var body: some Scene {
         WindowGroup {
             GridLayout(alignment: .leading) {
@@ -165,6 +184,9 @@ struct BitBoxAppApp: App {
                         MobileserverManualReconnect()
                         MobileserverTriggerAuth()
                     }
+            }
+            .onOpenURL { url in
+                MobileserverHandleURI(url.absoluteString)
             }
         }
     }

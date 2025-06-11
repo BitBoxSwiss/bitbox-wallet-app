@@ -104,9 +104,12 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
             if (!mounted.current) {
               return;
             }
+            if (!balance.success) {
+              return;
+            }
             setBalances((prevBalances) => ({
               ...prevBalances,
-              [account.code]: balance
+              [account.code]: balance.balance
             }));
           });
         });

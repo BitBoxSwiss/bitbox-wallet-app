@@ -106,7 +106,7 @@ func (dbb *Device) bootloaderSendBin(bin []byte) error {
 		chunkNum++
 
 		dbb.bootloaderStatus.Progress = float64(chunkNum) / float64(totalChunks)
-		dbb.fireEvent(EventBootloaderStatusChanged, nil)
+		dbb.fireEvent(EventBootloaderStatusChanged)
 		log.Printf("firmware upgrade progress: %f\n", dbb.bootloaderStatus.Progress)
 		if chunkNum == 0 {
 			return errp.New("firmware file too big")
@@ -128,7 +128,7 @@ func (dbb *Device) BootloaderUpgradeFirmware(signedFirmware []byte) error {
 
 	dbb.bootloaderStatus.Progress = 0
 	dbb.bootloaderStatus.Upgrading = true
-	dbb.fireEvent(EventBootloaderStatusChanged, nil)
+	dbb.fireEvent(EventBootloaderStatusChanged)
 	err := func() error {
 		// Erase the firmware (required).
 		if err := dbb.bootloaderSendCmd('e', nil); err != nil {
@@ -146,11 +146,11 @@ func (dbb *Device) BootloaderUpgradeFirmware(signedFirmware []byte) error {
 	if err != nil {
 		dbb.bootloaderStatus.Upgrading = false
 		dbb.bootloaderStatus.ErrMsg = err.Error()
-		dbb.fireEvent(EventBootloaderStatusChanged, nil)
+		dbb.fireEvent(EventBootloaderStatusChanged)
 		return err
 	}
 	dbb.bootloaderStatus.Progress = 0
 	dbb.bootloaderStatus.UpgradeSuccessful = true
-	dbb.fireEvent(EventBootloaderStatusChanged, nil)
+	dbb.fireEvent(EventBootloaderStatusChanged)
 	return nil
 }
