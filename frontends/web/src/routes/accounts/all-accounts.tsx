@@ -120,8 +120,9 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
                   {keystore.keystore.connected && (
                     <Badge
                       icon={props => <USBSuccess {...props} />}
-                      type="success"
-                      title={t('device.keystoreConnected')} />
+                      type="success">
+                      {t('device.keystoreConnected')}
+                    </Badge>
                   )}
 
                 </div>
