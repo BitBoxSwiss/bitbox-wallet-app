@@ -16,15 +16,16 @@ package exchanges
 
 import (
 	"net/http"
+	"slices"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 )
 
-// regionCodes is an array containing ISO 3166-1 alpha-2 code of all regions.
+// RegionCodes is an array containing ISO 3166-1 alpha-2 code of all regions.
 // Source: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-var regionCodes = []string{
+var RegionCodes = []string{
 	"AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ",
 	"BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS",
 	"BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN",
@@ -86,9 +87,10 @@ type ExchangeRegionList struct {
 // ExchangeRegion contains the ISO 3166-1 alpha-2 code of a specific region and a boolean
 // for each exchange, indicating if that exchange is enabled for the region.
 type ExchangeRegion struct {
-	Code             string `json:"code"`
-	IsMoonpayEnabled bool   `json:"isMoonpayEnabled"`
-	IsPocketEnabled  bool   `json:"isPocketEnabled"`
+	Code               string `json:"code"`
+	IsMoonpayEnabled   bool   `json:"isMoonpayEnabled"`
+	IsPocketEnabled    bool   `json:"isPocketEnabled"`
+	IsBtcDirectEnabled bool   `json:"isBtcDirectEnabled"`
 }
 
 // PaymentMethod type is used for payment options in exchange deals.
@@ -99,17 +101,24 @@ const (
 	CardPayment PaymentMethod = "card"
 	// BankTransferPayment is a payment with bank transfer.
 	BankTransferPayment PaymentMethod = "bank-transfer"
+	// SOFORTPayment is a payment method in the SEPA region.
+	SOFORTPayment PaymentMethod = "sofort"
+	// BancontactPayment is a payment method in the SEPA region.
+	BancontactPayment PaymentMethod = "bancontact"
 )
 
 // ExchangeDeal represents a specific purchase option of an exchange.
-// - Fee indicates form the percentage that goes to the exchange in a float representation (e.g. 0.01 -> 1%).
-// - Payment is the payment method offered in the deal (usually different payment methods bring different fees).
-// - IsFast is usually associated with card payments. It is used by the frontend to display the `fast` tag in deals list.
 type ExchangeDeal struct {
-	Fee     float32       `json:"fee"`
+	// Fee that goes to the exchange in percentage.
+	Fee float32 `json:"fee"`
+	// Payment is the payment method offered in the deal (usually different payment methods bring different fees).
 	Payment PaymentMethod `json:"payment"`
-	IsFast  bool          `json:"isFast"`
-	IsBest  bool          `json:"isBest"`
+	// IsFast is usually associated with card payments. It is used by the frontend to display the `fast` badge in deals list.
+	IsFast bool `json:"isFast"`
+	// IsBest is assigned to the deal with the lowest fee, it is used to show the `best deal` badge in the frontend.
+	IsBest bool `json:"isBest"`
+	// IsHidden deals are not explicitly listed in the frontend deals list.
+	IsHidden bool `json:"isHidden"`
 }
 
 // ExchangeDealsList list the name of a specific exchange and the list of available deals offered by that exchange.
@@ -135,11 +144,14 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 		log.Error(pocketError)
 	}
 
+	btcDirectRegions := GetBtcDirectSupportedRegions()
+
 	isMoonpaySupported := IsMoonpaySupported(account.Coin().Code())
 	isPocketSupported := IsPocketSupported(account.Coin().Code())
+	isBtcDirectSupported := IsBtcDirectSupported(account.Coin().Code())
 
 	exchangeRegions := ExchangeRegionList{}
-	for _, code := range regionCodes {
+	for _, code := range RegionCodes {
 		// default behavior is to show the exchange if the supported regions check fails.
 		moonpayEnabled, pocketEnabled := true, true
 		if moonpayError == nil {
@@ -148,10 +160,13 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 		if pocketError == nil {
 			_, pocketEnabled = pocketRegions[code]
 		}
+		btcDirectEnabled := slices.Contains(btcDirectRegions, code)
+
 		exchangeRegions.Regions = append(exchangeRegions.Regions, ExchangeRegion{
-			Code:             code,
-			IsMoonpayEnabled: moonpayEnabled && isMoonpaySupported,
-			IsPocketEnabled:  pocketEnabled && isPocketSupported,
+			Code:               code,
+			IsMoonpayEnabled:   moonpayEnabled && isMoonpaySupported,
+			IsPocketEnabled:    pocketEnabled && isPocketSupported,
+			IsBtcDirectEnabled: btcDirectEnabled && isBtcDirectSupported,
 		})
 	}
 
@@ -162,7 +177,8 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 func GetExchangeDeals(account accounts.Interface, regionCode string, action ExchangeAction, httpClient *http.Client) ([]*ExchangeDealsList, error) {
 	moonpaySupportsCoin := IsMoonpaySupported(account.Coin().Code()) && action == BuyAction
 	pocketSupportsCoin := IsPocketSupported(account.Coin().Code())
-	coinSupported := moonpaySupportsCoin || pocketSupportsCoin
+	btcDirectSupportsCoin := IsBtcDirectSupported(account.Coin().Code()) && action == BuyAction
+	coinSupported := moonpaySupportsCoin || pocketSupportsCoin || btcDirectSupportsCoin
 	if !coinSupported {
 		return nil, ErrCoinNotSupported
 	}
@@ -181,8 +197,9 @@ func GetExchangeDeals(account accounts.Interface, regionCode string, action Exch
 	}
 	if userRegion == nil {
 		userRegion = &ExchangeRegion{
-			IsMoonpayEnabled: true,
-			IsPocketEnabled:  true,
+			IsMoonpayEnabled:   true,
+			IsPocketEnabled:    true,
+			IsBtcDirectEnabled: true,
 		}
 	}
 
@@ -200,6 +217,13 @@ func GetExchangeDeals(account accounts.Interface, regionCode string, action Exch
 			exchangeDealsLists = append(exchangeDealsLists, deals)
 		}
 	}
+	if btcDirectSupportsCoin && userRegion.IsBtcDirectEnabled {
+		deals := BtcDirectDeals()
+		if deals != nil {
+			exchangeDealsLists = append(exchangeDealsLists, deals)
+		}
+	}
+
 	if len(exchangeDealsLists) == 0 {
 		return nil, ErrRegionNotSupported
 	}
@@ -215,7 +239,7 @@ func GetExchangeDeals(account accounts.Interface, regionCode string, action Exch
 		bestDealIndex := 0
 		for i, deal := range deals {
 			oldBestDeal := deals[bestDealIndex]
-			if deal.Fee < oldBestDeal.Fee {
+			if !deal.IsHidden && deal.Fee < oldBestDeal.Fee {
 				bestDealIndex = i
 			}
 		}

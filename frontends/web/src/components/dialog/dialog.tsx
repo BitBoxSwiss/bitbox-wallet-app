@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2021-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import { UseBackButton } from '@/hooks/backbutton';
 import { useEsc, useKeydown } from '@/hooks/keyboard';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import style from './dialog.module.css';
 
 type TProps = {
@@ -50,6 +51,7 @@ export const Dialog = ({
   const modalRef = useRef<HTMLDivElement>(null);
   const modalContentRef = useRef<HTMLDivElement>(null);
   const timerIdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const getFocusables = useCallback((): (NodeListOf<HTMLElement> | null) => {
     if (!modalContentRef.current) {
@@ -186,6 +188,14 @@ export const Dialog = ({
     }
   }, [activate, renderDialog]);
 
+
+  const handleTap = (e: React.MouseEvent<HTMLDivElement>) => {
+    const validTap = e.target === e.currentTarget;
+    if (validTap && isMobile) {
+      closeHandler();
+    }
+  };
+
   if (!renderDialog) {
     return null;
   }
@@ -197,7 +207,7 @@ export const Dialog = ({
   const isCentered = centered && !onClose ? style.centered : '';
 
   return (
-    <div className={style.overlay} ref={overlayRef}>
+    <div onClick={handleTap} className={style.overlay} ref={overlayRef}>
       <UseBackButton handler={closeHandler}/>
       <div
         className={[style.modal, isSmall, isMedium, isLarge].join(' ')}
@@ -207,9 +217,7 @@ export const Dialog = ({
             <div className={[style.header, isCentered].join(' ')}>
               <h3 className={style.title}>{title}</h3>
               { onClose ? (
-                <button className={style.closeButton} onClick={() => {
-                  deactivate(true);
-                }}>
+                <button className={style.closeButton} onClick={closeHandler}>
                   <CloseXDark className="show-in-lightmode" />
                   <CloseXWhite className="show-in-darkmode" />
                 </button>

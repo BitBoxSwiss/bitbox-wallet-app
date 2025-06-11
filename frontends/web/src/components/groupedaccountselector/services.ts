@@ -12,7 +12,10 @@ export const createGroupedOptions = (accountsByKeystore: TAccountsByKeystore[]) 
 
 const appendBalance = async (option: TOption) => {
   const balance = await getBalance(option.value);
-  return { ...option, balance: `${balance.available.amount} ${balance.available.unit}` };
+  if (!balance.success) {
+    return { ... option };
+  }
+  return { ...option, balance: `${balance.balance.available.amount} ${balance.balance.available.unit}` };
 };
 
 export const getBalancesForGroupedAccountSelector = async (originalGroupedOptions: TGroupedOption[]) => {

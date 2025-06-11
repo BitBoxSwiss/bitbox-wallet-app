@@ -5,6 +5,7 @@
     "plugin:react/recommended",
     "plugin:react-hooks/recommended"
   ],
+  "ignorePatterns": ["src/utils/qwebchannel.js"],
   "settings": {
     "react": {
       "version": "detect"
@@ -19,6 +20,7 @@
     "jsx-a11y/alt-text" : 0,
     "jsx-quotes": ["error", "prefer-double"],
     "keyword-spacing": "error",
+    "eqeqeq": "error",
     "no-multi-spaces": "error",
     "no-trailing-spaces": "error",
     "object-curly-spacing": ["error", "always"],

@@ -20,10 +20,10 @@ import (
 	"net/http"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
-	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -91,7 +91,6 @@ func newAccount(t *testing.T) *Account {
 				SigningConfigurations: signingConfigurations,
 			},
 			DBFolder:        dbFolder,
-			OnEvent:         func(accountsTypes.Event) {},
 			RateUpdater:     nil,
 			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
 			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
@@ -115,7 +114,7 @@ func newAccount(t *testing.T) *Account {
 func TestTxProposal(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	acct.Synchronizer.WaitSynchronized()
+	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	t.Run("valid", func(t *testing.T) {
 		value, fee, total, err := acct.TxProposal(&accounts.TxProposalArgs{
@@ -172,7 +171,7 @@ func TestTxProposal(t *testing.T) {
 func TestMatchesAddress(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	acct.Synchronizer.WaitSynchronized()
+	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	// Test invalid Ethereum address
 	t.Run("Invalid Ethereum address", func(t *testing.T) {

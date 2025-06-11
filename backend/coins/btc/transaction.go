@@ -39,8 +39,7 @@ const unitSatoshi = 1e8
 // fee target (priority) if one is given, or the provided args.FeePerKb if the fee taret is
 // `FeeTargetCodeCustom`.
 func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amount, error) {
-	isPaymentRequest := args.PaymentRequest != nil
-	if args.FeeTargetCode == accounts.FeeTargetCodeCustom && !isPaymentRequest {
+	if args.FeeTargetCode == accounts.FeeTargetCodeCustom && !args.UseHighestFee {
 		float, err := strconv.ParseFloat(args.CustomFee, 64)
 		if err != nil {
 			return 0, err
@@ -60,7 +59,7 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 	}
 
 	var feeTarget *FeeTarget
-	if isPaymentRequest {
+	if args.UseHighestFee {
 		feeTarget = account.feeTargets().highest()
 	} else {
 		for _, target := range account.feeTargets() {
@@ -90,6 +89,9 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 // watch-only tools can fix it by moving the coins back to P2WPKH, and not have them go a Taproot
 // change again by accident.
 func (account *Account) pickChangeAddress(utxos map[wire.OutPoint]maketx.UTXO) (*addresses.AccountAddress, error) {
+	if len(account.subaccounts) == 0 {
+		return nil, errp.New("Account has no subaccounts")
+	}
 	if len(account.subaccounts) == 1 {
 		unusedAddresses, err := account.subaccounts[0].changeAddresses.GetUnused()
 		if err != nil {
@@ -102,7 +104,7 @@ func (account *Account) pickChangeAddress(utxos map[wire.OutPoint]maketx.UTXO) (
 	if p2trIndex >= 0 {
 		// Check if there is at least one taproot UTXO.
 		for _, utxo := range utxos {
-			if utxo.Configuration.ScriptType() == signing.ScriptTypeP2TR {
+			if utxo.Address.AccountConfiguration.ScriptType() == signing.ScriptTypeP2TR {
 				// Found a taproot UTXO.
 				unusedAddresses, err := account.subaccounts[p2trIndex].changeAddresses.GetUnused()
 				if err != nil {
@@ -148,6 +150,10 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		}
 		outputInfo = maketx.NewOutputInfo(pkScript)
 	}
+
+	if !account.Synced() {
+		return nil, nil, accounts.ErrSyncInProgress
+	}
 	utxo, err := account.transactions.SpendableOutputs()
 	if err != nil {
 		return nil, nil, err
@@ -162,8 +168,8 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		}
 		wireUTXO[outPoint] = maketx.UTXO{
 			TxOut: txOut.TxOut,
-			Configuration: account.getAddress(
-				blockchain.NewScriptHashHex(txOut.TxOut.PkScript)).Configuration,
+			Address: account.GetAddress(
+				blockchain.NewScriptHashHex(txOut.TxOut.PkScript)),
 		}
 	}
 	feeRatePerKb, err := account.getFeePerKb(args)
@@ -205,7 +211,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		if err != nil {
 			return nil, nil, err
 		}
-		account.log.Infof("Change address script type: %s", changeAddress.Configuration.ScriptType())
+		account.log.Infof("Change address script type: %s", changeAddress.AccountConfiguration.ScriptType())
 		txProposal, err = maketx.NewTx(
 			account.coin,
 			wireUTXO,
@@ -229,9 +235,9 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	return utxo, txProposal, nil
 }
 
-// getAddress returns the address in the account with the given `scriptHashHex`. Returns nil if the
+// GetAddress returns the address in the account with the given `scriptHashHex`. Returns nil if the
 // address does not exist in the account.
-func (account *Account) getAddress(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
+func (account *Account) GetAddress(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
 	for _, subacc := range account.subaccounts {
 		if address := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
 			return address

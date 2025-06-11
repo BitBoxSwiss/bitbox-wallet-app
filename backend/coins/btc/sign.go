@@ -32,11 +32,30 @@ type ProposedTransaction struct {
 	TXProposal *maketx.TxProposal
 	// List of signing configurations that might be used in the tx inputs.
 	AccountSigningConfigurations []*signing.Configuration
-	GetAccountAddress            func(blockchain.ScriptHashHex) *addresses.AccountAddress
 	GetPrevTx                    func(chainhash.Hash) (*wire.MsgTx, error)
 	// Signatures collects the signatures, one per transaction input.
 	Signatures []*types.Signature
 	FormatUnit coin.BtcUnit
+	// GetKeystoreAddress returns the address from the same keystore given the script hash,
+	// or nil if not found.
+	// It also returns a boolean indicating whether the address belongs to the account
+	// that is asking for the address or not.
+	GetKeystoreAddress func(*Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error)
+	SendingAccount     *Account
+}
+
+// Finalize adds the signatureScript/witness for each input based on the available signatures and
+// input address configurations.
+func (p *ProposedTransaction) Finalize() error {
+	for index, input := range p.TXProposal.Transaction.TxIn {
+		address := p.TXProposal.PreviousOutputs[input.PreviousOutPoint].Address
+		signature := p.Signatures[index]
+		if signature == nil {
+			return errp.New("Signature missing")
+		}
+		input.SignatureScript, input.Witness = address.SignatureScript(*signature)
+	}
+	return nil
 }
 
 // signTransaction signs all inputs. It assumes all outputs spent belong to this
@@ -54,7 +73,8 @@ func (account *Account) signTransaction(
 	proposedTransaction := &ProposedTransaction{
 		TXProposal:                   txProposal,
 		AccountSigningConfigurations: signingConfigs,
-		GetAccountAddress:            account.getAddress,
+		GetKeystoreAddress:           account.getAddressFromSameKeystore,
+		SendingAccount:               account,
 		GetPrevTx:                    getPrevTx,
 		Signatures:                   make([]*types.Signature, len(txProposal.Transaction.TxIn)),
 		FormatUnit:                   account.coin.formatUnit,
@@ -68,18 +88,13 @@ func (account *Account) signTransaction(
 		return err
 	}
 
-	for index, input := range txProposal.Transaction.TxIn {
-		spentOutput := previousOutputs[input.PreviousOutPoint]
-		address := proposedTransaction.GetAccountAddress(spentOutput.ScriptHashHex())
-		signature := proposedTransaction.Signatures[index]
-		if signature == nil {
-			return errp.New("Signature missing")
-		}
-		input.SignatureScript, input.Witness = address.SignatureScript(*signature)
+	// Insert signatureScripts/witnesses.
+	if err := proposedTransaction.Finalize(); err != nil {
+		return err
 	}
 
 	// Sanity check: see if the created transaction is valid.
-	if err := txValidityCheck(txProposal.Transaction, previousOutputs,
+	if err := TxValidityCheck(txProposal.Transaction, previousOutputs,
 		txProposal.SigHashes()); err != nil {
 		account.log.WithError(err).Panic("Failed to pass transaction validity check.")
 	}
@@ -87,15 +102,16 @@ func (account *Account) signTransaction(
 	return nil
 }
 
-func txValidityCheck(transaction *wire.MsgTx, previousOutputs maketx.PreviousOutputs,
+// TxValidityCheck checks if the transaction is valid, including signature/witness checks.
+func TxValidityCheck(transaction *wire.MsgTx, previousOutputs maketx.PreviousOutputs,
 	sigHashes *txscript.TxSigHashes) error {
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := previousOutputs[txIn.PreviousOutPoint]
 		if !ok {
 			return errp.New("There needs to be exactly one output being spent per input!")
 		}
-		engine, err := txscript.NewEngine(spentOutput.PkScript, transaction, index,
-			txscript.StandardVerifyFlags, nil, sigHashes, spentOutput.Value, previousOutputs)
+		engine, err := txscript.NewEngine(spentOutput.TxOut.PkScript, transaction, index,
+			txscript.StandardVerifyFlags, nil, sigHashes, spentOutput.TxOut.Value, previousOutputs)
 		if err != nil {
 			return errp.WithStack(err)
 		}

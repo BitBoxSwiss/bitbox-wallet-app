@@ -14,59 +14,40 @@
  * limitations under the License.
  */
 
+import { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import * as exchangesAPI from '@/api/exchanges';
-import { useContext, useEffect, useState } from 'react';
-import { ExchangeSelectionRadio } from './exchangeselectionradio';
 import { Button } from '@/components/forms/button';
-import { useTranslation } from 'react-i18next';
-import style from '../exchange.module.css';
 import { AppContext } from '@/contexts/AppContext';
-import { TInfoContentProps } from './infocontent';
+import { getBTCDirectOTCLink, TInfoContentProps, TPaymentFee } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { hasPaymentRequest } from '@/api/account';
 import { Message } from '@/components/message/message';
 import { ExternalLinkWhite, ExternalLinkBlack, Businessman } from '@/components/icon';
 import { useDarkmode } from '@/hooks/darkmode';
-import { i18n } from '@/i18n/i18n';
 import { A } from '@/components/anchor/anchor';
 import { InfoButton } from '@/components/infobutton/infobutton';
 import { getConfig } from '@/utils/config';
+import { ActionableItem } from '@/components/actionable-item/actionable-item';
+import { ExchangeProviders } from '@/routes/exchange/components/exchange-providers';
+import style from '../exchange.module.css';
 
 type TProps = {
   accountCode: string;
   deviceIDs: string[];
   selectedRegion: string;
-  onSelectExchange: (exchange: string) => void;
-  selectedExchange: string;
-  goToExchange: () => void;
+  goToExchange: (exchange: string) => void;
   showBackButton: boolean;
-  action: exchangesAPI.TExchangeAction
-  setInfo: (into: TInfoContentProps) => void;
+  action: exchangesAPI.TExchangeAction;
+  setInfo: (info: TInfoContentProps) => void;
 }
-
-export const getBTCDirectLink = () => {
-  switch (i18n.resolvedLanguage) {
-  case 'de':
-    return 'https://btcdirect.eu/de-at/private-trading-contact?BitBox';
-  case 'nl':
-    return 'https://btcdirect.eu/nl-nl/private-trading-contact?BitBox';
-  case 'es':
-    return 'https://btcdirect.eu/es-es/private-trading-contactanos?BitBox';
-  case 'fr':
-    return 'https://btcdirect.eu/fr-fr/private-trading-contact?BitBox';
-  default:
-    return 'https://btcdirect.eu/en-eu/private-trading-contact?BitBox';
-  }
-};
 
 export const BuySell = ({
   accountCode,
   deviceIDs,
   selectedRegion,
-  onSelectExchange,
-  selectedExchange,
   goToExchange,
   showBackButton,
   action,
@@ -77,10 +58,10 @@ export const BuySell = ({
   const { isDarkMode } = useDarkmode();
 
   const exchangeDealsResponse = useLoad(() => exchangesAPI.getExchangeDeals(action, accountCode, selectedRegion), [action, selectedRegion]);
-  const btcDirectSupported = useLoad(exchangesAPI.getBtcDirectSupported(accountCode, selectedRegion), [selectedRegion]);
+  const btcDirectOTCSupported = useLoad(exchangesAPI.getBtcDirectOTCSupported(accountCode, selectedRegion), [selectedRegion]);
   const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(accountCode));
   const [paymentRequestError, setPaymentRequestError] = useState(false);
-  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
   const config = useLoad(getConfig);
   const navigate = useNavigate();
 
@@ -90,18 +71,9 @@ export const BuySell = ({
   }, [hasPaymentRequestResponse, action]);
 
 
-  // checks for the loaded exchange deals, and preselect if there is only one available.
-  useEffect(() => {
-    if (exchangeDealsResponse?.success && exchangeDealsResponse.exchanges.length === 1) {
-      onSelectExchange(exchangeDealsResponse.exchanges[0].exchangeName);
-    } else {
-      onSelectExchange('');
-    }
-  }, [exchangeDealsResponse, onSelectExchange]);
-
   useEffect(() => {
     if (config) {
-      setAgreedTerms(config.frontend.skipBTCDirectDisclaimer);
+      setAgreedBTCDirectOTCTerms(config.frontend.skipBTCDirectOTCDisclaimer);
     }
   }, [config]);
 
@@ -121,15 +93,18 @@ export const BuySell = ({
   };
 
   const buildInfo = (exchange: exchangesAPI.ExchangeDeals): TInfoContentProps => {
-    const cardFee = exchange.deals && exchange.deals.find(feeDetail => feeDetail.payment === 'card')?.fee;
-    const bankTransferFee = exchange.deals && exchange.deals.find(feeDetail => feeDetail.payment === 'bank-transfer')?.fee;
-    return { info: exchange.exchangeName, cardFee, bankTransferFee };
+    let paymentFees: TPaymentFee = {};
+    exchange.deals.forEach(deal => paymentFees[deal.payment] = deal.fee);
+    return {
+      exchangeName: exchange.exchangeName,
+      paymentFees,
+    };
   };
 
   return (
     <>
       <div className={style.innerRadioButtonsContainer}>
-        {!exchangeDealsResponse && <Skeleton/> }
+        {!exchangeDealsResponse && <Skeleton />}
         {exchangeDealsResponse?.success === false || paymentRequestError ? (
           <div className="flex flex-column">
             <p className={style.noExchangeText}>{constructErrorMessage()}</p>
@@ -148,34 +123,40 @@ export const BuySell = ({
             )}
           </div>
         ) : (
-          <div>
-            {exchangeDealsResponse?.exchanges.map(exchange => (
-              <ExchangeSelectionRadio
-                key={exchange.exchangeName}
-                id={exchange.exchangeName}
-                exchangeName={exchange.exchangeName}
-                deals={exchange.deals}
-                checked={selectedExchange === exchange.exchangeName}
-                onChange={() => {
-                  onSelectExchange(exchange.exchangeName);
-                }}
-                onClickInfoButton={() => setInfo(buildInfo(exchange))}
-              />
-            ))}
+          <div className={style.exchangeProvidersContainer}>
+            {exchangeDealsResponse?.exchanges
+              // skip the exchanges that have only hidden deals.
+              .filter(exchange => (exchange.deals.some(deal => !deal.isHidden)))
+              .map(exchange => (
+                <div key={exchange.exchangeName} className={style.actionableItemContainer}>
+                  <ActionableItem
+                    key={exchange.exchangeName}
+                    onClick={() => {
+                      goToExchange(exchange.exchangeName);
+                    }}>
+                    <ExchangeProviders
+                      deals={exchange.deals}
+                      exchangeName={exchange.exchangeName}
+                    />
+                  </ActionableItem>
+
+                  <InfoButton onClick={() => setInfo(buildInfo(exchange))} />
+                </div>
+              ))}
           </div>
         )}
-        {btcDirectSupported?.success && btcDirectSupported?.supported && (
+        {btcDirectOTCSupported?.success && btcDirectOTCSupported?.supported && (
           <div className={style.infoContainer}>
             <Message type="info" icon={<Businessman/>}>
               {t('buy.exchange.infoContent.btcdirect.title')}
               <p>{t('buy.exchange.infoContent.btcdirect.info')}</p>
               <p>
-                {!agreedTerms ? (
-                  <Link to={'/exchange/btcdirect'} className={style.link}>
+                {!agreedBTCDirectOTCTerms ? (
+                  <Link to={'/exchange/btcdirect-otc'} className={style.link}>
                     {t('buy.exchange.infoContent.btcdirect.link')}
                   </Link>
                 ) : (
-                  <A href={getBTCDirectLink()} className={style.link}>
+                  <A href={getBTCDirectOTCLink()} className={style.link}>
                     {t('buy.exchange.infoContent.btcdirect.link')}
                   </A>
                 )}
@@ -183,7 +164,7 @@ export const BuySell = ({
                 {isDarkMode ? <ExternalLinkWhite className={style.textIcon}/> : <ExternalLinkBlack className={style.textIcon}/>}
               </p>
             </Message>
-            <InfoButton onClick={() => setInfo({ info: 'btcdirect' })} />
+            <InfoButton onClick={() => setInfo({ exchangeName: 'btcdirect-otc', paymentFees: {} })} />
           </div>
         )}
       </div>
@@ -197,12 +178,6 @@ export const BuySell = ({
               {t('button.back')}
             </Button>
           )}
-          <Button
-            primary
-            disabled={!selectedExchange || paymentRequestError}
-            onClick={goToExchange}>
-            {t('button.next')}
-          </Button>
         </div>
       )}
     </>

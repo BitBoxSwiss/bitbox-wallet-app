@@ -27,7 +27,7 @@ func (device *Device) finishPairing(channel *relay.Channel) {
 	if err := channel.StoreToConfigFile(device.channelConfigDir); err != nil {
 		device.mu.Unlock() // fireEvent below needs read-lock
 		device.log.WithError(err).Error("Failed to store the channel config file.")
-		device.fireEvent(EventPairingError, nil)
+		device.fireEvent(EventPairingError)
 		return
 	}
 
@@ -35,7 +35,7 @@ func (device *Device) finishPairing(channel *relay.Channel) {
 	if err := device.FeatureSet(&FeatureSet{Pairing: &truth}); err != nil {
 		device.mu.Unlock() // fireEvent below needs read-lock
 		device.log.WithError(err).Error("Failed activate pairing.")
-		device.fireEvent(EventPairingError, nil)
+		device.fireEvent(EventPairingError)
 		return
 	}
 	device.channel = channel
@@ -43,17 +43,17 @@ func (device *Device) finishPairing(channel *relay.Channel) {
 	device.mu.Unlock()
 
 	go device.listenForMobile()
-	device.fireEvent(EventPairingSuccess, nil)
+	device.fireEvent(EventPairingSuccess)
 }
 
 func (device *Device) handlePairingError(err error, message string) {
 	switch err.Error() {
 	case relay.PullFailedError:
 		device.log.Errorf("Failed to pull the mobile's %s.", message)
-		device.fireEvent(EventPairingPullMessageFailed, nil)
+		device.fireEvent(EventPairingPullMessageFailed)
 	case relay.ResponseTimeoutError:
 		device.log.Errorf("Failed to wait for the mobile's %s.", message)
-		device.fireEvent(EventPairingTimedout, nil)
+		device.fireEvent(EventPairingTimedout)
 	default:
 	}
 }
@@ -67,13 +67,13 @@ func (device *Device) processPairing(channel *relay.Channel) {
 	}
 	if status != "success" {
 		device.log.Error("Scanning unsuccessful")
-		device.fireEvent(EventPairingScanningFailed, nil)
+		device.fireEvent(EventPairingScanningFailed)
 	}
 
 	deviceInfo, err := device.DeviceInfo()
 	if err != nil {
 		device.log.WithError(err).Error("Failed to check if device is locked or not")
-		device.fireEvent(EventPairingError, nil)
+		device.fireEvent(EventPairingError)
 		return
 	}
 	if deviceInfo.Lock {
@@ -81,7 +81,7 @@ func (device *Device) processPairing(channel *relay.Channel) {
 		device.finishPairing(channel)
 		return
 	}
-	device.fireEvent(EventPairingStarted, nil)
+	device.fireEvent(EventPairingStarted)
 	mobileECDHPKhash, err := channel.WaitForMobilePublicKeyHash(2 * time.Minute)
 	if err != nil {
 		device.handlePairingError(err, "public key hash")
@@ -91,13 +91,13 @@ func (device *Device) processPairing(channel *relay.Channel) {
 	if err != nil {
 		device.log.WithError(err).Error("Failed to get the hash of the ECDH public key " +
 			"from the BitBox.")
-		device.fireEvent(EventPairingAborted, nil)
+		device.fireEvent(EventPairingAborted)
 		return
 	}
 	if channel.SendHashPubKey(bitboxECDHPKhash) != nil {
 		device.log.WithError(err).Error("Failed to send the hash of the ECDH public key " +
 			"to the server.")
-		device.fireEvent(EventPairingError, nil)
+		device.fireEvent(EventPairingError)
 		return
 	}
 	mobileECDHPK, err := channel.WaitForMobilePublicKey(2 * time.Minute)
@@ -109,13 +109,13 @@ func (device *Device) processPairing(channel *relay.Channel) {
 	if err != nil {
 		device.log.WithError(err).Error("Failed to get the ECDH public key" +
 			"from the BitBox.")
-		device.fireEvent(EventPairingError, nil)
+		device.fireEvent(EventPairingError)
 		return
 	}
 	if channel.SendPubKey(bitboxECDHPK) != nil {
 		device.log.WithError(err).Error("Failed to send the ECDH public key" +
 			"to the server.")
-		device.fireEvent(EventPairingError, nil)
+		device.fireEvent(EventPairingError)
 		return
 	}
 	device.log.Debug("Waiting for challenge command")
@@ -125,7 +125,7 @@ func (device *Device) processPairing(channel *relay.Channel) {
 		errDevice := device.ecdhChallenge()
 		if errDevice != nil {
 			device.log.WithError(errDevice).Error("Failed to forward challenge request to device.")
-			device.fireEvent(EventPairingError, nil)
+			device.fireEvent(EventPairingError)
 			return
 		}
 		device.log.Debug("Waiting for challenge command")
@@ -139,6 +139,6 @@ func (device *Device) processPairing(channel *relay.Channel) {
 	if challenge == "finish" {
 		device.finishPairing(channel)
 	} else {
-		device.fireEvent(EventPairingAborted, nil)
+		device.fireEvent(EventPairingAborted)
 	}
 }

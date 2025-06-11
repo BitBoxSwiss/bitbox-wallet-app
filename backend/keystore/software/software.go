@@ -25,6 +25,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -122,7 +123,7 @@ func (keystore *Keystore) Configuration() *signing.Configuration {
 // SupportsCoin implements keystore.Keystore.
 func (keystore *Keystore) SupportsCoin(coin coin.Coin) bool {
 	switch coin.(type) {
-	case *btc.Coin:
+	case *btc.Coin, *eth.Coin:
 		return true
 	default:
 		return false
@@ -141,7 +142,8 @@ func (keystore *Keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool
 			scriptType == signing.ScriptTypeP2WPKHP2SH ||
 			scriptType == signing.ScriptTypeP2WPKH ||
 			scriptType == signing.ScriptTypeP2TR
-
+	case *eth.Coin:
+		return true
 	default:
 		return false
 	}
@@ -167,8 +169,13 @@ func (keystore *Keystore) CanVerifyAddress(coin.Coin) (bool, bool, error) {
 	return false, false, nil
 }
 
-// VerifyAddress implements keystore.Keystore.
-func (keystore *Keystore) VerifyAddress(*signing.Configuration, coin.Coin) error {
+// VerifyAddressBTC implements keystore.Keystore.
+func (keystore *Keystore) VerifyAddressBTC(*signing.Configuration, types.Derivation, coin.Coin) error {
+	return errp.New("The software-based keystore has no secure output to display the address.")
+}
+
+// VerifyAddressETH implements keystore.Keystore.
+func (keystore *Keystore) VerifyAddressETH(*signing.Configuration, coin.Coin) error {
 	return errp.New("The software-based keystore has no secure output to display the address.")
 }
 
@@ -193,14 +200,7 @@ func (keystore *Keystore) ExtendedPublicKey(
 	return extendedPrivateKey.Neuter()
 }
 
-// SignTransaction implements keystore.Keystore.
-func (keystore *Keystore) SignTransaction(
-	proposedTransaction interface{},
-) error {
-	btcProposedTx, ok := proposedTransaction.(*btc.ProposedTransaction)
-	if !ok {
-		panic("Only BTC supported for now.")
-	}
+func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	keystore.log.Info("Sign transaction.")
 	transaction := btcProposedTx.TXProposal.Transaction
 	signatures := make([]*types.Signature, len(transaction.TxIn))
@@ -211,9 +211,12 @@ func (keystore *Keystore) SignTransaction(
 			keystore.log.Error("There needs to be exactly one output being spent per input.")
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
-		address := btcProposedTx.GetAccountAddress(spentOutput.ScriptHashHex())
+		address, _, err := btcProposedTx.GetKeystoreAddress(btcProposedTx.SendingAccount, spentOutput.Address.PubkeyScriptHashHex())
+		if err != nil {
+			return err
+		}
 
-		xprv, err := address.Configuration.AbsoluteKeypath().Derive(keystore.master)
+		xprv, err := address.AbsoluteKeypath().Derive(keystore.master)
 		if err != nil {
 			return err
 		}
@@ -222,7 +225,7 @@ func (keystore *Keystore) SignTransaction(
 			return errp.WithStack(err)
 		}
 
-		if address.Configuration.ScriptType() == signing.ScriptTypeP2TR {
+		if address.AccountConfiguration.ScriptType() == signing.ScriptTypeP2TR {
 			prv = txscript.TweakTaprootPrivKey(*prv, nil)
 			signatureHash, err := txscript.CalcTaprootSignatureHash(
 				sigHashes, txscript.SigHashDefault, transaction,
@@ -246,7 +249,7 @@ func (keystore *Keystore) SignTransaction(
 			if isSegwit {
 				var err error
 				signatureHash, err = txscript.CalcWitnessSigHash(subScript, sigHashes,
-					txscript.SigHashAll, transaction, index, spentOutput.Value)
+					txscript.SigHashAll, transaction, index, spentOutput.TxOut.Value)
 				if err != nil {
 					return errp.Wrap(err, "Failed to calculate SegWit signature hash")
 				}
@@ -271,6 +274,33 @@ func (keystore *Keystore) SignTransaction(
 
 	btcProposedTx.Signatures = signatures
 	return nil
+}
+
+func (keystore *Keystore) signETHTransaction(tx *eth.TxProposal) error {
+	xprv, err := tx.Keypath.Derive(keystore.master)
+	if err != nil {
+		return errp.Newf("failed to derive key: %v", err)
+	}
+	privKey, err := xprv.ECPrivKey()
+	if err != nil {
+		return errp.Newf("failed to get private key: %v", err)
+	}
+	tx.Tx, err = ethTypes.SignTx(tx.Tx, tx.Signer, privKey.ToECDSA())
+	return err
+}
+
+// SignTransaction implements keystore.Keystore.
+func (keystore *Keystore) SignTransaction(
+	proposedTransaction interface{},
+) error {
+	switch specificProposedTx := proposedTransaction.(type) {
+	case *btc.ProposedTransaction:
+		return keystore.signBTCTransaction(specificProposedTx)
+	case *eth.TxProposal:
+		return keystore.signETHTransaction(specificProposedTx)
+	default:
+		panic("unknown proposal type")
+	}
 }
 
 // CanSignMessage implements keystore.Keystore.

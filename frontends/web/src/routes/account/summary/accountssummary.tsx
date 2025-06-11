@@ -21,6 +21,7 @@ import * as accountApi from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import { unsubscribe } from '@/utils/subscriptions';
+import { TUnsubscribe } from '@/utils/transport-common';
 import { useMountedRef } from '@/hooks/mount';
 import { useSDCard } from '@/hooks/sdcard';
 import { Status } from '@/components/status/status';
@@ -100,14 +101,12 @@ export const AccountsSummary = ({
   }, [lightningConfig.accounts, mounted]);
 
   const getCoinsTotalBalance = useCallback(async () => {
-    try {
-      const coinBalance = await accountApi.getCoinsTotalBalance();
-      if (!mounted.current) {
-        return;
-      }
-      setCoinsTotalBalance(coinBalance);
-    } catch (err) {
-      console.error(err);
+    const coinBalance = await accountApi.getCoinsTotalBalance();
+    if (!mounted.current) {
+      return;
+    }
+    if (coinBalance.success) {
+      setCoinsTotalBalance(coinBalance.coinsTotalBalance);
     }
   }, [mounted]);
 
@@ -151,20 +150,16 @@ export const AccountsSummary = ({
     }
     if (summary.success) {
       setSummaryData(summary.data);
-    } else {
-      console.error(summary.error);
     }
   }, [mounted]);
 
   const getAccountsBalance = useCallback(async () => {
-    try {
-      const balance = await accountApi.getAccountsBalance();
-      if (!mounted.current) {
-        return;
-      }
-      setBalancePerCoin(balance);
-    } catch (err) {
-      console.error(err);
+    const balance = await accountApi.getAccountsBalance();
+    if (!mounted.current) {
+      return;
+    }
+    if (balance.success) {
+      setBalancePerCoin(balance.balance);
     }
   }, [mounted]);
 
@@ -175,59 +170,61 @@ export const AccountsSummary = ({
     }
     if (totalBalance.success) {
       setAccountsTotalBalance(totalBalance.totalBalance);
-    } else {
-      // if rates are not available, balance will be reloaded later.
-      if (totalBalance.errorCode !== 'ratesNotAvailable') {
-        console.error(totalBalance.errorMessage);
-      } else {
-        console.log('rates not available');
-      }
     }
   }, [mounted]);
 
-  const onStatusChanged = useCallback(
-    async (code: accountApi.AccountCode) => {
-      if (!mounted.current) {
-        return;
-      }
-      const status = await accountApi.getStatus(code);
-      if (status.disabled || !mounted.current) {
-        return;
-      }
-      if (!status.synced) {
-        return accountApi.init(code);
-      }
-      const balance = await accountApi.getBalance(code);
-      if (!mounted.current) {
-        return;
-      }
-      setBalances((prevBalances) => ({
-        ...prevBalances,
-        [code]: balance
-      }));
-    },
-    [mounted]
-  );
+  const onStatusChanged = useCallback(async (
+    code: accountApi.AccountCode,
+  ) => {
+    if (!mounted.current) {
+      return;
+    }
+    const status = await accountApi.getStatus(code);
+    if (status.disabled || !mounted.current) {
+      return;
+    }
+    if (!status.synced) {
+      return accountApi.init(code);
+    }
+    const balance = await accountApi.getBalance(code);
+    if (!mounted.current) {
+      return;
+    }
+    if (!balance.success) {
+      return;
+    }
+    setBalances((prevBalances) => ({
+      ...prevBalances,
+      [code]: balance.balance
+    }));
+  }, [mounted]);
 
-  const update = useCallback(
-    (code: accountApi.AccountCode) => {
-      if (mounted.current) {
-        onStatusChanged(code);
-        getAccountSummary();
-      }
-    },
-    [getAccountSummary, mounted, onStatusChanged]
-  );
+  const update = useCallback((code: accountApi.AccountCode) => {
+    if (mounted.current) {
+      onStatusChanged(code);
+      getAccountSummary();
+      getAccountsBalance();
+      getAccountsTotalBalance();
+      getCoinsTotalBalance();
+    }
+  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, getCoinsTotalBalance, mounted, onStatusChanged]);
 
   useEffect(() => {
     // for subscriptions and unsubscriptions
     // runs only on component mount and unmount.
-    const subscriptions = [
-      statusChanged(update),
-      syncdone(update)
-    ];
+    const subscriptions: TUnsubscribe[] = [];
+    accounts.forEach(account => {
+      const currentCode = account.code;
+      subscriptions.push(statusChanged(account.code, () => currentCode === account.code && update(account.code)));
+      subscriptions.push(syncdone(account.code, () => {
+        if (currentCode === account.code) {
+          update(account.code);
+        }
+      }
+      ));
+    });
     return () => unsubscribe(subscriptions);
-  }, [update]);
+  }, [update, accounts]);
 
 
   useEffect(() => {
@@ -282,7 +279,7 @@ export const AccountsSummary = ({
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               }
-              hideChartDetails={hasLightningFromOtherKeystore && allKeystores.length == 1}
+              hideChartDetails={hasLightningFromOtherKeystore && allKeystores.length === 1}
             />
             {allKeystores.length > 1 && (
               <CoinBalance

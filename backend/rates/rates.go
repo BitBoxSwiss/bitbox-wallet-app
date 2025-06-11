@@ -27,11 +27,12 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/time/rate"
+
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/ratelimit"
 	"github.com/sirupsen/logrus"
 	"go.etcd.io/bbolt"
 )
@@ -119,15 +120,13 @@ type RateUpdater struct {
 	// See https://www.coingecko.com/en/api for details.
 	coingeckoURL string
 	// All requests to coingeckoURL are rate-limited using geckoLimiter.
-	geckoLimiter *ratelimit.LimitedCall
+	geckoLimiter *rate.Limiter
 }
 
 // NewRateUpdater returns a new rates updater.
 // The dbdir argument is the location of a historical rates database cache.
 // The returned updater can function without a valid database cache but may be
 // impacted by rate limits. The database cache is transparent to the updater users.
-// To stay within acceptable rate limits defined by CoinGeckoRateLimit, callers can
-// use util/ratelimit package.
 //
 // Both Last and PriceAt of the newly created updater always return zero values
 // until data is fetched from the external APIs. To make the updater start fetching data
@@ -155,7 +154,7 @@ func NewRateUpdater(client *http.Client, dbdir string) *RateUpdater {
 		log:          log,
 		httpClient:   client,
 		coingeckoURL: apiURL,
-		geckoLimiter: ratelimit.NewLimitedCall(apiRateLimit(apiURL)),
+		geckoLimiter: rate.NewLimiter(apiRateLimit(apiURL), 1),
 	}
 }
 
@@ -275,36 +274,44 @@ func (updater *RateUpdater) updateLast(ctx context.Context) {
 	}
 
 	var geckoRates map[string]map[string]float64
-	callErr := updater.geckoLimiter.Call(ctx, "updateLast", func() error {
-		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-		defer cancel()
-		res, err := updater.httpClient.Do(req.WithContext(ctx))
-		if err != nil {
-			return errp.WithStack(err)
-		}
-		defer res.Body.Close() //nolint:errcheck
-		if res.StatusCode != http.StatusOK {
-			return errp.Newf("bad response code %d", res.StatusCode)
-		}
-		const max = 10240
-		responseBody, err := io.ReadAll(io.LimitReader(res.Body, max+1))
-		if err != nil {
-			return errp.WithStack(err)
-		}
-		if len(responseBody) > max {
-			return errp.Newf("rates response too long (> %d bytes)", max)
-		}
-		if err := json.Unmarshal(responseBody, &geckoRates); err != nil {
-			return errp.WithMessage(err,
-				fmt.Sprintf("could not parse rates response: %s", string(responseBody)))
-		}
-		return nil
-	})
-	if callErr != nil {
-		updater.log.WithError(callErr).Errorf("updateLast")
+	if err := updater.geckoLimiter.Wait(ctx); err != nil {
+		updater.log.WithError(err).Error("updatelast: could not wait for rate limiter")
 		updater.last = nil
 		return
 	}
+
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	res, err := updater.httpClient.Do(req.WithContext(ctx))
+	if err != nil {
+		updater.log.WithError(err).Error("updatelast: could not make request")
+		updater.last = nil
+		return
+	}
+	defer res.Body.Close() //nolint:errcheck
+	if res.StatusCode != http.StatusOK {
+		updater.log.Errorf("updatelast: bad response code %d", res.StatusCode)
+		updater.last = nil
+		return
+	}
+	const max = 10240
+	responseBody, err := io.ReadAll(io.LimitReader(res.Body, max+1))
+	if err != nil {
+		updater.log.WithError(err).Error("updatelast: could not read response")
+		updater.last = nil
+		return
+	}
+	if len(responseBody) > max {
+		updater.last = nil
+		updater.log.Errorf("updatelast: rates response too long (> %d bytes)", max)
+		return
+	}
+	if err := json.Unmarshal(responseBody, &geckoRates); err != nil {
+		updater.last = nil
+		updater.log.Errorf("updatelast: could not parse rates response: %s", string(responseBody))
+		return
+	}
+
 	// Convert the map with coingecko coin/fiat codes to a map of coin/fiat units.
 	rates := map[string]map[string]float64{}
 	for coin, val := range geckoRates {

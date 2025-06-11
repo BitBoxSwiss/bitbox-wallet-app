@@ -46,6 +46,30 @@ func getScriptHashHex(txOut *wire.TxOut) blockchain.ScriptHashHex {
 	return blockchain.NewScriptHashHex(txOut.PkScript)
 }
 
+// Interface is the interface for the Transactions struct.
+//
+//go:generate moq -pkg mocks -out mocks/transactions.go . Interface
+type Interface interface {
+	// Balance computes the confirmed and unconfirmed balance of the account.
+	Balance() (*accounts.Balance, error)
+
+	// Close cleans up when finished using.
+	Close()
+
+	// SpendableOutputs returns all unspent outputs of the wallet which are eligible to be spent. Those
+	// include all unspent outputs of confirmed transactions, and unconfirmed outputs that we created
+	// ourselves.
+	SpendableOutputs() (map[wire.OutPoint]*SpendableOutput, error)
+
+	// Transactions returns an ordered list of transactions.
+	Transactions(isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error)
+
+	// UpdateAddressHistory should be called when initializing a wallet address, or when the history of
+	// an address changes (a new transaction that touches it appears or disappears). The transactions
+	// are downloaded and indexed.
+	UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo)
+}
+
 // Transactions handles wallet transactions: keeping an index of the transactions, inputs, (unspent)
 // outputs, etc.
 type Transactions struct {
@@ -194,7 +218,6 @@ func (transactions *Transactions) allInputsOurs(dbTx DBTxInterface, transaction 
 // include all unspent outputs of confirmed transactions, and unconfirmed outputs that we created
 // ourselves.
 func (transactions *Transactions) SpendableOutputs() (map[wire.OutPoint]*SpendableOutput, error) {
-	transactions.synchronizer.WaitSynchronized()
 	return DBView(transactions.db, func(dbTx DBTxInterface) (map[wire.OutPoint]*SpendableOutput, error) {
 		outputs, err := dbTx.Outputs()
 		if err != nil {
@@ -316,7 +339,7 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 	}
 }
 
-// getTransactionsCached requires transactions lock.
+// getTransactionCached requires transactions lock.
 func (transactions *Transactions) getTransactionCached(
 	dbTx DBTxInterface,
 	txHash chainhash.Hash,
@@ -337,7 +360,6 @@ func (transactions *Transactions) getTransactionCached(
 
 // Balance computes the confirmed and unconfirmed balance of the account.
 func (transactions *Transactions) Balance() (*accounts.Balance, error) {
-	transactions.synchronizer.WaitSynchronized()
 	return DBView(transactions.db, func(dbTx DBTxInterface) (*accounts.Balance, error) {
 		outputs, err := dbTx.Outputs()
 		if err != nil {
@@ -499,7 +521,6 @@ func (transactions *Transactions) txInfo(
 // Transactions returns an ordered list of transactions.
 func (transactions *Transactions) Transactions(
 	isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error) {
-	transactions.synchronizer.WaitSynchronized()
 	return DBView(transactions.db, func(dbTx DBTxInterface) (accounts.OrderedTransactions, error) {
 		txs := []*accounts.TransactionData{}
 		txHashes, err := dbTx.Transactions()

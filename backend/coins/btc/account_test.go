@@ -21,9 +21,9 @@ import (
 	"math/big"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
-	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	blockchainMock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -92,7 +92,6 @@ func mockAccount(t *testing.T, accountConfig *config.Account) *Account {
 		&accounts.AccountConfig{
 			Config:          accountConfig,
 			DBFolder:        dbFolder,
-			OnEvent:         func(accountsTypes.Event) {},
 			RateUpdater:     nil,
 			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
 			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
@@ -100,7 +99,7 @@ func mockAccount(t *testing.T, accountConfig *config.Account) *Account {
 				return mockKeystore(), nil
 			},
 		},
-		coin, nil,
+		coin, nil, nil,
 		logging.Get().WithGroup("account_test"),
 		nil,
 	)
@@ -110,7 +109,7 @@ func TestAccount(t *testing.T) {
 	account := mockAccount(t, nil)
 	require.False(t, account.Synced())
 	require.NoError(t, account.Initialize())
-	require.True(t, account.Synced())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 
 	balance, err := account.Balance()
 	require.NoError(t, err)
@@ -121,7 +120,9 @@ func TestAccount(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, accounts.OrderedTransactions{}, transactions)
 
-	require.Equal(t, []*SpendableOutput{}, account.SpendableOutputs())
+	spendableOutputs, err := account.SpendableOutputs()
+	require.NoError(t, err)
+	require.Equal(t, []*SpendableOutput{}, spendableOutputs)
 }
 
 func TestInsuredAccountAddresses(t *testing.T) {
@@ -161,6 +162,7 @@ func TestInsuredAccountAddresses(t *testing.T) {
 		SigningConfigurations: signingConfigurations,
 	})
 	require.NoError(t, account.Initialize())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 
 	// check the number of available addresses for native and wrapped segwit.
 	require.Len(t, account.GetUnusedReceiveAddresses()[0].Addresses, 20)
@@ -177,6 +179,7 @@ func TestInsuredAccountAddresses(t *testing.T) {
 	})
 
 	require.NoError(t, account2.Initialize())
+	require.Eventually(t, account2.Synced, time.Second, time.Millisecond*200)
 
 	// native segwit is the only address type available.
 	require.Len(t, account2.GetUnusedReceiveAddresses(), 1)
@@ -188,6 +191,7 @@ func TestInsuredAccountAddresses(t *testing.T) {
 func TestSignAddress(t *testing.T) {
 	account := mockAccount(t, nil)
 	require.NoError(t, account.Initialize())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 	// pt2r is not an available script type in the mocked account.
 	_, _, err := SignBTCAddress(account, "Hello there", signing.ScriptTypeP2TR)
 	require.Error(t, err)
@@ -201,7 +205,7 @@ func TestSignAddress(t *testing.T) {
 func TestIsChange(t *testing.T) {
 	account := mockAccount(t, nil)
 	require.NoError(t, account.Initialize())
-	require.True(t, account.Synced())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 	account.ensureAddresses()
 	for _, subaccunt := range account.subaccounts {
 		unusedReceiveAddresses, err := subaccunt.receiveAddresses.GetUnused()

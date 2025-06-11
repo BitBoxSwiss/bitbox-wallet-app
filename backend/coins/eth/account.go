@@ -38,6 +38,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -139,14 +141,6 @@ func (account *Account) Info() *accounts.Info {
 	return &accounts.Info{
 		SigningConfigurations: []*signing.Configuration{account.signingConfiguration},
 	}
-}
-
-// FilesFolder implements accounts.Interface.
-func (account *Account) FilesFolder() string {
-	if account.dbSubfolder == "" {
-		panic("Initialize() must be run first")
-	}
-	return account.dbSubfolder
 }
 
 func (account *Account) isClosed() bool {
@@ -463,7 +457,11 @@ func (account *Account) Close() {
 	}
 	close(account.quitChan)
 	account.closed = true
-	account.Config().OnEvent(accountsTypes.EventStatusChanged)
+	account.Notify(observable.Event{
+		Subject: string(accountsTypes.EventStatusChanged),
+		Action:  action.Reload,
+		Object:  nil,
+	})
 }
 
 // Notifier implements accounts.Interface.
@@ -473,13 +471,23 @@ func (account *Account) Notifier() accounts.Notifier {
 
 // Transactions implements accounts.Interface.
 func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
-	account.Synchronizer.WaitSynchronized()
+	if err := account.Offline(); err != nil {
+		return nil, err
+	}
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
 	return accounts.NewOrderedTransactions(account.transactions), nil
 }
 
 // Balance implements accounts.Interface.
 func (account *Account) Balance() (*accounts.Balance, error) {
-	account.Synchronizer.WaitSynchronized()
+	if err := account.Offline(); err != nil {
+		return nil, err
+	}
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
 	return accounts.NewBalance(account.balance, coin.NewAmountFromInt64(0)), nil
 }
 
@@ -814,7 +822,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, keystore.VerifyAddress(account.signingConfiguration, account.Coin())
+		return true, keystore.VerifyAddressETH(account.signingConfiguration, account.Coin())
 	}
 	return false, nil
 }

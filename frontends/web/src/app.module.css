@@ -2,15 +2,25 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     min-width: 0;
     /* mobile viewport bug fix */
     max-height: -webkit-fill-available;
+    /* iOS safe area handling */
+    padding-top: env(safe-area-inset-top, 0);
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
 }
 
 @media (max-width: 900px) {
     .appContent {
         position: absolute;
         width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .appContent.hasBottomNavigation {
+       height: calc(100dvh - var(--bottom-navigation-height));
     }
 }

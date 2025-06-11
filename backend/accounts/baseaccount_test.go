@@ -28,6 +28,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/stretchr/testify/require"
@@ -65,7 +66,6 @@ func TestBaseAccount(t *testing.T) {
 		},
 		DBFolder:        test.TstTempDir("baseaccount_test_dbfolder"),
 		NotesFolder:     test.TstTempDir("baseaccount_test_notesfolder"),
-		OnEvent:         func(event types.Event) { events <- event },
 		RateUpdater:     nil,
 		GetNotifier:     nil,
 		GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
@@ -122,6 +122,9 @@ func TestBaseAccount(t *testing.T) {
 		},
 	}
 	account := NewBaseAccount(cfg, mockCoin, logging.Get().WithGroup("baseaccount_test"))
+	account.Observe(func(event observable.Event) {
+		events <- types.Event(event.Subject)
+	})
 	require.NoError(t, account.Initialize(accountIdentifier))
 
 	t.Run("config", func(t *testing.T) {
@@ -132,7 +135,6 @@ func TestBaseAccount(t *testing.T) {
 	t.Run("synchronizer", func(t *testing.T) {
 		require.False(t, account.Synced())
 		done := account.Synchronizer.IncRequestsCounter()
-		require.Equal(t, types.EventSyncStarted, checkEvent())
 		require.False(t, account.Synced())
 		done()
 		require.Equal(t, types.EventStatusChanged, checkEvent()) // synced changed
@@ -141,7 +143,6 @@ func TestBaseAccount(t *testing.T) {
 
 		// no status changed event when syncing again (syncing is already true)
 		done = account.Synchronizer.IncRequestsCounter()
-		require.Equal(t, types.EventSyncStarted, checkEvent())
 		done()
 		require.Equal(t, types.EventSyncDone, checkEvent())
 
@@ -188,26 +189,29 @@ func TestBaseAccount(t *testing.T) {
 		require.Equal(t, "updated legacy note", account.TxNote("legacy-1"))
 	})
 
-	t.Run("exportCSV", func(t *testing.T) {
-		export := func(transactions []*TransactionData) string {
-			var result bytes.Buffer
-			require.NoError(t, account.ExportCSV(&result, transactions))
-			return result.String()
-		}
+	// Setup export tests
+	export := func(account *BaseAccount, transactions []*TransactionData) string {
+		var result bytes.Buffer
+		require.NoError(t, account.ExportCSV(&result, transactions))
+		return result.String()
+	}
 
-		const header = "Time,Type,Amount,Unit,Fee,Address,Transaction ID,Note\n"
+	const header = "Time,Type,Amount,Unit,Fee,Fee Unit,Address,Transaction ID,Note\n"
+	fee := coin.NewAmountFromInt64(101)
+	timestamp := time.Date(2020, 2, 30, 16, 44, 20, 0, time.UTC)
 
-		require.Equal(t, header, export(nil))
+	t.Run("exportCSV with BTC", func(t *testing.T) {
+
+		require.Equal(t, header, export(account, nil))
 
 		require.NoError(t, account.SetTxNote("some-internal-tx-id", "some note, with a comma"))
-		fee := coin.NewAmountFromInt64(101)
-		timestamp := time.Date(2020, 2, 30, 16, 44, 20, 0, time.UTC)
 		require.Equal(t,
 			header+
-				`2020-03-01T16:44:20Z,sent,123,satoshi,101,some-address,some-tx-id,"some note, with a comma"
-2020-03-01T16:44:20Z,sent_to_yourself,456,satoshi,,another-address,some-tx-id,"some note, with a comma"
+				`2020-03-01T16:44:20Z,sent,123,satoshi,101,satoshi,some-address,some-tx-id,"some note, with a comma"
+2020-03-01T16:44:20Z,sent_to_yourself,456,satoshi,,,another-address,some-tx-id,"some note, with a comma"
+2020-03-01T16:44:20Z,received,789,satoshi,,,some-address-2,some-tx-id-2,
 `,
-			export([]*TransactionData{
+			export(account, []*TransactionData{
 				{
 					Type:       TxTypeSend,
 					TxID:       "some-tx-id",
@@ -227,7 +231,88 @@ func TestBaseAccount(t *testing.T) {
 						},
 					},
 				},
+				{
+					Type:       TxTypeReceive,
+					TxID:       "some-tx-id-2",
+					InternalID: "some-internal-tx-id-2",
+					Fee:        nil,
+					Timestamp:  &timestamp,
+					Addresses: []AddressAndAmount{
+						{
+							Address: "some-address-2",
+							Amount:  coin.NewAmountFromInt64(789),
+							Ours:    false,
+						},
+					},
+				},
 			}))
 
+	})
+
+	t.Run("exportCSV with ERC20", func(t *testing.T) {
+		mockCoin := &mocks.CoinMock{
+			CodeFunc: func() coin.Code {
+				return "eth-erc20-usdt"
+			},
+			SmallestUnitFunc: func() string {
+				return "wei"
+			},
+			UnitFunc: func(isFee bool) string {
+				if isFee {
+					return "wei"
+				}
+				return "USDT"
+			},
+			FormatAmountFunc: func(amount coin.Amount, isFee bool) string {
+				return amount.BigInt().String()
+			},
+		}
+		account := NewBaseAccount(cfg, mockCoin, logging.Get().WithGroup("baseaccount_test"))
+		require.NoError(t, account.Initialize(accountIdentifier))
+
+		require.NoError(t, account.SetTxNote("some-internal-tx-id", "some note, with a comma"))
+		require.Equal(t,
+			header+
+				`2020-03-01T16:44:20Z,sent,123,USDT,101,wei,some-address,some-tx-id,"some note, with a comma"
+2020-03-01T16:44:20Z,sent_to_yourself,456,USDT,,,another-address,some-tx-id,"some note, with a comma"
+2020-03-01T16:44:20Z,received,789,USDT,,,some-address-2,some-tx-id-2,
+`,
+			export(account, []*TransactionData{
+				{
+					Type:       TxTypeSend,
+					TxID:       "some-tx-id",
+					InternalID: "some-internal-tx-id",
+					Fee:        &fee,
+					Timestamp:  &timestamp,
+					IsErc20:    true,
+					Addresses: []AddressAndAmount{
+						{
+							Address: "some-address",
+							Amount:  coin.NewAmountFromInt64(123),
+							Ours:    false,
+						},
+						{
+							Address: "another-address",
+							Amount:  coin.NewAmountFromInt64(456),
+							Ours:    true,
+						},
+					},
+				},
+				{
+					Type:       TxTypeReceive,
+					TxID:       "some-tx-id-2",
+					InternalID: "some-internal-tx-id-2",
+					Fee:        nil,
+					Timestamp:  &timestamp,
+					IsErc20:    true,
+					Addresses: []AddressAndAmount{
+						{
+							Address: "some-address-2",
+							Amount:  coin.NewAmountFromInt64(789),
+							Ours:    false,
+						},
+					},
+				},
+			}))
 	})
 }

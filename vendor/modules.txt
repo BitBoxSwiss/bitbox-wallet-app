@@ -1,9 +1,10 @@
-# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240925080402-a2115fee878e
-## explicit; go 1.21
+# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250603143443-7eb26c21237d
+## explicit; go 1.22
 github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader
 github.com/BitBoxSwiss/bitbox02-api-go/api/common
 github.com/BitBoxSwiss/bitbox02-api-go/api/firmware
 github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages
+github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/mocks
 github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid
 github.com/BitBoxSwiss/bitbox02-api-go/util/errp
 github.com/BitBoxSwiss/bitbox02-api-go/util/semver
@@ -308,6 +309,9 @@ golang.org/x/sync/errgroup
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
 golang.org/x/sys/windows
+# golang.org/x/time v0.10.0
+## explicit; go 1.18
+golang.org/x/time/rate
 # golang.org/x/tools v0.23.0
 ## explicit; go 1.19
 golang.org/x/tools/go/gcexportdata

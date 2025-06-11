@@ -32,15 +32,32 @@ var intermediateFirmwareBinaryBTCOnly_9_17_1 []byte
 //go:embed assets/firmware.v9.17.1.signed.bin.gz
 var intermediateFirmwareBinaryMulti_9_17_1 []byte
 
-//go:embed assets/firmware-btc.v9.21.0.signed.bin.gz
-var firmwareBinaryBTCOnly []byte
-var firmwareVersionBTCOnly = semver.NewSemVer(9, 21, 0)
-var firmwareMonotonicVersionBtcOnly uint32 = 41
+// BitBox02
 
-//go:embed assets/firmware.v9.21.0.signed.bin.gz
+//go:embed assets/firmware-btc.v9.22.0.signed.bin.gz
+var firmwareBinaryBTCOnly []byte
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 22, 0)
+var firmwareMonotonicVersionBtcOnly uint32 = 42
+
+//go:embed assets/firmware.v9.22.0.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 21, 0)
-var firmwareMonotonicVersionMulti uint32 = 41
+var firmwareVersionMulti = semver.NewSemVer(9, 22, 0)
+var firmwareMonotonicVersionMulti uint32 = 42
+
+// BitBox02 Plus. TODO: these are placeholder entries.
+
+//go:embed assets/firmware-bb02plus-btconly.v9.23.0.signed.bin.gz
+var firmwareBB02PlusBinaryBTCOnly []byte
+var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 23, 0)
+var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 42
+
+// TODO: set to false / remove before production. This is only to allow upgrading unsigned firmware.
+const plusIsPlaceholder = true
+
+//go:embed assets/firmware-bb02plus-multi.v9.23.0.signed.bin.gz
+var firmwareBB02PlusBinaryMulti []byte
+var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 23, 0)
+var firmwareBB02PlusMonotonicVersionMulti uint32 = 42
 
 type firmwareInfo struct {
 	version          *semver.SemVer
@@ -75,6 +92,7 @@ func (fi firmwareInfo) firmwareHash() ([]byte, error) {
 // The intermediate upgrades, when run, bump the monotonic version by one so we know whether it has
 // booted/run at least once.
 var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
+	// BitBox02
 	bitbox02common.ProductBitBox02Multi: {
 		{
 			version:          semver.NewSemVer(9, 17, 1),
@@ -99,13 +117,29 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 			binaryGzip:       firmwareBinaryBTCOnly,
 		},
 	},
+	// BitBox02 Plus.
+	bitbox02common.ProductBitBox02PlusMulti: {
+		{
+			version:          firmwareBB02PlusVersionMulti,
+			monotonicVersion: firmwareBB02PlusMonotonicVersionMulti,
+			binaryGzip:       firmwareBB02PlusBinaryMulti,
+		},
+	},
+	bitbox02common.ProductBitBox02PlusBTCOnly: {
+		{
+			version:          firmwareBB02PlusVersionBTCOnly,
+			monotonicVersion: firmwareBB02PlusMonotonicVersionBtcOnly,
+			binaryGzip:       firmwareBB02PlusBinaryBTCOnly,
+		},
+	},
 }
 
-// BundledFirmwareVersion returns the version of newest bundled firmware.
+// BundledFirmwareVersion returns the version of newest bundled firmware. Returns nil if none is
+// available.
 func BundledFirmwareVersion(product bitbox02common.Product) *semver.SemVer {
 	firmwares, ok := bundledFirmwares[product]
 	if !ok {
-		panic("unrecognized product")
+		return nil
 	}
 
 	return firmwares[len(firmwares)-1].version

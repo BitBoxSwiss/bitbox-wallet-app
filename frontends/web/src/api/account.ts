@@ -80,14 +80,22 @@ export const getAccounts = (): Promise<IAccount[]> => {
 };
 
 export type TAccountsBalanceByCoin = {
-  [key in CoinCode]?: IAmount;
+  [key in CoinCode]?: TAmountWithConversions;
 };
+
+export type TAccountsBalanceResponse = {
+  success: true;
+  balance: TAccountsBalance;
+
+} | {
+  success: false;
+}
 
 export type TAccountsBalance = {
   [rootFingerprint in TKeystore['rootFingerprint']]: TAccountsBalanceByCoin;
 };
 
-export const getAccountsBalance = (): Promise<TAccountsBalance> => {
+export const getAccountsBalance = (): Promise<TAccountsBalanceResponse> => {
   return apiGet('accounts/balance');
 };
 
@@ -105,8 +113,6 @@ export type TAccountsTotalBalanceResponse = {
     totalBalance: TAccountsTotalBalance;
 } | {
     success: false;
-    errorCode?: 'ratesNotAvailable';
-    errorMessage?: string;
 }
 
 export const getAccountsTotalBalance = (): Promise<TAccountsTotalBalanceResponse> => {
@@ -116,12 +122,19 @@ export const getAccountsTotalBalance = (): Promise<TAccountsTotalBalanceResponse
 type CoinFormattedAmount = {
   coinCode: CoinCode;
   coinName: string;
-  formattedAmount: IAmount;
+  formattedAmount: TAmountWithConversions;
 };
+
+export type TCoinsTotalBalanceResponse = {
+  success: true;
+  coinsTotalBalance: TCoinsTotalBalance;
+} | {
+  success: false;
+}
 
 export type TCoinsTotalBalance = CoinFormattedAmount[];
 
-export const getCoinsTotalBalance = (): Promise<TCoinsTotalBalance> => {
+export const getCoinsTotalBalance = (): Promise<TCoinsTotalBalanceResponse> => {
   return apiGet('accounts/coins-balance');
 };
 
@@ -197,7 +210,6 @@ export type TSummaryResponse = {
     data: TSummary;
 } | {
   success: false;
-  error: string;
 }
 
 export type TSummary = {
@@ -219,21 +231,28 @@ export type Conversions = {
     [key in Fiat]?: string;
 };
 
-export interface IAmount {
+export type TAmountWithConversions = {
     amount: string;
     conversions?: Conversions;
     unit: CoinUnit;
     estimated: boolean;
-}
+};
 
 export interface IBalance {
     hasAvailable: boolean;
-    available: IAmount;
+    available: TAmountWithConversions;
     hasIncoming: boolean;
-    incoming: IAmount;
+    incoming: TAmountWithConversions;
 }
 
-export const getBalance = (code: AccountCode): Promise<IBalance> => {
+export type TBalanceResponse = {
+  success: true;
+  balance: IBalance;
+} | {
+  success: false;
+}
+
+export const getBalance = (code: AccountCode): Promise<TBalanceResponse> => {
   return apiGet(`account/${code}/balance`);
 };
 
@@ -242,11 +261,11 @@ export type TTransactionType = 'send' | 'receive' | 'send_to_self';
 
 export interface ITransaction {
     addresses: string[];
-    amount: IAmount;
-    amountAtTime: IAmount;
-    fee: IAmount;
-    feeRatePerKb: IAmount;
-    deductedAmountAtTime: IAmount;
+    amount: TAmountWithConversions;
+    amountAtTime: TAmountWithConversions;
+    fee: TAmountWithConversions;
+    feeRatePerKb: TAmountWithConversions;
+    deductedAmountAtTime: TAmountWithConversions;
     gas: number;
     nonce: number | null;
     internalID: string;
@@ -320,18 +339,24 @@ export const getReceiveAddressList = (code: AccountCode) => {
 export type TTxInput = {
   address: string;
   amount: string;
-  feeTarget: FeeTargetCode;
-  customFee: string;
   sendAll: 'yes' | 'no';
   selectedUTXOs: string[];
   paymentRequest: Slip24 | null;
-};
+} & (
+  {
+    useHighestFee: false;
+    customFee: string;
+    feeTarget: FeeTargetCode;
+  } | {
+    useHighestFee: true;
+  }
+);
 
 export type TTxProposalResult = {
-  amount: IAmount;
-  fee: IAmount;
+  amount: TAmountWithConversions;
+  fee: TAmountWithConversions;
   success: true;
-  total: IAmount;
+  total: TAmountWithConversions;
 } | {
   errorCode: string;
   success: false;
@@ -403,7 +428,7 @@ export type TUTXO = {
   txId: string;
   txOutput: number;
   address: string;
-  amount: IAmount;
+  amount: TAmountWithConversions;
   note: string;
   scriptType: ScriptType;
   addressReused: boolean;

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2024 Shift Crypto AG
+ * Copyright 2022-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,36 +15,84 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import type { TExchangeName } from '@/api/exchanges';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
+import { getBTCDirectPrivacyLink } from '@/components/terms/btcdirect-otc-terms';
 
-interface BuyGuideProps {
-  exchange?: 'pocket' | 'moonpay';
+type BuyGuideProps = {
+  exchange?: TExchangeName;
   translationContext: 'bitcoin' | 'crypto';
 }
 
+const usePrivacyLink = (exchange?: TExchangeName) => {
+  const { t } = useTranslation();
+  switch (exchange) {
+  case 'btcdirect':
+    return ({
+      text: t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.link'),
+      url: getBTCDirectPrivacyLink(),
+    });
+  case 'moonpay':
+    return ({
+      text: t('buy.info.disclaimer.privacyPolicy'),
+      url: 'https://www.moonpay.com/privacy_policy',
+    });
+  case 'pocket':
+    return ({
+      text: t('exchange.pocket.terms.dataprotection.link'),
+      url: 'https://pocketbitcoin.com/policy/privacy',
+    });
+  }
+};
+
+const useServiceLink = (exchange?: TExchangeName) => {
+  switch (exchange) {
+  case 'btcdirect':
+    return ({
+      name: 'BTC Direct',
+      text: 'btcdirect.eu/contact',
+      url: 'https://btcdirect.eu/contact',
+    });
+  case 'moonpay':
+    return ({
+      name: 'MoonPay',
+      text: 'support.moonpay.com',
+      url: 'https://support.moonpay.com/',
+    });
+  case 'pocket':
+    return ({
+      name: 'Pocket Bitcoin',
+      text: 'pocketbitcoin.com/contact',
+      url: 'https://pocketbitcoin.com/contact',
+    });
+  }
+};
+
 export const ExchangeGuide = ({ exchange, translationContext }: BuyGuideProps) => {
   const { t } = useTranslation();
-
-  const pocketLink = {
-    text: t('exchange.pocket.terms.dataprotection.link'),
-    url: 'https://pocketbitcoin.com/policy/privacy',
-  };
-
-  const moonpayLink = {
-    text: t('buy.info.disclaimer.privacyPolicy'),
-    url: 'https://www.moonpay.com/privacy_policy',
-  };
-
-  const privacyLink = exchange === 'pocket' ? pocketLink : moonpayLink;
+  const link = usePrivacyLink(exchange);
+  const serviceLink = useServiceLink(exchange);
 
   return (
     <Guide title={t('guide.guideTitle.buySell')}>
       <Entry key="guide.buy.protection" entry={{
-        link: exchange ? privacyLink : undefined,
+        link,
         text: t('buy.info.disclaimer.protection.descriptionGeneric', { context: translationContext }),
         title: t('buy.info.disclaimer.protection.title'),
-      }} />
+      }}
+      />
+      <Entry
+        key="guide.appendix.questionService"
+        entry={{
+          title: t('guide.appendix.questionService', { serviceName: serviceLink?.name }),
+          text: t('guide.appendix.textService', { serviceName: serviceLink?.name }),
+          link: {
+            text: serviceLink?.text || '',
+            url: serviceLink?.url,
+          },
+        }}
+      />
     </Guide>
   );
 };

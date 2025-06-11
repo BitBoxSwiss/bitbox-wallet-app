@@ -34,8 +34,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/handlers"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -45,6 +43,7 @@ import (
 	bitbox02Handlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02/handlers"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02bootloader"
 	bitbox02bootloaderHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02bootloader/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bluetooth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/exchanges"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -114,11 +113,11 @@ type Backend interface {
 	HTTPClient() *http.Client
 	LookupInsuredAccounts(accountCode accountsTypes.Code) ([]bitsurance.AccountDetails, error)
 	Authenticate(force bool)
-	TriggerAuth()
 	ForceAuth()
 	CancelConnectKeystore()
 	SetWatchonly(rootFingerprint []byte, watchonly bool) error
 	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
+	Bluetooth() *bluetooth.Bluetooth
 }
 
 // Handlers provides a web api to the backend.
@@ -209,18 +208,18 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBanners).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileData).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/authenticate", handlers.postAuthenticate).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/trigger-auth", handlers.postTriggerAuth).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/force-auth", handlers.postForceAuth).Methods("POST")
 	getAPIRouter(apiRouter)("/set-dark-theme", handlers.postDarkTheme).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/detect-dark-theme", handlers.getDetectDarkTheme).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/version", handlers.getVersion).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/testing", handlers.getTesting).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/dev-servers", handlers.getDevServers).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore-name", handlers.getKeystoreName).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
-	getAPIRouter(apiRouter)("/accounts/balance", handlers.getAccountsBalance).Methods("GET")
-	getAPIRouter(apiRouter)("/accounts/coins-balance", handlers.getCoinsTotalBalance).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/accounts/balance", handlers.getAccountsBalance).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/accounts/coins-balance", handlers.getCoinsTotalBalance).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/total-balance", handlers.getAccountsTotalBalance).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
@@ -230,7 +229,6 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoins).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystore).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/rates", handlers.getRates).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiat).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTLTC)).Methods("GET")
@@ -243,10 +241,11 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownload).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/electrum/check", handlers.postElectrumCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/exchange/by-region/{code}", handlers.getExchangesByRegion).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/region-codes", handlers.getExchangeRegionCodes).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/deals/{action}/{code}", handlers.getExchangeDeals).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/supported/{code}", handlers.getExchangeSupported).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/btcdirect/supported/{code}", handlers.getBtcDirectSupported).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/btcdirect-otc/supported/{code}", handlers.getExchangeBtcDirectOTCSupported).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/btcdirect/info/{action}/{code}", handlers.getExchangeBtcDirectInfo).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url/{action}", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
@@ -277,6 +276,9 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/lightning/service-health-check", handlers.getLightningServiceHealthCheck).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/notes/export", handlers.postExportNotes).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/notes/import", handlers.postImportNotes).Methods("POST")
+
+	getAPIRouterNoError(apiRouter)("/bluetooth/state", handlers.getBluetoothState).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/bluetooth/connect", handlers.postBluetoothConnect).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
@@ -527,11 +529,6 @@ func (handlers *Handlers) postAuthenticate(r *http.Request) interface{} {
 	return nil
 }
 
-func (handlers *Handlers) postTriggerAuth(r *http.Request) interface{} {
-	handlers.backend.TriggerAuth()
-	return nil
-}
-
 func (handlers *Handlers) postForceAuth(r *http.Request) interface{} {
 	handlers.backend.ForceAuth()
 	return nil
@@ -556,6 +553,10 @@ func (handlers *Handlers) getVersion(*http.Request) interface{} {
 
 func (handlers *Handlers) getTesting(*http.Request) interface{} {
 	return handlers.backend.Testing()
+}
+
+func (handlers *Handlers) getDevServers(*http.Request) interface{} {
+	return handlers.backend.DevServers()
 }
 
 func (handlers *Handlers) postAddAccount(r *http.Request) interface{} {
@@ -705,8 +706,7 @@ func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
 
 func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 	type response struct {
-		Success      bool   `json:"success"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
+		Success bool `json:"success"`
 	}
 
 	var request struct {
@@ -732,24 +732,23 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 	}
 	btcCoin.(*btc.Coin).SetFormatUnit(unit)
 
-	// update BTC format unit for fiat conversions
-	for _, account := range handlers.backend.Accounts() {
-		account.Config().BtcCurrencyUnit = unit
-	}
-
 	return response{Success: true}
 }
 
 // getAccountsBalanceHandler returns the balance of all the accounts, grouped by keystore and coin.
-func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error) {
-	totalAmount := make(map[string]map[coin.Code]coin.FormattedAmount)
+func (handlers *Handlers) getAccountsBalance(*http.Request) interface{} {
+	type response struct {
+		Success bool                                                               `json:"success"`
+		Balance map[string]map[coinpkg.Code]coinpkg.FormattedAmountWithConversions `json:"balance,omitempty"`
+	}
+	totalAmount := make(map[string]map[coinpkg.Code]coinpkg.FormattedAmountWithConversions)
 	accountsByKeystore, err := handlers.backend.AccountsByKeystore()
 	if err != nil {
-		return nil, err
+		return response{Success: false}
 	}
 	for rootFingerprint, accountList := range accountsByKeystore {
-		totalPerCoin := make(map[coin.Code]*big.Int)
-		conversionsPerCoin := make(map[coin.Code]map[string]string)
+		totalPerCoin := make(map[coinpkg.Code]*big.Int)
+		conversionsPerCoin := make(map[coinpkg.Code]map[string]string)
 		for _, account := range accountList {
 			if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
 				continue
@@ -759,12 +758,12 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 			}
 			err := account.Initialize()
 			if err != nil {
-				return nil, err
+				return response{Success: false}
 			}
 			coinCode := account.Coin().Code()
 			b, err := account.Balance()
 			if err != nil {
-				return nil, err
+				return response{Success: false}
 			}
 			amount := b.Available()
 			if _, ok := totalPerCoin[coinCode]; !ok {
@@ -774,42 +773,48 @@ func (handlers *Handlers) getAccountsBalance(*http.Request) (interface{}, error)
 				totalPerCoin[coinCode] = new(big.Int).Add(totalPerCoin[coinCode], amount.BigInt())
 			}
 
-			conversionsPerCoin[coinCode] = coin.Conversions(
-				coin.NewAmount(totalPerCoin[coinCode]),
+			conversionsPerCoin[coinCode] = coinpkg.Conversions(
+				coinpkg.NewAmount(totalPerCoin[coinCode]),
 				account.Coin(),
 				false,
-				account.Config().RateUpdater,
-				util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit))
+				account.Config().RateUpdater)
 		}
 
-		totalAmount[rootFingerprint] = make(map[coin.Code]coin.FormattedAmount)
+		totalAmount[rootFingerprint] = make(map[coinpkg.Code]coinpkg.FormattedAmountWithConversions)
 		for k, v := range totalPerCoin {
 			currentCoin, err := handlers.backend.Coin(k)
 			if err != nil {
-				return nil, err
+				return response{Success: false}
 			}
-			totalAmount[rootFingerprint][k] = coin.FormattedAmount{
-				Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
+			totalAmount[rootFingerprint][k] = coinpkg.FormattedAmountWithConversions{
+				Amount:      currentCoin.FormatAmount(coinpkg.NewAmount(v), false),
 				Unit:        currentCoin.GetFormatUnit(false),
 				Conversions: conversionsPerCoin[k],
 			}
 		}
 	}
 
-	return totalAmount, nil
+	return response{
+		Success: true,
+		Balance: totalAmount,
+	}
 }
 
 type coinFormattedAmount struct {
-	CoinCode        coin.Code            `json:"coinCode"`
-	CoinName        string               `json:"coinName"`
-	FormattedAmount coin.FormattedAmount `json:"formattedAmount"`
+	CoinCode        coinpkg.Code                           `json:"coinCode"`
+	CoinName        string                                 `json:"coinName"`
+	FormattedAmount coinpkg.FormattedAmountWithConversions `json:"formattedAmount"`
 }
 
 // getCoinsTotalBalance returns the total balances grouped by coins.
-func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) interface{} {
+	type result struct {
+		Success           bool                  `json:"success"`
+		CoinsTotalBalance []coinFormattedAmount `json:"coinsTotalBalance,omitempty"`
+	}
 	var coinFormattedAmounts []coinFormattedAmount
-	var sortedCoins []coin.Code
-	totalCoinsBalances := make(map[coin.Code]*big.Int)
+	var sortedCoins []coinpkg.Code
+	totalCoinsBalances := make(map[coinpkg.Code]*big.Int)
 
 	for _, account := range handlers.backend.Accounts() {
 		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
@@ -820,12 +825,12 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, er
 		}
 		err := account.Initialize()
 		if err != nil {
-			return nil, err
+			return result{Success: false}
 		}
 		coinCode := account.Coin().Code()
 		b, err := account.Balance()
 		if err != nil {
-			return nil, err
+			return result{Success: false}
 		}
 		amount := b.Available()
 
@@ -840,57 +845,55 @@ func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) (interface{}, er
 	if handlers.backend.Config().LightningConfig().LightningEnabled() {
 		lightningBalance, err := handlers.backend.Lightning().Balance()
 		if err != nil {
-			return nil, err
+			return nil
 		}
 		availableBalance := lightningBalance.Available().BigInt()
 
-		if bitcoinBalance, exists := totalCoinsBalances[coin.CodeBTC]; exists {
+		if bitcoinBalance, exists := totalCoinsBalances[coinpkg.CodeBTC]; exists {
 			bitcoinBalance.Add(bitcoinBalance, availableBalance)
 		} else {
-			totalCoinsBalances[coin.CodeBTC] = availableBalance
-			sortedCoins = append([]coin.Code{coin.CodeBTC}, sortedCoins...)
+			totalCoinsBalances[coinpkg.CodeBTC] = availableBalance
+			// formatAsSats := lightning.backendConfig.AppConfig().Backend.BtcUnit == coin.BtcUnitSatsc
+			sortedCoins = append([]coinpkg.Code{coinpkg.CodeBTC}, sortedCoins...)
 		}
 	}
 
 	for _, coinCode := range sortedCoins {
 		currentCoin, err := handlers.backend.Coin(coinCode)
 		if err != nil {
-			return nil, err
+			return result{Success: false}
 		}
 		coinFormattedAmounts = append(coinFormattedAmounts, coinFormattedAmount{
 			CoinCode: coinCode,
 			CoinName: currentCoin.Name(),
-			FormattedAmount: coin.FormattedAmount{
-				Amount: currentCoin.FormatAmount(coin.NewAmount(totalCoinsBalances[coinCode]), false),
+			FormattedAmount: coinpkg.FormattedAmountWithConversions{
+				Amount: currentCoin.FormatAmount(coinpkg.NewAmount(totalCoinsBalances[coinCode]), false),
 				Unit:   currentCoin.GetFormatUnit(false),
-				Conversions: coin.Conversions(
-					coin.NewAmount(totalCoinsBalances[coinCode]),
+				Conversions: coinpkg.Conversions(
+					coinpkg.NewAmount(totalCoinsBalances[coinCode]),
 					currentCoin,
 					false,
 					handlers.backend.RatesUpdater(),
-					util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit),
 				),
 			},
 		})
 	}
-	return coinFormattedAmounts, nil
+	return result{
+		Success:           true,
+		CoinsTotalBalance: coinFormattedAmounts,
+	}
 }
 
 // getAccountsTotalBalanceHandler returns the total balance of all the accounts, gruped by keystore.
 func (handlers *Handlers) getAccountsTotalBalance(*http.Request) (interface{}, error) {
 	type response struct {
 		Success      bool                                   `json:"success"`
-		ErrorCode    string                                 `json:"errorCode,omitempty"`
-		ErrorMessage string                                 `json:"errorMessage,omitempty"`
 		TotalBalance map[string]backend.KeystoreTotalAmount `json:"totalBalance"`
 	}
 
 	totalBalance, err := handlers.backend.AccountsTotalBalanceByKeystore()
 	if err != nil {
-		if errp.Cause(err) == rates.ErrRatesNotAvailable {
-			return response{Success: false, ErrorCode: err.Error()}, nil
-		}
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false}, nil
 	}
 	return response{Success: true, TotalBalance: totalBalance}, nil
 }
@@ -991,16 +994,12 @@ func (handlers *Handlers) postDeregisterTestKeystore(*http.Request) interface{} 
 	return nil
 }
 
-func (handlers *Handlers) getRates(*http.Request) interface{} {
-	return handlers.backend.RatesUpdater().LatestPrice()
-}
-
 // getBTCSatsAmount taks a sats parameter in input and returns a FormattedAmount
 // object with the fiat conversions.
 func (handlers *Handlers) getBTCSatsAmount(r *http.Request) interface{} {
 	type response struct {
-		Success bool                 `json:"success"`
-		Amount  coin.FormattedAmount `json:"amount"`
+		Success bool                                   `json:"success"`
+		Amount  coinpkg.FormattedAmountWithConversions `json:"amount"`
 	}
 
 	satsAmount := r.URL.Query().Get("sats")
@@ -1019,18 +1018,17 @@ func (handlers *Handlers) getBTCSatsAmount(r *http.Request) interface{} {
 		}
 	}
 
-	coinAmount := btcCoin.SetAmount(coin.Sat2Btc(satsRat), false)
+	coinAmount := btcCoin.SetAmount(coinpkg.Sat2Btc(satsRat), false)
 	return response{
 		Success: true,
-		Amount: coin.FormattedAmount{
+		Amount: coinpkg.FormattedAmountWithConversions{
 			Amount: btcCoin.FormatAmount(coinAmount, false),
 			Unit:   btcCoin.GetFormatUnit(false),
-			Conversions: coin.Conversions(
+			Conversions: coinpkg.Conversions(
 				coinAmount,
 				btcCoin,
 				false,
-				handlers.backend.RatesUpdater(),
-				util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit)),
+				handlers.backend.RatesUpdater()),
 		},
 	}
 }
@@ -1127,7 +1125,7 @@ func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 	}
 
 	rate := handlers.backend.RatesUpdater().LatestPrice()[unit][from]
-	result := coin.NewAmountFromInt64(0)
+	result := coinpkg.NewAmountFromInt64(0)
 	if rate != 0.0 {
 		amountRat := new(big.Rat).Quo(fiatRat, new(big.Rat).SetFloat64(rate))
 		result = currentCoin.SetAmount(amountRat, false)
@@ -1311,14 +1309,13 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 
 func (handlers *Handlers) getAccountSummary(*http.Request) interface{} {
 	type Result struct {
-		Error   string         `json:"error,omitempty"`
 		Data    *backend.Chart `json:"data,omitempty"`
 		Success bool           `json:"success"`
 	}
 
 	data, err := handlers.backend.ChartData()
 	if err != nil {
-		return Result{Success: false, Error: err.Error()}
+		return Result{Success: false}
 	}
 	return Result{Success: true, Data: data}
 }
@@ -1353,24 +1350,8 @@ func (handlers *Handlers) getSupportedCoins(*http.Request) interface{} {
 	return result
 }
 
-func (handlers *Handlers) getExchangesByRegion(r *http.Request) interface{} {
-	type errorResult struct {
-		Error string `json:"error"`
-	}
-
-	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
-	if err != nil {
-		handlers.log.Error(err)
-		return errorResult{Error: err.Error()}
-	}
-
-	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
-	if !accountValid {
-		handlers.log.Error("Account not valid")
-		return errorResult{Error: "Account not valid"}
-	}
-
-	return exchanges.ListExchangesByRegion(acct, handlers.backend.HTTPClient())
+func (handlers *Handlers) getExchangeRegionCodes(r *http.Request) interface{} {
+	return exchanges.RegionCodes
 }
 
 func (handlers *Handlers) postBitsuranceLookup(r *http.Request) interface{} {
@@ -1448,7 +1429,7 @@ func (handlers *Handlers) getExchangeDeals(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getBtcDirectSupported(r *http.Request) interface{} {
+func (handlers *Handlers) getExchangeBtcDirectOTCSupported(r *http.Request) interface{} {
 	type Result struct {
 		Supported bool `json:"supported"`
 		Success   bool `json:"success"`
@@ -1472,7 +1453,7 @@ func (handlers *Handlers) getBtcDirectSupported(r *http.Request) interface{} {
 	regionCode := r.URL.Query().Get("region")
 	return Result{
 		Success:   true,
-		Supported: exchanges.IsBtcDirectSupported(acct.Coin().Code(), regionCode),
+		Supported: exchanges.IsBtcDirectOTCSupportedForCoinInRegion(acct.Coin().Code(), regionCode),
 	}
 }
 
@@ -1497,6 +1478,9 @@ func (handlers *Handlers) getExchangeSupported(r *http.Request) interface{} {
 	}
 	if exchanges.IsPocketSupported(acct.Coin().Code()) {
 		supported.Exchanges = append(supported.Exchanges, exchanges.PocketName)
+	}
+	if exchanges.IsBtcDirectSupported(acct.Coin().Code()) {
+		supported.Exchanges = append(supported.Exchanges, exchanges.BTCDirectName)
 	}
 
 	return supported
@@ -1530,6 +1514,33 @@ func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{
 		Address: buy.Address,
 	}
 	return resp, nil
+}
+
+func (handlers *Handlers) getExchangeBtcDirectInfo(r *http.Request) interface{} {
+	type result struct {
+		Success      bool    `json:"success"`
+		ErrorMessage string  `json:"errorMessage"`
+		Url          string  `json:"url"`
+		ApiKey       string  `json:"apiKey"`
+		Address      *string `json:"address"`
+	}
+
+	code := accountsTypes.Code(mux.Vars(r)["code"])
+	acct, err := handlers.backend.GetAccountFromCode(code)
+	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
+	if err != nil || !accountValid {
+		return result{Success: false, ErrorMessage: "Account is not valid."}
+	}
+
+	action := exchanges.ExchangeAction(mux.Vars(r)["action"])
+	btcInfo := exchanges.BtcDirectInfo(action, acct, handlers.backend.DevServers())
+
+	return result{
+		Success: true,
+		Url:     btcInfo.Url,
+		ApiKey:  btcInfo.ApiKey,
+		Address: btcInfo.Address,
+	}
 }
 
 func (handlers *Handlers) getExchangePocketURL(r *http.Request) interface{} {
@@ -1773,4 +1784,19 @@ func (handlers *Handlers) postImportNotes(r *http.Request) interface{} {
 		return result{Success: false, Message: err.Error()}
 	}
 	return result{Success: true, Data: data}
+}
+
+func (handlers *Handlers) getBluetoothState(r *http.Request) interface{} {
+	return handlers.backend.Bluetooth().State()
+}
+
+func (handlers *Handlers) postBluetoothConnect(r *http.Request) interface{} {
+	var identifier string
+	if err := json.NewDecoder(r.Body).Decode(&identifier); err != nil {
+		// We assume this will never fail to simplify handling in the frontend.
+		return nil
+	}
+
+	handlers.backend.Environment().BluetoothConnect(identifier)
+	return nil
 }

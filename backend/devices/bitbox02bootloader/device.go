@@ -19,8 +19,6 @@ package bitbox02bootloader
 import (
 	"bytes"
 	"encoding/hex"
-	"fmt"
-	"sync"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -29,6 +27,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader"
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
@@ -42,16 +41,10 @@ type Device struct {
 	bootloader.Device
 	deviceID string
 
-	mu      sync.RWMutex
-	onEvent func(event.Event, interface{})
-
 	log *logrus.Entry
 
 	observable.Implementation
 }
-
-// EventStatusChanged is fired when the status changes. Check the status using Status().
-const EventStatusChanged event.Event = "statusChanged"
 
 // NewDevice creates a new instance of Device.
 func NewDevice(
@@ -74,8 +67,12 @@ func NewDevice(
 		version,
 		product,
 		communication,
-		func(*bootloader.Status) {
-			device.fireEvent()
+		func(status *bootloader.Status) {
+			device.Notify(observable.Event{
+				Subject: "status",
+				Action:  action.Replace,
+				Object:  status,
+			})
 		},
 	)
 
@@ -134,26 +131,6 @@ func (device *Device) Keystore() keystoreInterface.Keystore {
 
 // SetOnEvent implements device.Device.
 func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
-	device.mu.Lock()
-	defer device.mu.Unlock()
-	device.onEvent = onEvent
-}
-
-func (device *Device) fireEvent() {
-	device.mu.RLock()
-	f := device.onEvent
-	device.mu.RUnlock()
-	if f != nil {
-		// Old-school
-		f(EventStatusChanged, nil)
-
-		// New-school
-		device.Notify(observable.Event{
-			Subject: fmt.Sprintf("devices/bitbox02-bootloader/%s/status", device.deviceID),
-			Action:  action.Replace,
-			Object:  device.Status(),
-		})
-	}
 }
 
 // firmwareBootRequired returns true if the currently flashed firmware has to be booted/run before
@@ -220,7 +197,14 @@ func (device *Device) UpgradeFirmware() error {
 	if err != nil {
 		return err
 	}
-	return device.Device.UpgradeFirmware(signedBinary)
+	if err := device.Device.UpgradeFirmware(signedBinary); err != nil {
+		// Ignore sig errors for the Plus firmware while we are testing with unsigned firmwares.
+		if plusIsPlaceholder && product == common.ProductBitBox02PlusMulti {
+			return device.Reboot()
+		}
+		return err
+	}
+	return nil
 }
 
 // VersionInfo contains version information about the upgrade.

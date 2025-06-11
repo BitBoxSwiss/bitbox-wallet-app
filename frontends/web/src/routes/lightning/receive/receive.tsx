@@ -32,24 +32,25 @@ import {
   postReceivePayment,
   subscribeListPayments
 } from '../../../api/lightning';
-import { route } from '../../../utils/route';
 import { toMsat, toSat } from '../../../utils/conversion';
 import { Status } from '../../../components/status/status';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { unsubscribe } from '../../../utils/subscriptions';
 import { Spinner } from '../../../components/spinner/Spinner';
 import { Checked, Copy, EditActive } from '../../../components/icon';
-import { FiatConversion } from '../../../components/rates/rates';
 import { getBtcSatsAmount } from '../../../api/coins';
-import { IAmount } from '../../../api/account';
+import { TAmountWithConversions } from '../../../api/account';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { useNavigate } from 'react-router-dom';
 import styles from './receive.module.css';
 
 type TStep = 'create-invoice' | 'wait' | 'invoice' | 'success';
 
 export function Receive() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [inputSatsText, setInputSatsText] = useState<string>('');
-  const [invoiceAmount, setInvoiceAmount] = useState<IAmount>();
+  const [invoiceAmount, setInvoiceAmount] = useState<TAmountWithConversions>();
   const [description, setDescription] = useState<string>('');
   const [disableConfirm, setDisableConfirm] = useState(true);
   const [openChannelFeeResponse, setOpenChannelFeeResponse] = useState<OpenChannelFeeResponse>();
@@ -74,7 +75,7 @@ export function Receive() {
   const back = useCallback(() => {
     switch (step) {
     case 'create-invoice':
-      route('/lightning');
+      navigate('/lightning');
       break;
     case 'invoice':
     case 'success':
@@ -85,7 +86,7 @@ export function Receive() {
       }
       break;
     }
-  }, [step]);
+  }, [step, navigate]);
 
   const onAmountSatsChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
@@ -171,7 +172,7 @@ export function Receive() {
             <Grid col="1">
               <Column>
                 <h1 className={styles.title}>{t('lightning.receive.subtitle')}</h1>
-                <span>{t('lightning.receive.amountSats.label')} ({<FiatConversion alwaysShowAmounts amount={invoiceAmount} noBtcZeroes />})</span>
+                <span>{t('lightning.receive.amountSats.label')} ({<AmountWithUnit alwaysShowAmounts amount={invoiceAmount || { amount: '', unit: 'sat', estimated: true }} removeBtcTrailingZeroes enableRotateUnit convertToFiat/>})</span>
                 <Input
                   type="number"
                   min="0"
@@ -216,7 +217,7 @@ export function Receive() {
                 <h1 className={styles.title}>{t('lightning.receive.invoice.title')}</h1>
                 <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
                 <div className={styles.invoiceSummary}>
-                  {inputSatsText} sats (<FiatConversion alwaysShowAmounts amount={invoiceAmount} noBtcZeroes />)
+                  {inputSatsText} sats ({invoiceAmount && (<AmountWithUnit alwaysShowAmounts amount={invoiceAmount} removeBtcTrailingZeroes convertToFiat/>)})
                   <br />
                   {description}
                 </div>
@@ -231,7 +232,7 @@ export function Receive() {
             </Grid>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => route('/lightning')}>
+            <Button primary onClick={() => navigate('/lightning')}>
               {t('button.done')}
             </Button>
             <Button secondary onClick={newInvoice}>
@@ -245,12 +246,12 @@ export function Receive() {
         <View fitContent textCenter verticallyCentered>
           <ViewContent withIcon="success">
             <p>{t('lightning.receive.success.message')}</p>
-            <span>{inputSatsText} sats (<FiatConversion alwaysShowAmounts amount={invoiceAmount} noBtcZeroes />)</span>
+            <span>{inputSatsText} sats ({invoiceAmount && (<AmountWithUnit alwaysShowAmounts amount={invoiceAmount} removeBtcTrailingZeroes convertToFiat/>)})</span>
             <br />
             {description && ` / ${description}`}
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => route('/lightning')}>
+            <Button primary onClick={() => navigate('/lightning')}>
               {t('button.done')}
             </Button>
             <Button secondary onClick={newInvoice}>

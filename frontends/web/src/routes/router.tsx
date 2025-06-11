@@ -24,11 +24,13 @@ import { ExchangeInfo } from './exchange/info';
 import { Exchange } from './exchange/exchange';
 import { Pocket } from './exchange/pocket';
 import { BTCDirect } from './exchange/btcdirect';
+import { BTCDirectOTC } from './exchange/btcdirect-otc';
 import { Info } from './account/info/info';
-import { Receive } from './account/receive';
+import { Receive } from './account/receive/receive';
 import { SendWrapper } from './account/send/send-wrapper';
 import { AccountsSummary } from './account/summary/accountssummary';
 import { DeviceSwitch } from './device/deviceswitch';
+import { NoDeviceConnected } from './device/no-device-connected';
 import { ManageBackups } from './device/manage-backups/manage-backups';
 import { ManageAccounts } from './settings/manage-accounts';
 import { ElectrumSettings } from './settings/electrum';
@@ -51,6 +53,8 @@ import { BitsuranceWidget } from './bitsurance/widget';
 import { BitsuranceDashboard } from './bitsurance/dashboard';
 import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
+import { AllAccounts } from '@/routes/accounts/all-accounts';
+import { More } from '@/routes/settings/more';
 
 type TAppRouterProps = {
   devices: TDevices;
@@ -93,6 +97,16 @@ export const AppRouter = ({
     />
   </InjectParams>);
 
+  const NoDevice = (
+    <InjectParams>
+      <NoDeviceConnected
+        key="no-device-connected"
+        devices={devices}
+        hasAccounts={hasAccounts}
+      />
+    </InjectParams>
+  );
+
   const Acc = (<InjectParams>
     <Account
       code={'' /* dummy to satisfy TS */}
@@ -109,16 +123,12 @@ export const AppRouter = ({
   const AccSend = (<InjectParams>
     <SendWrapper
       code={'' /* dummy to satisfy TS */}
-      devices={devices}
-      deviceIDs={deviceIDs}
       accounts={activeAccounts} />
   </InjectParams>);
 
   const AccReceive = (<InjectParams>
     <Receive
       code={'' /* dummy to satisfy TS */}
-      devices={devices}
-      deviceIDs={deviceIDs}
       accounts={activeAccounts} />
   </InjectParams>);
 
@@ -185,6 +195,12 @@ export const AppRouter = ({
       accounts={activeAccounts} />
   </InjectParams>);
 
+  const BTCDirectEl = (<InjectParams>
+    <BTCDirect
+      code={''}
+      accounts={activeAccounts} />
+  </InjectParams>);
+
   const ExchangeEl = (<InjectParams>
     <Exchange
       code={''}
@@ -218,34 +234,40 @@ export const AppRouter = ({
 
   const MobileSettingsEl = (<InjectParams>
     <MobileSettings
-      deviceIDs={deviceIDs}
+      devices={devices}
       hasAccounts={hasAccounts}
 
     />
   </InjectParams>);
 
+  const MoreEl = (<InjectParams>
+    <More />
+  </InjectParams>);
+
   const GeneralEl = (<InjectParams>
     <General
-      deviceIDs={deviceIDs}
+      devices={devices}
       hasAccounts={hasAccounts}
     />
   </InjectParams>);
 
   const AboutEl = (<InjectParams>
     <About
-      deviceIDs={deviceIDs}
+      devices={devices}
       hasAccounts={hasAccounts}
     />
   </InjectParams>);
 
   const AdvancedSettingsEl = (<InjectParams>
     <AdvancedSettings
-      deviceIDs={deviceIDs}
+      devices={devices}
       hasAccounts={hasAccounts}
     />
   </InjectParams>);
 
   const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
+
+  const AllAccountsEl = <InjectParams><AllAccounts accounts={activeAccounts} /></InjectParams>;
 
   return (
     <Routes>
@@ -273,14 +295,16 @@ export const AppRouter = ({
             <Route index element={ExchangeInfoEl} />
             <Route path=":code" element={ExchangeInfoEl} />
           </Route>
+          <Route path="btcdirect/buy/:code" element={BTCDirectEl} />
           <Route path="moonpay/buy/:code" element={MoonpayEl} />
           <Route path="pocket/buy/:code" element={PocketBuyEl} />
           <Route path="pocket/sell/:code" element={PocketSellEl} />
           <Route path="select/:code" element={ExchangeEl} />
-          <Route path="btcdirect" element={<BTCDirect/>} />
+          <Route path="btcdirect-otc" element={<BTCDirectOTC/>} />
         </Route>
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
         <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
+        <Route path="accounts/all" element={AllAccountsEl} />
         <Route path="bitsurance">
           <Route path="bitsurance" element={<Bitsurance accounts={activeAccounts}/>}/>
           <Route path="account" element={BitsuranceAccountEl} >
@@ -295,9 +319,12 @@ export const AppRouter = ({
         </Route>
         <Route path="settings">
           <Route index element={MobileSettingsEl} />
+          <Route path="more" element={MoreEl} />
           <Route path="general" element={GeneralEl} />
           <Route path="about" element={AboutEl} />
           <Route path="device-settings/:deviceID" element={Device} />
+          <Route path="no-device-connected" element={NoDevice} />
+          <Route path="no-accounts" element={NoDevice} />
           <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
           <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
           <Route path="advanced-settings" element={AdvancedSettingsEl} />
@@ -306,7 +333,7 @@ export const AppRouter = ({
             <ManageAccounts
               accounts={accounts}
               key="manage-accounts"
-              deviceIDs={deviceIDs}
+              devices={devices}
               hasAccounts={hasAccounts} />
           } />
         </Route>
