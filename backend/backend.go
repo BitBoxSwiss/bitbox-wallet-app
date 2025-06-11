@@ -315,7 +315,6 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 
 func (backend *Backend) checkConnectivity() {
 	curValue := backend.online.Load()
-	backend.onlineChecked = true
 	client := &http.Client{
 		Timeout: time.Second,
 		Transport: &http.Transport{
