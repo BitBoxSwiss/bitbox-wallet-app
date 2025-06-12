@@ -1183,10 +1183,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "Ko jo vstavite, naprava utripne enkrat. Prepričajte se, da je pravilno obrnjena v USB reži. Če imate težave, nas kontaktirajte preko spodnje povezave.\n\nBitBox01 ni podprt v mobilni aplikaciji. Za povezavo z BitBox01 uporabite BitBoxApp na namizju.",
-        "title": "Moj BitBox01 ni prepoznan"
-      },
       "getDevice": {
         "link": {
           "text": "Naročite BitBox"

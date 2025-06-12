@@ -69,7 +69,7 @@
       "step": "Finalizado",
       "title": "Cuenta añadida"
     },
-    "title": "Añadir cuenta"
+    "title": "Agregar cuenta"
   },
   "aopp": {
     "addressRequest": "{{host}} está solicitando una dirección de recepción.",
@@ -81,7 +81,7 @@
     "labelAddress": "Dirección",
     "labelMessage": "Mensaje",
     "reverifyInfoText": "Verifica la dirección",
-    "signing": "Para proceder, firma el mensaje en tu BitBox02",
+    "signing": "Para proceder, firma el mensaje en tu BitBox",
     "success": {
       "message": "Proceder con {{host}}",
       "title": "Dirección enviada con éxito"
@@ -161,7 +161,7 @@
     "abort": "No actualizar - volver atrás",
     "abort_noUpgrade": "Volver atrás",
     "additionalUpgradeFollows1": "Una actualización adicional seguirá inmediatamente después de esta.",
-    "additionalUpgradeFollows2": "Por favor, mantén tu BitBox02 conectada mientras se completan todas las actualizaciones.",
+    "additionalUpgradeFollows2": "Por favor, mantén tu BitBox conectada mientras se completan todas las actualizaciones.",
     "advanced": {
       "label": "Configuración avanzada",
       "toggleShowFirmwareHash": "Mostrar el hash del firmware en cada inicio"
@@ -170,8 +170,8 @@
     "orientation": "¿Está el dispositivo orientado de manera incorrecta?",
     "success": "¡Actualización exitosa!",
     "success_install": "¡Instalación exitosa!",
-    "upgradeTitle": "Se está actualizando el firmware de tu BitBox02",
-    "upgradeTitle_install": "Se está instalando el firmware de tu BitBox02"
+    "upgradeTitle": "Se está actualizando el firmware de tu BitBox",
+    "upgradeTitle_install": "Se está instalando el firmware de tu BitBox"
   },
   "bitbox": {
     "error": {
@@ -181,13 +181,13 @@
     }
   },
   "bitbox02Interact": {
-    "confirmDate": "Confirma la fecha de hoy en tu BitBox02",
+    "confirmDate": "Confirma la fecha de hoy en tu BitBox",
     "confirmDateText": "Esta fecha se utilizará para crear tu copia de seguridad.",
-    "confirmName": "Confirma el nombre en tu BitBox02",
-    "confirmWords": "Escribe las {{amount}} palabras de recuperación de tu BitBox02",
-    "confirmWordsText": "Después es esto tu BitBox02 te pedirá que confirmes cada palabra para verificar que hayas hecho la copia de seguridad de manera correcta.",
-    "followInstructions": "Por favor, sigue las instrucciones en tu BitBox02",
-    "followInstructionsMnemonic": "Sigue las instrucciones en tu BitBox02 para introducir las palabras de recuperación de tu copia de seguridad y restaurar tu billetera.",
+    "confirmName": "Confirma el nombre en tu BitBox",
+    "confirmWords": "Escribe las {{amount}} palabras de recuperación de tu BitBox",
+    "confirmWordsText": "Después es esto tu BitBox te pedirá que confirmes cada palabra para verificar que hayas hecho la copia de seguridad de manera correcta.",
+    "followInstructions": "Por favor, sigue las instrucciones en tu BitBox",
+    "followInstructionsMnemonic": "Sigue las instrucciones en tu BitBox para introducir las palabras de recuperación de tu copia de seguridad y restaurar tu billetera.",
     "followInstructionsMnemonicTitle": "Restaurar desde las palabras de recuperación"
   },
   "bitbox02Settings": {
@@ -195,12 +195,12 @@
       "current": "Nombre del dispositivo actual",
       "error": "No se ha podido establecer el nombre del dispositivo",
       "error_104": "La confirmación del nombre del dispositivo fue abortada en el propio dispositivo.",
-      "input": "Nombre de la BitBox02",
+      "input": "Nombre de tu BitBox",
       "placeholder": "Nuevo nombre del dispositivo",
-      "title": "Establece el nombre de la BitBox02"
+      "title": "Dale un nombre a tu BitBox"
     },
     "gotoStartupSettings": {
-      "description": "Esto reiniciará tu BitBox02 y entrará en la configuración de arranque.",
+      "description": "Esto reiniciará tu BitBox y entrará en la configuración de arranque.",
       "title": "Ir a configuración de arranque"
     }
   },
@@ -210,7 +210,7 @@
       "outOfDate": "Se requiere actualización del firmware",
       "seed12WordInfo": "Ten en cuenta que el número de palabras no se puede cambiar después de crear la billetera.",
       "seed12WordLabel": "Crear semilla de 12 palabras en lugar de 24 palabras",
-      "seed12WordText": "Predeterminadamente, la BitBox02 utiliza una semilla de 24 palabras. Ambas longitudes de semilla son seguras contra la fuerza bruta en la práctica. Algunos usuarios pueden preferir la conveniencia de la semilla de 12 palabras.",
+      "seed12WordText": "Predeterminadamente, la BitBox utiliza una semilla de 24 palabras. Ambas longitudes de semilla son seguras contra la fuerza bruta en la práctica. Algunos usuarios pueden preferir la conveniencia de la semilla de 12 palabras.",
       "skipSDCardLabel": "Omitir la copia de seguridad de la tarjeta microSD y escribir las palabras de recuperación en su lugar",
       "skipSDCardText": "Siempre tienes la opción de crear una copia de seguridad de la tarjeta microSD o escribir tus palabras de recuperación después de la configuración. Esto se puede hacer desde los ajustes.",
       "title": "Opciones avanzadas de copia de seguridad"
@@ -220,15 +220,15 @@
       "point1": "Selecciona una copia de seguridad de la tarjeta microSD",
       "point2": "Establece una contraseña para tu dispositivo",
       "restoreText": "Ok, restablezcamos una copia de seguridad!",
-      "text1": "Genial, has establecido la contraseña de tu BitBox02 y tu billetera se ha creado. Ahora es momento de crear tu primera copia de seguridad (backup). Por favor asegúrate de haber introducido bien la tarjeta microSD en tu BitBox02 y continua.",
+      "text1": "Genial, has establecido la contraseña de tu BitBox y tu billetera se ha creado. Ahora es momento de crear tu primera copia de seguridad. Por favor asegúrate de haber introducido bien la tarjeta microSD en tu BitBox y continua.",
       "text2": "Por favor sigue las instrucciones que aparecen en la pantalla de tu dispositivo para crear la copia de seguridad. ",
-      "text3": "Después de que tu copia de seguridad se haya creado, por favor extrae la tarjeta microSD y guárdala en un <strong>lugar seguro</strong>. El contenido de la tarjeta microSD no está protegido con contraseña. Nunca la insertes en ningún otro dispositivo que no sea tu BitBox02. ",
+      "text3": "Después de que tu copia de seguridad se haya creado, por favor extrae la tarjeta microSD y guárdala en un <strong>lugar seguro</strong>. El contenido de la tarjeta microSD no está protegido con contraseña. Nunca la insertes en ningún otro dispositivo que no sea tu BitBox.",
       "userConfirmation1": "Debo guardar mi copia de seguridad en un lugar seguro.",
       "userConfirmation2": "Mi copia de seguridad no está protegida por contraseña. Cualquiera con acceso a ella tiene acceso a mi billetera.",
-      "userConfirmation3": "Si pierdo o daño mi BitBox02, la única forma de recuperar mis fondos es recuperar mi billetera desde mi copia de seguridad.",
-      "userConfirmation4": "En caso de perder o dañar tanto mi copia de seguridad como mi BitBox02, mis fondos se habrán perdido.",
-      "userConfirmation5": "No debería insertar mi copia de seguridad de la tarjeta microSD en el ordenador, teléfono, impresora o en ningún otro dispositivo que no sea BitBox02.",
-      "userConfirmation5mnemonic": "No debo poner mis palabras de recuperación en un computador, teléfono, impresora o cualquier otro dispositivo que no sea un BitBox02."
+      "userConfirmation3": "Si pierdo o daño mi BitBox, la única forma de recuperar mis fondos es recuperar mi billetera desde mi copia de seguridad.",
+      "userConfirmation4": "En caso de perder o dañar tanto mi copia de seguridad como mi BitBox, mis fondos se habrán perdido.",
+      "userConfirmation5": "No debo insertar mi copia de seguridad de la tarjeta microSD en un ordenador, teléfono, impresora o en ningún otro dispositivo que no sea mi BitBox.",
+      "userConfirmation5mnemonic": "No debo poner mis palabras de recuperación en un ordenador, teléfono, impresora o cualquier otro dispositivo que no sea mi BitBox."
     },
     "create": {
       "button": "Dale un nombre al dispositivo y continua",
@@ -246,10 +246,10 @@
     },
     "noPasswordMatch": "Las contraseñas no coinciden, por favor, vuelve a intentarlo.",
     "pairing": {
-      "failed": "Conexión no confirmada. Por favor vuelve a conectar tu BitBox02.",
+      "failed": "Conexión no confirmada. Por favor vuelve a conectar tu BitBox.",
       "paired": "Has confirmado el siguiente código en tu dispositivo.  Por favor continua.",
       "title": "Comprueba el código de conexión.",
-      "unpaired": "Se ha detectado un BitBox02 no emparejado. Verifique que el código de emparejamiento coincida con lo que se muestra en su BitBox02. "
+      "unpaired": "Se ha detectado una BitBox no emparejada. Verifica que el código de emparejamiento coincida con lo que se muestra en tu BitBox. "
     },
     "restoreFromMnemonic": {
       "e104": "Se canceló la restauración desde las palabras de recuperación.",
@@ -265,41 +265,41 @@
       "title": "Copia de seguridad restablecida!"
     },
     "stepConnected": {
-      "unlock": "Introduce la contraseña de tu BitBox02 para desbloquearla."
+      "unlock": "Introduce la contraseña de tu BitBox para desbloquearla."
     },
     "stepCreate": {
-      "description": "Este nombre es utilizado como el nombre del dispositivo y el de la copia de seguridad.",
+      "description": "Este nombre se utilizará como el nombre de tu dispositivo y de su copia de seguridad.",
       "error": {
         "genericMessage": "Utilice letras, números, símbolos básicos y espacios. Máximo 30 caracteres.",
         "invalidChars": "El nombre contiene caracteres no válidos: {{invalidChars}}.",
         "tooLong": "El nombre es demasiado largo."
       },
-      "nameLabel": "Nombre de la BitBox02",
-      "namePlaceholder": "Mi BitBox02",
-      "title": "Selecciona el nombre de la BitBox02",
-      "toastMicroSD": "Por favor, inserte su tarjeta microSD en su BitBox02 que se utilizará para almacenar una copia de seguridad de la billetera."
+      "nameLabel": "Nombre de tu BitBox",
+      "namePlaceholder": "Mi BitBox",
+      "title": "Dale un nombre a tu BitBox",
+      "toastMicroSD": "Por favor, inserta en tu BitBox la tarjeta microSD que utilizarás para almacenar la copia de seguridad de tu billetera."
     },
     "stepCreateSuccess": {
-      "removeMicroSD": "Por favor, extrae la tarjeta microSD de tu BitBox02 y guárdala en un lugar seguro. ",
+      "removeMicroSD": "Por favor, extrae la tarjeta microSD de tu BitBox y guárdala en un lugar seguro. ",
       "storeMnemonic": "Guarde sus palabras de recuperación en un lugar seguro",
       "success": "Has creado una copia de seguridad con éxito."
     },
     "stepInsertSD": {
-      "insertSDCard": "Por favor, introduce una microSD en tu BitBox02 para continuar.",
-      "insertSDCardToSeeBackups": "Inserta la tarjeta microSD en tu BitBox02 para ver tus copias de seguridad.",
+      "insertSDCard": "Por favor, inserta una tarjeta microSD en tu BitBox para continuar.",
+      "insertSDCardToSeeBackups": "Inserta la tarjeta microSD en tu BitBox para ver tus copias de seguridad.",
       "insertSDcardTitle": "Introduce la tarjeta microSD"
     },
     "stepPassword": {
       "e104": "Se canceló la configuración de la contraseña.",
-      "title": "Establece la contraseña de tu BitBox02",
-      "useControls": "Utiliza los controles de tu BitBox02 para establecer la contraseña."
+      "title": "Establece una contraseña para tu BitBox",
+      "useControls": "Utiliza los controles de tu BitBox para establecer la contraseña."
     },
     "stepUninitialized": {
       "create": "Quiero crear una nueva billetera con mi BitBox02.",
       "restore": "Quiero recuperar mi billetera desde una copia de seguridad.",
       "restoreMicroSD": "Restaurar desde una tarjeta microSD",
       "restoreMnemonic": "Restaurar desde las palabras de recuperación",
-      "title": "Configure su billetera"
+      "title": "Configura tu billetera"
     },
     "success": {
       "title": "Estas preparado para usar la billetera BitBox."
@@ -332,7 +332,7 @@
       "listItem2": "Extorsión (por ejemplo, ataque con una llave inglesa de 5 dólares)",
       "listItem3": "Destruction due to fire, water or natural disasters",
       "month": "mes",
-      "text": "Asegura tu BitBox02 y hasta 100.000 euros en bitcoins contra",
+      "text": "Asegura tu BitBox y hasta 100.000 euros en bitcoins contra",
       "text2": "Los planes de seguro cuestan a partir de 30 euros al año (2,50 euros al mes). Puede obtener más información sobre Bitsurance y sus ofertas de seguros exactas en la página web",
       "text3": "Actualmente disponible en Alemania y en otras regiones.",
       "title": "Comienza"
@@ -610,7 +610,7 @@
     "oldLabel": "Contraseña actual del dispositivo"
   },
   "chart": {
-    "dataMissing": "Recopilando tus datos históricos. Permanece atento.",
+    "dataMissing": "Recopilando tus datos históricos. Espera un momento.",
     "dataOldTimestamp": "Actualización de los tipos de cambio históricos. El gráfico no muestra datos después de {{time}}.",
     "dataUpdating": "actualizando datos",
     "filter": {
@@ -1191,10 +1191,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "El dispositivo debe parpadear una vez se haya insertado. Asegúrese de que se inserta de la manera correcta. Si tiene problemas, por favor contáctenos a través del siguiente enlace.\nLa BitBox01 no es soportada en los móviles/celulares. Por favor utilice la BitBoxApp de escritorio para conectar su BitBox01.",
-        "title": "Mi BitBox01 no ha sido reconocida"
-      },
       "getDevice": {
         "link": {
           "text": "Encargue un BitBox"

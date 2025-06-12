@@ -1140,10 +1140,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "O dispositivo deve piscar uma vez quando inserido. Certifique-se de que está inserido de maneira correta. Se você está tendo problemas, por favor, entre em contato conosco através do link abaixo.\n\nA BitBox01 não é suportada em dispositivos móveis. Por favor, use o BitBoxApp no Desktop para conectar sua BitBox01.",
-        "title": "Minha BitBox01 não é reconhecida"
-      },
       "getDevice": {
         "link": {
           "text": "Encomendar uma BitBox"

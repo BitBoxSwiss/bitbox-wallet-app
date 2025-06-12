@@ -1183,10 +1183,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "Het apparaat zou één keer moeten knipperen als het ingevoerd wordt. Zorg dat het met de juiste kant boven ingevoerd is. Als je het probleem niet opgelost krijgt, kun je contact met ons opnemen via onderstaande link.\nDe BitBox01 is niet te koppelen met mobiele telefoons. Gebruik alsjeblieft de BitBoxApp op een PC om je BitBox01 te verbinden.",
-        "title": "Mijn BitBox01 wordt niet herkend."
-      },
       "getDevice": {
         "link": {
           "text": "Bestel een BitBox"

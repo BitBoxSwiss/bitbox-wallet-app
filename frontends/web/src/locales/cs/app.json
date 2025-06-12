@@ -45,6 +45,7 @@
     "fiatBalance": "Fiat zůstatek",
     "name": "Název účtu",
     "noAccount": "Žádné účty k zobrazení.",
+    "portfolio": "Portfolio",
     "subtotalWithCoinName": "Celkem ({{coinName}})",
     "title": "Moje portfolio",
     "total": "Celkem",
@@ -160,7 +161,7 @@
     "abort": "Neaktualizovat - zpět",
     "abort_noUpgrade": "Zpět",
     "additionalUpgradeFollows1": "Další upgrade bude následovat ihned po tomto.",
-    "additionalUpgradeFollows2": "Nechte prosím svůj BitBox02 zapojený, dokud nebudou dokončeny všechny aktualizace.",
+    "additionalUpgradeFollows2": "Nechte prosím svůj BitBox zapojený, dokud nebudou dokončeny všechny aktualizace.",
     "advanced": {
       "label": "Rozšířená nastavení",
       "toggleShowFirmwareHash": "Zobrazit hash firmwaru při každém spuštění"
@@ -169,8 +170,8 @@
     "orientation": "Špatná orientace zařízení?",
     "success": "Aktualizace úspěšná! ",
     "success_install": "Instalace proběhla úspěšně! ",
-    "upgradeTitle": "Aktualizace firmwaru BitBox02",
-    "upgradeTitle_install": "Instalace firmwaru BitBox02"
+    "upgradeTitle": "Aktualizace BitBox firmwaru",
+    "upgradeTitle_install": "Instalace BitBox firmwaru"
   },
   "bitbox": {
     "error": {
@@ -180,13 +181,13 @@
     }
   },
   "bitbox02Interact": {
-    "confirmDate": "Potvrďte dnešní datum na svém BitBox02",
+    "confirmDate": "Potvrďte dnešní datum na svém BitBoxu",
     "confirmDateText": "Toto datum se použije pro vytvoření zálohy.",
-    "confirmName": "Potvrďte název na BitBox02",
-    "confirmWords": "Zapište si {{amount}} slov pro obnovení z vašeho BitBox02",
-    "confirmWordsText": "Poté vás BitBox02 požádá o potvrzení každého slova, aby se ověřilo, že záloha je správná.",
-    "followInstructions": "Postupujte podle pokynů na vašem BitBox02.",
-    "followInstructionsMnemonic": "Postupujte dle pokynů na Vašem BitBox02 – zadejte slova pro obnovení z vaší zálohy a obnovte peněženku.",
+    "confirmName": "Potvrďte název na BitBoxu",
+    "confirmWords": "Zapište si {{amount}} slov pro obnovení z vašeho BitBoxu",
+    "confirmWordsText": "Poté vás BitBox požádá o potvrzení každého slova, aby se ověřilo, že záloha je správná.",
+    "followInstructions": "Postupujte podle pokynů na vašem BitBoxu..",
+    "followInstructionsMnemonic": "Postupujte dle pokynů na Vašem BitBoxu – zadejte slova pro obnovení z vaší zálohy a obnovte peněženku.",
     "followInstructionsMnemonicTitle": "Obnovit ze slov pro obnovení"
   },
   "bitbox02Settings": {
@@ -194,12 +195,12 @@
       "current": "Aktuální název zařízení",
       "error": "Název zařízení se nepodařilo nastavit",
       "error_104": "Potvrzení názvu zařízení bylo na zařízení zrušeno.",
-      "input": "Název BitBox02",
+      "input": "Název BitBoxu",
       "placeholder": "Nový název zařízení",
-      "title": "Nastavit název pro BitBox02"
+      "title": "Nastavit název pro BitBox"
     },
     "gotoStartupSettings": {
-      "description": "Tím se zařízení BitBox02 restartuje a vstoupí do nastavení při spuštění.",
+      "description": "Tím se BitBox restartuje a vstoupí do nastavení při spuštění.",
       "title": "Přejít do nastavení při spuštění"
     }
   },
@@ -209,7 +210,7 @@
       "outOfDate": "Vyžaduje se aktualizace firmwaru",
       "seed12WordInfo": "Upozorňujeme, že počet slov nelze po vytvoření peněženky změnit.",
       "seed12WordLabel": "Vytvořit 12slovný namísto 24slovného seed",
-      "seed12WordText": "Ve výchozím nastavení používá BitBox02 seed s 24 slovy. Obě délky seedů jsou v praxi bezpečné proti brute force útoku. Někteří uživatelé mohou místo toho upřednostnit 12slovný seed.",
+      "seed12WordText": "Ve výchozím nastavení používá BitBox seed s 24 slovy. Obě délky seedů jsou v praxi bezpečné proti brute force útoku. Někteří uživatelé mohou místo toho upřednostnit 12slovný seed.",
       "skipSDCardLabel": "Přeskočte zálohování na microSD kartu a místo toho si zapište slova pro obnovení.",
       "skipSDCardText": "Po nastavení máte vždy možnost vytvořit zálohu karty microSD nebo zapsat slova pro obnovení. To lze provést z nastavení.",
       "title": "Pokročilé možnosti zálohování"
@@ -219,15 +220,15 @@
       "point1": "Vyberte zálohu na microSD kartě",
       "point2": "Nastavit heslo pro zařízení",
       "restoreText": "Ok, obnovíme ze zálohy!",
-      "text1": "Skvělé, vaše heslo pro BitBox02 je nyní nastaveno a peněženka vytvořena. Nyní je čas vytvořit první zálohu. Ujistěte se, že je vaše microSD karta vložena do vašeho BitBox02 a pokračujte.",
+      "text1": "Skvělé, heslo na vašem BitBoxu je nyní nastaveno a peněženka vytvořena. Nyní je čas vytvořit první zálohu. Ujistěte se, že je vaše microSD karta vložena do vašeho BitBoxu a pokračujte.",
       "text2": "Vytvořte zálohu podle pokynů na obrazovce zařízení.",
-      "text3": "Po vytvoření zálohy vyjměte microSD kartu a uložte ji na <strong>bezpečné místo</strong>. Obsah microSD karty není chráněn heslem. Nikdy jej nevkládejte do jiného zařízení než do vašeho BitBox02.",
+      "text3": "Po vytvoření zálohy vyjměte microSD kartu a uložte ji na <strong>bezpečné místo</strong>. Obsah microSD karty není chráněn heslem. Nikdy jej nevkládejte do jiného zařízení než do vašeho BitBoxu.",
       "userConfirmation1": "Zálohu bych měl uložit na bezpečném místě.",
       "userConfirmation2": "Moje záloha není chráněna heslem. Kdokoli, kdo k ní má přístup, má přístup k mé peněžence.",
-      "userConfirmation3": "Pokud ztratím nebo poškodím svůj BitBox02, jediný způsob, jak získat zpět své prostředky, je obnovit peněženku ze zálohy.",
-      "userConfirmation4": "Pokud ztratím nebo poškodím zálohu i BitBox02, přijdu o své prostředky.",
-      "userConfirmation5": "MicroSD kartu s mou zálohou bych neměl vkládat do počítače, telefonu, tiskárny nebo jiného zařízení než BitBox02.",
-      "userConfirmation5mnemonic": "Neměl bych vkládat slova pro obnovení do počítače, telefonu, tiskárny nebo jiného zařízení, než je BitBox02."
+      "userConfirmation3": "Pokud ztratím nebo poškodím svůj BitBox, jediný způsob, jak získat zpět své prostředky, je obnovit peněženku ze zálohy.",
+      "userConfirmation4": "Pokud ztratím nebo poškodím zálohu i BitBox, přijdu o své prostředky.",
+      "userConfirmation5": "MicroSD kartu s mou zálohou bych neměl vkládat do počítače, telefonu, tiskárny nebo jiného zařízení než do BitBoxu.",
+      "userConfirmation5mnemonic": "Neměl bych vkládat slova pro obnovení do počítače, telefonu, tiskárny nebo jiného zařízení, než je BitBox."
     },
     "create": {
       "button": "Pojmenujte zařízení a pokračujte",
@@ -245,10 +246,10 @@
     },
     "noPasswordMatch": "Hesla se neshodují, zkuste to prosím znovu.",
     "pairing": {
-      "failed": "Spárování nepotvrzeno. Znovu připojte svůj BitBox02.",
+      "failed": "Spárování nepotvrzeno. Znovu připojte svůj BitBox.",
       "paired": "Na svém zařízení jste potvrdili následující kód. Prosím pokračujte.",
       "title": "Ověřte párovací kód",
-      "unpaired": "Byl zjištěn nespárovaný BitBox02. Prosím ověřte, že párovací kód odpovídá tomu, co je zobrazeno na vašem BitBoxu."
+      "unpaired": "Byl zjištěn nespárovaný BitBox. Prosím ověřte, že párovací kód odpovídá tomu, co je zobrazeno na vašem BitBoxu."
     },
     "restoreFromMnemonic": {
       "e104": "Obnovení ze slov pro obnovení bylo zrušeno.",
@@ -267,34 +268,34 @@
       "unlock": "Pro odemknutí zadejte heslo."
     },
     "stepCreate": {
-      "description": "Tento název se používá jako název zařízení a pro zálohu. ",
+      "description": "Tento název se používá jako název zařízení a pro zálohu.",
       "error": {
         "genericMessage": "Používejte písmena, čísla, základní symboly, mezery. Maximálně 30 znaků.",
         "invalidChars": "Název obsahuje neplatné znaky: {{invalidChars}}.",
         "tooLong": "Název je příliš dlouhý."
       },
-      "nameLabel": "Název BitBox02",
-      "namePlaceholder": "Můj BitBox02",
-      "title": "Vyberte název pro BitBox02",
-      "toastMicroSD": "Vložte prosím svou microSD kartu do vašeho BitBox02, která bude použita k uložení zálohy peněženky."
+      "nameLabel": "Název BitBoxu",
+      "namePlaceholder": "Můj BitBox",
+      "title": "Vyberte název pro BitBox",
+      "toastMicroSD": "Vložte prosím svou microSD kartu do vašeho BitBoxu, která bude použita k uložení zálohy peněženky."
     },
     "stepCreateSuccess": {
-      "removeMicroSD": "Vyjměte microSD kartu z vašeho BitBox02 a uložte ji na bezpečné místo.",
+      "removeMicroSD": "Vyjměte microSD kartu z vašeho BitBoxu a uložte ji na bezpečné místo.",
       "storeMnemonic": "Uložte svá slova pro obnovení na bezpečném místě",
       "success": "Vaše záloha byla úspěšně vytvořena."
     },
     "stepInsertSD": {
-      "insertSDCard": "Chcete-li pokračovat, vložte do svého BitBox02 microSD kartu.",
+      "insertSDCard": "Chcete-li pokračovat, vložte do svého BitBoxu microSD kartu.",
       "insertSDCardToSeeBackups": "Chcete-li zobrazit zálohy, vložte kartu microSD do BitBoxu.",
       "insertSDcardTitle": "Vložte microSD kartu"
     },
     "stepPassword": {
       "e104": "Nastavení hesla bylo zrušeno.",
-      "title": "Nastavte heslo pro váš Bitbox02",
-      "useControls": "K nastavení hesla použijte ovládací prvky na vašem BitBox02."
+      "title": "Nastavte heslo pro váš BitBox",
+      "useControls": "K nastavení hesla použijte ovládací prvky na vašem BitBoxu."
     },
     "stepUninitialized": {
-      "create": "Chci si na svém BitBox02 vytvořit novou peněženku.",
+      "create": "Chci si na svém BitBoxu vytvořit novou peněženku.",
       "restore": "Chci obnovit svou peněženku ze zálohy.",
       "restoreMicroSD": "Obnovit z microSD karty",
       "restoreMnemonic": "Obnovit ze slov pro obnovení",
@@ -331,14 +332,14 @@
       "listItem2": "Vydírání (např.$5 wrench attack)",
       "listItem3": "Zničení v důsledku požáru, vody nebo přírodních katastrof",
       "month": "měsíc",
-      "text": "Pojistěte si svůj BitBox02 a bitcoiny v hodnotě až 100 000 EUR",
+      "text": "Pojistěte si svůj BitBox a bitcoiny v hodnotě až 100 000 EUR",
       "text2": "Pojistné plány začínají na 30 €/rok (2,50 €/měsíc). Více informací o společnosti Bitsurance a její přesné nabídce pojištění se dozvíte na stránce",
       "text3": "V současné době k dispozici v Německu, další regiony budou následovat.",
       "title": "Začínáme"
     },
     "intro": {
       "link": "Web Bitsurance",
-      "text1": "BitBox spolupracuje s Bitsurance na přidání další vrstvy ochrany pro vaše bitcoiny. Zatímco BitBox02 udržuje vaše finanční prostředky v bezpečí, Bitsurance pokrývá domácí hrozby, které nelze zmírnit samotnou technologií, jako je vloupání, vydírání nebo zničení samotné hardwarové peněženky."
+      "text1": "BitBox spolupracuje s Bitsurance na přidání další vrstvy ochrany pro vaše bitcoiny. Zatímco BitBox udržuje vaše finanční prostředky v bezpečí, Bitsurance pokrývá domácí hrozby, které nelze zmírnit samotnou technologií, jako je vloupání, vydírání nebo zničení samotné hardwarové peněženky."
     },
     "terms": {
       "link": "Zásady ochrany osobních údajů Bitsurance",
@@ -358,6 +359,13 @@
   },
   "blink": {
     "button": "Blik"
+  },
+  "bluetooth": {
+    "connected": "připojený",
+    "connectionFailed": "neúspěšné",
+    "connectionIssues": "Máte problémy s připojením?",
+    "enable": "Zapněte prosím Bluetooth",
+    "select": "Vyberte svůj BitBox"
   },
   "bootloader": {
     "button": "Nyní aktualizujte firmware",
@@ -427,7 +435,7 @@
             },
             "security": {
               "link": "Model bezpečnostních hrozeb BitBox02",
-              "text": "Private Trading Desk BTC Direct je externí služba, na kterou se nevztahuje model bezpečnostních hrozeb BitBox02. Společnost BTC Direct je však dobře obeznámena s produkty BitBox a nabízí bezpečné a kvalifikované poradenství. BitBox ověřuje adresy během transakcí, aby bylo zajištěno bezpečné doručení.",
+              "text": "Private Trading Desk BTC Direct je externí služba, na kterou se nevztahuje model bezpečnostních hrozeb BitBoxu. Společnost BTC Direct je však dobře obeznámena s produkty BitBox a nabízí bezpečné a kvalifikované poradenství. BitBox ověřuje adresy během transakcí, aby bylo zajištěno bezpečné doručení.",
               "title": "Zabezpečení"
             },
             "title": "Prohlášení o vyloučení odpovědnosti"
@@ -460,7 +468,7 @@
               "title": "Platební metody a poplatky"
             },
             "security": {
-              "description": "BTC Direct je externí služba, na kterou se nevztahuje model bezpečnostních hrozeb BitBox02. S BTC Direct úzce spolupracujeme na zvýšení celkové bezpečnosti.",
+              "description": "BTC Direct je externí služba, na kterou se nevztahuje model bezpečnostních hrozeb BitBox. S BTC Direct úzce spolupracujeme na zvýšení celkové bezpečnosti.",
               "link": "Model bezpečnostních hrozeb BitBox02",
               "title": "Zabezpečení"
             },
@@ -620,8 +628,8 @@
   },
   "confirmOnDevice": "Potvrďte na svém zařízení.",
   "connectKeystore": {
-    "promptNoName": "Chcete-li pokračovat, připojte svůj BitBox02",
-    "promptWithName": "Chcete-li pokračovat, připojte prosím svůj BitBox02 s názvem \"{{name}}\" "
+    "promptNoName": "Chcete-li pokračovat, připojte svůj BitBox",
+    "promptWithName": "Chcete-li pokračovat, připojte prosím svůj BitBox s názvem \"{{name}}\" "
   },
   "darkmode": {
     "toggle": "Tmavý režim"
@@ -681,11 +689,11 @@
         }
       },
       "factoryReset": {
-        "description": "Obnovte zařízení do továrního nastavení. Tím se smaže peněženka z vašeho BitBox02! ",
+        "description": "Obnovte zařízení do továrního nastavení. Tím se smaže peněženka z vašeho BitBoxu! ",
         "title": "Obnovit do továrního nastavení"
       },
       "goToStartupSettings": {
-        "description": "Vstoupit do bootloaderu BitBox02. Zde můžete povolit hash firmwaru."
+        "description": "Vstoupit do bootloaderu BitBoxu. Zde můžete povolit hash firmwaru."
       },
       "passphrase": {
         "description": "Aktivovat nebo deaktivovat funkci přístupové fráze.",
@@ -708,7 +716,7 @@
       "attestation": {
         "false": "Kontrola pravosti se nezdařila",
         "label": "Kontrola pravosti",
-        "true": "Váš BitBox02 je autentický"
+        "true": "Váš BitBox je autentický"
       },
       "sdcard": {
         "false": "Není vložena",
@@ -719,6 +727,7 @@
       "title": "Hardware"
     },
     "loading": "Načítání informací o zařízení…",
+    "noDevice": "Žádné připojené zařízení",
     "secrets": {
       "manageBackups": "Spravovat zálohy",
       "title": "Secrets"
@@ -768,7 +777,7 @@
         },
         "kyc": {
           "link": "Přečtěte si Pocket FAQ",
-          "p1": "Pro výměny do 950 EUR (1000 CHF) za den nejsou potřeba žádné další dokumenty.",
+          "p1": "Při výměně do 1000 EUR/CHF během 30 dnů nejsou potřeba žádné další doklady.",
           "p2": "U větších částek je k dokončení procesu KYC/AML vyžadován hovor s Pocket.",
           "title": "KYC/AML (Know your customer / Anit-Money Laundering)"
         },
@@ -776,7 +785,7 @@
           "link": "Model bezpečnostních hrozeb BitBox02",
           "p1": "Pocket je externí služba a nevztahuje se na ni model bezpečnostních hrozeb BitBox02. S Pocket však úzce spolupracujeme na zvýšení celkové bezpečnosti.",
           "p2": "<strong>Nakupování bitcoinů:</strong> Prostřednictvím druhého komunikačního kanálu vám přijde e-mail s potvrzením adresy pro příjem bitcoinů.",
-          "p3": "<strong>Prodej bitcoinů:</strong> BitBox02 kryptograficky ověří adresu pro vklad bitcoinů a na hardwarové peněžence zobrazí „Pocket“.",
+          "p3": "<strong>Prodej bitcoinů:</strong> BitBox kryptograficky ověří adresu pro vklad bitcoinů a na hardwarové peněžence zobrazí „Pocket“.",
           "title": "Zabezpečení"
         },
         "welcome": {
@@ -801,9 +810,11 @@
     "buy_crypto": "Koupit krypto",
     "enabled_false": "Vypnuto",
     "enabled_true": "Zapnuto",
+    "noOptions": "Nenalezeny žádné možnosti",
     "receive": "Přijmout {{coinCode}}",
     "receive_bitcoin": "Přijmout Bitcoin",
-    "receive_crypto": "Přijmout crypto"
+    "receive_crypto": "Přijmout crypto",
+    "search": "Vyhledávání…"
   },
   "genericError": "Došlo k chybě. Pokud zaznamenáte nějaké problémy, restartujte prosím aplikaci.",
   "goal": {
@@ -928,7 +939,7 @@
         "link": {
           "text": "Zobrazit podporované kryptoměny"
         },
-        "text": "BitBoxApp podporuje Bitcoin, Litecoin, Ethereum a vybrané tokeny ERC20. Pro Cardano a další tokeny používejte BitBox02 s alternativním softwarem, jako je AdaLite nebo Rabby. Kompletní seznam všech podporovaných kryptoměn najdete na našich webových stránkách:  ",
+        "text": "BitBoxApp podporuje Bitcoin, Litecoin, Ethereum a vybrané tokeny ERC20. Pro Cardano a další tokeny používejte BitBox s alternativním softwarem, jako je AdaLite nebo Rabby. Kompletní seznam všech podporovaných kryptoměn najdete na našich webových stránkách:  ",
         "title": "Které kryptoměny jsou podporovány?"
       },
       "whatAreAccounts": {
@@ -936,7 +947,7 @@
         "title": "Co jsou účty?"
       },
       "whatIsRememberWallet": {
-        "text": "Povolením možnosti \"Zapamatovat si peněženku\" můžete v aplikaci BitBoxApp vidět účty této peněženky, i když není BitBox02 připojen. Díky tomu můžete kdykoli zkontrolovat svůj zůstatek a portfolio. BitBox02 musí být stále připojen a odemčen, aby bylo možné odesílat nebo přijímat prostředky.\n\nPokud je možnost \"Zapamatovat si peněženku' vypnutá, musíte znovu zapojit svůj BitBox02 (nebo peněženku s přístupovou fráz) aby jste účty znovu viděli v aplikaci BitBoxApp.",
+        "text": "Povolením možnosti \"Zapamatovat si peněženku\" můžete v aplikaci BitBoxApp vidět účty této peněženky, i když není BitBox připojen. Díky tomu můžete kdykoli zkontrolovat svůj zůstatek a portfolio. BitBox musí být stále připojen a odemčen, aby bylo možné odesílat nebo přijímat prostředky.\n\nPokud je možnost \"Zapamatovat si peněženku' vypnutá, musíte znovu zapojit svůj BitBox02 (nebo peněženku s přístupovou fráz) aby jste účty znovu viděli v aplikaci BitBoxApp.",
         "title": "Co se stane, když povolím nebo vypnu „Zapamatovat peněženku“?"
       },
       "whyIsThisUseful": {
@@ -946,7 +957,9 @@
     },
     "appendix": {
       "link": "Kontaktujte nás!",
-      "text": "Další otázka?"
+      "questionService": "Máte problémy s {{serviceName}}?",
+      "text": "Další otázka?",
+      "textService": "Pokud máte problémy se službou {{serviceName}}, kontaktujte ji prosím přímo:"
     },
     "backups": {
       "check": {
@@ -1035,7 +1048,7 @@
         "link": {
           "text": "Přečtěte si více o kontrole pravosti"
         },
-        "text": "BitBoxApp provede atestační kontrolu BitBox02, aby ověřila, zda je zařízení pravé. Kontrola se provádí lokálně a nepřipojuje se k žádným serverům.",
+        "text": "BitBoxApp provede atestační kontrolu BitBox, aby ověřila, zda je zařízení pravé. Kontrola se provádí lokálně a nepřipojuje se k žádným serverům.",
         "title": "Jak probíhá kontrola pravosti?"
       },
       "name": {
@@ -1183,10 +1196,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "Zařízení by mělo po připojení jednou bliknout. Ujistěte se, že je zapojeno správnou stranou. Pokud máte potíže, kontaktujte nás prostřednictvím níže uvedeného odkazu.\n\nZařízení BitBox01 není podporováno v mobilních zařízeních. K připojení zařízení BitBox01 použijte aplikaci BitBoxApp na stolním počítači.",
-        "title": "Můj BitBox01 nebyl rozpoznán"
-      },
       "getDevice": {
         "link": {
           "text": "Objednejte si BitBox"
@@ -1212,6 +1221,13 @@
       "welcome": {
         "text": "Děkujeme za používání této aplikace vytvořené společností Shift Crypto ve Švýcarsku. Jsme rádi za jakýkoli příspěvek, o který se s námi podělíte. Poskytněte prosím zpětnou vazbu pomocí odkazu v dolní části.",
         "title": "Vítejte v BitBoxApp!"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "Objednejte si BitBox02 Nova"
+        },
+        "text": "Se systémem iOS funguje pouze zařízení BitBox02 Nova. Běžný BitBox02 lze používat se všemi ostatními platformami. Chcete-li si zakoupit zařízení BitBox02 Nova, navštivte náš obchod.",
+        "title": "Který BitBox funguje s iOS?"
       }
     },
     "walletConnect": {
@@ -1257,7 +1273,7 @@
   },
   "loading": "načítání…",
   "manageAccounts": {
-    "accountHidden": "Tento účet byl skryt z vašich watch-only účtů. Chcete-li jej znovu zobrazit, připojte prosím svůj BitBox02.",
+    "accountHidden": "Tento účet byl skryt z vašich watch-only účtů. Chcete-li jej znovu zobrazit, připojte prosím svůj BitBox.",
     "editAccount": "Upravit",
     "editAccountNameTitle": "Upravit název účtu",
     "noAccounts": "nebyly nalezeny žádné účty",
@@ -1329,7 +1345,7 @@
           "title": "Zapamatovaná peněženka"
         },
         "name": "Zapamatovat peněženku",
-        "warning": "Tím odstraníte zapamatovanou peněženku. Chcete-li ji znovu zobrazit, musíte připojit BitBox02 pro tuto peněženku. Žádné prostředky v této peněžence nebudou ovlivněny. Chcete pokračovat?",
+        "warning": "Tím odstraníte zapamatovanou peněženku. Chcete-li ji znovu zobrazit, musíte připojit BitBox pro tuto peněženku. Žádné prostředky v této peněžence nebudou ovlivněny. Chcete pokračovat?",
         "warningTitle": "Deaktivovat zapamatování peněženky"
       },
       "toggleSats": {
@@ -1347,6 +1363,20 @@
   "notification": {
     "newTxs_one": "Nová transakce v: {{accountName}}",
     "newTxs_other": "{{count}} nové transakce v: {{accountName}}"
+  },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "Tipy pro problémy s připojením",
+    "description1": "Se systémem iOS je kompatibilní pouze BitBox02 Nova. Pro BitBox02 používejte Windows, macOS, Android nebo Linux. BitBox02 Nova můžete zakoupit v našem internetovém obchodě:",
+    "description2": "Obrazovka by se měla rozsvítit. Pokud se obrazovka nerozsvítí, zařízení není napájeno.",
+    "description3": "Mějte zařízení BitBox02 Nova v blízkosti iPhonu/iPadu. Doporučujeme připojit BitBox02 Nova přímo do vašeho zařízení.",
+    "description4": "Zařízení BitBox02 Nova se k systému iOS připojuje prostřednictvím Bluetooth. Bluetooth lze vypnout/zapnout v nastaveních BitBoxApp na jiných platformách.",
+    "link1": "Objednejte si BitBox02 Nova",
+    "link2": "Kontaktujte podporu",
+    "stillHavingIssues": "Stále máte problémy?",
+    "title1": "Se systémem iOS používejte jenom BitBox02 Nova.",
+    "title2": "Zkontrolujte, zda je zařízení BitBox02 Nova napájeno",
+    "title3": "Udržujte BitBox02 Nova v dosahu",
+    "title4": "Ujistěte se, že Bluetooth není v BitBox02 Nova deaktivováno."
   },
   "passphrase": {
     "considerations": {
@@ -1382,15 +1412,15 @@
     },
     "successDisabled": {
       "message": "Volitelná přístupová fráze <strong>byla úspěšně aktivována</strong>!\nOd této chvíle budete vyzváni k zadání přístupové fráze.",
-      "messageEnd": "Nyní znovu připojte BitBox02.",
+      "messageEnd": "Nyní znovu připojte BitBox.",
       "title": "Přístupová fráze aktivní"
     },
     "successEnabled": {
       "message": "Volitelná přístupová fráze <strong>byla úspěšně deaktivována</strong>!\n\nJiž nebudete vyzváni k zadání přístupové fráze.",
-      "messageEnd": "Nyní znovu připojte svůj BitBox02.",
+      "messageEnd": "Nyní znovu připojte svůj BitBox.",
       "tips": "Tipy",
       "tipsList": [
-        "Doporučujeme nejprve odeslat malou částku do peněženky s přístupovou frází. Poté odpojte a znovu zapojte BitBox02 a zadejte heslo a přístupovou frázi. Pokud jste zadali přístupovou frázi správně, měli byste prostředky vidět ve své peněžence.",
+        "Doporučujeme nejprve odeslat malou částku do peněženky s přístupovou frází. Poté odpojte a znovu zapojte BitBox a zadejte heslo a přístupovou frázi. Pokud jste zadali přístupovou frázi správně, měli byste prostředky vidět ve své peněžence.",
         "Pokud chcete vstoupit do své původní peněženky bez přístupové fráze, můžete to provést tak, že po výzvě k zadání přístupové fráze nezadáte nic. Nebo můžete funkci přístupové fráze vypnout."
       ],
       "title": "Přístupová fráze deaktivována"
@@ -1413,7 +1443,7 @@
     },
     "why": {
       "button": "Proč používat přístupovou frázi",
-      "message": "BitBox02 chrání seed před stažením ze samotného zařízení, ale záloha (uložena na microSD kartě nebo obnovovací slova zapsaná na papíře) umožňuje plný přístup k peněžence. Proto by měla být uložena na bezpečném místě!\n\nVzhledem k tomu, že přístupová fráze vytváří novou peněženku pomocí vašeho stávajícího seedu, vyžaduje peněženka s přístupovou frází k obnovení <strong>zálohu i přístupovou frázi</strong>. Výhodou je, že pokud někdo najde vaši zálohu, bude k přístupu do peněženky s přístupovou frází stále potřebovat přístupovou frázi.\n\nFunkce přístupové fráze navíc umožňuje vytvořit na stejném zařízení více peněženek nebo \"skrytých peněženek\" kromě té výchozí.",
+      "message": "BitBox chrání seed před stažením ze samotného zařízení, ale záloha (uložena na microSD kartě nebo obnovovací slova zapsaná na papíře) umožňuje plný přístup k peněžence. Proto by měla být uložena na bezpečném místě!\n\nVzhledem k tomu, že přístupová fráze vytváří novou peněženku pomocí vašeho stávajícího seedu, vyžaduje peněženka s přístupovou frází k obnovení <strong>zálohu i přístupovou frázi</strong>. Výhodou je, že pokud někdo najde vaši zálohu, bude k přístupu do peněženky s přístupovou frází stále potřebovat přístupovou frázi.\n\nFunkce přístupové fráze navíc umožňuje vytvořit na stejném zařízení více peněženek nebo \"skrytých peněženek\" kromě té výchozí.",
       "title": "Proč používat přístupovou frázi?"
     }
   },
@@ -1446,7 +1476,7 @@
     "taprootWarning": "Poznámka: Taproot je nová funkce Bitcoinu a zatím není široce používána. Prostředky přijaté na adresy Taproot nemusí být viditelné v peněženkách třetích stran, které jsou určeny pouze pro sledování (watch-only wallets). Mnoho peněženek a burz zatím není schopno posílat na adresy Taproot.",
     "title": "Přijmout {{accountName}}",
     "verify": "Bezpečně ověřit adresu",
-    "verifyBitBox02": "Ověřit adresu na BitBox02",
+    "verifyBitBox02": "Ověřit adresu na BitBoxu",
     "verifyInstruction": "Zkontrolujte, zda se následující adresa shoduje s adresou zobrazenou na vašem zařízení."
   },
   "reset": {
@@ -1661,6 +1691,7 @@
       "up-to-date": "Vaše aplikace je aktuální",
       "version": "Verze aplikace"
     },
+    "more": "Více",
     "notes": {
       "export": {
         "description": "Vytvořit zálohu poznámek k transakcím a názvům účtů.",
@@ -1706,6 +1737,33 @@
     "restore": {
       "summary": "Úspěšně jste obnovili peněženku ze zálohy.",
       "title": "Hotovo"
+    }
+  },
+  "testWallet": {
+    "connect": {
+      "description": "Softwarová testovací peněženka pro testování bez zařízení v síti Testnet.",
+      "title": "Testovací peněženka"
+    },
+    "disconnect": {
+      "description": "Odebere softwarovou testovací peněženku.",
+      "title": "Odpojit testovací peněženku"
+    },
+    "prompt": {
+      "button": "Odemknout",
+      "passwordLabel": "Heslo pro testování",
+      "title": "Odemknout testovací peněženku"
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "Restartujte aplikaci v režimu testnet a otestujte funkce.",
+      "prompt": "Pro vstup do režimu testnet zavřete aplikaci a spusťte ji znovu.",
+      "title": "Spustit režim testnetu"
+    },
+    "deactivate": {
+      "description": "Restartováním aplikace ukončíte režim testnetu.",
+      "prompt": "Zavřením aplikace ukončíte testnet.",
+      "title": "Ukončit režim testnet."
     }
   },
   "transaction": {
@@ -1835,9 +1893,10 @@
     "testnet": "Varování: V této chvíli používáte peněženku v režimu Testnet. Transakce a zůstatky zde nejsou skutečné a nezobrazí se v mainnetu. Testnet je určen pouze pro testovací a vývojové účely."
   },
   "welcome": {
-    "connect": "Připojte BitBox02",
-    "getStarted": "Začněme instalací firmwaru na váš BitBox02.",
+    "connect": "Připojte BitBox",
+    "getStarted": "Začněme instalací firmwaru na váš BitBox.",
     "loadingAccounts": "Načítání účtů",
+    "message": "Připojte svůj BitBox a pokračujte poklepáním na stranu.",
     "title": "Vítejte"
   }
 }
