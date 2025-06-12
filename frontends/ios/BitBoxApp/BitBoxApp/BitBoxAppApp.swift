@@ -134,6 +134,11 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
                 // Local file path, use UIDocumentInteractionController
                 if let rootViewController = self.getRootViewController() {
                     let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                    if let popover = activityViewController.popoverPresentationController {
+                        popover.sourceView = rootViewController.view
+                        popover.sourceRect = CGRect(x: rootViewController.view.bounds.midX, y: rootViewController.view.bounds.midY, width: 0, height: 0)
+                        popover.permittedArrowDirections = []
+                    }
                     rootViewController.present(activityViewController, animated: true, completion: nil)
                 }
             } else {

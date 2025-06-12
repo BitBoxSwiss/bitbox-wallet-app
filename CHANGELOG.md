@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v4.48.0
 - Removed the BTC/sat switch from the general settings in favor of a rotating unit in the account balance.
 - Reduced support for BitBox01
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
@@ -10,6 +12,7 @@
 - Enable unlock test wallet in testnet
 - Added support to show on the BitBox when a transaction's recipient is an address of a different account on the device.
 - Persist third party widget sessions
+- Change notes export file type to JSON Lines
 - Added BTC Direct sell option
 
 ## v4.47.3
