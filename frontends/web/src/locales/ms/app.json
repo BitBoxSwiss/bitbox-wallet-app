@@ -1140,10 +1140,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "Peranti mesti berkelip sekali apabila dimasukkan. Pastikan ia dimasukkan ke arah yang betul. Jika anda menghadapi masalah, sila hubungi kami melalui pautan di bawah.",
-        "title": "Peranti saya tidak diketahui"
-      },
       "getDevice": {
         "link": {
           "text": "Pesan sebuah BitBox"

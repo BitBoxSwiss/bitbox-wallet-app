@@ -461,10 +461,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "设备插入后应闪烁一次。确保将其正确插入。如果您遇到问题，请通过以下链接与我们联系。",
-        "title": "我的BitBox01无法识别"
-      },
       "getDevice": {
         "link": {
           "text": "订购一个BitBox"

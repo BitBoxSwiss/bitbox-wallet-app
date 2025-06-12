@@ -1183,10 +1183,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "Le dispositif doit clignoter une fois qu'il est inséré. Assurez-vous qu'il soit inséré dans le bon sens. Si vous rencontrez des difficultés, veuillez nous contacter via le lien ci-dessous.\n\nLa BitBox01 n'est pas utilisable sur mobile. Veuillez utiliser la BitBoxApp sur votre ordinateur pour connecter votre BitBox01.",
-        "title": "Mon BitBox01 n'est pas reconnu"
-      },
       "getDevice": {
         "link": {
           "text": "Commander un BitBox"
