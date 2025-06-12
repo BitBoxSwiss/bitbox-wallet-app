@@ -148,7 +148,6 @@ func (device *Device) Reset() error {
 		Subject: string(deviceevent.EventKeystoreGone),
 		Action:  action.Replace,
 	})
-	device.init()
 	return nil
 }
 
