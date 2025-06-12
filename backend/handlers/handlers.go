@@ -1422,10 +1422,10 @@ func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{
 func (handlers *Handlers) getExchangeBtcDirectInfo(r *http.Request) interface{} {
 	type result struct {
 		Success      bool    `json:"success"`
-		ErrorMessage string  `json:"errorMessage"`
+		ErrorMessage string  `json:"errorMessage,omitempty"`
 		Url          string  `json:"url"`
 		ApiKey       string  `json:"apiKey"`
-		Address      *string `json:"address"`
+		Address      *string `json:"address,omitempty"`
 	}
 
 	code := accountsTypes.Code(mux.Vars(r)["code"])

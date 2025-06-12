@@ -16,7 +16,6 @@
 
 import { AccountCode } from './account';
 import { apiGet, apiPost } from '@/utils/request';
-import { getDevServers } from './backend';
 
 export const getExchangeRegionCodes = (): Promise<string[]> => {
   return apiGet('exchange/region-codes');
@@ -101,26 +100,7 @@ export type TBTCDirectInfoResponse = {
   errorMessage: string;
 };
 
-export const getBTCDirectInfo = async (
-  action: TExchangeAction,
-  code: string,
-): Promise<TBTCDirectInfoResponse> => {
-  // TODO: remove and add BTC Direct sell option in the backend
-  if (action === 'sell') {
-    const isDev = await getDevServers();
-    if (isDev) {
-      return Promise.resolve({
-        success: true,
-        url: '/btcdirect/coin-to-fiat.html',
-        apiKey: '6ed4d42bd02eeac1776a6bb54fa3126f779c04d5c228fe5128bb74e89ef61f83',
-      });
-    }
-    return Promise.resolve({
-      success: true,
-      url: 'https://bitboxapp.shiftcrypto.io/widgets/btcdirect/v1/coin-to-fiat.html',
-      apiKey: '7d71f633626901d5c4d06d91f7d0db2c15cdf524ddd0ebcd36f4d9c4e04694cd',
-    });
-  }
+export const getBTCDirectInfo = async (action: TExchangeAction, code: string): Promise<TBTCDirectInfoResponse> => {
   return apiGet(`exchange/btcdirect/info/${action}/${code}`);
 };
 
