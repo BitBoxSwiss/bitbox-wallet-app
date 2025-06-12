@@ -339,7 +339,7 @@
     },
     "intro": {
       "link": "Sitio web de Bitsurance",
-      "text1": "BitBox trabaja con Bitsurance para añadir una capa adicional de protección para tu bitcoin. Mientras que la BitBox02 mantiene tus fondos seguros, Bitsurance cubre las amenazas en casa que no se pueden mitigar solo con tecnología, como robos, extorsiones o la destrucción de la propia billetera física."
+      "text1": "BitBox trabaja con Bitsurance para añadir una capa adicional de protección para tu bitcoin. Mientras que la BitBox mantiene tus fondos seguros, Bitsurance cubre las amenazas en casos que no se pueden mitigar solo con tecnología, como robos, extorsiones o la destrucción de la propia billetera física."
     },
     "terms": {
       "link": "Política de privacidad de Bitsurance",
@@ -434,7 +434,7 @@
             },
             "security": {
               "link": "Modelo de amenazas de seguridad de la BitBox02",
-              "text": "El Private Trading Desk de BTC Direct es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de la BitBox02. Sin embargo, BTC Direct está familiarizado con los productos de BitBox y ofrece orientación segura y experta. Los productos de BitBox verifican las direcciones de criptomonedas durante las transacciones para garantizar una entrega segura.",
+              "text": "El Private Trading Desk de BTC Direct es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de la BitBox. Sin embargo, BTC Direct está familiarizado con los productos de BitBox y ofrece orientación segura y experta. Los productos de BitBox verifican las direcciones de criptomonedas durante las transacciones para garantizar una entrega segura.",
               "title": "Seguridad"
             },
             "title": "Descargo de responsabilidad"
@@ -467,7 +467,7 @@
               "title": "Métodos de pago y comisiones"
             },
             "security": {
-              "description": "BTC Direct es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de la BitBox02. Trabajamos en estrecha colaboración con BTC Direct para mejorar la seguridad general.",
+              "description": "BTC Direct es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de la BitBox. Trabajamos en estrecha colaboración con BTC Direct para mejorar la seguridad general.",
               "link": "Modelo de amenazas de seguridad de la BitBox02",
               "title": "Seguridad"
             },
@@ -627,8 +627,8 @@
   },
   "confirmOnDevice": "Por favor confirma en tu dispositivo.",
   "connectKeystore": {
-    "promptNoName": "Por favor conecta tu BitBox02 para continuar",
-    "promptWithName": "Por favor, conecta tu BitBox02 llamada \"{{name}}\" para continuar "
+    "promptNoName": "Por favor conecta tu BitBox para continuar",
+    "promptWithName": "Por favor, conecta tu BitBox llamada \"{{name}}\" para continuar "
   },
   "darkmode": {
     "toggle": "Modo oscuro"
@@ -688,11 +688,11 @@
         }
       },
       "factoryReset": {
-        "description": "Restablece tu dispositivo a los valores de fábrica. ¡Esto borra la billetera de tu BitBox02!",
+        "description": "Restablece tu dispositivo a los valores de fábrica. ¡Esto borrará la billetera de tu BitBox!",
         "title": "Restablecimiento de fábrica"
       },
       "goToStartupSettings": {
-        "description": "Entra en el bootloader de la BitBox02. Puedes activar el hash del firmware desde aquí."
+        "description": "Entra en el gestor de arranque de tu BitBox. Puedes activar el hash del firmware desde aquí."
       },
       "passphrase": {
         "description": "",
@@ -776,15 +776,15 @@
         },
         "kyc": {
           "link": "Leer las preguntas frecuentes (FAQ) de Pocket",
-          "p1": "No se necesitan documentos adicionales para cambios de hasta 950 EUR (1000 CHF) por día.",
+          "p1": "No se necesitan documentos adicionales para intercambios de hasta 950 EUR (1000 CHF) por día.",
           "p2": "Para montos mayores, se requiere una llamada con Pocket para completar el proceso KYC/AML.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
           "link": "Modelo de amenazas de seguridad de BitBox02",
-          "p1": "El uso de Pocket es un servicio externo y no está cubierto por el modelo de amenazas de seguridad de BitBox02. Sin embargo, trabajamos en estrecha colaboración con Pocket para mejorar la seguridad general.",
+          "p1": "El uso de Pocket es un servicio externo y no está cubierto por el modelo de amenazas de seguridad de BitBox. Sin embargo, trabajamos en estrecha colaboración con Pocket para mejorar la seguridad general.",
           "p2": "<strong>Comprar bitcoin:</strong> Recibirás un correo electrónico para confirmar tu dirección de recepción de bitcoin a través de un segundo canal de comunicación.",
-          "p3": "<strong>Vender bitcoin:</strong> Tu BitBox02 verifica criptográficamente la dirección de Bitcoin y muestra \"Pocket\" en la billetera de hardware.",
+          "p3": "<strong>Vender bitcoin:</strong> Tu BitBox verifica criptográficamente la dirección de Bitcoin y muestra \"Pocket\" en la billetera de hardware.",
           "title": "Seguridad"
         },
         "welcome": {
@@ -936,7 +936,7 @@
         "link": {
           "text": "Ver monedas compatibles"
         },
-        "text": "BitBoxApp admite Bitcoin, Litecoin y Ethereum, así como una selección de tokens ERC20. Para Cardano y otros tokens, utilice su BitBox02 con software alternativo como AdaLite o Rabby. Puede encontrar una lista exhaustiva de todas las monedas compatibles en nuestro sitio web:",
+        "text": "La BitBoxApp admite Bitcoin, Litecoin y Ethereum, así como una selección de tokens ERC20. Para Cardano y otros tokens, debes utilizar tu BitBox con software alternativo como AdaLite o Rabby. Puedes encontrar una lista exhaustiva de todas las monedas compatibles en nuestro sitio web:",
         "title": "¿Cuales monedas son compatibles?"
       },
       "whatAreAccounts": {
@@ -1043,12 +1043,12 @@
         "link": {
           "text": "Más información sobre el control de autenticidad"
         },
-        "text": "La BitBoxApp realiza una comprobación de atestación en la BitBox02 para verificar si el dispositivo es genuino. La comprobación se realiza localmente y no se conecta a ningún servidor.",
+        "text": "La BitBoxApp realiza una comprobación de autenticidad en la BitBox para verificar si el dispositivo es genuino. La comprobación se realiza localmente y no se conecta a ningún servidor.",
         "title": "¿Cómo funciona el control de autenticidad?"
       },
       "name": {
         "text": "Este es el nombre de tu wallet y de la copia de seguridad. El nombre se utiliza para futuras copias de seguridad y se puede utilizar para ayudar a distinguir entre diferentes billeteras. Se puede cambiar en cualquier momento, pero ten en cuenta que las copias de seguridad realizadas antes del cambio seguirán utilizando el nombre anterior.",
-        "title": "¿Para qué se utiliza el nombre BitBox02?"
+        "title": "¿Para qué se utiliza el nombre de la BitBox?"
       },
       "secure-chip": {
         "link": {
@@ -1261,7 +1261,7 @@
   },
   "loading": "cargando…",
   "manageAccounts": {
-    "accountHidden": "Esta cuenta ha sido ocultada de tus cuentas de sólo vigilancia. Para volver a verla, conecta tu BitBox02.",
+    "accountHidden": "Esta cuenta se ha ocultado de tus cuentas de sólo lectura. Para volver a verla, conecta tu BitBox.",
     "editAccount": "Editar",
     "editAccountNameTitle": "Editar nombre de cuenta",
     "noAccounts": "No se han encontrado cuentas",
@@ -1333,7 +1333,7 @@
           "title": "Billetera recordada"
         },
         "name": "Recordar esta billetera",
-        "warning": "La BitBoxApp dejará de recordar esta billetera. Para verla de nuevo, necesitarás conectar la BitBox02 correspondiente a esta billetera. Las monedas de esta billetera no se verán afectadas. ¿Deseas continuar?",
+        "warning": "La BitBoxApp dejará de recordar esta billetera. Para verla de nuevo, necesitarás conectar la BitBox correspondiente a esta billetera. Las monedas de esta billetera no se verán afectadas. ¿Deseas continuar?",
         "warningTitle": "Dejar de recordar esta billetera"
       },
       "toggleSats": {
@@ -1355,13 +1355,13 @@
   "passphrase": {
     "considerations": {
       "button": "Consideraciones de la copia de seguridad",
-      "message": "La passprhase añade una capa de protección a la copia de seguridad de tu billetera (de la tarjeta microSD o palabras de recuperación). Si alguien tiene acceso a tu copia de seguridad, también necesitará la passphrase para acceder a tu billetera. \n\n\nSin embargo, esto significa que necesitarás <strong>tanto la passphrase como la copia de seguridad de tu billetera</strong> para restaurar tu billetera con la passphrase, en caso de que tu BitBox02 se pierda o se rompa. Si olvidas o pierdes tu contraseña, perderás el acceso a todas las monedas de esa billetera.\n\nCuando almacenes tu passphrase, considera ponerla en un lugar distinto a la de tu copia de seguridad. De este modo, si alguien encuentra la copia de seguridad, no encontrará también la passphrase.",
+      "message": "La passprhase añade una capa de protección a la copia de seguridad de tu billetera (de la tarjeta microSD o palabras de recuperación). Si alguien tiene acceso a tu copia de seguridad, también necesitará la passphrase para acceder a tu billetera. \n\n\nSin embargo, esto significa que necesitarás <strong>tanto la passphrase como la copia de seguridad de tu billetera</strong> para restaurar tu billetera con la passphrase, en caso de que tu BitBox se pierda o se rompa. Si olvidas o pierdes tu passphrase, perderás el acceso a todas las monedas de esa billetera.\n\nCuando almacenes tu passphrase, considera ponerla en un lugar distinto a la de tu copia de seguridad. De este modo, si alguien encuentra la copia de seguridad, no encontrará también la passphrase.",
       "title": "Consideraciones de la copia de seguridad"
     },
     "disable": "Desactivar passphrase",
     "disableInfo": {
       "button": "Desactivar",
-      "message": "Tras desactivar la passphrase, no se le volverá a preguntar para que introduzca una passphrase tras desbloquear su BitBox02. Por lo que entrara en su cartera por defecto.\nCualquier moneda de su cartera con passphrase seguirá estando en esa cartera, sin embargo no tendrá acceso a ella porque tras desbloquear su BitBox02, abrirá su cartera por defecto.\nPara acceder a su cartera con passphrase de nuevo, simplemente vuelva a activar la opción de passphrase e introduzca la passphrase correcta tras desbloquear la BitBox02.\n<strong>Consejo:</strong> Puede seguir entrando en su cartera original dejando la passphrase vacía."
+      "message": "Tras desactivar la passphrase, no se te volverá a preguntar para que introduzcas una passphrase tras desbloquear tu BitBox. Por lo que entraras en tu billetera por defecto.\nCualquier moneda de tu billetera con passphrase seguirá estando en esa billetera, sin embargo no tendrás acceso a ella porque tras desbloquear tu BitBox, esta abrirá tu billetera por defecto.\nPara acceder a su billetera con passphrase de nuevo, simplemente vuelva a activar la opción de passphrase e introduzce la passphrase correcta tras desbloquear tu BitBox.\n<strong>Consejo:</strong> Puedes seguir entrando en tu billetera original dejando la passphrase vacía."
     },
     "enable": "Activar passphrase",
     "error": {
@@ -1369,7 +1369,7 @@
     },
     "how": {
       "button": "Cómo se ve",
-      "message": "Una passphrase no funciona como una contraseña a las que estamos habituados. Si se equivoca en un carácter de su passphrase, no será notificado. Esto es porque <strong>cada passphrase crea una cartera diferente y válida al mismo tiempo</strong>. Esto significa que se pueden utilizar tantas pasprases como carteras se deseen. Pero solo se puede acceder a cada cartera cuando se introduce su passphrase correspondiente.\nCuando conecte su BotBox02, será preguntado por su contraseña como siempre. Después, se le solicitará que introduzca la passphrase en el dispositivo.\nTras introducir la passphrase, se le mostrará la passphrase que ha introducido. Esto es para confirmar que ha sido introducida correctamente.",
+      "message": "Una passphrase no funciona como una contraseña a las que estamos habituados. Si te equivoca en un carácter de tu passphrase, no serás notificado. Esto es porque <strong>cada passphrase crea una billetera diferente que también es válida</strong>. Esto significa que puedes utilizar tantas passphrases como billeteras quieras. Pero solo se puede acceder a cada billetera cuando se introduce su passphrase correspondiente.\nCuando conectes tu BitBox, tu BitBox te preguntará por tu contraseña como siempre. Después, te solicitará que introduzcas la passphrase en el propio dispositivo.\nTras introducir la passphrase, se te mostrará la passphrase que has introducido. Esto es para confirmar que ha sido introducida correctamente.",
       "title": "Como funciona"
     },
     "intro": {
@@ -1386,15 +1386,15 @@
     },
     "successDisabled": {
       "message": "Passphrase opcional <strong>activada satisfactoriamente</strong>!\nA partir de ahora se le solicitara introducir una passphrase.",
-      "messageEnd": "Por favor vuelva a conectar ahora su BitBox02.",
+      "messageEnd": "Por favor vuelva a conectar tu BitBox ahora mismo.",
       "title": "Passphrase activada"
     },
     "successEnabled": {
       "message": "Passphrase opcional <strong>desactivada satisfactoriamente</strong>!\nA partir de ahora no se le solicitará introducir una passphrase.",
-      "messageEnd": "Por favor vuelva a conectar su BitBox02 ahora.",
+      "messageEnd": "Por favor vuelva a conectar tu BitBox ahora mismo.",
       "tips": "Consejos",
       "tipsList": [
-        "Le sugerimos enviar una pequeña cantidad a su cartera con passphrase primero. Después desconecte y vuelva a conectar la BitBox02 e introduzca su contraseña y su passphrase. Si ha introducido la passphrase correctamente, debería ver las monedas en su cartera.",
+        "Te sugerimos enviar una pequeña cantidad a su billetera con passphrase primero. Después desconecta y vuelve a conectar tu BitBox e introduce tu contraseña y tu passphrase. Si has introducido la passphrase correctamente, deberías ver las monedas en tu billetera.",
         "Si quiere entrar en su cartera original sin passphrase, puede seguir haciéndolo no introduciendo nada cuando le solicite introducir la passphrase. O puede desactivar la característica de passphrase."
       ],
       "title": "Passphrase desactivada"
@@ -1412,12 +1412,12 @@
     },
     "what": {
       "button": "Aprende como funciona",
-      "message": "Una billetera se crea (deriva) a partir de un número aleatorio muy grande, también conocido como semilla. Esta semilla se crea cuando configuras por primera vez tu BitBox02 y se respalda con la tarjeta microSD o las palabras de recuperación. Cualquiera que tenga acceso a la semilla tiene control total sobre los fondos de esa billetera.\n\nUna passphrase es un <strong>secreto opcional</strong>, añadido a la semilla. Cuando se utiliza una passphrase, cada passphrase crea una nueva billetera basada en la semilla + passphrase (secreto opcional). Una passphrase puede ser cualquier cosa: letras, palabras, caracteres especiales o incluso puede estar vacía. De hecho, la billetera predeterminadamente se deriva de la semilla + passphrase vacía.\n\nLa passphrase forma parte del estándar BIP39, lo que significa que es compatible con todas las billeteras que admitan el mismo estándar.",
+      "message": "Una billetera se crea (deriva) a partir de un número aleatorio muy grande, también conocido como semilla. Esta semilla se crea cuando configuras por primera vez tu BitBox y se respalda con la tarjeta microSD o las palabras de recuperación. Cualquiera que tenga acceso a la semilla tiene control total sobre los fondos de esa billetera.\n\nUna passphrase es un <strong>secreto opcional</strong>, añadido a la semilla. Cuando se utiliza una passphrase, esta crea una nueva billetera basada en la semilla + passphrase (secreto opcional). Una passphrase puede ser cualquier cosa: letras, palabras, caracteres especiales o incluso puede estar vacía. De hecho, la billetera predeterminadamente se deriva de la semilla + passphrase vacía.\n\nLa passphrase forma parte del estándar BIP39, lo que significa que es compatible con todas las billeteras que admiten el mismo estándar.",
       "title": "¿Qué es una passphrase?"
     },
     "why": {
       "button": "Porqué utilizar una passphrase",
-      "message": "La BitBox02 protege la semilla contra la extracción desde el propio dispositivo, pero la copia de seguridad (tarjeta microSD o palabras de recuperación) da acceso completo a la billetera. ¡Por eso debe guardarse en un lugar seguro!\n\n\nDado que una passphrase crea una nueva billetera utilizando tu semilla existente, la billetera con passphrase requiere tanto de tu <strong>copia de seguridad ASÍ COMO tu passphrase</strong> para restaurarla. La ventaja de esto es que si alguien encuentra tu copia de seguridad, seguirá necesitando la passphrase para acceder a la billetera con la passphrase.\n\n\nAdemás, la función de la passphrase permite crear varias billeteras en el mismo dispositivo, o \"billeteras ocultas\", además del predeterminado.",
+      "message": "La BitBox protege la semilla contra la extracción desde el propio dispositivo, pero la copia de seguridad (tarjeta microSD o palabras de recuperación) da acceso completo a la billetera. ¡Por eso debe guardarse en un lugar seguro!\n\n\nDado que una passphrase crea una nueva billetera utilizando tu semilla existente, la billetera con passphrase requiere tanto de tu <strong>copia de seguridad ASÍ COMO tu passphrase</strong> para restaurarla. La ventaja de esto es que si alguien encuentra tu copia de seguridad, seguirá necesitando la passphrase para acceder a la billetera con la passphrase.\n\n\nAdemás, la función de la passphrase permite crear varias billeteras en el mismo dispositivo, o \"billeteras ocultas\", además de la predeterminada.",
       "title": "¿Porqué utilizar una passphrase?"
     }
   },
@@ -1538,7 +1538,7 @@
       "title": "Enviar desde salida"
     },
     "confirm": {
-      "infoMessage": "Verifica cuidadosamente que el monto y la dirección sean correctos en tu BitBox02",
+      "infoMessage": "Verifica cuidadosamente que el monto y la dirección sean correctos en tu BitBox",
       "selected-coins": "Monedas seleccionadas",
       "title": "Confirmar y enviar transacción",
       "to": "A",
@@ -1546,7 +1546,7 @@
     },
     "edit": "Editar transacción",
     "error": {
-      "erc20InsufficientGasFunds": "Parece que no tienes suficiente Ether para pagar esta transacción ERC20. Por favor, asegúrate de que tienes suficiente Ether en tu billetera.",
+      "erc20InsufficientGasFunds": "Parece que no tienes suficiente Ether para pagar esta transacción ERC20. Por favor, carga Ether a tu billetera e intenta de nuevo.",
       "feeTooLow": "La tarifa de red es demasiado baja",
       "feesNotAvailable": "No se pueden estimar las tarifas de red",
       "insufficientFunds": "fondos insuficientes",
@@ -1837,11 +1837,11 @@
   "warning": {
     "coincontrol": "Uno o más UTXOs cuentan con una dirección reutilizada. Ten en cuenta que el receptor verá todos los UTXOs asociados con esas direcciones.",
     "sdcard": "Manten la tarjeta micro SD guardada aparte de la BitBox, a menos que desees administrar las copias de seguridad.",
-    "testnet": "Advertencia: Actualmente estás usando la billetera en modo Testnet. Las transacciones y los saldos aquí no son reales y no aparecerán en la red principal. Testnet está destinada únicamente a fines de prueba y desarrollo."
+    "testnet": "Actualmente estás usando la billetera en modo Testnet. Las transacciones y los saldos aquí no son reales y no aparecerán en la red principal. Esta red está destinada únicamente a fines de prueba."
   },
   "welcome": {
-    "connect": "Conecta tu BitBox02",
-    "getStarted": "Vamos a comenzar instalando el firmware en tu BitBox02.",
+    "connect": "Conecta tu BitBox",
+    "getStarted": "Vamos a comenzar instalando el firmware en tu BitBox.",
     "loadingAccounts": "Cargando cuentas",
     "title": "Bienvenido"
   }
