@@ -33,12 +33,16 @@ type TSelectProps = {
   options: SelectOption[];
   defaultCurrency: Fiat;
   activeCurrencies: Fiat[];
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
 };
 
 export const ActiveCurrenciesDropdown = ({
   options,
   defaultCurrency,
-  activeCurrencies
+  activeCurrencies,
+  isOpen,
+  onOpenChange
 }: TSelectProps) => {
   const [formattedActiveCurrencies, setFormattedActiveCurrencies] = useState<SelectOption[]>([]);
   const { t } = useTranslation();
@@ -74,6 +78,10 @@ export const ActiveCurrenciesDropdown = ({
       closeMenuOnSelect={false}
       options={options}
       value={formattedActiveCurrencies}
+      title={t('newSettings.appearance.activeCurrencies.title')}
+      mobileFullScreen
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
       onChange={async (_, meta: ActionMeta<SelectOption>) => {
         switch (meta.action) {
         case 'select-option':

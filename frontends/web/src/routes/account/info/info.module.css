@@ -29,9 +29,6 @@
     max-width: 100%;
 }
 
-.address {
-}
-
 .buttons {
     clear: both;
     display: flex;
@@ -81,6 +78,11 @@
 
     .infoContent {
         width: 100%;
+    }
+
+    .buttons {
+        flex-direction: column-reverse;
+        gap: var(--space-half)
     }
 
     .largeEntry {

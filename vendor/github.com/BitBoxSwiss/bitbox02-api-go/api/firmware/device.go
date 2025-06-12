@@ -94,13 +94,28 @@ type Device struct {
 	// nonces must match the incrementing of the device nonces, so the decryption works. Avoid the
 	// situation where we Encrypt() locally twice, and send the queries out of order, which will
 	// result in a failed decryption on the device.
+	//
+	// Also, every request is followed by a response, so this lock ensures the responses is matched
+	// to the request.
 	queryLock sync.Mutex
+	// While `queryLock` ensures that the response matches the request, `apiLock` ensures that a
+	// series of request<>response pairs does not get interrupted. Some API calls require a series
+	// of calls, like signing a BTC transactions.
+	apiLock sync.Mutex
 
 	status Status
 
 	mu      sync.RWMutex
 	onEvent func(Event, interface{})
 	log     Logger
+
+	options *deviceOptions
+}
+
+// BluetoothInfo contains Bluetooth-related info.
+type BluetoothInfo struct {
+	// FirmwareHash is the hex-encoded 32 byte Bluetooth firmware hash.
+	FirmwareHash string `json:"firmwareHash"`
 }
 
 // DeviceInfo is the data returned from the device info api call.
@@ -112,6 +127,8 @@ type DeviceInfo struct {
 	// This information is only available since firmwae v9.6.0. Will be an empty string for older
 	// firmware versions.
 	SecurechipModel string `json:"securechipModel"`
+	// Available on Bluetooth-enabled devices, Will be `nil` otherwise.
+	Bluetooth *BluetoothInfo `json:"bluetooth"`
 }
 
 // NewDevice creates a new instance of Device.
@@ -129,9 +146,14 @@ func NewDevice(
 	config ConfigInterface,
 	communication Communication,
 	log Logger,
+	opts ...DeviceOption,
 ) *Device {
 	if (version == nil) != (product == nil) {
 		panic("both version and product have to be specified, or none")
+	}
+	options := &deviceOptions{}
+	for _, opt := range opts {
+		opt(options)
 	}
 	return &Device{
 		communication: communication,
@@ -140,6 +162,7 @@ func NewDevice(
 		config:        config,
 		status:        StatusConnected,
 		log:           log,
+		options:       options,
 	}
 }
 
@@ -167,10 +190,15 @@ func (device *Device) info() (*semver.SemVer, common.Product, bool, error) {
 	platformByte, response := response[0], response[1:]
 	editionByte, response := response[0], response[1:]
 	const platformBitBox02 = 0x00
+	const platformBitBox02Plus = 0x02
 	products := map[byte]map[byte]common.Product{
 		platformBitBox02: {
 			0x00: common.ProductBitBox02Multi,
 			0x01: common.ProductBitBox02BTCOnly,
+		},
+		platformBitBox02Plus: {
+			0x00: common.ProductBitBox02PlusMulti,
+			0x01: common.ProductBitBox02PlusBTCOnly,
 		},
 	}
 	editions, ok := products[platformByte]
@@ -211,8 +239,8 @@ func (device *Device) inferVersionAndProduct() error {
 	if device.version == nil {
 		version, product, _, err := device.info()
 		if err != nil {
-			return errp.New(
-				"OP_INFO unavailable; need to provide version and product via the USB HID descriptor")
+			return errp.Newf(
+				"OP_INFO unavailable; need to provide version and product via the USB HID descriptor.")
 		}
 		device.log.Info(fmt.Sprintf("OP_INFO: version=%s, product=%s", version, product))
 
@@ -326,9 +354,13 @@ func (device *Device) Product() common.Product {
 	return *device.product
 }
 
+func (device *Device) isMultiEdition() bool {
+	return *device.product == common.ProductBitBox02Multi || *device.product == common.ProductBitBox02PlusMulti
+}
+
 // SupportsETH returns true if ETH is supported by the device api.
 func (device *Device) SupportsETH(chainID uint64) bool {
-	if *device.product != common.ProductBitBox02Multi {
+	if !device.isMultiEdition() {
 		return false
 	}
 	if device.version.AtLeast(semver.NewSemVer(9, 10, 0)) {
@@ -343,12 +375,17 @@ func (device *Device) SupportsETH(chainID uint64) bool {
 	return false
 }
 
+// SupportsBluetooth returns true if this device supports Bluetooth.
+func (device *Device) SupportsBluetooth() bool {
+	return *device.product == common.ProductBitBox02PlusMulti || *device.product == common.ProductBitBox02PlusBTCOnly
+}
+
 // SupportsERC20 returns true if an ERC20 token is supported by the device api.
 //
 // For now, this list only contains tokens relevant to the BitBoxApp, otherwise the bitbox02-api-js
 // library size would blow up. TODO: move this to the bitbox-wallet-app repo.
 func (device *Device) SupportsERC20(contractAddress string) bool {
-	if *device.product != common.ProductBitBox02Multi {
+	if !device.isMultiEdition() {
 		return false
 	}
 	if device.version.AtLeast(semver.NewSemVer(4, 0, 0)) {
@@ -384,5 +421,5 @@ func (device *Device) SupportsERC20(contractAddress string) bool {
 
 // SupportsLTC returns true if LTC is supported by the device api.
 func (device *Device) SupportsLTC() bool {
-	return *device.product == common.ProductBitBox02Multi
+	return device.isMultiEdition()
 }

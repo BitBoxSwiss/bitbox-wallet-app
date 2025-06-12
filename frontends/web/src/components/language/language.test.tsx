@@ -22,14 +22,11 @@ import { useTranslation } from 'react-i18next';
 import { TLanguagesList } from './types';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: vi.fn(),
-  hasResourceBundle: vi.fn(),
-  addResourceBundle: vi.fn(),
-  changeLanguage: vi.fn()
+  useTranslation: vi.fn()
 }));
 
-vi.mock('@/i18n/i18n', () => ({
-  changei18nLanguage: vi.fn()
+vi.mock('@/hooks/mediaquery', () => ({
+  useMediaQuery: vi.fn().mockReturnValue(true)
 }));
 
 describe('components/language/language', () => {

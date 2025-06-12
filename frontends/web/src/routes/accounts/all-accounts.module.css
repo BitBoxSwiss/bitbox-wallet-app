@@ -1,0 +1,92 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  gap: var(--space-half);
+  width: 100%;
+}
+
+.keystoreContainer {
+  background-color: var(--background-secondary);
+}
+
+.keystoreHeader {
+  color: var(--color-tertiary);
+  display: flex;
+  font-weight: 500;
+  gap: 4px;
+}
+
+.keystoreName {
+  color: var(--color-text);
+}
+
+.accountsList {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-half);
+  gap: var(--space-half);
+}
+
+.accountItem {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  gap: 0;
+  color: var(--color-text);
+}
+
+.accountIcon {
+  flex: 0 0 auto;
+  margin-right: 8px;
+}
+
+.accountName {
+  margin: 0;
+  margin-right: 8px;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.accountBalanceContainer {
+  display: flex;
+  align-items: baseline;
+  margin-left: auto;
+  text-align: right;
+  font-size: 16px;
+  color: var(--color-secondary);
+  width: 100%;
+  overflow: hidden;
+  justify-content: flex-end;
+}
+
+.accountBalance {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-right: 4px;
+}
+
+.coinUnit {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.chevron {
+  margin-top: 6px;
+  color: var(--color-mediumgray);
+  font-size: 18px;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--color-mediumgray);
+}

@@ -178,6 +178,7 @@ func NewOrderedTransactions(txs []*TransactionData) OrderedTransactions {
 			if tx.Status != TxStatusFailed {
 				balance.Sub(balance, tx.Amount.BigInt())
 			}
+			deductedAmount = tx.Amount
 			// Subtract fee as well. Ethereum: it is deducted even if the tx failed, as the tx was
 			// mined.
 			if tx.Fee != nil && !tx.FeeIsDifferentUnit {

@@ -17,7 +17,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { RatesContext } from './RatesContext';
 import { Fiat } from '@/api/account';
-import { BtcUnit } from '@/api/coins';
+import { BtcUnit, setBtcUnit as setBackendBtcUnit } from '@/api/coins';
 import { getConfig, setConfig } from '@/utils/config';
 import { reinitializeAccounts } from '@/api/backend';
 import { equal } from '@/utils/equal';
@@ -64,6 +64,16 @@ export const RatesProvider = ({ children }: TProps) => {
     setDefaultCurrency(fiat);
   };
 
+  const rotateBtcUnit = async () => {
+    const unit: BtcUnit = btcUnit === 'default' ? 'sat' : 'default';
+    await setConfig({ backend: { btcUnit: unit } });
+    setBtcUnit(unit);
+    const response = await setBackendBtcUnit(unit);
+    if (!response.success) {
+      console.log('setBackendBtcUnit failed.');
+    }
+  };
+
   // this is a method to select / add a currency
   // into the active currencies list
   const addToActiveCurrencies = async (fiat: Fiat) => {
@@ -97,7 +107,8 @@ export const RatesProvider = ({ children }: TProps) => {
         addToActiveCurrencies,
         updateDefaultCurrency,
         updateRatesConfig,
-        removeFromActiveCurrencies
+        removeFromActiveCurrencies,
+        rotateBtcUnit,
       }}
     >
       {children}

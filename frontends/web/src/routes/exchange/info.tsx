@@ -108,7 +108,7 @@ export const ExchangeInfo = ({ code, accounts }: TProps) => {
                 supportedAccounts && (
                   <GroupedAccountSelector
                     accounts={supportedAccounts}
-                    title={ t('generic.buySell')}
+                    title={ t('receive.selectAccount')}
                     disabled={disabled}
                     selected={selected}
                     onChange={setSelected}

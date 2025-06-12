@@ -17,7 +17,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { ChevronRightDark } from '@/components/icon';
 import { Button, Input } from '@/components/forms';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { getDeviceInfo, setDeviceName } from '@/api/bitbox02';
@@ -85,7 +84,6 @@ const DeviceNameSetting = ({ deviceName, deviceID }: TDeviceNameSettingProps) =>
         settingName={t('bitbox02Settings.deviceName.input')}
         secondaryText={t('deviceSettings.deviceInformation.deviceName.description')}
         displayedValue={currentName}
-        extraComponent={<ChevronRightDark />}
         onClick={() => setActive(true)}
       />
 

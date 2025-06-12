@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import { ReactNode, createElement } from 'react';
-import { IWeb3Wallet } from '@walletconnect/web3wallet';
-import { ETHLogo } from '@/components/icon';
+import { IWalletKit } from '@reown/walletkit';
+import { ArbitrumLogo, OptimismLogo, BaseLogo, ETHLogo } from '@/components/icon';
 
 type TSupportedChainDetail = {
   [key: string]: { name: string; icon: ReactNode; }
@@ -23,7 +23,23 @@ type TSupportedChainDetail = {
 
 export const SUPPORTED_CHAINS: TSupportedChainDetail = {
   'eip155:1': {
-    name: 'Etherum mainnet',
+    name: 'Ethereum mainnet',
+    icon: createElement(ETHLogo)
+  },
+  'eip155:10': {
+    name: 'Optimism',
+    icon: createElement(OptimismLogo)
+  },
+  'eip155:8453': {
+    name: 'Base',
+    icon: createElement(BaseLogo)
+  },
+  'eip155:42161': {
+    name: 'Arbitrum One',
+    icon: createElement(ArbitrumLogo)
+  },
+  'eip155:11155111': {
+    name: 'Ethereum Sepolia testnet',
     icon: createElement(ETHLogo)
   },
 };
@@ -72,7 +88,7 @@ export const getTopicFromURI = (wcURI: string) => {
 // This "invalid pairing" won't request a new session and
 // also won't throw any error (on the first attempt) rendering it
 // non functional and potentially confuses the user.
-export const pairingHasEverBeenRejected = (topic: string, web3wallet: IWeb3Wallet) => {
+export const pairingHasEverBeenRejected = (topic: string, web3wallet: IWalletKit) => {
   return web3wallet.core.history.values.findIndex(history =>
     history.topic === topic &&
         history.response &&

@@ -15,6 +15,7 @@
  */
 
 import { ReactNode } from 'react';
+import { ChevronRightDark } from '@/components/icon';
 import styles from './settingsItem.module.css';
 
 type TProps = {
@@ -23,6 +24,7 @@ type TProps = {
   collapseOnSmall?: boolean;
   displayedValue?: string | ReactNode;
   extraComponent?: ReactNode;
+  hideChevron?: boolean;
   hideDisplayedValueOnSmall?: boolean;
   onClick?: () => void;
   secondaryText?: string;
@@ -36,6 +38,7 @@ export const SettingsItem = ({
   collapseOnSmall = false,
   displayedValue = '',
   extraComponent,
+  hideChevron = false,
   hideDisplayedValueOnSmall = false,
   onClick,
   secondaryText,
@@ -45,7 +48,11 @@ export const SettingsItem = ({
   const notButton = disabled || onClick === undefined;
 
   const rightContent = (
-    <div className={styles.rightContentContainer}>
+    <div className={`
+    ${styles.rightContentContainer} 
+    ${!notButton ? styles.extraPadding : ''}
+    `}
+    >
       <p className={
         `
         ${displayedValue ? styles.displayedValue : ''}
@@ -53,13 +60,13 @@ export const SettingsItem = ({
         ${hideDisplayedValueOnSmall ? styles.hideDisplayedValueOnSmall : ''}
        `}
       >{displayedValue}</p>
-      {extraComponent ? extraComponent : null }
+      {extraComponent ? extraComponent : null}
     </div>
   );
 
-  const content =
-    (<>
-      <span title={title}>
+  const content = (
+    <>
+      <span className={styles.content} title={title}>
         <div className={styles.primaryText}>{settingName}</div>
         { secondaryText ? (
           <p className={styles.secondaryText}>{secondaryText}</p>
@@ -67,7 +74,7 @@ export const SettingsItem = ({
       </span>
       {rightContent}
     </>
-    );
+  );
 
   // render as div when it's notButton
   // otherwise, render as button
@@ -83,9 +90,17 @@ export const SettingsItem = ({
       ) : (
         <button
           type="button"
-          className={`${styles.container} ${styles.isButton} ${className}`}
+          className={`${styles.container} ${styles.isButton} ${className} 
+          ${collapseOnSmall ? styles.collapse : ''}`}
           onClick={onClick}>
           {content}
+          {!hideChevron && (
+            <ChevronRightDark
+              className={styles.chevronRight}
+              width={24}
+              height={24}
+            />
+          )}
         </button>
       )}
     </>

@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Shift Crypto AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,77 +14,67 @@
  * limitations under the License.
  */
 
-import { useTranslation } from 'react-i18next';
 import { ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+import { isBitcoinOnly } from '@/routes/account/utils';
 import { Button, Checkbox } from '@/components/forms';
 import { setConfig } from '@/utils/config';
+import { IAccount } from '@/api/account';
+import { A } from '@/components/anchor/anchor';
+import { getBTCDirectAboutUsLink } from '@/routes/exchange/components/infocontent';
+import { getBTCDirectPrivacyLink } from './btcdirect-otc-terms';
 import style from './terms.module.css';
-import { i18n } from '@/i18n/i18n';
-import { A } from '../anchor/anchor';
 
 type TProps = {
-  onContinue: () => void;
+  account: IAccount;
+  onAgreedTerms: () => void;
 }
 
-export const BTCDirectTerms = ({ onContinue }: TProps) => {
-  const { t } = useTranslation();
-  const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
-    setConfig({ frontend: { skipBTCDirectDisclaimer: e.target.checked } });
-  };
+const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
+  setConfig({ frontend: { skipBTCDirectWidgetDisclaimer: e.target.checked } });
+};
 
-  const getPrivacyLink = () => {
-    switch (i18n.resolvedLanguage) {
-    case 'de':
-      return 'https://btcdirect.eu/de-at/datenschutzenklaerung?BitBox';
-    case 'nl':
-      return 'https://btcdirect.eu/nl-nl/privacy-policy?BitBox';
-    case 'es':
-      return 'https://btcdirect.eu/es-es/privacy-policy?BitBox';
-    case 'fr':
-      return 'https://btcdirect.eu/fr-fr/privacy-policy?BitBox';
-    default:
-      return 'https://btcdirect.eu/en-eu/privacy-policy?BitBox';
-    }
-  };
+export const BTCDirectTerms = ({ account, onAgreedTerms }: TProps) => {
+  const { t } = useTranslation();
+
+  const isBitcoin = isBitcoinOnly(account.coinCode);
 
   return (
     <div className={style.disclaimerContainer}>
       <div className={style.disclaimer}>
-        <h2 className={style.title}>{t('buy.exchange.infoContent.btcdirect.disclaimer.partnership.title')}</h2>
-        <p>{t('buy.exchange.infoContent.btcdirect.disclaimer.partnership.text')}</p>
-        <h2 className={style.title}>{t('buy.exchange.infoContent.btcdirect.disclaimer.personal.title')}</h2>
-        <p>{t('buy.exchange.infoContent.btcdirect.disclaimer.personal.text')}</p>
-        <h2 className={style.title}>{t('buy.exchange.infoContent.btcdirect.disclaimer.paymentMethods.title')}</h2>
+        <h2 className={style.title}>
+          {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.title', {
+            context: isBitcoin ? 'bitcoin' : 'crypto'
+          })}
+        </h2>
+        <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.description')}</p>
+        <h2 className={style.title}>
+          {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.title')}
+        </h2>
         <ul>
           <li>
-            <p>
-              <strong>{t('buy.exchange.infoContent.btcdirect.disclaimer.paymentMethods.buy')}</strong>
-              &nbsp;
-              {t('buy.exchange.infoContent.btcdirect.disclaimer.paymentMethods.buy2')}
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>{t('buy.exchange.infoContent.btcdirect.disclaimer.paymentMethods.sell')}</strong>
-              &nbsp;
-              {t('buy.exchange.infoContent.btcdirect.disclaimer.paymentMethods.sell2')}
-            </p>
+            <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.buy')}</p>
           </li>
         </ul>
-        <p>{t('buy.exchange.infoContent.btcdirect.disclaimer.paymentMethods.fee')}</p>
-        <h2 className={style.title}>{t('buy.exchange.infoContent.btcdirect.disclaimer.security.title')}</h2>
-        <p>{t('buy.exchange.infoContent.btcdirect.disclaimer.security.text')}</p>
+        <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.note')}</p>
         <p>
-          <A href="https://bitbox.swiss/bitbox02/threat-model/">
-            {t('buy.exchange.infoContent.btcdirect.disclaimer.security.link')}
+          <A href={getBTCDirectAboutUsLink()}>
+            {t('buy.exchange.infoContent.btcdirectWidget.learnmore')}
           </A>
         </p>
-        <h2 className={style.title}>{t('buy.exchange.infoContent.btcdirect.disclaimer.kyc.title')}</h2>
-        <p>{t('buy.exchange.infoContent.btcdirect.disclaimer.kyc.text')}</p>
+        <h2 className={style.title}>
+          {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.security.title')}
+        </h2>
+        <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.security.description')}</p>
+        <p>
+          <A href="https://bitbox.swiss/bitbox02/threat-model/">
+            {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.security.link')}
+          </A>
+        </p>
         <h2 className={style.title}>{t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.title')}</h2>
         <p>{t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.text')}</p>
         <p>
-          <A href={getPrivacyLink()}>
+          <A href={getBTCDirectPrivacyLink()}>
             {t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.link')}
           </A>
         </p>
@@ -98,7 +88,7 @@ export const BTCDirectTerms = ({ onContinue }: TProps) => {
       <div className="buttons text-center m-bottom-xlarge">
         <Button
           primary
-          onClick={onContinue}>
+          onClick={onAgreedTerms}>
           {t('buy.info.continue')}
         </Button>
       </div>

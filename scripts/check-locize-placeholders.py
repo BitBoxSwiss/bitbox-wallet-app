@@ -53,10 +53,11 @@ def check_nested_keys(en_data, lang_data, path=''):
             else:
                 issues.extend(check_nested_keys(en_data[key], lang_data[key], current_path))
         elif isinstance(en_data[key], str):
-            en_placeholders = find_placeholders(en_data[key])
-            lang_placeholders = find_placeholders(lang_data[key])
-            if not check_placeholders(en_placeholders, lang_placeholders):
-                issues.append(f"Placeholder mismatch at '{current_path}': '{lang_data[key]}' - found {lang_placeholders}; expected {en_placeholders}")
+            if lang_data[key] != "":
+                en_placeholders = find_placeholders(en_data[key])
+                lang_placeholders = find_placeholders(lang_data[key])
+                if not check_placeholders(en_placeholders, lang_placeholders):
+                    issues.append(f"Placeholder mismatch at '{current_path}': '{lang_data[key]}' - found {lang_placeholders}; expected {en_placeholders}")
     return issues
 
 def main():

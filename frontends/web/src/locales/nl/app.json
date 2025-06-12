@@ -4,7 +4,7 @@
     "export": "Exporteren",
     "exportTransactions": "Transacties als CSV bestand naar de downloads map exporteren",
     "fatalError": "Er is een onverwachte fout opgetreden",
-    "incoming": "Inkomende",
+    "incoming": "Binnenkomend",
     "initializing": "Blockchain wordt gesynchroniseerd",
     "insuranceExpired": "<strong>Account niet meer verzekerd</strong>\nDe verzekering voor dit account is gewijzigd. Kijk op de verzekeringspagina voor meer informatie.",
     "insured": "Verzekerde account",
@@ -73,6 +73,8 @@
   "aopp": {
     "addressRequest": "Er wordt een ontvangstadres aangevraagd door {{host}}",
     "addressRequestWithLogo": "vraagt een ontvangstadres aan",
+    "addressRequestWithLogoAndXPub": "verzoekt een ontvangstadres en een publieke sleutel (xpub).",
+    "addressRequestWithXPub": "{{host}} verzoekt een ontvangstadres en een publieke sleutel (xpub).",
     "banner": "Adresaanvraag in behandeling. Verbind je apparaat om door te gaan.",
     "errorTitle": "Foutmelding tijdens adresaanvraag",
     "labelAddress": "Adres",
@@ -84,7 +86,8 @@
       "title": "Adres verzonden"
     },
     "syncing": "Account aan het synchroniseren, even geduld",
-    "title": "Adresaanvraag"
+    "title": "Adresaanvraag",
+    "xpubRequested": "Door het delen van je xpub kunnen externe diensten je accountadressen zien. Je balans blijft veilig en in jouw beheer."
   },
   "app": {
     "upgrade": "Er is een nieuwe versie van de app beschikbaar! Upgrade nu van versie {{current}} naar {{version}}>"
@@ -173,8 +176,7 @@
     "error": {
       "e10000": "Huidig apparaatwachtwoord incorrect",
       "e10001": "Het veranderen van het wachtwoord is niet gelukt",
-      "e102": "Het wachtwoord moet uit ten minste vier karakters bestaan.",
-      "e112": "Het verborgen apparaatwachtwoord kan niet hetzelfde zijn als het hoofdwachtwoord."
+      "e102": "Het wachtwoord moet uit ten minste vier karakters bestaan."
     }
   },
   "bitbox02Interact": {
@@ -239,13 +241,8 @@
     "createBackupAborted": "Backup afgebroken",
     "createBackupFailed": "Het maken van een backup is niet gelukt, probeer het opnieuw.",
     "initialize": {
-      "passwordText": "Gebruik de touch-sensors op je BitBox om een wachtwoord in te stellen.",
-      "passwordTitle": "Stel een wachtwoord in voor je BitBox.",
-      "text": "Je BitBox02 is gekoppeld. Stel hem in door te kiezen voor het maken van een nieuwe wallet, of het herstellen van een backup. <strong>Zorg ervoor dat je een microSD kaart in je BitBox02 hebt zitten</strong>",
-      "tip": "We raden je aan in een veilige omgeving door te gaan.",
-      "title": "Initializeer je BitBox"
+      "tip": "We raden je aan in een veilige omgeving door te gaan."
     },
-    "insertSDCard": "<strong>Zorg ervoor dat je een microSD kaart in je BitBox02 hebt zitten</strong>",
     "noPasswordMatch": "De wachtwoorden kwamen niet overeen, probeer het op nieuw.",
     "pairing": {
       "failed": "Koppeling niet bevestigd. Plug je BitBox opnieuw in.",
@@ -288,6 +285,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Stop een microSD kaart in je BitBox02 om door te gaan.",
+      "insertSDCardToSeeBackups": "Voer de microSD kaart in je BitBox in om je backups te kunnen zien.",
       "insertSDcardTitle": "Voer microSD kaart in"
     },
     "stepPassword": {
@@ -303,7 +301,6 @@
       "title": "Maak je wallet aan"
     },
     "success": {
-      "text": "Gefeliciteerd! Je BitBox02 is nu klaar om te gebruiken.\nVoor meer informatie over het gebruik van de BitBoxApp check je de applicatiehulp door op het icoon rechtsbovenin te klikken.",
       "title": "Je bent helemaal klaar!"
     }
   },
@@ -380,7 +377,6 @@
     "dismiss": "Sluiten",
     "done": "Klaar",
     "download": "Download",
-    "hiddenwallet": "Verborgen wallet aanmaken",
     "next": "Volgende",
     "ok": "OK",
     "previous": "Vorige",
@@ -450,6 +446,45 @@
           },
           "link": "Toegang BTC Direct - Private Trading Desk",
           "title": "Koop of verkoop je meer dan € 50.000?"
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "description": "We werken samen met BTC Direct, een vertrouwde Europese partij, om het kopen van cryptovaluta in de BitBoxApp aan te bieden. Deze dienst is in Europa beschikbaar en ondersteunt bankoverschrijvingen, creditcards en veel lokale betaalmethoden zoals iDeal.",
+            "kyc": {
+              "description": "Identiteitsverificatie is nodig voor alle aan- en verkopen. Je moet hiervoor een selfie nemen, en een foto van een officieel document aanleveren.",
+              "title": "Identiteitsverificatie. "
+            },
+            "paymentMethods": {
+              "buy": "Aankopen: Je betaalt in EUR om de coins direct in je BitBox te ontvangen. Je kunt kiezen tussen een eenmalige aankoop en periodieke aankopen. Voor bankoverschrijvingen wordt de wisselkoers vastgesteld op het moment dat BTC Direct de overschrijving ontvangt. Voor instant-betalingen wordt de wisselkoers voor een korte periode vastgezet.",
+              "note": "Let op: De wisselkoers die BTC Direct aanhoudt kan iets afwijken van die in de BitBoxApp getoond worden.",
+              "title": "Betaalmethoden en kosten"
+            },
+            "security": {
+              "description": "BTC Direct is een externe dienst die niet valt onder het BitBox02 Security Threat model. We werken nauw samen met BTC Direct om de algemene veiligheid te verbeteren.",
+              "link": "BitBox02 Security Threat model",
+              "title": "Veiligheid"
+            },
+            "title_bitcoin": "Koop bitcoin met BTC Direct",
+            "title_crypto": "Koop crypto met BTC Direct"
+          },
+          "infobox": {
+            "feesBuying": {
+              "bancontact": "Bancontact: {{fee}}%",
+              "bankTransfer": "Bankoverschrijving, SEPA, iDeal: {{fee}}%",
+              "creditDebitCard": "Credit cards, Cartes Bancaires: {{fee}}%",
+              "sofort": "Sofort: {{fee}}%",
+              "title": "Kosten voor aankopen"
+            },
+            "intro": "Cryptovaluta kopen met EUR in Europa",
+            "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "Bankoverschrijving, SEPA Instant, iDeal",
+              "creditDebitCard": "Credit cards (Mastercard, Visa), Cartes Bancaires",
+              "sofort": "Sofort",
+              "title": "Betaalmethoden"
+            }
+          },
+          "learnmore": "Lees meer over BTC Direct"
         },
         "moonpay": {
           "fees": {
@@ -597,14 +632,6 @@
     "keystoreConnected": "Verbonden wallet",
     "unsupportedFeature": "Deze functie is niet beschikbaar op dit apparaat."
   },
-  "deviceLock": {
-    "button": "Stel tweefactor authenticatie (2FA) in",
-    "condition1": "Heb je een backup?",
-    "condition2": "Werkt de mobiele app verificatie?",
-    "condition3": "2FA stelt backups en app-koppelingen buiten werking. De BitBox moet worden gereset om 2FA uit te zetten!",
-    "confirm": "Stel tweefactor authenticatie (2FA) in",
-    "title": "Stel tweefactor authenticatie (2FA) in"
-  },
   "deviceSettings": {
     "backups": {
       "manageBackups": {
@@ -692,24 +719,6 @@
       "title": "Hardware"
     },
     "loading": "Apparaatinformatie aan het verzamelen...",
-    "pairing": {
-      "lock": {
-        "false": "Uitgeschakeld",
-        "label": "Tweefactor authenticatie (2FA)",
-        "true": "Ingeschakeld"
-      },
-      "mobile": {
-        "false": "Gesloten",
-        "label": "Mobiele app",
-        "true": "Open"
-      },
-      "status": {
-        "false": "Niet gekoppeld",
-        "label": "Status",
-        "true": "Gekoppeld"
-      },
-      "title": "Aan het koppelen"
-    },
     "secrets": {
       "manageBackups": "Backups beheren",
       "title": "Geheimen"
@@ -972,14 +981,6 @@
       }
     },
     "bitbox": {
-      "2FA": {
-        "text": "Wanneer 2FA is ingeschakeld moeten alle (verzend-) transacties goedgekeurd worden met de gekoppelde mobiele telefoon. Dit is wat er onder de motorkap gebeurt: Een versleuteld bericht wordt naar de mobiele app gestuurd en ontgrendeld, waarna het teruggestuurd wordt naar de BitBoxApp als je op 'accepteren' klikt. Deze communicatie wordt gedaan via het kanaal dat opgezet wordt tussen de mobiele telefoon en de BitBoxApp tijdens het koppelen. \n\nZorg dat je wallet gebackupt is en gekoppeld met de mobiele app voordat je 2FA inschakeld. Zodra dit gebeurd is worden de microSD poort en het koppelen met de mobiele app uitgeschakeld. Ze kunnen opnieuw ingeschakeld worden door de BitBox te resetten, wat ook je wallets verwijdert. ",
-        "title": "Hoe werkt tweefactor authenticatie (2FA)?"
-      },
-      "disable2FA": {
-        "text": "Om 2FA uit te zetten moet je de BitBox resetten en herstellen middels je backup. Zorg ervoor dat je de microSD kaart met de backup nog hebt en dat je het herstelwachtwoord nog weet. Kies dan voor 'Reset BitBox' in de instellingen. Kies een nieuw apparaatwachtwoord en kies 'herstel een backup'. Selecteer de backup die je voor je wallet hebt gemaakt, klik op herstellen en voer het herstelwachtwoord in wat je hebt gekozen toen je de wallet aanmaakte.",
-        "title": "Hoe kan ik tweefactor authenticatie (2FA) uitschakelen?"
-      },
       "ejectBitbox": {
         "text": "Je kunt de BitBox op ieder moment uit je apparaat halen, zonder dat je het eerst hoeft uit te werpen.",
         "title": "Hoe kan ik de BitBox uitwerpen?"
@@ -987,18 +988,6 @@
       "ejectSD": {
         "text": "Je kunt de microSD kaart op ieder moment handmatig uit je BitBox halen, zo lang je niet op dat moment een backup aan het maken of herstellen bent.",
         "title": "Hoe kan ik de microSD kaart uitwerpen?"
-      },
-      "hiddenWallet": {
-        "text": "Het is een tweede wallet op dezelfde BitBox, die beschermd wordt door aparte apparaat- en herstelwachtwoorden, die je kunt gebruiken om een gedeelte van je balans te verbergen. Dezelfde herstelwoorden / SD kaart backup wordt gebruikt voor je normale en verborgen wallet, dus je hebt geen extra backup nodig.",
-        "title": "Wat is een verborgen wallet?"
-      },
-      "legacyHiddenWallet": {
-        "text": "Klik eerst op onderstaande button (die beschikbaar is als de BitBox ontgrendeld is en 2FA niet ingeschakeld staat), plug daarna je BitBox opnieuw in en ontgrendel hem met je verborgen apparaatwachtwoord.",
-        "title": "Hoe krijg ik toegang tot mijn verborgen legacy wallet?"
-      },
-      "pairing": {
-        "text": "Nadat je de mobiele BitBoxApp hebt gedownload voor iOS of Android, kun je de weergegeven QR-code scannen. Dit zet een beveiligd kanaal op tussen de mobiele telefoon en deze applicatie. Zodra je de QR-code gescand hebt, kun je de instructies op je telefoon volgen.",
-        "title": "Hoe koppel ik mijn mobiele telefoon?"
       }
     },
     "bitsurance": {
@@ -1243,16 +1232,6 @@
   "headerssync": {
     "blocksSynced": "{{blocks}} blokken gesynchroniseerd"
   },
-  "hiddenWallet": {
-    "info1HTML": "Je kunt een verborgen wallet aanmaken met een <strong>andere</strong> combinatie van apparaatwachtwoord & herstelwachwoord, om plausibele ontkenning mogelijk te maken.",
-    "info2HTML": "Voer het apparaatwachwoord en het herstelwachtwoord dat je met je verborgen wallet wilt associëren hieronder in. Het apparaatwachtworod en het herstelwachtwoord <strong>moeten</strong> van je hoofdwallet verschillen.",
-    "passwordLabel": "Verborgen herstelwachtwoord",
-    "passwordPlaceholder": "Bevestig je verborgen herstelwachtwoord",
-    "pinLabel": "Verborgen apparaatwachtwoord",
-    "pinRepeatLabel": "Herhaal je verborgen herstelwachtwoord",
-    "pinRepeatPlaceholder": "Bevestig je verborgen herstelwachtwoord",
-    "success": "Verborgen wallet aangemaakt. Voer je BitBox opnieuw in om het te ontgrendelen."
-  },
   "initialize": {
     "create": "Stel apparaatwachtwoord in",
     "creating": "Apparaatwachtwoord instellen...",
@@ -1275,12 +1254,6 @@
   "invalidFormat": "Ongeldig format",
   "language": {
     "title": "Selecteer je taal"
-  },
-  "legacyhiddenwallet": {
-    "disable": "Verborgen legacy wallet uitschakelen",
-    "enable": "Verborgen legacy wallet inschakelen",
-    "successDisable": "Verborgen legacy wallet uitgeschakeld",
-    "successEnable": "Verborgen legacy wallet ingeschakeld. Plug je BitBox opnieuw in en voer het verborgen apparaatwachtwoord in om toegang te krijgen tot je verborgen legacy wallet."
   },
   "loading": "laden...",
   "manageAccounts": {
@@ -1317,6 +1290,9 @@
       "customFees": {
         "description": "Dit laat je de transactiekosten van een overboeking precies bepalen."
       },
+      "restartInTestnet": {
+        "description": "Ontdek en test nieuwe mogelijkheden met testnet"
+      },
       "torProxy": {
         "description": "Verbind via Tor voor betere privacy."
       }
@@ -1348,6 +1324,10 @@
         "title": "Taal"
       },
       "remebmerWallet": {
+        "enable": {
+          "description": "Je kunt nu de accounts in deze wallet bekijken zonder je BitBox in te voeren. Je moet nog steeds de BitBox gebruiken om transacties te ondertekenen en om ontvangstadressen weer te geven.",
+          "title": "Wallet onthouden"
+        },
         "name": "Wallet onthouden",
         "warning": "Je onthouden wallet wordt hiermee vergeten. Om hem weer te zien, moet je je BitBox02 opnieuw verbinden. Dit heeft geen enkele invloed op de coins die op je wallet staan. \n\nWil je doorgaan?",
         "warningTitle": "Wallet niet meer onthouden"
@@ -1367,52 +1347,6 @@
   "notification": {
     "newTxs_one": "Nieuwe transactie in: {{accountName}}",
     "newTxs_other": "{{count}} nieuwe transacties in: {{accountName}}"
-  },
-  "pairing": {
-    "aborted": {
-      "text": "Het koppelen van de mobiele app is afgebroken.",
-      "title": "Afgebroken"
-    },
-    "button": "Mobiele app koppelen",
-    "confirm": "Weet je zeker dat je je BitBox wilt koppelen? Hierna heb je je mobiele telefoon nodig om een transactie uit te voeren.",
-    "connectOnly": {
-      "button": "Mobiele app verbinden",
-      "title": "Scan met de mobiele app door in het menu 'Nieuwe desktop-app verbinden' te kiezen."
-    },
-    "error": {
-      "text": "Er is iets misgegaan. Probeer het opnieuw.",
-      "title": "Fout"
-    },
-    "pullFailed": {
-      "text": "We konden het bericht niet van je telefoon ophalen door de relay server. De server kan offline zijn, neem contact op met de klantenservice.",
-      "title": "Pull niet gelukt"
-    },
-    "reconnectOnly": {
-      "button": "Mobiele app opnieuw verbinden"
-    },
-    "scanningFailed": {
-      "text": "Telefoon kon het bericht niet scannen. Probeer het opnieuw.",
-      "title": "Scan niet gelukt"
-    },
-    "start": {
-      "hideAppQRCode": "QR-code verbergen",
-      "revealAppQRCode": "QR-code tonen",
-      "step1": "Als je de mobiele app niet hebt, kun je de QR-code voor de App Store of Play store scannen, afhankelijk van welke telefoon je hebt. ",
-      "step2": "Scan met onze mobiele app, die je kunt vinden als 'Digital BitBox 2FA' in de iOS en Android app stores."
-    },
-    "started": {
-      "text": "Volg de instructies op de mobiele app",
-      "title": "Fantastisch"
-    },
-    "success": {
-      "text": "Gefeliciteerd, je hebt je BitBox met de mobiele app gekoppeld!",
-      "title": "Gelukt"
-    },
-    "timeout": {
-      "text": "Het koppelen is na twee minuten automatisch gestopt. Begin opnieuw als je de mobiele app nog steeds wilt koppelen. ",
-      "title": "Time-out"
-    },
-    "title": "Mobiele koppeling"
   },
   "passphrase": {
     "considerations": {
@@ -1509,16 +1443,11 @@
       "p2wpkh-p2sh": "Wrapped Segwit (compatibiliteitsformaat)"
     },
     "selectAccount": "Selecteer een account",
-    "showFull": "Toon het volledige adres op je BitBox om te verifiëren",
     "taprootWarning": "Let op: Taproot is een nieuwe adressoort in Bitcoin en wordt nog niet op grote schaal gebruikt. Het kan bijvoorbeeld zijn dat bitcoin die op een Taproot-adres ontvangen wordt, niet weergegeven wordt in andere watch-only wallets. Veel andere wallets en exchanges kunnen ook nog niet naar Taproot-adressen zenden.",
     "title": "{{accountName}} ontvangen",
     "verify": "Verifieer veilig je adres ",
-    "verifyBitBox01": "Verifieer het adres op de mobiele app",
     "verifyBitBox02": "Verifieer het adres op je BitBox02",
-    "verifyInstruction": "Verifieer of het volgende adres hetzelfde is als het adres wat op je BitBox wordt getoond.",
-    "warning": {
-      "secureOutput": "Koppel je BitBox met je mobiele telefoon om beveiligde adresverificatie in te schakelen. Ga hiervoor naar 'Apparaten beheren' in de zijbalk."
-    }
+    "verifyInstruction": "Verifieer of het volgende adres hetzelfde is als het adres wat op je BitBox wordt getoond."
   },
   "reset": {
     "description": "Alle data zal van dit apparaat worden verwijderd, inclusief je privésleutel!",
@@ -1596,9 +1525,11 @@
     },
     "availableBalance": "Beschikbare balans",
     "button": "Controle",
+    "buyEth": "Koop ETH",
     "coincontrol": {
       "address": "Adres",
       "addressReused": "Adres hergebruikt",
+      "change": "Wisselgeld",
       "outpoint": "Output",
       "title": "Verstuur uit output"
     },
@@ -1609,6 +1540,7 @@
       "to": "Naar",
       "total": "Totaal"
     },
+    "edit": "Transactie aanpassen",
     "error": {
       "erc20InsufficientGasFunds": "Je hebt niet genoeg Ether in je wallet voor deze transactie. Stort meer Ether in je wallet om de transactie uit te voeren.",
       "feeTooLow": "netwerkkosten te laag",
@@ -1660,14 +1592,11 @@
     },
     "maximum": "Alles verzenden",
     "maximumSelectedCoins": "Geselecteerde coins verzenden",
+    "newTransaction": "Nieuwe transactie",
     "noFeeTargets": "Schattingen van de transactiekosten zijn op dit moment niet beschikbaar. Probeer het later opnieuw of stel zelf de hoogte in.",
     "priority": "Prioriteit",
     "scanQR": "QR-code scannen",
     "scanQRNoCameraMessage": "Camera niet gevonden. Zorg er alsjeblieft voor dat je apparaat een camera heeft en dat je de BitBoxApp hier toegang toe hebt verleend.",
-    "signprogress": {
-      "description": "Dit is een transactie die veel data in zich heeft. Om de transactie te verzenden, word je gevraagd om {{steps}} keer te ondertekenen.",
-      "label": "Voortgang"
-    },
     "success": "De transactie is ondertekend en verzonden.",
     "title": "Verstuur {{accountName}}",
     "toggleCoinControl": "Coin control aan/uitzetten",
@@ -1716,6 +1645,7 @@
         "title": "Logs exporteren"
       },
       "fee": "Custom fees aanzetten",
+      "restartInTestnet": "Testnet-modus",
       "setProxyAddress": "Proxy adres instellen",
       "title": "Geavanceerde instellingen",
       "useProxy": "Tor proxy aanzetten",
@@ -1801,12 +1731,31 @@
       "edit": "Notitie aanpassen",
       "save": "Notitie opslaan"
     },
-    "pending": "Transactie in afwachting",
+    "pending": "Transactie in behandeling",
     "size": "Grootte",
     "status": {
       "complete": "Afgerond",
       "failed": "Niet gelukt",
-      "pending": "In afwachting"
+      "pending": "In behandeling",
+      "pending_receive": "Binnenkomende transactie",
+      "pending_send": "Uitgaande transactie",
+      "pending_send_to_self": "Transactie in behandeling"
+    },
+    "statusShort": {
+      "complete": "Voltooid",
+      "failed": "Mislukt",
+      "pending": "In behandeling",
+      "pending_receive": "Binnenkomend",
+      "pending_send": "Uitgaand",
+      "pending_send_to_self": "In behandeling"
+    },
+    "tx": {
+      "receive_complete": "Ontvangen op",
+      "receive_failed": "Mislukte ontvangst op",
+      "receive_pending": "Ontvangen op",
+      "send_complete": "Verzonden naar",
+      "send_failed": "Mislukte verzending naar",
+      "send_pending": "Verzonden naar"
     },
     "vsize": "Virtuele grootte",
     "weight": "Gewicht"
@@ -1882,15 +1831,12 @@
   },
   "warning": {
     "coincontrol": "Eén of meer UTXOs hebben een hergebruikt adres. Weet dat een eventuele ontvanger alle UTXOs die met deze adressen geassocieerd zijn zal kunnen zien",
-    "receivePairing": "Koppel de BitBox om beveiligde adresverificatie in te schakelen. Ga naar 'Apparaat beheren' in de sidebar.",
     "sdcard": "Bewaar de microSD kaart apart van de BitBox, tenzij je je backups aan het beheren bent.",
-    "sendPairing": "Koppel de BitBox om je transactiedetails beveiligd te kunnen verifiëren. Ga naar 'Manage device' in de sidebar."
+    "testnet": "Let op: Je gebruikt je wallet op dit moment in Testnet-modus. Transacties en balansen in deze wallet zijn niet echt en verschijnen niet op het mainnet. Testnet is enkel bedoeld om dingen te kunnen testen."
   },
   "welcome": {
     "connect": "Verbind je BitBox02",
     "getStarted": "Laten we beginnen door de firmware op je BitBox02 te installeren.",
-    "insertBitBox02": "Tap de touch-sensoren op je BitBox02 om door te gaan.",
-    "insertDevice": "Verbind je BitBox om te starten",
     "loadingAccounts": "Accounts laden",
     "title": "Welkom"
   }

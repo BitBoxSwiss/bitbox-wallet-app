@@ -3,8 +3,17 @@
 <plist version="1.0">
   <dict>
     <!-- needed for QtWebEngine, otherwise there is a gray screen at launch -->
+    <!-- all these are copied from QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Resources/QtWebEngineProcess.entitlements. -->
+    <!-- see https://doc.qt.io/qt-6/qtwebengine-deploying.html#macos-specific-deployment-steps -->
     <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
     <true/>
+    <key>com.apple.security.cs.disable-library-validation</key>
+    <true/>
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    <key>com.apple.security.cs.disable-executable-page-protection</key>
+    <true/>
+
     <!-- needed for USB HID access, who knows why -->
     <key>com.apple.security.cs.allow-dyld-environment-variables</key>
     <true/>

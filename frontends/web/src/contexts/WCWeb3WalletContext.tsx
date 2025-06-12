@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { IWeb3Wallet } from '@walletconnect/web3wallet';
+import { IWalletKit } from '@reown/walletkit';
 import { createContext } from 'react';
 
 type Props = {
     isWalletInitialized: boolean;
-    web3wallet?: IWeb3Wallet;
+    web3wallet?: IWalletKit;
     pair: (params: {
         uri: string;
     }) => Promise<void>;

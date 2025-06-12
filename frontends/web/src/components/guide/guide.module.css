@@ -30,6 +30,8 @@
 .guide {
     background-color: var(--color-lightblue);
     color: white;
+    display: flex;
+    flex-direction: column;
     height: 100vh;
     /* mobile viewport bug fix */
     max-height: -webkit-fill-available;
@@ -48,9 +50,9 @@
 
 .header {
     background-color: var(--color-blue);
-    height: var(--header-height);
-    margin-bottom: var(--space-default);
-    padding: 0 var(--space-default);
+    flex-shrink: 0;
+    padding: 23px var(--space-default);
+    padding-top: calc(23px + env(safe-area-inset-top, 0));
 }
 
 .header h2 {
@@ -65,7 +67,11 @@
 }
 
 .content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
     padding: 0 var(--space-default);
+    padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 .content h1 {
@@ -91,6 +97,11 @@
 
 .entry {
     margin-top: var(--space-default);
+}
+
+.appendix {
+    padding-top: var(--space-half);
+    margin-top: auto;
 }
 
 .entryTitle {

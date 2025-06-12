@@ -1,0 +1,15 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: var(--spacing-default);
+}
+
+.label {
+  margin-top: var(--spacing-default);
+}
+@media (max-width: 768px) {
+  .label {
+    text-align: center;
+  }
+}

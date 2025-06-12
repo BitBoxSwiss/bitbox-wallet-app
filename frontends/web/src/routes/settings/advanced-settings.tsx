@@ -28,6 +28,7 @@ import { ConnectFullNodeSetting } from './components/advanced-settings/connect-f
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
 import { EnableLightning } from './components/advanced-settings/enable-lightning-setting';
 import { DisableLightning } from './components/advanced-settings/disable-lightning-setting';
+import { UnlockSoftwareKeystore } from './components/advanced-settings/unlock-software-keystore';
 import { RestartInTestnetSetting } from './components/advanced-settings/restart-in-testnet-setting';
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
 import { getConfig } from '@/utils/config';
@@ -51,7 +52,7 @@ export type TFrontendConfig = {
 export type TBackendConfig = {
   proxy?: TProxyConfig;
   authentication?: boolean;
-  restartInTestnet?: boolean;
+  startInTestnet?: boolean;
 }
 
 export type TConfig = {
@@ -59,7 +60,7 @@ export type TConfig = {
   frontend?: TFrontendConfig;
 };
 
-export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   const fetchedConfig = useLoad(getConfig) as TConfig;
   const [config, setConfig] = useState<TConfig>();
@@ -72,6 +73,8 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
   useEffect(() => {
     setConfig(fetchedConfig);
   }, [fetchedConfig]);
+
+  const deviceIDs = Object.keys(devices);
 
   return (
     <GuideWrapper>
@@ -90,14 +93,19 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
             }
           />
           <View fullscreen={false}>
-            <ViewContent>
-              <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts}>
+            <ViewContent fullWidth>
+              <WithSettingsTabs
+                devices={devices}
+                hideMobileMenu
+                hasAccounts={hasAccounts}
+              >
                 {lightningConfig.accounts.length === 0 ? <EnableLightning /> : <DisableLightning />}
                 <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
                 <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
-                <RestartInTestnetSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
+                <RestartInTestnetSetting onChangeConfig={setConfig} />
+                <UnlockSoftwareKeystore deviceIDs={deviceIDs}/>
                 <ConnectFullNodeSetting />
                 <ExportLogSetting />
               </WithSettingsTabs>

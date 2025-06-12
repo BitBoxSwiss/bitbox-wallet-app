@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+import { TUnsubscribe } from '@/utils/transport-common';
 import { apiGet, apiPost } from '@/utils/request';
 import { SuccessResponse, FailResponse } from './response';
+import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 // BitBox02 error codes.
 export const errUserAbort = 104;
@@ -63,22 +65,24 @@ export const setDeviceName = (
   });
 };
 
-export type VersionInfo = {
-    newVersion: string;
-    currentVersion: string;
-    canUpgrade: boolean;
-    canGotoStartupSettings: boolean;
-    // If true, creating a backup using the mnemonic recovery words instead of the microSD card
-    // is supported in the initial setup.
-    //
-    // If false, the backup must be performed using the microSD card in the initial setup.
-    //
-    // This has no influence over whether one can display the recovery words after the initial
-    // setup - that is always possible regardless of this value.
-    canBackupWithRecoveryWords: boolean;
-    canCreate12Words: boolean;
-    canBIP85: boolean;
+type VersionInfoCommon = {
+  currentVersion: string;
+  canGotoStartupSettings: boolean;
+  // If true, creating a backup using the mnemonic recovery words instead of the microSD card
+  // is supported in the initial setup.
+  //
+  // If false, the backup must be performed using the microSD card in the initial setup.
+  //
+  // This has no influence over whether one can display the recovery words after the initial
+  // setup - that is always possible regardless of this value.
+  canBackupWithRecoveryWords: boolean;
+  canCreate12Words: boolean;
+  canBIP85: boolean;
 }
+
+export type VersionInfo = VersionInfoCommon & (
+  { canUpgrade: true, newVersion: string; } |
+  { canUpgrade: false; })
 
 export const getVersion = (
   deviceID: string
@@ -184,4 +188,37 @@ export const invokeBIP85 = (deviceID: string): Promise<SuccessResponse | FailRes
 
 export const gotoStartupSettings = (deviceID: string) => {
   return apiPost(`devices/bitbox02/${deviceID}/goto-startup-settings`);
+};
+
+/**
+ * Fires when status of a device changed.
+ * Returns a method to unsubscribe.
+ */
+export const statusChanged = (
+  deviceID: string,
+  cb: TSubscriptionCallback<TStatus>,
+): TUnsubscribe => {
+  return subscribeEndpoint(`devices/bitbox02/${deviceID}/status`, cb);
+};
+
+/**
+ * Fires when attestation hash of a device changed.
+ * Returns a method to unsubscribe.
+ */
+export const channelHashChanged = (
+  deviceID: string,
+  cb: () => void,
+): TUnsubscribe => {
+  return subscribeEndpoint(`devices/bitbox02/${deviceID}/channelHashChanged`, cb);
+};
+
+/**
+ * Fires when attestation check of a device is done.
+ * Returns a method to unsubscribe.
+ */
+export const attestationCheckDone = (
+  deviceID: string,
+  cb: () => void,
+): TUnsubscribe => {
+  return subscribeEndpoint(`devices/bitbox02/${deviceID}/attestationCheckDone`, cb);
 };

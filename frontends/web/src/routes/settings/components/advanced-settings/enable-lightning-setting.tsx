@@ -16,7 +16,6 @@
 
 import { useNavigate } from 'react-router-dom';
 import { SettingsItem } from '../settingsItem/settingsItem';
-import { ChevronRightDark } from '../../../../components/icon';
 
 export const EnableLightning = () => {
   // const { t } = useTranslation();
@@ -27,12 +26,6 @@ export const EnableLightning = () => {
       settingName="Enable lightning wallet"
       secondaryText="Lightning enables instant and low fee payments."
       onClick={() => navigate('/lightning/activate/')}
-      extraComponent={
-        <ChevronRightDark
-          width={24}
-          height={24}
-        />
-      }
     />
   );
 };

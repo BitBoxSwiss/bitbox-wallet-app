@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
@@ -45,7 +44,7 @@ type TransactionsSource interface {
 type Coin struct {
 	observable.Implementation
 	client                rpcclient.Interface
-	code                  coin.Code
+	code                  coinpkg.Code
 	name                  string
 	unit                  string
 	feeUnit               string
@@ -65,7 +64,7 @@ type Coin struct {
 // For erc20 tokens, provide erc20Token using NewERC20Token() (otherwise keep nil).
 func NewCoin(
 	client rpcclient.Interface,
-	code coin.Code,
+	code coinpkg.Code,
 	name string,
 	unit string,
 	feeUnit string,
@@ -117,7 +116,7 @@ func (coin *Coin) Name() string {
 }
 
 // Code implements coin.Coin.
-func (coin *Coin) Code() coin.Code {
+func (coin *Coin) Code() coinpkg.Code {
 	return coin.code
 }
 
@@ -151,21 +150,21 @@ func (coin *Coin) unitFactor(isFee bool) *big.Int {
 }
 
 // FormatAmount implements coin.Coin.
-func (coin *Coin) FormatAmount(amount coin.Amount, isFee bool) string {
+func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
 	factor := coin.unitFactor(isFee)
 	s := new(big.Rat).SetFrac(amount.BigInt(), factor).FloatString(18)
 	return strings.TrimRight(strings.TrimRight(s, "0"), ".")
 }
 
 // ToUnit implements coin.Coin.
-func (coin *Coin) ToUnit(amount coin.Amount, isFee bool) float64 {
+func (coin *Coin) ToUnit(amount coinpkg.Amount, isFee bool) float64 {
 	factor := coin.unitFactor(isFee)
 	result, _ := new(big.Rat).SetFrac(amount.BigInt(), factor).Float64()
 	return result
 }
 
 // SetAmount implements coin.Coin.
-func (coin *Coin) SetAmount(amount *big.Rat, isFee bool) coin.Amount {
+func (coin *Coin) SetAmount(amount *big.Rat, isFee bool) coinpkg.Amount {
 	factor := coin.unitFactor(isFee)
 	weiAmount := new(big.Rat).Mul(amount, new(big.Rat).SetInt(factor))
 	intWeiAmount, _ := new(big.Int).SetString(weiAmount.FloatString(0), 0)

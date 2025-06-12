@@ -42,6 +42,7 @@ export const PasswordEntry = () => {
     <div className={styles.passwordGesturesWrapper}>
       <video
         autoPlay
+        playsInline
         ref={ref}
         className={styles.passwordGestures}
         loop
