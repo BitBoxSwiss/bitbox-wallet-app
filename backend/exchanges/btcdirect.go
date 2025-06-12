@@ -29,9 +29,13 @@ const (
 
 	btcDirectProdAPiKey = "7d71f633626901d5c4d06d91f7d0db2c15cdf524ddd0ebcd36f4d9c4e04694cd"
 
-	btcDirectTestUrl = "/btcdirect/fiat-to-coin.html"
+	btcDirectBaseDevUrl = "/btcdirect/"
 
-	btcDirectProdUrl = "https://bitboxapp.shiftcrypto.io/widgets/btcdirect/v1/fiat-to-coin.html"
+	btcDirectBaseProdUrl = "https://bitboxapp.shiftcrypto.io/widgets/btcdirect/v1/"
+
+	btcDirectBuyPage = "fiat-to-coin.html"
+
+	btcDirectSellPage = "coin-to-fiat.html"
 )
 
 type btcDirectInfo struct {
@@ -120,18 +124,21 @@ func BtcDirectDeals(action ExchangeAction) *ExchangeDealsList {
 // If `devServers` is true, it returns testing URL and ApiKey.
 func BtcDirectInfo(action ExchangeAction, acct accounts.Interface, devServers bool) btcDirectInfo {
 	res := btcDirectInfo{
-		Url:    btcDirectProdUrl,
+		Url:    btcDirectBaseProdUrl,
 		ApiKey: btcDirectProdAPiKey,
 	}
 
 	if devServers {
-		res.Url = btcDirectTestUrl
+		res.Url = btcDirectBaseDevUrl
 		res.ApiKey = btcDirectTestApiKey
 	}
 
 	if action == BuyAction {
+		res.Url += btcDirectBuyPage
 		addr := acct.GetUnusedReceiveAddresses()[0].Addresses[0].EncodeForHumans()
 		res.Address = &addr
+	} else {
+		res.Url += btcDirectSellPage
 	}
 	return res
 }
