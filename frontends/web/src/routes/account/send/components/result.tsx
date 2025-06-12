@@ -85,7 +85,7 @@ export const SendResult = ({
             <Button primary onClick={() => navigate(`/account/${code}`)}>
               {t('button.done')}
             </Button>
-            <Button secondary onClick={() => navigate(`/exchange/select/${code}`, { replace: true })}>
+            <Button secondary onClick={() => navigate(`/market/select/${code}`, { replace: true })}>
               {t('send.buyEth')}
             </Button>
           </ViewButtons>

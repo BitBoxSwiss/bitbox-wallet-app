@@ -22,7 +22,7 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 import { Button } from '@/components/forms';
 import { Balances } from '@/routes/account/summary/accountssummary';
 import { isBitcoinCoin, isEthereumBased } from '@/routes/account/utils';
-import { getExchangeSupportedAccounts } from '@/routes/exchange/utils';
+import { getVendorSupportedAccounts } from '@/routes/market/utils';
 import { WalletConnectLight } from '@/components/icon';
 import { useMountedRef } from '@/hooks/mount';
 import { SubTitle } from '@/components/title';
@@ -53,7 +53,7 @@ export const BuyReceiveCTA = ({
   const isBitcoin = isBitcoinCoin(unit);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const onExchangeCTA = () => navigate(code ? `/exchange/info/${code}` : '/exchange/info');
+  const onMarketCTA = () => navigate(code ? `/market/info/${code}` : '/market/info');
   const onWalletConnect = () => code && navigate(`/account/${code}/wallet-connect/dashboard`);
   const onReceiveCTA = () => {
     if (balanceList) {
@@ -86,7 +86,7 @@ export const BuyReceiveCTA = ({
           </Button>
         )}
         {(exchangeSupported && !isMobile) && (
-          <Button primary onClick={onExchangeCTA}>
+          <Button primary onClick={onMarketCTA}>
             {t('generic.buySell')}
           </Button>
         )}
@@ -113,7 +113,7 @@ export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyRece
 
   useEffect(() => {
     if (mounted.current) {
-      getExchangeSupportedAccounts(accounts)
+      getVendorSupportedAccounts(accounts)
         .then(supportedAccounts => {
           if (mounted.current) {
             setSupportedAccounts(supportedAccounts);

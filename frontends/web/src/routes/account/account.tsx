@@ -22,7 +22,7 @@ import * as accountApi from '@/api/account';
 import { statusChanged, syncAddressesCount, syncdone } from '@/api/accountsync';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { TDevices } from '@/api/devices';
-import { getExchangeSupported, SupportedExchanges } from '@/api/exchanges';
+import { getMarketVendors, MarketVendors } from '@/api/market';
 import { useSDCard } from '@/hooks/sdcard';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
@@ -90,7 +90,7 @@ const RemountAccount = ({
   const [insured, setInsured] = useState<boolean>(false);
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
   const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
-  const supportedExchanges = useLoad<SupportedExchanges>(getExchangeSupported(code), [code]);
+  const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
@@ -227,7 +227,7 @@ const RemountAccount = ({
     } as any)
   ) : '';
 
-  const exchangeSupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
+  const exchangeSupported = supportedVendors && supportedVendors.vendors.length > 0;
 
   const isAccountEmpty = balance
     && !balance.hasAvailable

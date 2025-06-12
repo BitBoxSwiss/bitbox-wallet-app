@@ -15,13 +15,13 @@
  */
 
 import { IAccount } from '@/api/account';
-import { getExchangeSupported, TExchangeName } from '@/api/exchanges';
+import { getMarketVendors, TVendorName } from '@/api/market';
 
 /**
- * Gets formatted name for exchange.
+ * Gets formatted name for vendors.
  */
-export const getExchangeFormattedName = (
-  name: TExchangeName,
+export const getVendorFormattedName = (
+  name: TVendorName,
 ) => {
   switch (name) {
   case 'moonpay':
@@ -38,13 +38,13 @@ export const getExchangeFormattedName = (
 };
 
 /**
- * Filters a given accounts list, keeping only the accounts supported by at least one exchange.
+ * Filters a given accounts list, keeping only the accounts supported by at least one vendor.
  */
-export const getExchangeSupportedAccounts = async (accounts: IAccount[]): Promise<IAccount[]> => {
+export const getVendorSupportedAccounts = async (accounts: IAccount[]): Promise<IAccount[]> => {
   const accountsWithFalsyValue = await Promise.all(
     accounts.map(async (account) => {
-      const supported = await getExchangeSupported(account.code)();
-      return supported.exchanges.length ? account : false;
+      const supported = await getMarketVendors(account.code)();
+      return supported.vendors.length ? account : false;
     })
   );
   return accountsWithFalsyValue.filter(result => result) as IAccount[];

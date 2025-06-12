@@ -19,13 +19,13 @@ import { Route, Routes, useParams } from 'react-router-dom';
 import { IAccount } from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { AddAccount } from './account/add/add';
-import { Moonpay } from './exchange/moonpay';
-import { ExchangeInfo } from './exchange/info';
-import { Exchange } from './exchange/exchange';
-import { Pocket } from './exchange/pocket';
-import { BTCDirect } from './exchange/btcdirect';
-import { BTCDirectOTC } from './exchange/btcdirect-otc';
-import { Bitrefill } from './exchange/bitrefill';
+import { Moonpay } from './market/moonpay';
+import { MarketInfo } from './market/info';
+import { Market } from './market/market';
+import { Pocket } from './market/pocket';
+import { BTCDirect } from './market/btcdirect';
+import { BTCDirectOTC } from './market/btcdirect-otc';
+import { Bitrefill } from './market/bitrefill';
 import { Info } from './account/info/info';
 import { Receive } from './account/receive/receive';
 import { SendWrapper } from './account/send/send-wrapper';
@@ -154,8 +154,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     />
   </InjectParams>);
 
-  const ExchangeInfoEl = (<InjectParams>
-    <ExchangeInfo
+  const MarketInfoEl = (<InjectParams>
+    <MarketInfo
       code={''}
       accounts={activeAccounts} />
   </InjectParams>);
@@ -186,8 +186,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       accounts={activeAccounts} />
   </InjectParams>);
 
-  const ExchangeEl = (<InjectParams>
-    <Exchange
+  const MarketEl = (<InjectParams>
+    <Market
       accounts={activeAccounts}
       code={''}
     />
@@ -270,10 +270,10 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         </Route>
         <Route path="add-account" element={<AddAccount accounts={accounts}/>} />
         <Route path="account-summary" element={AccountsSummaryEl} />
-        <Route path="exchange">
-          <Route path="info" element={ExchangeInfoEl} >
-            <Route index element={ExchangeInfoEl} />
-            <Route path=":code" element={ExchangeInfoEl} />
+        <Route path="market">
+          <Route path="info" element={MarketInfoEl} >
+            <Route index element={MarketInfoEl} />
+            <Route path=":code" element={MarketInfoEl} />
           </Route>
           <Route path="btcdirect/buy/:code" element={BTCDirectBuyEl} />
           <Route path="btcdirect/sell/:code" element={BTCDirectSellEl} />
@@ -281,7 +281,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path="moonpay/buy/:code" element={MoonpayEl} />
           <Route path="pocket/buy/:code" element={PocketBuyEl} />
           <Route path="pocket/sell/:code" element={PocketSellEl} />
-          <Route path="select/:code" element={ExchangeEl} />
+          <Route path="select/:code" element={MarketEl} />
           <Route path="btcdirect-otc" element={<BTCDirectOTC/>} />
         </Route>
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
