@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { TChartFiltersProps } from './types';
 import { PillButton, PillButtonGroup } from '@/components/pillbuttongroup/pillbuttongroup';
 import styles from './chart.module.css';
+import { Toggle } from '@/components/toggle/toggle';
 
 export const Filters = ({
   display,
@@ -26,7 +27,9 @@ export const Filters = ({
   onDisplayWeek,
   onDisplayMonth,
   onDisplayYear,
-  onDisplayAll
+  onDisplayAll,
+  showPercent,
+  onTogglePercent
 }: TChartFiltersProps) => {
   const { t } = useTranslation();
   return (
@@ -59,6 +62,11 @@ export const Filters = ({
       >
         {t('chart.filter.all')}
       </PillButton>
+      <span className={styles.toggleWrapper}>
+        <span className={`${styles.toggleSymbol} ${!showPercent ? styles.toggleSymbolActive : ''}`}>∑</span>
+        <Toggle checked={showPercent} onChange={onTogglePercent} />
+        <span className={`${styles.toggleSymbol} ${showPercent ? styles.toggleSymbolActive : ''}`}>%</span>
+      </span>
     </PillButtonGroup>
   );
 };
