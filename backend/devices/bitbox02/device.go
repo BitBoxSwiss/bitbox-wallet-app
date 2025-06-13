@@ -17,8 +17,6 @@
 package bitbox02
 
 import (
-	"encoding/hex"
-
 	deviceevent "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -98,26 +96,6 @@ func NewDevice(
 
 			}
 		}
-
-		// Temporary automatic Bluetooth firmware upgrade during the testing phase. We prompt an
-		// upgrade every time if the bundled firmware does not match the actual firmware on the
-		// device.  TODO: remove before production release.
-		if ev == firmware.EventStatusChanged && device.SupportsBluetooth() {
-			switch device.Device.Status() {
-			case firmware.StatusInitialized, firmware.StatusUninitialized:
-				info, err := device.DeviceInfo()
-				if err != nil {
-					device.log.WithError(err).Error("DeviceInfo")
-					return
-				}
-				if info.Bluetooth != nil &&
-					info.Bluetooth.FirmwareHash != hex.EncodeToString(bundledBluetoothFirmwareHash()) {
-					if err := device.BluetoothUpgrade(bluetoothFirmware); err != nil {
-						device.log.WithError(err).Error("BluetoothUpgrade")
-					}
-				}
-			}
-		}
 	})
 	return device
 }
@@ -170,7 +148,6 @@ func (device *Device) Reset() error {
 		Subject: string(deviceevent.EventKeystoreGone),
 		Action:  action.Replace,
 	})
-	device.init()
 	return nil
 }
 

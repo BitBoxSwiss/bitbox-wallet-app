@@ -363,6 +363,7 @@
   "bluetooth": {
     "connected": "connected",
     "connectionFailed": "failed",
+    "connectionIssues": "Having connection issues?",
     "enable": "Please turn on Bluetooth",
     "select": "Select your BitBox"
   },
@@ -1370,6 +1371,20 @@
   "notification": {
     "newTxs_one": "New transaction in: {{accountName}}",
     "newTxs_other": "{{count}} new transactions in: {{accountName}}"
+  },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "Connection issue tips",
+    "description1": "Only the BitBox02 Nova is compatible with iOS. For the BitBox02, use Windows, macOS, Android or Linux. You can purchase a BitBox02 Nova in our online shop:",
+    "description2": "The screen should light up. If the screen is not on, then the device is not receiving power.",
+    "description3": "Keep the BitBox02 Nova close to your iPhone/iPad. We recommend you plug the BitBox02 Nova directly into your device.",
+    "description4": "The BitBox02 Nova connects with iOS via Bluetooth. Bluetooth can be disabled/enabled from the BitBoxApp settings on other platforms.",
+    "link1": "Order a BitBox02 Nova",
+    "link2": "Contact support",
+    "stillHavingIssues": "Still having issues?",
+    "title1": "Only use the BitBox02 Nova with iOS",
+    "title2": "Make sure the BitBox02 Nova is powered",
+    "title3": "Keep BitBox02 Nova in range",
+    "title4": "Make sure Bluetooth is not deactivated on the BitBox02 Nova"
   },
   "passphrase": {
     "considerations": {
