@@ -44,12 +44,16 @@ type ChartEntry struct {
 	Time           int64   `json:"time"`
 	Value          float64 `json:"value"`
 	FormattedValue string  `json:"formattedValue"`
+	Amount         float64 `json:"amount"`     // Coin-Betrag
+	Percent        float64 `json:"percent"`    // Wird 0 bleiben
+	FiatAtTime     float64 `json:"fiatAtTime"` // Fiat-Wert basierend auf historischem Preis
 }
 
 // RatChartEntry exploits composition to extend ChartEntry and save high precision values.
 type RatChartEntry struct {
 	ChartEntry
-	RatValue *big.Rat
+	RatValue      *big.Rat
+	SumFiatAtTime *big.Rat // Umbenannt von FiatAtTime
 }
 
 // Chart has all data needed to show a time-based chart of their assets to the user.
@@ -82,26 +86,50 @@ func (backend *Backend) addChartData(
 	chartEntries map[int64]RatChartEntry,
 ) {
 	for _, e := range timeseries {
-		price := backend.RatesUpdater().HistoricalPriceAt(
-			string(coinCode),
-			fiat,
-			e.Time)
 		timestamp := e.Time.Unix()
 		chartEntry := chartEntries[timestamp]
 
 		chartEntry.Time = timestamp
-		fiatValue := new(big.Rat).Mul(
-			new(big.Rat).SetFrac(
-				e.Value.BigInt(),
-				coinDecimals,
-			),
-			new(big.Rat).SetFloat64(price),
-		)
+
+		// Portfolio-Wert zu historischem Preis (wie bisher)
+		coinAmount := new(big.Rat).SetFrac(e.Value.BigInt(), coinDecimals)
+		price := backend.RatesUpdater().HistoricalPriceAt(string(coinCode), fiat, e.Time)
+		fiatValue := new(big.Rat).Mul(coinAmount, new(big.Rat).SetFloat64(price))
+
+		// Verwende SumFiatAtTime direkt aus TimeseriesEntry
+		var sumFiatAtTime *big.Rat
+		if e.SumFiatAtTime != nil {
+			sumFiatAtTime = new(big.Rat).Set(e.SumFiatAtTime)
+		} else {
+			sumFiatAtTime = new(big.Rat) // Fallback: 0
+		}
+
+		// Berechne Percent: currentFiatBalance / sumFiatAtTime
+		var percentValue float64
+		fiatValueFloat, _ := fiatValue.Float64()
+		sumFiatAtTimeFloat, _ := sumFiatAtTime.Float64()
+		if sumFiatAtTimeFloat != 0 {
+			percentValue = (fiatValueFloat / sumFiatAtTimeFloat) * 100
+		}
 
 		if chartEntry.RatValue == nil {
 			chartEntry.RatValue = new(big.Rat).Set(fiatValue)
+			chartEntry.SumFiatAtTime = sumFiatAtTime
+			chartEntry.Percent = percentValue
 		} else {
-			chartEntry.RatValue.Add(fiatValue, chartEntry.RatValue)
+			chartEntry.RatValue.Add(chartEntry.RatValue, fiatValue)
+			if chartEntry.SumFiatAtTime == nil {
+				chartEntry.SumFiatAtTime = sumFiatAtTime
+			} else {
+				chartEntry.SumFiatAtTime.Add(chartEntry.SumFiatAtTime, sumFiatAtTime)
+			}
+
+			// Recalculate percent for aggregated values
+			newFiatValueFloat, _ := chartEntry.RatValue.Float64()
+			newSumFiatAtTimeFloat, _ := chartEntry.SumFiatAtTime.Float64()
+			if newSumFiatAtTimeFloat != 0 {
+				chartEntry.Percent = (newFiatValueFloat / newSumFiatAtTimeFloat) * 100
+			}
 		}
 		chartEntries[timestamp] = chartEntry
 	}
@@ -203,6 +231,10 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			earliestTxTime.Truncate(24*time.Hour),
 			until,
 			24*time.Hour,
+			backend.RatesUpdater(),
+			string(account.Coin().Code()),
+			fiat,
+			coinDecimals,
 		)
 		if errp.Cause(err) == errors.ErrNotAvailable {
 			backend.log.WithField("coin", account.Coin().Code()).Info("ChartDataMissing")
@@ -216,6 +248,10 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			hourlyFrom,
 			until,
 			time.Hour,
+			backend.RatesUpdater(),
+			string(account.Coin().Code()),
+			fiat,
+			coinDecimals,
 		)
 		if errp.Cause(err) == errors.ErrNotAvailable {
 			backend.log.WithField("coin", account.Coin().Code()).Info("ChartDataMissing")
@@ -234,31 +270,61 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	toSortedSlice := func(s map[int64]RatChartEntry, fiat string) []ChartEntry {
 		result := make([]ChartEntry, len(s))
 		i := 0
-		// Discard the RatValue, which is not used anymore
 		for _, entry := range s {
 			floatValue, _ := entry.RatValue.Float64()
+			var marketPerformanceValue float64
+			var percentValue float64
+
+			if entry.SumFiatAtTime != nil {
+				marketPerformanceValue, _ = entry.SumFiatAtTime.Float64()
+				// Berechne Prozent: (aktueller Wert / Marktwert) * 100 - 100
+				if marketPerformanceValue != 0 {
+					percentValue = (floatValue / marketPerformanceValue * 100) - 100
+				}
+			}
+
 			result[i] = ChartEntry{
 				Time:           entry.Time,
 				Value:          floatValue,
 				FormattedValue: coin.FormatAsCurrency(entry.RatValue, fiat),
+				Amount:         floatValue,
+				Percent:        percentValue, // Jetzt wird der echte Prozentwert berechnet!
+				FiatAtTime:     marketPerformanceValue,
 			}
 			i++
 		}
 		sort.Slice(result, func(i, j int) bool { return result[i].Time < result[j].Time })
 
 		// Manually add the last point with the current total, to make the last point match.
-		// The last point might not match the account total otherwise because:
-		// 1) unconfirmed tx are not in the timeseries
-		// 2) coingecko might not have rates yet up until after all transactions, so they'd also be
-		// missing form the timeseries (`until` is up to 2h in the past).
 		if isUpToDate && !currentTotalMissing {
 			total, _ := currentTotal.Float64()
+
+			// Hole FiatAtTime vom letzten ChartEntry
+			var lastFiatAtTime float64
+			var lastPercent float64
+
+			if len(result) > 0 {
+				lastEntry := result[len(result)-1]
+				lastFiatAtTime = lastEntry.FiatAtTime
+
+				// Berechne Prozent: (aktueller Marktwert / FiatAtTime) * 100 - 100
+				if lastFiatAtTime != 0 {
+					lastPercent = (total / lastFiatAtTime * 100) - 100
+				}
+			} else {
+				lastFiatAtTime = total // Fallback
+			}
+
 			result = append(result, ChartEntry{
 				Time:           time.Now().Unix(),
 				Value:          total,
 				FormattedValue: coin.FormatAsCurrency(currentTotal, fiat),
+				Amount:         total,
+				Percent:        lastPercent, // Korrekt berechneter Prozentwert
+				FiatAtTime:     lastFiatAtTime,
 			})
 		}
+
 		// Truncate leading zeroes, if there are any keep the first one to start the chart with 0
 		for i, e := range result {
 			if e.Value > 0 {

@@ -51,3 +51,6 @@ tags
 !/frontends/web/src/locales/tr/
 !/frontends/web/src/locales/zh/
 !/frontends/web/src/locales/cs/
+.aider*
+build-errors.log
+servewallet

@@ -24,5 +24,7 @@ export type TChartFiltersProps = {
   onDisplayMonth: () => void;
   onDisplayYear: () => void;
   onDisplayAll: () => void;
+  showPercent: boolean;
+  onTogglePercent: () => void;
 }
 
