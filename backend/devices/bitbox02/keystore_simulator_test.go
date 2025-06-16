@@ -167,6 +167,15 @@ func downloadSimulators() ([]string, error) {
 		return nil, err
 	}
 
+	hashesMatch := func(file *os.File, expectedHash string) (bool, error) {
+		hasher := sha256.New()
+		if _, err := io.Copy(hasher, file); err != nil {
+			return false, err
+		}
+		actualHash := hex.EncodeToString(hasher.Sum(nil))
+		return actualHash == expectedHash, nil
+	}
+
 	fileNotExistOrHashMismatch := func(filename, expectedHash string) (bool, error) {
 		file, err := os.Open(filename)
 		if os.IsNotExist(err) {
@@ -177,13 +186,11 @@ func downloadSimulators() ([]string, error) {
 		}
 		defer file.Close()
 
-		hasher := sha256.New()
-		if _, err := io.Copy(hasher, file); err != nil {
+		match, err := hashesMatch(file, expectedHash)
+		if err != nil {
 			return false, err
 		}
-		actualHash := hex.EncodeToString(hasher.Sum(nil))
-
-		return actualHash != expectedHash, nil
+		return !match, nil
 	}
 
 	downloadFile := func(url, filename string) error {
@@ -222,13 +229,30 @@ func downloadSimulators() ([]string, error) {
 			return nil, err
 		}
 		if doDownload {
+			fmt.Printf("Downloading %s to %s\n", simulator.URL, filename)
 			if err := downloadFile(simulator.URL, filename); err != nil {
 				return nil, err
+			}
+			// If we downloaded the file, check again the hash.
+			file, err := os.Open(filename)
+			if err != nil {
+				// This should never happen, as we just downloaded it
+				return nil, err
+			}
+			match, err := hashesMatch(file, simulator.Sha256)
+			if err != nil {
+				return nil, err
+			}
+			if !match {
+				return nil, errp.Newf("downloaded file %s does not match expected hash %s", filename, simulator.Sha256)
 			}
 			if err := os.Chmod(filename, 0755); err != nil {
 				return nil, err
 			}
+		} else {
+			fmt.Printf("Skipping download of %s, file %s already exists and has the correct hash\n", simulator.URL, filename)
 		}
+
 		filenames = append(filenames, filename)
 	}
 	return filenames, nil
