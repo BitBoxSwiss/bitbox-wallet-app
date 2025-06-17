@@ -26,7 +26,7 @@ import { Badge } from '@/components/badge/badge';
 import { USBSuccess } from '@/components/icon';
 import style from './accountssummary.module.css';
 
-const TotalBalance = ({ total, fiatUnit }: accountApi.TAccountTotalBalance) => {
+const TotalBalance = ({ total, fiatUnit }: accountApi.TKeystoreBalance) => {
   return (
     <>
       <strong>
@@ -44,18 +44,16 @@ type TProps = {
   accounts: accountApi.IAccount[],
   connected: boolean;
   keystoreName: string;
-  totalBalancePerCoin?: accountApi.TAccountsBalanceByCoin,
-  totalBalance?: accountApi.TAccountTotalBalance,
+  keystoreBalance?: accountApi.TKeystoreBalance,
   balances?: Balances,
   keystoreDisambiguatorName?: string
 }
 
-export const SummaryBalance = ({
+export const KeystoreBalance = ({
   accounts,
   connected,
   keystoreName,
-  totalBalancePerCoin,
-  totalBalance,
+  keystoreBalance,
   balances,
   keystoreDisambiguatorName
 }: TProps) => {
@@ -114,7 +112,7 @@ export const SummaryBalance = ({
                         key={account.coinCode}
                         coinCode={account.coinCode}
                         coinName={account.coinName}
-                        balance={totalBalancePerCoin && totalBalancePerCoin[coinCode]}
+                        balance={keystoreBalance?.coinsBalance && keystoreBalance.coinsBalance[coinCode]}
                       />);
                   }
                 }
@@ -134,8 +132,8 @@ export const SummaryBalance = ({
                 <strong>{t('accountSummary.total')}</strong>
               </th>
               <td colSpan={2}>
-                {totalBalance ? (
-                  <TotalBalance total={totalBalance.total} fiatUnit={totalBalance.fiatUnit}/>
+                {keystoreBalance ? (
+                  <TotalBalance total={keystoreBalance.total} fiatUnit={keystoreBalance.fiatUnit}/>
                 ) : (<Skeleton />) }
               </td>
             </tr>
