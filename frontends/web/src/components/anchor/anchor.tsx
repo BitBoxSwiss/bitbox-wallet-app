@@ -17,6 +17,7 @@
 
 import { ReactNode, SyntheticEvent } from 'react';
 import { open } from '@/api/system';
+import { runningInIOS } from '@/utils/env';
 import style from './anchor.module.css';
 
 type TProps = {
@@ -48,7 +49,7 @@ export const A = ({
 }: TProps) => {
   return (
     <span
-      className={`${style.link} ${className || ''}`}
+      className={`${runningInIOS() ? style.linkIos : style.link} ${className || ''}`}
       title={props.title || href}
       onClick={(e: SyntheticEvent) => {
         e.preventDefault();
