@@ -761,6 +761,10 @@
     "wrongKeystore2": " If you are using the optional passphrase, make sure you have entered the correct passphrase for the account."
   },
   "exchange": {
+    "btcdirect": {
+      "currencyMismatch": "Unexpected currency in payment request",
+      "insufficientFunds": "Insufficient funds on the selected account."
+    },
     "buySell": {
       "coinNotSupported": "No options available for this coin type.",
       "regionNotSupported": "No options available for this region."
