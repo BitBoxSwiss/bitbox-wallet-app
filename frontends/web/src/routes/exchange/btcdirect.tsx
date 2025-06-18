@@ -108,22 +108,20 @@ export const BTCDirect = ({
   const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
     const { amount, currency, orderId } = event.data;
 
-    if (
-      typeof currency !== 'string'
-      || !['BTC', 'ETH', 'LTC', 'USDC', 'LINK'].includes(currency)
-    ) {
-      console.error('unexpected currency ' + currency);
-      alertUser('unexpected currency ' + currency);
+    if (!btcdirectInfo || btcdirectInfo?.success === false) {
+      if (btcdirectInfo?.errorMessage) {
+        console.error(btcdirectInfo.errorMessage);
+        alertUser(btcdirectInfo.errorMessage);
+      } else {
+        alertUser(t('genericError'));
+      }
       return;
     }
 
-    const address = { // TODO: should come from the backend
-      BTC: 'bc1qnkku53ue3fud8pquec7jrp4jmtn3tmqmwtelr6',
-      LTC: 'ltc1qldx5037gn4u4nu6nfrwskhtdngzxzgjefygk8r',
-      ETH: '0xE5b1F760BA4334bc311695e125861Eb5870018aD',
-      USDC: '0xE5b1F760BA4334bc311695e125861Eb5870018aD',
-      LINK: '0xE5b1F760BA4334bc311695e125861Eb5870018aD',
-    }[currency];
+    if (currency !== btcdirectInfo.coinUnit) {
+      alertUser(t('currencyMismatch'));
+      console.log('Unexpected currency' + currency);
+    }
 
     let txAmount: string;
     if (currency !== 'BTC') {
@@ -139,7 +137,7 @@ export const BTCDirect = ({
     }
 
     const txInput: TTxInput = {
-      address: address as string, // TODO: remove type casting 'as string' once the address is received from backend
+      address: btcdirectInfo.address,
       amount: txAmount,
       paymentRequest: null,
       sendAll: 'no',
@@ -172,7 +170,7 @@ export const BTCDirect = ({
       }
     } else {
       if (txProposal.errorCode === 'insufficientFunds') {
-        alertUser(t('buy.pocket.error.' + txProposal.errorCode)); // TODO: using pocket error here, 'Insufficient funds on the selected account.'
+        alertUser(t('exchange.btcdirect.' + txProposal.errorCode));
       } else if (txProposal.errorCode) {
         alertUser(t('send.error.' + txProposal.errorCode));
       } else {
@@ -187,7 +185,7 @@ export const BTCDirect = ({
       targetOrigin: event.origin
     });
 
-  }, [code, t]);
+  }, [code, t, btcdirectInfo]);
 
   const locale = i18n.resolvedLanguage ? localeMapping[i18n.resolvedLanguage] : 'en-GB';
 
@@ -275,7 +273,7 @@ export const BTCDirect = ({
                 {blocking && (
                   <div className={style.blocking}></div>
                 )}
-                { btcdirectInfo?.success && (
+                { btcdirectInfo?.success ? (
                   <iframe
                     onLoad={() => {
                       setIframeLoaded(true);
@@ -290,6 +288,8 @@ export const BTCDirect = ({
                     allow="camera; clipboard-write;"
                     src={btcdirectInfo.url}>
                   </iframe>
+                ) : (
+                  <>{btcdirectInfo?.errorMessage ? alertUser(btcdirectInfo.errorMessage) : alertUser('genericError')}</>
                 )}
               </div>
             )}
