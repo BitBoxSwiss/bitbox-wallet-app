@@ -94,7 +94,8 @@ export type TBTCDirectInfoResponse = {
   success: true;
   url: string;
   apiKey: string;
-  address?: string;
+  address: string;
+  coinUnit?: string;
 } | {
   success: false;
   errorMessage: string;
