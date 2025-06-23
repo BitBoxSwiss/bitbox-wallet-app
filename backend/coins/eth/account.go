@@ -714,7 +714,7 @@ func (account *Account) SendTx(txNote string) error {
 		// Not critical.
 		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")
 	}
-	account.enqueueUpdateCh <- struct{}{}
+	account.EnqueueUpdate()
 	return nil
 }
 
@@ -1023,4 +1023,12 @@ func (account *Account) MatchesAddress(address string) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+// EnqueueUpdate enqueues an update for the account.
+func (account *Account) EnqueueUpdate() {
+	select {
+	case account.enqueueUpdateCh <- struct{}{}:
+	default:
+	}
 }

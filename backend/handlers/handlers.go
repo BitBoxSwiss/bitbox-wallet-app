@@ -116,6 +116,7 @@ type Backend interface {
 	SetWatchonly(rootFingerprint []byte, watchonly bool) error
 	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
 	Bluetooth() *bluetooth.Bluetooth
+	IsOnline() bool
 }
 
 // Handlers provides a web api to the backend.
@@ -261,6 +262,8 @@ func NewHandlers(
 
 	getAPIRouterNoError(apiRouter)("/bluetooth/state", handlers.getBluetoothState).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/bluetooth/connect", handlers.postBluetoothConnect).Methods("POST")
+
+	getAPIRouterNoError(apiRouter)("/online", handlers.getOnline).Methods("GET")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
@@ -1621,4 +1624,8 @@ func (handlers *Handlers) postBluetoothConnect(r *http.Request) interface{} {
 
 	handlers.backend.Environment().BluetoothConnect(identifier)
 	return nil
+}
+
+func (handlers *Handlers) getOnline(r *http.Request) interface{} {
+	return handlers.backend.IsOnline()
 }
