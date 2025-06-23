@@ -1561,6 +1561,8 @@
       "addressReused": "Address re-used",
       "change": "Change",
       "outpoint": "Outpoint",
+      "pending": "Pending",
+      "receivedDate": "Received date",
       "title": "Send from output"
     },
     "confirm": {
