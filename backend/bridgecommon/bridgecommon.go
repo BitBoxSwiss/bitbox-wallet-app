@@ -123,6 +123,16 @@ func HandleURI(uri string) {
 	globalBackend.HandleURI(uri)
 }
 
+// OnlineStatusChanged should be called when the network connection changed.
+func OnlineStatusChanged(isOnline bool) {
+	mu.RLock()
+	defer mu.RUnlock()
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.SetOnline(isOnline)
+}
+
 // TriggerAuth triggers an authentication request notification.
 func TriggerAuth() {
 	mu.Lock()
