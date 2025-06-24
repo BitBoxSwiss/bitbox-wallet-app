@@ -1,5 +1,5 @@
 /**
- * Copyright 2023-2024 Shift Crypto AG
+ * Copyright 2023-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 
 import { useContext } from 'react';
+import type { CoinUnit, ConversionUnit } from '@/api/account';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { CoinUnit, ConversionUnit } from '@/api/account';
 import style from './amount.module.css';
 
 const formatSats = (amount: string): JSX.Element => {
@@ -86,7 +86,6 @@ const formatBtc = (
 type TProps = {
   amount: string;
   unit: CoinUnit | ConversionUnit;
-  removeBtcTrailingZeroes?: boolean;
   alwaysShowAmounts?: boolean;
   onMobileClick?: () => Promise<void>;
 };
@@ -94,7 +93,6 @@ type TProps = {
 export const Amount = ({
   amount,
   unit,
-  removeBtcTrailingZeroes,
   alwaysShowAmounts = false,
   onMobileClick,
 }: TProps) => {
@@ -111,7 +109,6 @@ export const Amount = ({
       <FormattedAmount
         amount={amount}
         unit={unit}
-        removeBtcTrailingZeroes={removeBtcTrailingZeroes}
         alwaysShowAmounts={alwaysShowAmounts}
       />
     </span>
@@ -121,7 +118,6 @@ export const Amount = ({
 export const FormattedAmount = ({
   amount,
   unit,
-  removeBtcTrailingZeroes,
   alwaysShowAmounts = false,
 }: Omit<TProps, 'allowRotateCurrencyOnMobile'>) => {
   const { hideAmounts } = useContext(AppContext);
@@ -140,15 +136,7 @@ export const FormattedAmount = ({
   case 'TBTC':
   case 'LTC':
   case 'TLTC':
-    if (removeBtcTrailingZeroes && amount.includes('.')) {
-      return (
-        formatLocalizedAmount(
-          amount.replace(/\.?0+$/, ''), group, decimal
-        )
-      );
-    } else {
-      return formatBtc(amount, group, decimal);
-    }
+    return formatBtc(amount, group, decimal);
   case 'sat':
   case 'tsat':
     return formatSats(amount);
