@@ -23,15 +23,19 @@ import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 export const errUserAbort = 104;
 
 export type DeviceInfo = {
-    initialized: boolean;
-    mnemonicPassphraseEnabled: boolean;
-    name: string;
-    securechipModel: string;
-    version: string;
+  initialized: boolean;
+  mnemonicPassphraseEnabled: boolean;
+  name: string;
+  securechipModel: string;
+  version: string;
+  bluetooth: null | {
+    firmwareVersion: string;
+    enabled: boolean;
+  };
 }
 
 type DeviceInfoResponse = SuccessResponse & {
-    deviceInfo: DeviceInfo;
+  deviceInfo: DeviceInfo;
 };
 
 export const resetDevice = (deviceID: string): Promise<SuccessResponse | FailResponse> => {

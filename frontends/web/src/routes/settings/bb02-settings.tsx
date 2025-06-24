@@ -30,6 +30,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { AttestationCheckSetting } from './components/device-settings/attestation-check-setting';
 import { FirmwareSetting } from './components/device-settings/firmware-setting';
+import { BluetoothFirmwareSetting } from './components/device-settings/bluetooth-firmware-setting';
 import { SecureChipSetting } from './components/device-settings/secure-chip-setting';
 import { DeviceNameSetting } from './components/device-settings/device-name-setting';
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
@@ -153,6 +154,18 @@ const Content = ({ deviceID }: TProps) => {
             <StyledSkeleton />
         }
       </div>
+
+      {/*"Bluetooth" section*/}
+      { deviceInfo && deviceInfo.bluetooth ? (
+        <>
+          <div className={styles.section}>
+            <SubTitle className={styles.withMobilePadding}>Bluetooth</SubTitle>
+            <BluetoothFirmwareSetting
+              firmwareVersion={deviceInfo.bluetooth.firmwareVersion}
+            />
+          </div>
+        </>
+      ) : null }
 
       {/*"Expert settings" section*/}
       <div className={styles.section}>
