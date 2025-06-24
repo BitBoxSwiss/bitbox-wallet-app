@@ -37,7 +37,7 @@ type AllAccountsProps = {
 };
 
 const AccountItem = ({ account, hideAmounts }: { account: accountApi.IAccount, hideAmounts: boolean }) => {
-  const [balance, setBalance] = useState<string>('');
+  const [balance, setBalance] = useState<accountApi.TAmountWithConversions>();
   const mounted = useMountedRef();
 
   useEffect(() => {
@@ -48,14 +48,10 @@ const AccountItem = ({ account, hideAmounts }: { account: accountApi.IAccount, h
           return;
         }
         if (!balance.success) {
+          setBalance(undefined);
           return;
         }
-        const balanceData = balance.balance;
-        if (balanceData.hasAvailable) {
-          setBalance(balanceData.available.amount);
-        } else {
-          setBalance('0');
-        }
+        setBalance(balance.balance.available);
       } catch (error) {
         console.error('Failed to fetch balance for account', account.code, error);
       }
@@ -75,10 +71,10 @@ const AccountItem = ({ account, hideAmounts }: { account: accountApi.IAccount, h
 
       <div className={styles.accountBalanceContainer}>
         <div className={styles.accountBalance}>
-          {balance ? (hideAmounts ? '***' : balance) : '...'}
+          {balance ? (hideAmounts ? '***' : balance.amount) : '...'}
         </div>
         <div className={styles.coinUnit}>
-          {balance ? account.coinUnit : ''}
+          {balance ? balance.unit : ''}
         </div>
       </div>
       <div className={styles.chevron}>
