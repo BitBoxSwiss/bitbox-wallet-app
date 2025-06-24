@@ -157,6 +157,11 @@ func UsingMobileDataChanged() {
 	bridgecommon.UsingMobileDataChanged()
 }
 
+// SetOnline exposes `bridgecommon.SetOnline` to Java/Kotlin.
+func SetOnline(online bool) {
+	bridgecommon.SetOnline(online)
+}
+
 // UsbUpdate exposes `bridgecommon.UsbUpdate` to Java/Kotlin.
 func UsbUpdate() {
 	bridgecommon.UsbUpdate()
