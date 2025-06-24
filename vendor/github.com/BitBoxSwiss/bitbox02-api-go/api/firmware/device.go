@@ -116,6 +116,10 @@ type Device struct {
 type BluetoothInfo struct {
 	// FirmwareHash is the hex-encoded 32 byte Bluetooth firmware hash.
 	FirmwareHash string `json:"firmwareHash"`
+	// FirmwareVersion is the Bluetooth firmware version, formated as "major.minor.patch".
+	FirmwareVersion string `json:"firmwareVersion"`
+	// Enabled is true if Bluetooth is enabled.
+	Enabled bool `json:"enabled"`
 }
 
 // DeviceInfo is the data returned from the device info api call.
