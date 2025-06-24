@@ -16,6 +16,9 @@ import android.content.res.Configuration;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkRequest;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -84,6 +87,16 @@ public class MainActivity extends AppCompatActivity {
     // This is for the file picker dialog invoked by file upload forms in the WebView.
     // Used by e.g. MoonPay's KYC forms.
     private ValueCallback<Uri[]> filePathCallback;
+
+    private ConnectivityManager connectivityManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
+
+    private void checkConnectivity() {
+        Network activeNetwork = connectivityManager.getActiveNetwork();
+        NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
+        Mobileserver.onlineStatusChanged(
+                capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET));
+    }
 
     // Connection to bind with GoService
     private ServiceConnection connection = new ServiceConnection() {
@@ -374,6 +387,9 @@ public class MainActivity extends AppCompatActivity {
     private void startServer() {
         final GoViewModel gVM = ViewModelProviders.of(this).get(GoViewModel.class);
         goService.startServer(getApplicationContext().getFilesDir().getAbsolutePath(), gVM.getGoEnvironment(), gVM.getGoAPI());
+
+        // Trigger connectivity check (as the network may already be unavailable when the app starts).
+        checkConnectivity();
     }
 
     private static String readRawText(InputStream inputStream) throws IOException {
@@ -467,6 +483,31 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onCapabilitiesChanged(android.net.Network network, android.net.NetworkCapabilities capabilities) {
+                super.onCapabilitiesChanged(network, capabilities);
+                boolean isOnline = capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET);
+                Mobileserver.onlineStatusChanged(isOnline);
+            }
+            // When we lose the network, onCapabilitiesChanged does not trigger, so we need to override onLost.
+            @Override
+            public void onLost(android.net.Network network) {
+                super.onLost(network);
+                Mobileserver.onlineStatusChanged(false);
+            }
+            // The same is true for when the network is available again.
+            @Override
+            public void onAvailable(android.net.Network network) {
+                super.onAvailable(network);
+                Mobileserver.onlineStatusChanged(true);
+            }
+        };
+
+        // Register the network callback to listen for changes in network capabilities.
+        connectivityManager.registerNetworkCallback(new NetworkRequest.Builder().build(), networkCallback);
     }
 
     @Override
@@ -494,6 +535,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Listen on changes in the network connection. We are interested in if the user is connected to a mobile data connection.
         registerReceiver(this.networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+        // Trigger connectivity check (as the network may already be unavailable when the app starts).
+        checkConnectivity();
 
         Intent intent = getIntent();
         handleIntent(intent);
