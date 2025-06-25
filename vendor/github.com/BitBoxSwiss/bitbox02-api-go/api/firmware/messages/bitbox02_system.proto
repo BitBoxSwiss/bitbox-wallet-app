@@ -29,6 +29,10 @@ message DeviceInfoResponse {
   message Bluetooth {
     // Hash of the currently active Bluetooth firmware on the device.
     bytes firmware_hash = 1;
+    // Firmware version, formated as an unsigned integer "1", "2", etc.
+    string firmware_version = 2;
+    // True if Bluetooth is enabled
+    bool enabled = 3;
   }
   string name = 1;
   bool initialized = 2;

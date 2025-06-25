@@ -69,7 +69,9 @@ func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 	var bluetooth *BluetoothInfo
 	if deviceInfoResponse.DeviceInfo.Bluetooth != nil {
 		bluetooth = &BluetoothInfo{
-			FirmwareHash: hex.EncodeToString(deviceInfoResponse.DeviceInfo.Bluetooth.FirmwareHash),
+			FirmwareHash:    hex.EncodeToString(deviceInfoResponse.DeviceInfo.Bluetooth.FirmwareHash),
+			FirmwareVersion: deviceInfoResponse.DeviceInfo.Bluetooth.FirmwareVersion,
+			Enabled:         deviceInfoResponse.DeviceInfo.Bluetooth.Enabled,
 		}
 	}
 
@@ -147,7 +149,8 @@ func (device *Device) GotoStartupSettings() error {
 	return device.reboot(messages.RebootRequest_SETTINGS)
 }
 
-// Reset factory resets the device. You must call device.Init() afterwards.
+// Reset factory resets the device. The device will reobot.
+// You must not use this instance anymore afterwards.
 func (device *Device) Reset() error {
 	request := &messages.Request{
 		Request: &messages.Request_Reset_{
