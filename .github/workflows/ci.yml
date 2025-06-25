@@ -13,38 +13,23 @@ jobs:
   setup-env:
     runs-on: ubuntu-22.04
     outputs:
-      ci_image: ${{ steps.set-ci-image.outputs.ci_image }}
+      ci_image_version: ${{ steps.set-ci-image-version.outputs.ci_image_version }}
     steps:
       - name: Clone the repo
         uses: actions/checkout@v4
 
       - name: Read CI Image Version
-        id: set-ci-image
+        id: set-ci-image-version
         run: |
-          # Use alternative image when running on GitHub workflows CI to avoid potential
-          # rate limiting when executing jobs in parallel: they can't cache docker images
-          # and always pull.
-          #
-          # To update this image, generate a personal token with write:packages scope
-          # on https://github.com/settings/tokens and authenticate yourself locally with
-          # "docker login ghcr.io -u <github-username>" using the
-          # newly generated token as password.
-          # Once logged in, tag an new image:
-          #   docker tag shiftcrypto/bitbox-wallet-app:VERSION \
-          #     ghcr.io/bitboxswiss/bitbox-wallet-app-ci:VERSION
-          # and push as usual:
-          #   docker push ghcr.io/bitboxswiss/bitbox-wallet-app-ci:VERSION
-          # Lastly, update the next line to use the newly pushed image version.
-          # See docs for more details:
-          # https://docs.github.com/en/packages/guides/pushing-and-pulling-docker-images
-          #
           # Keep this in sync with default in scripts/github-ci.sh.
           CI_IMAGE_VERSION=$(cat .containerversion)
-          echo "ci_image=ghcr.io/bitboxswiss/bitbox-wallet-app-ci:$CI_IMAGE_VERSION" >> $GITHUB_OUTPUT
+          echo "ci_image_version=$CI_IMAGE_VERSION" >> $GITHUB_OUTPUT
 
   test-lint:
     runs-on: ubuntu-22.04
     needs: setup-env
+    container:
+      image: shiftcrypto/bitbox-wallet-app:${{ needs.setup-env.outputs.ci_image_version }}
     steps:
       - name: Clone the repo
         with:
@@ -56,13 +41,14 @@ jobs:
         run: ./scripts/github-ci.sh ci
         env:
           OS_NAME: linux
-          CI_IMAGE: ${{ needs.setup-env.outputs.ci_image }}
 
   android:
     runs-on: ubuntu-22.04
     needs: setup-env
     outputs:
       artifact-url: ${{ steps.upload.outputs.artifact-url }}
+    container:
+      image: shiftcrypto/bitbox-wallet-app:${{ needs.setup-env.outputs.ci_image_version }}
     steps:
       - name: Clone the repo
         uses: actions/checkout@v4
@@ -77,17 +63,18 @@ jobs:
         run: ./scripts/github-ci.sh android
         env:
           OS_NAME: linux
-          CI_IMAGE: ${{ needs.setup-env.outputs.ci_image }}
       - name: Upload APK
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          path: frontends/android/BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
+          path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/android/BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
           name: BitBoxApp-android-${{github.sha}}.apk
           if-no-files-found: error
   qt-linux:
     runs-on: ubuntu-22.04
     needs: setup-env
+    container:
+      image: shiftcrypto/bitbox-wallet-app:${{ needs.setup-env.outputs.ci_image_version }}
     outputs:
       artifact-url-ai: ${{ steps.upload-ai.outputs.artifact-url }}
       artifact-url-deb: ${{ steps.upload-deb.outputs.artifact-url }}
@@ -101,26 +88,25 @@ jobs:
         run: ./scripts/github-ci.sh qt-linux
         env:
           OS_NAME: linux
-          CI_IMAGE: ${{ needs.setup-env.outputs.ci_image }}
       - name: Upload AppImage
         id: upload-ai
         uses: actions/upload-artifact@v4
         with:
-          path: frontends/qt/build/linux/BitBoxApp-*.AppImage
+          path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/linux/BitBoxApp-*.AppImage
           name: BitBoxApp-linux-${{github.sha}}.AppImage
           if-no-files-found: error
       - name: Upload deb
         id: upload-deb
         uses: actions/upload-artifact@v4
         with:
-          path: frontends/qt/build/linux/bitbox_*.deb
+          path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/linux/bitbox_*.deb
           name: BitBoxApp-linux-${{github.sha}}.deb
           if-no-files-found: error
       - name: Upload rpm
         id: upload-rpm
         uses: actions/upload-artifact@v4
         with:
-          path: frontends/qt/build/linux/bitbox-*.rpm
+          path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/linux/bitbox-*.rpm
           name: BitBoxApp-linux-${{github.sha}}.rpm
           if-no-files-found: error
   macos:
