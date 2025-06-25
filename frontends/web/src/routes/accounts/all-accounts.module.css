@@ -62,18 +62,6 @@
   justify-content: flex-end;
 }
 
-.accountBalance {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  margin-right: 4px;
-}
-
-.coinUnit {
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
 .chevron {
   margin-top: 6px;
   color: var(--color-mediumgray);
