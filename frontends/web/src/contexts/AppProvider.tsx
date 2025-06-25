@@ -17,15 +17,15 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { getConfig, setConfig } from '@/utils/config';
 import { AppContext } from './AppContext';
-import { useLoad } from '@/hooks/api';
+import { useLoad, useSync } from '@/hooks/api';
 import { useDefault } from '@/hooks/default';
 import { getNativeLocale } from '@/api/nativelocale';
 import { getDevServers, getTesting } from '@/api/backend';
+import { getUsingMobileData, subscribeUsingMobileData } from '@/api/mobiledata';
 import { i18nextFormat } from '@/i18n/utils';
 import type { TChartDisplay } from './AppContext';
 import { useOrientation } from '@/hooks/orientation';
 import { useMediaQuery } from '@/hooks/mediaquery';
-
 type TProps = {
     children: ReactNode;
 }
@@ -34,6 +34,7 @@ export const AppProvider = ({ children }: TProps) => {
   const nativeLocale = i18nextFormat(useDefault(useLoad(getNativeLocale), 'de-CH'));
   const isTesting = useDefault(useLoad(getTesting), false);
   const isDevServers = useDefault(useLoad(getDevServers), false);
+  const isUsingMobileData = useSync(getUsingMobileData, subscribeUsingMobileData);
   const [guideShown, setGuideShown] = useState(false);
   const [guideExists, setGuideExists] = useState(false);
   const [hideAmounts, setHideAmounts] = useState(false);
@@ -88,6 +89,7 @@ export const AppProvider = ({ children }: TProps) => {
         guideExists,
         hideAmounts,
         isTesting,
+        isUsingMobileData,
         isDevServers,
         nativeLocale,
         chartDisplay,

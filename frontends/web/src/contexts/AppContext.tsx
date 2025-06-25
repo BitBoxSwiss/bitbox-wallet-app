@@ -24,6 +24,7 @@ type AppContextProps = {
     guideExists: boolean;
     hideAmounts: boolean;
     isTesting: boolean;
+    isUsingMobileData: boolean | undefined;
     isDevServers: boolean;
     nativeLocale: string;
     firmwareUpdateDialogOpen: boolean;

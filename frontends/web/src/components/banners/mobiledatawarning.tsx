@@ -16,13 +16,13 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useSync } from '@/hooks/api';
-import { getUsingMobileData, subscribeUsingMobileData } from '@/api/mobiledata';
 import { Status } from '@/components/status/status';
+import { AppContext } from '@/contexts/AppContext';
+import { useContext } from 'react';
 
 export const MobileDataWarning = () => {
   const { t } = useTranslation();
-  const isUsingMobileData = useSync(getUsingMobileData, subscribeUsingMobileData);
+  const { isUsingMobileData } = useContext(AppContext);
   if (isUsingMobileData === undefined) {
     return null;
   }
