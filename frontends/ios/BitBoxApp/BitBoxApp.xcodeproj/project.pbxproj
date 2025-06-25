@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8E1846EB2E0AFF6000802D8B /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1846EA2E0AFF5B00802D8B /* NetworkMonitor.swift */; };
+		8E1846EC2E0AFF6000802D8B /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1846EA2E0AFF5B00802D8B /* NetworkMonitor.swift */; };
 		D700B5F62C884C34000496D4 /* Mobileserver.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D76518BB2B1F8F7400DC03A9 /* Mobileserver.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D700B5FD2CA2FFAF000496D4 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76516322B1F3D1A00DC03A9 /* WebView.swift */; };
 		D700B5FE2CA2FFAF000496D4 /* BitBoxAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76516082B1F3B1300DC03A9 /* BitBoxAppApp.swift */; };
@@ -71,6 +73,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8E1846EA2E0AFF5B00802D8B /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		D700B5F82C888CB9000496D4 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		D700B5F92C986A3C000496D4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D700B60A2CA2FFAF000496D4 /* BitBoxApp Testnet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "BitBoxApp Testnet.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -151,6 +154,7 @@
 		D76516072B1F3B1300DC03A9 /* BitBoxApp */ = {
 			isa = PBXGroup;
 			children = (
+				8E1846EA2E0AFF5B00802D8B /* NetworkMonitor.swift */,
 				D700B5F92C986A3C000496D4 /* Info.plist */,
 				D76518B52B1F45B300DC03A9 /* assets */,
 				D76516082B1F3B1300DC03A9 /* BitBoxAppApp.swift */,
@@ -400,6 +404,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D700B5FD2CA2FFAF000496D4 /* WebView.swift in Sources */,
+				8E1846EC2E0AFF6000802D8B /* NetworkMonitor.swift in Sources */,
 				D721B20E2D36A00000767080 /* Bluetooth.swift in Sources */,
 				D700B5FE2CA2FFAF000496D4 /* BitBoxAppApp.swift in Sources */,
 			);
@@ -410,6 +415,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D76516332B1F3D1B00DC03A9 /* WebView.swift in Sources */,
+				8E1846EB2E0AFF6000802D8B /* NetworkMonitor.swift in Sources */,
 				D721B20D2D369EC100767080 /* Bluetooth.swift in Sources */,
 				D76516092B1F3B1300DC03A9 /* BitBoxAppApp.swift in Sources */,
 			);
