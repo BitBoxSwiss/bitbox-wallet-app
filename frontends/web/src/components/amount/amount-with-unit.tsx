@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { useContext } from 'react';
 import { CoinUnit, ConversionUnit, TAmountWithConversions } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -22,7 +23,7 @@ import { isBitcoinCoin } from '@/routes/account/utils';
 import style from './amount-with-unit.module.css';
 
 type TAmountWithUnitProps = {
-    amount: TAmountWithConversions;
+    amount: TAmountWithConversions | undefined;
     tableRow?: boolean;
     enableRotateUnit?: boolean;
     sign?: string;
@@ -42,6 +43,9 @@ export const AmountWithUnit = ({
 }: TAmountWithUnitProps) => {
   const { rotateDefaultCurrency, defaultCurrency, rotateBtcUnit } = useContext(RatesContext);
 
+  if (!amount) {
+    return null;
+  }
   let displayedAmount: string = '';
   let displayedUnit: CoinUnit | ConversionUnit;
   let onClick: () => Promise<void>;
