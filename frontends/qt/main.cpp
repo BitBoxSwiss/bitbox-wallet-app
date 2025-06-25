@@ -38,6 +38,7 @@
 #include <QSystemTrayIcon>
 #include <QMessageBox>
 #include <QtGlobal>
+#include <QtSystemDetection>
 #if defined(_WIN32)
 #if QT_VERSION_MAJOR >= 6
 #include <private/qguiapplication_p.h>
@@ -55,6 +56,7 @@
 #include "filedialog.h"
 #include "libserver.h"
 #include "webclass.h"
+#include "urlhandler.h"
 
 #define APPNAME "BitBoxApp"
 
@@ -63,6 +65,7 @@
 // their CSP response headers.
 static const char* scheme = "bitboxapp";
 
+static QWebEngineProfile* profile;
 static QWebEngineView* view;
 static QWebEnginePage* mainPage;
 static QWebEnginePage* externalPage;
@@ -85,38 +88,21 @@ public:
         Mode::User | Mode::SecondaryNotification | Mode::ExcludeAppVersion | Mode::ExcludeAppPath)
     {
     }
-
-#if defined(Q_OS_MACOS)
-    bool event(QEvent *event) override
-    {
-        if (event->type() == QEvent::FileOpen) {
-            QFileOpenEvent* openEvent = static_cast<QFileOpenEvent*>(event);
-            if (!openEvent->url().isEmpty()) {
-                // This is only supported on macOS and is used to handle URIs that are opened with
-                // the BitBoxApp, such as "aopp:..." links. The event is received and handled both
-                // if the BitBoxApp is launched and also when it is already running, in which case
-                // it is brought to the foreground automatically.
-
-                handleURI(openEvent->url().toString().toUtf8().constData());
-            }
-        }
-
-        return QApplication::event(event);
-    }
-#endif
 };
 
 class WebEnginePage : public QWebEnginePage {
 public:
-    WebEnginePage(QObject* parent) : QWebEnginePage(parent) {}
+    WebEnginePage(QWebEngineProfile* profile) : QWebEnginePage(profile) {}
 
     QWebEnginePage* createWindow(QWebEnginePage::WebWindowType type) {
+        Q_UNUSED(type);
         return externalPage;
     }
 
     virtual void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID)
     {
         // Log frontend console messages to the Go log.txt.
+        Q_UNUSED(level);
         QString formattedMsg = QString("msg: %1; line %2; source: %3").arg(message).arg(lineNumber).arg(sourceID);
         goLog(formattedMsg.toUtf8().constData());
     }
@@ -185,8 +171,8 @@ public:
         // We treat the exchange pages specially because we need to allow exchange
         // widgets to load in an iframe as well as let them open external links
         // in a browser.
-        bool onExchangePage = currentUrl.contains(QRegularExpression(QString("^%1:/index\.html\#/exchange/.*$").arg(scheme)));
-        bool onBitsurancePage = currentUrl.contains(QRegularExpression(QString("^%1:/index\.html\#/bitsurance/.*$").arg(scheme)));
+        bool onExchangePage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/exchange/.*$)").arg(scheme)));
+        bool onBitsurancePage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/bitsurance/.*$)").arg(scheme)));
         if (onExchangePage || onBitsurancePage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
                 // Ignore requests for certain file types (e.g., .js, .css) Somehow Moonpay loads
@@ -215,7 +201,7 @@ public:
         }
 
         // Needed for the wallet connect workflow.
-        bool verifyWCRequest = requestedUrl.contains(QRegularExpression(R"(^https://verify\.walletconnect\.com/.*$)"));
+        bool verifyWCRequest = requestedUrl.contains(QRegularExpression(R"(^https://verify\.walletconnect\.org/.*$)"));
         if (verifyWCRequest) {
             return;
         }
@@ -265,9 +251,6 @@ public:
 
 int main(int argc, char *argv[])
 {
-    // Enable auto HiDPI scaling to correctly manage scale factor on bigger screens
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
     // Make `@media (prefers-color-scheme: light/dark)` CSS rules work.
     // See https://github.com/qutebrowser/qutebrowser/issues/5915#issuecomment-737115530
     // This might only be needed for Qt 5.15.2, should revisit this when updating Qt.
@@ -319,6 +302,12 @@ int main(int argc, char *argv[])
     }
 
     BitBoxApp a(argc, argv);
+    // The URI scheme handler for aopp is handled via OS events on macOS. The other platforms invoke
+    // the process with the uri as a command line param.
+#if defined(Q_OS_MACOS)
+    UrlHandler url_handler;
+    url_handler.setup();
+#endif
     // These three are part of the SingleApplication instance ID - if changed, the user should close
     // th existing app before launching the new one.
     // See https://github.com/BitBoxSwiss/SingleApplication/blob/c557da5d0cb63b8002c1ba99ec18f257620009b1/singleapplication_p.cpp#L135-L137
@@ -365,7 +354,8 @@ int main(int argc, char *argv[])
     }
 
     externalPage = new QWebEnginePage(view);
-    mainPage = new WebEnginePage(view);
+    profile = new QWebEngineProfile("BitBoxApp");
+    mainPage = new WebEnginePage(profile);
     view->setPage(mainPage);
 
     pageLoaded = false;
@@ -379,11 +369,7 @@ int main(int argc, char *argv[])
         preferredLocale = uiLangs.first();
     }
 
-    QThread workerThread;
     webClass = new WebClass();
-    // Run client queries in a separate thread to not block the UI.
-    webClass->moveToThread(&workerThread);
-    workerThread.start();
 
     serve(
         // cppHeapFree
@@ -440,17 +426,13 @@ int main(int argc, char *argv[])
 
     QObject::connect(
         view->page(),
-        &QWebEnginePage::featurePermissionRequested,
-        [&](const QUrl& securityOrigin, QWebEnginePage::Feature feature) {
-            if (feature == QWebEnginePage::MediaVideoCapture) {
-                // Allow video capture for QR code scanning.
-                view->page()->setFeaturePermission(
-                    securityOrigin,
-                    feature,
-                    QWebEnginePage::PermissionGrantedByUser);
+        &QWebEnginePage::permissionRequested,
+        [&](QWebEnginePermission permission) {
+            // Allow video capture for QR code scanning.
+            if (permission.permissionType() == QWebEnginePermission::PermissionType::MediaVideoCapture) {
+                permission.grant();
             }
         });
-
     QWebChannel channel;
     channel.registerObject("backend", webClass);
     view->page()->setWebChannel(&channel);
@@ -479,9 +461,14 @@ int main(int argc, char *argv[])
         webClass = nullptr;
         delete view;
         view = nullptr;
+        // Make sure mainPage is deleted before the profile. This is a requirement for the profile
+        // to be able to flush to disk properly.
+        delete mainPage;
+        mainPage = nullptr;
+        delete profile;
+        profile = nullptr;
         webClassMutex.unlock();
-        workerThread.quit();
-        workerThread.wait();
+        backendShutdown();
     });
 
 #if defined(_WIN32)
@@ -503,6 +490,7 @@ int main(int argc, char *argv[])
         &a,
         &SingleApplication::receivedMessage,
         [&](int instanceId, QByteArray message) {
+            Q_UNUSED(instanceId)
             QString arg = QString::fromUtf8(message);
             qDebug() << "Received arg from secondary instance:" << arg;
             handleURI(arg.toUtf8().constData());

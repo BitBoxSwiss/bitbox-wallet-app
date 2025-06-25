@@ -148,8 +148,7 @@
     "error": {
       "e10000": "Geçerli cihaz şifresi yanlış.",
       "e10001": "Cihazın şifresini değiştirme başarısız",
-      "e102": "Şifre en az 4 karakterden oluşmalıdır.",
-      "e112": "Gizli cihaz şifresi, ana cihaz şifresi ile aynı olamaz."
+      "e102": "Şifre en az 4 karakterden oluşmalıdır."
     }
   },
   "bitbox02Interact": {
@@ -186,13 +185,8 @@
       "text": "Tamam, hadi yeni bir cüzdan yaratalım!"
     },
     "initialize": {
-      "passwordText": "Şimdi cihazınız için bir şifre ayarlayalım. Bir şifre girmek ve bir şifre seçmek için BitBox'ınızdaki kontrolleri kullanın.",
-      "passwordTitle": "BitBox'ınız için bir şifre belirleyin",
-      "text": "BitBox02 cihazınız başarıyla eşleştirildi! Şimdi cihazınızı başlatalım. Yeni bir cüzdan oluşturmayı veya cüzdanı mevcut bir yedekten geri yüklemeyi seçerek başlayın. <strong>Lütfen BitBox02 cihazınıza takılı bir microSD kartın olduğundan emin olun.</strong>",
-      "tip": "Başlamadan önce, işlemlere güvenli bir ortamda devam etmeniz şiddetle tavsiye edilir.",
-      "title": "BitBox'ınızı başlatın"
+      "tip": "Başlamadan önce, işlemlere güvenli bir ortamda devam etmeniz şiddetle tavsiye edilir."
     },
-    "insertSDCard": "<strong>Lütfen BitBox02 cihazınıza takılı bir microSD kartın olduğundan emin olun.</strong>",
     "pairing": {
       "failed": "Onaylanmamış eşleştirme. Lütfen BitBox02'nizi değiştirin.",
       "paired": "Cihazınızda kodun eşleştiğini onayladınız. Bu doğruysa, aşağıdaki düğmeye tıklayarak devam edebilirsiniz.",
@@ -235,7 +229,6 @@
       "title": "BitBox02 cihazınızı kurun"
     },
     "success": {
-      "text": "Yaşasın! BitBox02'niz artık kullanıma hazır.\n\nBitBox Uygulaması'nın nasıl kullanılacağı hakkında daha fazla bilgi için, lütfen sağ üst köşedeki soru işaretini tıklayarak uygulama içi kılavuzunu kullanın.",
       "title": "Başlamaya hazırsın!"
     }
   },
@@ -256,7 +249,6 @@
     "copy": "Kopyala",
     "create": "Oluştur",
     "download": "İndir",
-    "hiddenwallet": "Gizli Cüzdan Oluştur",
     "next": "Sonraki",
     "ok": "Tamam",
     "previous": "Önceki",
@@ -281,14 +273,6 @@
   "device": {
     "appUpradeRequired": "BitBox'ınız bu masaüstü uygulaması ile uyumlu değil. Lütfen en son sürümü indirin ve yükleyin."
   },
-  "deviceLock": {
-    "button": "Two Factor Authorization (2FA) Etkinleştirme",
-    "condition1": "Bir yedeğin var mı?",
-    "condition2": "Mobil uygulama doğrulama çalışıyor mu?",
-    "condition3": "2FA yedekleri ve mobil uygulama eşleştirmesini DEVRE DIŞI bırakır. 2FA'dan çıkmak için cihazın SIFIRLANMASI olması gerekir!",
-    "confirm": "Two Factor Authorization (2FA) Etkinleştirme",
-    "title": "Two Factor Authorization (2FA) Etkinleştirme"
-  },
   "deviceSettings": {
     "firmware": {
       "newVersion": {
@@ -309,24 +293,6 @@
       "title": "Donanım"
     },
     "loading": "Cihaz bilgisi alınıyor…",
-    "pairing": {
-      "lock": {
-        "false": "Devre dışı",
-        "label": "Two Factor Authorization (2FA)",
-        "true": "Etkinleştir"
-      },
-      "mobile": {
-        "false": "Kapalı",
-        "label": "Mobil Uygulama",
-        "true": "Aç"
-      },
-      "status": {
-        "false": "Eşleştirilmemiş",
-        "label": "Durum",
-        "true": "Eşleştirilmiş"
-      },
-      "title": "Eşleştirme"
-    },
     "secrets": {
       "manageBackups": "Yedekleri Yönet",
       "title": "Secrets"
@@ -463,14 +429,6 @@
       }
     },
     "bitbox": {
-      "2FA": {
-        "text": "2FA etkinleştirildiğinde, para harcamak için tüm işlemlerin eşleştirilmiş cep telefonunda onaylanması gerekir. Böylece şiifreli bir tek kullanımlık numara mobil uygulamaya gönderilir, orada şifresi çözülür ve Kabul Et düğmesine basıldığında BitBox'a geri döndürülür. Cihazla bu iletişim, cep telefonu ile eşleştirme sırasında kurulan bu masaüstü uygulaması arasındaki kanal üzerinden yapılır.\n\n2FA'yı etkinleştirmeden önce cüzdanınızı yedeklediğinizden ve mobil uygulamayı eşleştirdiğinizden emin olun. Once enabled, the micro SD slot and mobile app pairing are disabled. They can be re-enabled by resetting the BitBox, which erases the device.",
-        "title": "İki faktörlü doğrulama (2FA) nasıl çalışır?"
-      },
-      "disable2FA": {
-        "text": "2FA'yı devre dışı bırakmak için, BitBox'ınızı sıfırlamanız ve ardından cüzdanı yedekten geri yüklemeniz gerekir. Yedeklemeye sahip microSD kartın hala olduğundan ve kurtarma şifresini hala hatırladığınızdan emin olun. Ardından 'Cihazı sıfırla' tuşuna basın. Yeni bir cihaz şifresi belirleyin ve 'Veya yedeği geri yükle'yi seçin. Cüzdanda oluşturduğunuz yedeklemeyi seçin, 'Geri Yükle'yi tıklayın ve cüzdanı oluştururken kullandığınız kurtarma şifresini girin.",
-        "title": "İki faktörlü doğrulamayı (2FA) nasıl devre dışı bırakabilirim?"
-      },
       "ejectBitbox": {
         "text": "",
         "title": "BitBox'ı nasıl çıkarabilirim?"
@@ -478,18 +436,6 @@
       "ejectSD": {
         "text": "MicroSD kartı BitBox'tan istediğiniz zaman yedekleme oluşturma veya geri yükleme işlemi yapmadığınız sürece kaldırabilirsiniz.",
         "title": "MicroSD kartı nasıl çıkarabilirim?"
-      },
-      "hiddenWallet": {
-        "text": "Aynı cihazda, makul bir reddedilebilirlik için kullanabileceğiniz farklı bir cihaz şifresi ve kurtarma şifresiyle korunan ikinci bir cüzdandır. Aynı yedek send hem normal, hem de gizli cüzdanınız için kullanılır, bu nedenle ek bir yedekleme gerekmez.",
-        "title": "Gizli cüzdan nedir?"
-      },
-      "legacyHiddenWallet": {
-        "text": "Önce aşağıdaki düğmeyi tıklayın (BitBox ana cihaz şifresiyle açılmışsa ve 2FA devre dışı bırakılmışsa kullanılabilir), ardından Bitbox'ınızı yeniden takıp kilidini gizli cihaz şifrenizle açın.",
-        "title": "Eski gizli cüzdanıma nasıl erişirim?"
-      },
-      "pairing": {
-        "text": "Mobil uygulamamızı iOS veya Android için indirdikten sonra, mobil uygulama ile bu uygulama arasında güvenli bir kanal kuran görüntülenen QR kodunu tararsınız. Tarandıktan sonra mobil uygulamadaki talimatları izleyin.",
-        "title": "Telefonumla güvenli bir şekilde nasıl eşleştirilir"
       }
     },
     "receive": {
@@ -599,16 +545,6 @@
   "headerssync": {
     "blocksSynced": "{{blocks}} blok senkronize edildi"
   },
-  "hiddenWallet": {
-    "info1HTML": "",
-    "info2HTML": "Aşağıdaki gizli cüzdanınızla ilişkilendirmek istediğiniz cihaz şifresini ve kurtarma şifresini tanımlayın. Cihaz şifresi ve kurtarma şifresi <strong>farklı</strong> birincil cüzdanınız için tanımladığınızdan emin olun",
-    "passwordLabel": "Gizli kurtarma şifresi",
-    "passwordPlaceholder": "Lütfen gizli kurtarma şifresini onaylayın",
-    "pinLabel": "Gizli cihaz şifresi",
-    "pinRepeatLabel": "Gizli cihaz şifresini tekrarla",
-    "pinRepeatPlaceholder": "Lütfen gizli cihaz şifresini onayla",
-    "success": "Gizli cüzdan başarıyla oluşturuldu. Kilidini açmak için BitBox'ınızı değiştirin."
-  },
   "initialize": {
     "create": "Cihaz şifresini ayarla",
     "creating": "Cihaz şifresini ayarla",
@@ -632,54 +568,10 @@
   "language": {
     "title": "Dil Seçin"
   },
-  "legacyhiddenwallet": {
-    "disable": "Eski gizli cüzdanı devre dışı bırak",
-    "enable": "Eski gizli cüzdanı etkinleştir",
-    "successDisable": "Eski gizli cüzdanı başarıyla devre dışı bıraktınız.",
-    "successEnable": "Eski gizli cüzdanı başarıyla etkinleştirdi. Eski gizli cüzdanınıza erişmek için BitBox'ınızı değiştirin ve gizli cihaz şifresini girin."
-  },
   "loading": "Yükleniyor…",
   "notification": {
     "newTxs_one": "{{accountName}}'da yeni işlem",
     "newTxs_other": "{{count}} Yeni işlem: {{accountName}}"
-  },
-  "pairing": {
-    "aborted": {
-      "text": "Eşleştirme işlemi mobil uygulamadan kaldırıldı.",
-      "title": "Kaldırıldı"
-    },
-    "button": "Mobil Uygulamayla Eşleştir",
-    "confirm": "BitBox'ınızı eşleştirmek istediğinizden emin misiniz? Sonradan, cep telefonunun bir işlem gerçekleştirmesi gerektiğini unutmayın.",
-    "connectOnly": {
-      "button": "Mobil Uygulamayı Bağla",
-      "title": "'Yeni masaüstü uygulamasına bağlan' öğesini seçerek mobil uygulamamız ile tarayın"
-    },
-    "error": {
-      "text": "Bir şeyler yanlış gitti. Lütfen tekrar başla.",
-      "title": "Hata"
-    },
-    "reconnectOnly": {
-      "button": "Mobil Uygulamayı Yeniden Bağla"
-    },
-    "start": {
-      "hideAppQRCode": "QR Kodunu Gizle",
-      "revealAppQRCode": "QR Kodunu Göster",
-      "step1": "Mobil uygulamanız yoksa, sahip olduğunuz telefona bağlı olarak Apple App Store veya Google Play Store için QR kodunu tarayabilirsiniz.",
-      "step2": "İOS ve Android uygulama mağazalarında 'Digital Bitbox 2FA' adı altında bulabileceğiniz mobil uygulamamız ile tarayın:"
-    },
-    "started": {
-      "text": "Şimdi mobil uygulamadaki talimatları izleyin.",
-      "title": "Harika"
-    },
-    "success": {
-      "text": "Tebrikler, BitBox'ınızı mobil uygulamayla başarıyla eşleştirdiniz!",
-      "title": "Başarılı"
-    },
-    "timeout": {
-      "text": "Eşleştirme iki dakikanın ardından zaman aşımına uğradı. Mobil uygulamayı hala eşleştirmek istiyorsanız tekrar başlayın.",
-      "title": "Zaman aşımı"
-    },
-    "title": "Mobil Eşleştirme"
   },
   "password": {
     "show": "Göster {{label}}",
@@ -698,15 +590,10 @@
       "description": "Başka token'ları almak için, onları ayarlardan etkinleştirin. Diğer token'ları yatırırsanız, erişilebilir olmayabilir.",
       "warning": "Sadece bu adresle  {{coinName}} almak istediğinize emin olun"
     },
-    "showFull": "Cihazdaki tam adresi göster ve doğrula",
     "title": "{{accountName}} Al",
     "verify": "Adresi güvenli bir şekilde doğrulayın",
-    "verifyBitBox01": "Mobil uygulamadaki adresi doğrula",
     "verifyBitBox02": "BitBox02'deki adresi doğrulayın",
-    "verifyInstruction": "Lütfen aşağıdaki adresin cihazınızda görüntülenen adresiyle eşleştiğini doğrulayın.",
-    "warning": {
-      "secureOutput": "Güvenli adres doğrulamasını etkinleştirmek için lütfen BitBox'ınızı mobil cihazınızla eşleştirin ve kenar çubuğundaki 'Cihazı Yönet' seçeneğine tıklayın."
-    }
+    "verifyInstruction": "Lütfen aşağıdaki adresin cihazınızda görüntülenen adresiyle eşleştiğini doğrulayın."
   },
   "reset": {
     "description": "Cihazdaki tüm veriler silinecek. Buna Özel Anahtarınız da dahil!",
@@ -822,10 +709,6 @@
     },
     "maximum": "Hepsini gönder",
     "scanQR": "QR Kodunu Tara",
-    "signprogress": {
-      "description": "Bu, çok fazla veri içeren bir işlemdir. İşlemi tamamen imzalamak için  {{steps}} defa onaylamanız istenir.",
-      "label": "İlerleme"
-    },
     "success": "İşlem imzalandı ve gönderildi.",
     "title": "Gönder {{accountName}}",
     "toggleCoinControl": "Kripto para kontrolünü aç"
@@ -934,13 +817,9 @@
     "unlocked3": "LED yandığında düğmeye dokunun"
   },
   "warning": {
-    "receivePairing": "Güvenli adres doğrulamasını etkinleştirmek için lütfen BitBox'ı eşleştirin. Kenar çubuğunda 'Cihazı Yönet' seçeneğine gidin.",
-    "sdcard": "Yedeklemeleri yönetmek istemediğiniz sürece, mikro SD kartı BitBox'tan ayrı saklayın.",
-    "sendPairing": "İşlem ayrıntılarını güvenli bir şekilde doğrulamak için lütfen BitBox'ı eşleştirin. Kenar çubuğundan 'Cihazı Yönet' seçeneğine gidin."
+    "sdcard": "Yedeklemeleri yönetmek istemediğiniz sürece, mikro SD kartı BitBox'tan ayrı saklayın."
   },
   "welcome": {
-    "insertBitBox02": "Devam etmek için lütfen cihaza dokunun.",
-    "insertDevice": "Başlamak için lütfen cihazınızı bağlayın",
     "title": "Hoşgeldiniz"
   }
 }

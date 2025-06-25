@@ -17,10 +17,9 @@
 package bitbox02
 
 import (
-	"fmt"
-	"sync"
+	"encoding/hex"
 
-	event "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
+	deviceevent "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
@@ -40,8 +39,6 @@ const ProductName = "bitbox02"
 type Device struct {
 	firmware.Device
 	deviceID string
-	mu       sync.RWMutex
-	onEvent  func(event.Event, interface{})
 	log      *logrus.Entry
 
 	observable.Implementation
@@ -54,6 +51,7 @@ func NewDevice(
 	product bitbox02common.Product,
 	config firmware.ConfigInterface,
 	communication firmware.Communication,
+	opts ...firmware.DeviceOption,
 ) *Device {
 	log := logging.Get().
 		WithGroup("device").
@@ -67,18 +65,57 @@ func NewDevice(
 			version,
 			&product,
 			config,
-			communication, logger{log},
+			communication,
+			logger{log},
+			opts...,
 		),
 		deviceID: deviceID,
 		log:      log,
 	}
 	device.Device.SetOnEvent(func(ev firmware.Event, meta interface{}) {
-		device.fireEvent(event.Event(ev))
+		switch ev {
+		case firmware.EventStatusChanged:
+			device.Notify(observable.Event{
+				Subject: "status",
+				Action:  action.Replace,
+				Object:  device.Device.Status(),
+			})
+		default:
+			device.Notify(observable.Event{
+				Subject: string(ev),
+				Action:  action.Replace,
+			})
+		}
+
 		switch ev {
 		case firmware.EventStatusChanged:
 			switch device.Device.Status() {
 			case firmware.StatusInitialized:
-				device.fireEvent(event.EventKeystoreAvailable)
+				device.Notify(observable.Event{
+					Subject: string(deviceevent.EventKeystoreAvailable),
+					Action:  action.Replace,
+				})
+
+			}
+		}
+
+		// Temporary automatic Bluetooth firmware upgrade during the testing phase. We prompt an
+		// upgrade every time if the bundled firmware does not match the actual firmware on the
+		// device.  TODO: remove before production release.
+		if ev == firmware.EventStatusChanged && device.SupportsBluetooth() {
+			switch device.Device.Status() {
+			case firmware.StatusInitialized, firmware.StatusUninitialized:
+				info, err := device.DeviceInfo()
+				if err != nil {
+					device.log.WithError(err).Error("DeviceInfo")
+					return
+				}
+				if info.Bluetooth != nil &&
+					info.Bluetooth.FirmwareHash != hex.EncodeToString(bundledBluetoothFirmwareHash()) {
+					if err := device.BluetoothUpgrade(bluetoothFirmware); err != nil {
+						device.log.WithError(err).Error("BluetoothUpgrade")
+					}
+				}
 			}
 		}
 	})
@@ -120,21 +157,8 @@ func (device *Device) Keystore() keystoreInterface.Keystore {
 	}
 }
 
-func (device *Device) fireEvent(event event.Event) {
-	device.mu.RLock()
-	f := device.onEvent
-	device.mu.RUnlock()
-	if f != nil {
-		device.log.Info(fmt.Sprintf("fire event: %s", event))
-		f(event, nil)
-	}
-}
-
 // SetOnEvent implements device.Device.
-func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
-	device.mu.Lock()
-	defer device.mu.Unlock()
-	device.onEvent = onEvent
+func (device *Device) SetOnEvent(onEvent func(deviceevent.Event, interface{})) {
 }
 
 // Reset factory resets the device.
@@ -142,7 +166,10 @@ func (device *Device) Reset() error {
 	if err := device.Device.Reset(); err != nil {
 		return err
 	}
-	device.fireEvent(event.EventKeystoreGone)
+	device.Notify(observable.Event{
+		Subject: string(deviceevent.EventKeystoreGone),
+		Action:  action.Replace,
+	})
 	device.init()
 	return nil
 }
@@ -153,7 +180,7 @@ func (device *Device) CreateBackup() error {
 		return err
 	}
 	device.Notify(observable.Event{
-		Subject: fmt.Sprintf("devices/bitbox02/%s/backups/list", device.deviceID),
+		Subject: "backups/list",
 		Action:  action.Reload,
 	})
 	return nil

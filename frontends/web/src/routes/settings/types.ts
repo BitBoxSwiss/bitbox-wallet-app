@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import type { TDevices } from '@/api/devices';
+
 export type TPagePropsWithSettingsTabs = {
-  deviceIDs: string[];
+  devices: TDevices;
   hasAccounts: boolean;
 };

@@ -15,8 +15,7 @@
  */
 
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
-import type { CoinCode, Fiat, IAmount } from './account';
-import type { ISuccess } from './backend';
+import type { CoinCode, Fiat, TAmountWithConversions } from './account';
 import { apiPost, apiGet } from '@/utils/request';
 
 export type BtcUnit = 'default' | 'sat';
@@ -34,7 +33,11 @@ export const subscribeCoinHeaders = (coinCode: CoinCode) => (
   )
 );
 
-export const setBtcUnit = (unit: BtcUnit): Promise<ISuccess> => {
+export type TSetBtcUnitResponse = {
+  success: boolean;
+};
+
+export const setBtcUnit = (unit: BtcUnit): Promise<TSetBtcUnitResponse> => {
   return apiPost('coins/btc/set-unit', { unit });
 };
 
@@ -47,7 +50,7 @@ export const parseExternalBtcAmount = (amount: string): Promise<TAmount> => {
   return apiGet(`coins/btc/parse-external-amount?amount=${amount}`);
 };
 
-export const getBtcSatsAmount = (sats: string): Promise<{ success: false } | { success: true, amount: IAmount }> => {
+export const getBtcSatsAmount = (sats: string): Promise<{ success: false } | { success: true, amount: TAmountWithConversions }> => {
   return apiGet(`coins/btc/sats-amount?sats=${sats}`);
 };
 

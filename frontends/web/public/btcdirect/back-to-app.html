@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTC Direct - Back to app</title>
+
+<link href="./btcdirect.css" rel="stylesheet">
+
+<script>
+// NOTE: please note this static page is for development purposes only and may not be in sync with the actual version
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.top === window) {
+    showError('Unexpected error');
+    return;
+  }
+
+  // Request the app to navigate away from the iframe and back to the app
+  window.parent.postMessage({
+    action: 'back-to-app'
+  }, '*');
+
+  function showError(message) {
+    document.body.append(
+      Object.assign(document.createElement('h1'), {
+        style: 'color: red; padding: 1rem;',
+        textContent: message,
+      })
+    );
+  }
+});
+</script>

@@ -98,6 +98,9 @@ export const Aopp = () => {
     // Inactive, waiting for action.
     return null;
   case 'user-approval':
+    const host = domain(aopp.callback);
+    const addressRequestMsg = aopp.xpubRequired ? 'aopp.addressRequestWithXPub' : 'aopp.addressRequest';
+    const addressRequestWithLogoMsg = aopp.xpubRequired ? 'aopp.addressRequestWithLogoAndXPub' : 'aopp.addressRequestWithLogo';
     return (
       <View
         fullscreen
@@ -109,11 +112,17 @@ export const Aopp = () => {
           <Vasp prominent
             hostname={domain(aopp.callback)}
             fallback={(
-              <SimpleMarkup tagName="p" markup={t('aopp.addressRequest', {
-                host: `<strong>${domain(aopp.callback)}</strong>`
+              <SimpleMarkup tagName="p" markup={t(addressRequestMsg, {
+                host: `<strong>${host}</strong>`
               })} />
             )}
-            withLogoText={t('aopp.addressRequestWithLogo')} />
+            withLogoText={t(addressRequestWithLogoMsg)} />
+          {
+            aopp.xpubRequired ?
+              (
+                <Message type="info"> {t('aopp.xpubRequested', { host: `${host}` })} </Message>
+              ) : ''
+          }
         </ViewContent>
         <ViewButtons>
           <Button primary onClick={aoppAPI.approve}>{t('button.continue')}</Button>

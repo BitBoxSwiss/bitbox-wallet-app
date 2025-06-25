@@ -24,11 +24,11 @@ import (
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -253,7 +253,7 @@ func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat stri
 		return nil, err
 	}
 
-	coinDecimals := coin.DecimalsExp(account.Coin())
+	coinDecimals := coinpkg.DecimalsExp(account.Coin())
 	price, err := backend.RatesUpdater().LatestPriceForPair(account.Coin().Unit(false), fiat)
 	if err != nil {
 		return nil, err
@@ -269,7 +269,7 @@ func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat stri
 }
 
 // Converts bitcoin amount to fiat.
-func (backend *Backend) convertBtcAmountToFiat(amount coin.Amount, fiat string) (*big.Rat, error) {
+func (backend *Backend) convertBtcAmountToFiat(amount coinpkg.Amount, fiat string) (*big.Rat, error) {
 	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
 	if err != nil {
 		return nil, err
@@ -398,9 +398,9 @@ func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([
 					if !ok {
 						frontendConfig = make(map[string]interface{})
 					}
-					canceledAccounts, ok := frontendConfig["bitsuranceNotifyCancellation"].([]types.Code)
+					canceledAccounts, ok := frontendConfig["bitsuranceNotifyCancellation"].([]accountsTypes.Code)
 					if !ok {
-						frontendConfig["bitsuranceNotifyCancellation"] = []types.Code{bitsuranceAccount.AccountCode}
+						frontendConfig["bitsuranceNotifyCancellation"] = []accountsTypes.Code{bitsuranceAccount.AccountCode}
 					} else {
 						canceledAccounts = append(canceledAccounts, bitsuranceAccount.AccountCode)
 						frontendConfig["bitsuranceNotifyCancellation"] = canceledAccounts
@@ -454,12 +454,12 @@ func (backend *Backend) createAndPersistAccountConfig(
 	if err != nil {
 		return "", err
 	}
-	coin, err := backend.Coin(coinCode)
+	accountCoin, err := backend.Coin(coinCode)
 	if err != nil {
 		return "", err
 	}
 	if name == "" {
-		name = defaultAccountName(coin, accountNumber)
+		name = defaultAccountName(accountCoin, accountNumber)
 	}
 
 	// v0 prefix: in case this code turns out to be not unique in the future, we can switch to 'v1-'
@@ -479,7 +479,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 		if coinCode == coinpkg.CodeBTC {
 			bip44Coin = hardenedKeystart
 		}
-		return accountCode, backend.persistBTCAccountConfig(keystore, coin,
+		return accountCode, backend.persistBTCAccountConfig(keystore, accountCoin,
 			accountCode,
 			hiddenBecauseUnused,
 			name,
@@ -496,7 +496,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 		if coinCode == coinpkg.CodeLTC {
 			bip44Coin = 2 + hardenedKeystart
 		}
-		return accountCode, backend.persistBTCAccountConfig(keystore, coin,
+		return accountCode, backend.persistBTCAccountConfig(keystore, accountCoin,
 			accountCode,
 			hiddenBecauseUnused,
 			name,
@@ -512,7 +512,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 			bip44Coin = "60'"
 		}
 		return accountCode, backend.persistETHAccountConfig(
-			keystore, coin, accountCode, hiddenBecauseUnused,
+			keystore, accountCoin, accountCode, hiddenBecauseUnused,
 			// TODO: Use []uint32 instead of a string keypath
 			fmt.Sprintf("m/44'/%s/0'/0/%d", bip44Coin, accountNumber),
 			name,
@@ -783,11 +783,24 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.accounts = append(backend.accounts, account)
 	sortAccounts(backend.accounts)
 
-	account.Observe(backend.Notify)
+	account.Observe(func(event observable.Event) {
+		backend.Notify(observable.Event{
+			Subject: fmt.Sprintf("account/%s/%s", account.Config().Config.Code, event.Subject),
+			Action:  event.Action,
+			Object:  event.Object,
+		})
+		if event.Subject == string(accountsTypes.EventSyncDone) {
+			backend.notifyNewTxs(account)
+			go backend.checkAccountUsed(account)
+		}
+	})
+	if err := account.Initialize(); err != nil {
+		backend.log.WithError(err).Error("error initializing account")
+		return
+	}
 	if backend.onAccountInit != nil {
 		backend.onAccountInit(account)
 	}
-	go backend.checkAccountUsed(account)
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
@@ -897,22 +910,40 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			}
 			return ks, err
 		},
-		OnEvent: func(event accountsTypes.Event) {
-			backend.events <- AccountEvent{
-				Type: "account", Code: persistedConfig.Code,
-				Data: string(event),
-			}
-			if account != nil && event == accountsTypes.EventSyncDone {
-				backend.notifyNewTxs(account)
-			}
-		},
 		RateUpdater: backend.ratesUpdater,
 		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {
 			return backend.notifier.ForAccount(persistedConfig.Code)
 		},
 		GetSaveFilename:  backend.environment.GetSaveFilename,
 		UnsafeSystemOpen: backend.environment.SystemOpen,
-		BtcCurrencyUnit:  backend.config.AppConfig().Backend.BtcUnit,
+	}
+
+	// This function is passed as a callback to the BTC account constructor. It is called when the
+	// keystore needs to determine whether an address belongs to an account on its same keystore.
+	getAddressCallback := func(askingAccount *btc.Account, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error) {
+		accountsByKeystore, err := backend.AccountsByKeystore()
+		if err != nil {
+			return nil, false, err
+		}
+		rootFingerprint, err := backend.keystore.RootFingerprint()
+		if err != nil {
+			return nil, false, err
+		}
+		for _, account := range accountsByKeystore[hex.EncodeToString(rootFingerprint)] {
+			// This only makes sense for BTC accounts.
+			btcAccount, ok := account.(*btc.Account)
+			if !ok {
+				continue
+			}
+			// Only return an address if the coin codes match.
+			if btcAccount.Coin().Code() != askingAccount.Coin().Code() {
+				continue
+			}
+			if address := btcAccount.GetAddress(scriptHashHex); address != nil {
+				return address, askingAccount == btcAccount, nil
+			}
+		}
+		return nil, false, nil
 	}
 
 	switch specificCoin := coin.(type) {
@@ -921,6 +952,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			accountConfig,
 			specificCoin,
 			backend.arguments.GapLimits(),
+			getAddressCallback,
 			backend.log,
 		)
 		backend.addAccount(account)
@@ -1295,11 +1327,11 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 		if account.CoinCode == coinpkg.CodeBTC ||
 			account.CoinCode == coinpkg.CodeTBTC ||
 			account.CoinCode == coinpkg.CodeRBTC {
-			coin, err := backend.Coin(account.CoinCode)
+			accountCoin, err := backend.Coin(account.CoinCode)
 			if err != nil {
 				return err
 			}
-			if keystore.SupportsAccount(coin, signing.ScriptTypeP2TR) &&
+			if keystore.SupportsAccount(accountCoin, signing.ScriptTypeP2TR) &&
 				account.SigningConfigurations.FindScriptType(signing.ScriptTypeP2TR) == -1 {
 				rootFingerprint, err := backend.keystore.RootFingerprint()
 				if err != nil {
@@ -1317,7 +1349,7 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 					86+hdkeychain.HardenedKeyStart,
 					bip44Coin,
 					uint32(accountNumber)+hdkeychain.HardenedKeyStart)
-				extendedPublicKey, err := keystore.ExtendedPublicKey(coin, keypath)
+				extendedPublicKey, err := keystore.ExtendedPublicKey(accountCoin, keypath)
 				if err != nil {
 					return err
 				}
@@ -1541,10 +1573,6 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		}
 	}
 	log := backend.log.WithField("accountCode", account.Config().Config.Code)
-	if err := account.Initialize(); err != nil {
-		log.WithError(err).Error("error initializing account")
-		return
-	}
 	txs, err := account.Transactions()
 	if err != nil {
 		log.WithError(err).Error("discoverAccount")

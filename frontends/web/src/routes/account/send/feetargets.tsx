@@ -30,7 +30,7 @@ type Props = {
   coinCode: accountApi.CoinCode;
   disabled: boolean;
   fiatUnit: accountApi.ConversionUnit;
-  proposedFee?: accountApi.IAmount;
+  proposedFee?: accountApi.TAmountWithConversions;
   customFee: string;
   showCalculatingFeeLabel?: boolean;
   onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;

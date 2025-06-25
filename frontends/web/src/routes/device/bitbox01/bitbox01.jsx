@@ -51,19 +51,14 @@ class Device extends Component {
 
   state = {
     firmwareVersion: null,
-    deviceRegistered: false,
     deviceStatus: '',
     goal: '',
     success: null,
   };
 
   componentDidMount() {
-    this.onDevicesRegisteredChanged();
     this.onDeviceStatusChanged();
     this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
-      if (type === 'devices' && data === 'registeredChanged') {
-        this.onDevicesRegisteredChanged();
-      }
       if (type === 'device' && data === 'statusChanged' && deviceID === this.getDeviceID()) {
         this.onDeviceStatusChanged();
       }
@@ -76,40 +71,10 @@ class Device extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.deviceID !== prevProps.deviceID) {
-      this.onDevicesRegisteredChanged();
-    }
-  }
-
-  onDevicesRegisteredChanged = () => {
-    apiGet('devices/registered').then(devices => {
-      const deviceIDs = Object.keys(devices);
-      const deviceRegistered = deviceIDs.includes(this.getDeviceID());
-
-      this.setState({
-        deviceRegistered,
-        deviceStatus: null
-      }, () => {
-        // only if deviceRegistered or softwarekeystore
-        if (this.state.deviceRegistered) {
-          this.onDeviceStatusChanged();
-        }
-      });
-    });
-  };
-
   onDeviceStatusChanged = () => {
-    if (this.state.deviceRegistered) {
-      apiGet('devices/' + this.props.deviceID + '/status').then(deviceStatus => {
-        if (['seeded', 'initialized'].includes(deviceStatus)) {
-          this.context.setSidebarStatus('');
-        } else {
-          this.context.setSidebarStatus('forceHidden');
-        }
-        this.setState({ deviceStatus });
-      });
-    }
+    apiGet('devices/' + this.props.deviceID + '/status').then(deviceStatus => {
+      this.setState({ deviceStatus });
+    });
   };
 
   getDeviceID() {
@@ -137,12 +102,11 @@ class Device extends Component {
       deviceID,
     } = this.props;
     const {
-      deviceRegistered,
       deviceStatus,
       goal,
       success,
     } = this.state;
-    if (!deviceRegistered || !deviceStatus) {
+    if (!deviceStatus) {
       return null;
     }
     if (success) {

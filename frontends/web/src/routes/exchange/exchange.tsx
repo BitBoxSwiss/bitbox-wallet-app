@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,13 +49,12 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedRegion, setSelectedRegion] = useState('');
-  const [selectedExchange, setSelectedExchange] = useState('');
   const [regions, setRegions] = useState<TOption[]>([]);
   const [info, setInfo] = useState<TInfoContentProps>();
   const [supportedAccounts, setSupportedAccounts] = useState<IAccount[]>([]);
   const [activeTab, setActiveTab] = useState<exchangesAPI.TExchangeAction>('buy');
 
-  const regionList = useLoad(exchangesAPI.getExchangesByRegion(code));
+  const regionCodes = useLoad(exchangesAPI.getExchangeRegionCodes);
   const nativeLocale = useLoad(getNativeLocale);
   const config = useLoad(getConfig);
 
@@ -70,13 +69,13 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
 
   // update region Select component when `regionList` or `config` gets populated.
   useEffect(() => {
-    if (!regionList || !config) {
+    if (!regionCodes || !config) {
       return;
     }
     const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' }) || '';
-    const regions: TOption[] = regionList.regions.map(region => ({
-      value: region.code,
-      label: regionNames.of(region.code) || region.code
+    const regions: TOption[] = regionCodes.map(code => ({
+      value: code,
+      label: regionNames.of(code) || code
     }));
 
     regions.sort((a, b) => a.label.localeCompare(b.label, i18n.language));
@@ -96,17 +95,17 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
     // user never selected a region preference, will derive it from native locale.
     const userRegion = getRegionNameFromLocale(nativeLocale || '');
     //Region is available in the list
-    const regionAvailable = !!(regionList.regions.find(region => region.code === userRegion));
+    const regionAvailable = !!(regionCodes.find(code => code === userRegion));
     //Pre-selecting the region
     setSelectedRegion(regionAvailable ? userRegion : '');
-  }, [regionList, config, nativeLocale]);
+  }, [regionCodes, config, nativeLocale]);
 
 
-  const goToExchange = () => {
-    if (!selectedExchange) {
+  const goToExchange = (exchange: string) => {
+    if (!exchange) {
       return;
     }
-    navigate(`/exchange/${selectedExchange}/${activeTab}/${code}`);
+    navigate(`/exchange/${exchange}/${activeTab}/${code}`);
   };
 
   const handleChangeRegion = (newValue: SingleValue<TOption>) => {
@@ -120,8 +119,19 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
   return (
     <div className="contentWithGuide">
       <div className="container">
-        <Dialog medium title={info && info.info !== 'region' ? getExchangeFormattedName(info.info) : t('buy.exchange.region')} onClose={() => setInfo(undefined)} open={!!info}>
-          {info && <InfoContent info={info.info} cardFee={info.cardFee} bankTransferFee={info.bankTransferFee} accounts={accounts} />}
+        <Dialog
+          medium
+          title={info && info.exchangeName !== 'region' ? getExchangeFormattedName(info.exchangeName) : t('buy.exchange.region')}
+          onClose={() => setInfo(undefined)}
+          open={!!info}
+        >
+          {info && (
+            <InfoContent
+              accounts={accounts}
+              exchangeName={info.exchangeName}
+              paymentFees={info.paymentFees}
+            />
+          )}
         </Dialog>
         <div className="innerContainer scrollableContainer">
           <Header title={<h2>{title}</h2>} />
@@ -135,12 +145,11 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                     regions={regions}
                     selectedRegion={selectedRegion}
                   />
-                  <InfoButton onClick={() => setInfo({ info: 'region' })} />
+                  <InfoButton onClick={() => setInfo({ exchangeName: 'region', paymentFees: {} })} />
                 </div>
                 <ExchangeTab
                   onChangeTab={(tab) => {
                     setActiveTab(tab);
-                    setSelectedExchange('');
                   }}
                   activeTab={activeTab}
                 />
@@ -149,8 +158,6 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                     accountCode={code}
                     selectedRegion={selectedRegion}
                     deviceIDs={deviceIDs}
-                    onSelectExchange={setSelectedExchange}
-                    selectedExchange={selectedExchange}
                     goToExchange={goToExchange}
                     showBackButton={supportedAccounts.length > 1}
                     action={activeTab}

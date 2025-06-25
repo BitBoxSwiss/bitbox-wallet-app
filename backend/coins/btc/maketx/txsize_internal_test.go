@@ -20,7 +20,6 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	addressesTest "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
@@ -93,7 +92,7 @@ func testEstimateTxSize(
 				Witness:         witness,
 				Sequence:        0,
 			})
-			inputConfigurations = append(inputConfigurations, inputAddress.Configuration)
+			inputConfigurations = append(inputConfigurations, inputAddress.AccountConfiguration)
 		}
 	}
 	changePkScriptSize := 0
@@ -119,9 +118,9 @@ func TestSigScriptWitnessSize(t *testing.T) {
 
 	// Test all singlesig configurations.
 	for _, scriptType := range scriptTypes {
-		address := test.GetAddress(scriptType)
-		t.Run(address.Configuration.String(), func(t *testing.T) {
-			sigScriptSize, witnessSize := sigScriptWitnessSize(address.Configuration)
+		address := addressesTest.GetAddress(scriptType)
+		t.Run(address.AccountConfiguration.String(), func(t *testing.T) {
+			sigScriptSize, witnessSize := sigScriptWitnessSize(address.AccountConfiguration)
 			sigScript, witness := address.SignatureScript(sig)
 			require.Equal(t, len(sigScript), sigScriptSize)
 			if witness != nil {

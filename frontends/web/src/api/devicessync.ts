@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { subscribeEndpoint, TUnsubscribe } from './subscribe';
-import { subscribe as subscribeLegacy } from '@/utils/event-legacy';
+import { subscribeEndpoint, TSubscriptionCallback, TUnsubscribe } from './subscribe';
 import { TDevices } from './devices';
 
 /**
@@ -24,72 +23,7 @@ import { TDevices } from './devices';
  * Returns a method to unsubscribe.
  */
 export const syncDeviceList = (
-  cb: (accounts: TDevices,) => void
+  cb: TSubscriptionCallback<TDevices>,
 ): TUnsubscribe => {
   return subscribeEndpoint('devices/registered', cb);
-};
-
-/**
- * Fires when status of a device changed, mostly
- * used as event to call bitbox02.getStatus(deviceID).
- * Returns a method to unsubscribe.
- */
-export const statusChanged = (
-  deviceID: string,
-  cb: () => void,
-): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('statusChanged', event => {
-    if (event.type === 'device' && event.deviceID === deviceID) {
-      cb();
-    }
-  });
-  return unsubscribe;
-};
-
-/**
- * Fires when attestation hash of a device changed.
- * Returns a method to unsubscribe.
- */
-export const channelHashChanged = (
-  deviceID: string,
-  cb: (deviceID: string) => void,
-): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('channelHashChanged', event => {
-    if (event.type === 'device' && event.deviceID === deviceID) {
-      cb(deviceID);
-    }
-  });
-  return unsubscribe;
-};
-
-/**
- * Fires when attestation check of a device is done.
- * Returns a method to unsubscribe.
- */
-export const attestationCheckDone = (
-  deviceID: string,
-  cb: () => void,
-): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('attestationCheckDone', event => {
-    if (event.type === 'device' && event.deviceID === deviceID) {
-      cb();
-    }
-  });
-  return unsubscribe;
-};
-
-export type TSignProgress = {
-  steps: number;
-  step: number;
-}
-
-export const syncSignProgress = (
-  cb: (progress: TSignProgress) => void
-): TUnsubscribe => {
-  const unsubscribe = subscribeLegacy('signProgress', event => {
-    if ('type' in event && event.type === 'device' && event.data === 'signProgress') {
-      cb(event.meta);
-    }
-  });
-  return unsubscribe;
 };

@@ -4,6 +4,7 @@
 package mocks
 
 import (
+	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
@@ -76,8 +77,11 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			TypeFunc: func() keystore.Type {
 //				panic("mock out the Type method")
 //			},
-//			VerifyAddressFunc: func(configuration *signing.Configuration, coinMoqParam coin.Coin) error {
-//				panic("mock out the VerifyAddress method")
+//			VerifyAddressBTCFunc: func(accountConfiguration *signing.Configuration, derivation btctypes.Derivation, coinMoqParam coin.Coin) error {
+//				panic("mock out the VerifyAddressBTC method")
+//			},
+//			VerifyAddressETHFunc: func(configuration *signing.Configuration, coinMoqParam coin.Coin) error {
+//				panic("mock out the VerifyAddressETH method")
 //			},
 //			VerifyExtendedPublicKeyFunc: func(coinMoqParam coin.Coin, configuration *signing.Configuration) error {
 //				panic("mock out the VerifyExtendedPublicKey method")
@@ -149,8 +153,11 @@ type KeystoreMock struct {
 	// TypeFunc mocks the Type method.
 	TypeFunc func() keystore.Type
 
-	// VerifyAddressFunc mocks the VerifyAddress method.
-	VerifyAddressFunc func(configuration *signing.Configuration, coinMoqParam coin.Coin) error
+	// VerifyAddressBTCFunc mocks the VerifyAddressBTC method.
+	VerifyAddressBTCFunc func(accountConfiguration *signing.Configuration, derivation btctypes.Derivation, coinMoqParam coin.Coin) error
+
+	// VerifyAddressETHFunc mocks the VerifyAddressETH method.
+	VerifyAddressETHFunc func(configuration *signing.Configuration, coinMoqParam coin.Coin) error
 
 	// VerifyExtendedPublicKeyFunc mocks the VerifyExtendedPublicKey method.
 	VerifyExtendedPublicKeyFunc func(coinMoqParam coin.Coin, configuration *signing.Configuration) error
@@ -255,8 +262,17 @@ type KeystoreMock struct {
 		// Type holds details about calls to the Type method.
 		Type []struct {
 		}
-		// VerifyAddress holds details about calls to the VerifyAddress method.
-		VerifyAddress []struct {
+		// VerifyAddressBTC holds details about calls to the VerifyAddressBTC method.
+		VerifyAddressBTC []struct {
+			// AccountConfiguration is the accountConfiguration argument value.
+			AccountConfiguration *signing.Configuration
+			// Derivation is the derivation argument value.
+			Derivation btctypes.Derivation
+			// CoinMoqParam is the coinMoqParam argument value.
+			CoinMoqParam coin.Coin
+		}
+		// VerifyAddressETH holds details about calls to the VerifyAddressETH method.
+		VerifyAddressETH []struct {
 			// Configuration is the configuration argument value.
 			Configuration *signing.Configuration
 			// CoinMoqParam is the coinMoqParam argument value.
@@ -290,7 +306,8 @@ type KeystoreMock struct {
 	lockSupportsPaymentRequests         sync.RWMutex
 	lockSupportsUnifiedAccounts         sync.RWMutex
 	lockType                            sync.RWMutex
-	lockVerifyAddress                   sync.RWMutex
+	lockVerifyAddressBTC                sync.RWMutex
+	lockVerifyAddressETH                sync.RWMutex
 	lockVerifyExtendedPublicKey         sync.RWMutex
 }
 
@@ -920,10 +937,50 @@ func (mock *KeystoreMock) TypeCalls() []struct {
 	return calls
 }
 
-// VerifyAddress calls VerifyAddressFunc.
-func (mock *KeystoreMock) VerifyAddress(configuration *signing.Configuration, coinMoqParam coin.Coin) error {
-	if mock.VerifyAddressFunc == nil {
-		panic("KeystoreMock.VerifyAddressFunc: method is nil but Keystore.VerifyAddress was just called")
+// VerifyAddressBTC calls VerifyAddressBTCFunc.
+func (mock *KeystoreMock) VerifyAddressBTC(accountConfiguration *signing.Configuration, derivation btctypes.Derivation, coinMoqParam coin.Coin) error {
+	if mock.VerifyAddressBTCFunc == nil {
+		panic("KeystoreMock.VerifyAddressBTCFunc: method is nil but Keystore.VerifyAddressBTC was just called")
+	}
+	callInfo := struct {
+		AccountConfiguration *signing.Configuration
+		Derivation           btctypes.Derivation
+		CoinMoqParam         coin.Coin
+	}{
+		AccountConfiguration: accountConfiguration,
+		Derivation:           derivation,
+		CoinMoqParam:         coinMoqParam,
+	}
+	mock.lockVerifyAddressBTC.Lock()
+	mock.calls.VerifyAddressBTC = append(mock.calls.VerifyAddressBTC, callInfo)
+	mock.lockVerifyAddressBTC.Unlock()
+	return mock.VerifyAddressBTCFunc(accountConfiguration, derivation, coinMoqParam)
+}
+
+// VerifyAddressBTCCalls gets all the calls that were made to VerifyAddressBTC.
+// Check the length with:
+//
+//	len(mockedKeystore.VerifyAddressBTCCalls())
+func (mock *KeystoreMock) VerifyAddressBTCCalls() []struct {
+	AccountConfiguration *signing.Configuration
+	Derivation           btctypes.Derivation
+	CoinMoqParam         coin.Coin
+} {
+	var calls []struct {
+		AccountConfiguration *signing.Configuration
+		Derivation           btctypes.Derivation
+		CoinMoqParam         coin.Coin
+	}
+	mock.lockVerifyAddressBTC.RLock()
+	calls = mock.calls.VerifyAddressBTC
+	mock.lockVerifyAddressBTC.RUnlock()
+	return calls
+}
+
+// VerifyAddressETH calls VerifyAddressETHFunc.
+func (mock *KeystoreMock) VerifyAddressETH(configuration *signing.Configuration, coinMoqParam coin.Coin) error {
+	if mock.VerifyAddressETHFunc == nil {
+		panic("KeystoreMock.VerifyAddressETHFunc: method is nil but Keystore.VerifyAddressETH was just called")
 	}
 	callInfo := struct {
 		Configuration *signing.Configuration
@@ -932,17 +989,17 @@ func (mock *KeystoreMock) VerifyAddress(configuration *signing.Configuration, co
 		Configuration: configuration,
 		CoinMoqParam:  coinMoqParam,
 	}
-	mock.lockVerifyAddress.Lock()
-	mock.calls.VerifyAddress = append(mock.calls.VerifyAddress, callInfo)
-	mock.lockVerifyAddress.Unlock()
-	return mock.VerifyAddressFunc(configuration, coinMoqParam)
+	mock.lockVerifyAddressETH.Lock()
+	mock.calls.VerifyAddressETH = append(mock.calls.VerifyAddressETH, callInfo)
+	mock.lockVerifyAddressETH.Unlock()
+	return mock.VerifyAddressETHFunc(configuration, coinMoqParam)
 }
 
-// VerifyAddressCalls gets all the calls that were made to VerifyAddress.
+// VerifyAddressETHCalls gets all the calls that were made to VerifyAddressETH.
 // Check the length with:
 //
-//	len(mockedKeystore.VerifyAddressCalls())
-func (mock *KeystoreMock) VerifyAddressCalls() []struct {
+//	len(mockedKeystore.VerifyAddressETHCalls())
+func (mock *KeystoreMock) VerifyAddressETHCalls() []struct {
 	Configuration *signing.Configuration
 	CoinMoqParam  coin.Coin
 } {
@@ -950,9 +1007,9 @@ func (mock *KeystoreMock) VerifyAddressCalls() []struct {
 		Configuration *signing.Configuration
 		CoinMoqParam  coin.Coin
 	}
-	mock.lockVerifyAddress.RLock()
-	calls = mock.calls.VerifyAddress
-	mock.lockVerifyAddress.RUnlock()
+	mock.lockVerifyAddressETH.RLock()
+	calls = mock.calls.VerifyAddressETH
+	mock.lockVerifyAddressETH.RUnlock()
 	return calls
 }
 

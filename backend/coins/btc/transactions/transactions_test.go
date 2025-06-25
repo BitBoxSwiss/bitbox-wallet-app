@@ -100,7 +100,7 @@ func (s *transactionsSuite) SetupTest() {
 			return false, nil
 		},
 	)
-	s.synchronizer = synchronizer.NewSynchronizer(func() {}, func() {}, s.log)
+	s.synchronizer = synchronizer.NewSynchronizer(func() {}, s.log)
 	s.blockchainMock = NewBlockchainMock()
 	db, err := transactionsdb.NewDB(test.TstTempFile("bitbox-wallet-db-"))
 	if err != nil {

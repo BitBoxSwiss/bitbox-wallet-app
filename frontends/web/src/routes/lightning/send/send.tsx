@@ -22,17 +22,17 @@ import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/
 import { Button, Input } from '../../../components/forms';
 import { InputType, InputTypeVariant, LnInvoice, SdkError, getParseInput, postSendPayment } from '../../../api/lightning';
 import { SimpleMarkup } from '../../../utils/markup';
-import { route } from '../../../utils/route';
 import { toMsat, toSat } from '../../../utils/conversion';
 import { Amount } from '../../../components/amount/amount';
-import { FiatConversion } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
 import { ScanQRVideo } from '../../account/send/components/inputs/scan-qr-video';
 import { Spinner } from '../../../components/spinner/Spinner';
 import { getBtcSatsAmount } from '../../../api/coins';
 import { Skeleton } from '../../../components/skeleton/skeleton';
-import styles from './send.module.css';
 import { runningInAndroid, runningInIOS } from '@/utils/env';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import styles from './send.module.css';
+import { useNavigate } from 'react-router-dom';
 
 type TStep = 'select-invoice' | 'edit-invoice' | 'confirm' | 'sending' | 'success';
 
@@ -54,7 +54,7 @@ type InvoiceInputProps = {
 
 const InvoiceInput = ({ invoice }: InvoiceInputProps) => {
   const { t } = useTranslation();
-  const [invoiceAmount, setInvoiceAmount] = useState<accountApi.IAmount>();
+  const [invoiceAmount, setInvoiceAmount] = useState<accountApi.TAmountWithConversions>();
 
   useEffect(() => {
     getBtcSatsAmount(toSat(invoice.amountMsat || 0).toString()).then(response => {
@@ -71,7 +71,7 @@ const InvoiceInput = ({ invoice }: InvoiceInputProps) => {
         {invoiceAmount ? (
           <>
             <Amount amount={invoiceAmount.amount} unit={invoiceAmount.unit} removeBtcTrailingZeroes />{' ' + invoiceAmount.unit}/{' '}
-            <FiatConversion amount={invoiceAmount} noBtcZeroes />
+            <AmountWithUnit amount={invoiceAmount} removeBtcTrailingZeroes convertToFiat/>
           </>
         ) : <Skeleton />};
       </div>
@@ -250,6 +250,7 @@ const SendWorkflow = ({
 
 export const Send = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [step, setStep] = useState<TStep>('select-invoice');
   const [paymentDetails, setPaymentDetails] = useState<InputType>();
   const [customAmount, setCustomAmount] = useState<number>();
@@ -260,7 +261,7 @@ export const Send = () => {
     switch (step) {
     case 'select-invoice':
     case 'confirm':
-      route('/lightning');
+      navigate('/lightning');
       break;
     case 'edit-invoice':
     case 'success':
@@ -311,7 +312,7 @@ export const Send = () => {
           amountMsat: customAmount ? toMsat(customAmount) : undefined
         });
         setStep('success');
-        setTimeout(() => route('/lightning'), 5000);
+        setTimeout(() => navigate('/lightning'), 5000);
         break;
       }
     } catch (e) {

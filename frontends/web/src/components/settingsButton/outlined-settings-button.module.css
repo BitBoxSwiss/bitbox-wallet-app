@@ -1,0 +1,12 @@
+.button {
+    border-width: 0;
+    display: flex;
+    min-width: auto;
+    padding: 0 var(--space-quarter);
+    text-align: left;
+}
+
+.button img {
+    width: 22px;
+    height: 22px;
+}

@@ -22,6 +22,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -30,6 +31,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/banners"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -39,6 +42,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bluetooth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device"
 	deviceevent "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
@@ -52,7 +56,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/ratelimit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/ethereum/go-ethereum/params"
@@ -68,7 +71,7 @@ func init() {
 var fixedURLWhitelist = []string{
 	// Shift Crypto owned domains.
 	"https://bitbox.swiss/",
-	"https://bitbox.shop/",
+	"https://shop.bitbox.swiss/",
 	"https://shiftcrypto.support/",
 	// Exchange rates.
 	"https://www.coingecko.com/",
@@ -89,6 +92,7 @@ var fixedURLWhitelist = []string{
 	"https://pocketbitcoin.com/",
 	// BTCDirect
 	"https://btcdirect.eu/",
+	"https://start.btcdirect.eu/",
 	// Bitsurance
 	"https://www.bitsurance.eu/",
 	"https://get.bitsurance.eu/",
@@ -99,18 +103,17 @@ var fixedURLWhitelist = []string{
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
 	"https://github.com/bitcoin/bips/",
-	// app stores
-	"https://itunes.apple.com/",
-	"https://play.google.com/store/",
 	// Others
 	"https://cointracking.info/import/bitbox/",
 }
 
-type backendEvent struct {
-	Type string      `json:"type"`
-	Data string      `json:"data"`
-	Meta interface{} `json:"meta"`
-}
+// event are events emitted by the backend.
+type event string
+
+const (
+	// eventNewTxs is emitted when the user should be notified of new transactions.
+	eventNewTxs event = "new-txs"
+)
 
 type deviceEvent struct {
 	DeviceID string `json:"deviceID"`
@@ -118,13 +121,6 @@ type deviceEvent struct {
 	Data     string `json:"data"`
 	// TODO: rename Data to Event, Meta to Data.
 	Meta interface{} `json:"meta"`
-}
-
-// AccountEvent models an event triggered by an account.
-type AccountEvent struct {
-	Type string             `json:"type"`
-	Code accountsTypes.Code `json:"code"`
-	Data string             `json:"data"`
 }
 
 type authEventType string
@@ -177,6 +173,9 @@ type Environment interface {
 	// OnAuthSettingChanged is called when the authentication (screen lock) setting is changed.
 	// This is also called when the app launches with the current setting.
 	OnAuthSettingChanged(enabled bool)
+	// BluetoothConnect tries to connect to the peripheral by the given identifier.
+	// Use `backend.bluetooth.State()` to track failure.
+	BluetoothConnect(identifier string)
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
@@ -195,6 +194,7 @@ type Backend struct {
 	devices map[string]device.Interface
 
 	usbManager *usb.Manager
+	bluetooth  *bluetooth.Bluetooth
 
 	accountsAndKeystoreLock locker.Locker
 	accounts                AccountsList
@@ -207,7 +207,7 @@ type Backend struct {
 
 	// makeBtcAccount creates a BTC account. In production this is `btc.NewAccount`, but can be
 	// overridden in unit tests for mocking.
-	makeBtcAccount func(*accounts.AccountConfig, *btc.Coin, *types.GapLimits, *logrus.Entry) accounts.Interface
+	makeBtcAccount func(*accounts.AccountConfig, *btc.Coin, *types.GapLimits, func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), *logrus.Entry) accounts.Interface
 	// makeEthAccount creates an ETH account. In production this is `eth.NewAccount`, but can be
 	// overridden in unit tests for mocking.
 	makeEthAccount func(*accounts.AccountConfig, *eth.Coin, *http.Client, *logrus.Entry) accounts.Interface
@@ -267,9 +267,8 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		coins:    map[coinpkg.Code]coinpkg.Coin{},
 		accounts: []accounts.Interface{},
 		aopp:     AOPP{State: aoppStateInactive},
-
-		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, log *logrus.Entry) accounts.Interface {
-			return btc.NewAccount(config, coin, gapLimits, log, hclient)
+		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
+			return btc.NewAccount(config, coin, gapLimits, getAddress, log, hclient)
 		},
 		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
 			return eth.NewAccount(config, coin, httpClient, log)
@@ -287,7 +286,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.notifier = notifier
 	backend.socksProxy = backendProxy
 	backend.httpClient = hclient
-	backend.etherScanHTTPClient = ratelimit.FromTransport(hclient.Transport, etherscan.CallInterval)
+	backend.etherScanHTTPClient = hclient
 
 	ratesCache := filepath.Join(arguments.CacheDirectoryPath(), "exchangerates")
 	if err := os.MkdirAll(ratesCache, 0700); err != nil {
@@ -310,6 +309,9 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		btcCoin)
 
 	backend.lightning.Observe(backend.Notify)
+
+	backend.bluetooth = bluetooth.New(log)
+	backend.bluetooth.Observe(backend.Notify)
 
 	return backend, nil
 }
@@ -339,11 +341,14 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 		return
 	}
 	if unnotifiedCount != 0 {
-		backend.events <- backendEvent{Type: "backend", Data: "newTxs", Meta: map[string]interface{}{
-			"count":       unnotifiedCount,
-			"accountName": account.Config().Config.Name,
-		}}
-
+		backend.Notify(observable.Event{
+			Subject: string(eventNewTxs),
+			Action:  action.Replace,
+			Object: map[string]interface{}{
+				"count":       unnotifiedCount,
+				"accountName": account.Config().Config.Name,
+			},
+		})
 		if err := notifier.MarkAllNotified(); err != nil {
 			backend.log.WithError(err).Error("error marking notified")
 		}
@@ -529,19 +534,19 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
 			"https://blockchair.com/litecoin/transaction/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
-		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
+		etherScan := etherscan.NewEtherScan("1", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeSEPETH:
-		etherScan := etherscan.NewEtherScan("https://api-sepolia.etherscan.io/api", backend.etherScanHTTPClient)
+		etherScan := etherscan.NewEtherScan("11155111", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "Ethereum Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig,
 			"https://sepolia.etherscan.io/tx/",
 			etherScan,
 			nil)
 	case erc20Token != nil:
-		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
+		etherScan := etherscan.NewEtherScan("1", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			etherScan,
@@ -600,7 +605,7 @@ func (backend *Backend) Testing() bool {
 // Accounts returns the current accounts of the backend.
 func (backend *Backend) Accounts() AccountsList {
 	defer backend.accountsAndKeystoreLock.RLock()()
-	return backend.accounts
+	return slices.Clone(backend.accounts)
 }
 
 // KeystoreTotalAmount represents the total balance amount of the accounts belonging to a keystore.
@@ -660,7 +665,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
 	go backend.lightning.Connect()
 
-	if backend.DefaultAppConfig().Backend.StartInTestnet {
+	if backend.config.AppConfig().Backend.StartInTestnet {
 		if err := backend.config.ModifyAppConfig(func(c *config.AppConfig) error { c.Backend.StartInTestnet = false; return nil }); err != nil {
 			backend.log.WithError(err).Error("Can't set StartInTestnet to false")
 		}
@@ -782,7 +787,15 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 
 	mainKeystore := len(backend.devices) == 1
 	theDevice.SetOnEvent(func(event deviceevent.Event, data interface{}) {
-		switch event {
+		backend.events <- deviceEvent{
+			DeviceID: theDevice.Identifier(),
+			Type:     "device",
+			Data:     string(event),
+			Meta:     data,
+		}
+	})
+	theDevice.Observe(func(event observable.Event) {
+		switch deviceevent.Event(event.Subject) {
 		case deviceevent.EventKeystoreGone:
 			backend.DeregisterKeystore()
 		case deviceevent.EventKeystoreAvailable:
@@ -791,12 +804,15 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 				backend.registerKeystore(theDevice.Keystore())
 			}
 		}
-		backend.events <- deviceEvent{
-			DeviceID: theDevice.Identifier(),
-			Type:     "device",
-			Data:     string(event),
-			Meta:     data,
-		}
+		backend.Notify(observable.Event{
+			Subject: fmt.Sprintf(
+				"devices/%s/%s/%s",
+				theDevice.ProductName(),
+				theDevice.Identifier(),
+				event.Subject),
+			Action: event.Action,
+			Object: event.Object,
+		})
 	})
 
 	backend.onDeviceInit(theDevice)
@@ -804,17 +820,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		backend.onDeviceUninit(theDevice.Identifier())
 		return err
 	}
-	theDevice.Observe(backend.Notify)
 
-	// Old-school
-	select {
-	case backend.events <- backendEvent{
-		Type: "devices",
-		Data: "registeredChanged",
-	}:
-	default:
-	}
-	// New-school
 	backend.Notify(observable.Event{
 		Subject: "devices/registered",
 		Action:  action.Reload,
@@ -836,9 +842,6 @@ func (backend *Backend) Deregister(deviceID string) {
 		delete(backend.devices, deviceID)
 		backend.DeregisterKeystore()
 
-		// Old-school
-		backend.events <- backendEvent{Type: "devices", Data: "registeredChanged"}
-		// New-school
 		backend.Notify(observable.Event{
 			Subject: "devices/registered",
 			Action:  action.Reload,
@@ -906,11 +909,16 @@ func (backend *Backend) Environment() Environment {
 
 // Close shuts down the backend. After this, no other method should be called.
 func (backend *Backend) Close() error {
+	backend.ratesUpdater.Stop()
+	// Call this without `accountsAndKeystoreLock` as it eventually calls `DeregisterKeystore()`,
+	// which acquires the same lock.
+	if backend.usbManager != nil {
+		backend.usbManager.Close()
+	}
+
 	defer backend.accountsAndKeystoreLock.Lock()()
 
 	errors := []string{}
-
-	backend.ratesUpdater.Stop()
 
 	backend.uninitAccounts(true)
 
@@ -1073,4 +1081,9 @@ func (backend *Backend) ExportLogs() error {
 		return err
 	}
 	return nil
+}
+
+// Bluetooth returns the backend's bluetooth instance.
+func (backend *Backend) Bluetooth() *bluetooth.Bluetooth {
+	return backend.bluetooth
 }

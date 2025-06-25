@@ -60,6 +60,10 @@ export const getTesting = (): Promise<boolean> => {
   return apiGet('testing');
 };
 
+export const getDevServers = (): Promise<boolean> => {
+  return apiGet('dev-servers');
+};
+
 export type TQRCode = FailResponse | (SuccessResponse & { data: string; });
 
 export const getQRCode = (data: string) => {

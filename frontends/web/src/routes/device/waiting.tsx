@@ -14,26 +14,44 @@
  * limitations under the License.
  */
 
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { i18n } from '@/i18n/i18n';
 import { getDeviceList } from '@/api/devices';
 import { syncDeviceList } from '@/api/devicessync';
 import { useSync } from '@/hooks/api';
 import { useKeystores } from '@/hooks/backend';
 import { useDarkmode } from '@/hooks/darkmode';
+import { useDefault } from '@/hooks/default';
+import { Bluetooth } from '@/components/bluetooth/bluetooth';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { GlobalBanners } from '@/components/banners';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { Spinner } from '@/components/spinner/Spinner';
 import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '@/components/icon/logo';
-import { Footer, Header } from '@/components/layout';
-import style from './bitbox01/bitbox01.module.css';
+import { Footer, GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
+import { View, ViewContent } from '@/components/view/view';
+import { OutlinedSettingsButton } from '@/components/settingsButton/outlined-settings-button';
+import { runningInIOS } from '@/utils/env';
+import style from './waiting.module.css';
 
 export const Waiting = () => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
-
+  const navigate = useNavigate();
   const keystores = useKeystores();
-  const devices = useSync(getDeviceList, syncDeviceList);
+  const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
+
+  // BitBox01 does not have any accounts anymore, so we route directly to the device settings.
+  useEffect(() => {
+    const deviceValues = Object.values(devices);
+    if (deviceValues.length === 1 && deviceValues[0] === 'bitbox') {
+      navigate(`settings/device-settings/${Object.keys(devices)[0]}`);
+    }
+  }, [devices, navigate]);
+
   const loadingAccounts = (keystores !== undefined && keystores.length) || (devices !== undefined && Object.keys(devices).length);
 
   if (loadingAccounts) {
@@ -42,28 +60,47 @@ export const Waiting = () => {
     );
   }
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <Header title={<h2>{t('welcome.title')}</h2>} />
-        <div className="content padded narrow isVerticallyCentered">
-          <div>
-            {isDarkMode ? (<AppLogoInverted />) : (<AppLogo />)}
-            <div className="box large">
-              <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
-              <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
-            </div>
-          </div>
-        </div>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <ContentWrapper>
+            <GlobalBanners />
+          </ContentWrapper>
+          <Header title={<h2>{t('welcome.title')}</h2>}>
+            <OutlinedSettingsButton />
+          </Header>
+          <View verticallyCentered width="550px" fitContent>
+            <ViewContent textAlign="center">
+              <div>
+                {isDarkMode ? (<AppLogoInverted />) : (<AppLogo />)}
+                <p className={style.waitingText}>
+                  {t('welcome.message')}
+                </p>
+                <Bluetooth />
+              </div>
+            </ViewContent>
+          </View>
+        </Main>
         <Footer>
           {isDarkMode ? (<SwissMadeOpenSourceDark />) : (<SwissMadeOpenSource />)}
         </Footer>
-      </div>
+      </GuidedContent>
       <Guide>
         <Entry entry={t('guide.waiting.welcome', { returnObjects: true })} shown={true} />
+        { runningInIOS() && (
+          <Entry entry={{
+            link: {
+              text: t('guide.waiting.worksWithIos.link.text'),
+              url: 'https://shop.bitbox.swiss/',
+            },
+            text: t('guide.waiting.worksWithIos.text'),
+            title: t('guide.waiting.worksWithIos.title'),
+          }} />
+        )}
         <Entry entry={{
           link: {
             text: t('guide.waiting.getDevice.link.text'),
-            url: 'https://bitbox.shop/',
+            url: 'https://shop.bitbox.swiss/',
           },
           text: t('guide.waiting.getDevice.text'),
           title: t('guide.waiting.getDevice.title'),
@@ -79,9 +116,8 @@ export const Waiting = () => {
           title: t('guide.waiting.lostDevice.title'),
         }} />
         <Entry entry={t('guide.waiting.internet', { returnObjects: true })} />
-        <Entry entry={t('guide.waiting.deviceNotRecognized', { returnObjects: true })} />
         <Entry entry={t('guide.waiting.useWithoutDevice', { returnObjects: true })} />
       </Guide>
-    </div>
+    </GuideWrapper>
   );
 };

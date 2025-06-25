@@ -1,9 +1,9 @@
 module github.com/BitBoxSwiss/bitbox-wallet-app
 
-go 1.22
+go 1.23
 
 require (
-	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240925080402-a2115fee878e
+	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250603143443-7eb26c21237d
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20241009081439-924dde98b9c1
 	github.com/breez/breez-sdk-go v0.6.6
 	github.com/btcsuite/btcd v0.24.2
@@ -24,6 +24,7 @@ require (
 	golang.org/x/crypto v0.32.0
 	golang.org/x/mobile v0.0.0-20240716161057-1ad2df20a8b6
 	golang.org/x/net v0.34.0
+	golang.org/x/time v0.10.0
 )
 
 require (

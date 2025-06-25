@@ -187,6 +187,7 @@ func serve(
 				authResult(true)
 			},
 			OnAuthSettingChangedFunc: func(bool) {},
+			BluetoothConnectFunc:     func(string) {},
 		},
 	)
 }
@@ -203,6 +204,11 @@ func systemOpen(url *C.cchar_t) {
 func goLog(msg *C.cchar_t) {
 	goMsg := C.GoString(msg)
 	logging.Get().WithGroup("qt-frontend").Info(goMsg)
+}
+
+//export backendShutdown
+func backendShutdown() {
+	bridgecommon.Shutdown()
 }
 
 func authResult(ok bool) {

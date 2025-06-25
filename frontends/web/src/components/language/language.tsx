@@ -21,7 +21,6 @@ import { Dialog } from '@/components/dialog/dialog';
 import { defaultLanguages, TActiveLanguageCodes, TLanguagesList } from './types';
 import style from './language.module.css';
 import { getSelectedIndex } from '@/utils/language';
-import { changei18nLanguage } from '@/i18n/i18n';
 
 type TLanguageSwitchProps = {
     languages?: TLanguagesList;
@@ -35,10 +34,10 @@ const LanguageSwitch = ({ languages }: TLanguageSwitchProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number>(getSelectedIndex(allLanguages, i18n));
   const [activeDialog, setActiveDialog] = useState<boolean>(false);
 
-  const changeLanguage = async (langCode: TActiveLanguageCodes, index: number) => {
+  const changeLanguage = (langCode: TActiveLanguageCodes, index: number) => {
     setSelectedIndex(index);
     setActiveDialog(false);
-    await changei18nLanguage(langCode);
+    i18n.changeLanguage(langCode);
   };
 
   if (allLanguages.length === 1) {
