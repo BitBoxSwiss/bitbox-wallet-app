@@ -353,8 +353,8 @@ int main(int argc, char *argv[])
         view->adjustSize();
     }
 
-    externalPage = new QWebEnginePage(view);
     profile = new QWebEngineProfile("BitBoxApp");
+    externalPage = new QWebEnginePage(profile, view);
     mainPage = new WebEnginePage(profile);
     view->setPage(mainPage);
 
