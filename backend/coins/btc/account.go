@@ -840,7 +840,7 @@ func sortByAddresses(result []*SpendableOutput) []*SpendableOutput {
 	for _, s := range sums {
 		outputs := grouped[s.address]
 		sort.Slice(outputs, func(i, j int) bool {
-			return outputs[i].Value > outputs[j].Value
+			return outputs[i].TxOut.Value > outputs[j].TxOut.Value
 		})
 		newResult = append(newResult, outputs...)
 	}

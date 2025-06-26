@@ -177,12 +177,14 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	}
 	spendableOutputs, err := s.transactions.SpendableOutputs()
 	s.Require().NoError(err)
-	s.Require().Equal(
-		map[wire.OutPoint]*transactions.SpendableOutput{
-			{Hash: tx1.TxHash(), Index: 0}: utxo,
-		},
-		spendableOutputs,
-	)
+	expected := map[wire.OutPoint]*wire.TxOut{
+		{Hash: tx1.TxHash(), Index: 0}: utxo.TxOut,
+	}
+	actual := make(map[wire.OutPoint]*wire.TxOut)
+	for outpoint, spendable := range spendableOutputs {
+		actual[outpoint] = spendable.TxOut
+	}
+	s.Require().Equal(expected, actual)
 	transactions, err := s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false })
 	s.Require().NoError(err)
 	s.Require().Len(transactions, 1)
