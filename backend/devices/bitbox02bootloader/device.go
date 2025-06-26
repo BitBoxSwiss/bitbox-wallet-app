@@ -119,6 +119,11 @@ func (device *Device) ProductName() string {
 	return ProductName
 }
 
+// PlatformName implements device.Device.
+func (device *Device) PlatformName() string {
+	return ProductName
+}
+
 // Identifier implements device.Device.
 func (device *Device) Identifier() string {
 	return device.deviceID

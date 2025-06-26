@@ -1074,6 +1074,11 @@ func (dbb *Device) ProductName() string {
 	return ProductName
 }
 
+// PlatformName implements device.Interface.
+func (dbb *Device) PlatformName() string {
+	return ProductName
+}
+
 // Identifier implements device.Interface.
 func (dbb *Device) Identifier() string {
 	return dbb.deviceID

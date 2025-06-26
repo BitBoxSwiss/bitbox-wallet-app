@@ -107,7 +107,6 @@ const Content = ({ deviceID }: TProps) => {
           return;
         }
         setDeviceInfo(result.deviceInfo);
-        console.log('LOL', result);
       })
       .catch(console.error);
   }, [deviceID, t]);

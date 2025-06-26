@@ -52,6 +52,8 @@ const (
 	KeyBitBox01 MessageKey = "bitbox01"
 	// KeyBitBox02 is the message key for the event when a BitBox02 gets connected.
 	KeyBitBox02 MessageKey = "bitbox02"
+	// KeyBitBox02Nova is the message key for the event when a BitBox02 Nova gets connected.
+	KeyBitBox02Nova MessageKey = "bitbox02nova"
 )
 
 // Message is one entry in the banners json.
@@ -77,8 +79,9 @@ type Banners struct {
 
 	url     string
 	banners struct {
-		BitBox01 *Message `json:"bitbox01"`
-		BitBox02 *Message `json:"bitbox02"`
+		BitBox01     *Message `json:"bitbox01"`
+		BitBox02     *Message `json:"bitbox02"`
+		BitBox02nova *Message `json:"bitbox02nova"`
 	}
 
 	active     map[MessageKey]struct{}
@@ -162,6 +165,8 @@ func (banners *Banners) GetMessage(key MessageKey) *Message {
 		return banners.banners.BitBox01
 	case KeyBitBox02:
 		return banners.banners.BitBox02
+	case KeyBitBox02Nova:
+		return banners.banners.BitBox02nova
 	default:
 		banners.log.Errorf("unrecognized key: %s", key)
 		return nil

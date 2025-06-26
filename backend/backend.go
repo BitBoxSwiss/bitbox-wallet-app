@@ -792,7 +792,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		backend.Notify(observable.Event{
 			Subject: fmt.Sprintf(
 				"devices/%s/%s/%s",
-				theDevice.ProductName(),
+				theDevice.PlatformName(),
 				theDevice.Identifier(),
 				event.Subject),
 			Action: event.Action,
@@ -814,8 +814,10 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	switch theDevice.ProductName() {
 	case bitbox.ProductName:
 		backend.banners.Activate(banners.KeyBitBox01)
-	case bitbox02.ProductName:
+	case bitbox02.BitBox02ProductName:
 		backend.banners.Activate(banners.KeyBitBox02)
+	case bitbox02.BitBox02NovaProductName:
+		backend.banners.Activate(banners.KeyBitBox02Nova)
 	}
 	return nil
 }
@@ -834,8 +836,10 @@ func (backend *Backend) Deregister(deviceID string) {
 		switch device.ProductName() {
 		case bitbox.ProductName:
 			backend.banners.Deactivate(banners.KeyBitBox01)
-		case bitbox02.ProductName:
+		case bitbox02.BitBox02ProductName:
 			backend.banners.Deactivate(banners.KeyBitBox02)
+		case bitbox02.BitBox02NovaProductName:
+			backend.banners.Deactivate(banners.KeyBitBox02Nova)
 		}
 
 	}
