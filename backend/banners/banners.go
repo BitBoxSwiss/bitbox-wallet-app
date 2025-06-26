@@ -26,7 +26,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const bannersURL = "https://bitboxapp.shiftcrypto.io/banners.json"
+const (
+	bannersDevURL = "https://bitboxapp.shiftcrypto.dev/banners.json"
+
+	bannersProdURL = "https://bitboxapp.shiftcrypto.io/banners.json"
+)
 
 // MessageKey enumerates the possible keys in the banners json.
 type MessageKey string
@@ -84,9 +88,13 @@ type Banners struct {
 }
 
 // NewBanners makes a new Banners instance.
-func NewBanners() *Banners {
+func NewBanners(devServers bool) *Banners {
+	url := bannersProdURL
+	if devServers {
+		url = bannersDevURL
+	}
 	return &Banners{
-		url:    bannersURL,
+		url:    url,
 		active: map[MessageKey]struct{}{},
 		log:    logging.Get().WithGroup("banners"),
 	}

@@ -45,7 +45,7 @@ func TestInit(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	banners := NewBanners()
+	banners := NewBanners(true)
 	banners.url = server.URL
 	banners.Init(server.Client())
 	require.Nil(t, banners.GetMessage(KeyBitBox01))
