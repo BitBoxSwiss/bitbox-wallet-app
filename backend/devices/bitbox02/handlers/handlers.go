@@ -55,6 +55,7 @@ type BitBox02 interface {
 	GotoStartupSettings() error
 	RootFingerprint() ([]byte, error)
 	BIP85AppBip39() error
+	BluetoothToggleEnabled() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -92,6 +93,7 @@ func NewHandlers(
 	handleFunc("/goto-startup-settings", handlers.postGotoStartupSettings).Methods("POST")
 	handleFunc("/root-fingerprint", handlers.getRootFingerprint).Methods("GET")
 	handleFunc("/invoke-bip85", handlers.postInvokeBIP85Handler).Methods("POST")
+	handleFunc("/bluetooth/toggle-enabled", handlers.postBluetoothToggleEnabled).Methods("POST")
 	return handlers
 }
 
@@ -376,6 +378,14 @@ func (handlers *Handlers) getRootFingerprint(_ *http.Request) interface{} {
 
 func (handlers *Handlers) postInvokeBIP85Handler(_ *http.Request) interface{} {
 	err := handlers.device.BIP85AppBip39()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log)
+	}
+	return map[string]interface{}{"success": true}
+}
+
+func (handlers *Handlers) postBluetoothToggleEnabled(_ *http.Request) interface{} {
+	err := handlers.device.BluetoothToggleEnabled()
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}

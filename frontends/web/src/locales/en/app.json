@@ -191,6 +191,13 @@
     "followInstructionsMnemonicTitle": "Restore from recovery words"
   },
   "bitbox02Settings": {
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "Bluetooth is now disabled on your BitBox. If you want to connect with iPhones on the future, you will need to re-enable it.",
+      "alertEnabled": "Bluetooth is now enabled.",
+      "description": "Bluetooth is used for connecting with iPhone.",
+      "titleDisabled": "Enable Bluetooth",
+      "titleEnabled": "Disable Bluetooth"
+    },
     "deviceName": {
       "current": "Current device name",
       "error": "Device name could not be set",

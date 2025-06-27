@@ -226,3 +226,7 @@ export const attestationCheckDone = (
 ): TUnsubscribe => {
   return subscribeEndpoint(`devices/bitbox02/${deviceID}/attestationCheckDone`, cb);
 };
+
+export const bluetoothToggleEnabled = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/bluetooth/toggle-enabled`);
+};
