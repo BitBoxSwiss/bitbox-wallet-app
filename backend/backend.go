@@ -235,6 +235,9 @@ type Backend struct {
 
 	// testing tells us whether the app is in testing mode
 	testing bool
+
+	// isOnline indicates whether the backend is online, i.e. able to connect to the internet.
+	isOnline bool
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -275,6 +278,9 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		log: log,
 
 		testing: backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
+
+		// TODO: remove when connectivity check is present on all platforms
+		isOnline: true,
 	}
 
 	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
@@ -941,6 +947,33 @@ func (backend *Backend) HandleURI(uri string) {
 	default:
 		backend.log.Warningf("Unknown URI scheme: %s", uri)
 	}
+}
+
+// SetOnline sets the backend's online status and notifies the frontend.
+func (backend *Backend) SetOnline(online bool) {
+	backend.log.Infof("Setting online status to %v", online)
+	// If coming back online, trigger a reconnection.
+	if online && !backend.isOnline {
+		backend.ManualReconnect()
+		for _, account := range backend.Accounts() {
+			ethAccount, ok := account.(*eth.Account)
+			if !ok {
+				continue
+			}
+			ethAccount.EnqueueUpdate()
+		}
+	}
+	backend.isOnline = online
+	backend.Notify(observable.Event{
+		Subject: "online",
+		Action:  action.Reload,
+		Object:  online,
+	})
+}
+
+// IsOnline returns whether the backend is online, i.e. able to connect to the internet.
+func (backend *Backend) IsOnline() bool {
+	return backend.isOnline
 }
 
 // GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,

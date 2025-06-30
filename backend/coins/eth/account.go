@@ -1024,3 +1024,8 @@ func (account *Account) MatchesAddress(address string) (bool, error) {
 	}
 	return false, nil
 }
+
+// EnqueueUpdate enqueues an update for the account.
+func (account *Account) EnqueueUpdate() {
+	account.enqueueUpdateCh <- struct{}{}
+}
