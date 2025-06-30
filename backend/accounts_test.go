@@ -208,6 +208,9 @@ func TestNextAccountNumber(t *testing.T) {
 	fingerprintEmpty := []byte{0x77, 0x77, 0x77, 0x77}
 	ks := func(fingerprint []byte, supportsMultipleAccounts bool) *keystoremock.KeystoreMock {
 		return &keystoremock.KeystoreMock{
+			SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+				return true
+			},
 			RootFingerprintFunc: func() ([]byte, error) {
 				return fingerprint, nil
 			},
@@ -372,6 +375,9 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 	bitbox01LikeKeystore := &keystoremock.KeystoreMock{
 		RootFingerprintFunc: func() ([]byte, error) {
 			return rootFingerprint1, nil
+		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
 		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
@@ -704,6 +710,9 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			RootFingerprintFunc: func() ([]byte, error) {
 				return rootFingerprint1, nil
 			},
+			SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+				return true
+			},
 			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 				return true
 			},
@@ -950,6 +959,9 @@ func TestTaprootUpgrade(t *testing.T) {
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
+		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
 			case *btc.Coin:
@@ -974,6 +986,9 @@ func TestTaprootUpgrade(t *testing.T) {
 		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
+		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
 		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
@@ -1283,6 +1298,9 @@ func TestWatchonly(t *testing.T) {
 			RootFingerprintFunc: func() ([]byte, error) {
 				return rootFingerprint1, nil
 			},
+			SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+				return true
+			},
 			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 				switch coin.(type) {
 				case *btc.Coin:
@@ -1303,6 +1321,9 @@ func TestWatchonly(t *testing.T) {
 			},
 			RootFingerprintFunc: func() ([]byte, error) {
 				return rootFingerprint2, nil
+			},
+			SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+				return true
 			},
 			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 				switch coin.(type) {
