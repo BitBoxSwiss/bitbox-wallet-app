@@ -17,6 +17,7 @@ package accounts
 import (
 	"testing"
 	"time"
+	"math/big"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/stretchr/testify/require"
@@ -110,60 +111,77 @@ func TestOrderedTransactions(t *testing.T) {
 		time.Date(2020, 9, 9, 13, 0, 0, 0, time.UTC),
 		time.Date(2020, 9, 21, 13, 0, 0, 0, time.UTC),
 		24*time.Hour,
+		nil, // ratesProvider - nil für Tests
+		"",  // coinCode - leer für Tests
+		"",  // fiat - leer für Tests
+		nil, // coinDecimals - nil für Tests
 	)
 	require.NoError(t, err)
 	require.Equal(t, []TimeseriesEntry{
 		{
-			Time:  time.Date(2020, 9, 9, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(0),
+			Time:           time.Date(2020, 9, 9, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(0),
+			SumFiatAtTime:  new(big.Rat),
 		},
 		{
-			Time:  time.Date(2020, 9, 10, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(200),
+			Time:           time.Date(2020, 9, 10, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(200),
+			SumFiatAtTime:  new(big.Rat),
 		},
 		{
-			Time:  time.Date(2020, 9, 11, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(190),
+			Time:           time.Date(2020, 9, 11, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(190),
+			SumFiatAtTime:  new(big.Rat),
 		},
 		{
-			Time:  time.Date(2020, 9, 12, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(190),
+			Time:           time.Date(2020, 9, 12, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(190),
+			SumFiatAtTime:  new(big.Rat),
 		},
 		{
-			Time:  time.Date(2020, 9, 13, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(190),
+			Time:           time.Date(2020, 9, 13, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(190),
+			SumFiatAtTime:  new(big.Rat),
 		},
 		{
-			Time:  time.Date(2020, 9, 14, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(190),
+			Time:           time.Date(2020, 9, 14, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(190),
+			SumFiatAtTime:  new(big.Rat),
 		},
 		{
-			Time:  time.Date(2020, 9, 15, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(290),
+			Time:           time.Date(2020, 9, 15, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(290),
+			SumFiatAtTime:  new(big.Rat),
 		},
 		{
-			Time:  time.Date(2020, 9, 16, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(290),
+			Time:           time.Date(2020, 9, 16, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(290),
+			SumFiatAtTime:  new(big.Rat),
 		},
 		{
-			Time:  time.Date(2020, 9, 17, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(290),
+			Time:           time.Date(2020, 9, 17, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(290),
+			SumFiatAtTime:  new(big.Rat),
 		},
 		{
-			Time:  time.Date(2020, 9, 18, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(290),
+			Time:           time.Date(2020, 9, 18, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(290),
+			SumFiatAtTime:  new(big.Rat),
 		},
 		{
-			Time:  time.Date(2020, 9, 19, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(290),
+			Time:           time.Date(2020, 9, 19, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(290),
+			SumFiatAtTime:  new(big.Rat),
 		},
 		{
-			Time:  time.Date(2020, 9, 20, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(590),
+			Time:           time.Date(2020, 9, 20, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(590),
+			SumFiatAtTime:  new(big.Rat),
 		},
 		{
-			Time:  time.Date(2020, 9, 21, 13, 0, 0, 0, time.UTC),
-			Value: coin.NewAmountFromInt64(589),
+			Time:           time.Date(2020, 9, 21, 13, 0, 0, 0, time.UTC),
+			Value:          coin.NewAmountFromInt64(589),
+			SumFiatAtTime:  new(big.Rat),
 		},
 	}, timeseries)
 }

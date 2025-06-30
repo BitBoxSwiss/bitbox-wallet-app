@@ -31,7 +31,7 @@ import { AmountUnit } from '@/components/amount/amount-with-unit';
 import styles from './chart.module.css';
 
 type TProps = {
-  data?: TSummary;
+  data?: TSummary; // <- Hier kommen die Chart-Daten rein
   noDataPlaceholder?: JSX.Element;
   hideAmounts?: boolean;
 };
@@ -155,6 +155,7 @@ export const Chart = ({
   const [tooltipData, setTooltipData] = useState<{
     toolTipVisible: boolean;
     toolTipValue?: string;
+    toolTipPercent?: string; // added percent
     toolTipTop: number;
     toolTipLeft: number;
     toolTipTime: number;
@@ -163,7 +164,18 @@ export const Chart = ({
     toolTipTop: 0,
     toolTipLeft: 0,
     toolTipTime: 0,
+    toolTipPercent: undefined, // init
   });
+
+  const [showPercent, setShowPercent] = useState(false);
+
+  // Hilfsfunktion zum Filtern der Chart-Daten basierend auf showPercent
+  const getFilteredChartData = useCallback((chartData: ChartData) => {
+    return chartData.map(entry => ({
+      ...entry,
+      value: showPercent ? entry.percent : entry.amount // <-- Hier setzen wir value basierend auf showPercent
+    }));
+  }, [showPercent]);
 
   useEffect(() => {
     setTooltipData({
@@ -195,7 +207,7 @@ export const Chart = ({
 
   const displayWeek = () => {
     if (source !== 'hourly' && lineSeries.current && data.chartDataHourly && chart.current) {
-      lineSeries.current.setData(data.chartDataHourly || []);
+      lineSeries.current.setData(getFilteredChartData(data.chartDataHourly || [])); // <-- Hier anwenden
       setFormattedData(data.chartDataHourly || []);
       chart.current.applyOptions({ timeScale: { timeVisible: true } });
     }
@@ -205,7 +217,7 @@ export const Chart = ({
 
   const displayMonth = () => {
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
-      lineSeries.current.setData(data.chartDataDaily || []);
+      lineSeries.current.setData(getFilteredChartData(data.chartDataDaily || [])); // <-- Hier anwenden
       setFormattedData(data.chartDataDaily || []);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
@@ -215,7 +227,7 @@ export const Chart = ({
 
   const displayYear = () => {
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
-      lineSeries.current.setData(data.chartDataDaily);
+      lineSeries.current.setData(getFilteredChartData(data.chartDataDaily)); // <-- Hier anwenden
       setFormattedData(data.chartDataDaily);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
@@ -225,7 +237,7 @@ export const Chart = ({
 
   const displayAll = () => {
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
-      lineSeries.current.setData(data.chartDataDaily);
+      lineSeries.current.setData(getFilteredChartData(data.chartDataDaily)); // <-- Hier anwenden
       setFormattedData(data.chartDataDaily);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
@@ -275,39 +287,26 @@ export const Chart = ({
     const logicalrange = chart.current.timeScale().getVisibleLogicalRange() as LogicalRange;
     const visiblerange = lineSeries.current.barsInLogicalRange(logicalrange);
     if (!visiblerange) {
-      // if the chart is empty, during first load, barsInLogicalRange is null
       return;
     }
     const rangeFrom = Math.max(Math.floor(visiblerange.barsBefore), 0);
     if (!chartData[rangeFrom]) {
-      // when data series have changed it triggers subscribeVisibleLogicalRangeChange
-      // but at this point the setVisibleRange has not executed what the new range
-      // should be and therefore barsBefore might still point to the old range
-      // so we have to ignore this call and expect setVisibleRange with correct range
       setDifference(0);
       setDiffSince('');
       return;
     }
-    // data should always have at least two data points and when the first
-    // value is 0 we take the next value as valueFrom to calculate valueDiff
+
+    // Portfolio-Performance (bestehende Logik)
     const valueFrom = chartData[rangeFrom].value === 0 ? chartData[rangeFrom + 1].value : chartData[rangeFrom].value;
     const valueTo = data.chartTotal;
     const valueDiff = valueTo ? valueTo - valueFrom : 0;
     setDifference(valueDiff / valueFrom);
+
     setDiffSince(`${chartData[rangeFrom].formattedValue} (${renderDate(Number(chartData[rangeFrom].time) * 1000, i18n.language, source)})`);
   }, [data, i18n.language, source]);
 
-  const removeChart = useCallback(() => {
-    if (chartInitialized.current) {
-      chart.current?.timeScale().unsubscribeVisibleLogicalRangeChange(calculateChange);
-      chart.current?.unsubscribeCrosshairMove(handleCrosshair);
-      chart.current?.remove();
-      chart.current = undefined;
-      chartInitialized.current = false;
-    }
-  }, [calculateChange]);
-
-  const handleCrosshair = ({
+  // Moved handleCrosshair before removeChart to satisfy hook dependencies
+  const handleCrosshair = useCallback(({
     point,
     time,
     seriesData
@@ -322,43 +321,37 @@ export const Chart = ({
       || point.x < 0 || point.x > parent.clientWidth
       || point.y < 0 || point.y > parent.clientHeight
     ) {
-      setTooltipData((tooltipData) => ({
-        ...tooltipData,
-        toolTipVisible: false
-      }));
+      setTooltipData(td => ({ ...td, toolTipVisible: false }));
       return;
     }
     const price = seriesData.get(lineSeries.current) as LineData<Time>;
-    if (!price) {
-      return;
-    }
+    const chartData = source === 'daily' ? data.chartDataDaily : data.chartDataHourly;
+    const entry = chartData.find(e => Number(e.time) === time as number);
+    const percentLabel = entry ? `${entry.percent.toFixed(2)}%` : '';
     const coordinate = lineSeries.current.priceToCoordinate(price.value);
     if (!coordinate) {
       return;
     }
-    const coordinateY = (
-      (coordinate - tooltip.clientHeight > 0)
-        ? coordinate - tooltip.clientHeight
-        : Math.max(
-          0,
-          Math.min(
-            parent.clientHeight - tooltip.clientHeight,
-            coordinate + 70
-          )
-        )
-    );
-
-    const toolTipTop = Math.floor(Math.max(coordinateY, 0));
-    const toolTipLeft = Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70)));
-
+    const y = coordinate - tooltip.clientHeight > 0 ? coordinate - tooltip.clientHeight : Math.max(0, Math.min(parent.clientHeight - tooltip.clientHeight, coordinate + 70));
     setTooltipData({
       toolTipVisible: true,
-      toolTipValue: formattedData.current ? formattedData.current[time as number] : '',
-      toolTipTop,
-      toolTipLeft,
+      toolTipValue: formattedData.current?.[time as number] || '',
+      toolTipPercent: percentLabel,
+      toolTipTop: Math.floor(y),
+      toolTipLeft: Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70))),
       toolTipTime: time as number,
     });
-  };
+  }, [source, data.chartDataDaily, data.chartDataHourly]);
+
+  const removeChart = useCallback(() => {
+    if (chartInitialized.current) {
+      chart.current?.timeScale().unsubscribeVisibleLogicalRangeChange(calculateChange);
+      chart.current?.unsubscribeCrosshairMove(handleCrosshair);
+      chart.current?.remove();
+      chart.current = undefined;
+      chartInitialized.current = false;
+    }
+  }, [calculateChange, handleCrosshair]);
 
   const initChart = useCallback(() => {
     const darkmode = getDarkmode();
@@ -434,10 +427,13 @@ export const Chart = ({
         crosshairMarkerRadius: 6,
       });
       const isChartDisplayWeekly = chartDisplay === 'week';
+      // Chart wird with diesen Daten initialisiert:
       lineSeries.current.setData(
-        isChartDisplayWeekly
-          ? data.chartDataHourly
-          : data.chartDataDaily
+        getFilteredChartData(
+          isChartDisplayWeekly
+            ? data.chartDataHourly
+            : data.chartDataDaily
+        )
       );
       setFormattedData(
         isChartDisplayWeekly
@@ -451,7 +447,7 @@ export const Chart = ({
       chartInitialized.current = true;
       updateRange(chart, chartDisplay);
     }
-  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile]);
+  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile, getFilteredChartData, handleCrosshair]);
 
   const reinitializeChart = () => {
     removeChart();
@@ -459,13 +455,13 @@ export const Chart = ({
   };
 
   if (source === 'daily' && prevChartDataDaily?.length !== data.chartDataDaily.length) {
-    lineSeries.current?.setData(data.chartDataDaily);
+    lineSeries.current?.setData(getFilteredChartData(data.chartDataDaily)); // <-- Hier anwenden
     chart.current?.timeScale().fitContent();
     setFormattedData(data.chartDataDaily);
   }
 
   if (source === 'hourly' && prevChartDataHourly?.length !== data.chartDataHourly.length) {
-    lineSeries.current?.setData(data.chartDataHourly);
+    lineSeries.current?.setData(getFilteredChartData(data.chartDataHourly)); // <-- Hier anwenden
     chart.current?.timeScale().fitContent();
     setFormattedData(data.chartDataHourly);
   }
@@ -481,6 +477,10 @@ export const Chart = ({
       }
     });
   }
+
+  const onTogglePercent = () => {
+    setShowPercent(!showPercent);
+  };
 
   useEffect(() => {
     if (!chartInitialized.current) {
@@ -567,9 +567,16 @@ export const Chart = ({
     onDisplayMonth: displayMonth,
     onDisplayYear: displayYear,
     onDisplayAll: displayAll,
+    showPercent,
+    onTogglePercent,
   };
 
   const chartHeight = `${!isMobile ? height : mobileHeight}px`;
+
+  // Compute last percent for summary
+  const summaryData = source === 'daily' ? data.chartDataDaily : data.chartDataHourly;
+  const lastEntry = summaryData.length > 0 ? summaryData[summaryData.length - 1] : undefined;
+  const lastPercentFraction = lastEntry ? lastEntry.percent / 100 : undefined;
 
   return (
     <section className={styles.chart}>
@@ -592,9 +599,9 @@ export const Chart = ({
           </div>
           {!showMobileTotalValue ? (
             <PercentageDiff
-              hasDifference={!!hasDifference}
-              difference={difference}
-              title={diffSince}
+              hasDifference={showPercent ? lastPercentFraction !== undefined && Number.isFinite(lastPercentFraction) : !!hasDifference}
+              difference={showPercent ? lastPercentFraction : difference}
+              title={showPercent && lastEntry ? `${lastEntry.percent.toFixed(2)}%` : diffSince}
             />
           ) : (
             <span className={styles.diffValue}>
@@ -638,7 +645,11 @@ export const Chart = ({
             <span>
               <h2 className={styles.toolTipValue}>
                 <Amount amount={toolTipValue} unit={chartFiat} />
-                <span className={styles.toolTipUnit}>{chartFiat}</span>
+                {tooltipData.toolTipPercent && (
+                  <span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
+                    ({tooltipData.toolTipPercent})
+                  </span>
+                )}
               </h2>
               <span className={styles.toolTipTime}>
                 {renderDate(toolTipTime * 1000, i18n.language, source)}

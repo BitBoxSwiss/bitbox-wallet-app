@@ -201,8 +201,15 @@ func NewOrderedTransactions(txs []*TransactionData) OrderedTransactions {
 
 // TimeseriesEntry contains the balance of the account at the given time.
 type TimeseriesEntry struct {
-	Time  time.Time
-	Value coin.Amount
+	Time          time.Time
+	Value         coin.Amount
+	SumFiatAtTime *big.Rat
+}
+
+// RatesProvider provides access to current and historical exchange rates.
+type RatesProvider interface {
+	LatestPrice() map[string]map[string]float64
+	HistoricalPriceAt(coinCode string, fiat string, timestamp time.Time) float64
 }
 
 // MarshalJSON serializes the entry as JSON.
@@ -238,12 +245,84 @@ func (txs OrderedTransactions) EarliestTime() (time.Time, error) {
 // Timeseries chunks the time between `start` and `end` into steps of `interval` duration, and
 // provides the balance of the account at each step.
 func (txs OrderedTransactions) Timeseries(
-	start, end time.Time, interval time.Duration) ([]TimeseriesEntry, error) {
+	start, end time.Time,
+	interval time.Duration,
+	ratesProvider RatesProvider,
+	coinCode string,
+	fiat string,
+	coinDecimals *big.Int) ([]TimeseriesEntry, error) {
+
 	for _, tx := range txs {
 		if tx.isConfirmed() && tx.Timestamp == nil {
 			return nil, errp.WithStack(errors.ErrNotAvailable)
 		}
 	}
+
+	// Calculate sumFiatAtTime using historical prices (like in chart.go) - only if all parameters are provided
+	fiatTimeMap := make(map[int64]*big.Rat) // Map: timestamp -> SumFiatAtTime
+	if len(txs) > 0 && ratesProvider != nil && coinCode != "" && fiat != "" && coinDecimals != nil {
+		cumulativeFiatAtTime := new(big.Rat)
+
+		// Iterate through transactions from oldest to newest (reverse order)
+		for i := len(txs) - 1; i >= 0; i-- {
+			tx := txs[i]
+
+			// Skip unconfirmed transactions
+			if !tx.isConfirmed() || tx.Timestamp == nil {
+				continue
+			}
+
+			// Get historical price at transaction time (like in chart.go)
+			historicalPrice := ratesProvider.HistoricalPriceAt(coinCode, fiat, *tx.Timestamp)
+
+			// Calculate coin amount change for this transaction
+			var coinAmountChange *big.Rat
+			switch tx.Type {
+			case TxTypeReceive:
+				if tx.Status != TxStatusFailed {
+					coinAmountChange = new(big.Rat).SetFrac(tx.Amount.BigInt(), coinDecimals)
+				} else {
+					coinAmountChange = new(big.Rat)
+				}
+			case TxTypeSend:
+				if tx.Status != TxStatusFailed {
+					coinAmountChange = new(big.Rat).SetFrac(tx.Amount.BigInt(), coinDecimals)
+					coinAmountChange.Neg(coinAmountChange) // Negative for send
+				} else {
+					coinAmountChange = new(big.Rat)
+				}
+			case TxTypeSendSelf:
+				coinAmountChange = new(big.Rat)
+			default:
+				coinAmountChange = new(big.Rat)
+			}
+
+			// Calculate fiat value at historical price (sumFiatAtTime)
+			fiatValueAtTime := new(big.Rat).Mul(coinAmountChange, new(big.Rat).SetFloat64(historicalPrice))
+
+			// Add to cumulative sumFiatAtTime
+			cumulativeFiatAtTime.Add(cumulativeFiatAtTime, fiatValueAtTime)
+
+			// Rundungskorrektur: Wenn Coin-Balance praktisch 0 ist, setze auch Fiat auf 0
+			currentBalance := txs[i].Balance
+			balanceInt, _ := currentBalance.Int64()
+			if balanceInt == 0 {
+				// Wenn die aktuelle Balance 0 ist, sollte auch der Fiat-Wert 0 sein
+				cumulativeFiatAtTime.SetInt64(0)
+			} else {
+				// Kleine Rundungsfehler korrigieren (< 1 Cent)
+				absValue := new(big.Rat).Abs(cumulativeFiatAtTime)
+				if absValue.Cmp(big.NewRat(1, 100)) < 0 {
+					cumulativeFiatAtTime.SetInt64(0)
+				}
+			}
+
+			// Store in map for later lookup
+			// fmt.Printf("DEBUG Timeseries - timestamp: %v, SumFiatAtTime: %v\n", tx.Timestamp.UTC(), cumulativeFiatAtTime)
+			fiatTimeMap[tx.Timestamp.Unix()] = new(big.Rat).Set(cumulativeFiatAtTime)
+		}
+	}
+
 	currentTime := start
 	if currentTime.IsZero() {
 		return nil, nil
@@ -260,15 +339,29 @@ func (txs OrderedTransactions) Timeseries(
 			return tx.Timestamp.Before(currentTime) || tx.Timestamp.Equal(currentTime)
 		})
 		var value coin.Amount
+		var sumFiatAtTime *big.Rat
+
 		if nextIndex == len(txs) {
 			value = coin.NewAmountFromInt64(0)
+			sumFiatAtTime = new(big.Rat) // Zero value
 		} else {
 			value = txs[nextIndex].Balance
+			// Find the corresponding SumFiatAtTime value
+			if txs[nextIndex].Timestamp != nil {
+				if fiatValue, exists := fiatTimeMap[txs[nextIndex].Timestamp.Unix()]; exists {
+					sumFiatAtTime = new(big.Rat).Set(fiatValue)
+				} else {
+					sumFiatAtTime = new(big.Rat) // Zero if not found
+				}
+			} else {
+				sumFiatAtTime = new(big.Rat) // Zero for unconfirmed
+			}
 		}
 
 		result = append(result, TimeseriesEntry{
-			Time:  currentTime,
-			Value: value,
+			Time:          currentTime,
+			Value:         value,
+			SumFiatAtTime: sumFiatAtTime,
 		})
 
 		currentTime = currentTime.Add(interval)
@@ -276,5 +369,6 @@ func (txs OrderedTransactions) Timeseries(
 			break
 		}
 	}
+
 	return result, nil
 }

@@ -200,7 +200,10 @@ export const init = (code: AccountCode): Promise<null> => {
 };
 
 export type FormattedLineData = LineData & {
-  formattedValue: string;
+  formattedValue: string; // used for drawing tha chart
+  amount: number; // original amount for sum display
+  percent: number; // percent value for the percent display type
+  fiatAtTime: number; // Fiat at time value to use as base value for a shorter timeframe display than "all data"
 };
 
 export type ChartData = FormattedLineData[];

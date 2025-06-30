@@ -30,6 +30,10 @@ gomobileinit:
 	gomobile init
 servewallet:
 	go run -mod=vendor ./cmd/servewallet
+servewallet-reload:
+	@echo "Starting servewallet with auto-reload on Go file changes..."
+	@command -v air >/dev/null 2>&1 || { echo "Installing air for auto-reload..."; go install github.com/air-verse/air@latest; }
+	air -c scripts/air.toml
 servewallet-mainnet:
 	go run -mod=vendor ./cmd/servewallet -mainnet
 servewallet-regtest:
