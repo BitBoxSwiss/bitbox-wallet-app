@@ -581,7 +581,6 @@ export const Chart = ({
               <Amount
                 amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue}
                 unit={chartFiat}
-                removeBtcTrailingZeroes
                 onMobileClick={rotateDefaultCurrency}
               />
             ) : (

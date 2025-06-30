@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Format BTC/sat spaces consitently in account summary and total balance
 
 ## v4.48.0
 - Removed the BTC/sat switch from the general settings in favor of a rotating unit in the account balance.
