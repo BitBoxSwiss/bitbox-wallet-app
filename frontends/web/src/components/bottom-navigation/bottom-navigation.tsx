@@ -17,11 +17,18 @@
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { AccountIconSVG, ExchangeIconSVG, MoreIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
+import type { Account } from '@/api/aopp';
 import styles from './bottom-navigation.module.css';
 
-export const BottomNavigation = () => {
+type Props = {
+  activeAccounts: Account[];
+}
+
+export const BottomNavigation = ({ activeAccounts }: Props) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  const onlyHasOneAccount = activeAccounts.length === 1;
+  const accountCode = activeAccounts[0]?.code || '';
 
   return (
     <div className={styles.container}>
@@ -34,10 +41,14 @@ export const BottomNavigation = () => {
       </Link>
       <Link
         className={`${styles.link} ${pathname.startsWith('/account/') || pathname.startsWith('/accounts/') ? styles.active : ''}`}
-        to="/accounts/all"
+        to={
+          onlyHasOneAccount && accountCode ?
+            `/account/${accountCode}` :
+            '/accounts/all'
+        }
       >
         <AccountIconSVG />
-        {t('settings.accounts')}
+        {onlyHasOneAccount ? t('account.account') : t('account.accounts')}
       </Link>
       <Link
         className={`${styles.link} ${pathname.startsWith('/exchange/') ? styles.active : ''}`}

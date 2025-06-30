@@ -97,7 +97,7 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
   return (
 
     <Main>
-      <Header title={<h2>{t('settings.accounts')}</h2>}>
+      <Header title={<h2>{t('account.accounts')}</h2>}>
         <HideAmountsButton />
       </Header>
       <View width="700px" fullscreen={false}>

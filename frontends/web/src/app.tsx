@@ -210,7 +210,9 @@ export const App = () => {
             />
             <RouterWatcher />
           </div>
-          {showBottomNavigation && <BottomNavigation />}
+          {showBottomNavigation && (
+            <BottomNavigation activeAccounts={activeAccounts} />
+          )}
           <Alert />
           <Confirm />
         </div>

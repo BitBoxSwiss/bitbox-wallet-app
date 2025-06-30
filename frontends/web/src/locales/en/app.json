@@ -1,5 +1,7 @@
 {
   "account": {
+    "account": "Account",
+    "accounts": "Accounts",
     "disconnect": "Connection lost. Retrying…",
     "export": "Export",
     "exportTransactions": "Export transactions to downloads folder as CSV file",
@@ -1634,7 +1636,6 @@
   },
   "settings": {
     "about": "About",
-    "accounts": "Accounts",
     "advancedSettings": "Advanced settings",
     "appearance": "Appearance",
     "electrum": {
@@ -1869,7 +1870,6 @@
     },
     "pairingSuccess": "Dapp successfully connected. You can continue on the dapp website.",
     "signingRequest": {
-      "account": "Account",
       "chain": "Chain",
       "dapp": "Dapp",
       "data": "Data",
