@@ -311,18 +311,24 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 	for _, output := range spendableOutputs {
 		address := output.Address.EncodeForHumans()
 		addressReused := addressCounts[address] > 1
-
+		var formattedTime *string
+		timestamp := output.HeaderTimestamp
+		if timestamp != nil {
+			t := timestamp.Format(time.RFC3339)
+			formattedTime = &t
+		}
 		result = append(result,
 			map[string]interface{}{
-				"outPoint":      output.OutPoint.String(),
-				"txId":          output.OutPoint.Hash.String(),
-				"txOutput":      output.OutPoint.Index,
-				"amount":        coin.ConvertBTCAmount(handlers.account.Coin(), btcutil.Amount(output.TxOut.Value), false, accountConfig.RateUpdater),
-				"address":       address,
-				"scriptType":    output.Address.AccountConfiguration.ScriptType(),
-				"note":          handlers.account.TxNote(output.OutPoint.Hash.String()),
-				"addressReused": addressReused,
-				"isChange":      output.IsChange,
+				"outPoint":        output.OutPoint.String(),
+				"txId":            output.OutPoint.Hash.String(),
+				"txOutput":        output.OutPoint.Index,
+				"amount":          coin.ConvertBTCAmount(handlers.account.Coin(), btcutil.Amount(output.TxOut.Value), false, accountConfig.RateUpdater),
+				"address":         address,
+				"scriptType":      output.Address.AccountConfiguration.ScriptType(),
+				"note":            handlers.account.TxNote(output.OutPoint.Hash.String()),
+				"addressReused":   addressReused,
+				"isChange":        output.IsChange,
+				"headerTimestamp": formattedTime,
 			})
 	}
 

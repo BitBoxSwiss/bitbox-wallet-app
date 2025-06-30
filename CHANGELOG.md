@@ -14,6 +14,7 @@
 - Added support to show on the BitBox when a transaction's recipient is an address of a different account on the device.
 - Persist third party widget sessions
 - Change notes export file type to JSON Lines
+- Add received date to coin control transaction details
 
 ## v4.47.3
 - Upgrade Etherscan API to V2
