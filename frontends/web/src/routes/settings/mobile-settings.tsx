@@ -19,8 +19,6 @@ import { View, ViewContent } from '@/components/view/view';
 import { Header, Main } from '@/components/layout';
 import { Tabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './types';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { useNavigate } from 'react-router-dom';
@@ -46,9 +44,6 @@ export const MobileSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsT
   };
   return (
     <Main>
-      <ContentWrapper>
-        <GlobalBanners />
-      </ContentWrapper>
       <Header
         title={
           <MobileHeader onClick={handleClick} title={t('settings.title')} />

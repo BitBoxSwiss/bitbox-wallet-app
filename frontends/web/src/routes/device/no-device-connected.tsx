@@ -18,9 +18,7 @@ import { useTranslation } from 'react-i18next';
 import type { TPagePropsWithSettingsTabs } from '../settings/types';
 import { Bluetooth } from '@/components/bluetooth/bluetooth';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { ViewContent, View } from '@/components/view/view';
-import { GlobalBanners } from '@/components/banners';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { WithSettingsTabs } from '@/routes/settings/components/tabs';
 import { ManageDeviceGuide } from './bitbox02/settings-guide';
@@ -36,9 +34,6 @@ export const NoDeviceConnected = ({
     <Main>
       <GuideWrapper>
         <GuidedContent>
-          <ContentWrapper>
-            <GlobalBanners />
-          </ContentWrapper>
           <Header
             hideSidebarToggler
             title={
