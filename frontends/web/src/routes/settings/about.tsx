@@ -23,8 +23,6 @@ import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { TPagePropsWithSettingsTabs } from './types';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 
 export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
@@ -32,9 +30,6 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <ContentWrapper>
-            <GlobalBanners />
-          </ContentWrapper>
           <Header
             hideSidebarToggler
             title={

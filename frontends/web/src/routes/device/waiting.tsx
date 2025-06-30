@@ -25,8 +25,6 @@ import { useKeystores } from '@/hooks/backend';
 import { useDarkmode } from '@/hooks/darkmode';
 import { useDefault } from '@/hooks/default';
 import { Bluetooth } from '@/components/bluetooth/bluetooth';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -63,9 +61,6 @@ export const Waiting = () => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <ContentWrapper>
-            <GlobalBanners />
-          </ContentWrapper>
           <Header title={<h2>{t('welcome.title')}</h2>}>
             <OutlinedSettingsButton />
           </Header>
