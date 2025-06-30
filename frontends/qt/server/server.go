@@ -103,6 +103,11 @@ func matchDarkTheme(themeName string) bool {
 	return strings.Contains(strings.ToLower(themeName), "dark")
 }
 
+//export onlineStatusChanged
+func onlineStatusChanged(isReachable bool) {
+	bridgecommon.OnlineStatusChanged(isReachable)
+}
+
 //export serve
 func serve(
 	cppHeapFreeFn C.cppHeapFree,

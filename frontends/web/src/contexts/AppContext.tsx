@@ -25,6 +25,7 @@ type AppContextProps = {
     hideAmounts: boolean;
     isTesting: boolean;
     isDevServers: boolean;
+    isOnline: boolean | undefined;
     nativeLocale: string;
     firmwareUpdateDialogOpen: boolean;
     chartDisplay: TChartDisplay;
