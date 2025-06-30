@@ -268,19 +268,95 @@ func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat stri
 	return fiatValue, nil
 }
 
-// AccountsTotalBalanceByKeystore returns a map of accounts' total balances across coins, grouped by keystore.
-func (backend *Backend) AccountsTotalBalanceByKeystore() (map[string]KeystoreTotalAmount, error) {
-	totalAmounts := make(map[string]KeystoreTotalAmount)
-	fiat := backend.Config().AppConfig().Backend.MainFiat
+type coinFormattedAmount struct {
+	CoinCode        coinpkg.Code                           `json:"coinCode"`
+	CoinName        string                                 `json:"coinName"`
+	FormattedAmount coinpkg.FormattedAmountWithConversions `json:"formattedAmount"`
+}
+
+// getCoinsTotalBalance returns the total balances grouped by coins.
+func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
+	var coinFormattedAmounts []coinFormattedAmount
+	var sortedCoins []coinpkg.Code
+	totalCoinsBalances := make(map[coinpkg.Code]*big.Int)
+
+	for _, account := range backend.Accounts() {
+		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
+			continue
+		}
+		if account.FatalError() {
+			continue
+		}
+		err := account.Initialize()
+		if err != nil {
+			return nil, err
+		}
+		coinCode := account.Coin().Code()
+		b, err := account.Balance()
+		if err != nil {
+			return nil, err
+		}
+		amount := b.Available()
+
+		if totalBalance, exists := totalCoinsBalances[coinCode]; exists {
+			totalBalance.Add(totalBalance, amount.BigInt())
+		} else {
+			totalCoinsBalances[coinCode] = amount.BigInt()
+			sortedCoins = append(sortedCoins, coinCode)
+		}
+	}
+
+	for _, coinCode := range sortedCoins {
+		coin, err := backend.Coin(coinCode)
+		if err != nil {
+			return nil, err
+		}
+		coinAmount := coinpkg.NewAmount(totalCoinsBalances[coinCode])
+		coinFormattedAmounts = append(coinFormattedAmounts, coinFormattedAmount{
+			CoinCode: coinCode,
+			CoinName: coin.Name(),
+			FormattedAmount: coinpkg.FormattedAmountWithConversions{
+				Amount: coin.FormatAmount(coinAmount, false),
+				Unit:   coin.GetFormatUnit(false),
+				Conversions: coinpkg.Conversions(
+					coinAmount,
+					coin,
+					false,
+					backend.RatesUpdater(),
+				),
+			},
+		})
+	}
+	return coinFormattedAmounts, nil
+}
+
+// AmountsByCoin maps the total amount of each coin.
+type AmountsByCoin map[coinpkg.Code]coinpkg.FormattedAmountWithConversions
+
+// KeystoreBalance represents the total balance amount of the accounts belonging to a keystore.
+type KeystoreBalance = struct {
+	// FiatUnit is the fiat unit of the balance
+	FiatUnit string `json:"fiatUnit"`
+	// Fiat total formatted for frontend visualization
+	Total string `json:"total"`
+	// Total amounts for each coin
+	CoinsBalance AmountsByCoin `json:"coinsBalance"`
+}
+
+// keystoresBalance returns a map of accounts' total balances across coins, grouped by keystore.
+func (backend *Backend) keystoresBalance() (map[string]KeystoreBalance, error) {
+	keystoreBalanceMap := make(map[string]KeystoreBalance)
+	fiatUnit := backend.Config().AppConfig().Backend.MainFiat
 
 	accountsByKeystore, err := backend.AccountsByKeystore()
 	if err != nil {
 		return nil, err
 	}
 	for rootFingerprint, accountList := range accountsByKeystore {
-		currentTotal := new(big.Rat)
+		keystoreCoinsBalance := make(map[coinpkg.Code]*big.Int)
+		keystoreTotalBalance := new(big.Rat)
 		for _, account := range accountList {
-			if account.Config().Config.Inactive {
+			if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
 				continue
 			}
 			if account.FatalError() {
@@ -291,18 +367,74 @@ func (backend *Backend) AccountsTotalBalanceByKeystore() (map[string]KeystoreTot
 				return nil, err
 			}
 
-			fiatValue, err := backend.accountFiatBalance(account, fiat)
+			accountFiatBalance, err := backend.accountFiatBalance(account, fiatUnit)
 			if err != nil {
 				return nil, err
 			}
-			currentTotal.Add(currentTotal, fiatValue)
+			keystoreTotalBalance.Add(keystoreTotalBalance, accountFiatBalance)
+
+			coinCode := account.Coin().Code()
+			balance, err := account.Balance()
+			if err != nil {
+				return nil, err
+			}
+			accountBalance := balance.Available().BigInt()
+			if _, ok := keystoreCoinsBalance[coinCode]; !ok {
+				keystoreCoinsBalance[coinCode] = accountBalance
+
+			} else {
+				keystoreCoinsBalance[coinCode] = new(big.Int).Add(keystoreCoinsBalance[coinCode], accountBalance)
+			}
 		}
-		totalAmounts[rootFingerprint] = KeystoreTotalAmount{
-			FiatUnit: fiat,
-			Total:    coinpkg.FormatAsCurrency(currentTotal, fiat),
+
+		keystoreCoinsAmount := AmountsByCoin{}
+		for coinCode, coinBalance := range keystoreCoinsBalance {
+			coinAmount := coinpkg.NewAmount(coinBalance)
+			coin, err := backend.Coin(coinCode)
+			if err != nil {
+				return nil, err
+			}
+			keystoreCoinsAmount[coinCode] = coinpkg.FormattedAmountWithConversions{
+				Amount: coin.FormatAmount(coinAmount, false),
+				Unit:   coin.GetFormatUnit(false),
+				Conversions: coinpkg.Conversions(
+					coinAmount,
+					coin,
+					false,
+					backend.ratesUpdater),
+			}
+		}
+
+		keystoreBalanceMap[rootFingerprint] = KeystoreBalance{
+			FiatUnit:     fiatUnit,
+			Total:        coinpkg.FormatAsCurrency(keystoreTotalBalance, fiatUnit),
+			CoinsBalance: keystoreCoinsAmount,
 		}
 	}
-	return totalAmounts, nil
+	return keystoreBalanceMap, nil
+}
+
+// AccountsBalanceSummary holds the total balance for each coin and of each keystore.
+type AccountsBalanceSummary struct {
+	KeystoresBalance  map[string]KeystoreBalance `json:"keystoresBalance"`
+	CoinsTotalBalance []coinFormattedAmount      `json:"coinsTotalBalance"`
+}
+
+// AccountsBalanceSummary returns the total balance for each coin and of each keystore.
+func (backend *Backend) AccountsBalanceSummary() (*AccountsBalanceSummary, error) {
+	keystoresBalance, err := backend.keystoresBalance()
+	if err != nil {
+		return nil, err
+	}
+	coinsTotalBalance, err := backend.coinsTotalBalance()
+	if err != nil {
+		return nil, err
+	}
+
+	return &AccountsBalanceSummary{
+		KeystoresBalance:  keystoresBalance,
+		CoinsTotalBalance: coinsTotalBalance,
+	}, nil
 }
 
 // LookupInsuredAccounts queries the insurance status of specified or all active BTC accounts
