@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += webenginewidgets
+QT       += network
 win32 {
     # For setting 'AlwaysActivate', see.
     # See https://forum.qt.io/topic/133694/using-alwaysactivatewindow-to-gain-foreground-in-win10-using-qt6-2/2
@@ -60,9 +61,10 @@ unix:!macx {
 SOURCES += \
         main.cpp \
         filedialog.cpp \
-        urlhandler.cpp
+        urlhandler.cpp \
+        network.cpp
 
-HEADERS += libserver.h webclass.h filedialog.h urlhandler.h
+HEADERS += libserver.h webclass.h filedialog.h urlhandler.h network.h
 
 unix:macx {
     CONFIG += sdk_no_version_check
