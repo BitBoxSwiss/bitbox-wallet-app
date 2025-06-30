@@ -293,7 +293,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.ratesUpdater = rates.NewRateUpdater(hclient, ratesCache)
 	backend.ratesUpdater.Observe(backend.Notify)
 
-	backend.banners = banners.NewBanners()
+	backend.banners = banners.NewBanners(backend.DevServers())
 	backend.banners.Observe(backend.Notify)
 
 	backend.bluetooth = bluetooth.New(log)
