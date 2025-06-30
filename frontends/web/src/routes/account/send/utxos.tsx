@@ -33,8 +33,9 @@ import { Amount } from '@/components/amount/amount';
 import { getScriptName } from '@/routes/account/utils';
 import { Message } from '@/components/message/message';
 import { Badge } from '@/components/badge/badge';
-import style from './utxos.module.css';
+import { parseTimeShort } from '@/utils/date';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import style from './utxos.module.css';
 
 export type TSelectedUTXOs = {
   [key: string]: boolean;
@@ -55,7 +56,7 @@ export const UTXOs = ({
   onChange,
   onClose,
 }: Props) => {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [utxos, setUtxos] = useState<TUTXO[]>([]);
   const [selectedUTXOs, setSelectedUTXOs] = useState<TSelectedUTXOs>({});
   const [reusedAddressUTXOs, setReusedAddressUTXOs] = useState(0);
@@ -127,6 +128,16 @@ export const UTXOs = ({
                         </span>
                       </span>
                       <AmountWithUnit alwaysShowAmounts amount={utxo.amount} convertToFiat/>
+                    </div>
+                    <div className={style.date}>
+                      <span className={style.label}>
+                        {t('transaction.details.date')}:
+                      </span>
+                      <span className={style.shrink}>
+                        {utxo.headerTimestamp
+                          ? parseTimeShort(utxo.headerTimestamp, i18n.language)
+                          : t('transaction.status.pending')}
+                      </span>
                     </div>
                     <div className={style.address}>
                       <span className={style.label}>
