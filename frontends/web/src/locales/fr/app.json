@@ -11,6 +11,7 @@
     "maybeProxyError": "Proxy Tor activé. Assurez-vous que votre proxy Tor fonctionne correctement, ou désactivez la configuration du proxy.",
     "reconnecting": "Connexion perdue, tentative de reconnexion…",
     "syncedAddressesCount": "{{count}} adresses scannées",
+    "uncoveredFunds": "Vous avez des coins (monnaie) sur les types d'adresses non couvertes suivants de votre <strong>{{name}}</strong> compte: {{uncovered}}.\nÉtant donné que le compte est assuré, seules les coins (monnaie) reçues via <strong>Native Segwit</strong> le type d’adresse couvert sont prises en charge. Les coins (monnaie) sur d'autres types d'adresses, même si elles appartiennent au même compte, ne sont pas assurées.\nVeuillez transférer toutes vos coins (monnaie) des types d’adresses non pris en charge vers le <strong>Native Segwit</strong> type d’adresse couvert, afin que toutes vos coins (monnaie) sur ce compte soient assurées.",
     "uncoveredFundsLink": "Suivez ce guide pour savoir comment déplacer vos coins.",
     "warning": "Avertissement !"
   },
@@ -25,6 +26,7 @@
     "extendedPublicKey": "Clé publique étendue",
     "label": "Informations du compte",
     "scriptType": "Type de scrypt",
+    "taproot": "La Taproot extended public key n'est pas montré de prévenir toute utilisation accidentelle, car les formats bruts pour ce type de script ne sont pas largement pris en charge. Si vous souhaitez afficher cette clé, connectez votre appareil à un logiciel de portefeuille prenant en charge le format de descripteur de sortie.",
     "title": "Informations sur le compte",
     "verify": "Vérifier sur l'appareil",
     "xpubTypeChangeBtn": {
@@ -38,6 +40,7 @@
   "accountSummary": {
     "availableBalance": "Solde disponible",
     "balance": "Solde",
+    "coin": "Coin",
     "exportSummary": "Exporter un extrait des comptes vers le dossier de Téléchargements sous forme de fichier CSV",
     "fiatBalance": "Solde en devise",
     "name": "Nom du compte",
@@ -70,6 +73,8 @@
   "aopp": {
     "addressRequest": "{{host}} exige une adresse de réception.",
     "addressRequestWithLogo": "exige une adresse de réception.",
+    "addressRequestWithLogoAndXPub": "demande une adresse de réception et une clé publique (xpub).",
+    "addressRequestWithXPub": "{{host}} demande une adresse de réception et une clé publique (xpub).",
     "banner": "Demande d'adresse en cours",
     "errorTitle": "Erreur durant la demande d'adresse",
     "labelAddress": "Adresse",
@@ -81,7 +86,8 @@
       "title": "Adresse envoyée avec succès"
     },
     "syncing": "Synchronisation du compte, veuillez patienter.",
-    "title": "Demande d'adresse"
+    "title": "Demande d'adresse",
+    "xpubRequested": "Partager votre xpub permet à des services externes de voir les adresses de votre compte. Vos coins restent néanmoins en sécurité et sous votre contrôle."
   },
   "app": {
     "upgrade": "Une nouvelle version de cette application est disponible ! Veuillez mettre à jour de la {{current}} à la {{version}}."
@@ -138,10 +144,12 @@
       },
       "restoring": "Restauration de la sauvegarde…",
       "selectedBackup": "<strong>{{backupName}}</strong> créé le {{createdDateTime}} sera restauré.",
+      "subtitle": "Veuillez sélectionner une sauvegarde pour continuer.",
       "title": "Restaurer",
       "understand": "Je comprends qu'un mot de passe de récupération incorrect créera un portefeuille différent."
     },
     "showMnemonic": {
+      "checkboxLabel": "J'ai lu les informations ci-dessus.",
       "description": "24 mots de récupération vont vous être présentés; ils constituent une sauvegarde de votre portefeuille. Notez-les sur papier.\n\n<strong>Ne les stockez pas sur un support numérique et ne les prenez pas en photo.</strong>\n\n<strong>Ne prononcez pas les mots à haute voix.</strong>\n\n<strong>Cette sauvegarde n'est pas protégée par un mot de passe.</strong>.\n\nIl vous sera demandé ensuite de confirmer chacun de ces mots.",
       "title": "Montrer les mots de récupération",
       "warning": "<strong>Ne partagez jamais vos mots de récupération avec qui que ce soit.</strong> Vos mots de récupération permettent un accès intégral à votre portefeuille. Si on vous demande vos mots de récupération, il s’agit d’une escroquerie, ne les partagez jamais !"
@@ -151,6 +159,8 @@
   "bb02Bootloader": {
     "abort": "Ne pas mettre à jour - Revenir en arrière",
     "abort_noUpgrade": "Retour en arrière",
+    "additionalUpgradeFollows1": "Une mise à jour supplémentaire suivra immédiatement après celle-ci.",
+    "additionalUpgradeFollows2": "Veuillez laisser votre BitBox02 branché jusqu'à ce que toutes les mises à jour soient terminées.",
     "advanced": {
       "label": "Paramètres avancés",
       "toggleShowFirmwareHash": "Afficher le hash du firmware à chaque démarrage de l'application"
@@ -158,14 +168,15 @@
     "flipscreen": "Retourner l'écran",
     "orientation": "Appareil dans le mauvais sens ?",
     "success": "Mise à jour réussie !",
-    "success_install": "Installation réussie ! "
+    "success_install": "Installation réussie ! ",
+    "upgradeTitle": "",
+    "upgradeTitle_install": "Mise à jour le micrologiciel du BitBox02"
   },
   "bitbox": {
     "error": {
       "e10000": "Mot de passe de l'appareil incorrect.",
       "e10001": "La tentative de remplacer le mot de passe de l'appareil a échoué",
-      "e102": "Le mot de passe doit comporter au minimum 4 caractères.",
-      "e112": "Le mot de passe caché ne peut pas être identique au mot de passe principal de l'appareil."
+      "e102": "Le mot de passe doit comporter au minimum 4 caractères."
     }
   },
   "bitbox02Interact": {
@@ -230,13 +241,8 @@
     "createBackupAborted": "Création de la sauvegarde interrompue.",
     "createBackupFailed": "La création de la sauvegarde a échoué, veuillez réessayer.",
     "initialize": {
-      "passwordText": "Définissons maintenant un mot de passe pour votre appareil. Utilisez les commandes de votre BitBox pour entrer et choisir un mot de passe.",
-      "passwordTitle": "Définissez un mot de passe pour votre BitBox",
-      "text": "Votre BitBox02 a été appairé avec succès ! Initialisons maintenant votre appareil. Commencez par choisir de créer un nouveau portefeuille ou de restaurer un portefeuille à partir d'une sauvegarde existante. <strong>Veuillez vous assurer que vous avez une carte micro SD insérée dans votre BitBox02</strong>.",
-      "tip": "Nous recommandons de continuer dans un environnement sécurisé.",
-      "title": "Initialiser votre BitBox"
+      "tip": "Nous recommandons de continuer dans un environnement sécurisé."
     },
-    "insertSDCard": "<strong>Assurez-vous d'avoir une carte micro SD insérée dans votre BitBox02.</strong>",
     "noPasswordMatch": "Le mot de ",
     "pairing": {
       "failed": "Appariement non confirmé. Veuillez rebrancher votre BitBox02.",
@@ -262,6 +268,11 @@
     },
     "stepCreate": {
       "description": "Ce nom est utilisé comme celui de l'appareil et pour la sauvegarde.",
+      "error": {
+        "genericMessage": "Utilisez des lettres, des chiffres, des symboles de base, des espaces. Maximum 30 caractères.",
+        "invalidChars": "Le nom contient des caractères invalides: {{invalidChars}}.",
+        "tooLong": "Le nom est trop long."
+      },
       "nameLabel": "Nom du BitBox02",
       "namePlaceholder": "Mon BitBox02",
       "title": "Choisissez le nom du BitBox02",
@@ -274,6 +285,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Veuillez insérer une carte microSD dans votre BitBox02 pour continuer.",
+      "insertSDCardToSeeBackups": "",
       "insertSDcardTitle": "Insérer une carte microSD"
     },
     "stepPassword": {
@@ -289,7 +301,6 @@
       "title": "Configurez votre BitBox02"
     },
     "success": {
-      "text": "Hourra ! Votre BitBox02 est maintenant prêt à l'emploi. \n\nPour plus d'informations sur l'utilisation de l'application BitBox, veuillez utiliser le guide d'utilisation en cliquant sur le point d'interrogation situé dans le coin supérieur droit.",
       "title": "Vous êtes prêt !"
     }
   },
@@ -321,6 +332,7 @@
       "listItem3": "Destruction due au feu, à l'eau ou autres catastrophes naturelles",
       "month": "mois",
       "text": "Assurez votre BitBox02 et jusqu'à une valeur de 100 000 € en Bitcoin",
+      "text2": "Les plans d'assurance commencent à 30 €/an (2,50 €/mois). Vous pouvez en savoir plus sur Bitsurance et leurs offres d'assurance exactes sur le",
       "text3": "Disponible actuellement en Allemagne, avec d'autres zones géographiques à suivre.",
       "title": "Démarrer"
     },
@@ -333,7 +345,8 @@
       "text1": "Bitsurance est un service tiers indépendant. Pour toute question concernant leurs offres et les demandes d'assurance, veuillez contacter Bitsurance directement.",
       "text2": "L'assurance est actuellement disponible en Allemagne, avec d'autres zones géographiques à suivre",
       "text3": "La couverture Bitcoin maximale actuellement disponible est de 100 000 euros par personne. Des montants plus élevés sont prévus à l'avenir.",
-      "text4": "Des informations personnelles ainsi que la clé publique étendue de votre compte assuré font partie de la police d'assurance et seront partagées avec Bitsurance et le courtier."
+      "text4": "Des informations personnelles ainsi que la clé publique étendue de votre compte assuré font partie de la police d'assurance et seront partagées avec Bitsurance et le courtier.",
+      "text5": ""
     },
     "title": "Assurance"
   },
@@ -364,10 +377,10 @@
     "dismiss": "Ignorer",
     "done": "Terminé",
     "download": "Télécharger",
-    "hiddenwallet": "Créer un portefeuille caché",
     "next": "Suivant",
     "ok": "D'accord",
     "previous": "Précédent",
+    "proceedOnBitBox": "Procédez sur votre BitBox.",
     "receive": "Recevoir",
     "restore": "Restaurer",
     "select": "Sélectionner",
@@ -380,10 +393,99 @@
     "exchange": {
       "bankTransfer": "Virement bancaire",
       "bestDeal": "Meilleure offre",
+      "buy": "Acheter",
       "creditCard": "Carte de crédit",
       "fast": "Rapide",
       "fee": "frais",
       "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "BTC Direct politique de confidentialité",
+              "text": "BitBoxApp ne collecte pas de données personnelles. BTC Direct collecte les informations nécessaires conformément à leur Privacy Policy pour répondre aux normes réglementaires.",
+              "title": "protection des données"
+            },
+            "kyc": {
+              "text": "La vérification de l'identité du client est requise pour toutes les transactions. Votre gestionnaire de compte vous guidera tout au long du processus et répondra à toutes vos questions.",
+              "title": "Vérification d'identité"
+            },
+            "partnership": {
+              "text": "En partenariat avec BTC Direct, un courtier européen de confiance, BitBox propose des transactions over-the-counter (OTC) à grande échelle pour le Bitcoin, l'Ethereum, les stablecoins et plus encore, avec un support expert directement dans le BitBoxApp.",
+              "title": "Achetez et vendez avec le Bureau de Trading Privé de BTC Direct"
+            },
+            "paymentMethods": {
+              "buy": "Achat de Bitcoin:",
+              "buy2": "Passez de grosses commandes d'achat avec votre gestionnaire de compte, verrouillez un prix fixe et payez par virement bancaire. Votre crypto est livrée directement sur votre BitBox après le paiement.",
+              "fee": "Des montants minimums de transaction de 50 000 € s'appliquent, avec des frais transparents compris entre 0,5 % et 1 %.",
+              "sell": "Vendre du Bitcoin:",
+              "sell2": "Verrouillez un prix OTC fixe lors de la passation d'une commande de vente. Le paiement en EUR est effectué une fois que vous envoyez la crypto à BTC Direct. Une assistance personnelle est disponible si nécessaire.",
+              "title": "Méthodes de paiement et frais"
+            },
+            "personal": {
+              "text": "Chaque client de Private Trading se voit attribuer un gestionnaire de compte dédié pour une assistance personnalisée par téléphone, appel vidéo, email ou chat. Les prix d'achat et de vente sont immédiatement fixés lorsque la commande est passée, même si le règlement intervient plus tard. Les commandes sont exécutées via BTC Direct's OTC desk, minimisant ainsi le slippage.",
+              "title": "Service personnalisé avec tarification fixe"
+            },
+            "security": {
+              "link": "Modèle de menace de sécurité du BitBox02",
+              "text": "Le Bureau de Trading Privé de BTC Direct est un service externe qui n'est pas couvert par le modèle de menace de sécurité de BitBox02. Cependant, BTC Direct connaît bien les produits BitBox et offre des conseils sécurisés et avisés. Les produits BitBox vérifient les adresses crypto lors des transactions afin d'assurer une livraison sécurisée.",
+              "title": "Securité"
+            },
+            "title": "Clause de non-responsabilité"
+          },
+          "info": "Obtenez un conseiller personnel, des frais réduits et passez vos commandes directement via votre contact chez BTC Direct.",
+          "infobox": {
+            "intro_btconly": "Obtenez une assistance personnelle pour les transactions Bitcoin de grande valeur over-the-counter (OTC).",
+            "intro_multi": "Obtenez une assistance personnelle pour les transactions de grande valeur over-the-counter (OTC) pour le Bitcoin, l'Ethereum, les stablecoins et plus encore.",
+            "kyc": "BTC Direct nécessite une vérification d'identité pour toutes les transactions, et votre gestionnaire de compte vous guide à chaque étape.",
+            "learnmore": "En savoir plus sur le Bureau de Trading Privé de BTC Direct.",
+            "listItem1": "Achetez et vendez à tout moment en contactant votre gestionnaire de compte par téléphone, email, appel vidéo ou chat.",
+            "listItem2": "Les paiements sont effectués par virement bancaire après la passation de la commande.",
+            "listItem3": "Montant minimum de commande : 50 000 €.",
+            "listItem4": "Frais transparents fixés entre 0,5 % et 1 %, incluant un accompagnement personnalisé.",
+            "manager": "Vous aurez un gestionnaire de compte dédié pour vous guider à chaque étape, garantissant une expérience sécurisée et simple avec des taux fixes et un slippage minimal."
+          },
+          "link": "Accédez à BTC Direct - Bureau de Trading Privé",
+          "title": "Vous achetez ou vendez plus de 50 000 € ?"
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "description": "Nous travaillons avec BTC Direct, un courtier européen de confiance, pour faciliter l'achat de cryptomonnaies directement dans le BitBoxApp. Ce service est disponible dans toute l'Europe via virement bancaire, cartes de crédit et de nombreuses méthodes de paiement locales.",
+            "kyc": {
+              "description": "La vérification de l'identité du client est requise pour toutes les transactions. Vous devrez prendre un selfie et une photo d'un document officiel.",
+              "title": "Vérification d'identité"
+            },
+            "paymentMethods": {
+              "buy": "Achat : Payez en EUR pour recevoir les coins directement sur votre BitBox. Vous pouvez choisir entre des achats ponctuels ou récurrents. Pour les virements bancaires, le taux de change est fixé lorsque BTC Direct reçoit l'argent. Les méthodes instantanées utilisent un taux de conversion fixe pendant une période limitée.",
+              "note": "Note: Les taux de change de BTC Direct peuvent différer légèrement des taux du BitBoxApp.",
+              "title": "Méthodes de paiement et frais"
+            },
+            "security": {
+              "description": "BTC Direct est un service externe non couvert par le modèle de menace de sécurité du BitBox02. Nous travaillons en étroite collaboration avec BTC Direct pour améliorer la sécurité globale.",
+              "link": "BitBox02 modèle de menace de sécurité",
+              "title": "Sécurité"
+            },
+            "title_bitcoin": "Acheter du bitcoin avec BTC Direct",
+            "title_crypto": "Acheter des cryptomonnaies avec BTC Direct"
+          },
+          "infobox": {
+            "feesBuying": {
+              "bancontact": "Bancontact: {{fee}}%",
+              "bankTransfer": "Virement bancaire, SEPA, iDEAL: {{fee}}%",
+              "creditDebitCard": "Cartes de crédit, Cartes Bancaires: {{fee}}%",
+              "sofort": "Sofort: {{fee}}%",
+              "title": "Frais d'achat"
+            },
+            "intro": "Achat de cryptomonnaies en Europe avec des EUR.",
+            "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "Virement bancaire, SEPA Instant, iDEAL",
+              "creditDebitCard": "Cartes de crédit (Mastercard, Visa), Cartes Bancaires",
+              "sofort": "Sofort",
+              "title": "Méthodes de paiement"
+            }
+          },
+          "learnmore": "En savoir plus sur BTC Direct"
+        },
         "moonpay": {
           "fees": {
             "bankTransfer": "Virement Bancaire: {{fee}}%",
@@ -425,6 +527,9 @@
             "bankTransferReccuring": "Comment mettre en place des achats récurrents avec un ordre permanent?",
             "title": "Modes de paiement"
           },
+          "sell": {
+            "title": "Vendre du Bitcoin"
+          },
           "supportedCurrencies": "Accepte les devises Européennes : EUR, GBP et CHF",
           "verification": {
             "info": "La vérification de l'identité n'est requise qu'au-delà des limites quotidiennes et annuelles.",
@@ -438,7 +543,8 @@
       },
       "noExchanges": "Désolé, aucun échange disponible dans cette zone géographique",
       "region": "Zone Géographique",
-      "selectRegion": "Non spécifié"
+      "selectRegion": "Non spécifié",
+      "sell": "Vendre"
     },
     "info": {
       "continue": "Accepter et continuer",
@@ -473,7 +579,9 @@
           "descriptionGeneric_crypto": "Lorsque vous achetez du crypto via un exchange partenaire, vous utilisez un service externe. Ce service est hors de portée du modèle sécurité contre les menaces de BitBox02 et repose sur la sécurité de l'environnement dans lequel le logiciel BitBoxApp est déployé.",
           "link": "Modèle de menace à la sécurité",
           "title": "Modèle de sécurité"
-        }
+        },
+        "title_bitcoin": "Bienvenue dans votre guichet unique pour l'achat de Bitcoin.",
+        "title_crypto": "Bienvenue dans votre guichet unique pour l'achat de cryptomonnaies."
       },
       "next": "Suivant",
       "selectLabel": "Sélectionnez votre compte",
@@ -481,6 +589,10 @@
       "skip": "Ne plus montrer"
     },
     "pocket": {
+      "error": {
+        "insufficientFunds": "Fonds insuffisants sur le compte sélectionné."
+      },
+      "paymentRequestNote": "Demande de paiement de",
       "previousTransactions": "L'historique des transactions de ce compte n'est pas vierge. En partageant ce compte, toutes ses transactions passées et futures seront exposées à Pocket. Souhaitez-vous continuer malgré tout ?",
       "usedAddress": "L'adresse {{address}} a déjà été utilisée, veuillez recommencer avec une nouvelle adresse.",
       "verifyBitBox02": "Veuillez vérifier que l'adresse que vous avez reçue par email correspond à celle affichée sur votre Bitbox. Si vous en avez la possibilité, vous devriez ouvrir l'email sur un deuxième appareil pour plus de sécurité."
@@ -516,15 +628,9 @@
   },
   "device": {
     "appUpradeRequired": "Votre BitBox n'est pas compatible avec cette version de l'application de bureau. Veuillez télécharger et installer la dernière version.",
-    "keystoreConnected": "Wallet connecté"
-  },
-  "deviceLock": {
-    "button": "Activer la double authentification (2FA)",
-    "condition1": "Avez-vous une sauvegarde ?",
-    "condition2": "Est-ce que la vérification avec l'application mobile fonctionne-t-elle ?",
-    "condition3": "Le 2FA DÉSACTIVE les sauvegardes et l'appariement à l'application mobile. L'appareil doit être RÉINITIALISÉ pour enlever le 2FA !",
-    "confirm": "Activer la double authentification (2FA)",
-    "title": "Activer la double authentification (2FA)"
+    "firmwareUpgradeRequired": "Une mise à jour du micrologiciel est requise pour utiliser cette fonctionnalité.",
+    "keystoreConnected": "Wallet connecté",
+    "unsupportedFeature": "Cette fonctionnalité n'est pas disponible sur cet appareil."
   },
   "deviceSettings": {
     "backups": {
@@ -552,6 +658,28 @@
       "title": "Informations sur l'appareil"
     },
     "expert": {
+      "bip85": {
+        "description": "Générez des clés enfants depuis votre portefeuille BitBox.",
+        "disclaimer": "Je comprends comment fonctionnent les clés enfants et les considérations de sécurité.",
+        "how": {
+          "description": "Les clés enfants sont affichées sous forme de mnémonique sur votre BitBox. Vous pouvez créer autant de clés enfants que vous le souhaitez. Pour afficher une clé enfant, il vous sera demandé le numéro de la clé enfant (par exemple, 1ère, 2ème, 3ème, etc.) et la longueur souhaitée de la mnémonique (12, 18 ou 24 mots de récupération). N'oubliez pas que vous devez garder une trace du <strong>numéro de la clé enfant et du nombre de mots</strong> pour afficher la même mnémonique plus tard.",
+          "title": "Comment cela fonctionne-t-il ?"
+        },
+        "recover": {
+          "description": "Vous pouvez toujours afficher à nouveau la mnémonique pour les clés enfants. Comme mentionné, vous devez vous souvenir du <strong>numéro de la clé enfant et du nombre de mots</strong> pour afficher la même mnémonique. Ne jamais importer vos mots de récupération principaux BitBox dans un autre portefeuille, utilisez uniquement les clés enfants lors de l'importation dans un autre portefeuille.",
+          "title": "Comment récupérer un portefeuille en utilisant une clé enfant BitBox ?"
+        },
+        "security": {
+          "description": "Ne jamais réutiliser une clé enfant. Par exemple, ne pas utiliser une clé enfant pour un portefeuille chaud, puis réutiliser la même pour un portefeuille matériel. La clé n'est pas considérée comme sûre puisqu'elle a été utilisée pour un portefeuille chaud.",
+          "title": "Considérations de sécurité"
+        },
+        "title": "Afficher la clé enfant BIP-85",
+        "what": {
+          "description": "Les clés enfants sont dérivées de votre graine principale et peuvent être utilisées pour créer de nouveaux portefeuilles sans avoir besoin de sauvegarder d'autres graines. Par exemple, vous pouvez créer une clé enfant et l'importer dans un portefeuille chaud au lieu de faire en sorte que le portefeuille chaud génère une nouvelle graine complète.",
+          "link": "Lisez-en plus sur le BIP-85.",
+          "title": "Que sont les clés enfants ?"
+        }
+      },
       "factoryReset": {
         "description": "Réinitialisez votre appareil aux paramètres d'usine. Cela supprimera le wallet de votre BitBox02 !",
         "title": "Réinitialisation aux paramètres d'usine"
@@ -591,24 +719,6 @@
       "title": "Matériel informatique"
     },
     "loading": "Récupération des informations sur l'appareil…",
-    "pairing": {
-      "lock": {
-        "false": "Désactivé",
-        "label": "Double authentification (2FA)",
-        "true": "Activé"
-      },
-      "mobile": {
-        "false": "Fermé",
-        "label": "Application mobile",
-        "true": "Ouvrir"
-      },
-      "status": {
-        "false": "Non appairé",
-        "label": "Statut",
-        "true": "Appairé"
-      },
-      "title": "Appariement"
-    },
     "secrets": {
       "manageBackups": "Gérer les sauvegardes",
       "title": "Secrets"
@@ -632,8 +742,49 @@
     "aoppUnsupportedFormat": "Aucun des comptes disponibles ne supporte le format d'adresse requis.",
     "aoppUnsupportedKeystore": "L’appareil connecté ne peut pas signer de messages pour cet asset.",
     "aoppVersion": "Version inconnue.",
+    "keystoreTimeout": "La demande de portefeuille a expiré. Veuillez réessayer.",
     "wrongKeystore": "Portefeuille connecté incorrect. Veuillez vous assurer d'insérer le bon appareil correspondant à ce compte",
     "wrongKeystore2": "Si vous utilisez la passphrase facultative, assurez-vous bien que vous avez saisi la passphrase correspondant à ce compte."
+  },
+  "exchange": {
+    "buySell": {
+      "coinNotSupported": "Aucune option disponible pour ce type de coin.",
+      "regionNotSupported": "Aucune option disponible pour cette région.",
+      "updateNow": "Mise à jour maintenant"
+    },
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "Politique de confidentialité de Pocket",
+          "p1": "BitBoxApp n'apprend ni ne collecte aucune donnée personnelle. Pocket collecte certaines données personnelles comme expliqué dans leur politique de confidentialité.",
+          "title": "Protection des données"
+        },
+        "fees": {
+          "extraNote": "Veuillez noter que vous devez d'abord acheter du Bitcoin avec Pocket avant de pouvoir vendre.",
+          "note": "Note: Les taux de change de Pocket peuvent différer de ceux du BitBoxApp",
+          "p1": "<strong>Achat de bitcoin :</strong> Utilisez un virement bancaire SEPA pour envoyer des EUR ou des CHF et recevez du bitcoin directement sur votre BitBox après que Pocket ait reçu le virement, généralement le même jour.",
+          "p2": "<strong>Vente de bitcoin :</strong> Envoyez du Bitcoin à Pocket et recevez des EUR ou des CHF sur votre compte bancaire enregistré. Le taux de change est fixé lorsque Pocket reçoit votre Bitcoin.",
+          "title": "Méthodes de paiement et frais"
+        },
+        "kyc": {
+          "link": "Lire les FAQs de Pocket",
+          "p1": "Aucun document supplémentaire n'est nécessaire pour les échanges jusqu'à 1000 EUR/CHF dans une période de 30 jours.",
+          "p2": "Pour des montants plus élevés, un appel avec Pocket est requis pour compléter le processus KYC/AML.",
+          "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
+        },
+        "security": {
+          "link": "BitBox02 modèle de menace de sécurité",
+          "p1": "L'utilisation de Pocket est un service externe et n'est pas couvert par le modèle de Menace de Sécurité du BitBox02. Cependant, nous travaillons en étroite collaboration avec Pocket pour améliorer la sécurité globale.",
+          "p2": "<strong>Achat de bitcoin :</strong> Vous recevrez un e-mail pour confirmer votre adresse de réception de bitcoin via un second canal de communication.",
+          "p3": "<strong>Vente de bitcoin :</strong> Le BitBox02 vérifie l'adresse de dépôt Bitcoin de manière cryptographique et affiche \"Pocket\" sur le portefeuille matériel.",
+          "title": "sécurité"
+        },
+        "welcome": {
+          "p1": "Nous travaillons avec Pocket, un courtier Suisse, pour faciliter l'achat et la vente de bitcoin au sein du BitBoxApp. Ce service est disponible dans toute l'Europe, là où les virements bancaires SEPA sont pris en charge.",
+          "title": "Achetez et vendez du bitcoin avec Pocket."
+        }
+      }
+    }
   },
   "fiat": {
     "default": "défaut",
@@ -644,8 +795,15 @@
     "appVersion": "Version de l'application :"
   },
   "generic": {
+    "buy": "Acheter {{coinCode}}",
+    "buySell": "Acheter & vendre",
+    "buy_bitcoin": "Acheter Bitcoin",
+    "buy_crypto": "Achetez crypto",
     "enabled_false": "Désactivé",
-    "enabled_true": "Activé"
+    "enabled_true": "Activé",
+    "receive": "Recevoir {{coinCode}}",
+    "receive_bitcoin": "Recevoir du Bitcoin",
+    "receive_crypto": "Recevoir des cryptomonnaies"
   },
   "genericError": "Une erreur est survenue. Si vous rencontrez des problèmes, veuillez redémarrez l'application.",
   "goal": {
@@ -766,9 +924,20 @@
         "text": "Oui. BitBoxApp crée des comptes en utilisant des normes bien établies et compatibles avec la plupart des autres portefeuilles de crypto-monnaies.",
         "title": "Est-ce que je peux récupérer mes comptes avec d'autres portefeuilles ?"
       },
+      "supportedCoins": {
+        "link": {
+          "text": "Voir les cryptomonnaies supportées"
+        },
+        "text": "Le BitBoxApp prend en charge Bitcoin, Litecoin et Ethereum ainsi qu'une sélection de tokens ERC20. Pour Cardano et d'autres tokens, utilisez votre BitBox02 avec un logiciel alternatif tel qu'AdaLite ou Rabby. Vous pouvez trouver une liste exhaustive de toutes les cryptomonnaies supportées sur notre site web :",
+        "title": "Quelles cryptomonnaies sont prises en charge ?"
+      },
       "whatAreAccounts": {
         "text": "Votre portefeuille peut gérer plusieurs comptes pour un même coin (monnaie). Les différents comptes sont utiles lorsque vous souhaitez conserver des fonds séparément.",
         "title": "Qu'est-ce qu'un compte ?"
+      },
+      "whatIsRememberWallet": {
+        "text": "Activer « Se souvenir du portefeuille » vous permet de voir les comptes de ce portefeuille dans le BitBoxApp même lorsque la BitBox02 n'est pas connectée. Cela vous permet de consulter votre solde et votre portefeuille à tout moment. La BitBox02 doit cependant être connectée et déverrouillée pour envoyer ou recevoir des cryptomonnaies.\n\nDésactiver « Se souvenir du portefeuille » vous oblige à connecter la BitBox02 correspondante (ou le portefeuille protégé par une phrase secrète) pour voir ces comptes dans le BitBoxApp.",
+        "title": "What happens when I enable/disable “Remember wallet”?"
       },
       "whyIsThisUseful": {
         "text": "Les comptes sont parfaits pour gérer des fonds destinés à des personnes ou des objectifs différents, car ils sont distincts. Vous pouvez également partager la \"clé publique étendue\" (xpub) d'un compte sans rien dévoiler de vos autres comptes. Cela vous permet de recevoir des fonds de manière répétée sans réutiliser les adresses, par exemple pour recevoir votre salaire ou acheter régulièrement des crypto-monnaies.",
@@ -812,14 +981,6 @@
       }
     },
     "bitbox": {
-      "2FA": {
-        "text": "Lorsque le 2FA est activé, toutes les transactions doivent être approuvées sur votre téléphone portable appairé afin de pouvoir envoyer des jetons. En réalité, un numéro chiffré, à usage unique, est envoyé à l'application mobile, déchiffré  et renvoyé au BitBox lorsque vous appuyez sur le bouton \"Accepter\". Cette communication avec l'appareil se fait via le canal entre le téléphone mobile et l'application de bureau établie lors de l'appareillage.\n\nAssurez-vous de sauvegarder votre portefeuille et d'appairer l'application mobile avant d'activer le 2FA. Une fois activé, l'appairage entre l'emplacement de la carte micro SD et l'application mobile est désactivé. Il peut être réactivé en réinitialisant le BitBox.",
-        "title": "Comment fonctionne la double authentification (2FA) ?"
-      },
-      "disable2FA": {
-        "text": "Pour désactiver le 2FA, vous devez réinitialiser votre BitBox, puis restaurer le portefeuille à partir de sa sauvegarde. Assurez-vous que vous êtes toujours en possession de la carte micro SD avec la sauvegarde et que vous vous souvenez du mot de passe de récupération. Puis appuyez sur \"Réinitialiser l'appareil\". Définissez un nouveau mot de passe et choisissez \"Ou restaurer une sauvegarde\". Sélectionnez la sauvegarde que vous avez effectuée à partir du portefeuille, cliquez sur \"Restaurer\" et entrez le mot de passe de récupération que vous avez utilisé lors de la création du portefeuille.",
-        "title": "Comment puis-je désactiver la double authentification (2FA) ?"
-      },
       "ejectBitbox": {
         "text": "Vous pouvez débrancher le BitBox à tout moment sans avoir à l'éjecter.",
         "title": "Comment puis-je éjecter le BitBox ?"
@@ -827,18 +988,6 @@
       "ejectSD": {
         "text": "Vous pouvez retirer la carte microSD du BitBox à tout moment, tant que vous n'êtes pas en train de créer ou de restaurer une sauvegarde.",
         "title": "Comment puis-je éjecter la carte microSD ?"
-      },
-      "hiddenWallet": {
-        "text": "Il s’agit d’un deuxième portefeuille sur le même appareil, protégé par un mot de passe d'appareil et de récupération différents, qui peut être utile pour un plausible déni. La même graine de sauvegarde est utilisée pour votre portefeuille normal et votre portefeuille caché. Aucune sauvegarde supplémentaire n'est donc nécessaire.",
-        "title": "Qu'est-ce qu'un portefeuille caché ?"
-      },
-      "legacyHiddenWallet": {
-        "text": "Cliquez d'abord sur le bouton ci-dessous (disponible si le BitBox est déverrouillé avec le mot de passe principal de l'appareil et si la double authentification est désactivée), puis rebranchez votre BitBox et déverrouillez-le avec le mot de passe du portefeuille caché.",
-        "title": "Comment accéder au portefeuille Legacy caché ?"
-      },
-      "pairing": {
-        "text": "Après avoir téléchargé notre application mobile pour iOS ou Android, vous devez scanner le QR code affiché, ce qui établit un canal sécurisé entre l'application mobile et l'application de bureau. Une fois scanné, suivez les instructions sur l'application mobile.",
-        "title": "Comment appairer votre téléphone en toute sécurité ?"
       }
     },
     "bitsurance": {
@@ -853,9 +1002,11 @@
         "link": {
           "text": "Politique de confidentialité de Bitsurance"
         },
+        "text": "Comme pour toute police d'assurance classique, elle contient votre nom complet et votre adresse, et précise l'objet assuré (défini par la clé publique étendue du compte Bitcoin assuré). Ces données sont soumises directement à Bitsurance et ne sont pas partagées avec Shift Crypto. Veuillez consulter la politique de confidentialité de Bitsurance pour plus d'informations.",
         "title": "Quelles informations personnelles sont nécessaires pour l'assurance ?"
       },
       "renew": {
+        "text": "L'assurance sera automatiquement renouvelée pour l'année suivante. Vous pouvez annuler le renouvellement à tout moment en cliquant sur « Gérer le contrat » dans le BitBoxApp, ce qui vous redirigera vers le portail client de Bitsurance.",
         "title": "Comment puis-je renouveler ou résilier l'assurance ?"
       },
       "status": {
@@ -863,6 +1014,7 @@
         "title": "Puis-je consulter l'état d'un compte assuré ?"
       },
       "what": {
+        "text": "Chaque contrat d'assurance Bitcoin couvre un compte de portefeuille spécifique. Vous pouvez assurer plusieurs comptes en souscrivant plusieurs polices d'assurance. Les comptes assurés sont limités à l'utilisation d'adresses Bitcoin « Native Segwit ».",
         "title": "Est-ce que l'ensemble du portefeuille BitBox est assuré ?"
       },
       "who": {
@@ -897,6 +1049,20 @@
         "text": "Cette information indique le modèle de la puce sécurisée. La puce la plus récente est l'ATECC608B, qui bénéficie de caractéristiques de sécurité renforcées comparativement aux précédents modèles.",
         "title": "Pourquoi indiquer le modèle de puce sécurisée?"
       }
+    },
+    "guideTitle": {
+      "account": "Guide du compte",
+      "accountInformation": "Guide des informations du compte",
+      "accountSummary": "Guide du résumé du compte",
+      "advancedSettings": "Guide des paramètres avancés",
+      "appearance": "Guide de l'apparence",
+      "buySell": "Guide d'achat et de vente",
+      "insurance": "Guide de l'assurance",
+      "manageAccount": "Guide de gestion des comptes",
+      "manageDevice": "Guide de gestion de l'appareil",
+      "receive": "Guide de réception",
+      "send": "Guide d'envoi",
+      "walletConnect": "Guide WalletConnect"
     },
     "receive": {
       "address": {
@@ -1066,16 +1232,6 @@
   "headerssync": {
     "blocksSynced": "{{blocks}} blocs synchronisés"
   },
-  "hiddenWallet": {
-    "info1HTML": "Pour un besoin de déni plausible, un portefeuille caché peut être créé à partir d'une combinaison de <strong> différents </strong> mot de passe de récupération et d'appareil.",
-    "info2HTML": "Définissez le mot de passe de l'appareil et de récupération que vous souhaitez associer à votre portefeuille caché ci-dessous. Le mot de passe de l'appareil et le mot de passe de récupération doivent être <strong> différents </strong> de ceux que vous avez définis pour votre portefeuille principal.",
-    "passwordLabel": "Mot de passe de récupération caché",
-    "passwordPlaceholder": "Veuillez confirmer le mot de passe de récupération caché",
-    "pinLabel": "Mot de passe de l'appareil caché",
-    "pinRepeatLabel": "Répéter le mot de passe de l'appareil caché",
-    "pinRepeatPlaceholder": "Veuillez confirmer le mot de passe de l'appareil caché",
-    "success": "Un portefeuille caché a été créé avec succès. Rebranchez votre BitBox pour le déverrouiller."
-  },
   "initialize": {
     "create": "Définir le mot de passe de l'appareil",
     "creating": "Définition du mot de passe de l'appareil en cours…",
@@ -1098,12 +1254,6 @@
   "invalidFormat": "Format invalide",
   "language": {
     "title": "Choisir la langue"
-  },
-  "legacyhiddenwallet": {
-    "disable": "Désactiver le portefeuille Legacy caché",
-    "enable": "Activer le portefeuille Legacy caché",
-    "successDisable": "Portefeuille Legacy caché désactivé avec succès.",
-    "successEnable": "Portefeuille Legacy caché activé avec succès. Reconnectez votre BitBox et entrez le mot de passe de l'appareil caché pour accéder au portefeuille Legacy caché."
   },
   "loading": "chargement en cours…",
   "manageAccounts": {
@@ -1140,6 +1290,9 @@
       "customFees": {
         "description": "Vous permet de saisir vos propres frais lors de l'envoi."
       },
+      "restartInTestnet": {
+        "description": "Explorez et testez les fonctionnalités en utilisant le testnet."
+      },
       "torProxy": {
         "description": "Se connecter via Tor pour une meilleure confidentialité."
       }
@@ -1171,7 +1324,13 @@
         "title": "Langue"
       },
       "remebmerWallet": {
-        "name": "Se souvenir du wallet"
+        "enable": {
+          "description": "Vous pouvez désormais voir les comptes associés à ce portefeuille sans insérer votre appareil BitBox. Cependant, le BitBox est toujours requis pour effectuer des transactions et afficher les adresses de réception.",
+          "title": "Portefeuille mémorisé."
+        },
+        "name": "Se souvenir du wallet",
+        "warning": "Cela supprimera votre portefeuille mémorisé. Pour le voir à nouveau, vous devrez connecter le BitBox02 pour ce portefeuille. Les fonds présents sur ce portefeuille ne sont pas affectés. Voulez-vous continuer ?",
+        "warningTitle": "Désactiver \"Se souvenir du portefeuille\""
       },
       "toggleSats": {
         "description": "Activer ou désactiver l'unité des Satoshis"
@@ -1188,52 +1347,6 @@
   "notification": {
     "newTxs_one": "Nouvelle transaction dans : {{accountName}}",
     "newTxs_other": "{{count}} nouvelles transactions dans : {{accountName}}"
-  },
-  "pairing": {
-    "aborted": {
-      "text": "L'appairage a été annulé depuis l'application mobile.",
-      "title": "Abandonné"
-    },
-    "button": "Appairer l'application mobile",
-    "confirm": "Êtes-vous sûr de vouloir appairer votre BitBox ? Notez qu'ensuite le téléphone mobile est nécessaire pour effectuer une transaction.",
-    "connectOnly": {
-      "button": "Connecter l'application mobile",
-      "title": "Scannez depuis notre application mobile en cliquant sur \"Connecter à une nouvelle application de bureau\""
-    },
-    "error": {
-      "text": "Quelque chose s'est mal passé. Veuillez recommencer.",
-      "title": "Erreur"
-    },
-    "pullFailed": {
-      "text": "Impossible de faire passer un message de votre mobile par le serveur relais. Le serveur relais est peut-être hors ligne, veuillez contacter l'assistance.",
-      "title": "Échec de transfert"
-    },
-    "reconnectOnly": {
-      "button": "Reconnecter l'application mobile"
-    },
-    "scanningFailed": {
-      "text": "Le mobile n'a pas pu scanner le message correctement. Veuillez réessayer.",
-      "title": "Échec de la numérisation"
-    },
-    "start": {
-      "hideAppQRCode": "Masquer le QR Code",
-      "revealAppQRCode": "Afficher le QR Code",
-      "step1": "Si vous ne possédez pas encore l'application mobile, vous pouvez scanner le QR code correspondant à l'App Store ou au Play Store en fonction de votre téléphone.",
-      "step2": "Scannez depuis notre application mobile, que vous pouvez trouver sous le nom \"Digital Bitbox 2FA\" dans les magasins d'applications pour iOS et Android :"
-    },
-    "started": {
-      "text": "Veuillez maintenant suivre les instructions sur l'application mobile.",
-      "title": "Génial"
-    },
-    "success": {
-      "text": "Félicitations, vous avez appairé votre BitBox à l’application mobile !",
-      "title": "Succès"
-    },
-    "timeout": {
-      "text": "Le temps d'appairage expire après deux minutes. Recommencez si vous souhaitez toujours appairer l'application mobile.",
-      "title": "Expiration de session"
-    },
-    "title": "Appairage mobile"
   },
   "passphrase": {
     "considerations": {
@@ -1323,22 +1436,18 @@
       "description": "Pour recevoir d'autres coins, activez-les dans les paramètres. Si vous déposez d'autres coins, il se peut qu'ils ne soient pas accessibles.",
       "warning": "Assurez-vous de ne recevoir que {{coinName}} sur cette adresse."
     },
+    "qrCodeCopiedMessage": "Copié!",
     "scriptType": {
       "p2tr": "Taproot (nouveau format d'adresse)",
       "p2wpkh": "Native Segwit (par défaut)",
       "p2wpkh-p2sh": "Wrapped Segwit (format compatible)"
     },
     "selectAccount": "Sélectionner un compte",
-    "showFull": "Afficher et vérifier l'adresse complète sur l'appareil",
     "taprootWarning": "Remarque : Taproot est une nouvelle fonctionnalité sur Bitcoin et n'est pas encore largement adoptée. Les fonds reçus sur les adresses Taproot peuvent potentiellement ne pas être visibles depuis les portefeuilles \"watch-only\" tiers. De nombreux portefeuilles et exchanges ne sont pas encore en mesure d'envoyer des fonds aux adresses Taproot.",
     "title": "Recevoir {{accountName}}",
     "verify": "Vérifier l'adresse de façon sécurisée",
-    "verifyBitBox01": "Vérifier l'adresse sur l'application mobile",
     "verifyBitBox02": "Vérifier l'adresse sur le BitBox02",
-    "verifyInstruction": "Veuillez vérifier que l'adresse suivante correspond à celle affichée sur votre appareil.",
-    "warning": {
-      "secureOutput": "Veuillez appairer votre BitBox avec votre téléphone mobile pour activer la vérification sécurisée des adresses. Cliquez sur «Gérer l'appareil» dans la barre latérale."
-    }
+    "verifyInstruction": "Veuillez vérifier que l'adresse suivante correspond à celle affichée sur votre appareil."
   },
   "reset": {
     "description": "Toutes les données vont être supprimées de l'appareil. Ceci inclut votre Clé Privée !",
@@ -1416,16 +1525,22 @@
     },
     "availableBalance": "Solde disponible",
     "button": "Revoir",
+    "buyEth": "Achetez de l'ETH",
     "coincontrol": {
       "address": "Adresse",
+      "addressReused": "Adresse réutilisée",
+      "change": "Changer",
       "outpoint": "Point de sortie",
       "title": "Envoi à partir de"
     },
     "confirm": {
+      "infoMessage": "Vérifiez soigneusement que le montant et l'adresse sont corrects sur le BitBox02.",
       "selected-coins": "Coins sélectionnés",
       "title": "Confirmer et envoyer la transaction",
+      "to": "Vers",
       "total": "Total"
     },
+    "edit": "Modifier la transaction",
     "error": {
       "erc20InsufficientGasFunds": "Il semblerait que vous n'ayez pas assez d'Ether pour régler cette transaction ERC20. Veuillez vous assurer que vous avez suffisamment d'Ether dans votre portefeuille.",
       "feeTooLow": "Frais pas assez élevés",
@@ -1453,6 +1568,10 @@
         "low": "2 heures (12 blocs)",
         "low_eth": "5 minutes maximum",
         "low_ltc": "30 minutes (12 blocs)",
+        "mEconomy": "-",
+        "mFastest": "10 minutes (prochain bloc)",
+        "mHalfHour": "20 minutes (2 blocs)",
+        "mHour": "30 minutes (3 blocs)",
         "normal": "1 heure (6 blocs)",
         "normal_eth": "2 minutes maximum",
         "normal_ltc": "15 minutes (6 blocs)"
@@ -1463,19 +1582,21 @@
         "economy": "Économique",
         "high": "Élevé",
         "low": "Faible",
+        "mEconomy": "Aucune priorité",
+        "mFastest": "Haut",
+        "mHalfHour": "Moyen",
+        "mHour": "Bas",
         "normal": "Normal"
       },
       "placeholder": "Calcul des frais…"
     },
     "maximum": "Envoyer tout",
     "maximumSelectedCoins": "",
+    "newTransaction": "Nouvelle transaction",
     "noFeeTargets": "L'estimation des frais n'est pas disponible actuellement. Veuillez réessayer plus tard ou saisir des frais personnalisés.",
     "priority": "Priorité",
     "scanQR": "Scanner un QR Code",
-    "signprogress": {
-      "description": "Cette transaction contient beaucoup de données. Pour la signer entièrement, il vous sera demandé de confirmer {{steps}} fois.",
-      "label": "Avancement"
-    },
+    "scanQRNoCameraMessage": "Caméra non trouvée. Veuillez vous assurer que votre appareil prend en charge une caméra et que les autorisations sont correctement configurées.",
     "success": "La transaction a été signée et envoyée.",
     "title": "Envoyer {{accountName}}",
     "toggleCoinControl": "Sélecteur de coins",
@@ -1519,12 +1640,18 @@
         "description": "Vous pouvez vous connecter à votre propre nœud Electrum.",
         "title": "Connectez votre nœud complet"
       },
+      "exportLogs": {
+        "description": "",
+        "title": "Exporter les journaux"
+      },
       "fee": "Activer la personnalisation des frais",
+      "restartInTestnet": "Mode Testnet",
       "setProxyAddress": "Définir une adresse proxy",
       "title": "Paramètres avancés",
       "useProxy": "Activer tor proxy",
       "useSats": "Afficher les valeurs des BTC en Satoshis"
     },
+    "general": "Général",
     "header": {
       "home": "Accueil"
     },
@@ -1533,6 +1660,25 @@
       "title": "Info",
       "up-to-date": "Votre application est à jour",
       "version": "Version de l'application"
+    },
+    "notes": {
+      "export": {
+        "description": "Créez une sauvegarde de vos notes de transaction et des noms de comptes.",
+        "success": "Notes exportées avec succès.",
+        "title": "Exporter les notes"
+      },
+      "import": {
+        "accountNames_one": "Nom de compte importé {{count}}.",
+        "accountNames_other": "Noms de comptes importés {{count}}.",
+        "accountNames_zero": "Aucun nom de compte importé.",
+        "description": "Restaurez vos notes de transaction et noms de comptes à partir d'un fichier de sauvegarde précédemment créé.",
+        "title": "Importer les notes",
+        "tooLarge": "Fichier trop volumineux.",
+        "transactionNotes_one": "Note de transaction importée {{count}}.",
+        "transactionNotes_other": "Notes de transaction importées {{count}}.",
+        "transactionNotes_zero": "Aucune note de transaction importée."
+      },
+      "title": "Gérer les notes"
     },
     "restart": "Veuillez redémarrer la BitBoxApp pour que les changements prennent effet.",
     "services": {
@@ -1590,7 +1736,26 @@
     "status": {
       "complete": "Terminé",
       "failed": "Échoué",
-      "pending": "En attente"
+      "pending": "En attente",
+      "pending_receive": "Transaction entrante",
+      "pending_send": "Transaction sortante",
+      "pending_send_to_self": "Transaction en attente"
+    },
+    "statusShort": {
+      "complete": "Complet",
+      "failed": "Raté",
+      "pending": "En attente",
+      "pending_receive": "Entrant",
+      "pending_send": "Sortant",
+      "pending_send_to_self": "En attente"
+    },
+    "tx": {
+      "receive_complete": "Reçu sur",
+      "receive_failed": "Échec de la réception sur",
+      "receive_pending": "Reçu sur",
+      "send_complete": "Envoyé à",
+      "send_failed": "Échec de l'envoi à",
+      "send_pending": "Envoyé à"
     },
     "vsize": "Taille virtuelle",
     "weight": "Poids"
@@ -1628,13 +1793,15 @@
     "connect": {
       "button": "Connecter",
       "dappLabel": "Saisir l'adresse URI de la Dapp",
-      "invalidPairingUri": "Uri d'appariement non valide"
+      "invalidPairingUri": "Uri d'appariement non valide",
+      "missingNamespace": "La demande de connexion de l'application n'a pas défini l'espace de noms nécessaire."
     },
     "dashboard": {
       "allSessions": "Toutes les sessions",
       "disclaimer": "Walletconnect est un protocole permettant de se connecter à des Dapps basées sur Ethereum. Ces Dapps sont gérées par des services tiers, ne vous connectez donc uniquement qu'à des Dapps en lesquelles vous avez entièrement confiance et assurez-vous de toujours savoir ce que vous signez lorsque vous effectuez une transaction.",
       "newConnection": "Nouvelle connexion",
-      "noConnectedSessions": "Aucun compte n'est actuellement connecté à une Dapp."
+      "noConnectedSessions": "Aucun compte n'est actuellement connecté à une Dapp.",
+      "unspecifiedAccount": "Compte non spécifié"
     },
     "invalidPairingChain": "Erreur dans l'approbation de l'appariement. Veillez à utiliser l'une des chaînes prises en charge : {{chains}}",
     "pairingRequest": {
@@ -1663,15 +1830,14 @@
     "walletConnect": "WalletConnect"
   },
   "warning": {
-    "receivePairing": "Veuillez appairer le BitBox pour activer la vérification d'adresse sécurisée. Cliquez sur «Gérer l'appareil» dans la barre latérale.",
+    "coincontrol": "Un ou plusieurs UTXO ont une adresse réutilisée. Soyez conscient que le destinataire verra tous les UTXO associés à ces adresses.",
     "sdcard": "Conservez la carte micro SD séparément du BitBox, à moins que vous ne  souhaitiez gérer les sauvegardes.",
-    "sendPairing": "Veuillez appairer le BitBox pour vérifier le détails de la transaction en toute sécurité. Cliquez sur «Gérer l'appareil» dans la barre latérale."
+    "testnet": "Attention: Vous utilisez actuellement le portefeuille en mode Testnet. Les transactions et les soldes ici ne sont pas réels et n'apparaîtront pas sur le mainnet. Le Testnet est destiné uniquement aux tests et au développement."
   },
   "welcome": {
     "connect": "Connexion BitBox02",
     "getStarted": "Commençons en installant le firmware sur votre BitBox02",
-    "insertBitBox02": "Pour le BitBox02, appuyez sur l'appareil pour continuer.",
-    "insertDevice": "Pour commencer, veuillez connecter votre appareil",
+    "loadingAccounts": "Chargement des comptes",
     "title": "Bienvenue"
   }
 }

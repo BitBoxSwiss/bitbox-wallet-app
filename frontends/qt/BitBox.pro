@@ -42,7 +42,7 @@ win32 {
     #QMAKE_LFLAGS += -Wl,--nxcompat
     #QMAKE_LFLAGS += -Wl,--dynamicbase
 } else {
-    QMAKE_CXXFLAGS += -std=c++11
+    QMAKE_CXXFLAGS += -std=c++17
     LIBS += -L$$PWD/server -lserver
     QMAKE_CXXFLAGS += $$CFORTIFY
     QMAKE_CXXFLAGS += $$CSTACK
@@ -57,9 +57,10 @@ unix:!macx {
 
 SOURCES += \
         main.cpp \
-        filedialog.cpp
+        filedialog.cpp \
+        urlhandler.cpp
 
-HEADERS += libserver.h webclass.h filedialog.h
+HEADERS += libserver.h webclass.h filedialog.h urlhandler.h
 
 unix:macx {
     CONFIG += sdk_no_version_check

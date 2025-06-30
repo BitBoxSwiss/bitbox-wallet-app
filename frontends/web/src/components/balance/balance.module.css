@@ -1,63 +1,51 @@
 .balanceTable {
-    align-items: flex-end;
-    border-collapse: collapse;
-    border-spacing: 0;
-    display: flex;
-    flex-direction: row;
-    position: relative;
+  align-items: flex-end;
+  border-collapse: collapse;
+  border-spacing: 0;
+  display: flex;
+  flex-direction: row;
+  position: relative;
 }
 
 .balanceTable tr {
-    display: inline-block;
-    vertical-align: bottom;
+  display: inline-block;
+  vertical-align: bottom;
+  padding-right: var(--space-half);
 }
 
 .balanceTable td {
-    font-size: var(--size-large);
-    font-weight: 400;
-    line-height: 1.2;
-    padding: 0;
-    vertical-align: baseline;
+  font-size: var(--size-large);
+  font-weight: 400;
+  line-height: 1.2;
+  padding: 0;
+  vertical-align: baseline;
 }
 
 .balanceTable td:last-child {
-    font-size: var(--size-default);
-}
-
-.balanceTable .availableAmount {
-    color: var(--color-default);
-    padding-right: var(--space-quarter);
-    text-align: right;
-    white-space: nowrap;
-}
-
-.balanceTable .availableUnit {
-    color: var(--color-secondary);
-    padding-right: var(--space-half);
-    white-space: nowrap;
+  font-size: var(--size-default);
 }
 
 .pendingBalance {
-    color: var(--color-secondary);
-    font-size: var(--size-small);
-    line-height: 1;
-    margin: 0;
-    padding-top: var(--space-half);
+  color: var(--color-secondary);
+  font-size: var(--size-small);
+  line-height: 1;
+  margin: 0;
+  padding-top: var(--space-half);
 }
 
 @media (max-width: 768px) {
 
-    .balanceTable {
-        display: inline-block;
-        margin: 0 auto;
-    }
+  .balanceTable {
+    display: inline-block;
+    margin: 0 auto;
+  }
 
-    .balanceTable td {
-        font-size: var(--size-large-mobile);
-        line-height: 1.5;
-    }
+  .balanceTable td {
+    font-size: var(--size-large-mobile);
+    line-height: 1.5;
+  }
 
-    .pendingBalance {
-        padding-top: var(--space-quarter);
-    }
+  .pendingBalance {
+    padding-top: var(--space-quarter);
+  }
 }

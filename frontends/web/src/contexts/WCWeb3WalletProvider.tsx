@@ -17,7 +17,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { WCWeb3WalletContext } from './WCWeb3WalletContext';
-import { IWeb3Wallet } from '@walletconnect/web3wallet';
+import { IWalletKit } from '@reown/walletkit';
 import { getTopicFromURI, pairingHasEverBeenRejected } from '@/utils/walletconnect';
 import { useLoad } from '@/hooks/api';
 import { getConfig, setConfig } from '@/utils/config';
@@ -28,7 +28,7 @@ type TProps = {
 
 export const WCWeb3WalletProvider = ({ children }: TProps) => {
   const { t } = useTranslation();
-  const [web3wallet, setWeb3wallet] = useState<IWeb3Wallet>();
+  const [web3wallet, setWeb3wallet] = useState<IWalletKit>();
   const [isWalletInitialized, setIsWalletInitialized] = useState(false);
   const config = useLoad(getConfig);
   const hasUsedWC = config && config.frontend && config.frontend.hasUsedWalletConnect;
@@ -36,13 +36,13 @@ export const WCWeb3WalletProvider = ({ children }: TProps) => {
   const initializeWeb3Wallet = async () => {
     try {
       const { Core } = await import('@walletconnect/core');
-      const { Web3Wallet } = await import('@walletconnect/web3wallet');
+      const { WalletKit } = await import('@reown/walletkit');
 
       const core = new Core({
         projectId: '89733df088867a1a1bf644013addd6cc',
       });
 
-      const wallet = await Web3Wallet.init({
+      const wallet = await WalletKit.init({
         core,
         metadata: {
           name: 'BitBox',

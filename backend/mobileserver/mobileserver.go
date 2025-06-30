@@ -77,6 +77,7 @@ type GoReadWriteCloserInterface interface {
 
 // GoDeviceInfoInterface adapts usb.DeviceInfo's Open method to return the adapted ReadWriteCloser.
 type GoDeviceInfoInterface interface {
+	IsBluetooth() bool
 	VendorID() int
 	ProductID() int
 	UsagePage() int
@@ -100,6 +101,7 @@ type GoEnvironmentInterface interface {
 	DetectDarkTheme() bool
 	Auth()
 	OnAuthSettingChanged(bool)
+	BluetoothConnect(string)
 }
 
 // readWriteCloser implements io.ReadWriteCloser, translating from GoReadWriteCloserInterface. All methods
@@ -212,6 +214,7 @@ func Serve(dataDir string, testnet bool, environment GoEnvironmentInterface, goA
 			DetectDarkThemeFunc:      environment.DetectDarkTheme,
 			AuthFunc:                 environment.Auth,
 			OnAuthSettingChangedFunc: environment.OnAuthSettingChanged,
+			BluetoothConnectFunc:     environment.BluetoothConnect,
 		},
 	)
 }
@@ -241,4 +244,9 @@ func AuthResult(ok bool) {
 // ManualReconnect wraps bridgecommon.ManualReconnect.
 func ManualReconnect() {
 	bridgecommon.ManualReconnect()
+}
+
+// BluetoothSetState wraps bridgecommon.BluetoothSetState.
+func BluetoothSetState(jsonState string) error {
+	return bridgecommon.BluetoothSetState(jsonState)
 }

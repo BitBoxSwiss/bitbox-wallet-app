@@ -10,6 +10,7 @@
     margin-bottom: var(--spacing-default);
     overflow: hidden;
     padding: var(--spacing-default);
+    text-align: left;
 }
 
 .content {

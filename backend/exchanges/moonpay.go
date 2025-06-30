@@ -123,12 +123,12 @@ func MoonpayDeals(action ExchangeAction) *ExchangeDealsList {
 			ExchangeName: MoonpayName,
 			Deals: []*ExchangeDeal{
 				{
-					Fee:     0.049, // 4.9%
+					Fee:     4.9, // 4.9%
 					Payment: CardPayment,
 					IsFast:  true,
 				},
 				{
-					Fee:     0.019, // 1.9%
+					Fee:     1.9, // 1.9%
 					Payment: BankTransferPayment,
 					IsFast:  false,
 				},

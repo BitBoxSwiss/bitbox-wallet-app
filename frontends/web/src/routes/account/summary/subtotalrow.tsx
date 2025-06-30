@@ -18,11 +18,11 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { Logo } from '@/components/icon/logo';
 import { Amount } from '@/components/amount/amount';
-import { FiatConversion } from '@/components/rates/rates';
 import style from './accountssummary.module.css';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 
 type TProps = {
-  balance?: accountApi.IAmount;
+  balance?: accountApi.TAmountWithConversions;
   coinCode: accountApi.CoinCode;
   coinName: string;
 };
@@ -59,7 +59,7 @@ export const SubTotalRow = ({ coinCode, coinName, balance }: TProps) => {
       </td>
       <td data-label={t('accountSummary.fiatBalance')}>
         <strong>
-          <FiatConversion amount={balance} noAction={true} />
+          <AmountWithUnit amount={balance} convertToFiat/>
         </strong>
       </td>
     </tr>
@@ -92,7 +92,7 @@ export const SubTotalCoinRow = ({ coinCode, coinName, balance }: TProps) => {
         </span>
       </td>
       <td data-label={t('accountSummary.fiatBalance')}>
-        <FiatConversion amount={balance} noAction={true} />
+        <AmountWithUnit amount={balance} convertToFiat/>
       </td>
     </tr>
   );

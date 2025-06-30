@@ -23,8 +23,8 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 import { Logo } from '@/components/icon/logo';
 import { Amount } from '@/components/amount/amount';
 import { AsciiSpinner } from '@/components/spinner/ascii';
-import { FiatConversion } from '@/components/rates/rates';
 import style from './accountssummary.module.css';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 
 type TNameColProps = {
   coinCode: CoinCode;
@@ -82,7 +82,7 @@ export const BalanceRow = (
           </span>
         </td>
         <td data-label={t('accountSummary.fiatBalance')}>
-          <FiatConversion amount={balance.available} noAction={true} />
+          <AmountWithUnit amount={balance.available} convertToFiat/>
         </td>
       </tr>
     );

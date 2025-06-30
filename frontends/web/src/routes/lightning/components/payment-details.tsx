@@ -18,13 +18,13 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Payment as IPayment, LnPaymentDetails } from '@/api/lightning';
 import { Dialog } from '@/components/dialog/dialog';
-import { FiatConversion } from '@/components/rates/rates';
 import { TxDetail } from '@/components/transactions/components/detail';
 import { TxDateDetail } from '@/components/transactions/components/date';
 import { TxDetailCopyableValues } from '@/components/transactions/components/address-or-txid';
 import { toSat } from '@/utils/conversion';
 import styles from '@/components/transactions/components/details.module.css';
 import { getTxSign } from '@/utils/transaction';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 
 type TTxDetailsDialog = {
   open: boolean;
@@ -63,14 +63,14 @@ export const PaymentDetailsDialog = ({
           </TxDetail>
           <TxDetail label={t('transaction.details.fiat')}>
             <span className={styles.fiat}>
-              <FiatConversion
+              <AmountWithUnit
                 amount={{
                   amount: `${toSat(payment.amountMsat)}`,
                   unit: 'sat',
                   estimated: false
                 }}
                 sign={sign}
-                noAction
+                convertToFiat
               />
             </span>
           </TxDetail>

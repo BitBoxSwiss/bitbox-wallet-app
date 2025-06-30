@@ -116,6 +116,10 @@
     }
 }
 
+button, textarea {
+    font-family: inherit;
+}
+
 .content {
     flex: 1;
     margin: 0 auto;

@@ -1,44 +1,8 @@
-/****************************************************************************
-**
-** Copyright (C) 2016 The Qt Company Ltd.
-** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com, author Milian Wolff <milian.wolff@kdab.com>
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the QtWebChannel module of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:LGPL$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or (at your option) the GNU General
-** Public license version 3 or any later version approved by the KDE Free
-** Qt Foundation. The licenses are as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-2.0.html and
-** https://www.gnu.org/licenses/gpl-3.0.html.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+// Copyright (C) 2016 The Qt Company Ltd.
+// Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com, author Milian Wolff <milian.wolff@kdab.com>
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
-/* eslint-disable */
+"use strict";
 
 var QWebChannelMessageTypes = {
     signal: 1,
@@ -53,7 +17,7 @@ var QWebChannelMessageTypes = {
     response: 10,
 };
 
-export const QWebChannel = function(transport, initCallback)
+export const QWebChannel = function(transport, initCallback, converters)
 {
     if (typeof transport !== "object" || typeof transport.send !== "function") {
         console.error("The QWebChannel expects a transport object with a send function and onmessage callback property." +
@@ -63,6 +27,43 @@ export const QWebChannel = function(transport, initCallback)
 
     var channel = this;
     this.transport = transport;
+
+    var converterRegistry =
+    {
+        Date : function(response) {
+            if (typeof response === "string"
+                && response.match(
+                        /^-?\d+-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d*)?([-+\u2212](\d{2}):(\d{2})|Z)?$/)) {
+                var date = new Date(response);
+                if (!isNaN(date))
+                    return date;
+            }
+            return undefined; // Return undefined if current converter is not applicable
+        }
+    };
+
+    this.usedConverters = [];
+
+    this.addConverter = function(converter)
+    {
+        if (typeof converter === "string") {
+            if (converterRegistry.hasOwnProperty(converter))
+                this.usedConverters.push(converterRegistry[converter]);
+            else
+                console.error("Converter '" + converter + "' not found");
+        } else if (typeof converter === "function") {
+            this.usedConverters.push(converter);
+        } else {
+            console.error("Invalid converter object type " + typeof converter);
+        }
+    }
+
+    if (Array.isArray(converters)) {
+        for (const converter of converters)
+            this.addConverter(converter);
+    } else if (converters !== undefined) {
+        this.addConverter(converters);
+    }
 
     this.send = function(data)
     {
@@ -140,15 +141,14 @@ export const QWebChannel = function(transport, initCallback)
 
     this.handlePropertyUpdate = function(message)
     {
-        for (var i in message.data) {
-            var data = message.data[i];
+        message.data.forEach(data => {
             var object = channel.objects[data.object];
             if (object) {
                 object.propertyUpdate(data.signals, data.properties);
             } else {
                 console.warn("Unhandled property update: " + data.object + "::" + data.signal);
             }
-        }
+        });
         channel.exec({type: QWebChannelMessageTypes.idle});
     }
 
@@ -158,13 +158,15 @@ export const QWebChannel = function(transport, initCallback)
     };
 
     channel.exec({type: QWebChannelMessageTypes.init}, function(data) {
-        for (var objectName in data) {
-            var object = new QObject(objectName, data[objectName], channel);
+        for (const objectName of Object.keys(data)) {
+            new QObject(objectName, data[objectName], channel);
         }
+
         // now unwrap properties, which might reference other registered objects
-        for (var objectName in channel.objects) {
+        for (const objectName of Object.keys(channel.objects)) {
             channel.objects[objectName].unwrapProperties();
         }
+
         if (initCallback) {
             initCallback(channel);
         }
@@ -189,18 +191,25 @@ function QObject(name, data, webChannel)
 
     this.unwrapQObject = function(response)
     {
+        for (const converter of webChannel.usedConverters) {
+            var result = converter(response);
+            if (result !== undefined)
+                return result;
+        }
+
         if (response instanceof Array) {
             // support list of objects
-            var ret = new Array(response.length);
-            for (var i = 0; i < response.length; ++i) {
-                ret[i] = object.unwrapQObject(response[i]);
-            }
-            return ret;
+            return response.map(qobj => object.unwrapQObject(qobj))
         }
-        if (!response
-            || !response["__QObject*__"]
-            || response.id === undefined) {
+        if (!(response instanceof Object))
             return response;
+
+        if (!response["__QObject*__"] || response.id === undefined) {
+            var jObj = {};
+            for (const propName of Object.keys(response)) {
+                jObj[propName] = object.unwrapQObject(response[propName]);
+            }
+            return jObj;
         }
 
         var objectId = response.id;
@@ -220,13 +229,7 @@ function QObject(name, data, webChannel)
                 // just assigning {} though would not have the desired effect, but the
                 // below also ensures all external references will see the empty map
                 // NOTE: this detour is necessary to workaround QTBUG-40021
-                var propertyNames = [];
-                for (var propertyName in qObject) {
-                    propertyNames.push(propertyName);
-                }
-                for (var idx in propertyNames) {
-                    delete qObject[propertyNames[idx]];
-                }
+                Object.keys(qObject).forEach(name => delete qObject[name]);
             }
         });
         // here we are already initialized, and thus must directly unwrap the properties
@@ -236,7 +239,7 @@ function QObject(name, data, webChannel)
 
     this.unwrapProperties = function()
     {
-        for (var propertyIdx in object.__propertyCache__) {
+        for (const propertyIdx of Object.keys(object.__propertyCache__)) {
             object.__propertyCache__[propertyIdx] = object.unwrapQObject(object.__propertyCache__[propertyIdx]);
         }
     }
@@ -255,9 +258,16 @@ function QObject(name, data, webChannel)
                 object.__objectSignals__[signalIndex] = object.__objectSignals__[signalIndex] || [];
                 object.__objectSignals__[signalIndex].push(callback);
 
-                if (!isPropertyNotifySignal && signalName !== "destroyed") {
-                    // only required for "pure" signals, handled separately for properties in propertyUpdate
-                    // also note that we always get notified about the destroyed signal
+                // only required for "pure" signals, handled separately for properties in propertyUpdate
+                if (isPropertyNotifySignal)
+                    return;
+
+                // also note that we always get notified about the destroyed signal
+                if (signalName === "destroyed" || signalName === "destroyed()" || signalName === "destroyed(QObject*)")
+                    return;
+
+                // and otherwise we only need to be connected only once
+                if (object.__objectSignals__[signalIndex].length == 1) {
                     webChannel.exec({
                         type: QWebChannelMessageTypes.connectToSignal,
                         object: object.__id__,
@@ -270,13 +280,11 @@ function QObject(name, data, webChannel)
                     console.error("Bad callback given to disconnect from signal " + signalName);
                     return;
                 }
-                object.__objectSignals__[signalIndex] = object.__objectSignals__[signalIndex] || [];
-                var idx = object.__objectSignals__[signalIndex].indexOf(callback);
-                if (idx === -1) {
-                    console.error("Cannot find connection of signal " + signalName + " to " + callback.name);
-                    return;
-                }
-                object.__objectSignals__[signalIndex].splice(idx, 1);
+                // This makes a new list. This is important because it won't interfere with
+                // signal processing if a disconnection happens while emittig a signal
+                object.__objectSignals__[signalIndex] = (object.__objectSignals__[signalIndex] || []).filter(function(c) {
+                  return c != callback;
+                });
                 if (!isPropertyNotifySignal && object.__objectSignals__[signalIndex].length === 0) {
                     // only required for "pure" signals, handled separately for properties in propertyUpdate
                     webChannel.exec({
@@ -305,12 +313,12 @@ function QObject(name, data, webChannel)
     this.propertyUpdate = function(signals, propertyMap)
     {
         // update property cache
-        for (var propertyIndex in propertyMap) {
+        for (const propertyIndex of Object.keys(propertyMap)) {
             var propertyValue = propertyMap[propertyIndex];
-            object.__propertyCache__[propertyIndex] = propertyValue;
+            object.__propertyCache__[propertyIndex] = this.unwrapQObject(propertyValue);
         }
 
-        for (var signalName in signals) {
+        for (const signalName of Object.keys(signals)) {
             // Invoke all callbacks, as signalEmitted() does not. This ensures the
             // property cache is updated before the callbacks are invoked.
             invokeSignalCallbacks(signalName, signals[signalName]);
@@ -326,25 +334,37 @@ function QObject(name, data, webChannel)
     {
         var methodName = methodData[0];
         var methodIdx = methodData[1];
+
+        // Fully specified methods are invoked by id, others by name for host-side overload resolution
+        var invokedMethod = methodName[methodName.length - 1] === ')' ? methodIdx : methodName
+
         object[methodName] = function() {
             var args = [];
             var callback;
+            var errCallback;
             for (var i = 0; i < arguments.length; ++i) {
                 var argument = arguments[i];
                 if (typeof argument === "function")
                     callback = argument;
-                else if (argument instanceof QObject && webChannel.objects[argument.__id__] !== undefined)
-                    args.push({
-                        "id": argument.__id__
-                    });
                 else
                     args.push(argument);
+            }
+
+            var result;
+            // during test, webChannel.exec synchronously calls the callback
+            // therefore, the promise must be constucted before calling
+            // webChannel.exec to ensure the callback is set up
+            if (!callback && (typeof(Promise) === 'function')) {
+              result = new Promise(function(resolve, reject) {
+                callback = resolve;
+                errCallback = reject;
+              });
             }
 
             webChannel.exec({
                 "type": QWebChannelMessageTypes.invokeMethod,
                 "object": object.__id__,
-                "method": methodIdx,
+                "method": invokedMethod,
                 "args": args
             }, function(response) {
                 if (response !== undefined) {
@@ -352,8 +372,12 @@ function QObject(name, data, webChannel)
                     if (callback) {
                         (callback)(result);
                     }
+                } else if (errCallback) {
+                  (errCallback)();
                 }
             });
+
+            return result;
         };
     }
 
@@ -393,8 +417,6 @@ function QObject(name, data, webChannel)
                 }
                 object.__propertyCache__[propertyIndex] = value;
                 var valueToSend = value;
-                if (valueToSend instanceof QObject && webChannel.objects[valueToSend.__id__] !== undefined)
-                    valueToSend = { "id": valueToSend.__id__ };
                 webChannel.exec({
                     "type": QWebChannelMessageTypes.setProperty,
                     "object": object.__id__,
@@ -414,7 +436,13 @@ function QObject(name, data, webChannel)
 
     data.signals.forEach(function(signal) { addSignal(signal, false); });
 
-    for (var name in data.enums) {
-        object[name] = data.enums[name];
-    }
+    Object.assign(object, data.enums);
 }
+
+QObject.prototype.toJSON = function() {
+    if (this.__id__ === undefined) return {};
+    return {
+        id: this.__id__,
+        "__QObject*__": true
+    };
+};

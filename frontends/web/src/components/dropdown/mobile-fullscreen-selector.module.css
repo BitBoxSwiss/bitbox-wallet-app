@@ -1,0 +1,142 @@
+.dropdownContainer {
+    width: 100%;
+}
+
+.mobileSelectorTrigger {
+    background-color: var(--background-secondary);
+    border: none;
+    border-radius: 2px;
+    color: var(--color-default);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--size-default);
+    height: auto;
+    padding: 0;
+    width: 100%;
+    text-align: end;
+}
+
+.mobileSelectorValue {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-secondary);
+}
+
+.fullscreenOverlay {
+    background-color: var(--background-secondary);
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 9999;
+}
+
+.fullscreenContent {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.fullscreenHeader {
+    align-items: center;
+    border-bottom: 1px solid var(--background);
+    background-color: var(--background);
+    cursor: default;
+    display: flex;
+    padding: 13.5px var(--space-half);
+    padding-top: calc(13.5px + env(safe-area-inset-top, 0));
+    position: relative;
+}
+
+.backButton {
+    background: none;
+    border: none;
+    color: var(--color-default);
+    cursor: pointer;
+    padding-left: 0;
+    margin-right: var(--space-quarter);
+}
+
+.backButtonIcon {
+    width: 24px;
+    height: 24px;
+}
+
+.fullscreenTitle {
+    color: var(--color-default);
+    flex: 1;
+    font-size: var(--size-subheader);
+    font-weight: 400;
+    margin: 0;
+    position: absolute;
+    text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.searchContainer {
+    background-color: var(--background);
+    border-bottom: 1px solid var(--background-secondary);
+    padding: var(--space-half);
+    padding-top: 0;
+}
+
+.searchInput {
+    background-color: var(--background-secondary);
+    border: 1px solid var(--background-secondary);
+    border-radius: 4px;
+    color: var(--color-default);
+    font-size: var(--size-default);
+    width: 100%;
+    padding: var(--space-quarter) var(--space-half);
+}
+.searchInput:focus {
+    outline: none;
+}
+.optionsList {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.optionItem {
+    align-items: center;
+    background: none;
+    border: none;
+    color: var(--color-default);
+    cursor: pointer;
+    display: flex;
+    font-size: var(--size-default);
+    justify-content: space-between;
+    padding: var(--space-half);
+    text-align: left;
+    width: 100%;
+}
+
+.selectedOption {
+    background-color: var(--background-custom-select-selected);
+}
+
+.optionContent {
+    flex: 1;
+}
+
+.noOptions {
+    padding: var(--space-half);
+    text-align: center;
+    color: var(--color-secondary);
+    font-size: var(--size-default);
+}
+
+@media screen and (max-width: 560px) {
+    .mobileSelectorTrigger {
+        padding-top: var(--space-quarter);
+        text-align: start;
+    }
+}

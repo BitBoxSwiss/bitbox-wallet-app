@@ -43,21 +43,19 @@ import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
 import style from './send.module.css';
 
-interface SendProps {
-    account: accountApi.IAccount;
-    // undefined if bb02 is connected.
-    bb01Paired: boolean | undefined;
-    activeCurrency: accountApi.Fiat;
+type SendProps = {
+  account: accountApi.IAccount;
+  activeCurrency: accountApi.Fiat;
 }
 
 type Props = SendProps & TranslateProps;
 
 export type State = {
     balance?: accountApi.IBalance;
-    proposedFee?: accountApi.IAmount;
-    proposedTotal?: accountApi.IAmount;
+    proposedFee?: accountApi.TAmountWithConversions;
+    proposedTotal?: accountApi.TAmountWithConversions;
     recipientAddress: string;
-    proposedAmount?: accountApi.IAmount;
+    proposedAmount?: accountApi.TAmountWithConversions;
     valid: boolean;
     amount: string;
     fiatAmount: string;
@@ -94,14 +92,20 @@ class Send extends Component<Props, State> {
 
   public componentDidMount() {
     const updateBalance = (code: string) => accountApi.getBalance(code)
-      .then(balance => this.setState({ balance }))
+      .then(balance => {
+        if (!balance.success) {
+          return;
+        }
+        this.setState({ balance: balance.balance });
+      })
       .catch(console.error);
 
     updateBalance(this.props.account.code);
 
-    this.unsubscribe = syncdone((code) => {
-      if (this.props.account.code === code) {
-        updateBalance(code);
+    const currentCode = this.props.account.code;
+    this.unsubscribe = syncdone(currentCode, () => {
+      if (this.props.account.code === currentCode) {
+        updateBalance(currentCode);
       }
     });
   }
@@ -164,6 +168,7 @@ class Send extends Component<Props, State> {
       sendAll: (this.state.sendAll ? 'yes' : 'no'),
       selectedUTXOs: Object.keys(this.selectedUTXOs),
       paymentRequest: null,
+      useHighestFee: false
     };
   };
 
@@ -363,7 +368,6 @@ class Send extends Component<Props, State> {
   public render() {
     const {
       account,
-      bb01Paired,
       activeCurrency,
       t,
     } = this.props;
@@ -494,7 +498,6 @@ class Send extends Component<Props, State> {
                 </Grid>
               </ViewContent>
               <ConfirmSend
-                bb01Paired={bb01Paired}
                 baseCurrencyUnit={activeCurrency}
                 note={note}
                 hasSelectedUTXOs={this.hasSelectedUTXOs()}

@@ -28,6 +28,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
@@ -46,6 +47,8 @@ const (
 
 // DeviceInfo contains the usb descriptor info and a way to open the device for reading and writing.
 type DeviceInfo interface {
+	// IsBluetooth means the communication layer is Bluetooth, otherwise USB.
+	IsBluetooth() bool
 	VendorID() int
 	ProductID() int
 	UsagePage() int
@@ -61,16 +64,20 @@ func isBitBox(deviceInfo DeviceInfo) bool {
 }
 
 func isBitBox02(deviceInfo DeviceInfo) bool {
-	return (deviceInfo.Product() == bitbox02common.FirmwareHIDProductStringStandard ||
-		deviceInfo.Product() == bitbox02common.FirmwareHIDProductStringBTCOnly) &&
+	return (deviceInfo.Product() == bitbox02common.FirmwareDeviceProductStringBitBox02Multi ||
+		deviceInfo.Product() == bitbox02common.FirmwareDeviceProductStringBitBox02BTCOnly ||
+		deviceInfo.Product() == bitbox02common.FirmwareDeviceProductStringBitBox02PlusMulti ||
+		deviceInfo.Product() == bitbox02common.FirmwareDeviceProductStringBitBox02PlusBTCOnly) &&
 		deviceInfo.VendorID() == bitbox02VendorID &&
 		deviceInfo.ProductID() == bitbox02ProductID &&
 		(deviceInfo.UsagePage() == 0xffff || deviceInfo.Interface() == 0)
 }
 
 func isBitBox02Bootloader(deviceInfo DeviceInfo) bool {
-	return (deviceInfo.Product() == bitbox02common.BootloaderHIDProductStringStandard ||
-		deviceInfo.Product() == bitbox02common.BootloaderHIDProductStringBTCOnly) &&
+	return (deviceInfo.Product() == bitbox02common.BootloaderDeviceProductStringBitBox02Multi ||
+		deviceInfo.Product() == bitbox02common.BootloaderDeviceProductStringBitBox02BTCOnly ||
+		deviceInfo.Product() == bitbox02common.BootloaderDeviceProductStringBitBox02PlusMulti ||
+		deviceInfo.Product() == bitbox02common.BootloaderDeviceProductStringBitBox02PlusBTCOnly) &&
 		deviceInfo.VendorID() == bitbox02VendorID &&
 		deviceInfo.ProductID() == bitbox02ProductID &&
 		(deviceInfo.UsagePage() == 0xffff || deviceInfo.Interface() == 0)
@@ -87,6 +94,7 @@ type Manager struct {
 	onUnregister func(string)
 
 	updateCh chan struct{}
+	quitCh   chan struct{}
 
 	socksProxy socksproxy.SocksProxy
 
@@ -114,6 +122,7 @@ func NewManager(
 		onRegister:        onRegister,
 		onUnregister:      onUnregister,
 		updateCh:          make(chan struct{}),
+		quitCh:            make(chan struct{}),
 		socksProxy:        socksProxy,
 
 		log: logging.Get().WithGroup("manager"),
@@ -198,7 +207,7 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 	if err != nil {
 		return nil, err
 	}
-	product, err := bitbox02common.ProductFromHIDProductString(deviceInfo.Product())
+	product, err := bitbox02common.ProductFromDeviceProductString(deviceInfo.Product())
 	if err != nil {
 		return nil, err
 	}
@@ -212,6 +221,7 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 		product,
 		bitbox02.NewConfig(manager.bitbox02ConfigDir),
 		u2fhid.NewCommunication(hidDevice, bitboxCMD),
+		firmware.WithOptionalNoisePairingConfirmation(deviceInfo.IsBluetooth()),
 	), nil
 }
 
@@ -226,7 +236,7 @@ func (manager *Manager) makeBitBox02Bootloader(deviceInfo DeviceInfo) (
 	if err != nil {
 		return nil, err
 	}
-	product, err := bitbox02common.ProductFromHIDProductString(deviceInfo.Product())
+	product, err := bitbox02common.ProductFromDeviceProductString(deviceInfo.Product())
 	if err != nil {
 		return nil, err
 	}
@@ -268,6 +278,14 @@ func (manager *Manager) Update() {
 func (manager *Manager) listen() {
 	for {
 		select {
+		case <-manager.quitCh:
+			return
+		default:
+		}
+
+		select {
+		case <-manager.quitCh:
+			return
 		case <-manager.updateCh:
 		case <-time.After(time.Second):
 		}
@@ -331,4 +349,16 @@ func (manager *Manager) listen() {
 func (manager *Manager) Start() {
 	go manager.listen()
 	manager.Update()
+}
+
+// Close closes and unregisters all devices.
+func (manager *Manager) Close() {
+	manager.log.Info("Closing devices manager")
+	close(manager.quitCh)
+	for deviceID, device := range manager.devices {
+		manager.log.WithField("device-id", deviceID).Info("manager: closing device")
+		device.Close()
+		delete(manager.devices, deviceID)
+		manager.onUnregister(deviceID)
+	}
 }

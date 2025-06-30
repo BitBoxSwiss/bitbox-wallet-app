@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 apt-get update
 apt-get install -y --no-install-recommends curl ca-certificates
 
@@ -68,7 +67,8 @@ apt-get install -y --no-install-recommends \
         libnss3-dev \
         libicu-dev \
         libpcre2-16-0 \
-        libxkbfile-dev
+        libxkbfile-dev \
+        libxcb-cursor0
 
 # Install Qt libs. python3-dev is needed to compile aqtinstall.
 apt-get -y install --no-install-recommends python3-pip python3-dev
@@ -77,13 +77,12 @@ pip install -U pip && pip install aqtinstall
 # qtpositioning depends on qtserialport.
 # qtwebchannel is for the JS/backend bridge.
 # qtwebengine is for rendering the frontend.
-aqt install-qt linux desktop 6.2.4 -m qtpositioning qtserialport qtwebchannel qtwebengine --outputdir /opt/qt6
+aqt install-qt linux desktop 6.8.2 -m qtpositioning qtserialport qtwebchannel qtwebengine --outputdir /opt/qt6
 
 npm install -g npm@10
 npm install -g locize-cli
 
-mkdir -p /opt/go_dist
-curl https://dl.google.com/go/go1.22.4.linux-amd64.tar.gz | tar -xz -C /opt/go_dist
+curl https://dl.google.com/go/go1.23.7.linux-amd64.tar.gz | tar -xz -C /usr/local
 
 # fuse is needed to run the linuxdeployqt appimage.
 apt-get install -y --no-install-recommends fuse
@@ -102,4 +101,4 @@ gem install --no-document fpm
 # Needed for Android.
 apt-get install -y --no-install-recommends openjdk-17-jdk
 # Keep versions in sync with build.gradle and frontends/android/Makefile.
-/opt/android-sdk/cmdline-tools/tools/bin/sdkmanager "ndk;21.2.6472646" "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+/opt/android-sdk/cmdline-tools/tools/bin/sdkmanager "ndk;21.2.6472646" "platforms;android-34" "build-tools;34.0.0" "platform-tools" "cmake;3.31.6"

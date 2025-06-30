@@ -43,6 +43,7 @@ import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { Providers } from './contexts/providers';
 import { getLightningConfig, subscribeLightningConfig } from './api/lightning';
+import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
 import styles from './app.module.css';
 
 export const App = () => {
@@ -56,6 +57,7 @@ export const App = () => {
 
   const prevDevices = usePrevious(devices);
   const lightningConfig = useDefault(useSync(getLightningConfig, subscribeLightningConfig), { accounts: [] },);
+  const noLightningAccounts = lightningConfig.accounts.length === 0;
   useEffect(() => {
     return syncNewTxs((meta) => {
       notifyUser(t('notification.newTxs', {
@@ -69,7 +71,7 @@ export const App = () => {
     const currentURL = window.location.hash.replace(/^#/, '');
     const isIndex = currentURL === '' || currentURL === '/';
     const inAccounts = currentURL.startsWith('/account/');
-    const noLightningAccounts = lightningConfig.accounts.length === 0;
+    const deviceIDs = Object.keys(devices);
 
     // QT and Android start their apps in '/index.html' and '/android_asset/web/index.html' respectively
     // This re-routes them to '/' so we have a simpler uri structure
@@ -95,13 +97,21 @@ export const App = () => {
     }
     // if no devices are registered on specified views route to /
     if (
-      Object.keys(devices).length === 0
+      deviceIDs.length === 0
       && (
         currentURL.startsWith('/settings/device-settings/')
         || currentURL.startsWith('/manage-backups/')
       )
     ) {
       navigate('/');
+      return;
+    }
+    // if device is connected route to device settings
+    if (
+      deviceIDs.length === 1
+      && currentURL === '/settings/no-device-connected'
+    ) {
+      navigate(`/settings/device-settings/${deviceIDs[0]}`);
       return;
     }
     // if on an account that isn't registered route to /
@@ -125,8 +135,13 @@ export const App = () => {
       navigate('/');
       return;
     }
+    // if in no-accounts settings and has account go to manage-accounts
+    if (accounts.length && currentURL === '/settings/no-accounts') {
+      navigate('/settings/manage-accounts');
+      return;
+    }
 
-  }, [accounts, devices, navigate, lightningConfig]);
+  }, [accounts, devices, navigate, noLightningAccounts]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});
@@ -160,6 +175,9 @@ export const App = () => {
 
   const deviceIDs: string[] = Object.keys(devices);
   const activeAccounts = accounts.filter(acct => acct.active);
+
+  const showBottomNavigation = deviceIDs.length > 0 || activeAccounts.length > 0 || !noLightningAccounts;
+
   return (
     <ConnectedApp>
       <Providers>
@@ -168,10 +186,9 @@ export const App = () => {
           <AuthRequired/>
           <Sidebar
             accounts={activeAccounts}
-            deviceIDs={deviceIDs}
             devices={devices}
           />
-          <div className={styles.appContent}>
+          <div className={`${styles.appContent} ${showBottomNavigation ? styles.hasBottomNavigation : ''}`}>
             <WCSigningRequest />
             <Aopp />
             <KeystoreConnectPrompt />
@@ -198,6 +215,7 @@ export const App = () => {
             />
             <RouterWatcher />
           </div>
+          {showBottomNavigation && <BottomNavigation />}
           <Alert />
           <Confirm />
         </div>

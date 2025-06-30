@@ -21,7 +21,6 @@ import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSet
 import { NotesImport } from './components/appearance/notesImport';
 import { NotesExport } from './components/appearance/notesExport';
 import { DefaultCurrencyDropdownSetting } from './components/appearance/defaultCurrencyDropdownSetting';
-import { DisplaySatsToggleSetting } from './components/appearance/displaySatsToggleSetting';
 import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
 import { ActiveCurrenciesDropdownSetting } from './components/appearance/activeCurrenciesDropdownSetting';
 import { WithSettingsTabs } from './components/tabs';
@@ -32,8 +31,8 @@ import { SubTitle } from '@/components/title';
 import { TPagePropsWithSettingsTabs } from './types';
 import { GlobalBanners } from '@/components/banners';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-
-export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
+import style from './general.module.css';
+export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   return (
     <GuideWrapper>
@@ -51,19 +50,18 @@ export const General = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) 
               </>
             } />
           <View fullscreen={false}>
-            <ViewContent>
-              <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu deviceIDs={deviceIDs}>
-                <SubTitle>
+            <ViewContent fullWidth>
+              <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu devices={devices}>
+                <SubTitle className={style.subtitleWithMobilePadding}>
                   {t('settings.appearance')}
                 </SubTitle>
                 <LanguageDropdownSetting />
                 <DefaultCurrencyDropdownSetting />
                 <ActiveCurrenciesDropdownSetting />
                 <DarkmodeToggleSetting />
-                <DisplaySatsToggleSetting />
                 { hasAccounts ? (
                   <>
-                    <SubTitle className="m-top-default">
+                    <SubTitle className={`m-top-default ${style.subtitleWithMobilePadding}`}>
                       {t('settings.notes.title')}
                     </SubTitle>
                     <NotesExport />
