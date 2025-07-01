@@ -781,7 +781,7 @@ func (handlers *Handlers) postAccountsReinitialize(*http.Request) interface{} {
 func (handlers *Handlers) getDevicesRegistered(*http.Request) interface{} {
 	jsonDevices := map[string]string{}
 	for deviceID, device := range handlers.backend.DevicesRegistered() {
-		jsonDevices[deviceID] = device.ProductName()
+		jsonDevices[deviceID] = device.PlatformName()
 	}
 	return jsonDevices
 }

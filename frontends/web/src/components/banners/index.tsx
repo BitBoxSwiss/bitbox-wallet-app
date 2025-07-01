@@ -27,6 +27,7 @@ export const GlobalBanners = () => {
       <Update />
       <Banner msgKey="bitbox01" />
       <Banner msgKey="bitbox02" />
+      <Banner msgKey="bitbox02nova" />
       <MobileDataWarning />
       <Offline />
     </>

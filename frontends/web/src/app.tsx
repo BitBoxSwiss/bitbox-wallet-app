@@ -188,8 +188,8 @@ export const App = () => {
             <Aopp />
             <KeystoreConnectPrompt />
             {
-              Object.entries(devices).map(([deviceID, productName]) => {
-                if (productName === 'bitbox02') {
+              Object.entries(devices).map(([deviceID, platformName]) => {
+                if (platformName === 'bitbox02') {
                   return (
                     <Fragment key={deviceID}>
                       <BitBox02Wizard
