@@ -171,7 +171,8 @@ export const App = () => {
   const deviceIDs: string[] = Object.keys(devices);
   const activeAccounts = accounts.filter(acct => acct.active);
 
-  const showBottomNavigation = deviceIDs.length > 0 || activeAccounts.length > 0;
+  const isBitboxBootloader = devices[deviceIDs[0]] === 'bitbox02-bootloader';
+  const showBottomNavigation = (deviceIDs.length > 0 || activeAccounts.length > 0) && !isBitboxBootloader;
 
   return (
     <ConnectedApp>
