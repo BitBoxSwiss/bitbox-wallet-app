@@ -17,6 +17,7 @@
 import { useState, useEffect } from 'react';
 import { useLoad } from '@/hooks/api';
 import { useTranslation } from 'react-i18next';
+import { runningInIOS } from '@/utils/env';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { ViewContent, View } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
@@ -160,8 +161,7 @@ const Content = ({ deviceID }: TProps) => {
       { deviceInfo && deviceInfo.bluetooth ? (
         <div className={styles.section}>
           <SubTitle className={styles.withMobilePadding}>Bluetooth</SubTitle>
-          <BluetoothToggleEnabledSetting
-            deviceID={deviceID} />
+          { !runningInIOS() ? <BluetoothToggleEnabledSetting deviceID={deviceID} /> : null }
           <BluetoothFirmwareSetting
             firmwareVersion={deviceInfo.bluetooth.firmwareVersion}
           />
