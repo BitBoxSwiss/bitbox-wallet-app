@@ -43,6 +43,7 @@ import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { Providers } from './contexts/providers';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
+import { GlobalBanners } from '@/components/banners';
 import styles from './app.module.css';
 
 export const App = () => {
@@ -202,13 +203,16 @@ export const App = () => {
                 return null;
               })
             }
-            <AppRouter
-              accounts={accounts}
-              activeAccounts={activeAccounts}
-              deviceIDs={deviceIDs}
-              devices={devices}
-              devicesKey={devicesKey}
-            />
+            <div className={styles.contentContainer}>
+              <GlobalBanners />
+              <AppRouter
+                accounts={accounts}
+                activeAccounts={activeAccounts}
+                deviceIDs={deviceIDs}
+                devices={devices}
+                devicesKey={devicesKey}
+              />
+            </div>
             <RouterWatcher />
           </div>
           {showBottomNavigation && (

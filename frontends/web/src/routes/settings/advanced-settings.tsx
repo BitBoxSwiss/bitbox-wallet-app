@@ -33,8 +33,6 @@ import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { EnableAuthSetting } from './components/advanced-settings/enable-auth-setting';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 
 export type TProxyConfig = {
   proxyAddress: string;
@@ -76,9 +74,6 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <ContentWrapper>
-            <GlobalBanners />
-          </ContentWrapper>
           <Header
             hideSidebarToggler
             title={

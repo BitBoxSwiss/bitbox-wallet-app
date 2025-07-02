@@ -45,7 +45,6 @@ import { A } from '@/components/anchor/anchor';
 import { getConfig, setConfig } from '@/utils/config';
 import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Transaction } from '@/components/transactions/transaction';
 import { TransactionDetails } from '@/components/transactions/details';
@@ -254,7 +253,6 @@ const RemountAccount = ({
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
             <Status hidden={!hasCard} type="warning">
               {t('warning.sdcard')}
             </Status>
