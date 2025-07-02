@@ -91,6 +91,10 @@ select.priority {
 .feeCustom input {
     padding-right: 58px;
 }
+.feeCustom input:disabled {
+    padding-right: 66px;
+    padding-top: 2px;
+}
 
 .feeDescription,
 .feeProposed {
@@ -102,7 +106,12 @@ select.priority {
 }
 
 .feeProposed {
-    margin: 0;
+    margin: 0 0 var(--space-quarter) 0;
+}
+@media (min-width: 769px) {
+    .feeProposed {
+        margin: 0;
+    }
 }
 
 .feeDescription + .feeProposed {

@@ -35,6 +35,7 @@ type Props = {
   showCalculatingFeeLabel?: boolean;
   onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
   onCustomFee: (customFee: string) => void;
+  // value?: accountApi.FeeTargetCode;
   error?: string;
 }
 
@@ -54,11 +55,12 @@ export const FeeTargets = ({
   showCalculatingFeeLabel,
   onFeeTargetChange,
   onCustomFee,
-  error
+  error,
 }: Props) => {
   const { t } = useTranslation();
   const config = useLoad(getConfig);
   const [feeTarget, setFeeTarget] = useState<string>('');
+  // const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode | undefined>(value);
   const [options, setOptions] = useState<TOptions[] | null>(null);
   const [noFeeTargets, setNoFeeTargets] = useState<boolean>(false);
 
@@ -93,6 +95,11 @@ export const FeeTargets = ({
     setOptions(options);
     setFeeTarget(feeTargets.defaultFeeTarget);
     onFeeTargetChange(feeTargets.defaultFeeTarget);
+    // if (!feeTarget) {
+    //   setFeeTarget(feeTargets.defaultFeeTarget);
+    //   console.log('ONLY ONCE????', feeTargets.defaultFeeTarget);
+    //   onFeeTargetChange(feeTargets.defaultFeeTarget);
+    // }
     if (feeTargets.feeTargets.length === 0) {
       setNoFeeTargets(true);
     }
