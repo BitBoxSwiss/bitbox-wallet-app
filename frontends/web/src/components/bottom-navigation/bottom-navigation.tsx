@@ -17,6 +17,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { AccountIconSVG, ExchangeIconSVG, MoreIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
+import { useTabNavigation } from '@/contexts/TabNavigationContext';
 import type { Account } from '@/api/aopp';
 import styles from './bottom-navigation.module.css';
 
@@ -27,39 +28,74 @@ type Props = {
 export const BottomNavigation = ({ activeAccounts }: Props) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  const { getLastUrl } = useTabNavigation();
   const onlyHasOneAccount = activeAccounts.length === 1;
   const accountCode = activeAccounts[0]?.code || '';
+
+  const portfolioUrl = getLastUrl('portfolio');
+  const accountsUrl = getLastUrl('accounts');
+  const exchangeUrl = getLastUrl('exchange');
+  const settingsUrl = getLastUrl('settings');
+
+  const defaultUrls = {
+    portfolio: '/account-summary',
+    accounts: onlyHasOneAccount && accountCode ? `/account/${accountCode}` : '/accounts/all',
+    exchange: '/exchange/info',
+    settings: '/settings/more',
+  };
+
+  const isInCurrentTab = (tabName: string) => {
+    switch (tabName) {
+    case 'portfolio':
+      return pathname.startsWith('/account-summary');
+    case 'accounts':
+      return pathname.startsWith('/account/') || pathname.startsWith('/accounts/');
+    case 'exchange':
+      return pathname.startsWith('/exchange/');
+    case 'settings':
+      return pathname.startsWith('/settings') || pathname.startsWith('/bitsurance/');
+    default:
+      return false;
+    }
+  };
+
+  const getDestinationUrl = (tabName: string, savedUrl: string) => {
+    const isCurrentTab = isInCurrentTab(tabName);
+    const defaultUrl = defaultUrls[tabName as keyof typeof defaultUrls];
+
+    if (isCurrentTab) {
+      return defaultUrl;
+    }
+
+    return savedUrl || defaultUrl;
+  };
 
   return (
     <div className={styles.container}>
       <Link
         className={`${styles.link} ${pathname.startsWith('/account-summary') ? styles.active : ''}`}
-        to="/account-summary"
+        to={getDestinationUrl('portfolio', portfolioUrl)}
       >
         <PortfolioIconSVG />
         {t('accountSummary.portfolio')}
       </Link>
       <Link
         className={`${styles.link} ${pathname.startsWith('/account/') || pathname.startsWith('/accounts/') ? styles.active : ''}`}
-        to={
-          onlyHasOneAccount && accountCode ?
-            `/account/${accountCode}` :
-            '/accounts/all'
-        }
+        to={getDestinationUrl('accounts', accountsUrl)}
       >
         <AccountIconSVG />
         {onlyHasOneAccount ? t('account.account') : t('account.accounts')}
       </Link>
       <Link
         className={`${styles.link} ${pathname.startsWith('/exchange/') ? styles.active : ''}`}
-        to="/exchange/info"
+        to={getDestinationUrl('exchange', exchangeUrl)}
       >
         <ExchangeIconSVG />
         {t('generic.buySell')}
       </Link>
       <Link
         className={`${styles.link} ${pathname.startsWith('/settings') || pathname.startsWith('/bitsurance/') ? styles.active : ''}`}
-        to="/settings/more"
+        to={getDestinationUrl('settings', settingsUrl)}
       >
         <MoreIconSVG />
         {t('settings.more')}
