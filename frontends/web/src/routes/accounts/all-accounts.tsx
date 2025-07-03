@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useState, useEffect, useContext } from 'react';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import * as accountApi from '@/api/account';
 import { getBalance } from '@/api/account';
@@ -27,16 +27,20 @@ import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbut
 import { Main, Header } from '@/components/layout';
 import { Badge } from '@/components/badge/badge';
 import { ChevronRightDark, USBSuccess } from '@/components/icon/icon';
-import { AppContext } from '@/contexts/AppContext';
 import { AllAccountsGuide } from '@/routes/accounts/all-accounts-guide';
 import { useMountedRef } from '@/hooks/mount';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import styles from './all-accounts.module.css';
 
 type AllAccountsProps = {
   accounts?: accountApi.IAccount[];
 };
 
-const AccountItem = ({ account, hideAmounts }: { account: accountApi.IAccount, hideAmounts: boolean }) => {
+type TAccountItemProp = {
+  account: accountApi.IAccount;
+};
+
+const AccountItem = ({ account }: TAccountItemProp) => {
   const [balance, setBalance] = useState<accountApi.TAmountWithConversions>();
   const mounted = useMountedRef();
 
@@ -70,12 +74,7 @@ const AccountItem = ({ account, hideAmounts }: { account: accountApi.IAccount, h
       </p>
 
       <div className={styles.accountBalanceContainer}>
-        <div className={styles.accountBalance}>
-          {balance ? (hideAmounts ? '***' : balance.amount) : '...'}
-        </div>
-        <div className={styles.coinUnit}>
-          {balance ? balance.unit : ''}
-        </div>
+        <AmountWithUnit amount={balance} />
       </div>
       <div className={styles.chevron}>
         <ChevronRightDark />
@@ -84,18 +83,15 @@ const AccountItem = ({ account, hideAmounts }: { account: accountApi.IAccount, h
   );
 };
 
-
 /**
  * This component will only be shown on mobile.
  **/
 export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
   const { t } = useTranslation();
-  const { hideAmounts } = useContext(AppContext);
   const accountsByKeystore = getAccountsByKeystore(accounts);
   useOnlyVisitableOnMobile('/settings/manage-accounts');
 
   return (
-
     <Main>
       <Header title={<h2>{t('account.accounts')}</h2>}>
         <HideAmountsButton />
@@ -124,7 +120,7 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
                 </div>
                 <div className={styles.accountsList}>
                   {keystore.accounts.map(account => (
-                    <AccountItem hideAmounts={hideAmounts} key={`account-${account.code}`} account={account} />
+                    <AccountItem key={`account-${account.code}`} account={account} />
                   ))}
                 </div>
               </div>
@@ -134,6 +130,5 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
       </View>
       <AllAccountsGuide />
     </Main >
-
   );
 };
