@@ -22,18 +22,13 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
-	"path"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
 )
 
@@ -47,18 +42,18 @@ type Blockbook struct {
 	url        string
 	httpClient *http.Client
 	limiter    *rate.Limiter
-	// TODO remove before merging into master?
-	log *logrus.Entry
 }
 
 // NewBlockbook creates a new instance of EtherScan.
 func NewBlockbook(chainId string, httpClient *http.Client) *Blockbook {
+	if chainId != "1" {
+		panic(fmt.Sprintf("ChainID must be '1', got %s instead", chainId))
+	}
 	// TODO chainID is not used here, do we have blockbook running for SEPETH as well?
 	return &Blockbook{
 		url:        "https://bb1.shiftcrypto.io/api/",
 		httpClient: httpClient,
 		limiter:    rate.NewLimiter(rate.Limit(callsPerSec), 1),
-		log:        logging.Get().WithField("ETH Client", "Blockbook"),
 	}
 }
 
@@ -92,7 +87,9 @@ func (blockbook *Blockbook) address(ctx context.Context, account common.Address,
 	params := url.Values{}
 	address := account.Hex()
 
-	if err := blockbook.call(ctx, path.Join("address", address), params, result); err != nil {
+	addressPath := fmt.Sprintf("address/%s", address)
+
+	if err := blockbook.call(ctx, addressPath, params, result); err != nil {
 		return errp.WithStack(err)
 	}
 

@@ -226,11 +226,9 @@ type Backend struct {
 
 	socksProxy socksproxy.SocksProxy
 	// can be a regular or, if Tor is enabled in the config, a SOCKS5 proxy client.
-	httpClient          *http.Client
-	etherScanHTTPClient *http.Client
-	blockbookHTTPClient *http.Client
-	ratesUpdater        *rates.RateUpdater
-	banners             *banners.Banners
+	httpClient   *http.Client
+	ratesUpdater *rates.RateUpdater
+	banners      *banners.Banners
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
 	tstCheckAccountUsed func(accounts.Interface) bool
@@ -293,8 +291,6 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.notifier = notifier
 	backend.socksProxy = backendProxy
 	backend.httpClient = hclient
-	backend.etherScanHTTPClient = hclient
-	backend.blockbookHTTPClient = hclient
 
 	ratesCache := filepath.Join(arguments.CacheDirectoryPath(), "exchangerates")
 	if err := os.MkdirAll(ratesCache, 0700); err != nil {
@@ -530,22 +526,22 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
 			"https://blockchair.com/litecoin/transaction/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
-		etherScan := etherscan.NewEtherScan("1", backend.etherScanHTTPClient)
-		blockBook := blockbook.NewBlockbook("1", backend.blockbookHTTPClient)
+		etherScan := etherscan.NewEtherScan("1", backend.httpClient)
+		blockBook := blockbook.NewBlockbook("1", backend.httpClient)
 		rpcWrapper := wrapper.NewClient(blockBook, etherScan)
 		coin = eth.NewCoin(rpcWrapper, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			rpcWrapper,
 			nil)
 	case code == coinpkg.CodeSEPETH:
-		etherScan := etherscan.NewEtherScan("11155111", backend.etherScanHTTPClient)
+		etherScan := etherscan.NewEtherScan("11155111", backend.httpClient)
 		coin = eth.NewCoin(etherScan, code, "Ethereum Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig,
 			"https://sepolia.etherscan.io/tx/",
 			etherScan,
 			nil)
 	case erc20Token != nil:
-		etherScan := etherscan.NewEtherScan("1", backend.etherScanHTTPClient)
-		blockBook := blockbook.NewBlockbook("1", backend.blockbookHTTPClient)
+		etherScan := etherscan.NewEtherScan("1", backend.httpClient)
+		blockBook := blockbook.NewBlockbook("1", backend.httpClient)
 		rpcWrapper := wrapper.NewClient(blockBook, etherScan)
 		coin = eth.NewCoin(rpcWrapper, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
