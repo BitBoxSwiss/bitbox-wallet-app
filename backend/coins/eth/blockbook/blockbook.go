@@ -29,9 +29,12 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
 )
 
@@ -45,6 +48,8 @@ type Blockbook struct {
 	url        string
 	httpClient *http.Client
 	limiter    *rate.Limiter
+	// TODO remove before merging into master?
+	log *logrus.Entry
 }
 
 // NewBlockbook creates a new instance of EtherScan.
@@ -54,6 +59,7 @@ func NewBlockbook(chainId string, httpClient *http.Client) *Blockbook {
 		url:        "https://bb1.shiftcrypto.io/api/",
 		httpClient: httpClient,
 		limiter:    rate.NewLimiter(rate.Limit(callsPerSec), 1),
+		log:        logging.Get().WithField("ETH Client", "Blockbook"),
 	}
 }
 
@@ -129,7 +135,33 @@ func (blockbook *Blockbook) Transactions(blockTipHeight *big.Int, address common
 
 // SendTransaction implements rpc.Interface.
 func (blockbook *Blockbook) SendTransaction(ctx context.Context, tx *types.Transaction) error {
-	return fmt.Errorf("Not yet implemented")
+	params := url.Values{}
+
+	result := struct {
+		Txid  string `json:"result,omitempty"`
+		Error struct {
+			Message string `json:"message,omitempty"`
+		} `json:"error,omitempty"`
+	}{}
+
+	encodedTx, err := tx.MarshalBinary()
+	if err != nil {
+		blockbook.log.Errorf("Failed to marshal transaction: %v", err)
+		return errp.WithStack(err)
+	}
+
+	if err := blockbook.call(ctx, path.Join("sendtx", hexutil.Encode(encodedTx)), params, &result); err != nil {
+		blockbook.log.Errorf("Failed to send transaction: %v", err)
+		return errp.WithStack(err)
+	}
+
+	if result.Error.Message != "" {
+		blockbook.log.Errorf("Error sending transaction: %s", result.Error.Message)
+		return errp.Newf("error sending transaction: %s", result.Error.Message)
+	}
+
+	blockbook.log.Infof("Transaction sent: %s", result.Txid)
+	return nil
 }
 
 // ERC20Balance implements rpc.Interface.
