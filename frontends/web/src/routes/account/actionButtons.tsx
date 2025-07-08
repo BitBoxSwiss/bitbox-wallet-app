@@ -15,12 +15,13 @@
  */
 
 import { MouseEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { WalletConnectLight } from '@/components/icon';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { connectKeystore, AccountCode, IAccount, CoinCode } from '@/api/account';
 import { isEthereumBased } from './utils';
+import { ButtonLink } from '@/components/forms';
 import style from './account.module.css';
 
 type TProps = {
@@ -52,50 +53,49 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
     }
   };
 
+  const canClickSend = canSend && accountDataLoaded;
+
   return (
     <div className={`${style.actionsContainer} ${walletConnectEnabled ? style.withWalletConnect : ''}`}>
-      {canSend && accountDataLoaded ? (
-        <Link key="sendLink" to={sendLink} className={style.send} onClick={isEthereumBased(coinCode) ? maybeRouteSend : undefined}>
-          <span>{t('button.send')}</span>
-        </Link>
-      ) : (
-        <span key="sendDisabled" className={`${style.send} ${style.disabled}`}>
-          {t('button.send')}
-        </span>
-      )}
+      <ButtonLink
+        className={style.button}
+        disabled={!canClickSend}
+        primary
+        to={sendLink}
+        onClick={isEthereumBased(coinCode) ? maybeRouteSend : undefined}
+      >
+        <span>{t('button.send')}</span>
+      </ButtonLink>
 
-      {accountDataLoaded ? (
-        <Link key="receive" to={`/account/${code}/receive`} className={style.receive}>
-          <span>{t('button.receive')}</span>
-        </Link>
-      ) : (
-        <span key="receiveDisabled" className={`${style.receive} ${style.disabled}`}>
-          {t('button.receive')}
-        </span>
-      )}
+      <ButtonLink
+        className={style.button}
+        disabled={!accountDataLoaded}
+        primary
+        to={`/account/${code}/receive`}
+      >
+        <span>{t('button.receive')}</span>
+      </ButtonLink>
 
       {(exchangeSupported && !isMobile) && (
-        accountDataLoaded ? (
-          <Link key="exchange" to={`/exchange/info/${code}`} className={style.exchange}>
-            <span>{t('generic.buySell')}</span>
-          </Link>
-        ) : (
-          <span key="buySellDisabled" className={`${style.exchange} ${style.disabled}`}>
-            {t('generic.buySell')}
-          </span>
-        )
+        <ButtonLink
+          className={style.button}
+          disabled={!accountDataLoaded}
+          primary
+          to={`/exchange/info/${code}`}
+        >
+          <span>{t('generic.buySell')}</span>
+        </ButtonLink>
       )}
 
       {walletConnectEnabled && (
-        accountDataLoaded ? (
-          <Link key="wallet-connect" to={`/account/${code}/wallet-connect/dashboard`} className={style.walletConnect}>
-            <WalletConnectLight width={24}/> {!isLargeTablet && <span>Wallet Connect</span>}
-          </Link>
-        ) : (
-          <span key="wcDisabled" className={`${style.walletConnect} ${style.disabled}`}>
-            <WalletConnectLight width={24}/> {!isLargeTablet && <span>Wallet Connect</span>}
-          </span>
-        )
+        <ButtonLink
+          className={style.button}
+          primary
+          disabled={!accountDataLoaded}
+          to={`/account/${code}/wallet-connect/dashboard`}
+        >
+          <WalletConnectLight width={24}/> {!isLargeTablet && <span>Wallet Connect</span>}
+        </ButtonLink>
       )}
     </div>
   );
