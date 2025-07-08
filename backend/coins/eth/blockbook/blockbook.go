@@ -23,15 +23,19 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
 )
 
@@ -45,6 +49,8 @@ type Blockbook struct {
 	url        string
 	httpClient *http.Client
 	limiter    *rate.Limiter
+	// TODO remove before merging into master?
+	log *logrus.Entry
 }
 
 // NewBlockbook creates a new instance of EtherScan.
@@ -54,6 +60,7 @@ func NewBlockbook(chainId string, httpClient *http.Client) *Blockbook {
 		url:        "https://bb1.shiftcrypto.io/api/",
 		httpClient: httpClient,
 		limiter:    rate.NewLimiter(rate.Limit(callsPerSec), 1),
+		log:        logging.Get().WithField("ETH Client", "Blockbook"),
 	}
 }
 
@@ -76,6 +83,7 @@ func (blockbook *Blockbook) call(ctx context.Context, handler string, params url
 	if err != nil {
 		return errp.WithStack(err)
 	}
+
 	if err := json.Unmarshal(body, result); err != nil {
 		return errp.Newf("unexpected response from blockbook: %s", string(body))
 	}
@@ -83,8 +91,7 @@ func (blockbook *Blockbook) call(ctx context.Context, handler string, params url
 	return nil
 }
 
-func (blockbook *Blockbook) address(ctx context.Context, account common.Address, result interface{}) error {
-	params := url.Values{}
+func (blockbook *Blockbook) address(ctx context.Context, account common.Address, params url.Values, result interface{}) error {
 	address := account.Hex()
 
 	if err := blockbook.call(ctx, path.Join("address", address), params, result); err != nil {
@@ -100,7 +107,7 @@ func (blockbook *Blockbook) Balance(ctx context.Context, account common.Address)
 		Balance string `json:"balance"`
 	}{}
 
-	if err := blockbook.address(ctx, account, &result); err != nil {
+	if err := blockbook.address(ctx, account, url.Values{}, &result); err != nil {
 		return nil, errp.WithStack(err)
 	}
 
@@ -122,9 +129,103 @@ func (blockbook *Blockbook) PendingNonceAt(ctx context.Context, account common.A
 	return 0, fmt.Errorf("Not yet implemented")
 }
 
+// prepareTransactions casts to []accounts.Transactions and removes duplicate entries and sets the
+// transaction type (send, receive, send to self) based on the account address.
+func prepareTransactions(
+	isERC20 bool,
+	blockTipHeight *big.Int,
+	isInternal bool,
+	transactions []*Tx, address common.Address) ([]*accounts.TransactionData, error) {
+
+	// TODO figure out if needed. Etherscan.go uses this to compute the num of confirmations.
+	// But numConfirmations is already returned by the API call.
+	_ = blockTipHeight
+
+	_ = isInternal // TODO figure out how to deal with internal txs.
+
+	castedTransactions := make([]*accounts.TransactionData, 0, len(transactions))
+	ours := address.Hex()
+	for _, tx := range transactions {
+		fee := coin.NewAmount(tx.FeesSat.Int)
+		timestamp := time.Unix(tx.Blocktime, 0)
+		status, err := tx.Status()
+		// TODO do not ignore unconfirmed tx
+		if status == accounts.TxStatusPending {
+			continue
+		}
+		if err != nil {
+			return nil, errp.WithStack(err)
+		}
+		from := tx.Vin[0].Addresses[0]
+		var to string
+		if len(tx.TokenTransfers) > 0 {
+			to = tx.TokenTransfers[0].To
+		} else {
+			to = tx.Vout[0].Addresses[0]
+		}
+		if ours != from && ours != to {
+			return nil, errp.New("transaction does not belong to our account")
+		}
+
+		var txType accounts.TxType
+		switch {
+		case ours == from && ours == to:
+			txType = accounts.TxTypeSendSelf
+		case ours == from:
+			txType = accounts.TxTypeSend
+		default:
+			txType = accounts.TxTypeReceive
+		}
+
+		castedTransaction := &accounts.TransactionData{
+			Fee:                &fee,
+			FeeIsDifferentUnit: isERC20,
+			Timestamp:          &timestamp,
+			TxID:               tx.Txid,
+			// TODO InternaID?
+			Height:                   tx.Blockheight,
+			NumConfirmations:         int(tx.Confirmations),
+			NumConfirmationsComplete: ethtypes.NumConfirmationsComplete,
+			Status:                   status,
+			Type:                     txType,
+			Amount:                   tx.Amount(),
+			Gas:                      tx.EthereumSpecific.GasUsed.Uint64(),
+			Nonce:                    &tx.EthereumSpecific.Nonce,
+			Addresses:                tx.Addresses(),
+			IsErc20:                  isERC20,
+		}
+		castedTransactions = append(castedTransactions, castedTransaction)
+	}
+	return castedTransactions, nil
+}
+
 // Transactions implement TransactionSource.
 func (blockbook *Blockbook) Transactions(blockTipHeight *big.Int, address common.Address, endBlock *big.Int, erc20Token *erc20.Token) ([]*accounts.TransactionData, error) {
-	return nil, fmt.Errorf("Not yet implemented")
+	params := url.Values{}
+	isERC20 := erc20Token != nil
+	if isERC20 {
+		params.Set("contract", erc20Token.ContractAddress().Hex())
+	}
+	params.Set("details", "txslight")
+	if endBlock != nil {
+		params.Set("endBlock", endBlock.String())
+	}
+	result := struct {
+		Transactions []*Tx `json:"transactions"`
+	}{}
+
+	if err := blockbook.address(context.Background(), address, params, &result); err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	transactionsNormal, err := prepareTransactions(isERC20, blockTipHeight, false, result.Transactions, address)
+
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	return transactionsNormal, nil
+
 }
 
 // SendTransaction implements rpc.Interface.
