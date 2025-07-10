@@ -343,6 +343,32 @@ type KeystoreBalance = struct {
 	CoinsBalance AmountsByCoin `json:"coinsBalance"`
 }
 
+// AccountsFiatBalance returns the total fiat balance of a list of accounts.
+func (backend *Backend) AccountsFiatBalance(accounts AccountsList, fiatUnit string) (*big.Rat, error) {
+	keystoreBalance := new(big.Rat)
+
+	for _, account := range accounts {
+		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
+			continue
+		}
+		if account.FatalError() {
+			continue
+		}
+		err := account.Initialize()
+		if err != nil {
+			return nil, err
+		}
+
+		accountFiatBalance, err := backend.accountFiatBalance(account, fiatUnit)
+		if err != nil {
+			return nil, err
+		}
+		keystoreBalance.Add(keystoreBalance, accountFiatBalance)
+	}
+
+	return keystoreBalance, nil
+}
+
 // keystoresBalance returns a map of accounts' total balances across coins, grouped by keystore.
 func (backend *Backend) keystoresBalance() (map[string]KeystoreBalance, error) {
 	keystoreBalanceMap := make(map[string]KeystoreBalance)

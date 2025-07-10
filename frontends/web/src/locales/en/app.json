@@ -2,6 +2,8 @@
   "account": {
     "account": "Account",
     "accounts": "Accounts",
+    "backupReminder": "Your wallet <strong>{{name}}</strong> just passed {{fiat}} 1000!\n\nWe recommend creating a paper backup for extra protection. It's quick and simple.",
+    "backupReminderLink": "Create paper backup",
     "disconnect": "Connection lost. Retrying…",
     "export": "Export",
     "exportTransactions": "Export transactions to downloads folder as CSV file",
@@ -638,7 +640,8 @@
   "confirmOnDevice": "Please confirm on your device.",
   "connectKeystore": {
     "promptNoName": "Please connect your BitBox to continue",
-    "promptWithName": "Please connect your BitBox named \"{{name}}\" to continue"
+    "promptWithName": "Please connect your BitBox named \"{{name}}\" to continue",
+    "promptWithNameForBackup": "Please connect your BitBox named \"{{name}}\" to create a paper backup"
   },
   "darkmode": {
     "toggle": "Dark mode"
