@@ -39,6 +39,7 @@ import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { BackupReminder } from '@/components/banners/backup';
 
 type TProps = {
   accounts: accountApi.IAccount[];
@@ -60,6 +61,7 @@ export const AccountsSummary = ({
   const { defaultCurrency } = useContext(RatesContext);
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
+  const [balancesTrigger, setBalancesTrigger] = useState<number>(Date.now());
 
   const [chartData, setChartData] = useState<accountApi.TChartData>();
   const [accountsBalanceSummary, setAccountsBalanceSummary] = useState<accountApi.TAccountsBalanceSummary>();
@@ -115,6 +117,7 @@ export const AccountsSummary = ({
       ...prevBalances,
       [code]: balance.balance
     }));
+    setBalancesTrigger(Date.now());
   }, [mounted]);
 
   const update = useCallback((code: accountApi.AccountCode) => {
@@ -150,6 +153,11 @@ export const AccountsSummary = ({
     getAccountsBalanceSummary();
   }, [getChartData, getAccountsBalanceSummary, defaultCurrency]);
 
+  useEffect(() => {
+    setBalancesTrigger(Date.now());
+  }, [defaultCurrency]);
+
+
   // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
     // set new timer
@@ -179,6 +187,14 @@ export const AccountsSummary = ({
             <Status hidden={!hasCard} type="warning">
               {t('warning.sdcard')}
             </Status>
+            {accountsByKeystore.map(({ keystore }) => (
+              <BackupReminder
+                key={keystore.rootFingerprint}
+                keystore={keystore}
+                deviceID={Object.keys(devices)[0]}
+                trigger={balancesTrigger}
+              />
+            ))}
           </ContentWrapper>
           <Header title={<h2>{t('accountSummary.title')}</h2>}>
             <HideAmountsButton />
