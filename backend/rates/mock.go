@@ -36,9 +36,13 @@ func MockRateUpdater() *RateUpdater {
 	updater.last = map[string]map[string]float64{
 		"BTC": {
 			"USD": 21.0,
+			"EUR": 18.0,
+			"CHF": 19.0,
 		},
 		"ETH": {
 			"USD": 1.0,
+			"EUR": 0.9,
+			"CHF": 0.95,
 		},
 	}
 	return updater
