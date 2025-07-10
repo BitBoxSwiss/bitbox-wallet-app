@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021-2024 Shift Crypto AG
+ * Copyright 2021-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,13 +91,16 @@ export const FeeTargets = ({
       });
     }
     setOptions(options);
+    if (feeTarget) {
+      return;
+    }
     setFeeTarget(feeTargets.defaultFeeTarget);
     onFeeTargetChange(feeTargets.defaultFeeTarget);
     if (feeTargets.feeTargets.length === 0) {
       setNoFeeTargets(true);
     }
     focusInput();
-  }, [t, feeTargets, focusInput, accountCode, config, onFeeTargetChange, disabled]);
+  }, [t, feeTarget, feeTargets, focusInput, accountCode, config, onFeeTargetChange, disabled]);
 
   const handleFeeTargetChange = (event: React.SyntheticEvent) => {
     const target = event.target as HTMLSelectElement;
