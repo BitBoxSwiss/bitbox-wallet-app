@@ -2,6 +2,8 @@
   "account": {
     "account": "Account",
     "accounts": "Accounts",
+    "backupReminder": "Your wallet <strong>{{name}}</strong> passed {{fiat}} {{threshold}}!\n\nWe recommend creating a paper backup for extra protection. It's quick and simple.",
+    "backupReminderLink": "Create paper backup",
     "disconnect": "Connection lost. Retrying…",
     "export": "Export",
     "exportTransactions": "Export transactions to downloads folder as CSV file",

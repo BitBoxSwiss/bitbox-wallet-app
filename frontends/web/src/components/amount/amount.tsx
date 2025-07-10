@@ -44,7 +44,7 @@ const formatSats = (amount: string): JSX.Element => {
   );
 };
 
-const formatLocalizedAmount = (
+export const formatLocalizedAmount = (
   amount: string,
   group: string,
   decimal: string

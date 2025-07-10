@@ -343,6 +343,45 @@ type KeystoreBalance = struct {
 	CoinsBalance AmountsByCoin `json:"coinsBalance"`
 }
 
+// AccountsFiatAndCoinBalance returns the total fiat balance and the balance for each coin, of a list of accounts.
+func (backend *Backend) AccountsFiatAndCoinBalance(accounts AccountsList, fiatUnit string) (*big.Rat, map[coinpkg.Code]*big.Int, error) {
+	keystoreBalance := new(big.Rat)
+	keystoreCoinsBalance := make(map[coinpkg.Code]*big.Int)
+
+	for _, account := range accounts {
+		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
+			continue
+		}
+		if account.FatalError() {
+			continue
+		}
+		err := account.Initialize()
+		if err != nil {
+			return nil, nil, err
+		}
+
+		accountFiatBalance, err := backend.accountFiatBalance(account, fiatUnit)
+		if err != nil {
+			return nil, nil, err
+		}
+		keystoreBalance.Add(keystoreBalance, accountFiatBalance)
+
+		coinCode := account.Coin().Code()
+		balance, err := account.Balance()
+		if err != nil {
+			return nil, nil, err
+		}
+		accountBalance := balance.Available().BigInt()
+		if _, ok := keystoreCoinsBalance[coinCode]; !ok {
+			keystoreCoinsBalance[coinCode] = accountBalance
+		} else {
+			keystoreCoinsBalance[coinCode] = new(big.Int).Add(keystoreCoinsBalance[coinCode], accountBalance)
+		}
+	}
+
+	return keystoreBalance, keystoreCoinsBalance, nil
+}
+
 // keystoresBalance returns a map of accounts' total balances across coins, grouped by keystore.
 func (backend *Backend) keystoresBalance() (map[string]KeystoreBalance, error) {
 	keystoreBalanceMap := make(map[string]KeystoreBalance)
@@ -353,38 +392,9 @@ func (backend *Backend) keystoresBalance() (map[string]KeystoreBalance, error) {
 		return nil, err
 	}
 	for rootFingerprint, accountList := range accountsByKeystore {
-		keystoreCoinsBalance := make(map[coinpkg.Code]*big.Int)
-		keystoreTotalBalance := new(big.Rat)
-		for _, account := range accountList {
-			if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
-				continue
-			}
-			if account.FatalError() {
-				continue
-			}
-			err := account.Initialize()
-			if err != nil {
-				return nil, err
-			}
-
-			accountFiatBalance, err := backend.accountFiatBalance(account, fiatUnit)
-			if err != nil {
-				return nil, err
-			}
-			keystoreTotalBalance.Add(keystoreTotalBalance, accountFiatBalance)
-
-			coinCode := account.Coin().Code()
-			balance, err := account.Balance()
-			if err != nil {
-				return nil, err
-			}
-			accountBalance := balance.Available().BigInt()
-			if _, ok := keystoreCoinsBalance[coinCode]; !ok {
-				keystoreCoinsBalance[coinCode] = accountBalance
-
-			} else {
-				keystoreCoinsBalance[coinCode] = new(big.Int).Add(keystoreCoinsBalance[coinCode], accountBalance)
-			}
+		keystoreTotalBalance, keystoreCoinsBalance, err := backend.AccountsFiatAndCoinBalance(accountList, fiatUnit)
+		if err != nil {
+			return nil, err
 		}
 
 		keystoreCoinsAmount := AmountsByCoin{}

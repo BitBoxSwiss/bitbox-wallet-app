@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Added BTC Direct sell option
+- Added a banner to remind user to backup their seed phrase when an account reaches a certain threshold.
 
 ## v4.48.2
 - iOS: Fix blank screens after prolonged inactivity
