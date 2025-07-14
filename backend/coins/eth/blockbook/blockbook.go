@@ -29,6 +29,8 @@ import (
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"golang.org/x/time/rate"
 )
 
@@ -49,7 +51,6 @@ func NewBlockbook(chainId string, httpClient *http.Client) *Blockbook {
 	if chainId != "1" {
 		panic(fmt.Sprintf("ChainID must be '1', got %s instead", chainId))
 	}
-	// TODO chainID is not used here, do we have blockbook running for SEPETH as well?
 	return &Blockbook{
 		url:        "https://bb1.shiftcrypto.io/api/",
 		httpClient: httpClient,
