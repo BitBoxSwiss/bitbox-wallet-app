@@ -16,6 +16,9 @@ import android.content.res.Configuration;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkRequest;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -84,6 +87,51 @@ public class MainActivity extends AppCompatActivity {
     // This is for the file picker dialog invoked by file upload forms in the WebView.
     // Used by e.g. MoonPay's KYC forms.
     private ValueCallback<Uri[]> filePathCallback;
+
+    private ConnectivityManager connectivityManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
+
+    private boolean hasInternetConnectivity(NetworkCapabilities capabilities) {
+        // To avoid false positives, if we can't obtain connectivity info,
+        // we return true.
+        // Note: this should never happen per Android documentation, as:
+        // - these can not be null it come from the onCapabilitiesChanged callback.
+        // - when obtained with getNetworkCapabilities(network), they can only be null if the
+        //   network is null or unknown, but we guard against both in the caller.
+        if (capabilities == null) {
+            Util.log("Got null capabilities when we shouldn't have. Assuming we are online.");
+            return true;
+        }
+
+
+        boolean hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+
+        // Use VALIDATED where available (API 23+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // We need to check for both internet and validated, since validated reports that the system
+            // found connectivity the last time it checked. But if this callback triggers when going offline
+            // (e.g. airplane mode), this bit would still be true when we execute this method.
+            boolean isValidated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+            return hasInternet && isValidated;
+        }
+
+        // Fallback for older devices
+        return hasInternet;
+    }
+
+    private void checkConnectivity() {
+        Network activeNetwork = connectivityManager.getActiveNetwork();
+
+        // If there is no active network (e.g. airplane mode), there is no check to perform.
+        if (activeNetwork == null) {
+            Mobileserver.setOnline(false);
+            return;
+        }
+
+        NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
+
+        Mobileserver.setOnline(hasInternetConnectivity(capabilities));
+    }
 
     // Connection to bind with GoService
     private ServiceConnection connection = new ServiceConnection() {
@@ -369,11 +417,30 @@ public class MainActivity extends AppCompatActivity {
         // We call updateDevice() here in case the app was started while the device was already connected.
         // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
         this.updateDevice();
+
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onCapabilitiesChanged(android.net.Network network, android.net.NetworkCapabilities capabilities) {
+                super.onCapabilitiesChanged(network, capabilities);
+                Mobileserver.setOnline(hasInternetConnectivity(capabilities));
+            }
+            // When we lose the network, onCapabilitiesChanged does not trigger, so we need to override onLost.
+            @Override
+            public void onLost(Network network) {
+                super.onLost(network);
+                Mobileserver.setOnline(false);
+            }
+        };
+
     }
 
     private void startServer() {
         final GoViewModel gVM = ViewModelProviders.of(this).get(GoViewModel.class);
         goService.startServer(getApplicationContext().getFilesDir().getAbsolutePath(), gVM.getGoEnvironment(), gVM.getGoAPI());
+
+        // Trigger connectivity check (as the network may already be unavailable when the app starts).
+        checkConnectivity();
     }
 
     private static String readRawText(InputStream inputStream) throws IOException {
@@ -467,6 +534,14 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+
+        NetworkRequest request = new NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+            .build();
+        // Register the network callback to listen for changes in network capabilities.
+        connectivityManager.registerNetworkCallback(request, networkCallback);
     }
 
     @Override
@@ -494,6 +569,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Listen on changes in the network connection. We are interested in if the user is connected to a mobile data connection.
         registerReceiver(this.networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+        // Trigger connectivity check (as the network may already be unavailable when the app starts).
+        checkConnectivity();
 
         Intent intent = getIntent();
         handleIntent(intent);
@@ -574,6 +652,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        if (connectivityManager != null && networkCallback != null) {
+            connectivityManager.unregisterNetworkCallback(networkCallback);
+        }
         Util.log("lifecycle: onStop");
     }
 
