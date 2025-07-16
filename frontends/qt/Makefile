@@ -52,8 +52,8 @@ linux:
 	cp resources/linux/usr/share/icons/hicolor/128x128/apps/bitbox.png build/linux-tmp
 	mkdir build/tmp-deb/opt/
 	cp -aR build/linux-tmp build/tmp-deb/opt/bitbox
-	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v 4.48.0 -C ../tmp-deb/
-	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.48.0 -C ../tmp-deb/
+	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v 4.48.1 -C ../tmp-deb/
+	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.48.1 -C ../tmp-deb/
 	# create AppImage
 	cd build/linux-tmp && \
 		./squashfs-root/AppRun BitBox \
