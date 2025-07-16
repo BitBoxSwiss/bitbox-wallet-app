@@ -427,7 +427,7 @@
             },
             "security": {
               "link": "BitBox02 bedreigingsmodel",
-              "text": "De Private Trading Desk van BTC Direct is een externe dienst die niet valt onder het BitBox02 Security Threat model. BTC Direct is echter goed bekend met BitBox-producten en biedt veilige, deskundige begeleiding. BitBox-producten verifiëren cryptoadressen tijdens transacties om een veilige levering te garanderen.",
+              "text": "De Private Trading Desk van BTC Direct is een externe dienst die niet valt onder het BitBox Security Threat model. BTC Direct is echter goed bekend met BitBox-producten en biedt veilige, deskundige begeleiding. BitBox-producten verifiëren cryptoadressen tijdens transacties om een veilige levering te garanderen.",
               "title": "Beveiliging"
             },
             "title": "Disclaimer"
@@ -460,8 +460,8 @@
               "title": "Betaalmethoden en kosten"
             },
             "security": {
-              "description": "BTC Direct is een externe dienst die niet valt onder het BitBox02 Security Threat model. We werken nauw samen met BTC Direct om de algemene veiligheid te verbeteren.",
-              "link": "BitBox02 Security Threat model",
+              "description": "BTC Direct is een externe dienst die niet valt onder het BitBox Security Threat model. We werken nauw samen met BTC Direct om de algemene veiligheid te verbeteren.",
+              "link": "BitBox Security Threat model",
               "title": "Veiligheid"
             },
             "title_bitcoin": "Koop bitcoin met BTC Direct",
@@ -1600,7 +1600,6 @@
   },
   "settings": {
     "about": "Over",
-    "accounts": "Accounts",
     "advancedSettings": "Geavanceerde instellingen ",
     "appearance": "Uiterlijk",
     "electrum": {
@@ -1807,7 +1806,6 @@
     },
     "pairingSuccess": "DApp met success verbonden. Je kunt verdergaan op de website van de DApp",
     "signingRequest": {
-      "account": "Account",
       "chain": "Chain",
       "dapp": "DApp",
       "data": "Data",

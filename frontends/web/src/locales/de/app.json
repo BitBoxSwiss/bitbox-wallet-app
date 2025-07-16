@@ -1634,7 +1634,6 @@
   },
   "settings": {
     "about": "Über die App",
-    "accounts": "Konten",
     "advancedSettings": "Erweiterte Einstellungen",
     "appearance": "Ansicht",
     "electrum": {
@@ -1869,7 +1868,6 @@
     },
     "pairingSuccess": "Dapp erfolgreich verbunden. Du kannst auf der Dapp-Website fortfahren.",
     "signingRequest": {
-      "account": "Konto",
       "chain": "Netzwerk",
       "dapp": "Dapp",
       "data": "Daten",

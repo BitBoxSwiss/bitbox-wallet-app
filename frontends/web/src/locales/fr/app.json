@@ -1600,7 +1600,6 @@
   },
   "settings": {
     "about": "À propos",
-    "accounts": "Comptes",
     "advancedSettings": "Paramètres avancés",
     "appearance": "Apparence",
     "electrum": {
@@ -1807,7 +1806,6 @@
     },
     "pairingSuccess": "Dapp connectée avec succès. Vous pouvez continuer sur le site de la Dapp.",
     "signingRequest": {
-      "account": "Compte",
       "chain": "Chaîne",
       "dapp": "Dapp",
       "data": "Données",

@@ -443,8 +443,8 @@
               "title": "Personal service with fixed pricing"
             },
             "security": {
-              "link": "BitBox02 security threat model",
-              "text": "BTC Direct's Private Trading Desk is an external service not covered by the BitBox02 security threat model. However, BTC Direct is well-acquainted with BitBox products and offers secure, knowledgeable guidance. BitBox products verify crypto addresses during transactions to ensure secure delivery.",
+              "link": "BitBox security threat model",
+              "text": "BTC Direct's Private Trading Desk is an external service not covered by the BitBox security threat model. However, BTC Direct is well-acquainted with BitBox products and offers secure, knowledgeable guidance. BitBox products verify crypto addresses during transactions to ensure secure delivery.",
               "title": "Security"
             },
             "title": "Disclaimer"
@@ -478,7 +478,7 @@
             },
             "security": {
               "description": "BTC Direct is an external service not covered by the BitBox security threat model. We closely work with BTC Direct to enhance overall security.",
-              "link": "BitBox02 security threat model",
+              "link": "BitBox security threat model",
               "title": "Security"
             },
             "title_bitcoin": "Buy bitcoin with BTC Direct",
@@ -592,8 +592,8 @@
           "title": "Data protection"
         },
         "security": {
-          "descriptionGeneric_bitcoin": "When you buy Bitcoin via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
-          "descriptionGeneric_crypto": "When you buy crypto via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
+          "descriptionGeneric_bitcoin": "When you buy Bitcoin via a partner exchange, you are using an external service. This service is out of scope of the BitBox security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
+          "descriptionGeneric_crypto": "When you buy crypto via a partner exchange, you are using an external service. This service is out of scope of the BitBox security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
           "link": "Security threat model",
           "title": "Security model"
         },
@@ -791,8 +791,8 @@
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
-          "link": "BitBox02 security threat model",
-          "p1": "Using Pocket is an external service and is not covered by the BitBox02 security threat model. However, we closely work with Pocket to enhance overall security.",
+          "link": "BitBox security threat model",
+          "p1": "Using Pocket is an external service and is not covered by the BitBox security threat model. However, we closely work with Pocket to enhance overall security.",
           "p2": "<strong>Buying bitcoin:</strong> You’ll get an email to confirm your bitcoin receive address through a second communication channel.",
           "p3": "<strong>Selling bitcoin:</strong> The BitBox verifies the Bitcoin deposit address cryptographically and displays \"Pocket\" on the hardware wallet.",
           "title": "Security"
@@ -1100,7 +1100,7 @@
         "title": "When do I use “Change address type”?"
       },
       "howVerify": {
-        "text": "For the BitBox01, click on the BitBox icon in the sidebar on the left and see the Pairing section. The guide will update and you can continue following the instructions from there.\nFor the BitBox02, you can verify addresses directly on the device during the send/receive process.",
+        "text": "You can verify addresses directly on the BitBox during the send/receive process.",
         "title": "How can I verify an address securely?"
       },
       "plugout": {
@@ -1116,7 +1116,7 @@
         "title": "Why so many addresses?"
       },
       "whyVerify": {
-        "text": "You shouldn’t trust your computer to generate and display authentic addresses. It’s big attack surface makes it significantly more vulnerable than a hardware wallet. For the BitBox01, The button to verify the address securely sends the address to a paired mobile phone, from which you can also scan and verify the QR code. For the BitBox02, the address can be verified directly on the BitBox02 display.",
+        "text": "You shouldn’t trust your computer to generate and display authentic addresses. It’s big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
         "title": "Why should I verify the address securely?"
       }
     },
