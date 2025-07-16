@@ -18,8 +18,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { View, ViewContent } from '@/components/view/view';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import { Cog, ShieldGray } from '@/components/icon';
@@ -37,9 +35,6 @@ export const More = () => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <ContentWrapper>
-            <GlobalBanners />
-          </ContentWrapper>
           <Header
             title={<h2>{t('settings.more')}</h2>} />
           <View fullscreen={false}>
