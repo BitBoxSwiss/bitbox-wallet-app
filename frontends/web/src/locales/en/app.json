@@ -1896,7 +1896,7 @@
   },
   "warning": {
     "coincontrol": "One or more UTXOs have a reused address. Be aware the receiver will see all UTXOs associated with those addresses.",
-    "offline": "You are currently offline. You can still view your accounts, but you will not be able to send transactions or see the latest exchange rates.",
+    "offline": "You are currently offline. You will not be able to send transactions or see the latest exchange rates.",
     "sdcard": "Keep the microSD card stored separate from the BitBox, unless you want to manage backups.",
     "testnet": "You are using Testnet mode. Transactions and coins here are not real and have no value. Only use for testing purposes."
   },
