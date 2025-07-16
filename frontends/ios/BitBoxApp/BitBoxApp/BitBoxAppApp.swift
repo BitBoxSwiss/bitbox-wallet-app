@@ -8,6 +8,7 @@
 import SwiftUI
 import Mobileserver
 import LocalAuthentication
+import Network
 
 protocol MessageHandlersProtocol {
     func callResponseHandler(queryID: Int, response: String)
@@ -184,6 +185,8 @@ struct BitBoxAppApp: App {
                     .edgesIgnoringSafeArea(.all)
                     .onAppear {
                         setupGoAPI(goAPI: goAPI)
+                        // Manual trigger at startup
+                        MobileserverSetOnline(NetworkMonitor.shared.isOnline())
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                         MobileserverManualReconnect()
