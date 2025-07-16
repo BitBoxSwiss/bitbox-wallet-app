@@ -363,6 +363,7 @@
   "bluetooth": {
     "connected": "Conectado",
     "connectionFailed": "Conexión fallida",
+    "connectionIssues": "¿Tiene problemas de conexión",
     "enable": "Por favor enciende el Bluetooth",
     "select": "Selecciona tu BitBox"
   },
@@ -809,9 +810,11 @@
     "buy_crypto": "Comprar criptomonedas",
     "enabled_false": "Desactivado",
     "enabled_true": "Activado",
+    "noOptions": "No se encontraron opciones",
     "receive": "Recibir {{coinCode}}",
     "receive_bitcoin": "Recibir Bitcoin",
-    "receive_crypto": "Recibir criptomonedas"
+    "receive_crypto": "Recibir criptomonedas",
+    "search": "Buscar..."
   },
   "genericError": "Ocurrió un error. Si observa algún problema, por favor reinicie la aplicación.",
   "goal": {
@@ -954,7 +957,9 @@
     },
     "appendix": {
       "link": "¡Contacta con nosotros!",
-      "text": "¿Otra pregunta?"
+      "questionService": "¿Tienes problemas con {{serviceName}}?",
+      "text": "¿Otra pregunta?",
+      "textService": "Si tienes problemas con {{serviceName}}, por favor ponte en contacto con ellos directamente:"
     },
     "backups": {
       "check": {
@@ -1216,6 +1221,13 @@
       "welcome": {
         "text": "Gracias por utilizar esta aplicación creada por Shift Crypto en Suiza. Todavía está en beta y agradecemos cualquier comentario que tenga que compartir. Por favor, de su opinión utilizando el enlace en la parte inferior.",
         "title": "¡Bienvenido a la aplicación de BitBox!"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "Pide una BitBox02 Nova"
+        },
+        "text": "Solo la BitBox02 Nova funciona con iOS. La BitBox02 estándar es compatible con todas las demás plataformas. Para comprar una BitBox02 Nova, visita nuestra tienda.",
+        "title": "¿Cual BitBox funciona con iOS?"
       }
     },
     "walletConnect": {
@@ -1351,6 +1363,20 @@
   "notification": {
     "newTxs_one": "Nueva transacción en: {{accountName}}",
     "newTxs_other": "{{count}} nuevas transacciones en: {{accountName}}"
+  },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "Consejos para los problemas de conexión",
+    "description1": "Solo la BitBox02 Nova es compatible con iOS. Para la BitBox02 debes usar Windows, macOS, Android o Linux. Puedes conseguir una BitBox02 Nova en nuestra tienda online:",
+    "description2": "La pantalla debería encenderse. Si la pantalla no se enciende, entonces el dispositivo no está recibiendo electricidad.",
+    "description3": "Mantén tu BitBox02 Nova cerca de tu iPhone/iPad. Te recomendamos conectarla directamente a tu dispositivo.",
+    "description4": "La BitBox02 Nova se conecta a iOS mediante Bluetooth. En otras plataformas, el Bluetooth se puede activar o desactivar desde la configuración de la BitBoxApp.",
+    "link1": "Pide una BitBox02 Nova",
+    "link2": "Contacta con soporte",
+    "stillHavingIssues": "¿Aún tienes problemas?",
+    "title1": "Utiliza tu BitBox02 Nova únicamente con iOS",
+    "title2": "Asegúrese de que la BitBox02 Nova esté encendida",
+    "title3": "Manten tu BitBox02 Nova dentro del rango de alcance",
+    "title4": "Asegúrate de que el Bluetooth no esté desactivado en la BitBox02 Nova"
   },
   "passphrase": {
     "considerations": {
@@ -1608,7 +1634,6 @@
   },
   "settings": {
     "about": "Acerca de",
-    "accounts": "Cuentas",
     "advancedSettings": "Configuración avanzada",
     "appearance": "Apariencia",
     "electrum": {
@@ -1711,6 +1736,33 @@
     "restore": {
       "summary": "Has restaurado con éxito una billetera desde una copia de seguridad.",
       "title": "Éxito"
+    }
+  },
+  "testWallet": {
+    "connect": {
+      "description": "Una billetera de prueba de software para probar sin un dispositivo en Testnet.",
+      "title": "Billetera de prueba"
+    },
+    "disconnect": {
+      "description": "Estop quitará la billetera de pruebas",
+      "title": "Desconectar la billetera de prueba de software"
+    },
+    "prompt": {
+      "button": "Desbloquear",
+      "passwordLabel": "Contraseña de prueba",
+      "title": "Desbloquear billetera de prueba"
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "Reinicia la aplicación en modo testnet para explorar y probar funciones.",
+      "prompt": "Cierra la aplicación y vuelve a iniciarla para ingresar al modo testnet",
+      "title": "Iniciar modo testnet"
+    },
+    "deactivate": {
+      "description": "Reinicia la aplicación para entrar en modo testnet",
+      "prompt": "Por favor cierra la aplicación para salar del modo testnet",
+      "title": "Salir del modo testnet"
     }
   },
   "transaction": {
@@ -1816,7 +1868,6 @@
     },
     "pairingSuccess": "Dapp conectada con éxito. Puedes continuar en el sitio web de la dapp.",
     "signingRequest": {
-      "account": "Cuenta",
       "chain": "Cadena",
       "dapp": "Dapp",
       "data": "Datos",
@@ -1843,6 +1894,7 @@
     "connect": "Conecta tu BitBox",
     "getStarted": "Vamos a comenzar instalando el firmware en tu BitBox.",
     "loadingAccounts": "Cargando cuentas",
+    "message": "Por favor conecta tu BitBox y toca los lados para continuar.",
     "title": "Bienvenido"
   }
 }

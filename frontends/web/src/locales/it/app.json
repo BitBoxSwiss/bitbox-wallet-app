@@ -1634,7 +1634,6 @@
   },
   "settings": {
     "about": "About",
-    "accounts": "Accounts",
     "advancedSettings": "Impostazioni avanzate",
     "appearance": "Aspetto",
     "electrum": {
@@ -1869,7 +1868,6 @@
     },
     "pairingSuccess": "DApp connessa. Puoi continuare sul sito della DApp.",
     "signingRequest": {
-      "account": "Account",
       "chain": "Chain",
       "dapp": "DApp",
       "data": "Dati",

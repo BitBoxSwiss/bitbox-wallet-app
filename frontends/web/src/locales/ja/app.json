@@ -1600,7 +1600,6 @@
   },
   "settings": {
     "about": "について",
-    "accounts": "アカウント",
     "advancedSettings": "詳細設定",
     "appearance": "外観",
     "electrum": {
@@ -1807,7 +1806,6 @@
     },
     "pairingSuccess": "Dappが正常に接続されました。dappのウェブサイトで続行できます。",
     "signingRequest": {
-      "account": "アカウント",
       "chain": "チェーン",
       "dapp": "Dapp",
       "data": "Data",

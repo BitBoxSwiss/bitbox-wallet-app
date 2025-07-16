@@ -1634,7 +1634,6 @@
   },
   "settings": {
     "about": "O aplikaci",
-    "accounts": "Účty",
     "advancedSettings": "Pokročilé nastavení",
     "appearance": "Vzhled",
     "electrum": {
@@ -1869,7 +1868,6 @@
     },
     "pairingSuccess": "Dapp se úspěšně připojil. Pokračovat můžete na dapp webu",
     "signingRequest": {
-      "account": "Účet",
       "chain": "Síť",
       "dapp": "Dapp",
       "data": "Data",
