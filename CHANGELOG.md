@@ -3,7 +3,7 @@
 ## Unreleased
 
 ## v4.48.1
-- Format BTC/sat spaces consitently in account summary and total balance
+- Format BTC/sat spaces consistently in account summary and total balance
 - Improved offline UX: added detection to show an offline warning banner and auto-reconnect when back online
 - iOS: various UI improvements
 - Add option to disable Bluetooth for BitBox02 Nova (non-iOS devices only)
