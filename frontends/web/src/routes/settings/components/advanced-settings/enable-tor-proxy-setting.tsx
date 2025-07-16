@@ -16,10 +16,11 @@
 
 import { Dispatch, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TProxyConfig } from '@/routes/settings/advanced-settings';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { TorProxyDialog } from './tor-proxy-dialog';
 import { Message } from '@/components/message/message';
-import { TProxyConfig } from '@/routes/settings/advanced-settings';
+import { runningInIOS } from '@/utils/env';
 import styles from './enable-tor-proxy-setting.module.css';
 
 type TProps = {
@@ -34,6 +35,15 @@ export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) =
 
   const proxyEnabled = proxyConfig ? proxyConfig.useProxy : false;
 
+  const isIOS = runningInIOS();
+  const displayedValue = (
+    isIOS
+      ? t('generic.noOptionOnIos')
+      : proxyEnabled
+        ? t('generic.enabled_true')
+        : t('generic.enabled_false')
+  );
+
   return (
     <>
       { showRestartMessage ? (
@@ -44,9 +54,9 @@ export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) =
       <SettingsItem
         className={styles.settingItem}
         settingName={t('settings.expert.useProxy')}
-        onClick={() => setShowTorProxyDialog(true)}
+        onClick={isIOS ? undefined : () => setShowTorProxyDialog(true)}
         secondaryText={t('newSettings.advancedSettings.torProxy.description')}
-        displayedValue={proxyEnabled ? t('generic.enabled_true') : t('generic.enabled_false')}
+        displayedValue={displayedValue}
       />
       <TorProxyDialog
         open={showTorProxyDialog}
