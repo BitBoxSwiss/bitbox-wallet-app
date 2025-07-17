@@ -7,6 +7,7 @@
 - Improved offline UX: added detection to show an offline warning banner and auto-reconnect when back online
 - iOS: various UI improvements
 - Add option to disable Bluetooth for BitBox02 Nova (non-iOS devices only)
+- Disabled the option to enable Tor proxy on iOS
 
 ## v4.48.0
 - Removed the BTC/sat switch from the general settings in favor of a rotating unit in the account balance.
