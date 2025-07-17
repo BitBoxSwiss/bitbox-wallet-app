@@ -117,6 +117,7 @@ type Backend interface {
 	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
 	Bluetooth() *bluetooth.Bluetooth
 	IsOnline() bool
+	ConnectKeystore([]byte) (keystore.Keystore, error)
 }
 
 // Handlers provides a web api to the backend.
@@ -251,6 +252,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApprove).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystore).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/connect-keystore", handlers.postConnectKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonly).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChanged).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/export-log", handlers.postExportLog).Methods("POST")
@@ -1493,4 +1495,21 @@ func (handlers *Handlers) postBluetoothConnect(r *http.Request) interface{} {
 
 func (handlers *Handlers) getOnline(r *http.Request) interface{} {
 	return handlers.backend.IsOnline()
+}
+
+func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
+	type response struct {
+		Success bool `json:"success"`
+	}
+
+	var request struct {
+		RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false}
+	}
+
+	_, err := handlers.backend.ConnectKeystore([]byte(request.RootFingerprint))
+	return response{Success: err == nil}
 }
