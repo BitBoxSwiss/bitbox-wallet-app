@@ -17,7 +17,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { IAccount, connectKeystore } from '@/api/account';
+import { IAccount } from '@/api/account';
 import { BitsuranceGuide } from './guide';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
@@ -25,6 +25,7 @@ import { Spinner } from '@/components/spinner/Spinner';
 import { View, ViewContent } from '@/components/view/view';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
+import { connectKeystore } from '@/api/keystores';
 
 type TProps = {
     accounts: IAccount[];
@@ -66,7 +67,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   // if there is only one account available let's automatically redirect to the widget
   useEffect(() => {
     if (btcAccounts !== undefined && btcAccounts.length === 1) {
-      connectKeystore(btcAccounts[0].code).then(connectResult => {
+      connectKeystore(btcAccounts[0].keystore.rootFingerprint).then(connectResult => {
         if (!connectResult.success) {
           return;
         }
@@ -79,7 +80,11 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   const handleProceed = async () => {
     setDisabled(true);
     try {
-      const connectResult = await connectKeystore(selected);
+      const account = btcAccounts?.find(acc => acc.code === selected);
+      if (account === undefined) {
+        return;
+      }
+      const connectResult = await connectKeystore(account.keystore.rootFingerprint);
       if (!connectResult.success) {
         return;
       }

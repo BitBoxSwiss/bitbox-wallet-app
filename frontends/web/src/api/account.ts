@@ -452,10 +452,6 @@ export const addAccount = (coinCode: string, name: string): Promise<TAddAccount>
   });
 };
 
-export const connectKeystore = (code: AccountCode): Promise<{ success: boolean; }> => {
-  return apiPost(`account/${code}/connect-keystore`);
-};
-
 export type TSignMessage = { success: false, aborted?: boolean; errorMessage?: string; } | { success: true; signature: string; }
 
 export type TSignWalletConnectTx = {

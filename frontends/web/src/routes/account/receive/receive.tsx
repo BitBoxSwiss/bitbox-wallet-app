@@ -30,6 +30,7 @@ import { ReceiveGuide } from './components/guide';
 import { Header } from '@/components/layout';
 import { QRCode } from '@/components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
+import { connectKeystore } from '@/api/keystores';
 import style from './receive.module.css';
 
 type TProps = {
@@ -160,10 +161,10 @@ export const Receive = ({
   };
 
   const verifyAddress = async (addressesIndex: number) => {
-    if (!receiveAddresses || code === undefined) {
+    if (!receiveAddresses || account === undefined) {
       return;
     }
-    const connectResult = await accountApi.connectKeystore(code);
+    const connectResult = await connectKeystore(account.keystore.rootFingerprint);
     if (!connectResult.success) {
       return;
     }
