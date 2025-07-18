@@ -38,7 +38,7 @@ func testHash(t *testing.T, info firmwareInfo, expectedProduct bitbox02common.Pr
 	hash := sha256.Sum256(binary)
 	expectedHash, err := os.ReadFile(hashFile)
 	require.NoError(t, err)
-	require.Equal(t, string(expectedHash), hex.EncodeToString(hash[:]))
+	require.Equal(t, string(expectedHash), hex.EncodeToString(hash[:]), hashFile)
 }
 
 func TestBundledFirmware(t *testing.T) {
