@@ -214,8 +214,9 @@ func (device *Device) UpgradeFirmware() error {
 
 // Info contains version information about device and the firmware upgrade.
 type Info struct {
-	Erased     bool `json:"erased"`
-	CanUpgrade bool `json:"canUpgrade"`
+	Product    bitbox02common.Product `json:"product"`
+	Erased     bool                   `json:"erased"`
+	CanUpgrade bool                   `json:"canUpgrade"`
 	// AdditionalUpgradeFollows is true if there is more than one upgrade to be performed
 	// (intermediate and final).
 	AdditionalUpgradeFollows bool `json:"additionalUpgradeFollows"`
@@ -270,6 +271,7 @@ func (device *Device) Info() (*Info, error) {
 		WithField("additionalUpgradeFollows", additionalUpgradeFollows).
 		Info("Info")
 	return &Info{
+		Product:                  device.Device.Product(),
 		Erased:                   erased,
 		CanUpgrade:               canUpgrade,
 		AdditionalUpgradeFollows: additionalUpgradeFollows,

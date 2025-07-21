@@ -21,7 +21,7 @@ import { useDarkmode } from '@/hooks/darkmode';
 import { useSync, useLoad } from '@/hooks/api';
 import { Button } from '@/components/forms';
 import { View, ViewContent } from '@/components/view/view';
-import { BitBox02, BitBox02Inverted } from '@/components/icon/logo';
+import { BitBox02, BitBox02Inverted, BitBox02Nova, BitBox02NovaInverted } from '@/components/icon/logo';
 import { Status } from '@/components/status/status';
 import { SubTitle } from '@/components/title';
 import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
@@ -39,7 +39,6 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     bitbox02BootloaderAPI.syncStatus(deviceID),
   );
   const info = useLoad(() => bitbox02BootloaderAPI.getInfo(deviceID));
-
   if (info === undefined) {
     return null;
   }
@@ -127,10 +126,15 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     );
   }
 
+  const logo =
+    (info.product === 'bitbox02-plus-multi' || info.product === 'bitbox02-plus-btconly') ?
+      (isDarkMode ? <BitBox02NovaInverted /> : <BitBox02Nova />) :
+      (isDarkMode ? <BitBox02Inverted /> : <BitBox02 />);
+
   return (
     <View fitContent verticallyCentered width="600px">
       <ViewContent>
-        {isDarkMode ? <BitBox02Inverted /> : <BitBox02 />}
+        {logo}
         {status && status.errMsg && (
           <Status type="warning">{status.errMsg}</Status>
         )}

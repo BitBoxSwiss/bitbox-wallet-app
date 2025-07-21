@@ -38,7 +38,14 @@ export const syncStatus = (deviceID: string) => {
   };
 };
 
+export type TProduct =
+  'bitbox02-multi'
+  | 'bitbox02-btconly'
+  | 'bitbox02-plus-multi'
+  | 'bitbox02-plus-btconly';
+
 export type TInfo = {
+  product: TProduct;
   // Indicates whether the device has any firmware already installed on it.
   // It is considered "erased" if there's no firmware, and it also happens
   // to be the state in which BitBox02 is shipped to customers.

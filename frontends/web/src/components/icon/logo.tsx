@@ -25,6 +25,8 @@ import BitBoxSwissInvertedLogo from './assets/bitbox-swisscross-inverted-logo.sv
 import BitBoxSwissLogo from './assets/bitbox-swisscross-logo.svg';
 import BitBox02Logo from './assets/bitbox02-logo.svg';
 import BitBox02InvertedLogo from './assets/bitbox02inverted-logo.svg';
+import BitBox02NovaLogo from './assets/bitbox02nova-logo.svg';
+import BitBox02NovaInvertedLogo from './assets/bitbox02nova-inverted-logo.svg';
 import BTC from './assets/btc-color.svg';
 import BTC_GREY from './assets/btc-white.svg';
 import ETH from './assets/eth-color.svg';
@@ -62,6 +64,8 @@ type ImgProps = JSX.IntrinsicElements['img'];
 export const BitBox = (props: ImgProps) => <img {...props} draggable={false} src={BitBoxLogo} alt="BitBox" className={style.logo} />;
 export const BitBox02 = (props: ImgProps) => <img {...props} draggable={false} src={BitBox02Logo} alt="BitBox02" className={style.logo} />;
 export const BitBox02Inverted = (props: ImgProps) => <img {...props} draggable={false} src={BitBox02InvertedLogo} alt="BitBox02" className={style.logo} />;
+export const BitBox02Nova = (props: ImgProps) => <img {...props} draggable={false} src={BitBox02NovaLogo} alt="BitBox02Nova" className={style.logo} />;
+export const BitBox02NovaInverted = (props: ImgProps) => <img {...props} draggable={false} src={BitBox02NovaInvertedLogo} alt="BitBox02Nova" className={style.logo} />;
 export const AppLogo = (props: ImgProps) => <img {...props} draggable={false} src={AppLogoImg} alt="BitBox" className={style.logo} />;
 export const AppLogoInverted = (props: ImgProps) => <img {...props} draggable={false} src={AppLogoInvertedImg} alt="BitBox" className={style.logo} />;
 export const BitBoxSwiss = (props: ImgProps) => <img {...props} draggable={false} src={BitBoxSwissLogo} alt="BitBox" className={style.logo} />;
