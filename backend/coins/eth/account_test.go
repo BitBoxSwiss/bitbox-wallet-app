@@ -106,6 +106,7 @@ func newAccount(t *testing.T) *Account {
 		coin,
 		&http.Client{},
 		log,
+		make(chan *Account, 1),
 	)
 	require.NoError(t, acct.Initialize())
 	return acct

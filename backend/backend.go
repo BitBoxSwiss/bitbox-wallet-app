@@ -16,6 +16,7 @@
 package backend
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -58,6 +59,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 )
@@ -210,7 +212,7 @@ type Backend struct {
 	makeBtcAccount func(*accounts.AccountConfig, *btc.Coin, *types.GapLimits, func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), *logrus.Entry) accounts.Interface
 	// makeEthAccount creates an ETH account. In production this is `eth.NewAccount`, but can be
 	// overridden in unit tests for mocking.
-	makeEthAccount func(*accounts.AccountConfig, *eth.Coin, *http.Client, *logrus.Entry) accounts.Interface
+	makeEthAccount func(*accounts.AccountConfig, *eth.Coin, *http.Client, *logrus.Entry, chan *eth.Account) accounts.Interface
 
 	onAccountInit   func(accounts.Interface)
 	onAccountUninit func(accounts.Interface)
@@ -239,6 +241,12 @@ type Backend struct {
 
 	// isOnline indicates whether the backend is online, i.e. able to connect to the internet.
 	isOnline atomic.Bool
+
+	// updateBalanceis a channel that is used to trigger balance updates for ETH accounts.
+	updateBalance chan *eth.Account
+
+	// etherScanClient is the client used to query the EtherScan API.
+	etherScanClient *etherscan.EtherScan
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -272,14 +280,17 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
 			return btc.NewAccount(config, coin, gapLimits, getAddress, log, hclient)
 		},
-		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-			return eth.NewAccount(config, coin, httpClient, log)
+		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry, updateBalance chan *eth.Account) accounts.Interface {
+			return eth.NewAccount(config, coin, httpClient, log, updateBalance)
 		},
 
 		log: log,
 
 		testing: backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
+
+		updateBalance: make(chan *eth.Account, 1),
 	}
+
 	// TODO: remove when connectivity check is present on all platforms
 	backend.isOnline.Store(true)
 
@@ -291,6 +302,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.socksProxy = backendProxy
 	backend.httpClient = hclient
 	backend.etherScanHTTPClient = hclient
+	backend.etherScanClient = etherscan.NewEtherScan("1", backend.etherScanHTTPClient)
+	if backend.Testing() {
+		backend.etherScanClient = etherscan.NewEtherScan("11155111", backend.etherScanHTTPClient)
+	}
 
 	ratesCache := filepath.Join(arguments.CacheDirectoryPath(), "exchangerates")
 	if err := os.MkdirAll(ratesCache, 0700); err != nil {
@@ -305,7 +320,105 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.bluetooth = bluetooth.New(log)
 	backend.bluetooth.Observe(backend.Notify)
 
+	go backend.pollBalances()
+
 	return backend, nil
+}
+
+func (backend *Backend) ethAccounts() ([]*eth.Account, error) {
+	ethAccounts := make([]*eth.Account, 0, len(backend.accounts))
+	for _, account := range backend.accounts {
+		ethAccount, ok := account.(*eth.Account)
+		if !ok || ethAccount.IsClosed() {
+			continue
+		}
+		ethCoin, ok := ethAccount.Coin().(*eth.Coin)
+		if !ok {
+			return nil, errp.New("ethAccount.Coin() is not an *eth.Coin")
+		}
+		// EtherScan doesn't provide an endpoint to query multiple ERC20 token balances
+		// at once, so we have to query the ERC20 balance separately in account.update().
+		if ethCoin.ERC20Token() != nil {
+			continue
+		}
+		ethAccounts = append(ethAccounts, ethAccount)
+	}
+	return ethAccounts, nil
+}
+
+func (backend *Backend) updateBalances(account *eth.Account) error {
+	defer backend.accountsAndKeystoreLock.RLock()()
+
+	ethAddresses := []common.Address{}
+
+	var ethAccounts []*eth.Account
+	var err error
+	if account != nil {
+		ethAccounts = []*eth.Account{account}
+	} else {
+		ethAccounts, err = backend.ethAccounts()
+		if err != nil {
+			return errp.WithStack(err)
+		}
+	}
+
+	for _, account := range ethAccounts {
+		address, err := account.Address()
+		if err != nil {
+			return errp.WithStack(err)
+		}
+		ethAddresses = append(ethAddresses, address.Address)
+	}
+
+	balances, err := backend.etherScanClient.Balances(context.TODO(), ethAddresses)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+
+	for _, account := range ethAccounts {
+		outgoingTransactions, _, err := account.OutgoingTransactionsAndMetadata()
+		if err != nil {
+			return errp.WithStack(err)
+		}
+
+		pendingAmount := eth.PendingTxsAmount(outgoingTransactions, false)
+
+		ethAddress, err := account.Address()
+		if err != nil {
+			return errp.WithStack(err)
+		}
+		balance, ok := balances[ethAddress.Address]
+		if !ok {
+			return errp.Newf("no balance for %s", ethAddress.Address.Hex())
+		}
+		if balance == nil {
+			return errp.Newf("balance for %s is nil", ethAddress.Address.Hex())
+		}
+		if err := account.SetBalance(balance.Sub(balance, pendingAmount)); err != nil {
+			return errp.WithStack(err)
+		}
+	}
+
+	return nil
+}
+func (backend *Backend) pollBalances() {
+	timer := time.After(0)
+
+	handleBalance := func(account *eth.Account) {
+		if err := backend.updateBalances(account); err != nil {
+			backend.log.WithError(err).Error("error updating balances")
+		}
+		timer = time.After(eth.PollInterval)
+	}
+
+	for {
+		select {
+		case <-timer:
+			handleBalance(nil)
+		case account := <-backend.updateBalance:
+			handleBalance(account)
+		}
+	}
 }
 
 // configureHistoryExchangeRates changes backend.ratesUpdater settings.
@@ -526,22 +639,19 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
 			"https://blockchair.com/litecoin/transaction/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
-		etherScan := etherscan.NewEtherScan("1", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
+		coin = eth.NewCoin(backend.etherScanClient, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
-			etherScan,
+			backend.etherScanClient,
 			nil)
 	case code == coinpkg.CodeSEPETH:
-		etherScan := etherscan.NewEtherScan("11155111", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, code, "Ethereum Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig,
+		coin = eth.NewCoin(backend.etherScanClient, code, "Ethereum Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig,
 			"https://sepolia.etherscan.io/tx/",
-			etherScan,
+			backend.etherScanClient,
 			nil)
 	case erc20Token != nil:
-		etherScan := etherscan.NewEtherScan("1", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
+		coin = eth.NewCoin(backend.etherScanClient, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
-			etherScan,
+			backend.etherScanClient,
 			erc20Token.token,
 		)
 	default:
