@@ -25,6 +25,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -106,7 +107,9 @@ func newAccount(t *testing.T) *Account {
 		coin,
 		&http.Client{},
 		log,
+		make(chan *Account, 1),
 	)
+	acct.balance = coinpkg.NewAmount(big.NewInt(1e18))
 	require.NoError(t, acct.Initialize())
 	return acct
 }

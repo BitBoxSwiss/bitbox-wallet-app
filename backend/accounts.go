@@ -899,6 +899,9 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 		backend.log.WithError(err).Error("error initializing account")
 		return
 	}
+	if ethAccount, ok := account.(*eth.Account); ok {
+		backend.updateBalance <- ethAccount
+	}
 	if backend.onAccountInit != nil {
 		backend.onAccountInit(account)
 	}
@@ -1064,7 +1067,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 		)
 		backend.addAccount(account)
 	case *eth.Coin:
-		account = backend.makeEthAccount(accountConfig, specificCoin, backend.httpClient, backend.log)
+		account = backend.makeEthAccount(accountConfig, specificCoin, backend.httpClient, backend.log, backend.updateBalance)
 		backend.addAccount(account)
 
 		// Load ERC20 tokens enabled with this Ethereum account.

@@ -49,7 +49,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var pollInterval = 5 * time.Minute
+// PollInterval is the interval at which the account is updated.
+var PollInterval = 5 * time.Minute
 
 func isMixedCase(s string) bool {
 	return strings.ToLower(s) != s && strings.ToUpper(s) != s
@@ -106,6 +107,9 @@ type Account struct {
 	quitChan chan struct{}
 
 	log *logrus.Entry
+
+	// updateBalance is used to signal to the backend the need to update the balance for this account;
+	updateBalance chan *Account
 }
 
 // NewAccount creates a new account.
@@ -114,6 +118,7 @@ func NewAccount(
 	accountCoin *Coin,
 	httpClient *http.Client,
 	log *logrus.Entry,
+	updateBalance chan *Account,
 ) *Account {
 	log = log.WithField("group", "eth").
 		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Config.Code, "name": config.Config.Name})
@@ -130,7 +135,8 @@ func NewAccount(
 		enqueueUpdateCh: make(chan struct{}),
 		quitChan:        make(chan struct{}),
 
-		log: log,
+		log:           log,
+		updateBalance: updateBalance,
 	}
 
 	return account
@@ -143,7 +149,8 @@ func (account *Account) Info() *accounts.Info {
 	}
 }
 
-func (account *Account) isClosed() bool {
+// IsClosed returns whether or not an account is closed.
+func (account *Account) IsClosed() bool {
 	defer account.initializedLock.RLock()()
 	return account.closed
 }
@@ -156,7 +163,7 @@ func (account *Account) isInitialized() bool {
 // Initialize implements accounts.Interface.
 func (account *Account) Initialize() error {
 	// Early returns that do not require a write-lock.
-	if account.isClosed() {
+	if account.IsClosed() {
 		return errp.New("Initialize: account was closed, init only works once.")
 	}
 	if account.isInitialized() {
@@ -238,7 +245,7 @@ func (account *Account) poll(initDone func()) {
 				initDone()
 				initDone = nil
 			}
-			timer = time.After(pollInterval)
+			timer = time.After(PollInterval)
 		}
 	}
 }
@@ -344,28 +351,7 @@ func (account *Account) update() error {
 	}
 	account.blockNumber = blockNumber
 
-	transactionsSource := account.coin.TransactionsSource()
-
 	go account.updateOutgoingTransactions(account.blockNumber.Uint64())
-
-	// Get confirmed transactions.
-	var confirmedTansactions []*accounts.TransactionData
-	if transactionsSource != nil {
-		var err error
-		confirmedTansactions, err = transactionsSource.Transactions(
-			account.blockNumber,
-			account.address.Address, account.blockNumber, account.coin.erc20Token)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Get our stored outgoing transactions. Filter out all transactions from the transactions
-	// source, which should contain all confirmed tx.
-	outgoingTransactions, err := account.outgoingTransactions(confirmedTansactions)
-	if err != nil {
-		return err
-	}
 
 	// Nonce to be used for the next tx, fetched from the ETH node. It might be out of date due to
 	// latency, which is addressed below by using the locally stored nonce.
@@ -375,6 +361,11 @@ func (account *Account) update() error {
 	}
 	account.nextNonce = nodeNonce
 
+	outgoingTransactionsData, outgoingTransactions, err := account.OutgoingTransactionsAndMetadata()
+	if err != nil {
+		return errp.WithStack(err)
+	}
+
 	// In case the nodeNonce is not up to date, we fall back to our stored last nonce to compute the
 	// next nonce.
 	if len(outgoingTransactions) > 0 {
@@ -383,15 +374,7 @@ func (account *Account) update() error {
 			account.nextNonce = localNonce
 		}
 	}
-	outgoingTransactionsData := make([]*accounts.TransactionData, len(outgoingTransactions))
-	for i, tx := range outgoingTransactions {
-		outgoingTransactionsData[i] = tx.TransactionData(
-			account.blockNumber.Uint64(),
-			account.coin.erc20Token,
-			account.address.Address.Hex(),
-		)
-	}
-	outgoingTransactionsData = append(outgoingTransactionsData, confirmedTansactions...)
+
 	account.transactions = outgoingTransactionsData
 	for _, transaction := range account.transactions {
 		if err := account.notifier.Put([]byte(transaction.TxID)); err != nil {
@@ -405,17 +388,53 @@ func (account *Account) update() error {
 		if err != nil {
 			return errp.WithStack(err)
 		}
-	} else {
-		balance, err = account.coin.client.Balance(context.TODO(), account.address.Address)
+		pendingAmount := pendingTxsAmount(outgoingTransactionsData, true)
+		account.balance = coin.NewAmount(balance.Sub(balance, pendingAmount))
+	}
+	return nil
+}
+
+// OutgoingTransactionsAndMetadata returns the list of outgoing transactions,
+// and the list of outgoing + confirmed tx with metadata.
+func (account *Account) OutgoingTransactionsAndMetadata() ([]*accounts.TransactionData, []*ethtypes.TransactionWithMetadata, error) {
+	transactionsSource := account.coin.TransactionsSource()
+
+	blockNumber, err := account.coin.client.BlockNumber(context.TODO())
+	if err != nil {
+		return nil, nil, errp.WithStack(err)
+	}
+
+	account.blockNumber = blockNumber
+	// Get confirmed transactions.
+	var confirmedTransactions []*accounts.TransactionData
+	if transactionsSource != nil {
+		var err error
+		confirmedTransactions, err = transactionsSource.Transactions(
+			account.blockNumber,
+			account.address.Address, account.blockNumber, account.coin.erc20Token)
 		if err != nil {
-			return errp.WithStack(err)
+			return nil, nil, errp.WithStack(err)
 		}
 	}
 
-	pendingAmount := pendingTxsAmount(outgoingTransactionsData, account.coin.erc20Token != nil)
-	account.balance = coin.NewAmount(balance.Sub(balance, pendingAmount))
+	// Get our stored outgoing transactions. Filter out all transactions from the transactions
+	// source, which should contain all confirmed tx.
+	outgoingTransactions, err := account.outgoingTransactions(confirmedTransactions)
+	if err != nil {
+		return nil, nil, err
+	}
 
-	return nil
+	outgoingTransactionsData := make([]*accounts.TransactionData, len(outgoingTransactions))
+	for i, tx := range outgoingTransactions {
+		outgoingTransactionsData[i] = tx.TransactionData(
+			account.blockNumber.Uint64(),
+			account.coin.erc20Token,
+			account.address.Address.Hex(),
+		)
+	}
+	outgoingTransactionsData = append(outgoingTransactionsData, confirmedTransactions...)
+
+	return outgoingTransactionsData, outgoingTransactions, nil
 }
 
 // pendingTxsAmount returns the total amount of pending transactions. Fees are not included for erc20 txs.
@@ -1027,8 +1046,23 @@ func (account *Account) MatchesAddress(address string) (bool, error) {
 
 // EnqueueUpdate enqueues an update for the account.
 func (account *Account) EnqueueUpdate() {
+	account.updateBalance <- account
 	select {
 	case account.enqueueUpdateCh <- struct{}{}:
 	default:
 	}
+}
+
+// UpdateBalance updates the balance of the account taking into account pending txs.
+func (account *Account) UpdateBalance(balance *big.Int, isERC20 bool) error {
+	if balance == nil {
+		return errp.New("balance cannot be nil")
+	}
+	outgoingTransactions, _, err := account.OutgoingTransactionsAndMetadata()
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	pendingAmount := pendingTxsAmount(outgoingTransactions, isERC20)
+	account.balance = coin.NewAmount(balance.Sub(balance, pendingAmount))
+	return nil
 }
