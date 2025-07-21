@@ -19,9 +19,10 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { WalletConnectLight } from '@/components/icon';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { connectKeystore, AccountCode, IAccount, CoinCode } from '@/api/account';
+import { AccountCode, IAccount, CoinCode } from '@/api/account';
 import { isEthereumBased } from './utils';
 import { ButtonLink } from '@/components/forms';
+import { connectKeystore } from '@/api/keystores';
 import style from './account.module.css';
 
 type TProps = {
@@ -46,7 +47,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
   const sendLink = `/account/${code}/send`;
   const maybeRouteSend = async (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const connectResult = await connectKeystore(code);
+    const connectResult = await connectKeystore(account.keystore.rootFingerprint);
     if (connectResult.success) {
       // Proceed to the send screen if the keystore was connected.
       navigate(sendLink);

@@ -894,6 +894,101 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 	}
 }
 
+// ConnectKeystore ensures that the keystore with the given root fingerprint is connected,
+// prompts the user if necessary, and returns the keystore instance.
+func (backend *Backend) ConnectKeystore(rootFingerprint []byte) (keystore.Keystore, error) {
+	type data struct {
+		Type         string `json:"typ"`
+		KeystoreName string `json:"keystoreName"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+		ErrorMessage string `json:"errorMessage"`
+	}
+	var keystoreName string
+	persistedKeystore, err := backend.config.AccountsConfig().LookupKeystore(rootFingerprint)
+	if err == nil {
+		keystoreName = persistedKeystore.Name
+	}
+	var ks keystore.Keystore
+	timeout := 20 * time.Minute
+outerLoop:
+	for {
+		backend.Notify(observable.Event{
+			Subject: "connect-keystore",
+			Action:  action.Replace,
+			Object: data{
+				Type:         "connect",
+				KeystoreName: keystoreName,
+			},
+		})
+		ks, err = backend.connectKeystore.connect(
+			backend.Keystore(),
+			rootFingerprint,
+			timeout,
+		)
+		if err == nil || errp.Cause(err) != ErrWrongKeystore {
+			break
+		} else {
+			backend.Notify(observable.Event{
+				Subject: "connect-keystore",
+				Action:  action.Replace,
+				Object: data{
+					Type:         "error",
+					ErrorCode:    err.Error(),
+					ErrorMessage: "",
+				},
+			})
+			c := make(chan bool)
+			// retryCallback is called when the current keystore is deregistered or when
+			// CancelConnectKeystore() is called.
+			// In the first case it allows to make a new connection attempt, in the last one
+			// it'll make this function return ErrUserAbort.
+			backend.connectKeystore.SetRetryConnect(func(retry bool) {
+				c <- retry
+			})
+			select {
+			case retry := <-c:
+				if !retry {
+					err = errp.ErrUserAbort
+					break outerLoop
+				}
+			case <-time.After(timeout):
+				backend.connectKeystore.SetRetryConnect(nil)
+				err = errTimeout
+				break outerLoop
+			}
+		}
+	}
+	switch {
+	case errp.Cause(err) == errReplaced:
+		// If a previous connect-keystore request is in progress, the previous request is
+		// failed, but we don't dismiss the prompt, as the new prompt has already been shown
+		// by the above "connect" notification.
+	case err == nil || errp.Cause(err) == errp.ErrUserAbort:
+		// Dismiss prompt after success or upon user abort.
+		backend.Notify(observable.Event{
+			Subject: "connect-keystore",
+			Action:  action.Replace,
+			Object:  nil,
+		})
+	default:
+		var errorCode = ""
+		if errp.Cause(err) == errTimeout {
+			errorCode = err.Error()
+		}
+		// Display error to user.
+		backend.Notify(observable.Event{
+			Subject: "connect-keystore",
+			Action:  action.Replace,
+			Object: data{
+				Type:         "error",
+				ErrorMessage: err.Error(),
+				ErrorCode:    errorCode,
+			},
+		})
+	}
+	return ks, err
+}
+
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *config.Account) {
 	if backend.accounts.lookup(persistedConfig.Code) != nil {
@@ -906,100 +1001,11 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 		DBFolder:    backend.arguments.CacheDirectoryPath(),
 		NotesFolder: backend.arguments.NotesDirectoryPath(),
 		ConnectKeystore: func() (keystore.Keystore, error) {
-			type data struct {
-				Type         string `json:"typ"`
-				KeystoreName string `json:"keystoreName"`
-				ErrorCode    string `json:"errorCode,omitempty"`
-				ErrorMessage string `json:"errorMessage"`
-			}
 			accountRootFingerprint, err := persistedConfig.SigningConfigurations.RootFingerprint()
 			if err != nil {
 				return nil, err
 			}
-			keystoreName := ""
-			persistedKeystore, err := backend.config.AccountsConfig().LookupKeystore(accountRootFingerprint)
-			if err == nil {
-				keystoreName = persistedKeystore.Name
-			}
-			var ks keystore.Keystore
-			timeout := 20 * time.Minute
-		outerLoop:
-			for {
-				backend.Notify(observable.Event{
-					Subject: "connect-keystore",
-					Action:  action.Replace,
-					Object: data{
-						Type:         "connect",
-						KeystoreName: keystoreName,
-					},
-				})
-				ks, err = backend.connectKeystore.connect(
-					backend.Keystore(),
-					accountRootFingerprint,
-					timeout,
-				)
-				if err == nil || errp.Cause(err) != ErrWrongKeystore {
-					break
-				} else {
-					backend.Notify(observable.Event{
-						Subject: "connect-keystore",
-						Action:  action.Replace,
-						Object: data{
-							Type:         "error",
-							ErrorCode:    err.Error(),
-							ErrorMessage: "",
-						},
-					})
-					c := make(chan bool)
-					// retryCallback is called when the current keystore is deregistered or when
-					// CancelConnectKeystore() is called.
-					// In the first case it allows to make a new connection attempt, in the last one
-					// it'll make this function return ErrUserAbort.
-					backend.connectKeystore.SetRetryConnect(func(retry bool) {
-						c <- retry
-					})
-					select {
-					case retry := <-c:
-						if !retry {
-							err = errp.ErrUserAbort
-							break outerLoop
-						}
-					case <-time.After(timeout):
-						backend.connectKeystore.SetRetryConnect(nil)
-						err = errTimeout
-						break outerLoop
-					}
-				}
-			}
-			switch {
-			case errp.Cause(err) == errReplaced:
-				// If a previous connect-keystore request is in progress, the previous request is
-				// failed, but we don't dismiss the prompt, as the new prompt has already been shown
-				// by the above "connect" notification.
-			case err == nil || errp.Cause(err) == errp.ErrUserAbort:
-				// Dismiss prompt after success or upon user abort.
-				backend.Notify(observable.Event{
-					Subject: "connect-keystore",
-					Action:  action.Replace,
-					Object:  nil,
-				})
-			default:
-				var errorCode = ""
-				if errp.Cause(err) == errTimeout {
-					errorCode = err.Error()
-				}
-				// Display error to user.
-				backend.Notify(observable.Event{
-					Subject: "connect-keystore",
-					Action:  action.Replace,
-					Object: data{
-						Type:         "error",
-						ErrorMessage: err.Error(),
-						ErrorCode:    errorCode,
-					},
-				})
-			}
-			return ks, err
+			return backend.ConnectKeystore(accountRootFingerprint)
 		},
 		RateUpdater: backend.ratesUpdater,
 		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {

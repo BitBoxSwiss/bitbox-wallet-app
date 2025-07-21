@@ -76,7 +76,6 @@ func NewHandlers(
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/has-payment-request", handlers.ensureAccountInitialized(handlers.getHasPaymentRequest)).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
-	handleFunc("/connect-keystore", handlers.ensureAccountInitialized(handlers.postConnectKeystore)).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
 	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
 	handleFunc("/eth-sign-wallet-connect-tx", handlers.ensureAccountInitialized(handlers.postEthSignWalletConnectTx)).Methods("POST")
@@ -661,15 +660,6 @@ func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
 	}
 
 	return nil, handlers.account.SetTxNote(args.InternalTxID, args.Note)
-}
-
-func (handlers *Handlers) postConnectKeystore(r *http.Request) (interface{}, error) {
-	type response struct {
-		Success bool `json:"success"`
-	}
-
-	_, err := handlers.account.Config().ConnectKeystore()
-	return response{Success: err == nil}, nil
 }
 
 type signingResponse struct {

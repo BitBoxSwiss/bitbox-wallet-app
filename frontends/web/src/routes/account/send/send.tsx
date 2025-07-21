@@ -41,6 +41,7 @@ import { FiatValue } from './components/fiat-value';
 import { TSelectedUTXOs } from './utxos';
 import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
+import { connectKeystore } from '@/api/keystores';
 import style from './send.module.css';
 
 type SendProps = {
@@ -134,7 +135,8 @@ class Send extends Component<Props, State> {
 
   private send = async () => {
     const code = this.props.account.code;
-    const connectResult = await accountApi.connectKeystore(code);
+    const rootFingerprint = this.props.account.keystore.rootFingerprint;
+    const connectResult = await connectKeystore(rootFingerprint);
     if (!connectResult.success) {
       return;
     }
