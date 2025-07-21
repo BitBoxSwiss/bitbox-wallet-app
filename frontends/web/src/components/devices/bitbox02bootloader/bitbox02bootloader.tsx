@@ -38,9 +38,9 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     () => bitbox02BootloaderAPI.getStatus(deviceID),
     bitbox02BootloaderAPI.syncStatus(deviceID),
   );
-  const versionInfo = useLoad(() => bitbox02BootloaderAPI.getVersionInfo(deviceID));
+  const info = useLoad(() => bitbox02BootloaderAPI.getInfo(deviceID));
 
-  if (versionInfo === undefined) {
+  if (info === undefined) {
     return null;
   }
 
@@ -51,7 +51,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
         <div className="box large">
           <p style={{ marginBottom: 0 }}>
             {t('bb02Bootloader.success', {
-              context: (versionInfo.erased ? 'install' : ''),
+              context: (info.erased ? 'install' : ''),
             })}
           </p>
         </div>
@@ -61,9 +61,9 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       contents = (
         <div className="box large">
           <SubTitle>
-            {t('bb02Bootloader.upgradeTitle', { context: (versionInfo.erased ? 'install' : '') })}
+            {t('bb02Bootloader.upgradeTitle', { context: (info.erased ? 'install' : '') })}
           </SubTitle>
-          { versionInfo.additionalUpgradeFollows ? (
+          { info.additionalUpgradeFollows ? (
             <>
               <p className={style.additionalUpgrade}>{t('bb02Bootloader.additionalUpgradeFollows1')}</p>
               <p className={style.additionalUpgrade}>{t('bb02Bootloader.additionalUpgradeFollows2')}</p>
@@ -73,7 +73,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           <p className={style.content}>
             {t('bootloader.progress', {
               progress: value.toString(),
-              context: (versionInfo.erased ? 'install' : ''),
+              context: (info.erased ? 'install' : ''),
             })}
           </p>
         </div>
@@ -82,25 +82,25 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
   } else {
     contents = (
       <div className="box large" style={{ minHeight: 340 }}>
-        {versionInfo.erased && (
+        {info.erased && (
           <div>
             <h2>{t('welcome.title')}</h2>
             <h3 className="subTitle">{t('welcome.getStarted')}</h3>
           </div>
         )}
         <div className="buttons">
-          { versionInfo.canUpgrade ? (
+          { info.canUpgrade ? (
             <Button
               primary
               onClick={() => bitbox02BootloaderAPI.upgradeFirmware(deviceID)}>
-              {t('bootloader.button', { context: (versionInfo.erased ? 'install' : '') })}
+              {t('bootloader.button', { context: (info.erased ? 'install' : '') })}
             </Button>
           ) : null }
-          { !versionInfo.erased && (
+          { !info.erased && (
             <Button
               secondary
               onClick={() => bitbox02BootloaderAPI.reboot(deviceID)}>
-              {t('bb02Bootloader.abort', { context: !versionInfo.canUpgrade ? 'noUpgrade' : '' })}
+              {t('bb02Bootloader.abort', { context: !info.canUpgrade ? 'noUpgrade' : '' })}
             </Button>
           )}
         </div>

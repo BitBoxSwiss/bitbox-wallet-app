@@ -38,7 +38,7 @@ export const syncStatus = (deviceID: string) => {
   };
 };
 
-export type TVersionInfo = {
+export type TInfo = {
   // Indicates whether the device has any firmware already installed on it.
   // It is considered "erased" if there's no firmware, and it also happens
   // to be the state in which BitBox02 is shipped to customers.
@@ -49,10 +49,10 @@ export type TVersionInfo = {
   additionalUpgradeFollows: boolean;
 };
 
-export const getVersionInfo = (
+export const getInfo = (
   deviceID: string,
-): Promise<TVersionInfo> => {
-  return apiGet(`devices/bitbox02-bootloader/${deviceID}/version-info`);
+): Promise<TInfo> => {
+  return apiGet(`devices/bitbox02-bootloader/${deviceID}/info`);
 };
 
 export const upgradeFirmware = (
