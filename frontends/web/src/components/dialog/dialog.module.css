@@ -6,7 +6,8 @@
     position: fixed;
     bottom: 0;
     left: 0;
-    height: 100%;
+    height: 100vh;
+    max-height: -webkit-fill-available;
     width: 100%;
     background: transparent;
     z-index: 4010;
@@ -105,10 +106,6 @@
 
 .contentContainer.slim {
     padding: 0;
-}
-
-.contentContainer.padded {
-    padding: var(--space-default);
 }
 
 .content p {
@@ -215,12 +212,15 @@
         padding: 0;
     }
 
+    .overlay {
+        align-items: stretch;
+        max-height: 100vh;
+        padding-top: calc(var(--space-default) + env(safe-area-inset-top, 0));
+    }
+
     .modal, .modal.small, .modal.medium, .modal.large { 
-        margin-top: calc(var(--space-default) +  calc(env(safe-area-inset-top, 0) * 3));
+        margin-top: 0;
         max-width: 100vw;
-        height: 100vh;
-        /* mobile viewport bug fix */
-        height: -webkit-fill-available;
         transform: translateY(100vh);
         transition: transform 300ms;
         border-top-right-radius: var(--space-half);
@@ -232,7 +232,7 @@
       transform: translateY(0);
     }
 
-    .contentContainer.padded {
-        padding: var(--space-half);
+    .contentContainer.slim {
+        padding-bottom: calc(env(safe-area-inset-bottom, 0));
     }
 }
