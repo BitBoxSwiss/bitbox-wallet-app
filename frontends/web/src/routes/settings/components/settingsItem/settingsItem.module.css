@@ -21,7 +21,7 @@
     bottom: 0;
     margin: auto;
     position: absolute;
-    right: var(--space-quarter);
+    right: var(--space-half);
     top: 3px;
 }
 
@@ -63,12 +63,18 @@
     padding-left: var(--space-half);
     overflow: hidden;
     text-overflow: ellipsis;
+    padding-right: 0;
     user-select: none;
     -webkit-user-select: none;
 }
 
+button .displayedValue {
+    padding-right: var(--space-quarter);
+}
+
 .displayedValue.withMargin {
     margin-right: var(--space-quarter);
+    padding-right: 0;
 }
 
 .secondaryText {
@@ -89,6 +95,12 @@
         min-height: auto;
         margin-bottom: 5px;
         min-width: 100%;
+        padding-left: var(--space-half);
+        padding-right: var(--space-half);
+    }
+
+    .chevronRight {
+        right: var(--space-quarter);
     }
 
     .secondaryText {
