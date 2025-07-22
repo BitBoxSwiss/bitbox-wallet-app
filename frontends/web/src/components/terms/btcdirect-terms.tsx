@@ -55,6 +55,9 @@ export const BTCDirectTerms = ({ account, onAgreedTerms }: TProps) => {
           <li>
             <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.buy')}</p>
           </li>
+          <li>
+            <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.sell')}</p>
+          </li>
         </ul>
         <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.note')}</p>
         <p>
