@@ -64,7 +64,7 @@ func (notifier *notifierForAccount) write(
 		return errp.WithStack(err)
 	}
 	defer func() { _ = tx.Rollback() }()
-	bucketAccount, err := tx.CreateBucketIfNotExists([]byte(fmt.Sprintf("account-%s", notifier.accountCode)))
+	bucketAccount, err := tx.CreateBucketIfNotExists(fmt.Appendf(nil, "account-%s", notifier.accountCode))
 	if err != nil {
 		return errp.WithStack(err)
 	}
@@ -89,7 +89,7 @@ func (notifier *notifierForAccount) read(
 		return errp.WithStack(err)
 	}
 	defer func() { _ = tx.Rollback() }()
-	bucketAccount := tx.Bucket([]byte(fmt.Sprintf("account-%s", notifier.accountCode)))
+	bucketAccount := tx.Bucket(fmt.Appendf(nil, "account-%s", notifier.accountCode))
 	if bucketAccount == nil {
 		f(nil, nil)
 	} else {
