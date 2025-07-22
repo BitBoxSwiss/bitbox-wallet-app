@@ -145,6 +145,15 @@ jobs:
           ./scripts/github-ci.sh qt-osx;
         env:
           OS_NAME: osx
+      - name: Ad-hoc sign BitBox.app
+        run: |
+          APP_PATH="$(go env GOPATH)/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/osx/BitBox.app"
+          echo "Signing app at $APP_PATH"
+          codesign --deep --force --verbose --sign - "$APP_PATH"
+      - name: Verify BitBox.app signature
+        run: |
+          APP_PATH="$(go env GOPATH)/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/osx/BitBox.app"
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
       - name: Archive app
         run: >
           pushd ~/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/osx;
