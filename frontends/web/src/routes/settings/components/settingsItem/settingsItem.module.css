@@ -88,7 +88,6 @@ button .displayedValue {
 
 @media (max-width: 768px) {
     .container {
-        min-height: auto;
         margin-bottom: 5px;
         min-width: 100%;
         padding-left: var(--space-half);
