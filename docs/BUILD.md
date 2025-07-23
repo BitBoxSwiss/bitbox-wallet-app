@@ -129,6 +129,14 @@ After connecting the device via USB, it is possible to verify the connection wit
 
 Inside `frontends/android` folder: `make deploy-debug`
 
+### Deploy troubleshooting
+If the apk install goes wrong, here are some Android configuration that could help:
+* Enable developer options
+* Enable install via USB
+* Enable USB debugging
+* Set USB configuration to charge when the device is connected
+* Disable MIUI optimization and restart (for Xiaomi devices)
+
 ## iOS
 
 The instructions here are preliminary, as the iOS app is still in development.
@@ -142,14 +150,6 @@ To build the app and run it in the simulator:
 Open XCode, load the project in /frontends/ios/BitBoxApp/BitBoxApp.xcodeproj.
 
 In the menu, hit Project->Run (or ⌘R).
-
-### Deploy troubleshooting
-If the apk install goes wrong, here are some Android configuration that could help:
-* Enable developer options
-* Enable install via USB
-* Enable USB debugging
-* Set USB configuration to charge when the device is connected
-* Disable MIUI optimization and restart (for Xiaomi devices)
 
 ## Cross compile from GNU/Linux to Windows
 It is not currently possible to cross compile the BitBox wallet for Windows.
