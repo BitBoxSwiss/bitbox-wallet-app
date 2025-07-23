@@ -655,7 +655,7 @@
         "description": "Create or verify your microSD card backup."
       },
       "showRecoveryWords": {
-        "description": "Show and verify recovery words."
+        "description": "Show and verify recovery words on the BitBox screen."
       },
       "title": "Backups"
     },
@@ -1225,7 +1225,7 @@
         "title": "I lost my device. Now what?"
       },
       "useWithoutDevice": {
-        "text": "Unfortunately, this is not yet possible at the moment.",
+        "text": "Yes, you can remember wallets in the manage account settings. This way you can see your portfolio without using a BitBox.",
         "title": "Can I use the app without a device?"
       },
       "welcome": {
