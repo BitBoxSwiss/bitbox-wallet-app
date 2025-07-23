@@ -24,9 +24,7 @@
     border-radius: 2px;
     box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
     text-align: left;
-    max-height: 100vh;
-    /* mobile viewport bug fix */
-    max-height: -webkit-fill-available;
+    max-height: calc(100dvh - calc(env(safe-area-inset-top) * 2));
     overflow: auto;
 }
 /* guard dialog and wait-dialog from view styles */
@@ -210,6 +208,8 @@
 
     .modal {
         padding: 0;
+        height: auto;
+        max-height: 100dvh;
     }
 
     .overlay {
