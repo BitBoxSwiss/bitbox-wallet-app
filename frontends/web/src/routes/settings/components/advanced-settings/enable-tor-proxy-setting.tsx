@@ -35,6 +35,7 @@ export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) =
 
   const proxyEnabled = proxyConfig ? proxyConfig.useProxy : false;
 
+  // NOTE: if you enable this again on iOS, also enable it in the backend, where it is also disabled.
   const isIOS = runningInIOS();
   const displayedValue = (
     isIOS

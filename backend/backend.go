@@ -22,6 +22,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"strings"
 	"sync/atomic"
@@ -250,8 +251,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	log.Infof("backend config: %+v", backendConfig.AppConfig().Backend)
 	log.Infof("frontend config: %+v", backendConfig.AppConfig().Frontend)
+	// Disable on iOS as it does not work there.
+	useProxy := backendConfig.AppConfig().Backend.Proxy.UseProxy && runtime.GOOS != "ios"
 	backendProxy := socksproxy.NewSocksProxy(
-		backendConfig.AppConfig().Backend.Proxy.UseProxy,
+		useProxy,
 		backendConfig.AppConfig().Backend.Proxy.ProxyAddress,
 	)
 	hclient, err := backendProxy.GetHTTPClient()
