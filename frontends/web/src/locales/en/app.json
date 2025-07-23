@@ -819,6 +819,7 @@
     "buy_crypto": "Buy crypto",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "noOptionOnIos": "Not available on iOS",
     "noOptions": "No options found",
     "receive": "Receive {{coinCode}}",
     "receive_bitcoin": "Receive Bitcoin",
