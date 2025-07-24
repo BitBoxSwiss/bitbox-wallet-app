@@ -250,29 +250,29 @@ func (account *Account) GetAddress(scriptHashHex blockchain.ScriptHashHex) *addr
 }
 
 // SendTx implements accounts.Interface.
-func (account *Account) SendTx(txNote string) error {
+func (account *Account) SendTx(txNote string) (string, error) {
 	unlock := account.activeTxProposalLock.RLock()
 	txProposal := account.activeTxProposal
 	unlock()
 	if txProposal == nil {
-		return errp.New("No active tx proposal")
+		return "", errp.New("No active tx proposal")
 	}
 
 	account.log.Info("Signing and sending transaction")
 	if err := account.signTransaction(txProposal, account.coin.Blockchain().TransactionGet); err != nil {
-		return errp.WithMessage(err, "Failed to sign transaction")
+		return "", errp.WithMessage(err, "Failed to sign transaction")
 	}
 
 	account.log.Info("Signed transaction is broadcasted")
 	if err := account.coin.Blockchain().TransactionBroadcast(txProposal.Transaction); err != nil {
-		return err
+		return "", err
 	}
 
 	if err := account.SetTxNote(txProposal.Transaction.TxHash().String(), txNote); err != nil {
 		// Not critical.
 		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")
 	}
-	return nil
+	return txProposal.Transaction.TxID(), nil
 }
 
 // TxProposal creates a tx from the relevant input and returns information about it for display in
