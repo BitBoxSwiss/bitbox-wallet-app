@@ -87,6 +87,9 @@ func makeBitBox02Multi() *keystoremock.KeystoreMock {
 		RootFingerprintFunc: func() ([]byte, error) {
 			return rootFingerprint1, nil
 		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
+		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
 			case *btc.Coin:
@@ -110,6 +113,9 @@ func makeBitBox02Multi() *keystoremock.KeystoreMock {
 // accounts, no legacy P2PKH.
 func makeBitBox02BTCOnly() *keystoremock.KeystoreMock {
 	ks := makeBitBox02Multi()
+	ks.SupportsCoinFunc = func(coin coinpkg.Coin) bool {
+		return coin.Code() == coinpkg.CodeBTC || coin.Code() == coinpkg.CodeTBTC || coin.Code() == coinpkg.CodeRBTC
+	}
 	ks.SupportsAccountFunc = func(coin coinpkg.Coin, meta interface{}) bool {
 		switch coin.(type) {
 		case *btc.Coin:
@@ -340,6 +346,9 @@ func TestRegisterKeystore(t *testing.T) {
 		RootFingerprintFunc: func() ([]byte, error) {
 			return rootFingerprint1, nil
 		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
+		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
 			case *btc.Coin:
@@ -360,6 +369,9 @@ func TestRegisterKeystore(t *testing.T) {
 		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return rootFingerprint2, nil
+		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
 		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
