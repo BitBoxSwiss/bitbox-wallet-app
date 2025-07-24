@@ -203,7 +203,7 @@ export const App = () => {
                 return null;
               })
             }
-            <div className={styles.contentContainer}>
+            <div id="content-container" className={styles.contentContainer}>
               <GlobalBanners />
               <AppRouter
                 accounts={accounts}

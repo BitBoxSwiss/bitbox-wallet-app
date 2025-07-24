@@ -30,6 +30,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { BitsuranceGuide } from './guide';
 import { getBitsuranceURL } from '@/api/bitsurance';
 import { convertScriptType } from '@/utils/request-addess';
+import { useScrollToTop } from '@/hooks/scrolltotop';
 import style from './widget.module.css';
 
 type TProps = {
@@ -39,6 +40,7 @@ type TProps = {
 export const BitsuranceWidget = ({ code }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const scrollToTop = useScrollToTop();
 
   const [height, setHeight] = useState(0);
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -183,7 +185,10 @@ export const BitsuranceWidget = ({ code }: TProps) => {
         <div ref={ref} className={style.container}>
           { !agreedTerms ? (
             <BitsuranceTerms
-              onAgreedTerms={() => setAgreedTerms(true)}
+              onAgreedTerms={() => {
+                setAgreedTerms(true);
+                scrollToTop();
+              }}
             />
           ) : (
             <div style={{ height }}>
