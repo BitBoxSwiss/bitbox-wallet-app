@@ -85,7 +85,7 @@ export const BTCDirectTerms = ({ account, onAgreedTerms }: TProps) => {
           label={t('buy.info.skip')}
           onChange={handleSkipDisclaimer} />
       </div>
-      <div className="buttons text-center m-bottom-xlarge">
+      <div className="buttons text-center m-bottom-large">
         <Button
           primary
           onClick={onAgreedTerms}>

@@ -40,7 +40,6 @@ export const BitsuranceTerms = ({ onAgreedTerms }: TProps) => {
     }
   };
 
-
   return (
     <div className={style.disclaimerContainer}>
       <div className={style.disclaimer}>
@@ -62,7 +61,7 @@ export const BitsuranceTerms = ({ onAgreedTerms }: TProps) => {
           label={t('buy.info.skip')}
           onChange={handleSkipDisclaimer} />
       </div>
-      <div className="buttons text-center m-bottom-xlarge">
+      <div className="buttons text-center m-bottom-large">
         <Button
           primary
           onClick={onAgreedTerms}>

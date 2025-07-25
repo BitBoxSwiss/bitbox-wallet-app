@@ -1,15 +1,16 @@
 .disclaimerContainer {
   align-items: center;
+  bottom: 0;
   display: flex;
-  flex-basis: 100%;
   flex-direction: column;
-  flex-grow: 0;
-  flex-shrink: 1;
   justify-content: center;
+  left: 0;
   margin: 0 auto;
-  overflow: auto;
-  padding: 0 var(--space-half) var(--header-height) var(--space-half);
+  padding: 0 var(--space-half) 0 var(--space-half);
+  position: absolute;
   width: 100%;
+  right: 0;
+  top: 0;
 }
 
 .title {
@@ -24,7 +25,7 @@
   font-family: var(--font-family);
   flex-grow: 0;
   flex-shrink: 1;
-  margin: var(--space-default) 0;
+  margin: 0 0 var(--space-default) 0;
   max-width: 660px;
   overflow: auto;
   padding: var(--space-quarter) 1em 1em 1em;
