@@ -28,7 +28,6 @@ import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { MoonpayTerms } from '@/components/terms/moonpay-terms';
-import { useScrollToTop } from '@/hooks/scrolltotop';
 import style from './iframe.module.css';
 
 type TProps = {
@@ -38,7 +37,6 @@ type TProps = {
 
 export const Moonpay = ({ accounts, code }: TProps) => {
   const { t } = useTranslation();
-  const scrollToTop = useScrollToTop();
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [height, setHeight] = useState(0);
@@ -98,10 +96,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
             { !agreedTerms ? (
               <MoonpayTerms
                 account={account}
-                onAgreedTerms={() => {
-                  setAgreedTerms(true);
-                  scrollToTop();
-                }}
+                onAgreedTerms={() => setAgreedTerms(true)}
               />
             ) : (
               <div style={{ height }}>

@@ -5,25 +5,3 @@
 .link:focus {
   outline-color: inherit;
 }
-
-.container > div {
-  flex-shrink: 0;
-  margin: 0 auto;
-  margin-top: var(--spacing-default);
-  max-width: var(--content-width);
-  padding: var(--space-default);
-  padding-bottom: 0;
-  padding-top: 0;
-  width: 100%;
-}
-
-@media (max-width: 768px) {
-  .container > div {
-      padding: 0 var(--space-half);
-  }
-
-  .container > div:last-child > div {
-    margin-bottom: 0;
-  }
-}
-
