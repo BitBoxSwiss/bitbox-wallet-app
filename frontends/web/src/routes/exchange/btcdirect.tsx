@@ -23,7 +23,6 @@ import { AccountCode, IAccount } from '@/api/account';
 import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
-import { useScrollToTop } from '@/hooks/scrolltotop';
 import { getConfig } from '@/utils/config';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -62,7 +61,6 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const btcdirectInfo = useLoad(() => getBTCDirectInfo('buy', code));
-  const scrollToTop = useScrollToTop();
 
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -161,10 +159,7 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
             { !agreedTerms ? (
               <BTCDirectTerms
                 account={account}
-                onAgreedTerms={() => {
-                  setAgreedTerms(true);
-                  scrollToTop();
-                }}
+                onAgreedTerms={() => setAgreedTerms(true)}
               />
             ) : (
               <div style={{ height }}>
