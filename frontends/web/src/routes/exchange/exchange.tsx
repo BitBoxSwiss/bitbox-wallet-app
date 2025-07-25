@@ -133,9 +133,9 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
             />
           )}
         </Dialog>
-        <div className="innerContainer scrollableContainer">
+        <div className="innerContainer">
           <Header title={<h2>{title}</h2>} />
-          <div className={[style.exchangeContainer, 'content', 'narrow', 'isVerticallyCentered'].join(' ')}>
+          <div className={[style.exchangeContainer, 'content', 'narrow'].join(' ')}>
             <p className={style.label}>{t('buy.exchange.region')}</p>
             {regions.length ? (
               <>

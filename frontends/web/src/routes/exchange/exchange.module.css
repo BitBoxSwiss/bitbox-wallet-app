@@ -4,6 +4,7 @@
 
 .buttonBack {
     margin-right: auto;
+    margin-bottom: var(--space-default);
 }
 
 .buttonsContainer {
@@ -31,7 +32,6 @@
 .exchangeContainer:global(.content) {
     flex-grow: 0;
     flex-shrink: 0;
-    margin: auto;
     padding-right: 40px;
 }
 
