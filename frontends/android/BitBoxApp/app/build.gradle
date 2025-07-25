@@ -1,12 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    buildToolsVersion '34.0.0'
-    compileSdk 34
+    buildToolsVersion '35.0.0'
+    compileSdk 35
     defaultConfig {
         applicationId "ch.shiftcrypto.bitboxapp"
-        minSdkVersion 21
-        targetSdkVersion 34
+        // minSdkVersion should match the `-androidapi` gomobile bind flag
+        // in backend/mobileserver/Makefile
+        minSdkVersion 24
+        targetSdkVersion 35
         versionCode 62
         versionName "android-4.48.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
