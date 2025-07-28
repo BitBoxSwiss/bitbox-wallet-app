@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import * as accountApi from '@/api/account';
@@ -27,7 +27,7 @@ import { useSDCard } from '@/hooks/sdcard';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
-import { Info } from '@/components/icon';
+import { CloseXDark, CloseXWhite, Info, Loupe } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Status } from '@/components/status/status';
@@ -51,8 +51,62 @@ import { TransactionDetails } from '@/components/transactions/details';
 import { Button } from '@/components/forms';
 import { SubTitle } from '@/components/title';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
-import style from './account.module.css';
 import { RatesContext } from '@/contexts/RatesContext';
+import { useDarkmode } from '@/hooks/darkmode';
+import style from './account.module.css';
+
+const SearchInput = React.memo(({
+  placeholder,
+  onSearchChange
+}: {
+  placeholder: string;
+  onSearchChange?: (searchTerm: string) => void;
+}) => {
+  const [query, setQuery] = useState<string>('');
+  const { isDarkMode } = useDarkmode();
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+  }, []);
+
+  const handleClear = useCallback(() => {
+    setQuery('');
+    onSearchChange?.('');
+  }, [onSearchChange]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      onSearchChange?.(query);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [query, onSearchChange]);
+
+  return (
+    <div className={style.searchContainer}>
+      <Loupe className={style.searchIcon} />
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={query}
+        onChange={handleChange}
+        className={`${style.searchInput} ${query ? style.withClearButton : ''}`}
+      />
+      {query && (
+        <button
+          onClick={handleClear}
+          className={style.clearButton}
+          title="Clear search"
+        >
+          {isDarkMode ? <CloseXWhite className={style.clearButtonIcon} /> : <CloseXDark className={style.clearButtonIcon} />}
+        </button>
+      )}
+    </div>
+  );
+});
+
+SearchInput.displayName = 'SearchInput';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -90,6 +144,8 @@ const RemountAccount = ({
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
   const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeSupported(code), [code]);
+
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
@@ -196,6 +252,21 @@ const RemountAccount = ({
       .catch(console.error);
   };
 
+  const handleDebouncedSearch = useCallback((searchTerm: string) => {
+    setDebouncedSearchQuery(searchTerm);
+  }, []);
+
+  const filteredTransactions = debouncedSearchQuery && transactions?.success
+    ? {
+      ...transactions,
+      list: transactions.list.filter(tx => {
+        const searchLower = debouncedSearchQuery.toLowerCase();
+        return tx.txID.toLowerCase().includes(searchLower) ||
+               tx.note.toLowerCase().includes(searchLower);
+      })
+    }
+    : transactions;
+
   const hasDataLoaded = balance !== undefined && transactions !== undefined;
 
   if (!account) {
@@ -235,7 +306,6 @@ const RemountAccount = ({
     && transactions.success
     && transactions.list.length === 0;
 
-
   const actionButtonsProps = {
     code,
     accountDataLoaded: hasDataLoaded,
@@ -247,6 +317,7 @@ const RemountAccount = ({
 
   const loadingTransactions = transactions?.success === undefined;
   const hasTransactions = transactions?.success && transactions.list.length > 0;
+  const showingFilteredResults = debouncedSearchQuery && transactions?.success;
 
   return (
     <GuideWrapper>
@@ -299,7 +370,7 @@ const RemountAccount = ({
             </ViewHeader>
             <ViewContent fullWidth>
               <div className={style.accountHeader}>
-                {isAccountEmpty && (
+                {isAccountEmpty && balance && (
                   <BuyReceiveCTA
                     account={account}
                     code={code}
@@ -316,35 +387,52 @@ const RemountAccount = ({
                 ) : !isAccountEmpty && (
                   <SubTitle className={style.titleWithButton}>
                     {t('accountSummary.transactionHistory')}
-                    <Button
-                      transparent
-                      disabled={!hasTransactions}
-                      className={style.exportButton}
-                      onClick={exportAccount}
-                      title={t('account.exportTransactions')}>
-                      {t('account.export')}
-                    </Button>
+                    <div className={style.headerControls}>
+                      <Button
+                        transparent
+                        disabled={!hasTransactions}
+                        className={style.exportButton}
+                        onClick={exportAccount}
+                        title={t('account.exportTransactions')}>
+                        {t('account.export')}
+                      </Button>
+                    </div>
                   </SubTitle>
+                )}
+
+                {hasTransactions && (
+                  <SearchInput
+                    placeholder={t('account.searchTransactions', 'Search by transaction ID or notes')}
+                    onSearchChange={handleDebouncedSearch}
+                  />
+                )}
+
+                {showingFilteredResults && filteredTransactions?.success && filteredTransactions.list.length === 0 && (
+                  <p className={style.emptyTransactions}>
+                    No transactions found matching "{debouncedSearchQuery}" in transaction ID or notes
+                  </p>
                 )}
               </div>
 
               {loadingTransactions && <TransactionHistorySkeleton />}
 
-              {hasTransactions ? (
-                transactions.list.map(tx => (
-                  <Transaction
-                    key={tx.internalID}
-                    onShowDetail={(internalID: accountApi.ITransaction['internalID']) => {
-                      setDetailID(internalID);
-                    }}
-                    {...tx}
-                  />
-                ))
-              ) : transactions?.success && (
-                <p className={style.emptyTransactions}>
-                  {t('transactions.placeholder')}
-                </p>
-              )}
+              <div className={style.transactionsList}>
+                {filteredTransactions?.success && filteredTransactions.list.length > 0 ? (
+                  filteredTransactions.list.map(tx => (
+                    <Transaction
+                      key={tx.internalID}
+                      onShowDetail={(internalID: accountApi.ITransaction['internalID']) => {
+                        setDetailID(internalID);
+                      }}
+                      {...tx}
+                    />
+                  ))
+                ) : transactions?.success && !showingFilteredResults ? (
+                  <p className={style.emptyTransactions}>
+                    {t('transactions.placeholder')}
+                  </p>
+                ) : null}
+              </div>
 
               <TransactionDetails
                 accountCode={code}
