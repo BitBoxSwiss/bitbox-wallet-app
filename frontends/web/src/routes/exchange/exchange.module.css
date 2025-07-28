@@ -86,10 +86,6 @@
     text-align: center;
 }
 
-.updateButton {
-    height: var(--item-height-small);
-}
-
 .infoContainer {
     margin-top: var(--space-default);
     position: relative;

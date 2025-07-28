@@ -23,6 +23,7 @@
 - Persist third party widget sessions
 - Change notes export file type to JSON Lines
 - Add received date to coin control transaction details
+- Added BTC Direct sell option
 
 ## v4.47.3
 - Upgrade Etherscan API to V2
