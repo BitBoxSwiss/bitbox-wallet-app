@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -455,6 +456,48 @@ func (etherScan *EtherScan) Balance(ctx context.Context, account common.Address)
 		return nil, errp.New("unexpected response from EtherScan")
 	}
 	return balance, nil
+}
+
+// Balances returns the balances for multiple addresses.
+func (etherScan *EtherScan) Balances(ctx context.Context, accounts []common.Address) (map[common.Address]*big.Int, error) {
+	if len(accounts) == 0 {
+		return nil, nil
+	}
+
+	params := url.Values{}
+	params.Set("module", "account")
+	params.Set("action", "balancemulti")
+
+	addresses := make([]string, len(accounts))
+	for i, account := range accounts {
+		addresses[i] = account.Hex()
+	}
+
+	params.Set("address", strings.Join(addresses, ","))
+	params.Set("tag", "latest")
+
+	var result struct {
+		Status  string
+		Message string
+		Result  []struct {
+			Account string     `json:"account"`
+			Balance jsonBigInt `json:"balance"`
+		} `json:"result"`
+	}
+	if err := etherScan.call(ctx, params, &result); err != nil {
+		return nil, err
+	}
+	if result.Status != "1" {
+		return nil, errp.New("unexpected response from EtherScan")
+	}
+
+	balances := make(map[common.Address]*big.Int)
+	for _, item := range result.Result {
+		account := common.HexToAddress(item.Account)
+		balance := item.Balance.BigInt()
+		balances[account] = balance
+	}
+	return balances, nil
 }
 
 // ERC20Balance implements rpc.Interface.
