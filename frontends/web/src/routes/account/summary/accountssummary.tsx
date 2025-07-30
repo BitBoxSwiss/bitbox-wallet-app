@@ -38,6 +38,7 @@ import { AppContext } from '@/contexts/AppContext';
 import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { GlobalBanners } from '@/components/banners';
 
 type TProps = {
   accounts: accountApi.IAccount[];
@@ -174,6 +175,7 @@ export const AccountsSummary = ({
       <GuidedContent>
         <Main>
           <ContentWrapper>
+            <GlobalBanners />
             <Status hidden={!hasCard} type="warning">
               {t('warning.sdcard')}
             </Status>

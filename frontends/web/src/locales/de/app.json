@@ -191,6 +191,13 @@
     "followInstructionsMnemonicTitle": "Mit Wiederherstellungs-Wörtern wiederherstellen"
   },
   "bitbox02Settings": {
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "Bluetooth ist jetzt auf deiner BitBox deaktiviert. Wenn du in Zukunft iPhones verbinden möchtest, musst du es erneut aktivieren.",
+      "alertEnabled": "Bluetooth ist jetzt aktiviert.",
+      "description": "Bluetooth wird zum Verbinden mit iPhone verwendet.",
+      "titleDisabled": "Bluetooth aktvieren",
+      "titleEnabled": "Bluetooth deaktivieren"
+    },
     "deviceName": {
       "current": "Aktueller Gerätename",
       "error": "Gerätename konnte nicht festgelegt werden",
@@ -810,6 +817,7 @@
     "buy_crypto": "Krypto kaufen",
     "enabled_false": "Deaktiviert",
     "enabled_true": "Aktiviert",
+    "noOptionOnIos": "Nicht verfügbar auf iOS",
     "noOptions": "Keine Optionen gefunden",
     "receive": "Erhalte {{coinCode}}",
     "receive_bitcoin": "Erhalte Bitcoin",
@@ -1887,6 +1895,7 @@
   },
   "warning": {
     "coincontrol": "Ein oder mehrere UTXOs haben eine mehrfach verwendete Adresse. Beachte  dass der Empfänger alle UTXOs sehen wird welche mit diesen Adressen verbunden sind.",
+    "offline": "Du bist derzeit offline. Du kannst keine Transaktionen senden oder die neuesten Wechselkurse einsehen.",
     "sdcard": "Bewahre deine microSD Karte separat von deiner BitBox auf. Die microSD Karte wird nur benötigt, wenn du deine Backups verwalten willst. Für den normalen Betrieb ist sie nicht erforderlich.",
     "testnet": "Testnet-Modus aktiv. Transaktionen und Coins sind hier nicht echt und haben keinen Wert. Nur zu Testzwecken verwenden."
   },

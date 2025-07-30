@@ -9,6 +9,7 @@
 - iOS: various UI improvements
 - Add option to disable Bluetooth for BitBox02 Nova (non-iOS devices only)
 - Disabled the option to enable Tor proxy on iOS
+- Android: Fix occasional crash when unplugging the BitBox
 
 ## v4.48.0
 - Bundle BitBox02 firmware version v9.23.0

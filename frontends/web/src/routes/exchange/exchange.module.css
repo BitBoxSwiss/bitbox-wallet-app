@@ -4,6 +4,7 @@
 
 .buttonBack {
     margin-right: auto;
+    margin-bottom: var(--space-default);
 }
 
 .buttonsContainer {

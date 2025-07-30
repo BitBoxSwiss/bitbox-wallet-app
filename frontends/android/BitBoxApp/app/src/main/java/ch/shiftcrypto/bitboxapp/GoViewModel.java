@@ -19,6 +19,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 
 import mobileserver.GoAPIInterface;
@@ -68,11 +69,18 @@ public class GoViewModel extends AndroidViewModel {
                     }
                     public byte[] read(long n) throws Exception {
                         byte[] result = new byte[(int) n];
-                        connection.bulkTransfer(endpointIn, result, result.length, 5000000);
+                        int transferred = connection.bulkTransfer(endpointIn, result, result.length, 5000000);
+                        if (transferred < 0) {
+                            throw new IOException("USB read failed with error code: " + transferred);
+                        }
                         return result;
                     }
-                    public long write(byte[] p0) throws Exception{
-                        return connection.bulkTransfer(endpointOut, p0, p0.length, 5000000);
+                    public long write(byte[] p0) throws Exception {
+                        int transferred = connection.bulkTransfer(endpointOut, p0, p0.length, 5000000);
+                        if (transferred < 0) {
+                            throw new IOException("USB write failed with error code: " + transferred);
+                        }
+                        return transferred;
                     }
                 };
             }

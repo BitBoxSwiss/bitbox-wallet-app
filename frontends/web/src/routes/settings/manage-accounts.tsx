@@ -34,6 +34,8 @@ import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { Badge } from '@/components/badge/badge';
 import { AccountGuide } from './manage-account-guide';
 import { WatchonlySetting } from './components/manage-accounts/watchonlySetting';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { GlobalBanners } from '@/components/banners';
 import style from './manage-accounts.module.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -203,6 +205,9 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
+          <ContentWrapper>
+            <GlobalBanners />
+          </ContentWrapper>
           <Header
             hideSidebarToggler
             title={

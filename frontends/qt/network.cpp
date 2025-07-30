@@ -13,9 +13,10 @@ void setupReachabilityNotifier() {
     QNetworkInformation* info = QNetworkInformation::instance();
     if (info) {
       QObject::connect(info, &QNetworkInformation::reachabilityChanged, [](QNetworkInformation::Reachability reachability){
-          // We include Reachability::Unknown here as we prefer not include false positives. If QT can't determine whether
-          // we are online, we do not show the banner.
-          bool isReachable = (reachability == QNetworkInformation::Reachability::Online || reachability == QNetworkInformation::Reachability::Unknown);
+          // We include Reachability::Unknown, Reachability::Site, etc here as we prefer not include
+          // false positives. If QT can't determine whether we are online, we do not show the
+          // banner.
+          bool isReachable = reachability != QNetworkInformation::Reachability::Disconnected;
           setOnline(isReachable);
       });
     }
@@ -29,7 +30,7 @@ bool isReachable() {
     }
     QNetworkInformation* info = QNetworkInformation::instance();
     if (info) {
-        return info->reachability() == QNetworkInformation::Reachability::Online || info->reachability() == QNetworkInformation::Reachability::Unknown;
+        return info->reachability() != QNetworkInformation::Reachability::Disconnected;
     }
     // Same as above, if we can't obtain information, we don't show any banner at all.
     return true;
