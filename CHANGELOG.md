@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fix wrong btc/ltc transaction timestamp during header sync
 
 ## v4.48.1
 - Bundle BitBox02 firmware version v9.23.1
