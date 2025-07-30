@@ -38,6 +38,7 @@ import { AppContext } from '@/contexts/AppContext';
 import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { BackupReminder } from '@/components/banners/backup';
 
 type TProps = {
   accounts: accountApi.IAccount[];
@@ -169,6 +170,10 @@ export const AccountsSummary = ({
     getAccountsBalanceSummary();
   }, [onStatusChanged, getAccountsBalanceSummary, accounts]);
 
+  useEffect(() => {
+    getAccountsBalanceSummary();
+  }, [defaultCurrency, getAccountsBalanceSummary]);
+
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -177,6 +182,13 @@ export const AccountsSummary = ({
             <Status hidden={!hasCard} type="warning">
               {t('warning.sdcard')}
             </Status>
+            {accountsByKeystore.map(({ keystore }) => (
+              <BackupReminder
+                key={keystore.rootFingerprint}
+                keystore={keystore}
+                accountsBalanceSummary={accountsBalanceSummary}
+              />
+            ))}
           </ContentWrapper>
           <Header title={<h2>{t('accountSummary.title')}</h2>}>
             <HideAmountsButton />
