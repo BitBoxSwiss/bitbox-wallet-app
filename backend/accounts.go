@@ -1634,6 +1634,14 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 		coinCodes = []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC}
 	}
 	for _, coinCode := range coinCodes {
+		coin, err := backend.Coin(coinCode)
+		if err != nil {
+			backend.log.Errorf("could not find coin %s", coinCode)
+			continue
+		}
+		if !backend.keystore.SupportsCoin(coin) {
+			continue
+		}
 		var newAccountCode *accountsTypes.Code
 		err = backend.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
 			newAccountCode = do(cfg, coinCode)
@@ -1647,11 +1655,6 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 			continue
 		}
 		if newAccountCode != nil {
-			coin, err := backend.Coin(coinCode)
-			if err != nil {
-				backend.log.Errorf("could not find coin %s", coinCode)
-				continue
-			}
 			accountConfig := backend.config.AccountsConfig().Lookup(*newAccountCode)
 			if accountConfig == nil {
 				backend.log.Errorf("could not find newly persisted account %s", *newAccountCode)
