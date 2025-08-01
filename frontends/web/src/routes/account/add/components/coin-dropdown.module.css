@@ -1,7 +1,5 @@
-
 .valueContainer {
     align-items: center;
-    color: var(--color-default);
     display: flex;
 }
 
