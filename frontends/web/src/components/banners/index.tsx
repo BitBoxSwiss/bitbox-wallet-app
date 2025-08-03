@@ -19,11 +19,10 @@ import { Update } from './update';
 import { Banner } from './banner';
 import { MobileDataWarning } from './mobiledatawarning';
 import { Offline } from './offline';
-import styles from './banner.module.css';
 
 export const GlobalBanners = () => {
   return (
-    <div className={styles.container}>
+    <>
       <Testing />
       <Update />
       <Banner msgKey="bitbox01" />
@@ -31,6 +30,6 @@ export const GlobalBanners = () => {
       <Banner msgKey="bitbox02nova" />
       <MobileDataWarning />
       <Offline />
-    </div>
+    </>
   );
 };
