@@ -118,7 +118,7 @@ export const TxDetailsDialog = ({
             </TxDetail>
           )}
           <TxDetail label={t('transaction.details.amount')}>
-            {sign}
+            {type !== 'send_to_self' && sign}
             <AmountWithUnit amount={amount} />
           </TxDetail>
           {
