@@ -1,5 +1,6 @@
 .amount {
     flex-shrink: 1;
+    font-variant: tabular-nums;
     overflow: hidden;
     text-overflow: ellipsis;
 }

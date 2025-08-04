@@ -19,7 +19,6 @@ import { useTranslation } from 'react-i18next';
 import { ITransaction, TAmountWithConversions, getTransaction, TTransactionStatus, TTransactionType } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
 import { Dialog } from '@/components/dialog/dialog';
-import { Amount } from '@/components/amount/amount';
 import { Note } from './note';
 import { TxDetail } from './detail';
 import { Arrow } from './arrows';
@@ -110,32 +109,22 @@ export const TxDetailsDialog = ({
           />
           <TxDateDetail time={time} />
           <TxDetail label={t('transaction.details.fiat')}>
-            <span className={styles.fiat}>
-              <AmountWithUnit amount={amount} sign={sign} convertToFiat/>
-            </span>
+            <AmountWithUnit amount={amount} sign={sign} convertToFiat/>
           </TxDetail>
           {transactionInfo.amountAtTime?.estimated === false &&
           (
             <TxDetail label={t('transaction.details.fiatAtTime')}>
-              <span className={styles.fiat}>
-                <AmountWithUnit amount={transactionInfo.amountAtTime} sign={sign} convertToFiat/>
-              </span>
+              <AmountWithUnit amount={transactionInfo.amountAtTime} sign={sign} convertToFiat/>
             </TxDetail>
           )}
           <TxDetail label={t('transaction.details.amount')}>
-            <span className={styles.amount}>
-              {sign}
-              <Amount amount={amount.amount} unit={amount.unit} />
-            </span>
-            {' '}
-            <span className={styles.currencyUnit}>{transactionInfo.amount.unit}</span>
+            {sign}
+            <AmountWithUnit amount={amount} />
           </TxDetail>
           {
             transactionInfo.fee && transactionInfo.fee.amount ? (
               <TxDetail label={t('transaction.fee')}>
-                <Amount amount={transactionInfo.fee.amount} unit={transactionInfo.fee.unit} />
-                {' '}
-                <span className={styles.currencyUnit}>{transactionInfo.fee.unit}</span>
+                <AmountWithUnit amount={transactionInfo.fee} />
               </TxDetail>
             ) : (
               <TxDetail label={t('transaction.fee')}>---</TxDetail>
