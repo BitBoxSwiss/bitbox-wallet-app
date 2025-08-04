@@ -18,7 +18,6 @@ import { useTranslation } from 'react-i18next';
 import type { TTransactionStatus } from '@/api/account';
 import { ProgressRing } from '@/components/progressRing/progressRing';
 import { TxDetail } from './detail';
-import style from './details.module.css';
 
 type TProps = {
   status: TTransactionStatus;
@@ -43,7 +42,7 @@ export const TxStatusDetail = ({
         value={progress}
         isComplete={isComplete}
       />
-      <span className={style.status}>
+      <span>
         {statusText}{status === 'pending' && <span> {`(${numConfirmations}/${numConfirmationsComplete})`}</span>}
       </span>
     </TxDetail>
