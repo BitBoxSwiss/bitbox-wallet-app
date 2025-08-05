@@ -1,14 +1,3 @@
-.status {}
-
-.fiat {
-    font-variant: tabular-nums;
-}
-
-.amount {
-    font-variant: tabular-nums;
-    max-width: 100%;
-}
-
 .currencyUnit {
     color: var(--color-secondary);
     font-variant: normal;

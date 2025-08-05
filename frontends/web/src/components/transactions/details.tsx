@@ -20,7 +20,6 @@ import { getTransaction } from '@/api/account';
 import { syncdone } from '@/api/accountsync';
 import { usePrevious } from '@/hooks/previous';
 import { TxDetailsDialog } from './components/details-dialog';
-import { getTxSign } from '@/utils/transaction';
 
 type TProps = {
   accountCode: AccountCode;
@@ -88,7 +87,6 @@ export const TransactionDetails = ({
       }}
       accountCode={accountCode}
       explorerURL={explorerURL}
-      sign={getTxSign(transactionInfo.type)}
       {...transactionInfo}
     />
   );
