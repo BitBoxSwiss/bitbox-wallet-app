@@ -1,8 +1,10 @@
 # Changelog
 
 ## Unreleased
-- iOS: Fix blank screens after prolonged inactivity
 - Added BTC Direct sell option
+
+## v4.48.2
+- iOS: Fix blank screens after prolonged inactivity
 
 ## v4.48.1
 - Bundle BitBox02 firmware version v9.23.1
