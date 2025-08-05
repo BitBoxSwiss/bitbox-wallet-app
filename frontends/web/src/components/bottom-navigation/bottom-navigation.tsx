@@ -18,15 +18,25 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { AccountIconSVG, ExchangeIconSVG, MoreIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
 import type { Account } from '@/api/aopp';
+import { useLoad } from '@/hooks/api';
+import { getVersion } from '@/api/bitbox02';
+import { RedDot } from '@/components/icon';
+import { TDevices } from '@/api/devices';
 import styles from './bottom-navigation.module.css';
 
 type Props = {
   activeAccounts: Account[];
+  devices: TDevices
 }
 
-export const BottomNavigation = ({ activeAccounts }: Props) => {
+export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  const deviceID = Object.keys(devices)[0];
+  const isBitBox02 = devices[deviceID] === 'bitbox02';
+  const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID]);
+  const canUpgrade = versionInfo ? versionInfo.canUpgrade : false;
+
   const onlyHasOneAccount = activeAccounts.length === 1;
   const accountCode = activeAccounts[0]?.code || '';
 
@@ -62,6 +72,13 @@ export const BottomNavigation = ({ activeAccounts }: Props) => {
         to="/settings/more"
       >
         <MoreIconSVG />
+        {canUpgrade && (
+          <RedDot
+            className={styles.redDot}
+            width={8}
+            height={8}
+          />
+        )}
         {t('settings.more')}
       </Link>
     </div>

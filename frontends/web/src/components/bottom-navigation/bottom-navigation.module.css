@@ -21,6 +21,7 @@
     flex-direction: column;
     gap: 4px;
     justify-content: center;
+    position: relative;
     text-align: center;
     text-decoration: none;
 }
@@ -42,4 +43,10 @@
     .container {
         display: flex;
     }
+}
+
+.redDot {
+    position: absolute;
+    top: -8px;
+    right: -4px;
 }
