@@ -195,7 +195,9 @@ export const BTCDirect = ({
     }
     event.source?.postMessage({
       action: 'configuration',
-      ...(action === 'buy' && { address: btcdirectInfo.address }),
+      // address should not be needed for sell, but we provide it to lock the coin option
+      // in the widget. See coin-to-fiat.html for details.
+      address: btcdirectInfo.address,
       locale,
       theme: isDarkMode ? 'dark' : 'light',
       baseCurrency: account.coinUnit,
@@ -205,7 +207,7 @@ export const BTCDirect = ({
     }, {
       targetOrigin: event.origin
     });
-  }, [account, action, btcdirectInfo, isDarkMode, isDevServers, locale]);
+  }, [account, btcdirectInfo, isDarkMode, isDevServers, locale]);
 
   const onMessage = useCallback((event: MessageEvent) => {
     if (
