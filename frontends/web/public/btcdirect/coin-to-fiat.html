@@ -32,6 +32,7 @@
       case 'configuration':
         const {
           apiKey,
+          address,
           baseCurrency,
           locale,
           mode,
@@ -85,6 +86,18 @@
           locale: locale || 'en-GB',
           returnUrl: 'https://bitboxapp.shiftcrypto.io/widgets/btcdirect/v1/back-to-app.html',
           theme: theme || 'light',
+        });
+
+        // FIXME: The address should not be needed for the sell flow: this is a temporary workaround to
+        // force the coin type in the widget. Without this, the widget UI allows the user to pick a
+        // coin, potentially breaking the flow.
+        btcdirect('wallet-addresses', {
+          addresses: {
+            address,
+            currency,
+            id: 'BTC Direct',
+            name: 'BTC Direct'
+          }
         });
 
         btcdirect('currencies', {
