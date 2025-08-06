@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BTC Direct - Buy</title>
+<title>BTC Direct - Sell</title>
 
 <link href="./btcdirect.css" rel="stylesheet">
 
@@ -25,11 +25,12 @@
       };
     }
 
+    let orderId = '';
+
     const onMessage = (event) => {
       switch (event.data?.action) {
       case 'configuration':
         const {
-          address,
           apiKey,
           baseCurrency,
           locale,
@@ -39,12 +40,10 @@
         } = event.data || {};
 
         if ( // this should never happen, but if it does we stop here
-          !address
-          || !baseCurrency
+          !baseCurrency
           || !quoteCurrency
         ) {
           showError(`Unexpected error:
-            ${!address ? 'Address missing' : ''}
             ${!baseCurrency ? 'BaseCurrency missing' : ''}
             ${!quoteCurrency ? 'QuoteCurrency missing' : ''}
           `);
@@ -57,8 +56,8 @@
           Object.assign(document.createElement('link'), {
             href: (
               mode === 'production'
-              ? 'https://cdn.btcdirect.eu/fiat-to-coin/fiat-to-coin.css'
-              : 'https://cdn-sandbox.btcdirect.eu/fiat-to-coin/fiat-to-coin.css'
+              ? 'https://cdn.btcdirect.eu/coin-to-fiat/coin-to-fiat.css'
+              : 'https://cdn-sandbox.btcdirect.eu/coin-to-fiat/coin-to-fiat.css'
             ),
             rel: 'stylesheet',
           })
@@ -76,8 +75,8 @@
           t.parentNode.insertBefore(c, t);
         })(window, document, 'script', 'btcdirect',
           mode === 'production'
-          ? 'https://cdn.btcdirect.eu/fiat-to-coin/fiat-to-coin.js'
-          : 'https://cdn-sandbox.btcdirect.eu/fiat-to-coin/fiat-to-coin.js'
+          ? 'https://cdn.btcdirect.eu/coin-to-fiat/coin-to-fiat.js'
+          : 'https://cdn-sandbox.btcdirect.eu/coin-to-fiat/coin-to-fiat.js'
         );
 
         btcdirect('init', {
@@ -88,41 +87,47 @@
           theme: theme || 'light',
         });
 
-        // fiat to coin order
-        btcdirect('wallet-addresses', {
-          addresses: {
-            address,
-            currency,
-            id: 'BitBox',
-            walletName: 'BitBox'
-          }
+        btcdirect('currencies', {
+          crypto: currency,
+          fiat: quoteCurrency,
         });
-
-        btcdirect('include-dca', {
-          include: true
-        });
-
-        btcdirect('set-parameters',
-          mode === 'production' ? {
-            baseCurrency: currency,
-            fixedCurrency: true,
-            quoteCurrency,
-            // paymentMethod: any of 'bancontact', 'bankTransfer', 'creditCard', 'giropay', 'iDeal', 'sofort', 'applepay'
-            showWalletAddress: false,
-          } : {
-            baseCurrency: currency,
-            fixedCurrency: true,
-            paymentMethod: 'sofort', // sandbox currently only supports sofort payment method
-            quoteCurrency,
-            showWalletAddress: false,
-          }
-        );
 
         break;
+
+      case 'confirm-transaction-id':
+
+        const { transactionId } = event.data || {};
+
+        btcdirect('transaction-id-confirmation', {
+          orderId,
+          transactionId,
+        });
+
+        break;
+
+      case 'cancel-order':
+
+        btcdirect('coin-to-fiat-order-canceled');
+
+        break;
+
       }
     };
 
     window.addEventListener('message', onMessage);
+    window.addEventListener('btcdirect-embeddable-coin-to-fiat-order-requested', (e) => {
+
+      // keep the BTC Direct order-id to pass it later to transaction-id-confirmation
+      orderId = e.detail?.orderId;
+
+      window.parent.postMessage({
+        action: 'request-payment',
+        amount: String(e.detail?.amount),
+        currency: e.detail?.currency,
+        orderId: e.detail?.orderId,
+      }, '*');
+
+    });
 
     // Request the parent to send attributes
     window.parent.postMessage({

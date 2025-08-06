@@ -67,7 +67,7 @@ var _ accounts.Interface = &InterfaceMock{}
 //			OfflineFunc: func() error {
 //				panic("mock out the Offline method")
 //			},
-//			SendTxFunc: func(txNote string) error {
+//			SendTxFunc: func(txNote string) (string, error) {
 //				panic("mock out the SendTx method")
 //			},
 //			SetTxNoteFunc: func(txID string, note string) error {
@@ -141,7 +141,7 @@ type InterfaceMock struct {
 	OfflineFunc func() error
 
 	// SendTxFunc mocks the SendTx method.
-	SendTxFunc func(txNote string) error
+	SendTxFunc func(txNote string) (string, error)
 
 	// SetTxNoteFunc mocks the SetTxNote method.
 	SetTxNoteFunc func(txID string, note string) error
@@ -692,7 +692,7 @@ func (mock *InterfaceMock) OfflineCalls() []struct {
 }
 
 // SendTx calls SendTxFunc.
-func (mock *InterfaceMock) SendTx(txNote string) error {
+func (mock *InterfaceMock) SendTx(txNote string) (string, error) {
 	if mock.SendTxFunc == nil {
 		panic("InterfaceMock.SendTxFunc: method is nil but Interface.SendTx was just called")
 	}

@@ -17,9 +17,10 @@
 import { useState, useEffect, createRef, useContext, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getBTCDirectInfo } from '@/api/exchanges';
+import { getBTCDirectInfo, TExchangeAction } from '@/api/exchanges';
+import { parseExternalBtcAmount } from '@/api/coins';
 import { AppContext } from '@/contexts/AppContext';
-import { AccountCode, IAccount } from '@/api/account';
+import { AccountCode, IAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -29,6 +30,7 @@ import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { BTCDirectTerms } from '@/components/terms/btcdirect-terms';
 import { ExchangeGuide } from './guide';
+import { alertUser } from '@/components/alert/Alert';
 import style from './iframe.module.css';
 
 // Map languages supported by BTC Direct
@@ -42,6 +44,7 @@ const localeMapping: Readonly<Record<string, string>> = {
 
 type TProps = {
   accounts: IAccount[];
+  action: TExchangeAction;
   code: AccountCode;
 }
 
@@ -53,17 +56,22 @@ const getURLOrigin = (uri: string): string | null => {
   }
 };
 
-export const BTCDirect = ({ accounts, code }: TProps) => {
+export const BTCDirect = ({
+  accounts,
+  action,
+  code,
+}: TProps) => {
   const { i18n, t } = useTranslation();
   const { isDevServers } = useContext(AppContext);
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const btcdirectInfo = useLoad(() => getBTCDirectInfo('buy', code));
+  const btcdirectInfo = useLoad(() => getBTCDirectInfo(action, code));
 
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [blocking, setBlocking] = useState(false);
   const [height, setHeight] = useState(0);
 
   const config = useLoad(getConfig);
@@ -97,7 +105,107 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
     }, 200);
   };
 
+  const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
+    const { amount, currency, orderId } = event.data;
+
+    if (!btcdirectInfo || btcdirectInfo?.success === false) {
+      if (btcdirectInfo?.errorMessage) {
+        console.error(btcdirectInfo.errorMessage);
+        alertUser(btcdirectInfo.errorMessage);
+      } else {
+        alertUser(t('genericError'));
+      }
+      return;
+    }
+
+    if (currency !== btcdirectInfo.coinUnit) {
+      alertUser(t('currencyMismatch'));
+      console.log('Unexpected currency' + currency);
+    }
+
+    let txAmount: string;
+    if (currency !== 'BTC') {
+      txAmount = String(amount);
+    } else {
+      // this allows to correctly handle sats mode
+      const parsedAmount = await parseExternalBtcAmount(String(amount));
+      if (!parsedAmount.success) {
+        alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
+        return;
+      }
+      txAmount = parsedAmount.amount;
+    }
+
+    const txInput: TTxInput = {
+      address: btcdirectInfo.address,
+      amount: txAmount,
+      paymentRequest: null,
+      sendAll: 'no',
+      selectedUTXOs: [],
+      useHighestFee: true,
+    };
+
+    const txProposal = await proposeTx(code, txInput);
+    if (txProposal.success) {
+      const txNote = t('generic.paymentRequestNote', {
+        name: 'BTC Direct',
+        orderId,
+      });
+      setBlocking(true);
+      const sendResult = await sendTx(code, txNote);
+      setBlocking(false);
+      if (sendResult.success) {
+        const { txId } = sendResult;
+        event.source?.postMessage({
+          action: 'confirm-transaction-id',
+          transactionId: txId
+        }, {
+          targetOrigin: event.origin
+        });
+        // stop here and continue in the widget
+        return;
+      }
+      if (!sendResult.success && !('aborted' in sendResult)) {
+        alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+      }
+    } else {
+      if (txProposal.errorCode === 'insufficientFunds') {
+        alertUser(t('exchange.btcdirect.' + txProposal.errorCode));
+      } else if (txProposal.errorCode) {
+        alertUser(t('send.error.' + txProposal.errorCode));
+      } else {
+        alertUser(t('genericError'));
+      }
+    }
+
+    // cancel the sell order here if txProposal or sendTx was unsuccessful
+    event.source?.postMessage({
+      action: 'cancel-order',
+    }, {
+      targetOrigin: event.origin
+    });
+
+  }, [code, t, btcdirectInfo]);
+
   const locale = i18n.resolvedLanguage ? localeMapping[i18n.resolvedLanguage] : 'en-GB';
+
+  const handleConfiguration = useCallback((event: MessageEvent) => {
+    if (!account || !btcdirectInfo?.success) {
+      return;
+    }
+    event.source?.postMessage({
+      action: 'configuration',
+      ...(action === 'buy' && { address: btcdirectInfo.address }),
+      locale,
+      theme: isDarkMode ? 'dark' : 'light',
+      baseCurrency: account.coinUnit,
+      quoteCurrency: 'EUR', // BTC Direct currently only accepts EURO
+      mode: isDevServers ? 'debug' : 'production',
+      apiKey: btcdirectInfo.apiKey,
+    }, {
+      targetOrigin: event.origin
+    });
+  }, [account, action, btcdirectInfo, isDarkMode, isDevServers, locale]);
 
   const onMessage = useCallback((event: MessageEvent) => {
     if (
@@ -112,25 +220,17 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
     }
     switch (event.data.action) {
     case 'request-configuration':
-      event.source?.postMessage({
-        action: 'configuration',
-        address: btcdirectInfo.address,
-        locale,
-        theme: isDarkMode ? 'dark' : 'light',
-        baseCurrency: account.coinUnit,
-        quoteCurrency: 'EUR', // BTC Direct currently only accepts EURO
-        mode: isDevServers ? 'debug' : 'production',
-        apiKey: btcdirectInfo.apiKey,
-      }, {
-        targetOrigin: event.origin
-      });
+      handleConfiguration(event);
+      break;
+    case 'request-payment':
+      handlePaymentRequest(event);
       break;
     case 'back-to-app':
       navigate(`/account/${code}`);
       break;
     }
 
-  }, [account, btcdirectInfo, code, isDarkMode, isDevServers, locale, navigate]);
+  }, [account, btcdirectInfo, code, isDevServers, navigate, handleConfiguration, handlePaymentRequest]);
 
   useEffect(() => {
     window.addEventListener('message', onMessage);
@@ -151,7 +251,12 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
           <div className={style.header}>
             <Header title={
               <h2>
-                {t('generic.buy', { context: translationContext })}
+                {action === 'buy' ? (
+                  t('generic.buy', { context: translationContext })
+                ) : (
+                  t('generic.sell', { context: translationContext })
+                )}
+                {}
               </h2>
             } />
           </div>
@@ -165,7 +270,10 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
               <div style={{ height }}>
                 <UseDisableBackButton />
                 {!iframeLoaded && <Spinner text={t('loading')} />}
-                { btcdirectInfo?.success && (
+                {blocking && (
+                  <div className={style.blocking}></div>
+                )}
+                { btcdirectInfo?.success ? (
                   <iframe
                     onLoad={() => {
                       setIframeLoaded(true);
@@ -180,6 +288,8 @@ export const BTCDirect = ({ accounts, code }: TProps) => {
                     allow="camera; clipboard-write;"
                     src={btcdirectInfo.url}>
                   </iframe>
+                ) : (
+                  <>{btcdirectInfo?.errorMessage ? alertUser(btcdirectInfo.errorMessage) : alertUser('genericError')}</>
                 )}
               </div>
             )}

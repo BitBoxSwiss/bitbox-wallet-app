@@ -1291,11 +1291,12 @@ func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{
 
 func (handlers *Handlers) getExchangeBtcDirectInfo(r *http.Request) interface{} {
 	type result struct {
-		Success      bool    `json:"success"`
-		ErrorMessage string  `json:"errorMessage"`
-		Url          string  `json:"url"`
-		ApiKey       string  `json:"apiKey"`
-		Address      *string `json:"address"`
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		Url          string `json:"url,omitempty"`
+		ApiKey       string `json:"apiKey,omitempty"`
+		Address      string `json:"address,omitempty"`
+		CoinUnit     string `json:"coinUnit,omitempty"`
 	}
 
 	code := accountsTypes.Code(mux.Vars(r)["code"])
@@ -1306,13 +1307,17 @@ func (handlers *Handlers) getExchangeBtcDirectInfo(r *http.Request) interface{} 
 	}
 
 	action := exchanges.ExchangeAction(mux.Vars(r)["action"])
-	btcInfo := exchanges.BtcDirectInfo(action, acct, handlers.backend.DevServers())
+	btcInfo, err := exchanges.BtcDirectInfo(action, acct, handlers.backend.DevServers())
+	if err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
 
 	return result{
-		Success: true,
-		Url:     btcInfo.Url,
-		ApiKey:  btcInfo.ApiKey,
-		Address: btcInfo.Address,
+		Success:  true,
+		Url:      btcInfo.Url,
+		ApiKey:   btcInfo.ApiKey,
+		Address:  btcInfo.Address,
+		CoinUnit: btcInfo.CoinUnit,
 	}
 }
 

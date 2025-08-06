@@ -470,7 +470,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 		// not return but only log an error here.
 		handlers.log.WithError(err).Error("Failed to unmarshal transaction note")
 	}
-	err := handlers.account.SendTx(txNote)
+	txID, err := handlers.account.SendTx(txNote)
 	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return map[string]interface{}{"success": false, "aborted": true}, nil
 	}
@@ -482,7 +482,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 		}
 		return result, nil
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true, "txId": txID}, nil
 }
 
 func txProposalError(err error) (interface{}, error) {

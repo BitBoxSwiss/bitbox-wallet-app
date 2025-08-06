@@ -94,16 +94,14 @@ export type TBTCDirectInfoResponse = {
   success: true;
   url: string;
   apiKey: string;
-  address?: string;
+  address: string;
+  coinUnit?: string;
 } | {
   success: false;
   errorMessage: string;
 };
 
-export const getBTCDirectInfo = (
-  action: TExchangeAction,
-  code: string,
-): Promise<TBTCDirectInfoResponse> => {
+export const getBTCDirectInfo = async (action: TExchangeAction, code: string): Promise<TBTCDirectInfoResponse> => {
   return apiGet(`exchange/btcdirect/info/${action}/${code}`);
 };
 
