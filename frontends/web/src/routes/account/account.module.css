@@ -9,9 +9,17 @@
     justify-content: flex-start;
 }
 
+.button {
+    height: 37px;
+}
+
 @media (max-width: 768px) {
     .accountHeader {
         padding: 0 var(--space-half);
+    }
+
+    .button {
+        height: 50px;
     }
 }
 
@@ -29,6 +37,7 @@
     flex-grow: 1;
     flex-shrink: 0;
     flex-wrap: nowrap;
+    gap: var(--space-quarter);
     justify-content: flex-end;
     margin-top: var(--space-half);
     padding-bottom: 0;
@@ -38,44 +47,8 @@
     word-break: normal;
 }
 
-.exchange,
-.receive,
-.walletConnect,
-.send {
-    align-items: center;
-    background-color: var(--color-blue);
-    border-radius: 2px;
-    color: var(--color-alt);
-    display: inline-flex;
-    font-size: var(--size-default);
-    justify-content: center;
-    margin: 0 0 var(--space-quarter) var(--space-quarter);
-    min-height: calc(var(--item-height) / 1.5);
-    min-width: calc(var(--item-height) * 2);
-    padding: var(--space-quarter) var(--space-half);
-    text-align: center;
-    text-decoration: none;
-    transition: background-color ease-out 0.2s;
-    width: auto;
-    will-change: background-color;
-}
-
-.walletConnect {
-    justify-content: center;
-}
-
 .withWalletConnect.actionsContainer {
     justify-content: flex-end;
-}
-
-.withWalletConnect .walletConnect {
-    display: flex;
-}
-
-.buy:hover,
-.receive:hover,
-.send:not(.disabled):hover {
-    background-color: var(--color-lightblue);
 }
 
 .disabled {
@@ -121,7 +94,6 @@
 }
 
 @media (max-width: 768px) {
-
     .accountInfoLink {
         margin-right: 0;
         padding: 0 var(--space-quarter);
@@ -146,41 +118,12 @@
         margin-bottom: 0;
     }
 
-    .withWalletConnect .buy,
-    .withWalletConnect .receive,
-    .withWalletConnect .send {
-        max-width: 25%;
-    }
-
-    .withWalletConnect .walletConnect {
-        align-items: center;
-        display: flex;
-        justify-content: center;
-        max-width: 15%;
-    }
-
     .actionsContainer a,
-    .actionsContainer > span {
-        flex: 1 0 30%;
-        max-width: 30%;
+    .actionsContainer > button {
+        flex: 1;
         min-width: unset;
     }
 
-    .exchange,
-    .send,
-    .receive,
-    .walletConnect {
-        font-size: var(--size-small);
-        width: auto;
-    }
-
-
-    .exchange:first-child,
-    .send:first-child,
-    .receive:first-child,
-    .walletConnect:first-child {
-        margin-left: 0;
-    }
 }
 
 .status {

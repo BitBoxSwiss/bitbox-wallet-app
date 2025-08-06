@@ -1,5 +1,7 @@
 {
   "account": {
+    "account": "Conta",
+    "accounts": "Contas",
     "disconnect": "Conexão perdida. Tentando novamente...",
     "export": "Exportar",
     "exportTransactions": "Exportar transações para a pasta Downloads como um arquivo CSV.",
@@ -45,6 +47,7 @@
     "fiatBalance": "Saldo em moeda corrente",
     "name": "Nome da conta",
     "noAccount": "Não há contas para mostrar.",
+    "portfolio": "Portfólio",
     "subtotalWithCoinName": "Total ({{coinName}})",
     "title": "Meu portfólio",
     "total": "Total",
@@ -187,6 +190,13 @@
     "followInstructionsMnemonicTitle": "Restaurar a partir da frase de recuperação"
   },
   "bitbox02Settings": {
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "Bluetooth agora está desativado na sua BitBox. Se futuramente você quiser se conectar com iPhones, você terá que reativar essa opção.",
+      "alertEnabled": "Bluetooth ativado.",
+      "description": "Bluetooth é usado para conectar-se com o iPhone",
+      "titleDisabled": "Ativar Bluetooth.",
+      "titleEnabled": "Desativar Bluetooth"
+    },
     "deviceName": {
       "current": "Nome atual do dispositivo",
       "error": "Não foi possível definir o nome do dispositivo",
@@ -282,6 +292,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Por favor insira um cartão microSD na sua BitBox02 para continuar.",
+      "insertSDCardToSeeBackups": "Por favor insira seu cartão microSD no BitBox para ver seus backups.",
       "insertSDcardTitle": "Insira cartão microSD."
     },
     "stepPassword": {
@@ -354,6 +365,13 @@
   },
   "blink": {
     "button": "Piscar"
+  },
+  "bluetooth": {
+    "connected": "conectado",
+    "connectionFailed": "falhou",
+    "connectionIssues": "Está tendo problemas de conexão?",
+    "enable": "Por favor ligue o Bluetooth",
+    "select": "Selecione seu BitBox"
   },
   "bootloader": {
     "button": "Atualizar firmware agora",
@@ -442,6 +460,32 @@
           },
           "link": "Acesse BTC Direct - Private Trading Desk",
           "title": "Comprando ou vendendo mais de €50.000?"
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "kyc": {
+              "description": "Verificação de identidade é necessária para fazer trade. Você terá que tirar uma selfie e uma foto de um documento oficial.",
+              "title": "Verificação de identidade"
+            },
+            "paymentMethods": {
+              "title": "Métodos de pagamento e taxas"
+            },
+            "security": {
+              "link": "Modelo de ameaça de segurança BitBox",
+              "title": "Segurança"
+            },
+            "title_bitcoin": "Comprar bitcoin com BTC Direct",
+            "title_crypto": "Comprar crypto com BTC Direct"
+          },
+          "infobox": {
+            "feesBuying": {
+              "title": "Taxas para compra"
+            },
+            "intro": "Comprar cryptmoedas com EUR.",
+            "payment": {
+              "title": "Métodos de pagamento"
+            }
+          }
         },
         "moonpay": {
           "fees": {
@@ -676,6 +720,7 @@
       "title": "Hardware"
     },
     "loading": "Recuperando informações do dispositivo...",
+    "noDevice": "Não há dispositivos conectados",
     "secrets": {
       "manageBackups": "Gerenciar backups",
       "title": "Privacidade"
@@ -758,9 +803,11 @@
     "buy_crypto": "Comprar criptomoedas",
     "enabled_false": "Desabilitado",
     "enabled_true": "Habilitado",
+    "noOptions": "Nenhuma opção encontrada",
     "receive": "Receber {{coinCode}}",
     "receive_bitcoin": "Receber Bitcoin",
-    "receive_crypto": "Receber criptomoedas"
+    "receive_crypto": "Receber criptomoedas",
+    "search": "Procurar..."
   },
   "genericError": "Um erro ocorreu. Se você notar algum problema, por favor, reinicie o aplicativo.",
   "goal": {
@@ -1140,10 +1187,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "O dispositivo deve piscar uma vez quando inserido. Certifique-se de que está inserido de maneira correta. Se você está tendo problemas, por favor, entre em contato conosco através do link abaixo.\n\nA BitBox01 não é suportada em dispositivos móveis. Por favor, use o BitBoxApp no Desktop para conectar sua BitBox01.",
-        "title": "Minha BitBox01 não é reconhecida"
-      },
       "getDevice": {
         "link": {
           "text": "Encomendar uma BitBox"
@@ -1169,6 +1212,12 @@
       "welcome": {
         "text": "Obrigado por usar este aplicativo criado pela Shift Crypto na Suíça. Agradecemos qualquer contribuição que você tenha para compartilhar. Por favor, dê feedback usando o link na parte inferior.",
         "title": "Bem-vindo ao BitBoxApp!"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "Pedir a BitBox02 Nova"
+        },
+        "title": "Qual BitBox funciona com iOS?"
       }
     },
     "walletConnect": {
@@ -1247,6 +1296,9 @@
       "customFees": {
         "description": "Permite inserir sua própria taxa ao enviar."
       },
+      "restartInTestnet": {
+        "description": "Explore e teste novidades usando a testnet."
+      },
       "torProxy": {
         "description": "Conecte-se via Tor para melhor privacidade."
       }
@@ -1278,6 +1330,9 @@
         "title": "Idioma"
       },
       "remebmerWallet": {
+        "enable": {
+          "title": "Carteira salva"
+        },
         "name": "Lembrar carteira",
         "warning": "Isso removerá sua carteira lembrada. Para vê-la novamente, você precisará conectar a BitBox02 para esta carteira. Quaisquer moedas nesta carteira não serão afetadas. Você quer continuar?",
         "warningTitle": "Desativar lembrar carteira"
@@ -1297,6 +1352,12 @@
   "notification": {
     "newTxs_one": "Nova transação em: {{accountName}}",
     "newTxs_other": "{{count}} novas transações em: {{accountName}}"
+  },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "Dicas para problemas de conexão",
+    "link1": "Pedir a BitBox02 Nova",
+    "link2": "Contate o suporte",
+    "stillHavingIssues": "Ainda tendo problemas?"
   },
   "passphrase": {
     "considerations": {
@@ -1551,7 +1612,6 @@
   },
   "settings": {
     "about": "Sobre",
-    "accounts": "Contas",
     "advancedSettings": "Configurações avançadas",
     "appearance": "Aparência",
     "electrum": {
@@ -1757,7 +1817,6 @@
     },
     "pairingSuccess": "Dapp conectado com sucesso. Você pode continuar no site dapp.",
     "signingRequest": {
-      "account": "Conta",
       "chain": "Cadeia",
       "dapp": "Dapp",
       "data": "Dados",

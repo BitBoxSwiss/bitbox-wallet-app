@@ -76,7 +76,6 @@ func NewHandlers(
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/has-payment-request", handlers.ensureAccountInitialized(handlers.getHasPaymentRequest)).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
-	handleFunc("/connect-keystore", handlers.ensureAccountInitialized(handlers.postConnectKeystore)).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
 	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
 	handleFunc("/eth-sign-wallet-connect-tx", handlers.ensureAccountInitialized(handlers.postEthSignWalletConnectTx)).Methods("POST")
@@ -311,18 +310,24 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 	for _, output := range spendableOutputs {
 		address := output.Address.EncodeForHumans()
 		addressReused := addressCounts[address] > 1
-
+		var formattedTime *string
+		timestamp := output.HeaderTimestamp
+		if timestamp != nil {
+			t := timestamp.Format(time.RFC3339)
+			formattedTime = &t
+		}
 		result = append(result,
 			map[string]interface{}{
-				"outPoint":      output.OutPoint.String(),
-				"txId":          output.OutPoint.Hash.String(),
-				"txOutput":      output.OutPoint.Index,
-				"amount":        coin.ConvertBTCAmount(handlers.account.Coin(), btcutil.Amount(output.TxOut.Value), false, accountConfig.RateUpdater),
-				"address":       address,
-				"scriptType":    output.Address.AccountConfiguration.ScriptType(),
-				"note":          handlers.account.TxNote(output.OutPoint.Hash.String()),
-				"addressReused": addressReused,
-				"isChange":      output.IsChange,
+				"outPoint":        output.OutPoint.String(),
+				"txId":            output.OutPoint.Hash.String(),
+				"txOutput":        output.OutPoint.Index,
+				"amount":          coin.ConvertBTCAmount(handlers.account.Coin(), btcutil.Amount(output.TxOut.Value), false, accountConfig.RateUpdater),
+				"address":         address,
+				"scriptType":      output.Address.AccountConfiguration.ScriptType(),
+				"note":            handlers.account.TxNote(output.OutPoint.Hash.String()),
+				"addressReused":   addressReused,
+				"isChange":        output.IsChange,
+				"headerTimestamp": formattedTime,
 			})
 	}
 
@@ -655,15 +660,6 @@ func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
 	}
 
 	return nil, handlers.account.SetTxNote(args.InternalTxID, args.Note)
-}
-
-func (handlers *Handlers) postConnectKeystore(r *http.Request) (interface{}, error) {
-	type response struct {
-		Success bool `json:"success"`
-	}
-
-	_, err := handlers.account.Config().ConnectKeystore()
-	return response{Success: err == nil}, nil
 }
 
 type signingResponse struct {

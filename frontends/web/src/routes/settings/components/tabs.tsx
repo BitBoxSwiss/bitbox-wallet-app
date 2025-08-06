@@ -17,7 +17,7 @@
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
-import type { TDevices, TProductName } from '@/api/devices';
+import type { TDevices, TPlatformName } from '@/api/devices';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
 import { SettingsItem } from './settingsItem/settingsItem';
@@ -101,7 +101,7 @@ export const Tab = ({
 
 type TTabWithVersionCheck = TTab & {
   deviceID: string;
-  device: TProductName;
+  device: TPlatformName;
 }
 
 const TabWithVersionCheck = ({ deviceID, device, ...props }: TTabWithVersionCheck) => {

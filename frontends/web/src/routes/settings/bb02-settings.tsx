@@ -17,6 +17,7 @@
 import { useState, useEffect } from 'react';
 import { useLoad } from '@/hooks/api';
 import { useTranslation } from 'react-i18next';
+import { runningInIOS } from '@/utils/env';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { ViewContent, View } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
@@ -30,6 +31,8 @@ import { alertUser } from '@/components/alert/Alert';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { AttestationCheckSetting } from './components/device-settings/attestation-check-setting';
 import { FirmwareSetting } from './components/device-settings/firmware-setting';
+import { BluetoothFirmwareSetting } from './components/device-settings/bluetooth-firmware-setting';
+import { BluetoothToggleEnabledSetting } from './components/device-settings/bluetooth-toggle-enabled-setting';
 import { SecureChipSetting } from './components/device-settings/secure-chip-setting';
 import { DeviceNameSetting } from './components/device-settings/device-name-setting';
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
@@ -153,6 +156,17 @@ const Content = ({ deviceID }: TProps) => {
             <StyledSkeleton />
         }
       </div>
+
+      {/*"Bluetooth" section*/}
+      { deviceInfo && deviceInfo.bluetooth ? (
+        <div className={styles.section}>
+          <SubTitle className={styles.withMobilePadding}>Bluetooth</SubTitle>
+          { !runningInIOS() ? <BluetoothToggleEnabledSetting deviceID={deviceID} /> : null }
+          <BluetoothFirmwareSetting
+            firmwareVersion={deviceInfo.bluetooth.firmwareVersion}
+          />
+        </div>
+      ) : null }
 
       {/*"Expert settings" section*/}
       <div className={styles.section}>

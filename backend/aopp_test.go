@@ -63,6 +63,9 @@ func makeKeystore(
 		RootFingerprintFunc: func() ([]byte, error) {
 			return rootFingerprint1, nil
 		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
+		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
 			case *btc.Coin:

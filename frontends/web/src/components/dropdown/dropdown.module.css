@@ -24,7 +24,6 @@
     color: var(--color-default);
 }
 
-
 .select :global(.react-select__menu) {
     background-color: var(--background-secondary);
     z-index: 99;
@@ -35,9 +34,17 @@
     color: var(--color-default);
 }
 
+.select :global(.react-select__option--is-disabled) {
+    color: var(--color-disabled);
+}
+
 /*Hovered option color*/
 .select :global(.react-select__option):hover {
     background-color: var(--background-custom-select-hover);
+}
+
+.select :global(.react-select__option--is-disabled):hover {
+    background-color: transparent;
 }
 
 /*Selected option color*/

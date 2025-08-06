@@ -57,6 +57,7 @@
 #include "libserver.h"
 #include "webclass.h"
 #include "urlhandler.h"
+#include "network.h"
 
 #define APPNAME "BitBoxApp"
 
@@ -353,8 +354,8 @@ int main(int argc, char *argv[])
         view->adjustSize();
     }
 
-    externalPage = new QWebEnginePage(view);
     profile = new QWebEngineProfile("BitBoxApp");
+    externalPage = new QWebEnginePage(profile, view);
     mainPage = new WebEnginePage(profile);
     view->setPage(mainPage);
 
@@ -370,6 +371,8 @@ int main(int argc, char *argv[])
     }
 
     webClass = new WebClass();
+
+    setupReachabilityNotifier();
 
     serve(
         // cppHeapFree
@@ -416,6 +419,9 @@ int main(int argc, char *argv[])
             memcpy(result, cString, strlen(cString)+1);
             return result;
         });
+
+    // Trigger the online status change event once at startup.
+    setOnline(isReachable());
 
     RequestInterceptor interceptor;
     view->page()->profile()->setUrlRequestInterceptor(&interceptor);

@@ -22,8 +22,10 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -235,6 +237,9 @@ type Backend struct {
 
 	// testing tells us whether the app is in testing mode
 	testing bool
+
+	// isOnline indicates whether the backend is online, i.e. able to connect to the internet.
+	isOnline atomic.Bool
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -246,8 +251,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	log.Infof("backend config: %+v", backendConfig.AppConfig().Backend)
 	log.Infof("frontend config: %+v", backendConfig.AppConfig().Frontend)
+	// Disable on iOS as it does not work there.
+	useProxy := backendConfig.AppConfig().Backend.Proxy.UseProxy && runtime.GOOS != "ios"
 	backendProxy := socksproxy.NewSocksProxy(
-		backendConfig.AppConfig().Backend.Proxy.UseProxy,
+		useProxy,
 		backendConfig.AppConfig().Backend.Proxy.ProxyAddress,
 	)
 	hclient, err := backendProxy.GetHTTPClient()
@@ -276,6 +283,8 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 
 		testing: backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
 	}
+	// TODO: remove when connectivity check is present on all platforms
+	backend.isOnline.Store(true)
 
 	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
 	if err != nil {
@@ -293,7 +302,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.ratesUpdater = rates.NewRateUpdater(hclient, ratesCache)
 	backend.ratesUpdater.Observe(backend.Notify)
 
-	backend.banners = banners.NewBanners()
+	backend.banners = banners.NewBanners(backend.DevServers())
 	backend.banners.Observe(backend.Notify)
 
 	backend.bluetooth = bluetooth.New(log)
@@ -549,7 +558,7 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 // ManualReconnect triggers reconnecting to Electrum servers if their connection is down.
 // Only coin connections that were previously established are reconnected.
 // Calling this is a no-op for coins that are already connected.
-func (backend *Backend) ManualReconnect() {
+func (backend *Backend) ManualReconnect(reconnectETH bool) {
 	var electrumCoinCodes []coinpkg.Code
 	if backend.Testing() {
 		electrumCoinCodes = []coinpkg.Code{
@@ -581,6 +590,16 @@ func (backend *Backend) ManualReconnect() {
 		}
 		blockchain.ManualReconnect()
 	}
+	if reconnectETH {
+		backend.log.Info("Reconnecting ETH accounts")
+		for _, account := range backend.accounts {
+			ethAccount, ok := account.(*eth.Account)
+			if !ok {
+				continue
+			}
+			ethAccount.EnqueueUpdate()
+		}
+	}
 }
 
 // Testing returns whether this backend is for testing only.
@@ -592,14 +611,6 @@ func (backend *Backend) Testing() bool {
 func (backend *Backend) Accounts() AccountsList {
 	defer backend.accountsAndKeystoreLock.RLock()()
 	return slices.Clone(backend.accounts)
-}
-
-// KeystoreTotalAmount represents the total balance amount of the accounts belonging to a keystore.
-type KeystoreTotalAmount = struct {
-	// FiatUnit is the fiat unit of the total amount
-	FiatUnit string `json:"fiatUnit"`
-	// Total formatted for frontend visualization
-	Total string `json:"total"`
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.
@@ -792,7 +803,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		backend.Notify(observable.Event{
 			Subject: fmt.Sprintf(
 				"devices/%s/%s/%s",
-				theDevice.ProductName(),
+				theDevice.PlatformName(),
 				theDevice.Identifier(),
 				event.Subject),
 			Action: event.Action,
@@ -814,8 +825,10 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	switch theDevice.ProductName() {
 	case bitbox.ProductName:
 		backend.banners.Activate(banners.KeyBitBox01)
-	case bitbox02.ProductName:
+	case bitbox02.BitBox02ProductName:
 		backend.banners.Activate(banners.KeyBitBox02)
+	case bitbox02.BitBox02NovaProductName:
+		backend.banners.Activate(banners.KeyBitBox02Nova)
 	}
 	return nil
 }
@@ -834,8 +847,10 @@ func (backend *Backend) Deregister(deviceID string) {
 		switch device.ProductName() {
 		case bitbox.ProductName:
 			backend.banners.Deactivate(banners.KeyBitBox01)
-		case bitbox02.ProductName:
+		case bitbox02.BitBox02ProductName:
 			backend.banners.Deactivate(banners.KeyBitBox02)
+		case bitbox02.BitBox02NovaProductName:
+			backend.banners.Deactivate(banners.KeyBitBox02Nova)
 		}
 
 	}
@@ -941,6 +956,26 @@ func (backend *Backend) HandleURI(uri string) {
 	default:
 		backend.log.Warningf("Unknown URI scheme: %s", uri)
 	}
+}
+
+// SetOnline sets the backend's online status and notifies the frontend.
+func (backend *Backend) SetOnline(online bool) {
+	backend.log.Infof("Setting online status to %v", online)
+	// If coming back online, trigger a reconnection.
+	if online && !backend.isOnline.Load() {
+		backend.ManualReconnect(true)
+	}
+	backend.isOnline.Store(online)
+	backend.Notify(observable.Event{
+		Subject: "online",
+		Action:  action.Reload,
+		Object:  online,
+	})
+}
+
+// IsOnline returns whether the backend is online, i.e. able to connect to the internet.
+func (backend *Backend) IsOnline() bool {
+	return backend.isOnline.Load()
 }
 
 // GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,

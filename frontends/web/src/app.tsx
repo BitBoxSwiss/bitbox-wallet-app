@@ -171,7 +171,8 @@ export const App = () => {
   const deviceIDs: string[] = Object.keys(devices);
   const activeAccounts = accounts.filter(acct => acct.active);
 
-  const showBottomNavigation = deviceIDs.length > 0 || activeAccounts.length > 0;
+  const isBitboxBootloader = devices[deviceIDs[0]] === 'bitbox02-bootloader';
+  const showBottomNavigation = (deviceIDs.length > 0 || activeAccounts.length > 0) && !isBitboxBootloader;
 
   return (
     <ConnectedApp>
@@ -188,8 +189,8 @@ export const App = () => {
             <Aopp />
             <KeystoreConnectPrompt />
             {
-              Object.entries(devices).map(([deviceID, productName]) => {
-                if (productName === 'bitbox02') {
+              Object.entries(devices).map(([deviceID, platformName]) => {
+                if (platformName === 'bitbox02') {
                   return (
                     <Fragment key={deviceID}>
                       <BitBox02Wizard
@@ -210,7 +211,9 @@ export const App = () => {
             />
             <RouterWatcher />
           </div>
-          {showBottomNavigation && <BottomNavigation />}
+          {showBottomNavigation && (
+            <BottomNavigation activeAccounts={activeAccounts} />
+          )}
           <Alert />
           <Confirm />
         </div>

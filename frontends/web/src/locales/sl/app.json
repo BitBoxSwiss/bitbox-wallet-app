@@ -45,6 +45,7 @@
     "fiatBalance": "Stanje v fiat valuti",
     "name": "Ime računa",
     "noAccount": "Ni računov za prikaz.",
+    "portfolio": "Portfelj",
     "subtotalWithCoinName": "Skupaj ({{coinName}})",
     "title": "Moj portfelj",
     "total": "Skupaj",
@@ -194,7 +195,7 @@
       "current": "Trenutno ime naprave",
       "error": "Imena naprave ni bilo mogoče nastaviti",
       "error_104": "Potrditev imena je bilo prekinjeno na napravi",
-      "input": "Novo ime",
+      "input": "Ime naprave",
       "placeholder": "Novo ime naprave",
       "title": "Nastavite ime tej napravi"
     },
@@ -359,6 +360,13 @@
   "blink": {
     "button": "Sproži utripanje na napravi"
   },
+  "bluetooth": {
+    "connected": "povezan",
+    "connectionFailed": "povezava ni uspela",
+    "connectionIssues": "Imate težave s povezovanjem?",
+    "enable": "Vklopite Bluetooth",
+    "select": "Izberite BitBox"
+  },
   "bootloader": {
     "button": "Nadgradi \"firmware\"",
     "button_install": "Namestite firmware",
@@ -406,7 +414,7 @@
               "title": "Varnost podatkov"
             },
             "kyc": {
-              "text": "Za vse posle je potrebno preverjanje identitete stranke. Vaš upravitelj računa vas bo vodil skozi postopek in odgovoril na morebitna vprašanja.",
+              "text": "Za vse posle je potrebno preverjanje vaše identitete. Vaš upravitelj računa vas bo vodil skozi postopek in odgovoril na morebitna vprašanja.",
               "title": "Preverjanje identitete"
             },
             "partnership": {
@@ -423,7 +431,7 @@
             },
             "personal": {
               "text": "Vsaki stranki Private Trading je dodeljen namenski upravitelj računa za prilagojeno pomoč prek telefona, video klica, e-pošte ali klepeta. Nakupne in prodajne cene se določijo takoj, ko je naročilo oddano, tudi če do poravnave pride pozneje. Naročila se izvajajo prek mize OTC BTC Direct, kar zmanjšuje odstopanje od trenu.tnih cen.",
-              "title": "Osebna storitev s fiksno ceno"
+              "title": "Personalizirana storitev s fiksno ceno"
             },
             "security": {
               "link": "Pred čem varuje BitBox02",
@@ -439,19 +447,19 @@
             "kyc": "BTC Direct zahteva preverjanje identitete za trgovanje pri njih, vaš upravitelj računa pa vas vodi skozi vse korake.",
             "learnmore": "Kako deluje zasebni trgovalni račun pri BTC Direct.",
             "listItem1": "Kupite in prodajte kadar koli tako, da se obrnete na svojega upravitelja računa po telefonu, e-pošti, video klicu ali klepetu.",
-            "listItem2": "Plačila se izvedejo z bančnim nakazilom po oddaji naročila.",
-            "listItem3": "Minimalni znesek naročila: 50.000 €.",
+            "listItem2": "Plačila se izvedejo preko bančnega nakazila po oddaji naročila",
+            "listItem3": "Minimalni znesek naročila: 50.000 €",
             "listItem4": "Provizije so določene na 0,5 %-1 %, kar vključuje osebno vodenje skozi postopek.",
             "manager": "Imeli boste osebnega upravitelja računa, ki vas bo vodil pri vsakem koraku in zagotavljal varno, preprosto izkušnjo s fiksnimi provizijami oz. minimalnim odstopanjem."
           },
-          "link": "Dostop do BTC Direct - Private Trading Desk",
+          "link": "Pristopite k BTC Direct - Private Trading Desk",
           "title": "Kupujete ali prodajate več kot 50.000 EUR?"
         },
         "btcdirectWidget": {
           "disclaimer": {
-            "description": "Sodelujemo z BTC Direct, zaupanja vrednim evropskim posrednikom, da olajšamo nakup kriptovalut v aplikaciji BitBoxApp. Ta storitev je na voljo po vsej Evropi z uporabo bančnih nakazil, kreditnih kartic in številnih lokalnih načinov plačila.",
+            "description": "Sodelujemo z BTC Direct, zaupanja vrednim evropskim posrednikom, da bi vam olajšali nakup kriptovalut v aplikaciji BitBoxApp. Ta storitev je na voljo po vsej Evropi z bančnimi nakazili, kreditnimi karticami in številnimi lokalnimi plačilnimi metodami.",
             "kyc": {
-              "description": "Za vse posle je potrebno preverjanje identitete stranke. Posneti boste morali selfi in fotografirati uradni dokument.",
+              "description": "Za vse posle je potrebno preverjanje vaše identitete. Posneti boste morali selfi in fotografirati uradni dokument.",
               "title": "Preverjanje identitete"
             },
             "paymentMethods": {
@@ -719,6 +727,7 @@
       "title": "Naprava"
     },
     "loading": "Pridobivam informacije o napravi ...",
+    "noDevice": "Nobena naprava ni povezana",
     "secrets": {
       "manageBackups": "Upravljanje varnostnih kopij",
       "title": "Varnost"
@@ -801,9 +810,11 @@
     "buy_crypto": "Kupi kripto",
     "enabled_false": "Onemogočeno",
     "enabled_true": "Omogočeno",
+    "noOptions": "Ni najdenih možnosti",
     "receive": "Prejmi {{coinCode}}",
     "receive_bitcoin": "Prejmi Bitcoin",
-    "receive_crypto": "Prejmi kripto"
+    "receive_crypto": "Prejmi kripto",
+    "search": "Iskanje …"
   },
   "genericError": "Pojavila se je napaka. Če opazite kakršne koli težave, znova zaženite aplikacijo.",
   "goal": {
@@ -946,7 +957,9 @@
     },
     "appendix": {
       "link": "Kontaktirajte nas!",
-      "text": "Imate še kakšno vprašanje?"
+      "questionService": "Imate težave z {{serviceName}}?",
+      "text": "Imate še kakšno vprašanje?",
+      "textService": "V kolikor imate težave z {{serviceName}}, se obrnite neposredno nanje:"
     },
     "backups": {
       "check": {
@@ -1183,10 +1196,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "Ko jo vstavite, naprava utripne enkrat. Prepričajte se, da je pravilno obrnjena v USB reži. Če imate težave, nas kontaktirajte preko spodnje povezave.\n\nBitBox01 ni podprt v mobilni aplikaciji. Za povezavo z BitBox01 uporabite BitBoxApp na namizju.",
-        "title": "Moj BitBox01 ni prepoznan"
-      },
       "getDevice": {
         "link": {
           "text": "Naročite BitBox"
@@ -1212,6 +1221,13 @@
       "welcome": {
         "text": "Podjetje Shift Crypto iz Švice se vam zahvaljuje, ker uporabljate BitBoxApp. \nVaše predloge za izboljšavo zelo cenimo in si jih želimo. Vaš odziv pričakujemo na povezavi na dnu.",
         "title": "Pozdravljeni v aplikaciji BitBox!"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "Naročite BitBox02 Nova"
+        },
+        "text": "Samo BitBox02 Nova deluje z iOS-om. Običajni BitBox02 se lahko uporablja z vsemi drugimi platformami. Za nakup BitBox02 Nova obiščite našo trgovino ali še bolje, lokalne partnerje.",
+        "title": "Kateri BitBox deluje z iOS-om?"
       }
     },
     "walletConnect": {
@@ -1347,6 +1363,20 @@
   "notification": {
     "newTxs_one": "Novih transakcij na: {{accountName}}",
     "newTxs_other": "{{count}} novih transakcij na: {{accountName}}"
+  },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "Težave s povezavo?",
+    "description1": "Samo BitBox02 Nova je združljiv z iOS. Za BitBox02 uporabite Windows, macOS, Android ali Linux. BitBox02 Nova lahko kupite v naši spletni trgovini ali pe bolje, preko lokalnih partnerjev.",
+    "description2": "Zaslon se mora prižgati. Če zaslon ni vklopljen, naprava ne prejema napajanja.",
+    "description3": "",
+    "description4": "BitBox02 Nova se z iOS-om poveže prek Bluetootha. Bluetooth je mogoče omogočiti/onemogočiti v nastavitvah BitBoxApp na drugih platformah.",
+    "link1": "Naročite BitBox02 Nova",
+    "link2": "Kontaktirajte podporo",
+    "stillHavingIssues": "Imate še vedno težave?",
+    "title1": "Z iOS-om uporabljajte le BitBox02 Nova",
+    "title2": "Prepričajte se, da je BitBox02 Nova priključena na napajanje",
+    "title3": "Imejte BitBox02 Nova v dosegu Bluetooth naprave",
+    "title4": "Prepričajte se, da Bluetooth na napravi BitBox02 Nova ni deaktiviran."
   },
   "passphrase": {
     "considerations": {
@@ -1604,7 +1634,6 @@
   },
   "settings": {
     "about": "O aplikaciji",
-    "accounts": "Računi",
     "advancedSettings": "Napredne nastavitve",
     "appearance": "Izgled",
     "electrum": {
@@ -1661,6 +1690,7 @@
       "up-to-date": "Aplikacija je posodobljena",
       "version": "Verzija aplikacije"
     },
+    "more": "Več",
     "notes": {
       "export": {
         "description": "Shranite opise transakcij in imena računov.",
@@ -1708,6 +1738,33 @@
       "title": "Uspelo je!"
     }
   },
+  "testWallet": {
+    "connect": {
+      "description": "Testna denarnica za testiranje brez naprave v testnet-u.",
+      "title": "Testna denarnica"
+    },
+    "disconnect": {
+      "description": "Odstrani testno denarnico",
+      "title": "Prekini povezavo s testno denarnico"
+    },
+    "prompt": {
+      "button": "Odkleni",
+      "passwordLabel": "Geslo testne denarnice",
+      "title": "Odkleni testno denarnico"
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "Znova zaženite aplikacijo v načinu testnet, da raziščete in preizkusite funkcije.",
+      "prompt": "Zaprite aplikacijo in jo znova zaženite, da vstopite v način testnet-a.",
+      "title": "Vtopi v način za testnet"
+    },
+    "deactivate": {
+      "description": "Znova zaženite aplikacijo, da zaprete način testnet-a.",
+      "prompt": "Za izhod iz testneta zaprite aplikacijo.",
+      "title": "Izhod iz testneta"
+    }
+  },
   "transaction": {
     "confirmation": "Št. potrditev",
     "details": {
@@ -1746,7 +1803,7 @@
       "failed": "Ni uspelo",
       "pending": "V teku",
       "pending_receive": "Dohodni",
-      "pending_send": "Odhodni",
+      "pending_send": "Izhodni",
       "pending_send_to_self": "V teku"
     },
     "tx": {
@@ -1811,7 +1868,6 @@
     },
     "pairingSuccess": "DApp je uspešno povezana. Nadaljujete lahko na spletni strani te DApp.",
     "signingRequest": {
-      "account": "Račun",
       "chain": "Omrežje",
       "dapp": "Dapp",
       "data": "Podatki",
@@ -1838,6 +1894,7 @@
     "connect": "Vklopi BitBox02",
     "getStarted": "Začnimo z namestitvijo strojne programske opreme (firmware)",
     "loadingAccounts": "Nalaganje računov",
+    "message": "Priključite BitBox in se dotaknite strani naprave.",
     "title": "Dobrodošli"
   }
 }

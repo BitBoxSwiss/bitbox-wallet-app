@@ -73,7 +73,7 @@ type Backend interface {
 	Accounts() backend.AccountsList
 	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
 	Keystore() keystore.Keystore
-	AccountsTotalBalanceByKeystore() (map[string]backend.KeystoreTotalAmount, error)
+	AccountsBalanceSummary() (*backend.AccountsBalanceSummary, error)
 	OnAccountInit(f func(accounts.Interface))
 	OnAccountUninit(f func(accounts.Interface))
 	OnDeviceInit(f func(device.Interface))
@@ -116,6 +116,8 @@ type Backend interface {
 	SetWatchonly(rootFingerprint []byte, watchonly bool) error
 	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
 	Bluetooth() *bluetooth.Bluetooth
+	IsOnline() bool
+	ConnectKeystore([]byte) (keystore.Keystore, error)
 }
 
 // Handlers provides a web api to the backend.
@@ -215,14 +217,12 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/accounts/balance", handlers.getAccountsBalance).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/accounts/coins-balance", handlers.getCoinsTotalBalance).Methods("GET")
-	getAPIRouter(apiRouter)("/accounts/total-balance", handlers.getAccountsTotalBalance).Methods("GET")
+	getAPIRouter(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitialize).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/chart-data", handlers.getChartData).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoins).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystore).Methods("POST")
@@ -252,6 +252,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApprove).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystore).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/connect-keystore", handlers.postConnectKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonly).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChanged).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/export-log", handlers.postExportLog).Methods("POST")
@@ -261,6 +262,8 @@ func NewHandlers(
 
 	getAPIRouterNoError(apiRouter)("/bluetooth/state", handlers.getBluetoothState).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/bluetooth/connect", handlers.postBluetoothConnect).Methods("POST")
+
+	getAPIRouterNoError(apiRouter)("/online", handlers.getOnline).Methods("GET")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
@@ -693,147 +696,14 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 	return response{Success: true}
 }
 
-// getAccountsBalanceHandler returns the balance of all the accounts, grouped by keystore and coin.
-func (handlers *Handlers) getAccountsBalance(*http.Request) interface{} {
+// getAccountsBalanceSummary returns the total balance summary of all coins and accounts.
+func (handlers *Handlers) getAccountsBalanceSummary(*http.Request) (interface{}, error) {
 	type response struct {
-		Success bool                                                               `json:"success"`
-		Balance map[string]map[coinpkg.Code]coinpkg.FormattedAmountWithConversions `json:"balance,omitempty"`
-	}
-	totalAmount := make(map[string]map[coinpkg.Code]coinpkg.FormattedAmountWithConversions)
-	accountsByKeystore, err := handlers.backend.AccountsByKeystore()
-	if err != nil {
-		return response{Success: false}
-	}
-	for rootFingerprint, accountList := range accountsByKeystore {
-		totalPerCoin := make(map[coinpkg.Code]*big.Int)
-		conversionsPerCoin := make(map[coinpkg.Code]map[string]string)
-		for _, account := range accountList {
-			if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
-				continue
-			}
-			if account.FatalError() {
-				continue
-			}
-			err := account.Initialize()
-			if err != nil {
-				return response{Success: false}
-			}
-			coinCode := account.Coin().Code()
-			b, err := account.Balance()
-			if err != nil {
-				return response{Success: false}
-			}
-			amount := b.Available()
-			if _, ok := totalPerCoin[coinCode]; !ok {
-				totalPerCoin[coinCode] = amount.BigInt()
-
-			} else {
-				totalPerCoin[coinCode] = new(big.Int).Add(totalPerCoin[coinCode], amount.BigInt())
-			}
-
-			conversionsPerCoin[coinCode] = coinpkg.Conversions(
-				coinpkg.NewAmount(totalPerCoin[coinCode]),
-				account.Coin(),
-				false,
-				account.Config().RateUpdater)
-		}
-
-		totalAmount[rootFingerprint] = make(map[coinpkg.Code]coinpkg.FormattedAmountWithConversions)
-		for k, v := range totalPerCoin {
-			currentCoin, err := handlers.backend.Coin(k)
-			if err != nil {
-				return response{Success: false}
-			}
-			totalAmount[rootFingerprint][k] = coinpkg.FormattedAmountWithConversions{
-				Amount:      currentCoin.FormatAmount(coinpkg.NewAmount(v), false),
-				Unit:        currentCoin.GetFormatUnit(false),
-				Conversions: conversionsPerCoin[k],
-			}
-		}
+		Success      bool                            `json:"success"`
+		TotalBalance *backend.AccountsBalanceSummary `json:"accountsBalanceSummary"`
 	}
 
-	return response{
-		Success: true,
-		Balance: totalAmount,
-	}
-}
-
-type coinFormattedAmount struct {
-	CoinCode        coinpkg.Code                           `json:"coinCode"`
-	CoinName        string                                 `json:"coinName"`
-	FormattedAmount coinpkg.FormattedAmountWithConversions `json:"formattedAmount"`
-}
-
-// getCoinsTotalBalance returns the total balances grouped by coins.
-func (handlers *Handlers) getCoinsTotalBalance(_ *http.Request) interface{} {
-	type result struct {
-		Success           bool                  `json:"success"`
-		CoinsTotalBalance []coinFormattedAmount `json:"coinsTotalBalance,omitempty"`
-	}
-	var coinFormattedAmounts []coinFormattedAmount
-	var sortedCoins []coinpkg.Code
-	totalCoinsBalances := make(map[coinpkg.Code]*big.Int)
-
-	for _, account := range handlers.backend.Accounts() {
-		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
-			continue
-		}
-		if account.FatalError() {
-			continue
-		}
-		err := account.Initialize()
-		if err != nil {
-			return result{Success: false}
-		}
-		coinCode := account.Coin().Code()
-		b, err := account.Balance()
-		if err != nil {
-			return result{Success: false}
-		}
-		amount := b.Available()
-
-		if totalBalance, exists := totalCoinsBalances[coinCode]; exists {
-			totalBalance.Add(totalBalance, amount.BigInt())
-		} else {
-			totalCoinsBalances[coinCode] = amount.BigInt()
-			sortedCoins = append(sortedCoins, coinCode)
-		}
-	}
-
-	for _, coinCode := range sortedCoins {
-		currentCoin, err := handlers.backend.Coin(coinCode)
-		if err != nil {
-			return result{Success: false}
-		}
-		coinFormattedAmounts = append(coinFormattedAmounts, coinFormattedAmount{
-			CoinCode: coinCode,
-			CoinName: currentCoin.Name(),
-			FormattedAmount: coinpkg.FormattedAmountWithConversions{
-				Amount: currentCoin.FormatAmount(coinpkg.NewAmount(totalCoinsBalances[coinCode]), false),
-				Unit:   currentCoin.GetFormatUnit(false),
-				Conversions: coinpkg.Conversions(
-					coinpkg.NewAmount(totalCoinsBalances[coinCode]),
-					currentCoin,
-					false,
-					handlers.backend.RatesUpdater(),
-				),
-			},
-		})
-	}
-	return result{
-		Success:           true,
-		CoinsTotalBalance: coinFormattedAmounts,
-	}
-}
-
-// getAccountsTotalBalanceHandler returns the total balance of all the accounts, gruped by keystore.
-func (handlers *Handlers) getAccountsTotalBalance(*http.Request) (interface{}, error) {
-	type response struct {
-		Success      bool                                   `json:"success"`
-		TotalBalance map[string]backend.KeystoreTotalAmount `json:"totalBalance"`
-	}
-
-	totalBalance, err := handlers.backend.AccountsTotalBalanceByKeystore()
+	totalBalance, err := handlers.backend.AccountsBalanceSummary()
 	if err != nil {
 		return response{Success: false}, nil
 	}
@@ -913,7 +783,7 @@ func (handlers *Handlers) postAccountsReinitialize(*http.Request) interface{} {
 func (handlers *Handlers) getDevicesRegistered(*http.Request) interface{} {
 	jsonDevices := map[string]string{}
 	for deviceID, device := range handlers.backend.DevicesRegistered() {
-		jsonDevices[deviceID] = device.ProductName()
+		jsonDevices[deviceID] = device.PlatformName()
 	}
 	return jsonDevices
 }
@@ -1210,7 +1080,7 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 	})
 }
 
-func (handlers *Handlers) getAccountSummary(*http.Request) interface{} {
+func (handlers *Handlers) getChartData(*http.Request) interface{} {
 	type Result struct {
 		Data    *backend.Chart `json:"data,omitempty"`
 		Success bool           `json:"success"`
@@ -1626,4 +1496,25 @@ func (handlers *Handlers) postBluetoothConnect(r *http.Request) interface{} {
 
 	handlers.backend.Environment().BluetoothConnect(identifier)
 	return nil
+}
+
+func (handlers *Handlers) getOnline(r *http.Request) interface{} {
+	return handlers.backend.IsOnline()
+}
+
+func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
+	type response struct {
+		Success bool `json:"success"`
+	}
+
+	var request struct {
+		RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false}
+	}
+
+	_, err := handlers.backend.ConnectKeystore([]byte(request.RootFingerprint))
+	return response{Success: err == nil}
 }

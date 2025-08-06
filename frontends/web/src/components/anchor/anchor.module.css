@@ -1,4 +1,5 @@
-.link {
+.link,
+.linkIos {
     color: var(--color-blue);
     cursor: pointer;
     text-decoration: underline;

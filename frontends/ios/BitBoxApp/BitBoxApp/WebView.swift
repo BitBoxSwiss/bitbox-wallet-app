@@ -182,6 +182,11 @@ struct WebView: UIViewRepresentable {
             return nil
         }
 
+        // Reload root page when WKWebView content process is terminated by the system.
+        // Avoids blank screens when foregrounding the app after long inactivity.
+        func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+            webView.load((URLRequest(url: URL(string: scheme + ":/index.html")!)))
+        }
 
         // Automatically grant camera permission when used in the webview.
         // The camera permission was already granted at install time via

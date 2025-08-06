@@ -1183,10 +1183,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "デバイスは挿入時に一度点滅するはずです。正しい向きで挿入されていることを確認してください。問題がある場合は、以下のリンクからお問い合わせください。\n\nBitBox01はモバイルではサポートされていません。BitBox01を接続するには、デスクトップのBitBoxAppを使用してください",
-        "title": "私のBitBox01は認識されません"
-      },
       "getDevice": {
         "link": {
           "text": "BitBoxを注文"
@@ -1604,7 +1600,6 @@
   },
   "settings": {
     "about": "について",
-    "accounts": "アカウント",
     "advancedSettings": "詳細設定",
     "appearance": "外観",
     "electrum": {
@@ -1811,7 +1806,6 @@
     },
     "pairingSuccess": "Dappが正常に接続されました。dappのウェブサイトで続行できます。",
     "signingRequest": {
-      "account": "アカウント",
       "chain": "チェーン",
       "dapp": "Dapp",
       "data": "Data",

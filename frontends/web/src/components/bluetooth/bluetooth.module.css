@@ -5,16 +5,17 @@
   margin-top: var(--spacing-default);
 }
 
+.innerContainer {
+  background: var(--background);
+}
+
 .label {
   margin-top: var(--spacing-default);
 }
 
 .connectionIssuesLink {
-  left: 50%;
-  margin-top: 64px;
-  position: absolute;
+  margin-top: 72px;
   text-align: center;
-  transform: translateX(-50%);
   width: 100%;
 }
 

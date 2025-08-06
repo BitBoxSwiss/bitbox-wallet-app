@@ -45,6 +45,7 @@
     "fiatBalance": "Baki Fiat",
     "name": "Nama Akaun",
     "noAccount": "Tiada akaun untuk dipaparkan.",
+    "portfolio": "Portfolio",
     "subtotalWithCoinName": "Jumlah ({{coinName}})",
     "title": "Ringkasan Akaun",
     "total": "Jumlah",
@@ -73,6 +74,8 @@
   "aopp": {
     "addressRequest": "{{host}} sedang meminta alamat penerimaan.",
     "addressRequestWithLogo": "sedang meminta alamat penerima",
+    "addressRequestWithLogoAndXPub": "sedang meminta alamat penerima dan kunci awam (xpub).",
+    "addressRequestWithXPub": "{{host}} sedang meminta alamat penerima dan kunci awam (xpub).",
     "banner": "Permintaan alamat sedang dijalankan. Sila sambungkan peranti anda untuk meneruskan.",
     "errorTitle": "Ralat semasa permintaan alamat",
     "labelAddress": "Alamat",
@@ -84,7 +87,8 @@
       "title": "Alamat berjaya dihantar"
     },
     "syncing": "Menyelaraskan akaun, sila tunggu.",
-    "title": "Permintaan alamat"
+    "title": "Permintaan alamat",
+    "xpubRequested": "Berkongsi xpub anda membolehkan perkhidmatan luaran melihat alamat akaun anda. Syiling anda masih selamat dan kekal dalam kawalan anda."
   },
   "app": {
     "upgrade": "Versi baru aplikasi ini telah didapati! Sila kemaskini dari {{current}} ke {{version}}."
@@ -282,6 +286,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Sila masukkan kad mikroSD ke dalam BitBox02 anda untuk meneruskan.",
+      "insertSDCardToSeeBackups": "Sila masukkan kad microSD ke dalam BitBox anda untuk melihat sandaran anda.",
       "insertSDcardTitle": "Masukkan kad mikroSD"
     },
     "stepPassword": {
@@ -354,6 +359,13 @@
   },
   "blink": {
     "button": "Berkedip"
+  },
+  "bluetooth": {
+    "connected": "bersambung",
+    "connectionFailed": "gagal",
+    "connectionIssues": "Menghadapi masalah sambungan?",
+    "enable": "Sila hidupkan Bluetooth",
+    "select": "Pilih BitBox anda"
   },
   "bootloader": {
     "button": "Naik taraf Firmware sekarang",
@@ -442,6 +454,45 @@
           },
           "link": "Akses BTC Direct - Meja Dagangan Persendirian",
           "title": "Membeli atau menjual lebih €50,000?"
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "description": "Kami bekerjasama dengan BTC Direct, broker Eropah yang dipercayai, untuk memudahkan pembelian mata wang kripto dalam BitBoxApp. Perkhidmatan ini tersedia di seluruh Eropah menggunakan pindahan bank, kad kredit dan banyak kaedah pembayaran tempatan.",
+            "kyc": {
+              "description": "Pengesahan identiti pelanggan diperlukan untuk semua dagangan. Anda perlu mengambil swafoto dan mengambil gambar dokumen rasmi.",
+              "title": "Pengesahan identiti"
+            },
+            "paymentMethods": {
+              "buy": "Membeli: Bayar dalam EUR untuk mendapatkan syiling dihantar terus ke BitBox anda. Anda boleh memilih antara pembelian sekali dan berulang. Untuk pemindahan bank, kadar pertukaran ditetapkan apabila BTC Direct menerima wang. Kaedah segera menggunakan kadar penukaran tetap untuk masa yang terhad.",
+              "note": "Nota: Kadar pertukaran BTC Direct mungkin berbeza sedikit daripada kadar BitBoxApp.",
+              "title": "Kaedah Pembayaran dan Yuran"
+            },
+            "security": {
+              "description": "BTC Direct ialah perkhidmatan luaran yang tidak dilindungi oleh model ancaman keselamatan BitBox. Kami bekerjasama rapat dengan BTC Direct untuk meningkatkan keselamatan keseluruhan.",
+              "link": "Model ancaman keselamatan BitBox02",
+              "title": "Keselamatan"
+            },
+            "title_bitcoin": "Beli bitcoin dengan BTC Direct",
+            "title_crypto": "Beli kripto dengan BTC Direct"
+          },
+          "infobox": {
+            "feesBuying": {
+              "bancontact": "Bancontact: {{fee}}%",
+              "bankTransfer": "Pindahan bank, SEPA, iDEAL: {{fee}}%",
+              "creditDebitCard": "Kad kredit, Cartes Bancaires: {{fee}}%",
+              "sofort": "Sofort: {{fee}}%",
+              "title": "Bayaran untuk Membeli"
+            },
+            "intro": "Pembelian mata wang kripto Eropah dengan EUR.",
+            "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "Pindahan bank, SEPA Instant, iDEAL",
+              "creditDebitCard": "Kad kredit (Mastercard, Visa), Cartes Bancaires",
+              "sofort": "Sofort",
+              "title": "Cara bayaran"
+            }
+          },
+          "learnmore": "Ketahui lebih lanjut tentang BTC Direct"
         },
         "moonpay": {
           "fees": {
@@ -676,6 +727,7 @@
       "title": "Hardware"
     },
     "loading": "Mengambil maklumat peranti ...",
+    "noDevice": "Tiada peranti disambungkan",
     "secrets": {
       "manageBackups": "Urus Backup",
       "title": "Rahsia"
@@ -758,9 +810,11 @@
     "buy_crypto": "Beli kripto",
     "enabled_false": "Dinyahaktifkan",
     "enabled_true": "Diaktifkan",
+    "noOptions": "Tiada pilihan ditemui",
     "receive": "terima {{coinCode}}",
     "receive_bitcoin": "Terima Bitcoin",
-    "receive_crypto": "Terima crypto"
+    "receive_crypto": "Terima crypto",
+    "search": "Cari…"
   },
   "genericError": "Kesalahan muncul. Sekiranya anda melihat sebarang masalah, sila mulakan semula aplikasi.",
   "goal": {
@@ -903,7 +957,9 @@
     },
     "appendix": {
       "link": "Hubungi kami!",
-      "text": "Soalan lain?"
+      "questionService": "Mempunyai masalah dengan {{serviceName}}?",
+      "text": "Soalan lain?",
+      "textService": "Jika anda menghadapi masalah dengan {{serviceName}}, sila hubungi mereka secara terus:"
     },
     "backups": {
       "check": {
@@ -1140,10 +1196,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "Peranti mesti berkelip sekali apabila dimasukkan. Pastikan ia dimasukkan ke arah yang betul. Jika anda menghadapi masalah, sila hubungi kami melalui pautan di bawah.",
-        "title": "Peranti saya tidak diketahui"
-      },
       "getDevice": {
         "link": {
           "text": "Pesan sebuah BitBox"
@@ -1169,6 +1221,13 @@
       "welcome": {
         "text": "Terima kasih kerana menggunakan aplikasi ini yang dibina oleh Shift Crypto dari Switzerland. Ia masih dalam versi beta dan kami menghargai apa-apa input yang anda perlu bagikan. Sila berikan maklum balas menggunakan pautan di bahagian bawah.",
         "title": "Selamat datang ke aplikasi BitBox!"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "Pesan BitBox02 Nova"
+        },
+        "text": "Hanya BitBox02 Nova berfungsi dengan iOS. BitBox02 biasa boleh digunakan dengan semua platform lain. Untuk membeli BitBox02 Nova, sila lawati kedai kami.",
+        "title": "BitBox manakah yang berfungsi dengan iOS?"
       }
     },
     "walletConnect": {
@@ -1247,6 +1306,9 @@
       "customFees": {
         "description": "Membolehkan anda memasukkan yuran anda sendiri semasa menghantar."
       },
+      "restartInTestnet": {
+        "description": "Teroka dan uji ciri dengan menggunakan testnet."
+      },
       "torProxy": {
         "description": "Sambungkan melalui Tor untuk privasi yang lebih baik."
       }
@@ -1278,6 +1340,10 @@
         "title": "Bahasa"
       },
       "remebmerWallet": {
+        "enable": {
+          "description": "Anda kini boleh melihat akaun yang dikaitkan dengan dompet ini tanpa memasukkan peranti BitBox anda. Walau bagaimanapun, BitBox masih diperlukan untuk membuat transaksi dan memaparkan alamat terima.",
+          "title": "Dompet teringat"
+        },
         "name": "Ingat dompet",
         "warning": "Ini akan mengeluarkan dompet anda yang diingati. Untuk melihatnya semula, anda perlu memasukkan BitBox02 untuk dompet ini. Sebarang syiling pada dompet ini tidak terjejas. Adakah anda mahu meneruskan?",
         "warningTitle": "Lumpuhkan ingat dompet"
@@ -1297,6 +1363,20 @@
   "notification": {
     "newTxs_one": "Transaksi baru di: {{accountName}}",
     "newTxs_other": "{{count}} transaksi baharu dalam: {{accountName}}"
+  },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "Petua isu sambungan",
+    "description1": "Hanya BitBox02 Nova yang serasi dengan iOS. Untuk BitBox02, gunakan Windows, macOS, Android atau Linux. Anda boleh membeli BitBox02 Nova di kedai dalam talian kami:",
+    "description2": "Skrin sepatutnya menyala. Jika skrin tidak dihidupkan, maka peranti tidak menerima kuasa.",
+    "description3": "Pastikan BitBox02 Nova dekat dengan iPhone/iPad anda. Kami mengesyorkan anda memasangkan BitBox02 Nova terus ke peranti anda.",
+    "description4": "BitBox02 Nova bersambung dengan iOS melalui Bluetooth. Bluetooth boleh dilumpuhkan/didayakan daripada tetapan BitBoxApp pada platform lain.",
+    "link1": "Pesan BitBox02 Nova",
+    "link2": "Hubungi sokongan",
+    "stillHavingIssues": "Masih mengalami masalah?",
+    "title1": "Hanya gunakan BitBox02 Nova dengan iOS",
+    "title2": "Pastikan BitBox02 Nova dikuasakan",
+    "title3": "Pastikan BitBox02 Nova dalam julat",
+    "title4": "Pastikan Bluetooth tidak dinyahaktifkan pada BitBox02 Nova"
   },
   "passphrase": {
     "considerations": {
@@ -1475,6 +1555,7 @@
     },
     "availableBalance": "Baki yang ada",
     "button": "Tandatangan dan Hantar",
+    "buyEth": "Beli ETH",
     "coincontrol": {
       "address": "Alamat",
       "addressReused": "Alamat digunakan semula",
@@ -1489,6 +1570,7 @@
       "to": "Kepada",
       "total": "Jumlah"
     },
+    "edit": "Edit transaksi",
     "error": {
       "erc20InsufficientGasFunds": "Nampaknya anda tidak mempunyai Eter yang mencukupi untuk membayar transaksi ERC20 ini. Sila pastikan anda memegang cukup Eter dalam dompet anda",
       "feeTooLow": "bayaran terlalu rendah",
@@ -1540,6 +1622,7 @@
     },
     "maximum": "Hantar semua",
     "maximumSelectedCoins": "Hantar syiling terpilih",
+    "newTransaction": "Transaksi baru",
     "noFeeTargets": "Anggaran kadar yuran tidak tersedia pada masa ini. Sila cuba sebentar lagi atau masukkan yuran tersuai.",
     "priority": "Keutamaan",
     "scanQR": "Imbas Kod QR",
@@ -1551,7 +1634,6 @@
   },
   "settings": {
     "about": "Tentang aplikasi",
-    "accounts": "Akaun",
     "advancedSettings": "Tetapan lanjutan",
     "appearance": "Penampilan",
     "electrum": {
@@ -1592,6 +1674,7 @@
         "title": "Log eksport"
       },
       "fee": "Dayakan yuran tersuai",
+      "restartInTestnet": "Mod Testnet",
       "setProxyAddress": "Tetapkan alamat proksi",
       "title": "Tetapan Pakar",
       "useProxy": "Dayakan proksi tor",
@@ -1607,6 +1690,7 @@
       "up-to-date": "Apl anda adalah terkini",
       "version": "Versi Apl"
     },
+    "more": "Lagi",
     "notes": {
       "export": {
         "description": "Buat sandaran nota transaksi dan nama akaun anda.",
@@ -1652,6 +1736,33 @@
     "restore": {
       "summary": "Anda telah berjaya memulihkan wallet dari backup anda.",
       "title": "Berjaya"
+    }
+  },
+  "testWallet": {
+    "connect": {
+      "description": "Dompet ujian perisian untuk diuji tanpa peranti dalam Testnet.",
+      "title": "Dompet ujian"
+    },
+    "disconnect": {
+      "description": "Mengalih keluar dompet ujian perisian.",
+      "title": "Putuskan sambungan dompet ujian"
+    },
+    "prompt": {
+      "button": "Buka",
+      "passwordLabel": "Uji Kata Laluan",
+      "title": "Buka kunci dompet ujian"
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "Mulakan semula apl dalam mod testnet untuk meneroka dan menguji ciri.",
+      "prompt": "Sila tutup apl dan mulakan semula untuk memasuki mod testnet",
+      "title": "Mulakan mod testnet"
+    },
+    "deactivate": {
+      "description": "Mulakan semula apl untuk keluar dari mod testnet.",
+      "prompt": "Sila tutup apl untuk keluar dari mod testnet",
+      "title": "Keluar dari mod testnet"
     }
   },
   "transaction": {
@@ -1757,7 +1868,6 @@
     },
     "pairingSuccess": "Dapp berjaya disambungkan. Anda boleh teruskan di laman web dapp.",
     "signingRequest": {
-      "account": "Akaun",
       "chain": "Rantai",
       "dapp": "Dapp",
       "data": "Data",
@@ -1784,6 +1894,7 @@
     "connect": "Sambungkan BitBox02",
     "getStarted": "Mari mulakan dengan memasang perisian tegar pada BitBox02 anda.",
     "loadingAccounts": "Memuatkan akaun",
+    "message": "Sila sambungkan BitBox anda dan ketik bahagian tepi untuk meneruskan.",
     "title": "Selamat datang"
   }
 }

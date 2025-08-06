@@ -1,8 +1,20 @@
 # Changelog
 
 ## Unreleased
+- iOS: Fix blank screens after prolonged inactivity
+- Added BTC Direct sell option
+
+## v4.48.1
+- Bundle BitBox02 firmware version v9.23.1
+- Format BTC/sat spaces consistently in account summary and total balance
+- Improved offline UX: added detection to show an offline warning banner and auto-reconnect when back online
+- iOS: various UI improvements
+- Add option to disable Bluetooth for BitBox02 Nova (non-iOS devices only)
+- Disabled the option to enable Tor proxy on iOS
+- Android: Fix occasional crash when unplugging the BitBox
 
 ## v4.48.0
+- Bundle BitBox02 firmware version v9.23.0
 - Removed the BTC/sat switch from the general settings in favor of a rotating unit in the account balance.
 - Reduced support for BitBox01
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
@@ -13,7 +25,7 @@
 - Added support to show on the BitBox when a transaction's recipient is an address of a different account on the device.
 - Persist third party widget sessions
 - Change notes export file type to JSON Lines
-- Added BTC Direct sell option
+- Add received date to coin control transaction details
 
 ## v4.47.3
 - Upgrade Etherscan API to V2

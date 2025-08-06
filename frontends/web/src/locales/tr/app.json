@@ -510,10 +510,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "Cihaz yerleştirildiğinde bir kez yanıp sönmelidir. Etrafına doğru yerleştirildiğinden emin olun. Eğer sorun yaşıyorsanız, lütfen aşağıdaki bağlantıdan bize ulaşın.",
-        "title": "BitBox01 tanınmıyor"
-      },
       "getDevice": {
         "link": {
           "text": "Bir BitBox siparişi verin"
