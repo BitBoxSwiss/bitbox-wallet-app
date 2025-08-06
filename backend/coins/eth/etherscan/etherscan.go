@@ -18,6 +18,7 @@ package etherscan
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"math/big"
 	"net/http"
@@ -155,6 +156,10 @@ type Transaction struct {
 	blockTipHeight  *big.Int
 	// isInternal: true if tx was fetched via `txlistinternal`, false if via `txlist`.
 	isInternal bool
+	// internal transactions can send to the same receive address multiple times in the same
+	// transaction, and they should all show up as separate transactions. They all have the same
+	// transaction hash, so we track duplicate IDs via a counter so the internal ID stays unique.
+	idIndex int
 }
 
 // TransactionData returns the tx data to be shown to the user.
@@ -222,7 +227,7 @@ func (tx *Transaction) TxID() string {
 func (tx *Transaction) internalID() string {
 	id := tx.TxID()
 	if tx.isInternal {
-		id += "-internal"
+		id += fmt.Sprintf("-internal-%d", tx.idIndex)
 	}
 	return id
 }
@@ -264,22 +269,19 @@ func (tx *Transaction) addresses() []accounts.AddressAndAmount {
 	}}
 }
 
-// prepareTransactions casts to []accounts.Transactions and removes duplicate entries. Duplicate
-// entries appear in the etherscan result if the recipient and sender are the same. It also sets the
-// transaction type (send, receive, send to self) based on the account address.
+// prepareTransactions casts to []accounts.Transactions and sets the transaction type (send,
+// receive, send to self) based on the account address.
 func prepareTransactions(
 	isERC20 bool,
 	blockTipHeight *big.Int,
 	isInternal bool,
 	transactions []*Transaction, address common.Address) ([]*accounts.TransactionData, error) {
-	seen := map[string]struct{}{}
+	seen := map[string]int{}
 	castTransactions := []*accounts.TransactionData{}
 	ours := address.Hex()
 	for _, transaction := range transactions {
-		if _, ok := seen[transaction.TxID()]; ok {
-			continue
-		}
-		seen[transaction.TxID()] = struct{}{}
+		seenIdx := seen[transaction.TxID()]
+		seen[transaction.TxID()] = seenIdx + 1
 
 		from := transaction.jsonTransaction.From.Hex()
 		var to string
@@ -304,6 +306,7 @@ func prepareTransactions(
 		}
 		transaction.blockTipHeight = blockTipHeight
 		transaction.isInternal = isInternal
+		transaction.idIndex = seenIdx
 		castTransactions = append(castTransactions, transaction.TransactionData(isERC20))
 	}
 	return castTransactions, nil

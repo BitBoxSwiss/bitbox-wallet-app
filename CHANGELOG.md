@@ -2,6 +2,7 @@
 
 ## Unreleased
 - iOS: Fix blank screens after prolonged inactivity
+- Ethereum bugfix: show all internal transactions that share the same transaction ID
 
 ## v4.48.1
 - Bundle BitBox02 firmware version v9.23.1
