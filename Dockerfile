@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM thyrlian/android-sdk:4.0 AS android
+FROM thyrlian/android-sdk:9.3 AS android
 
 FROM ubuntu:22.04
 
