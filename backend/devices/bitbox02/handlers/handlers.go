@@ -263,8 +263,10 @@ func (handlers *Handlers) getCheckSDCard(_ *http.Request) interface{} {
 	handlers.log.Debug("Checking if SD Card is inserted")
 	sdCardInserted, err := handlers.device.CheckSDCard()
 	if err != nil {
+		handlers.log.WithError(err).Error("CheckSDCard failed")
 		return false
 	}
+	handlers.log.Infof("CheckSDCard result: %v", sdCardInserted)
 	return sdCardInserted
 }
 
