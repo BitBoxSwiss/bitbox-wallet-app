@@ -3,6 +3,9 @@
 ## Unreleased
 - Added BTC Direct sell option
 
+## v4.48.3
+- Linux: fix compatiblity with some versions of Mesa also when using the AppImage
+
 ## v4.48.2
 - iOS: Fix blank screens after prolonged inactivity
 
