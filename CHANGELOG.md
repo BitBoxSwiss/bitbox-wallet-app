@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v4.48.4
+- macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
+
 ## v4.48.3
 - Linux: fix compatiblity with some versions of Mesa also when using the AppImage
 
