@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"os"
 	"runtime/debug"
+	"slices"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -34,6 +35,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -72,6 +74,7 @@ type Backend interface {
 	Testing() bool
 	Accounts() backend.AccountsList
 	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
+	AccountsFiatAndCoinBalance(backend.AccountsList, string) (*big.Rat, map[coinpkg.Code]*big.Int, error)
 	Keystore() keystore.Keystore
 	AccountsBalanceSummary() (*backend.AccountsBalanceSummary, error)
 	OnAccountInit(f func(accounts.Interface))
@@ -251,8 +254,8 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancel).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApprove).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccount).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/connect-keystore", handlers.postConnectKeystore).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonly).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChanged).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/export-log", handlers.postExportLog).Methods("POST")
@@ -264,6 +267,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/bluetooth/connect", handlers.postBluetoothConnect).Methods("POST")
 
 	getAPIRouterNoError(apiRouter)("/online", handlers.getOnline).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/keystore/show-backup-banner/{rootFingerprint}", handlers.getKeystoreShowBackupBanner).Methods("GET")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
@@ -1500,6 +1504,57 @@ func (handlers *Handlers) postBluetoothConnect(r *http.Request) interface{} {
 
 func (handlers *Handlers) getOnline(r *http.Request) interface{} {
 	return handlers.backend.IsOnline()
+}
+
+func (handlers *Handlers) getKeystoreShowBackupBanner(r *http.Request) interface{} {
+	rootFingerint := mux.Vars(r)["rootFingerprint"]
+
+	type response struct {
+		Success   bool   `json:"success"`
+		Show      bool   `json:"show,omitempty"`
+		Fiat      string `json:"fiat,omitempty"`
+		Threshold string `json:"threshold,omitempty"`
+	}
+
+	keystoresAccounts, err := handlers.backend.AccountsByKeystore()
+	if err != nil {
+		handlers.log.WithError(err).Error("Could not retrieve accounts by keystore")
+		return response{
+			Success: false,
+		}
+	}
+
+	defaultFiat := handlers.backend.Config().AppConfig().Backend.MainFiat
+
+	if !slices.Contains([]string{"USD", "CHF", "EUR"}, defaultFiat) {
+		// For the banner, if the fiat currency used by the user is not of these three,
+		// we default to USD.
+		defaultFiat = "USD"
+	}
+
+	accounts, ok := keystoresAccounts[rootFingerint]
+	if !ok {
+		handlers.log.WithField("fingerprint", rootFingerint).Error("No accounts found for the given root fingerprint")
+		return response{
+			Success: false,
+		}
+	}
+	balance, _, err := handlers.backend.AccountsFiatAndCoinBalance(accounts, defaultFiat)
+	if err != nil {
+		handlers.log.WithError(err).Error("Could not retrieve fiat balance for account")
+		return response{
+			Success: false,
+		}
+	}
+
+	threshold := big.NewRat(1000, 1)
+
+	return response{
+		Success:   true,
+		Show:      balance.Cmp(threshold) > 0,
+		Fiat:      defaultFiat,
+		Threshold: coin.FormatAsCurrency(threshold, defaultFiat),
+	}
 }
 
 func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
