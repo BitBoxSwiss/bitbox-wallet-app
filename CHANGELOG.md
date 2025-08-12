@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
 - Added BTC Direct sell option
 
 ## v4.48.2
