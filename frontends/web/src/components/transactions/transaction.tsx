@@ -162,6 +162,7 @@ const Amounts = ({
   const txTypeClass = `txAmount-${type}`;
   const recv = type === 'receive';
   const displayAmount = recv ? amount.amount : deductedAmount.amount;
+  const displayUnit = recv ? amount.unit : deductedAmount.unit;
   const sign = displayAmount ? getTxSign(type) : '';
 
   return (
@@ -171,11 +172,11 @@ const Amounts = ({
         {sign}
         <Amount
           amount={displayAmount}
-          unit={recv ? amount.unit : deductedAmount.unit}
+          unit={displayUnit}
         />
         <span className={styles.txUnit}>
           {' '}
-          {deductedAmount.unit}
+          {displayUnit}
         </span>
       </span>
       {/* </data> */}
