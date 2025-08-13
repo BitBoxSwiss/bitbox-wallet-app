@@ -353,26 +353,9 @@ func (account *Account) update() error {
 
 	go account.updateOutgoingTransactions(account.blockNumber.Uint64())
 
-	// Nonce to be used for the next tx, fetched from the ETH node. It might be out of date due to
-	// latency, which is addressed below by using the locally stored nonce.
-	nodeNonce, err := account.coin.client.PendingNonceAt(context.TODO(), account.address.Address)
-	if err != nil {
-		return err
-	}
-	account.nextNonce = nodeNonce
-
-	outgoingTransactionsData, outgoingTransactions, err := account.OutgoingTransactionsAndMetadata()
+	outgoingTransactionsData, _, err := account.OutgoingTransactionsAndMetadata()
 	if err != nil {
 		return errp.WithStack(err)
-	}
-
-	// In case the nodeNonce is not up to date, we fall back to our stored last nonce to compute the
-	// next nonce.
-	if len(outgoingTransactions) > 0 {
-		localNonce := outgoingTransactions[len(outgoingTransactions)-1].Transaction.Nonce() + 1
-		if localNonce > account.nextNonce {
-			account.nextNonce = localNonce
-		}
 	}
 
 	account.transactions = outgoingTransactionsData
@@ -390,6 +373,31 @@ func (account *Account) update() error {
 		}
 		pendingAmount := pendingTxsAmount(outgoingTransactionsData, true)
 		account.balance = coin.NewAmount(balance.Sub(balance, pendingAmount))
+	}
+	return nil
+}
+
+func (account *Account) updateNextNonce() error {
+	// Nonce to be used for the next tx, fetched from the ETH node. It might be out of date due to
+	// latency, which is addressed below by using the locally stored nonce.
+	nodeNonce, err := account.coin.client.PendingNonceAt(context.TODO(), account.address.Address)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	account.nextNonce = nodeNonce
+
+	_, outgoingTransactions, err := account.OutgoingTransactionsAndMetadata()
+	if err != nil {
+		return errp.WithStack(err)
+	}
+
+	// In case the nodeNonce is not up to date, we fall back to our stored last nonce to compute the
+	// next nonce.
+	if len(outgoingTransactions) > 0 {
+		localNonce := outgoingTransactions[len(outgoingTransactions)-1].Transaction.Nonce() + 1
+		if localNonce > account.nextNonce {
+			account.nextNonce = localNonce
+		}
 	}
 	return nil
 }
@@ -644,6 +652,10 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 	}
 
 	var tx *types.Transaction
+
+	if err := account.updateNextNonce(); err != nil {
+		return nil, errp.WithStack(err)
+	}
 
 	if keystore.SupportsEIP1559() {
 		txData := &types.DynamicFeeTx{
@@ -935,6 +947,9 @@ func (account *Account) EthSignWalletConnectTx(
 		}
 		nonce = parsed
 	} else {
+		if err := account.updateNextNonce(); err != nil {
+			return "", "", errp.WithStack(err)
+		}
 		nonce = account.nextNonce
 	}
 
