@@ -6,6 +6,7 @@
 - Added a banner to remind user to backup their seed phrase when an account reaches a certain threshold.
 - Gracefully shut down Electrum connections upon closing the app
 - Show the selected coin's address on the confirmation screen
+- Fetch balances of multiple ETH accounts at the same time, instead of one by one.
 
 ## v4.48.3
 - Linux: fix compatiblity with some versions of Mesa also when using the AppImage
