@@ -1,7 +1,7 @@
 github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250812130951-35af5fe7a036 h1:odkevMKSWjMjdWoQHodlKjwgqtB6RXX5imQHZl2/9S4=
 github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250812130951-35af5fe7a036/go.mod h1:lyYwD22hA6TQ8XNXx37VE75Exp6qYdgZgUAO4+lyhSU=
-github.com/BitBoxSwiss/block-client-go v0.0.0-20241009081439-924dde98b9c1 h1:5hjP8mYSVKFibesrz8L6U0Vp5zSJt0LwXB3DSZGhnSo=
-github.com/BitBoxSwiss/block-client-go v0.0.0-20241009081439-924dde98b9c1/go.mod h1:SJTiQZU9ggBzVKMni97rpNS9GddPKErndFXNSDrfEGc=
+github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d h1:HdoIlaUcNyEBajUoQgsxZtDMyCFyE7qv1kpeFe/u7nQ=
+github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d/go.mod h1:SJTiQZU9ggBzVKMni97rpNS9GddPKErndFXNSDrfEGc=
 github.com/DataDog/zstd v1.4.5 h1:EndNeuB0l9syBZhut0wns3gV1hL8zX8LIu6ZiVHWLIQ=
 github.com/DataDog/zstd v1.4.5/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
 github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERoyfY=

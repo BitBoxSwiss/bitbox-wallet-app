@@ -4,6 +4,7 @@
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
 - Added BTC Direct sell option
 - Added a banner to remind user to backup their seed phrase when an account reaches a certain threshold.
+- Gracefully shut down Electrum connections upon closing the app
 
 ## v4.48.2
 - iOS: Fix blank screens after prolonged inactivity

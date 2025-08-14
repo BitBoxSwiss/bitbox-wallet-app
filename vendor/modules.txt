@@ -9,7 +9,7 @@ github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid
 github.com/BitBoxSwiss/bitbox02-api-go/util/errp
 github.com/BitBoxSwiss/bitbox02-api-go/util/semver
 github.com/BitBoxSwiss/bitbox02-api-go/util/sleep
-# github.com/BitBoxSwiss/block-client-go v0.0.0-20241009081439-924dde98b9c1
+# github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d
 ## explicit; go 1.19
 github.com/BitBoxSwiss/block-client-go/electrum
 github.com/BitBoxSwiss/block-client-go/electrum/types
