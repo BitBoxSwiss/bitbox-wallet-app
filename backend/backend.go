@@ -308,6 +308,8 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.bluetooth = bluetooth.New(log)
 	backend.bluetooth.Observe(backend.Notify)
 
+	go backend.pollETHBalances()
+
 	return backend, nil
 }
 
@@ -555,6 +557,38 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	return coin, nil
 }
 
+func (backend *Backend) pollETHBalances() {
+	timer := time.After(0)
+
+	for {
+		<-timer
+		if err := backend.updateETHAccounts(); err != nil {
+			backend.log.WithError(err).Error("could not update ETH accounts")
+		}
+		timer = time.After(eth.PollInterval)
+	}
+}
+
+func (backend *Backend) updateETHAccounts() error {
+	defer backend.accountsAndKeystoreLock.RLock()()
+	backend.log.Debug("Updating ETH accounts balances")
+
+	ethAccounts := make([]*eth.Account, 0, len(backend.accounts))
+	for _, account := range backend.accounts {
+		ethAccount, ok := account.(*eth.Account)
+		if ok {
+			ethAccounts = append(ethAccounts, ethAccount)
+		}
+
+	}
+
+	etherScanClient := etherscan.NewEtherScan("1", backend.etherScanHTTPClient)
+	if backend.Testing() {
+		etherScanClient = etherscan.NewEtherScan("11155111", backend.etherScanHTTPClient)
+	}
+	return eth.UpdateBalances(ethAccounts, etherScanClient)
+}
+
 // ManualReconnect triggers reconnecting to Electrum servers if their connection is down.
 // Only coin connections that were previously established are reconnected.
 // Calling this is a no-op for coins that are already connected.
@@ -592,12 +626,8 @@ func (backend *Backend) ManualReconnect(reconnectETH bool) {
 	}
 	if reconnectETH {
 		backend.log.Info("Reconnecting ETH accounts")
-		for _, account := range backend.accounts {
-			ethAccount, ok := account.(*eth.Account)
-			if !ok {
-				continue
-			}
-			ethAccount.EnqueueUpdate()
+		if err := backend.updateETHAccounts(); err != nil {
+			backend.log.WithError(err).Error("could not update ETH accounts")
 		}
 	}
 }

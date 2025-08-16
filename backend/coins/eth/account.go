@@ -49,7 +49,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var pollInterval = 5 * time.Minute
+// PollInterval is the interval at which the account is polled for updates.
+var PollInterval = 5 * time.Minute
 
 func isMixedCase(s string) bool {
 	return strings.ToLower(s) != s && strings.ToUpper(s) != s
@@ -215,7 +216,25 @@ func (account *Account) Initialize() error {
 }
 
 func (account *Account) poll(initDone func()) {
-	timer := time.After(0)
+	updateAccount := func() {
+		balance, err := account.coin.client.Balance(context.TODO(), account.address.Address)
+		if err != nil {
+			account.log.WithError(err).Error("could not get balance")
+			return
+		}
+		if err := account.update(balance); err != nil {
+			account.log.WithError(err).Error("error updating account")
+			account.SetOffline(err)
+		} else {
+			account.SetOffline(nil)
+		}
+		if initDone != nil {
+			initDone()
+			initDone = nil
+		}
+	}
+
+	updateAccount()
 	for {
 		select {
 		case <-account.quitChan:
@@ -224,21 +243,10 @@ func (account *Account) poll(initDone func()) {
 			select {
 			case <-account.quitChan:
 				return
-			case <-timer:
 			case <-account.enqueueUpdateCh:
 				account.log.Info("extraordinary account update invoked")
 			}
-			if err := account.update(); err != nil {
-				account.log.WithError(err).Error("error updating account")
-				account.SetOffline(err)
-			} else {
-				account.SetOffline(nil)
-			}
-			if initDone != nil {
-				initDone()
-				initDone = nil
-			}
-			timer = time.After(pollInterval)
+			updateAccount()
 		}
 	}
 }
@@ -334,7 +342,7 @@ func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData)
 	return transactions, nil
 }
 
-func (account *Account) update() error {
+func (account *Account) update(balance *big.Int) error {
 	defer account.updateLock.Lock()()
 	defer account.Synchronizer.IncRequestsCounter()()
 
@@ -399,20 +407,13 @@ func (account *Account) update() error {
 		}
 	}
 
-	var balance *big.Int
+	pendingAmount := pendingTxsAmount(outgoingTransactionsData, account.coin.erc20Token != nil)
 	if account.coin.erc20Token != nil {
 		balance, err = account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token)
 		if err != nil {
 			return errp.WithStack(err)
 		}
-	} else {
-		balance, err = account.coin.client.Balance(context.TODO(), account.address.Address)
-		if err != nil {
-			return errp.WithStack(err)
-		}
 	}
-
-	pendingAmount := pendingTxsAmount(outgoingTransactionsData, account.coin.erc20Token != nil)
 	account.balance = coin.NewAmount(balance.Sub(balance, pendingAmount))
 
 	return nil
@@ -1031,4 +1032,45 @@ func (account *Account) EnqueueUpdate() {
 	case account.enqueueUpdateCh <- struct{}{}:
 	default:
 	}
+}
+
+// UpdateBalances updates the balances of the accounts in the provided slice.
+func UpdateBalances(accounts []*Account, etherScanClient *etherscan.EtherScan) error {
+	ethAddresses := make([]ethcommon.Address, 0, len(accounts))
+	for _, account := range accounts {
+		if account.isClosed() {
+			continue
+		}
+		address, err := account.Address()
+		if err != nil {
+			return errp.WithStack(err)
+		}
+		ethAddresses = append(ethAddresses, address.Address)
+	}
+
+	balances, err := etherScanClient.Balances(context.TODO(), ethAddresses)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+
+	for _, account := range accounts {
+		if account.isClosed() {
+			continue
+		}
+		address, err := account.Address()
+		if err != nil {
+			return errp.WithStack(err)
+		}
+		balance, ok := balances[address.Address]
+		if !ok {
+			return errp.Newf("Could not find balance for address %s", address.Address.Hex())
+		}
+		if err := account.update(balance); err != nil {
+			account.log.WithError(err).Errorf("Could not update balance for address %s", address.Address.Hex())
+			account.SetOffline(err)
+		} else {
+			account.SetOffline(nil)
+		}
+	}
+	return nil
 }
