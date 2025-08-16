@@ -304,6 +304,21 @@ func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
 	}
 }
 
+func (account *Account) confirmedTransactions() ([]*accounts.TransactionData, error) {
+	var confirmedTransactions []*accounts.TransactionData
+	transactionsSource := account.coin.TransactionsSource()
+	if transactionsSource != nil {
+		var err error
+		confirmedTransactions, err = transactionsSource.Transactions(
+			account.blockNumber,
+			account.address.Address, account.blockNumber, account.coin.erc20Token)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return confirmedTransactions, nil
+}
+
 // outgoingTransactions gets all locally stored outgoing transactions. It filters out the ones also
 // present from the transactions source.
 func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData) (
@@ -334,6 +349,35 @@ func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData)
 	return transactions, nil
 }
 
+func (account *Account) updateNextNonce() error {
+	// Nonce to be used for the next tx, fetched from the ETH node. It might be out of date due to
+	// latency, which is addressed below by using the locally stored nonce.
+	nodeNonce, err := account.coin.client.PendingNonceAt(context.TODO(), account.address.Address)
+	if err != nil {
+		return err
+	}
+	account.nextNonce = nodeNonce
+
+	confirmedTransactions, err := account.confirmedTransactions()
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	outgoingTransactions, err := account.outgoingTransactions(confirmedTransactions)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+
+	// In case the nodeNonce is not up to date, we fall back to our stored last nonce to compute the
+	// next nonce.
+	if len(outgoingTransactions) > 0 {
+		localNonce := outgoingTransactions[len(outgoingTransactions)-1].Transaction.Nonce() + 1
+		if localNonce > account.nextNonce {
+			account.nextNonce = localNonce
+		}
+	}
+	return nil
+}
+
 func (account *Account) update() error {
 	defer account.updateLock.Lock()()
 	defer account.Synchronizer.IncRequestsCounter()()
@@ -344,45 +388,21 @@ func (account *Account) update() error {
 	}
 	account.blockNumber = blockNumber
 
-	transactionsSource := account.coin.TransactionsSource()
-
 	go account.updateOutgoingTransactions(account.blockNumber.Uint64())
 
 	// Get confirmed transactions.
-	var confirmedTansactions []*accounts.TransactionData
-	if transactionsSource != nil {
-		var err error
-		confirmedTansactions, err = transactionsSource.Transactions(
-			account.blockNumber,
-			account.address.Address, account.blockNumber, account.coin.erc20Token)
-		if err != nil {
-			return err
-		}
+	confirmedTransactions, err := account.confirmedTransactions()
+	if err != nil {
+		return errp.WithStack(err)
 	}
 
 	// Get our stored outgoing transactions. Filter out all transactions from the transactions
 	// source, which should contain all confirmed tx.
-	outgoingTransactions, err := account.outgoingTransactions(confirmedTansactions)
+	outgoingTransactions, err := account.outgoingTransactions(confirmedTransactions)
 	if err != nil {
 		return err
 	}
 
-	// Nonce to be used for the next tx, fetched from the ETH node. It might be out of date due to
-	// latency, which is addressed below by using the locally stored nonce.
-	nodeNonce, err := account.coin.client.PendingNonceAt(context.TODO(), account.address.Address)
-	if err != nil {
-		return err
-	}
-	account.nextNonce = nodeNonce
-
-	// In case the nodeNonce is not up to date, we fall back to our stored last nonce to compute the
-	// next nonce.
-	if len(outgoingTransactions) > 0 {
-		localNonce := outgoingTransactions[len(outgoingTransactions)-1].Transaction.Nonce() + 1
-		if localNonce > account.nextNonce {
-			account.nextNonce = localNonce
-		}
-	}
 	outgoingTransactionsData := make([]*accounts.TransactionData, len(outgoingTransactions))
 	for i, tx := range outgoingTransactions {
 		outgoingTransactionsData[i] = tx.TransactionData(
@@ -391,7 +411,7 @@ func (account *Account) update() error {
 			account.address.Address.Hex(),
 		)
 	}
-	outgoingTransactionsData = append(outgoingTransactionsData, confirmedTansactions...)
+	outgoingTransactionsData = append(outgoingTransactionsData, confirmedTransactions...)
 	account.transactions = outgoingTransactionsData
 	for _, transaction := range account.transactions {
 		if err := account.notifier.Put([]byte(transaction.TxID)); err != nil {
@@ -625,6 +645,10 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 	}
 
 	var tx *types.Transaction
+
+	if err := account.updateNextNonce(); err != nil {
+		return nil, err
+	}
 
 	if keystore.SupportsEIP1559() {
 		txData := &types.DynamicFeeTx{
@@ -916,6 +940,9 @@ func (account *Account) EthSignWalletConnectTx(
 		}
 		nonce = parsed
 	} else {
+		if err := account.updateNextNonce(); err != nil {
+			return "", "", err
+		}
 		nonce = account.nextNonce
 	}
 
