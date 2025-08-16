@@ -26,6 +26,8 @@ export const downloadLinkByLanguage = () => {
     return URL_CONSTANTS.DOWNLOAD_LINK_DE;
   case 'es':
     return URL_CONSTANTS.DOWNLOAD_LINK_ES;
+  case 'it':
+    return URL_CONSTANTS.DOWNLOAD_LINK_IT;
   default:
     return URL_CONSTANTS.DOWNLOAD_LINK_GLOBAL;
   }
