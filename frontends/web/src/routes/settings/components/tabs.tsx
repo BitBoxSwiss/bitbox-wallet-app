@@ -75,6 +75,9 @@ export const Tab = ({
     <RedDot className={styles.canUpgradeDot} width={8} height={8} />
   ) : null;
 
+  const isManageDeviceItem = url.includes('device-settings');
+  const showRedDotOnMobile = isManageDeviceItem && canUpgrade;
+
   if (!hideMobileMenu) {
     // Will only be shown on mobile (index/general settings page)
     return (
@@ -82,6 +85,7 @@ export const Tab = ({
         <SettingsItem
           settingName={name}
           onClick={() => navigate(url)}
+          canUpgrade={showRedDotOnMobile}
         />
       </div>
     );

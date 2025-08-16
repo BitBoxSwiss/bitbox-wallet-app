@@ -219,7 +219,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   </InjectParams>);
 
   const MoreEl = (<InjectParams>
-    <More />
+    <More devices={devices} />
   </InjectParams>);
 
   const GeneralEl = (<InjectParams>
