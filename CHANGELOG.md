@@ -5,6 +5,7 @@
 - Added BTC Direct sell option
 - Added a banner to remind user to backup their seed phrase when an account reaches a certain threshold.
 - Gracefully shut down Electrum connections upon closing the app
+- Show the selected coin's address on the confirmation screen
 
 ## v4.48.2
 - iOS: Fix blank screens after prolonged inactivity

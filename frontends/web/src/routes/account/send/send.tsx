@@ -461,7 +461,7 @@ export const Send = ({
               note={note}
               hasSelectedUTXOs={hasSelectedUTXOs()}
               isConfirming={isConfirming}
-              selectedUTXOs={Object.keys(selectedUTXOsRef.current)}
+              selectedUTXOs={selectedUTXOsRef.current}
               coinCode={account.coinCode}
               transactionDetails={{
                 proposedFee,

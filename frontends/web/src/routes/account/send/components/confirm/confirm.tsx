@@ -23,6 +23,7 @@ import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
 import { FiatValue } from '../fiat-value';
+import type { TSelectedUTXOs } from '../../utxos';
 import style from './confirm.module.css';
 
 type TransactionDetails = {
@@ -40,10 +41,14 @@ type TConfirmSendProps = {
   note: string;
   hasSelectedUTXOs: boolean;
   isConfirming: boolean;
-  selectedUTXOs: string[];
+  selectedUTXOs: TSelectedUTXOs;
   coinCode: CoinCode;
   transactionDetails: TransactionDetails;
 }
+
+type TUTXOsByAddress = {
+  [address: string]: string[];
+};
 
 export const ConfirmSend = ({
   baseCurrencyUnit,
@@ -66,6 +71,16 @@ export const ConfirmSend = ({
     activeCurrency: fiatUnit
   } = transactionDetails;
 
+  const groupUTXOsByAddress = (selectedUTXOs: TSelectedUTXOs): TUTXOsByAddress => {
+    const utxosByAddress: TUTXOsByAddress = {};
+    for (const [outpoint, address] of Object.entries(selectedUTXOs)) {
+      if (!utxosByAddress[address]) {
+        utxosByAddress[address] = [];
+      }
+      utxosByAddress[address].push(outpoint);
+    }
+    return utxosByAddress;
+  };
 
   if (!isConfirming) {
     return null;
@@ -123,24 +138,28 @@ export const ConfirmSend = ({
           </div>
         ) : null}
 
-        {/*Selected UTXOs*/}
+        {/*Selected UTXOs grouped by address*/}
         {
           hasSelectedUTXOs && (
             <div className={style.confirmItem}>
               <label>{t('send.confirm.selected-coins')}</label>
-              <ul>
+              <div>
                 {
-                  selectedUTXOs.map((uxto, i) => (
-                    <li className={style.valueOriginal} key={`selectedCoin-${i}`}>{uxto}</li>
+                  Object.entries(groupUTXOsByAddress(selectedUTXOs)).map(([address, outpoints]) => (
+                    <div className={style.addressGroup} key={address}>
+                      <div className={style.address}>{address}</div>
+                      <ul>
+                        {outpoints.map((outpoint, i) => (
+                          <li className={style.valueOriginal} key={`selectedCoin-${i}`}>{outpoint}</li>
+                        ))}
+                      </ul>
+                    </div>
                   ))
                 }
-
-              </ul>
-
+              </div>
             </div>
           )
         }
-
 
         {/*Fee*/}
         <div className={style.confirmItem}>

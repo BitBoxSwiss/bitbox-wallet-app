@@ -38,7 +38,7 @@ import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import style from './utxos.module.css';
 
 export type TSelectedUTXOs = {
-  [key: string]: boolean;
+  [key: string]: string;
 };
 
 type Props = {
@@ -83,7 +83,7 @@ export const UTXOs = ({
     const target = event.target;
     const proposedUTXOs = Object.assign({}, selectedUTXOs);
     if (target.checked) {
-      proposedUTXOs[utxo.outPoint] = true;
+      proposedUTXOs[utxo.outPoint] = utxo.address;
       if (utxo.addressReused) {
         setReusedAddressUTXOs(reusedAddressUTXOs + 1);
       }
