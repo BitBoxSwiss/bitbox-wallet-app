@@ -38,15 +38,15 @@ export const BackupReminder = ({ keystore, accountsBalanceSummary }: BackupRemin
   const [bannerResponse, setBannerResponse] = useState<TShowBackupBannerResponse | null>(null);
   const { hideAmounts } = useContext(AppContext);
   const navigate = useNavigate();
+  const { decimal, group } = useContext(LocalizationContext);
 
   useEffect(() => {
     getShowBackupBanner(keystore.rootFingerprint).then(setBannerResponse);
   }, [keystore.rootFingerprint, accountsBalanceSummary]);
 
-
   if (hideAmounts) {
     // If amounts are hidden, we don't show the backup reminder.
-    return;
+    return null;
   }
 
   if (!bannerResponse || !bannerResponse.success) {
@@ -69,7 +69,6 @@ export const BackupReminder = ({ keystore, accountsBalanceSummary }: BackupRemin
     }
   };
 
-  const { decimal, group } = useContext(LocalizationContext);
   return (
     <Status
       type="info"
