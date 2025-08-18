@@ -60,6 +60,30 @@ describe('hooks for api calls', () => {
 
       await waitFor(() => expect(mockApiCall).toHaveBeenCalledTimes(4));
     });
+
+    it('clears response when apiCall becomes null', async () => {
+      const mockApiCall = vi.fn().mockImplementation(() => Promise.resolve({ canUpgrade: true }));
+
+      const { result } = renderHook(() => {
+        const [deviceID, setDeviceID] = useState('test-device');
+        const [isBitBox02, setIsBitBox02] = useState(true);
+
+        const versionInfo = useLoad(
+          (isBitBox02 && deviceID) ? () => mockApiCall() : null,
+          [deviceID, isBitBox02]
+        );
+
+        return { versionInfo, setDeviceID, setIsBitBox02 };
+      });
+
+      await waitFor(() => expect(result.current.versionInfo).toEqual({ canUpgrade: true }));
+      expect(mockApiCall).toHaveBeenCalledTimes(1);
+
+      act(() => result.current.setDeviceID(''));
+
+      await waitFor(() => expect(result.current.versionInfo).toBeUndefined());
+      expect(mockApiCall).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('useSubscribe', () => {

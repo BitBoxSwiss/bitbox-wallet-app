@@ -15,7 +15,7 @@
  */
 
 import { ReactNode } from 'react';
-import { ChevronRightDark } from '@/components/icon';
+import { ChevronRightDark, RedDot } from '@/components/icon';
 import styles from './settingsItem.module.css';
 
 type TProps = {
@@ -30,6 +30,7 @@ type TProps = {
   secondaryText?: string;
   settingName: string | ReactNode;
   title?: string;
+  canUpgrade?: boolean;
 }
 
 export const SettingsItem = ({
@@ -44,6 +45,7 @@ export const SettingsItem = ({
   secondaryText,
   settingName,
   title,
+  canUpgrade = false,
 }: TProps) => {
   const notButton = disabled || onClick === undefined;
 
@@ -60,6 +62,7 @@ export const SettingsItem = ({
         ${hideDisplayedValueOnSmall ? styles.hideDisplayedValueOnSmall : ''}
        `}
       >{displayedValue}</p>
+      {canUpgrade && <RedDot width={8} height={8} />}
       {extraComponent ? extraComponent : null}
     </div>
   );
@@ -67,7 +70,9 @@ export const SettingsItem = ({
   const content = (
     <>
       <span className={styles.content} title={title}>
-        <div className={styles.primaryText}>{settingName}</div>
+        <div className={styles.primaryText}>
+          {settingName}
+        </div>
         { secondaryText ? (
           <p className={styles.secondaryText}>{secondaryText}</p>
         ) : null }
