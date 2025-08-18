@@ -35,11 +35,19 @@ import Mobileserver
 let scheme = "qrc"
 
 class JavascriptBridge: NSObject, WKScriptMessageHandler {
+    weak var webView: WKWebView?
+    
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "goCall", let body = message.body as? [String: AnyObject] {
             let queryID = body["queryID"] as! Int
             let query = body["query"] as! String
             MobileserverBackendCall(queryID, query)
+        } else if message.name == "appReady" {
+            DispatchQueue.main.async {
+                UIView.animate(withDuration: 0.3) {
+                    self.webView?.alpha = 1.0
+                }
+            }
         }
     }
 }
@@ -107,6 +115,7 @@ struct WebView: UIViewRepresentable {
         let contentController = WKUserContentController()
         let bridge = JavascriptBridge()
         contentController.add(bridge, name: "goCall")
+        contentController.add(bridge, name: "appReady")
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
 
@@ -128,6 +137,11 @@ struct WebView: UIViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
+        // hide the WebView initially to prevent white flash (flicker) on initial load
+        webView.alpha = 0.0
+        
+        // set webView reference in bridge for appReady handling
+        bridge.webView = webView
         
         // Disables automatic content inset adjustment to prevent safe area issues
         // https://developer.apple.com/documentation/uikit/uiscrollview/contentinsetadjustmentbehavior-swift.property
