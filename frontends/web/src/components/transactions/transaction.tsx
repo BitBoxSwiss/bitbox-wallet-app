@@ -167,7 +167,6 @@ const Amounts = ({
 
   return (
     <span className={`${styles.txAmountsColumn} ${styles[txTypeClass]}`}>
-      {/* <data value={amount.amount}> */}
       <span className={styles.txAmount}>
         {sign}
         <Amount
@@ -179,13 +178,10 @@ const Amounts = ({
           {displayUnit}
         </span>
       </span>
-      {/* </data> */}
       <ConversionAmount amount={amount} deductedAmount={deductedAmount} type={type} />
     </span>
   );
 };
-
-// <time dateTime="2018-07-07">July 7</time>
 
 type TDateProps = {
   time: string | null;
