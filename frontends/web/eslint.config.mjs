@@ -53,6 +53,7 @@ export default tseslint.config(
       'no-empty': 'off',
       'react/display-name': 'off',
       'react-hooks/exhaustive-deps': 'error',
+      'react-hooks/rules-of-hooks': 'error',
       'no-async-promise-executor': 'off',
       'react/jsx-wrap-multilines': ['error', {
         'arrow': 'parens-new-line',
