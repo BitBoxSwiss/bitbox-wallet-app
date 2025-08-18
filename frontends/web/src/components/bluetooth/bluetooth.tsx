@@ -35,7 +35,7 @@ type Props = {
   peripheralContainerClassName?: string;
 }
 
-const _Bluetooth = ({ peripheralContainerClassName }: Props) => {
+const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
   const { t } = useTranslation();
   const state = useSync(getState, syncState);
   const [showConnectionIssues, setShowConnectionIssues] = useState(false);
@@ -142,5 +142,5 @@ export const Bluetooth = ({ peripheralContainerClassName = '' }: Props) => {
   if (!runningInIOS()) {
     return null;
   }
-  return <_Bluetooth peripheralContainerClassName={peripheralContainerClassName} />;
+  return <BluetoothInner peripheralContainerClassName={peripheralContainerClassName} />;
 };
