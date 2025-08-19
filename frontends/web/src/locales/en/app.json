@@ -836,6 +836,8 @@
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto",
     "search": "Search…",
+    "searchButton": "Search",
+    "close": "Close",
     "sell": "Sell {{coinCode}}",
     "sell_bitcoin": "Sell Bitcoin",
     "sell_crypto": "Sell crypto"
@@ -1808,6 +1810,7 @@
     "fee": "Fee",
     "fiatHistorical": "Historical",
     "gas": "Gas",
+    "no-results": "No transactions found matching \"{{searchTerm}}\"",
     "note": {
       "edit": "Edit note",
       "save": "Save note"
