@@ -1808,6 +1808,7 @@
     "fee": "Fee",
     "fiatHistorical": "Historical",
     "gas": "Gas",
+    "no-results": "No transactions found matching \"{{searchTerm}}\"",
     "note": {
       "edit": "Edit note",
       "save": "Save note"

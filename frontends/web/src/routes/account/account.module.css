@@ -9,6 +9,22 @@
     justify-content: flex-start;
 }
 
+.topContainer {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-half);
+    width: 100%;
+    min-height: 56px;
+}
+
+.searchButton {
+    text-align: right;
+    padding: 0;
+    
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .button {
     height: 37px;
 }
@@ -132,4 +148,94 @@
 
 .txHistorySkeleton {
     margin-top: var(--space-quarter);
+}
+
+/* Search Section Styles */
+.searchSection {
+    align-items: center;
+    display: flex;
+    height: 32px;
+}
+
+/* Search Bar Styles */
+.searchContainer {
+    overflow: hidden;
+    transition: all 0.4s ease-in-out;
+    flex-shrink: 0;
+}
+
+.searchHidden {
+    width: 0;
+    max-width: 0;
+    opacity: 0;
+    transform: translateX(-10px);
+    margin: 0;
+    padding: 0;
+}
+
+.searchVisible {
+    max-width: 300px;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.searchInput {
+    width: 320px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: var(--size-default);
+    background-color: var(--color-background);
+    color: var(--color-text);
+    transition: border-color 0.2s ease;
+    margin: 0;
+}
+
+
+.searchInput input {
+    height: 40px;
+
+}
+
+.searchHidden .searchInput {
+    width: 0;
+    padding: 0;
+    border: none;
+    margin: 0;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.searchInput::placeholder {
+    color: var(--color-secondary);
+}
+
+@media (max-width: 768px) {
+    .topContainer {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: var(--space-default);
+    }
+
+    .searchSection,
+    .searchContainer {
+        width: 100%;
+        margin-top: var(--space-eight);
+    }
+
+    .searchVisible {
+        max-width: 100%;
+    }
+    
+    .searchInput {
+        width: 100%;
+    }
+
+    .searchButton {
+        text-align: left;
+        height: 32px;
+    }
 }
