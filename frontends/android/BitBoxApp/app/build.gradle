@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
 
 android {
-    buildToolsVersion '35.0.0'
     compileSdk 35
     defaultConfig {
         applicationId "ch.shiftcrypto.bitboxapp"

@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -17,20 +16,17 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
-import android.net.NetworkRequest;
 import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Process;
+import android.os.Looper;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
-import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
@@ -40,24 +36,22 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -106,17 +100,13 @@ public class MainActivity extends AppCompatActivity {
 
         boolean hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
 
-        // Use VALIDATED where available (API 23+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // We need to check for both internet and validated, since validated reports that the system
-            // found connectivity the last time it checked. But if this callback triggers when going offline
-            // (e.g. airplane mode), this bit would still be true when we execute this method.
-            boolean isValidated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
-            return hasInternet && isValidated;
-        }
+        // We need to check for both internet and validated, since validated reports that the system
+        // found connectivity the last time it checked. But if this callback triggers when going offline
+        // (e.g. airplane mode), this bit would still be true when we execute this method.
+        boolean isValidated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        return hasInternet && isValidated;
 
         // Fallback for older devices
-        return hasInternet;
     }
 
     private void checkConnectivity() {
@@ -134,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Connection to bind with GoService
-    private ServiceConnection connection = new ServiceConnection() {
+    private final ServiceConnection connection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
@@ -153,26 +143,13 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private class JavascriptBridge {
-        private Context context;
-
-        JavascriptBridge(Context context) {
-            this.context = context;
-        }
-
-        @JavascriptInterface
-        public void call(int queryID, String query) {
-            Mobileserver.backendCall(queryID, query);
-        }
-    }
-
     private final BroadcastReceiver usbStateReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             handleIntent(intent);
         }
     };
 
-    private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Mobileserver.usingMobileDataChanged();
@@ -197,28 +174,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setDarkTheme(boolean isDark) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int flags = getWindow().getDecorView().getSystemUiVisibility(); // get current flag
-            if (isDark) {
-                Util.log("Dark theme");
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                getWindow().setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark));
-                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-                flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // remove LIGHT_STATUS_BAR to flag
-                getWindow().getDecorView().setSystemUiVisibility(flags);
-            } else {
-                Util.log("Light theme");
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                getWindow().setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
-                flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // add LIGHT_STATUS_BAR to flag
-                getWindow().getDecorView().setSystemUiVisibility(flags);
-            }
+        int flags = getWindow().getDecorView().getSystemUiVisibility(); // get current flag
+        if (isDark) {
+            Util.log("Dark theme");
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            getWindow().setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark));
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // remove LIGHT_STATUS_BAR to flag
+            getWindow().getDecorView().setSystemUiVisibility(flags);
         } else {
-            Util.log("Status bar theme not updated");
+            Util.log("Light theme");
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            getWindow().setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
+            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // add LIGHT_STATUS_BAR to flag
+            getWindow().getDecorView().setSystemUiVisibility(flags);
         }
     }
 
-    @SuppressLint("HandlerLeak")
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -226,10 +199,13 @@ public class MainActivity extends AppCompatActivity {
 
         initsignalhandler();
 
-        getSupportActionBar().hide(); // hide title bar with app name.
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide(); // hide title bar with app name.
+        }
         onConfigurationChanged(getResources().getConfiguration());
         setContentView(R.layout.activity_main);
-        final WebView vw = (WebView)findViewById(R.id.vw);
+        final WebView vw = findViewById(R.id.vw);
         // For onramp iframe'd widgets like MoonPay.
         CookieManager.getInstance().setAcceptThirdPartyCookies(vw, true);
 
@@ -242,31 +218,24 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GoService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
+
+
         goViewModel.setMessageHandlers(
-                new Handler() {
-                    @Override
-                    public void handleMessage(final Message msg) {
-                        final GoViewModel.Response response = (GoViewModel.Response) msg.obj;
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                vw.evaluateJavascript("window.onMobileCallResponse(" + String.valueOf(response.queryID) + ", " + response.response + ");", null);
-                            }
-                        });
-                    }
-                },
-                new Handler() {
-                    @Override
-                    public void handleMessage(final Message msg) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                vw.evaluateJavascript("window.onMobilePushNotification(" + (String)(msg.obj) + ");", null);
-                            }
-                        });
-                    }
-                }
-        );
+                new Handler(Looper.getMainLooper(), msg -> {
+                        final GoAPI.Response response = (GoAPI.Response) msg.obj;
+                        vw.evaluateJavascript(
+                                "if (window.onMobileCallResponse) {" +
+                                        "window.onMobileCallResponse(" + response.queryID + ", " + response.response + ")};",
+                                null);
+                        return true;
+                    }),
+                new Handler(Looper.getMainLooper(), msg -> {
+                        vw.evaluateJavascript(
+                                "if (window.onMobilePushNotification) {" +
+                                        "window.onMobilePushNotification(" + msg.obj + ")};",
+                                null);
+                        return true;
+                }));
         vw.clearCache(true);
         vw.clearHistory();
         vw.getSettings().setJavaScriptEnabled(true);
@@ -285,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 // because of read permission denied.
                 view.evaluateJavascript(
                         "navigator.clipboard.readText = () => {" +
-                        "    return androidClipboard.readFromClipboard();" +
+                        "    return android.readFromClipboard();" +
                         "};", null);
             }
 
@@ -293,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
             public WebResourceResponse shouldInterceptRequest(final WebView view, WebResourceRequest request) {
                 if (request != null && request.getUrl() != null) {
                     String url = request.getUrl().toString();
-                    if (url != null && url.startsWith(BASE_URL)) {
+                    if (url.startsWith(BASE_URL)) {
                         // Intercept local requests and serve the response from the Android assets folder.
                         try {
                             InputStream inputStream = getAssets().open(url.replace(BASE_URL, "web/"));
@@ -333,7 +302,8 @@ public class MainActivity extends AppCompatActivity {
                     patterns.add(Pattern.compile("^(.*\\.)?btcdirect\\.eu$"));
 
                     for (Pattern pattern : patterns) {
-                        if (pattern.matcher(request.getUrl().getHost()).matches()) {
+                        String host = request.getUrl().getHost();
+                        if (host != null && pattern.matcher(host).matches()) {
                             Util.systemOpen(getApplication(), url);
                             return true;
                         }
@@ -381,7 +351,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // file picker result handler.
-            ActivityResultLauncher<String> mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(),
+            final ActivityResultLauncher<String> mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(),
                     new ActivityResultCallback<Uri>() {
                         @Override
                         public void onActivityResult(Uri uri) {
@@ -409,9 +379,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final String javascriptVariableName = "android";
-        vw.addJavascriptInterface(new JavascriptBridge(this), javascriptVariableName);
-        vw.addJavascriptInterface(new ClipboardHandler(this), "androidClipboard");
+        vw.addJavascriptInterface(new JavascriptBridge(this), "android");
         vw.loadUrl(BASE_URL + "index.html");
 
         // We call updateDevice() here in case the app was started while the device was already connected.
@@ -421,18 +389,24 @@ public class MainActivity extends AppCompatActivity {
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         networkCallback = new ConnectivityManager.NetworkCallback() {
             @Override
-            public void onCapabilitiesChanged(android.net.Network network, android.net.NetworkCapabilities capabilities) {
+            public void onCapabilitiesChanged(@NonNull android.net.Network network, @NonNull android.net.NetworkCapabilities capabilities) {
                 super.onCapabilitiesChanged(network, capabilities);
                 Mobileserver.setOnline(hasInternetConnectivity(capabilities));
             }
             // When we lose the network, onCapabilitiesChanged does not trigger, so we need to override onLost.
             @Override
-            public void onLost(Network network) {
+            public void onLost(@NonNull Network network) {
                 super.onLost(network);
                 Mobileserver.setOnline(false);
             }
         };
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                backPressedHandler();
+            }
+        });
     }
 
     private void startServer() {
@@ -441,22 +415,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Trigger connectivity check (as the network may already be unavailable when the app starts).
         checkConnectivity();
-    }
-
-    private static String readRawText(InputStream inputStream) throws IOException {
-        if (inputStream == null) {
-            return null;
-        }
-
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        StringBuilder fileContent = new StringBuilder();
-        String currentLine = bufferedReader.readLine();
-        while (currentLine != null) {
-            fileContent.append(currentLine);
-            fileContent.append("\n");
-            currentLine = bufferedReader.readLine();
-        }
-        return fileContent.toString();
     }
 
     @Override
@@ -473,67 +431,51 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         Util.log("lifecycle: onStart");
         final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
-        goViewModel.getIsDarkTheme().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isDarkTheme) {
-                setDarkTheme(isDarkTheme);
-            }
-        });
+        goViewModel.getIsDarkTheme().observe(this, this::setDarkTheme);
 
-        goViewModel.getAuthenticator().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean requestAuth) {
-                if (!requestAuth) {
-                    return;
+        goViewModel.getAuthenticator().observe(this, requestAuth -> {
+            if (!requestAuth) {
+                return;
+            }
+
+            BiometricAuthHelper.showAuthenticationPrompt(MainActivity.this, new BiometricAuthHelper.AuthCallback() {
+                @Override
+                public void onSuccess() {
+                    // Authenticated successfully
+                    Util.log("Auth success");
+                    goViewModel.closeAuth();
+                    Mobileserver.authResult(true);
                 }
 
-                BiometricAuthHelper.showAuthenticationPrompt(MainActivity.this, new BiometricAuthHelper.AuthCallback() {
-                    @Override
-                    public void onSuccess() {
-                        // Authenticated successfully
-                        Util.log("Auth success");
-                        goViewModel.closeAuth();
-                        Mobileserver.authResult(true);
-                    }
+                @Override
+                public void onFailure() {
+                    // Failed
+                    Util.log("Auth failed");
+                    goViewModel.closeAuth();
+                    Mobileserver.authResult(false);
+                }
 
-                    @Override
-                    public void onFailure() {
-                        // Failed
-                        Util.log("Auth failed");
-                        goViewModel.closeAuth();
-                        Mobileserver.authResult(false);
-                    }
-
-                    @Override
-                    public void onCancel() {
-                        // Canceled
-                        Util.log("Auth canceled");
-                        goViewModel.closeAuth();
-                        Mobileserver.cancelAuth();
-                    }
-                });
-            }
+                @Override
+                public void onCancel() {
+                    // Canceled
+                    Util.log("Auth canceled");
+                    goViewModel.closeAuth();
+                    Mobileserver.cancelAuth();
+                }
+            });
         });
 
-        goViewModel.getAuthSetting().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean enabled) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (enabled) {
-                            // Treat the content of the window as secure, preventing it from appearing in
-                            // screenshots, the app switcher, or from being viewed on non-secure displays. We
-                            // are really only interested in hiding the app contents from the app switcher -
-                            // screenshots unfortunately also get disabled.
-                            getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-                        } else {
-                            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
-                        }
-                    }
-                });
+        goViewModel.getAuthSetting().observe(this, enabled -> runOnUiThread(() -> {
+            if (enabled) {
+                // Treat the content of the window as secure, preventing it from appearing in
+                // screenshots, the app switcher, or from being viewed on non-secure displays. We
+                // are really only interested in hiding the app contents from the app switcher -
+                // screenshots unfortunately also get disabled.
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+            } else {
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
             }
-        });
+        }));
 
         NetworkRequest request = new NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
@@ -560,12 +502,12 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         filter.addAction(ACTION_USB_PERMISSION);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            registerReceiver(this.usbStateReceiver, filter, Context.RECEIVER_EXPORTED);
-        } else {
-            registerReceiver(this.usbStateReceiver, filter);
-        }
-
+        ContextCompat.registerReceiver(
+                this,
+                usbStateReceiver,
+                filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+        );
 
         // Listen on changes in the network connection. We are interested in if the user is connected to a mobile data connection.
         registerReceiver(this.networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -586,10 +528,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
-        if (intent.getAction().equals(ACTION_USB_PERMISSION)) {
+        if (ACTION_USB_PERMISSION.equals(intent.getAction())) {
             // See https://developer.android.com/guide/topics/connectivity/usb/host#permission-d
             synchronized (this) {
-                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                     if (device != null) {
                         Util.log("usb: permission granted");
@@ -601,20 +543,20 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
+        if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(intent.getAction())) {
             Util.log("usb: attached");
             this.updateDevice();
         }
-        if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
+        if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(intent.getAction())) {
             Util.log("usb: detached");
             this.updateDevice();
         }
         // Handle 'aopp:' URIs. This is called when the app is launched and also if it is already
         // running and brought to the foreground.
-        if (intent.getAction().equals(Intent.ACTION_VIEW)) {
+        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             Uri uri = intent.getData();
             if (uri != null) {
-                if (uri.getScheme().equals("aopp")) {
+                if ("aopp".equals(uri.getScheme())) {
                     Mobileserver.handleURI(uri.toString());
                 }
             }
@@ -627,9 +569,7 @@ public class MainActivity extends AppCompatActivity {
         goViewModel.setDevice(null);
         UsbManager manager = (UsbManager) getApplication().getSystemService(Context.USB_SERVICE);
         HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
-        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
-        while (deviceIterator.hasNext()){
-            UsbDevice device = deviceIterator.next();
+        for (UsbDevice device : deviceList.values()) {
             // One other instance where we filter vendor/product IDs is in
             // @xml/device_filter resource, which is used for USB_DEVICE_ATTACHED
             // intent to launch the app when a device is plugged and the app is still
@@ -680,18 +620,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_CAMERA_QRCODE:
-                if (this.webViewpermissionRequest != null) {
-                    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        this.webViewpermissionRequest.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
-                    } else {
-                        this.webViewpermissionRequest.deny();
-                    }
-                    this.webViewpermissionRequest = null;
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSIONS_REQUEST_CAMERA_QRCODE) {
+            if (this.webViewpermissionRequest != null) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    this.webViewpermissionRequest.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+                } else {
+                    this.webViewpermissionRequest.deny();
                 }
-                break;
+                this.webViewpermissionRequest = null;
+            }
         }
     }
 
@@ -717,10 +656,9 @@ public class MainActivity extends AppCompatActivity {
     //
     // See the following for details about task and activity stacks:
     // https://developer.android.com/guide/components/activities/tasks-and-back-stack
-    @Override
-    public void onBackPressed() {
+    private void backPressedHandler() {
         runOnUiThread(new Runnable() {
-            final WebView vw = (WebView) findViewById(R.id.vw);
+            final WebView vw = findViewById(R.id.vw);
             @Override
             public void run() {
                 vw.evaluateJavascript("window.onBackButtonPressed();", value -> {
@@ -735,16 +673,8 @@ public class MainActivity extends AppCompatActivity {
                         new AlertDialog.Builder(MainActivity.this)
                                 .setTitle("Close BitBoxApp")
                                 .setMessage("Do you really want to exit?")
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Util.quit(MainActivity.this);
-                                    }
-                                })
-                                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                })
+                                .setPositiveButton(android.R.string.yes, (dialog, which) -> Util.quit(MainActivity.this))
+                                .setNegativeButton(android.R.string.no, (dialog, which) -> dialog.dismiss())
                                 .setIcon(android.R.drawable.ic_dialog_alert)
                                 .show();
                     }

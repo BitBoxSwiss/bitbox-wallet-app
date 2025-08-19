@@ -10,10 +10,7 @@ import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Handler;
-import android.os.Message;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
@@ -22,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
-import mobileserver.GoAPIInterface;
 import mobileserver.GoDeviceInfoInterface;
 import mobileserver.GoEnvironmentInterface;
 import mobileserver.GoReadWriteCloserInterface;
@@ -30,7 +26,7 @@ import mobileserver.GoReadWriteCloserInterface;
 public class GoViewModel extends AndroidViewModel {
 
       private class GoDeviceInfo implements GoDeviceInfoInterface {
-        private UsbDevice device;
+        private final UsbDevice device;
         public GoDeviceInfo(UsbDevice device) {
             this.device = device;
         }
@@ -94,9 +90,6 @@ public class GoViewModel extends AndroidViewModel {
         public String product() {
             return device.getProductName();
         }
-        public String manufacturer() {
-            return device.getManufacturerName();
-        }
         public long productID() {
             return device.getProductId();
         }
@@ -157,25 +150,15 @@ public class GoViewModel extends AndroidViewModel {
             if (cm == null) {
                 return false;
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
-                return capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
-            }
+            NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
+            return capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
 
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            return activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE;
         }
 
         public String nativeLocale() {
             Context ctx = getApplication().getApplicationContext();
             Locale locale;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                locale = ctx.getResources().getConfiguration().getLocales().get(0);
-            } else {
-                // Deprecated since API level 24.
-                // https://developer.android.com/reference/android/content/res/Configuration#locale.
-                locale = ctx.getResources().getConfiguration().locale;
-            }
+            locale = ctx.getResources().getConfiguration().getLocales().get(0);
             return locale.toString();
         }
 
@@ -190,49 +173,20 @@ public class GoViewModel extends AndroidViewModel {
         }
     }
 
-    public class Response {
-        public long queryID;
-        public String response;
-    }
-    private class GoAPI implements GoAPIInterface {
-        Handler callResponseHandler;
-        Handler pushNotificationHandler;
-        public void setMessageHandlers(Handler callResponseHandler, Handler pushNotificationHandler) {
-            this.callResponseHandler = callResponseHandler;
-            this.pushNotificationHandler = pushNotificationHandler;
-        }
-        public void respond(long queryID, String response) {
-            Message msg = Message.obtain();
-            Response resp = new Response();
-            resp.queryID = queryID;
-            resp.response = response;
-            msg.obj = resp;
-            callResponseHandler.sendMessage(msg);
-        }
-        public void pushNotify(String msg) {
-            Message m = Message.obtain();
-            m.obj = msg;
-            pushNotificationHandler.sendMessage(m);
-        }
-    }
-
-    private MutableLiveData<Boolean> isDarkTheme = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isDarkTheme = new MutableLiveData<>();
 
     public MutableLiveData<Boolean> getIsDarkTheme() {
          return isDarkTheme;
      }
-    public void setIsDarkTheme(Boolean isDark) {
-         this.isDarkTheme.postValue(isDark);
-    }
 
-    private MutableLiveData<Boolean> authenticator = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> authenticator = new MutableLiveData<>(false);
 
     public MutableLiveData<Boolean> getAuthenticator() {
         return authenticator;
     }
 
     // The value of the backend config's Authentication setting.
-    private MutableLiveData<Boolean> authSetting = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> authSetting = new MutableLiveData<>(false);
 
     public MutableLiveData<Boolean> getAuthSetting() {
         return authSetting;
@@ -246,10 +200,10 @@ public class GoViewModel extends AndroidViewModel {
         this.authenticator.postValue(false);
     }
 
-    private GoEnvironment goEnvironment;
-    private GoAPI goAPI;
+    private final GoEnvironment goEnvironment;
+    private final GoAPI goAPI;
 
-    public GoEnvironment getGoEnvironment() {
+    public GoEnvironmentInterface getGoEnvironment() {
         return goEnvironment;
     }
 
@@ -259,7 +213,6 @@ public class GoViewModel extends AndroidViewModel {
 
     public GoViewModel(Application app) {
         super(app);
-
         this.goEnvironment = new GoEnvironment();
         this.goAPI = new GoAPI();
     }
