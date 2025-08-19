@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import * as accountApi from '@/api/account';
@@ -27,11 +27,12 @@ import { useSDCard } from '@/hooks/sdcard';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
-import { Info } from '@/components/icon';
+import { Info, LoupeBlue } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Status } from '@/components/status/status';
 import { useLoad, useSubscribe, useSync } from '@/hooks/api';
+import { useDebounce } from '@/hooks/debounce';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
@@ -47,9 +48,9 @@ import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
-import { Transaction } from '@/components/transactions/transaction';
+import { TransactionList } from './components/transaction-list';
 import { TransactionDetails } from '@/components/transactions/details';
-import { Button } from '@/components/forms';
+import { Button, Input } from '@/components/forms';
 import { SubTitle } from '@/components/title';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
 import style from './account.module.css';
@@ -90,6 +91,11 @@ const RemountAccount = ({
   const [insured, setInsured] = useState<boolean>(false);
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
   const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
+  const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 200);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
   const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
@@ -102,6 +108,31 @@ const RemountAccount = ({
       return 'https://bitbox.swiss/redirects/bitsurance-segwit-migration-guide-en/';
     }
   };
+
+  const loadingTransactions = transactions?.success === undefined;
+  const hasTransactions = transactions?.success && transactions.list.length > 0;
+
+  const filteredTransactions = useMemo(() => {
+    if (!transactions?.success) {
+      return [];
+    }
+
+    if (!debouncedSearchTerm.trim()) {
+      return transactions.list;
+    }
+
+    const searchLower = debouncedSearchTerm.toLowerCase().trim();
+
+    return transactions.list.filter(tx => {
+      const noteMatch = tx.note?.toLowerCase().includes(searchLower);
+      const addressMatch = tx.addresses?.some(address =>
+        address.toLowerCase().includes(searchLower)
+      );
+      const txIdMatch = tx.txID?.toLowerCase().includes(searchLower);
+
+      return noteMatch || addressMatch || txIdMatch;
+    });
+  }, [transactions, debouncedSearchTerm]);
 
   const checkUncoveredUTXOs = useCallback(async () => {
     const uncoveredScripts: accountApi.ScriptType[] = [];
@@ -184,18 +215,11 @@ const RemountAccount = ({
     onAccountChanged(status);
   }, [btcUnit, onAccountChanged, status]);
 
-  const exportAccount = () => {
-    if (status === undefined || status.fatalError) {
-      return;
+  useEffect(() => {
+    if (showSearchBar && searchInputRef.current) {
+      searchInputRef.current?.focus();
     }
-    accountApi.exportAccount(code)
-      .then(result => {
-        if (result !== null && !result.success) {
-          alertUser(result.errorMessage);
-        }
-      })
-      .catch(console.error);
-  };
+  }, [showSearchBar]);
 
   const hasDataLoaded = balance !== undefined && transactions !== undefined;
 
@@ -245,9 +269,6 @@ const RemountAccount = ({
     exchangeSupported,
     account
   };
-
-  const loadingTransactions = transactions?.success === undefined;
-  const hasTransactions = transactions?.success && transactions.list.length > 0;
 
   return (
     <GuideWrapper>
@@ -316,37 +337,58 @@ const RemountAccount = ({
                     {t('transactions.errorLoadTransactions')}
                   </p>
                 ) : !isAccountEmpty && (
-                  <SubTitle className={style.titleWithButton}>
-                    {t('accountSummary.transactionHistory')}
-                    <Button
-                      transparent
-                      disabled={!hasTransactions}
-                      className={style.exportButton}
-                      onClick={exportAccount}
-                      title={t('account.exportTransactions')}>
-                      {t('account.export')}
-                    </Button>
-                  </SubTitle>
+                  <>
+                    <div className={style.titleRow}>
+                      <SubTitle className={style.titleWithButton}>
+                        {t('accountSummary.transactionHistory')}
+                      </SubTitle>
+
+                      <Button
+                        className={style.searchButton}
+                        transparent
+                        disabled={!hasTransactions}
+                        onClick={() => {
+                          if (showSearchBar) {
+                            setShowSearchBar(false);
+                            setSearchTerm('');
+                          } else {
+                            setShowSearchBar(true);
+                          }
+                        }}
+                      >
+                        {showSearchBar ? (
+                          <>✕ {t('generic.close')}</>
+                        ) : (
+                          <>
+                            <LoupeBlue className={style.loupe} />
+                            {t('generic.searchButton')}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+
+                    <div className={`${style.searchContainer} ${!showSearchBar ? style.searchHidden : ''}`}>
+                      <Input
+                        ref={searchInputRef}
+                        type="text"
+                        className={style.searchInput}
+                        placeholder="Search transactions..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.currentTarget.value)}
+                      />
+                    </div>
+                  </>
                 )}
               </div>
 
               {loadingTransactions && <TransactionHistorySkeleton />}
 
-              {hasTransactions ? (
-                transactions.list.map(tx => (
-                  <Transaction
-                    key={tx.internalID}
-                    onShowDetail={(internalID: accountApi.ITransaction['internalID']) => {
-                      setDetailID(internalID);
-                    }}
-                    {...tx}
-                  />
-                ))
-              ) : transactions?.success && (
-                <p className={style.emptyTransactions}>
-                  {t('transactions.placeholder')}
-                </p>
-              )}
+              <TransactionList
+                transactionSuccess={transactions?.success ?? false}
+                filteredTransactions={filteredTransactions}
+                debouncedSearchTerm={debouncedSearchTerm}
+                onShowDetail={setDetailID}
+              />
 
               <TransactionDetails
                 accountCode={code}

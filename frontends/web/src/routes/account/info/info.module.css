@@ -47,6 +47,11 @@
     margin-bottom: var(--space-half);
 }
 
+.exportButton {
+    margin-bottom: var(--space-eight);
+    padding-left: 0;
+}
+
 @media screen and (min-width: 640px) {
 
     .xPubInfo {

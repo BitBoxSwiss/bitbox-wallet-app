@@ -15,16 +15,19 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '@/hooks/api';
-import { getInfo, IAccount, AccountCode } from '@/api/account';
+import { useLoad, useSync } from '@/hooks/api';
+import { getInfo, IAccount, AccountCode, IStatus, getStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { Header } from '@/components/layout';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
 import { BitcoinBasedAccountInfoGuide } from './guide';
 import { Status } from '@/components/status/status';
+import { Button } from '@/components/forms';
+import { alertUser } from '@/components/alert/Alert';
+import { statusChanged } from '@/api/accountsync';
 import style from './info.module.css';
 
 type TProps = {
@@ -39,8 +42,21 @@ export const Info = ({
   const { t } = useTranslation();
   const info = useLoad(getInfo(code));
   const [viewXPub, setViewXPub] = useState<number>(0);
-  const account = accounts.find(({ code: accountCode }) => accountCode === code);
+  const [transactions, setTransactions] = useState<TTransactions>();
+  const status: IStatus | undefined = useSync(
+    () => getStatus(code),
+    cb => statusChanged(code, cb),
+  );
 
+  useEffect(() => {
+    getTransactionList(code)
+      .then(setTransactions)
+      .catch(console.error);
+  }, [code]);
+
+  const hasTransactions = transactions?.success && transactions.list.length > 0;
+
+  const account = accounts.find(({ code: accountCode }) => accountCode === code);
   if (!account || !info) {
     return null;
   }
@@ -55,6 +71,20 @@ export const Info = ({
     }
     const numberOfXPubs = info.signingConfigurations.length;
     setViewXPub((viewXPub + 1) % numberOfXPubs);
+  };
+
+  const handleExport = async () => {
+    if (status === undefined || status.fatalError) {
+      return;
+    }
+    try {
+      const exportedResult = await exportAccount(code);
+      if (exportedResult !== null && !exportedResult.success) {
+        alertUser(exportedResult.errorMessage);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const xpubType = xpubTypes[(viewXPub + 1) % numberOfXPubs];
@@ -86,6 +116,14 @@ export const Info = ({
                   )}
                 </p>
               ) : null}
+              <Button
+                transparent
+                disabled={!hasTransactions}
+                className={style.exportButton}
+                onClick={handleExport}
+                title={t('account.exportTransactions')}>
+                {t('account.export')}
+              </Button>
               { (config.bitcoinSimple?.scriptType === 'p2tr') ? (
                 <>
                   <Status type="info">

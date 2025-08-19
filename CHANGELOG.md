@@ -19,6 +19,8 @@
 - Fix potential crash in the AOPP workflow
 - Windows: fix send/feetarget dropdown UI rendering bug
 - More efficient account initialization by fetching all account Bitcoin xpubs at once
+- Enable search transactions by note, address, or txid
+- Move "Export" (export transactions) to account info page
 
 ## v4.48.6
 - Android: restore support for Android 6 and Android 5
