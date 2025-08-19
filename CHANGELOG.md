@@ -7,6 +7,9 @@
 - Gracefully shut down Electrum connections upon closing the app
 - Show the selected coin's address on the confirmation screen
 
+## v4.48.3
+- Linux: fix compatiblity with some versions of Mesa also when using the AppImage
+
 ## v4.48.2
 - iOS: Fix blank screens after prolonged inactivity
 - Ethereum bugfix: show all internal transactions that share the same transaction ID
