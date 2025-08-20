@@ -23,34 +23,42 @@ import style from './connected-keystore.module.css';
 
 type Props = {
   accountsByKeystore: TAccountsByKeystore[];
-  keystore: TKeystore;
   className?: string;
+  connectedIconOnly?: boolean;
+  keystore: TKeystore;
 };
 
 export const ConnectedKeystore = ({
   accountsByKeystore,
-  keystore,
   className,
+  connectedIconOnly,
+  keystore,
 }: Props) => {
   const { t } = useTranslation();
   const classNames = className ? `${style.keystore} ${className}` : style.keystore;
 
   return (
     <span className={classNames}>
-      {keystore.name}
+      <span className={style.keystoreName}>{keystore.name}</span>
       {isAmbiguousName(keystore.name, accountsByKeystore) ? (
         // Disambiguate accounts group by adding the fingerprint.
         // The most common case where this would happen is when adding accounts from the
         // same seed using different passphrases.
-        ` (${keystore.rootFingerprint})`
+        <>
+          {' '}
+          <small>({keystore.rootFingerprint})</small>
+        </>
       ) : null}
       {keystore.connected && (
-        <Badge
-          icon={props => <USBSuccess {...props} />}
-          title={t('device.keystoreConnected')}
-          type="success">
-          {t('device.keystoreConnected')}
-        </Badge>
+        <>
+          {' '}
+          <Badge
+            icon={props => <USBSuccess {...props} />}
+            title={t('device.keystoreConnected')}
+            type="success">
+            {connectedIconOnly ? undefined : t('device.keystoreConnected')}
+          </Badge>
+        </>
       )}
     </span>
   );
