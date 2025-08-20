@@ -3,6 +3,7 @@
   border: 1px solid;
   display: inline-block;
   font-size: var(--size-small);
+  flex-shrink: 0;
   line-height: 1;
   padding: var(--space-eight) 10px;
   white-space: nowrap;
