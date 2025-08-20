@@ -10,21 +10,14 @@
   background-color: var(--background-secondary);
 }
 
-.keystoreHeader {
-  color: var(--color-tertiary);
-  display: flex;
-  font-weight: 500;
-  gap: 4px;
-}
-
 .keystoreName {
-  color: var(--color-text);
+  color: var(--color-tertiary);
 }
 
 .accountsList {
   display: flex;
   flex-direction: column;
-  margin-top: var(--space-half);
+  margin: var(--space-half) 0;
   gap: var(--space-half);
 }
 
@@ -37,6 +30,7 @@
 }
 
 .accountIcon {
+  display: block;
   flex: 0 0 auto;
   margin-right: var(--space-quarter);
 }

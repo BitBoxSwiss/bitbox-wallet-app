@@ -16,13 +16,14 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
+import { useNavigate } from 'react-router-dom';
+import { getAccountsByKeystore } from '@/routes/account/utils';
 import * as accountAPI from '@/api/account';
 import * as backendAPI from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
 import { Button, Input, Label } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
-import { EditActive, EyeOpenedDark, Plus, USBSuccess } from '@/components/icon';
+import { EditActive, EyeOpenedDark, Plus } from '@/components/icon';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { Toggle } from '@/components/toggle/toggle';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
@@ -31,13 +32,12 @@ import { WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './types';
 import { View, ViewContent } from '@/components/view/view';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
-import { Badge } from '@/components/badge/badge';
 import { AccountGuide } from './manage-account-guide';
 import { WatchonlySetting } from './components/manage-accounts/watchonlySetting';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
 import style from './manage-accounts.module.css';
-import { useNavigate } from 'react-router-dom';
 
 interface ManageAccountsProps {
   accounts: accountAPI.IAccount[];
@@ -232,25 +232,10 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
                       key={keystore.keystore.rootFingerprint}
                       asCard>
                       <div className={style.walletHeader}>
-                        <h2 className={style.walletTitle}>
-                          <span className={style.keystoreName}>
-                            {keystore.keystore.name}
-                            { isAmbiguousName(keystore.keystore.name, accountsByKeystore) ? (
-                              // Disambiguate accounts group by adding the fingerprint.
-                              // The most common case where this would happen is when adding accounts from the
-                              // same seed using different passphrases.
-                              <small> {keystore.keystore.rootFingerprint}</small>
-                            ) : null }
-                          </span>
-                          {keystore.keystore.connected ? (
-                            <Badge
-                              className="m-right-quarter"
-                              icon={props => <USBSuccess {...props} />}
-                              type="success">
-                              {t('device.keystoreConnected')}
-                            </Badge>
-                          ) : null}
-                        </h2>
+                        <ConnectedKeystore
+                          accountsByKeystore={accountsByKeystore}
+                          keystore={keystore.keystore}
+                          className={style.connectedKeystore} />
                         <WatchonlySetting keystore={keystore.keystore} />
                       </div>
                       {renderAccounts(keystore.accounts)}

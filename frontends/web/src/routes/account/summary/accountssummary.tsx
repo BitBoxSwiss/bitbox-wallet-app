@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2023-2024 Shift Crypto AG
+ * Copyright 2023-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '@/contexts/AppContext';
-import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
+import { getAccountsByKeystore } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
@@ -214,11 +214,10 @@ export const AccountsSummary = ({
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 (
                   <KeystoreBalance
-                    keystoreDisambiguatorName={isAmbiguousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
-                    connected={keystore.connected}
-                    keystoreName={keystore.name}
                     key={keystore.rootFingerprint}
                     accounts={accounts}
+                    accountsByKeystore={accountsByKeystore}
+                    keystore={keystore}
                     keystoreBalance={accountsBalanceSummary?.keystoresBalance[keystore.rootFingerprint]}
                     balances={balances}
                   />
