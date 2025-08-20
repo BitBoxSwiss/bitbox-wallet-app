@@ -93,8 +93,8 @@ func (etherScan *EtherScan) call(ctx context.Context, params url.Values, result 
 
 type jsonBigInt big.Int
 
-func (jsBigInt jsonBigInt) BigInt() *big.Int {
-	bigInt := big.Int(jsBigInt)
+func (jsBigInt *jsonBigInt) BigInt() *big.Int {
+	bigInt := big.Int(*jsBigInt)
 	return &bigInt
 }
 

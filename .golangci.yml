@@ -3,7 +3,7 @@
 
 # options for analysis running
 run:
-  go: "1.23"
+  go: "1.24"
 
   # default concurrency is a available CPU number
   concurrency: 4
@@ -77,16 +77,13 @@ linters:
     - gochecknoinits
     - gocognit
     - godox
-    - gomnd
     - lll
     - nestif
     - prealloc
     - stylecheck
     - whitespace
     - wsl
-    - execinquery
     - ireturn
-    - exportloopref
     - intrange
     - wrapcheck
     - varnamelen
@@ -121,6 +118,8 @@ linters:
     # TODO: enable this after merge https://github.com/karalabe/hid/pull/52
     - gomoddirectives
     - predeclared
+    - tenv
+    - recvcheck
   disable-all: false
 
 issues:
