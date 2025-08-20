@@ -23,7 +23,9 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
+	"slices"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -39,12 +41,15 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// callsPerSec is thenumber of etherscanr equests allowed
+// CallsPerSec is thenumber of etherscanr equests allowed
 // per second.
 // Etherscan rate limits to one request per 0.2 seconds.
-var callsPerSec = 3.8
+var CallsPerSec = 3.8
 
-const apiKey = "X3AFAGQT2QCAFTFPIH9VJY88H9PIQ2UWP7"
+const (
+	apiKey                  = "X3AFAGQT2QCAFTFPIH9VJY88H9PIQ2UWP7"
+	maxAddressesForBalances = 20
+)
 
 // ERC20GasErr is the error message returned from etherscan when there is not enough ETH to pay the transaction fee.
 const ERC20GasErr = "insufficient funds for gas * price + value"
@@ -58,11 +63,11 @@ type EtherScan struct {
 }
 
 // NewEtherScan creates a new instance of EtherScan.
-func NewEtherScan(chainId string, httpClient *http.Client) *EtherScan {
+func NewEtherScan(chainId string, httpClient *http.Client, limiter *rate.Limiter) *EtherScan {
 	return &EtherScan{
 		url:        "https://api.etherscan.io/v2/api",
 		httpClient: httpClient,
-		limiter:    rate.NewLimiter(rate.Limit(callsPerSec), 1),
+		limiter:    limiter,
 		chainId:    chainId,
 	}
 }
@@ -458,6 +463,54 @@ func (etherScan *EtherScan) Balance(ctx context.Context, account common.Address)
 		return nil, errp.New("unexpected response from EtherScan")
 	}
 	return balance, nil
+}
+
+// Balances returns the balances for multiple addresses.
+func (etherScan *EtherScan) Balances(ctx context.Context, accounts []common.Address) (map[common.Address]*big.Int, error) {
+	if len(accounts) == 0 {
+		return nil, nil
+	}
+
+	params := url.Values{}
+	params.Set("module", "account")
+	params.Set("action", "balancemulti")
+	params.Set("tag", "latest")
+
+	balances := make(map[common.Address]*big.Int)
+
+	type balancesResult struct {
+		Status  string
+		Message string
+		Result  []struct {
+			Account string     `json:"account"`
+			Balance jsonBigInt `json:"balance"`
+		} `json:"result"`
+	}
+
+	for addressesChunk := range slices.Chunk(accounts, maxAddressesForBalances) {
+
+		addresses := make([]string, len(addressesChunk))
+		for i, account := range addressesChunk {
+			addresses[i] = account.Hex()
+		}
+
+		params.Set("address", strings.Join(addresses, ","))
+
+		result := balancesResult{}
+		if err := etherScan.call(ctx, params, &result); err != nil {
+			return nil, err
+		}
+		if result.Status != "1" {
+			return nil, errp.New("unexpected response from EtherScan")
+		}
+
+		for _, item := range result.Result {
+			account := common.HexToAddress(item.Account)
+			balance := item.Balance.BigInt()
+			balances[account] = balance
+		}
+	}
+	return balances, nil
 }
 
 // ERC20Balance implements rpc.Interface.

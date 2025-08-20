@@ -49,7 +49,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var pollInterval = 5 * time.Minute
+// PollInterval is the interval at which the account is polled for updates.
+var PollInterval = 5 * time.Minute
 
 func isMixedCase(s string) bool {
 	return strings.ToLower(s) != s && strings.ToUpper(s) != s
@@ -87,7 +88,7 @@ type Account struct {
 
 	// enqueueUpdateCh is used to invoke an account update outside of the regular poll update
 	// interval.
-	enqueueUpdateCh chan struct{}
+	enqueueUpdateCh chan *Account
 
 	address Address
 
@@ -100,11 +101,10 @@ type Account struct {
 	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
 	activeTxProposal *TxProposal
 
-	// quitChan is used to send a quit signal to the accounts long running routines that
-	// should listen to it.
-	quitChan chan struct{}
-
 	log *logrus.Entry
+
+	// initDone is called when the account is initialized for the first time
+	initDone func()
 }
 
 // NewAccount creates a new account.
@@ -113,6 +113,7 @@ func NewAccount(
 	accountCoin *Coin,
 	httpClient *http.Client,
 	log *logrus.Entry,
+	enqueueUpdateCh chan *Account,
 ) *Account {
 	log = log.WithField("group", "eth").
 		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Config.Code, "name": config.Config.Name})
@@ -126,8 +127,7 @@ func NewAccount(
 		httpClient:           httpClient,
 		balance:              coin.NewAmountFromInt64(0),
 
-		enqueueUpdateCh: make(chan struct{}),
-		quitChan:        make(chan struct{}),
+		enqueueUpdateCh: enqueueUpdateCh,
 
 		log: log,
 	}
@@ -207,39 +207,10 @@ func (account *Account) Initialize() error {
 	)
 
 	account.coin.Initialize()
-	done := account.Synchronizer.IncRequestsCounter()
-	go account.poll(done)
+	account.initDone = account.Synchronizer.IncRequestsCounter()
+	go account.EnqueueUpdate()
 
 	return account.BaseAccount.Initialize(accountIdentifier)
-}
-
-func (account *Account) poll(initDone func()) {
-	timer := time.After(0)
-	for {
-		select {
-		case <-account.quitChan:
-			return
-		default:
-			select {
-			case <-account.quitChan:
-				return
-			case <-timer:
-			case <-account.enqueueUpdateCh:
-				account.log.Info("extraordinary account update invoked")
-			}
-			if err := account.update(); err != nil {
-				account.log.WithError(err).Error("error updating account")
-				account.SetOffline(err)
-			} else {
-				account.SetOffline(nil)
-			}
-			if initDone != nil {
-				initDone()
-				initDone = nil
-			}
-			timer = time.After(pollInterval)
-		}
-	}
 }
 
 // updateOutgoingTransactions updates the height of the stored outgoing transactions.
@@ -375,7 +346,9 @@ func (account *Account) nextNonce() (uint64, error) {
 	return nextNonce, nil
 }
 
-func (account *Account) update() error {
+// Update performs an Update of the account's transaction
+// and its balance, which must be provided as an argument.
+func (account *Account) Update(balance *big.Int) error {
 	defer account.updateLock.Lock()()
 	defer account.Synchronizer.IncRequestsCounter()()
 
@@ -416,21 +389,13 @@ func (account *Account) update() error {
 		}
 	}
 
-	var balance *big.Int
-	if account.coin.erc20Token != nil {
-		balance, err = account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token)
-		if err != nil {
-			return errp.WithStack(err)
-		}
-	} else {
-		balance, err = account.coin.client.Balance(context.TODO(), account.address.Address)
-		if err != nil {
-			return errp.WithStack(err)
-		}
-	}
-
 	pendingAmount := pendingTxsAmount(outgoingTransactionsData, account.coin.erc20Token != nil)
 	account.balance = coin.NewAmount(balance.Sub(balance, pendingAmount))
+
+	if account.initDone != nil {
+		account.initDone()
+		account.initDone = nil
+	}
 
 	return nil
 }
@@ -472,7 +437,6 @@ func (account *Account) Close() {
 		}
 		account.log.Info("Closed DB")
 	}
-	close(account.quitChan)
 	account.closed = true
 	account.Notify(observable.Event{
 		Subject: string(accountsTypes.EventStatusChanged),
@@ -1052,8 +1016,67 @@ func (account *Account) MatchesAddress(address string) (bool, error) {
 
 // EnqueueUpdate enqueues an update for the account.
 func (account *Account) EnqueueUpdate() {
-	select {
-	case account.enqueueUpdateCh <- struct{}{}:
-	default:
+	account.enqueueUpdateCh <- account
+}
+
+// UpdateBalances updates the balances of the accounts in the provided slice.
+func UpdateBalances(accounts []*Account, etherScanClient *etherscan.EtherScan) error {
+	ethNonErc20Addresses := make([]ethcommon.Address, 0, len(accounts))
+	for _, account := range accounts {
+		if account.isClosed() {
+			continue
+		}
+		address, err := account.Address()
+		if err != nil {
+			account.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Config.Code)
+			account.SetOffline(err)
+			continue
+		}
+		if account.coin.erc20Token == nil {
+			ethNonErc20Addresses = append(ethNonErc20Addresses, address.Address)
+		}
 	}
+
+	balances, err := etherScanClient.Balances(context.TODO(), ethNonErc20Addresses)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+
+	for _, account := range accounts {
+		if account.isClosed() {
+			continue
+		}
+		address, err := account.Address()
+		if err != nil {
+			account.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Config.Code)
+			account.SetOffline(err)
+			continue
+		}
+		var balance *big.Int
+		if account.coin.erc20Token != nil {
+			var err error
+			balance, err = account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token)
+			if err != nil {
+				account.log.WithError(err).Errorf("Could not get ERC20 balance for address %s", address.Address.Hex())
+				account.SetOffline(err)
+				continue
+			}
+		} else {
+			var ok bool
+			balance, ok = balances[address.Address]
+			if !ok {
+				errMsg := fmt.Sprintf("Could not find balance for address %s", address.Address.Hex())
+				account.log.Error(errMsg)
+				account.SetOffline(errp.New(errMsg))
+				continue
+			}
+		}
+		if err := account.Update(balance); err != nil {
+			account.log.WithError(err).Errorf("Could not update balance for address %s", address.Address.Hex())
+			account.SetOffline(err)
+		} else {
+			account.SetOffline(nil)
+		}
+	}
+	return nil
 }

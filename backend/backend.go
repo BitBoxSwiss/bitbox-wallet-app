@@ -61,6 +61,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
 )
 
 func init() {
@@ -225,10 +226,11 @@ type Backend struct {
 
 	socksProxy socksproxy.SocksProxy
 	// can be a regular or, if Tor is enabled in the config, a SOCKS5 proxy client.
-	httpClient          *http.Client
-	etherScanHTTPClient *http.Client
-	ratesUpdater        *rates.RateUpdater
-	banners             *banners.Banners
+	httpClient           *http.Client
+	etherScanHTTPClient  *http.Client
+	etherScanRateLimiter *rate.Limiter
+	ratesUpdater         *rates.RateUpdater
+	banners              *banners.Banners
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
 	tstCheckAccountUsed func(accounts.Interface) bool
@@ -240,6 +242,15 @@ type Backend struct {
 
 	// isOnline indicates whether the backend is online, i.e. able to connect to the internet.
 	isOnline atomic.Bool
+
+	// quit is used to indicate to running goroutines that they should stop as the backend is being closed
+	quit chan struct{}
+
+	// enqueueUpdateForAccount is used to enqueue an update for an account.
+	enqueueUpdateForAccount chan *eth.Account
+
+	// updateETHAccountsCh is used to trigger an update of all ETH accounts.
+	updateETHAccountsCh chan struct{}
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -262,11 +273,13 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		return nil, err
 	}
 
+	accountUpdate := make(chan *eth.Account)
+
 	backend := &Backend{
 		arguments:   arguments,
 		environment: environment,
 		config:      backendConfig,
-		events:      make(chan interface{}, 1000),
+		events:      make(chan interface{}),
 
 		devices:  map[string]device.Interface{},
 		coins:    map[coinpkg.Code]coinpkg.Coin{},
@@ -276,12 +289,15 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 			return btc.NewAccount(config, coin, gapLimits, getAddress, log, hclient)
 		},
 		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-			return eth.NewAccount(config, coin, httpClient, log)
+			return eth.NewAccount(config, coin, httpClient, log, accountUpdate)
 		},
 
 		log: log,
 
-		testing: backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
+		testing:                 backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
+		quit:                    make(chan struct{}),
+		etherScanRateLimiter:    rate.NewLimiter(rate.Limit(etherscan.CallsPerSec), 1),
+		enqueueUpdateForAccount: accountUpdate,
 	}
 	// TODO: remove when connectivity check is present on all platforms
 	backend.isOnline.Store(true)
@@ -529,19 +545,19 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
 			"https://blockchair.com/litecoin/transaction/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
-		etherScan := etherscan.NewEtherScan("1", backend.etherScanHTTPClient)
+		etherScan := etherscan.NewEtherScan("1", backend.etherScanHTTPClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeSEPETH:
-		etherScan := etherscan.NewEtherScan("11155111", backend.etherScanHTTPClient)
+		etherScan := etherscan.NewEtherScan("11155111", backend.etherScanHTTPClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, code, "Ethereum Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig,
 			"https://sepolia.etherscan.io/tx/",
 			etherScan,
 			nil)
 	case erc20Token != nil:
-		etherScan := etherscan.NewEtherScan("1", backend.etherScanHTTPClient)
+		etherScan := etherscan.NewEtherScan("1", backend.etherScanHTTPClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			etherScan,
@@ -553,6 +569,74 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	backend.coins[code] = coin
 	coin.Observe(backend.Notify)
 	return coin, nil
+}
+
+func (backend *Backend) pollETHAccounts() {
+	timer := time.After(0)
+
+	updateAll := func() {
+		if err := backend.updateETHAccounts(); err != nil {
+			backend.log.WithError(err).Error("could not update ETH accounts")
+		}
+	}
+
+	for {
+		select {
+		case <-backend.quit:
+			return
+		default:
+			select {
+			case <-backend.quit:
+				return
+			case account := <-backend.enqueueUpdateForAccount:
+				go func() {
+					// A single ETH accounts needs an update.
+					ethCoin, ok := account.Coin().(*eth.Coin)
+					if !ok {
+						backend.log.WithField("account", account.Config().Config.Name).Errorf("expected ETH account to have ETH coin, got %T", account.Coin())
+					}
+					etherScanClient := etherscan.NewEtherScan(ethCoin.ChainIDstr(), backend.etherScanHTTPClient, backend.etherScanRateLimiter)
+					if err := eth.UpdateBalances([]*eth.Account{account}, etherScanClient); err != nil {
+						backend.log.WithError(err).Errorf("could not update account %s", account.Config().Config.Name)
+					}
+				}()
+			case <-backend.updateETHAccountsCh:
+				go updateAll()
+				timer = time.After(eth.PollInterval)
+			case <-timer:
+				go updateAll()
+				timer = time.After(eth.PollInterval)
+			}
+		}
+	}
+}
+
+func (backend *Backend) updateETHAccounts() error {
+	defer backend.accountsAndKeystoreLock.RLock()()
+	backend.log.Debug("Updating ETH accounts balances")
+
+	accountsChainID := map[string][]*eth.Account{}
+	for _, account := range backend.accounts {
+		ethAccount, ok := account.(*eth.Account)
+		if ok {
+			ethCoin, ok := ethAccount.Coin().(*eth.Coin)
+			if !ok {
+				return errp.Newf("expected ETH account to have ETH coin, got %T", ethAccount.Coin())
+			}
+			chainID := ethCoin.ChainIDstr()
+			accountsChainID[chainID] = append(accountsChainID[chainID], ethAccount)
+		}
+
+	}
+
+	for chainID, ethAccounts := range accountsChainID {
+		etherScanClient := etherscan.NewEtherScan(chainID, backend.etherScanHTTPClient, backend.etherScanRateLimiter)
+		if err := eth.UpdateBalances(ethAccounts, etherScanClient); err != nil {
+			backend.log.WithError(err).Errorf("could not update ETH accounts for chain ID %s", chainID)
+		}
+	}
+
+	return nil
 }
 
 // ManualReconnect triggers reconnecting to Electrum servers if their connection is down.
@@ -592,13 +676,7 @@ func (backend *Backend) ManualReconnect(reconnectETH bool) {
 	}
 	if reconnectETH {
 		backend.log.Info("Reconnecting ETH accounts")
-		for _, account := range backend.accounts {
-			ethAccount, ok := account.(*eth.Account)
-			if !ok {
-				continue
-			}
-			ethAccount.EnqueueUpdate()
-		}
+		backend.updateETHAccountsCh <- struct{}{}
 	}
 }
 
@@ -660,6 +738,8 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.configureHistoryExchangeRates()
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
+
+	go backend.pollETHAccounts()
 
 	if backend.config.AppConfig().Backend.StartInTestnet {
 		if err := backend.config.ModifyAppConfig(func(c *config.AppConfig) error { c.Backend.StartInTestnet = false; return nil }); err != nil {
@@ -933,6 +1013,8 @@ func (backend *Backend) Close() error {
 	if len(errors) > 0 {
 		return errp.New(strings.Join(errors, "; "))
 	}
+
+	close(backend.quit)
 	return nil
 }
 

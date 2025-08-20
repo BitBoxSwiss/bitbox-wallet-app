@@ -179,11 +179,13 @@ func TestSortAccounts(t *testing.T) {
 		{Code: "acct-tbtc", CoinCode: coinpkg.CodeTBTC},
 	}
 	backend := newBackend(t, testnetDisabled, regtestDisabled)
+	unlockFN := backend.accountsAndKeystoreLock.Lock()
 	for i := range accountConfigs {
 		c, err := backend.Coin(accountConfigs[i].CoinCode)
 		require.NoError(t, err)
 		backend.createAndAddAccount(c, accountConfigs[i])
 	}
+	unlockFN()
 
 	expectedOrder := []accountsTypes.Code{
 		"acct-btc-1",
@@ -747,6 +749,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 	// Add a Bitcoin account.
 	coin, err := b.Coin(coinpkg.CodeBTC)
 	require.NoError(t, err)
+	unlockFN := b.accountsAndKeystoreLock.Lock()
 	b.createAndAddAccount(
 		coin,
 		&config.Account{
@@ -757,6 +760,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			},
 		},
 	)
+	unlockFN()
 	require.Len(t, b.Accounts(), 1)
 	// Check some properties of the newly added account.
 	acct := b.Accounts()[0]
@@ -767,6 +771,8 @@ func TestCreateAndAddAccount(t *testing.T) {
 	// Add a Litecoin account.
 	coin, err = b.Coin(coinpkg.CodeLTC)
 	require.NoError(t, err)
+
+	unlockFN = b.accountsAndKeystoreLock.Lock()
 	b.createAndAddAccount(coin,
 		&config.Account{
 			Code: "test-ltc-account-code",
@@ -776,6 +782,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			},
 		},
 	)
+	unlockFN()
 	require.Len(t, b.Accounts(), 2)
 	// Check some properties of the newly added account.
 	acct = b.Accounts()[1]
@@ -786,6 +793,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 	// Add an Ethereum account with some active ERC20 tokens.
 	coin, err = b.Coin(coinpkg.CodeETH)
 	require.NoError(t, err)
+	unlockFN = b.accountsAndKeystoreLock.Lock()
 	b.createAndAddAccount(coin,
 		&config.Account{
 			Code: "test-eth-account-code",
@@ -796,6 +804,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			ActiveTokens: []string{"eth-erc20-mkr"},
 		},
 	)
+	unlockFN()
 	// 2 more accounts: the added ETH account plus the active token for the ETH account.
 	require.Len(t, b.Accounts(), 4)
 	// Check some properties of the newly added account.
@@ -812,6 +821,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 	// Add another Ethereum account with some active ERC20 tokens.
 	coin, err = b.Coin(coinpkg.CodeETH)
 	require.NoError(t, err)
+	unlockFN = b.accountsAndKeystoreLock.Lock()
 	b.createAndAddAccount(coin,
 		&config.Account{
 			Code: "test-eth-account-code-2",
@@ -823,6 +833,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			ActiveTokens: []string{"eth-erc20-usdt", "eth-erc20-bat"},
 		},
 	)
+	unlockFN()
 	// 3 more accounts: the added ETH account plus the two active tokens for the ETH account.
 	require.Len(t, b.Accounts(), 7)
 	// Check some properties of the newly added accounts.
