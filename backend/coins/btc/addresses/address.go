@@ -22,6 +22,7 @@ import (
 	ourbtcutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -37,8 +38,9 @@ type AccountAddress struct {
 
 	// AccountConfiguration is the account level configuration from which this address was derived.
 	AccountConfiguration *signing.Configuration
-	// Configuration contains the absolute keypath and the extended public keys of the address.
-	Configuration *signing.Configuration
+	// publicKey is the public key of a single-sig address.
+	publicKey  *btcec.PublicKey
+	Derivation types.Derivation
 
 	// redeemScript stores the redeem script of a BIP16 P2SH output or nil if address type is P2PKH.
 	redeemScript []byte
@@ -49,25 +51,34 @@ type AccountAddress struct {
 // NewAccountAddress creates a new account address.
 func NewAccountAddress(
 	accountConfiguration *signing.Configuration,
-	keyPath signing.RelativeKeypath,
+	derivation types.Derivation,
 	net *chaincfg.Params,
 	log *logrus.Entry,
 ) *AccountAddress {
 
-	var address btcutil.Address
-	var redeemScript []byte
-	configuration, err := accountConfiguration.Derive(keyPath)
-	if err != nil {
-		log.WithError(err).Panic("Failed to derive the configuration.")
-	}
 	log = log.WithFields(logrus.Fields{
-		"key-path":      configuration.AbsoluteKeypath().Encode(),
-		"configuration": configuration.String(),
+		"accountConfiguration": accountConfiguration.String(),
+		"change":               derivation.Change,
+		"addressIndex":         derivation.AddressIndex,
 	})
 	log.Debug("Creating new account address")
 
-	publicKeyHash := btcutil.Hash160(configuration.PublicKey().SerializeCompressed())
-	switch configuration.ScriptType() {
+	var address btcutil.Address
+	var redeemScript []byte
+	relativeKeypath := signing.NewEmptyRelativeKeypath().
+		Child(derivation.SimpleChainIndex(), signing.NonHardened).
+		Child(derivation.AddressIndex, signing.NonHardened)
+	derivedXpub, err := relativeKeypath.Derive(accountConfiguration.ExtendedPublicKey())
+	if err != nil {
+		log.WithError(err).Panic("Failed to derive xpub.")
+	}
+	publicKey, err := derivedXpub.ECPubKey()
+	if err != nil {
+		log.WithError(err).Panic("Failed to convert an extended public key to a normal public key.")
+	}
+
+	publicKeyHash := btcutil.Hash160(publicKey.SerializeCompressed())
+	switch accountConfiguration.ScriptType() {
 	case signing.ScriptTypeP2PKH:
 		address, err = btcutil.NewAddressPubKeyHash(publicKeyHash, net)
 		if err != nil {
@@ -93,19 +104,20 @@ func NewAccountAddress(
 			log.WithError(err).Panic("Failed to get p2wpkh addr. from publ. key hash.")
 		}
 	case signing.ScriptTypeP2TR:
-		outputKey := txscript.ComputeTaprootKeyNoScript(configuration.PublicKey())
+		outputKey := txscript.ComputeTaprootKeyNoScript(publicKey)
 		address, err = btcutil.NewAddressTaproot(schnorr.SerializePubKey(outputKey), net)
 		if err != nil {
 			log.WithError(err).Panic("Failed to get p2tr addr")
 		}
 	default:
-		log.Panic(fmt.Sprintf("Unrecognized script type: %s", configuration.ScriptType()))
+		log.Panic(fmt.Sprintf("Unrecognized script type: %s", accountConfiguration.ScriptType()))
 	}
 
 	return &AccountAddress{
 		Address:              address,
 		AccountConfiguration: accountConfiguration,
-		Configuration:        configuration,
+		publicKey:            publicKey,
+		Derivation:           derivation,
 		redeemScript:         redeemScript,
 		log:                  log,
 	}
@@ -121,8 +133,8 @@ func (address *AccountAddress) ID() string {
 // - 32 byte x-only public key for p2tr
 // See https://github.com/bitcoin/bips/blob/master/bip-0352.mediawiki#user-content-Inputs_For_Shared_Secret_Derivation.
 func (address *AccountAddress) BIP352Pubkey() ([]byte, error) {
-	publicKey := address.Configuration.PublicKey()
-	switch address.Configuration.ScriptType() {
+	publicKey := address.publicKey
+	switch address.AccountConfiguration.ScriptType() {
 	case signing.ScriptTypeP2PKH, signing.ScriptTypeP2WPKHP2SH, signing.ScriptTypeP2WPKH:
 		return publicKey.SerializeCompressed(), nil
 	case signing.ScriptTypeP2TR:
@@ -138,9 +150,11 @@ func (address *AccountAddress) EncodeForHumans() string {
 	return address.EncodeAddress()
 }
 
-// AbsoluteKeypath implements coin.AbsoluteKeypath.
+// AbsoluteKeypath implements accounts.Address.
 func (address *AccountAddress) AbsoluteKeypath() signing.AbsoluteKeypath {
-	return address.Configuration.AbsoluteKeypath()
+	return address.AccountConfiguration.AbsoluteKeypath().
+		Child(address.Derivation.SimpleChainIndex(), false).
+		Child(address.Derivation.AddressIndex, false)
 }
 
 // PubkeyScript returns the pubkey script of this address. Use this in a tx output to receive funds.
@@ -162,7 +176,7 @@ func (address *AccountAddress) PubkeyScriptHashHex() blockchain.ScriptHashHex {
 // calculating the hash to be signed in a transaction. This info is needed when trying to spend
 // from this address.
 func (address *AccountAddress) ScriptForHashToSign() (bool, []byte) {
-	switch address.Configuration.ScriptType() {
+	switch address.AccountConfiguration.ScriptType() {
 	case signing.ScriptTypeP2PKH:
 		return false, address.PubkeyScript()
 	case signing.ScriptTypeP2WPKHP2SH:
@@ -180,8 +194,8 @@ func (address *AccountAddress) ScriptForHashToSign() (bool, []byte) {
 func (address *AccountAddress) SignatureScript(
 	signature types.Signature,
 ) ([]byte, wire.TxWitness) {
-	publicKey := address.Configuration.PublicKey()
-	switch address.Configuration.ScriptType() {
+	publicKey := address.publicKey
+	switch address.AccountConfiguration.ScriptType() {
 	case signing.ScriptTypeP2PKH:
 		signatureScript, err := txscript.NewScriptBuilder().
 			AddData(append(signature.SerializeDER(), byte(txscript.SigHashAll))).

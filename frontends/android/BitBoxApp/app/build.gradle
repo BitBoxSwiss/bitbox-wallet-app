@@ -1,14 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    buildToolsVersion '34.0.0'
-    compileSdk 34
+    compileSdk 35
     defaultConfig {
         applicationId "ch.shiftcrypto.bitboxapp"
-        minSdkVersion 21
-        targetSdkVersion 34
-        versionCode 59
-        versionName "android-4.47.0"
+        // minSdkVersion should match the `-androidapi` gomobile bind flag
+        // in backend/mobileserver/Makefile
+        minSdkVersion 24
+        targetSdkVersion 35
+        versionCode 62
+        versionName "android-4.48.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
@@ -31,7 +32,7 @@ android {
     externalNativeBuild {
         cmake {
             path file('src/main/cpp/CMakeLists.txt')
-            version '3.31.6'
+            version '3.31.6+'
         }
     }
 }

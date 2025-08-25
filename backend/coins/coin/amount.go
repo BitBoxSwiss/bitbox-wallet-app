@@ -17,9 +17,12 @@ package coin
 import (
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/btcsuite/btcd/btcutil"
 )
 
 // Amount represents an amount in the smallest coin unit (e.g. satoshi).
@@ -74,6 +77,64 @@ func (amount Amount) Int64() (int64, error) {
 // BigInt returns a copy of the underlying big integer.
 func (amount Amount) BigInt() *big.Int {
 	return new(big.Int).Set(amount.n)
+}
+
+// FormattedAmountWithConversions and json tags.
+type FormattedAmountWithConversions struct {
+	Amount      string         `json:"amount"`
+	Unit        string         `json:"unit"`
+	Conversions ConversionsMap `json:"conversions"`
+	// Estimated flag is enabled if the Conversions map was expected to
+	// be calculated using historical rates, but latest rates have been used instead.
+	Estimated bool `json:"estimated"`
+}
+
+// FormatWithConversions formats the Amount and adds fiat conversions.
+func (amount Amount) FormatWithConversions(accountCoin Coin, isFee bool, rateUpdater *rates.RateUpdater) FormattedAmountWithConversions {
+	return FormattedAmountWithConversions{
+		Amount: accountCoin.FormatAmount(amount, isFee),
+		Unit:   accountCoin.GetFormatUnit(isFee),
+		Conversions: Conversions(
+			amount,
+			accountCoin,
+			isFee,
+			rateUpdater),
+	}
+}
+
+// FormatWithConversionsAtTime formats the Amount and adds fiat conversions at a given timestamp.
+func (amount Amount) FormatWithConversionsAtTime(accountCoin Coin, timeStamp *time.Time, rateUpdater *rates.RateUpdater) FormattedAmountWithConversions {
+	var conversions map[string]string
+	var estimated bool
+
+	if timeStamp == nil {
+		conversions = Conversions(
+			amount,
+			accountCoin,
+			false,
+			rateUpdater,
+		)
+		estimated = true
+	} else {
+		conversions, estimated = ConversionsAtTime(
+			amount,
+			accountCoin,
+			false,
+			rateUpdater,
+			timeStamp,
+		)
+	}
+	return FormattedAmountWithConversions{
+		Amount:      accountCoin.FormatAmount(amount, false),
+		Unit:        accountCoin.GetFormatUnit(false),
+		Conversions: conversions,
+		Estimated:   estimated,
+	}
+}
+
+// ConvertBTCAmount formats a btcUtil.Amount and its fiat conversions into a FiatConvertedAmount.
+func ConvertBTCAmount(accountCoin Coin, amount btcutil.Amount, isFee bool, rateUpdater *rates.RateUpdater) FormattedAmountWithConversions {
+	return NewAmountFromInt64(int64(amount)).FormatWithConversions(accountCoin, isFee, rateUpdater)
 }
 
 // SendAmount is either a concrete amount, or "all"/"max". The concrete amount is user input and is

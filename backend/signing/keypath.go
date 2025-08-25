@@ -17,6 +17,7 @@ package signing
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -133,7 +134,7 @@ func (relativeKeypath RelativeKeypath) Encode() string {
 
 // Child appends the given node to this relative keypath.
 func (relativeKeypath RelativeKeypath) Child(index uint32, hardened bool) RelativeKeypath {
-	newKeypath := append(RelativeKeypath{}, relativeKeypath...)
+	newKeypath := slices.Clone(relativeKeypath)
 	return append(newKeypath, keyNode{index, hardened})
 }
 
@@ -202,13 +203,13 @@ func (absoluteKeypath AbsoluteKeypath) Encode() string {
 
 // Child appends the given node to this absolute keypath.
 func (absoluteKeypath AbsoluteKeypath) Child(index uint32, hardened bool) AbsoluteKeypath {
-	newKeypath := append(AbsoluteKeypath{}, absoluteKeypath...)
+	newKeypath := slices.Clone(absoluteKeypath)
 	return append(newKeypath, keyNode{index, hardened})
 }
 
 // Append appends a relative keypath to this absolute keypath.
 func (absoluteKeypath AbsoluteKeypath) Append(suffix RelativeKeypath) AbsoluteKeypath {
-	newKeypath := append(AbsoluteKeypath{}, absoluteKeypath...)
+	newKeypath := slices.Clone(absoluteKeypath)
 	return append(newKeypath, suffix...)
 }
 

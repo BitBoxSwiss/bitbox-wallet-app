@@ -176,8 +176,7 @@
     "error": {
       "e10000": "Mot de passe de l'appareil incorrect.",
       "e10001": "La tentative de remplacer le mot de passe de l'appareil a échoué",
-      "e102": "Le mot de passe doit comporter au minimum 4 caractères.",
-      "e112": "Le mot de passe caché ne peut pas être identique au mot de passe principal de l'appareil."
+      "e102": "Le mot de passe doit comporter au minimum 4 caractères."
     }
   },
   "bitbox02Interact": {
@@ -378,7 +377,6 @@
     "dismiss": "Ignorer",
     "done": "Terminé",
     "download": "Télécharger",
-    "hiddenwallet": "Créer un portefeuille caché",
     "next": "Suivant",
     "ok": "D'accord",
     "previous": "Précédent",
@@ -634,14 +632,6 @@
     "keystoreConnected": "Wallet connecté",
     "unsupportedFeature": "Cette fonctionnalité n'est pas disponible sur cet appareil."
   },
-  "deviceLock": {
-    "button": "Activer la double authentification (2FA)",
-    "condition1": "Avez-vous une sauvegarde ?",
-    "condition2": "Est-ce que la vérification avec l'application mobile fonctionne-t-elle ?",
-    "condition3": "Le 2FA DÉSACTIVE les sauvegardes et l'appariement à l'application mobile. L'appareil doit être RÉINITIALISÉ pour enlever le 2FA !",
-    "confirm": "Activer la double authentification (2FA)",
-    "title": "Activer la double authentification (2FA)"
-  },
   "deviceSettings": {
     "backups": {
       "manageBackups": {
@@ -729,24 +719,6 @@
       "title": "Matériel informatique"
     },
     "loading": "Récupération des informations sur l'appareil…",
-    "pairing": {
-      "lock": {
-        "false": "Désactivé",
-        "label": "Double authentification (2FA)",
-        "true": "Activé"
-      },
-      "mobile": {
-        "false": "Fermé",
-        "label": "Application mobile",
-        "true": "Ouvrir"
-      },
-      "status": {
-        "false": "Non appairé",
-        "label": "Statut",
-        "true": "Appairé"
-      },
-      "title": "Appariement"
-    },
     "secrets": {
       "manageBackups": "Gérer les sauvegardes",
       "title": "Secrets"
@@ -1009,14 +981,6 @@
       }
     },
     "bitbox": {
-      "2FA": {
-        "text": "Lorsque le 2FA est activé, toutes les transactions doivent être approuvées sur votre téléphone portable appairé afin de pouvoir envoyer des jetons. En réalité, un numéro chiffré, à usage unique, est envoyé à l'application mobile, déchiffré  et renvoyé au BitBox lorsque vous appuyez sur le bouton \"Accepter\". Cette communication avec l'appareil se fait via le canal entre le téléphone mobile et l'application de bureau établie lors de l'appareillage.\n\nAssurez-vous de sauvegarder votre portefeuille et d'appairer l'application mobile avant d'activer le 2FA. Une fois activé, l'appairage entre l'emplacement de la carte micro SD et l'application mobile est désactivé. Il peut être réactivé en réinitialisant le BitBox.",
-        "title": "Comment fonctionne la double authentification (2FA) ?"
-      },
-      "disable2FA": {
-        "text": "Pour désactiver le 2FA, vous devez réinitialiser votre BitBox, puis restaurer le portefeuille à partir de sa sauvegarde. Assurez-vous que vous êtes toujours en possession de la carte micro SD avec la sauvegarde et que vous vous souvenez du mot de passe de récupération. Puis appuyez sur \"Réinitialiser l'appareil\". Définissez un nouveau mot de passe et choisissez \"Ou restaurer une sauvegarde\". Sélectionnez la sauvegarde que vous avez effectuée à partir du portefeuille, cliquez sur \"Restaurer\" et entrez le mot de passe de récupération que vous avez utilisé lors de la création du portefeuille.",
-        "title": "Comment puis-je désactiver la double authentification (2FA) ?"
-      },
       "ejectBitbox": {
         "text": "Vous pouvez débrancher le BitBox à tout moment sans avoir à l'éjecter.",
         "title": "Comment puis-je éjecter le BitBox ?"
@@ -1024,18 +988,6 @@
       "ejectSD": {
         "text": "Vous pouvez retirer la carte microSD du BitBox à tout moment, tant que vous n'êtes pas en train de créer ou de restaurer une sauvegarde.",
         "title": "Comment puis-je éjecter la carte microSD ?"
-      },
-      "hiddenWallet": {
-        "text": "Il s’agit d’un deuxième portefeuille sur le même appareil, protégé par un mot de passe d'appareil et de récupération différents, qui peut être utile pour un plausible déni. La même graine de sauvegarde est utilisée pour votre portefeuille normal et votre portefeuille caché. Aucune sauvegarde supplémentaire n'est donc nécessaire.",
-        "title": "Qu'est-ce qu'un portefeuille caché ?"
-      },
-      "legacyHiddenWallet": {
-        "text": "Cliquez d'abord sur le bouton ci-dessous (disponible si le BitBox est déverrouillé avec le mot de passe principal de l'appareil et si la double authentification est désactivée), puis rebranchez votre BitBox et déverrouillez-le avec le mot de passe du portefeuille caché.",
-        "title": "Comment accéder au portefeuille Legacy caché ?"
-      },
-      "pairing": {
-        "text": "Après avoir téléchargé notre application mobile pour iOS ou Android, vous devez scanner le QR code affiché, ce qui établit un canal sécurisé entre l'application mobile et l'application de bureau. Une fois scanné, suivez les instructions sur l'application mobile.",
-        "title": "Comment appairer votre téléphone en toute sécurité ?"
       }
     },
     "bitsurance": {
@@ -1231,10 +1183,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "Le dispositif doit clignoter une fois qu'il est inséré. Assurez-vous qu'il soit inséré dans le bon sens. Si vous rencontrez des difficultés, veuillez nous contacter via le lien ci-dessous.\n\nLa BitBox01 n'est pas utilisable sur mobile. Veuillez utiliser la BitBoxApp sur votre ordinateur pour connecter votre BitBox01.",
-        "title": "Mon BitBox01 n'est pas reconnu"
-      },
       "getDevice": {
         "link": {
           "text": "Commander un BitBox"
@@ -1280,16 +1228,6 @@
   "headerssync": {
     "blocksSynced": "{{blocks}} blocs synchronisés"
   },
-  "hiddenWallet": {
-    "info1HTML": "Pour un besoin de déni plausible, un portefeuille caché peut être créé à partir d'une combinaison de <strong> différents </strong> mot de passe de récupération et d'appareil.",
-    "info2HTML": "Définissez le mot de passe de l'appareil et de récupération que vous souhaitez associer à votre portefeuille caché ci-dessous. Le mot de passe de l'appareil et le mot de passe de récupération doivent être <strong> différents </strong> de ceux que vous avez définis pour votre portefeuille principal.",
-    "passwordLabel": "Mot de passe de récupération caché",
-    "passwordPlaceholder": "Veuillez confirmer le mot de passe de récupération caché",
-    "pinLabel": "Mot de passe de l'appareil caché",
-    "pinRepeatLabel": "Répéter le mot de passe de l'appareil caché",
-    "pinRepeatPlaceholder": "Veuillez confirmer le mot de passe de l'appareil caché",
-    "success": "Un portefeuille caché a été créé avec succès. Rebranchez votre BitBox pour le déverrouiller."
-  },
   "initialize": {
     "create": "Définir le mot de passe de l'appareil",
     "creating": "Définition du mot de passe de l'appareil en cours…",
@@ -1312,12 +1250,6 @@
   "invalidFormat": "Format invalide",
   "language": {
     "title": "Choisir la langue"
-  },
-  "legacyhiddenwallet": {
-    "disable": "Désactiver le portefeuille Legacy caché",
-    "enable": "Activer le portefeuille Legacy caché",
-    "successDisable": "Portefeuille Legacy caché désactivé avec succès.",
-    "successEnable": "Portefeuille Legacy caché activé avec succès. Reconnectez votre BitBox et entrez le mot de passe de l'appareil caché pour accéder au portefeuille Legacy caché."
   },
   "loading": "chargement en cours…",
   "manageAccounts": {
@@ -1411,52 +1343,6 @@
   "notification": {
     "newTxs_one": "Nouvelle transaction dans : {{accountName}}",
     "newTxs_other": "{{count}} nouvelles transactions dans : {{accountName}}"
-  },
-  "pairing": {
-    "aborted": {
-      "text": "L'appairage a été annulé depuis l'application mobile.",
-      "title": "Abandonné"
-    },
-    "button": "Appairer l'application mobile",
-    "confirm": "Êtes-vous sûr de vouloir appairer votre BitBox ? Notez qu'ensuite le téléphone mobile est nécessaire pour effectuer une transaction.",
-    "connectOnly": {
-      "button": "Connecter l'application mobile",
-      "title": "Scannez depuis notre application mobile en cliquant sur \"Connecter à une nouvelle application de bureau\""
-    },
-    "error": {
-      "text": "Quelque chose s'est mal passé. Veuillez recommencer.",
-      "title": "Erreur"
-    },
-    "pullFailed": {
-      "text": "Impossible de faire passer un message de votre mobile par le serveur relais. Le serveur relais est peut-être hors ligne, veuillez contacter l'assistance.",
-      "title": "Échec de transfert"
-    },
-    "reconnectOnly": {
-      "button": "Reconnecter l'application mobile"
-    },
-    "scanningFailed": {
-      "text": "Le mobile n'a pas pu scanner le message correctement. Veuillez réessayer.",
-      "title": "Échec de la numérisation"
-    },
-    "start": {
-      "hideAppQRCode": "Masquer le QR Code",
-      "revealAppQRCode": "Afficher le QR Code",
-      "step1": "Si vous ne possédez pas encore l'application mobile, vous pouvez scanner le QR code correspondant à l'App Store ou au Play Store en fonction de votre téléphone.",
-      "step2": "Scannez depuis notre application mobile, que vous pouvez trouver sous le nom \"Digital Bitbox 2FA\" dans les magasins d'applications pour iOS et Android :"
-    },
-    "started": {
-      "text": "Veuillez maintenant suivre les instructions sur l'application mobile.",
-      "title": "Génial"
-    },
-    "success": {
-      "text": "Félicitations, vous avez appairé votre BitBox à l’application mobile !",
-      "title": "Succès"
-    },
-    "timeout": {
-      "text": "Le temps d'appairage expire après deux minutes. Recommencez si vous souhaitez toujours appairer l'application mobile.",
-      "title": "Expiration de session"
-    },
-    "title": "Appairage mobile"
   },
   "passphrase": {
     "considerations": {
@@ -1553,16 +1439,11 @@
       "p2wpkh-p2sh": "Wrapped Segwit (format compatible)"
     },
     "selectAccount": "Sélectionner un compte",
-    "showFull": "Afficher et vérifier l'adresse complète sur l'appareil",
     "taprootWarning": "Remarque : Taproot est une nouvelle fonctionnalité sur Bitcoin et n'est pas encore largement adoptée. Les fonds reçus sur les adresses Taproot peuvent potentiellement ne pas être visibles depuis les portefeuilles \"watch-only\" tiers. De nombreux portefeuilles et exchanges ne sont pas encore en mesure d'envoyer des fonds aux adresses Taproot.",
     "title": "Recevoir {{accountName}}",
     "verify": "Vérifier l'adresse de façon sécurisée",
-    "verifyBitBox01": "Vérifier l'adresse sur l'application mobile",
     "verifyBitBox02": "Vérifier l'adresse sur le BitBox02",
-    "verifyInstruction": "Veuillez vérifier que l'adresse suivante correspond à celle affichée sur votre appareil.",
-    "warning": {
-      "secureOutput": "Veuillez appairer votre BitBox avec votre téléphone mobile pour activer la vérification sécurisée des adresses. Cliquez sur «Gérer l'appareil» dans la barre latérale."
-    }
+    "verifyInstruction": "Veuillez vérifier que l'adresse suivante correspond à celle affichée sur votre appareil."
   },
   "reset": {
     "description": "Toutes les données vont être supprimées de l'appareil. Ceci inclut votre Clé Privée !",
@@ -1712,10 +1593,6 @@
     "priority": "Priorité",
     "scanQR": "Scanner un QR Code",
     "scanQRNoCameraMessage": "Caméra non trouvée. Veuillez vous assurer que votre appareil prend en charge une caméra et que les autorisations sont correctement configurées.",
-    "signprogress": {
-      "description": "Cette transaction contient beaucoup de données. Pour la signer entièrement, il vous sera demandé de confirmer {{steps}} fois.",
-      "label": "Avancement"
-    },
     "success": "La transaction a été signée et envoyée.",
     "title": "Envoyer {{accountName}}",
     "toggleCoinControl": "Sélecteur de coins",
@@ -1723,7 +1600,6 @@
   },
   "settings": {
     "about": "À propos",
-    "accounts": "Comptes",
     "advancedSettings": "Paramètres avancés",
     "appearance": "Apparence",
     "electrum": {
@@ -1930,7 +1806,6 @@
     },
     "pairingSuccess": "Dapp connectée avec succès. Vous pouvez continuer sur le site de la Dapp.",
     "signingRequest": {
-      "account": "Compte",
       "chain": "Chaîne",
       "dapp": "Dapp",
       "data": "Données",
@@ -1950,16 +1825,12 @@
   },
   "warning": {
     "coincontrol": "Un ou plusieurs UTXO ont une adresse réutilisée. Soyez conscient que le destinataire verra tous les UTXO associés à ces adresses.",
-    "receivePairing": "Veuillez appairer le BitBox pour activer la vérification d'adresse sécurisée. Cliquez sur «Gérer l'appareil» dans la barre latérale.",
     "sdcard": "Conservez la carte micro SD séparément du BitBox, à moins que vous ne  souhaitiez gérer les sauvegardes.",
-    "sendPairing": "Veuillez appairer le BitBox pour vérifier le détails de la transaction en toute sécurité. Cliquez sur «Gérer l'appareil» dans la barre latérale.",
     "testnet": "Attention: Vous utilisez actuellement le portefeuille en mode Testnet. Les transactions et les soldes ici ne sont pas réels et n'apparaîtront pas sur le mainnet. Le Testnet est destiné uniquement aux tests et au développement."
   },
   "welcome": {
     "connect": "Connexion BitBox02",
     "getStarted": "Commençons en installant le firmware sur votre BitBox02",
-    "insertBitBox02": "Pour le BitBox02, appuyez sur l'appareil pour continuer.",
-    "insertDevice": "Pour commencer, veuillez connecter votre appareil",
     "loadingAccounts": "Chargement des comptes",
     "title": "Bienvenue"
   }

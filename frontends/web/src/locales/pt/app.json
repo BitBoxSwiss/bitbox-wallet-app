@@ -1,5 +1,7 @@
 {
   "account": {
+    "account": "Conta",
+    "accounts": "Contas",
     "disconnect": "Conexão perdida. Tentando novamente...",
     "export": "Exportar",
     "exportTransactions": "Exportar transações para a pasta Downloads como um arquivo CSV.",
@@ -45,6 +47,7 @@
     "fiatBalance": "Saldo em moeda corrente",
     "name": "Nome da conta",
     "noAccount": "Não há contas para mostrar.",
+    "portfolio": "Portfólio",
     "subtotalWithCoinName": "Total ({{coinName}})",
     "title": "Meu portfólio",
     "total": "Total",
@@ -173,8 +176,7 @@
     "error": {
       "e10000": "Senha atual do dispositivo incorreta.",
       "e10001": "Falha ao substituir a senha do dispositivo",
-      "e102": "A senha deve conter pelo menos 4 caracteres.",
-      "e112": "A senha do dispositivo oculto não pode ser igual à senha do dispositivo principal."
+      "e102": "A senha deve conter pelo menos 4 caracteres."
     }
   },
   "bitbox02Interact": {
@@ -188,6 +190,13 @@
     "followInstructionsMnemonicTitle": "Restaurar a partir da frase de recuperação"
   },
   "bitbox02Settings": {
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "Bluetooth agora está desativado na sua BitBox. Se futuramente você quiser se conectar com iPhones, você terá que reativar essa opção.",
+      "alertEnabled": "Bluetooth ativado.",
+      "description": "Bluetooth é usado para conectar-se com o iPhone",
+      "titleDisabled": "Ativar Bluetooth.",
+      "titleEnabled": "Desativar Bluetooth"
+    },
     "deviceName": {
       "current": "Nome atual do dispositivo",
       "error": "Não foi possível definir o nome do dispositivo",
@@ -283,6 +292,7 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Por favor insira um cartão microSD na sua BitBox02 para continuar.",
+      "insertSDCardToSeeBackups": "Por favor insira seu cartão microSD no BitBox para ver seus backups.",
       "insertSDcardTitle": "Insira cartão microSD."
     },
     "stepPassword": {
@@ -356,6 +366,13 @@
   "blink": {
     "button": "Piscar"
   },
+  "bluetooth": {
+    "connected": "conectado",
+    "connectionFailed": "falhou",
+    "connectionIssues": "Está tendo problemas de conexão?",
+    "enable": "Por favor ligue o Bluetooth",
+    "select": "Selecione seu BitBox"
+  },
   "bootloader": {
     "button": "Atualizar firmware agora",
     "button_install": "Instale o firmware agora",
@@ -374,7 +391,6 @@
     "dismiss": "Dispensar",
     "done": "Pronto",
     "download": "Baixar",
-    "hiddenwallet": "Criar carteira oculta",
     "next": "Próximo",
     "ok": "OK",
     "previous": "Anterior",
@@ -444,6 +460,32 @@
           },
           "link": "Acesse BTC Direct - Private Trading Desk",
           "title": "Comprando ou vendendo mais de €50.000?"
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "kyc": {
+              "description": "Verificação de identidade é necessária para fazer trade. Você terá que tirar uma selfie e uma foto de um documento oficial.",
+              "title": "Verificação de identidade"
+            },
+            "paymentMethods": {
+              "title": "Métodos de pagamento e taxas"
+            },
+            "security": {
+              "link": "Modelo de ameaça de segurança BitBox",
+              "title": "Segurança"
+            },
+            "title_bitcoin": "Comprar bitcoin com BTC Direct",
+            "title_crypto": "Comprar crypto com BTC Direct"
+          },
+          "infobox": {
+            "feesBuying": {
+              "title": "Taxas para compra"
+            },
+            "intro": "Comprar cryptmoedas com EUR.",
+            "payment": {
+              "title": "Métodos de pagamento"
+            }
+          }
         },
         "moonpay": {
           "fees": {
@@ -591,14 +633,6 @@
     "keystoreConnected": "Carteira conectada",
     "unsupportedFeature": "Este recurso não está disponível neste dispositivo."
   },
-  "deviceLock": {
-    "button": "Ativar autorização de dois fatores (2FA)",
-    "condition1": "Você tem um backup?",
-    "condition2": "A verificação pelo aplicativo de celular está funcionando?",
-    "condition3": "2FA DESATIVA backups e emparelhamento de aplicativos móveis. O dispositivo precisa ser RESETADO para sair do 2FA!",
-    "confirm": "Ativar autorização de dois fatores (2FA)",
-    "title": "Ativar autorização de dois fatores (2FA)"
-  },
   "deviceSettings": {
     "backups": {
       "manageBackups": {
@@ -686,24 +720,7 @@
       "title": "Hardware"
     },
     "loading": "Recuperando informações do dispositivo...",
-    "pairing": {
-      "lock": {
-        "false": "Desativado",
-        "label": "Autorização de dois fatores (2FA)",
-        "true": "Ativado"
-      },
-      "mobile": {
-        "false": "Fechado",
-        "label": "Aplicativo móvel",
-        "true": "Abrir"
-      },
-      "status": {
-        "false": "Não emparelhado",
-        "label": "Status",
-        "true": "Emparelhado"
-      },
-      "title": "Emparelhamento"
-    },
+    "noDevice": "Não há dispositivos conectados",
     "secrets": {
       "manageBackups": "Gerenciar backups",
       "title": "Privacidade"
@@ -786,9 +803,11 @@
     "buy_crypto": "Comprar criptomoedas",
     "enabled_false": "Desabilitado",
     "enabled_true": "Habilitado",
+    "noOptions": "Nenhuma opção encontrada",
     "receive": "Receber {{coinCode}}",
     "receive_bitcoin": "Receber Bitcoin",
-    "receive_crypto": "Receber criptomoedas"
+    "receive_crypto": "Receber criptomoedas",
+    "search": "Procurar..."
   },
   "genericError": "Um erro ocorreu. Se você notar algum problema, por favor, reinicie o aplicativo.",
   "goal": {
@@ -966,14 +985,6 @@
       }
     },
     "bitbox": {
-      "2FA": {
-        "text": "Quando o 2FA é ativado, todas as transações de moedas precisam ser aprovadas no celular emparelhado. Internamente, um número de uso único criptografado é enviado para o aplicativo móvel, é descriptografado e retornado à BitBox ao pressionar o botão Aceitar. Esta comunicação com o dispositivo é feita através do canal entre o telefone celular e este aplicativo de desktop estabelecido durante o emparelhamento.\n\nCertifique-se de fazer um backup de sua carteira e emparelhar o aplicativo móvel antes de ativar o 2FA. Uma vez ativado, o slot de cartão microSD e o emparelhamento via aplicativo móvel são desativados. Eles podem ser reativados resetando a BitBox, o que formata o dispositivo.",
-        "title": "Como funciona a autenticação de dois fatores (2FA)?"
-      },
-      "disable2FA": {
-        "text": "Para desabilitar o 2FA, você precisa resetar a sua BitBox e restaurar a carteira através do seu backup. Certifique-se de que você ainda tem o cartão microSD com o backup e que você ainda se lembra da senha de recuperação. Em seguida, pressione 'Resetar dispositivo'. Defina uma nova senha para o dispositivo e escolha \"Ou restaurar a partir de um backup\". Selecione o backup que você fez da carteira, clique em 'Restaurar' e insira a senha de recuperação que você usou ao criar a carteira.",
-        "title": "Como posso desativar a autorização de dois fatores (2FA)?"
-      },
       "ejectBitbox": {
         "text": "Você pode desconectar a BitBox a qualquer momento sem precisar ejetá-la primeiro.",
         "title": "Como posso ejetar a BitBox?"
@@ -981,18 +992,6 @@
       "ejectSD": {
         "text": "Você pode remover o cartão microSD da BitBox a qualquer momento, desde que não esteja criando ou restaurando um backup.",
         "title": "Como posso ejetar o cartão microSD?"
-      },
-      "hiddenWallet": {
-        "text": "É uma segunda carteira no mesmo dispositivo protegida por uma senha de dispositivo e senha de recuperação diferentes, que você pode usar para negação plausível (plausible deniability). A mesma semente do backup é usada para sua carteira normal e oculta, portanto, nenhum backup adicional é necessário.",
-        "title": "O que é uma carteira oculta?"
-      },
-      "legacyHiddenWallet": {
-        "text": "Primeiro, clique no botão abaixo (disponível se a BitBox estiver desbloqueada com a senha principal do dispositivo e o 2FA estiver desabilitado), em seguida, reconecte sua BitBox e desbloqueie-a com a senha oculta do dispositivo.",
-        "title": "Como faço para acessar a carteira legacy oculta?"
-      },
-      "pairing": {
-        "text": "Depois de fazer o download do nosso aplicativo para dispositivos móveis para iOS ou Android, escaneie o QR code exibido, que cria um canal seguro entre o aplicativo móvel e este aplicativo. Depois de escanear, siga as instruções no aplicativo para dispositivos móveis.",
-        "title": "Como emparelhar de forma segura com o seu telefone"
       }
     },
     "bitsurance": {
@@ -1188,10 +1187,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "O dispositivo deve piscar uma vez quando inserido. Certifique-se de que está inserido de maneira correta. Se você está tendo problemas, por favor, entre em contato conosco através do link abaixo.\n\nA BitBox01 não é suportada em dispositivos móveis. Por favor, use o BitBoxApp no Desktop para conectar sua BitBox01.",
-        "title": "Minha BitBox01 não é reconhecida"
-      },
       "getDevice": {
         "link": {
           "text": "Encomendar uma BitBox"
@@ -1217,6 +1212,12 @@
       "welcome": {
         "text": "Obrigado por usar este aplicativo criado pela Shift Crypto na Suíça. Agradecemos qualquer contribuição que você tenha para compartilhar. Por favor, dê feedback usando o link na parte inferior.",
         "title": "Bem-vindo ao BitBoxApp!"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "Pedir a BitBox02 Nova"
+        },
+        "title": "Qual BitBox funciona com iOS?"
       }
     },
     "walletConnect": {
@@ -1236,16 +1237,6 @@
   },
   "headerssync": {
     "blocksSynced": "{{blocks}} blocos sincronizados"
-  },
-  "hiddenWallet": {
-    "info1HTML": "Para fins de negação plausível (plausible deniability), uma carteira oculta pode ser criada com base em uma combinação de senha de recuperação e uma senha de dispositivo <strong>diferente</strong>.",
-    "info2HTML": "Defina a senha do dispositivo e a senha de recuperação que você deseja associar à sua carteira oculta abaixo. A senha do dispositivo e a senha de recuperação devem ser <strong>diferentes</strong> das que você definiu para sua carteira principal.",
-    "passwordLabel": "Senha de recuperação oculta",
-    "passwordPlaceholder": "Por favor, confirme a senha de recuperação oculta",
-    "pinLabel": "Senha oculta do dispositivo",
-    "pinRepeatLabel": "Repita a senha oculta do dispositivo",
-    "pinRepeatPlaceholder": "Por favor, confirme a senha oculta do dispositivo",
-    "success": "Carteira oculta criada com sucesso. Reconecte a sua BitBox para desbloqueá-la."
   },
   "initialize": {
     "create": "Definir senha do dispositivo",
@@ -1269,12 +1260,6 @@
   "invalidFormat": "Formato Inválido",
   "language": {
     "title": "Selecione o idioma"
-  },
-  "legacyhiddenwallet": {
-    "disable": "Desativar carteira legacy oculta",
-    "enable": "Ativar carteira legacy oculta",
-    "successDisable": "Carteira legacy oculta desativada com sucesso.",
-    "successEnable": "Carteira legacy oculta ativada com sucesso. Reconecte sua BitBox e digite a senha oculta do dispositivo para acessar a carteira legacy oculta."
   },
   "loading": "carregando…",
   "manageAccounts": {
@@ -1311,6 +1296,9 @@
       "customFees": {
         "description": "Permite inserir sua própria taxa ao enviar."
       },
+      "restartInTestnet": {
+        "description": "Explore e teste novidades usando a testnet."
+      },
       "torProxy": {
         "description": "Conecte-se via Tor para melhor privacidade."
       }
@@ -1342,6 +1330,9 @@
         "title": "Idioma"
       },
       "remebmerWallet": {
+        "enable": {
+          "title": "Carteira salva"
+        },
         "name": "Lembrar carteira",
         "warning": "Isso removerá sua carteira lembrada. Para vê-la novamente, você precisará conectar a BitBox02 para esta carteira. Quaisquer moedas nesta carteira não serão afetadas. Você quer continuar?",
         "warningTitle": "Desativar lembrar carteira"
@@ -1362,51 +1353,11 @@
     "newTxs_one": "Nova transação em: {{accountName}}",
     "newTxs_other": "{{count}} novas transações em: {{accountName}}"
   },
-  "pairing": {
-    "aborted": {
-      "text": "O emparelhamento foi cancelado no aplicativo para dispositivos móveis.",
-      "title": "Abortado"
-    },
-    "button": "Emparelhar aplicativo móvel",
-    "confirm": "Tem certeza de que deseja emparelhar sua BitBox? Observe que, depois disso, o celular será necessário para realizar uma transação.",
-    "connectOnly": {
-      "button": "Conectar aplicativo móvel",
-      "title": "Escaneie com nosso aplicativo móvel selecionando o item 'Conectar ao novo aplicativo de desktop' do menu"
-    },
-    "error": {
-      "text": "Algo deu errado. Por favor comece de novo.",
-      "title": "Erro"
-    },
-    "pullFailed": {
-      "text": "Falha ao obter mensagem de seu dispositivo móvel através do servidor. O servidor pode estar offline, por favor entre em contato com o suporte.",
-      "title": "Falha ao obter"
-    },
-    "reconnectOnly": {
-      "button": "Reconectar aplicativo móvel"
-    },
-    "scanningFailed": {
-      "text": "Telefone não foi capaz de scanear a mensagem com sucesso. Por favor tente novamente.",
-      "title": "Falha ao scanear."
-    },
-    "start": {
-      "hideAppQRCode": "Ocultar QR code",
-      "revealAppQRCode": "Mostrar QR code",
-      "step1": "Se você não tiver o aplicativo para dispositivos móveis, você pode escanear o QR code da Apple App Store ou da Google Play Store, dependendo de qual celular você possui.",
-      "step2": "Escaneie com nosso aplicativo para celular, que você pode encontrar sob o nome \"Digital Bitbox 2FA\" nas lojas de aplicativos para iOS e Android:"
-    },
-    "started": {
-      "text": "Agora, por favor, siga as instruções no aplicativo móvel.",
-      "title": "Ótimo"
-    },
-    "success": {
-      "text": "Parabéns, você pareou com sucesso sua BitBox com o aplicativo móvel!",
-      "title": "Sucesso"
-    },
-    "timeout": {
-      "text": "O emparelhamento expirou após dois minutos. Comece novamente se você ainda deseja emparelhar o aplicativo para dispositivos móveis.",
-      "title": "Tempo esgotado"
-    },
-    "title": "Emparelhamento por celular"
+  "novaConnectionIssues": {
+    "connectionIssueTips": "Dicas para problemas de conexão",
+    "link1": "Pedir a BitBox02 Nova",
+    "link2": "Contate o suporte",
+    "stillHavingIssues": "Ainda tendo problemas?"
   },
   "passphrase": {
     "considerations": {
@@ -1503,16 +1454,11 @@
       "p2wpkh-p2sh": "Wrapped Segwit (formato compatível)"
     },
     "selectAccount": "Selecione a conta",
-    "showFull": "Mostrar e verificar endereço completo no dispositivo",
     "taprootWarning": "Nota: Taproot é um novo recurso do Bitcoin e ainda não é amplamente adotado. Os valores recebidos em endereços Taproot podem não ser visíveis em carteiras watch-only de terceiros. Muitas carteiras e corretoras ainda não podem enviar para endereços Taproot.",
     "title": "Receber {{accountName}}",
     "verify": "Verificar endereço com segurança",
-    "verifyBitBox01": "Verifique o endereço no aplicativo móvel",
     "verifyBitBox02": "Verifique o endereço na BitBox02",
-    "verifyInstruction": "Por favor, verifique se o endereço a seguir corresponde ao exibido no seu dispositivo.",
-    "warning": {
-      "secureOutput": "Por favor, emparelhe sua BitBox com seu dispositivo móvel para ativar a verificação segura de endereço. Vá para 'Gerenciar dispositivo' na barra lateral."
-    }
+    "verifyInstruction": "Por favor, verifique se o endereço a seguir corresponde ao exibido no seu dispositivo."
   },
   "reset": {
     "description": "Todos os dados serão excluídos deste dispositivo. Isso inclui sua chave privada!",
@@ -1659,10 +1605,6 @@
     "priority": "Prioridade",
     "scanQR": "Escanear QR code",
     "scanQRNoCameraMessage": "Câmera não encontrada. Certifique-se de que seu dispositivo suporta uma câmera e que as permissões estão definidas corretamente.",
-    "signprogress": {
-      "description": "Esta é uma transação que contém muitos dados. Para assinar completamente a transação, você será solicitado a confirmar {{steps}} vezes.",
-      "label": "Progresso"
-    },
     "success": "A transação foi assinada e enviada.",
     "title": "Enviar {{accountName}}",
     "toggleCoinControl": "Alternar controle de moedas",
@@ -1670,7 +1612,6 @@
   },
   "settings": {
     "about": "Sobre",
-    "accounts": "Contas",
     "advancedSettings": "Configurações avançadas",
     "appearance": "Aparência",
     "electrum": {
@@ -1876,7 +1817,6 @@
     },
     "pairingSuccess": "Dapp conectado com sucesso. Você pode continuar no site dapp.",
     "signingRequest": {
-      "account": "Conta",
       "chain": "Cadeia",
       "dapp": "Dapp",
       "data": "Dados",
@@ -1896,16 +1836,12 @@
   },
   "warning": {
     "coincontrol": "Um ou mais UTXOs possuem um endereço reutilizado. Esteja ciente de que o receptor verá todos os UTXOs associados a esses endereços.",
-    "receivePairing": "Por favor, emparelhe a BitBox para ativar a verificação segura de endereço. Vá para 'Gerenciar dispositivo' na barra lateral.",
     "sdcard": "Mantenha o cartão microSD guardado separado da BitBox, a menos que você queira gerenciar os backups.",
-    "sendPairing": "Por favor, emparelhe a BitBox para verificar com segurança os detalhes da transação. Vá para \"Gerenciar dispositivo\" na barra lateral.",
     "testnet": "Aviso: Você está usando a carteira no modo Testnet. Transações e saldos aqui não são reais e não aparecerão na mainnet. A Testnet é destinada apenas para fins de teste e desenvolvimento."
   },
   "welcome": {
     "connect": "Conecte a BitBox02",
     "getStarted": "Vamos começar instalando o firmware na sua BitBox02.",
-    "insertBitBox02": "Para a BitBox02, por favor, toque no dispositivo para continuar.",
-    "insertDevice": "Por favor, conecte seu dispositivo para iniciar",
     "loadingAccounts": "Carregando contas",
     "title": "Bem-vindo"
   }

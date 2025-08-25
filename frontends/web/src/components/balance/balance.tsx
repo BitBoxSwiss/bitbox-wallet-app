@@ -46,13 +46,11 @@ export const Balance = ({
             amount={balance.available}
             tableRow
             enableRotateUnit={!noRotateFiat}
-            removeBtcTrailingZeroes
           />
           <AmountWithUnit
             amount={balance.available}
             tableRow
             enableRotateUnit={!noRotateFiat}
-            removeBtcTrailingZeroes
             convertToFiat
           />
         </tbody>
@@ -66,11 +64,14 @@ export const Balance = ({
               +<Amount
                 amount={balance.incoming.amount}
                 unit={balance.incoming.unit}
-                removeBtcTrailingZeroes/>
+              />
               {' '}{balance.incoming.unit} /
               <span className={style.incomingConversion}>
                 {' '}
-                <AmountWithUnit amount={balance.incoming} removeBtcTrailingZeroes convertToFiat/>
+                <AmountWithUnit
+                  amount={balance.incoming}
+                  convertToFiat
+                />
               </span>
             </span>
           </p>

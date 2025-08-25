@@ -16,6 +16,7 @@
 
 import { ChangeEvent, useCallback, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { getReceiveAddressList } from '@/api/account';
 import { debug } from '@/utils/env';
 import { DarkModeContext } from '@/contexts/DarkmodeContext';
@@ -52,6 +53,7 @@ export const ReceiverAddressInput = ({
   parseQRResult,
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [activeScanQR, setActiveScanQR] = useState(false);
 
   const handleSendToSelf = useCallback(async () => {
@@ -94,7 +96,7 @@ export const ReceiverAddressInput = ({
             Send to self
           </span>
         ) : undefined}
-        autoFocus>
+        autoFocus={!isMobile}>
         <ScanQRButton onClick={toggleScanQR} />
       </Input>
     </>

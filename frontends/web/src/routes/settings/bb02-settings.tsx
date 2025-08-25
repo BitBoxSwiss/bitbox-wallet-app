@@ -17,6 +17,7 @@
 import { useState, useEffect } from 'react';
 import { useLoad } from '@/hooks/api';
 import { useTranslation } from 'react-i18next';
+import { runningInIOS } from '@/utils/env';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { ViewContent, View } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
@@ -30,6 +31,8 @@ import { alertUser } from '@/components/alert/Alert';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { AttestationCheckSetting } from './components/device-settings/attestation-check-setting';
 import { FirmwareSetting } from './components/device-settings/firmware-setting';
+import { BluetoothFirmwareSetting } from './components/device-settings/bluetooth-firmware-setting';
+import { BluetoothToggleEnabledSetting } from './components/device-settings/bluetooth-toggle-enabled-setting';
 import { SecureChipSetting } from './components/device-settings/secure-chip-setting';
 import { DeviceNameSetting } from './components/device-settings/device-name-setting';
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
@@ -39,6 +42,7 @@ import { ManageDeviceGuide } from '@/routes/device/bitbox02/settings-guide';
 import { MobileHeader } from './components/mobile-header';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { SubTitle } from '@/components/title';
 import styles from './bb02-settings.module.css';
 
 type TProps = {
@@ -73,7 +77,7 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
               </>
             }/>
           <View fullscreen={false}>
-            <ViewContent>
+            <ViewContent fullWidth>
               <WithSettingsTabs
                 devices={devices}
                 hideMobileMenu
@@ -113,14 +117,14 @@ const Content = ({ deviceID }: TProps) => {
     <>
       {/*"Backups" section*/}
       <div className={styles.section}>
-        <h3 className="subTitle">{t('deviceSettings.backups.title')}</h3>
+        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.backups.title')}</SubTitle>
         <ManageBackupSetting deviceID={deviceID} />
         <ShowRecoveryWordsSetting deviceID={deviceID} />
       </div>
 
       {/*"Device information" section*/}
       <div className={styles.section}>
-        <h3 className="subTitle">{t('deviceSettings.deviceInformation.title')}</h3>
+        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceInformation.title')}</SubTitle>
         {deviceInfo ? (
           <DeviceNameSetting
             deviceName={deviceInfo.name}
@@ -153,9 +157,20 @@ const Content = ({ deviceID }: TProps) => {
         }
       </div>
 
+      {/*"Bluetooth" section*/}
+      { deviceInfo && deviceInfo.bluetooth ? (
+        <div className={styles.section}>
+          <SubTitle className={styles.withMobilePadding}>Bluetooth</SubTitle>
+          { !runningInIOS() ? <BluetoothToggleEnabledSetting deviceID={deviceID} /> : null }
+          <BluetoothFirmwareSetting
+            firmwareVersion={deviceInfo.bluetooth.firmwareVersion}
+          />
+        </div>
+      ) : null }
+
       {/*"Expert settings" section*/}
       <div className={styles.section}>
-        <h3 className="subTitle">{t('settings.expert.title')}</h3>
+        <SubTitle className={styles.withMobilePadding}>{t('settings.expert.title')}</SubTitle>
         {
           deviceInfo ? (
             <PassphraseSetting

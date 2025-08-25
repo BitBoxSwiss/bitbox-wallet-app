@@ -57,6 +57,7 @@
 #include "libserver.h"
 #include "webclass.h"
 #include "urlhandler.h"
+#include "network.h"
 
 #define APPNAME "BitBoxApp"
 
@@ -65,6 +66,7 @@
 // their CSP response headers.
 static const char* scheme = "bitboxapp";
 
+static QWebEngineProfile* profile;
 static QWebEngineView* view;
 static QWebEnginePage* mainPage;
 static QWebEnginePage* externalPage;
@@ -91,7 +93,7 @@ public:
 
 class WebEnginePage : public QWebEnginePage {
 public:
-    WebEnginePage(QObject* parent) : QWebEnginePage(parent) {}
+    WebEnginePage(QWebEngineProfile* profile) : QWebEnginePage(profile) {}
 
     QWebEnginePage* createWindow(QWebEnginePage::WebWindowType type) {
         Q_UNUSED(type);
@@ -352,8 +354,9 @@ int main(int argc, char *argv[])
         view->adjustSize();
     }
 
-    externalPage = new QWebEnginePage(view);
-    mainPage = new WebEnginePage(view);
+    profile = new QWebEngineProfile("BitBoxApp");
+    externalPage = new QWebEnginePage(profile, view);
+    mainPage = new WebEnginePage(profile);
     view->setPage(mainPage);
 
     pageLoaded = false;
@@ -368,6 +371,8 @@ int main(int argc, char *argv[])
     }
 
     webClass = new WebClass();
+
+    setupReachabilityNotifier();
 
     serve(
         // cppHeapFree
@@ -415,6 +420,9 @@ int main(int argc, char *argv[])
             return result;
         });
 
+    // Trigger the online status change event once at startup.
+    setOnline(isReachable());
+
     RequestInterceptor interceptor;
     view->page()->profile()->setUrlRequestInterceptor(&interceptor);
 
@@ -459,6 +467,12 @@ int main(int argc, char *argv[])
         webClass = nullptr;
         delete view;
         view = nullptr;
+        // Make sure mainPage is deleted before the profile. This is a requirement for the profile
+        // to be able to flush to disk properly.
+        delete mainPage;
+        mainPage = nullptr;
+        delete profile;
+        profile = nullptr;
         webClassMutex.unlock();
         backendShutdown();
     });

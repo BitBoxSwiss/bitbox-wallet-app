@@ -94,13 +94,32 @@ type Device struct {
 	// nonces must match the incrementing of the device nonces, so the decryption works. Avoid the
 	// situation where we Encrypt() locally twice, and send the queries out of order, which will
 	// result in a failed decryption on the device.
+	//
+	// Also, every request is followed by a response, so this lock ensures the responses is matched
+	// to the request.
 	queryLock sync.Mutex
+	// While `queryLock` ensures that the response matches the request, `apiLock` ensures that a
+	// series of request<>response pairs does not get interrupted. Some API calls require a series
+	// of calls, like signing a BTC transactions.
+	apiLock sync.Mutex
 
 	status Status
 
 	mu      sync.RWMutex
 	onEvent func(Event, interface{})
 	log     Logger
+
+	options *deviceOptions
+}
+
+// BluetoothInfo contains Bluetooth-related info.
+type BluetoothInfo struct {
+	// FirmwareHash is the hex-encoded 32 byte Bluetooth firmware hash.
+	FirmwareHash string `json:"firmwareHash"`
+	// FirmwareVersion is the Bluetooth firmware version, formated as "major.minor.patch".
+	FirmwareVersion string `json:"firmwareVersion"`
+	// Enabled is true if Bluetooth is enabled.
+	Enabled bool `json:"enabled"`
 }
 
 // DeviceInfo is the data returned from the device info api call.
@@ -112,6 +131,8 @@ type DeviceInfo struct {
 	// This information is only available since firmwae v9.6.0. Will be an empty string for older
 	// firmware versions.
 	SecurechipModel string `json:"securechipModel"`
+	// Available on Bluetooth-enabled devices, Will be `nil` otherwise.
+	Bluetooth *BluetoothInfo `json:"bluetooth"`
 }
 
 // NewDevice creates a new instance of Device.
@@ -129,9 +150,14 @@ func NewDevice(
 	config ConfigInterface,
 	communication Communication,
 	log Logger,
+	opts ...DeviceOption,
 ) *Device {
 	if (version == nil) != (product == nil) {
 		panic("both version and product have to be specified, or none")
+	}
+	options := &deviceOptions{}
+	for _, opt := range opts {
+		opt(options)
 	}
 	return &Device{
 		communication: communication,
@@ -140,6 +166,7 @@ func NewDevice(
 		config:        config,
 		status:        StatusConnected,
 		log:           log,
+		options:       options,
 	}
 }
 
@@ -350,6 +377,11 @@ func (device *Device) SupportsETH(chainID uint64) bool {
 		}
 	}
 	return false
+}
+
+// SupportsBluetooth returns true if this device supports Bluetooth.
+func (device *Device) SupportsBluetooth() bool {
+	return *device.product == common.ProductBitBox02PlusMulti || *device.product == common.ProductBitBox02PlusBTCOnly
 }
 
 // SupportsERC20 returns true if an ERC20 token is supported by the device api.

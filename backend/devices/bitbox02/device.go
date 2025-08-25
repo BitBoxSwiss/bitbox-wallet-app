@@ -28,16 +28,23 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// ProductName is the name of the BitBox02 product.
-// If you change this, be sure to check the frontend and other places which assume this is a
+// If you change these, be sure to check the frontend and other places which assume they are
 // constant.
-const ProductName = "bitbox02"
+const (
+	// BitBox02ProductName is the name of the BitBox02 product.
+	BitBox02ProductName = "bitbox02"
+	// BitBox02NovaProductName is the name of the BitBox02 Nova product.
+	BitBox02NovaProductName = "bitbox02nova"
+	// PlatformName is the name of the BitVox02 platform.
+	PlatformName = "bitbox02"
+)
 
 // Device implements device.Device.
 type Device struct {
 	firmware.Device
-	deviceID string
-	log      *logrus.Entry
+	deviceID    string
+	productName string
+	log         *logrus.Entry
 
 	observable.Implementation
 }
@@ -49,11 +56,18 @@ func NewDevice(
 	product bitbox02common.Product,
 	config firmware.ConfigInterface,
 	communication firmware.Communication,
+	opts ...firmware.DeviceOption,
 ) *Device {
+	productName := BitBox02ProductName
+	// BitBox02Plus is the internal code name for the BitBox Nova.
+	if product == bitbox02common.ProductBitBox02PlusBTCOnly ||
+		product == bitbox02common.ProductBitBox02PlusMulti {
+		productName = BitBox02NovaProductName
+	}
 	log := logging.Get().
 		WithGroup("device").
 		WithField("deviceID", deviceID).
-		WithField("productName", ProductName).
+		WithField("productName", productName).
 		WithField("product", product)
 
 	log.Info("Plugged in device")
@@ -62,10 +76,13 @@ func NewDevice(
 			version,
 			&product,
 			config,
-			communication, logger{log},
+			communication,
+			logger{log},
+			opts...,
 		),
-		deviceID: deviceID,
-		log:      log,
+		deviceID:    deviceID,
+		productName: productName,
+		log:         log,
 	}
 	device.Device.SetOnEvent(func(ev firmware.Event, meta interface{}) {
 		switch ev {
@@ -90,6 +107,7 @@ func NewDevice(
 					Subject: string(deviceevent.EventKeystoreAvailable),
 					Action:  action.Replace,
 				})
+
 			}
 		}
 	})
@@ -112,7 +130,12 @@ func (device *Device) init() {
 
 // ProductName implements device.Device.
 func (device *Device) ProductName() string {
-	return ProductName
+	return device.productName
+}
+
+// PlatformName implements device.Device.
+func (device *Device) PlatformName() string {
+	return PlatformName
 }
 
 // Identifier implements device.Device.
@@ -144,7 +167,6 @@ func (device *Device) Reset() error {
 		Subject: string(deviceevent.EventKeystoreGone),
 		Action:  action.Replace,
 	})
-	device.init()
 	return nil
 }
 

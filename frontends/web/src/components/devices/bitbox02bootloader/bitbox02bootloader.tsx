@@ -21,7 +21,7 @@ import { useDarkmode } from '@/hooks/darkmode';
 import { useSync, useLoad } from '@/hooks/api';
 import { Button } from '@/components/forms';
 import { View, ViewContent } from '@/components/view/view';
-import { BitBox02, BitBox02Inverted } from '@/components/icon/logo';
+import { BitBox02, BitBox02Inverted, BitBox02Nova, BitBox02NovaInverted } from '@/components/icon/logo';
 import { Status } from '@/components/status/status';
 import { SubTitle } from '@/components/title';
 import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
@@ -38,9 +38,8 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     () => bitbox02BootloaderAPI.getStatus(deviceID),
     bitbox02BootloaderAPI.syncStatus(deviceID),
   );
-  const versionInfo = useLoad(() => bitbox02BootloaderAPI.getVersionInfo(deviceID));
-
-  if (versionInfo === undefined) {
+  const info = useLoad(() => bitbox02BootloaderAPI.getInfo(deviceID));
+  if (info === undefined) {
     return null;
   }
 
@@ -51,7 +50,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
         <div className="box large">
           <p style={{ marginBottom: 0 }}>
             {t('bb02Bootloader.success', {
-              context: (versionInfo.erased ? 'install' : ''),
+              context: (info.erased ? 'install' : ''),
             })}
           </p>
         </div>
@@ -61,9 +60,9 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       contents = (
         <div className="box large">
           <SubTitle>
-            {t('bb02Bootloader.upgradeTitle', { context: (versionInfo.erased ? 'install' : '') })}
+            {t('bb02Bootloader.upgradeTitle', { context: (info.erased ? 'install' : '') })}
           </SubTitle>
-          { versionInfo.additionalUpgradeFollows ? (
+          { info.additionalUpgradeFollows ? (
             <>
               <p className={style.additionalUpgrade}>{t('bb02Bootloader.additionalUpgradeFollows1')}</p>
               <p className={style.additionalUpgrade}>{t('bb02Bootloader.additionalUpgradeFollows2')}</p>
@@ -73,7 +72,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           <p className={style.content}>
             {t('bootloader.progress', {
               progress: value.toString(),
-              context: (versionInfo.erased ? 'install' : ''),
+              context: (info.erased ? 'install' : ''),
             })}
           </p>
         </div>
@@ -82,25 +81,25 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
   } else {
     contents = (
       <div className="box large" style={{ minHeight: 340 }}>
-        {versionInfo.erased && (
+        {info.erased && (
           <div>
             <h2>{t('welcome.title')}</h2>
             <h3 className="subTitle">{t('welcome.getStarted')}</h3>
           </div>
         )}
         <div className="buttons">
-          { versionInfo.canUpgrade ? (
+          { info.canUpgrade ? (
             <Button
               primary
               onClick={() => bitbox02BootloaderAPI.upgradeFirmware(deviceID)}>
-              {t('bootloader.button', { context: (versionInfo.erased ? 'install' : '') })}
+              {t('bootloader.button', { context: (info.erased ? 'install' : '') })}
             </Button>
           ) : null }
-          { !versionInfo.erased && (
+          { !info.erased && (
             <Button
               secondary
               onClick={() => bitbox02BootloaderAPI.reboot(deviceID)}>
-              {t('bb02Bootloader.abort', { context: !versionInfo.canUpgrade ? 'noUpgrade' : '' })}
+              {t('bb02Bootloader.abort', { context: !info.canUpgrade ? 'noUpgrade' : '' })}
             </Button>
           )}
         </div>
@@ -127,10 +126,15 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     );
   }
 
+  const logo =
+    (info.product === 'bitbox02-plus-multi' || info.product === 'bitbox02-plus-btconly') ?
+      (isDarkMode ? <BitBox02NovaInverted /> : <BitBox02Nova />) :
+      (isDarkMode ? <BitBox02Inverted /> : <BitBox02 />);
+
   return (
     <View fitContent verticallyCentered width="600px">
       <ViewContent>
-        {isDarkMode ? <BitBox02Inverted /> : <BitBox02 />}
+        {logo}
         {status && status.errMsg && (
           <Status type="warning">{status.errMsg}</Status>
         )}

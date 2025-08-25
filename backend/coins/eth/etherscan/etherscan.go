@@ -18,11 +18,14 @@ package etherscan
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"math/big"
 	"net/http"
 	"net/url"
+	"slices"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -38,12 +41,15 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// callsPerSec is thenumber of etherscanr equests allowed
+// CallsPerSec is thenumber of etherscanr equests allowed
 // per second.
 // Etherscan rate limits to one request per 0.2 seconds.
-var callsPerSec = 3.8
+var CallsPerSec = 3.8
 
-const apiKey = "X3AFAGQT2QCAFTFPIH9VJY88H9PIQ2UWP7"
+const (
+	apiKey                  = "X3AFAGQT2QCAFTFPIH9VJY88H9PIQ2UWP7"
+	maxAddressesForBalances = 20
+)
 
 // ERC20GasErr is the error message returned from etherscan when there is not enough ETH to pay the transaction fee.
 const ERC20GasErr = "insufficient funds for gas * price + value"
@@ -53,14 +59,16 @@ type EtherScan struct {
 	url        string
 	httpClient *http.Client
 	limiter    *rate.Limiter
+	chainId    string
 }
 
 // NewEtherScan creates a new instance of EtherScan.
-func NewEtherScan(url string, httpClient *http.Client) *EtherScan {
+func NewEtherScan(chainId string, httpClient *http.Client, limiter *rate.Limiter) *EtherScan {
 	return &EtherScan{
-		url:        url,
+		url:        "https://api.etherscan.io/v2/api",
 		httpClient: httpClient,
-		limiter:    rate.NewLimiter(rate.Limit(callsPerSec), 1),
+		limiter:    limiter,
+		chainId:    chainId,
 	}
 }
 
@@ -69,6 +77,7 @@ func (etherScan *EtherScan) call(ctx context.Context, params url.Values, result 
 		return errp.WithStack(err)
 	}
 	params.Set("apikey", apiKey)
+	params.Set("chainId", etherScan.chainId)
 	response, err := etherScan.httpClient.Get(etherScan.url + "?" + params.Encode())
 	if err != nil {
 		return errp.WithStack(err)
@@ -89,8 +98,8 @@ func (etherScan *EtherScan) call(ctx context.Context, params url.Values, result 
 
 type jsonBigInt big.Int
 
-func (jsBigInt jsonBigInt) BigInt() *big.Int {
-	bigInt := big.Int(jsBigInt)
+func (jsBigInt *jsonBigInt) BigInt() *big.Int {
+	bigInt := big.Int(*jsBigInt)
 	return &bigInt
 }
 
@@ -152,6 +161,10 @@ type Transaction struct {
 	blockTipHeight  *big.Int
 	// isInternal: true if tx was fetched via `txlistinternal`, false if via `txlist`.
 	isInternal bool
+	// internal transactions can send to the same receive address multiple times in the same
+	// transaction, and they should all show up as separate transactions. They all have the same
+	// transaction hash, so we track duplicate IDs via a counter so the internal ID stays unique.
+	idIndex int
 }
 
 // TransactionData returns the tx data to be shown to the user.
@@ -219,7 +232,7 @@ func (tx *Transaction) TxID() string {
 func (tx *Transaction) internalID() string {
 	id := tx.TxID()
 	if tx.isInternal {
-		id += "-internal"
+		id += fmt.Sprintf("-internal-%d", tx.idIndex)
 	}
 	return id
 }
@@ -261,22 +274,19 @@ func (tx *Transaction) addresses() []accounts.AddressAndAmount {
 	}}
 }
 
-// prepareTransactions casts to []accounts.Transactions and removes duplicate entries. Duplicate
-// entries appear in the etherscan result if the recipient and sender are the same. It also sets the
-// transaction type (send, receive, send to self) based on the account address.
+// prepareTransactions casts to []accounts.Transactions and sets the transaction type (send,
+// receive, send to self) based on the account address.
 func prepareTransactions(
 	isERC20 bool,
 	blockTipHeight *big.Int,
 	isInternal bool,
 	transactions []*Transaction, address common.Address) ([]*accounts.TransactionData, error) {
-	seen := map[string]struct{}{}
+	seen := map[string]int{}
 	castTransactions := []*accounts.TransactionData{}
 	ours := address.Hex()
 	for _, transaction := range transactions {
-		if _, ok := seen[transaction.TxID()]; ok {
-			continue
-		}
-		seen[transaction.TxID()] = struct{}{}
+		seenIdx := seen[transaction.TxID()]
+		seen[transaction.TxID()] = seenIdx + 1
 
 		from := transaction.jsonTransaction.From.Hex()
 		var to string
@@ -301,6 +311,7 @@ func prepareTransactions(
 		}
 		transaction.blockTipHeight = blockTipHeight
 		transaction.isInternal = isInternal
+		transaction.idIndex = seenIdx
 		castTransactions = append(castTransactions, transaction.TransactionData(isERC20))
 	}
 	return castTransactions, nil
@@ -452,6 +463,54 @@ func (etherScan *EtherScan) Balance(ctx context.Context, account common.Address)
 		return nil, errp.New("unexpected response from EtherScan")
 	}
 	return balance, nil
+}
+
+// Balances returns the balances for multiple addresses.
+func (etherScan *EtherScan) Balances(ctx context.Context, accounts []common.Address) (map[common.Address]*big.Int, error) {
+	if len(accounts) == 0 {
+		return nil, nil
+	}
+
+	params := url.Values{}
+	params.Set("module", "account")
+	params.Set("action", "balancemulti")
+	params.Set("tag", "latest")
+
+	balances := make(map[common.Address]*big.Int)
+
+	type balancesResult struct {
+		Status  string
+		Message string
+		Result  []struct {
+			Account string     `json:"account"`
+			Balance jsonBigInt `json:"balance"`
+		} `json:"result"`
+	}
+
+	for addressesChunk := range slices.Chunk(accounts, maxAddressesForBalances) {
+
+		addresses := make([]string, len(addressesChunk))
+		for i, account := range addressesChunk {
+			addresses[i] = account.Hex()
+		}
+
+		params.Set("address", strings.Join(addresses, ","))
+
+		result := balancesResult{}
+		if err := etherScan.call(ctx, params, &result); err != nil {
+			return nil, err
+		}
+		if result.Status != "1" {
+			return nil, errp.New("unexpected response from EtherScan")
+		}
+
+		for _, item := range result.Result {
+			account := common.HexToAddress(item.Account)
+			balance := item.Balance.BigInt()
+			balances[account] = balance
+		}
+	}
+	return balances, nil
 }
 
 // ERC20Balance implements rpc.Interface.

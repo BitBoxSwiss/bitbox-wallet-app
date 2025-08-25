@@ -21,8 +21,12 @@ import { useLoad } from '@/hooks/api';
 import { useDefault } from '@/hooks/default';
 import { getNativeLocale } from '@/api/nativelocale';
 import { getDevServers, getTesting } from '@/api/backend';
+import { getOnline, subscribeOnline } from '@/api/online';
 import { i18nextFormat } from '@/i18n/utils';
 import type { TChartDisplay } from './AppContext';
+import { useOrientation } from '@/hooks/orientation';
+import { useMediaQuery } from '@/hooks/mediaquery';
+import { useSync } from '@/hooks/api';
 
 type TProps = {
     children: ReactNode;
@@ -31,6 +35,7 @@ type TProps = {
 export const AppProvider = ({ children }: TProps) => {
   const nativeLocale = i18nextFormat(useDefault(useLoad(getNativeLocale), 'de-CH'));
   const isTesting = useDefault(useLoad(getTesting), false);
+  const isOnline = useSync(getOnline, subscribeOnline);
   const isDevServers = useDefault(useLoad(getDevServers), false);
   const [guideShown, setGuideShown] = useState(false);
   const [guideExists, setGuideExists] = useState(false);
@@ -38,6 +43,9 @@ export const AppProvider = ({ children }: TProps) => {
   const [activeSidebar, setActiveSidebar] = useState(false);
   const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('all');
   const [firmwareUpdateDialogOpen, setFirmwareUpdateDialogOpen] = useState(false);
+
+  const orientation = useOrientation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const toggleGuide = () => {
     setConfig({ frontend: { guideShown: !guideShown } });
@@ -52,6 +60,12 @@ export const AppProvider = ({ children }: TProps) => {
   const toggleSidebar = () => {
     setActiveSidebar(prev => !prev);
   };
+
+  useEffect(() => {
+    if (activeSidebar && isMobile && orientation === 'portrait') {
+      setActiveSidebar(false);
+    }
+  }, [activeSidebar, isMobile, orientation]);
 
   useEffect(() => {
     getConfig().then(({ frontend }) => {
@@ -78,6 +92,7 @@ export const AppProvider = ({ children }: TProps) => {
         hideAmounts,
         isTesting,
         isDevServers,
+        isOnline,
         nativeLocale,
         chartDisplay,
         setActiveSidebar,

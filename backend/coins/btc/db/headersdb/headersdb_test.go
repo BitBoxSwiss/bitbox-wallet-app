@@ -55,7 +55,7 @@ func TestTip(t *testing.T) {
 }
 
 func TestFixTrailingZeroes(t *testing.T) {
-	f, err := os.CreateTemp("", "headersdb")
+	f, err := os.CreateTemp(t.TempDir(), "headersdb")
 	require.NoError(t, err)
 	filename := f.Name()
 

@@ -69,10 +69,10 @@ export const useLoad = <T>(
   const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
   const load = () => {
+    setResponse(undefined);
     if (apiCall === null) {
       return;
     }
-    setResponse(undefined);
     apiCall().then((data) => {
       if (mounted.current) {
         setResponse(data);

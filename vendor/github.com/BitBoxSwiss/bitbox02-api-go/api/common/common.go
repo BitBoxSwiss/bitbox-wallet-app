@@ -52,19 +52,19 @@ const (
 	BootloaderDeviceProductStringBitBox02BTCOnly = "bb02btc-bootloader"
 
 	// FirmwareDeviceProductStringBitBox02PlusMulti the product string of the "BitBox02 Plus" multi
-	// edition firmware. It appears in the HID descriptor and the Bluetooth characteristic.
-	FirmwareDeviceProductStringBitBox02PlusMulti = "bb02p-multi"
+	// edition firmware. It appears in the HID descriptor.
+	FirmwareDeviceProductStringBitBox02PlusMulti = "BitBox02 Nova Multi"
 	// FirmwareDeviceProductStringBitBox02PlusBTCOnly is the product string of the "BitBox02 Plus"
-	// btc-only edition firmware. It appears in the HID descriptor and the Bluetooth characteristic.
-	FirmwareDeviceProductStringBitBox02PlusBTCOnly = "bb02p-btconly"
+	// btc-only edition firmware. It appears in the HID descriptor.
+	FirmwareDeviceProductStringBitBox02PlusBTCOnly = "BitBox02 Nova BTC-only"
 
 	// BootloaderDeviceProductStringBitBox02Multi is the product string of the "BitBox02 Plus" multi
-	// edition bootloader. It appears in the HID descriptor and the Bluetooth characteristic.
-	BootloaderDeviceProductStringBitBox02PlusMulti = "bb02p-bl-multi"
+	// edition bootloader. It appears in the HID descriptor.
+	BootloaderDeviceProductStringBitBox02PlusMulti = "BitBox02 Nova Multi bl"
 	// BootloaderDeviceProductStringBitBox02BTCOnly is the product string of the "BitBox02 Plus"
 	// btc-only edition bootloader. It appears in the HID descriptor and the Bluetooth
 	// characteristic.
-	BootloaderDeviceProductStringBitBox02PlusBTCOnly = "bb02p-bl-btconly"
+	BootloaderDeviceProductStringBitBox02PlusBTCOnly = "BitBox02 Nova BTC-only bl"
 )
 
 // ProductFromDeviceProductString returns the firmware or bootloader product based on the usb Device
