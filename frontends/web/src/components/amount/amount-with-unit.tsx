@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { useContext } from 'react';
-import { CoinUnit, ConversionUnit, IAmount } from '@/api/account';
+import type { CoinUnit, ConversionUnit, TAmountWithConversions } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Amount } from '@/components/amount/amount';
 import { isBitcoinCoin } from '@/routes/account/utils';
 import style from './amount-with-unit.module.css';
 
 type TAmountWithUnitProps = {
-    amount: IAmount;
-    tableRow?: boolean;
-    enableRotateUnit?: boolean;
-    sign?: string;
-    removeBtcTrailingZeroes?: boolean;
-    alwaysShowAmounts?: boolean;
-    convertToFiat?: boolean;
+  amount: TAmountWithConversions | undefined;
+  tableRow?: boolean;
+  enableRotateUnit?: boolean;
+  sign?: string;
+  alwaysShowAmounts?: boolean;
+  convertToFiat?: boolean;
 }
 
 export const AmountWithUnit = ({
@@ -36,12 +36,14 @@ export const AmountWithUnit = ({
   tableRow,
   enableRotateUnit: rotateUnit,
   sign,
-  removeBtcTrailingZeroes,
   convertToFiat,
   alwaysShowAmounts = false
 }: TAmountWithUnitProps) => {
   const { rotateDefaultCurrency, defaultCurrency, rotateBtcUnit } = useContext(RatesContext);
 
+  if (!amount) {
+    return null;
+  }
   let displayedAmount: string = '';
   let displayedUnit: CoinUnit | ConversionUnit;
   let onClick: () => Promise<void>;
@@ -66,7 +68,6 @@ export const AmountWithUnit = ({
         alwaysShowAmounts={alwaysShowAmounts}
         amount={displayedAmount}
         unit={displayedUnit}
-        removeBtcTrailingZeroes={!!removeBtcTrailingZeroes}
         onMobileClick={enableClick ? onClick : undefined}
       />
     ) : '---';

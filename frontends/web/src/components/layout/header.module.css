@@ -84,11 +84,13 @@
     display: inline-flex;
     align-items: center;
     user-select: none;
+    -webkit-user-select: none;
 }
 
 @media (max-width: 768px) {
     .header {
         padding: var(--space-half);
+        padding-bottom: 0;
     }
 
     .title {

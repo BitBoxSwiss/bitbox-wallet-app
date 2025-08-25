@@ -25,12 +25,12 @@ import { deregisterTest } from '@/api/keystores';
 import { getVersion } from '@/api/bitbox02';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';
-import { CloseXWhite, Cog, CogGray, Coins, Device, Eject, Linechart, RedDot, ShieldGray, USBSuccess } from '@/components/icon';
-import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
+import { CloseXWhite, Cog, CogGray, Coins, Device, Eject, Linechart, RedDot, ShieldGray } from '@/components/icon';
+import { getAccountsByKeystore } from '@/routes/account/utils';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
-import { Badge } from '@/components/badge/badge';
 import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/forms';
+import { ConnectedKeystore } from '../keystore/connected-keystore';
 import style from './sidebar.module.css';
 
 type SidebarProps = {
@@ -141,24 +141,12 @@ const Sidebar = ({
         { accountsByKeystore.map(keystore => (
           <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
             <div className={style.sidebarHeaderContainer}>
-              <span
+              <ConnectedKeystore
+                accountsByKeystore={accountsByKeystore}
                 className={style.sidebarHeader}
-                hidden={!keystore.accounts.length}>
-                <span className="p-right-quarter">
-                  {`${keystore.keystore.name} `}
-                  { isAmbiguousName(keystore.keystore.name, accountsByKeystore) ? (
-                    // Disambiguate accounts group by adding the fingerprint.
-                    // The most common case where this would happen is when adding accounts from the
-                    // same seed using different passphrases.
-                    <> ({keystore.keystore.rootFingerprint})</>
-                  ) : null }
-                </span>
-                <Badge
-                  className={keystore.keystore.connected ? style.sidebarIconVisible : style.sidebarIconHidden}
-                  icon={props => <USBSuccess {...props} />}
-                  type="success"
-                  title={t('device.keystoreConnected')} />
-              </span>
+                keystore={keystore.keystore}
+                connectedIconOnly={true}
+              />
             </div>
             { keystore.accounts.map(acc => (
               <GetAccountLink key={`account-${acc.code}`} {...acc} handleSidebarItemClick={handleSidebarItemClick} />

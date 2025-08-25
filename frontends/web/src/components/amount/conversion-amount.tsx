@@ -15,7 +15,7 @@
  */
 
 import { useContext } from 'react';
-import type { IAmount, TTransactionType } from '@/api/account';
+import type { TAmountWithConversions, TTransactionType } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Arrow } from '@/components/transactions/components/arrows';
 import { Amount } from '@/components/amount/amount';
@@ -23,8 +23,8 @@ import { getTxSign } from '@/utils/transaction';
 import styles from './conversion-amount.module.css';
 
 type TConversionAmountProps = {
-  amount: IAmount;
-  deductedAmount: IAmount;
+  amount: TAmountWithConversions;
+  deductedAmount: TAmountWithConversions;
   type: TTransactionType;
 };
 

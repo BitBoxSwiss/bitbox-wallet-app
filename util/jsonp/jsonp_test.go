@@ -29,7 +29,7 @@ func TestHexBytesMarshalUnmarshal(t *testing.T) {
 	// Test MarshalJSON
 	marshaled, err := json.Marshal(original)
 	require.NoError(t, err)
-	assert.Equal(t, expectedJSON, string(marshaled))
+	assert.JSONEq(t, expectedJSON, string(marshaled))
 
 	// Test UnmarshalJSON
 	var unmarshaled HexBytes

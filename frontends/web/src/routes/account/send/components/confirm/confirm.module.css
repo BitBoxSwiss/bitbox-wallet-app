@@ -29,6 +29,14 @@
   padding-left: var(--space-half);
 }
 
+.address {
+  color: var(--color-secondary);
+}
+
+.addressGroup {
+  margin-top: var(--space-quarter);
+}
+
 .unit {
   color: var(--color-secondary);
   font-size: var(--size-default);

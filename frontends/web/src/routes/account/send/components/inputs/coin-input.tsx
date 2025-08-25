@@ -1,7 +1,7 @@
 import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Checkbox, Input } from '@/components/forms';
-import { IAmount, IBalance } from '@/api/account';
+import { TAmountWithConversions, IBalance } from '@/api/account';
 import style from './coin-input.module.css';
 
 type TProps = {
@@ -10,7 +10,7 @@ type TProps = {
     onSendAllChange: (sendAll: boolean) => void;
     sendAll: boolean;
     amountError?: string;
-    proposedAmount?: IAmount;
+    proposedAmount?: TAmountWithConversions;
     amount: string;
     hasSelectedUTXOs: boolean;
 }

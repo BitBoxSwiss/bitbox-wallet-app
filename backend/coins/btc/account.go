@@ -336,9 +336,9 @@ func (account *Account) Initialize() error {
 		account.log.Infof("gap limits: receive=%d, change=%d", gapLimits.Receive, gapLimits.Change)
 
 		subacc.receiveAddresses = addresses.NewAddressChain(
-			signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.isAddressUsed, account.log)
+			signingConfiguration, account.coin.Net(), int(gapLimits.Receive), false, account.isAddressUsed, account.log)
 		subacc.changeAddresses = addresses.NewAddressChain(
-			signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.isAddressUsed, account.log)
+			signingConfiguration, account.coin.Net(), int(gapLimits.Change), true, account.isAddressUsed, account.log)
 
 		account.subaccounts = append(account.subaccounts, subacc)
 	}
@@ -781,7 +781,10 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, keystore.VerifyAddress(address.Configuration, account.Coin())
+		return true, keystore.VerifyAddressBTC(
+			address.AccountConfiguration,
+			address.Derivation,
+			account.Coin())
 	}
 	return false, nil
 }
@@ -837,7 +840,7 @@ func sortByAddresses(result []*SpendableOutput) []*SpendableOutput {
 	for _, s := range sums {
 		outputs := grouped[s.address]
 		sort.Slice(outputs, func(i, j int) bool {
-			return outputs[i].Value > outputs[j].Value
+			return outputs[i].TxOut.Value > outputs[j].TxOut.Value
 		})
 		newResult = append(newResult, outputs...)
 	}

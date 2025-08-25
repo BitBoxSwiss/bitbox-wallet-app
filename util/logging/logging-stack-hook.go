@@ -17,6 +17,7 @@ package logging
 // NewHook is the initializer for LoggingStackHook{} (implementing logrus.Hook).
 import (
 	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -36,9 +37,7 @@ func (hook stackHook) Levels() []logrus.Level {
 
 func enrichIfPossible(err error, entry *logrus.Entry) {
 	if errCast, ok := err.(*errp.DetailedError); ok {
-		for k, v := range errCast.Data {
-			entry.Data[k] = v
-		}
+		maps.Copy(entry.Data, errCast.Data)
 	}
 	cause := errors.Cause(err)
 	if cause != nil && err != cause {

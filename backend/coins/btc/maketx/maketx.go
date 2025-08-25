@@ -127,7 +127,7 @@ func toInputConfigurations(
 ) []*signing.Configuration {
 	inputConfigurations := make([]*signing.Configuration, len(selectedOutPoints))
 	for i, outPoint := range selectedOutPoints {
-		inputConfigurations[i] = spendableOutputs[outPoint].Address.Configuration
+		inputConfigurations[i] = spendableOutputs[outPoint].Address.AccountConfiguration
 	}
 	return inputConfigurations
 }
@@ -277,7 +277,7 @@ func NewTx(
 		}
 		changeAmount := selectedOutputsSum - targetAmount - maxRequiredFee
 		changeIsDust := isDustAmount(
-			changeAmount, len(changePKScript), changeAddress.Configuration, feePerKb)
+			changeAmount, len(changePKScript), changeAddress.AccountConfiguration, feePerKb)
 		finalFee := maxRequiredFee
 		if changeIsDust {
 			log.Info("change is dust")

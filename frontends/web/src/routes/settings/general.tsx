@@ -31,7 +31,7 @@ import { SubTitle } from '@/components/title';
 import { TPagePropsWithSettingsTabs } from './types';
 import { GlobalBanners } from '@/components/banners';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-
+import style from './general.module.css';
 export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   return (
@@ -50,9 +50,9 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
               </>
             } />
           <View fullscreen={false}>
-            <ViewContent>
+            <ViewContent fullWidth>
               <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu devices={devices}>
-                <SubTitle>
+                <SubTitle className={style.subtitleWithMobilePadding}>
                   {t('settings.appearance')}
                 </SubTitle>
                 <LanguageDropdownSetting />
@@ -61,7 +61,7 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
                 <DarkmodeToggleSetting />
                 { hasAccounts ? (
                   <>
-                    <SubTitle className="m-top-default">
+                    <SubTitle className={`m-top-default ${style.subtitleWithMobilePadding}`}>
                       {t('settings.notes.title')}
                     </SubTitle>
                     <NotesExport />

@@ -15,6 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { useEffect, useRef, useState } from 'react';
 import { useSync } from '@/hooks/api';
 import { connect, getState, syncState, TPeripheral } from '@/api/bluetooth';
 import { runningInIOS } from '@/utils/env';
@@ -22,15 +23,48 @@ import { Status } from '@/components/status/status';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { Badge } from '@/components/badge/badge';
 import { HorizontallyCenteredSpinner, SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
+import { Button } from '@/components/forms';
+import { ConnectionIssuesDialog } from '@/components/bluetooth/connection-issues-dialog';
 import styles from './bluetooth.module.css';
 
 const isConnectedOrConnecting = (peripheral: TPeripheral) => {
   return peripheral.connectionState === 'connecting' || peripheral.connectionState === 'connected';
 };
 
-const _Bluetooth = () => {
+type Props = {
+  peripheralContainerClassName?: string;
+}
+
+const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
   const { t } = useTranslation();
   const state = useSync(getState, syncState);
+  const [showConnectionIssues, setShowConnectionIssues] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const scanningTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const TIMEOUT_MS = 30000;
+
+  useEffect(() => {
+    if (state?.scanning) {
+      scanningTimeoutRef.current = setTimeout(() => {
+        if (state.scanning && state.peripherals.length === 0) {
+          setShowConnectionIssues(true);
+        }
+      }, TIMEOUT_MS);
+    } else {
+      if (scanningTimeoutRef.current) {
+        clearTimeout(scanningTimeoutRef.current);
+        scanningTimeoutRef.current = null;
+      }
+      setShowConnectionIssues(false);
+    }
+
+    return () => {
+      if (scanningTimeoutRef.current) {
+        clearTimeout(scanningTimeoutRef.current);
+      }
+    };
+  }, [state?.scanning, state?.peripherals.length]);
+
   if (!state) {
     return null;
   }
@@ -55,6 +89,7 @@ const _Bluetooth = () => {
           ) : undefined;
           return (
             <ActionableItem
+              className={peripheralContainerClassName}
               key={peripheral.identifier}
               icon={connectingIcon}
               onClick={onClick}>
@@ -79,15 +114,33 @@ const _Bluetooth = () => {
         })}
       </div>
       {state.scanning && (
-        <HorizontallyCenteredSpinner />
+        <div>
+          <HorizontallyCenteredSpinner />
+        </div>
       )}
+
+      {showConnectionIssues && (
+        <div className={styles.connectionIssuesLink}>
+          <Button
+            transparent
+            onClick={(e) => {
+              e.preventDefault();
+              setDialogOpen(true);
+            }}
+          >
+            {t('bluetooth.connectionIssues')}
+          </Button>
+        </div>
+      )}
+
+      <ConnectionIssuesDialog dialogOpen={dialogOpen} onClose={() => setDialogOpen(false)} />
     </>
   );
 };
 
-export const Bluetooth = () => {
+export const Bluetooth = ({ peripheralContainerClassName = '' }: Props) => {
   if (!runningInIOS()) {
     return null;
   }
-  return <_Bluetooth />;
+  return <BluetoothInner peripheralContainerClassName={peripheralContainerClassName} />;
 };

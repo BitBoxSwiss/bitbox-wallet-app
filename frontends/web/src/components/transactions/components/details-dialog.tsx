@@ -16,18 +16,18 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ITransaction, IAmount, getTransaction, TTransactionStatus, TTransactionType } from '@/api/account';
+import { ITransaction, TAmountWithConversions, getTransaction, TTransactionStatus, TTransactionType } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
 import { Dialog } from '@/components/dialog/dialog';
-import { Amount } from '@/components/amount/amount';
 import { Note } from './note';
 import { TxDetail } from './detail';
 import { Arrow } from './arrows';
 import { TxDateDetail } from './date';
 import { TxStatusDetail } from './status';
 import { TxDetailCopyableValues } from './address-or-txid';
-import styles from './details.module.css';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { getTxSign } from '@/utils/transaction';
+import styles from './details.module.css';
 
 type TProps = {
   open: boolean;
@@ -40,8 +40,7 @@ type TProps = {
   numConfirmations: number;
   numConfirmationsComplete: number;
   time: string | null;
-  amount: IAmount;
-  sign: string;
+  amount: TAmountWithConversions;
   explorerURL: string;
 }
 
@@ -57,7 +56,6 @@ export const TxDetailsDialog = ({
   numConfirmationsComplete,
   time,
   amount,
-  sign,
   explorerURL,
 }: TProps) => {
   const { t } = useTranslation();
@@ -78,6 +76,8 @@ export const TxDetailsDialog = ({
   if (transactionInfo === null) {
     return;
   }
+
+  const sign = transactionInfo && getTxSign(transactionInfo.type);
 
   // Amount and Confirmations info are displayed using props data
   // instead of transactionInfo because they are live updated.
@@ -109,32 +109,22 @@ export const TxDetailsDialog = ({
           />
           <TxDateDetail time={time} />
           <TxDetail label={t('transaction.details.fiat')}>
-            <span className={styles.fiat}>
-              <AmountWithUnit amount={amount} sign={sign} convertToFiat/>
-            </span>
+            <AmountWithUnit amount={amount} sign={sign} convertToFiat/>
           </TxDetail>
           {transactionInfo.amountAtTime?.estimated === false &&
           (
             <TxDetail label={t('transaction.details.fiatAtTime')}>
-              <span className={styles.fiat}>
-                <AmountWithUnit amount={transactionInfo.amountAtTime} sign={sign} convertToFiat/>
-              </span>
+              <AmountWithUnit amount={transactionInfo.amountAtTime} sign={sign} convertToFiat/>
             </TxDetail>
           )}
           <TxDetail label={t('transaction.details.amount')}>
-            <span className={styles.amount}>
-              {sign}
-              <Amount amount={amount.amount} unit={amount.unit} />
-            </span>
-            {' '}
-            <span className={styles.currencyUnit}>{transactionInfo.amount.unit}</span>
+            {type !== 'send_to_self' && sign}
+            <AmountWithUnit amount={amount} />
           </TxDetail>
           {
             transactionInfo.fee && transactionInfo.fee.amount ? (
               <TxDetail label={t('transaction.fee')}>
-                <Amount amount={transactionInfo.fee.amount} unit={transactionInfo.fee.unit} />
-                {' '}
-                <span className={styles.currencyUnit}>{transactionInfo.fee.unit}</span>
+                <AmountWithUnit amount={transactionInfo.fee} />
               </TxDetail>
             ) : (
               <TxDetail label={t('transaction.fee')}>---</TxDetail>

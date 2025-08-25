@@ -312,12 +312,14 @@ func (coin *Coin) ValidateSilentPaymentAddress(address string) error {
 // Close implements coinpkg.Coin.
 func (coin *Coin) Close() error {
 	coin.log.Info("closing coin")
+	if coin.blockchain != nil {
+		coin.blockchain.Close()
+	}
 	if coin.headers != nil {
 		coin.log.Info("closing headers")
 		if err := coin.headers.Close(); err != nil {
 			return err
 		}
 	}
-	// TODO: shutdown Electrum connection.
 	return nil
 }

@@ -16,6 +16,7 @@ package addresses
 
 import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
@@ -28,7 +29,7 @@ type AddressChain struct {
 	accountConfiguration *signing.Configuration
 	net                  *chaincfg.Params
 	gapLimit             int
-	chainIndex           uint32
+	change               bool
 	addresses            []*AccountAddress
 	addressesLookup      map[blockchain.ScriptHashHex]*AccountAddress
 	addressesLock        locker.Locker
@@ -41,7 +42,7 @@ func NewAddressChain(
 	accountConfiguration *signing.Configuration,
 	net *chaincfg.Params,
 	gapLimit int,
-	chainIndex uint32,
+	change bool,
 	isAddressUsed func(*AccountAddress) (bool, error),
 	log *logrus.Entry,
 ) *AddressChain {
@@ -49,12 +50,12 @@ func NewAddressChain(
 		accountConfiguration: accountConfiguration,
 		net:                  net,
 		gapLimit:             gapLimit,
-		chainIndex:           chainIndex,
+		change:               change,
 		addresses:            []*AccountAddress{},
 		addressesLookup:      map[blockchain.ScriptHashHex]*AccountAddress{},
 		isAddressUsed:        isAddressUsed,
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
-			"gap-limit": gapLimit, "chain-index": chainIndex,
+			"gap-limit": gapLimit, "change": change,
 			"configuration": accountConfiguration.String()}),
 	}
 }
@@ -79,7 +80,7 @@ func (addresses *AddressChain) addAddress() *AccountAddress {
 	index := uint32(len(addresses.addresses))
 	address := NewAccountAddress(
 		addresses.accountConfiguration,
-		signing.NewEmptyRelativeKeypath().Child(addresses.chainIndex, signing.NonHardened).Child(index, signing.NonHardened),
+		types.Derivation{Change: addresses.change, AddressIndex: index},
 		addresses.net,
 		addresses.log,
 	)

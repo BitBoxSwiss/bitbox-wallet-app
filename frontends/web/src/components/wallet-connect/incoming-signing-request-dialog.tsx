@@ -89,7 +89,7 @@ export const WCIncomingSignRequestDialog = ({
             <>
               <ul className={styles.listContainer}>
                 <li className={styles.item}>
-                  <p className={styles.label}>{t('walletConnect.signingRequest.account')}</p>
+                  <p className={styles.label}>{t('account.account')}</p>
                   <span className={styles.accountNameAndAddress}>
                     <p className={styles.accountName}><b>{accountName}</b></p>
                     <p className={styles.address}>{truncateAddress(accountAddress)}</p>

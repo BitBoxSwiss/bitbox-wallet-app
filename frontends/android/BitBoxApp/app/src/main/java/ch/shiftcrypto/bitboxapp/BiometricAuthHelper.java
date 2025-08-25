@@ -23,7 +23,7 @@ public class BiometricAuthHelper {
         Executor executor = ContextCompat.getMainExecutor(activity);
         BiometricPrompt biometricPrompt = new BiometricPrompt(activity, executor, new BiometricPrompt.AuthenticationCallback() {
             @Override
-            public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
                 new Handler(Looper.getMainLooper()).post(callback::onSuccess);
             }

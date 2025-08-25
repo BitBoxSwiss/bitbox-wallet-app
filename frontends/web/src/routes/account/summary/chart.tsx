@@ -18,7 +18,7 @@ import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState 
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
-import type { TSummary, ChartData } from '@/api/account';
+import type { TChartData, ChartData } from '@/api/account';
 import { usePrevious } from '@/hooks/previous';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { Amount } from '@/components/amount/amount';
@@ -31,12 +31,12 @@ import { AmountUnit } from '@/components/amount/amount-with-unit';
 import styles from './chart.module.css';
 
 type TProps = {
-  data?: TSummary;
+  data?: TChartData;
   noDataPlaceholder?: JSX.Element;
   hideAmounts?: boolean;
 };
 
-const defaultData: Readonly<TSummary> = {
+const defaultData: Readonly<TChartData> = {
   chartDataMissing: true,
   chartDataDaily: [],
   chartDataHourly: [],
@@ -581,7 +581,6 @@ export const Chart = ({
               <Amount
                 amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue}
                 unit={chartFiat}
-                removeBtcTrailingZeroes
                 onMobileClick={rotateDefaultCurrency}
               />
             ) : (

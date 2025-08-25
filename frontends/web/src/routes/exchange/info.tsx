@@ -26,6 +26,7 @@ import { View, ViewContent } from '@/components/view/view';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { ExchangeGuide } from './guide';
+import { connectKeystore } from '@/api/keystores';
 
 type TProps = {
     accounts: accountApi.IAccount[];
@@ -56,7 +57,8 @@ export const ExchangeInfo = ({ code, accounts }: TProps) => {
       // and they don't have the correct device connected
       // they'll be prompted to do so.
       const accountCode = supportedAccounts[0].code;
-      connectKeystore(accountCode).then(connected => {
+      const rootFingerprint = supportedAccounts[0].keystore.rootFingerprint;
+      connectKeystoreFn(rootFingerprint).then(connected => {
         if (connected) {
           // replace current history item when redirecting so that the user can go back
           navigate(`/exchange/select/${accountCode}`, { replace: true });
@@ -68,7 +70,11 @@ export const ExchangeInfo = ({ code, accounts }: TProps) => {
   const handleProceed = async () => {
     setDisabled(true);
     try {
-      const connected = await connectKeystore(selected);
+      const account = supportedAccounts?.find(acc => acc.code === selected);
+      if (account === undefined) {
+        return;
+      }
+      const connected = await connectKeystoreFn(account.keystore.rootFingerprint);
       if (connected) {
         navigate(`/exchange/select/${selected}`);
       }
@@ -77,8 +83,8 @@ export const ExchangeInfo = ({ code, accounts }: TProps) => {
     }
   };
 
-  const connectKeystore = async (keystore: string) => {
-    const connectResult = await accountApi.connectKeystore(keystore);
+  const connectKeystoreFn = async (keystore: string) => {
+    const connectResult = await connectKeystore(keystore);
     return connectResult.success;
   };
 

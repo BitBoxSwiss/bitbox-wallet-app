@@ -128,6 +128,10 @@ struct WebView: UIViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
+        
+        // Disables automatic content inset adjustment to prevent safe area issues
+        // https://developer.apple.com/documentation/uikit/uiscrollview/contentinsetadjustmentbehavior-swift.property
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
 
         setHandlers.setMessageHandlers(handlers: MessageHandlers(webView: webView))
         let source = """
@@ -178,6 +182,11 @@ struct WebView: UIViewRepresentable {
             return nil
         }
 
+        // Reload root page when WKWebView content process is terminated by the system.
+        // Avoids blank screens when foregrounding the app after long inactivity.
+        func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+            webView.load((URLRequest(url: URL(string: scheme + ":/index.html")!)))
+        }
 
         // Automatically grant camera permission when used in the webview.
         // The camera permission was already granted at install time via

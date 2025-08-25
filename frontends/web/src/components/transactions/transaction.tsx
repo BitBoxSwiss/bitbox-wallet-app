@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import type { IAmount, TTransactionStatus, TTransactionType, ITransaction } from '@/api/account';
+import type { TAmountWithConversions, TTransactionStatus, TTransactionType, ITransaction } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Loupe } from '@/components/icon/icon';
 import { parseTimeLong, parseTimeShort } from '@/utils/date';
@@ -149,8 +149,8 @@ const Status = ({
 };
 
 type TAmountsProps = {
-  amount: IAmount;
-  deductedAmount: IAmount,
+  amount: TAmountWithConversions;
+  deductedAmount: TAmountWithConversions,
   type: TTransactionType;
 }
 
@@ -162,29 +162,26 @@ const Amounts = ({
   const txTypeClass = `txAmount-${type}`;
   const recv = type === 'receive';
   const displayAmount = recv ? amount.amount : deductedAmount.amount;
+  const displayUnit = recv ? amount.unit : deductedAmount.unit;
   const sign = displayAmount ? getTxSign(type) : '';
 
   return (
     <span className={`${styles.txAmountsColumn} ${styles[txTypeClass]}`}>
-      {/* <data value={amount.amount}> */}
       <span className={styles.txAmount}>
         {sign}
         <Amount
           amount={displayAmount}
-          unit={recv ? amount.unit : deductedAmount.unit}
+          unit={displayUnit}
         />
         <span className={styles.txUnit}>
           {' '}
-          {deductedAmount.unit}
+          {displayUnit}
         </span>
       </span>
-      {/* </data> */}
       <ConversionAmount amount={amount} deductedAmount={deductedAmount} type={type} />
     </span>
   );
 };
-
-// <time dateTime="2018-07-07">July 7</time>
 
 type TDateProps = {
   time: string | null;

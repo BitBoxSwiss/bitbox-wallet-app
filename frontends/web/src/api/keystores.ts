@@ -39,3 +39,7 @@ export const registerTest = (pin: string): Promise<null> => {
 export const deregisterTest = (): Promise<null> => {
   return apiPost('test/deregister');
 };
+
+export const connectKeystore = (rootFingerprint: string): Promise<{ success: boolean; }> => {
+  return apiPost('connect-keystore', { rootFingerprint });
+};

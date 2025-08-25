@@ -63,13 +63,10 @@ public class Util {
         String type = null;
         String extension = MimeTypeMap.getFileExtensionFromUrl(url);
         if (extension != null) {
-            switch (extension) {
-                case "js":
-                    type = "text/javascript";
-                    break;
-                default:
-                    type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-                    break;
+            if (extension.equals("js")) {
+                type = "text/javascript";
+            } else {
+                type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
             }
         }
         return type;

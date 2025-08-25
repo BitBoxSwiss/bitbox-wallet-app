@@ -1,4 +1,4 @@
-// Copyright 2022 Shift Crypto AG
+// Copyright 2022-2025 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -125,6 +125,8 @@ type Failover[C Client] struct {
 
 	closed   bool
 	closedMu sync.RWMutex
+
+	quitCh chan struct{}
 }
 
 // New creates a new failover client.
@@ -148,6 +150,7 @@ func New[C Client](opts *Options[C]) *Failover[C] {
 		startServerIndex:   startServerIndex,
 		currentServerIndex: startServerIndex,
 		manualReconnect:    make(chan struct{}),
+		quitCh:             make(chan struct{}),
 	}
 }
 
@@ -166,11 +169,19 @@ func (f *Failover[C]) establishConnection() error {
 			case <-f.manualReconnect:
 			default:
 			}
-			// Wait for retry timeout or manual reconnect
+			// Wait for retry timeout or manual reconnect or close.
 			select {
-			case <-time.After(retryTimeout):
-			case <-f.manualReconnect:
+			case <-f.quitCh:
+				return ErrClosed
+			default:
+				select {
+				case <-f.quitCh:
+					return ErrClosed
+				case <-time.After(retryTimeout):
+				case <-f.manualReconnect:
+				}
 			}
+
 		}
 		f.enableRetry = true
 
@@ -300,7 +311,7 @@ func Call[C Client, R any](c *Failover[C], f func(client C) (R, error)) (R, erro
 	}
 }
 
-// CallAlwaysFailoveris like Call, but every error is treated as a FailoverError, trigger a
+// CallAlwaysFailover is like Call, but every error is treated as a FailoverError, trigger a
 // failover. This function blocks forever until one of the servers delivers a non-error result, or
 // the failover client was closed.
 func CallAlwaysFailover[C Client, R any](c *Failover[C], f func(client C) (R, error)) (R, error) {
@@ -409,6 +420,7 @@ func (f *Failover[C]) Close() {
 	if alreadyClosed {
 		return
 	}
+	close(f.quitCh)
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 	f.closeCurrentClient(ErrClosed)

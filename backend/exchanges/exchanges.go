@@ -188,7 +188,7 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 func GetExchangeDeals(account accounts.Interface, regionCode string, action ExchangeAction, httpClient *http.Client) ([]*ExchangeDealsList, error) {
 	moonpaySupportsCoin := IsMoonpaySupported(account.Coin().Code()) && action == BuyAction
 	pocketSupportsCoin := IsPocketSupported(account.Coin().Code()) && (action == BuyAction || action == SellAction)
-	btcDirectSupportsCoin := IsBtcDirectSupported(account.Coin().Code()) && action == BuyAction
+	btcDirectSupportsCoin := IsBtcDirectSupported(account.Coin().Code()) && (action == BuyAction || action == SellAction)
 	bitrefillSupportsCoin := IsBitrefillSupported(account.Coin().Code()) && action == SpendAction
 	coinSupported := moonpaySupportsCoin || pocketSupportsCoin || btcDirectSupportsCoin || bitrefillSupportsCoin
 	if !coinSupported {
@@ -231,7 +231,7 @@ func GetExchangeDeals(account accounts.Interface, regionCode string, action Exch
 		}
 	}
 	if btcDirectSupportsCoin && userRegion.IsBtcDirectEnabled {
-		deals := BtcDirectDeals()
+		deals := BtcDirectDeals(action)
 		if deals != nil {
 			exchangeDealsLists = append(exchangeDealsLists, deals)
 		}

@@ -59,8 +59,7 @@ func TestNewLogger(t *testing.T) {
 	}
 
 	// A dir where testing log files are stored.
-	tempdir, err := os.MkdirTemp("", "logger_test")
-	require.NoError(t, err, "temp dir")
+	tempdir := t.TempDir()
 	defer os.RemoveAll(tempdir)
 
 	// Prep the data: existing file is still smaller than the maxLogFileSizeBytes
@@ -95,8 +94,7 @@ func TestLoggerRotatingWriter(t *testing.T) {
 	}
 
 	// A dir where testing log files are stored.
-	tempdir, err := os.MkdirTemp("", "logger_test")
-	require.NoError(t, err, "temp dir")
+	tempdir := t.TempDir()
 	defer os.RemoveAll(tempdir)
 
 	// Prep the data: existing file is still smaller than the maxLogFileSizeBytes

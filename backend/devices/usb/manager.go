@@ -28,6 +28,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
+	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
@@ -46,6 +47,8 @@ const (
 
 // DeviceInfo contains the usb descriptor info and a way to open the device for reading and writing.
 type DeviceInfo interface {
+	// IsBluetooth means the communication layer is Bluetooth, otherwise USB.
+	IsBluetooth() bool
 	VendorID() int
 	ProductID() int
 	UsagePage() int
@@ -218,6 +221,7 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 		product,
 		bitbox02.NewConfig(manager.bitbox02ConfigDir),
 		u2fhid.NewCommunication(hidDevice, bitboxCMD),
+		firmware.WithOptionalNoisePairingConfirmation(deviceInfo.IsBluetooth()),
 	), nil
 }
 

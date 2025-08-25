@@ -10,21 +10,14 @@
   background-color: var(--background-secondary);
 }
 
-.keystoreHeader {
-  color: var(--color-tertiary);
-  display: flex;
-  font-weight: 500;
-  gap: 4px;
-}
-
 .keystoreName {
-  color: var(--color-text);
+  color: var(--color-tertiary);
 }
 
 .accountsList {
   display: flex;
   flex-direction: column;
-  margin-top: var(--space-half);
+  margin: var(--space-half) 0;
   gap: var(--space-half);
 }
 
@@ -37,49 +30,47 @@
 }
 
 .accountIcon {
+  display: block;
   flex: 0 0 auto;
-  margin-right: 8px;
+  margin-right: var(--space-quarter);
+}
+
+.accountIcon img {
+  max-width: 24px;
 }
 
 .accountName {
+  flex-basis: auto;
+  flex-grow: 0;
+  flex-shrink: 1;
   margin: 0;
-  margin-right: 8px;
-  width: 100%;
+  margin-right: var(--space-half);
   overflow: hidden;
-  white-space: nowrap;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .accountBalanceContainer {
-  display: flex;
   align-items: baseline;
-  margin-left: auto;
-  text-align: right;
-  font-size: 16px;
   color: var(--color-secondary);
-  width: 100%;
-  overflow: hidden;
-  justify-content: flex-end;
-}
-
-.accountBalance {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  margin-right: 4px;
-}
-
-.coinUnit {
+  display: flex;
+  flex-basis: auto;
   flex-shrink: 0;
-  white-space: nowrap;
+  flex-grow: 1;
+  font-size: 16px;
+  justify-content: flex-end;
+  margin-left: auto;
+  overflow: hidden;
+  text-align: right;
 }
 
 .chevron {
-  margin-top: 6px;
   color: var(--color-mediumgray);
+  flex-shrink: 0;
   font-size: 18px;
   margin-left: 4px;
-  flex-shrink: 0;
+  margin-top: 6px;
+  margin-right: -8px;
 }
 
 .emptyState {

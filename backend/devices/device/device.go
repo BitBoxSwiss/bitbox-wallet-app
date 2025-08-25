@@ -25,10 +25,15 @@ type Interface interface {
 	observable.Interface
 
 	Init(testing bool) error
-	// ProductName returns the product name of the device in lowercase/no spaces.
-	// It acts as an identifier for the device type, not for display.
-	// If you change a device's product name, be sure to check the frontend and other places which
+	// PlatformName returns the Platform name of the device in lowercase/no spaces.
+	// It acts as an identifier for the device type, not for the specific model (e.g.
+	// it return bitbox02 for both the bitbox02 and the bitbox02 nova).
+	// If you change a device's platform name, be sure to check the frontend and other places which
 	// assume this is a constant.
+	PlatformName() string
+
+	// ProductName is the actual model of the product in lowercase/no spaces
+	// (e.g. bitbox, bitbox02, bitbox02nova).
 	ProductName() string
 
 	// Identifier returns the hash of the type and the serial number.

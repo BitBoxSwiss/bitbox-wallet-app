@@ -15,18 +15,11 @@
 package logging
 
 import (
-	"fmt"
-	"os"
 	"path/filepath"
 	"sync"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/sirupsen/logrus"
-)
-
-const (
-	// configFileName stores the name of the file that contains the logging configuration.
-	configFileName = "logging.json"
 )
 
 var instance *Logger
@@ -35,23 +28,9 @@ var once sync.Once
 // Get returns the configured logger or a new one based on the configuration file.
 func Get() *Logger {
 	once.Do(func() {
-		var configuration Configuration
-		configFile := config.NewFile(config.AppDir(), configFileName)
-		if configFile.Exists() {
-			fmt.Printf("Loading log config from '%s'.\n", configFile.Path())
-			if err := configFile.ReadJSON(&configuration); err != nil {
-				fmt.Fprintf(os.Stderr, "Can't read log config: %v; logging to stderr.\n", err)
-				configuration.Output = "STDERR"
-			}
-		} else {
-			fmt.Printf("Writing new log config to '%s'.\n", configFile.Path())
-			configuration = Configuration{
-				Output: filepath.Join(config.AppDir(), "log.txt"),
-				Level:  logrus.DebugLevel, // Change to InfoLevel before a release.
-			}
-			if err := configFile.WriteJSON(configuration); err != nil {
-				fmt.Fprintf(os.Stderr, "Can't write log config: %v.\n", err)
-			}
+		configuration := Configuration{
+			Output: filepath.Join(config.AppDir(), "log.txt"),
+			Level:  logrus.DebugLevel,
 		}
 		instance = NewLogger(&configuration)
 	})

@@ -98,8 +98,7 @@
     "error": {
       "e10000": "当前输入的设备密码不正确",
       "e10001": "更改设备密码失败",
-      "e102": "密码必须包含至少4个字符",
-      "e112": "隐藏的设备密码不能与主设备密码相同。"
+      "e102": "密码必须包含至少4个字符"
     }
   },
   "bitbox02Interact": {
@@ -200,7 +199,6 @@
     "copy": "复制",
     "create": "创建",
     "download": "下载",
-    "hiddenwallet": "创建隐藏钱包",
     "next": "下一个",
     "ok": "好的",
     "previous": "上一个",
@@ -225,14 +223,6 @@
   "device": {
     "appUpradeRequired": "您的BitBox与该桌面应用程序不兼容。请下载并安装最新版本。"
   },
-  "deviceLock": {
-    "button": "启用双因素认证（2FA）",
-    "condition1": "你有备份吗？",
-    "condition2": "移动端app的验证功能是否正常工作？",
-    "condition3": "2FA禁用了备份和移动应用程序配对功能。必须进行设备复位才能退出2FA！",
-    "confirm": "启用双因素验证(2FA)",
-    "title": "启用双因素验证（2FA）"
-  },
   "deviceSettings": {
     "firmware": {
       "newVersion": {
@@ -253,24 +243,6 @@
       "title": "硬件信息"
     },
     "loading": "检索设备信息…",
-    "pairing": {
-      "lock": {
-        "false": "禁用",
-        "label": "双因素授权（2FA）",
-        "true": "启用"
-      },
-      "mobile": {
-        "false": "关闭",
-        "label": "移动端app",
-        "true": "打开"
-      },
-      "status": {
-        "false": "无法配对",
-        "label": "状态",
-        "true": "已配对"
-      },
-      "title": "配对中"
-    },
     "secrets": {
       "manageBackups": "管理备份",
       "title": "机密信息"
@@ -408,14 +380,6 @@
       }
     },
     "bitbox": {
-      "2FA": {
-        "text": "启用2FA后，所有交易都必须在配对手机上获得批准才能发送资产。在内部，一个经过加密的一次性号码被发送到手机app中，并进行解密，在按下接受按钮时返回到BitBox中。此与设备的通信是通过配对期间建立于移动电话和此桌面应用程序之间的频道完成的。\n\n确保在启用2FA之前备份您的钱包并配对移动端app。一旦启用，micro SD插槽和移动端app配对将被禁用。可以通过重置BitBox来重新启用它们，该操作将位擦除设备。",
-        "title": "双因素授权（2FA）是如何工作的？"
-      },
-      "disable2FA": {
-        "text": "为了禁用2FA功能，您需要重置BitBox，然后从其备份中重置钱包。请确保您仍然拥有带有备份的microSD卡，并且仍记得恢复密码。然后按“重置设备”。设置新的设备密码，然后选择“或还原备份”。从钱包中选择您已创建的备份，单击“还原”，然后输入创建钱包时使用的恢复密码。",
-        "title": "如何禁用两因素授权（2FA）？"
-      },
       "ejectBitbox": {
         "text": "您可以随时拔出BitBox，而不必先退出它。",
         "title": "如何弹出BitBox？"
@@ -423,18 +387,6 @@
       "ejectSD": {
         "text": "只要您不在创建或还原备份的过程中，就可以随时从BitBox中取出microSD卡。",
         "title": "如何弹出microSD卡？"
-      },
-      "hiddenWallet": {
-        "text": "它是同一台设备上的第二个钱包，受不同的设备密码和恢复密码保护，您可以使用这些钱包进行\"合理的可否认性plausible deniability\"。普通和隐藏钱包都使用相同的备份种子，因此不需要其他备份。",
-        "title": "什么是隐藏钱包？"
-      },
-      "legacyHiddenWallet": {
-        "text": "首先单击下面的按钮（如果使用主设备密码将BitBox解锁并禁用了2FA，则可使用该按钮），然后重新插入您的Bitbox并使用隐藏的设备密码将其解锁。",
-        "title": "如何访问legacy隐藏钱包？"
-      },
-      "pairing": {
-        "text": "下载适用于iOS或Android的移动端app后，您可以扫描显示的二维码，从而在移动app和此应用程序之间建立安全通道。扫描后，请按照移动端app中的说明进行操作。",
-        "title": "如何与手机安全配对"
       }
     },
     "receive": {
@@ -509,10 +461,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "设备插入后应闪烁一次。确保将其正确插入。如果您遇到问题，请通过以下链接与我们联系。",
-        "title": "我的BitBox01无法识别"
-      },
       "getDevice": {
         "link": {
           "text": "订购一个BitBox"
@@ -544,16 +492,6 @@
   "headerssync": {
     "blocksSynced": "{{blocks}} 同步区块"
   },
-  "hiddenWallet": {
-    "info1HTML": "出于\"合理的可否认性plausible deniability\"的目的，一个隐藏钱包可以根据 <strong>不同</strong> 设备密码+恢复密码的组合进行创建。",
-    "info2HTML": "设定与您的隐藏钱包相关联的设备密码和恢复密码。设备密码和恢复密码必须与您的主钱包密码 <strong>不同</strong> 。",
-    "passwordLabel": "隐藏恢复密码",
-    "passwordPlaceholder": "请确认隐藏的恢复密码",
-    "pinLabel": "隐藏设备密码",
-    "pinRepeatLabel": "重复隐藏设备的密码",
-    "pinRepeatPlaceholder": "请确认隐藏设备的密码",
-    "success": "隐藏钱包创建成功。重新插入您的BitBox以解锁。"
-  },
   "initialize": {
     "create": "设置设备密码",
     "creating": "设置设备密码中...",
@@ -577,54 +515,10 @@
   "language": {
     "title": "选择语言"
   },
-  "legacyhiddenwallet": {
-    "disable": "禁用legacy隐藏钱包",
-    "enable": "启用Legacy隐藏钱包",
-    "successDisable": "已成功禁用legacy隐藏钱包。",
-    "successEnable": "成功启用legacy隐藏钱包。重新插入您的BitBox并输入隐藏的设备密码以访问legacy隐藏钱包。"
-  },
   "loading": "载入中...",
   "notification": {
     "newTxs_one": "新交易：{{accountName}}",
     "newTxs_other": "{{count}} 新交易： {{accountName}}"
-  },
-  "pairing": {
-    "aborted": {
-      "text": "配对已在移动端app端中止。",
-      "title": "中止"
-    },
-    "button": "配对移动端app",
-    "confirm": "您确定要配对BitBox吗？请注意配对完成后，需要通过手机进行交易操作。",
-    "connectOnly": {
-      "button": "连接移动端app",
-      "title": "选择菜单中“连接到新的桌面应用程序”，使用我们的移动端app移动应用程序进行扫描"
-    },
-    "error": {
-      "text": "出现一些问题。请重新开始。",
-      "title": "错误"
-    },
-    "reconnectOnly": {
-      "button": "重新连接移动端app"
-    },
-    "start": {
-      "hideAppQRCode": "隐藏二维码",
-      "revealAppQRCode": "显示二维码",
-      "step1": "如果您没有移动端app，则可以根据你的手机型号扫描对应的Apple App Store或Google Play商店的二维码。",
-      "step2": "请使用我们的移动端app进行扫描，您可以在iOS和Android的应用程序商店中通过搜索“ Digital Bitbox 2FA”的名称找到该app："
-    },
-    "started": {
-      "text": "现在，请按照移动端app上的说明进行操作。",
-      "title": "太棒了"
-    },
-    "success": {
-      "text": "恭喜，您已成功将BitBox与移动端app配对！",
-      "title": "成功"
-    },
-    "timeout": {
-      "text": "配对在两分钟后超时。如果您仍想配对移动端app，请重新开始。",
-      "title": "超时"
-    },
-    "title": "手机配对"
   },
   "password": {
     "show": "显示 {{label}}",
@@ -643,15 +537,10 @@
       "description": "要接收其他代币，请先在设置中启用它们。否则如果您存入其他代币，则可能无法访问它们。",
       "warning": "确保只在这个地址上接收 {{coinName}} 。"
     },
-    "showFull": "在设备上显示并验证完整的地址",
     "title": "获取 {{accountName}}",
     "verify": "安全验证地址",
-    "verifyBitBox01": "在移动端app上验证地址",
     "verifyBitBox02": "请在BitBox02设备上的验证地址",
-    "verifyInstruction": "请确认以下地址与设备上显示的地址匹配。",
-    "warning": {
-      "secureOutput": "请将您的BitBox与您的移动设备配对以启用安全地址验证功能。再访问侧栏中的“管理设备”选项。"
-    }
+    "verifyInstruction": "请确认以下地址与设备上显示的地址匹配。"
   },
   "reset": {
     "description": "设备上的所有数据将被删除。其中包括您的私钥！",
@@ -767,10 +656,6 @@
     },
     "maximum": "发送全部",
     "scanQR": "扫描二维码",
-    "signprogress": {
-      "description": "这是一个包含大量数据的交易。如要完成交易的完整签名过程，系统会要求您确认 {{steps}} 次。",
-      "label": "进展"
-    },
     "success": "交易已签名并完成发送。",
     "title": "发送 {{accountName}}",
     "toggleCoinControl": "切换coin控制"
@@ -879,13 +764,9 @@
     "unlocked3": "LED屏幕亮起时请轻触设备的触控边框"
   },
   "warning": {
-    "receivePairing": "请配对BitBox以启用安全地址验证。点击侧单栏中的“管理设备”。",
-    "sdcard": "除非要进行备份管理，否则请将microSD卡与BitBox设备分开存放。",
-    "sendPairing": "请配对BitBox以安全地验证交易详细信息。转到侧栏中的“管理设备”。"
+    "sdcard": "除非要进行备份管理，否则请将microSD卡与BitBox设备分开存放。"
   },
   "welcome": {
-    "insertBitBox02": "如果是BitBox02设备，请点击设备以继续。",
-    "insertDevice": "请链接您的设备以开始进一步操作",
     "title": "欢迎"
   }
 }

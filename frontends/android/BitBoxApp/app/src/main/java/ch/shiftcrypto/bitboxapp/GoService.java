@@ -26,16 +26,16 @@ import mobileserver.GoEnvironmentInterface;
 import mobileserver.Mobileserver;
 
 public class GoService extends Service {
+    private static final String channelId = "21";
+
+    private static final int notificationId = 8;
+    
     // Binder given to clients
     private final IBinder binder = new GoServiceBinder();
 
     private boolean started = false;
 
-    private Lock startedLock = new ReentrantLock();
-
-    private final String channelId = "21";
-
-    private final int notificationId = 8;
+    private final Lock startedLock = new ReentrantLock();
 
     private ViewModelStoreOwner viewModelStoreOwner;
 

@@ -1,6 +1,33 @@
 # Changelog
+- Integrate Bitrefill and add spending section
 
 ## Unreleased
+- macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
+- Added BTC Direct sell option
+- Added a banner to remind user to backup their seed phrase when an account reaches a certain threshold.
+- Gracefully shut down Electrum connections upon closing the app
+- Show the selected coin's address on the confirmation screen
+- Fetch balances of multiple ETH accounts at the same time, instead of one by one.
+- Fix wrong btc/ltc transaction timestamp during header sync
+
+## v4.48.3
+- Linux: fix compatiblity with some versions of Mesa also when using the AppImage
+
+## v4.48.2
+- iOS: Fix blank screens after prolonged inactivity
+- Ethereum bugfix: show all internal transactions that share the same transaction ID
+
+## v4.48.1
+- Bundle BitBox02 firmware version v9.23.1
+- Format BTC/sat spaces consistently in account summary and total balance
+- Improved offline UX: added detection to show an offline warning banner and auto-reconnect when back online
+- iOS: various UI improvements
+- Add option to disable Bluetooth for BitBox02 Nova (non-iOS devices only)
+- Disabled the option to enable Tor proxy on iOS
+- Android: Fix occasional crash when unplugging the BitBox
+
+## v4.48.0
+- Bundle BitBox02 firmware version v9.23.0
 - Removed the BTC/sat switch from the general settings in favor of a rotating unit in the account balance.
 - Reduced support for BitBox01
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
@@ -9,16 +36,21 @@
 - Fix wrong estimated confirmation time for ERC20 tokens.
 - Enable unlock test wallet in testnet
 - Added support to show on the BitBox when a transaction's recipient is an address of a different account on the device.
-- Integrate Bitrefill and add spending section
+- Persist third party widget sessions
+- Change notes export file type to JSON Lines
+- Add received date to coin control transaction details
 
-# v4.47.2
+## v4.47.3
+- Upgrade Etherscan API to V2
+
+## v4.47.2
 - Linux: fix compatiblity with some versions of Mesa that are incompatible with the bundled wayland libraries
 
 # 4.47.1
 - Linux: fix support for Wayland
 - Linux: release device upon app close, enabling other apps to connect to the BitBox after the BitBoxApp closes
 
-# 4.47.0
+## 4.47.0
 - Bundle BitBox02 firmware version v9.22.0
 - Fix long transaction notes to show fully on multiple lines when necessary
 - Improve send-to-self transactions in account overview
@@ -39,16 +71,16 @@
 - Added BTC Direct buy option
 - Upgraded to Qt 6.8.2, dropping support for macOS 11 and Ubuntu 20.04.
 
-# 4.46.3
+## 4.46.3
 - Fix camera access on linux
 
-# 4.46.2
+## 4.46.2
 - Fix Linux blank screen issue related to the local mimetype database
 
-# 4.46.1
+## 4.46.1
 - Fix Android app crash on old Android versions
 
-# 4.46.0
+## 4.46.0
 - Android: enable export logs feature
 - Label change UTXOs as "change" in coin control
 - Remove support for the deprecated Ethereum Goerli network
@@ -63,7 +95,7 @@
 - Display skeleton screens (placeholder) in the account page during data loading to enhance UX
 - Fix Moonpay widget loading issues
 
-# 4.45.0
+## 4.45.0
 - Bundle BitBox02 firmware version v9.21.0
 - Bitcoin: add support for sending to silent payment (BIP-352) addresses
 - Prevent macOS from going to sleep on long running interactions with the BitBox

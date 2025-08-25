@@ -107,6 +107,11 @@ func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids
 func (coin *Coin) ChainID() uint64 { return coin.net.ChainID.Uint64() }
 
+// ChainIDstr returns the chain ID of the network as a string.
+func (coin *Coin) ChainIDstr() string {
+	return coin.net.ChainID.String()
+}
+
 // Initialize implements coin.Coin.
 func (coin *Coin) Initialize() {}
 

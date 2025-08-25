@@ -168,7 +168,6 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                                     <Amount
                                       amount={balances[account.code].available.amount}
                                       unit={balances[account.code].available.unit}
-                                      removeBtcTrailingZeroes
                                     />
                                     {` ${balances[account.code].available.unit}`}
                                   </>

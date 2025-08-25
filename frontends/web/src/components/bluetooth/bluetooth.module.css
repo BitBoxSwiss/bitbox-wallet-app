@@ -5,9 +5,20 @@
   margin-top: var(--spacing-default);
 }
 
+.innerContainer {
+  background: var(--background);
+}
+
 .label {
   margin-top: var(--spacing-default);
 }
+
+.connectionIssuesLink {
+  margin-top: 72px;
+  text-align: center;
+  width: 100%;
+}
+
 @media (max-width: 768px) {
   .label {
     text-align: center;

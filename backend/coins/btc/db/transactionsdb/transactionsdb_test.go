@@ -392,11 +392,11 @@ func TestOutput(t *testing.T) {
 		require.NoError(t, tx.PutOutput(outpoint2, output2))
 
 		// Test actual db store against fixtures to ensure compatibility does not break
-		require.Equal(t,
+		require.JSONEq(t,
 			`{"Value":12345,"PkScript":"c2NyaXB0MQ=="}`,
 			string(getRawValue(tx, "outputs", []byte("5555555555555555555555555555555555555555555555555555555555555555:2"))),
 		)
-		require.Equal(t,
+		require.JSONEq(t,
 			`{"Value":67890,"PkScript":"c2NyaXB0Mg=="}`,
 			string(getRawValue(tx, "outputs", []byte("6666666666666666666666666666666666666666666666666666666666666666:32"))),
 		)
@@ -488,11 +488,11 @@ func TestAddressHistory(t *testing.T) {
 		require.NoError(t, tx.PutAddressHistory(key2, txHistory2))
 
 		// Test actual db store against fixtures to ensure compatibility does not break
-		require.Equal(t,
+		require.JSONEq(t,
 			`[{"height":10,"tx_hash":"5555555555555555555555555555555555555555555555555555555555555555"},{"height":20,"tx_hash":"6666666666666666666666666666666666666666666666666666666666666666"}]`,
 			string(getRawValue(tx, "addressHistories", []byte(key1))),
 		)
-		require.Equal(t,
+		require.JSONEq(t,
 			`[{"height":15,"tx_hash":"8888888888888888888888888888888888888888888888888888888888888888"}]`,
 			string(getRawValue(tx, "addressHistories", []byte(key2))),
 		)

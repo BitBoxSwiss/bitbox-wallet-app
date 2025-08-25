@@ -45,6 +45,7 @@
     "fiatBalance": "Stanje v fiat valuti",
     "name": "Ime računa",
     "noAccount": "Ni računov za prikaz.",
+    "portfolio": "Portfelj",
     "subtotalWithCoinName": "Skupaj ({{coinName}})",
     "title": "Moj portfelj",
     "total": "Skupaj",
@@ -176,8 +177,7 @@
     "error": {
       "e10000": "Trenutno geslo naprave je napačno.",
       "e10001": "Gesla naprave ni bilo mogoče zamenjati",
-      "e102": "Geslo mora vsebovati najmanj 4 znake.",
-      "e112": "Geslo skrite denarnice ne more biti enako kot geslo glavne denarnice."
+      "e102": "Geslo mora vsebovati najmanj 4 znake."
     }
   },
   "bitbox02Interact": {
@@ -195,7 +195,7 @@
       "current": "Trenutno ime naprave",
       "error": "Imena naprave ni bilo mogoče nastaviti",
       "error_104": "Potrditev imena je bilo prekinjeno na napravi",
-      "input": "Novo ime",
+      "input": "Ime naprave",
       "placeholder": "Novo ime naprave",
       "title": "Nastavite ime tej napravi"
     },
@@ -360,6 +360,13 @@
   "blink": {
     "button": "Sproži utripanje na napravi"
   },
+  "bluetooth": {
+    "connected": "povezan",
+    "connectionFailed": "povezava ni uspela",
+    "connectionIssues": "Imate težave s povezovanjem?",
+    "enable": "Vklopite Bluetooth",
+    "select": "Izberite BitBox"
+  },
   "bootloader": {
     "button": "Nadgradi \"firmware\"",
     "button_install": "Namestite firmware",
@@ -378,7 +385,6 @@
     "dismiss": "Zavrnite",
     "done": "Potrdi izbiro",
     "download": "Prenesi",
-    "hiddenwallet": "Ustvarite skrito denarnico",
     "next": "Naprej",
     "ok": "OK",
     "previous": "Nazaj",
@@ -408,7 +414,7 @@
               "title": "Varnost podatkov"
             },
             "kyc": {
-              "text": "Za vse posle je potrebno preverjanje identitete stranke. Vaš upravitelj računa vas bo vodil skozi postopek in odgovoril na morebitna vprašanja.",
+              "text": "Za vse posle je potrebno preverjanje vaše identitete. Vaš upravitelj računa vas bo vodil skozi postopek in odgovoril na morebitna vprašanja.",
               "title": "Preverjanje identitete"
             },
             "partnership": {
@@ -425,7 +431,7 @@
             },
             "personal": {
               "text": "Vsaki stranki Private Trading je dodeljen namenski upravitelj računa za prilagojeno pomoč prek telefona, video klica, e-pošte ali klepeta. Nakupne in prodajne cene se določijo takoj, ko je naročilo oddano, tudi če do poravnave pride pozneje. Naročila se izvajajo prek mize OTC BTC Direct, kar zmanjšuje odstopanje od trenu.tnih cen.",
-              "title": "Osebna storitev s fiksno ceno"
+              "title": "Personalizirana storitev s fiksno ceno"
             },
             "security": {
               "link": "Pred čem varuje BitBox02",
@@ -441,19 +447,19 @@
             "kyc": "BTC Direct zahteva preverjanje identitete za trgovanje pri njih, vaš upravitelj računa pa vas vodi skozi vse korake.",
             "learnmore": "Kako deluje zasebni trgovalni račun pri BTC Direct.",
             "listItem1": "Kupite in prodajte kadar koli tako, da se obrnete na svojega upravitelja računa po telefonu, e-pošti, video klicu ali klepetu.",
-            "listItem2": "Plačila se izvedejo z bančnim nakazilom po oddaji naročila.",
-            "listItem3": "Minimalni znesek naročila: 50.000 €.",
+            "listItem2": "Plačila se izvedejo preko bančnega nakazila po oddaji naročila",
+            "listItem3": "Minimalni znesek naročila: 50.000 €",
             "listItem4": "Provizije so določene na 0,5 %-1 %, kar vključuje osebno vodenje skozi postopek.",
             "manager": "Imeli boste osebnega upravitelja računa, ki vas bo vodil pri vsakem koraku in zagotavljal varno, preprosto izkušnjo s fiksnimi provizijami oz. minimalnim odstopanjem."
           },
-          "link": "Dostop do BTC Direct - Private Trading Desk",
+          "link": "Pristopite k BTC Direct - Private Trading Desk",
           "title": "Kupujete ali prodajate več kot 50.000 EUR?"
         },
         "btcdirectWidget": {
           "disclaimer": {
-            "description": "Sodelujemo z BTC Direct, zaupanja vrednim evropskim posrednikom, da olajšamo nakup kriptovalut v aplikaciji BitBoxApp. Ta storitev je na voljo po vsej Evropi z uporabo bančnih nakazil, kreditnih kartic in številnih lokalnih načinov plačila.",
+            "description": "Sodelujemo z BTC Direct, zaupanja vrednim evropskim posrednikom, da bi vam olajšali nakup kriptovalut v aplikaciji BitBoxApp. Ta storitev je na voljo po vsej Evropi z bančnimi nakazili, kreditnimi karticami in številnimi lokalnimi plačilnimi metodami.",
             "kyc": {
-              "description": "Za vse posle je potrebno preverjanje identitete stranke. Posneti boste morali selfi in fotografirati uradni dokument.",
+              "description": "Za vse posle je potrebno preverjanje vaše identitete. Posneti boste morali selfi in fotografirati uradni dokument.",
               "title": "Preverjanje identitete"
             },
             "paymentMethods": {
@@ -634,14 +640,6 @@
     "keystoreConnected": "Povezana denarnica",
     "unsupportedFeature": "Na tej napravi željena funkcionalnost ni podprta."
   },
-  "deviceLock": {
-    "button": "Omogočite dvofaktorsko avtentikacijo (2FA)",
-    "condition1": "Imate varnostno kopijo?",
-    "condition2": "Ali deluje preverjanje v mobilni aplikaciji?",
-    "condition3": "2FA ONEMOGOČA varnostne kopije in seznanjanje z mobilno aplikacijo. Naprava mora biti resetirana za izhod iz dvofaktorskega (2FA) načina!",
-    "confirm": "Omogočite dvofaktorsko avtentikacijo (2FA)",
-    "title": "Omogočite dvofaktorsko avtentikacijo (2FA)"
-  },
   "deviceSettings": {
     "backups": {
       "manageBackups": {
@@ -729,24 +727,7 @@
       "title": "Naprava"
     },
     "loading": "Pridobivam informacije o napravi ...",
-    "pairing": {
-      "lock": {
-        "false": "Onemogočeno",
-        "label": "Dvo faktorska avtentikacija (2FA)",
-        "true": "Omogočeno"
-      },
-      "mobile": {
-        "false": "Zaprto",
-        "label": "Mobilna aplikacija",
-        "true": "Odpri"
-      },
-      "status": {
-        "false": "Ni uparjen",
-        "label": "Status",
-        "true": "Uparjen"
-      },
-      "title": "Seznanjanje (uparitev)"
-    },
+    "noDevice": "Nobena naprava ni povezana",
     "secrets": {
       "manageBackups": "Upravljanje varnostnih kopij",
       "title": "Varnost"
@@ -829,9 +810,11 @@
     "buy_crypto": "Kupi kripto",
     "enabled_false": "Onemogočeno",
     "enabled_true": "Omogočeno",
+    "noOptions": "Ni najdenih možnosti",
     "receive": "Prejmi {{coinCode}}",
     "receive_bitcoin": "Prejmi Bitcoin",
-    "receive_crypto": "Prejmi kripto"
+    "receive_crypto": "Prejmi kripto",
+    "search": "Iskanje …"
   },
   "genericError": "Pojavila se je napaka. Če opazite kakršne koli težave, znova zaženite aplikacijo.",
   "goal": {
@@ -974,7 +957,9 @@
     },
     "appendix": {
       "link": "Kontaktirajte nas!",
-      "text": "Imate še kakšno vprašanje?"
+      "questionService": "Imate težave z {{serviceName}}?",
+      "text": "Imate še kakšno vprašanje?",
+      "textService": "V kolikor imate težave z {{serviceName}}, se obrnite neposredno nanje:"
     },
     "backups": {
       "check": {
@@ -1009,14 +994,6 @@
       }
     },
     "bitbox": {
-      "2FA": {
-        "text": "Ko je 2FA omogočena, je potrebno na uparjenem telefonu odobriti vse izvedene transakcije, da bi premaknili kovance. \nV ozadju se kriptirana unikatna vrednost pošlje v aplikacijo na telefonu, se tam dešifrira in ko pritisnete gumb \"Sprejmi\" se vrne v BitBox. Komunikacija z napravo se izvaja preko kanala, ki je bil vzpostavljen med uparjevanjem s telefonom, in to namizno aplikacijo.\n\nPOZOR: Predno omogočite 2FA, bodite pozorni, da varnostno kopirate svojo denarnico in uparite telefon. Ko je 2FA omogočena, je namreč microSD kartica onemogočena in uparjevanje s telefonom ni možno. To dvoje lahko znova omogočite le po ponastavitvi BitBox01, ki izbriše napravo (in s tem denarnico)!",
-        "title": "Kako deluje dvofaktorska avtentikacija (2FA)?"
-      },
-      "disable2FA": {
-        "text": "Če želite onemogočiti 2FA, morate ponastaviti (resetirati) in s tem izbrisati denarnico na BitBox-u in jo nato obnoviti iz varnostne kopije. Prepričajte se, da imate še vedno microSD kartico z varnostno kopijo in shranjeno veljavno in pravilno geslo za obnovo te denarnice.\nŠele nato pritisnite »Ponastavi napravo«. Nastavite novo geslo naprave in izberite »Obnovite varnostno kopijo«. Izberite pravo varnostno kopijo, ki ste jo naredili iz denarnice, kliknite »Obnovi« in vnesite geslo za obnovitev, ki ste ga kreirali pri ustvarjanju denarnice.",
-        "title": "Kako onemogočim dvo faktorsko avtentikacijo (2FA)?"
-      },
       "ejectBitbox": {
         "text": "BitBox lahko izklopite kadarkoli oz. iztaknete iz USB vhoda.",
         "title": "Kako lahko odklopim BitBox?"
@@ -1024,18 +1001,6 @@
       "ejectSD": {
         "text": "MicroSD lahko odstranite iz BitBoxa kadarkoli, razen, ko ste v procesu ustvarjanja ali obnavljanja varnostne kopije.",
         "title": "Kdaj lahko odstranim microSD kartico?"
-      },
-      "hiddenWallet": {
-        "text": "Gre za drugo denarnico na isti napravi, zaščiteno z različnim geslom naprave in obnovitvenim geslom, ki ga lahko uporabite za verodostojno zanikanje. Enako rezervno seme se uporablja za normalno in skrito denarnico, zato dodatna varnostna kopija ni potrebna.",
-        "title": "Kaj je skrita denarnica?"
-      },
-      "legacyHiddenWallet": {
-        "text": "Najprej kliknite spodnji gumb (na voljo le, če je BitBox odklenjen z glavnim geslom naprave in je 2FA onemogočen), nato ponovno vklopite Bitbox in ga odklenite s svojim alternativnim geslom naprave.",
-        "title": "Kako dostopam do skrite denarnice?"
-      },
-      "pairing": {
-        "text": "Ko naložite našo mobilno aplikacijo za iOS ali Android, skenirajte prikazano QR kodo, ki vzpostavi varen kanal med mobilno aplikacijo in to aplikacijo. Poskenirajte in sledite navodilom v mobilni aplikaciji.",
-        "title": "Kako varno uparite BitBox01 s telefonom"
       }
     },
     "bitsurance": {
@@ -1231,10 +1196,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "Ko jo vstavite, naprava utripne enkrat. Prepričajte se, da je pravilno obrnjena v USB reži. Če imate težave, nas kontaktirajte preko spodnje povezave.\n\nBitBox01 ni podprt v mobilni aplikaciji. Za povezavo z BitBox01 uporabite BitBoxApp na namizju.",
-        "title": "Moj BitBox01 ni prepoznan"
-      },
       "getDevice": {
         "link": {
           "text": "Naročite BitBox"
@@ -1260,6 +1221,13 @@
       "welcome": {
         "text": "Podjetje Shift Crypto iz Švice se vam zahvaljuje, ker uporabljate BitBoxApp. \nVaše predloge za izboljšavo zelo cenimo in si jih želimo. Vaš odziv pričakujemo na povezavi na dnu.",
         "title": "Pozdravljeni v aplikaciji BitBox!"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "Naročite BitBox02 Nova"
+        },
+        "text": "Samo BitBox02 Nova deluje z iOS-om. Običajni BitBox02 se lahko uporablja z vsemi drugimi platformami. Za nakup BitBox02 Nova obiščite našo trgovino ali še bolje, lokalne partnerje.",
+        "title": "Kateri BitBox deluje z iOS-om?"
       }
     },
     "walletConnect": {
@@ -1279,16 +1247,6 @@
   },
   "headerssync": {
     "blocksSynced": "{{blocks}} sinhroniziranje blokov"
-  },
-  "hiddenWallet": {
-    "info1HTML": "Za namene verodostojnega zanikanja (obstoja prave denarnice) lahko ustvarite skrito denarnico na podlagi <strong>drugačne (alternativne)</strong> kombinacije gesla in gesla za obnovitev varnostne kopije. ",
-    "info2HTML": "Določite geslo naprave in geslo za obnovitev, ki ju želite povezati s spodnjo skrito denarnico. To geslo naprave in geslo za obnovitev morata biti <strong> drugačna </strong> od tistih, ki ste ju določili za primarno denarnico.",
-    "passwordLabel": "Skrito geslo za obnovitev",
-    "passwordPlaceholder": "Potrdite skrito geslo za obnovitev",
-    "pinLabel": "Geslo za skrito denarnico",
-    "pinRepeatLabel": "Ponovite geslo skrite denarnice",
-    "pinRepeatPlaceholder": "Prosimo potrdite geslo skrite denarnice",
-    "success": "Skrita denarnica je bila uspešno ustvarjena. Iztaknite in ponovno vtaknite BitBox v USB vhod, da jo odklenete."
   },
   "initialize": {
     "create": "Ustvarite geslo naprave",
@@ -1312,12 +1270,6 @@
   "invalidFormat": "Neveljavna oblika",
   "language": {
     "title": "Izberite jezik"
-  },
-  "legacyhiddenwallet": {
-    "disable": "Onemogoči starejšo skrito denarnico (legacy wallet)",
-    "enable": "Omogoči skrito denarnico starejšega formata (legacy)",
-    "successDisable": "Skita denarnica bitcoin računa starejše generacije je onemogočena.",
-    "successEnable": "Skrita denarnica starejšega formata je uspešno omogočena. Znova priključite svoj BitBox in skrbno vnesite geslo naprave za dostop do starejše skrite denarnice."
   },
   "loading": "nalaganje…",
   "manageAccounts": {
@@ -1412,51 +1364,19 @@
     "newTxs_one": "Novih transakcij na: {{accountName}}",
     "newTxs_other": "{{count}} novih transakcij na: {{accountName}}"
   },
-  "pairing": {
-    "aborted": {
-      "text": "Uparjanje je bilo prekinjeno s strani mobilne aplikacije.",
-      "title": "Prekinjeno"
-    },
-    "button": "Uparite z mobilno aplikacijo",
-    "confirm": "Ali ste prepričani, da želite upariti svoj BitBox? Upoštevajte, da je po uparitvi mobilni telefon vedno potreben za izvedbo transakcije.",
-    "connectOnly": {
-      "button": "Povežite z mobilno aplikacijo",
-      "title": "Skenirajte z našo mobilno aplikacijo tako, da izberete menijsko točko »Connect to new desktop app«"
-    },
-    "error": {
-      "text": "Nekaj ​​je šlo narobe. Prosimo, začnite znova.",
-      "title": "Napaka"
-    },
-    "pullFailed": {
-      "text": "Sporočila iz mobilnega telefona ni bilo mogoče pridobiti prek relejskega strežnika. Strežnik je morda brez povezave. Prosimo, obrnite se na podporo.",
-      "title": "Parjenje ni uspelo"
-    },
-    "reconnectOnly": {
-      "button": "Ponovno vzpostavite povezavo z mobilno aplikacijo"
-    },
-    "scanningFailed": {
-      "text": "Mobilnik ni uspešno skeniral sporočila. Prosimo poskusite ponovno.",
-      "title": "Skeniranje ni uspelo"
-    },
-    "start": {
-      "hideAppQRCode": "Skrij kodo QR",
-      "revealAppQRCode": "Prikaži QR kodo",
-      "step1": "Če mobilne aplikacije še nimate, lahko skenirate QR kodo za Apple App Store ali Google Play Store, odvisno od tega, kateri telefon imate.",
-      "step2": "Skenirajte z našo mobilno aplikacijo, ki jo najdete pod imenom „Digital Bitbox 2FA“ v trgovinah z aplikacijami za iOS in Android:"
-    },
-    "started": {
-      "text": "Prosimo sledite navodilom v mobilni aplikaciji.",
-      "title": "Super"
-    },
-    "success": {
-      "text": "Čestitamo, uspešno ste uparili BitBox z mobilno aplikacijo!",
-      "title": "Uspelo je!"
-    },
-    "timeout": {
-      "text": "Seznanitev je potekla po dveh minutah. Začnite znova, če želite BitBox še vedno upariti z mobilno aplikacijo.",
-      "title": "Odmor"
-    },
-    "title": "Mobilno seznanjanje"
+  "novaConnectionIssues": {
+    "connectionIssueTips": "Težave s povezavo?",
+    "description1": "Samo BitBox02 Nova je združljiv z iOS. Za BitBox02 uporabite Windows, macOS, Android ali Linux. BitBox02 Nova lahko kupite v naši spletni trgovini ali pe bolje, preko lokalnih partnerjev.",
+    "description2": "Zaslon se mora prižgati. Če zaslon ni vklopljen, naprava ne prejema napajanja.",
+    "description3": "",
+    "description4": "BitBox02 Nova se z iOS-om poveže prek Bluetootha. Bluetooth je mogoče omogočiti/onemogočiti v nastavitvah BitBoxApp na drugih platformah.",
+    "link1": "Naročite BitBox02 Nova",
+    "link2": "Kontaktirajte podporo",
+    "stillHavingIssues": "Imate še vedno težave?",
+    "title1": "Z iOS-om uporabljajte le BitBox02 Nova",
+    "title2": "Prepričajte se, da je BitBox02 Nova priključena na napajanje",
+    "title3": "Imejte BitBox02 Nova v dosegu Bluetooth naprave",
+    "title4": "Prepričajte se, da Bluetooth na napravi BitBox02 Nova ni deaktiviran."
   },
   "passphrase": {
     "considerations": {
@@ -1553,16 +1473,11 @@
       "p2wpkh-p2sh": "Wrapped Segwit (starejši tip)"
     },
     "selectAccount": "Izberite račun",
-    "showFull": "Pokaži in preveri polni naslov na napravi",
     "taprootWarning": "Opomba: Taproot je nov tip Bitcoin naslova, ki ni še povsod podprt. Sredstva, prejeta na Taproot naslov, morda ne bodo vidna v drugih denarnicah s katerim dostopate do svoje naprave. Številne denarnice in menjalnice še niso zmožne poslati na Taproot naslove.",
     "title": "Prejmi {{accountName}}",
     "verify": "Skrbno preverite naslov",
-    "verifyBitBox01": "Preverite naslov v mobilni aplikaciji",
     "verifyBitBox02": "Preverite naslov na BitBox02",
-    "verifyInstruction": "Preverite, da se prikazan naslov ujema s tistim, ki je prikazan na BitBoxu in to potrdite na napravi.",
-    "warning": {
-      "secureOutput": "Prosimo, uparite BitBox z mobilno aplikacijo, da omogočite varno preverjanje naslovov. Pojdite na »Upravljanje naprave« v stranski vrstici."
-    }
+    "verifyInstruction": "Preverite, da se prikazan naslov ujema s tistim, ki je prikazan na BitBoxu in to potrdite na napravi."
   },
   "reset": {
     "description": "Vsi podatki na napravi bodo izbrisani. To vključuje vaš zasebni ključ!",
@@ -1712,10 +1627,6 @@
     "priority": "Omrežnina",
     "scanQR": "Skenirajte QR kodo",
     "scanQRNoCameraMessage": "Kamera ni zaznana. Prepričajte se, da vaša naprava podpira kamero in da so pravice aplikaciji dodeljene.",
-    "signprogress": {
-      "description": "Ta transakcija vsebuje veliko podatkov. Če želite v celoti podpisati transakcijo, boste morali potrditi {{steps}} krat.",
-      "label": "V teku"
-    },
     "success": "Transakcija je bila podpisana in poslana.",
     "title": "Pošlji {{accountName}}",
     "toggleCoinControl": "Odpri nadzor nad kovanci",
@@ -1723,7 +1634,6 @@
   },
   "settings": {
     "about": "O aplikaciji",
-    "accounts": "Računi",
     "advancedSettings": "Napredne nastavitve",
     "appearance": "Izgled",
     "electrum": {
@@ -1780,6 +1690,7 @@
       "up-to-date": "Aplikacija je posodobljena",
       "version": "Verzija aplikacije"
     },
+    "more": "Več",
     "notes": {
       "export": {
         "description": "Shranite opise transakcij in imena računov.",
@@ -1827,6 +1738,33 @@
       "title": "Uspelo je!"
     }
   },
+  "testWallet": {
+    "connect": {
+      "description": "Testna denarnica za testiranje brez naprave v testnet-u.",
+      "title": "Testna denarnica"
+    },
+    "disconnect": {
+      "description": "Odstrani testno denarnico",
+      "title": "Prekini povezavo s testno denarnico"
+    },
+    "prompt": {
+      "button": "Odkleni",
+      "passwordLabel": "Geslo testne denarnice",
+      "title": "Odkleni testno denarnico"
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "Znova zaženite aplikacijo v načinu testnet, da raziščete in preizkusite funkcije.",
+      "prompt": "Zaprite aplikacijo in jo znova zaženite, da vstopite v način testnet-a.",
+      "title": "Vtopi v način za testnet"
+    },
+    "deactivate": {
+      "description": "Znova zaženite aplikacijo, da zaprete način testnet-a.",
+      "prompt": "Za izhod iz testneta zaprite aplikacijo.",
+      "title": "Izhod iz testneta"
+    }
+  },
   "transaction": {
     "confirmation": "Št. potrditev",
     "details": {
@@ -1865,7 +1803,7 @@
       "failed": "Ni uspelo",
       "pending": "V teku",
       "pending_receive": "Dohodni",
-      "pending_send": "Odhodni",
+      "pending_send": "Izhodni",
       "pending_send_to_self": "V teku"
     },
     "tx": {
@@ -1930,7 +1868,6 @@
     },
     "pairingSuccess": "DApp je uspešno povezana. Nadaljujete lahko na spletni strani te DApp.",
     "signingRequest": {
-      "account": "Račun",
       "chain": "Omrežje",
       "dapp": "Dapp",
       "data": "Podatki",
@@ -1950,17 +1887,14 @@
   },
   "warning": {
     "coincontrol": "Eden ali več UTXO (prejemov) je na naslovu, ki je bil večkrat uporabljen. Zavedajte se, da bo prejemnik videl vse UTXO (prejeme Bitcoina), povezane s temi naslovi.",
-    "receivePairing": "Prosimo, da seznanite BitBox01 s pametnim telefonom, da si omogočite varno preverjanje naslovov. Pojdite na »Upravljanje naprave« v stranski vrstici.",
     "sdcard": "MicroSD kartico hranite ločeno od BitBoxa, razen ko upravljate z varnostnimi kopijami.",
-    "sendPairing": "Za varno preverjanje podrobnosti o transakcijah seznanite BitBox\nz mobilno napravo. Pojdite na »Upravljanje naprave« v stranski vrstici.",
     "testnet": "Opozorilo: trenutno uporabljate denarnico v načinu Testnet. Transakcije in stanja tukaj niso resnični in ne bodo prikazani v glavnem omrežju. Omrežje testnet je namenjen samo za testiranje in razvoj."
   },
   "welcome": {
     "connect": "Vklopi BitBox02",
     "getStarted": "Začnimo z namestitvijo strojne programske opreme (firmware)",
-    "insertBitBox02": "Na BitBox02 se dotaknite željene strani zaslona. ",
-    "insertDevice": "Za začetek, priključite denarnico",
     "loadingAccounts": "Nalaganje računov",
+    "message": "Priključite BitBox in se dotaknite strani naprave.",
     "title": "Dobrodošli"
   }
 }

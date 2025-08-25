@@ -18,6 +18,7 @@ import { Testing } from './testing';
 import { Update } from './update';
 import { Banner } from './banner';
 import { MobileDataWarning } from './mobiledatawarning';
+import { Offline } from './offline';
 
 export const GlobalBanners = () => {
   return (
@@ -26,7 +27,9 @@ export const GlobalBanners = () => {
       <Update />
       <Banner msgKey="bitbox01" />
       <Banner msgKey="bitbox02" />
+      <Banner msgKey="bitbox02nova" />
       <MobileDataWarning />
+      <Offline />
     </>
   );
 };

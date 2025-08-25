@@ -1,0 +1,18 @@
+.title {
+    font-weight: bold;
+}
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.content p {
+    margin: 0;
+    margin-bottom: 8px;
+}
+
+.appendix {
+    display: flex;
+    gap: 4px;
+}

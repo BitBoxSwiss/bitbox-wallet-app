@@ -45,6 +45,7 @@
     "fiatBalance": "Saldo de Fiat",
     "name": "Nombre de cuenta",
     "noAccount": "No hay cuentas para mostrar.",
+    "portfolio": "Portfolio",
     "subtotalWithCoinName": "({{coinName}}) total",
     "title": "Mi portfolio",
     "total": "Total",
@@ -68,7 +69,7 @@
       "step": "Finalizado",
       "title": "Cuenta añadida"
     },
-    "title": "Añadir cuenta"
+    "title": "Agregar cuenta"
   },
   "aopp": {
     "addressRequest": "{{host}} está solicitando una dirección de recepción.",
@@ -80,7 +81,7 @@
     "labelAddress": "Dirección",
     "labelMessage": "Mensaje",
     "reverifyInfoText": "Verifica la dirección",
-    "signing": "Para proceder, firma el mensaje en tu BitBox02",
+    "signing": "Para proceder, firma el mensaje en tu BitBox",
     "success": {
       "message": "Proceder con {{host}}",
       "title": "Dirección enviada con éxito"
@@ -99,7 +100,7 @@
   "backup": {
     "check": {
       "checking": "Comprobando copia de seguridad ...",
-      "confirmTitle": "Comprobar copia de seguridad",
+      "confirmTitle": "Verificar copia de seguridad",
       "notOK": "La copia de seguridad NO coincide con la billetera.",
       "ok": "La copia de seguridad coincide con la billetera.",
       "password": {
@@ -108,7 +109,7 @@
         "showLabel": "contraseña de recuperación"
       },
       "success": "La copia de seguridad ha sido verificada con éxito:",
-      "title": "Comprobar copia de seguridad"
+      "title": "Verificar copia de seguridad"
     },
     "create": {
       "alreadyExists": "Ya tienes una copia de seguridad válida. ¿Quieres volverla a crear?",
@@ -160,7 +161,7 @@
     "abort": "No actualizar - volver atrás",
     "abort_noUpgrade": "Volver atrás",
     "additionalUpgradeFollows1": "Una actualización adicional seguirá inmediatamente después de esta.",
-    "additionalUpgradeFollows2": "Por favor, mantén tu BitBox02 conectada mientras se completan todas las actualizaciones.",
+    "additionalUpgradeFollows2": "Por favor, mantén tu BitBox conectada mientras se completan todas las actualizaciones.",
     "advanced": {
       "label": "Configuración avanzada",
       "toggleShowFirmwareHash": "Mostrar el hash del firmware en cada inicio"
@@ -169,25 +170,24 @@
     "orientation": "¿Está el dispositivo orientado de manera incorrecta?",
     "success": "¡Actualización exitosa!",
     "success_install": "¡Instalación exitosa!",
-    "upgradeTitle": "Se está actualizando el firmware de tu BitBox02",
-    "upgradeTitle_install": "Se está instalando el firmware de tu BitBox02"
+    "upgradeTitle": "Se está actualizando el firmware de tu BitBox",
+    "upgradeTitle_install": "Se está instalando el firmware de tu BitBox"
   },
   "bitbox": {
     "error": {
       "e10000": "Contraseña del dispositivo actual incorrecta.",
       "e10001": "Error al reemplazar la contraseña del dispositivo",
-      "e102": "La contraseña debe contener al menos 4 caracteres.",
-      "e112": "La contraseña oculta del dispositivo no puede ser la misma que la contraseña principal del dispositivo."
+      "e102": "La contraseña debe contener al menos 4 caracteres."
     }
   },
   "bitbox02Interact": {
-    "confirmDate": "Confirma la fecha de hoy en tu BitBox02",
+    "confirmDate": "Confirma la fecha de hoy en tu BitBox",
     "confirmDateText": "Esta fecha se utilizará para crear tu copia de seguridad.",
-    "confirmName": "Confirma el nombre en tu BitBox02",
-    "confirmWords": "Escribe las {{amount}} palabras de recuperación de tu BitBox02",
-    "confirmWordsText": "Después es esto tu BitBox02 te pedirá que confirmes cada palabra para verificar que hayas hecho la copia de seguridad de manera correcta.",
-    "followInstructions": "Por favor, sigue las instrucciones en tu BitBox02",
-    "followInstructionsMnemonic": "Sigue las instrucciones en tu BitBox02 para introducir las palabras de recuperación de tu copia de seguridad y restaurar tu billetera.",
+    "confirmName": "Confirma el nombre en tu BitBox",
+    "confirmWords": "Escribe las {{amount}} palabras de recuperación de tu BitBox",
+    "confirmWordsText": "Después es esto tu BitBox te pedirá que confirmes cada palabra para verificar que hayas hecho la copia de seguridad de manera correcta.",
+    "followInstructions": "Por favor, sigue las instrucciones en tu BitBox",
+    "followInstructionsMnemonic": "Sigue las instrucciones en tu BitBox para introducir las palabras de recuperación de tu copia de seguridad y restaurar tu billetera.",
     "followInstructionsMnemonicTitle": "Restaurar desde las palabras de recuperación"
   },
   "bitbox02Settings": {
@@ -195,12 +195,12 @@
       "current": "Nombre del dispositivo actual",
       "error": "No se ha podido establecer el nombre del dispositivo",
       "error_104": "La confirmación del nombre del dispositivo fue abortada en el propio dispositivo.",
-      "input": "Nombre de la BitBox02",
+      "input": "Nombre de tu BitBox",
       "placeholder": "Nuevo nombre del dispositivo",
-      "title": "Establece el nombre de la BitBox02"
+      "title": "Dale un nombre a tu BitBox"
     },
     "gotoStartupSettings": {
-      "description": "Esto reiniciará tu BitBox02 y entrará en la configuración de arranque.",
+      "description": "Esto reiniciará tu BitBox y entrará en la configuración de arranque.",
       "title": "Ir a configuración de arranque"
     }
   },
@@ -210,7 +210,7 @@
       "outOfDate": "Se requiere actualización del firmware",
       "seed12WordInfo": "Ten en cuenta que el número de palabras no se puede cambiar después de crear la billetera.",
       "seed12WordLabel": "Crear semilla de 12 palabras en lugar de 24 palabras",
-      "seed12WordText": "Predeterminadamente, la BitBox02 utiliza una semilla de 24 palabras. Ambas longitudes de semilla son seguras contra la fuerza bruta en la práctica. Algunos usuarios pueden preferir la conveniencia de la semilla de 12 palabras.",
+      "seed12WordText": "Predeterminadamente, la BitBox utiliza una semilla de 24 palabras. Ambas longitudes de semilla son seguras contra la fuerza bruta en la práctica. Algunos usuarios pueden preferir la conveniencia de la semilla de 12 palabras.",
       "skipSDCardLabel": "Omitir la copia de seguridad de la tarjeta microSD y escribir las palabras de recuperación en su lugar",
       "skipSDCardText": "Siempre tienes la opción de crear una copia de seguridad de la tarjeta microSD o escribir tus palabras de recuperación después de la configuración. Esto se puede hacer desde los ajustes.",
       "title": "Opciones avanzadas de copia de seguridad"
@@ -220,15 +220,15 @@
       "point1": "Selecciona una copia de seguridad de la tarjeta microSD",
       "point2": "Establece una contraseña para tu dispositivo",
       "restoreText": "Ok, restablezcamos una copia de seguridad!",
-      "text1": "Genial, has establecido la contraseña de tu BitBox02 y tu billetera se ha creado. Ahora es momento de crear tu primera copia de seguridad (backup). Por favor asegúrate de haber introducido bien la tarjeta microSD en tu BitBox02 y continua.",
+      "text1": "Genial, has establecido la contraseña de tu BitBox y tu billetera se ha creado. Ahora es momento de crear tu primera copia de seguridad. Por favor asegúrate de haber introducido bien la tarjeta microSD en tu BitBox y continua.",
       "text2": "Por favor sigue las instrucciones que aparecen en la pantalla de tu dispositivo para crear la copia de seguridad. ",
-      "text3": "Después de que tu copia de seguridad se haya creado, por favor extrae la tarjeta microSD y guárdala en un <strong>lugar seguro</strong>. El contenido de la tarjeta microSD no está protegido con contraseña. Nunca la insertes en ningún otro dispositivo que no sea tu BitBox02. ",
+      "text3": "Después de que tu copia de seguridad se haya creado, por favor extrae la tarjeta microSD y guárdala en un <strong>lugar seguro</strong>. El contenido de la tarjeta microSD no está protegido con contraseña. Nunca la insertes en ningún otro dispositivo que no sea tu BitBox.",
       "userConfirmation1": "Debo guardar mi copia de seguridad en un lugar seguro.",
       "userConfirmation2": "Mi copia de seguridad no está protegida por contraseña. Cualquiera con acceso a ella tiene acceso a mi billetera.",
-      "userConfirmation3": "Si pierdo o daño mi BitBox02, la única forma de recuperar mis fondos es recuperar mi billetera desde mi copia de seguridad.",
-      "userConfirmation4": "En caso de perder o dañar tanto mi copia de seguridad como mi BitBox02, mis fondos se habrán perdido.",
-      "userConfirmation5": "No debería insertar mi copia de seguridad de la tarjeta microSD en el ordenador, teléfono, impresora o en ningún otro dispositivo que no sea BitBox02.",
-      "userConfirmation5mnemonic": "No debo poner mis palabras de recuperación en un computador, teléfono, impresora o cualquier otro dispositivo que no sea un BitBox02."
+      "userConfirmation3": "Si pierdo o daño mi BitBox, la única forma de recuperar mis fondos es recuperar mi billetera desde mi copia de seguridad.",
+      "userConfirmation4": "En caso de perder o dañar tanto mi copia de seguridad como mi BitBox, mis fondos se habrán perdido.",
+      "userConfirmation5": "No debo insertar mi copia de seguridad de la tarjeta microSD en un ordenador, teléfono, impresora o en ningún otro dispositivo que no sea mi BitBox.",
+      "userConfirmation5mnemonic": "No debo poner mis palabras de recuperación en un ordenador, teléfono, impresora o cualquier otro dispositivo que no sea mi BitBox."
     },
     "create": {
       "button": "Dale un nombre al dispositivo y continua",
@@ -246,10 +246,10 @@
     },
     "noPasswordMatch": "Las contraseñas no coinciden, por favor, vuelve a intentarlo.",
     "pairing": {
-      "failed": "Conexión no confirmada. Por favor vuelve a conectar tu BitBox02.",
+      "failed": "Conexión no confirmada. Por favor vuelve a conectar tu BitBox.",
       "paired": "Has confirmado el siguiente código en tu dispositivo.  Por favor continua.",
       "title": "Comprueba el código de conexión.",
-      "unpaired": "Se ha detectado un BitBox02 no emparejado. Verifique que el código de emparejamiento coincida con lo que se muestra en su BitBox02. "
+      "unpaired": "Se ha detectado una BitBox no emparejada. Verifica que el código de emparejamiento coincida con lo que se muestra en tu BitBox. "
     },
     "restoreFromMnemonic": {
       "e104": "Se canceló la restauración desde las palabras de recuperación.",
@@ -265,41 +265,41 @@
       "title": "Copia de seguridad restablecida!"
     },
     "stepConnected": {
-      "unlock": "Introduce la contraseña de tu BitBox02 para desbloquearla."
+      "unlock": "Introduce la contraseña de tu BitBox para desbloquearla."
     },
     "stepCreate": {
-      "description": "Este nombre es utilizado como el nombre del dispositivo y el de la copia de seguridad.",
+      "description": "Este nombre se utilizará como el nombre de tu dispositivo y de su copia de seguridad.",
       "error": {
         "genericMessage": "Utilice letras, números, símbolos básicos y espacios. Máximo 30 caracteres.",
         "invalidChars": "El nombre contiene caracteres no válidos: {{invalidChars}}.",
         "tooLong": "El nombre es demasiado largo."
       },
-      "nameLabel": "Nombre de la BitBox02",
-      "namePlaceholder": "Mi BitBox02",
-      "title": "Selecciona el nombre de la BitBox02",
-      "toastMicroSD": "Por favor, inserte su tarjeta microSD en su BitBox02 que se utilizará para almacenar una copia de seguridad de la billetera."
+      "nameLabel": "Nombre de tu BitBox",
+      "namePlaceholder": "Mi BitBox",
+      "title": "Dale un nombre a tu BitBox",
+      "toastMicroSD": "Por favor, inserta en tu BitBox la tarjeta microSD que utilizarás para almacenar la copia de seguridad de tu billetera."
     },
     "stepCreateSuccess": {
-      "removeMicroSD": "Por favor, extrae la tarjeta microSD de tu BitBox02 y guárdala en un lugar seguro. ",
+      "removeMicroSD": "Por favor, extrae la tarjeta microSD de tu BitBox y guárdala en un lugar seguro. ",
       "storeMnemonic": "Guarde sus palabras de recuperación en un lugar seguro",
       "success": "Has creado una copia de seguridad con éxito."
     },
     "stepInsertSD": {
-      "insertSDCard": "Por favor, introduce una microSD en tu BitBox02 para continuar.",
-      "insertSDCardToSeeBackups": "Inserta la tarjeta microSD en tu BitBox02 para ver tus copias de seguridad.",
+      "insertSDCard": "Por favor, inserta una tarjeta microSD en tu BitBox para continuar.",
+      "insertSDCardToSeeBackups": "Inserta la tarjeta microSD en tu BitBox para ver tus copias de seguridad.",
       "insertSDcardTitle": "Introduce la tarjeta microSD"
     },
     "stepPassword": {
       "e104": "Se canceló la configuración de la contraseña.",
-      "title": "Establece la contraseña de tu BitBox02",
-      "useControls": "Utiliza los controles de tu BitBox02 para establecer la contraseña."
+      "title": "Establece una contraseña para tu BitBox",
+      "useControls": "Utiliza los controles de tu BitBox para establecer la contraseña."
     },
     "stepUninitialized": {
       "create": "Quiero crear una nueva billetera con mi BitBox02.",
       "restore": "Quiero recuperar mi billetera desde una copia de seguridad.",
       "restoreMicroSD": "Restaurar desde una tarjeta microSD",
       "restoreMnemonic": "Restaurar desde las palabras de recuperación",
-      "title": "Configure su billetera"
+      "title": "Configura tu billetera"
     },
     "success": {
       "title": "Estas preparado para usar la billetera BitBox."
@@ -332,14 +332,14 @@
       "listItem2": "Extorsión (por ejemplo, ataque con una llave inglesa de 5 dólares)",
       "listItem3": "Destruction due to fire, water or natural disasters",
       "month": "mes",
-      "text": "Asegura tu BitBox02 y hasta 100.000 euros en bitcoins contra",
+      "text": "Asegura tu BitBox y hasta 100.000 euros en bitcoins contra",
       "text2": "Los planes de seguro cuestan a partir de 30 euros al año (2,50 euros al mes). Puede obtener más información sobre Bitsurance y sus ofertas de seguros exactas en la página web",
       "text3": "Actualmente disponible en Alemania y en otras regiones.",
       "title": "Comienza"
     },
     "intro": {
       "link": "Sitio web de Bitsurance",
-      "text1": "BitBox trabaja con Bitsurance para añadir una capa adicional de protección para tu bitcoin. Mientras que la BitBox02 mantiene tus fondos seguros, Bitsurance cubre las amenazas en casa que no se pueden mitigar solo con tecnología, como robos, extorsiones o la destrucción de la propia billetera física."
+      "text1": "BitBox trabaja con Bitsurance para añadir una capa adicional de protección para tu bitcoin. Mientras que la BitBox mantiene tus fondos seguros, Bitsurance cubre las amenazas en casos que no se pueden mitigar solo con tecnología, como robos, extorsiones o la destrucción de la propia billetera física."
     },
     "terms": {
       "link": "Política de privacidad de Bitsurance",
@@ -360,6 +360,13 @@
   "blink": {
     "button": "Parpadeo"
   },
+  "bluetooth": {
+    "connected": "Conectado",
+    "connectionFailed": "Conexión fallida",
+    "connectionIssues": "¿Tiene problemas de conexión",
+    "enable": "Por favor enciende el Bluetooth",
+    "select": "Selecciona tu BitBox"
+  },
   "bootloader": {
     "button": "Actualizar firmware ahora",
     "button_install": "Instalar el nuevo firmware ahora",
@@ -371,18 +378,17 @@
     "abort": "Cancel",
     "back": "Atrás",
     "changepin": "Cambiar contraseña del dispositivo",
-    "check": "Comprobar la copia de seguridad",
+    "check": "Verificar copia de seguridad",
     "continue": "Continuar",
     "copy": "Copia",
     "create": "Crear",
     "dismiss": "Descartar",
     "done": "Hecho",
     "download": "Descargar",
-    "hiddenwallet": "Crea billetera oculta",
     "next": "Siguiente",
     "ok": "OK",
     "previous": "Anterior",
-    "proceedOnBitBox": "Proceda en su BitBox",
+    "proceedOnBitBox": "Seguir en la BitBox",
     "receive": "Recibir",
     "restore": "Restaurar",
     "select": "Selecciona",
@@ -429,7 +435,7 @@
             },
             "security": {
               "link": "Modelo de amenazas de seguridad de la BitBox02",
-              "text": "El Private Trading Desk de BTC Direct es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de la BitBox02. Sin embargo, BTC Direct está familiarizado con los productos de BitBox y ofrece orientación segura y experta. Los productos de BitBox verifican las direcciones de criptomonedas durante las transacciones para garantizar una entrega segura.",
+              "text": "El Private Trading Desk de BTC Direct es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de la BitBox. Sin embargo, BTC Direct está familiarizado con los productos de BitBox y ofrece orientación segura y experta. Los productos de BitBox verifican las direcciones de criptomonedas durante las transacciones para garantizar una entrega segura.",
               "title": "Seguridad"
             },
             "title": "Descargo de responsabilidad"
@@ -462,7 +468,7 @@
               "title": "Métodos de pago y comisiones"
             },
             "security": {
-              "description": "BTC Direct es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de la BitBox02. Trabajamos en estrecha colaboración con BTC Direct para mejorar la seguridad general.",
+              "description": "BTC Direct es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de la BitBox. Trabajamos en estrecha colaboración con BTC Direct para mejorar la seguridad general.",
               "link": "Modelo de amenazas de seguridad de la BitBox02",
               "title": "Seguridad"
             },
@@ -605,7 +611,7 @@
     "oldLabel": "Contraseña actual del dispositivo"
   },
   "chart": {
-    "dataMissing": "Recopilando tus datos históricos. Permanece atento.",
+    "dataMissing": "Recopilando tus datos históricos. Espera un momento.",
     "dataOldTimestamp": "Actualización de los tipos de cambio históricos. El gráfico no muestra datos después de {{time}}.",
     "dataUpdating": "actualizando datos",
     "filter": {
@@ -622,8 +628,8 @@
   },
   "confirmOnDevice": "Por favor confirma en tu dispositivo.",
   "connectKeystore": {
-    "promptNoName": "Por favor conecta tu BitBox02 para continuar",
-    "promptWithName": "Por favor, conecta tu BitBox02 llamada \"{{name}}\" para continuar "
+    "promptNoName": "Por favor conecta tu BitBox para continuar",
+    "promptWithName": "Por favor, conecta tu BitBox llamada \"{{name}}\" para continuar "
   },
   "darkmode": {
     "toggle": "Modo oscuro"
@@ -633,14 +639,6 @@
     "firmwareUpgradeRequired": "Se requiere una actualización de firmware para utilizar esta función.",
     "keystoreConnected": "Billetera conectada",
     "unsupportedFeature": "Esta función no está disponible en este dispositivo."
-  },
-  "deviceLock": {
-    "button": "Activa autorización de dos factores (2FA)",
-    "condition1": "¿Tienes una copia de seguridad?",
-    "condition2": "¿Funciona la verificación de la aplicación móvil?",
-    "condition3": "2FA DESACTIVA las copias de seguridad y la sincronización con las aplicaciones móviles. El dispositivo debe ser REINICIADO para salir de 2FA!",
-    "confirm": "Activa autorización de dos factores (2FA)",
-    "title": "Activa autorización de dos factores (2FA)"
   },
   "deviceSettings": {
     "backups": {
@@ -670,9 +668,9 @@
     "expert": {
       "bip85": {
         "description": "Genera llaves hijas desde tu BitBox.",
-        "disclaimer": "Entiendo como funcionan las llaves hijas sus consideraciones de seguridad",
+        "disclaimer": "Entiendo como funcionan las llaves hijas y sus consideraciones de seguridad",
         "how": {
-          "description": "Las llaves hijas se muestran como su propias frases de recuperación (frase mnemonica) en tu BitBox. Puedes crear tantas llaves hijas como quieras. Para mostrar una llave hija, se te pedirá el número de esta (es decir, 1.º, 2.º, 3.º, etc.) y la longitud deseada de la frase mnemónica (12, 18 o 24 palabras de recuperación). Recuerda que debes realizar un seguimiento de <strong>número de la llave hija y número de palabras</strong> para poder mostrar la misma frase mnemónica más tarde.",
+          "description": "Las llaves hijas se muestran como su propias frases de recuperación (frase mnemonica) en tu BitBox. Puedes crear tantas llaves hijas como quieras. Para mostrar una llave hija, se te pedirá el número de esta (es decir, 1.º, 2.º, 3.º, etc.) y la longitud deseada de la frase mnemónica (12, 18 o 24 palabras de recuperación). Recuerda que debes realizar un seguimiento del <strong>número de la llave hija y número de palabras</strong> para poder mostrar la misma frase mnemónica más tarde.",
           "title": "¿Cómo funciona?"
         },
         "recover": {
@@ -680,22 +678,22 @@
           "title": "¿Cómo recuperar billeteras usando llaves hijas de BitBox?"
         },
         "security": {
-          "description": "Nunca reutilice una llave hija. Por ejemplo, no utilice una llave hija para una billetera cliente y luego use la misma para una billetera de hardware. La llave no se considera segura ya que se usó para una billetera caliente",
+          "description": "Nunca reutilices una llave hija. Por ejemplo, no utilices una llave hija para una billetera caliente y luego uses la misma para una billetera de hardware. La llave no se considera segura ya que se usó para una billetera caliente",
           "title": "Consideraciones de seguridad"
         },
         "title": "Mostrar llaves hijas BIP-85",
         "what": {
-          "description": "Las llaves hijas se derivan de su semilla principal y se pueden usar para crear nuevas billeteras sin necesidad de realizar una copia de seguridad de más semillas. Por ejemplo, puede crear una llave hija e importarla a una billetera caliente en lugar de que la billetera caliente cree una semilla completamente nueva.",
+          "description": "Las llaves hijas se derivan de tu semilla principal y se pueden usar para crear nuevas billeteras sin necesidad de realizar una copia de seguridad de más semillas. Por ejemplo, puedes crear una llave hija e importarla a una billetera caliente en lugar de que la billetera caliente cree una semilla completamente nueva.",
           "link": "Más información acerca de BIP-85",
           "title": "¿Qué son las llaves hijas?"
         }
       },
       "factoryReset": {
-        "description": "Restablece tu dispositivo a los valores de fábrica. ¡Esto borra la billetera de tu BitBox02!",
+        "description": "Restablece tu dispositivo a los valores de fábrica. ¡Esto borrará la billetera de tu BitBox!",
         "title": "Restablecimiento de fábrica"
       },
       "goToStartupSettings": {
-        "description": "Entra en el bootloader de la BitBox02. Puedes activar el hash del firmware desde aquí."
+        "description": "Entra en el gestor de arranque de tu BitBox. Puedes activar el hash del firmware desde aquí."
       },
       "passphrase": {
         "description": "",
@@ -718,7 +716,7 @@
       "attestation": {
         "false": "Error en la comprobación de autenticidad",
         "label": "Comprobación de autenticidad",
-        "true": "Su BitBox02 es auténtico"
+        "true": "Tu BitBox02 es auténtica"
       },
       "sdcard": {
         "false": "No insertado",
@@ -729,24 +727,7 @@
       "title": "Hardware"
     },
     "loading": "Recuperando información del dispositivo ...",
-    "pairing": {
-      "lock": {
-        "false": "Desactivado",
-        "label": "Autorización de dos factores (2FA)",
-        "true": "Activado"
-      },
-      "mobile": {
-        "false": "Cerrado",
-        "label": "Aplicación móvil",
-        "true": "Abre"
-      },
-      "status": {
-        "false": "No sincronizado",
-        "label": "Estado",
-        "true": "Sincronizado"
-      },
-      "title": "Sincronización"
-    },
+    "noDevice": "No hay ningún dispositivo conectado",
     "secrets": {
       "manageBackups": "Administrar copias de seguridad",
       "title": "Seguridad"
@@ -796,15 +777,15 @@
         },
         "kyc": {
           "link": "Leer las preguntas frecuentes (FAQ) de Pocket",
-          "p1": "No se necesitan documentos adicionales para cambios de hasta 950 EUR (1000 CHF) por día.",
+          "p1": "No se necesitan documentos adicionales para intercambios de hasta 950 EUR (1000 CHF) por día.",
           "p2": "Para montos mayores, se requiere una llamada con Pocket para completar el proceso KYC/AML.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
           "link": "Modelo de amenazas de seguridad de BitBox02",
-          "p1": "El uso de Pocket es un servicio externo y no está cubierto por el modelo de amenazas de seguridad de BitBox02. Sin embargo, trabajamos en estrecha colaboración con Pocket para mejorar la seguridad general.",
+          "p1": "El uso de Pocket es un servicio externo y no está cubierto por el modelo de amenazas de seguridad de BitBox. Sin embargo, trabajamos en estrecha colaboración con Pocket para mejorar la seguridad general.",
           "p2": "<strong>Comprar bitcoin:</strong> Recibirás un correo electrónico para confirmar tu dirección de recepción de bitcoin a través de un segundo canal de comunicación.",
-          "p3": "<strong>Vender bitcoin:</strong> Tu BitBox02 verifica criptográficamente la dirección de Bitcoin y muestra \"Pocket\" en la billetera de hardware.",
+          "p3": "<strong>Vender bitcoin:</strong> Tu BitBox verifica criptográficamente la dirección de Bitcoin y muestra \"Pocket\" en la billetera de hardware.",
           "title": "Seguridad"
         },
         "welcome": {
@@ -829,9 +810,11 @@
     "buy_crypto": "Comprar criptomonedas",
     "enabled_false": "Desactivado",
     "enabled_true": "Activado",
+    "noOptions": "No se encontraron opciones",
     "receive": "Recibir {{coinCode}}",
     "receive_bitcoin": "Recibir Bitcoin",
-    "receive_crypto": "Recibir criptomonedas"
+    "receive_crypto": "Recibir criptomonedas",
+    "search": "Buscar..."
   },
   "genericError": "Ocurrió un error. Si observa algún problema, por favor reinicie la aplicación.",
   "goal": {
@@ -956,7 +939,7 @@
         "link": {
           "text": "Ver monedas compatibles"
         },
-        "text": "BitBoxApp admite Bitcoin, Litecoin y Ethereum, así como una selección de tokens ERC20. Para Cardano y otros tokens, utilice su BitBox02 con software alternativo como AdaLite o Rabby. Puede encontrar una lista exhaustiva de todas las monedas compatibles en nuestro sitio web:",
+        "text": "La BitBoxApp admite Bitcoin, Litecoin y Ethereum, así como una selección de tokens ERC20. Para Cardano y otros tokens, debes utilizar tu BitBox con software alternativo como AdaLite o Rabby. Puedes encontrar una lista exhaustiva de todas las monedas compatibles en nuestro sitio web:",
         "title": "¿Cuales monedas son compatibles?"
       },
       "whatAreAccounts": {
@@ -964,7 +947,7 @@
         "title": "¿Qué son las cuentas?"
       },
       "whatIsRememberWallet": {
-        "text": "Activando \"Recordar billetera\" podrás ver las cuentas de esta billetera en la BitBoxApp incluso cuando la BitBox02 no esté conectada. Esto te permite comprobar tu saldo y portafolio siempre que quieras. La BitBox02 necesita estar conectada y desbloqueada para enviar o recibir monedas.\n\nDesactivar \"Recordar billetera\" requiere que conectes la BitBox02 respectiva (o passphrase) para ver esas cuentas en la BitBoxApp.",
+        "text": "Activando \"Recordar billetera\" podrás ver las cuentas de esta billetera en la BitBoxApp incluso cuando la BitBox02 no esté conectada. Esto te permite verifica tu saldo y portafolio siempre que quieras. La BitBox02 necesita estar conectada y desbloqueada para enviar o recibir monedas.\n\nDesactivar \"Recordar billetera\" requiere que conectes la BitBox02 respectiva (o passphrase) para ver esas cuentas en la BitBoxApp.",
         "title": "¿Qué ocurre cuando activo/desactivo \"Recordar billetera\"?"
       },
       "whyIsThisUseful": {
@@ -974,15 +957,17 @@
     },
     "appendix": {
       "link": "¡Contacta con nosotros!",
-      "text": "¿Otra pregunta?"
+      "questionService": "¿Tienes problemas con {{serviceName}}?",
+      "text": "¿Otra pregunta?",
+      "textService": "Si tienes problemas con {{serviceName}}, por favor ponte en contacto con ellos directamente:"
     },
     "backups": {
       "check": {
-        "text": "\"Comprobar copia de seguridad\" te permite verificar que tienes una copia de seguridad operativa correspondiente a tu monedero actual. También se puede usar para verificar que todavía tienes la contraseña de recuperación correcta. Puedes verificar tu contraseña de recuperación principal o tu contraseña de recuperación oculta.",
-        "title": "¿Qué es 'Comprobar la copia de seguridad'?"
+        "text": "\"Verificar copia de seguridad\" te permite verificar que tienes una copia de seguridad operativa correspondiente a tu monedero actual. También se puede usar para verificar que todavía tienes la contraseña de recuperación correcta. Puedes verificar tu contraseña de recuperación principal o tu contraseña de recuperación oculta.",
+        "title": "¿Qué es 'Verificar copia de seguridad'?"
       },
       "encrypt": {
-        "text": "No, pero necesitas tu contraseña de recuperación para obtener el monedero de la semilla guardada.",
+        "text": "No, pero necesitas una contraseña de recuperación ya que esta se utilizará para derivar la billetera de la semilla guardada.",
         "title": "¿Puedo encriptar la copia de seguridad?"
       },
       "howOften": {
@@ -997,7 +982,7 @@
     "backupsBB02": {
       "check": {
         "text": "'Comprobar copia de seguridad' te permite verificar que tienes una copia de seguridad funcional y que corresponde a tu monedero actual.",
-        "title": "¿Qué es 'Comprobar la copia de seguridad'?"
+        "title": "¿Qué es 'Verificar copia de seguridad'?"
       },
       "encrypt": {
         "text": "No. Por favor mantén la microSD en un lugar seguro porque contiene la semilla para recuperar tu monedero sin encriptar. Si deseas proteger con contraseña tu semilla, puedes activar una passphrase opcional en los ajustes, debajo de \"Ajustes del dispositivo\". ",
@@ -1009,14 +994,6 @@
       }
     },
     "bitbox": {
-      "2FA": {
-        "text": "Cuando 2FA está habilitado, todas las transacciones deben aprobarse en el teléfono móvil sincronizado para poder gastar monedas. Técnicamente, se envía un número encriptado de un solo uso a la aplicación móvil, donde se descifra y se devuelve al BitBox al presionar el botón Aceptar. Esta comunicación con el dispositivo se realiza a través del canal entre el teléfono móvil y esta aplicación de escritorio establecida durante la sincronización.\n\nAsegúrate de hacer una copia de seguridad de tu monedero y sincroniza la aplicación móvil antes de habilitar 2FA. Una vez habilitado, las sincronizaciones entre la ranura micro SD y las aplicaciones móviles se deshabilitan. Se pueden volver a habilitar reiniciando el BitBox, algo que borrará el dispositivo.",
-        "title": "¿Cómo funciona la autorización de dos factores (2FA)?"
-      },
-      "disable2FA": {
-        "text": "Para deshabilitar 2FA, debes restablecer su BitBox y luego restaurar el monedero desde su copia de seguridad. Asegúrate de que todavía tienes la tarjeta micro SD con la copia de seguridad y que aún recuerdas la contraseña de recuperación. Luego pulsa 'Restablecer dispositivo'. Establece una nueva contraseña de dispositivo y elija 'O restaurar una copia de seguridad'. Selecciona la copia de seguridad que has hecho del monedero, haz clic en \"Restaurar\" e ingresa la contraseña de recuperación que utilizaste al crear el monedero.",
-        "title": "¿Cómo puedo desactivar la autorización de dos factores (2FA)?"
-      },
       "ejectBitbox": {
         "text": "Puedes desconectar el BitBox en cualquier momento sin tener que expulsarlo primero.",
         "title": "¿Cómo puedo expulsar el BitBox?"
@@ -1024,18 +1001,6 @@
       "ejectSD": {
         "text": "Puedes retirar la tarjeta micro SD de BitBox en cualquier momento siempre que no esté en el proceso de crear o restaurar una copia de seguridad.",
         "title": "¿Cómo puedo expulsar la tarjeta micro SD?"
-      },
-      "hiddenWallet": {
-        "text": "Es un segundo monedero en el mismo dispositivo protegido por una contraseña de dispositivo y una contraseña de recuperación diferentes, que puedes usar para una negación creíble. La misma semilla de copia de seguridad se usa para tu monedero normal y oculto, por lo que no se requiere una copia de seguridad adicional.",
-        "title": "¿Qué es una billetera oculta?"
-      },
-      "legacyHiddenWallet": {
-        "text": "Primero haz clic en el botón de abajo (disponible si el BitBox está desbloqueado con la contraseña del dispositivo principal y la 2FA está desactivada), luego vuelve a conectar su Bitbox y desbloquea con la contraseña oculta del dispositivo.",
-        "title": "¿Cómo accedo a la billetera oculta heredado?"
-      },
-      "pairing": {
-        "text": "Después de haber descargado nuestra aplicación móvil para iOS o Android, escanea el código QR mostrado, que establece un canal seguro entre la aplicación móvil y esta aplicación. Una vez escaneado, sige las instrucciones en la aplicación móvil.",
-        "title": "Cómo sincronizo de forma segura con mi teléfono"
       }
     },
     "bitsurance": {
@@ -1083,12 +1048,12 @@
         "link": {
           "text": "Más información sobre el control de autenticidad"
         },
-        "text": "La BitBoxApp realiza una comprobación de atestación en la BitBox02 para verificar si el dispositivo es genuino. La comprobación se realiza localmente y no se conecta a ningún servidor.",
+        "text": "La BitBoxApp realiza una comprobación de autenticidad en la BitBox para verificar si el dispositivo es genuino. La comprobación se realiza localmente y no se conecta a ningún servidor.",
         "title": "¿Cómo funciona el control de autenticidad?"
       },
       "name": {
         "text": "Este es el nombre de tu wallet y de la copia de seguridad. El nombre se utiliza para futuras copias de seguridad y se puede utilizar para ayudar a distinguir entre diferentes billeteras. Se puede cambiar en cualquier momento, pero ten en cuenta que las copias de seguridad realizadas antes del cambio seguirán utilizando el nombre anterior.",
-        "title": "¿Para qué se utiliza el nombre BitBox02?"
+        "title": "¿Para qué se utiliza el nombre de la BitBox?"
       },
       "secure-chip": {
         "link": {
@@ -1231,10 +1196,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "El dispositivo debe parpadear una vez se haya insertado. Asegúrese de que se inserta de la manera correcta. Si tiene problemas, por favor contáctenos a través del siguiente enlace.\nLa BitBox01 no es soportada en los móviles/celulares. Por favor utilice la BitBoxApp de escritorio para conectar su BitBox01.",
-        "title": "Mi BitBox01 no ha sido reconocida"
-      },
       "getDevice": {
         "link": {
           "text": "Encargue un BitBox"
@@ -1260,6 +1221,13 @@
       "welcome": {
         "text": "Gracias por utilizar esta aplicación creada por Shift Crypto en Suiza. Todavía está en beta y agradecemos cualquier comentario que tenga que compartir. Por favor, de su opinión utilizando el enlace en la parte inferior.",
         "title": "¡Bienvenido a la aplicación de BitBox!"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "Pide una BitBox02 Nova"
+        },
+        "text": "Solo la BitBox02 Nova funciona con iOS. La BitBox02 estándar es compatible con todas las demás plataformas. Para comprar una BitBox02 Nova, visita nuestra tienda.",
+        "title": "¿Cual BitBox funciona con iOS?"
       }
     },
     "walletConnect": {
@@ -1279,16 +1247,6 @@
   },
   "headerssync": {
     "blocksSynced": "{{blocks}} bloques sincronizados"
-  },
-  "hiddenWallet": {
-    "info1HTML": "Para fines de negación plausible, se puede crear un monedero oculto basada en una <strong>diferente</strong> combinación de contraseña de recuperación y contraseña del dispositivo.",
-    "info2HTML": "Define la contraseña del dispositivo y la contraseña de recuperación que quieres asociar con tu monedero oculto a continuación. La contraseña del dispositivo y la contraseña de recuperación deben ser <strong>diferentes</strong> a la que haya definido para tu monedero principal.",
-    "passwordLabel": "Contraseña de recuperación oculta",
-    "passwordPlaceholder": "Por favor confirma la contraseña de recuperación oculta",
-    "pinLabel": "Contraseña oculta del dispositivo",
-    "pinRepeatLabel": "Repita la contraseña oculta del dispositivo",
-    "pinRepeatPlaceholder": "Por favor confirma la contraseña oculta del dispositivo",
-    "success": "Billetera oculta creada con éxito. Vuelve a enchufar tu BitBox para desbloquearla."
   },
   "initialize": {
     "create": "Establecer contraseña del dispositivo",
@@ -1313,15 +1271,9 @@
   "language": {
     "title": "Selecciona el idioma"
   },
-  "legacyhiddenwallet": {
-    "disable": "Desactivar billetera oculta heredada",
-    "enable": "Activar billetera oculto heredada",
-    "successDisable": "Se desactivó con éxito la billetera oculta heredada.",
-    "successEnable": "El monedero oculto heredado se habilitó con éxito. Vuelva a enchufar su BitBox e ingresa la contraseña del dispositivo oculto para acceder al monedero oculto heredado."
-  },
   "loading": "cargando…",
   "manageAccounts": {
-    "accountHidden": "Esta cuenta ha sido ocultada de tus cuentas de sólo vigilancia. Para volver a verla, conecta tu BitBox02.",
+    "accountHidden": "Esta cuenta se ha ocultado de tus cuentas de sólo lectura. Para volver a verla, conecta tu BitBox.",
     "editAccount": "Editar",
     "editAccountNameTitle": "Editar nombre de cuenta",
     "noAccounts": "No se han encontrado cuentas",
@@ -1393,7 +1345,7 @@
           "title": "Billetera recordada"
         },
         "name": "Recordar esta billetera",
-        "warning": "La BitBoxApp dejará de recordar esta billetera. Para verla de nuevo, necesitarás conectar la BitBox02 correspondiente a esta billetera. Las monedas de esta billetera no se verán afectadas. ¿Deseas continuar?",
+        "warning": "La BitBoxApp dejará de recordar esta billetera. Para verla de nuevo, necesitarás conectar la BitBox correspondiente a esta billetera. Las monedas de esta billetera no se verán afectadas. ¿Deseas continuar?",
         "warningTitle": "Dejar de recordar esta billetera"
       },
       "toggleSats": {
@@ -1412,62 +1364,30 @@
     "newTxs_one": "Nueva transacción en: {{accountName}}",
     "newTxs_other": "{{count}} nuevas transacciones en: {{accountName}}"
   },
-  "pairing": {
-    "aborted": {
-      "text": "La sincronización ha sido cancelada desde la aplicación móvil.",
-      "title": "Abortado"
-    },
-    "button": "Sincronizar aplicación móvil",
-    "confirm": "¿Estás seguro de que quieres sincronizar su BitBox? Ten en cuenta que después, se necesitará el teléfono móvil para realizar una transacción.",
-    "connectOnly": {
-      "button": "Conectar aplicación móvil",
-      "title": "Escanea con nuestra aplicación móvil seleccionando el elemento de menú 'Conectar a la nueva aplicación de escritorio'"
-    },
-    "error": {
-      "text": "Algo salió mal. Por favor empieza de nuevo.",
-      "title": "Error"
-    },
-    "pullFailed": {
-      "text": "Ha habido un error recibiendo un mensaje de tu móvil a través del relay server.  Éste puede estar sin conexión, por favor contacte al soporte técnico.",
-      "title": "Solicitud fallida"
-    },
-    "reconnectOnly": {
-      "button": "Volver a conectar la aplicación móvil"
-    },
-    "scanningFailed": {
-      "text": "El móvil no ha podido escanear el mensaje con éxito. Por favor inténtalo de nuevo.",
-      "title": "Escaneo fallido"
-    },
-    "start": {
-      "hideAppQRCode": "Ocultar código QR",
-      "revealAppQRCode": "Mostrar código QR",
-      "step1": "Si no tiene la aplicación móvil, puede escanear el código QR para la App Store de Apple o la Play Store de Google, según el teléfono que tengas.",
-      "step2": "Escanee con nuestra aplicación móvil, que puede encontrar bajo el nombre 'Digital Bitbox 2FA' en las tiendas de aplicaciones para iOS y Android:"
-    },
-    "started": {
-      "text": "Ahora sige por favor las instrucciones en la aplicación móvil.",
-      "title": "Genial"
-    },
-    "success": {
-      "text": "¡Enhorabuena, has sincronizado su BitBox con la aplicación móvil!",
-      "title": "Éxito"
-    },
-    "timeout": {
-      "text": "La sincronización expiró después de dos minutos. Empieza de nuevo si aún quieres sincronizar la aplicación móvil.",
-      "title": "Se acabó el tiempo"
-    },
-    "title": "Sincronización móvil"
+  "novaConnectionIssues": {
+    "connectionIssueTips": "Consejos para los problemas de conexión",
+    "description1": "Solo la BitBox02 Nova es compatible con iOS. Para la BitBox02 debes usar Windows, macOS, Android o Linux. Puedes conseguir una BitBox02 Nova en nuestra tienda online:",
+    "description2": "La pantalla debería encenderse. Si la pantalla no se enciende, entonces el dispositivo no está recibiendo electricidad.",
+    "description3": "Mantén tu BitBox02 Nova cerca de tu iPhone/iPad. Te recomendamos conectarla directamente a tu dispositivo.",
+    "description4": "La BitBox02 Nova se conecta a iOS mediante Bluetooth. En otras plataformas, el Bluetooth se puede activar o desactivar desde la configuración de la BitBoxApp.",
+    "link1": "Pide una BitBox02 Nova",
+    "link2": "Contacta con soporte",
+    "stillHavingIssues": "¿Aún tienes problemas?",
+    "title1": "Utiliza tu BitBox02 Nova únicamente con iOS",
+    "title2": "Asegúrese de que la BitBox02 Nova esté encendida",
+    "title3": "Manten tu BitBox02 Nova dentro del rango de alcance",
+    "title4": "Asegúrate de que el Bluetooth no esté desactivado en la BitBox02 Nova"
   },
   "passphrase": {
     "considerations": {
       "button": "Consideraciones de la copia de seguridad",
-      "message": "La passprhase añade una capa de protección a la copia de seguridad de tu billetera (de la tarjeta microSD o palabras de recuperación). Si alguien tiene acceso a tu copia de seguridad, también necesitará la passphrase para acceder a tu billetera. \n\n\nSin embargo, esto significa que necesitarás <strong>tanto la passphrase como la copia de seguridad de tu billetera</strong> para restaurar tu billetera con la passphrase, en caso de que tu BitBox02 se pierda o se rompa. Si olvidas o pierdes tu contraseña, perderás el acceso a todas las monedas de esa billetera.\n\nCuando almacenes tu passphrase, considera ponerla en un lugar distinto a la de tu copia de seguridad. De este modo, si alguien encuentra la copia de seguridad, no encontrará también la passphrase.",
+      "message": "La passprhase añade una capa de protección a la copia de seguridad de tu billetera (de la tarjeta microSD o palabras de recuperación). Si alguien tiene acceso a tu copia de seguridad, también necesitará la passphrase para acceder a tu billetera. \n\n\nSin embargo, esto significa que necesitarás <strong>tanto la passphrase como la copia de seguridad de tu billetera</strong> para restaurar tu billetera con la passphrase, en caso de que tu BitBox se pierda o se rompa. Si olvidas o pierdes tu passphrase, perderás el acceso a todas las monedas de esa billetera.\n\nCuando almacenes tu passphrase, considera ponerla en un lugar distinto a la de tu copia de seguridad. De este modo, si alguien encuentra la copia de seguridad, no encontrará también la passphrase.",
       "title": "Consideraciones de la copia de seguridad"
     },
     "disable": "Desactivar passphrase",
     "disableInfo": {
       "button": "Desactivar",
-      "message": "Tras desactivar la passphrase, no se le volverá a preguntar para que introduzca una passphrase tras desbloquear su BitBox02. Por lo que entrara en su cartera por defecto.\nCualquier moneda de su cartera con passphrase seguirá estando en esa cartera, sin embargo no tendrá acceso a ella porque tras desbloquear su BitBox02, abrirá su cartera por defecto.\nPara acceder a su cartera con passphrase de nuevo, simplemente vuelva a activar la opción de passphrase e introduzca la passphrase correcta tras desbloquear la BitBox02.\n<strong>Consejo:</strong> Puede seguir entrando en su cartera original dejando la passphrase vacía."
+      "message": "Tras desactivar la passphrase, no se te volverá a preguntar para que introduzcas una passphrase tras desbloquear tu BitBox. Por lo que entraras en tu billetera por defecto.\nCualquier moneda de tu billetera con passphrase seguirá estando en esa billetera, sin embargo no tendrás acceso a ella porque tras desbloquear tu BitBox, esta abrirá tu billetera por defecto.\nPara acceder a su billetera con passphrase de nuevo, simplemente vuelva a activar la opción de passphrase e introduzce la passphrase correcta tras desbloquear tu BitBox.\n<strong>Consejo:</strong> Puedes seguir entrando en tu billetera original dejando la passphrase vacía."
     },
     "enable": "Activar passphrase",
     "error": {
@@ -1475,7 +1395,7 @@
     },
     "how": {
       "button": "Cómo se ve",
-      "message": "Una passphrase no funciona como una contraseña a las que estamos habituados. Si se equivoca en un carácter de su passphrase, no será notificado. Esto es porque <strong>cada passphrase crea una cartera diferente y válida al mismo tiempo</strong>. Esto significa que se pueden utilizar tantas pasprases como carteras se deseen. Pero solo se puede acceder a cada cartera cuando se introduce su passphrase correspondiente.\nCuando conecte su BotBox02, será preguntado por su contraseña como siempre. Después, se le solicitará que introduzca la passphrase en el dispositivo.\nTras introducir la passphrase, se le mostrará la passphrase que ha introducido. Esto es para confirmar que ha sido introducida correctamente.",
+      "message": "Una passphrase no funciona como una contraseña a las que estamos habituados. Si te equivoca en un carácter de tu passphrase, no serás notificado. Esto es porque <strong>cada passphrase crea una billetera diferente que también es válida</strong>. Esto significa que puedes utilizar tantas passphrases como billeteras quieras. Pero solo se puede acceder a cada billetera cuando se introduce su passphrase correspondiente.\nCuando conectes tu BitBox, tu BitBox te preguntará por tu contraseña como siempre. Después, te solicitará que introduzcas la passphrase en el propio dispositivo.\nTras introducir la passphrase, se te mostrará la passphrase que has introducido. Esto es para confirmar que ha sido introducida correctamente.",
       "title": "Como funciona"
     },
     "intro": {
@@ -1492,15 +1412,15 @@
     },
     "successDisabled": {
       "message": "Passphrase opcional <strong>activada satisfactoriamente</strong>!\nA partir de ahora se le solicitara introducir una passphrase.",
-      "messageEnd": "Por favor vuelva a conectar ahora su BitBox02.",
+      "messageEnd": "Por favor vuelva a conectar tu BitBox ahora mismo.",
       "title": "Passphrase activada"
     },
     "successEnabled": {
       "message": "Passphrase opcional <strong>desactivada satisfactoriamente</strong>!\nA partir de ahora no se le solicitará introducir una passphrase.",
-      "messageEnd": "Por favor vuelva a conectar su BitBox02 ahora.",
+      "messageEnd": "Por favor vuelva a conectar tu BitBox ahora mismo.",
       "tips": "Consejos",
       "tipsList": [
-        "Le sugerimos enviar una pequeña cantidad a su cartera con passphrase primero. Después desconecte y vuelva a conectar la BitBox02 e introduzca su contraseña y su passphrase. Si ha introducido la passphrase correctamente, debería ver las monedas en su cartera.",
+        "Te sugerimos enviar una pequeña cantidad a su billetera con passphrase primero. Después desconecta y vuelve a conectar tu BitBox e introduce tu contraseña y tu passphrase. Si has introducido la passphrase correctamente, deberías ver las monedas en tu billetera.",
         "Si quiere entrar en su cartera original sin passphrase, puede seguir haciéndolo no introduciendo nada cuando le solicite introducir la passphrase. O puede desactivar la característica de passphrase."
       ],
       "title": "Passphrase desactivada"
@@ -1518,12 +1438,12 @@
     },
     "what": {
       "button": "Aprende como funciona",
-      "message": "Una billetera se crea (deriva) a partir de un número aleatorio muy grande, también conocido como semilla. Esta semilla se crea cuando configuras por primera vez tu BitBox02 y se respalda con la tarjeta microSD o las palabras de recuperación. Cualquiera que tenga acceso a la semilla tiene control total sobre los fondos de esa billetera.\n\nUna passphrase es un <strong>secreto opcional</strong>, añadido a la semilla. Cuando se utiliza una passphrase, cada passphrase crea una nueva billetera basada en la semilla + passphrase (secreto opcional). Una passphrase puede ser cualquier cosa: letras, palabras, caracteres especiales o incluso puede estar vacía. De hecho, la billetera predeterminadamente se deriva de la semilla + passphrase vacía.\n\nLa passphrase forma parte del estándar BIP39, lo que significa que es compatible con todas las billeteras que admitan el mismo estándar.",
+      "message": "Una billetera se crea (deriva) a partir de un número aleatorio muy grande, también conocido como semilla. Esta semilla se crea cuando configuras por primera vez tu BitBox y se respalda con la tarjeta microSD o las palabras de recuperación. Cualquiera que tenga acceso a la semilla tiene control total sobre los fondos de esa billetera.\n\nUna passphrase es un <strong>secreto opcional</strong>, añadido a la semilla. Cuando se utiliza una passphrase, esta crea una nueva billetera basada en la semilla + passphrase (secreto opcional). Una passphrase puede ser cualquier cosa: letras, palabras, caracteres especiales o incluso puede estar vacía. De hecho, la billetera predeterminadamente se deriva de la semilla + passphrase vacía.\n\nLa passphrase forma parte del estándar BIP39, lo que significa que es compatible con todas las billeteras que admiten el mismo estándar.",
       "title": "¿Qué es una passphrase?"
     },
     "why": {
       "button": "Porqué utilizar una passphrase",
-      "message": "La BitBox02 protege la semilla contra la extracción desde el propio dispositivo, pero la copia de seguridad (tarjeta microSD o palabras de recuperación) da acceso completo a la billetera. ¡Por eso debe guardarse en un lugar seguro!\n\n\nDado que una passphrase crea una nueva billetera utilizando tu semilla existente, la billetera con passphrase requiere tanto de tu <strong>copia de seguridad ASÍ COMO tu passphrase</strong> para restaurarla. La ventaja de esto es que si alguien encuentra tu copia de seguridad, seguirá necesitando la passphrase para acceder a la billetera con la passphrase.\n\n\nAdemás, la función de la passphrase permite crear varias billeteras en el mismo dispositivo, o \"billeteras ocultas\", además del predeterminado.",
+      "message": "La BitBox protege la semilla contra la extracción desde el propio dispositivo, pero la copia de seguridad (tarjeta microSD o palabras de recuperación) da acceso completo a la billetera. ¡Por eso debe guardarse en un lugar seguro!\n\n\nDado que una passphrase crea una nueva billetera utilizando tu semilla existente, la billetera con passphrase requiere tanto de tu <strong>copia de seguridad ASÍ COMO tu passphrase</strong> para restaurarla. La ventaja de esto es que si alguien encuentra tu copia de seguridad, seguirá necesitando la passphrase para acceder a la billetera con la passphrase.\n\n\nAdemás, la función de la passphrase permite crear varias billeteras en el mismo dispositivo, o \"billeteras ocultas\", además de la predeterminada.",
       "title": "¿Porqué utilizar una passphrase?"
     }
   },
@@ -1553,16 +1473,11 @@
       "p2wpkh-p2sh": "Wrapped Segwit (formato compatible)"
     },
     "selectAccount": "Seleccionar cuenta ",
-    "showFull": "Mostrar y verificar la dirección completa en el dispositivo",
     "taprootWarning": "Nota: Taproot es una nueva característica de Bitcoin y todavía no es ampliamente aceptada. Los fondos recibidos en direcciones Taproot pueden no ser mostradas en carteras de terceros. Muchas carteras y exchanges no pueden enviar a direcciones Taproot.",
     "title": "Recibir {{accountName}}",
     "verify": "Verificar la dirección de forma segura",
-    "verifyBitBox01": "Verifica la dirección completa en la app móvil",
-    "verifyBitBox02": "Verifica la dirección en tu BitBox02",
-    "verifyInstruction": "Por favor, verifica que esta dirección encaja con la de tu dispositivo.",
-    "warning": {
-      "secureOutput": "Por favor, sincroniza su BitBox con tu dispositivo móvil para activar la verificación segura de la dirección. Ve a 'Administrar dispositivo' en la barra lateral."
-    }
+    "verifyBitBox02": "Verifica la dirección en tu BitBox",
+    "verifyInstruction": "Por favor, verifica que esta dirección encaja con la de tu dispositivo."
   },
   "reset": {
     "description": "Todos los datos serán borrados de este dispositivo. ¡Eso incluye tu clave privada!",
@@ -1591,7 +1506,7 @@
     "agreements": {
       "funds-access": "NO podré acceder a mis fondos si olvido mi contraseña de recuperación",
       "password-change": "NO podré cambiar la contraseña de recuperación más tarde",
-      "password-required": "La contraseña de recuperación es necesaria para restaurar un monedero desde una copia de seguridad"
+      "password-required": "La contraseña de recuperación es necesaria para restaurar una billetera desde una copia de seguridad"
     },
     "create": "Crear billetera",
     "creating": "Creando billetera",
@@ -1603,7 +1518,7 @@
     "info": {
       "button": "Establecer contraseña de recuperación ahora",
       "description1": "Inserta la tarjeta micro SD en el BitBox",
-      "description2": "Elije una contraseña de recuperación para el monedero y selecciona \"Establecer contraseña de recuperación ahora\"",
+      "description2": "Elige una contraseña de recuperación para la billetera y selecciona \"Establecer contraseña de recuperación ahora\"",
       "description3": "La copia de seguridad en la tarjeta micro SD y su contraseña de recuperación es el único método para recuperar sus fondos en caso de pérdida o robo del dispositivo BitBox.",
       "description4": "No puedes cambiar tu contraseña de recuperación más adelante sin transferir sus fondos.",
       "title": "Crear una cartera nueva"
@@ -1618,7 +1533,7 @@
   },
   "seedRestore": {
     "error": {
-      "e200": "La recuperación de un monedero a partir de una copia de seguridad requiere la tarjeta micro SD."
+      "e200": "La recuperación de una billetera a partir de una copia de seguridad requiere la tarjeta micro SD."
     },
     "info": {
       "description1": "Inserta la tarjeta micro SD en el BitBox y haz clic en \"Continuar\"",
@@ -1649,7 +1564,7 @@
       "title": "Enviar desde salida"
     },
     "confirm": {
-      "infoMessage": "Verifica cuidadosamente que el monto y la dirección sean correctos en tu BitBox02",
+      "infoMessage": "Verifica cuidadosamente que el monto y la dirección sean correctos en tu BitBox",
       "selected-coins": "Monedas seleccionadas",
       "title": "Confirmar y enviar transacción",
       "to": "A",
@@ -1657,7 +1572,7 @@
     },
     "edit": "Editar transacción",
     "error": {
-      "erc20InsufficientGasFunds": "Parece que no tienes suficiente Ether para pagar esta transacción ERC20. Por favor, asegúrate de que tienes suficiente Ether en tu billetera.",
+      "erc20InsufficientGasFunds": "Parece que no tienes suficiente Ether para pagar esta transacción ERC20. Por favor, carga Ether a tu billetera e intenta de nuevo.",
       "feeTooLow": "La tarifa de red es demasiado baja",
       "feesNotAvailable": "No se pueden estimar las tarifas de red",
       "insufficientFunds": "fondos insuficientes",
@@ -1712,10 +1627,6 @@
     "priority": "Prioridad",
     "scanQR": "Escanear código QR",
     "scanQRNoCameraMessage": "Cámara no encontrada. Por favor asegúrese de que su dispositivo cuente con una cámara y de que los permisos estén correctamente configurados.",
-    "signprogress": {
-      "description": "Esta es una transacción que contiene una gran cantidad de datos. Para firmar en su totalidad la transacción, se te pedirá que confirmes {{steps}} veces.",
-      "label": "En curso"
-    },
     "success": "La transacción ha sido firmada y enviada.",
     "title": "Enviar {{accountName}}",
     "toggleCoinControl": "Control de monedas",
@@ -1723,7 +1634,6 @@
   },
   "settings": {
     "about": "Acerca de",
-    "accounts": "Cuentas",
     "advancedSettings": "Configuración avanzada",
     "appearance": "Apariencia",
     "electrum": {
@@ -1780,6 +1690,7 @@
       "up-to-date": "Tu aplicación está actualizada",
       "version": "Versión de la App"
     },
+    "more": "Más",
     "notes": {
       "export": {
         "description": "Crea una copia de seguridad de tus notas de transacciones y los nombres de tus cuentas.",
@@ -1815,7 +1726,7 @@
   },
   "success": {
     "create": {
-      "info1": "Tu monedero se ha respaldado de manera segura en la tarjeta micro SD. Retírala y guárdala en un lugar seguro. ",
+      "info1": "Tu billetera se ha respaldado de manera segura en la tarjeta micro SD. Retírala y guárdala en un lugar seguro. ",
       "info2": "Has creado una contraseña de dispositivo seguro que desbloquea la BitBox.",
       "info3": "Has creado una contraseña de recuperación segura para su monedero que desbloquea tus fondos y recupera sus copias de seguridad.",
       "summary": "Aquí hay un resumen de lo que has hecho.",
@@ -1825,6 +1736,33 @@
     "restore": {
       "summary": "Has restaurado con éxito una billetera desde una copia de seguridad.",
       "title": "Éxito"
+    }
+  },
+  "testWallet": {
+    "connect": {
+      "description": "Una billetera de prueba de software para probar sin un dispositivo en Testnet.",
+      "title": "Billetera de prueba"
+    },
+    "disconnect": {
+      "description": "Estop quitará la billetera de pruebas",
+      "title": "Desconectar la billetera de prueba de software"
+    },
+    "prompt": {
+      "button": "Desbloquear",
+      "passwordLabel": "Contraseña de prueba",
+      "title": "Desbloquear billetera de prueba"
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "Reinicia la aplicación en modo testnet para explorar y probar funciones.",
+      "prompt": "Cierra la aplicación y vuelve a iniciarla para ingresar al modo testnet",
+      "title": "Iniciar modo testnet"
+    },
+    "deactivate": {
+      "description": "Reinicia la aplicación para entrar en modo testnet",
+      "prompt": "Por favor cierra la aplicación para salar del modo testnet",
+      "title": "Salir del modo testnet"
     }
   },
   "transaction": {
@@ -1930,7 +1868,6 @@
     },
     "pairingSuccess": "Dapp conectada con éxito. Puedes continuar en el sitio web de la dapp.",
     "signingRequest": {
-      "account": "Cuenta",
       "chain": "Cadena",
       "dapp": "Dapp",
       "data": "Datos",
@@ -1950,17 +1887,14 @@
   },
   "warning": {
     "coincontrol": "Uno o más UTXOs cuentan con una dirección reutilizada. Ten en cuenta que el receptor verá todos los UTXOs asociados con esas direcciones.",
-    "receivePairing": "Por favor, sincroniza la BitBox para activar la verificación segura de la dirección. Ve a 'Administrar dispositivo' en la barra lateral.",
     "sdcard": "Manten la tarjeta micro SD guardada aparte de la BitBox, a menos que desees administrar las copias de seguridad.",
-    "sendPairing": "Por favor, sincroniza el BitBox para verificar con seguridad los detalles de la transacción. Ve a 'Administrar dispositivo' en la barra lateral.",
-    "testnet": "Advertencia: Actualmente estás usando la billetera en modo Testnet. Las transacciones y los saldos aquí no son reales y no aparecerán en la red principal. Testnet está destinada únicamente a fines de prueba y desarrollo."
+    "testnet": "Actualmente estás usando la billetera en modo Testnet. Las transacciones y los saldos aquí no son reales y no aparecerán en la red principal. Esta red está destinada únicamente a fines de prueba."
   },
   "welcome": {
-    "connect": "Conecta tu BitBox02",
-    "getStarted": "Vamos a comenzar instalando el firmware en tu BitBox02.",
-    "insertBitBox02": "Si estás usando BitBox02, por favor toca el dispositivo para continuar.",
-    "insertDevice": "Por favor conecta tu dispositivo para comenzar",
+    "connect": "Conecta tu BitBox",
+    "getStarted": "Vamos a comenzar instalando el firmware en tu BitBox.",
     "loadingAccounts": "Cargando cuentas",
+    "message": "Por favor conecta tu BitBox y toca los lados para continuar.",
     "title": "Bienvenido"
   }
 }

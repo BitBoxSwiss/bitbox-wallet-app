@@ -23,7 +23,7 @@ import { A } from '@/components/anchor/anchor';
 import style from './banner.module.css';
 
 type TBannerProps = {
-  msgKey: 'bitbox01' | 'bitbox02';
+  msgKey: 'bitbox01' | 'bitbox02' | 'bitbox02nova';
 }
 
 export const Banner = ({ msgKey }: TBannerProps) => {

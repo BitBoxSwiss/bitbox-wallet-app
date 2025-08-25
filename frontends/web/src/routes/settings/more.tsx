@@ -22,16 +22,28 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
-import { Cog, ShieldGray } from '@/components/icon';
+import { ChevronRightDark, Cog, RedDot, ShieldGray } from '@/components/icon';
+import { TDevices } from '@/api/devices';
+import { useLoad } from '@/hooks/api';
+import { getVersion } from '@/api/bitbox02';
 import styles from './more.module.css';
 
 /**
  * This component will only be shown on mobile.
  **/
-export const More = () => {
+
+type Props = {
+  devices: TDevices;
+}
+
+export const More = ({ devices }: Props) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   useOnlyVisitableOnMobile('/settings/general');
+  const deviceID = Object.keys(devices)[0];
+  const isBitBox02 = devices[deviceID] === 'bitbox02';
+  const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID]);
+  const canUpgrade = versionInfo ? versionInfo.canUpgrade : false;
 
   return (
     <GuideWrapper>
@@ -40,11 +52,26 @@ export const More = () => {
           <ContentWrapper>
             <GlobalBanners />
           </ContentWrapper>
-          <Header title={<h2>{t('settings.more')}</h2>} />
+          <Header
+            title={<h2>{t('settings.more')}</h2>} />
           <View fullscreen={false}>
-            <ViewContent>
+            <ViewContent fullWidth>
               <div className={styles.container}>
                 <ActionableItem
+                  icon={canUpgrade ? (
+                    <div className={styles.iconContainer}>
+                      <RedDot width={8} height={8} />
+                      <ChevronRightDark
+                        width={24}
+                        height={24}
+                      />
+                    </div>
+                  ) : (
+                    <ChevronRightDark
+                      width={24}
+                      height={24}
+                    />
+                  )}
                   onClick={() => navigate('/settings')}
                 >
                   <div className={styles.item}>

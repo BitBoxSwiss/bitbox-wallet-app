@@ -1,5 +1,9 @@
 {
   "account": {
+    "account": "Account",
+    "accounts": "Accounts",
+    "backupReminder": "Your wallet <strong>{{name}}</strong> passed {{fiat}} {{threshold}}!\n\nWe recommend creating a paper backup for extra protection. It's quick and simple.",
+    "backupReminderLink": "Create paper backup",
     "disconnect": "Connection lost. Retrying…",
     "export": "Export",
     "exportTransactions": "Export transactions to downloads folder as CSV file",
@@ -191,6 +195,13 @@
     "followInstructionsMnemonicTitle": "Restore from recovery words"
   },
   "bitbox02Settings": {
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "Bluetooth is now disabled on your BitBox. If you want to connect with iPhones on the future, you will need to re-enable it.",
+      "alertEnabled": "Bluetooth is now enabled.",
+      "description": "Bluetooth is used for connecting with iPhone.",
+      "titleDisabled": "Enable Bluetooth",
+      "titleEnabled": "Disable Bluetooth"
+    },
     "deviceName": {
       "current": "Current device name",
       "error": "Device name could not be set",
@@ -363,6 +374,7 @@
   "bluetooth": {
     "connected": "connected",
     "connectionFailed": "failed",
+    "connectionIssues": "Having connection issues?",
     "enable": "Please turn on Bluetooth",
     "select": "Select your BitBox"
   },
@@ -439,8 +451,8 @@
               "title": "Personal service with fixed pricing"
             },
             "security": {
-              "link": "BitBox02 security threat model",
-              "text": "BTC Direct's Private Trading Desk is an external service not covered by the BitBox02 security threat model. However, BTC Direct is well-acquainted with BitBox products and offers secure, knowledgeable guidance. BitBox products verify crypto addresses during transactions to ensure secure delivery.",
+              "link": "BitBox security threat model",
+              "text": "BTC Direct's Private Trading Desk is an external service not covered by the BitBox security threat model. However, BTC Direct is well-acquainted with BitBox products and offers secure, knowledgeable guidance. BitBox products verify crypto addresses during transactions to ensure secure delivery.",
               "title": "Security"
             },
             "title": "Disclaimer"
@@ -462,7 +474,7 @@
         },
         "btcdirectWidget": {
           "disclaimer": {
-            "description": "We work with BTC Direct, a trusted European broker, to make buying cryptocurrencies easy within the BitBoxApp. This service is available across Europe using bank transfers, credit cards and many local payment methods.",
+            "description": "We work with BTC Direct, a trusted European broker, to make buying and selling cryptocurrencies easy within the BitBoxApp. This service is available across Europe using bank transfers, credit cards and many local payment methods.",
             "kyc": {
               "description": "Customer identity verification is required for all trades. You’ll need to take a selfie and take a picture of an official document.",
               "title": "Identity verification"
@@ -470,15 +482,16 @@
             "paymentMethods": {
               "buy": "Buying: Pay in EUR to get the coins delivered directly to your BitBox. You can choose between one-time and recurring buys. For bank transfers, the exchange rate is fixed when BTC Direct receives the money. Instant methods use a fixed conversion rate for a limited time.",
               "note": "Note: BTC Direct exchange rates may differ slightly from the BitBoxApp rates.",
-              "title": "Payment Methods and Fees"
+              "sell": "Selling: Send your cryptocurrency to BTC Direct and receive EUR in your bank account. The exchange rate is fixed as soon as BTC Direct receives your coins.",
+              "title": "Payment methods and fees"
             },
             "security": {
               "description": "BTC Direct is an external service not covered by the BitBox security threat model. We closely work with BTC Direct to enhance overall security.",
-              "link": "BitBox02 security threat model",
+              "link": "BitBox security threat model",
               "title": "Security"
             },
-            "title_bitcoin": "Buy bitcoin with BTC Direct",
-            "title_crypto": "Buy crypto with BTC Direct"
+            "title_bitcoin": "Buy and sell bitcoin with BTC Direct",
+            "title_crypto": "Buy and sell crypto with BTC Direct"
           },
           "infobox": {
             "feesBuying": {
@@ -486,9 +499,13 @@
               "bankTransfer": "Bank transfer, SEPA, iDEAL: {{fee}}%",
               "creditDebitCard": "Credit cards, Cartes Bancaires: {{fee}}%",
               "sofort": "Sofort: {{fee}}%",
-              "title": "Fees for Buying"
+              "title": "Fees for buying"
             },
-            "intro": "European buying of cryptocurrencies with EUR.",
+            "feesSelling": {
+              "bankTransfer": "Bank transfer: {{fee}}%",
+              "title": "Fees for selling"
+            },
+            "intro": "European buying and selling of cryptocurrencies with EUR.",
             "payment": {
               "bancontact": "Bancontact",
               "bankTransfer": "Bank transfer, SEPA Instant, iDEAL",
@@ -590,8 +607,8 @@
           "title": "Data protection"
         },
         "security": {
-          "descriptionGeneric_bitcoin": "When you buy Bitcoin via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
-          "descriptionGeneric_crypto": "When you buy crypto via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
+          "descriptionGeneric_bitcoin": "When you buy Bitcoin via a partner exchange, you are using an external service. This service is out of scope of the BitBox security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
+          "descriptionGeneric_crypto": "When you buy crypto via a partner exchange, you are using an external service. This service is out of scope of the BitBox security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
           "link": "Security threat model",
           "title": "Security model"
         },
@@ -653,7 +670,7 @@
         "description": "Create or verify your microSD card backup."
       },
       "showRecoveryWords": {
-        "description": "Show and verify recovery words."
+        "description": "Show and verify recovery words on the BitBox screen."
       },
       "title": "Backups"
     },
@@ -763,10 +780,13 @@
     "wrongKeystore2": " If you are using the optional passphrase, make sure you have entered the correct passphrase for the account."
   },
   "exchange": {
+    "btcdirect": {
+      "currencyMismatch": "Unexpected currency in payment request",
+      "insufficientFunds": "Insufficient funds on the selected account."
+    },
     "buySell": {
       "coinNotSupported": "No options available for this coin type.",
-      "regionNotSupported": "No options available for this region.",
-      "updateNow": "Update now"
+      "regionNotSupported": "No options available for this region."
     },
     "pocket": {
       "terms": {
@@ -789,8 +809,8 @@
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
-          "link": "BitBox02 security threat model",
-          "p1": "Using Pocket is an external service and is not covered by the BitBox02 security threat model. However, we closely work with Pocket to enhance overall security.",
+          "link": "BitBox security threat model",
+          "p1": "Using Pocket is an external service and is not covered by the BitBox security threat model. However, we closely work with Pocket to enhance overall security.",
           "p2": "<strong>Buying bitcoin:</strong> You’ll get an email to confirm your bitcoin receive address through a second communication channel.",
           "p3": "<strong>Selling bitcoin:</strong> The BitBox verifies the Bitcoin deposit address cryptographically and displays \"Pocket\" on the hardware wallet.",
           "title": "Security"
@@ -817,12 +837,16 @@
     "buy_crypto": "Buy crypto",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "noOptionOnIos": "Not available on iOS",
     "noOptions": "No options found",
     "paymentRequestNote": "{{name}} payment {{orderId}}",
     "receive": "Receive {{coinCode}}",
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto",
     "search": "Search…",
+    "sell": "Sell {{coinCode}}",
+    "sell_bitcoin": "Sell Bitcoin",
+    "sell_crypto": "Sell crypto",
     "spend_bitcoin": "Spend bitcoin",
     "spend_crypto": "Spend crypto"
   },
@@ -1101,7 +1125,7 @@
         "title": "When do I use “Change address type”?"
       },
       "howVerify": {
-        "text": "For the BitBox01, click on the BitBox icon in the sidebar on the left and see the Pairing section. The guide will update and you can continue following the instructions from there.\nFor the BitBox02, you can verify addresses directly on the device during the send/receive process.",
+        "text": "You can verify addresses directly on the BitBox during the send/receive process.",
         "title": "How can I verify an address securely?"
       },
       "plugout": {
@@ -1117,7 +1141,7 @@
         "title": "Why so many addresses?"
       },
       "whyVerify": {
-        "text": "You shouldn’t trust your computer to generate and display authentic addresses. It’s big attack surface makes it significantly more vulnerable than a hardware wallet. For the BitBox01, The button to verify the address securely sends the address to a paired mobile phone, from which you can also scan and verify the QR code. For the BitBox02, the address can be verified directly on the BitBox02 display.",
+        "text": "You shouldn’t trust your computer to generate and display authentic addresses. It’s big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
         "title": "Why should I verify the address securely?"
       }
     },
@@ -1206,10 +1230,6 @@
       }
     },
     "waiting": {
-      "deviceNotRecognized": {
-        "text": "The device should blink once when inserted. Make sure that it is inserted the right way around. If you are having trouble, please contact us through the link below.\n\nThe BitBox01 is not supported on mobile. Please use the BitBoxApp on desktop to connect your BitBox01.",
-        "title": "My BitBox01 is not recognized"
-      },
       "getDevice": {
         "link": {
           "text": "Order a BitBox"
@@ -1229,12 +1249,19 @@
         "title": "I lost my device. Now what?"
       },
       "useWithoutDevice": {
-        "text": "Unfortunately, this is not yet possible at the moment.",
+        "text": "Yes, you can remember wallets in the manage account settings. This way you can see your portfolio without using a BitBox.",
         "title": "Can I use the app without a device?"
       },
       "welcome": {
         "text": "Thanks for using this app built by Shift Crypto in Switzerland. We appreciate any input you have to share. Please give feedback using the link at the bottom.",
         "title": "Welcome to the BitBoxApp!"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "Order a BitBox02 Nova"
+        },
+        "text": "Only the BitBox02 Nova works with iOS. The regular BitBox02 can be used with all other platforms. To buy a BitBox02 Nova, please visit our shop.",
+        "title": "Which BitBox works with iOS?"
       }
     },
     "walletConnect": {
@@ -1370,6 +1397,20 @@
   "notification": {
     "newTxs_one": "New transaction in: {{accountName}}",
     "newTxs_other": "{{count}} new transactions in: {{accountName}}"
+  },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "Connection issue tips",
+    "description1": "Only the BitBox02 Nova is compatible with iOS. For the BitBox02, use Windows, macOS, Android or Linux. You can purchase a BitBox02 Nova in our online shop:",
+    "description2": "The screen should light up. If the screen is not on, then the device is not receiving power.",
+    "description3": "Keep the BitBox02 Nova close to your iPhone/iPad. We recommend you plug the BitBox02 Nova directly into your device.",
+    "description4": "The BitBox02 Nova connects with iOS via Bluetooth. Bluetooth can be disabled/enabled from the BitBoxApp settings on other platforms.",
+    "link1": "Order a BitBox02 Nova",
+    "link2": "Contact support",
+    "stillHavingIssues": "Still having issues?",
+    "title1": "Only use the BitBox02 Nova with iOS",
+    "title2": "Make sure the BitBox02 Nova is powered",
+    "title3": "Keep BitBox02 Nova in range",
+    "title4": "Make sure Bluetooth is not deactivated on the BitBox02 Nova"
   },
   "passphrase": {
     "considerations": {
@@ -1627,7 +1668,6 @@
   },
   "settings": {
     "about": "About",
-    "accounts": "Accounts",
     "advancedSettings": "Advanced settings",
     "appearance": "Appearance",
     "electrum": {
@@ -1862,7 +1902,6 @@
     },
     "pairingSuccess": "Dapp successfully connected. You can continue on the dapp website.",
     "signingRequest": {
-      "account": "Account",
       "chain": "Chain",
       "dapp": "Dapp",
       "data": "Data",
@@ -1882,8 +1921,9 @@
   },
   "warning": {
     "coincontrol": "One or more UTXOs have a reused address. Be aware the receiver will see all UTXOs associated with those addresses.",
+    "offline": "You are currently offline. You will not be able to send transactions or see the latest exchange rates.",
     "sdcard": "Keep the microSD card stored separate from the BitBox, unless you want to manage backups.",
-    "testnet": "Warning: You are currently using the wallet in Testnet mode. Transactions and balances here are not real and will not appear on the mainnet. Testnet is intended for testing and development purposes only."
+    "testnet": "You are using Testnet mode. Transactions and coins here are not real and have no value. Only use for testing purposes."
   },
   "welcome": {
     "connect": "Connect your BitBox",

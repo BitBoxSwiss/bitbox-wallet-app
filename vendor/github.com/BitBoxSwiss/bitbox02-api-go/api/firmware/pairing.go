@@ -101,8 +101,7 @@ func (device *Device) pair() error {
 		panic(errp.New("expected 32 byte remote static pubkey"))
 	}
 
-	pairingVerificationRequiredByApp := !device.config.ContainsDeviceStaticPubkey(
-		device.deviceNoiseStaticPubkey)
+	pairingVerificationRequiredByApp := !device.options.optionalNoisePairingConfirmation && !device.config.ContainsDeviceStaticPubkey(device.deviceNoiseStaticPubkey)
 	pairingVerificationRequiredByDevice := string(responseBytes) == "\x01"
 
 	if pairingVerificationRequiredByDevice || pairingVerificationRequiredByApp {

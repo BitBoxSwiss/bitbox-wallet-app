@@ -78,7 +78,7 @@
     --item-height-small: 36px;
     --item-height: 52px;
     --item-height-large: 72px;
-    --item-height-xlarge: 84px;
+    --item-height-xlarge: 64px;
 
     /* typography */
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
@@ -105,7 +105,7 @@
     --guide-width: 350px;
 
     /* bottom navigation */
-    --bottom-navigation-height: 70px;
+    --bottom-navigation-height: calc(70px + env(safe-area-inset-bottom, 0));
 }
 
 :root,

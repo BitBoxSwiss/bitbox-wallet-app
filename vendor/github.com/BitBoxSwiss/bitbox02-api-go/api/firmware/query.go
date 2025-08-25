@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	// sinve v7.0.0, requets and responses are framed with hww* codes.
+	// sinve v7.0.0, requests and responses are framed with hww* codes.
 
 	// hwwReq* are HWW-level framing opcodes of requests.
 
@@ -130,7 +130,12 @@ func (device *Device) rawQuery(msg []byte) ([]byte, error) {
 	return device.communication.Query(msg)
 }
 
-func (device *Device) query(request proto.Message) (*messages.Response, error) {
+// Sends one request and returns the matching response.
+// This acquires the queryLock, so other queries can't interrupt and need to wait.
+// This *does not* acquire the apiLock.
+// Use this if you need to perform a series of requests that should not get interrupted.
+// Only use this inside `atomicQueries()`.
+func (device *Device) nonAtomicQuery(request proto.Message) (*messages.Response, error) {
 	device.queryLock.Lock()
 	defer device.queryLock.Unlock()
 	if device.sendCipher == nil || !device.channelHashDeviceVerified || !device.channelHashAppVerified {
@@ -179,4 +184,34 @@ func (device *Device) query(request proto.Message) (*messages.Response, error) {
 	}
 
 	return response, nil
+}
+
+// Sends one request and returns the matching response.
+// This acquires the queryLock, so other queries can't interrupt and need to wait.
+// This also acquires the apiLock, so series of request<>responses that should not be interrupted
+// don't get interrupted. Use `nonAtomicQuery()` if you need a series of request<>response pairs
+// that should not be interrupted.
+func (device *Device) query(request proto.Message) (*messages.Response, error) {
+	device.apiLock.Lock()
+	defer device.apiLock.Unlock()
+	return device.nonAtomicQuery(request)
+}
+
+// atomicQueries runs a series of device queries while holding the `apiLock` mutex, to ensure the
+// series of quries does not get interrupted.
+//
+// Important: only use `nonAtomicQuery` inside the callback (`query()` also acquires `apiLock` which
+// would lead to a deadlock).
+func (device *Device) atomicQueries(run func() error) error {
+	device.apiLock.Lock()
+	defer device.apiLock.Unlock()
+	return run()
+}
+
+// atomicQueriesValue is like `atomicQueries`, but allows returning a result value for convenience.
+// It is a function and not a method because Go does not support generic methods.
+func atomicQueriesValue[R any](device *Device, run func() (R, error)) (R, error) {
+	device.apiLock.Lock()
+	defer device.apiLock.Unlock()
+	return run()
 }
