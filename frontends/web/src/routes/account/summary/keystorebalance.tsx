@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Crypto AG
+ * Copyright 2023-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
-import { getAccountsPerCoin } from '@/routes/account/utils';
+import type { TKeystore } from '@/api/account';
+import { getAccountsPerCoin, TAccountsByKeystore } from '@/routes/account/utils';
 import { Balances } from './accountssummary';
 import { BalanceRow } from './balancerow';
 import { SubTotalRow } from './subtotalrow';
 import { Amount } from '@/components/amount/amount';
 import { Skeleton } from '@/components/skeleton/skeleton';
-import { Badge } from '@/components/badge/badge';
-import { USBSuccess } from '@/components/icon';
+import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
 import style from './accountssummary.module.css';
 
 const TotalBalance = ({ total, fiatUnit }: accountApi.TKeystoreBalance) => {
@@ -41,21 +41,19 @@ const TotalBalance = ({ total, fiatUnit }: accountApi.TKeystoreBalance) => {
 };
 
 type TProps = {
-  accounts: accountApi.IAccount[],
-  connected: boolean;
-  keystoreName: string;
-  keystoreBalance?: accountApi.TKeystoreBalance,
-  balances?: Balances,
-  keystoreDisambiguatorName?: string
+  accounts: accountApi.IAccount[];
+  accountsByKeystore: TAccountsByKeystore[];
+  keystore: TKeystore;
+  keystoreBalance?: accountApi.TKeystoreBalance;
+  balances?: Balances;
 }
 
 export const KeystoreBalance = ({
+  accountsByKeystore,
   accounts,
-  connected,
-  keystoreName,
+  keystore,
   keystoreBalance,
   balances,
-  keystoreDisambiguatorName
 }: TProps) => {
   const { t } = useTranslation();
 
@@ -65,17 +63,11 @@ export const KeystoreBalance = ({
   return (
     <div>
       <div className={style.accountName}>
-        <p>{keystoreName} {keystoreDisambiguatorName && `(${keystoreDisambiguatorName})`}</p>
-        {connected ? (
-          <Badge
-            icon={props => <USBSuccess {...props} />}
-            type="success"
-          >
-            {t('device.keystoreConnected')}
-          </Badge>
-        ) :
-          null
-        }
+        <p>
+          <ConnectedKeystore
+            accountsByKeystore={accountsByKeystore}
+            keystore={keystore} />
+        </p>
       </div>
       <div className={style.balanceTable}>
         <table className={style.table}>

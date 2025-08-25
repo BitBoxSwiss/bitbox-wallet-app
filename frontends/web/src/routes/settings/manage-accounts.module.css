@@ -29,6 +29,10 @@
     width: 50%;
 }
 
+.connectedKeystore {
+    flex-wrap: wrap;
+}
+
 .keystoreName {
     margin-bottom: var(--space-eight);
     margin-right: var(--space-quarter);

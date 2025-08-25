@@ -22,14 +22,14 @@ import * as accountApi from '@/api/account';
 import { getBalance } from '@/api/account';
 import { Logo } from '@/components/icon/logo';
 import { View, ViewContent } from '@/components/view/view';
-import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
+import { getAccountsByKeystore } from '@/routes/account/utils';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { Main, Header } from '@/components/layout';
-import { Badge } from '@/components/badge/badge';
-import { ChevronRightDark, USBSuccess } from '@/components/icon/icon';
+import { ChevronRightDark } from '@/components/icon/icon';
 import { AllAccountsGuide } from '@/routes/accounts/all-accounts-guide';
 import { useMountedRef } from '@/hooks/mount';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
 import styles from './all-accounts.module.css';
 
 type AllAccountsProps = {
@@ -101,23 +101,11 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
           <div className={styles.container}>
             {accountsByKeystore.map(keystore => (
               <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
-                <div className={styles.keystoreHeader}>
-                  {keystore.keystore.name}
-                  { isAmbiguousName(keystore.keystore.name, accountsByKeystore) ? (
-                    // Disambiguate accounts group by adding the fingerprint.
-                    // The most common case where this would happen is when adding accounts from the
-                    // same seed using different passphrases.
-                    <> ({keystore.keystore.rootFingerprint})</>
-                  ) : null }
-                  {keystore.keystore.connected && (
-                    <Badge
-                      icon={props => <USBSuccess {...props} />}
-                      type="success">
-                      {t('device.keystoreConnected')}
-                    </Badge>
-                  )}
-
-                </div>
+                <ConnectedKeystore
+                  accountsByKeystore={accountsByKeystore}
+                  keystore={keystore.keystore}
+                  className={styles.keystoreName}
+                />
                 <div className={styles.accountsList}>
                   {keystore.accounts.map(account => (
                     <AccountItem key={`account-${account.code}`} account={account} />
