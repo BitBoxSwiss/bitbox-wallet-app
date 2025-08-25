@@ -8,6 +8,7 @@
 - Show the selected coin's address on the confirmation screen
 - Fetch balances of multiple ETH accounts at the same time, instead of one by one.
 - Fix wrong btc/ltc transaction timestamp during header sync
+- Add support for New Zealand Dollar (NZD) 
 
 ## v4.48.3
 - Linux: fix compatiblity with some versions of Mesa also when using the AppImage

@@ -58,6 +58,7 @@ export const useLocalizedFormattedCurrencies = (selectedLang = 'en') => {
     { currency: 'JPY', displayName: 'Japanese Yen' },
     { currency: 'KRW', displayName: 'South Korean Won' },
     { currency: 'NOK', displayName: 'Norwegian Krone' },
+    { currency: 'NZD', displayName: 'New Zealand Dollar' },
     { currency: 'PLN', displayName: 'Polish Zloty' },
     { currency: 'RUB', displayName: 'Russian ruble' },
     { currency: 'SEK', displayName: 'Swedish Krona' },
