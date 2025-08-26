@@ -44,6 +44,24 @@ const formatSats = (amount: string): JSX.Element => {
   );
 };
 
+/**
+ * Converts a Swiss-formatted amount string (e.g., `"10'000'000.00"`)
+ * into a localized number format, given a custom group separator
+ * and decimal separator.
+ *
+ * This function assumes the input amount always follows the Swiss format:
+ * - Apostrophe `'` as the group separator
+ * - Dot `.` as the decimal separator
+ *
+ * @param amount  - The amount string in Swiss format (e.g., `"10'000.50"`).
+ * @param group   - The target group separator (e.g., `","`).
+ * @param decimal - The target decimal separator (e.g., `"."`).
+ * @returns The formatted amount string using the provided separators.
+ *
+ * @example
+ * formatLocalizedAmount("10'000'000.00", ",", "."); // "10,000,000.00"
+ * formatLocalizedAmount("10'000'000.00", ".", ","); // "10.000.000,00"
+ */
 export const formatLocalizedAmount = (
   amount: string,
   group: string,
