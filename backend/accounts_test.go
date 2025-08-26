@@ -268,7 +268,7 @@ func TestNextAccountNumber(t *testing.T) {
 					signing.NewBitcoinConfiguration(
 						signing.ScriptTypeP2WPKH,
 						rootFingerprint2,
-						mustKeypath("m/84'/0'/4'"),
+						mustKeypath("m/84'/0'/5'"),
 						xpub,
 					),
 				},
