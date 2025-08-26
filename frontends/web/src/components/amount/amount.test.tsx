@@ -204,6 +204,10 @@ describe('Amount formatting', () => {
         const { container } = render(<Amount amount="42" unit={coin}/>);
         expect(container).toHaveTextContent('42');
       });
+      it('0.1 ' + coin + ' shows 0.10', () => {
+        const { container } = render(<Amount amount="0.1" unit={coin}/>);
+        expect(container).toHaveTextContent('0.10');
+      });
     });
   });
 
@@ -217,6 +221,10 @@ describe('Amount formatting', () => {
       it('218.00 ' + coin + ' stays 218.00', () => {
         const { container } = render(<Amount amount="218.00" unit={coin}/>);
         expect(container).toHaveTextContent('218.00');
+      });
+      it('0.1 ' + coin + ' shows 0.10', () => {
+        const { container } = render(<Amount amount="0.1" unit={coin}/>);
+        expect(container).toHaveTextContent('0.10');
       });
 
     });
