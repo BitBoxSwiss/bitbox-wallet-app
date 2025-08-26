@@ -22,6 +22,7 @@ export default tseslint.config(
       }
     },
     'rules': {
+      'no-param-reassign': ['error'],
       'brace-style': ['error', '1tbs'],
       'comma-spacing': ['error', { 'before': false, 'after': true }],
       'curly': 'error',
