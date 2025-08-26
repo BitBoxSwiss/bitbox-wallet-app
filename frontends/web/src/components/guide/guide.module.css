@@ -198,6 +198,6 @@
 
 @media screen and (max-width: 640px) {
     .guide h2 {
-        font-size: 1.05em;
+        font-size: var(--size-default);
     }
 }
