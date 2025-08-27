@@ -44,13 +44,45 @@ const formatSats = (amount: string): JSX.Element => {
   );
 };
 
+/**
+ * Converts a Swiss-formatted amount string (e.g., `"10'000'000.00"`)
+ * into a localized number format, given a custom group separator
+ * and decimal separator.
+ *
+ * Additional formatting:
+ * - If the amount has exactly one decimal digit (e.g., `"0.1"`),
+ *   it is padded to two decimals (`"0.10"`), since humans generally
+ *   expect at least two decimal places in currencies.
+ * - If the amount has no decimals, it is left untouched (`"10"` → `"10"`).
+ *
+ * This function assumes the input amount always follows the Swiss format:
+ * - Apostrophe `'` as the group separator
+ * - Dot `.` as the decimal separator
+ *
+ * @param amount  - The amount string in Swiss format (e.g., `"10'000.50"`).
+ * @param group   - The target group separator (e.g., `","`).
+ * @param decimal - The target decimal separator (e.g., `"."`).
+ * @returns The formatted amount string using the provided separators.
+ *
+ * @example
+ * formatLocalizedAmount("10'000'000.00", ",", "."); // "10,000,000.00"
+ * formatLocalizedAmount("10'000'000.00", ".", ","); // "10.000.000,00"
+ */
 export const formatLocalizedAmount = (
   amount: string,
   group: string,
   decimal: string
 ) => {
+  let maybePadded = amount;
+  if (amount.includes('.')) {
+    const [intPart, fracPart] = amount.split('.');
+    if (fracPart.length === 1) {
+      maybePadded = `${intPart}.${fracPart}0`; // pad to 2 decimals
+    }
+  }
+
   return (
-    amount
+    maybePadded
       .replace('.', '_') // convert decimal first, in case group separator uses dot
       .replace(/[']/g, group) // replace group separator
       .replace('_', decimal)
