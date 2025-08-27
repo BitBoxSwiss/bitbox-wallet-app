@@ -8,13 +8,16 @@
 - Show the selected coin's address on the confirmation screen
 - Fetch balances of multiple ETH accounts at the same time, instead of one by one.
 - Fix wrong btc/ltc transaction timestamp during header sync
+- Ethereum bugfix: show all internal transactions that share the same transaction ID
+
+## v4.48.4
+- macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
 
 ## v4.48.3
 - Linux: fix compatiblity with some versions of Mesa also when using the AppImage
 
 ## v4.48.2
 - iOS: Fix blank screens after prolonged inactivity
-- Ethereum bugfix: show all internal transactions that share the same transaction ID
 
 ## v4.48.1
 - Bundle BitBox02 firmware version v9.23.1
