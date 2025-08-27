@@ -4,6 +4,9 @@
   border-top: 2px solid var(--bottom-navigation-border-color);
   display: none;
   padding: var(--space-half);
+  padding-top: calc(var(--space-half) - env(safe-area-inset-bottom, 0));
+  padding-left: calc(calc(env(safe-area-inset-bottom, 0) / 2) + var(--space-half));
+  padding-right: calc(calc(env(safe-area-inset-bottom, 0) / 2) + var(--space-half));
   position: fixed;
   width: 100%;
   height: var(--bottom-navigation-height);
@@ -18,6 +21,7 @@
     flex-direction: column;
     gap: 4px;
     justify-content: center;
+    position: relative;
     text-align: center;
     text-decoration: none;
 }
@@ -39,4 +43,10 @@
     .container {
         display: flex;
     }
+}
+
+.redDot {
+    position: absolute;
+    top: -8px;
+    right: -4px;
 }

@@ -1,5 +1,6 @@
+
 /**
- * Copyright 2018 Shift Devices AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +15,13 @@
  * limitations under the License.
  */
 
-// Allows to import GIF.
-declare module '*.gif';
+import { apiGet } from '@/utils/request';
+import type { Fiat } from './account';
 
-// Allows to import WEBM.
-declare module '*.webm';
+export type TShowBackupBannerResponse =
+  | { success: false }
+  | { success: true; show: boolean; fiat: Fiat; threshold: string };
 
-// Allows to import JSON.
-declare module '*.json';
-
-// Allows to import PNG.
-declare module '*.png';
-
-// Allows to import SVG.
-declare module '*.svg';
-
-// Extends preact's HTML attributes.
-declare namespace JSX { // tslint:disable-line:no-namespace
-    interface HTMLAttributes {
-        align?: 'left' | 'right' | 'center';
-        allow?: string;
-        autocorrect?: 'on' | 'off';
-        spellcheck?: boolean;
-    }
-}
+export const getShowBackupBanner = (rootFingerprint: string): Promise<TShowBackupBannerResponse> => {
+  return apiGet(`keystore/show-backup-banner/${rootFingerprint}`);
+};

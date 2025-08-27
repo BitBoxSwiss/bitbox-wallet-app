@@ -77,6 +77,7 @@ type GoReadWriteCloserInterface interface {
 
 // GoDeviceInfoInterface adapts usb.DeviceInfo's Open method to return the adapted ReadWriteCloser.
 type GoDeviceInfoInterface interface {
+	IsBluetooth() bool
 	VendorID() int
 	ProductID() int
 	UsagePage() int
@@ -154,6 +155,11 @@ func HandleURI(uri string) {
 // UsingMobileDataChanged exposes `bridgecommon.UsingMobileDataChanged` to Java/Kotlin.
 func UsingMobileDataChanged() {
 	bridgecommon.UsingMobileDataChanged()
+}
+
+// SetOnline exposes `bridgecommon.SetOnline` to Java/Kotlin.
+func SetOnline(online bool) {
+	bridgecommon.SetOnline(online)
 }
 
 // UsbUpdate exposes `bridgecommon.UsbUpdate` to Java/Kotlin.

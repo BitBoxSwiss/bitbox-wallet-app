@@ -15,4 +15,8 @@
     .skeletonWrapper {
          margin-bottom: 2px;
     }
+
+    .withMobilePadding {
+        padding: 0 var(--space-half);
+    }
 }

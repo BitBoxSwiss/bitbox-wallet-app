@@ -8,6 +8,7 @@
 import SwiftUI
 import Mobileserver
 import LocalAuthentication
+import Network
 
 protocol MessageHandlersProtocol {
     func callResponseHandler(queryID: Int, response: String)
@@ -134,6 +135,11 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
                 // Local file path, use UIDocumentInteractionController
                 if let rootViewController = self.getRootViewController() {
                     let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                    if let popover = activityViewController.popoverPresentationController {
+                        popover.sourceView = rootViewController.view
+                        popover.sourceRect = CGRect(x: rootViewController.view.bounds.midX, y: rootViewController.view.bounds.midY, width: 0, height: 0)
+                        popover.permittedArrowDirections = []
+                    }
                     rootViewController.present(activityViewController, animated: true, completion: nil)
                 }
             } else {
@@ -179,11 +185,16 @@ struct BitBoxAppApp: App {
                     .edgesIgnoringSafeArea(.all)
                     .onAppear {
                         setupGoAPI(goAPI: goAPI)
+                        // Manual trigger at startup
+                        MobileserverSetOnline(NetworkMonitor.shared.isOnline())
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                         MobileserverManualReconnect()
                         MobileserverTriggerAuth()
                     }
+            }
+            .onOpenURL { url in
+                MobileserverHandleURI(url.absoluteString)
             }
         }
     }

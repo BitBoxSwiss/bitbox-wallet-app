@@ -22,7 +22,7 @@ import style from './accountssummary.module.css';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 
 type TProps = {
-  balance?: accountApi.IAmount;
+  balance?: accountApi.TAmountWithConversions;
   coinCode: accountApi.CoinCode;
   coinName: string;
 };

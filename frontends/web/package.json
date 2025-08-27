@@ -3,22 +3,22 @@
   "name": "bitboxapp",
   "version": "0.0.0",
   "devDependencies": {
+    "@stylistic/eslint-plugin": "^4.2.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
     "@types/node": "^20.17.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@typescript-eslint/eslint-plugin": "^7.15.0",
-    "@typescript-eslint/parser": "^7.15.0",
     "@vitejs/plugin-react": "^4.3.3",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react": "^7.34.3",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.7",
-    "eslint-plugin-testing-library": "^6.2.2",
+    "eslint": "^9.24.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "eslint-plugin-testing-library": "^7.1.1",
     "jsdom": "^25.0.1",
     "typescript": "^5.6.3",
+    "typescript-eslint": "^8.29.1",
     "vite": "^5.4.10",
     "vite-plugin-checker": "^0.8.0",
     "vite-plugin-eslint": "^1.8.1",
@@ -26,9 +26,9 @@
     "vitest": "^2.1.4"
   },
   "dependencies": {
+    "@reown/walletkit": "1.2.0",
     "@walletconnect/jsonrpc-types": "1.0.4",
     "@walletconnect/types": "2.17.2",
-    "@reown/walletkit": "1.2.0",
     "flag-icons": "7.2.3",
     "i18next": "23.11.5",
     "lightweight-charts": "4.1.4",
@@ -46,21 +46,12 @@
       "react-app/jest"
     ]
   },
-  "browserslist": {
-    "production": [
-      "chrome >= 83"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "scripts": {
     "dev": "npm run start",
     "start": "vite --cors --host",
     "build": "npm run typescript && vite build",
-    "lint": "npm run typescript && eslint --ext .jsx,.js,.ts,.tsx ./src",
+    "lint": "npm run typescript && eslint ./src",
+    "lint-debug": "eslint ./src --inspect-config",
     "typescript": "tsc -p tsconfig.json",
     "test": "vitest",
     "preview": "vite preview --port 8080"

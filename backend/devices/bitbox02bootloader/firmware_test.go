@@ -38,7 +38,7 @@ func testHash(t *testing.T, info firmwareInfo, expectedProduct bitbox02common.Pr
 	hash := sha256.Sum256(binary)
 	expectedHash, err := os.ReadFile(hashFile)
 	require.NoError(t, err)
-	require.Equal(t, string(expectedHash), hex.EncodeToString(hash[:]))
+	require.Equal(t, string(expectedHash), hex.EncodeToString(hash[:]), hashFile)
 }
 
 func TestBundledFirmware(t *testing.T) {
@@ -48,6 +48,14 @@ func TestBundledFirmware(t *testing.T) {
 
 	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02BTCOnly] {
 		testHash(t, fw, bitbox02common.ProductBitBox02BTCOnly, fmt.Sprintf("assets/firmware-btc.v%s.signed.bin.sha256", fw.version))
+	}
+
+	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02PlusMulti] {
+		testHash(t, fw, bitbox02common.ProductBitBox02PlusMulti, fmt.Sprintf("assets/firmware-bb02plus-multi.v%s.signed.bin.sha256", fw.version))
+	}
+
+	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02PlusBTCOnly] {
+		testHash(t, fw, bitbox02common.ProductBitBox02PlusBTCOnly, fmt.Sprintf("assets/firmware-bb02plus-btconly.v%s.signed.bin.sha256", fw.version))
 	}
 }
 

@@ -20,6 +20,7 @@ import (
 	"runtime"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid"
 	"github.com/karalabe/hid"
 )
 
@@ -51,6 +52,11 @@ type funcCallResult[T any] struct {
 
 type hidDeviceInfo struct {
 	hid.DeviceInfo
+}
+
+// IsBluetooth implements DeviceInfo.
+func (info hidDeviceInfo) IsBluetooth() bool {
+	return false
 }
 
 // VendorID implements DeviceInfo.
@@ -96,7 +102,7 @@ func (info hidDeviceInfo) Identifier() string {
 // singleThreadedDevice runs all hidapi functions in the same OS thread. See the docs of the
 // `funcCalls` variable for more info. Implements io.ReadWriteCloser, like `hid.Device`.
 type singleThreadedDevice struct {
-	device hid.Device
+	device io.ReadWriteCloser
 }
 
 // Write wraps hid.Device.Write to run in a dedicated OS thread.
@@ -142,9 +148,13 @@ func (info hidDeviceInfo) Open() (io.ReadWriteCloser, error) {
 		if result.err != nil {
 			return nil, result.err
 		}
-		return singleThreadedDevice{device: result.value}, nil
+		return singleThreadedDevice{device: u2fhid.NewHidDevice(result.value)}, nil
 	}
-	return info.DeviceInfo.Open()
+	hidDevice, err := info.DeviceInfo.Open()
+	if err != nil {
+		return nil, err
+	}
+	return u2fhid.NewHidDevice(hidDevice), nil
 }
 
 // DeviceInfos returns a slice of all recognized devices.

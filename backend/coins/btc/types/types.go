@@ -52,3 +52,21 @@ func (s *Signature) SerializeCompact() []byte {
 	s.S.FillBytes(result[32:])
 	return result
 }
+
+// Derivation contains the derivation information to derive address-level information from a BTC
+// account descriptor.
+type Derivation struct {
+	// Change is true to derive change address details and false to derive receive address details.
+	Change       bool
+	AddressIndex uint32
+}
+
+// SimpleChainIndex returns 0 for receive and 1 or change. This applies to standard BIP-44
+// derivations, but not to multipath descriptors.
+func (d Derivation) SimpleChainIndex() uint32 {
+	if d.Change {
+		return 1
+	}
+
+	return 0
+}

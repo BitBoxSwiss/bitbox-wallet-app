@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 // Workaround to be able to use `const char*` as a param type in the exported Go functions.
 typedef const char cchar_t;
@@ -45,6 +46,7 @@ extern "C" {
 #endif
 
 extern void backendCall(int queryID, cchar_t* s);
+extern void setOnline(bool online);
 extern void handleURI(cchar_t* uri);
 extern void serve(cppHeapFree cppHeapFreeFn, pushNotificationsCallback pushNotificationsFn, responseCallback responseFn, notifyUserCallback notifyUserFn, cchar_t* preferredLocale, getSaveFilenameCallback getSaveFilenameFn);
 extern void systemOpen(cchar_t* url);

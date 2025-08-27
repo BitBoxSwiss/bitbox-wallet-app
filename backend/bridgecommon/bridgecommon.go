@@ -123,6 +123,16 @@ func HandleURI(uri string) {
 	globalBackend.HandleURI(uri)
 }
 
+// SetOnline should be called when the network connection changed.
+func SetOnline(isOnline bool) {
+	mu.RLock()
+	defer mu.RUnlock()
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.SetOnline(isOnline)
+}
+
 // TriggerAuth triggers an authentication request notification.
 func TriggerAuth() {
 	mu.Lock()
@@ -176,7 +186,9 @@ func ManualReconnect() {
 	if globalBackend == nil {
 		return
 	}
-	globalBackend.ManualReconnect()
+	// We pass false as by default we do not want
+	// to reconnect ETH accounts.
+	globalBackend.ManualReconnect(false)
 
 }
 

@@ -179,11 +179,13 @@ func TestSortAccounts(t *testing.T) {
 		{Code: "acct-tbtc", CoinCode: coinpkg.CodeTBTC},
 	}
 	backend := newBackend(t, testnetDisabled, regtestDisabled)
+	unlockFN := backend.accountsAndKeystoreLock.Lock()
 	for i := range accountConfigs {
 		c, err := backend.Coin(accountConfigs[i].CoinCode)
 		require.NoError(t, err)
 		backend.createAndAddAccount(c, accountConfigs[i])
 	}
+	unlockFN()
 
 	expectedOrder := []accountsTypes.Code{
 		"acct-btc-1",
@@ -208,6 +210,9 @@ func TestNextAccountNumber(t *testing.T) {
 	fingerprintEmpty := []byte{0x77, 0x77, 0x77, 0x77}
 	ks := func(fingerprint []byte, supportsMultipleAccounts bool) *keystoremock.KeystoreMock {
 		return &keystoremock.KeystoreMock{
+			SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+				return true
+			},
 			RootFingerprintFunc: func() ([]byte, error) {
 				return fingerprint, nil
 			},
@@ -372,6 +377,9 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 	bitbox01LikeKeystore := &keystoremock.KeystoreMock{
 		RootFingerprintFunc: func() ([]byte, error) {
 			return rootFingerprint1, nil
+		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
 		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
@@ -704,6 +712,9 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			RootFingerprintFunc: func() ([]byte, error) {
 				return rootFingerprint1, nil
 			},
+			SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+				return true
+			},
 			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 				return true
 			},
@@ -738,6 +749,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 	// Add a Bitcoin account.
 	coin, err := b.Coin(coinpkg.CodeBTC)
 	require.NoError(t, err)
+	unlockFN := b.accountsAndKeystoreLock.Lock()
 	b.createAndAddAccount(
 		coin,
 		&config.Account{
@@ -748,6 +760,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			},
 		},
 	)
+	unlockFN()
 	require.Len(t, b.Accounts(), 1)
 	// Check some properties of the newly added account.
 	acct := b.Accounts()[0]
@@ -758,6 +771,8 @@ func TestCreateAndAddAccount(t *testing.T) {
 	// Add a Litecoin account.
 	coin, err = b.Coin(coinpkg.CodeLTC)
 	require.NoError(t, err)
+
+	unlockFN = b.accountsAndKeystoreLock.Lock()
 	b.createAndAddAccount(coin,
 		&config.Account{
 			Code: "test-ltc-account-code",
@@ -767,6 +782,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			},
 		},
 	)
+	unlockFN()
 	require.Len(t, b.Accounts(), 2)
 	// Check some properties of the newly added account.
 	acct = b.Accounts()[1]
@@ -777,6 +793,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 	// Add an Ethereum account with some active ERC20 tokens.
 	coin, err = b.Coin(coinpkg.CodeETH)
 	require.NoError(t, err)
+	unlockFN = b.accountsAndKeystoreLock.Lock()
 	b.createAndAddAccount(coin,
 		&config.Account{
 			Code: "test-eth-account-code",
@@ -787,6 +804,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			ActiveTokens: []string{"eth-erc20-mkr"},
 		},
 	)
+	unlockFN()
 	// 2 more accounts: the added ETH account plus the active token for the ETH account.
 	require.Len(t, b.Accounts(), 4)
 	// Check some properties of the newly added account.
@@ -803,6 +821,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 	// Add another Ethereum account with some active ERC20 tokens.
 	coin, err = b.Coin(coinpkg.CodeETH)
 	require.NoError(t, err)
+	unlockFN = b.accountsAndKeystoreLock.Lock()
 	b.createAndAddAccount(coin,
 		&config.Account{
 			Code: "test-eth-account-code-2",
@@ -814,6 +833,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			ActiveTokens: []string{"eth-erc20-usdt", "eth-erc20-bat"},
 		},
 	)
+	unlockFN()
 	// 3 more accounts: the added ETH account plus the two active tokens for the ETH account.
 	require.Len(t, b.Accounts(), 7)
 	// Check some properties of the newly added accounts.
@@ -950,6 +970,9 @@ func TestTaprootUpgrade(t *testing.T) {
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
+		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
 			case *btc.Coin:
@@ -974,6 +997,9 @@ func TestTaprootUpgrade(t *testing.T) {
 		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
+		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
 		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
@@ -1283,6 +1309,9 @@ func TestWatchonly(t *testing.T) {
 			RootFingerprintFunc: func() ([]byte, error) {
 				return rootFingerprint1, nil
 			},
+			SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+				return true
+			},
 			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 				switch coin.(type) {
 				case *btc.Coin:
@@ -1303,6 +1332,9 @@ func TestWatchonly(t *testing.T) {
 			},
 			RootFingerprintFunc: func() ([]byte, error) {
 				return rootFingerprint2, nil
+			},
+			SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+				return true
 			},
 			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 				switch coin.(type) {
@@ -1447,14 +1479,14 @@ func TestAccountsByKeystore(t *testing.T) {
 	require.Nil(t, accountsMap[hex.EncodeToString(ks2Fingerprint)])
 }
 
-func TestAccountsTotalBalanceByKeystore(t *testing.T) {
+func TestKeystoresBalance(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
 	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
 		accountMock := MockBtcAccount(t, config, coin, gapLimits, log)
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
-			return accounts.NewBalance(coinpkg.NewAmountFromInt64(100000), coinpkg.NewAmountFromInt64(0)), nil
+			return accounts.NewBalance(coinpkg.NewAmountFromInt64(1e8), coinpkg.NewAmountFromInt64(0)), nil
 		}
 		return accountMock
 	}
@@ -1462,7 +1494,7 @@ func TestAccountsTotalBalanceByKeystore(t *testing.T) {
 	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
 		accountMock := MockEthAccount(config, coin, httpClient, log)
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
-			return accounts.NewBalance(coinpkg.NewAmountFromInt64(100000), coinpkg.NewAmountFromInt64(0)), nil
+			return accounts.NewBalance(coinpkg.NewAmountFromInt64(1e18), coinpkg.NewAmountFromInt64(0)), nil
 		}
 		return accountMock
 	}
@@ -1500,12 +1532,137 @@ func TestAccountsTotalBalanceByKeystore(t *testing.T) {
 	b.ratesUpdater = rates.MockRateUpdater()
 	defer b.ratesUpdater.Stop()
 
-	totalBalance, err := b.AccountsTotalBalanceByKeystore()
+	keystoresBalance, err := b.keystoresBalance()
 	require.NoError(t, err)
 
-	require.NotNil(t, totalBalance[hex.EncodeToString(ks1Fingerprint)])
-	require.Equal(t, "0.02", totalBalance[hex.EncodeToString(ks1Fingerprint)].Total)
+	require.NotNil(t, keystoresBalance[hex.EncodeToString(ks1Fingerprint)])
+	require.Equal(t, "1.00000000", keystoresBalance[hex.EncodeToString(ks1Fingerprint)].CoinsBalance[coinpkg.CodeBTC].Amount)
+	require.Equal(t, "21.00", keystoresBalance[hex.EncodeToString(ks1Fingerprint)].CoinsBalance[coinpkg.CodeBTC].Conversions["USD"])
+	require.Equal(t, "1.00000000", keystoresBalance[hex.EncodeToString(ks1Fingerprint)].CoinsBalance[coinpkg.CodeLTC].Amount)
+	require.Equal(t, "", keystoresBalance[hex.EncodeToString(ks1Fingerprint)].CoinsBalance[coinpkg.CodeLTC].Conversions["USD"])
+	require.Equal(t, "1", keystoresBalance[hex.EncodeToString(ks1Fingerprint)].CoinsBalance[coinpkg.CodeETH].Amount)
+	require.Equal(t, "1.00", keystoresBalance[hex.EncodeToString(ks1Fingerprint)].CoinsBalance[coinpkg.CodeETH].Conversions["USD"])
+	require.Equal(t, "22.00", keystoresBalance[hex.EncodeToString(ks1Fingerprint)].Total)
 
-	require.NotNil(t, totalBalance[hex.EncodeToString(ks2Fingerprint)])
-	require.Equal(t, "0.13", totalBalance[hex.EncodeToString(ks2Fingerprint)].Total)
+	require.NotNil(t, keystoresBalance[hex.EncodeToString(ks2Fingerprint)])
+	require.Equal(t, "22.00", keystoresBalance[hex.EncodeToString(ks2Fingerprint)].Total)
+}
+
+func TestCoinsTotalBalance(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
+		accountMock := MockBtcAccount(t, config, coin, gapLimits, log)
+		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
+			return accounts.NewBalance(coinpkg.NewAmountFromInt64(1e8), coinpkg.NewAmountFromInt64(0)), nil
+		}
+		return accountMock
+	}
+
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
+		accountMock := MockEthAccount(config, coin, httpClient, log)
+		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
+			return accounts.NewBalance(coinpkg.NewAmountFromInt64(2e18), coinpkg.NewAmountFromInt64(0)), nil
+		}
+		return accountMock
+	}
+
+	ks1 := makeBitBox02Multi()
+	ks2 := makeBitBox02Multi()
+
+	ks2.RootFingerprintFunc = keystoreHelper2().RootFingerprint
+	ks2.ExtendedPublicKeyFunc = keystoreHelper2().ExtendedPublicKey
+
+	ks1Fingerprint, err := ks1.RootFingerprint()
+	require.NoError(t, err)
+
+	b.registerKeystore(ks1)
+	require.NoError(t, b.SetWatchonly(ks1Fingerprint, true))
+
+	// Up to 6 hidden accounts for BTC/LTC are added to be scanned even if the accounts are all
+	// empty. Calling this function too many times does not add more than that.
+	for i := 1; i <= 10; i++ {
+		b.maybeAddHiddenUnusedAccounts()
+	}
+
+	b.DeregisterKeystore()
+	b.registerKeystore(ks2)
+
+	for i := 1; i <= 10; i++ {
+		b.maybeAddHiddenUnusedAccounts()
+	}
+
+	// This needs to be after all changes in accounts, otherwise it will try to fetch
+	// new values and fail.
+	b.ratesUpdater = rates.MockRateUpdater()
+	defer b.ratesUpdater.Stop()
+
+	coinsTotalBalance, err := b.coinsTotalBalance()
+	require.NoError(t, err)
+	require.Equal(t, coinpkg.CodeBTC, coinsTotalBalance[0].CoinCode)
+	require.Equal(t, "2.00000000", coinsTotalBalance[0].FormattedAmount.Amount)
+	require.Equal(t, coinpkg.CodeLTC, coinsTotalBalance[1].CoinCode)
+	require.Equal(t, "2.00000000", coinsTotalBalance[1].FormattedAmount.Amount)
+	require.Equal(t, coinpkg.CodeETH, coinsTotalBalance[2].CoinCode)
+	require.Equal(t, "4", coinsTotalBalance[2].FormattedAmount.Amount)
+}
+
+func TestAccountsFiatAndCoinBalance(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
+		accountMock := MockBtcAccount(t, config, coin, gapLimits, log)
+		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
+			return accounts.NewBalance(coinpkg.NewAmountFromInt64(1e8), coinpkg.NewAmountFromInt64(0)), nil
+		}
+		return accountMock
+	}
+
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
+		accountMock := MockEthAccount(config, coin, httpClient, log)
+		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
+			return accounts.NewBalance(coinpkg.NewAmountFromInt64(1e18), coinpkg.NewAmountFromInt64(0)), nil
+		}
+		return accountMock
+	}
+
+	ks1 := makeBitBox02Multi()
+
+	ks1Fingerprint, err := ks1.RootFingerprint()
+	require.NoError(t, err)
+
+	b.registerKeystore(ks1)
+	require.NoError(t, b.SetWatchonly(ks1Fingerprint, true))
+
+	// Up to 6 hidden accounts for BTC/LTC are added to be scanned even if the accounts are all
+	// empty. Calling this function too many times does not add more than that.
+	for i := 1; i <= 10; i++ {
+		b.maybeAddHiddenUnusedAccounts()
+	}
+
+	// This needs to be after all changes in accounts, otherwise it will try to fetch
+	// new values and fail.
+	b.ratesUpdater = rates.MockRateUpdater()
+	defer b.ratesUpdater.Stop()
+
+	accountsByKestore, err := b.AccountsByKeystore()
+	require.NoError(t, err)
+
+	expectedCurrencies := map[rates.Fiat]string{
+		rates.USD: "22.00",
+		rates.EUR: "18.90",
+		rates.CHF: "19.95",
+	}
+
+	accountList, ok := accountsByKestore[hex.EncodeToString(ks1Fingerprint)]
+	require.True(t, ok, "Expected accounts for keystore with fingerprint %s", hex.EncodeToString(ks1Fingerprint))
+
+	for currency, expectedBalance := range expectedCurrencies {
+		balance, _, err := b.AccountsFiatAndCoinBalance(accountList, string(currency))
+		require.NoError(t, err)
+		require.Equalf(t, expectedBalance, balance.FloatString(2), "Got balance of %s, expected %s", balance.FloatString(2), expectedBalance)
+	}
+
 }

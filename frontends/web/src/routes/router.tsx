@@ -165,10 +165,18 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       accounts={activeAccounts} />
   </InjectParams>);
 
-  const BTCDirectEl = (<InjectParams>
+  const BTCDirectBuyEl = (<InjectParams>
     <BTCDirect
-      code={''}
-      accounts={activeAccounts} />
+      accounts={activeAccounts}
+      action="buy"
+      code={''} />
+  </InjectParams>);
+
+  const BTCDirectSellEl = (<InjectParams>
+    <BTCDirect
+      accounts={activeAccounts}
+      action="sell"
+      code={''} />
   </InjectParams>);
 
   const BitrefillEl = (<InjectParams>
@@ -179,23 +187,24 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const ExchangeEl = (<InjectParams>
     <Exchange
-      code={''}
       accounts={activeAccounts}
-      deviceIDs={deviceIDs}
+      code={''}
     />
   </InjectParams>);
 
   const PocketBuyEl = (<InjectParams>
     <Pocket
-      code={''}
       action="buy"
+      code={''}
+      deviceIDs={deviceIDs}
     />
   </InjectParams>);
 
   const PocketSellEl = (<InjectParams>
     <Pocket
-      code={''}
       action="sell"
+      code={''}
+      deviceIDs={deviceIDs}
     />
   </InjectParams>);
 
@@ -217,7 +226,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   </InjectParams>);
 
   const MoreEl = (<InjectParams>
-    <More />
+    <More devices={devices} />
   </InjectParams>);
 
   const GeneralEl = (<InjectParams>
@@ -264,7 +273,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
             <Route index element={ExchangeInfoEl} />
             <Route path=":code" element={ExchangeInfoEl} />
           </Route>
-          <Route path="btcdirect/buy/:code" element={BTCDirectEl} />
+          <Route path="btcdirect/buy/:code" element={BTCDirectBuyEl} />
+          <Route path="btcdirect/sell/:code" element={BTCDirectSellEl} />
           <Route path="bitrefill/spend/:code" element={BitrefillEl} />
           <Route path="moonpay/buy/:code" element={MoonpayEl} />
           <Route path="pocket/buy/:code" element={PocketBuyEl} />

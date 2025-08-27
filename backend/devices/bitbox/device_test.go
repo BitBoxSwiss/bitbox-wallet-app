@@ -15,18 +15,15 @@
 package bitbox
 
 import (
-	"encoding/hex"
 	"encoding/json"
 	"os"
 	"reflect"
-	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox/relay"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
@@ -171,191 +168,6 @@ func (s *dbbTestSuite) TestCreateWallet() {
 		Return(map[string]interface{}{"backup": "success"}, nil).
 		Once()
 	s.Require().NoError(s.dbb.CreateWallet(dummyWalletName, recoveryPassword))
-}
-
-func (s *dbbTestSuite) TestSignZero() {
-	s.Require().NoError(s.login())
-
-	const expectedError = "Non-empty list of signature hashes and keypaths expected"
-
-	// the following function is called upon panic()
-	defer AssertPanicWithMessage(s, expectedError)
-
-	signatureHash := []byte{0, 0, 0, 0, 0}
-	keyPath := "m/44'/0'/1'/0"
-	element := map[string]interface{}{"hash": hex.EncodeToString(signatureHash), "keypath": keyPath}
-	data := map[string]interface{}{"data": []interface{}{element}}
-	sign := map[string]interface{}{"sign": data}
-
-	responseSignature := make([]byte, 64)
-	s.mockDeviceInfo()
-	s.mockCommunication.On(
-		"SendEncrypt",
-		jsonArgumentMatcher(sign),
-		pin,
-	).
-		Return(map[string]interface{}{"sign": []interface{}{map[string]interface{}{"sig": hex.EncodeToString(responseSignature)}}}, nil).
-		Twice()
-	// Return value can be ignored as the function panics.
-	_, _ = s.dbb.Sign(nil, [][]byte{}, []string{})
-}
-
-func (s *dbbTestSuite) TestSignSingle() {
-	s.Require().NoError(s.login())
-	signatureHash := []byte{0, 0, 0, 0, 0}
-	keyPath := "m/44'/0'/1'/0"
-	element := map[string]interface{}{"hash": hex.EncodeToString(signatureHash), "keypath": keyPath}
-	data := map[string]interface{}{"data": []interface{}{element}}
-	sign := map[string]interface{}{"sign": data}
-
-	responseSignature := make([]byte, 64)
-	s.mockDeviceInfo()
-	s.mockCommunication.On(
-		"SendEncrypt",
-		jsonArgumentMatcher(sign),
-		pin,
-	).
-		Return(nil, nil).
-		Once()
-	s.mockCommunication.On(
-		"SendEncrypt",
-		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
-		pin,
-	).
-		Return(map[string]interface{}{"sign": []interface{}{map[string]interface{}{
-			"sig":   hex.EncodeToString(responseSignature),
-			"recid": "00",
-		}}}, nil).
-		Once()
-
-	signatures, err := s.dbb.Sign(nil, [][]byte{signatureHash}, []string{keyPath})
-	s.Require().NoError(err)
-	s.Require().Len(signatures, 1)
-}
-
-func (s *dbbTestSuite) mockDeviceInfo() {
-	deviceInfoMap := map[string]interface{}{"TFA": "", "U2F": false}
-	_ = json.Unmarshal(jsonp.MustMarshal(&DeviceInfo{}), &deviceInfoMap)
-	s.mockCommunication.On(
-		"SendEncrypt",
-		jsonArgumentMatcher(map[string]interface{}{"device": "info"}),
-		pin,
-	).Return(map[string]interface{}{"device": deviceInfoMap}, nil).Once()
-}
-
-func (s *dbbTestSuite) TestSignFifteen() {
-	s.Require().NoError(s.login())
-
-	dataSlice := []interface{}{}
-	keypaths := []string{}
-	signatureHashes := [][]byte{}
-	for i := 0; i < 15; i++ {
-		signatureHash := []byte{0, 0, 0, 0, byte(i)}
-		keyPath := "m/44'/0'/1'/" + strconv.Itoa(i)
-		signatureHashes = append(signatureHashes, signatureHash)
-		keypaths = append(keypaths, keyPath)
-		element := map[string]interface{}{"hash": hex.EncodeToString(signatureHash), "keypath": keyPath}
-		dataSlice = append(dataSlice, element)
-	}
-	data := map[string]interface{}{"data": dataSlice}
-	sign := map[string]interface{}{"sign": data}
-
-	responseSignatures := []interface{}{}
-	for i := 0; i < 15; i++ {
-		responseSignature := make([]byte, 64)
-		responseSignatures = append(responseSignatures, map[string]interface{}{
-			"sig":   hex.EncodeToString(responseSignature),
-			"recid": "00",
-		})
-	}
-	s.mockDeviceInfo()
-	s.mockCommunication.On(
-		"SendEncrypt",
-		jsonArgumentMatcher(sign),
-		pin,
-	).
-		Return(nil, nil).
-		Once()
-	s.mockCommunication.On(
-		"SendEncrypt",
-		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
-		pin,
-	).
-		Return(map[string]interface{}{"sign": responseSignatures}, nil).
-		Once()
-	signatures, err := s.dbb.Sign(nil, signatureHashes, keypaths)
-	s.Require().NoError(err)
-	s.Require().Len(signatures, 15)
-}
-
-func (s *dbbTestSuite) TestSignSixteen() {
-	s.Require().NoError(s.login())
-
-	dataSlice := []interface{}{}
-	keypaths := []string{}
-	signatureHashes := [][]byte{}
-	for i := 0; i < 16; i++ {
-		signatureHash := []byte{0, 0, 0, 0, byte(i)}
-		keyPath := "m/44'/0'/1'/" + strconv.Itoa(i)
-		signatureHashes = append(signatureHashes, signatureHash)
-		keypaths = append(keypaths, keyPath)
-		element := map[string]interface{}{"hash": hex.EncodeToString(signatureHash), "keypath": keyPath}
-		dataSlice = append(dataSlice, element)
-	}
-	data1 := map[string]interface{}{"data": dataSlice[:15]}
-	sign1 := map[string]interface{}{"sign": data1}
-	data2 := map[string]interface{}{"data": dataSlice[15:]}
-	sign2 := map[string]interface{}{"sign": data2}
-
-	responseSignatures1 := []interface{}{}
-	for i := 0; i < 15; i++ {
-		responseSignature := make([]byte, 64)
-		responseSignature[63] = byte(i)
-		responseSignatures1 = append(responseSignatures1, map[string]interface{}{
-			"sig":   hex.EncodeToString(responseSignature),
-			"recid": "00",
-		})
-	}
-	responseSignature2 := make([]byte, 64)
-	responseSignature2[63] = byte(15)
-	responseSignatures2 := []interface{}{map[string]interface{}{
-		"sig":   hex.EncodeToString(responseSignature2),
-		"recid": "00"}}
-	s.mockDeviceInfo()
-
-	s.mockCommunication.On(
-		"SendEncrypt",
-		jsonArgumentMatcher(sign1),
-		pin,
-	).
-		Return(nil, nil).
-		Once()
-	s.mockCommunication.On(
-		"SendEncrypt",
-		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
-		pin,
-	).
-		Return(map[string]interface{}{"sign": responseSignatures1}, nil).
-		Once()
-
-	s.mockCommunication.On(
-		"SendEncrypt",
-		jsonArgumentMatcher(sign2),
-		pin,
-	).
-		Return(nil, nil).
-		Once()
-	s.mockCommunication.On(
-		"SendEncrypt",
-		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
-		pin,
-	).
-		Return(map[string]interface{}{"sign": responseSignatures2}, nil).
-		Once()
-
-	signatures, err := s.dbb.Sign(nil, signatureHashes, keypaths)
-	s.Require().NoError(err)
-	s.Require().Len(signatures, 16)
 }
 
 func (s *dbbTestSuite) TestDeviceClose() {

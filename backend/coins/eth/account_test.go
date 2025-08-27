@@ -106,6 +106,7 @@ func newAccount(t *testing.T) *Account {
 		coin,
 		&http.Client{},
 		log,
+		make(chan *Account),
 	)
 	require.NoError(t, acct.Initialize())
 	return acct
@@ -114,6 +115,7 @@ func newAccount(t *testing.T) *Account {
 func TestTxProposal(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
+	require.NoError(t, acct.Update(big.NewInt(1e18)))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	t.Run("valid", func(t *testing.T) {
@@ -171,6 +173,7 @@ func TestTxProposal(t *testing.T) {
 func TestMatchesAddress(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
+	require.NoError(t, acct.Update(big.NewInt(1e18)))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	// Test invalid Ethereum address

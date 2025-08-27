@@ -42,10 +42,12 @@ import style from './exchange.module.css';
 type TProps = {
     accounts: IAccount[];
     code: AccountCode;
-    deviceIDs: string[];
 }
 
-export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
+export const Exchange = ({
+  accounts,
+  code,
+}: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -72,7 +74,7 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
     if (!regionCodes || !config) {
       return;
     }
-    const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' }) || '';
+    const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' });
     const regions: TOption[] = regionCodes.map(code => ({
       value: code,
       label: regionNames.of(code) || code
@@ -127,6 +129,7 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
         >
           {info && (
             <InfoContent
+              action={info.action}
               accounts={accounts}
               exchangeName={info.exchangeName}
               paymentFees={info.paymentFees}
@@ -149,7 +152,11 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                     regions={regions}
                     selectedRegion={selectedRegion}
                   />
-                  <InfoButton onClick={() => setInfo({ exchangeName: 'region', paymentFees: {} })} />
+                  <InfoButton onClick={() => setInfo({
+                    action: activeTab,
+                    exchangeName: 'region',
+                    paymentFees: {}
+                  })} />
                 </div>
                 <ExchangeTab
                   onChangeTab={(tab) => {
@@ -161,7 +168,6 @@ export const Exchange = ({ code, accounts, deviceIDs }: TProps) => {
                   <BuySell
                     accountCode={code}
                     selectedRegion={selectedRegion}
-                    deviceIDs={deviceIDs}
                     goToExchange={goToExchange}
                     showBackButton={supportedAccounts.length > 1}
                     action={activeTab}
