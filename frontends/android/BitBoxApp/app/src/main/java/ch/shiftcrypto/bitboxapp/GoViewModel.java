@@ -24,18 +24,24 @@ import mobileserver.GoEnvironmentInterface;
 import mobileserver.GoReadWriteCloserInterface;
 
 public class GoViewModel extends AndroidViewModel {
-
-      private class GoDeviceInfo implements GoDeviceInfoInterface {
+    private class GoDeviceInfo implements GoDeviceInfoInterface {
         private final UsbDevice device;
+
         public GoDeviceInfo(UsbDevice device) {
             this.device = device;
         }
-        public String identifier(){
+
+        @Override
+        public String identifier() {
             return "androidDevice";
         }
+
+        @Override
         public long interface_() {
             return 0;
         }
+
+        @Override
         public GoReadWriteCloserInterface open() throws Exception {
             if (device != null) {
                 UsbInterface intf = device.getInterface(0);
@@ -59,10 +65,13 @@ public class GoViewModel extends AndroidViewModel {
                 }
                 connection.claimInterface(intf, true);
 
-                return new GoReadWriteCloserInterface(){
+                return new GoReadWriteCloserInterface() {
+                    @Override
                     public void close() throws Exception {
 
                     }
+
+                    @Override
                     public byte[] read(long n) throws Exception {
                         byte[] result = new byte[(int) n];
                         int transferred = connection.bulkTransfer(endpointIn, result, result.length, 5000000);
@@ -71,6 +80,8 @@ public class GoViewModel extends AndroidViewModel {
                         }
                         return result;
                     }
+
+                    @Override
                     public long write(byte[] p0) throws Exception {
                         int transferred = connection.bulkTransfer(endpointOut, p0, p0.length, 5000000);
                         if (transferred < 0) {
@@ -81,35 +92,40 @@ public class GoViewModel extends AndroidViewModel {
                 };
             }
             throw new Exception("nope");
-
-
         }
+
+        @Override
         public boolean isBluetooth() {
             return false;
         }
+
+        @Override
         public String product() {
             return device.getProductName();
         }
+
+        @Override
         public long productID() {
             return device.getProductId();
         }
+
+        @Override
         public String serial() {
             return device.getSerialNumber();
         }
+
+        @Override
         public long usagePage() {
             return 0xFFFF;
         }
+
+        @Override
         public long vendorID() {
             return device.getVendorId();
         }
     }
 
     private class GoEnvironment implements GoEnvironmentInterface {
-        public GoEnvironment() {
-        }
-
-        public void notifyUser(String message) {
-        }
 
         private GoDeviceInfoInterface device;
 
@@ -117,36 +133,45 @@ public class GoViewModel extends AndroidViewModel {
             this.device = device;
         }
 
+        @Override
         public GoDeviceInfoInterface deviceInfo() {
             return this.device;
         }
 
+        @Override
+        public void notifyUser(String message) {
+        }
+
+        @Override
         public void systemOpen(String url) throws Exception {
             Util.systemOpen(getApplication(), url);
         }
 
+        @Override
         public void auth() {
             Util.log("Auth requested from backend");
             requestAuth();
         }
 
         @Override
-        public String getSaveFilename(String fileName)  {
+        public String getSaveFilename(String fileName) {
             File folder = getApplication().getApplicationContext().getExternalFilesDir(null);
             return new File(folder, fileName).getAbsolutePath();
         }
 
+        @Override
         public void onAuthSettingChanged(boolean enabled) {
             authSetting.postValue(enabled);
         }
 
+        @Override
         public void bluetoothConnect(String identifier) {
         }
 
+        @Override
         public boolean usingMobileData() {
             // Adapted from https://stackoverflow.com/a/53243938
-
-            ConnectivityManager cm = (ConnectivityManager)getApplication().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager cm = (ConnectivityManager) getApplication().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
             if (cm == null) {
                 return false;
             }
@@ -155,6 +180,7 @@ public class GoViewModel extends AndroidViewModel {
 
         }
 
+        @Override
         public String nativeLocale() {
             Context ctx = getApplication().getApplicationContext();
             Locale locale;
@@ -162,11 +188,13 @@ public class GoViewModel extends AndroidViewModel {
             return locale.toString();
         }
 
+        @Override
         public void setDarkTheme(boolean isDark) {
             Util.log("Set Dark Theme GoViewModel - isdark: " + isDark);
             GoViewModel.this.isDarkTheme.postValue(isDark);
         }
 
+        @Override
         public boolean detectDarkTheme() {
             // nothing to do here: Dark theme is detected in the frontend using media queries.
             return false;
@@ -174,34 +202,29 @@ public class GoViewModel extends AndroidViewModel {
     }
 
     private final MutableLiveData<Boolean> isDarkTheme = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> authenticator = new MutableLiveData<>(false);
+    // The value of the backend config's Authentication setting.
+    private final MutableLiveData<Boolean> authSetting = new MutableLiveData<>(false);
+    private final GoEnvironment goEnvironment;
+    private final GoAPI goAPI;
+
+    public GoViewModel(Application app) {
+        super(app);
+        this.goEnvironment = new GoEnvironment();
+        this.goAPI = new GoAPI();
+    }
 
     public MutableLiveData<Boolean> getIsDarkTheme() {
-         return isDarkTheme;
-     }
-
-    private final MutableLiveData<Boolean> authenticator = new MutableLiveData<>(false);
+        return isDarkTheme;
+    }
 
     public MutableLiveData<Boolean> getAuthenticator() {
         return authenticator;
     }
 
-    // The value of the backend config's Authentication setting.
-    private final MutableLiveData<Boolean> authSetting = new MutableLiveData<>(false);
-
     public MutableLiveData<Boolean> getAuthSetting() {
         return authSetting;
     }
-
-    public void requestAuth() {
-        this.authenticator.postValue(true);
-    }
-
-    public void closeAuth() {
-        this.authenticator.postValue(false);
-    }
-
-    private final GoEnvironment goEnvironment;
-    private final GoAPI goAPI;
 
     public GoEnvironmentInterface getGoEnvironment() {
         return goEnvironment;
@@ -211,15 +234,12 @@ public class GoViewModel extends AndroidViewModel {
         return goAPI;
     }
 
-    public GoViewModel(Application app) {
-        super(app);
-        this.goEnvironment = new GoEnvironment();
-        this.goAPI = new GoAPI();
+    public void requestAuth() {
+        this.authenticator.postValue(true);
     }
 
-    @Override
-    public void onCleared() {
-        super.onCleared();
+    public void closeAuth() {
+        this.authenticator.postValue(false);
     }
 
     public void setMessageHandlers(Handler callResponseHandler, Handler pushNotificationHandler) {
