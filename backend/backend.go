@@ -224,7 +224,7 @@ type Backend struct {
 
 	log *logrus.Entry
 
-	socksProxy socksproxy.SocksProxy
+	socksProxy *socksproxy.SocksProxy
 	// can be a regular or, if Tor is enabled in the config, a SOCKS5 proxy client.
 	httpClient           *http.Client
 	etherScanHTTPClient  *http.Client
@@ -717,7 +717,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.usbManager = usb.NewManager(
 		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
-		backend.socksProxy,
+		*backend.socksProxy,
 		backend.environment.DeviceInfos,
 		backend.Register,
 		backend.Deregister)

@@ -61,7 +61,7 @@ func (s *dbbTestSuite) SetupTest() {
 	})
 	s.mockCommClosed = false
 	dbb, err := NewDevice(deviceID, false, /* bootloader */
-		lowestSupportedFirmwareVersion, s.configDir, s.mockCommunication, socksproxy.NewSocksProxy(false, ""))
+		lowestSupportedFirmwareVersion, s.configDir, s.mockCommunication, *socksproxy.NewSocksProxy(false, ""))
 	s.Require().NoError(dbb.Init(true))
 	s.Require().NoError(err)
 	s.dbb = dbb
@@ -195,7 +195,7 @@ func (s *dbbTestSuite) TestDeviceStatusEvent() {
 func TestNewDeviceReadsChannel(t *testing.T) {
 	configDir := test.TstTempDir("dbb_device_test")
 	defer func() { _ = os.RemoveAll(configDir) }()
-	mobchan := relay.NewChannelWithRandomKey(socksproxy.NewSocksProxy(false, ""))
+	mobchan := relay.NewChannelWithRandomKey(*socksproxy.NewSocksProxy(false, ""))
 	if err := mobchan.StoreToConfigFile(configDir); err != nil {
 		t.Fatal(err)
 	}
@@ -206,7 +206,7 @@ func TestNewDeviceReadsChannel(t *testing.T) {
 		Return(map[string]interface{}{"ping": ""}, nil)
 	comm.On("Close")
 	dbb, err := NewDevice("test-device-id", false, /* bootloader */
-		lowestSupportedFirmwareVersion, configDir, comm, socksproxy.NewSocksProxy(false, ""))
+		lowestSupportedFirmwareVersion, configDir, comm, *socksproxy.NewSocksProxy(false, ""))
 	if err != nil {
 		t.Fatal(err)
 	}

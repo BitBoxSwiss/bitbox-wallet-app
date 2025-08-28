@@ -63,7 +63,7 @@ func sendPongAsMobile(channel *Channel) error {
 
 func TestPingPong(t *testing.T) {
 	if online {
-		channel := NewChannelWithRandomKey(socksproxy.NewSocksProxy(false, ""))
+		channel := NewChannelWithRandomKey(*socksproxy.NewSocksProxy(false, ""))
 		assert.NoError(t, channel.SendPing())
 		assert.NoError(t, sendPongAsMobile(channel))
 		assert.NoError(t, channel.WaitForPong(2*time.Second))

@@ -31,5 +31,5 @@ func newConfiguration(channel *Channel) *configuration {
 }
 
 func (config *configuration) channel() *Channel {
-	return NewChannel(config.ChannelID, config.EncryptionKey, config.AuthenticationKey, socksproxy.NewSocksProxy(false, ""))
+	return NewChannel(config.ChannelID, config.EncryptionKey, config.AuthenticationKey, *socksproxy.NewSocksProxy(false, ""))
 }
