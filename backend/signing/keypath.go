@@ -164,12 +164,12 @@ func (relativeKeypath RelativeKeypath) ToUInt32() []uint32 {
 type AbsoluteKeypath keypath
 
 // NewEmptyAbsoluteKeypath creates a new empty absolute keypath.
-func NewEmptyAbsoluteKeypath() AbsoluteKeypath {
-	return AbsoluteKeypath{}
+func NewEmptyAbsoluteKeypath() *AbsoluteKeypath {
+	return &AbsoluteKeypath{}
 }
 
 // NewAbsoluteKeypath creates a new absolute keypath from a string like `m/44'/1'`.
-func NewAbsoluteKeypath(input string) (AbsoluteKeypath, error) {
+func NewAbsoluteKeypath(input string) (*AbsoluteKeypath, error) {
 	input = strings.TrimSpace(input)
 	if !strings.HasPrefix(input, "m") {
 		return nil, errp.New("An absolute keypath has to start with 'm'.")
@@ -179,12 +179,13 @@ func NewAbsoluteKeypath(input string) (AbsoluteKeypath, error) {
 	if err != nil {
 		return nil, err
 	}
-	return AbsoluteKeypath(path), nil
+	absoluteKeypath := AbsoluteKeypath(path)
+	return &absoluteKeypath, nil
 }
 
 // NewAbsoluteKeypathFromUint32 creates a new keypath from individual numbers.
 // Hardened children have an offset of 0x80000000.
-func NewAbsoluteKeypathFromUint32(elements ...uint32) AbsoluteKeypath {
+func NewAbsoluteKeypathFromUint32(elements ...uint32) *AbsoluteKeypath {
 	path := keypath{}
 	for _, element := range elements {
 		if element >= hdkeychain.HardenedKeyStart {
@@ -193,40 +194,43 @@ func NewAbsoluteKeypathFromUint32(elements ...uint32) AbsoluteKeypath {
 			path = append(path, keyNode{index: element, hardened: false})
 		}
 	}
-	return AbsoluteKeypath(path)
+	absoluteKeypath := AbsoluteKeypath(path)
+	return &absoluteKeypath
 }
 
 // Encode encodes the absolute keypath as a string.
-func (absoluteKeypath AbsoluteKeypath) Encode() string {
-	return "m/" + keypath(absoluteKeypath).encode()
+func (absoluteKeypath *AbsoluteKeypath) Encode() string {
+	return "m/" + keypath(*absoluteKeypath).encode()
 }
 
 // Child appends the given node to this absolute keypath.
-func (absoluteKeypath AbsoluteKeypath) Child(index uint32, hardened bool) AbsoluteKeypath {
-	newKeypath := slices.Clone(absoluteKeypath)
-	return append(newKeypath, keyNode{index, hardened})
+func (absoluteKeypath *AbsoluteKeypath) Child(index uint32, hardened bool) *AbsoluteKeypath {
+	newKeypath := slices.Clone(*absoluteKeypath)
+	newKeypath = append(newKeypath, keyNode{index, hardened})
+	return &newKeypath
 }
 
 // Append appends a relative keypath to this absolute keypath.
-func (absoluteKeypath AbsoluteKeypath) Append(suffix RelativeKeypath) AbsoluteKeypath {
-	newKeypath := slices.Clone(absoluteKeypath)
-	return append(newKeypath, suffix...)
+func (absoluteKeypath *AbsoluteKeypath) Append(suffix RelativeKeypath) *AbsoluteKeypath {
+	newKeypath := slices.Clone(*absoluteKeypath)
+	newKeypath = append(newKeypath, suffix...)
+	return &newKeypath
 }
 
 // Derive derives the extended key at this path from the given extended key.
-func (absoluteKeypath AbsoluteKeypath) Derive(
+func (absoluteKeypath *AbsoluteKeypath) Derive(
 	extendedKey *hdkeychain.ExtendedKey,
 ) (*hdkeychain.ExtendedKey, error) {
-	return keypath(absoluteKeypath).derive(extendedKey)
+	return keypath(*absoluteKeypath).derive(extendedKey)
 }
 
 // ToUInt32 returns the keypath as child numbers. Hardened children have an offset of 0x80000000.
-func (absoluteKeypath AbsoluteKeypath) ToUInt32() []uint32 {
-	return keypath(absoluteKeypath).toUInt32()
+func (absoluteKeypath *AbsoluteKeypath) ToUInt32() []uint32 {
+	return keypath(*absoluteKeypath).toUInt32()
 }
 
 // MarshalJSON implements json.Marshaler.
-func (absoluteKeypath AbsoluteKeypath) MarshalJSON() ([]byte, error) {
+func (absoluteKeypath *AbsoluteKeypath) MarshalJSON() ([]byte, error) {
 	return json.Marshal(absoluteKeypath.Encode())
 }
 
@@ -236,7 +240,7 @@ func (absoluteKeypath *AbsoluteKeypath) UnmarshalJSON(bytes []byte) error {
 	if err := json.Unmarshal(bytes, &input); err != nil {
 		return errp.Wrap(err, "Could not unmarshal an absolute keypath.")
 	}
-	var err error
-	*absoluteKeypath, err = NewAbsoluteKeypath(input)
+	absKeypath, err := NewAbsoluteKeypath(input)
+	*absoluteKeypath = *absKeypath
 	return err
 }

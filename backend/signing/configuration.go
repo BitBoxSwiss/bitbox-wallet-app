@@ -40,16 +40,16 @@ func (ki *KeyInfo) String() string {
 }
 
 type keyInfoEncoding struct {
-	RootFingerprint string          `json:"rootFingerprint"`
-	Keypath         AbsoluteKeypath `json:"keypath"`
-	Xpub            string          `json:"xpub"`
+	RootFingerprint string           `json:"rootFingerprint"`
+	Keypath         *AbsoluteKeypath `json:"keypath"`
+	Xpub            string           `json:"xpub"`
 }
 
 // MarshalJSON implements json.Marshaler.
 func (ki *KeyInfo) MarshalJSON() ([]byte, error) {
 	return json.Marshal(keyInfoEncoding{
 		RootFingerprint: hex.EncodeToString(ki.RootFingerprint),
-		Keypath:         ki.AbsoluteKeypath,
+		Keypath:         &ki.AbsoluteKeypath,
 		Xpub:            ki.ExtendedPublicKey.String(),
 	})
 }
@@ -65,7 +65,7 @@ func (ki *KeyInfo) UnmarshalJSON(bytes []byte) error {
 		return errp.WithStack(err)
 	}
 	ki.RootFingerprint = rootFingerprint
-	ki.AbsoluteKeypath = encoding.Keypath
+	ki.AbsoluteKeypath = *encoding.Keypath
 	extendedPublicKey, err := hdkeychain.NewKeyFromString(encoding.Xpub)
 	if err != nil {
 		return errp.Wrap(err, "Could not read an extended public key.")
@@ -98,7 +98,7 @@ type Configuration struct {
 func NewBitcoinConfiguration(
 	scriptType ScriptType,
 	rootFingerprint []byte,
-	absoluteKeypath AbsoluteKeypath,
+	absoluteKeypath *AbsoluteKeypath,
 	extendedPublicKey *hdkeychain.ExtendedKey,
 ) *Configuration {
 	if extendedPublicKey.IsPrivate() {
@@ -109,7 +109,7 @@ func NewBitcoinConfiguration(
 			ScriptType: scriptType,
 			KeyInfo: KeyInfo{
 				RootFingerprint:   rootFingerprint,
-				AbsoluteKeypath:   absoluteKeypath,
+				AbsoluteKeypath:   *absoluteKeypath,
 				ExtendedPublicKey: extendedPublicKey,
 			},
 		},
@@ -119,7 +119,7 @@ func NewBitcoinConfiguration(
 // NewEthereumConfiguration creates a new configuration.
 func NewEthereumConfiguration(
 	rootFingerprint []byte,
-	absoluteKeypath AbsoluteKeypath,
+	absoluteKeypath *AbsoluteKeypath,
 	extendedPublicKey *hdkeychain.ExtendedKey,
 ) *Configuration {
 	if extendedPublicKey.IsPrivate() {
@@ -129,7 +129,7 @@ func NewEthereumConfiguration(
 		EthereumSimple: &EthereumSimple{
 			KeyInfo{
 				RootFingerprint:   rootFingerprint,
-				AbsoluteKeypath:   absoluteKeypath,
+				AbsoluteKeypath:   *absoluteKeypath,
 				ExtendedPublicKey: extendedPublicKey,
 			},
 		},
@@ -142,11 +142,11 @@ func (configuration *Configuration) ScriptType() ScriptType {
 }
 
 // AbsoluteKeypath returns the configuration's keypath.
-func (configuration *Configuration) AbsoluteKeypath() AbsoluteKeypath {
+func (configuration *Configuration) AbsoluteKeypath() *AbsoluteKeypath {
 	if configuration.BitcoinSimple != nil {
-		return configuration.BitcoinSimple.KeyInfo.AbsoluteKeypath
+		return &configuration.BitcoinSimple.KeyInfo.AbsoluteKeypath
 	}
-	return configuration.EthereumSimple.KeyInfo.AbsoluteKeypath
+	return &configuration.EthereumSimple.KeyInfo.AbsoluteKeypath
 }
 
 // ExtendedPublicKey returns the configuration's extended public key.

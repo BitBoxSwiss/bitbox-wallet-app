@@ -38,7 +38,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func mustKeypath(t *testing.T, keypath string) signing.AbsoluteKeypath {
+func mustKeypath(t *testing.T, keypath string) *signing.AbsoluteKeypath {
 	t.Helper()
 	kp, err := signing.NewAbsoluteKeypath(keypath)
 	if err != nil {

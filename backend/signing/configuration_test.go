@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func mustKeypath(keypath string) AbsoluteKeypath {
+func mustKeypath(keypath string) *AbsoluteKeypath {
 	kp, err := NewAbsoluteKeypath(keypath)
 	if err != nil {
 		panic(err)

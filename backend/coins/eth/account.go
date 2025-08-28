@@ -197,7 +197,7 @@ func (account *Account) Initialize() error {
 
 	account.address = Address{
 		Address:         crypto.PubkeyToAddress(*account.signingConfiguration.PublicKey().ToECDSA()),
-		absoluteKeypath: account.signingConfiguration.AbsoluteKeypath(),
+		absoluteKeypath: *account.signingConfiguration.AbsoluteKeypath(),
 	}
 
 	account.signingConfiguration = signing.NewEthereumConfiguration(
@@ -642,7 +642,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 		Fee:              fee,
 		Value:            value,
 		Signer:           types.NewLondonSigner(account.coin.net.ChainID),
-		Keypath:          account.signingConfiguration.AbsoluteKeypath(),
+		Keypath:          *account.signingConfiguration.AbsoluteKeypath(),
 		RecipientAddress: args.RecipientAddress,
 	}, nil
 }
@@ -836,7 +836,7 @@ func (account *Account) SignMsg(
 	if err != nil {
 		return "", err
 	}
-	signedMessage, err := keystore.SignETHMessage(bytesMessage, account.signingConfiguration.AbsoluteKeypath())
+	signedMessage, err := keystore.SignETHMessage(bytesMessage, *account.signingConfiguration.AbsoluteKeypath())
 	if err != nil {
 		return "", err
 	}
@@ -852,7 +852,7 @@ func (account *Account) SignTypedMsg(
 	if err != nil {
 		return "", err
 	}
-	signedMessage, err := keystore.SignETHTypedMessage(chainId, []byte(data), account.signingConfiguration.AbsoluteKeypath())
+	signedMessage, err := keystore.SignETHTypedMessage(chainId, []byte(data), *account.signingConfiguration.AbsoluteKeypath())
 	if err != nil {
 		return "", err
 	}
@@ -957,7 +957,7 @@ func (account *Account) EthSignWalletConnectTx(
 	if err != nil {
 		return "", "", err
 	}
-	signature, err := keystore.SignETHWalletConnectTransaction(chainId, tx, account.signingConfiguration.AbsoluteKeypath())
+	signature, err := keystore.SignETHWalletConnectTransaction(chainId, tx, *account.signingConfiguration.AbsoluteKeypath())
 	if err != nil {
 		return "", "", err
 	}

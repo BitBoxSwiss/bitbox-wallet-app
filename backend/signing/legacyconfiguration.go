@@ -105,7 +105,7 @@ func ConvertToLegacyConfigurations(configurations Configurations) LegacyConfigur
 		}
 		result = append(result, &LegacyConfiguration{
 			scriptType:         scriptType,
-			absoluteKeypath:    cfg.AbsoluteKeypath(),
+			absoluteKeypath:    *cfg.AbsoluteKeypath(),
 			extendedPublicKeys: []*hdkeychain.ExtendedKey{cfg.ExtendedPublicKey()},
 			signingThreshold:   1,
 		})
