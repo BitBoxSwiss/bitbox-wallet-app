@@ -51,11 +51,28 @@ const (
 // hardenedKeystart is the BIP44 offset to make a keypath element hardened.
 const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 
-// accountsHardlimit is the maximum possible number of accounts per coin and keystore.  This is
+const (
+	// see `accountsHardLimit()`.
+
+	accountsHardLimitBTC    = 6
+	accountsHardLimitOthers = 5
+)
+
+// accountsHardlimit is the maximum possible number of accounts per coin and keystore. This is
 // useful in recovery, so we can scan a fixed number of accounts to discover all funds.  The
 // alternative (or a complement) would be an accounts gap limit, similar to Bitcoin's address gap
 // limit, but simply use a hard limit for simplicity.
-const accountsHardLimit = 6
+//
+// BTC/LTC have a different limit because of an off-by-one bug in the past that allowed adding up to
+// six accounts instead of up to five.
+func accountsHardLimit(coinCode coinpkg.Code) int {
+	switch coinCode {
+	case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC, coinpkg.CodeLTC, coinpkg.CodeTLTC:
+		return accountsHardLimitBTC
+	default:
+		return accountsHardLimitOthers
+	}
+}
 
 // AccountsList is an accounts.Interface slice which implements a lookup method.
 type AccountsList []accounts.Interface
@@ -689,7 +706,7 @@ func nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accoun
 		return 0, errp.WithStack(errAccountLimitReached)
 	}
 
-	if nextAccountNumber >= accountsHardLimit {
+	if int(nextAccountNumber) >= accountsHardLimit(coinCode) {
 		return 0, errp.WithStack(errAccountLimitReached)
 	}
 	return nextAccountNumber, nil
@@ -1611,7 +1628,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 		// - The first 5 accounts are always scanned as before we had accounts discovery, the
 		//   BitBoxApp allowed manual creation of 5 accounts, so we need to always scan these
 		nextAccountNumber := maxAccountNumber + 1
-		if maxAccount == nil || maxAccount.Used || nextAccountNumber < accountsHardLimit {
+		if maxAccount == nil || maxAccount.Used || nextAccountNumber < accountsHardLimit(coinCode) {
 			accountCode, err := backend.createAndPersistAccountConfig(
 				coinCode,
 				uint16(nextAccountNumber),
