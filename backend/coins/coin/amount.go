@@ -174,6 +174,6 @@ func (sendAmount SendAmount) Amount(unit *big.Int, allowZero bool) (Amount, erro
 }
 
 // SendAll returns if this represents a send-all input.
-func (sendAmount *SendAmount) SendAll() bool {
+func (sendAmount SendAmount) SendAll() bool {
 	return sendAmount.sendAll
 }
