@@ -35,7 +35,7 @@ type KeyInfo struct {
 	ExtendedPublicKey *hdkeychain.ExtendedKey
 }
 
-func (ki KeyInfo) String() string {
+func (ki *KeyInfo) String() string {
 	return fmt.Sprintf("keypath=%s", ki.AbsoluteKeypath.Encode())
 }
 
@@ -46,7 +46,7 @@ type keyInfoEncoding struct {
 }
 
 // MarshalJSON implements json.Marshaler.
-func (ki KeyInfo) MarshalJSON() ([]byte, error) {
+func (ki *KeyInfo) MarshalJSON() ([]byte, error) {
 	return json.Marshal(keyInfoEncoding{
 		RootFingerprint: hex.EncodeToString(ki.RootFingerprint),
 		Keypath:         ki.AbsoluteKeypath,
@@ -193,9 +193,9 @@ func (configuration *Configuration) PublicKey() *btcec.PublicKey {
 func (configuration *Configuration) String() string {
 	if configuration.BitcoinSimple != nil {
 		return fmt.Sprintf("bitcoinSimple;scriptType=%s;%s",
-			configuration.BitcoinSimple.ScriptType, configuration.BitcoinSimple.KeyInfo)
+			configuration.BitcoinSimple.ScriptType, &configuration.BitcoinSimple.KeyInfo)
 	}
-	return fmt.Sprintf("ethereumSimple;%s", configuration.EthereumSimple.KeyInfo)
+	return fmt.Sprintf("ethereumSimple;%s", &configuration.EthereumSimple.KeyInfo)
 }
 
 // Configurations is an unordered collection of configurations. All entries must have the same root
