@@ -799,7 +799,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		if err != nil {
 			return errp.WithMessage(err, "could not retrieve keystore name")
 		}
-		keystoreCfg := accountsConfig.GetOrAddKeystore(fingerprint)
+		keystoreCfg := config.GetOrAddKeystore(accountsConfig, fingerprint)
 		keystoreCfg.Name = keystoreName
 		keystoreCfg.LastConnected = time.Now()
 		return nil
