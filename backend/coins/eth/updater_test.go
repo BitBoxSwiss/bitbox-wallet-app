@@ -88,7 +88,7 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 	)
 
 	require.NoError(t, acct.Initialize())
-	require.NoError(t, acct.Update(big.NewInt(0)))
+	require.NoError(t, acct.Update(big.NewInt(0), big.NewInt(100)))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 	return acct
 }
@@ -102,11 +102,10 @@ func assertAccountBalance(t *testing.T, acct *eth.Account, expected *big.Int) {
 
 func TestUpdateBalances(t *testing.T) {
 	testCases := []struct {
-		name                   string
-		accounts               []*eth.Account
-		expectedBalances       []*big.Int
-		accountsToClose        []int
-		overrideBalanceFetcher *mocks.BalanceFetcherMock
+		name             string
+		accounts         []*eth.Account
+		expectedBalances []*big.Int
+		accountsToClose  []int
 	}{
 		{
 			name:             "Single account - non erc20",
@@ -148,6 +147,9 @@ func TestUpdateBalances(t *testing.T) {
 			}
 			return balances, nil
 		},
+		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
+			return big.NewInt(100), nil
+		},
 	}
 
 	updater := eth.NewUpdater(nil, nil, nil, nil)
@@ -160,7 +162,7 @@ func TestUpdateBalances(t *testing.T) {
 				tc.accounts[idx].Close()
 			}
 
-			updater.UpdateBalances(tc.accounts, &balanceFetcher)
+			updater.UpdateBalancesAndBlockNumber(tc.accounts, &balanceFetcher)
 
 			for i, acct := range tc.accounts {
 				accountWasClosed := slices.Contains(tc.accountsToClose, i)
@@ -194,13 +196,16 @@ func TestUpdateBalancesWithError(t *testing.T) {
 			// This simulates a failure in fetching balances which should set the account to offline.
 			return nil, errp.New("balance fetch error")
 		},
+		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
+			return big.NewInt(100), nil
+		},
 	}
 
 	updater := eth.NewUpdater(nil, nil, nil, nil)
 	account := newAccount(t, nil, false)
 	defer account.Close()
 
-	updater.UpdateBalances([]*eth.Account{account}, balanceFetcher)
+	updater.UpdateBalancesAndBlockNumber([]*eth.Account{account}, balanceFetcher)
 	require.Error(t, account.Offline())
 
 	// We create an ERC20 account and pass "true" to the "erc20error" parameter to simulate an error.
@@ -208,7 +213,7 @@ func TestUpdateBalancesWithError(t *testing.T) {
 	erc20Account := newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12), true)
 	defer erc20Account.Close()
 
-	updater.UpdateBalances([]*eth.Account{erc20Account}, balanceFetcher)
+	updater.UpdateBalancesAndBlockNumber([]*eth.Account{erc20Account}, balanceFetcher)
 	require.Error(t, erc20Account.Offline())
 
 }
