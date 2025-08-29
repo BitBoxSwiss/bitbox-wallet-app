@@ -6,7 +6,12 @@ package mocks
 import (
 	"context"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
+	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
+	ethereum "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"math/big"
 	"sync"
 )
@@ -21,8 +26,38 @@ var _ eth.BalanceFetcher = &BalanceFetcherMock{}
 //
 //		// make and configure a mocked eth.BalanceFetcher
 //		mockedBalanceFetcher := &BalanceFetcherMock{
+//			BalanceFunc: func(ctx context.Context, account ethcommon.Address) (*big.Int, error) {
+//				panic("mock out the Balance method")
+//			},
 //			BalancesFunc: func(ctx context.Context, addresses []ethcommon.Address) (map[ethcommon.Address]*big.Int, error) {
 //				panic("mock out the Balances method")
+//			},
+//			BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
+//				panic("mock out the BlockNumber method")
+//			},
+//			ERC20BalanceFunc: func(account ethcommon.Address, erc20Token *erc20.Token) (*big.Int, error) {
+//				panic("mock out the ERC20Balance method")
+//			},
+//			EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
+//				panic("mock out the EstimateGas method")
+//			},
+//			FeeTargetsFunc: func(ctx context.Context) ([]*ethtypes.FeeTarget, error) {
+//				panic("mock out the FeeTargets method")
+//			},
+//			PendingNonceAtFunc: func(ctx context.Context, account ethcommon.Address) (uint64, error) {
+//				panic("mock out the PendingNonceAt method")
+//			},
+//			SendTransactionFunc: func(ctx context.Context, tx *types.Transaction) error {
+//				panic("mock out the SendTransaction method")
+//			},
+//			SuggestGasPriceFunc: func(ctx context.Context) (*big.Int, error) {
+//				panic("mock out the SuggestGasPrice method")
+//			},
+//			TransactionByHashFunc: func(ctx context.Context, hash ethcommon.Hash) (*types.Transaction, bool, error) {
+//				panic("mock out the TransactionByHash method")
+//			},
+//			TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash ethcommon.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+//				panic("mock out the TransactionReceiptWithBlockNumber method")
 //			},
 //		}
 //
@@ -31,11 +66,48 @@ var _ eth.BalanceFetcher = &BalanceFetcherMock{}
 //
 //	}
 type BalanceFetcherMock struct {
+	// BalanceFunc mocks the Balance method.
+	BalanceFunc func(ctx context.Context, account ethcommon.Address) (*big.Int, error)
+
 	// BalancesFunc mocks the Balances method.
 	BalancesFunc func(ctx context.Context, addresses []ethcommon.Address) (map[ethcommon.Address]*big.Int, error)
 
+	// BlockNumberFunc mocks the BlockNumber method.
+	BlockNumberFunc func(ctx context.Context) (*big.Int, error)
+
+	// ERC20BalanceFunc mocks the ERC20Balance method.
+	ERC20BalanceFunc func(account ethcommon.Address, erc20Token *erc20.Token) (*big.Int, error)
+
+	// EstimateGasFunc mocks the EstimateGas method.
+	EstimateGasFunc func(ctx context.Context, call ethereum.CallMsg) (uint64, error)
+
+	// FeeTargetsFunc mocks the FeeTargets method.
+	FeeTargetsFunc func(ctx context.Context) ([]*ethtypes.FeeTarget, error)
+
+	// PendingNonceAtFunc mocks the PendingNonceAt method.
+	PendingNonceAtFunc func(ctx context.Context, account ethcommon.Address) (uint64, error)
+
+	// SendTransactionFunc mocks the SendTransaction method.
+	SendTransactionFunc func(ctx context.Context, tx *types.Transaction) error
+
+	// SuggestGasPriceFunc mocks the SuggestGasPrice method.
+	SuggestGasPriceFunc func(ctx context.Context) (*big.Int, error)
+
+	// TransactionByHashFunc mocks the TransactionByHash method.
+	TransactionByHashFunc func(ctx context.Context, hash ethcommon.Hash) (*types.Transaction, bool, error)
+
+	// TransactionReceiptWithBlockNumberFunc mocks the TransactionReceiptWithBlockNumber method.
+	TransactionReceiptWithBlockNumberFunc func(ctx context.Context, hash ethcommon.Hash) (*rpcclient.RPCTransactionReceipt, error)
+
 	// calls tracks calls to the methods.
 	calls struct {
+		// Balance holds details about calls to the Balance method.
+		Balance []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Account is the account argument value.
+			Account ethcommon.Address
+		}
 		// Balances holds details about calls to the Balances method.
 		Balances []struct {
 			// Ctx is the ctx argument value.
@@ -43,8 +115,111 @@ type BalanceFetcherMock struct {
 			// Addresses is the addresses argument value.
 			Addresses []ethcommon.Address
 		}
+		// BlockNumber holds details about calls to the BlockNumber method.
+		BlockNumber []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+		}
+		// ERC20Balance holds details about calls to the ERC20Balance method.
+		ERC20Balance []struct {
+			// Account is the account argument value.
+			Account ethcommon.Address
+			// Erc20Token is the erc20Token argument value.
+			Erc20Token *erc20.Token
+		}
+		// EstimateGas holds details about calls to the EstimateGas method.
+		EstimateGas []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Call is the call argument value.
+			Call ethereum.CallMsg
+		}
+		// FeeTargets holds details about calls to the FeeTargets method.
+		FeeTargets []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+		}
+		// PendingNonceAt holds details about calls to the PendingNonceAt method.
+		PendingNonceAt []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Account is the account argument value.
+			Account ethcommon.Address
+		}
+		// SendTransaction holds details about calls to the SendTransaction method.
+		SendTransaction []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Tx is the tx argument value.
+			Tx *types.Transaction
+		}
+		// SuggestGasPrice holds details about calls to the SuggestGasPrice method.
+		SuggestGasPrice []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+		}
+		// TransactionByHash holds details about calls to the TransactionByHash method.
+		TransactionByHash []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Hash is the hash argument value.
+			Hash ethcommon.Hash
+		}
+		// TransactionReceiptWithBlockNumber holds details about calls to the TransactionReceiptWithBlockNumber method.
+		TransactionReceiptWithBlockNumber []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Hash is the hash argument value.
+			Hash ethcommon.Hash
+		}
 	}
-	lockBalances sync.RWMutex
+	lockBalance                           sync.RWMutex
+	lockBalances                          sync.RWMutex
+	lockBlockNumber                       sync.RWMutex
+	lockERC20Balance                      sync.RWMutex
+	lockEstimateGas                       sync.RWMutex
+	lockFeeTargets                        sync.RWMutex
+	lockPendingNonceAt                    sync.RWMutex
+	lockSendTransaction                   sync.RWMutex
+	lockSuggestGasPrice                   sync.RWMutex
+	lockTransactionByHash                 sync.RWMutex
+	lockTransactionReceiptWithBlockNumber sync.RWMutex
+}
+
+// Balance calls BalanceFunc.
+func (mock *BalanceFetcherMock) Balance(ctx context.Context, account ethcommon.Address) (*big.Int, error) {
+	if mock.BalanceFunc == nil {
+		panic("BalanceFetcherMock.BalanceFunc: method is nil but BalanceFetcher.Balance was just called")
+	}
+	callInfo := struct {
+		Ctx     context.Context
+		Account ethcommon.Address
+	}{
+		Ctx:     ctx,
+		Account: account,
+	}
+	mock.lockBalance.Lock()
+	mock.calls.Balance = append(mock.calls.Balance, callInfo)
+	mock.lockBalance.Unlock()
+	return mock.BalanceFunc(ctx, account)
+}
+
+// BalanceCalls gets all the calls that were made to Balance.
+// Check the length with:
+//
+//	len(mockedBalanceFetcher.BalanceCalls())
+func (mock *BalanceFetcherMock) BalanceCalls() []struct {
+	Ctx     context.Context
+	Account ethcommon.Address
+} {
+	var calls []struct {
+		Ctx     context.Context
+		Account ethcommon.Address
+	}
+	mock.lockBalance.RLock()
+	calls = mock.calls.Balance
+	mock.lockBalance.RUnlock()
+	return calls
 }
 
 // Balances calls BalancesFunc.
@@ -80,5 +255,317 @@ func (mock *BalanceFetcherMock) BalancesCalls() []struct {
 	mock.lockBalances.RLock()
 	calls = mock.calls.Balances
 	mock.lockBalances.RUnlock()
+	return calls
+}
+
+// BlockNumber calls BlockNumberFunc.
+func (mock *BalanceFetcherMock) BlockNumber(ctx context.Context) (*big.Int, error) {
+	if mock.BlockNumberFunc == nil {
+		panic("BalanceFetcherMock.BlockNumberFunc: method is nil but BalanceFetcher.BlockNumber was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
+	mock.lockBlockNumber.Lock()
+	mock.calls.BlockNumber = append(mock.calls.BlockNumber, callInfo)
+	mock.lockBlockNumber.Unlock()
+	return mock.BlockNumberFunc(ctx)
+}
+
+// BlockNumberCalls gets all the calls that were made to BlockNumber.
+// Check the length with:
+//
+//	len(mockedBalanceFetcher.BlockNumberCalls())
+func (mock *BalanceFetcherMock) BlockNumberCalls() []struct {
+	Ctx context.Context
+} {
+	var calls []struct {
+		Ctx context.Context
+	}
+	mock.lockBlockNumber.RLock()
+	calls = mock.calls.BlockNumber
+	mock.lockBlockNumber.RUnlock()
+	return calls
+}
+
+// ERC20Balance calls ERC20BalanceFunc.
+func (mock *BalanceFetcherMock) ERC20Balance(account ethcommon.Address, erc20Token *erc20.Token) (*big.Int, error) {
+	if mock.ERC20BalanceFunc == nil {
+		panic("BalanceFetcherMock.ERC20BalanceFunc: method is nil but BalanceFetcher.ERC20Balance was just called")
+	}
+	callInfo := struct {
+		Account    ethcommon.Address
+		Erc20Token *erc20.Token
+	}{
+		Account:    account,
+		Erc20Token: erc20Token,
+	}
+	mock.lockERC20Balance.Lock()
+	mock.calls.ERC20Balance = append(mock.calls.ERC20Balance, callInfo)
+	mock.lockERC20Balance.Unlock()
+	return mock.ERC20BalanceFunc(account, erc20Token)
+}
+
+// ERC20BalanceCalls gets all the calls that were made to ERC20Balance.
+// Check the length with:
+//
+//	len(mockedBalanceFetcher.ERC20BalanceCalls())
+func (mock *BalanceFetcherMock) ERC20BalanceCalls() []struct {
+	Account    ethcommon.Address
+	Erc20Token *erc20.Token
+} {
+	var calls []struct {
+		Account    ethcommon.Address
+		Erc20Token *erc20.Token
+	}
+	mock.lockERC20Balance.RLock()
+	calls = mock.calls.ERC20Balance
+	mock.lockERC20Balance.RUnlock()
+	return calls
+}
+
+// EstimateGas calls EstimateGasFunc.
+func (mock *BalanceFetcherMock) EstimateGas(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
+	if mock.EstimateGasFunc == nil {
+		panic("BalanceFetcherMock.EstimateGasFunc: method is nil but BalanceFetcher.EstimateGas was just called")
+	}
+	callInfo := struct {
+		Ctx  context.Context
+		Call ethereum.CallMsg
+	}{
+		Ctx:  ctx,
+		Call: call,
+	}
+	mock.lockEstimateGas.Lock()
+	mock.calls.EstimateGas = append(mock.calls.EstimateGas, callInfo)
+	mock.lockEstimateGas.Unlock()
+	return mock.EstimateGasFunc(ctx, call)
+}
+
+// EstimateGasCalls gets all the calls that were made to EstimateGas.
+// Check the length with:
+//
+//	len(mockedBalanceFetcher.EstimateGasCalls())
+func (mock *BalanceFetcherMock) EstimateGasCalls() []struct {
+	Ctx  context.Context
+	Call ethereum.CallMsg
+} {
+	var calls []struct {
+		Ctx  context.Context
+		Call ethereum.CallMsg
+	}
+	mock.lockEstimateGas.RLock()
+	calls = mock.calls.EstimateGas
+	mock.lockEstimateGas.RUnlock()
+	return calls
+}
+
+// FeeTargets calls FeeTargetsFunc.
+func (mock *BalanceFetcherMock) FeeTargets(ctx context.Context) ([]*ethtypes.FeeTarget, error) {
+	if mock.FeeTargetsFunc == nil {
+		panic("BalanceFetcherMock.FeeTargetsFunc: method is nil but BalanceFetcher.FeeTargets was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
+	mock.lockFeeTargets.Lock()
+	mock.calls.FeeTargets = append(mock.calls.FeeTargets, callInfo)
+	mock.lockFeeTargets.Unlock()
+	return mock.FeeTargetsFunc(ctx)
+}
+
+// FeeTargetsCalls gets all the calls that were made to FeeTargets.
+// Check the length with:
+//
+//	len(mockedBalanceFetcher.FeeTargetsCalls())
+func (mock *BalanceFetcherMock) FeeTargetsCalls() []struct {
+	Ctx context.Context
+} {
+	var calls []struct {
+		Ctx context.Context
+	}
+	mock.lockFeeTargets.RLock()
+	calls = mock.calls.FeeTargets
+	mock.lockFeeTargets.RUnlock()
+	return calls
+}
+
+// PendingNonceAt calls PendingNonceAtFunc.
+func (mock *BalanceFetcherMock) PendingNonceAt(ctx context.Context, account ethcommon.Address) (uint64, error) {
+	if mock.PendingNonceAtFunc == nil {
+		panic("BalanceFetcherMock.PendingNonceAtFunc: method is nil but BalanceFetcher.PendingNonceAt was just called")
+	}
+	callInfo := struct {
+		Ctx     context.Context
+		Account ethcommon.Address
+	}{
+		Ctx:     ctx,
+		Account: account,
+	}
+	mock.lockPendingNonceAt.Lock()
+	mock.calls.PendingNonceAt = append(mock.calls.PendingNonceAt, callInfo)
+	mock.lockPendingNonceAt.Unlock()
+	return mock.PendingNonceAtFunc(ctx, account)
+}
+
+// PendingNonceAtCalls gets all the calls that were made to PendingNonceAt.
+// Check the length with:
+//
+//	len(mockedBalanceFetcher.PendingNonceAtCalls())
+func (mock *BalanceFetcherMock) PendingNonceAtCalls() []struct {
+	Ctx     context.Context
+	Account ethcommon.Address
+} {
+	var calls []struct {
+		Ctx     context.Context
+		Account ethcommon.Address
+	}
+	mock.lockPendingNonceAt.RLock()
+	calls = mock.calls.PendingNonceAt
+	mock.lockPendingNonceAt.RUnlock()
+	return calls
+}
+
+// SendTransaction calls SendTransactionFunc.
+func (mock *BalanceFetcherMock) SendTransaction(ctx context.Context, tx *types.Transaction) error {
+	if mock.SendTransactionFunc == nil {
+		panic("BalanceFetcherMock.SendTransactionFunc: method is nil but BalanceFetcher.SendTransaction was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+		Tx  *types.Transaction
+	}{
+		Ctx: ctx,
+		Tx:  tx,
+	}
+	mock.lockSendTransaction.Lock()
+	mock.calls.SendTransaction = append(mock.calls.SendTransaction, callInfo)
+	mock.lockSendTransaction.Unlock()
+	return mock.SendTransactionFunc(ctx, tx)
+}
+
+// SendTransactionCalls gets all the calls that were made to SendTransaction.
+// Check the length with:
+//
+//	len(mockedBalanceFetcher.SendTransactionCalls())
+func (mock *BalanceFetcherMock) SendTransactionCalls() []struct {
+	Ctx context.Context
+	Tx  *types.Transaction
+} {
+	var calls []struct {
+		Ctx context.Context
+		Tx  *types.Transaction
+	}
+	mock.lockSendTransaction.RLock()
+	calls = mock.calls.SendTransaction
+	mock.lockSendTransaction.RUnlock()
+	return calls
+}
+
+// SuggestGasPrice calls SuggestGasPriceFunc.
+func (mock *BalanceFetcherMock) SuggestGasPrice(ctx context.Context) (*big.Int, error) {
+	if mock.SuggestGasPriceFunc == nil {
+		panic("BalanceFetcherMock.SuggestGasPriceFunc: method is nil but BalanceFetcher.SuggestGasPrice was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
+	mock.lockSuggestGasPrice.Lock()
+	mock.calls.SuggestGasPrice = append(mock.calls.SuggestGasPrice, callInfo)
+	mock.lockSuggestGasPrice.Unlock()
+	return mock.SuggestGasPriceFunc(ctx)
+}
+
+// SuggestGasPriceCalls gets all the calls that were made to SuggestGasPrice.
+// Check the length with:
+//
+//	len(mockedBalanceFetcher.SuggestGasPriceCalls())
+func (mock *BalanceFetcherMock) SuggestGasPriceCalls() []struct {
+	Ctx context.Context
+} {
+	var calls []struct {
+		Ctx context.Context
+	}
+	mock.lockSuggestGasPrice.RLock()
+	calls = mock.calls.SuggestGasPrice
+	mock.lockSuggestGasPrice.RUnlock()
+	return calls
+}
+
+// TransactionByHash calls TransactionByHashFunc.
+func (mock *BalanceFetcherMock) TransactionByHash(ctx context.Context, hash ethcommon.Hash) (*types.Transaction, bool, error) {
+	if mock.TransactionByHashFunc == nil {
+		panic("BalanceFetcherMock.TransactionByHashFunc: method is nil but BalanceFetcher.TransactionByHash was just called")
+	}
+	callInfo := struct {
+		Ctx  context.Context
+		Hash ethcommon.Hash
+	}{
+		Ctx:  ctx,
+		Hash: hash,
+	}
+	mock.lockTransactionByHash.Lock()
+	mock.calls.TransactionByHash = append(mock.calls.TransactionByHash, callInfo)
+	mock.lockTransactionByHash.Unlock()
+	return mock.TransactionByHashFunc(ctx, hash)
+}
+
+// TransactionByHashCalls gets all the calls that were made to TransactionByHash.
+// Check the length with:
+//
+//	len(mockedBalanceFetcher.TransactionByHashCalls())
+func (mock *BalanceFetcherMock) TransactionByHashCalls() []struct {
+	Ctx  context.Context
+	Hash ethcommon.Hash
+} {
+	var calls []struct {
+		Ctx  context.Context
+		Hash ethcommon.Hash
+	}
+	mock.lockTransactionByHash.RLock()
+	calls = mock.calls.TransactionByHash
+	mock.lockTransactionByHash.RUnlock()
+	return calls
+}
+
+// TransactionReceiptWithBlockNumber calls TransactionReceiptWithBlockNumberFunc.
+func (mock *BalanceFetcherMock) TransactionReceiptWithBlockNumber(ctx context.Context, hash ethcommon.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+	if mock.TransactionReceiptWithBlockNumberFunc == nil {
+		panic("BalanceFetcherMock.TransactionReceiptWithBlockNumberFunc: method is nil but BalanceFetcher.TransactionReceiptWithBlockNumber was just called")
+	}
+	callInfo := struct {
+		Ctx  context.Context
+		Hash ethcommon.Hash
+	}{
+		Ctx:  ctx,
+		Hash: hash,
+	}
+	mock.lockTransactionReceiptWithBlockNumber.Lock()
+	mock.calls.TransactionReceiptWithBlockNumber = append(mock.calls.TransactionReceiptWithBlockNumber, callInfo)
+	mock.lockTransactionReceiptWithBlockNumber.Unlock()
+	return mock.TransactionReceiptWithBlockNumberFunc(ctx, hash)
+}
+
+// TransactionReceiptWithBlockNumberCalls gets all the calls that were made to TransactionReceiptWithBlockNumber.
+// Check the length with:
+//
+//	len(mockedBalanceFetcher.TransactionReceiptWithBlockNumberCalls())
+func (mock *BalanceFetcherMock) TransactionReceiptWithBlockNumberCalls() []struct {
+	Ctx  context.Context
+	Hash ethcommon.Hash
+} {
+	var calls []struct {
+		Ctx  context.Context
+		Hash ethcommon.Hash
+	}
+	mock.lockTransactionReceiptWithBlockNumber.RLock()
+	calls = mock.calls.TransactionReceiptWithBlockNumber
+	mock.lockTransactionReceiptWithBlockNumber.RUnlock()
 	return calls
 }
