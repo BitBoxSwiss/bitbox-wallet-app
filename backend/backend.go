@@ -224,7 +224,7 @@ type Backend struct {
 
 	log *logrus.Entry
 
-	socksProxy socksproxy.SocksProxy
+	socksProxy *socksproxy.SocksProxy
 	// can be a regular or, if Tor is enabled in the config, a SOCKS5 proxy client.
 	httpClient           *http.Client
 	etherScanRateLimiter *rate.Limiter
@@ -662,7 +662,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.usbManager = usb.NewManager(
 		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
-		backend.socksProxy,
+		*backend.socksProxy,
 		backend.environment.DeviceInfos,
 		backend.Register,
 		backend.Deregister)
@@ -744,7 +744,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		if err != nil {
 			return errp.WithMessage(err, "could not retrieve keystore name")
 		}
-		keystoreCfg := accountsConfig.GetOrAddKeystore(fingerprint)
+		keystoreCfg := config.GetOrAddKeystore(accountsConfig, fingerprint)
 		keystoreCfg.Name = keystoreName
 		keystoreCfg.LastConnected = time.Now()
 		return nil

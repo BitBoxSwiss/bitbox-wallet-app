@@ -98,7 +98,7 @@ func TestGetOrAddKeystore(t *testing.T) {
 	fp1 := []byte("aaaa")
 	fp2 := []byte("bbbb")
 
-	ks := cfg.GetOrAddKeystore(fp1)
+	ks := GetOrAddKeystore(cfg, fp1)
 	ks.Name = "ks1"
 
 	require.Len(t, cfg.Keystores, 1)
@@ -106,11 +106,11 @@ func TestGetOrAddKeystore(t *testing.T) {
 	require.Equal(t, fp1, []byte(cfg.Keystores[0].RootFingerprint))
 	require.Equal(t, "ks1", cfg.Keystores[0].Name)
 
-	ks = cfg.GetOrAddKeystore(fp1)
+	ks = GetOrAddKeystore(cfg, fp1)
 	require.Len(t, cfg.Keystores, 1)
 	require.Equal(t, "ks1", ks.Name)
 
-	ks = cfg.GetOrAddKeystore(fp2)
+	ks = GetOrAddKeystore(cfg, fp2)
 	ks.Name = "ks2"
 
 	require.Len(t, cfg.Keystores, 2)

@@ -26,7 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func mustKeypath(keypath string) signing.AbsoluteKeypath {
+func mustKeypath(keypath string) *signing.AbsoluteKeypath {
 	kp, err := signing.NewAbsoluteKeypath(keypath)
 	if err != nil {
 		panic(err)

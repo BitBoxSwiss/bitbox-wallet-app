@@ -168,7 +168,7 @@ func (cfg AccountsConfig) IsAccountWatchonly(account *Account) (bool, error) {
 
 // GetOrAddKeystore looks up the keystore by root fingerprint. If it does not exist, one is added to
 // the list of keystores and the newly created one is returned.
-func (cfg *AccountsConfig) GetOrAddKeystore(rootFingerprint []byte) *Keystore {
+func GetOrAddKeystore(cfg *AccountsConfig, rootFingerprint []byte) *Keystore {
 	ks, err := cfg.LookupKeystore(rootFingerprint)
 	if err == nil {
 		return ks
