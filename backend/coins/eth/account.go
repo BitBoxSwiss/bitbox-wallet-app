@@ -25,7 +25,6 @@ import (
 	"path"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
@@ -48,9 +47,6 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/sirupsen/logrus"
 )
-
-// PollInterval is the interval at which the account is polled for updates.
-var PollInterval = 5 * time.Minute
 
 func isMixedCase(s string) bool {
 	return strings.ToLower(s) != s && strings.ToUpper(s) != s
@@ -1019,64 +1015,7 @@ func (account *Account) EnqueueUpdate() {
 	account.enqueueUpdateCh <- account
 }
 
-// UpdateBalances updates the balances of the accounts in the provided slice.
-func UpdateBalances(accounts []*Account, etherScanClient *etherscan.EtherScan) error {
-	ethNonErc20Addresses := make([]ethcommon.Address, 0, len(accounts))
-	for _, account := range accounts {
-		if account.isClosed() {
-			continue
-		}
-		address, err := account.Address()
-		if err != nil {
-			account.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Config.Code)
-			account.SetOffline(err)
-			continue
-		}
-		if account.coin.erc20Token == nil {
-			ethNonErc20Addresses = append(ethNonErc20Addresses, address.Address)
-		}
-	}
-
-	balances, err := etherScanClient.Balances(context.TODO(), ethNonErc20Addresses)
-	if err != nil {
-		return errp.WithStack(err)
-	}
-
-	for _, account := range accounts {
-		if account.isClosed() {
-			continue
-		}
-		address, err := account.Address()
-		if err != nil {
-			account.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Config.Code)
-			account.SetOffline(err)
-			continue
-		}
-		var balance *big.Int
-		if account.coin.erc20Token != nil {
-			var err error
-			balance, err = account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token)
-			if err != nil {
-				account.log.WithError(err).Errorf("Could not get ERC20 balance for address %s", address.Address.Hex())
-				account.SetOffline(err)
-				continue
-			}
-		} else {
-			var ok bool
-			balance, ok = balances[address.Address]
-			if !ok {
-				errMsg := fmt.Sprintf("Could not find balance for address %s", address.Address.Hex())
-				account.log.Error(errMsg)
-				account.SetOffline(errp.New(errMsg))
-				continue
-			}
-		}
-		if err := account.Update(balance); err != nil {
-			account.log.WithError(err).Errorf("Could not update balance for address %s", address.Address.Hex())
-			account.SetOffline(err)
-		} else {
-			account.SetOffline(nil)
-		}
-	}
-	return nil
+// ETHCoin returns the eth.Coin of the account.
+func (account *Account) ETHCoin() *Coin {
+	return account.coin
 }
