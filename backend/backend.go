@@ -578,7 +578,7 @@ func (backend *Backend) updateETHAccounts() error {
 
 	for chainID, ethAccounts := range accountsChainID {
 		etherScanClient := etherscan.NewEtherScan(chainID, backend.httpClient, backend.etherScanRateLimiter)
-		backend.ethupdater.UpdateBalances(ethAccounts, etherScanClient)
+		backend.ethupdater.UpdateBalancesAndBlockNumber(ethAccounts, etherScanClient)
 	}
 
 	return nil

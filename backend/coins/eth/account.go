@@ -342,16 +342,13 @@ func (account *Account) nextNonce() (uint64, error) {
 	return nextNonce, nil
 }
 
-// Update performs an Update of the account's transaction
-// and its balance, which must be provided as an argument.
-func (account *Account) Update(balance *big.Int) error {
+// Update performs an Update of the account's transactions,
+// as well as its balance and the chain's latest blockNumber,
+// both of which must be provided as an argument.
+func (account *Account) Update(balance *big.Int, blockNumber *big.Int) error {
 	defer account.updateLock.Lock()()
 	defer account.Synchronizer.IncRequestsCounter()()
 
-	blockNumber, err := account.coin.client.BlockNumber(context.TODO())
-	if err != nil {
-		return errp.WithStack(err)
-	}
 	account.blockNumber = blockNumber
 
 	go account.updateOutgoingTransactions(account.blockNumber.Uint64())

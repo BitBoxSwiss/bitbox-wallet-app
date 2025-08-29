@@ -72,9 +72,6 @@ func newAccount(t *testing.T) *Account {
 		EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
 			return 21000, nil
 		},
-		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
-			return big.NewInt(100), nil
-		},
 		BalanceFunc: func(ctx context.Context, account common.Address) (*big.Int, error) {
 			return big.NewInt(1e18), nil
 		},
@@ -115,7 +112,7 @@ func newAccount(t *testing.T) *Account {
 func TestTxProposal(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	require.NoError(t, acct.Update(big.NewInt(1e18)))
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100)))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	t.Run("valid", func(t *testing.T) {
@@ -173,7 +170,7 @@ func TestTxProposal(t *testing.T) {
 func TestMatchesAddress(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	require.NoError(t, acct.Update(big.NewInt(1e18)))
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100)))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	// Test invalid Ethereum address
