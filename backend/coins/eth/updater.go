@@ -18,11 +18,15 @@ import (
 // pollInterval is the interval at which the account is polled for updates.
 var pollInterval = 5 * time.Minute
 
-// BalanceFetcher is an interface that defines a method to fetch balances for a list of addresses.
+// BalanceAndBlockNumberFetcher is an interface that defines a method to fetch balances for a list of addresses,
+// as well as the block number for a chain.
 //
-//go:generate moq -pkg mocks -out mocks/balancefetcher.go . Interface
-type BalanceFetcher interface {
+//go:generate moq -pkg mocks -out mocks/balanceandblocknumberfetcher.go . BalanceAndBlockNumberFetcher
+type BalanceAndBlockNumberFetcher interface {
+	// Balances returns the balances for a list of addresses.
 	Balances(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error)
+	// BlockNumber returns the current latest block number.
+	BlockNumber(ctx context.Context) (*big.Int, error)
 }
 
 // Updater is a struct that takes care of updating ETH accounts.
@@ -99,7 +103,7 @@ func (u *Updater) PollBalances() {
 				go func() {
 					// A single ETH accounts needs an update.
 					etherScanClient := etherscan.NewEtherScan(account.ETHCoin().ChainIDstr(), u.etherscanClient, u.etherscanRateLimiter)
-					u.UpdateBalances([]*Account{account}, etherScanClient)
+					u.UpdateBalancesAndBlockNumber([]*Account{account}, etherScanClient)
 				}()
 			case <-u.updateETHAccountsCh:
 				go updateAll()
@@ -113,8 +117,19 @@ func (u *Updater) PollBalances() {
 
 }
 
-// UpdateBalances updates the balances of the accounts in the provided slice.
-func (u *Updater) UpdateBalances(accounts []*Account, etherScanClient BalanceFetcher) {
+// UpdateBalancesAndBlockNumber updates the balances of the accounts in the provided slice.
+func (u *Updater) UpdateBalancesAndBlockNumber(accounts []*Account, etherScanClient BalanceAndBlockNumberFetcher) {
+	if len(accounts) == 0 {
+		return
+	}
+	chainId := accounts[0].ETHCoin().ChainID()
+	for _, account := range accounts {
+		if account.ETHCoin().ChainID() != chainId {
+			u.log.Error("Cannot update balances and block number for accounts with different chain IDs")
+			return
+		}
+	}
+
 	ethNonErc20Addresses := make([]common.Address, 0, len(accounts))
 	for _, account := range accounts {
 		if account.isClosed() {
@@ -136,6 +151,12 @@ func (u *Updater) UpdateBalances(accounts []*Account, etherScanClient BalanceFet
 	if err != nil {
 		u.log.WithError(err).Error("Could not get balances for ETH accounts")
 		updateNonERC20 = false
+	}
+
+	blockNumber, err := etherScanClient.BlockNumber(context.TODO())
+	if err != nil {
+		u.log.WithError(err).Error("Could not get block number")
+		return
 	}
 
 	for _, account := range accounts {
@@ -175,7 +196,7 @@ func (u *Updater) UpdateBalances(accounts []*Account, etherScanClient BalanceFet
 		if account.Offline() != nil {
 			continue // Skip updating balance if the account is offline.
 		}
-		if err := account.Update(balance); err != nil {
+		if err := account.Update(balance, blockNumber); err != nil {
 			u.log.WithError(err).Errorf("Could not update balance for address %s", address.Address.Hex())
 			account.SetOffline(err)
 		} else {
