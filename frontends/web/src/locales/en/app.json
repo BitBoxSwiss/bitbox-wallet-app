@@ -99,6 +99,8 @@
   },
   "auth": {
     "authButton": "Authenticate",
+    "dismissButton": "Cancel",
+    "missing": "Please setup a screen lock in your device settings",
     "title": "Please authenticate to continue"
   },
   "backup": {

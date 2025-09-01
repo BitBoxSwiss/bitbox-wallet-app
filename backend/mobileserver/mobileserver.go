@@ -23,6 +23,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bridgecommon"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
@@ -32,6 +33,17 @@ import (
 
 var (
 	once sync.Once
+)
+
+const (
+	// AuthResultOk exports backend.AuthResultOk.
+	AuthResultOk string = string(backend.AuthResultOk)
+	// AuthResultErr exports backend.AuthResultErr.
+	AuthResultErr string = string(backend.AuthResultErr)
+	// AuthResultCancel exports backend.AuthResultCancel.
+	AuthResultCancel string = string(backend.AuthResultCancel)
+	// AuthResultMissing exports backend.AuthResultMissing.
+	AuthResultMissing string = string(backend.AuthResultMissing)
 )
 
 // fixTimezone sets the local timezone on Android. This is a workaround to the bug that on Android,
@@ -235,15 +247,10 @@ func TriggerAuth() {
 	bridgecommon.TriggerAuth()
 }
 
-// CancelAuth triggers an auth canceled notification towards the frontend.
-func CancelAuth() {
-	bridgecommon.CancelAuth()
-}
-
-// AuthResult triggers an auth feedback notification (auth-ok/auth-err) towards the frontend,
+// AuthResult triggers an auth feedback notification (auth-ok/auth-err/..) towards the frontend,
 // depending on the input value.
-func AuthResult(ok bool) {
-	bridgecommon.AuthResult(ok)
+func AuthResult(result string) {
+	bridgecommon.AuthResult(backend.AuthResultType(result))
 }
 
 // ManualReconnect wraps bridgecommon.ManualReconnect.
