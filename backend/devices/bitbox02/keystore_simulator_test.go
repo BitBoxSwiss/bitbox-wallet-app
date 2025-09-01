@@ -511,6 +511,8 @@ func TestSimulatorSignBTCTransactionMixedInputs(t *testing.T) {
 		// Before simulator v9.20, address confirmation data was not written to stdout.
 		if device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
 			require.Contains(t, stdOut.String(), "ADDRESS: 18p3G8gQ3oKy4U9EqnWs7UZswdqAMhE3r8")
+			// Change address is not confirmed, it is verified automatically.
+			require.NotContains(t, stdOut.String(), proposedTransaction.TXProposal.ChangeAddress.String())
 		}
 	})
 }
