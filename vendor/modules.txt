@@ -1,4 +1,4 @@
-# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250812130951-35af5fe7a036
+# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250901094427-ae070b1d41bf
 ## explicit; go 1.22
 github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader
 github.com/BitBoxSwiss/bitbox02-api-go/api/common
@@ -6,6 +6,7 @@ github.com/BitBoxSwiss/bitbox02-api-go/api/firmware
 github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages
 github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/mocks
 github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid
+github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid/hiddevice
 github.com/BitBoxSwiss/bitbox02-api-go/util/errp
 github.com/BitBoxSwiss/bitbox02-api-go/util/semver
 github.com/BitBoxSwiss/bitbox02-api-go/util/sleep
@@ -54,6 +55,9 @@ github.com/btcsuite/btcd/btcutil/bech32
 github.com/btcsuite/btcd/btcutil/gcs
 github.com/btcsuite/btcd/btcutil/gcs/builder
 github.com/btcsuite/btcd/btcutil/hdkeychain
+# github.com/btcsuite/btcd/btcutil/psbt v1.1.10
+## explicit; go 1.17
+github.com/btcsuite/btcd/btcutil/psbt
 # github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
 ## explicit; go 1.17
 github.com/btcsuite/btcd/chaincfg/chainhash

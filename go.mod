@@ -3,7 +3,7 @@ module github.com/BitBoxSwiss/bitbox-wallet-app
 go 1.24
 
 require (
-	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250812130951-35af5fe7a036
+	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250901094427-ae070b1d41bf
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d
 	github.com/btcsuite/btcd v0.24.2
 	github.com/btcsuite/btcd/btcec/v2 v2.3.4
@@ -29,6 +29,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/aead/siphash v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.13.0 // indirect
+	github.com/btcsuite/btcd/btcutil/psbt v1.1.10 // indirect
 	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f // indirect
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/consensys/bavard v0.1.13 // indirect
