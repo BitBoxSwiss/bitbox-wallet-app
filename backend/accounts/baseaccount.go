@@ -70,7 +70,7 @@ type BaseAccount struct {
 	// synced indicates whether the account has loaded and finished the initial sync of the
 	// addresses.
 	synced  atomic.Bool
-	offline error
+	offline atomic.Pointer[error]
 
 	// notes handles transaction notes.
 	notes *notes.Notes
@@ -128,13 +128,17 @@ func (account *BaseAccount) ResetSynced() {
 
 // Offline implements Interface.
 func (account *BaseAccount) Offline() error {
-	return account.offline
+	errorPtr := account.offline.Load()
+	if errorPtr == nil {
+		return nil
+	}
+	return *errorPtr
 }
 
 // SetOffline sets the account offline status and emits the EventStatusChanged() if the status
 // changed.
 func (account *BaseAccount) SetOffline(offline error) {
-	account.offline = offline
+	account.offline.Store(&offline)
 	account.Notify(observable.Event{
 		Subject: string(types.EventStatusChanged),
 		Action:  action.Reload,
