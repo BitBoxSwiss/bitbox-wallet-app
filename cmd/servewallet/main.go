@@ -87,7 +87,7 @@ func (webdevEnvironment) Auth() {
 	log := logging.Get().WithGroup("servewallet")
 	log.Info("Webdev Auth")
 	if backend != nil {
-		backend.AuthResult(true)
+		backend.AuthResult(backendPkg.AuthResultOk)
 		log.Info("Webdev Auth OK")
 	}
 }
