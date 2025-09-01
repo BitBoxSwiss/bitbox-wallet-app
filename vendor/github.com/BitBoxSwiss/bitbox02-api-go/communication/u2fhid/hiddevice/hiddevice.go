@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package u2fhid
+package hiddevice
 
 import (
 	"io"
@@ -37,8 +37,8 @@ type HidDevice struct {
 	io.ReadWriteCloser
 }
 
-// NewHidDevice wraps a hid device to write only 64 bytes at a time on macOS.
-func NewHidDevice(device hid.Device) *HidDevice {
+// New wraps a hid device to write only 64 bytes at a time on macOS.
+func New(device hid.Device) *HidDevice {
 	return &HidDevice{ReadWriteCloser: device}
 }
 

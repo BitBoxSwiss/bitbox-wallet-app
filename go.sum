@@ -1,5 +1,5 @@
-github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250812130951-35af5fe7a036 h1:odkevMKSWjMjdWoQHodlKjwgqtB6RXX5imQHZl2/9S4=
-github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250812130951-35af5fe7a036/go.mod h1:lyYwD22hA6TQ8XNXx37VE75Exp6qYdgZgUAO4+lyhSU=
+github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250901094427-ae070b1d41bf h1:SEWTQ2BvGol5d4kZFjHt1piftZX9wvEgmySdad/5pbo=
+github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20250901094427-ae070b1d41bf/go.mod h1:8yjGNQve88PvbAm8DKOVYkrmDKTxDc4rVwTll4IcH2s=
 github.com/BitBoxSwiss/block-client-go v0.0.0-20241009081439-924dde98b9c1 h1:5hjP8mYSVKFibesrz8L6U0Vp5zSJt0LwXB3DSZGhnSo=
 github.com/BitBoxSwiss/block-client-go v0.0.0-20241009081439-924dde98b9c1/go.mod h1:SJTiQZU9ggBzVKMni97rpNS9GddPKErndFXNSDrfEGc=
 github.com/DataDog/zstd v1.4.5 h1:EndNeuB0l9syBZhut0wns3gV1hL8zX8LIu6ZiVHWLIQ=
@@ -28,6 +28,8 @@ github.com/btcsuite/btcd/btcutil v1.1.0/go.mod h1:5OapHB7A2hBBWLm48mmw4MOHNJCcUB
 github.com/btcsuite/btcd/btcutil v1.1.5/go.mod h1:PSZZ4UitpLBWzxGd5VGOrLnmOjtPP/a6HaFo12zMs00=
 github.com/btcsuite/btcd/btcutil v1.1.6 h1:zFL2+c3Lb9gEgqKNzowKUPQNb8jV7v5Oaodi/AYFd6c=
 github.com/btcsuite/btcd/btcutil v1.1.6/go.mod h1:9dFymx8HpuLqBnsPELrImQeTQfKBQqzqGbbV3jK55aE=
+github.com/btcsuite/btcd/btcutil/psbt v1.1.10 h1:TC1zhxhFfhnGqoPjsrlEpoqzh+9TPOHrCgnPR47Mj9I=
+github.com/btcsuite/btcd/btcutil/psbt v1.1.10/go.mod h1:ehBEvU91lxSlXtA+zZz3iFYx7Yq9eqnKx4/kSrnsvMY=
 github.com/btcsuite/btcd/chaincfg/chainhash v1.0.0/go.mod h1:7SFka0XMvUgj3hfZtydOrQY2mwhPclbT2snogU7SQQc=
 github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1/go.mod h1:7SFka0XMvUgj3hfZtydOrQY2mwhPclbT2snogU7SQQc=
 github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0 h1:59Kx4K6lzOW5w6nFlA0v5+lk/6sjybR934QNHSJZPTQ=
