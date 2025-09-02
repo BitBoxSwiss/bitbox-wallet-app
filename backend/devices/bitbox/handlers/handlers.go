@@ -36,7 +36,6 @@ type Bitbox interface {
 	CreateWallet(string, string) error
 	Login(string) (bool, string, error)
 	Blink() error
-	Random(string) (string, error)
 	Reset(string) (bool, error)
 	UnlockBootloader() (bool, error)
 	LockBootloader() error
@@ -76,7 +75,6 @@ func NewHandlers(
 	handleFunc("/create-wallet", handlers.postCreateWalletHandler).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupListHandler).Methods("GET")
 	handleFunc("/blink", handlers.postBlinkDeviceHandler).Methods("POST")
-	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")
 	handleFunc("/reset", handlers.postResetDeviceHandler).Methods("POST")
 	handleFunc("/login", handlers.postLoginHandler).Methods("POST")
 	handleFunc("/lock-bootloader", handlers.postLockBootloaderHandler).Methods("POST")
@@ -304,11 +302,6 @@ func (handlers *Handlers) postPairingStartHandler(r *http.Request) (interface{},
 func (handlers *Handlers) postBlinkDeviceHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Blink")
 	return nil, handlers.bitbox.Blink()
-}
-
-func (handlers *Handlers) postGetRandomNumberHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("Random Number")
-	return handlers.bitbox.Random("true")
 }
 
 func (handlers *Handlers) postResetDeviceHandler(r *http.Request) (interface{}, error) {

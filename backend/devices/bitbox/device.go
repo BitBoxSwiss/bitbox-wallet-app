@@ -790,42 +790,6 @@ func (dbb *Device) Reset(pin string) (bool, error) {
 	return true, nil
 }
 
-// Random generates a 16 byte random number, hex encoded. typ can be either "true" or "pseudo".
-func (dbb *Device) Random(typ string) (string, error) {
-	if dbb.bootloaderStatus != nil {
-		return "", errp.WithStack(errNoBootloader)
-	}
-	if typ != "true" && typ != "pseudo" {
-		dbb.log.WithField("type", typ).Panic("Type must be 'true' or 'pseudo'")
-	}
-	reply, err := dbb.sendKV("random", typ, dbb.pin)
-	if err != nil {
-		return "", errp.WithMessage(err, "Failed to generate random")
-	}
-	rand, ok := reply["random"].(string)
-	if !ok {
-		dbb.log.Error("Unexpected reply: field 'random' is missing")
-		return "", errp.New("unexpected reply")
-	}
-	dbb.log.WithField("random", rand).Debug("Generated random")
-	if len(rand) != 32 {
-		dbb.log.WithField("random-length", len(rand)).Error("Unexpected length: expected 32 bytes")
-		return "", fmt.Errorf("unexpected length, expected 32, got %d", len(rand))
-	}
-
-	if dbb.channel != nil {
-		echo, ok := reply["echo"].(string)
-		if !ok {
-			return "", errp.WithMessage(err, "The random number echo from the BitBox was invalid.")
-		}
-		if err = dbb.channel.SendRandomNumberEcho(echo); err != nil {
-			return "", errp.WithMessage(err, "Could not send the random number echo to the mobile.")
-		}
-	}
-
-	return rand, nil
-}
-
 // BackupList returns a list of backup filenames.
 func (dbb *Device) BackupList() ([]map[string]string, error) {
 	if dbb.bootloaderStatus != nil {
