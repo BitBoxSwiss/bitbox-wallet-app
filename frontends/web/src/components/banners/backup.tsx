@@ -63,7 +63,7 @@ export const BackupReminder = ({ keystore, accountsBalanceSummary }: BackupRemin
         // This shouldn't happen in theory, as the connectKeystore functions has succeeded.
         return;
       }
-      const deviceSettingsURL = `/settings/device-settings/${Object.keys(devices)[0]}`;
+      const deviceSettingsURL = `/settings/device-settings/recovery-words/${Object.keys(devices)[0]}`;
       // Proceed to the setting screen if the keystore was connected.
       navigate(deviceSettingsURL);
     }
