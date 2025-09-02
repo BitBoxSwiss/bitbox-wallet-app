@@ -10,6 +10,7 @@
 - Fix wrong btc/ltc transaction timestamp during header sync
 - Ethereum bugfix: show all internal transactions that share the same transaction ID
 - Allow up to 6 unused BTC/LTC accounts (previously 5)
+- iOS: add launch screen and smooth transition upon opening the app for the first time.
 
 ## v4.48.4
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1

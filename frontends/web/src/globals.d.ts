@@ -32,6 +32,9 @@ export declare global {
             goCall: {
               postMessage: (msg: { queryID: number; query: string; }) => void;
             }
+            appReady: {
+              postMessage: (msg: any) => void;
+            }
           }
         }
     }

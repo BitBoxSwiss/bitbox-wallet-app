@@ -23,6 +23,7 @@ import { useDefault } from './hooks/default';
 import { usePrevious } from './hooks/previous';
 import { useIgnoreDrop } from './hooks/drop';
 import { usePlatformClass } from './hooks/platform';
+import { useAppReady } from './hooks/appready';
 import { AppRouter } from './routes/router';
 import { Wizard as BitBox02Wizard } from './routes/device/bitbox02/wizard';
 import { getAccounts } from './api/account';
@@ -50,6 +51,7 @@ export const App = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   useIgnoreDrop();
+  useAppReady();
 
   const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
@@ -173,6 +175,7 @@ export const App = () => {
 
   const isBitboxBootloader = devices[deviceIDs[0]] === 'bitbox02-bootloader';
   const showBottomNavigation = (deviceIDs.length > 0 || activeAccounts.length > 0) && !isBitboxBootloader;
+
 
   return (
     <ConnectedApp>
