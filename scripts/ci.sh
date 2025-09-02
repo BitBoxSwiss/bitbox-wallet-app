@@ -22,7 +22,7 @@ export GORACE="halt_on_error=1"
 export GOTOOLCHAIN="local"
 
 # This script has to be called from the project root directory.
-go build -mod=vendor ./...
+go build -trimpath -mod=vendor ./...
 go test -race -mod=vendor ./... -count=1 -v
 golangci-lint --version
 golangci-lint config verify
