@@ -99,6 +99,8 @@
   },
   "auth": {
     "authButton": "Authenticate",
+    "dismissButton": "Cancel",
+    "missing": "Please, setup an authentication method on your device to continue",
     "title": "Please authenticate to continue"
   },
   "backup": {
