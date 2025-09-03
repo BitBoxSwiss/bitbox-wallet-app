@@ -68,7 +68,7 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
       setStep(onlyOneCoinIsSupported ? 'choose-name' : 'select-coin');
       setSupportedCoins(coins);
       if (onlyOneCoinIsSupported) {
-        setAccountCode(coins[0].suggestedAccountName);
+        setAccountName(coins[0].suggestedAccountName);
       }
       inputRef.current?.focus();
     } catch (err) {
@@ -91,8 +91,12 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
       navigate(-1);
       break;
     case 'choose-name':
-      setStep('select-coin');
-      setErrorMessage(undefined);
+      if (onlyOneSupportedCoin()) {
+        navigate(-1);
+      } else {
+        setStep('select-coin');
+        setErrorMessage(undefined);
+      }
       break;
     case 'success':
       setStep('choose-name');
