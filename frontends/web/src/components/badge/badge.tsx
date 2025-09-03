@@ -38,7 +38,7 @@ export const Badge = ({
     <span
       className={`${style.badge} ${style[type]} ${withChildrenStyle} ${iconOnlyStyle} ${className || ''}`}
       {...props}>
-      {icon && icon({ className: style.badgeIcon })}
+      {icon && style.badgeIcon && icon({ className: style.badgeIcon })}
       {children}
     </span>
   );

@@ -77,7 +77,7 @@ export const Dialog = ({
     }
     const target = getNextIndex(focusables, isNext);
     setCurrentTab(target);
-    focusables[target].focus();
+    focusables[target]?.focus();
   }, [getFocusables, getNextIndex]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -105,7 +105,7 @@ export const Dialog = ({
 
     // focus first element
     const focusables = getFocusables();
-    if (focusables && focusables.length && focusables[0].getAttribute('autofocus') !== 'false') {
+    if (focusables && focusables.length && focusables[0]?.getAttribute('autofocus') !== 'false') {
       focusables[0]?.focus();
     }
   }, [getFocusables]);

@@ -18,7 +18,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
-import { getInfo, IAccount, AccountCode } from '@/api/account';
+import { getInfo, IAccount, AccountCode, TSigningConfiguration } from '@/api/account';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { Header } from '@/components/layout';
 import { BackButton } from '@/components/backbutton/backbutton';
@@ -45,7 +45,7 @@ export const Info = ({
     return null;
   }
 
-  const config = info.signingConfigurations[viewXPub];
+  const config = info.signingConfigurations[viewXPub] as TSigningConfiguration;
   const numberOfXPubs = info.signingConfigurations.length;
   const xpubTypes = info.signingConfigurations.map(cfg => cfg.bitcoinSimple?.scriptType);
 
@@ -71,7 +71,7 @@ export const Info = ({
                   {t('accountInfo.extendedPublicKey')}
                 </h2>
               ) : null }
-              { (config.bitcoinSimple !== undefined && numberOfXPubs > 1) ? (
+              { (config?.bitcoinSimple !== undefined && numberOfXPubs > 1) ? (
                 <p className={style.xPubInfo}>
                   {t('accountInfo.xpubTypeInfo', {
                     current: `${viewXPub + 1}`,
@@ -86,7 +86,7 @@ export const Info = ({
                   )}
                 </p>
               ) : null}
-              { (config.bitcoinSimple?.scriptType === 'p2tr') ? (
+              { (config?.bitcoinSimple?.scriptType === 'p2tr') ? (
                 <>
                   <Status type="info">
                     {t('accountInfo.taproot')}

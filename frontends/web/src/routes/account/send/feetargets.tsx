@@ -104,7 +104,8 @@ export const FeeTargets = ({
 
   const handleFeeTargetChange = (event: React.SyntheticEvent) => {
     const target = event.target as HTMLSelectElement;
-    const value = target.options[target.selectedIndex].value as accountApi.FeeTargetCode;
+    const selectedOption = target.options[target.selectedIndex];
+    const value = selectedOption?.value as accountApi.FeeTargetCode;
     setFeeTarget(value);
     onFeeTargetChange(value);
   };

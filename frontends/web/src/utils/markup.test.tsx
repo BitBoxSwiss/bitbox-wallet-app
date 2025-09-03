@@ -57,9 +57,13 @@ describe('multilineMarkup', () => {
     expect(paragraphs).toHaveLength(2);
     const first = paragraphs[0];
     const last = paragraphs[1];
+    // @ts-ignore noUncheckedIndexedAccess
     expect(first.textContent).toBe('foo bar baz');
+    // @ts-ignore noUncheckedIndexedAccess
     expect(first.querySelector('strong')).toHaveTextContent('bar');
+    // @ts-ignore noUncheckedIndexedAccess
     expect(last.textContent).toBe('booz');
+    // @ts-ignore noUncheckedIndexedAccess
     expect(last.querySelector('strong')).toHaveTextContent('booz');
   });
 });
