@@ -388,6 +388,7 @@
   "button": {
     "abort": "Abort",
     "back": "Back",
+    "cancel": "Cancel",
     "changepin": "Change device password",
     "check": "Check backup",
     "continue": "Continue",
@@ -402,6 +403,7 @@
     "proceedOnBitBox": "Proceed on your BitBox",
     "receive": "Receive",
     "restore": "Restore",
+    "save": "Save",
     "select": "Select",
     "send": "Send",
     "unlock": "Unlock",
@@ -821,6 +823,14 @@
   },
   "footer": {
     "appVersion": "App version:"
+  },
+  "gapLimit": {
+    "change": "Gap limit for change addresses",
+    "description": "Configure custom gap limits for bitcoin receive and change addresses.",
+    "minValue": "The gap limit must be at least {{min}}.",
+    "receive": "Gap limit for receive addresses",
+    "resetToDefault": "Reset to default",
+    "title": "Custom gap limit settings"
   },
   "generic": {
     "buy": "Buy {{coinCode}}",

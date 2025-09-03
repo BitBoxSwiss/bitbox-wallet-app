@@ -29,6 +29,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
+	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -1072,10 +1073,23 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
+		// Arguments have priority over config settings
+		gapLimits := backend.arguments.GapLimits()
+
+		if gapLimits == nil {
+			configReceive := uint16(backend.config.AppConfig().Backend.GapLimitReceive)
+			configChange := uint16(backend.config.AppConfig().Backend.GapLimitChange)
+			if configReceive > 0 && configChange > 0 {
+				gapLimits = &btctypes.GapLimits{
+					Receive: configReceive,
+					Change:  configChange,
+				}
+			}
+		}
 		account = backend.makeBtcAccount(
 			accountConfig,
 			specificCoin,
-			backend.arguments.GapLimits(),
+			gapLimits,
 			getAddressCallback,
 			backend.log,
 		)
