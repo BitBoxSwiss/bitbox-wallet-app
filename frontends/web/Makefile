@@ -28,3 +28,5 @@ jstest-cover:
 listdeps:
 	@echo "Listing JavaScript production dependencies. Be careful to not pull in many deps accidentally."
 	npm list -prod -long
+serve:
+	npm run serve
