@@ -41,7 +41,7 @@ export const More = ({ devices }: Props) => {
   const { t } = useTranslation();
   useOnlyVisitableOnMobile('/settings/general');
   const deviceID = Object.keys(devices)[0];
-  const isBitBox02 = devices[deviceID] === 'bitbox02';
+  const isBitBox02 = deviceID && devices[deviceID] === 'bitbox02';
   const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID]);
   const canUpgrade = versionInfo ? versionInfo.canUpgrade : false;
 

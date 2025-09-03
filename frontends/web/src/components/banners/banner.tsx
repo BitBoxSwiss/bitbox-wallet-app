@@ -28,6 +28,7 @@ type TBannerProps = {
 
 export const Banner = ({ msgKey }: TBannerProps) => {
   const { i18n, t } = useTranslation();
+  const { fallbackLng } = i18n.options;
   const [banner, setBanner] = useState<TBannerInfo>();
 
   useEffect(() => {
@@ -37,18 +38,24 @@ export const Banner = ({ msgKey }: TBannerProps) => {
 
   if (
     !banner
-    || !i18n.options.fallbackLng
+    || !fallbackLng
     || !i18n.resolvedLanguage
   ) {
     return null;
   }
   const { message, link } = banner;
 
+  const maybeFallbackLng: string = (
+    Array.isArray(fallbackLng) && fallbackLng.length > 0
+      ? fallbackLng[0]
+      : fallbackLng
+  );
+
   return (
     <Status
       dismissible={banner.dismissible ? `banner-${msgKey}-${banner.id}` : ''}
       type={banner.type ? banner.type : 'warning'}>
-      {message[i18n.resolvedLanguage] || message[(i18n.options.fallbackLng as string[])[0]]}
+      {message[i18n.resolvedLanguage] || message[maybeFallbackLng || 'en']}
       &nbsp;
       {link && (
         <A href={link.href} className={style.link}>

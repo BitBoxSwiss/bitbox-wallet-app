@@ -64,13 +64,16 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
     try {
       const coins = await backendAPI.getSupportedCoins();
       const onlyOneCoinIsSupported = (coins.length === 1);
-      setCoinCode(onlyOneCoinIsSupported ? coins[0].coinCode : 'choose');
-      setStep(onlyOneCoinIsSupported ? 'choose-name' : 'select-coin');
-      setSupportedCoins(coins);
-      if (onlyOneCoinIsSupported) {
-        setAccountName(coins[0].suggestedAccountName);
+      const firstCoin = coins[0];
+      if (firstCoin) {
+        setCoinCode(onlyOneCoinIsSupported ? firstCoin.coinCode : 'choose');
+        setStep(onlyOneCoinIsSupported ? 'choose-name' : 'select-coin');
+        setSupportedCoins(coins);
+        if (onlyOneCoinIsSupported) {
+          setAccountName(firstCoin.suggestedAccountName);
+        }
+        inputRef.current?.focus();
       }
-      inputRef.current?.focus();
     } catch (err) {
       console.error(err);
     }

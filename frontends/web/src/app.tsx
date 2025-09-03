@@ -155,10 +155,13 @@ export const App = () => {
       // We don't bother implementing the same for the bitbox01.
       // The bb02 bootloader screen is not full screen, so we don't mount it globally and instead
       // route to it.
-      const productName = devices[newDeviceIDList[0]];
-      if (productName === 'bitbox' || productName === 'bitbox02-bootloader') {
-        navigate(`settings/device-settings/${newDeviceIDList[0]}`);
-        return;
+      const firstNewDevice = newDeviceIDList[0];
+      if (firstNewDevice) {
+        const productName = devices[firstNewDevice];
+        if (productName === 'bitbox' || productName === 'bitbox02-bootloader') {
+          navigate(`settings/device-settings/${newDeviceIDList[0]}`);
+          return;
+        }
       }
     }
     maybeRoute();
@@ -173,7 +176,8 @@ export const App = () => {
   const deviceIDs: string[] = Object.keys(devices);
   const activeAccounts = accounts.filter(acct => acct.active);
 
-  const isBitboxBootloader = devices[deviceIDs[0]] === 'bitbox02-bootloader';
+  const firstDevice = deviceIDs[0];
+  const isBitboxBootloader = firstDevice && devices[firstDevice] === 'bitbox02-bootloader';
   const showBottomNavigation = (deviceIDs.length > 0 || activeAccounts.length > 0) && !isBitboxBootloader;
 
 

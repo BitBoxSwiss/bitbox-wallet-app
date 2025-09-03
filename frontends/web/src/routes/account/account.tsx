@@ -163,7 +163,7 @@ const RemountAccount = ({
       }
 
       let bitsuranceAccount = insuredAccounts.bitsuranceAccounts[0];
-      if (bitsuranceAccount.status === 'active') {
+      if (bitsuranceAccount?.status === 'active') {
         setInsured(true);
         checkUncoveredUTXOs();
         return;
