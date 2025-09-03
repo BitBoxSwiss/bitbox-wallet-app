@@ -62,7 +62,7 @@ export const NumberInput = (({
       && dividedByDot[dividedByDot.length - 1]?.includes(',')
     ) {
       target.value = [
-        dividedByComma[0].replace(/[.]/g, ''), // replace dot in whole coins 1.000.000
+        dividedByComma[0]?.replace(/[.]/g, ''), // replace dot in whole coins 1.000.000
         dividedByComma[1], // rest i.e. 50
       ].join('.');
     } else if (
@@ -72,7 +72,7 @@ export const NumberInput = (({
       && dividedByComma[dividedByComma.length - 1]?.includes('.')
     ) {
       target.value = [
-        dividedByDot[0].replace(/[,]/g, ''), // replace comma in 1,000,000
+        dividedByDot[0]?.replace(/[,]/g, ''), // replace comma in 1,000,000
         dividedByDot[1], // rest i.e. 50
       ].join('.');
     } else {

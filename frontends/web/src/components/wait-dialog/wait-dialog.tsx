@@ -48,8 +48,13 @@ export const WaitDialog = ({
     if (!overlay.current || !modal.current) {
       return;
     }
-    overlay.current.classList.add(style.activeOverlay);
-    modal.current.classList.add(style.activeModal);
+    // TODO: this component should use state instead of keeping ref to modify classList
+    if (style.activeOverlay) {
+      overlay.current.classList.add(style.activeOverlay);
+    }
+    if (style.activeModal) {
+      modal.current.classList.add(style.activeModal);
+    }
   };
 
   useEffect(() => {

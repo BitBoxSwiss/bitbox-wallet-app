@@ -156,48 +156,62 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                         ) : null }
                       </p>
                       <div>
-                        {accounts?.length ? accounts.map(account => insurances && insurances[account.code] ? (
-                          <div key={account.code} className={style.row}>
-                            <div className="flex flex-items-center">
-                              <p className={`${style.text} ${style.accountName}`}>
-                                {accounts.filter(ac => ac.code === account.code).map(ac => ac.name)}
-                              </p>
-                              <span className={`${style.text} ${style.subtle}`}>
-                                { balances && balances[account.code] ? (
-                                  <>
-                                    <Amount
-                                      amount={balances[account.code].available.amount}
-                                      unit={balances[account.code].available.unit}
-                                    />
-                                    {` ${balances[account.code].available.unit}`}
-                                  </>
-                                ) : <Skeleton/>}
-                              </span>
-                            </div>
-
-                            <div className={'m-top-half m-bottom-half'}>
-                              <p className={`${style.text} ${style.subtle} m-bottom-quarter`}>{t('bitsurance.dashboard.coverage')}</p>
-                              <p className={style.text}>{insurances[account.code].details.maxCoverageFormatted} {insurances[account.code].details.currency}</p>
-                            </div>
-
-                            <div className="flex flex-column-mobile">
-                              <div className="flex">
-                                <AccountStatusIcon status={insurances[account.code].status} />
-                                <p className={`${style.text} m-left-quarter m-right-half`}>{t('bitsurance.dashboard.' + insurances[account.code].status)}</p>
+                        {accounts?.length ? accounts.map(account => {
+                          const balance = balances && balances[account.code];
+                          const insurance = insurances[account.code];
+                          return insurance ? (
+                            <div key={account.code} className={style.row}>
+                              <div className="flex flex-items-center">
+                                <p className={`${style.text} ${style.accountName}`}>
+                                  {accounts.filter(ac => ac.code === account.code).map(ac => ac.name)}
+                                </p>
+                                <span className={`${style.text} ${style.subtle}`}>
+                                  { balance ? (
+                                    <>
+                                      <Amount
+                                        amount={balance.available.amount}
+                                        unit={balance.available.unit}
+                                      />
+                                      {` ${balance.available.unit}`}
+                                    </>
+                                  ) : <Skeleton/>}
+                                </span>
                               </div>
-                              <A
-                                className={`${style.text} ${style.link} m-top-quarter-on-small`}
-                                href={insurances[account.code].details.support}
-                              >
-                                <div className="flex">
-                                  <ExternalLink width={16} />
-                                  <span className="m-left-quarter">{t('bitsurance.dashboard.supportLink')}</span>
-                                </div>
-                              </A>
-                            </div>
 
-                          </div>
-                        ) : null) : <HorizontallyCenteredSpinner />}
+                              <div className={'m-top-half m-bottom-half'}>
+                                <p className={`${style.text} ${style.subtle} m-bottom-quarter`}>
+                                  {t('bitsurance.dashboard.coverage')}
+                                </p>
+                                <p className={style.text}>
+                                  {insurance.details.maxCoverageFormatted}
+                                  {' '}
+                                  {insurance.details.currency}
+                                </p>
+                              </div>
+
+                              <div className="flex flex-column-mobile">
+                                <div className="flex">
+                                  <AccountStatusIcon status={insurance.status} />
+                                  <p className={`${style.text} m-left-quarter m-right-half`}>
+                                    {t('bitsurance.dashboard.' + insurance.status)}
+                                  </p>
+                                </div>
+                                <A
+                                  className={`${style.text} ${style.link} m-top-quarter-on-small`}
+                                  href={insurance.details.support}
+                                >
+                                  <div className="flex">
+                                    <ExternalLink width={16} />
+                                    <span className="m-left-quarter">
+                                      {t('bitsurance.dashboard.supportLink')}
+                                    </span>
+                                  </div>
+                                </A>
+                              </div>
+
+                            </div>
+                          ) : null;
+                        }) : <HorizontallyCenteredSpinner />}
                       </div>
                     </div>
                   )

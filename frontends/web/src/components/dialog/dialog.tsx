@@ -99,17 +99,17 @@ export const Dialog = ({
   }
 
   const modalClass = `
-    ${style.modal}
-    ${small ? style.small : ''}
-    ${medium ? style.medium : ''}
-    ${large ? style.large : ''}
-    ${status === 'open' || status === 'opening' ? style.open : ''}
+    ${style.modal as string}
+    ${small && style.small || ''}
+    ${medium && style.medium || ''}
+    ${large && style.large || ''}
+    ${(status === 'open' || status === 'opening') && style.open || ''}
   `.trim();
 
   const overlayClass = `
-    ${style.overlay}
-    ${status === 'opening' || status === 'open' ? style.activeOverlay : ''}
-    ${status === 'closing' ? style.closingOverlay : ''}
+    ${style.overlay as string}
+    ${(status === 'opening' || status === 'open') && style.activeOverlay || ''}
+    ${status === 'closing' && style.closingOverlay || ''}
   `.trim();
 
   const headerClass = `

@@ -76,7 +76,7 @@ class DialogLegacy extends Component<Props, State> {
 
   private focusFirst = () => {
     const focusables = this.focusableChildren;
-    if (focusables.length && focusables[0].getAttribute('autofocus') !== 'false') {
+    if (focusables.length && focusables[0] && focusables[0].getAttribute('autofocus') !== 'false') {
       focusables[0].focus();
     }
   };
@@ -84,7 +84,7 @@ class DialogLegacy extends Component<Props, State> {
   private updateIndex = (isNext: boolean) => {
     const target = this.getNextIndex(isNext);
     this.setState({ currentTab: target }, () => {
-      this.focusableChildren[target].focus();
+      this.focusableChildren[target]?.focus();
     });
   };
 
@@ -119,8 +119,12 @@ class DialogLegacy extends Component<Props, State> {
     if (!this.modal.current || !this.overlay.current) {
       return;
     }
-    this.modal.current.classList.remove(style.activeModal);
-    this.overlay.current.classList.remove(style.activeOverlay);
+    if (style.activeModal) {
+      this.modal.current.classList.remove(style.activeModal);
+    }
+    if (style.activeOverlay) {
+      this.overlay.current.classList.remove(style.activeOverlay);
+    }
     this.setState({ active: false, currentTab: 0 }, () => {
       document.removeEventListener('keydown', this.handleKeyDown);
       if (this.props.onClose) {
@@ -134,8 +138,12 @@ class DialogLegacy extends Component<Props, State> {
       if (!this.modal.current || !this.overlay.current) {
         return;
       }
-      this.overlay.current.classList.add(style.activeOverlay);
-      this.modal.current.classList.add(style.activeModal);
+      if (style.activeOverlay) {
+        this.overlay.current.classList.add(style.activeOverlay);
+      }
+      if (style.activeModal) {
+        this.modal.current.classList.add(style.activeModal);
+      }
       this.focusWithin();
       this.focusFirst();
     });

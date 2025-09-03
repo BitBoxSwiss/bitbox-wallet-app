@@ -74,8 +74,10 @@ export const truncateAddress = (address: string) => {
 
 export const getTopicFromURI = (wcURI: string) => {
   try {
-    // Split the URI by ':' and then by '@', and take the part before the '@'
-    return wcURI.split(':')[1].split('@')[0];
+    // Split the URI by ':'
+    const afterColon = wcURI.split(':')[1] || '';
+    // return before the '@' or empty string
+    return afterColon.split('@')[0] || '';
   } catch {
     return '';
   }
