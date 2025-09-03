@@ -193,7 +193,7 @@
     }
 
     .coinName img {
-        left: -2rem;
+        left: -32px;
         position: absolute;
         top: -3px;
     }
