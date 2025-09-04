@@ -53,6 +53,8 @@ webtest:
 	cd ${WEBROOT} && $(MAKE) jstest
 webtestwatch:
 	cd ${WEBROOT} && $(MAKE) jstest-watch
+webserve:
+	cd ${WEBROOT} && $(MAKE) serve
 qt-linux: # run inside dockerdev
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) linux
