@@ -36,9 +36,15 @@ export const Badge = ({
   const iconOnlyStyle = (children === undefined && icon) ? style.iconOnly : '';
   return (
     <span
-      className={`${style.badge} ${style[type]} ${withChildrenStyle} ${iconOnlyStyle} ${className || ''}`}
+      className={`
+        ${style.badge as string}
+        ${style[type] as string}
+        ${withChildrenStyle as string}
+        ${iconOnlyStyle as string}
+        ${className || ''}
+      `}
       {...props}>
-      {icon && style.badgeIcon && icon({ className: style.badgeIcon })}
+      {icon && style.badgeIcon && icon({ className: style.badgeIcon as string })}
       {children}
     </span>
   );

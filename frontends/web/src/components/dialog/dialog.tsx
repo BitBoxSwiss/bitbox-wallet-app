@@ -113,13 +113,13 @@ export const Dialog = ({
   `.trim();
 
   const headerClass = `
-    ${style.header}
-    ${centered && !onClose ? style.centered : ''}
+    ${style.header as string}
+    ${centered && !onClose ? style.centered as string : ''}
   `.trim();
 
   const contentClass = `
-    ${style.contentContainer}
-    ${slim ? style.slim : ''}
+    ${style.contentContainer as string}
+    ${slim && style.slim || ''}
   `.trim();
 
   return (
