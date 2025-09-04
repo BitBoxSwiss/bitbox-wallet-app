@@ -150,7 +150,7 @@ export const FeeTargets = ({
     if (withCustomFee && feetargetInfo) {
       return (
         <>
-          {t(`send.feeTarget.label.${option.value as string}`)}
+          {t(`send.feeTarget.label.${option.value || ''}`)}
           {' '}
           <span className={style.unit}>
             ({feetargetInfo?.feeRateInfo || ''})
@@ -217,7 +217,7 @@ export const FeeTargets = ({
                 step="any"
                 autoFocus={!preventFocus}
                 align="right"
-                className={`${style.fee} ${style.feeCustom}`}
+                className={`${style.fee || ''} ${style.feeCustom || ''}`}
                 disabled={disabled}
                 label={t('send.feeTarget.customLabel', {
                   context: isEthereumBased(coinCode) ? 'eth' : ''

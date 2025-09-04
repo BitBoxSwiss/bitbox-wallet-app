@@ -389,7 +389,7 @@ export const Pocket = ({
                 primary
                 onClick={() => {
                   setFirmwareUpdateDialogOpen(true);
-                  navigate(`/settings/device-settings/${deviceIDs[0]}`);
+                  navigate(`/settings/device-settings/${deviceIDs[0] as string}`);
                 }}>
                 {t('upgradeFirmware.button')}
               </Button>

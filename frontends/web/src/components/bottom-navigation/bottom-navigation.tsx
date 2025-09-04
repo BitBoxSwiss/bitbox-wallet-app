@@ -43,14 +43,20 @@ export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
   return (
     <div className={styles.container}>
       <Link
-        className={`${styles.link} ${pathname.startsWith('/account-summary') ? styles.active : ''}`}
+        className={`
+          ${styles.link || ''}
+          ${pathname.startsWith('/account-summary') && styles.active || ''}
+        `}
         to="/account-summary"
       >
         <PortfolioIconSVG />
         {t('accountSummary.portfolio')}
       </Link>
       <Link
-        className={`${styles.link} ${pathname.startsWith('/account/') || pathname.startsWith('/accounts/') ? styles.active : ''}`}
+        className={`
+          ${styles.link || ''}
+          ${pathname.startsWith('/account/') || pathname.startsWith('/accounts/') ? (styles.active || '') : ''}
+        `}
         to={
           onlyHasOneAccount && accountCode ?
             `/account/${accountCode}` :
@@ -62,7 +68,7 @@ export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
       </Link>
       <Link
         className={`
-          ${styles.link as string}
+          ${styles.link || ''}
           ${pathname.startsWith('/market/') && styles.active || ''}
         `}
         to="/market/info"
@@ -71,7 +77,10 @@ export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
         {t('generic.buySell')}
       </Link>
       <Link
-        className={`${styles.link} ${pathname.startsWith('/settings') || pathname.startsWith('/bitsurance/') ? styles.active : ''}`}
+        className={`
+          ${styles.link || ''}
+          ${pathname.startsWith('/settings') || pathname.startsWith('/bitsurance/') ? (styles.active || '') : ''}
+        `}
         to="/settings/more"
       >
         <MoreIconSVG />

@@ -124,7 +124,7 @@ export const ConfirmSend = ({
         <div className={style.confirmItem}>
           <label>{t('send.confirm.to')}</label>
           <div className={style.confirmationItemWrapper}>
-            <p className={`${style.valueOriginal}`}>
+            <p className={style.valueOriginal}>
               {recipientAddress || 'N/A'}
             </p>
           </div>

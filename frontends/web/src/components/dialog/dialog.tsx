@@ -99,7 +99,7 @@ export const Dialog = ({
   }
 
   const modalClass = `
-    ${style.modal as string}
+    ${style.modal || ''}
     ${small && style.small || ''}
     ${medium && style.medium || ''}
     ${large && style.large || ''}
@@ -107,19 +107,19 @@ export const Dialog = ({
   `.trim();
 
   const overlayClass = `
-    ${style.overlay as string}
+    ${style.overlay || ''}
     ${(status === 'opening' || status === 'open') && style.activeOverlay || ''}
     ${status === 'closing' && style.closingOverlay || ''}
   `.trim();
 
   const headerClass = `
-    ${style.header}
-    ${centered && !onClose ? style.centered : ''}
+    ${style.header || ''}
+    ${centered && !onClose && style.centered || ''}
   `.trim();
 
   const contentClass = `
-    ${style.contentContainer}
-    ${slim ? style.slim : ''}
+    ${style.contentContainer || ''}
+    ${slim && style.slim || ''}
   `.trim();
 
   return (

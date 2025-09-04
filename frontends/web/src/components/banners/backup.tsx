@@ -58,12 +58,13 @@ export const BackupReminder = ({ keystore, accountsBalanceSummary }: BackupRemin
     const connectResult = await connectKeystore(keystore.rootFingerprint);
     if (connectResult.success) {
       const devices = await getDeviceList();
-      if (Object.keys(devices).length === 0) {
+      const firstDevice = Object.keys(devices)[0];
+      if (!firstDevice) {
         // If no devices are connected, we cannot navigate to settings.
         // This shouldn't happen in theory, as the connectKeystore functions has succeeded.
         return;
       }
-      const deviceSettingsURL = `/settings/device-settings/recovery-words/${Object.keys(devices)[0]}`;
+      const deviceSettingsURL = `/settings/device-settings/recovery-words/${firstDevice}`;
       // Proceed to the setting screen if the keystore was connected.
       navigate(deviceSettingsURL);
     }

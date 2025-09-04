@@ -49,7 +49,10 @@ export const A = ({
 }: TProps) => {
   return (
     <span
-      className={`${runningInIOS() ? style.linkIos : style.link} ${className || ''}`}
+      className={`
+        ${(runningInIOS() ? style.linkIos : style.link) || ''}
+        ${className || ''}
+      `}
       title={props.title || href}
       onClick={(e: SyntheticEvent) => {
         e.preventDefault();

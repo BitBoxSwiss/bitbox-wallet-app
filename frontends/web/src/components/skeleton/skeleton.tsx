@@ -29,6 +29,9 @@ export const Skeleton = ({
   minWidth = '100%',
 }: TProps) => {
   return (
-    <span className={`${style.skeleton} ${className}`} style={{ fontSize, minWidth }} />
+    <span
+      className={`${style.skeleton || ''} ${className}`}
+      style={{ fontSize, minWidth }}
+    />
   );
 };

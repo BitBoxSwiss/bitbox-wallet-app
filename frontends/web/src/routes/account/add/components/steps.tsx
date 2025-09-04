@@ -67,7 +67,11 @@ export const Step = ({
     return null;
   }
   return (
-    <div className={`${style.step} ${style[status]} ${line ? style.line : ''}`}>
+    <div className={`
+      ${style.step || ''}
+      ${style[status] || ''}
+      ${line && style.line || ''}
+    `}>
       <div className={style.dot}></div>
       <div className={style.content}>
         {children}

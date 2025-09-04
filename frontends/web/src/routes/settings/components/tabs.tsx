@@ -94,7 +94,7 @@ export const Tab = ({
   return (
     <NavLink
       key={url}
-      className={({ isActive }) => isActive ? `${styles.active} hide-on-small` : 'hide-on-small'}
+      className={({ isActive }) => isActive ? `${styles.active || ''} hide-on-small` : 'hide-on-small'}
       to={url}
     >
       {name}

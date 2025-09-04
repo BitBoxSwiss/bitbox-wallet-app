@@ -219,7 +219,7 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
           <Header title={<h2>{t('manageAccounts.title')}</h2>} />
           <div className="content larger isVerticallyCentered">
             <form
-              className={`${styles.manageContainer} box larger flex flex-column flex-between`}
+              className={`${styles.manageContainer || ''} box larger flex flex-column flex-between`}
               onSubmit={next}>
               <div className="text-center">
                 {t('addAccount.title')}

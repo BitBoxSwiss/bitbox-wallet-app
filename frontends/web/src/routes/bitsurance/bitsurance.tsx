@@ -134,7 +134,9 @@ export const Bitsurance = ({ accounts }: TProps) => {
                     </h3>
                     <p className={style.cardBody}>{t('bitsurance.detect.text')}</p>
                     {!insuredAccounts.length && scanDone && (
-                      <p className={`${style.cardBody2} ${style.errorMessage}`}>{t('bitsurance.detect.notInsured')}</p>
+                      <p className={`${style.cardBody2 || ''} ${style.errorMessage || ''}`}>
+                        {t('bitsurance.detect.notInsured')}
+                      </p>
                     )}
                     <ColumnButtons className={style.ctaButton}>
                       <Button

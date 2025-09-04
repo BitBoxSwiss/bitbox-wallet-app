@@ -107,7 +107,7 @@ const GroupHeading = (
   { customData, ...props }: GroupHeadingProps
 ) => {
   return (
-    <div className={`${styles.groupHeader}`}>
+    <div className={styles.groupHeader}>
       <components.GroupHeading {...props} data={customData} />
       {customData.connected && (
         <Badge

@@ -141,9 +141,9 @@ export const Dropdown = <T, IsMulti extends boolean = false>({
   return (
     <Select
       className={`
-        ${styles.select}
+        ${styles.select || ''}
         ${className || ''}
-        `}
+      `}
       classNamePrefix={classNamePrefix}
       isClearable={false}
       hideSelectedOptions={false}

@@ -38,14 +38,14 @@ export const ActionableItem = ({
   return (
     <>
       {notButton ? (
-        <div className={`${styles.container} ${className}`}>
+        <div className={`${styles.container || ''} ${className}`}>
           {children}
           {icon && icon}
         </div>
       ) : (
         <button
           type="button"
-          className={`${styles.container} ${styles.isButton} ${className}`}
+          className={`${styles.container || ''} ${styles.isButton || ''} ${className}`}
           onClick={onClick}>
           {children}
           {icon ? icon : (

@@ -76,9 +76,15 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
       const active = activeToken !== undefined;
       return (
         <div key={token.code}
-          className={`${style.token} ${!active ? style.tokenInactive : ''}`}>
+          className={`
+            ${style.token || ''}
+            ${!active && style.tokenInactive || ''}
+          `}>
           <div
-            className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
+            className={`
+              ${style.acccountLink || ''}
+              ${active && style.accountActive || ''}
+            `}
             onClick={() => activeToken !== undefined && navigate(`/account/${activeToken.accountCode}`)}>
             <Logo
               active={active}
@@ -159,9 +165,18 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
       return (
         <div key={account.code} className={style.setting}>
           <div
-            className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
+            className={`
+              ${style.acccountLink || ''}
+              ${active && style.accountActive || ''}
+            `}
             onClick={() => active && navigate(`/account/${account.code}`)}>
-            <Logo stacked active={account.active} className={`${style.coinLogo} m-right-half`} coinCode={account.coinCode} alt={account.coinUnit} />
+            <Logo
+              stacked
+              active={account.active}
+              className={`${style.coinLogo || ''} m-right-half`}
+              coinCode={account.coinCode}
+              alt={account.coinUnit}
+            />
             <span className={!account.active ? style.accountNameInactive : ''}>
               {account.name}
               {' '}
@@ -169,7 +184,11 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
             </span>
           </div>
           <div className="flex flex-items-center">
-            {!account.active ? <p className={`text-small ${style.disabledText}`}>{t('generic.enabled_false')}</p> : null}
+            {!account.active ? (
+              <p className={`text-small ${style.disabledText || ''}`}>
+                {t('generic.enabled_false')}
+              </p>
+            ) : null}
             <Button
               className={style.editBtn}
               onClick={() => setCurrentlyEditedAccount(account)}
@@ -182,11 +201,17 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
           </div>
           {active && account.coinCode === 'eth' ? (
             <div className={style.tokenSection}>
-              <div className={`${style.tokenContainer} ${tokensVisible ? style.tokenContainerOpen : ''}`}>
+              <div className={`
+                ${style.tokenContainer || ''}
+                ${tokensVisible && style.tokenContainerOpen || ''}
+              `}>
                 {renderTokens(account.code, account.activeTokens)}
               </div>
               <Button
-                className={`${style.expandBtn} ${tokensVisible ? style.expandBtnOpen : ''}`}
+                className={`
+                  ${style.expandBtn || ''}
+                  ${tokensVisible && style.expandBtnOpen || ''}
+                `}
                 onClick={() => toggleShowTokens(account.code)}
                 transparent>
                 {t(tokensVisible ? 'manageAccounts.settings.hideTokens' : 'manageAccounts.settings.showTokens', {

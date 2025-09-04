@@ -31,8 +31,20 @@ type TPillTabButtonProps = {
     onClick: () => void;
 }
 
-export const PillButtonGroup = ({ className = '', size = 'medium', children }: TPillTabProps) => {
-  return <div className={`${styles.pillbuttongroup} ${styles[size]} ${className}`}>{children}</div>;
+export const PillButtonGroup = ({
+  className = '',
+  size = 'medium',
+  children
+}: TPillTabProps) => {
+  return (
+    <div className={`
+      ${styles.pillbuttongroup || ''}
+      ${styles[size] || ''}
+      ${className}`
+    }>
+      {children}
+    </div>
+  );
 };
 
 export const PillButton = ({
@@ -43,7 +55,7 @@ export const PillButton = ({
 }: TPillTabButtonProps) => {
   return (
     <button
-      className={active ? styles.active : ''}
+      className={active && styles.active || ''}
       disabled={disabled}
       onClick={onClick}
     >

@@ -611,8 +611,8 @@ export const Chart = ({
         <div
           style={{ minHeight: chartHeight }}
           className={`
-          ${styles.transitionDiv}
-          ${showAnimationOverlay ? '' : styles.overlayRemove}`}
+          ${styles.transitionDiv || ''}
+          ${showAnimationOverlay ? '' : styles.overlayRemove || ''}`}
         />
       )}
       <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>

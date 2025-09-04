@@ -375,7 +375,7 @@ export const Send = ({
                 <label className="labelXLarge">{t('send.availableBalance')}</label>
               </div>
               <Balance balance={balance} noRotateFiat/>
-              <div className={`flex flex-row flex-between ${style.container}`}>
+              <div className={`flex flex-row flex-between ${style.container || ''}`}>
                 <label className="labelXLarge">{t('send.transactionDetails')}</label>
                 <div className={style.coinControlButtonContainer}>
                   <CoinControl

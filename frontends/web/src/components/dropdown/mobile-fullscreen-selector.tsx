@@ -161,7 +161,10 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
                 filteredOptions.map((option) => (
                   <button
                     key={String(option.value)}
-                    className={`${styles.optionItem} ${isSelected(option) ? styles.selectedOption : ''}`}
+                    className={`
+                      ${styles.optionItem || ''}
+                      ${isSelected(option) && styles.selectedOption || ''}
+                    `}
                     onClick={(e) => handleSelect(option, e)}
                   >
                     <div className={styles.optionContent}>{renderOptions(option)}</div>

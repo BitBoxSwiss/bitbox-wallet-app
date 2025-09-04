@@ -162,10 +162,10 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                           return insurance ? (
                             <div key={account.code} className={style.row}>
                               <div className="flex flex-items-center">
-                                <p className={`${style.text} ${style.accountName}`}>
+                                <p className={`${style.text || ''} ${style.accountName || ''}`}>
                                   {accounts.filter(ac => ac.code === account.code).map(ac => ac.name)}
                                 </p>
-                                <span className={`${style.text} ${style.subtle}`}>
+                                <span className={`${style.text || ''} ${style.subtle || ''}`}>
                                   { balance ? (
                                     <>
                                       <Amount
@@ -179,7 +179,7 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                               </div>
 
                               <div className={'m-top-half m-bottom-half'}>
-                                <p className={`${style.text} ${style.subtle} m-bottom-quarter`}>
+                                <p className={`${style.text || ''} ${style.subtle || ''} m-bottom-quarter`}>
                                   {t('bitsurance.dashboard.coverage')}
                                 </p>
                                 <p className={style.text}>
@@ -192,12 +192,12 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                               <div className="flex flex-column-mobile">
                                 <div className="flex">
                                   <AccountStatusIcon status={insurance.status} />
-                                  <p className={`${style.text} m-left-quarter m-right-half`}>
+                                  <p className={`${style.text || ''} m-left-quarter m-right-half`}>
                                     {t('bitsurance.dashboard.' + insurance.status)}
                                   </p>
                                 </div>
                                 <A
-                                  className={`${style.text} ${style.link} m-top-quarter-on-small`}
+                                  className={`${style.text || ''} ${style.link || ''} m-top-quarter-on-small`}
                                   href={insurance.details.support}
                                 >
                                   <div className="flex">

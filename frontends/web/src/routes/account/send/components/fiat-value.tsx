@@ -30,7 +30,7 @@ export const FiatValue = ({
   className,
 }: TFiatValueProps) => {
 
-  const classNames = `${style.fiatValue} ${className ? className : ''}`;
+  const classNames = `${style.fiatValue || ''} ${className && className || ''}`;
 
   return (
     <p className={classNames}>

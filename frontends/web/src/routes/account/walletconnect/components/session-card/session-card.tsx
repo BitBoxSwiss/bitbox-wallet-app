@@ -43,11 +43,11 @@ const TextData = ({ accountName, receiveAddress, dAppName, dAppUrl, iconUrl }: T
         <p className={styles.accountName}>
           {accountName}
         </p>
-        <p className={`${styles.receiveAddress} hide-on-small`}>
+        <p className={`${styles.receiveAddress || ''} hide-on-small`}>
           {receiveAddress}
         </p>
       </div>
-      <p className={`${styles.receiveAddress} show-on-small`}>
+      <p className={`${styles.receiveAddress || ''} show-on-small`}>
         {receiveAddress}
       </p>
       <div className={styles.dAppMetadataAndIconContainer}>

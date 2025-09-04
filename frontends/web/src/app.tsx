@@ -108,7 +108,7 @@ export const App = () => {
       deviceIDs.length === 1
       && currentURL === '/settings/no-device-connected'
     ) {
-      navigate(`/settings/device-settings/${deviceIDs[0]}`);
+      navigate(`/settings/device-settings/${deviceIDs[0] as string}`);
       return;
     }
     // if on an account that isn't registered route to /
@@ -159,7 +159,7 @@ export const App = () => {
       if (firstNewDevice) {
         const productName = devices[firstNewDevice];
         if (productName === 'bitbox' || productName === 'bitbox02-bootloader') {
-          navigate(`settings/device-settings/${newDeviceIDList[0]}`);
+          navigate(`settings/device-settings/${newDeviceIDList[0] as string}`);
           return;
         }
       }
@@ -191,7 +191,10 @@ export const App = () => {
             accounts={activeAccounts}
             devices={devices}
           />
-          <div className={`${styles.appContent} ${showBottomNavigation ? styles.hasBottomNavigation : ''}`}>
+          <div className={`
+            ${styles.appContent || ''}
+            ${showBottomNavigation && styles.hasBottomNavigation || ''}
+          `}>
             <WCSigningRequest />
             <Aopp />
             <KeystoreConnectPrompt />

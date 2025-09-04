@@ -361,7 +361,10 @@ const RemountAccount = ({
                       </Button>
                     </div>
 
-                    <div className={`${style.searchContainer} ${!showSearchBar ? style.searchHidden : ''}`}>
+                    <div className={`
+                      ${style.searchContainer || ''}
+                      ${!showSearchBar && style.searchHidden || ''}
+                    `}>
                       <Input
                         ref={searchInputRef}
                         type="text"

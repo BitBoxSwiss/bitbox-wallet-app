@@ -57,7 +57,10 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
   const canClickSend = canSend && accountDataLoaded;
 
   return (
-    <div className={`${style.actionsContainer} ${walletConnectEnabled ? style.withWalletConnect : ''}`}>
+    <div className={`
+      ${style.actionsContainer || ''}
+      ${walletConnectEnabled && style.withWalletConnect || ''}
+    `}>
       <ButtonLink
         className={style.button}
         disabled={!canClickSend}

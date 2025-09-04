@@ -71,8 +71,8 @@ export const AppLogoInverted = (props: ImgProps) => <img {...props} draggable={f
 export const BitBoxSwiss = (props: ImgProps) => <img {...props} draggable={false} src={BitBoxSwissLogo} alt="BitBox" className={style.logo} />;
 export const BitBoxSwissInverted = (props: ImgProps) => <img {...props} draggable={false} src={BitBoxSwissInvertedLogo} alt="BitBox" className={style.logo} />;
 export const Shift = (props: ImgProps) => <img {...props} draggable={false} src={ShiftLogo} alt="Shift Crypto" className={style.logo} />;
-export const SwissMadeOpenSource = ({ className, ...props }: ImgProps) => <img {...props} draggable={false} src={SwissOpenSourceLight} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${className ? className : ''}`} />;
-export const SwissMadeOpenSourceDark = ({ className, ...props }: ImgProps) => <img {...props} draggable={false} src={SwissOpenSourceDark} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${className ? className : ''}`} />;
+export const SwissMadeOpenSource = ({ className, ...props }: ImgProps) => <img {...props} draggable={false} src={SwissOpenSourceLight} alt="Swiss Made Open Source" className={`${style.swissOpenSource || ''} ${className ? className : ''}`} />;
+export const SwissMadeOpenSourceDark = ({ className, ...props }: ImgProps) => <img {...props} draggable={false} src={SwissOpenSourceDark} alt="Swiss Made Open Source" className={`${style.swissOpenSource || ''} ${className ? className : ''}`} />;
 
 type LogoMap = {
   [key in CoinCode]: string[];

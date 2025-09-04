@@ -24,6 +24,11 @@ type TProps = {
 
 export const ContentWrapper = (({ className = '', children }: TProps) => {
   return (
-    <div className={`${className} ${style.contentWrapper}`}>{children}</div>
+    <div className={`
+      ${className}
+      ${style.contentWrapper || ''}
+    `}>
+      {children}
+    </div>
   );
 });
