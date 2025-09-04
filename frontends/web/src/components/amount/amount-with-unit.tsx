@@ -83,7 +83,7 @@ export const AmountWithUnit = ({
     );
   }
   return (
-    <span className={ `${style.rates} ${!displayedAmount ? style.notAvailable : ''}`}>
+    <span className={`${style.rates as string} ${!displayedAmount && style.notAvailable || ''}`}>
       {!!displayedAmount ? sign : ''}
       {formattedAmount}
       {' '}
@@ -98,7 +98,7 @@ type TAmountUnitProps = {
 }
 
 export const AmountUnit = ({ rotateUnit, unit }: TAmountUnitProps) => {
-  const classRototable = rotateUnit ? style.rotatable : '';
-  const textStyle = `${style.unit} ${classRototable}`;
+  const classRototable = rotateUnit && style.rotatable || '';
+  const textStyle = `${style.unit as string} ${classRototable}`;
   return <span className={textStyle} onClick={rotateUnit}>{unit}</span>;
 };

@@ -166,7 +166,10 @@ const Amounts = ({
   const sign = displayAmount ? getTxSign(type) : '';
 
   return (
-    <span className={`${styles.txAmountsColumn} ${styles[txTypeClass]}`}>
+    <span className={`
+      ${styles.txAmountsColumn as string}
+      ${styles[txTypeClass] as string}
+    `}>
       <span className={styles.txAmount}>
         {sign}
         <Amount

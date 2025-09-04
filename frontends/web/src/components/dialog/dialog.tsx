@@ -53,7 +53,7 @@ export const Dialog = ({
   // focus handling
 
   const getFocusables = useCallback((): NodeListOf<HTMLElement> | null => {
-    const modalContent = document.querySelector(`.${style.contentContainer}`);
+    const modalContent = document.querySelector(`.${style.contentContainer as string}`);
     if (!modalContent) {
       return null;
     }
@@ -168,27 +168,27 @@ export const Dialog = ({
   }
 
   const modalClass = `
-    ${style.modal}
-    ${small ? style.small : ''}
-    ${medium ? style.medium : ''}
-    ${large ? style.large : ''}
-    ${isOpen ? style.open : ''}
+    ${style.modal as string}
+    ${small && style.small || ''}
+    ${medium && style.medium || ''}
+    ${large && style.large || ''}
+    ${isOpen && style.open || ''}
   `.trim();
 
   const overlayClass = `
-    ${style.overlay}
-    ${isActive ? style.activeOverlay : ''}
-    ${isClosing ? style.closingOverlay : ''}
+    ${style.overlay as string}
+    ${isActive && style.activeOverlay || ''}
+    ${isClosing && style.closingOverlay || ''}
   `.trim();
 
   const headerClass = `
-    ${style.header}
-    ${centered && !onClose ? style.centered : ''}
+    ${style.header as string}
+    ${centered && !onClose ? style.centered as string : ''}
   `.trim();
 
   const contentClass = `
-    ${style.contentContainer}
-    ${slim ? style.slim : ''}
+    ${style.contentContainer as string}
+    ${slim && style.slim || ''}
   `.trim();
 
   return (

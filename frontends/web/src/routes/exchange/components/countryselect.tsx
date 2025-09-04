@@ -38,7 +38,7 @@ const SelectedRegionIcon = ({ regionCode }: { regionCode: string }) => {
   const globe = isDarkMode ? <GlobeLight className={styles.globe} /> : <GlobeDark className={styles.globe} />;
   return (
     <span>
-      {regionCode === '' ? globe : <span className={`fi fi-${regionCode} ${styles.flag}`}></span>}
+      {regionCode === '' ? globe : <span className={`fi fi-${regionCode} ${styles.flag as string}`}></span>}
     </span>
   );
 };
