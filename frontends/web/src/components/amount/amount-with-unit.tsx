@@ -83,7 +83,10 @@ export const AmountWithUnit = ({
     );
   }
   return (
-    <span className={`${style.rates as string} ${!displayedAmount && style.notAvailable || ''}`}>
+    <span className={`
+      ${style.rates as string}
+      ${!displayedAmount && style.notAvailable || ''}
+    `.trim()}>
       {!!displayedAmount ? sign : ''}
       {formattedAmount}
       {' '}
