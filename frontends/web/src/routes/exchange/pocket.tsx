@@ -181,7 +181,7 @@ export const Pocket = ({
 
   const sendXpub = () => {
     if (accountInfo) {
-      const bitcoinSimple = accountInfo.signingConfigurations[0].bitcoinSimple;
+      const bitcoinSimple = accountInfo.signingConfigurations[0]?.bitcoinSimple;
       if (bitcoinSimple) {
         const xpub = bitcoinSimple.keyInfo.xpub;
         const { current } = iframeRef;
@@ -349,7 +349,7 @@ export const Pocket = ({
                 primary
                 onClick={() => {
                   setFirmwareUpdateDialogOpen(true);
-                  navigate(`/settings/device-settings/${deviceIDs[0]}`);
+                  navigate(`/settings/device-settings/${deviceIDs[0] as string}`);
                 }}>
                 {t('upgradeFirmware.button')}
               </Button>

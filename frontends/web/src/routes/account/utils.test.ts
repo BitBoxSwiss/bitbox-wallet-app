@@ -101,8 +101,11 @@ describe('utils/getAccountsByKeystore', () => {
     ];
     const result = getAccountsByKeystore(accounts);
     expect(result.length).toBe(1);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[0].accounts.length).toBe(2);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[0].accounts[0].code).toBe(accounts[0].code);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[0].accounts[1].code).toBe(accounts[1].code);
   });
 
@@ -120,12 +123,18 @@ describe('utils/getAccountsByKeystore', () => {
     const result = getAccountsByKeystore(accounts);
 
     expect(result.length).toBe(2);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[0].accounts.length).toBe(3);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[1].accounts.length).toBe(4);
 
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[0].accounts.every(({ keystore }) => keystore.rootFingerprint === 'w1')).toBe(true);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[1].accounts.every(({ keystore }) => keystore.rootFingerprint === 'w2')).toBe(true);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[0].accounts[2].code).toBe(accounts[6].code);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[1].accounts[3].code).toBe(accounts[5].code);
   });
 

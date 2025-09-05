@@ -54,7 +54,7 @@ export const BackButtonProvider = ({ children }: TProviderProps) => {
     }
 
     if (handlers.length > 0) {
-      const topHandler = handlers[handlers.length - 1];
+      const topHandler = handlers[handlers.length - 1] as THandler;
       return topHandler();
     }
     return true;

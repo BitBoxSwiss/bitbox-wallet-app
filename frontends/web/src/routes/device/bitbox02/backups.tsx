@@ -63,7 +63,7 @@ export const BackupsV2 = ({
     }
 
     if (backups.backups.length === 1) {
-      setSelectedBackup(backups.backups[0].id);
+      setSelectedBackup(backups.backups[0]?.id);
     }
 
   }, [backups, hasBackups]);

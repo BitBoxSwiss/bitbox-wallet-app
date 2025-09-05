@@ -60,19 +60,17 @@ export const View = ({
   withBottomBar,
 }: TViewProps) => {
   const { isDarkMode } = useDarkmode();
-  const containerClasses = `${
-    style[fullscreen ? 'fullscreen' : 'fill']
-  } ${
-    verticallyCentered ? style.verticallyCentered : ''
-  } ${
-    dialog ? style.dialog : ''
-  }`;
+  const containerClasses = `
+    ${style[fullscreen ? 'fullscreen' : 'fill'] as string}
+    ${verticallyCentered && style.verticallyCentered || ''}
+    ${dialog && style.dialog || ''}
+  `;
   let classNames = style.inner;
   if (fitContent) {
-    classNames += ` ${style.fit}`;
+    classNames += ` ${style.fit as string}`;
   }
   if (textCenter) {
-    classNames += ` ${style.textCenter}`;
+    classNames += ` ${style.textCenter as string}`;
   }
   const inlineStyles = {
     ...(minHeight && { minHeight }),
@@ -144,9 +142,9 @@ export const ViewContent = ({
   withIcon,
   ...props
 }: TViewContentProps) => {
-  const align = textAlign ? style[`text-${textAlign}`] : '';
-  const containerWidth = fullWidth ? style.fullWidth : '';
-  const classes = `${style.content} ${containerWidth} ${align}`;
+  const align = textAlign && style[`text-${textAlign}`] || '';
+  const containerWidth = fullWidth && style.fullWidth || '';
+  const classes = `${style.content as string} ${containerWidth} ${align}`;
   return (
     <div
       className={classes}
@@ -178,7 +176,7 @@ export const ViewHeader = ({
   withAppLogo,
 }: THeaderProps) => {
   const { isDarkMode } = useDarkmode();
-  const headerStyles = small ? `${style.header} ${style.smallHeader}` : style.header;
+  const headerStyles = small ? `${style.header as string} ${style.smallHeader as string}` : style.header;
   return (
     <header className={headerStyles}>
       {withAppLogo && (
@@ -201,7 +199,7 @@ type TViewButtonsProps = {
  * ViewButtons component use as container for buttons
  */
 export const ViewButtons = ({ reverseRow, children }: TViewButtonsProps) => {
-  const classNames = `${style.buttons} ${reverseRow ? style.reverseRow : ''}`;
+  const classNames = `${style.buttons as string} ${reverseRow && style.reverseRow || ''}`;
   return (
     <div className={classNames}>
       {children}
