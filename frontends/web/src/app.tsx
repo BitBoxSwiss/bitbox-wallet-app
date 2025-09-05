@@ -56,6 +56,9 @@ export const App = () => {
 
   const prevDevices = usePrevious(devices);
 
+  const deviceIDs = Object.keys(devices);
+  const firstDevice = deviceIDs[0];
+
   useEffect(() => {
     return syncNewTxs((meta) => {
       notifyUser(t('notification.newTxs', {
@@ -69,7 +72,6 @@ export const App = () => {
     const currentURL = window.location.hash.replace(/^#/, '');
     const isIndex = currentURL === '' || currentURL === '/';
     const inAccounts = currentURL.startsWith('/account/');
-    const deviceIDs = Object.keys(devices);
 
     // QT and Android start their apps in '/index.html' and '/android_asset/web/index.html' respectively
     // This re-routes them to '/' so we have a simpler uri structure
@@ -104,9 +106,10 @@ export const App = () => {
     // if device is connected route to device settings
     if (
       deviceIDs.length === 1
+      && firstDevice
       && currentURL === '/settings/no-device-connected'
     ) {
-      navigate(`/settings/device-settings/${deviceIDs[0] as string}`);
+      navigate(`/settings/device-settings/${firstDevice}`);
       return;
     }
     // if on an account that isn't registered route to /
@@ -136,7 +139,7 @@ export const App = () => {
       return;
     }
 
-  }, [accounts, devices, navigate]);
+  }, [accounts, deviceIDs, firstDevice, navigate]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});
@@ -157,7 +160,7 @@ export const App = () => {
       if (firstNewDevice) {
         const productName = devices[firstNewDevice];
         if (productName === 'bitbox' || productName === 'bitbox02-bootloader') {
-          navigate(`settings/device-settings/${newDeviceIDList[0] as string}`);
+          navigate(`settings/device-settings/${firstNewDevice}`);
           return;
         }
       }
@@ -171,10 +174,8 @@ export const App = () => {
     return prefix + ':' + JSON.stringify(devices, Object.keys(devices).sort());
   };
 
-  const deviceIDs: string[] = Object.keys(devices);
   const activeAccounts = accounts.filter(acct => acct.active);
 
-  const firstDevice = deviceIDs[0];
   const isBitboxBootloader = firstDevice && devices[firstDevice] === 'bitbox02-bootloader';
   const showBottomNavigation = (deviceIDs.length > 0 || activeAccounts.length > 0) && !isBitboxBootloader;
 
