@@ -602,10 +602,10 @@ func (backend *Backend) createAndPersistAccountConfig(
 			hiddenBecauseUnused,
 			name,
 			[]scriptTypeWithKeypath{
-				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
-				{signing.ScriptTypeP2TR, signing.NewAbsoluteKeypathFromUint32(86+hardenedKeystart, bip44Coin, accountNumberHardened)},
-				{signing.ScriptTypeP2WPKHP2SH, signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
-				{signing.ScriptTypeP2PKH, signing.NewAbsoluteKeypathFromUint32(44+hardenedKeystart, bip44Coin, accountNumberHardened)},
+				{signing.ScriptTypeP2WPKH, *signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
+				{signing.ScriptTypeP2TR, *signing.NewAbsoluteKeypathFromUint32(86+hardenedKeystart, bip44Coin, accountNumberHardened)},
+				{signing.ScriptTypeP2WPKHP2SH, *signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
+				{signing.ScriptTypeP2PKH, *signing.NewAbsoluteKeypathFromUint32(44+hardenedKeystart, bip44Coin, accountNumberHardened)},
 			},
 			accountsConfig,
 		)
@@ -619,8 +619,8 @@ func (backend *Backend) createAndPersistAccountConfig(
 			hiddenBecauseUnused,
 			name,
 			[]scriptTypeWithKeypath{
-				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
-				{signing.ScriptTypeP2WPKHP2SH, signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
+				{signing.ScriptTypeP2WPKH, *signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
+				{signing.ScriptTypeP2WPKHP2SH, *signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
 			},
 			accountsConfig,
 		)
@@ -1215,7 +1215,7 @@ func (backend *Backend) persistBTCAccountConfig(
 		signingConfiguration := signing.NewBitcoinConfiguration(
 			cfg.scriptType,
 			rootFingerprint,
-			cfg.keypath,
+			&cfg.keypath,
 			extendedPublicKey,
 		)
 		signingConfigurations = append(signingConfigurations, signingConfiguration)
@@ -1282,7 +1282,7 @@ func (backend *Backend) persistETHAccountConfig(
 	if err != nil {
 		panic(err)
 	}
-	extendedPublicKey, err := keystore.ExtendedPublicKey(coin, absoluteKeypath)
+	extendedPublicKey, err := keystore.ExtendedPublicKey(coin, *absoluteKeypath)
 	if err != nil {
 		return err
 	}
@@ -1473,7 +1473,7 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 					86+hdkeychain.HardenedKeyStart,
 					bip44Coin,
 					uint32(accountNumber)+hdkeychain.HardenedKeyStart)
-				extendedPublicKey, err := keystore.ExtendedPublicKey(accountCoin, keypath)
+				extendedPublicKey, err := keystore.ExtendedPublicKey(accountCoin, *keypath)
 				if err != nil {
 					return err
 				}
