@@ -75,7 +75,7 @@ export const Message = ({
     <div className={`
       ${styles[type] || ''}
       ${small && styles.small || ''}
-    `}>
+    `.trim()}>
       {!noIcon && <MessageIcon type={type} icon={icon} />}
       <div className={styles.content}>
         {title && (
