@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2024 Shift Crypto AG
+ * Copyright 2024-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { Component, createRef } from 'react';
-import { TranslateProps, translate } from '@/decorators/translate';
+import { useEffect, useRef, useState, ChangeEvent, ClipboardEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input, Checkbox, Field } from './forms';
 import { alertUser } from './alert/Alert';
 import style from './password.module.css';
@@ -42,6 +42,7 @@ type TPropsPasswordInput = {
   onInput?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
 };
+
 export const PasswordInput = ({ seePlaintext, ...rest }: TPropsPasswordInput) => {
   return (
     <Input
@@ -63,310 +64,290 @@ type TProps = {
   onValidPassword: (password: string | null) => void;
 };
 
-type TPasswordSingleInputProps = TProps & TranslateProps;
+export const PasswordSingleInput = ({
+  idPrefix = '',
+  pattern,
+  autoFocus,
+  disabled,
+  label,
+  placeholder,
+  title,
+  showLabel,
+  onValidPassword,
+}: TProps) => {
+  const { t } = useTranslation();
+  const [password, setPassword] = useState('');
+  const [seePlaintext, setSeePlaintext] = useState(false);
+  const [capsLock, setCapsLock] = useState(false);
 
-type TState = {
-  password: string;
-  seePlaintext: boolean;
-  capsLock: boolean;
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const regexRef = useRef<RegExp>();
+
+  // Setup regex + autofocus
+  useEffect(() => {
+    if (pattern) {
+      regexRef.current = new RegExp(pattern);
+    }
+    if (autoFocus && passwordRef.current) {
+      passwordRef.current.focus();
+    }
+  }, [pattern, autoFocus]);
+
+  // Listen to caps lock key events
+  useEffect(() => {
+    const handleCheckCaps = (event: KeyboardEvent) => {
+      const result = hasCaps(event);
+      if (result !== null) {
+        setCapsLock(result);
+      }
+    };
+    window.addEventListener('keydown', handleCheckCaps);
+    return () => {
+      window.removeEventListener('keydown', handleCheckCaps);
+    };
+  }, []);
+
+  const tryPaste = (event: ClipboardEvent<HTMLInputElement>) => {
+    if (event.currentTarget.type === 'password') {
+      event.preventDefault();
+      alertUser(
+        t('password.warning.paste', {
+          label,
+        })
+      );
+    }
+  };
+
+  const validate = (value: string) => {
+    if (regexRef.current && passwordRef.current && !passwordRef.current.validity.valid) {
+      onValidPassword(null);
+      return;
+    }
+    if (value) {
+      onValidPassword(value);
+    } else {
+      onValidPassword(null);
+    }
+  };
+
+  const handleFormChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.type === 'checkbox') {
+      setSeePlaintext(event.target.checked);
+    } else {
+      const newPassword = event.target.value;
+      setPassword(newPassword);
+      validate(newPassword);
+    }
+  };
+
+  const warning =
+    capsLock && !seePlaintext ? (
+      <span className={style.capsWarning} title={t('password.warning.caps')}>
+        ⇪
+      </span>
+    ) : null;
+
+  return (
+    <Input
+      autoFocus
+      disabled={disabled}
+      type={seePlaintext ? 'text' : 'password'}
+      pattern={pattern}
+      title={title}
+      id={`${idPrefix}password`}
+      label={label}
+      placeholder={placeholder}
+      onInput={handleFormChange}
+      onPaste={tryPaste}
+      ref={passwordRef}
+      value={password}
+      labelSection={
+        <Checkbox
+          id={`${idPrefix}seePlaintext`}
+          onChange={handleFormChange}
+          checked={seePlaintext}
+          label={t('password.show', {
+            label: showLabel || label,
+          })}
+        />
+      }
+    >
+      {warning}
+    </Input>
+  );
 };
 
-class PasswordSingleInputClass extends Component<TPasswordSingleInputProps, TState> {
-  private regex?: RegExp;
+type TPasswordRepeatProps = TProps & {
+  repeatLabel?: string;
+  repeatPlaceholder: string;
+};
 
-  state = {
-    password: '',
-    seePlaintext: false,
-    capsLock: false
-  };
+export const PasswordRepeatInput = ({
+  idPrefix = '',
+  pattern,
+  autoFocus,
+  disabled,
+  label,
+  placeholder,
+  title,
+  repeatLabel,
+  repeatPlaceholder,
+  showLabel,
+  onValidPassword,
+}: TPasswordRepeatProps) => {
+  const { t } = useTranslation();
 
-  password = createRef<HTMLInputElement>();
+  const [password, setPassword] = useState('');
+  const [passwordRepeat, setPasswordRepeat] = useState('');
+  const [seePlaintext, setSeePlaintext] = useState(false);
+  const [capsLock, setCapsLock] = useState(false);
 
-  idPrefix = () => {
-    return this.props.idPrefix || '';
-  };
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const passwordRepeatRef = useRef<HTMLInputElement>(null);
+  const regexRef = useRef<RegExp>();
 
-  handleCheckCaps = (event: KeyboardEvent) => {
-    const capsLock = hasCaps(event);
-
-    if (capsLock !== null) {
-      this.setState({ capsLock });
+  // Setup regex + autofocus
+  useEffect(() => {
+    if (pattern) {
+      regexRef.current = new RegExp(pattern);
     }
-  };
-
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleCheckCaps);
-    if (this.props.pattern) {
-      this.regex = new RegExp(this.props.pattern);
+    if (autoFocus && passwordRef.current) {
+      passwordRef.current.focus();
     }
-    if (this.props.autoFocus && this.password?.current) {
-      this.password.current.focus();
-    }
-  }
+  }, [pattern, autoFocus]);
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleCheckCaps);
-  }
+  // Listen to caps lock key events
+  useEffect(() => {
+    const handleCheckCaps = (event: KeyboardEvent) => {
+      const result = hasCaps(event);
+      if (result !== null) {
+        setCapsLock(result);
+      }
+    };
+    window.addEventListener('keydown', handleCheckCaps);
+    return () => {
+      window.removeEventListener('keydown', handleCheckCaps);
+    };
+  }, []);
 
-  tryPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
-    const target = event.currentTarget;
-    if (target.type === 'password') {
+  const tryPaste = (event: ClipboardEvent<HTMLInputElement>) => {
+    if (event.currentTarget.type === 'password') {
       event.preventDefault();
-      alertUser(this.props.t('password.warning.paste', {
-        label: this.props.label
-      }));
+      alertUser(
+        t('password.warning.paste', {
+          label,
+        })
+      );
     }
   };
 
-  clear = () => {
-    this.setState({
-      password: '',
-      seePlaintext: false,
-      capsLock: false
-    });
-  };
-
-  validate = () => {
-    if (this.regex && this.password.current && !this.password.current.validity.valid) {
-      return this.props.onValidPassword(null);
+  const validate = (pwd: string, pwdRepeat: string) => {
+    if (
+      regexRef.current &&
+      passwordRef.current &&
+      passwordRepeatRef.current &&
+      (!passwordRef.current.validity.valid || !passwordRepeatRef.current.validity.valid)
+    ) {
+      onValidPassword(null);
+      return;
     }
-    if (this.state.password) {
-      this.props.onValidPassword(this.state.password);
+    if (pwd && pwd === pwdRepeat) {
+      onValidPassword(pwd);
     } else {
-      this.props.onValidPassword(null);
+      onValidPassword(null);
     }
   };
 
-  handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let value: string | boolean = event.target.value;
+  const handleFormChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.type === 'checkbox') {
-      value = event.target.checked;
+      setSeePlaintext(event.target.checked);
+      return;
     }
-    const stateKey = event.target.id.slice(this.idPrefix().length) as keyof TState;
-    this.setState({ [stateKey]: value } as Pick<TState, keyof TState>, this.validate);
+
+    if (event.target.id.endsWith('passwordRepeat')) {
+      const newRepeat = event.target.value;
+      setPasswordRepeat(newRepeat);
+      validate(password, newRepeat);
+    } else {
+      const newPassword = event.target.value;
+      setPassword(newPassword);
+      validate(newPassword, passwordRepeat);
+    }
   };
 
-  render() {
-    const {
-      t,
-      disabled,
-      label,
-      placeholder,
-      pattern,
-      title,
-      showLabel,
-    } = this.props;
-    const {
-      password,
-      seePlaintext,
-      capsLock,
-    } = this.state;
-    const warning = (capsLock && !seePlaintext) && (
-      <span className={style.capsWarning}
-        title={t('password.warning.caps')}>⇪</span>
-    );
-    return (
+  const warning =
+    capsLock && !seePlaintext ? (
+      <span className={style.capsWarning} title={t('password.warning.caps')}>
+        ⇪
+      </span>
+    ) : null;
+
+  return (
+    <div>
       <Input
         autoFocus
         disabled={disabled}
         type={seePlaintext ? 'text' : 'password'}
         pattern={pattern}
         title={title}
-        id={this.idPrefix() + 'password'}
+        id={`${idPrefix}password`}
         label={label}
         placeholder={placeholder}
-        onInput={this.handleFormChange}
-        onPaste={this.tryPaste}
-        ref={this.password}
+        onInput={handleFormChange}
+        onPaste={tryPaste}
+        ref={passwordRef}
         value={password}
-        labelSection={
-          <Checkbox
-            id={this.idPrefix() + 'seePlaintext'}
-            onChange={this.handleFormChange}
-            checked={seePlaintext}
-            label={t('password.show', {
-              label: showLabel || label
-            })} />
-        }>
+      >
         {warning}
       </Input>
-    );
-  }
 
-}
+      <MatchesPattern regex={regexRef.current} text={title} value={password} />
 
-const HOC = translate(undefined, { withRef: true })(PasswordSingleInputClass);
-export { HOC as PasswordSingleInput };
+      <Input
+        disabled={disabled}
+        type={seePlaintext ? 'text' : 'password'}
+        pattern={pattern}
+        title={title}
+        id={`${idPrefix}passwordRepeat`}
+        label={repeatLabel}
+        placeholder={repeatPlaceholder}
+        onInput={handleFormChange}
+        onPaste={tryPaste}
+        ref={passwordRepeatRef}
+        value={passwordRepeat}
+      >
+        {warning}
+      </Input>
 
+      <MatchesPattern regex={regexRef.current} text={title} value={passwordRepeat} />
 
-type TPasswordRepeatProps = TPasswordSingleInputProps & {
-  repeatLabel?: string;
-  repeatPlaceholder: string;
+      <Field>
+        <Checkbox
+          id={`${idPrefix}seePlaintext`}
+          onChange={handleFormChange}
+          checked={seePlaintext}
+          label={t('password.show', {
+            label: showLabel || label,
+          })}
+        />
+      </Field>
+    </div>
+  );
 };
-
-class PasswordRepeatInputClass extends Component<TPasswordRepeatProps, TState> {
-  private regex?: RegExp;
-
-  state = {
-    password: '',
-    passwordRepeat: '',
-    seePlaintext: false,
-    capsLock: false
-  };
-
-  password = createRef<HTMLInputElement>();
-  passwordRepeat = createRef<HTMLInputElement>();
-
-  idPrefix = () => {
-    return this.props.idPrefix || '';
-  };
-
-
-  handleCheckCaps = (event: KeyboardEvent) => {
-    const capsLock = hasCaps(event);
-
-    if (capsLock !== null) {
-      this.setState({ capsLock });
-    }
-  };
-
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleCheckCaps);
-    if (this.props.pattern) {
-      this.regex = new RegExp(this.props.pattern);
-    }
-    if (this.props.autoFocus && this.password?.current) {
-      this.password.current.focus();
-    }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleCheckCaps);
-  }
-
-  tryPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
-    const target = event.currentTarget;
-    if (target.type === 'password') {
-      event.preventDefault();
-      alertUser(this.props.t('password.warning.paste', {
-        label: this.props.label
-      }));
-    }
-  };
-
-  validate = () => {
-    if (
-      this.regex && this.password.current && this.passwordRepeat.current
-      && (!this.password.current.validity.valid || !this.passwordRepeat.current.validity.valid)
-    ) {
-      return this.props.onValidPassword(null);
-    }
-    if (this.state.password && this.state.password === this.state.passwordRepeat) {
-      this.props.onValidPassword(this.state.password);
-    } else {
-      this.props.onValidPassword(null);
-    }
-  };
-
-  handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let value: string | boolean = event.target.value;
-    if (event.target.type === 'checkbox') {
-      value = event.target.checked;
-    }
-    const stateKey = event.target.id.slice(this.idPrefix().length);
-    this.setState({ [stateKey]: value } as Pick<TState, keyof TState>, this.validate);
-  };
-
-  render() {
-    const {
-      t,
-      disabled,
-      label,
-      placeholder,
-      pattern,
-      title,
-      repeatLabel,
-      repeatPlaceholder,
-      showLabel,
-    } = this.props;
-    const {
-      password,
-      passwordRepeat,
-      seePlaintext,
-      capsLock,
-    } = this.state;
-    const warning = (capsLock && !seePlaintext) && (
-      <span className={style.capsWarning}
-        title={t('password.warning.caps')}>⇪</span>
-    );
-    return (
-      <div>
-        <Input
-          autoFocus
-          disabled={disabled}
-          type={seePlaintext ? 'text' : 'password'}
-          pattern={pattern}
-          title={title}
-          id={this.idPrefix() + 'password'}
-          label={label}
-          placeholder={placeholder}
-          onInput={this.handleFormChange}
-          onPaste={this.tryPaste}
-          ref={this.password}
-          value={password}>
-          {warning}
-        </Input>
-        <MatchesPattern
-          regex={this.regex}
-          text={title}
-          value={password} />
-        <Input
-          disabled={disabled}
-          type={seePlaintext ? 'text' : 'password'}
-          pattern={pattern}
-          title={title}
-          id={this.idPrefix() + 'passwordRepeat'}
-          label={repeatLabel}
-          placeholder={repeatPlaceholder}
-          onInput={this.handleFormChange}
-          onPaste={this.tryPaste}
-          ref={this.password}
-          value={passwordRepeat}>
-          {warning}
-        </Input>
-        <MatchesPattern
-          regex={this.regex}
-          text={title}
-          value={passwordRepeat} />
-        <Field>
-          <Checkbox
-            id={this.idPrefix() + 'seePlaintext'}
-            onChange={this.handleFormChange}
-            checked={seePlaintext}
-            label={t('password.show', {
-              label: showLabel || label
-            })} />
-        </Field>
-      </div>
-    );
-  }
-}
-
-const HOCRepeat = translate(undefined, { withRef: true })(PasswordRepeatInputClass);
-export { HOCRepeat as PasswordRepeatInput };
 
 type MatchesPatternProps = {
   regex: RegExp | undefined;
   value: string;
   text: string | undefined;
 };
+
 const MatchesPattern = ({ regex, value = '', text }: MatchesPatternProps) => {
   if (!regex || !value.length || regex.test(value)) {
     return null;
   }
-
   return (
-    <p style={{ color: 'var(--color-error)' }}>{text}</p>
+    <p style={{ color: 'var(--color-error)' }}>
+      {text}
+    </p>
   );
 };
-
