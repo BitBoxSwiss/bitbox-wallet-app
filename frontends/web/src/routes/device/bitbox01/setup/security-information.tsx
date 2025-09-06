@@ -16,7 +16,7 @@
 
 import { Component, ReactNode } from 'react';
 import { Button } from '../../../../components/forms';
-import { Alert, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../../components/icon';
+import { SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
 import { Header } from '../../../../components/layout';
 import { Message } from '../../../../components/message/message';
@@ -95,7 +95,6 @@ class SecurityInformation extends Component<Props, State> {
                     </ul>
                     <p>{t('securityInformation.restore.description3')}</p>
                     <Message type="warning">
-                      <Alert />
                       <p className="first">{t('deviceTampered')}</p>
                     </Message>
                     <div className="buttons">
