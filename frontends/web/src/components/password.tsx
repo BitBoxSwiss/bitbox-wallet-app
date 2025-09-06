@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useRef, useState, ChangeEvent, ClipboardEvent } from 'react';
+import { useEffect, useRef, useState, ChangeEvent, ClipboardEvent, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCapsLock } from '@/hooks/keyboard';
 import { Input, Checkbox, Field } from './forms';
@@ -72,17 +72,13 @@ export const PasswordSingleInput = ({
   const [seePlaintext, setSeePlaintext] = useState(false);
 
   const passwordRef = useRef<HTMLInputElement>(null);
-  const regexRef = useRef<RegExp>();
 
-  // Setup regex + autofocus
+  // Autofocus
   useEffect(() => {
-    if (pattern) {
-      regexRef.current = new RegExp(pattern);
-    }
     if (autoFocus && passwordRef.current) {
       passwordRef.current.focus();
     }
-  }, [pattern, autoFocus]);
+  }, [autoFocus]);
 
   const tryPaste = (event: ClipboardEvent<HTMLInputElement>) => {
     if (event.currentTarget.type === 'password') {
@@ -96,7 +92,7 @@ export const PasswordSingleInput = ({
   };
 
   const validate = (value: string) => {
-    if (regexRef.current && passwordRef.current && !passwordRef.current.validity.valid) {
+    if (passwordRef.current && !passwordRef.current.validity.valid) {
       onValidPassword(null);
       return;
     }
@@ -181,17 +177,15 @@ export const PasswordRepeatInput = ({
 
   const passwordRef = useRef<HTMLInputElement>(null);
   const passwordRepeatRef = useRef<HTMLInputElement>(null);
-  const regexRef = useRef<RegExp>();
 
-  // Setup regex + autofocus
+  const regex = useMemo(() => (pattern ? new RegExp(pattern) : null), [pattern]);
+
+  // Autofocus
   useEffect(() => {
-    if (pattern) {
-      regexRef.current = new RegExp(pattern);
-    }
     if (autoFocus && passwordRef.current) {
       passwordRef.current.focus();
     }
-  }, [pattern, autoFocus]);
+  }, [autoFocus]);
 
   const tryPaste = (event: ClipboardEvent<HTMLInputElement>) => {
     if (event.currentTarget.type === 'password') {
@@ -206,7 +200,6 @@ export const PasswordRepeatInput = ({
 
   const validate = (pwd: string, pwdRepeat: string) => {
     if (
-      regexRef.current &&
       passwordRef.current &&
       passwordRepeatRef.current &&
       (!passwordRef.current.validity.valid || !passwordRepeatRef.current.validity.valid)
@@ -264,7 +257,9 @@ export const PasswordRepeatInput = ({
         {warning}
       </Input>
 
-      <MatchesPattern regex={regexRef.current} text={title} value={password} />
+      {regex && (
+        <MatchesPattern regex={regex} text={title} value={password} />
+      )}
 
       <Input
         disabled={disabled}
@@ -282,7 +277,9 @@ export const PasswordRepeatInput = ({
         {warning}
       </Input>
 
-      <MatchesPattern regex={regexRef.current} text={title} value={passwordRepeat} />
+      {regex && (
+        <MatchesPattern regex={regex} text={title} value={passwordRepeat} />
+      )}
 
       <Field>
         <Checkbox
