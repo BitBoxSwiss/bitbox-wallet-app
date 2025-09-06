@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 /**
  * gets fired on each keydown and executes the provided callback.
@@ -52,6 +52,31 @@ export const useEsc = (
       callback();
     }
   });
+};
+
+const excludeKeys = /^(Shift|Alt|Backspace|CapsLock|Tab)$/i;
+
+const hasCaps = (event: KeyboardEvent) => {
+  const key = event.key;
+  // will return null, when we cannot clearly detect if capsLock is active or not
+  if (key.length > 1 || key.toUpperCase() === key.toLowerCase() || excludeKeys.test(key)) {
+    return null;
+  }
+  // ideally we return event.getModifierState('CapsLock')) but this currently does always return false in Qt
+  return key.toUpperCase() === key && key.toLowerCase() !== key && !event.shiftKey;
+};
+
+export const useCapsLock = () => {
+  const [capsLock, setCapsLock] = useState(false);
+
+  useKeydown((event) => {
+    const result = hasCaps(event);
+    if (result !== null) {
+      setCapsLock(result);
+    }
+  });
+
+  return capsLock;
 };
 
 const FOCUSABLE_SELECTOR = `
