@@ -17,21 +17,11 @@
 
 import { useEffect, useRef, useState, ChangeEvent, ClipboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCapsLock } from '@/hooks/keyboard';
 import { Input, Checkbox, Field } from './forms';
 import { alertUser } from './alert/Alert';
 import style from './password.module.css';
 
-const excludeKeys = /^(Shift|Alt|Backspace|CapsLock|Tab)$/i;
-
-const hasCaps = (event: KeyboardEvent) => {
-  const key = event.key;
-  // will return null, when we cannot clearly detect if capsLock is active or not
-  if (key.length > 1 || key.toUpperCase() === key.toLowerCase() || excludeKeys.test(key)) {
-    return null;
-  }
-  // ideally we return event.getModifierState('CapsLock')) but this currently does always return false in Qt
-  return key.toUpperCase() === key && key.toLowerCase() !== key && !event.shiftKey;
-};
 
 type TPropsPasswordInput = {
   seePlaintext?: boolean;
@@ -76,9 +66,10 @@ export const PasswordSingleInput = ({
   onValidPassword,
 }: TProps) => {
   const { t } = useTranslation();
+  const capsLock = useCapsLock();
+
   const [password, setPassword] = useState('');
   const [seePlaintext, setSeePlaintext] = useState(false);
-  const [capsLock, setCapsLock] = useState(false);
 
   const passwordRef = useRef<HTMLInputElement>(null);
   const regexRef = useRef<RegExp>();
@@ -92,20 +83,6 @@ export const PasswordSingleInput = ({
       passwordRef.current.focus();
     }
   }, [pattern, autoFocus]);
-
-  // Listen to caps lock key events
-  useEffect(() => {
-    const handleCheckCaps = (event: KeyboardEvent) => {
-      const result = hasCaps(event);
-      if (result !== null) {
-        setCapsLock(result);
-      }
-    };
-    window.addEventListener('keydown', handleCheckCaps);
-    return () => {
-      window.removeEventListener('keydown', handleCheckCaps);
-    };
-  }, []);
 
   const tryPaste = (event: ClipboardEvent<HTMLInputElement>) => {
     if (event.currentTarget.type === 'password') {
@@ -196,11 +173,11 @@ export const PasswordRepeatInput = ({
   onValidPassword,
 }: TPasswordRepeatProps) => {
   const { t } = useTranslation();
+  const capsLock = useCapsLock();
 
   const [password, setPassword] = useState('');
   const [passwordRepeat, setPasswordRepeat] = useState('');
   const [seePlaintext, setSeePlaintext] = useState(false);
-  const [capsLock, setCapsLock] = useState(false);
 
   const passwordRef = useRef<HTMLInputElement>(null);
   const passwordRepeatRef = useRef<HTMLInputElement>(null);
@@ -215,20 +192,6 @@ export const PasswordRepeatInput = ({
       passwordRef.current.focus();
     }
   }, [pattern, autoFocus]);
-
-  // Listen to caps lock key events
-  useEffect(() => {
-    const handleCheckCaps = (event: KeyboardEvent) => {
-      const result = hasCaps(event);
-      if (result !== null) {
-        setCapsLock(result);
-      }
-    };
-    window.addEventListener('keydown', handleCheckCaps);
-    return () => {
-      window.removeEventListener('keydown', handleCheckCaps);
-    };
-  }, []);
 
   const tryPaste = (event: ClipboardEvent<HTMLInputElement>) => {
     if (event.currentTarget.type === 'password') {
