@@ -36,6 +36,7 @@ import { ManageBackups } from './device/manage-backups/manage-backups';
 import { ManageAccounts } from './settings/manage-accounts';
 import { ElectrumSettings } from './settings/electrum';
 import { Passphrase } from './device/bitbox02/passphrase';
+import { RecoveryWords } from './device/bitbox02/recovery-words';
 import { Bip85 } from './device/bitbox02/bip85';
 import { Account } from './account/account';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
@@ -209,6 +210,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   </InjectParams>);
 
   const PassphraseEl = <InjectParams><Passphrase deviceID={''} /></InjectParams>;
+  const RecoveryWordsEl = <InjectParams><RecoveryWords deviceID={''} /></InjectParams>;
   const Bip85El = <InjectParams><Bip85 deviceID={''} /></InjectParams>;
 
   const ManageBackupsEl = (<InjectParams><ManageBackups
@@ -306,6 +308,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path="no-device-connected" element={NoDevice} />
           <Route path="no-accounts" element={NoDevice} />
           <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
+          <Route path="device-settings/recovery-words/:deviceID" element={RecoveryWordsEl} />
           <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
           <Route path="advanced-settings" element={AdvancedSettingsEl} />
           <Route path="electrum" element={<ElectrumSettings />} />

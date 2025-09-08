@@ -25,19 +25,10 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.view.View;
 import android.view.WindowManager;
-import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
-import android.webkit.MimeTypeMap;
-import android.webkit.PermissionRequest;
-import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -47,13 +38,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Pattern;
 
 import mobileserver.Mobileserver;
 
@@ -73,14 +58,9 @@ public class MainActivity extends AppCompatActivity {
     // Unfortunately there seems to be no simple way to include this header only in requests to Moonpay.
     private static final String BASE_URL = "https://shiftcrypto.ch/";
 
-    // stores the request from onPermissionRequest until the user has granted or denied the permission.
-    private PermissionRequest webViewpermissionRequest;
-
     GoService goService;
 
-    // This is for the file picker dialog invoked by file upload forms in the WebView.
-    // Used by e.g. MoonPay's KYC forms.
-    private ValueCallback<Uri[]> filePathCallback;
+    private BitBoxWebChromeClient webChrome;
 
     private ConnectivityManager connectivityManager;
     private ConnectivityManager.NetworkCallback networkCallback;
@@ -218,8 +198,6 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GoService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
-
-
         goViewModel.setMessageHandlers(
                 new Handler(Looper.getMainLooper(), msg -> {
                         final GoAPI.Response response = (GoAPI.Response) msg.obj;
@@ -246,138 +224,22 @@ public class MainActivity extends AppCompatActivity {
         vw.getSettings().setDomStorageEnabled(true);
         vw.getSettings().setMediaPlaybackRequiresUserGesture(false);
 
-        vw.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                // override the default readText method, that doesn't work
-                // because of read permission denied.
-                view.evaluateJavascript(
-                        "navigator.clipboard.readText = () => {" +
-                        "    return android.readFromClipboard();" +
-                        "};", null);
-            }
+        // vw.setWebContentsDebuggingEnabled(true); // enable remote debugging in chrome://inspect/#devices
 
-            @Override
-            public WebResourceResponse shouldInterceptRequest(final WebView view, WebResourceRequest request) {
-                if (request != null && request.getUrl() != null) {
-                    String url = request.getUrl().toString();
-                    if (url.startsWith(BASE_URL)) {
-                        // Intercept local requests and serve the response from the Android assets folder.
-                        try {
-                            InputStream inputStream = getAssets().open(url.replace(BASE_URL, "web/"));
-                            String mimeType = Util.getMimeType(url);
-                            if (mimeType != null) {
-                                return new WebResourceResponse(mimeType, "UTF-8", inputStream);
-                            }
-                            Util.log("Unknown MimeType: " + url);
-                        } catch (IOException e) {
-                            Util.log("Internal resource not found: " + url);
-                        }
-                    } else {
-                        // external request
-                        // Unlike the Qt app, we don't allow requests based on which URL we are in
-                        // currently within the React app, as it's very hard to figure what the
-                        // current app URL is without having the frontend itself inform us.
-                        return super.shouldInterceptRequest(view, request);
-                    }
-                } else {
-                    Util.log("Null request!");
-                }
-                return new WebResourceResponse("text/plain", "UTF-8", new ByteArrayInputStream("".getBytes()));
-            }
+        vw.setWebViewClient(new BitBoxWebViewClient(BASE_URL, getAssets(), getApplication()));
 
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view,  WebResourceRequest request) {
-                // Block navigating to any external site inside the app.
-                // This is only called if the whole page is about to change. Changes inside an iframe proceed normally.
-                String url = request.getUrl().toString();
+        ActivityResultLauncher<String> fileChooser = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> webChrome.onFilePickerResult(uri));
+        BitBoxWebChromeClient.CameraPermissionDelegate cameraPermissionDelegate = () -> ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.CAMERA},
+                PERMISSIONS_REQUEST_CAMERA_QRCODE
+        );
 
-                try {
-                    // Allow opening in external browser instead, for listed domains.
-                    List<Pattern> patterns = new ArrayList<>();
-                    patterns.add(Pattern.compile("^(.*\\.)?pocketbitcoin\\.com$"));
-                    patterns.add(Pattern.compile("^(.*\\.)?moonpay\\.com$"));
-                    patterns.add(Pattern.compile("^(.*\\.)?bitsurance\\.eu$"));
-                    patterns.add(Pattern.compile("^(.*\\.)?btcdirect\\.eu$"));
-
-                    for (Pattern pattern : patterns) {
-                        String host = request.getUrl().getHost();
-                        if (host != null && pattern.matcher(host).matches()) {
-                            Util.systemOpen(getApplication(), url);
-                            return true;
-                        }
-                    }
-                } catch(Exception e) {
-                    Util.log(e.getMessage());
-                }
-                Util.log("Blocked: " + url);
-                return true;
-            }
-        });
-
-        // WebView.setWebContentsDebuggingEnabled(true); // enable remote debugging in chrome://inspect/#devices
-        vw.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                Util.log(consoleMessage.message() + " -- From line "
-                        + consoleMessage.lineNumber() + " of "
-                        + consoleMessage.sourceId());
-                return super.onConsoleMessage(consoleMessage);
-            }
-
-            @Override
-            public void onPermissionRequest(PermissionRequest request) {
-                // Handle webview permission request for camera when launching the QR code scanner.
-                for (String resource : request.getResources()) {
-                    if (resource.equals(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
-                        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
-                                == PackageManager.PERMISSION_GRANTED) {
-                            // App already has the camera permission, so we grant the permission to
-                            // the webview.
-                            request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
-                            return;
-                        }
-                        // Otherwise we ask the user for permission.
-                        MainActivity.this.webViewpermissionRequest = request;
-                        ActivityCompat.requestPermissions(MainActivity.this,
-                                new String[]{Manifest.permission.CAMERA},
-                                PERMISSIONS_REQUEST_CAMERA_QRCODE);
-                        // Permission will be granted or denied in onRequestPermissionsResult()
-                        return;
-                    }
-                }
-                request.deny();
-            }
-
-            // file picker result handler.
-            final ActivityResultLauncher<String> mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(),
-                    new ActivityResultCallback<Uri>() {
-                        @Override
-                        public void onActivityResult(Uri uri) {
-                            if (filePathCallback != null) {
-                                if (uri != null) {
-                                    filePathCallback.onReceiveValue(new Uri[]{uri});
-                                } else {
-                                    Util.log("Received null Uri in activity result");
-                                    filePathCallback.onReceiveValue(new Uri[]{});
-                                }
-                                filePathCallback = null;
-                            }
-                        }
-                    });
-            @Override
-            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-                MainActivity.this.filePathCallback = filePathCallback;
-                String[] mimeTypes = fileChooserParams.getAcceptTypes();
-                String fileType = "*/*";
-                if (mimeTypes.length == 1 && MimeTypeMap.getSingleton().hasMimeType(mimeTypes[0])) {
-                    fileType = mimeTypes[0];
-                }
-                mGetContent.launch(fileType);
-                return true;
-            }
-        });
+        webChrome = new BitBoxWebChromeClient(this,
+                cameraPermissionDelegate,
+                fileChooser
+        );
+        vw.setWebChromeClient(webChrome);
 
         vw.addJavascriptInterface(new JavascriptBridge(this), "android");
         vw.loadUrl(BASE_URL + "index.html");
@@ -407,6 +269,14 @@ public class MainActivity extends AppCompatActivity {
                 backPressedHandler();
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSIONS_REQUEST_CAMERA_QRCODE) {
+            webChrome.onCameraPermissionResult(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        }
     }
 
     private void startServer() {
@@ -619,20 +489,7 @@ public class MainActivity extends AppCompatActivity {
         Util.quit(MainActivity.this);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSIONS_REQUEST_CAMERA_QRCODE) {
-            if (this.webViewpermissionRequest != null) {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    this.webViewpermissionRequest.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
-                } else {
-                    this.webViewpermissionRequest.deny();
-                }
-                this.webViewpermissionRequest = null;
-            }
-        }
-    }
+
 
     // Handle Android back button behavior:
     //

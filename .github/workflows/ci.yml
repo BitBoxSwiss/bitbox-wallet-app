@@ -256,10 +256,17 @@ jobs:
     steps:
       - name: Clone the repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Create vars
         id: vars
         run: |
-          echo "git_sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "git_sha_short=$(git rev-parse --short HEAD)" >> ${GITHUB_OUTPUT}
+          {
+            echo "git_shortlog<<EOF"
+            git shortlog HEAD~..HEAD
+            echo EOF
+          } >> ${GITHUB_OUTPUT}
       - name: Message for success
         uses: mattermost/action-mattermost-notify@master
         continue-on-error: true
@@ -269,12 +276,15 @@ jobs:
           MATTERMOST_ICON_URL: https://cdn4.iconfinder.com/data/icons/basic-ui-2-line/32/check-mark-checklist-complete-done-512.png
           MATTERMOST_CHANNEL: eng-artifacts
           TEXT: |
-            **New artifacts built**
+            **${{ github.repository }}: Artifacts built**
             ([${{ github.ref_name }}](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}), [${{ steps.vars.outputs.git_sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}), [artifacts](https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}#artifacts))
             * Android - [APK](${{needs.android.outputs.artifact-url}})
             * Linux - [AppImage](${{needs.qt-linux.outputs.artifact-url-ai}}), [DEB](${{needs.qt-linux.outputs.artifact-url-deb}}), [RPM](${{needs.qt-linux.outputs.artifact-url-rpm}})
             * MacOS - [Zip](${{needs.macos.outputs.artifact-url}})
             * Windows - [EXE](${{needs.windows.outputs.artifact-url}})
+            ```
+            ${{ steps.vars.outputs.git_shortlog }}
+            ```
 
       - name: Message for failure
         uses: mattermost/action-mattermost-notify@master

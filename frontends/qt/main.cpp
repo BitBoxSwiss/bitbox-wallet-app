@@ -252,33 +252,12 @@ public:
 
 int main(int argc, char *argv[])
 {
-    // Make `@media (prefers-color-scheme: light/dark)` CSS rules work.
-    // See https://github.com/qutebrowser/qutebrowser/issues/5915#issuecomment-737115530
-    // This might only be needed for Qt 5.15.2, should revisit this when updating Qt.
-    qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--blink-settings=preferredColorScheme=1");
-
     // QT configuration parameters which change the attack surface for memory
     // corruption vulnerabilities
 #if QT_VERSION >= QT_VERSION_CHECK(5,8,0)
     qputenv("QT_ENABLE_REGEXP_JIT", "0");
     qputenv("QV4_FORCE_INTERPRETER", "1");
     qputenv("DRAW_USE_LLVM", "0");
-#endif
-
-    // The QtWebEngine may make a clone3 syscall introduced in glibc v2.34.
-    // The syscall is missing from the Chromium sandbox whitelist in Qt versions 5.15.2
-    // and earlier which visually results in a blank app screen.
-    // Disabling the sandbox allows all syscalls.
-    //
-    // See the following for more details.
-    // https://github.com/BitBoxSwiss/bitbox-wallet-app/issues/1447
-    // https://bugreports.qt.io/browse/QTBUG-96214
-    // https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/1944468
-#if defined(Q_OS_LINUX)
-    const static char* kDisableWebSandbox = "QTWEBENGINE_DISABLE_SANDBOX";
-    if (!qEnvironmentVariableIsSet(kDisableWebSandbox)) {
-        qputenv(kDisableWebSandbox, "1");
-    }
 #endif
 
     QString renderMode = qEnvironmentVariable("BITBOXAPP_RENDER", "software");

@@ -64,6 +64,7 @@ describe('routes/account/send/feetargets', () => {
             GBP: '0.02',
             HKD: '19880',
             NOK: '0.02',
+            NZD: '0.02',
             ILS: '0.02',
             JPY: '1.30',
             KRW: '14.43',

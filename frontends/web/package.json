@@ -54,6 +54,7 @@
     "lint-debug": "eslint ./src --inspect-config",
     "typescript": "tsc -p tsconfig.json",
     "test": "vitest",
-    "preview": "vite preview --port 8080"
+    "preview": "vite preview --port 8080",
+    "serve": "npm run build && npm run preview"
   }
 }

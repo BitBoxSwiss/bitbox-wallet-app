@@ -20,7 +20,7 @@ import (
 	"runtime"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
-	"github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid"
+	"github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid/hiddevice"
 	"github.com/karalabe/hid"
 )
 
@@ -148,13 +148,13 @@ func (info hidDeviceInfo) Open() (io.ReadWriteCloser, error) {
 		if result.err != nil {
 			return nil, result.err
 		}
-		return singleThreadedDevice{device: u2fhid.NewHidDevice(result.value)}, nil
+		return singleThreadedDevice{device: hiddevice.New(result.value)}, nil
 	}
 	hidDevice, err := info.DeviceInfo.Open()
 	if err != nil {
 		return nil, err
 	}
-	return u2fhid.NewHidDevice(hidDevice), nil
+	return hiddevice.New(hidDevice), nil
 }
 
 // DeviceInfos returns a slice of all recognized devices.

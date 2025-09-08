@@ -21,9 +21,11 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/sha256"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"hash"
 	"io"
 	"net"
 	"net/http"
@@ -39,11 +41,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
@@ -59,11 +63,13 @@ import (
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/mocks"
 	"github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
+	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
 )
@@ -511,6 +517,8 @@ func TestSimulatorSignBTCTransactionMixedInputs(t *testing.T) {
 		// Before simulator v9.20, address confirmation data was not written to stdout.
 		if device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
 			require.Contains(t, stdOut.String(), "ADDRESS: 18p3G8gQ3oKy4U9EqnWs7UZswdqAMhE3r8")
+			// Change address is not confirmed, it is verified automatically.
+			require.NotContains(t, stdOut.String(), proposedTransaction.TXProposal.ChangeAddress.String())
 		}
 	})
 }
@@ -694,5 +702,124 @@ func TestSimulatorVerifyAddressETH(t *testing.T) {
 				},
 				time.Second, 10*time.Millisecond)
 		}
+	})
+}
+
+func computePaymentRequestSighash(paymentRequest *accounts.PaymentRequest, slip44 uint32, outputValue uint64, outputAddress string) ([]byte, error) {
+
+	hashDataLenPrefixed := func(hasher hash.Hash, data []byte) {
+		_ = wire.WriteVarInt(hasher, 0, uint64(len(data)))
+		hasher.Write(data)
+	}
+
+	sighash := sha256.New()
+
+	// versionMagic
+	sighash.Write([]byte("SL\x00\x24"))
+
+	// nonce
+	hashDataLenPrefixed(sighash, paymentRequest.Nonce)
+
+	// recipientName
+	hashDataLenPrefixed(sighash, []byte(paymentRequest.RecipientName))
+
+	// memos
+	_ = wire.WriteVarInt(sighash, 0, uint64(len(paymentRequest.Memos)))
+	for _, textMemo := range paymentRequest.Memos {
+		_ = binary.Write(sighash, binary.LittleEndian, uint32(1))
+		hashDataLenPrefixed(sighash, []byte(textMemo.Note))
+	}
+
+	// coinType
+	_ = binary.Write(sighash, binary.LittleEndian, slip44)
+
+	// outputsHash (only one output for now)
+	outputHasher := sha256.New()
+	_ = binary.Write(outputHasher, binary.LittleEndian, outputValue)
+	hashDataLenPrefixed(outputHasher, []byte(outputAddress))
+	sighash.Write(outputHasher.Sum(nil))
+
+	return sighash.Sum(nil), nil
+}
+
+func TestSimulatorSignBTCPaymentRequest(t *testing.T) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
+		t.Helper()
+
+		if !device.Version().AtLeast(semver.NewSemVer(9, 24, 0)) {
+			// While payment requests were added in v9.19.0, the simulator only enabled the
+			// test merchant in v9.24.0.
+			t.Skip()
+		}
+
+		address, err := btcutil.DecodeAddress(
+			"bc1q2q0j6gmfxynj40p0kxsr9jkagcvgpuqv2zgq8j",
+			&chaincfg.MainNetParams)
+		require.NoError(t, err)
+		pkScript, err := util.PkScriptFromAddress(address)
+		require.NoError(t, err)
+		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(pkScript))
+
+		txProposal := proposedTransaction.TXProposal
+		recipientOutput := txProposal.Transaction.TxOut[txProposal.OutIndex]
+		value := uint64(recipientOutput.Value)
+
+		paymentRequest := &accounts.PaymentRequest{
+			RecipientName: "Test Merchant", // Hard-coded test merchant in simulator
+			Nonce:         nil,
+			TotalAmount:   value,
+			Memos: []accounts.TextMemo{
+				{
+					Note: "TextMemo line1\nTextMemo line2",
+				},
+			},
+		}
+
+		// Sign the payment request.
+		sighash, err := computePaymentRequestSighash(paymentRequest, 0, value, address.String())
+		require.NoError(t, err)
+		privKey, _ := btcec.PrivKeyFromBytes([]byte("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+		require.NoError(t, err)
+		signature := ecdsa.SignCompact(privKey, sighash, true)
+		paymentRequest.Signature = signature[1:]
+
+		proposedTransaction.TXProposal.PaymentRequest = paymentRequest
+
+		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
+		require.NoError(t, proposedTransaction.Finalize())
+		require.NoError(
+			t,
+			btc.TxValidityCheck(
+				proposedTransaction.TXProposal.Transaction,
+				proposedTransaction.TXProposal.PreviousOutputs,
+				proposedTransaction.TXProposal.SigHashes()))
+
+		const expected1 = `CONFIRM TRANSACTION ADDRESS SCREEN START
+AMOUNT: 2.50000000 BTC
+ADDRESS: Test Merchant
+CONFIRM TRANSACTION ADDRESS SCREEN END`
+
+		const expected2 = `BODY: Memo from
+
+Test Merchant
+CONFIRM SCREEN END
+CONFIRM SCREEN START
+TITLE: Memo 1/2
+BODY: TextMemo line1
+CONFIRM SCREEN END
+CONFIRM SCREEN START
+TITLE: Memo 2/2
+BODY: TextMemo line2
+CONFIRM SCREEN END`
+
+		require.Eventually(t,
+			func() bool {
+				return strings.Contains(
+					stdOut.String(), expected1) &&
+					strings.Contains(
+						stdOut.String(), expected2) &&
+					!strings.Contains(stdOut.String(), address.String())
+			},
+			time.Second, 10*time.Millisecond)
 	})
 }

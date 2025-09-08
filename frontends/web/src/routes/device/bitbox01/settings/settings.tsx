@@ -25,7 +25,6 @@ import { Entry } from '../../../../components/guide/entry';
 import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import Blink from './components/blink';
-import RandomNumber from './components/randomnumber';
 import ChangePIN from './components/changepin';
 import Reset from './components/reset';
 import UpgradeFirmware from '../components/upgradefirmware';
@@ -109,7 +108,6 @@ export const Settings = ({ deviceID }: Props) => {
                     <SettingsItem optionalText={t(`deviceSettings.hardware.sdcard.${sdcard ? 'true' : 'false' }`)}>
                       {t('deviceSettings.hardware.sdcard.label')}
                     </SettingsItem>
-                    <RandomNumber apiPrefix={`devices/${deviceID}`} />
                     <Blink deviceID={deviceID} />
                   </div>
                 </div>
