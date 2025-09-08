@@ -43,7 +43,6 @@ export const PasswordInput = ({ seePlaintext, ...rest }: TPropsPasswordInput) =>
 };
 
 type TProps = {
-  idPrefix?: string;
   pattern?: string;
   autoFocus?: boolean;
   disabled?: boolean;
@@ -55,7 +54,6 @@ type TProps = {
 };
 
 export const PasswordSingleInput = ({
-  idPrefix = '',
   pattern,
   autoFocus,
   disabled,
@@ -113,12 +111,13 @@ export const PasswordSingleInput = ({
     }
   };
 
-  const warning =
+  const warning = (
     capsLock && !seePlaintext ? (
       <span className={style.capsWarning} title={t('password.warning.caps')}>
         ⇪
       </span>
-    ) : null;
+    ) : null
+  );
 
   return (
     <Input
@@ -127,7 +126,7 @@ export const PasswordSingleInput = ({
       type={seePlaintext ? 'text' : 'password'}
       pattern={pattern}
       title={title}
-      id={`${idPrefix}password`}
+      id="password"
       label={label}
       placeholder={placeholder}
       onInput={handleFormChange}
@@ -136,7 +135,7 @@ export const PasswordSingleInput = ({
       value={password}
       labelSection={
         <Checkbox
-          id={`${idPrefix}seePlaintext`}
+          id="seePlaintext"
           onChange={handleFormChange}
           checked={seePlaintext}
           label={t('password.show', {
@@ -151,6 +150,7 @@ export const PasswordSingleInput = ({
 };
 
 type TPasswordRepeatProps = TProps & {
+  idPrefix?: string;
   repeatLabel?: string;
   repeatPlaceholder: string;
 };
