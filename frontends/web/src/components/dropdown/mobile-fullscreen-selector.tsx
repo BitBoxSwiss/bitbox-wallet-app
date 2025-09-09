@@ -31,6 +31,7 @@ type Props<T, IsMulti extends boolean = false> = {
   isMulti?: boolean;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
+  triggerComponent?: ReactNode | ((props: { onClick: () => void }) => ReactNode);
 }
 
 export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
@@ -42,6 +43,7 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
   isMulti,
   isOpen: controlledIsOpen,
   onOpenChange,
+  triggerComponent,
 }: Props<T, IsMulti>) => {
   const [localIsOpen, setLocalIsOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -113,18 +115,30 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
       }}
       />
       {onOpenChange ? (
-        <div
-          className={styles.mobileSelectorTrigger}
-        >
-          <span className={styles.mobileSelectorValue}>{displayValue}</span>
-        </div>
+        triggerComponent ? (
+          typeof triggerComponent === 'function' ?
+            triggerComponent({ onClick: handleOpen }) :
+            triggerComponent
+        ) : (
+          <div
+            className={`${styles.mobileSelectorTrigger}`}
+          >
+            <span className={styles.mobileSelectorValue}>{displayValue}</span>
+          </div>
+        )
       ) : (
-        <button
-          className={styles.mobileSelectorTrigger}
-          onClick={handleOpen}
-        >
-          <span className={styles.mobileSelectorValue}>{displayValue}</span>
-        </button>
+        triggerComponent ? (
+          typeof triggerComponent === 'function' ?
+            triggerComponent({ onClick: handleOpen }) :
+            triggerComponent
+        ) : (
+          <button
+            className={`${styles.mobileSelectorTrigger}`}
+            onClick={handleOpen}
+          >
+            <span className={styles.mobileSelectorValue}>{displayValue}</span>
+          </button>
+        )
       )
       }
 
@@ -160,7 +174,7 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option) => (
                   <button
-                    key={String(option.value)}
+                    key={JSON.stringify(option.value)}
                     className={`${styles.optionItem} ${isSelected(option) ? styles.selectedOption : ''}`}
                     onClick={(e) => handleSelect(option, e)}
                   >
