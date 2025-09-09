@@ -12,6 +12,7 @@
 - Allow up to 6 unused BTC/LTC accounts (previously 5)
 - Add support for New Zealand Dollar (NZD)
 - Fix empty suggested name for BTC account when only BTC is supported by the BitBox.
+- iOS: add launch screen and smooth transition upon opening the app for the first time.
 
 ## v4.48.4
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
