@@ -3,6 +3,8 @@ apply plugin: 'com.android.application'
 android {
     buildToolsVersion '35.0.0'
     compileSdk 35
+    // Keep in sync with android-env.mk.inc and the NDK installed in docker_install.sh.
+    ndkVersion "28.2.13676358"
     defaultConfig {
         applicationId "ch.shiftcrypto.bitboxapp"
         // minSdkVersion should match the `-androidapi` gomobile bind flag
