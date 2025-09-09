@@ -15,14 +15,15 @@
  * limitations under the License.
  */
 
-import React, { useState, useEffect, useRef, ChangeEvent, useCallback } from 'react';
+import { useState, useEffect, useRef, ChangeEvent, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
 import { getConfig } from '@/utils/config';
-import { Input, Select } from '@/components/forms';
+import { Input } from '@/components/forms';
 import { Message } from '@/components/message/message';
 import { customFeeUnit, getCoinCode, isEthereumBased } from '@/routes/account/utils';
+import { Dropdown, TOption as TDropdownOption } from '@/components/dropdown/dropdown';
 import style from './feetargets.module.css';
 
 type Props = {
@@ -38,10 +39,10 @@ type Props = {
   error?: string;
 }
 
-type TOptions = {
+type TOption = {
   value: accountApi.FeeTargetCode;
-  text: string;
-  disabled: boolean;
+  label: string;
+  isDisabled?: boolean;
 }
 
 export const FeeTargets = ({
@@ -58,8 +59,8 @@ export const FeeTargets = ({
 }: Props) => {
   const { t } = useTranslation();
   const config = useLoad(getConfig);
-  const [feeTarget, setFeeTarget] = useState<string>('');
-  const [options, setOptions] = useState<TOptions[] | null>(null);
+  const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
+  const [options, setOptions] = useState<TOption[] | null>(null);
   const [noFeeTargets, setNoFeeTargets] = useState<boolean>(false);
 
   const feeTargets = useLoad(() => accountApi.getFeeTargetList(accountCode));
@@ -77,17 +78,17 @@ export const FeeTargets = ({
     if (!config || !feeTargets) {
       return;
     }
-    const expert = config.frontend.expertFee || feeTargets.feeTargets.length === 0;
+    const withCustomFee = config.frontend.expertFee || feeTargets.feeTargets.length === 0;
     const options = feeTargets.feeTargets.map(({ code, feeRateInfo }) => ({
       value: code,
-      text: t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ` (${feeRateInfo})` : ''),
-      disabled: false,
+      label: t(`send.feeTarget.label.${code}`) + (withCustomFee && feeRateInfo ? ` (${feeRateInfo})` : ''),
+      isDisabled: false,
     }));
-    if (expert) {
+    if (withCustomFee) {
       options.push({
         value: 'custom',
-        text: t('send.feeTarget.label.custom'),
-        disabled,
+        label: t('send.feeTarget.label.custom'),
+        isDisabled: disabled,
       });
     }
     setOptions(options);
@@ -102,9 +103,7 @@ export const FeeTargets = ({
     focusInput();
   }, [t, feeTarget, feeTargets, focusInput, accountCode, config, onFeeTargetChange, disabled]);
 
-  const handleFeeTargetChange = (event: React.SyntheticEvent) => {
-    const target = event.target as HTMLSelectElement;
-    const value = target.options[target.selectedIndex].value as accountApi.FeeTargetCode;
+  const handleFeeTargetChange = (value: accountApi.FeeTargetCode) => {
     setFeeTarget(value);
     onFeeTargetChange(value);
   };
@@ -139,6 +138,29 @@ export const FeeTargets = ({
   const proposeFeeText = getProposeFeeText();
   const preventFocus = document.activeElement && document.activeElement.nodeName === 'INPUT';
 
+  const renderOption = (
+    option: TDropdownOption<accountApi.FeeTargetCode | undefined>
+  ) => {
+    if (option === undefined) {
+      return null;
+    }
+
+    const feetargetInfo = feeTargets?.feeTargets.find(({ code }) => code === option.value);
+    const withCustomFee = config.frontend.expertFee || feeTargets?.feeTargets.length === 0;
+    if (withCustomFee && feetargetInfo) {
+      return (
+        <>
+          {t(`send.feeTarget.label.${option.value as string}`)}
+          {' '}
+          <span className={style.unit}>
+            ({feetargetInfo?.feeRateInfo || ''})
+          </span>
+        </>
+      );
+    }
+    return t(`send.feeTarget.label.${option.value || ''}`);
+  };
+
   return (
     hasOptions ? (
       <div>
@@ -151,13 +173,22 @@ export const FeeTargets = ({
               value=""
               transparent />
           ) : (
-            <Select
-              className={style.priority}
-              label={t('send.priority')}
-              id="feeTarget"
-              onChange={handleFeeTargetChange}
-              value={feeTarget}
-              options={options} />
+            <>
+              <label>{t('send.priority')}</label>
+              <Dropdown
+                className={style.priority}
+                renderOptions={renderOption}
+                onChange={(newValue) => {
+                  if (newValue.value) {
+                    handleFeeTargetChange(newValue.value);
+                  }
+                }}
+                defaultValue={[{
+                  label: feeTarget as string,
+                  value: feeTarget,
+                }]}
+                options={options} />
+            </>
           )
         ) : (
           <div className={style.rowCustomFee}>
@@ -167,12 +198,16 @@ export const FeeTargets = ({
               </Message>
             ) : null }
             <div className={style.column}>
-              <Select
+              <label>{t('send.priority')}</label>
+              <Dropdown
                 className={style.priority}
-                label={t('send.priority')}
+                defaultValue={[{
+                  label: feeTarget as string,
+                  value: feeTarget,
+                }]}
                 id="feeTarget"
-                onChange={handleFeeTargetChange}
-                value={feeTarget}
+                onChange={(newValue) => handleFeeTargetChange(newValue.value)}
+                renderOptions={renderOption}
                 options={options} />
             </div>
             <div className={style.column}>
