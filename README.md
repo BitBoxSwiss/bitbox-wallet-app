@@ -131,7 +131,14 @@ use a port_number of your choice, launch the following command and go to `http:/
 QTWEBENGINE_REMOTE_DEBUGGING=<port_number> ./frontends/qt/build/osx/BitBox.app/Contents/MacOS/BitBox
 ```
 
-see also https://doc.qt.io/qt-5/qtwebengine-debugging.html
+Or on Windows using PowerShell
+
+```
+$env:QTWEBENGINE_REMOTE_DEBUGGING=<port_number>
+Start-Process .\BitBox.exe
+```
+
+see also https://doc.qt.io/qt-6/qtwebengine-debugging.html
 
 ### CI
 
