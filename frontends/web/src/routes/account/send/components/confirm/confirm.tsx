@@ -15,10 +15,10 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, TAmountWithConversions } from '@/api/account';
+import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, IAccount, TAmountWithConversions } from '@/api/account';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { Amount } from '@/components/amount/amount';
-import { customFeeUnit } from '@/routes/account/utils';
+import { customFeeUnit, getAccountNumber } from '@/routes/account/utils';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
@@ -27,6 +27,7 @@ import type { TSelectedUTXOs } from '../../utxos';
 import style from './confirm.module.css';
 
 type TransactionDetails = {
+  selectedReceiverAccount?: IAccount;
   proposedAmount?: TAmountWithConversions;
   proposedFee?: TAmountWithConversions;
   proposedTotal?: TAmountWithConversions;
@@ -44,6 +45,7 @@ type TConfirmSendProps = {
   selectedUTXOs: TSelectedUTXOs;
   coinCode: CoinCode;
   transactionDetails: TransactionDetails;
+  activeAccounts?: IAccount[];
 }
 
 type TUTXOsByAddress = {
@@ -57,19 +59,32 @@ export const ConfirmSend = ({
   isConfirming,
   selectedUTXOs,
   coinCode,
-  transactionDetails
+  transactionDetails,
+  activeAccounts: allAccounts
 }: TConfirmSendProps) => {
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     proposedFee,
     proposedAmount,
     proposedTotal,
     customFee,
     feeTarget,
+    selectedReceiverAccount,
     recipientAddress,
     activeCurrency: fiatUnit
   } = transactionDetails;
+
+  const receiverAccountNumberAndName = selectedReceiverAccount && allAccounts ?
+    {
+      name: selectedReceiverAccount.name,
+      number: getAccountNumber(
+        selectedReceiverAccount,
+        allAccounts,
+        i18n.language
+      )
+    }
+    : undefined;
 
   const groupUTXOsByAddress = (selectedUTXOs: TSelectedUTXOs): TUTXOsByAddress => {
     const utxosByAddress: TUTXOsByAddress = {};
@@ -123,10 +138,25 @@ export const ConfirmSend = ({
         {/*To (recipient address)*/}
         <div className={style.confirmItem}>
           <label>{t('send.confirm.to')}</label>
-          <div className={style.confirmationItemWrapper}>
-            <p className={style.valueOriginal}>
-              {recipientAddress || 'N/A'}
+          <div className={style.toWrapper}>
+            <p className={`${style.valueOriginal || ''}`}>
+              {receiverAccountNumberAndName?.name ?
+                receiverAccountNumberAndName.name :
+                recipientAddress
+              }
+              {' '}
+              {receiverAccountNumberAndName?.number && (
+                <span className={style.address}>
+                (Account #{receiverAccountNumberAndName.number})
+                </span>
+              )}
             </p>
+
+            {receiverAccountNumberAndName && (
+              <span className={style.address}>
+                {recipientAddress}
+              </span>
+            )}
           </div>
         </div>
 

@@ -14,47 +14,67 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, useCallback, useContext, useState } from 'react';
+import { ChangeEvent, useCallback, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import * as accountApi from '@/api/account';
 import { getReceiveAddressList } from '@/api/account';
 import { debug } from '@/utils/env';
+import { ReceiverAddressWrapper } from './receiver-address-wrapper';
+import { QRCodeLight, QRCodeDark } from '@/components/icon';
 import { DarkModeContext } from '@/contexts/DarkmodeContext';
 import { Input } from '@/components/forms';
-import { QRCodeLight, QRCodeDark } from '@/components/icon';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { ScanQRDialog } from '@/routes/account/send/components/dialogs/scan-qr-dialog';
+import { isBitcoinBased } from '@/routes/account/utils';
 import style from './receiver-address-input.module.css';
 
-type TToggleScanQRButtonProps = {
-    onClick: () => void;
-}
-
 type TReceiverAddressInputProps = {
-    accountCode?: string;
+    account?: accountApi.IAccount;
+    activeAccounts?: accountApi.IAccount[];
     addressError?: string;
     onInputChange: (value: string) => void;
-    recipientAddress: string;
+    onAccountChange?: (account: accountApi.IAccount | null) => void;
     parseQRResult: (uri: string) => void;
+    recipientAddress: string;
+}
+type TToggleScanQRButtonProps = {
+  onClick: () => void;
+  withDropdown?: boolean;
 }
 
-export const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
+export const ScanQRButton = ({ onClick, withDropdown = false }: TToggleScanQRButtonProps) => {
   const { isDarkMode } = useContext(DarkModeContext);
   return (
-    <button type="button" onClick={onClick} className={style.qrButton}>
+    <button type="button" onClick={onClick} className={`
+     ${style.qrButton || ''}
+     ${withDropdown ? style.withDropdown || '' : ''}`
+    }>
       {isDarkMode ? <QRCodeLight /> : <QRCodeDark />}
     </button>);
 };
 
 export const ReceiverAddressInput = ({
-  accountCode,
+  account,
+  activeAccounts,
   addressError,
   onInputChange,
+  onAccountChange,
   recipientAddress,
-  parseQRResult,
+  parseQRResult
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [activeScanQR, setActiveScanQR] = useState(false);
+  const accountCode = account?.code;
+
+  const accountsForReceiverDropdown = useMemo(() =>
+    activeAccounts?.filter(acc =>
+      isBitcoinBased(acc.coinCode) &&
+      acc.coinCode === account?.coinCode &&
+      acc.active &&
+      acc.code !== account?.code &&
+      acc.keystore.rootFingerprint === account?.keystore.rootFingerprint
+    ) || [], [activeAccounts, account]);
 
   const handleSendToSelf = useCallback(async () => {
     if (!accountCode) {
@@ -83,22 +103,35 @@ export const ReceiverAddressInput = ({
           parseQRResult={parseQRResult}
         />
       )}
-      <Input
-        label={t('send.address.label')}
-        placeholder={t('send.address.placeholder')}
-        id="recipientAddress"
-        error={addressError}
-        onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
-        value={recipientAddress}
-        className={style.inputWithIcon}
-        labelSection={debug ? (
-          <span id="sendToSelf" className={style.action} onClick={handleSendToSelf}>
-            Send to self
-          </span>
-        ) : undefined}
-        autoFocus={!isMobile}>
-        <ScanQRButton onClick={toggleScanQR} />
-      </Input>
+      {!accountsForReceiverDropdown || accountsForReceiverDropdown.length === 0 ? (
+        <Input
+          label={t('send.address.label')}
+          placeholder={t('send.address.placeholder')}
+          id="recipientAddress"
+          error={addressError}
+          onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
+          value={recipientAddress}
+          className={style.inputWithIcon}
+          labelSection={debug ? (
+            <span id="sendToSelf" className={`${style.action || ''} ${style.sendToSelf || ''}`} onClick={handleSendToSelf}>
+          Send to self
+            </span>
+          ) : undefined}
+          autoFocus={!isMobile}>
+          <ScanQRButton onClick={toggleScanQR} />
+        </Input>
+      ) : (
+        <ReceiverAddressWrapper
+          accounts={accountsForReceiverDropdown}
+          allAccounts={activeAccounts}
+          error={addressError}
+          onInputChange={onInputChange}
+          onAccountChange={onAccountChange}
+          recipientAddress={recipientAddress}
+        >
+          <ScanQRButton onClick={toggleScanQR} withDropdown />
+        </ReceiverAddressWrapper>
+      )}
     </>
   );
 };
