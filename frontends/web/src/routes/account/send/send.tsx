@@ -47,6 +47,7 @@ import style from './send.module.css';
 
 type TProps = {
   account: accountApi.IAccount;
+  accountsForReceiverDropdown: accountApi.IAccount[];
   activeCurrency: accountApi.Fiat;
 }
 
@@ -73,6 +74,7 @@ const useAccountBalance = (accountCode: accountApi.AccountCode) => {
 
 export const Send = ({
   account,
+  accountsForReceiverDropdown,
   activeCurrency,
 }: TProps) => {
   const { t } = useTranslation();
@@ -82,7 +84,10 @@ export const Send = ({
   const lastProposal = useRef<Promise<accountApi.TTxProposalResult> | null>(null);
   const proposeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [recipientAddress, setRecipientAddress] = useState<string>('');
+  // state used for the "Receiver address" input - what the user types or selects
+  const [recipientInput, setRecipientInput] = useState<string>('');
+  // the actual address to send to (resolved from selected account)
+  const [resolvedAddress, setResolvedAddress] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
   const [fiatAmount, setFiatAmount] = useState<string>('');
   const [valid, setValid] = useState<boolean>(false);
@@ -106,7 +111,8 @@ export const Send = ({
   const handleContinue = () => {
     setSendAll(false);
     setIsConfirming(false);
-    setRecipientAddress('');
+    setRecipientInput('');
+    setResolvedAddress('');
     setProposedAmount(undefined);
     setProposedFee(undefined);
     setProposedTotal(undefined);
@@ -142,8 +148,9 @@ export const Send = ({
   }, [account.code, account.keystore.rootFingerprint, note]);
 
   const getValidTxInputData = useCallback((): Required<accountApi.TTxInput> | false => {
+    const finalAddress = resolvedAddress || recipientInput;
     if (
-      !recipientAddress
+      !finalAddress
       || feeTarget === undefined
       || (!sendAll && !amount)
       || (feeTarget === 'custom' && !customFee)
@@ -151,7 +158,7 @@ export const Send = ({
       return false;
     }
     return {
-      address: recipientAddress,
+      address: finalAddress,
       amount,
       feeTarget,
       customFee,
@@ -160,7 +167,7 @@ export const Send = ({
       paymentRequest: null,
       useHighestFee: false
     };
-  }, [recipientAddress, feeTarget, sendAll, amount, customFee]);
+  }, [recipientInput, resolvedAddress, feeTarget, sendAll, amount, customFee]);
 
   const convertToFiat = useCallback(async (amount: string) => {
     if (amount) {
@@ -294,9 +301,15 @@ export const Send = ({
     return Object.keys(selectedUTXOsRef.current).length !== 0;
   };
 
-  const handleReceiverAddressInputChange = (recipientAddress: string) => {
-    setRecipientAddress(recipientAddress);
+  // when user types in the input field or selects from dropdown
+  const handleRecipientInputChange = (input: string) => {
+    setRecipientInput(input);
     setUpdateFiat(true);
+  };
+
+  // when an account is selected and we resolve it to an actual address
+  const handleAddressResolution = (address: string) => {
+    setResolvedAddress(address);
   };
 
   const parseQRResult = async (uri: string) => {
@@ -322,7 +335,7 @@ export const Send = ({
         if (result.success) {
           setAmount(result.amount);
         } else {
-          setRecipientAddress(qrAddress);
+          setRecipientInput(qrAddress);
           setSendAll(false);
           setFiatAmount('');
           setErrorHandling({ amountError: t('send.error.invalidAmount') });
@@ -332,7 +345,7 @@ export const Send = ({
         setAmount(qrAmount);
       }
     }
-    setRecipientAddress(qrAddress);
+    setRecipientInput(qrAddress);
     setSendAll(false);
     setFiatAmount('');
     convertToFiat(qrAmount);
@@ -359,6 +372,7 @@ export const Send = ({
   };
 
   const handleNodeChange = (note: string) => setNote(note);
+
 
   return (
     <GuideWrapper>
@@ -388,9 +402,11 @@ export const Send = ({
                 <Column>
                   <ReceiverAddressInput
                     accountCode={account.code}
+                    accountsForReceiverDropdown={accountsForReceiverDropdown}
                     addressError={errorHandling.addressError}
-                    onInputChange={handleReceiverAddressInputChange}
-                    recipientAddress={recipientAddress}
+                    onInputChange={handleRecipientInputChange}
+                    onAddressChange={handleAddressResolution}
+                    recipientAddress={recipientInput}
                     parseQRResult={parseQRResult}
                   />
                 </Column>
@@ -465,12 +481,13 @@ export const Send = ({
               selectedUTXOs={selectedUTXOsRef.current}
               coinCode={account.coinCode}
               transactionDetails={{
+                accountName: resolvedAddress && recipientInput ? recipientInput : undefined,
                 proposedFee,
                 proposedAmount,
                 proposedTotal,
                 customFee,
                 feeTarget,
-                recipientAddress,
+                recipientAddress: resolvedAddress || recipientInput,
                 activeCurrency,
               }}
             />

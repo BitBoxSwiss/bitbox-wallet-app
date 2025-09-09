@@ -22,6 +22,7 @@
 - Enable search transactions by note, address, or txid
 - Move "Export" (export transactions) to account info page
 - ios: fix Pocket user verification button
+- Add a dropdown on the "Receiver address" in send screen to select an account
 
 ## v4.48.6
 - Android: restore support for Android 6 and Android 5

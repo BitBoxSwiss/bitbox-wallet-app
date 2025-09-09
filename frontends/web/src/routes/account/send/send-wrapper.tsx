@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { AccountCode, IAccount } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
 import { findAccount } from '@/routes/account/utils';
@@ -30,10 +30,21 @@ export const SendWrapper = ({ accounts, code }: TSendProps) => {
 
   const account = findAccount(accounts, code);
 
+  const accountsForReceiverDropdown = useMemo(() =>
+    accounts?.filter(acc =>
+      acc.coinCode !== 'sepeth' &&
+      acc.coinCode !== 'eth' &&
+      acc.coinCode === account?.coinCode &&
+      acc.active &&
+      acc.code !== account?.code &&
+      acc.keystore.rootFingerprint === account?.keystore.rootFingerprint
+    ) || [], [accounts, account]);
+
   return (
     account ? (
       <Send
         account={account}
+        accountsForReceiverDropdown={accountsForReceiverDropdown}
         activeCurrency={defaultCurrency}
       />
     ) : (null)
