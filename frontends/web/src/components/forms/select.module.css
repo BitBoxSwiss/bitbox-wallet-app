@@ -10,6 +10,10 @@
     text-align: left;
 }
 
+.select select {
+    width: 100%;
+}
+
 :global(.os-anrdoid) .select select,
 :global(.os-ios) .select select,
 :global(.os-linux) .select select,
@@ -27,7 +31,6 @@
     font-weight: 400;
     height: 52px;
     padding: 0 var(--space-half);
-    width: 100%;
 }
 
 .select select[disabled] {
