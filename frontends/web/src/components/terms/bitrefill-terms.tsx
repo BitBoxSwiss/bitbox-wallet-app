@@ -54,44 +54,47 @@ export const BitrefillTerms = ({ account, onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
 
   const isBitcoin = isBitcoinOnly(account.coinCode);
-  // TODO: update with Bitrefill text
   return (
     <div className={style.disclaimerContainer}>
       <div className={style.disclaimer}>
         <h2 className={style.title}>
-          {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.title', {
+          {t('buy.exchange.infoContent.bitrefill.disclaimer.intro.title', {
             context: isBitcoin ? 'bitcoin' : 'crypto'
           })}
         </h2>
-        <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.description')}</p>
+        <p>{t('buy.exchange.infoContent.bitrefill.disclaimer.intro.text')}</p>
         <h2 className={style.title}>
-          {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.title')}
+          {t('buy.exchange.infoContent.bitrefill.disclaimer.fees.title')}
         </h2>
-        <ul>
-          <li>
-            <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.buy')}</p>
-          </li>
-        </ul>
-        <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.note')}</p>
+        <p>{t('buy.exchange.infoContent.bitrefill.disclaimer.fees.text')}</p>
+        <h2 className={style.title}>
+          {t('buy.exchange.infoContent.bitrefill.disclaimer.account.title')}
+        </h2>
+        <p>{t('buy.exchange.infoContent.bitrefill.disclaimer.account.text')}</p>
         <p>
-          <A href={getBitrefillPrivacyLink()}>
-            {t('buy.exchange.infoContent.btcdirectWidget.learnmore')}
+          <A href="https://help.bitrefill.com/hc/en-us/articles/360019385360-Is-there-a-purchasing-top-up-limit">
+            {t('buy.exchange.infoContent.bitrefill.disclaimer.account.link')}
           </A>
         </p>
-        <h2 className={style.title}>
-          {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.security.title')}
-        </h2>
-        <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.security.description')}</p>
+        <h2 className={style.title}>{t('buy.exchange.infoContent.bitrefill.disclaimer.security.title')}</h2>
+        <p>{t('buy.exchange.infoContent.bitrefill.disclaimer.security.text')}</p>
         <p>
           <A href="https://bitbox.swiss/bitbox02/threat-model/">
-            {t('buy.exchange.infoContent.btcdirectWidget.disclaimer.security.link')}
+            {t('buy.exchange.infoContent.bitrefill.disclaimer.security.link')}
           </A>
         </p>
-        <h2 className={style.title}>{t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.title')}</h2>
-        <p>{t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.text')}</p>
+        <h2 className={style.title}>{t('buy.exchange.infoContent.bitrefill.disclaimer.dataProtection.title')}</h2>
+        <p>{t('buy.exchange.infoContent.bitrefill.disclaimer.dataProtection.text')}</p>
         <p>
           <A href={getBitrefillPrivacyLink()}>
-            {t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.link')}
+            {t('buy.exchange.infoContent.bitrefill.disclaimer.dataProtection.link')}
+          </A>
+        </p>
+        <h2 className={style.title}>{t('buy.exchange.infoContent.bitrefill.disclaimer.claims.title')}</h2>
+        <p>{t('buy.exchange.infoContent.bitrefill.disclaimer.claims.text')}</p>
+        <p>
+          <A href="https://help.bitrefill.com/">
+            {t('buy.exchange.infoContent.bitrefill.disclaimer.claims.link')}
           </A>
         </p>
       </div>
