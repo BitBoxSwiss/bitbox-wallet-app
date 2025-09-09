@@ -127,16 +127,35 @@ type deviceEvent struct {
 
 type authEventType string
 
+// AuthResultType represents the possible results of the authentication flow.
+type AuthResultType string
+
 const (
+	// authRequired is fired when we need the user to authenticate.
 	authRequired authEventType = "auth-required"
-	authForced   authEventType = "auth-forced"
-	authCanceled authEventType = "auth-canceled"
-	authOk       authEventType = "auth-ok"
-	authErr      authEventType = "auth-err"
+	// authForced is fired when we need the user to authenticate even if
+	// the authentication flag is not set in the settings. This allows to check
+	// that the user is able to authenticate before enabling the screen lock.
+	authForced authEventType = "auth-forced"
+	// authResult is fired when the authentication flow produced a result.
+	authResult authEventType = "auth-result"
+
+	// AuthResultOk means that the authentication succeeded.
+	AuthResultOk AuthResultType = "authres-ok"
+	// AuthResultErr means that there is an authentication error.
+	// E.g. on Android when a biometric is valid, but not recognized.
+	AuthResultErr AuthResultType = "authres-err"
+	// AuthResultCancel means that the authentication has been aborted
+	// by the user.
+	AuthResultCancel AuthResultType = "authres-cancel"
+	// AuthResultMissing means that there is no authentication method configured
+	// on the device.
+	AuthResultMissing AuthResultType = "authres-missing"
 )
 
 type authEventObject struct {
-	Typ authEventType `json:"typ"`
+	Typ    authEventType   `json:"typ"`
+	Result *AuthResultType `json:"result,omitempty"`
 }
 
 // Environment represents functionality where the implementation depends on the environment the app
@@ -373,7 +392,7 @@ func (backend *Backend) Authenticate(force bool) {
 	if backend.config.AppConfig().Backend.Authentication || force {
 		backend.environment.Auth()
 	} else {
-		backend.AuthResult(true)
+		backend.AuthResult(AuthResultOk)
 	}
 }
 
@@ -384,17 +403,6 @@ func (backend *Backend) TriggerAuth() {
 		Action:  action.Replace,
 		Object: authEventObject{
 			Typ: authRequired,
-		},
-	})
-}
-
-// CancelAuth triggers an auth-canceled notification.
-func (backend *Backend) CancelAuth() {
-	backend.Notify(observable.Event{
-		Subject: "auth",
-		Action:  action.Replace,
-		Object: authEventObject{
-			Typ: authCanceled,
 		},
 	})
 }
@@ -420,17 +428,14 @@ func (backend *Backend) ForceAuth() {
 
 // AuthResult triggers an auth-ok or auth-err notification
 // depending on the input value.
-func (backend *Backend) AuthResult(ok bool) {
-	backend.log.Infof("Auth result: %v", ok)
-	typ := authErr
-	if ok {
-		typ = authOk
-	}
+func (backend *Backend) AuthResult(result AuthResultType) {
+	backend.log.Infof("Auth result: %v", result)
 	backend.Notify(observable.Event{
 		Subject: "auth",
 		Action:  action.Replace,
 		Object: authEventObject{
-			Typ: typ,
+			Typ:    authResult,
+			Result: &result,
 		},
 	})
 }

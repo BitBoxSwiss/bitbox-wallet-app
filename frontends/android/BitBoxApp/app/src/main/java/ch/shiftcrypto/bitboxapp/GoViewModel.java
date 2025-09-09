@@ -202,7 +202,7 @@ public class GoViewModel extends AndroidViewModel {
     }
 
     private final MutableLiveData<Boolean> isDarkTheme = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> authenticator = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> authRequested = new MutableLiveData<>(false);
     // The value of the backend config's Authentication setting.
     private final MutableLiveData<Boolean> authSetting = new MutableLiveData<>(false);
     private final GoEnvironment goEnvironment;
@@ -218,8 +218,8 @@ public class GoViewModel extends AndroidViewModel {
         return isDarkTheme;
     }
 
-    public MutableLiveData<Boolean> getAuthenticator() {
-        return authenticator;
+    public MutableLiveData<Boolean> getAuthRequested() {
+        return authRequested;
     }
 
     public MutableLiveData<Boolean> getAuthSetting() {
@@ -235,11 +235,11 @@ public class GoViewModel extends AndroidViewModel {
     }
 
     public void requestAuth() {
-        this.authenticator.postValue(true);
+        this.authRequested.postValue(true);
     }
 
     public void closeAuth() {
-        this.authenticator.postValue(false);
+        this.authRequested.postValue(false);
     }
 
     public void setMessageHandlers(Handler callResponseHandler, Handler pushNotificationHandler) {

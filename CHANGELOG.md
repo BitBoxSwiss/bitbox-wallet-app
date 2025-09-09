@@ -13,6 +13,8 @@
 - Add support for New Zealand Dollar (NZD)
 - Fix empty suggested name for BTC account when only BTC is supported by the BitBox.
 - iOS: add launch screen and smooth transition upon opening the app for the first time.
+- Android: fix screen lock authentication loop bug
+- Android/iOS: fix screen lock bug when no authentication is configured on the device
 
 ## v4.48.4
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
