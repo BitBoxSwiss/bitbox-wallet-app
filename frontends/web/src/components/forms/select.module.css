@@ -10,9 +10,13 @@
     text-align: left;
 }
 
+.select {
+    display: flex;
+    flex-direction: column;
+}
+
 .select select {
-    max-width: 100%;
-    width: 750px;
+
 }
 
 :global(.os-anrdoid) .select select,
