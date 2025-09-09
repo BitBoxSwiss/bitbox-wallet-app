@@ -16,7 +16,7 @@
 
 import { useEffect } from 'react';
 
-const getPlatformFromUA = (userAgent: string) => {
+export const getPlatformFromUA = (userAgent: string) => {
   if (userAgent.includes('win')) {
     return 'windows';
   } else if (userAgent.includes('mac')) {

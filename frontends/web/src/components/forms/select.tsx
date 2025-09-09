@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+import { useEffect, useRef, useState } from 'react';
+import { getPlatformFromUA } from '@/hooks/platform';
 import styles from './select.module.css';
 
 type TOptionTextContent = {
@@ -22,6 +24,34 @@ type TOptionTextContent = {
 };
 
 export type TOption = JSX.IntrinsicElements['option'] & TOptionTextContent;
+
+const useParentWidthOnWindows = () => {
+  const ref = useRef<HTMLSelectElement | null>(null);
+  const [width, setWidth] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const platform = getPlatformFromUA(userAgent);
+    if (platform !== 'windows') {
+      return;
+    }
+
+    const updateWidth = () => {
+      if (ref.current && ref.current.parentElement) {
+        ref.current.hidden = true;
+        setWidth(ref.current.parentElement.offsetWidth);
+        ref.current.hidden = false;
+      }
+    };
+
+    updateWidth();
+
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
+  return { ref, width };
+};
 
 type TSelectProps = {
   id: string;
@@ -35,10 +65,17 @@ export const Select = ({
   options = [],
   ...props
 }: TSelectProps) => {
+  // TODO: once Qt is updated test if the white anmiated dropdown bug still appears and remove this hack
+  const { ref, width } = useParentWidthOnWindows();
+
   return (
     <div className={styles.select}>
       {label && <label htmlFor={id}>{label}</label>}
-      <select id={id} {...props}>
+      <select
+        id={id}
+        ref={ref}
+        style={width !== undefined ? { width: `${width}px` } : undefined}
+        {...props}>
         {options.map(({ value, text, disabled = false }) => (
           <option
             key={String(value)}
