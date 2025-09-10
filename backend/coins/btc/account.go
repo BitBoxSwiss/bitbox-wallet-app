@@ -138,7 +138,7 @@ func NewAccount(
 	httpClient *http.Client,
 ) *Account {
 	log = log.WithField("group", "btc").
-		WithFields(logrus.Fields{"coin": coin.String(), "code": config.Config.Code, "name": config.Config.Name})
+		WithFields(logrus.Fields{"coin": coin.String(), "code": config.Config.Code})
 	log.Debug("Creating new account")
 
 	account := &Account{

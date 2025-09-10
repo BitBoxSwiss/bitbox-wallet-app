@@ -112,7 +112,7 @@ func NewAccount(
 	enqueueUpdateCh chan *Account,
 ) *Account {
 	log = log.WithField("group", "eth").
-		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Config.Code, "name": config.Config.Name})
+		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Config.Code})
 	log.Debug("Creating new account")
 
 	account := &Account{
