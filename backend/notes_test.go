@@ -81,7 +81,7 @@ func (s *notesTestSuite) SetupTest() {
 		}
 	}
 
-	s.backend.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
+	s.backend.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 		accountMock := MockBtcAccount(s.T(), config, coin, gapLimits, log)
 		accountMock.NotesFunc = notesFunc(config.Config.Code)
 		accountMock.TransactionsFunc = transactionsFunc(config.Config.Code)
