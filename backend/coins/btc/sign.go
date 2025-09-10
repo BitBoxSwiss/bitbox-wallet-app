@@ -22,6 +22,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
@@ -42,8 +43,7 @@ type ProposedTransaction struct {
 	FormatUnit coin.BtcUnit
 	// GetKeystoreAddress returns the address from the same keystore given the script hash,
 	// or nil if not found.
-	GetKeystoreAddress func(*Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, error)
-	SendingAccount     *Account
+	GetKeystoreAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error)
 }
 
 // needsPrevTxs returns true if the NonWitnessUtxo field in the Psbt inputs needs to be
@@ -137,7 +137,7 @@ func (p *ProposedTransaction) Update() error {
 	for index, txOut := range txProposal.Psbt.UnsignedTx.TxOut {
 		// outputAddress represents the same address as outputAddress, but embeds the account
 		// configuration.  It is nil if the address is external.
-		outputAddress, err := p.GetKeystoreAddress(p.SendingAccount, blockchain.NewScriptHashHex(txOut.PkScript))
+		outputAddress, err := p.GetKeystoreAddress(p.TXProposal.Coin.Code(), blockchain.NewScriptHashHex(txOut.PkScript))
 		if err != nil {
 			return errp.Newf("failed to get address: %v", err)
 		}
@@ -207,7 +207,6 @@ func (account *Account) signTransaction(
 		TXProposal:                   txProposal,
 		AccountSigningConfigurations: signingConfigs,
 		GetKeystoreAddress:           account.getAddressFromSameKeystore,
-		SendingAccount:               account,
 		GetPrevTx:                    getPrevTx,
 		Signatures:                   make([]*types.Signature, len(txProposal.Psbt.UnsignedTx.TxIn)),
 		FormatUnit:                   account.coin.formatUnit,
