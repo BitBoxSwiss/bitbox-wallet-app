@@ -26,7 +26,6 @@ import (
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcd/wire"
 	"github.com/sirupsen/logrus"
 )
 
@@ -166,54 +165,6 @@ func (address *AccountAddress) ScriptForHashToSign() (bool, []byte) {
 		return true, address.RedeemScript
 	case signing.ScriptTypeP2WPKH:
 		return true, address.PubkeyScript()
-	default:
-		address.log.Panic("Unrecognized address type.")
-	}
-	panic("The end of the function cannot be reached.")
-}
-
-// SignatureScript returns the signature script (and witness) needed to spend from this address.
-// The signatures have to be provided in the order of the configuration (and some can be nil).
-func (address *AccountAddress) SignatureScript(
-	signature types.Signature,
-) ([]byte, wire.TxWitness) {
-	publicKey := address.PublicKey
-	switch address.AccountConfiguration.ScriptType() {
-	case signing.ScriptTypeP2PKH:
-		signatureScript, err := txscript.NewScriptBuilder().
-			AddData(append(signature.SerializeDER(), byte(txscript.SigHashAll))).
-			AddData(publicKey.SerializeCompressed()).
-			Script()
-		if err != nil {
-			address.log.WithError(err).Panic("Failed to build signature script for P2PKH.")
-		}
-		return signatureScript, nil
-	case signing.ScriptTypeP2WPKHP2SH:
-		signatureScript, err := txscript.NewScriptBuilder().
-			AddData(address.RedeemScript).
-			Script()
-		if err != nil {
-			address.log.WithError(err).Panic("Failed to build segwit signature script.")
-		}
-		txWitness := wire.TxWitness{
-			append(signature.SerializeDER(), byte(txscript.SigHashAll)),
-			publicKey.SerializeCompressed(),
-		}
-		return signatureScript, txWitness
-	case signing.ScriptTypeP2WPKH:
-		txWitness := wire.TxWitness{
-			append(signature.SerializeDER(), byte(txscript.SigHashAll)),
-			publicKey.SerializeCompressed(),
-		}
-		return []byte{}, txWitness
-	case signing.ScriptTypeP2TR:
-		// We assume SIGHASH_DEFAULT, which defaults to SIGHASH_ALL without needing to explicitly
-		// append it to the signature. See:
-		// https://github.com/bitcoin/bips/blob/97e02b2223b21753acefa813a4e59dbb6e849e77/bip-0341.mediawiki#taproot-key-path-spending-signature-validation
-		txWitness := wire.TxWitness{
-			signature.SerializeCompact(),
-		}
-		return []byte{}, txWitness
 	default:
 		address.log.Panic("Unrecognized address type.")
 	}
