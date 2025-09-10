@@ -65,8 +65,10 @@ qt-windows:
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) windows
 android:
-	$(MAKE) buildweb
 	cd frontends/android && ${MAKE} apk-debug
+# Create signed .apk and .aab.
+android-assemble-release:
+	cd frontends/android && ${MAKE} assemble-release
 ios:
 	cd frontends/ios && ${MAKE} build
 osx-sec-check:
