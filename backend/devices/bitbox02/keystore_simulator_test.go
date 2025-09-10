@@ -476,18 +476,18 @@ func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.Pro
 		GetPrevTx: func(chainhash.Hash) (*wire.MsgTx, error) {
 			return prevTx, nil
 		},
-		GetKeystoreAddress: func(account *btc.Account, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error) {
+		GetKeystoreAddress: func(account *btc.Account, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, error) {
 			for _, address := range addrs {
 				if address.PubkeyScriptHashHex() == scriptHashHex {
-					return address, true, nil
+					return address, nil
 				}
 			}
 			for _, address := range addrsInDifferentAccount {
 				if address.PubkeyScriptHashHex() == scriptHashHex {
-					return address, false, nil
+					return address, nil
 				}
 			}
-			return nil, false, nil
+			return nil, nil
 		},
 		Signatures: make([]*types.Signature, len(txProposal.Psbt.UnsignedTx.TxIn)),
 		FormatUnit: coinpkg.BtcUnitDefault,

@@ -122,7 +122,7 @@ type Account struct {
 	httpClient *http.Client
 
 	// getAddressFromSameKeystore is a function that retrieves an address from any account on the same keystore as this one.
-	getAddressFromSameKeystore func(*Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error)
+	getAddressFromSameKeystore func(*Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, error)
 }
 
 // NewAccount creates a new account.
@@ -133,7 +133,7 @@ func NewAccount(
 	config *accounts.AccountConfig,
 	coin *Coin,
 	forceGapLimits *types.GapLimits,
-	getAddressFromSameKeystore func(*Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error),
+	getAddressFromSameKeystore func(*Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, error),
 	log *logrus.Entry,
 	httpClient *http.Client,
 ) *Account {

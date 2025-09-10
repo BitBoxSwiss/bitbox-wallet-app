@@ -42,9 +42,7 @@ type ProposedTransaction struct {
 	FormatUnit coin.BtcUnit
 	// GetKeystoreAddress returns the address from the same keystore given the script hash,
 	// or nil if not found.
-	// It also returns a boolean indicating whether the address belongs to the account
-	// that is asking for the address or not.
-	GetKeystoreAddress func(*Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error)
+	GetKeystoreAddress func(*Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, error)
 	SendingAccount     *Account
 }
 
@@ -111,13 +109,12 @@ func (p *ProposedTransaction) Update() error {
 	for index, txOut := range txProposal.Psbt.UnsignedTx.TxOut {
 		// outputAddress is the recipient address if it belongs to the same keystore. It is nil if
 		// the address is external.
-		outputAddress, sameAccount, err := p.GetKeystoreAddress(p.SendingAccount, blockchain.NewScriptHashHex(txOut.PkScript))
+		outputAddress, err := p.GetKeystoreAddress(p.SendingAccount, blockchain.NewScriptHashHex(txOut.PkScript))
 		if err != nil {
 			return errp.Newf("failed to get address: %v", err)
 		}
 
-		_ = sameAccount
-		// Add key info to change output
+		// Add key info to output belonging to our keystore.
 		if outputAddress != nil {
 			scriptType := outputAddress.AccountConfiguration.ScriptType()
 			switch scriptType {
