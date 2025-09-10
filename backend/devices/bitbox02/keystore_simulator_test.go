@@ -476,7 +476,7 @@ func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.Pro
 		GetPrevTx: func(chainhash.Hash) (*wire.MsgTx, error) {
 			return prevTx, nil
 		},
-		GetKeystoreAddress: func(account *btc.Account, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, error) {
+		GetKeystoreAddress: func(coinCode coinpkg.Code, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, error) {
 			for _, address := range addrs {
 				if address.PubkeyScriptHashHex() == scriptHashHex {
 					return address, nil
