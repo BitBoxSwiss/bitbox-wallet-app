@@ -212,7 +212,10 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			keystore.log.Error("There needs to be exactly one output being spent per input.")
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
-		address, err := btcProposedTx.GetKeystoreAddress(btcProposedTx.SendingAccount, spentOutput.Address.PubkeyScriptHashHex())
+		address, err := btcProposedTx.GetKeystoreAddress(
+			btcProposedTx.TXProposal.Coin.Code(),
+			spentOutput.Address.PubkeyScriptHashHex(),
+		)
 		if err != nil {
 			return err
 		}
