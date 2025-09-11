@@ -119,7 +119,6 @@ linters:
     - gomoddirectives
     - predeclared
     - tenv
-    - recvcheck
   disable-all: false
 
 issues:

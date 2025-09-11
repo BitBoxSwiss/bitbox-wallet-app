@@ -953,7 +953,7 @@ func SignBTCAddress(account accounts.Interface, message string, scriptType signi
 
 	sig, err := keystore.SignBTCMessage(
 		[]byte(message),
-		addr.AbsoluteKeypath(),
+		*addr.AbsoluteKeypath(),
 		account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
 	)
 	if err != nil {

@@ -21,5 +21,5 @@ type Address interface {
 	// ID is an identifier for the address.
 	ID() string
 	EncodeForHumans() string
-	AbsoluteKeypath() signing.AbsoluteKeypath
+	AbsoluteKeypath() *signing.AbsoluteKeypath
 }

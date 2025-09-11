@@ -73,7 +73,7 @@ func NewCoin(
 	dbFolder string,
 	servers []*config.ServerInfo,
 	blockExplorerTxPrefix string,
-	socksProxy socksproxy.SocksProxy,
+	socksProxy *socksproxy.SocksProxy,
 ) *Coin {
 	log := logging.Get().WithGroup("coin").WithField("code", code)
 	coin := &Coin{
