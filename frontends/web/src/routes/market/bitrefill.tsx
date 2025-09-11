@@ -28,7 +28,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { useLoad } from '@/hooks/api';
 import { BitrefillTerms, localeMapping } from '@/components/terms/bitrefill-terms';
-import { getBitrefillInfo } from '@/api/exchanges';
+import { getBitrefillInfo } from '@/api/market';
 import { getURLOrigin } from '@/utils/url';
 
 // Map coins supported by Bitrefill

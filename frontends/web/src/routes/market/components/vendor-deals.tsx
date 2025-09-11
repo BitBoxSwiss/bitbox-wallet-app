@@ -18,28 +18,28 @@ import { useTranslation } from 'react-i18next';
 import { useDarkmode } from '@/hooks/darkmode';
 import { Bank, BankDark, CreditCard, CreditCardDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
-import { getExchangeFormattedName } from '@/routes/exchange/utils';
-import { ExchangeDeal, ExchangeDeals } from '@/api/exchanges';
-import style from './exchange-provider.module.css';
+import { getVendorFormattedName } from '@/routes/market/utils';
+import { TMarketDeal, TMarketDeals } from '@/api/market';
+import style from './vendor-deals.module.css';
 
 type Props = {
-  deals: ExchangeDeal[];
-  exchangeName: ExchangeDeals['exchangeName'];
+  deals: TMarketDeal[];
+  vendorName: TMarketDeals['vendorName'];
 }
 
 type TDealProps = {
-  deal: ExchangeDeal;
-  exchangeName: ExchangeDeals['exchangeName'];
+  deal: TMarketDeal;
+  vendorName: TMarketDeals['vendorName'];
 };
 
 type TPaymentMethodProps = {
-  methodName: ExchangeDeal['payment'];
-  exchangeName: ExchangeDeals['exchangeName'];
+  methodName: TMarketDeal['payment'];
+  vendorName: TMarketDeals['vendorName'];
 };
 
 const PaymentMethod = ({
   methodName,
-  exchangeName
+  vendorName
 }: TPaymentMethodProps) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
@@ -61,7 +61,7 @@ const PaymentMethod = ({
   case 'spend':
     return (
       <span className={style.paymentMethodName}>
-        {t('buy.exchange.spend', { context: exchangeName })}
+        {t('buy.exchange.spend', { context: vendorName })}
       </span>
     );
   case 'sofort':
@@ -73,12 +73,12 @@ const PaymentMethod = ({
 
 const Deal = ({
   deal,
-  exchangeName
+  vendorName
 }: TDealProps) => {
   const { t } = useTranslation();
   return (
     <div className={style.paymentMethodContainer}>
-      <PaymentMethod methodName={deal.payment} exchangeName={exchangeName}/>
+      <PaymentMethod methodName={deal.payment} vendorName={vendorName}/>
       <div className={style.badgeContainer}>
         {deal.isBest && (
           <Badge type="success">{t('buy.exchange.bestDeal')}</Badge>
@@ -92,18 +92,18 @@ const Deal = ({
 };
 
 
-export const ExchangeProviders = ({
+export const VendorDeals = ({
   deals,
-  exchangeName,
+  vendorName,
 }: Props) => {
   return (
     <div className={style.exchangeContainer}>
       <div className={style.container}>
         <p className={[style.text, style.exchangeName].join(' ')}>
-          {getExchangeFormattedName(exchangeName)}
+          {getVendorFormattedName(vendorName)}
         </p>
         <div className={style.paymentMethodsContainer}>
-          {deals.map(deal => !deal.isHidden && <Deal key={deal.payment} deal={deal} exchangeName={exchangeName}/>)}
+          {deals.map(deal => !deal.isHidden && <Deal key={deal.payment} deal={deal} vendorName={vendorName}/>)}
         </div>
       </div>
     </div>

@@ -20,31 +20,31 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
 import { i18n } from '@/i18n/i18n';
-import * as exchangesAPI from '@/api/exchanges';
+import * as marketAPI from '@/api/market';
 import { AccountCode, IAccount } from '@/api/account';
 import { Header } from '@/components/layout';
-import { ExchangeGuide } from './guide';
+import { MarketGuide } from './guide';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { useLoad } from '@/hooks/api';
 import { getRegionNameFromLocale } from '@/i18n/utils';
-import { getExchangeFormattedName, getExchangeSupportedAccounts } from './utils';
+import { getVendorFormattedName, getVendorSupportedAccounts } from './utils';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Dialog } from '@/components/dialog/dialog';
 import { InfoButton } from '@/components/infobutton/infobutton';
-import { ExchangeTab } from './components/exchangetab';
-import { BuySell } from './components/buysell';
+import { MarketTab } from './components/markettab';
+import { Deals } from './components/deals';
 import { getNativeLocale } from '@/api/nativelocale';
 import { getConfig, setConfig } from '@/utils/config';
 import { CountrySelect, TOption } from './components/countryselect';
 import { InfoContent, TInfoContentProps } from './components/infocontent';
-import style from './exchange.module.css';
+import style from './market.module.css';
 
 type TProps = {
     accounts: IAccount[];
     code: AccountCode;
 }
 
-export const Exchange = ({
+export const Market = ({
   accounts,
   code,
 }: TProps) => {
@@ -54,9 +54,9 @@ export const Exchange = ({
   const [regions, setRegions] = useState<TOption[]>([]);
   const [info, setInfo] = useState<TInfoContentProps>();
   const [supportedAccounts, setSupportedAccounts] = useState<IAccount[]>([]);
-  const [activeTab, setActiveTab] = useState<exchangesAPI.TExchangeAction>('buy');
+  const [activeTab, setActiveTab] = useState<marketAPI.TMarketAction>('buy');
 
-  const regionCodes = useLoad(exchangesAPI.getExchangeRegionCodes);
+  const regionCodes = useLoad(marketAPI.getMarketRegionCodes);
   const nativeLocale = useLoad(getNativeLocale);
   const config = useLoad(getConfig);
 
@@ -64,9 +64,9 @@ export const Exchange = ({
 
   const title = t('generic.buySell');
 
-  // get the list of accounts supported by exchanges, needed to correctly handle back button.
+  // get the list of accounts supported by vendors, needed to correctly handle back button.
   useEffect(() => {
-    getExchangeSupportedAccounts(accounts).then(setSupportedAccounts);
+    getVendorSupportedAccounts(accounts).then(setSupportedAccounts);
   }, [accounts]);
 
   // update region Select component when `regionList` or `config` gets populated.
@@ -103,11 +103,11 @@ export const Exchange = ({
   }, [regionCodes, config, nativeLocale]);
 
 
-  const goToExchange = (exchange: string) => {
-    if (!exchange) {
+  const goToVendor = (vendor: string) => {
+    if (!vendor) {
       return;
     }
-    navigate(`/exchange/${exchange}/${activeTab}/${code}`);
+    navigate(`/market/${vendor}/${activeTab}/${code}`);
   };
 
   const handleChangeRegion = (newValue: SingleValue<TOption>) => {
@@ -123,7 +123,7 @@ export const Exchange = ({
       <div className="container">
         <Dialog
           medium
-          title={info && info.exchangeName !== 'region' ? getExchangeFormattedName(info.exchangeName) : t('buy.exchange.region')}
+          title={info && info.vendorName !== 'region' ? getVendorFormattedName(info.vendorName) : t('buy.exchange.region')}
           onClose={() => setInfo(undefined)}
           open={!!info}
         >
@@ -131,7 +131,7 @@ export const Exchange = ({
             <InfoContent
               action={info.action}
               accounts={accounts}
-              exchangeName={info.exchangeName}
+              vendorName={info.vendorName}
               paymentFees={info.paymentFees}
             />
           )}
@@ -154,21 +154,21 @@ export const Exchange = ({
                   />
                   <InfoButton onClick={() => setInfo({
                     action: activeTab,
-                    exchangeName: 'region',
+                    vendorName: 'region',
                     paymentFees: {}
                   })} />
                 </div>
-                <ExchangeTab
+                <MarketTab
                   onChangeTab={(tab) => {
                     setActiveTab(tab);
                   }}
                   activeTab={activeTab}
                 />
                 <div className={style.radioButtonsContainer}>
-                  <BuySell
+                  <Deals
                     accountCode={code}
                     selectedRegion={selectedRegion}
-                    goToExchange={goToExchange}
+                    goToVendor={goToVendor}
                     showBackButton={supportedAccounts.length > 1}
                     action={activeTab}
                     setInfo={setInfo}
@@ -179,7 +179,7 @@ export const Exchange = ({
           </div>
         </div>
       </div>
-      <ExchangeGuide translationContext={hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'} />
+      <MarketGuide translationContext={hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'} />
     </div>
   );
 };

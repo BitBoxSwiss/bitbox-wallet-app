@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
-import { AccountIconSVG, ExchangeIconSVG, MoreIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
+import { AccountIconSVG, MarketIconSVG, MoreIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
 import type { Account } from '@/api/aopp';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
@@ -61,10 +61,10 @@ export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
         {onlyHasOneAccount ? t('account.account') : t('account.accounts')}
       </Link>
       <Link
-        className={`${styles.link} ${pathname.startsWith('/exchange/') ? styles.active : ''}`}
-        to="/exchange/info"
+        className={`${styles.link} ${pathname.startsWith('/market/') ? styles.active : ''}`}
+        to="/market/info"
       >
-        <ExchangeIconSVG />
+        <MarketIconSVG />
         {t('generic.buySell')}
       </Link>
       <Link

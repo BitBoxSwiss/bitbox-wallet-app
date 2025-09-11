@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package exchanges
+package market
 
 import (
 	"slices"
@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	// BitrefillName is the name of the exchange, it is unique among all the supported exchanges.
+	// BitrefillName is the name of the vendor, it is unique among all the supported vendors.
 	BitrefillName = "bitrefill"
 
 	bitrefillRef = "SHU5bB6y"
@@ -76,10 +76,10 @@ func IsBitrefillSupportedForCoinInRegion(coinCode coin.Code, region string) bool
 }
 
 // BitrefillDeals returns the purchase conditions (fee and payment methods) offered by Bitrefill.
-func BitrefillDeals() *ExchangeDealsList {
-	return &ExchangeDealsList{
-		ExchangeName: BitrefillName,
-		Deals: []*ExchangeDeal{
+func BitrefillDeals() *DealsList {
+	return &DealsList{
+		VendorName: BitrefillName,
+		Deals: []*Deal{
 			{
 				Fee:     0, // There is no fee on buying gift cards
 				Payment: SpendPayment,
@@ -90,7 +90,7 @@ func BitrefillDeals() *ExchangeDealsList {
 
 // BitrefillInfo returns the information needed to interact with Bitrefill,
 // including the widget URL, referral code and an unused address for refunds.
-func BitrefillInfo(action ExchangeAction, acct accounts.Interface) bitrefillInfo {
+func BitrefillInfo(action Action, acct accounts.Interface) bitrefillInfo {
 	addr := acct.GetUnusedReceiveAddresses()[0].Addresses[0].EncodeForHumans()
 	res := bitrefillInfo{
 		Url:     bitrefillProdUrl,

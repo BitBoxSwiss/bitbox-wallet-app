@@ -17,7 +17,7 @@
 import { useState, useEffect, createRef, useContext, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getBTCDirectInfo, TExchangeAction } from '@/api/exchanges';
+import { getBTCDirectInfo, TMarketAction } from '@/api/market';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { AppContext } from '@/contexts/AppContext';
 import { AccountCode, IAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
@@ -30,7 +30,7 @@ import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { BTCDirectTerms } from '@/components/terms/btcdirect-terms';
-import { ExchangeGuide } from './guide';
+import { MarketGuide } from './guide';
 import { alertUser } from '@/components/alert/Alert';
 import style from './iframe.module.css';
 
@@ -45,7 +45,7 @@ const localeMapping: Readonly<Record<string, string>> = {
 
 type TProps = {
   accounts: IAccount[];
-  action: TExchangeAction;
+  action: TMarketAction;
   code: AccountCode;
 }
 
@@ -291,7 +291,7 @@ export const BTCDirect = ({
           </div>
         </div>
       </div>
-      <ExchangeGuide exchange="btcdirect" translationContext={translationContext} />
+      <MarketGuide vendor="btcdirect" translationContext={translationContext} />
     </div>
   );
 };

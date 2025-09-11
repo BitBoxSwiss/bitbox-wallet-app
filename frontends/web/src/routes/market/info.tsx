@@ -18,14 +18,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
-import { getExchangeSupportedAccounts } from './utils';
+import { getVendorSupportedAccounts } from './utils';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { View, ViewContent } from '@/components/view/view';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
-import { ExchangeGuide } from './guide';
+import { MarketGuide } from './guide';
 import { connectKeystore } from '@/api/keystores';
 
 type TProps = {
@@ -33,7 +33,7 @@ type TProps = {
     code: accountApi.AccountCode;
 }
 
-export const ExchangeInfo = ({ code, accounts }: TProps) => {
+export const MarketInfo = ({ code, accounts }: TProps) => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string>(code);
   const [disabled, setDisabled] = useState<boolean>(false);
@@ -43,8 +43,8 @@ export const ExchangeInfo = ({ code, accounts }: TProps) => {
 
   useEffect(() => {
     try {
-      getExchangeSupportedAccounts(accounts).then(exchangeSupportedAccounts => {
-        setSupportedAccounts(exchangeSupportedAccounts);
+      getVendorSupportedAccounts(accounts).then(vendorSupportedAccounts => {
+        setSupportedAccounts(vendorSupportedAccounts);
       });
     } catch (e) {
       console.error(e);
@@ -53,7 +53,7 @@ export const ExchangeInfo = ({ code, accounts }: TProps) => {
 
   useEffect(() => {
     if (supportedAccounts !== undefined && supportedAccounts.length === 1) {
-      // If user only has one supported account for exchange
+      // If user only has one supported account for vendor
       // and they don't have the correct device connected
       // they'll be prompted to do so.
       const accountCode = supportedAccounts[0].code;
@@ -61,7 +61,7 @@ export const ExchangeInfo = ({ code, accounts }: TProps) => {
       connectKeystoreFn(rootFingerprint).then(connected => {
         if (connected) {
           // replace current history item when redirecting so that the user can go back
-          navigate(`/exchange/select/${accountCode}`, { replace: true });
+          navigate(`/market/select/${accountCode}`, { replace: true });
         }
       });
     }
@@ -76,7 +76,7 @@ export const ExchangeInfo = ({ code, accounts }: TProps) => {
       }
       const connected = await connectKeystoreFn(account.keystore.rootFingerprint);
       if (connected) {
-        navigate(`/exchange/select/${selected}`);
+        navigate(`/market/select/${selected}`);
       }
     } finally {
       setDisabled(false);
@@ -125,7 +125,7 @@ export const ExchangeInfo = ({ code, accounts }: TProps) => {
             </ViewContent>
           </View>
         </GuidedContent>
-        <ExchangeGuide translationContext={translationContext} />
+        <MarketGuide translationContext={translationContext} />
       </GuideWrapper>
     </Main>
   );
