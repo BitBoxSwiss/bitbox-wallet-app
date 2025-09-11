@@ -1260,6 +1260,9 @@ func (handlers *Handlers) getMarketVendors(r *http.Request) interface{} {
 	if market.IsBtcDirectSupported(acct.Coin().Code()) {
 		supported.Vendors = append(supported.Vendors, market.BTCDirectName)
 	}
+	if market.IsBitrefillSupported(acct.Coin().Code()) {
+		supported.Vendors = append(supported.Vendors, market.BitrefillName)
+	}
 
 	return supported
 }

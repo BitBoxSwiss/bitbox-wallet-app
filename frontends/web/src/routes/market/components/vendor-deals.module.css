@@ -42,7 +42,7 @@
     padding-right: var(--space-quarter);
 }
 
-.paymentMethodName {
+.paymentMethodName, .dealDescription {
     color: var(--color-default);
     display: inline-block;
     font-weight: 400;
