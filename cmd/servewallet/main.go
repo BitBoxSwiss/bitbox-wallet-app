@@ -26,6 +26,7 @@ import (
 	backendPkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02/simulator"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	backendHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
@@ -69,6 +70,11 @@ func (webdevEnvironment) NotifyUser(text string) {
 
 // DeviceInfos implements backend.Environment.
 func (webdevEnvironment) DeviceInfos() []usb.DeviceInfo {
+	testDeviceInfo := simulator.TestDeviceInfo()
+	if testDeviceInfo != nil {
+		// We are in "test device" mode.
+		return []usb.DeviceInfo{*testDeviceInfo}
+	}
 	return usb.DeviceInfos()
 }
 
@@ -138,6 +144,8 @@ func main() {
 	devservers := flag.Bool("devservers", true, "switch to dev servers")
 	gapLimitsReceive := flag.Uint("gapLimitReceive", 0, "gap limit for receive addresses")
 	gapLimitsChange := flag.Uint("gapLimitChange", 0, "gap limit for change addresses")
+	simulatorPort := flag.Int("simulatorPort", 15423, "port for the BitBox02 simulator")
+	useSimulator := flag.Bool("simulator", false, "use the BitBox02 simulator")
 	flag.Parse()
 
 	var gapLimits *btctypes.GapLimits
@@ -177,6 +185,11 @@ func main() {
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
 	fmt.Printf("Listening on: http://localhost:%d\n", port)
+
+	if *useSimulator {
+		simulator.Init(*simulatorPort)
+	}
+
 	if err := http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), handlers.Router); err != nil {
 		log.WithFields(logrus.Fields{"address": address, "port": port, "error": err.Error()}).Fatal("Failed to listen for HTTP")
 	}

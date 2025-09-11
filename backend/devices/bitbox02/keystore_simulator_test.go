@@ -142,9 +142,9 @@ func runSimulator(filename string) (func() error, *Device, *bytes.Buffer, error)
 	if err != nil {
 		return nil, nil, nil, err
 	}
+
 	device := NewDevice("ID", version, common.ProductBitBox02Multi,
-		&mocks.Config{}, communication,
-	)
+		&mocks.Config{}, communication)
 	return func() error {
 		if err := conn.Close(); err != nil {
 			return err
