@@ -66,7 +66,7 @@ export const Deals = ({
 
   const buildInfo = (marketDeals: marketAPI.TMarketDeals): TInfoContentProps => {
     let paymentFees: TPaymentFee = {};
-    marketDeals.deals.forEach(deal => paymentFees[deal.payment] = deal.fee);
+    marketDeals.deals.forEach(deal => deal.payment && (paymentFees[deal.payment] = deal.fee));
     return {
       action,
       vendorName: marketDeals.vendorName,

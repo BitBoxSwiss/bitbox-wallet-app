@@ -420,6 +420,7 @@
       "bestDeal": "Best deal",
       "buy": "Buy",
       "creditCard": "Credit card",
+      "description_bitrefill": "Shop gift cards, phone refills & more",
       "fast": "Fast",
       "fee": "fee",
       "infoContent": {
@@ -611,8 +612,7 @@
       "region": "Region",
       "selectRegion": "Not specified",
       "sell": "Sell",
-      "spend": "Spend",
-      "spend_bitrefill": "Shop gift cards, phone refills & more"
+      "spend": "Spend"
     },
     "info": {
       "continue": "Agree and continue",

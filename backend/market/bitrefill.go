@@ -81,8 +81,7 @@ func BitrefillDeals() *DealsList {
 		VendorName: BitrefillName,
 		Deals: []*Deal{
 			{
-				Fee:     0, // There is no fee on buying gift cards
-				Payment: SpendPayment,
+				Fee: 0, // There is no fee on buying gift cards
 			},
 		},
 	}

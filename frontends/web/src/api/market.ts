@@ -21,11 +21,11 @@ export const getMarketRegionCodes = (): Promise<string[]> => {
   return apiGet('market/region-codes');
 };
 
-export type TPaymentMethod = 'card' | 'bank-transfer' | 'bancontact' | 'sofort' | 'spend';
+export type TPaymentMethod = 'card' | 'bank-transfer' | 'bancontact' | 'sofort';
 
 export type TMarketDeal = {
   fee: number;
-  payment: TPaymentMethod;
+  payment?: TPaymentMethod;
   isFast: boolean;
   isBest: boolean;
   isHidden: boolean;

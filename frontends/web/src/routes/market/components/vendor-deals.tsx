@@ -34,12 +34,10 @@ type TDealProps = {
 
 type TPaymentMethodProps = {
   methodName: TMarketDeal['payment'];
-  vendorName: TMarketDeals['vendorName'];
 };
 
 const PaymentMethod = ({
   methodName,
-  vendorName
 }: TPaymentMethodProps) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
@@ -58,12 +56,6 @@ const PaymentMethod = ({
         {t('buy.exchange.creditCard')}
       </span>
     );
-  case 'spend':
-    return (
-      <span className={style.paymentMethodName}>
-        {t('buy.exchange.spend', { context: vendorName })}
-      </span>
-    );
   case 'sofort':
   case 'bancontact':
   default:
@@ -78,7 +70,13 @@ const Deal = ({
   const { t } = useTranslation();
   return (
     <div className={style.paymentMethodContainer}>
-      <PaymentMethod methodName={deal.payment} vendorName={vendorName}/>
+      {deal.payment ? (
+        <PaymentMethod methodName={deal.payment}/>
+      ) : (
+        <span className={style.dealDescription}>
+          {t('buy.exchange.description', { context: vendorName })}
+        </span>
+      )}
       <div className={style.badgeContainer}>
         {deal.isBest && (
           <Badge type="success">{t('buy.exchange.bestDeal')}</Badge>

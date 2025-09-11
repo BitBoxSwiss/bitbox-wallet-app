@@ -110,8 +110,6 @@ const (
 	SOFORTPayment PaymentMethod = "sofort"
 	// BancontactPayment is a payment method in the SEPA region.
 	BancontactPayment PaymentMethod = "bancontact"
-	// SpendPayment is a payment method using the BitBox wallet.
-	SpendPayment PaymentMethod = "spend"
 )
 
 // Deal represents a specific purchase option of a vendor.
