@@ -18,11 +18,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
-import { AccountCode, IAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { AccountCode, IAccount, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { useDarkmode } from '@/hooks/darkmode';
 import { getConfig } from '@/utils/config';
-import style from './iframe.module.css';
 import { i18n } from '@/i18n/i18n';
 import { alertUser } from '@/components/alert/Alert';
 import { parseExternalBtcAmount } from '@/api/coins';
@@ -30,6 +29,9 @@ import { useLoad } from '@/hooks/api';
 import { BitrefillTerms, localeMapping } from '@/components/terms/bitrefill-terms';
 import { getBitrefillInfo } from '@/api/market';
 import { getURLOrigin } from '@/utils/url';
+import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import style from './iframe.module.css';
 
 // Map coins supported by Bitrefill
 const coinMapping: Readonly<Record<string, string>> = {
@@ -60,6 +62,8 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
 
   const config = useLoad(getConfig);
   const [agreedTerms, setAgreedTerms] = useState(false);
+
+  const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>(false);
 
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
@@ -156,7 +160,13 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
           name: 'Bitrefill',
           orderId: invoiceId,
         });
+
+        setVerifyPaymentRequest({
+          address: paymentAddress,
+          ...result
+        });
         const sendResult = await sendTx(code, txNote);
+        setVerifyPaymentRequest(false);
         if (!sendResult.success && !('aborted' in sendResult)) {
           alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
         }
@@ -224,6 +234,26 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
                       onResize();
                     }}
                   />
+                )}
+
+                { verifyPaymentRequest && verifyPaymentRequest.success && (
+                  <WaitDialog title={t('receive.verifyBitBox02')}>
+                    <p>
+                      {t('transaction.details.address')}
+                      <br />
+                      {verifyPaymentRequest.address}
+                    </p>
+                    <p>
+                      {t('transaction.details.amount')}
+                      <br />
+                      <AmountWithUnit amount={verifyPaymentRequest.amount} />
+                    </p>
+                    <p>
+                      {t('transaction.fee')}
+                      <br />
+                      <AmountWithUnit amount={verifyPaymentRequest.fee} />
+                    </p>
+                  </WaitDialog>
                 )}
               </div>
             )}
