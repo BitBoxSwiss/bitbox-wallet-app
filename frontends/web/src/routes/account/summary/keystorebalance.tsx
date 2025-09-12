@@ -98,7 +98,7 @@ export const KeystoreBalance = ({
                 if (balanceRows && balanceRows?.length > 1) {
                   const accountsForCoin = accountsPerCoin[coinCode];
                   if (accountsForCoin && accountsForCoin.length >= 1) {
-                    const account = accountsForCoin[0];
+                    const account = accountsForCoin[0] as accountApi.IAccount;
                     balanceRows.push(
                       <SubTotalRow
                         key={account.coinCode}

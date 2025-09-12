@@ -36,7 +36,7 @@ const initTransport = async () => {
       queryID: number,
       response: string,
     ) => {
-      queryPromises[queryID].resolve(JSON.parse(response));
+      queryPromises[queryID]?.resolve(JSON.parse(response));
       delete queryPromises[queryID];
     });
     channel.objects.backend.pushNotify.connect((msg: string) => {

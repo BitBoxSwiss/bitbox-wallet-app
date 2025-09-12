@@ -114,10 +114,12 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
                   <div className={styles.sessionCardsContainer}>
                     <p className={styles.allSessionsHeading}>{t('walletConnect.dashboard.allSessions')}</p>
                     {sessions.map(session => {
+                      const eip155 = session.namespaces['eip155'];
+                      const receiveAddress = eip155?.accounts[0] && getAddressFromEIPString(eip155.accounts[0]) || '';
                       return (
                         <WCSessionCard
                           key={session.topic}
-                          receiveAddress={session.namespaces['eip155'].accounts[0] ? getAddressFromEIPString(session.namespaces['eip155'].accounts[0]) : ''}
+                          receiveAddress={receiveAddress}
                           metadata={session.peer.metadata}
                           onDisconnect={() => handleDisconnectSession(session.topic)}
                         />

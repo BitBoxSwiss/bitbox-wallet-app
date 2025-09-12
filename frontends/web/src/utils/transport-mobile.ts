@@ -30,7 +30,7 @@ export const mobileCall = (query: string): Promise<unknown> => {
           queryID: number,
           response: unknown,
         ) => {
-          queryPromises[queryID].resolve(response);
+          queryPromises[queryID]?.resolve(response);
           delete queryPromises[queryID];
         };
       }

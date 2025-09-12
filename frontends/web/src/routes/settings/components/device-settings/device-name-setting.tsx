@@ -122,7 +122,7 @@ const SetDeviceNameDialog = ({ open, onClose, currentName, onInputChange, name, 
           </div>
           <div className="column">
             <Input
-              className={`m-none ${error && !nameIsTooShort ? nameStyle.inputError : ''}`}
+              className={`m-none ${error && !nameIsTooShort ? nameStyle.inputError as string : ''}`}
               label={t('bitbox02Settings.deviceName.input')}
               onInput={(e) => onInputChange(e.target.value)}
               placeholder={t('bitbox02Settings.deviceName.placeholder')}
