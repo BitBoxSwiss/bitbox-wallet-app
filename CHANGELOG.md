@@ -19,6 +19,9 @@
 - Fix potential crash in the AOPP workflow
 - Windows: fix send/feetarget dropdown UI rendering bug
 - More efficient account initialization by fetching all account Bitcoin xpubs at once
+
+## v4.48.5
+- Bundle BitBox02 firmware version v9.23.2
 - iOS: fix wrong timezone when confirming time on BitBox02 (it would always show the time in UTC)
 
 ## v4.48.4
