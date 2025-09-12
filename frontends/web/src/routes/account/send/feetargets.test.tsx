@@ -29,6 +29,10 @@ import { apiGet } from '@/utils/request';
 import * as utilsConfig from '@/utils/config';
 const getConfig = vi.spyOn(utilsConfig, 'getConfig');
 
+vi.mock('@/hooks/mediaquery', () => ({
+  useMediaQuery: vi.fn().mockReturnValue(true)
+}));
+
 describe('routes/account/send/feetargets', () => {
 
   it('should match the snapshot', async () => {
