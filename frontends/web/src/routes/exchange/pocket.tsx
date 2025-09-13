@@ -67,6 +67,9 @@ export const Pocket = ({
 
   const ref = createRef<HTMLDivElement>();
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  const [correlationId, setCorrelationId] = useState<string>();
+
   let signing = false;
   let resizeTimerID: any = undefined;
 
@@ -132,11 +135,42 @@ export const Pocket = ({
     const message = serializeMessage({
       version: MessageVersion.V0,
       type: V0MessageType.Address,
+      correlationId,
       bitcoinAddress: address,
       signature: sig,
     });
 
     current.contentWindow?.postMessage(message, '*');
+  };
+
+  const sendPaymentTxId = (txid: string) => {
+    if (!iframeRef.current) {
+      return;
+    }
+
+    const message = serializeMessage({
+      version: MessageVersion.V0,
+      type: V0MessageType.Payment,
+      correlationId,
+      txid,
+    });
+
+    iframeRef.current.contentWindow?.postMessage(message, '*');
+  };
+
+  const sendCanceledMessage = (reason: string) => {
+    if (!iframeRef.current) {
+      return;
+    }
+
+    const message = serializeMessage({
+      version: MessageVersion.V0,
+      type: V0MessageType.Cancel,
+      correlationId,
+      reason,
+    });
+
+    iframeRef.current.contentWindow?.postMessage(message, '*');
   };
 
   const handleRequestAddress = (message: RequestAddressV0Message) => {
@@ -191,6 +225,7 @@ export const Pocket = ({
         const message = serializeMessage({
           version: MessageVersion.V0,
           type: V0MessageType.ExtendedPublicKey,
+          correlationId,
           extendedPublicKey: xpub,
         });
         current.contentWindow?.postMessage(message, '*');
@@ -221,10 +256,14 @@ export const Pocket = ({
       alertUser(t('unknownError', { errorMessage: 'Missing payment request data' }));
       return;
     }
+    if (message.correlationId) {
+      setCorrelationId(message.correlationId);
+    }
 
     // this allows to correctly handle sats mode
     const parsedAmount = await parseExternalBtcAmount(message.amount.toString());
     if (!parsedAmount.success) {
+      sendCanceledMessage('invalid_amount');
       alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
       return;
     }
@@ -245,8 +284,15 @@ export const Pocket = ({
       setBlocking(true);
       const sendResult = await sendTx(code, txNote);
       setBlocking(false);
-      if (!sendResult.success && !('aborted' in sendResult)) {
-        alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+      if (sendResult.success) {
+        sendPaymentTxId(sendResult.txId);
+      } else {
+        if ('aborted' in sendResult) {
+          sendCanceledMessage('rejected_by_customer');
+        } else {
+          sendCanceledMessage('unknown_error');
+          alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+        }
       }
     } else {
       if (result.errorCode === 'insufficientFunds') {
