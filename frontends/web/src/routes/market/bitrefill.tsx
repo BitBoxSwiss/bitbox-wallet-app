@@ -96,6 +96,73 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
     };
   }, [onResize]);
 
+  const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
+    if (!account || pendingPayment) {
+      return;
+    }
+    setPendingPayment(true);
+
+    const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+
+    // User clicked "Pay" in checkout
+    const {
+      invoiceId,
+      paymentMethod,
+      paymentAmount,
+      paymentAddress,
+    } = data;
+
+    const parsedAmount = await parseExternalBtcAmount(paymentAmount.toString());
+    if (!parsedAmount.success) {
+      alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
+      setPendingPayment(false);
+      return;
+    }
+    // Ensure expected payment method matches account
+    if (coinMapping[account.coinCode] !== paymentMethod) {
+      alertUser(t('unknownError', { errorMessage: 'Payment method mismatch' }));
+      setPendingPayment(false);
+      return;
+    }
+
+    const txInput: TTxInput = {
+      address: paymentAddress,
+      amount: parsedAmount.amount,
+      // Always use highest fee rate for Bitrefill spend
+      useHighestFee: true,
+      sendAll: 'no',
+      selectedUTXOs: [],
+      paymentRequest: null
+    };
+
+    let result = await proposeTx(code, txInput);
+    if (result.success) {
+      const txNote = t('generic.paymentRequestNote', {
+        name: 'Bitrefill',
+        orderId: invoiceId,
+      });
+
+      setVerifyPaymentRequest({
+        address: paymentAddress,
+        ...result
+      });
+      const sendResult = await sendTx(code, txNote);
+      setVerifyPaymentRequest(false);
+      if (!sendResult.success && !('aborted' in sendResult)) {
+        alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+      }
+    } else {
+      if (result.errorCode === 'insufficientFunds') {
+        alertUser(t('buy.bitrefill.error.' + result.errorCode));
+      } else if (result.errorCode) {
+        alertUser(t('send.error.' + result.errorCode));
+      } else {
+        alertUser(t('genericError'));
+      }
+    }
+    setPendingPayment(false);
+  }, [account, code, pendingPayment, t]);
+
   const handleMessage = useCallback(async (event: MessageEvent) => {
     if (
       !account
@@ -127,74 +194,14 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
       break;
     }
     case 'payment_intent': {
-      if (pendingPayment) {
-        return;
-      }
-      setPendingPayment(true);
-      // User clicked "Pay" in checkout
-      const {
-        invoiceId,
-        paymentMethod,
-        paymentAmount,
-        paymentAddress,
-      } = data;
-
-      const parsedAmount = await parseExternalBtcAmount(paymentAmount.toString());
-      if (!parsedAmount.success) {
-        alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
-        setPendingPayment(false);
-        return;
-      }
-      // Ensure expected payment method matches account
-      if (coinMapping[account.coinCode] !== paymentMethod) {
-        alertUser(t('unknownError', { errorMessage: 'Payment method mismatch' }));
-        setPendingPayment(false);
-        return;
-      }
-
-      const txInput: TTxInput = {
-        address: paymentAddress,
-        amount: parsedAmount.amount,
-        // Always use highest fee rate for Bitrefill spend
-        useHighestFee: true,
-        sendAll: 'no',
-        selectedUTXOs: [],
-        paymentRequest: null
-      };
-
-      let result = await proposeTx(code, txInput);
-      if (result.success) {
-        const txNote = t('generic.paymentRequestNote', {
-          name: 'Bitrefill',
-          orderId: invoiceId,
-        });
-
-        setVerifyPaymentRequest({
-          address: paymentAddress,
-          ...result
-        });
-        const sendResult = await sendTx(code, txNote);
-        setVerifyPaymentRequest(false);
-        if (!sendResult.success && !('aborted' in sendResult)) {
-          alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
-        }
-      } else {
-        if (result.errorCode === 'insufficientFunds') {
-          alertUser(t('buy.bitrefill.error.' + result.errorCode));
-        } else if (result.errorCode) {
-          alertUser(t('send.error.' + result.errorCode));
-        } else {
-          alertUser(t('genericError'));
-        }
-      }
-      setPendingPayment(false);
+      handlePaymentRequest(event);
       break;
     }
     default: {
       break;
     }
     }
-  }, [account, bitrefillInfo, code, isDarkMode, pendingPayment, t]);
+  }, [account, bitrefillInfo, handlePaymentRequest, isDarkMode]);
 
   useEffect(() => {
     window.addEventListener('message', handleMessage);
