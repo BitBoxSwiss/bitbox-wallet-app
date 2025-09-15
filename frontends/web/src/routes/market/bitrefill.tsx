@@ -96,6 +96,30 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
     };
   }, [onResize]);
 
+  const handleConfiguration = useCallback(async (event: MessageEvent) => {
+    if (
+      !account
+      || !bitrefillInfo?.success
+    ) {
+      return;
+    }
+    event.source?.postMessage({
+      event: 'configuration',
+      ref: bitrefillInfo.ref,
+      utm_source: 'BITBOX',
+      theme: isDarkMode ? 'dark' : 'light',
+      hl: i18n.resolvedLanguage ? localeMapping[i18n.resolvedLanguage] : 'en',
+      paymentMethods: account.coinCode ? coinMapping[account.coinCode] : 'bitcoin',
+      refundAddress: bitrefillInfo.address,
+      // Option to keep pending payment information longer in session, defaults to 'false'
+      paymentPending: 'true',
+      // Option to show payment information in the widget, defaults to 'true'
+      showPaymentInfo: 'true'
+    }, {
+      targetOrigin: event.origin
+    });
+  }, [account, bitrefillInfo, isDarkMode]);
+
   const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
     if (!account || pendingPayment) {
       return;
@@ -165,8 +189,7 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
 
   const handleMessage = useCallback(async (event: MessageEvent) => {
     if (
-      !account
-      || !bitrefillInfo?.success
+      !bitrefillInfo?.success
       || ![getURLOrigin(bitrefillInfo.url), 'https://embed.bitrefill.com'].includes(event.origin)
     ) {
       return;
@@ -176,21 +199,7 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
 
     switch (data.event) {
     case 'request-configuration': {
-      event.source?.postMessage({
-        event: 'configuration',
-        ref: bitrefillInfo.ref,
-        utm_source: 'BITBOX',
-        theme: isDarkMode ? 'dark' : 'light',
-        hl: i18n.resolvedLanguage ? localeMapping[i18n.resolvedLanguage] : 'en',
-        paymentMethods: account.coinCode ? coinMapping[account.coinCode] : 'bitcoin',
-        refundAddress: bitrefillInfo.address,
-        // Option to keep pending payment information longer in session, defaults to 'false'
-        paymentPending: 'true',
-        // Option to show payment information in the widget, defaults to 'true'
-        showPaymentInfo: 'true'
-      }, {
-        targetOrigin: event.origin
-      });
+      handleConfiguration(event);
       break;
     }
     case 'payment_intent': {
@@ -201,7 +210,7 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
       break;
     }
     }
-  }, [account, bitrefillInfo, handlePaymentRequest, isDarkMode]);
+  }, [bitrefillInfo, handleConfiguration, handlePaymentRequest]);
 
   useEffect(() => {
     window.addEventListener('message', handleMessage);
