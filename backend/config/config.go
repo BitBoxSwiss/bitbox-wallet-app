@@ -106,6 +106,10 @@ type Backend struct {
 	// StartInTestnet represents whether the app should launch in testnet on the next start.
 	// It resets to `false` after the app starts.
 	StartInTestnet bool `json:"startInTestnet"`
+
+	// Gap limits optionally forces gap limits for receive/change addresses used in bitcoin accounts
+	GapLimitReceive int `json:"gapLimitReceive"`
+	GapLimitChange  int `json:"gapLimitChange"`
 }
 
 // DeprecatedCoinActive returns the Active setting for a coin by code.  This call is should not be
