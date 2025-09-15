@@ -63,6 +63,7 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
   const config = useLoad(getConfig);
   const [agreedTerms, setAgreedTerms] = useState(false);
 
+  const [pendingPayment, setPendingPayment] = useState<boolean>(false);
   const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>(false);
 
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
@@ -126,6 +127,10 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
       break;
     }
     case 'payment_intent': {
+      if (pendingPayment) {
+        return;
+      }
+      setPendingPayment(true);
       // User clicked "Pay" in checkout
       const {
         invoiceId,
@@ -137,11 +142,14 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
       const parsedAmount = await parseExternalBtcAmount(paymentAmount.toString());
       if (!parsedAmount.success) {
         alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
+        setPendingPayment(false);
         return;
       }
       // Ensure expected payment method matches account
       if (coinMapping[account.coinCode] !== paymentMethod) {
         alertUser(t('unknownError', { errorMessage: 'Payment method mismatch' }));
+        setPendingPayment(false);
+        return;
       }
 
       const txInput: TTxInput = {
@@ -179,13 +187,14 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
           alertUser(t('genericError'));
         }
       }
+      setPendingPayment(false);
       break;
     }
     default: {
       break;
     }
     }
-  }, [bitrefillInfo, isDarkMode, account, code, t]);
+  }, [account, bitrefillInfo, code, isDarkMode, pendingPayment, t]);
 
   useEffect(() => {
     window.addEventListener('message', handleMessage);
