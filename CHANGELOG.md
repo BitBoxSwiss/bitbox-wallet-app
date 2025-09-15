@@ -15,6 +15,7 @@
 - iOS: add launch screen and smooth transition upon opening the app for the first time.
 - Android: fix screen lock authentication loop bug
 - Android/iOS: fix screen lock bug when no authentication is configured on the device
+- iOS: fix wrong timezone when confirming time on BitBox02 (it would always show the time in UTC)
 
 ## v4.48.4
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
