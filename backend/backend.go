@@ -16,6 +16,7 @@
 package backend
 
 import (
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -732,7 +733,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
 		return
 	}
-	log := backend.log.WithField("rootFingerprint", fingerprint)
+	log := backend.log.WithField("rootFingerprint", hex.EncodeToString(fingerprint))
 	log.Info("registering keystore")
 	backend.keystore = keystore
 	backend.Notify(observable.Event{
@@ -792,7 +793,7 @@ func (backend *Backend) DeregisterKeystore() {
 	}
 	// Only for logging, if there is an error we continue anyway.
 	fingerprint, _ := backend.keystore.RootFingerprint()
-	backend.log.WithField("rootFingerprint", fingerprint).Info("deregistering keystore")
+	backend.log.WithField("rootFingerprint", hex.EncodeToString(fingerprint)).Info("deregistering keystore")
 	backend.keystore = nil
 	backend.Notify(observable.Event{
 		Subject: "keystores",
