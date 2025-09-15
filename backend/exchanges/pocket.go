@@ -122,7 +122,10 @@ func PocketWidgetVerifyAddress(account accounts.Interface, address string) error
 		return fmt.Errorf("Coin not supported %s", account.Coin().Code())
 	}
 
-	addressLists := account.GetUnusedReceiveAddresses()
+	addressLists, err := account.GetUnusedReceiveAddresses()
+	if err != nil {
+		return err
+	}
 	// iterate over the available script types to find the correct address
 	for _, list := range addressLists {
 		for _, addr := range list.Addresses {
