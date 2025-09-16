@@ -70,19 +70,29 @@ export const Dialog = ({
 
   useEsc(() => open && onClose?.());
 
-  // Close on outside click
-  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (onClose && e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
   const closeHandler = useCallback(() => {
     if (onClose !== undefined) {
       return false;
     }
     return true;
   }, [onClose]);
+
+  const mouseDownTarget = useRef<EventTarget | null>(null);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    mouseDownTarget.current = e.target;
+  };
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (
+      onClose
+      && mouseDownTarget.current === e.currentTarget // started on overlay
+      && e.target === e.currentTarget // ended on overlay
+    ) {
+      onClose();
+    }
+    mouseDownTarget.current = null;
+  };
 
   if (!isVisible) {
     return null;
@@ -113,7 +123,11 @@ export const Dialog = ({
   `.trim();
 
   return (
-    <div onClick={handleOverlayClick} className={overlayClass}>
+    <div
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      className={overlayClass}
+    >
       <UseBackButton handler={closeHandler} />
       <div className={modalClass}>
         {title && (
