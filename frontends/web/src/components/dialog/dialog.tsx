@@ -18,7 +18,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import { UseBackButton } from '@/hooks/backbutton';
-import { useEsc, useKeydown } from '@/hooks/keyboard';
+import { useEsc, useFocusTrap } from '@/hooks/keyboard';
 import style from './dialog.module.css';
 
 type TProps = {
@@ -48,6 +48,8 @@ export const Dialog = ({
   const [status, setStatus] = useState<'idle' | 'opening' | 'open' | 'closing'>('idle');
   const contentRef = useRef<HTMLDivElement>(null);
 
+  useFocusTrap(contentRef, status === 'open');
+
   // Mount/unmount lifecycle
   useEffect(() => {
     if (open) {
@@ -65,32 +67,6 @@ export const Dialog = ({
       return () => clearTimeout(id);
     }
   }, [open, isVisible, onClose]);
-
-  // Focus trapping
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key !== 'Tab' || !contentRef.current) {
-      return;
-    }
-    const focusables = contentRef.current.querySelectorAll<HTMLElement>(
-      'a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])'
-    );
-    if (!focusables.length) {
-      return;
-    }
-
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  }, []);
-
-  useKeydown(handleKeyDown);
 
   useEsc(() => open && onClose?.());
 
