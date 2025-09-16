@@ -1,0 +1,41 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          cd frontends/web
+          npm install
+
+      - name: Install Playwright browsers
+        run: |
+          cd frontends/web
+          npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: make webe2etest
+
+      - name: Upload Playwright artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: frontends/web/test-results/*

@@ -30,3 +30,5 @@ listdeps:
 	npm list -prod -long
 serve:
 	npm run serve
+test-e2e:
+	npm run test-e2e
