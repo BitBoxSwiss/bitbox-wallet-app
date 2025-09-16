@@ -824,6 +824,14 @@
   "footer": {
     "appVersion": "App version:"
   },
+  "gapLimit": {
+    "change": "Gap limit for change addresses",
+    "description": "Configure custom gap limits for bitcoin receive and change addresses.",
+    "maxValue": "The gap limit must not exceed {{max}}.",
+    "minValue": "The gap limit must be at least {{min}}.",
+    "receive": "Gap limit for receive addresses",
+    "title": "Custom gap limit settings"
+  },
   "generic": {
     "buy": "Buy {{coinCode}}",
     "buySell": "Buy & sell",
@@ -837,6 +845,7 @@
     "receive": "Receive {{coinCode}}",
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto",
+    "resetToDefault": "Reset to default",
     "search": "Search…",
     "sell": "Sell {{coinCode}}",
     "sell_bitcoin": "Sell Bitcoin",
