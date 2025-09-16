@@ -714,12 +714,12 @@ func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
 }
 
 // GetUnusedReceiveAddresses returns a number of unused addresses. Returns nil if the account is not initialized.
-func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
+func (account *Account) GetUnusedReceiveAddresses() ([]accounts.AddressList, error) {
 	if !account.isInitialized() {
-		return nil
+		return nil, errp.New("uninitialized")
 	}
 	if !account.Synced() {
-		return nil
+		return nil, accounts.ErrSyncInProgress
 	}
 	account.log.Debug("Get unused receive address")
 	var addresses []accounts.AddressList
@@ -734,8 +734,7 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
 		addressList.ScriptType = &scriptType
 		unusedAddresses, err := subacc.receiveAddresses.GetUnused()
 		if err != nil {
-			// TODO
-			panic(err)
+			return nil, err
 		}
 		for idx, address := range unusedAddresses {
 			if idx >= receiveAddressesLimit {
@@ -747,7 +746,7 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
 		}
 		addresses = append(addresses, addressList)
 	}
-	return addresses
+	return addresses, nil
 }
 
 // VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
@@ -939,7 +938,11 @@ func SignBTCAddress(account accounts.Interface, message string, scriptType signi
 			account.Coin().Code())
 	}
 
-	unused := account.GetUnusedReceiveAddresses()
+	unused, err := account.GetUnusedReceiveAddresses()
+	if err != nil {
+		return "", "", err
+	}
+
 	// Use the format hint to get a compatible address
 	if len(scriptType) == 0 {
 		scriptType = signing.ScriptTypeP2WPKH

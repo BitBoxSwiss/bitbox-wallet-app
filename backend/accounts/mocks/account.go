@@ -46,7 +46,7 @@ var _ accounts.Interface = &InterfaceMock{}
 //			FeeTargetsFunc: func() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
 //				panic("mock out the FeeTargets method")
 //			},
-//			GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
+//			GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 //				panic("mock out the GetUnusedReceiveAddresses method")
 //			},
 //			InfoFunc: func() *accounts.Info {
@@ -120,7 +120,7 @@ type InterfaceMock struct {
 	FeeTargetsFunc func() ([]accounts.FeeTarget, accounts.FeeTargetCode)
 
 	// GetUnusedReceiveAddressesFunc mocks the GetUnusedReceiveAddresses method.
-	GetUnusedReceiveAddressesFunc func() []accounts.AddressList
+	GetUnusedReceiveAddressesFunc func() ([]accounts.AddressList, error)
 
 	// InfoFunc mocks the Info method.
 	InfoFunc func() *accounts.Info
@@ -498,7 +498,7 @@ func (mock *InterfaceMock) FeeTargetsCalls() []struct {
 }
 
 // GetUnusedReceiveAddresses calls GetUnusedReceiveAddressesFunc.
-func (mock *InterfaceMock) GetUnusedReceiveAddresses() []accounts.AddressList {
+func (mock *InterfaceMock) GetUnusedReceiveAddresses() ([]accounts.AddressList, error) {
 	if mock.GetUnusedReceiveAddressesFunc == nil {
 		panic("InterfaceMock.GetUnusedReceiveAddressesFunc: method is nil but Interface.GetUnusedReceiveAddresses was just called")
 	}

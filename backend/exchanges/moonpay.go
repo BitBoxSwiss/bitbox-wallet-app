@@ -153,7 +153,10 @@ func MoonpayInfo(acct accounts.Interface, params BuyMoonpayParams) (BuyMoonpayIn
 		apiKey = moonpayBuyAPITestPubKey
 		apiURL = moonpayBuyAPITestURL
 	}
-	unused := acct.GetUnusedReceiveAddresses()
+	unused, err := acct.GetUnusedReceiveAddresses()
+	if err != nil {
+		return BuyMoonpayInfo{}, err
+	}
 	addr := unused[0].Addresses[0] // TODO: Let them choose sub acct?
 	// See https://www.moonpay.com/dashboard/getting_started/ for all available options.
 	// Note: the link is behind authentication.

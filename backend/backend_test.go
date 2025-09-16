@@ -132,7 +132,7 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 	t.Helper()
 	return &accountsMocks.InterfaceMock{
 		ObserveFunc: func(func(observable.Event)) func() {
-			return nil
+			return func() {}
 		},
 		CoinFunc: func() coinpkg.Coin {
 			return coin
@@ -152,7 +152,7 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 		FatalErrorFunc: func() bool {
 			return false
 		},
-		GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
+		GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 			result := []accounts.AddressList{}
 			for _, signingConfig := range config.Config.SigningConfigurations {
 				addressChain := addresses.NewAddressChain(
@@ -173,16 +173,17 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 				})
 
 			}
-			return result
+			return result, nil
 		},
-		CloseFunc: func() {},
+		CloseFunc:  func() {},
+		SyncedFunc: func() bool { return true },
 	}
 }
 
 func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) *accountsMocks.InterfaceMock {
 	return &accountsMocks.InterfaceMock{
 		ObserveFunc: func(func(observable.Event)) func() {
-			return nil
+			return func() {}
 		},
 		CoinFunc: func() coinpkg.Coin {
 			return coin
@@ -197,7 +198,7 @@ func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *
 			return nil, nil
 		},
 		FatalErrorFunc: func() bool { return false },
-		GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
+		GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 			return []accounts.AddressList{
 				{
 					Addresses: []accounts.Address{
@@ -207,9 +208,10 @@ func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *
 						},
 					},
 				},
-			}
+			}, nil
 		},
-		CloseFunc: func() {},
+		CloseFunc:  func() {},
+		SyncedFunc: func() bool { return true },
 	}
 }
 

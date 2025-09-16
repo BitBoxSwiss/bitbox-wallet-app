@@ -778,13 +778,13 @@ func (account *Account) TxProposal(
 }
 
 // GetUnusedReceiveAddresses implements accounts.Interface.
-func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
+func (account *Account) GetUnusedReceiveAddresses() ([]accounts.AddressList, error) {
 	if !account.isInitialized() {
-		return nil
+		return nil, errp.New("uninitialized")
 	}
 	return []accounts.AddressList{{
 		Addresses: []accounts.Address{account.address},
-	}}
+	}}, nil
 }
 
 // VerifyAddress implements accounts.Interface.

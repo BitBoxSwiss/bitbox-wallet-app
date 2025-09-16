@@ -16,6 +16,7 @@
 - Android: fix screen lock authentication loop bug
 - Android/iOS: fix screen lock bug when no authentication is configured on the device
 - Add expert setting to configure gap limit for bitcoin transaction discovery
+- Fix potential crash in the AOPP workflow
 
 ## v4.48.4
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
