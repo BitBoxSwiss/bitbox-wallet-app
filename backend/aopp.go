@@ -405,7 +405,7 @@ loop:
 	case coinpkg.CodeBTC:
 		sig, err := backend.keystore.SignBTCMessage(
 			[]byte(backend.aopp.Message),
-			addr.AbsoluteKeypath(),
+			*addr.AbsoluteKeypath(),
 			account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
 		)
 		if err != nil {
@@ -422,7 +422,7 @@ loop:
 	case coinpkg.CodeETH:
 		sig, err := backend.keystore.SignETHMessage(
 			[]byte(backend.aopp.Message),
-			addr.AbsoluteKeypath(),
+			*addr.AbsoluteKeypath(),
 		)
 		if err != nil {
 			if errp.Cause(err) == keystore.ErrSigningAborted {

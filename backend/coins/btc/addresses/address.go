@@ -151,10 +151,11 @@ func (address *AccountAddress) EncodeForHumans() string {
 }
 
 // AbsoluteKeypath implements accounts.Address.
-func (address *AccountAddress) AbsoluteKeypath() signing.AbsoluteKeypath {
-	return address.AccountConfiguration.AbsoluteKeypath().
+func (address *AccountAddress) AbsoluteKeypath() *signing.AbsoluteKeypath {
+	keypath := address.AccountConfiguration.AbsoluteKeypath().
 		Child(address.Derivation.SimpleChainIndex(), false).
 		Child(address.Derivation.AddressIndex, false)
+	return keypath
 }
 
 // PubkeyScript returns the pubkey script of this address. Use this in a tx output to receive funds.

@@ -36,6 +36,6 @@ func (address Address) EncodeForHumans() string {
 }
 
 // AbsoluteKeypath implements coin.Address.
-func (address Address) AbsoluteKeypath() signing.AbsoluteKeypath {
-	return address.absoluteKeypath
+func (address Address) AbsoluteKeypath() *signing.AbsoluteKeypath {
+	return &address.absoluteKeypath
 }

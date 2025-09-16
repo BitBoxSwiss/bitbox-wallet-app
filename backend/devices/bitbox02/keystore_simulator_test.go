@@ -82,7 +82,7 @@ var (
 	coinETH = eth.NewCoin(nil, "Etheruem", "ETH", "ETH", "ETH", params.MainnetChainConfig, "", nil, nil)
 )
 
-func mustKeypath(keypath string) signing.AbsoluteKeypath {
+func mustKeypath(keypath string) *signing.AbsoluteKeypath {
 	kp, err := signing.NewAbsoluteKeypath(keypath)
 	if err != nil {
 		panic(err)
@@ -345,7 +345,7 @@ func TestSimulatorExtendedPublicKeyBTC(t *testing.T) {
 	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
 		t.Helper()
 		keypath := mustKeypath("m/84'/1'/0'")
-		xpub, err := device.Keystore().ExtendedPublicKey(coinBTC, keypath)
+		xpub, err := device.Keystore().ExtendedPublicKey(coinBTC, *keypath)
 		require.NoError(t, err)
 		require.Equal(t,
 			"xpub6CAkM5q77qFTdrsoqguwTxAnnPVRd4hyHntZaYr9FTcefWi3AaTevG1YTvWzkNuqtshjQnJxpw1YjKLtuQvfvDiDiLVx2XYKZW5baGsRUuC",
@@ -354,7 +354,7 @@ func TestSimulatorExtendedPublicKeyBTC(t *testing.T) {
 	})
 }
 
-func makeConfig(t *testing.T, device *Device, scriptType signing.ScriptType, keypath signing.AbsoluteKeypath) *signing.Configuration {
+func makeConfig(t *testing.T, device *Device, scriptType signing.ScriptType, keypath *signing.AbsoluteKeypath) *signing.Configuration {
 	t.Helper()
 	xpubStr, err := device.BTCXPub(messages.BTCCoin_BTC, keypath.ToUInt32(), messages.BTCPubRequest_XPUB, false)
 	require.NoError(t, err)
@@ -668,7 +668,7 @@ func TestSimulatorVerifyAddressETH(t *testing.T) {
 		t.Helper()
 
 		type test struct {
-			keypath         signing.AbsoluteKeypath
+			keypath         *signing.AbsoluteKeypath
 			expectedAddress string
 		}
 
@@ -684,7 +684,7 @@ func TestSimulatorVerifyAddressETH(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			xpub, err := device.Keystore().ExtendedPublicKey(coinETH, test.keypath)
+			xpub, err := device.Keystore().ExtendedPublicKey(coinETH, *test.keypath)
 			require.NoError(t, err)
 			stdOut.Truncate(0)
 
