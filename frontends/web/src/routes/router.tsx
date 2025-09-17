@@ -183,7 +183,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   const BitrefillEl = (<InjectParams>
     <Bitrefill
       code={''}
-      accounts={activeAccounts} />
+      accounts={activeAccounts}
+      region={''} />
   </InjectParams>);
 
   const MarketEl = (<InjectParams>
@@ -223,7 +224,6 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     <MobileSettings
       devices={devices}
       hasAccounts={hasAccounts}
-
     />
   </InjectParams>);
 
@@ -276,11 +276,17 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
             <Route path=":code" element={MarketInfoEl} />
           </Route>
           <Route path="btcdirect/buy/:code" element={BTCDirectBuyEl} />
+          <Route path="btcdirect/buy/:code/:region" element={BTCDirectBuyEl} />
           <Route path="btcdirect/sell/:code" element={BTCDirectSellEl} />
+          <Route path="btcdirect/sell/:code/:region" element={BTCDirectSellEl} />
           <Route path="bitrefill/spend/:code" element={BitrefillEl} />
+          <Route path="bitrefill/spend/:code/:region" element={BitrefillEl} />
           <Route path="moonpay/buy/:code" element={MoonpayEl} />
+          <Route path="moonpay/buy/:code/:region" element={MoonpayEl} />
           <Route path="pocket/buy/:code" element={PocketBuyEl} />
+          <Route path="pocket/buy/:code/:region" element={PocketBuyEl} />
           <Route path="pocket/sell/:code" element={PocketSellEl} />
+          <Route path="pocket/sell/:code/:region" element={PocketSellEl} />
           <Route path="select/:code" element={MarketEl} />
           <Route path="btcdirect-otc" element={<BTCDirectOTC/>} />
         </Route>
