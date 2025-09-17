@@ -80,6 +80,7 @@ var rootFingerprint2 = []byte{0x66, 0x66, 0x66, 0x66}
 // A keystore with a similar config to a BitBox02 Multi - supporting unified and multiple accounts,
 // no legacy P2PKH.
 func makeBitBox02Multi() *keystoremock.KeystoreMock {
+	ksHelper := keystoreHelper1()
 	return &keystoremock.KeystoreMock{
 		NameFunc: func() (string, error) {
 			return "Mock name", nil
@@ -105,7 +106,8 @@ func makeBitBox02Multi() *keystoremock.KeystoreMock {
 		SupportsUnifiedAccountsFunc: func() bool {
 			return true
 		},
-		ExtendedPublicKeyFunc: keystoreHelper1().ExtendedPublicKey,
+		ExtendedPublicKeyFunc: ksHelper.ExtendedPublicKey,
+		BTCXPubsFunc:          ksHelper.BTCXPubs,
 	}
 }
 
@@ -364,6 +366,7 @@ func TestRegisterKeystore(t *testing.T) {
 			return true
 		},
 		ExtendedPublicKeyFunc: keystoreHelper1.ExtendedPublicKey,
+		BTCXPubsFunc:          keystoreHelper1.BTCXPubs,
 	}
 	ks2 := &keystoremock.KeystoreMock{
 		NameFunc: func() (string, error) {
@@ -388,6 +391,7 @@ func TestRegisterKeystore(t *testing.T) {
 			return true
 		},
 		ExtendedPublicKeyFunc: keystoreHelper2.ExtendedPublicKey,
+		BTCXPubsFunc:          keystoreHelper2.BTCXPubs,
 	}
 
 	b := newBackend(t, testnetDisabled, regtestDisabled)

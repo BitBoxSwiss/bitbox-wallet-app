@@ -18,6 +18,7 @@
 - Add expert setting to configure gap limit for bitcoin transaction discovery
 - Fix potential crash in the AOPP workflow
 - Windows: fix send/feetarget dropdown UI rendering bug
+- More efficient account initialization by fetching all account Bitcoin xpubs at once
 
 ## v4.48.4
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1

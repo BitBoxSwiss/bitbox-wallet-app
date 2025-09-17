@@ -1222,20 +1222,23 @@ func (backend *Backend) persistBTCAccountConfig(
 		accountWatch = &t
 	}
 
-	var signingConfigurations signing.Configurations
-	for _, cfg := range supportedConfigs {
-		extendedPublicKey, err := keystore.ExtendedPublicKey(coin, cfg.keypath)
-		if err != nil {
-			log.WithError(err).Errorf(
-				"Could not derive xpub at keypath %s", cfg.keypath.Encode())
-			return err
-		}
+	keypaths := make([]signing.AbsoluteKeypath, len(supportedConfigs))
+	for i, cfg := range supportedConfigs {
+		keypaths[i] = cfg.keypath
+	}
+	xpubs, err := keystore.BTCXPubs(coin, keypaths)
+	if err != nil {
+		log.WithError(err).Errorf("Could not derive xpubs at keypaths")
+		return err
+	}
 
+	var signingConfigurations signing.Configurations
+	for i, cfg := range supportedConfigs {
 		signingConfiguration := signing.NewBitcoinConfiguration(
 			cfg.scriptType,
 			rootFingerprint,
 			cfg.keypath,
-			extendedPublicKey,
+			xpubs[i],
 		)
 		signingConfigurations = append(signingConfigurations, signingConfiguration)
 	}

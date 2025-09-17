@@ -187,6 +187,20 @@ func (keystore *Keystore) ExtendedPublicKey(
 	return extendedPrivateKey.Neuter()
 }
 
+// BTCXPubs implements keystore.Keystore.
+func (keystore *Keystore) BTCXPubs(
+	coin coin.Coin, keypaths []signing.AbsoluteKeypath) ([]*hdkeychain.ExtendedKey, error) {
+	xpubs := make([]*hdkeychain.ExtendedKey, len(keypaths))
+	for i, keypath := range keypaths {
+		xpub, err := keystore.ExtendedPublicKey(coin, keypath)
+		if err != nil {
+			return nil, err
+		}
+		xpubs[i] = xpub
+	}
+	return xpubs, nil
+}
+
 func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	keystore.log.Info("Sign transaction.")
 	transaction := btcProposedTx.TXProposal.Transaction
