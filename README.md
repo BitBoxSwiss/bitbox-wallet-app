@@ -92,23 +92,9 @@ code in `frontends/web/src` are automatically detected and rebuilt.
 
 #### UI testing
 
-The tests are run using [jest](https://jestjs.io)
-and [ts-jest](https://www.npmjs.com/package/ts-jest) preprocessor.
-
-Because the app is based on [preact](https://preactjs.com),
-we use [preact-render-spy](https://www.npmjs.com/package/preact-render-spy) package
-instead of [enzyme](https://airbnb.io/enzyme/) to test app components rendering
-and their state.
+The frontend tests are run using [vitest](https://vitest.dev/) and [@testing-library/react](https://testing-library.com/).
 
 To run all test suites, execute `make webtest`.
-If you plan on spending a lot of time in `frontends/web/src` space
-or just keen on doing TDD, use jest's tests watcher:
-
-    cd frontends/web/
-    make jstest-watch
-
-To generate coverage report, execute `make jstest-cover` from `frontends/web` dir
-and open `coverage/lcov-report/index.html` in a browser.
 
 #### Run the HTTP API
 
@@ -145,7 +131,14 @@ use a port_number of your choice, launch the following command and go to `http:/
 QTWEBENGINE_REMOTE_DEBUGGING=<port_number> ./frontends/qt/build/osx/BitBox.app/Contents/MacOS/BitBox
 ```
 
-see also https://doc.qt.io/qt-5/qtwebengine-debugging.html
+Or on Windows using PowerShell
+
+```
+$env:QTWEBENGINE_REMOTE_DEBUGGING=<port_number>
+Start-Process .\BitBox.exe
+```
+
+see also https://doc.qt.io/qt-6/qtwebengine-debugging.html
 
 ### CI
 

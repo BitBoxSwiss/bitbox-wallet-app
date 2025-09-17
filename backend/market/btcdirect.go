@@ -149,7 +149,11 @@ func BtcDirectInfo(action Action, acct accounts.Interface, devServers bool) (*bt
 
 	if action == BuyAction {
 		res.Url += btcDirectBuyPage
-		res.Address = acct.GetUnusedReceiveAddresses()[0].Addresses[0].EncodeForHumans()
+		addressList, err := acct.GetUnusedReceiveAddresses()
+		if err != nil {
+			return nil, err
+		}
+		res.Address = addressList[0].Addresses[0].EncodeForHumans()
 	} else {
 		coinUnit := acct.Coin().Unit(false)
 		address, ok := sellAddresses[coinUnit]

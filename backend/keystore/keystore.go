@@ -113,6 +113,10 @@ type Keystore interface {
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
 	ExtendedPublicKey(coin.Coin, signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
 
+	// BTCXPubs returns the xpubs at the given keypaths. It attempts to fetch them in one go if
+	// possible.
+	BTCXPubs(coin.Coin, []signing.AbsoluteKeypath) ([]*hdkeychain.ExtendedKey, error)
+
 	// CanSignMessage returns true if the keystore can sign a message for a coin.
 	CanSignMessage(coin.Code) bool
 

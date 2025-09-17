@@ -69,6 +69,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bridgecommon"
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/mobileserver"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/system"
 )
@@ -189,7 +190,7 @@ func serve(
 			DetectDarkThemeFunc: detectDarkTheme,
 			AuthFunc: func() {
 				log.Info("Qt auth")
-				authResult(true)
+				authResult(mobileserver.AuthResultOk)
 			},
 			OnAuthSettingChangedFunc: func(bool) {},
 			BluetoothConnectFunc:     func(string) {},
@@ -216,8 +217,8 @@ func backendShutdown() {
 	bridgecommon.Shutdown()
 }
 
-func authResult(ok bool) {
-	bridgecommon.AuthResult(ok)
+func authResult(result string) {
+	mobileserver.AuthResult(result)
 }
 
 // Don't remove - needed for the C compilation.

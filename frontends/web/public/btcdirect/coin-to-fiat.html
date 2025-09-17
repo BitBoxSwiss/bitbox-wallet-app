@@ -32,7 +32,6 @@
       case 'configuration':
         const {
           apiKey,
-          address,
           baseCurrency,
           locale,
           mode,
@@ -88,21 +87,13 @@
           theme: theme || 'light',
         });
 
-        // FIXME: The address should not be needed for the sell flow: this is a temporary workaround to
-        // force the coin type in the widget. Without this, the widget UI allows the user to pick a
-        // coin, potentially breaking the flow.
-        btcdirect('wallet-addresses', {
-          addresses: {
-            address,
-            currency,
-            id: 'BTC Direct',
-            name: 'BTC Direct'
-          }
-        });
-
         btcdirect('currencies', {
           crypto: currency,
           fiat: quoteCurrency,
+        });
+
+        btcdirect('lock-cryptocurrency', {
+          lockCryptocurrency: true
         });
 
         break;

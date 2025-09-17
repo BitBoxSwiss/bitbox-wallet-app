@@ -23,6 +23,9 @@ var _ keystore.Keystore = &KeystoreMock{}
 //
 //		// make and configure a mocked keystore.Keystore
 //		mockedKeystore := &KeystoreMock{
+//			BTCXPubsFunc: func(coinMoqParam coin.Coin, absoluteKeypaths []signing.AbsoluteKeypath) ([]*hdkeychain.ExtendedKey, error) {
+//				panic("mock out the BTCXPubs method")
+//			},
 //			CanSignMessageFunc: func(code coin.Code) bool {
 //				panic("mock out the CanSignMessage method")
 //			},
@@ -93,6 +96,9 @@ var _ keystore.Keystore = &KeystoreMock{}
 //
 //	}
 type KeystoreMock struct {
+	// BTCXPubsFunc mocks the BTCXPubs method.
+	BTCXPubsFunc func(coinMoqParam coin.Coin, absoluteKeypaths []signing.AbsoluteKeypath) ([]*hdkeychain.ExtendedKey, error)
+
 	// CanSignMessageFunc mocks the CanSignMessage method.
 	CanSignMessageFunc func(code coin.Code) bool
 
@@ -158,6 +164,13 @@ type KeystoreMock struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// BTCXPubs holds details about calls to the BTCXPubs method.
+		BTCXPubs []struct {
+			// CoinMoqParam is the coinMoqParam argument value.
+			CoinMoqParam coin.Coin
+			// AbsoluteKeypaths is the absoluteKeypaths argument value.
+			AbsoluteKeypaths []signing.AbsoluteKeypath
+		}
 		// CanSignMessage holds details about calls to the CanSignMessage method.
 		CanSignMessage []struct {
 			// Code is the code argument value.
@@ -274,6 +287,7 @@ type KeystoreMock struct {
 			Configuration *signing.Configuration
 		}
 	}
+	lockBTCXPubs                        sync.RWMutex
 	lockCanSignMessage                  sync.RWMutex
 	lockCanVerifyAddress                sync.RWMutex
 	lockCanVerifyExtendedPublicKey      sync.RWMutex
@@ -295,6 +309,42 @@ type KeystoreMock struct {
 	lockVerifyAddressBTC                sync.RWMutex
 	lockVerifyAddressETH                sync.RWMutex
 	lockVerifyExtendedPublicKey         sync.RWMutex
+}
+
+// BTCXPubs calls BTCXPubsFunc.
+func (mock *KeystoreMock) BTCXPubs(coinMoqParam coin.Coin, absoluteKeypaths []signing.AbsoluteKeypath) ([]*hdkeychain.ExtendedKey, error) {
+	if mock.BTCXPubsFunc == nil {
+		panic("KeystoreMock.BTCXPubsFunc: method is nil but Keystore.BTCXPubs was just called")
+	}
+	callInfo := struct {
+		CoinMoqParam     coin.Coin
+		AbsoluteKeypaths []signing.AbsoluteKeypath
+	}{
+		CoinMoqParam:     coinMoqParam,
+		AbsoluteKeypaths: absoluteKeypaths,
+	}
+	mock.lockBTCXPubs.Lock()
+	mock.calls.BTCXPubs = append(mock.calls.BTCXPubs, callInfo)
+	mock.lockBTCXPubs.Unlock()
+	return mock.BTCXPubsFunc(coinMoqParam, absoluteKeypaths)
+}
+
+// BTCXPubsCalls gets all the calls that were made to BTCXPubs.
+// Check the length with:
+//
+//	len(mockedKeystore.BTCXPubsCalls())
+func (mock *KeystoreMock) BTCXPubsCalls() []struct {
+	CoinMoqParam     coin.Coin
+	AbsoluteKeypaths []signing.AbsoluteKeypath
+} {
+	var calls []struct {
+		CoinMoqParam     coin.Coin
+		AbsoluteKeypaths []signing.AbsoluteKeypath
+	}
+	mock.lockBTCXPubs.RLock()
+	calls = mock.calls.BTCXPubs
+	mock.lockBTCXPubs.RUnlock()
+	return calls
 }
 
 // CanSignMessage calls CanSignMessageFunc.

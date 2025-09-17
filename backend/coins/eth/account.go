@@ -112,7 +112,7 @@ func NewAccount(
 	enqueueUpdateCh chan *Account,
 ) *Account {
 	log = log.WithField("group", "eth").
-		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Config.Code, "name": config.Config.Name})
+		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Config.Code})
 	log.Debug("Creating new account")
 
 	account := &Account{
@@ -778,13 +778,13 @@ func (account *Account) TxProposal(
 }
 
 // GetUnusedReceiveAddresses implements accounts.Interface.
-func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
+func (account *Account) GetUnusedReceiveAddresses() ([]accounts.AddressList, error) {
 	if !account.isInitialized() {
-		return nil
+		return nil, errp.New("uninitialized")
 	}
 	return []accounts.AddressList{{
 		Addresses: []accounts.Address{account.address},
-	}}
+	}}, nil
 }
 
 // VerifyAddress implements accounts.Interface.

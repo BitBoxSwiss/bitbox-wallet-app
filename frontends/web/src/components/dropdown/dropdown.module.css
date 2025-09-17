@@ -56,5 +56,11 @@
 
 .select :global(.react-select__control) {
     background-color: var(--background-secondary);
+    border-radius: 2px;
     padding: var(--space-quarter) var(--space-eight);
+}
+
+.select :global(.react-select__control--is-focused) {
+    border-color: transparent !important;
+    box-shadow: 0 0 0 1px var(--color-blue) !important;
 }

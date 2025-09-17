@@ -98,3 +98,5 @@ locize-fix:
 	locize format ${WEBROOT}/src/locales --format json
 go-vendor:
 	go mod vendor
+update-bitbox02-api-go:
+	./scripts/update-bitbox02-api-go.sh

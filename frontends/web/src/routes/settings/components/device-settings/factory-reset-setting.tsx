@@ -106,20 +106,12 @@ const FactoryResetDialog = ({
       title={t('reset.title')}
       onClose={handleCloseDialog}
       small>
-      <div className="columnsContainer half">
-        <div className="columns">
-          <div className="column">
-            <p>{t('reset.description')}</p>
-            <div>
-              <Checkbox
-                id="reset_understand"
-                label={t('reset.understandBB02')}
-                checked={understand}
-                onChange={handleUnderstandChange} />
-            </div>
-          </div>
-        </div>
-      </div>
+      <p>{t('reset.description')}</p>
+      <Checkbox
+        id="reset_understand"
+        label={t('reset.understandBB02')}
+        checked={understand}
+        onChange={handleUnderstandChange} />
       <DialogButtons>
         <Button danger disabled={!understand} onClick={handleReset}>
           {t('reset.title')}

@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -338,8 +339,41 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 		return
 	}
 
-	unused := account.GetUnusedReceiveAddresses()
+	syncedCh := make(chan struct{})
+	unobserve := account.Observe(func(event observable.Event) {
+		if event.Subject == string(accountsTypes.EventSyncDone) {
+			select {
+			case <-syncedCh:
+				// already closed, no-op
+			default:
+				close(syncedCh)
+			}
+		}
+	})
+	defer unobserve()
+loop:
+	for {
+		select {
+		case <-syncedCh:
+			break loop
 
+		case <-time.After(time.Second):
+			// Fallback in case the SyncDone event is never received.
+			if account.Synced() {
+				break loop
+			}
+		}
+	}
+
+	unused, err := account.GetUnusedReceiveAddresses()
+	if err != nil {
+		log.
+			WithError(err).
+			WithField("code", account.Config().Config.Code).
+			Error("get unused receive addresses")
+		backend.aoppSetError(errAOPPUnknown)
+		return
+	}
 	signingConfigIdx := 0
 	// Use the format hint to get a compatible address.
 	if account.Coin().Code() == coinpkg.CodeBTC && backend.aopp.format != "any" {
@@ -362,7 +396,6 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 	backend.aopp.AddressID = addr.ID()
 	backend.aopp.State = aoppStateSigning
 	backend.notifyAOPP()
-
 	var signature []byte
 	var xpub string
 	if backend.aopp.XpubRequired {
@@ -407,7 +440,6 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 		backend.aoppSetError(errAOPPUnknown)
 		return
 	}
-
 	jsonBody, err := json.Marshal(struct {
 		Version   int    `json:"version"`
 		Address   string `json:"address"`

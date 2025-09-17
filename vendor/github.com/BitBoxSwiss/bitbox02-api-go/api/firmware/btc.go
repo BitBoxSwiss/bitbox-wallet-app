@@ -162,6 +162,57 @@ func (device *Device) BTCXPub(
 	return pubResponse.Pub.Pub, nil
 }
 
+// BTCXPubs queries the device for multiple xpubs at a time. On firmware <v9.24.0, this falls back
+// to calling `BTCXPub()` for each keypath.
+func (device *Device) BTCXPubs(
+	coin messages.BTCCoin,
+	keypaths [][]uint32,
+	xpubType messages.BTCXpubsRequest_XPubType) ([]string, error) {
+	keypathMsgs := make([]*messages.Keypath, len(keypaths))
+	if !device.version.AtLeast(semver.NewSemVer(9, 24, 0)) {
+		// Fallback to fetching them one-by-one on older firmware.
+		xpubTypeConverted, ok := map[messages.BTCXpubsRequest_XPubType]messages.BTCPubRequest_XPubType{
+			messages.BTCXpubsRequest_XPUB: messages.BTCPubRequest_XPUB,
+			messages.BTCXpubsRequest_TPUB: messages.BTCPubRequest_TPUB,
+		}[xpubType]
+		if !ok {
+			return nil, errp.New("unrecongized xpubType")
+		}
+		xpubs := make([]string, len(keypaths))
+		for i, keypath := range keypaths {
+			xpub, err := device.BTCXPub(coin, keypath, xpubTypeConverted, false)
+			if err != nil {
+				return nil, err
+			}
+			xpubs[i] = xpub
+		}
+		return xpubs, nil
+	}
+
+	for i, keypath := range keypaths {
+		keypathMsgs[i] = &messages.Keypath{Keypath: keypath}
+	}
+	request := &messages.BTCRequest{
+		Request: &messages.BTCRequest_Xpubs{
+			Xpubs: &messages.BTCXpubsRequest{
+				Coin:     coin,
+				XpubType: xpubType,
+				Keypaths: keypathMsgs,
+			},
+		},
+	}
+	response, err := device.queryBTC(request)
+	if err != nil {
+		return nil, err
+	}
+
+	pubsResponse, ok := response.Response.(*messages.BTCResponse_Pubs)
+	if !ok {
+		return nil, errp.New("unexpected response")
+	}
+	return pubsResponse.Pubs.Pubs, nil
+}
+
 // BTCAddress queries the device for a btc, ltc, tbtc, tltc address.
 func (device *Device) BTCAddress(
 	coin messages.BTCCoin,

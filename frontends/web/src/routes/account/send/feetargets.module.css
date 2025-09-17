@@ -55,12 +55,14 @@
     }
 }
 
-select:disabled.priority {
-    border-color: var(--background) !important;
-}
-
-select.priority {
-    border-color: var(--background-quaternary) !important;
+/* styles to overwrite default dropdown styling to make it fit into send */
+.priority :global(.react-select__control) {
+    border-color: var(--background-quaternary);
+    height: 52px;
+    padding-bottom: 0;
+    padding-top: 0;
+    z-index: 1;
+    margin-bottom: var(--space-quarter);
 }
 
 @media (min-width: 640px) {
@@ -109,6 +111,10 @@ select.priority {
     margin: var(--space-quarter) 0 0 0;
 }
 
+.rowCustomFee .priority :global(.react-select__control:not(:hover)) {
+    border-right-color: var(--background-secondary);
+}
+
 .customFeeUnit {
     bottom: 0;
     color: var(--color-secondary);
@@ -118,4 +124,9 @@ select.priority {
     position: absolute;
     right: 0;
     width: auto;
+}
+
+.unit {
+    color: var(--color-secondary);
+    font-size: var(--size-default);
 }

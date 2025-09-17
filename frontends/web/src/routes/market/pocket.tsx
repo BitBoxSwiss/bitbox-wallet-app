@@ -122,7 +122,7 @@ export const Pocket = ({
     }, 200);
   };
 
-  const sendAddress = (address: string, sig: string) => {
+  const sendAddress = (address: string, sig: string, correlationId?: string) => {
     const { current } = iframeRef;
 
     if (!current) {
@@ -132,11 +132,42 @@ export const Pocket = ({
     const message = serializeMessage({
       version: MessageVersion.V0,
       type: V0MessageType.Address,
+      correlationId,
       bitcoinAddress: address,
       signature: sig,
     });
 
     current.contentWindow?.postMessage(message, '*');
+  };
+
+  const sendPaymentTxId = (txid: string, correlationId?: string) => {
+    if (!iframeRef.current) {
+      return;
+    }
+
+    const message = serializeMessage({
+      version: MessageVersion.V0,
+      type: V0MessageType.Payment,
+      correlationId,
+      txid,
+    });
+
+    iframeRef.current.contentWindow?.postMessage(message, '*');
+  };
+
+  const sendCanceledMessage = (reason: string, correlationId?: string) => {
+    if (!iframeRef.current) {
+      return;
+    }
+
+    const message = serializeMessage({
+      version: MessageVersion.V0,
+      type: V0MessageType.Cancel,
+      correlationId,
+      reason,
+    });
+
+    iframeRef.current.contentWindow?.postMessage(message, '*');
   };
 
   const handleRequestAddress = (message: RequestAddressV0Message) => {
@@ -150,7 +181,7 @@ export const Pocket = ({
       .then(response => {
         signing = false;
         if (response.success) {
-          sendAddress(response.address, response.signature);
+          sendAddress(response.address, response.signature, message.correlationId);
         } else {
           if (response.errorCode !== 'userAbort') {
             alertUser(t('unknownError', { errorMessage: response.errorMessage }));
@@ -179,7 +210,7 @@ export const Pocket = ({
       });
   };
 
-  const sendXpub = () => {
+  const sendXpub = (correlationId?: string) => {
     if (accountInfo) {
       const bitcoinSimple = accountInfo.signingConfigurations[0].bitcoinSimple;
       if (bitcoinSimple) {
@@ -192,13 +223,14 @@ export const Pocket = ({
           version: MessageVersion.V0,
           type: V0MessageType.ExtendedPublicKey,
           extendedPublicKey: xpub,
+          correlationId,
         });
         current.contentWindow?.postMessage(message, '*');
       }
     }
   };
 
-  const handleRequestXpub = () => {
+  const handleRequestXpub = (correlationId?: string) => {
     getTransactionList(code).then(txs => {
       if (!txs.success) {
         alertUser(t('transactions.errorLoadTransactions'));
@@ -207,11 +239,11 @@ export const Pocket = ({
       if (txs.list.length > 0) {
         confirmation(t('buy.pocket.previousTransactions'), result => {
           if (result) {
-            sendXpub();
+            sendXpub(correlationId);
           }
         });
       } else {
-        sendXpub();
+        sendXpub(correlationId);
       }
     });
   };
@@ -225,6 +257,7 @@ export const Pocket = ({
     // this allows to correctly handle sats mode
     const parsedAmount = await parseExternalBtcAmount(message.amount.toString());
     if (!parsedAmount.success) {
+      sendCanceledMessage('invalid_amount', message.correlationId);
       alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
       return;
     }
@@ -245,8 +278,15 @@ export const Pocket = ({
       setBlocking(true);
       const sendResult = await sendTx(code, txNote);
       setBlocking(false);
-      if (!sendResult.success && !('aborted' in sendResult)) {
-        alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+      if (sendResult.success) {
+        sendPaymentTxId(sendResult.txId, message.correlationId);
+      } else {
+        if ('aborted' in sendResult) {
+          sendCanceledMessage('rejected_by_customer', message.correlationId);
+        } else {
+          sendCanceledMessage('unknown_error', message.correlationId);
+          alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+        }
       }
     } else {
       if (result.errorCode === 'insufficientFunds') {
@@ -283,7 +323,7 @@ export const Pocket = ({
         }
         break;
       case V0MessageType.RequestExtendedPublicKey:
-        handleRequestXpub();
+        handleRequestXpub(message.correlationId);
         break;
       case V0MessageType.PaymentRequest:
         handlePaymentRequest(message);

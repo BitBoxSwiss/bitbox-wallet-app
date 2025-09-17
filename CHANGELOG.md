@@ -13,6 +13,13 @@
 - Allow up to 6 unused BTC/LTC accounts (previously 5)
 - Add support for New Zealand Dollar (NZD)
 - Fix empty suggested name for BTC account when only BTC is supported by the BitBox.
+- iOS: add launch screen and smooth transition upon opening the app for the first time.
+- Android: fix screen lock authentication loop bug
+- Android/iOS: fix screen lock bug when no authentication is configured on the device
+- Add expert setting to configure gap limit for bitcoin transaction discovery
+- Fix potential crash in the AOPP workflow
+- Windows: fix send/feetarget dropdown UI rendering bug
+- More efficient account initialization by fetching all account Bitcoin xpubs at once
 
 ## v4.48.4
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
