@@ -19,11 +19,23 @@ android {
             }
         }
     }
+    signingConfigs {
+        release {
+            def env = System.getenv()
+            if (env.containsKey('KEYSTORE_STORE_FILE')) {
+                keyAlias env['KEYSTORE_KEY_ALIAS']
+                keyPassword env['KEYSTORE_KEY_PASSWORD']
+                storeFile file(env['KEYSTORE_STORE_FILE'])
+                storePassword env['KEYSTORE_STORE_PASSWORD']
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             resValue "string", "app_name", "BitBoxApp"
+            signingConfig signingConfigs.release
         }
         debug {
             applicationIdSuffix ".debug"
