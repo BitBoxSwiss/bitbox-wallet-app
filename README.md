@@ -103,6 +103,12 @@ Playwright is used to perform automatic test on some use cases on the webdev ver
 Tests are located under [`frontends/web/tests`](/frontends/web/tests) and can be run with
 `make webe2etest`
 
+Appium is used to perform automatic test on Android emulators.
+The test runs automatically on PRs and push to master in the Github CI. 
+
+`make mobilee2etest` can be used to launch the tests; however, when ran locally, this requires an Android emulator
+to be already running. In CI, the emulator is automatically spawned from a Github Action.
+
 #### Run the HTTP API
 
 Run `make servewallet` to compile the code and run `servewallet`. `servewallet` is a devtool which
