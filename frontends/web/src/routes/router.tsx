@@ -183,7 +183,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   const BitrefillEl = (<InjectParams>
     <Bitrefill
       code={''}
-      accounts={activeAccounts} />
+      accounts={activeAccounts}
+      region={''} />
   </InjectParams>);
 
   const MarketEl = (<InjectParams>

@@ -46,9 +46,14 @@ const coinMapping: Readonly<Record<string, string>> = {
 type TProps = {
   accounts: IAccount[];
   code: AccountCode;
+  region: string;
 };
 
-export const Bitrefill = ({ accounts, code }: TProps) => {
+export const Bitrefill = ({
+  accounts,
+  code,
+  region,
+}: TProps) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   const account = findAccount(accounts, code);
@@ -113,12 +118,13 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
       refundAddress: bitrefillInfo.address,
       // Option to keep pending payment information longer in session, defaults to 'false'
       paymentPending: 'true',
+      region, // can be an empty string if user didnt select a region in market
       // Option to show payment information in the widget, defaults to 'true'
       showPaymentInfo: 'true'
     }, {
       targetOrigin: event.origin
     });
-  }, [account, bitrefillInfo, isDarkMode]);
+  }, [account, bitrefillInfo, isDarkMode, region]);
 
   const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
     if (!account || pendingPayment) {
