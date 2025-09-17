@@ -17,9 +17,23 @@ public class BiometricAuthHelper {
         void onSuccess();
         void onFailure();
         void onCancel();
+        void noAuthConfigured();
     }
 
     public static void showAuthenticationPrompt(FragmentActivity activity, AuthCallback callback) {
+
+        BiometricManager biometricManager = BiometricManager.from(activity);
+        int canAuthenticate = biometricManager.canAuthenticate(
+                BiometricManager.Authenticators.DEVICE_CREDENTIAL |
+                        BiometricManager.Authenticators.BIOMETRIC_WEAK
+        );
+
+        if (canAuthenticate != BiometricManager.BIOMETRIC_SUCCESS) {
+            Util.log("Authentication not available: code " + canAuthenticate);
+            new Handler(Looper.getMainLooper()).post(callback::noAuthConfigured);
+            return;
+        }
+
         Executor executor = ContextCompat.getMainExecutor(activity);
         BiometricPrompt biometricPrompt = new BiometricPrompt(activity, executor, new BiometricPrompt.AuthenticationCallback() {
             @Override

@@ -29,6 +29,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
+	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -1016,6 +1017,24 @@ outerLoop:
 	return ks, err
 }
 
+// gapLimits returns the gap limits to use, with arguments having priority over config settings.
+func (backend *Backend) gapLimits() *btctypes.GapLimits {
+	gapLimits := backend.arguments.GapLimits()
+
+	if gapLimits == nil {
+		configReceive := uint16(backend.config.AppConfig().Backend.GapLimitReceive)
+		configChange := uint16(backend.config.AppConfig().Backend.GapLimitChange)
+		if configReceive > 0 && configChange > 0 {
+			gapLimits = &btctypes.GapLimits{
+				Receive: configReceive,
+				Change:  configChange,
+			}
+		}
+	}
+
+	return gapLimits
+}
+
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *config.Account) {
 	if backend.accounts.lookup(persistedConfig.Code) != nil {
@@ -1075,7 +1094,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 		account = backend.makeBtcAccount(
 			accountConfig,
 			specificCoin,
-			backend.arguments.GapLimits(),
+			backend.gapLimits(),
 			getAddressCallback,
 			backend.log,
 		)
@@ -1203,20 +1222,23 @@ func (backend *Backend) persistBTCAccountConfig(
 		accountWatch = &t
 	}
 
-	var signingConfigurations signing.Configurations
-	for _, cfg := range supportedConfigs {
-		extendedPublicKey, err := keystore.ExtendedPublicKey(coin, cfg.keypath)
-		if err != nil {
-			log.WithError(err).Errorf(
-				"Could not derive xpub at keypath %s", cfg.keypath.Encode())
-			return err
-		}
+	keypaths := make([]signing.AbsoluteKeypath, len(supportedConfigs))
+	for i, cfg := range supportedConfigs {
+		keypaths[i] = cfg.keypath
+	}
+	xpubs, err := keystore.BTCXPubs(coin, keypaths)
+	if err != nil {
+		log.WithError(err).Errorf("Could not derive xpubs at keypaths")
+		return err
+	}
 
+	var signingConfigurations signing.Configurations
+	for i, cfg := range supportedConfigs {
 		signingConfiguration := signing.NewBitcoinConfiguration(
 			cfg.scriptType,
 			rootFingerprint,
 			cfg.keypath,
-			extendedPublicKey,
+			xpubs[i],
 		)
 		signingConfigurations = append(signingConfigurations, signingConfiguration)
 	}

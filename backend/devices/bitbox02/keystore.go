@@ -297,6 +297,34 @@ func (keystore *keystore) ExtendedPublicKey(
 	}
 }
 
+// BTCXPubs implements keystore.Keystore.
+func (keystore *keystore) BTCXPubs(
+	coin coinpkg.Coin, keypaths []signing.AbsoluteKeypath) ([]*hdkeychain.ExtendedKey, error) {
+	msgCoin, ok := btcMsgCoinMap[coin.Code()]
+	if !ok {
+		return nil, errp.New("unsupported coin")
+	}
+
+	keypathsU32 := make([][]uint32, len(keypaths))
+	for i, keypath := range keypaths {
+		keypathsU32[i] = keypath.ToUInt32()
+	}
+	xpubStrs, err := keystore.device.BTCXPubs(
+		msgCoin, keypathsU32, messages.BTCXpubsRequest_XPUB)
+	if err != nil {
+		return nil, err
+	}
+	xpubs := make([]*hdkeychain.ExtendedKey, len(keypaths))
+	for i, xpubStr := range xpubStrs {
+		xpub, err := hdkeychain.NewKeyFromString(xpubStr)
+		if err != nil {
+			return nil, err
+		}
+		xpubs[i] = xpub
+	}
+	return xpubs, nil
+}
+
 func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	tx := btcProposedTx.TXProposal.Transaction
 

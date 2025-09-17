@@ -165,10 +165,12 @@ func TestInsuredAccountAddresses(t *testing.T) {
 	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 
 	// check the number of available addresses for native and wrapped segwit.
-	require.Len(t, account.GetUnusedReceiveAddresses()[0].Addresses, 20)
-	require.Equal(t, signing.ScriptTypeP2WPKHP2SH, *account.GetUnusedReceiveAddresses()[0].ScriptType)
-	require.Len(t, account.GetUnusedReceiveAddresses()[1].Addresses, 20)
-	require.Equal(t, signing.ScriptTypeP2WPKH, *account.GetUnusedReceiveAddresses()[1].ScriptType)
+	addressList, err := account.GetUnusedReceiveAddresses()
+	require.NoError(t, err)
+	require.Len(t, addressList[0].Addresses, 20)
+	require.Equal(t, signing.ScriptTypeP2WPKHP2SH, *addressList[0].ScriptType)
+	require.Len(t, addressList[1].Addresses, 20)
+	require.Equal(t, signing.ScriptTypeP2WPKH, *addressList[1].ScriptType)
 
 	// Create a new insured account.
 	account2 := mockAccount(t, &config.Account{
@@ -182,9 +184,11 @@ func TestInsuredAccountAddresses(t *testing.T) {
 	require.Eventually(t, account2.Synced, time.Second, time.Millisecond*200)
 
 	// native segwit is the only address type available.
-	require.Len(t, account2.GetUnusedReceiveAddresses(), 1)
-	require.Len(t, account2.GetUnusedReceiveAddresses()[0].Addresses, 20)
-	require.Equal(t, signing.ScriptTypeP2WPKH, *account2.GetUnusedReceiveAddresses()[0].ScriptType)
+	addressList, err = account2.GetUnusedReceiveAddresses()
+	require.NoError(t, err)
+	require.Len(t, addressList, 1)
+	require.Len(t, addressList[0].Addresses, 20)
+	require.Equal(t, signing.ScriptTypeP2WPKH, *addressList[0].ScriptType)
 
 }
 

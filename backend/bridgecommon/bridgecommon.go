@@ -143,25 +143,16 @@ func TriggerAuth() {
 	globalBackend.TriggerAuth()
 }
 
-// CancelAuth triggers an authentication canceled notification.
-func CancelAuth() {
-	mu.Lock()
-	defer mu.Unlock()
-	if globalBackend == nil {
-		return
-	}
-	globalBackend.CancelAuth()
-}
-
 // AuthResult triggers an authentication result notification
 // on the base of the input value.
-func AuthResult(ok bool) {
+func AuthResult(result backend.AuthResultType) {
 	mu.Lock()
 	defer mu.Unlock()
 	if globalBackend == nil {
 		return
 	}
-	globalBackend.AuthResult(ok)
+
+	globalBackend.AuthResult(result)
 }
 
 // UsingMobileDataChanged should be called when the network connnection changed.

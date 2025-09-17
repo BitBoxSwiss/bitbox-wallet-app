@@ -354,6 +354,33 @@ func TestSimulatorExtendedPublicKeyBTC(t *testing.T) {
 	})
 }
 
+func TestSimulatorBTCXPubs(t *testing.T) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
+		t.Helper()
+		xpubs, err := device.Keystore().BTCXPubs(
+			coinBTC,
+			[]signing.AbsoluteKeypath{
+				mustKeypath("m/49'/0'/0'"),
+				mustKeypath("m/84'/0'/0'"),
+				mustKeypath("m/86'/0'/0'"),
+			})
+		require.NoError(t, err)
+		require.Len(t, xpubs, 3)
+		require.Equal(t,
+			"xpub6ChfoYNiJY34r2UB1G34amVyozrf4jamF4aqkaQYYUA46Y6EUntw2ntChyQN9AZsSn58iGtsRRTfVR9G3FyikFX9KcrLWC8N7VU1qsjKjbY",
+			xpubs[0].String(),
+		)
+		require.Equal(t,
+			"xpub6BrUqPwnpwg7jpetDNH4r2y7Y2ffL1P6qkVAGE87Z3nL3frMLj2ZifEQCHbRPQzYG9Lkyb2syWJFBuoR7c63WdzGvEQRNSgvKDZRBXb1pBQ",
+			xpubs[1].String(),
+		)
+		require.Equal(t,
+			"xpub6CG8oqX3D1QhmUeLXh6URhZcGExCLKYX8DLFC4EXAUy2CC9oui5GdyiV1TJkbBwdgFyQ8T2phzRK5da7CaCEoudz5YhorpNEWFZcAd84i9X",
+			xpubs[2].String(),
+		)
+	})
+}
+
 func makeConfig(t *testing.T, device *Device, scriptType signing.ScriptType, keypath signing.AbsoluteKeypath) *signing.Configuration {
 	t.Helper()
 	xpubStr, err := device.BTCXPub(messages.BTCCoin_BTC, keypath.ToUInt32(), messages.BTCPubRequest_XPUB, false)
