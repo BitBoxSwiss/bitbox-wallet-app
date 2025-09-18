@@ -655,3 +655,23 @@ func (device *Device) BTCSignPSBT(
 
 	return nil
 }
+
+// BTCSignNeedsNonWitnessUTXOs returns true if the BitBox requires the NON_WITNESS_UTXO fields of
+// each PSBT input to be present. They are the previous transactions of the inputs, and the BitBox
+// needs them to validate the input amount, unless all inputs are Taproot.  This helper function
+// exists because different BitBox firmware versions have slightly different requirements about when
+// the prevtxs are needed.
+//
+// This is meant to be called by a PSBT updater to decide whether to retrieve and add the previous
+// transactions. Call this before `BTCSignPSBT()` with the same arguments.
+func (device *Device) BTCSignNeedsNonWitnessUTXOs(psbt_ *psbt.Packet, options *PSBTSignOptions) (bool, error) {
+	ourRootFingerprint, err := device.RootFingerprint()
+	if err != nil {
+		return false, err
+	}
+	result, err := newBTCTxFromPSBT(device.version, psbt_, ourRootFingerprint, options)
+	if err != nil {
+		return false, err
+	}
+	return BTCSignNeedsPrevTxs(result.scriptConfigs), nil
+}
