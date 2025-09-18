@@ -37,14 +37,25 @@ type bitrefillInfo struct {
 }
 
 var bitrefillRegions = []string{
-	"AE", "AN", "BL", "CH", "DE", "ES", "GD", "GB", "GI", "GS", "GR", "GL", "KN",
-	"KR", "LC", "LI", "LK", "LR", "LY", "LT", "LU", "MA", "MC", "MD", "ME", "MG",
-	"MH", "ML", "MK", "MN", "MO", "MQ", "MR", "MS", "MW", "MX", "MY", "MV", "MZ",
-	"NA", "NE", "NF", "NG", "NI", "NL", "NP", "NR", "NU", "NC", "MP", "NZ", "OM",
-	"PA", "PG", "PE", "PH", "PK", "PN", "PL", "PR", "PT", "QA", "RE", "RO", "RS",
-	"RW", "SA", "SB", "SC", "SH", "SI", "SK", "SL", "SM", "ST", "SG", "SS", "TG",
-	"TH", "TJ", "TK", "TL", "TO", "TR", "TT", "TV", "UG", "UA", "US", "UY", "UZ",
-	"VA", "VE", "VN", "VU", "WF", "WS", "YT", "YE", "ZM", "ZW"}
+	"AF", "AX", "AL", "DZ", "AS", "AD", "AO", "AI", "AQ", "AG", "AR", "AM", "AW",
+	"AU", "AT", "AZ", "BS", "BH", "BD", "BB", "BY", "BE", "BZ", "BJ", "BM", "BT",
+	"BO", "BQ", "BA", "BW", "BV", "BR", "IO", "BN", "BG", "BF", "BI", "KH", "CM",
+	"CA", "CV", "KY", "CF", "TD", "CL", "CN", "CX", "CC", "CO", "KM", "CG", "CK",
+	"CR", "HR", "CU", "CW", "CY", "CZ", "CD", "DK", "DJ", "DM", "DO", "EC", "EG",
+	"SV", "GQ", "ER", "EE", "ET", "FK", "FO", "FJ", "FI", "FR", "GF", "PF", "TF",
+	"GA", "GM", "GE", "DE", "GH", "GI", "GR", "GL", "GD", "GP", "GU", "GT", "GG",
+	"GN", "GW", "GY", "HT", "HM", "HN", "HK", "HU", "IS", "IN", "ID", "IQ", "IE",
+	"IM", "IL", "IT", "CI", "JM", "JP", "JE", "JO", "KZ", "KE", "KI", "XK", "KW",
+	"KG", "LA", "LV", "LB", "LS", "LR", "LY", "LI", "LT", "LU", "MO", "MK", "MG",
+	"MW", "MY", "MV", "ML", "MT", "MH", "MQ", "MR", "MU", "YT", "MX", "FM", "MD",
+	"MC", "MN", "ME", "MS", "MA", "MZ", "NA", "NR", "NP", "NL", "NC", "NZ", "NI",
+	"NE", "NG", "NU", "NF", "MP", "NO", "OM", "PK", "PW", "PS", "PA", "PG", "PY",
+	"PE", "PH", "PN", "PL", "PT", "PR", "QA", "RE", "RO", "RW", "BL", "SH", "MF",
+	"PM", "WS", "SM", "ST", "SA", "SN", "RS", "SC", "SL", "SG", "SK", "SI", "SB",
+	"SO", "ZA", "GS", "KR", "SS", "ES", "LK", "KN", "LC", "VC", "SD", "SR", "SJ",
+	"SZ", "SE", "CH", "SY", "TW", "TJ", "TZ", "TH", "TL", "TG", "TK", "TO", "TT",
+	"TN", "TR", "TM", "TC", "TV", "UG", "UA", "AE", "GB", "UY", "US", "UZ", "VU",
+	"VA", "VE", "VN", "VG", "VI", "WF", "EH", "YE", "ZM", "ZW"}
 
 // GetBitrefillSupportedRegions returns a string slice of the regions where Bitrefill services
 // are available.
