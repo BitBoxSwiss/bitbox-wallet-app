@@ -1,0 +1,210 @@
+.inputDropdownWrapper {
+    display: grid;
+    grid-template-columns: 1fr minmax(120px, 180px);
+    min-width: 0;
+}
+
+
+.dropdown {
+    font-size: var(--size-small);
+    min-width: 120px;
+    max-width: 180px;
+    width: 100%;
+}
+
+.chevron {
+    rotate: 270deg;
+    width: 24px;
+    height: 24px;
+}
+
+.accountOption {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.coinLogo {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.accountName {
+    font-size: var(--size-small);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+.selectedAccountName {
+    font-size: var(--size-small);
+    color: var(--color-blue);
+}
+
+.dropdown :global(.react-select__control) {
+    height: 52px;
+    border: 1px solid var(--background-quaternary);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
+    padding: 0;
+}
+
+.dropdown :global(.react-select__value-container) {
+    padding: 0;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.dropdown :global(.react-select__control):hover {
+    border-color: var(--background-quaternary);
+}
+
+.dropdown :global(.react-select__input) {
+    height: 0;
+}
+
+.dropdown :global(.react-select__single-value) {
+    color: var(--color-blue);
+    font-size: 14px;
+    display: flex;
+    justify-content: flex-end;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.dropdown :global(.react-select__input):hover {
+    border-color: var(--color-blue);
+}
+
+.input {
+    width: 100%;
+    margin-bottom: var(--space-half);
+    position: relative;
+}
+
+.input label {
+    display: block;
+    margin: 0 0 var(--space-quarter) 0;
+}
+
+.align-left label {
+    justify-self: flex-start;
+}
+
+.align-right label {
+    flex-grow: 1;
+    justify-self: flex-end;
+    text-align: right;
+}
+
+.align-right input {
+    text-align: right;
+}
+.input .inputField{
+    background-color: var(--background-secondary);
+    border-color: var(--background-quaternary);
+    border-radius: 2px;
+    border-style: solid;
+    border-width: 1px;
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    font-family: var(--font-family);
+    font-size: var(--size-default);
+    font-weight: 400;
+    height: 52px;
+    padding: 0 var(--space-half);
+    width: 100%;
+    transition: border-color .2s ease-out;
+    will-change: border-color;
+    padding-left: 50px;
+    padding-right: 0;
+}
+
+.input .inputField:disabled {
+    border-color: var(--background-quaternary) !important;
+}
+
+.input input:focus {
+    border-color: var(--color-blue);
+    outline: none;
+}
+
+.inputDropdownWrapper:focus-within .dropdown :global(.react-select__control) {
+    border-color: var(--color-blue);
+    border-left: none !important;
+    box-shadow: none !important;
+}
+
+.inputDropdownWrapper:focus-within .inputField {
+    border-color: var(--color-blue);
+    border-right: none;
+}
+
+.inputDropdownWrapper:focus-within .inputField:disabled {
+    border-color: var(--color-blue) !important;
+    border-right: none;
+}
+
+.inputDropdownWrapper:focus-within .dropdownTrigger {
+    border-color: var(--color-blue);
+}
+
+.input input::placeholder {
+    color: var(--color-secondary);
+}
+
+.input input[disabled] {
+    background-color: var(--background-secondary) !important;
+    border-color: var(--background) !important;
+    color: var(--color-secondary) !important;
+    cursor: not-allowed;
+}
+
+.isTransparent input[disabled] {
+    border-color: var(--background);
+    color: var(--color-default) !important;
+    cursor: default;
+}
+
+.errorText {
+    color: var(--color-softred) !important;
+}
+
+.errorText > span > span {
+    margin-left: 5px;
+}
+
+.input input[type=checkbox] {
+    width: auto;
+    height: auto;
+}
+
+.dropdownTrigger {
+    width: 100%;
+    display: flex;
+    height: 52px;
+    padding-left: 0;
+    background-color: #fff;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--background-quaternary);
+    border-left: hidden;
+    transition: border-color .2s ease-out;
+    will-change: border-color;
+}
+
+@media (max-width: 768px) {
+    .inputDropdownWrapper {
+        grid-template-columns: 90% 10%;
+    }
+}

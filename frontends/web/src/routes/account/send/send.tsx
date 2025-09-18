@@ -1,3 +1,4 @@
+
 /**
  * Copyright 2018 Shift Devices AG
  * Copyright 2023-2025 Shift Crypto AG
@@ -47,6 +48,7 @@ import style from './send.module.css';
 
 type TProps = {
   account: accountApi.IAccount;
+  accounts: accountApi.IAccount[];
   activeCurrency: accountApi.Fiat;
 }
 
@@ -73,6 +75,7 @@ const useAccountBalance = (accountCode: accountApi.AccountCode) => {
 
 export const Send = ({
   account,
+  accounts,
   activeCurrency,
 }: TProps) => {
   const { t } = useTranslation();
@@ -83,6 +86,7 @@ export const Send = ({
   const proposeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [recipientAddress, setRecipientAddress] = useState<string>('');
+  const [actualRecipientAddress, setActualRecipientAddress] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
   const [fiatAmount, setFiatAmount] = useState<string>('');
   const [valid, setValid] = useState<boolean>(false);
@@ -107,6 +111,7 @@ export const Send = ({
     setSendAll(false);
     setIsConfirming(false);
     setRecipientAddress('');
+    setActualRecipientAddress('');
     setProposedAmount(undefined);
     setProposedFee(undefined);
     setProposedTotal(undefined);
@@ -142,8 +147,9 @@ export const Send = ({
   }, [account.code, account.keystore.rootFingerprint, note]);
 
   const getValidTxInputData = useCallback((): Required<accountApi.TTxInput> | false => {
+    const addressToUse = actualRecipientAddress || recipientAddress;
     if (
-      !recipientAddress
+      !addressToUse
       || feeTarget === undefined
       || (!sendAll && !amount)
       || (feeTarget === 'custom' && !customFee)
@@ -151,7 +157,7 @@ export const Send = ({
       return false;
     }
     return {
-      address: recipientAddress,
+      address: addressToUse,
       amount,
       feeTarget,
       customFee,
@@ -160,7 +166,7 @@ export const Send = ({
       paymentRequest: null,
       useHighestFee: false
     };
-  }, [recipientAddress, feeTarget, sendAll, amount, customFee]);
+  }, [recipientAddress, actualRecipientAddress, feeTarget, sendAll, amount, customFee]);
 
   const convertToFiat = useCallback(async (amount: string) => {
     if (amount) {
@@ -299,6 +305,10 @@ export const Send = ({
     setUpdateFiat(true);
   };
 
+  const handleActualAddressChange = (actualAddress: string) => {
+    setActualRecipientAddress(actualAddress);
+  };
+
   const parseQRResult = async (uri: string) => {
     let qrAddress;
     let qrAmount = '';
@@ -388,8 +398,11 @@ export const Send = ({
                 <Column>
                   <ReceiverAddressInput
                     accountCode={account.code}
+                    accounts={accounts}
+                    currentAccount={account}
                     addressError={errorHandling.addressError}
                     onInputChange={handleReceiverAddressInputChange}
+                    onAddressChange={handleActualAddressChange}
                     recipientAddress={recipientAddress}
                     parseQRResult={parseQRResult}
                   />
