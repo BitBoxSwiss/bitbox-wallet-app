@@ -33,8 +33,8 @@ import { VendorDeals } from '@/routes/market/components/vendor-deals';
 import style from '../market.module.css';
 
 type TProps = {
-  accountCode: string;
-  selectedRegion: string;
+  marketDealsResponse: marketAPI.TMarketDealsResponse | undefined;
+  btcDirectOTCSupported: marketAPI.TBtcDirectResponse | undefined;
   goToVendor: (vendor: string) => void;
   showBackButton: boolean;
   action: marketAPI.TMarketAction;
@@ -42,8 +42,8 @@ type TProps = {
 }
 
 export const Deals = ({
-  accountCode,
-  selectedRegion,
+  marketDealsResponse,
+  btcDirectOTCSupported,
   goToVendor,
   showBackButton,
   action,
@@ -52,8 +52,6 @@ export const Deals = ({
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
 
-  const marketDealsResponse = useLoad(() => marketAPI.getMarketDeals(action, accountCode, selectedRegion), [action, selectedRegion]);
-  const btcDirectOTCSupported = useLoad(marketAPI.getBtcDirectOTCSupported(accountCode, selectedRegion), [selectedRegion]);
   const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
   const config = useLoad(getConfig);
   const navigate = useNavigate();
