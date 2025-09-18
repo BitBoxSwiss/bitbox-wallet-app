@@ -40,8 +40,8 @@ import { InfoContent, TInfoContentProps } from './components/infocontent';
 import style from './market.module.css';
 
 type TProps = {
-    accounts: IAccount[];
-    code: AccountCode;
+  accounts: IAccount[];
+  code: AccountCode;
 }
 
 export const Market = ({
@@ -102,6 +102,34 @@ export const Market = ({
     setSelectedRegion(regionAvailable ? userRegion : '');
   }, [regionCodes, config, nativeLocale]);
 
+  const buyDealsResponse = useLoad(() => marketAPI.getMarketDeals('buy', code, selectedRegion), [code, selectedRegion]);
+  const sellDealsResponse = useLoad(() => marketAPI.getMarketDeals('sell', code, selectedRegion), [code, selectedRegion]);
+  const spendDealsResponse = useLoad(() => marketAPI.getMarketDeals('spend', code, selectedRegion), [code, selectedRegion]);
+  const btcDirectOTCSupported = useLoad(marketAPI.getBtcDirectOTCSupported(code, selectedRegion), [code, selectedRegion]);
+
+  // catch edge to change to spend tab for regions that dont have any buy or sell offerings
+  useEffect(() => {
+    const noBuy = buyDealsResponse !== undefined && (!buyDealsResponse.success || buyDealsResponse.deals.length === 0);
+    const noSell = sellDealsResponse !== undefined && (!sellDealsResponse?.success || sellDealsResponse.deals.length === 0);
+    const hasSpend = spendDealsResponse?.success && spendDealsResponse.deals.length > 0;
+    if (noBuy && noSell && hasSpend) {
+      setActiveTab('spend');
+    }
+  }, [
+    selectedRegion, // react to region changes
+    buyDealsResponse, sellDealsResponse, spendDealsResponse
+  ]);
+
+  const getDealReponse = (action: marketAPI.TMarketAction) => {
+    switch (action) {
+    case 'buy':
+      return buyDealsResponse;
+    case 'sell':
+      return sellDealsResponse;
+    case 'spend':
+      return spendDealsResponse;
+    }
+  };
 
   const goToVendor = (vendor: string) => {
     if (!vendor) {
@@ -166,8 +194,8 @@ export const Market = ({
                 />
                 <div className={style.radioButtonsContainer}>
                   <Deals
-                    accountCode={code}
-                    selectedRegion={selectedRegion}
+                    marketDealsResponse={getDealReponse(activeTab)}
+                    btcDirectOTCSupported={btcDirectOTCSupported}
                     goToVendor={goToVendor}
                     showBackButton={supportedAccounts.length > 1}
                     action={activeTab}
