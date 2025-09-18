@@ -387,7 +387,8 @@ func makeConfig(t *testing.T, device *Device, scriptType signing.ScriptType, key
 	require.NoError(t, err)
 	xpub, err := hdkeychain.NewKeyFromString(xpubStr)
 	require.NoError(t, err)
-	rootFingerprint := []byte{1, 2, 3, 4}
+	rootFingerprint, err := device.RootFingerprint()
+	require.NoError(t, err)
 	return signing.NewBitcoinConfiguration(scriptType, rootFingerprint, keypath, xpub)
 }
 
@@ -469,29 +470,30 @@ func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.Pro
 	)
 	require.NoError(t, err)
 
-	return &btc.ProposedTransaction{
+	proposedTransaction := &btc.ProposedTransaction{
 		TXProposal:                   txProposal,
 		AccountSigningConfigurations: configurations,
 		GetPrevTx: func(chainhash.Hash) (*wire.MsgTx, error) {
 			return prevTx, nil
 		},
-		GetKeystoreAddress: func(account *btc.Account, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error) {
+		GetKeystoreAddress: func(coinCode coinpkg.Code, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, error) {
 			for _, address := range addrs {
 				if address.PubkeyScriptHashHex() == scriptHashHex {
-					return address, true, nil
+					return address, nil
 				}
 			}
 			for _, address := range addrsInDifferentAccount {
 				if address.PubkeyScriptHashHex() == scriptHashHex {
-					return address, false, nil
+					return address, nil
 				}
 			}
-			return nil, false, nil
+			return nil, nil
 		},
-		Signatures: make([]*types.Signature, len(txProposal.Transaction.TxIn)),
+		Signatures: make([]*types.Signature, len(txProposal.Psbt.UnsignedTx.TxIn)),
 		FormatUnit: coinpkg.BtcUnitDefault,
 	}
-
+	require.NoError(t, proposedTransaction.Update())
+	return proposedTransaction
 }
 
 func TestSimulatorSignBTCTransactionSendSelfDifferentAccount(t *testing.T) {
@@ -507,13 +509,8 @@ func TestSimulatorSignBTCTransactionSendSelfDifferentAccount(t *testing.T) {
 		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(selfAddress.PubkeyScript()))
 
 		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
-		require.NoError(t, proposedTransaction.Finalize())
-		require.NoError(
-			t,
-			btc.TxValidityCheck(
-				proposedTransaction.TXProposal.Transaction,
-				proposedTransaction.TXProposal.PreviousOutputs,
-				proposedTransaction.TXProposal.SigHashes()))
+		_, err := proposedTransaction.FinalizeAndExtract()
+		require.NoError(t, err)
 
 		// Send-to-self message from different accounts is only available on v9.22 and later.
 		if device.Version().AtLeast(semver.NewSemVer(9, 22, 0)) {
@@ -533,13 +530,8 @@ func TestSimulatorSignBTCTransactionMixedInputs(t *testing.T) {
 		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(pkScript))
 
 		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
-		require.NoError(t, proposedTransaction.Finalize())
-		require.NoError(
-			t,
-			btc.TxValidityCheck(
-				proposedTransaction.TXProposal.Transaction,
-				proposedTransaction.TXProposal.PreviousOutputs,
-				proposedTransaction.TXProposal.SigHashes()))
+		_, err = proposedTransaction.FinalizeAndExtract()
+		require.NoError(t, err)
 
 		// Before simulator v9.20, address confirmation data was not written to stdout.
 		if device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
@@ -563,13 +555,8 @@ func TestSimulatorSignBTCTransactionSendSelfSameAccount(t *testing.T) {
 		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(selfAddress.PubkeyScript()))
 
 		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
-		require.NoError(t, proposedTransaction.Finalize())
-		require.NoError(
-			t,
-			btc.TxValidityCheck(
-				proposedTransaction.TXProposal.Transaction,
-				proposedTransaction.TXProposal.PreviousOutputs,
-				proposedTransaction.TXProposal.SigHashes()))
+		_, err := proposedTransaction.FinalizeAndExtract()
+		require.NoError(t, err)
 
 		// v9.22 changed the format of the output string.
 		if device.Version().AtLeast(semver.NewSemVer(9, 22, 0)) {
@@ -597,17 +584,12 @@ func TestSimulatorSignBTCTransactionSilentPayment(t *testing.T) {
 		}
 
 		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
-		require.NoError(t, proposedTransaction.Finalize())
-		require.NoError(
-			t,
-			btc.TxValidityCheck(
-				proposedTransaction.TXProposal.Transaction,
-				proposedTransaction.TXProposal.PreviousOutputs,
-				proposedTransaction.TXProposal.SigHashes()))
+		_, err := proposedTransaction.FinalizeAndExtract()
+		require.NoError(t, err)
 
 		found := false
 		expectedSilentPaymentOutputPkScript := "5120d826829cb603fc008e5ef99d0818f2126d3569c3ab8a6cd069f07a20e892bd59"
-		for _, o := range proposedTransaction.TXProposal.Transaction.TxOut {
+		for _, o := range proposedTransaction.TXProposal.Psbt.UnsignedTx.TxOut {
 			if hex.EncodeToString(o.PkScript) == expectedSilentPaymentOutputPkScript {
 				found = true
 				break
@@ -788,7 +770,7 @@ func TestSimulatorSignBTCPaymentRequest(t *testing.T) {
 		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(pkScript))
 
 		txProposal := proposedTransaction.TXProposal
-		recipientOutput := txProposal.Transaction.TxOut[txProposal.OutIndex]
+		recipientOutput := txProposal.Psbt.UnsignedTx.TxOut[txProposal.OutIndex]
 		value := uint64(recipientOutput.Value)
 
 		paymentRequest := &accounts.PaymentRequest{
@@ -813,13 +795,8 @@ func TestSimulatorSignBTCPaymentRequest(t *testing.T) {
 		proposedTransaction.TXProposal.PaymentRequest = paymentRequest
 
 		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
-		require.NoError(t, proposedTransaction.Finalize())
-		require.NoError(
-			t,
-			btc.TxValidityCheck(
-				proposedTransaction.TXProposal.Transaction,
-				proposedTransaction.TXProposal.PreviousOutputs,
-				proposedTransaction.TXProposal.SigHashes()))
+		_, err = proposedTransaction.FinalizeAndExtract()
+		require.NoError(t, err)
 
 		const expected1 = `CONFIRM TRANSACTION ADDRESS SCREEN START
 AMOUNT: 2.50000000 BTC

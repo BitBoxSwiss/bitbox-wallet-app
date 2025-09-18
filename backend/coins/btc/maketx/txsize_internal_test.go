@@ -20,11 +20,13 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	addressesTest "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/mempool"
+	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/stretchr/testify/require"
 )
@@ -57,6 +59,51 @@ func makeSig() types.Signature {
 	return sig
 }
 
+// signatureScript returns the signature script (and witness) needed to spend from this address.
+func signatureScript(
+	t *testing.T,
+	address *addresses.AccountAddress,
+	signature types.Signature,
+) ([]byte, wire.TxWitness) {
+	t.Helper()
+	publicKey := address.PublicKey
+	switch address.AccountConfiguration.ScriptType() {
+	case signing.ScriptTypeP2PKH:
+		signatureScript, err := txscript.NewScriptBuilder().
+			AddData(append(signature.SerializeDER(), byte(txscript.SigHashAll))).
+			AddData(publicKey.SerializeCompressed()).
+			Script()
+		require.NoError(t, err)
+		return signatureScript, nil
+	case signing.ScriptTypeP2WPKHP2SH:
+		signatureScript, err := txscript.NewScriptBuilder().
+			AddData(address.RedeemScript).
+			Script()
+		require.NoError(t, err)
+		txWitness := wire.TxWitness{
+			append(signature.SerializeDER(), byte(txscript.SigHashAll)),
+			publicKey.SerializeCompressed(),
+		}
+		return signatureScript, txWitness
+	case signing.ScriptTypeP2WPKH:
+		txWitness := wire.TxWitness{
+			append(signature.SerializeDER(), byte(txscript.SigHashAll)),
+			publicKey.SerializeCompressed(),
+		}
+		return []byte{}, txWitness
+	case signing.ScriptTypeP2TR:
+		// We assume SIGHASH_DEFAULT, which defaults to SIGHASH_ALL without needing to explicitly
+		// append it to the signature. See:
+		// https://github.com/bitcoin/bips/blob/97e02b2223b21753acefa813a4e59dbb6e849e77/bip-0341.mediawiki#taproot-key-path-spending-signature-validation
+		txWitness := wire.TxWitness{
+			signature.SerializeCompact(),
+		}
+		return []byte{}, txWitness
+	default:
+		panic("Unrecognized address type.")
+	}
+}
+
 func testEstimateTxSize(
 	t *testing.T, useSegwit bool, outputScriptType, changeScriptType signing.ScriptType) {
 	t.Helper()
@@ -86,7 +133,7 @@ func testEstimateTxSize(
 	for counter := 0; counter < 10; counter++ {
 		for _, inputScriptType := range inputScriptTypes {
 			inputAddress := addressesTest.GetAddress(inputScriptType)
-			sigScript, witness := inputAddress.SignatureScript(sig)
+			sigScript, witness := signatureScript(t, inputAddress, sig)
 			tx.TxIn = append(tx.TxIn, &wire.TxIn{
 				SignatureScript: sigScript,
 				Witness:         witness,
@@ -121,7 +168,7 @@ func TestSigScriptWitnessSize(t *testing.T) {
 		address := addressesTest.GetAddress(scriptType)
 		t.Run(address.AccountConfiguration.String(), func(t *testing.T) {
 			sigScriptSize, witnessSize := sigScriptWitnessSize(address.AccountConfiguration)
-			sigScript, witness := address.SignatureScript(sig)
+			sigScript, witness := signatureScript(t, address, sig)
 			require.Equal(t, len(sigScript), sigScriptSize)
 			if witness != nil {
 				require.Equal(t, witness.SerializeSize(), witnessSize)

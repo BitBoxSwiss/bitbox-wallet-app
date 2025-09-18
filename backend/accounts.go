@@ -1063,14 +1063,14 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 
 	// This function is passed as a callback to the BTC account constructor. It is called when the
 	// keystore needs to determine whether an address belongs to an account on its same keystore.
-	getAddressCallback := func(askingAccount *btc.Account, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error) {
+	getAddressCallback := func(coinCode coinpkg.Code, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, error) {
 		accountsByKeystore, err := backend.AccountsByKeystore()
 		if err != nil {
-			return nil, false, err
+			return nil, err
 		}
 		rootFingerprint, err := backend.keystore.RootFingerprint()
 		if err != nil {
-			return nil, false, err
+			return nil, err
 		}
 		for _, account := range accountsByKeystore[hex.EncodeToString(rootFingerprint)] {
 			// This only makes sense for BTC accounts.
@@ -1079,14 +1079,14 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 				continue
 			}
 			// Only return an address if the coin codes match.
-			if btcAccount.Coin().Code() != askingAccount.Coin().Code() {
+			if btcAccount.Coin().Code() != coinCode {
 				continue
 			}
 			if address := btcAccount.GetAddress(scriptHashHex); address != nil {
-				return address, askingAccount == btcAccount, nil
+				return address, nil
 			}
 		}
-		return nil, false, nil
+		return nil, nil
 	}
 
 	switch specificCoin := coin.(type) {
