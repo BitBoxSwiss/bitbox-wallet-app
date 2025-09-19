@@ -3,6 +3,7 @@
   "name": "bitboxapp",
   "version": "0.0.0",
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@stylistic/eslint-plugin": "^4.2.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",

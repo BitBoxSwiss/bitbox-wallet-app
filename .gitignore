@@ -51,3 +51,7 @@ tags
 !/frontends/web/src/locales/tr/
 !/frontends/web/src/locales/zh/
 !/frontends/web/src/locales/cs/
+
+# Playwright files
+/frontends/web/playwright-report/
+/frontends/web/test-results/
