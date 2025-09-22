@@ -18,11 +18,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
-import { AccountCode, IAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { AccountCode, IAccount, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { useDarkmode } from '@/hooks/darkmode';
 import { getConfig } from '@/utils/config';
-import style from './iframe.module.css';
 import { i18n } from '@/i18n/i18n';
 import { alertUser } from '@/components/alert/Alert';
 import { parseExternalBtcAmount } from '@/api/coins';
@@ -30,6 +29,9 @@ import { useLoad } from '@/hooks/api';
 import { BitrefillTerms, localeMapping } from '@/components/terms/bitrefill-terms';
 import { getBitrefillInfo } from '@/api/market';
 import { getURLOrigin } from '@/utils/url';
+import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import style from './iframe.module.css';
 
 // Map coins supported by Bitrefill
 const coinMapping: Readonly<Record<string, string>> = {
@@ -61,6 +63,9 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
   const config = useLoad(getConfig);
   const [agreedTerms, setAgreedTerms] = useState(false);
 
+  const [pendingPayment, setPendingPayment] = useState<boolean>(false);
+  const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>(false);
+
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
   useEffect(() => {
@@ -91,10 +96,100 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
     };
   }, [onResize]);
 
-  const handleMessage = useCallback(async (event: MessageEvent) => {
+  const handleConfiguration = useCallback(async (event: MessageEvent) => {
     if (
       !account
       || !bitrefillInfo?.success
+    ) {
+      return;
+    }
+    event.source?.postMessage({
+      event: 'configuration',
+      ref: bitrefillInfo.ref,
+      utm_source: 'BITBOX',
+      theme: isDarkMode ? 'dark' : 'light',
+      hl: i18n.resolvedLanguage ? localeMapping[i18n.resolvedLanguage] : 'en',
+      paymentMethods: account.coinCode ? coinMapping[account.coinCode] : 'bitcoin',
+      refundAddress: bitrefillInfo.address,
+      // Option to keep pending payment information longer in session, defaults to 'false'
+      paymentPending: 'true',
+      // Option to show payment information in the widget, defaults to 'true'
+      showPaymentInfo: 'true'
+    }, {
+      targetOrigin: event.origin
+    });
+  }, [account, bitrefillInfo, isDarkMode]);
+
+  const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
+    if (!account || pendingPayment) {
+      return;
+    }
+    setPendingPayment(true);
+
+    const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+
+    // User clicked "Pay" in checkout
+    const {
+      invoiceId,
+      paymentMethod,
+      paymentAmount,
+      paymentAddress,
+    } = data;
+
+    const parsedAmount = await parseExternalBtcAmount(paymentAmount.toString());
+    if (!parsedAmount.success) {
+      alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
+      setPendingPayment(false);
+      return;
+    }
+    // Ensure expected payment method matches account
+    if (coinMapping[account.coinCode] !== paymentMethod) {
+      alertUser(t('unknownError', { errorMessage: 'Payment method mismatch' }));
+      setPendingPayment(false);
+      return;
+    }
+
+    const txInput: TTxInput = {
+      address: paymentAddress,
+      amount: parsedAmount.amount,
+      // Always use highest fee rate for Bitrefill spend
+      useHighestFee: true,
+      sendAll: 'no',
+      selectedUTXOs: [],
+      paymentRequest: null
+    };
+
+    let result = await proposeTx(code, txInput);
+    if (result.success) {
+      const txNote = t('generic.paymentRequestNote', {
+        name: 'Bitrefill',
+        orderId: invoiceId,
+      });
+
+      setVerifyPaymentRequest({
+        address: paymentAddress,
+        ...result
+      });
+      const sendResult = await sendTx(code, txNote);
+      setVerifyPaymentRequest(false);
+      if (!sendResult.success && !('aborted' in sendResult)) {
+        alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+      }
+    } else {
+      if (result.errorCode === 'insufficientFunds') {
+        alertUser(t('buy.bitrefill.error.' + result.errorCode));
+      } else if (result.errorCode) {
+        alertUser(t('send.error.' + result.errorCode));
+      } else {
+        alertUser(t('genericError'));
+      }
+    }
+    setPendingPayment(false);
+  }, [account, code, pendingPayment, t]);
+
+  const handleMessage = useCallback(async (event: MessageEvent) => {
+    if (
+      !bitrefillInfo?.success
       || ![getURLOrigin(bitrefillInfo.url), 'https://embed.bitrefill.com'].includes(event.origin)
     ) {
       return;
@@ -104,78 +199,18 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
 
     switch (data.event) {
     case 'request-configuration': {
-      event.source?.postMessage({
-        event: 'configuration',
-        ref: bitrefillInfo.ref,
-        utm_source: 'BITBOX',
-        theme: isDarkMode ? 'dark' : 'light',
-        hl: i18n.resolvedLanguage ? localeMapping[i18n.resolvedLanguage] : 'en',
-        paymentMethods: account.coinCode ? coinMapping[account.coinCode] : 'bitcoin',
-        refundAddress: bitrefillInfo.address,
-        // Option to keep pending payment information longer in session, defaults to 'false'
-        paymentPending: 'true',
-        // Option to show payment information in the widget, defaults to 'true'
-        showPaymentInfo: 'true'
-      }, {
-        targetOrigin: event.origin
-      });
+      handleConfiguration(event);
       break;
     }
     case 'payment_intent': {
-      // User clicked "Pay" in checkout
-      const {
-        invoiceId,
-        paymentMethod,
-        paymentAmount,
-        paymentAddress,
-      } = data;
-
-      const parsedAmount = await parseExternalBtcAmount(paymentAmount.toString());
-      if (!parsedAmount.success) {
-        alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
-        return;
-      }
-      // Ensure expected payment method matches account
-      if (coinMapping[account.coinCode] !== paymentMethod) {
-        alertUser(t('unknownError', { errorMessage: 'Payment method mismatch' }));
-      }
-
-      const txInput: TTxInput = {
-        address: paymentAddress,
-        amount: parsedAmount.amount,
-        // Always use highest fee rate for Bitrefill spend
-        useHighestFee: true,
-        sendAll: 'no',
-        selectedUTXOs: [],
-        paymentRequest: null
-      };
-
-      let result = await proposeTx(code, txInput);
-      if (result.success) {
-        const txNote = t('generic.paymentRequestNote', {
-          name: 'Bitrefill',
-          orderId: invoiceId,
-        });
-        const sendResult = await sendTx(code, txNote);
-        if (!sendResult.success && !('aborted' in sendResult)) {
-          alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
-        }
-      } else {
-        if (result.errorCode === 'insufficientFunds') {
-          alertUser(t('buy.bitrefill.error.' + result.errorCode));
-        } else if (result.errorCode) {
-          alertUser(t('send.error.' + result.errorCode));
-        } else {
-          alertUser(t('genericError'));
-        }
-      }
+      handlePaymentRequest(event);
       break;
     }
     default: {
       break;
     }
     }
-  }, [bitrefillInfo, isDarkMode, account, code, t]);
+  }, [bitrefillInfo, handleConfiguration, handlePaymentRequest]);
 
   useEffect(() => {
     window.addEventListener('message', handleMessage);
@@ -224,6 +259,26 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
                       onResize();
                     }}
                   />
+                )}
+
+                { verifyPaymentRequest && verifyPaymentRequest.success && (
+                  <WaitDialog title={t('receive.verifyBitBox02')}>
+                    <p>
+                      {t('transaction.details.address')}
+                      <br />
+                      {verifyPaymentRequest.address}
+                    </p>
+                    <p>
+                      {t('transaction.details.amount')}
+                      <br />
+                      <AmountWithUnit amount={verifyPaymentRequest.amount} />
+                    </p>
+                    <p>
+                      {t('transaction.fee')}
+                      <br />
+                      <AmountWithUnit amount={verifyPaymentRequest.fee} />
+                    </p>
+                  </WaitDialog>
                 )}
               </div>
             )}
