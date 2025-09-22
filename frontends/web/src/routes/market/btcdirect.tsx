@@ -274,6 +274,7 @@ export const BTCDirect = ({
                       setIframeLoaded(true);
                       onResize();
                     }}
+                    onError={e => console.error(e)}
                     ref={iframeRef}
                     title="BTC Direct"
                     width="100%"
