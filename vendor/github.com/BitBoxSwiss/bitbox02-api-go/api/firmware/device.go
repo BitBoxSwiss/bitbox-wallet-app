@@ -170,14 +170,13 @@ func NewDevice(
 	}
 }
 
-// info uses the opInfo api endpoint to learn about the version, platform/edition, and unlock
+// Info uses the opInfo api endpoint to learn about the version, platform/edition, and unlock
 // status (true if unlocked).
-func (device *Device) info() (*semver.SemVer, common.Product, bool, error) {
-
+func Info(communication Communication) (*semver.SemVer, common.Product, bool, error) {
 	// CAREFUL: hwwInfo is called on the raw transport, not on device.rawQuery, which behaves
 	// differently depending on the firmware version. Reason: the version is not
 	// available (this call is used to get the version), so it must work for all firmware versions.
-	response, err := device.communication.Query([]byte(hwwInfo))
+	response, err := communication.Query([]byte(hwwInfo))
 	if err != nil {
 		return nil, "", false, err
 	}
@@ -225,6 +224,10 @@ func (device *Device) info() (*semver.SemVer, common.Product, bool, error) {
 		return nil, "", false, errp.New("unexpected reply")
 	}
 	return version, product, unlocked, nil
+}
+
+func (device *Device) info() (*semver.SemVer, common.Product, bool, error) {
+	return Info(device.communication)
 }
 
 // Version returns the firmware version.
