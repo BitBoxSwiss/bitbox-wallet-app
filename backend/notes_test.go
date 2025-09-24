@@ -28,6 +28,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/sirupsen/logrus"
@@ -81,7 +82,7 @@ func (s *notesTestSuite) SetupTest() {
 		}
 	}
 
-	s.backend.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
+	s.backend.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 		accountMock := MockBtcAccount(s.T(), config, coin, gapLimits, log)
 		accountMock.NotesFunc = notesFunc(config.Config.Code)
 		accountMock.TransactionsFunc = transactionsFunc(config.Config.Code)

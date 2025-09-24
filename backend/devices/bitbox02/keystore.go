@@ -16,15 +16,11 @@
 package bitbox02
 
 import (
-	"bytes"
-	"math/big"
 	"sync"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
@@ -34,8 +30,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
-	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
+	"github.com/btcsuite/btcd/btcutil/psbt"
 	"github.com/btcsuite/btcd/chaincfg"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
@@ -326,198 +322,16 @@ func (keystore *keystore) BTCXPubs(
 }
 
 func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
-	tx := btcProposedTx.TXProposal.Transaction
-
-	// scriptConfigs represent the script configurations of a specific account and include the
-	// script type (e.g. p2wpkh, p2tr..) and the account keypath
-	scriptConfigs := []*messages.BTCScriptConfigWithKeypath{}
-	// addScriptConfig returns the index of the scriptConfig in scriptConfigs, adding it if it isn't
-	// present. Must be a Simple configuration.
-	addScriptConfig := func(scriptConfig *messages.BTCScriptConfigWithKeypath) int {
-		for i, sc := range scriptConfigs {
-			if sc.ScriptConfig.Config.(*messages.BTCScriptConfig_SimpleType_).SimpleType == scriptConfig.ScriptConfig.Config.(*messages.BTCScriptConfig_SimpleType_).SimpleType {
-				return i
-			}
-		}
-		scriptConfigs = append(scriptConfigs, scriptConfig)
-		return len(scriptConfigs) - 1
+	// Handle displaying formatting in btc or sats.
+	formatUnit := messages.BTCSignInitRequest_DEFAULT
+	if btcProposedTx.FormatUnit == coinpkg.BtcUnitSats {
+		formatUnit = messages.BTCSignInitRequest_SAT
 	}
 
 	coin := btcProposedTx.TXProposal.Coin.(*btc.Coin)
 	msgCoin, ok := btcMsgCoinMap[coin.Code()]
 	if !ok {
 		return errp.Newf("coin not supported: %s", coin.Code())
-	}
-
-	// iterate over the tx inputs to add the related scriptconfigs and translate into `firmware.BTCTxInput` format.
-	inputs := make([]*firmware.BTCTxInput, len(tx.TxIn))
-	for inputIndex, txIn := range tx.TxIn {
-		prevOut, ok := btcProposedTx.TXProposal.PreviousOutputs[txIn.PreviousOutPoint]
-		if !ok {
-			keystore.log.Error("There needs to be exactly one output being spent per input.")
-			return errp.New("There needs to be exactly one output being spent per input.")
-		}
-
-		inputAddress := prevOut.Address
-
-		accountConfiguration := inputAddress.AccountConfiguration
-		msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
-		if !ok {
-			return errp.Newf("Unsupported script type %s", accountConfiguration.ScriptType())
-		}
-		scriptConfigIndex := addScriptConfig(&messages.BTCScriptConfigWithKeypath{
-			ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
-			Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
-		})
-
-		var bip352Pubkey []byte
-		if btcProposedTx.TXProposal.SilentPaymentAddress != "" {
-			var err error
-			bip352Pubkey, err = inputAddress.BIP352Pubkey()
-			if err != nil {
-				return err
-			}
-		}
-		inputs[inputIndex] = &firmware.BTCTxInput{
-			Input: &messages.BTCSignInputRequest{
-				PrevOutHash:       txIn.PreviousOutPoint.Hash[:],
-				PrevOutIndex:      txIn.PreviousOutPoint.Index,
-				PrevOutValue:      uint64(prevOut.TxOut.Value),
-				Sequence:          txIn.Sequence,
-				Keypath:           inputAddress.AbsoluteKeypath().ToUInt32(),
-				ScriptConfigIndex: uint32(scriptConfigIndex),
-			},
-			BIP352Pubkey: bip352Pubkey,
-		}
-	}
-
-	txChangeAddress := btcProposedTx.TXProposal.ChangeAddress
-
-	// outputScriptConfigs represent the script configurations of a specific account and include the
-	// script type (e.g. p2wpkh, p2tr..) and the account keypath
-	outputScriptConfigs := []*messages.BTCScriptConfigWithKeypath{}
-	// addOutputScriptConfig returns the index of the scriptConfig in outputScriptConfigs, adding it if it isn't
-	// present. Must be a Simple configuration.
-	addOutputScriptConfig := func(scriptConfig *messages.BTCScriptConfigWithKeypath) uint32 {
-		for i, sc := range outputScriptConfigs {
-			if sc.ScriptConfig.Config.(*messages.BTCScriptConfig_SimpleType_).SimpleType == scriptConfig.ScriptConfig.Config.(*messages.BTCScriptConfig_SimpleType_).SimpleType {
-				return uint32(i)
-			}
-		}
-		outputScriptConfigs = append(outputScriptConfigs, scriptConfig)
-		return uint32(len(outputScriptConfigs) - 1)
-	}
-
-	// iterate over tx outputs to add the related scriptconfigs, flag internal addresses and build
-	// the output signing requests.
-	outputs := make([]*messages.BTCSignOutputRequest, len(tx.TxOut))
-	for index, txOut := range tx.TxOut {
-		var msgOutputType messages.BTCOutputType
-		var payload []byte
-		var silentPayment *messages.BTCSignOutputRequest_SilentPayment
-		isSilentPaymentOutput := index == btcProposedTx.TXProposal.OutIndex && btcProposedTx.TXProposal.SilentPaymentAddress != ""
-		if isSilentPaymentOutput {
-			silentPayment = &messages.BTCSignOutputRequest_SilentPayment{
-				Address: btcProposedTx.TXProposal.SilentPaymentAddress,
-			}
-		} else {
-			outputAddress, err := util.AddressFromPkScript(txOut.PkScript, coin.Net())
-			if err != nil {
-				return err
-			}
-			switch outputAddress.(type) {
-			case *btcutil.AddressPubKeyHash:
-				msgOutputType = messages.BTCOutputType_P2PKH
-			case *btcutil.AddressScriptHash:
-				msgOutputType = messages.BTCOutputType_P2SH
-			case *btcutil.AddressWitnessPubKeyHash:
-				msgOutputType = messages.BTCOutputType_P2WPKH
-			case *btcutil.AddressWitnessScriptHash:
-				msgOutputType = messages.BTCOutputType_P2WSH
-			case *btcutil.AddressTaproot:
-				msgOutputType = messages.BTCOutputType_P2TR
-			default:
-				return errp.Newf("unsupported output type: %v", outputAddress)
-			}
-			payload = outputAddress.ScriptAddress()
-		}
-
-		// Could also determine change using `outputAccountAddress != nil AND second-to-last keypath element of outputAddress is 1`.
-		isChange := txChangeAddress != nil && bytes.Equal(
-			txChangeAddress.PubkeyScript(),
-			txOut.PkScript,
-		)
-
-		// outputAddress represents the same address as outputAddress, but embeds the account configuration.
-		// It is nil if the address is external.
-		outputAddress, sameAccount, err := btcProposedTx.GetKeystoreAddress(btcProposedTx.SendingAccount, blockchain.NewScriptHashHex(txOut.PkScript))
-		if err != nil {
-			return errp.Newf("failed to get address: %v", err)
-		}
-
-		isOurs := outputAddress != nil
-		if !isChange && !keystore.device.Version().AtLeast(semver.NewSemVer(9, 15, 0)) {
-			// For firmware older than 9.15.0, non-change outputs cannot be marked internal.
-			isOurs = false
-		}
-
-		var keypath []uint32
-		var scriptConfigIndex int
-		var outputScriptConfigIndex *uint32
-		if isOurs {
-			accountConfiguration := outputAddress.AccountConfiguration
-			msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
-			if !ok {
-				return errp.Newf("Unsupported script type %s", accountConfiguration.ScriptType())
-			}
-			switch {
-			case sameAccount:
-				keypath = outputAddress.AbsoluteKeypath().ToUInt32()
-				scriptConfigIndex = addScriptConfig(&messages.BTCScriptConfigWithKeypath{
-					ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
-					Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
-				})
-			case keystore.device.Version().AtLeast(semver.NewSemVer(9, 22, 0)):
-				keypath = outputAddress.AbsoluteKeypath().ToUInt32()
-				outputScriptConfigIdx := addOutputScriptConfig(&messages.BTCScriptConfigWithKeypath{
-					ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
-					Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
-				})
-				outputScriptConfigIndex = &outputScriptConfigIdx
-			default:
-				isOurs = false
-			}
-		}
-
-		outputs[index] = &messages.BTCSignOutputRequest{
-			Ours:                    isOurs,
-			Type:                    msgOutputType,
-			Value:                   uint64(txOut.Value),
-			Payload:                 payload,
-			Keypath:                 keypath,
-			ScriptConfigIndex:       uint32(scriptConfigIndex),
-			SilentPayment:           silentPayment,
-			OutputScriptConfigIndex: outputScriptConfigIndex,
-		}
-	}
-
-	// Provide the previous transaction for each input if needed.
-	if firmware.BTCSignNeedsPrevTxs(scriptConfigs) {
-		for inputIndex, txIn := range tx.TxIn {
-			keystore.log.Infof("getting prevTx of input %d/%d", inputIndex+1, len(tx.TxIn))
-			prevTx, err := btcProposedTx.GetPrevTx(txIn.PreviousOutPoint.Hash)
-			if err != nil {
-				keystore.log.WithError(err).Errorf("getting prevTx of input failed for input %d/%d", inputIndex+1, len(tx.TxIn))
-				return err
-			}
-			inputs[inputIndex].PrevTx = firmware.NewBTCPrevTxFromBtcd(prevTx)
-		}
-	}
-
-	// Handle displaying formatting in btc or sats.
-	formatUnit := messages.BTCSignInitRequest_DEFAULT
-	if btcProposedTx.FormatUnit == coinpkg.BtcUnitSats {
-		formatUnit = messages.BTCSignInitRequest_SAT
 	}
 
 	// Payment request handling
@@ -545,47 +359,57 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 
 	var btcPaymentRequests []*messages.BTCPaymentRequestRequest
 	paymentRequest := btcProposedTx.TXProposal.PaymentRequest
+	var paymentRequestIndex *uint32
 	if paymentRequest != nil {
 		btcPaymentRequests = []*messages.BTCPaymentRequestRequest{
 			newBTCPaymentRequest(paymentRequest),
 		}
 		prIndex := uint32(0)
-		outputs[btcProposedTx.TXProposal.OutIndex].PaymentRequestIndex = &prIndex
+		paymentRequestIndex = &prIndex
 	}
 
-	signResult, err := keystore.device.BTCSign(
-		msgCoin,
-		scriptConfigs,
-		outputScriptConfigs,
-		&firmware.BTCTx{
-			Version:         uint32(tx.Version),
-			Inputs:          inputs,
-			Outputs:         outputs,
-			Locktime:        tx.LockTime,
-			PaymentRequests: btcPaymentRequests,
+	signOptions := &firmware.PSBTSignOptions{
+		FormatUnit:      formatUnit,
+		PaymentRequests: btcPaymentRequests,
+		Outputs: map[int]*firmware.PSBTSignOutputOptions{
+			btcProposedTx.TXProposal.OutIndex: {
+				SilentPaymentAddress: btcProposedTx.TXProposal.SilentPaymentAddress,
+				PaymentRequestIndex:  paymentRequestIndex,
+			},
 		},
-		formatUnit,
-	)
-	if firmware.IsErrorAbort(err) {
-		return errp.WithStack(keystorePkg.ErrSigningAborted)
 	}
+
+	// Include previous transactions in PSBT if the BitBox requires it.
+	needsPrevTxs, err := keystore.device.BTCSignNeedsNonWitnessUTXOs(
+		btcProposedTx.TXProposal.Psbt, signOptions)
 	if err != nil {
 		return err
 	}
-	for index, generatedOutput := range signResult.GeneratedOutputs {
-		isSilentPaymentOutput := index == btcProposedTx.TXProposal.OutIndex && btcProposedTx.TXProposal.SilentPaymentAddress != ""
-		if !isSilentPaymentOutput {
-			return errp.New("expected silent payment output")
+	if needsPrevTxs {
+		updater, err := psbt.NewUpdater(btcProposedTx.TXProposal.Psbt)
+		if err != nil {
+			return err
 		}
-		btcProposedTx.TXProposal.Transaction.TxOut[index].PkScript = generatedOutput
-	}
-	for index, signature := range signResult.Signatures {
-		btcProposedTx.Signatures[index] = &types.Signature{
-			R: big.NewInt(0).SetBytes(signature[:32]),
-			S: big.NewInt(0).SetBytes(signature[32:]),
+
+		for index, txIn := range btcProposedTx.TXProposal.Psbt.UnsignedTx.TxIn {
+			prevTx, err := btcProposedTx.GetPrevTx(txIn.PreviousOutPoint.Hash)
+			if err != nil {
+				return err
+			}
+			if err := updater.AddInNonWitnessUtxo(prevTx, index); err != nil {
+				return err
+			}
 		}
 	}
-	return nil
+
+	err = keystore.device.BTCSignPSBT(
+		msgCoin,
+		btcProposedTx.TXProposal.Psbt,
+		signOptions)
+	if firmware.IsErrorAbort(err) {
+		return errp.WithStack(keystorePkg.ErrSigningAborted)
+	}
+	return err
 }
 
 func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
