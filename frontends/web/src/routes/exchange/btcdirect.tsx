@@ -106,7 +106,12 @@ export const BTCDirect = ({
   };
 
   const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
-    const { amount, currency, orderId } = event.data;
+    const {
+      amount,
+      currency,
+      orderId,
+      walletAddress,
+    } = event.data;
 
     if (!btcdirectInfo || btcdirectInfo?.success === false) {
       if (btcdirectInfo?.errorMessage) {
@@ -137,7 +142,7 @@ export const BTCDirect = ({
     }
 
     const txInput: TTxInput = {
-      address: btcdirectInfo.address,
+      address: walletAddress, // TODO: remove btcdirectInfo.address,
       amount: txAmount,
       paymentRequest: null,
       sendAll: 'no',

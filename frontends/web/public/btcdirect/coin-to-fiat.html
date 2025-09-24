@@ -28,6 +28,7 @@
     let orderId = '';
 
     const onMessage = (event) => {
+
       switch (event.data?.action) {
       case 'configuration':
         const {
@@ -129,6 +130,7 @@
         amount: String(e.detail?.amount),
         currency: e.detail?.currency,
         orderId: e.detail?.orderId,
+        walletAddress: e.detail?.walletAddress,
       }, '*');
 
     });
