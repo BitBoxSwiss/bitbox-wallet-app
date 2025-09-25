@@ -135,7 +135,7 @@ export const Market = ({
     if (!vendor) {
       return;
     }
-    navigate(`/market/${vendor}/${activeTab}/${code}`);
+    navigate(`/market/${vendor}/${activeTab}/${code}/${selectedRegion}`);
   };
 
   const handleChangeRegion = (newValue: SingleValue<TOption>) => {
