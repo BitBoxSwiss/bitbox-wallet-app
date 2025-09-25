@@ -27,6 +27,8 @@ const (
 
 	bitrefillRef = "SHU5bB6y"
 
+	bitrefillDevUrl = "/bitrefill/bitrefill.html"
+
 	bitrefillProdUrl = "https://bitboxapp.shiftcrypto.io/widgets/bitrefill/v1/bitrefill.html"
 )
 
@@ -100,10 +102,14 @@ func BitrefillDeals() *DealsList {
 
 // BitrefillInfo returns the information needed to interact with Bitrefill,
 // including the widget URL, referral code and an unused address for refunds.
-func BitrefillInfo(action Action, acct accounts.Interface) bitrefillInfo {
+func BitrefillInfo(action Action, acct accounts.Interface, devServers bool) bitrefillInfo {
+	url := bitrefillProdUrl
+	if devServers {
+		url = bitrefillDevUrl
+	}
 	addr := acct.GetUnusedReceiveAddresses()[0].Addresses[0].EncodeForHumans()
 	res := bitrefillInfo{
-		Url:     bitrefillProdUrl,
+		Url:     url,
 		Ref:     bitrefillRef,
 		Address: &addr}
 
