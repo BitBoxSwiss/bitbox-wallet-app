@@ -96,6 +96,13 @@ The frontend tests are run using [vitest](https://vitest.dev/) and [@testing-lib
 
 To run all test suites, execute `make webtest`.
 
+#### E2E testing
+
+Playwright is used to perform automatic test on some use cases on the webdev version.
+
+Tests are located under [`frontends/web/tests`](/frontends/web/tests) and can be run with
+`make webe2etest`
+
 #### Run the HTTP API
 
 Run `make servewallet` to compile the code and run `servewallet`. `servewallet` is a devtool which
