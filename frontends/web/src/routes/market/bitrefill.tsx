@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -32,6 +32,7 @@ import { getURLOrigin } from '@/utils/url';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import style from './iframe.module.css';
+import { AppContext } from '@/contexts/AppContext';
 
 // Map coins supported by Bitrefill
 const coinMapping: Readonly<Record<string, string>> = {
@@ -51,6 +52,7 @@ type TProps = {
 export const Bitrefill = ({ accounts, code }: TProps) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
+  const { isDevServers } = useContext(AppContext);
   const account = findAccount(accounts, code);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -190,7 +192,9 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
   const handleMessage = useCallback(async (event: MessageEvent) => {
     if (
       !bitrefillInfo?.success
-      || ![getURLOrigin(bitrefillInfo.url), 'https://embed.bitrefill.com'].includes(event.origin)
+      || (
+        !isDevServers // if prod check that event is from same origin as bitrefillInfo.url
+        && ![getURLOrigin(bitrefillInfo.url), 'https://embed.bitrefill.com'].includes(event.origin))
     ) {
       return;
     }
@@ -210,7 +214,7 @@ export const Bitrefill = ({ accounts, code }: TProps) => {
       break;
     }
     }
-  }, [bitrefillInfo, handleConfiguration, handlePaymentRequest]);
+  }, [bitrefillInfo, handleConfiguration, handlePaymentRequest, isDevServers]);
 
   useEffect(() => {
     window.addEventListener('message', handleMessage);
