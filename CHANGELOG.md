@@ -1,5 +1,4 @@
 # Changelog
-- Integrate Bitrefill and add spending section
 
 ## Unreleased
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
@@ -21,6 +20,7 @@
 - Windows: fix send/feetarget dropdown UI rendering bug
 - More efficient account initialization by fetching all account Bitcoin xpubs at once
 - iOS: fix wrong timezone when confirming time on BitBox02 (it would always show the time in UTC)
+- Integrate Bitrefill and add spending section
 
 ## v4.48.4
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
