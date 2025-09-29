@@ -107,12 +107,14 @@ export const useFocusTrap = (
     // Save previously focused element
     previouslyFocused.current = document.activeElement as HTMLElement;
 
-    // Autofocus first element
-    const firstFocusable = (
-      ref.current.querySelector<HTMLElement>('[autofocus]:not(:disabled)')
-      ?? ref.current.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
-    );
-    firstFocusable?.focus();
+    // Autofocus first element, but only if nothing inside already has focus
+    if (!ref.current.contains(document.activeElement)) {
+      const firstFocusable = (
+        ref.current.querySelector<HTMLElement>('[autofocus]:not(:disabled)')
+        ?? ref.current.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
+      );
+      firstFocusable?.focus({ preventScroll: true });
+    }
 
     return () => {
       // Restore focus if element is still in DOM
