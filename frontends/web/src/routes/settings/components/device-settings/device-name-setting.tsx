@@ -110,29 +110,21 @@ const SetDeviceNameDialog = ({ open, onClose, currentName, onInputChange, name, 
       onClose={onClose}
       title={t('bitbox02Settings.deviceName.title')}
       small>
-      <div className="columnsContainer half">
-        <div className="columns half">
-          <div className="column">
-            <label>
-              {t('bitbox02Settings.deviceName.current')}
-            </label>
-            <p className="m-bottom-half">
-              {currentName}
-            </p>
-          </div>
-          <div className="column">
-            <Input
-              className={`m-none ${error && !nameIsTooShort ? nameStyle.inputError : ''}`}
-              label={t('bitbox02Settings.deviceName.input')}
-              onInput={(e) => onInputChange(e.target.value)}
-              placeholder={t('bitbox02Settings.deviceName.placeholder')}
-              value={name}
-              id="deviceName"
-            />
-            <DeviceNameErrorMessage error={error} invalidChars={invalidChars} />
-          </div>
-        </div>
-      </div>
+      <p className="m-top-none m-bottom-half">
+        {t('bitbox02Settings.deviceName.current')}
+        <br />
+        {currentName}
+      </p>
+      <Input
+        autoFocus
+        className={`m-none ${error && !nameIsTooShort ? nameStyle.inputError : ''}`}
+        label={t('bitbox02Settings.deviceName.input')}
+        onInput={(e) => onInputChange(e.target.value)}
+        placeholder={t('bitbox02Settings.deviceName.placeholder')}
+        value={name}
+        id="deviceName"
+      />
+      <DeviceNameErrorMessage error={error} invalidChars={invalidChars} />
       <DialogButtons>
         <Button
           primary

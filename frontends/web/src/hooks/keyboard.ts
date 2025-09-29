@@ -53,3 +53,75 @@ export const useEsc = (
     }
   });
 };
+
+const FOCUSABLE_SELECTOR = `
+  a:not(:disabled),
+  button:not(:disabled),
+  input:not(:disabled),
+  select:not(:disabled),
+  textarea:not(:disabled),
+  [tabindex]:not([tabindex="-1"]):not(:disabled)
+`;
+
+/**
+ * Traps focus inside the given ref when active,
+ * and restores focus to the previously active element on cleanup.
+ */
+export const useFocusTrap = (
+  ref: React.RefObject<HTMLElement>,
+  active: boolean,
+) => {
+  const previouslyFocused = useRef<HTMLElement | null>(null);
+
+  // Focus trap handler
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (!active || !ref.current || e.key !== 'Tab') {
+      return;
+    }
+    const node = ref.current;
+    const focusables = node.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+    if (!focusables.length) {
+      return;
+    }
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
+  useKeydown(handleKeyDown);
+
+  // Manage mount/unmount lifecycle
+  useEffect(() => {
+    if (!active || !ref.current) {
+      return;
+    }
+
+    // Save previously focused element
+    previouslyFocused.current = document.activeElement as HTMLElement;
+
+    // Autofocus first element
+    const firstFocusable = (
+      ref.current.querySelector<HTMLElement>('[autofocus]:not(:disabled)')
+      ?? ref.current.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
+    );
+    firstFocusable?.focus();
+
+    return () => {
+      // Restore focus if element is still in DOM
+      if (
+        previouslyFocused.current &&
+        document.body.contains(previouslyFocused.current)
+      ) {
+        previouslyFocused.current.focus();
+      }
+    };
+  }, [ref, active]);
+};

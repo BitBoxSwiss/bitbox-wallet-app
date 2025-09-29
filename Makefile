@@ -55,6 +55,8 @@ webtestwatch:
 	cd ${WEBROOT} && $(MAKE) jstest-watch
 webserve:
 	cd ${WEBROOT} && $(MAKE) serve
+webe2etest:
+	cd ${WEBROOT} && $(MAKE) test-e2e
 qt-linux: # run inside dockerdev
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) linux
@@ -66,8 +68,10 @@ qt-windows:
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) windows
 android:
-	$(MAKE) buildweb
 	cd frontends/android && ${MAKE} apk-debug
+# Create signed .apk and .aab.
+android-assemble-release:
+	cd frontends/android && ${MAKE} assemble-release
 ios:
 	cd frontends/ios && ${MAKE} build
 osx-sec-check:
@@ -98,3 +102,5 @@ locize-fix:
 	locize format ${WEBROOT}/src/locales --format json
 go-vendor:
 	go mod vendor
+update-bitbox02-api-go:
+	./scripts/update-bitbox02-api-go.sh

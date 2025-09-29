@@ -20,16 +20,29 @@ import { TAuthEventObject, authenticate, subscribeAuth } from '@/api/backend';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Button } from '@/components/forms';
 import style from './authrequired.module.css';
+import { UseDisableBackButton } from '@/hooks/backbutton';
 
 export const AuthRequired = () => {
   const { t } = useTranslation();
+  // If authRequired is true, the user needs to authenticate before accessing the app.
   const [authRequired, setAuthRequired] = useState(false);
+  // authenticating is true while we wait for the result of an authentication.
   const [authenticating, setAuthenticating] = useState(false);
+  // missing auth means that there is no authentication method setup on the device.
+  const [missingAuth, setMissingAuth] = useState(false);
   const authForced = useRef(false);
 
+  // newAuthentication fires a new authentication flow.
   const newAuthentication = () => {
+    setMissingAuth(false);
     setAuthenticating(true);
     authenticate(authForced.current);
+  };
+
+  // dismissAuth dismisses the AuthRequired component.
+  const dismissAuth = () => {
+    setAuthRequired(false);
+    authForced.current = false;
   };
 
   useEffect(() => {
@@ -50,23 +63,26 @@ export const AuthRequired = () => {
           return true;
         });
         break;
-      case 'auth-err':
+      case 'auth-result':
         setAuthenticating(false);
-        break;
-      case 'auth-canceled':
-        if (authForced.current) {
-          // forced auth can be dismissed and won't be repeated, as it is
-          // tied to a specific UI event (e.g. enabling the auth toggle in
-          // the advanced settings.
-          setAuthRequired(false);
-          authForced.current = false;
-        } else {
-          setAuthenticating(false);
+        switch (data.result) {
+        case 'authres-err':
+          break;
+        case 'authres-cancel':
+          if (authForced.current) {
+            // a canceled forced auth can be dismissed and won't be repeated, as
+            // it means that the user aborted the authentication flow needed to enable
+            // the screen lock.
+            dismissAuth();
+          }
+          break;
+        case 'authres-ok':
+          dismissAuth();
+          break;
+        case 'authres-missing':
+          setMissingAuth(true);
+          break;
         }
-        break;
-      case 'auth-ok':
-        setAuthRequired(false);
-        authForced.current = false;
       }
     });
 
@@ -84,6 +100,7 @@ export const AuthRequired = () => {
 
   return (
     <div className={style.auth}>
+      <UseDisableBackButton/>
       <View
         fullscreen
         textCenter
@@ -91,16 +108,25 @@ export const AuthRequired = () => {
         withBottomBar>
         { !authenticating && (
           <>
-            <ViewHeader small title={t('auth.title')} />
-            <ViewContent children={undefined} minHeight="0" />
+            <ViewHeader withAppLogo title={
+              t(missingAuth ? 'auth.missing' : 'auth.title')
+            } />
+            <ViewContent children={undefined} minHeight="0"/>
             <ViewButtons>
               <Button
                 autoFocus
                 primary
-                hidden={authForced.current}
                 onClick={newAuthentication}>
                 {t('auth.authButton')}
               </Button>
+              {authForced.current && (
+                <Button
+                  autoFocus
+                  primary
+                  onClick={dismissAuth}>
+                  {t('auth.dismissButton')}
+                </Button>
+              )}
             </ViewButtons>
           </>
         )}

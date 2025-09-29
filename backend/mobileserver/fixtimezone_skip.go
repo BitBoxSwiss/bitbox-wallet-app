@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package addresses
+//go:build !ios && !android
 
-import "github.com/btcsuite/btcd/btcec/v2"
+package mobileserver
 
-// TstPublicKey exports the publickey for use in unit tests.
-func (address *AccountAddress) TstPublicKey() *btcec.PublicKey {
-	return address.publicKey
-}
+func fixTimezone() {}

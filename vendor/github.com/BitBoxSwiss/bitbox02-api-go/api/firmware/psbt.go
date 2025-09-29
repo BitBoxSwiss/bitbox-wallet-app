@@ -20,6 +20,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/errp"
+	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
@@ -115,6 +116,8 @@ type OutputInfo interface {
 	GetTaprootBip32Derivation() []*psbt.TaprootBip32Derivation
 }
 
+// Finds and extracts our key info in the segwit/taproot key infos. Returns nil if our key is not
+// present in the input/output.
 func findOurKey[O OutputInfo](ourRootFingerprint []byte, outputInfo O) (*ourKey, error) {
 	ourRootFingerPrintInt := binary.LittleEndian.Uint32(ourRootFingerprint)
 	for _, tapKey := range outputInfo.GetTaprootBip32Derivation() {
@@ -140,7 +143,7 @@ func findOurKey[O OutputInfo](ourRootFingerprint []byte, outputInfo O) (*ourKey,
 			return &ourKey{segwit: derivation}, nil
 		}
 	}
-	return nil, errp.New("key not found")
+	return nil, nil
 }
 
 func scriptConfigFromUTXO(
@@ -177,6 +180,23 @@ func scriptConfigFromUTXO(
 		}, nil
 	}
 	return nil, errp.New("unknown output type")
+}
+
+func getScriptConfig(
+	options *PSBTSignOptions,
+	utxo *wire.TxOut,
+	keypath []uint32,
+	redeemScript []byte,
+) (*messages.BTCScriptConfigWithKeypath, error) {
+	if options.ForceScriptConfig != nil {
+		return options.ForceScriptConfig, nil
+	}
+	// Infer script config from the PSBT input/output.
+	return scriptConfigFromUTXO(
+		utxo,
+		keypath,
+		redeemScript,
+	)
 }
 
 func payloadFromPkScript(pkScript []byte) (messages.BTCOutputType, []byte, error) {
@@ -225,6 +245,9 @@ type PSBTSignOutputOptions struct {
 	// - it requires PSBTv2, while we only support PSBTv0 (see https://github.com/btcsuite/btcd/issues/2328)
 	// - BitBox02 silent payment support predates the BIP, and its DLEQ proof deviates from the one in the BIP.
 	SilentPaymentAddress string
+	// PaymentRequestIndex is nil if this output is not attached to a payment request. Otherwise
+	// this references a payment request in `PSBTSignOptions.PaymentRequests`.
+	PaymentRequestIndex *uint32
 }
 
 // PSBTSignOptions allows for providing signing options beyond what is encoded in the PSBT.
@@ -236,7 +259,15 @@ type PSBTSignOptions struct {
 	//
 	// Multisig and policy configs are currently not inferred and must be provided using
 	// ForceScriptConfig.
+	//
+	// If ForceScriptConfig is not nil, all outputs containing key info are assumed to be of this
+	// script config too (sending back to the same account, be it change or not change). Outputs
+	// with the same root fingerprint but a different script config are supported by the BitBox02,
+	// but not by this library. If you should encounter this case, omit the key info from such
+	// outputs, so they will be displayed and confirmed as regular outputs paying to an address.
 	ForceScriptConfig *messages.BTCScriptConfigWithKeypath
+	// SLIP-24 payment requests.
+	PaymentRequests []*messages.BTCPaymentRequestRequest
 	// Per-output options. The map key is the output index.
 	Outputs map[int]*PSBTSignOutputOptions
 }
@@ -250,13 +281,124 @@ func (b *PSBTSignOptions) isSilentPayment() bool {
 	return false
 }
 
+// isChange returns if the keypath points to a change address.
+func isChange(scriptConfig *messages.BTCScriptConfigWithKeypath, keypath []uint32) (bool, error) {
+	switch scriptConfig.ScriptConfig.Config.(type) {
+	case *messages.BTCScriptConfig_SimpleType_, *messages.BTCScriptConfig_Multisig_:
+		if len(keypath) < 2 {
+			return false, errp.New("invalid keypath")
+		}
+		// Singlesig and multisig configs: second-to-last keypath element indicates change.
+		return keypath[len(keypath)-2] == 1, nil
+	case *messages.BTCScriptConfig_Policy_:
+		// Policies need a more involved change check, which involves checking multipath elements.
+		// However, this check is only relevant for firmware <v9.15.0, so clients using policies can
+		// just enforce upgrading.
+		return false, UnsupportedError("9.15.0")
+	default:
+		return false, errp.New("unrecognized/unhandled script config")
+	}
+}
+
+// Checks if the output script config matches an input script config. If so, it is a change or
+// send-to-self.
+func isSameAccount(
+	scriptConfigs []*messages.BTCScriptConfigWithKeypath,
+	scriptConfig *messages.BTCScriptConfigWithKeypath,
+) (bool, error) {
+	for _, cfg := range scriptConfigs {
+		switch cfg.ScriptConfig.Config.(type) {
+		case *messages.BTCScriptConfig_SimpleType_:
+			// For single-sigs, we have unified accounts - if the bip44 keypath account number
+			// is the same, it's the same account.
+			if len(cfg.Keypath) < 3 || len(scriptConfig.Keypath) < 3 {
+				return false, errp.New("output keypath is not bip44")
+			}
+			if cfg.Keypath[2] != scriptConfig.Keypath[2] {
+				return false, nil
+			}
+		default:
+			// Other configs: check if actually the same.
+			if !proto.Equal(cfg, scriptConfig) {
+				return false, nil
+			}
+		}
+	}
+	return true, nil
+}
+
+// handleOurOutput decides for an output if it is ours (internal), and if so, if it is of the same
+// account (either a change output of a send-to-self).
+//
+// Returns the scriptConfig of the output if the output is ours, and true if it is of the same
+// account, otherwise nil.
+//
+// This function also handles compatibility with older firmware version, returning nil if the
+// firmware version does not support handling internal outputs (non-change outputs of the same
+// account, or send-to-self to a different account).
+func handleOurOutput(
+	firmwareVersion *semver.SemVer,
+	options *PSBTSignOptions,
+	scriptConfigs []*messages.BTCScriptConfigWithKeypath,
+	ourKey *ourKey,
+	psbtOutput psbt.POutput,
+	txOutput *wire.TxOut,
+) (*messages.BTCScriptConfigWithKeypath, bool, error) {
+	// Output not ours
+	if ourKey == nil {
+		return nil, false, nil
+	}
+
+	// Following here, this output is either a change output or a non-change output owned by the
+	// BitBox.
+
+	scriptConfig, err := getScriptConfig(
+		options,
+		txOutput,
+		ourKey.keypath(),
+		psbtOutput.RedeemScript,
+	)
+	if err != nil {
+		return nil, false, err
+	}
+
+	// For firmware older than 9.15.0, non-change outputs cannot be marked internal.
+	if !firmwareVersion.AtLeast(semver.NewSemVer(9, 15, 0)) {
+		change, err := isChange(scriptConfig, ourKey.keypath())
+		if err != nil {
+			return nil, false, err
+		}
+		if !change {
+			return nil, false, nil
+		}
+	}
+
+	sameAccount, err := isSameAccount(scriptConfigs, scriptConfig)
+	if err != nil {
+		return nil, false, err
+	}
+	if sameAccount {
+		return scriptConfig, true, nil
+	}
+
+	if firmwareVersion.AtLeast(semver.NewSemVer(9, 22, 0)) {
+		// BitBox supports identifying addresses of the same keystore, but different account, only
+		// from v9.22.0.
+		return scriptConfig, false, nil
+	}
+
+	return nil, false, nil
+}
+
 type psbtConvertResult struct {
-	tx            *BTCTx
-	ourKeys       []*ourKey
-	scriptConfigs []*messages.BTCScriptConfigWithKeypath
+	tx                  *BTCTx
+	ourKeys             []*ourKey
+	scriptConfigs       []*messages.BTCScriptConfigWithKeypath
+	outputScriptConfigs []*messages.BTCScriptConfigWithKeypath
 }
 
 func newBTCTxFromPSBT(
+	firmwareVersion *semver.SemVer,
 	psbt_ *psbt.Packet,
 	ourRootFingerprint []byte,
 	options *PSBTSignOptions) (*psbtConvertResult, error) {
@@ -267,36 +409,33 @@ func newBTCTxFromPSBT(
 	isSilentPayment := options.isSilentPayment()
 
 	scriptConfigs := make([]*messages.BTCScriptConfigWithKeypath, 0)
+	outputScriptConfigs := make([]*messages.BTCScriptConfigWithKeypath, 0)
 	if options.ForceScriptConfig != nil {
 		scriptConfigs = []*messages.BTCScriptConfigWithKeypath{options.ForceScriptConfig}
 	}
 
-	findOrAddScriptConfig := func(
-		txOut *wire.TxOut,
-		keypath []uint32,
-		redeemScript []byte) (uint32, error) {
-		if options.ForceScriptConfig != nil {
-			// Referncing scriptConfigs[0] above that is forced to `ForceScriptConfig`.
-			return 0, nil
-		}
-
-		// Infer script config from the PSBT input/output.
-		scriptConfig, err := scriptConfigFromUTXO(
-			txOut,
-			keypath,
-			redeemScript,
-		)
-		if err != nil {
-			return 0, err
-		}
-
+	findOrAddInputScriptConfig := func(
+		scriptConfig *messages.BTCScriptConfigWithKeypath,
+	) uint32 {
 		for i, cfg := range scriptConfigs {
 			if proto.Equal(cfg, scriptConfig) {
-				return uint32(i), nil
+				return uint32(i)
 			}
 		}
 		scriptConfigs = append(scriptConfigs, scriptConfig)
-		return uint32(len(scriptConfigs) - 1), nil
+		return uint32(len(scriptConfigs) - 1)
+	}
+
+	findOrAddOutputScriptConfig := func(
+		scriptConfig *messages.BTCScriptConfigWithKeypath,
+	) uint32 {
+		for i, cfg := range outputScriptConfigs {
+			if proto.Equal(cfg, scriptConfig) {
+				return uint32(i)
+			}
+		}
+		outputScriptConfigs = append(outputScriptConfigs, scriptConfig)
+		return uint32(len(outputScriptConfigs) - 1)
 	}
 
 	numInputs := len(psbt_.UnsignedTx.TxIn)
@@ -320,14 +459,20 @@ func newBTCTxFromPSBT(
 		if err != nil {
 			return nil, err
 		}
+		if ourKey == nil {
+			return nil, errp.New("our key not found in input")
+		}
 
-		scriptConfigIndex, err := findOrAddScriptConfig(
+		scriptConfig, err := getScriptConfig(
+			options,
 			utxo,
 			ourKey.keypath(),
 			psbtInput.RedeemScript)
 		if err != nil {
 			return nil, err
 		}
+
+		scriptConfigIndex := findOrAddInputScriptConfig(scriptConfig)
 
 		var prevTx *BTCPrevTx
 		if psbtInput.NonWitnessUtxo != nil {
@@ -365,27 +510,51 @@ func newBTCTxFromPSBT(
 		psbtOutput := psbt_.Outputs[outputIndex]
 
 		outputOptions := options.Outputs[outputIndex]
+		if outputOptions == nil {
+			// Use defaults.
+			outputOptions = &PSBTSignOutputOptions{}
+		}
 
-		// Either change output or a non-change output owned by the BitBox.
-		if ourKey, err := findOurKey(ourRootFingerprint, psbtOutputInfo{psbtOutput}); err == nil {
-			scriptConfigIndex, err := findOrAddScriptConfig(
-				txOutput,
-				ourKey.keypath(),
-				psbtOutput.RedeemScript)
-			if err != nil {
-				return nil, err
+		ourKey, err := findOurKey(ourRootFingerprint, psbtOutputInfo{psbtOutput})
+		if err != nil {
+			return nil, err
+		}
+
+		scriptConfig, sameAccount, err := handleOurOutput(
+			firmwareVersion,
+			options,
+			scriptConfigs,
+			ourKey,
+			psbtOutput,
+			txOutput,
+		)
+		if err != nil {
+			return nil, err
+		}
+		var scriptConfigIndex uint32
+		var outputScriptConfigIndex *uint32
+		if scriptConfig != nil {
+			if sameAccount {
+				scriptConfigIndex = findOrAddInputScriptConfig(scriptConfig)
+			} else {
+				outputIdx := findOrAddOutputScriptConfig(scriptConfig)
+				outputScriptConfigIndex = &outputIdx
 			}
+		}
+
+		if scriptConfig != nil {
 			outputs[outputIndex] = &messages.BTCSignOutputRequest{
-				Ours:              true,
-				Value:             uint64(txOutput.Value),
-				Keypath:           ourKey.keypath(),
-				ScriptConfigIndex: scriptConfigIndex,
+				Ours:                    true,
+				Value:                   uint64(txOutput.Value),
+				Keypath:                 ourKey.keypath(),
+				ScriptConfigIndex:       scriptConfigIndex,
+				OutputScriptConfigIndex: outputScriptConfigIndex,
 			}
 		} else {
 			var silentPayment *messages.BTCSignOutputRequest_SilentPayment
 			var outputType messages.BTCOutputType
 			var payload []byte
-			if outputOptions != nil && outputOptions.SilentPaymentAddress != "" {
+			if outputOptions.SilentPaymentAddress != "" {
 				silentPayment = &messages.BTCSignOutputRequest_SilentPayment{
 					Address: outputOptions.SilentPaymentAddress,
 				}
@@ -396,26 +565,29 @@ func newBTCTxFromPSBT(
 				}
 			}
 			outputs[outputIndex] = &messages.BTCSignOutputRequest{
-				Ours:          false,
-				Value:         uint64(txOutput.Value),
-				Type:          outputType,
-				Payload:       payload,
-				SilentPayment: silentPayment,
+				Ours:                false,
+				Value:               uint64(txOutput.Value),
+				Type:                outputType,
+				Payload:             payload,
+				SilentPayment:       silentPayment,
+				PaymentRequestIndex: outputOptions.PaymentRequestIndex,
 			}
 		}
 	}
 
 	tx := &BTCTx{
-		Version:  uint32(psbt_.UnsignedTx.Version),
-		Inputs:   inputs,
-		Outputs:  outputs,
-		Locktime: psbt_.UnsignedTx.LockTime,
+		Version:         uint32(psbt_.UnsignedTx.Version),
+		Inputs:          inputs,
+		Outputs:         outputs,
+		Locktime:        psbt_.UnsignedTx.LockTime,
+		PaymentRequests: options.PaymentRequests,
 	}
 
 	return &psbtConvertResult{
-		tx:            tx,
-		ourKeys:       ourKeys,
-		scriptConfigs: scriptConfigs,
+		tx:                  tx,
+		ourKeys:             ourKeys,
+		scriptConfigs:       scriptConfigs,
+		outputScriptConfigs: outputScriptConfigs,
 	}, nil
 }
 
@@ -434,12 +606,12 @@ func (device *Device) BTCSignPSBT(
 	if err != nil {
 		return err
 	}
-	txResult, err := newBTCTxFromPSBT(psbt_, ourRootFingerprint, options)
+	txResult, err := newBTCTxFromPSBT(device.version, psbt_, ourRootFingerprint, options)
 	if err != nil {
 		return err
 	}
 	signResult, err := device.BTCSign(
-		coin, txResult.scriptConfigs, nil, txResult.tx, options.FormatUnit)
+		coin, txResult.scriptConfigs, txResult.outputScriptConfigs, txResult.tx, options.FormatUnit)
 	if err != nil {
 		return err
 	}
@@ -482,4 +654,24 @@ func (device *Device) BTCSignPSBT(
 	}
 
 	return nil
+}
+
+// BTCSignNeedsNonWitnessUTXOs returns true if the BitBox requires the NON_WITNESS_UTXO fields of
+// each PSBT input to be present. They are the previous transactions of the inputs, and the BitBox
+// needs them to validate the input amount, unless all inputs are Taproot.  This helper function
+// exists because different BitBox firmware versions have slightly different requirements about when
+// the prevtxs are needed.
+//
+// This is meant to be called by a PSBT updater to decide whether to retrieve and add the previous
+// transactions. Call this before `BTCSignPSBT()` with the same arguments.
+func (device *Device) BTCSignNeedsNonWitnessUTXOs(psbt_ *psbt.Packet, options *PSBTSignOptions) (bool, error) {
+	ourRootFingerprint, err := device.RootFingerprint()
+	if err != nil {
+		return false, err
+	}
+	result, err := newBTCTxFromPSBT(device.version, psbt_, ourRootFingerprint, options)
+	if err != nil {
+		return false, err
+	}
+	return BTCSignNeedsPrevTxs(result.scriptConfigs), nil
 }

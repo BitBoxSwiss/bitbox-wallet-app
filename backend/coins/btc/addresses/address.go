@@ -21,13 +21,11 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	ourbtcutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcd/wire"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,12 +36,13 @@ type AccountAddress struct {
 
 	// AccountConfiguration is the account level configuration from which this address was derived.
 	AccountConfiguration *signing.Configuration
-	// publicKey is the public key of a single-sig address.
-	publicKey  *btcec.PublicKey
+	// PublicKey is the public key of a single-sig address.
+	PublicKey  *btcec.PublicKey
 	Derivation types.Derivation
 
-	// redeemScript stores the redeem script of a BIP16 P2SH output or nil if address type is P2PKH.
-	redeemScript []byte
+	// redeemScript stores the redeem script of a BIP16 P2SH output or nil if address type is not
+	// P2SH.
+	RedeemScript []byte
 
 	log *logrus.Entry
 }
@@ -116,9 +115,9 @@ func NewAccountAddress(
 	return &AccountAddress{
 		Address:              address,
 		AccountConfiguration: accountConfiguration,
-		publicKey:            publicKey,
+		PublicKey:            publicKey,
 		Derivation:           derivation,
-		redeemScript:         redeemScript,
+		RedeemScript:         redeemScript,
 		log:                  log,
 	}
 }
@@ -126,23 +125,6 @@ func NewAccountAddress(
 // ID implements accounts.Address.
 func (address *AccountAddress) ID() string {
 	return string(address.PubkeyScriptHashHex())
-}
-
-// BIP352Pubkey returns the pubkey used for silent payments:
-// - 33 byte compressed public key for p2pkh, p2wpkh, p2wpkh-p2sh.
-// - 32 byte x-only public key for p2tr
-// See https://github.com/bitcoin/bips/blob/master/bip-0352.mediawiki#user-content-Inputs_For_Shared_Secret_Derivation.
-func (address *AccountAddress) BIP352Pubkey() ([]byte, error) {
-	publicKey := address.publicKey
-	switch address.AccountConfiguration.ScriptType() {
-	case signing.ScriptTypeP2PKH, signing.ScriptTypeP2WPKHP2SH, signing.ScriptTypeP2WPKH:
-		return publicKey.SerializeCompressed(), nil
-	case signing.ScriptTypeP2TR:
-		outputKey := txscript.ComputeTaprootKeyNoScript(publicKey)
-		return schnorr.SerializePubKey(outputKey), nil
-	default:
-		return nil, errp.New("unsupported script type for silent payments")
-	}
 }
 
 // EncodeForHumans implements accounts.Address.
@@ -180,57 +162,9 @@ func (address *AccountAddress) ScriptForHashToSign() (bool, []byte) {
 	case signing.ScriptTypeP2PKH:
 		return false, address.PubkeyScript()
 	case signing.ScriptTypeP2WPKHP2SH:
-		return true, address.redeemScript
+		return true, address.RedeemScript
 	case signing.ScriptTypeP2WPKH:
 		return true, address.PubkeyScript()
-	default:
-		address.log.Panic("Unrecognized address type.")
-	}
-	panic("The end of the function cannot be reached.")
-}
-
-// SignatureScript returns the signature script (and witness) needed to spend from this address.
-// The signatures have to be provided in the order of the configuration (and some can be nil).
-func (address *AccountAddress) SignatureScript(
-	signature types.Signature,
-) ([]byte, wire.TxWitness) {
-	publicKey := address.publicKey
-	switch address.AccountConfiguration.ScriptType() {
-	case signing.ScriptTypeP2PKH:
-		signatureScript, err := txscript.NewScriptBuilder().
-			AddData(append(signature.SerializeDER(), byte(txscript.SigHashAll))).
-			AddData(publicKey.SerializeCompressed()).
-			Script()
-		if err != nil {
-			address.log.WithError(err).Panic("Failed to build signature script for P2PKH.")
-		}
-		return signatureScript, nil
-	case signing.ScriptTypeP2WPKHP2SH:
-		signatureScript, err := txscript.NewScriptBuilder().
-			AddData(address.redeemScript).
-			Script()
-		if err != nil {
-			address.log.WithError(err).Panic("Failed to build segwit signature script.")
-		}
-		txWitness := wire.TxWitness{
-			append(signature.SerializeDER(), byte(txscript.SigHashAll)),
-			publicKey.SerializeCompressed(),
-		}
-		return signatureScript, txWitness
-	case signing.ScriptTypeP2WPKH:
-		txWitness := wire.TxWitness{
-			append(signature.SerializeDER(), byte(txscript.SigHashAll)),
-			publicKey.SerializeCompressed(),
-		}
-		return []byte{}, txWitness
-	case signing.ScriptTypeP2TR:
-		// We assume SIGHASH_DEFAULT, which defaults to SIGHASH_ALL without needing to explicitly
-		// append it to the signature. See:
-		// https://github.com/bitcoin/bips/blob/97e02b2223b21753acefa813a4e59dbb6e849e77/bip-0341.mediawiki#taproot-key-path-spending-signature-validation
-		txWitness := wire.TxWitness{
-			signature.SerializeCompact(),
-		}
-		return []byte{}, txWitness
 	default:
 		address.log.Panic("Unrecognized address type.")
 	}

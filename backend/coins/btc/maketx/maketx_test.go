@@ -165,7 +165,7 @@ func (s *newTxSuite) check(
 		s.Require().NoError(err)
 	}
 
-	tx := txProposal.Transaction
+	tx := txProposal.Psbt.UnsignedTx
 
 	// Check invariants independent of the particular coin selection algorithm.
 	s.Require().Equal(s.coin, txProposal.Coin)

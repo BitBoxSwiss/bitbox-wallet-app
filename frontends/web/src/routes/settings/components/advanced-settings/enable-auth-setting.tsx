@@ -36,13 +36,16 @@ export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => 
     // The forceAuth is needed to force the backend to execute the
     // authentication even if the auth config is disabled.
     const unsubscribe = subscribeAuth((data: TAuthEventObject) => {
-      if (data.typ === 'auth-ok') {
-        updateConfig(!e.target.checked);
-        unsubscribe();
-      }
-      if (data.typ === 'auth-canceled') {
+      if (data.typ === 'auth-result') {
+        if (data.result === 'authres-ok') {
+          updateConfig(!e.target.checked);
+          unsubscribe();
+        }
+        if (data.result === 'authres-cancel') {
         // if the user canceled the auth, we leave everything as is.
-        unsubscribe();
+          unsubscribe();
+        }
+
       }
     });
     forceAuth();

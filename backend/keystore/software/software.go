@@ -187,9 +187,23 @@ func (keystore *Keystore) ExtendedPublicKey(
 	return extendedPrivateKey.Neuter()
 }
 
+// BTCXPubs implements keystore.Keystore.
+func (keystore *Keystore) BTCXPubs(
+	coin coin.Coin, keypaths []signing.AbsoluteKeypath) ([]*hdkeychain.ExtendedKey, error) {
+	xpubs := make([]*hdkeychain.ExtendedKey, len(keypaths))
+	for i, keypath := range keypaths {
+		xpub, err := keystore.ExtendedPublicKey(coin, keypath)
+		if err != nil {
+			return nil, err
+		}
+		xpubs[i] = xpub
+	}
+	return xpubs, nil
+}
+
 func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	keystore.log.Info("Sign transaction.")
-	transaction := btcProposedTx.TXProposal.Transaction
+	transaction := btcProposedTx.TXProposal.Psbt.UnsignedTx
 	signatures := make([]*types.Signature, len(transaction.TxIn))
 	sigHashes := btcProposedTx.TXProposal.SigHashes()
 	for index, txIn := range transaction.TxIn {
@@ -198,7 +212,10 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			keystore.log.Error("There needs to be exactly one output being spent per input.")
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
-		address, _, err := btcProposedTx.GetKeystoreAddress(btcProposedTx.SendingAccount, spentOutput.Address.PubkeyScriptHashHex())
+		address, err := btcProposedTx.GetKeystoreAddress(
+			btcProposedTx.TXProposal.Coin.Code(),
+			spentOutput.Address.PubkeyScriptHashHex(),
+		)
 		if err != nil {
 			return err
 		}

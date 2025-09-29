@@ -17,12 +17,9 @@ package mobileserver
 import (
 	"io"
 	"log"
-	"os/exec"
-	"runtime"
-	"strings"
 	"sync"
-	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bridgecommon"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
@@ -34,28 +31,16 @@ var (
 	once sync.Once
 )
 
-// fixTimezone sets the local timezone on Android. This is a workaround to the bug that on Android,
-// time.Local is hard-coded to UTC. See https://github.com/golang/go/issues/20455.
-//
-// We need the correct timezone to be able to send the `time.Now().Zone()` offset to the BitBox02.
-// Without it, the BitBox02 will always display UTC time instad of local time.
-//
-// This fix is copied from https://github.com/golang/go/issues/20455#issuecomment-342287698.
-func fixTimezone() {
-	if runtime.GOOS != "android" {
-		// Only run the fix on Android.
-		return
-	}
-	out, err := exec.Command("/system/bin/getprop", "persist.sys.timezone").Output()
-	if err != nil {
-		return
-	}
-	z, err := time.LoadLocation(strings.TrimSpace(string(out)))
-	if err != nil {
-		return
-	}
-	time.Local = z
-}
+const (
+	// AuthResultOk exports backend.AuthResultOk.
+	AuthResultOk string = string(backend.AuthResultOk)
+	// AuthResultErr exports backend.AuthResultErr.
+	AuthResultErr string = string(backend.AuthResultErr)
+	// AuthResultCancel exports backend.AuthResultCancel.
+	AuthResultCancel string = string(backend.AuthResultCancel)
+	// AuthResultMissing exports backend.AuthResultMissing.
+	AuthResultMissing string = string(backend.AuthResultMissing)
+)
 
 func init() {
 	fixTimezone()
@@ -235,15 +220,10 @@ func TriggerAuth() {
 	bridgecommon.TriggerAuth()
 }
 
-// CancelAuth triggers an auth canceled notification towards the frontend.
-func CancelAuth() {
-	bridgecommon.CancelAuth()
-}
-
-// AuthResult triggers an auth feedback notification (auth-ok/auth-err) towards the frontend,
+// AuthResult triggers an auth feedback notification (auth-ok/auth-err/..) towards the frontend,
 // depending on the input value.
-func AuthResult(ok bool) {
-	bridgecommon.AuthResult(ok)
+func AuthResult(result string) {
+	bridgecommon.AuthResult(backend.AuthResultType(result))
 }
 
 // ManualReconnect wraps bridgecommon.ManualReconnect.
