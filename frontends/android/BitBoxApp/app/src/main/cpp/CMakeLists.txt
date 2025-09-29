@@ -12,6 +12,12 @@ add_library( # Specifies the name of the library.
              signal_handler.c
 )
 
+# Adds compatibility for Android systems with 16KB pages
+target_link_options(signal_handler PRIVATE
+    -Wl,-z,max-page-size=16384
+    -Wl,-z,common-page-size=16384
+)
+
 find_library(
         log-lib
         log

@@ -1,18 +1,33 @@
 apply plugin: 'com.android.application'
 
 android {
-    buildToolsVersion '34.0.0'
-    compileSdk 34
+    buildToolsVersion '35.0.0'
+    compileSdk 35
+    // Keep in sync with android-env.mk.inc and the NDK installed in docker_install.sh.
+    ndkVersion "28.2.13676358"
     defaultConfig {
         applicationId "ch.shiftcrypto.bitboxapp"
-        minSdkVersion 21
-        targetSdkVersion 34
-        versionCode 62
-        versionName "android-4.48.1"
+        // minSdkVersion should match the `-androidapi` gomobile bind flag
+        // in backend/mobileserver/Makefile
+        minSdkVersion 24
+        targetSdkVersion 35
+        versionCode 63
+        versionName "android-4.48.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
                 cppFlags '-std=c++11'
+            }
+        }
+    }
+    signingConfigs {
+        release {
+            def env = System.getenv()
+            if (env.containsKey('KEYSTORE_STORE_FILE')) {
+                keyAlias env['KEYSTORE_KEY_ALIAS']
+                keyPassword env['KEYSTORE_KEY_PASSWORD']
+                storeFile file(env['KEYSTORE_STORE_FILE'])
+                storePassword env['KEYSTORE_STORE_PASSWORD']
             }
         }
     }
@@ -21,6 +36,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             resValue "string", "app_name", "BitBoxApp"
+            signingConfig signingConfigs.release
         }
         debug {
             applicationIdSuffix ".debug"
