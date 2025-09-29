@@ -42,7 +42,7 @@ export async function waitForServewallet(
   servewalletPort: number,
   frontendPort: number,
   host: string,
-  timeout = 60000,
+  timeout = 90000,
 ) {
   const start = Date.now();
 
@@ -50,9 +50,12 @@ export async function waitForServewallet(
     try {
       await connectOnce(host, servewalletPort);
       await page.goto(`http://${host}:${frontendPort}`);
+      const elapsed = Date.now() - start;
+      console.log(`Connected to servewallet on ${host}:${servewalletPort} after ${elapsed} ms`);
       return;
     } catch {
       await new Promise(r => setTimeout(r, 200));
+
     }
   }
   throw new Error(`Timeout exceeded waiting for servewallet on ${host}:${servewalletPort}`);
