@@ -27,6 +27,7 @@ import type { TSelectedUTXOs } from '../../utxos';
 import style from './confirm.module.css';
 
 type TransactionDetails = {
+  accountName?: string;
   proposedAmount?: TAmountWithConversions;
   proposedFee?: TAmountWithConversions;
   proposedTotal?: TAmountWithConversions;
@@ -67,6 +68,7 @@ export const ConfirmSend = ({
     proposedTotal,
     customFee,
     feeTarget,
+    accountName,
     recipientAddress,
     activeCurrency: fiatUnit
   } = transactionDetails;
@@ -123,10 +125,15 @@ export const ConfirmSend = ({
         {/*To (recipient address)*/}
         <div className={style.confirmItem}>
           <label>{t('send.confirm.to')}</label>
-          <div className={style.confirmationItemWrapper}>
+          <div className={style.toWrapper}>
             <p className={`${style.valueOriginal}`}>
-              {recipientAddress || 'N/A'}
+              {accountName ? accountName : recipientAddress}
             </p>
+            {accountName && (
+              <span className={style.address}>
+                {recipientAddress}
+              </span>
+            )}
           </div>
         </div>
 

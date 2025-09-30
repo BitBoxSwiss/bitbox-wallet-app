@@ -34,6 +34,7 @@ export const SendWrapper = ({ accounts, code }: TSendProps) => {
     account ? (
       <Send
         account={account}
+        accounts={accounts}
         activeCurrency={defaultCurrency}
       />
     ) : (null)
