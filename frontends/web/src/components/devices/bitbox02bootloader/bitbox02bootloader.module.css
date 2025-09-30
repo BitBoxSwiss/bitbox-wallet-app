@@ -1,10 +1,16 @@
-.content {
-    font-size: 16px;
-    margin: 0;
+.upgradingTitle {
+    text-align: center;
 }
 
 .progressBar {
     margin: var(--space-quarter) 0;
+}
+
+.progressInfo {
+    display: flex;
+    font-size: 16px;
+    justify-content: space-between;
+    margin: 0 0 var(--space-default);
 }
 
 .additionalUpgrade {
