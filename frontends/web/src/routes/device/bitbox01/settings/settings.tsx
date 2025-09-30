@@ -30,6 +30,8 @@ import Reset from './components/reset';
 import UpgradeFirmware from '../components/upgradefirmware';
 import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../../../components/settingsButton/settingsItem';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { Banner } from '@/components/banners/banner';
 
 type Props = {
   deviceID: string;
@@ -77,6 +79,9 @@ export const Settings = ({ deviceID }: Props) => {
     <div className="contentWithGuide">
       <div className="container">
         <div className="innerContainer scrollableContainer">
+          <ContentWrapper>
+            <Banner msgKey="bitbox01" />
+          </ContentWrapper>
           <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} />
           <div className="content padded">
             <div className="columnsContainer">
