@@ -102,16 +102,21 @@ func BitrefillDeals() *DealsList {
 
 // BitrefillInfo returns the information needed to interact with Bitrefill,
 // including the widget URL, referral code and an unused address for refunds.
-func BitrefillInfo(action Action, acct accounts.Interface, devServers bool) bitrefillInfo {
+func BitrefillInfo(action Action, acct accounts.Interface, devServers bool) (bitrefillInfo, error) {
 	url := bitrefillProdUrl
 	if devServers {
 		url = bitrefillDevUrl
 	}
-	addr := acct.GetUnusedReceiveAddresses()[0].Addresses[0].EncodeForHumans()
+	addrList, err := acct.GetUnusedReceiveAddresses()
+	if err != nil {
+		return bitrefillInfo{}, err
+	}
+	addr := addrList[0].Addresses[0].EncodeForHumans()
 	res := bitrefillInfo{
 		Url:     url,
 		Ref:     bitrefillRef,
-		Address: &addr}
+		Address: &addr,
+	}
 
-	return res
+	return res, nil
 }

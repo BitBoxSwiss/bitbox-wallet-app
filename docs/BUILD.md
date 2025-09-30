@@ -114,7 +114,7 @@ To create the installer, run the NSIS UI, then: compile NSI scripts -> frontend/
 ### Build
 Enter the Docker environment: `make dockerdev`
 
-Within the Docker dev environment, build the Android App: `make android`
+Within the Docker dev environment, build the **debug version** of the Android App: `make android`
 
 To update the app icon, execute `frontends/android/mkicon.sh`.
 The script isn't run during `make android` build.
@@ -128,6 +128,17 @@ Adb is required for the deploy, on GNU/Linux install `android-tools-adb`
 After connecting the device via USB, it is possible to verify the connection with `adb devices`
 
 Inside `frontends/android` folder: `make deploy-debug`
+
+### Release build
+
+To assemble the signed release .apk and .aab files, run `make android-assemble-release`.
+
+The keystore file `frontends/android/BitBoxApp/app/bitboxapp.jks` must be present.
+
+Build artifacts:
+* `frontends/android/BitBoxApp/app/build/outputs/apk/release/app-release.apk`
+* `frontends/android/BitBoxApp/app/build/outputs/bundle/release/app-release.aab`
+
 
 ### Deploy troubleshooting
 If the apk install goes wrong, here are some Android configuration that could help:

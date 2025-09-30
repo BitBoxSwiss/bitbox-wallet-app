@@ -80,6 +80,7 @@ var rootFingerprint2 = []byte{0x66, 0x66, 0x66, 0x66}
 // A keystore with a similar config to a BitBox02 Multi - supporting unified and multiple accounts,
 // no legacy P2PKH.
 func makeBitBox02Multi() *keystoremock.KeystoreMock {
+	ksHelper := keystoreHelper1()
 	return &keystoremock.KeystoreMock{
 		NameFunc: func() (string, error) {
 			return "Mock name", nil
@@ -105,7 +106,8 @@ func makeBitBox02Multi() *keystoremock.KeystoreMock {
 		SupportsUnifiedAccountsFunc: func() bool {
 			return true
 		},
-		ExtendedPublicKeyFunc: keystoreHelper1().ExtendedPublicKey,
+		ExtendedPublicKeyFunc: ksHelper.ExtendedPublicKey,
+		BTCXPubsFunc:          ksHelper.BTCXPubs,
 	}
 }
 
@@ -132,7 +134,7 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 	t.Helper()
 	return &accountsMocks.InterfaceMock{
 		ObserveFunc: func(func(observable.Event)) func() {
-			return nil
+			return func() {}
 		},
 		CoinFunc: func() coinpkg.Coin {
 			return coin
@@ -152,7 +154,7 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 		FatalErrorFunc: func() bool {
 			return false
 		},
-		GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
+		GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 			result := []accounts.AddressList{}
 			for _, signingConfig := range config.Config.SigningConfigurations {
 				addressChain := addresses.NewAddressChain(
@@ -173,16 +175,17 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 				})
 
 			}
-			return result
+			return result, nil
 		},
-		CloseFunc: func() {},
+		CloseFunc:  func() {},
+		SyncedFunc: func() bool { return true },
 	}
 }
 
 func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) *accountsMocks.InterfaceMock {
 	return &accountsMocks.InterfaceMock{
 		ObserveFunc: func(func(observable.Event)) func() {
-			return nil
+			return func() {}
 		},
 		CoinFunc: func() coinpkg.Coin {
 			return coin
@@ -197,7 +200,7 @@ func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *
 			return nil, nil
 		},
 		FatalErrorFunc: func() bool { return false },
-		GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
+		GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 			return []accounts.AddressList{
 				{
 					Addresses: []accounts.Address{
@@ -207,9 +210,10 @@ func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *
 						},
 					},
 				},
-			}
+			}, nil
 		},
-		CloseFunc: func() {},
+		CloseFunc:  func() {},
+		SyncedFunc: func() bool { return true },
 	}
 }
 
@@ -277,7 +281,7 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	}
 	b.ratesUpdater.SetCoingeckoURL("unused") // avoid hitting real API
 
-	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 		return MockBtcAccount(t, config, coin, gapLimits, log)
 	}
 	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
@@ -362,6 +366,7 @@ func TestRegisterKeystore(t *testing.T) {
 			return true
 		},
 		ExtendedPublicKeyFunc: keystoreHelper1.ExtendedPublicKey,
+		BTCXPubsFunc:          keystoreHelper1.BTCXPubs,
 	}
 	ks2 := &keystoremock.KeystoreMock{
 		NameFunc: func() (string, error) {
@@ -386,6 +391,7 @@ func TestRegisterKeystore(t *testing.T) {
 			return true
 		},
 		ExtendedPublicKeyFunc: keystoreHelper2.ExtendedPublicKey,
+		BTCXPubsFunc:          keystoreHelper2.BTCXPubs,
 	}
 
 	b := newBackend(t, testnetDisabled, regtestDisabled)

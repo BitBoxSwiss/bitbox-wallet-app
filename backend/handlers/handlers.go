@@ -1403,7 +1403,10 @@ func (handlers *Handlers) getMarketBitrefillInfo(r *http.Request) interface{} {
 	}
 
 	action := market.Action(mux.Vars(r)["action"])
-	bitrefillInfo := market.BitrefillInfo(action, acct, handlers.backend.DevServers())
+	bitrefillInfo, err := market.BitrefillInfo(action, acct, handlers.backend.DevServers())
+	if err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
 
 	return result{
 		Success: true,

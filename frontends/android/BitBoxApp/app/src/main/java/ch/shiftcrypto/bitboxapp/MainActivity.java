@@ -269,6 +269,59 @@ public class MainActivity extends AppCompatActivity {
                 backPressedHandler();
             }
         });
+
+        goViewModel.getAuthRequested().observe(this, authRequested -> {
+            if (!authRequested) {
+                return;
+            }
+
+            BiometricAuthHelper.showAuthenticationPrompt(MainActivity.this, new BiometricAuthHelper.AuthCallback() {
+                @Override
+                public void onSuccess() {
+                    // Authenticated successfully
+                    Util.log("Auth success");
+                    goViewModel.closeAuth();
+                    Mobileserver.authResult(Mobileserver.AuthResultOk);
+                }
+
+                @Override
+                public void onFailure() {
+                    // Failed
+                    Util.log("Auth failed");
+                    goViewModel.closeAuth();
+                    Mobileserver.authResult(Mobileserver.AuthResultErr);
+                }
+
+                @Override
+                public void onCancel() {
+                    // Canceled
+                    Util.log("Auth canceled");
+                    goViewModel.closeAuth();
+                    Mobileserver.authResult(Mobileserver.AuthResultCancel);
+                }
+
+                @Override
+                public void noAuthConfigured() {
+                    // No Auth configured
+                    Util.log("Auth not configured");
+                    goViewModel.closeAuth();
+                    Mobileserver.authResult(Mobileserver.AuthResultMissing);
+                }
+            });
+        });
+
+        goViewModel.getAuthSetting().observe(this, enabled -> runOnUiThread(() -> {
+            if (enabled) {
+                // Treat the content of the window as secure, preventing it from appearing in
+                // screenshots, the app switcher, or from being viewed on non-secure displays. We
+                // are really only interested in hiding the app contents from the app switcher -
+                // screenshots unfortunately also get disabled.
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+            } else {
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+            }
+        }));
+
     }
 
     @Override
@@ -303,49 +356,6 @@ public class MainActivity extends AppCompatActivity {
         final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
         goViewModel.getIsDarkTheme().observe(this, this::setDarkTheme);
 
-        goViewModel.getAuthenticator().observe(this, requestAuth -> {
-            if (!requestAuth) {
-                return;
-            }
-
-            BiometricAuthHelper.showAuthenticationPrompt(MainActivity.this, new BiometricAuthHelper.AuthCallback() {
-                @Override
-                public void onSuccess() {
-                    // Authenticated successfully
-                    Util.log("Auth success");
-                    goViewModel.closeAuth();
-                    Mobileserver.authResult(true);
-                }
-
-                @Override
-                public void onFailure() {
-                    // Failed
-                    Util.log("Auth failed");
-                    goViewModel.closeAuth();
-                    Mobileserver.authResult(false);
-                }
-
-                @Override
-                public void onCancel() {
-                    // Canceled
-                    Util.log("Auth canceled");
-                    goViewModel.closeAuth();
-                    Mobileserver.cancelAuth();
-                }
-            });
-        });
-
-        goViewModel.getAuthSetting().observe(this, enabled -> runOnUiThread(() -> {
-            if (enabled) {
-                // Treat the content of the window as secure, preventing it from appearing in
-                // screenshots, the app switcher, or from being viewed on non-secure displays. We
-                // are really only interested in hiding the app contents from the app switcher -
-                // screenshots unfortunately also get disabled.
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-            } else {
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
-            }
-        }));
 
         NetworkRequest request = new NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)

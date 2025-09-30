@@ -372,6 +372,8 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		return rootFingerprint1, nil
 	}
 
+	ksHelper := keystoreHelper1()
+
 	// A keystore with a similar config to a BitBox01 - supports legacy P2PKH, but no unified
 	// accounts or multiple accounts. Ethereum is also not supported.
 	bitbox01LikeKeystore := &keystoremock.KeystoreMock{
@@ -395,7 +397,8 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		SupportsUnifiedAccountsFunc: func() bool {
 			return false
 		},
-		ExtendedPublicKeyFunc: keystoreHelper1().ExtendedPublicKey,
+		ExtendedPublicKeyFunc: ksHelper.ExtendedPublicKey,
+		BTCXPubsFunc:          ksHelper.BTCXPubs,
 	}
 
 	// Add a few accounts with BB02.
@@ -724,8 +727,8 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			SupportsUnifiedAccountsFunc: func() bool {
 				return true
 			},
-			ExtendedPublicKeyFunc: func(coin coinpkg.Coin, absoluteKeypath signing.AbsoluteKeypath,
-			) (*hdkeychain.ExtendedKey, error) {
+			BTCXPubsFunc: func(coin coinpkg.Coin, keypaths []signing.AbsoluteKeypath,
+			) ([]*hdkeychain.ExtendedKey, error) {
 				return nil, expectedErr
 			},
 		}
@@ -990,6 +993,7 @@ func TestTaprootUpgrade(t *testing.T) {
 			return true
 		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+		BTCXPubsFunc:          keystoreHelper.BTCXPubs,
 	}
 	bitbox02Taproot := &keystoremock.KeystoreMock{
 		NameFunc: func() (string, error) {
@@ -1021,6 +1025,7 @@ func TestTaprootUpgrade(t *testing.T) {
 			return true
 		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+		BTCXPubsFunc:          keystoreHelper.BTCXPubs,
 	}
 
 	b := newBackend(t, testnetDisabled, regtestDisabled)
@@ -1325,6 +1330,7 @@ func TestWatchonly(t *testing.T) {
 				return true
 			},
 			ExtendedPublicKeyFunc: keystoreHelper1.ExtendedPublicKey,
+			BTCXPubsFunc:          keystoreHelper1.BTCXPubs,
 		}
 		ks2 := &keystoremock.KeystoreMock{
 			NameFunc: func() (string, error) {
@@ -1349,6 +1355,7 @@ func TestWatchonly(t *testing.T) {
 				return true
 			},
 			ExtendedPublicKeyFunc: keystoreHelper2.ExtendedPublicKey,
+			BTCXPubsFunc:          keystoreHelper2.BTCXPubs,
 		}
 
 		b := newBackend(t, testnetDisabled, regtestDisabled)
@@ -1453,6 +1460,7 @@ func TestAccountsByKeystore(t *testing.T) {
 
 	ks2.RootFingerprintFunc = keystoreHelper2().RootFingerprint
 	ks2.ExtendedPublicKeyFunc = keystoreHelper2().ExtendedPublicKey
+	ks2.BTCXPubsFunc = keystoreHelper2().BTCXPubs
 
 	ks1Fingerprint, err := ks1.RootFingerprint()
 	require.NoError(t, err)
@@ -1483,7 +1491,7 @@ func TestKeystoresBalance(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 		accountMock := MockBtcAccount(t, config, coin, gapLimits, log)
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coinpkg.NewAmountFromInt64(1e8), coinpkg.NewAmountFromInt64(0)), nil
@@ -1504,6 +1512,7 @@ func TestKeystoresBalance(t *testing.T) {
 
 	ks2.RootFingerprintFunc = keystoreHelper2().RootFingerprint
 	ks2.ExtendedPublicKeyFunc = keystoreHelper2().ExtendedPublicKey
+	ks2.BTCXPubsFunc = keystoreHelper2().BTCXPubs
 
 	ks1Fingerprint, err := ks1.RootFingerprint()
 	require.NoError(t, err)
@@ -1552,7 +1561,7 @@ func TestCoinsTotalBalance(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 		accountMock := MockBtcAccount(t, config, coin, gapLimits, log)
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coinpkg.NewAmountFromInt64(1e8), coinpkg.NewAmountFromInt64(0)), nil
@@ -1573,6 +1582,7 @@ func TestCoinsTotalBalance(t *testing.T) {
 
 	ks2.RootFingerprintFunc = keystoreHelper2().RootFingerprint
 	ks2.ExtendedPublicKeyFunc = keystoreHelper2().ExtendedPublicKey
+	ks2.BTCXPubsFunc = keystoreHelper2().BTCXPubs
 
 	ks1Fingerprint, err := ks1.RootFingerprint()
 	require.NoError(t, err)
@@ -1612,7 +1622,7 @@ func TestAccountsFiatAndCoinBalance(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 		accountMock := MockBtcAccount(t, config, coin, gapLimits, log)
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coinpkg.NewAmountFromInt64(1e8), coinpkg.NewAmountFromInt64(0)), nil

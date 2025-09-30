@@ -43,13 +43,13 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
             context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
                 DispatchQueue.main.async {
                     if success {
-                        MobileserverAuthResult(true);
+                        MobileserverAuthResult(MobileserverAuthResultOk);
                     } else {
                         if let laError = authenticationError as? LAError,
                            laError.code == .userCancel {
-                            MobileserverCancelAuth();
+                            MobileserverAuthResult(MobileserverAuthResultCancel);
                         } else {
-                            MobileserverAuthResult(false);
+                            MobileserverAuthResult(MobileserverAuthResultErr);
                         }
                     }
                 }
@@ -57,7 +57,7 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
         } else {
             // Biometric authentication not available
             DispatchQueue.main.async {
-                MobileserverAuthResult(false);
+                MobileserverAuthResult(MobileserverAuthResultMissing);
             }
         }
     }

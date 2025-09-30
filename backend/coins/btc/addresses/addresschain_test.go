@@ -143,7 +143,7 @@ func (s *addressChainTestSuite) TestEnsureAddresses() {
 	s.Require().Len(newAddresses, s.gapLimit)
 	for index, address := range newAddresses {
 		s.Require().Equal(uint32(index), address.AbsoluteKeypath().ToUInt32()[1])
-		s.Require().Equal(getPubKey(index), address.TstPublicKey())
+		s.Require().Equal(getPubKey(index), address.PublicKey)
 	}
 	// Address statuses are still the same, so calling it again won't produce more addresses.
 	addrs, err := s.addresses.EnsureAddresses()

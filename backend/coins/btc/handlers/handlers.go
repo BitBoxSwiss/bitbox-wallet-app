@@ -577,7 +577,11 @@ func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error
 		Addresses  []jsonAddress       `json:"addresses"`
 	}
 	addressList := []jsonAddressList{}
-	for _, addresses := range handlers.account.GetUnusedReceiveAddresses() {
+	unusedAddressList, err := handlers.account.GetUnusedReceiveAddresses()
+	if err != nil {
+		return nil, err
+	}
+	for _, addresses := range unusedAddressList {
 		addrs := []jsonAddress{}
 		for _, address := range addresses.Addresses {
 			addrs = append(addrs, jsonAddress{
