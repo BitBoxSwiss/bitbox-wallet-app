@@ -411,14 +411,57 @@
     "upgrade": "Upgrade"
   },
   "buy": {
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": "Insufficient funds to buy gift card."
+      },
+      "transactionNote": "Sent to Bitrefill"
+    },
     "exchange": {
       "bankTransfer": "Bank transfer",
       "bestDeal": "Best deal",
       "buy": "Buy",
       "creditCard": "Credit card",
+      "description_bitrefill": "Shop gift cards, phone refills & more",
       "fast": "Fast",
       "fee": "fee",
       "infoContent": {
+        "bitrefill": {
+          "disclaimer": {
+            "account": {
+              "link": "Bitrefill purchasing limits",
+              "text": "You can use Bitrefill without creating an account, within certain limits. To increase your spending limits, you can create a basic account or become a verified customer. For full details, see Bitrefill’s purchasing limits.",
+              "title": "Account and limits"
+            },
+            "claims": {
+              "link": "Bitrefill support",
+              "text": "If you experience any issues with a purchase, please contact Bitrefill directly within 30 days of your order.",
+              "title": "Claims"
+            },
+            "dataProtection": {
+              "link": "Bitrefill privacy policy",
+              "text": "The BitBoxApp does not collect personal data. Bitrefill collects information according to its Privacy Policy.",
+              "title": "Data Protection"
+            },
+            "fees": {
+              "text": "Bitrefill doesn’t charge explicit fees, but product prices may include a markup, which can vary depending on the retailer, region, and the exchange rate Bitrefill applies.",
+              "title": "Fees"
+            },
+            "intro": {
+              "text": "Bitrefill is an online platform that lets you buy gift cards, top up mobile phones, and pay bills using bitcoin or other cryptocurrencies. It’s an easy way to spend crypto on everyday goods and services without converting it into traditional money. Bitrefill offers a wide range of products from global brands and is popular among people who want to live on crypto or shop privately.",
+              "title_bitcoin": "Spend bitcoin with Bitrefill",
+              "title_crypto": "Spend crypto with Bitrefill"
+            },
+            "security": {
+              "link": "BitBox security threat model",
+              "text": "Bitrefill is an external service that is not covered by the BitBox security threat model. When you make a purchase, your payment is sent to a Bitrefill address. The BitBox cannot verify that this address is correct.",
+              "title": "Security notice"
+            }
+          },
+          "infobox": {
+            "intro": "Bitrefill is an online platform where you can spend bitcoin and other cryptocurrencies on everyday essentials by purchasing gift cards, mobile top-ups, and a variety of services. The integration with the BitBoxApp lets you spend your coins directly from your BitBox without moving them to an exchange or another wallet."
+          }
+        },
         "btcdirect": {
           "disclaimer": {
             "dataProtection": {
@@ -570,7 +613,8 @@
       "noExchanges": "Sorry, there are no available exchanges in this region.",
       "region": "Region",
       "selectRegion": "Not specified",
-      "sell": "Sell"
+      "sell": "Sell",
+      "spend": "Spend"
     },
     "info": {
       "continue": "Agree and continue",
@@ -834,7 +878,7 @@
   },
   "generic": {
     "buy": "Buy {{coinCode}}",
-    "buySell": "Buy & sell",
+    "buySell": "Marketplace",
     "buy_bitcoin": "Buy Bitcoin",
     "buy_crypto": "Buy crypto",
     "enabled_false": "Disabled",
@@ -849,7 +893,9 @@
     "search": "Search…",
     "sell": "Sell {{coinCode}}",
     "sell_bitcoin": "Sell Bitcoin",
-    "sell_crypto": "Sell crypto"
+    "sell_crypto": "Sell crypto",
+    "spend_bitcoin": "Spend bitcoin",
+    "spend_crypto": "Spend crypto"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {

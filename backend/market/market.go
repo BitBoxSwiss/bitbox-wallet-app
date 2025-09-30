@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package exchanges
+package market
 
 import (
 	"net/http"
@@ -41,59 +41,64 @@ var RegionCodes = []string{
 	"SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS",
 	"ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO",
 	"TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI",
-	"VN", "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW"}
+	"VN", "VU", "WF", "WS", "XK", "YE", "YT", "ZA", "ZM", "ZW"}
 
-// ExchangeError is an error code for exchange related issues.
-type ExchangeError string
+// Error is an error code for market related issues.
+type Error string
 
-func (err ExchangeError) Error() string {
+func (err Error) Error() string {
 	return string(err)
 }
 
 var (
-	// ErrCoinNotSupported is used when the exchange doesn't support a given coin type.
-	ErrCoinNotSupported = ExchangeError("coinNotSupported")
-	// ErrRegionNotSupported is used when the exchange doesn't operate in a given region.
-	ErrRegionNotSupported = ExchangeError("regionNotSupported")
+	// ErrCoinNotSupported is used when the vendor doesn't support a given coin type.
+	ErrCoinNotSupported = Error("coinNotSupported")
+	// ErrRegionNotSupported is used when the vendor doesn't operate in a given region.
+	ErrRegionNotSupported = Error("regionNotSupported")
 )
 
-// ExchangeAction identifies buy or sell actions.
-type ExchangeAction string
+// Action identifies buy, sell or spend actions.
+type Action string
 
 const (
-	// BuyAction identifies a buy exchange action.
-	BuyAction ExchangeAction = "buy"
-	// SellAction identifies a sell exchange action.
-	SellAction ExchangeAction = "sell"
+	// BuyAction identifies a buy market action.
+	BuyAction Action = "buy"
+	// SellAction identifies a sell market action.
+	SellAction Action = "sell"
+	// SpendAction identifies a spend market action.
+	SpendAction Action = "spend"
 )
 
-// ParseAction parses an action string and returns an ExchangeAction.
-func ParseAction(action string) (ExchangeAction, error) {
+// ParseAction parses an action string and returns an Action.
+func ParseAction(action string) (Action, error) {
 	switch action {
 	case "buy":
 		return BuyAction, nil
 	case "sell":
 		return SellAction, nil
+	case "spend":
+		return SpendAction, nil
 	default:
-		return "", errp.New("Invalid Exchange action")
+		return "", errp.New("Invalid Market action")
 	}
 }
 
-// ExchangeRegionList contains a list of ExchangeRegion objects.
-type ExchangeRegionList struct {
-	Regions []ExchangeRegion `json:"regions"`
+// RegionList contains a list of Region objects.
+type RegionList struct {
+	Regions []Region `json:"regions"`
 }
 
-// ExchangeRegion contains the ISO 3166-1 alpha-2 code of a specific region and a boolean
-// for each exchange, indicating if that exchange is enabled for the region.
-type ExchangeRegion struct {
+// Region contains the ISO 3166-1 alpha-2 code of a specific region and a boolean
+// for each vendor, indicating if that vendor is enabled for the region.
+type Region struct {
 	Code               string `json:"code"`
 	IsMoonpayEnabled   bool   `json:"isMoonpayEnabled"`
 	IsPocketEnabled    bool   `json:"isPocketEnabled"`
 	IsBtcDirectEnabled bool   `json:"isBtcDirectEnabled"`
+	IsBitrefillEnabled bool   `json:"isBitrefillEnabled"`
 }
 
-// PaymentMethod type is used for payment options in exchange deals.
+// PaymentMethod type is used for payment options in market deals.
 type PaymentMethod string
 
 const (
@@ -107,9 +112,9 @@ const (
 	BancontactPayment PaymentMethod = "bancontact"
 )
 
-// ExchangeDeal represents a specific purchase option of an exchange.
-type ExchangeDeal struct {
-	// Fee that goes to the exchange in percentage.
+// Deal represents a specific purchase option of a vendor.
+type Deal struct {
+	// Fee that goes to the vendor in percentage.
 	Fee float32 `json:"fee"`
 	// Payment is the payment method offered in the deal (usually different payment methods bring different fees).
 	Payment PaymentMethod `json:"payment"`
@@ -121,20 +126,20 @@ type ExchangeDeal struct {
 	IsHidden bool `json:"isHidden"`
 }
 
-// ExchangeDealsList list the name of a specific exchange and the list of available deals offered by that exchange.
-type ExchangeDealsList struct {
-	ExchangeName string          `json:"exchangeName"`
-	Deals        []*ExchangeDeal `json:"deals"`
+// DealsList list the name of a specific vendors and the list of available deals offered by that vendor.
+type DealsList struct {
+	VendorName string  `json:"vendorName"`
+	Deals      []*Deal `json:"deals"`
 }
 
-// ListExchangesByRegion populates an array of `ExchangeRegion` objects representing the availability
-// of the various exchanges in each of them, for the provided account.
-// For each region, an exchange is enabled if it supports the account coin and it is active in that region.
-// NOTE: if one of the endpoint fails for any reason, the related exchange will be set as available in any
+// ListVendorsByRegion populates an array of `Region` objects representing the availability
+// of the various vendors in each of them, for the provided account.
+// For each region, a vendor is enabled if it supports the account coin and it is active in that region.
+// NOTE: if one of the endpoint fails for any reason, the related vendor will be set as available in any
 // region by default (for the supported coins).
-func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) ExchangeRegionList {
+func ListVendorsByRegion(account accounts.Interface, httpClient *http.Client) RegionList {
 	moonpayRegions, moonpayError := GetMoonpaySupportedRegions(httpClient)
-	log := logging.Get().WithGroup("exchanges")
+	log := logging.Get().WithGroup("market")
 	if moonpayError != nil {
 		log.Error(moonpayError)
 	}
@@ -145,14 +150,16 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 	}
 
 	btcDirectRegions := GetBtcDirectSupportedRegions()
+	bitrefillRegions := GetBitrefillSupportedRegions()
 
 	isMoonpaySupported := IsMoonpaySupported(account.Coin().Code())
 	isPocketSupported := IsPocketSupported(account.Coin().Code())
 	isBtcDirectSupported := IsBtcDirectSupported(account.Coin().Code())
+	isBitrefillSupported := IsBitrefillSupported(account.Coin().Code())
 
-	exchangeRegions := ExchangeRegionList{}
+	vendorRegions := RegionList{}
 	for _, code := range RegionCodes {
-		// default behavior is to show the exchange if the supported regions check fails.
+		// default behavior is to show the vendor if the supported regions check fails.
 		moonpayEnabled, pocketEnabled := true, true
 		if moonpayError == nil {
 			_, moonpayEnabled = moonpayRegions[code]
@@ -161,32 +168,35 @@ func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) 
 			_, pocketEnabled = pocketRegions[code]
 		}
 		btcDirectEnabled := slices.Contains(btcDirectRegions, code)
+		bitrefillEnabled := slices.Contains(bitrefillRegions, code)
 
-		exchangeRegions.Regions = append(exchangeRegions.Regions, ExchangeRegion{
+		vendorRegions.Regions = append(vendorRegions.Regions, Region{
 			Code:               code,
 			IsMoonpayEnabled:   moonpayEnabled && isMoonpaySupported,
 			IsPocketEnabled:    pocketEnabled && isPocketSupported,
 			IsBtcDirectEnabled: btcDirectEnabled && isBtcDirectSupported,
+			IsBitrefillEnabled: bitrefillEnabled && isBitrefillSupported,
 		})
 	}
 
-	return exchangeRegions
+	return vendorRegions
 }
 
-// GetExchangeDeals returns the exchange deals available for the specified account, region and action.
-func GetExchangeDeals(account accounts.Interface, regionCode string, action ExchangeAction, httpClient *http.Client) ([]*ExchangeDealsList, error) {
+// GetDeals returns the vendor deals available for the specified account, region and action.
+func GetDeals(account accounts.Interface, regionCode string, action Action, httpClient *http.Client) ([]*DealsList, error) {
 	moonpaySupportsCoin := IsMoonpaySupported(account.Coin().Code()) && action == BuyAction
-	pocketSupportsCoin := IsPocketSupported(account.Coin().Code())
-	btcDirectSupportsCoin := IsBtcDirectSupported(account.Coin().Code())
-	coinSupported := moonpaySupportsCoin || pocketSupportsCoin || btcDirectSupportsCoin
+	pocketSupportsCoin := IsPocketSupported(account.Coin().Code()) && (action == BuyAction || action == SellAction)
+	btcDirectSupportsCoin := IsBtcDirectSupported(account.Coin().Code()) && (action == BuyAction || action == SellAction)
+	bitrefillSupportsCoin := IsBitrefillSupported(account.Coin().Code()) && action == SpendAction
+	coinSupported := moonpaySupportsCoin || pocketSupportsCoin || btcDirectSupportsCoin || bitrefillSupportsCoin
 	if !coinSupported {
 		return nil, ErrCoinNotSupported
 	}
 
-	var userRegion *ExchangeRegion
+	var userRegion *Region
 	if len(regionCode) > 0 {
-		exchangesByRegion := ListExchangesByRegion(account, httpClient)
-		for _, region := range exchangesByRegion.Regions {
+		vendorsByRegion := ListVendorsByRegion(account, httpClient)
+		for _, region := range vendorsByRegion.Regions {
 			if region.Code == regionCode {
 				// to avoid exporting loop refs
 				region := region
@@ -196,40 +206,47 @@ func GetExchangeDeals(account accounts.Interface, regionCode string, action Exch
 		}
 	}
 	if userRegion == nil {
-		userRegion = &ExchangeRegion{
+		userRegion = &Region{
 			IsMoonpayEnabled:   true,
 			IsPocketEnabled:    true,
 			IsBtcDirectEnabled: true,
+			IsBitrefillEnabled: true,
 		}
 	}
 
-	exchangeDealsLists := []*ExchangeDealsList{}
+	marketDealsLists := []*DealsList{}
 
 	if pocketSupportsCoin && userRegion.IsPocketEnabled {
 		deals := PocketDeals()
 		if deals != nil {
-			exchangeDealsLists = append(exchangeDealsLists, deals)
+			marketDealsLists = append(marketDealsLists, deals)
 		}
 	}
 	if moonpaySupportsCoin && userRegion.IsMoonpayEnabled {
 		deals := MoonpayDeals(action)
 		if deals != nil {
-			exchangeDealsLists = append(exchangeDealsLists, deals)
+			marketDealsLists = append(marketDealsLists, deals)
 		}
 	}
 	if btcDirectSupportsCoin && userRegion.IsBtcDirectEnabled {
 		deals := BtcDirectDeals(action)
 		if deals != nil {
-			exchangeDealsLists = append(exchangeDealsLists, deals)
+			marketDealsLists = append(marketDealsLists, deals)
+		}
+	}
+	if bitrefillSupportsCoin && userRegion.IsBitrefillEnabled {
+		deals := BitrefillDeals()
+		if deals != nil {
+			marketDealsLists = append(marketDealsLists, deals)
 		}
 	}
 
-	if len(exchangeDealsLists) == 0 {
+	if len(marketDealsLists) == 0 {
 		return nil, ErrRegionNotSupported
 	}
 
-	deals := []*ExchangeDeal{}
-	for _, dealsList := range exchangeDealsLists {
+	deals := []*Deal{}
+	for _, dealsList := range marketDealsLists {
 		if dealsList != nil {
 			deals = append(deals, dealsList.Deals...)
 		}
@@ -246,5 +263,5 @@ func GetExchangeDeals(account accounts.Interface, regionCode string, action Exch
 		deals[bestDealIndex].IsBest = true
 	}
 
-	return exchangeDealsLists, nil
+	return marketDealsLists, nil
 }

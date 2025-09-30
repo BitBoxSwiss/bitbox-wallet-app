@@ -21,7 +21,7 @@ import { Button, Checkbox } from '@/components/forms';
 import { setConfig } from '@/utils/config';
 import { IAccount } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
-import { getBTCDirectAboutUsLink } from '@/routes/exchange/components/infocontent';
+import { getBTCDirectAboutUsLink } from '@/routes/market/components/infocontent';
 import { getBTCDirectPrivacyLink } from './btcdirect-otc-terms';
 import style from './terms.module.css';
 

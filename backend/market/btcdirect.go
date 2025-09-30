@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package exchanges
+package market
 
 import (
 	"slices"
@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	// BTCDirectName is the name of the exchange, it is unique among all the supported exchanges.
+	// BTCDirectName is the name of the vendor, it is unique among all the supported vendors.
 	BTCDirectName = "btcdirect"
 
 	btcDirectTestApiKey = "6ed4d42bd02eeac1776a6bb54fa3126f779c04d5c228fe5128bb74e89ef61f83"
@@ -82,11 +82,11 @@ func IsBtcDirectOTCSupportedForCoinInRegion(coinCode coin.Code, region string) b
 
 // BtcDirectDeals returns the purchase conditions (fee and payment methods) offered by BTCDirect,
 // based on the action.
-func BtcDirectDeals(action ExchangeAction) *ExchangeDealsList {
-	var deals []*ExchangeDeal
+func BtcDirectDeals(action Action) *DealsList {
+	var deals []*Deal
 	switch action {
 	case BuyAction:
-		deals = []*ExchangeDeal{
+		deals = []*Deal{
 			{
 				Fee:     3.9, // 3.9%
 				Payment: CardPayment,
@@ -108,7 +108,7 @@ func BtcDirectDeals(action ExchangeAction) *ExchangeDealsList {
 			},
 		}
 	case SellAction:
-		deals = []*ExchangeDeal{
+		deals = []*Deal{
 			{
 				Fee:     2.5, // 2.5%
 				Payment: BankTransferPayment,
@@ -116,15 +116,15 @@ func BtcDirectDeals(action ExchangeAction) *ExchangeDealsList {
 		}
 	}
 
-	return &ExchangeDealsList{
-		ExchangeName: BTCDirectName,
-		Deals:        deals,
+	return &DealsList{
+		VendorName: BTCDirectName,
+		Deals:      deals,
 	}
 }
 
 // BtcDirectInfo returns the information needed to interact with BtcDirect.
 // If `devServers` is true, it returns testing URL and ApiKey.
-func BtcDirectInfo(action ExchangeAction, acct accounts.Interface, devServers bool) (*btcDirectInfo, error) {
+func BtcDirectInfo(action Action, acct accounts.Interface, devServers bool) (*btcDirectInfo, error) {
 	res := btcDirectInfo{
 		Url:    btcDirectBaseProdUrl,
 		ApiKey: btcDirectProdAPiKey,

@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import type { IAccount } from '@/api/account';
-import type { TExchangeAction, TExchangeName, TPaymentMethod } from '@/api/exchanges';
+import type { TMarketAction, TVendorName, TPaymentMethod } from '@/api/market';
 import { i18n } from '@/i18n/i18n';
 import { A } from '@/components/anchor/anchor';
 import { isBitcoinOnly } from '@/routes/account/utils';
@@ -184,7 +184,7 @@ const BTCDirectOTCInfo = ({ accounts }: TBTCDirectOTCInfoProps) => {
 };
 
 type TBTCDirectInfoProps = {
-  action: TExchangeAction;
+  action: TMarketAction;
   cardFee?: number;
   bankTransferFee?: number;
   sofortFee?: number;
@@ -254,6 +254,15 @@ const BTCDirectInfo = ({
   );
 };
 
+const BitrefillInfo = () => {
+  const { t } = useTranslation();
+  return (
+    <div className={style.container}>
+      <p>{t('buy.exchange.infoContent.bitrefill.infobox.intro')}</p>
+    </div>
+  );
+};
+
 const RegionInfo = () => {
   const { t } = useTranslation();
   return (
@@ -263,7 +272,7 @@ const RegionInfo = () => {
   );
 };
 
-type TExchangeNameOrRegion = TExchangeName | 'region';
+type TVendorNameOrRegion = TVendorName | 'region';
 
 export type TPaymentFee = {
   [payment in TPaymentMethod]?: number;
@@ -271,18 +280,18 @@ export type TPaymentFee = {
 
 export type TInfoContentProps = {
   accounts?: IAccount[];
-  action: TExchangeAction;
+  action: TMarketAction;
   paymentFees: TPaymentFee;
-  exchangeName: TExchangeNameOrRegion;
+  vendorName: TVendorNameOrRegion;
 };
 
 export const InfoContent = ({
   accounts,
   action,
   paymentFees,
-  exchangeName: info,
+  vendorName,
 }: TInfoContentProps) => {
-  switch (info) {
+  switch (vendorName) {
   case 'moonpay':
     return (
       <MoonPayInfo
@@ -307,6 +316,10 @@ export const InfoContent = ({
   case 'btcdirect-otc':
     return (
       <BTCDirectOTCInfo accounts={accounts} />
+    );
+  case 'bitrefill':
+    return (
+      <BitrefillInfo />
     );
   case 'region':
     return (

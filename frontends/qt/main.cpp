@@ -172,7 +172,7 @@ public:
         // We treat the exchange pages specially because we need to allow exchange
         // widgets to load in an iframe as well as let them open external links
         // in a browser.
-        bool onExchangePage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/exchange/.*$)").arg(scheme)));
+        bool onExchangePage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/market/.*$)").arg(scheme)));
         bool onBitsurancePage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/bitsurance/.*$)").arg(scheme)));
         if (onExchangePage || onBitsurancePage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {

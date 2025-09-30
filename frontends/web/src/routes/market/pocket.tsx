@@ -22,7 +22,7 @@ import { AppContext } from '@/contexts/AppContext';
 import { getConfig } from '@/utils/config';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { confirmation } from '@/components/confirm/Confirm';
-import { verifyAddress, getPocketURL, TExchangeAction } from '@/api/exchanges';
+import { verifyAddress, getPocketURL, TMarketAction } from '@/api/market';
 import { AccountCode, getInfo, getTransactionList, hasPaymentRequest, signAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -30,14 +30,14 @@ import { PocketTerms } from '@/components/terms/pocket-terms';
 import { useLoad } from '@/hooks/api';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { alertUser } from '@/components/alert/Alert';
-import { ExchangeGuide } from './guide';
+import { MarketGuide } from './guide';
 import { convertScriptType } from '@/utils/request-addess';
 import { parseExternalBtcAmount } from '@/api/coins';
 import style from './iframe.module.css';
 import { Button } from '@/components/forms';
 
 type TProps = {
-  action: TExchangeAction;
+  action: TMarketAction;
   code: AccountCode;
   deviceIDs: string[];
 }
@@ -405,7 +405,7 @@ export const Pocket = ({
           </Dialog>
         </div>
       </div>
-      <ExchangeGuide exchange="pocket" translationContext="bitcoin" />
+      <MarketGuide vendor="pocket" translationContext="bitcoin" />
     </div>
   );
 };

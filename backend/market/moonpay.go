@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package exchanges
+package market
 
 import (
 	"fmt"
@@ -39,7 +39,7 @@ const (
 	// moonpayAPILiveURL is the API url for REST calls.
 	moonpayAPILiveURL = "https://api.moonpay.com/v3"
 
-	// MoonpayName is the name of the exchange, it is unique among all the supported exchanges.
+	// MoonpayName is the name of the vendor, it is unique among all the supported vendors.
 	MoonpayName = "moonpay"
 )
 
@@ -117,11 +117,11 @@ func GetMoonpaySupportedRegions(httpClient *http.Client) (map[string]BuyMoonpayR
 }
 
 // MoonpayDeals returns the purchase conditions (fee and payment methods) offered by Moonpay.
-func MoonpayDeals(action ExchangeAction) *ExchangeDealsList {
+func MoonpayDeals(action Action) *DealsList {
 	if action == BuyAction {
-		return &ExchangeDealsList{
-			ExchangeName: MoonpayName,
-			Deals: []*ExchangeDeal{
+		return &DealsList{
+			VendorName: MoonpayName,
+			Deals: []*Deal{
 				{
 					Fee:     4.9, // 4.9%
 					Payment: CardPayment,

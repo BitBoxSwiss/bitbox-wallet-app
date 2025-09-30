@@ -18,7 +18,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
-import * as exchangesAPI from '@/api/exchanges';
+import * as marketAPI from '@/api/market';
 import { Button } from '@/components/forms/button';
 import { getBTCDirectOTCLink, TInfoContentProps, TPaymentFee } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -29,22 +29,22 @@ import { A } from '@/components/anchor/anchor';
 import { InfoButton } from '@/components/infobutton/infobutton';
 import { getConfig } from '@/utils/config';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
-import { ExchangeProviders } from '@/routes/exchange/components/exchange-providers';
-import style from '../exchange.module.css';
+import { VendorDeals } from '@/routes/market/components/vendor-deals';
+import style from '../market.module.css';
 
 type TProps = {
-  accountCode: string;
-  selectedRegion: string;
-  goToExchange: (exchange: string) => void;
+  marketDealsResponse: marketAPI.TMarketDealsResponse | undefined;
+  btcDirectOTCSupported: marketAPI.TBtcDirectResponse | undefined;
+  goToVendor: (vendor: string) => void;
   showBackButton: boolean;
-  action: exchangesAPI.TExchangeAction;
+  action: marketAPI.TMarketAction;
   setInfo: (info: TInfoContentProps) => void;
 }
 
-export const BuySell = ({
-  accountCode,
-  selectedRegion,
-  goToExchange,
+export const Deals = ({
+  marketDealsResponse,
+  btcDirectOTCSupported,
+  goToVendor,
   showBackButton,
   action,
   setInfo,
@@ -52,8 +52,6 @@ export const BuySell = ({
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
 
-  const exchangeDealsResponse = useLoad(() => exchangesAPI.getExchangeDeals(action, accountCode, selectedRegion), [action, selectedRegion]);
-  const btcDirectOTCSupported = useLoad(exchangesAPI.getBtcDirectOTCSupported(accountCode, selectedRegion), [selectedRegion]);
   const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
   const config = useLoad(getConfig);
   const navigate = useNavigate();
@@ -64,12 +62,12 @@ export const BuySell = ({
     }
   }, [config]);
 
-  const buildInfo = (exchange: exchangesAPI.ExchangeDeals): TInfoContentProps => {
+  const buildInfo = (marketDeals: marketAPI.TMarketDeals): TInfoContentProps => {
     let paymentFees: TPaymentFee = {};
-    exchange.deals.forEach(deal => paymentFees[deal.payment] = deal.fee);
+    marketDeals.deals.forEach(deal => deal.payment && (paymentFees[deal.payment] = deal.fee));
     return {
       action,
-      exchangeName: exchange.exchangeName,
+      vendorName: marketDeals.vendorName,
       paymentFees,
     };
   };
@@ -77,48 +75,48 @@ export const BuySell = ({
   return (
     <>
       <div className={style.innerRadioButtonsContainer}>
-        {!exchangeDealsResponse && <Skeleton />}
-        {exchangeDealsResponse?.success === false ? (
+        {!marketDealsResponse && <Skeleton />}
+        {marketDealsResponse?.success === false ? (
           <div className="flex flex-column">
             <p className={style.noExchangeText}>
-              {exchangeDealsResponse?.success === false && (
-                exchangeDealsResponse.errorCode
-                  ? t('exchange.buySell.' + exchangeDealsResponse.errorCode)
-                  : exchangeDealsResponse.errorMessage
+              {marketDealsResponse?.success === false && (
+                marketDealsResponse.errorCode
+                  ? t('exchange.buySell.' + marketDealsResponse.errorCode)
+                  : marketDealsResponse.errorMessage
               )}
             </p>
           </div>
         ) : (
           <div className={style.exchangeProvidersContainer}>
-            {exchangeDealsResponse?.exchanges
-              // skip the exchanges that have only hidden deals.
-              .filter(exchange => (exchange.deals.some(deal => !deal.isHidden)))
-              .map(exchange => (
-                <div key={exchange.exchangeName} className={style.actionableItemContainer}>
+            {marketDealsResponse?.deals
+              // skip the vendors that have only hidden deals.
+              .filter(vendor => (vendor.deals.some(deal => !deal.isHidden)))
+              .map(vendor => (
+                <div key={vendor.vendorName} className={style.actionableItemContainer}>
                   <ActionableItem
-                    key={exchange.exchangeName}
+                    key={vendor.vendorName}
                     onClick={() => {
-                      goToExchange(exchange.exchangeName);
+                      goToVendor(vendor.vendorName);
                     }}>
-                    <ExchangeProviders
-                      deals={exchange.deals}
-                      exchangeName={exchange.exchangeName}
+                    <VendorDeals
+                      deals={vendor.deals}
+                      vendorName={vendor.vendorName}
                     />
                   </ActionableItem>
 
-                  <InfoButton onClick={() => setInfo(buildInfo(exchange))} />
+                  <InfoButton onClick={() => setInfo(buildInfo(vendor))} />
                 </div>
               ))}
           </div>
         )}
-        {btcDirectOTCSupported?.success && btcDirectOTCSupported?.supported && (
+        {btcDirectOTCSupported?.success && btcDirectOTCSupported?.supported && action !== 'spend' && (
           <div className={style.infoContainer}>
             <Message type="info" icon={<Businessman/>}>
               {t('buy.exchange.infoContent.btcdirect.title')}
               <p>{t('buy.exchange.infoContent.btcdirect.info')}</p>
               <p>
                 {!agreedBTCDirectOTCTerms ? (
-                  <Link to={'/exchange/btcdirect-otc'} className={style.link}>
+                  <Link to={'/market/btcdirect-otc'} className={style.link}>
                     {t('buy.exchange.infoContent.btcdirect.link')}
                   </Link>
                 ) : (
@@ -132,19 +130,19 @@ export const BuySell = ({
             </Message>
             <InfoButton onClick={() => setInfo({
               action,
-              exchangeName: 'btcdirect-otc',
+              vendorName: 'btcdirect-otc',
               paymentFees: {}
             })} />
           </div>
         )}
       </div>
-      {exchangeDealsResponse?.success && (
+      {marketDealsResponse?.success && (
         <div className={style.buttonsContainer}>
           {showBackButton && (
             <Button
               className={style.buttonBack}
               secondary
-              onClick={() => navigate('/exchange/info')}>
+              onClick={() => navigate('/market/info')}>
               {t('button.back')}
             </Button>
           )}

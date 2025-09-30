@@ -18,18 +18,27 @@ import { useTranslation } from 'react-i18next';
 import { useDarkmode } from '@/hooks/darkmode';
 import { Bank, BankDark, CreditCard, CreditCardDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
-import { getExchangeFormattedName } from '@/routes/exchange/utils';
-import { ExchangeDeal, ExchangeDeals } from '@/api/exchanges';
-import style from './exchange-provider.module.css';
+import { getVendorFormattedName } from '@/routes/market/utils';
+import { TMarketDeal, TMarketDeals } from '@/api/market';
+import style from './vendor-deals.module.css';
 
 type Props = {
-  deals: ExchangeDeal[];
-  exchangeName: ExchangeDeals['exchangeName'];
+  deals: TMarketDeal[];
+  vendorName: TMarketDeals['vendorName'];
 }
 
-type TPaymentMethodProps = { methodName: ExchangeDeal['payment'] };
+type TDealProps = {
+  deal: TMarketDeal;
+  vendorName: TMarketDeals['vendorName'];
+};
 
-const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
+type TPaymentMethodProps = {
+  methodName: TMarketDeal['payment'];
+};
+
+const PaymentMethod = ({
+  methodName,
+}: TPaymentMethodProps) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   switch (methodName) {
@@ -54,11 +63,20 @@ const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
   }
 };
 
-const Deal = ({ deal }: { deal: ExchangeDeal }) => {
+const Deal = ({
+  deal,
+  vendorName
+}: TDealProps) => {
   const { t } = useTranslation();
   return (
     <div className={style.paymentMethodContainer}>
-      <PaymentMethod methodName={deal.payment} />
+      {deal.payment ? (
+        <PaymentMethod methodName={deal.payment}/>
+      ) : (
+        <span className={style.dealDescription}>
+          {t('buy.exchange.description', { context: vendorName })}
+        </span>
+      )}
       <div className={style.badgeContainer}>
         {deal.isBest && (
           <Badge type="success">{t('buy.exchange.bestDeal')}</Badge>
@@ -72,18 +90,18 @@ const Deal = ({ deal }: { deal: ExchangeDeal }) => {
 };
 
 
-export const ExchangeProviders = ({
+export const VendorDeals = ({
   deals,
-  exchangeName,
+  vendorName,
 }: Props) => {
   return (
     <div className={style.exchangeContainer}>
       <div className={style.container}>
         <p className={[style.text, style.exchangeName].join(' ')}>
-          {getExchangeFormattedName(exchangeName)}
+          {getVendorFormattedName(vendorName)}
         </p>
         <div className={style.paymentMethodsContainer}>
-          {deals.map(deal => !deal.isHidden && <Deal key={deal.payment} deal={deal}/>)}
+          {deals.map(deal => !deal.isHidden && <Deal key={deal.payment} deal={deal} vendorName={vendorName}/>)}
         </div>
       </div>
     </div>

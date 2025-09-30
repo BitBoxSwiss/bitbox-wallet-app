@@ -122,8 +122,8 @@ export const App = () => {
       navigate('/account-summary?with-chart-animation=true', { replace: true });
       return;
     }
-    // if on the /exchange/ view and there are no accounts view route to /
-    if (accounts.length === 0 && currentURL.startsWith('/exchange/')) {
+    // if on the /market/ view and there are no accounts view route to /
+    if (accounts.length === 0 && currentURL.startsWith('/market/')) {
       navigate('/');
       return;
     }

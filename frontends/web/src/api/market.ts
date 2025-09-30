@@ -17,44 +17,44 @@
 import { AccountCode } from './account';
 import { apiGet, apiPost } from '@/utils/request';
 
-export const getExchangeRegionCodes = (): Promise<string[]> => {
-  return apiGet('exchange/region-codes');
+export const getMarketRegionCodes = (): Promise<string[]> => {
+  return apiGet('market/region-codes');
 };
 
 export type TPaymentMethod = 'card' | 'bank-transfer' | 'bancontact' | 'sofort';
 
-export type ExchangeDeal = {
+export type TMarketDeal = {
   fee: number;
-  payment: TPaymentMethod;
+  payment?: TPaymentMethod;
   isFast: boolean;
   isBest: boolean;
   isHidden: boolean;
 }
 
-export type TExchangeName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc';
+export type TVendorName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc' | 'bitrefill';
 
-export type ExchangeDeals = {
-  exchangeName: TExchangeName;
-  deals: ExchangeDeal[];
+export type TMarketDeals = {
+  vendorName: TVendorName;
+  deals: TMarketDeal[];
 }
 
-export type ExchangeDealsList = {
-  exchanges: ExchangeDeals[];
+export type TMarketDealsList = {
+  deals: TMarketDeals[];
   success: true;
 }
 
-export type ExchangeError = {
+export type TMarketError = {
   success: false;
   errorCode?: 'coinNotSupported' | 'regionNotSupported';
   errorMessage?: string;
 }
 
-export type TExchangeDealsResponse = ExchangeDealsList | ExchangeError
+export type TMarketDealsResponse = TMarketDealsList | TMarketError
 
-export type TExchangeAction = 'buy' | 'sell';
+export type TMarketAction = 'buy' | 'sell' | 'spend';
 
-export const getExchangeDeals = (action: TExchangeAction, accountCode: AccountCode, region: string): Promise<TExchangeDealsResponse> => {
-  return apiGet(`exchange/deals/${action}/${accountCode}?region=${region}`);
+export const getMarketDeals = (action: TMarketAction, accountCode: AccountCode, region: string): Promise<TMarketDealsResponse> => {
+  return apiGet(`market/deals/${action}/${accountCode}?region=${region}`);
 };
 
 export type MoonpayBuyInfo = {
@@ -64,7 +64,7 @@ export type MoonpayBuyInfo = {
 
 export const getMoonpayBuyInfo = (code: AccountCode) => {
   return (): Promise<MoonpayBuyInfo> => {
-    return apiGet(`exchange/moonpay/buy-info/${code}`);
+    return apiGet(`market/moonpay/buy-info/${code}`);
   };
 };
 
@@ -75,7 +75,7 @@ export type AddressVerificationResponse = {
 }
 
 export const verifyAddress = (address: string, accountCode: AccountCode): Promise<AddressVerificationResponse> => {
-  return apiPost('exchange/pocket/verify-address', { address, accountCode });
+  return apiPost('market/pocket/verify-address', { address, accountCode });
 };
 
 export type TPocketUrlResponse = {
@@ -86,8 +86,8 @@ export type TPocketUrlResponse = {
   errorMessage: string;
 };
 
-export const getPocketURL = (action: TExchangeAction): Promise<TPocketUrlResponse> => {
-  return apiGet(`exchange/pocket/api-url/${action}`);
+export const getPocketURL = (action: TMarketAction): Promise<TPocketUrlResponse> => {
+  return apiGet(`market/pocket/api-url/${action}`);
 };
 
 export type TBTCDirectInfoResponse = {
@@ -100,17 +100,34 @@ export type TBTCDirectInfoResponse = {
   errorMessage: string;
 };
 
-export const getBTCDirectInfo = async (action: TExchangeAction, code: string): Promise<TBTCDirectInfoResponse> => {
-  return apiGet(`exchange/btcdirect/info/${action}/${code}`);
+export const getBTCDirectInfo = async (action: TMarketAction, code: string): Promise<TBTCDirectInfoResponse> => {
+  return apiGet(`market/btcdirect/info/${action}/${code}`);
 };
 
-export type SupportedExchanges= {
-  exchanges: string[];
+export type TBitrefillInfoResponse = {
+  success: true;
+  url: string;
+  ref: string;
+  address?: string;
+} | {
+  success: false;
+  errorMessage: string;
 };
 
-export const getExchangeSupported = (code: AccountCode) => {
-  return (): Promise<SupportedExchanges> => {
-    return apiGet(`exchange/supported/${code}`);
+export const getBitrefillInfo = (
+  action: TMarketAction,
+  code: string,
+): Promise<TBitrefillInfoResponse> => {
+  return apiGet(`market/bitrefill/info/${action}/${code}`);
+};
+
+export type MarketVendors= {
+  vendors: string[];
+};
+
+export const getMarketVendors = (code: AccountCode) => {
+  return (): Promise<MarketVendors> => {
+    return apiGet(`market/vendors/${code}`);
   };
 };
 
@@ -123,6 +140,6 @@ export type TBtcDirectResponse = {
 
 export const getBtcDirectOTCSupported = (code: AccountCode, region: string) => {
   return (): Promise<TBtcDirectResponse> => {
-    return apiGet(`exchange/btcdirect-otc/supported/${code}?region=${region}`);
+    return apiGet(`market/btcdirect-otc/supported/${code}?region=${region}`);
   };
 };

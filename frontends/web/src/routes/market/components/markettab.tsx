@@ -16,16 +16,16 @@
 
 import { useTranslation } from 'react-i18next';
 import { PillButton, PillButtonGroup } from '../../../components/pillbuttongroup/pillbuttongroup';
-import { TExchangeAction } from '@/api/exchanges';
+import { TMarketAction } from '@/api/market';
 
 
 type TProps = {
-  onChangeTab: (tab: TExchangeAction) => void;
-  activeTab: TExchangeAction;
+  onChangeTab: (tab: TMarketAction) => void;
+  activeTab: TMarketAction;
 }
 
 
-export const ExchangeTab = ({
+export const MarketTab = ({
   onChangeTab,
   activeTab
 }: TProps) => {
@@ -43,6 +43,12 @@ export const ExchangeTab = ({
         onClick={() => onChangeTab('sell')}
       >
         {t('buy.exchange.sell')}
+      </PillButton>
+      <PillButton
+        active={activeTab === 'spend'}
+        onClick={() => onChangeTab('spend')}
+      >
+        {t('buy.exchange.spend')}
       </PillButton>
     </PillButtonGroup>
   );
