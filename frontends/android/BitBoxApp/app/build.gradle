@@ -9,10 +9,10 @@ android {
         applicationId "ch.shiftcrypto.bitboxapp"
         // minSdkVersion should match the `-androidapi` gomobile bind flag
         // in backend/mobileserver/Makefile
-        minSdkVersion 24
+        minSdkVersion 21
         targetSdkVersion 35
-        versionCode 63
-        versionName "android-4.48.5"
+        versionCode 64
+        versionName "android-4.48.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
