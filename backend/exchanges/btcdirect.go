@@ -15,7 +15,6 @@
 package exchanges
 
 import (
-	"errors"
 	"slices"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -39,15 +38,6 @@ const (
 	btcDirectSellPage = "coin-to-fiat.html"
 )
 
-// This maps supported coin units to sell addresses.
-var sellAddresses = map[string]string{
-	"BTC":  "bc1qnkku53ue3fud8pquec7jrp4jmtn3tmqmwtelr6",
-	"LTC":  "ltc1qldx5037gn4u4nu6nfrwskhtdngzxzgjefygk8r",
-	"ETH":  "0xE5b1F760BA4334bc311695e125861Eb5870018aD",
-	"USDC": "0xE5b1F760BA4334bc311695e125861Eb5870018aD",
-	"LINK": "0xE5b1F760BA4334bc311695e125861Eb5870018aD",
-}
-
 type btcDirectInfo struct {
 	// Url is the url of the page integrating the BTC Direct widget.
 	Url string
@@ -55,8 +45,6 @@ type btcDirectInfo struct {
 	ApiKey string
 	// Address is the address used to buy/sell coins.
 	Address string
-	// CoinUnit is the unit of the exchanged coin.
-	CoinUnit string
 }
 
 var regions = []string{
@@ -155,14 +143,7 @@ func BtcDirectInfo(action ExchangeAction, acct accounts.Interface, devServers bo
 		}
 		res.Address = addressList[0].Addresses[0].EncodeForHumans()
 	} else {
-		coinUnit := acct.Coin().Unit(false)
-		address, ok := sellAddresses[coinUnit]
-		if !ok {
-			return nil, errors.New("Coin type not supported")
-		}
 		res.Url += btcDirectSellPage
-		res.Address = address
-		res.CoinUnit = coinUnit
 	}
 	return &res, nil
 }

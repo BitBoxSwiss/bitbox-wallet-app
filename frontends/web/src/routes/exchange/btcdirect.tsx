@@ -106,7 +106,12 @@ export const BTCDirect = ({
   };
 
   const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
-    const { amount, currency, orderId } = event.data;
+    const {
+      amount,
+      currency,
+      orderId,
+      walletAddress,
+    } = event.data;
 
     if (!btcdirectInfo || btcdirectInfo?.success === false) {
       if (btcdirectInfo?.errorMessage) {
@@ -116,11 +121,6 @@ export const BTCDirect = ({
         alertUser(t('genericError'));
       }
       return;
-    }
-
-    if (currency !== btcdirectInfo.coinUnit) {
-      alertUser(t('currencyMismatch'));
-      console.log('Unexpected currency' + currency);
     }
 
     let txAmount: string;
@@ -137,7 +137,7 @@ export const BTCDirect = ({
     }
 
     const txInput: TTxInput = {
-      address: btcdirectInfo.address,
+      address: walletAddress,
       amount: txAmount,
       paymentRequest: null,
       sendAll: 'no',
