@@ -15,19 +15,19 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import type { TExchangeName } from '@/api/exchanges';
+import type { TVendorName } from '@/api/market';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { getBTCDirectPrivacyLink } from '@/components/terms/btcdirect-otc-terms';
 
 type BuyGuideProps = {
-  exchange?: TExchangeName;
+  vendor?: TVendorName;
   translationContext: 'bitcoin' | 'crypto';
 }
 
-const usePrivacyLink = (exchange?: TExchangeName) => {
+const usePrivacyLink = (vendor?: TVendorName) => {
   const { t } = useTranslation();
-  switch (exchange) {
+  switch (vendor) {
   case 'btcdirect':
     return ({
       text: t('buy.exchange.infoContent.btcdirect.disclaimer.dataProtection.link'),
@@ -46,8 +46,8 @@ const usePrivacyLink = (exchange?: TExchangeName) => {
   }
 };
 
-const useServiceLink = (exchange?: TExchangeName) => {
-  switch (exchange) {
+const useServiceLink = (vendor?: TVendorName) => {
+  switch (vendor) {
   case 'btcdirect':
     return ({
       name: 'BTC Direct',
@@ -69,10 +69,10 @@ const useServiceLink = (exchange?: TExchangeName) => {
   }
 };
 
-export const ExchangeGuide = ({ exchange, translationContext }: BuyGuideProps) => {
+export const MarketGuide = ({ vendor, translationContext }: BuyGuideProps) => {
   const { t } = useTranslation();
-  const link = usePrivacyLink(exchange);
-  const serviceLink = useServiceLink(exchange);
+  const link = usePrivacyLink(vendor);
+  const serviceLink = useServiceLink(vendor);
 
   return (
     <Guide title={t('guide.guideTitle.buySell')}>

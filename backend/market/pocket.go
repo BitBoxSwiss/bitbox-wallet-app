@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package exchanges
+package market
 
 import (
 	"fmt"
@@ -45,7 +45,7 @@ const (
 	// pocketAPILiveURL is the base url of pocket API in production environment.
 	pocketAPILiveURL = "https://widget.pocketbitcoin.com/api"
 
-	// PocketName is the name of the exchange, it is unique among all the supported exchanges.
+	// PocketName is the name of the vendor, it is unique among all the supported vendors.
 	PocketName = "pocket"
 )
 
@@ -57,7 +57,7 @@ type PocketRegion struct {
 
 // PocketURL returns the url needed to incorporate the widget in the frontend, verifying
 // if the `devservers` argument is enabled.
-func PocketURL(devServers bool, locale string, action ExchangeAction) string {
+func PocketURL(devServers bool, locale string, action Action) string {
 	sellPath := ""
 	if action == SellAction {
 		sellPath = "/sell"
@@ -77,12 +77,12 @@ func IsPocketSupported(coinCode coin.Code) bool {
 }
 
 // PocketDeals returns the purchase conditions (fee and payment methods) offered by Pocket.
-func PocketDeals() *ExchangeDealsList {
+func PocketDeals() *DealsList {
 	// deals details are the same for both buy and sell. In the future we may need to use
 	// an action parameter to give different results.
-	return &ExchangeDealsList{
-		ExchangeName: PocketName,
-		Deals: []*ExchangeDeal{
+	return &DealsList{
+		VendorName: PocketName,
+		Deals: []*Deal{
 			{
 				Fee:     1.5, // 1.5%
 				Payment: BankTransferPayment,

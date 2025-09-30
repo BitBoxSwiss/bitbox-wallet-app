@@ -106,7 +106,7 @@ const Sidebar = ({
   };
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
-  const userInSpecificAccountExchangePage = (pathname.startsWith('/exchange'));
+  const userInSpecificAccountMarketPage = (pathname.startsWith('/market'));
 
   return (
     <div className={style.sidebarContainer}>
@@ -157,10 +157,10 @@ const Sidebar = ({
         <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (
           <>
-            <div key="exchange" className={style.sidebarItem}>
+            <div key="market" className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive || userInSpecificAccountExchangePage ? style.sidebarActive : ''}
-                to="/exchange/info">
+                className={({ isActive }) => isActive || userInSpecificAccountMarketPage ? style.sidebarActive : ''}
+                to="/market/info">
                 <div className={style.single}>
                   <Coins />
                 </div>

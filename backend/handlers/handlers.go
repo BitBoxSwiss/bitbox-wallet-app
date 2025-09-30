@@ -47,8 +47,8 @@ import (
 	bitbox02bootloaderHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02bootloader/handlers"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bluetooth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/exchanges"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	utilConfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -240,14 +240,15 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownload).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/electrum/check", handlers.postElectrumCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/exchange/region-codes", handlers.getExchangeRegionCodes).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/deals/{action}/{code}", handlers.getExchangeDeals).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/supported/{code}", handlers.getExchangeSupported).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/btcdirect-otc/supported/{code}", handlers.getExchangeBtcDirectOTCSupported).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/btcdirect/info/{action}/{code}", handlers.getExchangeBtcDirectInfo).Methods("GET")
-	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url/{action}", handlers.getExchangePocketURL).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/market/region-codes", handlers.getMarketRegionCodes).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/market/deals/{action}/{code}", handlers.getMarketDeals).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/market/vendors/{code}", handlers.getMarketVendors).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/market/btcdirect-otc/supported/{code}", handlers.getMarketBtcDirectOTCSupported).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/market/btcdirect/info/{action}/{code}", handlers.getMarketBtcDirectInfo).Methods("GET")
+	getAPIRouter(apiRouter)("/market/moonpay/buy-info/{code}", handlers.getMarketMoonpayBuyInfo).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/market/pocket/api-url/{action}", handlers.getMarketPocketURL).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/market/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/market/bitrefill/info/{action}/{code}", handlers.getMarketBitrefillInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/bitsurance/lookup", handlers.postBitsuranceLookup).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/bitsurance/url", handlers.getBitsuranceURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/aopp", handlers.getAOPP).Methods("GET")
@@ -1127,8 +1128,8 @@ func (handlers *Handlers) getSupportedCoins(*http.Request) interface{} {
 	return result
 }
 
-func (handlers *Handlers) getExchangeRegionCodes(r *http.Request) interface{} {
-	return exchanges.RegionCodes
+func (handlers *Handlers) getMarketRegionCodes(r *http.Request) interface{} {
+	return market.RegionCodes
 }
 
 func (handlers *Handlers) postBitsuranceLookup(r *http.Request) interface{} {
@@ -1165,10 +1166,10 @@ func (handlers *Handlers) getBitsuranceURL(r *http.Request) interface{} {
 
 	return bitsurance.WidgetURL(handlers.backend.DevServers(), lang)
 }
-func (handlers *Handlers) getExchangeDeals(r *http.Request) interface{} {
-	type exchangeDealsList struct {
-		Exchanges []*exchanges.ExchangeDealsList `json:"exchanges"`
-		Success   bool                           `json:"success"`
+func (handlers *Handlers) getMarketDeals(r *http.Request) interface{} {
+	type marketDealsList struct {
+		Deals   []*market.DealsList `json:"deals"`
+		Success bool                `json:"success"`
 	}
 	type errorResult struct {
 		ErrorCode    string `json:"errorCode,omitempty"`
@@ -1188,25 +1189,25 @@ func (handlers *Handlers) getExchangeDeals(r *http.Request) interface{} {
 		return errorResult{Success: false, ErrorMessage: "Account not valid"}
 	}
 
-	action, err := exchanges.ParseAction(mux.Vars(r)["action"])
+	action, err := market.ParseAction(mux.Vars(r)["action"])
 	if err != nil {
 		handlers.log.Error(err)
 		return errorResult{Success: false, ErrorMessage: err.Error()}
 	}
 
 	regionCode := r.URL.Query().Get("region")
-	exchangeDealsLists, err := exchanges.GetExchangeDeals(acct, regionCode, action, handlers.backend.HTTPClient())
+	marketDealsLists, err := market.GetDeals(acct, regionCode, action, handlers.backend.HTTPClient())
 	if err != nil {
 		return errorResult{Success: false, ErrorCode: err.Error()}
 	}
 
-	return exchangeDealsList{
-		Success:   true,
-		Exchanges: exchangeDealsLists,
+	return marketDealsList{
+		Success: true,
+		Deals:   marketDealsLists,
 	}
 }
 
-func (handlers *Handlers) getExchangeBtcDirectOTCSupported(r *http.Request) interface{} {
+func (handlers *Handlers) getMarketBtcDirectOTCSupported(r *http.Request) interface{} {
 	type Result struct {
 		Supported bool `json:"supported"`
 		Success   bool `json:"success"`
@@ -1230,16 +1231,16 @@ func (handlers *Handlers) getExchangeBtcDirectOTCSupported(r *http.Request) inte
 	regionCode := r.URL.Query().Get("region")
 	return Result{
 		Success:   true,
-		Supported: exchanges.IsBtcDirectOTCSupportedForCoinInRegion(acct.Coin().Code(), regionCode),
+		Supported: market.IsBtcDirectOTCSupportedForCoinInRegion(acct.Coin().Code(), regionCode),
 	}
 }
 
-func (handlers *Handlers) getExchangeSupported(r *http.Request) interface{} {
-	type supportedExchanges struct {
-		Exchanges []string `json:"exchanges"`
+func (handlers *Handlers) getMarketVendors(r *http.Request) interface{} {
+	type vendors struct {
+		Vendors []string `json:"vendors"`
 	}
 
-	supported := supportedExchanges{Exchanges: []string{}}
+	supported := vendors{Vendors: []string{}}
 	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
 		return supported
@@ -1250,20 +1251,23 @@ func (handlers *Handlers) getExchangeSupported(r *http.Request) interface{} {
 		return supported
 	}
 
-	if exchanges.IsMoonpaySupported(acct.Coin().Code()) {
-		supported.Exchanges = append(supported.Exchanges, exchanges.MoonpayName)
+	if market.IsMoonpaySupported(acct.Coin().Code()) {
+		supported.Vendors = append(supported.Vendors, market.MoonpayName)
 	}
-	if exchanges.IsPocketSupported(acct.Coin().Code()) {
-		supported.Exchanges = append(supported.Exchanges, exchanges.PocketName)
+	if market.IsPocketSupported(acct.Coin().Code()) {
+		supported.Vendors = append(supported.Vendors, market.PocketName)
 	}
-	if exchanges.IsBtcDirectSupported(acct.Coin().Code()) {
-		supported.Exchanges = append(supported.Exchanges, exchanges.BTCDirectName)
+	if market.IsBtcDirectSupported(acct.Coin().Code()) {
+		supported.Vendors = append(supported.Vendors, market.BTCDirectName)
+	}
+	if market.IsBitrefillSupported(acct.Coin().Code()) {
+		supported.Vendors = append(supported.Vendors, market.BitrefillName)
 	}
 
 	return supported
 }
 
-func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getMarketMoonpayBuyInfo(r *http.Request) (interface{}, error) {
 	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
 		return nil, err
@@ -1275,11 +1279,11 @@ func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{
 		// to retrieve that.
 		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
 	}
-	params := exchanges.BuyMoonpayParams{
+	params := market.BuyMoonpayParams{
 		Fiat: handlers.backend.Config().AppConfig().Backend.MainFiat,
 		Lang: lang,
 	}
-	buy, err := exchanges.MoonpayInfo(acct, params)
+	buy, err := market.MoonpayInfo(acct, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1293,7 +1297,7 @@ func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{
 	return resp, nil
 }
 
-func (handlers *Handlers) getExchangeBtcDirectInfo(r *http.Request) interface{} {
+func (handlers *Handlers) getMarketBtcDirectInfo(r *http.Request) interface{} {
 	type result struct {
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage,omitempty"`
@@ -1309,8 +1313,8 @@ func (handlers *Handlers) getExchangeBtcDirectInfo(r *http.Request) interface{} 
 		return result{Success: false, ErrorMessage: "Account is not valid."}
 	}
 
-	action := exchanges.ExchangeAction(mux.Vars(r)["action"])
-	btcInfo, err := exchanges.BtcDirectInfo(action, acct, handlers.backend.DevServers())
+	action := market.Action(mux.Vars(r)["action"])
+	btcInfo, err := market.BtcDirectInfo(action, acct, handlers.backend.DevServers())
 	if err != nil {
 		return result{Success: false, ErrorMessage: err.Error()}
 	}
@@ -1323,7 +1327,7 @@ func (handlers *Handlers) getExchangeBtcDirectInfo(r *http.Request) interface{} 
 	}
 }
 
-func (handlers *Handlers) getExchangePocketURL(r *http.Request) interface{} {
+func (handlers *Handlers) getMarketPocketURL(r *http.Request) interface{} {
 	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
 	if len(lang) == 0 {
 		// userLanguage config is empty if the set locale matches the system locale, so we have
@@ -1331,7 +1335,7 @@ func (handlers *Handlers) getExchangePocketURL(r *http.Request) interface{} {
 		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
 	}
 
-	action, err := exchanges.ParseAction(mux.Vars(r)["action"])
+	action, err := market.ParseAction(mux.Vars(r)["action"])
 	if err != nil {
 		return struct {
 			Success      bool   `json:"success"`
@@ -1343,7 +1347,7 @@ func (handlers *Handlers) getExchangePocketURL(r *http.Request) interface{} {
 		Url     string `json:"url"`
 	}{
 		Success: true,
-		Url:     exchanges.PocketURL(handlers.backend.DevServers(), lang, action),
+		Url:     market.PocketURL(handlers.backend.DevServers(), lang, action),
 	}
 }
 
@@ -1368,7 +1372,7 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interfa
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
-	err = exchanges.PocketWidgetVerifyAddress(account, request.Address)
+	err = market.PocketWidgetVerifyAddress(account, request.Address)
 	if err != nil {
 		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
 		if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
@@ -1378,6 +1382,36 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interfa
 	}
 	return response{Success: true}
 
+}
+
+func (handlers *Handlers) getMarketBitrefillInfo(r *http.Request) interface{} {
+	type result struct {
+		Success      bool    `json:"success"`
+		ErrorMessage string  `json:"errorMessage,omitempty"`
+		Url          string  `json:"url"`
+		Ref          string  `json:"ref"`
+		Address      *string `json:"address"`
+	}
+
+	code := accountsTypes.Code(mux.Vars(r)["code"])
+	acct, err := handlers.backend.GetAccountFromCode(code)
+	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
+	if err != nil || !accountValid {
+		return result{Success: false, ErrorMessage: "Account is not valid."}
+	}
+
+	action := market.Action(mux.Vars(r)["action"])
+	bitrefillInfo, err := market.BitrefillInfo(action, acct, handlers.backend.DevServers())
+	if err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
+
+	return result{
+		Success: true,
+		Url:     bitrefillInfo.Url,
+		Ref:     bitrefillInfo.Ref,
+		Address: bitrefillInfo.Address,
+	}
 }
 
 func (handlers *Handlers) getAOPP(r *http.Request) interface{} {

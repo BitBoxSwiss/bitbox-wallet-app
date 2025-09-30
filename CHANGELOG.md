@@ -20,9 +20,13 @@
 - Windows: fix send/feetarget dropdown UI rendering bug
 - More efficient account initialization by fetching all account Bitcoin xpubs at once
 
+## v4.48.6
+- Android: restore support for Android 6 and Android 5
+
 ## v4.48.5
 - Bundle BitBox02 firmware version v9.23.2
 - iOS: fix wrong timezone when confirming time on BitBox02 (it would always show the time in UTC)
+- Integrate Bitrefill and add spending section
 
 ## v4.48.4
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
