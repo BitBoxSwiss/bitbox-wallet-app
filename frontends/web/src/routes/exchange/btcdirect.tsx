@@ -123,11 +123,6 @@ export const BTCDirect = ({
       return;
     }
 
-    if (currency !== btcdirectInfo.coinUnit) {
-      alertUser(t('currencyMismatch'));
-      console.log('Unexpected currency' + currency);
-    }
-
     let txAmount: string;
     if (currency !== 'BTC') {
       txAmount = String(amount);
@@ -142,7 +137,7 @@ export const BTCDirect = ({
     }
 
     const txInput: TTxInput = {
-      address: walletAddress, // TODO: remove btcdirectInfo.address,
+      address: walletAddress,
       amount: txAmount,
       paymentRequest: null,
       sendAll: 'no',

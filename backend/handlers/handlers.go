@@ -1297,10 +1297,9 @@ func (handlers *Handlers) getExchangeBtcDirectInfo(r *http.Request) interface{} 
 	type result struct {
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage,omitempty"`
-		Url          string `json:"url,omitempty"`
-		ApiKey       string `json:"apiKey,omitempty"`
+		Url          string `json:"url"`
+		ApiKey       string `json:"apiKey"`
 		Address      string `json:"address,omitempty"`
-		CoinUnit     string `json:"coinUnit,omitempty"`
 	}
 
 	code := accountsTypes.Code(mux.Vars(r)["code"])
@@ -1317,11 +1316,10 @@ func (handlers *Handlers) getExchangeBtcDirectInfo(r *http.Request) interface{} 
 	}
 
 	return result{
-		Success:  true,
-		Url:      btcInfo.Url,
-		ApiKey:   btcInfo.ApiKey,
-		Address:  btcInfo.Address,
-		CoinUnit: btcInfo.CoinUnit,
+		Success: true,
+		Url:     btcInfo.Url,
+		ApiKey:  btcInfo.ApiKey,
+		Address: btcInfo.Address,
 	}
 }
 
