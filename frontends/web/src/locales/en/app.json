@@ -5,7 +5,7 @@
     "backupReminder": "Your wallet <strong>{{name}}</strong> passed {{fiat}} {{threshold}}!\n\nWe recommend creating a paper backup for extra protection. It's quick and simple.",
     "backupReminderLink": "Create paper backup",
     "disconnect": "Connection lost. Retrying…",
-    "export": "Export",
+    "export": "Export transactions",
     "exportTransactions": "Export transactions to downloads folder as CSV file",
     "fatalError": "There was an unexpected error.",
     "incoming": "Incoming",
@@ -881,6 +881,7 @@
     "buySell": "Marketplace",
     "buy_bitcoin": "Buy Bitcoin",
     "buy_crypto": "Buy crypto",
+    "close": "Close",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
     "noOptionOnIos": "Not available on iOS",
@@ -891,6 +892,7 @@
     "receive_crypto": "Receive crypto",
     "resetToDefault": "Reset to default",
     "search": "Search…",
+    "searchButton": "Search",
     "sell": "Sell {{coinCode}}",
     "sell_bitcoin": "Sell Bitcoin",
     "sell_crypto": "Sell crypto",
@@ -1861,6 +1863,7 @@
     "fee": "Fee",
     "fiatHistorical": "Historical",
     "gas": "Gas",
+    "no-results": "No transactions found matching \"{{searchTerm}}\"",
     "note": {
       "edit": "Edit note",
       "save": "Save note"

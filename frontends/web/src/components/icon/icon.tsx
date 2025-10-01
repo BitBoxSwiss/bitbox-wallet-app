@@ -75,6 +75,7 @@ import globeLightSVG from './assets/icons/globe-light.svg';
 import guideSVG from './assets/icons/guide.svg';
 import linechartSVG from './assets/icons/linechart.svg';
 import loupeSVG from './assets/icons/loupe.svg';
+import loupeBlueSVG from './assets/icons/loupe-blue.svg';
 import menuDarkSVG from './assets/icons/menu-dark.svg';
 import menuLightSVG from './assets/icons/menu-light.svg';
 import optimismColorSVG from './assets/optimism-color.svg';
@@ -225,6 +226,7 @@ export const GuideActive = (props: ImgProps) => (<img src={guideSVG} draggable={
 export const Info = (props: ImgProps) => (<img src={info} draggable={false} {...props} />);
 export const Linechart = (props: ImgProps) => (<img src={linechartSVG} draggable={false} {...props} />);
 export const Loupe = (props: ImgProps) => (<img src={loupeSVG} draggable={false} {...props} />);
+export const LoupeBlue = (props: ImgProps) => (<img src={loupeBlueSVG} draggable={false} {...props} />);
 export const MenuDark = (props: ImgProps) => (<img src={menuDarkSVG} draggable={false} {...props} />);
 export const MenuLight = (props: ImgProps) => (<img src={menuLightSVG} draggable={false} {...props} />);
 export const OptimismLogo = (props: ImgProps) => (<img src={optimismColorSVG} draggable={false} {...props} />);
