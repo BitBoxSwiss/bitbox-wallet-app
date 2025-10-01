@@ -58,24 +58,33 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     } else {
       const value = Math.round(status.progress * 100);
       contents = (
-        <div className="box large">
-          <SubTitle>
+        <>
+          <SubTitle className={style.upgradingTitle}>
             {t('bb02Bootloader.upgradeTitle', { context: (info.erased ? 'install' : '') })}
           </SubTitle>
           { info.additionalUpgradeFollows ? (
-            <>
-              <p className={style.additionalUpgrade}>{t('bb02Bootloader.additionalUpgradeFollows1')}</p>
-              <p className={style.additionalUpgrade}>{t('bb02Bootloader.additionalUpgradeFollows2')}</p>
-            </>
+            <p className={style.additionalUpgrade}>
+              {t('bb02Bootloader.additionalUpgradeFollows1')}
+            </p>
           ) : null }
           <progress className={style.progressBar} value={value} max="100">{value}%</progress>
-          <p className={style.content}>
-            {t('bootloader.progress', {
-              progress: value.toString(),
-              context: (info.erased ? 'install' : ''),
-            })}
-          </p>
-        </div>
+          <div className={style.progressInfo}>
+            <span>
+              {t('bootloader.progress', {
+                context: (info.erased ? 'install' : ''),
+              })}
+            </span>
+            <span>
+              {value}%
+            </span>
+          </div>
+
+          { info.additionalUpgradeFollows ? (
+            <p className={style.additionalUpgrade}>
+              {t('bb02Bootloader.additionalUpgradeFollows2')}
+            </p>
+          ) : null }
+        </>
       );
     }
   } else {
@@ -132,7 +141,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       (isDarkMode ? <BitBox02Inverted /> : <BitBox02 />);
 
   return (
-    <View fitContent verticallyCentered width="600px">
+    <View fitContent verticallyCentered width="556px">
       <ViewContent>
         {logo}
         {status && status.errMsg && (
