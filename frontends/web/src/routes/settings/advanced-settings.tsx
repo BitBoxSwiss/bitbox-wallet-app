@@ -80,7 +80,7 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
+            <GlobalBanners devices={devices} />
           </ContentWrapper>
           <Header
             hideSidebarToggler

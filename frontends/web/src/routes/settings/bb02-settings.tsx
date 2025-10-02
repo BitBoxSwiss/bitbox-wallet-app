@@ -66,7 +66,7 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
       <GuideWrapper>
         <GuidedContent>
           <ContentWrapper>
-            <GlobalBanners />
+            <GlobalBanners devices={devices} />
           </ContentWrapper>
           <Header
             hideSidebarToggler

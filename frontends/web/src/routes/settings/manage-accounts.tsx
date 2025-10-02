@@ -206,7 +206,7 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
+            <GlobalBanners devices={devices} />
           </ContentWrapper>
           <Header
             hideSidebarToggler

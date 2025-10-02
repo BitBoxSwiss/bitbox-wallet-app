@@ -23,8 +23,6 @@ import { statusChanged, syncdone } from '@/api/accountsync';
 import { unsubscribe } from '@/utils/subscriptions';
 import { TUnsubscribe } from '@/utils/transport-common';
 import { useMountedRef } from '@/hooks/mount';
-import { useSDCard } from '@/hooks/sdcard';
-import { Status } from '@/components/status/status';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View } from '@/components/view/view';
 import { Chart } from './chart';
@@ -65,8 +63,6 @@ export const AccountsSummary = ({
   const [chartData, setChartData] = useState<accountApi.TChartData>();
   const [accountsBalanceSummary, setAccountsBalanceSummary] = useState<accountApi.TAccountsBalanceSummary>();
   const [balances, setBalances] = useState<Balances>();
-
-  const hasCard = useSDCard(devices);
 
   const getChartData = useCallback(async () => {
     // replace previous timer if present
@@ -180,10 +176,7 @@ export const AccountsSummary = ({
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
-            <Status hidden={!hasCard} type="warning">
-              {t('warning.sdcard')}
-            </Status>
+            <GlobalBanners devices={devices} />
             {accountsByKeystore.map(({ keystore }) => (
               <BackupReminder
                 key={keystore.rootFingerprint}

@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Shift Crypto AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,27 @@
  * limitations under the License.
  */
 
+import { useTranslation } from 'react-i18next';
 import type { AccountCode } from '@/api/account';
 import type { TDevices } from '@/api/devices';
-import { Testing } from './testing';
-import { Update } from './update';
-import { Banner } from './banner';
-import { MobileDataWarning } from './mobiledatawarning';
-import { Offline } from './offline';
-import { SDCardWarning } from './sdcard';
+import { useSDCard } from '@/hooks/sdcard';
+import { Status } from '@/components/status/status';
 
 type Props = {
   code?: AccountCode;
   devices: TDevices;
 }
 
-export const GlobalBanners = ({
+export const SDCardWarning = ({
   code,
   devices,
 }: Props) => {
+  const { t } = useTranslation();
+  const hasCard = useSDCard(devices, code ? [code] : undefined);
+
   return (
-    <>
-      <Testing />
-      <Update />
-      <Banner msgKey="bitbox01" />
-      <Banner msgKey="bitbox02" />
-      <Banner msgKey="bitbox02nova" />
-      <MobileDataWarning />
-      <Offline />
-      <SDCardWarning code={code} devices={devices} />
-    </>
+    <Status hidden={!hasCard} type="warning">
+      {t('warning.sdcard')}
+    </Status>
   );
 };

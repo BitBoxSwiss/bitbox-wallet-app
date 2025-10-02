@@ -39,7 +39,7 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
+            <GlobalBanners devices={devices} />
           </ContentWrapper>
           <Header
             hideSidebarToggler
