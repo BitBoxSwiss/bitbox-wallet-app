@@ -30,7 +30,7 @@ type TProps = {
   // used as keyName in the config if dismissing the status should be persisted, so it is not
   // shown again. Use an empty string if it should be dismissible without storing it in the
   // config, so the status will be shown again the next time.
-  dismissible?: string;
+  dismissible: string;
   className?: string;
   children: ReactNode;
 }
