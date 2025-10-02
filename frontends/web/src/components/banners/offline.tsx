@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { useTranslation } from 'react-i18next';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 import { AppContext } from '@/contexts/AppContext';
 import { useContext } from 'react';
 
@@ -27,9 +27,8 @@ export const Offline = () => {
   }
 
   return (
-    <Status type="warning"
-      hidden={isOnline}>
+    <Message type="warning" hidden={isOnline}>
       {t('warning.offline')}
-    </Status>
+    </Message>
   );
 };

@@ -50,6 +50,7 @@ const MessageIcon = ({ type, icon }: TMessageIconProps) => {
 };
 
 type MessageProps = {
+  className?: string;
   hidden?: boolean;
   small?: boolean;
   title?: string;
@@ -60,6 +61,7 @@ type MessageProps = {
 }
 
 export const Message = ({
+  className = '',
   hidden,
   small,
   title,
@@ -72,7 +74,11 @@ export const Message = ({
     return null;
   }
   return (
-    <div className={`${styles[type]} ${small ? styles.small : ''}`}>
+    <div className={`
+      ${styles[type]}
+      ${small ? styles.small : ''}
+      ${className}
+    `.trim()}>
       {!noIcon && <MessageIcon type={type} icon={icon} />}
       <div className={styles.content}>
         {title && (
