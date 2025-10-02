@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { AccountCode } from '@/api/account';
 import type { TDevices } from '@/api/devices';
@@ -32,9 +33,15 @@ export const SDCardWarning = ({
   const { t } = useTranslation();
   const hasCard = useSDCard(devices, code ? [code] : undefined);
 
+  const deviceList = Object.keys(devices);
+
   return (
     <Status hidden={!hasCard} type="warning">
       {t('warning.sdcard')}
+      <br />
+      <Link to={`/manage-backups/${deviceList[0]}`}>
+        {t('backup.link')}
+      </Link>
     </Status>
   );
 };
