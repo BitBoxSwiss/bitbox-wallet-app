@@ -29,7 +29,7 @@ import { HeadersSync } from '@/components/headerssync/headerssync';
 import { Info, LoupeBlue } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 import { useLoad, useSubscribe, useSync } from '@/hooks/api';
 import { useDebounce } from '@/hooks/debounce';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
@@ -273,13 +273,19 @@ const RemountAccount = ({
         <Main>
           <ContentWrapper>
             <GlobalBanners code={code} devices={devices} />
-            <Status className={style.status} hidden={status === undefined || !status.offlineError} type="error">
+            <Message
+              className={style.status}
+              hidden={status === undefined || !status.offlineError}
+              type="error">
               {offlineErrorTextLines.join('\n')}
-            </Status>
-            <Status className={style.status} hidden={status === undefined || status.synced || !!status.offlineError} type="info">
+            </Message>
+            <Message
+              className={style.status}
+              hidden={status === undefined || status.synced || !!status.offlineError}
+              type="info">
               {t('account.initializing')}
               {notSyncedText}
-            </Status>
+            </Message>
           </ContentWrapper>
           <Dialog open={insured && uncoveredFunds.length !== 0} medium title={t('account.warning')} onClose={() => setUncoveredFunds([])}>
             <MultilineMarkup tagName="p" markup={t('account.uncoveredFunds', {

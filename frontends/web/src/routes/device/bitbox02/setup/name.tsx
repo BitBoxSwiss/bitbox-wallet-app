@@ -17,7 +17,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 import { Button, Input } from '@/components/forms';
 import { checkSDCard } from '@/api/bitbox02';
 import { useValidateDeviceName } from '@/hooks/devicename';
@@ -57,9 +57,9 @@ export const SetDeviceName = ({
         <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
           <p>{t('bitbox02Wizard.stepCreate.description')}</p>
           {missingSDCardWarning && (
-            <Status className="m-bottom-half" type="warning">
+            <Message className="m-bottom-half" type="warning">
               <span>{t('bitbox02Wizard.stepCreate.toastMicroSD')}</span>
-            </Status>
+            </Message>
           )}
         </ViewHeader>
         <ViewContent textAlign="left" minHeight="140px">

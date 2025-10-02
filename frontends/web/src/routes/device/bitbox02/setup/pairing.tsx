@@ -18,7 +18,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { channelHashChanged, getChannelHash, verifyChannelHash } from '@/api/bitbox02';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
 import { Button } from '@/components/forms';
 
@@ -62,9 +62,9 @@ export const Pairing = ({
       width="670px">
       <ViewHeader title={t('bitbox02Wizard.pairing.title')}>
         { pairingFailed ? (
-          <Status key="pairingFailed" type="warning">
+          <Message key="pairingFailed" type="warning">
             {t('bitbox02Wizard.pairing.failed')}
-          </Status>
+          </Message>
         ) : (
           <p>
             { deviceVerified
@@ -75,9 +75,9 @@ export const Pairing = ({
       </ViewHeader>
       <ViewContent fullWidth>
         { (attestation === false && !pairingFailed) && (
-          <Status type="warning" className="m-bottom-half">
+          <Message type="warning" className="m-bottom-half">
             {t('bitbox02Wizard.attestationFailed')}
-          </Status>
+          </Message>
         )}
         { !pairingFailed && (
           <>

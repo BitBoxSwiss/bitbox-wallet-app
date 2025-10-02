@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 import { PasswordEntry } from './components/password-entry/password-entry';
 
 type Props = {
@@ -39,9 +39,9 @@ export const Unlock = ({ attestation }: Props) => {
       </ViewHeader>
       <ViewContent fullWidth>
         {attestation === false ? (
-          <Status>
+          <Message>
             {t('bitbox02Wizard.attestationFailed')}
-          </Status>
+          </Message>
         ) : (
           <PasswordEntry />
         )}

@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import type { AccountCode } from '@/api/account';
 import type { TDevices } from '@/api/devices';
 import { useSDCard } from '@/hooks/sdcard';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 
 type Props = {
   code?: AccountCode;
@@ -33,8 +33,8 @@ export const SDCardWarning = ({
   const hasCard = useSDCard(devices, code ? [code] : undefined);
 
   return (
-    <Status hidden={!hasCard} type="warning">
+    <Message hidden={!hasCard} type="warning">
       {t('warning.sdcard')}
-    </Status>
+    </Message>
   );
 };

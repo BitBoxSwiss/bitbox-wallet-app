@@ -17,7 +17,7 @@
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 
 export const Testing = () => {
   const { t } = useTranslation();
@@ -28,8 +28,8 @@ export const Testing = () => {
   }
 
   return (
-    <Status type="warning">
+    <Message type="warning">
       {t('warning.testnet')}
-    </Status>
+    </Message>
   );
 };

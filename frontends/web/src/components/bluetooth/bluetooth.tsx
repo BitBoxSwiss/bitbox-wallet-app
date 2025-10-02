@@ -19,7 +19,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSync } from '@/hooks/api';
 import { connect, getState, syncState, TPeripheral } from '@/api/bluetooth';
 import { runningInIOS } from '@/utils/env';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { Badge } from '@/components/badge/badge';
 import { HorizontallyCenteredSpinner, SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
@@ -70,9 +70,9 @@ const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
   }
   if (!state.bluetoothAvailable) {
     return (
-      <Status type="warning">
+      <Message type="warning">
         {t('bluetooth.enable')}
-      </Status>
+      </Message>
     );
   }
   const hasConnection = state.peripherals.some(isConnectedOrConnecting);
