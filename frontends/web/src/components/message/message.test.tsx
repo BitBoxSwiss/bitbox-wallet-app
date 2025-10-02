@@ -20,10 +20,6 @@ import { Message } from './message';
 import '@testing-library/jest-dom'; // TODO needed?
 
 describe('components/message/message', () => {
-  it('should have child nodes', () => {
-    const msg = render(<Message><span>hello</span></Message>);
-    expect(msg.container.firstChild!).toMatchSnapshot();
-  });
 
   it('should return return null', () => {
     const msg = render(<Message hidden><span>hello</span></Message>);

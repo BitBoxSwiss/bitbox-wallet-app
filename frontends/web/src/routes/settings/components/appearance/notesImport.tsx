@@ -46,6 +46,9 @@ export const NotesImport = () => {
           try {
             setImportDisabled(true);
             const file = fileInput.files[0];
+            if (!file) {
+              return;
+            }
             if (file.size > 10 * 1024 * 1024) {
               alertUser(t('settings.notes.import.tooLarge'));
               return;

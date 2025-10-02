@@ -65,8 +65,8 @@ export const WCIncomingSignRequestDialog = ({
   const { isDarkMode } = useDarkmode();
   const { accountAddress, accountName, signingData, chain, method, currentSession } = content;
 
-  const formattedChain = chain in SUPPORTED_CHAINS ? SUPPORTED_CHAINS[chain].name : chain;
-  const chainIcon = chain in SUPPORTED_CHAINS ? SUPPORTED_CHAINS[chain].icon : null;
+  const formattedChain = chain in SUPPORTED_CHAINS ? SUPPORTED_CHAINS[chain]?.name : chain;
+  const chainIcon = chain in SUPPORTED_CHAINS ? SUPPORTED_CHAINS[chain]?.icon : null;
 
   const metadata = currentSession.peer.metadata;
 

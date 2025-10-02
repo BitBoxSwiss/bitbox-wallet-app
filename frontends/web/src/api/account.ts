@@ -15,10 +15,11 @@
  */
 
 import type { LineData } from 'lightweight-charts';
-import { apiGet, apiPost } from '@/utils/request';
+import type { Slip24 } from 'request-address';
 import type { TDetailStatus } from './bitsurance';
 import type { SuccessResponse } from './response';
-import { Slip24 } from 'request-address';
+import type { NonEmptyArray } from '@/utils/types';
+import { apiGet, apiPost } from '@/utils/request';
 
 export type NativeCoinCode = 'btc' | 'tbtc' | 'rbtc' | 'ltc' | 'tltc' | 'eth' | 'sepeth';
 
@@ -304,11 +305,11 @@ export interface IReceiveAddress {
 
 export interface ReceiveAddressList {
     scriptType: ScriptType | null;
-    addresses: IReceiveAddress[];
+    addresses: NonEmptyArray<IReceiveAddress>;
 }
 
 export const getReceiveAddressList = (code: AccountCode) => {
-  return (): Promise<ReceiveAddressList[] | null> => {
+  return (): Promise<NonEmptyArray<ReceiveAddressList> | null> => {
     return apiGet(`account/${code}/receive-addresses`);
   };
 };

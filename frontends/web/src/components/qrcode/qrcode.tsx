@@ -88,12 +88,25 @@ const TapToCopyQRCode = ({ data, qrCodeData, size }: TTapToCopyQRCodeProps) => {
     <div onClick={handleCopy}>
       <input className={style.hiddenInput} ref={inputRef} value={data} readOnly/>
       <div style={{ width: size, height: size }} className={style.outerContainer}>
-        <img className={`${style.qrCodeContainer}  ${success ? style.hide : style.show}`} width={size} height={size} src={qrCodeData} />
-        <div className={`${style.checkContainer} ${style.show}`}>
+        <img
+          className={`
+            ${style.qrCodeContainer as string}
+            ${(success ? style.hide : style.show) as string}
+          `}
+          width={size}
+          height={size}
+          src={qrCodeData}
+        />
+        <div className={`${style.checkContainer as string} ${style.show as string}`}>
           <Check width={size / 2} height={size / 2} />
         </div>
       </div>
-      <p className={`${style.copiedText} ${success ? style.show : style.hide}`}>{t('receive.qrCodeCopiedMessage')}</p>
+      <p className={`
+        ${style.copiedText as string}
+        ${(success ? style.show : style.hide) as string}
+      `}>
+        {t('receive.qrCodeCopiedMessage')}
+      </p>
     </div>
   );
 };
