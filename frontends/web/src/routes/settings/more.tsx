@@ -50,7 +50,7 @@ export const More = ({ devices }: Props) => {
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
+            <GlobalBanners devices={devices} />
           </ContentWrapper>
           <Header
             title={<h2>{t('settings.more')}</h2>} />

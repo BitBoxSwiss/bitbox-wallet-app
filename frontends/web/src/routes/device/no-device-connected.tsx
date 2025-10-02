@@ -37,7 +37,7 @@ export const NoDeviceConnected = ({
       <GuideWrapper>
         <GuidedContent>
           <ContentWrapper>
-            <GlobalBanners />
+            <GlobalBanners devices={devices} />
           </ContentWrapper>
           <Header
             hideSidebarToggler

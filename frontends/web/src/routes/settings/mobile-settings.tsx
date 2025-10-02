@@ -47,7 +47,7 @@ export const MobileSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsT
   return (
     <Main>
       <ContentWrapper>
-        <GlobalBanners />
+        <GlobalBanners devices={devices} />
       </ContentWrapper>
       <Header
         title={

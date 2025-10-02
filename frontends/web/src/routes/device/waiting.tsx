@@ -64,7 +64,7 @@ export const Waiting = () => {
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
+            <GlobalBanners devices={devices} />
           </ContentWrapper>
           <Header title={<h2>{t('welcome.title')}</h2>}>
             <OutlinedSettingsButton />

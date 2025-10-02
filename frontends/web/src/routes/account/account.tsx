@@ -23,7 +23,6 @@ import { statusChanged, syncAddressesCount, syncdone } from '@/api/accountsync';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { TDevices } from '@/api/devices';
 import { getMarketVendors, MarketVendors } from '@/api/market';
-import { useSDCard } from '@/hooks/sdcard';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
@@ -178,8 +177,6 @@ const RemountAccount = ({
     getConfig().then(({ backend }) => setUsesProxy(backend.proxy.useProxy));
   }, [maybeCheckBitsuranceStatus]);
 
-  const hasCard = useSDCard(devices, [code]);
-
   const onAccountChanged = useCallback((status: accountApi.IStatus | undefined) => {
     if (status === undefined || status.fatalError) {
       return;
@@ -275,10 +272,7 @@ const RemountAccount = ({
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
-            <Status hidden={!hasCard} type="warning">
-              {t('warning.sdcard')}
-            </Status>
+            <GlobalBanners code={code} devices={devices} />
             <Status className={style.status} hidden={status === undefined || !status.offlineError} type="error">
               {offlineErrorTextLines.join('\n')}
             </Status>
