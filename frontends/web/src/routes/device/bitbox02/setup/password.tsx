@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Backup } from '@/api/backup';
 import { PasswordEntry } from '@/routes/device/bitbox02/components/password-entry/password-entry';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 import { MultilineMarkup } from '@/utils/markup';
 import { convertDateToLocaleString } from '@/utils/date';
 
@@ -37,9 +37,9 @@ export const SetPassword = ({ errorText }: Props) => {
       width="600px">
       <ViewHeader title={t('bitbox02Wizard.stepPassword.title')}>
         {errorText && (
-          <Status className="margin-bottom-default" type="warning">
+          <Message className="margin-bottom-default" type="warning">
             <span>{errorText}</span>
-          </Status>
+          </Message>
         )}
         <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>
       </ViewHeader>
