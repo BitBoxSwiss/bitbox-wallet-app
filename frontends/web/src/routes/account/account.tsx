@@ -20,10 +20,8 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { statusChanged, syncAddressesCount, syncdone } from '@/api/accountsync';
-import { bitsuranceLookup } from '@/api/bitsurance';
 import { TDevices } from '@/api/devices';
 import { getMarketVendors, MarketVendors } from '@/api/market';
-import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
 import { Info, LoupeBlue } from '@/components/icon';
@@ -31,6 +29,7 @@ import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Message } from '@/components/message/message';
 import { useLoad, useSubscribe, useSync } from '@/hooks/api';
+import { useBitsurance } from '@/hooks/bitsurance';
 import { useDebounce } from '@/hooks/debounce';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ActionButtons } from './actionButtons';
@@ -38,11 +37,10 @@ import { Insured } from './components/insuredtag';
 import { AccountGuide } from './guide';
 import { BuyReceiveCTA } from './info/buy-receive-cta';
 import { isBitcoinBased } from './utils';
-import { getScriptName } from './utils';
 import { MultilineMarkup } from '@/utils/markup';
 import { Dialog } from '@/components/dialog/dialog';
 import { A } from '@/components/anchor/anchor';
-import { getConfig, setConfig } from '@/utils/config';
+import { getConfig } from '@/utils/config';
 import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
@@ -52,8 +50,8 @@ import { TransactionDetails } from '@/components/transactions/details';
 import { Button, Input } from '@/components/forms';
 import { SubTitle } from '@/components/title';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
-import style from './account.module.css';
 import { RatesContext } from '@/contexts/RatesContext';
+import style from './account.module.css';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -67,6 +65,17 @@ export const Account = (props: Props) => {
   }
   // The `key` prop forces a re-mount when `code` changes.
   return <RemountAccount key={props.code} {...props} />;
+};
+
+const getBitsuranceGuideLink = (
+  resolvedLanguage: string | undefined,
+): string => {
+  switch (resolvedLanguage) {
+  case 'de':
+    return 'https://bitbox.swiss/redirects/bitsurance-segwit-migration-guide-de/';
+  default:
+    return 'https://bitbox.swiss/redirects/bitsurance-segwit-migration-guide-en/';
+  }
 };
 
 // Re-mounted when `code` changes, and `code` is guaranteed to be non-empty.
@@ -87,8 +96,6 @@ const RemountAccount = ({
   const syncedAddressesCount = useSubscribe(syncAddressesCount(code));
   const [transactions, setTransactions] = useState<accountApi.TTransactions>();
   const [usesProxy, setUsesProxy] = useState<boolean>();
-  const [insured, setInsured] = useState<boolean>(false);
-  const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
   const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
   const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -99,14 +106,7 @@ const RemountAccount = ({
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
-  const getBitsuranceGuideLink = (): string => {
-    switch (i18n.resolvedLanguage) {
-    case 'de':
-      return 'https://bitbox.swiss/redirects/bitsurance-segwit-migration-guide-de/';
-    default:
-      return 'https://bitbox.swiss/redirects/bitsurance-segwit-migration-guide-en/';
-    }
-  };
+  const { insured, uncoveredFunds, clearUncoveredFunds } = useBitsurance(code, account);
 
   const loadingTransactions = transactions?.success === undefined;
   const hasTransactions = transactions?.success && transactions.list.length > 0;
@@ -133,49 +133,9 @@ const RemountAccount = ({
     });
   }, [transactions, debouncedSearchTerm]);
 
-  const checkUncoveredUTXOs = useCallback(async () => {
-    const uncoveredScripts: accountApi.ScriptType[] = [];
-    const utxos = await accountApi.getUTXOs(code);
-    utxos.forEach((utxo) => {
-      if (utxo.scriptType !== 'p2wpkh' && !uncoveredScripts.includes(utxo.scriptType)) {
-        uncoveredScripts.push(utxo.scriptType);
-      }
-    });
-    setUncoveredFunds(uncoveredScripts.map(getScriptName));
-  }, [code]);
-
-  const maybeCheckBitsuranceStatus = useCallback(async () => {
-    if (account?.bitsuranceStatus) {
-      const insuredAccounts = await bitsuranceLookup(code);
-      if (!insuredAccounts.success) {
-        alertUser(insuredAccounts.errorMessage || t('genericError'));
-        return;
-      }
-
-      // we fetch the config after the lookup as it could have changed.
-      const config = await getConfig();
-      let cancelledAccounts: string[] = config.frontend.bitsuranceNotifyCancellation;
-      if (cancelledAccounts?.some(accountCode => accountCode === code)) {
-        alertUser(t('account.insuranceExpired'));
-        // remove the pending notification from the frontend settings.
-        config.frontend.bitsuranceNotifyCancellation = cancelledAccounts.filter(accountCode => accountCode !== code);
-        setConfig(config);
-      }
-
-      let bitsuranceAccount = insuredAccounts.bitsuranceAccounts[0];
-      if (bitsuranceAccount?.status === 'active') {
-        setInsured(true);
-        checkUncoveredUTXOs();
-        return;
-      }
-    }
-    setInsured(false);
-  }, [t, account, code, checkUncoveredUTXOs]);
-
   useEffect(() => {
-    maybeCheckBitsuranceStatus();
     getConfig().then(({ backend }) => setUsesProxy(backend.proxy.useProxy));
-  }, [maybeCheckBitsuranceStatus]);
+  }, []);
 
   const onAccountChanged = useCallback((status: accountApi.IStatus | undefined) => {
     if (status === undefined || status.fatalError) {
@@ -287,12 +247,18 @@ const RemountAccount = ({
               {notSyncedText}
             </Message>
           </ContentWrapper>
-          <Dialog open={insured && uncoveredFunds.length !== 0} medium title={t('account.warning')} onClose={() => setUncoveredFunds([])}>
+          <Dialog
+            open={insured && uncoveredFunds.length !== 0}
+            medium
+            title={t('account.warning')}
+            onClose={clearUncoveredFunds}>
             <MultilineMarkup tagName="p" markup={t('account.uncoveredFunds', {
               name: account.name,
               uncovered: uncoveredFunds,
             })} />
-            <A href={getBitsuranceGuideLink()}>{t('account.uncoveredFundsLink')}</A>
+            <A href={getBitsuranceGuideLink(i18n.resolvedLanguage)}>
+              {t('account.uncoveredFundsLink')}
+            </A>
           </Dialog>
           <Header
             title={<h2><span>{account.name}</span>{insured && (<Insured />)}</h2>}>
