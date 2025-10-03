@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v4.48.7
+- ios: fix Pocket user verification button
+
 ## v4.48.6
 - Android: restore support for Android 6 and Android 5
 

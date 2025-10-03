@@ -11,7 +11,7 @@ import Mobileserver
 
 // We setup a custom scheme qrc:/... to load web resources from our local bundle.
 // This serves two purposes:
-// - the React router is the BrowserRouter, so if we loaded index.html as a file, routing 
+// - the React router is the BrowserRouter, so if we loaded index.html as a file, routing
 //   to e.g. /accounts-summary would try to load this file as an absolute path.
 //   Using the custom scheme, the base will always be qrc:/, so it would route to qrc:/accounts-summary,
 //   which works with the BrowserRouter. If we used the HashRouter, it would work with a custom scheme or by
@@ -113,11 +113,15 @@ struct WebView: UIViewRepresentable {
         let customSchemeHandler = CustomSchemeHandler()
         config.setURLSchemeHandler(customSchemeHandler, forURLScheme: scheme)
 
-        // Allows third-party cookies. Needed for onramp iframe'd widgets like MoonPay.  
+        // Allows third-party cookies. Needed for onramp iframe'd widgets like MoonPay.
         config.websiteDataStore = WKWebsiteDataStore.default()
 
         // TODO: check if official - needed to allow loading the bundle with <script type="module" src="...">
         config.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
+
+        // Allow widgets like Pocket to call window.open(). Pocket uses it to launch user
+        // verification in the browser, for example.
+        config.preferences.javaScriptCanOpenWindowsAutomatically = true
 
         // The QR code scanner uses a <video> element with an playsInline attribute.
         // This setting allows this attribute. Otherwise the QR code scanner would
