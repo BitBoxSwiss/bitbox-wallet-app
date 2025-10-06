@@ -26,7 +26,7 @@ import { Button, Checkbox } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { PointToBitBox02 } from '@/components/icon';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 
 // The enable wizard has five steps that can be navigated by clicking
 // 'back' or 'continue'. On the last step the passphrase will be enabled.
@@ -218,14 +218,14 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
             <SimpleMarkup key="info-3" tagName="li" markup={t('passphrase.summary.understandList.2')} />
             <SimpleMarkup key="info-4" tagName="li" markup={t('passphrase.summary.understandList.3')} />
           </ul>
-          <Status noIcon type={understood ? 'success' : 'warning'}>
+          <Message noIcon type={understood ? 'success' : 'warning'}>
             <Checkbox
               onChange={e => setUnderstood(e.target.checked)}
               id="understood"
               checked={understood}
               label={t('passphrase.summary.understand')}
               checkboxStyle={understood ? 'success' : 'warning'} />
-          </Status>
+          </Message>
         </ViewContent>
       )}
       <ViewButtons>

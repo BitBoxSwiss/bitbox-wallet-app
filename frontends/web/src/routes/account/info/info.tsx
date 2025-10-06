@@ -24,7 +24,7 @@ import { Header } from '@/components/layout';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
 import { BitcoinBasedAccountInfoGuide } from './guide';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 import { Button } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
 import { statusChanged } from '@/api/accountsync';
@@ -126,9 +126,9 @@ export const Info = ({
               </Button>
               { (config?.bitcoinSimple?.scriptType === 'p2tr') ? (
                 <>
-                  <Status type="info">
+                  <Message type="info">
                     {t('accountInfo.taproot')}
-                  </Status>
+                  </Message>
                   <BackButton enableEsc>
                     {t('button.back')}
                   </BackButton>

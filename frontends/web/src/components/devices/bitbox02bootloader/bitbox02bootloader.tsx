@@ -22,7 +22,7 @@ import { useSync, useLoad } from '@/hooks/api';
 import { Button } from '@/components/forms';
 import { View, ViewContent } from '@/components/view/view';
 import { BitBox02, BitBox02Inverted, BitBox02Nova, BitBox02NovaInverted } from '@/components/icon/logo';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 import { SubTitle } from '@/components/title';
 import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
 import style from './bitbox02bootloader.module.css';
@@ -145,7 +145,9 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       <ViewContent>
         {logo}
         {status && status.errMsg && (
-          <Status type="warning">{status.errMsg}</Status>
+          <Message type="warning">
+            {status.errMsg}
+          </Message>
         )}
         {contents}
       </ViewContent>
