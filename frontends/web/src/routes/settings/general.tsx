@@ -61,7 +61,7 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
                 <DarkmodeToggleSetting />
                 { hasAccounts ? (
                   <>
-                    <SubTitle className={`m-top-default ${style.subtitleWithMobilePadding}`}>
+                    <SubTitle className={`m-top-default ${style.subtitleWithMobilePadding || ''}`}>
                       {t('settings.notes.title')}
                     </SubTitle>
                     <NotesExport />

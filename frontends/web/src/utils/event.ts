@@ -45,8 +45,9 @@ const handleEvent = (payload: TPayload): void => {
     'subject' in payload
     && typeof payload.subject === 'string'
   ) {
-    if (subscriptions[payload.subject]) {
-      for (const observer of subscriptions[payload.subject]) {
+    const subscription = subscriptions[payload.subject];
+    if (subscription) {
+      for (const observer of subscription) {
         observer(payload);
       }
     }

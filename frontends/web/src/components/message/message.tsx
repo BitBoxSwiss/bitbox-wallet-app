@@ -72,11 +72,16 @@ export const Message = ({
     return null;
   }
   return (
-    <div className={`${styles[type]} ${small ? styles.small : ''}`}>
+    <div className={`
+      ${styles[type] || ''}
+      ${small && styles.small || ''}
+    `.trim()}>
       {!noIcon && <MessageIcon type={type} icon={icon} />}
       <div className={styles.content}>
         {title && (
-          <h2 className={`subTitle ${styles.title}`}>{title}</h2>
+          <h2 className={`subTitle ${styles.title || ''}`}>
+            {title}
+          </h2>
         )}
         {children}
       </div>

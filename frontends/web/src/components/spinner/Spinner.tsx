@@ -30,7 +30,7 @@ export const Spinner = ({ text }: TProps) => {
 
   return (
     <div className={style.spinnerContainer}>
-      <div className={`${style.togglersContainer} hide-on-small`}>
+      <div className={`${style.togglersContainer || ''} hide-on-small`}>
         <div className={style.togglerContainer}>
           <div className={style.toggler} onClick={toggleSidebar}>
             <MenuDark className="show-in-lightmode" />

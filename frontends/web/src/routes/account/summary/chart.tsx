@@ -18,7 +18,7 @@ import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState 
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
-import type { TChartData, ChartData } from '@/api/account';
+import type { TChartData, ChartData, FormattedLineData } from '@/api/account';
 import { usePrevious } from '@/hooks/previous';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { Amount } from '@/components/amount/amount';
@@ -290,7 +290,8 @@ export const Chart = ({
     }
     // data should always have at least two data points and when the first
     // value is 0 we take the next value as valueFrom to calculate valueDiff
-    const valueFrom = chartData[rangeFrom].value === 0 ? chartData[rangeFrom + 1].value : chartData[rangeFrom].value;
+    const nextValue = chartData[rangeFrom + 1] as FormattedLineData;
+    const valueFrom = chartData[rangeFrom].value === 0 ? nextValue.value : chartData[rangeFrom].value;
     const valueTo = data.chartTotal;
     const valueDiff = valueTo ? valueTo - valueFrom : 0;
     setDifference(valueDiff / valueFrom);
@@ -447,7 +448,9 @@ export const Chart = ({
       chart.current.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
       chart.current.subscribeCrosshairMove(handleCrosshair);
       chart.current.timeScale().fitContent();
-      ref.current?.classList.remove(styles.invisible);
+      if (styles.invisible) {
+        ref.current?.classList.remove(styles.invisible);
+      }
       chartInitialized.current = true;
       updateRange(chart, chartDisplay);
     }
@@ -608,8 +611,8 @@ export const Chart = ({
         <div
           style={{ minHeight: chartHeight }}
           className={`
-          ${styles.transitionDiv}
-          ${showAnimationOverlay ? '' : styles.overlayRemove}`}
+          ${styles.transitionDiv || ''}
+          ${showAnimationOverlay ? '' : styles.overlayRemove || ''}`}
         />
       )}
       <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>

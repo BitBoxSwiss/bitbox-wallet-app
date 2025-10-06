@@ -145,12 +145,13 @@ export const Receive = ({
 
   useEffect(() => {
     if (receiveAddresses && availableScriptTypes.current) {
-      let addressIndex = availableScriptTypes.current.length > 0 ? getIndexOfMatchingScriptType(receiveAddresses, availableScriptTypes.current[addressType]) : 0;
+      const scriptType = availableScriptTypes.current[addressType] as accountApi.ScriptType;
+      let addressIndex = availableScriptTypes.current.length > 0 ? getIndexOfMatchingScriptType(receiveAddresses, scriptType) : 0;
       if (addressIndex === -1) {
         addressIndex = 0;
       }
       setCurrentAddressIndex(addressIndex);
-      setCurrentAddresses(receiveAddresses[addressIndex].addresses);
+      setCurrentAddresses(receiveAddresses[addressIndex]?.addresses);
     }
   }, [addressType, availableScriptTypes, receiveAddresses]);
 
@@ -179,7 +180,9 @@ export const Receive = ({
     // For devices with a display, the dialog is dismissed by tapping the device.
     setVerifying('secure');
     try {
-      await accountApi.verifyAddress(code, receiveAddresses[addressesIndex].addresses[activeIndex].addressID);
+      const addressesAtIndex = receiveAddresses[addressesIndex] as accountApi.ReceiveAddressList;
+      const address = addressesAtIndex.addresses[activeIndex] as accountApi.IReceiveAddress;
+      await accountApi.verifyAddress(code, address.addressID);
     } finally {
       setVerifying(false);
     }
@@ -210,7 +213,7 @@ export const Receive = ({
 
   let address = '';
   if (currentAddresses) {
-    address = currentAddresses[activeIndex].address;
+    address = (currentAddresses[activeIndex] as accountApi.IReceiveAddress).address;
     if (!verifying) {
       address = address.substring(0, 8) + '...';
     }

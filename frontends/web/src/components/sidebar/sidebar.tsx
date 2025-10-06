@@ -124,7 +124,10 @@ const Sidebar = ({
         </div>
 
         { accounts.length ? (
-          <div key="account-summary" className={`${style.sidebarItem} ${style.sidebarPortfolio}`}>
+          <div
+            key="account-summary"
+            className={`${style.sidebarItem || ''} ${style.sidebarPortfolio || ''}`}
+          >
             <NavLink
               className={({ isActive }) => isActive ? style.sidebarActive : ''}
               to={'/account-summary'}

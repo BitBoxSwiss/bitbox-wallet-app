@@ -33,7 +33,7 @@ export const Insured = () => {
 
 export const InsuredShield = () => {
   return (
-    <div className={`${style.insured} ${style.insuredShield}`}>
+    <div className={`${style.insured || ''} ${style.insuredShield || ''}`}>
       <Shield/>
     </div>
   );

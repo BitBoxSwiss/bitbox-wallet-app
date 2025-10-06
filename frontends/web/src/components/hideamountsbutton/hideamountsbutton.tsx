@@ -28,7 +28,7 @@ export const HideAmountsButton = () => {
   return (
     <Button className={styles.button} onClick={toggleHideAmounts} transparent>
       {hideAmounts ? <EyeClosed /> : <EyeOpened />}
-      <span className={`hide-on-small ${styles.buttonText}`}>
+      <span className={`hide-on-small ${styles.buttonText || ''}`}>
         {hideAmounts
           ? t('newSettings.appearance.hideAmounts.showAmounts')
           : t('newSettings.appearance.hideAmounts.hideAmounts')}

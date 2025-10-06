@@ -52,12 +52,13 @@ export const MarketInfo = ({ code, accounts }: TProps) => {
   }, [accounts]);
 
   useEffect(() => {
-    if (supportedAccounts !== undefined && supportedAccounts.length === 1) {
+    const firstAccount = supportedAccounts && supportedAccounts.length === 1 && supportedAccounts[0];
+    if (firstAccount) {
       // If user only has one supported account for vendor
       // and they don't have the correct device connected
       // they'll be prompted to do so.
-      const accountCode = supportedAccounts[0].code;
-      const rootFingerprint = supportedAccounts[0].keystore.rootFingerprint;
+      const accountCode = firstAccount.code;
+      const rootFingerprint = firstAccount.keystore.rootFingerprint;
       connectKeystoreFn(rootFingerprint).then(connected => {
         if (connected) {
           // replace current history item when redirecting so that the user can go back

@@ -83,7 +83,7 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
           <span>{account.coinName} ({account.coinUnit})</span>
         </div>
         { bitcoinBased ? (
-          <div key="xpub" className={`${style.entry} ${style.largeEntry}`}>
+          <div key="xpub" className={`${style.entry || ''} ${style.largeEntry || ''}`}>
             <strong className="m-right-half">
               {t('accountInfo.extendedPublicKey')}:
             </strong>

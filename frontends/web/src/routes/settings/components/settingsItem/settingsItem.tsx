@@ -51,17 +51,16 @@ export const SettingsItem = ({
 
   const rightContent = (
     <div className={`
-    ${styles.rightContentContainer} 
-    ${!notButton ? styles.extraPadding : ''}
-    `}
-    >
-      <p className={
-        `
-        ${displayedValue ? styles.displayedValue : ''}
-        ${extraComponent ? styles.withMargin : ''}
-        ${hideDisplayedValueOnSmall ? styles.hideDisplayedValueOnSmall : ''}
-       `}
-      >{displayedValue}</p>
+      ${styles.rightContentContainer || ''}
+      ${!notButton && styles.extraPadding || ''}
+    `}>
+      <p className={`
+        ${displayedValue && styles.displayedValue || ''}
+        ${extraComponent && styles.withMargin || ''}
+        ${hideDisplayedValueOnSmall && styles.hideDisplayedValueOnSmall || ''}
+      `}>
+        {displayedValue}
+      </p>
       {canUpgrade && <RedDot width={8} height={8} />}
       {extraComponent ? extraComponent : null}
     </div>
@@ -86,17 +85,22 @@ export const SettingsItem = ({
   return (
     <>
       {notButton ? (
-        <div className={
-          `${styles.container} ${className} 
-          ${collapseOnSmall ? styles.collapse : ''}`
-        } >
+        <div className={`
+          ${styles.container || ''}
+          ${className}
+          ${collapseOnSmall && styles.collapse || ''}
+        `}>
           {content}
         </div>
       ) : (
         <button
           type="button"
-          className={`${styles.container} ${styles.isButton} ${className} 
-          ${collapseOnSmall ? styles.collapse : ''}`}
+          className={`
+            ${styles.container || ''}
+            ${styles.isButton || ''}
+            ${className}
+            ${collapseOnSmall && styles.collapse || ''}
+          `}
           onClick={onClick}>
           {content}
           {!hideChevron && (

@@ -48,7 +48,14 @@ export const Header = ({
   return (
     <div className={style.container}>
       <div className={style.header}>
-        <div className={`hide-on-small ${style.sidebarToggler} ${hideSidebarToggler ? style.hideSidebarToggler : ''}`} onClick={toggleSidebar}>
+        <div
+          className={`
+            hide-on-small
+            ${style.sidebarToggler || ''}
+            ${hideSidebarToggler && style.hideSidebarToggler || ''}
+          `}
+          onClick={toggleSidebar}
+        >
           <MenuDark className="show-in-lightmode" />
           <MenuLight className="show-in-darkmode" />
         </div>
@@ -59,10 +66,13 @@ export const Header = ({
             <Button
               transparent
               onClick={toggle}
-              className={`${style.guideClose} ${guideShown ? style.disabled : ''}`}
+              className={`
+                ${style.guideClose || ''}
+                ${guideShown && style.disabled || ''}
+              `}
             >
               <GuideActive />
-              <span className={`hide-on-small ${style.guideCloseText}`}>
+              <span className={`hide-on-small ${style.guideCloseText || ''}`}>
                 {t('guide.toggle.open')}
               </span>
             </Button>

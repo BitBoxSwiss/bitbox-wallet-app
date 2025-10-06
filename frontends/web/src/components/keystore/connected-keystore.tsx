@@ -35,7 +35,7 @@ export const ConnectedKeystore = ({
   keystore,
 }: Props) => {
   const { t } = useTranslation();
-  const classNames = className ? `${style.keystore} ${className}` : style.keystore;
+  const classNames = className ? `${style.keystore || ''} ${className}` : style.keystore;
 
   return (
     <span className={classNames}>

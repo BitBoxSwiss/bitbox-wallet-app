@@ -63,11 +63,14 @@ export const Vasp = ({
     );
   }
 
-  const logoClasses = prominent ? `${styles.logo} ${styles.prominent}` : styles.logo;
+  const logoClasses = prominent ? `
+    ${styles.logo || ''}
+    ${styles.prominent || ''}
+  ` : styles.logo as string;
   return (
     <div>
       <img className={logoClasses} src={VASPLogoMap[knownVasp]} alt={knownVasp} />
-      <p className={`${styles.hostname} ${styles.capitalized}`}>
+      <p className={`${styles.hostname as string} ${styles.capitalized as string}`}>
         {knownVasp in VASPHostnameMap ? VASPHostnameMap[knownVasp] : knownVasp}
       </p>
       {withLogoText ? (<p>{withLogoText}</p>) : null}

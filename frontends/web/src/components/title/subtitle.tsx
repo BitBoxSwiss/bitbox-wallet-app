@@ -26,7 +26,7 @@ export const SubTitle = ({
   className = '',
   children
 }: Props) => {
-  const classNames = className ? `${style.subtitle} ${className}` : style.subtitle;
+  const classNames = className ? `${style.subtitle || ''} ${className}` : style.subtitle;
   return (
     <h2 className={classNames}>
       {children}

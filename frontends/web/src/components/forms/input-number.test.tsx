@@ -18,6 +18,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { NumberInput } from './input-number';
 
+
 describe('components/forms/input-number', () => {
   it('should preserve type attribute', () => {
     const { container } = render(<NumberInput defaultValue="" />);
@@ -60,102 +61,127 @@ describe('components/forms/input-number', () => {
 
     fireEvent.paste(input, { clipboardData: { getData: () => '100.50' } });
     expect(mockCallback).toHaveBeenCalledTimes(2);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[1][0].target.value).toBe('100.50');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1,0' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1.0');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1,0' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1.0');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1,00' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1.00');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1.00' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1.00');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1,000' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1.000');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1,000.00' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000.00');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1.000,00' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000.00');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '100,50' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('100.50');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '100.00' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('100.00');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '100,000' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('100.000');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '100.000' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('100.000');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '.99' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('.99');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => ',99' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('.99');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '0.0000000000000000001' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('0.0000000000000000001');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '0,0000000000000000001' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('0.0000000000000000001');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1\'000\'000.50' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000000.50');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1\'000\'000,50' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000000.50');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1 000 000.50' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000000.50');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1.000.000,50' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000000.50');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1 000.50' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000.50');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1.000,50' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000.50');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1,000.50' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000.50');
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1,000,000.50' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1000000.50');
   });
 
@@ -171,6 +197,7 @@ describe('components/forms/input-number', () => {
 
     fireEvent.paste(input, { clipboardData: { getData: () => '100,' } });
     expect(mockCallback).toHaveBeenCalledTimes(1);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('');
 
     mockCallback.mockClear();
@@ -183,6 +210,7 @@ describe('components/forms/input-number', () => {
 
     mockCallback.mockClear();
     fireEvent.paste(input, { clipboardData: { getData: () => '1,000' } });
+    // @ts-ignore noUncheckedIndexedAccess
     expect(mockCallback.mock.calls[0][0].target.value).toBe('1.000');
 
   });

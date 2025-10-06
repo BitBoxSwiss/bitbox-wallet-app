@@ -94,7 +94,7 @@ export const Tab = ({
   return (
     <NavLink
       key={url}
-      className={({ isActive }) => isActive ? `${styles.active} hide-on-small` : 'hide-on-small'}
+      className={({ isActive }) => isActive ? `${styles.active || ''} hide-on-small` : 'hide-on-small'}
       to={url}
     >
       {name}
@@ -149,7 +149,7 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
         <TabWithVersionCheck
           key={`device-${id}`}
           deviceID={id}
-          device={devices[id]}
+          device={devices[id] as TPlatformName}
           hideMobileMenu={hideMobileMenu}
           name={t('sidebar.device')}
           url={`/settings/device-settings/${id}`}

@@ -163,7 +163,7 @@ const RemountAccount = ({
       }
 
       let bitsuranceAccount = insuredAccounts.bitsuranceAccounts[0];
-      if (bitsuranceAccount.status === 'active') {
+      if (bitsuranceAccount?.status === 'active') {
         setInsured(true);
         checkUncoveredUTXOs();
         return;
@@ -361,7 +361,10 @@ const RemountAccount = ({
                       </Button>
                     </div>
 
-                    <div className={`${style.searchContainer} ${!showSearchBar ? style.searchHidden : ''}`}>
+                    <div className={`
+                      ${style.searchContainer || ''}
+                      ${!showSearchBar && style.searchHidden || ''}
+                    `}>
                       <Input
                         ref={searchInputRef}
                         type="text"

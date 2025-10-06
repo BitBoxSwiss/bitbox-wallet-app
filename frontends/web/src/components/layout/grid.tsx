@@ -29,9 +29,9 @@ export const Grid = ({
   textAlign,
 }: TGridProps) => {
   const styles = `
-    ${style.grid}
-    ${style[`grid-columns-${col}`]}
-    ${textAlign !== undefined ? style[textAlign] : ''}
+    ${style.grid || ''}
+    ${style[`grid-columns-${col}`] || ''}
+    ${textAlign !== undefined && style[textAlign] || ''}
   `;
   return (
     <section className={styles}>
@@ -54,10 +54,10 @@ export const Column = ({
   textCenter,
 }: TColumnProps) => {
   const classNames = `
-    ${style.column}
-    ${asCard ? style.columnAsCard : ''}
+    ${style.column || ''}
+    ${asCard && style.columnAsCard || ''}
     ${className || ''}
-    ${textCenter ? style.textCenter : ''}
+    ${textCenter && style.textCenter || ''}
   `;
   return (
     <div className={classNames}>
@@ -77,9 +77,11 @@ export const ColumnButtons = ({
   className = '',
   inline,
 }: TColumnButtonsProps) => {
-  const classNames = `${style.columnButtons} ${
-    inline ? style.columnButtonsInline : ''
-  } ${className}`;
+  const classNames = `
+    ${style.columnButtons || ''}
+    ${inline && style.columnButtonsInline || ''}
+    ${className}
+  `;
   return (
     <div className={classNames}>
       {children}

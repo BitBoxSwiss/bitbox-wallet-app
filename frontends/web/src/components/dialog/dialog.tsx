@@ -99,27 +99,27 @@ export const Dialog = ({
   }
 
   const modalClass = `
-    ${style.modal}
-    ${small ? style.small : ''}
-    ${medium ? style.medium : ''}
-    ${large ? style.large : ''}
-    ${status === 'open' || status === 'opening' ? style.open : ''}
+    ${style.modal || ''}
+    ${small && style.small || ''}
+    ${medium && style.medium || ''}
+    ${large && style.large || ''}
+    ${(status === 'open' || status === 'opening') && style.open || ''}
   `.trim();
 
   const overlayClass = `
-    ${style.overlay}
-    ${status === 'opening' || status === 'open' ? style.activeOverlay : ''}
-    ${status === 'closing' ? style.closingOverlay : ''}
+    ${style.overlay || ''}
+    ${(status === 'opening' || status === 'open') && style.activeOverlay || ''}
+    ${status === 'closing' && style.closingOverlay || ''}
   `.trim();
 
   const headerClass = `
-    ${style.header}
-    ${centered && !onClose ? style.centered : ''}
+    ${style.header || ''}
+    ${centered && !onClose && style.centered || ''}
   `.trim();
 
   const contentClass = `
-    ${style.contentContainer}
-    ${slim ? style.slim : ''}
+    ${style.contentContainer || ''}
+    ${slim && style.slim || ''}
   `.trim();
 
   return (

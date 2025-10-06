@@ -279,7 +279,7 @@ export const BTCDirect = ({
                     width="100%"
                     height={height}
                     frameBorder="0"
-                    className={`${style.iframe} ${!iframeLoaded ? style.hide : ''}`}
+                    className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
                     allow="camera; clipboard-write;"
                     src={btcdirectInfo.url}>
                   </iframe>

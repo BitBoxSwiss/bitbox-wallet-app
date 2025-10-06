@@ -61,10 +61,10 @@ export const ActiveCurrenciesDropdown = ({
     const selected = formattedActiveCurrencies.findIndex(currency => currency.value === value) >= 0;
     const isDefaultCurrency = defaultCurrency === value;
     return (
-      <div
-        className={`${activeCurrenciesDropdownStyle.optionContainer} 
-        ${isDefaultCurrency ? activeCurrenciesDropdownStyle.defaultCurrency : ''}`}
-      >
+      <div className={`
+        ${activeCurrenciesDropdownStyle.optionContainer || ''}
+        ${isDefaultCurrency && activeCurrenciesDropdownStyle.defaultCurrency || ''}
+      `}>
         <span>{label}</span>
         {isDefaultCurrency ? <p className={activeCurrenciesDropdownStyle.defaultLabel}>{t('fiat.default')}</p> : null}
         {selected && !isDefaultCurrency ? <SelectedCheckLight /> : null}

@@ -110,7 +110,7 @@ export const KeystoreConnectPrompt = () => {
         <p className={styles.text}>
           { err ? err : data.errorMessage }
         </p>
-        <div className={`${styles.bitboxContainer} ${styles.failed}`}>
+        <div className={`${styles.bitboxContainer || ''} ${styles.failed || ''}`}>
           <Cancel className={styles.cancelIcon} />
           {isDarkMode ?
             <BitBox02StylizedLight className={styles.bitboxImage} /> :

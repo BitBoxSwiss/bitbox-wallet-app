@@ -33,7 +33,7 @@ export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const deviceID = Object.keys(devices)[0];
-  const isBitBox02 = devices[deviceID] === 'bitbox02';
+  const isBitBox02 = deviceID && devices[deviceID] === 'bitbox02';
   const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID]);
   const canUpgrade = versionInfo ? versionInfo.canUpgrade : false;
 
@@ -43,14 +43,20 @@ export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
   return (
     <div className={styles.container}>
       <Link
-        className={`${styles.link} ${pathname.startsWith('/account-summary') ? styles.active : ''}`}
+        className={`
+          ${styles.link || ''}
+          ${pathname.startsWith('/account-summary') && styles.active || ''}
+        `}
         to="/account-summary"
       >
         <PortfolioIconSVG />
         {t('accountSummary.portfolio')}
       </Link>
       <Link
-        className={`${styles.link} ${pathname.startsWith('/account/') || pathname.startsWith('/accounts/') ? styles.active : ''}`}
+        className={`
+          ${styles.link || ''}
+          ${pathname.startsWith('/account/') || pathname.startsWith('/accounts/') ? (styles.active || '') : ''}
+        `}
         to={
           onlyHasOneAccount && accountCode ?
             `/account/${accountCode}` :
@@ -61,14 +67,20 @@ export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
         {onlyHasOneAccount ? t('account.account') : t('account.accounts')}
       </Link>
       <Link
-        className={`${styles.link} ${pathname.startsWith('/market/') ? styles.active : ''}`}
+        className={`
+          ${styles.link || ''}
+          ${pathname.startsWith('/market/') && styles.active || ''}
+        `}
         to="/market/info"
       >
         <MarketIconSVG />
         {t('generic.buySell')}
       </Link>
       <Link
-        className={`${styles.link} ${pathname.startsWith('/settings') || pathname.startsWith('/bitsurance/') ? styles.active : ''}`}
+        className={`
+          ${styles.link || ''}
+          ${pathname.startsWith('/settings') || pathname.startsWith('/bitsurance/') ? (styles.active || '') : ''}
+        `}
         to="/settings/more"
       >
         <MoreIconSVG />

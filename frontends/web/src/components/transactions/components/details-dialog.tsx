@@ -175,7 +175,7 @@ export const TxDetailsDialog = ({
             label={t('transaction.explorer')}
             values={[transactionInfo.txID]}
           />
-          <div className={`${styles.detail} flex-center`}>
+          <div className={`${styles.detail || ''} flex-center`}>
             <A
               href={explorerURL + transactionInfo.txID}
               title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}>

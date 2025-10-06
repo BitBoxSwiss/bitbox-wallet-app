@@ -192,6 +192,10 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
     { titleKey: t('passphrase.summary.title'), messageKey: t('passphrase.summary.understandList'), buttonTextKey: t('passphrase.enable') },
   ];
 
+  const step = stepData[infoStep];
+  if (!step) {
+    return null;
+  }
   return (
     <View
       key={`step-${infoStep}`}
@@ -200,10 +204,10 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
       onClose={handleAbort}
       verticallyCentered
     >
-      <ViewHeader title={stepData[infoStep].titleKey} />
+      <ViewHeader title={step.titleKey} />
       {infoStep < FINAL_INFO_STEP && (
         <ViewContent>
-          <MultilineMarkup tagName="p" markup={stepData[infoStep].messageKey} />
+          <MultilineMarkup tagName="p" markup={step.messageKey} />
         </ViewContent>
       )}
       {infoStep >= FINAL_INFO_STEP && (
@@ -226,7 +230,7 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
       )}
       <ViewButtons>
         <Button primary onClick={handleContinue} disabled={infoStep >= FINAL_INFO_STEP && !understood}>
-          {stepData[infoStep].buttonTextKey}
+          {step.buttonTextKey}
         </Button>
         <Button secondary onClick={handleBack}>
           {t('button.back')}

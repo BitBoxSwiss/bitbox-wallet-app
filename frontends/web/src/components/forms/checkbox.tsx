@@ -34,7 +34,11 @@ export const Checkbox: FunctionComponent<CheckboxProps> = ({
   ...props
 }) => {
   return (
-    <span className={`${styles.checkbox} ${className} ${styles[checkboxStyle] || ''}`}>
+    <span className={`
+      ${styles.checkbox || ''}
+      ${className}
+      ${styles[checkboxStyle] || ''}
+    `}>
       <input
         type="checkbox"
         id={id}

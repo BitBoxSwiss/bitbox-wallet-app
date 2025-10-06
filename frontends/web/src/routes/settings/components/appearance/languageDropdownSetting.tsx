@@ -20,7 +20,7 @@ import { SettingsItem } from '@/routes/settings/components/settingsItem/settings
 import { useLoad } from '@/hooks/api';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { getNativeLocale } from '@/api/nativelocale';
-import { defaultLanguages } from '@/components/language/types';
+import { defaultLanguages, TLanguage } from '@/components/language/types';
 import { Dropdown } from '@/components/dropdown/dropdown';
 import { getSelectedIndex } from '@/utils/language';
 import { GlobeDark, GlobeLight } from '@/components/icon/icon';
@@ -32,7 +32,7 @@ export const LanguageDropdownSetting = () => {
   const { i18n, t } = useTranslation();
   const [isMobileSelectorOpen, setIsMobileSelectorOpen] = useState(false);
   const nativeLocale = useLoad(getNativeLocale);
-  const selectedLanguage = defaultLanguages[getSelectedIndex(defaultLanguages, i18n)];
+  const selectedLanguage = defaultLanguages[getSelectedIndex(defaultLanguages, i18n)] as TLanguage;
   const formattedLanguages = defaultLanguages.map(lang => ({ label: lang.display, value: lang.code }));
   const { isDarkMode } = useDarkmode();
   const globe = isDarkMode ? <GlobeLight /> : <GlobeDark />;

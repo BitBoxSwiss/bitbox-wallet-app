@@ -142,7 +142,7 @@ export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyRece
     return (
       <BuyReceiveCTA
         balanceList={balanceList}
-        code={onlyHasOneActiveAccount ? accounts[0].code : undefined}
+        code={onlyHasOneActiveAccount ? accounts[0]?.code : undefined}
         unit="BTC"
       />
     );

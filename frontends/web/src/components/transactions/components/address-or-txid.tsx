@@ -27,7 +27,7 @@ export const TxDetailCopyableValues = ({
   values,
 }: TPropsTxDetailCopyableValues) => {
   return (
-    <div className={`${styles.detail} ${styles.addresses}`}>
+    <div className={`${styles.detail || ''} ${styles.addresses || ''}`}>
       <label>{label}</label>
       <div className={styles.detailAddresses}>
         {values.map((addrOrTxID) => (

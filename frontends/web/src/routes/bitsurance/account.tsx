@@ -52,10 +52,14 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
     }
     // btc accounts that have never been insured, or with a canceled
     // insurance contract, can be used to make a new contract.
-    const insurableAccounts = accounts.filter(account => account.coinCode === 'btc' &&
-        (!account.bitsuranceStatus
-         || account.bitsuranceStatus === 'canceled'
-        || account.bitsuranceStatus === 'refused'));
+    const insurableAccounts = accounts.filter(
+      account => account.coinCode === 'btc'
+      && (
+        !account.bitsuranceStatus
+        || account.bitsuranceStatus === 'canceled'
+        || account.bitsuranceStatus === 'refused'
+      )
+    );
     setBtcAccounts(insurableAccounts);
   }, [accounts]);
 
@@ -67,12 +71,13 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   // if there is only one account available let's automatically redirect to the widget
   useEffect(() => {
     if (btcAccounts !== undefined && btcAccounts.length === 1) {
-      connectKeystore(btcAccounts[0].keystore.rootFingerprint).then(connectResult => {
+      const account = btcAccounts[0] as IAccount;
+      connectKeystore(account.keystore.rootFingerprint).then(connectResult => {
         if (!connectResult.success) {
           return;
         }
         // replace current history item when redirecting so that the user can go back
-        navigate(`/bitsurance/widget/${btcAccounts[0].code}`, { replace: true });
+        navigate(`/bitsurance/widget/${account.code}`, { replace: true });
       });
     }
   }, [btcAccounts, navigate]);
