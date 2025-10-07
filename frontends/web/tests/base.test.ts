@@ -15,14 +15,16 @@
 */
 
 import { test } from './helpers/fixtures';
-import { startServeWallet, waitForServewallet } from './helpers/servewallet';
+import { ServeWallet } from './helpers/servewallet';
 import { expect } from '@playwright/test';
+
+let servewallet: ServeWallet;
 
 test('App main page loads', async ({ page, host, frontendPort, servewalletPort }) => {
 
     await test.step('Start servewallet', async () => {
-        startServeWallet();
-        await waitForServewallet(page, servewalletPort, frontendPort, host);
+        servewallet = new ServeWallet(page, servewalletPort, frontendPort, host);
+        await servewallet.start();
     });
 
 
@@ -31,4 +33,8 @@ test('App main page loads', async ({ page, host, frontendPort, servewalletPort }
         const body = page.locator('body');
         await expect(body).toContainText('Please connect your BitBox and tap the side to continue.');
     });
+});
+
+test.afterAll(() => {
+    servewallet.stop();
 });
