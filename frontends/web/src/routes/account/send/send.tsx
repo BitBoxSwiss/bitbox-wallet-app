@@ -449,7 +449,8 @@ export const Send = ({
                       {t('send.button')}
                     </Button>
                     <BackButton
-                      enableEsc>
+                      enableEsc={!isConfirming}
+                    >
                       {t('button.back')}
                     </BackButton>
                   </ColumnButtons>
