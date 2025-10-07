@@ -1,0 +1,15 @@
+.accountOption {
+    align-items: center;
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+
+.coinLogo {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}

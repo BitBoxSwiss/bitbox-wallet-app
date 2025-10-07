@@ -31,6 +31,7 @@ type Props<T, IsMulti extends boolean = false> = {
   isMulti?: boolean;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
+  triggerComponent?: ReactNode | ((props: { onClick: () => void }) => ReactNode);
 }
 
 export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
@@ -42,6 +43,7 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
   isMulti,
   isOpen: controlledIsOpen,
   onOpenChange,
+  triggerComponent,
 }: Props<T, IsMulti>) => {
   const [localIsOpen, setLocalIsOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -112,10 +114,12 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
         return false;
       }}
       />
-      {onOpenChange ? (
-        <div
-          className={styles.mobileSelectorTrigger}
-        >
+      {triggerComponent ? (
+        typeof triggerComponent === 'function' ?
+          triggerComponent({ onClick: handleOpen }) :
+          triggerComponent
+      ) : onOpenChange ? (
+        <div className={styles.mobileSelectorTrigger}>
           <span className={styles.mobileSelectorValue}>{displayValue}</span>
         </div>
       ) : (
@@ -125,8 +129,7 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
         >
           <span className={styles.mobileSelectorValue}>{displayValue}</span>
         </button>
-      )
-      }
+      )}
 
       {isOpen && (
         <div className={styles.fullscreenOverlay}>
@@ -160,11 +163,8 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option) => (
                   <button
-                    key={String(option.value)}
-                    className={`
-                      ${styles.optionItem || ''}
-                      ${isSelected(option) && styles.selectedOption || ''}
-                    `}
+                    key={JSON.stringify(option.value)}
+                    className={`${styles.optionItem || ''} ${isSelected(option) ? styles.selectedOption || '' : ''}`}
                     onClick={(e) => handleSelect(option, e)}
                   >
                     <div className={styles.optionContent}>{renderOptions(option)}</div>
