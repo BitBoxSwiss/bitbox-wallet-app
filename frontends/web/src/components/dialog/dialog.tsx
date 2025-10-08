@@ -47,36 +47,58 @@ export const Dialog = ({
   const [isVisible, setIsVisible] = useState(false);
   const [status, setStatus] = useState<'idle' | 'opening' | 'open' | 'closing'>('idle');
   const contentRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useFocusTrap(contentRef, status === 'open');
 
-  // Mount/unmount lifecycle
+  /**
+   * Deactivate (close) animation handler.
+   * If fireOnClose = true, it means user action triggered the close,
+   * so we call onClose(). If false, it means parent controlled it, so skip.
+   */
+  const deactivate = useCallback((fireOnClose: boolean) => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+    }
+    setStatus('closing');
+
+    closeTimerRef.current = setTimeout(() => {
+      setIsVisible(false);
+      setStatus('idle');
+
+      if (fireOnClose && onClose) {
+        onClose();
+      }
+    }, 400); // match CSS transition
+
+    return () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, [onClose]);
+
+  // Handle external open state changes.
   useEffect(() => {
     if (open) {
       setIsVisible(true);
       setStatus('opening');
-      const id = setTimeout(() => setStatus('open'), 20); // let CSS transition start
+      const id = setTimeout(() => setStatus('open'), 20);
       return () => clearTimeout(id);
     } else if (isVisible) {
-      setStatus('closing');
-      const id = setTimeout(() => {
-        setIsVisible(false);
-        setStatus('idle');
-        onClose?.();
-      }, 400); // match CSS transition
-      return () => clearTimeout(id);
+      // When parent closes it (open=false), skip firing onClose again.
+      deactivate(false);
     }
-  }, [open, isVisible, onClose]);
+  }, [open, isVisible, deactivate]);
 
-  useEsc(() => open && onClose?.());
-
-  const closeHandler = useCallback(() => {
-    if (onClose !== undefined) {
-      return false;
+  // ESC closes dialog (fires onClose)
+  useEsc(() => {
+    if (open) {
+      deactivate(true);
     }
-    return true;
-  }, [onClose]);
+  });
 
+  // Overlay click closes dialog (fires onClose)
   const mouseDownTarget = useRef<EventTarget | null>(null);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -85,14 +107,24 @@ export const Dialog = ({
 
   const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
     if (
-      onClose
-      && mouseDownTarget.current === e.currentTarget // started on overlay
-      && e.target === e.currentTarget // ended on overlay
+      mouseDownTarget.current === e.currentTarget
+      && e.target === e.currentTarget
     ) {
-      onClose();
+      deactivate(true);
     }
     mouseDownTarget.current = null;
   };
+
+  // Close button handler
+  const handleCloseClick = useCallback(() => {
+    deactivate(true);
+  }, [deactivate]);
+
+  // Back button handler (mobile)
+  const closeHandler = useCallback(() => {
+    deactivate(true);
+    return false;
+  }, [deactivate]);
 
   if (!isVisible) {
     return null;
@@ -134,7 +166,7 @@ export const Dialog = ({
           <div className={headerClass}>
             <h3 className={style.title}>{title}</h3>
             {onClose && (
-              <button className={style.closeButton} onClick={onClose}>
+              <button className={style.closeButton} onClick={handleCloseClick}>
                 <CloseXDark className="show-in-lightmode" />
                 <CloseXWhite className="show-in-darkmode" />
               </button>
@@ -149,6 +181,9 @@ export const Dialog = ({
   );
 };
 
+type DialogButtonsProps = {
+  children: React.ReactNode;
+}
 
 /**
  * ### Container to place buttons in a dialog
@@ -168,11 +203,6 @@ export const Dialog = ({
  *   </Dialog>
  * ```
  */
-
-interface DialogButtonsProps {
-    children: React.ReactNode;
-}
-
 export const DialogButtons = ({ children }: DialogButtonsProps) => {
   return (
     <div className={style.dialogButtons}>{children}</div>
