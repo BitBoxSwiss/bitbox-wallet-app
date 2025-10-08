@@ -38,6 +38,7 @@ import (
 const (
 	port    = 8082
 	address = "0.0.0.0"
+	darwin  = "darwin"
 )
 
 var backend *backendPkg.Backend
@@ -109,10 +110,21 @@ func (webdevEnvironment) BluetoothConnect(identifier string) {
 // NativeLocale naively implements backend.Environment.
 // This version is unlikely to work on Windows.
 func (webdevEnvironment) NativeLocale() string {
+	log := logging.Get().WithGroup("servewallet")
 	v := os.Getenv("LC_ALL")
 	if v == "" {
-		v = os.Getenv("LANG")
+		if lang, ok := os.LookupEnv("LANG"); ok {
+			v = lang
+		} else if runtime.GOOS == darwin {
+			out, err := exec.Command("defaults", "read", "-g", "AppleLocale").Output()
+			if err != nil {
+				log.Warnf("failed to read AppleLocale via defaults: %v", err)
+			} else {
+				v = strings.Split(strings.TrimSpace(string(out)), "@")[0]
+			}
+		}
 	}
+
 	// Strip charset from the LANG. It is unsupported by JS Date formatting
 	// used in the frontend and breaks UI in unexpected ways.
 	// We are always UTF-8 anyway.
