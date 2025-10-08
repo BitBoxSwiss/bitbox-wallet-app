@@ -19,7 +19,6 @@ import { SingleValue } from 'react-select';
 import { useDarkmode } from '@/hooks/darkmode';
 import { Dropdown } from '@/components/dropdown/dropdown';
 import { GlobeDark, GlobeLight } from '@/components/icon';
-import { i18n } from '@/i18n/i18n';
 import styles from './countryselect.module.css';
 
 export type TOption = {
@@ -59,13 +58,12 @@ const Option = ({ props }: {props: TOption}) => {
 
 const CountrySelect = ({ onChangeRegion, regions, selectedRegion }: TProps) => {
   const { t } = useTranslation();
-  let selectedRegionName = t('buy.exchange.selectRegion');
-  if (selectedRegion) {
-    selectedRegionName = new Intl.DisplayNames([i18n.language], { type: 'region' }).of(selectedRegion) || '';
-  }
+
+  // find and pass the default object, react-select requires object identity matching, not just value equality
+  const defaultValue = regions.find(region => region.value === selectedRegion);
   return (
     <Dropdown
-      defaultValue={{ label: selectedRegionName, value: selectedRegion }}
+      value={defaultValue}
       className={styles.select}
       renderOptions={(o) => <Option props={o} />}
       isSearchable={true}
