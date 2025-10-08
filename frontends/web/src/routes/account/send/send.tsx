@@ -78,6 +78,7 @@ export const Send = ({
   const { t } = useTranslation();
 
   const selectedUTXOsRef = useRef<TSelectedUTXOs>({});
+  const [utxoDialogActive, setUtxoDialogActive] = useState(false);
   // in case there are multiple parallel tx proposals we can ignore all other but the last one
   const lastProposal = useRef<Promise<accountApi.TTxProposalResult> | null>(null);
   const proposeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -381,6 +382,7 @@ export const Send = ({
                   <CoinControl
                     account={account}
                     onSelectedUTXOsChange={handleSelectedUTXOsChange}
+                    onCoinControlDialogActiveChange={setUtxoDialogActive}
                   />
                 </div>
               </div>
@@ -449,7 +451,7 @@ export const Send = ({
                       {t('send.button')}
                     </Button>
                     <BackButton
-                      enableEsc={!isConfirming}
+                      enableEsc={!isConfirming && !utxoDialogActive}
                     >
                       {t('button.back')}
                     </BackButton>

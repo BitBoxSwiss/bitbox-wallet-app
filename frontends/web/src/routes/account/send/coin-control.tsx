@@ -25,11 +25,13 @@ import { isBitcoinBased } from '../utils';
 type TProps = {
   account: IAccount;
   onSelectedUTXOsChange: (selectedUTXOs: TSelectedUTXOs) => void;
+  onCoinControlDialogActiveChange?: (active: boolean) => void;
 }
 
 export const CoinControl = ({
   account,
   onSelectedUTXOsChange,
+  onCoinControlDialogActiveChange,
 }: TProps) => {
   const { t } = useTranslation();
 
@@ -43,6 +45,13 @@ export const CoinControl = ({
       });
     }
   }, [account.coinCode]);
+
+  // Notify parent whenever dialog visibility changes
+  useEffect(() => {
+    if (onCoinControlDialogActiveChange) {
+      onCoinControlDialogActiveChange(showUTXODialog);
+    }
+  }, [showUTXODialog, onCoinControlDialogActiveChange]);
 
   if (!coinControlEnabled) {
     return null;
