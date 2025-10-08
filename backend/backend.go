@@ -79,8 +79,8 @@ var fixedURLWhitelist = []string{
 	// Exchange rates.
 	"https://www.coingecko.com/",
 	// Block explorers.
-	"https://blockstream.info/tx/",
-	"https://blockstream.info/testnet/tx/",
+	"https://mempool.space/tx/",
+	"https://mempool.space/testnet/tx/",
 	"https://sochain.com/tx/LTCTEST/",
 	"https://blockchair.com/litecoin/transaction/",
 	"https://etherscan.io/tx/",
@@ -532,11 +532,11 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	case code == coinpkg.CodeTBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTBTC, "Bitcoin Testnet", "TBTC", btcFormatUnit, &chaincfg.TestNet3Params, dbFolder, servers,
-			"https://blockstream.info/testnet/tx/", backend.socksProxy)
+			"https://mempool.space/testnet/tx/", backend.socksProxy)
 	case code == coinpkg.CodeBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", btcFormatUnit, &chaincfg.MainNetParams, dbFolder, servers,
-			"https://blockstream.info/tx/", backend.socksProxy)
+			"https://mempool.space/tx/", backend.socksProxy)
 	case code == coinpkg.CodeTLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", coinpkg.BtcUnitDefault, &ltc.TestNet4Params, dbFolder, servers,
