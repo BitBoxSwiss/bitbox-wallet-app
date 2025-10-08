@@ -16,7 +16,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IAccount } from '@/api/account';
+import type { IAccount } from '@/api/account';
 import { getConfig } from '@/utils/config';
 import { Button } from '@/components/forms';
 import { TSelectedUTXOs, UTXOs } from './utxos';
@@ -44,26 +44,28 @@ export const CoinControl = ({
     }
   }, [account.coinCode]);
 
+  if (!coinControlEnabled) {
+    return null;
+  }
+
   return (
-    coinControlEnabled ? (
-      <>
-        <UTXOs
-          accountCode={account.code}
-          active={showUTXODialog}
-          explorerURL={account.blockExplorerTxPrefix}
-          onClose={() => {
-            setShowUTXODialog(false);
-          }}
-          onChange={onSelectedUTXOsChange} />
-        <Button
-          className="m-bottom-quarter p-right-none"
-          transparent
-          onClick={() => {
-            setShowUTXODialog(showUTXODialog => !showUTXODialog);
-          }}>
-          {t('send.toggleCoinControl')}
-        </Button>
-      </>
-    ) : (null)
+    <>
+      <UTXOs
+        accountCode={account.code}
+        active={showUTXODialog}
+        explorerURL={account.blockExplorerTxPrefix}
+        onClose={() => {
+          setShowUTXODialog(false);
+        }}
+        onChange={onSelectedUTXOsChange} />
+      <Button
+        className="m-bottom-quarter p-right-none"
+        transparent
+        onClick={() => {
+          setShowUTXODialog(showUTXODialog => !showUTXODialog);
+        }}>
+        {t('send.toggleCoinControl')}
+      </Button>
+    </>
   );
 };
