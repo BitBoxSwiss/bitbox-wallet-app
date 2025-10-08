@@ -77,7 +77,7 @@ import (
 var (
 	log     = logging.Get().WithGroup("simulator tx signing test")
 	network = &chaincfg.MainNetParams
-	coinBTC = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", coinpkg.BtcUnitDefault, network, ".", []*config.ServerInfo{}, "https://blockstream.info/testnet/tx/", socksproxy.NewSocksProxy(false, ""))
+	coinBTC = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", coinpkg.BtcUnitDefault, network, ".", []*config.ServerInfo{}, "https://mempool.space/testnet/tx/", socksproxy.NewSocksProxy(false, ""))
 	coinLTC = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, ".", []*config.ServerInfo{}, "", socksproxy.NewSocksProxy(false, ""))
 	coinETH = eth.NewCoin(nil, "Etheruem", "ETH", "ETH", "ETH", params.MainnetChainConfig, "", nil, nil)
 )

@@ -27,7 +27,7 @@ const createAccount = ({
 }) => {
   return {
     active: true,
-    blockExplorerTxPrefix: 'https://blockstream.info/testnet/tx/',
+    blockExplorerTxPrefix: 'https://mempool.space/testnet/tx/',
     code: 'v0-123de678-tbtc-0',
     coinCode: 'tbtc' as CoinCode,
     coinName: 'Bitcoin Testnet',
@@ -65,7 +65,7 @@ describe('utils/getAccountsByKeystore', () => {
     const accounts: IAccount[] = [
       {
         active: true,
-        blockExplorerTxPrefix: 'https://blockstream.info/testnet/tx/',
+        blockExplorerTxPrefix: 'https://mempool.space/testnet/tx/',
         code: 'v0-123de678-tbtc-0',
         coinCode: 'tbtc',
         coinName: 'Bitcoin Testnet',
@@ -82,7 +82,7 @@ describe('utils/getAccountsByKeystore', () => {
         watch: true
       }, {
         active: true,
-        blockExplorerTxPrefix: 'https://blockstream.info/testnet/tx/',
+        blockExplorerTxPrefix: 'https://mempool.space/testnet/tx/',
         code: 'v0-123de678-tbtc-1',
         coinCode: 'tbtc',
         coinName: 'Bitcoin Testnet',
