@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,93 +15,102 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
-import { route } from '../../../utils/route';
-import { apiGet, apiPost } from '../../../utils/request';
-import { Button } from '../../../components/forms';
-import { PasswordSingleInput } from '../../../components/password';
-import { Message } from '../../../components/message/message';
-import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../components/icon/logo';
-import { Guide } from '../../../components/guide/guide';
-import { Entry } from '../../../components/guide/entry';
-import { Header, Footer } from '../../../components/layout';
-import { Spinner } from '../../../components/spinner/Spinner';
-import { withTranslation } from 'react-i18next';
-import { getDarkmode } from '../../../components/darkmode/darkmode';
+import { useState, FormEvent, useCallback, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import { route } from '@/utils/route';
+import { apiGet, apiPost } from '@/utils/request';
+import { Button } from '@/components/forms';
+import { PasswordSingleInput } from '@/components/password';
+import { Message } from '@/components/message/message';
+import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '@/components/icon/logo';
+import { Guide } from '@/components/guide/guide';
+import { Entry } from '@/components/guide/entry';
+import { Header, Footer } from '@/components/layout';
+import { Spinner } from '@/components/spinner/Spinner';
+import { getDarkmode } from '@/components/darkmode/darkmode';
 
 const stateEnum = Object.freeze({
   DEFAULT: 'default',
   WAITING: 'waiting',
-  ERROR: 'error'
+  ERROR: 'error',
 });
 
-class Unlock extends Component {
-  state = {
-    status: stateEnum.DEFAULT,
-    errorMessage: '',
-    errorCode: null,
-    remainingAttempts: null,
-    needsLongTouch: false,
-    password: '',
+type Props = {
+  deviceID: string;
+}
+
+type UnlockResponse = {
+  success: true;
+} | {
+  success: false;
+  code?: number;
+  errorMessage?: string;
+  remainingAttempts?: number;
+  needsLongTouch?: boolean;
+}
+
+export const Unlock = ({ deviceID }: Props) => {
+  const { t } = useTranslation();
+
+  const [status, setStatus] = useState<string>(stateEnum.DEFAULT);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [errorCode, setErrorCode] = useState<number | null>(null);
+  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
+  const [needsLongTouch, setNeedsLongTouch] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>('');
+
+  const validate = useCallback(() => password.trim() !== '', [password]);
+
+  const handlePasswordChange = (pwd: string | null) => {
+    setPassword(pwd === null ? '' : pwd);
   };
 
-  handleFormChange = password => {
-    this.setState({ password });
-  };
-
-  validate = () => {
-    return this.state.password !== '';
-  };
-
-  handleSubmit = event => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!this.validate()) {
-      return;
-    }
-    this.setState({
-      status: stateEnum.WAITING
-    });
-    apiPost('devices/' + this.props.deviceID + '/login', { password: this.state.password }).then(data => {
+    if (!validate()) return;
+
+    setStatus(stateEnum.WAITING);
+
+    try {
+      const data: UnlockResponse = await apiPost(`devices/${deviceID}/login`, { password });
+
       if (data.success) {
-        apiGet('devices/' + this.props.deviceID + '/status').then(status => {
-          if (status === 'seeded') {
-            console.info('unlock.jsx route to /account-summary');
-            route('/account-summary', true);
-          }
-        });
-      }
-      if (!data.success) {
+        const deviceStatus = await apiGet(`devices/${deviceID}/status`);
+        if (deviceStatus === 'seeded') {
+          console.info('unlock.tsx route to /account-summary');
+          route('/account-summary', true);
+        }
+      } else {
         if (data.code) {
-          this.setState({ errorCode: data.code });
+          setErrorCode(data.code);
         }
-        if (data.remainingAttempts) {
-          this.setState({ remainingAttempts: data.remainingAttempts });
+        if (data.remainingAttempts !== undefined) {
+          setRemainingAttempts(data.remainingAttempts);
         }
-        if (data.needsLongTouch) {
-          this.setState({ needsLongTouch: data.needsLongTouch });
+        if (data.needsLongTouch !== undefined) {
+          setNeedsLongTouch(data.needsLongTouch);
         }
-        this.setState({ status: stateEnum.ERROR, errorMessage: data.errorMessage });
+
+        setErrorMessage(data.errorMessage || '');
+        setStatus(stateEnum.ERROR);
       }
-    });
-    this.setState({ password: '' });
+    } catch (err) {
+      setErrorMessage(String(err));
+      setStatus(stateEnum.ERROR);
+    } finally {
+      setPassword('');
+    }
   };
 
-  render() {
-    const { t } = this.props;
-    const {
-      status,
-      errorCode,
-      errorMessage,
-      remainingAttempts,
-      needsLongTouch,
-    } = this.state;
-    let submissionState = null;
-    switch (status) {
+  const darkmode = getDarkmode();
+
+  let submissionState: ReactNode = null;
+  switch (status) {
     case stateEnum.DEFAULT:
       submissionState = <p>{t('unlock.description')}</p>;
       break;
     case stateEnum.WAITING:
-      submissionState = <Spinner guideExists text={t('unlock.unlocking')} />;
+      submissionState = <Spinner text={t('unlock.unlocking')} />;
       break;
     case stateEnum.ERROR:
       submissionState = (
@@ -108,61 +118,63 @@ class Unlock extends Component {
           {t(`unlock.error.e${errorCode}`, {
             defaultValue: errorMessage,
             remainingAttempts,
-            context: needsLongTouch ? 'touch' : 'normal'
+            context: needsLongTouch ? 'touch' : 'normal',
           })}
         </Message>
       );
       break;
     default:
       break;
-    }
-
-    const darkmode = getDarkmode();
-    return (
-      <div className="contentWithGuide">
-        <div className="container">
-          <div className="innerContainer scrollableContainer">
-            <Header title={<h2>{t('welcome.title')}</h2>} />
-            <div className="content narrow padded isVerticallyCentered">
-              {darkmode ? <AppLogoInverted /> : <AppLogo />}
-              <div className="box large">
-                {submissionState}
-                {
-                  status !== stateEnum.WAITING && (
-                    <form onSubmit={this.handleSubmit}>
-                      <div className="m-top-default">
-                        <PasswordSingleInput
-                          autoFocus
-                          label={t('unlock.input.label')}
-                          disabled={status === stateEnum.WAITING}
-                          placeholder={t('unlock.input.placeholder')}
-                          onValidPassword={this.handleFormChange}/>
-                      </div>
-                      <div className="buttons">
-                        <Button
-                          primary
-                          type="submit"
-                          disabled={!this.validate() || status === stateEnum.WAITING}>
-                          {t('button.unlock')}
-                        </Button>
-                      </div>
-                    </form>
-                  )
-                }
-              </div>
-            </div>
-            <Footer>
-              {darkmode ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
-            </Footer>
-          </div>
-        </div>
-        <Guide>
-          <Entry key="guide.unlock.forgotDevicePassword" entry={t('guide.unlock.forgotDevicePassword', { returnObjects: true })} />
-          <Entry key="guide.unlock.reset" entry={t('guide.unlock.reset', { returnObjects: true })} />
-        </Guide>
-      </div>
-    );
   }
-}
 
-export default withTranslation()(Unlock);
+  return (
+    <div className="contentWithGuide">
+      <div className="container">
+        <div className="innerContainer scrollableContainer">
+          <Header title={<h2>{t('welcome.title')}</h2>} />
+          <div className="content narrow padded isVerticallyCentered">
+            {darkmode ? <AppLogoInverted /> : <AppLogo />}
+            <div className="box large">
+              {submissionState}
+              {status !== stateEnum.WAITING && (
+                <form onSubmit={handleSubmit}>
+                  <div className="m-top-default">
+                    <PasswordSingleInput
+                      autoFocus
+                      label={t('unlock.input.label')}
+                      disabled={status === stateEnum.WAITING}
+                      placeholder={t('unlock.input.placeholder')}
+                      onValidPassword={handlePasswordChange}
+                    />
+                  </div>
+                  <div className="buttons">
+                    <Button
+                      primary
+                      type="submit"
+                      disabled={!validate() || status === stateEnum.WAITING}
+                    >
+                      {t('button.unlock')}
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+          <Footer>
+            {darkmode ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
+          </Footer>
+        </div>
+      </div>
+      <Guide>
+        <Entry
+          key="guide.unlock.forgotDevicePassword"
+          entry={t('guide.unlock.forgotDevicePassword', { returnObjects: true })}
+        />
+        <Entry
+          key="guide.unlock.reset"
+          entry={t('guide.unlock.reset', { returnObjects: true })}
+        />
+      </Guide>
+    </div>
+  );
+};
