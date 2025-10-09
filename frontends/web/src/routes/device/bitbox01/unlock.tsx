@@ -67,7 +67,9 @@ export const Unlock = ({ deviceID }: Props) => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      return;
+    }
 
     setStatus(stateEnum.WAITING);
 
@@ -106,25 +108,25 @@ export const Unlock = ({ deviceID }: Props) => {
 
   let submissionState: ReactNode = null;
   switch (status) {
-    case stateEnum.DEFAULT:
-      submissionState = <p>{t('unlock.description')}</p>;
-      break;
-    case stateEnum.WAITING:
-      submissionState = <Spinner text={t('unlock.unlocking')} />;
-      break;
-    case stateEnum.ERROR:
-      submissionState = (
-        <Message type="error">
-          {t(`unlock.error.e${errorCode}`, {
-            defaultValue: errorMessage,
-            remainingAttempts,
-            context: needsLongTouch ? 'touch' : 'normal',
-          })}
-        </Message>
-      );
-      break;
-    default:
-      break;
+  case stateEnum.DEFAULT:
+    submissionState = <p>{t('unlock.description')}</p>;
+    break;
+  case stateEnum.WAITING:
+    submissionState = <Spinner text={t('unlock.unlocking')} />;
+    break;
+  case stateEnum.ERROR:
+    submissionState = (
+      <Message type="error">
+        {t(`unlock.error.e${errorCode || ''}`, {
+          defaultValue: errorMessage,
+          remainingAttempts,
+          context: needsLongTouch ? 'touch' : 'normal',
+        })}
+      </Message>
+    );
+    break;
+  default:
+    break;
   }
 
   return (

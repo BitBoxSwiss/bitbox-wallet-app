@@ -45,8 +45,12 @@ export const Create = ({ deviceID, onCreate }: Props) => {
 
   const handleFormChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = event.target;
-    if (id === 'backupName') setBackupName(value);
-    if (id === 'recoveryPassword') setRecoveryPassword(value);
+    if (id === 'backupName') {
+      setBackupName(value);
+    }
+    if (id === 'recoveryPassword') {
+      setRecoveryPassword(value);
+    }
   };
 
   const validate = () => {
@@ -55,7 +59,9 @@ export const Create = ({ deviceID, onCreate }: Props) => {
 
   const create = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      return;
+    }
 
     setWaiting(true);
     try {

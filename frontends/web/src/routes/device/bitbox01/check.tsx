@@ -46,7 +46,9 @@ export const Check = ({ deviceID, selectedBackup }: Props) => {
 
   const handleCheck = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      return;
+    }
 
     setMessage(t('backup.check.checking'));
 
