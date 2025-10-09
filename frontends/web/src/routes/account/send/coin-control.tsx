@@ -16,7 +16,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IAccount } from '@/api/account';
+import type { IAccount } from '@/api/account';
 import { getConfig } from '@/utils/config';
 import { Button } from '@/components/forms';
 import { TSelectedUTXOs, UTXOs } from './utxos';
@@ -25,11 +25,13 @@ import { isBitcoinBased } from '../utils';
 type TProps = {
   account: IAccount;
   onSelectedUTXOsChange: (selectedUTXOs: TSelectedUTXOs) => void;
+  onCoinControlDialogActiveChange?: (active: boolean) => void;
 }
 
 export const CoinControl = ({
   account,
   onSelectedUTXOsChange,
+  onCoinControlDialogActiveChange,
 }: TProps) => {
   const { t } = useTranslation();
 
@@ -44,26 +46,35 @@ export const CoinControl = ({
     }
   }, [account.coinCode]);
 
+  // Notify parent whenever dialog visibility changes
+  useEffect(() => {
+    if (onCoinControlDialogActiveChange) {
+      onCoinControlDialogActiveChange(showUTXODialog);
+    }
+  }, [showUTXODialog, onCoinControlDialogActiveChange]);
+
+  if (!coinControlEnabled) {
+    return null;
+  }
+
   return (
-    coinControlEnabled ? (
-      <>
-        <UTXOs
-          accountCode={account.code}
-          active={showUTXODialog}
-          explorerURL={account.blockExplorerTxPrefix}
-          onClose={() => {
-            setShowUTXODialog(false);
-          }}
-          onChange={onSelectedUTXOsChange} />
-        <Button
-          className="m-bottom-quarter p-right-none"
-          transparent
-          onClick={() => {
-            setShowUTXODialog(showUTXODialog => !showUTXODialog);
-          }}>
-          {t('send.toggleCoinControl')}
-        </Button>
-      </>
-    ) : (null)
+    <>
+      <UTXOs
+        accountCode={account.code}
+        active={showUTXODialog}
+        explorerURL={account.blockExplorerTxPrefix}
+        onClose={() => {
+          setShowUTXODialog(false);
+        }}
+        onChange={onSelectedUTXOsChange} />
+      <Button
+        className="m-bottom-quarter p-right-none"
+        transparent
+        onClick={() => {
+          setShowUTXODialog(showUTXODialog => !showUTXODialog);
+        }}>
+        {t('send.toggleCoinControl')}
+      </Button>
+    </>
   );
 };
