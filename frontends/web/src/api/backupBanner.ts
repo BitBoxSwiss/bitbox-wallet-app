@@ -18,9 +18,14 @@
 import { apiGet } from '@/utils/request';
 import type { Fiat } from './account';
 
-export type TShowBackupBannerResponse =
-  | { success: false }
-  | { success: true; show: boolean; fiat: Fiat; threshold: string };
+export type TShowBackupBannerResponse = {
+  success: false;
+} | {
+  success: true;
+  show: boolean;
+  fiat: Fiat;
+  threshold: string
+};
 
 export const getShowBackupBanner = (rootFingerprint: string): Promise<TShowBackupBannerResponse> => {
   return apiGet(`keystore/show-backup-banner/${rootFingerprint}`);

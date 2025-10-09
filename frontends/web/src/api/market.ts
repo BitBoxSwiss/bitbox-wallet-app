@@ -49,7 +49,7 @@ export type TMarketError = {
   errorMessage?: string;
 }
 
-export type TMarketDealsResponse = TMarketDealsList | TMarketError
+export type TMarketDealsResponse = TMarketDealsList | TMarketError;
 
 export type TMarketAction = 'buy' | 'sell' | 'spend';
 

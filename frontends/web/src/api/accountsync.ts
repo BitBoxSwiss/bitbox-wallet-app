@@ -24,7 +24,7 @@ import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
  * Returns a method to unsubscribe.
  */
 export const syncAccountsList = (
-  cb: (accounts: accountAPI.TAccount[],) => void
+  cb: (accounts: accountAPI.TAccount[]) => void
 ): TUnsubscribe => {
   return subscribeEndpoint('accounts', cb);
 };
