@@ -21,9 +21,7 @@ import { Button, Input } from '@/components/forms';
 import { PasswordInput } from '@/components/password';
 import { alertUser } from '@/components/alert/Alert';
 import { apiPost } from '@/utils/request';
-// TODO: use DialogButtons
-import { DialogLegacy } from '@/components/dialog/dialog-legacy';
-import style from '@/components/dialog/dialog.module.css';
+import { DialogLegacy, DialogButtons } from '@/components/dialog/dialog-legacy';
 
 type Props = {
   deviceID: string;
@@ -107,14 +105,14 @@ export const Create = ({ deviceID, onCreate }: Props) => {
               onInput={handleFormChange}
               value={recoveryPassword}
             />
-            <div className={style.actions}>
+            <DialogButtons>
               <Button type="submit" primary disabled={waiting || !validate()}>
                 {t('button.create')}
               </Button>
               <Button secondary onClick={abort}>
                 {t('button.abort')}
               </Button>
-            </div>
+            </DialogButtons>
           </form>
         </DialogLegacy>
       )}
