@@ -77,7 +77,9 @@ export const SeedCreateNew = ({
   // --- Handlers ---
   const handleFormChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = event.target;
-    if (id === 'walletName') setWalletName(value);
+    if (id === 'walletName') {
+      setWalletName(value);
+    }
   };
 
   const handleAgreementChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -86,7 +88,7 @@ export const SeedCreateNew = ({
   };
 
   const setValidBackupPassword = (password: string | null) => {
-    setBackupPassword(password === null ? '': password);
+    setBackupPassword(password === null ? '' : password);
   };
 
   const validAgreements = () => {
@@ -103,7 +105,9 @@ export const SeedCreateNew = ({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      return;
+    }
 
     setStatus(STATUS.CREATING);
     setError('');
@@ -117,7 +121,7 @@ export const SeedCreateNew = ({
       if (!data.success) {
         setStatus(STATUS.ERROR);
         setError(
-          t(`seed.error.e${data.code}`, {
+          t(`seed.error.e${data.code as string}`, {
             defaultValue: data.errorMessage,
           })
         );
@@ -157,12 +161,12 @@ export const SeedCreateNew = ({
 
   const renderSpinner = () => {
     switch (status) {
-      case STATUS.CHECKING:
-        return <Spinner text={t('checkSDcard')} />;
-      case STATUS.CREATING:
-        return <Spinner text={t('seed.creating')} />;
-      default:
-        return null;
+    case STATUS.CHECKING:
+      return <Spinner text={t('checkSDcard')} />;
+    case STATUS.CREATING:
+      return <Spinner text={t('seed.creating')} />;
+    default:
+      return null;
     }
   };
 

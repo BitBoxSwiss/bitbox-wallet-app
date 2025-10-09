@@ -51,7 +51,9 @@ export const ChangePIN = ({ deviceID, disabled }: Props) => {
 
   const changePin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      return;
+    }
 
     setActiveDialog(false);
     setIsConfirming(true);
@@ -66,7 +68,7 @@ export const ChangePIN = ({ deviceID, disabled }: Props) => {
 
       if (!data.success) {
         alertUser(
-          t(`bitbox.error.e${data.code}`, {
+          t(`bitbox.error.e${data.code as string}`, {
             defaultValue: data.errorMessage,
           })
         );
