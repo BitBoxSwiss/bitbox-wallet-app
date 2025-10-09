@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2022-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-import { TPayload } from './utils/transport-common';
+import type { TPayload } from './utils/transport-common';
 
 export declare global {
-    interface Window {
-        qt?: { webChannelTransport: unknown; };
-        android?: {
-            call: (queryID: number, query: string) => void;
-        }
-        onMobileCallResponse?: (queryID: number, response: unknown) => void;
-        onMobilePushNotification?: (msg: TPayload) => void;
-        runningOnIOS?: boolean;
-        // Called by Android when the back button is pressed.
-        onBackButtonPressed?: () => boolean;
-        webkit?: {
-          messageHandlers: {
-            goCall: {
-              postMessage: (msg: { queryID: number; query: string; }) => void;
-            }
-            appReady: {
-              postMessage: (msg: any) => void;
-            }
-          }
-        }
+  interface Window {
+    qt?: { webChannelTransport: unknown; };
+    android?: {
+      call: (queryID: number, query: string) => void;
     }
+    onMobileCallResponse?: (queryID: number, response: unknown) => void;
+    onMobilePushNotification?: (msg: TPayload) => void;
+    runningOnIOS?: boolean;
+    // Called by Android when the back button is pressed.
+    onBackButtonPressed?: () => boolean;
+    webkit?: {
+      messageHandlers: {
+        goCall: {
+          postMessage: (msg: { queryID: number; query: string; }) => void;
+        }
+        appReady: {
+          postMessage: (msg: any) => void;
+        }
+      }
+    }
+  }
 }
