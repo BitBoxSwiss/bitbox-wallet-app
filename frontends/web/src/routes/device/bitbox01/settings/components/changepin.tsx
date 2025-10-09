@@ -35,7 +35,6 @@ export const ChangePIN = ({ deviceID, disabled }: Props) => {
 
   const [oldPIN, setOldPIN] = useState<string | null>(null);
   const [newPIN, setNewPIN] = useState<string | null>(null);
-  const [errorCode, setErrorCode] = useState<number | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [activeDialog, setActiveDialog] = useState(false);
 
@@ -44,7 +43,6 @@ export const ChangePIN = ({ deviceID, disabled }: Props) => {
     setNewPIN(null);
     setIsConfirming(false);
     setActiveDialog(false);
-    setErrorCode(null);
   };
 
   const validate = () => {
@@ -72,7 +70,6 @@ export const ChangePIN = ({ deviceID, disabled }: Props) => {
             defaultValue: data.errorMessage,
           })
         );
-        setErrorCode(data.code);
       }
     } catch (error) {
       abort();
