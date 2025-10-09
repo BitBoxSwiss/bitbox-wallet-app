@@ -107,6 +107,7 @@ export const ChangePIN = ({ deviceID, disabled }: Props) => {
 
             <PasswordRepeatInput
               pattern="^.{4,}$"
+              title={t('initialize.error.e102')}
               label={t('initialize.input.label')}
               repeatLabel={t('initialize.input.labelRepeat')}
               repeatPlaceholder={t('initialize.input.placeholderRepeat')}
