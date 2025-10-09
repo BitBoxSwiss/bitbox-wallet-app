@@ -25,7 +25,7 @@ import { Entry } from '../../../../components/guide/entry';
 import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import Blink from './components/blink';
-import ChangePIN from './components/changepin';
+import { ChangePIN } from './components/changepin';
 import Reset from './components/reset';
 import UpgradeFirmware from '../components/upgradefirmware';
 import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
