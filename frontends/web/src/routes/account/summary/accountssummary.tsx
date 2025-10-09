@@ -38,6 +38,7 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { BackupReminder } from '@/components/banners/backup';
+import { OfflineError } from '@/components/banners/offline-error';
 
 type TProps = {
   accounts: accountApi.IAccount[];
@@ -63,6 +64,7 @@ export const AccountsSummary = ({
   const [chartData, setChartData] = useState<accountApi.TChartData>();
   const [accountsBalanceSummary, setAccountsBalanceSummary] = useState<accountApi.TAccountsBalanceSummary>();
   const [balances, setBalances] = useState<Balances>();
+  const [offlineError, setOfflineError] = useState<string | null>(null);
 
   const getChartData = useCallback(async () => {
     // replace previous timer if present
@@ -98,6 +100,7 @@ export const AccountsSummary = ({
     if (status.disabled || !mounted.current) {
       return;
     }
+    setOfflineError(status.offlineError);
     if (!status.synced) {
       return accountApi.init(code);
     }
@@ -176,6 +179,7 @@ export const AccountsSummary = ({
       <GuidedContent>
         <Main>
           <ContentWrapper>
+            <OfflineError error={offlineError} />
             <GlobalBanners devices={devices} />
             {accountsByKeystore.map(({ keystore }) => (
               <BackupReminder

@@ -40,7 +40,6 @@ import { isBitcoinBased } from './utils';
 import { MultilineMarkup } from '@/utils/markup';
 import { Dialog } from '@/components/dialog/dialog';
 import { A } from '@/components/anchor/anchor';
-import { getConfig } from '@/utils/config';
 import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
@@ -51,6 +50,7 @@ import { Button, Input } from '@/components/forms';
 import { SubTitle } from '@/components/title';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
 import { RatesContext } from '@/contexts/RatesContext';
+import { OfflineError } from '@/components/banners/offline-error';
 import style from './account.module.css';
 
 type Props = {
@@ -95,7 +95,6 @@ const RemountAccount = ({
   );
   const syncedAddressesCount = useSubscribe(syncAddressesCount(code));
   const [transactions, setTransactions] = useState<accountApi.TTransactions>();
-  const [usesProxy, setUsesProxy] = useState<boolean>();
   const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
   const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -132,10 +131,6 @@ const RemountAccount = ({
       return noteMatch || addressMatch || txIdMatch;
     });
   }, [transactions, debouncedSearchTerm]);
-
-  useEffect(() => {
-    getConfig().then(({ backend }) => setUsesProxy(backend.proxy.useProxy));
-  }, []);
 
   const onAccountChanged = useCallback((status: accountApi.IStatus | undefined) => {
     if (status === undefined || status.fatalError) {
@@ -190,16 +185,6 @@ const RemountAccount = ({
     );
   }
 
-  // Status: offline error
-  const offlineErrorTextLines: string[] = [];
-  if (status !== undefined && status.offlineError !== null) {
-    offlineErrorTextLines.push(t('account.reconnecting'));
-    offlineErrorTextLines.push(status.offlineError);
-    if (usesProxy) {
-      offlineErrorTextLines.push(t('account.maybeProxyError'));
-    }
-  }
-
   // Status: not synced
   const notSyncedText = (status !== undefined && !status.synced && syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
     '\n' + t('account.syncedAddressesCount', {
@@ -232,13 +217,8 @@ const RemountAccount = ({
       <GuidedContent>
         <Main>
           <ContentWrapper>
+            <OfflineError error={status?.offlineError} />
             <GlobalBanners code={code} devices={devices} />
-            <Message
-              className={style.status}
-              hidden={status === undefined || !status.offlineError}
-              type="error">
-              {offlineErrorTextLines.join('\n')}
-            </Message>
             <Message
               className={style.status}
               hidden={status === undefined || status.synced || !!status.offlineError}
