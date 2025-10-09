@@ -26,7 +26,7 @@ import { Button } from '../../../components/forms';
 import { BackupsListItem } from '../components/backup';
 import style from '../components/backups.module.css';
 import Check from './check';
-import Create from './create';
+import { Create } from './create';
 import { Restore } from './restore';
 
 type BackupsProps = {
