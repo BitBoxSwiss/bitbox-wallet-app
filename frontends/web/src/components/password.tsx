@@ -26,7 +26,6 @@ import style from './password.module.css';
 type TPropsPasswordInput = {
   seePlaintext?: boolean;
   id?: string;
-  idPrefix?: string;
   label: string;
   placeholder?: string;
   onInput?: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -150,13 +149,11 @@ export const PasswordSingleInput = ({
 };
 
 type TPasswordRepeatProps = TProps & {
-  idPrefix?: string;
   repeatLabel?: string;
   repeatPlaceholder: string;
 };
 
 export const PasswordRepeatInput = ({
-  idPrefix = '',
   pattern,
   autoFocus,
   disabled,
@@ -219,15 +216,17 @@ export const PasswordRepeatInput = ({
       setSeePlaintext(event.target.checked);
       return;
     }
-
-    if (event.target.id.endsWith('passwordRepeat')) {
-      const newRepeat = event.target.value;
-      setPasswordRepeat(newRepeat);
-      validate(password, newRepeat);
-    } else {
+    switch (event.target.id) {
+    case 'passwordRepeatFirst':
       const newPassword = event.target.value;
       setPassword(newPassword);
       validate(newPassword, passwordRepeat);
+      break;
+    case 'passwordRepeatSecond':
+      const newRepeat = event.target.value;
+      setPasswordRepeat(newRepeat);
+      validate(password, newRepeat);
+      break;
     }
   };
 
@@ -246,7 +245,7 @@ export const PasswordRepeatInput = ({
         type={seePlaintext ? 'text' : 'password'}
         pattern={pattern}
         title={title}
-        id={`${idPrefix}password`}
+        id="passwordRepeatFirst"
         label={label}
         placeholder={placeholder}
         onInput={handleFormChange}
@@ -266,7 +265,7 @@ export const PasswordRepeatInput = ({
         type={seePlaintext ? 'text' : 'password'}
         pattern={pattern}
         title={title}
-        id={`${idPrefix}passwordRepeat`}
+        id="passwordRepeatSecond"
         label={repeatLabel}
         placeholder={repeatPlaceholder}
         onInput={handleFormChange}
@@ -283,7 +282,7 @@ export const PasswordRepeatInput = ({
 
       <Field>
         <Checkbox
-          id={`${idPrefix}seePlaintext`}
+          id="seePlaintext"
           onChange={handleFormChange}
           checked={seePlaintext}
           label={t('password.show', {

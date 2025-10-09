@@ -133,7 +133,6 @@ class Unlock extends Component {
                       <div className="m-top-default">
                         <PasswordSingleInput
                           autoFocus
-                          id="password"
                           label={t('unlock.input.label')}
                           disabled={status === stateEnum.WAITING}
                           placeholder={t('unlock.input.placeholder')}
