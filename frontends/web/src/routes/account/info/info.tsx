@@ -18,7 +18,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad, useSync } from '@/hooks/api';
-import { getInfo, TAccount, AccountCode, IStatus, getStatus, exportAccount, getTransactionList, TTransactions, TSigningConfiguration } from '@/api/account';
+import { getInfo, TAccount, AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions, TSigningConfiguration } from '@/api/account';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { Header } from '@/components/layout';
 import { BackButton } from '@/components/backbutton/backbutton';
@@ -43,7 +43,7 @@ export const Info = ({
   const info = useLoad(getInfo(code));
   const [viewXPub, setViewXPub] = useState<number>(0);
   const [transactions, setTransactions] = useState<TTransactions>();
-  const status: IStatus | undefined = useSync(
+  const status: TStatus | undefined = useSync(
     () => getStatus(code),
     cb => statusChanged(code, cb),
   );

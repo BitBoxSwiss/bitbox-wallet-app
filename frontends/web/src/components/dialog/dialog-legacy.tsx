@@ -18,22 +18,23 @@
 import React, { Component, createRef } from 'react';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import style from './dialog-legacy.module.css';
-interface Props {
-    title?: string;
-    small?: boolean;
-    medium?: boolean;
-    large?: boolean;
-    slim?: boolean;
-    centered?: boolean;
-    disableEscape?: boolean;
-    onClose?: (e?: Event) => void;
-    disabledClose?: boolean;
-    children: React.ReactNode;
+
+type Props = {
+  title?: string;
+  small?: boolean;
+  medium?: boolean;
+  large?: boolean;
+  slim?: boolean;
+  centered?: boolean;
+  disableEscape?: boolean;
+  onClose?: (e?: Event) => void;
+  disabledClose?: boolean;
+  children: React.ReactNode;
 }
 
-interface State {
-    active: boolean;
-    currentTab: number;
+type State = {
+  active: boolean;
+  currentTab: number;
 }
 
 class DialogLegacy extends Component<Props, State> {
@@ -216,8 +217,8 @@ class DialogLegacy extends Component<Props, State> {
  * ```
  */
 
-interface DialogButtonsProps {
-    children: React.ReactNode;
+type DialogButtonsProps = {
+  children: React.ReactNode;
 }
 
 const DialogButtons = ({ children }: DialogButtonsProps) => {

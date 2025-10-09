@@ -22,14 +22,14 @@ import { Dropdown } from '@/components/dropdown/dropdown';
 import styles from './coin-dropdown.module.css';
 
 type TCoinDropDownProps = {
-  onChange: (coin: backendAPI.ICoin) => void;
-  supportedCoins: backendAPI.ICoin[];
+  onChange: (coin: backendAPI.TCoin) => void;
+  supportedCoins: backendAPI.TCoin[];
   value: string;
 };
 
 type TOption = {
   label: string;
-  value: backendAPI.ICoin['coinCode'];
+  value: backendAPI.TCoin['coinCode'];
 };
 
 const Option = ({ props }: { props: TOption }) => {

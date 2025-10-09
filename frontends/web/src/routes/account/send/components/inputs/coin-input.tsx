@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import { ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TAmountWithConversions, TBalance } from '@/api/account';
 import { Checkbox, Input } from '@/components/forms';
-import { TAmountWithConversions, IBalance } from '@/api/account';
 import style from './coin-input.module.css';
 
 type TProps = {
-  balance?: IBalance;
+  balance?: TBalance;
   onAmountChange: (amount: string) => void;
   onSendAllChange: (sendAll: boolean) => void;
   sendAll: boolean;

@@ -19,13 +19,13 @@ import { apiGet, apiPost } from '@/utils/request';
 import type { TUnsubscribe } from '@/utils/transport-common';
 import { subscribeEndpoint } from './subscribe';
 
-export interface Account {
+type TAccount = {
   name: string;
   code: AccountCode;
 }
 
-interface Accounts extends Array<Account> {
-  0: Account,
+interface Accounts extends Array<TAccount> {
+  0: TAccount,
 }
 
 export type Aopp = {

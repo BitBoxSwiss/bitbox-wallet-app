@@ -43,7 +43,7 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
   const [coinCode, setCoinCode] = useState<'choose' | CoinCode>('choose');
   const [errorMessage, setErrorMessage] = useState<string>();
   const [step, setStep] = useState<TStep>('select-coin');
-  const [supportedCoins, setSupportedCoins] = useState<backendAPI.ICoin[]>([]);
+  const [supportedCoins, setSupportedCoins] = useState<backendAPI.TCoin[]>([]);
   const [adding, setAdding] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);

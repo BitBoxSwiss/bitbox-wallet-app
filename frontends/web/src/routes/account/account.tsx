@@ -88,14 +88,14 @@ const RemountAccount = ({
 
   const { btcUnit } = useContext(RatesContext);
 
-  const [balance, setBalance] = useState<accountApi.IBalance>();
-  const status: accountApi.IStatus | undefined = useSync(
+  const [balance, setBalance] = useState<accountApi.TBalance>();
+  const status: accountApi.TStatus | undefined = useSync(
     () => accountApi.getStatus(code),
     cb => statusChanged(code, cb),
   );
   const syncedAddressesCount = useSubscribe(syncAddressesCount(code));
   const [transactions, setTransactions] = useState<accountApi.TTransactions>();
-  const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
+  const [detailID, setDetailID] = useState<accountApi.TTransaction['internalID'] | null>(null);
   const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const debouncedSearchTerm = useDebounce(searchTerm, 200);
@@ -132,7 +132,7 @@ const RemountAccount = ({
     });
   }, [transactions, debouncedSearchTerm]);
 
-  const onAccountChanged = useCallback((status: accountApi.IStatus | undefined) => {
+  const onAccountChanged = useCallback((status: accountApi.TStatus | undefined) => {
     if (status === undefined || status.fatalError) {
       return;
     }

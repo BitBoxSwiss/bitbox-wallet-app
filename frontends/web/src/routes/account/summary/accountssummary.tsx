@@ -46,7 +46,7 @@ type TProps = {
 };
 
 export type Balances = {
-  [code: string]: accountApi.IBalance;
+  [code: string]: accountApi.TBalance;
 };
 
 export const AccountsSummary = ({

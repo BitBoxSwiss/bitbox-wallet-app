@@ -18,7 +18,7 @@ import '../../../__mocks__/i18n';
 import { useContext } from 'react';
 import { Mock, afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import { IBalance } from '@/api/account';
+import { TBalance } from '@/api/account';
 import { Balance } from './balance';
 
 vi.mock('@/utils/request', () => ({
@@ -43,7 +43,7 @@ describe('components/balance/balance', () => {
       decimal: '.',
       group: ','
     });
-    const MOCK_BALANCE: IBalance = {
+    const MOCK_BALANCE: TBalance = {
       hasAvailable: true,
       hasIncoming: true,
       available: {
@@ -117,7 +117,7 @@ describe('components/balance/balance', () => {
       group: ','
     });
 
-    const MOCK_BALANCE: IBalance = {
+    const MOCK_BALANCE: TBalance = {
       hasAvailable: true,
       hasIncoming: true,
       available: {

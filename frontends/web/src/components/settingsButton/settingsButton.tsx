@@ -17,14 +17,14 @@
 import { ReactNode } from 'react';
 import style from './settingsButton.module.css';
 
-interface SettingsButtonProps {
-    onClick?: () => void;
-    danger?: boolean;
-    optionalText?: string;
-    secondaryText?: string | JSX.Element;
-    disabled?: boolean;
-    optionalIcon?: JSX.Element;
-    children: ReactNode;
+type SettingsButtonProps = {
+  onClick?: () => void;
+  danger?: boolean;
+  optionalText?: string;
+  secondaryText?: string | JSX.Element;
+  disabled?: boolean;
+  optionalIcon?: JSX.Element;
+  children: ReactNode;
 }
 
 const SettingsButton = ({

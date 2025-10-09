@@ -39,7 +39,7 @@ import { GlobalBanners } from '@/components/banners';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
 import style from './manage-accounts.module.css';
 
-interface ManageAccountsProps {
+type ManageAccountsProps = {
   accounts: accountAPI.TAccount[];
 }
 
@@ -70,7 +70,10 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
     { code: 'eth-erc20-dai0x6b17', name: 'Dai', unit: 'DAI' },
   ];
 
-  const renderTokens = (ethAccountCode: accountAPI.AccountCode, activeTokens?: accountAPI.IActiveToken[]) => {
+  const renderTokens = (
+    ethAccountCode: accountAPI.AccountCode,
+    activeTokens?: accountAPI.TActiveToken[],
+  ) => {
     return erc20Tokens.map(token => {
       const activeToken = (activeTokens || []).find(t => t.tokenCode === token.code);
       const active = activeToken !== undefined;

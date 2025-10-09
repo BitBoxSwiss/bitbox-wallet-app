@@ -49,7 +49,7 @@ export const syncAddressesCount = (code: accountAPI.AccountCode) => {
  */
 export const statusChanged = (
   code: accountAPI.AccountCode,
-  cb: TSubscriptionCallback<accountAPI.IStatus>,
+  cb: TSubscriptionCallback<accountAPI.TStatus>,
 ): TUnsubscribe => {
   return subscribeEndpoint(`account/${code}/status`, cb);
 };

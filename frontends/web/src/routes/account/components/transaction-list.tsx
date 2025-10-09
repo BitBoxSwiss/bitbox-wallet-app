@@ -22,9 +22,9 @@ import style from '../account.module.css';
 
 type TransactionListProps = {
   transactionSuccess: boolean;
-  filteredTransactions: accountApi.ITransaction[];
+  filteredTransactions: accountApi.TTransaction[];
   debouncedSearchTerm: string;
-  onShowDetail: (internalID: accountApi.ITransaction['internalID']) => void;
+  onShowDetail: (internalID: accountApi.TTransaction['internalID']) => void;
 };
 
 export const TransactionList = memo<TransactionListProps>(({
