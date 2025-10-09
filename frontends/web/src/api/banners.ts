@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import type { TMessageTypes } from '@/utils/types';
 import { apiGet } from '@/utils/request';
 import { subscribeEndpoint, TUnsubscribe } from './subscribe';
-import type { TMessageTypes } from '@/utils/types';
 
 export type TBannerInfo = {
   id: string;

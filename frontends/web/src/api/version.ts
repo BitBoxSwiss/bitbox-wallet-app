@@ -19,7 +19,7 @@ import { apiGet } from '@/utils/request';
 /**
  * Describes the file that is loaded from 'https://bitbox.swiss/updates/desktop.json'.
  */
-export type TUpdateFile = {
+type TUpdateFile = {
   current: string;
   version: string;
   description: string;

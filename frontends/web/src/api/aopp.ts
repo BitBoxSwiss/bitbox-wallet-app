@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { AccountCode } from './account';
-import { apiGet, apiPost } from '@/utils/request';
+import type { AccountCode } from './account';
 import type { TUnsubscribe } from '@/utils/transport-common';
 import type { NonEmptyArray } from '@/utils/types';
+import { apiGet, apiPost } from '@/utils/request';
 import { subscribeEndpoint } from './subscribe';
 
 type TAccount = {
