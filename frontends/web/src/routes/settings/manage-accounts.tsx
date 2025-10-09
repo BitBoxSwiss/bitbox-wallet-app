@@ -40,7 +40,7 @@ import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
 import style from './manage-accounts.module.css';
 
 interface ManageAccountsProps {
-  accounts: accountAPI.IAccount[];
+  accounts: accountAPI.TAccount[];
 }
 
 type Props = ManageAccountsProps & TPagePropsWithSettingsTabs;
@@ -56,7 +56,7 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
   const { t } = useTranslation();
   const [editErrorMessage, setEditErrorMessage] = useState<string | undefined>(undefined);
   const [showTokens, setShowTokens] = useState<TShowTokens>({});
-  const [currentlyEditedAccount, setCurrentlyEditedAccount] = useState<accountAPI.IAccount | undefined>(undefined);
+  const [currentlyEditedAccount, setCurrentlyEditedAccount] = useState<accountAPI.TAccount | undefined>(undefined);
 
   const erc20Tokens: Readonly<accountAPI.Terc20Token[]> = [
     { code: 'eth-erc20-usdt', name: 'Tether USD', unit: 'USDT' },
@@ -158,7 +158,7 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
       });
   };
 
-  const renderAccounts = (accounts: accountAPI.IAccount[]) => {
+  const renderAccounts = (accounts: accountAPI.TAccount[]) => {
     return accounts.filter(account => !account.isToken).map(account => {
       const active = account.active;
       const tokensVisible = showTokens[account.code];

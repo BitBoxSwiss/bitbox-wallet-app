@@ -27,11 +27,11 @@ import { Step, Steps } from './components/steps';
 import { CoinDropDown } from './components/coin-dropdown';
 import { Check } from '@/components/icon/icon';
 import { AddAccountGuide } from './add-account-guide';
-import { addAccount, CoinCode, TAddAccount, IAccount } from '@/api/account';
+import { addAccount, CoinCode, TAddAccount, TAccount } from '@/api/account';
 import styles from './add.module.css';
 
 type TAddAccountGuide = {
-  accounts: IAccount[]
+  accounts: TAccount[];
 }
 
 type TStep = 'select-coin' | 'choose-name' | 'success';

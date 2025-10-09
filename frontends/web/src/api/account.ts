@@ -61,7 +61,7 @@ export type TKeystore = {
   connected: boolean;
 };
 
-export interface IAccount {
+export type TAccount = {
   keystore: TKeystore;
   active: boolean;
   watch: boolean;
@@ -76,7 +76,7 @@ export interface IAccount {
   bitsuranceStatus?: TDetailStatus;
 }
 
-export const getAccounts = (): Promise<IAccount[]> => {
+export const getAccounts = (): Promise<TAccount[]> => {
   return apiGet('accounts');
 };
 

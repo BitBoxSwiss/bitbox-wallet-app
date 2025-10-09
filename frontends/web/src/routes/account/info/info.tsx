@@ -18,7 +18,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad, useSync } from '@/hooks/api';
-import { getInfo, IAccount, AccountCode, IStatus, getStatus, exportAccount, getTransactionList, TTransactions, TSigningConfiguration } from '@/api/account';
+import { getInfo, TAccount, AccountCode, IStatus, getStatus, exportAccount, getTransactionList, TTransactions, TSigningConfiguration } from '@/api/account';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { Header } from '@/components/layout';
 import { BackButton } from '@/components/backbutton/backbutton';
@@ -31,7 +31,7 @@ import { statusChanged } from '@/api/accountsync';
 import style from './info.module.css';
 
 type TProps = {
-  accounts: IAccount[];
+  accounts: TAccount[];
   code: AccountCode;
 };
 

@@ -46,7 +46,7 @@ import { connectKeystore } from '@/api/keystores';
 import style from './send.module.css';
 
 type TProps = {
-  account: accountApi.IAccount;
+  account: accountApi.TAccount;
   activeCurrency: accountApi.Fiat;
 }
 
