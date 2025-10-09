@@ -158,9 +158,9 @@ export const SeedCreateNew = ({
   const renderSpinner = () => {
     switch (status) {
       case STATUS.CHECKING:
-        return <Spinner guideExists={false} text={t('checkSDcard')} />;
+        return <Spinner text={t('checkSDcard')} />;
       case STATUS.CREATING:
-        return <Spinner guideExists={false} text={t('seed.creating')} />;
+        return <Spinner text={t('seed.creating')} />;
       default:
         return null;
     }
