@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { IAccount } from '@/api/account';
+import { TAccount } from '@/api/account';
 import { getMarketVendors, TVendorName } from '@/api/market';
 
 /**
@@ -40,12 +40,12 @@ export const getVendorFormattedName = (
 /**
  * Filters a given accounts list, keeping only the accounts supported by at least one vendor.
  */
-export const getVendorSupportedAccounts = async (accounts: IAccount[]): Promise<IAccount[]> => {
+export const getVendorSupportedAccounts = async (accounts: TAccount[]): Promise<TAccount[]> => {
   const accountsWithFalsyValue = await Promise.all(
     accounts.map(async (account) => {
       const supported = await getMarketVendors(account.code)();
       return supported.vendors.length ? account : false;
     })
   );
-  return accountsWithFalsyValue.filter(result => result) as IAccount[];
+  return accountsWithFalsyValue.filter(result => result) as TAccount[];
 };

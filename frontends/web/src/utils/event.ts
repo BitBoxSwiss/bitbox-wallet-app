@@ -26,10 +26,10 @@ export type { TEvent, TUnsubscribe };
 export type Observer = (event: TEvent) => void;
 
 /**
- * This interface describes how the subscriptions are stored.
+ * This type describes how the subscriptions are stored.
  */
-interface Subscriptions {
-    [subject: string]: Observer[]; // TypeScript does not allow the type alias Subject there.
+type Subscriptions = {
+  [subject: string]: Observer[]; // TypeScript does not allow the type alias Subject there.
 }
 
 /**

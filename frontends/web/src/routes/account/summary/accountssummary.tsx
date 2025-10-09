@@ -41,12 +41,12 @@ import { BackupReminder } from '@/components/banners/backup';
 import { OfflineError } from '@/components/banners/offline-error';
 
 type TProps = {
-  accounts: accountApi.IAccount[];
+  accounts: accountApi.TAccount[];
   devices: TDevices;
 };
 
 export type Balances = {
-  [code: string]: accountApi.IBalance;
+  [code: string]: accountApi.TBalance;
 };
 
 export const AccountsSummary = ({

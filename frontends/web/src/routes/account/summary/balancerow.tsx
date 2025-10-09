@@ -16,7 +16,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AccountCode, CoinCode, IBalance } from '@/api/account';
+import { AccountCode, CoinCode, TBalance } from '@/api/account';
 import { syncAddressesCount } from '@/api/accountsync';
 import { useSubscribe } from '@/hooks/api';
 import { useMediaQuery } from '@/hooks/mediaquery';
@@ -49,7 +49,7 @@ const NameCell = ({ coinCode, name, onClick }: TNameColProps) => {
 };
 
 type TProps = {
-  balance?: IBalance;
+  balance?: TBalance;
   code: AccountCode;
   coinCode: CoinCode;
   name: string;

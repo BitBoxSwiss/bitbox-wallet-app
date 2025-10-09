@@ -14,43 +14,42 @@
  * limitations under the License.
  */
 
-import { AccountCode } from './account';
-import { apiGet, apiPost } from '@/utils/request';
+import type { AccountCode } from './account';
 import type { TUnsubscribe } from '@/utils/transport-common';
+import type { NonEmptyArray } from '@/utils/types';
+import { apiGet, apiPost } from '@/utils/request';
 import { subscribeEndpoint } from './subscribe';
 
-export interface Account {
-    name: string;
-    code: AccountCode;
+type TAccount = {
+  name: string;
+  code: AccountCode;
 }
 
-interface Accounts extends Array<Account> {
-    0: Account,
-}
+type Accounts = NonEmptyArray<TAccount>;
 
 export type Aopp = {
-    state: 'error';
-    errorCode: 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
-    callback: string;
+  state: 'error';
+  errorCode: 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
+  callback: string;
 } | {
-    state: 'inactive';
+  state: 'inactive';
 } | {
-    state: 'user-approval' | 'awaiting-keystore' | 'syncing';
-    message: string;
-    callback: string;
-    xpubRequired: boolean;
+  state: 'user-approval' | 'awaiting-keystore' | 'syncing';
+  message: string;
+  callback: string;
+  xpubRequired: boolean;
 } | {
-    state: 'choosing-account';
-    accounts: Accounts;
-    message: string;
-    callback: string;
+  state: 'choosing-account';
+  accounts: Accounts;
+  message: string;
+  callback: string;
 } | {
-    state: 'signing' | 'success';
-    address: string;
-    addressID: string;
-    message: string;
-    callback: string;
-    accountCode: AccountCode;
+  state: 'signing' | 'success';
+  address: string;
+  addressID: string;
+  message: string;
+  callback: string;
+  accountCode: AccountCode;
 };
 
 export const cancel = (): Promise<null> => {

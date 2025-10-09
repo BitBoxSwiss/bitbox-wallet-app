@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
 import type { CoinCode, Fiat } from './account';
+import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
 import { apiPost, apiGet } from '@/utils/request';
 
 export type BtcUnit = 'default' | 'sat';
 
 export type TStatus = {
-    targetHeight: number;
-    tip: number;
-    tipAtInitTime: number;
-    tipHashHex: string;
+  targetHeight: number;
+  tip: number;
+  tipAtInitTime: number;
+  tipHashHex: string;
 }
 
 export const subscribeCoinHeaders = (coinCode: CoinCode) => (

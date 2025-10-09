@@ -16,14 +16,14 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { IBalance } from '@/api/account';
+import { TBalance } from '@/api/account';
 import { Amount } from '@/components/amount/amount';
 import { BalanceSkeleton } from '@/components/balance/balance-skeleton';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import style from './balance.module.css';
 
 type TProps = {
-  balance?: IBalance;
+  balance?: TBalance;
   noRotateFiat?: boolean;
 }
 

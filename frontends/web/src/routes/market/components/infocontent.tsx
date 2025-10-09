@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import type { IAccount } from '@/api/account';
+import type { TAccount } from '@/api/account';
 import type { TMarketAction, TVendorName, TPaymentMethod } from '@/api/market';
 import { i18n } from '@/i18n/i18n';
 import { A } from '@/components/anchor/anchor';
@@ -149,7 +149,7 @@ const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
 };
 
 type TBTCDirectOTCInfoProps = {
-  accounts?: IAccount[];
+  accounts?: TAccount[];
 };
 
 const BTCDirectOTCInfo = ({ accounts }: TBTCDirectOTCInfoProps) => {
@@ -279,7 +279,7 @@ export type TPaymentFee = {
 };
 
 export type TInfoContentProps = {
-  accounts?: IAccount[];
+  accounts?: TAccount[];
   action: TMarketAction;
   paymentFees: TPaymentFee;
   vendorName: TVendorNameOrRegion;

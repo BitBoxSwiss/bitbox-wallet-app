@@ -17,7 +17,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import type { AccountCode, CoinUnit, IAccount, IBalance } from '@/api/account';
+import type { AccountCode, CoinUnit, TAccount, TBalance } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Button } from '@/components/forms';
 import { Balances } from '@/routes/account/summary/accountssummary';
@@ -29,16 +29,16 @@ import { SubTitle } from '@/components/title';
 import styles from './buy-receive-cta.module.css';
 
 type TBuyReceiveCTAProps = {
-  balanceList?: IBalance[];
+  balanceList?: TBalance[];
   code?: AccountCode;
   unit?: CoinUnit;
   exchangeSupported?: boolean;
-  account?: IAccount;
+  account?: TAccount;
 };
 
 type TAddBuyReceiveOnEmpyBalancesProps = {
   balances?: Balances;
-  accounts: IAccount[];
+  accounts: TAccount[];
 }
 
 export const BuyReceiveCTA = ({
@@ -108,7 +108,7 @@ export const BuyReceiveCTA = ({
 
 export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyReceiveOnEmpyBalancesProps) => {
   const mounted = useMountedRef();
-  const [supportedAccounts, setSupportedAccounts] = useState<IAccount[]>();
+  const [supportedAccounts, setSupportedAccounts] = useState<TAccount[]>();
   const onlyHasOneActiveAccount = accounts.length === 1;
 
   useEffect(() => {

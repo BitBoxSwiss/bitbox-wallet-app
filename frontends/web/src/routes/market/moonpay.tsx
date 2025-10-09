@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
-import { AccountCode, IAccount } from '@/api/account';
+import { AccountCode, TAccount } from '@/api/account';
 import { getConfig } from '@/utils/config';
 import { getMoonpayBuyInfo } from '@/api/market';
 import { MarketGuide } from './guide';
@@ -31,7 +31,7 @@ import { MoonpayTerms } from '@/components/terms/moonpay-terms';
 import style from './iframe.module.css';
 
 type TProps = {
-    accounts: IAccount[];
+    accounts: TAccount[];
     code: AccountCode;
 }
 

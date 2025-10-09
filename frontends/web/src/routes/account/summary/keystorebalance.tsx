@@ -41,7 +41,7 @@ const TotalBalance = ({ total, fiatUnit }: accountApi.TKeystoreBalance) => {
 };
 
 type TProps = {
-  accounts: accountApi.IAccount[];
+  accounts: accountApi.TAccount[];
   accountsByKeystore: TAccountsByKeystore[];
   keystore: TKeystore;
   keystoreBalance?: accountApi.TKeystoreBalance;
@@ -98,7 +98,7 @@ export const KeystoreBalance = ({
                 if (balanceRows && balanceRows?.length > 1) {
                   const accountsForCoin = accountsPerCoin[coinCode];
                   if (accountsForCoin && accountsForCoin.length >= 1) {
-                    const account = accountsForCoin[0] as accountApi.IAccount;
+                    const account = accountsForCoin[0] as accountApi.TAccount;
                     balanceRows.push(
                       <SubTotalRow
                         key={account.coinCode}

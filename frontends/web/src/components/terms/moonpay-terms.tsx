@@ -20,12 +20,12 @@ import { useTranslation } from 'react-i18next';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { Button, Checkbox } from '@/components/forms';
 import { setConfig } from '@/utils/config';
-import { IAccount } from '@/api/account';
+import { TAccount } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
 import style from './terms.module.css';
 
 type TProps = {
-  account: IAccount;
+  account: TAccount;
   onAgreedTerms: () => void;
 }
 

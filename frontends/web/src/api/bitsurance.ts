@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import type { AccountCode } from './account';
 import { apiGet, apiPost } from '@/utils/request';
-import { AccountCode } from './account';
 
 export type TDetailStatus = 'active' | 'processing' | 'refused' | 'waitpayment' | 'inactive' | 'canceled';
 
@@ -30,11 +30,12 @@ export type TAccountDetails = {
   };
 };
 
-export type TInsuredAccounts = {
+type TInsuredAccounts = {
   success: boolean;
   errorMessage: string;
   bitsuranceAccounts: TAccountDetails[];
 };
+
 export const getBitsuranceURL = (): Promise<string> => {
   return apiGet('bitsurance/url');
 };
