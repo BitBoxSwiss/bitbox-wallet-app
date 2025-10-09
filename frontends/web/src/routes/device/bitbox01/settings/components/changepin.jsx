@@ -101,13 +101,12 @@ class ChangePIN extends Component {
               onClose={this.abort}>
               <form onSubmit={this.changePin}>
                 <PasswordInput
-                  idPrefix="oldPIN"
+                  id="oldPIN"
                   label={t('changePin.oldLabel')}
                   value={oldPIN}
                   onInput={this.setValidOldPIN} />
                 {t('changePin.newTitle') && <h4>{t('changePin.newTitle')}</h4>}
                 <PasswordRepeatInput
-                  idPrefix="newPIN"
                   pattern="^.{4,}$"
                   label={t('initialize.input.label')}
                   repeatLabel={t('initialize.input.labelRepeat')}

@@ -93,7 +93,7 @@ class Reset extends Component {
                 {t('reset.description')}
               </p>
               <PasswordInput
-                idPrefix="pin"
+                id="pin"
                 label={t('initialize.input.label')}
                 value={pin}
                 onInput={this.setValidPIN} />
