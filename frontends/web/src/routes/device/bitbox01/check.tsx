@@ -18,11 +18,9 @@
 import { useState, FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/forms';
-import { DialogLegacy } from '@/components/dialog/dialog-legacy';
+import { DialogLegacy, DialogButtons } from '@/components/dialog/dialog-legacy';
 import { PasswordSingleInput } from '@/components/password';
 import { apiPost } from '@/utils/request';
-// TODO: use DialogButtons
-import style from '../../../components/dialog/dialog.module.css';
 
 type Props = {
   deviceID: string;
@@ -92,11 +90,11 @@ export const Check = ({ deviceID, selectedBackup }: Props) => {
           {message ? (
             <div>
               <p style={{ minHeight: '3rem' }}>{message}</p>
-              <div className={style.actions}>
+              <DialogButtons>
                 <Button secondary onClick={abort}>
                   {t('button.back')}
                 </Button>
-              </div>
+              </DialogButtons>
             </div>
           ) : (
             <form onSubmit={handleCheck}>
@@ -106,14 +104,14 @@ export const Check = ({ deviceID, selectedBackup }: Props) => {
                 showLabel={t('backup.check.password.showLabel')}
                 onValidPassword={handleValidPassword}
               />
-              <div className={style.actions}>
+              <DialogButtons>
                 <Button type="submit" primary disabled={!validate()}>
                   {t('button.check')}
                 </Button>
                 <Button secondary onClick={abort}>
                   {t('button.back')}
                 </Button>
-              </div>
+              </DialogButtons>
             </form>
           )}
         </DialogLegacy>
