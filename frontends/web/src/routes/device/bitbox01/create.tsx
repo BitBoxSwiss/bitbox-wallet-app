@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,113 +15,109 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
-import { withTranslation } from 'react-i18next';
-import { Button, Input } from '../../../components/forms';
-import { PasswordInput } from '../../../components/password';
-import { alertUser } from '../../../components/alert/Alert';
-import { apiPost } from '../../../utils/request';
-import { DialogLegacy } from '../../../components/dialog/dialog-legacy';
+import { useState, ChangeEvent, FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button, Input } from '@/components/forms';
+import { PasswordInput } from '@/components/password';
+import { alertUser } from '@/components/alert/Alert';
+import { apiPost } from '@/utils/request';
 // TODO: use DialogButtons
-import style from '../../../components/dialog/dialog.module.css';
+import { DialogLegacy } from '@/components/dialog/dialog-legacy';
+import style from '@/components/dialog/dialog.module.css';
 
-class Create extends Component {
-  state = {
-    waiting: false,
-    backupName: '',
-    recoveryPassword: '',
-    activeDialog: false,
+type Props = {
+  deviceID: string;
+  onCreate: () => void;
+}
+
+export const Create = ({ deviceID, onCreate }: Props) => {
+  const { t } = useTranslation();
+
+  const [waiting, setWaiting] = useState(false);
+  const [backupName, setBackupName] = useState('');
+  const [recoveryPassword, setRecoveryPassword] = useState('');
+  const [activeDialog, setActiveDialog] = useState(false);
+
+  const abort = () => {
+    setWaiting(false);
+    setBackupName('');
+    setRecoveryPassword('');
+    setActiveDialog(false);
   };
 
-  abort = () => {
-    this.setState({
-      waiting: false,
-      backupName: '',
-      recoveryPassword: '',
-      activeDialog: false,
-    });
+  const handleFormChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = event.target;
+    if (id === 'backupName') setBackupName(value);
+    if (id === 'recoveryPassword') setRecoveryPassword(value);
   };
 
-  handleFormChange = event => {
-    this.setState({ [event.target.id]: event.target.value });
+  const validate = () => {
+    return !waiting && backupName.trim() !== '';
   };
 
-  validate = () => {
-    return !this.state.waiting && this.state.backupName !== '';
-  };
-
-  create = event => {
+  const create = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!this.validate()) {
-      return;
-    }
-    this.setState({ waiting: true });
-    apiPost('devices/' + this.props.deviceID + '/backups/create', {
-      backupName: this.state.backupName,
-      recoveryPassword: this.state.recoveryPassword,
-    }).then(data => {
-      this.abort();
+    if (!validate()) return;
+
+    setWaiting(true);
+    try {
+      const data = await apiPost(`devices/${deviceID}/backups/create`, {
+        backupName,
+        recoveryPassword,
+      });
+
+      abort();
+
       if (!data.success) {
         alertUser(data.errorMessage);
       } else {
-        this.props.onCreate();
+        onCreate();
         if (!data.verification) {
-          alertUser(this.props.t('backup.create.verificationFailed'));
+          alertUser(t('backup.create.verificationFailed'));
         }
       }
-    });
+    } catch (error) {
+      abort();
+      alertUser(String(error));
+    }
   };
 
-  render() {
-    const { t } = this.props;
-    const {
-      waiting,
-      recoveryPassword,
-      backupName,
-      activeDialog,
-    } = this.state;
-    return (
-      <div>
-        <Button
-          primary
-          onClick={() => this.setState({ activeDialog: true })}>
-          {t('button.create')}
-        </Button>
-        {
-          activeDialog && (
-            <DialogLegacy
-              title={t('backup.create.title')}
-              onClose={this.abort}>
-              <form onSubmit={this.create}>
-                <Input
-                  autoFocus
-                  id="backupName"
-                  label={t('backup.create.name.label')}
-                  placeholder={t('backup.create.name.placeholder')}
-                  onInput={this.handleFormChange}
-                  value={backupName} />
-                <p>{t('backup.create.info')}</p>
-                <PasswordInput
-                  id="recoveryPassword"
-                  label={t('backup.create.password.label')}
-                  placeholder={t('backup.create.password.placeholder')}
-                  onInput={this.handleFormChange}
-                  value={recoveryPassword} />
-                <div className={style.actions}>
-                  <Button type="submit" primary disabled={waiting || !this.validate()}>
-                    {t('button.create')}
-                  </Button>
-                  <Button secondary onClick={this.abort}>
-                    {t('button.abort')}
-                  </Button>
-                </div>
-              </form>
-            </DialogLegacy>
-          )
-        }
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <Button primary onClick={() => setActiveDialog(true)}>
+        {t('button.create')}
+      </Button>
 
-export default withTranslation()(Create);
+      {activeDialog && (
+        <DialogLegacy title={t('backup.create.title')} onClose={abort}>
+          <form onSubmit={create}>
+            <Input
+              autoFocus
+              id="backupName"
+              label={t('backup.create.name.label')}
+              placeholder={t('backup.create.name.placeholder')}
+              onInput={handleFormChange}
+              value={backupName}
+            />
+            <p>{t('backup.create.info')}</p>
+            <PasswordInput
+              id="recoveryPassword"
+              label={t('backup.create.password.label')}
+              placeholder={t('backup.create.password.placeholder')}
+              onInput={handleFormChange}
+              value={recoveryPassword}
+            />
+            <div className={style.actions}>
+              <Button type="submit" primary disabled={waiting || !validate()}>
+                {t('button.create')}
+              </Button>
+              <Button secondary onClick={abort}>
+                {t('button.abort')}
+              </Button>
+            </div>
+          </form>
+        </DialogLegacy>
+      )}
+    </div>
+  );
+};
