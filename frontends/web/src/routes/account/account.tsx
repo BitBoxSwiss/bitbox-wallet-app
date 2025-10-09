@@ -54,7 +54,7 @@ import { OfflineError } from '@/components/banners/offline-error';
 import style from './account.module.css';
 
 type Props = {
-  accounts: accountApi.IAccount[];
+  accounts: accountApi.TAccount[];
   code: accountApi.AccountCode;
   devices: TDevices;
 };

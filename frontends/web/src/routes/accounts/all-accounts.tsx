@@ -33,11 +33,11 @@ import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
 import styles from './all-accounts.module.css';
 
 type AllAccountsProps = {
-  accounts?: accountApi.IAccount[];
+  accounts?: accountApi.TAccount[];
 };
 
 type TAccountItemProp = {
-  account: accountApi.IAccount;
+  account: accountApi.TAccount;
 };
 
 const AccountItem = ({ account }: TAccountItemProp) => {

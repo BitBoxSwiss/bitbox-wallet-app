@@ -34,7 +34,7 @@ import { connectKeystore } from '@/api/keystores';
 import style from './receive.module.css';
 
 type TProps = {
-  accounts: accountApi.IAccount[];
+  accounts: accountApi.TAccount[];
   code: accountApi.AccountCode;
 };
 

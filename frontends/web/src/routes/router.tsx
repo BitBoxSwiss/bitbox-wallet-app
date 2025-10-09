@@ -16,7 +16,7 @@
 
 import React, { ReactChild } from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
-import { IAccount } from '@/api/account';
+import { TAccount } from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { AddAccount } from './account/add/add';
 import { Moonpay } from './market/moonpay';
@@ -56,8 +56,8 @@ import { More } from '@/routes/settings/more';
 type TAppRouterProps = {
     devices: TDevices;
     deviceIDs: string[];
-    accounts: IAccount[];
-    activeAccounts: IAccount[];
+    accounts: TAccount[];
+    activeAccounts: TAccount[];
     devicesKey: ((input: string) => string)
 }
 

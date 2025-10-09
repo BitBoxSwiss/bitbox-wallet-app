@@ -15,15 +15,15 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { CoinCode, CoinUnit, IAccount } from '@/api/account';
+import { CoinCode, CoinUnit, TAccount } from '@/api/account';
 import { getAccountsByKeystore } from './utils';
 
 
 const createAccount = ({
   keystore,
   ...props
-}: Partial<Omit<IAccount, 'keystore'>> & {
-  keystore: Partial<IAccount['keystore']> | undefined
+}: Partial<Omit<TAccount, 'keystore'>> & {
+  keystore: Partial<TAccount['keystore']> | undefined
 }) => {
   return {
     active: true,
@@ -56,13 +56,13 @@ describe('utils/getAccountsByKeystore', () => {
   });
 
   it('should return a new empty array', () => {
-    const accounts: IAccount[] = [];
+    const accounts: TAccount[] = [];
     const result = getAccountsByKeystore(accounts);
     expect(accounts).not.toBe(result);
   });
 
   it('should return one keystore entry with 2 accounts', () => {
-    const accounts: IAccount[] = [
+    const accounts: TAccount[] = [
       {
         active: true,
         blockExplorerTxPrefix: 'https://mempool.space/testnet/tx/',
@@ -111,7 +111,7 @@ describe('utils/getAccountsByKeystore', () => {
 
   it('should return two keystores with their respective accounts', () => {
 
-    const accounts: IAccount[] = [
+    const accounts: TAccount[] = [
       createAccount({ code: 'a1', name: 'A1', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
       createAccount({ code: 'a2', name: 'A2', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
       createAccount({ code: 'b1', name: 'B1', keystore: { name: 'W2', rootFingerprint: 'w2' } }),
