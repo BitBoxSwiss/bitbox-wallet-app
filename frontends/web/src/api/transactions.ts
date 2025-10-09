@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { TUnsubscribe } from '@/utils/transport-common';
+import type { TUnsubscribe } from '@/utils/transport-common';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export type TNewTxs = {

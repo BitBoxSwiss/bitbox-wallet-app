@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { AccountCode } from './account';
+import type { AccountCode } from './account';
 import { apiGet, apiPost } from '@/utils/request';
 
 export const getMarketRegionCodes = (): Promise<string[]> => {

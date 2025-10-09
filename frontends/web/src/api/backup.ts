@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import type { FailResponse } from './response';
 import { apiGet } from '@/utils/request';
-import { FailResponse } from './response';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export type Backup = {

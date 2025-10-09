@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { TUnsubscribe } from '@/utils/transport-common';
-import * as accountAPI from './account';
+import type { TUnsubscribe } from '@/utils/transport-common';
+import type { AccountCode, TAccount, TStatus } from './account';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 /**
@@ -24,7 +24,7 @@ import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
  * Returns a method to unsubscribe.
  */
 export const syncAccountsList = (
-  cb: (accounts: accountAPI.TAccount[]) => void
+  cb: (accounts: TAccount[]) => void
 ): TUnsubscribe => {
   return subscribeEndpoint('accounts', cb);
 };
@@ -34,7 +34,7 @@ export const syncAccountsList = (
  * event to receive the progress of the address sync.
  * Meant to be used with `useSubscribe`.
  */
-export const syncAddressesCount = (code: accountAPI.AccountCode) => {
+export const syncAddressesCount = (code: AccountCode) => {
   return (
     cb: TSubscriptionCallback<number>
   ) => {
@@ -48,8 +48,8 @@ export const syncAddressesCount = (code: accountAPI.AccountCode) => {
  * Returns a method to unsubscribe.
  */
 export const statusChanged = (
-  code: accountAPI.AccountCode,
-  cb: TSubscriptionCallback<accountAPI.TStatus>,
+  code: AccountCode,
+  cb: TSubscriptionCallback<TStatus>,
 ): TUnsubscribe => {
   return subscribeEndpoint(`account/${code}/status`, cb);
 };
@@ -59,7 +59,7 @@ export const statusChanged = (
  * Returns a method to unsubscribe.
  */
 export const syncdone = (
-  code: accountAPI.AccountCode,
+  code: AccountCode,
   cb: () => void,
 ): TUnsubscribe => {
   return subscribeEndpoint(`account/${code}/sync-done`, cb);

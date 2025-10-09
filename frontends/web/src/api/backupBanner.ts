@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { apiGet } from '@/utils/request';
 import type { Fiat } from './account';
+import { apiGet } from '@/utils/request';
 
 export type TShowBackupBannerResponse = {
   success: false;

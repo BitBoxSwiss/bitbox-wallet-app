@@ -183,7 +183,7 @@ export type FormattedLineData = LineData & {
 
 export type ChartData = FormattedLineData[];
 
-export type TChartDataResponse = {
+type TChartDataResponse = {
   success: true;
   data: TChartData;
 } | {
@@ -205,7 +205,7 @@ export const getChartData = (): Promise<TChartDataResponse> => {
   return apiGet('chart-data');
 };
 
-export type Conversions = {
+type Conversions = {
   [key in Fiat]?: string;
 };
 
@@ -223,7 +223,7 @@ export type TBalance = {
   incoming: TAmountWithConversions;
 };
 
-export type TBalanceResponse = {
+type TBalanceResponse = {
   success: true;
   balance: TBalance;
 } | {
@@ -472,7 +472,7 @@ export const ethSignWalletConnectTx = (code: AccountCode, send: boolean, chainId
   return apiPost(`account/${code}/eth-sign-wallet-connect-tx`, { send, chainId, tx });
 };
 
-export type AddressSignResponse = {
+type AddressSignResponse = {
   success: true;
   signature: string;
   address: string;
