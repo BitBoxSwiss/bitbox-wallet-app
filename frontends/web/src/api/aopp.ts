@@ -17,6 +17,7 @@
 import { AccountCode } from './account';
 import { apiGet, apiPost } from '@/utils/request';
 import type { TUnsubscribe } from '@/utils/transport-common';
+import type { NonEmptyArray } from '@/utils/types';
 import { subscribeEndpoint } from './subscribe';
 
 type TAccount = {
@@ -24,9 +25,7 @@ type TAccount = {
   code: AccountCode;
 }
 
-interface Accounts extends Array<TAccount> {
-  0: TAccount,
-}
+type Accounts = NonEmptyArray<TAccount>;
 
 export type Aopp = {
   state: 'error';
