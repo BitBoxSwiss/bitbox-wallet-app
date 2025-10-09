@@ -18,8 +18,8 @@ import { TUnsubscribe } from '@/utils/transport-common';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export type TNewTxs = {
-  count: number,
-  accountName: string,
+  count: number;
+  accountName: string;
 };
 
 export const syncNewTxs = (cb: TSubscriptionCallback<TNewTxs>): TUnsubscribe => {

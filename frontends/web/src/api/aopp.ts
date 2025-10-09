@@ -20,37 +20,37 @@ import type { TUnsubscribe } from '@/utils/transport-common';
 import { subscribeEndpoint } from './subscribe';
 
 export interface Account {
-    name: string;
-    code: AccountCode;
+  name: string;
+  code: AccountCode;
 }
 
 interface Accounts extends Array<Account> {
-    0: Account,
+  0: Account,
 }
 
 export type Aopp = {
-    state: 'error';
-    errorCode: 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
-    callback: string;
+  state: 'error';
+  errorCode: 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
+  callback: string;
 } | {
-    state: 'inactive';
+  state: 'inactive';
 } | {
-    state: 'user-approval' | 'awaiting-keystore' | 'syncing';
-    message: string;
-    callback: string;
-    xpubRequired: boolean;
+  state: 'user-approval' | 'awaiting-keystore' | 'syncing';
+  message: string;
+  callback: string;
+  xpubRequired: boolean;
 } | {
-    state: 'choosing-account';
-    accounts: Accounts;
-    message: string;
-    callback: string;
+  state: 'choosing-account';
+  accounts: Accounts;
+  message: string;
+  callback: string;
 } | {
-    state: 'signing' | 'success';
-    address: string;
-    addressID: string;
-    message: string;
-    callback: string;
-    accountCode: AccountCode;
+  state: 'signing' | 'success';
+  address: string;
+  addressID: string;
+  message: string;
+  callback: string;
+  accountCode: AccountCode;
 };
 
 export const cancel = (): Promise<null> => {

@@ -20,16 +20,16 @@ import { apiGet, apiPost } from '@/utils/request';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export interface ICoin {
-    coinCode: CoinCode;
-    name: string;
-    canAddAccount: boolean;
-    suggestedAccountName: string;
+  coinCode: CoinCode;
+  name: string;
+  canAddAccount: boolean;
+  suggestedAccountName: string;
 }
 
 export interface ISuccess {
-    success: boolean;
-    errorMessage?: string;
-    errorCode?: string;
+  success: boolean;
+  errorMessage?: string;
+  errorCode?: string;
 }
 
 export const getSupportedCoins = (): Promise<ICoin[]> => {
@@ -124,10 +124,10 @@ export const forceAuth = (): Promise<void> => {
 };
 
 export type TAuthEventObject = {
-  typ: 'auth-required' | 'auth-forced' ;
+  typ: 'auth-required' | 'auth-forced';
 } | {
   typ: 'auth-result';
-  result: 'authres-cancel' | 'authres-ok' | 'authres-err' | 'authres-missing'
+  result: 'authres-cancel' | 'authres-ok' | 'authres-err' | 'authres-missing';
 };
 
 export const subscribeAuth = (
