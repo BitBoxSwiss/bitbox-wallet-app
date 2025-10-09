@@ -52,7 +52,7 @@ type TProps = {
 
 const useAccountBalance = (accountCode: accountApi.AccountCode) => {
   const mounted = useMountedRef();
-  const [balance, setBalance] = useState<accountApi.IBalance>();
+  const [balance, setBalance] = useState<accountApi.TBalance>();
 
   const updateBalance = useCallback(async (code: accountApi.AccountCode) => {
     if (mounted.current) {

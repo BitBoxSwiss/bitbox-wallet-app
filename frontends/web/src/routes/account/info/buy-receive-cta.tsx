@@ -17,7 +17,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import type { AccountCode, CoinUnit, TAccount, IBalance } from '@/api/account';
+import type { AccountCode, CoinUnit, TAccount, TBalance } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Button } from '@/components/forms';
 import { Balances } from '@/routes/account/summary/accountssummary';
@@ -29,7 +29,7 @@ import { SubTitle } from '@/components/title';
 import styles from './buy-receive-cta.module.css';
 
 type TBuyReceiveCTAProps = {
-  balanceList?: IBalance[];
+  balanceList?: TBalance[];
   code?: AccountCode;
   unit?: CoinUnit;
   exchangeSupported?: boolean;

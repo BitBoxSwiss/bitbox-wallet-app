@@ -48,7 +48,7 @@ export type Terc20Token = {
   unit: ERC20TokenUnit;
 };
 
-export interface IActiveToken {
+export type TActiveToken = {
   tokenCode: ERC20CoinCode;
   accountCode: AccountCode;
 }
@@ -71,7 +71,7 @@ export type TAccount = {
   code: AccountCode;
   name: string;
   isToken: boolean;
-  activeTokens?: IActiveToken[];
+  activeTokens?: TActiveToken[];
   blockExplorerTxPrefix: string;
   bitsuranceStatus?: TDetailStatus;
 }
@@ -125,14 +125,14 @@ export const getEthAccountCodeAndNameByAddress = (address: string): Promise<TEth
   return apiPost('accounts/eth-account-code', { address });
 };
 
-export interface IStatus {
+export type TStatus = {
   disabled: boolean;
   synced: boolean;
   fatalError: boolean;
   offlineError: string | null;
 }
 
-export const getStatus = (code: AccountCode): Promise<IStatus> => {
+export const getStatus = (code: AccountCode): Promise<TStatus> => {
   return apiGet(`account/${code}/status`);
 };
 
@@ -140,19 +140,19 @@ export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh' | 'p2tr';
 
 export const allScriptTypes: ScriptType[] = ['p2pkh', 'p2wpkh-p2sh', 'p2wpkh', 'p2tr'];
 
-export interface IKeyInfo {
+type TKeyInfo = {
   keypath: string;
   rootFingerprint: string;
   xpub: string;
 }
 
 export type TBitcoinSimple = {
-  keyInfo: IKeyInfo;
+  keyInfo: TKeyInfo;
   scriptType: ScriptType;
 }
 
 export type TEthereumSimple = {
-  keyInfo: IKeyInfo;
+  keyInfo: TKeyInfo;
 }
 
 export type TSigningConfiguration = {
@@ -216,16 +216,16 @@ export type TAmountWithConversions = {
   estimated: boolean;
 };
 
-export interface IBalance {
+export type TBalance = {
   hasAvailable: boolean;
   available: TAmountWithConversions;
   hasIncoming: boolean;
   incoming: TAmountWithConversions;
-}
+};
 
 export type TBalanceResponse = {
   success: true;
-  balance: IBalance;
+  balance: TBalance;
 } | {
   success: false;
 }
@@ -237,7 +237,7 @@ export const getBalance = (code: AccountCode): Promise<TBalanceResponse> => {
 export type TTransactionStatus = 'complete' | 'pending' | 'failed';
 export type TTransactionType = 'send' | 'receive' | 'send_to_self';
 
-export interface ITransaction {
+export type TTransaction = {
   addresses: string[];
   amount: TAmountWithConversions;
   amountAtTime: TAmountWithConversions;
@@ -259,9 +259,9 @@ export interface ITransaction {
   weight: number;
 }
 
-export type TTransactions = { success: false } | { success: true; list: ITransaction[]; };
+export type TTransactions = { success: false } | { success: true; list: TTransaction[]; };
 
-export interface INoteTx {
+type TNoteTx = {
   internalTxID: string;
   note: string;
 }
@@ -269,7 +269,7 @@ export interface INoteTx {
 export const postNotesTx = (code: AccountCode, {
   internalTxID,
   note,
-}: INoteTx): Promise<null> => {
+}: TNoteTx): Promise<null> => {
   return apiPost(`account/${code}/notes/tx`, { internalTxID, note });
 };
 
@@ -277,17 +277,17 @@ export const getTransactionList = (code: AccountCode): Promise<TTransactions> =>
   return apiGet(`account/${code}/transactions`);
 };
 
-export const getTransaction = (code: AccountCode, id: ITransaction['internalID']): Promise<ITransaction | null> => {
+export const getTransaction = (code: AccountCode, id: TTransaction['internalID']): Promise<TTransaction | null> => {
   return apiGet(`account/${code}/transaction?id=${id}`);
 };
 
-export interface IExport {
+type TExport = {
   success: boolean;
   path: string;
   errorMessage: string;
 }
 
-export const exportAccount = (code: AccountCode): Promise<IExport | null> => {
+export const exportAccount = (code: AccountCode): Promise<TExport | null> => {
   return apiPost(`account/${code}/export`);
 };
 
@@ -298,18 +298,18 @@ export const verifyXPub = (
   return apiPost(`account/${code}/verify-extended-public-key`, { signingConfigIndex });
 };
 
-export interface IReceiveAddress {
+export type TReceiveAddress = {
   addressID: string;
   address: string;
 }
 
-export interface ReceiveAddressList {
+export type TReceiveAddressList = {
   scriptType: ScriptType | null;
-  addresses: NonEmptyArray<IReceiveAddress>;
+  addresses: NonEmptyArray<TReceiveAddress>;
 }
 
 export const getReceiveAddressList = (code: AccountCode) => {
-  return (): Promise<NonEmptyArray<ReceiveAddressList> | null> => {
+  return (): Promise<NonEmptyArray<TReceiveAddressList> | null> => {
     return apiGet(`account/${code}/receive-addresses`);
   };
 };
@@ -368,7 +368,7 @@ export const sendTx = (
 
 export type FeeTargetCode = 'custom' | 'low' | 'economy' | 'normal' | 'high' | 'mHour' | 'mHalfHour' | 'mFastest';
 
-export interface IProposeTxData {
+export type TProposeTxData = {
   address?: string;
   amount?: number;
   // data?: string;
@@ -378,23 +378,17 @@ export interface IProposeTxData {
   sendAll: 'yes' | 'no';
 }
 
-export interface IProposeTx {
-  aborted?: boolean;
-  success?: boolean;
-  errorMessage?: string;
-}
-
-export interface IFeeTarget {
+export type TFeeTarget = {
   code: FeeTargetCode;
   feeRateInfo: string;
 }
 
-export interface IFeeTargetList {
-  feeTargets: IFeeTarget[];
+export type TFeeTargetList = {
+  feeTargets: TFeeTarget[];
   defaultFeeTarget: FeeTargetCode;
 }
 
-export const getFeeTargetList = (code: AccountCode): Promise<IFeeTargetList> => {
+export const getFeeTargetList = (code: AccountCode): Promise<TFeeTargetList> => {
   return apiGet(`account/${code}/fee-targets`);
 };
 
