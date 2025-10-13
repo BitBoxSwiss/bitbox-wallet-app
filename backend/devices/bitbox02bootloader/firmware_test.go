@@ -45,7 +45,7 @@ func testHash(t *testing.T, info firmwareInfo, expectedProduct bitbox02common.Pr
 func TestBundledFirmware(t *testing.T) {
 	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02Multi] {
 		t.Run("bitbox02-multi/"+fw.version.String(), func(t *testing.T) {
-			filename := fmt.Sprintf("assets/firmware-bitbox02-multi.v%s.signed.bin.gz.sha256", fw.version)
+			filename := fmt.Sprintf("assets/firmware-bitbox02-multi.v%s.signed.bin.sha256", fw.version)
 			if fw.version.String() == "9.17.1" {
 				filename = fmt.Sprintf("assets/firmware.v%s.signed.bin.sha256", fw.version)
 			}
@@ -65,13 +65,13 @@ func TestBundledFirmware(t *testing.T) {
 
 	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02PlusMulti] {
 		t.Run("bitbox02nova-multi/"+fw.version.String(), func(t *testing.T) {
-			testHash(t, fw, bitbox02common.ProductBitBox02PlusMulti, fmt.Sprintf("assets/firmware-bitbox02nova-multi.v%s.signed.bin.gz.sha256", fw.version))
+			testHash(t, fw, bitbox02common.ProductBitBox02PlusMulti, fmt.Sprintf("assets/firmware-bitbox02nova-multi.v%s.signed.bin.sha256", fw.version))
 		})
 	}
 
 	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02PlusBTCOnly] {
 		t.Run("bitbox02nova-btconly/"+fw.version.String(), func(t *testing.T) {
-			testHash(t, fw, bitbox02common.ProductBitBox02PlusBTCOnly, fmt.Sprintf("assets/firmware-bitbox02nova-btconly.v%s.signed.bin.gz.sha256", fw.version))
+			testHash(t, fw, bitbox02common.ProductBitBox02PlusBTCOnly, fmt.Sprintf("assets/firmware-bitbox02nova-btconly.v%s.signed.bin.sha256", fw.version))
 		})
 	}
 }
