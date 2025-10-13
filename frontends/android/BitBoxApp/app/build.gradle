@@ -11,8 +11,8 @@ android {
         // in backend/mobileserver/Makefile
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 64
-        versionName "android-4.48.6"
+        versionCode 65
+        versionName "android-4.48.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
