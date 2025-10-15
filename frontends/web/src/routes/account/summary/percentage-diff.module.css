@@ -13,10 +13,10 @@
 }
 
 .diffValue {
-  font-size: 19px;
+  font-size: 1.9rem;
 }
 
 .diffUnit {
-  font-size: 16px;
+  font-size: 1.6rem;
   padding: 0 4px;
 }

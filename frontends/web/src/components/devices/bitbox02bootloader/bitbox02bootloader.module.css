@@ -8,13 +8,13 @@
 
 .progressInfo {
     display: flex;
-    font-size: 16px;
+    font-size: 1.6rem;
     justify-content: space-between;
     margin: 0 0 var(--space-default);
 }
 
 .additionalUpgrade {
-    font-size: 16px;
+    font-size: 1.6rem;
     margin: 0;
     margin-top: var(--space-eight);
 }
@@ -23,7 +23,7 @@
     .content,
     .additionalUpgrade
     {
-        font-size: 14px;
+        font-size: 1.4rem;
     }
 }
 

@@ -1,5 +1,5 @@
 .text {
-  font-size: 16px;
+  font-size: 1.6rem;
   margin: 0;
 }
 
@@ -21,7 +21,7 @@
 }
 
 .button span {
-  font-size: 20px;
+  font-size: 2rem;
   margin-bottom: 2px;
   margin-right: var(--space-quarter);
 }

@@ -59,7 +59,7 @@
   flex-direction: column;
   flex-grow: 1;
   flex-shrink: 0;
-  font-size: 14px;
+  font-size: 1.4rem;
   line-height: 1.285714;
   padding: 0 var(--space-quarter) 0 48px;
   text-align: right;
@@ -81,7 +81,7 @@
 
 .txAmount {
   align-items: baseline;
-  font-size: 16px;
+  font-size: 1.6rem;
   font-variant: tabular-nums;
   gap: 3px;
   justify-content: flex-end;
@@ -105,7 +105,7 @@
 
 .txUnit {
   color: var(--color-secondary);
-  font-size: 14px;
+  font-size: 1.4rem;
   line-height: 1.285714;
 }
 
@@ -116,7 +116,7 @@
 }
 .txNoteText {
   color: var(--color-default);
-  font-size: 16px;
+  font-size: 1.6rem;
   line-height: 1.25;
 }
 @media (max-width: 560px) {
@@ -130,7 +130,7 @@
   align-items: center;
   color: var(--color-secondary);
   display: flex;
-  font-size: 14px;
+  font-size: 1.4rem;
   line-height: 1.285714;
   padding-bottom: 6px;
 }
@@ -174,13 +174,13 @@
 }
 .addresses {
   color: var(--color-secondary);
-  font-size: 14px;
+  font-size: 1.4rem;
   font-weight: normal;
   line-height: 1.285714;
 }
 .txType {
   color: var(--color-default);
-  font-size: 16px;
+  font-size: 1.6rem;
   line-height: 1.25;
 }
 

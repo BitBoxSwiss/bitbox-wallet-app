@@ -34,13 +34,13 @@
 /* guard dialog and wait-dialog from view styles */
 @media (min-width: 1200px) {
     .header .title {
-        --size-subheader: 16px;
+        --size-subheader: 1.6rem;
     }
     .modal {
         margin-left: var(--sidebar-width-large);
     }
     .modal .contentContainer p {
-        --size-default: 14px;
+        --size-default: 1.4rem;
     }
 }
 

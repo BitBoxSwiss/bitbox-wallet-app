@@ -16,12 +16,12 @@
 .headerContainer p.receiveAddress { 
     color: var(--color-secondary);
     margin-top: var(--space-quarter);
-    font-size: 16px;
+    font-size: 1.6rem;
 }
 
 .noConnectedSessions {
     color: var(--color-secondary);
-    font-size: 16px;
+    font-size: 1.6rem;
     margin: 0;
     margin-top: var(--space-large);
     text-align: center;
@@ -41,7 +41,7 @@
 
 .allSessionsHeading {
     color: var(--color-secondary);
-    font-size: 16px;
+    font-size: 1.6rem;
     margin: 0;
     margin-top: var(--space-half);
 }
@@ -54,7 +54,7 @@
     }
 
     .headerContainer p {
-        font-size: 16px;
+        font-size: 1.6rem;
     }
     
     .headerContainer p.receiveAddress,

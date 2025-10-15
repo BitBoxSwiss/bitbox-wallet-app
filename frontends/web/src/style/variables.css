@@ -48,13 +48,13 @@
     --color-error-border: rgba(227, 6, 19, .33);
 
     /* font sizes */
-    --size-large: 32px;
-    --size-header: 24px;
-    --size-subheader: 18px;
-    --size-default: 14px;
-    --size-small: 12px;
-    --size-xsmall: 11px;
-    --size-title: 32px;
+    --size-large: 3.2rem;
+    --size-header: 2.4rem;
+    --size-subheader: 1.8rem;
+    --size-default: 1.4rem;
+    --size-small: 1.2rem;
+    --size-xsmall: 1.1rem;
+    --size-title: 3.2rem;
 
     /* spacing */
     --spacing-large: 32px;
@@ -192,15 +192,15 @@
 
 @media (max-width: 1199px) {
     :root {
-        --size-title: 18px;
+        --size-title: 1.8rem;
     }
 }
 
 @media (max-width: 768px) {
     :root {
-        --size-header: 20px;
-        --size-subheader: 16px;
-        --size-title: 16px;
-        --size-default: 16px;
+        --size-header: 2rem;
+        --size-subheader: 1.6rem;
+        --size-title: 1.6rem;
+        --size-default: 1.6rem;
     }
 }

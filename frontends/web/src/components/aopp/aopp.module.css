@@ -42,6 +42,6 @@
 }
 @media (min-width: 1200px) {
     .message {
-        --size-default: 18px;
+        --size-default: 1.8rem;
     }
 }

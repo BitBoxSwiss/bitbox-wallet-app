@@ -1,10 +1,10 @@
 .cardBody {
-  font-size: 16px;
+  font-size: 1.6rem;
   margin-bottom: calc(var(--space-half) + var(--space-quarter));
 }
 
 .cardBody2 {
-  font-size: 14px;
+  font-size: 1.4rem;
   margin-bottom: var(--space-default);
 }
 
@@ -49,7 +49,7 @@
 }
 
 .title {
-  font-size: 20px;
+  font-size: 2rem;
   font-weight: 400;
   margin: 0;
   margin-bottom: var(--space-half);
@@ -84,6 +84,6 @@ ul.clean {
   }
 
   .title {
-    font-size: 16px;
+    font-size: 1.6rem;
   }
 }
