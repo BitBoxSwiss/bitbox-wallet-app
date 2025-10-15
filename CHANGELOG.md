@@ -24,6 +24,9 @@
 - Show coinfinty logo when requesting an address
 - Update decimal formatting for stablecoin transactions
 
+## v4.48.8
+- Bundle BitBox02 Nova firmware version v9.23.3
+
 ## v4.48.7
 - ios: fix Pocket user verification button
 - Change block explorer to mempool.space
