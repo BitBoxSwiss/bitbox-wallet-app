@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
 import { i18n } from '@/i18n/i18n';
 import * as marketAPI from '@/api/market';
-import { AccountCode, IAccount } from '@/api/account';
+import { AccountCode, TAccount } from '@/api/account';
 import { Header } from '@/components/layout';
 import { MarketGuide } from './guide';
 import { isBitcoinOnly } from '@/routes/account/utils';
@@ -40,7 +40,7 @@ import { InfoContent, TInfoContentProps } from './components/infocontent';
 import style from './market.module.css';
 
 type TProps = {
-  accounts: IAccount[];
+  accounts: TAccount[];
   code: AccountCode;
 }
 
@@ -53,7 +53,7 @@ export const Market = ({
   const [selectedRegion, setSelectedRegion] = useState('');
   const [regions, setRegions] = useState<TOption[]>([]);
   const [info, setInfo] = useState<TInfoContentProps>();
-  const [supportedAccounts, setSupportedAccounts] = useState<IAccount[]>([]);
+  const [supportedAccounts, setSupportedAccounts] = useState<TAccount[]>([]);
   const [activeTab, setActiveTab] = useState<marketAPI.TMarketAction>('buy');
 
   const regionCodes = useLoad(marketAPI.getMarketRegionCodes);

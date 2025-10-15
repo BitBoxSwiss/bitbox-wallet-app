@@ -46,13 +46,13 @@ import { connectKeystore } from '@/api/keystores';
 import style from './send.module.css';
 
 type TProps = {
-  account: accountApi.IAccount;
+  account: accountApi.TAccount;
   activeCurrency: accountApi.Fiat;
 }
 
 const useAccountBalance = (accountCode: accountApi.AccountCode) => {
   const mounted = useMountedRef();
-  const [balance, setBalance] = useState<accountApi.IBalance>();
+  const [balance, setBalance] = useState<accountApi.TBalance>();
 
   const updateBalance = useCallback(async (code: accountApi.AccountCode) => {
     if (mounted.current) {

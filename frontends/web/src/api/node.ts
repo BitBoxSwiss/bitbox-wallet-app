@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import type { SuccessResponse } from './response';
 import { apiPost } from '@/utils/request';
-import { SuccessResponse } from './response';
 
 type TCertResponse = {
   success: true;

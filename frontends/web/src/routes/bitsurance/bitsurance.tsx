@@ -17,7 +17,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { IAccount } from '@/api/account';
+import { TAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
 import { A } from '@/components/anchor/anchor';
@@ -31,14 +31,14 @@ import { i18n } from '@/i18n/i18n';
 import style from './bitsurance.module.css';
 
 type TProps = {
-    accounts: IAccount[];
+    accounts: TAccount[];
 }
 
 export const Bitsurance = ({ accounts }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
-  const [insuredAccounts, setInsuredAccounts] = useState<IAccount[]>([]);
+  const [insuredAccounts, setInsuredAccounts] = useState<TAccount[]>([]);
   const [redirecting, setRedirecting] = useState(true);
   const [scanDone, setScanDone] = useState(false);
   const [scanLoading, setScanLoading] = useState(false);

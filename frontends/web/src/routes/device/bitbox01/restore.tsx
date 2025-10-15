@@ -27,21 +27,21 @@ import { Spinner } from '../../../components/spinner/Spinner';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 import style from '../components/backups.module.css';
 
-interface RestoreProps {
-    selectedBackup?: string;
-    requireConfirmation: boolean;
-    deviceID: string;
-    onRestore: () => void;
+type RestoreProps = {
+  selectedBackup?: string;
+  requireConfirmation: boolean;
+  deviceID: string;
+  onRestore: () => void;
 }
 
 type Props = RestoreProps & TranslateProps;
 
-interface State {
-    isConfirming: boolean;
-    activeDialog: boolean;
-    isLoading: boolean;
-    understand: boolean;
-    password?: string | null;
+type State = {
+  isConfirming: boolean;
+  activeDialog: boolean;
+  isLoading: boolean;
+  understand: boolean;
+  password?: string | null;
 }
 
 class Restore extends Component<Props, State> {

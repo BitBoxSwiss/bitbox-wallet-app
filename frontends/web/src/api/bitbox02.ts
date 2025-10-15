@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { TUnsubscribe } from '@/utils/transport-common';
+import type { TUnsubscribe } from '@/utils/transport-common';
+import type { SuccessResponse, FailResponse } from './response';
 import { apiGet, apiPost } from '@/utils/request';
-import { SuccessResponse, FailResponse } from './response';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 // BitBox02 error codes.

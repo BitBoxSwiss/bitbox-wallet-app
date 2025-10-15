@@ -33,19 +33,19 @@ const stateEnum = Object.freeze({
   ERROR: 'error',
 });
 
-interface InitializeProps {
-    goBack: () => void;
-    deviceID: string;
+type InitializeProps = {
+  goBack: () => void;
+  deviceID: string;
 }
 
 type Props = InitializeProps & TranslateProps;
 
-interface State {
-    showInfo: boolean;
-    password: string | null;
-    status: string;
-    errorCode: string | null;
-    errorMessage: string;
+type State = {
+  showInfo: boolean;
+  password: string | null;
+  status: string;
+  errorCode: string | null;
+  errorMessage: string;
 }
 
 class Initialize extends Component<Props, State> {

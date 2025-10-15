@@ -38,8 +38,8 @@ export type ERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 
 export type CoinCode = NativeCoinCode | ERC20CoinCode;
 
 export type FiatWithDisplayName = {
-  currency: Fiat,
-  displayName: string
+  currency: Fiat;
+  displayName: string;
 }
 
 export type Terc20Token = {
@@ -48,7 +48,7 @@ export type Terc20Token = {
   unit: ERC20TokenUnit;
 };
 
-export interface IActiveToken {
+export type TActiveToken = {
   tokenCode: ERC20CoinCode;
   accountCode: AccountCode;
 }
@@ -61,7 +61,7 @@ export type TKeystore = {
   connected: boolean;
 };
 
-export interface IAccount {
+export type TAccount = {
   keystore: TKeystore;
   active: boolean;
   watch: boolean;
@@ -71,12 +71,12 @@ export interface IAccount {
   code: AccountCode;
   name: string;
   isToken: boolean;
-  activeTokens?: IActiveToken[];
+  activeTokens?: TActiveToken[];
   blockExplorerTxPrefix: string;
   bitsuranceStatus?: TDetailStatus;
 }
 
-export const getAccounts = (): Promise<IAccount[]> => {
+export const getAccounts = (): Promise<TAccount[]> => {
   return apiGet('accounts');
 };
 
@@ -91,9 +91,9 @@ export type TAmountsByCoin = {
 };
 
 export type TKeystoreBalance = {
-    fiatUnit: ConversionUnit;
-    total: string;
-    coinsBalance?: TAmountsByCoin;
+  fiatUnit: ConversionUnit;
+  total: string;
+  coinsBalance?: TAmountsByCoin;
 };
 
 export type TKeystoresBalance = {
@@ -125,14 +125,14 @@ export const getEthAccountCodeAndNameByAddress = (address: string): Promise<TEth
   return apiPost('accounts/eth-account-code', { address });
 };
 
-export interface IStatus {
-    disabled: boolean;
-    synced: boolean;
-    fatalError: boolean;
-    offlineError: string | null;
+export type TStatus = {
+  disabled: boolean;
+  synced: boolean;
+  fatalError: boolean;
+  offlineError: string | null;
 }
 
-export const getStatus = (code: AccountCode): Promise<IStatus> => {
+export const getStatus = (code: AccountCode): Promise<TStatus> => {
   return apiGet(`account/${code}/status`);
 };
 
@@ -140,31 +140,31 @@ export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh' | 'p2tr';
 
 export const allScriptTypes: ScriptType[] = ['p2pkh', 'p2wpkh-p2sh', 'p2wpkh', 'p2tr'];
 
-export interface IKeyInfo {
-    keypath: string;
-    rootFingerprint: string;
-    xpub: string;
+type TKeyInfo = {
+  keypath: string;
+  rootFingerprint: string;
+  xpub: string;
 }
 
 export type TBitcoinSimple = {
-    keyInfo: IKeyInfo;
-    scriptType: ScriptType;
+  keyInfo: TKeyInfo;
+  scriptType: ScriptType;
 }
 
 export type TEthereumSimple = {
-    keyInfo: IKeyInfo;
+  keyInfo: TKeyInfo;
 }
 
 export type TSigningConfiguration = {
-    bitcoinSimple: TBitcoinSimple;
-    ethereumSimple?: never;
+  bitcoinSimple: TBitcoinSimple;
+  ethereumSimple?: never;
 } | {
-    bitcoinSimple?: never;
-    ethereumSimple: TEthereumSimple;
+  bitcoinSimple?: never;
+  ethereumSimple: TEthereumSimple;
 }
 
 export type TSigningConfigurationList = null | {
-    signingConfigurations: TSigningConfiguration[];
+  signingConfigurations: TSigningConfiguration[];
 }
 
 export const getInfo = (code: AccountCode) => {
@@ -183,49 +183,49 @@ export type FormattedLineData = LineData & {
 
 export type ChartData = FormattedLineData[];
 
-export type TChartDataResponse = {
-    success: true;
-    data: TChartData;
+type TChartDataResponse = {
+  success: true;
+  data: TChartData;
 } | {
   success: false;
 }
 
 export type TChartData = {
-    chartDataMissing: boolean;
-    chartDataDaily: ChartData;
-    chartDataHourly: ChartData;
-    chartFiat: ConversionUnit;
-    chartTotal: number | null;
-    formattedChartTotal: string | null;
-    chartIsUpToDate: boolean; // only valid if chartDataMissing is false
-    lastTimestamp: number;
+  chartDataMissing: boolean;
+  chartDataDaily: ChartData;
+  chartDataHourly: ChartData;
+  chartFiat: ConversionUnit;
+  chartTotal: number | null;
+  formattedChartTotal: string | null;
+  chartIsUpToDate: boolean; // only valid if chartDataMissing is false
+  lastTimestamp: number;
 }
 
 export const getChartData = (): Promise<TChartDataResponse> => {
   return apiGet('chart-data');
 };
 
-export type Conversions = {
-    [key in Fiat]?: string;
+type Conversions = {
+  [key in Fiat]?: string;
 };
 
 export type TAmountWithConversions = {
-    amount: string;
-    conversions?: Conversions;
-    unit: CoinUnit;
-    estimated: boolean;
+  amount: string;
+  conversions?: Conversions;
+  unit: CoinUnit;
+  estimated: boolean;
 };
 
-export interface IBalance {
-    hasAvailable: boolean;
-    available: TAmountWithConversions;
-    hasIncoming: boolean;
-    incoming: TAmountWithConversions;
-}
+export type TBalance = {
+  hasAvailable: boolean;
+  available: TAmountWithConversions;
+  hasIncoming: boolean;
+  incoming: TAmountWithConversions;
+};
 
-export type TBalanceResponse = {
+type TBalanceResponse = {
   success: true;
-  balance: IBalance;
+  balance: TBalance;
 } | {
   success: false;
 }
@@ -237,39 +237,39 @@ export const getBalance = (code: AccountCode): Promise<TBalanceResponse> => {
 export type TTransactionStatus = 'complete' | 'pending' | 'failed';
 export type TTransactionType = 'send' | 'receive' | 'send_to_self';
 
-export interface ITransaction {
-    addresses: string[];
-    amount: TAmountWithConversions;
-    amountAtTime: TAmountWithConversions;
-    fee: TAmountWithConversions;
-    feeRatePerKb: TAmountWithConversions;
-    deductedAmountAtTime: TAmountWithConversions;
-    gas: number;
-    nonce: number | null;
-    internalID: string;
-    note: string;
-    numConfirmations: number;
-    numConfirmationsComplete: number;
-    size: number;
-    status: TTransactionStatus;
-    time: string | null;
-    type: TTransactionType;
-    txID: string;
-    vsize: number;
-    weight: number;
+export type TTransaction = {
+  addresses: string[];
+  amount: TAmountWithConversions;
+  amountAtTime: TAmountWithConversions;
+  fee: TAmountWithConversions;
+  feeRatePerKb: TAmountWithConversions;
+  deductedAmountAtTime: TAmountWithConversions;
+  gas: number;
+  nonce: number | null;
+  internalID: string;
+  note: string;
+  numConfirmations: number;
+  numConfirmationsComplete: number;
+  size: number;
+  status: TTransactionStatus;
+  time: string | null;
+  type: TTransactionType;
+  txID: string;
+  vsize: number;
+  weight: number;
 }
 
-export type TTransactions = { success: false } | { success: true; list: ITransaction[]; };
+export type TTransactions = { success: false } | { success: true; list: TTransaction[]; };
 
-export interface INoteTx {
-    internalTxID: string;
-    note: string;
+type TNoteTx = {
+  internalTxID: string;
+  note: string;
 }
 
 export const postNotesTx = (code: AccountCode, {
   internalTxID,
   note,
-}: INoteTx): Promise<null> => {
+}: TNoteTx): Promise<null> => {
   return apiPost(`account/${code}/notes/tx`, { internalTxID, note });
 };
 
@@ -277,17 +277,17 @@ export const getTransactionList = (code: AccountCode): Promise<TTransactions> =>
   return apiGet(`account/${code}/transactions`);
 };
 
-export const getTransaction = (code: AccountCode, id: ITransaction['internalID']): Promise<ITransaction | null> => {
+export const getTransaction = (code: AccountCode, id: TTransaction['internalID']): Promise<TTransaction | null> => {
   return apiGet(`account/${code}/transaction?id=${id}`);
 };
 
-export interface IExport {
-    success: boolean;
-    path: string;
-    errorMessage: string;
+type TExport = {
+  success: boolean;
+  path: string;
+  errorMessage: string;
 }
 
-export const exportAccount = (code: AccountCode): Promise<IExport | null> => {
+export const exportAccount = (code: AccountCode): Promise<TExport | null> => {
   return apiPost(`account/${code}/export`);
 };
 
@@ -298,18 +298,18 @@ export const verifyXPub = (
   return apiPost(`account/${code}/verify-extended-public-key`, { signingConfigIndex });
 };
 
-export interface IReceiveAddress {
-    addressID: string;
-    address: string;
+export type TReceiveAddress = {
+  addressID: string;
+  address: string;
 }
 
-export interface ReceiveAddressList {
-    scriptType: ScriptType | null;
-    addresses: NonEmptyArray<IReceiveAddress>;
+export type TReceiveAddressList = {
+  scriptType: ScriptType | null;
+  addresses: NonEmptyArray<TReceiveAddress>;
 }
 
 export const getReceiveAddressList = (code: AccountCode) => {
-  return (): Promise<NonEmptyArray<ReceiveAddressList> | null> => {
+  return (): Promise<NonEmptyArray<TReceiveAddressList> | null> => {
     return apiGet(`account/${code}/receive-addresses`);
   };
 };
@@ -368,33 +368,17 @@ export const sendTx = (
 
 export type FeeTargetCode = 'custom' | 'low' | 'economy' | 'normal' | 'high' | 'mHour' | 'mHalfHour' | 'mFastest';
 
-export interface IProposeTxData {
-    address?: string;
-    amount?: number;
-    // data?: string;
-    feePerByte: string;
-    feeTarget: FeeTargetCode;
-    selectedUTXOs: string[];
-    sendAll: 'yes' | 'no';
+export type TFeeTarget = {
+  code: FeeTargetCode;
+  feeRateInfo: string;
 }
 
-export interface IProposeTx {
-    aborted?: boolean;
-    success?: boolean;
-    errorMessage?: string;
+export type TFeeTargetList = {
+  feeTargets: TFeeTarget[];
+  defaultFeeTarget: FeeTargetCode;
 }
 
-export interface IFeeTarget {
-    code: FeeTargetCode;
-    feeRateInfo: string;
-}
-
-export interface IFeeTargetList {
-    feeTargets: IFeeTarget[];
-    defaultFeeTarget: FeeTargetCode;
-}
-
-export const getFeeTargetList = (code: AccountCode): Promise<IFeeTargetList> => {
+export const getFeeTargetList = (code: AccountCode): Promise<TFeeTargetList> => {
   return apiGet(`account/${code}/fee-targets`);
 };
 
@@ -420,8 +404,8 @@ export const getUTXOs = (code: AccountCode): Promise<TUTXO[]> => {
 };
 
 type TSecureOutput = {
-    hasSecureOutput: boolean;
-    optional: boolean;
+  hasSecureOutput: boolean;
+  optional: boolean;
 };
 
 export const hasSecureOutput = (code: AccountCode) => {
@@ -478,7 +462,7 @@ export const ethSignWalletConnectTx = (code: AccountCode, send: boolean, chainId
   return apiPost(`account/${code}/eth-sign-wallet-connect-tx`, { send, chainId, tx });
 };
 
-export type AddressSignResponse = {
+type AddressSignResponse = {
   success: true;
   signature: string;
   address: string;

@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { getBTCDirectInfo, TMarketAction } from '@/api/market';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { AppContext } from '@/contexts/AppContext';
-import { AccountCode, IAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { AccountCode, TAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -44,7 +44,7 @@ const localeMapping: Readonly<Record<string, string>> = {
 };
 
 type TProps = {
-  accounts: IAccount[];
+  accounts: TAccount[];
   action: TMarketAction;
   code: AccountCode;
 }

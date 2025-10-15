@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { AccountCode } from './account';
+import type { AccountCode } from './account';
 import { apiGet, apiPost } from '@/utils/request';
 
 export const getMarketRegionCodes = (): Promise<string[]> => {
@@ -49,7 +49,7 @@ export type TMarketError = {
   errorMessage?: string;
 }
 
-export type TMarketDealsResponse = TMarketDealsList | TMarketError
+export type TMarketDealsResponse = TMarketDealsList | TMarketError;
 
 export type TMarketAction = 'buy' | 'sell' | 'spend';
 

@@ -34,7 +34,7 @@ import { connectKeystore } from '@/api/keystores';
 import style from './receive.module.css';
 
 type TProps = {
-  accounts: accountApi.IAccount[];
+  accounts: accountApi.TAccount[];
   code: accountApi.AccountCode;
 };
 
@@ -104,7 +104,7 @@ const scriptTypes: accountApi.ScriptType[] = ['p2wpkh', 'p2tr', 'p2wpkh-p2sh'];
 
 // Find index in list of receive addresses that matches the given script type, or -1 if not found.
 const getIndexOfMatchingScriptType = (
-  receiveAddresses: accountApi.ReceiveAddressList[],
+  receiveAddresses: accountApi.TReceiveAddressList[],
   scriptType: accountApi.ScriptType
 ): number => {
   if (!receiveAddresses) {
@@ -123,7 +123,7 @@ export const Receive = ({
   // index into `availableScriptTypes`, or 0 if none are available.
   const [addressType, setAddressType] = useState<number>(0);
   const [addressTypeDialog, setAddressTypeDialog] = useState<boolean>(false);
-  const [currentAddresses, setCurrentAddresses] = useState<accountApi.IReceiveAddress[]>();
+  const [currentAddresses, setCurrentAddresses] = useState<accountApi.TReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
@@ -180,8 +180,8 @@ export const Receive = ({
     // For devices with a display, the dialog is dismissed by tapping the device.
     setVerifying('secure');
     try {
-      const addressesAtIndex = receiveAddresses[addressesIndex] as accountApi.ReceiveAddressList;
-      const address = addressesAtIndex.addresses[activeIndex] as accountApi.IReceiveAddress;
+      const addressesAtIndex = receiveAddresses[addressesIndex] as accountApi.TReceiveAddressList;
+      const address = addressesAtIndex.addresses[activeIndex] as accountApi.TReceiveAddress;
       await accountApi.verifyAddress(code, address.addressID);
     } finally {
       setVerifying(false);
@@ -213,7 +213,7 @@ export const Receive = ({
 
   let address = '';
   if (currentAddresses) {
-    address = (currentAddresses[activeIndex] as accountApi.IReceiveAddress).address;
+    address = (currentAddresses[activeIndex] as accountApi.TReceiveAddress).address;
     if (!verifying) {
       address = address.substring(0, 8) + '...';
     }

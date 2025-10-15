@@ -56,7 +56,7 @@ import { getScriptName } from '@/routes/account/utils';
  */
 export const useBitsurance = (
   code: accountApi.AccountCode,
-  account?: accountApi.IAccount,
+  account?: accountApi.TAccount,
 ) => {
   const { t } = useTranslation();
 

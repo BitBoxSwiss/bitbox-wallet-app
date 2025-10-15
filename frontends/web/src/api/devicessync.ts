@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import type { TDevices } from './devices';
 import { subscribeEndpoint, TSubscriptionCallback, TUnsubscribe } from './subscribe';
-import { TDevices } from './devices';
 
 /**
  * Subscribes the given function on the "devices/registered" event

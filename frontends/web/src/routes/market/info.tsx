@@ -29,7 +29,7 @@ import { MarketGuide } from './guide';
 import { connectKeystore } from '@/api/keystores';
 
 type TProps = {
-    accounts: accountApi.IAccount[];
+    accounts: accountApi.TAccount[];
     code: accountApi.AccountCode;
 }
 
@@ -37,7 +37,7 @@ export const MarketInfo = ({ code, accounts }: TProps) => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string>(code);
   const [disabled, setDisabled] = useState<boolean>(false);
-  const [supportedAccounts, setSupportedAccounts] = useState<accountApi.IAccount[]>();
+  const [supportedAccounts, setSupportedAccounts] = useState<accountApi.TAccount[]>();
 
   const { t } = useTranslation();
 
