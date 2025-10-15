@@ -702,11 +702,13 @@ func (account *Account) SendTx(txNote string) (string, error) {
 // If the service should not be reachable, we fallback to only one priority, estimated by
 // the ETH RPC eth_gasPrice endpoint.
 func (account *Account) feeTargets() []*ethtypes.FeeTarget {
-	etherscanFeeTargets, err := account.coin.client.FeeTargets(context.TODO())
-	if err == nil {
-		return etherscanFeeTargets
+	if account.coin.code != coin.CodeSEPETH {
+		etherscanFeeTargets, err := account.coin.client.FeeTargets(context.TODO())
+		if err == nil {
+			return etherscanFeeTargets
+		}
+		account.log.WithError(err).Error("Could not get fee targets from eth gas station, falling back to RPC eth_gasPrice")
 	}
-	account.log.WithError(err).Error("Could not get fee targets from eth gas station, falling back to RPC eth_gasPrice")
 	suggestedGasPrice, err := account.coin.client.SuggestGasPrice(context.TODO())
 	if err != nil {
 		account.log.WithError(err).Error("Fallback to RPC eth_gasPrice failed")
