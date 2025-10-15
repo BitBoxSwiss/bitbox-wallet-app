@@ -13,7 +13,7 @@
   animation: changeContent .8s linear infinite;
   display: block;
   content: "⠋";
-  font-size: 14px;
+  font-size: 1.4rem;
   margin-left: 3px;
 }
 
