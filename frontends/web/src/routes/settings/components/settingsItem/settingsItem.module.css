@@ -32,7 +32,7 @@
 
 .primaryText {
     color: var(--color-default);
-    font-size: 16px;
+    font-size: 1.6rem;
     margin: 0;
 }
 
@@ -58,7 +58,7 @@
 
 .displayedValue {
     color: var(--color-secondary);
-    font-size: 14px;
+    font-size: 1.4rem;
     margin: 0;
     padding-left: var(--space-half);
     padding-right: 0;
@@ -77,7 +77,7 @@ button .displayedValue {
 
 .secondaryText {
     color: var(--color-secondary);
-    font-size: 14px;
+    font-size: 1.4rem;
     margin: 0;
     margin-top: var(--space-quarter);
 }

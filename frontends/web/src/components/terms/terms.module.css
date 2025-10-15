@@ -25,18 +25,18 @@
 }
 
 .title {
-  font-size: 14px;
+  font-size: 1.4rem;
   font-weight: bold;
   text-align: left;
 }
 
 .disclaimer p {
-  font-size: 14px;
+  font-size: 1.4rem;
   line-height: 1.5;
 }
 
 .disclaimer p + .title {
-  margin: 40px 0 0 0;
+  margin: 4rem 0 0 0;
 }
 
 .table {
@@ -45,7 +45,7 @@
 
 .table table {
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 1.4rem;
   text-align: left;
 }
 

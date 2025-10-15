@@ -1,6 +1,6 @@
 .exchangeContainer,
 .exchangeContainer p {
-    --size-default: 14px;
+    --size-default: 1.4rem;
 }
 
 .exchangeContainer {

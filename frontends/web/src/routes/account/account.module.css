@@ -205,7 +205,7 @@
     }
 
     .searchButton {
-        font-size: 14px;
+        font-size: 1.4rem;
         height: var(--item-height-small);
         text-align: left;
     }
