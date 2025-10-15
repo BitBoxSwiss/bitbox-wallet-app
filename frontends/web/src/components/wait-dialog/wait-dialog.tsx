@@ -21,9 +21,9 @@ import { UseDisableBackButton } from '@/hooks/backbutton';
 import style from '@/components/dialog/dialog.module.css';
 
 type Props = {
-    includeDefault?: boolean;
-    title?: string;
-    children?: React.ReactNode;
+  includeDefault?: boolean;
+  title?: string;
+  children?: React.ReactNode;
 }
 
 export const WaitDialog = ({

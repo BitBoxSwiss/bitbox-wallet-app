@@ -31,8 +31,8 @@ import { MoonpayTerms } from '@/components/terms/moonpay-terms';
 import style from './iframe.module.css';
 
 type TProps = {
-    accounts: TAccount[];
-    code: AccountCode;
+  accounts: TAccount[];
+  code: AccountCode;
 }
 
 export const Moonpay = ({ accounts, code }: TProps) => {

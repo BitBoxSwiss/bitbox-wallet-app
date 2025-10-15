@@ -51,10 +51,10 @@ export const Steps = ({
 };
 
 type TStepProps = {
-    children: ReactNode;
-    line?: boolean;
-    status?: 'process' | 'finish' | 'wait';
-    hidden?: boolean;
+  children: ReactNode;
+  line?: boolean;
+  status?: 'process' | 'finish' | 'wait';
+  hidden?: boolean;
 }
 
 export const Step = ({

@@ -25,10 +25,10 @@ import { ScanQRVideo } from '@/routes/account/send/components/inputs/scan-qr-vid
 import styles from './connect-form.module.css';
 
 type TWCConnectFormProps = {
-    connectLoading: boolean;
-    uri: string;
-    onInputChange: (value: SetStateAction<string>) => void;
-    onSubmit: (uri: string) => void;
+  connectLoading: boolean;
+  uri: string;
+  onInputChange: (value: SetStateAction<string>) => void;
+  onSubmit: (uri: string) => void;
 }
 
 type TMobileQRScannerProps = {

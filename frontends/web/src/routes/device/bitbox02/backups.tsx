@@ -30,13 +30,13 @@ import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimati
 import backupStyle from '@/routes/device/components/backups.module.css';
 
 type TProps = {
-    deviceID: string;
-    showRestore?: boolean;
-    showCreate?: boolean;
-    showRadio: boolean;
-    onSelectBackup?: (backup: Backup) => void;
-    onRestoreBackup?: (success: boolean) => void;
-    children?: ReactNode;
+  deviceID: string;
+  showRestore?: boolean;
+  showCreate?: boolean;
+  showRadio: boolean;
+  onSelectBackup?: (backup: Backup) => void;
+  onRestoreBackup?: (success: boolean) => void;
+  children?: ReactNode;
 }
 
 export const BackupsV2 = ({

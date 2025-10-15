@@ -36,7 +36,7 @@ import { BitsuranceGuide } from './guide';
 import style from './dashboard.module.css';
 
 type TProps = {
-    accounts: TAccount[];
+  accounts: TAccount[];
 }
 
 type TAccountStatusIconProps = {

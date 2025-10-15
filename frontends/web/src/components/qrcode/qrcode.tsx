@@ -23,9 +23,9 @@ import { useTranslation } from 'react-i18next';
 import style from './qrcode.module.css';
 
 type TProps = {
-    data?: string;
-    size?: number;
-    tapToCopy?: boolean;
+  data?: string;
+  size?: number;
+  tapToCopy?: boolean;
 };
 
 export const QRCode = ({

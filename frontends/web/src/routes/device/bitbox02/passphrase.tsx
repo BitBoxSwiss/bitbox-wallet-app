@@ -34,7 +34,7 @@ const FINAL_INFO_STEP = 5;
 const CONTENT_MIN_HEIGHT = '38em';
 
 type TProps = {
-    deviceID: string;
+  deviceID: string;
 }
 
 type TStatus = 'info' | 'progress' | 'success';

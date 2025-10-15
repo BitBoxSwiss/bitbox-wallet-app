@@ -24,7 +24,7 @@ import { View, ViewContent } from '@/components/view/view';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 
 type TReceiveAccountsSelector = {
-    activeAccounts: TAccount[];
+  activeAccounts: TAccount[];
 }
 export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSelector) => {
   const navigate = useNavigate();

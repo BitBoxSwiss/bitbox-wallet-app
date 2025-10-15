@@ -24,17 +24,17 @@ import { Checked, RedDot } from '@/components/icon';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 
 export type TProps = {
-    deviceID: string;
-    versionInfo: VersionInfo;
-    asButton?: boolean;
+  deviceID: string;
+  versionInfo: VersionInfo;
+  asButton?: boolean;
 }
 
 export type TUpgradeDialogProps = {
-    open: boolean;
-    versionInfo: VersionInfo;
-    confirming: boolean;
-    onUpgradeFirmware: () => void;
-    onClose: () => void;
+  open: boolean;
+  versionInfo: VersionInfo;
+  confirming: boolean;
+  onUpgradeFirmware: () => void;
+  onClose: () => void;
 }
 
 const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) => {

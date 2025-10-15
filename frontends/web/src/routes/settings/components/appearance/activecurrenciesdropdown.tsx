@@ -25,8 +25,8 @@ import activeCurrenciesDropdownStyle from './activecurrenciesdropdown.module.css
 import settingsDropdownStyles from './settingsdropdown.module.css';
 
 type SelectOption = {
-    label: string;
-    value: Fiat;
+  label: string;
+  value: Fiat;
 }
 
 type TSelectProps = {

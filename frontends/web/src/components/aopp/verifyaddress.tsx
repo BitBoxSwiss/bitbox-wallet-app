@@ -21,9 +21,9 @@ import { Button } from '@/components/forms';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 
 type TProps = {
-    accountCode: accountAPI.AccountCode;
-    address: string;
-    addressID: string;
+  accountCode: accountAPI.AccountCode;
+  address: string;
+  addressID: string;
 }
 
 export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {

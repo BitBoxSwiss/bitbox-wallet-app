@@ -23,11 +23,11 @@ import { truncateAddress } from '@/utils/walletconnect';
 import styles from './session-card.module.css';
 
 type TTextDataProps = {
-    accountName: string;
-    receiveAddress: string;
-    dAppName: string;
-    dAppUrl: string;
-    iconUrl?: string;
+  accountName: string;
+  receiveAddress: string;
+  dAppName: string;
+  dAppUrl: string;
+  iconUrl?: string;
 }
 
 type TWCSessionCardProps = {

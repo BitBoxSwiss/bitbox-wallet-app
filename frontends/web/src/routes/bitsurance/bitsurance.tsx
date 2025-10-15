@@ -31,7 +31,7 @@ import { i18n } from '@/i18n/i18n';
 import style from './bitsurance.module.css';
 
 type TProps = {
-    accounts: TAccount[];
+  accounts: TAccount[];
 }
 
 export const Bitsurance = ({ accounts }: TProps) => {

@@ -26,15 +26,15 @@ import { ScanQRDialog } from '@/routes/account/send/components/dialogs/scan-qr-d
 import style from './receiver-address-input.module.css';
 
 type TToggleScanQRButtonProps = {
-    onClick: () => void;
+  onClick: () => void;
 }
 
 type TReceiverAddressInputProps = {
-    accountCode?: string;
-    addressError?: string;
-    onInputChange: (value: string) => void;
-    recipientAddress: string;
-    parseQRResult: (uri: string) => void;
+  accountCode?: string;
+  addressError?: string;
+  onInputChange: (value: string) => void;
+  recipientAddress: string;
+  parseQRResult: (uri: string) => void;
 }
 
 export const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
