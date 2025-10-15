@@ -158,7 +158,7 @@ export const CaretDown = ({ className, ...props }: SVGProps) => (
 
 type ExpandIconProps = {
   expand: boolean;
-}
+};
 
 export const ExpandIcon = ({
   expand = true,

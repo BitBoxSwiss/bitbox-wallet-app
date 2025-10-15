@@ -26,7 +26,7 @@ import { TStage, WCIncomingSignRequestDialog } from './incoming-signing-request-
 type TSigningRequestData = {
   topic: string;
   id: number;
-}
+};
 
 export const WCSigningRequest = () => {
   const { web3wallet, isWalletInitialized } = useContext(WCWeb3WalletContext);

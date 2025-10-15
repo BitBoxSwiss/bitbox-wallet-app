@@ -25,7 +25,7 @@ import style from './balance.module.css';
 type TProps = {
   balance?: TBalance;
   noRotateFiat?: boolean;
-}
+};
 
 export const Balance = ({
   balance,

@@ -25,7 +25,7 @@ type TProps = {
   disabled: boolean;
   error?: string;
   fiatAmount: string;
-}
+};
 
 export const FiatInput = ({
   label,

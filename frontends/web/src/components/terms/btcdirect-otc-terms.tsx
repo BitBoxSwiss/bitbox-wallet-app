@@ -24,7 +24,7 @@ import style from './terms.module.css';
 
 type TProps = {
   onContinue: () => void;
-}
+};
 
 export const getBTCDirectPrivacyLink = () => {
   switch (i18n.resolvedLanguage) {

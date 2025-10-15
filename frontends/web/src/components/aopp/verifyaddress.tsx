@@ -24,7 +24,7 @@ type TProps = {
   accountCode: accountAPI.AccountCode;
   address: string;
   addressID: string;
-}
+};
 
 export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
   const [verifying, setVerifying] = useState(false);

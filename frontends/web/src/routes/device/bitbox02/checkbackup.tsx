@@ -27,7 +27,7 @@ type TProps = {
   deviceID: string;
   backups: Backup[];
   disabled: boolean;
-}
+};
 
 export const Check = ({ deviceID, backups, disabled }: TProps) => {
   const [activeDialog, setActiveDialog] = useState(false);

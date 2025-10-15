@@ -21,7 +21,7 @@ import { Version } from './version';
 
 type TProps = {
   children: ReactNode;
-}
+};
 
 export const Footer = ({ children }: TProps) => {
   return (

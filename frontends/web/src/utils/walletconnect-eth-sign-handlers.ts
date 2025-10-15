@@ -10,7 +10,7 @@ type TWCParams = {
     params: any[]
   };
   chainId: string;
-}
+};
 
 export type TEthSignHandlerParams = {
   topic: string;
@@ -27,14 +27,14 @@ export type TRequestDialogContent = {
   signingData: string; // data / message coming from dapp
   currentSession: SessionTypes.Struct;
   method: string;
-}
+};
 
 export type TLaunchSignDialog = {
   topic: string,
   id: number,
   apiCaller: () => Promise<any>;
   dialogContent: TRequestDialogContent
-}
+};
 
 const fetchAccountNameAndAddress = async (address: string) => {
   const accountDetail = await getEthAccountCodeAndNameByAddress(address);

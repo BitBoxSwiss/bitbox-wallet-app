@@ -27,11 +27,11 @@ import style from './name.module.css';
 type TProps = {
   onDeviceName: (name: string) => void;
   onBack: () => void;
-}
+};
 
 type TSetDeviceNameProps = TProps & {
   missingSDCardWarning?: boolean;
-}
+};
 
 export const SetDeviceName = ({
   onDeviceName,
@@ -99,7 +99,7 @@ export const SetDeviceName = ({
 type TDeviceNameErrorMessageProps = {
   error: TDeviceNameError
   invalidChars?: string
-}
+};
 
 export const DeviceNameErrorMessage = ({ error, invalidChars }: TDeviceNameErrorMessageProps) => {
   const { t } = useTranslation();
@@ -119,7 +119,7 @@ export const DeviceNameErrorMessage = ({ error, invalidChars }: TDeviceNameError
 
 type TPropsWithSDCard = TProps & {
   deviceID: string;
-}
+};
 
 export const SetDeviceNameWithSDCard = ({
   deviceID,

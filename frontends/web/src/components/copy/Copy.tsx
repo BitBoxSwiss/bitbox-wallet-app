@@ -28,7 +28,7 @@ type TProps = {
   disabled?: boolean;
   flexibleHeight?: boolean;
   value: string;
-}
+};
 
 export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, className, disabled, flexibleHeight }: TProps) => {
   const [success, setSuccess] = useState(false);

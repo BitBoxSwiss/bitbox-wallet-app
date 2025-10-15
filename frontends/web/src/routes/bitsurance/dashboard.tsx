@@ -37,15 +37,15 @@ import style from './dashboard.module.css';
 
 type TProps = {
   accounts: TAccount[];
-}
+};
 
 type TAccountStatusIconProps = {
   status: TDetailStatus;
-}
+};
 
 type TInsurancesByCode = {
   [accountCode: AccountCode]: TAccountDetails;
-}
+};
 
 const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
   switch (status) {

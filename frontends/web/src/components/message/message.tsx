@@ -58,7 +58,7 @@ type MessageProps = {
   icon?: ReactNode;
   noIcon?: boolean;
   children: ReactNode;
-}
+};
 
 export const Message = ({
   className = '',

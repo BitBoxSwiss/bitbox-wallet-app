@@ -27,7 +27,7 @@ export type TProps = {
   deviceID: string;
   versionInfo: VersionInfo;
   asButton?: boolean;
-}
+};
 
 export type TUpgradeDialogProps = {
   open: boolean;
@@ -35,7 +35,7 @@ export type TUpgradeDialogProps = {
   confirming: boolean;
   onUpgradeFirmware: () => void;
   onClose: () => void;
-}
+};
 
 const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) => {
   const { t } = useTranslation();

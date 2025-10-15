@@ -29,7 +29,7 @@ type TProps = {
   proposedAmount?: TAmountWithConversions;
   amount: string;
   hasSelectedUTXOs: boolean;
-}
+};
 
 export const CoinInput = ({
   balance,

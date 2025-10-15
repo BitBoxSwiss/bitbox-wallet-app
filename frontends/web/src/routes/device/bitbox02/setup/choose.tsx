@@ -37,7 +37,7 @@ type Props = {
     options?: TWalletCreateOptions,
   ) => void;
   versionInfo: VersionInfo;
-}
+};
 
 export const SetupOptions = ({
   onSelectSetup,

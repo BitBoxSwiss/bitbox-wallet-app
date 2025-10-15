@@ -30,7 +30,7 @@ type TIncomingPairingProps = {
   receiveAddress: string;
   onReject: () => void;
   onApprove: () => void;
-}
+};
 
 const PairingContainer = ({ pairingMetadata }: {pairingMetadata: TIncomingPairingProps['pairingMetadata']}) => {
   const { name, description, url, icons } = pairingMetadata;

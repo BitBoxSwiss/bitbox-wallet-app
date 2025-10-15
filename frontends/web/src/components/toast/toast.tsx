@@ -22,7 +22,7 @@ type TProps = {
   theme: string;
   withGuide?: boolean;
   children: ReactNode;
-}
+};
 
 export const Toast = ({ theme, withGuide = false, children }: TProps) => {
   const [active, setActive] = useState(false);

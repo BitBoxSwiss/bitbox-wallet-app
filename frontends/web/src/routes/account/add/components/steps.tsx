@@ -21,7 +21,7 @@ import style from './steps.module.css';
 type TStepsProps = {
   current: number;
   children: ReactNode;
-}
+};
 
 export const Steps = ({
   current,
@@ -55,7 +55,7 @@ type TStepProps = {
   line?: boolean;
   status?: 'process' | 'finish' | 'wait';
   hidden?: boolean;
-}
+};
 
 export const Step = ({
   children,

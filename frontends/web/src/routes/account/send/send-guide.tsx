@@ -6,7 +6,7 @@ import { CoinCode } from '@/api/account';
 
 type TProps = {
   coinCode: CoinCode
-}
+};
 
 export const SendGuide = ({ coinCode }: TProps) => {
   const { t } = useTranslation();

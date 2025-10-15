@@ -29,7 +29,7 @@ import { SDCardCheck } from '@/routes/device/bitbox02/sdcardcheck';
 type TProps = {
   deviceID: string | null;
   devices: TDevices
-}
+};
 
 export const ManageBackups = ({
   deviceID,

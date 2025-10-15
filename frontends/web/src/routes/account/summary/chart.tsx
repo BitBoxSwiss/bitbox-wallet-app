@@ -49,7 +49,7 @@ const defaultData: Readonly<TChartData> = {
 
 type FormattedData = {
   [key: number]: string;
-}
+};
 
 const getUTCRange = () => {
   const now = new Date();

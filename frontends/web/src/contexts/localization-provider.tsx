@@ -5,7 +5,7 @@ import { AppContext } from './AppContext';
 
 type TProps = {
   children: ReactNode;
-}
+};
 
 export const LocalizationProvider = ({ children }: TProps) => {
   const { nativeLocale } = useContext(AppContext);

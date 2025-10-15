@@ -32,7 +32,7 @@ type State = {
   active: boolean;
   message?: string;
   customButtonText?: string;
-}
+};
 
 /**
  * Confirm alert that activates on confirmation module export call,

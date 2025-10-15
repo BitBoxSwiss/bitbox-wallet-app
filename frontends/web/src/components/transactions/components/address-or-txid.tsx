@@ -20,7 +20,7 @@ import styles from './details.module.css';
 type TPropsTxDetailCopyableValues = {
   label: string;
   values: string[];
-}
+};
 
 export const TxDetailCopyableValues = ({
   label,

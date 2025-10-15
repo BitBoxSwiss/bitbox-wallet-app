@@ -109,7 +109,7 @@ type TViewContentProps = {
   minHeight?: string;
   textAlign?: 'center' | 'left';
   withIcon?: 'success' | 'error';
-}
+};
 
 const ViewIcon = ({
   withIcon,
@@ -161,7 +161,7 @@ type THeaderProps = {
   title?: ReactNode;
   withAppLogo?: boolean;
   children?: ReactNode;
-}
+};
 
 /**
  * ViewHeader component to render the view's title and a byline
@@ -196,7 +196,7 @@ export const ViewHeader = ({
 type TViewButtonsProps = {
   reverseRow?: boolean;
   children?: ReactNode;
-}
+};
 
 /**
  * ViewButtons component use as container for buttons

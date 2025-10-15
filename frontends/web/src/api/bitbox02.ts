@@ -32,7 +32,7 @@ export type DeviceInfo = {
     firmwareVersion: string;
     enabled: boolean;
   };
-}
+};
 
 type DeviceInfoResponse = SuccessResponse & {
   deviceInfo: DeviceInfo;
@@ -82,11 +82,11 @@ type VersionInfoCommon = {
   canBackupWithRecoveryWords: boolean;
   canCreate12Words: boolean;
   canBIP85: boolean;
-}
+};
 
 export type VersionInfo = VersionInfoCommon & (
   { canUpgrade: true, newVersion: string; } |
-  { canUpgrade: false; })
+  { canUpgrade: false; });
 
 export const getVersion = (
   deviceID: string

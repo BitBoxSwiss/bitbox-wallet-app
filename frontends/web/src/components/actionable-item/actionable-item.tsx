@@ -24,7 +24,7 @@ type TProps = {
   children: ReactNode;
   icon?: ReactNode;
   onClick?: () => void;
-}
+};
 
 export const ActionableItem = ({
   className = '',

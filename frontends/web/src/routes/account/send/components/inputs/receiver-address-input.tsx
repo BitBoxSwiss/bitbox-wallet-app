@@ -27,7 +27,7 @@ import style from './receiver-address-input.module.css';
 
 type TToggleScanQRButtonProps = {
   onClick: () => void;
-}
+};
 
 type TReceiverAddressInputProps = {
   accountCode?: string;
@@ -35,7 +35,7 @@ type TReceiverAddressInputProps = {
   onInputChange: (value: string) => void;
   recipientAddress: string;
   parseQRResult: (uri: string) => void;
-}
+};
 
 export const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
   const { isDarkMode } = useContext(DarkModeContext);

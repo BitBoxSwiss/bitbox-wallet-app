@@ -41,13 +41,13 @@ import style from './manage-accounts.module.css';
 
 type ManageAccountsProps = {
   accounts: accountAPI.TAccount[];
-}
+};
 
 type Props = ManageAccountsProps & TPagePropsWithSettingsTabs;
 
 type TShowTokens = {
   readonly [key in string]: boolean;
-}
+};
 
 export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
 

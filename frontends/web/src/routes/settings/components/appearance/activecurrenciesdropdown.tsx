@@ -27,7 +27,7 @@ import settingsDropdownStyles from './settingsdropdown.module.css';
 type SelectOption = {
   label: string;
   value: Fiat;
-}
+};
 
 type TSelectProps = {
   options: SelectOption[];

@@ -61,7 +61,7 @@ type TTapToCopyQRCodeProps = {
   data?: string;
   qrCodeData: string
   size: number
-}
+};
 
 const TapToCopyQRCode = ({ data, qrCodeData, size }: TTapToCopyQRCodeProps) => {
   const inputRef = useRef<HTMLInputElement>(null);

@@ -32,7 +32,7 @@ import style from './bitsurance.module.css';
 
 type TProps = {
   accounts: TAccount[];
-}
+};
 
 export const Bitsurance = ({ accounts }: TProps) => {
   const navigate = useNavigate();

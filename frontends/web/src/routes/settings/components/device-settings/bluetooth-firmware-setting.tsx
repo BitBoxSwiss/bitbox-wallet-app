@@ -20,7 +20,7 @@ import { SettingsItem } from '@/routes/settings/components/settingsItem/settings
 
 export type TProps = {
   firmwareVersion: string;
-}
+};
 
 export const BluetoothFirmwareSetting = ({ firmwareVersion }: TProps) => {
   const { t } = useTranslation();

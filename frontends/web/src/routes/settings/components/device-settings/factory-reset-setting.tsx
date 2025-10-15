@@ -27,7 +27,7 @@ import styles from './factory-reset-setting.module.css';
 
 type TProps = {
   deviceID: string;
-}
+};
 
 export const FactoryResetSetting = ({ deviceID }: TProps) => {
   const [understand, setUnderstand] = useState(false);

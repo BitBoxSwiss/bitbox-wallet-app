@@ -37,7 +37,7 @@ type TProps = {
   onSelectBackup?: (backup: Backup) => void;
   onRestoreBackup?: (success: boolean) => void;
   children?: ReactNode;
-}
+};
 
 export const BackupsV2 = ({
   deviceID,

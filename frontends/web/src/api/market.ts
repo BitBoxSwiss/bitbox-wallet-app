@@ -29,25 +29,25 @@ export type TMarketDeal = {
   isFast: boolean;
   isBest: boolean;
   isHidden: boolean;
-}
+};
 
 export type TVendorName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc' | 'bitrefill';
 
 export type TMarketDeals = {
   vendorName: TVendorName;
   deals: TMarketDeal[];
-}
+};
 
 export type TMarketDealsList = {
   deals: TMarketDeals[];
   success: true;
-}
+};
 
 export type TMarketError = {
   success: false;
   errorCode?: 'coinNotSupported' | 'regionNotSupported';
   errorMessage?: string;
-}
+};
 
 export type TMarketDealsResponse = TMarketDealsList | TMarketError;
 
@@ -60,7 +60,7 @@ export const getMarketDeals = (action: TMarketAction, accountCode: AccountCode, 
 export type MoonpayBuyInfo = {
   url: string;
   address: string;
-}
+};
 
 export const getMoonpayBuyInfo = (code: AccountCode) => {
   return (): Promise<MoonpayBuyInfo> => {
@@ -72,7 +72,7 @@ export type AddressVerificationResponse = {
   success: boolean;
   errorMessage?: string;
   errorCode?: 'addressNotFound' | 'userAbort';
-}
+};
 
 export const verifyAddress = (address: string, accountCode: AccountCode): Promise<AddressVerificationResponse> => {
   return apiPost('market/pocket/verify-address', { address, accountCode });

@@ -28,7 +28,7 @@ import { Message } from '@/components/message/message';
 
 type TProps = {
   deviceID: string;
-}
+};
 
 type TStatus = 'info' | 'progress' | 'success';
 

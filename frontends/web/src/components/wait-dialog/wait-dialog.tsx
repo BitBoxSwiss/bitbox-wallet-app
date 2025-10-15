@@ -24,7 +24,7 @@ type Props = {
   includeDefault?: boolean;
   title?: string;
   children?: React.ReactNode;
-}
+};
 
 export const WaitDialog = ({
   includeDefault,

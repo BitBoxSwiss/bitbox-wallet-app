@@ -26,7 +26,7 @@ import { SDCardWarning } from './sdcard';
 type Props = {
   code?: AccountCode;
   devices: TDevices;
-}
+};
 
 export const GlobalBanners = ({
   code,

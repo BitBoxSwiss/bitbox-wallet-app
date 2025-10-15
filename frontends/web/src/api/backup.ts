@@ -27,7 +27,7 @@ export type Backup = {
 type BackupResponse = {
   success: true;
   backups: Backup[];
-}
+};
 
 export const getBackupList = (
   deviceID: string

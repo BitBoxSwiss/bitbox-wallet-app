@@ -28,7 +28,7 @@ import style from './terms.module.css';
 type TProps = {
   account: TAccount;
   onAgreedTerms: () => void;
-}
+};
 
 const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
   setConfig({ frontend: { skipBTCDirectWidgetDisclaimer: e.target.checked } });

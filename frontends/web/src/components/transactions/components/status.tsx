@@ -23,7 +23,7 @@ type TProps = {
   status: TTransactionStatus;
   numConfirmations: number;
   numConfirmationsComplete: number;
-}
+};
 
 export const TxStatusDetail = ({
   status,

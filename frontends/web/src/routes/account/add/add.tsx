@@ -32,7 +32,7 @@ import styles from './add.module.css';
 
 type TAddAccountGuide = {
   accounts: TAccount[];
-}
+};
 
 type TStep = 'select-coin' | 'choose-name' | 'success';
 

@@ -19,7 +19,7 @@ import { SettingsItem, SettingsValue } from '@/routes/settings/components/settin
 
 type TProps = {
   rootFingerprint: string;
-}
+};
 
 const RootFingerprintSetting = ({ rootFingerprint }: TProps) => {
   const { t } = useTranslation();

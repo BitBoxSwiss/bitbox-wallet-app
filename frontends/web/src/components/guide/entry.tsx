@@ -26,13 +26,13 @@ export type TEntryProp = {
     url?: string;
     text: string;
   };
-}
+};
 
 type TEntryProps = {
   entry: TEntryProp;
   shown?: boolean;
   children?: ReactNode;
-}
+};
 
 type TProps = TEntryProps;
 

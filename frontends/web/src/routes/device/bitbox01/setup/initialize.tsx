@@ -36,7 +36,7 @@ const stateEnum = Object.freeze({
 type InitializeProps = {
   goBack: () => void;
   deviceID: string;
-}
+};
 
 type Props = InitializeProps & TranslateProps;
 
@@ -46,7 +46,7 @@ type State = {
   status: string;
   errorCode: string | null;
   errorMessage: string;
-}
+};
 
 class Initialize extends Component<Props, State> {
   constructor(props: Props) {

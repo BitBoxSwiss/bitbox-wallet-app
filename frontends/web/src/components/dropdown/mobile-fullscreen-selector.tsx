@@ -31,7 +31,7 @@ type Props<T, IsMulti extends boolean = false> = {
   isMulti?: boolean;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
-}
+};
 
 export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
   title,

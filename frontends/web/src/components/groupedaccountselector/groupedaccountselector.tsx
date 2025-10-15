@@ -32,7 +32,7 @@ export type TGroupedOption = {
   label: string;
   connected: boolean;
   options: TOption[];
-}
+};
 
 export type TOption = {
   label: string;
@@ -41,7 +41,7 @@ export type TOption = {
   coinCode?: TAccount['coinCode'];
   balance?: string;
   insured?: boolean;
-}
+};
 
 type TAccountSelector = {
   title: string;
@@ -50,7 +50,7 @@ type TAccountSelector = {
   onChange: (value: string) => void;
   onProceed: () => void;
   accounts: TAccount[];
-}
+};
 
 const SelectSingleValue = (props: SingleValueProps<TOption>) => {
   const { hideAmounts } = useContext(AppContext);
@@ -101,7 +101,7 @@ const Group = (props: GroupProps<TOption>) => (
 
 type GroupHeadingProps = {
   customData: TGroupedOption
-} & ReactSelectGroupHeadingProps<TOption>
+} & ReactSelectGroupHeadingProps<TOption>;
 
 const GroupHeading = (
   { customData, ...props }: GroupHeadingProps

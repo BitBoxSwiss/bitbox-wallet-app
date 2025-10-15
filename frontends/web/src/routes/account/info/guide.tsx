@@ -20,7 +20,7 @@ import { Guide } from '@/components/guide/guide';
 
 type Props = {
   coinName: string;
-}
+};
 
 export const BitcoinBasedAccountInfoGuide = ({
   coinName,

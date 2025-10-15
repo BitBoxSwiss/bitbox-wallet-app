@@ -37,7 +37,7 @@ type AppContextProps = {
   toggleGuide: () => void;
   toggleHideAmounts: () => void;
   toggleSidebar: () => void;
-}
+};
 
 const AppContext = createContext<AppContextProps>({} as AppContextProps);
 

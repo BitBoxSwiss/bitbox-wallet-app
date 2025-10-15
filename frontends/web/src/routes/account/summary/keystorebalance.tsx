@@ -46,7 +46,7 @@ type TProps = {
   keystore: TKeystore;
   keystoreBalance?: accountApi.TKeystoreBalance;
   balances?: Balances;
-}
+};
 
 export const KeystoreBalance = ({
   accountsByKeystore,

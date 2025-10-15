@@ -35,7 +35,7 @@ import styles from './dashboard.module.css';
 type TProps = {
   accounts: TAccount[];
   code: AccountCode;
-}
+};
 
 export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
   const navigate = useNavigate();

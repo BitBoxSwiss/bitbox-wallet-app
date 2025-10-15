@@ -27,7 +27,7 @@ export type AccountCode = string;
 
 export type Fiat = 'AUD' | 'BRL' | 'BTC' | 'CAD' | 'CHF' | 'CNY' | 'CZK' | 'EUR' | 'GBP' | 'HKD' | 'ILS' | 'JPY' | 'KRW' | 'NOK' | 'NZD' | 'PLN' | 'RUB' | 'sat' | 'SEK' | 'SGD' | 'USD';
 
-export type ConversionUnit = Fiat | 'sat'
+export type ConversionUnit = Fiat | 'sat';
 
 export type CoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'tsat' | 'TLTC' | 'SEPETH';
 
@@ -40,7 +40,7 @@ export type CoinCode = NativeCoinCode | ERC20CoinCode;
 export type FiatWithDisplayName = {
   currency: Fiat;
   displayName: string;
-}
+};
 
 export type Terc20Token = {
   code: ERC20CoinCode;
@@ -51,7 +51,7 @@ export type Terc20Token = {
 export type TActiveToken = {
   tokenCode: ERC20CoinCode;
   accountCode: AccountCode;
-}
+};
 
 export type TKeystore = {
   watchonly: boolean;
@@ -74,7 +74,7 @@ export type TAccount = {
   activeTokens?: TActiveToken[];
   blockExplorerTxPrefix: string;
   bitsuranceStatus?: TDetailStatus;
-}
+};
 
 export const getAccounts = (): Promise<TAccount[]> => {
   return apiGet('accounts');
@@ -110,7 +110,7 @@ export type TAccountsBalanceSummaryResponse = {
   accountsBalanceSummary: TAccountsBalanceSummary;
 } | {
   success: false;
-}
+};
 
 export const getAccountsBalanceSummary = (): Promise<TAccountsBalanceSummaryResponse> => {
   return apiGet('accounts/balance-summary');
@@ -119,7 +119,7 @@ export const getAccountsBalanceSummary = (): Promise<TAccountsBalanceSummaryResp
 type TEthAccountCodeAndNameByAddress = SuccessResponse & {
   code: AccountCode;
   name: string;
-}
+};
 
 export const getEthAccountCodeAndNameByAddress = (address: string): Promise<TEthAccountCodeAndNameByAddress> => {
   return apiPost('accounts/eth-account-code', { address });
@@ -130,7 +130,7 @@ export type TStatus = {
   synced: boolean;
   fatalError: boolean;
   offlineError: string | null;
-}
+};
 
 export const getStatus = (code: AccountCode): Promise<TStatus> => {
   return apiGet(`account/${code}/status`);
@@ -144,16 +144,16 @@ type TKeyInfo = {
   keypath: string;
   rootFingerprint: string;
   xpub: string;
-}
+};
 
 export type TBitcoinSimple = {
   keyInfo: TKeyInfo;
   scriptType: ScriptType;
-}
+};
 
 export type TEthereumSimple = {
   keyInfo: TKeyInfo;
-}
+};
 
 export type TSigningConfiguration = {
   bitcoinSimple: TBitcoinSimple;
@@ -161,11 +161,11 @@ export type TSigningConfiguration = {
 } | {
   bitcoinSimple?: never;
   ethereumSimple: TEthereumSimple;
-}
+};
 
 export type TSigningConfigurationList = null | {
   signingConfigurations: TSigningConfiguration[];
-}
+};
 
 export const getInfo = (code: AccountCode) => {
   return (): Promise<TSigningConfigurationList> => {
@@ -188,7 +188,7 @@ type TChartDataResponse = {
   data: TChartData;
 } | {
   success: false;
-}
+};
 
 export type TChartData = {
   chartDataMissing: boolean;
@@ -199,7 +199,7 @@ export type TChartData = {
   formattedChartTotal: string | null;
   chartIsUpToDate: boolean; // only valid if chartDataMissing is false
   lastTimestamp: number;
-}
+};
 
 export const getChartData = (): Promise<TChartDataResponse> => {
   return apiGet('chart-data');
@@ -228,7 +228,7 @@ type TBalanceResponse = {
   balance: TBalance;
 } | {
   success: false;
-}
+};
 
 export const getBalance = (code: AccountCode): Promise<TBalanceResponse> => {
   return apiGet(`account/${code}/balance`);
@@ -257,14 +257,14 @@ export type TTransaction = {
   txID: string;
   vsize: number;
   weight: number;
-}
+};
 
 export type TTransactions = { success: false } | { success: true; list: TTransaction[]; };
 
 type TNoteTx = {
   internalTxID: string;
   note: string;
-}
+};
 
 export const postNotesTx = (code: AccountCode, {
   internalTxID,
@@ -285,7 +285,7 @@ type TExport = {
   success: boolean;
   path: string;
   errorMessage: string;
-}
+};
 
 export const exportAccount = (code: AccountCode): Promise<TExport | null> => {
   return apiPost(`account/${code}/export`);
@@ -301,12 +301,12 @@ export const verifyXPub = (
 export type TReceiveAddress = {
   addressID: string;
   address: string;
-}
+};
 
 export type TReceiveAddressList = {
   scriptType: ScriptType | null;
   addresses: NonEmptyArray<TReceiveAddress>;
-}
+};
 
 export const getReceiveAddressList = (code: AccountCode) => {
   return (): Promise<NonEmptyArray<TReceiveAddressList> | null> => {
@@ -371,12 +371,12 @@ export type FeeTargetCode = 'custom' | 'low' | 'economy' | 'normal' | 'high' | '
 export type TFeeTarget = {
   code: FeeTargetCode;
   feeRateInfo: string;
-}
+};
 
 export type TFeeTargetList = {
   feeTargets: TFeeTarget[];
   defaultFeeTarget: FeeTargetCode;
-}
+};
 
 export const getFeeTargetList = (code: AccountCode): Promise<TFeeTargetList> => {
   return apiGet(`account/${code}/fee-targets`);
@@ -429,7 +429,7 @@ export type TAddAccount = {
   accountCode?: string;
   errorCode?: 'accountAlreadyExists' | 'accountLimitReached';
   errorMessage?: string;
-}
+};
 
 export const addAccount = (coinCode: string, name: string): Promise<TAddAccount> => {
   return apiPost('account-add', {
@@ -438,7 +438,7 @@ export const addAccount = (coinCode: string, name: string): Promise<TAddAccount>
   });
 };
 
-export type TSignMessage = { success: false, aborted?: boolean; errorMessage?: string; } | { success: true; signature: string; }
+export type TSignMessage = { success: false, aborted?: boolean; errorMessage?: string; } | { success: true; signature: string; };
 
 export type TSignWalletConnectTx = {
   success: false;
@@ -448,7 +448,7 @@ export type TSignWalletConnectTx = {
   success: true;
   txHash: string;
   rawTx: string;
-}
+};
 
 export const ethSignMessage = (code: AccountCode, message: string): Promise<TSignMessage> => {
   return apiPost(`account/${code}/eth-sign-msg`, message);
@@ -470,7 +470,7 @@ type AddressSignResponse = {
   success: false;
   errorMessage?: string;
   errorCode?: 'userAbort' | 'wrongKeystore';
-}
+};
 
 export const signAddress = (format: ScriptType | '', msg: string, code: AccountCode): Promise<AddressSignResponse> => {
   return apiPost(`account/${code}/sign-address`, { format, msg, code });

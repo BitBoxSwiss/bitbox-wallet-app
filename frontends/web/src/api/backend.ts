@@ -24,7 +24,7 @@ export type TCoin = {
   name: string;
   canAddAccount: boolean;
   suggestedAccountName: string;
-}
+};
 
 // In other places we use type { FailResponse, SuccessResponse } from './response'
 // which has slightly different FailResponse structure ( message?: string; code?: number)
@@ -33,7 +33,7 @@ type TSuccess = {
   success: boolean;
   errorMessage?: string;
   errorCode?: string;
-}
+};
 
 export const getSupportedCoins = (): Promise<TCoin[]> => {
   return apiGet('supported-coins');

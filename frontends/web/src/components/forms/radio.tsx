@@ -19,9 +19,9 @@ import style from './radio.module.css';
 
 type IRadioProps = {
   label?: string;
-}
+};
 
-type TRadioProps = IRadioProps & JSX.IntrinsicElements['input']
+type TRadioProps = IRadioProps & JSX.IntrinsicElements['input'];
 
 export const Radio = ({
   disabled = false,

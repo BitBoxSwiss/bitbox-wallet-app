@@ -25,7 +25,7 @@ import { GroupedAccountSelector } from '@/components/groupedaccountselector/grou
 
 type TReceiveAccountsSelector = {
   activeAccounts: TAccount[];
-}
+};
 export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSelector) => {
   const navigate = useNavigate();
   const { t } = useTranslation();

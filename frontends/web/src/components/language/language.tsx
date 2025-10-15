@@ -24,7 +24,7 @@ import { getSelectedIndex } from '@/utils/language';
 
 type TLanguageSwitchProps = {
   languages?: TLanguagesList;
-}
+};
 
 const LanguageSwitch = ({ languages }: TLanguageSwitchProps) => {
 

@@ -39,7 +39,7 @@ type TProps = {
   showBackButton: boolean;
   action: marketAPI.TMarketAction;
   setInfo: (info: TInfoContentProps) => void;
-}
+};
 
 export const Deals = ({
   marketDealsResponse,

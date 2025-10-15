@@ -27,7 +27,7 @@ export type TBannerInfo = {
   };
   dismissible?: boolean;
   type?: TMessageTypes;
-}
+};
 
 export const getBanner = (msgKey: string): Promise<TBannerInfo> => {
   return apiGet(`banners/${msgKey}`);

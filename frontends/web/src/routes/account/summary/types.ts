@@ -24,5 +24,5 @@ export type TChartFiltersProps = {
   onDisplayMonth: () => void;
   onDisplayYear: () => void;
   onDisplayAll: () => void;
-}
+};
 

@@ -59,11 +59,11 @@ type TAppRouterProps = {
   accounts: TAccount[];
   activeAccounts: TAccount[];
   devicesKey: ((input: string) => string)
-}
+};
 
 type TInjectParamsProps = {
   children: ReactChild;
-}
+};
 
 const InjectParams = ({ children }: TInjectParamsProps) => {
   const params = useParams();

@@ -24,7 +24,7 @@ import styles from './success-pairing.module.css';
 
 type TProps = {
   accountCode: accountAPI.AccountCode;
-}
+};
 
 export const WCSuccessPairing = ({ accountCode }: TProps) => {
   const navigate = useNavigate();

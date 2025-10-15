@@ -32,7 +32,7 @@ type TProps = {
   code: AccountCode;
   signingConfigIndex: number;
   children: ReactNode;
-}
+};
 
 export const SigningConfiguration = ({ account, info, code, signingConfigIndex, children }: TProps) => {
   const navigate = useNavigate();

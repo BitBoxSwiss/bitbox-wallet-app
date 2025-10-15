@@ -20,7 +20,7 @@ import { backendConnected } from './api/subscribe';
 
 type TProps = {
   children: ReactNode;
-}
+};
 
 export const ConnectedApp = ({ children }: TProps) => {
   const [connected, setConnected] = useState(true);

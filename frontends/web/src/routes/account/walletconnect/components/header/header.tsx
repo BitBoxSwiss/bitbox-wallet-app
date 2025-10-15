@@ -22,7 +22,7 @@ import styles from './header.module.css';
 type TWalletConnectProps = {
   receiveAddress: string;
   accountName: string;
-}
+};
 
 export const WCHeader = ({ receiveAddress, accountName }: TWalletConnectProps) => {
   const displayedReceiveAddress = truncateAddress(receiveAddress);

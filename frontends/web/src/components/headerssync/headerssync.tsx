@@ -26,7 +26,7 @@ import style from './headerssync.module.css';
 
 export type TProps = {
   coinCode: CoinCode;
-}
+};
 
 export const HeadersSync = ({ coinCode }: TProps) => {
   const { i18n, t } = useTranslation();

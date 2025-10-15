@@ -42,7 +42,7 @@ export type TEventLegacy = {
   readonly deviceID?: string;
   readonly meta?: any;
   readonly type: string;
-}
+};
 
 export type TPayload = TEventLegacy | TEvent;
 

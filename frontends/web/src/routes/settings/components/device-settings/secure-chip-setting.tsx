@@ -19,7 +19,7 @@ import { SettingsItem } from '@/routes/settings/components/settingsItem/settings
 
 type TProps = {
   secureChipModel: string;
-}
+};
 
 const SecureChipSetting = ({ secureChipModel }: TProps) => {
   const { t } = useTranslation();

@@ -28,7 +28,7 @@ import styles from './transaction.module.css';
 
 type TTransactionProps = TTransaction & {
   onShowDetail: (internalID: TTransaction['internalID']) => void;
-}
+};
 
 export const Transaction = ({
   addresses,
@@ -89,7 +89,7 @@ type TStatus = {
   status: TTransactionStatus;
   time?: string | null;
   type: TTransactionType;
-}
+};
 
 const Status = ({
   addresses,
@@ -152,7 +152,7 @@ type TAmountsProps = {
   amount: TAmountWithConversions;
   deductedAmount: TAmountWithConversions,
   type: TTransactionType;
-}
+};
 
 const Amounts = ({
   amount,
@@ -188,7 +188,7 @@ const Amounts = ({
 
 type TDateProps = {
   time: string | null;
-}
+};
 
 const Date = ({
   time,
@@ -213,7 +213,7 @@ type TAddresses = {
   addresses: TTransaction['addresses'];
   status: TTransactionStatus;
   type: TTransactionType;
-}
+};
 
 const Addresses = ({
   addresses,

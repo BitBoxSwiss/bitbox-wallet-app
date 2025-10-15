@@ -29,11 +29,11 @@ type TWCConnectFormProps = {
   uri: string;
   onInputChange: (value: SetStateAction<string>) => void;
   onSubmit: (uri: string) => void;
-}
+};
 
 type TMobileQRScannerProps = {
   onQRScanned: (uri: string) => void;
-}
+};
 
 const MobileQRScanner = ({ onQRScanned }: TMobileQRScannerProps) => {
   return (

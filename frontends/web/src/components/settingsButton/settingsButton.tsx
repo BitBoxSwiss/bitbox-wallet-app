@@ -25,7 +25,7 @@ type SettingsButtonProps = {
   disabled?: boolean;
   optionalIcon?: JSX.Element;
   children: ReactNode;
-}
+};
 
 const SettingsButton = ({
   onClick,

@@ -21,7 +21,7 @@ import { SettingsItem } from '@/routes/settings/components/settingsItem/settings
 type TProps = {
   deviceID: string;
   passphraseEnabled: boolean;
-}
+};
 
 const PassphraseSetting = ({ deviceID, passphraseEnabled }: TProps) => {
   const navigate = useNavigate();

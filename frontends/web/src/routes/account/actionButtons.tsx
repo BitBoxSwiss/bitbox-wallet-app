@@ -32,7 +32,7 @@ type TProps = {
   exchangeSupported?: boolean;
   account: TAccount;
   accountDataLoaded: boolean;
-}
+};
 
 export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, account, accountDataLoaded }: TProps) => {
   const { t } = useTranslation();

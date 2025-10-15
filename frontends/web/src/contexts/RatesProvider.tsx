@@ -24,7 +24,7 @@ import { equal } from '@/utils/equal';
 
 type TProps = {
   children: ReactNode;
-}
+};
 
 export const RatesProvider = ({ children }: TProps) => {
   const [defaultCurrency, setDefaultCurrency] = useState<Fiat>('USD');

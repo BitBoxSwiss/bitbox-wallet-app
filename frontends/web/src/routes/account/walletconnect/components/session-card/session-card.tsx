@@ -28,13 +28,13 @@ type TTextDataProps = {
   dAppName: string;
   dAppUrl: string;
   iconUrl?: string;
-}
+};
 
 type TWCSessionCardProps = {
   metadata: CoreTypes.Metadata;
   onDisconnect: () => void;
   receiveAddress: string;
-}
+};
 
 const TextData = ({ accountName, receiveAddress, dAppName, dAppUrl, iconUrl }: TTextDataProps) => {
   return (

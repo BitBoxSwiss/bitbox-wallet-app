@@ -28,7 +28,7 @@ type RatesContextProps = {
   updateDefaultCurrency: (fiat: Fiat) => void;
   updateRatesConfig: () => Promise<void>;
   removeFromActiveCurrencies: (fiat: Fiat) => Promise<void>;
-}
+};
 
 const RatesContext = createContext<RatesContextProps>({} as RatesContextProps);
 

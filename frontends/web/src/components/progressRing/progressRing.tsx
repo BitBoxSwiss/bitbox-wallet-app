@@ -23,7 +23,7 @@ type TProgressRingProps = {
   generic?: boolean;
   isComplete?: boolean | undefined;
   isError?: boolean;
-}
+};
 
 const ProgressRing = ({
   className,
