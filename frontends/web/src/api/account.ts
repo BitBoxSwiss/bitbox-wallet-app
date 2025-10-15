@@ -368,16 +368,6 @@ export const sendTx = (
 
 export type FeeTargetCode = 'custom' | 'low' | 'economy' | 'normal' | 'high' | 'mHour' | 'mHalfHour' | 'mFastest';
 
-export type TProposeTxData = {
-  address?: string;
-  amount?: number;
-  // data?: string;
-  feePerByte: string;
-  feeTarget: FeeTargetCode;
-  selectedUTXOs: string[];
-  sendAll: 'yes' | 'no';
-}
-
 export type TFeeTarget = {
   code: FeeTargetCode;
   feeRateInfo: string;
