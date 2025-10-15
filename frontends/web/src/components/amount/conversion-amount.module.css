@@ -14,13 +14,13 @@
 .txPrefix,
 .txUnit {
   color: var(--color-secondary);
-  font-size: 14px;
+  font-size: 1.4rem;
   line-height: 1.285714;
   white-space: nowrap;
 }
 
 .txConversionAmount .txUnit {
-  font-size: 12px;
+  font-size: 1.2rem;
   flex-shrink: 0;
 }
 
