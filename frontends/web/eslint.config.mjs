@@ -26,7 +26,6 @@ export default tseslint.config(
       'brace-style': ['error', '1tbs'],
       'comma-spacing': ['error', { 'before': false, 'after': true }],
       'curly': 'error',
-      'indent': ['error', 2, { 'SwitchCase': 0 }],
       'jsx-a11y/anchor-is-valid': 0,
       'jsx-a11y/alt-text' : 0,
       'jsx-quotes': ['error', 'prefer-double'],
@@ -63,6 +62,7 @@ export default tseslint.config(
         'logical': 'parens-new-line'
       }],
       '@stylistic/type-generic-spacing': ['error'],
+      '@stylistic/indent': ['error', 2, { "SwitchCase": 0 }],
     },
   },
   {
