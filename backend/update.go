@@ -27,7 +27,7 @@ const updateFileURL = "https://bitboxapp.shiftcrypto.io/desktop.json"
 
 var (
 	// Version of the backend as displayed to the user.
-	Version = semver.NewSemVer(4, 48, 8)
+	Version = semver.NewSemVer(4, 49, 0)
 )
 
 // UpdateFile is retrieved from the server.
