@@ -1722,20 +1722,23 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 			return
 		}
 	}
-	log := backend.log.WithField("accountCode", account.Config().Config.Code)
-	txs, err := account.Transactions()
-	if err != nil {
-		log.WithError(err).Error("discoverAccount")
-		return
-	}
 
-	if len(txs) == 0 {
-		// Invoke this here too because even if an account is unused, we scan up to 5 accounts.
-		backend.maybeAddHiddenUnusedAccounts()
-		return
+	log := backend.log.WithField("accountCode", account.Config().Config.Code)
+	if !account.Config().Config.Used {
+		txs, err := account.Transactions()
+		if err != nil {
+			log.WithError(err).Error("discoverAccount")
+			return
+		}
+
+		if len(txs) == 0 {
+			// Invoke this here too because even if an account is unused, we scan up to 5 accounts.
+			backend.maybeAddHiddenUnusedAccounts()
+			return
+		}
 	}
 	log.Info("marking account as used")
-	err = backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(account.Config().Config.Code)
 		if acct == nil {
 			return errp.Newf("could not find account")

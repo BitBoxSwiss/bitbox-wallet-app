@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountsMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
@@ -1673,6 +1674,63 @@ func TestAccountsFiatAndCoinBalance(t *testing.T) {
 		balance, _, err := b.AccountsFiatAndCoinBalance(accountList, string(currency))
 		require.NoError(t, err)
 		require.Equalf(t, expectedBalance, balance.FloatString(2), "Got balance of %s, expected %s", balance.FloatString(2), expectedBalance)
+	}
+
+}
+
+func TestCheckAccountUsed(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	b.tstCheckAccountUsed = nil
+	defer b.Close()
+	accountMocks := map[accountsTypes.Code]*accountsMocks.InterfaceMock{}
+	// A Transactions function that always returns one transaction, so the account is always used.
+	txFunc := func() (accounts.OrderedTransactions, error) {
+		return accounts.OrderedTransactions{&accounts.TransactionData{}}, nil
+	}
+
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
+		accountMock := MockBtcAccount(t, config, coin, gapLimits, log)
+		accountMock.TransactionsFunc = txFunc
+		accountMocks[config.Config.Code] = accountMock
+		return accountMock
+	}
+
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
+		accountMock := MockEthAccount(config, coin, httpClient, log)
+		accountMock.TransactionsFunc = txFunc
+		accountMocks[config.Config.Code] = accountMock
+		return accountMock
+	}
+
+	ks1 := makeBitBox02Multi()
+
+	ks1Fingerprint, err := ks1.RootFingerprint()
+	require.NoError(t, err)
+
+	b.registerKeystore(ks1)
+	require.NoError(t, b.SetWatchonly(ks1Fingerprint, true))
+
+	accountsByKestore, err := b.AccountsByKeystore()
+	require.NoError(t, err)
+
+	accountList, ok := accountsByKestore[hex.EncodeToString(ks1Fingerprint)]
+	require.True(t, ok, "Expected accounts for keystore with fingerprint %s", hex.EncodeToString(ks1Fingerprint))
+
+	// Check all accounts, make sure they are set as used.
+	for _, acct := range accountList {
+		mock, ok := accountMocks[acct.Config().Config.Code]
+		require.True(t, ok, "No mock for account %s", acct.Config().Config.Code)
+
+		b.checkAccountUsed(acct)
+		// Ensure that Transactions is called
+		require.Len(t, mock.TransactionsCalls(), 1)
+		require.True(t, acct.Config().Config.Used)
+
+		// Call checkAccountUsed again, Transactions should not be called again.
+		b.checkAccountUsed(acct)
+		require.Len(t, mock.TransactionsCalls(), 1)
+		// And Used should still be true.
+		require.True(t, acct.Config().Config.Used)
 	}
 
 }
