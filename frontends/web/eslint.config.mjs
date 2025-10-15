@@ -35,7 +35,6 @@ export default tseslint.config(
       'no-trailing-spaces': 'error',
       'object-curly-spacing': ['error', 'always'],
       'quotes': ['error', 'single'],
-      'semi': 'error',
       'space-before-blocks': ['error', 'always'],
       'space-in-parens': ['error', 'never'],
       'no-extra-semi': 'error',
@@ -63,6 +62,7 @@ export default tseslint.config(
       }],
       '@stylistic/type-generic-spacing': ['error'],
       '@stylistic/indent': ['error', 2, { "SwitchCase": 0 }],
+      '@stylistic/semi': ["error", "always"],
     },
   },
   {
