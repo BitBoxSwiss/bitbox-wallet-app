@@ -199,6 +199,10 @@ func main() {
 	fmt.Printf("Listening on: http://localhost:%d\n", port)
 
 	if *useSimulator {
+		// The simulator is only allowed when running in testnet mode.
+		if !backend.Testing() {
+			log.WithError(fmt.Errorf("The BitBox02 simulator can only be used in testnet mode.")).Fatal()
+		}
 		simulator.Init(*simulatorPort)
 	}
 
