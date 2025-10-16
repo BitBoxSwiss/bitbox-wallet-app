@@ -125,7 +125,7 @@ export const getAccountsByKeystore = (accounts: TAccount[]): TAccountsByKeystore
 type TKeystoreName = {
   keystore: {
     name: string;
-  }
+  };
 };
 
 // Returns true if more than one keystore has the given name.

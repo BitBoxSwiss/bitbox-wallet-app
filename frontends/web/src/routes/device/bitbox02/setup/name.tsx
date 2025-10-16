@@ -97,8 +97,8 @@ export const SetDeviceName = ({
 };
 
 type TDeviceNameErrorMessageProps = {
-  error: TDeviceNameError
-  invalidChars?: string
+  error: TDeviceNameError;
+  invalidChars?: string;
 };
 
 export const DeviceNameErrorMessage = ({ error, invalidChars }: TDeviceNameErrorMessageProps) => {

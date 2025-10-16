@@ -48,7 +48,7 @@ export type TFrontendConfig = {
 };
 
 export type TBackendConfig = {
-  proxy?: TProxyConfig
+  proxy?: TProxyConfig;
   authentication?: boolean;
   startInTestnet?: boolean;
   gapLimitReceive?: number;
@@ -56,8 +56,8 @@ export type TBackendConfig = {
 };
 
 export type TConfig = {
-  backend?: TBackendConfig
-  frontend?: TFrontendConfig
+  backend?: TBackendConfig;
+  frontend?: TFrontendConfig;
 };
 
 export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {

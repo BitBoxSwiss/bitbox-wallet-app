@@ -18,8 +18,8 @@ import { ReactNode } from 'react';
 import style from './contentwrapper.module.css';
 
 type TProps = {
-  className?: string
-  children: ReactNode
+  className?: string;
+  children: ReactNode;
 };
 
 export const ContentWrapper = (({ className = '', children }: TProps) => {

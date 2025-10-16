@@ -100,7 +100,7 @@ const Group = (props: GroupProps<TOption>) => (
 );
 
 type GroupHeadingProps = {
-  customData: TGroupedOption
+  customData: TGroupedOption;
 } & ReactSelectGroupHeadingProps<TOption>;
 
 const GroupHeading = (

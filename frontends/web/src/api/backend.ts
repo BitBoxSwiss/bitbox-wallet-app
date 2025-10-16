@@ -67,7 +67,7 @@ export const getDevServers = (): Promise<boolean> => {
   return apiGet('dev-servers');
 };
 
-type TQRCode = FailResponse | (SuccessResponse & { data: string; });
+type TQRCode = FailResponse | (SuccessResponse & { data: string });
 
 export const getQRCode = (data: string) => {
   return (): Promise<TQRCode> => {
@@ -147,7 +147,7 @@ export const exportLogs = (): Promise<TSuccess> => {
   return apiPost('export-log');
 };
 
-export const exportNotes = (): Promise<(FailResponse & { aborted: boolean; }) | SuccessResponse> => {
+export const exportNotes = (): Promise<(FailResponse & { aborted: boolean }) | SuccessResponse> => {
   return apiPost('notes/export');
 };
 
@@ -156,7 +156,7 @@ type TImportNotes = {
   transactionCount: number;
 };
 
-export const importNotes = (fileContents: ArrayBuffer): Promise<FailResponse | (SuccessResponse & { data: TImportNotes; })> => {
+export const importNotes = (fileContents: ArrayBuffer): Promise<FailResponse | (SuccessResponse & { data: TImportNotes })> => {
   const hexString = Array.from(new Uint8Array(fileContents))
     .map(byte => byte.toString(16).padStart(2, '0'))
     .join('');

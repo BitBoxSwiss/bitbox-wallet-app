@@ -85,8 +85,8 @@ type VersionInfoCommon = {
 };
 
 export type VersionInfo = VersionInfoCommon & (
-  { canUpgrade: true, newVersion: string; } |
-  { canUpgrade: false; });
+  { canUpgrade: true; newVersion: string } |
+  { canUpgrade: false });
 
 export const getVersion = (
   deviceID: string
@@ -110,7 +110,7 @@ export const verifyAttestation = (
 export const checkBackup = (
   deviceID: string,
   silent: boolean,
-): Promise<FailResponse | (SuccessResponse & { backupID: string; })> => {
+): Promise<FailResponse | (SuccessResponse & { backupID: string })> => {
   return apiPost(`devices/bitbox02/${deviceID}/backups/check`, { silent });
 };
 

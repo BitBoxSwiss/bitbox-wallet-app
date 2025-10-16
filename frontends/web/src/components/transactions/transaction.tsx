@@ -150,7 +150,7 @@ const Status = ({
 
 type TAmountsProps = {
   amount: TAmountWithConversions;
-  deductedAmount: TAmountWithConversions,
+  deductedAmount: TAmountWithConversions;
   type: TTransactionType;
 };
 

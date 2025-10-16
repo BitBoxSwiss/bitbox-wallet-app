@@ -259,7 +259,7 @@ export type TTransaction = {
   weight: number;
 };
 
-export type TTransactions = { success: false } | { success: true; list: TTransaction[]; };
+export type TTransactions = { success: false } | { success: true; list: TTransaction[] };
 
 type TNoteTx = {
   internalTxID: string;
@@ -294,7 +294,7 @@ export const exportAccount = (code: AccountCode): Promise<TExport | null> => {
 export const verifyXPub = (
   code: AccountCode,
   signingConfigIndex: number,
-): Promise<{ success: true; } | { success: false; errorMessage: string; }> => {
+): Promise<{ success: true } | { success: false; errorMessage: string }> => {
   return apiPost(`account/${code}/verify-extended-public-key`, { signingConfigIndex });
 };
 
@@ -438,7 +438,7 @@ export const addAccount = (coinCode: string, name: string): Promise<TAddAccount>
   });
 };
 
-export type TSignMessage = { success: false, aborted?: boolean; errorMessage?: string; } | { success: true; signature: string; };
+export type TSignMessage = { success: false; aborted?: boolean; errorMessage?: string } | { success: true; signature: string };
 
 export type TSignWalletConnectTx = {
   success: false;

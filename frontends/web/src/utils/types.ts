@@ -30,7 +30,7 @@ export type NonEmptyArray<T> = [T, ...T[]];
  * As it turns out, you need TypeScript 3 to enforce this constraint.
  * At the moment, we are using version 2.9.2 (yarn run tsc -version).
  */
-export type ObjectButNotFunction = object & { prototype?: never; };
+export type ObjectButNotFunction = object & { prototype?: never };
 
 export type TDeviceNameError = undefined | 'tooShort' | 'tooLong' | 'invalidChars';
 export type TMessageTypes = 'success' | 'info' | 'warning' | 'error';

@@ -20,7 +20,7 @@ import { subscribeEndpoint, TUnsubscribe } from './subscribe';
 
 export type TBannerInfo = {
   id: string;
-  message: { [key: string]: string; };
+  message: { [key: string]: string };
   link?: {
     href: string;
     text?: string;

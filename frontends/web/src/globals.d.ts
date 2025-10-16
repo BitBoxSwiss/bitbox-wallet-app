@@ -18,10 +18,10 @@ import type { TPayload } from './utils/transport-common';
 
 export declare global {
   interface Window {
-    qt?: { webChannelTransport: unknown; };
+    qt?: { webChannelTransport: unknown };
     android?: {
       call: (queryID: number, query: string) => void;
-    }
+    };
     onMobileCallResponse?: (queryID: number, response: unknown) => void;
     onMobilePushNotification?: (msg: TPayload) => void;
     runningOnIOS?: boolean;
@@ -30,12 +30,12 @@ export declare global {
     webkit?: {
       messageHandlers: {
         goCall: {
-          postMessage: (msg: { queryID: number; query: string; }) => void;
-        }
+          postMessage: (msg: { queryID: number; query: string }) => void;
+        };
         appReady: {
           postMessage: (msg: any) => void;
-        }
-      }
-    }
+        };
+      };
+    };
   }
 }

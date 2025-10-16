@@ -6,8 +6,8 @@ import { alertUser } from '@/components/alert/Alert';
 
 type TWCParams = {
   request: {
-    method: string,
-    params: any[]
+    method: string;
+    params: any[];
   };
   chainId: string;
 };
@@ -30,10 +30,10 @@ export type TRequestDialogContent = {
 };
 
 export type TLaunchSignDialog = {
-  topic: string,
-  id: number,
+  topic: string;
+  id: number;
   apiCaller: () => Promise<any>;
-  dialogContent: TRequestDialogContent
+  dialogContent: TRequestDialogContent;
 };
 
 const fetchAccountNameAndAddress = async (address: string) => {

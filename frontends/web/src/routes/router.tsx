@@ -58,7 +58,7 @@ type TAppRouterProps = {
   deviceIDs: string[];
   accounts: TAccount[];
   activeAccounts: TAccount[];
-  devicesKey: ((input: string) => string)
+  devicesKey: ((input: string) => string);
 };
 
 type TInjectParamsProps = {

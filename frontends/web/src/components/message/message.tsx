@@ -20,7 +20,7 @@ import { StatusInfo, StatusSuccess, StatusWarning, StatusError } from '@/compone
 import { TMessageTypes } from '@/utils/types';
 import styles from './message.module.css';
 
-type TMessageIconProps = { type: TMessageTypes, icon?: ReactNode };
+type TMessageIconProps = { type: TMessageTypes; icon?: ReactNode };
 
 const MessageIcon = ({ type, icon }: TMessageIconProps) => {
   // optional custom icon

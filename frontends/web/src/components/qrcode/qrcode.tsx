@@ -59,8 +59,8 @@ export const QRCode = ({
 
 type TTapToCopyQRCodeProps = {
   data?: string;
-  qrCodeData: string
-  size: number
+  qrCodeData: string;
+  size: number;
 };
 
 const TapToCopyQRCode = ({ data, qrCodeData, size }: TTapToCopyQRCodeProps) => {
