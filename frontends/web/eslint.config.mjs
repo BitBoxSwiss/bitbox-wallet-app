@@ -63,6 +63,17 @@ export default tseslint.config(
       '@stylistic/type-generic-spacing': ['error'],
       '@stylistic/indent': ['error', 2, { "SwitchCase": 0 }],
       '@stylistic/semi': ["error", "always"],
+      '@stylistic/member-delimiter-style': ['error', {
+        "multiline": {
+          "delimiter": "semi",
+          "requireLast": true
+        },
+        "singleline": {
+          "delimiter": "semi",
+          "requireLast": false
+        },
+        "multilineDetection": "brackets"
+      }],
     },
   },
   {
