@@ -25,7 +25,7 @@ import { apiPost } from '@/utils/request';
 type Props = {
   deviceID: string;
   selectedBackup?: string;
-}
+};
 
 export const Check = ({ deviceID, selectedBackup }: Props) => {
   const { t } = useTranslation();

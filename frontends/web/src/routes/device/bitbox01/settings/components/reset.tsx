@@ -28,7 +28,7 @@ import style from '../../bitbox01.module.css';
 
 type Props = {
   deviceID: string;
-}
+};
 
 export const Reset = ({ deviceID }: Props) => {
   const { t } = useTranslation();

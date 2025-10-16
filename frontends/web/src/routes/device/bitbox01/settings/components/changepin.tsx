@@ -28,7 +28,7 @@ import { SettingsButton } from '@/components/settingsButton/settingsButton';
 type Props = {
   deviceID: string;
   disabled?: boolean;
-}
+};
 
 export const ChangePIN = ({ deviceID, disabled }: Props) => {
   const { t } = useTranslation();

@@ -40,13 +40,13 @@ type Props = {
   deviceID: string;
   goBack: () => void;
   onSuccess: () => void;
-}
+};
 
 type Agreements = {
   password_change: boolean;
   password_required: boolean;
   funds_access: boolean;
-}
+};
 
 export const SeedCreateNew = ({
   deviceID,

@@ -26,7 +26,7 @@ import { DialogLegacy, DialogButtons } from '@/components/dialog/dialog-legacy';
 type Props = {
   deviceID: string;
   onCreate: () => void;
-}
+};
 
 export const Create = ({ deviceID, onCreate }: Props) => {
   const { t } = useTranslation();

@@ -50,7 +50,7 @@ type GoalType = (typeof GOAL)[keyof typeof GOAL];
 
 type Props = {
   deviceID: string;
-}
+};
 
 export const BitBox01 = ({ deviceID }: Props) => {
   const [deviceStatus, setDeviceStatus] = useState<DeviceStatusType | ''>('');

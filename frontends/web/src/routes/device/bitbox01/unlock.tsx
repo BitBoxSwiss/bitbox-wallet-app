@@ -37,7 +37,7 @@ const stateEnum = Object.freeze({
 
 type Props = {
   deviceID: string;
-}
+};
 
 type UnlockResponse = {
   success: true;
@@ -47,7 +47,7 @@ type UnlockResponse = {
   errorMessage?: string;
   remainingAttempts?: number;
   needsLongTouch?: boolean;
-}
+};
 
 export const Unlock = ({ deviceID }: Props) => {
   const { t } = useTranslation();
