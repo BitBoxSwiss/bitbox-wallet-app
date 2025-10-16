@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +15,8 @@
  * limitations under the License.
  */
 
-import { TDevices } from '@/api/devices';
-import BitBox01 from './bitbox01/bitbox01';
+import type { TDevices } from '@/api/devices';
+import { BitBox01 } from './bitbox01/bitbox01';
 import { BitBox02 } from './bitbox02/bitbox02';
 import { BitBox02Bootloader } from '@/components/devices/bitbox02bootloader/bitbox02bootloader';
 import { Waiting } from './waiting';
@@ -26,7 +27,7 @@ type TProps = {
   hasAccounts: boolean;
 };
 
-const DeviceSwitch = ({ deviceID, devices, hasAccounts }: TProps) => {
+export const DeviceSwitch = ({ deviceID, devices, hasAccounts }: TProps) => {
   const deviceIDs = Object.keys(devices);
 
   if (deviceID === null || !deviceIDs.includes(deviceID)) {
@@ -50,5 +51,3 @@ const DeviceSwitch = ({ deviceID, devices, hasAccounts }: TProps) => {
     return <Waiting />;
   }
 };
-
-export { DeviceSwitch };
