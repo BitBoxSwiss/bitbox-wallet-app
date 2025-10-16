@@ -74,7 +74,7 @@ func (webdevEnvironment) DeviceInfos() []usb.DeviceInfo {
 	testDeviceInfo := simulator.TestDeviceInfo()
 	if testDeviceInfo != nil {
 		// We are in "test device" mode.
-		return []usb.DeviceInfo{*testDeviceInfo}
+		return []usb.DeviceInfo{testDeviceInfo}
 	}
 	return usb.DeviceInfos()
 }
