@@ -47,6 +47,7 @@ import style from './send.module.css';
 
 type TProps = {
   account: accountApi.IAccount;
+  activeAccounts?: accountApi.IAccount[];
   activeCurrency: accountApi.Fiat;
 }
 
@@ -73,6 +74,7 @@ const useAccountBalance = (accountCode: accountApi.AccountCode) => {
 
 export const Send = ({
   account,
+  activeAccounts,
   activeCurrency,
 }: TProps) => {
   const { t } = useTranslation();
@@ -83,7 +85,10 @@ export const Send = ({
   const lastProposal = useRef<Promise<accountApi.TTxProposalResult> | null>(null);
   const proposeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [recipientAddress, setRecipientAddress] = useState<string>('');
+  // state used for the "Receiver address" input - what the user types or the account's address that is selected
+  const [recipientInput, setRecipientInput] = useState<string>('');
+  // the selected account when sending to another account (for confirmation display with account name and number)
+  const [selectedReceiverAccount, setSelectedReceiverAccount] = useState<accountApi.IAccount | null>(null);
   const [amount, setAmount] = useState<string>('');
   const [fiatAmount, setFiatAmount] = useState<string>('');
   const [valid, setValid] = useState<boolean>(false);
@@ -107,7 +112,8 @@ export const Send = ({
   const handleContinue = () => {
     setSendAll(false);
     setIsConfirming(false);
-    setRecipientAddress('');
+    setRecipientInput('');
+    setSelectedReceiverAccount(null);
     setProposedAmount(undefined);
     setProposedFee(undefined);
     setProposedTotal(undefined);
@@ -144,7 +150,7 @@ export const Send = ({
 
   const getValidTxInputData = useCallback((): Required<accountApi.TTxInput> | false => {
     if (
-      !recipientAddress
+      !recipientInput
       || feeTarget === undefined
       || (!sendAll && !amount)
       || (feeTarget === 'custom' && !customFee)
@@ -152,7 +158,7 @@ export const Send = ({
       return false;
     }
     return {
-      address: recipientAddress,
+      address: recipientInput,
       amount,
       feeTarget,
       customFee,
@@ -161,7 +167,7 @@ export const Send = ({
       paymentRequest: null,
       useHighestFee: false
     };
-  }, [recipientAddress, feeTarget, sendAll, amount, customFee]);
+  }, [recipientInput, feeTarget, sendAll, amount, customFee]);
 
   const convertToFiat = useCallback(async (amount: string) => {
     if (amount) {
@@ -295,10 +301,13 @@ export const Send = ({
     return Object.keys(selectedUTXOsRef.current).length !== 0;
   };
 
-  const handleReceiverAddressInputChange = (recipientAddress: string) => {
-    setRecipientAddress(recipientAddress);
+  // when user types in the input field or selects from dropdown
+  const handleRecipientInputChange = (input: string) => {
+    setRecipientInput(input);
     setUpdateFiat(true);
+    setSelectedReceiverAccount(null);
   };
+
 
   const parseQRResult = async (uri: string) => {
     let qrAddress;
@@ -323,7 +332,7 @@ export const Send = ({
         if (result.success) {
           setAmount(result.amount);
         } else {
-          setRecipientAddress(qrAddress);
+          setRecipientInput(qrAddress);
           setSendAll(false);
           setFiatAmount('');
           setErrorHandling({ amountError: t('send.error.invalidAmount') });
@@ -333,7 +342,8 @@ export const Send = ({
         setAmount(qrAmount);
       }
     }
-    setRecipientAddress(qrAddress);
+    setRecipientInput(qrAddress);
+    setSelectedReceiverAccount(null);
     setSendAll(false);
     setFiatAmount('');
     convertToFiat(qrAmount);
@@ -389,10 +399,12 @@ export const Send = ({
               <Grid col="1">
                 <Column>
                   <ReceiverAddressInput
-                    accountCode={account.code}
+                    account={account}
+                    activeAccounts={activeAccounts}
                     addressError={errorHandling.addressError}
-                    onInputChange={handleReceiverAddressInputChange}
-                    recipientAddress={recipientAddress}
+                    onInputChange={handleRecipientInputChange}
+                    onAccountChange={setSelectedReceiverAccount}
+                    recipientAddress={recipientInput}
                     parseQRResult={parseQRResult}
                   />
                 </Column>
@@ -467,14 +479,16 @@ export const Send = ({
               selectedUTXOs={selectedUTXOsRef.current}
               coinCode={account.coinCode}
               transactionDetails={{
+                selectedReceiverAccount: selectedReceiverAccount || undefined,
                 proposedFee,
                 proposedAmount,
                 proposedTotal,
                 customFee,
                 feeTarget,
-                recipientAddress,
+                recipientAddress: recipientInput,
                 activeCurrency,
               }}
+              activeAccounts={activeAccounts}
             />
             {sendResult && (
               <SendResult

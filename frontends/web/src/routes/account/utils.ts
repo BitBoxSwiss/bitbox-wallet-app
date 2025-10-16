@@ -148,3 +148,19 @@ export const getAccountsPerCoin = (accounts: IAccount[]): TAccountCoinMap => {
     return accountPerCoin;
   }, {});
 };
+
+export const getAccountNumber = (targetAccount: IAccount, allAccounts: IAccount[], language: string): number | null => {
+  try {
+    const sameKeystoreAndCoin = allAccounts.filter(account =>
+      account.keystore.rootFingerprint === targetAccount.keystore.rootFingerprint &&
+      account.coinCode === targetAccount.coinCode
+    );
+
+    sameKeystoreAndCoin.sort((a, b) => a.code.localeCompare(b.code, language));
+    const position = sameKeystoreAndCoin.findIndex(account => account.code === targetAccount.code);
+    return position >= 0 ? position + 1 : null;
+  } catch (error) {
+    console.error('Error determining account number:', error);
+    return null;
+  }
+};

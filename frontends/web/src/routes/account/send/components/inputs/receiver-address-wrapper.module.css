@@ -1,0 +1,27 @@
+.accountName {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.accountOption {
+    align-items: center;
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.spinner img {
+    height: 14px;
+    margin-top: 3px;
+    width: 14px;
+}
+
+.coinLogo {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}

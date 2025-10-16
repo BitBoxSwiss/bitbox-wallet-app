@@ -21,6 +21,7 @@
 - More efficient account initialization by fetching all account Bitcoin xpubs at once
 - Enable search transactions by note, address, or txid
 - Move "Export" (export transactions) to account info page
+- Add a dropdown on the "Receiver address" input in the send screen to select an account
 
 ## v4.48.7
 - ios: fix Pocket user verification button
