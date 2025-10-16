@@ -2,6 +2,10 @@ html {
     font-size: 62.5%; /* 1rem = 10px */
 }
 
+body {
+    font-size: 1.6rem; /* 16px base for body, this will be overwritten on Android  */
+}
+
 html,
 body {
     background-color: var(--background);
