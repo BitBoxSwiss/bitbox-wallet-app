@@ -16,7 +16,7 @@
 
 
 import { test } from './helpers/fixtures';
-import { ServeWallet } from './helpers/servewallet';
+import { ServeWallet, ServeWalletOptions } from './helpers/servewallet';
 import { startSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
 import { assertFieldsCount, clickButtonWithText } from './helpers/dom';
 import { ChildProcessWithoutNullStreams } from 'child_process';
@@ -37,7 +37,7 @@ let simulatorProc : ChildProcessWithoutNullStreams | undefined;
  */
 test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendPort, servewalletPort }) => {
     await test.step('Start servewallet', async () => {
-        servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, true)
+        servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, { simulator: true})
         await servewallet.start();
     });
 
@@ -91,7 +91,7 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
  */
 test('Test #2 - No passphrase - Watch-only account', async ({ page, host, frontendPort, servewalletPort }) => {
     await test.step('Start servewallet', async () => {
-        servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, true);
+        servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, {simulator: true});
         await servewallet.start();
     });
 

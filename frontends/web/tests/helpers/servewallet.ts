@@ -28,6 +28,11 @@ async function connectOnce(host: string, port: number): Promise<void> {
   });
 }
 
+export interface ServeWalletOptions {
+  simulator?: boolean;
+  timeout?: number;
+  testnet?: boolean;
+}
 
 export class ServeWallet {
   private proc?: ChildProcess;
@@ -37,25 +42,44 @@ export class ServeWallet {
   private readonly frontendPort: number;
   private readonly host: string;
   private readonly timeout: number;
+  private readonly testnet: boolean;
 
   constructor(
     page: Page,
     servewalletPort: number,
     frontendPort: number,
     host: string,
-    simulator = false,
-    timeout = 90000,
+    options: ServeWalletOptions = {}
   ) {
+    const { simulator = false, timeout = 90000, testnet = true } = options;
+
+    if (!testnet && simulator) {
+      throw new Error('ServeWallet: mainnet simulator is not supported');
+    }
+
     this.page = page;
     this.servewalletPort = servewalletPort;
     this.frontendPort = frontendPort;
     this.host = host;
     this.simulator = simulator;
     this.timeout = timeout;
+    this.testnet = testnet;
   }
 
   async start(): Promise<void> {
-    const target = this.simulator ? 'servewallet-simulator' : 'servewallet';
+    let target: string;
+
+    if (this.testnet && !this.simulator) {
+      target = 'servewallet';
+    } else if (this.testnet && this.simulator) {
+      target = 'servewallet-simulator';
+    } else if (!this.testnet && !this.simulator) {
+      target = 'servewallet-mainnet';
+    } else {
+      // This should never happen because the constructor already guards against it
+      throw new Error('Invalid ServeWallet configuration');
+    }
+
     this.proc = spawn('make', ['-C', '../../', target], {
       stdio: 'inherit',
       detached: true,
@@ -71,9 +95,11 @@ export class ServeWallet {
         await connectOnce(this.host, this.servewalletPort);
         try {
           await this.page.goto(`http://${this.host}:${this.frontendPort}`);
-          console.log(`Servewallet ready on ${this.host}:${this.servewalletPort} after ${Date.now() - start} ms`);
+          console.log(
+            `Servewallet ready on ${this.host}:${this.servewalletPort} after ${Date.now() - start} ms`
+          );
           return;
-        } catch (err) {
+        } catch {
           // page.goto failed, likely connection refused; retry
         }
       } catch {
