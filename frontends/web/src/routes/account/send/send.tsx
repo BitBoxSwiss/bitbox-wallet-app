@@ -43,12 +43,14 @@ import { FiatValue } from './components/fiat-value';
 import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
 import { connectKeystore, getKeystoreFeatures } from '@/api/keystores';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import style from './send.module.css';
 
 type TProps = {
   account: accountApi.IAccount;
   activeAccounts?: accountApi.IAccount[];
   activeCurrency: accountApi.Fiat;
+  deviceIDs: string[];
 }
 
 const useAccountBalance = (accountCode: accountApi.AccountCode) => {
@@ -76,8 +78,10 @@ export const Send = ({
   account,
   activeAccounts,
   activeCurrency,
+  deviceIDs,
 }: TProps) => {
   const { t } = useTranslation();
+  const [showFirmwareUpgradeDialog, setShowFirmwareUpgradeDialog] = useState(false);
 
   const selectedUTXOsRef = useRef<TSelectedUTXOs>({});
   const [utxoDialogActive, setUtxoDialogActive] = useState(false);
@@ -142,7 +146,7 @@ export const Send = ({
         return;
       }
       if (!featuresResult.features?.supportsSendToSelf) {
-        alertUser(t('device.firmwareUpgradeRequired'));
+        setShowFirmwareUpgradeDialog(true);
         return;
       }
     }
@@ -156,7 +160,7 @@ export const Send = ({
       // The following method allows pressing escape again.
       setIsConfirming(false);
     }
-  }, [account.code, account.keystore.rootFingerprint, note, selectedReceiverAccount, t]);
+  }, [account.code, account.keystore.rootFingerprint, note, selectedReceiverAccount, setShowFirmwareUpgradeDialog, t]);
 
   const getValidTxInputData = useCallback((): Required<accountApi.TTxInput> | false => {
     if (
@@ -523,6 +527,11 @@ export const Send = ({
         </Main>
       </GuidedContent>
       <SendGuide coinCode={account.coinCode} />
+      <FirmwareUpgradeRequiredDialog
+        open={showFirmwareUpgradeDialog}
+        onClose={() => setShowFirmwareUpgradeDialog(false)}
+        deviceIDs={deviceIDs}
+      />
     </GuideWrapper>
   );
 };

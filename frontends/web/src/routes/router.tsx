@@ -115,6 +115,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     <SendWrapper
       code={'' /* dummy to satisfy TS */}
       activeAccounts={activeAccounts}
+      deviceIDs={deviceIDs}
     />
   </InjectParams>);
 
