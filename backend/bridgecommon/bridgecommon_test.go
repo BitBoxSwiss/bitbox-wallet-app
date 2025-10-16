@@ -79,6 +79,7 @@ func (e environment) BluetoothConnect(string) {}
 func TestServeShutdownServe(t *testing.T) {
 	bridgecommon.Serve(
 		false,
+		false,
 		nil,
 		communication{},
 		environment{},
@@ -88,6 +89,7 @@ func TestServeShutdownServe(t *testing.T) {
 	done := make(chan struct{})
 	go func() {
 		bridgecommon.Serve(
+			false,
 			false,
 			nil,
 			communication{},

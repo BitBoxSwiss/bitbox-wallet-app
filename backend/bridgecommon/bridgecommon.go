@@ -286,6 +286,7 @@ func (env *BackendEnvironment) BluetoothConnect(identifier string) {
 // Serve serves the BitBox API for use in a native client.
 func Serve(
 	testnet bool,
+	simulator bool,
 	gapLimits *btctypes.GapLimits,
 	communication NativeCommunication,
 	backendEnvironment backend.Environment) {
@@ -316,6 +317,10 @@ func Serve(
 		backendEnvironment)
 	if err != nil {
 		log.WithError(err).Fatal("Failed to create backend")
+	}
+
+	if simulator && !globalBackend.Testing() {
+		log.Panic("Simulator can only be used in testnet mode")
 	}
 
 	quitChan := make(chan struct{})
