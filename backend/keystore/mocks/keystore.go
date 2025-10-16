@@ -38,6 +38,9 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			ExtendedPublicKeyFunc: func(coinMoqParam coin.Coin, absoluteKeypath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
 //				panic("mock out the ExtendedPublicKey method")
 //			},
+//			FeaturesFunc: func() *keystore.Features {
+//				panic("mock out the Features method")
+//			},
 //			NameFunc: func() (string, error) {
 //				panic("mock out the Name method")
 //			},
@@ -110,6 +113,9 @@ type KeystoreMock struct {
 
 	// ExtendedPublicKeyFunc mocks the ExtendedPublicKey method.
 	ExtendedPublicKeyFunc func(coinMoqParam coin.Coin, absoluteKeypath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
+
+	// FeaturesFunc mocks the Features method.
+	FeaturesFunc func() *keystore.Features
 
 	// NameFunc mocks the Name method.
 	NameFunc func() (string, error)
@@ -190,6 +196,9 @@ type KeystoreMock struct {
 			CoinMoqParam coin.Coin
 			// AbsoluteKeypath is the absoluteKeypath argument value.
 			AbsoluteKeypath signing.AbsoluteKeypath
+		}
+		// Features holds details about calls to the Features method.
+		Features []struct {
 		}
 		// Name holds details about calls to the Name method.
 		Name []struct {
@@ -292,6 +301,7 @@ type KeystoreMock struct {
 	lockCanVerifyAddress                sync.RWMutex
 	lockCanVerifyExtendedPublicKey      sync.RWMutex
 	lockExtendedPublicKey               sync.RWMutex
+	lockFeatures                        sync.RWMutex
 	lockName                            sync.RWMutex
 	lockRootFingerprint                 sync.RWMutex
 	lockSignBTCMessage                  sync.RWMutex
@@ -471,6 +481,33 @@ func (mock *KeystoreMock) ExtendedPublicKeyCalls() []struct {
 	mock.lockExtendedPublicKey.RLock()
 	calls = mock.calls.ExtendedPublicKey
 	mock.lockExtendedPublicKey.RUnlock()
+	return calls
+}
+
+// Features calls FeaturesFunc.
+func (mock *KeystoreMock) Features() *keystore.Features {
+	if mock.FeaturesFunc == nil {
+		panic("KeystoreMock.FeaturesFunc: method is nil but Keystore.Features was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockFeatures.Lock()
+	mock.calls.Features = append(mock.calls.Features, callInfo)
+	mock.lockFeatures.Unlock()
+	return mock.FeaturesFunc()
+}
+
+// FeaturesCalls gets all the calls that were made to Features.
+// Check the length with:
+//
+//	len(mockedKeystore.FeaturesCalls())
+func (mock *KeystoreMock) FeaturesCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockFeatures.RLock()
+	calls = mock.calls.Features
+	mock.lockFeatures.RUnlock()
 	return calls
 }
 

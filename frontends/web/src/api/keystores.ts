@@ -22,6 +22,16 @@ export type { TUnsubscribe };
 type TKeystore = { type: 'hardware' | 'software' };
 export type TKeystores = TKeystore[];
 
+export type TKeystoreFeatures = {
+  supportsSendToSelf: boolean;
+};
+
+export type TKeystoreFeaturesResponse = {
+  success: boolean;
+  features?: TKeystoreFeatures | null;
+  errorMessage?: string;
+};
+
 export const subscribeKeystores = (
   cb: (keystores: TKeystores) => void
 ) => {
@@ -42,4 +52,8 @@ export const deregisterTest = (): Promise<null> => {
 
 export const connectKeystore = (rootFingerprint: string): Promise<{ success: boolean; }> => {
   return apiPost('connect-keystore', { rootFingerprint });
+};
+
+export const getKeystoreFeatures = (rootFingerprint: string): Promise<TKeystoreFeaturesResponse> => {
+  return apiGet(`keystore/${rootFingerprint}/features`);
 };
