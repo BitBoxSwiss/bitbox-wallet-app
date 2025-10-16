@@ -25,7 +25,7 @@ type Props = {
   onSelectBackup: (backup: Backup) => void;
   onRestoreBackup: (success: boolean) => void;
   onBack: () => void;
-}
+};
 
 export const RestoreFromSDCardBackup = ({
   deviceID,

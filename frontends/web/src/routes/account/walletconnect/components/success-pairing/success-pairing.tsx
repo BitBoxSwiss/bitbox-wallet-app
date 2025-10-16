@@ -23,8 +23,8 @@ import { AnimatedChecked } from '@/components/icon';
 import styles from './success-pairing.module.css';
 
 type TProps = {
-    accountCode: accountAPI.AccountCode;
-}
+  accountCode: accountAPI.AccountCode;
+};
 
 export const WCSuccessPairing = ({ accountCode }: TProps) => {
   const navigate = useNavigate();

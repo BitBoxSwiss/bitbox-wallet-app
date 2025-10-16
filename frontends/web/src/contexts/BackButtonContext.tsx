@@ -23,7 +23,7 @@ export type THandler = () => boolean;
 type TProps = {
   pushHandler: (handler: THandler) => void;
   popHandler: (handler: THandler) => void;
-}
+};
 
 export const BackButtonContext = createContext<TProps>({
   pushHandler: () => {
@@ -38,7 +38,7 @@ export const BackButtonContext = createContext<TProps>({
 
 type TProviderProps = {
   children: ReactNode;
-}
+};
 
 export const BackButtonProvider = ({ children }: TProviderProps) => {
   const [handlers, setHandlers] = useState<THandler[]>([]);

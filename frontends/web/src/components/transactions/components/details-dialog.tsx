@@ -42,7 +42,7 @@ type TProps = {
   time: string | null;
   amount: TAmountWithConversions;
   explorerURL: string;
-}
+};
 
 export const TxDetailsDialog = ({
   open,

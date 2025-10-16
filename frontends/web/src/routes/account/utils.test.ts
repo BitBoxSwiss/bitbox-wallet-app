@@ -23,7 +23,7 @@ const createAccount = ({
   keystore,
   ...props
 }: Partial<Omit<TAccount, 'keystore'>> & {
-  keystore: Partial<TAccount['keystore']> | undefined
+  keystore: Partial<TAccount['keystore']> | undefined;
 }) => {
   return {
     active: true,

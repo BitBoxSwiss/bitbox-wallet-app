@@ -26,7 +26,7 @@ type TProps = {
   account: TAccount;
   onSelectedUTXOsChange: (selectedUTXOs: TSelectedUTXOs) => void;
   onCoinControlDialogActiveChange?: (active: boolean) => void;
-}
+};
 
 export const CoinControl = ({
   account,

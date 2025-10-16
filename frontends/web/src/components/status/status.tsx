@@ -33,7 +33,7 @@ type TProps = {
   dismissible: string;
   className?: string;
   children: ReactNode;
-}
+};
 
 export const Status = ({
   hidden,

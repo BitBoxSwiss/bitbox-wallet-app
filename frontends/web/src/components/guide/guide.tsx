@@ -25,9 +25,9 @@ import style from './guide.module.css';
 
 
 export type TProps = {
-    children?: ReactNode;
-    title?: string
-}
+  children?: ReactNode;
+  title?: string;
+};
 
 const Guide = ({ children, title = t('guide.title') }: TProps) => {
   const { guideShown, toggleGuide, setGuideExists } = useContext(AppContext);

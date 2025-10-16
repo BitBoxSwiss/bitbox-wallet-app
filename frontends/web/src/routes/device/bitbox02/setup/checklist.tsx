@@ -22,7 +22,7 @@ import style from './checklist.module.css';
 
 type Props = {
   onContinue: () => void;
-}
+};
 
 export const ChecklistWalletCreate = ({ onContinue, }: Props) => {
   const { t } = useTranslation();

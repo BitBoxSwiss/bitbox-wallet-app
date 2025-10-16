@@ -23,7 +23,7 @@ import { StyledSkeleton } from '@/routes/settings/bb02-settings';
 
 type TProps = {
   deviceID: string;
-}
+};
 
 const AttestationCheckSetting = ({ deviceID }: TProps) => {
   const [attestation, setAttestation] = useState<boolean | null>(null);

@@ -23,7 +23,7 @@ import { subscribeEndpoint } from './subscribe';
 type TAccount = {
   name: string;
   code: AccountCode;
-}
+};
 
 type Accounts = NonEmptyArray<TAccount>;
 

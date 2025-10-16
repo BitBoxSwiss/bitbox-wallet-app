@@ -26,7 +26,6 @@ export default tseslint.config(
       'brace-style': ['error', '1tbs'],
       'comma-spacing': ['error', { 'before': false, 'after': true }],
       'curly': 'error',
-      'indent': ['error', 2, { 'SwitchCase': 0 }],
       'jsx-a11y/anchor-is-valid': 0,
       'jsx-a11y/alt-text' : 0,
       'jsx-quotes': ['error', 'prefer-double'],
@@ -36,7 +35,6 @@ export default tseslint.config(
       'no-trailing-spaces': 'error',
       'object-curly-spacing': ['error', 'always'],
       'quotes': ['error', 'single'],
-      'semi': 'error',
       'space-before-blocks': ['error', 'always'],
       'space-in-parens': ['error', 'never'],
       'no-extra-semi': 'error',
@@ -63,6 +61,19 @@ export default tseslint.config(
         'logical': 'parens-new-line'
       }],
       '@stylistic/type-generic-spacing': ['error'],
+      '@stylistic/indent': ['error', 2, { "SwitchCase": 0 }],
+      '@stylistic/semi': ["error", "always"],
+      '@stylistic/member-delimiter-style': ['error', {
+        "multiline": {
+          "delimiter": "semi",
+          "requireLast": true
+        },
+        "singleline": {
+          "delimiter": "semi",
+          "requireLast": false
+        },
+        "multilineDetection": "brackets"
+      }],
     },
   },
   {

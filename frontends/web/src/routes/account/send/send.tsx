@@ -48,7 +48,7 @@ import style from './send.module.css';
 type TProps = {
   account: accountApi.TAccount;
   activeCurrency: accountApi.Fiat;
-}
+};
 
 const useAccountBalance = (accountCode: accountApi.AccountCode) => {
   const mounted = useMountedRef();

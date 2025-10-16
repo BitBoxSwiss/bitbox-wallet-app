@@ -26,7 +26,7 @@ import { Message } from '@/components/message/message';
 type TProps = {
   backendConfig?: TBackendConfig;
   onChangeConfig: (config: TConfig) => void;
-}
+};
 
 export const CustomGapLimitSettings = ({ backendConfig, onChangeConfig }: TProps) => {
   const { t } = useTranslation();

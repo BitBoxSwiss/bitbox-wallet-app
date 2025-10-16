@@ -26,7 +26,7 @@ import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimati
 type TProps = {
   deviceID: string;
   children: ReactNode;
-}
+};
 
 const SDCardCheck = ({ deviceID, children }: TProps) => {
   const { t } = useTranslation();

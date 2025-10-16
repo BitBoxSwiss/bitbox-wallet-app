@@ -22,7 +22,7 @@ import { UseDisableBackButton } from '@/hooks/backbutton';
 type Props = {
   title: string;
   text?: string;
-}
+};
 
 export const Wait = ({ title, text }: Props) => {
   const { t } = useTranslation();

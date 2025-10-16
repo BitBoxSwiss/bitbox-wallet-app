@@ -23,7 +23,7 @@ import { isBitcoinOnly } from '@/routes/account/utils';
 
 type TAddAccountGuide = {
   accounts: TAccount[];
-}
+};
 
 const getCoinsLink = () => {
   switch (i18n.resolvedLanguage) {

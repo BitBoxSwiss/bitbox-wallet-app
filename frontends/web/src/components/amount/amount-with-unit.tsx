@@ -29,7 +29,7 @@ type TAmountWithUnitProps = {
   sign?: string;
   alwaysShowAmounts?: boolean;
   convertToFiat?: boolean;
-}
+};
 
 export const AmountWithUnit = ({
   amount,
@@ -98,7 +98,7 @@ export const AmountWithUnit = ({
 type TAmountUnitProps = {
   rotateUnit?: () => Promise<void>;
   unit: ConversionUnit | CoinUnit;
-}
+};
 
 export const AmountUnit = ({ rotateUnit, unit }: TAmountUnitProps) => {
   const classRototable = rotateUnit ? (style.rotatable || '') : '';

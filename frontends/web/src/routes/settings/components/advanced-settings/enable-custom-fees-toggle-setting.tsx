@@ -24,7 +24,7 @@ import { setConfig } from '@/utils/config';
 type TProps = {
   frontendConfig?: TFrontendConfig;
   onChangeConfig: Dispatch<TConfig>;
-}
+};
 
 export const EnableCustomFeesToggleSetting = ({ frontendConfig, onChangeConfig }: TProps) => {
   const { t } = useTranslation();

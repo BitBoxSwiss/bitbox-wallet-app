@@ -33,7 +33,7 @@ import { convertScriptType } from '@/utils/request-addess';
 import style from './widget.module.css';
 
 type TProps = {
-    code: string;
+  code: string;
 };
 
 export const BitsuranceWidget = ({ code }: TProps) => {

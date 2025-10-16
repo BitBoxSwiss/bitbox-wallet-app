@@ -24,7 +24,7 @@ import { SimpleMarkup } from '@/utils/markup';
 
 type TProps = {
   onAgreedTerms: () => void;
-}
+};
 
 export const PocketTerms = ({ onAgreedTerms }: TProps) => {
   const { t } = useTranslation();

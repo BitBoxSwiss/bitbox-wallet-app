@@ -21,12 +21,12 @@ import { SettingsItem } from '@/routes/settings/components/settingsItem/settings
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 
 type TGoToStartupSettingsProps = {
-    deviceID: string;
-}
+  deviceID: string;
+};
 
 type TStartupSettingsWaitDialogProps = {
-    show: boolean;
-}
+  show: boolean;
+};
 
 const StartupSettingsWaitDialog = ({ show }: TStartupSettingsWaitDialogProps) => {
   const { t } = useTranslation();

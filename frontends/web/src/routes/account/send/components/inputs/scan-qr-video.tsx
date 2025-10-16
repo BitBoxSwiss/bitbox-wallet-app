@@ -21,7 +21,7 @@ import style from './scan-qr-video.module.css';
 
 type TProps = {
   onResult: (result: string) => void;
-}
+};
 
 export const ScanQRVideo = ({
   onResult,

@@ -20,19 +20,19 @@ import { A } from '@/components/anchor/anchor';
 import style from './guide.module.css';
 
 export type TEntryProp = {
-    title: string;
+  title: string;
+  text: string;
+  link?: {
+    url?: string;
     text: string;
-    link?: {
-        url?: string;
-        text: string;
-    };
-}
+  };
+};
 
 type TEntryProps = {
-    entry: TEntryProp;
-    shown?: boolean;
-    children?: ReactNode;
-}
+  entry: TEntryProp;
+  shown?: boolean;
+  children?: ReactNode;
+};
 
 type TProps = TEntryProps;
 

@@ -8,7 +8,7 @@ import { getConfig, setConfig } from '@/utils/config';
 type Props = {
   open: boolean;
   onClose: () => void;
-}
+};
 export const EnableRememberWalletDialog = ({ open, onClose }: Props) => {
   const { t } = useTranslation();
   const config = useLoad(getConfig);

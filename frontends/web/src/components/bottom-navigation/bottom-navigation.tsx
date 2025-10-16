@@ -27,7 +27,7 @@ import styles from './bottom-navigation.module.css';
 type Props = {
   activeAccounts: TAccount[];
   devices: TDevices;
-}
+};
 
 export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
   const { t } = useTranslation();

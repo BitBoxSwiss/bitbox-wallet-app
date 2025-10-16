@@ -26,7 +26,7 @@ type Props = {
   attestation: boolean | null | undefined;
   deviceID: string;
   pairingFailed: boolean;
-}
+};
 
 export const Pairing = ({
   attestation,

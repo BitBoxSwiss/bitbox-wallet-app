@@ -25,7 +25,7 @@ export type TStatus = {
   tip: number;
   tipAtInitTime: number;
   tipHashHex: string;
-}
+};
 
 export const subscribeCoinHeaders = (coinCode: CoinCode) => (
   (cb: TSubscriptionCallback<TStatus>) => (
@@ -44,7 +44,7 @@ export const setBtcUnit = (unit: BtcUnit): Promise<TSetBtcUnitResponse> => {
 export type TAmount = {
   success: boolean;
   amount: string;
-}
+};
 
 export const parseExternalBtcAmount = (amount: string): Promise<TAmount> => {
   return apiGet(`coins/btc/parse-external-amount?amount=${amount}`);

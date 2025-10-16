@@ -31,7 +31,7 @@ type TRequestDialogProps = {
   onReject: () => void;
   content: TRequestDialogContent;
   stage: TStage;
-}
+};
 
 const ConfirmOnBB02 = () => {
   const { t } = useTranslation();

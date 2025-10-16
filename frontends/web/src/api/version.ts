@@ -23,7 +23,7 @@ type TUpdateFile = {
   current: string;
   version: string;
   description: string;
-}
+};
 
 export const getVersion = (): Promise<string> => {
   return apiGet('version');

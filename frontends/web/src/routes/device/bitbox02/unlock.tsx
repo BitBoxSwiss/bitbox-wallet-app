@@ -21,7 +21,7 @@ import { PasswordEntry } from './components/password-entry/password-entry';
 
 type Props = {
   attestation: boolean | null | undefined;
-}
+};
 
 export const Unlock = ({ attestation }: Props) => {
   const { t } = useTranslation();

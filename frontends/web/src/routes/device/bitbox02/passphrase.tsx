@@ -34,8 +34,8 @@ const FINAL_INFO_STEP = 5;
 const CONTENT_MIN_HEIGHT = '38em';
 
 type TProps = {
-    deviceID: string;
-}
+  deviceID: string;
+};
 
 type TStatus = 'info' | 'progress' | 'success';
 
@@ -157,7 +157,7 @@ export const Passphrase = ({ deviceID }: TProps) => {
 type TInfoProps = {
   handleAbort: () => void;
   setPassphrase: (enabled: boolean) => void;
-}
+};
 
 const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
   const { t } = useTranslation();
@@ -181,7 +181,7 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
     setInfoStep((infoStep) => infoStep + 1);
   };
 
-  type TStepData = { titleKey: string; messageKey: string; buttonTextKey: string; }[]
+  type TStepData = { titleKey: string; messageKey: string; buttonTextKey: string }[];
 
   const stepData: TStepData = [
     { titleKey: t('passphrase.intro.title'), messageKey: t('passphrase.intro.message'), buttonTextKey: t('passphrase.what.button') },

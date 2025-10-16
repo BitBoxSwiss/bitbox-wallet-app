@@ -22,7 +22,7 @@ type TProps = {
   title: string;
   withGuide?: boolean;
   onClick?: () => void;
-}
+};
 
 export const MobileHeader = ({ title, withGuide = false, onClick }: TProps) => {
   const navigate = useNavigate();

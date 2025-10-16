@@ -40,7 +40,7 @@ type TProps = {
   action: TMarketAction;
   code: AccountCode;
   deviceIDs: string[];
-}
+};
 
 export const Pocket = ({
   action,

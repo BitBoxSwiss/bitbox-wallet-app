@@ -37,13 +37,13 @@ type Props = {
   onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
   onCustomFee: (customFee: string) => void;
   error?: string;
-}
+};
 
 type TOption = {
   value: accountApi.FeeTargetCode;
   label: string;
   isDisabled?: boolean;
-}
+};
 
 export const FeeTargets = ({
   accountCode,

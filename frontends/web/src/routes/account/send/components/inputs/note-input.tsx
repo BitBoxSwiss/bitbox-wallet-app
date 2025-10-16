@@ -20,9 +20,9 @@ import { Input } from '@/components/forms';
 import style from './note-input.module.css';
 
 type TProps = {
-    onNoteChange: (note: string) => void;
-    note: string;
-}
+  onNoteChange: (note: string) => void;
+  note: string;
+};
 
 export const NoteInput = ({ onNoteChange, note }: TProps) => {
   const { t } = useTranslation();

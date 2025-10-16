@@ -27,7 +27,7 @@ import style from './terms.module.css';
 type TProps = {
   account: TAccount;
   onAgreedTerms: () => void;
-}
+};
 
 export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
   const { t } = useTranslation();

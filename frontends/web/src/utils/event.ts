@@ -30,7 +30,7 @@ export type Observer = (event: TEvent) => void;
  */
 type Subscriptions = {
   [subject: string]: Observer[]; // TypeScript does not allow the type alias Subject there.
-}
+};
 
 /**
  * Stores the subscriptions as an object-based hash map.

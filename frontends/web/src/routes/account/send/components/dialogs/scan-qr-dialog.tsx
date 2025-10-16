@@ -24,7 +24,7 @@ type TProps = {
   toggleScanQR: () => void;
   onChangeActiveScanQR: (active: boolean) => void;
   parseQRResult: (result: string) => void;
-}
+};
 
 export const ScanQRDialog = ({
   parseQRResult,

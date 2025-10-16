@@ -32,7 +32,7 @@ type RestoreProps = {
   requireConfirmation: boolean;
   deviceID: string;
   onRestore: () => void;
-}
+};
 
 type Props = RestoreProps & TranslateProps;
 
@@ -42,7 +42,7 @@ type State = {
   isLoading: boolean;
   understand: boolean;
   password?: string | null;
-}
+};
 
 class Restore extends Component<Props, State> {
   public readonly state: State = {

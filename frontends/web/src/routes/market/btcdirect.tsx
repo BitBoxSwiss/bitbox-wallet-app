@@ -47,7 +47,7 @@ type TProps = {
   accounts: TAccount[];
   action: TMarketAction;
   code: AccountCode;
-}
+};
 
 export const BTCDirect = ({
   accounts,

@@ -42,7 +42,7 @@ import style from './market.module.css';
 type TProps = {
   accounts: TAccount[];
   code: AccountCode;
-}
+};
 
 export const Market = ({
   accounts,

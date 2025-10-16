@@ -23,16 +23,16 @@ import { AnimatedChecked, Abort, Close } from '@/components/icon/icon';
 import style from './view.module.css';
 
 type TViewProps = {
-    dialog?: boolean;
-    fitContent?: boolean;
-    fullscreen?: boolean;
-    children: ReactNode;
-    minHeight?: string;
-    onClose?: () => void;
-    textCenter?: boolean;
-    verticallyCentered?: boolean;
-    width?: string;
-    withBottomBar?: boolean;
+  dialog?: boolean;
+  fitContent?: boolean;
+  fullscreen?: boolean;
+  children: ReactNode;
+  minHeight?: string;
+  onClose?: () => void;
+  textCenter?: boolean;
+  verticallyCentered?: boolean;
+  width?: string;
+  withBottomBar?: boolean;
 };
 
 /**
@@ -109,7 +109,7 @@ type TViewContentProps = {
   minHeight?: string;
   textAlign?: 'center' | 'left';
   withIcon?: 'success' | 'error';
-}
+};
 
 const ViewIcon = ({
   withIcon,
@@ -157,11 +157,11 @@ export const ViewContent = ({
 };
 
 type THeaderProps = {
-    small?: boolean;
-    title?: ReactNode;
-    withAppLogo?: boolean;
-    children?: ReactNode;
-}
+  small?: boolean;
+  title?: ReactNode;
+  withAppLogo?: boolean;
+  children?: ReactNode;
+};
 
 /**
  * ViewHeader component to render the view's title and a byline
@@ -196,7 +196,7 @@ export const ViewHeader = ({
 type TViewButtonsProps = {
   reverseRow?: boolean;
   children?: ReactNode;
-}
+};
 
 /**
  * ViewButtons component use as container for buttons

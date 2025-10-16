@@ -41,7 +41,7 @@ type TPropsPasswordInput = {
   placeholder?: string;
   onInput?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
-}
+};
 export const PasswordInput = ({ seePlaintext, ...rest }: TPropsPasswordInput) => {
   return (
     <Input
@@ -61,7 +61,7 @@ type TProps = {
   title?: string;
   showLabel?: string;
   onValidPassword: (password: string | null) => void;
-}
+};
 
 type TPasswordSingleInputProps = TProps & TranslateProps;
 
@@ -69,7 +69,7 @@ type TState = {
   password: string;
   seePlaintext: boolean;
   capsLock: boolean;
-}
+};
 
 class PasswordSingleInputClass extends Component<TPasswordSingleInputProps, TState> {
   private regex?: RegExp;
@@ -359,7 +359,7 @@ type MatchesPatternProps = {
   regex: RegExp | undefined;
   value: string;
   text: string | undefined;
-}
+};
 const MatchesPattern = ({ regex, value = '', text }: MatchesPatternProps) => {
   if (!regex || !value.length || regex.test(value)) {
     return null;

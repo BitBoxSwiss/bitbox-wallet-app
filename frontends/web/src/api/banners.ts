@@ -20,14 +20,14 @@ import { subscribeEndpoint, TUnsubscribe } from './subscribe';
 
 export type TBannerInfo = {
   id: string;
-  message: { [key: string]: string; };
+  message: { [key: string]: string };
   link?: {
     href: string;
     text?: string;
   };
   dismissible?: boolean;
   type?: TMessageTypes;
-}
+};
 
 export const getBanner = (msgKey: string): Promise<TBannerInfo> => {
   return apiGet(`banners/${msgKey}`);

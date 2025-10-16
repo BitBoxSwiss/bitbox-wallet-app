@@ -29,20 +29,20 @@ type TWithSettingsTabsProps = {
   devices: TDevices;
   hasAccounts: boolean;
   hideMobileMenu?: boolean;
-}
+};
 
 type TTab = {
   name: string;
   url: string;
   hideMobileMenu?: boolean;
   canUpgrade?: boolean;
-}
+};
 
 type TTabs = {
   devices: TDevices;
   hasAccounts: boolean;
   hideMobileMenu?: boolean;
-}
+};
 
 export const WithSettingsTabs = ({
   children,
@@ -106,7 +106,7 @@ export const Tab = ({
 type TTabWithVersionCheck = TTab & {
   deviceID: string;
   device: TPlatformName;
-}
+};
 
 const TabWithVersionCheck = ({ deviceID, device, ...props }: TTabWithVersionCheck) => {
   const isBitBox02 = device === 'bitbox02';

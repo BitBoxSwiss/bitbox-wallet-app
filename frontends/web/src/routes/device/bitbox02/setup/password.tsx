@@ -24,7 +24,7 @@ import { convertDateToLocaleString } from '@/utils/date';
 
 type Props = {
   errorText: string | undefined;
-}
+};
 
 export const SetPassword = ({ errorText }: Props) => {
   const { t } = useTranslation();
@@ -52,7 +52,7 @@ export const SetPassword = ({ errorText }: Props) => {
 
 type PropsWithBackup = {
   forBackup?: Backup;
-}
+};
 
 export const SetPasswordWithBackup = ({
   forBackup,
