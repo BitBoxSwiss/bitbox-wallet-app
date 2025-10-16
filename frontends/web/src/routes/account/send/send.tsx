@@ -42,7 +42,7 @@ import { NoteInput } from './components/inputs/note-input';
 import { FiatValue } from './components/fiat-value';
 import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore, getKeystoreFeatures } from '@/api/keystores';
 import style from './send.module.css';
 
 type TProps = {
@@ -135,18 +135,28 @@ export const Send = ({
     if (!connectResult.success) {
       return;
     }
+    if (selectedReceiverAccount) {
+      const featuresResult = await getKeystoreFeatures(rootFingerprint);
+      if (!featuresResult.success) {
+        alertUser(featuresResult.errorMessage || t('genericError'));
+        return;
+      }
+      if (!featuresResult.features?.supportsSendToSelf) {
+        alertUser(t('device.firmwareUpgradeRequired'));
+        return;
+      }
+    }
     setIsConfirming(true);
     try {
       const result = await accountApi.sendTx(account.code, note);
       setSendResult(result);
-      setIsConfirming(false);
     } catch (err) {
       console.error(err);
     } finally {
       // The following method allows pressing escape again.
       setIsConfirming(false);
     }
-  }, [account.code, account.keystore.rootFingerprint, note]);
+  }, [account.code, account.keystore.rootFingerprint, note, selectedReceiverAccount, t]);
 
   const getValidTxInputData = useCallback((): Required<accountApi.TTxInput> | false => {
     if (

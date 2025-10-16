@@ -150,4 +150,14 @@ type Keystore interface {
 
 	// SupportsPaymentRequests returns nil if the device supports silent payments, or an error indicating why it is not supported.
 	SupportsPaymentRequests() error
+
+	// Features reports optional capabilities supported by this keystore.
+	Features() *Features
+}
+
+// Features enumerates optional capabilities that can differ per keystore implementation.
+type Features struct {
+	// SupportsSendToSelf indicates whether the keystore can explicitly verify outputs that belong to
+	// the same keystore (used for the send-to-self recipient dropdown flow).
+	SupportsSendToSelf bool `json:"supportsSendToSelf"`
 }
