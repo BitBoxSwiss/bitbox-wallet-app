@@ -2,6 +2,14 @@ html {
     font-size: 62.5%; /* 1rem = 10px */
 }
 
+body {
+    font-size: 1.6rem; /* 16px base for body, this will be overwritten on Android  */
+}
+
+.app {
+    font-size: var(--size-default); /* for components that do not define font-size */
+}
+
 html,
 body {
     background-color: var(--background);
