@@ -42,7 +42,7 @@ import { NoteInput } from './components/inputs/note-input';
 import { FiatValue } from './components/fiat-value';
 import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
-import { connectKeystore, getKeystoreFeatures } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystores';
 import style from './send.module.css';
 
 type TProps = {
@@ -78,7 +78,6 @@ export const Send = ({
   activeCurrency,
 }: TProps) => {
   const { t } = useTranslation();
-
   const selectedUTXOsRef = useRef<TSelectedUTXOs>({});
   const [utxoDialogActive, setUtxoDialogActive] = useState(false);
   // in case there are multiple parallel tx proposals we can ignore all other but the last one
@@ -135,17 +134,6 @@ export const Send = ({
     if (!connectResult.success) {
       return;
     }
-    if (selectedReceiverAccount) {
-      const featuresResult = await getKeystoreFeatures(rootFingerprint);
-      if (!featuresResult.success) {
-        alertUser(featuresResult.errorMessage || t('genericError'));
-        return;
-      }
-      if (!featuresResult.features?.supportsSendToSelf) {
-        alertUser(t('device.firmwareUpgradeRequired'));
-        return;
-      }
-    }
     setIsConfirming(true);
     try {
       const result = await accountApi.sendTx(account.code, note);
@@ -156,7 +144,7 @@ export const Send = ({
       // The following method allows pressing escape again.
       setIsConfirming(false);
     }
-  }, [account.code, account.keystore.rootFingerprint, note, selectedReceiverAccount, t]);
+  }, [account.code, account.keystore.rootFingerprint, note]);
 
   const getValidTxInputData = useCallback((): Required<accountApi.TTxInput> | false => {
     if (

@@ -16,15 +16,18 @@
 
 import { ChangeEvent, useCallback, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { alertUser } from '@/components/alert/Alert';
 import { TOption } from '@/components/dropdown/dropdown';
 import { InputWithDropdown } from '@/components/forms/input-with-dropdown';
 import * as accountApi from '@/api/account';
 import { getReceiveAddressList, IAccount } from '@/api/account';
 import { statusChanged, syncdone } from '@/api/accountsync';
+import { connectKeystore, getKeystoreFeatures } from '@/api/keystores';
 import { unsubscribe } from '@/utils/subscriptions';
 import { TUnsubscribe } from '@/utils/transport-common';
 import { useMountedRef } from '@/hooks/mount';
 import { useMediaQuery } from '@/hooks/mediaquery';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { Logo } from '@/components/icon';
 import receiverStyles from './receiver-address-input.module.css';
@@ -73,6 +76,7 @@ export const ReceiverAddressWrapper = ({
   children,
 }: TReceiverAddressWrapperProps) => {
   const { t } = useTranslation();
+  const [showFirmwareUpgradeDialog, setShowFirmwareUpgradeDialog] = useState(false);
   const mounted = useMountedRef();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [selectedAccount, setSelectedAccount] = useState<TOption<IAccount | null> | null>(null);
@@ -88,11 +92,34 @@ export const ReceiverAddressWrapper = ({
     };
   }) : [];
 
+  const checkFirmwareSupport = useCallback(async (selectedAccount: accountApi.IAccount) => {
+    const rootFingerprint = selectedAccount.keystore.rootFingerprint;
+    const connectResult = await connectKeystore(rootFingerprint);
+    if (!connectResult.success) {
+      return false;
+    }
+    const featuresResult = await getKeystoreFeatures(rootFingerprint);
+    if (!featuresResult.success) {
+      alertUser(featuresResult.errorMessage || t('genericError'));
+      return false;
+    }
+    if (!featuresResult.features?.supportsSendToSelf) {
+      setShowFirmwareUpgradeDialog(true);
+      return false;
+    }
+    return true;
+  }, [t]);
+
   const handleSendToAccount = useCallback(async (selectedOption: TAccountOption) => {
     if (selectedOption.value === null || selectedOption.disabled) {
       return;
     }
     const selectedAccountValue = selectedOption.value;
+
+    const supported = await checkFirmwareSupport(selectedAccountValue);
+    if (!supported) {
+      return;
+    }
     setSelectedAccount(selectedOption);
     try {
       const receiveAddresses = await getReceiveAddressList(selectedAccountValue.code)();
@@ -104,7 +131,7 @@ export const ReceiverAddressWrapper = ({
     } catch (e) {
       console.error(e);
     }
-  }, [onInputChange, onAccountChange]);
+  }, [onInputChange, onAccountChange, checkFirmwareSupport]);
 
   const handleReset = useCallback(() => {
     setSelectedAccount(null);
@@ -141,34 +168,40 @@ export const ReceiverAddressWrapper = ({
   }, [accounts, checkAccountStatus]);
 
   return (
-    <InputWithDropdown
-      id="recipientAddress"
-      label={t('send.address.label')}
-      error={error}
-      align="left"
-      placeholder={t('send.address.placeholder')}
-      onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
-      value={recipientAddress}
-      disabled={selectedAccount !== null}
-      autoFocus={!isMobile}
-      dropdownOptions={accountOptions}
-      dropdownValue={selectedAccount}
-      onDropdownChange={(selected) => {
-        if (selected && selected.value !== null && !(selected as TAccountOption).disabled) {
-          handleSendToAccount(selected as TAccountOption);
-        }
-      }}
-      dropdownPlaceholder={t('send.sendToAccount.placeholder')}
-      dropdownTitle={t('send.sendToAccount.title')}
-      renderOptions={(e, isSelectedValue) => <AccountOption option={e} isSelectedValue={isSelectedValue} />}
-      isOptionDisabled={(option) => (option as TAccountOption).disabled || false}
-      labelSection={selectedAccount ? (
-        <span role="button" id="sendToSelf" className={receiverStyles.action} onClick={handleReset}>
-          {t('generic.reset')}
-        </span>
-      ) : undefined}
-    >
-      {children}
-    </InputWithDropdown>
+    <>
+      <InputWithDropdown
+        id="recipientAddress"
+        label={t('send.address.label')}
+        error={error}
+        align="left"
+        placeholder={t('send.address.placeholder')}
+        onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
+        value={recipientAddress}
+        disabled={selectedAccount !== null}
+        autoFocus={!isMobile}
+        dropdownOptions={accountOptions}
+        dropdownValue={selectedAccount}
+        onDropdownChange={(selected) => {
+          if (selected && selected.value !== null && !(selected as TAccountOption).disabled) {
+            handleSendToAccount(selected as TAccountOption);
+          }
+        }}
+        dropdownPlaceholder={t('send.sendToAccount.placeholder')}
+        dropdownTitle={t('send.sendToAccount.title')}
+        renderOptions={(e, isSelectedValue) => <AccountOption option={e} isSelectedValue={isSelectedValue} />}
+        isOptionDisabled={(option) => (option as TAccountOption).disabled || false}
+        labelSection={selectedAccount ? (
+          <span role="button" id="sendToSelf" className={receiverStyles.action} onClick={handleReset}>
+            {t('generic.reset')}
+          </span>
+        ) : undefined}
+      >
+        {children}
+      </InputWithDropdown>
+      <FirmwareUpgradeRequiredDialog
+        open={showFirmwareUpgradeDialog}
+        onClose={() => setShowFirmwareUpgradeDialog(false)}
+      />
+    </>
   );
 };
