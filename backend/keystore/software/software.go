@@ -201,6 +201,13 @@ func (keystore *Keystore) BTCXPubs(
 	return xpubs, nil
 }
 
+// Features reports optional capabilities supported by the software keystore.
+func (keystore *Keystore) Features() *keystorePkg.Features {
+	return &keystorePkg.Features{
+		SupportsSendToSelf: true,
+	}
+}
+
 func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	keystore.log.Info("Sign transaction.")
 	transaction := btcProposedTx.TXProposal.Psbt.UnsignedTx

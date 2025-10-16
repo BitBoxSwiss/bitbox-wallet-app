@@ -22,10 +22,11 @@ import { Send } from './send';
 
 type TSendProps = {
   activeAccounts: IAccount[];
+  deviceIDs: string[];
   code: AccountCode;
 }
 
-export const SendWrapper = ({ activeAccounts, code }: TSendProps) => {
+export const SendWrapper = ({ activeAccounts, deviceIDs, code }: TSendProps) => {
   const { defaultCurrency } = useContext(RatesContext);
   const account = findAccount(activeAccounts, code);
 
@@ -35,6 +36,7 @@ export const SendWrapper = ({ activeAccounts, code }: TSendProps) => {
         account={account}
         activeAccounts={activeAccounts}
         activeCurrency={defaultCurrency}
+        deviceIDs={deviceIDs}
       />
     ) : (null)
   );
