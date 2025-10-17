@@ -618,7 +618,9 @@ export const Chart = ({
       <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>
         {chartDataMissing ? (
           <div className={styles.chartUpdatingMessage} style={{ height: chartHeight }}>
-            {t('chart.dataMissing')}
+            <p>
+              {t('chart.dataMissing')}
+            </p>
           </div>
         ) : hasData ? !chartIsUpToDate && (
           <div className={styles.chartUpdatingMessage}>
@@ -628,7 +630,9 @@ export const Chart = ({
           </div>
         ) : (
           <div className={styles.placeholderContainer}>
-            {noDataPlaceholder}
+            <p>
+              {noDataPlaceholder}
+            </p>
           </div>
         )}
         <div ref={ref} className={styles.invisible}></div>
