@@ -1,7 +1,9 @@
 
 .arrow img {
+  height: 2rem;
   margin-right: 4px;
   vertical-align: text-bottom;
+  width: 2rem;
 }
 
 .up {

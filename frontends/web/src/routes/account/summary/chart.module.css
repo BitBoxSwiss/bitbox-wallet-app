@@ -22,7 +22,7 @@
   display: flex;
   flex-wrap: wrap;
   margin-bottom: var(--spacing-half);
-  min-height: 68px;
+  min-height: 6.8rem;
 }
 
 .summary {
@@ -82,7 +82,7 @@
 }
 
 .totalValue {
-  font-size: 3.2rem;
+  font-size: min(3.2rem, var(--header-default-font-size));
   display: flex;
   align-items: flex-end;
 }
@@ -91,7 +91,7 @@
   color: var(--color-secondary);
   display: inline-block;
   margin-bottom: 3px;
-  font-size: 2.2rem;
+  font-size: min(2.2rem, 1.5rem);
   padding: 0 4px;
 }
 
