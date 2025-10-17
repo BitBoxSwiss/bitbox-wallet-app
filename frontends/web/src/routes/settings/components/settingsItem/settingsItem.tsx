@@ -54,13 +54,15 @@ export const SettingsItem = ({
       ${styles.rightContentContainer || ''}
       ${!notButton && styles.extraPadding || ''}
     `}>
-      <p className={`
-        ${displayedValue && styles.displayedValue || ''}
-        ${extraComponent && styles.withMargin || ''}
-        ${hideDisplayedValueOnSmall && styles.hideDisplayedValueOnSmall || ''}
-      `}>
-        {displayedValue}
-      </p>
+      {displayedValue && (
+        <p className={`
+          ${displayedValue && styles.displayedValue || ''}
+          ${extraComponent && styles.withMargin || ''}
+          ${hideDisplayedValueOnSmall && styles.hideDisplayedValueOnSmall || ''}
+        `}>
+          {displayedValue}
+        </p>
+      )}
       {canUpgrade && <RedDot width={8} height={8} />}
       {extraComponent ? extraComponent : null}
     </div>
