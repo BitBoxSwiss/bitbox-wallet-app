@@ -58,11 +58,13 @@
 /* styles to overwrite default dropdown styling to make it fit into send */
 .priority :global(.react-select__control) {
     border-color: var(--background-quaternary);
-    height: 52px;
+    border-radius: 2px;
+    border-width: var(--border-width);
+    margin-bottom: var(--space-quarter);
+    min-height: var(--input-height);
     padding-bottom: 0;
     padding-top: 0;
     z-index: 1;
-    margin-bottom: var(--space-quarter);
 }
 
 @media (min-width: 640px) {
@@ -113,13 +115,15 @@
 
 .rowCustomFee .priority :global(.react-select__control:not(:hover)) {
     border-right-color: var(--background-secondary);
+    border-width: var(--border-width);
 }
 
 .customFeeUnit {
-    bottom: 0;
+    bottom: var(--space-quarter);
     color: var(--color-secondary);
-    font-size: var(--size-default);
-    line-height: 50px;
+    font-size: min(var(--size-default), 20px);
+    line-height: 1;
+    height: calc(var(--input-height) * 0.5);
     padding-right: var(--space-half);
     position: absolute;
     right: 0;

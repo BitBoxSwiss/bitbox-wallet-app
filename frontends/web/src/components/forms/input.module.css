@@ -28,11 +28,11 @@
     border-color: var(--background-quaternary);
     border-radius: 2px;
     border-style: solid;
-    border-width: 1px;
+    border-width: var(--border-width);
     font-family: var(--font-family);
     font-size: var(--size-default);
     font-weight: 400;
-    height: 52px;
+    height: var(--input-height);
     padding: 0 var(--space-half);
     width: 100%;
     transition: border-color .2s ease-out;

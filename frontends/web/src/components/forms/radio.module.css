@@ -1,5 +1,4 @@
 .radio {
-    --size-default: 1.4rem;
     line-height: 1.5;
 }
 
@@ -13,7 +12,7 @@
     flex-direction: column;
     font-size: var(--size-default);
     margin-right: var(--space-half);
-    padding-left: calc(var(--space-half) + var(--space-quarter));
+    padding-left: calc(var(--size-default) + var(--space-quarter));
     position: relative;
 }
 
@@ -22,29 +21,29 @@
     background: var(--background-secondary);
     content: '';
     display: inline-block;
-    width: 12px;
-    height: 12px;
-    position: absolute;
-    top: 4px;
+    height: var(--size-smaller);
     left: 0;
+    position: absolute;
+    top: .4rem;
     transition: all 100ms ease;
+    width: var(--size-smaller);
 }
 
 .radio input + label::before {
-    border: 1px solid var(--background-tertiary);
+    border: var(--border-width) solid var(--background-tertiary);
     border-radius: 1em;
 }
 
 .radio input + label::after {
     background: var(--color-blue);
     border-radius: 1em;
-    width: 10px;
-    height: 10px;
-    position: absolute;
-    top: 6px;
-    left: 2px;
+    height: min(1rem, 14px);
+    left: .2rem;
     opacity: 0;
+    position: absolute;
+    top: .6rem;
     transform: scale(0);
+    width: min(1rem, 14px);
 }
 
 /* checked */
