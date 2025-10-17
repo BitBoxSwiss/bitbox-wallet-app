@@ -80,7 +80,7 @@
 }
 
 .title {
-    font-size: 2rem;
+    font-size: min(3.2rem, var(--header-default-font-size));
     font-weight: 400;
     margin-top: 0;
     margin-bottom: var(--space-default);

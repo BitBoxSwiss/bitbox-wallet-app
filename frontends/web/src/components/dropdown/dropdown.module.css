@@ -56,7 +56,9 @@
 
 .select :global(.react-select__control) {
     background-color: var(--background-secondary);
-    border-radius: 2px;
+    border-radius: 0.2rem;
+    border-width: 0.1rem;
+    min-height: var(--input-height);
     padding: var(--space-quarter) var(--space-eight);
 }
 

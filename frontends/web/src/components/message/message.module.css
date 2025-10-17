@@ -24,10 +24,10 @@
 
 @media (max-width: 768px) {
     .message {
-      --size-default: 14px
+      --size-default: 1.4rem;
     }
     .message .title {
-        --size-subheader: 18px;
+        --size-subheader: 1.8rem;
     }
 }
 
