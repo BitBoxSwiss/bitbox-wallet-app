@@ -35,17 +35,13 @@
     width: 17px;
 }
 
-.button {
-    height: 37px;
-}
-
 @media (max-width: 768px) {
     .accountHeader {
         padding: 0 var(--space-half);
     }
 
     .button {
-        height: 50px;
+        min-height: var(--button-height);
     }
 }
 
@@ -58,7 +54,7 @@
 }
 
 .actionsContainer {
-    --size-default: 14px;
+    --size-default: 1.4rem;
     display: flex;
     flex-grow: 1;
     flex-shrink: 0;
