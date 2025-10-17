@@ -107,8 +107,9 @@
     /* bottom navigation */
     --bottom-navigation-height: calc(min(7rem, 90px) + env(safe-area-inset-bottom, 0));
 
-    /* buttons */
+    /* form elements */
     --button-height: min(5rem, 70px);
+    --input-height: min(5.2rem, 72px);
 }
 
 :root,
