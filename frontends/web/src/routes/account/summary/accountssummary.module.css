@@ -101,13 +101,13 @@
 }
 
 .coinName {
+    align-items: center;
     display: flex;
 }
 
 .coinName img {
     flex-shrink: 0;
     margin-right: var(--spacing-default);
-    vertical-align: middle;
 }
 
 .coinUnit {
@@ -128,7 +128,7 @@
 
 @media (max-width: 768px) {
     .accountName {
-        padding-left: var(--space-quarter);
+        padding-left: var(--space-half);
     }
 }
 
@@ -169,6 +169,7 @@
 
     .table tbody td {
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
         height: auto;
         padding-bottom: 0;
@@ -188,13 +189,4 @@
         padding-bottom: var(--spacing-default);
     }
 
-    .coinName {
-        position: relative;
-    }
-
-    .coinName img {
-        left: -32px;
-        position: absolute;
-        top: -3px;
-    }
 }

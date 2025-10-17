@@ -53,7 +53,7 @@ export const ConnectedKeystore = ({
         <>
           {' '}
           <Badge
-            icon={props => <USBSuccess {...props} />}
+            icon={props => <USBSuccess style={{ width: '0.9rem', height: '0.9rem' }} {...props} />}
             title={t('device.keystoreConnected')}
             type="success">
             {connectedIconOnly ? undefined : t('device.keystoreConnected')}

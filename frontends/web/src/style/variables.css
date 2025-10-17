@@ -195,7 +195,7 @@
     --size-default: min(1.6rem, 28px);
     --size-small: min(1.4rem, 24px);
     --size-smaller:  min(1.2rem, 20px);
-    --size-xsmall: min(1.1rem, 18px);
+    --size-xsmall: min(1.1rem, 16px);
     --size-title: min(3.2rem, 36px);
 }
 

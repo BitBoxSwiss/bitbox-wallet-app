@@ -1,7 +1,13 @@
 
-.arrow img {
-  margin-right: 4px;
+.arrow {
+  line-height: 1;
   vertical-align: text-bottom;
+}
+
+.arrow img {
+  height: min(2rem, 25px);
+  margin-right: 4px;
+  width: min(2rem, 25px);
 }
 
 .up {
@@ -13,10 +19,10 @@
 }
 
 .diffValue {
-  font-size: 1.9rem;
+  font-size: var(--size-header);
 }
 
 .diffUnit {
-  font-size: 1.6rem;
+  font-size: var(--size-default);
   padding: 0 4px;
 }
