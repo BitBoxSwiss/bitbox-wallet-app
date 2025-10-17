@@ -58,7 +58,7 @@
     --size-xsmall: 1.1rem;
     --size-label: var(--size-small);
     --size-button: var(--size-default);
-    --size-title: 3.2rem;
+    --size-title: min(3.2rem, 36px);
 
     /* wizard */
     --size-wizard-text: 1.6rem;
@@ -94,7 +94,7 @@
 
     /* header */
     --header-height: 70px;
-    --header-default-font-size: 2.4rem;
+    --header-default-font-size: min(2.4rem, 36px);
 
     /* content */
     --content-width: 1080px;
@@ -206,17 +206,17 @@
 
 @media (max-width: 1199px) {
     :root {
-        --size-title: 1.8rem;
+        --size-title: min(1.8rem, 36px);
     }
 }
 
 @media (max-width: 768px) {
     :root {
-        --header-default-font-size: 2rem;
+        --header-default-font-size: min(2rem, 36px);
         --size-subheader: 1.6rem;
-        --size-title: 1.6rem;
+        --size-title: min(1.6rem, 36px);
 
         --size-wizard-text: 1.4rem;
-        --size-default: 1.6rem;
+        --size-default: min(1.6rem, 36px);
     }
 }
