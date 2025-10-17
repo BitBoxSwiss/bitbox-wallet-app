@@ -7,17 +7,16 @@
     display: flex;
     width: 100%;
 }
-.container.withCloseBtn {
-    padding-right: 60px;
-}
 
 .closeButton {
     background-color: transparent;
     border: none;
     margin-left: auto;
+    padding: 0;
 }
 
 .closeButton img {
-    width: 16px;
-    height: 16px;
+    height: var(--size-default);
+    margin-right: 0;
+    width: var(--size-default);
 }

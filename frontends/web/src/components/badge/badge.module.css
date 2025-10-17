@@ -19,7 +19,7 @@
 }
 
 .badgeIcon {
-  max-width: 10px;
+  max-width: 1rem;
 }
 
 .withChildren .badgeIcon {
