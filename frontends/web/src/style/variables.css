@@ -91,6 +91,7 @@
     /* form elements */
     --border-width: 0.1rem;
     --button-height: min(5rem, 70px);
+    --input-height: min(5.2rem, 72px);
 }
 
 :root,

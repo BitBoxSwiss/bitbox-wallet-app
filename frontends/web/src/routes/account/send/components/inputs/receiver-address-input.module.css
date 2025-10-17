@@ -22,22 +22,22 @@
 
 .qrButton {
   align-items: center;
-  display: flex;
+  background-color: transparent;
+  bottom: 0;
   border: none;
-  background-color: var(--background-secondary);
-  height: 36px;
-  width: 36px;
+  cursor: pointer;
+  display: flex;
+  height: var(--input-height);
   justify-content: center;
   padding: 0;
   position: absolute;
-  top: calc(50% - var(--space-quarter));
-  right: calc(var(--spacing-default) - var(--space-quarter));
-  cursor: pointer;
+  right: 0.75rem;
+  width: 36px;
 }
 
 .qrButton img {
-  width: 18px;
-  height: 18px;
+  width: 1.8rem;
+  height: 1.8rem;
 }
 
 .withDropdown {
