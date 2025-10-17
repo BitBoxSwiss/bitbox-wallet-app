@@ -86,7 +86,7 @@
     --guide-width: 350px;
 
     /* bottom navigation */
-    --bottom-navigation-height: calc(70px + env(safe-area-inset-bottom, 0));
+    --bottom-navigation-height: calc(min(7rem, 90px) + env(safe-area-inset-bottom, 0));
 }
 
 :root,

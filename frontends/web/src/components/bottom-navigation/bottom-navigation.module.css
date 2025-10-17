@@ -18,7 +18,7 @@
     align-items: center;
     color: var(--color-text);
     display: flex;
-    font-size: 1.2rem;
+    font-size: min(1.2rem, 18px);
     flex-direction: column;
     gap: 4px;
     justify-content: center;
@@ -50,6 +50,7 @@
 @media (max-width: 768px) {
     .container {
         display: flex;
+        gap: .2rem;
     }
 }
 
