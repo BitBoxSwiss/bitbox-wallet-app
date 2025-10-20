@@ -51,7 +51,7 @@
     "dev": "npm run start",
     "start": "vite --cors --host",
     "build": "npm run typescript && vite build",
-    "lint": "npm run typescript && eslint ./src",
+    "lint": "npm run typescript && eslint ./src ./tests",
     "lint-debug": "eslint ./src --inspect-config",
     "typescript": "tsc -p tsconfig.json",
     "test": "vitest",
