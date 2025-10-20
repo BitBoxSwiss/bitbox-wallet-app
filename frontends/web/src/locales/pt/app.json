@@ -376,8 +376,8 @@
   "bootloader": {
     "button": "Atualizar firmware agora",
     "button_install": "Instale o firmware agora",
-    "progress": "Atualizando: {{progress}}%",
-    "progress_install": "Instalando: {{progress}}%",
+    "progress": "Atualizando",
+    "progress_install": "Instalando",
     "success": "Atualização bem sucedida! Por favor, insira novamente o dispositivo. Desta vez, não toque no botão."
   },
   "button": {
@@ -751,8 +751,7 @@
   "exchange": {
     "buySell": {
       "coinNotSupported": "Não há opções disponíveis para este tipo de moeda.",
-      "regionNotSupported": "Não há opções disponíveis para esta região.",
-      "updateNow": "Atualizar agora"
+      "regionNotSupported": "Não há opções disponíveis para esta região."
     },
     "pocket": {
       "terms": {
@@ -770,8 +769,6 @@
         },
         "kyc": {
           "link": "Leia as perguntas frequentes da Pocket",
-          "p1": "Nenhum documento adicional é necessário para trocas de até 950 EUR (1000 CHF) por dia.",
-          "p2": "Para valores maiores, é necessária uma ligação para a Pocket para concluir o processo KYC/AML.",
           "title": "KYC/AML (Conheça seu cliente / Anti Lavagem de Dinheiro)"
         },
         "security": {
@@ -1434,10 +1431,6 @@
       "caps": "ATENÇÃO: o caps lock (⇪) está ativado",
       "paste": "para colar o texto, ative \"MOSTRAR {{label}}\""
     }
-  },
-  "random": {
-    "button": "Gerar número aleatório",
-    "description": "Sua BitBox gerou o seguinte número aleatório de {{bits}} bits:"
   },
   "receive": {
     "bitsuranceWarning": "Esta é uma conta segurada, o que significa que só pode receber em Segwit Nativo. Isso é para que você não receba acidentalmente Wrapped Segwit ou Taproot, que não são segurados.",
