@@ -23,16 +23,13 @@
     gap: 5px;
 }
 
-.exchangeContainer {
-    display: flex;
-    flex-direction: column;
-    min-height: 300px;
+.exchangeContainer,
+.exchangeContainer p {
+    --size-default: 14px;
 }
 
-.exchangeContainer:global(.content) {
-    flex-grow: 0;
-    flex-shrink: 0;
-    margin: auto;
+.exchangeContainer {
+    padding-left: var(--space-half);
     padding-right: 40px;
 }
 
