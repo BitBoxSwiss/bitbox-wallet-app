@@ -13,6 +13,7 @@
 # limitations under the License.
 
 include ../../env.mk.inc
+include ../../version.mk.inc
 
 # Add Wayland libs so the app can run natively on Wayland too.
 # The linuxdeployqt maintainer unfortunately refuses to support it automatically: https://github.com/probonopd/linuxdeployqt/issues/189
@@ -54,8 +55,8 @@ linux:
 	cp resources/linux/usr/share/icons/hicolor/128x128/apps/bitbox.png build/linux-tmp
 	mkdir build/tmp-deb/opt/
 	cp -aR build/linux-tmp build/tmp-deb/opt/bitbox
-	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v 4.49.0 -C ../tmp-deb/
-	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.49.0 -C ../tmp-deb/
+	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v $(APP_VERSION) -C ../tmp-deb/
+	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v $(APP_VERSION) -C ../tmp-deb/
 	# create AppImage
 	cd build/linux-tmp && \
 		./squashfs-root/AppRun BitBox \

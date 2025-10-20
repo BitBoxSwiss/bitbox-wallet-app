@@ -32,6 +32,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bluetooth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
@@ -301,7 +302,7 @@ func Serve(
 	log.Info("--------------- Started application --------------")
 	log.WithField("goos", runtime.GOOS).
 		WithField("goarch", runtime.GOARCH).
-		WithField("version", backend.Version).
+		WithField("version", versioninfo.Version).
 		Info("environment")
 
 	var err error

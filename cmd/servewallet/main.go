@@ -29,6 +29,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02/simulator"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	backendHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/system"
@@ -179,6 +180,11 @@ func main() {
 		}
 	}(log)
 	log.Info("--------------- Started application --------------")
+	log.WithField("goos", runtime.GOOS).
+		WithField("goarch", runtime.GOARCH).
+		WithField("version", versioninfo.Version).
+		Info("environment")
+
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
 	newBackend, err := backendPkg.NewBackend(
