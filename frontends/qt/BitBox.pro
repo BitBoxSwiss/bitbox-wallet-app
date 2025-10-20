@@ -32,7 +32,6 @@ include(external/singleapplication/singleapplication.pri)
 DEFINES += QAPPLICATION_CLASS=QApplication
 
 win32 {
-    # -llibssp would be nice to have on Windows
     LIBS += -L$$PWD/server/ -llibserver
     DESTDIR = $$PWD/build/windows
     RC_ICONS += $$PWD/resources/win/icon.ico
