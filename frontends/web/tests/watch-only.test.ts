@@ -36,46 +36,46 @@ let simulatorProc : ChildProcessWithoutNullStreams | undefined;
  * - Check that accounts do not show up without simulator running.
  */
 test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendPort, servewalletPort }) => {
-    await test.step('Start servewallet', async () => {
-        servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, true)
-        await servewallet.start();
-    });
+  await test.step('Start servewallet', async () => {
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, true);
+    await servewallet.start();
+  });
 
-    await test.step('Start simulator', async () => {
-        const simulatorPath = process.env.SIMULATOR_PATH;
-        if (!simulatorPath) {
-            throw new Error('SIMULATOR_PATH environment variable not set');
-        }
+  await test.step('Start simulator', async () => {
+    const simulatorPath = process.env.SIMULATOR_PATH;
+    if (!simulatorPath) {
+      throw new Error('SIMULATOR_PATH environment variable not set');
+    }
 
-        simulatorProc = startSimulator(simulatorPath, true);
-        console.log('Simulator started');
-    });
+    simulatorProc = startSimulator(simulatorPath, true);
+    console.log('Simulator started');
+  });
 
-    await test.step('Initialize wallet', async () => {
-        await completeWalletSetupFlow(page);
-    });
+  await test.step('Initialize wallet', async () => {
+    await completeWalletSetupFlow(page);
+  });
 
-    await test.step('Check that three accounts show up', async () => {
-        // Wait for the three accounts to show up
-        await assertFieldsCount(page, 'data-label', 'Account name', 3);
-    });
+  await test.step('Check that three accounts show up', async () => {
+    // Wait for the three accounts to show up
+    await assertFieldsCount(page, 'data-label', 'Account name', 3);
+  });
 
-    await test.step('Kill simulator', async () => {
-        simulatorProc?.kill('SIGTERM');
-        simulatorProc = undefined;
-    });
+  await test.step('Kill simulator', async () => {
+    simulatorProc?.kill('SIGTERM');
+    simulatorProc = undefined;
+  });
 
-    await test.step('Check that accounts disappear', async () => {
-        await assertFieldsCount(page, 'data-label', 'Account name', 0);
-    });
+  await test.step('Check that accounts disappear', async () => {
+    await assertFieldsCount(page, 'data-label', 'Account name', 0);
+  });
 
-    await test.step('Restart servewallet', async () => {
-        await servewallet.restart();
-    });
+  await test.step('Restart servewallet', async () => {
+    await servewallet.restart();
+  });
 
-    await test.step('Check that accounts do not show up without simulator', async () => {
-        await assertFieldsCount(page, 'data-label', 'Account name', 0);
-    });
+  await test.step('Check that accounts do not show up without simulator', async () => {
+    await assertFieldsCount(page, 'data-label', 'Account name', 0);
+  });
 
 });
 
@@ -90,79 +90,79 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
  * - Check that watch-only accounts still show up (with no simulator running)
  */
 test('Test #2 - No passphrase - Watch-only account', async ({ page, host, frontendPort, servewalletPort }) => {
-    await test.step('Start servewallet', async () => {
-        servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, true);
-        await servewallet.start();
-    });
+  await test.step('Start servewallet', async () => {
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, true);
+    await servewallet.start();
+  });
 
-    await test.step('Start simulator', async () => {
-        cleanFakeMemoryFiles();
-        const simulatorPath = process.env.SIMULATOR_PATH;
-        if (!simulatorPath) {
-            throw new Error('SIMULATOR_PATH environment variable not set');
-        }
+  await test.step('Start simulator', async () => {
+    cleanFakeMemoryFiles();
+    const simulatorPath = process.env.SIMULATOR_PATH;
+    if (!simulatorPath) {
+      throw new Error('SIMULATOR_PATH environment variable not set');
+    }
 
-        simulatorProc = startSimulator(simulatorPath, true);
+    simulatorProc = startSimulator(simulatorPath, true);
 
-        console.log('Simulator started');
-    });
+    console.log('Simulator started');
+  });
 
-    await test.step('Initialize wallet', async () => {
-        await completeWalletSetupFlow(page);
-    });
+  await test.step('Initialize wallet', async () => {
+    await completeWalletSetupFlow(page);
+  });
 
-    await test.step('Check that three accounts show up', async () => {
-        await assertFieldsCount(page, 'data-label', 'Account name', 3);
-    });
+  await test.step('Check that three accounts show up', async () => {
+    await assertFieldsCount(page, 'data-label', 'Account name', 3);
+  });
 
-    await test.step('Enable watch-only account', async () => {
-        await page.getByRole('link', { name: 'Settings' }).click();
-        await page.getByRole('link', { name: 'Manage accounts' }).click();
-        await page.locator('label').filter({ hasText: 'Remember wallet' }).locator('label span').click();
-        await clickButtonWithText(page, 'OK');
-    });
+  await test.step('Enable watch-only account', async () => {
+    await page.getByRole('link', { name: 'Settings' }).click();
+    await page.getByRole('link', { name: 'Manage accounts' }).click();
+    await page.locator('label').filter({ hasText: 'Remember wallet' }).locator('label span').click();
+    await clickButtonWithText(page, 'OK');
+  });
 
-    await test.step('Kill simulator', async () => {
-        simulatorProc?.kill('SIGTERM');
-        simulatorProc = undefined;
-    });
+  await test.step('Kill simulator', async () => {
+    simulatorProc?.kill('SIGTERM');
+    simulatorProc = undefined;
+  });
 
-    await test.step('Check that watch-only accounts shows up', async () => {
-        await page.getByRole('link', { name: 'My portfolio' }).click();
-        await assertFieldsCount(page, 'data-label', 'Account name', 3);
-    });
+  await test.step('Check that watch-only accounts shows up', async () => {
+    await page.getByRole('link', { name: 'My portfolio' }).click();
+    await assertFieldsCount(page, 'data-label', 'Account name', 3);
+  });
 
 
-    await test.step('Restart servewallet', async () => {
-        await servewallet.restart();
-    });
+  await test.step('Restart servewallet', async () => {
+    await servewallet.restart();
+  });
 
-    await test.step('Check that accounts still show up', async () => {
-        await assertFieldsCount(page, 'data-label', 'Account name', 3);
-    });
+  await test.step('Check that accounts still show up', async () => {
+    await assertFieldsCount(page, 'data-label', 'Account name', 3);
+  });
 });
 
 function deleteAccountsFile() {
-    const filePath = path.join(process.cwd(), '../../appfolder.dev/accounts.json');
-    if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-    } else {
-        console.warn(`File ${filePath} does not exist, skipping removal.`);
-    }
+  const filePath = path.join(process.cwd(), '../../appfolder.dev/accounts.json');
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  } else {
+    console.warn(`File ${filePath} does not exist, skipping removal.`);
+  }
 }
 
 // Ensure a clean state before running all tests.
 test.beforeAll(() => {
-    deleteAccountsFile()
-    cleanFakeMemoryFiles();
+  deleteAccountsFile();
+  cleanFakeMemoryFiles();
 });
 
 // Kill the simulator and stop the servewallet after each run.
 // This is equivalent to closing the app and unplugging the device.
 test.afterEach(() => {
-    if (simulatorProc) {
-        simulatorProc.kill('SIGTERM');
-        simulatorProc = undefined;
-    }
-    servewallet.stop();
+  if (simulatorProc) {
+    simulatorProc.kill('SIGTERM');
+    simulatorProc = undefined;
+  }
+  servewallet.stop();
 });

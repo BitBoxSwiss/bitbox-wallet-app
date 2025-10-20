@@ -15,7 +15,7 @@
 */
 
 
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import type { Page } from '@playwright/test';
 import { clickButtonWithText, typeIntoFocusedInput, clickAllAgreements } from './dom';
 import * as fs from 'fs';
@@ -26,18 +26,22 @@ import * as path from 'path';
  * This is useful to ensure a clean state before starting a simulator that uses fake memory.
  */
 export function cleanFakeMemoryFiles() {
-    const fakeMemoryDir = '/tmp';
-    const fakeMemoryPrefix = 'fake_memory';
-    // Remove all files starting with fake_memory in /tmp
-   fs.readdirSync(fakeMemoryDir)
-        .filter((f) => f.startsWith(fakeMemoryPrefix))
-        .forEach((f) => {
-            try {
-                fs.unlinkSync(path.join(fakeMemoryDir, f));
-            } catch (err) {
-                console.warn(`Failed to remove ${f}: ${err}`);
-            }
-        });
+  const fakeMemoryDir = '/tmp';
+  const fakeMemoryPrefix = 'fake_memory';
+  // Remove all files starting with fake_memory in /tmp
+  fs.readdirSync(fakeMemoryDir)
+    .filter((f) => f.startsWith(fakeMemoryPrefix))
+    .forEach((f) => {
+      try {
+        fs.unlinkSync(path.join(fakeMemoryDir, f));
+      } catch (err) {
+        if (err instanceof Error) {
+          console.warn(`Failed to remove ${f}: ${err.message}`);
+        } else {
+          console.warn(`Failed to remove ${f}: ${String(err)}`);
+        }
+      }
+    });
 }
 
 
@@ -52,9 +56,11 @@ export function cleanFakeMemoryFiles() {
 export function startSimulator(
   simulatorPath: string,
   useFakeMemory = false
-): ChildProcess {
+): ChildProcessWithoutNullStreams {
   const env = { ...process.env };
-  if (useFakeMemory) env.FAKE_MEMORY_FILEPATH = '/tmp/fake_memory';
+  if (useFakeMemory) {
+    env.FAKE_MEMORY_FILEPATH = '/tmp/fake_memory';
+  }
 
   const proc = spawn(simulatorPath, { stdio: 'pipe', env });
 
@@ -63,11 +69,11 @@ export function startSimulator(
   proc.stderr?.on('data', (chunk) => process.stderr.write(chunk));
 
   proc.on('error', (err) => {
-    console.error('Simulator process error:', err);
+    console.error('Simulator process error:', String(err));
   });
 
   proc.on('exit', (code, signal) => {
-    console.log(`Simulator exited: code=${code}, signal=${signal}`);
+    console.log(`Simulator exited: code=${String(code)}, signal=${String(signal)}`);
   });
 
   return proc;
