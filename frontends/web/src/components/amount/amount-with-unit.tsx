@@ -29,6 +29,7 @@ type TAmountWithUnitProps = {
   sign?: string;
   alwaysShowAmounts?: boolean;
   convertToFiat?: boolean;
+  unitClassName?: string;
 };
 
 export const AmountWithUnit = ({
@@ -37,7 +38,8 @@ export const AmountWithUnit = ({
   enableRotateUnit: rotateUnit,
   sign,
   convertToFiat,
-  alwaysShowAmounts = false
+  alwaysShowAmounts = false,
+  unitClassName = ''
 }: TAmountWithUnitProps) => {
   const { rotateDefaultCurrency, defaultCurrency, rotateBtcUnit } = useContext(RatesContext);
 
@@ -72,7 +74,7 @@ export const AmountWithUnit = ({
       />
     ) : '---';
 
-  const amountUnit = <AmountUnit unit={displayedUnit} rotateUnit={enableClick ? onClick : undefined}/>;
+  const amountUnit = <AmountUnit unit={displayedUnit} rotateUnit={enableClick ? onClick : undefined} className={unitClassName}/>;
 
   if (tableRow) {
     return (
@@ -98,11 +100,12 @@ export const AmountWithUnit = ({
 type TAmountUnitProps = {
   rotateUnit?: () => Promise<void>;
   unit: ConversionUnit | CoinUnit;
+  className?: string;
 };
 
-export const AmountUnit = ({ rotateUnit, unit }: TAmountUnitProps) => {
+export const AmountUnit = ({ rotateUnit, unit, className = '' }: TAmountUnitProps) => {
   const classRototable = rotateUnit ? (style.rotatable || '') : '';
-  const textStyle = `${style.unit || ''} ${classRototable}`;
+  const textStyle = `${style.unit || ''} ${classRototable} ${className}`;
   return (
     <span className={textStyle} onClick={rotateUnit}>
       {unit}
