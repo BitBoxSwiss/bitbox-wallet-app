@@ -1,28 +1,3 @@
-.actionableItemContainer {
-    position: relative;
-}
-
-.buttonBack {
-    margin-right: auto;
-    margin-bottom: var(--space-default);
-}
-
-.buttonsContainer {
-    display: flex;
-    margin-top: var(--space-default);
-    justify-content: center;
-}
-
-.container {
-    margin-top: calc(var(--space-default) * 1.5);
-}
-
-.exchangeProvidersContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
 .exchangeContainer,
 .exchangeContainer p {
     --size-default: 14px;
@@ -33,9 +8,11 @@
     padding-right: 40px;
 }
 
-.header {
-    position: relative;
-    z-index: 2200;
+.label {
+    color: var(--color-gray-alt);
+    line-height: 22px;
+    margin: 0;
+    margin-bottom: var(--space-eight);
 }
 
 .selectContainer {
@@ -51,56 +28,8 @@
     margin: 0;
 }
 
-.label {
-    color: var(--color-gray-alt);
-    line-height: 22px;
-    margin: 0;
-    margin-bottom: var(--space-eight);
-}
-
-.noExchangeText {
-    color: var(--color-gray-alt);
-    line-height: 22px;
-    margin: 0;
-    text-align: center;
-    margin-top: calc((var(--space-eight) + var(--space-half)));
-}
-
 .radioButtonsContainer {
     line-height: 1.5;
     min-height: 400px;
     margin-top: var(--spacing-half);
-}
-
-.innerRadioButtonsContainer {
-    min-height: 110px;
-}
-
-.title {
-    font-size: 2rem;
-    font-weight: 400;
-    margin-top: 0;
-    margin-bottom: var(--space-default);
-    text-align: center;
-}
-
-.infoContainer {
-    margin-top: var(--space-default);
-    position: relative;
-}
-
-.link {
-  color: var(--color-default);
-}
-
-.textIcon {
-    height: 1em;
-    margin-right: 0.5em;
-    vertical-align: text-bottom;
-}
-
-@media screen and (max-width: 400px) {
-    .buttonBack {
-        width: 100%;
-    }
 }
