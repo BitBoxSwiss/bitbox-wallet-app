@@ -27,3 +27,14 @@ export const getTxSign = (type: TTransactionType) => {
     return '';
   }
 };
+
+export const getTxSignForTxDetail = (type: TTransactionType) => {
+  switch (type) {
+  case 'send':
+    return '−';
+  case 'receive':
+    return '+';
+  default:
+    return '';
+  }
+};

@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Shift Crypto AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,26 @@
  */
 
 import { CopyableInput } from '@/components/copy/Copy';
-import styles from './details.module.css';
+import styles from './tx-detail-dialog.module.css';
 
-type TPropsTxDetailCopyableValues = {
-  label: string;
+type Props = {
   values: string[];
 };
-
-export const TxDetailCopyableValues = ({
-  label,
-  values,
-}: TPropsTxDetailCopyableValues) => {
+export const AddressOrTxId = ({ values }: Props) => {
   return (
-    <div className={`${styles.detail || ''} ${styles.addresses || ''}`}>
-      <label>{label}</label>
-      <div className={styles.detailAddresses}>
-        {values.map((addrOrTxID) => (
-          <CopyableInput
-            key={addrOrTxID}
-            alignRight
-            borderLess
-            flexibleHeight
-            className={styles.detailAddress}
-            value={addrOrTxID}
-          />
-        ))}
-      </div>
+    <div className={styles.addressOrTxIdContainer}>
+      {values.map((addrOrTxID) => (
+        <CopyableInput
+          key={addrOrTxID}
+          alignRight
+          borderLess
+          className={styles.copyableInputContainer}
+          inputFieldClassName={styles.detailAddress}
+          buttonClassName={styles.copyBtn}
+          value={addrOrTxID}
+          displayValue={`${addrOrTxID.slice(0, 8)}...${addrOrTxID.slice(-8)}`}
+        />
+      ))}
     </div>
   );
 };

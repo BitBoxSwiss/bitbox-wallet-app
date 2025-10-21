@@ -68,7 +68,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
         to={sendLink}
         onClick={isEthereumBased(coinCode) ? maybeRouteSend : undefined}
       >
-        <span>{t('button.send')}</span>
+        <span>{t('generic.send')}</span>
       </ButtonLink>
 
       <ButtonLink
@@ -77,7 +77,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
         primary
         to={`/account/${code}/receive`}
       >
-        <span>{t('button.receive')}</span>
+        <span>{t('generic.receiveWithoutCoinCode')}</span>
       </ButtonLink>
 
       {(exchangeSupported && !isMobile) && (
