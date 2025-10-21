@@ -25,12 +25,26 @@ type TProps = {
   alignRight?: boolean;
   borderLess?: boolean;
   className?: string;
+  inputFieldClassName?: string;
+  buttonClassName?: string;
   disabled?: boolean;
   flexibleHeight?: boolean;
+  displayValue?: string;
   value: string;
 };
 
-export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, className, disabled, flexibleHeight }: TProps) => {
+export const CopyableInput = ({
+  alignLeft,
+  alignRight,
+  borderLess,
+  value,
+  className,
+  inputFieldClassName,
+  buttonClassName,
+  disabled,
+  flexibleHeight,
+  displayValue,
+}: TProps) => {
   const [success, setSuccess] = useState(false);
   const { t } = useTranslation();
 
@@ -63,7 +77,12 @@ export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, classN
 
   const copy = () => {
     if (textAreaRef.current) {
-      navigator.clipboard.writeText(textAreaRef.current.value);
+      if (displayValue) {
+        navigator.clipboard.writeText(value);
+      } else {
+        navigator.clipboard.writeText(textAreaRef.current.value);
+
+      }
       setSuccess(true);
     }
   };
@@ -78,20 +97,24 @@ export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, classN
         disabled={disabled}
         readOnly
         onFocus={onFocus}
-        value={value}
+        value={displayValue ? displayValue : value}
         ref={textAreaRef}
         rows={1}
-        className={[
-          style.inputField,
-          flexibleHeight && style.flexibleHeight,
-          alignLeft && style.alignLeft,
-          alignRight && style.alignRight,
-          borderLess && style.borderLess,
-        ].join(' ')} />
+        className={`${style.inputField || ''} 
+          ${flexibleHeight ? style.flexibleHeight || '' : ''}
+          ${alignLeft ? style.alignLeft || '' : ''}
+          ${alignRight ? style.alignRight || '' : ''}
+          ${borderLess ? style.borderLess || '' : ''}
+          ${inputFieldClassName ? inputFieldClassName : ''}
+        `} />
       {disabled ? null : (
         <button
           onClick={copy}
-          className={[style.button, success && style.success, 'ignore'].join(' ')}
+          className={`
+          ${style.button || ''} 
+          ${success ? style.success || '' : ''}
+          ${buttonClassName ? buttonClassName : ''}
+           ignore`}
           title={t('button.copy')}>
           {success ? <Check /> : <Copy />}
         </button>

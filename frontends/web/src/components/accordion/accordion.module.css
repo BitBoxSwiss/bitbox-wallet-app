@@ -1,0 +1,45 @@
+.accordion {
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  background-color: var(--background-secondary);
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--color-default);
+  font-family: var(--font-family);
+  text-align: left;
+}
+
+.header:focus {
+  outline: none;
+}
+
+.title {
+  flex: 1;
+  font-weight: 600;
+}
+
+.chevron {
+  flex-shrink: 0;
+  transform: rotate(90deg);
+  transition: transform 0.2s ease-out;
+}
+
+.chevron.expanded {
+  transform: rotate(270deg);
+}
+
+.content {
+  padding: var(--space-half) 0;
+  padding-top: calc(var(--space-half) + var(--space-quarter));
+  background-color: var(--background-secondary);
+  color: var(--color-default);
+  font-size: var(--size-default);
+}

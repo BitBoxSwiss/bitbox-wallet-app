@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { Input } from '@/components/forms';
-import { useDarkmode } from '@/hooks/darkmode';
-import { Edit, EditLight, Save, SaveLight } from '@/components/icon/icon';
 import style from './details.module.css';
+import detailsDialogStyles from './details-dialog-new.module.css';
 
 type Props = {
   accountCode: accountApi.AccountCode;
@@ -30,43 +29,32 @@ type Props = {
 };
 
 export const Note = ({ accountCode, note, internalID }: Props) => {
-  const { isDarkMode } = useDarkmode();
   const { t } = useTranslation();
   const [newNote, setNewNote] = useState<string>(note);
-  const [editMode, setEditMode] = useState<boolean>(!note);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const editButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (editMode && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [editMode]);
+  const [savedNote, setSavedNote] = useState<string>(note);
 
   const handleNoteInput = (e: ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
     setNewNote(target.value);
   };
 
-  const handleEdit = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    if (editMode && note !== newNote) {
+  const handleBlur = () => {
+    if (savedNote !== newNote) {
       accountApi.postNotesTx(accountCode, {
         internalTxID: internalID,
         note: newNote,
+      }).then(() => {
+        setSavedNote(newNote);
       }).catch(console.error);
     }
-    setEditMode(!editMode);
   };
 
   return (
-    <form onSubmit={handleEdit} className={style.detailInput}>
-      <label htmlFor="note">{t('note.title')}</label>
+    <div className={style.detailInput}>
+      <label className={detailsDialogStyles.label} htmlFor="note">{t('note.title')}</label>
       <Input
         align="right"
-        autoFocus={editMode}
         className={style.textOnlyInput}
-        readOnly={!editMode}
         type="text"
         id="note"
         transparent
@@ -74,19 +62,7 @@ export const Note = ({ accountCode, note, internalID }: Props) => {
         value={newNote}
         maxLength={256}
         onInput={handleNoteInput}
-        ref={inputRef}/>
-      <button
-        className={style.editButton}
-        onClick={handleEdit}
-        title={t(`transaction.note.${editMode ? 'save' : 'edit'}`)}
-        type="button"
-        ref={editButtonRef}>
-        {
-          editMode
-            ? isDarkMode ? <SaveLight /> : <Save />
-            : isDarkMode ? <EditLight /> : <Edit />
-        }
-      </button>
-    </form>
+        onBlur={handleBlur}/>
+    </div>
   );
 };

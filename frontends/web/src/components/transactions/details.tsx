@@ -19,7 +19,7 @@ import type { AccountCode, TTransaction } from '@/api/account';
 import { getTransaction } from '@/api/account';
 import { syncdone } from '@/api/accountsync';
 import { usePrevious } from '@/hooks/previous';
-import { TxDetailsDialog } from './components/details-dialog';
+import { TxDetailsDialogNew } from '@/components/transactions/components/details-dialog-new';
 
 type TProps = {
   accountCode: AccountCode;
@@ -79,7 +79,7 @@ export const TransactionDetails = ({
   }
 
   return (
-    <TxDetailsDialog
+    <TxDetailsDialogNew
       open={open}
       onClose={() => {
         setOpen(false);
