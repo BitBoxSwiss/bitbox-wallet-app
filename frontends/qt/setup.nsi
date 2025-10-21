@@ -22,7 +22,9 @@ SetCompressor /SOLID lzma
 
 # General Symbol Definitions
 !define REGKEY "SOFTWARE\$(^Name)"
-!define VERSION 4.49.0.0
+!ifndef VERSION
+!error "VERSION define not provided (pass -DVERSION=major.minor.patch.build)"
+!endif
 !define COMPANY "Shift Crypto AG"
 !define URL https://github.com/BitBoxSwiss/bitbox-wallet-app/releases/
 !define BINDIR "build\windows"
