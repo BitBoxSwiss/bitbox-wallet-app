@@ -20,11 +20,8 @@
     margin-bottom: var(--spacing-default);
 }
 
-.selectContainer > div {
-    position: relative;
-}
-
-.selectContainer > div > div {
+/* removes space between select box and actual dropdown */
+.selectContainer :global(.react-select__menu) {
     margin: 0;
 }
 
