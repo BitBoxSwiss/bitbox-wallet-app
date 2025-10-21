@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+def repoRoot = project.projectDir.parentFile.parentFile.parentFile.parentFile
+def appVersionFile = new File(repoRoot, "APP_VERSION")
+if (!appVersionFile.exists()) {
+    throw new GradleException("APP_VERSION not found at ${appVersionFile}")
+}
+def appVersion = appVersionFile.text.trim()
+
 android {
     compileSdk 35
     // Keep in sync with android-env.mk.inc and the NDK installed in docker_install.sh.
@@ -11,7 +18,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 35
         versionCode 66
-        versionName "android-4.49.0"
+        versionName "${appVersion}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
