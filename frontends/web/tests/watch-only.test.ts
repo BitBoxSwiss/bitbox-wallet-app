@@ -15,13 +15,12 @@
  */
 
 
+import { deleteAccountsFile } from './helpers/fs';
 import { test } from './helpers/fixtures';
 import { ServeWallet } from './helpers/servewallet';
 import { startSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
 import { assertFieldsCount, clickButtonWithText } from './helpers/dom';
 import { ChildProcessWithoutNullStreams } from 'child_process';
-import * as fs from 'fs';
-import * as path from 'path';
 
 let servewallet: ServeWallet;
 let simulatorProc : ChildProcessWithoutNullStreams | undefined;
@@ -37,7 +36,7 @@ let simulatorProc : ChildProcessWithoutNullStreams | undefined;
  */
 test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendPort, servewalletPort }) => {
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, true);
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, { simulator: true });
     await servewallet.start();
   });
 
@@ -91,7 +90,7 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
  */
 test('Test #2 - No passphrase - Watch-only account', async ({ page, host, frontendPort, servewalletPort }) => {
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, true);
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, { simulator: true });
     await servewallet.start();
   });
 
@@ -142,14 +141,6 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
   });
 });
 
-function deleteAccountsFile() {
-  const filePath = path.join(process.cwd(), '../../appfolder.dev/accounts.json');
-  if (fs.existsSync(filePath)) {
-    fs.unlinkSync(filePath);
-  } else {
-    console.warn(`File ${filePath} does not exist, skipping removal.`);
-  }
-}
 
 // Ensure a clean state before running all tests.
 test.beforeAll(() => {
