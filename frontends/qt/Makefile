@@ -75,6 +75,8 @@ osx:
 	mkdir build/osx
 	mv build/BitBox.app build/osx/
 	cp resources/MacOS/Info.plist build/osx/BitBox.app/Contents/
+	/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(APP_VERSION)" build/osx/BitBox.app/Contents/Info.plist
+	/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $(APP_VERSION)" build/osx/BitBox.app/Contents/Info.plist
 	mkdir -p build/osx/BitBox.app/Contents/Resources
 	cp resources/MacOS/icon.icns build/osx/BitBox.app/Contents/Resources/
 	cd build/osx/ && macdeployqt BitBox.app
