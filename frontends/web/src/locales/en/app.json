@@ -199,7 +199,7 @@
   },
   "bitbox02Settings": {
     "bluetoothToggleEnabled": {
-      "alertDisabled": "Bluetooth is now disabled on your BitBox. If you want to connect with iPhones on the future, you will need to re-enable it.",
+      "alertDisabled": "Bluetooth is now disabled on your BitBox. If you want to connect with iPhones in the future, you will need to re-enable it.",
       "alertEnabled": "Bluetooth is now enabled.",
       "description": "Bluetooth is used for connecting with iPhone.",
       "titleDisabled": "Enable Bluetooth",
