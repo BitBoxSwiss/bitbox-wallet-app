@@ -12,15 +12,16 @@
 
 .close {
     display: flex;
-    height: 24px;
+    height: 2.4rem;
+    margin-left: var(--space-eight);
+    min-height: 0;
     padding: 4px;
-    width: 24px;
+    width: 2.4rem;
 }
 
 .close img {
-    height: 20px;
-    margin-left: calc(var(--space-quarter) / 2);
-    width: 20px;
+    height: min(2rem, 36px);
+    width: min(2rem, 36px);
 }
 
 .wrapper {
@@ -61,28 +62,12 @@
     margin: 0;
 }
 
-.header a {
-    cursor: pointer;
-    font-size: 2rem;
-}
-
 .content {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
     padding: 0 var(--space-default);
     padding-bottom: env(safe-area-inset-bottom, 0);
-}
-
-.content h1 {
-    font-size: 1.5em;
-    margin-top: 0px;
-}
-
-.content h2 {
-    font-size: var(--size-subheader);
-    font-weight: 400;
-    margin: 0;
 }
 
 .guide p {
@@ -94,13 +79,13 @@
     margin-right: 0;
 }
 
-.entry {
-    margin-top: var(--space-default);
-}
-
 .appendix {
     padding-top: var(--space-half);
     margin-top: auto;
+}
+
+.entry {
+    margin-top: var(--space-default);
 }
 
 .entryTitle {
@@ -108,22 +93,25 @@
     cursor: default;
     display: flex;
     flex-direction: row;
+    font-size: var(--size-subheader);
     justify-content: flex-start;
 }
 
-.entryTitle .entryToggle {
+.entryToggle {
     align-items: center;
     display: flex;
-    font-size: var(--size-subheader);
-    flex-direction: row;
     font-weight: bold;
+    flex-direction: row;
     justify-content: flex-start;
-    line-height: 1.2em;
-    width: 16px;
+    line-height: 1.2;
+    width: var(--size-small);
 }
 
-.entryTitle .entryTitleText {
+.entryTitleText {
     flex: 1;
+    font-size: var(--size-subheader);
+    font-weight: 400;
+    margin: 0;
 }
 
 .entryContent {
@@ -131,7 +119,7 @@
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    padding-left: 16px;
+    padding-left: var(--size-small);
 }
 
 .expanded {
@@ -193,11 +181,5 @@
     .content {
         padding-left: var(--space-half);
         padding-right: var(--space-half);
-    }
-}
-
-@media screen and (max-width: 640px) {
-    .guide h2 {
-        font-size: var(--size-default);
     }
 }

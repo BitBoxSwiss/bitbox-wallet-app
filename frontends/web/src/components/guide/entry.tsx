@@ -47,10 +47,12 @@ export const Entry = (props: TProps) => {
   return (
     <div className={style.entry}>
       <div className={style.entryTitle} onClick={toggle}>
-        <div className={style.entryToggle}>{shown ? '–' : '+'}</div>
-        <div className={style.entryTitleText}>
-          <h2>{entry.title}</h2>
+        <div className={style.entryToggle}>
+          {shown ? '–' : '+'}
         </div>
+        <h3 className={style.entryTitleText}>
+          {entry.title}
+        </h3>
       </div>
       <div className={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
         {shown ? (
