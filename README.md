@@ -103,6 +103,8 @@ In order to do so:
 
 If the simulator is listening on a custom port, `--simulatorPort=<port>` must also be provided.
 
+Note: the simulator is currently only supported in the servewallet and in the Qt app and only when the app runs in testnet mode.
+
 #### Watch and build the UI
 
 Run `make webdev` to develop the UI inside a web browser (for quick development, automatic rebuilds

@@ -68,6 +68,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bridgecommon"
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02/simulator"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/mobileserver"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -109,6 +110,14 @@ func setOnline(isReachable bool) {
 	bridgecommon.SetOnline(isReachable)
 }
 
+func deviceInfos() []usb.DeviceInfo {
+	testDeviceInfo := simulator.TestDeviceInfo()
+	if testDeviceInfo != nil {
+		return []usb.DeviceInfo{testDeviceInfo}
+	}
+	return usb.DeviceInfos()
+}
+
 //export serve
 func serve(
 	cppHeapFreeFn C.cppHeapFree,
@@ -121,6 +130,8 @@ func serve(
 	log := logging.Get().WithGroup("server")
 	log.WithField("args", os.Args).Info("Started Qt application")
 	testnet := flag.Bool("testnet", false, "activate testnets")
+	simulatorPort := flag.Int("simulatorPort", 15423, "port for the BitBox02 simulator")
+	useSimulator := flag.Bool("simulator", false, "use the BitBox02 simulator. It implies --testnet.")
 
 	if runtime.GOOS == "darwin" {
 		// eat "-psn_xxxx" on Mac, which is passed when starting an app from Finder for the first time.
@@ -146,12 +157,17 @@ func serve(
 		}
 	}
 
+	if *useSimulator {
+		simulator.Init(*simulatorPort)
+	}
+
 	// Capture C string early to avoid potential use when it's already popped
 	// from the stack.
 	nativeLocale := C.GoString(preferredLocale)
 
 	bridgecommon.Serve(
 		*testnet,
+		*useSimulator,
 		gapLimits,
 		&nativeCommunication{
 			respond: func(queryID int, response string) {
@@ -171,7 +187,7 @@ func serve(
 				defer C.free(unsafe.Pointer(cText))
 				C.notifyUser(notifyUserFn, cText)
 			},
-			DeviceInfosFunc:     usb.DeviceInfos,
+			DeviceInfosFunc:     deviceInfos,
 			SystemOpenFunc:      system.Open,
 			UsingMobileDataFunc: func() bool { return false },
 			NativeLocaleFunc:    func() string { return nativeLocale },
