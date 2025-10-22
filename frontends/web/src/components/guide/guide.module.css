@@ -12,15 +12,16 @@
 
 .close {
     display: flex;
-    height: 24px;
+    height: 2.4rem;
+    min-height: 0;
     padding: 4px;
-    width: 24px;
+    width: 2.4rem;
 }
 
 .close img {
-    height: 20px;
+    height: 2rem;
     margin-left: calc(var(--space-quarter) / 2);
-    width: 20px;
+    width: 2rem;
 }
 
 .wrapper {
@@ -115,11 +116,11 @@
     align-items: center;
     display: flex;
     font-size: var(--size-subheader);
-    flex-direction: row;
     font-weight: bold;
+    flex-direction: row;
     justify-content: flex-start;
-    line-height: 1.2em;
-    width: 16px;
+    line-height: 1.2;
+    width: 1.6rem;
 }
 
 .entryTitle .entryTitleText {
@@ -131,7 +132,7 @@
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    padding-left: 16px;
+    padding-left: 1.2rem;
 }
 
 .expanded {
