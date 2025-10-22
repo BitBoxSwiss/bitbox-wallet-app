@@ -842,9 +842,8 @@
           "title": "Payment Methods and Fees"
         },
         "kyc": {
+          "info": "Pocket may require identification documents. Please refer to their FAQs for more information.",
           "link": "Read Pocket FAQs",
-          "p1": "No additional documents are needed for exchanges up to 1000 EUR/CHF within a 30-day period.",
-          "p2": "For larger amounts, a call with Pocket is required to complete the KYC/AML process.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
