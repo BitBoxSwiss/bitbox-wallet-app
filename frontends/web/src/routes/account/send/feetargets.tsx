@@ -193,8 +193,10 @@ export const FeeTargets = ({
         ) : (
           <div className={style.rowCustomFee}>
             { noFeeTargets ? (
-              <Message small type="warning">
-                {t('send.noFeeTargets')}
+              <Message type="warning">
+                <label>
+                  {t('send.noFeeTargets')}
+                </label>
               </Message>
             ) : null }
             <div className={style.column}>
