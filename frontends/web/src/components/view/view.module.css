@@ -299,7 +299,7 @@
     }
     .header,
     .inner p {
-        --size-default: 2rem;
+        --size-default: min(2rem, 36px);
     }
     .fullscreen {
         --size-default: 1.8rem;

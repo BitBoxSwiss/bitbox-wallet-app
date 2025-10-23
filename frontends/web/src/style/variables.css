@@ -47,16 +47,6 @@
     --color-error-background: rgba(227, 6, 19, .2);
     --color-error-border: rgba(227, 6, 19, .33);
 
-    /* font sizes */
-    --size-large: 3.2rem;
-    --size-header: 2.4rem;
-    --size-subheader: 1.8rem;
-    --size-default: 1.6rem; /* was 14px now 16px*/
-    --size-small: 1.4rem;
-    --size-smaller: 1.2rem;
-    --size-xsmall: 1.1rem;
-    --size-title: 3.2rem;
-
     /* spacing */
     --spacing-large: 32px;
     --spacing-default: 16px;
@@ -191,17 +181,30 @@
     }
 }
 
+/* font sizes */
+
+:root {
+    --size-large: min(3.2rem, 44px);
+    --size-header: min(2.4rem, 36px);
+    --size-subheader: min(1.8rem, 32px);
+    --size-default: min(1.6rem, 28px);
+    --size-small: min(1.4rem, 24px);
+    --size-smaller:  min(1.2rem, 20px);
+    --size-xsmall: min(1.1rem, 18px);
+    --size-title: min(3.2rem, 36px);
+}
+
 @media (max-width: 1199px) {
     :root {
-        --size-title: 1.8rem;
+        --size-title: min(1.8rem, 36px);
     }
 }
 
 @media (max-width: 768px) {
     :root {
-        --size-header: 2rem;
-        --size-subheader: 1.6rem;
-        --size-title: 1.6rem;
-        --size-default: 1.6rem;
+        --size-header: min(2rem, 36px);
+        --size-title: min(1.6rem, 36px);
+        --size-subheader: min(1.6rem, 30px);
+        --size-default: min(1.6rem, 28px);
     }
 }
