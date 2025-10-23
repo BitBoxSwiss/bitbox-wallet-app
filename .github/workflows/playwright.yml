@@ -91,6 +91,7 @@ jobs:
 
       - name: Run Playwright tests
         env:
+          DEBUG: "pw:browser"
           SIMULATOR_PATH: ${{ github.workspace }}/simulator-bin/simulator
         run: make webe2etest
 

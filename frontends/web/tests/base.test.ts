@@ -17,6 +17,7 @@
 import { test } from './helpers/fixtures';
 import { ServeWallet } from './helpers/servewallet';
 import { expect } from '@playwright/test';
+import { deleteConfigFile, deleteAccountsFile } from './helpers/fs';
 
 let servewallet: ServeWallet;
 
@@ -33,6 +34,11 @@ test('App main page loads', async ({ page, host, frontendPort, servewalletPort }
     const body = page.locator('body');
     await expect(body).toContainText('Please connect your BitBox and tap the side to continue.');
   });
+});
+
+test.beforeAll(() => {
+    deleteConfigFile();
+    deleteAccountsFile();
 });
 
 test.afterAll(() => {
