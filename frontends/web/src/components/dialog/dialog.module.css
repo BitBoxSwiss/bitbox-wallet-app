@@ -203,7 +203,7 @@
 @media (max-width: 768px) {
 
     .header .title{
-        font-size: var(--header-default-font-size);
+        font-size: var(--size-header);
     }
 
     .modal {

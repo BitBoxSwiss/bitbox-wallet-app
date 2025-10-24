@@ -50,6 +50,7 @@
     /* font sizes */
     --size-large: 2rem;
     --size-large-mobile: 1.4rem;
+    --size-header: 24px;
     --size-subheader: 18px;
     --size-default: 14px;
     --size-small: 12px;
@@ -90,7 +91,6 @@
 
     /* header */
     --header-height: 70px;
-    --header-default-font-size: 24px;
 
     /* content */
     --content-width: 1080px;
@@ -204,7 +204,7 @@
 
 @media (max-width: 768px) {
     :root {
-        --header-default-font-size: 20px;
+        --size-header: 20px;
         --size-subheader: 16px;
         --size-title: 16px;
 
