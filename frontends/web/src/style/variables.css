@@ -51,11 +51,9 @@
     --size-large: 2rem;
     --size-large-mobile: 1.4rem;
     --size-subheader: 18px;
-    --size-medium: var(--size-default);
     --size-default: 14px;
     --size-small: 12px;
     --size-xsmall: 11px;
-    --size-button: var(--size-default);
     --size-title: 32px;
 
     /* wizard */

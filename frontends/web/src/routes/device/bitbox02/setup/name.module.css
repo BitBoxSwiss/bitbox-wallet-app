@@ -11,7 +11,7 @@
 .errorMessage {
   color: var(--color-danger);
   display: block;
-  font-size: var(--size-medium);
+  font-size: var(--size-default);
   padding-top: var(--space-quarter);
 }
 
