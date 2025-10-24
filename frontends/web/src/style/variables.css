@@ -56,9 +56,6 @@
     --size-xsmall: 11px;
     --size-title: 32px;
 
-    /* wizard */
-    --size-wizard-text: 16px;
-
     /* spacing */
     --spacing-large: 2rem;
     --spacing-default: 1rem;
@@ -206,8 +203,6 @@
         --size-header: 20px;
         --size-subheader: 16px;
         --size-title: 16px;
-
-        --size-wizard-text: 14px;
         --size-default: 16px;
     }
 }
