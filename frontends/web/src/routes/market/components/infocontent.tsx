@@ -120,11 +120,11 @@ const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
       <br />
       <p><b>{t('buy.exchange.infoContent.pocket.verification.title')}</b></p>
       <br />
-      <p>{t('buy.exchange.infoContent.pocket.verification.info')}</p>
+      <p>{t('exchange.pocket.terms.kyc.info')}</p>
       <br />
       <p>
-        <A href="https://pocketbitcoin.com/faq/are-there-any-limits-with-pocket">
-          {t('buy.exchange.infoContent.pocket.verification.link')}
+        <A href="https://pocketbitcoin.com/faq">
+          {t('exchange.pocket.terms.kyc.link')}
         </A>
       </p>
       <br />
