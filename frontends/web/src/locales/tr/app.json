@@ -237,7 +237,7 @@
   },
   "bootloader": {
     "button": "Donanım yazılımını şimdi yükselt",
-    "progress": "Yükseltme: {{progress}}%",
+    "progress": "Yükseltme",
     "success": "Yükseltme başarılı! Lütfen cihazı tekrar takın. Bu kez, düğmeye dokunmayın."
   },
   "button": {
@@ -575,10 +575,6 @@
       "caps": "UYARI: Büyük harf kilidi (⇪) aktif",
       "paste": "Metni yapıştırmak için \"GÖSTER\" butonunu etkinleştirin {{label}}\""
     }
-  },
-  "random": {
-    "button": "Rastgele Sayı Üret",
-    "description": "BitBox'ınız aşağıdaki {{bits}}-bit random sayıları üretti:"
   },
   "receive": {
     "label": "Sizin adresiniz",

@@ -1,7 +1,11 @@
 {
   "account": {
+    "account": "Cuenta",
+    "accounts": "Cuenta",
+    "backupReminder": "Tu billetera <strong>{{name}}</strong> ha pasado de {{fiat}} {{threshold}}!\n\nRecomendamos que hagas una copia de seguridad en papel para una protección adicional. Es rápido y sencillo. ",
+    "backupReminderLink": "Crear una copia de seguridad en papel",
     "disconnect": "Conexión perdida. Reintentando... ",
-    "export": "Exportar ",
+    "export": "Exportar transacciones",
     "exportTransactions": "Exportar transacciones a la carpeta de descargas como archivo CSV",
     "fatalError": "Ha ocurrido un error inesperado.",
     "incoming": "Entrante",
@@ -19,8 +23,8 @@
     "address": "Dirección",
     "buyCTA": {
       "information": {
-        "looksEmpty": "Parece que esta cartera está vacía.",
-        "start": "Comience depositando algunas monedas en la cartera o comprando directamente a través de la BitBoxApp."
+        "looksEmpty": "Parece que esta billetera está vacía.",
+        "start": "Comienza depositando algunas monedas en la billetera o comprando directamente a través de la BitBoxApp."
       }
     },
     "extendedPublicKey": "Clave pública extendida",
@@ -95,6 +99,8 @@
   },
   "auth": {
     "authButton": "Autentificar",
+    "dismissButton": "Cancelar",
+    "missing": "Activa el bloqueo de pantalla en la configuración de tu dispositivo.",
     "title": "Por favor, autentifícate para continuar"
   },
   "backup": {
@@ -129,6 +135,7 @@
     "description": "Seleccionar <strong>archivo de copia de seguridad de la billetera</strong>",
     "insert": "Por favor, inserta la tarjeta micro SD para administrar las copias de seguridad.",
     "insertButton": "He insertado la tarjeta micro SD",
+    "link": "Ir a administrar copias de seguridad",
     "list": "Tus copias de seguridad en la microSD",
     "noBackups": "No hay copias de seguridad en esta tarjeta microSD.",
     "restore": {
@@ -151,7 +158,7 @@
     },
     "showMnemonic": {
       "checkboxLabel": "He leído la información anterior.",
-      "description": "A continuación se te presentarán tu palabras de recuperación, que constituyen una copia de seguridad de su cartera. Escríbelas en un papel.\n\n<strong>No las almacenes digitalmente ni les tomes fotos.</strong>\n\n<strong>No las diga en voz alta.</strong>\n\n<strong>Esta copia de seguridad no está protegida por una contraseña.</strong>\n\nA continuación, se te pedirá que confirme cada palabra. ",
+      "description": "A continuación se te presentarán tus palabras de recuperación, que constituyen una copia de seguridad de tu billetera. Escríbelas en un papel.\n\n<strong>No las almacenes digitalmente ni les tomes fotos.</strong>\n\n<strong>No las diga en voz alta.</strong>\n\n<strong>Esta copia de seguridad no está protegida por una contraseña.</strong>\n\nA continuación, se te pedirá que confirmes cada palabra. ",
       "title": "Mostrar palabras de recuperación",
       "warning": "<strong>Nunca compartas tus palabras de recuperación con nadie.</strong> Tus palabras de recuperación dan acceso completo a tu billetera. Si alguien te pide tus palabras de recuperación, es un estafador, ¡no las compartas! "
     },
@@ -191,6 +198,13 @@
     "followInstructionsMnemonicTitle": "Restaurar desde las palabras de recuperación"
   },
   "bitbox02Settings": {
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "El Bluetooth está desactivado en tu BitBox. Si quieres conectarte con iPhones en el futuro, tendrás que volver a activarlo.",
+      "alertEnabled": "Bluetooth activado.",
+      "description": "Bluetooth se utiliza para conectarse con el iPhone.",
+      "titleDisabled": "Habilitar Bluetooth",
+      "titleEnabled": "Desactivar Bluetooth"
+    },
     "deviceName": {
       "current": "Nombre del dispositivo actual",
       "error": "No se ha podido establecer el nombre del dispositivo",
@@ -370,8 +384,8 @@
   "bootloader": {
     "button": "Actualizar firmware ahora",
     "button_install": "Instalar el nuevo firmware ahora",
-    "progress": "Actualizando: {{progress}}%",
-    "progress_install": "Instalando: {{progress}}%",
+    "progress": "Actualizando",
+    "progress_install": "Instalando",
     "success": "Actualización completada! Por favor, vuelva a conectar el dispositivo. Esta vez, no toque el botón."
   },
   "button": {
@@ -398,14 +412,57 @@
     "upgrade": "Actualizar"
   },
   "buy": {
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": "Fondos insuficientes para comprar la tarjeta de regalo."
+      },
+      "transactionNote": "Enviado a Bitrefill"
+    },
     "exchange": {
       "bankTransfer": "Transferencia bancaria",
       "bestDeal": "La mejor oferta",
       "buy": "Comprar",
       "creditCard": "Tarjeta de crédito",
+      "description_bitrefill": "Compra tarjetas de regalo, recargas de teléfonos y mucho más",
       "fast": "Rápido",
       "fee": "tarifa",
       "infoContent": {
+        "bitrefill": {
+          "disclaimer": {
+            "account": {
+              "link": "Límites de compra de Bitrefill",
+              "text": "Puedes utilizar Bitrefill sin crear una cuenta, con ciertos límites. Para aumentar tus límites de gasto, puedes crear una cuenta básica o convertirte en cliente verificado. Para más información, consulta los límites de compra de Bitrefill.",
+              "title": "Cuenta y límites"
+            },
+            "claims": {
+              "link": "Soporte de Bitrefill",
+              "text": "Si tienes algún problema con una compra, ponte en contacto con Bitrefill directamente dentro de los 30 días posteriores a tu pedido.",
+              "title": "Reclamos"
+            },
+            "dataProtection": {
+              "link": "Política de privacidad de Bitrefill",
+              "text": "La BitBoxApp no recopila datos personales. Bitrefill recopila información de acuerdo con su Política de Privacidad.",
+              "title": "Protección de datos"
+            },
+            "fees": {
+              "text": "Bitrefill no cobra tarifas explícitas, pero los precios de los productos pueden incluir un margen de beneficio, que puede variar según el minorista, la región y el tipo de cambio que aplique Bitrefill.",
+              "title": "Tarifas"
+            },
+            "intro": {
+              "text": "Bitrefill es una plataforma en línea que te permite comprar tarjetas de regalo, recargar teléfonos móviles y pagar facturas con bitcoins u otras criptomonedas. Es una forma fácil de gastar criptomonedas en bienes y servicios cotidianos sin convertirlas en dinero tradicional. Bitrefill ofrece una amplia gama de productos de marcas globales y es popular entre las personas que quieren vivir con criptomonedas o comprar en privado.",
+              "title_bitcoin": "Gasta bitcoin con Bitrefill",
+              "title_crypto": "Gasta criptomonedas con Bitrefill"
+            },
+            "security": {
+              "link": "Modelo de amenazas de seguridad de BitBox",
+              "text": "Bitrefill es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de BitBox. Al realizar una compra, el pago se envía a una dirección de Bitrefill. La BitBox no puede verificar que esta dirección sea correcta.",
+              "title": "Aviso de seguridad"
+            }
+          },
+          "infobox": {
+            "intro": "Bitrefill es una plataforma en línea donde puedes gastar bitcoin y otras criptomonedas en artículos esenciales de uso diario mediante la compra de tarjetas de regalo, recargas móviles y diversos servicios. La integración con la BitBoxApp te permite gastar tus monedas directamente desde tu BitBox sin tener que transferirlas a una plataforma de intercambio ni a otra billetera."
+          }
+        },
         "btcdirect": {
           "disclaimer": {
             "dataProtection": {
@@ -434,7 +491,7 @@
               "title": "Servicio personalizado con precio fijo"
             },
             "security": {
-              "link": "Modelo de amenazas de seguridad de la BitBox02",
+              "link": "Modelo de amenazas de seguridad de BitBox",
               "text": "El Private Trading Desk de BTC Direct es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de la BitBox. Sin embargo, BTC Direct está familiarizado con los productos de BitBox y ofrece orientación segura y experta. Los productos de BitBox verifican las direcciones de criptomonedas durante las transacciones para garantizar una entrega segura.",
               "title": "Seguridad"
             },
@@ -465,15 +522,16 @@
             "paymentMethods": {
               "buy": "Comprar: Paga en EUR para recibir las monedas directamente en tu BitBox. Puedes elegir entre compras únicas o recurrentes. En el caso de las transferencias bancarias, el tipo de cambio se fija cuando BTC Direct recibe el dinero. Los métodos instantáneos utilizan un tipo de cambio fijo durante un tiempo limitado.",
               "note": "Nota: los tipos de cambio de BTC Direct pueden diferir ligeramente de los tipos de la BitBoxApp.",
+              "sell": "Venta: Envía tus criptomonedas a BTC Direct y recibe EUR en tu cuenta bancaria. El tipo de cambio se fija en cuanto BTC Direct recibe tus monedas.",
               "title": "Métodos de pago y comisiones"
             },
             "security": {
               "description": "BTC Direct es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de la BitBox. Trabajamos en estrecha colaboración con BTC Direct para mejorar la seguridad general.",
-              "link": "Modelo de amenazas de seguridad de la BitBox02",
+              "link": "Modelo de amenazas de seguridad de la BitBox",
               "title": "Seguridad"
             },
-            "title_bitcoin": "Compra bitcoin con BTC Direct",
-            "title_crypto": "Compra criptomonedas con BTC Direct"
+            "title_bitcoin": "Compra y vende bitcoin con BTC Direct",
+            "title_crypto": "Compra y vende criptomonedas con BTC Direct"
           },
           "infobox": {
             "feesBuying": {
@@ -483,7 +541,11 @@
               "sofort": "Sofort: {{fee}}%",
               "title": "Tarifas por compra"
             },
-            "intro": "Compra europea de criptomonedas con EUR.",
+            "feesSelling": {
+              "bankTransfer": "Transferencia bancaria: {{fee}}% ",
+              "title": "Tarifas por venta"
+            },
+            "intro": "Compra y venta europea de criptomonedas con EUR.",
             "payment": {
               "bancontact": "Bancontact",
               "bankTransfer": "Transferencia bancaria, SEPA Instant, iDEAL",
@@ -552,7 +614,8 @@
       "noExchanges": "Lo sentimos, no hay intercambios disponibles en esta región.",
       "region": "Región",
       "selectRegion": "No especificado",
-      "sell": "Vender"
+      "sell": "Vender",
+      "spend": "Gastar"
     },
     "info": {
       "continue": "Aceptar y continuar",
@@ -583,8 +646,8 @@
           "title": "Protección de Datos"
         },
         "security": {
-          "descriptionGeneric_bitcoin": "Cuando compras Bitcoin a través de una casa de cambio asociada, estás utilizando un servicio externo. Este servicio está fuera del alcance del modelo de amenazas de seguridad de BitBox02 y depende de la seguridad del entorno en el que se ejecuta el software de BitBoxApp.",
-          "descriptionGeneric_crypto": "Cuando compras crypto a través de una casa de cambio asociada, estás utilizando un servicio externo. Este servicio está fuera del alcance del modelo de amenazas de seguridad de BitBox02 y depende de la seguridad del entorno en el que se ejecuta el software de BitBoxApp.",
+          "descriptionGeneric_bitcoin": "Cuando compras Bitcoin a través de una casa de cambio asociada, estás utilizando un servicio externo. Este servicio está fuera del alcance del modelo de amenazas de seguridad de la BitBox y depende de la seguridad del entorno en el que se ejecuta la BitBoxApp.",
+          "descriptionGeneric_crypto": "Cuando compras criptomonedas a través de una casa de cambio asociada, estás utilizando un servicio externo. Este servicio está fuera del alcance del modelo de amenazas de seguridad de la BitBox y depende de la seguridad del entorno en el que se ejecuta la BitBoxApp.",
           "link": "Modelación de riesgos",
           "title": "Modelo de seguridad"
         },
@@ -646,7 +709,7 @@
         "description": "Crear o verificar una copia de seguridad de tu tarjeta microSD."
       },
       "showRecoveryWords": {
-        "description": "Mostrar y verificar palabras de recuperación."
+        "description": "Mostrar y verificar palabras de recuperación en la pantalla de la BitBox."
       },
       "title": "Copias de seguridad"
     },
@@ -756,10 +819,13 @@
     "wrongKeystore2": " Si utilizas la passphrase opcional, asegúrate de haber introducido la fpassphrase correcta para la cuenta."
   },
   "exchange": {
+    "btcdirect": {
+      "currencyMismatch": "Moneda inesperada en la solicitud de pago",
+      "insufficientFunds": "Fondos insuficientes en la cuenta seleccionada."
+    },
     "buySell": {
       "coinNotSupported": "No hay opciones disponibles para este tipo de moneda.",
-      "regionNotSupported": "No hay opciones disponibles para esta región.",
-      "updateNow": "Actualizar ahora"
+      "regionNotSupported": "No hay opciones disponibles para esta región."
     },
     "pocket": {
       "terms": {
@@ -777,12 +843,10 @@
         },
         "kyc": {
           "link": "Leer las preguntas frecuentes (FAQ) de Pocket",
-          "p1": "No se necesitan documentos adicionales para intercambios de hasta 950 EUR (1000 CHF) por día.",
-          "p2": "Para montos mayores, se requiere una llamada con Pocket para completar el proceso KYC/AML.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
-          "link": "Modelo de amenazas de seguridad de BitBox02",
+          "link": "Modelo de amenazas de seguridad de BitBox",
           "p1": "El uso de Pocket es un servicio externo y no está cubierto por el modelo de amenazas de seguridad de BitBox. Sin embargo, trabajamos en estrecha colaboración con Pocket para mejorar la seguridad general.",
           "p2": "<strong>Comprar bitcoin:</strong> Recibirás un correo electrónico para confirmar tu dirección de recepción de bitcoin a través de un segundo canal de comunicación.",
           "p3": "<strong>Vender bitcoin:</strong> Tu BitBox verifica criptográficamente la dirección de Bitcoin y muestra \"Pocket\" en la billetera de hardware.",
@@ -803,18 +867,36 @@
   "footer": {
     "appVersion": "Versión de app:"
   },
+  "gapLimit": {
+    "change": "Gap limit para las direcciones de cambio",
+    "description": "Configura un gap limit personalizado para tus direcciones de recepción y de cambio de bitcoin.",
+    "maxValue": "El gap limit no debe exceder {{max}}.",
+    "minValue": "El gap limit debe ser al menos {{min}}.",
+    "receive": "Gap limit para direcciones de recepción",
+    "title": "Configuración de gap limit personalizado"
+  },
   "generic": {
     "buy": "Comprar {{coinCode}} ",
-    "buySell": "Comprar y vender",
+    "buySell": "Markeplace",
     "buy_bitcoin": "Comprar Bitcoin ",
     "buy_crypto": "Comprar criptomonedas",
+    "close": "Cerrar",
     "enabled_false": "Desactivado",
     "enabled_true": "Activado",
+    "noOptionOnIos": "No disponible en iOS",
     "noOptions": "No se encontraron opciones",
+    "paymentRequestNote": "{{name}} pago {{orderId}}",
     "receive": "Recibir {{coinCode}}",
     "receive_bitcoin": "Recibir Bitcoin",
     "receive_crypto": "Recibir criptomonedas",
-    "search": "Buscar..."
+    "resetToDefault": "Restablecer a valores predeterminados",
+    "search": "Buscar...",
+    "searchButton": "Buscar",
+    "sell": "Vender {{coinCode}}",
+    "sell_bitcoin": "Vender Bitcoin",
+    "sell_crypto": "Vender criptomonedas",
+    "spend_bitcoin": "Gastar bitcoin",
+    "spend_crypto": "Gastar criptomonedas"
   },
   "genericError": "Ocurrió un error. Si observa algún problema, por favor reinicie la aplicación.",
   "goal": {
@@ -932,8 +1014,8 @@
         "title": "¿Puedo mover fondos entre cuentas?"
       },
       "recoverAccounts": {
-        "text": "Si. La BitBoxApp crea cuentas utilizando estándares muy establecidos compatibles con la mayoría de otras carteras crypto.",
-        "title": "¿Puedo recuperar mis cuentas de otras carteras?"
+        "text": "Si. La BitBoxApp crea cuentas utilizando estándares muy establecidos compatibles con la mayoría de otras billeteras crypto.",
+        "title": "¿Puedo recuperar mis cuentas de otras billeteras?"
       },
       "supportedCoins": {
         "link": {
@@ -943,7 +1025,7 @@
         "title": "¿Cuales monedas son compatibles?"
       },
       "whatAreAccounts": {
-        "text": "Su cartera puede administrar cuentas de la misma moneda. Las cuentas son útiles cuando se quiere guardar los fondos de forma separada.",
+        "text": "tu billetera puede administrar cuentas de la misma moneda. Las cuentas son útiles cuando se quiere guardar los fondos de forma separada.",
         "title": "¿Qué son las cuentas?"
       },
       "whatIsRememberWallet": {
@@ -1087,11 +1169,11 @@
         "title": "¿Cuándo cambian las direcciones?"
       },
       "addressFormats": {
-        "text": "Por defecto, el tipo de dirección es Native Segwit. Esta dirección es ampliamente adoptada por otras carteras/exchanges y proporciona las mejores comisiones para las transacciones del día a día. En cambio, se puede elegir enviar a Taproot (Bitcoin Only), que es el último tipo de direcciones, pero puede que no sea ampliamente soportada todavía. Como alternativa, si tiene complicaciones enviando a Native Segwit (el tipo de dirección por defecto), puede intentar cambiar al antiguo tipo de dirección Wrapped Segwit que puede ser compatible con mas carteras/exchanges.\n",
+        "text": "Por defecto, el tipo de dirección es Native Segwit. Esta dirección es ampliamente adoptada por otras billeteras/exchanges y proporciona las mejores comisiones para las transacciones del día a día. En cambio, se puede elegir enviar a Taproot (Bitcoin Only), que es el último tipo de direcciones, pero puede que no sea ampliamente soportada todavía. Como alternativa, si tienes complicaciones enviando a Native Segwit (el tipo de dirección por defecto), puedes intentar cambiar al antiguo tipo de dirección Wrapped Segwit que puede ser compatible con mas carteras/exchanges.",
         "title": "¿Cuándo utilizar \"cambio de tipo de dirección\"?"
       },
       "howVerify": {
-        "text": "Para la BitBox01, haz clic en el icono BitBox en la barra lateral de la izquierda y revisa las opciones de emparejamiento. Esta guía se actualizará y podrás seguir las nuevas instrucciones desde allí.\nPara la BitBox02, puedes verificar las direcciones directamente en tu dispositivo durante el proceso de envío y recepción. ",
+        "text": "Puedes verificar direcciones directamente en la BitBox durante el proceso de envío/recepción.",
         "title": "¿Cómo puedo verificar una dirección de forma segura?"
       },
       "plugout": {
@@ -1107,7 +1189,7 @@
         "title": "¿Por qué hay tantas direcciones?"
       },
       "whyVerify": {
-        "text": "No es recomendable confiar en tu ordenador para generar y mostrar direcciones auténticas. Su amplia superficie de ataque lo hace significativamente más vulnerable que una billetera de hardware. En la BitBox01, el botón para verificar la dirección envía de manera segura la dirección a un teléfono móvil emparejado, desde donde también puedes escanear y verificar el código QR. En la BitBox02, la dirección se puede verificar directamente en la pantalla de la BitBox02.",
+        "text": "No debes confiar en tu ordenador para generar y mostrar direcciones auténticas. Su gran superficie de ataque lo hace significativamente más vulnerable que una billetera de hardware. La dirección se puede verificar directamente en la pantalla de la BitBox.",
         "title": "¿Por qué debo verificar la dirección de forma segura?"
       }
     },
@@ -1215,7 +1297,7 @@
         "title": "Perdí mi dispositivo. ¿Ahora qué?"
       },
       "useWithoutDevice": {
-        "text": "Lamentablemente, esto todavía no es posible en este momento.",
+        "text": "Sí, puedes recordar las billeteras en la sección \"Administrar cuentas\" de la configuración. De esta manera, puedes ver tu billetera sin usar una BitBox.",
         "title": "¿Puedo usar la aplicación sin un dispositivo?"
       },
       "welcome": {
@@ -1399,15 +1481,15 @@
       "title": "Como funciona"
     },
     "intro": {
-      "message": "Una passphrase proporciona una capa de seguridad por encima de su cartera.\nAprendamos cómo funciona.",
+      "message": "Una passphrase proporciona una capa de seguridad por encima de tu billetera.\nAprendamos cómo funciona.",
       "title": "Configurar passphrase"
     },
     "progressDisable": {
-      "message": "Confirme en su BitBox que quiere <strong>desactivar</strong> la opción de passphrase.",
+      "message": "Confirma en tu BitBox que quieres <strong>desactivar</strong> passphrase opcional.",
       "title": "Confirmar en el dispositivo"
     },
     "progressEnable": {
-      "message": "Confirme en su BitBox que quiere <strong>activar</strong> la opción de passphrase.",
+      "message": "Confirma en tu BitBox que quieres <strong>activar</strong> la passphrase opcional.",
       "title": "Confirmar en el dispositivo"
     },
     "successDisabled": {
@@ -1421,7 +1503,7 @@
       "tips": "Consejos",
       "tipsList": [
         "Te sugerimos enviar una pequeña cantidad a su billetera con passphrase primero. Después desconecta y vuelve a conectar tu BitBox e introduce tu contraseña y tu passphrase. Si has introducido la passphrase correctamente, deberías ver las monedas en tu billetera.",
-        "Si quiere entrar en su cartera original sin passphrase, puede seguir haciéndolo no introduciendo nada cuando le solicite introducir la passphrase. O puede desactivar la característica de passphrase."
+        "Si quieres entrar en tu billetera original sin passphrase, puedes seguir haciéndolo no introduciendo nada cuando le te solicite introducir la passphrase. O puedes desactivar la característica de passphrase."
       ],
       "title": "Passphrase desactivada"
     },
@@ -1431,8 +1513,8 @@
       "understand": "Entiendo como funciona la passphrase y sus riesgos asociados.",
       "understandList": [
         "La passphrase es una capa adicional de seguridad por encima de su copia de seguridad.",
-        "Introducir un passphrase diferente siempre generará carteras diferentes.",
-        "Para restaurar su cartera necesita <strong>tanto la passphrase como la copia de seguridad</strong>.",
+        "Introducir un passphrase diferente siempre generará billeteras diferentes.",
+        "Para restaurar tu billeteras necesitas <strong>tanto la passphrase como la copia de seguridad</strong>.",
         "Si olvidas tu passphrase, ya no podrás <strong>acceder a tus monedas</strong>."
       ]
     },
@@ -1454,10 +1536,6 @@
       "paste": "para pegar texto, activa \"MOSTRAR {{label}}\""
     }
   },
-  "random": {
-    "button": "Generar número aleatorio",
-    "description": "Tu BitBox ha generado el siguiente número aleatorio de {{bits}} bits:"
-  },
   "receive": {
     "bitsuranceWarning": "Esta es una cuenta asegurada, lo que significa que sólo puede recibir a Segwit Nativo. Esto es para que no recibas accidentalmente a Wrapped Segwit o Taproot, que no están asegurados.",
     "changeScriptType": "Cambiar el tipo de dirección",
@@ -1473,7 +1551,7 @@
       "p2wpkh-p2sh": "Wrapped Segwit (formato compatible)"
     },
     "selectAccount": "Seleccionar cuenta ",
-    "taprootWarning": "Nota: Taproot es una nueva característica de Bitcoin y todavía no es ampliamente aceptada. Los fondos recibidos en direcciones Taproot pueden no ser mostradas en carteras de terceros. Muchas carteras y exchanges no pueden enviar a direcciones Taproot.",
+    "taprootWarning": "Nota: Taproot es una nueva característica de Bitcoin y todavía no es ampliamente aceptada. Los fondos recibidos en direcciones Taproot pueden no ser mostrados en billeteras de terceros. Muchas billeteras y exchanges no pueden enviar a direcciones Taproot.",
     "title": "Recibir {{accountName}}",
     "verify": "Verificar la dirección de forma segura",
     "verifyBitBox02": "Verifica la dirección en tu BitBox",
@@ -1521,7 +1599,7 @@
       "description2": "Elige una contraseña de recuperación para la billetera y selecciona \"Establecer contraseña de recuperación ahora\"",
       "description3": "La copia de seguridad en la tarjeta micro SD y su contraseña de recuperación es el único método para recuperar sus fondos en caso de pérdida o robo del dispositivo BitBox.",
       "description4": "No puedes cambiar tu contraseña de recuperación más adelante sin transferir sus fondos.",
-      "title": "Crear una cartera nueva"
+      "title": "Crear una billetera nueva"
     },
     "password": {
       "label": "Contraseña de recuperación",
@@ -1539,7 +1617,7 @@
       "description1": "Inserta la tarjeta micro SD en el BitBox y haz clic en \"Continuar\"",
       "description2": "Elije una copia de seguridad y haz clic en \"Restablecer\"",
       "description3": "Ingresa la contraseña de recuperación",
-      "description4": "Debes confirmar para entender que una contraseña incorrecta creará una cartera diferente.",
+      "description4": "Debes confirmar para entender que una contraseña incorrecta creará una billetera diferente.",
       "title": "Cómo restaurar una billetera desde una copia de seguridad"
     }
   },
@@ -1784,6 +1862,7 @@
     "fee": "Tarifa de red",
     "fiatHistorical": "Historial",
     "gas": "Gas",
+    "no-results": "No se encontraron transacciones que coincidan con \"{{searchTerm}}\"",
     "note": {
       "edit": "Editar nota",
       "save": "Guardar nota"
@@ -1887,6 +1966,7 @@
   },
   "warning": {
     "coincontrol": "Uno o más UTXOs cuentan con una dirección reutilizada. Ten en cuenta que el receptor verá todos los UTXOs asociados con esas direcciones.",
+    "offline": "En este momento estás desconectado. No podrás enviar transacciones ni ver los últimos tipos de cambio.",
     "sdcard": "Manten la tarjeta micro SD guardada aparte de la BitBox, a menos que desees administrar las copias de seguridad.",
     "testnet": "Actualmente estás usando la billetera en modo Testnet. Las transacciones y los saldos aquí no son reales y no aparecerán en la red principal. Esta red está destinada únicamente a fines de prueba."
   },

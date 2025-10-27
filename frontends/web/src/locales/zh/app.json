@@ -187,7 +187,7 @@
   },
   "bootloader": {
     "button": "立即升级固件",
-    "progress": "升级： {{progress}}％",
+    "progress": "升级",
     "success": "升级成功！请重新插入设备。这次，请一定不要触摸按钮。"
   },
   "button": {
@@ -526,10 +526,6 @@
       "caps": "警告：大写锁定（⇪）已启用",
       "paste": "粘贴文本，启用“显示 {{label}}”"
     }
-  },
-  "random": {
-    "button": "生成随机序号",
-    "description": "您的BitBox产生了以下 {{bits}}位随机数："
   },
   "receive": {
     "label": "你的地址",
