@@ -41,7 +41,7 @@
   }
 
   .balanceTable td {
-    font-size: var(--size-large-mobile);
+    font-size: var(--size-header);
     line-height: 1.5;
   }
 
