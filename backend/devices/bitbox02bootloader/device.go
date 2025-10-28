@@ -27,7 +27,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader"
-	"github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
@@ -203,10 +202,6 @@ func (device *Device) UpgradeFirmware() error {
 		return err
 	}
 	if err := device.Device.UpgradeFirmware(signedBinary); err != nil {
-		// Ignore sig errors for the Plus firmware while we are testing with unsigned firmwares.
-		if plusIsPlaceholder && product == common.ProductBitBox02PlusMulti {
-			return device.Reboot()
-		}
 		return err
 	}
 	return nil
