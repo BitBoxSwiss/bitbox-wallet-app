@@ -1003,7 +1003,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin dan Litecoin boleh mempunyai jumlah akaun yang sewenang-wenangnya. Selepas lima akaun, anda hanya boleh menambah akaun lain jika akaun sebelumnya telah digunakan. \nSyiling lain boleh mempunyai maksimum lima akaun.",
+        "text": "Bitcoin dan Litecoin boleh mempunyai jumlah akaun yang sewenang-wenangnya. Selepas enam akaun, anda hanya boleh menambah akaun lain jika akaun sebelumnya telah digunakan. \nSyiling lain boleh mempunyai maksimum lima akaun.",
         "title": "Berapa banyak akaun yang boleh saya buat?"
       },
       "howtoAddTokens": {

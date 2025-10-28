@@ -1002,7 +1002,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin und Litecoin können eine beliebige Anzahl an Konten haben. Nach fünf Konten kannst du nur dann ein weiteres Konto hinzufügen, wenn das vorherige Konto verwendet wurde.\nAndere Coins können maximal fünf Konten haben.",
+        "text": "Bitcoin und Litecoin können eine beliebige Anzahl an Konten haben. Nach sechs Konten kannst du nur dann ein weiteres Konto hinzufügen, wenn das vorherige Konto verwendet wurde.\nAndere Coins können maximal fünf Konten haben.",
         "title": "Wie viele Konten kann ich erstellen?"
       },
       "howtoAddTokens": {

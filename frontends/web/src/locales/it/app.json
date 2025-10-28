@@ -1003,7 +1003,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Non c'è un limite al numero di account Bitcoin e Litecoin supportati. Dopo il quinto account, potrai aggiungerne uno nuovo solo se il precedente è già stato utilizzato.\n",
+        "text": "Non c'è un limite al numero di account Bitcoin e Litecoin supportati. Dopo il sesto account, potrai aggiungerne uno nuovo solo se il precedente è già stato utilizzato.\nUn massimo di **cinque** account è possibile per le altre monete (token).",
         "title": "Quanti account posso creare?"
       },
       "howtoAddTokens": {
