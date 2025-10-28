@@ -148,3 +148,20 @@ func TestAccountNumber(t *testing.T) {
 	require.Error(t, err)
 	require.Equal(t, uint16(0), num)
 }
+
+func TestAccountNumberOnConfigurations(t *testing.T) {
+	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
+	require.NoError(t, err)
+	xpub, err = xpub.Neuter()
+	require.NoError(t, err)
+	rootFingerprint := []byte{1, 2, 3, 4}
+
+	cfg1 := NewBitcoinConfiguration(
+		ScriptTypeP2WPKH, rootFingerprint, mustKeypath("m/48'/0'/10'"), xpub)
+	cfg2 := NewBitcoinConfiguration(
+		ScriptTypeP2WPKH, rootFingerprint, mustKeypath("m/84'/0'/10'"), xpub)
+	cfgs := Configurations{cfg1, cfg2}
+	num, err := cfgs.AccountNumber()
+	require.NoError(t, err)
+	require.Equal(t, uint16(10), num)
+}

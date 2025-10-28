@@ -202,6 +202,15 @@ func (configuration *Configuration) String() string {
 // fingerprint.
 type Configurations []*Configuration
 
+// AccountNumber returns the first config's account number. It assumes all configurations have the
+// same account number.
+func (configs Configurations) AccountNumber() (uint16, error) {
+	for _, config := range configs {
+		return config.AccountNumber()
+	}
+	return 0, errp.New("no configs")
+}
+
 // RootFingerprint gets the fingerprint of the first config (assuming that all configurations have
 // the same rootFingerprint). Returns an error if the list has no entries or does not contain a
 // known config.

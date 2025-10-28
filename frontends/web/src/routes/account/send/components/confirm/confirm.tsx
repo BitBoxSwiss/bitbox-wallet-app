@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, IAccount, TAmountWithConversions } from '@/api/account';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { Amount } from '@/components/amount/amount';
-import { customFeeUnit, getAccountNumber } from '@/routes/account/utils';
+import { customFeeUnit } from '@/routes/account/utils';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
@@ -45,7 +45,6 @@ type TConfirmSendProps = {
   selectedUTXOs: TSelectedUTXOs;
   coinCode: CoinCode;
   transactionDetails: TransactionDetails;
-  activeAccounts?: IAccount[];
 }
 
 type TUTXOsByAddress = {
@@ -60,10 +59,9 @@ export const ConfirmSend = ({
   selectedUTXOs,
   coinCode,
   transactionDetails,
-  activeAccounts: allAccounts
 }: TConfirmSendProps) => {
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const {
     proposedFee,
     proposedAmount,
@@ -75,14 +73,10 @@ export const ConfirmSend = ({
     activeCurrency: fiatUnit
   } = transactionDetails;
 
-  const receiverAccountNumberAndName = selectedReceiverAccount && allAccounts ?
+  const receiverAccountNumberAndName = selectedReceiverAccount ?
     {
       name: selectedReceiverAccount.name,
-      number: getAccountNumber(
-        selectedReceiverAccount,
-        allAccounts,
-        i18n.language
-      )
+      number: selectedReceiverAccount.accountNumber ? selectedReceiverAccount.accountNumber + 1 : null,
     }
     : undefined;
 
