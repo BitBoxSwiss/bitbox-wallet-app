@@ -27,7 +27,6 @@ import { useMountedRef } from '@/hooks/mount';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { Logo } from '@/components/icon';
-import { getAccountNumber } from '@/routes/account/utils';
 import receiverStyles from './receiver-address-input.module.css';
 import styles from './receiver-address-wrapper.module.css';
 
@@ -40,7 +39,6 @@ type Props = {
 
 type TReceiverAddressWrapperProps = {
   accounts?: IAccount[];
-  allAccounts?: IAccount[];
   error?: string | object;
   onInputChange: (value: string) => void;
   onAccountChange?: (account: IAccount | null) => void;
@@ -68,24 +66,23 @@ const AccountOption = ({ option, isSelectedValue }: Props) => {
 
 export const ReceiverAddressWrapper = ({
   accounts,
-  allAccounts,
   error,
   onInputChange,
   onAccountChange,
   recipientAddress,
   children,
 }: TReceiverAddressWrapperProps) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const mounted = useMountedRef();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [selectedAccount, setSelectedAccount] = useState<TOption<IAccount | null> | null>(null);
   const [accountSyncStatus, setAccountSyncStatus] = useState<{ [code: string]: accountApi.IStatus }>({});
 
   const accountOptions: TAccountOption[] = accounts && accounts.length > 0 ? accounts.map(account => {
-    const accountNumber = getAccountNumber(account, allAccounts || accounts, i18n.language);
+    const accountNumber = account.accountNumber;
 
     return {
-      label: `${account.name} ${accountNumber ? `(Account #${accountNumber})` : ''}`,
+      label: `${account.name} ${accountNumber ? `(Account #${accountNumber + 1})` : ''}`,
       value: account,
       disabled: !accountSyncStatus[account.code]?.synced
     };

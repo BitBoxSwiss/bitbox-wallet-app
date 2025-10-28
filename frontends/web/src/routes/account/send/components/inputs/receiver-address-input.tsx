@@ -123,7 +123,6 @@ export const ReceiverAddressInput = ({
       ) : (
         <ReceiverAddressWrapper
           accounts={accountsForReceiverDropdown}
-          allAccounts={activeAccounts}
           error={addressError}
           onInputChange={onInputChange}
           onAccountChange={onAccountChange}

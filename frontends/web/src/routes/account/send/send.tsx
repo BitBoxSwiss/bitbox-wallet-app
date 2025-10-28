@@ -488,7 +488,6 @@ export const Send = ({
                 recipientAddress: recipientInput,
                 activeCurrency,
               }}
-              activeAccounts={activeAccounts}
             />
             {sendResult && (
               <SendResult

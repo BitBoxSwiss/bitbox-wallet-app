@@ -400,6 +400,8 @@ type accountJSON struct {
 	IsToken               bool               `json:"isToken"`
 	ActiveTokens          []activeToken      `json:"activeTokens,omitempty"`
 	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
+	// Number of the account per coin per keystore, starting at 0. Nil if unknown.
+	AccountNumber *uint16 `json:"accountNumber"`
 }
 
 func newAccountJSON(
@@ -410,6 +412,11 @@ func newAccountJSON(
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
 	watch := account.Config().Config.Watch
+	var accountNumberPtr *uint16
+	accountNumber, err := account.Config().Config.SigningConfigurations.AccountNumber()
+	if err == nil {
+		accountNumberPtr = &accountNumber
+	}
 	return &accountJSON{
 		Keystore: keystoreJSON{
 			Keystore:  keystore,
@@ -426,6 +433,7 @@ func newAccountJSON(
 		IsToken:               isToken,
 		ActiveTokens:          activeTokens,
 		BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
+		AccountNumber:         accountNumberPtr,
 	}
 }
 

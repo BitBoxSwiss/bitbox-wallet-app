@@ -74,6 +74,7 @@ export interface IAccount {
   activeTokens?: IActiveToken[];
   blockExplorerTxPrefix: string;
   bitsuranceStatus?: TDetailStatus;
+  accountNumber?: number;
 }
 
 export const getAccounts = (): Promise<IAccount[]> => {
