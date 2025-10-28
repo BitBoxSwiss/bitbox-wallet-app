@@ -51,9 +51,6 @@ var firmwareBB02PlusBinaryBTCOnly []byte
 var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 24, 0)
 var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 47
 
-// TODO: set to false / remove before production. This is only to allow upgrading unsigned firmware.
-const plusIsPlaceholder = false
-
 //go:embed assets/firmware-bitbox02nova-multi.v9.24.0.signed.bin.gz
 var firmwareBB02PlusBinaryMulti []byte
 var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 24, 0)
