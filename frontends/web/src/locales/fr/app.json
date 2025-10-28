@@ -906,7 +906,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin et Litecoin ne peuvent avoir qu’un nombre arbitraire de comptes. Au delà de cinq comptes, vous ne pouvez en ajouter un supplémentaire que si le compte précédent a déjà été utilisé. \nUn maximum de cinq comptes est possible pour les autres coins (jetons).",
+        "text": "Bitcoin et Litecoin ne peuvent avoir qu’un nombre arbitraire de comptes. Au delà de six comptes, vous ne pouvez en ajouter un supplémentaire que si le compte précédent a déjà été utilisé. \nUn maximum de cinq comptes est possible pour les autres coins (jetons).",
         "title": "Combien de comptes puis-je créer ?"
       },
       "howtoAddTokens": {

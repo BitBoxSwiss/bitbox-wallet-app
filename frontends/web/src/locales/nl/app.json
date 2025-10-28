@@ -1002,7 +1002,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin en Litecoin kunnen zoveel accounts hebben als je wilt. Na vijf accounts kun je pas een nieuwe toevoegen als de vorige account daadwerkelijk gebruikt is voor een transactie. Andere coins hebben een maximum van vijf accounts.",
+        "text": "Bitcoin en Litecoin kunnen zoveel accounts hebben als je wilt. Na zes accounts kun je pas een nieuwe toevoegen als de vorige account daadwerkelijk gebruikt is voor een transactie. Andere coins hebben een maximum van vijf accounts.",
         "title": "Hoeveel accounts kan ik aanmaken?"
       },
       "howtoAddTokens": {

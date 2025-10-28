@@ -1002,7 +1002,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin y Litecoin pueden tener una cantidad arbitraria de cuentas. Después de cinco cuentas, sólo se puede añadir otra cuenta si se ha utilizado la anterior. \nOtras monedas pueden tener un máximo de cinco cuentas.",
+        "text": "Bitcoin y Litecoin pueden tener una cantidad arbitraria de cuentas. Después de seis cuentas, sólo se puede añadir otra cuenta si se ha utilizado la anterior. \nOtras monedas pueden tener un máximo de cinco cuentas.",
         "title": "¿Cuántas cuentas puedo crear?"
       },
       "howtoAddTokens": {

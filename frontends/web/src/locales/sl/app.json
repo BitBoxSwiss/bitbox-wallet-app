@@ -1,5 +1,7 @@
 {
   "account": {
+    "account": "Račun",
+    "accounts": "Računi",
     "disconnect": "Povezava je bila prekinjena. Poizkušam ponovno...",
     "export": "Izvoz",
     "exportTransactions": "Izvozite transakcije v CSV datoteki",
@@ -95,6 +97,7 @@
   },
   "auth": {
     "authButton": "Potrdi",
+    "dismissButton": "Prekini",
     "title": "Za nadaljevanje potrdite"
   },
   "backup": {
@@ -917,7 +920,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Za Bitcoin in Litecoin lahko odprete več računov. Po petih odprtih računih, lahko dodate novega le če je zadnji že v uporabi. Pri vseh preostalih kovancih podpiramo največ pet računov.",
+        "text": "Za Bitcoin in Litecoin lahko odprete več računov. Po šestih odprtih računih, lahko dodate novega le če je zadnji že v uporabi. Pri vseh preostalih kovancih podpiramo največ pet računov.",
         "title": "Koliko računov lahko ustvarim?"
       },
       "howtoAddTokens": {

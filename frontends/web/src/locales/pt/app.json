@@ -2,8 +2,10 @@
   "account": {
     "account": "Conta",
     "accounts": "Contas",
+    "backupReminder": "Sua carteira <strong>{{name}}</strong> passou {{fiat}} {{threshold}}!\n\nRecomendamos criar um backup em papel para proteção extra. É rápido e simples.",
+    "backupReminderLink": "Criar backup em papel",
     "disconnect": "Conexão perdida. Tentando novamente...",
-    "export": "Exportar",
+    "export": "Exportar transações",
     "exportTransactions": "Exportar transações para a pasta Downloads como um arquivo CSV.",
     "fatalError": "Ocorreu um erro inesperado.",
     "incoming": "Lançamentos",
@@ -76,24 +78,29 @@
   "aopp": {
     "addressRequest": "{{host}} está solicitando um endereço de recebimento.",
     "addressRequestWithLogo": "está solicitando um endereço de recebimento",
+    "addressRequestWithLogoAndXPub": "está solicitando um endereço de recebimento e uma chave pública (xpub).",
+    "addressRequestWithXPub": "{{host}} está solicitando um endereço de recebimento e uma chave pública (xpub).",
     "banner": "Solicitação de endereço em andamento. Conecte seu dispositivo para continuar.",
     "errorTitle": "Erro durante a solicitação de endereço",
     "labelAddress": "Endereço",
     "labelMessage": "Mensagem",
     "reverifyInfoText": "Verificar endereço",
-    "signing": "Para prosseguir, assine a mensagem na sua BitBox02",
+    "signing": "Para prosseguir, assine a mensagem na sua BitBox",
     "success": {
       "message": "Prossiga em {{host}}",
       "title": "Endereço enviado com sucesso"
     },
     "syncing": "Sincronizando a conta, aguarde.",
-    "title": "Solicitação de endereço"
+    "title": "Solicitação de endereço",
+    "xpubRequested": "Compartilhar seu xpub permite que serviços externos vejam os endereços da sua conta. Suas moedas continuam seguras e sob seu controle."
   },
   "app": {
     "upgrade": "Uma nova versão desse app está disponível! Por favor, atualize de {{current}} para {{version}}."
   },
   "auth": {
     "authButton": "Autenticar",
+    "dismissButton": "Cancelar",
+    "missing": "Configure um bloqueio de tela nas configurações do sistema do seu dispositivo.",
     "title": "Autentique-se para continuar"
   },
   "backup": {
@@ -128,6 +135,7 @@
     "description": "Selecione um <strong>arquivo de backup da carteira</strong>",
     "insert": "Por favor, insira o cartão microSD para gerenciar backups.",
     "insertButton": "Eu inseri o cartão microSD",
+    "link": "Ir para gerenciar backups",
     "list": "Os backups do seu cartão microSD",
     "noBackups": "Não há backups neste cartão microSD.",
     "restore": {
@@ -160,7 +168,7 @@
     "abort": "Não atualizar - Leve-me de volta",
     "abort_noUpgrade": "Me leve de volta",
     "additionalUpgradeFollows1": "Uma atualização adicional ocorrerá imediatamente após esta.",
-    "additionalUpgradeFollows2": "Por favor, mantenha sua BitBox02 conectada até que todas as atualizações sejam concluídas.",
+    "additionalUpgradeFollows2": "Por favor, mantenha sua BitBox conectada até que todas as atualizações sejam concluídas.",
     "advanced": {
       "label": "Configurações avançadas",
       "toggleShowFirmwareHash": "Mostrar o hash de firmware toda vez na inicialização"
@@ -169,8 +177,8 @@
     "orientation": "Dispositivo orientado de maneira errada?",
     "success": "Atualização bem sucedida!",
     "success_install": "Instalação com sucesso! ",
-    "upgradeTitle": "Atualizando firmware BitBox02",
-    "upgradeTitle_install": "Instalando o firmware BitBox02"
+    "upgradeTitle": "Atualizando firmware BitBox",
+    "upgradeTitle_install": "Instalando o firmware BitBox"
   },
   "bitbox": {
     "error": {
@@ -180,13 +188,13 @@
     }
   },
   "bitbox02Interact": {
-    "confirmDate": "Confirme a data de hoje em sua BitBox02",
+    "confirmDate": "Confirme a data de hoje em sua BitBox",
     "confirmDateText": "Esta data será usada para criar seu backup.",
-    "confirmName": "Confirme o nome na BitBox02",
-    "confirmWords": "Escreva as {{amount}} palavras de recuperação da sua BitBox02",
-    "confirmWordsText": "Depois disso a BitBox02 pede para você confirmar cada palavra para verificar se o backup está correto.",
-    "followInstructions": "Por favor, siga as instruções na sua BitBox02.",
-    "followInstructionsMnemonic": "Siga as instruções em sua BitBox02 para inserir as palavras de recuperação de seu backup e restaurar sua carteira.",
+    "confirmName": "Confirme o nome na BitBox",
+    "confirmWords": "Escreva as {{amount}} palavras de recuperação da sua BitBox",
+    "confirmWordsText": "Depois disso a BitBox pede para você confirmar cada palavra para verificar se o backup está correto.",
+    "followInstructions": "Por favor, siga as instruções na sua BitBox.",
+    "followInstructionsMnemonic": "Siga as instruções em sua BitBox para inserir as palavras de recuperação de seu backup e restaurar sua carteira.",
     "followInstructionsMnemonicTitle": "Restaurar a partir da frase de recuperação"
   },
   "bitbox02Settings": {
@@ -201,12 +209,12 @@
       "current": "Nome atual do dispositivo",
       "error": "Não foi possível definir o nome do dispositivo",
       "error_104": "A confirmação do nome do dispositivo foi interrompida no dispositivo.",
-      "input": "Nome da BitBox02",
+      "input": "Nome da BitBox",
       "placeholder": "Novo nome de dispositivo",
-      "title": "Definir nome da BitBox02"
+      "title": "Definir nome da BitBox"
     },
     "gotoStartupSettings": {
-      "description": "Isso reiniciará sua BitBox02 e entrará nas configurações de inicialização.",
+      "description": "Isso reiniciará sua BitBox e entrará nas configurações de inicialização.",
       "title": "Vá para as configurações de inicialização"
     }
   },
@@ -216,7 +224,7 @@
       "outOfDate": "Atualização de firmware necessária",
       "seed12WordInfo": "Observe que o número de palavras não pode ser alterado após a criação da carteira.",
       "seed12WordLabel": "Criar uma semente de 12 palavras em vez de 24 palavras",
-      "seed12WordText": "Por padrão, a BitBox02 usa uma semente de 24 palavras. Ambos os tamanhos de sementes são seguros contra força bruta na prática. Alguns usuários podem preferir a conveniência da semente de 12 palavras.",
+      "seed12WordText": "Por padrão, a BitBox usa uma semente de 24 palavras. Ambos os tamanhos de sementes são seguros contra força bruta na prática. Alguns usuários podem preferir a conveniência da semente de 12 palavras.",
       "skipSDCardLabel": "Pule o backup do cartão microSD e anote as palavras de recuperação",
       "skipSDCardText": "Você sempre tem a opção de criar um backup em um cartão microSD ou escrever suas palavras de recuperação após a configuração. Isso pode ser feito nas configurações.",
       "title": "Opções avançadas de backup"
@@ -226,15 +234,15 @@
       "point1": "Selecione um backup no cartão microSD",
       "point2": "Defina uma senha para o seu dispositivo",
       "restoreText": "Ok, vamos restaurar um backup!",
-      "text1": "Ótimo, sua senha da BitBox02 foi definida e a carteira foi criada. Agora é hora de criar seu primeiro backup. Por favor, verifique se o seu cartão microSD está inserido na sua BitBox02 e continue.",
+      "text1": "Ótimo, sua senha da BitBox foi definida e a carteira foi criada. Agora é hora de criar seu primeiro backup. Por favor, verifique se o seu cartão microSD está inserido na sua BitBox e continue.",
       "text2": "Por favor, siga as instruções na tela do seu dispositivo para criar um backup.",
-      "text3": "Após o backup ser criado, remova o cartão microSD e armazene-o em um <strong>local seguro</strong>. O conteúdo do cartão microSD não é protegido por senha. Nunca insira em qualquer outro dispositivo além de sua BitBox02.",
+      "text3": "Após o backup ser criado, remova o cartão microSD e armazene-o em um <strong>local seguro</strong>. O conteúdo do cartão microSD não é protegido por senha. Nunca insira em qualquer outro dispositivo além de sua BitBox.",
       "userConfirmation1": "Eu devo armazenar meu backup em um local seguro.",
       "userConfirmation2": "Meu backup não é protegido por senha. Qualquer pessoa com acesso a ele pode acessar minha carteira.",
-      "userConfirmation3": "Se eu perder ou danificar minha BitBox02, a única maneira de recuperar meus fundos é restaurando do meu backup.",
-      "userConfirmation4": "Se eu perder ou danificar meu backup e minha BitBox02, meus fundos serão perdidos.",
-      "userConfirmation5": "Eu não devo colocar meu cartão de backup microSD em um computador, telefone, impressora ou qualquer dispositivo a não ser o BitBox02. ",
-      "userConfirmation5mnemonic": "Não devo colocar minhas palavras de recuperação em um computador, telefone, impressora ou qualquer outro dispositivo que não seja uma BitBox02."
+      "userConfirmation3": "Se eu perder ou danificar minha BitBox, a única maneira de recuperar meus fundos é restaurando do meu backup.",
+      "userConfirmation4": "Se eu perder ou danificar meu backup e minha BitBox, meus fundos serão perdidos.",
+      "userConfirmation5": "Eu não devo colocar meu cartão de backup microSD em um computador, telefone, impressora ou qualquer dispositivo a não ser a BitBox. ",
+      "userConfirmation5mnemonic": "Não devo colocar minhas palavras de recuperação em um computador, telefone, impressora ou qualquer outro dispositivo que não seja uma BitBox."
     },
     "create": {
       "button": "Nomear dispositivo e continuar",
@@ -252,10 +260,10 @@
     },
     "noPasswordMatch": "Senhas não conferem, tente novamente.",
     "pairing": {
-      "failed": "Pareamento não confirmado. Por favor, reconecte sua BitBox02.",
+      "failed": "Pareamento não confirmado. Por favor, reconecte sua BitBox.",
       "paired": "Você confirmou o seguinte código em seu dispositivo. Por favor continue.",
       "title": "Verificar o código de pareamento",
-      "unpaired": "Uma BitBox02 não pareada foi detectada. Verifique se o código de pareamento corresponde ao que é mostrado em sua BitBox02."
+      "unpaired": "Uma BitBox não pareada foi detectada. Verifique se o código de pareamento corresponde ao que é mostrado em sua BitBox."
     },
     "restoreFromMnemonic": {
       "e104": "A restauração a partir das palavras de recuperação foi cancelada.",
@@ -271,37 +279,37 @@
       "title": "Backup restaurado!"
     },
     "stepConnected": {
-      "unlock": "Digite a senha da BitBox02 para desbloquear."
+      "unlock": "Digite a senha da BitBox para desbloquear."
     },
     "stepCreate": {
-      "description": "Este nome é usado como nome do dispositivo e para backups.",
+      "description": "Este nome é usado como nome do dispositivo e de backup.",
       "error": {
         "genericMessage": "Use letras, números, símbolos básicos, espaços. Máximo de 30 caracteres.",
         "invalidChars": "O nome contém caracteres inválidos: {{invalidChars}}.",
         "tooLong": "O nome é muito longo."
       },
-      "nameLabel": "Nome da BitBox02",
-      "namePlaceholder": "Minha BitBox02",
-      "title": "Escolha o nome da BitBox02",
-      "toastMicroSD": "Por favor, insira seu cartão microSD em sua BitBox02, que será usado para armazenar um backup da carteira."
+      "nameLabel": "Nome da BitBox",
+      "namePlaceholder": "Minha BitBox",
+      "title": "Escolha o nome da BitBox",
+      "toastMicroSD": "Por favor, insira seu cartão microSD em sua BitBox, que será usado para armazenar um backup da carteira."
     },
     "stepCreateSuccess": {
-      "removeMicroSD": "Remova o cartão microSD de sua BitBox02 e guarde-o em um local seguro.",
+      "removeMicroSD": "Remova o cartão microSD de sua BitBox e guarde-o em um local seguro.",
       "storeMnemonic": "Guarde suas palavras de recuperação em um local seguro",
       "success": ""
     },
     "stepInsertSD": {
-      "insertSDCard": "Por favor insira um cartão microSD na sua BitBox02 para continuar.",
+      "insertSDCard": "Por favor insira um cartão microSD na sua BitBox para continuar.",
       "insertSDCardToSeeBackups": "Por favor insira seu cartão microSD no BitBox para ver seus backups.",
       "insertSDcardTitle": "Insira cartão microSD."
     },
     "stepPassword": {
       "e104": "A definição da senha foi cancelada.",
-      "title": "Definir senha da BitBox02",
-      "useControls": "Use os controles em sua BitBox02 para definir uma senha."
+      "title": "Definir senha da BitBox",
+      "useControls": "Use os controles em sua BitBox para definir uma senha."
     },
     "stepUninitialized": {
-      "create": "Quero criar uma nova carteira na minha BitBox02.",
+      "create": "Quero criar uma nova carteira na minha BitBox.",
       "restore": "Quero restaurar minha carteira a partir de um backup.",
       "restoreMicroSD": "Restaurar a partir do cartão microSD",
       "restoreMnemonic": "Restaurar a partir da frase de recuperação",
@@ -338,14 +346,14 @@
       "listItem2": "Extorsão (por exemplo, $5 wrench attack)",
       "listItem3": "Destruição devido a incêndio, água ou desastres naturais",
       "month": "mês",
-      "text": "Faça seguro do sua BitBox02 e de até €100.000 em bitcoin contra",
+      "text": "Faça seguro de sua BitBox e de até €100.000 em bitcoin contra",
       "text2": "Os planos de seguro começam em 30€/ano (2,50€/mês). Você pode aprender mais sobre o Bitsurance e suas ofertas exatas de seguros no",
       "text3": "Atualmente disponível na Alemanha, com mais regiões a seguir.",
       "title": "Começar"
     },
     "intro": {
       "link": "Site do Bitsurance",
-      "text1": "A BitBox trabalha com Bitsurance para adicionar uma camada adicional de proteção ao seu bitcoin. Enquanto a BitBox02 mantém seus fundos seguros, o Bitsurance cobre ameaças domésticas que não podem ser mitigadas apenas com tecnologia, como roubo, extorsão ou destruição da própria carteira de hardware."
+      "text1": "A BitBox trabalha com Bitsurance para adicionar uma camada adicional de proteção ao seu bitcoin. Enquanto a BitBox mantém seus fundos seguros, o Bitsurance cobre ameaças domésticas que não podem ser mitigadas apenas com tecnologia, como roubo, extorsão ou destruição da própria carteira de hardware."
     },
     "terms": {
       "link": "Política de Privacidade do Bitsurance",
@@ -404,14 +412,56 @@
     "upgrade": "Atualizar"
   },
   "buy": {
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": "Fundos insuficientes para comprar vale-presente."
+      },
+      "transactionNote": "Enviado para Bitrefill"
+    },
     "exchange": {
       "bankTransfer": "Transferência bancária",
       "bestDeal": "Melhor oferta",
       "buy": "Comprar",
       "creditCard": "Cartão de crédito",
+      "description_bitrefill": "Compre vales-presente, recargas de telefone e muito mais",
       "fast": "Rápido",
       "fee": "taxa",
       "infoContent": {
+        "bitrefill": {
+          "disclaimer": {
+            "account": {
+              "link": "Limites de compra do Bitrefill",
+              "text": "Você pode usar o Bitrefill sem criar uma conta, dentro de certos limites. Para aumentar seus limites de gastos, você pode criar uma conta básica ou se tornar um cliente verificado. Para obter detalhes completos, consulte os limites de compra do Bitrefill.",
+              "title": "Conta e limites"
+            },
+            "claims": {
+              "link": "Suporte Bitrefill",
+              "text": "Caso tenha algum problema com uma compra, entre em contato diretamente com o Bitrefill em até 30 dias após o pedido."
+            },
+            "dataProtection": {
+              "link": "Política de privacidade do Bitrefill",
+              "text": "O BitBoxApp não coleta dados pessoais. O Bitrefill coleta informações de acordo com sua Política de Privacidade.",
+              "title": "Proteção de Dados"
+            },
+            "fees": {
+              "text": "O Bitrefill não cobra taxas explícitas, mas os preços dos produtos podem incluir uma margem de lucro, que pode variar dependendo do varejista, da região e da taxa de câmbio aplicada pelo Bitrefill.",
+              "title": "Taxas"
+            },
+            "intro": {
+              "text": "Bitrefill é uma plataforma online que permite comprar vales-presente, recarregar celulares e pagar contas usando bitcoin ou outras criptomoedas. É uma maneira fácil de gastar criptomoedas em bens e serviços do dia a dia sem precisar convertê-las em dinheiro tradicional. O Bitrefill oferece uma ampla gama de produtos de marcas globais e é popular entre pessoas que desejam viver de criptomoedas ou fazer compras privadas.",
+              "title_bitcoin": "Gaste bitcoin com Bitrefill",
+              "title_crypto": "Gaste criptomoedas com Bitrefill"
+            },
+            "security": {
+              "link": "Modelo de ameaças à segurança da BitBox",
+              "text": "O Bitrefill é um serviço externo que não é coberto pelo modelo de ameaças à segurança da BitBox. Quando você faz uma compra, seu pagamento é enviado para um endereço do Bitrefill. A BitBox não pode verificar se esse endereço está correto.",
+              "title": "Aviso de segurança"
+            }
+          },
+          "infobox": {
+            "intro": "Bitrefill é uma plataforma online onde você pode gastar bitcoin e outras criptomoedas em itens essenciais do dia a dia, como vales-presente, recargas de celular e uma variedade de serviços. A integração com o BitBoxApp permite que você gaste suas moedas diretamente de sua BitBox sem transferi-las para uma corretora ou outra carteira."
+          }
+        },
         "btcdirect": {
           "disclaimer": {
             "dataProtection": {
@@ -440,8 +490,8 @@
               "title": "Atendimento personalizado com preço fixo"
             },
             "security": {
-              "link": "Modelo de ameaça à segurança da BitBox02",
-              "text": "O Private Trading Desk da BTC Direct é um serviço externo não coberto pelo modelo de ameaças à segurança da BitBox02. No entanto, a BTC Direct está bem familiarizada com os produtos BitBox e oferece orientação segura e informada. Os produtos BitBox verificam endereços de criptomoedas durante as transações para garantir uma entrega segura.",
+              "link": "Modelo de ameaças à segurança da BitBox",
+              "text": "O Private Trading Desk da BTC Direct é um serviço externo não coberto pelo modelo de ameaças à segurança da BitBox. No entanto, a BTC Direct está bem familiarizada com os produtos BitBox e oferece orientação segura e informada. Os produtos BitBox verificam endereços de criptomoedas durante as transações para garantir uma entrega segura.",
               "title": "Segurança"
             },
             "title": "Aviso Legal"
@@ -463,29 +513,47 @@
         },
         "btcdirectWidget": {
           "disclaimer": {
+            "description": "Trabalhamos com a BTC Direct, uma corretora europeia de confiança, para facilitar a compra e venda de criptomoedas no BitBoxApp. Este serviço está disponível em toda a Europa por meio de transferências bancárias, cartões de crédito e diversos métodos de pagamento locais.",
             "kyc": {
               "description": "Verificação de identidade é necessária para fazer trade. Você terá que tirar uma selfie e uma foto de um documento oficial.",
               "title": "Verificação de identidade"
             },
             "paymentMethods": {
+              "buy": "Compras: Pague em EUR para receber as moedas diretamente na sua BitBox. Você pode escolher entre compras únicas e recorrentes. Para transferências bancárias, a taxa de câmbio é fixa quando a BTC Direct recebe o dinheiro. Os métodos instantâneos usam uma taxa de conversão fixa por tempo limitado.",
+              "note": "Observação: as taxas de câmbio da BTC Direct podem ser ligeiramente diferentes das taxas do BitBoxApp.",
+              "sell": "Vendas: Envie suas criptomoedas para a BTC Direct e receba EUR na sua conta bancária. A taxa de câmbio é fixada assim que a BTC Direct recebe suas moedas.",
               "title": "Métodos de pagamento e taxas"
             },
             "security": {
+              "description": "BTC Direct é um serviço externo não coberto pelo modelo de ameaças à segurança da BitBox. Trabalhamos em estreita colaboração com a BTC Direct para aprimorar a segurança geral.",
               "link": "Modelo de ameaça de segurança BitBox",
               "title": "Segurança"
             },
-            "title_bitcoin": "Comprar bitcoin com BTC Direct",
-            "title_crypto": "Comprar crypto com BTC Direct"
+            "title_bitcoin": "Comprar e vender bitcoin com BTC Direct",
+            "title_crypto": "Comprar e vender criptomoedas com BTC Direct"
           },
           "infobox": {
             "feesBuying": {
+              "bancontact": "Bancontact: {{fee}}%",
+              "bankTransfer": "Transferência bancária, SEPA, iDEAL: {{fee}}%",
+              "creditDebitCard": "Cartões de crédito, Cartes Bancaires: {{fee}}%",
+              "sofort": "Sofort: {{fee}}%",
               "title": "Taxas para compra"
             },
-            "intro": "Comprar cryptmoedas com EUR.",
+            "feesSelling": {
+              "bankTransfer": "Transferência bancária: {{fee}}%",
+              "title": "Taxas de venda"
+            },
+            "intro": "Comprar criptmoedas com EUR.",
             "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "Transferência bancária, SEPA Instant, iDEAL",
+              "creditDebitCard": "Cartões de crédito (Mastercard, Visa), Cartes Bancaires",
+              "sofort": "Sofort",
               "title": "Métodos de pagamento"
             }
-          }
+          },
+          "learnmore": "Saiba mais sobre a BTC Direct"
         },
         "moonpay": {
           "fees": {
@@ -545,7 +613,8 @@
       "noExchanges": "Desculpe, não há exchanges disponíveis nesta região.",
       "region": "Região",
       "selectRegion": "Não especificada",
-      "sell": "Vender"
+      "sell": "Vender",
+      "spend": "Gastar"
     },
     "info": {
       "continue": "Concordo e continue",
@@ -576,8 +645,8 @@
           "title": "Proteção dos dados"
         },
         "security": {
-          "descriptionGeneric_bitcoin": "Quando você compra Bitcoin através de uma exchange parceira, você está usando um serviço externo. Este serviço está fora do escopo do modelo de ameaças de segurança da BitBox02 e depende da proteção e segurança do ambiente em que o software BitBoxApp está sendo executado.",
-          "descriptionGeneric_crypto": "Quando você compra crypto através de uma exchange parceira, você está usando um serviço externo. Este serviço está fora do escopo do modelo de ameaças de segurança da BitBox02 e depende da proteção e segurança do ambiente em que o software BitBoxApp está sendo executado.",
+          "descriptionGeneric_bitcoin": "Quando você compra Bitcoin através de uma exchange parceira, você está usando um serviço externo. Este serviço está fora do escopo do modelo de ameaças à segurança da BitBox e depende da proteção e segurança do ambiente em que o software BitBoxApp está sendo executado.",
+          "descriptionGeneric_crypto": "Quando você compra criptomoedas através de uma exchange parceira, você está usando um serviço externo. Este serviço está fora do escopo do modelo de ameaças à segurança da BitBox e depende da proteção e segurança do ambiente em que o software BitBoxApp está sendo executado.",
           "link": "Modelo de ameaças de segurança",
           "title": "Modelo de segurança"
         },
@@ -621,8 +690,8 @@
   },
   "confirmOnDevice": "Por favor, confirme no seu dispositivo.",
   "connectKeystore": {
-    "promptNoName": "Por favor conecte sua BitBox02 para continuar",
-    "promptWithName": "Por favor conecte sua BitBox02 chamada \"{{name}}\" para continuar"
+    "promptNoName": "Por favor conecte sua BitBox para continuar",
+    "promptWithName": "Por favor conecte sua BitBox chamada \"{{name}}\" para continuar"
   },
   "darkmode": {
     "toggle": "Modo escuro"
@@ -639,7 +708,7 @@
         "description": "Criar ou verificar o backup do cartão microSD."
       },
       "showRecoveryWords": {
-        "description": "Mostrar e verificar palavras de recuperação."
+        "description": "Mostrar e verificar palavras de recuperação na tela da BitBox."
       },
       "title": "Backups"
     },
@@ -682,11 +751,11 @@
         }
       },
       "factoryReset": {
-        "description": "Redefina seu dispositivo para as configurações de fábrica. Isso exclui a carteira de sua BitBox02!",
+        "description": "Redefina seu dispositivo para as configurações de fábrica. Isso exclui a carteira de sua BitBox!",
         "title": "Restauração de fábrica"
       },
       "goToStartupSettings": {
-        "description": "Acesse o bootloader da BitBox02. Você pode habilitar o hash do firmware aqui."
+        "description": "Acesse o bootloader da BitBox. Você pode habilitar o hash do firmware aqui."
       },
       "passphrase": {
         "description": "Ative ou desative o recurso de frase secreta.",
@@ -709,7 +778,7 @@
       "attestation": {
         "false": "Falha na verificação de autenticidade",
         "label": "Verificação de autenticidade",
-        "true": "Sua BitBox02 é autêntica"
+        "true": "Sua BitBox é autêntica"
       },
       "sdcard": {
         "false": "Não inserido",
@@ -749,6 +818,10 @@
     "wrongKeystore2": " Se você estiver usando a frase secreta opcional, certifique-se de ter digitado a frase secreta correta para a conta."
   },
   "exchange": {
+    "btcdirect": {
+      "currencyMismatch": "Moeda inesperada na solicitação de pagamento",
+      "insufficientFunds": "Fundos insuficientes na conta selecionada."
+    },
     "buySell": {
       "coinNotSupported": "Não há opções disponíveis para este tipo de moeda.",
       "regionNotSupported": "Não há opções disponíveis para esta região."
@@ -768,14 +841,15 @@
           "title": "Métodos de pagamento e taxas"
         },
         "kyc": {
+          "info": "O Pocket pode exigir documentos de identificação. Consulte as Perguntas Frequentes para mais informações.",
           "link": "Leia as perguntas frequentes da Pocket",
           "title": "KYC/AML (Conheça seu cliente / Anti Lavagem de Dinheiro)"
         },
         "security": {
-          "link": "Modelo de ameaça à segurança da BitBox02",
-          "p1": "Usar a Pocket é um serviço externo e não é coberto pelo modelo de ameaças à segurança da BitBox02. No entanto, trabalhamos em conjunto com o Pocket para aprimorar a segurança geral.",
+          "link": "Modelo de ameaças à segurança da BitBox",
+          "p1": "Usar o Pocket é um serviço externo e não é coberto pelo modelo de ameaças à segurança da BitBox. No entanto, trabalhamos em conjunto com o Pocket para aprimorar a segurança geral.",
           "p2": "<strong>Comprando bitcoin:</strong> Você receberá um e-mail para confirmar seu endereço de recebimento de bitcoin por meio de um segundo canal de comunicação.",
-          "p3": "<strong>Vendendo bitcoin:</strong> A BitBox02 verifica o endereço de depósito de Bitcoin criptograficamente e exibe \"Pocket\" na carteira de hardware.",
+          "p3": "<strong>Vendendo bitcoin:</strong> A BitBox verifica o endereço de depósito de Bitcoin criptograficamente e exibe \"Pocket\" na carteira de hardware.",
           "title": "Segurança"
         },
         "welcome": {
@@ -793,18 +867,36 @@
   "footer": {
     "appVersion": "Versão do aplicativo:"
   },
+  "gapLimit": {
+    "change": "Limite de lacuna para endereços de troco",
+    "description": "Configure limites de lacuna personalizados para endereços de recebimento e troco de bitcoin.",
+    "maxValue": "O limite de lacuna não deve exceder {{max}}.",
+    "minValue": "O limite de lacuna deve ser de pelo menos {{min}}.",
+    "receive": "Limite de lacuna para endereços de recebimento",
+    "title": "Configurações personalizadas de limite de lacuna"
+  },
   "generic": {
     "buy": "Comprar {{coinCode}}",
-    "buySell": "Comprar e vender",
+    "buySell": "Mercado",
     "buy_bitcoin": "Comprar Bitcoin",
     "buy_crypto": "Comprar criptomoedas",
+    "close": "Fechar",
     "enabled_false": "Desabilitado",
     "enabled_true": "Habilitado",
+    "noOptionOnIos": "Não disponível no iOS",
     "noOptions": "Nenhuma opção encontrada",
+    "paymentRequestNote": "{{name}} pagamento {{orderId}}",
     "receive": "Receber {{coinCode}}",
     "receive_bitcoin": "Receber Bitcoin",
     "receive_crypto": "Receber criptomoedas",
-    "search": "Procurar..."
+    "resetToDefault": "Redefinir para o padrão",
+    "search": "Procurar...",
+    "searchButton": "Procurar",
+    "sell": "Vender {{coinCode}}",
+    "sell_bitcoin": "Vender Bitcoin",
+    "sell_crypto": "Vender criptomoedas",
+    "spend_bitcoin": "Gastar bitcoin",
+    "spend_crypto": "Gastar criptomoedas"
   },
   "genericError": "Um erro ocorreu. Se você notar algum problema, por favor, reinicie o aplicativo.",
   "goal": {
@@ -910,7 +1002,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin e Litecoin podem ter uma quantidade arbitrária de contas. Após cinco contas, você só pode adicionar outra conta se a conta anterior tiver sido usada. Outras moedas podem ter um máximo de cinco contas.",
+        "text": "Bitcoin e Litecoin podem ter uma quantidade arbitrária de contas. Após seis contas, você só pode adicionar outra conta se a conta anterior tiver sido usada. Outras moedas podem ter um máximo de cinco contas.",
         "title": "Quantas contas posso criar?"
       },
       "howtoAddTokens": {
@@ -929,7 +1021,7 @@
         "link": {
           "text": "Ver moedas suportadas"
         },
-        "text": "O BitBoxApp suporta Bitcoin, Litecoin, Ethereum, bem como uma seleção de tokens ERC20. Para Cardano e outros tokens, use sua BitBox02 com software alternativo como AdaLite ou Rabby. Você pode encontrar uma lista de todas as moedas suportadas em nosso site:",
+        "text": "O BitBoxApp suporta Bitcoin, Litecoin, Ethereum, bem como uma seleção de tokens ERC20. Para Cardano e outros tokens, use sua BitBox com software alternativo como AdaLite ou Rabby. Você pode encontrar uma lista de todas as moedas suportadas em nosso site:",
         "title": "Quais moedas são suportadas?"
       },
       "whatAreAccounts": {
@@ -937,7 +1029,7 @@
         "title": "O que são contas?"
       },
       "whatIsRememberWallet": {
-        "text": "Ativar “Lembrar carteira” permite que você veja as contas desta carteira no BitBoxApp mesmo quando a BitBox02 não está conectada. Isso permite checar seu saldo e portfólio quando quiser. A BitBox02 ainda precisa ser conectada e desbloqueada para enviar ou receber moedas.\n\nDesativar “Lembrar carteira” exige que você conecte a respectiva BitBox02 (ou a carteira com frase secreta) para ver essas contas no BitBoxApp.",
+        "text": "Ativar “Lembrar carteira” permite que você veja as contas desta carteira no BitBoxApp mesmo quando a BitBox não está conectada. Isso permite checar seu saldo e portfólio quando quiser. A BitBox ainda precisa ser conectada e desbloqueada para enviar ou receber moedas.\n\nDesativar “Lembrar carteira” exige que você conecte a respectiva BitBox (ou a carteira com frase secreta) para ver essas contas no BitBoxApp.",
         "title": "O que acontece quando eu habilito/desabilito “Lembrar carteira”?"
       },
       "whyIsThisUseful": {
@@ -947,7 +1039,9 @@
     },
     "appendix": {
       "link": "Contate-nos!",
-      "text": "Outra pergunta?"
+      "questionService": "Tendo problemas com {{serviceName}}?",
+      "text": "Outra pergunta?",
+      "textService": "Se você estiver tendo problemas com {{serviceName}}, entre em contato diretamente com eles:"
     },
     "backups": {
       "check": {
@@ -1036,12 +1130,12 @@
         "link": {
           "text": "Leia mais sobre a verificação de autenticidade"
         },
-        "text": "O BitBoxApp executa uma verificação de atestado na BitBox02 para verificar se o dispositivo é genuíno. A verificação é feita localmente e não se conecta a nenhum servidor.",
+        "text": "O BitBoxApp executa uma verificação de atestado na BitBox para verificar se o dispositivo é genuíno. A verificação é feita localmente e não se conecta a nenhum servidor.",
         "title": "Como funciona a verificação de autenticidade?"
       },
       "name": {
         "text": "Este é o nome da sua carteira e backup. O nome é usado para backups futuros e pode ser usado para ajudar a distinguir entre diferentes carteiras. Ele pode ser alterado a qualquer momento, mas observe que os backups feitos antes da alteração ainda usarão o nome anterior.",
-        "title": "Para que serve o nome da BitBox02?"
+        "title": "Para que serve o nome da BitBox?"
       },
       "secure-chip": {
         "link": {
@@ -1057,7 +1151,7 @@
       "accountSummary": "Guia de resumo de conta",
       "advancedSettings": "Guia de configurações avançadas",
       "appearance": "Guia de aparência",
-      "buySell": "Guia de compra e venda",
+      "buySell": "Guia de mercado",
       "insurance": "Guia de seguros",
       "manageAccount": "Guia de gerenciamento de contas",
       "manageDevice": "Guia de gerenciamento de dispositivos",
@@ -1079,7 +1173,7 @@
         "title": "Quando usar \"Alterar tipo de endereço\"?"
       },
       "howVerify": {
-        "text": "Para a BitBox01, clique no ícone BitBox na barra lateral à esquerda e veja a seção Emparelhamento. O guia será atualizado e você poderá continuar seguindo as instruções.\nPara a BitBox02, você pode verificar os endereços diretamente no dispositivo durante o processo de envio/recebimento.",
+        "text": "Você pode verificar endereços diretamente na BitBox durante o processo de envio/recebimento.",
         "title": "Como posso verificar um endereço com segurança?"
       },
       "plugout": {
@@ -1095,7 +1189,7 @@
         "title": "Por que tantos endereços?"
       },
       "whyVerify": {
-        "text": "Você não deve confiar no seu computador para gerar e exibir endereços autênticos. As diferentes formas que um computador convencional pode ser atacado o torna significativamente mais vulnerável do que uma carteira de hardware. Para a BitBox01, o botão para verificar o endereço envia o endereço com segurança para um telefone celular emparelhado, a partir do qual você também pode digitalizar e verificar o QR code. Para a BitBox02, o endereço pode ser verificado diretamente no visor da BitBox02.",
+        "text": "Você não deve confiar no seu computador para gerar e exibir endereços autênticos. Sua grande superfície de ataque o torna significativamente mais vulnerável do que uma carteira de hardware. O endereço pode ser verificado diretamente na tela da BitBox.",
         "title": "Por que devo verificar o endereço com segurança?"
       }
     },
@@ -1203,7 +1297,7 @@
         "title": "Eu perdi meu dispositivo. E agora?"
       },
       "useWithoutDevice": {
-        "text": "Infelizmente, isso ainda não é possível no momento.",
+        "text": "Sim, você pode memorizar carteiras nas configurações de gerenciamento de conta. Dessa forma, você pode visualizar seu portfólio sem usar uma BitBox.",
         "title": "Posso usar o aplicativo sem um dispositivo?"
       },
       "welcome": {
@@ -1214,6 +1308,7 @@
         "link": {
           "text": "Pedir a BitBox02 Nova"
         },
+        "text": "Apenas a BitBox02 Nova funciona com iOS. A BitBox02 comum pode ser usada com todas as outras plataformas. Para comprar uma BitBox02 Nova, visite nossa loja.",
         "title": "Qual BitBox funciona com iOS?"
       }
     },
@@ -1260,7 +1355,7 @@
   },
   "loading": "carregando…",
   "manageAccounts": {
-    "accountHidden": "Esta conta foi ocultada das suas contas watch-only. Para vê-la novamente, conecte sua BitBox02.",
+    "accountHidden": "Esta conta foi ocultada das suas contas watch-only. Para vê-la novamente, conecte sua BitBox.",
     "editAccount": "Editar",
     "editAccountNameTitle": "Editar nome da conta",
     "noAccounts": "nenhuma conta encontrada",
@@ -1328,10 +1423,11 @@
       },
       "remebmerWallet": {
         "enable": {
+          "description": "Agora você pode visualizar as contas associadas a esta carteira sem inserir seu dispositivo BitBox. No entanto, a BitBox ainda é necessário para realizar transações e exibir endereços de recebimento.",
           "title": "Carteira salva"
         },
         "name": "Lembrar carteira",
-        "warning": "Isso removerá sua carteira lembrada. Para vê-la novamente, você precisará conectar a BitBox02 para esta carteira. Quaisquer moedas nesta carteira não serão afetadas. Você quer continuar?",
+        "warning": "Isso removerá sua carteira lembrada. Para vê-la novamente, você precisará conectar a BitBox para esta carteira. Quaisquer moedas nesta carteira não serão afetadas. Você quer continuar?",
         "warningTitle": "Desativar lembrar carteira"
       },
       "toggleSats": {
@@ -1352,20 +1448,28 @@
   },
   "novaConnectionIssues": {
     "connectionIssueTips": "Dicas para problemas de conexão",
+    "description1": "Somente a BitBox02 Nova é compatível com iOS. Para a BitBox02, use Windows, macOS, Android ou Linux. Você pode comprar uma BitBox02 Nova em nossa loja online:",
+    "description2": "A tela deve acender. Se a tela não acender, o dispositivo não está recebendo energia.",
+    "description3": "Mantenha a BitBox02 Nova próxima ao seu iPhone/iPad. Recomendamos que você conecte a BitBox02 Nova diretamente ao seu dispositivo.",
+    "description4": "A BitBox02 Nova se conecta ao iOS via Bluetooth. O Bluetooth pode ser desativado/ativado nas configurações do BitBoxApp em outras plataformas.",
     "link1": "Pedir a BitBox02 Nova",
     "link2": "Contate o suporte",
-    "stillHavingIssues": "Ainda tendo problemas?"
+    "stillHavingIssues": "Ainda tendo problemas?",
+    "title1": "Use a BitBox02 Nova somente com iOS",
+    "title2": "Certifique-se de que a BitBox02 Nova esteja ligada",
+    "title3": "Mantenha a BitBox02 Nova dentro do alcance",
+    "title4": "Certifique-se de que o Bluetooth não esteja desativado na BitBox02 Nova"
   },
   "passphrase": {
     "considerations": {
       "button": "Considerações sobre backup",
-      "message": "A frase secreta adiciona uma camada de proteção ao backup da sua carteira (cartão microSD ou palavras de recuperação). Se alguém tiver acesso ao seu backup, também precisará da frase secreta para acessar sua carteira.\n\nNo entanto, isso significa que você precisará <strong>tanto da frase secreta + backup da carteira</strong> para restaurar sua carteira habilitada para frase secreta, caso sua BitBox02 seja perdida ou danificada. Se você esquecer ou perder sua frase secreta, perderá o acesso a todas as moedas dessa carteira.\n\nAo armazenar sua frase secreta, considere colocá-la em um local separado do backup. Dessa forma, se alguém encontrar seu backup, eles também não encontrarão sua frase secreta.",
+      "message": "A frase secreta adiciona uma camada de proteção ao backup da sua carteira (cartão microSD ou palavras de recuperação). Se alguém tiver acesso ao seu backup, também precisará da frase secreta para acessar sua carteira.\n\nNo entanto, isso significa que você precisará <strong>tanto da frase secreta + backup da carteira</strong> para restaurar sua carteira habilitada para frase secreta, caso sua BitBox seja perdida ou danificada. Se você esquecer ou perder sua frase secreta, perderá o acesso a todas as moedas dessa carteira.\n\nAo armazenar sua frase secreta, considere colocá-la em um local separado do backup. Assim, se alguém encontrar seu backup, não encontrará também sua frase secreta.",
       "title": "Considerações sobre backup"
     },
     "disable": "Desabilitar frase secreta",
     "disableInfo": {
       "button": "Desabilitar",
-      "message": "Depois de desabilitar a frase secreta, você não será mais solicitado a inserir uma frase secreta após desbloquear sua BitBox02. Portanto, você entrará em sua carteira padrão.\n\nQuaisquer moedas em sua carteira gerada com a frase secreta ainda estarão nessa carteira, mas você não poderá acessá-las porque depois de desbloquear sua BitBox02, você abrirá sua carteira padrão.\n\nPara acessar suas carteiras geradas com frases secretas novamente, basta reativar o recurso de frase secreta e inserir a frase secreta relevante após desbloquear a BitBox02.\n\n<strong>Dica:</strong> você ainda pode acessar sua carteira original deixando a frase secreta vazia."
+      "message": "Depois de desabilitar a frase secreta, você não será mais solicitado a inserir uma frase secreta após desbloquear sua BitBox. Portanto, você entrará em sua carteira padrão.\n\nQuaisquer moedas em sua carteira gerada com a frase secreta ainda estarão nessa carteira, mas você não poderá acessá-las porque depois de desbloquear sua BitBox, você abrirá sua carteira padrão.\n\nPara acessar suas carteiras geradas com frases secretas novamente, basta reativar o recurso de frase secreta e inserir a frase secreta relevante após desbloquear a BitBox.\n\n<strong>Dica:</strong> você ainda pode acessar sua carteira original deixando a frase secreta vazia."
     },
     "enable": "Habilitar frase secreta",
     "error": {
@@ -1373,7 +1477,7 @@
     },
     "how": {
       "button": "Como funciona",
-      "message": "Uma frase secreta não funciona como uma senha com a qual você está acostumado. Se você digitar incorretamente sua frase secreta, você não será notificado. Isso ocorre porque <strong>cada frase secreta cria uma carteira diferente, porém válida</strong>. Isso significa que você pode usar várias frases secretas para quantas carteiras quiser. Mas cada carteira só pode ser acessada ao digitar a frase secreta correspondente.\n\nAo conectar sua BitBox02, você será solicitado a inserir a senha do dispositivo como de costume. Depois disso, você será solicitado a inserir uma frase secreta no dispositivo.\n\nDepois de inserir a frase secreta, você verá a frase secreta digitada. Isso é para que você possa confirmar que digitou corretamente.",
+      "message": "Uma frase secreta não funciona como uma senha com a qual você está acostumado. Se você digitar incorretamente sua frase secreta, você não será notificado. Isso ocorre porque <strong>cada frase secreta cria uma carteira diferente, porém válida</strong>. Isso significa que você pode usar várias frases secretas para quantas carteiras quiser. Mas cada carteira só pode ser acessada ao digitar a frase secreta correspondente.\n\nAo conectar sua BitBox, você será solicitado a inserir a senha do dispositivo como de costume. Depois disso, você será solicitado a inserir uma frase secreta no dispositivo.\n\nDepois de inserir a frase secreta, você verá a frase secreta digitada. Isso é para que você possa confirmar que digitou corretamente.",
       "title": "Como funciona"
     },
     "intro": {
@@ -1390,15 +1494,15 @@
     },
     "successDisabled": {
       "message": "Frase secreta opcional <strong>ativada com sucesso</strong>!\nVocê será solicitado a fornecer uma frase secreta a partir de agora.",
-      "messageEnd": "Por favor, reconecte a BitBox02 agora.",
+      "messageEnd": "Por favor, reconecte a BitBox agora.",
       "title": "Frase secreta ativada"
     },
     "successEnabled": {
       "message": "Frase secreta opcional <strong>desativada com sucesso</strong>!\n\nVocê não será mais solicitado a fornecer uma frase secreta.",
-      "messageEnd": "Por favor, reconecte sua BitBox02 agora.",
+      "messageEnd": "Por favor, reconecte sua BitBox agora.",
       "tips": "Dicas",
       "tipsList": [
-        "Sugerimos enviar primeiro uma pequena quantia para a carteira gerada pela frase secreta. Em seguida, desconecte e reconecte a BitBox02 e digite sua senha e frase secreta. Se você digitou a frase secreta corretamente, deverá ver as moedas em sua carteira.",
+        "Sugerimos enviar primeiro uma pequena quantia para a carteira gerada pela frase secreta. Em seguida, desconecte e reconecte a BitBox e digite sua senha e frase secreta. Se você digitou a frase secreta corretamente, deverá ver as moedas em sua carteira.",
         "Se você deseja acessar sua carteira original sem uma frase secreta, você ainda pode fazer isso não digitando nada quando solicitado a inserir a frase secreta. Ou você pode desativar o recurso de frase secreta."
       ],
       "title": "Frase secreta desativada"
@@ -1416,12 +1520,12 @@
     },
     "what": {
       "button": "Saiba como isso funciona",
-      "message": "Uma carteira é criada (derivada) a partir de um número aleatório muito grande, também conhecido como semente. Essa semente é criada quando você configura sua BitBox02 pela primeira vez e é feito backup com o cartão microSD ou palavras de recuperação. Qualquer pessoa que tenha acesso à semente tem controle total sobre os fundos dessa carteira.\n\nUma frase secreta é um <strong>segredo opcional</strong>, adicionado à semente. Ao usar uma frase secreta, cada frase secreta cria uma nova carteira com base na semente + frase secreta (segredo opcional). Uma frase secreta pode ser qualquer coisa: letras, palavras, caracteres especiais ou pode até ser vazia. A carteira padrão é de fato derivada da semente + frase secreta vazia.\n\nA frase secreta é parte do padrão BIP39, o que significa que é compatível com todas as carteiras que suportam o mesmo padrão.",
+      "message": "Uma carteira é criada (derivada) a partir de um número aleatório muito grande, também conhecido como semente. Essa semente é criada quando você configura sua BitBox pela primeira vez e é feito backup com o cartão microSD ou palavras de recuperação. Qualquer pessoa que tenha acesso à semente tem controle total sobre os fundos dessa carteira.\n\nUma frase secreta é um <strong>segredo opcional</strong>, adicionado à semente. Ao usar uma frase secreta, cada frase secreta cria uma nova carteira com base na semente + frase secreta (segredo opcional). Uma frase secreta pode ser qualquer coisa: letras, palavras, caracteres especiais ou pode até ser vazia. A carteira padrão é de fato derivada da semente + frase secreta vazia.\n\nA frase secreta é parte do padrão BIP39, o que significa que é compatível com todas as carteiras que suportam o mesmo padrão.",
       "title": "O que é uma frase secreta?"
     },
     "why": {
       "button": "Por que usar uma frase secreta",
-      "message": "A BitBox02 protege a semente contra extração do próprio dispositivo, mas o backup (cartão microSD ou palavras de recuperação) dá acesso total à carteira. É por isso que deve ser armazenado em um local seguro!\n\nComo uma frase secreta cria uma nova carteira usando sua semente existente, a carteira da frase secreta requer tanto seu <strong>backup quanto sua frase secreta para restaurar</strong>. O benefício disso é que, se alguém encontrar seu backup, ainda precisará da frase secreta para acessar a carteira.\n\nAlém disso, o recurso de frase secreta permite que você crie várias carteiras no mesmo dispositivo ou “carteiras ocultas” além da padrão.",
+      "message": "A BitBox protege a semente contra extração do próprio dispositivo, mas o backup (cartão microSD ou palavras de recuperação) dá acesso total à carteira. É por isso que deve ser armazenado em um local seguro!\n\nComo uma frase secreta cria uma nova carteira usando sua semente existente, a carteira da frase secreta requer tanto seu <strong>backup quanto sua frase secreta para restaurar</strong>. O benefício disso é que, se alguém encontrar seu backup, ainda precisará da frase secreta para acessar a carteira.\n\nAlém disso, o recurso de frase secreta permite que você crie várias carteiras no mesmo dispositivo ou “carteiras ocultas” além da padrão.",
       "title": "Por que usar uma frase secreta?"
     }
   },
@@ -1450,7 +1554,7 @@
     "taprootWarning": "Nota: Taproot é um novo recurso do Bitcoin e ainda não é amplamente adotado. Os valores recebidos em endereços Taproot podem não ser visíveis em carteiras watch-only de terceiros. Muitas carteiras e corretoras ainda não podem enviar para endereços Taproot.",
     "title": "Receber {{accountName}}",
     "verify": "Verificar endereço com segurança",
-    "verifyBitBox02": "Verifique o endereço na BitBox02",
+    "verifyBitBox02": "Verifique o endereço na BitBox",
     "verifyInstruction": "Por favor, verifique se o endereço a seguir corresponde ao exibido no seu dispositivo."
   },
   "reset": {
@@ -1529,6 +1633,7 @@
     },
     "availableBalance": "Saldo disponível",
     "button": "Revisar",
+    "buyEth": "Comprar ETH",
     "coincontrol": {
       "address": "Endereço",
       "addressReused": "Endereço reutilizado",
@@ -1537,14 +1642,15 @@
       "title": "Enviar da saída"
     },
     "confirm": {
-      "infoMessage": "Verifique cuidadosamente se o valor e o endereço estão corretos na BitBox02",
+      "infoMessage": "Verifique cuidadosamente se o valor e o endereço estão corretos na BitBox",
       "selected-coins": "Moedas selecionadas",
       "title": "Confirmar e enviar transação",
       "to": "Para",
       "total": "Total"
     },
+    "edit": "Editar transação",
     "error": {
-      "erc20InsufficientGasFunds": "Parece que você não tem Ether suficiente para pagar por esta transação ERC20. Certifique-se de ter Ether suficiente em sua carteira",
+      "erc20InsufficientGasFunds": "Você não tem Ether suficiente para pagar esta transação de ERC20. Adicione Ether à sua carteira e tente novamente.",
       "feeTooLow": "taxa muito baixa",
       "feesNotAvailable": "Não foi possível estimar as taxas",
       "insufficientFunds": "saldo insuficiente",
@@ -1594,13 +1700,14 @@
     },
     "maximum": "Enviar tudo",
     "maximumSelectedCoins": "Enviar moedas selecionadas",
+    "newTransaction": "Nova transação",
     "noFeeTargets": "As estimativas de taxa de transação estão indisponíveis no momento. Por favor, tente novamente mais tarde ou insira uma taxa personalizada.",
     "priority": "Prioridade",
     "scanQR": "Escanear QR code",
     "scanQRNoCameraMessage": "Câmera não encontrada. Certifique-se de que seu dispositivo suporta uma câmera e que as permissões estão definidas corretamente.",
     "success": "A transação foi assinada e enviada.",
     "title": "Enviar {{accountName}}",
-    "toggleCoinControl": "Alternar controle de moedas",
+    "toggleCoinControl": "Controle de moedas",
     "transactionDetails": "Detalhes da transação"
   },
   "settings": {
@@ -1645,6 +1752,7 @@
         "title": "Exportar registros"
       },
       "fee": "Habilitar taxas personalizadas",
+      "restartInTestnet": "Modo Testnet",
       "setProxyAddress": "Configurar endereço de proxy",
       "title": "Configurações para especialistas",
       "useProxy": "Ativar proxy Tor",
@@ -1660,6 +1768,7 @@
       "up-to-date": "Seu aplicativo está atualizado",
       "version": "Versão do aplicativo"
     },
+    "more": "Mais",
     "notes": {
       "export": {
         "description": "Criar um backup de suas notas de transação e nomes de contas.",
@@ -1707,6 +1816,33 @@
       "title": "Sucesso"
     }
   },
+  "testWallet": {
+    "connect": {
+      "description": "Uma carteira de teste de software para testar sem um dispositivo na Testnet.",
+      "title": "Carteira de teste"
+    },
+    "disconnect": {
+      "description": "Remove a carteira de teste de software.",
+      "title": "Desconectar carteira de teste"
+    },
+    "prompt": {
+      "button": "Desbloquear",
+      "passwordLabel": "Senha de teste",
+      "title": "Desbloquear carteira de teste"
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "Reinicie o aplicativo no modo testnet para explorar e testar recursos.",
+      "prompt": "Feche o aplicativo e comece novamente para entrar no modo testnet",
+      "title": "Iniciar modo testnet"
+    },
+    "deactivate": {
+      "description": "Reinicie o aplicativo para sair do modo testnet.",
+      "prompt": "Feche o aplicativo para sair do modo testnet",
+      "title": "Sair do modo testnet"
+    }
+  },
   "transaction": {
     "confirmation": "Confirmações",
     "details": {
@@ -1726,6 +1862,7 @@
     "fee": "Taxa",
     "fiatHistorical": "Histórico",
     "gas": "Gas",
+    "no-results": "Nenhuma transação encontrada correspondendo a \"{{searchTerm}}\"",
     "note": {
       "edit": "Editar nó",
       "save": "Salvar nó"
@@ -1829,13 +1966,15 @@
   },
   "warning": {
     "coincontrol": "Um ou mais UTXOs possuem um endereço reutilizado. Esteja ciente de que o receptor verá todos os UTXOs associados a esses endereços.",
+    "offline": "Você está offline no momento. Não será possível enviar transações nem visualizar as cotações mais recentes.",
     "sdcard": "Mantenha o cartão microSD guardado separado da BitBox, a menos que você queira gerenciar os backups.",
-    "testnet": "Aviso: Você está usando a carteira no modo Testnet. Transações e saldos aqui não são reais e não aparecerão na mainnet. A Testnet é destinada apenas para fins de teste e desenvolvimento."
+    "testnet": "Você está usando o modo Testnet. As transações e moedas aqui não são reais e não têm valor. Use apenas para fins de teste."
   },
   "welcome": {
-    "connect": "Conecte a BitBox02",
-    "getStarted": "Vamos começar instalando o firmware na sua BitBox02.",
+    "connect": "Conecte sua BitBox",
+    "getStarted": "Vamos começar instalando o firmware na sua BitBox.",
     "loadingAccounts": "Carregando contas",
+    "message": "Conecte sua BitBox e toque na lateral para continuar.",
     "title": "Bem-vindo"
   }
 }
