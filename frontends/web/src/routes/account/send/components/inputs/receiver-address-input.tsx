@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, useCallback, useContext, useState } from 'react';
+import { ChangeEvent, useCallback, useContext, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { getReceiveAddressList } from '@/api/account';
@@ -55,6 +55,9 @@ export const ReceiverAddressInput = ({
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [activeScanQR, setActiveScanQR] = useState(false);
+  const isMobileSnapshotRef = useRef<boolean>(isMobile);
+  const parseQRResultRef = useRef(parseQRResult);
+  parseQRResultRef.current = parseQRResult;
 
   const handleSendToSelf = useCallback(async () => {
     if (!accountCode) {
@@ -70,9 +73,18 @@ export const ReceiverAddressInput = ({
     }
   }, [accountCode, onInputChange]);
 
-  const toggleScanQR = () => {
-    setActiveScanQR(activeScanQR => !activeScanQR);
-  };
+  const toggleScanQR = useCallback(() => {
+    setActiveScanQR(prev => {
+      if (!prev) {
+        isMobileSnapshotRef.current = isMobile;
+      }
+      return !prev;
+    });
+  }, [isMobile]);
+
+  const handleParseQRResult = useCallback((result: string) => {
+    parseQRResultRef.current(result);
+  }, []);
 
   return (
     <>
@@ -80,7 +92,8 @@ export const ReceiverAddressInput = ({
         <ScanQRDialog
           toggleScanQR={toggleScanQR}
           onChangeActiveScanQR={setActiveScanQR}
-          parseQRResult={parseQRResult}
+          parseQRResult={handleParseQRResult}
+          isMobile={isMobileSnapshotRef.current}
         />
       )}
       <Input
@@ -102,3 +115,4 @@ export const ReceiverAddressInput = ({
     </>
   );
 };
+
