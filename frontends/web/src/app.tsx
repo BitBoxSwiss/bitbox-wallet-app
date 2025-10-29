@@ -216,7 +216,6 @@ export const App = () => {
             <AppRouter
               accounts={accounts}
               activeAccounts={activeAccounts}
-              deviceIDs={deviceIDs}
               devices={devices}
               devicesKey={devicesKey}
             />

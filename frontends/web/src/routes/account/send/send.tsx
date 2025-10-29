@@ -78,7 +78,6 @@ export const Send = ({
   activeCurrency,
 }: TProps) => {
   const { t } = useTranslation();
-
   const selectedUTXOsRef = useRef<TSelectedUTXOs>({});
   const [utxoDialogActive, setUtxoDialogActive] = useState(false);
   // in case there are multiple parallel tx proposals we can ignore all other but the last one
@@ -139,7 +138,6 @@ export const Send = ({
     try {
       const result = await accountApi.sendTx(account.code, note);
       setSendResult(result);
-      setIsConfirming(false);
     } catch (err) {
       console.error(err);
     } finally {
