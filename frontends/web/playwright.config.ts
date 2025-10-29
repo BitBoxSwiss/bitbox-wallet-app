@@ -22,9 +22,9 @@ export default defineConfig({
   use: {
     baseURL: `http://${HOST}:${FRONTEND_PORT}`,
     headless: true,
-    video: 'retain-on-failure',
+    video: 'on',
     screenshot: 'only-on-failure',
-    trace: 'retain-on-failure',
+    trace: 'on',
     launchOptions: {
       // By default, tests are not run in slow motion.
       // Can be enabled by setting the PLAYWRIGHT_SLOW_MO environment variable to a value > 0.
