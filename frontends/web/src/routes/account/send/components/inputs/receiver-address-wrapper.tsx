@@ -20,7 +20,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { TOption } from '@/components/dropdown/dropdown';
 import { InputWithDropdown } from '@/components/forms/input-with-dropdown';
 import * as accountApi from '@/api/account';
-import { getReceiveAddressList, IAccount } from '@/api/account';
+import { getReceiveAddressList, TAccount } from '@/api/account';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import { connectKeystore, getKeystoreFeatures } from '@/api/keystores';
 import { unsubscribe } from '@/utils/subscriptions';
@@ -33,21 +33,21 @@ import { Logo } from '@/components/icon';
 import receiverStyles from './receiver-address-input.module.css';
 import styles from './receiver-address-wrapper.module.css';
 
-type TAccountOption = TOption<IAccount | null> & { disabled?: boolean };
+type TAccountOption = TOption<TAccount | null> & { disabled?: boolean };
 
 type Props = {
-  option: TAccountOption,
-  isSelectedValue: boolean
-}
+  option: TAccountOption;
+  isSelectedValue: boolean;
+};
 
 type TReceiverAddressWrapperProps = {
-  accounts?: IAccount[];
+  accounts?: TAccount[];
   error?: string | object;
   onInputChange: (value: string) => void;
-  onAccountChange?: (account: IAccount | null) => void;
+  onAccountChange?: (account: TAccount | null) => void;
   recipientAddress: string;
   children?: React.ReactNode;
-}
+};
 
 const AccountOption = ({ option, isSelectedValue }: Props) => {
   if (!option.value) {
@@ -79,8 +79,8 @@ export const ReceiverAddressWrapper = ({
   const [showFirmwareUpgradeDialog, setShowFirmwareUpgradeDialog] = useState(false);
   const mounted = useMountedRef();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const [selectedAccount, setSelectedAccount] = useState<TOption<IAccount | null> | null>(null);
-  const [accountSyncStatus, setAccountSyncStatus] = useState<{ [code: string]: accountApi.IStatus }>({});
+  const [selectedAccount, setSelectedAccount] = useState<TOption<TAccount | null> | null>(null);
+  const [accountSyncStatus, setAccountSyncStatus] = useState<{ [code: string]: accountApi.TStatus }>({});
 
   const accountOptions: TAccountOption[] = accounts && accounts.length > 0 ? accounts.map(account => {
     const accountNumber = account.accountNumber;
@@ -92,7 +92,7 @@ export const ReceiverAddressWrapper = ({
     };
   }) : [];
 
-  const checkFirmwareSupport = useCallback(async (selectedAccount: accountApi.IAccount) => {
+  const checkFirmwareSupport = useCallback(async (selectedAccount: accountApi.TAccount) => {
     const rootFingerprint = selectedAccount.keystore.rootFingerprint;
     const connectResult = await connectKeystore(rootFingerprint);
     if (!connectResult.success) {

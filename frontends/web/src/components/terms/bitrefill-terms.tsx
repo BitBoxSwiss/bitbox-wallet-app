@@ -22,12 +22,12 @@ import { i18n } from '@/i18n/i18n';
 import { A } from '../anchor/anchor';
 import style from './terms.module.css';
 import { isBitcoinOnly } from '@/routes/account/utils';
-import { IAccount } from '@/api/account';
+import { TAccount } from '@/api/account';
 
 type TProps = {
-  account: IAccount;
+  account: TAccount;
   onAgreedTerms: () => void;
-}
+};
 
 // Map languages supported by Bitrefill
 export const localeMapping: Readonly<Record<string, string>> = {

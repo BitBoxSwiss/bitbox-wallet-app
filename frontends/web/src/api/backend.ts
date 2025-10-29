@@ -1,5 +1,5 @@
 /**
- * Copyright 2021-2024 Shift Crypto AG
+ * Copyright 2021-2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,27 @@ import type { FailResponse, SuccessResponse } from './response';
 import { apiGet, apiPost } from '@/utils/request';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
-export interface ICoin {
-    coinCode: CoinCode;
-    name: string;
-    canAddAccount: boolean;
-    suggestedAccountName: string;
-}
+export type TCoin = {
+  coinCode: CoinCode;
+  name: string;
+  canAddAccount: boolean;
+  suggestedAccountName: string;
+};
 
-export interface ISuccess {
-    success: boolean;
-    errorMessage?: string;
-    errorCode?: string;
-}
+// In other places we use type { FailResponse, SuccessResponse } from './response'
+// which has slightly different FailResponse structure ( message?: string; code?: number)
+// but here we use errorMessage and errorCode instead
+type TSuccess = {
+  success: boolean;
+  errorMessage?: string;
+  errorCode?: string;
+};
 
-export const getSupportedCoins = (): Promise<ICoin[]> => {
+export const getSupportedCoins = (): Promise<TCoin[]> => {
   return apiGet('supported-coins');
 };
 
-export const setAccountActive = (accountCode: AccountCode, active: boolean): Promise<ISuccess> => {
+export const setAccountActive = (accountCode: AccountCode, active: boolean): Promise<TSuccess> => {
   return apiPost('set-account-active', { accountCode, active });
 };
 
@@ -44,11 +47,11 @@ export const setTokenActive = (
   accountCode: AccountCode,
   tokenCode: ERC20CoinCode,
   active: boolean,
-): Promise<ISuccess> => {
+): Promise<TSuccess> => {
   return apiPost('set-token-active', { accountCode, tokenCode, active });
 };
 
-export const renameAccount = (accountCode: AccountCode, name: string): Promise<ISuccess> => {
+export const renameAccount = (accountCode: AccountCode, name: string): Promise<TSuccess> => {
   return apiPost('rename-account', { accountCode, name });
 };
 
@@ -64,7 +67,7 @@ export const getDevServers = (): Promise<boolean> => {
   return apiGet('dev-servers');
 };
 
-export type TQRCode = FailResponse | (SuccessResponse & { data: string; });
+type TQRCode = FailResponse | (SuccessResponse & { data: string });
 
 export const getQRCode = (data: string) => {
   return (): Promise<TQRCode> => {
@@ -76,7 +79,7 @@ export const getDefaultConfig = (): Promise<any> => {
   return apiGet('config/default');
 };
 
-export const socksProxyCheck = (proxyAddress: string): Promise<ISuccess> => {
+export const socksProxyCheck = (proxyAddress: string): Promise<TSuccess> => {
   return apiPost('socksproxy/check', proxyAddress);
 };
 
@@ -111,7 +114,7 @@ export const cancelConnectKeystore = (): Promise<void> => {
   return apiPost('cancel-connect-keystore');
 };
 
-export const setWatchonly = (rootFingerprint: string, watchonly: boolean): Promise<ISuccess> => {
+export const setWatchonly = (rootFingerprint: string, watchonly: boolean): Promise<TSuccess> => {
   return apiPost('set-watchonly', { rootFingerprint, watchonly });
 };
 
@@ -124,10 +127,10 @@ export const forceAuth = (): Promise<void> => {
 };
 
 export type TAuthEventObject = {
-  typ: 'auth-required' | 'auth-forced' ;
+  typ: 'auth-required' | 'auth-forced';
 } | {
   typ: 'auth-result';
-  result: 'authres-cancel' | 'authres-ok' | 'authres-err' | 'authres-missing'
+  result: 'authres-cancel' | 'authres-ok' | 'authres-err' | 'authres-missing';
 };
 
 export const subscribeAuth = (
@@ -140,20 +143,20 @@ export const onAuthSettingChanged = (): Promise<void> => {
   return apiPost('on-auth-setting-changed');
 };
 
-export const exportLogs = (): Promise<ISuccess> => {
+export const exportLogs = (): Promise<TSuccess> => {
   return apiPost('export-log');
 };
 
-export const exportNotes = (): Promise<(FailResponse & { aborted: boolean; }) | SuccessResponse> => {
+export const exportNotes = (): Promise<(FailResponse & { aborted: boolean }) | SuccessResponse> => {
   return apiPost('notes/export');
 };
 
-export type TImportNotes = {
+type TImportNotes = {
   accountCount: number;
   transactionCount: number;
 };
 
-export const importNotes = (fileContents: ArrayBuffer): Promise<FailResponse | (SuccessResponse & { data: TImportNotes; })> => {
+export const importNotes = (fileContents: ArrayBuffer): Promise<FailResponse | (SuccessResponse & { data: TImportNotes })> => {
   const hexString = Array.from(new Uint8Array(fileContents))
     .map(byte => byte.toString(16).padStart(2, '0'))
     .join('');

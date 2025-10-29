@@ -100,7 +100,7 @@
   "auth": {
     "authButton": "Authenticate",
     "dismissButton": "Cancel",
-    "missing": "Please setup a screen lock in your device settings",
+    "missing": "Please setup a screen lock in the system settings of your device.",
     "title": "Please authenticate to continue"
   },
   "backup": {
@@ -199,7 +199,7 @@
   },
   "bitbox02Settings": {
     "bluetoothToggleEnabled": {
-      "alertDisabled": "Bluetooth is now disabled on your BitBox. If you want to connect with iPhones on the future, you will need to re-enable it.",
+      "alertDisabled": "Bluetooth is now disabled on your BitBox. If you want to connect with iPhones in the future, you will need to re-enable it.",
       "alertEnabled": "Bluetooth is now enabled.",
       "description": "Bluetooth is used for connecting with iPhone.",
       "titleDisabled": "Enable Bluetooth",
@@ -384,8 +384,8 @@
   "bootloader": {
     "button": "Upgrade firmware now",
     "button_install": "Install firmware now",
-    "progress": "Upgrading: {{progress}}%",
-    "progress_install": "Installing: {{progress}}%",
+    "progress": "Upgrading",
+    "progress_install": "Installing",
     "success": "Upgrade successful! Please replug the device. This time, do not touch the button."
   },
   "button": {
@@ -484,7 +484,7 @@
               "fee": "Minimum trade amounts of €50,000 apply, with a transparent fee between 0.5% and 1%.",
               "sell": "Sell bitcoin:",
               "sell2": "Lock in a fixed OTC price when placing a sell order. EUR payment is made once you send crypto to BTC Direct. Personal assistance is available if needed.",
-              "title": "Payment Methods and Fees"
+              "title": "Payment methods and fees"
             },
             "personal": {
               "text": "Each Private Trading client is assigned a dedicated account manager for personalized assistance via phone, video call, email, or chat. Buy and sell prices are immediately fixed when the order is placed, even if settlement occurs later. Orders are executed through BTC Direct's OTC desk, minimizing slippage.",
@@ -839,12 +839,11 @@
           "note": "Note: Pocket's exchange rates may differ from the BitBoxApp rates.",
           "p1": "<strong>Buying bitcoin:</strong> Use SEPA bank transfer to send EUR or CHF and get bitcoin delivered directly to your BitBox after Pocket receives the transfer, usually the same day.",
           "p2": "<strong>Selling bitcoin:</strong> Send Bitcoin to Pocket and receive EUR or CHF in your registered bank account. The exchange rate is fixed when Pocket receives your Bitcoin.",
-          "title": "Payment Methods and Fees"
+          "title": "Payment methods and fees"
         },
         "kyc": {
+          "info": "Pocket may require identification documents. Please refer to their FAQs for more information.",
           "link": "Read Pocket FAQs",
-          "p1": "No additional documents are needed for exchanges up to 1000 EUR/CHF within a 30-day period.",
-          "p2": "For larger amounts, a call with Pocket is required to complete the KYC/AML process.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
@@ -1154,7 +1153,7 @@
       "accountSummary": "Account summary guide",
       "advancedSettings": "Advanced settings guide",
       "appearance": "Appearance guide",
-      "buySell": "Buy & sell guide",
+      "buySell": "Marketplace guide",
       "insurance": "Insurance guide",
       "manageAccount": "Manage accounts guide",
       "manageDevice": "Manage device guide",
@@ -1714,7 +1713,7 @@
     },
     "success": "The transaction has been signed and sent.",
     "title": "Send {{accountName}}",
-    "toggleCoinControl": "Toggle coin control",
+    "toggleCoinControl": "Coin control",
     "transactionDetails": "Transaction details"
   },
   "settings": {

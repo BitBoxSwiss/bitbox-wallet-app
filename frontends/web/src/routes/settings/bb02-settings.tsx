@@ -47,7 +47,7 @@ import styles from './bb02-settings.module.css';
 
 type TProps = {
   deviceID: string;
-}
+};
 
 type TWrapperProps = TProps & TPagePropsWithSettingsTabs;
 

@@ -93,7 +93,7 @@ export const Dialog = ({
 
   // ESC closes dialog (fires onClose)
   useEsc(() => {
-    if (open) {
+    if (open && onClose) {
       deactivate(true);
     }
   });
@@ -109,6 +109,8 @@ export const Dialog = ({
     if (
       mouseDownTarget.current === e.currentTarget
       && e.target === e.currentTarget
+      && open
+      && onClose
     ) {
       deactivate(true);
     }
@@ -117,8 +119,10 @@ export const Dialog = ({
 
   // Close button handler
   const handleCloseClick = useCallback(() => {
-    deactivate(true);
-  }, [deactivate]);
+    if (open && onClose) {
+      deactivate(true);
+    }
+  }, [deactivate, onClose, open]);
 
   // Back button handler (mobile)
   const closeHandler = useCallback(() => {
@@ -183,7 +187,7 @@ export const Dialog = ({
 
 type DialogButtonsProps = {
   children: React.ReactNode;
-}
+};
 
 /**
  * ### Container to place buttons in a dialog

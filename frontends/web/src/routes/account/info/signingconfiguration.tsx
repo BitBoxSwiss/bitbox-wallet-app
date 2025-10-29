@@ -18,7 +18,7 @@
 import { useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AccountCode, IAccount, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '@/api/account';
+import { AccountCode, TAccount, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '@/api/account';
 import { getScriptName, isBitcoinBased } from '@/routes/account/utils';
 import { alertUser } from '@/components/alert/Alert';
 import { CopyableInput } from '@/components/copy/Copy';
@@ -27,12 +27,12 @@ import { QRCode } from '@/components/qrcode/qrcode';
 import style from './info.module.css';
 
 type TProps = {
-    account: IAccount;
-    info: TSigningConfiguration;
-    code: AccountCode;
-    signingConfigIndex: number;
-    children: ReactNode;
-}
+  account: TAccount;
+  info: TSigningConfiguration;
+  code: AccountCode;
+  signingConfigIndex: number;
+  children: ReactNode;
+};
 
 export const SigningConfiguration = ({ account, info, code, signingConfigIndex, children }: TProps) => {
   const navigate = useNavigate();

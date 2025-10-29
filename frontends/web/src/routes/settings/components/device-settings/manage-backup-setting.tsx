@@ -20,7 +20,7 @@ import { SettingsItem } from '@/routes/settings/components/settingsItem/settings
 
 type TProps = {
   deviceID: string;
-}
+};
 
 const ManageBackupSetting = ({ deviceID }: TProps) => {
   const navigate = useNavigate();

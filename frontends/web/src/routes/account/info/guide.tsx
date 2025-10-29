@@ -18,13 +18,13 @@ import { useTranslation } from 'react-i18next';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 
-interface BitcoinBasedAccountInfoGuideProps {
-    coinName: string;
-}
+type Props = {
+  coinName: string;
+};
 
 export const BitcoinBasedAccountInfoGuide = ({
   coinName,
-}: BitcoinBasedAccountInfoGuideProps) => {
+}: Props) => {
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.accountInformation')}>

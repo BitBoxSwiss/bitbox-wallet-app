@@ -23,8 +23,8 @@ import { Waiting } from './waiting';
 type TProps = {
   devices: TDevices;
   deviceID: string | null;
-  hasAccounts: boolean,
-}
+  hasAccounts: boolean;
+};
 
 const DeviceSwitch = ({ deviceID, devices, hasAccounts }: TProps) => {
   const deviceIDs = Object.keys(devices);

@@ -17,13 +17,13 @@
 import style from './progressRing.module.css';
 
 type TProgressRingProps = {
-    width: number;
-    value: number;
-    className?: string[] | string;
-    generic?: boolean;
-    isComplete?: boolean | undefined;
-    isError?: boolean;
-}
+  width: number;
+  value: number;
+  className?: string[] | string;
+  generic?: boolean;
+  isComplete?: boolean | undefined;
+  isError?: boolean;
+};
 
 const ProgressRing = ({
   className,

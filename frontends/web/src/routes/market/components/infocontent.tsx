@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import type { IAccount } from '@/api/account';
+import type { TAccount } from '@/api/account';
 import type { TMarketAction, TVendorName, TPaymentMethod } from '@/api/market';
 import { i18n } from '@/i18n/i18n';
 import { A } from '@/components/anchor/anchor';
@@ -94,7 +94,7 @@ const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfoProps) => {
 };
 
 type TPocketInfoProps = {
-  bankTransferFee?: number
+  bankTransferFee?: number;
 };
 
 const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
@@ -120,11 +120,11 @@ const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
       <br />
       <p><b>{t('buy.exchange.infoContent.pocket.verification.title')}</b></p>
       <br />
-      <p>{t('buy.exchange.infoContent.pocket.verification.info')}</p>
+      <p>{t('exchange.pocket.terms.kyc.info')}</p>
       <br />
       <p>
-        <A href="https://pocketbitcoin.com/faq/are-there-any-limits-with-pocket">
-          {t('buy.exchange.infoContent.pocket.verification.link')}
+        <A href="https://pocketbitcoin.com/faq">
+          {t('exchange.pocket.terms.kyc.link')}
         </A>
       </p>
       <br />
@@ -149,7 +149,7 @@ const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
 };
 
 type TBTCDirectOTCInfoProps = {
-  accounts?: IAccount[];
+  accounts?: TAccount[];
 };
 
 const BTCDirectOTCInfo = ({ accounts }: TBTCDirectOTCInfoProps) => {
@@ -279,7 +279,7 @@ export type TPaymentFee = {
 };
 
 export type TInfoContentProps = {
-  accounts?: IAccount[];
+  accounts?: TAccount[];
   action: TMarketAction;
   paymentFees: TPaymentFee;
   vendorName: TVendorNameOrRegion;

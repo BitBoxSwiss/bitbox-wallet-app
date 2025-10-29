@@ -15,15 +15,15 @@
  */
 
 import { useContext } from 'react';
-import { AccountCode, IAccount } from '@/api/account';
+import { AccountCode, TAccount } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
 import { findAccount } from '@/routes/account/utils';
 import { Send } from './send';
 
 type TSendProps = {
-  activeAccounts: IAccount[];
+  activeAccounts: TAccount[];
   code: AccountCode;
-}
+};
 
 export const SendWrapper = ({ activeAccounts, code }: TSendProps) => {
   const { defaultCurrency } = useContext(RatesContext);

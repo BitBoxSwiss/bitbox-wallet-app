@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import type { TAmountWithConversions, TTransactionStatus, TTransactionType, ITransaction } from '@/api/account';
+import type { TAmountWithConversions, TTransactionStatus, TTransactionType, TTransaction } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Loupe } from '@/components/icon/icon';
 import { parseTimeLong, parseTimeShort } from '@/utils/date';
@@ -26,9 +26,9 @@ import { Arrow } from './components/arrows';
 import { getTxSign } from '@/utils/transaction';
 import styles from './transaction.module.css';
 
-type TTransactionProps = ITransaction & {
-  onShowDetail: (internalID: ITransaction['internalID']) => void;
-}
+type TTransactionProps = TTransaction & {
+  onShowDetail: (internalID: TTransaction['internalID']) => void;
+};
 
 export const Transaction = ({
   addresses,
@@ -83,13 +83,13 @@ export const Transaction = ({
 
 type TStatus = {
   addresses: string[];
-  note?: ITransaction['note'];
+  note?: TTransaction['note'];
   numConfirmations: number;
   numConfirmationsComplete: number;
   status: TTransactionStatus;
   time?: string | null;
   type: TTransactionType;
-}
+};
 
 const Status = ({
   addresses,
@@ -150,9 +150,9 @@ const Status = ({
 
 type TAmountsProps = {
   amount: TAmountWithConversions;
-  deductedAmount: TAmountWithConversions,
+  deductedAmount: TAmountWithConversions;
   type: TTransactionType;
-}
+};
 
 const Amounts = ({
   amount,
@@ -188,7 +188,7 @@ const Amounts = ({
 
 type TDateProps = {
   time: string | null;
-}
+};
 
 const Date = ({
   time,
@@ -210,10 +210,10 @@ const Date = ({
 };
 
 type TAddresses = {
-  addresses: ITransaction['addresses'];
+  addresses: TTransaction['addresses'];
   status: TTransactionStatus;
   type: TTransactionType;
-}
+};
 
 const Addresses = ({
   addresses,

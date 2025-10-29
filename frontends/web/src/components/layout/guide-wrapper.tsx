@@ -19,7 +19,7 @@ import styles from './guide-wrapper.module.css';
 
 type TProps = {
   children: ReactNode;
-}
+};
 
 export const GuideWrapper = ({ children }: TProps) => {
   return (

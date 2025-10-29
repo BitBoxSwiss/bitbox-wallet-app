@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { WalletConnectLight } from '@/components/icon';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { AccountCode, IAccount, CoinCode } from '@/api/account';
+import { AccountCode, TAccount, CoinCode } from '@/api/account';
 import { isEthereumBased } from './utils';
 import { ButtonLink } from '@/components/forms';
 import { connectKeystore } from '@/api/keystores';
@@ -30,9 +30,9 @@ type TProps = {
   code: AccountCode;
   coinCode: CoinCode;
   exchangeSupported?: boolean;
-  account: IAccount;
+  account: TAccount;
   accountDataLoaded: boolean;
-}
+};
 
 export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, account, accountDataLoaded }: TProps) => {
   const { t } = useTranslation();

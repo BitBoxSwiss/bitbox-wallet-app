@@ -105,9 +105,7 @@ Build the QT frontend for Windows: `make qt-windows`
 
 Build artifacts:
 * `frontends\qt\build\windows\*`
-
-To create the installer, run the NSIS UI, then: compile NSI scripts -> frontend/qt/setup.nsi, or run
-`makensis setup.nsi`.
+* `frontends\qt\build\BitBox-installer.exe`
 
 ## Android
 

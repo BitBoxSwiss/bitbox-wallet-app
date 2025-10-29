@@ -362,8 +362,8 @@
   "bootloader": {
     "button": "Mettre à jour le micrologiciel maintenant",
     "button_install": "Installer le firmware maintenant",
-    "progress": "Mise à jour : {{progress}}%",
-    "progress_install": "Installation : {{progress}}%",
+    "progress": "Mise à jour",
+    "progress_install": "Installation",
     "success": "Mise à jour réussie ! Veuillez rebrancher l'appareil. Cette fois, ne touchez pas le bouton."
   },
   "button": {
@@ -749,8 +749,7 @@
   "exchange": {
     "buySell": {
       "coinNotSupported": "Aucune option disponible pour ce type de coin.",
-      "regionNotSupported": "Aucune option disponible pour cette région.",
-      "updateNow": "Mise à jour maintenant"
+      "regionNotSupported": "Aucune option disponible pour cette région."
     },
     "pocket": {
       "terms": {
@@ -1419,10 +1418,6 @@
       "caps": "ATTENTION : le verrouillage des majuscules (⇪) est activé",
       "paste": "Pour coller du texte, activez \"Montrer {{label}}\""
     }
-  },
-  "random": {
-    "button": "Générer un numéro aléatoire",
-    "description": "Votre BitBox a généré le numéro aléatoire à {{bits}}-bit suivant :"
   },
   "receive": {
     "bitsuranceWarning": "Ceci est un compte assuré, ce qui signifie qu'il ne peut recevoir des fonds que sur des adresses Native Segwit. Ceci afin d'éviter que vous ne receviez accidentellement des fonds vers des adresses Wrapped Segwit ou Taproot, qui ne sont elles pas assurées.",

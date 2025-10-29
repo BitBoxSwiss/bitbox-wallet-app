@@ -31,7 +31,7 @@ import styles from './aopp.module.css';
 
 type TProps = {
   children: ReactNode;
-}
+};
 
 const Banner = ({ children }: TProps) => (
   <div className={styles.banner}>{children}</div>

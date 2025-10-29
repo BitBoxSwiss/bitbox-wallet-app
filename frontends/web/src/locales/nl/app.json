@@ -1,7 +1,11 @@
 {
   "account": {
+    "account": "Account",
+    "accounts": "Accounts",
+    "backupReminder": "Je wallet <strong>{{name}}</strong> is meer dan {{fiat}} {{threshold}} waard!\n\nWe raden je aan een papieren backup te maken voor extra veiligheid. Het is makkelijk en snel.",
+    "backupReminderLink": "Papieren backup maken",
     "disconnect": "Verbinding verbroken. Opnieuw aan het verbinden...",
-    "export": "Exporteren",
+    "export": "Transacties exporteren",
     "exportTransactions": "Transacties als CSV bestand naar de downloads map exporteren",
     "fatalError": "Er is een onverwachte fout opgetreden",
     "incoming": "Binnenkomend",
@@ -45,6 +49,7 @@
     "fiatBalance": "Fiat balans",
     "name": "Accountnaam",
     "noAccount": "Er zijn geen accounts om weer te geven",
+    "portfolio": "Portfolio",
     "subtotalWithCoinName": "Totaal ({{coinName}})",
     "title": "Mijn portfolio",
     "total": "Totaal",
@@ -80,7 +85,7 @@
     "labelAddress": "Adres",
     "labelMessage": "Bericht",
     "reverifyInfoText": "Adres verifiëren",
-    "signing": "Onderteken het bericht op je BitBox02 om door te gaan",
+    "signing": "Onderteken het bericht op je BitBox om door te gaan",
     "success": {
       "message": "Ga door op {{host}}",
       "title": "Adres verzonden"
@@ -94,6 +99,8 @@
   },
   "auth": {
     "authButton": "Inloggen\n",
+    "dismissButton": "Annuleren",
+    "missing": "Stel in de instellingen van je apparaat een schermbeveiliging in",
     "title": "Log in om door te gaan"
   },
   "backup": {
@@ -128,6 +135,7 @@
     "description": "Selecteer <strong>wallet backup bestand</strong>",
     "insert": "Voer de microSD kaart in om je backups te beheren",
     "insertButton": "Ik heb de microSD kaart ingevoerd",
+    "link": "Ga naar backups beheren",
     "list": "Jouw microSD kaart backups",
     "noBackups": "Er zijn geen backups op deze microSD kaart aanwezig.",
     "restore": {
@@ -160,7 +168,7 @@
     "abort": "Terug - doe de update niet",
     "abort_noUpgrade": "Breng me terug",
     "additionalUpgradeFollows1": "Een tweede upgrade zal direct na deze volgen.",
-    "additionalUpgradeFollows2": "Houd je BitBox02 aangesloten tot alle upgrades voltooid zijn",
+    "additionalUpgradeFollows2": "Houd je BitBox aangesloten tot alle upgrades voltooid zijn",
     "advanced": {
       "label": "Geavanceerde instellingen",
       "toggleShowFirmwareHash": "Toon de firmware hash iedere keer tijdens het opstarten"
@@ -169,8 +177,8 @@
     "orientation": "Tekst op je BitBox ondersteboven?",
     "success": "Upgrade voltooid! ",
     "success_install": "Installatie voltooid! ",
-    "upgradeTitle": "BitBox02 firmware aan het upgraden",
-    "upgradeTitle_install": "BitBox02 firmware aan het installeren"
+    "upgradeTitle": "BitBox firmware aan het upgraden",
+    "upgradeTitle_install": "BitBox firmware aan het installeren"
   },
   "bitbox": {
     "error": {
@@ -180,26 +188,33 @@
     }
   },
   "bitbox02Interact": {
-    "confirmDate": "Bevestig de huidige datum op je BitBox02",
+    "confirmDate": "Bevestig de huidige datum op je BitBox",
     "confirmDateText": "Deze datum wordt gebruikt om je backup te maken.",
-    "confirmName": "Bevestig naam op je BitBox02",
-    "confirmWords": "Schrijf de {{amount}}",
+    "confirmName": "Bevestig naam op je BitBox",
+    "confirmWords": "Schrijf de {{amount}} herstelwoorden van je BitBox op",
     "confirmWordsText": "Hierna vraagt de BitBox je om ieder woord te bevestigen zodat je zeker weet dat de backup correct is.",
-    "followInstructions": "Volg de instructies op je BitBox02",
-    "followInstructionsMnemonic": "Volg de instructies op je BitBox02 om te herstellen met je herstelwoorden.",
+    "followInstructions": "Volg de instructies op je BitBox",
+    "followInstructionsMnemonic": "Volg de instructies op je BitBox om te herstellen met je herstelwoorden.",
     "followInstructionsMnemonicTitle": "Met herstelwoorden herstellen"
   },
   "bitbox02Settings": {
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "De bluetooth van je BitBox is nu uitgeschakeld. Als je in de toekomst met een iPhone wilt verbinden, zul je het opnieuw aan moeten zetten.",
+      "alertEnabled": "Bluetooth is nu ingeschakeld",
+      "description": "Bluetooth wordt nu gebruikt om met iPhones te verbinden",
+      "titleDisabled": "Bluetooth inschakelen",
+      "titleEnabled": "Bluetooth uitschakelen"
+    },
     "deviceName": {
       "current": "Huidige naam",
       "error": "Het is niet gelukt de naam in te stellen.",
       "error_104": "Het instellen van de naam is afgebroken door de BitBox.",
-      "input": "BitBox02 naam",
+      "input": "BitBox naam",
       "placeholder": "Nieuwe naam",
-      "title": "BitBox02 naam instellen"
+      "title": "BitBox naam instellen"
     },
     "gotoStartupSettings": {
-      "description": "",
+      "description": "Dit start je BitBox opnieuw op om om de opstartinstellingen te kunnen wijzigen.",
       "title": "Ga naar opstartinstellingen"
     }
   },
@@ -209,7 +224,7 @@
       "outOfDate": "Er is een firmware update nodig",
       "seed12WordInfo": "De hoeveelheid woorden kan niet veranderd worden nadat je de wallet hebt aangemaakt.",
       "seed12WordLabel": "Seed met 12 ipv 24 herstelwoorden aanmaken",
-      "seed12WordText": "De BitBox maakt standaard een backup met 24 herstelwoorden aan. Backups met zowel 12 als 24 woorden zijn in de praktijk veilig tegen \"brute force\" aanvallen. ",
+      "seed12WordText": "De BitBox maakt standaard een backup met 24 herstelwoorden aan. Backups met zowel 12 als 24 woorden zijn in de praktijk veilig tegen \"brute force\" aanvallen. Sommige gebruikers vinden een backup met 12 woorden makkelijker.",
       "skipSDCardLabel": "MicroSD backup overslaan en herstelwoorden opschrijven",
       "skipSDCardText": "Je hebt altijd de mogelijkheid om via de instellingen alsnog een microSD- of herstelwoord-backup te maken.",
       "title": "Geavanceerde backup-opties"
@@ -219,14 +234,14 @@
       "point1": "Selecteer een backup op de microSD kaart",
       "point2": "Stel een wachtwoord in voor je apparaat",
       "restoreText": "Ok, laten we een backup herstellen!",
-      "text1": "Je BitBox02 wachtwoord is ingesteld en je wallet is aangemaakt. Nu gaan we je eerste backup instellen. Zorg dat je microSD kaart is ingevoerd in de BitBox02 en ga verder.",
+      "text1": "Je BitBox wachtwoord is ingesteld en je wallet is aangemaakt. Nu gaan we je eerste backup instellen. Zorg dat je microSD kaart is ingevoerd in de BitBox en ga verder.",
       "text2": "Volg de instructies op je BitBox om een backup te maken.",
-      "text3": "Verwijder de microSD kaart en sla hem op in een <strong>veilige locatie</strong> nadat je backup is aangemaakt. De inhoud van de microSD kaart is niet beveiligd met een wachtwoord. Voer je microSD kaart nooit in een ander apparaat dan je BitBox02 in.",
+      "text3": "Verwijder de microSD kaart en sla hem op in een <strong>veilige locatie</strong> nadat je backup is aangemaakt. De inhoud van de microSD kaart is niet beveiligd met een wachtwoord. Voer je microSD kaart nooit in een ander apparaat dan je BitBox in.",
       "userConfirmation1": "Ik zal mijn backup in een veilige locatie opslaan.",
       "userConfirmation2": "Mijn backup is niet beveiligd met een wachtwoord. Iedereen die er toegang tot heeft, heeft toegang tot mijn wallet.",
-      "userConfirmation3": "Als ik mijn BitBox02 verlies of beschadig, is de backup mijn enige manier om weer toegang tot mijn wallet te krijgen.",
-      "userConfirmation4": "Als ik mijn BitBox02 én mijn backup verlies of beschadig, is mijn wallet permanent verloren.",
-      "userConfirmation5": "Ik moet mijn microSD kaart niet in een computer, telefoon, printer of ieder ander apparaat dan een BitBox02 invoeren.",
+      "userConfirmation3": "Als ik mijn BitBox verlies of beschadig, is de backup mijn enige manier om weer toegang tot mijn wallet te krijgen.",
+      "userConfirmation4": "Als ik mijn BitBox én mijn backup verlies of beschadig, is mijn wallet permanent verloren.",
+      "userConfirmation5": "Ik moet mijn microSD kaart niet in een computer, telefoon, printer of ieder ander apparaat dan een BitBox invoeren.",
       "userConfirmation5mnemonic": "Ik snap dat ik mijn herstelwoorden NOOIT in een computer, telefoon, printer of ieder ander apparaat dat geen BitBox is moet invoeren"
     },
     "create": {
@@ -248,7 +263,7 @@
       "failed": "Koppeling niet bevestigd. Plug je BitBox opnieuw in.",
       "paired": "Je hebt de volgende code op je BitBox bevestigd. Klik om door te gaan.",
       "title": "Verifieer koppelcode",
-      "unpaired": "Er is een nieuwe BitBox02 gedetecteerd. Controleer dat onderstaande code overeenkomt met wat er op je BitBox staat"
+      "unpaired": "Er is een nieuwe BitBox gedetecteerd. Controleer dat onderstaande code overeenkomt met wat er op je BitBox staat"
     },
     "restoreFromMnemonic": {
       "e104": "Het herstellen is afgebroken",
@@ -264,7 +279,7 @@
       "title": "Backup hersteld!"
     },
     "stepConnected": {
-      "unlock": "Voer je BitBox02 wachtwoord in om te ontgrendelen."
+      "unlock": "Voer je BitBox wachtwoord in om te ontgrendelen."
     },
     "stepCreate": {
       "description": "Deze naam zal worden gebruikt als apparaatnaam en voor de backup",
@@ -273,28 +288,28 @@
         "invalidChars": "De naam bevat ongeldige karakters: {{invalidChars}}.",
         "tooLong": "Naam is te lang"
       },
-      "nameLabel": "BitBox02 naam",
-      "namePlaceholder": "Mijn BitBox02",
-      "title": "Kies een naam voor je BitBox02",
-      "toastMicroSD": "Zorg dat je microSD kaart is ingevoerd in je BitBox02; deze wordt gebruikt om een backup van je wallet op te slaan."
+      "nameLabel": "BitBox naam",
+      "namePlaceholder": "Mijn BitBox",
+      "title": "Kies een naam voor je BitBox",
+      "toastMicroSD": "Zorg dat je microSD kaart is ingevoerd in je BitBox; deze wordt gebruikt om een backup van je wallet op te slaan."
     },
     "stepCreateSuccess": {
-      "removeMicroSD": "Haal de microSD kaart uit je BitBox02 en bewaar deze in een veilige locatie.",
+      "removeMicroSD": "Haal de microSD kaart uit je BitBox en bewaar deze in een veilige locatie.",
       "storeMnemonic": "Bewaar je herstelwoorden op een veilige locatie",
       "success": "Je backup is aangemaakt."
     },
     "stepInsertSD": {
-      "insertSDCard": "Stop een microSD kaart in je BitBox02 om door te gaan.",
+      "insertSDCard": "Stop een microSD kaart in je BitBox om door te gaan.",
       "insertSDCardToSeeBackups": "Voer de microSD kaart in je BitBox in om je backups te kunnen zien.",
       "insertSDcardTitle": "Voer microSD kaart in"
     },
     "stepPassword": {
       "e104": "Het instellen van een wachtwoord is afgebroken",
-      "title": "BitBox02 wachtwoord instellen",
-      "useControls": "Gebruik de touch-sensors op je BitBox02 om een wachtwoord in te voeren."
+      "title": "BitBox wachtwoord instellen",
+      "useControls": "Gebruik de touch-sensors op je BitBox om een wachtwoord in te voeren."
     },
     "stepUninitialized": {
-      "create": "Ik wil een nieuwe wallet op mijn BitBox02 aanmaken.",
+      "create": "Ik wil een nieuwe wallet op mijn BitBox aanmaken.",
       "restore": "Ik wil de backup van een bestaande wallet herstellen.",
       "restoreMicroSD": "Herstel met microSD kaart",
       "restoreMnemonic": "Herstel met herstelwoorden",
@@ -331,14 +346,14 @@
       "listItem2": "Afpersing of bedreiging",
       "listItem3": "Vernietiging door brand, waterschade of natuurrampen",
       "month": "maand",
-      "text": "Verzeker je BitBox02 en tot €100 000 aan bitcoin tegen",
+      "text": "Verzeker je BitBox en tot €100 000 aan bitcoin tegen",
       "text2": "Verzekeringen zijn verkrijgbaar vanaf €30 per jaar (€2,50 per maand). Je kunt meer te weten komen over Bitsurance en hun verzekeringsaanbod op de",
       "text3": "Op dit moment alleen beschikbaar in Duitsland, andere landen volgen later",
       "title": "Aan de slag"
     },
     "intro": {
       "link": "Bitsurance website",
-      "text1": "BitBox werkt met Bitsurance om een extra laag van bescherming voor je bitcoin te bieden. Waar de BitBox02 je coins beveiligt, dekt Bitsurance ook de dingen die niet op te lossen zijn met technologie, zoals diefstal, afpersing en bedreiging of vernietiging van de hardware wallet zelf."
+      "text1": "BitBox werkt met Bitsurance om een extra laag van bescherming voor je bitcoin te bieden. Waar de BitBox je coins beveiligt, dekt Bitsurance ook de dingen die niet op te lossen zijn met technologie, zoals diefstal, afpersing en bedreiging of vernietiging van de hardware wallet zelf."
     },
     "terms": {
       "link": "Bitsurance privacy policy",
@@ -359,11 +374,18 @@
   "blink": {
     "button": "Knipperen"
   },
+  "bluetooth": {
+    "connected": "Verbonden",
+    "connectionFailed": "mislukt",
+    "connectionIssues": "Heb je verbindingsproblemen?",
+    "enable": "Zet je bluetooth aan",
+    "select": "Selecteer je BitBox"
+  },
   "bootloader": {
     "button": "Firmwareupgrade uitvoeren",
     "button_install": "Firmware installeren",
-    "progress": "Firmwareupgrade wordt uitgevoerd: {{progress}}%",
-    "progress_install": "Firmware wordt geïnstalleerd: {{progress}}%",
+    "progress": "Firmwareupgrade wordt uitgevoerd",
+    "progress_install": "Firmware wordt geïnstalleerd",
     "success": "Upgrade voltooid! Plug je BitBox opnieuw in. Druk deze keer niet op de knop."
   },
   "button": {
@@ -390,14 +412,57 @@
     "upgrade": "Upgraden"
   },
   "buy": {
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": "Onvoldoende middelen om deze cadeaukaart te kopen"
+      },
+      "transactionNote": "Stuur naar Bitrefill"
+    },
     "exchange": {
       "bankTransfer": "Bankoverschrijving",
       "bestDeal": "Beste deal",
       "buy": "Kopen",
       "creditCard": "Creditcard",
+      "description_bitrefill": "Koop cadeaukaarten, beltegoed, en meer",
       "fast": "Snel",
       "fee": "transactiekosten",
       "infoContent": {
+        "bitrefill": {
+          "disclaimer": {
+            "account": {
+              "link": "Bitrefill aankooplimieten",
+              "text": "Je kunt Bitrefill binnen bepaalde limieten gebruiken zonder een account aan te maken. Om je limieten te verhogen kun je een basisaccount aanmaken of een geverifieerde klant worden. Voor alle details, zie Bitrefill aankooplimieten.",
+              "title": "Accounts en limieten"
+            },
+            "claims": {
+              "link": "Bitrefill ondersteuning",
+              "text": "Als je een probleem hebt met je aankoop, neem dan alsjeblieft direct contact op met Bitrefill, binnen 30 dagen van je aankoop.",
+              "title": "Restituties"
+            },
+            "dataProtection": {
+              "link": "Bitrefill privacy policy",
+              "text": "De BitBoxApp verzamelt geen persoonlijke informatie. Bitrefill verzamelt informatie zoals beschreven in hun Privacy Policy.",
+              "title": "Databescherming"
+            },
+            "fees": {
+              "text": "Bitrefill brengt niet direct kosten in rekening, maar de prijzen van hun producten kunnen een marge bevatten die varieert tussen verschillende verkopers, regio's en de geldende wisselkoers.",
+              "title": "Kosten"
+            },
+            "intro": {
+              "text": "Bitrefill is een online platform waarop je bv. cadeaukaarten en beltegoed kunt kopen, of je rekeningen kunt betalen met bitcoin of andere cryptovaluta. Het is een makkelijke manier om crypto te besteden aan alledaagse dingen zonder het eerst naar een traditionele valuta te moeten wisselen. Bitrefill biedt een breed assortiment van producten aan en is populair onder mensen die geheel op crypto willen leven of privé willen winkelen.",
+              "title_bitcoin": "Geef bitcoin uit met Bitrefill",
+              "title_crypto": "Geef crypto uit met Bitrefill"
+            },
+            "security": {
+              "link": "BitBox Beveiligings- en Risicomodel",
+              "text": "Bitrefill is een externe dienst die niet onder het BitBox Beveiligings- en Risicomodel valt. Als je een aankoop maakt, stuur je een transactie naar een Bitrefill adres; je BitBox kan niet verifiëren dat dit adres correct is.",
+              "title": "Beveiligingswaarschuwing"
+            }
+          },
+          "infobox": {
+            "intro": "Bitrefill is een online platform waar je bitcoin en andere cryptovaluta kunt spenderen aan je alledaagse uitgaven door cadeaukaarten, beltegoed en verscheidene diensten te kopen. De integratie in de BitBoxApp laat je je coins direct uit je BItBox uitgeven zonder ze eerst naar een exchange of een andere wallet te hoeven sturen."
+          }
+        },
         "btcdirect": {
           "disclaimer": {
             "dataProtection": {
@@ -426,8 +491,8 @@
               "title": "Persoonlijke service met vaste prijzen"
             },
             "security": {
-              "link": "BitBox02 bedreigingsmodel",
-              "text": "De Private Trading Desk van BTC Direct is een externe dienst die niet valt onder het BitBox Security Threat model. BTC Direct is echter goed bekend met BitBox-producten en biedt veilige, deskundige begeleiding. BitBox-producten verifiëren cryptoadressen tijdens transacties om een veilige levering te garanderen.",
+              "link": "BitBox beveiligings- en risicomodel",
+              "text": "De Private Trading Desk van BTC Direct is een externe dienst die niet valt onder het BitBox Beveiligings- en Risicomodel. BTC Direct is echter goed bekend met BitBox-producten en biedt veilige, deskundige begeleiding. BitBox-producten verifiëren cryptoadressen tijdens transacties om een veilige levering te garanderen.",
               "title": "Beveiliging"
             },
             "title": "Disclaimer"
@@ -457,11 +522,12 @@
             "paymentMethods": {
               "buy": "Aankopen: Je betaalt in EUR om de coins direct in je BitBox te ontvangen. Je kunt kiezen tussen een eenmalige aankoop en periodieke aankopen. Voor bankoverschrijvingen wordt de wisselkoers vastgesteld op het moment dat BTC Direct de overschrijving ontvangt. Voor instant-betalingen wordt de wisselkoers voor een korte periode vastgezet.",
               "note": "Let op: De wisselkoers die BTC Direct aanhoudt kan iets afwijken van die in de BitBoxApp getoond worden.",
+              "sell": "Verkopen: Stuur je cryptovaluta naar BTC Direct en ontvang EUR op je bankrekening. De wisselkoers wordt vastgesteld zodra BTC Direct je coins ontvangt.",
               "title": "Betaalmethoden en kosten"
             },
             "security": {
-              "description": "BTC Direct is een externe dienst die niet valt onder het BitBox Security Threat model. We werken nauw samen met BTC Direct om de algemene veiligheid te verbeteren.",
-              "link": "BitBox Security Threat model",
+              "description": "BTC Direct is een externe dienst die niet valt onder het BitBox Beveiligings- en Risicomodel. We werken nauw samen met BTC Direct om de algemene veiligheid te verbeteren.",
+              "link": "BitBox Beveiligings- en Risicomodel",
               "title": "Veiligheid"
             },
             "title_bitcoin": "Koop bitcoin met BTC Direct",
@@ -475,7 +541,11 @@
               "sofort": "Sofort: {{fee}}%",
               "title": "Kosten voor aankopen"
             },
-            "intro": "Cryptovaluta kopen met EUR in Europa",
+            "feesSelling": {
+              "bankTransfer": "Bankoverschrijving: {{fee}}%",
+              "title": "Kosten voor verkoop"
+            },
+            "intro": "Cryptovaluta kopen en verkopen met EUR.",
             "payment": {
               "bancontact": "Bancontact",
               "bankTransfer": "Bankoverschrijving, SEPA Instant, iDeal",
@@ -544,7 +614,8 @@
       "noExchanges": "Sorry, er zijn geen exchanges beschikbaar in jouw regio",
       "region": "Regio",
       "selectRegion": "Niet aangegeven",
-      "sell": "Verkopen"
+      "sell": "Verkopen",
+      "spend": "Uitgeven"
     },
     "info": {
       "continue": "Akkoord, verder",
@@ -620,8 +691,8 @@
   },
   "confirmOnDevice": "Bevestig op je BitBox",
   "connectKeystore": {
-    "promptNoName": "Verbind je BitBox02 om verder te gaan",
-    "promptWithName": "Verbind de BitBox02 die je \"{{name}}\" hebt genoemd om verder te gaan"
+    "promptNoName": "Verbind je BitBox om verder te gaan",
+    "promptWithName": "Verbind de BitBox die je \"{{name}}\" hebt genoemd om verder te gaan"
   },
   "darkmode": {
     "toggle": "Donkere kleurstelling"
@@ -685,7 +756,7 @@
         "title": "Terugzetten naar fabrieksinstellingen"
       },
       "goToStartupSettings": {
-        "description": "Ga naar de bootloader van de BitBox02. Je kunt hier het laten zien van de \"firmware hash\" inschakelen."
+        "description": "Ga naar de bootloader van de BitBox. Je kunt hier het laten zien van de \"firmware hash\" inschakelen."
       },
       "passphrase": {
         "description": "Zet de optionele passphrase aan of uit",
@@ -708,7 +779,7 @@
       "attestation": {
         "false": "Autentiteitscontrole mislukt",
         "label": "Autentiteitscontrole",
-        "true": "Je hebt een autentieke BitBox02"
+        "true": "Je hebt een autentieke BitBox"
       },
       "sdcard": {
         "false": "Niet ingevoerd",
@@ -719,6 +790,7 @@
       "title": "Hardware"
     },
     "loading": "Apparaatinformatie aan het verzamelen...",
+    "noDevice": "Geen apparaat verbonden",
     "secrets": {
       "manageBackups": "Backups beheren",
       "title": "Geheimen"
@@ -747,10 +819,13 @@
     "wrongKeystore2": "Als je de optionele passphrase hebt ingeschakeld, zorg er dan voor dat je de juiste passphrase voor dit account hebt ingevoerd."
   },
   "exchange": {
+    "btcdirect": {
+      "currencyMismatch": "Onverwachte valuta in betaalverzoek",
+      "insufficientFunds": "Onvoldoende balans op het geselecteerde account"
+    },
     "buySell": {
       "coinNotSupported": "Geen opties beschikbaar voor dit coin-type.",
-      "regionNotSupported": "Geen opties beschikbaar in jouw regio.",
-      "updateNow": "Nu updaten"
+      "regionNotSupported": "Geen opties beschikbaar in jouw regio."
     },
     "pocket": {
       "terms": {
@@ -768,15 +843,15 @@
         },
         "kyc": {
           "link": "Lees Pocket's veelgestelde vragen",
-          "p1": "Je hebt geen extra documentatie nodig voor aan- en verkopen tot 950 EUR (1000 CHF) per dag.",
+          "p1": "Je hebt geen extra documentatie nodig voor aan- en verkopen tot ~1050 EUR (1000 CHF) per 30 dagen.",
           "p2": "Voor grotere bedragen is een telefoongesprek met Pocket vereist om het KYC/AML-proces te doorlopen.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
-          "link": "BitBox02 beveligingsrisicomodel",
-          "p1": "Pocket is een externe dienst, en valt dus niet binnen het toepassingsgebied van het beveiligingsrisicomodel van de BitBox02. We werken natuurlijk wel nauw samen met Pocket om de algehele veiligheid te waarborgen en te verbeteren.",
+          "link": "BitBox beveiligings- en risicomodel",
+          "p1": "Pocket is een externe dienst, en valt dus niet binnen het toepassingsgebied van het beveiligings- en risicomodel van de BitBox. We werken natuurlijk wel nauw samen met Pocket om de algehele veiligheid te waarborgen en te verbeteren.",
           "p2": "<strong>Bitcoin kopen:</strong> Je krijgt een email om je bitcoinadres via een extern communicatiekanaal nogmaals te bevestigen.",
-          "p3": "<strong>Bitcoin verkopen:</strong> De BitBox02 verifieert cryptografisch het Bitcoin stortingsadres en laat \"Pocket\" zien op de hardware wallet.",
+          "p3": "<strong>Bitcoin verkopen:</strong> De BitBox verifieert cryptografisch het Bitcoin stortingsadres en laat \"Pocket\" zien op de hardware wallet.",
           "title": "Beveiliging"
         },
         "welcome": {
@@ -794,16 +869,36 @@
   "footer": {
     "appVersion": "App versie:"
   },
+  "gapLimit": {
+    "change": "Gap-limiet voor wisselgeldadres",
+    "description": "Stel handmatig een nieuw gap-limiet in voor bitcoin ontvangst- en wisselgeldadressen.",
+    "maxValue": "Het gap-limiet mag niet hoger zijn dan {{max}}.",
+    "minValue": "Het gap-limiet moet minstens {{min}} zijn.",
+    "receive": "Gap-limiet voor ontvangstadressen.",
+    "title": "Gap-limiet handmatig instellen"
+  },
   "generic": {
     "buy": "{{coinCode}} kopen",
-    "buySell": "Kopen en verkopen",
+    "buySell": "Marktplaats",
     "buy_bitcoin": "Bitcoin kopen",
     "buy_crypto": "Crypto kopen",
+    "close": "Sluiten",
     "enabled_false": "Uitgeschakeld",
     "enabled_true": "Ingeschakeld",
+    "noOptionOnIos": "Niet beschikbaar op iOS",
+    "noOptions": "Geen opties gevonden",
+    "paymentRequestNote": "{{name}} betaling {{orderId}}",
     "receive": "{{coinCode}} ontvangen",
     "receive_bitcoin": "Bitcoin ontvangen",
-    "receive_crypto": "Crypto ontvangen"
+    "receive_crypto": "Crypto ontvangen",
+    "resetToDefault": "Terugzetten naar standaardwaarden",
+    "search": "Zoeken...",
+    "searchButton": "Zoeken",
+    "sell": "{{coinCode}} verkopen",
+    "sell_bitcoin": "Bitcoin verkopen",
+    "sell_crypto": "Crypto verkopen",
+    "spend_bitcoin": "Bitcoin uitgeven",
+    "spend_crypto": "Crypto uitgeven"
   },
   "genericError": "Er is een fout opgetreden. Start de applicatie opnieuw op als je problemen tegenkomt.",
   "goal": {
@@ -928,7 +1023,7 @@
         "link": {
           "text": "Ondersteunde munten weergeven"
         },
-        "text": "De BitBoxApp ondersteunt Bitcoin, Litecoin, Ethereum, en een beperkte selerctie van ERC-20 tokens. Voor Cardano en andere tokens moet je je BitBox02 met alternatieve apps zoals AdaLite of Rabby gebruiken. Je kunt een volledige lijst van alle ondersteunde munten op onze website vinden:",
+        "text": "De BitBoxApp ondersteunt Bitcoin, Litecoin, Ethereum, en een beperkte selerctie van ERC-20 tokens. Voor Cardano en andere tokens moet je je BitBox met alternatieve apps zoals AdaLite of Rabby gebruiken. Je kunt een volledige lijst van alle ondersteunde munten op onze website vinden:",
         "title": "Welke munten worden ondersteund?"
       },
       "whatAreAccounts": {
@@ -936,7 +1031,7 @@
         "title": "Wat zijn accounts?"
       },
       "whatIsRememberWallet": {
-        "text": "Als je \"wallet onthouden\" hebt ingeschakeld, kun je de accounts voor deze wallet bekijken, zelfs zonder dat je BitBox02 is verbonden. Zo kun je je portfolio inzien wanneer je wilt. Om te verzenden en te ontvangen, moet je nog steeds je BitBox02 verbinden.\n\nAls je deze optie uitzet, moet je je BitBox02 ingeplugd hebben om de bijbehorende accounts in te zien.",
+        "text": "Als je \"wallet onthouden\" hebt ingeschakeld, kun je de accounts voor deze wallet bekijken, zelfs zonder dat je BitBox is verbonden. Zo kun je je portfolio inzien wanneer je wilt. Om te verzenden en te ontvangen, moet je nog steeds je BitBox verbinden.\n\nAls je deze optie uitzet, moet je je BitBox ingeplugd hebben om de bijbehorende accounts in te zien.",
         "title": "Wat gebeurt er als ik \"wallet onthouden\" in- of uitschakel?"
       },
       "whyIsThisUseful": {
@@ -946,7 +1041,9 @@
     },
     "appendix": {
       "link": "Neem contact met ons op!",
-      "text": "Nog een vraag?"
+      "questionService": "Heb je problemen met {{serviceName}}?",
+      "text": "Nog een vraag?",
+      "textService": "Als je een probleem hebt met {{serviceName}}, neem dan alsjeblieft direct contact met hen op."
     },
     "backups": {
       "check": {
@@ -1040,7 +1137,7 @@
       },
       "name": {
         "text": "Dit is de naam van je wallet en van je backup. De naam wordt gebruikt voor toekomstige backups en kan ook gebruikt worden om verschillende wallets te onderscheiden. Deze kun je op ieder moment veranderen, maar backups die je hiervoor gemaakt hebt zullen nog steeds de oude naam gebruiken.",
-        "title": "Waar wordt de BitBox02-naam voor gebruikt?"
+        "title": "Waar wordt de BitBox-naam voor gebruikt?"
       },
       "secure-chip": {
         "link": {
@@ -1056,7 +1153,7 @@
       "accountSummary": "Handleiding voor accountsamenvatting",
       "advancedSettings": "Handleiding voor geavanceerde accountinstellingen",
       "appearance": "Handleiding voor ",
-      "buySell": "Koop- en verkoophandleiding",
+      "buySell": "Marktplaatshandleiding",
       "insurance": "Handleiding voor verzekeringen",
       "manageAccount": "Handleiding voor accountbeheer",
       "manageDevice": "Handleiding voor apparaatbeheer",
@@ -1078,7 +1175,7 @@
         "title": "Wanneer moet ik \"Adrestype wijzigen\" gebruiken?"
       },
       "howVerify": {
-        "text": "Voor de BitBox01 klik je op het BitBox icoon in het zijmenu aan de linkerkant en ga je naar de 'koppelen'-sectie. Als je daar bent, updatet de hulp en kun je de instructies daar verder volgen.\nOp de BitBox02 kun je adressen direct op het apparaat verifiëren tijdens het proces van verzenden of ontvangen.",
+        "text": "Tijdens het verzenden en ontvangen kun je het adres direct op je BitBox controleren.",
         "title": "Hoe kan ik veilig mijn adressen verifiëren?"
       },
       "plugout": {
@@ -1094,7 +1191,7 @@
         "title": "Waarom zo veel adressen?"
       },
       "whyVerify": {
-        "text": "Je zou je computer niet moeten vertrouwen om adressen te genereren en weer te geven. Je computer heeft een veel hoger aanvalsrisico dan een hardware wallet, waardoor de kans op virussen en malware vele malen hoger is. \nVoor de BitBox01 klik je op de knop om een veilig adres naar de gekoppelde telefoon te sturen, die je ook kun gebruiken om de QR-code te scannen en verifiëren. Voor de BitBox02 kun je het adres direct op het display verifiëren. ",
+        "text": "Je kunt je computer niet vertrouwen om authentieke adressen te genereren en weer te geven. Je computer heeft een veel hoger aanvalsrisico dan een hardware wallet, waardoor de kans op virussen en malware vele malen hoger is. \nHet adres kan direct op het scherm van je BitBox geverifieerd worden.",
         "title": "Waarom moet ik mijn adressen verifiëren. "
       }
     },
@@ -1202,12 +1299,19 @@
         "title": "Ik ben mijn BitBox kwijt, wat nu?"
       },
       "useWithoutDevice": {
-        "text": "Dat is op dit moment niet mogelijk.",
+        "text": "Je kunt wallets onthouden in de accountinstellingen. Op deze manier kun je je portfolio bekijken zonder een BitBox.",
         "title": "Kan ik de app ook zonder BitBox gebruiken?"
       },
       "welcome": {
         "text": "Bedankt voor het gebruiken van deze app, gemaakt door Shift Crypto in Zwitserland. We waarderen alle feedback die je voor ons hebt! Die kun je delen door op de link onderaan het scherm te klikken.",
         "title": "Welkom in de BitBoxApp!"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "Bestel een BitBox02 Nova"
+        },
+        "text": "Alleen de BitBox02 Nova werkt met iOS. De normale BitBox02 kan met alle andere platformen gebruikt worden. Je kunt een BitBox02 Nova kopen in onze webwinkel.",
+        "title": "Welke BitBox werkt er met iOS?"
       }
     },
     "walletConnect": {
@@ -1253,7 +1357,7 @@
   },
   "loading": "laden...",
   "manageAccounts": {
-    "accountHidden": "Deze account is verborgen in je alleen-kijken accounts. Om hem weer te zien moet je je BitBox02 verbinden.",
+    "accountHidden": "Deze account is verborgen in je alleen-kijken accounts. Om hem weer te zien moet je je BitBox verbinden.",
     "editAccount": "Bewerken",
     "editAccountNameTitle": "Accountnaam bewerken",
     "noAccounts": "Geen accounts gevonden",
@@ -1325,7 +1429,7 @@
           "title": "Wallet onthouden"
         },
         "name": "Wallet onthouden",
-        "warning": "Je onthouden wallet wordt hiermee vergeten. Om hem weer te zien, moet je je BitBox02 opnieuw verbinden. Dit heeft geen enkele invloed op de coins die op je wallet staan. \n\nWil je doorgaan?",
+        "warning": "Je onthouden wallet wordt hiermee vergeten. Om hem weer te zien, moet je je BitBox voor deze wallet opnieuw verbinden. Dit heeft geen enkele invloed op de coins die op je wallet staan. \n\nWil je doorgaan?",
         "warningTitle": "Wallet niet meer onthouden"
       },
       "toggleSats": {
@@ -1344,6 +1448,20 @@
     "newTxs_one": "Nieuwe transactie in: {{accountName}}",
     "newTxs_other": "{{count}} nieuwe transacties in: {{accountName}}"
   },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "Tips voor verbindingsproblemen",
+    "description1": "Alleen de BitBox02 Nova kan met iOS gebruikt worden. De normale BitBox02 kan enkel met Windows, macOS, Android of Linux gebruikt worden. Je kunt een BitBox02 Nova in onze webwinkel kopen:",
+    "description2": "Het scherm moet altijd aangaan. Als het scherm uit blijft, krijgt het apparaat geen stroom.",
+    "description3": "Houd de BitBox02 Nova dicht bij je iPhone/iPad. We raden aan om je BitBox02 Nova direct in je apparaat te pluggen.",
+    "description4": "De BitBox02 Nova verbindt met iOS via Bluetooth. Bluetooth kan in- of uitgeschakeld worden via de BitBoxApp instellingen op andere platformen.",
+    "link1": "Bestel een BitBox02 Nova",
+    "link2": "Neem contact op voor ondersteuning",
+    "stillHavingIssues": "Heb je nog steeds problemen?",
+    "title1": "Gebruik de BitBox02 Nova alleen met iOS",
+    "title2": "Zorg dat de BitBox02 Nova stroom krijgt",
+    "title3": "Houd de BitBox02 Nova binnen bereik",
+    "title4": "Zorg dat de Bluetooth van de BitBox02 Nova niet uitgeschakeld is "
+  },
   "passphrase": {
     "considerations": {
       "button": "Backup overwegingen",
@@ -1361,7 +1479,7 @@
     },
     "how": {
       "button": "Hoe het er uit ziet",
-      "message": "Een passphrase werkt niet zoals andere wachtwoorden waar je aan gewend bent. Als je je passphrase verkeerd invoerd, krijg je hier geen melding van. Dit komt omdat <strong>iedere passphrase een nieuwe, valide wallet maakt</strong>. Dit betekent dat je zo veel verschillende wallets kunt aanmaken als je wilt door een andere passphrase in te voeren. Je kunt weer toegang krijgen tot iedere wallet door de bijbehorende passphrase in te voeren.\n\nAls je je BitBox02 invoert, zul je zoals je gewend bent om het gewone wachtwoord gevraagd worden. Daarna kun je een passphrase invoeren.\n\nNadat je de passphrase hebt ingevoerd, kun je nog een keer checken wat je precies hebt ingevoerd, zodat je zeker weet dat het was wat je verwachtte.",
+      "message": "Een passphrase werkt niet zoals andere wachtwoorden waar je aan gewend bent. Als je je passphrase verkeerd invoerd, krijg je hier geen melding van. Dit komt omdat <strong>iedere passphrase een nieuwe, geldige wallet maakt</strong>. Dit betekent dat je zo veel verschillende wallets kunt aanmaken als je wilt door een andere passphrase in te voeren. Je kunt weer toegang krijgen tot iedere wallet door de bijbehorende passphrase in te voeren.\n\nAls je je BitBox02 invoert, zul je zoals je gewend bent om het gewone wachtwoord gevraagd worden. Daarna kun je een passphrase invoeren.\n\nNadat je de passphrase hebt ingevoerd, kun je nog een keer checken wat je precies hebt ingevoerd, zodat je zeker weet dat het was wat je verwachtte.",
       "title": "Hoe werkt het"
     },
     "intro": {
@@ -1378,12 +1496,12 @@
     },
     "successDisabled": {
       "message": "De passphrase <strong>staat nu aan</strong>!\nVanaf nu zul je tijdens het opstarten om een passphrase worden gevraagd.",
-      "messageEnd": "Plug alsjeblieft de BitBox opnieuw in.",
+      "messageEnd": "Plug de BitBox opnieuw in.",
       "title": "Passphrase aangezet"
     },
     "successEnabled": {
       "message": "De passphrase <strong>staat nu uit</strong>!\nVanaf nu zul je niet langer tijdens het opstarten om een passphrase worden gevraagd.",
-      "messageEnd": "Plug je BitBox02 opnieuw in.",
+      "messageEnd": "Plug je BitBox opnieuw in.",
       "tips": "Tips",
       "tipsList": [
         "We raden je aan om een kleine hoeveelheid coins naar de passphrase wallet te sturen. Plug daarna je BitBox opnieuw in en voer je wachtwoord en passphrase in. Als je passphrase correct is, zou je de coins in je wallet moeten zien.",
@@ -1404,12 +1522,12 @@
     },
     "what": {
       "button": "Leer hoe dit werkt",
-      "message": "Een wallet komt voort uit een heel groot willekeurig getal, ook wel bekend als je 'seed'. Deze seed is gemaakt toen je je BitBox02 voor het eerst instelde en is gebackupt met de microSD kaart of je lijst van herstelwoorden. Iedereen die toegang heeft tot de seed, heeft volledige controle over de coins in die wallet. \n\nEen passphrase is een <strong>optioneel geheim</strong> dat toegevoegd wordt aan de seed. Wanneer je de passphrase aanzet, maakt iedere verschillende passphrase een nieuwe wallet op basis van de seed <strong>en</strong> de passphrase. Een passphrase kan alles zijn; letters, woorden, speciale karakters, of helemaal niets. In feite is je standaardwallet een seed met een lege passphrase.\n\nDeze passphrase is onderdeel van de BIP39 standaard, wat betekent dat hij compatibel is met alle wallets die diezelfde standaard ondersteunen. ",
+      "message": "Een wallet komt voort uit een heel groot willekeurig getal, ook wel bekend als je 'seed'. Deze seed is gemaakt toen je je BitBox voor het eerst instelde en is gebackupt met de microSD kaart of je lijst van herstelwoorden. Iedereen die toegang heeft tot de seed, heeft volledige controle over de coins in die wallet. \n\nEen passphrase is een <strong>optioneel geheim</strong> dat toegevoegd wordt aan de seed. Wanneer je de passphrase aanzet, maakt iedere verschillende passphrase een nieuwe wallet op basis van de seed <strong>en</strong> de passphrase. Een passphrase kan alles zijn; letters, woorden, speciale karakters, of helemaal niets. In feite is je standaardwallet een seed met een lege passphrase.\n\nDeze passphrase is onderdeel van de BIP39 standaard, wat betekent dat hij compatibel is met alle wallets die diezelfde standaard ondersteunen. ",
       "title": "Wat is een passphrase?"
     },
     "why": {
       "button": "Waarom zou ik een passphrase gebruiken?",
-      "message": "De BitBox02 beschermt je seed op het apparaat zelf, maar de backup (op de microSD kaart of je herstelwoorden) geeft nog steeds volledige controle over de wallet. Dat is waarom deze backup veilig opgeslagen moet worden!\n\nOmdat een passphrase een nieuwe wallet genereert met de bestaande seed, heeft een passphrase wallet <strong>zowel de backup als de passphrase</strong> nodig om hem te herstellen. Het voordeel hiervan is dat als iemand je backup vindt, ze nog steeds je passphrase nodig hebben om toegang te krijgen tot je wallet.\n\nDaarnaast kun je met de passphrase meerdere wallets op hetzelfde device aanmaken, ook bekend als 'verborgen wallets', naast de bestaande wallet.",
+      "message": "De BitBox beschermt je seed op het apparaat zelf, maar de backup (op de microSD kaart of je herstelwoorden) geeft nog steeds volledige controle over de wallet. Dat is waarom deze backup veilig opgeslagen moet worden!\n\nOmdat een passphrase een nieuwe wallet genereert met de bestaande seed, heeft een passphrase wallet <strong>zowel de backup als de passphrase</strong> nodig om hem te herstellen. Het voordeel hiervan is dat als iemand je backup vindt, ze nog steeds je passphrase nodig hebben om toegang te krijgen tot je wallet.\n\nDaarnaast kun je met de passphrase meerdere wallets op hetzelfde device aanmaken, ook bekend als 'verborgen wallets', naast de bestaande wallet.",
       "title": "Waarom zou je een passphrase gebruiken?"
     }
   },
@@ -1419,10 +1537,6 @@
       "caps": "WAARSCHUWING: Caps lock (⇪) is ingeschakeld",
       "paste": "om tekst te plakken, schakel je \"SHOW {{label}}\" in"
     }
-  },
-  "random": {
-    "button": "Genereer willekeurig getal",
-    "description": "Je BitBox heeft het volgende willekeurige getal van {{bits}} bits gegenereerd:"
   },
   "receive": {
     "bitsuranceWarning": "Dit is een verzekerde account, wat betekent dat het alleen kan ontvangen naar Native Segwit adressen. Dit is om te voorkomen dat je geen bitcoin naar adressen stuurt die niet gedekt zijn.",
@@ -1442,7 +1556,7 @@
     "taprootWarning": "Let op: Taproot is een nieuwe adressoort in Bitcoin en wordt nog niet op grote schaal gebruikt. Het kan bijvoorbeeld zijn dat bitcoin die op een Taproot-adres ontvangen wordt, niet weergegeven wordt in andere watch-only wallets. Veel andere wallets en exchanges kunnen ook nog niet naar Taproot-adressen zenden.",
     "title": "{{accountName}} ontvangen",
     "verify": "Verifieer veilig je adres ",
-    "verifyBitBox02": "Verifieer het adres op je BitBox02",
+    "verifyBitBox02": "Verifieer het adres op je BitBox",
     "verifyInstruction": "Verifieer of het volgende adres hetzelfde is als het adres wat op je BitBox wordt getoond."
   },
   "reset": {
@@ -1530,7 +1644,7 @@
       "title": "Verstuur uit output"
     },
     "confirm": {
-      "infoMessage": "Controleer zorgvuldig op de BitBox02 of de hoeveelheid en het adres correct zijn",
+      "infoMessage": "Controleer zorgvuldig op de BitBox of de hoeveelheid en het adres correct zijn",
       "selected-coins": "Geselecteerde coins",
       "title": "Bevestigen & transactie versturen",
       "to": "Naar",
@@ -1595,7 +1709,7 @@
     "scanQRNoCameraMessage": "Camera niet gevonden. Zorg er alsjeblieft voor dat je apparaat een camera heeft en dat je de BitBoxApp hier toegang toe hebt verleend.",
     "success": "De transactie is ondertekend en verzonden.",
     "title": "Verstuur {{accountName}}",
-    "toggleCoinControl": "Coin control aan/uitzetten",
+    "toggleCoinControl": "Coin control",
     "transactionDetails": "Transactiedetails"
   },
   "settings": {
@@ -1656,6 +1770,7 @@
       "up-to-date": "Je app is bijgewerkt",
       "version": "App versie"
     },
+    "more": "Meer",
     "notes": {
       "export": {
         "description": "Backup van je transactienotities en accountnamen maken",
@@ -1703,6 +1818,33 @@
       "title": "Gelukt"
     }
   },
+  "testWallet": {
+    "connect": {
+      "description": "Een software testwallet om zonder apparaat in Testnet te testen",
+      "title": "Testwallet"
+    },
+    "disconnect": {
+      "description": "Verwijdert de software testwallet",
+      "title": "Testwallet afkoppelen"
+    },
+    "prompt": {
+      "button": "Ontgrendelen",
+      "passwordLabel": "Testwachtwoord",
+      "title": "Testwallet ontgrendelen"
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "Start de app opnieuw op in testnet-modus om functies uit te testen.",
+      "prompt": "Sluit de app en start deze opnieuw op om testnet-modus te activeren",
+      "title": "Start testnet-modus"
+    },
+    "deactivate": {
+      "description": "Start de app opnieuw op om testnet-modus te deactiveren.",
+      "prompt": "Sluit de app om testnet-modus te deactiveren",
+      "title": "Testnet-modus deactiveren"
+    }
+  },
   "transaction": {
     "confirmation": "Bevestigingen",
     "details": {
@@ -1722,6 +1864,7 @@
     "fee": "Netwerkkosten",
     "fiatHistorical": "Historie",
     "gas": "Gas",
+    "no-results": "Geen transacties met \"{{searchTerm}}\" gevonden",
     "note": {
       "edit": "Notitie aanpassen",
       "save": "Notitie opslaan"
@@ -1825,13 +1968,15 @@
   },
   "warning": {
     "coincontrol": "Eén of meer UTXOs hebben een hergebruikt adres. Weet dat een eventuele ontvanger alle UTXOs die met deze adressen geassocieerd zijn zal kunnen zien",
+    "offline": "Je bent op dit moment offline. Je kunt geen transacties versturen of de huidige wisselkoersen zien.",
     "sdcard": "Bewaar de microSD kaart apart van de BitBox, tenzij je je backups aan het beheren bent.",
     "testnet": "Let op: Je gebruikt je wallet op dit moment in Testnet-modus. Transacties en balansen in deze wallet zijn niet echt en verschijnen niet op het mainnet. Testnet is enkel bedoeld om dingen te kunnen testen."
   },
   "welcome": {
-    "connect": "Verbind je BitBox02",
-    "getStarted": "Laten we beginnen door de firmware op je BitBox02 te installeren.",
+    "connect": "Verbind je BitBox",
+    "getStarted": "Laten we beginnen door de firmware op je BitBox te installeren.",
     "loadingAccounts": "Accounts laden",
+    "message": "Verbind je BitBox en tik op de zijkant om verder te gaan.",
     "title": "Welkom"
   }
 }

@@ -21,4 +21,6 @@ env -u MAKE -u MAKEFLAGS cmd "/C compile_windows.bat"
 cp build/assets.rcc build/windows/
 cp server/libserver.dll build/windows/
 windeployqt build/windows/BitBox.exe
-cp "$MINGW_BIN/libssp-0.dll" build/windows/
+
+APP_VERSION="$(cat ../../APP_VERSION)"
+makensis -DVERSION="${APP_VERSION}.0" setup.nsi

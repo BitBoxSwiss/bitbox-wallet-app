@@ -40,7 +40,7 @@
     background: none;
     border: 0;
     color: var(--color-blue);
-    font-size: var(--size-button);
+    font-size: var(--size-default);
     line-height: 1;
     padding: 0;
     text-decoration: none;

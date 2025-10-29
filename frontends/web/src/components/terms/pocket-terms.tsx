@@ -24,7 +24,7 @@ import { SimpleMarkup } from '@/utils/markup';
 
 type TProps = {
   onAgreedTerms: () => void;
-}
+};
 
 export const PocketTerms = ({ onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
@@ -59,8 +59,7 @@ export const PocketTerms = ({ onAgreedTerms }: TProps) => {
 
         <h2 className={style.title}>{t('exchange.pocket.terms.kyc.title')}</h2>
         <ul>
-          <li><p>{t('exchange.pocket.terms.kyc.p1')}</p></li>
-          <li><p>{t('exchange.pocket.terms.kyc.p2')}</p></li>
+          <li><p>{t('exchange.pocket.terms.kyc.info')}</p></li>
         </ul>
         <p>
           <A href="https://pocketbitcoin.com/faq">

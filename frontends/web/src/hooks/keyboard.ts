@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 /**
  * gets fired on each keydown and executes the provided callback.
@@ -71,59 +71,132 @@ export const useFocusTrap = (
   ref: React.RefObject<HTMLElement>,
   active: boolean,
 ) => {
+  const autofocusDelay = 50;
+
   const previouslyFocused = useRef<HTMLElement | null>(null);
+  const trapEnabled = useRef(false);
+  const autofocusTimer = useRef<number | null>(null);
+  const cancelledAutofocus = useRef(false);
 
-  // Focus trap handler
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (!active || !ref.current || e.key !== 'Tab') {
-      return;
-    }
-    const node = ref.current;
-    const focusables = node.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-    if (!focusables.length) {
-      return;
-    }
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!trapEnabled.current || !ref.current || e.key !== 'Tab') {
+        return;
+      }
 
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
+      const focusables = Array.from(
+        ref.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+      ).filter((el) => el.offsetParent !== null); // skip hidden
 
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last?.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first?.focus();
-    }
-  };
+      if (focusables.length === 0) {
+        return;
+      }
 
-  useKeydown(handleKeyDown);
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const current = document.activeElement as HTMLElement;
 
-  // Manage mount/unmount lifecycle
+      if (e.shiftKey && current && current === first) {
+        e.preventDefault();
+        last?.focus();
+      } else if (!e.shiftKey && current && current === last) {
+        e.preventDefault();
+        first?.focus();
+      }
+    },
+    [ref]
+  );
+
   useEffect(() => {
+    // cleanup from previous runs
+    if (autofocusTimer.current) {
+      window.clearTimeout(autofocusTimer.current);
+      autofocusTimer.current = null;
+    }
+    cancelledAutofocus.current = false;
+
     if (!active || !ref.current) {
+      trapEnabled.current = false;
       return;
     }
 
-    // Save previously focused element
+    const node = ref.current;
+    trapEnabled.current = true;
     previouslyFocused.current = document.activeElement as HTMLElement;
 
-    // Autofocus first element, but only if nothing inside already has focus
-    if (!ref.current.contains(document.activeElement)) {
-      const firstFocusable = (
-        ref.current.querySelector<HTMLElement>('[autofocus]:not(:disabled)')
-        ?? ref.current.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
-      );
-      firstFocusable?.focus({ preventScroll: true });
+    // If focus is already inside, don't schedule autofocus.
+    if (node.contains(document.activeElement)) {
+      // no autofocus needed
+    } else {
+      // If any focus enters the dialog while we're waiting, cancel the autofocus.
+      const onFocusIn = (e: FocusEvent) => {
+        if (node.contains(e.target as Node)) {
+          cancelledAutofocus.current = true;
+          if (autofocusTimer.current) {
+            window.clearTimeout(autofocusTimer.current);
+            autofocusTimer.current = null;
+          }
+        }
+      };
+
+      document.addEventListener('focusin', onFocusIn, true);
+
+      // Delay longer than the 20ms your Dialog uses, default 50ms.
+      autofocusTimer.current = window.setTimeout(() => {
+        autofocusTimer.current = null;
+        if (cancelledAutofocus.current) {
+          return;
+        }
+
+        // final guard: if still nothing inside has focus, focus first focusable
+        if (!node.contains(document.activeElement)) {
+          const firstFocusable =
+            node.querySelector<HTMLElement>('[autofocus]:not(:disabled)') ??
+            node.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+          firstFocusable?.focus({ preventScroll: true });
+        }
+      }, autofocusDelay);
+
+      // remove focusin listener when effect cleanup runs
+      // (we'll remove it in the effect return)
+      return () => {
+        document.removeEventListener('focusin', onFocusIn, true);
+      };
     }
 
+    // If we didn't return above (i.e. no focusin listener set), continue to set up keydown below.
+    // Set up keydown listener on document
+    const onKeyDown = (e: KeyboardEvent) => handleKeyDown(e);
+    document.addEventListener('keydown', onKeyDown);
+
     return () => {
-      // Restore focus if element is still in DOM
-      if (
-        previouslyFocused.current &&
-        document.body.contains(previouslyFocused.current)
-      ) {
-        previouslyFocused.current.focus();
+      // cleanup in-case we returned earlier (also safe)
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [active, ref, autofocusDelay, handleKeyDown]);
+
+  // global keydown listener must be attached separately too so it's always active while trapEnabled
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => handleKeyDown(e);
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [handleKeyDown]);
+
+  // cleanup on deactivate: restore previous focus, clear timers/listeners
+  useEffect(() => {
+    return () => {
+      trapEnabled.current = false;
+
+      if (autofocusTimer.current) {
+        window.clearTimeout(autofocusTimer.current);
+        autofocusTimer.current = null;
+      }
+
+      const prev = previouslyFocused.current;
+      if (prev && document.body.contains(prev)) {
+        // restore focus
+        prev.focus();
       }
     };
-  }, [ref, active]);
+  }, []);
 };

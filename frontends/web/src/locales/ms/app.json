@@ -370,8 +370,8 @@
   "bootloader": {
     "button": "Naik taraf Firmware sekarang",
     "button_install": "Pasang firmware sekarang",
-    "progress": "Menaiktaraf: {{progress}}%",
-    "progress_install": "Memasang: {{progress}}%",
+    "progress": "Menaiktaraf",
+    "progress_install": "Memasang",
     "success": "Naik taraf berjaya! Sila pasang ulang peranti. Kali ini, jangan sentuh butang."
   },
   "button": {
@@ -758,8 +758,7 @@
   "exchange": {
     "buySell": {
       "coinNotSupported": "Tiada pilihan tersedia untuk jenis syiling ini.",
-      "regionNotSupported": "Tiada pilihan tersedia untuk wilayah ini.",
-      "updateNow": "Kemas kini sekarang"
+      "regionNotSupported": "Tiada pilihan tersedia untuk wilayah ini."
     },
     "pocket": {
       "terms": {
@@ -1453,10 +1452,6 @@
       "caps": "AMARAN: kunci caps (⇪) diaktifkan",
       "paste": "untuk menampal teks, aktifkan \"SHOW {{label}}\""
     }
-  },
-  "random": {
-    "button": "Menjana Nombor Rawak",
-    "description": "BitBox anda telah menjana nombor rawak {{bits}}-bit berikut:"
   },
   "receive": {
     "bitsuranceWarning": "Ini ialah akaun yang diinsuranskan, bermakna ia hanya boleh menerima kepada Native Segwit. Ini supaya anda tidak menerima secara tidak sengaja kepada Wrapped Segwit atau Taproot, yang tidak diinsuranskan.",

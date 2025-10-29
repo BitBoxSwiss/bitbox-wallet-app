@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Add a dropdown on the "Receiver address" input in the send screen to select an account
+
+## v4.49.0
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
 - Added BTC Direct sell option
 - Added a banner to remind user to backup their seed phrase when an account reaches a certain threshold.
@@ -21,11 +24,16 @@
 - More efficient account initialization by fetching all account Bitcoin xpubs at once
 - Enable search transactions by note, address, or txid
 - Move "Export" (export transactions) to account info page
-- Add a dropdown on the "Receiver address" input in the send screen to select an account
+- Show coinfinty logo when requesting an address
+- Update decimal formatting for stablecoin transactions
+- Change block explorer to mempool.space
+- Integrate Bitrefill and add spending section
+
+## v4.48.8
+- Bundle BitBox02 Nova firmware version v9.23.3
 
 ## v4.48.7
 - ios: fix Pocket user verification button
-- Change block explorer to mempool.space
 
 ## v4.48.6
 - Android: restore support for Android 6 and Android 5
@@ -33,7 +41,6 @@
 ## v4.48.5
 - Bundle BitBox02 firmware version v9.23.2
 - iOS: fix wrong timezone when confirming time on BitBox02 (it would always show the time in UTC)
-- Integrate Bitrefill and add spending section
 
 ## v4.48.4
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1

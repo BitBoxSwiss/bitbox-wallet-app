@@ -1,4 +1,5 @@
 .container {
+  align-items: center;
   background-color: var(--background-secondary);
   bottom: 0;
   border-top: 2px solid var(--bottom-navigation-border-color);

@@ -158,7 +158,15 @@ func (coin *Coin) unitFactor(isFee bool) *big.Int {
 func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
 	factor := coin.unitFactor(isFee)
 	s := new(big.Rat).SetFrac(amount.BigInt(), factor).FloatString(18)
-	return strings.TrimRight(strings.TrimRight(s, "0"), ".")
+	s = strings.TrimRight(strings.TrimRight(s, "0"), ".")
+	// For USDC/USDT, display 2 decimals when there's only 1
+	if coin.unit == "USDC" || coin.unit == "USDT" {
+		parts := strings.Split(s, ".")
+		if len(parts) == 2 && len(parts[1]) == 1 {
+			s += "0"
+		}
+	}
+	return s
 }
 
 // ToUnit implements coin.Coin.

@@ -21,7 +21,7 @@ type TProps = {
   optionalText?: string;
   optionalIcon?: JSX.Element;
   children: ReactNode;
-}
+};
 export const SettingsItem = ({ optionalText, optionalIcon, children }: TProps) => {
   return (
     <div className={[style.container, style.item].join(' ')}>

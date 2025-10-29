@@ -22,7 +22,7 @@ import { TMarketAction } from '@/api/market';
 type TProps = {
   onChangeTab: (tab: TMarketAction) => void;
   activeTab: TMarketAction;
-}
+};
 
 
 export const MarketTab = ({

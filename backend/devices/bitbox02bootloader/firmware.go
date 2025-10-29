@@ -34,30 +34,30 @@ var intermediateFirmwareBinaryMulti_9_17_1 []byte
 
 // BitBox02
 
-//go:embed assets/firmware-bitbox02-btconly.v9.23.2.signed.bin.gz
+//go:embed assets/firmware-bitbox02-btconly.v9.24.0.signed.bin.gz
 var firmwareBinaryBTCOnly []byte
-var firmwareVersionBTCOnly = semver.NewSemVer(9, 23, 2)
-var firmwareMonotonicVersionBtcOnly uint32 = 45
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 24, 0)
+var firmwareMonotonicVersionBtcOnly uint32 = 47
 
-//go:embed assets/firmware-bitbox02-multi.v9.23.2.signed.bin.gz
+//go:embed assets/firmware-bitbox02-multi.v9.24.0.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 23, 2)
-var firmwareMonotonicVersionMulti uint32 = 45
+var firmwareVersionMulti = semver.NewSemVer(9, 24, 0)
+var firmwareMonotonicVersionMulti uint32 = 47
 
 // BitBox02 Nova.
 
-//go:embed assets/firmware-bitbox02nova-btconly.v9.23.2.signed.bin.gz
+//go:embed assets/firmware-bitbox02nova-btconly.v9.24.0.signed.bin.gz
 var firmwareBB02PlusBinaryBTCOnly []byte
-var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 23, 2)
-var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 45
+var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 24, 0)
+var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 47
 
 // TODO: set to false / remove before production. This is only to allow upgrading unsigned firmware.
 const plusIsPlaceholder = false
 
-//go:embed assets/firmware-bitbox02nova-multi.v9.23.2.signed.bin.gz
+//go:embed assets/firmware-bitbox02nova-multi.v9.24.0.signed.bin.gz
 var firmwareBB02PlusBinaryMulti []byte
-var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 23, 2)
-var firmwareBB02PlusMonotonicVersionMulti uint32 = 45
+var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 24, 0)
+var firmwareBB02PlusMonotonicVersionMulti uint32 = 47
 
 type firmwareInfo struct {
 	version          *semver.SemVer

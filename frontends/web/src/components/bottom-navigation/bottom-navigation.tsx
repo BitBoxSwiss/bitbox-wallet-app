@@ -16,25 +16,25 @@
 
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
+import type { TAccount } from '@/api/account';
+import type { TDevices } from '@/api/devices';
 import { AccountIconSVG, MarketIconSVG, MoreIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
-import type { Account } from '@/api/aopp';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
 import { RedDot } from '@/components/icon';
-import { TDevices } from '@/api/devices';
 import styles from './bottom-navigation.module.css';
 
 type Props = {
-  activeAccounts: Account[];
-  devices: TDevices
-}
+  activeAccounts: TAccount[];
+  devices: TDevices;
+};
 
 export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const deviceID = Object.keys(devices)[0];
   const isBitBox02 = deviceID && devices[deviceID] === 'bitbox02';
-  const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID]);
+  const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID, isBitBox02]);
   const canUpgrade = versionInfo ? versionInfo.canUpgrade : false;
 
   const onlyHasOneAccount = activeAccounts.length === 1;

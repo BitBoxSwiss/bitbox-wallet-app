@@ -18,7 +18,7 @@ import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
-import { AccountCode, IAccount, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
+import { AccountCode, TAccount, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { useDarkmode } from '@/hooks/darkmode';
 import { getConfig } from '@/utils/config';
@@ -45,7 +45,7 @@ const coinMapping: Readonly<Record<string, string>> = {
 };
 
 type TProps = {
-  accounts: IAccount[];
+  accounts: TAccount[];
   code: AccountCode;
   region: string;
 };

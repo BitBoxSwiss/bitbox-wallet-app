@@ -32,7 +32,7 @@ type Props<T, IsMulti extends boolean = false> = {
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
   triggerComponent?: ReactNode | ((props: { onClick: () => void }) => ReactNode);
-}
+};
 
 export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
   title,

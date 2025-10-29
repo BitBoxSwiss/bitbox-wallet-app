@@ -1,0 +1,53 @@
+.innerRadioButtonsContainer {
+    min-height: 110px;
+}
+
+.noExchangeText {
+    color: var(--color-gray-alt);
+    line-height: 22px;
+    margin: 0;
+    text-align: center;
+    margin-top: calc((var(--space-eight) + var(--space-half)));
+}
+
+.exchangeProvidersContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.actionableItemContainer {
+    position: relative;
+}
+
+.infoContainer {
+    margin-top: var(--space-default);
+    position: relative;
+}
+
+.link {
+  color: var(--color-default);
+}
+
+.textIcon {
+    height: 1em;
+    margin-right: 0.5em;
+    vertical-align: text-bottom;
+}
+
+.buttonsContainer {
+    display: flex;
+    margin-top: var(--space-default);
+    justify-content: center;
+}
+
+.buttonBack {
+    margin-right: auto;
+    margin-bottom: var(--space-default);
+}
+
+@media screen and (max-width: 400px) {
+    .buttonBack {
+        width: 100%;
+    }
+}

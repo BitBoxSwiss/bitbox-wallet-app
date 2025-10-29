@@ -24,7 +24,7 @@ import { i18n } from '@/i18n/i18n';
 
 type TProps = {
   onAgreedTerms: () => void;
-}
+};
 
 export const BitsuranceTerms = ({ onAgreedTerms }: TProps) => {
   const { t } = useTranslation();

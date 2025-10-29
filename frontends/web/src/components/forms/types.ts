@@ -25,5 +25,5 @@ export type TBaseInputProps = {
   transparent?: boolean;
   labelSection?: JSX.Element | undefined;
   label?: string;
-} & Omit<HTMLProps<HTMLInputElement>, 'onInput'>
+} & Omit<HTMLProps<HTMLInputElement>, 'onInput'>;
 

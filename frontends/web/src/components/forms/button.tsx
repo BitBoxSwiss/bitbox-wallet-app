@@ -23,19 +23,19 @@ type TButtonStyleProp =
   ({ danger: true } & Omit<TButtonStyleBase, 'danger'>)
   | ({ primary: true } & Omit<TButtonStyleBase, 'primary'>)
   | ({ secondary: true } & Omit<TButtonStyleBase, 'secondary'>)
-  | ({ transparent: true } & Omit<TButtonStyleBase, 'transparent'>)
+  | ({ transparent: true } & Omit<TButtonStyleBase, 'transparent'>);
 
 type TButtonStyleBase = {
   danger?: false;
   primary?: false;
   secondary?: false;
   transparent?: false;
-}
+};
 
 type TProps = TButtonStyleProp & {
   disabled?: boolean;
   children: ReactNode;
-}
+};
 
 type TButtonLink = LinkProps & TProps;
 

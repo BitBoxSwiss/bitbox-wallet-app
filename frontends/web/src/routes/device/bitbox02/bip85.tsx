@@ -34,7 +34,7 @@ type Status = 'info-what' | 'info-how' | 'info-recover' | 'info-security' | 'pro
 
 type TProps = {
   deviceID: string;
-}
+};
 
 export const Bip85 = ({
   deviceID,

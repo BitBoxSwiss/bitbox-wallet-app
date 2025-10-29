@@ -22,14 +22,14 @@ type TPillTabProps = {
   children: ReactNode;
   className?: string;
   size?: 'medium' | 'large';
-}
+};
 
 type TPillTabButtonProps = {
-    active: boolean;
-    children: ReactNode;
-    disabled?: boolean;
-    onClick: () => void;
-}
+  active: boolean;
+  children: ReactNode;
+  disabled?: boolean;
+  onClick: () => void;
+};
 
 export const PillButtonGroup = ({
   className = '',

@@ -24,7 +24,7 @@ type TProps = {
 
 type TCreateProps = TProps & {
   backupType: 'sdcard' | 'mnemonic';
-}
+};
 
 export const CreateWalletSuccess = ({
   backupType,

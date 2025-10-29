@@ -22,7 +22,7 @@ type TUseQRScannerOptions = {
   onStart?: () => void;
   onResult: (result: QrScanner.ScanResult) => void;
   onError: (error: any) => void;
-}
+};
 
 export const useQRScanner = (
   videoRef: RefObject<HTMLVideoElement>, {

@@ -19,7 +19,7 @@ import style from './main.module.css';
 
 type TMainProps = {
   children: ReactNode;
-}
+};
 
 export const Main = ({ children }: TMainProps) => {
   return (
