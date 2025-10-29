@@ -15,24 +15,24 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useMediaQuery } from '@/hooks/mediaquery';
 import { View, ViewButtons } from '@/components/view/view';
 import { Button } from '@/components/forms';
 import { ScanQRVideo } from '@/routes/account/send/components/inputs/scan-qr-video';
 
 type TProps = {
+  isMobile: boolean;
   toggleScanQR: () => void;
   onChangeActiveScanQR: (active: boolean) => void;
   parseQRResult: (result: string) => void;
 }
 
 export const ScanQRDialog = ({
+  isMobile,
   parseQRResult,
   toggleScanQR,
   onChangeActiveScanQR,
 }: TProps) => {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
 
   return (
     <View

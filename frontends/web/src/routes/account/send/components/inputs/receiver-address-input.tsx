@@ -78,6 +78,7 @@ export const ReceiverAddressInput = ({
     <>
       {activeScanQR && (
         <ScanQRDialog
+          isMobile={isMobile}
           toggleScanQR={toggleScanQR}
           onChangeActiveScanQR={setActiveScanQR}
           parseQRResult={parseQRResult}
