@@ -6,6 +6,7 @@
 }
 
 .balanceSingleValue {
+    margin-left: var(--space-quarter);
     margin-right: var(--space-quarter);
 }
 
@@ -26,12 +27,13 @@
 }
 
 .select {
+    font-size: min(var(--size-default), 24px);
     margin-bottom: var(--space-half);
 }
 
 .select :global(.react-select__group-heading) {
     color: var(--color-default);
-    font-size: var(--size-default);
+    font-size: min(var(--size-default), 24px);
     margin: 0;
     padding-right: var(--space-quarter);
     text-transform: unset;
@@ -72,6 +74,7 @@
 
 .select :global(.react-select__control) {
     background-color: var(--background-secondary);
+    min-height: var(--input-height);
     padding: var(--space-quarter) var(--space-eight);
 }
 

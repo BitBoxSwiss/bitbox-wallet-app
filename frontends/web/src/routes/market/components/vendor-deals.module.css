@@ -59,7 +59,7 @@
 
 
 .radio {
-    --size-default: 14px;
+    --size-default: 1.4rem;
     background-color: var(--background-secondary);
     border: 1px solid var(--background-quaternary);
     display: block;

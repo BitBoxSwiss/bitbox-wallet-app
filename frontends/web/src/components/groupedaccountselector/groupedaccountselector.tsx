@@ -62,7 +62,11 @@ const SelectSingleValue = (props: SingleValueProps<TOption>) => {
           {coinCode ? <Logo coinCode={coinCode} alt={coinCode} /> : null}
           <span className={styles.selectLabelText}>{label}</span>
           {insured && <InsuredShield/>}
-          {coinCode && balance && <span className={styles.balanceSingleValue}>{hideAmounts ? `*** ${coinCode}` : balance}</span>}
+          {coinCode && balance && (
+            <span className={styles.balanceSingleValue}>
+              {hideAmounts ? `*** ${coinCode}` : balance}
+            </span>
+          )}
         </div>
       </components.SingleValue>
     </div>

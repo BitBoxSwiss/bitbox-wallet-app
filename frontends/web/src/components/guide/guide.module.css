@@ -12,15 +12,16 @@
 
 .close {
     display: flex;
-    height: 24px;
+    height: 2.4rem;
+    min-height: 0;
     padding: 4px;
-    width: 24px;
+    width: 2.4rem;
 }
 
 .close img {
-    height: 20px;
+    height: 2rem;
     margin-left: calc(var(--space-quarter) / 2);
-    width: 20px;
+    width: 2rem;
 }
 
 .wrapper {
@@ -63,7 +64,7 @@
 
 .header a {
     cursor: pointer;
-    font-size: 20px;
+    font-size: 2rem;
 }
 
 .content {
@@ -80,10 +81,9 @@
 }
 
 .content h2 {
-    font-size: 1.1em;
+    font-size: var(--size-subheader);
     font-weight: 400;
-    line-height: 1.2em;
-    margin: 0px;
+    margin: 0;
 }
 
 .guide p {
@@ -115,11 +115,12 @@
 .entryTitle .entryToggle {
     align-items: center;
     display: flex;
-    flex-direction: row;
+    font-size: var(--size-subheader);
     font-weight: bold;
+    flex-direction: row;
     justify-content: flex-start;
-    line-height: 1.2em;
-    width: 16px;
+    line-height: 1.2;
+    width: 1.6rem;
 }
 
 .entryTitle .entryTitleText {
@@ -131,7 +132,7 @@
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    padding-left: 16px;
+    padding-left: 1.2rem;
 }
 
 .expanded {
@@ -198,6 +199,6 @@
 
 @media screen and (max-width: 640px) {
     .guide h2 {
-        font-size: 1.05em;
+        font-size: var(--size-default);
     }
 }

@@ -4,7 +4,7 @@
 
 .settingName {
     color: var(--color-swissred);
-    font-size: 16px;
+    font-size: 1.6rem;
     margin: 0;
     margin-left: var(--space-quarter);
 }
