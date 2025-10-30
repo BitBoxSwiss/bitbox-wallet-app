@@ -9,12 +9,11 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    min-height: var(--item-height);
     padding: var(--space-half);
 }
 
 .detailInput {
-    padding: 0 0 0 var(--space-half);
+    padding: 0;
 }
 
 .detailInput label {
@@ -24,10 +23,13 @@
 
 .textOnlyInput {
     margin: 0;
+    height: 20px;
 }
 
 .textOnlyInput input {
     border: none;
+    height: 20px;
+    padding: 0;
 }
 
 .editButton {

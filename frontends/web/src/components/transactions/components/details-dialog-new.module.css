@@ -1,0 +1,146 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-quarter) var(--space-half);
+    padding-bottom: 24px;
+    gap: var(--space-half);
+}
+
+.container p {
+    margin: 0;
+}
+
+.row {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.copyableInputContainer {
+    display: flex;
+    gap: 8px;
+}
+
+.copyBtn {
+    position: static;
+    margin: 0;
+}
+
+.label {
+    color: var(--color-default);
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.value {
+    color: var(--color-default);
+    font-size: 14px;
+    font-weight: 400;
+    margin: 0;
+    margin-right: calc(var(--space-half) * -1);
+}
+
+.unit {
+    font-weight: 400;
+    color: var(--color-secondary);
+    font-variant: normal;
+    position: relative;
+    cursor: default;
+  }
+  
+  .detailAddress {
+    padding: 0;
+    margin: 0;
+    height: 20px;
+  }
+
+  .separator {
+    border: none;
+    height: 1.5px;
+    margin: var(--space-half) 0;
+    background-color: var(--color-disabled);  
+  }
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.amount {
+    font-size: 24px;
+    margin: var(--space-quarter) 0;
+    font-weight: 600;
+}
+
+.amountFiat {
+    font-size: 18px;
+    gap: var(--space-quarter);
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--space-quarter);
+}
+
+.date {
+    color: var(--color-secondary);
+}
+
+
+.status {
+    display: flex;
+    align-items: center;
+}
+
+.statusContainer {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: calc(var(--space-half) + var(--space-quarter));
+}
+
+.transferDirection {
+    display: flex;
+    align-items: center;
+    gap: var(--space-quarter);
+}
+
+.explorerLinkContainer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-quarter);
+    font-weight: 500;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.explorerLink {
+    text-decoration: none;
+}
+
+
+
+.advanced {
+    margin-top: var(--space-quarter);
+}
+
+.advancedContent {
+    gap: var(--space-half);
+    display: flex;
+    flex-direction: column;
+
+}
+
+.withTooltip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-quarter);
+}
+
+.infoIcon {
+    margin-top: 4px;
+}
