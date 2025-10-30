@@ -29,23 +29,23 @@ import Check from './check';
 import Create from './create';
 import { Restore } from './restore';
 
-interface BackupsProps {
-    deviceID: string;
-    showCreate?: boolean;
-    showRestore?: boolean;
-    requireConfirmation?: boolean;
-    onRestore?: () => void;
-    children: ReactNode;
-}
+type BackupsProps = {
+  deviceID: string;
+  showCreate?: boolean;
+  showRestore?: boolean;
+  requireConfirmation?: boolean;
+  onRestore?: () => void;
+  children: ReactNode;
+};
 
 type Props = BackupsProps & TranslateProps;
 
-interface State {
-    backupList: Backup[];
-    selectedBackup?: string;
-    sdCardInserted: boolean | null;
-    lock?: boolean;
-}
+type State = {
+  backupList: Backup[];
+  selectedBackup?: string;
+  sdCardInserted: boolean | null;
+  lock?: boolean;
+};
 
 class Backups extends Component<Props, State> {
   private scrollableContainer = createRef<HTMLDivElement>();

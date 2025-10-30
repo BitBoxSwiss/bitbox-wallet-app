@@ -18,17 +18,13 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 )
 
 const updateFileURL = "https://bitboxapp.shiftcrypto.io/desktop.json"
-
-var (
-	// Version of the backend as displayed to the user.
-	Version = semver.NewSemVer(4, 48, 7)
-)
 
 // UpdateFile is retrieved from the server.
 type UpdateFile struct {
@@ -66,11 +62,11 @@ func (backend *Backend) checkForUpdate() (*UpdateFile, error) {
 		return nil, errp.WithStack(err)
 	}
 
-	if Version.AtLeast(updateFile.NewVersion) {
+	if versioninfo.Version.AtLeast(updateFile.NewVersion) {
 		return nil, nil
 	}
 
-	updateFile.CurrentVersion = Version
+	updateFile.CurrentVersion = versioninfo.Version
 	return &updateFile, nil
 }
 

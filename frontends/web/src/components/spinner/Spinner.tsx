@@ -23,7 +23,7 @@ import style from './Spinner.module.css';
 
 type TProps = {
   text?: string;
-}
+};
 
 export const Spinner = ({ text }: TProps) => {
   const { toggleSidebar } = useContext(AppContext);

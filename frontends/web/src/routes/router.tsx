@@ -16,7 +16,7 @@
 
 import React, { ReactChild } from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
-import { IAccount } from '@/api/account';
+import { TAccount } from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { AddAccount } from './account/add/add';
 import { Moonpay } from './market/moonpay';
@@ -54,15 +54,15 @@ import { AllAccounts } from '@/routes/accounts/all-accounts';
 import { More } from '@/routes/settings/more';
 
 type TAppRouterProps = {
-    devices: TDevices;
-    accounts: IAccount[];
-    activeAccounts: IAccount[];
-    devicesKey: ((input: string) => string)
-}
+  devices: TDevices;
+  accounts: TAccount[];
+  activeAccounts: TAccount[];
+  devicesKey: ((input: string) => string);
+};
 
 type TInjectParamsProps = {
   children: ReactChild;
-}
+};
 
 const InjectParams = ({ children }: TInjectParamsProps) => {
   const params = useParams();

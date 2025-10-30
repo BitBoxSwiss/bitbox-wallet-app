@@ -76,7 +76,7 @@ export const SwissMadeOpenSourceDark = ({ className, ...props }: ImgProps) => <i
 
 type LogoMap = {
   [key in CoinCode]: string[];
-}
+};
 
 const logoMap: LogoMap = {
   'btc': [BTC, BTC_GREY],
@@ -105,7 +105,7 @@ type LogoProps = {
   className?: string;
   coinCode: CoinCode;
   stacked?: boolean;
-}
+};
 
 export const Logo = ({
   coinCode,

@@ -17,7 +17,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Select, { components, SingleValueProps, OptionProps, SingleValue, DropdownIndicatorProps, GroupProps, GroupHeadingProps as ReactSelectGroupHeadingProps } from 'react-select';
-import { AccountCode, IAccount } from '@/api/account';
+import { AccountCode, TAccount } from '@/api/account';
 import { Button } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
 import { AppContext } from '@/contexts/AppContext';
@@ -32,16 +32,16 @@ export type TGroupedOption = {
   label: string;
   connected: boolean;
   options: TOption[];
-}
+};
 
 export type TOption = {
   label: string;
   value: AccountCode;
   disabled: boolean;
-  coinCode?: IAccount['coinCode'];
+  coinCode?: TAccount['coinCode'];
   balance?: string;
   insured?: boolean;
-}
+};
 
 type TAccountSelector = {
   title: string;
@@ -49,8 +49,8 @@ type TAccountSelector = {
   selected?: string;
   onChange: (value: string) => void;
   onProceed: () => void;
-  accounts: IAccount[]
-}
+  accounts: TAccount[];
+};
 
 const SelectSingleValue = (props: SingleValueProps<TOption>) => {
   const { hideAmounts } = useContext(AppContext);
@@ -100,8 +100,8 @@ const Group = (props: GroupProps<TOption>) => (
 );
 
 type GroupHeadingProps = {
-  customData: TGroupedOption
-} & ReactSelectGroupHeadingProps<TOption>
+  customData: TGroupedOption;
+} & ReactSelectGroupHeadingProps<TOption>;
 
 const GroupHeading = (
   { customData, ...props }: GroupHeadingProps

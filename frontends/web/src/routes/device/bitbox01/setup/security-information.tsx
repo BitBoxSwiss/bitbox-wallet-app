@@ -29,13 +29,13 @@ type SecurityInformationProps = {
   goBack: () => void;
   goal: string | null;
   children: ReactNode;
-}
+};
 
 type Props = SecurityInformationProps & TranslateProps;
 
 type State = {
   showInfo: boolean;
-}
+};
 
 class SecurityInformation extends Component<Props, State> {
   constructor(props: Props) {

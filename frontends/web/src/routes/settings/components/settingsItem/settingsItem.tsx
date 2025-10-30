@@ -31,7 +31,7 @@ type TProps = {
   settingName: string | ReactNode;
   title?: string;
   canUpgrade?: boolean;
-}
+};
 
 export const SettingsItem = ({
   className = '',
@@ -119,7 +119,7 @@ export const SettingsItem = ({
 type TSettingsValueProps = {
   children: ReactNode;
   wrap?: boolean;
-}
+};
 
 export const SettingsValue = ({
   children,

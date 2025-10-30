@@ -28,6 +28,8 @@ type testSuite struct {
 	suite.Suite
 	coin      *Coin
 	ERC20Coin *Coin
+	USDTCoin  *Coin
+	USDCCoin  *Coin
 }
 
 func (s *testSuite) SetupTest() {
@@ -53,6 +55,30 @@ func (s *testSuite) SetupTest() {
 		"",
 		nil,
 		erc20.NewToken("0x0000000000000000000000000000000000000001", 12),
+	)
+
+	s.USDTCoin = NewCoin(
+		nil,
+		"eth-erc20-usdt",
+		"Tether USD",
+		"USDT",
+		"ETH",
+		params.MainnetChainConfig,
+		"",
+		nil,
+		erc20.NewToken("0xdac17f958d2ee523a2206206994597c13d831ec7", 6),
+	)
+
+	s.USDCCoin = NewCoin(
+		nil,
+		"eth-erc20-usdc",
+		"USD Coin",
+		"USDC",
+		"ETH",
+		params.MainnetChainConfig,
+		"",
+		nil,
+		erc20.NewToken("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", 6),
 	)
 }
 
@@ -92,6 +118,29 @@ func (s *testSuite) TestFormatAmount() {
 		"0.123456789012345678",
 		s.ERC20Coin.FormatAmount(coin.NewAmountFromInt64(123456789012345678), true),
 	)
+
+	stablecoinTests := []struct {
+		amount   int64
+		expected string
+	}{
+		{1100000, "1.10"},
+		{1000000, "1"},
+		{1120000, "1.12"},
+		{1123000, "1.123"},
+		{100000, "0.10"},
+		{1000000000, "1000"},
+	}
+
+	for _, test := range stablecoinTests {
+		s.Require().Equal(
+			test.expected,
+			s.USDTCoin.FormatAmount(coin.NewAmountFromInt64(test.amount), false),
+		)
+		s.Require().Equal(
+			test.expected,
+			s.USDCCoin.FormatAmount(coin.NewAmountFromInt64(test.amount), false),
+		)
+	}
 }
 
 func (s *testSuite) TestSetAmount() {

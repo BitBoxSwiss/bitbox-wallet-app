@@ -22,8 +22,8 @@ export const test = baseTest.extend<{
   frontendPort: number;
   servewalletPort: number;
 }>({
-  host: [process.env.HOST || 'localhost', { scope: 'worker' }],
-  frontendPort: [parseInt(process.env.FRONTEND_PORT || '8080', 10), { scope: 'worker' }],
-  servewalletPort: [parseInt(process.env.SERVE_WALLET_PORT || '8082', 10), { scope: 'worker' }],
+  host: process.env.HOST || 'localhost',
+  frontendPort: parseInt(process.env.FRONTEND_PORT || '8080', 10),
+  servewalletPort: parseInt(process.env.SERVE_WALLET_PORT || '8082', 10),
 });
 

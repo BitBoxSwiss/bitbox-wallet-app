@@ -24,7 +24,7 @@ type TProps = {
   deviceID: string;
   devices: TDevices;
   hasAccounts: boolean;
-}
+};
 
 export const BitBox02 = ({ deviceID, devices, hasAccounts }: TProps) => {
   const status = useSync(

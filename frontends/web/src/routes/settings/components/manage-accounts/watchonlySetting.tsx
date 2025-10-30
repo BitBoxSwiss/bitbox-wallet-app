@@ -28,7 +28,7 @@ import style from './watchonlySettings.module.css';
 
 type Props = {
   keystore: accountAPI.TKeystore;
-}
+};
 
 export const WatchonlySetting = ({ keystore }: Props) => {
   const { t } = useTranslation();

@@ -16,7 +16,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ITransaction, TAmountWithConversions, getTransaction, TTransactionStatus, TTransactionType } from '@/api/account';
+import { TTransaction, TAmountWithConversions, getTransaction, TTransactionStatus, TTransactionType } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
 import { Dialog } from '@/components/dialog/dialog';
 import { Note } from './note';
@@ -42,7 +42,7 @@ type TProps = {
   time: string | null;
   amount: TAmountWithConversions;
   explorerURL: string;
-}
+};
 
 export const TxDetailsDialog = ({
   open,
@@ -60,7 +60,7 @@ export const TxDetailsDialog = ({
 }: TProps) => {
   const { t } = useTranslation();
 
-  const [transactionInfo, setTransactionInfo] = useState<ITransaction | null>(null);
+  const [transactionInfo, setTransactionInfo] = useState<TTransaction | null>(null);
 
   useEffect(() => {
     if (!transactionInfo && open) {

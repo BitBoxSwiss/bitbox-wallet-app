@@ -21,7 +21,7 @@ type TGridProps = {
   children: ReactNode;
   col?: '1' | '2';
   textAlign?: 'center' | 'left';
-}
+};
 
 export const Grid = ({
   children,
@@ -45,7 +45,7 @@ type TColumnProps = {
   className?: string;
   children: ReactNode;
   textCenter?: boolean;
-}
+};
 
 export const Column = ({
   asCard,
@@ -70,7 +70,7 @@ type TColumnButtonsProps = {
   children: ReactNode;
   className?: string;
   inline?: boolean;
-}
+};
 
 export const ColumnButtons = ({
   children,

@@ -18,24 +18,6 @@
     width: 100%;
 }
 
-.message .title {
-    margin: 0 0 var(--spacing-half) 0;
-}
-
-@media (max-width: 768px) {
-    .message {
-      --size-default: 14px
-    }
-    .message .title {
-        --size-subheader: 18px;
-    }
-}
-
-.message.small {
-    flex-shrink: 1;
-    font-size: var(--size-default);
-}
-
 .message img {
     margin-right: 4px;
     max-width: 30px;

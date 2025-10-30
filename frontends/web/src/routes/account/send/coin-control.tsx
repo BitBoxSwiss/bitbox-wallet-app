@@ -16,17 +16,17 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { IAccount } from '@/api/account';
+import type { TAccount } from '@/api/account';
 import { getConfig } from '@/utils/config';
 import { Button } from '@/components/forms';
 import { TSelectedUTXOs, UTXOs } from './utxos';
 import { isBitcoinBased } from '../utils';
 
 type TProps = {
-  account: IAccount;
+  account: TAccount;
   onSelectedUTXOsChange: (selectedUTXOs: TSelectedUTXOs) => void;
   onCoinControlDialogActiveChange?: (active: boolean) => void;
-}
+};
 
 export const CoinControl = ({
   account,

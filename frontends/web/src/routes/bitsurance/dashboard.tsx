@@ -17,7 +17,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AccountCode, IAccount, getBalance } from '@/api/account';
+import { AccountCode, TAccount, getBalance } from '@/api/account';
 import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '@/api/bitsurance';
 import { useMountedRef } from '@/hooks/mount';
 import { TAccountsByKeystore, getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
@@ -36,16 +36,16 @@ import { BitsuranceGuide } from './guide';
 import style from './dashboard.module.css';
 
 type TProps = {
-    accounts: IAccount[];
-}
+  accounts: TAccount[];
+};
 
 type TAccountStatusIconProps = {
   status: TDetailStatus;
-}
+};
 
 type TInsurancesByCode = {
   [accountCode: AccountCode]: TAccountDetails;
-}
+};
 
 const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
   switch (status) {

@@ -32,7 +32,7 @@ import { WCSuccessPairing } from './components/success-pairing/success-pairing';
 
 type TProps = {
   code: accountApi.AccountCode;
-  accounts: accountApi.IAccount[]
+  accounts: accountApi.TAccount[];
 };
 
 export const ConnectScreenWalletConnect = ({

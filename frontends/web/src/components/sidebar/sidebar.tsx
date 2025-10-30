@@ -20,7 +20,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useKeystores } from '@/hooks/backend';
 import type { TDevices } from '@/api/devices';
-import type { IAccount } from '@/api/account';
+import type { TAccount } from '@/api/account';
 import { deregisterTest } from '@/api/keystores';
 import { getVersion } from '@/api/bitbox02';
 import { debug } from '@/utils/env';
@@ -35,10 +35,10 @@ import style from './sidebar.module.css';
 
 type SidebarProps = {
   devices: TDevices;
-  accounts: IAccount[];
+  accounts: TAccount[];
 };
 
-type TGetAccountLinkProps = IAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) };
+type TGetAccountLinkProps = TAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) };
 
 const GetAccountLink = ({
   coinCode,

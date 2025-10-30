@@ -23,7 +23,7 @@ import { getBTCDirectPrivacyLink } from '@/components/terms/btcdirect-otc-terms'
 type BuyGuideProps = {
   vendor?: TVendorName;
   translationContext: 'bitcoin' | 'crypto';
-}
+};
 
 const usePrivacyLink = (vendor?: TVendorName) => {
   const { t } = useTranslation();

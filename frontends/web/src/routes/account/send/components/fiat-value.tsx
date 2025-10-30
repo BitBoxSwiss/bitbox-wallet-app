@@ -22,7 +22,7 @@ type TFiatValueProps = {
   amount: string;
   baseCurrencyUnit: ConversionUnit;
   className?: string;
-}
+};
 
 export const FiatValue = ({
   amount,

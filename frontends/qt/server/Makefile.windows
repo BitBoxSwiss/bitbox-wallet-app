@@ -1,5 +1,6 @@
 include ../../../hardening.mk.inc
 include ../../../env.mk.inc
+include ../../../version.mk.inc
 CGO=1
 BUILDMODE=c-shared
 GOARCH=amd64
@@ -10,8 +11,9 @@ windows:
 	CGO_CFLAGS="${GOWINSECFLAGS} ${CFLAGS}" \
 	CGO_LDFLAGS="${GOWINLDFLAGS} ${LFLAGS}" \
 	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} \
-       	go build -trimpath -x -mod=vendor \
-        -buildmode="${BUILDMODE}" -o ${LIBNAME}.dll
+	go build -trimpath -x -mod=vendor \
+	-ldflags "$(GO_VERSION_LDFLAGS)" \
+	-buildmode="${BUILDMODE}" -o ${LIBNAME}.dll
 
 windows-cross:
 	CC=/usr/bin/x86_64-w64-mingw32-gcc \
@@ -19,11 +21,12 @@ windows-cross:
 	CGO_CFLAGS="-g ${GOWINSECFLAGS} ${CFLAGS}" \
 	CGO_LDFLAGS="${GOWINLDFLAGS} ${LFLAGS}" \
 	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} \
-       	go build -trimpath -x -mod=vendor \
-        -buildmode="${BUILDMODE}" -o ${LIBNAME}.dll
+	go build -trimpath -x -mod=vendor \
+	-ldflags "$(GO_VERSION_LDFLAGS)" \
+	-buildmode="${BUILDMODE}" -o ${LIBNAME}.dll
 
 windows-legacy:
-	CGO_ENABLED=1 go build -mod=vendor -ldflags="-s -w" -buildmode=c-archive \
+	CGO_ENABLED=1 go build -mod=vendor -ldflags="-s -w $(GO_VERSION_LDFLAGS)" -buildmode=c-archive \
 		-o libserver.a
 	gcc server.def libserver.a -shared -lwinmm -lhid -lsetupapi -lWs2_32 \
 		-o libserver.dll -Wl,--out-implib,libserver.lib

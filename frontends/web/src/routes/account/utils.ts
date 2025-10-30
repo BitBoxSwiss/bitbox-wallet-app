@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-import type { AccountCode, CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '@/api/account';
+import type { AccountCode, CoinCode, ScriptType, TAccount, CoinUnit, TKeystore } from '@/api/account';
 
 export const findAccount = (
-  accounts: IAccount[],
+  accounts: TAccount[],
   accountCode: AccountCode
-): IAccount | undefined => {
+): TAccount | undefined => {
   return accounts.find(({ code }) => accountCode === code);
 };
 
@@ -104,11 +104,11 @@ export const customFeeUnit = (coinCode: CoinCode): string => {
 
 export type TAccountsByKeystore = {
   keystore: TKeystore;
-  accounts: IAccount[];
+  accounts: TAccount[];
 };
 
 // Returns the accounts grouped by the keystore fingerprint.
-export const getAccountsByKeystore = (accounts: IAccount[]): TAccountsByKeystore[] => {
+export const getAccountsByKeystore = (accounts: TAccount[]): TAccountsByKeystore[] => {
   return Object.values(accounts.reduce((acc, account) => {
     const key = account.keystore.rootFingerprint;
     if (!acc[key]) {
@@ -125,8 +125,8 @@ export const getAccountsByKeystore = (accounts: IAccount[]): TAccountsByKeystore
 type TKeystoreName = {
   keystore: {
     name: string;
-  }
-}
+  };
+};
 
 // Returns true if more than one keystore has the given name.
 export const isAmbiguousName = (
@@ -137,10 +137,10 @@ export const isAmbiguousName = (
 };
 
 export type TAccountCoinMap = {
-  [code in CoinCode]?: IAccount[];
+  [code in CoinCode]?: TAccount[];
 };
 
-export const getAccountsPerCoin = (accounts: IAccount[]): TAccountCoinMap => {
+export const getAccountsPerCoin = (accounts: TAccount[]): TAccountCoinMap => {
   return accounts.reduce<Partial<TAccountCoinMap>>((accountPerCoin, account) => {
     accountPerCoin[account.coinCode]
       ? accountPerCoin[account.coinCode]!.push(account)

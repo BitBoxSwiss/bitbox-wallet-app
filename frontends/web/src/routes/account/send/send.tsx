@@ -46,14 +46,14 @@ import { connectKeystore } from '@/api/keystores';
 import style from './send.module.css';
 
 type TProps = {
-  account: accountApi.IAccount;
-  activeAccounts?: accountApi.IAccount[];
+  account: accountApi.TAccount;
+  activeAccounts?: accountApi.TAccount[];
   activeCurrency: accountApi.Fiat;
-}
+};
 
 const useAccountBalance = (accountCode: accountApi.AccountCode) => {
   const mounted = useMountedRef();
-  const [balance, setBalance] = useState<accountApi.IBalance>();
+  const [balance, setBalance] = useState<accountApi.TBalance>();
 
   const updateBalance = useCallback(async (code: accountApi.AccountCode) => {
     if (mounted.current) {
@@ -87,7 +87,7 @@ export const Send = ({
   // state used for the "Receiver address" input - what the user types or the account's address that is selected
   const [recipientInput, setRecipientInput] = useState<string>('');
   // the selected account when sending to another account (for confirmation display with account name and number)
-  const [selectedReceiverAccount, setSelectedReceiverAccount] = useState<accountApi.IAccount | null>(null);
+  const [selectedReceiverAccount, setSelectedReceiverAccount] = useState<accountApi.TAccount | null>(null);
   const [amount, setAmount] = useState<string>('');
   const [fiatAmount, setFiatAmount] = useState<string>('');
   const [valid, setValid] = useState<boolean>(false);

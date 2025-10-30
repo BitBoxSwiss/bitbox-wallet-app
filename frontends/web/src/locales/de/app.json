@@ -1,7 +1,11 @@
 {
   "account": {
+    "account": "Konto",
+    "accounts": "Konten",
+    "backupReminder": "Deine Wallet <strong>{{name}}</strong> hat {{threshold}} {{fiat}} überschritten!\n\nWir empfehlen ein Backup auf Papier zu erstellen, für zusätzlichen Schutz. Es ist einfach und geht schnell.",
+    "backupReminderLink": "Backup erstellen",
     "disconnect": "Verbindung unterbrochen. Erneut verbinden... ",
-    "export": "Export",
+    "export": "Exportieren",
     "exportTransactions": "Exportiere Transaktionen im Download Ordner als CSV Datei",
     "fatalError": "Ein unerwarteter Fehler ist aufgetreten.",
     "incoming": "Eingehend",
@@ -95,6 +99,8 @@
   },
   "auth": {
     "authButton": "Authentifizieren",
+    "dismissButton": "Abbrechen",
+    "missing": "Bitte konfiguriere eine Displaysperre in den Systemeinstellungen deines Geräts.",
     "title": "Bitte authentifiziere dich, um fortzufahren"
   },
   "backup": {
@@ -129,6 +135,7 @@
     "description": "Wähle eine  <strong>Wallet Backup</strong> Datei aus.",
     "insert": "Bitte stecke die Micro-SD-Karte ein um deine Backups zu verwalten.",
     "insertButton": "Ich habe die Mikro-SD-Karte eingesteckt.",
+    "link": "Gehe zu Backups verwalten",
     "list": "Deine Backups auf der microSD Karte",
     "noBackups": "Es befinden sich keine Backups auf der microSD Karte.",
     "restore": {
@@ -151,9 +158,9 @@
     },
     "showMnemonic": {
       "checkboxLabel": "Ich habe die Informationen oben gelesen",
-      "description": "Dir werden Recovery-Words angezeigt, die ein Backup deiner Wallet sind. Schreibe diese auf ein Stück Papier. \n\n<strong>Bewahre diese Wörter nicht digital auf und mache kein Foto von ihnen.</strong>\n\n<strong>Sprich die Wörter nicht laut aus.</strong>\n\n<strong>Dieses Backup ist nicht Passwort geschützt.</strong>\n\nNachdem du die Wörter aufgeschrieben hast wirst du gefragt werden sie nochmals zu bestätigen.\n",
-      "title": "Recovery-Wörter anzeigen",
-      "warning": "<strong>Teile deine Wiederherstellungswörter niemals mit irgendjemandem.</strong> Deine Wiederherstellungswörter ermöglichen vollen Zugriff zu deinem Wallet . Wenn dich jemand nach deinen Wiederherstellungswörtern fragt, handelt es sich um einen Betrüger. Gebe diese nicht weiter!"
+      "description": "Die BitBox wird Wiederherstellungswörter (\"recovery words\") anzeigen, die ein Backup deiner Wallet darstellen. Schreibe diese auf ein Stück Papier. \n\n<strong>Bewahre die Wörter nicht digital auf und mache kein Foto von ihnen.</strong>\n\n<strong>Sprich die Wörter nicht laut aus.</strong>\n\n<strong>Dieses Backup ist nicht passwortgeschützt.</strong>\n\nNachdem du die Wörter aufgeschrieben hast, wirst du aufgefordert, sie nochmals zu bestätigen.\n",
+      "title": "Wiederherstellungswörter anzeigen",
+      "warning": "<strong>Teile deine Wiederherstellungswörter niemals mit irgendjemandem.</strong> Die Wiederherstellungswörter ermöglichen vollen Zugriff zu deiner Wallet. Wenn dich jemand nach deinen Wiederherstellungswörtern fragt, handelt es sich um einen Betrüger. Gib die Wörter nicht weiter!"
     },
     "title": "Backups verwalten"
   },
@@ -188,7 +195,7 @@
     "confirmWordsText": "Anschließend bestätigst du jedes Wort auf deiner BitBox, um das Backup zu prüfen.",
     "followInstructions": "Befolge die Anweisungen auf deiner BitBox.",
     "followInstructionsMnemonic": "Folge den Anweisungen auf deiner BitBox, gib deine Wiederherstellungswörter ein und stelle dein Wallet wieder her.",
-    "followInstructionsMnemonicTitle": "Mit Wiederherstellungs-Wörtern wiederherstellen"
+    "followInstructionsMnemonicTitle": "Von Wiederherstellungswörtern wiederherstellen"
   },
   "bitbox02Settings": {
     "bluetoothToggleEnabled": {
@@ -288,7 +295,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Entferne die microSD-Karte aus deiner BitBox und bewahre sie sicher auf.",
-      "storeMnemonic": "Bitte bewahre deine Wiederherstellungs-Wörter an einem sicheren Ort auf.",
+      "storeMnemonic": "Bitte bewahre deine Wiederherstellungswörter an einem sicheren Ort auf.",
       "success": "Dein Backup wurde erfolgreich erstellt."
     },
     "stepInsertSD": {
@@ -377,8 +384,8 @@
   "bootloader": {
     "button": "Firmware jetzt aktualisieren",
     "button_install": "Firmware jetzt installieren",
-    "progress": "Aktualisiere: {{progress}}%",
-    "progress_install": "Installation: {{progress}}%",
+    "progress": "Aktualisiere",
+    "progress_install": "Installation",
     "success": "Aktualisierung erfolgreich! Bitte ziehe das Gerät ab und stecke es dann wieder ein. Dieses mal brauchst du den Knopf nicht zu berühren. "
   },
   "button": {
@@ -405,14 +412,57 @@
     "upgrade": "Aktualisieren"
   },
   "buy": {
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": "Unzureichendes Guthaben um Gutschein zu kaufen."
+      },
+      "transactionNote": "Gesendet an Bitrefill"
+    },
     "exchange": {
       "bankTransfer": "Überweisung",
       "bestDeal": "Bestes Angebot",
       "buy": "Kaufen",
       "creditCard": "Kreditkarte",
+      "description_bitrefill": "Gutscheine, Prepaid-Karten & mehr kaufen",
       "fast": "Schnell",
       "fee": "Gebühr",
       "infoContent": {
+        "bitrefill": {
+          "disclaimer": {
+            "account": {
+              "link": "Bitrefill Kauflimits",
+              "text": "Du kannst Bitrefill in einem beschränkten Rahmen verwenden, ohne ein Konto zu erstellen. Um deine Ausgabelimits zu erhöhen, kannst du ein einfaches Konto erstellen oder ein verifizierter Kunde werden. Für weitere Details, siehe die Kauflimits von Bitrefill.",
+              "title": "Konto und Limits"
+            },
+            "claims": {
+              "link": "Bitrefill Support",
+              "text": "Solltest du Probleme mit einem Kauf haben, kontaktiere bitte Bitrefill innerhalb von 30 Tagen nach deiner Bestellung.",
+              "title": "Reklamationen"
+            },
+            "dataProtection": {
+              "link": "Bitrefill Datenschutzerklärung",
+              "text": "Die BitBoxApp sammelt keine persönlichen Daten. Bitrefill sammelt Informationen entsprechend ihrer Datenschutzerklärung.",
+              "title": "Datenschutz"
+            },
+            "fees": {
+              "text": "Bitrefill fordert keine expliziten Gebühren, aber Produktpreise können einen Aufpreis enthalten, der vom Händler, der Region und dem von Bitrefill angewendeten Wechselkurs abhängig sein kann.",
+              "title": "Gebühren"
+            },
+            "intro": {
+              "text": "",
+              "title_bitcoin": "Bitcoin ausgeben mit Bitrefill",
+              "title_crypto": "Krypto ausgeben mit Bitrefill"
+            },
+            "security": {
+              "link": "BitBox Sicherheitsbedrohungsmodell",
+              "text": "Bitrefill ist ein externer Dienstleister der nicht vom Sicherheitsbedrohungsmodell der BitBox abgedeckt wird.  Wenn du einen Kauf tätigst, wird der Betrag an eine Adresse von Bitrefill gesendet. Die BitBox kann nicht unabhängig verifizieren, dass diese Adresse korrekt ist.",
+              "title": "Sicherheitshinweis"
+            }
+          },
+          "infobox": {
+            "intro": "Bitrefill ist eine Online-Plattform, auf der Bitcoin und andere Kryptowährungen über Gutscheine und weitere Dienstleistungen für alltägliche Ausgaben verwendet werden können. Über die Integration in der BitBoxApp kannst du deine Coins direkt von deiner BitBox ausgeben, ohne sie auf eine Börse oder andere Wallet schicken zu müssen."
+          }
+        },
         "btcdirect": {
           "disclaimer": {
             "dataProtection": {
@@ -472,6 +522,7 @@
             "paymentMethods": {
               "buy": "Kaufen: Zahle mit EUR und erhalte deine Coins direkt auf deine BitBox. Du kannst zwischen einmaligen und wiederkehrenden Käufen auswählen. Bei Banküberweisungen greift der Wechselkurs zu dem Zeitpunkt, wenn BTC Direct das Geld erhält. Direkte Zahlungsmethoden nutzen einen für eine kurze Zeit festgelegten Wechselkurs.",
               "note": "Hinweis: Wechselkurse von BTC Direct können leicht von denen der BitBoxApp abweichen.",
+              "sell": "Verkaufen: Sende deine Kryptowährungen an BTC Direct und erhalte EUR auf dein Bankkonto. Der Wechselkurs wird in dem Moment festgelegt, wenn BTC Direct deine Coins erhält.",
               "title": "Zahlungsmethoden und Gebühren"
             },
             "security": {
@@ -489,6 +540,10 @@
               "creditDebitCard": "Kreditkarten, Cartes Bancaires: {{fee}}%",
               "sofort": "Sofort: {{fee}}%",
               "title": "Gebühren beim Kauf"
+            },
+            "feesSelling": {
+              "bankTransfer": "Banküberweisung: {{fee}}%",
+              "title": "Verkaufsgebühren"
             },
             "intro": "Europäisches Kaufen von Kryptowährungen mit EUR.",
             "payment": {
@@ -559,7 +614,8 @@
       "noExchanges": "Leider sind in dieser Region keine Börsen verfügbar.",
       "region": "Region",
       "selectRegion": "Nicht angegeben",
-      "sell": "Verkaufen"
+      "sell": "Verkaufen",
+      "spend": "Ausgeben"
     },
     "info": {
       "continue": "Zustimmen und fortfahren",
@@ -653,7 +709,7 @@
         "description": "Erstelle oder überprüfe das MicroSD-Karten-Backup."
       },
       "showRecoveryWords": {
-        "description": "Zeige und überprüfe die Wiederherstellungswörter."
+        "description": "Zeige und überprüfe die Wiederherstellungswörter auf der BitBox."
       },
       "title": "Backups"
     },
@@ -677,7 +733,7 @@
         "description": "Erstelle \"Child Keys\" nach dem BIP85-Standard mit deiner BitBox-Wallet.",
         "disclaimer": "Ich verstehe die Funktionsweise der \"Child Keys\" und die damit verbundenen Sicherheitsaspekte.",
         "how": {
-          "description": "Die \"Child Keys\" werden als Mnemonic auf deiner BitBox angezeigt. Du kannst beliebig viele \"Child Keys\" erstellen. Beim Erstellen eines \"Child Keys\" wirst du nach dem Key-Index (z.B. 1, 2, 3, etc.) und der gewünschten Länge der Mnemonic (12, 18 oder 24 Recovery-Wörter) gefragt. Es ist wichtig, dass du dir den Key-Index und die Anzahl der Wörter merkst, um später denselben \"Child Key\" erneut anzeigen zu können.",
+          "description": "Die \"Child Keys\" werden als Mnemonic auf deiner BitBox angezeigt. Du kannst beliebig viele \"Child Keys\" erstellen. Beim Erstellen eines \"Child Keys\" wirst du nach dem Key-Index (z.B. 1, 2, 3, etc.) und der gewünschten Länge der Mnemonic (12, 18 oder 24 Wiederherstellungswörter) gefragt. Es ist wichtig, dass du dir den Key-Index und die Anzahl der Wörter merkst, um später denselben \"Child Key\" erneut anzeigen zu können.",
           "title": "Wie funktioniert es?"
         },
         "recover": {
@@ -713,7 +769,7 @@
         "label": "Verfügbare Version"
       },
       "title": "Firmware",
-      "upToDate": "Dein Gerät ist auf dem aktuellen Stand  ",
+      "upToDate": "Dein Gerät ist auf dem aktuellen Stand.",
       "upgradeAvailable": "Neues Upgrade verfügbar",
       "version": {
         "label": "Version"
@@ -763,10 +819,13 @@
     "wrongKeystore2": "Falls du ein optionale Passphrase nutzt, stelle sicher, dass du die richtige Passphrase für dieses Konto eingegeben hast."
   },
   "exchange": {
+    "btcdirect": {
+      "currencyMismatch": "Unerwartete Währung in Zahlungsaufforderung",
+      "insufficientFunds": "Unzureichendes Guthaben auf dem ausgewählten Konto."
+    },
     "buySell": {
       "coinNotSupported": "Keine Optionen für diesen Coin-Typ verfügbar.",
-      "regionNotSupported": "Keine Optionen für diese Region verfügbar.",
-      "updateNow": "Jetzt aktualisieren"
+      "regionNotSupported": "Keine Optionen für diese Region verfügbar."
     },
     "pocket": {
       "terms": {
@@ -810,19 +869,36 @@
   "footer": {
     "appVersion": "App Version:"
   },
+  "gapLimit": {
+    "change": "Gap-Limit für Wechseladressen",
+    "description": "Lege benutzerdefinierte Gap-Limits für Bitcoin Empfangs- und Wechseladressen fest.",
+    "maxValue": "Das Gap-Limit darf nicht größer als {{max}} sein.",
+    "minValue": "Das Gap-Limit muss größer als {{min}} sein.",
+    "receive": "Gap-Limit für Empfangsadressen.",
+    "title": "Benutzerdefiniertes Gap-Limit"
+  },
   "generic": {
     "buy": "Kaufe {{coinCode}}",
     "buySell": "Kaufen & Verkaufen",
     "buy_bitcoin": "Kaufe Bitcoin",
     "buy_crypto": "Krypto kaufen",
+    "close": "Schließen",
     "enabled_false": "Deaktiviert",
     "enabled_true": "Aktiviert",
     "noOptionOnIos": "Nicht verfügbar auf iOS",
     "noOptions": "Keine Optionen gefunden",
+    "paymentRequestNote": "{{name}} Zahlung {{orderId}}",
     "receive": "Erhalte {{coinCode}}",
     "receive_bitcoin": "Erhalte Bitcoin",
     "receive_crypto": "Erhalte Crypto",
-    "search": "Suchen…"
+    "resetToDefault": "Auf Standardwerte zurücksetzen",
+    "search": "Suchen…",
+    "searchButton": "Suche",
+    "sell": "{{coinCode}} verkaufen",
+    "sell_bitcoin": "Bitcoin verkaufen",
+    "sell_crypto": "Krypto verkaufen",
+    "spend_bitcoin": "Bitcoin ausgeben",
+    "spend_crypto": "Krypto ausgeben"
   },
   "genericError": "Ein Fehler ist aufgetreten. Falls du Probleme bemerkst, starte die Applikation bitte neu.",
   "goal": {
@@ -1389,7 +1465,7 @@
   "passphrase": {
     "considerations": {
       "button": "Backup-Hinweise",
-      "message": "Die Passphrase schützt dein Wallet-Backup (microSD oder Wiederherstellungswörter). Wer dein Backup findet, kommt ohne Passphrase nicht an dein Wallet.\n\nZum Wiederherstellen eines passphrase-geschützten Wallets benötigst du daher <strong>Backup und Passphrase<strong>. \n\nGeht die Passphrase verloren, ist auch der Zugriff auf deine Coins verloren. Bewahre sie deshalb getrennt vom Backup auf.",
+      "message": "Die Passphrase schützt dein Wallet-Backup (microSD oder Wiederherstellungswörter). Wer dein Backup findet, kommt ohne Passphrase nicht an dein Wallet.\n\nZum Wiederherstellen eines passphrase-geschützten Wallets benötigst du daher <strong>Backup und Passphrase</strong>. \n\nGeht die Passphrase verloren, ist auch der Zugriff auf deine Coins verloren. Bewahre sie deshalb getrennt vom Backup auf.",
       "title": "Backup-Hinweise"
     },
     "disable": "Passphrase deaktivieren",
@@ -1451,7 +1527,7 @@
     },
     "why": {
       "button": "Warum sollte man eine Passphrase benutzen?",
-      "message": "Die BitBox schützt den Seed im Gerät, aber das Backup (microSD oder Wiederherstellungswörter) gewährt vollen Zugriff – daher bewahre es sicher auf.\n\nDa eine Passphrase aus demselben Seed ein neues Wallet erzeugt, benötigt ein passphrase-geschütztes Wallet zum Wiederherstellen <strong>Backup UND Passphrase<strong>. Findet jemand dein Backup, braucht er trotzdem die Passphrase.\n\nMit der Passphrase-Funktion kannst du zudem mehrere Wallets („versteckte Wallets“) auf demselben Gerät anlegen, zusätzlich zum Standard-Wallet.",
+      "message": "Die BitBox schützt den Seed im Gerät, aber das Backup (microSD oder Wiederherstellungswörter) gewährt vollen Zugriff – daher bewahre es sicher auf.\n\nDa eine Passphrase aus demselben Seed ein neues Wallet erzeugt, benötigt ein passphrase-geschütztes Wallet zum Wiederherstellen <strong>Backup UND Passphrase</strong>. Findet jemand dein Backup, braucht er trotzdem die Passphrase.\n\nMit der Passphrase-Funktion kannst du zudem mehrere Wallets („versteckte Wallets“) auf demselben Gerät anlegen, zusätzlich zum Standard-Wallet.",
       "title": "Warum sollte man eine Passphrase benutzen?"
     }
   },
@@ -1461,10 +1537,6 @@
       "caps": "WARNUNG: Feststelltaste  (⇪) ist aktiviert",
       "paste": "Um Text einzufügen, aktiviere \"Anzeigen\" {{label}}\"."
     }
-  },
-  "random": {
-    "button": "Zufallszahl generieren",
-    "description": "Deine BitBox hat die folgende {{bits}}-Bit-Zufallszahl generiert:"
   },
   "receive": {
     "bitsuranceWarning": "Dies ist ein versichertes Konto, das heißt, es kann nur an Native Segwit empfangen. Dadurch wird verhinderst, dass du versehentlich an Wrapped Segwit oder Taproot empfängst, welche nicht versichert sind.",
@@ -1792,6 +1864,7 @@
     "fee": "Gebühr",
     "fiatHistorical": "Historisch",
     "gas": "Gas",
+    "no-results": "Keine Transaktionen für \"{{searchTerm}}\" gefunden",
     "note": {
       "edit": "Notiz bearbeiten",
       "save": "Notiz speichern"
@@ -1903,7 +1976,7 @@
     "connect": "Verbinde deine BitBox",
     "getStarted": "Starte die Installation der Firmware auf deiner BitBox.",
     "loadingAccounts": "Lade Konten",
-    "message": "Bitte verbinde deine BitBox und tippen sie auf der Seite an, um fortzufahren.",
+    "message": "Verbinde deine BitBox und tippe sie an der Seite an, um fortzufahren.",
     "title": "Willkommen"
   }
 }

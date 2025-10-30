@@ -30,7 +30,7 @@ import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSucce
 
 type TProps = {
   deviceID: string;
-}
+};
 
 export const Wizard = ({ deviceID }: TProps) => {
   const navigate = useNavigate();

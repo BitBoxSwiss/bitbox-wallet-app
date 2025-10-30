@@ -19,9 +19,9 @@ import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 
 type TProps = {
-    deviceID: string;
-    passphraseEnabled: boolean;
-}
+  deviceID: string;
+  passphraseEnabled: boolean;
+};
 
 const PassphraseSetting = ({ deviceID, passphraseEnabled }: TProps) => {
   const navigate = useNavigate();

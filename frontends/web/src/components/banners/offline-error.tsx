@@ -22,7 +22,7 @@ import style from './offline-errors.module.css';
 
 type Props = {
   error?: string | null;
-}
+};
 
 export const OfflineError = ({
   error,

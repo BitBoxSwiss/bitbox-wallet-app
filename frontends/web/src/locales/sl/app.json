@@ -370,8 +370,8 @@
   "bootloader": {
     "button": "Nadgradi \"firmware\"",
     "button_install": "Namestite firmware",
-    "progress": "Nadgrajujem: {{progress}}%",
-    "progress_install": "Nameščanje: {{progress}}%",
+    "progress": "Nadgrajujem",
+    "progress_install": "Nameščanje",
     "success": "Nadgradnja uspešna! Izključite in ponovno priključite napravo v USB režo. Tokrat se ne dotikajte gumba."
   },
   "button": {
@@ -758,8 +758,7 @@
   "exchange": {
     "buySell": {
       "coinNotSupported": "Za to vrsto kovanca ni na voljo nobenih možnosti.",
-      "regionNotSupported": "Za to regijo ni na voljo nobenih možnosti.",
-      "updateNow": "Posodobi"
+      "regionNotSupported": "Za to regijo ni na voljo nobenih možnosti."
     },
     "pocket": {
       "terms": {
@@ -1453,10 +1452,6 @@
       "caps": "OPOZORILO: Vklopljene imate VELIKE ČRKE (⇪)",
       "paste": "da prilepite besedilo, omogočite \"PRIKAŽI {{label}}\""
     }
-  },
-  "random": {
-    "button": "Ustvari naključno število",
-    "description": "BitBox je ustvaril {{bits}}-bitno naključno število:"
   },
   "receive": {
     "bitsuranceWarning": "To je zavarovan račun, kar pomeni, da lahko prejema le tip Bitcoin naslova Native Segwit. To je zato, da slučajno ne prejmete t.i. starejšega  tipa Wrapped Segwit ali novejšega Taproot, ki nista zavarovana.",

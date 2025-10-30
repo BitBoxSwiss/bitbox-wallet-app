@@ -24,7 +24,7 @@ RUN --mount=target=/mnt,source=scripts DEBIAN_FRONTEND=noninteractive /mnt/docke
 ARG SYS_GOPATH=/opt/go
 ENV PATH=${SYS_GOPATH}/bin:/usr/local/go/bin:$PATH
 
-RUN --mount=target=/mnt/Makefile,source=Makefile GOPATH=${SYS_GOPATH} make -C /mnt envinit
+RUN --mount=target=/mnt/Makefile,source=Makefile --mount=target=/mnt/version.mk.inc,source=version.mk.inc GOPATH=${SYS_GOPATH} make -C /mnt envinit
 
 ENV PATH=/opt/qt6/6.8.2/gcc_64/bin:/opt/qt6/6.8.2/gcc_64/libexec:$PATH
 

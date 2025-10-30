@@ -19,6 +19,7 @@ import AOPPGroupLogo from '@/assets/exchanges/logos/aoppgroup.svg';
 import BitcoinSuisseLogo from '@/assets/exchanges/logos/bitcoin_suisse.png';
 import BittrLogo from '@/assets/exchanges/logos/bittr.png';
 import BityLogo from '@/assets/exchanges/logos/bity.png';
+import CoinfinityLogo from '@/assets/exchanges/logos/coinfinity.svg';
 import PocketBitcoinLogo from '@/assets/exchanges/logos/pocketbitcoin.svg';
 import RelaiLogo from '@/assets/exchanges/logos/relai.svg';
 
@@ -27,17 +28,18 @@ type TVASPProps = {
   hostname: string;
   prominent?: boolean;
   withLogoText?: string;
-}
+};
 
 type TVASPMap = {
   [hostname: string]: string;
-}
+};
 
 const VASPLogoMap: TVASPMap = {
   'demo.aopp.group': AOPPGroupLogo,
   'testing.aopp.group': AOPPGroupLogo,
   'bitcoinsuisse.com': BitcoinSuisseLogo,
   'bity.com': BityLogo,
+  'coinfinity.co': CoinfinityLogo,
   'getbittr.com': BittrLogo,
   'pocketbitcoin.com': PocketBitcoinLogo,
   'relai.app': RelaiLogo,

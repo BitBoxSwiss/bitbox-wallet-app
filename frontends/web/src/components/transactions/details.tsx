@@ -15,7 +15,7 @@
  */
 
 import { useEffect, useState, useCallback } from 'react';
-import type { AccountCode, ITransaction } from '@/api/account';
+import type { AccountCode, TTransaction } from '@/api/account';
 import { getTransaction } from '@/api/account';
 import { syncdone } from '@/api/accountsync';
 import { usePrevious } from '@/hooks/previous';
@@ -24,9 +24,9 @@ import { TxDetailsDialog } from './components/details-dialog';
 type TProps = {
   accountCode: AccountCode;
   explorerURL: string;
-  internalID: ITransaction['internalID'] | null;
+  internalID: TTransaction['internalID'] | null;
   onClose: () => void;
-}
+};
 
 export const TransactionDetails = ({
   accountCode,
@@ -35,7 +35,7 @@ export const TransactionDetails = ({
   onClose,
 }: TProps) => {
   const [open, setOpen] = useState(false);
-  const [transactionInfo, setTransactionInfo] = useState<ITransaction | null>(null);
+  const [transactionInfo, setTransactionInfo] = useState<TTransaction | null>(null);
   const prevInternalID = usePrevious(internalID);
 
   useEffect(() => setOpen(false), [accountCode]);

@@ -42,7 +42,7 @@ export type TEventLegacy = {
   readonly deviceID?: string;
   readonly meta?: any;
   readonly type: string;
-}
+};
 
 export type TPayload = TEventLegacy | TEvent;
 
@@ -50,8 +50,8 @@ export type TMsgCallback = (payload: TPayload) => void;
 
 export type TQueryPromiseMap = {
   [key: number]: {
-    resolve: (value: unknown) => void,
-    reject: (value: unknown) => void,
+    resolve: (value: unknown) => void;
+    reject: (value: unknown) => void;
   };
 };
 

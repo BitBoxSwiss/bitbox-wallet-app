@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, IAccount, TAmountWithConversions } from '@/api/account';
+import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, TAccount, TAmountWithConversions } from '@/api/account';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { Amount } from '@/components/amount/amount';
 import { customFeeUnit } from '@/routes/account/utils';
@@ -27,7 +27,7 @@ import type { TSelectedUTXOs } from '../../utxos';
 import style from './confirm.module.css';
 
 type TransactionDetails = {
-  selectedReceiverAccount?: IAccount;
+  selectedReceiverAccount?: TAccount;
   proposedAmount?: TAmountWithConversions;
   proposedFee?: TAmountWithConversions;
   proposedTotal?: TAmountWithConversions;
@@ -45,7 +45,7 @@ type TConfirmSendProps = {
   selectedUTXOs: TSelectedUTXOs;
   coinCode: CoinCode;
   transactionDetails: TransactionDetails;
-}
+};
 
 type TUTXOsByAddress = {
   [address: string]: string[];
@@ -141,7 +141,7 @@ export const ConfirmSend = ({
               {' '}
               {receiverAccountNumberAndName?.number && (
                 <span className={style.address}>
-                (Account #{receiverAccountNumberAndName.number})
+                  (Account #{receiverAccountNumberAndName.number})
                 </span>
               )}
             </p>

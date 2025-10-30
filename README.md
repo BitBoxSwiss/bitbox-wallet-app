@@ -84,6 +84,27 @@ Run `make servewallet` and `make webdev` in seperate terminals.
 Before the first use of `make webdev`, you also need to run `make buildweb`, to install the dev
 dependencies.
 
+#### Local development with BB02 simulator
+
+The app can be used together with a [BB02 simulator](https://github.com/BitBoxSwiss/bitbox02-firmware/tree/master/test/simulator).
+
+In order to do so:
+
+* Build the simulator (checkout https://github.com/BitBoxSwiss/bitbox02-firmware/, then from the root repo run `make dockerdev` followed by `make simulator`)
+
+* Execute the simulator.
+
+  * Use `--port` if you want it to listen to a custom port (default is 15423)
+
+  * Set the environment variable `FAKE_MEMORY_FILEPATH` to a filepath if you want the simulator to write to file rather than in memory. This allows to re-use the same seed across different executions.
+
+* Launch the BBApp in simulator mode by providing a custom flag `--simulator`.
+
+
+If the simulator is listening on a custom port, `--simulatorPort=<port>` must also be provided.
+
+Note: the simulator is currently only supported in the servewallet and in the Qt app and only when the app runs in testnet mode.
+
 #### Watch and build the UI
 
 Run `make webdev` to develop the UI inside a web browser (for quick development, automatic rebuilds

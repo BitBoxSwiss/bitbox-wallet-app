@@ -24,8 +24,8 @@ import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { useTranslation } from 'react-i18next';
 
 type TProps = {
-    deviceID: string;
-}
+  deviceID: string;
+};
 
 export const Create = ({ deviceID }: TProps) => {
   const [creatingBackup, setCreatingBackup] = useState(false);

@@ -18,8 +18,8 @@ import { IWalletKit } from '@reown/walletkit';
 import { ArbitrumLogo, OptimismLogo, BaseLogo, ETHLogo } from '@/components/icon';
 
 type TSupportedChainDetail = {
-  [key: string]: { name: string; icon: ReactNode; }
-}
+  [key: string]: { name: string; icon: ReactNode };
+};
 
 export const SUPPORTED_CHAINS: TSupportedChainDetail = {
   'eip155:1': {

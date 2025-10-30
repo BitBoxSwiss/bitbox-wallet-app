@@ -25,7 +25,7 @@ import style from './vendor-deals.module.css';
 type Props = {
   deals: TMarketDeal[];
   vendorName: TMarketDeals['vendorName'];
-}
+};
 
 type TDealProps = {
   deal: TMarketDeal;

@@ -239,8 +239,6 @@ jobs:
       - name: Build Windows app
         run: |
           make qt-windows
-          cd frontends/qt
-          makensis setup.nsi
       - name: Upload Installer
         id: upload
         uses: actions/upload-artifact@v4

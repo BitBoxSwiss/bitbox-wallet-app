@@ -34,7 +34,7 @@ import styles from './more.module.css';
 
 type Props = {
   devices: TDevices;
-}
+};
 
 export const More = ({ devices }: Props) => {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ export const More = ({ devices }: Props) => {
   useOnlyVisitableOnMobile('/settings/general');
   const deviceID = Object.keys(devices)[0];
   const isBitBox02 = deviceID && devices[deviceID] === 'bitbox02';
-  const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID]);
+  const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID, isBitBox02]);
   const canUpgrade = versionInfo ? versionInfo.canUpgrade : false;
 
   return (

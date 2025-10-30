@@ -29,18 +29,19 @@ import { isBitcoinBased } from '@/routes/account/utils';
 import style from './receiver-address-input.module.css';
 
 type TReceiverAddressInputProps = {
-    account?: accountApi.IAccount;
-    activeAccounts?: accountApi.IAccount[];
-    addressError?: string;
-    onInputChange: (value: string) => void;
-    onAccountChange?: (account: accountApi.IAccount | null) => void;
-    parseQRResult: (uri: string) => void;
-    recipientAddress: string;
-}
+  account?: accountApi.TAccount;
+  activeAccounts?: accountApi.TAccount[];
+  addressError?: string;
+  onInputChange: (value: string) => void;
+  onAccountChange?: (account: accountApi.TAccount | null) => void;
+  parseQRResult: (uri: string) => void;
+  recipientAddress: string;
+};
+
 type TToggleScanQRButtonProps = {
   onClick: () => void;
   withDropdown?: boolean;
-}
+};
 
 export const ScanQRButton = ({ onClick, withDropdown = false }: TToggleScanQRButtonProps) => {
   const { isDarkMode } = useContext(DarkModeContext);
@@ -114,7 +115,7 @@ export const ReceiverAddressInput = ({
           className={style.inputWithIcon}
           labelSection={debug ? (
             <span id="sendToSelf" className={`${style.action || ''} ${style.sendToSelf || ''}`} onClick={handleSendToSelf}>
-          Send to self
+              Send to self
             </span>
           ) : undefined}
           autoFocus={!isMobile}>

@@ -20,7 +20,7 @@ import { TxDetail } from './detail';
 
 type TProps = {
   time: string | null;
-}
+};
 
 export const TxDateDetail = ({ time }: TProps) => {
   const { i18n, t } = useTranslation();

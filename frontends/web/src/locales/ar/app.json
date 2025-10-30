@@ -262,8 +262,8 @@
   "bootloader": {
     "button": "قم بتحديث البرنامج الثابت الآن",
     "button_install": "قم بتثبيت البرنامج الثابت الآن",
-    "progress": "التحديث: {{progress}}٪",
-    "progress_install": "التثبيت: {{progress}}٪",
+    "progress": "التحديث",
+    "progress_install": "التثبيت",
     "success": "تم التحديث بنجاح! يرجى إعادة توصيل الجهاز. و هذه المرة، لا تلمس الزر"
   },
   "button": {
@@ -883,10 +883,6 @@
       "caps": "تحذير: تم تمكين caps lock (⇪)",
       "paste": "للصق النص، قم بتمكين \"إظهار {{label}}\""
     }
-  },
-  "random": {
-    "button": "صناعة رقم عشوائي",
-    "description": "أنشأ BitBox الخاص بك الرقم العشوائي {{bits}}-بت التالي:"
   },
   "receive": {
     "changeScriptType": "تغيير نوع العنوان",

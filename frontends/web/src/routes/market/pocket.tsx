@@ -38,7 +38,7 @@ import style from './iframe.module.css';
 type TProps = {
   action: TMarketAction;
   code: AccountCode;
-}
+};
 
 export const Pocket = ({
   action,

@@ -19,10 +19,10 @@ import { alertUser } from '@/components/alert/Alert';
 import { i18n } from '@/i18n/i18n';
 
 export type TProposalError = {
-    addressError?: string;
-    amountError?: string;
-    feeError?: string;
-}
+  addressError?: string;
+  amountError?: string;
+  feeError?: string;
+};
 
 export const txProposalErrorHandling = (errorCode?: string): TProposalError => {
   const { t } = i18n;

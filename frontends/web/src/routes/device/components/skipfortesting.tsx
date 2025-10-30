@@ -26,7 +26,7 @@ import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 type TProps = {
   children?: ReactNode;
   className?: string;
-}
+};
 
 export const SkipForTesting = ({
   children,

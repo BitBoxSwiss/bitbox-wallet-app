@@ -30,7 +30,7 @@ type TProps = {
   onCloseDialog: () => void;
   onChangeConfig: (config: any) => void;
   handleShowRestartMessage: Dispatch<boolean>;
-}
+};
 
 export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfig, handleShowRestartMessage }: TProps) => {
   const [proxyAddress, setProxyAddress] = useState<string>();

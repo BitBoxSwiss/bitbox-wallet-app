@@ -28,11 +28,11 @@ type TCallback = (response: boolean) => void;
  */
 export let confirmation: (message: string, callback: TCallback, customButtonText?: string) => void;
 
-interface State {
-    active: boolean;
-    message?: string;
-    customButtonText?: string;
-}
+type State = {
+  active: boolean;
+  message?: string;
+  customButtonText?: string;
+};
 
 /**
  * Confirm alert that activates on confirmation module export call,

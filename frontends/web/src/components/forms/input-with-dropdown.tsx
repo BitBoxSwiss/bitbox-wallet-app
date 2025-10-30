@@ -29,7 +29,7 @@ export type TInputWithDropdownProps<T> = TBaseInputProps & {
   dropdownTitle?: string;
   isOptionDisabled?: (option: TOption<T>) => boolean;
   renderOptions?: (option: TOption<T>, isSelectedValue: boolean) => React.ReactNode;
-}
+};
 
 export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdownProps<any>>(({
   id,

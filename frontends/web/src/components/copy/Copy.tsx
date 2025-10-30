@@ -21,14 +21,14 @@ import { Check, Copy } from '@/components/icon/icon';
 import style from './Copy.module.css';
 
 type TProps = {
-    alignLeft?: boolean;
-    alignRight?: boolean;
-    borderLess?: boolean;
-    className?: string;
-    disabled?: boolean;
-    flexibleHeight?: boolean;
-    value: string;
-}
+  alignLeft?: boolean;
+  alignRight?: boolean;
+  borderLess?: boolean;
+  className?: string;
+  disabled?: boolean;
+  flexibleHeight?: boolean;
+  value: string;
+};
 
 export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, className, disabled, flexibleHeight }: TProps) => {
   const [success, setSuccess] = useState(false);

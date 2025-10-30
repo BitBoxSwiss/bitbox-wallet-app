@@ -27,7 +27,7 @@ type Props = {
   internalID: string;
   // Contains the existing note.
   note: string;
-}
+};
 
 export const Note = ({ accountCode, note, internalID }: Props) => {
   const { isDarkMode } = useDarkmode();

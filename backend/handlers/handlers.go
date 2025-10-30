@@ -50,6 +50,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	utilConfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
@@ -547,7 +548,7 @@ func (handlers *Handlers) getDetectDarkTheme(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) getVersion(*http.Request) interface{} {
-	return backend.Version.String()
+	return versioninfo.Version.String()
 }
 
 func (handlers *Handlers) getTesting(*http.Request) interface{} {

@@ -31,7 +31,7 @@ import { LocalizationContext } from '@/contexts/localization-context';
 type BackupReminderProps = {
   keystore: TKeystore;
   accountsBalanceSummary?: TAccountsBalanceSummary;
-}
+};
 
 export const BackupReminder = ({ keystore, accountsBalanceSummary }: BackupReminderProps) => {
   const { t } = useTranslation();
