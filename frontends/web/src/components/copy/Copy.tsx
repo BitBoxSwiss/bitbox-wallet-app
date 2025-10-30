@@ -27,10 +27,11 @@ type TProps = {
   className?: string;
   disabled?: boolean;
   flexibleHeight?: boolean;
+  name?: string;
   value: string;
 };
 
-export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, className, disabled, flexibleHeight }: TProps) => {
+export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, className, disabled, flexibleHeight, name }: TProps) => {
   const [success, setSuccess] = useState(false);
   const { t } = useTranslation();
 
@@ -68,6 +69,7 @@ export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, classN
     }
   };
 
+
   return (
     <div className={[
       'flex flex-row flex-start flex-items-start',
@@ -81,6 +83,7 @@ export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, classN
         value={value}
         ref={textAreaRef}
         rows={1}
+        {...(name ? { name } : {})}
         className={[
           style.inputField,
           flexibleHeight && style.flexibleHeight,
