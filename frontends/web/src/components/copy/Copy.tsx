@@ -31,6 +31,7 @@ type TProps = {
   flexibleHeight?: boolean;
   displayValue?: string;
   value: string;
+  dataTestId?: string;
 };
 
 export const CopyableInput = ({
@@ -44,6 +45,7 @@ export const CopyableInput = ({
   disabled,
   flexibleHeight,
   displayValue,
+  dataTestId,
 }: TProps) => {
   const [success, setSuccess] = useState(false);
   const { t } = useTranslation();
@@ -87,6 +89,7 @@ export const CopyableInput = ({
     }
   };
 
+
   return (
     <div className={[
       'flex flex-row flex-start flex-items-start',
@@ -100,6 +103,7 @@ export const CopyableInput = ({
         value={displayValue ? displayValue : value}
         ref={textAreaRef}
         rows={1}
+        {...(dataTestId ? { 'data-testid': dataTestId } : {})}
         className={`${style.inputField || ''}
           ${flexibleHeight ? style.flexibleHeight || '' : ''}
           ${alignLeft ? style.alignLeft || '' : ''}

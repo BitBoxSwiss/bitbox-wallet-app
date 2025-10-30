@@ -34,6 +34,7 @@ export interface ServeWalletOptions {
   simulator?: boolean;
   timeout?: number;
   testnet?: boolean;
+  regtest?: boolean;
 }
 
 export class ServeWallet {
@@ -49,6 +50,7 @@ export class ServeWallet {
   private readonly testName: string;
   private readonly projectName: string;
   private readonly logPath: string;
+  private readonly regtest: boolean;
 
   constructor(
     page: Page,
@@ -59,7 +61,7 @@ export class ServeWallet {
     projectName: string,
     options: ServeWalletOptions = {}
   ) {
-    const { simulator = false, timeout = 90000, testnet = true } = options;
+    const { simulator = false, timeout = 90000, testnet = true, regtest = false } = options;
 
     if (!testnet && simulator) {
       throw new Error('ServeWallet: mainnet simulator is not supported');
@@ -75,6 +77,7 @@ export class ServeWallet {
     this.testName = testName;
     this.projectName = projectName;
 
+    this.regtest = regtest;
     this.logPath = getLogFilePath(this.testName, this.projectName, 'servewallet.log');
     this.openOutStream(false); // On the first time, open the file in "w" mode.
   }
@@ -94,8 +97,10 @@ export class ServeWallet {
       target = 'servewallet';
     } else if (this.testnet && this.simulator) {
       target = 'servewallet-simulator';
-    } else if (!this.testnet && !this.simulator) {
+    } else if (!this.testnet && !this.simulator && !this.regtest) {
       target = 'servewallet-mainnet';
+    } else if (this.regtest) {
+      target = 'servewallet-regtest';
     } else {
       // This should never happen because the constructor already guards against it
       throw new Error('Invalid ServeWallet configuration');
@@ -116,10 +121,15 @@ export class ServeWallet {
         await connectOnce(this.host, this.servewalletPort);
         try {
           await this.page.goto(`http://${this.host}:${this.frontendPort}`);
-          console.log(
-            `Servewallet ready on ${this.host}:${this.servewalletPort} after ${Date.now() - start} ms`
-          );
-          return;
+          // Wait for body to be loaded
+          const bodyText = await this.page.textContent('body');
+
+          if (bodyText && (bodyText.includes('Welcome') || bodyText.includes('My portfolio'))) {
+            console.log(
+              `Servewallet ready on ${this.host}:${this.servewalletPort} after ${Date.now() - start} ms`
+            );
+            return;
+          }
         } catch {
           // page.goto failed; likely connection refused; retry
         }

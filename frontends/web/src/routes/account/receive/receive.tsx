@@ -324,7 +324,11 @@ export const Receive = ({
                           <p>{t('receive.verifyInstruction')}</p>
                         </div>
                         <div className="m-bottom-half">
-                          <CopyableInput value={address} flexibleHeight />
+                          <CopyableInput
+                            value={address}
+                            dataTestId="receive-address"
+                            flexibleHeight
+                          />
                         </div>
                       </>
                     )}
