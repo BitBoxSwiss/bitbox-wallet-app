@@ -87,7 +87,9 @@ func (p *ProposedTransaction) Update() error {
 				rootFingerprintUint32,
 				inputAddress.AbsoluteKeypath().ToUInt32(),
 				inputAddress.PublicKey.SerializeCompressed(),
-				index); err != nil {
+				index); err != nil && err != psbt.ErrDuplicateKey {
+				// If we update the same PSBT multiple times, the key info is already present,
+				// so we can ignore the duplicate key error.
 				return err
 			}
 		case signing.ScriptTypeP2TR:
@@ -123,7 +125,9 @@ func (p *ProposedTransaction) Update() error {
 					rootFingerprintUint32,
 					outputAddress.AbsoluteKeypath().ToUInt32(),
 					outputAddress.PublicKey.SerializeCompressed(),
-					index); err != nil {
+					index); err != nil && err != psbt.ErrDuplicateKey {
+					// If we update the same PSBT multiple times, the key info is already present,
+					// so we can ignore the duplicate key error.
 					return err
 				}
 			case signing.ScriptTypeP2TR:
