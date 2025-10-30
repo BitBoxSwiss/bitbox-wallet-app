@@ -14,6 +14,7 @@
 
 SHELL    := /bin/bash
 WEBROOT  := frontends/web
+MOBILETESTROOT := frontends/mobiletests
 
 include version.mk.inc
 
@@ -64,6 +65,8 @@ webserve:
 	cd ${WEBROOT} && $(MAKE) serve
 webe2etest:
 	cd ${WEBROOT} && $(MAKE) test-e2e
+mobilee2etest:
+	cd ${MOBILETESTROOT} && ./run.sh
 qt-linux: # run inside dockerdev
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) linux
