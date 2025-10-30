@@ -53,19 +53,20 @@ ELECTRS_RPC_PORT2=52002
 ELECTRS_MONITORING_PORT2=24225
 
 docker run -v $BITCOIN_DATADIR:/bitcoin/.bitcoin --name=bitcoind-regtest \
-       -e DISABLEWALLET=0 \
-       -e PRINTTOCONSOLE=0 \
-       -e RPCUSER=dbb \
-       -e RPCPASSWORD=dbb \
        -p ${BITCOIND_RPC_PORT}:${BITCOIND_RPC_PORT} \
        -p ${BITCOIND_PORT}:${BITCOIND_PORT} \
-       kylemanna/bitcoind \
+       bitcoin/bitcoin:30.0 \
        -regtest \
        -fallbackfee=0.00001 \
        -port=${BITCOIND_PORT} \
        -rpcport=${BITCOIND_RPC_PORT} \
+       -rpcuser=dbb \
+       -rpcpassword=dbb \
        -rpcbind=0.0.0.0 \
+       -printtoconsole=0 \
        -rpcallowip=$DOCKER_IP/16 &
+
+sleep 1
 
 docker run \
        -u $(id -u $USER) \
@@ -73,10 +74,9 @@ docker run \
        -v $BITCOIN_DATADIR/.bitcoin:/bitcoin/.bitcoin \
        -v $ELECTRS_DATADIR1:/data \
        --name=electrs-regtest1 \
-       benma2/electrs:v0.9.9 \
+       benma2/electrs:v0.10.10 \
         --cookie-file=/data/rpccreds \
         --log-filters INFO \
-        --timestamp \
         --network=regtest \
         --daemon-rpc-addr=${DOCKER_IP}:${BITCOIND_RPC_PORT} \
         --daemon-p2p-addr=${DOCKER_IP}:${BITCOIND_PORT} \
@@ -90,10 +90,9 @@ docker run \
        -v $BITCOIN_DATADIR/.bitcoin:/bitcoin/.bitcoin \
        -v $ELECTRS_DATADIR2:/data \
        --name=electrs-regtest2 \
-       benma2/electrs:v0.9.9 \
+       benma2/electrs:v0.10.10 \
         --cookie-file=/data/rpccreds \
         --log-filters INFO \
-        --timestamp \
         --network=regtest \
         --daemon-rpc-addr=${DOCKER_IP}:${BITCOIND_RPC_PORT} \
         --daemon-p2p-addr=${DOCKER_IP}:${BITCOIND_PORT} \
@@ -103,7 +102,7 @@ docker run \
         --db-dir=/data &
 
 echo "Interact with the regtest chain (e.g. generate 101 blocks and send coins):"
-echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 createwallet"
+echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 createwallet testwallet"
 echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 getnewaddress"
 echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 generatetoaddress 101 <newaddress>"
 echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 sendtoaddress <address> <amount>"
