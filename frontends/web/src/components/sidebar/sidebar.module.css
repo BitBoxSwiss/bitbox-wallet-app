@@ -80,7 +80,7 @@
 
 .sidebarHeaderContainer {
     margin-top: var(--sidebar-margin);
-    margin-bottom: var(--sidebar-header-size);
+    margin-bottom: 12px;
     padding: 0 var(--sidebar-margin);
     display: flex;
     flex-direction: row;
@@ -93,7 +93,7 @@
 }
 
 .sidebarHeader {
-    font-size: var(--sidebar-header-size);
+    font-size: 12px;
     line-height: var(--sidebar-header-line-height);
     color: var(--color-secondary);
 }
