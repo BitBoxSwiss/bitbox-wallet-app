@@ -94,7 +94,7 @@
 
 .sidebarHeader {
     font-size: 12px;
-    line-height: var(--sidebar-header-line-height);
+    line-height: 1.3333;
     color: var(--color-secondary);
 }
 
