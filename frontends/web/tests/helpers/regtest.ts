@@ -78,10 +78,10 @@ export async function sendCoins(address: string, amount: number | string): Promi
 
 
 export function launchRegtest(): Promise<ChildProcess> {
-
+  const PROJECT_ROOT = process.env.GITHUB_WORKSPACE || path.resolve(__dirname, '../../..');
   // First, clean up cache and headers.
   try {
-    const basePath = path.resolve(__dirname, '../../../../appfolder.dev/cache');
+    const basePath = path.join(PROJECT_ROOT, 'appfolder.dev/cache');
 
     // Remove headers-rbtc.bin if it exists
     const headersPath = path.join(basePath, 'headers-rbtc.bin');
@@ -101,8 +101,7 @@ export function launchRegtest(): Promise<ChildProcess> {
   } catch (err) {
     console.warn('Warning: Failed to clean up cache or headers before regtest launch:', err);
   }
-
-  const scriptPath = path.resolve(__dirname, '../../../../scripts/run_regtest.sh');
+  const scriptPath = path.join(PROJECT_ROOT, 'scripts/run_regtest.sh');
 
   return new Promise((resolve, reject) => {
     const proc = spawn('bash', [scriptPath], {
