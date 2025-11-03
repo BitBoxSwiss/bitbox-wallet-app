@@ -436,7 +436,8 @@
             },
             "claims": {
               "link": "Suporte Bitrefill",
-              "text": "Caso tenha algum problema com uma compra, entre em contato diretamente com o Bitrefill em até 30 dias após o pedido."
+              "text": "Caso tenha algum problema com uma compra, entre em contato diretamente com o Bitrefill em até 30 dias após o pedido.",
+              "title": "Reclamações"
             },
             "dataProtection": {
               "link": "Política de privacidade do Bitrefill",
