@@ -83,6 +83,7 @@ export const WCConnectForm = ({
         </Input>
         {activeScanQR && !isMobile && (
           <ScanQRDialog
+            isMobile={isMobile}
             toggleScanQR={toggleScanQR}
             onChangeActiveScanQR={setActiveScanQR}
             parseQRResult={(uri: string) => onSubmit(uri)}
