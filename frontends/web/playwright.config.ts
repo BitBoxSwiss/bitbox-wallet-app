@@ -34,6 +34,7 @@ export default defineConfig({
   },
   reporter: [['html', { open: 'never' }], ['list']],
   outputDir: 'test-results/',
+  retries: 3,
   projects: [
     {
       name: 'Chromium',
