@@ -24,10 +24,10 @@ import { deleteAccountsFile } from './helpers/fs';
 
 let servewallet: ServeWallet;
 
-test('Gap limits are correctly saved', async ({ page, host, frontendPort, servewalletPort }) => {
+test('Gap limits are correctly saved', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host);
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name);
     await servewallet.start();
   });
 

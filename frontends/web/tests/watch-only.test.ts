@@ -20,10 +20,10 @@ import { test } from './helpers/fixtures';
 import { ServeWallet } from './helpers/servewallet';
 import { startSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
 import { assertFieldsCount, clickButtonWithText } from './helpers/dom';
-import { ChildProcessWithoutNullStreams } from 'child_process';
+import { ChildProcess } from 'child_process';
 
 let servewallet: ServeWallet;
-let simulatorProc : ChildProcessWithoutNullStreams | undefined;
+let simulatorProc : ChildProcess | undefined;
 
 /**
  * Test scenario 1:
@@ -34,9 +34,9 @@ let simulatorProc : ChildProcessWithoutNullStreams | undefined;
  * - Restart app (kill and restart servewallet)
  * - Check that accounts do not show up without simulator running.
  */
-test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendPort, servewalletPort }) => {
+test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, { simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { simulator: true });
     await servewallet.start();
   });
 
@@ -46,7 +46,7 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
       throw new Error('SIMULATOR_PATH environment variable not set');
     }
 
-    simulatorProc = startSimulator(simulatorPath, true);
+    simulatorProc = startSimulator(simulatorPath, testInfo.title, testInfo.project.name, true);
     console.log('Simulator started');
   });
 
@@ -88,9 +88,9 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
  * - Restart app (kill and restart servewallet)
  * - Check that watch-only accounts still show up (with no simulator running)
  */
-test('Test #2 - No passphrase - Watch-only account', async ({ page, host, frontendPort, servewalletPort }) => {
+test('Test #2 - No passphrase - Watch-only account', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, { simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { simulator: true });
     await servewallet.start();
   });
 
@@ -101,7 +101,7 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
       throw new Error('SIMULATOR_PATH environment variable not set');
     }
 
-    simulatorProc = startSimulator(simulatorPath, true);
+    simulatorProc = startSimulator(simulatorPath, testInfo.title, testInfo.project.name, true);
 
     console.log('Simulator started');
   });

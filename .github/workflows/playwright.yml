@@ -94,9 +94,9 @@ jobs:
           SIMULATOR_PATH: ${{ github.workspace }}/simulator-bin/simulator
         run: make webe2etest
 
-      - name: Upload Playwright artifacts
-        if: failure()
+      - name: Upload Playwright artifacts and logs.
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-artifacts
+          name: playwright-artifacts-and-logs
           path: frontends/web/test-results/*

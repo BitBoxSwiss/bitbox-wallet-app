@@ -15,9 +15,10 @@
 */
 
 
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
+import { spawn, ChildProcess } from 'child_process';
 import type { Page } from '@playwright/test';
 import { clickButtonWithText, typeIntoFocusedInput, clickAllAgreements } from './dom';
+import { getLogFilePath } from './fs';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -55,18 +56,20 @@ export function cleanFakeMemoryFiles() {
  */
 export function startSimulator(
   simulatorPath: string,
+  testName: string,
+  projectName: string,
   useFakeMemory = false
-): ChildProcessWithoutNullStreams {
+): ChildProcess {
   const env = { ...process.env };
   if (useFakeMemory) {
     env.FAKE_MEMORY_FILEPATH = '/tmp/fake_memory';
   }
 
-  const proc = spawn(simulatorPath, { stdio: 'pipe', env });
 
-  // Pipe output to logs (needed in CI)
-  proc.stdout?.on('data', (chunk) => process.stdout.write(chunk));
-  proc.stderr?.on('data', (chunk) => process.stderr.write(chunk));
+  const logPath = getLogFilePath(testName, projectName, 'simulator.log');
+  const outStream = fs.openSync(logPath, 'w');
+
+  const proc = spawn(simulatorPath, { stdio: ['ignore', outStream, outStream], env });
 
   proc.on('error', (err) => {
     console.error('Simulator process error:', String(err));
@@ -74,10 +77,12 @@ export function startSimulator(
 
   proc.on('exit', (code, signal) => {
     console.log(`Simulator exited: code=${String(code)}, signal=${String(signal)}`);
+    fs.closeSync(outStream); // close log file when simulator exits
   });
 
   return proc;
 }
+
 
 /**
  * Performs the wallet setup flow in order:

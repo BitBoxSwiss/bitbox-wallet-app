@@ -20,10 +20,10 @@ import { expect } from '@playwright/test';
 
 let servewallet: ServeWallet;
 
-test('App main page loads', async ({ page, host, frontendPort, servewalletPort }) => {
+test('App main page loads', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host);
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name);
     await servewallet.start();
   });
 

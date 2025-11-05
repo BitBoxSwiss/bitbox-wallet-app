@@ -35,10 +35,10 @@ let servewallet: ServeWallet;
  * - Kill servewallet
  * - Restart servewallet in mainnet mode - testnet mode should be disabled now.
  */
-test('Testnet mode', async ({ page, host, frontendPort, servewalletPort }) => {
+test('Testnet mode', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, { testnet: false });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { testnet: false });
     await servewallet.start();
   });
 
