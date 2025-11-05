@@ -60,10 +60,6 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
     needs: build-simulator
-    strategy:
-      fail-fast: false
-      matrix:
-        attempt: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     steps:
       - uses: actions/checkout@v3
 
@@ -93,14 +89,14 @@ jobs:
       - name: Restore executable permission
         run: chmod +x simulator-bin/simulator
 
-      - name: Run Playwright tests attempt ${{ matrix.attempt }}
+      - name: Run Playwright tests
         env:
           SIMULATOR_PATH: ${{ github.workspace }}/simulator-bin/simulator
         run: make webe2etest
 
       - name: Upload Playwright artifacts
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-artifacts-${{ matrix.attempt }}
+          name: playwright-artifacts
           path: frontends/web/test-results/*
