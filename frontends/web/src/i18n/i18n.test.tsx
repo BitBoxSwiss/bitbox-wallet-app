@@ -35,6 +35,8 @@ describe('i18n', () => {
     const table = [
       { nativeLocale: 'de', newLang: 'de', userLang: null },
       { nativeLocale: 'de-DE', newLang: 'de', userLang: null },
+      { nativeLocale: 'de-DE_#u-fw-mon-mu-celsius', newLang: 'de', userLang: null },
+      { nativeLocale: 'de-DE_#u-fw-mon-mu-celsius', newLang: 'en', userLang: 'en' },
       { nativeLocale: 'pt_BR', newLang: 'pt', userLang: null },
       { nativeLocale: 'fr', newLang: 'en', userLang: 'en' },
     ];
