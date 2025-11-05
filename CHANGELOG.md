@@ -3,6 +3,8 @@
 ## Unreleased
 - Add feedback link to guide and about settings
 - Move active currencies to top of currency dropdown
+- Android: fix connectivity misdetection when switching between WIFI and cellular network.
+- Android: dropped support for Android versions lower than 7.
 
 ## v4.49.0
 - Bundle BitBox02 Nova firmware version v9.24.0
