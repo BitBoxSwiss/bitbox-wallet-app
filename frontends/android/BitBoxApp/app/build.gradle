@@ -13,9 +13,9 @@ android {
     ndkVersion "28.2.13676358"
     defaultConfig {
         applicationId "ch.shiftcrypto.bitboxapp"
+        minSdk 24
         // minSdkVersion should match the `-androidapi` gomobile bind flag
         // in backend/mobileserver/Makefile
-        minSdkVersion 21
         targetSdkVersion 35
         versionCode 66
         versionName "${appVersion}"
