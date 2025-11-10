@@ -4,7 +4,7 @@
 }
 
 .cardBody2 {
-  font-size: 1.4rem;
+  font-size: var(--size-small);
   margin-bottom: var(--space-default);
 }
 
