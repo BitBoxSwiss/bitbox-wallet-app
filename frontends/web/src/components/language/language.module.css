@@ -52,8 +52,4 @@
     .link {
         font-size: var(--size-smaller);
     }
-
-    .language {
-        font-size: var(--size-small) !important;
-    }
 }
