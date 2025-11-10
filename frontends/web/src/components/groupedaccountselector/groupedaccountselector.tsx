@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Select, { components, SingleValueProps, OptionProps, SingleValue, DropdownIndicatorProps, GroupProps, GroupHeadingProps as ReactSelectGroupHeadingProps } from 'react-select';
-import { AccountCode, TAccount } from '@/api/account';
+import { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
 import { Button } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
-import { AppContext } from '@/contexts/AppContext';
 import { USBSuccess } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
 import { InsuredShield } from '@/routes/account/components/insuredtag';
 import { getAccountsByKeystore } from '@/routes/account/utils';
 import { createGroupedOptions, getBalancesForGroupedAccountSelector } from './services';
+import { AmountWithUnit } from '../amount/amount-with-unit';
 import styles from './groupedaccountselector.module.css';
 
 export type TGroupedOption = {
@@ -39,7 +39,7 @@ export type TOption = {
   value: AccountCode;
   disabled: boolean;
   coinCode?: TAccount['coinCode'];
-  balance?: string;
+  balance?: TAmountWithConversions;
   insured?: boolean;
 };
 
@@ -53,7 +53,6 @@ type TAccountSelector = {
 };
 
 const SelectSingleValue = (props: SingleValueProps<TOption>) => {
-  const { hideAmounts } = useContext(AppContext);
   const { label, coinCode, balance, insured } = props.data;
   return (
     <div className={styles.singleValueContainer}>
@@ -62,7 +61,11 @@ const SelectSingleValue = (props: SingleValueProps<TOption>) => {
           {coinCode ? <Logo coinCode={coinCode} alt={coinCode} /> : null}
           <span className={styles.selectLabelText}>{label}</span>
           {insured && <InsuredShield/>}
-          {coinCode && balance && <span className={styles.balanceSingleValue}>{hideAmounts ? `*** ${coinCode}` : balance}</span>}
+          {coinCode && balance && (
+            <span className={styles.balanceSingleValue}>
+              <AmountWithUnit amount={balance} />
+            </span>
+          )}
         </div>
       </components.SingleValue>
     </div>
@@ -70,7 +73,6 @@ const SelectSingleValue = (props: SingleValueProps<TOption>) => {
 };
 
 const SelectOption = (props: OptionProps<TOption>) => {
-  const { hideAmounts } = useContext(AppContext);
   const { label, coinCode, balance, insured } = props.data;
 
   return (
@@ -79,7 +81,11 @@ const SelectOption = (props: OptionProps<TOption>) => {
         {coinCode ? <Logo coinCode={coinCode} alt={coinCode} /> : null}
         <span className={styles.selectLabelText}>{label}</span>
         {insured && <InsuredShield/>}
-        {coinCode && balance && <span className={styles.balance}>{hideAmounts ? `*** ${coinCode}` : balance}</span>}
+        {coinCode && balance && (
+          <span className={styles.balance}>
+            <AmountWithUnit amount={balance} />
+          </span>
+        )}
       </div>
     </components.Option>
   );
