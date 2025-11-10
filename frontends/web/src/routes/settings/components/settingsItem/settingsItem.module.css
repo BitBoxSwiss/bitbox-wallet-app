@@ -10,7 +10,7 @@
     text-align:left;
     border: none;
     background-color: var(--background-secondary);
-    font-size: var(--size-default);
+    font-size: var(--size-small);
     font-weight: 400;
     padding: 16px 24px;
     color: var(--color-dark);
@@ -19,10 +19,12 @@
 
 .chevronRight {
     bottom: 0;
+    height: var(--size-subheader);
     margin: auto;
     position: absolute;
     right: var(--space-half);
     top: 3px;
+    width: var(--size-subheader);
 }
 
 .content {
@@ -32,7 +34,7 @@
 
 .primaryText {
     color: var(--color-default);
-    font-size: 1.6rem;
+    font-size: var(--size-default);
     margin: 0;
 }
 

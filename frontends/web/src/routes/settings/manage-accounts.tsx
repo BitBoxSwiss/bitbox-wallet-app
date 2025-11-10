@@ -186,7 +186,7 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
               <span className="unit">({account.coinUnit})</span>
             </span>
           </div>
-          <div className="flex flex-items-center">
+          <div>
             {!account.active ? (
               <p className={`text-small ${style.disabledText || ''}`}>
                 {t('generic.enabled_false')}
@@ -288,7 +288,9 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
                         htmlFor={currentlyEditedAccount.code}>
                         <span className={style.toggleLabelText}>
                           <EyeOpenedDark />
-                          {t('newSettings.appearance.enableAccount.title')}
+                          <span>
+                            {t('newSettings.appearance.enableAccount.title')}
+                          </span>
                         </span>
                         <Toggle
                           checked={currentlyEditedAccount.active}

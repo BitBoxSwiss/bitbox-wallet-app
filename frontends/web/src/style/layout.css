@@ -154,7 +154,7 @@ button, textarea {
 
 .tabs .tab {
     width: 50%;
-    height: 52px;
+    height: min(5.2rem, 100px);
     border: solid 1px var(--color-gray);
     transition: all .2s ease-out;
 }

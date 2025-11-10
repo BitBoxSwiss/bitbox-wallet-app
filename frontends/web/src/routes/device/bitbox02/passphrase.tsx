@@ -31,7 +31,7 @@ import { Message } from '@/components/message/message';
 // The enable wizard has five steps that can be navigated by clicking
 // 'back' or 'continue'. On the last step the passphrase will be enabled.
 const FINAL_INFO_STEP = 5;
-const CONTENT_MIN_HEIGHT = '38em';
+const CONTENT_MIN_HEIGHT = 'min(56rem, 100vh)';
 
 type TProps = {
   deviceID: string;
