@@ -33,14 +33,11 @@
 }
 /* guard dialog and wait-dialog from view styles */
 @media (min-width: 1200px) {
-    .header .title {
-        --size-subheader: 1.6rem;
-    }
     .modal {
         margin-left: var(--sidebar-width-large);
     }
     .modal .contentContainer p {
-        --size-default: 1.4rem;
+        --size-default: var(--size-default);
     }
 }
 
@@ -96,13 +93,11 @@
 
 .header .closeButton,
 .header .closeButton img {
-    width: 18px;
-    height: 18px;
+    width: var(--size-subheader);
+    height: var(--size-subheader);
 }
 
 .contentContainer {
-    font-size: var(--size-default);
-    font-weight: 400;
     padding: var(--space-half);
 }
 
@@ -137,55 +132,6 @@
     line-height: 1.3;
     font-size: var(--size-default);
     font-weight: 400;
-}
-
-.modalContent p {
-    font-size: var(--size-default);
-    font-weight: 400;
-}
-
-.modalContent > *:first-child {
-    margin-top: 0;
-}
-
-.detail {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    min-height: var(--item-height);
-    padding: var(--space-half);
-}
-
-.detail:not(:first-child) {
-    border-bottom: solid 1px var(--background);
-}
-
-.detail label {
-    white-space: nowrap;
-    margin-right: var(--space-half) !important;
-}
-
-.detail label,
-.detail p {
-    margin: 0;
-    line-height: 1;
-}
-
-.detail.description > span {
-    text-align: right;
-}
-
-.buttons {
-    padding: var(--space-quarter);
-}
-
-.buttons button:first-child {
-    margin-right: 10px;
-}
-
-.buttons button {
-    width: 50%;
 }
 
 .dialogButtons {
