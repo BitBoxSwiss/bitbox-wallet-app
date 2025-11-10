@@ -97,7 +97,7 @@ export const VendorDeals = ({
   return (
     <div className={style.exchangeContainer}>
       <div className={style.container}>
-        <p className={[style.text, style.exchangeName].join(' ')}>
+        <p className={style.exchangeName}>
           {getVendorFormattedName(vendorName)}
         </p>
         <div className={style.paymentMethodsContainer}>
