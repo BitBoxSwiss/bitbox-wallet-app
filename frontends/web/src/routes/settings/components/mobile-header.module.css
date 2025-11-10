@@ -19,7 +19,7 @@
 }
 
 .backButton img {
-    height: 24px;
+    height: var(--size-subheader);
 }
 
 .backButton:focus {

@@ -3,5 +3,6 @@
 }
 
 .container img {
-    margin-right: var(--space-eight);
+    width: var(--size-default);
+    margin-right: var(--space-quarter);
 }
