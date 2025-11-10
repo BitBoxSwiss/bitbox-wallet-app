@@ -1039,6 +1039,10 @@
       }
     },
     "appendix": {
+      "feedback": {
+        "link": "Let us know.",
+        "text": "Have feedback?"
+      },
       "link": "Contact us!",
       "questionService": "Having issues with {{serviceName}}?",
       "text": "Another question?",

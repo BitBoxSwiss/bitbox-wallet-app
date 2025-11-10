@@ -22,7 +22,7 @@ import { CloseXWhite } from '@/components/icon';
 import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/forms';
 import style from './guide.module.css';
-
+import { getFeedbackLink, getSupportLink } from '@/utils/url_constants';
 
 export type TProps = {
   children?: ReactNode;
@@ -54,9 +54,16 @@ const Guide = ({ children, title = t('guide.title') }: TProps) => {
         <div className={style.content}>
           {children}
           <div className={style.appendix}>
+            {t('guide.appendix.feedback.text')}
+            {' '}
+            <A className={style.link} href={getFeedbackLink()}>
+              {t('guide.appendix.feedback.link')}
+            </A>
+            <br />
+            <br />
             {t('guide.appendix.text')}
             {' '}
-            <A className={style.link} href="https://bitbox.swiss/support/">
+            <A className={style.link} href={getSupportLink()}>
               {t('guide.appendix.link')}
             </A>
             <br />
