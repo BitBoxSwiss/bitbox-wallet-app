@@ -73,6 +73,7 @@
     --sidebar-item-height: 52px;
     --sidebar-icon-margin: 14px;
     --sidebar-icon-size: 24px;
+    --sidebar-icon-size: min(2.4rem, 28px);
 
     /* header */
     --header-height: 70px;
