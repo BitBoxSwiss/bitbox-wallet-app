@@ -51,7 +51,7 @@
     animation: changeContent .8s linear infinite;
     display: block;
     content: "⠋";
-    font-size: 1.4rem;
+    font-size: var(--size-small);
     margin-left: 3px;
 }
 

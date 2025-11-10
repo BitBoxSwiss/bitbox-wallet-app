@@ -16,6 +16,6 @@
 @media (max-width: 425px) {
     .buttons button {
         padding: var(--space-quarter);
-        font-size: 1.4rem;
+        font-size: var(--size-small);
     }
 }

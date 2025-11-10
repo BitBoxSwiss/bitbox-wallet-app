@@ -21,9 +21,8 @@
 
 @media (max-width: 768px) {
     .content,
-    .additionalUpgrade
-    {
-        font-size: 1.4rem;
+    .additionalUpgrade {
+        font-size: var(--size-small);
     }
 }
 

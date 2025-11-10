@@ -48,7 +48,7 @@
     content: "";
     display: inline-block;
     flex-shrink: 0;
-    font-size: 1.4rem;
+    font-size: var(--size-small);
     height: var(--icon-size);
     line-height: var(--icon-size);
     position: relative;
