@@ -1,5 +1,4 @@
 .container {
-  --size-default: 1.4rem;
   align-items: center;
   background-color: var(--background-secondary);
   border: none;

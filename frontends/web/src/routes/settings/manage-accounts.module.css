@@ -58,6 +58,7 @@
 }
 
 .coinLogo {
+    display: block;
     position: relative;
     z-index: 2;
 }
@@ -83,20 +84,23 @@
 }
 
 .toggleLabel {
-    align-items: center;
+    align-items: baseline;
     display: flex;
     justify-content: space-between;
 }
 
 .toggleLabelText {
+    align-items: baseline;
     color: var(--color-secondary);
+    display: flex;
 }
 
 .toggleLabelText img {
     color: var(--color-secondary);
     margin-right: var(--space-quarter);
-    max-width: 18px;
-    vertical-align: bottom;
+    max-height: var(--size-default);
+    height: auto;
+    width: var(--size-default);
 }
 
 .toggle {
@@ -150,7 +154,7 @@
 .token::before {
     background-color: #ddd;
     content: "";
-    height: 22px;
+    height: 4.2rem;
     left: 10px;
     position: absolute;
     top: -13px;
@@ -161,6 +165,13 @@
 .token:first-child::before {
     height: 16px;
     top: -7px;
+}
+
+.tokenIcon,
+.token img {
+    background: var(--background-secondary);
+    outline: 5px solid var(--background-secondary);
+    position: relative;
 }
 
 .token img:first-child {
