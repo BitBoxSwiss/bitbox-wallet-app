@@ -52,7 +52,7 @@
     --size-header: 2.4rem;
     --size-subheader: 1.8rem;
     --size-default: 1.6rem; /* was 14px now 16px*/
-    /* TODO: --size-newsmall: min(1.4rem, 24px) */
+    --size-small: 1.4rem;
     --size-smaller: 1.2rem;
     --size-xsmall: 1.1rem;
     --size-title: 3.2rem;
