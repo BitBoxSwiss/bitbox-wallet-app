@@ -40,25 +40,25 @@ import { GlobalBanners } from '@/components/banners';
 export type TProxyConfig = {
   proxyAddress: string;
   useProxy: boolean;
-}
+};
 
 export type TFrontendConfig = {
   expertFee?: boolean;
   coinControl?: boolean;
-}
+};
 
 export type TBackendConfig = {
-  proxy?: TProxyConfig
+  proxy?: TProxyConfig;
   authentication?: boolean;
   startInTestnet?: boolean;
   gapLimitReceive?: number;
   gapLimitChange?: number;
-}
+};
 
 export type TConfig = {
-  backend?: TBackendConfig
-  frontend?: TFrontendConfig
-}
+  backend?: TBackendConfig;
+  frontend?: TFrontendConfig;
+};
 
 export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();

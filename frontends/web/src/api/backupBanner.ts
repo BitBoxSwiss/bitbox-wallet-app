@@ -24,7 +24,7 @@ export type TShowBackupBannerResponse = {
   success: true;
   show: boolean;
   fiat: Fiat;
-  threshold: string
+  threshold: string;
 };
 
 export const getShowBackupBanner = (rootFingerprint: string): Promise<TShowBackupBannerResponse> => {

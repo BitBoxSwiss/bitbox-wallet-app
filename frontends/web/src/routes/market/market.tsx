@@ -22,7 +22,8 @@ import { SingleValue } from 'react-select';
 import { i18n } from '@/i18n/i18n';
 import * as marketAPI from '@/api/market';
 import { AccountCode, TAccount } from '@/api/account';
-import { Header } from '@/components/layout';
+import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
+import { View, ViewContent } from '@/components/view/view';
 import { MarketGuide } from './guide';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { useLoad } from '@/hooks/api';
@@ -42,7 +43,7 @@ import style from './market.module.css';
 type TProps = {
   accounts: TAccount[];
   code: AccountCode;
-}
+};
 
 export const Market = ({
   accounts,
@@ -146,68 +147,76 @@ export const Market = ({
     }
   };
 
+  const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
+
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <Dialog
-          medium
-          title={info && info.vendorName !== 'region' ? getVendorFormattedName(info.vendorName) : t('buy.exchange.region')}
-          onClose={() => setInfo(undefined)}
-          open={!!info}
-        >
-          {info && (
-            <InfoContent
-              action={info.action}
-              accounts={accounts}
-              vendorName={info.vendorName}
-              paymentFees={info.paymentFees}
-            />
-          )}
-        </Dialog>
-        <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{ activeTab === 'spend' ? (
-            t('generic.spend', { context: hasOnlyBTCAccounts ? 'bitcoin' : 'crypto' })
-          ) : (
-            title
-          )}</h2>}/>
-          <div className={[style.exchangeContainer, 'content', 'narrow', 'isVerticallyCentered'].join(' ')}>
-            <p className={style.label}>{t('buy.exchange.region')}</p>
-            {regions.length ? (
-              <>
-                <div className={style.selectContainer}>
-                  <CountrySelect
-                    onChangeRegion={handleChangeRegion}
-                    regions={regions}
-                    selectedRegion={selectedRegion}
-                  />
-                  <InfoButton onClick={() => setInfo({
-                    action: activeTab,
-                    vendorName: 'region',
-                    paymentFees: {}
-                  })} />
-                </div>
-                <MarketTab
-                  onChangeTab={(tab) => {
-                    setActiveTab(tab);
-                  }}
-                  activeTab={activeTab}
-                />
-                <div className={style.radioButtonsContainer}>
-                  <Deals
-                    marketDealsResponse={getDealReponse(activeTab)}
-                    btcDirectOTCSupported={btcDirectOTCSupported}
-                    goToVendor={goToVendor}
-                    showBackButton={supportedAccounts.length > 1}
-                    action={activeTab}
-                    setInfo={setInfo}
-                  />
-                </div>
-              </>
-            ) : <Spinner />}
-          </div>
-        </div>
-      </div>
-      <MarketGuide translationContext={hasOnlyBTCAccounts ? 'bitcoin' : 'crypto'} />
-    </div>
+    <Main>
+      <GuideWrapper>
+        <GuidedContent>
+          <Dialog
+            medium
+            title={info && info.vendorName !== 'region' ? getVendorFormattedName(info.vendorName) : t('buy.exchange.region')}
+            onClose={() => setInfo(undefined)}
+            open={!!info}
+          >
+            {info && (
+              <InfoContent
+                action={info.action}
+                accounts={accounts}
+                vendorName={info.vendorName}
+                paymentFees={info.paymentFees}
+              />
+            )}
+          </Dialog>
+          <Header title={
+            <h2>
+              {activeTab === 'spend' ? (
+                t('generic.spend', { context: translationContext })
+              ) : title}
+            </h2>
+          } />
+          <View width="550px" verticallyCentered fitContent fullscreen={false}>
+            <ViewContent fullWidth>
+              <div className={style.exchangeContainer}>
+                <p className={style.label}>
+                  {t('buy.exchange.region')}
+                </p>
+                {regions.length ? (
+                  <>
+                    <div className={style.selectContainer}>
+                      <CountrySelect
+                        onChangeRegion={handleChangeRegion}
+                        regions={regions}
+                        selectedRegion={selectedRegion}
+                      />
+                      <InfoButton onClick={() => setInfo({
+                        action: activeTab,
+                        vendorName: 'region',
+                        paymentFees: {}
+                      })} />
+                    </div>
+                    <MarketTab
+                      onChangeTab={setActiveTab}
+                      activeTab={activeTab}
+                    />
+                    <div className={style.radioButtonsContainer}>
+                      <Deals
+                        marketDealsResponse={getDealReponse(activeTab)}
+                        btcDirectOTCSupported={btcDirectOTCSupported}
+                        goToVendor={goToVendor}
+                        showBackButton={supportedAccounts.length > 1}
+                        action={activeTab}
+                        setInfo={setInfo}
+                      />
+                    </div>
+                  </>
+                ) : <Spinner />}
+              </div>
+            </ViewContent>
+          </View>
+        </GuidedContent>
+        <MarketGuide translationContext={translationContext} />
+      </GuideWrapper>
+    </Main>
   );
 };

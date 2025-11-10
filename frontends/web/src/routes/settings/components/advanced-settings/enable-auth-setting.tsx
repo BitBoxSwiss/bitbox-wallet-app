@@ -26,7 +26,7 @@ import { runningInAndroid, runningInIOS } from '@/utils/env';
 type TProps = {
   backendConfig?: TBackendConfig;
   onChangeConfig: Dispatch<TConfig>;
-}
+};
 
 export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => {
   const { t } = useTranslation();

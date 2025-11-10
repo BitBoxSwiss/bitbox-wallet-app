@@ -29,9 +29,9 @@ import { MarketGuide } from './guide';
 import { connectKeystore } from '@/api/keystores';
 
 type TProps = {
-    accounts: accountApi.TAccount[];
-    code: accountApi.AccountCode;
-}
+  accounts: accountApi.TAccount[];
+  code: accountApi.AccountCode;
+};
 
 export const MarketInfo = ({ code, accounts }: TProps) => {
   const navigate = useNavigate();

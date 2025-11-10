@@ -24,7 +24,7 @@ import style from './banner.module.css';
 
 type TBannerProps = {
   msgKey: 'bitbox01' | 'bitbox02' | 'bitbox02nova';
-}
+};
 
 export const Banner = ({ msgKey }: TBannerProps) => {
   const { i18n, t } = useTranslation();

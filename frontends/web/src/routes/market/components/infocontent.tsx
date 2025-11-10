@@ -94,7 +94,7 @@ const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfoProps) => {
 };
 
 type TPocketInfoProps = {
-  bankTransferFee?: number
+  bankTransferFee?: number;
 };
 
 const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {

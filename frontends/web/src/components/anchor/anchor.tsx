@@ -26,7 +26,7 @@ type TProps = {
   href: string;
   icon?: ReactNode;
   title?: string;
-}
+};
 
 /**
  * Renders a link to an external URL or file, which will open in the native browser or application.

@@ -52,6 +52,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	utilConfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
@@ -66,7 +67,7 @@ import (
 )
 
 func init() {
-	electrum.SetClientSoftwareVersion(Version)
+	electrum.SetClientSoftwareVersion(versioninfo.Version)
 }
 
 // fixedURLWhitelist is always allowed by SystemOpen, in addition to some

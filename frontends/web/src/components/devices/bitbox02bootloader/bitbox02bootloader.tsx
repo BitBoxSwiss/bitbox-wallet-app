@@ -29,7 +29,7 @@ import style from './bitbox02bootloader.module.css';
 
 type TProps = {
   deviceID: string;
-}
+};
 
 export const BitBox02Bootloader = ({ deviceID }: TProps) => {
   const { t } = useTranslation();

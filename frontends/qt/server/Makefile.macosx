@@ -1,5 +1,6 @@
 include ../../../hardening.mk.inc
 include ../../../env.mk.inc
+include ../../../version.mk.inc
 CGO=1
 BUILDMODE=c-shared
 GOOS=darwin
@@ -9,8 +10,8 @@ darwin:
 	CGO_CFLAGS="-g ${GODARWINSECFLAGS} ${CFLAGS}" \
 	CGO_LDFLAGS="${GODARWINLDFLAGS} ${LFLAGS}" \
 	MACOSX_DEPLOYMENT_TARGET=${MACOS_MIN_VERSION} \
-	GOARCH=arm64 CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} go build -trimpath -ldflags='-s' -x -mod=vendor -buildmode="c-shared" -o ${LIBNAME}_arm64.so
-	GOARCH=amd64 CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} go build -trimpath -ldflags='-s' -x -mod=vendor -buildmode="c-shared" -o ${LIBNAME}_amd64.so
+	GOARCH=arm64 CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} go build -trimpath -ldflags="-s $(GO_VERSION_LDFLAGS)" -x -mod=vendor -buildmode="c-shared" -o ${LIBNAME}_arm64.so
+	GOARCH=amd64 CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} go build -trimpath -ldflags="-s $(GO_VERSION_LDFLAGS)" -x -mod=vendor -buildmode="c-shared" -o ${LIBNAME}_amd64.so
 	lipo -create -output ${LIBNAME}.so ${LIBNAME}_arm64.so ${LIBNAME}_amd64.so
 	# Without this, the internal names of the two libs are libserver_arm64.so and libserver_amd64.so, and
 	# will be linked with these names in the final executable (even though the library is fat and its name is libserver.so).

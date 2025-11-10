@@ -36,7 +36,7 @@ type BackupsProps = {
   requireConfirmation?: boolean;
   onRestore?: () => void;
   children: ReactNode;
-}
+};
 
 type Props = BackupsProps & TranslateProps;
 
@@ -45,7 +45,7 @@ type State = {
   selectedBackup?: string;
   sdCardInserted: boolean | null;
   lock?: boolean;
-}
+};
 
 class Backups extends Component<Props, State> {
   private scrollableContainer = createRef<HTMLDivElement>();

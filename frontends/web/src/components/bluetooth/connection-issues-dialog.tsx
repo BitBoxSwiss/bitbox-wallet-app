@@ -20,9 +20,9 @@ import { A } from '@/components/anchor/anchor';
 import styles from './connection-issues-dialog.module.css';
 
 type Props = {
-    dialogOpen: boolean
-    onClose: () => void
-}
+  dialogOpen: boolean;
+  onClose: () => void;
+};
 export const ConnectionIssuesDialog = ({ dialogOpen, onClose }: Props) => {
   const { t } = useTranslation();
   return (

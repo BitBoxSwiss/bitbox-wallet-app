@@ -44,7 +44,7 @@ type TConfirmSendProps = {
   selectedUTXOs: TSelectedUTXOs;
   coinCode: CoinCode;
   transactionDetails: TransactionDetails;
-}
+};
 
 type TUTXOsByAddress = {
   [address: string]: string[];

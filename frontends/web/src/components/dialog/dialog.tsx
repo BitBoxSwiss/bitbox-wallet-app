@@ -187,7 +187,7 @@ export const Dialog = ({
 
 type DialogButtonsProps = {
   children: React.ReactNode;
-}
+};
 
 /**
  * ### Container to place buttons in a dialog

@@ -1,5 +1,5 @@
 .title {
-    font-size: var(--header-default-font-size);
+    font-size: var(--size-header);
     font-weight: 400;
 }
 

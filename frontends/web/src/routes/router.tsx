@@ -54,16 +54,16 @@ import { AllAccounts } from '@/routes/accounts/all-accounts';
 import { More } from '@/routes/settings/more';
 
 type TAppRouterProps = {
-    devices: TDevices;
-    deviceIDs: string[];
-    accounts: TAccount[];
-    activeAccounts: TAccount[];
-    devicesKey: ((input: string) => string)
-}
+  devices: TDevices;
+  deviceIDs: string[];
+  accounts: TAccount[];
+  activeAccounts: TAccount[];
+  devicesKey: ((input: string) => string);
+};
 
 type TInjectParamsProps = {
   children: ReactChild;
-}
+};
 
 const InjectParams = ({ children }: TInjectParamsProps) => {
   const params = useParams();

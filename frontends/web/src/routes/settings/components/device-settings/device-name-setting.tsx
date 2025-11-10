@@ -29,7 +29,7 @@ import nameStyle from '@/routes/device/bitbox02/setup/name.module.css';
 type TDeviceNameSettingProps = {
   deviceName: string;
   deviceID: string;
-}
+};
 
 type TDialogProps = {
   open: boolean;
@@ -38,11 +38,11 @@ type TDialogProps = {
   onInputChange: (value: string) => void;
   name: string;
   handleUpdateName: () => void;
-}
+};
 
 type TWaitDialogProps = {
   inProgress: boolean;
-}
+};
 
 const DeviceNameSetting = ({ deviceName, deviceID }: TDeviceNameSettingProps) => {
   const { t } = useTranslation();

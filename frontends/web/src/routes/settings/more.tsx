@@ -34,7 +34,7 @@ import styles from './more.module.css';
 
 type Props = {
   devices: TDevices;
-}
+};
 
 export const More = ({ devices }: Props) => {
   const navigate = useNavigate();

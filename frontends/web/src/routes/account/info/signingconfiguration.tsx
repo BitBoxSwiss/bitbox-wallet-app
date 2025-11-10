@@ -27,12 +27,12 @@ import { QRCode } from '@/components/qrcode/qrcode';
 import style from './info.module.css';
 
 type TProps = {
-    account: TAccount;
-    info: TSigningConfiguration;
-    code: AccountCode;
-    signingConfigIndex: number;
-    children: ReactNode;
-}
+  account: TAccount;
+  info: TSigningConfiguration;
+  code: AccountCode;
+  signingConfigIndex: number;
+  children: ReactNode;
+};
 
 export const SigningConfiguration = ({ account, info, code, signingConfigIndex, children }: TProps) => {
   const navigate = useNavigate();

@@ -19,10 +19,10 @@ import { ReactNode, useEffect, useState } from 'react';
 import style from './Toast.module.css';
 
 type TProps = {
-    theme: string;
-    withGuide?: boolean;
-    children: ReactNode;
-}
+  theme: string;
+  withGuide?: boolean;
+  children: ReactNode;
+};
 
 export const Toast = ({ theme, withGuide = false, children }: TProps) => {
   const [active, setActive] = useState(false);

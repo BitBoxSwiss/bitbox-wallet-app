@@ -27,7 +27,7 @@ import { TAccount } from '@/api/account';
 type TProps = {
   account: TAccount;
   onAgreedTerms: () => void;
-}
+};
 
 // Map languages supported by Bitrefill
 export const localeMapping: Readonly<Record<string, string>> = {

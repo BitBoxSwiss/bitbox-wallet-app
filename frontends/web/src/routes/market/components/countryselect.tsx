@@ -24,13 +24,13 @@ import styles from './countryselect.module.css';
 export type TOption = {
   label: string;
   value: string;
-}
+};
 
 type TProps = {
   onChangeRegion: (newValue: SingleValue<TOption>) => void;
   regions: TOption[];
   selectedRegion: string;
-}
+};
 
 const SelectedRegionIcon = ({ regionCode }: { regionCode: string }) => {
   const { isDarkMode } = useDarkmode();

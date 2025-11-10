@@ -30,7 +30,7 @@ import { InfoButton } from '@/components/infobutton/infobutton';
 import { getConfig } from '@/utils/config';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { VendorDeals } from '@/routes/market/components/vendor-deals';
-import style from '../market.module.css';
+import style from './deals.module.css';
 
 type TProps = {
   marketDealsResponse: marketAPI.TMarketDealsResponse | undefined;
@@ -39,7 +39,7 @@ type TProps = {
   showBackButton: boolean;
   action: marketAPI.TMarketAction;
   setInfo: (info: TInfoContentProps) => void;
-}
+};
 
 export const Deals = ({
   marketDealsResponse,

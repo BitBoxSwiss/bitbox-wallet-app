@@ -23,7 +23,7 @@ import { FirmwareSetting } from '@/routes/settings/components/device-settings/fi
 type TProps = {
   deviceID: string;
   versionInfo: VersionInfo;
-}
+};
 
 export const FirmwareUpgradeRequired = ({
   deviceID,

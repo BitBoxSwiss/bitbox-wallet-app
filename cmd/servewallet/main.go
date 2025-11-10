@@ -29,6 +29,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02/simulator"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	backendHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/system"
@@ -74,7 +75,7 @@ func (webdevEnvironment) DeviceInfos() []usb.DeviceInfo {
 	testDeviceInfo := simulator.TestDeviceInfo()
 	if testDeviceInfo != nil {
 		// We are in "test device" mode.
-		return []usb.DeviceInfo{*testDeviceInfo}
+		return []usb.DeviceInfo{testDeviceInfo}
 	}
 	return usb.DeviceInfos()
 }
@@ -179,6 +180,11 @@ func main() {
 		}
 	}(log)
 	log.Info("--------------- Started application --------------")
+	log.WithField("goos", runtime.GOOS).
+		WithField("goarch", runtime.GOARCH).
+		WithField("version", versioninfo.Version).
+		Info("environment")
+
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
 	newBackend, err := backendPkg.NewBackend(
@@ -199,6 +205,10 @@ func main() {
 	fmt.Printf("Listening on: http://localhost:%d\n", port)
 
 	if *useSimulator {
+		// The simulator is only allowed when running in testnet mode.
+		if !backend.Testing() {
+			log.Panic("The BitBox02 simulator can only be used in testnet mode.")
+		}
 		simulator.Init(*simulatorPort)
 	}
 

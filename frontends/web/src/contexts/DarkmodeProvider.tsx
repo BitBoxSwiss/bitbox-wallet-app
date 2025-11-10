@@ -23,7 +23,7 @@ import { DarkModeContext } from './DarkmodeContext';
 
 type TProps = {
   children: ReactNode;
-}
+};
 
 export const DarkModeProvider = ({ children }: TProps) => {
   const [isDarkMode, setIsDarkMode] = useState(false);

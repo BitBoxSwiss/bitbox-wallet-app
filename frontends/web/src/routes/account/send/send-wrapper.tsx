@@ -23,7 +23,7 @@ import { Send } from './send';
 type TSendProps = {
   accounts: TAccount[];
   code: AccountCode;
-}
+};
 
 export const SendWrapper = ({ accounts, code }: TSendProps) => {
   const { defaultCurrency } = useContext(RatesContext);

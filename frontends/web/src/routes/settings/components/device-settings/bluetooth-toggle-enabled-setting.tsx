@@ -25,12 +25,12 @@ import { StyledSkeleton } from '@/routes/settings/bb02-settings';
 
 type TBluetoothToggleEnabledSettingProps = {
   deviceID: string;
-}
+};
 
 type TToggleEnabledWaitDialogProps = {
   show: boolean;
   enabled: boolean;
-}
+};
 
 const ToggleEnabledWaitDialog = ({ show, enabled }: TToggleEnabledWaitDialogProps) => {
   const { t } = useTranslation();

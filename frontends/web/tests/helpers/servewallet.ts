@@ -14,19 +14,11 @@
 *  limitations under the License.
 */
 
-import { spawn } from 'child_process';
-import  * as net  from 'net';
+import { spawn, ChildProcess } from 'child_process';
+import * as net from 'net';
 import type { Page } from '@playwright/test';
 
-export async function startServeWallet() {
-    spawn(
-        'make',
-        ['-C', '../../', 'servewallet'],
-        { stdio: 'inherit' }
-    );
-};
-
-function connectOnce(host: string, port: number): Promise<void> {
+async function connectOnce(host: string, port: number): Promise<void> {
   return new Promise((resolve, reject) => {
     const socket = net.connect({ host, port }, () => {
       socket.end();
@@ -36,27 +28,116 @@ function connectOnce(host: string, port: number): Promise<void> {
   });
 }
 
+export interface ServeWalletOptions {
+  simulator?: boolean;
+  timeout?: number;
+  testnet?: boolean;
+}
 
-export async function waitForServewallet(
-  page: Page,
-  servewalletPort: number,
-  frontendPort: number,
-  host: string,
-  timeout = 90000,
-) {
-  const start = Date.now();
+export class ServeWallet {
+  private proc?: ChildProcess;
+  private readonly simulator: boolean;
+  private readonly page: Page;
+  private readonly servewalletPort: number;
+  private readonly frontendPort: number;
+  private readonly host: string;
+  private readonly timeout: number;
+  private readonly testnet: boolean;
 
-  while (Date.now() - start < timeout) {
-    try {
-      await connectOnce(host, servewalletPort);
-      await page.goto(`http://${host}:${frontendPort}`);
-      const elapsed = Date.now() - start;
-      console.log(`Connected to servewallet on ${host}:${servewalletPort} after ${elapsed} ms`);
-      return;
-    } catch {
-      await new Promise(r => setTimeout(r, 200));
+  constructor(
+    page: Page,
+    servewalletPort: number,
+    frontendPort: number,
+    host: string,
+    options: ServeWalletOptions = {}
+  ) {
+    const { simulator = false, timeout = 90000, testnet = true } = options;
 
+    if (!testnet && simulator) {
+      throw new Error('ServeWallet: mainnet simulator is not supported');
     }
+
+    this.page = page;
+    this.servewalletPort = servewalletPort;
+    this.frontendPort = frontendPort;
+    this.host = host;
+    this.simulator = simulator;
+    this.timeout = timeout;
+    this.testnet = testnet;
   }
-  throw new Error(`Timeout exceeded waiting for servewallet on ${host}:${servewalletPort}`);
+
+  async start(): Promise<void> {
+    let target: string;
+
+    if (this.testnet && !this.simulator) {
+      target = 'servewallet';
+    } else if (this.testnet && this.simulator) {
+      target = 'servewallet-simulator';
+    } else if (!this.testnet && !this.simulator) {
+      target = 'servewallet-mainnet';
+    } else {
+      // This should never happen because the constructor already guards against it
+      throw new Error('Invalid ServeWallet configuration');
+    }
+
+    this.proc = spawn('make', ['-C', '../../', target], {
+      stdio: 'inherit',
+      detached: true,
+    });
+
+    await this.waitUntilReady();
+  }
+
+  private async waitUntilReady(): Promise<void> {
+    const start = Date.now();
+    while (Date.now() - start < this.timeout) {
+      try {
+        await connectOnce(this.host, this.servewalletPort);
+        try {
+          await this.page.goto(`http://${this.host}:${this.frontendPort}`);
+          console.log(
+            `Servewallet ready on ${this.host}:${this.servewalletPort} after ${Date.now() - start} ms`
+          );
+          return;
+        } catch {
+          // page.goto failed, likely connection refused; retry
+        }
+      } catch {
+        // port not ready yet
+      }
+      await new Promise(r => setTimeout(r, 200));
+    }
+    throw new Error(`Timeout exceeded waiting for servewallet on ${this.host}:${this.servewalletPort}`);
+  }
+
+  stop(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!this.proc?.pid) {
+        console.log('ServeWallet process not running');
+        resolve();
+        return;
+      }
+
+      const pid = this.proc.pid;
+      console.log(`Stopping servewallet (pid=${pid})...`);
+
+      // Listen for exit event
+      this.proc.once('exit', () => {
+        console.log('Servewallet stopped');
+        resolve();
+      });
+
+      try {
+        process.kill(-pid, 'SIGTERM');
+      } catch (err) {
+        console.error('Failed to stop servewallet:', err);
+        resolve();
+      }
+    });
+  }
+
+  async restart(): Promise<void> {
+    await this.stop();
+    await this.start();
+  }
 }

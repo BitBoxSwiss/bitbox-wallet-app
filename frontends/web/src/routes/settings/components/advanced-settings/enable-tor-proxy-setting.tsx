@@ -26,7 +26,7 @@ import styles from './enable-tor-proxy-setting.module.css';
 type TProps = {
   proxyConfig?: TProxyConfig;
   onChangeConfig: Dispatch<any>;
-}
+};
 
 export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) => {
   const { t } = useTranslation();

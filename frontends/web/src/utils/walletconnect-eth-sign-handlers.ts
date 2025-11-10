@@ -6,11 +6,11 @@ import { alertUser } from '@/components/alert/Alert';
 
 type TWCParams = {
   request: {
-    method: string,
-    params: any[]
+    method: string;
+    params: any[];
   };
   chainId: string;
-}
+};
 
 export type TEthSignHandlerParams = {
   topic: string;
@@ -27,14 +27,14 @@ export type TRequestDialogContent = {
   signingData: string; // data / message coming from dapp
   currentSession: SessionTypes.Struct;
   method: string;
-}
+};
 
 export type TLaunchSignDialog = {
-  topic: string,
-  id: number,
+  topic: string;
+  id: number;
   apiCaller: () => Promise<any>;
-  dialogContent: TRequestDialogContent
-}
+  dialogContent: TRequestDialogContent;
+};
 
 const fetchAccountNameAndAddress = async (address: string) => {
   const accountDetail = await getEthAccountCodeAndNameByAddress(address);

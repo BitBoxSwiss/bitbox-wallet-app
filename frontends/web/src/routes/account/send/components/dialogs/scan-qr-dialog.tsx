@@ -25,7 +25,7 @@ type TProps = {
   onChangeActiveScanQR: (active: boolean) => void;
   parseQRResult: (result: string) => void;
   isMobile: boolean;
-}
+};
 
 const ScanQRDialogComponent = ({
   parseQRResult,

@@ -28,9 +28,9 @@ import { alertUser } from '@/components/alert/Alert';
 import { connectKeystore } from '@/api/keystores';
 
 type TProps = {
-    accounts: TAccount[];
-    code: string;
-}
+  accounts: TAccount[];
+  code: string;
+};
 
 export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   const navigate = useNavigate();

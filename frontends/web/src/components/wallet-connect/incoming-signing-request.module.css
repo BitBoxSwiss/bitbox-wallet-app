@@ -21,7 +21,7 @@
 }
 
 .animationAndTextContainer p {
-    font-size: var(--header-default-font-size);
+    font-size: var(--size-header);
     margin-top: var(--space-quarter);
 }
 
@@ -101,7 +101,7 @@
 }
 
 .titleContainer h3 {
-    font-size: var(--header-default-font-size);
+    font-size: var(--size-header);
     font-weight: 400;
     margin: 0 0 0 var(--space-eight);
     padding: 0 var(--space-quarter);

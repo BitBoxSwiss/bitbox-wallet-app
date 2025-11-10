@@ -27,7 +27,7 @@ import { UseBackButton } from '@/hooks/backbutton';
 
 type TProps = {
   onChangeConfig: Dispatch<TConfig>;
-}
+};
 
 export const RestartInTestnetSetting = ({ onChangeConfig }: TProps) => {
   const { t } = useTranslation();

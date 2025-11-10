@@ -24,7 +24,7 @@ import { getConfig, setConfig } from '@/utils/config';
 
 type TProps = {
   children: ReactNode;
-}
+};
 
 export const WCWeb3WalletProvider = ({ children }: TProps) => {
   const { t } = useTranslation();

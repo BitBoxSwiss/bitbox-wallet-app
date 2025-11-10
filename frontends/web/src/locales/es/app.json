@@ -842,6 +842,7 @@
           "title": "Métodos de pago y tarifas"
         },
         "kyc": {
+          "info": "Pocket podría solicitar documentos de identificación. Consulta sus preguntas frecuentes para obtener más información.",
           "link": "Leer las preguntas frecuentes (FAQ) de Pocket",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },

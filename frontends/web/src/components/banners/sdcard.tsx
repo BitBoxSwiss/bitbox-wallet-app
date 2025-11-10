@@ -25,7 +25,7 @@ import { Message } from '@/components/message/message';
 type Props = {
   code?: AccountCode;
   devices: TDevices;
-}
+};
 
 export const SDCardWarning = ({
   code,

@@ -28,11 +28,11 @@ type TVASPProps = {
   hostname: string;
   prominent?: boolean;
   withLogoText?: string;
-}
+};
 
 type TVASPMap = {
   [hostname: string]: string;
-}
+};
 
 const VASPLogoMap: TVASPMap = {
   'demo.aopp.group': AOPPGroupLogo,

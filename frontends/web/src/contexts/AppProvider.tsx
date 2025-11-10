@@ -29,8 +29,8 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 import { useSync } from '@/hooks/api';
 
 type TProps = {
-    children: ReactNode;
-}
+  children: ReactNode;
+};
 
 export const AppProvider = ({ children }: TProps) => {
   const nativeLocale = i18nextFormat(useDefault(useLoad(getNativeLocale), 'de-CH'));

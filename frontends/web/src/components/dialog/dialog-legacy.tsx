@@ -30,12 +30,12 @@ type Props = {
   onClose?: (e?: Event) => void;
   disabledClose?: boolean;
   children: React.ReactNode;
-}
+};
 
 type State = {
   active: boolean;
   currentTab: number;
-}
+};
 
 class DialogLegacy extends Component<Props, State> {
   private overlay = createRef<HTMLDivElement>();
@@ -219,7 +219,7 @@ class DialogLegacy extends Component<Props, State> {
 
 type DialogButtonsProps = {
   children: React.ReactNode;
-}
+};
 
 const DialogButtons = ({ children }: DialogButtonsProps) => {
   return (

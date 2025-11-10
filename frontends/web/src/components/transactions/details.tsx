@@ -26,7 +26,7 @@ type TProps = {
   explorerURL: string;
   internalID: TTransaction['internalID'] | null;
   onClose: () => void;
-}
+};
 
 export const TransactionDetails = ({
   accountCode,

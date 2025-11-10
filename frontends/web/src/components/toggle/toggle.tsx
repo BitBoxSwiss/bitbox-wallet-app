@@ -16,7 +16,7 @@
 
 import style from './toggle.module.css';
 
-export type TToggleProps = JSX.IntrinsicElements['input']
+export type TToggleProps = JSX.IntrinsicElements['input'];
 
 export const Toggle = ({
   className = '',

@@ -33,7 +33,7 @@ const isConnectedOrConnecting = (peripheral: TPeripheral) => {
 
 type Props = {
   peripheralContainerClassName?: string;
-}
+};
 
 const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
   const { t } = useTranslation();

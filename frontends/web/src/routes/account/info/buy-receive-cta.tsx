@@ -39,7 +39,7 @@ type TBuyReceiveCTAProps = {
 type TAddBuyReceiveOnEmpyBalancesProps = {
   balances?: Balances;
   accounts: TAccount[];
-}
+};
 
 export const BuyReceiveCTA = ({
   balanceList,
