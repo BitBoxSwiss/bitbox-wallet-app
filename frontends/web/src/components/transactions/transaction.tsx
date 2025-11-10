@@ -52,7 +52,7 @@ export const Transaction = ({
           onShowDetail(internalID);
         }
       }}>
-      <div className={styles.txContent}>
+      <div className={styles.txContent} data-testid="transaction" data-tx-type={type}>
         <span className={styles.txIcon}>
           <Arrow status={status} type={type} />
         </span>
