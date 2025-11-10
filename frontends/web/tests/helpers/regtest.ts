@@ -78,7 +78,7 @@ export async function sendCoins(address: string, amount: number | string): Promi
 
 
 export function launchRegtest(): Promise<ChildProcess> {
-  const PROJECT_ROOT = process.env.GITHUB_WORKSPACE || path.resolve(__dirname, '../../..');
+  const PROJECT_ROOT = process.env.GITHUB_WORKSPACE || path.resolve(__dirname, '../../../..');
   // First, clean up cache and headers.
   try {
     const basePath = path.join(PROJECT_ROOT, 'appfolder.dev/cache');
