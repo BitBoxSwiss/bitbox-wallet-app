@@ -1,4 +1,5 @@
 .disclaimerContainer {
+  --size-default: min(1.4rem, 24px);
   align-items: center;
   display: flex;
   flex-basis: 100%;
@@ -21,22 +22,22 @@
   margin: 0 0 var(--space-default) 0;
   max-width: 660px;
   overflow: auto;
-  padding: var(--space-quarter) 1em 1em 1em;
+  padding: var(--space-quarter) var(--space-half) var(--space-half) var(--space-half);
 }
 
 .title {
-  font-size: 1.4rem;
+  font-size: var(--size-default);
   font-weight: bold;
   text-align: left;
 }
 
 .disclaimer p {
-  font-size: 1.4rem;
+  font-size: var(--size-default);
   line-height: 1.5;
 }
 
 .disclaimer p + .title {
-  margin: 4rem 0 0 0;
+  margin: 40px 0 0 0;
 }
 
 .table {
@@ -45,7 +46,7 @@
 
 .table table {
   border-collapse: collapse;
-  font-size: 1.4rem;
+  font-size: var(--size-default);
   text-align: left;
 }
 
@@ -62,6 +63,11 @@
 .table td:not(:last-child),
 .table th:not(:last-child) {
   padding-left: 0;
+}
+
+.table td:last-child,
+.table th:last-child {
+  padding-right: 0;
 }
 
 .nowrap {

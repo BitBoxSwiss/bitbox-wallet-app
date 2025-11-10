@@ -178,9 +178,9 @@ export const Market = ({
           <View width="550px" verticallyCentered fitContent fullscreen={false}>
             <ViewContent fullWidth>
               <div className={style.exchangeContainer}>
-                <p className={style.label}>
+                <label className={style.label}>
                   {t('buy.exchange.region')}
-                </p>
+                </label>
                 {regions.length ? (
                   <>
                     <div className={style.selectContainer}>

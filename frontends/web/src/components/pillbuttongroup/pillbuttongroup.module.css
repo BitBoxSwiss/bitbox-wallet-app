@@ -9,7 +9,7 @@
 .pillbuttongroup button {
 	appearance: none;
 	background: var(--background-secondary);
-	border: 0.1rem solid var(--background-secondary);
+	border: 2px solid var(--background-secondary);
 	border-radius: 36px;
 	color: var(--color-default);
 	font-size: min(var(--size-default), 18px);
@@ -22,7 +22,6 @@
 }
 
 .pillbuttongroup.large button {
-	font-size: min(calc(var(--size-default) + 1px), 24px);
 	padding: 2px 24px;
 }
 
@@ -35,7 +34,7 @@
 }
 
 .pillbuttongroup button:focus {
-	border: 2px solid var(--color-blue);
+	border-color: var(--color-blue);
 	outline: none;
 }
 

@@ -1,9 +1,22 @@
-.container, .paymentMethodContainer {
+.container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.paymentMethodContainer {
+    align-items: baseline;
     display: flex;
 }
 
 .exchangeName {
-    width: 110px;
+    flex-basis: 100px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    font-size: var(--size-default);
+    font-weight: normal;
+    line-height: 1.6;
+    margin: 0;
+    word-break: keep-all;
 }
 
 .exchangeContainer {
@@ -18,31 +31,16 @@
     position: relative;
 }
 
-.infoButton {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    position: absolute;
-    right: calc(var(--space-default) * -1);
-    top: 50%;
-    transform: translateY(-50%);
-
-}
-
-.outerContainer {
-    position: relative;
-}
-
 .paymentMethodsContainer {
     display: flex;
     flex-direction: column;
-    margin-left: 20px;
-    width: 100%;
+    flex-grow: 1;
+    gap: var(--space-eight);
     padding-right: var(--space-quarter);
 }
 
-.paymentMethodName, .dealDescription {
+.paymentMethodName,
+.dealDescription {
     color: var(--color-default);
     display: inline-block;
     font-weight: 400;
@@ -53,133 +51,10 @@
     margin-right: var(--space-quarter);
 }
 
-.paymentMethodContainer:not(:first-child) {
-    margin-top: var(--space-eight);
-}
-
-
-.radio {
-    --size-default: 1.4rem;
-    background-color: var(--background-secondary);
-    border: 1px solid var(--background-quaternary);
-    display: block;
-    padding: 8px;
-}
-
-.radio:hover, .radio *:hover {
-    cursor: pointer;
-}
-
-.radio input {
-    display: none;
-}
-
-.radio input + label {
-    display: inline-flex;
-    flex-direction: column;
-    font-size: var(--size-default);
-    line-height: 1.5;
-    margin: 0;
-    padding-left: calc(var(--space-half) + var(--space-quarter));
-    position: relative;
-}
-
-.radio input + label::before,
-.radio input + label::after {
-    background: var(--background-secondary);
-    content: '';
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    position: absolute;
-    top: 4px;
-    left: 0;
-    transition: all 100ms ease;
-}
-
-.radio input + label::before {
-    border: 1px solid var(--background-tertiary);
-    border-radius: 1em;
-}
-
-.radio input + label::after {
-    background: var(--color-info);
-    border-radius: 1em;
-    width: 10px;
-    height: 10px;
-    position: absolute;
-    top: 6px;
-    left: 2px;
-    opacity: 0;
-    transform: scale(0);
-}
-
-.radioLabel {
-    width: 100%;
-}
-
-.text {
-    margin: 0;
-}
-
-/* checked */
-
-.radio[aria-checked="true"] {
-    background-color: var(--background-focus);
-}
-
-.radio:focus {
-    position: relative;
-    z-index: 2;
-}
-
-.radio input:checked + label::before {
-    background-color: var(--background-secondary);
-}
-
-.radio input:checked + label::after {
-    opacity: 1;
-    transform: scale(1);
-}
-
-/* focus */
-
-.radio input[type="radio"]:focus + label::before {
-    box-shadow: 0px 0px 2px 2px var(--color-info);
-    outline: none;
-    outline-offset: 0;
-}
-
-.radio input[type="radio"]:checked:focus + label::before {
-    box-shadow: 0px 0px 2px 2px var(--color-info);
-}
-
-/* disabled */
-
-.radio input:disabled + label::before {
-    background: rgb(248, 248, 248);
-    border-color: rgb(220, 220, 220);
-    cursor: not-allowed;
-}
-
-.radio[aria-disabled="true"] {
-    background-color: #FFF;
-}
-
-.radio[aria-disabled="true"], .radio[aria-disabled="true"] * {
-    cursor: not-allowed;
-}
-
-span[role="radio"]:focus{
-    outline-color: var(--color-blue);
-}
-
-@media (max-width: 400px) {
+@media (max-width: 425px) {
     .exchangeName {
-        width: 150px;
-    }
-
-    .badgeContainer {
-        display: none;
+        flex-basis: 180px;
+        max-width: 180px;
+        width: 180px;
     }
 }

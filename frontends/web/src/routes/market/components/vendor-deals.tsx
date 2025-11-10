@@ -97,9 +97,9 @@ export const VendorDeals = ({
   return (
     <div className={style.exchangeContainer}>
       <div className={style.container}>
-        <p className={[style.text, style.exchangeName].join(' ')}>
+        <h3 className={style.exchangeName}>
           {getVendorFormattedName(vendorName)}
-        </p>
+        </h3>
         <div className={style.paymentMethodsContainer}>
           {deals.map(deal => !deal.isHidden && <Deal key={deal.payment} deal={deal} vendorName={vendorName}/>)}
         </div>
