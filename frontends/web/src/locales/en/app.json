@@ -1376,6 +1376,14 @@
     "about": {
       "appVersion": {
         "title": "App version"
+      },
+      "feedbackLink": {
+        "description": "If you have general feedback",
+        "title": "Feedback"
+      },
+      "supportLink": {
+        "description": "If you have an issue or need help",
+        "title": "Support"
       }
     },
     "advancedSettings": {
