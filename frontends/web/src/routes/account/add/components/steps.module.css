@@ -108,7 +108,7 @@
 }
 
 .content {
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
     line-height: 1;
     margin: 0;
     min-width: 90px;

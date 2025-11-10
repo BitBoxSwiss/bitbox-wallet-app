@@ -23,7 +23,7 @@
 
 .text-center { text-align: center; }
 .text-right { text-align: right; }
-.text-small { font-size: var(--size-small); }
+.text-small { font-size: var(--size-smaller); }
 .text-medium { font-size: var(--size-default); }
 .text-medium > label {
     font-size: var(--size-default);
@@ -185,7 +185,7 @@ button, textarea {
 
 @media (max-width: 768px) {
     .tabs .tab a {
-        font-size: var(--size-small);
+        font-size: var(--size-smaller);
     }
 }
 

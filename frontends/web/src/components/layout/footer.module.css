@@ -24,7 +24,7 @@
 
     .footer p {
         text-align: right;
-        font-size: var(--size-small);
+        font-size: var(--size-smaller);
     }
 
     .footer img {

@@ -27,7 +27,7 @@
 
 .pendingBalance {
   color: var(--color-secondary);
-  font-size: var(--size-small);
+  font-size: var(--size-smaller);
   line-height: 1;
   margin: 0;
   padding-top: var(--space-half);
