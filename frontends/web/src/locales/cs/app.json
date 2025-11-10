@@ -842,9 +842,8 @@
           "title": "Platební metody a poplatky"
         },
         "kyc": {
+          "info": "Pocket může vyžadovat identifikační doklady. Další informace najdete v jejich sekci Často kladené otázky (FAQ).",
           "link": "Přečtěte si Pocket FAQ",
-          "p1": "Při výměně do 1000 EUR/CHF během 30 dnů nejsou potřeba žádné další doklady.",
-          "p2": "U větších částek je k dokončení procesu KYC/AML vyžadován hovor s Pocket.",
           "title": "KYC/AML (Know your customer / Anit-Money Laundering)"
         },
         "security": {
@@ -879,7 +878,7 @@
   },
   "generic": {
     "buy": "Koupit {{coinCode}}",
-    "buySell": "Tržiště",
+    "buySell": "Marketplace",
     "buy_bitcoin": "Koupit Bitcoin",
     "buy_crypto": "Koupit krypto",
     "close": "Zavřít",
@@ -1153,7 +1152,7 @@
       "accountSummary": "Průvodce přehledem účtu",
       "advancedSettings": "Průvodce pokročilým nastavením",
       "appearance": "Průvodce vzhledu",
-      "buySell": "Průvodce tržištěm",
+      "buySell": "Marketplace průvodce",
       "insurance": "Průvodce pojištěním",
       "manageAccount": "Průvodce správou účtů",
       "manageDevice": "Průvodce pro správu zařízení",

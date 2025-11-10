@@ -100,7 +100,7 @@
   "auth": {
     "authButton": "Autenticati",
     "dismissButton": "Annulla",
-    "missing": "Per favore configura una schermata di blocco dalle impostazioni del dispositivo",
+    "missing": "Per favore configura una schermata di blocco dalle impostazioni di sistema del dispositivo.",
     "title": "Autenticati per continuare"
   },
   "backup": {
@@ -199,7 +199,7 @@
   },
   "bitbox02Settings": {
     "bluetoothToggleEnabled": {
-      "alertDisabled": "Il Bluetooth è ora disattivato sul tuo BitBox. Se vorrai connetterti con un iPhone in futuro, dovrai riabilitarlo.",
+      "alertDisabled": "Il Bluetooth è ora disattivato sul tuo BitBox. Se desideri connetterti con un iPhone in futuro, dovrai riabilitarlo.",
       "alertEnabled": "Il Bluetooth è ora abilitato. ",
       "description": "Il Bluetooth è usato per connettersi con iPhone.",
       "titleDisabled": "Abilita Bluetooth",
@@ -842,9 +842,8 @@
           "title": "Metodi di pagamento e commissioni"
         },
         "kyc": {
+          "info": "Pocket potrebbe richiedere documenti d'identità. Per favore consulta le loro FAQ per maggiori informazioni.",
           "link": "Leggi le FAQ di Pocket",
-          "p1": "Non sono necessari documenti aggiuntivi per cambi fino a 1000 EUR/CHF in un periodo di 30 giorni.",
-          "p2": "Per importi maggiori è necessaria una call con Pocket per completare la procedura KYC/AML.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
@@ -879,7 +878,7 @@
   },
   "generic": {
     "buy": "Acquista {{coinCode}}",
-    "buySell": "Compra e vendi",
+    "buySell": "Marketplace",
     "buy_bitcoin": "Acquista Bitcoin",
     "buy_crypto": "Acquista crypto",
     "close": "Chiudi",
@@ -1004,7 +1003,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Non c'è un limite al numero di account Bitcoin e Litecoin supportati. Dopo il quinto account, potrai aggiungerne uno nuovo solo se il precedente è già stato utilizzato.\n",
+        "text": "Non c'è un limite al numero di account Bitcoin e Litecoin supportati. Dopo il sesto account, potrai aggiungerne uno nuovo solo se il precedente è già stato utilizzato.\nUn massimo di **cinque** account è possibile per le altre monete (token).",
         "title": "Quanti account posso creare?"
       },
       "howtoAddTokens": {
@@ -1153,7 +1152,7 @@
       "accountSummary": "Guida al riepilogo account",
       "advancedSettings": "Guida alle impostazioni avanzate",
       "appearance": "Guida alle impostaizoni di aspetto",
-      "buySell": "Guida all'acquisto e alla vendita",
+      "buySell": "Guida al Marketplace",
       "insurance": "Guida all'assicurazione",
       "manageAccount": "Guida alla gestione degli account",
       "manageDevice": "Guida alla gestione del dispositivo",
