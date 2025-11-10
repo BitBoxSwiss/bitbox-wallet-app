@@ -101,7 +101,7 @@
     }
 
     .addressField input {
-        font-size: var(--size-small);
+        font-size: var(--size-smaller);
     }
 
     .qrCode {

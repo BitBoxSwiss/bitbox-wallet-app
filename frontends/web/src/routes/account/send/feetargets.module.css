@@ -82,7 +82,7 @@
     .row .fee input {
         border: none;
         color: var(--color-secondary) !important;
-        font-size: var(--size-small);
+        font-size: var(--size-smaller);
         font-weight: 400;
         height: auto;
         margin-top: 0;
@@ -98,7 +98,7 @@
 .feeProposed {
     color: var(--color-secondary);
     flex: 0 0 100%;
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
     font-weight: 400;
     margin-top: 0;
 }

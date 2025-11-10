@@ -110,7 +110,7 @@
   background: var(--background-secondary);
   border: 1px solid var(--background);
   border-radius: 3px;
-  font-size: var(--size-small);
+  font-size: var(--size-smaller);
   margin-top: -25px;
   min-width: 140px;
   padding: 12px 10px;
@@ -129,7 +129,7 @@
 
 .toolTipUnit {
   color: var(--color-secondary);
-  font-size: var(--size-small);
+  font-size: var(--size-smaller);
   padding: 0 2px;
 }
 

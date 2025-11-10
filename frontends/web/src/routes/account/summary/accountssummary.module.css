@@ -33,7 +33,7 @@
 .openFileText {
     color: var(--color-primary);
     cursor: pointer;
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
 }
 
 .table {

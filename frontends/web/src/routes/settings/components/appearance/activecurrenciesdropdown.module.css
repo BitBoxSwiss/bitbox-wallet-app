@@ -10,7 +10,7 @@
 }
 
 .defaultLabel {
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
     margin: 0;
     text-transform: capitalize;
 }

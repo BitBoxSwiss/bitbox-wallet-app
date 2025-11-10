@@ -2,7 +2,7 @@
   border-radius: var(--space-half);
   border: 1px solid;
   display: inline-block;
-  font-size: var(--size-small);
+  font-size: var(--size-smaller);
   flex-shrink: 0;
   line-height: 1;
   padding: var(--space-eight) 10px;

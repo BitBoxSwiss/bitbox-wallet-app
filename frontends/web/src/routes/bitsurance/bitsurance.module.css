@@ -67,7 +67,7 @@ ul.clean {
   }
 
   .cardBody2 {
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
   }
 
   .clean li {
