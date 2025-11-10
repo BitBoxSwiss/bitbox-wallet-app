@@ -22,7 +22,7 @@
     height: 16px;
     width: 100%;
     max-width: var(--content-width);
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
     color: var(--color-secondary);
     text-align: right;
     margin: 0 auto;

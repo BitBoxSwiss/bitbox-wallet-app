@@ -53,7 +53,7 @@
 .backupID {
     word-break: break-all;
     margin-bottom: var(--space-quarter);
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
     color: var(--color-secondary);
 }
 

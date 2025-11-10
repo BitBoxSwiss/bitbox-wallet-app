@@ -2,7 +2,7 @@
     padding: 4px 10px;
     border-radius: var(--space-half);
     border: 1px solid;
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
     line-height: 14px;
     background: var(--color-palegreen);
     border-color: var(--color-lightgreen);
