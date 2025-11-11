@@ -1,7 +1,6 @@
 .container {
   display: flex;
   flex-direction: column;
-  font-size: var(--size-small);
   gap: var(--space-half);
   width: 100%;
 }
@@ -36,12 +35,13 @@
 }
 
 .accountIcon img {
+  display: block;
   max-width: 24px;
 }
 
 .accountName {
   flex-basis: auto;
-  flex-grow: 0;
+  flex-grow: 1;
   flex-shrink: 1;
   margin: 0;
   margin-right: var(--space-half);
@@ -57,20 +57,25 @@
   flex-basis: auto;
   flex-shrink: 0;
   flex-grow: 1;
-  font-size: 1.6rem;
+  font-size: var(--size-default);
   justify-content: flex-end;
   margin-left: auto;
   overflow: hidden;
   text-align: right;
 }
 
+.unit {
+  font-size: var(--size-small);
+}
+
 .chevron {
   color: var(--color-mediumgray);
   flex-shrink: 0;
-  font-size: 1.8rem;
-  margin-left: 4px;
-  margin-top: 6px;
   margin-right: -8px;
+}
+
+.chevron img {
+  display: block;
 }
 
 .emptyState {
