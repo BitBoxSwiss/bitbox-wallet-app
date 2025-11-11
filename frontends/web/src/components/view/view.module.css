@@ -293,22 +293,6 @@
     margin: 0 auto;
 }
 
-@media (min-width: 1200px) {
-    .title {
-        --size-subheader: 2.8rem;
-    }
-    .header,
-    .inner p {
-        --size-default: 2rem;
-    }
-    .fullscreen {
-        --size-default: 1.8rem;
-    }
-    .inner footer p {
-        --size-default: 1.4rem;
-    }
-}
-
 .footer {
     align-items: center;
     display: flex;
