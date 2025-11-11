@@ -17,18 +17,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 
 /**
- * Returns a locator for elements matching a given attribute key/value pair.
- *
- * @param page - Playwright page
- * @param attrKey - The attribute key to select (e.g., "data-label")
- * @param attrValue - The value of the attribute to match
- * @returns Locator for matching elements
- */
-export function getFieldsByAttribute(page: Page, attrKey: string, attrValue: string): Locator {
-  return page.locator(`[${attrKey}="${attrValue}"]`);
-}
-
-/**
  * Finds elements by attribute key/value and asserts the expected count.
  *
  * @param page - Playwright page
@@ -42,7 +30,7 @@ export async function assertFieldsCount(
   attrValue: string,
   expectedCount: number
 ) {
-  const locator = getFieldsByAttribute(page, attrKey, attrValue);
+  const locator = page.locator(`[${attrKey}="${attrValue}"]`);
   await expect(locator).toHaveCount(expectedCount);
 }
 
