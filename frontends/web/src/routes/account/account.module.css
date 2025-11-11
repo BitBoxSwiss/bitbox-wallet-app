@@ -32,7 +32,7 @@
 }
 
 .loupe {
-    width: 17px;
+    width: var(--size-default);
 }
 
 @media (max-width: 768px) {
@@ -54,7 +54,6 @@
 }
 
 .actionsContainer {
-    --size-default: 1.4rem;
     display: flex;
     flex-grow: 1;
     flex-shrink: 0;
@@ -73,6 +72,11 @@
     justify-content: flex-end;
 }
 
+.iconWalletConnect {
+    height: var(--size-header);
+    max-width: var(--size-header);
+}
+
 .disabled {
     cursor: default;
     opacity: 0.4;
@@ -88,9 +92,9 @@
 }
 
 .accountIcon {
-    width: 18px;
-    height: 18px;
+    height: var(--size-default);
     margin-right: var(--space-eight);
+    width: var(--size-default);
 }
 
 .errorLoadTransactions {
@@ -102,7 +106,7 @@
     color: var(--color-secondary);
     display: flex;
     justify-content: space-between;
-    margin-bottom: var(--space-quarter) !important; /* overwrite default subTitle margin */
+    margin-bottom: 0 !important; /* overwrite default subTitle margin */
 }
 .titleWithButton button {
     padding-left: var(--space-half);
@@ -179,10 +183,6 @@
     margin-bottom: var(--space-half);
     min-width: 320px;
     width: 100%;
-}
-
-.searchInput input {
-    height: 40px;
 }
 
 .searchInput:focus {
