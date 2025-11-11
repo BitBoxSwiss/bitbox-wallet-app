@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add feedback link to guide and about settings
 
 ## v4.49.0
 - Bundle BitBox02 Nova firmware version v9.24.0
