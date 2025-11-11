@@ -15,18 +15,18 @@
 .txUnit {
   color: var(--color-secondary);
   font-size: var(--size-small);
-  line-height: 1.285714;
+  /* line-height: 1.285714; */
   white-space: nowrap;
 }
 
 .txConversionAmount .txUnit {
-  font-size: 1.2rem;
+  font-size: var(--size-smaller);
   flex-shrink: 0;
 }
 
 .txSmallInlineIcon img {
-  max-height: 15px;
-  max-width: 15px;
+  max-height: 1.5rem;
+  max-width: 1.5rem;
   vertical-align: text-bottom;
 }
 .txConversionAmount .txSmallInlineIcon {

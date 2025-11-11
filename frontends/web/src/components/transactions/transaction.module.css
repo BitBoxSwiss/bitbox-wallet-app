@@ -81,7 +81,7 @@
 
 .txAmount {
   align-items: baseline;
-  font-size: 1.6rem;
+  font-size: var(--size-default);
   font-variant: tabular-nums;
   gap: 3px;
   justify-content: flex-end;
@@ -116,7 +116,7 @@
 }
 .txNoteText {
   color: var(--color-default);
-  font-size: 1.6rem;
+  font-size: var(--size-default);
   line-height: 1.25;
 }
 @media (max-width: 560px) {
@@ -180,7 +180,7 @@
 }
 .txType {
   color: var(--color-default);
-  font-size: 1.6rem;
+  font-size: var(--size-default);
   line-height: 1.25;
 }
 
