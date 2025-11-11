@@ -19,21 +19,6 @@
     min-height: 260px;
 }
 
-.arrowLeft,
-.arrowRight {
-    width: 16px;
-    position: relative;
-    top: 3px;
-}
-
-.arrowLeft {
-    margin-right: 3px;
-}
-
-.arrowRight {
-    margin-left: 3px;
-}
-
 .previous,
 .next {
     appearance: none;
@@ -44,6 +29,13 @@
     line-height: 1;
     padding: 0;
     text-decoration: none;
+}
+
+.previous img,
+.next img {
+    display: block;
+    height: min(2.4rem, 36px);
+    width: min(2.4rem, 36px);
 }
 
 .hide {
@@ -62,11 +54,12 @@
     color: var(--color-secondary);
     cursor: pointer;
     display: inline-block;
+    font-size: var(--size-small);
     text-align: center;
     text-decoration: underline;
     padding: var(--space-quarter);
 }
 
 .messageContainer {
-    margin-top: var(--spacing-default);
+    margin-top: var(--spacing-half);
 }
