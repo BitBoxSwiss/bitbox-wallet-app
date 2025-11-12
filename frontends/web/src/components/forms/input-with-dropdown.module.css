@@ -113,7 +113,7 @@ input.inputField::placeholder {
 
 .dropdownTrigger {
     align-items: center;
-    background-color: #fff;
+    background-color: var(--background-secondary);
     border: 1px solid var(--background-quaternary);
     border-left: hidden;
     display: flex;
