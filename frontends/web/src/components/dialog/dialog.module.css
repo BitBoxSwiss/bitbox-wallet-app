@@ -11,6 +11,8 @@
     width: 100%;
     background: transparent;
     z-index: 4010;
+    touch-action: none;
+    overscroll-behavior: contain;
 }
 
 .overlay.activeOverlay {
@@ -26,6 +28,8 @@
     text-align: left;
     max-height: calc(100dvh - calc(env(safe-area-inset-top) * 2));
     overflow: auto;
+    touch-action: auto;
+    -webkit-overflow-scrolling: touch;
 }
 /* guard dialog and wait-dialog from view styles */
 @media (min-width: 1200px) {

@@ -2,8 +2,10 @@
 
 ## Unreleased
 - Add a dropdown on the "Receiver address" input in the send screen to select an account
+- Add feedback link to guide and about settings
 
 ## v4.49.0
+- Bundle BitBox02 Nova firmware version v9.24.0
 - macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
 - Added BTC Direct sell option
 - Added a banner to remind user to backup their seed phrase when an account reaches a certain threshold.

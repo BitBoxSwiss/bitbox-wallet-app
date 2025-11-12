@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, useCallback, useContext, useMemo, useState } from 'react';
+import { ChangeEvent, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { getReceiveAddressList } from '@/api/account';
@@ -51,7 +51,8 @@ export const ScanQRButton = ({ onClick, withDropdown = false }: TToggleScanQRBut
      ${withDropdown ? style.withDropdown || '' : ''}`
     }>
       {isDarkMode ? <QRCodeLight /> : <QRCodeDark />}
-    </button>);
+    </button>
+  );
 };
 
 export const ReceiverAddressInput = ({
@@ -77,6 +78,10 @@ export const ReceiverAddressInput = ({
       acc.keystore.rootFingerprint === account?.keystore.rootFingerprint
     ) || [], [activeAccounts, account]);
 
+  const isMobileSnapshotRef = useRef<boolean>(isMobile);
+  const parseQRResultRef = useRef(parseQRResult);
+  parseQRResultRef.current = parseQRResult;
+
   const handleSendToSelf = useCallback(async () => {
     if (!accountCode) {
       return;
@@ -91,9 +96,18 @@ export const ReceiverAddressInput = ({
     }
   }, [accountCode, onInputChange]);
 
-  const toggleScanQR = () => {
-    setActiveScanQR(activeScanQR => !activeScanQR);
-  };
+  const toggleScanQR = useCallback(() => {
+    setActiveScanQR(prev => {
+      if (!prev) {
+        isMobileSnapshotRef.current = isMobile;
+      }
+      return !prev;
+    });
+  }, [isMobile]);
+
+  const handleParseQRResult = useCallback((result: string) => {
+    parseQRResultRef.current(result);
+  }, []);
 
   return (
     <>
@@ -101,7 +115,8 @@ export const ReceiverAddressInput = ({
         <ScanQRDialog
           toggleScanQR={toggleScanQR}
           onChangeActiveScanQR={setActiveScanQR}
-          parseQRResult={parseQRResult}
+          parseQRResult={handleParseQRResult}
+          isMobile={isMobileSnapshotRef.current}
         />
       )}
       {!accountsForReceiverDropdown || accountsForReceiverDropdown.length === 0 ? (
@@ -135,3 +150,4 @@ export const ReceiverAddressInput = ({
     </>
   );
 };
+

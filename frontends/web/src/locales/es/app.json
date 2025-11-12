@@ -842,9 +842,8 @@
           "title": "Métodos de pago y tarifas"
         },
         "kyc": {
+          "info": "Pocket podría solicitar documentos de identificación. Consulta sus preguntas frecuentes para obtener más información.",
           "link": "Leer las preguntas frecuentes (FAQ) de Pocket",
-          "p1": "No se necesitan documentos adicionales para intercambios de hasta 950 EUR (1000 CHF) por día.",
-          "p2": "Para montos mayores, se requiere una llamada con Pocket para completar el proceso KYC/AML.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
@@ -879,7 +878,7 @@
   },
   "generic": {
     "buy": "Comprar {{coinCode}} ",
-    "buySell": "Comprar y vender",
+    "buySell": "Markeplace",
     "buy_bitcoin": "Comprar Bitcoin ",
     "buy_crypto": "Comprar criptomonedas",
     "close": "Cerrar",
@@ -1004,7 +1003,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin y Litecoin pueden tener una cantidad arbitraria de cuentas. Después de cinco cuentas, sólo se puede añadir otra cuenta si se ha utilizado la anterior. \nOtras monedas pueden tener un máximo de cinco cuentas.",
+        "text": "Bitcoin y Litecoin pueden tener una cantidad arbitraria de cuentas. Después de seis cuentas, sólo se puede añadir otra cuenta si se ha utilizado la anterior. \nOtras monedas pueden tener un máximo de cinco cuentas.",
         "title": "¿Cuántas cuentas puedo crear?"
       },
       "howtoAddTokens": {

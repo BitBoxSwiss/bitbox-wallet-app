@@ -1004,7 +1004,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin and Litecoin can have an arbitrary amount of accounts. After five accounts, you can only add another account if the previous account has been used. \nOther coins can have a maximum of five accounts.",
+        "text": "Bitcoin and Litecoin can have an arbitrary amount of accounts. After six accounts, you can only add another account if the previous account has been used. \nOther coins can have a maximum of five accounts.",
         "title": "How many accounts can I create?"
       },
       "howtoAddTokens": {
@@ -1040,6 +1040,10 @@
       }
     },
     "appendix": {
+      "feedback": {
+        "link": "Let us know.",
+        "text": "Have feedback?"
+      },
       "link": "Contact us!",
       "questionService": "Having issues with {{serviceName}}?",
       "text": "Another question?",
@@ -1377,6 +1381,14 @@
     "about": {
       "appVersion": {
         "title": "App version"
+      },
+      "feedbackLink": {
+        "description": "If you have general feedback",
+        "title": "Feedback"
+      },
+      "supportLink": {
+        "description": "If you have an issue or need help",
+        "title": "Support"
       }
     },
     "advancedSettings": {

@@ -489,7 +489,6 @@ func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.Pro
 			}
 			return nil, nil
 		},
-		Signatures: make([]*types.Signature, len(txProposal.Psbt.UnsignedTx.TxIn)),
 		FormatUnit: coinpkg.BtcUnitDefault,
 	}
 	require.NoError(t, proposedTransaction.Update())

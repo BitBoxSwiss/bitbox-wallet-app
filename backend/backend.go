@@ -77,6 +77,7 @@ var fixedURLWhitelist = []string{
 	"https://bitbox.swiss/",
 	"https://shop.bitbox.swiss/",
 	"https://shiftcrypto.support/",
+	"https://support.bitbox.swiss",
 	// Exchange rates.
 	"https://www.coingecko.com/",
 	// Block explorers.

@@ -199,7 +199,7 @@
   },
   "bitbox02Settings": {
     "bluetoothToggleEnabled": {
-      "alertDisabled": "Bluetooth ist jetzt auf deiner BitBox deaktiviert. Wenn du in Zukunft iPhones verbinden möchtest, musst du es erneut aktivieren.",
+      "alertDisabled": "Bluetooth ist jetzt auf deiner BitBox deaktiviert. Falls du in Zukunft iPhones verbinden möchtest, musst du es erneut aktivieren.",
       "alertEnabled": "Bluetooth ist jetzt aktiviert.",
       "description": "Bluetooth wird zum Verbinden mit iPhone verwendet.",
       "titleDisabled": "Bluetooth aktvieren",
@@ -530,8 +530,8 @@
               "link": "Bedrohungsmodell der BitBox02",
               "title": "Sicherheit"
             },
-            "title_bitcoin": "Kaufe Bitcoin mit BTC Direct",
-            "title_crypto": "Kaufe Krypto mit BTC Direct"
+            "title_bitcoin": "Kaufe und verkaufe Bitcoin mit BTC Direct",
+            "title_crypto": "Kaufe und verkaufe Krypto mit BTC Direct"
           },
           "infobox": {
             "feesBuying": {
@@ -545,7 +545,7 @@
               "bankTransfer": "Banküberweisung: {{fee}}%",
               "title": "Verkaufsgebühren"
             },
-            "intro": "Europäisches Kaufen von Kryptowährungen mit EUR.",
+            "intro": "Europäisches Kaufen und Verkaufen von Kryptowährungen mit EUR.",
             "payment": {
               "bancontact": "Bancontact",
               "bankTransfer": "Banküberweisung, SEPA Instant, iDEAL",
@@ -843,8 +843,6 @@
         },
         "kyc": {
           "link": "Lese die Pocket FAQs",
-          "p1": "Für Transaktionen bis 1.000 EUR/CHF innerhalb von 30 Tagen sind keine weiteren Unterlagen nötig.",
-          "p2": "Für größere Beträge ist ein Telefonat mit Pocket notwendig, um den KYC/AML Prozess abzuschließen.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
@@ -879,7 +877,7 @@
   },
   "generic": {
     "buy": "Kaufe {{coinCode}}",
-    "buySell": "Kaufen & Verkaufen",
+    "buySell": "Marktplatz",
     "buy_bitcoin": "Kaufe Bitcoin",
     "buy_crypto": "Krypto kaufen",
     "close": "Schließen",
@@ -1004,7 +1002,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin und Litecoin können eine beliebige Anzahl an Konten haben. Nach fünf Konten kannst du nur dann ein weiteres Konto hinzufügen, wenn das vorherige Konto verwendet wurde.\nAndere Coins können maximal fünf Konten haben.",
+        "text": "Bitcoin und Litecoin können eine beliebige Anzahl an Konten haben. Nach sechs Konten kannst du nur dann ein weiteres Konto hinzufügen, wenn das vorherige Konto verwendet wurde.\nAndere Coins können maximal fünf Konten haben.",
         "title": "Wie viele Konten kann ich erstellen?"
       },
       "howtoAddTokens": {
@@ -1153,7 +1151,7 @@
       "accountSummary": "Kontenübersicht Guide",
       "advancedSettings": "Erweiterte Einstellungen Guide",
       "appearance": "Ansicht Guide",
-      "buySell": "Kaufen & Verkaufen Guide",
+      "buySell": "Marktplatz Guide",
       "insurance": "Versicherung Guide",
       "manageAccount": "Konten verwalten Guide",
       "manageDevice": "Gerät verwalten Guide",
@@ -1175,7 +1173,7 @@
         "title": "Wann sollte ich den Adresstyp ändern?"
       },
       "howVerify": {
-        "text": "BitBox01: Klicke auf das BitBox-Symbol in der Seitenleiste links und siehe dir den Abschnitt \"Zwei-Faktor Autorisierung\" an. Die Anleitung wird aktualisiert und du kannst von dort aus den Anweisungen folgen.\n\nBitBox02: Dank des eingebauten Displays kannst du die Adresse direkt auf dem Gerät während des Send-/Empfangsprozesses verifizieren. ",
+        "text": "Du kannst Adressen direkt auf der BitBox während des Sendens/Empfangens prüfen.",
         "title": "Wie kann ich die Adresse sicher verifizieren?"
       },
       "plugout": {
@@ -1191,7 +1189,7 @@
         "title": "Warum gibt es mehrere Adressen?"
       },
       "whyVerify": {
-        "text": "Einer der Gründe für den Kauf einer Hardwarewallet, ist dass du deinem Computer aufgrund der großen Angriffsfläche nicht vertrauen solltest. Daher solltest du nicht darauf vertrauen, dass dein Computer authentische Adressen generiert und anzeigt. \nBitbox01: Mit dem Knopf zur sicheren Überprüfung der Adresse sendet die BitBox01 die Adresse an ein gekoppeltes Mobiltelefon, auf welchem du die Adresse  überprüfen kannst. \nBitBox02: Die BitBox02 hat ein eingebautes Display, auf dem die Adresse sicher angezeigt werden kann. ",
+        "text": "Du solltest nicht darauf vertrauen, dass dein Computer echte Adressen generiert und anzeigt. Durch die grosse Angriffsfläche ist er deutlich anfälliger als eine Hardware-Wallet. Die Adresse kann direkt auf dem BitBox-Display überprüft werden.",
         "title": "Warum sollte ich die Adresse verifizieren?"
       }
     },
@@ -1299,7 +1297,7 @@
         "title": "Ich habe mein Gerät verloren. Was nun?"
       },
       "useWithoutDevice": {
-        "text": "Leider ist dies zum aktuellen Zeitpunkt nicht möglich. ",
+        "text": "Ja, du kannst Wallets in den Kontoeinstellungen speichern. So kannst du dein Portfolio auch ohne BitBox checken.",
         "title": "Kann ich die App auch ohne Gerät benutzen?"
       },
       "welcome": {

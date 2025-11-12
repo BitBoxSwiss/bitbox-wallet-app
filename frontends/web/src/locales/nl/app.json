@@ -843,8 +843,6 @@
         },
         "kyc": {
           "link": "Lees Pocket's veelgestelde vragen",
-          "p1": "Je hebt geen extra documentatie nodig voor aan- en verkopen tot ~1050 EUR (1000 CHF) per 30 dagen.",
-          "p2": "Voor grotere bedragen is een telefoongesprek met Pocket vereist om het KYC/AML-proces te doorlopen.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
@@ -1004,7 +1002,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin en Litecoin kunnen zoveel accounts hebben als je wilt. Na vijf accounts kun je pas een nieuwe toevoegen als de vorige account daadwerkelijk gebruikt is voor een transactie. Andere coins hebben een maximum van vijf accounts.",
+        "text": "Bitcoin en Litecoin kunnen zoveel accounts hebben als je wilt. Na zes accounts kun je pas een nieuwe toevoegen als de vorige account daadwerkelijk gebruikt is voor een transactie. Andere coins hebben een maximum van vijf accounts.",
         "title": "Hoeveel accounts kan ik aanmaken?"
       },
       "howtoAddTokens": {
