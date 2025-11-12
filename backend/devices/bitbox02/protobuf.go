@@ -28,6 +28,7 @@ var btcMsgCoinMap = map[coinpkg.Code]messages.BTCCoin{
 	coinpkg.CodeTBTC: messages.BTCCoin_TBTC,
 	coinpkg.CodeLTC:  messages.BTCCoin_LTC,
 	coinpkg.CodeTLTC: messages.BTCCoin_TLTC,
+	coinpkg.CodeRBTC: messages.BTCCoin_RBTC,
 }
 
 var btcMsgScriptTypeMap = map[signing.ScriptType]messages.BTCScriptConfig_SimpleType{
