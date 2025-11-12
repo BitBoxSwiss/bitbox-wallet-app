@@ -3,7 +3,7 @@
 }
 
 .inputWithIcon input {
-  padding-right: calc(var(--spacing-default) * 2 + 18px);
+  padding-left: calc(var(--spacing-default) * 3);
 }
 
 .action {
@@ -28,19 +28,15 @@
   cursor: pointer;
   display: flex;
   height: var(--input-height);
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0;
   position: absolute;
-  right: 0.75rem;
-  width: 36px;
+  left: 0;
+  width: var(--input-qr-button);
 }
 
 .qrButton img {
-  width: 1.8rem;
-  height: 1.8rem;
-}
-
-.withDropdown {
-  left: 8px;
-  margin-top: 3px;
+  height: var(--size-subheader);
+  margin-left: var(--space-half);
+  width: var(--size-subheader);
 }

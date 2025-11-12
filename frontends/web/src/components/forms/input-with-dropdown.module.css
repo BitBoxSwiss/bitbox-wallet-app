@@ -16,12 +16,12 @@ input.inputField {
     font-family: var(--font-family);
     font-size: var(--size-default);
     font-weight: 400;
-    height: 52px !important;
+    height: var(--input-height);
     padding: 0 var(--space-half);
     width: 100%;
     transition: border-color .2s ease-out;
     will-change: border-color;
-    padding-left: 50px;
+    padding-left: var(--input-qr-button);
     padding-right: 0;
 }
 
@@ -79,7 +79,7 @@ input.inputField::placeholder {
 .dropdown :global(.react-select__single-value) {
     color: var(--color-blue);
     display: flex;
-    font-size: 14px;
+    font-size: var(--size-small);
     justify-content: flex-end;
     max-width: 100%;
     overflow: hidden;
@@ -117,7 +117,7 @@ input.inputField::placeholder {
     border: 1px solid var(--background-quaternary);
     border-left: hidden;
     display: flex;
-    height: 52px;
+    height: var(--input-height);
     justify-content: center;
     padding-left: 0;
     transition: border-color .2s ease-out;

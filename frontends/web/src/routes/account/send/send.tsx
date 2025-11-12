@@ -380,19 +380,21 @@ export const Send = ({
           </Header>
           <View>
             <ViewContent>
-              <div>
-                <label className="labelXLarge">{t('send.availableBalance')}</label>
-              </div>
-              <Balance balance={balance} noRotateFiat/>
-              <div className={`flex flex-row flex-between ${style.container || ''}`}>
-                <label className="labelXLarge">{t('send.transactionDetails')}</label>
-                <div className={style.coinControlButtonContainer}>
-                  <CoinControl
-                    account={account}
-                    onSelectedUTXOsChange={handleSelectedUTXOsChange}
-                    onCoinControlDialogActiveChange={setUtxoDialogActive}
-                  />
+              <div className={style.sendHeader}>
+                <div className={style.availableBalance}>
+                  <h2 className={style.subTitle}>
+                    {t('send.availableBalance')}
+                  </h2>
+                  <Balance balance={balance} noRotateFiat/>
                 </div>
+                <h2 className={style.subTitle}>
+                  {t('send.transactionDetails')}
+                </h2>
+                <CoinControl
+                  account={account}
+                  onSelectedUTXOsChange={handleSelectedUTXOsChange}
+                  onCoinControlDialogActiveChange={setUtxoDialogActive}
+                />
               </div>
               <Grid col="1">
                 <Column>

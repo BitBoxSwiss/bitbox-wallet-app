@@ -93,6 +93,7 @@
     --border-width: 0.1rem;
     --button-height: min(5rem, 70px);
     --input-height: min(5.2rem, 72px);
+    --input-qr-button: min(4.2rem, 60px);
 }
 
 :root,

@@ -158,7 +158,9 @@ export const ConfirmSend = ({
         {note ? (
           <div className={style.confirmItem}>
             <label>{t('note.title')}</label>
-            <p className={style.valueOriginal}>{note}</p>
+            <p className={style.valueOriginal}>
+              {note}
+            </p>
           </div>
         ) : null}
 
