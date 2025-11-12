@@ -104,7 +104,7 @@ export const AmountUnit = ({ rotateUnit, unit }: TAmountUnitProps) => {
   const classRototable = rotateUnit ? (style.rotatable || '') : '';
   const textStyle = `${style.unit || ''} ${classRototable}`;
   return (
-    <span className={textStyle} onClick={rotateUnit}>
+    <span data-testid={`amount-unit-${unit}`} className={textStyle} onClick={rotateUnit}>
       {unit}
     </span>
   );
