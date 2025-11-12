@@ -1,6 +1,6 @@
 .utxosList {
     list-style: none;
-    padding: 0 0 var(--space-half) 0;
+    padding: 0 0 var(--space-half) 0 !important;
 }
 
 .utxosList label {
@@ -41,11 +41,14 @@
 }
 
 .utxoExplorer img {
-    width: 18px;
-    height: 18px;
+    display: block;
+    height: var(--size-subheader);
+    width: var(--size-subheader);
 }
 
 .amounts {
+    display: flex;
+    flex-wrap: wrap;
     line-height: 1;
     padding-bottom: var(--space-quarter);
 }
