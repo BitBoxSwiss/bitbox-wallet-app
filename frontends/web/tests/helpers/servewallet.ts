@@ -16,7 +16,9 @@
 
 import { spawn, ChildProcess } from 'child_process';
 import * as net from 'net';
+import * as fs from 'fs';
 import type { Page } from '@playwright/test';
+import { getLogFilePath } from './fs';
 
 async function connectOnce(host: string, port: number): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -36,6 +38,7 @@ export interface ServeWalletOptions {
 
 export class ServeWallet {
   private proc?: ChildProcess;
+  private outStream?: number;
   private readonly simulator: boolean;
   private readonly page: Page;
   private readonly servewalletPort: number;
@@ -43,12 +46,17 @@ export class ServeWallet {
   private readonly host: string;
   private readonly timeout: number;
   private readonly testnet: boolean;
+  private readonly testName: string;
+  private readonly projectName: string;
+  private readonly logPath: string;
 
   constructor(
     page: Page,
     servewalletPort: number,
     frontendPort: number,
     host: string,
+    testName: string,
+    projectName: string,
     options: ServeWalletOptions = {}
   ) {
     const { simulator = false, timeout = 90000, testnet = true } = options;
@@ -64,11 +72,24 @@ export class ServeWallet {
     this.simulator = simulator;
     this.timeout = timeout;
     this.testnet = testnet;
+    this.testName = testName;
+    this.projectName = projectName;
+
+    this.logPath = getLogFilePath(this.testName, this.projectName, 'servewallet.log');
+    this.openOutStream(false); // On the first time, open the file in "w" mode.
+  }
+
+  private openOutStream(append: boolean): void {
+    if (this.outStream) {
+      fs.closeSync(this.outStream);
+    }
+    this.outStream = fs.openSync(this.logPath, append ? 'a' : 'w');
   }
 
   async start(): Promise<void> {
-    let target: string;
+    this.openOutStream(true); // On starts/restarts, open the file in "a" mode.
 
+    let target: string;
     if (this.testnet && !this.simulator) {
       target = 'servewallet';
     } else if (this.testnet && this.simulator) {
@@ -81,7 +102,7 @@ export class ServeWallet {
     }
 
     this.proc = spawn('make', ['-C', '../../', target], {
-      stdio: 'inherit',
+      stdio: ['ignore', this.outStream, this.outStream],
       detached: true,
     });
 
@@ -100,7 +121,7 @@ export class ServeWallet {
           );
           return;
         } catch {
-          // page.goto failed, likely connection refused; retry
+          // page.goto failed; likely connection refused; retry
         }
       } catch {
         // port not ready yet
@@ -124,6 +145,19 @@ export class ServeWallet {
       // Listen for exit event
       this.proc.once('exit', () => {
         console.log('Servewallet stopped');
+        this.proc = undefined;
+
+        if (this.outStream) {
+          try {
+            fs.closeSync(this.outStream);
+            console.log('Servewallet log file closed');
+          } catch (err) {
+            console.warn('Failed to close servewallet log file:', err);
+          } finally {
+            this.outStream = undefined;
+          }
+        }
+
         resolve();
       });
 
