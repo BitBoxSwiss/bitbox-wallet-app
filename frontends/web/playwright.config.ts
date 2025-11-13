@@ -13,7 +13,7 @@ export default defineConfig({
     {
       command: `make -C ../.. buildweb && make -C ../.. webserve`,
       port: FRONTEND_PORT,
-      reuseExistingServer: true,
+      reuseExistingServer: true, // If a server is already listening on FRONTEND_PORT, use it. Useful for local development.
       timeout: 120_000,
     },
   ],
