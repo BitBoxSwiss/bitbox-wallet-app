@@ -50,16 +50,16 @@ type TInsurancesByCode = {
 const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
   switch (status) {
   case 'active':
-    return <GreenDot width={14} height={20} />;
+    return <GreenDot width={14}/>;
   case 'processing':
   case 'waitpayment':
-    return <YellowDot width={14} height={20} />;
+    return <YellowDot width={14}/>;
   case 'refused':
-    return <RedDot width={14} height={20} />;
+    return <RedDot width={14}/>;
   case 'inactive':
-    return <OrangeDot width={14} height={20} />;
+    return <OrangeDot width={14}/>;
   case 'canceled':
-    return <RedDot width={14} height={20} />;
+    return <RedDot width={14}/>;
   }
 };
 
@@ -200,8 +200,8 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                                   className={`${style.text || ''} ${style.link || ''} m-top-quarter-on-small`}
                                   href={insurance.details.support}
                                 >
-                                  <div className="flex">
-                                    <ExternalLink width={16} />
+                                  <div className={style.externalLink}>
+                                    <ExternalLink />
                                     <span className="m-left-quarter">
                                       {t('bitsurance.dashboard.supportLink')}
                                     </span>
