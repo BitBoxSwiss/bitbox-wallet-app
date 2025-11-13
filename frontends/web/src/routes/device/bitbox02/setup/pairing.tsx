@@ -60,7 +60,10 @@ export const Pairing = ({
       verticallyCentered
       withBottomBar
       width="670px">
-      <ViewHeader title={t('bitbox02Wizard.pairing.title')}>
+      <ViewHeader
+        small
+        title={t('bitbox02Wizard.pairing.title')}
+      >
         { pairingFailed ? (
           <Message key="pairingFailed" type="warning">
             {t('bitbox02Wizard.pairing.failed')}
