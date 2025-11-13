@@ -20,7 +20,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
@@ -38,9 +37,7 @@ type ProposedTransaction struct {
 	// List of signing configurations that might be used in the tx inputs.
 	AccountSigningConfigurations signing.Configurations
 	GetPrevTx                    func(chainhash.Hash) (*wire.MsgTx, error)
-	// Signatures collects the signatures, one per transaction input.
-	Signatures []*types.Signature
-	FormatUnit coin.BtcUnit
+	FormatUnit                   coin.BtcUnit
 	// GetKeystoreAddress returns the address from the same keystore given the script hash,
 	// or nil if not found.
 	GetKeystoreAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error)
@@ -87,7 +84,9 @@ func (p *ProposedTransaction) Update() error {
 				rootFingerprintUint32,
 				inputAddress.AbsoluteKeypath().ToUInt32(),
 				inputAddress.PublicKey.SerializeCompressed(),
-				index); err != nil {
+				index); err != nil && err != psbt.ErrDuplicateKey {
+				// If we update the same PSBT multiple times, the key info is already present,
+				// so we can ignore the duplicate key error.
 				return err
 			}
 		case signing.ScriptTypeP2TR:
@@ -123,7 +122,9 @@ func (p *ProposedTransaction) Update() error {
 					rootFingerprintUint32,
 					outputAddress.AbsoluteKeypath().ToUInt32(),
 					outputAddress.PublicKey.SerializeCompressed(),
-					index); err != nil {
+					index); err != nil && err != psbt.ErrDuplicateKey {
+					// If we update the same PSBT multiple times, the key info is already present,
+					// so we can ignore the duplicate key error.
 					return err
 				}
 			case signing.ScriptTypeP2TR:
@@ -181,7 +182,6 @@ func (account *Account) signTransaction(
 		AccountSigningConfigurations: signingConfigs,
 		GetKeystoreAddress:           account.getAddressFromSameKeystore,
 		GetPrevTx:                    getPrevTx,
-		Signatures:                   make([]*types.Signature, len(txProposal.Psbt.UnsignedTx.TxIn)),
 		FormatUnit:                   account.coin.formatUnit,
 	}
 	if err := proposedTransaction.Update(); err != nil {

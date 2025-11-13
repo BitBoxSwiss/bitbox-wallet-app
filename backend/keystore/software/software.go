@@ -20,7 +20,6 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	"math/big"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
@@ -33,6 +32,7 @@ import (
 	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
+	"github.com/btcsuite/btcd/btcutil/psbt"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/txscript"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
@@ -211,7 +211,6 @@ func (keystore *Keystore) Features() *keystorePkg.Features {
 func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	keystore.log.Info("Sign transaction.")
 	transaction := btcProposedTx.TXProposal.Psbt.UnsignedTx
-	signatures := make([]*types.Signature, len(transaction.TxIn))
 	sigHashes := btcProposedTx.TXProposal.SigHashes()
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := btcProposedTx.TXProposal.PreviousOutputs[txIn.PreviousOutPoint]
@@ -249,11 +248,7 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			if err != nil {
 				return err
 			}
-			signatureSer := signature.Serialize()
-			signatures[index] = &types.Signature{
-				R: new(big.Int).SetBytes(signatureSer[:32]),
-				S: new(big.Int).SetBytes(signatureSer[32:]),
-			}
+			btcProposedTx.TXProposal.Psbt.Inputs[index].TaprootKeySpendSig = signature.Serialize()
 		} else {
 			var signatureHash []byte
 			isSegwit, subScript := address.ScriptForHashToSign()
@@ -274,16 +269,16 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 				}
 				keystore.log.Debug("Calculated legacy signature hash")
 			}
-			signature := ecdsa.SignCompact(prv, signatureHash, true)
-
-			signatures[index] = &types.Signature{
-				R: new(big.Int).SetBytes(signature[1:33]),
-				S: new(big.Int).SetBytes(signature[33:]),
+			signature := ecdsa.Sign(prv, signatureHash).Serialize()
+			btcProposedTx.TXProposal.Psbt.Inputs[index].PartialSigs = []*psbt.PartialSig{
+				{
+					PubKey:    prv.PubKey().SerializeCompressed(),
+					Signature: append(signature, byte(txscript.SigHashAll)),
+				},
 			}
 		}
 	}
 
-	btcProposedTx.Signatures = signatures
 	return nil
 }
 
