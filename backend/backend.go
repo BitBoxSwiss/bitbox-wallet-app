@@ -472,18 +472,18 @@ mCMuGBNHsbrs6rI1hbI4Qq6GYazLaDRqdCufTA==
 
 	switch code {
 	case coinpkg.CodeBTC:
-		return []*config.ServerInfo{{Server: "btc1.shiftcrypto.dev:50001", TLS: true, PEMCert: devShiftCA}}
+		return []*config.ServerInfo{{Server: "btc1.shiftcrypto.dev:443", TLS: true, PEMCert: devShiftCA}}
 	case coinpkg.CodeTBTC:
-		return []*config.ServerInfo{{Server: "tbtc1.shiftcrypto.dev:51001", TLS: true, PEMCert: devShiftCA}}
+		return []*config.ServerInfo{{Server: "tbtc1.shiftcrypto.dev:443", TLS: true, PEMCert: devShiftCA}}
 	case coinpkg.CodeRBTC:
 		return []*config.ServerInfo{
 			{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""},
 			{Server: "127.0.0.1:52002", TLS: false, PEMCert: ""},
 		}
 	case coinpkg.CodeLTC:
-		return []*config.ServerInfo{{Server: "ltc1.shiftcrypto.dev:50011", TLS: true, PEMCert: devShiftCA}}
+		return []*config.ServerInfo{{Server: "ltc1.shiftcrypto.dev:443", TLS: true, PEMCert: devShiftCA}}
 	case coinpkg.CodeTLTC:
-		return []*config.ServerInfo{{Server: "tltc1.shiftcrypto.dev:51011", TLS: true, PEMCert: devShiftCA}}
+		return []*config.ServerInfo{{Server: "tltc1.shiftcrypto.dev:443", TLS: true, PEMCert: devShiftCA}}
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
 	}
