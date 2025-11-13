@@ -16,7 +16,6 @@
 
 .button {
   font-size: var(--size-default);
-  height: calc(var(--space-default) + var(--space-quarter));
   padding: 0 24px;
 }
 
@@ -24,6 +23,16 @@
   font-size: 2rem;
   margin-bottom: 2px;
   margin-right: var(--space-quarter);
+}
+
+.externalLink {
+  align-items: baseline;
+  display: flex;
+}
+
+.externalLink img {
+  max-height: var(--size-default);
+  max-width: var(--size-default);
 }
 
 .coverageContainer {
