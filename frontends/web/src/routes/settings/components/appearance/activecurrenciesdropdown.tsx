@@ -37,6 +37,13 @@ type TSelectProps = {
   onOpenChange: (isOpen: boolean) => void;
 };
 
+const sortCurrencyOptions = (options: SelectOption[], activeCurrencies: Fiat[]): SelectOption[] => {
+  const byLabel = (a: SelectOption, b: SelectOption) => a.label.localeCompare(b.label);
+  const selected = options.filter(opt => activeCurrencies.includes(opt.value)).sort(byLabel);
+  const others = options.filter(opt => !activeCurrencies.includes(opt.value)).sort(byLabel);
+  return [...selected, ...others];
+};
+
 export const ActiveCurrenciesDropdown = ({
   options,
   defaultCurrency,
@@ -71,12 +78,13 @@ export const ActiveCurrenciesDropdown = ({
       </div>
     );
   };
+  const sortedOptions = sortCurrencyOptions(options, activeCurrencies);
 
   return (
     <Dropdown
       isMulti
       closeMenuOnSelect={false}
-      options={options}
+      options={sortedOptions}
       value={formattedActiveCurrencies}
       title={t('newSettings.appearance.activeCurrencies.title')}
       mobileFullScreen
