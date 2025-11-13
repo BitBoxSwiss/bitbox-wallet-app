@@ -122,7 +122,10 @@ To run all test suites, execute `make webtest`.
 Playwright is used to perform automatic test on some use cases on the webdev version.
 
 Tests are located under [`frontends/web/tests`](/frontends/web/tests) and can be run with
+
 `make webe2etest`
+
+More info can be found [here](/frontends/web/tests/README.md)
 
 #### Run the HTTP API
 
