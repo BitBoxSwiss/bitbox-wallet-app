@@ -113,7 +113,7 @@ export const ConfirmSend = ({
 
         {/*Send amount*/}
         <div className={style.confirmItem}>
-          <label>{t('button.send')}</label>
+          <label>{t('generic.send')}</label>
           <div className={style.confirmationItemWrapper}>
             <p className={style.valueOriginalLarge}>
               {(proposedAmount &&

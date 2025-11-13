@@ -1,5 +1,6 @@
+
 /**
- * Copyright 2024 Shift Crypto AG
+ * Copyright 2025 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +15,16 @@
  * limitations under the License.
  */
 
-import styles from './details.module.css';
+import { ReactNode } from 'react';
+import styles from './tx-detail-dialog.module.css';
 
-type TProps = React.PropsWithChildren<{
-  label: string;
-}>;
-
-export const TxDetail = ({
-  label,
-  children,
-}: TProps) => {
+type Props = {
+  children: ReactNode;
+};
+export const TxDetailRow = ({ children }: Props) => {
   return (
-    <div className={styles.detail}>
-      <label>{label}</label>
-      <p>{children}</p>
+    <div className={styles.row}>
+      {children}
     </div>
   );
 };

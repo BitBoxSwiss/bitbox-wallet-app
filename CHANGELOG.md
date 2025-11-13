@@ -31,6 +31,7 @@
 - Update decimal formatting for stablecoin transactions
 - Change block explorer to mempool.space
 - Integrate Bitrefill and add spending section
+- Revamp transaction detail dialog
 
 ## v4.48.8
 - Bundle BitBox02 Nova firmware version v9.23.3
