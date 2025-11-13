@@ -9,7 +9,6 @@ import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.net.ConnectivityManager;
-import android.net.NetworkCapabilities;
 import android.os.Handler;
 
 import androidx.lifecycle.AndroidViewModel;
@@ -170,14 +169,7 @@ public class GoViewModel extends AndroidViewModel {
 
         @Override
         public boolean usingMobileData() {
-            // Adapted from https://stackoverflow.com/a/53243938
-            ConnectivityManager cm = (ConnectivityManager) getApplication().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            if (cm == null) {
-                return false;
-            }
-            NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
-            return capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
-
+            return networkHelper != null && networkHelper.usingMobileData();
         }
 
         @Override
@@ -207,11 +199,18 @@ public class GoViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> authSetting = new MutableLiveData<>(false);
     private final GoEnvironment goEnvironment;
     private final GoAPI goAPI;
+    private NetworkHelper networkHelper;
+
+    public NetworkHelper getNetworkHelper() {
+        return networkHelper;
+    }
 
     public GoViewModel(Application app) {
         super(app);
         this.goEnvironment = new GoEnvironment();
         this.goAPI = new GoAPI();
+        this.networkHelper = new NetworkHelper((ConnectivityManager) app.getSystemService(Context.CONNECTIVITY_SERVICE));
+
     }
 
     public MutableLiveData<Boolean> getIsDarkTheme() {
