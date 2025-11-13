@@ -66,7 +66,10 @@ export const RestoreFromSDCardSuccess = ({ onContinue }: TProps) => {
       verticallyCentered
       withBottomBar
       width="700px">
-      <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
+      <ViewHeader
+        small
+        title={t('bitbox02Wizard.stepBackupSuccess.title')}
+      />
       <ViewContent textAlign="left">
         <p>
           {t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}
@@ -100,7 +103,10 @@ export const RestoreFromMnemonicSuccess = ({ onContinue }: TProps) => {
       verticallyCentered
       withBottomBar
       width="700px">
-      <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
+      <ViewHeader
+        small
+        title={t('bitbox02Wizard.stepBackupSuccess.title')}
+      />
       <ViewContent textAlign="left">
         <p className="m-bottom-default">
           {t('bitbox02Wizard.stepBackupSuccess.fundsSafe')}

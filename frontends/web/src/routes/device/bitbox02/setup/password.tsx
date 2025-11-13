@@ -65,7 +65,10 @@ export const SetPasswordWithBackup = ({
       verticallyCentered
       withBottomBar
       width="700px">
-      <ViewHeader title={t('backup.restore.confirmTitle')}>
+      <ViewHeader
+        small
+        title={t('backup.restore.confirmTitle')}
+      >
         { forBackup ? (
           <div>
             <MultilineMarkup tagName="div" markup={t('backup.restore.selectedBackup', {
