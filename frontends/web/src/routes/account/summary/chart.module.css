@@ -82,17 +82,17 @@
 }
 
 .totalValue {
-  font-size: 2rem;
-  display: flex;
   align-items: flex-end;
+  display: flex;
+  font-size: min(3.2rem, 40px);
 }
 
 .totalUnit {
   color: var(--color-secondary);
   display: inline-block;
+  font-size: min(2rem, 25px);
   margin-bottom: 3px;
-  font-size: 1.4rem;
-  padding: 0 .25rem;
+  padding: 0 4px;
 }
 
 .chartCanvas {
@@ -110,10 +110,10 @@
   background: var(--background-secondary);
   border: 1px solid var(--background);
   border-radius: 3px;
-  font-size: var(--size-small);
+  font-size: var(--size-smaller);
   margin-top: -25px;
   min-width: 140px;
-  padding: .75rem .6rem;
+  padding: 12px 10px;
   pointer-events: none;
   position: absolute;
   text-align: center;
@@ -123,14 +123,14 @@
 
 .toolTipValue {
   font-weight: normal;
-  font-size: 1rem;
-  margin: 0 0 .25rem 0;
+  font-size: 1.6rem;
+  margin: 0 0 4px 0;
 }
 
 .toolTipUnit {
   color: var(--color-secondary);
-  font-size: var(--size-small);
-  padding: 0 .125rem;
+  font-size: var(--size-smaller);
+  padding: 0 2px;
 }
 
 .toolTipTime {

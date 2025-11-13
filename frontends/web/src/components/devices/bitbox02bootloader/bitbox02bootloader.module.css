@@ -8,22 +8,21 @@
 
 .progressInfo {
     display: flex;
-    font-size: 16px;
+    font-size: 1.6rem;
     justify-content: space-between;
     margin: 0 0 var(--space-default);
 }
 
 .additionalUpgrade {
-    font-size: 16px;
+    font-size: 1.6rem;
     margin: 0;
     margin-top: var(--space-eight);
 }
 
 @media (max-width: 768px) {
     .content,
-    .additionalUpgrade
-    {
-        font-size: 14px;
+    .additionalUpgrade {
+        font-size: var(--size-small);
     }
 }
 

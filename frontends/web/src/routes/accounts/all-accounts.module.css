@@ -1,7 +1,6 @@
 .container {
   display: flex;
   flex-direction: column;
-  font-size: 14px;
   gap: var(--space-half);
   width: 100%;
 }
@@ -57,7 +56,7 @@
   flex-basis: auto;
   flex-shrink: 0;
   flex-grow: 1;
-  font-size: 16px;
+  font-size: var(--size-default);
   justify-content: flex-end;
   margin-left: auto;
   overflow: hidden;
@@ -67,10 +66,11 @@
 .chevron {
   color: var(--color-mediumgray);
   flex-shrink: 0;
-  font-size: 18px;
-  margin-left: 4px;
-  margin-top: 6px;
   margin-right: -8px;
+}
+
+.chevron img {
+  display: block;
 }
 
 .emptyState {

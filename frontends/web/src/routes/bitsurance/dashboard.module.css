@@ -1,5 +1,5 @@
 .text {
-  font-size: 16px;
+  font-size: 1.6rem;
   margin: 0;
 }
 
@@ -16,14 +16,23 @@
 
 .button {
   font-size: var(--size-default);
-  height: calc(var(--space-default) + var(--space-quarter));
   padding: 0 24px;
 }
 
 .button span {
-  font-size: 20px;
+  font-size: 2rem;
   margin-bottom: 2px;
   margin-right: var(--space-quarter);
+}
+
+.externalLink {
+  align-items: baseline;
+  display: flex;
+}
+
+.externalLink img {
+  max-height: var(--size-default);
+  max-width: var(--size-default);
 }
 
 .coverageContainer {
@@ -66,7 +75,7 @@
 }
 
 .keystore > span {
-  font-size: var(--size-small);
+  font-size: var(--size-smaller);
 }
 
 @media (max-width: 768px) {

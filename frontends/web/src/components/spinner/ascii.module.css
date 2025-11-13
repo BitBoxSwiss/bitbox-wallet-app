@@ -8,13 +8,13 @@
 }
 
 .spinner:after {
-  position: relative;
-  top: 2px;
   animation: changeContent .8s linear infinite;
   display: block;
   content: "⠋";
-  font-size: 14px;
+  font-size: var(--size-small);
   margin-left: 3px;
+  position: relative;
+  top: 2px;
 }
 
 @keyframes changeContent {

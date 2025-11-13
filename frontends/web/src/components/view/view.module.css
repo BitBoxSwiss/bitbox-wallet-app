@@ -293,22 +293,6 @@
     margin: 0 auto;
 }
 
-@media (min-width: 1200px) {
-    .title {
-        --size-subheader: 28px;
-    }
-    .header,
-    .inner p {
-        --size-default: 20px;
-    }
-    .fullscreen {
-        --size-default: 18px;
-    }
-    .inner footer p {
-        --size-default: 14px;
-    }
-}
-
 .footer {
     align-items: center;
     display: flex;
@@ -346,7 +330,7 @@
 
     .footer p {
         text-align: right;
-        font-size: var(--size-small);
+        font-size: var(--size-smaller);
     }
 
     .footer img {

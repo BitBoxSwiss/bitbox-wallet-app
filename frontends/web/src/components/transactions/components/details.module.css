@@ -60,8 +60,8 @@
 }
 
 .detail label {
-    white-space: nowrap;
     margin-right: var(--space-half) !important;
+    word-break: keep-all;
 }
 
 .detail label,
