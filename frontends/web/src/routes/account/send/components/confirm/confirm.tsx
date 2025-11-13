@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, TAmountWithConversions } from '@/api/account';
+import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, TAccount, TAmountWithConversions } from '@/api/account';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { Amount } from '@/components/amount/amount';
 import { customFeeUnit } from '@/routes/account/utils';
@@ -27,6 +27,7 @@ import type { TSelectedUTXOs } from '../../utxos';
 import style from './confirm.module.css';
 
 type TransactionDetails = {
+  selectedReceiverAccount?: TAccount;
   proposedAmount?: TAmountWithConversions;
   proposedFee?: TAmountWithConversions;
   proposedTotal?: TAmountWithConversions;
@@ -57,7 +58,7 @@ export const ConfirmSend = ({
   isConfirming,
   selectedUTXOs,
   coinCode,
-  transactionDetails
+  transactionDetails,
 }: TConfirmSendProps) => {
 
   const { t } = useTranslation();
@@ -67,9 +68,17 @@ export const ConfirmSend = ({
     proposedTotal,
     customFee,
     feeTarget,
+    selectedReceiverAccount,
     recipientAddress,
     activeCurrency: fiatUnit
   } = transactionDetails;
+
+  const receiverAccountNumberAndName = selectedReceiverAccount ?
+    {
+      name: selectedReceiverAccount.name,
+      number: selectedReceiverAccount.accountNumber ? selectedReceiverAccount.accountNumber + 1 : null,
+    }
+    : undefined;
 
   const groupUTXOsByAddress = (selectedUTXOs: TSelectedUTXOs): TUTXOsByAddress => {
     const utxosByAddress: TUTXOsByAddress = {};
@@ -123,10 +132,25 @@ export const ConfirmSend = ({
         {/*To (recipient address)*/}
         <div className={style.confirmItem}>
           <label>{t('send.confirm.to')}</label>
-          <div className={style.confirmationItemWrapper}>
-            <p className={style.valueOriginal}>
-              {recipientAddress || 'N/A'}
+          <div className={style.toWrapper}>
+            <p className={`${style.valueOriginal || ''}`}>
+              {receiverAccountNumberAndName?.name ?
+                receiverAccountNumberAndName.name :
+                recipientAddress
+              }
+              {' '}
+              {receiverAccountNumberAndName?.number && (
+                <span className={style.address}>
+                  (Account #{receiverAccountNumberAndName.number})
+                </span>
+              )}
             </p>
+
+            {receiverAccountNumberAndName && (
+              <span className={style.address}>
+                {recipientAddress}
+              </span>
+            )}
           </div>
         </div>
 

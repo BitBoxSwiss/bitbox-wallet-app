@@ -37,7 +37,7 @@ type SelectProps<T = any, IsMulti extends boolean = false> = Omit<
   ReactSelectProps<TOption<T>>,
   'onChange'
 > & {
-  renderOptions: (selectedItem: TOption<T>) => ReactNode; // Function to render options and selected value for single dropdown
+  renderOptions?: (selectedItem: TOption<T>, isSelectedValue: boolean) => ReactNode; // Function to render options and selected value for single dropdown
   onChange: (
     newValue: IsMulti extends true ? TOption<T>[] : TOption<T>,
     actionMeta: ActionMeta<TOption<T>>
@@ -46,6 +46,7 @@ type SelectProps<T = any, IsMulti extends boolean = false> = Omit<
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
   title?: string;
+  mobileTriggerComponent?: ReactNode | ((props: { onClick: () => void }) => ReactNode);
 };
 
 const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
@@ -59,7 +60,7 @@ const SelectSingleValue = (props: SingleValueProps<TOption> & { selectProps: any
 
   return (
     <components.SingleValue {...props}>
-      {renderOptions(props.data)}
+      {renderOptions(props.data, true)}
     </components.SingleValue>
   );
 };
@@ -68,7 +69,7 @@ const Option = (props: OptionProps<TOption> & { selectProps: any }) => {
   const { renderOptions } = props.selectProps;
   return (
     <components.Option {...props}>
-      {renderOptions(props.data)}
+      {renderOptions(props.data, false)}
     </components.Option>
   );
 };
@@ -109,6 +110,7 @@ export const Dropdown = <T, IsMulti extends boolean = false>({
   mobileFullScreen = false,
   isOpen,
   onOpenChange,
+  mobileTriggerComponent,
   ...props
 }: SelectProps<T, IsMulti>) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -128,12 +130,13 @@ export const Dropdown = <T, IsMulti extends boolean = false>({
       <MobileFullscreenSelector
         title={title}
         options={options}
-        renderOptions={renderOptions}
+        renderOptions={renderOptions || (() => null)}
         value={props.value as any}
         onSelect={onChange}
         isMulti={props.isMulti}
         isOpen={isOpen}
         onOpenChange={onOpenChange}
+        triggerComponent={mobileTriggerComponent}
       />
     );
   }

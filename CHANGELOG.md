@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add a dropdown on the "Receiver address" input in the send screen to select an account
 - Add feedback link to guide and about settings
 - Move active currencies to top of currency dropdown
 

@@ -87,18 +87,21 @@
     padding-top: 0;
 }
 
-.searchInput {
+input.searchInput {
     background-color: var(--background-secondary);
     border: 1px solid var(--background-secondary);
     border-radius: 4px;
+    height: auto;
     color: var(--color-default);
     font-size: var(--size-default);
     width: 100%;
     padding: var(--space-quarter) var(--space-half);
 }
-.searchInput:focus {
+
+input.searchInput:focus {
     outline: none;
 }
+
 .optionsList {
     flex: 1;
     overflow-y: auto;

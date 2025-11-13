@@ -21,19 +21,19 @@ import { findAccount } from '@/routes/account/utils';
 import { Send } from './send';
 
 type TSendProps = {
-  accounts: TAccount[];
+  activeAccounts: TAccount[];
   code: AccountCode;
 };
 
-export const SendWrapper = ({ accounts, code }: TSendProps) => {
+export const SendWrapper = ({ activeAccounts, code }: TSendProps) => {
   const { defaultCurrency } = useContext(RatesContext);
-
-  const account = findAccount(accounts, code);
+  const account = findAccount(activeAccounts, code);
 
   return (
     account ? (
       <Send
         account={account}
+        activeAccounts={activeAccounts}
         activeCurrency={defaultCurrency}
       />
     ) : (null)

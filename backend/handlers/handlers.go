@@ -220,6 +220,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/dev-servers", handlers.getDevServers).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/keystore/{rootFingerprint}/features", handlers.getKeystoreFeatures).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
@@ -401,6 +402,8 @@ type accountJSON struct {
 	IsToken               bool               `json:"isToken"`
 	ActiveTokens          []activeToken      `json:"activeTokens,omitempty"`
 	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
+	// Number of the account per coin per keystore, starting at 0. Nil if unknown.
+	AccountNumber *uint16 `json:"accountNumber"`
 }
 
 func newAccountJSON(
@@ -411,6 +414,11 @@ func newAccountJSON(
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
 	watch := account.Config().Config.Watch
+	var accountNumberPtr *uint16
+	accountNumber, err := account.Config().Config.SigningConfigurations.AccountNumber()
+	if err == nil {
+		accountNumberPtr = &accountNumber
+	}
 	return &accountJSON{
 		Keystore: keystoreJSON{
 			Keystore:  keystore,
@@ -427,6 +435,7 @@ func newAccountJSON(
 		IsToken:               isToken,
 		ActiveTokens:          activeTokens,
 		BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
+		AccountNumber:         accountNumberPtr,
 	}
 }
 
@@ -596,6 +605,55 @@ func (handlers *Handlers) getKeystores(*http.Request) interface{} {
 		})
 	}
 	return keystores
+}
+
+func (handlers *Handlers) getKeystoreFeatures(r *http.Request) interface{} {
+	type response struct {
+		Success      bool               `json:"success"`
+		ErrorMessage string             `json:"errorMessage,omitempty"`
+		Features     *keystore.Features `json:"features,omitempty"`
+	}
+
+	rootFingerprintHex := mux.Vars(r)["rootFingerprint"]
+	rootFingerprint, err := hex.DecodeString(rootFingerprintHex)
+	if err != nil {
+		handlers.log.WithError(err).Error("invalid root fingerprint for features request")
+		return response{
+			Success:      false,
+			ErrorMessage: err.Error(),
+		}
+	}
+
+	connectedKeystore := handlers.backend.Keystore()
+	if connectedKeystore == nil {
+		handlers.log.Warn("features requested but no keystore connected")
+		return response{
+			Success:      false,
+			ErrorMessage: "keystore not connected",
+		}
+	}
+
+	connectedRootFingerprint, err := connectedKeystore.RootFingerprint()
+	if err != nil {
+		handlers.log.WithError(err).Error("could not determine connected keystore root fingerprint")
+		return response{
+			Success:      false,
+			ErrorMessage: err.Error(),
+		}
+	}
+
+	if !bytes.Equal(rootFingerprint, connectedRootFingerprint) {
+		handlers.log.WithField("requested", rootFingerprintHex).Warn("features requested for non-connected keystore")
+		return response{
+			Success:      false,
+			ErrorMessage: "wrong keystore connected",
+		}
+	}
+
+	return response{
+		Success:  true,
+		Features: connectedKeystore.Features(),
+	}
 }
 
 func (handlers *Handlers) getAccounts(*http.Request) interface{} {

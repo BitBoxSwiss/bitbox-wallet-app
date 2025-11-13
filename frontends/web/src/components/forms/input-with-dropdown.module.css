@@ -1,0 +1,132 @@
+.inputDropdownWrapper {
+    display: grid;
+    grid-template-columns: 1fr minmax(160px, 280px);
+    min-width: 0;
+}
+
+input.inputField {
+    background-color: var(--background-secondary);
+    border-color: var(--background-quaternary);
+    border-radius: 2px;
+    border-style: solid;
+    border-width: 1px;
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    font-family: var(--font-family);
+    font-size: var(--size-default);
+    font-weight: 400;
+    height: 52px !important;
+    padding: 0 var(--space-half);
+    width: 100%;
+    transition: border-color .2s ease-out;
+    will-change: border-color;
+    padding-left: 50px;
+    padding-right: 0;
+}
+
+input.inputField:disabled {
+    border-color: var(--background-quaternary) !important;
+    color: var(--color-secondary);
+    cursor: not-allowed;
+}
+
+input.inputField:focus {
+    border-color: var(--color-blue);
+    outline: none;
+}
+
+input.inputField::placeholder {
+    color: var(--color-secondary);
+}
+
+.dropdown {
+    font-size: var(--size-small);
+    max-width: 280px;
+    min-width: 160px;
+    width: 100%;
+}
+
+.chevron {
+    height: 24px;
+    rotate: 270deg;
+    width: 24px;
+}
+
+.dropdown :global(.react-select__control) {
+    border: 1px solid var(--background-quaternary);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
+    height: 52px;
+    padding: 0;
+}
+
+.dropdown :global(.react-select__value-container) {
+    padding: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.dropdown :global(.react-select__control):hover {
+    border-color: var(--background-quaternary);
+}
+
+.dropdown :global(.react-select__input) {
+    height: 0;
+}
+
+.dropdown :global(.react-select__single-value) {
+    color: var(--color-blue);
+    display: flex;
+    font-size: 14px;
+    justify-content: flex-end;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dropdown :global(.react-select__input):hover {
+    border-color: var(--color-blue);
+}
+
+.inputDropdownWrapper:focus-within .dropdown :global(.react-select__control) {
+    border-color: var(--color-blue) !important;
+    border-left: none !important;
+    box-shadow: none !important;
+}
+
+.inputDropdownWrapper:focus-within .inputField {
+    border-color: var(--color-blue);
+    border-right: none;
+}
+
+.inputDropdownWrapper:focus-within .inputField:disabled {
+    border-color: var(--color-blue) !important;
+    border-right: none;
+}
+
+.inputDropdownWrapper:focus-within .dropdownTrigger {
+    border-color: var(--color-blue);
+}
+
+.dropdownTrigger {
+    align-items: center;
+    background-color: var(--background-secondary);
+    border: 1px solid var(--background-quaternary);
+    border-left: hidden;
+    display: flex;
+    height: 52px;
+    justify-content: center;
+    padding-left: 0;
+    transition: border-color .2s ease-out;
+    width: 100%;
+    will-change: border-color;
+}
+
+@media (max-width: 768px) {
+    .inputDropdownWrapper {
+        grid-template-columns: 90% 10%;
+    }
+}

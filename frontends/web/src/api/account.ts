@@ -74,6 +74,7 @@ export type TAccount = {
   activeTokens?: TActiveToken[];
   blockExplorerTxPrefix: string;
   bitsuranceStatus?: TDetailStatus;
+  accountNumber?: number;
 };
 
 export const getAccounts = (): Promise<TAccount[]> => {

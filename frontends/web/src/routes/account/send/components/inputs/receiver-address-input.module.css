@@ -7,13 +7,17 @@
 }
 
 .action {
-  color: var(--color-blue);
+  color: var(--color-danger);
   font-size: var(--size-small);
   font-weight: 400;
   line-height: 1;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
+}
+
+.sendToSelf {
+  color: var(--color-blue);
 }
 
 .qrButton {
@@ -34,4 +38,9 @@
 .qrButton img {
   width: 18px;
   height: 18px;
+}
+
+.withDropdown {
+  left: 8px;
+  margin-top: 3px;
 }

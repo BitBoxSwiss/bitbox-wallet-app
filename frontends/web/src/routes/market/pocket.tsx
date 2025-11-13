@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import { createRef, useContext, useEffect, useState, useRef } from 'react';
+import { createRef, useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
-import { AppContext } from '@/contexts/AppContext';
 import { getConfig } from '@/utils/config';
-import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Dialog } from '@/components/dialog/dialog';
 import { confirmation } from '@/components/confirm/Confirm';
 import { verifyAddress, getPocketURL, TMarketAction } from '@/api/market';
 import { AccountCode, getInfo, getTransactionList, hasPaymentRequest, signAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
@@ -33,26 +32,23 @@ import { alertUser } from '@/components/alert/Alert';
 import { MarketGuide } from './guide';
 import { convertScriptType } from '@/utils/request-addess';
 import { parseExternalBtcAmount } from '@/api/coins';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import style from './iframe.module.css';
-import { Button } from '@/components/forms';
 
 type TProps = {
   action: TMarketAction;
   code: AccountCode;
-  deviceIDs: string[];
 };
 
 export const Pocket = ({
   action,
   code,
-  deviceIDs,
 }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Pocket sell only works if the FW supports payment requests
   const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(code));
-  const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
   const [fwRequiredDialog, setFwRequiredDialog] = useState(false);
 
   const [height, setHeight] = useState(0);
@@ -91,7 +87,7 @@ export const Pocket = ({
         alertUser(hasPaymentRequestResponse?.errorMessage);
       }
     }
-  }, [action, deviceIDs, hasPaymentRequestResponse, navigate, setFirmwareUpdateDialogOpen, t]);
+  }, [action, hasPaymentRequestResponse, t]);
 
   useEffect(() => {
     if (config) {
@@ -382,27 +378,13 @@ export const Pocket = ({
             medium centered>
             <div className="text-center">{t('buy.pocket.verifyBitBox02')}</div>
           </Dialog>
-          <Dialog title={t('upgradeFirmware.title')} open={fwRequiredDialog}>
-            {t('device.firmwareUpgradeRequired')}
-            <DialogButtons>
-              <Button
-                primary
-                onClick={() => {
-                  setFirmwareUpdateDialogOpen(true);
-                  navigate(`/settings/device-settings/${deviceIDs[0] as string}`);
-                }}>
-                {t('upgradeFirmware.button')}
-              </Button>
-              <Button
-                secondary
-                onClick={() => {
-                  setFwRequiredDialog(false);
-                  navigate(-1);
-                }}>
-                {t('dialog.cancel')}
-              </Button>
-            </DialogButtons>
-          </Dialog>
+          <FirmwareUpgradeRequiredDialog
+            open={fwRequiredDialog}
+            onClose={() => {
+              setFwRequiredDialog(false);
+              navigate(-1);
+            }}
+          />
         </div>
       </div>
       <MarketGuide vendor="pocket" translationContext="bitcoin" />

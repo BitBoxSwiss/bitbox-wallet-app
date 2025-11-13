@@ -556,3 +556,10 @@ func (keystore *keystore) SupportsPaymentRequests() error {
 	}
 	return keystorePkg.ErrFirmwareUpgradeRequired
 }
+
+// Features reports optional capabilities supported by the BitBox02 keystore.
+func (keystore *keystore) Features() *keystorePkg.Features {
+	return &keystorePkg.Features{
+		SupportsSendToSelf: keystore.device.Version().AtLeast(semver.NewSemVer(9, 22, 0)),
+	}
+}

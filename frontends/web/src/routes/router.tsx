@@ -55,7 +55,6 @@ import { More } from '@/routes/settings/more';
 
 type TAppRouterProps = {
   devices: TDevices;
-  deviceIDs: string[];
   accounts: TAccount[];
   activeAccounts: TAccount[];
   devicesKey: ((input: string) => string);
@@ -70,7 +69,7 @@ const InjectParams = ({ children }: TInjectParamsProps) => {
   return React.cloneElement(children as React.ReactElement, params);
 };
 
-export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
+export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
   const hasAccounts = accounts.length > 0;
   const Homepage = (<DeviceSwitch
     key={devicesKey('device-switch-default')}
@@ -114,7 +113,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   const AccSend = (<InjectParams>
     <SendWrapper
       code={'' /* dummy to satisfy TS */}
-      accounts={activeAccounts} />
+      activeAccounts={activeAccounts}
+    />
   </InjectParams>);
 
   const AccReceive = (<InjectParams>
@@ -198,7 +198,6 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     <Pocket
       action="buy"
       code={''}
-      deviceIDs={deviceIDs}
     />
   </InjectParams>);
 
@@ -206,7 +205,6 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     <Pocket
       action="sell"
       code={''}
-      deviceIDs={deviceIDs}
     />
   </InjectParams>);
 

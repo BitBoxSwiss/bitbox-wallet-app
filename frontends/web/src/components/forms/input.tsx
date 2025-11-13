@@ -15,19 +15,11 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, HTMLProps, forwardRef } from 'react';
+import { forwardRef } from 'react';
+import { TBaseInputProps } from './types';
 import styles from './input.module.css';
 
-export type TInputProps = {
-  align?: 'left' | 'right';
-  children?: React.ReactNode;
-  className?: string;
-  error?: string | object;
-  onInput?: (e: ChangeEvent<HTMLInputElement>) => void;
-  transparent?: boolean;
-  labelSection?: JSX.Element | undefined;
-  label?: string;
-} & Omit<HTMLProps<HTMLInputElement>, 'onInput'>;
+export type TInputProps = TBaseInputProps;
 
 export const Input = forwardRef<HTMLInputElement, TInputProps>(({
   id,
@@ -60,6 +52,7 @@ export const Input = forwardRef<HTMLInputElement, TInputProps>(({
         </div>
       ) : null }
       <input
+        className={styles.inputField}
         autoComplete="off"
         autoCorrect="off"
         spellCheck={false}

@@ -1,3 +1,8 @@
+.address {
+  color: var(--color-secondary);
+  font-weight: 500;
+}
+
 .bitBoxContainer {
   margin-bottom: var(--space-half);
 }
@@ -6,6 +11,12 @@
   align-items: baseline;
   display: flex;
   justify-content: space-between;
+}
+
+.toWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-quarter);
 }
 
 .confirmItem {
@@ -61,6 +72,10 @@
 
 .valueOriginal {
   font-weight: 500;
+}
+
+.valueOriginal span {
+  font-size: 16px;
 }
 
 .valueOriginalLarge {
