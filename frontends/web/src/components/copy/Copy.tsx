@@ -92,7 +92,6 @@ export const CopyableInput = ({
 
   return (
     <div className={[
-      'flex flex-row flex-start flex-items-start',
       style.container,
       className ? className : ''
     ].join(' ')}>
