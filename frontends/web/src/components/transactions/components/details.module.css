@@ -33,7 +33,7 @@
 .editButton {
     background: none;
     border: none;
-    height: 20px;
+    min-height: 20px;
     margin-right: var(--space-half);
     padding: 0;
     -webkit-appearance: none;

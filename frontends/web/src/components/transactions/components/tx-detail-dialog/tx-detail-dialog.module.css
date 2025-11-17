@@ -4,14 +4,19 @@
 
 .label {
     color: var(--color-default);
-    font-size: 14px;
+    font-size: var(--size-small);
     font-weight: 600;
     margin: 0;
+}
+
+.nowrap {
+    flex-shrink: 0;
 }
 
 .row {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
 }
 
@@ -28,7 +33,7 @@
 .detailAddress {
     padding: 0;
     margin: 0;
-    height: 20px;
+    height: 2rem;
 }
 
 .container {
@@ -51,26 +56,26 @@
 }
 
 .amount {
-    font-size: 24px;
+    font-size: var(--size-header);
     margin: var(--space-quarter) 0;
-    font-weight: 600;
 }
 
 .headerAmountUnit {
-    font-size: 21px;
+    font-size: var(--size-subheader);
 }
 
 .headerFiatUnit {
-    font-size: 16px;
+    font-size: var(--size-small);
 }
 
 .rowUnit {
-    font-size: 13px;
+    font-size: var(--size-small);
 }
 
 .statusContainer {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin-bottom: calc(var(--space-half) + var(--space-quarter));
     width: 100%;
@@ -92,7 +97,7 @@
 .amountFiat {
     align-items: center;
     display: flex;
-    font-size: 18px;
+    font-size: var(--size-subheader);
     margin-bottom: var(--space-quarter);
 }
 
@@ -114,13 +119,13 @@
 
 .note {
     margin: 0;
-    height: 20px;
     width: 85%;
 }
 
 .note input {
     border: none;
-    height: 20px;
+    height: auto;
+    min-height: 20px;
     padding: 0;
 }
 
@@ -128,12 +133,14 @@
     align-items: center;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-between;
     padding: 0;
 }
 
 .unit {
     font-weight: 400;
+    font-size: var(--size-small);
     color: var(--color-secondary);
     font-variant: normal;
     position: relative;
@@ -160,6 +167,10 @@
 
 .explorerLink {
     text-decoration: none;
+}
+
+.explorerLink img {
+    max-height: var(--size-default);
 }
 
 .addressOrTxIdContainer {
