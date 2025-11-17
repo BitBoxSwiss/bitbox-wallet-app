@@ -1,0 +1,169 @@
+.infoIcon {
+    margin-top: 4px;
+}
+
+.label {
+    color: var(--color-default);
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.row {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.copyableInputContainer {
+    display: flex;
+    gap: 8px;
+}
+
+.copyBtn {
+    margin: 0;
+    position: static;
+}
+
+.detailAddress {
+    padding: 0;
+    margin: 0;
+    height: 20px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-half);
+    padding: var(--space-quarter) var(--space-half);
+    padding-bottom: 24px;
+}
+
+.container p {
+    margin: 0;
+}
+
+.header {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.amount {
+    font-size: 24px;
+    margin: var(--space-quarter) 0;
+    font-weight: 600;
+}
+
+.headerAmountUnit {
+    font-size: 21px;
+}
+
+.headerFiatUnit {
+    font-size: 16px;
+}
+
+.rowUnit {
+    font-size: 13px;
+}
+
+.statusContainer {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: calc(var(--space-half) + var(--space-quarter));
+    width: 100%;
+}
+
+.transferDirection {
+    align-items: center;
+    display: flex;
+    gap: var(--space-quarter);
+}
+
+.amountContainer {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.amountFiat {
+    align-items: center;
+    display: flex;
+    font-size: 18px;
+    margin-bottom: var(--space-quarter);
+}
+
+.date {
+    color: var(--color-secondary);
+}
+
+.status {
+    align-items: center;
+    display: flex;
+}
+
+.separator {
+    border: none;
+    height: 1.5px;
+    margin: var(--space-half) 0;
+    background-color: var(--color-disabled);
+}
+
+.note {
+    margin: 0;
+    height: 20px;
+    width: 85%;
+}
+
+.note input {
+    border: none;
+    height: 20px;
+    padding: 0;
+}
+
+.noteContainer {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0;
+}
+
+.unit {
+    font-weight: 400;
+    color: var(--color-secondary);
+    font-variant: normal;
+    position: relative;
+    cursor: default;
+}
+
+.advanced {
+    margin-top: var(--space-quarter);
+}
+
+.advancedContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-half);
+}
+
+.explorerLinkContainer {
+    align-items: center;
+    display: flex;
+    font-weight: 500;
+    gap: var(--space-quarter);
+    justify-content: center;
+}
+
+.explorerLink {
+    text-decoration: none;
+}
+
+.addressOrTxIdContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}

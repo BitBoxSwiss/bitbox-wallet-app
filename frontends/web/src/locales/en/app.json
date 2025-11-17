@@ -403,10 +403,8 @@
     "ok": "OK",
     "previous": "Previous",
     "proceedOnBitBox": "Proceed on your BitBox",
-    "receive": "Receive",
     "restore": "Restore",
     "select": "Select",
-    "send": "Send",
     "unlock": "Unlock",
     "update": "Update",
     "upgrade": "Upgrade"
@@ -888,6 +886,7 @@
     "noOptions": "No options found",
     "paymentRequestNote": "{{name}} payment {{orderId}}",
     "receive": "Receive {{coinCode}}",
+    "receiveWithoutCoinCode": "Receive",
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto",
     "reset": "Reset",
@@ -897,6 +896,7 @@
     "sell": "Sell {{coinCode}}",
     "sell_bitcoin": "Sell Bitcoin",
     "sell_crypto": "Sell crypto",
+    "send": "Send",
     "spend_bitcoin": "Spend bitcoin",
     "spend_crypto": "Spend crypto"
   },
@@ -1867,10 +1867,12 @@
       "activity": "Activity",
       "address": "Address",
       "amount": "Amount",
+      "currentFiat": "Current fiat",
       "date": "Date",
-      "fiat": "Fiat",
       "fiatAmount": "Fiat amount",
-      "fiatAtTime": "Fiat at time of transaction",
+      "from": "From",
+      "historicalFiat": "Historical fiat",
+      "sendToSelf": "Send to self",
       "status": "Status",
       "title": "Transaction Details",
       "type": "Type"
@@ -1881,10 +1883,6 @@
     "fiatHistorical": "Historical",
     "gas": "Gas",
     "no-results": "No transactions found matching \"{{searchTerm}}\"",
-    "note": {
-      "edit": "Edit note",
-      "save": "Save note"
-    },
     "pending": "Pending transaction",
     "size": "Size",
     "status": {
