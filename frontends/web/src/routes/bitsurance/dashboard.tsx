@@ -26,7 +26,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { A } from '@/components/anchor/anchor';
-import { Amount } from '@/components/amount/amount';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Balances } from '@/routes/account/summary/accountssummary';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
@@ -161,19 +161,13 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                           const insurance = insurances[account.code];
                           return insurance ? (
                             <div key={account.code} className={style.row}>
-                              <div className="flex flex-items-center">
+                              <div className="flex flex-wrap flex-items-center">
                                 <p className={`${style.text || ''} ${style.accountName || ''}`}>
                                   {accounts.filter(ac => ac.code === account.code).map(ac => ac.name)}
                                 </p>
                                 <span className={`${style.text || ''} ${style.subtle || ''}`}>
                                   { balance ? (
-                                    <>
-                                      <Amount
-                                        amount={balance.available.amount}
-                                        unit={balance.available.unit}
-                                      />
-                                      {` ${balance.available.unit}`}
-                                    </>
+                                    <AmountWithUnit amount={balance.available} />
                                   ) : <Skeleton/>}
                                 </span>
                               </div>

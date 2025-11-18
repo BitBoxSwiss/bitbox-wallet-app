@@ -24,7 +24,6 @@ import style from './amount-with-unit.module.css';
 
 type TAmountWithUnitProps = {
   amount: TAmountWithConversions | undefined;
-  tableRow?: boolean;
   enableRotateUnit?: boolean;
   sign?: string;
   alwaysShowAmounts?: boolean;
@@ -34,12 +33,11 @@ type TAmountWithUnitProps = {
 
 export const AmountWithUnit = ({
   amount,
-  tableRow,
   enableRotateUnit: rotateUnit,
   sign,
   convertToFiat,
   alwaysShowAmounts = false,
-  unitClassName = ''
+  unitClassName = '',
 }: TAmountWithUnitProps) => {
   const { rotateDefaultCurrency, defaultCurrency, rotateBtcUnit } = useContext(RatesContext);
 
@@ -64,35 +62,27 @@ export const AmountWithUnit = ({
   }
 
   const enableClick = rotateUnit && (convertToFiat || isBitcoinCoin(amount.unit));
-  const formattedAmount = !!displayedAmount ?
-    (
-      <Amount
-        alwaysShowAmounts={alwaysShowAmounts}
-        amount={displayedAmount}
-        unit={displayedUnit}
-        onMobileClick={enableClick ? onClick : undefined}
-      />
-    ) : '---';
 
-  const amountUnit = <AmountUnit unit={displayedUnit} rotateUnit={enableClick ? onClick : undefined} className={unitClassName}/>;
-
-  if (tableRow) {
-    return (
-      <tr className={style.fiatRow}>
-        <td className={style.availableFiatAmount}>{formattedAmount}</td>
-        <td>{amountUnit}</td>
-      </tr>
-    );
-  }
   return (
     <span className={`
       ${style.rates || ''}
+      ${style.availableFiatAmount || ''}
       ${!displayedAmount && style.notAvailable || ''}
     `.trim()}>
       {!!displayedAmount ? sign : ''}
-      {formattedAmount}
+      {!!displayedAmount ? (
+        <Amount
+          alwaysShowAmounts={alwaysShowAmounts}
+          amount={displayedAmount}
+          unit={displayedUnit}
+          onMobileClick={enableClick ? onClick : undefined}
+        />
+      ) : '---'}
       {' '}
-      {amountUnit}
+      <AmountUnit
+        unit={displayedUnit}
+        rotateUnit={enableClick ? onClick : undefined}
+        className={unitClassName}/>
     </span>
   );
 };

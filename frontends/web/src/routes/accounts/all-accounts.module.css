@@ -21,17 +21,16 @@
 }
 
 .accountItem {
-  display: flex;
   align-items: center;
-  text-decoration: none;
-  gap: 0;
+  display: flex;
   color: var(--color-text);
+  gap: var(--space-quarter);
+  text-decoration: none;
 }
 
 .accountIcon {
   display: block;
   flex: 0 0 auto;
-  margin-right: var(--space-quarter);
 }
 
 .accountIcon img {
@@ -44,7 +43,7 @@
   flex-grow: 1;
   flex-shrink: 1;
   margin: 0;
-  margin-right: var(--space-half);
+  margin-right: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -54,24 +53,28 @@
   align-items: baseline;
   color: var(--color-secondary);
   display: flex;
-  flex-basis: auto;
-  flex-shrink: 0;
+  flex-shrink: 1;
   flex-grow: 1;
   font-size: var(--size-default);
   justify-content: flex-end;
   margin-left: auto;
+  max-width: 60%;
   overflow: hidden;
+  overflow: clip;
+  padding-right: var(--space-quarter);
   text-align: right;
 }
 
 .unit {
-  font-size: var(--size-small);
+  font-size: var(--size-smaller);
 }
 
 .chevron {
   color: var(--color-mediumgray);
   flex-shrink: 0;
-  margin-right: -8px;
+  margin-right: 0;
+  position: absolute;
+  right: var(--space-eight);
 }
 
 .chevron img {

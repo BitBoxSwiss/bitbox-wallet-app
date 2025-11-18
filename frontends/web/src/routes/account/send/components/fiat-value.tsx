@@ -34,15 +34,13 @@ export const FiatValue = ({
 
   return (
     <p className={classNames}>
-      <span>
-        <Amount
-          alwaysShowAmounts
-          amount={amount}
-          unit={baseCurrencyUnit} />
-        {' '}
-        <span className={style.unit}>
-          {baseCurrencyUnit}
-        </span>
+      <Amount
+        alwaysShowAmounts
+        amount={amount}
+        unit={baseCurrencyUnit} />
+      {' '}
+      <span className={style.unit}>
+        {baseCurrencyUnit}
       </span>
     </p>
   );

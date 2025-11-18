@@ -11,8 +11,6 @@
 }
 
 .subTitle {
-    font-size: var(--size-subheader);
-    font-weight: normal;
     margin-bottom: var(--space-quarter);
     margin-top: 0;
 }
@@ -25,6 +23,7 @@
 
 .availableBalance {
     flex-basis: 100%;
+    margin-bottom: var(--size-default);
     max-width: 100%;
 }
 

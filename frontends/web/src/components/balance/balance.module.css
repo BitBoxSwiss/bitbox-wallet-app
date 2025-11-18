@@ -1,28 +1,28 @@
-.balanceTable {
-  align-items: flex-end;
-  border-collapse: collapse;
-  border-spacing: 0;
+.balanceContainer {
+  color: var(--color-default);
+  max-width: 100%;
+}
+
+.availableBalanceTitle {
+  color: var(--color-secondary);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.balance {
+  align-items: baseline;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  font-size: var(--size-large);
+  font-weight: 400;
+  gap: var(--space-eight) var(--space-half);
+  min-height: 37px;
   position: relative;
 }
 
-.balanceTable tr {
-  display: inline-block;
-  vertical-align: bottom;
-  padding-right: var(--space-half);
-}
-
-.balanceTable td {
-  font-size: var(--size-large);
-  font-weight: 400;
-  line-height: 1.2;
-  padding: 0;
-  vertical-align: baseline;
-}
-
-.balanceTable td:last-child {
-  font-size: var(--size-default);
+.unit {
+  font-size: var(--size-header);
 }
 
 .pendingBalance {
@@ -33,19 +33,21 @@
   padding-top: var(--space-half);
 }
 
+.incomingBalance {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: .4ch;
+}
+
 @media (max-width: 768px) {
 
-  .balanceTable {
-    display: inline-block;
-    margin: 0 auto;
-  }
-
-  .balanceTable td {
+  .balance {
     font-size: var(--size-header);
-    line-height: 1.5;
+    min-height: auto;
   }
 
   .pendingBalance {
     padding-top: var(--space-quarter);
   }
+
 }

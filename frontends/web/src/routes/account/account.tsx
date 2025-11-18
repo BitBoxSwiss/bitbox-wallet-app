@@ -258,9 +258,6 @@ const RemountAccount = ({
           )}
           <View>
             <ViewHeader>
-              <SubTitle className={style.subTitle}>
-                {t('accountSummary.availableBalance')}
-              </SubTitle>
               <div className={style.balanceHeader}>
                 <Balance balance={balance} />
                 {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}

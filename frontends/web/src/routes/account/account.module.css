@@ -35,6 +35,11 @@
     width: var(--size-default);
 }
 
+.button {
+    height: 37px;
+    min-height: auto;
+}
+
 @media (max-width: 768px) {
     .accountHeader {
         padding: 0 var(--space-half);
@@ -46,22 +51,24 @@
 }
 
 .subTitle {
+    color: var(--color-secondary);
     font-size: var(--size-subheader);
     font-weight: normal;
-    margin-bottom: var(--space-quarter);
-    margin-top: 0;
+    margin: 0;
 }
 
 .balanceHeader {
-    align-items: flex-start;
+    align-items: flex-end;
+    color: var(--color-default);
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    margin-bottom: var(--space-half);
+    gap: var(--space-half);
     min-height: var(--button-height);
 }
 
 .actionsContainer {
+    --size-default: var(--size-small);
     display: flex;
     flex-grow: 1;
     flex-shrink: 0;

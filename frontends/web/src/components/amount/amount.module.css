@@ -1,6 +1,12 @@
 .amount {
+    align-items: baseline;
+    display: inline-flex;
+    display: flow-root; /* flow-root seems to work better on all-account. keeping inline-flex as fallback */
     flex-shrink: 1;
+    flex-basis: auto;
+    flex-grow: 0;
     font-variant: tabular-nums;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
 }

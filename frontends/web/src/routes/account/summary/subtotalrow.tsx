@@ -17,9 +17,8 @@
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { Logo } from '@/components/icon/logo';
-import { Amount } from '@/components/amount/amount';
-import style from './accountssummary.module.css';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import style from './accountssummary.module.css';
 
 type TProps = {
   balance?: accountApi.TAmountWithConversions;
@@ -50,11 +49,10 @@ export const SubTotalRow = ({ coinCode, coinName, balance }: TProps) => {
       { nameCol }
       <td data-label={t('accountSummary.balance')}>
         <span className={style.summaryTableBalance}>
-          <strong>
-            <Amount amount={balance.amount} unit={balance.unit}/>
-          </strong>
-          {' '}
-          <span className={style.coinUnit}>{balance.unit}</span>
+          <AmountWithUnit
+            amount={balance}
+            unitClassName={style.coinUnit}
+          />
         </span>
       </td>
       <td data-label={t('accountSummary.fiatBalance')}>
@@ -86,9 +84,10 @@ export const SubTotalCoinRow = ({ coinCode, coinName, balance }: TProps) => {
       { nameCol }
       <td data-label={t('accountSummary.balance')}>
         <span className={style.summaryTableBalance}>
-          <Amount amount={balance.amount} unit={balance.unit}/>
-          {' '}
-          <span className={style.coinUnit}>{balance.unit}</span>
+          <AmountWithUnit
+            amount={balance}
+            unitClassName={style.coinUnit}
+          />
         </span>
       </td>
       <td data-label={t('accountSummary.fiatBalance')}>

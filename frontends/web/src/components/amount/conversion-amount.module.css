@@ -15,13 +15,13 @@
 .txUnit {
   color: var(--color-secondary);
   font-size: var(--size-small);
-  /* line-height: 1.285714; */
   white-space: nowrap;
 }
 
 .txConversionAmount .txUnit {
   font-size: var(--size-smaller);
   flex-shrink: 0;
+  max-width: 100%;
 }
 
 .txSmallInlineIcon img {
