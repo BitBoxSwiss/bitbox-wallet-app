@@ -7,6 +7,8 @@
 
 .unit {
   font-weight: 400;
+  flex-grow: 0;
+  flex-shrink: 0;
   color: var(--color-secondary);
   font-variant: normal;
   position: relative;
@@ -14,8 +16,11 @@
 }
 
 .availableFiatAmount {
-  color: var(--color-default);
-  padding-right: var(--space-quarter) !important;
+  align-items: baseline;
+  display: inline-flex;
+  flex-grow: 0;
+  justify-content: flex-start;
+  gap: 0.4ch;
   text-align: right;
 }
 
@@ -41,10 +46,5 @@
 @media (max-width: 880px) {
   .fiatRow {
     bottom: 0;
-  }
-
-  .availableFiatAmount,
-  .availableFiatUnit {
-    line-height: 24px;
   }
 }

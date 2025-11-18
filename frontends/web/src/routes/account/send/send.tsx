@@ -29,7 +29,7 @@ import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbut
 import { Button } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
-import { Amount } from '@/components/amount/amount';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { FeeTargets } from './feetargets';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { ConfirmSend } from './components/confirm/confirm';
@@ -43,6 +43,7 @@ import { FiatValue } from './components/fiat-value';
 import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
 import { connectKeystore } from '@/api/keystores';
+import { SubTitle } from '@/components/title';
 import style from './send.module.css';
 
 type TProps = {
@@ -382,14 +383,11 @@ export const Send = ({
             <ViewContent>
               <div className={style.sendHeader}>
                 <div className={style.availableBalance}>
-                  <h2 className={style.subTitle}>
-                    {t('send.availableBalance')}
-                  </h2>
                   <Balance balance={balance} noRotateFiat/>
                 </div>
-                <h2 className={style.subTitle}>
+                <SubTitle className={style.subTitle}>
                   {t('send.transactionDetails')}
-                </h2>
+                </SubTitle>
                 <CoinControl
                   account={account}
                   onSelectedUTXOsChange={handleSelectedUTXOsChange}
@@ -496,16 +494,21 @@ export const Send = ({
                 onContinue={handleContinue}
                 onRetry={handleRetry}>
                 <p>
-                  {(proposedAmount &&
-                  <Amount alwaysShowAmounts amount={proposedAmount.amount} unit={proposedAmount.unit}/>) || 'N/A'}
-                  {' '}
-                  <span className={style.unit}>
-                    {(proposedAmount && proposedAmount.unit) || 'N/A'}
-                  </span>
+                  {proposedAmount && (
+                    <AmountWithUnit
+                      amount={proposedAmount}
+                      alwaysShowAmounts
+                      unitClassName={style.unit}
+                    />
+                  )}
+                  <br />
+                  {(proposedAmount && proposedAmount.conversions && proposedAmount.conversions[activeCurrency]) ? (
+                    <FiatValue
+                      amount={proposedAmount.conversions[activeCurrency] || ''}
+                      baseCurrencyUnit={activeCurrency}
+                    />
+                  ) : null}
                 </p>
-                {(proposedAmount && proposedAmount.conversions && proposedAmount.conversions[activeCurrency]) ? (
-                  <FiatValue baseCurrencyUnit={activeCurrency} amount={proposedAmount.conversions[activeCurrency] || ''} />
-                ) : null}
               </SendResult>
             )}
           </View>

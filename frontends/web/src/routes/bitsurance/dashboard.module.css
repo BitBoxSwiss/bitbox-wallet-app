@@ -1,5 +1,5 @@
 .text {
-  font-size: 1.6rem;
+  font-size: var(--size-default);
   margin: 0;
 }
 
@@ -70,8 +70,8 @@
 }
 
 .keystore {
-  margin-bottom: var(--space-quarter);
   font-size: var(--size-subheader);
+  margin-bottom: var(--space-quarter);
 }
 
 .keystore > span {
@@ -82,10 +82,6 @@
   .headerContainer {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .text {
-    font-size: var(--size-default);
   }
 
   .row {

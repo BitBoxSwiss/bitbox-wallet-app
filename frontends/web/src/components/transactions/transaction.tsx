@@ -20,7 +20,7 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 import { Loupe } from '@/components/icon/icon';
 import { parseTimeLong, parseTimeShort } from '@/utils/date';
 import { ProgressRing } from '@/components/progressRing/progressRing';
-import { Amount } from '@/components/amount/amount';
+import { AmountWithUnit } from '../amount/amount-with-unit';
 import { ConversionAmount } from '@/components/amount/conversion-amount';
 import { Arrow } from './components/arrows';
 import { getTxSign } from '@/utils/transaction';
@@ -162,7 +162,6 @@ const Amounts = ({
   const txTypeClass = `txAmount-${type}`;
   const recv = type === 'receive';
   const displayAmount = recv ? amount.amount : deductedAmount.amount;
-  const displayUnit = recv ? amount.unit : deductedAmount.unit;
   const sign = displayAmount ? getTxSign(type) : '';
 
   return (
@@ -172,14 +171,10 @@ const Amounts = ({
     `}>
       <span className={styles.txAmount}>
         {sign}
-        <Amount
-          amount={displayAmount}
-          unit={displayUnit}
+        <AmountWithUnit
+          amount={amount}
+          unitClassName={styles.txUnit}
         />
-        <span className={styles.txUnit}>
-          {' '}
-          {displayUnit}
-        </span>
       </span>
       <ConversionAmount amount={amount} deductedAmount={deductedAmount} type={type} />
     </span>

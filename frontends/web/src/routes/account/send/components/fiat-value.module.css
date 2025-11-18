@@ -1,5 +1,8 @@
 .fiatValue {
   color: var(--color-default);
+  display: inline-flex;
+  gap: .4ch;
+  justify-content: flex-end;
 }
 
 .unit {

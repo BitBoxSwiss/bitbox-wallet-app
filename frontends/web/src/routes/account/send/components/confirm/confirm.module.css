@@ -77,10 +77,6 @@
   font-weight: 500;
 }
 
-.valueOriginal span {
-  font-size: 16px;
-}
-
 .valueOriginalLarge {
   font-size: var(--size-header);
   font-weight: 500;

@@ -17,7 +17,6 @@
 import { useTranslation } from 'react-i18next';
 import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, TAccount, TAmountWithConversions } from '@/api/account';
 import { UseDisableBackButton } from '@/hooks/backbutton';
-import { Amount } from '@/components/amount/amount';
 import { customFeeUnit } from '@/routes/account/utils';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
@@ -25,6 +24,7 @@ import { PointToBitBox02 } from '@/components/icon';
 import { FiatValue } from '../fiat-value';
 import type { TSelectedUTXOs } from '../../utxos';
 import style from './confirm.module.css';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 
 type TransactionDetails = {
   selectedReceiverAccount?: TAccount;
@@ -116,12 +116,12 @@ export const ConfirmSend = ({
           <label>{t('generic.send')}</label>
           <div className={style.confirmationItemWrapper}>
             <p className={style.valueOriginalLarge}>
-              {(proposedAmount &&
-              <Amount alwaysShowAmounts amount={proposedAmount.amount} unit={proposedAmount.unit}/>) || 'N/A'}
-              {' '}
-              <span className={style.unit}>
-                {(proposedAmount && proposedAmount.unit) || 'N/A'}
-              </span>
+              {proposedAmount ? (
+                <AmountWithUnit
+                  amount={proposedAmount}
+                  unitClassName={style.unit}
+                />
+              ) : 'N/A'}
             </p>
             {canShowSendAmountFiatValue &&
             (<FiatValue baseCurrencyUnit={baseCurrencyUnit} amount={proposedAmount.conversions![fiatUnit] || ''} />)
@@ -192,11 +192,14 @@ export const ConfirmSend = ({
           <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
           <div className={style.confirmationItemWrapper}>
             <p className={style.valueOriginal}>
-              {(proposedFee &&
-              <Amount alwaysShowAmounts amount={proposedFee.amount} unit={proposedFee.unit}/>) || 'N/A'} {' '}
-              <span className={style.unit}>
-                {(proposedFee && proposedFee.unit) || 'N/A'}
-              </span>
+              {proposedFee && (
+                <AmountWithUnit
+                  amount={proposedFee}
+                  alwaysShowAmounts
+                  unitClassName={style.unit}
+                />
+              ) || 'N/A'}
+              {' '}
               {customFee ? (
                 <small>
                   <br/>
@@ -216,11 +219,8 @@ export const ConfirmSend = ({
             <label>{t('send.confirm.total')}</label>
             <p className={style.valueOriginal}>
               <strong>
-                {(proposedTotal &&
-              <Amount alwaysShowAmounts amount={proposedTotal.amount} unit={proposedTotal.unit}/>) || 'N/A'}
+                <AmountWithUnit amount={proposedTotal} alwaysShowAmounts />
               </strong>
-              {' '}
-              <span className={style.unit}>{(proposedTotal && proposedTotal.unit) || 'N/A'}</span>
             </p>
             {canShowTotalFiatValue && (
               <FiatValue
