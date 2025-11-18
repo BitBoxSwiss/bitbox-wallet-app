@@ -34,6 +34,29 @@ If launching a test locally, and you want to see the browser in real time, you n
 
 `npx playwright test <path-to-test-file> --headed`
 
+## Writing tests
+Playwright has a lot of documentation on how to [write tests](https://playwright.dev/docs/writing-tests), so refer to that for syntax/features.
+
+This documents covers specific things to keep in mind to write tests for the BitboxApp, and caveats to be mindful of.
+
+### Helpers
+Method that might be helpful in more than one test should reside here; this is a list of the current helpers (if you add more, please add them to this list too):
+
+- [fs.ts](./helpers/fs.ts) contains methods used to interact with the filesystem, such as deleting the config.json or the accounts.json files
+- [fixtures.ts](./helpers/fixtures.ts) is used to inject env variables in all tests.
+- [dom.ts](./helpers/dom.ts) contains methods to interact with the webpage, such as clicking a specific button, getting specific fields based on attribute key/value.
+- [servewallet.ts](./helpers/servewallet.ts) is the most important helper file, as it needs to be imported and used by any test. It provides a `Servewallet` class that gives the ability to start/stop/restart the servewallet. 
+- [simulator.ts](./helpers/simulator.ts) is similarly useful, as it provides a way to start a simulator, which is needed for most operations.
+
+### Caveats
+There are a few things that should be kept in mind when writing tests, due to the nature of the test environment.
+
+* Leftover processes: Playwright doesn't automatically kill child processes spawned by the test, which means that servewallet and simulator will still be running when the test ends. While it would be possible to reuse them in subsequent tests, it is recommended to simply kill them at the end of the file and launch new ones on each test. You can achieve this by using the hooks `test.afterEach` or `test.afterAll`.
+* Leftover accounts.json/config.json: if a test needs a clean state for either one or both these files (e.g. [watch-only-test.ts](./watch-only.test.ts)), it is recommended to delete them before the tests, using either `test.beforeAll` or `test.beforeEach`
+* Simulator's fake memory files: the simulator [supports](/README.md#local-development-with-bb02-simulator) setting the env variable `FAKE_MEMORY_FILEPATH` to re-use the same seed across different executions. The path is hardcoded, so different executions will share the same fake memory files. It is thus recommended to delete them by using the method `cleanFakeMemoryFiles` provided by [simulator.ts](./helpers/simulator.ts)
+
+
+[watch-only-test.ts](./watch-only.test.ts) contains example of both pre and post test hooks for most of this cases.
 
 ## Debugging tests
 
