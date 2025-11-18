@@ -42,7 +42,7 @@ import (
 func mockKeystore() *keystoremock.KeystoreMock {
 	return &keystoremock.KeystoreMock{
 		CanSignMessageFunc: func(coin.Code) bool { return true },
-		SignBTCMessageFunc: func(_ []byte, _ signing.AbsoluteKeypath, _ signing.ScriptType) ([]byte, error) {
+		SignBTCMessageFunc: func(_ []byte, _ signing.AbsoluteKeypath, _ signing.ScriptType, _ coin.Code) ([]byte, error) {
 			return []byte("signature"), nil
 		},
 	}

@@ -47,7 +47,7 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			RootFingerprintFunc: func() ([]byte, error) {
 //				panic("mock out the RootFingerprint method")
 //			},
-//			SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
+//			SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coinMoqParam coin.Code) ([]byte, error) {
 //				panic("mock out the SignBTCMessage method")
 //			},
 //			SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
@@ -124,7 +124,7 @@ type KeystoreMock struct {
 	RootFingerprintFunc func() ([]byte, error)
 
 	// SignBTCMessageFunc mocks the SignBTCMessage method.
-	SignBTCMessageFunc func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error)
+	SignBTCMessageFunc func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coinMoqParam coin.Code) ([]byte, error)
 
 	// SignETHMessageFunc mocks the SignETHMessage method.
 	SignETHMessageFunc func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
@@ -214,6 +214,8 @@ type KeystoreMock struct {
 			Keypath signing.AbsoluteKeypath
 			// ScriptType is the scriptType argument value.
 			ScriptType signing.ScriptType
+			// CoinMoqParam is the coinMoqParam argument value.
+			CoinMoqParam coin.Code
 		}
 		// SignETHMessage holds details about calls to the SignETHMessage method.
 		SignETHMessage []struct {
@@ -566,23 +568,25 @@ func (mock *KeystoreMock) RootFingerprintCalls() []struct {
 }
 
 // SignBTCMessage calls SignBTCMessageFunc.
-func (mock *KeystoreMock) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
+func (mock *KeystoreMock) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coinMoqParam coin.Code) ([]byte, error) {
 	if mock.SignBTCMessageFunc == nil {
 		panic("KeystoreMock.SignBTCMessageFunc: method is nil but Keystore.SignBTCMessage was just called")
 	}
 	callInfo := struct {
-		Message    []byte
-		Keypath    signing.AbsoluteKeypath
-		ScriptType signing.ScriptType
+		Message      []byte
+		Keypath      signing.AbsoluteKeypath
+		ScriptType   signing.ScriptType
+		CoinMoqParam coin.Code
 	}{
-		Message:    message,
-		Keypath:    keypath,
-		ScriptType: scriptType,
+		Message:      message,
+		Keypath:      keypath,
+		ScriptType:   scriptType,
+		CoinMoqParam: coinMoqParam,
 	}
 	mock.lockSignBTCMessage.Lock()
 	mock.calls.SignBTCMessage = append(mock.calls.SignBTCMessage, callInfo)
 	mock.lockSignBTCMessage.Unlock()
-	return mock.SignBTCMessageFunc(message, keypath, scriptType)
+	return mock.SignBTCMessageFunc(message, keypath, scriptType, coinMoqParam)
 }
 
 // SignBTCMessageCalls gets all the calls that were made to SignBTCMessage.
@@ -590,14 +594,16 @@ func (mock *KeystoreMock) SignBTCMessage(message []byte, keypath signing.Absolut
 //
 //	len(mockedKeystore.SignBTCMessageCalls())
 func (mock *KeystoreMock) SignBTCMessageCalls() []struct {
-	Message    []byte
-	Keypath    signing.AbsoluteKeypath
-	ScriptType signing.ScriptType
+	Message      []byte
+	Keypath      signing.AbsoluteKeypath
+	ScriptType   signing.ScriptType
+	CoinMoqParam coin.Code
 } {
 	var calls []struct {
-		Message    []byte
-		Keypath    signing.AbsoluteKeypath
-		ScriptType signing.ScriptType
+		Message      []byte
+		Keypath      signing.AbsoluteKeypath
+		ScriptType   signing.ScriptType
+		CoinMoqParam coin.Code
 	}
 	mock.lockSignBTCMessage.RLock()
 	calls = mock.calls.SignBTCMessage

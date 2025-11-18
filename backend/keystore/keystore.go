@@ -123,7 +123,7 @@ type Keystore interface {
 	// SignBTCMessage signs the message using the private key at the keypath. The scriptType is
 	// required to compute and verify the address. The returned signature is a 65 byte signature in
 	// Electrum format.
-	SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error)
+	SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coin.Code) ([]byte, error)
 
 	// SignETHMessage signs the message using the private key at the keypath. The result contains a
 	// 65 byte signature. The first 64 bytes are the secp256k1 signature in / compact format (R and

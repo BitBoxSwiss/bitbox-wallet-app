@@ -21,6 +21,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
@@ -478,17 +479,21 @@ func (keystore *keystore) SignTransaction(proposedTx interface{}) error {
 
 // CanSignMessage implements keystore.Keystore.
 func (keystore *keystore) CanSignMessage(code coinpkg.Code) bool {
-	return code == coinpkg.CodeBTC || code == coinpkg.CodeETH
+	return code == coinpkg.CodeBTC || code == coinpkg.CodeETH || code == coinpkg.CodeRBTC
 }
 
 // SignBTCMessage implements keystore.Keystore.
-func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
+func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coin.Code) ([]byte, error) {
 	sc, ok := btcMsgScriptTypeMap[scriptType]
 	if !ok {
 		return nil, errp.Newf("scriptType not supported: %s", scriptType)
 	}
+	messageCoin, ok := btcMsgCoinMap[coin]
+	if !ok {
+		return nil, errp.Newf("coin not supported: %s", coin)
+	}
 	signResult, err := keystore.device.BTCSignMessage(
-		messages.BTCCoin_BTC,
+		messageCoin,
 		&messages.BTCScriptConfigWithKeypath{
 			ScriptConfig: firmware.NewBTCScriptConfigSimple(sc),
 			Keypath:      keypath.ToUInt32(),

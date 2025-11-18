@@ -958,6 +958,7 @@ func SignBTCAddress(account accounts.Interface, message string, scriptType signi
 		[]byte(message),
 		addr.AbsoluteKeypath(),
 		account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
+		account.Coin().Code(),
 	)
 	if err != nil {
 		return "", "", err

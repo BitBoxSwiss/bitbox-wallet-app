@@ -59,8 +59,9 @@ const (
 
 // aoppCoinMap maps from the asset codes specified by AOPP to our own coin codes.
 var aoppCoinMap = map[string]coinpkg.Code{
-	"btc": coinpkg.CodeBTC,
-	"eth": coinpkg.CodeETH,
+	"btc":  coinpkg.CodeBTC,
+	"eth":  coinpkg.CodeETH,
+	"rbtc": coinpkg.CodeRBTC,
 }
 
 // aoppBTCScriptTypeMap maps from format codes specified by AOPP to our own script type codes. See
@@ -402,11 +403,12 @@ loop:
 		xpub = account.Config().Config.SigningConfigurations[signingConfigIdx].ExtendedPublicKey().String()
 	}
 	switch account.Coin().Code() {
-	case coinpkg.CodeBTC:
+	case coinpkg.CodeBTC, coinpkg.CodeRBTC:
 		sig, err := backend.keystore.SignBTCMessage(
 			[]byte(backend.aopp.Message),
 			addr.AbsoluteKeypath(),
 			account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
+			account.Coin().Code(),
 		)
 		if err != nil {
 			if firmware.IsErrorAbort(err) {
@@ -435,6 +437,7 @@ loop:
 			return
 		}
 		signature = sig
+
 	default:
 		log.Errorf("unsupported coin: %s", account.Coin().Code())
 		backend.aoppSetError(errAOPPUnknown)
