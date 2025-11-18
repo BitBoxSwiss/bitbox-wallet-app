@@ -65,6 +65,11 @@
   text-align: right;
   white-space: nowrap;
 }
+@media (max-width: 768px) {
+  .txAmountsColumn {
+    padding-right: var(--space-half);
+  }
+}
 @media (max-width: 560px) {
   .txAmountsColumn {
     flex-shrink: 1;
@@ -73,9 +78,9 @@
     padding-left: 24px;
   }
 }
-@media (max-width: 768px) {
+@media (max-width: 425px) {
   .txAmountsColumn {
-    padding-right: var(--space-half);
+    padding-left: 12px;
   }
 }
 

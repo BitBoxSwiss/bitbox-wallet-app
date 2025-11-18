@@ -45,12 +45,20 @@
     }
 }
 
+.subTitle {
+    font-size: var(--size-subheader);
+    font-weight: normal;
+    margin-bottom: var(--space-quarter);
+    margin-top: 0;
+}
+
 .balanceHeader {
-    align-items: center;
+    align-items: flex-start;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     margin-bottom: var(--space-half);
+    min-height: var(--button-height);
 }
 
 .actionsContainer {
@@ -60,7 +68,7 @@
     flex-wrap: nowrap;
     gap: var(--space-quarter);
     justify-content: flex-end;
-    margin-top: var(--space-half);
+    margin-top: 0;
     padding-bottom: 0;
 }
 
@@ -132,6 +140,7 @@
     .actionsContainer {
         justify-content: center;
         margin-bottom: var(--space-half);
+        margin-top: var(--space-half);
         padding-bottom: 0;
         width: 100%;
     }
