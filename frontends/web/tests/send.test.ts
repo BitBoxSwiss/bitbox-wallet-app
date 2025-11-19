@@ -1,0 +1,147 @@
+/**
+*  Copyright 2025 Shift Crypto AG
+*
+*  Licensed under the Apache License, Version 2.0 (the "License");
+*  you may not use this file except in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*       http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing, software
+*  distributed under the License is distributed on an "AS IS" BASIS,
+*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*  See the License for the specific language governing permissions and
+*  limitations under the License.
+*/
+
+import { expect } from '@playwright/test';
+import { test } from './helpers/fixtures';
+import { ServeWallet } from './helpers/servewallet';
+import { launchRegtest, setupRegtestWallet, sendCoins, mineBlocks, cleanupRegtest } from './helpers/regtest';
+import { ChildProcess } from 'child_process';
+import { deleteAccountsFile } from './helpers/fs';
+
+let servewallet: ServeWallet;
+let regtest: ChildProcess;
+
+test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
+
+  await test.step('Start regtest and init wallet', async () => {
+    regtest = await launchRegtest();
+    // Give regtest some time to start
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await setupRegtestWallet();
+  });
+
+
+  await test.step('Start servewallet', async () => {
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { regtest: true, testnet: false });
+    await servewallet.start();
+  });
+
+
+  let recvAdd: string;
+  await test.step('Grab receive address', async () => {
+    await page.getByRole('button', { name: 'Test wallet' }).click();
+    await page.getByRole('button', { name: 'Unlock' }).click();
+    await page.getByRole('link', { name: 'Bitcoin Regtest Bitcoin' }).click();
+    await page.getByRole('button', { name: 'Receive RBTC' }).click();
+    await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
+    const addressLocator = page.locator('[data-testid="receive-address"]');
+    recvAdd = await addressLocator.inputValue();
+    expect(recvAdd).toContain('bcrt1');
+    console.log(`Receive address: ${recvAdd}`);
+  });
+
+  await test.step('Verify there are no transactions yet', async () => {
+    await page.goto('/#/account-summary');
+    mineBlocks(12);
+    await page.locator('[data-label="Account name"]').nth(0).click();
+    await expect(page.getByTestId('transaction')).toHaveCount(0);
+  });
+
+  await test.step('Add second RBTC account', async () => {
+    await page.goto('/#/account-summary');
+    await page.getByRole('link', { name: 'Settings' }).click();
+    await page.getByRole('link', { name: 'Manage Accounts' }).click();
+    await page.getByRole('button', { name: 'Add account' }).click();
+    await page.getByRole('button', { name: 'Add account' }).click();
+    await expect(page.locator('body')).toContainText('Bitcoin Regtest 2 has now been added to your accounts.');
+    await page.getByRole('button', { name: 'Done' }).click();
+  });
+
+  await test.step('Send RBTC to receive address', async () => {
+    console.log('Sending RBTC to first account');
+    await page.waitForTimeout(2000);
+    const sendAmount = '10';
+    sendCoins(recvAdd, sendAmount);
+    mineBlocks(12);
+  });
+
+  await test.step('Verify that the first account has a transaction', async () => {
+    await page.goto('/#/account-summary');
+    await page.locator('[data-label="Account name"]').nth(0).click();
+    await expect(page.getByTestId('transaction')).toHaveCount(1);
+
+    // It should be an incoming tx
+    const tx = page.getByTestId('transaction').nth(0);
+    await expect(tx).toHaveAttribute('data-tx-type', 'receive');
+
+  });
+
+  await test.step('Grab receive address for second account', async () => {
+    await page.goto('/#/account-summary');
+    await page.getByRole('link', { name: 'Bitcoin Regtest 2' }).click();
+
+    await page.getByRole('button', { name: 'Receive RBTC' }).click();
+    await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
+    const addressLocator = page.locator('[data-testid="receive-address"]');
+    recvAdd = await addressLocator.inputValue();
+    expect(recvAdd).toContain('bcrt1');
+    console.log(`Receive address: ${recvAdd}`);
+  });
+
+  await test.step('Send RBTC to second account receive address', async () => {
+    await page.goto('/#/account-summary');
+    await page.getByRole('link', { name: 'Bitcoin Regtest Bitcoin' }).click();
+    console.log('Sending RBTC to second account');
+    await page.getByRole('link', { name: 'Send' }).click();
+    await page.fill('#recipientAddress', recvAdd);
+    await page.click('#sendAll');
+    await page.getByRole('button', { name: 'Review' }).click();
+    await page.getByRole('button', { name: 'Done' }).click();
+    mineBlocks(12);
+  });
+
+  await test.step('Verify that first account now has two transactions', async () => {
+    await page.goto('/#/account-summary');
+    await page.locator('td[data-label="Account name"]').nth(0).click();
+    await expect(page.getByTestId('transaction')).toHaveCount(2);
+    // Verify that the second one is outgoing
+    // Txs are shown in reverse order
+    const oldTx = page.getByTestId('transaction').nth(1);
+    await expect(oldTx).toHaveAttribute('data-tx-type', 'receive');
+
+    const newTx = page.getByTestId('transaction').nth(0);
+    await expect(newTx).toHaveAttribute('data-tx-type', 'send');
+  });
+
+  await test.step('Verify that the second account has a transaction', async () => {
+    await page.goto('/#/account-summary');
+    await page.locator('td[data-label="Account name"]').nth(1).click();
+    await expect(page.getByTestId('transaction')).toHaveCount(1);
+
+    const tx = page.getByTestId('transaction').nth(0);
+    await expect(tx).toHaveAttribute('data-tx-type', 'receive');
+  });
+
+});
+
+test.beforeEach(async () => {
+  deleteAccountsFile();
+});
+
+test.afterAll(async () => {
+  await servewallet.stop();
+  await cleanupRegtest(regtest);
+});
