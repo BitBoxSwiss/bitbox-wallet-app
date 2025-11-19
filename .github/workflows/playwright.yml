@@ -69,7 +69,6 @@ jobs:
           name: simulator-binary
           path: ./simulator-bin
 
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -85,6 +84,17 @@ jobs:
           cd frontends/web
           npx playwright install --with-deps chromium webkit
 
+      - name: Setup Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Python dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libffi-dev libssl-dev libsecp256k1-dev python3-dev
+          pip install --upgrade pip
+          pip install flask coincurve bech32
 
       - name: Restore executable permission
         run: chmod +x simulator-bin/simulator
