@@ -77,7 +77,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
         primary
         to={`/account/${code}/receive`}
       >
-        <span>{t('generic.receiveWithoutCoinCode')}</span>
+        <span data-testid={'receive-button'}>{t('generic.receiveWithoutCoinCode')}</span>
       </ButtonLink>
 
       {(exchangeSupported && !isMobile) && (

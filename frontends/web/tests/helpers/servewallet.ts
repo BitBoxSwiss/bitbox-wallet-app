@@ -35,6 +35,7 @@ export interface ServeWalletOptions {
   timeout?: number;
   testnet?: boolean;
   regtest?: boolean;
+  extraFlags?: Record<string, string | number | boolean | null>;
 }
 
 export class ServeWallet {
@@ -63,7 +64,7 @@ export class ServeWallet {
   ) {
     const { simulator = false, timeout = 90000, testnet = true, regtest = false } = options;
 
-    if (!testnet && simulator) {
+    if (!(testnet || regtest) && simulator) {
       throw new Error('ServeWallet: mainnet simulator is not supported');
     }
 
@@ -89,24 +90,41 @@ export class ServeWallet {
     this.outStream = fs.openSync(this.logPath, append ? 'a' : 'w');
   }
 
-  async start(): Promise<void> {
+  async start(options: ServeWalletOptions = {}): Promise<void> {
     this.openOutStream(true); // On starts/restarts, open the file in "a" mode.
 
-    let target: string;
-    if (this.testnet && !this.simulator) {
-      target = 'servewallet';
-    } else if (this.testnet && this.simulator) {
-      target = 'servewallet-simulator';
-    } else if (!this.testnet && !this.simulator && !this.regtest) {
-      target = 'servewallet-mainnet';
-    } else if (this.regtest) {
-      target = 'servewallet-regtest';
-    } else {
-      // This should never happen because the constructor already guards against it
-      throw new Error('Invalid ServeWallet configuration');
+    const extraFlags = options.extraFlags || {};
+
+    // Determine base flags
+    const args: string[] = ['./cmd/servewallet'];
+    if (!this.testnet && !this.simulator && !this.regtest) {
+      args.push('-mainnet');
+    }
+    if (this.simulator) {
+      args.push('-simulator');
+    }
+    if (this.regtest) {
+      args.push('-regtest');
     }
 
-    this.proc = spawn('make', ['-C', '../../', target], {
+    // Append extra flags, disallow overriding reserved ones
+    const reservedFlags = ['mainnet', 'testnet', 'regtest', 'simulator'];
+    for (const [key, value] of Object.entries(extraFlags)) {
+      if (reservedFlags.includes(key)) {
+        throw new Error(`Cannot override reserved flag "${key}" in extraFlags`);
+      }
+      if (value === null || value === true) {
+        args.push(`-${key}`);
+      } else if (value === false) {
+        // skip false flags
+        continue;
+      } else {
+        args.push(`-${key}=${value}`);
+      }
+    }
+
+    this.proc = spawn('go', ['run', ...args], {
+      cwd: '../../', // maintain previous working dir
       stdio: ['ignore', this.outStream, this.outStream],
       detached: true,
     });

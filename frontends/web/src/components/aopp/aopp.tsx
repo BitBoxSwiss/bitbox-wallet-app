@@ -226,11 +226,11 @@ export const Aopp = () => {
           </p>
           <Field>
             <Label>{t('aopp.labelAddress')}</Label>
-            <CopyableInput alignLeft flexibleHeight value={aopp.address} />
+            <CopyableInput alignLeft flexibleHeight value={aopp.address} dataTestId={'aopp-address'}/>
           </Field>
           <Field style={{ marginBottom: 0 }}>
             <Label>{t('aopp.labelMessage')}</Label>
-            <div className={styles.message}>
+            <div className={styles.message} data-testid={'aopp-message'}>
               {aopp.message}
             </div>
           </Field>
