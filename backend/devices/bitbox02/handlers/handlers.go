@@ -18,6 +18,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
@@ -195,6 +196,9 @@ func (handlers *Handlers) getBackupsList(_ *http.Request) interface{} {
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
+	sort.Slice(backups, func(i, j int) bool {
+		return backups[i].Time.After(backups[j].Time)
+	})
 	result := []map[string]string{}
 	for _, backup := range backups {
 		result = append(result, map[string]string{
