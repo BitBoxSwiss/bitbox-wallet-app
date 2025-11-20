@@ -159,6 +159,8 @@ func main() {
 	gapLimitsChange := flag.Uint("gapLimitChange", 0, "gap limit for change addresses")
 	simulatorPort := flag.Int("simulatorPort", 15423, "port for the BitBox02 simulator")
 	useSimulator := flag.Bool("simulator", false, "use the BitBox02 simulator")
+	aoppUrl := flag.String("aoppUrl", "", "AOPP URL for testing AOPP flow")
+
 	flag.Parse()
 
 	var gapLimits *btctypes.GapLimits
@@ -210,6 +212,10 @@ func main() {
 			log.Panic("The BitBox02 simulator can only be used in testnet mode.")
 		}
 		simulator.Init(*simulatorPort)
+	}
+
+	if *aoppUrl != "" {
+		backend.HandleURI(*aoppUrl)
 	}
 
 	if err := http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), handlers.Router); err != nil {

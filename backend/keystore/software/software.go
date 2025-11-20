@@ -315,7 +315,7 @@ func (keystore *Keystore) CanSignMessage(coin.Code) bool {
 }
 
 // SignBTCMessage implements keystore.Keystore.
-func (keystore *Keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
+func (keystore *Keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coin.Code) ([]byte, error) {
 	return nil, errp.New("unsupported")
 }
 
