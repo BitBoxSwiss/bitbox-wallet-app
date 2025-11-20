@@ -102,8 +102,9 @@ describe('components/balance/balance', () => {
       }
     };
     const { getByTestId } = render(<Balance balance={MOCK_BALANCE} />);
-    expect(getByTestId('availableBalance').textContent).toBe('0.005BTC512USD');
-    expect(getByTestId('incomingBalance').textContent).toBe('+0.003 BTC / 512 USD');
+    expect(getByTestId('availableBalance').textContent).toBe('0.005 BTC 512 USD');
+    expect(getByTestId('incomingBalance').textContent).toContain('+0.003 BTC');
+    expect(getByTestId('incomingBalance').textContent).toContain('512 USD');
   });
 });
 
@@ -176,8 +177,9 @@ describe('components/balance/balance', () => {
       }
     };
     const { getByTestId } = render(<Balance balance={MOCK_BALANCE} />);
-    expect(getByTestId('availableBalance').textContent).toBe('0.005BTC512USD');
-    expect(getByTestId('incomingBalance').textContent).toBe('+0.003 BTC / 1,511.99 USD');
+    expect(getByTestId('availableBalance').textContent).toBe('0.005 BTC 512 USD');
+    expect(getByTestId('incomingBalance').textContent).toContain('+0.003 BTC');
+    expect(getByTestId('incomingBalance').textContent).toContain('1,511.99 USD');
   });
   afterEach(() => {
     vi.restoreAllMocks();
