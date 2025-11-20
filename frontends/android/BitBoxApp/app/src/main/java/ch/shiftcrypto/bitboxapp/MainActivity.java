@@ -101,21 +101,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setDarkTheme(boolean isDark) {
-        int flags = getWindow().getDecorView().getSystemUiVisibility(); // get current flag
+        // "Edge-to-Edge" configuration:
+        // 1. Content draws behind system bars (LAYOUT_HIDE_NAVIGATION | LAYOUT_FULLSCREEN).
+        // 2. System bars are transparent.
+        // 3. System icons adapt (Light/Dark flags).
+        int flags = View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+
         if (isDark) {
             Util.log("Dark theme");
+            // Note: We do NOT set FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS here because we want transparency.
+            // However, to enforce transparency on some older APIs or specific vendor implementations,
+            // keeping it with a transparent color is often safer.
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark));
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // remove LIGHT_STATUS_BAR to flag
-            getWindow().getDecorView().setSystemUiVisibility(flags);
+            getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+            getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
+
+            // Light status/nav bar flags are CLEARED for dark theme (white icons).
+            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            }
         } else {
             Util.log("Light theme");
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
-            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // add LIGHT_STATUS_BAR to flag
-            getWindow().getDecorView().setSystemUiVisibility(flags);
+            getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+            getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
+
+            // Light status/nav bar flags are SET for light theme (dark icons).
+            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            }
         }
+        getWindow().getDecorView().setSystemUiVisibility(flags);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -123,6 +143,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Util.log("lifecycle: onCreate");
+
+        // Enable "Short Edges" mode for cutout support.
+        // This is CRITICAL for WebViews to correctly report 'safe-area-inset-*' CSS variables.
+        // Without this, the WebView might treat the cutout/nav bar area as unsafe and not report insets,
+        // or report 0, leading to overlap.
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+        }
 
         initsignalhandler();
 
