@@ -49,6 +49,7 @@ export const Balance = ({
           enableRotateUnit={!noRotateFiat}
           unitClassName={style.unit}
         />
+        {' '}
         <AmountWithUnit
           amount={balance.available}
           enableRotateUnit={!noRotateFiat}
@@ -64,6 +65,7 @@ export const Balance = ({
             className={style.incomingBalance}
             data-testid="incomingBalance">
             +<AmountWithUnit amount={balance.incoming} />
+            {' '}
             <span className={style.incomingConversion}>
               /&nbsp;
               <AmountWithUnit
