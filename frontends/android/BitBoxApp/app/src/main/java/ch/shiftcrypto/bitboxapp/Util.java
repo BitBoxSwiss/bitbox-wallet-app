@@ -12,8 +12,29 @@ import android.webkit.MimeTypeMap;
 import androidx.core.content.FileProvider;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
 public class Util {
+    private static final Pattern[] ALLOWED_EXTERNAL_HOSTS = new Pattern[]{
+            Pattern.compile("^(.*\\.)?pocketbitcoin\\.com$"),
+            Pattern.compile("^(.*\\.)?moonpay\\.com$"),
+            Pattern.compile("^(.*\\.)?bitsurance\\.eu$"),
+            Pattern.compile("^(.*\\.)?btcdirect\\.eu$"),
+            Pattern.compile("^(.*\\.)?bitrefill\\.com$")
+    };
+
+    public static boolean isAllowedExternalHost(String host) {
+        if (host == null) {
+            return false;
+        }
+        for (Pattern pattern : ALLOWED_EXTERNAL_HOSTS) {
+            if (pattern.matcher(host).matches()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void systemOpen(Application application, String url) throws Exception {
         Context context = application.getApplicationContext();
         Intent intent;

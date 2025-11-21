@@ -3,12 +3,15 @@ package ch.shiftcrypto.bitboxapp;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Message;
 import android.webkit.ConsoleMessage;
 import android.webkit.MimeTypeMap;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
@@ -103,6 +106,33 @@ public class BitBoxWebChromeClient extends WebChromeClient {
             }
             pendingWebPermissionRequest = null;
         }
+    }
+
+    @Override
+    public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
+        // Handle window.open()/target=_blank by opening allowed domains externally.
+        WebView tempView = new WebView(view.getContext());
+        tempView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+                String host = request.getUrl().getHost();
+                try {
+                    if (Util.isAllowedExternalHost(host)) {
+                        Util.systemOpen((android.app.Application) context, url);
+                        return true;
+                    }
+                } catch (Exception e) {
+                    Util.log(e.getMessage());
+                }
+                Util.log("Blocked: " + url);
+                return true;
+            }
+        });
+        WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
+        transport.setWebView(tempView);
+        resultMsg.sendToTarget();
+        return true;
     }
 
     public interface CameraPermissionDelegate {
