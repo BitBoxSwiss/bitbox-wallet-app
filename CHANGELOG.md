@@ -7,6 +7,7 @@
 - Android: fix connectivity misdetection when switching between WIFI and cellular network.
 - Android: dropped support for Android versions lower than 7.
 - Sort backups from newest to oldest in manage backups
+- Android: fix display of external links from Bitrefill
 
 ## v4.49.0
 - Bundle BitBox02 Nova firmware version v9.24.0
