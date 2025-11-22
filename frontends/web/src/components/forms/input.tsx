@@ -41,7 +41,7 @@ export const Input = forwardRef<HTMLInputElement, TInputProps>(({
       transparent ? styles.isTransparent : '',
     ].join(' ')}>
       { label ? (
-        <div className="flex flex-row flex-between">
+        <div className="flex flex-row flex-between flex-items-baseline">
           <label htmlFor={id} className={error ? styles.errorText : ''}>
             {label}
             { error ? (

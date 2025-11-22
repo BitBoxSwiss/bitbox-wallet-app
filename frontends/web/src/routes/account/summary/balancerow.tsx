@@ -21,10 +21,9 @@ import { syncAddressesCount } from '@/api/accountsync';
 import { useSubscribe } from '@/hooks/api';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Logo } from '@/components/icon/logo';
-import { Amount } from '@/components/amount/amount';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { AsciiSpinner } from '@/components/spinner/ascii';
 import style from './accountssummary.module.css';
-import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 
 type TNameColProps = {
   coinCode: CoinCode;
@@ -77,8 +76,10 @@ export const BalanceRow = (
         />
         <td data-label={t('accountSummary.balance')}>
           <span className={style.summaryTableBalance}>
-            <Amount amount={balance.available.amount} unit={balance.available.unit}/>{' '}
-            <span className={style.coinUnit}>{balance.available.unit}</span>
+            <AmountWithUnit
+              amount={balance.available}
+              unitClassName={style.coinUnit}
+            />
           </span>
         </td>
         <td data-label={t('accountSummary.fiatBalance')}>

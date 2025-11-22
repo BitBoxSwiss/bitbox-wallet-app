@@ -118,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private int currentZoom;
+
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,7 +175,33 @@ public class MainActivity extends AppCompatActivity {
 
         // vw.setWebContentsDebuggingEnabled(true); // enable remote debugging in chrome://inspect/#devices
 
-        vw.setWebViewClient(new BitBoxWebViewClient(BASE_URL, getAssets(), getApplication()));
+        // Retrieve the current text zoom setting to adjust the base font size in the WebView.
+        currentZoom = vw.getSettings().getTextZoom();
+
+        vw.setWebViewClient(new BitBoxWebViewClient(BASE_URL, getAssets(), getApplication()) {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+
+                // Calculate the base font size for html as a percentage.
+                // This percentage dynamically adjusts to ensure 1rem = 10px, scaled according to the current zoom level.
+                double baseFontSizePercentage = 62.5 * ((double) currentZoom / 100.0);
+
+                // The default body font size in rem, which is independent of the zoom level.
+                // This size does not scale dynamically with zoom adjustments and is fixed at 1.6rem.
+                double defaultFontSizeREM = 1.6;
+
+                // Reset the WebView's text zoom to 100% to ensure that the scaling is controlled via CSS
+                // and not by the WebView's default scaling behavior.
+                view.getSettings().setTextZoom(100);
+
+                String cssSetup = "document.documentElement.style.fontSize='" + baseFontSizePercentage + "%';" +
+                                "document.body.style.fontSize='" + defaultFontSizeREM + "rem';";
+
+                // Execute the CSS setup in the WebView.
+                view.evaluateJavascript(cssSetup, null);
+            }
+        });
 
         ActivityResultLauncher<String> fileChooser = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> webChrome.onFilePickerResult(uri));
         BitBoxWebChromeClient.CameraPermissionDelegate cameraPermissionDelegate = () -> ActivityCompat.requestPermissions(
@@ -253,7 +281,6 @@ public class MainActivity extends AppCompatActivity {
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
             }
         }));
-
     }
 
     @Override

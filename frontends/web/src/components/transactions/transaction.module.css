@@ -59,11 +59,16 @@
   flex-direction: column;
   flex-grow: 1;
   flex-shrink: 0;
-  font-size: 14px;
+  font-size: var(--size-small);
   line-height: 1.285714;
   padding: 0 var(--space-quarter) 0 48px;
   text-align: right;
   white-space: nowrap;
+}
+@media (max-width: 768px) {
+  .txAmountsColumn {
+    padding-right: var(--space-half);
+  }
 }
 @media (max-width: 560px) {
   .txAmountsColumn {
@@ -73,15 +78,15 @@
     padding-left: 24px;
   }
 }
-@media (max-width: 768px) {
+@media (max-width: 425px) {
   .txAmountsColumn {
-    padding-right: var(--space-half);
+    padding-left: 12px;
   }
 }
 
 .txAmount {
   align-items: baseline;
-  font-size: 16px;
+  font-size: var(--size-default);
   font-variant: tabular-nums;
   gap: 3px;
   justify-content: flex-end;
@@ -105,7 +110,7 @@
 
 .txUnit {
   color: var(--color-secondary);
-  font-size: 14px;
+  font-size: var(--size-small);
   line-height: 1.285714;
 }
 
@@ -116,7 +121,7 @@
 }
 .txNoteText {
   color: var(--color-default);
-  font-size: 16px;
+  font-size: var(--size-default);
   line-height: 1.25;
 }
 @media (max-width: 560px) {
@@ -130,7 +135,7 @@
   align-items: center;
   color: var(--color-secondary);
   display: flex;
-  font-size: 14px;
+  font-size: var(--size-small);
   line-height: 1.285714;
   padding-bottom: 6px;
 }
@@ -174,13 +179,13 @@
 }
 .addresses {
   color: var(--color-secondary);
-  font-size: 14px;
+  font-size: var(--size-small);
   font-weight: normal;
   line-height: 1.285714;
 }
 .txType {
   color: var(--color-default);
-  font-size: 16px;
+  font-size: var(--size-default);
   line-height: 1.25;
 }
 

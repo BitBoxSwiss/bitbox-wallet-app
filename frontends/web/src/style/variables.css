@@ -47,19 +47,10 @@
     --color-error-background: rgba(227, 6, 19, .2);
     --color-error-border: rgba(227, 6, 19, .33);
 
-    /* font sizes */
-    --size-large: 2rem;
-    --size-header: 24px;
-    --size-subheader: 18px;
-    --size-default: 14px;
-    --size-small: 12px;
-    --size-xsmall: 11px;
-    --size-title: 32px;
-
     /* spacing */
-    --spacing-large: 2rem;
-    --spacing-default: 1rem;
-    --spacing-half: .5rem;
+    --spacing-large: 32px;
+    --spacing-default: 16px;
+    --spacing-half: 8px;
 
     --space-large: 64px;
     --space-default: 32px;
@@ -82,6 +73,7 @@
     --sidebar-item-height: 52px;
     --sidebar-icon-margin: 14px;
     --sidebar-icon-size: 24px;
+    --sidebar-icon-size: min(2.4rem, 28px);
 
     /* header */
     --header-height: 70px;
@@ -95,7 +87,13 @@
     --guide-width: 350px;
 
     /* bottom navigation */
-    --bottom-navigation-height: calc(70px + env(safe-area-inset-bottom, 0));
+    --bottom-navigation-height: calc(min(7rem, 90px) + env(safe-area-inset-bottom, 0));
+
+    /* form elements */
+    --border-width: 0.1rem;
+    --button-height: min(5rem, 70px);
+    --input-height: min(5.2rem, 72px);
+    --input-qr-button: min(4.2rem, 60px);
 }
 
 :root,
@@ -190,17 +188,30 @@
     }
 }
 
+/* font sizes */
+
+:root {
+    --size-large: min(3.2rem, 44px);
+    --size-header: min(2.4rem, 36px);
+    --size-subheader: min(1.8rem, 32px);
+    --size-default: min(1.6rem, 28px);
+    --size-small: min(1.4rem, 24px);
+    --size-smaller:  min(1.2rem, 20px);
+    --size-xsmall: min(1.1rem, 16px);
+    --size-title: min(3.2rem, 36px);
+}
+
 @media (max-width: 1199px) {
     :root {
-        --size-title: 18px;
+        --size-title: min(1.8rem, 36px);
     }
 }
 
 @media (max-width: 768px) {
     :root {
-        --size-header: 20px;
-        --size-subheader: 16px;
-        --size-title: 16px;
-        --size-default: 16px;
+        --size-header: min(2rem, 36px);
+        --size-title: min(1.6rem, 36px);
+        --size-subheader: min(1.6rem, 30px);
+        --size-default: min(1.6rem, 28px);
     }
 }

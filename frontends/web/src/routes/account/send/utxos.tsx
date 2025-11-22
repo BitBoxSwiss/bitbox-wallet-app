@@ -103,7 +103,7 @@ export const UTXOs = ({
       return null;
     }
     return (
-      <div key={'utxos-' + scriptType}>
+      <div className={style.utxoContainer} key={'utxos-' + scriptType}>
         <h2 className="subTitle">{ getScriptName(scriptType) }</h2>
         <ul className={style.utxosList}>
           { filteredUTXOs.map(utxo => (

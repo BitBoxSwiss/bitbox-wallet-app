@@ -6,21 +6,20 @@
     cursor: pointer;
     display: flex;
     flex-direction: row;
-    height: 18px;
+    height: var(--size-default);
     justify-content: center;
     margin-top: var(--spacing-half);
-    min-width: 18px !important;
+    max-width: var(--size-default);
     padding: 0;
     position: absolute;
     right: var(--spacing-default);
     top: 10px;
     transition: background-color ease 0.2s;
-    width: 18px;
     will-change: background-color;
 }
 
 .button img {
-    width: 18px;
+    height: var(--size-default);
 }
 
 .button:focus {
@@ -36,6 +35,10 @@
 }
 
 .container {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
     position: relative;
 }
 

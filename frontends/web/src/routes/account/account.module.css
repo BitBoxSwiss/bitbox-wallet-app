@@ -32,11 +32,12 @@
 }
 
 .loupe {
-    width: 17px;
+    width: var(--size-default);
 }
 
 .button {
     height: 37px;
+    min-height: auto;
 }
 
 @media (max-width: 768px) {
@@ -45,27 +46,36 @@
     }
 
     .button {
-        height: 50px;
+        min-height: var(--button-height);
     }
 }
 
+.subTitle {
+    color: var(--color-secondary);
+    font-size: var(--size-subheader);
+    font-weight: normal;
+    margin: 0;
+}
+
 .balanceHeader {
-    align-items: center;
+    align-items: flex-end;
+    color: var(--color-default);
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    margin-bottom: var(--space-half);
+    gap: var(--space-half);
+    min-height: var(--button-height);
 }
 
 .actionsContainer {
-    --size-default: 14px;
+    --size-default: var(--size-small);
     display: flex;
     flex-grow: 1;
     flex-shrink: 0;
     flex-wrap: nowrap;
     gap: var(--space-quarter);
     justify-content: flex-end;
-    margin-top: var(--space-half);
+    margin-top: 0;
     padding-bottom: 0;
 }
 
@@ -75,6 +85,11 @@
 
 .withWalletConnect.actionsContainer {
     justify-content: flex-end;
+}
+
+.iconWalletConnect {
+    height: var(--size-header);
+    max-width: var(--size-header);
 }
 
 .disabled {
@@ -92,9 +107,9 @@
 }
 
 .accountIcon {
-    width: 18px;
-    height: 18px;
+    height: var(--size-default);
     margin-right: var(--space-eight);
+    width: var(--size-default);
 }
 
 .errorLoadTransactions {
@@ -106,7 +121,7 @@
     color: var(--color-secondary);
     display: flex;
     justify-content: space-between;
-    margin-bottom: var(--space-quarter) !important; /* overwrite default subTitle margin */
+    margin-bottom: 0 !important; /* overwrite default subTitle margin */
 }
 .titleWithButton button {
     padding-left: var(--space-half);
@@ -132,6 +147,7 @@
     .actionsContainer {
         justify-content: center;
         margin-bottom: var(--space-half);
+        margin-top: var(--space-half);
         padding-bottom: 0;
         width: 100%;
     }
@@ -185,10 +201,6 @@
     width: 100%;
 }
 
-.searchInput input {
-    height: 40px;
-}
-
 .searchInput:focus {
     outline: none;
     border-color: var(--color-primary);
@@ -205,7 +217,7 @@
     }
 
     .searchButton {
-        font-size: 14px;
+        font-size: var(--size-small);
         height: var(--item-height-small);
         text-align: left;
     }

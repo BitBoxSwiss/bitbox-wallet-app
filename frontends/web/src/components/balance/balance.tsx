@@ -17,9 +17,9 @@
 
 import { useTranslation } from 'react-i18next';
 import { TBalance } from '@/api/account';
-import { Amount } from '@/components/amount/amount';
 import { BalanceSkeleton } from '@/components/balance/balance-skeleton';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { SubTitle } from '@/components/title';
 import style from './balance.module.css';
 
 type TProps = {
@@ -39,44 +39,43 @@ export const Balance = ({
   }
 
   return (
-    <header className={style.balance}>
-      <table className={style.balanceTable}>
-        <tbody data-testid="availableBalance">
-          <AmountWithUnit
-            amount={balance.available}
-            tableRow
-            enableRotateUnit={!noRotateFiat}
-          />
-          <AmountWithUnit
-            amount={balance.available}
-            tableRow
-            enableRotateUnit={!noRotateFiat}
-            convertToFiat
-          />
-        </tbody>
-      </table>
-      {
-        balance.hasIncoming && (
-          <p className={style.pendingBalance}>
-            {t('account.incoming')}
+    <header className={style.balanceContainer}>
+      <SubTitle className={style.availableBalanceTitle}>
+        {t('accountSummary.availableBalance')}
+      </SubTitle>
+      <div className={style.balance} data-testid="availableBalance">
+        <AmountWithUnit
+          amount={balance.available}
+          enableRotateUnit={!noRotateFiat}
+          unitClassName={style.unit}
+        />
+        {' '}
+        <AmountWithUnit
+          amount={balance.available}
+          enableRotateUnit={!noRotateFiat}
+          unitClassName={style.unit}
+          convertToFiat
+        />
+      </div>
+      {balance.hasIncoming && (
+        <p className={style.pendingBalance}>
+          {t('account.incoming')}
+          {' '}
+          <span
+            className={style.incomingBalance}
+            data-testid="incomingBalance">
+            +<AmountWithUnit amount={balance.incoming} />
             {' '}
-            <span data-testid="incomingBalance">
-              +<Amount
-                amount={balance.incoming.amount}
-                unit={balance.incoming.unit}
+            <span className={style.incomingConversion}>
+              /&nbsp;
+              <AmountWithUnit
+                amount={balance.incoming}
+                convertToFiat
               />
-              {' '}{balance.incoming.unit} /
-              <span className={style.incomingConversion}>
-                {' '}
-                <AmountWithUnit
-                  amount={balance.incoming}
-                  convertToFiat
-                />
-              </span>
             </span>
-          </p>
-        )
-      }
+          </span>
+        </p>
+      )}
     </header>
   );
 };

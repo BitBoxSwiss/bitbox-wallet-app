@@ -26,6 +26,8 @@ import { Button, Checkbox } from '@/components/forms';
 import { PointToBitBox02 } from '@/components/icon';
 import { Message } from '@/components/message/message';
 
+const CONTENT_MIN_HEIGHT = 'min(56rem, 100vh)';
+
 type TProps = {
   deviceID: string;
 };
@@ -53,7 +55,7 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
         <View
           key="progress"
           fullscreen
-          minHeight="45em"
+          minHeight={CONTENT_MIN_HEIGHT}
           verticallyCentered>
           <ViewHeader small title={t('backup.showMnemonic.title')} />
           <ViewContent>
@@ -79,7 +81,7 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
     <View
       key="info"
       fullscreen
-      minHeight="45em"
+      minHeight={CONTENT_MIN_HEIGHT}
       verticallyCentered>
       <ViewHeader small title={t('backup.showMnemonic.title')} />
       <ViewContent>

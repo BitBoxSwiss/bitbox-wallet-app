@@ -8,7 +8,7 @@
 
 .container p {
     color: var(--color-default);
-    font-size: 16px;
+    font-size: 1.6rem;
     line-height: 1.9;
     margin-bottom: 0;
 }

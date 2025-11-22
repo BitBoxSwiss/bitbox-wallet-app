@@ -15,7 +15,7 @@ const appendBalance = async (option: TOption) => {
   if (!balance.success) {
     return { ... option };
   }
-  return { ...option, balance: `${balance.balance.available.amount} ${balance.balance.available.unit}` };
+  return { ...option, balance: balance.balance.available };
 };
 
 export const getBalancesForGroupedAccountSelector = async (originalGroupedOptions: TGroupedOption[]) => {

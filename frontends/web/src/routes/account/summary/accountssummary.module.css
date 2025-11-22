@@ -33,7 +33,7 @@
 .openFileText {
     color: var(--color-primary);
     cursor: pointer;
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
 }
 
 .table {
@@ -45,10 +45,9 @@
 
 .table tr td,
 .table tr th {
-    height: 52px;
+    font-weight: 400;
     padding: var(--space-half);
     text-align: left;
-    font-weight: 400;
 }
 
 .table tr td.noAccount {
@@ -76,12 +75,6 @@
     padding-left: calc(24px + var(--space-default));
 }
 
-.table tr td,
-.table tr td {
-    font-size: var(--size-default) !important;
-    line-height: 1.5714;
-}
-
 .table tbody td {
     background-color: var(--background-secondary);
 }
@@ -91,6 +84,9 @@
 }
 
 .summaryTableBalance {
+    display: inline-flex;
+    gap: var(--space-eight);
+    max-width: 100%;
     white-space: nowrap;
 }
 
@@ -101,17 +97,18 @@
 }
 
 .coinName {
+    align-items: center;
     display: flex;
 }
 
 .coinName img {
     flex-shrink: 0;
     margin-right: var(--spacing-default);
-    vertical-align: middle;
 }
 
 .coinUnit {
   color: var(--color-secondary);
+  font-weight: normal;
 }
 
 .syncText {
@@ -128,7 +125,7 @@
 
 @media (max-width: 768px) {
     .accountName {
-        padding-left: var(--space-quarter);
+        padding-left: var(--space-half);
     }
 }
 
@@ -169,6 +166,8 @@
 
     .table tbody td {
         display: flex;
+        flex-wrap: wrap;
+        gap: .4ch;
         justify-content: space-between;
         height: auto;
         padding-bottom: 0;
@@ -188,13 +187,4 @@
         padding-bottom: var(--spacing-default);
     }
 
-    .coinName {
-        position: relative;
-    }
-
-    .coinName img {
-        left: -2rem;
-        position: absolute;
-        top: -3px;
-    }
 }

@@ -2,6 +2,7 @@
   box-sizing: border-box;
   margin-bottom: var(--spacing-large);
   position: relative;
+  white-space: nowrap;
 }
 
 .invisible {
@@ -16,20 +17,22 @@
   justify-content: center;
   padding: 0 var(--space-half);
   text-align: center;
+  white-space: normal;
 }
 
 .chart header {
   display: flex;
   flex-wrap: wrap;
   margin-bottom: var(--spacing-half);
-  min-height: 68px;
+  min-height: min(7rem, 110px);;
 }
 
 .summary {
-  margin: 0 auto;
+  align-items: flex-start;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  margin: 0 auto;
+  max-width: 100%;
 }
 
 .filters {
@@ -38,7 +41,7 @@
 }
 
 @media (max-width: 768px){
-  .chart{
+  .chart {
     margin-bottom: var(--spacing-default);
   }
   .chart header {
@@ -82,17 +85,18 @@
 }
 
 .totalValue {
-  font-size: 2rem;
-  display: flex;
   align-items: flex-end;
+  display: flex;
+  font-size: var(--size-large);
+  max-width: 100%;
 }
 
 .totalUnit {
   color: var(--color-secondary);
   display: inline-block;
+  font-size: var(--size-header);
   margin-bottom: 3px;
-  font-size: 1.4rem;
-  padding: 0 .25rem;
+  padding: 0 4px;
 }
 
 .chartCanvas {
@@ -110,10 +114,10 @@
   background: var(--background-secondary);
   border: 1px solid var(--background);
   border-radius: 3px;
-  font-size: var(--size-small);
+  font-size: var(--size-smaller);
   margin-top: -25px;
   min-width: 140px;
-  padding: .75rem .6rem;
+  padding: 12px 10px;
   pointer-events: none;
   position: absolute;
   text-align: center;
@@ -123,14 +127,14 @@
 
 .toolTipValue {
   font-weight: normal;
-  font-size: 1rem;
-  margin: 0 0 .25rem 0;
+  font-size: 1.6rem;
+  margin: 0 0 4px 0;
 }
 
 .toolTipUnit {
   color: var(--color-secondary);
-  font-size: var(--size-small);
-  padding: 0 .125rem;
+  font-size: var(--size-smaller);
+  padding: 0 2px;
 }
 
 .toolTipTime {

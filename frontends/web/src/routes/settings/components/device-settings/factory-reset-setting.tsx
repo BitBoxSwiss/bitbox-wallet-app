@@ -61,9 +61,9 @@ export const FactoryResetSetting = ({ deviceID }: TProps) => {
         settingName={
           <div className={styles.settingNameContainer}>
             <WarningOutlined width={16} height={16} />
-            <p className={styles.settingName}>
+            <span className={styles.settingName}>
               {t('deviceSettings.expert.factoryReset.title')}
-            </p>
+            </span>
           </div>
         }
         secondaryText={t('deviceSettings.expert.factoryReset.description')}

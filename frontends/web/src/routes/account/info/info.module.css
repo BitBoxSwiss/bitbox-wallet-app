@@ -33,7 +33,7 @@
     clear: both;
     display: flex;
     justify-content: space-between;
-    min-height: 3.5rem;
+    min-height: 56px;
 }
 
 .verifyButton {
@@ -43,6 +43,7 @@
 .entry {
     align-items: baseline;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin-bottom: var(--space-half);
 }
@@ -101,7 +102,7 @@
     }
 
     .addressField input {
-        font-size: var(--size-small);
+        font-size: var(--size-smaller);
     }
 
     .qrCode {

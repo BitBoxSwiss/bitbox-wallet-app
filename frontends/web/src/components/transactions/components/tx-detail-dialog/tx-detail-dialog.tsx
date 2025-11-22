@@ -155,7 +155,10 @@ export const TxDetailsDialog = ({
 
           {/* tx id */}
           <TxDetailRow>
-            <p className={styles.label}>{t('transaction.explorer')}</p>
+            <p className={`
+              ${styles.label || ''}
+              ${styles.nowrap || ''}
+            `}>{t('transaction.explorer')}</p>
             <AddressOrTxId values={[transactionInfo.internalID]} />
           </TxDetailRow>
 
@@ -167,7 +170,7 @@ export const TxDetailsDialog = ({
               className={styles.explorerLink}
               href={explorerURL + transactionInfo.txID}
               title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}>
-              <ExternalLink width={14} />
+              <ExternalLink />
               {' '}
               {t('transaction.explorerTitle')}
             </A>

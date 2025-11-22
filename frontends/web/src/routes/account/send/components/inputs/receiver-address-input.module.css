@@ -3,12 +3,12 @@
 }
 
 .inputWithIcon input {
-  padding-right: calc(var(--spacing-default) * 2 + 18px);
+  padding-left: calc(var(--spacing-default) * 3);
 }
 
 .action {
-  color: var(--color-danger);
-  font-size: var(--size-small);
+  color: var(--color-blue);
+  font-size: var(--size-smaller);
   font-weight: 400;
   line-height: 1;
   cursor: pointer;
@@ -22,25 +22,21 @@
 
 .qrButton {
   align-items: center;
-  display: flex;
+  background-color: transparent;
+  bottom: 0;
   border: none;
-  background-color: var(--background-secondary);
-  height: 36px;
-  width: 36px;
-  justify-content: center;
+  cursor: pointer;
+  display: flex;
+  height: var(--input-height);
+  justify-content: flex-start;
   padding: 0;
   position: absolute;
-  top: calc(50% - var(--space-quarter));
-  right: calc(var(--spacing-default) - var(--space-quarter));
-  cursor: pointer;
+  left: 0;
+  width: var(--input-qr-button);
 }
 
 .qrButton img {
-  width: 18px;
-  height: 18px;
-}
-
-.withDropdown {
-  left: 8px;
-  margin-top: 3px;
+  height: var(--size-subheader);
+  margin-left: var(--space-half);
+  width: var(--size-subheader);
 }

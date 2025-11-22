@@ -52,7 +52,7 @@ export const Bip85 = ({
         key="bip85-info-what"
         fullscreen
         verticallyCentered>
-        <ViewHeader title={t('deviceSettings.expert.bip85.what.title')} />
+        <ViewHeader small title={t('deviceSettings.expert.bip85.what.title')} />
         <ViewContent minHeight="280px">
           <Grid>
             <Column>

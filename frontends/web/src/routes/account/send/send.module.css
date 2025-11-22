@@ -1,10 +1,30 @@
-.container {
-    margin-top: calc(var(--space-default) * 1.5);
+.sendHeader {
+    align-content: baseline;
+    color: var(--color-secondary);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    font-size: var(--size-subheader);
+    gap: var(--space-half);
+    justify-content: space-between;
+    margin-bottom: var(--space-quarter);
 }
 
-.coinControlButtonContainer {
-    height: 58px;
+.subTitle {
     margin-bottom: var(--space-quarter);
+    margin-top: 0;
+}
+
+@media (min-width: 769px) {
+    .sendHeader {
+        margin-top: 0;
+    }
+}
+
+.availableBalance {
+    flex-basis: 100%;
+    margin-bottom: var(--size-default);
+    max-width: 100%;
 }
 
 .unit {
