@@ -91,6 +91,20 @@ describe('language detector', () => {
     });
   }));
 
+  it('uses weird Android native-locale if userLanguage is empty', () => new Promise<void>(done => {
+    (apiGet as Mock).mockImplementation(endpoint => {
+      switch (endpoint) {
+      case 'config': { return Promise.resolve({ backend: { userLanguage: '' } }); }
+      case 'native-locale': { return Promise.resolve('de-DE_#u-fw-mon-mu-celsius'); }
+      default: { return Promise.resolve(); }
+      }
+    });
+    languageFromConfig.detect((lang: any) => {
+      expect(lang).toEqual('de-DE');
+      done();
+    });
+  }));
+
   it('returns native-locale value acceptable by i18next', () => new Promise<void>(done => {
     (apiGet as Mock).mockImplementation(endpoint => {
       switch (endpoint) {
