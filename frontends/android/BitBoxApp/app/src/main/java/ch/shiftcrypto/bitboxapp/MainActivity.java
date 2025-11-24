@@ -166,6 +166,8 @@ public class MainActivity extends AppCompatActivity {
         vw.getSettings().setJavaScriptEnabled(true);
         vw.getSettings().setAllowUniversalAccessFromFileURLs(true);
         vw.getSettings().setAllowFileAccess(true);
+        // Allow widgets to open external links via window.open (handled in BitBoxWebChromeClient).
+        vw.getSettings().setSupportMultipleWindows(true);
 
         // For Moonpay widget: DOM storage and WebRTC camera access required.
         vw.getSettings().setDomStorageEnabled(true);

@@ -10,9 +10,6 @@ import android.webkit.WebViewClient;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
 
 public class BitBoxWebViewClient extends WebViewClient {
     private final String baseUrl;
@@ -72,19 +69,10 @@ public class BitBoxWebViewClient extends WebViewClient {
         String url = request.getUrl().toString();
 
         try {
-            // Allow opening in external browser instead, for listed domains.
-            List<Pattern> patterns = new ArrayList<>();
-            patterns.add(Pattern.compile("^(.*\\.)?pocketbitcoin\\.com$"));
-            patterns.add(Pattern.compile("^(.*\\.)?moonpay\\.com$"));
-            patterns.add(Pattern.compile("^(.*\\.)?bitsurance\\.eu$"));
-            patterns.add(Pattern.compile("^(.*\\.)?btcdirect\\.eu$"));
-
-            for (Pattern pattern : patterns) {
-                String host = request.getUrl().getHost();
-                if (host != null && pattern.matcher(host).matches()) {
-                    Util.systemOpen(appContext, url);
-                    return true;
-                }
+            String host = request.getUrl().getHost();
+            if (Util.isAllowedExternalHost(host)) {
+                Util.systemOpen(appContext, url);
+                return true;
             }
         } catch (Exception e) {
             Util.log(e.getMessage());
