@@ -5,18 +5,17 @@ import android.content.res.AssetManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class BitBoxWebViewClient extends WebViewClient {
+public class WebViewClient extends android.webkit.WebViewClient {
     private final String baseUrl;
     private final AssetManager assets;
     private final Application appContext;
 
-    public BitBoxWebViewClient(String baseUrl, AssetManager assets, Application appContext) {
+    public WebViewClient(String baseUrl, AssetManager assets, Application appContext) {
         this.assets = assets;
         this.appContext = appContext;
         this.baseUrl = baseUrl;

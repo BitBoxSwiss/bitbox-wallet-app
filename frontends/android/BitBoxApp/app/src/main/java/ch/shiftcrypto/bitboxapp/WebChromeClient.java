@@ -8,7 +8,6 @@ import android.webkit.ConsoleMessage;
 import android.webkit.MimeTypeMap;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -17,7 +16,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
-public class BitBoxWebChromeClient extends WebChromeClient {
+public class WebChromeClient extends android.webkit.WebChromeClient {
 
     private final android.content.Context context;
     private final CameraPermissionDelegate cameraPermissionDelegate;
@@ -28,7 +27,7 @@ public class BitBoxWebChromeClient extends WebChromeClient {
     // Used by e.g. MoonPay's KYC forms.
     private ValueCallback<Uri[]> pendingFilePathCallback;
 
-    public BitBoxWebChromeClient(
+    public WebChromeClient(
             @NonNull android.content.Context context,
             @NonNull CameraPermissionDelegate cameraPermissionDelegate,
             @NonNull ActivityResultLauncher<String> fileChooserLauncher
