@@ -75,11 +75,9 @@ const AddressTypeDialog = ({
               {t(`receive.scriptType.${scriptType}`)}
             </Radio>
             {scriptType === 'p2tr' && addressType === i && (
-              <div className={style.messageContainer}>
-                <Message type="warning">
-                  {t('receive.taprootWarning')}
-                </Message>
-              </div>
+              <Message type="warning" className={style.messageContainer}>
+                {t('receive.taprootWarning')}
+              </Message>
             )}
           </div>
         ))}
@@ -237,9 +235,9 @@ export const Receive = ({
                         className={style.previous}
                         onClick={previous}>
                         {(verifying || activeIndex === 0) ? (
-                          <ArrowCirlceLeft height="24" width="24" />
+                          <ArrowCirlceLeft />
                         ) : (
-                          <ArrowCirlceLeftActive height="24" width="24" title={t('button.previous')} />
+                          <ArrowCirlceLeftActive title={t('button.previous')} />
                         )}
                       </button>
                     )}
@@ -251,9 +249,9 @@ export const Receive = ({
                         className={style.next}
                         onClick={e => next(e, currentAddresses.length)}>
                         {(verifying || activeIndex >= currentAddresses.length - 1) ? (
-                          <ArrowCirlceRight height="24" width="24" />
+                          <ArrowCirlceRight />
                         ) : (
-                          <ArrowCirlceRightActive height="24" width="24" title={t('button.next')} />
+                          <ArrowCirlceRightActive title={t('button.next')} />
                         )}
                       </button>
                     )}

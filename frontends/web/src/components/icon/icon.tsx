@@ -98,44 +98,6 @@ import statusSuccessSVG from './assets/icons/icon-success.svg';
 import statusWarningSVG from './assets/icons/icon-warning.svg';
 import statusErrorSVG from './assets/icons/icon-error.svg';
 import plusSVG from './assets/icons/plus.svg';
-import style from './icon.module.css';
-
-export const ExpandOpen = () => (
-  <svg
-    className={style.expandIcon}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8"></circle>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-    <line x1="11" y1="8" x2="11" y2="14"></line>
-    <line x1="8" y1="11" x2="14" y2="11"></line>
-  </svg>
-);
-
-export const ExpandClose = () => (
-  <svg
-    className={style.expandIcon}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8"></circle>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-    <line x1="8" y1="11" x2="14" y2="11"></line>
-  </svg>
-);
 
 type SVGProps = JSX.IntrinsicElements['svg'];
 
@@ -150,16 +112,6 @@ export const CaretDown = ({ className, ...props }: SVGProps) => (
   <svg className={`caretDown ${className || ''}`} viewBox="0 0 1024 1024" {...props}>
     <path d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"></path>
   </svg>
-);
-
-type ExpandIconProps = {
-  expand: boolean;
-};
-
-export const ExpandIcon = ({
-  expand = true,
-}: ExpandIconProps) => (
-  expand ? <ExpandOpen /> : <ExpandClose />
 );
 
 type ImgProps = JSX.IntrinsicElements['img'];

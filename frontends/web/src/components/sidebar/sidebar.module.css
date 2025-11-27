@@ -93,9 +93,8 @@
 }
 
 .sidebarHeader {
-    font-size: 12px;
-    line-height: 1.3333;
     color: var(--color-secondary);
+    font-size: var(--size-smaller);
 }
 
 .sidebarIconVisible {
@@ -112,15 +111,15 @@
 
 .sidebarItem > a,
 .sidebarItem > button {
-    background-color: transparent;
     align-items: center;
+    background-color: transparent;
     border-radius: 2px;
     color: white;
     cursor: default;
     display: flex;
     flex-direction: row;
-    height: var(--sidebar-item-height);
     justify-content: center;
+    min-height: var(--sidebar-item-height);
     overflow: hidden;
     position: relative;
     text-decoration: none;
@@ -180,14 +179,12 @@ a.sidebarActive .single img,
 }
 
 .sidebarLabel {
-    background-color: transparent;
     color: var(--color-light);
-    line-height: 1;
     flex: 1;
-    padding-top: 0;
-    padding-right: var(--space-default);
-    font-size: var(--size-default);
+    font-size: var(--size-small);
     font-weight: 400;
+    padding-right: var(--space-half);
+    padding-top: 0;
     transition: all 0.2s ease;
     word-break: break-word;
 }

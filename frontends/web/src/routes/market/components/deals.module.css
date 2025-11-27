@@ -4,7 +4,7 @@
 
 .noExchangeText {
     color: var(--color-gray-alt);
-    line-height: 22px;
+    line-height: 1.375;
     margin: 0;
     text-align: center;
     margin-top: calc((var(--space-eight) + var(--space-half)));
@@ -23,6 +23,9 @@
 .infoContainer {
     margin-top: var(--space-default);
     position: relative;
+}
+.infoContainer p {
+    --size-default: var(--size-default);
 }
 
 .link {

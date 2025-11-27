@@ -19,8 +19,8 @@
 }
 
 .message img {
-    margin-right: 4px;
-    max-width: 30px;
+    margin-right: var(--space-quarter);
+    max-width: var(--size-header);
 }
 
 .message p:last-child {

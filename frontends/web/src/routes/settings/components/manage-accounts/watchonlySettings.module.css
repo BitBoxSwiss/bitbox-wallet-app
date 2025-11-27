@@ -11,7 +11,7 @@
 
 .labelText {
   display: inline-block;
-  font-size: 14px;
+  font-size: var(--size-small);
   line-height: 1;
   margin-top: 2px;
 }

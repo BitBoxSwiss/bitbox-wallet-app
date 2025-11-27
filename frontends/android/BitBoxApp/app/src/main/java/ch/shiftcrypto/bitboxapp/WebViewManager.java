@@ -94,7 +94,9 @@ public class WebViewManager {
         settings.setDomStorageEnabled(true);
         settings.setMediaPlaybackRequiresUserGesture(false);
         // webView.setWebContentsDebuggingEnabled(true); // enable remote debugging in chrome://inspect/#devices
-        webView.setWebViewClient(new WebViewClient(BASE_URL, activity.getAssets(), activity.getApplication()));
+        // Retrieve the current text zoom setting to adjust the base font size in the WebView.
+        int initialZoom = webView.getSettings().getTextZoom();
+        webView.setWebViewClient(new WebViewClient(BASE_URL, activity.getAssets(), activity.getApplication(), initialZoom));
         webView.setWebChromeClient(webChromeClient);
         webView.addJavascriptInterface(new JavascriptBridge(activity), "android");
         webView.loadUrl(BASE_URL + "index.html");

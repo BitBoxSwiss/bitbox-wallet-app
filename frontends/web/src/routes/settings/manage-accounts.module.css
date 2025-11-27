@@ -7,8 +7,14 @@
     color: var(--color-secondary);
 }
 
+.editAccount {
+    align-items: baseline;
+    display: flex;
+}
+
 .disabledText {
     color: var(--color-secondary);
+    font-size: var(--size-small);
     margin: 0;
 }
 
@@ -23,7 +29,7 @@
     align-items: center;
     display: flex;
     flex-wrap: wrap;
-    font-size: 20px;
+    font-size: 2rem;
     font-weight: 400;
     margin: 0 0 var(--space-quarter) 0;
     width: 50%;
@@ -58,6 +64,7 @@
 }
 
 .coinLogo {
+    display: block;
     position: relative;
     z-index: 2;
 }
@@ -77,26 +84,28 @@
 
 .editBtn img {
     margin-right: var(--space-quarter);
-    max-width: 18px;
-    height: auto;
+    height: var(--size-default);
     vertical-align: text-bottom;
 }
 
 .toggleLabel {
-    align-items: center;
+    align-items: baseline;
     display: flex;
     justify-content: space-between;
 }
 
 .toggleLabelText {
+    align-items: baseline;
     color: var(--color-secondary);
+    display: flex;
 }
 
 .toggleLabelText img {
     color: var(--color-secondary);
     margin-right: var(--space-quarter);
-    max-width: 18px;
-    vertical-align: bottom;
+    max-height: var(--size-default);
+    height: auto;
+    width: var(--size-default);
 }
 
 .toggle {
@@ -150,17 +159,25 @@
 .token::before {
     background-color: #ddd;
     content: "";
-    height: 22px;
+    height: 4rem;
     left: 10px;
     position: absolute;
-    top: -13px;
+    top: -2rem;
     right: 8px;
     width: 3px;
 }
 
 .token:first-child::before {
-    height: 16px;
-    top: -7px;
+    height: 2rem;
+    top: -1.1rem;
+}
+
+.tokenIcon,
+.token img {
+    background: var(--background-secondary);
+    outline: 5px solid var(--background-secondary);
+    position: relative;
+    z-index: 2;
 }
 
 .token img:first-child {

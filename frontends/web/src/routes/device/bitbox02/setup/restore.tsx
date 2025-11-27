@@ -41,7 +41,10 @@ export const RestoreFromSDCardBackup = ({
       verticallyCentered
       withBottomBar
       width="700px">
-      <ViewHeader title={t('backup.restore.confirmTitle')} />
+      <ViewHeader
+        small
+        title={t('backup.restore.confirmTitle')}
+      />
       <ViewContent>
         <BackupsV2
           deviceID={deviceID}

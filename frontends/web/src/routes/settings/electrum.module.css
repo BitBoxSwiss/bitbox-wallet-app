@@ -41,7 +41,7 @@
 .servers li .server > div:last-child button {
     border: none;
     border-radius: 2px;
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
     padding: var(--space-quarter) var(--space-half);
     word-break: normal;
 }

@@ -35,7 +35,7 @@
 .optionalText {
     margin-left: auto;
     margin-right: var(--space-quarter);
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
     color: var(--color-secondary);
     white-space: nowrap;
     max-width: 300px;
@@ -45,7 +45,7 @@
 
 .secondaryText {
     color: var(--color-secondary);
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
     margin-top: 4px;
     overflow: hidden;
     text-overflow: ellipsis;

@@ -54,7 +54,10 @@ export const SetDeviceName = ({
         withBottomBar
         verticallyCentered
         width="600px">
-        <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
+        <ViewHeader
+          small
+          title={t('bitbox02Wizard.stepCreate.title')}
+        >
           <p>{t('bitbox02Wizard.stepCreate.description')}</p>
           {missingSDCardWarning && (
             <Message className="m-bottom-half" type="warning">

@@ -21,6 +21,7 @@ import { getConfig } from '@/utils/config';
 import { Button } from '@/components/forms';
 import { TSelectedUTXOs, UTXOs } from './utxos';
 import { isBitcoinBased } from '../utils';
+import style from './coin-control.module.css';
 
 type TProps = {
   account: TAccount;
@@ -68,7 +69,7 @@ export const CoinControl = ({
         }}
         onChange={onSelectedUTXOsChange} />
       <Button
-        className="m-bottom-quarter p-right-none"
+        className={style.coinControlButton}
         transparent
         onClick={() => {
           setShowUTXODialog(showUTXODialog => !showUTXODialog);

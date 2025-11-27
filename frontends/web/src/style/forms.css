@@ -20,11 +20,6 @@ label {
     margin-bottom: var(--space-quarter);
 }
 
-.labelXLarge {
-    font-size: var(--size-subheader);
-    margin-bottom: calc(var(--space-half) * 1.5);
-}
-
 input:invalid,
 input:invalid:focus {
     border-color: var(--color-error);
@@ -47,10 +42,4 @@ input[type="checkbox"]:focus + label::before {
     outline-offset: -2px;
     outline-style: auto;
     outline-width: 4px;
-}
-
-@media (max-width: 768px) {
-    .labelXLarge {
-        margin-bottom: var(--space-half);
-    }
 }

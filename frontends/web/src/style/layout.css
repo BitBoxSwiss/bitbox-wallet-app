@@ -8,7 +8,6 @@
 .flex-end { justify-content: flex-end; }
 .flex-items-center { align-items: center; }
 .flex-items-baseline { align-items: baseline; }
-.flex-items-start { align-items: flex-start; }
 .flex-items-end { align-items: flex-end; }
 .flex-items-stretch { align-items: stretch; }
 .flex-wrap { flex-wrap: wrap; }
@@ -23,7 +22,7 @@
 
 .text-center { text-align: center; }
 .text-right { text-align: right; }
-.text-small { font-size: var(--size-small); }
+.text-small { font-size: var(--size-smaller); }
 .text-medium { font-size: var(--size-default); }
 .text-medium > label {
     font-size: var(--size-default);
@@ -154,7 +153,7 @@ button, textarea {
 
 .tabs .tab {
     width: 50%;
-    height: 52px;
+    height: min(5.2rem, 100px);
     border: solid 1px var(--color-gray);
     transition: all .2s ease-out;
 }
@@ -185,7 +184,7 @@ button, textarea {
 
 @media (max-width: 768px) {
     .tabs .tab a {
-        font-size: var(--size-small);
+        font-size: var(--size-smaller);
     }
 }
 
@@ -348,14 +347,15 @@ button, textarea {
 }
 
 .stacked img {
+    display: block;
     transition: opacity 0.2s ease;
 }
 
 .stacked img:last-child {
+    left: 50%;
     opacity: 0;
     position: absolute;
     top: 0;
-    left: 50%;
     transform: translateX(-50%);
 }
 

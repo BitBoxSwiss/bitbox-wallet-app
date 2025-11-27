@@ -3,31 +3,26 @@
 	display: flex;
 	flex-wrap: wrap;
 	flex-grow: 1;
+	gap: var(--spacing-half);
 }
 
 .pillbuttongroup button {
 	appearance: none;
 	background: var(--background-secondary);
 	border: 2px solid var(--background-secondary);
-	border-radius: 2rem;
+	border-radius: 36px;
 	color: var(--color-default);
-	font-size: var(--size-default);
+	font-size: min(var(--size-default), 18px);
 	line-height: 1.75;
 	margin-bottom: var(--spacing-half);
-	margin-left: var(--spacing-half);
 }
 
 .pillbuttongroup.medium button {
-	padding: 0 calc(var(--spacing-default) * .75);
+	padding: 0 12px;
 }
 
 .pillbuttongroup.large button {
-	font-size: calc(var(--size-default) + 1px);
-	padding: 2px calc(var(--spacing-default) * 1.5);
-}
-
-.pillbuttongroup button:first-child {
-	margin-left: 0;
+	padding: 2px 24px;
 }
 
 .pillbuttongroup button:hover:not([disabled]) {
@@ -39,7 +34,7 @@
 }
 
 .pillbuttongroup button:focus {
-	border: 2px solid var(--color-blue);
+	border-color: var(--color-blue);
 	outline: none;
 }
 
@@ -59,11 +54,4 @@
 	background: var(--background-secondary);
 	border-color: var(--background-secondary);
 	color: var(--color-disabled);
-}
-
-@media (max-width: 768px) {
-	.pillbuttongroup.lg button {
-		font-size: calc(var(--size-default));
-		padding: 2px calc(var(--spacing-default) * 1.25);
-	}	
 }

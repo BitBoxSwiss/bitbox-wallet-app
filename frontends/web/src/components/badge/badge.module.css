@@ -2,7 +2,7 @@
   border-radius: var(--space-half);
   border: 1px solid;
   display: inline-block;
-  font-size: var(--size-small);
+  font-size: var(--size-smaller);
   flex-shrink: 0;
   line-height: 1;
   padding: var(--space-eight) 10px;
@@ -19,7 +19,7 @@
 }
 
 .badgeIcon {
-  max-width: 10px;
+  max-width: 1rem;
 }
 
 .withChildren .badgeIcon {
@@ -28,7 +28,7 @@
 
 @media (max-width: 382px) {
   .badge {
-      font-size: 10px;
+    font-size: var(--size-xsmall);
   }
 }
 

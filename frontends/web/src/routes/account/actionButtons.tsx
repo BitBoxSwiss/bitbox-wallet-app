@@ -98,7 +98,11 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
           disabled={!accountDataLoaded}
           to={`/account/${code}/wallet-connect/dashboard`}
         >
-          <WalletConnectLight width={24}/> {!isLargeTablet && <span>Wallet Connect</span>}
+          <WalletConnectLight className={style.iconWalletConnect}/>
+          {' '}
+          {!isLargeTablet && (
+            <span>Wallet Connect</span>
+          )}
         </ButtonLink>
       )}
     </div>

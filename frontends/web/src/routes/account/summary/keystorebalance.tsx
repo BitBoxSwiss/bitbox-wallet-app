@@ -26,20 +26,6 @@ import { Skeleton } from '@/components/skeleton/skeleton';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
 import style from './accountssummary.module.css';
 
-const TotalBalance = ({ total, fiatUnit }: accountApi.TKeystoreBalance) => {
-  return (
-    <>
-      <strong>
-        <Amount amount={total} unit={fiatUnit}/>
-      </strong>
-      {' '}
-      <span className={style.coinUnit}>
-        {fiatUnit}
-      </span>
-    </>
-  );
-};
-
 type TProps = {
   accounts: accountApi.TAccount[];
   accountsByKeystore: TAccountsByKeystore[];
@@ -125,8 +111,16 @@ export const KeystoreBalance = ({
               </th>
               <td colSpan={2}>
                 {keystoreBalance ? (
-                  <TotalBalance total={keystoreBalance.total} fiatUnit={keystoreBalance.fiatUnit}/>
-                ) : (<Skeleton />) }
+                  <strong className={style.summaryTableBalance}>
+                    <Amount
+                      amount={keystoreBalance.total}
+                      unit={keystoreBalance.fiatUnit}
+                    />
+                    <span className={style.coinUnit}>
+                      {keystoreBalance.fiatUnit}
+                    </span>
+                  </strong>
+                ) : (<Skeleton />)}
               </td>
             </tr>
           </tfoot>

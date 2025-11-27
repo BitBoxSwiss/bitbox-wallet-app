@@ -1,3 +1,15 @@
+html {
+    font-size: 62.5%; /* 1rem = 10px */
+}
+
+body {
+    font-size: 1.6rem; /* 16px base for body, this will be overwritten on Android  */
+}
+
+.app {
+    font-size: var(--size-default); /* for components that do not define font-size */
+}
+
 html,
 body {
     background-color: var(--background);
@@ -92,7 +104,7 @@ pre {
     background-color: var(--background-secondary);
     display: block;
     font-family: monospace;
-    font-size: 20px;
+    font-size: var(--size-default);
     margin: 0 0 var(--space-default) 0;
     padding: var(--space-default);
     text-align: center;

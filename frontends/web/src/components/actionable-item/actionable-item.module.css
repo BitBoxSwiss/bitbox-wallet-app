@@ -1,5 +1,4 @@
 .container {
-  --size-default: 14px;
   align-items: center;
   background-color: var(--background-secondary);
   border: none;
@@ -7,7 +6,6 @@
   display: flex;
   font-size: var(--size-default);
   justify-content: space-between;
-  line-height: 1.571428;
   padding: 16px;
   text-align: left;
   width: 100%;

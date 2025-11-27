@@ -88,7 +88,7 @@ export const CustomGapLimitSettings = ({ backendConfig, onChangeConfig }: TProps
         open={showDialog}
         onClose={() => setShowDialog(false)}
         title={t('gapLimit.title')}
-        small>
+        medium>
         <Input
           type="number"
           label={t('gapLimit.receive')}

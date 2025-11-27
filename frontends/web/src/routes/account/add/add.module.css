@@ -1,8 +1,7 @@
 .manageContainer {
-    flex-basis: 490px;
     flex-shrink: 1;
     margin-bottom: var(--header-height);
-    min-height: 390px;
+    min-height: 490px;
     max-height: 100%;
 }
 
@@ -13,7 +12,7 @@
 
 .successCheck {
     background-color: var(--color-success);
-    border: .5rem solid var(--color-success);
+    border: 8px solid var(--color-success);
     border-radius: 100px;
 }
 

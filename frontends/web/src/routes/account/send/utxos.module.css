@@ -1,6 +1,10 @@
+.utxoContainer {
+    color: var(--color-default);
+}
+
 .utxosList {
     list-style: none;
-    padding: 0 0 var(--space-half) 0;
+    padding: 0 0 var(--space-half) 0 !important;
 }
 
 .utxosList label {
@@ -41,17 +45,27 @@
 }
 
 .utxoExplorer img {
-    width: 18px;
-    height: 18px;
+    display: block;
+    height: var(--size-subheader);
+    width: var(--size-subheader);
 }
 
 .amounts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-quarter) var(--space-half);
     line-height: 1;
     padding-bottom: var(--space-quarter);
 }
 
 .amount {
+    align-items: baseline;
+    display: flex;
+    flex-basis: auto;
+    gap: var(--space-eight);
     margin-right: var(--space-quarter);
+    max-width: 100%;
+    word-break: keep-all;
 }
 
 .label,

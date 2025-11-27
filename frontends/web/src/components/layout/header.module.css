@@ -28,9 +28,9 @@
 }
 
 .guideClose img {
-    width: 18px;
-    height: 18px;
     color: var(--color-blue);
+    max-height: var(--size-default);
+    width: var(--size-default);
 }
 
 .guideCloseText {

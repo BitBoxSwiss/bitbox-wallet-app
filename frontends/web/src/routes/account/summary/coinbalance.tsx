@@ -70,15 +70,15 @@ export const CoinBalance = ({
               </th>
               <td colSpan={2}>
                 {(summaryData && summaryData.formattedChartTotal !== null) ? (
-                  <>
-                    <strong>
-                      <Amount amount={summaryData.formattedChartTotal} unit={summaryData.chartFiat}/>
-                    </strong>
-                    {' '}
+                  <strong className={style.summaryTableBalance}>
+                    <Amount
+                      amount={summaryData.formattedChartTotal}
+                      unit={summaryData.chartFiat}
+                    />
                     <span className={style.coinUnit}>
                       {summaryData.chartFiat}
                     </span>
-                  </>
+                  </strong>
                 ) : (<Skeleton />) }
               </td>
             </tr>
