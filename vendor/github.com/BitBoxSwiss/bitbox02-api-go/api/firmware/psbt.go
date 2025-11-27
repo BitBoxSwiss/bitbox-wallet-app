@@ -224,6 +224,21 @@ func payloadFromPkScript(pkScript []byte) (messages.BTCOutputType, []byte, error
 		outputType = messages.BTCOutputType_P2TR
 		payload = pkScript[2:]
 
+	case len(pkScript) > 0 && pkScript[0] == txscript.OP_RETURN:
+		outputType = messages.BTCOutputType_OP_RETURN
+
+		tokenizer := txscript.MakeScriptTokenizer(0, pkScript[1:])
+		if !tokenizer.Next() {
+			return 0, nil, errp.New("naked OP_RETURN is not supported")
+		}
+		payload = tokenizer.Data()
+		// OP_0 is an empty data push
+		if payload == nil && tokenizer.Opcode() != txscript.OP_0 {
+			return 0, nil, errp.New("no data push found after OP_RETURN")
+		}
+		if !tokenizer.Done() {
+			return 0, nil, errp.New("only one data push supported after OP_RETURN")
+		}
 	default:
 		return 0, nil, errp.New("unrecognized output type")
 	}
