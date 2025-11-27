@@ -230,3 +230,7 @@ export const attestationCheckDone = (
 export const bluetoothToggleEnabled = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/bluetooth/toggle-enabled`);
 };
+
+export const changeDevicePassword = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/change-password`);
+};
