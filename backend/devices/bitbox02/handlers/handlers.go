@@ -40,6 +40,7 @@ type BitBox02 interface {
 	DeviceInfo() (*firmware.DeviceInfo, error)
 	SetDeviceName(deviceName string) error
 	SetPassword(seedLen int) error
+	ChangePassword() error
 	CreateBackup() error
 	ListBackups() ([]*firmware.Backup, error)
 	CheckBackup(bool) (string, error)
@@ -79,6 +80,7 @@ func NewHandlers(
 	handleFunc("/info", handlers.getDeviceInfo).Methods("GET")
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
+	handleFunc("/change-password", handlers.postChangePassword).Methods("POST")
 	handleFunc("/backups/create", handlers.postCreateBackup).Methods("POST")
 	handleFunc("/backups/check", handlers.postCheckBackup).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupsList).Methods("GET")
@@ -167,7 +169,14 @@ func (handlers *Handlers) postSetPassword(r *http.Request) interface{} {
 		return maybeBB02Err(err, handlers.log)
 	}
 	return map[string]interface{}{"success": true}
+}
 
+func (handlers *Handlers) postChangePassword(_ *http.Request) interface{} {
+	err := handlers.device.ChangePassword()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log)
+	}
+	return map[string]interface{}{"success": true}
 }
 
 func (handlers *Handlers) postCreateBackup(r *http.Request) interface{} {

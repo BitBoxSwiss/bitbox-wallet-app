@@ -18,6 +18,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
@@ -369,6 +370,14 @@ func (device *Device) nonAtomicBTCSign(
 			if isTaproot(sc) {
 				return nil, UnsupportedError("9.10.0")
 			}
+		}
+	}
+
+	if !device.version.AtLeast(semver.NewSemVer(9, 24, 0)) {
+		if slices.ContainsFunc(tx.Outputs, func(output *messages.BTCSignOutputRequest) bool {
+			return output.Type == messages.BTCOutputType_OP_RETURN
+		}) {
+			return nil, UnsupportedError("9.24.0")
 		}
 	}
 
