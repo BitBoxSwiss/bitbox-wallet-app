@@ -161,8 +161,7 @@ const Amounts = ({
 }: TAmountsProps) => {
   const txTypeClass = `txAmount-${type}`;
   const recv = type === 'receive';
-  const displayAmount = recv ? amount.amount : deductedAmount.amount;
-  const sign = displayAmount ? getTxSign(type) : '';
+  const displayAmount = recv ? amount : deductedAmount;
 
   return (
     <span className={`
@@ -170,9 +169,9 @@ const Amounts = ({
       ${styles[txTypeClass] || ''}
     `}>
       <span className={styles.txAmount}>
-        {sign}
+        {getTxSign(type)}
         <AmountWithUnit
-          amount={amount}
+          amount={displayAmount}
           unitClassName={styles.txUnit}
         />
       </span>
