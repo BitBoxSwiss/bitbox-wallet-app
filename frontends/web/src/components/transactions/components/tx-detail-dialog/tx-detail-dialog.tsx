@@ -89,7 +89,7 @@ export const TxDetailsDialog = ({
       slim
       medium>
       {transactionInfo && (
-        <div className={styles.container}>
+        <div className={styles.container} data-testid="tx-details-container" >
           <TxDetailHeader
             status={status}
             numConfirmations={numConfirmations}

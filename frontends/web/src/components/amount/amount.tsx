@@ -136,6 +136,7 @@ export const FormattedAmount = ({
   case 'TBTC':
   case 'LTC':
   case 'TLTC':
+  case 'RBTC':
     return formatBtc(amount, group, decimal);
   case 'sat':
   case 'tsat':

@@ -135,6 +135,42 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await expect(tx).toHaveAttribute('data-tx-type', 'receive');
   });
 
+  await test.step('Send to self from second account', async () => {
+    await page.goto('/#/account-summary');
+    await page.locator('td[data-label="Account name"]').nth(1).click();
+    console.log('Sending RBTC from second account to itself');
+    await page.getByRole('link', { name: 'Send' }).click();
+    await page.fill('#recipientAddress', recvAdd);
+    await page.click('#sendAll');
+    await page.getByRole('button', { name: 'Review' }).click();
+    await page.getByRole('button', { name: 'Done' }).click();
+  });
+
+  await test.step('Verify that the new transaction shows up, with correct values', async () => {
+    await page.goto('/#/account-summary');
+    await page.locator('td[data-label="Account name"]').nth(1).click();
+    await expect(page.getByTestId('transaction')).toHaveCount(2);
+
+    const newTx = page.getByTestId('transaction').nth(0);
+    await expect(newTx).toHaveAttribute('data-tx-type', 'send_to_self');
+
+    // Grab fee and amount from the details.
+    await page.getByTestId('tx-details').nth(0).click();
+    const txDetails = page.getByTestId('tx-details-container').nth(0);
+    const amount = await txDetails.getByTestId('amountBlocks').nth(0).textContent();
+    const fee = await txDetails.getByTestId('amountBlocks').nth(1).textContent();
+
+    await page.getByTestId('close-button').click();
+
+    // Verify that the values displayed are correctly
+    const shownDetractedAmount = await newTx.getByTestId('amountBlocks').nth(0).textContent();
+    const shownSentToSelfAmount = await newTx.getByTestId('amountBlocks').nth(1).textContent();
+
+    expect(shownDetractedAmount).toBe(fee);
+    expect(shownSentToSelfAmount).toBe(amount);
+
+  });
+
 });
 
 test.beforeEach(async () => {
