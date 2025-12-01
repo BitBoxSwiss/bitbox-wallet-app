@@ -74,7 +74,7 @@ export const Transaction = ({
           className={styles.txShowDetailBtn}
           onClick={() => !isMobile && onShowDetail(internalID)}
           type="button">
-          <Loupe className={styles.iconLoupe} />
+          <Loupe className={styles.iconLoupe} data-testid="tx-details"/>
         </button>
       </div>
     </section>
