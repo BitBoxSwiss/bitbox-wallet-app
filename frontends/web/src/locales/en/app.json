@@ -378,7 +378,10 @@
     "connected": "connected",
     "connectionFailed": "failed",
     "connectionIssues": "Having connection issues?",
-    "enable": "Please turn on Bluetooth",
+    "disabledGloballyDescription": "Please turn on Bluetooth to connect to your BitBox.",
+    "disabledGloballyTitle": "Bluetooth access is disabled.",
+    "disabledPermissionDescription": "Please allow Bluetooth to connect to your BitBox.",
+    "disabledPermissionTitle": "Bluetooth access is disabled for BitBoxApp.",
     "select": "Select your BitBox"
   },
   "bootloader": {

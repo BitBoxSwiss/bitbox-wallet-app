@@ -30,6 +30,7 @@ enum ConnectionState: String, Codable {
 
 struct State {
     var bluetoothAvailable: Bool
+    var bluetoothUnauthorized: Bool
     var scanning: Bool
     var discoveredPeripherals: [UUID: PeripheralMetadata]
 }
@@ -61,6 +62,7 @@ class BLEConnectionContext {
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     private var state: State = State(
         bluetoothAvailable: false,
+        bluetoothUnauthorized: false,
         scanning: false,
         discoveredPeripherals: [:]
     )
@@ -124,12 +126,25 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         state.bluetoothAvailable = centralManager.state == .poweredOn
+
+        if #available(iOS 13.0, *) {
+            // user denied BT permission,
+            // or restricted by device policy
+            let authorization = CBManager.authorization
+            state.bluetoothUnauthorized = (authorization == .denied || authorization == .restricted)
+        }
+
         updateBackendState()
 
         switch central.state {
         case .poweredOn:
-            print("BLE: on")
-            restartScan()
+            if state.bluetoothUnauthorized {
+                print("BLE: on but permission denied")
+                handleDisconnect()
+            } else {
+                print("BLE: on")
+                restartScan()
+            }
         case .poweredOff, .unauthorized, .unsupported, .resetting, .unknown:
             print("BLE: unavailable or not supported")
             handleDisconnect()
@@ -409,6 +424,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
         struct StateJSON: Codable {
             let bluetoothAvailable: Bool
+            let bluetoothUnauthorized: Bool
             let scanning: Bool
             let peripherals: [PeripheralJSON]
         }
@@ -425,6 +441,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
         let state = StateJSON(
             bluetoothAvailable: state.bluetoothAvailable,
+            bluetoothUnauthorized: state.bluetoothUnauthorized,
             scanning: state.scanning,
             peripherals: peripherals
         )

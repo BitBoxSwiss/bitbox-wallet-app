@@ -10,6 +10,7 @@
 - Android: fix display of external links from Bitrefill
 - fix language sometimes not persistent across app restarts
 - Android: make the UI work with responsive font sizes and adhere to OS font size settings 
+- iOS: show different messages when Bluetooth is off vs. when Bluetooth permission for BitBoxApp is disabled.
 
 ## v4.49.0
 - Bundle BitBox02 Nova firmware version v9.24.0
