@@ -126,6 +126,11 @@ Tests are located under [`frontends/web/tests`](/frontends/web/tests) and can be
 `make webe2etest`
 
 More info can be found [here](/frontends/web/tests/README.md)
+Appium is used to perform automatic test on Android emulators.
+The test runs automatically on PRs and push to master in the Github CI. 
+
+`make mobilee2etest` can be used to launch the tests; however, when ran locally, this requires an Android emulator
+to be already running. In CI, the emulator is automatically spawned from a Github Action.
 
 #### Run the HTTP API
 

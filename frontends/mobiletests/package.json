@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "mocha e2e/*.test.js"
+  },
+  "description": "",
+  "devDependencies": {
+    "chai": "^6.0.1",
+    "mocha": "^11.7.2",
+    "webdriverio": "^9.19.2",
+    "appium": "^3.0.2",
+    "appium-uiautomator2-driver": "^5.0.3"
+  }
+}

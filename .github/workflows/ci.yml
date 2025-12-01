@@ -70,6 +70,57 @@ jobs:
           path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/android/BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
           name: BitBoxApp-android-${{github.sha}}.apk
           if-no-files-found: error
+
+  e2e-android:
+    name: Android E2E Tests
+    needs: android
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [30, 31, 32, 33, 34, 35]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: BitBoxApp-android-${{ github.sha }}.apk
+          path: frontends/mobiletests/apk
+
+      - name: Install dependencies
+        working-directory: frontends/mobiletests
+        run: npm ci
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install Appium & drivers
+        run: |
+          npm install -g appium@3.1.0
+          appium driver install uiautomator2
+
+      - name: Start Android emulator and run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          PLATFORM: Android
+          ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL: 5
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          force-avd-creation: true
+          emulator-boot-timeout: 600
+          working-directory: frontends/mobiletests
+          emulator-options: "-no-window -no-audio -no-boot-anim -no-snapshot-load -no-snapshot-save"
+          script: ./run.sh
   qt-linux:
     runs-on: ubuntu-22.04
     needs: setup-env
