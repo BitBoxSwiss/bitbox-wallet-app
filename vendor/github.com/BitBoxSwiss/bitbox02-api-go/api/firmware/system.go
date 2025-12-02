@@ -122,6 +122,31 @@ func (device *Device) SetPassword(seedLen int) error {
 	return nil
 }
 
+// ChangePassword invokes the password change workflow on the device. Should be called only if
+// the device is initialized (deviceInfo.Initialized is true).
+func (device *Device) ChangePassword() error {
+	if !device.version.AtLeast(semver.NewSemVer(9, 25, 0)) {
+		return UnsupportedError("9.25.0")
+	}
+	if device.status != StatusInitialized {
+		return errp.New("invalid status")
+	}
+	request := &messages.Request{
+		Request: &messages.Request_ChangePassword{
+			ChangePassword: &messages.ChangePasswordRequest{},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	return nil
+}
+
 func (device *Device) reboot(purpose messages.RebootRequest_Purpose) error {
 	request := &messages.Request{
 		Request: &messages.Request_Reboot{

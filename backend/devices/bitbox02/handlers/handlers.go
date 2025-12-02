@@ -40,6 +40,7 @@ type BitBox02 interface {
 	DeviceInfo() (*firmware.DeviceInfo, error)
 	SetDeviceName(deviceName string) error
 	SetPassword(seedLen int) error
+	ChangePassword() error
 	CreateBackup() error
 	ListBackups() ([]*firmware.Backup, error)
 	CheckBackup(bool) (string, error)
@@ -79,6 +80,7 @@ func NewHandlers(
 	handleFunc("/info", handlers.getDeviceInfo).Methods("GET")
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
+	handleFunc("/change-password", handlers.postChangePassword).Methods("POST")
 	handleFunc("/backups/create", handlers.postCreateBackup).Methods("POST")
 	handleFunc("/backups/check", handlers.postCheckBackup).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupsList).Methods("GET")
@@ -167,7 +169,14 @@ func (handlers *Handlers) postSetPassword(r *http.Request) interface{} {
 		return maybeBB02Err(err, handlers.log)
 	}
 	return map[string]interface{}{"success": true}
+}
 
+func (handlers *Handlers) postChangePassword(_ *http.Request) interface{} {
+	err := handlers.device.ChangePassword()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log)
+	}
+	return map[string]interface{}{"success": true}
 }
 
 func (handlers *Handlers) postCreateBackup(r *http.Request) interface{} {
@@ -318,8 +327,9 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 		CanBackupWithRecoveryWords bool `json:"canBackupWithRecoveryWords"`
 		// If true, it is possible to create a 12-word seed by passing `16` as `seedLen` to
 		// `SetPassword()`. Otherwise, only `32` is allowed, corresponding to 24 words.
-		CanCreate12Words bool `json:"canCreate12Words"`
-		CanBIP85         bool `json:"canBIP85"`
+		CanCreate12Words  bool `json:"canCreate12Words"`
+		CanBIP85          bool `json:"canBIP85"`
+		CanChangePassword bool `json:"canChangePassword"`
 	}{
 		CurrentVersion:             currentVersion.String(),
 		NewVersion:                 newVersionStr,
@@ -328,6 +338,7 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 		CanBackupWithRecoveryWords: currentVersion.AtLeast(semver.NewSemVer(9, 13, 0)),
 		CanCreate12Words:           currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
 		CanBIP85:                   currentVersion.AtLeast(semver.NewSemVer(9, 18, 0)),
+		CanChangePassword:          currentVersion.AtLeast(semver.NewSemVer(9, 25, 0)),
 	}
 }
 

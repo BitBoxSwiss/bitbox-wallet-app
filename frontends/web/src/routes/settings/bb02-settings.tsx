@@ -33,6 +33,7 @@ import { AttestationCheckSetting } from './components/device-settings/attestatio
 import { FirmwareSetting } from './components/device-settings/firmware-setting';
 import { BluetoothFirmwareSetting } from './components/device-settings/bluetooth-firmware-setting';
 import { BluetoothToggleEnabledSetting } from './components/device-settings/bluetooth-toggle-enabled-setting';
+import { ChangeDevicePasswordSetting } from './components/device-settings/change-password-setting';
 import { SecureChipSetting } from './components/device-settings/secure-chip-setting';
 import { DeviceNameSetting } from './components/device-settings/device-name-setting';
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
@@ -193,6 +194,16 @@ const Content = ({ deviceID }: TProps) => {
         }
         <GoToStartupSettings deviceID={deviceID} />
         <FactoryResetSetting deviceID={deviceID} />
+        {
+          versionInfo ? (
+            <ChangeDevicePasswordSetting
+              deviceID={deviceID}
+              canChangePassword={versionInfo.canChangePassword}
+            />
+          ) : (
+            <StyledSkeleton />
+          )
+        }
       </div>
     </>
   );
