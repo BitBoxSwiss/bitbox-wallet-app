@@ -205,6 +205,11 @@
       "titleDisabled": "Enable Bluetooth",
       "titleEnabled": "Disable Bluetooth"
     },
+    "changePassword": {
+      "description": "Change the device password of the BitBox.",
+      "success": "Password changed successfully",
+      "title": "Change device password"
+    },
     "deviceName": {
       "current": "Current device name",
       "error": "Device name could not be set",
