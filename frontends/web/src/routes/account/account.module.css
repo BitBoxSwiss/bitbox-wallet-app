@@ -38,6 +38,9 @@
 .button {
     height: 37px;
     min-height: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-quarter);
 }
 
 @media (max-width: 768px) {

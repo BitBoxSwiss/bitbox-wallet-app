@@ -13,6 +13,7 @@
 - Android: fix layout issues with status and navigation bars.
 - Android: make the UI work with responsive font sizes and adhere to OS font size settings
 - Add "Change device password" functionality (in Settings)
+- Add icons for CTA and action buttons in account page
 
 ## v4.49.0
 - Bundle BitBox02 Nova firmware version v9.24.0
