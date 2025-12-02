@@ -117,20 +117,29 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
 
     func systemOpen(_ urlString: String?) throws {
         guard let urlString = urlString else { return }
-        // Check if it's a local file path (not a URL)
-        var url: URL
-        if urlString.hasPrefix("/") {
-            // This is a local file path, construct a file URL
-            url = URL(fileURLWithPath: urlString)
-        } else if let potentialURL = URL(string: urlString), potentialURL.scheme != nil {
-            // This is already a valid URL with a scheme
-            url = potentialURL
-        } else {
-            // Invalid URL or path
-            return
-        }
-        // Ensure we run on the main thread
+
         DispatchQueue.main.async {
+            if urlString == "app-settings:" {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    // opens app settings page in the system settings
+                    UIApplication.shared.open(url)
+                }
+                return
+            }
+
+            // Check if it's a local file path (not a URL)
+            var url: URL
+            if urlString.hasPrefix("/") {
+                // This is a local file path, construct a file URL
+                url = URL(fileURLWithPath: urlString)
+            } else if let potentialURL = URL(string: urlString), potentialURL.scheme != nil {
+                // This is already a valid URL with a scheme
+                url = potentialURL
+            } else {
+                // Invalid URL or path
+                return
+            }
+
             if url.isFileURL {
                 // Local file path, use UIDocumentInteractionController
                 if let rootViewController = self.getRootViewController() {

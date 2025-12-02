@@ -31,11 +31,13 @@ export type TPeripheral = {
 
 type TBluetoothState = {
   bluetoothAvailable: boolean;
+  bluetoothUnauthorized: boolean;
   scanning: boolean;
   peripherals: TPeripheral[];
 };
 
 export const getState = (): Promise<TBluetoothState> => {
+
   return apiGet('bluetooth/state');
 };
 
