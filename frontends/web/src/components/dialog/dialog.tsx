@@ -170,7 +170,7 @@ export const Dialog = ({
           <div className={headerClass}>
             <h3 className={style.title}>{title}</h3>
             {onClose && (
-              <button className={style.closeButton} onClick={handleCloseClick}>
+              <button className={style.closeButton} onClick={handleCloseClick} data-testid="close-button">
                 <CloseXDark className="show-in-lightmode" />
                 <CloseXWhite className="show-in-darkmode" />
               </button>

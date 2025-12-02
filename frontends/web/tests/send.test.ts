@@ -115,7 +115,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
 
   await test.step('Verify that first account now has two transactions', async () => {
     await page.goto('/#/account-summary');
-    await page.locator('td[data-label="Account name"]').nth(0).click();
+    await page.getByRole('link', { name: 'Bitcoin Regtest Bitcoin' }).click();
     await expect(page.getByTestId('transaction')).toHaveCount(2);
     // Verify that the second one is outgoing
     // Txs are shown in reverse order
@@ -128,11 +128,58 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
 
   await test.step('Verify that the second account has a transaction', async () => {
     await page.goto('/#/account-summary');
-    await page.locator('td[data-label="Account name"]').nth(1).click();
+    await page.getByRole('link', { name: 'Bitcoin Regtest 2' }).click();
     await expect(page.getByTestId('transaction')).toHaveCount(1);
 
     const tx = page.getByTestId('transaction').nth(0);
     await expect(tx).toHaveAttribute('data-tx-type', 'receive');
+  });
+
+  await test.step('Grab new receive address for second account', async () => {
+    await page.goto('/#/account-summary');
+    await page.getByRole('link', { name: 'Bitcoin Regtest 2' }).click();
+    await page.getByRole('link', { name: 'Receive' }).click();
+    await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
+    const addressLocator = page.locator('[data-testid="receive-address"]');
+    recvAdd = await addressLocator.inputValue();
+    expect(recvAdd).toContain('bcrt1');
+    console.log(`Receive address: ${recvAdd}`);
+  });
+
+  await test.step('Send to self from second account', async () => {
+    await page.goto('/#/account-summary');
+    await page.getByRole('link', { name: 'Bitcoin Regtest 2' }).click();
+    console.log('Sending RBTC from second account to itself');
+    await page.getByRole('link', { name: 'Send' }).click();
+    await page.fill('#recipientAddress', recvAdd);
+    await page.click('#sendAll');
+    await page.getByRole('button', { name: 'Review' }).click();
+    await page.getByRole('button', { name: 'Done' }).click();
+  });
+
+  await test.step('Verify that the new transaction shows up, with correct values', async () => {
+    await page.goto('/#/account-summary');
+    await page.getByRole('link', { name: 'Bitcoin Regtest 2' }).click();
+    await expect(page.getByTestId('transaction')).toHaveCount(2);
+
+    const newTx = page.getByTestId('transaction').nth(0);
+    await expect(newTx).toHaveAttribute('data-tx-type', 'send_to_self');
+
+    // Grab fee and amount from the details.
+    await page.getByTestId('tx-details').nth(0).click();
+    const txDetails = page.getByTestId('tx-details-container').nth(0);
+    const amount = await txDetails.getByTestId('amountBlocks').nth(0).textContent();
+    const fee = await txDetails.getByTestId('amountBlocks').nth(1).textContent();
+
+    await page.getByTestId('close-button').click();
+
+    // Verify that the values displayed are correctly
+    const shownDetractedAmount = await newTx.getByTestId('amountBlocks').nth(0).textContent();
+    const shownSentToSelfAmount = await newTx.getByTestId('amountBlocks').nth(1).textContent();
+
+    expect(shownDetractedAmount).toBe(fee);
+    expect(shownSentToSelfAmount).toBe(amount);
+
   });
 
 });

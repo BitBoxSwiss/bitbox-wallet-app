@@ -74,7 +74,7 @@ export const Transaction = ({
           className={styles.txShowDetailBtn}
           onClick={() => !isMobile && onShowDetail(internalID)}
           type="button">
-          <Loupe className={styles.iconLoupe} />
+          <Loupe className={styles.iconLoupe} data-testid="tx-details"/>
         </button>
       </div>
     </section>
@@ -161,8 +161,7 @@ const Amounts = ({
 }: TAmountsProps) => {
   const txTypeClass = `txAmount-${type}`;
   const recv = type === 'receive';
-  const displayAmount = recv ? amount.amount : deductedAmount.amount;
-  const sign = displayAmount ? getTxSign(type) : '';
+  const displayAmount = recv ? amount : deductedAmount;
 
   return (
     <span className={`
@@ -170,9 +169,9 @@ const Amounts = ({
       ${styles[txTypeClass] || ''}
     `}>
       <span className={styles.txAmount}>
-        {sign}
+        {getTxSign(type)}
         <AmountWithUnit
-          amount={amount}
+          amount={displayAmount}
           unitClassName={styles.txUnit}
         />
       </span>

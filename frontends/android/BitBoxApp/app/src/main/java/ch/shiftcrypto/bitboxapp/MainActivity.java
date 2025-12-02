@@ -4,11 +4,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
 
@@ -50,37 +51,46 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        switch (currentNightMode) {
-            case Configuration.UI_MODE_NIGHT_NO:
-                // Night mode is not active, we're using the light theme
-                setDarkTheme(false);
-                break;
-            case Configuration.UI_MODE_NIGHT_YES:
-                // Night mode is active, we're using dark theme
-                setDarkTheme(true);
-                break;
-        }
-        super.onConfigurationChanged(newConfig);
-    }
-
     public void setDarkTheme(boolean isDark) {
-        int flags = getWindow().getDecorView().getSystemUiVisibility(); // get current flag
+        int statusBarColor = ContextCompat.getColor(
+                getApplicationContext(),
+                isDark ? R.color.colorPrimaryDark : R.color.colorPrimary
+        );
+        // Pre-Oreo devices cannot render light nav bar icons, so fall back to dark bar to keep icons visible.
+        boolean supportsLightNavIcons = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+        int navBarColor = supportsLightNavIcons
+                ? statusBarColor
+                : ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark);
+
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(statusBarColor);
+        window.setNavigationBarColor(navBarColor);
+
+        View decorView = window.getDecorView();
+        int flags = decorView.getSystemUiVisibility(); // get current flag
         if (isDark) {
             Util.log("Dark theme");
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark));
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // remove LIGHT_STATUS_BAR to flag
-            getWindow().getDecorView().setSystemUiVisibility(flags);
+            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // remove LIGHT_STATUS_BAR flag
+            if (supportsLightNavIcons) {
+                flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            }
         } else {
             Util.log("Light theme");
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
-            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // add LIGHT_STATUS_BAR to flag
-            getWindow().getDecorView().setSystemUiVisibility(flags);
+            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // add LIGHT_STATUS_BAR flag
+            if (supportsLightNavIcons) {
+                flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            }
+        }
+        decorView.setSystemUiVisibility(flags);
+
+        View root = findViewById(R.id.root_layout);
+        WebView vw = findViewById(R.id.vw);
+        if (root != null) {
+            root.setBackgroundColor(statusBarColor);
+        }
+        if (vw != null) {
+            vw.setBackgroundColor(statusBarColor);
         }
     }
 
@@ -93,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.hide(); // hide title bar with app name.
         }
-        onConfigurationChanged(getResources().getConfiguration());
         setContentView(R.layout.activity_main);
         final WebView vw = findViewById(R.id.vw);
 
