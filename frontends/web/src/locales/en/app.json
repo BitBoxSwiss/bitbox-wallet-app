@@ -716,6 +716,9 @@
       },
       "title": "Backups"
     },
+    "bluetoothFirmware": {
+      "title": "Bluetooth firmware"
+    },
     "deviceInformation": {
       "attestation": {
         "description": "The BitBoxApp checks if your device is authentic."
@@ -730,6 +733,9 @@
         "description": "The model of the secure chip."
       },
       "title": "Device information"
+    },
+    "deviceSettings": {
+      "title": "Device settings"
     },
     "expert": {
       "bip85": {
@@ -767,11 +773,11 @@
       }
     },
     "firmware": {
-      "firmwareVersion": "Firmware Version",
+      "firmwareVersion": "Firmware version",
       "newVersion": {
         "label": "Available version"
       },
-      "title": "Firmware",
+      "title": "Device firmware",
       "upToDate": "Your device is up to date",
       "upgradeAvailable": "New upgrade available",
       "version": {
