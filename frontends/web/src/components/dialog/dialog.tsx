@@ -165,7 +165,7 @@ export const Dialog = ({
       className={overlayClass}
     >
       <UseBackButton handler={closeHandler} />
-      <div className={modalClass}>
+      <div className={modalClass} ref={contentRef}>
         {title && (
           <div className={headerClass}>
             <h3 className={style.title}>{title}</h3>
@@ -177,7 +177,7 @@ export const Dialog = ({
             )}
           </div>
         )}
-        <div className={contentClass} ref={contentRef}>
+        <div className={contentClass}>
           <div className={style.content}>{children}</div>
         </div>
       </div>

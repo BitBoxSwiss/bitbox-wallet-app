@@ -87,7 +87,8 @@ export const TxDetailsDialog = ({
       title={t('transaction.details.title')}
       onClose={onClose}
       slim
-      medium>
+      medium
+    >
       {transactionInfo && (
         <div className={styles.container} data-testid="tx-details-container" >
           <TxDetailHeader

@@ -60,7 +60,8 @@ const FOCUSABLE_SELECTOR = `
   input:not(:disabled),
   select:not(:disabled),
   textarea:not(:disabled),
-  [tabindex]:not([tabindex="-1"]):not(:disabled)
+  [tabindex]:not([tabindex="-1"]):not(:disabled),
+  [autofocus]:not(:disabled)
 `;
 
 /**
