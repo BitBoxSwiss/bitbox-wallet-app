@@ -276,5 +276,41 @@ func (txs OrderedTransactions) Timeseries(
 			break
 		}
 	}
+	// If the timeseries is all zeros but we have transactions,
+	// build a timeseries from the transactions so activity is visible.
+	allZero := true
+	for _, e := range result {
+		if e.Value.BigInt() != nil && e.Value.BigInt().Sign() != 0 {
+			allZero = false
+			break
+		}
+	}
+	if allZero && len(txs) > 0 {
+		result = make([]TimeseriesEntry, 0, len(txs))
+		for _, tx := range txs {
+			if tx.Timestamp == nil {
+				continue
+			}
+			if tx.Timestamp.Before(start) || tx.Timestamp.After(end) {
+				continue
+			}
+			result = append(result, TimeseriesEntry{
+				Time:  *tx.Timestamp,
+				Value: tx.Balance,
+			})
+		}
+		sort.Slice(result, func(i, j int) bool { return result[i].Time.Before(result[j].Time) })
+		if len(result) > 0 {
+			// Add a zero data point at the beginning.
+			if result[0].Time.After(start) {
+				zero := TimeseriesEntry{
+					Time:  start,
+					Value: coin.NewAmountFromInt64(0),
+				}
+				result = append([]TimeseriesEntry{zero}, result...)
+			}
+		}
+	}
+
 	return result, nil
 }
