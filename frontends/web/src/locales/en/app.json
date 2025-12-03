@@ -898,7 +898,8 @@
     "sell_crypto": "Sell crypto",
     "send": "Send",
     "spend_bitcoin": "Spend bitcoin",
-    "spend_crypto": "Spend crypto"
+    "spend_crypto": "Spend crypto",
+    "swap": "Swap"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {
