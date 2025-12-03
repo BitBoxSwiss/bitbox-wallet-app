@@ -30,11 +30,11 @@ export type TOption = TDropdownOption<AccountCode> & TOptionAccountSelector;
 export type TGroupedOption = TDropdownGroupedOption<AccountCode, TGroupAccountSelector, TOptionAccountSelector>;
 
 type TAccountSelector = {
-  title: string;
+  title?: string;
   disabled?: boolean;
   selected?: string;
   onChange: (value: string) => void;
-  onProceed: () => void;
+  onProceed?: () => void;
   accounts: TAccount[];
 };
 
@@ -120,7 +120,9 @@ export const GroupedAccountSelector = ({ title, disabled, selected, onChange, on
 
   return (
     <>
-      <h1 className="title text-center">{title}</h1>
+      {title && (
+        <h1 className="title text-center">{title}</h1>
+      )}
       <Dropdown<AccountCode, false, TGroupAccountSelector, TOptionAccountSelector>
         className={styles.select}
         classNamePrefix="react-select"
@@ -139,14 +141,16 @@ export const GroupedAccountSelector = ({ title, disabled, selected, onChange, on
         onOpenChange={setIsOpen}
         mobileTriggerComponent={mobileTriggerComponent}
       />
-      <div className="buttons text-center">
-        <Button
-          primary
-          onClick={onProceed}
-          disabled={!selected || disabled}>
-          {t('buy.info.next')}
-        </Button>
-      </div>
+      {onProceed && (
+        <div className="buttons text-center">
+          <Button
+            primary
+            onClick={onProceed}
+            disabled={!selected || disabled}>
+            {t('buy.info.next')}
+          </Button>
+        </div>
+      )}
     </>
   );
 };
