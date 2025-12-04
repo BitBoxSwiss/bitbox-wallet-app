@@ -69,7 +69,6 @@ jobs:
           name: simulator-binary
           path: ./simulator-bin
 
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -85,6 +84,14 @@ jobs:
           cd frontends/web
           npx playwright install --with-deps chromium webkit
 
+      - name: Setup Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Python dependencies
+        run: |
+          pip install ecdsa bech32
 
       - name: Restore executable permission
         run: chmod +x simulator-bin/simulator
