@@ -54,14 +54,7 @@ export const useEsc = (
   });
 };
 
-const FOCUSABLE_SELECTOR = `
-  a:not(:disabled),
-  button:not(:disabled),
-  input:not(:disabled),
-  select:not(:disabled),
-  textarea:not(:disabled),
-  [tabindex]:not([tabindex="-1"]):not(:disabled)
-`;
+const FOCUSABLE_SELECTOR = '[autofocus]:not(:disabled)';
 
 /**
  * Traps focus inside the given ref when active,
