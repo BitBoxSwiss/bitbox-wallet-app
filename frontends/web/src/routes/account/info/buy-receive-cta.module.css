@@ -3,6 +3,12 @@
     text-align: center;
 }
 
+.button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-quarter);
+}
+
 .buttons {
     display: flex;
     gap: var(--space-half);
@@ -15,7 +21,6 @@
 
 @media (max-width: 425px) {
     .buttons button {
-        padding: var(--space-quarter);
         font-size: var(--size-small);
     }
 }

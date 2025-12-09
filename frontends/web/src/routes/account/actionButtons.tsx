@@ -17,7 +17,7 @@
 import { MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { WalletConnectLight } from '@/components/icon';
+import { ArrowFloorDownWhite, ArrowFloorUpWhite, Coins, WalletConnectLight } from '@/components/icon';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { AccountCode, TAccount, CoinCode } from '@/api/account';
 import { isEthereumBased } from './utils';
@@ -68,6 +68,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
         to={sendLink}
         onClick={isEthereumBased(coinCode) ? maybeRouteSend : undefined}
       >
+        <ArrowFloorUpWhite width={16} height={16} />
         <span>{t('generic.send')}</span>
       </ButtonLink>
 
@@ -77,6 +78,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
         primary
         to={`/account/${code}/receive`}
       >
+        <ArrowFloorDownWhite width={16} height={16} />
         <span>{t('generic.receiveWithoutCoinCode')}</span>
       </ButtonLink>
 
@@ -87,6 +89,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
           primary
           to={`/market/info/${code}`}
         >
+          <Coins width={17} height={17} />
           <span>{t('generic.buySell')}</span>
         </ButtonLink>
       )}

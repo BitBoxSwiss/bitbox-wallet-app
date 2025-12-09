@@ -23,7 +23,7 @@ import { Button } from '@/components/forms';
 import { Balances } from '@/routes/account/summary/accountssummary';
 import { isBitcoinCoin, isEthereumBased } from '@/routes/account/utils';
 import { getVendorSupportedAccounts } from '@/routes/market/utils';
-import { WalletConnectLight } from '@/components/icon';
+import { ArrowFloorDownWhite, Coins, WalletConnectLight } from '@/components/icon';
 import { useMountedRef } from '@/hooks/mount';
 import { SubTitle } from '@/components/title';
 import styles from './buy-receive-cta.module.css';
@@ -77,7 +77,8 @@ export const BuyReceiveCTA = ({
       </p>
       <div className={styles.buttons}>
         {balanceList && (
-          <Button primary onClick={onReceiveCTA}>
+          <Button className={styles.button} primary onClick={onReceiveCTA}>
+            <ArrowFloorDownWhite width={18} height={18} />
             {/* "Receive Bitcoin", "Receive crypto" or "Receive LTC" (via placeholder "Receive {{coinCode}}") */}
             {t('generic.receive', {
               context: isBitcoin ? 'bitcoin' : (unit ? '' : 'crypto'),
@@ -86,7 +87,8 @@ export const BuyReceiveCTA = ({
           </Button>
         )}
         {(exchangeSupported && !isMobile) && (
-          <Button primary onClick={onMarketCTA}>
+          <Button className={styles.button} primary onClick={onMarketCTA}>
+            <Coins width={18} height={18} />
             {t('generic.buySell')}
           </Button>
         )}
