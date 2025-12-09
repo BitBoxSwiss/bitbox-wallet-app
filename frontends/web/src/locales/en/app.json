@@ -894,6 +894,7 @@
     "receiveWithoutCoinCode": "Receive",
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto",
+    "received": "Received",
     "reset": "Reset",
     "resetToDefault": "Reset to default",
     "search": "Search…",
@@ -902,6 +903,7 @@
     "sell_bitcoin": "Sell Bitcoin",
     "sell_crypto": "Sell crypto",
     "send": "Send",
+    "sent": "Sent",
     "spend_bitcoin": "Spend bitcoin",
     "spend_crypto": "Spend crypto"
   },

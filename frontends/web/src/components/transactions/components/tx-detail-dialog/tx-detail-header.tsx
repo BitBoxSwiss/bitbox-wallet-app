@@ -88,9 +88,9 @@ const StatusAndSign = ({
   const fromSignToText = () => {
     switch (type) {
     case 'send':
-      return t('generic.send');
+      return t('generic.sent');
     case 'receive':
-      return t('generic.receiveWithoutCoinCode');
+      return t('generic.received');
     case 'send_to_self':
       return t('transaction.details.sendToSelf');
     }
