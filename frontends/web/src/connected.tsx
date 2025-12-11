@@ -38,5 +38,5 @@ export const ConnectedApp = ({ children }: TProps) => {
       </div>
     );
   }
-  return <div>{children}</div>;
+  return children;
 };
