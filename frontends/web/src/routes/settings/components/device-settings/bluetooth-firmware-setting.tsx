@@ -34,7 +34,7 @@ export const BluetoothFirmwareSetting = ({ firmwareVersion }: TProps) => {
   return (
     <>
       <SettingsItem
-        settingName={t('deviceSettings.firmware.title')}
+        settingName={t('deviceSettings.bluetoothFirmware.title')}
         secondaryText={secondaryText}
         displayedValue={firmwareVersion}
         extraComponent={extraComponent}

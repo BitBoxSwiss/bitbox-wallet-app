@@ -123,9 +123,9 @@ const Content = ({ deviceID }: TProps) => {
         <ShowRecoveryWordsSetting deviceID={deviceID} />
       </div>
 
-      {/*"Device information" section*/}
+      {/*"Device settings" section*/}
       <div className={styles.section}>
-        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceInformation.title')}</SubTitle>
+        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceSettings.title')}</SubTitle>
         {deviceInfo ? (
           <DeviceNameSetting
             deviceName={deviceInfo.name}
@@ -134,7 +134,25 @@ const Content = ({ deviceID }: TProps) => {
         ) :
           <StyledSkeleton />
         }
-        <AttestationCheckSetting deviceID={deviceID} />
+        { deviceInfo && deviceInfo.bluetooth && !runningInIOS()
+          ? <BluetoothToggleEnabledSetting deviceID={deviceID} />
+          : null
+        }
+        {
+          versionInfo ? (
+            <ChangeDevicePasswordSetting
+              deviceID={deviceID}
+              canChangePassword={versionInfo.canChangePassword}
+            />
+          ) : (
+            <StyledSkeleton />
+          )
+        }
+      </div>
+
+      {/*"Device information" section*/}
+      <div className={styles.section}>
+        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceInformation.title')}</SubTitle>
         {
           versionInfo ? (
             <FirmwareSetting
@@ -145,29 +163,26 @@ const Content = ({ deviceID }: TProps) => {
             <StyledSkeleton />
         }
         {
-          deviceInfo && deviceInfo.securechipModel !== '' ?
-            <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
-            :
-            <StyledSkeleton />
+          deviceInfo && deviceInfo.bluetooth ? (
+            <BluetoothFirmwareSetting
+              firmwareVersion={deviceInfo.bluetooth.firmwareVersion}
+            />
+          ) : null
         }
+        <AttestationCheckSetting deviceID={deviceID} />
         {
           rootFingerprintResult && rootFingerprintResult.success ?
             <RootFingerprintSetting rootFingerprint={rootFingerprintResult.rootFingerprint} />
             :
             <StyledSkeleton />
         }
+        {
+          deviceInfo && deviceInfo.securechipModel !== '' ?
+            <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
+            :
+            <StyledSkeleton />
+        }
       </div>
-
-      {/*"Bluetooth" section*/}
-      { deviceInfo && deviceInfo.bluetooth ? (
-        <div className={styles.section}>
-          <SubTitle className={styles.withMobilePadding}>Bluetooth</SubTitle>
-          { !runningInIOS() ? <BluetoothToggleEnabledSetting deviceID={deviceID} /> : null }
-          <BluetoothFirmwareSetting
-            firmwareVersion={deviceInfo.bluetooth.firmwareVersion}
-          />
-        </div>
-      ) : null }
 
       {/*"Expert settings" section*/}
       <div className={styles.section}>
@@ -194,16 +209,6 @@ const Content = ({ deviceID }: TProps) => {
         }
         <GoToStartupSettings deviceID={deviceID} />
         <FactoryResetSetting deviceID={deviceID} />
-        {
-          versionInfo ? (
-            <ChangeDevicePasswordSetting
-              deviceID={deviceID}
-              canChangePassword={versionInfo.canChangePassword}
-            />
-          ) : (
-            <StyledSkeleton />
-          )
-        }
       </div>
     </>
   );
