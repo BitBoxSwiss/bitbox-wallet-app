@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { ReactNode, useContext } from 'react';
 import { useLocalizedPunctuation } from '@/hooks/localized';
 import { LocalizationContext } from './localization-context';

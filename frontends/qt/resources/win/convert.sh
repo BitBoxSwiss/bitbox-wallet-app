@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
 convert ../app_icon_source.png  -bordercolor white -border 0 \
       \( -clone 0 -resize 16x16 \) \
       \( -clone 0 -resize 20x20 \) \

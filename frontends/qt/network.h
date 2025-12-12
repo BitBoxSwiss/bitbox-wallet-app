@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef NETWORK_H
 #define NETWORK_H
 #include <stdbool.h>
