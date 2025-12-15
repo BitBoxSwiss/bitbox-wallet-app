@@ -1,4 +1,6 @@
 #!/bin/bash -eux
+# SPDX-License-Identifier: Apache-2.0
+
 # Which make target to run.
 WHAT="$1"
 # Because we need to compile some Go code without modules,

@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: Apache-2.0
 
 APP="frontends/qt/build/osx/BitBox.app"
 INSTALLER="frontends/qt/build/osx/BitBoxApp_Installer.dmg"
