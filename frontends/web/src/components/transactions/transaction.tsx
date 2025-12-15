@@ -223,7 +223,7 @@ const Addresses = ({
       : t('transaction.tx.send', {
         context: status
       })
-    // send_to_self will currently show the send message
+  // send_to_self will currently show the send message
   );
 
   return (
