@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
 CFORTIFY=-O2 -D_FORTIFY_SOURCE=2
 CSTACK=-fstack-protector-all
 CSTACKEXTRA_UNUSED=-fstack-check

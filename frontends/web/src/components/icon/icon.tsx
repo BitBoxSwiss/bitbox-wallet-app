@@ -1,19 +1,4 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2021-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import abortSVG from './assets/icons/abort.svg';
 import alert from './assets/icons/alert-triangle.svg';
@@ -30,6 +15,8 @@ import arrowUpRedSVG from './assets/icons/arrow-up-red.svg';
 import arrowUTurn from './assets/icons/arrow-u-turn.svg';
 import arrowFloorUpRedSVG from './assets/icons/arrow-floor-up-red.svg';
 import arrowFloorDownGreenSVG from './assets/icons/arrow-floor-down-green.svg';
+import arrowFloorUpWhiteSVG from './assets/icons/arrow-floor-up-white.svg';
+import arrowFloorDownWhiteSVG from './assets/icons/arrow-floor-down-white.svg';
 import arrowCircleLeftSVG from './assets/icons/arrow-circle-left.svg';
 import arrowCircleLeftActiveSVG from './assets/icons/arrow-circle-left-active.svg';
 import arrowCircleRightSVG from './assets/icons/arrow-circle-right.svg';
@@ -127,6 +114,8 @@ export const ArrowUpRed = (props: ImgProps) => (<img src={arrowUpRedSVG} draggab
 export const ArrowUTurn = (props: ImgProps) => (<img src={arrowUTurn} draggable={false} {...props} />);
 export const ArrowFloorUpRed = (props: ImgProps) => (<img src={arrowFloorUpRedSVG} draggable={false} {...props} />);
 export const ArrowFloorDownGreen = (props: ImgProps) => (<img src={arrowFloorDownGreenSVG} draggable={false} {...props} />);
+export const ArrowFloorUpWhite = (props: ImgProps) => (<img src={arrowFloorUpWhiteSVG} draggable={false} {...props} />);
+export const ArrowFloorDownWhite = (props: ImgProps) => (<img src={arrowFloorDownWhiteSVG} draggable={false} {...props} />);
 export const ArrowCirlceLeft = (props: ImgProps) => (<img src={arrowCircleLeftSVG} draggable={false} {...props} />);
 export const ArrowCirlceLeftActive = (props: ImgProps) => (<img src={arrowCircleLeftActiveSVG} draggable={false} {...props} />);
 export const ArrowCirlceRight = (props: ImgProps) => (<img src={arrowCircleRightSVG} draggable={false} {...props} />);

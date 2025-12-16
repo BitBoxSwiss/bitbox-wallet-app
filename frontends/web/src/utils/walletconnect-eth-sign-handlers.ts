@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { t } from 'i18next';
 import { SessionTypes } from '@walletconnect/types';
 import { EIP155_SIGNING_METHODS, decodeEthMessage } from './walletconnect';

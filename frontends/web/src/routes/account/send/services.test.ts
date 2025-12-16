@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { describe, it, expect, vi } from 'vitest';
 import { i18n as interfacei18n } from 'i18next';
 import { txProposalErrorHandling } from './services';

@@ -205,6 +205,11 @@
       "titleDisabled": "Enable Bluetooth",
       "titleEnabled": "Disable Bluetooth"
     },
+    "changePassword": {
+      "description": "Change the device password of the BitBox.",
+      "success": "Password changed successfully",
+      "title": "Change device password"
+    },
     "deviceName": {
       "current": "Current device name",
       "error": "Device name could not be set",
@@ -711,6 +716,9 @@
       },
       "title": "Backups"
     },
+    "bluetoothFirmware": {
+      "title": "Bluetooth firmware"
+    },
     "deviceInformation": {
       "attestation": {
         "description": "The BitBoxApp checks if your device is authentic."
@@ -725,6 +733,9 @@
         "description": "The model of the secure chip."
       },
       "title": "Device information"
+    },
+    "deviceSettings": {
+      "title": "Device settings"
     },
     "expert": {
       "bip85": {
@@ -762,11 +773,11 @@
       }
     },
     "firmware": {
-      "firmwareVersion": "Firmware Version",
+      "firmwareVersion": "Firmware version",
       "newVersion": {
         "label": "Available version"
       },
-      "title": "Firmware",
+      "title": "Device firmware",
       "upToDate": "Your device is up to date",
       "upgradeAvailable": "New upgrade available",
       "version": {
@@ -889,6 +900,7 @@
     "receiveWithoutCoinCode": "Receive",
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto",
+    "received": "Received",
     "reset": "Reset",
     "resetToDefault": "Reset to default",
     "search": "Search…",
@@ -897,6 +909,7 @@
     "sell_bitcoin": "Sell Bitcoin",
     "sell_crypto": "Sell crypto",
     "send": "Send",
+    "sent": "Sent",
     "spend_bitcoin": "Spend bitcoin",
     "spend_crypto": "Spend crypto",
     "swap": "Swap"

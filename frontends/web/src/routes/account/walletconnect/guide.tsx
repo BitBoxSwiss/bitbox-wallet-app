@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { useTranslation } from 'react-i18next';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';

@@ -1,18 +1,4 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useState, useEffect } from 'react';
 import { useLoad } from '@/hooks/api';
@@ -33,6 +19,7 @@ import { AttestationCheckSetting } from './components/device-settings/attestatio
 import { FirmwareSetting } from './components/device-settings/firmware-setting';
 import { BluetoothFirmwareSetting } from './components/device-settings/bluetooth-firmware-setting';
 import { BluetoothToggleEnabledSetting } from './components/device-settings/bluetooth-toggle-enabled-setting';
+import { ChangeDevicePasswordSetting } from './components/device-settings/change-password-setting';
 import { SecureChipSetting } from './components/device-settings/secure-chip-setting';
 import { DeviceNameSetting } from './components/device-settings/device-name-setting';
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
@@ -122,9 +109,9 @@ const Content = ({ deviceID }: TProps) => {
         <ShowRecoveryWordsSetting deviceID={deviceID} />
       </div>
 
-      {/*"Device information" section*/}
+      {/*"Device settings" section*/}
       <div className={styles.section}>
-        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceInformation.title')}</SubTitle>
+        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceSettings.title')}</SubTitle>
         {deviceInfo ? (
           <DeviceNameSetting
             deviceName={deviceInfo.name}
@@ -133,7 +120,25 @@ const Content = ({ deviceID }: TProps) => {
         ) :
           <StyledSkeleton />
         }
-        <AttestationCheckSetting deviceID={deviceID} />
+        { deviceInfo && deviceInfo.bluetooth && !runningInIOS()
+          ? <BluetoothToggleEnabledSetting deviceID={deviceID} />
+          : null
+        }
+        {
+          versionInfo ? (
+            <ChangeDevicePasswordSetting
+              deviceID={deviceID}
+              canChangePassword={versionInfo.canChangePassword}
+            />
+          ) : (
+            <StyledSkeleton />
+          )
+        }
+      </div>
+
+      {/*"Device information" section*/}
+      <div className={styles.section}>
+        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceInformation.title')}</SubTitle>
         {
           versionInfo ? (
             <FirmwareSetting
@@ -144,29 +149,26 @@ const Content = ({ deviceID }: TProps) => {
             <StyledSkeleton />
         }
         {
-          deviceInfo && deviceInfo.securechipModel !== '' ?
-            <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
-            :
-            <StyledSkeleton />
+          deviceInfo && deviceInfo.bluetooth ? (
+            <BluetoothFirmwareSetting
+              firmwareVersion={deviceInfo.bluetooth.firmwareVersion}
+            />
+          ) : null
         }
+        <AttestationCheckSetting deviceID={deviceID} />
         {
           rootFingerprintResult && rootFingerprintResult.success ?
             <RootFingerprintSetting rootFingerprint={rootFingerprintResult.rootFingerprint} />
             :
             <StyledSkeleton />
         }
+        {
+          deviceInfo && deviceInfo.securechipModel !== '' ?
+            <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
+            :
+            <StyledSkeleton />
+        }
       </div>
-
-      {/*"Bluetooth" section*/}
-      { deviceInfo && deviceInfo.bluetooth ? (
-        <div className={styles.section}>
-          <SubTitle className={styles.withMobilePadding}>Bluetooth</SubTitle>
-          { !runningInIOS() ? <BluetoothToggleEnabledSetting deviceID={deviceID} /> : null }
-          <BluetoothFirmwareSetting
-            firmwareVersion={deviceInfo.bluetooth.firmwareVersion}
-          />
-        </div>
-      ) : null }
 
       {/*"Expert settings" section*/}
       <div className={styles.section}>

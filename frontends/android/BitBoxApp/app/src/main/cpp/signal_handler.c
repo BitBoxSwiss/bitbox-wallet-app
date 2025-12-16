@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 // signal_handler.c
 #include <jni.h>
 #include <signal.h>

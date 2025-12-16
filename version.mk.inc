@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
 VERSION_MK_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 VERSION_MK_ROOT := $(dir $(VERSION_MK_PATH))
 
