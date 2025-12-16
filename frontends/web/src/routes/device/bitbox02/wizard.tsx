@@ -27,7 +27,7 @@ export const Wizard = ({ deviceID }: TProps) => {
       verifyAttestation(deviceID).then(cb);
     })
   );
-  const [appStatus, setAppStatus] = useState<'' | TWalletSetupChoices>('');
+  const [setupChoice, setSetupChoice] = useState<'' | TWalletSetupChoices>('');
   const [createOptions, setCreateOptions] = useState<TWalletCreateOptions>();
   const [showWizard, setShowWizard] = useState<boolean>(false);
   // If true, we just pair and unlock, so we can hide some steps.
@@ -54,7 +54,7 @@ export const Wizard = ({ deviceID }: TProps) => {
   }, [status, showWizard, unlockOnly]);
 
   const handleAbort = () => {
-    setAppStatus('');
+    setSetupChoice('');
     setCreateOptions(undefined);
   };
   if (status === undefined) {
@@ -77,7 +77,7 @@ export const Wizard = ({ deviceID }: TProps) => {
     return null;
   }
   // fixes empty main element, happens when after unlocking the device, reason wizard is now always mounted in app.tsx
-  if (appStatus === '' && status === 'initialized') {
+  if (setupChoice === '' && status === 'initialized') {
     return null;
   }
   return (
@@ -96,7 +96,7 @@ export const Wizard = ({ deviceID }: TProps) => {
           pairingFailed={status === 'pairingFailed'} />
       )}
 
-      { (!unlockOnly && appStatus === '') && (
+      { (!unlockOnly && setupChoice === '') && (
         <SetupOptions
           key="choose-setup"
           versionInfo={versionInfo}
@@ -104,12 +104,12 @@ export const Wizard = ({ deviceID }: TProps) => {
             type: TWalletSetupChoices,
             createOptions?: TWalletCreateOptions,
           ) => {
-            setAppStatus(type);
+            setSetupChoice(type);
             setCreateOptions(createOptions);
           }} />
       )}
 
-      { (!unlockOnly && appStatus === 'create-wallet') && (
+      { (!unlockOnly && setupChoice === 'create-wallet') && (
         <CreateWallet
           backupType={(createOptions?.withMnemonic ? 'mnemonic' : 'sdcard')}
           backupSeedLength={createOptions?.with12Words ? 16 : 32}
@@ -119,30 +119,30 @@ export const Wizard = ({ deviceID }: TProps) => {
       )}
 
       {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
-      { (!unlockOnly && appStatus === 'restore-sdcard' && status !== 'initialized') && (
+      { (!unlockOnly && setupChoice === 'restore-sdcard' && status !== 'initialized') && (
         <RestoreFromSDCard
           key="restore-sdcard"
           deviceID={deviceID}
           onAbort={handleAbort} />
       )}
 
-      { (!unlockOnly && appStatus === 'restore-mnemonic' && status !== 'initialized') && (
+      { (!unlockOnly && setupChoice === 'restore-mnemonic' && status !== 'initialized') && (
         <RestoreFromMnemonic
           key="restore-mnemonic"
           deviceID={deviceID}
           onAbort={handleAbort} />
       )}
 
-      { (appStatus === 'create-wallet' && status === 'initialized') && (
+      { (setupChoice === 'create-wallet' && status === 'initialized') && (
         <CreateWalletSuccess
           key="success"
           backupType={(createOptions?.withMnemonic ? 'mnemonic' : 'sdcard')}
           onContinue={handleGetStarted} />
       )}
-      { (appStatus === 'restore-sdcard' && status === 'initialized') && (
+      { (setupChoice === 'restore-sdcard' && status === 'initialized') && (
         <RestoreFromSDCardSuccess key="backup-success" onContinue={handleGetStarted} />
       )}
-      { (appStatus === 'restore-mnemonic' && status === 'initialized') && (
+      { (setupChoice === 'restore-mnemonic' && status === 'initialized') && (
         <RestoreFromMnemonicSuccess key="backup-mnemonic-success" onContinue={handleGetStarted} />
       )}
     </Main>
