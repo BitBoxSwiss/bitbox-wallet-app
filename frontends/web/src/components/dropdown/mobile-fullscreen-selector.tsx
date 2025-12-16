@@ -3,15 +3,16 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActionMeta } from 'react-select';
-import { TOption } from './dropdown';
+import { TOption, TGroupedOption, isGroupedOptions } from './dropdown';
 import { ChevronLeftDark } from '@/components/icon';
 import { UseBackButton } from '@/hooks/backbutton';
 import styles from './mobile-fullscreen-selector.module.css';
 
-type Props<T, IsMulti extends boolean = false> = {
+type Props<T, IsMulti extends boolean = false, TExtra = object, TOptionExt = object> = {
   title: string;
-  options: TOption<T>[];
-  renderOptions: (option: TOption<T>, isSelectedValue: boolean) => ReactNode;
+  options?: TOption<T>[] | TGroupedOption<T, TExtra, TOptionExt>[];
+  renderOptions: (option: TOption<T> & TOptionExt, isSelectedValue: boolean) => ReactNode;
+  renderGroupHeader?: (group: TGroupedOption<T, TExtra, TOptionExt>) => ReactNode;
   value: IsMulti extends true ? TOption<T>[] : TOption<T>;
   onSelect: (newValue: IsMulti extends true ? TOption<T>[] : TOption<T>, actionMeta: ActionMeta<TOption<T>>) => void;
   isMulti?: boolean;
@@ -20,21 +21,23 @@ type Props<T, IsMulti extends boolean = false> = {
   triggerComponent?: ReactNode | ((props: { onClick: () => void }) => ReactNode);
 };
 
-export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
+export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TExtra = object, TOptionExt = object>({
   title,
   options,
   renderOptions,
+  renderGroupHeader,
   value,
   onSelect,
   isMulti,
   isOpen: controlledIsOpen,
   onOpenChange,
   triggerComponent,
-}: Props<T, IsMulti>) => {
+}: Props<T, IsMulti, TExtra, TOptionExt>) => {
   const [localIsOpen, setLocalIsOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const { t } = useTranslation();
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : localIsOpen;
+  const isGrouped = isGroupedOptions(options);
 
   useEffect(() => {
     if (!isOpen) {
@@ -87,11 +90,70 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
 
   const displayValue = isMulti
     ? (value as TOption<T>[]).map(v => v.label).reverse().join(', ')
-    : (value as TOption<T>).label;
+    : (value as TOption<T>)?.label || '';
 
-  const filteredOptions = options.filter(option =>
-    option.label.toLowerCase().includes(searchText.toLowerCase())
+  const getFilteredOptions = () => {
+    if (!options) {
+      return [];
+    }
+    const searchLower = searchText.toLowerCase();
+
+    if (isGrouped) {
+      return (options as TGroupedOption<T, TExtra, TOptionExt>[])
+        .map(group => ({
+          ...group,
+          options: group.options.filter(opt =>
+            opt.label.toLowerCase().includes(searchLower)
+          ),
+        }))
+        .filter(group => group.options.length > 0);
+    }
+
+    return (options as (TOption<T> & TOptionExt)[]).filter(opt =>
+      opt.label.toLowerCase().includes(searchLower)
+    );
+  };
+
+  const filteredOptions = getFilteredOptions();
+
+  const renderFlatOptions = (flatOptions: (TOption<T> & TOptionExt)[]) => (
+    flatOptions.map((option) => (
+      <button
+        key={JSON.stringify(option.value)}
+        className={`
+          ${styles.optionItem || ''} 
+          ${isSelected(option) ? styles.selectedOption || '' : ''}`
+        }
+        onClick={(e) => handleSelect(option, e)}
+      >
+        <div className={styles.optionContent}>{renderOptions(option, false)}</div>
+      </button>
+    ))
   );
+
+  const renderGroupedOptions = (groupedOptions: TGroupedOption<T, TExtra, TOptionExt>[]) => (
+    groupedOptions.map((group) => (
+      <div key={group.label} className={styles.group}>
+        <div className={styles.groupHeader}>
+          {renderGroupHeader ? renderGroupHeader(group) : <span>{group.label}</span>}
+        </div>
+        {group.options.map((option) => (
+          <button
+            key={JSON.stringify(option.value)}
+            type="button"
+            className={`${styles.optionItem || ''} ${isSelected(option) ? styles.selectedOption || '' : ''}`}
+            onClick={(e) => handleSelect(option, e)}
+          >
+            <div className={styles.optionContent}>{renderOptions(option, false)}</div>
+          </button>
+        ))}
+      </div>
+    ))
+  );
+
+  const hasResults = isGrouped
+    ? (filteredOptions as TGroupedOption<T, TExtra, TOptionExt>[]).length > 0
+    : (filteredOptions as (TOption<T> & TOptionExt)[]).length > 0;
 
   return (
     <div className={styles.dropdownContainer}>
@@ -147,21 +209,10 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
             </div>
 
             <div className={styles.optionsList}>
-              {filteredOptions.length > 0 ? (
-                filteredOptions.map((option) => (
-                  <button
-                    key={JSON.stringify(option.value)}
-                    className={`
-                    ${styles.optionItem || ''} 
-                    ${isSelected(option) ?
-                    styles.selectedOption || ''
-                    : ''}`
-                    }
-                    onClick={(e) => handleSelect(option, e)}
-                  >
-                    <div className={styles.optionContent}>{renderOptions(option, false)}</div>
-                  </button>
-                ))
+              {hasResults ? (
+                isGrouped
+                  ? renderGroupedOptions(filteredOptions as TGroupedOption<T, TExtra, TOptionExt>[])
+                  : renderFlatOptions(filteredOptions as (TOption<T> & TOptionExt)[])
               ) : (
                 <div className={styles.noOptions}>{t('generic.noOptions')}</div>
               )}
