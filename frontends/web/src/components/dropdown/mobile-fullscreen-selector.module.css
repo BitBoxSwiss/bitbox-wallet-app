@@ -59,13 +59,13 @@
     border: none;
     color: var(--color-default);
     cursor: pointer;
-    padding-left: 0;
     margin-right: var(--space-quarter);
+    padding-left: 0;
 }
 
 .backButtonIcon {
-    width: 24px;
     height: 24px;
+    width: 24px;
 }
 
 .fullscreenTitle {
@@ -92,11 +92,11 @@ input.searchInput {
     background-color: var(--background-secondary);
     border: 1px solid var(--background-secondary);
     border-radius: 4px;
-    height: auto;
     color: var(--color-default);
     font-size: var(--size-default);
-    width: 100%;
+    height: auto;
     padding: var(--space-quarter) var(--space-half);
+    width: 100%;
 }
 
 input.searchInput:focus {
@@ -107,6 +107,18 @@ input.searchInput:focus {
     flex: 1;
     overflow-y: auto;
     padding: 0;
+}
+
+.group {
+    padding-bottom: var(--space-quarter);
+}
+
+.groupHeader {
+    align-items: center;
+    display: flex;
+    font-weight: 500;
+    padding: var(--space-half);
+    padding-bottom: var(--space-quarter);
 }
 
 .optionItem {
@@ -123,6 +135,10 @@ input.searchInput:focus {
     width: 100%;
 }
 
+.optionItem:hover {
+    background-color: var(--background-custom-select-hover);
+}
+
 .selectedOption {
     background-color: var(--background-custom-select-selected);
 }
@@ -132,10 +148,10 @@ input.searchInput:focus {
 }
 
 .noOptions {
-    padding: var(--space-half);
-    text-align: center;
     color: var(--color-secondary);
     font-size: var(--size-default);
+    padding: var(--space-half);
+    text-align: center;
 }
 
 @media screen and (max-width: 560px) {
