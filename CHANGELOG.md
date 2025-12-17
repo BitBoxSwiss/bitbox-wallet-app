@@ -16,6 +16,7 @@
 - Add icons for CTA and action buttons in account page
 - Restructure "Manage device" tab in settings
 - Responsive account selector (Marketplace)
+- Revamp Marketplace UI
 
 ## v4.49.0
 - Bundle BitBox02 Nova firmware version v9.24.0

@@ -73,7 +73,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
           className={style.button}
           disabled={!accountDataLoaded}
           primary
-          to={`/market/info/${code}`}
+          to={`/market/select/${code}`}
         >
           <Coins width={17} height={17} />
           <span>{t('generic.buySell')}</span>
