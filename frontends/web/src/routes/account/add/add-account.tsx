@@ -14,7 +14,7 @@ import { CoinDropDown } from './components/coin-dropdown';
 import { Check } from '@/components/icon/icon';
 import { AddAccountGuide } from './add-account-guide';
 import { addAccount, CoinCode, TAddAccount, TAccount } from '@/api/account';
-import styles from './add.module.css';
+import styles from './add-account.module.css';
 
 type TAddAccountGuide = {
   accounts: TAccount[];
