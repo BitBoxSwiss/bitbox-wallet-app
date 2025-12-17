@@ -5,17 +5,18 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import * as backendAPI from '@/api/backend';
 import * as keystoresAPI from '@/api/keystores';
+import { addAccount, CoinCode, TAddAccount, TAccount } from '@/api/account';
 import { SimpleMarkup } from '@/utils/markup';
-import { View, ViewContent } from '@/components/view/view';
+import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
 import { Button, Input } from '@/components/forms';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Step, Steps } from './components/steps';
 import { CoinDropDown } from './components/coin-dropdown';
-import { Check } from '@/components/icon/icon';
 import { AddAccountGuide } from './add-account-guide';
-import { addAccount, CoinCode, TAddAccount, TAccount } from '@/api/account';
+import { SubTitle } from '@/components/title';
 import styles from './add-account.module.css';
+import { useMediaQuery } from '@/hooks/mediaquery';
 
 type TAddAccountGuide = {
   accounts: TAccount[];
@@ -146,6 +147,7 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
       return (
         <Input
           autoFocus
+          className={styles.accountNameInput}
           ref={inputRef}
           id="accountName"
           onInput={e => setAccountName(e.target.value)}
@@ -153,13 +155,10 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
       );
     case 'success':
       return (
-        <div className="text-center">
-          <Check className={styles.successCheck} /><br />
-          <SimpleMarkup
-            className={styles.successMessage}
-            markup={t('addAccount.success.message', { accountName })}
-            tagName="p" />
-        </div>
+        <SimpleMarkup
+          className={styles.successMessage}
+          markup={t('addAccount.success.message', { accountName })}
+          tagName="p" />
       );
     }
   };
@@ -198,28 +197,40 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
     'choose-name',
     'success'
   ].indexOf(step);
+
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const { titleText, nextButtonText } = getTextFor(step);
   return (
     <Main>
       <GuideWrapper>
         <GuidedContent>
           <Header title={<h2>{t('manageAccounts.title')}</h2>} />
-          <View width="var(--content-width-larger)" verticallyCentered fitContent>
-            <ViewContent fullWidth>
-              <form
-                className={`${styles.manageContainer || ''} box larger flex flex-column flex-between`}
-                onSubmit={next}>
-                <div className="text-center">
-                  {t('addAccount.title')}
-                  <h1 className={styles.title}>{titleText}</h1>
-                </div>
-                <div className="row" hidden={!errorMessage}>
-                  <Message type="warning">{errorMessage}</Message>
-                </div>
-                <div className="row">
+          <View
+            fitContent
+            textCenter
+            verticallyCentered={!isMobile}
+            width="var(--content-width-small)">
+            <ViewHeader title={
+              <p>{t('addAccount.title')}</p>
+            }>
+              <SubTitle className={styles.title}>
+                {titleText}
+              </SubTitle>
+            </ViewHeader>
+            <form
+              className={styles.manageContainer}
+              onSubmit={next}>
+              <ViewContent
+                minHeight="50px"
+                textAlign="center"
+                withIcon={step === 'success' ? 'success' : undefined}>
+                <div className={styles.content}>
+                  <Message type="warning" hidden={!errorMessage}>
+                    {errorMessage}
+                  </Message>
                   {renderContent()}
                 </div>
-                <div className="row">
+                {(step !== 'success') && (
                   <Steps current={currentStep}>
                     <Step key="select-coin" hidden={onlyOneSupportedCoin()}>
                       {t('addAccount.selectCoin.step')}
@@ -231,32 +242,33 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
                       {t('addAccount.success.step')}
                     </Step>
                   </Steps>
-                </div>
-                <div className={styles.buttonsContainer} style={{ flexDirection: 'row-reverse' }}>
-                  <Button
-                    disabled={
-                      (step === 'select-coin' && coinCode === 'choose')
-                      || (step === 'choose-name' && (accountName === '' || adding))
-                    }
-                    primary
-                    type="submit">
-                    {nextButtonText}
-                  </Button>
-                  <Button
-                    onClick={back}
-                    hidden={step === 'success'}
-                    secondary>
-                    {t('button.back')}
-                  </Button>
+                )}
+              </ViewContent>
+              <ViewButtons>
+                <Button
+                  disabled={
+                    (step === 'select-coin' && coinCode === 'choose')
+                    || (step === 'choose-name' && (accountName === '' || adding))
+                  }
+                  primary
+                  type="submit">
+                  {nextButtonText}
+                </Button>
+                {step === 'success' ? (
                   <Button
                     onClick={handleAddAnotherAccount}
-                    hidden={step !== 'success'}
                     secondary>
                     {t('addAccount.success.addAnotherAccount')}
                   </Button>
-                </div>
-              </form>
-            </ViewContent>
+                ) : (
+                  <Button
+                    onClick={back}
+                    secondary>
+                    {t('button.back')}
+                  </Button>
+                )}
+              </ViewButtons>
+            </form>
           </View>
         </GuidedContent>
         <AddAccountGuide accounts={accounts} />

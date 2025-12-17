@@ -1,19 +1,27 @@
 .manageContainer {
+    display: flex;
+    flex-basis: 100%;
+    flex-direction: column;
+    flex-grow: 1;
     flex-shrink: 1;
-    margin-bottom: var(--header-height);
-    min-height: 490px;
-    max-height: 100%;
 }
 
 .title {
-    font-size: var(--size-large);
+    color: var(--color-default);
+    font-size: var(--size-large) !important;
     font-weight: 400;
 }
 
-.successCheck {
-    background-color: var(--color-success);
-    border: 8px solid var(--color-success);
-    border-radius: 100px;
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+    justify-content: space-between;
+    min-height: 90px;
+}
+
+.accountNameInput {
+    margin-bottom: 0;
 }
 
 .successMessage {
@@ -29,28 +37,3 @@
         margin-left: var(--space-quarter);
     }
 }
-
-
-.buttonsContainer {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap; 
-    justify-content: space-between;
-  }
-  
-  @media (max-width: 560px) {
-    .buttonsContainer {
-      flex-direction: column; 
-    }
-
-    .buttonsContainer button {
-        width: 100%; 
-        max-width: none; 
-        margin-top: 16px;
-    }
-
-    .buttonsContainer button:first-child {
-        margin-top: 0;
-      }
-  }
-  
