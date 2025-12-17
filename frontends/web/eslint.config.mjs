@@ -3,6 +3,11 @@ import tseslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import stylistic from '@stylistic/eslint-plugin';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default tseslint.config(
   {
@@ -96,7 +101,7 @@ export default tseslint.config(
     'languageOptions': {
       parserOptions: {
         project: true,
-        tsconfigRootDir: './',
+        tsconfigRootDir: __dirname,
       }
     }
   },
