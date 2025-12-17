@@ -6,9 +6,10 @@ import { useTranslation } from 'react-i18next';
 import * as backendAPI from '@/api/backend';
 import * as keystoresAPI from '@/api/keystores';
 import { SimpleMarkup } from '@/utils/markup';
+import { View, ViewContent } from '@/components/view/view';
 import { Message } from '@/components/message/message';
 import { Button, Input } from '@/components/forms';
-import { Header } from '@/components/layout';
+import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Step, Steps } from './components/steps';
 import { CoinDropDown } from './components/coin-dropdown';
 import { Check } from '@/components/icon/icon';
@@ -199,65 +200,67 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
   ].indexOf(step);
   const { titleText, nextButtonText } = getTextFor(step);
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer scrollableContainer">
+    <Main>
+      <GuideWrapper>
+        <GuidedContent>
           <Header title={<h2>{t('manageAccounts.title')}</h2>} />
-          <div className="content larger isVerticallyCentered">
-            <form
-              className={`${styles.manageContainer || ''} box larger flex flex-column flex-between`}
-              onSubmit={next}>
-              <div className="text-center">
-                {t('addAccount.title')}
-                <h1 className={styles.title}>{titleText}</h1>
-              </div>
-              <div className="row" hidden={!errorMessage}>
-                <Message type="warning">{errorMessage}</Message>
-              </div>
-              <div className="row">
-                {renderContent()}
-              </div>
-              <div className="row">
-                <Steps current={currentStep}>
-                  <Step key="select-coin" hidden={onlyOneSupportedCoin()}>
-                    {t('addAccount.selectCoin.step')}
-                  </Step>
-                  <Step key="choose-name">
-                    {t('addAccount.chooseName.step')}
-                  </Step>
-                  <Step key="success">
-                    {t('addAccount.success.step')}
-                  </Step>
-                </Steps>
-              </div>
-              <div className={styles.buttonsContainer} style={{ flexDirection: 'row-reverse' }}>
-                <Button
-                  disabled={
-                    (step === 'select-coin' && coinCode === 'choose')
-                    || (step === 'choose-name' && (accountName === '' || adding))
-                  }
-                  primary
-                  type="submit">
-                  {nextButtonText}
-                </Button>
-                <Button
-                  onClick={back}
-                  hidden={step === 'success'}
-                  secondary>
-                  {t('button.back')}
-                </Button>
-                <Button
-                  onClick={handleAddAnotherAccount}
-                  hidden={step !== 'success'}
-                  secondary>
-                  {t('addAccount.success.addAnotherAccount')}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <AddAccountGuide accounts={accounts} />
-    </div>
+          <View width="var(--content-width-larger)" verticallyCentered fitContent>
+            <ViewContent fullWidth>
+              <form
+                className={`${styles.manageContainer || ''} box larger flex flex-column flex-between`}
+                onSubmit={next}>
+                <div className="text-center">
+                  {t('addAccount.title')}
+                  <h1 className={styles.title}>{titleText}</h1>
+                </div>
+                <div className="row" hidden={!errorMessage}>
+                  <Message type="warning">{errorMessage}</Message>
+                </div>
+                <div className="row">
+                  {renderContent()}
+                </div>
+                <div className="row">
+                  <Steps current={currentStep}>
+                    <Step key="select-coin" hidden={onlyOneSupportedCoin()}>
+                      {t('addAccount.selectCoin.step')}
+                    </Step>
+                    <Step key="choose-name">
+                      {t('addAccount.chooseName.step')}
+                    </Step>
+                    <Step key="success">
+                      {t('addAccount.success.step')}
+                    </Step>
+                  </Steps>
+                </div>
+                <div className={styles.buttonsContainer} style={{ flexDirection: 'row-reverse' }}>
+                  <Button
+                    disabled={
+                      (step === 'select-coin' && coinCode === 'choose')
+                      || (step === 'choose-name' && (accountName === '' || adding))
+                    }
+                    primary
+                    type="submit">
+                    {nextButtonText}
+                  </Button>
+                  <Button
+                    onClick={back}
+                    hidden={step === 'success'}
+                    secondary>
+                    {t('button.back')}
+                  </Button>
+                  <Button
+                    onClick={handleAddAnotherAccount}
+                    hidden={step !== 'success'}
+                    secondary>
+                    {t('addAccount.success.addAnotherAccount')}
+                  </Button>
+                </div>
+              </form>
+            </ViewContent>
+          </View>
+        </GuidedContent>
+        <AddAccountGuide accounts={accounts} />
+      </GuideWrapper>
+    </Main>
   );
 };
