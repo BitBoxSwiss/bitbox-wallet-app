@@ -161,6 +161,7 @@ export const FeeTargets = ({
             <>
               <label>{t('send.priority')}</label>
               <Dropdown
+                isSearchable={false}
                 className={style.priority}
                 renderOptions={renderOption}
                 onChange={(newValue) => {
