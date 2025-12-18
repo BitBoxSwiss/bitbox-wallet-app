@@ -12,7 +12,7 @@ import { Message } from '@/components/message/message';
 import { Button, Input } from '@/components/forms';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Step, Steps } from './components/steps';
-import { CoinDropDown } from './components/coin-dropdown';
+import { CoinDropDown } from '@/components/dropdown/coin-dropdown';
 import { AddAccountGuide } from './add-account-guide';
 import { SubTitle } from '@/components/title';
 import styles from './add-account.module.css';
