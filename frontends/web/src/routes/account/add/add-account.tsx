@@ -13,10 +13,11 @@ import { Button, Input } from '@/components/forms';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Step, Steps } from '@/components/steps/steps';
 import { CoinDropDown } from '@/components/dropdown/coin-dropdown';
-import { AddAccountGuide } from './add-account-guide';
 import { SubTitle } from '@/components/title';
-import styles from './add-account.module.css';
 import { useMediaQuery } from '@/hooks/mediaquery';
+import { UseBackButton } from '@/hooks/backbutton';
+import { AddAccountGuide } from './add-account-guide';
+import styles from './add-account.module.css';
 
 type TAddAccountGuide = {
   accounts: TAccount[];
@@ -145,13 +146,19 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
       );
     case 'choose-name':
       return (
-        <Input
-          autoFocus
-          className={styles.accountNameInput}
-          ref={inputRef}
-          id="accountName"
-          onInput={e => setAccountName(e.target.value)}
-          value={accountName} />
+        <>
+          <UseBackButton handler={() => {
+            back();
+            return false;
+          }} />
+          <Input
+            autoFocus
+            className={styles.accountNameInput}
+            ref={inputRef}
+            id="accountName"
+            onInput={e => setAccountName(e.target.value)}
+            value={accountName} />
+        </>
       );
     case 'success':
       return (
