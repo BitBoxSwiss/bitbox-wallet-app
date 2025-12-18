@@ -20,13 +20,87 @@ import { AddAccountGuide } from './add-account-guide';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import styles from './add-account.module.css';
 
-type TAddAccountGuide = {
+type TStep = 'loading' | 'select-coin' | 'choose-name' | 'success';
+
+type TAddAccountContentProps = {
+  accountName: string;
+  coinCode: CoinCode | 'choose';
+  handleBack: () => void;
+  onAccountNameInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onCoinChange: (coin: backendAPI.TCoin) => void;
+  step: TStep;
+  supportedCoins: backendAPI.TCoin[];
+};
+
+const AddAccountSteps = ({
+  accountName,
+  coinCode,
+  handleBack,
+  onAccountNameInput,
+  onCoinChange,
+  step,
+  supportedCoins,
+}: TAddAccountContentProps) => {
+  const { t } = useTranslation();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (step === 'choose-name') {
+      inputRef.current?.focus();
+    }
+  }, [step]);
+
+  switch (step) {
+  case 'loading':
+    return (
+      <Skeleton fontSize="4rem" />
+    );
+  case 'select-coin':
+    if (supportedCoins.length === 0) {
+      return (
+        <Message type="info">
+          {t('connectKeystore.promptNoName')}
+        </Message>
+      );
+    }
+    return (
+      <CoinDropDown
+        onChange={onCoinChange}
+        supportedCoins={supportedCoins}
+        value={coinCode} />
+    );
+  case 'choose-name':
+    return (
+      <>
+        <UseBackButton handler={() => {
+          handleBack();
+          return false;
+        }} />
+        <Input
+          autoFocus
+          className={styles.accountNameInput}
+          ref={inputRef}
+          id="accountName"
+          onInput={onAccountNameInput}
+          value={accountName} />
+      </>
+    );
+  case 'success':
+    return (
+      <SimpleMarkup
+        className={styles.successMessage}
+        markup={t('addAccount.success.message', { accountName })}
+        tagName="p" />
+    );
+  }
+};
+
+type TAddAccountProps = {
   accounts: TAccount[];
 };
 
-type TStep = 'loading' | 'select-coin' | 'choose-name' | 'success';
-
-export const AddAccount = ({ accounts }: TAddAccountGuide) => {
+export const AddAccount = ({ accounts }: TAddAccountProps) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [accountCode, setAccountCode] = useState<string>();
   const [accountName, setAccountName] = useState('');
@@ -35,16 +109,6 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
   const [step, setStep] = useState<TStep>('select-coin');
   const [supportedCoins, setSupportedCoins] = useState<backendAPI.TCoin[]>([]);
   const [adding, setAdding] = useState(false);
-
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    if (step === 'choose-name') {
-      inputRef.current?.focus();
-    }
-  }, [step]);
 
   const onlyOneSupportedCoin = (): boolean => {
     return supportedCoins.length === 1;
@@ -63,7 +127,6 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
         if (onlyOneCoinIsSupported) {
           setAccountName(firstCoin.suggestedAccountName);
         }
-        inputRef.current?.focus();
       }
     } catch (err) {
       console.error(err);
@@ -125,55 +188,6 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
         navigate(`/account/${accountCode}`);
       }
       break;
-    }
-  };
-
-  const renderContent = () => {
-    switch (step) {
-    case 'loading':
-      return (
-        <Skeleton fontSize="4rem" />
-      );
-    case 'select-coin':
-      if (supportedCoins.length === 0) {
-        return (
-          <Message type="info">
-            {t('connectKeystore.promptNoName')}
-          </Message>
-        );
-      }
-      return (
-        <CoinDropDown
-          onChange={coin => {
-            setCoinCode(coin.coinCode);
-            setAccountName(coin.suggestedAccountName);
-          }}
-          supportedCoins={supportedCoins}
-          value={coinCode} />
-      );
-    case 'choose-name':
-      return (
-        <>
-          <UseBackButton handler={() => {
-            back();
-            return false;
-          }} />
-          <Input
-            autoFocus
-            className={styles.accountNameInput}
-            ref={inputRef}
-            id="accountName"
-            onInput={e => setAccountName(e.target.value)}
-            value={accountName} />
-        </>
-      );
-    case 'success':
-      return (
-        <SimpleMarkup
-          className={styles.successMessage}
-          markup={t('addAccount.success.message', { accountName })}
-          tagName="p" />
-      );
     }
   };
 
@@ -247,9 +261,19 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
                   <Message type="warning" hidden={!errorMessage}>
                     {errorMessage}
                   </Message>
-                  {renderContent()}
+                  <AddAccountSteps
+                    accountName={accountName}
+                    coinCode={coinCode}
+                    handleBack={back}
+                    onAccountNameInput={e => setAccountName(e.target.value)}
+                    onCoinChange={coin => {
+                      setCoinCode(coin.coinCode);
+                      setAccountName(coin.suggestedAccountName);
+                    }}
+                    step={step}
+                    supportedCoins={supportedCoins} />
                 </div>
-                {(step !== 'success') && (
+                {(step !== 'success' && step !== 'loading') && (
                   <Steps current={currentStep}>
                     <Step key="select-coin" hidden={onlyOneSupportedCoin()}>
                       {t('addAccount.selectCoin.step')}
