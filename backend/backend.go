@@ -5,7 +5,6 @@ package backend
 import (
 	"encoding/hex"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -1089,28 +1088,20 @@ func (backend *Backend) ExportLogs() error {
 	}
 	backend.log.Infof("Export logs to %s.", path)
 
-	file, err := os.Create(path)
+	exportFile, err := os.Create(path)
 	if err != nil {
 		backend.log.WithError(err).Error("error creating new log file")
 		return err
 	}
 	logFilePath := filepath.Join(utilConfig.AppDir(), "log.txt")
 
-	existingLogFile, err := os.Open(logFilePath)
-	if err != nil {
-		backend.log.WithError(err).Error("error opening existing log file")
+	if err := logging.WriteCombinedLog(exportFile, logFilePath); err != nil {
+		backend.log.WithError(err).Error("error copying existing logs to new file")
+		_ = exportFile.Close()
 		return err
 	}
-
-	defer func() {
-		if err := existingLogFile.Close(); err != nil {
-			backend.log.WithError(err).Error("error closing existing log file")
-		}
-	}()
-
-	_, err = io.Copy(file, existingLogFile)
-	if err != nil {
-		backend.log.WithError(err).Error("error copying existing log to new file")
+	if err := exportFile.Close(); err != nil {
+		backend.log.WithError(err).Error("error closing new log file")
 		return err
 	}
 	backend.log.Infof("Exported logs copied to %s.", path)
