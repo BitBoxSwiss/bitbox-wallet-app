@@ -17,13 +17,14 @@ import { SubTitle } from '@/components/title';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { UseBackButton } from '@/hooks/backbutton';
 import { AddAccountGuide } from './add-account-guide';
+import { Skeleton } from '@/components/skeleton/skeleton';
 import styles from './add-account.module.css';
 
 type TAddAccountGuide = {
   accounts: TAccount[];
 };
 
-type TStep = 'select-coin' | 'choose-name' | 'success';
+type TStep = 'loading' | 'select-coin' | 'choose-name' | 'success';
 
 export const AddAccount = ({ accounts }: TAddAccountGuide) => {
   const navigate = useNavigate();
@@ -51,6 +52,7 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
 
   const startProcess = useCallback(async () => {
     try {
+      setStep('loading');
       const coins = await backendAPI.getSupportedCoins();
       const onlyOneCoinIsSupported = (coins.length === 1);
       const firstCoin = coins[0];
@@ -79,6 +81,7 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
 
   const back = () => {
     switch (step) {
+    case 'loading':
     case 'select-coin':
       navigate(-1);
       break;
@@ -127,6 +130,10 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
 
   const renderContent = () => {
     switch (step) {
+    case 'loading':
+      return (
+        <Skeleton fontSize="4rem" />
+      );
     case 'select-coin':
       if (supportedCoins.length === 0) {
         return (
@@ -172,6 +179,11 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
 
   const getTextFor = (step: TStep) => {
     switch (step) {
+    case 'loading':
+      return {
+        titleText: t('loading'),
+        nextButtonText: t('loading'),
+      };
     case 'select-coin':
       return {
         titleText: t('addAccount.selectCoin.title'),
@@ -254,7 +266,8 @@ export const AddAccount = ({ accounts }: TAddAccountGuide) => {
               <ViewButtons>
                 <Button
                   disabled={
-                    (step === 'select-coin' && coinCode === 'choose')
+                    step === 'loading'
+                    || (step === 'select-coin' && coinCode === 'choose')
                     || (step === 'choose-name' && (accountName === '' || adding))
                   }
                   primary

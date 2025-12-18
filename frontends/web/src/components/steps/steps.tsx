@@ -7,13 +7,19 @@ import style from './steps.module.css';
 type TStepsProps = {
   current: number;
   children: ReactNode;
+  hidden?: boolean;
 };
 
 export const Steps = ({
   current,
-  children
+  children,
+  hidden,
 }: TStepsProps) => {
-  let childrens = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement[];
+  const childrens = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement[];
+  if (hidden) {
+    return null;
+  }
+
   return (
     <div className={style.steps}>
       { childrens
