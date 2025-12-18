@@ -3,8 +3,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import * as backendAPI from '@/api/backend';
-import * as keystoresAPI from '@/api/keystores';
+import { TCoin, getSupportedCoins } from '@/api/backend';
+import { subscribeKeystores } from '@/api/keystores';
 import { addAccount, CoinCode, TAddAccount, TAccount } from '@/api/account';
 import { SimpleMarkup } from '@/utils/markup';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
@@ -27,9 +27,9 @@ type TAddAccountContentProps = {
   coinCode: CoinCode | 'choose';
   handleBack: () => void;
   onAccountNameInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onCoinChange: (coin: backendAPI.TCoin) => void;
+  onCoinChange: (coin: TCoin) => void;
   step: TStep;
-  supportedCoins: backendAPI.TCoin[];
+  supportedCoins: TCoin[];
 };
 
 const AddAccountSteps = ({
@@ -107,7 +107,7 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
   const [coinCode, setCoinCode] = useState<'choose' | CoinCode>('choose');
   const [errorMessage, setErrorMessage] = useState<string>();
   const [step, setStep] = useState<TStep>('select-coin');
-  const [supportedCoins, setSupportedCoins] = useState<backendAPI.TCoin[]>([]);
+  const [supportedCoins, setSupportedCoins] = useState<TCoin[]>([]);
   const [adding, setAdding] = useState(false);
 
   const onlyOneSupportedCoin = (): boolean => {
@@ -117,7 +117,7 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
   const startProcess = useCallback(async () => {
     try {
       setStep('loading');
-      const coins = await backendAPI.getSupportedCoins();
+      const coins = await getSupportedCoins();
       const onlyOneCoinIsSupported = (coins.length === 1);
       const firstCoin = coins[0];
       if (firstCoin) {
@@ -136,7 +136,7 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
   useEffect(() => {
     startProcess();
 
-    const unsubscribe = keystoresAPI.subscribeKeystores(() => {
+    const unsubscribe = subscribeKeystores(() => {
       startProcess();
     });
     return unsubscribe;
