@@ -148,7 +148,7 @@ const Sidebar = ({
             <div key="market" className={style.sidebarItem}>
               <NavLink
                 className={({ isActive }) => isActive || userInSpecificAccountMarketPage ? style.sidebarActive : ''}
-                to="/market/info">
+                to="/market/select">
                 <div className={style.single}>
                   <Coins />
                 </div>

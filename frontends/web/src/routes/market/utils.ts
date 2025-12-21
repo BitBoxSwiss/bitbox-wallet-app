@@ -20,6 +20,8 @@ export const getVendorFormattedName = (
     return 'BTC Direct\'s Private Trading Desk';
   case 'bitrefill':
     return 'Bitrefill';
+  case 'swapkit':
+    return 'Swapkit';
   }
 };
 

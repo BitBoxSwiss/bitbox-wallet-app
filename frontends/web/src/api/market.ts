@@ -17,7 +17,7 @@ export type TMarketDeal = {
   isHidden: boolean;
 };
 
-export type TVendorName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc' | 'bitrefill';
+export type TVendorName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc' | 'bitrefill' | 'swapkit';
 
 export type TMarketDeals = {
   vendorName: TVendorName;
@@ -37,10 +37,26 @@ export type TMarketError = {
 
 export type TMarketDealsResponse = TMarketDealsList | TMarketError;
 
-export type TMarketAction = 'buy' | 'sell' | 'spend';
+export type TMarketAction = 'buy' | 'sell' | 'spend' | 'swap';
 
 export const getMarketDeals = (action: TMarketAction, accountCode: AccountCode, region: string): Promise<TMarketDealsResponse> => {
   return apiGet(`market/deals/${action}/${accountCode}?region=${region}`);
+};
+
+// TODO: implement in backend
+export const getSwapDeals = (): Promise<TMarketDealsResponse> => {
+  return Promise.resolve({
+    success: true,
+    deals: [{
+      vendorName: 'swapkit',
+      deals: [{
+        fee: 0,
+        isFast: false,
+        isBest: false,
+        isHidden: false,
+      }]
+    }]
+  });
 };
 
 export type MoonpayBuyInfo = {

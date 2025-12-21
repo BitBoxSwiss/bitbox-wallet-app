@@ -36,6 +36,12 @@ export const MarketTab = ({
       >
         {t('buy.exchange.spend')}
       </PillButton>
+      <PillButton
+        active={activeTab === 'swap'}
+        onClick={() => onChangeTab('swap')}
+      >
+        {t('generic.swap')}
+      </PillButton>
     </PillButtonGroup>
   );
 };

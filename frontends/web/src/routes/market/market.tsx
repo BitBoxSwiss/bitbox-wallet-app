@@ -24,6 +24,8 @@ import { getNativeLocale } from '@/api/nativelocale';
 import { getConfig, setConfig } from '@/utils/config';
 import { CountrySelect, TOption } from './components/countryselect';
 import { InfoContent, TInfoContentProps } from './components/infocontent';
+import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
+import { connectKeystore } from '@/api/keystores';
 import style from './market.module.css';
 
 type TProps = {
@@ -37,6 +39,7 @@ export const Market = ({
 }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [selectedAccount, setSelectedAccount] = useState<string>(code);
   const [selectedRegion, setSelectedRegion] = useState('');
   const [regions, setRegions] = useState<TOption[]>([]);
   const [info, setInfo] = useState<TInfoContentProps>();
@@ -53,8 +56,13 @@ export const Market = ({
 
   // get the list of accounts supported by vendors, needed to correctly handle back button.
   useEffect(() => {
-    getVendorSupportedAccounts(accounts).then(setSupportedAccounts);
-  }, [accounts]);
+    getVendorSupportedAccounts(accounts).then(vendorSupportedAccounts => {
+      setSupportedAccounts(vendorSupportedAccounts);
+      if (!selectedAccount && vendorSupportedAccounts.length > 0) {
+        setSelectedAccount(vendorSupportedAccounts[0]?.code || '');
+      }
+    });
+  }, [accounts, selectedAccount]);
 
   // update region Select component when `regionList` or `config` gets populated.
   useEffect(() => {
@@ -89,10 +97,22 @@ export const Market = ({
     setSelectedRegion(regionAvailable ? userRegion : '');
   }, [regionCodes, config, nativeLocale]);
 
-  const buyDealsResponse = useLoad(() => marketAPI.getMarketDeals('buy', code, selectedRegion), [code, selectedRegion]);
-  const sellDealsResponse = useLoad(() => marketAPI.getMarketDeals('sell', code, selectedRegion), [code, selectedRegion]);
-  const spendDealsResponse = useLoad(() => marketAPI.getMarketDeals('spend', code, selectedRegion), [code, selectedRegion]);
-  const btcDirectOTCSupported = useLoad(marketAPI.getBtcDirectOTCSupported(code, selectedRegion), [code, selectedRegion]);
+  const buyDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('buy', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
+  const sellDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('sell', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
+  const spendDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('spend', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
+  const btcDirectOTCSupported = useLoad(selectedAccount ? marketAPI.getBtcDirectOTCSupported(selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
+  const swapDealsResponse = useLoad(marketAPI.getSwapDeals);
+
+  const handleAccountChange = async (accountCode: string) => {
+    const account = supportedAccounts.find(acc => acc.code === accountCode);
+    if (!account) {
+      return;
+    }
+    const connectResult = await connectKeystore(account.keystore.rootFingerprint);
+    if (connectResult.success) {
+      setSelectedAccount(accountCode);
+    }
+  };
 
   // catch edge to change to spend tab for regions that dont have any buy or sell offerings
   useEffect(() => {
@@ -115,6 +135,21 @@ export const Market = ({
       return sellDealsResponse;
     case 'spend':
       return spendDealsResponse;
+    case 'swap':
+      return swapDealsResponse;
+    }
+  };
+
+  const getServicesLabel = (action: marketAPI.TMarketAction) => {
+    switch (action) {
+    case 'buy':
+      return t('buy.exchange.buyServices');
+    case 'sell':
+      return t('buy.exchange.sellServices');
+    case 'spend':
+      return t('buy.exchange.spendServices');
+    case 'swap':
+      return t('buy.exchange.swapServices');
     }
   };
 
@@ -122,7 +157,14 @@ export const Market = ({
     if (!vendor) {
       return;
     }
-    navigate(`/market/${vendor}/${activeTab}/${code}/${selectedRegion}`);
+    if (activeTab === 'swap') {
+      navigate('/market/swap');
+      return;
+    }
+    if (!selectedAccount) {
+      return;
+    }
+    navigate(`/market/${vendor}/${activeTab}/${selectedAccount}/${selectedRegion}`);
   };
 
   const handleChangeRegion = (newValue: SingleValue<TOption>) => {
@@ -161,36 +203,53 @@ export const Market = ({
               ) : title}
             </h2>
           } />
-          <View width="550px" verticallyCentered fitContent fullscreen={false}>
+          <View width="550px" minHeight="695px" verticallyCentered fullscreen={false}>
             <ViewContent fullWidth>
               <div className={style.exchangeContainer}>
-                <label className={style.label}>
-                  {t('buy.exchange.region')}
-                </label>
                 {regions.length ? (
                   <>
-                    <div className={style.selectContainer}>
-                      <CountrySelect
-                        onChangeRegion={handleChangeRegion}
-                        regions={regions}
-                        selectedRegion={selectedRegion}
-                      />
-                      <InfoButton onClick={() => setInfo({
-                        action: activeTab,
-                        vendorName: 'region',
-                        paymentFees: {}
-                      })} />
-                    </div>
                     <MarketTab
                       onChangeTab={setActiveTab}
                       activeTab={activeTab}
                     />
+                    {activeTab !== 'swap' && (
+                      <>
+                        <label className={style.label}>
+                          {t('account.account')}
+                        </label>
+                        <div className={style.selectContainer}>
+                          <GroupedAccountSelector
+                            accounts={supportedAccounts}
+                            selected={selectedAccount}
+                            onChange={handleAccountChange}
+                          />
+                        </div>
+                        <label className={style.label}>
+                          {t('buy.exchange.region')}
+                        </label>
+                        <div className={style.selectContainer}>
+                          <CountrySelect
+                            onChangeRegion={handleChangeRegion}
+                            regions={regions}
+                            selectedRegion={selectedRegion}
+                          />
+                          <InfoButton onClick={() => setInfo({
+                            action: activeTab,
+                            vendorName: 'region',
+                            paymentFees: {}
+                          })} />
+                        </div>
+                      </>
+                    )}
+
                     <div className={style.radioButtonsContainer}>
+                      {(activeTab === 'swap' || !!selectedAccount) && (
+                        <label className={style.label}>{getServicesLabel(activeTab)}</label>
+                      )}
                       <Deals
                         marketDealsResponse={getDealReponse(activeTab)}
                         btcDirectOTCSupported={btcDirectOTCSupported}
                         goToVendor={goToVendor}
-                        showBackButton={supportedAccounts.length > 1}
                         action={activeTab}
                         setInfo={setInfo}
                       />

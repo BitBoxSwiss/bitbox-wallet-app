@@ -425,8 +425,10 @@
       "bankTransfer": "Bank transfer",
       "bestDeal": "Best deal",
       "buy": "Buy",
+      "buyServices": "Buy services",
       "creditCard": "Credit card",
       "description_bitrefill": "Shop gift cards, phone refills & more",
+      "description_swapkit": "Decentralized swapping BTC, ETH, USDT etc",
       "fast": "Fast",
       "fee": "fee",
       "infoContent": {
@@ -618,7 +620,10 @@
       "region": "Region",
       "selectRegion": "Not specified",
       "sell": "Sell",
-      "spend": "Spend"
+      "sellServices": "Sell services",
+      "spend": "Spend",
+      "spendServices": "Spend services",
+      "swapServices": "Swap services"
     },
     "info": {
       "continue": "Agree and continue",

@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import * as marketAPI from '@/api/market';
-import { Button } from '@/components/forms/button';
 import { getBTCDirectOTCLink, TInfoContentProps, TPaymentFee } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { Message } from '@/components/message/message';
@@ -22,7 +21,6 @@ type TProps = {
   marketDealsResponse: marketAPI.TMarketDealsResponse | undefined;
   btcDirectOTCSupported: marketAPI.TBtcDirectResponse | undefined;
   goToVendor: (vendor: string) => void;
-  showBackButton: boolean;
   action: marketAPI.TMarketAction;
   setInfo: (info: TInfoContentProps) => void;
 };
@@ -31,7 +29,6 @@ export const Deals = ({
   marketDealsResponse,
   btcDirectOTCSupported,
   goToVendor,
-  showBackButton,
   action,
   setInfo,
 }: TProps) => {
@@ -40,7 +37,6 @@ export const Deals = ({
 
   const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
   const config = useLoad(getConfig);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (config) {
@@ -122,18 +118,6 @@ export const Deals = ({
           </div>
         )}
       </div>
-      {marketDealsResponse?.success && (
-        <div className={style.buttonsContainer}>
-          {showBackButton && (
-            <Button
-              className={style.buttonBack}
-              secondary
-              onClick={() => navigate('/market/info')}>
-              {t('button.back')}
-            </Button>
-          )}
-        </div>
-      )}
     </>
   );
 };
