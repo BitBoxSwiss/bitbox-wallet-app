@@ -82,7 +82,7 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
       <Header title={<h2>{t('account.accounts')}</h2>}>
         <HideAmountsButton />
       </Header>
-      <View width="700px" fullscreen={false}>
+      <View width="768px" fullscreen={false}>
         <ViewContent>
           <div className={styles.container}>
             {accountsByKeystore.map(keystore => (
