@@ -57,6 +57,8 @@ type Peripheral struct {
 type State struct {
 	// BluetoothAvailable is false if bluetooth is powered off or otherwise unavailable.
 	BluetoothAvailable bool `json:"bluetoothAvailable"`
+	// BluetoothUnauthorized is true if the app does not have permission to use Bluetooth.
+	BluetoothUnauthorized bool `json:"bluetoothUnauthorized"`
 	// Scanning is true if we are currently scanning for peripherals.
 	Scanning    bool          `json:"scanning"`
 	Peripherals []*Peripheral `json:"peripherals"`
