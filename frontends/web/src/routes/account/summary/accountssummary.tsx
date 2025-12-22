@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
+import { getGuideEntry } from '@/utils/i18n-helpers';
 import { TDevices } from '@/api/devices';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import { unsubscribe } from '@/utils/subscriptions';
@@ -209,7 +210,7 @@ export const AccountsSummary = ({
         </Main>
       </GuidedContent>
       <Guide title={t('guide.guideTitle.accountSummary')}>
-        <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription', { returnObjects: true })} />
+        <Entry key="accountSummaryDescription" entry={getGuideEntry(t, 'guide.accountSummaryDescription')} />
         <Entry key="accountSummaryAmount" entry={{
           link: {
             text: 'www.coingecko.com',
@@ -218,7 +219,7 @@ export const AccountsSummary = ({
           text: t('guide.accountSummaryAmount.text'),
           title: t('guide.accountSummaryAmount.title')
         }} />
-        <Entry key="trackingModePortfolioChart" entry={t('guide.trackingModePortfolioChart', { returnObjects: true })} />
+        <Entry key="trackingModePortfolioChart" entry={getGuideEntry(t, 'guide.trackingModePortfolioChart')} />
       </Guide>
     </GuideWrapper>
   );

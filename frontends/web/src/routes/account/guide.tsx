@@ -5,6 +5,7 @@ import { TAccount } from '@/api/account';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { isBitcoinBased } from './utils';
+import { getGuideEntry } from '@/utils/i18n-helpers';
 
 type Props = {
   account: TAccount;
@@ -24,31 +25,28 @@ export const AccountGuide = ({
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.account')}>
-      <Entry key="accountDescription" entry={t('guide.accountDescription', { returnObjects: true })} />
+      <Entry key="accountDescription" entry={getGuideEntry(t, 'guide.accountDescription')} />
       {hasNoBalance && (
-        <Entry key="accountSendDisabled" entry={t('guide.accountSendDisabled', {
-          unit,
-          returnObjects: true
-        })} />
+        <Entry key="accountSendDisabled" entry={getGuideEntry(t, 'guide.accountSendDisabled', { unit })} />
       )}
-      <Entry key="accountReload" entry={t('guide.accountReload', { returnObjects: true })} />
+      <Entry key="accountReload" entry={getGuideEntry(t, 'guide.accountReload')} />
       {hasTransactions && (
-        <Entry key="accountTransactionLabel" entry={t('guide.accountTransactionLabel', { returnObjects: true })} />
+        <Entry key="accountTransactionLabel" entry={getGuideEntry(t, 'guide.accountTransactionLabel')} />
       )}
       {hasTransactions && (
-        <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime', { returnObjects: true })} />
+        <Entry key="accountTransactionTime" entry={getGuideEntry(t, 'guide.accountTransactionTime')} />
       )}
       {hasTransactions && (
-        <Entry key="accountTransactionAttributesGeneric" entry={t('guide.accountTransactionAttributesGeneric', { returnObjects: true })} />
+        <Entry key="accountTransactionAttributesGeneric" entry={getGuideEntry(t, 'guide.accountTransactionAttributesGeneric')} />
       )}
       {hasTransactions && isBitcoinBased(account.coinCode) && (
-        <Entry key="accountTransactionAttributesBTC" entry={t('guide.accountTransactionAttributesBTC', { returnObjects: true })} />
+        <Entry key="accountTransactionAttributesBTC" entry={getGuideEntry(t, 'guide.accountTransactionAttributesBTC')} />
       )}
       {hasIncomingBalance && (
-        <Entry key="accountIncomingBalance" entry={t('guide.accountIncomingBalance', { returnObjects: true })} />
+        <Entry key="accountIncomingBalance" entry={getGuideEntry(t, 'guide.accountIncomingBalance')} />
       )}
-      <Entry key="accountTransactionConfirmation" entry={t('guide.accountTransactionConfirmation', { returnObjects: true })} />
-      <Entry key="accountFiat" entry={t('guide.accountFiat', { returnObjects: true })} />
+      <Entry key="accountTransactionConfirmation" entry={getGuideEntry(t, 'guide.accountTransactionConfirmation')} />
+      <Entry key="accountFiat" entry={getGuideEntry(t, 'guide.accountFiat')} />
 
       { /* careful, also used in Settings */ }
       <Entry key="accountRates" entry={{

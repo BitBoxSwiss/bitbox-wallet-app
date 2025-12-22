@@ -6,6 +6,7 @@ import { SubTitle } from '@/components/title';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
+import { getGuideEntry } from '@/utils/i18n-helpers';
 import { Header } from '@/components/layout';
 import { Backups } from '@/routes/device/bitbox01/backups';
 import { BackupsV2 } from '@/routes/device/bitbox02/backups';
@@ -106,19 +107,19 @@ const ManageBackupGuide = ({
   case 'bitbox':
     return (
       <Guide>
-        <Entry key="guide.backups.whatIsABackup" entry={t('guide.backups.whatIsABackup', { returnObjects: true })} />
-        <Entry key="guide.backups.encrypt" entry={t('guide.backups.encrypt', { returnObjects: true })} />
-        <Entry key="guide.backups.check" entry={t('guide.backups.check', { returnObjects: true })} />
-        <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften', { returnObjects: true })} />
+        <Entry key="guide.backups.whatIsABackup" entry={getGuideEntry(t, 'guide.backups.whatIsABackup')} />
+        <Entry key="guide.backups.encrypt" entry={getGuideEntry(t, 'guide.backups.encrypt')} />
+        <Entry key="guide.backups.check" entry={getGuideEntry(t, 'guide.backups.check')} />
+        <Entry key="guide.backups.howOften" entry={getGuideEntry(t, 'guide.backups.howOften')} />
       </Guide>
     );
   case 'bitbox02':
     return (
       <Guide>
-        <Entry key="guide.backupsBB02.whatIsABackup" entry={t('guide.backupsBB02.whatIsABackup', { returnObjects: true })} />
-        <Entry key="guide.backupsBB02.encrypt" entry={t('guide.backupsBB02.encrypt', { returnObjects: true })} shown={true} />
-        <Entry key="guide.backupsBB02.check" entry={t('guide.backupsBB02.check', { returnObjects: true })} />
-        <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften', { returnObjects: true })} />
+        <Entry key="guide.backupsBB02.whatIsABackup" entry={getGuideEntry(t, 'guide.backupsBB02.whatIsABackup')} />
+        <Entry key="guide.backupsBB02.encrypt" entry={getGuideEntry(t, 'guide.backupsBB02.encrypt')} shown={true} />
+        <Entry key="guide.backupsBB02.check" entry={getGuideEntry(t, 'guide.backupsBB02.check')} />
+        <Entry key="guide.backups.howOften" entry={getGuideEntry(t, 'guide.backups.howOften')} />
       </Guide>
     );
   default:

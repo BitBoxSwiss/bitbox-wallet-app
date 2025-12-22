@@ -4,6 +4,7 @@ import { MouseEventHandler, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
 import { i18n } from '@/i18n/i18n';
+import { getGuideEntry } from '@/utils/i18n-helpers';
 import { ElectrumServers } from './electrum-servers';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
@@ -68,11 +69,11 @@ export const ElectrumSettings = () => {
         </div>
       </div>
       <Guide>
-        <Entry key="guide.settings-electrum.what" entry={t('guide.settings-electrum.what', { returnObjects: true })} />
-        <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why', { returnObjects: true })} />
-        <Entry key="guide.settings-electrum.options" entry={t('guide.settings-electrum.options', { returnObjects: true })} />
-        <Entry key="guide.settings-electrum.connection" entry={t('guide.settings-electrum.connection', { returnObjects: true })} />
-        <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor', { returnObjects: true })} />
+        <Entry key="guide.settings-electrum.what" entry={getGuideEntry(t, 'guide.settings-electrum.what')} />
+        <Entry key="guide.settings-electrum.why" entry={getGuideEntry(t, 'guide.settings-electrum.why')} />
+        <Entry key="guide.settings-electrum.options" entry={getGuideEntry(t, 'guide.settings-electrum.options')} />
+        <Entry key="guide.settings-electrum.connection" entry={getGuideEntry(t, 'guide.settings-electrum.connection')} />
+        <Entry key="guide.settings-electrum.tor" entry={getGuideEntry(t, 'guide.settings-electrum.tor')} />
         <Entry key="guide.settings-electrum.instructions" entry={{
           link: {
             text: t('guide.settings-electrum.instructions.link.text'),

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
+import { getGuideEntry } from '@/utils/i18n-helpers';
 import { View, ViewContent } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './types';
@@ -109,8 +110,8 @@ const AdvancedSettingsGuide = () => {
 
   return (
     <Guide title={t('guide.guideTitle.advancedSettings')}>
-      <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why', { returnObjects: true })} />
-      <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor', { returnObjects: true })} />
+      <Entry key="guide.settings-electrum.why" entry={getGuideEntry(t, 'guide.settings-electrum.why')} />
+      <Entry key="guide.settings-electrum.tor" entry={getGuideEntry(t, 'guide.settings-electrum.tor')} />
     </Guide>
   );
 };

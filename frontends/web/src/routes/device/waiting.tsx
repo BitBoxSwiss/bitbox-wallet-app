@@ -14,6 +14,7 @@ import { Bluetooth } from '@/components/bluetooth/bluetooth';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { Entry } from '@/components/guide/entry';
+import { getGuideEntry } from '@/utils/i18n-helpers';
 import { Guide } from '@/components/guide/guide';
 import { Spinner } from '@/components/spinner/Spinner';
 import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '@/components/icon/logo';
@@ -72,7 +73,7 @@ export const Waiting = () => {
         </Footer>
       </GuidedContent>
       <Guide>
-        <Entry entry={t('guide.waiting.welcome', { returnObjects: true })} shown={true} />
+        <Entry entry={getGuideEntry(t, 'guide.waiting.welcome')} shown={true} />
         { runningInIOS() && (
           <Entry entry={{
             link: {
@@ -101,8 +102,8 @@ export const Waiting = () => {
           text: t('guide.waiting.lostDevice.text'),
           title: t('guide.waiting.lostDevice.title'),
         }} />
-        <Entry entry={t('guide.waiting.internet', { returnObjects: true })} />
-        <Entry entry={t('guide.waiting.useWithoutDevice', { returnObjects: true })} />
+        <Entry entry={getGuideEntry(t, 'guide.waiting.internet')} />
+        <Entry entry={getGuideEntry(t, 'guide.waiting.useWithoutDevice')} />
       </Guide>
     </GuideWrapper>
   );

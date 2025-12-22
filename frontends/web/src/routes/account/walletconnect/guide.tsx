@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
+import { getGuideEntry } from '@/utils/i18n-helpers';
 
 export const WCGuide = () => {
   const { t } = useTranslation();
@@ -10,15 +11,15 @@ export const WCGuide = () => {
     <Guide title={t('guide.guideTitle.walletConnect')}>
       <Entry
         key="guide.walletConnect.whatIsWalletConnect"
-        entry={t('guide.walletConnect.whatIsWalletConnect', { returnObjects: true })}
+        entry={getGuideEntry(t, 'guide.walletConnect.whatIsWalletConnect')}
       />
       <Entry
         key="guide.walletConnect.supportedNetworks"
-        entry={t('guide.walletConnect.supportedNetworks', { returnObjects: true })}
+        entry={getGuideEntry(t, 'guide.walletConnect.supportedNetworks')}
       />
       <Entry
         key="guide.walletConnect.noPreviousConnections"
-        entry={t('guide.walletConnect.noPreviousConnections', { returnObjects: true })}
+        entry={getGuideEntry(t, 'guide.walletConnect.noPreviousConnections')}
       />
     </Guide>
   );

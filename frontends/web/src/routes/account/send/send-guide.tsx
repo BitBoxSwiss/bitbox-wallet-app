@@ -5,6 +5,7 @@ import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { CoinCode } from '@/api/account';
+import { getGuideEntry } from '@/utils/i18n-helpers';
 
 type TProps = {
   coinCode: CoinCode;
@@ -14,18 +15,18 @@ export const SendGuide = ({ coinCode }: TProps) => {
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.send')}>
-      <Entry key="guide.send.whyFee" entry={t('guide.send.whyFee', { returnObjects: true })} />
+      <Entry key="guide.send.whyFee" entry={getGuideEntry(t, 'guide.send.whyFee')} />
       { isBitcoinBased(coinCode) && (
-        <Entry key="guide.send.priority" entry={t('guide.send.priority', { returnObjects: true })} />
+        <Entry key="guide.send.priority" entry={getGuideEntry(t, 'guide.send.priority')} />
       )}
       { isBitcoinBased(coinCode) && (
-        <Entry key="guide.send.fee" entry={t('guide.send.fee', { returnObjects: true })} />
+        <Entry key="guide.send.fee" entry={getGuideEntry(t, 'guide.send.fee')} />
       )}
       { isBitcoinOnly(coinCode) && (
-        <Entry key="guide.send.change" entry={t('guide.send.change', { returnObjects: true })} />
+        <Entry key="guide.send.change" entry={getGuideEntry(t, 'guide.send.change')} />
       )}
-      <Entry key="guide.send.revert" entry={t('guide.send.revert', { returnObjects: true })} />
-      <Entry key="guide.send.plugout" entry={t('guide.send.plugout', { returnObjects: true })} />
+      <Entry key="guide.send.revert" entry={getGuideEntry(t, 'guide.send.revert')} />
+      <Entry key="guide.send.plugout" entry={getGuideEntry(t, 'guide.send.plugout')} />
     </Guide>
   );
 };

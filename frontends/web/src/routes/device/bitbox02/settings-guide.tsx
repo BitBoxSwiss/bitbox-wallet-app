@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { i18n } from '@/i18n/i18n';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
+import { getGuideEntry } from '@/utils/i18n-helpers';
 
 const getLink = () => {
   switch (i18n.resolvedLanguage) {
@@ -20,7 +21,7 @@ export const ManageDeviceGuide = () => {
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.manageDevice')}>
-      <Entry key="whatAreAccounts" entry={t('guide.device.name', { returnObjects: true })} />
+      <Entry key="whatAreAccounts" entry={getGuideEntry(t, 'guide.device.name')} />
       <Entry key="guide.device.secure-chip" entry={{
         link: {
           text: t('guide.device.secure-chip.link.text'),

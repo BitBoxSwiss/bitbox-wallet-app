@@ -9,6 +9,7 @@ import { Message } from '../../../components/message/message';
 import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../components/icon/logo';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
+import { getGuideEntry } from '../../../utils/i18n-helpers';
 import { Header, Footer } from '../../../components/layout';
 import { Spinner } from '../../../components/spinner/Spinner';
 import { withTranslation } from 'react-i18next';
@@ -144,8 +145,8 @@ class Unlock extends Component {
           </div>
         </div>
         <Guide>
-          <Entry key="guide.unlock.forgotDevicePassword" entry={t('guide.unlock.forgotDevicePassword', { returnObjects: true })} />
-          <Entry key="guide.unlock.reset" entry={t('guide.unlock.reset', { returnObjects: true })} />
+          <Entry key="guide.unlock.forgotDevicePassword" entry={getGuideEntry(t, 'guide.unlock.forgotDevicePassword')} />
+          <Entry key="guide.unlock.reset" entry={getGuideEntry(t, 'guide.unlock.reset')} />
         </Guide>
       </div>
     );

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { i18n } from '@/i18n/i18n';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
+import { getGuideEntry } from '@/utils/i18n-helpers';
 
 const getLink = () => {
   switch (i18n.resolvedLanguage) {
@@ -28,11 +29,11 @@ export const BitsuranceGuide = () => {
 
   return (
     <Guide title={t('guide.guideTitle.insurance')}>
-      <Entry key="guide.bitsurance.why" entry={t('guide.bitsurance.why', { returnObjects: true })} shown={true} />
-      <Entry key="guide.bitsurance.who" entry={t('guide.bitsurance.who', { returnObjects: true })} />
-      <Entry key="guide.bitsurance.what" entry={t('guide.bitsurance.what', { returnObjects: true })} />
-      <Entry key="guide.bitsurance.status" entry={t('guide.bitsurance.status', { returnObjects: true })} />
-      <Entry key="guide.bitsurance.renew" entry={t('guide.bitsurance.renew', { returnObjects: true })} />
+      <Entry key="guide.bitsurance.why" entry={getGuideEntry(t, 'guide.bitsurance.why')} shown={true} />
+      <Entry key="guide.bitsurance.who" entry={getGuideEntry(t, 'guide.bitsurance.who')} />
+      <Entry key="guide.bitsurance.what" entry={getGuideEntry(t, 'guide.bitsurance.what')} />
+      <Entry key="guide.bitsurance.status" entry={getGuideEntry(t, 'guide.bitsurance.status')} />
+      <Entry key="guide.bitsurance.renew" entry={getGuideEntry(t, 'guide.bitsurance.renew')} />
 
       <Entry key="guide.bitsurance.privacy" entry={{
         link: {

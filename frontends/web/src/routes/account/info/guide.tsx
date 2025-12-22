@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
+import { getGuideEntry } from '@/utils/i18n-helpers';
 
 type Props = {
   coinName: string;
@@ -14,13 +15,13 @@ export const BitcoinBasedAccountInfoGuide = ({
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.accountInformation')}>
-      <Entry key="guide.accountInfo.xpub" entry={t('guide.accountInfo.xpub', { returnObjects: true })} shown={true} />
+      <Entry key="guide.accountInfo.xpub" entry={getGuideEntry(t, 'guide.accountInfo.xpub')} shown={true} />
       <Entry key="guide.accountInfo.multipleXPubs" entry={{
         text: t('guide.accountInfo.multipleXPubs.text', { coinName }),
         title: t('guide.accountInfo.multipleXPubs.title'),
       }} />
-      <Entry key="guide.accountInfo.privacy" entry={t('guide.accountInfo.privacy', { returnObjects: true })} />
-      <Entry key="guide.accountInfo.verify" entry={t('guide.accountInfo.verify', { returnObjects: true })} />
+      <Entry key="guide.accountInfo.privacy" entry={getGuideEntry(t, 'guide.accountInfo.privacy')} />
+      <Entry key="guide.accountInfo.verify" entry={getGuideEntry(t, 'guide.accountInfo.verify')} />
       <Entry key="guide.accountInfo.exportTransactions" entry={{
         link: {
           text: 'CoinTracking',
