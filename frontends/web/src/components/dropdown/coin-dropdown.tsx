@@ -45,6 +45,7 @@ export const CoinDropDown = ({
       isSearchable={false}
       placeholder={t('buy.info.selectPlaceholder')}
       classNamePrefix="react-select"
+      className={styles.container}
       value={options.find(option => option.value === value) || []}
       renderOptions={o => <Option props={o} />}
       onChange={(selected) => {
