@@ -90,9 +90,6 @@ func makeBitBox02Multi() *keystoremock.KeystoreMock {
 		SupportsMultipleAccountsFunc: func() bool {
 			return true
 		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
 		ExtendedPublicKeyFunc: ksHelper.ExtendedPublicKey,
 		BTCXPubsFunc:          ksHelper.BTCXPubs,
 	}
@@ -349,9 +346,6 @@ func TestRegisterKeystore(t *testing.T) {
 				return true
 			}
 		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
 		ExtendedPublicKeyFunc: keystoreHelper1.ExtendedPublicKey,
 		BTCXPubsFunc:          keystoreHelper1.BTCXPubs,
 	}
@@ -373,9 +367,6 @@ func TestRegisterKeystore(t *testing.T) {
 			default:
 				return true
 			}
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
 		},
 		ExtendedPublicKeyFunc: keystoreHelper2.ExtendedPublicKey,
 		BTCXPubsFunc:          keystoreHelper2.BTCXPubs,
