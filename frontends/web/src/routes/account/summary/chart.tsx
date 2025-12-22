@@ -3,7 +3,7 @@
 import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
+import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time, AreaSeries } from 'lightweight-charts';
 import type { TChartData, ChartData, FormattedLineData } from '@/api/account';
 import { usePrevious } from '@/hooks/previous';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -409,7 +409,7 @@ export const Chart = ({
           exitMode: 0
         }
       });
-      lineSeries.current = chart.current.addAreaSeries({
+      lineSeries.current = chart.current.addSeries(AreaSeries, {
         priceLineVisible: false,
         lastValueVisible: false,
         priceFormat: {
@@ -421,11 +421,13 @@ export const Chart = ({
         crosshairMarkerRadius: 6,
       });
       const isChartDisplayWeekly = chartDisplay === 'week';
-      lineSeries.current.setData(
-        isChartDisplayWeekly
-          ? data.chartDataHourly
-          : data.chartDataDaily
-      );
+      if (lineSeries.current) {
+        lineSeries.current.setData(
+          isChartDisplayWeekly
+            ? data.chartDataHourly
+            : data.chartDataDaily
+        );
+      }
       setFormattedData(
         isChartDisplayWeekly
           ? data.chartDataHourly
