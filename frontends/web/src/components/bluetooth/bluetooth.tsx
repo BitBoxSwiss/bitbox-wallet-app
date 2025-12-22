@@ -6,6 +6,7 @@ import { useSync } from '@/hooks/api';
 import { connect, getState, syncState, TPeripheral } from '@/api/bluetooth';
 import { runningInIOS } from '@/utils/env';
 import { Message } from '@/components/message/message';
+import { A } from '@/components/anchor/anchor';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { Badge } from '@/components/badge/badge';
 import { HorizontallyCenteredSpinner, SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
@@ -54,13 +55,42 @@ const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
   if (!state) {
     return null;
   }
-  if (!state.bluetoothAvailable) {
+
+  // if Bluetooth is unauthorized, prompt the user to enable it
+  // since its on/off state is unknown
+  if (state.bluetoothUnauthorized) {
     return (
       <Message type="warning">
-        {t('bluetooth.enable')}
+        <div className={styles.bluetoothDisabledContainer}>
+          <span className={styles.bluetoothDisabledTitle}>
+            {t('bluetooth.disabledPermissionTitle')}
+          </span>
+          <span >
+            {t('bluetooth.disabledPermissionDescription')}
+          </span>
+          <A className={styles.link} href="app-settings:">
+            {t('generic.enable')}
+          </A>
+        </div>
       </Message>
     );
   }
+
+  if (!state.bluetoothAvailable) {
+    return (
+      <Message type="warning">
+        <div className={styles.bluetoothDisabledContainer}>
+          <span className={styles.bluetoothDisabledTitle}>
+            {t('bluetooth.disabledGloballyTitle')}
+          </span>
+          <span >
+            {t('bluetooth.disabledGloballyDescription')}
+          </span>
+        </div>
+      </Message>
+    );
+  }
+
   const hasConnection = state.peripherals.some(isConnectedOrConnecting);
   return (
     <>

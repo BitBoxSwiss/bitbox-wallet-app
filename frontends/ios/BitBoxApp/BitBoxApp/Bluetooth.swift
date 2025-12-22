@@ -30,6 +30,7 @@ enum ConnectionState: String, Codable {
 
 struct State {
     var bluetoothAvailable: Bool
+    var bluetoothUnauthorized: Bool
     var scanning: Bool
     var discoveredPeripherals: [UUID: PeripheralMetadata]
 }
@@ -61,6 +62,7 @@ class BLEConnectionContext {
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     private var state: State = State(
         bluetoothAvailable: false,
+        bluetoothUnauthorized: false,
         scanning: false,
         discoveredPeripherals: [:]
     )
@@ -123,18 +125,30 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        state.bluetoothAvailable = centralManager.state == .poweredOn
+        // .unauthorized means BT permission is denied (we can't see if BT hardware is on or off)
+        // .poweredOn means BT is on AND we have permission
+        // .poweredOff means BT hardware is off (and we have permission to know this)
+        state.bluetoothUnauthorized = centralManager.state == .unauthorized
+        state.bluetoothAvailable = centralManager.state == .poweredOn || centralManager.state == .unauthorized
+
         updateBackendState()
 
         switch central.state {
         case .poweredOn:
             print("BLE: on")
             restartScan()
-        case .poweredOff, .unauthorized, .unsupported, .resetting, .unknown:
-            print("BLE: unavailable or not supported")
+        case .unauthorized:
+            print("BLE: permission denied")
+            handleDisconnect()
+        case .poweredOff:
+            print("BLE: powered off")
+            handleDisconnect()
+        case .unsupported, .resetting, .unknown:
+            print("BLE: unavailable (\(central.state))")
             handleDisconnect()
         @unknown default:
-            print("BLE: Unknown Bluetooth state")
+            print("BLE: unknown state")
+            handleDisconnect()
         }
     }
 
@@ -409,6 +423,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
         struct StateJSON: Codable {
             let bluetoothAvailable: Bool
+            let bluetoothUnauthorized: Bool
             let scanning: Bool
             let peripherals: [PeripheralJSON]
         }
@@ -425,6 +440,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
         let state = StateJSON(
             bluetoothAvailable: state.bluetoothAvailable,
+            bluetoothUnauthorized: state.bluetoothUnauthorized,
             scanning: state.scanning,
             peripherals: peripherals
         )
