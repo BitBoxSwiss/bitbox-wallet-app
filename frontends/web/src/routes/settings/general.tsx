@@ -2,7 +2,6 @@
 
 import { useTranslation } from 'react-i18next';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
-import { getGuideEntry } from '@/utils/i18n-helpers';
 import { View, ViewContent } from '@/components/view/view';
 import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSetting';
 import { NotesImport } from './components/appearance/notesImport';
@@ -71,7 +70,10 @@ const GeneralGuide = () => {
 
   return (
     <Guide title={t('guide.guideTitle.appearance')}>
-      <Entry key="guide.settings.sats" entry={getGuideEntry(t, 'guide.settings.sats')} />
+      <Entry key="guide.settings.sats" entry={{
+        text: t('guide.settings.sats.text'),
+        title: t('guide.settings.sats.title'),
+      }} />
       <Entry key="guide.accountRates" entry={{
         link: {
           text: 'www.coingecko.com',

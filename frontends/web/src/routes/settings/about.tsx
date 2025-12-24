@@ -2,7 +2,6 @@
 
 import { useTranslation } from 'react-i18next';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
-import { getGuideEntry } from '@/utils/i18n-helpers';
 import { View, ViewContent } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
 import { AppVersion } from './components/about/app-version-setting';
@@ -53,7 +52,10 @@ const AboutGuide = () => {
   const { t } = useTranslation();
   return (
     <Guide>
-      <Entry key="guide.settings.servers" entry={getGuideEntry(t, 'guide.settings.servers')} />
+      <Entry key="guide.settings.servers" entry={{
+        text: t('guide.settings.servers.text'),
+        title: t('guide.settings.servers.title'),
+      }} />
     </Guide>
   );
 };

@@ -7,7 +7,6 @@ import { getDeviceInfo } from '../../../../api/bitbox01';
 import { apiGet } from '../../../../utils/request';
 import { Guide } from '../../../../components/guide/guide';
 import { Entry } from '../../../../components/guide/entry';
-import { getGuideEntry } from '../../../../utils/i18n-helpers';
 import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import Blink from './components/blink';
@@ -109,8 +108,14 @@ export const Settings = ({ deviceID }: Props) => {
         </div>
       </div>
       <Guide>
-        <Entry key="guide.bitbox.ejectBitbox" entry={getGuideEntry(t, 'guide.bitbox.ejectBitbox')} />
-        <Entry key="guide.bitbox.ejectSD" entry={getGuideEntry(t, 'guide.bitbox.ejectSD')} />
+        <Entry key="guide.bitbox.ejectBitbox" entry={{
+          text: t('guide.bitbox.ejectBitbox.text'),
+          title: t('guide.bitbox.ejectBitbox.title'),
+        }} />
+        <Entry key="guide.bitbox.ejectSD" entry={{
+          text: t('guide.bitbox.ejectSD.text'),
+          title: t('guide.bitbox.ejectSD.title'),
+        }} />
       </Guide>
     </div>
   );

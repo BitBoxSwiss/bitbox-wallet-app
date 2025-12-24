@@ -6,7 +6,6 @@ import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { TAccount } from '@/api/account';
 import { isBitcoinOnly } from '@/routes/account/utils';
-import { getGuideEntry } from '@/utils/i18n-helpers';
 
 type TAddAccountGuide = {
   accounts: TAccount[];
@@ -28,10 +27,22 @@ export const AddAccountGuide = ({ accounts }: TAddAccountGuide) => {
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   return (
     <Guide>
-      <Entry key="whatAreAccounts" entry={getGuideEntry(t, 'guide.accounts.whatAreAccounts')} />
-      <Entry key="whyIsThisUseful" entry={getGuideEntry(t, 'guide.accounts.whyIsThisUseful')} />
-      <Entry key="recoverAccounts" entry={getGuideEntry(t, 'guide.accounts.recoverAccounts')} />
-      <Entry key="moveFunds" entry={getGuideEntry(t, 'guide.accounts.moveFunds')} />
+      <Entry key="whatAreAccounts" entry={{
+        text: t('guide.accounts.whatAreAccounts.text'),
+        title: t('guide.accounts.whatAreAccounts.title'),
+      }} />
+      <Entry key="whyIsThisUseful" entry={{
+        text: t('guide.accounts.whyIsThisUseful.text'),
+        title: t('guide.accounts.whyIsThisUseful.title'),
+      }} />
+      <Entry key="recoverAccounts" entry={{
+        text: t('guide.accounts.recoverAccounts.text'),
+        title: t('guide.accounts.recoverAccounts.title'),
+      }} />
+      <Entry key="moveFunds" entry={{
+        text: t('guide.accounts.moveFunds.text'),
+        title: t('guide.accounts.moveFunds.title'),
+      }} />
       { !hasOnlyBTCAccounts && (
         <>
           <Entry key="supportedCoins" entry={{
@@ -42,10 +53,16 @@ export const AddAccountGuide = ({ accounts }: TAddAccountGuide) => {
             text: t('guide.accounts.supportedCoins.text'),
             title: t('guide.accounts.supportedCoins.title'),
           }} />
-          <Entry key="howtoAddTokens" entry={getGuideEntry(t, 'guide.accounts.howtoAddTokens')} />
+          <Entry key="howtoAddTokens" entry={{
+            text: t('guide.accounts.howtoAddTokens.text'),
+            title: t('guide.accounts.howtoAddTokens.title'),
+          }} />
         </>
       )}
-      <Entry key="howManyAccounts" entry={getGuideEntry(t, 'guide.accounts.howManyAccounts')} />
+      <Entry key="howManyAccounts" entry={{
+        text: t('guide.accounts.howManyAccounts.text'),
+        title: t('guide.accounts.howManyAccounts.title'),
+      }} />
     </Guide>
   );
 };
