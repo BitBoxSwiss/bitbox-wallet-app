@@ -57,7 +57,7 @@ export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
           ${styles.link || ''}
           ${pathname.startsWith('/market/') && styles.active || ''}
         `}
-        to="/market/info"
+        to="/market/select"
       >
         <MarketIconSVG />
         {t('generic.buySell')}
