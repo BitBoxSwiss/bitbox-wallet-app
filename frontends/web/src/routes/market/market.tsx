@@ -215,18 +215,9 @@ export const Market = ({
                     {activeTab !== 'swap' && (
                       <>
                         <label className={style.label}>
-                          {t('account.account')}
-                        </label>
-                        <div className={style.selectContainer}>
-                          <GroupedAccountSelector
-                            accounts={supportedAccounts}
-                            selected={selectedAccount}
-                            onChange={handleAccountChange}
-                          />
-                        </div>
-                        <label className={style.label}>
                           {t('buy.exchange.region')}
                         </label>
+
                         <div className={style.selectContainer}>
                           <CountrySelect
                             onChangeRegion={handleChangeRegion}
@@ -238,6 +229,17 @@ export const Market = ({
                             vendorName: 'region',
                             paymentFees: {}
                           })} />
+                        </div>
+                        <label className={style.label}>
+                          {t('account.account')}
+                        </label>
+                        <div className={style.selectContainer}>
+                          <GroupedAccountSelector
+                            accounts={supportedAccounts}
+                            selected={selectedAccount}
+                            onChange={handleAccountChange}
+                          />
+
                         </div>
                       </>
                     )}
