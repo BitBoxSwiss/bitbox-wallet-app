@@ -39,10 +39,6 @@
     transform: translateX(calc(-50% + 16px));
 }
 
-.headerTextNoGuide {
-    transform: translateX(-50%);
-}
-
 @media (max-width: 768px) {
     .container {
         display: flex;
@@ -53,7 +49,7 @@
     .backButton span {
         display: none;
     }
-    
+
     .headerText {
         left: calc(50% + 8px);
         transform: translateX(calc(-50% + 8px));
