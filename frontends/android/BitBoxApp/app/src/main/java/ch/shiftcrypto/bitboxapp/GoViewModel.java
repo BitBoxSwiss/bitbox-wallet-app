@@ -9,34 +9,20 @@ import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.Handler;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Locale;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
 
 import mobileserver.GoDeviceInfoInterface;
 import mobileserver.GoEnvironmentInterface;
 import mobileserver.GoReadWriteCloserInterface;
 
 public class GoViewModel extends AndroidViewModel {
-    public interface SaveFileResultCallback {
-        void onResult(Uri uri);
-    }
-
-    public interface SaveFileLauncher {
-        void launch(String suggestedName, String mimeType, SaveFileResultCallback callback);
-    }
-
     private class GoDeviceInfo implements GoDeviceInfoInterface {
         private final UsbDevice device;
 
@@ -157,11 +143,14 @@ public class GoViewModel extends AndroidViewModel {
 
         @Override
         public void systemOpen(String url) throws Exception {
-            if (isLocalFile(url) && saveFileLauncher != null) {
-                saveFileWithPicker(url);
-                return;
+            if (url.startsWith("/")) {
+                if (fileSaveHelper != null) {
+                    fileSaveHelper.promptSave(url, Util.getMimeTypeOrDefault(url));
+                    return;
+                }
+                throw new Exception("File save helper not available");
             }
-            Util.systemOpen(getApplication(), url);
+            Util.systemOpenExternal(getApplication(), url);
         }
 
         @Override
@@ -218,7 +207,7 @@ public class GoViewModel extends AndroidViewModel {
     private final GoEnvironment goEnvironment;
     private final GoAPI goAPI;
     private NetworkHelper networkHelper;
-    private SaveFileLauncher saveFileLauncher;
+    private FileSaveHelper fileSaveHelper;
 
     public NetworkHelper getNetworkHelper() {
         return networkHelper;
@@ -272,53 +261,7 @@ public class GoViewModel extends AndroidViewModel {
         this.goEnvironment.setDevice(new GoDeviceInfo(device));
     }
 
-    public void setSaveFileLauncher(SaveFileLauncher launcher) {
-        this.saveFileLauncher = launcher;
-    }
-
-    private boolean isLocalFile(String url) {
-        if (url == null || !url.startsWith("/")) {
-            return false;
-        }
-        return true;
-    }
-
-    private void saveFileWithPicker(String path) throws Exception {
-        File sourceFile = new File(path);
-        if (!sourceFile.exists()) {
-            throw new IOException("File does not exist: " + path);
-        }
-        String mimeType = Util.getMimeType(path);
-        if (mimeType == null) {
-            mimeType = "text/plain";
-        }
-        CountDownLatch latch = new CountDownLatch(1);
-        AtomicReference<Uri> targetUri = new AtomicReference<>(null);
-        saveFileLauncher.launch(sourceFile.getName(), mimeType, uri -> {
-            targetUri.set(uri);
-            latch.countDown();
-        });
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return;
-        }
-        Uri uri = targetUri.get();
-        if (uri == null) {
-            return;
-        }
-        try (InputStream in = new FileInputStream(sourceFile);
-             OutputStream out = getApplication().getContentResolver().openOutputStream(uri)) {
-            if (out == null) {
-                throw new IOException("Unable to open output stream for file export");
-            }
-            byte[] buffer = new byte[8192];
-            int read;
-            while ((read = in.read(buffer)) != -1) {
-                out.write(buffer, 0, read);
-            }
-            out.flush();
-        }
+    public void setFileSaveHelper(FileSaveHelper helper) {
+        this.fileSaveHelper = helper;
     }
 }

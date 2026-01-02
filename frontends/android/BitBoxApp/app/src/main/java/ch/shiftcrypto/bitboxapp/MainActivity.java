@@ -14,9 +14,6 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,9 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private GoViewModel goViewModel;
     private WebViewManager webViewManager;
     private UsbDeviceManager usbDeviceManager;
-    private ActivityResultLauncher<Intent> saveFileLauncher;
-    private GoViewModel.SaveFileResultCallback pendingSaveFileCallback;
-
     // Connection to bind with GoService
     private final ServiceConnection connection = new ServiceConnection() {
         @Override
@@ -114,27 +108,7 @@ public class MainActivity extends AppCompatActivity {
         // GoModel manages the Go backend. It is in a ViewModel so it only runs once, not every time
         // onCreate is called (on a configuration change like orientation change).
         goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
-        saveFileLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                (ActivityResult result) -> {
-                    Uri uri = null;
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        uri = result.getData().getData();
-                    }
-                    if (pendingSaveFileCallback != null) {
-                        pendingSaveFileCallback.onResult(uri);
-                        pendingSaveFileCallback = null;
-                    }
-                }
-        );
-        goViewModel.setSaveFileLauncher((suggestedName, mimeType, callback) -> {
-            pendingSaveFileCallback = callback;
-            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType(mimeType != null ? mimeType : "application/octet-stream");
-            intent.putExtra(Intent.EXTRA_TITLE, suggestedName);
-            runOnUiThread(() -> saveFileLauncher.launch(intent));
-        });
+        goViewModel.setFileSaveHelper(new FileSaveHelper(this));
         webViewManager = new WebViewManager(this, goViewModel);
         webViewManager.initialize(vw);
         usbDeviceManager = new UsbDeviceManager(this, goViewModel);
@@ -289,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Util.log("lifecycle: onDestroy");
+        goViewModel.setFileSaveHelper(null);
         if (goService != null) {
             unbindService(connection);
         }

@@ -101,7 +101,7 @@ public class WebViewClient extends android.webkit.WebViewClient {
         try {
             String host = request.getUrl().getHost();
             if (Util.isAllowedExternalHost(host)) {
-                Util.systemOpen(appContext, url);
+                Util.systemOpenExternal(appContext, url);
                 return true;
             }
         } catch (Exception e) {

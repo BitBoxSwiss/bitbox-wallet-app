@@ -118,7 +118,7 @@ public class WebChromeClient extends android.webkit.WebChromeClient {
                 String host = request.getUrl().getHost();
                 try {
                     if (Util.isAllowedExternalHost(host)) {
-                        Util.systemOpen((android.app.Application) context, url);
+                        Util.systemOpenExternal((android.app.Application) context, url);
                         return true;
                     }
                 } catch (Exception e) {
