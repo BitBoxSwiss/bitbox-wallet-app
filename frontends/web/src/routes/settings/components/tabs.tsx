@@ -6,9 +6,23 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import type { TDevices, TPlatformName } from '@/api/devices';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
+import { useDarkmode } from '@/hooks/darkmode';
 import { SettingsItem } from './settingsItem/settingsItem';
-import { RedDot } from '@/components/icon';
+import {
+  AdvancedSettingsIcon,
+  AdvancedSettingsIconDark,
+  RedDot,
+  SettingsIconLight,
+  SettingsIconDark,
+  AccountsIconLight,
+  AccountsIconDark,
+  InfoIconLight,
+  InfoIconDark,
+  USBLight,
+  USBDark,
+} from '@/components/icon';
 import styles from './tabs.module.css';
+import { useMediaQuery } from '@/hooks/mediaquery';
 
 type TWithSettingsTabsProps = {
   children: ReactNode;
@@ -22,6 +36,7 @@ type TTab = {
   url: string;
   hideMobileMenu?: boolean;
   canUpgrade?: boolean;
+  icon?: ReactNode;
 };
 
 type TTabs = {
@@ -55,8 +70,11 @@ export const Tab = ({
   url,
   hideMobileMenu,
   canUpgrade,
+  icon,
 }: TTab) => {
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   const upgradeDot = canUpgrade ? (
     <RedDot className={styles.canUpgradeDot} width={8} height={8} />
   ) : null;
@@ -64,12 +82,21 @@ export const Tab = ({
   const isManageDeviceItem = url.includes('device-settings');
   const showRedDotOnMobile = isManageDeviceItem && canUpgrade;
 
+  const settingName = icon ? (
+    <div className={styles.iconContainer}>
+      {icon}
+      <span>{name}</span>
+    </div>
+  ) : (
+    <div>{name}</div>
+  );
+
   if (!hideMobileMenu) {
     // Will only be shown on mobile (index/general settings page)
     return (
       <div key={url} className="show-on-small">
         <SettingsItem
-          settingName={name}
+          settingName={settingName}
           onClick={() => navigate(url)}
           canUpgrade={showRedDotOnMobile}
         />
@@ -83,7 +110,7 @@ export const Tab = ({
       className={({ isActive }) => isActive ? `${styles.active || ''} hide-on-small` : 'hide-on-small'}
       to={url}
     >
-      {name}
+      {isMobile ? settingName : name}
       {upgradeDot}
     </NavLink>
   );
@@ -107,10 +134,15 @@ const TabWithVersionCheck = ({ deviceID, device, ...props }: TTabWithVersionChec
 
 export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
   const { t } = useTranslation();
+  const { isDarkMode } = useDarkmode();
   const deviceIDs = Object.keys(devices);
+
+  const iconSize = { width: 16, height: 16 };
+
   return (
     <div className={styles.container}>
       <Tab
+        icon={isDarkMode ? <SettingsIconLight {...iconSize} /> : <SettingsIconDark {...iconSize} />}
         key="general"
         hideMobileMenu={hideMobileMenu}
         name={t('settings.general')}
@@ -118,6 +150,7 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
       />
       {hasAccounts ? (
         <Tab
+          icon={isDarkMode ? <AccountsIconLight {...iconSize} /> : <AccountsIconDark {...iconSize} />}
           key="manage-accounts"
           hideMobileMenu={hideMobileMenu}
           name={t('manageAccounts.title')}
@@ -125,6 +158,7 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
         />
       ) : (
         <Tab
+          icon={isDarkMode ? <AccountsIconLight {...iconSize} /> : <AccountsIconDark {...iconSize} />}
           key="no-accounts"
           hideMobileMenu={hideMobileMenu}
           name={t('manageAccounts.title')}
@@ -133,6 +167,7 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
       )}
       {deviceIDs.length ? deviceIDs.map(id => (
         <TabWithVersionCheck
+          icon={isDarkMode ? <USBLight {...iconSize} /> : <USBDark {...iconSize} />}
           key={`device-${id}`}
           deviceID={id}
           device={devices[id] as TPlatformName}
@@ -142,6 +177,7 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
         />
       )) : (
         <Tab
+          icon={isDarkMode ? <USBLight {...iconSize} /> : <USBDark {...iconSize} />}
           key="no-device"
           hideMobileMenu={hideMobileMenu}
           name={t('sidebar.device')}
@@ -149,12 +185,14 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
         />
       )}
       <Tab
+        icon={isDarkMode ? <AdvancedSettingsIcon {...iconSize} /> : <AdvancedSettingsIconDark {...iconSize} />}
         key="advanced-settings"
         hideMobileMenu={hideMobileMenu}
         name={t('settings.advancedSettings')}
         url="/settings/advanced-settings"
       />
       <Tab
+        icon={isDarkMode ? <InfoIconLight {...iconSize} /> : <InfoIconDark {...iconSize} />}
         key="about"
         hideMobileMenu={hideMobileMenu}
         name={t('settings.about')}
