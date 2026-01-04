@@ -8,7 +8,7 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
-import { ChevronRightDark, Cog, RedDot, ShieldGray } from '@/components/icon';
+import { ChevronRightDark, CogGray, RedDot, ShieldGray } from '@/components/icon';
 import { TDevices } from '@/api/devices';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
@@ -61,7 +61,7 @@ export const More = ({ devices }: Props) => {
                   onClick={() => navigate('/settings')}
                 >
                   <div className={styles.item}>
-                    <Cog width={22} height={22} alt={t('sidebar.settings')} />
+                    <CogGray width={22} height={22} alt={t('sidebar.settings')} />
                     {t('sidebar.settings')}
                   </div>
                 </ActionableItem>

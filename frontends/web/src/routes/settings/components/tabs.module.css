@@ -27,6 +27,18 @@
     vertical-align: top;
 }
 
+.iconContainer {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-quarter);
+}
+
+.tabIcon {
+    width: 18px;
+    height: 18px;
+}
+
 @media (max-width: 768px) {
     .canUpgradeDot {
         margin-right: 5px;
