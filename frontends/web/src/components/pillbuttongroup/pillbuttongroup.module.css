@@ -3,7 +3,7 @@
 	display: flex;
 	flex-wrap: wrap;
 	flex-grow: 1;
-	gap: var(--spacing-half);
+	gap: var(--space-quarter);
 }
 
 .pillbuttongroup button {
@@ -14,7 +14,7 @@
 	color: var(--color-default);
 	font-size: min(var(--size-default), 18px);
 	line-height: 1.75;
-	margin-bottom: var(--spacing-half);
+	margin-bottom: var(--space-quarter);
 }
 
 .pillbuttongroup.medium button {

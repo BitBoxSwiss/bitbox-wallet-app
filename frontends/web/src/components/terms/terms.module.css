@@ -52,7 +52,7 @@
 
 .table td,
 .table th {
-  padding: var(--spacing-half);
+  padding: var(--space-quarter);
   vertical-align: top;
 }
 

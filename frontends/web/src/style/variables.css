@@ -48,10 +48,6 @@
     --color-error-border: rgba(227, 6, 19, .33);
 
     /* spacing */
-    --spacing-large: 32px;
-    --spacing-default: 16px;
-    --spacing-half: 8px;
-
     --space-large: 64px;
     --space-default: 32px;
     --space-half: 16px;

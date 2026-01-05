@@ -42,7 +42,7 @@
     /* mobile viewport bug fix */
     min-height: -webkit-fill-available;
     overflow-y: auto;
-    padding: 0 0 calc(var(--spacing-default) + env(safe-area-inset-bottom)) 0;
+    padding: 0 0 calc(var(--space-half) + env(safe-area-inset-bottom)) 0;
     position: fixed;
     top: 0;
     width: var(--sidebar-width-large);
@@ -64,8 +64,8 @@
     flex-direction: row;
     height: 70px;
     justify-content: space-between;
-    padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-large);
-    padding-top: calc(var(--spacing-default) + var(--spacing-half) + env(safe-area-inset-top, 0));
+    padding: calc(var(--space-half) + var(--space-quarter)) var(--space-default);
+    padding-top: calc(var(--space-half) + var(--space-quarter) + env(safe-area-inset-top, 0));
     background-size: cover;
     background-color: rgba(0, 0, 0, 0.1);
     opacity: 1;

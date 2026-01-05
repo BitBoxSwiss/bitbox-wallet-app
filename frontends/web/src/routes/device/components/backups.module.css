@@ -42,7 +42,7 @@
 .emptyText {
     text-align: center;
     color: var(--color-secondary);
-    padding: var(--spacing-large) 0;
+    padding: var(--space-default) 0;
 }
 
 .backupItem + label {
