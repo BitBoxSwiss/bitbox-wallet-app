@@ -85,6 +85,14 @@ import statusSuccessSVG from './assets/icons/icon-success.svg';
 import statusWarningSVG from './assets/icons/icon-warning.svg';
 import statusErrorSVG from './assets/icons/icon-error.svg';
 import plusSVG from './assets/icons/plus.svg';
+import infoIconLightSVG from './assets/icons/info-icon-light.svg';
+import infoIconDarkSVG from './assets/icons/info-icon-dark.svg';
+import advancedSettingsIconSVG from './assets/icons/advanced-settings-icon.svg';
+import advancedSettingsIconDarkSVG from './assets/icons/advanced-settings-icon-dark.svg';
+import accountsIconLightSVG from './assets/icons/accounts-icon-light.svg';
+import accountsIconDarkSVG from './assets/icons/accounts-icon-dark.svg';
+import settingsIconLightSVG from './assets/icons/settings-icon-light.svg';
+import settingsIconDarkSVG from './assets/icons/settings-icon-dark.svg';
 
 type SVGProps = JSX.IntrinsicElements['svg'];
 
@@ -191,6 +199,14 @@ export const StatusInfo = (props: ImgProps) => (<img src={statusInfoSVG} draggab
 export const StatusWarning = (props: ImgProps) => (<img src={statusWarningSVG} draggable={false} {...props} />);
 export const StatusError = (props: ImgProps) => (<img src={statusErrorSVG} draggable={false} {...props} />);
 export const Plus = (props: ImgProps) => (<img src={plusSVG} draggable={false} {...props} />);
+export const InfoIconLight = (props: ImgProps) => (<img src={infoIconLightSVG} draggable={false} {...props} />);
+export const InfoIconDark = (props: ImgProps) => (<img src={infoIconDarkSVG} draggable={false} {...props} />);
+export const AdvancedSettingsIcon = (props: ImgProps) => (<img src={advancedSettingsIconSVG} draggable={false} {...props} />);
+export const AdvancedSettingsIconDark = (props: ImgProps) => (<img src={advancedSettingsIconDarkSVG} draggable={false} {...props} />);
+export const AccountsIconLight = (props: ImgProps) => (<img src={accountsIconLightSVG} draggable={false} {...props} />);
+export const AccountsIconDark = (props: ImgProps) => (<img src={accountsIconDarkSVG} draggable={false} {...props} />);
+export const SettingsIconLight = (props: ImgProps) => (<img src={settingsIconLightSVG} draggable={false} {...props} />);
+export const SettingsIconDark = (props: ImgProps) => (<img src={settingsIconDarkSVG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
  */
