@@ -12,7 +12,7 @@
 
 .selectContainer {
     position: relative;
-    margin-bottom: var(--spacing-default);
+    margin-bottom: var(--space-half);
 }
 
 /* removes space between select box and actual dropdown */
@@ -23,5 +23,5 @@
 .radioButtonsContainer {
     line-height: 1.5;
     min-height: 400px;
-    margin-top: var(--spacing-half);
+    margin-top: var(--space-quarter);
 }

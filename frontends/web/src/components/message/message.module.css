@@ -7,9 +7,9 @@
     flex-direction: row;
     flex-shrink: 0;
     justify-content: flex-start;
-    margin-bottom: var(--spacing-default);
+    margin-bottom: var(--space-half);
     overflow: hidden;
-    padding: var(--spacing-default);
+    padding: var(--space-half);
     text-align: left;
 }
 

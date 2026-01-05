@@ -2,7 +2,7 @@
     align-items: center;
     display: flex;
     justify-content: space-between;
-    margin: var(--spacing-default) 0;
+    margin: var(--space-half) 0;
 }
 
 .label {
@@ -61,5 +61,5 @@
 }
 
 .messageContainer {
-    margin-top: var(--spacing-half);
+    margin-top: var(--space-quarter);
 }

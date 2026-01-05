@@ -1,6 +1,6 @@
 .chart {
   box-sizing: border-box;
-  margin-bottom: var(--spacing-large);
+  margin-bottom: var(--space-default);
   position: relative;
   white-space: nowrap;
 }
@@ -23,7 +23,7 @@
 .chart header {
   display: flex;
   flex-wrap: wrap;
-  margin-bottom: var(--spacing-half);
+  margin-bottom: var(--space-quarter);
   min-height: min(7rem, 110px);;
 }
 
@@ -37,12 +37,12 @@
 
 .filters {
   justify-content: flex-end;
-  margin: var(--spacing-half) 0 0 0;
+  margin: var(--space-quarter) 0 0 0;
 }
 
 @media (max-width: 768px){
   .chart {
-    margin-bottom: var(--spacing-default);
+    margin-bottom: var(--space-half);
   }
   .chart header {
     flex-direction: column;
@@ -55,7 +55,7 @@
 
   .filters {
     justify-content: center;
-    margin-top: var(--spacing-default);
+    margin-top: var(--space-half);
   }
 }
 

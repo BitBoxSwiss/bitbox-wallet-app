@@ -35,7 +35,7 @@
 .select option {
     background-color: var(--background-secondary);
     color: var(--color-default);
-    padding: var(--spacing-default);
+    padding: var(--space-half);
     width: 100%;
 }
 

@@ -1,6 +1,6 @@
 
 .addAccountBtn {
-    margin-bottom: var(--spacing-default);
+    margin-bottom: var(--space-half);
 }
 
 .accountNameInactive {
@@ -111,7 +111,7 @@
 .toggle {
     flex-basis: 60px;
     flex-shrink: 0;
-    margin-left: var(--spacing-half);
+    margin-left: var(--space-quarter);
 }
 
 .accountActive {

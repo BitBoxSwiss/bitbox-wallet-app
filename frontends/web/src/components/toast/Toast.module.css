@@ -4,7 +4,7 @@
     bottom: calc(var(--item-height-large) + var(--space-half));
     right: 50%;
     transform: translate(50%, 120%);
-    max-width: calc(100% - (var(--guide-width) + var(--sidebar-width) + var(--spacing-large)));
+    max-width: calc(100% - (var(--guide-width) + var(--sidebar-width) + var(--space-default)));
     min-width: 180px;
     min-height: 20px;
     border-radius: 2px;
@@ -19,7 +19,7 @@
 }
 
 .active.shifted {
-    right: calc(var(--spacing-default) + 350px);
+    right: calc(var(--space-half) + 350px);
 }
 
 .info {
