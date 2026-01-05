@@ -111,7 +111,11 @@ export const App = () => {
       return;
     }
     // if on the /market/ view and there are no accounts view route to /
-    if (accounts.length === 0 && currentURL.startsWith('/market/')) {
+    if (
+      accounts.length === 0
+      && currentURL.startsWith('/market/')
+      && !currentURL.startsWith('/market/swap')
+    ) {
       navigate('/');
       return;
     }
