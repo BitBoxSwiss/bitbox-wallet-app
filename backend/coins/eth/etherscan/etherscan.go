@@ -34,7 +34,6 @@ import (
 var CallsPerSec = 3.8
 
 const (
-	apiKey                  = "X3AFAGQT2QCAFTFPIH9VJY88H9PIQ2UWP7"
 	maxAddressesForBalances = 20
 )
 
@@ -52,7 +51,7 @@ type EtherScan struct {
 // NewEtherScan creates a new instance of EtherScan.
 func NewEtherScan(chainId string, httpClient *http.Client, limiter *rate.Limiter) *EtherScan {
 	return &EtherScan{
-		url:        "https://api.etherscan.io/v2/api",
+		url:        "https://etherscan-api.shiftcrypto.io/v2/api",
 		httpClient: httpClient,
 		limiter:    limiter,
 		chainId:    chainId,
@@ -63,7 +62,6 @@ func (etherScan *EtherScan) call(ctx context.Context, params url.Values, result 
 	if err := etherScan.limiter.Wait(ctx); err != nil {
 		return errp.WithStack(err)
 	}
-	params.Set("apikey", apiKey)
 	params.Set("chainId", etherScan.chainId)
 	response, err := etherScan.httpClient.Get(etherScan.url + "?" + params.Encode())
 	if err != nil {
