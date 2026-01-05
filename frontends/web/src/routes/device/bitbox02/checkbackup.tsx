@@ -23,7 +23,7 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
   const { t } = useTranslation();
 
   const checkBackup = async () => {
-    setMessage(t('backup.check.confirmTitle'));
+    setMessage('');
     try {
       const result = await bitbox02API.checkBackup(deviceID, true);
       if (result.success) {
@@ -39,7 +39,12 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
       const check = await bitbox02API.checkBackup(deviceID, false);
       if (!check.success) {
         setActiveDialog(true);
-        setMessage(t('backup.check.notOK'));
+        if (check.code === bitbox02API.errUserAbort) {
+          setMessage(t('backup.check.aborted'));
+          setFoundBackup(undefined);
+        } else {
+          setMessage(t('backup.check.notOK'));
+        }
         setUserVerified(true);
         return;
       }
@@ -55,16 +60,20 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
       <Button
         primary
         disabled={disabled}
-        onClick={checkBackup}
-      >
+        onClick={checkBackup}>
         {t('button.check')}
       </Button>
-      <Dialog open={activeDialog} title={message}>
+      <Dialog
+        open={activeDialog}
+        title={t('backup.check.confirmTitle')}>
         <form onSubmit={(e) => {
           e.preventDefault();
           setActiveDialog(false);
           setUserVerified(false);
         }}>
+          {message && (
+            <p>{message}</p>
+          )}
           { foundBackup !== undefined && (
             <BackupsListItem
               backup={foundBackup}
@@ -74,10 +83,9 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
             {userVerified && (
               <Button
                 autoFocus
-                disabled={!userVerified}
                 primary
                 type="submit">
-                { userVerified ? t('button.ok') : t('accountInfo.verify') }
+                {t('button.ok')}
               </Button>
             )}
           </DialogButtons>

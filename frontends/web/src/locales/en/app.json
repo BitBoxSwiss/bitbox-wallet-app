@@ -105,9 +105,10 @@
   },
   "backup": {
     "check": {
+      "aborted": "Checking backup was aborted on the device",
       "checking": "Checking backup…",
       "confirmTitle": "Check backup",
-      "notOK": "Backup does NOT match the wallet.",
+      "notOK": "No backups on the microSD card matched the wallet on the BitBox. This can occur if you inserted a microSD card that was used to set-up another BitBox. Please locate the correct microSD card used to set-up this BitBox and try again.",
       "ok": "Backup matches the wallet.",
       "password": {
         "label": "Recovery password",
