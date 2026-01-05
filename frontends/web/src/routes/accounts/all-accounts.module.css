@@ -61,7 +61,6 @@
   max-width: 60%;
   overflow: hidden;
   overflow: clip;
-  padding-right: var(--space-quarter);
   text-align: right;
 }
 
@@ -72,9 +71,7 @@
 .chevron {
   color: var(--color-mediumgray);
   flex-shrink: 0;
-  margin-right: 0;
-  position: absolute;
-  right: var(--space-eight);
+  margin-right: -4px;
 }
 
 .chevron img {
