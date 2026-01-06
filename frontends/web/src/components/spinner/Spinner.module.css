@@ -30,7 +30,7 @@
 
 .spinnerText {
     margin: 0;
-    padding: 0 var(--spacing-default);
+    padding: 0 var(--space-half);
     text-align: center;
 }
 
@@ -82,7 +82,7 @@
 .toggler {
     width: 32px;
     height: 32px;
-    margin-right: var(--spacing-default);
+    margin-right: var(--space-half);
     display: flex;
     flex-direction: row;
     align-items: center;

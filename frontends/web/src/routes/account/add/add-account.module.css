@@ -1,0 +1,39 @@
+.manageContainer {
+    display: flex;
+    flex-basis: 100%;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.title {
+    color: var(--color-default);
+    font-size: var(--size-large) !important;
+    font-weight: 400;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+    justify-content: space-between;
+    min-height: 90px;
+}
+
+.accountNameInput {
+    margin-bottom: 0;
+}
+
+.successMessage {
+    color: var(--color-secondary);
+}
+
+.successMessage strong {
+    color: var(--color-default);
+}
+
+@media screen and (max-width: 640px) {
+    .button {
+        margin-left: var(--space-quarter);
+    }
+}

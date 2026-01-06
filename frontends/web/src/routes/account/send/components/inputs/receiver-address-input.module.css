@@ -3,7 +3,7 @@
 }
 
 .inputWithIcon input {
-  padding-left: calc(var(--spacing-default) * 3);
+  padding-left: calc(var(--space-half) * 3);
 }
 
 .action {

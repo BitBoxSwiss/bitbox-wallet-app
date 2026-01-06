@@ -14,7 +14,7 @@
 }
 
 .inputWithIcon input {
-    padding-right: calc(var(--spacing-default) * 2 + 18px);
+    padding-right: calc(var(--space-half) * 2 + 18px);
 }
 
 @media (max-width: 768px) {

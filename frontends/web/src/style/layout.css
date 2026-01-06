@@ -316,11 +316,11 @@ button, textarea {
 .p-left-default { padding-left: var(--space-default) !important; }
 
 .wrapped {
-    margin-top: calc(var(--spacing-half) * -1);
+    margin-top: calc(var(--space-quarter) * -1);
 }
 
 .wrapped > * {
-    margin-top: var(--spacing-half);
+    margin-top: var(--space-quarter);
 }
 
 .items {

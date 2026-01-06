@@ -74,8 +74,14 @@
     height: auto;
 }
 
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button {
-  margin: 0;
-  -webkit-appearance: none;
+/* webkit */
+.input input[type=number]::-webkit-inner-spin-button,
+.input input[type=number]::-webkit-outer-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+}
+
+/* firefox */
+.input input[type=number] {
+  -moz-appearance: textfield;
 }

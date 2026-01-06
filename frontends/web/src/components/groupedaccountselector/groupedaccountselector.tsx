@@ -56,7 +56,7 @@ export const GroupedAccountSelector = ({ title, disabled, selected, onChange, on
     return null;
   }
 
-  const selectedOption = selected === ''
+  const selectedOption = !selected
     ? { label: t('buy.info.selectLabel'), value: 'choose' as AccountCode, disabled: true }
     : options.flatMap(o => o.options).find(opt => opt.value === selected);
 

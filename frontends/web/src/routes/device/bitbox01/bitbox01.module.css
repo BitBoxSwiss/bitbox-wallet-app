@@ -16,30 +16,30 @@
 
 .scrollable {
     overflow: auto;
-    /*padding-bottom: var(--spacing-default);*/
+    /*padding-bottom: var(--space-half);*/
 }
 
 .agreements {
-    margin-bottom: var(--spacing-default);
+    margin-bottom: var(--space-half);
 }
 
 .agreementsLabel {
-    margin: var(--spacing-half) 0;
+    margin: var(--space-quarter) 0;
 }
 
 .title {
     margin-top: 0;
-    margin-bottom: var(--spacing-large);
+    margin-bottom: var(--space-default);
     font-weight: 400;
 }
 
 .summary {
-    margin: var(--spacing-large) auto;
+    margin: var(--space-default) auto;
     max-width: 450px;
 }
 
 .summary li {
-    margin-bottom: var(--spacing-default);
+    margin-bottom: var(--space-half);
 }
 
 .list {
@@ -47,5 +47,5 @@
 }
 
 .list li:not(:first-child) {
-    margin-top: var(--spacing-half);
+    margin-top: var(--space-quarter);
 }

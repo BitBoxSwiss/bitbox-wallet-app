@@ -24,6 +24,9 @@ export const Header = ({
 
   const toggle = (e: React.SyntheticEvent) => {
     e.preventDefault();
+    if (!guideExists) {
+      return false;
+    }
     if (!guideShown) {
       toggleGuide();
     }
@@ -47,21 +50,23 @@ export const Header = ({
         <div className={style.title}>{title}</div>
         <div className={style.children}>
           {children}
-          { guideExists && (
-            <Button
-              transparent
-              onClick={toggle}
-              className={`
-                ${style.guideClose || ''}
-                ${guideShown && style.disabled || ''}
-              `}
-            >
-              <GuideActive />
-              <span className={`hide-on-small ${style.guideCloseText || ''}`}>
-                {t('guide.toggle.open')}
-              </span>
-            </Button>
-          )}
+          {/* keeps this button in
+          layout to prevent flicker when
+          guide appears/disappears */}
+          <Button
+            transparent
+            disabled={!guideExists}
+            onClick={toggle}
+            className={`
+              ${style.guideClose || ''}
+              ${!guideExists && style.guideDisabled || ''} 
+            `}
+          >
+            <GuideActive />
+            <span className={`hide-on-small ${style.guideCloseText || ''}`}>
+              {t('guide.toggle.open')}
+            </span>
+          </Button>
         </div>
       </div>
     </div>

@@ -128,7 +128,7 @@
 }
 
 .addServer > div:first-child p {
-    margin-top: var(--spacing-default);
+    margin-top: var(--space-half);
 }
 
 @media (max-width: 768px) {

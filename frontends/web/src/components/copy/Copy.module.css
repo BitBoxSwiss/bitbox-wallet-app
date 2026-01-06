@@ -8,11 +8,11 @@
     flex-direction: row;
     height: var(--size-default);
     justify-content: center;
-    margin-top: var(--spacing-half);
+    margin-top: var(--space-quarter);
     max-width: var(--size-default);
     padding: 0;
     position: absolute;
-    right: var(--spacing-default);
+    right: var(--space-half);
     top: 10px;
     transition: background-color ease 0.2s;
     will-change: background-color;

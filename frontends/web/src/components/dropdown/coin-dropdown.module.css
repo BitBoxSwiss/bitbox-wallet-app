@@ -1,3 +1,7 @@
+.container {
+    text-align: left;
+}
+
 .valueContainer {
     align-items: center;
     display: flex;
@@ -10,4 +14,9 @@
 
 .coinName {
     margin-left: 6px;
+}
+
+.container :global(.react-select__control) {
+    padding-bottom: 0;
+    padding-top: 0;
 }

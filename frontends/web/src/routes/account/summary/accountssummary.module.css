@@ -8,7 +8,7 @@
 }
 
 .balanceTable {
-    margin: 0 0 var(--spacing-large) 0;
+    margin: 0 0 var(--space-default) 0;
 }
 .coincode {
     height: 24px;
@@ -39,7 +39,7 @@
 .table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: var(--spacing-default);
+    margin-bottom: var(--space-half);
     border: solid 1px var(--background-quaternary);
 }
 
@@ -103,7 +103,7 @@
 
 .coinName img {
     flex-shrink: 0;
-    margin-right: var(--spacing-default);
+    margin-right: var(--space-half);
 }
 
 .coinUnit {
@@ -140,7 +140,7 @@
 
     .table tr td,
     .table tr th {
-      padding: var(--spacing-default);
+      padding: var(--space-half);
     }
 
     .table thead {
@@ -184,7 +184,7 @@
 
     .table tbody td:last-child {
         border-bottom: solid 1px var(--color-mediumgray);
-        padding-bottom: var(--spacing-default);
+        padding-bottom: var(--space-half);
     }
 
 }

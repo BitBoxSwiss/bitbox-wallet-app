@@ -4,7 +4,7 @@ import React, { ReactChild } from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
 import { TAccount } from '@/api/account';
 import { TDevices } from '@/api/devices';
-import { AddAccount } from './account/add/add';
+import { AddAccount } from './account/add/add-account';
 import { Moonpay } from './market/moonpay';
 import { Market } from './market/market';
 import { Pocket } from './market/pocket';

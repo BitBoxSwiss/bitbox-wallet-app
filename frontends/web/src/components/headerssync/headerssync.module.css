@@ -27,7 +27,7 @@
     text-align: right;
     margin: 0 auto;
     margin-bottom: 1px;
-    padding: 0 var(--spacing-large);
+    padding: 0 var(--space-default);
 }
 
 .syncText {
@@ -68,12 +68,12 @@
 
 @media (max-width: 900px) {
     .syncMessage {
-        padding: 0 var(--spacing-default);
+        padding: 0 var(--space-half);
     }
 }
 
 @media (max-width: 640px) {
     .syncMessage {
-        padding: 0 var(--spacing-half);
+        padding: 0 var(--space-quarter);
     }
 }
