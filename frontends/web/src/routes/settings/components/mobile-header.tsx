@@ -28,10 +28,7 @@ export const MobileHeader = ({ title, withGuide = false, onClick }: TProps) => {
       <button onClick={handleClick} className={styles.backButton}>
         <ChevronLeftDark />
       </button>
-      <h1 className={`
-        ${styles.headerText || ''}
-        ${withGuide ? '' : styles.headerTextNoGuide || ''}
-      `}>
+      <h1 className={styles.headerText}>
         {title}
       </h1>
     </div>

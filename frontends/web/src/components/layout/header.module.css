@@ -37,8 +37,9 @@
     margin-left: var(--space-eight);
 }
 
-.disabled {
-    opacity: 0.4;    
+.guideDisabled:disabled {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .header {
