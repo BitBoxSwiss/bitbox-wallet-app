@@ -39,10 +39,10 @@ export const Swap = ({
 
   // Send
   const [fromAccountCode, setFromAccountCode] = useState<string>();
-  const [swapSendAmount, setSwapSendAmount] = useState<string>();
+  const [swapSendAmount, setSwapSendAmount] = useState<string>('0.1');
   // Receive
   const [toAccountCode, setToAccountCode] = useState<string>();
-  const [swapReceiveAmount, setSwapReceiveAmount] = useState<string>();
+  const [swapReceiveAmount, setSwapReceiveAmount] = useState<string>('0.00040741');
 
   console.log(code, setSwapReceiveAmount);
 
@@ -63,18 +63,6 @@ export const Swap = ({
             width="600px"
           >
             <ViewContent>
-              <Label
-                htmlFor="swapSendAmount">
-                <span>
-                  {t('generic.send')}
-                </span>
-                <Button transparent>
-                  <small>
-                    Max 0.12345678 BTC
-                  </small>
-                </Button>
-              </Label>
-
               <InputWithAccountSelector
                 accounts={accounts}
                 id="swapSendAmount"
@@ -82,6 +70,7 @@ export const Swap = ({
                 onChangeAccountCode={setFromAccountCode}
                 value={swapSendAmount}
                 onChangeValue={setSwapSendAmount}
+                label={t('generic.send')}
               />
               <Label
                 htmlFor="swapGetAmount">
@@ -98,6 +87,7 @@ export const Swap = ({
                 accountCode={toAccountCode}
                 onChangeAccountCode={setToAccountCode}
                 value={swapReceiveAmount}
+                label={t('generic.receiveWithoutCoinCode')}
               />
               <SwapServiceSelector />
             </ViewContent>

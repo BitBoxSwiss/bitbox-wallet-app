@@ -1,0 +1,46 @@
+.accountWithInputContainer {
+  background: var(--background-secondary);
+  border-color: var(--background-quaternary);
+  border-radius: 2px;
+  border-style: solid;
+  border-width: var(--border-width);
+  display: flex;
+  margin-bottom: var(--space-half);
+  min-height: var(--input-height);
+}
+
+.label {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.accountSelectorCol {
+  flex-basis: 50%;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.accountSelectorCol :global(.react-select__control) {
+  border: none;
+  display: inline-flex;
+  min-height: 0;
+  padding-bottom: 0;
+  padding-top: 0;
+}
+
+.inputCol {
+  flex-basis: 50%;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.inputComponent {
+  margin-bottom: 0;
+}
+
+.inputComponent input {
+  border: none;
+  height: auto;
+}

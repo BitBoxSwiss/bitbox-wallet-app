@@ -16,9 +16,9 @@
 
 import type { ChangeEvent } from 'react';
 import type { AccountCode, TAccount } from '@/api/account';
-import { Grid, Column } from '@/components/layout';
-import { NumberInput } from '@/components/forms';
+import { Button, Label, NumberInput } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
+import style from './input-with-account-selector.module.css';
 
 type Props = {
   accountCode: AccountCode | undefined;
@@ -27,6 +27,7 @@ type Props = {
   onChangeAccountCode: (accountCode: AccountCode) => void;
   onChangeValue?: (value: string) => void;
   value: string | undefined;
+  label: string;
 };
 
 export const InputWithAccountSelector = ({
@@ -36,29 +37,45 @@ export const InputWithAccountSelector = ({
   onChangeAccountCode,
   onChangeValue,
   value,
+  label,
 }: Props) => {
   const hasAccounts = accounts && accounts.length > 0;
   return (
-    <Grid col={hasAccounts ? '2' : '1'}>
-      {hasAccounts && (
-        <Column>
-          <GroupedAccountSelector
-            accounts={accounts}
-            selected={accountCode}
-            onChange={onChangeAccountCode}
+    <>
+      <Label
+        className={style.label}
+        htmlFor="swapSendAmount">
+        <span>
+          {label}
+        </span>
+        <Button transparent>
+          <small>
+            Max 0.12345678 BTC
+          </small>
+        </Button>
+      </Label>
+      <div className={style.accountWithInputContainer}>
+        <div className={style.accountSelectorCol}>
+          {hasAccounts && (
+            <GroupedAccountSelector
+              accounts={accounts}
+              selected={accountCode}
+              onChange={onChangeAccountCode}
+            />
+          )}
+        </div>
+        <div className={style.inputCol}>
+          <NumberInput
+            id={id}
+            className={style.inputComponent}
+            name={id}
+            value={value}
+            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              onChangeValue && onChangeValue(event.target.value);
+            }}
           />
-        </Column>
-      )}
-      <Column>
-        <NumberInput
-          id={id}
-          name={id}
-          value={value}
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            onChangeValue && onChangeValue(event.target.value);
-          }}
-        />
-      </Column>
-    </Grid>
+        </div>
+      </div>
+    </>
   );
 };
