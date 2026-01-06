@@ -65,7 +65,7 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TEx
     if (isMulti) {
       return (value as TOption<T>[]).some((v) => v.value === option.value);
     }
-    return (value as TOption<T>).value === option.value;
+    return value ? (value as TOption<T>).value === option.value : false;
   };
 
   const handleSelect = (option: TOption<T>, e: React.MouseEvent) => {
