@@ -60,13 +60,13 @@ export const AccountGuide = ({
         title: t('guide.accountRates.title')
       }} />
 
-      <Entry key="cointracking" entry={{
+      <Entry key="guide.accountInfo.exportTransactions" entry={{
         link: {
           text: 'CoinTracking',
           url: 'https://cointracking.info/import/bitbox/?ref=BITBOX',
         },
-        text: t('guide.cointracking.text'),
-        title: t('guide.cointracking.title')
+        text: t('guide.accountInfo.exportTransactions.text'),
+        title: t('guide.accountInfo.exportTransactions.title')
       }} />
     </Guide>
   );

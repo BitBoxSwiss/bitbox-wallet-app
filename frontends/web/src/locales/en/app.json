@@ -958,6 +958,10 @@
       "title": "What does incoming mean?"
     },
     "accountInfo": {
+      "exportTransactions": {
+        "text": "\"Export transactions\" under \"Account info\" and open your downloads folder to find the exported CSV file. This can be useful for services like CoinTracking for tax reporting.",
+        "title": "How can I export my transaction history? (e.g., for CoinTracking)"
+      },
       "multipleXPubs": {
         "text": "Each xpub is tied to the \"Type\" shown: either \"Native Segwit (bech32)\", \"Wrapped Segwit\" or “Taproot” (Bitcoin only). These are script types used by {{coinName}}. The BitBoxApp combines them, supporting multiple script types in the same account. Because each script type gives a different xpub, there are multiple xpubs per account.\n\nIf you consistently receive on the default address (Native Segwit), you only need the \"bech32\" xpub. However, if you also receive funds to \"Wrapped Segwit\" or “Taproot”, you also need to use the \"Wrapped Segwit\" and “Taproot” extended public keys respectively.",
         "title": "Why are there multiple xpubs?"
@@ -1139,10 +1143,6 @@
         "text": "Bitsurance covers some risks of self-custody that are not in-scope of even the most secure wallet, e.g. burglary, extortion or destruction of the wallet. It’s your personal decision if you need insurance coverage for these risks.",
         "title": "Do I need Bitcoin insurance?"
       }
-    },
-    "cointracking": {
-      "text": "Click the \"Export\" button and open the downloads folder where you will find the CSV export. Then click the link below, upload your BitBox CSV file and import the data in order to use it for your CoinTracking portfolio manager and to create your tax reports.",
-      "title": "How to import my transactions into CoinTracking?"
     },
     "device": {
       "attestation": {
