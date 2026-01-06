@@ -175,9 +175,7 @@ export const Chart = ({
     formattedData.current = {};
 
     chartData.forEach(entry => {
-      if (formattedData.current) {
-        formattedData.current[entry.time as number] = entry.formattedValue;
-      }
+      formattedData.current[entry.time as number] = entry.formattedValue;
     });
   };
 
@@ -430,16 +428,13 @@ export const Chart = ({
         crosshairMarkerRadius: 6,
       });
       const isChartDisplayWeekly = chartDisplay === 'week';
-      lineSeries.current.setData(
+      const dataToDisplay = (
         isChartDisplayWeekly
           ? data.chartDataHourly
           : data.chartDataDaily
       );
-      setFormattedData(
-        isChartDisplayWeekly
-          ? data.chartDataHourly
-          : data.chartDataDaily
-      );
+      lineSeries.current.setData(dataToDisplay);
+      setFormattedData(dataToDisplay);
       chart.current.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
       chart.current.subscribeCrosshairMove(handleCrosshair);
       chart.current.timeScale().fitContent();
