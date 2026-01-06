@@ -24,3 +24,20 @@
     text-align: center;
   }
 }
+
+.bluetoothDisabledContainer {
+  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bluetoothDisabledTitle {
+  font-weight: 600;
+}
+
+.link {
+  font-weight: 600;
+  margin-top: var(--space-quarter);
+  text-decoration: none;
+}
