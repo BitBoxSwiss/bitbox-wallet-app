@@ -18,6 +18,7 @@ export type DeviceInfo = {
     firmwareVersion: string;
     enabled: boolean;
   };
+  passwordStretchingAlgo: string;
 };
 
 type DeviceInfoResponse = SuccessResponse & {
@@ -69,6 +70,7 @@ type VersionInfoCommon = {
   canCreate12Words: boolean;
   canBIP85: boolean;
   canChangePassword: boolean;
+  displayPasswordStretchingAlgo: boolean;
 };
 
 export type VersionInfo = VersionInfoCommon & (
