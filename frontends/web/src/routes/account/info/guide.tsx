@@ -21,6 +21,14 @@ export const BitcoinBasedAccountInfoGuide = ({
       }} />
       <Entry key="guide.accountInfo.privacy" entry={t('guide.accountInfo.privacy', { returnObjects: true })} />
       <Entry key="guide.accountInfo.verify" entry={t('guide.accountInfo.verify', { returnObjects: true })} />
+      <Entry key="guide.accountInfo.exportTransactions" entry={{
+        link: {
+          text: 'CoinTracking',
+          url: 'https://cointracking.info/import/bitbox/?ref=BITBOX',
+        },
+        text: t('guide.accountInfo.exportTransactions.text'),
+        title: t('guide.accountInfo.exportTransactions.title')
+      }} />
     </Guide>
   );
 };
