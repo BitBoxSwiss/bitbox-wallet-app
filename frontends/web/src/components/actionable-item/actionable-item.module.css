@@ -1,6 +1,7 @@
 .container {
   align-items: center;
   background-color: var(--background-secondary);
+  border-radius: var(--radius-xl);
   border: none;
   color: var(--color-default);
   display: flex;

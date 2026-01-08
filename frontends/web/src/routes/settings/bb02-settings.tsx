@@ -64,7 +64,7 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
               </>
             }/>
           <View fullscreen={false}>
-            <ViewContent fullWidth>
+            <ViewContent>
               <WithSettingsTabs
                 devices={devices}
                 hideMobileMenu

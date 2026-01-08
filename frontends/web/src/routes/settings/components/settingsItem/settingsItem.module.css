@@ -1,4 +1,5 @@
 .container {
+    border-radius: var(--radius-xl);
     min-height: var(--item-height-xlarge);
     width: 100%;
     min-width: 230px;

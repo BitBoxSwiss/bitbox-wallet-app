@@ -248,7 +248,7 @@ const RemountAccount = ({
                 {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
               </div>
             </ViewHeader>
-            <ViewContent fullWidth>
+            <ViewContent>
               <div className={style.accountHeader}>
                 {isAccountEmpty && (
                   <BuyReceiveCTA

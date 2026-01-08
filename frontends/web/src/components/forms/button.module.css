@@ -2,7 +2,7 @@
     align-items: center;
     appearance: none;
     border-color: transparent;
-    border-radius: 2px;
+    border-radius: var(--radius-xl);
     border-style: solid;
     border-width: var(--border-width);
     cursor: default;

@@ -22,7 +22,7 @@
 /* styles to overwrite default dropdown styling to make it fit into send */
 .priority :global(.react-select__control) {
     border-color: var(--background-quaternary);
-    border-radius: 2px;
+    border-radius: var(--radius-xl);
     border-width: var(--border-width);
     margin-bottom: var(--space-quarter);
     min-height: var(--input-height);
