@@ -1308,9 +1308,8 @@ outer:
 }
 
 // persistDefaultAccountConfigs persists a bunch of default accounts for the connected keystore (not
-// manually user-added). Currently the first bip44 account of BTC/LTC/ETH. ERC20 tokens are added if
-// they were configured to be active by the user in the past, when they could still configure them
-// globally in the settings.
+// manually user-added). Currently the first bip44 account of BTC/LTC/ETH. ERC20 tokens are added
+// from previous global settings, and if there are none, USDT/USDC are enabled by default.
 //
 // The accounts are only added for the coins that are marked active in the settings. This used to be
 // a user-facing setting. Now we simply use it for migration to decide which coins to add by
@@ -1340,14 +1339,20 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 			if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
 				// In the past, ERC20 tokens were configured to be active or inactive globally, now they are
 				// active/inactive per ETH account. We use the previous global settings to decide the default
-				// set of active tokens, for a smoother migration for the user.
+				// set of active tokens, for a smoother migration for the user. If there are no previous
+				// settings, we enable USDT/USDC by default.
 				var activeTokens []string
 				if coinCode == coinpkg.CodeETH {
-					for _, tokenCode := range backend.config.AppConfig().Backend.ETH.DeprecatedActiveERC20Tokens {
-						prefix := "eth-erc20-"
-						// Old config entries did not contain this prefix, but the token codes in the new config
-						// do, to match the codes listed in erc20.go
-						activeTokens = append(activeTokens, prefix+tokenCode)
+					deprecatedTokens := backend.config.AppConfig().Backend.ETH.DeprecatedActiveERC20Tokens
+					if len(deprecatedTokens) == 0 {
+						activeTokens = []string{"eth-erc20-usdt", "eth-erc20-usdc"}
+					} else {
+						for _, tokenCode := range deprecatedTokens {
+							prefix := "eth-erc20-"
+							// Old config entries did not contain this prefix, but the token codes in the new config
+							// do, to match the codes listed in erc20.go
+							activeTokens = append(activeTokens, prefix+tokenCode)
+						}
 					}
 				}
 

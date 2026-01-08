@@ -84,7 +84,7 @@ func TestAccounts(t *testing.T) {
 
 	// 1) Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(ks)
-	checkShownAccountsLen(t, b, 3, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))
@@ -93,26 +93,26 @@ func TestAccounts(t *testing.T) {
 	acctCode, err := b.CreateAndPersistAccountConfig(coinpkg.CodeBTC, "A second Bitcoin account", ks)
 	require.NoError(t, err)
 	require.Equal(t, accountsTypes.Code("v0-55555555-btc-1"), acctCode)
-	checkShownAccountsLen(t, b, 4, 4)
+	checkShownAccountsLen(t, b, 6, 4)
 
 	// 3) Activate some ETH tokens
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", true))
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-bat", true))
 	require.Equal(t,
-		[]string{"eth-erc20-usdt", "eth-erc20-bat"},
+		[]string{"eth-erc20-usdc", "eth-erc20-usdt", "eth-erc20-bat"},
 		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
 	)
-	checkShownAccountsLen(t, b, 6, 4)
+	checkShownAccountsLen(t, b, 7, 4)
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-bat"))
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-usdt"))
 
 	// 4) Deactivate an ETH token
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", false))
 	require.Equal(t,
-		[]string{"eth-erc20-bat"},
+		[]string{"eth-erc20-usdc", "eth-erc20-bat"},
 		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
 	)
-	checkShownAccountsLen(t, b, 5, 4)
+	checkShownAccountsLen(t, b, 6, 4)
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-bat"))
 
 	// 5) Rename an account
@@ -395,7 +395,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 
-		// This adds one BTC/LTC/ETH by default.
+		// This adds one BTC/LTC/ETH account by default, plus USDT/USDC tokens for ETH.
 		b.registerKeystore(bitbox02LikeKeystore)
 
 		// Add another Bitcoin account.
@@ -852,14 +852,14 @@ func TestAccountSupported(t *testing.T) {
 
 	// Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(bb02Multi)
-	checkShownAccountsLen(t, b, 3, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	require.NoError(t, b.SetWatchonly(rootFingerprint, true))
 
 	b.DeregisterKeystore()
 	// Registering a Bitcoin-only like keystore loads also the altcoins that were persisted
 	// previously, because watch-only is enabled for that keystore.
 	b.registerKeystore(bb02BtcOnly)
-	checkShownAccountsLen(t, b, 3, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 
 	// If watch-only is disabled, then these will not be loaded if not supported by the keystore.
 	require.NoError(t, b.SetWatchonly(rootFingerprint, false))
@@ -882,7 +882,7 @@ func TestInactiveAccount(t *testing.T) {
 	// 1) Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(bitbox02LikeKeystore)
 
-	checkShownAccountsLen(t, b, 3, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
 	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
 	require.False(t, b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Inactive)
@@ -895,28 +895,28 @@ func TestInactiveAccount(t *testing.T) {
 
 	// Deactive an account.
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
-	checkShownAccountsLen(t, b, 3, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	require.True(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
 	require.True(t, b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Inactive)
 
 	// Reactivate.
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", true))
-	checkShownAccountsLen(t, b, 3, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
 	require.False(t, b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Inactive)
 
 	// Deactivating an ETH account with tokens also removes the tokens
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", true))
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-bat", true))
-	checkShownAccountsLen(t, b, 5, 3)
+	checkShownAccountsLen(t, b, 6, 3)
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
-	checkShownAccountsLen(t, b, 5, 3)
+	checkShownAccountsLen(t, b, 6, 3)
 	require.True(t, b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Inactive)
 	require.True(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-usdt").Config().Config.Inactive)
 	require.True(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-bat").Config().Config.Inactive)
 	// Reactivating restores them again.
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", true))
-	checkShownAccountsLen(t, b, 5, 3)
+	checkShownAccountsLen(t, b, 6, 3)
 	require.False(t, b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Inactive)
 	require.False(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-usdt").Config().Config.Inactive)
 	require.False(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-bat").Config().Config.Inactive)
@@ -925,13 +925,13 @@ func TestInactiveAccount(t *testing.T) {
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
 	require.NoError(t, b.SetAccountActive("v0-55555555-ltc-0", false))
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
-	checkShownAccountsLen(t, b, 5, 3)
+	checkShownAccountsLen(t, b, 6, 3)
 
 	// Re-registering the keystore (i.e. replugging the device) ends in the same state: no
 	// additional accounts created.
 	b.DeregisterKeystore()
 	b.registerKeystore(bitbox02LikeKeystore)
-	checkShownAccountsLen(t, b, 5, 3)
+	checkShownAccountsLen(t, b, 6, 3)
 }
 
 // Test that taproot subaccounts are added if a keytore gains taproot support (e.g. BitBox02 gained
@@ -1009,7 +1009,7 @@ func TestTaprootUpgrade(t *testing.T) {
 
 	// 1) Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(bitbox02NoTaproot)
-	checkShownAccountsLen(t, b, 3, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	btcAccount := b.Accounts().lookup("v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
 	ltcAccount := b.Accounts().lookup("v0-55555555-ltc-0")
@@ -1029,7 +1029,7 @@ func TestTaprootUpgrade(t *testing.T) {
 	// "Unplug", then insert an updated keystore with taproot support.
 	b.DeregisterKeystore()
 	b.registerKeystore(bitbox02Taproot)
-	checkShownAccountsLen(t, b, 3, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	btcAccount = b.Accounts().lookup("v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
 	ltcAccount = b.Accounts().lookup("v0-55555555-ltc-0")
@@ -1075,8 +1075,8 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 	}
 	b.registerKeystore(bitbox02LikeKeystore)
 
-	// Initial accounts added: Bitcoin, Litecoin, Ethereum.
-	checkShownAccountsLen(t, b, 3, 3)
+	// Initial accounts added: Bitcoin, Litecoin, Ethereum (plus default ERC20 tokens).
+	checkShownAccountsLen(t, b, 5, 3)
 
 	// Up to 6 hidden accounts for BTC/LTC are added to be scanned even if the accounts are all
 	// empty. Calling this function too many times does not add more than that.
@@ -1084,7 +1084,7 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 		b.maybeAddHiddenUnusedAccounts()
 	}
 
-	require.Len(t, b.Accounts(), 3+2*5)
+	require.Len(t, b.Accounts(), 5+2*5)
 	require.Len(t, b.config.AccountsConfig().Accounts, 3+2*5)
 
 	for i := 1; i <= 5; i++ {
@@ -1125,7 +1125,7 @@ func TestWatchonly(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 		b.registerKeystore(makeBitBox02Multi())
-		checkShownAccountsLen(t, b, 3, 3)
+		checkShownAccountsLen(t, b, 5, 3)
 		b.DeregisterKeystore()
 		checkShownAccountsLen(t, b, 0, 3)
 	})
@@ -1141,12 +1141,12 @@ func TestWatchonly(t *testing.T) {
 		require.NoError(t, err)
 
 		b.registerKeystore(ks)
-		checkShownAccountsLen(t, b, 3, 3)
+		checkShownAccountsLen(t, b, 5, 3)
 		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
 
 		b.DeregisterKeystore()
 		// Accounts remain loaded.
-		checkShownAccountsLen(t, b, 3, 3)
+		checkShownAccountsLen(t, b, 5, 3)
 	})
 
 	// Hidden accounts should not remain loaded when watchonly is enabled and the keystore disconnects.
@@ -1176,7 +1176,7 @@ func TestWatchonly(t *testing.T) {
 		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
 		b.DeregisterKeystore()
 
-		require.Len(t, b.Accounts(), 3)
+		require.Len(t, b.Accounts(), 5)
 	})
 
 	// Watchonly of a keystore is disabled while some watched accounts are shown with no keystore
@@ -1196,7 +1196,7 @@ func TestWatchonly(t *testing.T) {
 
 		b.DeregisterKeystore()
 		// Accounts remain loaded.
-		checkShownAccountsLen(t, b, 3, 3)
+		checkShownAccountsLen(t, b, 5, 3)
 
 		// Disable watchonly, all accounts disappear.
 		require.NoError(t, b.SetWatchonly(rootFingerprint, false))
@@ -1215,12 +1215,12 @@ func TestWatchonly(t *testing.T) {
 		require.NoError(t, err)
 
 		b.registerKeystore(ks)
-		checkShownAccountsLen(t, b, 3, 3)
+		checkShownAccountsLen(t, b, 5, 3)
 		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
 
 		// Disable watchonly, all accounts remain as the keystore is still connected.
 		require.NoError(t, b.SetWatchonly(rootFingerprint, false))
-		checkShownAccountsLen(t, b, 3, 3)
+		checkShownAccountsLen(t, b, 5, 3)
 
 		// Accounts disappear when the keystore is disconnected.
 		b.DeregisterKeystore()
@@ -1296,30 +1296,30 @@ func TestWatchonly(t *testing.T) {
 		defer b.Close()
 
 		b.registerKeystore(ks1)
-		checkShownAccountsLen(t, b, 3, 3)
+		checkShownAccountsLen(t, b, 5, 3)
 		// Watch this wallet.
 		require.NoError(t, b.SetWatchonly(rootFingerprint1, true))
 		b.DeregisterKeystore()
 		// Accounts remain loaded.
-		checkShownAccountsLen(t, b, 3, 3)
+		checkShownAccountsLen(t, b, 5, 3)
 
 		b.registerKeystore(ks2)
-		checkShownAccountsLen(t, b, 6, 6)
+		checkShownAccountsLen(t, b, 10, 6)
 		b.DeregisterKeystore()
 		// ks1 accouts remain loaded.
-		checkShownAccountsLen(t, b, 3, 6)
+		checkShownAccountsLen(t, b, 5, 6)
 
 		b.registerKeystore(ks2)
-		checkShownAccountsLen(t, b, 6, 6)
+		checkShownAccountsLen(t, b, 10, 6)
 		// Watch second wallet as well.
 		require.NoError(t, b.SetWatchonly(rootFingerprint2, true))
 		b.DeregisterKeystore()
 		// All accounts remain loaded.
-		checkShownAccountsLen(t, b, 6, 6)
+		checkShownAccountsLen(t, b, 10, 6)
 
 		// Stop watching first wallet.
 		require.NoError(t, b.SetWatchonly(rootFingerprint1, false))
-		checkShownAccountsLen(t, b, 3, 6)
+		checkShownAccountsLen(t, b, 5, 6)
 	})
 
 	// Adding new accounts after the keystore has been connected keeps them available if watchonly is enabled.
@@ -1343,7 +1343,7 @@ func TestWatchonly(t *testing.T) {
 		require.NoError(t, err)
 
 		b.registerKeystore(ks)
-		checkShownAccountsLen(t, b, 3, 3)
+		checkShownAccountsLen(t, b, 5, 3)
 
 		select {
 		case <-hiddenAccountsAdded:
@@ -1380,7 +1380,7 @@ func TestWatchonly(t *testing.T) {
 		b.DeregisterKeystore()
 
 		// Accounts, including the newly added ones, remain loaded.
-		checkShownAccountsLen(t, b, 5, 5)
+		checkShownAccountsLen(t, b, 7, 5)
 	})
 }
 
@@ -1408,15 +1408,15 @@ func TestAccountsByKeystore(t *testing.T) {
 	require.NoError(t, err)
 
 	require.NotNil(t, accountsMap[hex.EncodeToString(ks1Fingerprint)])
-	checkShownLoadedAccountsLen(t, accountsMap[hex.EncodeToString(ks1Fingerprint)], 3)
+	checkShownLoadedAccountsLen(t, accountsMap[hex.EncodeToString(ks1Fingerprint)], 5)
 	require.NotNil(t, accountsMap[hex.EncodeToString(ks2Fingerprint)])
-	checkShownLoadedAccountsLen(t, accountsMap[hex.EncodeToString(ks2Fingerprint)], 3)
+	checkShownLoadedAccountsLen(t, accountsMap[hex.EncodeToString(ks2Fingerprint)], 5)
 
 	b.DeregisterKeystore()
 	accountsMap, err = b.AccountsByKeystore()
 	require.NoError(t, err)
 	require.NotNil(t, accountsMap[hex.EncodeToString(ks1Fingerprint)])
-	checkShownLoadedAccountsLen(t, accountsMap[hex.EncodeToString(ks1Fingerprint)], 3)
+	checkShownLoadedAccountsLen(t, accountsMap[hex.EncodeToString(ks1Fingerprint)], 5)
 	require.Nil(t, accountsMap[hex.EncodeToString(ks2Fingerprint)])
 }
 
@@ -1656,8 +1656,11 @@ func TestCheckAccountUsed(t *testing.T) {
 		b.checkAccountUsed(acct)
 		// Ensure that Transactions is called
 		require.Len(t, mock.TransactionsCalls(), 1)
-		require.True(t, acct.Config().Config.Used)
+		if erc20TokenByCode(acct.Coin().Code()) != nil {
+			t.Skipf("Skipping ERC20 account %s as erc20 tokens are not marked as used", acct.Config().Config.Code)
+		}
 
+		require.True(t, acct.Config().Config.Used)
 		// Call checkAccountUsed again, Transactions should not be called again.
 		b.checkAccountUsed(acct)
 		require.Len(t, mock.TransactionsCalls(), 1)

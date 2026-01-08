@@ -2,6 +2,7 @@
 
 ## Unreleased
 - iOS: Add haptic feedback on account summary chart scrolls
+- Enable USDT and USDC by default for BitBox02 multi ETH accounts
 
 ## v4.50.0
 - Bundle BitBox02 Nova firmware version v9.25.0
