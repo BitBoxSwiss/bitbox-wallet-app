@@ -32,6 +32,7 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { SubTitle } from '@/components/title';
 import styles from './bb02-settings.module.css';
+import settingsStyles from './settings.module.css';
 
 type TProps = {
   deviceID: string;
@@ -106,101 +107,109 @@ const Content = ({ deviceID }: TProps) => {
       {/*"Backups" section*/}
       <div className={styles.section}>
         <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.backups.title')}</SubTitle>
-        <ManageBackupSetting deviceID={deviceID} />
-        <ShowRecoveryWordsSetting deviceID={deviceID} />
+        <div className={settingsStyles.settingsItemContainer}>
+          <ManageBackupSetting deviceID={deviceID} />
+          <ShowRecoveryWordsSetting deviceID={deviceID} />
+        </div>
       </div>
 
       {/*"Device settings" section*/}
       <div className={styles.section}>
         <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceSettings.title')}</SubTitle>
-        {deviceInfo ? (
-          <DeviceNameSetting
-            deviceName={deviceInfo.name}
-            deviceID={deviceID}
-          />
-        ) :
-          <StyledSkeleton />
-        }
-        { deviceInfo && deviceInfo.bluetooth && !runningInIOS()
-          ? <BluetoothToggleEnabledSetting deviceID={deviceID} />
-          : null
-        }
-        {
-          versionInfo ? (
-            <ChangeDevicePasswordSetting
+        <div className={settingsStyles.settingsItemContainer}>
+          {deviceInfo ? (
+            <DeviceNameSetting
+              deviceName={deviceInfo.name}
               deviceID={deviceID}
-              canChangePassword={versionInfo.canChangePassword}
             />
-          ) : (
+          ) :
             <StyledSkeleton />
-          )
-        }
+          }
+          { deviceInfo && deviceInfo.bluetooth && !runningInIOS()
+            ? <BluetoothToggleEnabledSetting deviceID={deviceID} />
+            : null
+          }
+          {
+            versionInfo ? (
+              <ChangeDevicePasswordSetting
+                deviceID={deviceID}
+                canChangePassword={versionInfo.canChangePassword}
+              />
+            ) : (
+              <StyledSkeleton />
+            )
+          }
+        </div>
       </div>
 
       {/*"Device information" section*/}
       <div className={styles.section}>
         <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceInformation.title')}</SubTitle>
-        {
-          versionInfo ? (
-            <FirmwareSetting
-              deviceID={deviceID}
-              versionInfo={versionInfo}
-            />
-          ) :
-            <StyledSkeleton />
-        }
-        {
-          deviceInfo && deviceInfo.bluetooth ? (
-            <BluetoothFirmwareSetting
-              firmwareVersion={deviceInfo.bluetooth.firmwareVersion}
-            />
-          ) : null
-        }
-        <AttestationCheckSetting deviceID={deviceID} />
-        {
-          rootFingerprintResult && rootFingerprintResult.success ?
-            <RootFingerprintSetting rootFingerprint={rootFingerprintResult.rootFingerprint} />
-            :
-            <StyledSkeleton />
-        }
-        {
-          deviceInfo && deviceInfo.securechipModel !== '' ?
-            <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
-            :
-            <StyledSkeleton />
-        }
-        {
-          versionInfo?.displayPasswordStretchingAlgo && deviceInfo?.passwordStretchingAlgo ?
-            <PasswordStretchingAlgoSetting passwordStretchingAlgo={deviceInfo.passwordStretchingAlgo} />
-            : null
-        }
+        <div className={settingsStyles.settingsItemContainer}>
+          {
+            versionInfo ? (
+              <FirmwareSetting
+                deviceID={deviceID}
+                versionInfo={versionInfo}
+              />
+            ) :
+              <StyledSkeleton />
+          }
+          {
+            deviceInfo && deviceInfo.bluetooth ? (
+              <BluetoothFirmwareSetting
+                firmwareVersion={deviceInfo.bluetooth.firmwareVersion}
+              />
+            ) : null
+          }
+          <AttestationCheckSetting deviceID={deviceID} />
+          {
+            rootFingerprintResult && rootFingerprintResult.success ?
+              <RootFingerprintSetting rootFingerprint={rootFingerprintResult.rootFingerprint} />
+              :
+              <StyledSkeleton />
+          }
+          {
+            deviceInfo && deviceInfo.securechipModel !== '' ?
+              <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
+              :
+              <StyledSkeleton />
+          }
+          {
+            versionInfo?.displayPasswordStretchingAlgo && deviceInfo?.passwordStretchingAlgo ?
+              <PasswordStretchingAlgoSetting passwordStretchingAlgo={deviceInfo.passwordStretchingAlgo} />
+              : null
+          }
+        </div>
       </div>
 
       {/*"Expert settings" section*/}
       <div className={styles.section}>
         <SubTitle className={styles.withMobilePadding}>{t('settings.expert.title')}</SubTitle>
-        {
-          deviceInfo ? (
-            <PassphraseSetting
-              passphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
-              deviceID={deviceID}
-            />
-          ) : (
-            <StyledSkeleton />
-          )
-        }
-        {
-          versionInfo ? (
-            <Bip85Setting
-              canBIP85={versionInfo.canBIP85}
-              deviceID={deviceID}
-            />
-          ) : (
-            <StyledSkeleton />
-          )
-        }
-        <GoToStartupSettings deviceID={deviceID} />
-        <FactoryResetSetting deviceID={deviceID} />
+        <div className={settingsStyles.settingsItemContainer}>
+          {
+            deviceInfo ? (
+              <PassphraseSetting
+                passphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
+                deviceID={deviceID}
+              />
+            ) : (
+              <StyledSkeleton />
+            )
+          }
+          {
+            versionInfo ? (
+              <Bip85Setting
+                canBIP85={versionInfo.canBIP85}
+                deviceID={deviceID}
+              />
+            ) : (
+              <StyledSkeleton />
+            )
+          }
+          <GoToStartupSettings deviceID={deviceID} />
+          <FactoryResetSetting deviceID={deviceID} />
+        </div>
       </div>
     </>
   );

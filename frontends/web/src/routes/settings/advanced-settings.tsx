@@ -22,6 +22,7 @@ import { Entry } from '@/components/guide/entry';
 import { EnableAuthSetting } from './components/advanced-settings/enable-auth-setting';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import settingsStyles from './settings.module.css';
 
 export type TProxyConfig = {
   proxyAddress: string;
@@ -83,15 +84,17 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
-                <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
-                <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
-                <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
-                <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
-                <RestartInTestnetSetting onChangeConfig={setConfig} />
-                <CustomGapLimitSettings backendConfig={backendConfig} onChangeConfig={setConfig} />
-                <UnlockSoftwareKeystore deviceIDs={deviceIDs}/>
-                <ConnectFullNodeSetting />
-                <ExportLogSetting />
+                <div className={settingsStyles.settingsItemContainer}>
+                  <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
+                  <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
+                  <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
+                  <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
+                  <RestartInTestnetSetting onChangeConfig={setConfig} />
+                  <CustomGapLimitSettings backendConfig={backendConfig} onChangeConfig={setConfig} />
+                  <UnlockSoftwareKeystore deviceIDs={deviceIDs}/>
+                  <ConnectFullNodeSetting />
+                  <ExportLogSetting />
+                </div>
               </WithSettingsTabs>
             </ViewContent>
           </View>

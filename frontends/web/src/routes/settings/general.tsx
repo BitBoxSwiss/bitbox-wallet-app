@@ -18,6 +18,8 @@ import { TPagePropsWithSettingsTabs } from './types';
 import { GlobalBanners } from '@/components/banners';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import style from './general.module.css';
+import settingsStyles from './settings.module.css';
+
 export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   return (
@@ -41,17 +43,21 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
                 <SubTitle className={style.subtitleWithMobilePadding}>
                   {t('settings.appearance')}
                 </SubTitle>
-                <LanguageDropdownSetting />
-                <DefaultCurrencyDropdownSetting />
-                <ActiveCurrenciesDropdownSetting />
-                <DarkmodeToggleSetting />
+                <div className={settingsStyles.settingsItemContainer}>
+                  <LanguageDropdownSetting />
+                  <DefaultCurrencyDropdownSetting />
+                  <ActiveCurrenciesDropdownSetting />
+                  <DarkmodeToggleSetting />
+                </div>
                 { hasAccounts ? (
                   <>
                     <SubTitle className={`m-top-default ${style.subtitleWithMobilePadding || ''}`}>
                       {t('settings.notes.title')}
                     </SubTitle>
-                    <NotesExport />
-                    <NotesImport />
+                    <div className={settingsStyles.settingsItemContainer}>
+                      <NotesExport />
+                      <NotesImport />
+                    </div>
                   </>
                 ) : null }
               </WithSettingsTabs>
