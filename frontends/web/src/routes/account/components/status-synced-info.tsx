@@ -28,9 +28,8 @@ export const StatusSyncedInfo = ({
   const notSyncedText = (
     isNotSynced
       ? t('account.syncedAddressesCount', {
-        count: syncedAddressesCount.toString(),
-        defaultValue: 0,
-      } as any)
+        count: syncedAddressesCount,
+      })
       : ''
   );
 
