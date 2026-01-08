@@ -4,7 +4,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import * as accountApi from '@/api/account';
-import { statusChanged, syncAddressesCount, syncdone } from '@/api/accountsync';
+import { statusChanged, syncdone } from '@/api/accountsync';
 import { TDevices } from '@/api/devices';
 import { getMarketVendors, MarketVendors } from '@/api/market';
 import { Balance } from '@/components/balance/balance';
@@ -13,7 +13,7 @@ import { Info, LoupeBlue } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Message } from '@/components/message/message';
-import { useLoad, useSubscribe, useSync } from '@/hooks/api';
+import { useLoad, useSync } from '@/hooks/api';
 import { useBitsurance } from '@/hooks/bitsurance';
 import { useDebounce } from '@/hooks/debounce';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
@@ -36,6 +36,7 @@ import { SubTitle } from '@/components/title';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
 import { RatesContext } from '@/contexts/RatesContext';
 import { OfflineError } from '@/components/banners/offline-error';
+import { StatusSyncedInfo } from './components/status-synced-info';
 import style from './account.module.css';
 
 type Props = {
@@ -78,7 +79,6 @@ const RemountAccount = ({
     () => accountApi.getStatus(code),
     cb => statusChanged(code, cb),
   );
-  const syncedAddressesCount = useSubscribe(syncAddressesCount(code));
   const [transactions, setTransactions] = useState<accountApi.TTransactions>();
   const [detailID, setDetailID] = useState<accountApi.TTransaction['internalID'] | null>(null);
   const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
@@ -170,14 +170,6 @@ const RemountAccount = ({
     );
   }
 
-  // Status: not synced
-  const notSyncedText = (status !== undefined && !status.synced && syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
-    '\n' + t('account.syncedAddressesCount', {
-      count: syncedAddressesCount.toString(),
-      defaultValue: 0,
-    } as any)
-  ) : '';
-
   const exchangeSupported = supportedVendors && supportedVendors.vendors.length > 0;
 
   const isAccountEmpty = balance
@@ -209,7 +201,8 @@ const RemountAccount = ({
               hidden={status === undefined || status.synced || !!status.offlineError}
               type="info">
               {t('account.initializing')}
-              {notSyncedText}
+              <br />
+              <StatusSyncedInfo code={code} status={status} />
             </Message>
           </ContentWrapper>
           <Dialog
