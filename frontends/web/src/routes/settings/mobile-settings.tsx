@@ -10,6 +10,7 @@ import { GlobalBanners } from '@/components/banners';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { useNavigate } from 'react-router-dom';
+import styles from './settings.module.css';
 /**
  * The "index" page of the settings
  * that will only be shown on Mobile.
@@ -41,7 +42,9 @@ export const MobileSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsT
         } />
       <View fullscreen={false}>
         <ViewContent fullWidth>
-          <Tabs devices={devices} hasAccounts={hasAccounts} />
+          <div className={styles.settingsItemContainer}>
+            <Tabs devices={devices} hasAccounts={hasAccounts} />
+          </div>
         </ViewContent>
       </View>
     </Main>

@@ -16,6 +16,7 @@
 - Add icons for CTA and action buttons in account page
 - Restructure "Manage device" tab in settings
 - Responsive account selector (Marketplace)
+- Apply rounded corners in several places and components of the app
 
 ## v4.49.0
 - Bundle BitBox02 Nova firmware version v9.24.0

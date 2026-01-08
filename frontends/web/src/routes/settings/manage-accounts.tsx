@@ -24,6 +24,7 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
 import style from './manage-accounts.module.css';
+import settingsStyles from './settings.module.css';
 
 type ManageAccountsProps = {
   accounts: accountAPI.TAccount[];
@@ -233,29 +234,32 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
           <View fullscreen={false}>
             <ViewContent fullWidth>
               <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>
-                <Button
-                  className={style.addAccountBtn}
-                  primary
-                  onClick={() => navigate('/add-account')}>
-                  <Plus className="m-right-quarter" width="12" height="12" />
-                  {t('addAccount.title')}
-                </Button>
-                <Grid col="1">
-                  { accountsByKeystore.map(keystore => (
-                    <Column
-                      key={keystore.keystore.rootFingerprint}
-                      asCard>
-                      <div className={style.walletHeader}>
-                        <ConnectedKeystore
-                          accountsByKeystore={accountsByKeystore}
-                          keystore={keystore.keystore}
-                          className={style.connectedKeystore} />
-                        <WatchonlySetting keystore={keystore.keystore} />
-                      </div>
-                      {renderAccounts(keystore.accounts)}
-                    </Column>
-                  )) }
-                </Grid>
+                <div className={settingsStyles.settingsItemContainer}>
+                  <Button
+                    className={style.addAccountBtn}
+                    primary
+                    onClick={() => navigate('/add-account')}>
+                    <Plus className="m-right-quarter" width="12" height="12" />
+                    {t('addAccount.title')}
+                  </Button>
+                  <Grid col="1">
+                    { accountsByKeystore.map(keystore => (
+                      <Column
+                        className={style.accounts}
+                        key={keystore.keystore.rootFingerprint}
+                        asCard>
+                        <div className={style.walletHeader}>
+                          <ConnectedKeystore
+                            accountsByKeystore={accountsByKeystore}
+                            keystore={keystore.keystore}
+                            className={style.connectedKeystore} />
+                          <WatchonlySetting keystore={keystore.keystore} />
+                        </div>
+                        {renderAccounts(keystore.accounts)}
+                      </Column>
+                    )) }
+                  </Grid>
+                </div>
                 {currentlyEditedAccount && (
                   <Dialog
                     open={!!(currentlyEditedAccount)}

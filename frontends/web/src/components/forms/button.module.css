@@ -2,7 +2,7 @@
     align-items: center;
     appearance: none;
     border-color: transparent;
-    border-radius: 2px;
+    border-radius: var(--radius-md);
     border-style: solid;
     border-width: var(--border-width);
     cursor: default;
@@ -21,6 +21,7 @@
     text-decoration: none;
     transition: background-color .2s ease-out, color .2s ease-out;
     will-change: background-color, color;
+
 }
 
 .button:hover {

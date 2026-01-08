@@ -13,6 +13,7 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { FeedbackLink } from './components/about/feedback-link-setting';
 import { SupportLink } from './components/about/support-link-setting';
+import settingsStyles from './settings.module.css';
 
 export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
@@ -34,9 +35,11 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
           <View fullscreen={false}>
             <ViewContent fullWidth>
               <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>
-                <AppVersion />
-                <FeedbackLink />
-                <SupportLink />
+                <div className={settingsStyles.settingsItemContainer}>
+                  <AppVersion />
+                  <FeedbackLink />
+                  <SupportLink />
+                </div>
               </WithSettingsTabs>
             </ViewContent>
           </View>
