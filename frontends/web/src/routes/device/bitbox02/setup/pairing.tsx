@@ -7,6 +7,7 @@ import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/vi
 import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
 import { Button } from '@/components/forms';
+import style from './pairing.module.css';
 
 type Props = {
   attestation: boolean | null | undefined;
@@ -70,7 +71,7 @@ export const Pairing = ({
         )}
         { !pairingFailed && (
           <>
-            <pre>{hash}</pre>
+            <pre className={style.hash}>{hash}</pre>
             { !deviceVerified && <PointToBitBox02 /> }
           </>
         )}

@@ -1,3 +1,6 @@
+.accounts {
+    border-radius: var(--radius-lg);
+}
 
 .addAccountBtn {
     margin-bottom: var(--space-half);

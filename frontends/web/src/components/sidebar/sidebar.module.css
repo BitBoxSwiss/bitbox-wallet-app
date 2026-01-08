@@ -81,15 +81,13 @@
 .sidebarHeaderContainer {
     margin-top: var(--sidebar-margin);
     margin-bottom: 12px;
+    margin-left: calc(var(--space-quarter) + var(--space-eight));
+    margin-right: calc(var(--space-quarter) + var(--space-eight));
     padding: 0 var(--sidebar-margin);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-}
-
-.sidebarPortfolio + .sidebarHeaderContainer {
-    margin-top: 28px;
 }
 
 .sidebarHeader {
@@ -107,13 +105,18 @@
 
 .sidebarItem {
     display: block;
+    margin: 0 calc(var(--space-quarter) + var(--space-eight));
+}
+
+.sidebarPortfolio {
+    margin-top: calc(var(--space-quarter) + var(--space-eight));
 }
 
 .sidebarItem > a,
 .sidebarItem > button {
     align-items: center;
     background-color: transparent;
-    border-radius: 2px;
+    border-radius: var(--radius-md);
     color: white;
     cursor: default;
     display: flex;
