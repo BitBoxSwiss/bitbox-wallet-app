@@ -2,21 +2,25 @@
 
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, TStatus } from '@/api/account';
-import { syncAddressesCount } from '@/api/accountsync';
-import { useSubscribe } from '@/hooks/api';
+import { getStatus } from '@/api/account';
+import { statusChanged, syncAddressesCount } from '@/api/accountsync';
+import { useSubscribe, useSync } from '@/hooks/api';
 
 type TProps = {
   code: AccountCode;
-  status: TStatus | undefined;
 };
 
 export const StatusSyncedInfo = ({
   code,
-  status,
 }: TProps) => {
   const { t } = useTranslation();
 
   const syncedAddressesCount = useSubscribe(syncAddressesCount(code));
+
+  const status: TStatus | undefined = useSync(
+    () => getStatus(code),
+    cb => statusChanged(code, cb),
+  );
 
   const isNotSynced = (
     status !== undefined

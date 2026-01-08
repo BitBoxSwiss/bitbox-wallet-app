@@ -202,7 +202,7 @@ const RemountAccount = ({
               type="info">
               {t('account.initializing')}
               <br />
-              <StatusSyncedInfo code={code} status={status} />
+              <StatusSyncedInfo code={code} />
             </Message>
           </ContentWrapper>
           <Dialog
