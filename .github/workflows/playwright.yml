@@ -10,65 +10,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  compute-version:
-    name: Compute firmware container version
-    runs-on: ubuntu-latest
-    outputs:
-      firmware_version: ${{ steps.get_version.outputs.firmware_version }}
-    steps:
-      - name: Checkout firmware repo
-        uses: actions/checkout@v4
-        with:
-          repository: BitBoxSwiss/bitbox02-firmware
-          path: bitbox02-firmware
-
-      - name: Read .containerversion
-        id: get_version
-        run: |
-          version=$(cat bitbox02-firmware/.containerversion)
-          echo "Firmware version: $version"
-          echo "firmware_version=$version" >> $GITHUB_OUTPUT
-
-  build-simulator:
-    name: Build simulator in container
-    runs-on: ubuntu-latest
-    needs: compute-version
-    container:
-      image: shiftcrypto/firmware_v2:${{ needs.compute-version.outputs.firmware_version }}
-    steps:
-      - name: Checkout firmware repo
-        uses: actions/checkout@v4
-        with:
-          repository: BitBoxSwiss/bitbox02-firmware
-          submodules: true
-          path: bitbox02-firmware
-
-      - name: Fetch tags
-        working-directory: bitbox02-firmware
-        run: git fetch --tags
-
-      - name: Build simulator
-        working-directory: bitbox02-firmware
-        run: make simulator
-
-      - name: Upload simulator binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: simulator-binary
-          path: bitbox02-firmware/build-build-noasan/bin/simulator
-
   run-tests:
     runs-on: ubuntu-latest
-    needs: build-simulator
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Download simulator artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: simulator-binary
-          path: ./simulator-bin
-
+      - name: Download latest simulator from simulators.json
+        run: |
+          set -euo pipefail
+          simulator_url=$(jq -r '.[-1].url' backend/devices/bitbox02/testdata/simulators.json)
+          simulator_sha=$(jq -r '.[-1].sha256' backend/devices/bitbox02/testdata/simulators.json)
+          mkdir -p simulator-bin
+          curl -L "$simulator_url" -o simulator-bin/simulator
+          echo "$simulator_sha  simulator-bin/simulator" | sha256sum -c -
+          chmod +x simulator-bin/simulator
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -84,10 +39,6 @@ jobs:
         run: |
           cd frontends/web
           npx playwright install --with-deps chromium webkit
-
-
-      - name: Restore executable permission
-        run: chmod +x simulator-bin/simulator
 
       - name: Run Playwright tests
         env:
