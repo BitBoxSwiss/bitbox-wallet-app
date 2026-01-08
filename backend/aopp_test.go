@@ -63,9 +63,6 @@ func makeKeystore(
 				return true
 			}
 		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
 		SupportsMultipleAccountsFunc: func() bool {
 			return true
 		},

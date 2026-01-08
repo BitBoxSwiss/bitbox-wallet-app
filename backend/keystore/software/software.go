@@ -123,11 +123,6 @@ func (keystore *Keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool
 	}
 }
 
-// SupportsUnifiedAccounts implements keystore.Keystore.
-func (keystore *Keystore) SupportsUnifiedAccounts() bool {
-	return true
-}
-
 // SupportsMultipleAccounts implements keystore.Keystore.
 func (keystore *Keystore) SupportsMultipleAccounts() bool {
 	return true
