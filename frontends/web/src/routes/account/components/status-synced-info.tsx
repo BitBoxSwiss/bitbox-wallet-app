@@ -51,11 +51,7 @@ export const StatusSyncedInfo = ({
     );
   }
 
-  if (!isSynced) {
-    return (
-      t('account.scanning')
-    );
-  }
-
-  return null;
+  return (
+    t('account.scanning')
+  );
 };
