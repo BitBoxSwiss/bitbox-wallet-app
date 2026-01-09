@@ -17,6 +17,7 @@
 - Add icons for CTA and action buttons in account page
 - Restructure "Manage device" tab in settings
 - Responsive account selector (Marketplace)
+- Show offline errors per account in account-summary view
 
 ## v4.49.0
 - Bundle BitBox02 Nova firmware version v9.24.0

@@ -3,12 +3,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AccountCode, CoinCode, TBalance } from '@/api/account';
-import { syncAddressesCount } from '@/api/accountsync';
-import { useSubscribe } from '@/hooks/api';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Logo } from '@/components/icon/logo';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { AsciiSpinner } from '@/components/spinner/ascii';
+import { StatusSyncedInfo } from '../components/status-synced-info';
 import style from './accountssummary.module.css';
 
 type TNameColProps = {
@@ -44,7 +43,6 @@ export const BalanceRow = (
   { code, name, coinCode, balance }: TProps
 ) => {
   const { t } = useTranslation();
-  const syncStatus = useSubscribe(syncAddressesCount(code));
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const handleClick = () => navigate(`/account/${code}`);
@@ -78,11 +76,10 @@ export const BalanceRow = (
     <tr key={`${code}_syncing`}>
       <NameCell name={name} coinCode={coinCode} />
       <td colSpan={2} className={style.syncText}>
-        { t('account.syncedAddressesCount', {
-          count: syncStatus,
-          defaultValue: 0,
-        }) }
-        <AsciiSpinner />
+        <div className={style.syncingInfo}>
+          <StatusSyncedInfo code={code} withOfflineWarningIcon />
+          <AsciiSpinner />
+        </div>
       </td>
     </tr>
   );
