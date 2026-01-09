@@ -76,8 +76,10 @@ export const BalanceRow = (
     <tr key={`${code}_syncing`}>
       <NameCell name={name} coinCode={coinCode} />
       <td colSpan={2} className={style.syncText}>
-        <StatusSyncedInfo code={code} />
-        <AsciiSpinner />
+        <div className={style.syncingInfo}>
+          <StatusSyncedInfo code={code} withOfflineWarningIcon />
+          <AsciiSpinner />
+        </div>
       </td>
     </tr>
   );

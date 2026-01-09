@@ -1,0 +1,6 @@
+.offlineWarning {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--space-eight);
+  justify-content: flex-end;
+}

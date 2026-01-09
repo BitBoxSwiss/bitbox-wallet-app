@@ -123,6 +123,10 @@
     display: none;
 }
 
+.syncingInfo {
+    display: inline-flex;
+}
+
 @media (max-width: 768px) {
     .accountName {
         padding-left: var(--space-half);
