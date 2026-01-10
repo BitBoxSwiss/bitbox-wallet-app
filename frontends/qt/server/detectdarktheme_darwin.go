@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 //go:build darwin
-// +build darwin
 
 package main
 

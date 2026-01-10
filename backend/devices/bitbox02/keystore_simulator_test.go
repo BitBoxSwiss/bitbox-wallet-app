@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 //go:build bitbox02_simulator
-// +build bitbox02_simulator
 
 package bitbox02
 
