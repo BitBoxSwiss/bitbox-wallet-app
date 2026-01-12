@@ -50,7 +50,6 @@ export type TKeystore = {
 export type TAccount = {
   keystore: TKeystore;
   active: boolean;
-  watch: boolean;
   coinCode: CoinCode;
   coinUnit: CoinUnit;
   coinName: string;

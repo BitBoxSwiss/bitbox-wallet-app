@@ -380,7 +380,6 @@ type accountJSON struct {
 	Keystore              keystoreJSON       `json:"keystore"`
 	Active                bool               `json:"active"`
 	BitsuranceStatus      string             `json:"bitsuranceStatus"`
-	Watch                 bool               `json:"watch"`
 	CoinCode              coinpkg.Code       `json:"coinCode"`
 	CoinUnit              string             `json:"coinUnit"`
 	CoinName              string             `json:"coinName"`
@@ -400,7 +399,6 @@ func newAccountJSON(
 	keystoreConnected bool) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
-	watch := account.Config().Config.Watch
 	var accountNumberPtr *uint16
 	accountNumber, err := account.Config().Config.SigningConfigurations.AccountNumber()
 	if err == nil {
@@ -413,7 +411,6 @@ func newAccountJSON(
 		},
 		Active:                !account.Config().Config.Inactive,
 		BitsuranceStatus:      account.Config().Config.InsuranceStatus,
-		Watch:                 watch != nil && *watch,
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
 		CoinName:              account.Coin().Name(),
