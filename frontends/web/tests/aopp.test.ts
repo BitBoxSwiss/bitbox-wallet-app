@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { test } from './helpers/fixtures';
-import { expect } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { ServeWallet } from './helpers/servewallet';
 import { launchRegtest, setupRegtestWallet, sendCoins, mineBlocks, cleanupRegtest } from './helpers/regtest';
 import { startSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
@@ -14,6 +14,54 @@ let servewallet: ServeWallet;
 let regtest: ChildProcess;
 let aoppServer: ChildProcess | undefined;
 let simulatorProc : ChildProcess | undefined;
+
+type ReceiveAddressResponse = Array<{
+  scriptType: string | null;
+  addresses: Array<{
+    addressID: string;
+    address: string;
+  }>;
+}>;
+
+const scriptTypePreference = ['p2wpkh', 'p2tr', 'p2wpkh-p2sh'];
+
+const getAccountCodeFromUrl = (url: string): string => {
+  const match = url.match(/#\/account\/([^/]+)/);
+  if (!match?.[1]) {
+    throw new Error(`Unable to extract account code from url: ${url}`);
+  }
+  return match[1];
+};
+
+const getReceiveAddress = async (
+  page: Page,
+  host: string,
+  servewalletPort: number
+): Promise<string> => {
+  await page.waitForURL(/#\/account\/[^/]+\/receive/);
+  const accountCode = getAccountCodeFromUrl(page.url());
+  const response = await page.request.get(
+    `http://${host}:${servewalletPort}/api/account/${accountCode}/receive-addresses`
+  );
+  if (!response.ok()) {
+    throw new Error(`Failed to fetch receive addresses for ${accountCode}: ${response.status()}`);
+  }
+  const body = (await response.json()) as ReceiveAddressResponse | null;
+  if (!body || !Array.isArray(body)) {
+    throw new Error(`Unexpected receive addresses response for ${accountCode}`);
+  }
+  for (const scriptType of scriptTypePreference) {
+    const address = body.find((item) => item.scriptType === scriptType)?.addresses?.[0]?.address;
+    if (address) {
+      return address;
+    }
+  }
+  const fallback = body.find((item) => item.addresses?.[0]?.address)?.addresses[0]?.address;
+  if (!fallback) {
+    throw new Error(`No receive address available for ${accountCode}`);
+  }
+  return fallback;
+};
 
 test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
@@ -50,9 +98,8 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
   await test.step('Grab receive address', async () => {
     await page.getByRole('link', { name: 'Bitcoin Regtest Bitcoin' }).click();
     await page.getByRole('button', { name: 'Receive RBTC' }).click();
-    await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
-    const addressLocator = page.locator('[data-testid="receive-address"]');
-    recvAdd = await addressLocator.inputValue();
+    // The simulator auto-confirms address verification and closes the dialog too fast for UI reads.
+    recvAdd = await getReceiveAddress(page, host, servewalletPort);
     console.log(`Receive address: ${recvAdd}`);
   });
 
@@ -81,9 +128,8 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
     await page.getByRole('link', { name: 'Bitcoin Regtest 2' }).click();
 
     await page.getByRole('button', { name: 'Receive RBTC' }).click();
-    await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
-    const addressLocator = page.locator('[data-testid="receive-address"]');
-    recvAdd = await addressLocator.inputValue();
+    // Same workaround here to avoid flaky reads from the auto-closing verify dialog.
+    recvAdd = await getReceiveAddress(page, host, servewalletPort);
     expect(recvAdd).toContain('bcrt1');
     console.log(`Receive address: ${recvAdd}`);
   });
@@ -178,9 +224,8 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
     await page.getByRole('link', { name: 'Bitcoin Regtest Bitcoin' }).click();
     const receiveButton = page.locator('[data-testid="receive-button"]');
     await receiveButton.click();
-    await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
-    const addressLocator = page.locator('[data-testid="receive-address"]');
-    recvAdd = await addressLocator.inputValue();
+    // Use API-derived address so the simulator confirm doesn't race the UI dialog.
+    recvAdd = await getReceiveAddress(page, host, servewalletPort);
     console.log(`Receive address: ${recvAdd}`);
     expect(recvAdd).toBe(aoppAddress);
   });
