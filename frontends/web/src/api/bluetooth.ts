@@ -17,6 +17,7 @@ export type TPeripheral = {
 
 type TBluetoothState = {
   bluetoothAvailable: boolean;
+  bluetoothUnauthorized: boolean;
   scanning: boolean;
   peripherals: TPeripheral[];
 };

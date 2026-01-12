@@ -131,6 +131,14 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
         }
         // Ensure we run on the main thread
         DispatchQueue.main.async {
+            if urlString == "app-settings:" {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    // opens app settings page in the system settings
+                    UIApplication.shared.open(url)
+                }
+                return
+            }
+
             if url.isFileURL {
                 // Local file path, use UIDocumentInteractionController
                 if let rootViewController = self.getRootViewController() {

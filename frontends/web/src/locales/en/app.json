@@ -384,6 +384,10 @@
     "connected": "connected",
     "connectionFailed": "failed",
     "connectionIssues": "Having connection issues?",
+    "disabledGloballyDescription": "Please turn on Bluetooth to connect to your BitBox.",
+    "disabledGloballyTitle": "Bluetooth access is disabled.",
+    "disabledPermissionDescription": "Please allow Bluetooth to connect to your BitBox.",
+    "disabledPermissionTitle": "Bluetooth access is disabled for BitBoxApp.",
     "enable": "Please turn on Bluetooth",
     "select": "Select your BitBox"
   },
@@ -896,6 +900,7 @@
     "buy_bitcoin": "Buy Bitcoin",
     "buy_crypto": "Buy crypto",
     "close": "Close",
+    "enable": "Enable",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
     "noOptionOnIos": "Not available on iOS",
