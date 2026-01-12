@@ -40,6 +40,15 @@ jobs:
           cd frontends/web
           npx playwright install --with-deps chromium webkit
 
+      - name: Setup Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Python dependencies
+        run: |
+          pip install ecdsa bech32
+
       - name: Run Playwright tests
         env:
           SIMULATOR_PATH: ${{ github.workspace }}/simulator-bin/simulator
