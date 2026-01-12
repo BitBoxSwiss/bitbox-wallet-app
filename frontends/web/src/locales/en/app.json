@@ -14,6 +14,7 @@
     "insured": "Insured account",
     "maybeProxyError": "Tor proxy enabled. Ensure that your Tor proxy is running properly, or disable the proxy setting.",
     "reconnecting": "Lost connection, trying to reconnect…",
+    "scanning": "Scanning blockchain",
     "syncedAddressesCount": "Scanned {{count}} addresses",
     "uncoveredFunds": "You have coins on the following uncovered address types of your <strong>{{name}}</strong> account: {{uncovered}}.\nSince the account is insured, only coins received via the <strong>Native Segwit</strong> address type are covered. Coins on different address types, even if they are on the same account, are not insured.\nPlease move all your coins from the unsupported address types to the <strong>Native Segwit</strong> address type, so all your coins on this account are insured.",
     "uncoveredFundsLink": "Follow this guide on how to move your coins.",
