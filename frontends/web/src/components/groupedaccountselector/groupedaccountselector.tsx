@@ -31,10 +31,12 @@ export type TGroupedOption = TDropdownGroupedOption<AccountCode, TGroupAccountSe
 
 type TTriggerContentProps = {
   option: TOption | undefined;
+  stackedLayout?: boolean;
 };
 
 const TriggerContent = ({
   option,
+  stackedLayout = false,
 }: TTriggerContentProps) => {
   const { t } = useTranslation();
   return (
@@ -42,13 +44,19 @@ const TriggerContent = ({
       <div className={styles.triggerContent}>
         <Logo coinCode={option.coinCode} alt={option.coinCode} />
         <span className={styles.triggerLabel}>
-          {option.label}
+          {stackedLayout ? option.balance?.unit : option.label}
         </span>
         {option.insured && <InsuredShield />}
-        {option.coinCode && option.balance && (
-          <span className={styles.triggerBalance}>
-            <AmountWithUnit amount={option.balance} />
+        {stackedLayout ? (
+          <span className={styles.triggerAccountName}>
+            {option.label}
           </span>
+        ) : (
+          option.coinCode && option.balance && (
+            <span className={styles.triggerBalance}>
+              <AmountWithUnit amount={option.balance} />
+            </span>
+          )
         )}
       </div>
     ) : (
@@ -86,6 +94,7 @@ type TAccountSelector = {
   onChange: (value: string) => void;
   onProceed?: () => void;
   accounts: TAccount[];
+  stackedLayout?: boolean;
 };
 
 export const GroupedAccountSelector = ({
@@ -95,6 +104,7 @@ export const GroupedAccountSelector = ({
   onChange,
   onProceed,
   accounts,
+  stackedLayout,
 }: TAccountSelector) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<TGroupedOption[]>();
@@ -123,10 +133,13 @@ export const GroupedAccountSelector = ({
     return (
       <button
         type="button"
-        className={styles.trigger}
+        className={`
+          ${styles.trigger || ''}
+          ${stackedLayout && styles.layoutOnTwoLines || ''}
+        `}
         onClick={onClick}
       >
-        <TriggerContent option={selectedOption} />
+        <TriggerContent option={selectedOption} stackedLayout={stackedLayout} />
         <ChevronDownDark />
       </button>
     );

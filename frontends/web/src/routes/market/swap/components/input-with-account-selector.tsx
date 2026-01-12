@@ -61,11 +61,13 @@ export const InputWithAccountSelector = ({
               accounts={accounts}
               selected={accountCode}
               onChange={onChangeAccountCode}
+              stackedLayout
             />
           )}
         </div>
         <div className={style.inputCol}>
           <NumberInput
+            transparent
             id={id}
             className={style.inputComponent}
             name={id}
