@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+
+## v9.50.0
+- Bundle BitBox02 Nova firmware version v9.25.0
 - Add a dropdown on the "Receiver address" input in the send screen to select an account
 - Add feedback link to guide and about settings
 - Move active currencies to top of currency dropdown
@@ -10,7 +13,7 @@
 - Sort backups from newest to oldest in manage backups
 - Android: fix display of external links from Bitrefill
 - fix language sometimes not persistent across app restarts
-- Android: make the UI work with responsive font sizes and adhere to OS font size settings 
+- Android: make the UI work with responsive font sizes and adhere to OS font size settings
 - Android: fix layout issues with status and navigation bars.
 - Android: make the UI work with responsive font sizes and adhere to OS font size settings
 - Add "Change device password" functionality (in Settings)
