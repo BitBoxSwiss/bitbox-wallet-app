@@ -782,11 +782,11 @@
       }
     },
     "firmware": {
-      "firmwareVersion": "Firmware version",
+      "firmwareVersion": "Firmware Version",
       "newVersion": {
         "label": "Available version"
       },
-      "title": "Device firmware",
+      "title": "Firmware",
       "upToDate": "Your device is up to date",
       "upgradeAvailable": "New upgrade available",
       "version": {

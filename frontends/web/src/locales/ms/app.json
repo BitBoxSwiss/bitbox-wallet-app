@@ -403,10 +403,8 @@
     "ok": "OK",
     "previous": "Sebelumnya",
     "proceedOnBitBox": "Teruskan pada BitBox anda",
-    "receive": "Terima",
     "restore": "Memulihkan",
     "select": "Pilih",
-    "send": "Hantar",
     "unlock": "Buka",
     "update": "Kemas kini",
     "upgrade": "Naik taraf"
@@ -1121,10 +1119,6 @@
         "text": "Bitsurance melindungi beberapa risiko penjagaan diri yang tidak dalam skop walaupun dompet paling selamat, mis. pecah rumah, peras ugut atau pemusnahan dompet. Ia adalah keputusan peribadi anda jika anda memerlukan perlindungan insurans untuk risiko ini.",
         "title": "Adakah saya memerlukan insurans Bitcoin?"
       }
-    },
-    "cointracking": {
-      "text": "Klik butang \"Eksport\" dan buka folder muat turun di mana anda akan menemui eksport CSV. Kemudian klik pautan di bawah, muat naik fail CSV BitBox anda dan import data untuk menggunakannya untuk pengurus portfolio CoinTracking anda dan untuk membuat laporan cukai anda.",
-      "title": "Bagaimana untuk mengimport urus niaga saya ke dalam CoinTracking?"
     },
     "device": {
       "attestation": {
@@ -1851,9 +1845,7 @@
       "address": "Alamat",
       "amount": "Jumlah",
       "date": "Tarikh",
-      "fiat": "Fiat",
       "fiatAmount": "Jumlah Fiat",
-      "fiatAtTime": "Fiat pada masa transaksi",
       "status": "Status",
       "title": "butiran transaksi",
       "type": "taip"
@@ -1864,10 +1856,6 @@
     "fiatHistorical": "Sejarah",
     "gas": "Gas",
     "no-results": "Tiada transaksi ditemui sepadan \"{{searchTerm}}\"",
-    "note": {
-      "edit": "Edit nota",
-      "save": "Simpan nota"
-    },
     "pending": "Transaksi belum selesai",
     "size": "Saiz",
     "status": {
