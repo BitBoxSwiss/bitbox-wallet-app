@@ -118,15 +118,19 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
     try {
       setStep('loading');
       const coins = await getSupportedCoins();
+      setSupportedCoins(coins);
       const onlyOneCoinIsSupported = (coins.length === 1);
       const firstCoin = coins[0];
-      if (firstCoin) {
-        setCoinCode(onlyOneCoinIsSupported ? firstCoin.coinCode : 'choose');
-        setStep(onlyOneCoinIsSupported ? 'choose-name' : 'select-coin');
-        setSupportedCoins(coins);
-        if (onlyOneCoinIsSupported) {
-          setAccountName(firstCoin.suggestedAccountName);
-        }
+      if (!firstCoin) {
+        setCoinCode('choose');
+        setAccountName('');
+        setStep('select-coin');
+        return;
+      }
+      setCoinCode(onlyOneCoinIsSupported ? firstCoin.coinCode : 'choose');
+      setStep(onlyOneCoinIsSupported ? 'choose-name' : 'select-coin');
+      if (onlyOneCoinIsSupported) {
+        setAccountName(firstCoin.suggestedAccountName);
       }
     } catch (err) {
       console.error(err);

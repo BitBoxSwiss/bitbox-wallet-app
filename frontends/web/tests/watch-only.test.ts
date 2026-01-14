@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { expect } from '@playwright/test';
 import { deleteAccountsFile } from './helpers/fs';
 import { test } from './helpers/fixtures';
 import { ServeWallet } from './helpers/servewallet';
@@ -123,6 +124,81 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
 
   await test.step('Check that accounts still show up', async () => {
     await assertFieldsCount(page, 'data-label', 'Account name', 3);
+  });
+});
+
+/**
+ * Test scenario 3:
+ * - Unlock BB02 with no passphrase.
+ * - Wait for accounts to load
+ * - Enable "Remember wallet" (watch-only)
+ * - Disconnect BB02 (kill the simulator)
+ * - Go to Manage accounts -> Add account
+ * - Check that the user is prompted to connect a keystore
+ */
+test('Test #3 - Watch-only add account prompts for keystore', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
+  await test.step('Start servewallet', async () => {
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { simulator: true });
+    await servewallet.start();
+  });
+
+  await test.step('Start simulator', async () => {
+    cleanFakeMemoryFiles();
+    const simulatorPath = process.env.SIMULATOR_PATH;
+    if (!simulatorPath) {
+      throw new Error('SIMULATOR_PATH environment variable not set');
+    }
+
+    simulatorProc = startSimulator(simulatorPath, testInfo.title, testInfo.project.name, true);
+    console.log('Simulator started');
+  });
+
+  await test.step('Initialize wallet', async () => {
+    await completeWalletSetupFlow(page);
+  });
+
+  await test.step('Enable watch-only account', async () => {
+    await page.getByRole('link', { name: 'Settings' }).click();
+    await page.getByRole('link', { name: 'Manage accounts' }).click();
+    await page.locator('label').filter({ hasText: 'Remember wallet' }).locator('label span').click();
+    await clickButtonWithText(page, 'OK');
+  });
+
+  await test.step('Kill simulator', async () => {
+    simulatorProc?.kill('SIGTERM');
+    simulatorProc = undefined;
+  });
+
+  await test.step('Navigate to add account and prompt for keystore', async () => {
+    await page.getByRole('button', { name: 'Add account' }).click();
+    await expect(page.getByText('Please connect your BitBox to continue')).toBeVisible();
+  });
+
+  await test.step('Reconnect keystore and add an account', async () => {
+    const simulatorPath = process.env.SIMULATOR_PATH;
+    if (!simulatorPath) {
+      throw new Error('SIMULATOR_PATH environment variable not set');
+    }
+
+    simulatorProc = startSimulator(simulatorPath, testInfo.title, testInfo.project.name, true);
+
+    const dropdown = page.locator('.react-select__control');
+    const nameInput = page.locator('#accountName');
+    await Promise.race([
+      dropdown.waitFor({ state: 'visible' }),
+      nameInput.waitFor({ state: 'visible' }),
+    ]);
+
+    if (await dropdown.isVisible()) {
+      await dropdown.click();
+      await page.locator('.react-select__option:not(.react-select__option--is-disabled)').first().click();
+      await page.getByRole('button', { name: 'Next' }).click();
+      await nameInput.waitFor({ state: 'visible' });
+    }
+
+    await nameInput.fill('Test account');
+    await page.getByRole('button', { name: 'Add account' }).click();
+    await expect(page.getByText('has now been added to your accounts.')).toBeVisible();
   });
 });
 
