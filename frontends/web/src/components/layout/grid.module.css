@@ -1,5 +1,6 @@
 .columnAsCard {
     background-color: var(--background-secondary);
+    border-radius: var(--radius-xl);
     padding: var(--space-default);
 }
 

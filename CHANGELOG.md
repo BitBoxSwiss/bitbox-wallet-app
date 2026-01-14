@@ -21,6 +21,7 @@
 - Restructure "Manage device" tab in settings
 - Responsive account selector (Marketplace)
 - iOS: Improve Bluetooth alert messaging by distinguishing between system-wide Bluetooth being disabled and the app lacking Bluetooth permission.
+- Apply rounded corners in several places and components of the app
 
 ## v4.49.0
 - Bundle BitBox02 Nova firmware version v9.24.0

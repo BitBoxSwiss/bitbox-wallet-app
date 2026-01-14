@@ -26,7 +26,7 @@
 .input input {
     background-color: var(--background-secondary);
     border-color: var(--background-quaternary);
-    border-radius: 2px;
+    border-radius: var(--radius-lg);
     border-style: solid;
     border-width: var(--border-width);
     font-family: var(--font-family);

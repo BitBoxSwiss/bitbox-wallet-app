@@ -231,7 +231,7 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
               </>
             } />
           <View fullscreen={false}>
-            <ViewContent fullWidth>
+            <ViewContent>
               <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>
                 <Button
                   className={style.addAccountBtn}
@@ -243,6 +243,7 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
                 <Grid col="1">
                   { accountsByKeystore.map(keystore => (
                     <Column
+                      className={style.accounts}
                       key={keystore.keystore.rootFingerprint}
                       asCard>
                       <div className={style.walletHeader}>
