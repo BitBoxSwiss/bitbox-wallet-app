@@ -5,6 +5,8 @@ import type { TVendorName } from '@/api/market';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { getBTCDirectPrivacyLink } from '@/components/terms/btcdirect-otc-terms';
+import { getBitrefillPrivacyLink } from '@/components/terms/bitrefill-terms';
+import { BitrefillGuide } from './bitrefill-guide';
 
 type BuyGuideProps = {
   vendor?: TVendorName;
@@ -29,6 +31,11 @@ const usePrivacyLink = (vendor?: TVendorName) => {
       text: t('exchange.pocket.terms.dataprotection.link'),
       url: 'https://pocketbitcoin.com/policy/privacy',
     });
+  case 'bitrefill':
+    return ({
+      text: t('buy.exchange.infoContent.bitrefill.disclaimer.dataProtection.link'),
+      url: getBitrefillPrivacyLink(),
+    });
   }
 };
 
@@ -52,6 +59,12 @@ const useServiceLink = (vendor?: TVendorName) => {
       text: 'pocketbitcoin.com/contact',
       url: 'https://pocketbitcoin.com/contact',
     });
+  case 'bitrefill':
+    return ({
+      name: 'Bitrefill',
+      text: 'help.bitrefill.com',
+      url: 'https://help.bitrefill.com/',
+    });
   }
 };
 
@@ -68,17 +81,20 @@ export const MarketGuide = ({ vendor, translationContext }: BuyGuideProps) => {
         title: t('buy.info.disclaimer.protection.title'),
       }}
       />
-      <Entry
-        key="guide.appendix.questionService"
-        entry={{
-          title: t('guide.appendix.questionService', { serviceName: serviceLink?.name }),
-          text: t('guide.appendix.textService', { serviceName: serviceLink?.name }),
-          link: {
-            text: serviceLink?.text || '',
-            url: serviceLink?.url,
-          },
-        }}
-      />
+      {!!vendor && (
+        <Entry
+          key="guide.appendix.questionService"
+          entry={{
+            title: t('guide.appendix.questionService', { serviceName: serviceLink?.name }),
+            text: t('guide.appendix.textService', { serviceName: serviceLink?.name }),
+            link: {
+              text: serviceLink?.text || '',
+              url: serviceLink?.url,
+            },
+          }}
+        />
+      )}
+      {vendor === 'bitrefill' && <BitrefillGuide />}
     </Guide>
   );
 };
