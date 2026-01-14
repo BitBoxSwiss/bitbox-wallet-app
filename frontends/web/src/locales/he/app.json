@@ -219,10 +219,8 @@
     "next": "הבא",
     "ok": "בסדר",
     "previous": "הקודם",
-    "receive": "קבל",
     "restore": "שחזר",
     "select": "בחר",
-    "send": "שלח",
     "unlock": "בטל נעילה",
     "update": "עדכן",
     "upgrade": "שדרג"
@@ -817,7 +815,6 @@
       "address": "כתובת",
       "amount": "כמות",
       "date": "תאריך",
-      "fiat": "פיאט",
       "fiatAmount": "כמות פיאט",
       "status": "מצב",
       "type": "סוג"
@@ -827,10 +824,6 @@
     "fee": "עמלה",
     "fiatHistorical": "היסטורי",
     "gas": "גז",
-    "note": {
-      "edit": "ערוך הערה",
-      "save": "שמור הערה"
-    },
     "pending": "עסקה ממתינה",
     "size": "גודל",
     "status": {

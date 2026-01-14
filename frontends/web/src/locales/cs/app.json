@@ -105,9 +105,10 @@
   },
   "backup": {
     "check": {
+      "aborted": "Kontrola zálohy byla na zařízení zrušena",
       "checking": "Kontrola zálohy...",
       "confirmTitle": "Zkontrolovat zálohu",
-      "notOK": "Záloha NEODPOVÍDÁ peněžence.",
+      "notOK": "Žádná záloha na microSD kartě neodpovídala peněžence na BitBoxu. K tomu může dojít, pokud jste vložili microSD kartu, která byla použita k nastavení jiného BitBoxu. Najděte správnou microSD kartu použitou k nastavení tohoto BitBoxu a zkuste to znovu.",
       "ok": "Záloha odpovídá peněžence.",
       "password": {
         "label": "Heslo pro obnovení",
@@ -204,6 +205,11 @@
       "description": "Bluetooth se používá pro připojení k iPhonu.",
       "titleDisabled": "Povolit Bluetooth",
       "titleEnabled": "Vypnout Bluetooth"
+    },
+    "changePassword": {
+      "description": "Změnit heslo BitBoxu",
+      "success": "Heslo bylo úspěšně změněno",
+      "title": "Změnit heslo zařízení"
     },
     "deviceName": {
       "current": "Aktuální název zařízení",
@@ -378,6 +384,10 @@
     "connected": "připojený",
     "connectionFailed": "neúspěšné",
     "connectionIssues": "Máte problémy s připojením?",
+    "disabledGloballyDescription": "Pro připojení k BitBoxu zapněte Bluetooth.",
+    "disabledGloballyTitle": "Bluetooth přístup je vypnutý.",
+    "disabledPermissionDescription": "Povolte Bluetooth pro připojení k BitBoxu.",
+    "disabledPermissionTitle": "Přístup k Bluetooth je pro BitBoxApp zakázán.",
     "enable": "Zapněte prosím Bluetooth",
     "select": "Vyberte svůj BitBox"
   },
@@ -403,10 +413,8 @@
     "ok": "OK",
     "previous": "Předchozí",
     "proceedOnBitBox": "Pokračujte na svém BitBoxu",
-    "receive": "Přijmout",
     "restore": "Obnovit",
     "select": "Vybrat",
-    "send": "Poslat",
     "unlock": "Odemknout",
     "update": "Aktualizovat",
     "upgrade": "Aktualizovat"
@@ -713,12 +721,19 @@
       },
       "title": "Zálohy"
     },
+    "bluetoothFirmware": {
+      "title": "Bluetooth firmware"
+    },
     "deviceInformation": {
       "attestation": {
         "description": "BitBoxApp kontroluje, zda je vaše zařízení pravé."
       },
       "deviceName": {
         "description": "Změňte název zařízení."
+      },
+      "passwordStretchingAlgo": {
+        "description": "Algoritmus používaný k šifrování seedu na vašem BitBoxu.",
+        "title": "Algoritmus odemknutí"
       },
       "rootFingerprint": {
         "description": "Otisk je jedinečný identifikátor právě používané peněženky. Může vám pomoci rozlišit různé peněženky, pokud používáte přístupové fráze."
@@ -727,6 +742,9 @@
         "description": "Model bezpečného čipu."
       },
       "title": "Informace o zařízení"
+    },
+    "deviceSettings": {
+      "title": "Nastavení zařízení"
     },
     "expert": {
       "bip85": {
@@ -882,20 +900,26 @@
     "buy_bitcoin": "Koupit Bitcoin",
     "buy_crypto": "Koupit krypto",
     "close": "Zavřít",
+    "enable": "Povolit",
     "enabled_false": "Vypnuto",
     "enabled_true": "Zapnuto",
     "noOptionOnIos": "Není k dispozici pro iOS",
     "noOptions": "Nenalezeny žádné možnosti",
     "paymentRequestNote": "{{name}} platba {{orderId}}",
     "receive": "Přijmout {{coinCode}}",
+    "receiveWithoutCoinCode": "Přijmout",
     "receive_bitcoin": "Přijmout Bitcoin",
     "receive_crypto": "Přijmout crypto",
+    "received": "Přijato",
+    "reset": "Reset",
     "resetToDefault": "Obnovit výchozí nastavení",
     "search": "Vyhledávání…",
     "searchButton": "Hledat",
     "sell": "Prodat {{coinCode}}",
     "sell_bitcoin": "Prodat bitcoiny",
     "sell_crypto": "Prodat kryptoměny",
+    "send": "Odeslat",
+    "sent": "Odesláno",
     "spend_bitcoin": "Utratit bitcoiny",
     "spend_crypto": "Utratit kryptoměny"
   },
@@ -944,6 +968,10 @@
       "title": "Co znamená přicházející transakce?"
     },
     "accountInfo": {
+      "exportTransactions": {
+        "text": "Zvolte „Export transakcí“ v části „Detaily účtu“ a otevřete složku se staženými soubory, kde najdete exportovaný soubor CSV. Ten může být užitečný pro služby, jako je CoinTracking, při daňovém přiznání.",
+        "title": "Jak mohu exportovat historii svých transakcí? (např. pro CoinTracking)"
+      },
       "multipleXPubs": {
         "text": "Každý xpub je svázán se zobrazeným typem: buď \"Native Segwit (bech32)\", \"Wrapped Segwit\" nebo \"Taproot\" (pouze u Bitcoinu). Jedná se o typy skriptů, které používá {{coinName}}. BitBoxApp je kombinuje a podporuje více typů skriptů v rámci jednoho účtu. Protože každý typ skriptu dává jiný xpub, existuje více xpubů pro jeden účet.\n\nPokud soustavně přijímáte na výchozí adrese (Native Segwit), potřebujete pouze \"bech32\" xpub. Pokud však přijímáte prostředky také na \"Wrapped Segwit\" nebo \"Taproot\", musíte používat také další veřejné klíče \"Wrapped Segwit\", xpub respektive \"Taproot\" xpub.",
         "title": "Proč existuje více xpubů?"
@@ -1003,7 +1031,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin a Litecoin mohou mít libovolné množství účtů. Po pěti účtech můžete přidat další účet pouze v případě, že předchozí účet byl použit. \nOstatní měny mohou mít maximálně pět účtů.",
+        "text": "Bitcoin a Litecoin mohou mít libovolný počet účtů. Po šesti účtech můžete přidat další účet pouze v případě, že byl použit předchozí účet.\nJiné coiny mohou mít maximálně pět účtů.",
         "title": "Kolik účtů mohu vytvořit?"
       },
       "howtoAddTokens": {
@@ -1039,6 +1067,10 @@
       }
     },
     "appendix": {
+      "feedback": {
+        "link": "Dejte nám vědět.",
+        "text": "Chcete nám poskytnout zpětnou vazbu?"
+      },
       "link": "Kontaktujte nás!",
       "questionService": "Máte problémy s {{serviceName}}?",
       "text": "Další otázka?",
@@ -1121,10 +1153,6 @@
         "text": "Bitsurance pokrývá některá rizika vlastní úschovy (self-custody), která nespadají ani do té nejbezpečnější peněženky, např. vloupání, vydírání nebo zničení peněženky. Je to vaše osobní rozhodnutí, zda potřebujete pojištění pro tato rizika.",
         "title": "Potřebuji pojištění bitcoinů?"
       }
-    },
-    "cointracking": {
-      "text": "Klikněte na tlačítko \"Export\" a otevřete složku se staženými soubory, kde najdete export CSV. Poté klikněte na níže uvedený odkaz, nahrajte svůj BitBox CSV soubor a importujte data, abyste je mohli použít pro správce portfolia CoinTracking a pro vytváření daňových výkazů.",
-      "title": "Jak importovat mé transakce do služby CoinTracking?"
     },
     "device": {
       "attestation": {
@@ -1376,6 +1404,14 @@
     "about": {
       "appVersion": {
         "title": "Verze aplikace"
+      },
+      "feedbackLink": {
+        "description": "Pokud máte obecné připomínky",
+        "title": "Zpětná vazba"
+      },
+      "supportLink": {
+        "description": "Pokud máte problém nebo potřebujete pomoc",
+        "title": "Podpora"
       }
     },
     "advancedSettings": {
@@ -1706,6 +1742,10 @@
     "priority": "Priorita",
     "scanQR": "Naskenujte QR kód",
     "scanQRNoCameraMessage": "Kamera nenalezena. Ujistěte se, že vaše zařízení podporuje kameru a že jsou správně nastavena oprávnění.",
+    "sendToAccount": {
+      "placeholder": "Vyberte účet",
+      "title": "Odeslat na účet"
+    },
     "success": "Transakce byla podepsána a odeslána.",
     "title": "Poslat {{accountName}}",
     "toggleCoinControl": "Coin control",
@@ -1850,10 +1890,12 @@
       "activity": "Přehled aktivit",
       "address": "Adresa",
       "amount": "Částka",
+      "currentFiat": "Aktuální fiat",
       "date": "Datum",
-      "fiat": "Fiat",
       "fiatAmount": "Částka ve fiatu",
-      "fiatAtTime": "Fiat v době transakce",
+      "from": "Od",
+      "historicalFiat": "Historický fiat",
+      "sendToSelf": "Odeslat sobě",
       "status": "Stav",
       "title": "Detaily transakce",
       "type": "Typ"
@@ -1864,10 +1906,6 @@
     "fiatHistorical": "Historický",
     "gas": "Gas",
     "no-results": "Nebyly nalezeny žádné transakce odpovídající výrazu „{{searchTerm}}“",
-    "note": {
-      "edit": "Upravit poznámku",
-      "save": "Uložit poznámku"
-    },
     "pending": "Čekající transakce",
     "size": "Velikost",
     "status": {

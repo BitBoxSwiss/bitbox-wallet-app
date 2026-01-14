@@ -100,14 +100,15 @@
   "auth": {
     "authButton": "Autentificar",
     "dismissButton": "Cancelar",
-    "missing": "Activa el bloqueo de pantalla en la configuración de tu dispositivo.",
+    "missing": "Activa el bloqueo de pantalla en la configuración de sistema de tu dispositivo.",
     "title": "Por favor, autentifícate para continuar"
   },
   "backup": {
     "check": {
+      "aborted": "Se ha abortado la comprobación de la copia de seguridad en el dispositivo",
       "checking": "Comprobando copia de seguridad ...",
       "confirmTitle": "Verificar copia de seguridad",
-      "notOK": "La copia de seguridad NO coincide con la billetera.",
+      "notOK": "No hay copias de seguridad en la tarjeta microSD que coincidan con la billetera de la BitBox. Esto puede ocurrir si insertaste una tarjeta microSD que se usó para configurar otra BitBox. Localiza la tarjeta microSD correcta que usaste para configurar esta BitBox e inténtalo de nuevo.",
       "ok": "La copia de seguridad coincide con la billetera.",
       "password": {
         "label": "Contraseña de recuperación",
@@ -204,6 +205,11 @@
       "description": "Bluetooth se utiliza para conectarse con el iPhone.",
       "titleDisabled": "Habilitar Bluetooth",
       "titleEnabled": "Desactivar Bluetooth"
+    },
+    "changePassword": {
+      "description": "Cambiar la contraseña de la BitBox.",
+      "success": "Contraseña cambiada con éxito",
+      "title": "Cambiar contraseña del dispositivo"
     },
     "deviceName": {
       "current": "Nombre del dispositivo actual",
@@ -378,6 +384,10 @@
     "connected": "Conectado",
     "connectionFailed": "Conexión fallida",
     "connectionIssues": "¿Tiene problemas de conexión",
+    "disabledGloballyDescription": "Activa el Bluetooth para conectarte a tu BitBox.",
+    "disabledGloballyTitle": "El acceso Bluetooth está deshabilitado.",
+    "disabledPermissionDescription": "Por favor, permite que el Bluetooth se conecte a tu BitBox.",
+    "disabledPermissionTitle": "El acceso Bluetooth está deshabilitado para la BitBoxApp.",
     "enable": "Por favor enciende el Bluetooth",
     "select": "Selecciona tu BitBox"
   },
@@ -403,10 +413,8 @@
     "ok": "OK",
     "previous": "Anterior",
     "proceedOnBitBox": "Seguir en la BitBox",
-    "receive": "Recibir",
     "restore": "Restaurar",
     "select": "Selecciona",
-    "send": "Enviar",
     "unlock": "Desbloquea tu billetera",
     "update": "Actualizar",
     "upgrade": "Actualizar"
@@ -713,12 +721,19 @@
       },
       "title": "Copias de seguridad"
     },
+    "bluetoothFirmware": {
+      "title": "Firmware Bluetooth"
+    },
     "deviceInformation": {
       "attestation": {
         "description": "La BitBoxApp comprueba si tu dispositivo es auténtico."
       },
       "deviceName": {
         "description": "Cambia el nombre de tu dispositivo."
+      },
+      "passwordStretchingAlgo": {
+        "description": "El algoritmo utilizado para cifrar la semilla en tu BitBox.",
+        "title": "Algoritmo de desbloqueo"
       },
       "rootFingerprint": {
         "description": "La huella raíz o root fingerprint es un identificador único para la billetera actualmente en uso. Puede ayudarte a distinguir entre diferentes billeteras si utilizas alguna passphrase."
@@ -727,6 +742,9 @@
         "description": "El modelo del chip seguro."
       },
       "title": "Información del dispositivo"
+    },
+    "deviceSettings": {
+      "title": "Configuración del dispositivo"
     },
     "expert": {
       "bip85": {
@@ -839,7 +857,7 @@
           "note": "Nota: Los tipos de cambio de Pocket pueden diferir de los tipos moentrados en la BitBoxApp.",
           "p1": "<strong>Comprar bitcoin:</strong> Envía EUR o CHF medienta transferencia bancaria (SEPA) y recibe bitcoin directamente en tu BitBox después de que Pocket reciba la transferencia, generalmente el mismo día.",
           "p2": "<strong>Vender bitcoin:</strong> Envía Bitcoin a Pocket y recibe EUR o CHF en tu cuenta bancaria registrada. El tipo de cambio se fija cuando Pocket recibe tu Bitcoin.",
-          "title": "Métodos de pago y tarifas"
+          "title": "Métodos de pago y comisiones"
         },
         "kyc": {
           "info": "Pocket podría solicitar documentos de identificación. Consulta sus preguntas frecuentes para obtener más información.",
@@ -882,20 +900,26 @@
     "buy_bitcoin": "Comprar Bitcoin ",
     "buy_crypto": "Comprar criptomonedas",
     "close": "Cerrar",
+    "enable": "Habilitar",
     "enabled_false": "Desactivado",
     "enabled_true": "Activado",
     "noOptionOnIos": "No disponible en iOS",
     "noOptions": "No se encontraron opciones",
     "paymentRequestNote": "{{name}} pago {{orderId}}",
     "receive": "Recibir {{coinCode}}",
+    "receiveWithoutCoinCode": "Recibir",
     "receive_bitcoin": "Recibir Bitcoin",
     "receive_crypto": "Recibir criptomonedas",
+    "received": "Recibido",
+    "reset": "Reiniciar",
     "resetToDefault": "Restablecer a valores predeterminados",
     "search": "Buscar...",
     "searchButton": "Buscar",
     "sell": "Vender {{coinCode}}",
     "sell_bitcoin": "Vender Bitcoin",
     "sell_crypto": "Vender criptomonedas",
+    "send": "Enviar",
+    "sent": "Enviado",
     "spend_bitcoin": "Gastar bitcoin",
     "spend_crypto": "Gastar criptomonedas"
   },
@@ -944,6 +968,10 @@
       "title": "¿Qué significa \"Entrante\"?"
     },
     "accountInfo": {
+      "exportTransactions": {
+        "text": "En \"Información de la cuenta\", selecciona \"Exportar transacciones\" y abre la carpeta de descargas para encontrar el archivo CSV exportado. Esto puede ser útil para servicios como CoinTracking para la declaración de impuestos.",
+        "title": "¿Cómo puedo exportar mi historial de transacciones? (por ejemplo, para CoinTracking)"
+      },
       "multipleXPubs": {
         "text": "Cada xpub está relacionada con el \"Tipo\" mostrado: tanto \"Native Segwit (bech32)\", \"Wrapped Segwit\" como \"Taproot\" (Bitcoin only). Estos son tipos de script utilizados por {{coinName}}. La BitBoxApp las combina, soportando múltiples tipos de script en la misma cuenta. Porque cada tipo de script proporciona una xpub diferente, hay múltiples xpubs por cuenta.\n\nSi constantemente recibes en la dirección por defecto (Native Segwit), solo necesitas la xpub marcada como \"bech32\". Sin embargo, si también recibes fondos en \"Wrapped Segwit\" o \"Taproot\", también necesitaras utilizar las claves públicas extendidas de \"Wrapped Segwit\" y \"Taproot\" respectivamente.",
         "title": "¿Porqué hay múltiples xpubs?"
@@ -1039,6 +1067,10 @@
       }
     },
     "appendix": {
+      "feedback": {
+        "link": "Haznoslo saber.",
+        "text": "¿Tienes comentarios?"
+      },
       "link": "¡Contacta con nosotros!",
       "questionService": "¿Tienes problemas con {{serviceName}}?",
       "text": "¿Otra pregunta?",
@@ -1122,10 +1154,6 @@
         "title": "¿Necesito un seguro Bitcoin?"
       }
     },
-    "cointracking": {
-      "text": "Haz click en el botón \"Exportar\" y abre la carpeta de descargas donde encontrarás el archivo CSV exportado.\nA continuación haz click en el enlace de abajo, carga tu archivo BitBox CSV e importa los datos para ser utilizados por tu portafolio de CoinTracking y crear tus informes fiscales.",
-      "title": "¿Cómo importar mis transacciones a CoinTracking?"
-    },
     "device": {
       "attestation": {
         "link": {
@@ -1152,7 +1180,7 @@
       "accountSummary": "Guía de resumen de cuentas",
       "advancedSettings": "Guía de Configuración avanzada",
       "appearance": "Guía de apariencia",
-      "buySell": "Guía de compra y venta",
+      "buySell": "Guía del Marketplace",
       "insurance": "Guía de seguros",
       "manageAccount": "Guía de manejo de cuentas",
       "manageDevice": "Guía de administración de dispositivos",
@@ -1376,6 +1404,14 @@
     "about": {
       "appVersion": {
         "title": "Versión de la aplicación"
+      },
+      "feedbackLink": {
+        "description": "Si tienes comentarios generales",
+        "title": "Comentarios"
+      },
+      "supportLink": {
+        "description": "Si tienes algún problema o necesitas ayuda",
+        "title": "Soporte"
       }
     },
     "advancedSettings": {
@@ -1706,6 +1742,10 @@
     "priority": "Prioridad",
     "scanQR": "Escanear código QR",
     "scanQRNoCameraMessage": "Cámara no encontrada. Por favor asegúrese de que su dispositivo cuente con una cámara y de que los permisos estén correctamente configurados.",
+    "sendToAccount": {
+      "placeholder": "Seleccionar cuenta ",
+      "title": "Enviar a cuenta"
+    },
     "success": "La transacción ha sido firmada y enviada.",
     "title": "Enviar {{accountName}}",
     "toggleCoinControl": "Control de monedas",
@@ -1850,10 +1890,12 @@
       "activity": "Actividades",
       "address": "Dirección",
       "amount": "Cantidad",
+      "currentFiat": "Moneda Fiat actual",
       "date": "Fecha",
-      "fiat": "Fiat",
       "fiatAmount": "Cantidad Fiat",
-      "fiatAtTime": "Fiat en el momento de la transacción",
+      "from": "De",
+      "historicalFiat": "Histórico Fiat",
+      "sendToSelf": "Enviar a mí mismo",
       "status": "Estado",
       "title": "Detalles de la transacción",
       "type": "Tipo"
@@ -1864,10 +1906,6 @@
     "fiatHistorical": "Historial",
     "gas": "Gas",
     "no-results": "No se encontraron transacciones que coincidan con \"{{searchTerm}}\"",
-    "note": {
-      "edit": "Editar nota",
-      "save": "Guardar nota"
-    },
     "pending": "Transacción pendiente",
     "size": "Tamaño",
     "status": {

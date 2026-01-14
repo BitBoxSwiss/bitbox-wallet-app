@@ -381,10 +381,8 @@
     "ok": "D'accord",
     "previous": "Précédent",
     "proceedOnBitBox": "Procédez sur votre BitBox.",
-    "receive": "Recevoir",
     "restore": "Restaurer",
     "select": "Sélectionner",
-    "send": "Envoyer",
     "unlock": "Déverrouiller",
     "update": "Mise à jour",
     "upgrade": "Mettre à jour"
@@ -1022,10 +1020,6 @@
         "text": "Bitsurance couvre certains risques liés à la self-custody (détention par soi-même) qui ne sont pas couverts même par les wallets les plus sûrs, comme par exemple le cambriolage, l'extorsion ou la destruction du-dit wallet. Il vous appartient de décider par vous même si vous avez la nécessité d'une police d'assurance pour ces risques.",
         "title": "Ai-je besoin d'une assurance Bitcoin ?"
       }
-    },
-    "cointracking": {
-      "text": "Cliquez sur le bouton \"Exporter\" et ouvrez le dossier de téléchargement où vous trouverez l'exportation CSV. Cliquez ensuite sur le lien ci-dessous, téléchargez votre fichier CSV BitBox et importez les données afin de les utiliser avec votre gestionnaire de portefeuille CoinTracking et pour créer vos déclaration fiscales.",
-      "title": "Comment importer mes transactions dans CoinTracking ?"
     },
     "device": {
       "attestation": {
@@ -1703,9 +1697,7 @@
       "address": "Adresse",
       "amount": "Montant",
       "date": "Date",
-      "fiat": "Devise",
       "fiatAmount": "Montant en Fiat",
-      "fiatAtTime": "Fiat au moment de la transaction",
       "status": "Statut",
       "title": "Détails de la transaction",
       "type": "Type"
@@ -1715,10 +1707,6 @@
     "fee": "Frais",
     "fiatHistorical": "Historique",
     "gas": "Gaz",
-    "note": {
-      "edit": "Modifier la note",
-      "save": "Sauvegarder la note"
-    },
     "pending": "Transaction en attente",
     "size": "Taille",
     "status": {

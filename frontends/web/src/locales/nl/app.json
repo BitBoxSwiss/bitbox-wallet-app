@@ -403,10 +403,8 @@
     "ok": "OK",
     "previous": "Vorige",
     "proceedOnBitBox": "Ga door op je BitBox",
-    "receive": "Ontvangen",
     "restore": "Herstellen",
     "select": "Selecteren",
-    "send": "Verzenden",
     "unlock": "Ontgrendelen",
     "update": "Updaten",
     "upgrade": "Upgraden"
@@ -1120,10 +1118,6 @@
         "text": "Bitsurance dekt een aantal risico's van het in eigen beheer houden van je coins die niet door een wallet afgevangen kunnen worden, zoals diefstal, afpersing of vernietiging van de wallet. Het is een persoonlijke beslissing of je voor deze risico's een verzekering nodig hebt.",
         "title": "Heb ik een Bitcoin-verzekering nodig?"
       }
-    },
-    "cointracking": {
-      "text": "Klik op de 'exporteren' knop en open de downloads map. Hier vind je een .csv export bestand. Klik op onderstaande link, upload je BitBox .csv bestand en importeer de data om het in je CoinTracking porfoliomanager te gebruiken en je belastingaangifte te genereren.",
-      "title": "Hoe importeer ik mijn transacties in CoinTracking?"
     },
     "device": {
       "attestation": {
@@ -1850,9 +1844,7 @@
       "address": "Adres",
       "amount": "Hoeveelheid",
       "date": "Datum",
-      "fiat": "Fiat",
       "fiatAmount": "Hoeveelheid in fiat",
-      "fiatAtTime": "Fiat-waarde ten tijde van de transactie",
       "status": "Status",
       "title": "Transactiedetails",
       "type": "Type"
@@ -1863,10 +1855,6 @@
     "fiatHistorical": "Historie",
     "gas": "Gas",
     "no-results": "Geen transacties met \"{{searchTerm}}\" gevonden",
-    "note": {
-      "edit": "Notitie aanpassen",
-      "save": "Notitie opslaan"
-    },
     "pending": "Transactie in behandeling",
     "size": "Grootte",
     "status": {

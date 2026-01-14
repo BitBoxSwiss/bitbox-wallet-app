@@ -403,10 +403,8 @@
     "ok": "OK",
     "previous": "Anterior",
     "proceedOnBitBox": "Prossiga em sua BitBox",
-    "receive": "Receber",
     "restore": "Restaurar",
     "select": "Selecionar",
-    "send": "Enviar",
     "unlock": "Desbloquear",
     "update": "Atualizar",
     "upgrade": "Atualizar"
@@ -1121,10 +1119,6 @@
         "text": "O Bitsurance cobre alguns riscos de autocustódia que não estão no escopo nem mesmo da carteira mais segura, por exemplo. roubo, extorsão ou destruição da carteira. A decisão é sua se você precisa de cobertura de seguro para esses riscos.",
         "title": "Preciso de seguro de Bitcoin?"
       }
-    },
-    "cointracking": {
-      "text": "Clique no botão \"Exportar\" e abra a pasta de downloads onde você ira encontrar seu arquivo CSV exportado. Depois clique no link abaixo, faça upload do arquivo CSV BitBox e importe ele a fim de usar os dados no seu Gerenciador de rastreamento de moeda e poderá criar seus relatórios de taxa.",
-      "title": "Como importar minhas transações para a CoinTracking?"
     },
     "device": {
       "attestation": {
@@ -1851,9 +1845,7 @@
       "address": "Endereço",
       "amount": "Valor",
       "date": "Data",
-      "fiat": "Fiduciária",
       "fiatAmount": "Valor fiduciário",
-      "fiatAtTime": "Fiat no momento da transação",
       "status": "Status",
       "title": "Detalhes da transação",
       "type": "Tipo"
@@ -1864,10 +1856,6 @@
     "fiatHistorical": "Histórico",
     "gas": "Gas",
     "no-results": "Nenhuma transação encontrada correspondendo a \"{{searchTerm}}\"",
-    "note": {
-      "edit": "Editar nó",
-      "save": "Salvar nó"
-    },
     "pending": "Transação pendente",
     "size": "Tamanho",
     "status": {
