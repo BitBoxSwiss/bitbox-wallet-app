@@ -46,7 +46,7 @@
     "balance": "Baki",
     "coin": "Syiling",
     "exportSummary": "Eksport ringkasan akaun ke folder muat turun sebagai fail CSV",
-    "fiatBalance": "Baki Fiat",
+    "fiatBalance": "Baki fiat",
     "name": "Nama akaun",
     "noAccount": "Tiada akaun untuk dipaparkan.",
     "portfolio": "Portfolio",
@@ -105,9 +105,10 @@
   },
   "backup": {
     "check": {
+      "aborted": "Pemeriksaan sandaran telah dihentikan pada peranti",
       "checking": "Memeriksa backup...",
       "confirmTitle": "Semak sandaran",
-      "notOK": "Backup TIDAK sepadan dengan wallet.",
+      "notOK": "Tiada sandaran pada kad microSD yang sepadan dengan dompet di BitBox. Ini boleh berlaku jika anda memasukkan kad microSD yang digunakan untuk menyediakan BitBox yang lain. Sila cari kad microSD yang betul yang digunakan semasa menyediakan BitBox ini dan cuba lagi.",
       "ok": "Backup sepadan dengan wallet.",
       "password": {
         "label": "Kata laluan pemulihan",
@@ -204,6 +205,11 @@
       "description": "Bluetooth digunakan untuk menyambung dengan iPhone.",
       "titleDisabled": "Hidupkan Bluetooth",
       "titleEnabled": "Matikan Bluetooth"
+    },
+    "changePassword": {
+      "description": "Tukar kata laluan peranti BitBox.",
+      "success": "Kata laluan berjaya ditukar",
+      "title": "Tukar kata laluan peranti"
     },
     "deviceName": {
       "current": "Nama peranti semasa",
@@ -378,6 +384,10 @@
     "connected": "bersambung",
     "connectionFailed": "gagal",
     "connectionIssues": "Menghadapi masalah sambungan?",
+    "disabledGloballyDescription": "Sila hidupkan Bluetooth untuk bersambung ke BitBox anda.",
+    "disabledGloballyTitle": "Akses Bluetooth dilumpuhkan.",
+    "disabledPermissionDescription": "Sila benarkan Bluetooth bersambung ke BitBox anda.",
+    "disabledPermissionTitle": "Akses Bluetooth dinyahdayakan untuk BitBoxApp.",
     "enable": "Sila hidupkan Bluetooth",
     "select": "Pilih BitBox anda"
   },
@@ -711,12 +721,19 @@
       },
       "title": "Sandaran"
     },
+    "bluetoothFirmware": {
+      "title": "Perisian tegar Bluetooth"
+    },
     "deviceInformation": {
       "attestation": {
         "description": "BitBoxApp menyemak sama ada peranti anda adalah tulen."
       },
       "deviceName": {
         "description": "Tukar nama peranti anda."
+      },
+      "passwordStretchingAlgo": {
+        "description": "Algoritma yang digunakan untuk menyulitkan benih pada BitBox anda.",
+        "title": "Algoritma buka kunci (unlock algorithm)"
       },
       "rootFingerprint": {
         "description": "Root fingerprint ialah pengecam unik untuk dompet yang sedang digunakan. Root fingerpri boleh membantu anda membezakan antara dompet yang berbeza jika anda menggunakan frasa laluan."
@@ -725,6 +742,9 @@
         "description": "Model cip selamat."
       },
       "title": "Maklumat peranti"
+    },
+    "deviceSettings": {
+      "title": "Tetapan peranti"
     },
     "expert": {
       "bip85": {
@@ -880,20 +900,26 @@
     "buy_bitcoin": "Beli Bitcoin",
     "buy_crypto": "Beli kripto",
     "close": "tutup",
+    "enable": "Dayakan",
     "enabled_false": "Dinyahaktifkan",
     "enabled_true": "Diaktifkan",
     "noOptionOnIos": "Tidak tersedia pada iOS",
     "noOptions": "Tiada pilihan ditemui",
     "paymentRequestNote": "{{name}} payment {{orderId}}",
     "receive": "terima {{coinCode}}",
+    "receiveWithoutCoinCode": "Terima",
     "receive_bitcoin": "Terima Bitcoin",
     "receive_crypto": "Terima crypto",
+    "received": "Diterima",
+    "reset": "Tetapkan semula",
     "resetToDefault": "Tetapkan semula kepada tetapan standard",
     "search": "Cari…",
     "searchButton": "Cari",
     "sell": "Jual {{coinCode}}",
     "sell_bitcoin": "Jual Bitcoin",
     "sell_crypto": "Jual crypto",
+    "send": "Hantar",
+    "sent": "Dihantar",
     "spend_bitcoin": "Belanja bitcoin",
     "spend_crypto": "Belanja kripto"
   },
@@ -942,6 +968,10 @@
       "title": "Apakah maksud akan masuk?"
     },
     "accountInfo": {
+      "exportTransactions": {
+        "text": "\"Eksport transaksi\" di bawah \"Maklumat akaun\" dan buka folder muat turun anda untuk mencari fail CSV yang dieksport. Ini berguna untuk perkhidmatan seperti CoinTracking untuk pelaporan cukai.",
+        "title": "Bagaimanakah saya boleh mengeksport sejarah transaksi saya? (cth., untuk CoinTracking)"
+      },
       "multipleXPubs": {
         "text": "Setiap xpub terikat dengan \"Jenis\" yang ditunjukkan: sama ada \"Segwit Asli (bech32)\", \"Segwit Terbungkus\" atau \"Taproot\" (Bitcoin sahaja). Ini adalah jenis skrip yang digunakan oleh {{coinName}}. BitBoxApp menggabungkannya, menyokong berbilang jenis skrip dalam akaun yang sama. Kerana setiap jenis skrip memberikan xpub yang berbeza, terdapat berbilang xpub bagi setiap akaun.\n\nJika anda menerima secara konsisten pada alamat lalai (Native Segwit), anda hanya memerlukan xpub \"bech32\". Walau bagaimanapun, jika anda turut menerima dana untuk \"Wrapped Segwit\" atau \"Taproot\", anda juga perlu menggunakan kunci awam lanjutan \"Wrapped Segwit\" dan \"Taproot\".",
         "title": "Mengapa terdapat banyak xpub?"
@@ -1037,6 +1067,10 @@
       }
     },
     "appendix": {
+      "feedback": {
+        "link": "Beritahu kami.",
+        "text": "Ada maklum balas?"
+      },
       "link": "Hubungi kami!",
       "questionService": "Mempunyai masalah dengan {{serviceName}}?",
       "text": "Soalan lain?",
@@ -1370,6 +1404,14 @@
     "about": {
       "appVersion": {
         "title": "Versi aplikasi"
+      },
+      "feedbackLink": {
+        "description": "Jika anda mempunyai maklum balas umum",
+        "title": "Maklum balas"
+      },
+      "supportLink": {
+        "description": "Jika anda mempunyai masalah atau memerlukan bantuan",
+        "title": "Sokongan"
       }
     },
     "advancedSettings": {
@@ -1700,6 +1742,10 @@
     "priority": "Keutamaan",
     "scanQR": "Imbas kod QR",
     "scanQRNoCameraMessage": "Kamera tidak ditemui. Sila pastikan peranti anda menyokong kamera dan kebenaran ditetapkan dengan betul.",
+    "sendToAccount": {
+      "placeholder": "Pilih akaun",
+      "title": "Hantar ke akaun"
+    },
     "success": "Transaksi telah ditandatangani dan dihantar.",
     "title": "Hantar {{accountName}}",
     "toggleCoinControl": "Kawalan syiling",
@@ -1844,8 +1890,12 @@
       "activity": "Aktiviti",
       "address": "Alamat",
       "amount": "Jumlah",
+      "currentFiat": "Nilai fiat",
       "date": "Tarikh",
       "fiatAmount": "Jumlah Fiat",
+      "from": "Dari",
+      "historicalFiat": "Nilai fiat sejarah",
+      "sendToSelf": "Hantar kepada diri sendiri",
       "status": "Status",
       "title": "butiran transaksi",
       "type": "taip"
