@@ -465,6 +465,10 @@
               "link": "BitBox security threat model",
               "text": "Bitrefill is an external service that is not covered by the BitBox security threat model. When you make a purchase, your payment is sent to a Bitrefill address. The BitBox cannot verify that this address is correct.",
               "title": "Security notice"
+            },
+            "validEmail": {
+              "text": "Various temporary email providers are not supported by Bitrefill and thus you may not receive your invoice. Your gift card code/voucher will still be present at the end of the workflow.",
+              "title": "Valid email addresses"
             }
           },
           "infobox": {
@@ -1116,6 +1120,29 @@
       "ejectSD": {
         "text": "You can remove the microSD card from the BitBox at any time as long as you are not in the process of creating or restoring a backup.",
         "title": "How can I eject the microSD card?"
+      }
+    },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "This may be because you used an email provider that Bitrefill doesn't support. If you need the invoice, please contact Bitrefill support and they can supply you with your invoice.",
+        "title": "I did not receive an invoice from Bitrefill"
+      },
+      "kyc": {
+        "link": {
+          "text": "Bitrefill purchasing limits"
+        },
+        "text": "No, Bitrefill does not require identity verification. You can make purchases without KYC up to certain limits. For full details, please see Bitrefill's purchasing limits policy:",
+        "title": "Does Bitrefill require KYC?"
+      },
+      "limits": {
+        "link": {
+          "text": "Bitrefill account verification"
+        },
+        "text": "You can raise your purchase limits by becoming a verified customer. Please visit the following link to complete the verification process:",
+        "title": "How do I increase my purchasing limits with Bitrefill?"
       }
     },
     "bitsurance": {
