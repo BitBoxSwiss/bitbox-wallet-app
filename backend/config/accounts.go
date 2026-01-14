@@ -73,6 +73,10 @@ type Keystore struct {
 	// Individual accounts can be exempt from being loaded even if this flag is true by setting the account's
 	// `Watch` flag to false.
 	Watchonly bool `json:"watchonly"`
+	// BackupReminderAllowed indicates if the backup reminder can be shown for this keystore.
+	// nil means it has not been checked yet.
+	// false means the reminder is permanently suppressed.
+	BackupReminderAllowed *bool `json:"backupReminderAllowed,omitempty"`
 	// The root fingerprint is the first 32 bits of the hash160 of the pubkey at the keypath m/.
 	// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#key-identifiers It serves as
 	// an identifier for the keystore. Collisions are possible but the chance is very small.
