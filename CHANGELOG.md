@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Ethereum: use shiftcrypto.io Etherscan proxy.
 
 ## v9.50.0
 - Bundle BitBox02 Nova firmware version v9.25.0
