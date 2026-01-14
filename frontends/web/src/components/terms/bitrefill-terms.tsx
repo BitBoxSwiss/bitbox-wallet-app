@@ -62,6 +62,10 @@ export const BitrefillTerms = ({ account, onAgreedTerms }: TProps) => {
             {t('buy.exchange.infoContent.bitrefill.disclaimer.account.link')}
           </A>
         </p>
+        <h2 className={style.title}>
+          {t('buy.exchange.infoContent.bitrefill.disclaimer.validEmail.title')}
+        </h2>
+        <p>{t('buy.exchange.infoContent.bitrefill.disclaimer.validEmail.text')}</p>
         <h2 className={style.title}>{t('buy.exchange.infoContent.bitrefill.disclaimer.security.title')}</h2>
         <p>{t('buy.exchange.infoContent.bitrefill.disclaimer.security.text')}</p>
         <p>

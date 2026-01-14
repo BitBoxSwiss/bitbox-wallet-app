@@ -5,6 +5,8 @@ import type { TVendorName } from '@/api/market';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { getBTCDirectPrivacyLink } from '@/components/terms/btcdirect-otc-terms';
+import { getBitrefillPrivacyLink } from '@/components/terms/bitrefill-terms';
+import { BitrefillGuide } from './bitrefill-guide';
 
 type BuyGuideProps = {
   vendor?: TVendorName;
@@ -29,6 +31,11 @@ const usePrivacyLink = (vendor?: TVendorName) => {
       text: t('exchange.pocket.terms.dataprotection.link'),
       url: 'https://pocketbitcoin.com/policy/privacy',
     });
+  case 'bitrefill':
+    return ({
+      text: t('buy.exchange.infoContent.bitrefill.disclaimer.dataProtection.link'),
+      url: getBitrefillPrivacyLink(),
+    });
   }
 };
 
@@ -51,6 +58,12 @@ const useServiceLink = (vendor?: TVendorName) => {
       name: 'Pocket Bitcoin',
       text: 'pocketbitcoin.com/contact',
       url: 'https://pocketbitcoin.com/contact',
+    });
+  case 'bitrefill':
+    return ({
+      name: 'Bitrefill',
+      text: 'help.bitrefill.com',
+      url: 'https://help.bitrefill.com/',
     });
   }
 };
@@ -79,6 +92,7 @@ export const MarketGuide = ({ vendor, translationContext }: BuyGuideProps) => {
           },
         }}
       />
+      {vendor === 'bitrefill' && <BitrefillGuide />}
     </Guide>
   );
 };
