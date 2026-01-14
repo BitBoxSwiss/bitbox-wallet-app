@@ -782,7 +782,7 @@
       }
     },
     "firmware": {
-      "firmwareVersion": "Firmware Version",
+      "firmwareVersion": "Firmware version",
       "newVersion": {
         "label": "Available version"
       },
