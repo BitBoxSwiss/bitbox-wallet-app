@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Header } from '@/components/layout';
+import { Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
+import { MarketGuide } from './guide';
 import { AccountCode, TAccount, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { useDarkmode } from '@/hooks/darkmode';
@@ -224,63 +225,68 @@ export const Bitrefill = ({
     return null;
   }
 
-  return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer">
-          <div className={style.header}>
-            <Header title={<h2>{t('generic.spend', { context: hasOnlyBTCAccounts ? 'bitcoin' : 'crypto' })}</h2>} />
-          </div>
-          <div ref={containerRef} className={style.container}>
-            { !agreedTerms ? (
-              <BitrefillTerms
-                account={account}
-                onAgreedTerms={() => setAgreedTerms(true)}
-              />
-            ) : (
-              <div style={{ height }}>
-                {!iframeLoaded && <Spinner text={t('loading')} />}
-                { bitrefillInfo?.success && (
-                  <iframe
-                    ref={iframeRef}
-                    title="Bitrefill"
-                    width="100%"
-                    height={height}
-                    frameBorder="0"
-                    className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
-                    sandbox="allow-same-origin allow-popups allow-scripts allow-forms"
-                    src={bitrefillInfo.url}
-                    onLoad={() => {
-                      setIframeLoaded(true);
-                      onResize();
-                    }}
-                  />
-                )}
+  const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
-                { verifyPaymentRequest && verifyPaymentRequest.success && (
-                  <WaitDialog title={t('receive.verifyBitBox02')}>
-                    <p>
-                      {t('transaction.details.address')}
-                      <br />
-                      {verifyPaymentRequest.address}
-                    </p>
-                    <p>
-                      {t('transaction.details.amount')}
-                      <br />
-                      <AmountWithUnit amount={verifyPaymentRequest.amount} />
-                    </p>
-                    <p>
-                      {t('transaction.fee')}
-                      <br />
-                      <AmountWithUnit amount={verifyPaymentRequest.fee} />
-                    </p>
-                  </WaitDialog>
-                )}
-              </div>
-            )}
+  return (
+    <GuideWrapper>
+      <GuidedContent>
+        <div className="container">
+          <div className="innerContainer">
+            <div className={style.header}>
+              <Header title={<h2>{t('generic.spend', { context: translationContext })}</h2>} />
+            </div>
+            <div ref={containerRef} className={style.container}>
+              { !agreedTerms ? (
+                <BitrefillTerms
+                  account={account}
+                  onAgreedTerms={() => setAgreedTerms(true)}
+                />
+              ) : (
+                <div style={{ height }}>
+                  {!iframeLoaded && <Spinner text={t('loading')} />}
+                  { bitrefillInfo?.success && (
+                    <iframe
+                      ref={iframeRef}
+                      title="Bitrefill"
+                      width="100%"
+                      height={height}
+                      frameBorder="0"
+                      className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
+                      sandbox="allow-same-origin allow-popups allow-scripts allow-forms"
+                      src={bitrefillInfo.url}
+                      onLoad={() => {
+                        setIframeLoaded(true);
+                        onResize();
+                      }}
+                    />
+                  )}
+
+                  { verifyPaymentRequest && verifyPaymentRequest.success && (
+                    <WaitDialog title={t('receive.verifyBitBox02')}>
+                      <p>
+                        {t('transaction.details.address')}
+                        <br />
+                        {verifyPaymentRequest.address}
+                      </p>
+                      <p>
+                        {t('transaction.details.amount')}
+                        <br />
+                        <AmountWithUnit amount={verifyPaymentRequest.amount} />
+                      </p>
+                      <p>
+                        {t('transaction.fee')}
+                        <br />
+                        <AmountWithUnit amount={verifyPaymentRequest.fee} />
+                      </p>
+                    </WaitDialog>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </GuidedContent>
+      <MarketGuide vendor="bitrefill" translationContext={translationContext} />
+    </GuideWrapper>
   );
 };

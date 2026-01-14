@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
-
-import { useTranslation } from 'react-i18next';
 import { ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+import { i18n } from '@/i18n/i18n';
+import { TAccount } from '@/api/account';
+import { isBitcoinOnly } from '@/routes/account/utils';
+import { getBitrefillHelpLink, getBitrefillLimitsLink } from '@/routes/market/bitrefill-guide';
 import { Button, Checkbox } from '@/components/forms';
 import { setConfig } from '@/utils/config';
-import { i18n } from '@/i18n/i18n';
 import { A } from '../anchor/anchor';
 import style from './terms.module.css';
-import { isBitcoinOnly } from '@/routes/account/utils';
-import { TAccount } from '@/api/account';
 
 type TProps = {
   account: TAccount;
@@ -58,10 +58,14 @@ export const BitrefillTerms = ({ account, onAgreedTerms }: TProps) => {
         </h2>
         <p>{t('buy.exchange.infoContent.bitrefill.disclaimer.account.text')}</p>
         <p>
-          <A href="https://help.bitrefill.com/hc/en-us/articles/360019385360-Is-there-a-purchasing-top-up-limit">
+          <A href={getBitrefillLimitsLink()}>
             {t('buy.exchange.infoContent.bitrefill.disclaimer.account.link')}
           </A>
         </p>
+        <h2 className={style.title}>
+          {t('buy.exchange.infoContent.bitrefill.disclaimer.validEmail.title')}
+        </h2>
+        <p>{t('buy.exchange.infoContent.bitrefill.disclaimer.validEmail.text')}</p>
         <h2 className={style.title}>{t('buy.exchange.infoContent.bitrefill.disclaimer.security.title')}</h2>
         <p>{t('buy.exchange.infoContent.bitrefill.disclaimer.security.text')}</p>
         <p>
@@ -79,7 +83,7 @@ export const BitrefillTerms = ({ account, onAgreedTerms }: TProps) => {
         <h2 className={style.title}>{t('buy.exchange.infoContent.bitrefill.disclaimer.claims.title')}</h2>
         <p>{t('buy.exchange.infoContent.bitrefill.disclaimer.claims.text')}</p>
         <p>
-          <A href="https://help.bitrefill.com/">
+          <A href={getBitrefillHelpLink()}>
             {t('buy.exchange.infoContent.bitrefill.disclaimer.claims.link')}
           </A>
         </p>
