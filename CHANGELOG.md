@@ -13,7 +13,6 @@
 - Sort backups from newest to oldest in manage backups
 - Android: fix display of external links from Bitrefill
 - fix language sometimes not persistent across app restarts
-- Android: make the UI work with responsive font sizes and adhere to OS font size settings
 - Android: fix layout issues with status and navigation bars.
 - Android: make the UI work with responsive font sizes and adhere to OS font size settings
 - Add "Change device password" functionality (in Settings)
