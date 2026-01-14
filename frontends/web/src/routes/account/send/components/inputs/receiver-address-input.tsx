@@ -60,7 +60,6 @@ export const ReceiverAddressInput = ({
       isBitcoinBased(acc.coinCode) &&
       acc.coinCode === account?.coinCode &&
       acc.active &&
-      acc.code !== account?.code &&
       acc.keystore.rootFingerprint === account?.keystore.rootFingerprint
     ) || [], [activeAccounts, account]);
 
