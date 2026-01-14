@@ -1,9 +1,8 @@
 # Changelog
 
 ## Unreleased
-- Ethereum: use shiftcrypto.io Etherscan proxy.
 
-## v9.50.0
+## v4.50.0
 - Bundle BitBox02 Nova firmware version v9.25.0
 - Add a dropdown on the "Receiver address" input in the send screen to select an account
 - Add feedback link to guide and about settings
@@ -22,6 +21,7 @@
 - Restructure "Manage device" tab in settings
 - Responsive account selector (Marketplace)
 - iOS: Improve Bluetooth alert messaging by distinguishing between system-wide Bluetooth being disabled and the app lacking Bluetooth permission.
+- Ethereum: use shiftcrypto.io Etherscan proxy.
 
 ## v4.49.0
 - Bundle BitBox02 Nova firmware version v9.24.0
