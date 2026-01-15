@@ -409,7 +409,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 
 		require.Equal(t,
 			&config.Account{
-				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 2",
 				Code:     "v0-55555555-btc-1",
@@ -432,7 +431,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-1", string(acctCode))
 		require.Equal(t,
 			&config.Account{
-				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-1",
@@ -454,7 +452,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-eth-1", string(acctCode))
 		require.Equal(t,
 			&config.Account{
-				Watch:    nil,
 				CoinCode: "eth",
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-1",
@@ -475,7 +472,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
-				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 3",
 				Code:     "v0-55555555-btc-2",
@@ -498,7 +494,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
-				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-2",
@@ -520,7 +515,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-eth-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
-				Watch:    nil,
 				CoinCode: "eth",
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-2",
@@ -536,7 +530,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t,
 			&config.Account{
 				HiddenBecauseUnused: true,
-				Watch:               nil,
 				CoinCode:            "btc",
 				Name:                "Bitcoin 4",
 				Code:                "v0-55555555-btc-3",
@@ -559,7 +552,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-3", string(acctCode))
 		require.Equal(t,
 			&config.Account{
-				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 4 new name",
 				Code:     "v0-55555555-btc-3",
@@ -590,7 +582,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-0", string(acctCode))
 		require.Equal(t,
 			&config.Account{
-				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1: bech32",
 				Code:     "v0-55555555-btc-0-p2wpkh",
@@ -602,7 +593,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
-				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1",
 				Code:     "v0-55555555-btc-0-p2wpkh-p2sh",
@@ -614,7 +604,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
-				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1: legacy",
 				Code:     "v0-55555555-btc-0-p2pkh",
@@ -636,7 +625,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-0", string(acctCode))
 		require.Equal(t,
 			&config.Account{
-				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 1: bech32",
 				Code:     "v0-55555555-ltc-0-p2wpkh",
@@ -648,7 +636,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
-				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 1",
 				Code:     "v0-55555555-ltc-0-p2wpkh-p2sh",
@@ -870,7 +857,7 @@ func TestAccountSupported(t *testing.T) {
 
 	b.DeregisterKeystore()
 	// Registering a Bitcoin-only like keystore loads also the altcoins that were persisted
-	// previously, because they are marked watch-only, so they should be visible.
+	// previously, because watch-only is enabled for that keystore.
 	b.registerKeystore(bb02BtcOnly)
 	checkShownAccountsLen(t, b, 3, 3)
 
@@ -1132,12 +1119,6 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 }
 
 func TestWatchonly(t *testing.T) {
-	filterAcct := func(code accountsTypes.Code) func(acct *config.Account) bool {
-		return func(acct *config.Account) bool {
-			return acct.Code == code
-		}
-	}
-
 	// No watchonly - accounts are loaded when registering keystore and unloaded when deregistering
 	// keystore.
 	t.Run("", func(t *testing.T) {
@@ -1149,7 +1130,7 @@ func TestWatchonly(t *testing.T) {
 		checkShownAccountsLen(t, b, 0, 3)
 	})
 
-	// Watchonly enabled while keystore is registered - all already loaded accounts become watched.
+	// Watchonly enabled while keystore is registered keeps accounts available after disconnect.
 	t.Run("", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
@@ -1168,38 +1149,34 @@ func TestWatchonly(t *testing.T) {
 		checkShownAccountsLen(t, b, 3, 3)
 	})
 
-	// A specific account is excluded from watchonly, then re-included.
+	// Hidden accounts should not remain loaded when watchonly is enabled and the keystore disconnects.
 	t.Run("", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 
 		ks := makeBitBox02Multi()
-		ks.RootFingerprintFunc = func() ([]byte, error) {
-			return rootFingerprint1, nil
-		}
-
 		rootFingerprint, err := ks.RootFingerprint()
 		require.NoError(t, err)
 
+		hiddenAccountsAdded := make(chan struct{})
+		b.tstMaybeAddHiddenUnusedAccounts = func() {
+			close(hiddenAccountsAdded)
+		}
+
 		b.registerKeystore(ks)
+
+		select {
+		case <-hiddenAccountsAdded:
+		case <-time.After(5 * time.Second):
+			require.Fail(t, "expected hidden accounts to be added")
+		}
+
+		require.Greater(t, len(b.Config().AccountsConfig().Accounts), 3)
+
 		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
-
-		checkShownAccountsLen(t, b, 3, 3)
-		exclude := accountsTypes.Code("v0-55555555-btc-0")
-		require.NotNil(t, b.Accounts().lookup(exclude))
-		_false := false
-		require.NoError(t, b.AccountSetWatch(filterAcct(exclude), &_false))
 		b.DeregisterKeystore()
-		// Accounts remain loaded except one.
-		checkShownAccountsLen(t, b, 2, 3)
-		require.Nil(t, b.Accounts().lookup(exclude))
 
-		// Re-watch that account. In the UI this is possible as the edit dialog remains open after
-		// disabling watchonly.
-		_true := true
-		require.NoError(t, b.AccountSetWatch(filterAcct(exclude), &_true))
-		checkShownAccountsLen(t, b, 3, 3)
-		require.NotNil(t, b.Accounts().lookup(exclude))
+		require.Len(t, b.Accounts(), 3)
 	})
 
 	// Watchonly of a keystore is disabled while some watched accounts are shown with no keystore
@@ -1248,38 +1225,6 @@ func TestWatchonly(t *testing.T) {
 		// Accounts disappear when the keystore is disconnected.
 		b.DeregisterKeystore()
 		checkShownAccountsLen(t, b, 0, 3)
-	})
-
-	// Disable watchonly for a specific account while its keystore is connected does not make the
-	// account disappear yet. It only disappears once the keystore is disconnected.
-	t.Run("", func(t *testing.T) {
-		b := newBackend(t, testnetDisabled, regtestDisabled)
-		defer b.Close()
-
-		ks := makeBitBox02Multi()
-		ks.RootFingerprintFunc = func() ([]byte, error) {
-			return rootFingerprint1, nil
-		}
-
-		rootFingerprint, err := ks.RootFingerprint()
-		require.NoError(t, err)
-
-		b.registerKeystore(ks)
-		checkShownAccountsLen(t, b, 3, 3)
-		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
-
-		exclude := accountsTypes.Code("v0-55555555-btc-0")
-		require.NotNil(t, b.Accounts().lookup(exclude))
-		_false := false
-		require.NoError(t, b.AccountSetWatch(filterAcct(exclude), &_false))
-
-		// Account remains loaded as the keystore is still connected.
-		checkShownAccountsLen(t, b, 3, 3)
-
-		// Disconnecting the keystore makes the one account disappear that is not being watched.
-		b.DeregisterKeystore()
-		checkShownAccountsLen(t, b, 2, 3)
-		require.Nil(t, b.Accounts().lookup(exclude))
 	})
 
 	// Test with two keystores, one watched and the other not.
@@ -1377,8 +1322,7 @@ func TestWatchonly(t *testing.T) {
 		checkShownAccountsLen(t, b, 3, 6)
 	})
 
-	// Adding new accounts after the keytore has been connected: new account is watched if the
-	// keystore is already watched.
+	// Adding new accounts after the keystore has been connected keeps them available if watchonly is enabled.
 	t.Run("", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
@@ -1420,7 +1364,7 @@ func TestWatchonly(t *testing.T) {
 
 		expectedNewAccountCode2 := accountsTypes.Code("v0-55555555-btc-2")
 		// Make sure the account to be added has not been added yet (autodiscover), so we know we
-		// are testing the correct setting of the Watch flag when a new account is persisted.
+		// are testing the intended account persistence.
 		require.Nil(t, b.Config().AccountsConfig().Lookup(expectedNewAccountCode2))
 
 		newAccountCode2, err := b.CreateAndPersistAccountConfig(

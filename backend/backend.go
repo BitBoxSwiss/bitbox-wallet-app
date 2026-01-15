@@ -1036,8 +1036,6 @@ func (backend *Backend) CancelConnectKeystore() {
 }
 
 // SetWatchonly sets the keystore's watchonly flag to `watchonly`.
-// When enabling watchonly, all currently loaded accounts of that keystore are turned into watchonly accounts.
-// When disabling watchonly, all the watchonly status of all of the keystore's persisted accounts is reset.
 func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) error {
 	err := backend.config.ModifyAccountsConfig(func(config *config.AccountsConfig) error {
 		ks, err := config.LookupKeystore(rootFingerprint)
@@ -1051,28 +1049,10 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 		return err
 	}
 
-	if !watchonly {
-		// When disabling watchonly of the keystore, we reset the Watch flag for each of its
-		// accounts, so that when the user enables watchonly for this keystore again, it does not
-		// show all accounts again - they first need to be loaded via their keystore.
-		return backend.AccountSetWatch(
-			func(account *config.Account) bool {
-				return account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint)
-			},
-			nil,
-		)
-	}
-
-	accounts := backend.Accounts()
-	// When enabling watchonly, we turn the currently loaded accounts into watch-only accounts.
-	t := true
-	return backend.AccountSetWatch(
-		func(account *config.Account) bool {
-			// Apply to each currently loaded account.
-			return !account.HiddenBecauseUnused && accounts.lookup(account.Code) != nil
-		},
-		&t,
-	)
+	defer backend.accountsAndKeystoreLock.Lock()()
+	backend.initAccounts(false)
+	backend.emitAccountsStatusChanged()
+	return nil
 }
 
 // ExportLogs function copy and save log.txt file to help users provide it to support while troubleshooting.
