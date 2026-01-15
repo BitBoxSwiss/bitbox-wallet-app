@@ -37,7 +37,6 @@ export const Input = forwardRef<HTMLInputElement, TInputProps>(({
         </div>
       ) : null }
       <input
-        className={styles.inputField}
         autoComplete="off"
         autoCorrect="off"
         spellCheck={false}
