@@ -188,6 +188,7 @@ export const FeeTargets = ({
             <div className={style.column}>
               <label>{t('send.priority')}</label>
               <Dropdown
+                isSearchable={false}
                 className={style.priority}
                 defaultValue={[{
                   label: feeTarget as string,
