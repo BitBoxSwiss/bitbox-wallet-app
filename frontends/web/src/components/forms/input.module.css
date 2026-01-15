@@ -4,7 +4,14 @@
     position: relative;
 }
 
-.input label {
+.labelContainer {
+    align-items: baseline;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.labelContainer label {
     display: block;
     margin: 0 0 var(--space-quarter) 0;
 }
