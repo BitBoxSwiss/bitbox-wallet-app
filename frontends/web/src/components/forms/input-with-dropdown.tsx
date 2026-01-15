@@ -44,8 +44,8 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
       ${transparent ? baseStyles.isTransparent || '' : ''}
       `}>
       {label ? (
-        <div className="flex flex-row flex-between flex-items-baseline">
-          <label htmlFor={id} className={error ? baseStyles.errorText : ''}>
+        <div className={baseStyles.labelContainer}>
+          <label htmlFor={id} className={error ? styles.errorText : ''}>
             {label}
             {error ? (
               <span>:<span>{error.toString()}</span></span>
