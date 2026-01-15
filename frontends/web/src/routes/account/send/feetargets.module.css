@@ -9,26 +9,7 @@
     flex-grow: 1;
     flex-shrink: 0;
 }
-.rowCustomFee .column:first-child {
-    flex-basis: 50%;
-}
-.rowCustomFee .column:nth-child(2) {
-    flex-basis: 50%;
-}
 
-@media (min-width: 640px) {
-    .column:first-child {
-        flex-basis: 50%;
-    }
-    .column:nth-child(2) {
-        flex-basis: 50%;
-    }
-}
-
-.rowCustomFee select.priority {
-    border-right: none;
-    padding-right: 0;
-}
 .rowCustomFee .fee input {
     border-bottom-left-radius: 0;
     border-left: none;
@@ -36,14 +17,6 @@
     padding-left: 0;
     padding-right: 58px;
     border-color: var(--background-quaternary) !important;
-}
-@media (min-width: 640px) {
-    .fee input {
-        border-bottom-left-radius: 0;
-        border-left: none;
-        border-top-left-radius: 0;
-        padding-left: 0;
-    }
 }
 
 /* styles to overwrite default dropdown styling to make it fit into send */
