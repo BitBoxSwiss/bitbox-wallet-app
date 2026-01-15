@@ -206,7 +206,7 @@ export const FeeTargets = ({
                 step="any"
                 autoFocus={!preventFocus}
                 align="right"
-                className={`${style.fee || ''} ${style.feeCustom || ''}`}
+                className={style.fee}
                 disabled={disabled}
                 label={t('send.feeTarget.customLabel', {
                   context: isEthereumBased(coinCode) ? 'eth' : ''
