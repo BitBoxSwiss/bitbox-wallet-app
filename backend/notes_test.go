@@ -86,7 +86,7 @@ func (s *notesTestSuite) SetupTest() {
 
 	bb02Multi := makeBitBox02Multi()
 	s.backend.registerKeystore(bb02Multi)
-	checkShownAccountsLen(s.T(), s.backend, 3, 3)
+	checkShownAccountsLen(s.T(), s.backend, 5, 3)
 
 	// Activate an ERC20 token.
 	s.Require().NoError(s.backend.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", true))
