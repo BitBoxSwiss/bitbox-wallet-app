@@ -44,6 +44,7 @@
     border-left: none;
     border-top-left-radius: 0;
     padding-left: 0;
+    padding-right: 58px;
     border-color: var(--background-quaternary) !important;
 }
 @media (min-width: 640px) {
@@ -90,10 +91,6 @@
         margin-top: 0;
         padding: 0;
     }
-}
-
-.feeCustom input {
-    padding-right: 58px;
 }
 
 .feeDescription,
