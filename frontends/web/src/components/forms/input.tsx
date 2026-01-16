@@ -27,11 +27,10 @@ export const Input = forwardRef<HTMLInputElement, TInputProps>(({
     ].join(' ')}>
       { label ? (
         <div className={styles.labelContainer}>
-          <label htmlFor={id} className={error ? styles.errorText : ''}>
-            {label}
-            { error ? (
-              <span>:<span>{error.toString()}</span></span>
-            ) : null }
+          <label
+            htmlFor={id}
+            className={error ? styles.errorText : ''}>
+            { error ? error.toString() : label }
           </label>
           {labelSection && labelSection}
         </div>
