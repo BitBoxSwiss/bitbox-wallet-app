@@ -228,16 +228,16 @@ export const FeeTargets = ({
           </div>
         )}
         { feeTarget && (
-          <div>
+          <div className={style.feeDescription}>
             {(showCalculatingFeeLabel || proposeFeeText ? (
-              <p className={style.feeProposed}>
+              <p>
                 {t('send.fee.label')}:
                 {' '}
                 {showCalculatingFeeLabel ? t('send.feeTarget.placeholder') : proposeFeeText}
               </p>
             ) : null)}
             { !isCustom ? (
-              <p className={style.feeDescription}>
+              <p>
                 {t('send.feeTarget.estimate')}
                 {' '}
                 {t(`send.feeTarget.description.${feeTarget}`, {
