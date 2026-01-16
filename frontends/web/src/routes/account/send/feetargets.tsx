@@ -153,6 +153,7 @@ export const FeeTargets = ({
           showCalculatingFeeLabel ? (
             <Input
               disabled
+              className={style.calculatingFeePlaceholder}
               label={t('send.priority')}
               placeholder={t('send.feeTarget.placeholder')}
               value=""
@@ -188,6 +189,7 @@ export const FeeTargets = ({
             <div className={style.column}>
               <label>{t('send.priority')}</label>
               <Dropdown
+                isSearchable={false}
                 className={style.priority}
                 defaultValue={[{
                   label: feeTarget as string,
@@ -205,14 +207,19 @@ export const FeeTargets = ({
                 step="any"
                 autoFocus={!preventFocus}
                 align="right"
-                className={`${style.fee || ''} ${style.feeCustom || ''}`}
+                className={style.fee}
                 disabled={disabled}
-                label={t('send.feeTarget.customLabel', {
-                  context: isEthereumBased(coinCode) ? 'eth' : ''
-                })}
+                label={error
+                  ? (
+                    <span className={style.errorText}>
+                      {error.trim()}
+                    </span>
+                  )
+                  : t('send.feeTarget.customLabel', {
+                    context: isEthereumBased(coinCode) ? 'eth' : ''
+                  })}
                 id="proposedFee"
                 placeholder={t('send.fee.customPlaceholder')}
-                error={error}
                 transparent
                 onInput={handleCustomFee}
                 ref={inputRef}
@@ -225,17 +232,17 @@ export const FeeTargets = ({
             </div>
           </div>
         )}
-        { feeTarget && (
-          <div>
+        { feeTarget && !error && (
+          <div className={style.feeDescription}>
             {(showCalculatingFeeLabel || proposeFeeText ? (
-              <p className={style.feeProposed}>
+              <p>
                 {t('send.fee.label')}:
                 {' '}
                 {showCalculatingFeeLabel ? t('send.feeTarget.placeholder') : proposeFeeText}
               </p>
             ) : null)}
             { !isCustom ? (
-              <p className={style.feeDescription}>
+              <p>
                 {t('send.feeTarget.estimate')}
                 {' '}
                 {t(`send.feeTarget.description.${feeTarget}`, {
