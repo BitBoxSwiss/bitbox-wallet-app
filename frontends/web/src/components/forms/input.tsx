@@ -20,7 +20,7 @@ export const Input = forwardRef<HTMLInputElement, TInputProps>(({
 }: TInputProps, ref) => {
   return (
     <div className={[
-      styles.input,
+      styles.inputContainer,
       styles[`align-${align}`],
       className,
       transparent ? styles.isTransparent : '',
@@ -36,16 +36,18 @@ export const Input = forwardRef<HTMLInputElement, TInputProps>(({
           {labelSection && labelSection}
         </div>
       ) : null }
-      <input
-        autoComplete="off"
-        autoCorrect="off"
-        spellCheck={false}
-        type={type}
-        id={id}
-        ref={ref}
-        {...props}
-      />
-      {children}
+      <div className={styles.inputField}>
+        <input
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          type={type}
+          id={id}
+          ref={ref}
+          {...props}
+        />
+        {children}
+      </div>
     </div>
   );
 });

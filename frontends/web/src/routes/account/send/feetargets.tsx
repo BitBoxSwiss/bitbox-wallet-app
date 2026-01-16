@@ -153,6 +153,7 @@ export const FeeTargets = ({
           showCalculatingFeeLabel ? (
             <Input
               disabled
+              className={style.calculatingFeePlaceholder}
               label={t('send.priority')}
               placeholder={t('send.feeTarget.placeholder')}
               value=""
