@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { forwardRef } from 'react';
-import { TBaseInputProps } from './types';
+import type { TBaseInputProps } from './types';
 import styles from './input.module.css';
 
 export type TInputProps = TBaseInputProps;
@@ -30,7 +30,15 @@ export const Input = forwardRef<HTMLInputElement, TInputProps>(({
           <label
             htmlFor={id}
             className={error ? styles.errorText : ''}>
-            { error ? error.toString() : label }
+            {label}
+            { error ? (
+              <span>
+                :{' '}
+                <span className={styles.errorText}>
+                  {error.toString()}
+                </span>
+              </span>
+            ) : null }
           </label>
           {labelSection && labelSection}
         </div>

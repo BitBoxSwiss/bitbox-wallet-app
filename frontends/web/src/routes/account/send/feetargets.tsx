@@ -209,12 +209,17 @@ export const FeeTargets = ({
                 align="right"
                 className={style.fee}
                 disabled={disabled}
-                label={t('send.feeTarget.customLabel', {
-                  context: isEthereumBased(coinCode) ? 'eth' : ''
-                })}
+                label={error
+                  ? (
+                    <span className={style.errorText}>
+                      {error.trim()}
+                    </span>
+                  )
+                  : t('send.feeTarget.customLabel', {
+                    context: isEthereumBased(coinCode) ? 'eth' : ''
+                  })}
                 id="proposedFee"
                 placeholder={t('send.fee.customPlaceholder')}
-                error={error}
                 transparent
                 onInput={handleCustomFee}
                 ref={inputRef}

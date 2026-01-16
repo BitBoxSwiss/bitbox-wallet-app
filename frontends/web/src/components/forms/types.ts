@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, HTMLProps } from 'react';
+import type { ChangeEvent, InputHTMLAttributes } from 'react';
 
 export type TBaseInputProps = {
   align?: 'left' | 'right';
@@ -10,6 +10,5 @@ export type TBaseInputProps = {
   onInput?: (e: ChangeEvent<HTMLInputElement>) => void;
   transparent?: boolean;
   labelSection?: JSX.Element | undefined;
-  label?: string;
-} & Omit<HTMLProps<HTMLInputElement>, 'onInput'>;
-
+  label?: React.ReactNode;
+} & Omit<InputHTMLAttributes<HTMLInputElement>, 'onInput'>;
