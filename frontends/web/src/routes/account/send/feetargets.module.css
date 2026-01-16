@@ -35,6 +35,10 @@
     margin-bottom: var(--space-quarter);
 }
 
+.fee {
+    margin-bottom: var(--space-quarter);
+}
+
 .fee > div {
     padding: 0 var(--space-quarter) 0 0;
 }
@@ -52,28 +56,21 @@
     }
 }
 
-.feeDescription,
-.feeProposed {
+.feeDescription {
+    margin: 0 0 var(--space-half) 0;
+}
+
+.feeDescription p {
     color: var(--color-secondary);
-    flex: 0 0 100%;
     font-size: var(--size-smaller);
     font-weight: 400;
-    margin-top: 0;
-}
-
-.feeProposed {
     margin: 0;
-}
-
-.feeDescription + .feeProposed {
-    margin: var(--space-quarter) 0 0 0;
 }
 
 .rowCustomFee .priority :global(.react-select__control:not(:hover)) {
     border-right-color: var(--background-secondary);
     border-width: var(--border-width);
 }
-
 
 .fee input::placeholder {
     font-size: var(--size-small);
