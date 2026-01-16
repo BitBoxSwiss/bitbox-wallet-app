@@ -25,7 +25,7 @@ export const Unlock = ({ attestation }: Props) => {
       </ViewHeader>
       <ViewContent fullWidth>
         {attestation === false ? (
-          <Message>
+          <Message type="warning">
             {t('bitbox02Wizard.attestationFailed')}
           </Message>
         ) : (
