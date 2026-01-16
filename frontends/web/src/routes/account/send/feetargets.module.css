@@ -88,3 +88,12 @@
     color: var(--color-secondary);
     font-size: var(--size-default);
 }
+
+.errorText {
+    color: var(--color-error);
+    display: inline-block;
+}
+
+.errorText::first-letter {
+    text-transform: capitalize;
+}

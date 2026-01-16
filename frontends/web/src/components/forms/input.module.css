@@ -92,6 +92,10 @@
 
 .errorText {
     color: var(--color-softred) !important;
+    display: inline-block;
+}
+
+.errorText::first-letter {
     text-transform: capitalize;
 }
 
