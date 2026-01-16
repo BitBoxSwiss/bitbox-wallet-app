@@ -43,7 +43,7 @@
     padding: 0 var(--space-quarter) 0 0;
 }
 
-.fee > div:not(:focus-within) {
+.fee > div:not(:focus-within):not(:has(:invalid)) {
     border-left: none;
 }
 
