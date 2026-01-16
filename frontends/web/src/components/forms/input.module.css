@@ -88,10 +88,11 @@
 
 .errorText {
     color: var(--color-softred) !important;
+    text-transform: capitalize;
 }
 
-.errorText > span > span {
-    margin-left: 5px;
+.align-right .errorText {
+    text-align: right;
 }
 
 .inputField input[type=number],

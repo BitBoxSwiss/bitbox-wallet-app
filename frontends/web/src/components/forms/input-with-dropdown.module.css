@@ -40,10 +40,6 @@
     color: var(--color-softred) !important;
 }
 
-.errorText > span > span {
-    margin-left: 5px;
-}
-
 .inputDropdownWrapper {
     display: grid;
     grid-template-columns: 1fr minmax(160px, 280px);

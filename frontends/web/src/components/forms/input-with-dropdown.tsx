@@ -47,7 +47,10 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
           <label htmlFor={id} className={error ? styles.errorText : ''}>
             {label}
             {error ? (
-              <span>:<span>{error.toString()}</span></span>
+              <span>
+                :{' '}
+                <span>{error.toString()}</span>
+              </span>
             ) : null}
           </label>
           {labelSection && labelSection}
