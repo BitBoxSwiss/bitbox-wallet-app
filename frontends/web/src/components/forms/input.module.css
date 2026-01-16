@@ -1,7 +1,12 @@
-.input {
+.inputContainer {
     width: 100%;
     margin-bottom: var(--space-half);
     position: relative;
+}
+
+.inputContainer input[type=checkbox] {
+    width: auto;
+    height: auto;
 }
 
 .labelContainer {
@@ -30,15 +35,14 @@
     text-align: right;
 }
 
-.input input {
+.inputField {
     background-color: var(--background-secondary);
     border-color: var(--background-quaternary);
     border-radius: 2px;
     border-style: solid;
     border-width: var(--border-width);
-    font-family: var(--font-family);
-    font-size: var(--size-default);
-    font-weight: 400;
+    display: flex;
+    gap: var(--space-eight); /* in case there is a child */
     height: var(--input-height);
     padding: 0 var(--space-half);
     width: 100%;
@@ -46,18 +50,32 @@
     will-change: border-color;
 }
 
-.input input:focus {
+.inputField input {
+    background-color: transparent;
+    border: none;
+    font-family: var(--font-family);
+    font-size: var(--size-default);
+    font-weight: 400;
+    height: var(--input-height);
+    padding: 0;
+    width: 100%;
+}
+.inputField input:focus {
+    outline: none;
+}
+
+.inputField:focus-within {
     border-color: var(--color-blue);
     outline: none;
 }
 
-.input input::placeholder {
+.inputField input::placeholder {
     color: var(--color-secondary);
 }
 
-.input input[disabled] {
-    background-color: var(--background-secondary) !important;
-    border-color: var(--background) !important;
+.inputField input[disabled] {
+    background-color: transparent;
+    border-color: transparent;
     color: var(--color-secondary) !important;
     cursor: not-allowed;
 }
@@ -76,19 +94,21 @@
     margin-left: 5px;
 }
 
-.input input[type=checkbox] {
-    width: auto;
-    height: auto;
+.inputField input[type=number],
+.inputField input[type=password],
+.inputField input[type=text] {
+    background: transparent;
 }
 
 /* webkit */
-.input input[type=number]::-webkit-inner-spin-button,
-.input input[type=number]::-webkit-outer-spin-button {
+.inputField input[type=number]::-webkit-inner-spin-button,
+.inputField input[type=number]::-webkit-outer-spin-button {
     margin: 0;
     -webkit-appearance: none;
 }
 
 /* firefox */
-.input input[type=number] {
+.inputField input[type=number] {
   -moz-appearance: textfield;
 }
+

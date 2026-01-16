@@ -15,7 +15,7 @@
     border-left: none;
     border-top-left-radius: 0;
     padding-left: 0;
-    padding-right: 58px;
+    padding-right: 0;
     border-color: var(--background-quaternary) !important;
 }
 
@@ -29,6 +29,18 @@
     padding-bottom: 0;
     padding-top: 0;
     z-index: 1;
+}
+
+.calculatingFeePlaceholder {
+    margin-bottom: var(--space-quarter);
+}
+
+.fee > div {
+    padding: 0 var(--space-quarter) 0 0;
+}
+
+.fee > div:not(:focus-within) {
+    border-left: none;
 }
 
 @media (min-width: 640px) {
@@ -62,15 +74,16 @@
     border-width: var(--border-width);
 }
 
+
+.fee input::placeholder {
+    font-size: var(--size-small);
+}
+
 .customFeeUnit {
-    bottom: var(--space-quarter);
     color: var(--color-secondary);
-    font-size: min(var(--size-default), 20px);
-    line-height: 1;
-    height: calc(var(--input-height) * 0.5);
-    padding-right: var(--space-half);
-    position: absolute;
-    right: 0;
+    font-size: var(--size-small);
+    line-height: var(--input-height);
+    white-space: nowrap;
     width: auto;
 }
 

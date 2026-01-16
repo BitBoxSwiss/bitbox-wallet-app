@@ -4,7 +4,6 @@ import { forwardRef } from 'react';
 import { TBaseInputProps } from './types';
 import { Dropdown, TOption } from '@/components/dropdown/dropdown';
 import { ChevronLeftDark } from '@/components/icon';
-import baseStyles from './input.module.css';
 import styles from './input-with-dropdown.module.css';
 
 export type TInputWithDropdownProps<T> = TBaseInputProps & {
@@ -38,13 +37,13 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
 }: TInputWithDropdownProps<any>, ref) => {
   return (
     <div className={`
-      ${baseStyles.input || ''}
-      ${baseStyles[`align-${align}`] || ''}
+      ${styles.input || ''}
+      ${styles[`align-${align}`] || ''}
       ${className}
-      ${transparent ? baseStyles.isTransparent || '' : ''}
+      ${transparent ? styles.isTransparent || '' : ''}
       `}>
       {label ? (
-        <div className={baseStyles.labelContainer}>
+        <div className={styles.labelContainer}>
           <label htmlFor={id} className={error ? styles.errorText : ''}>
             {label}
             {error ? (
