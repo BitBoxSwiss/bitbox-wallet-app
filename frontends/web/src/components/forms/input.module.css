@@ -69,6 +69,10 @@
     outline: none;
 }
 
+.inputField:has(input:invalid) {
+    border-color: var(--color-error);
+}
+
 .inputField input::placeholder {
     color: var(--color-secondary);
 }
