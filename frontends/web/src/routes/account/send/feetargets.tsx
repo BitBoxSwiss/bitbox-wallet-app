@@ -232,7 +232,7 @@ export const FeeTargets = ({
             </div>
           </div>
         )}
-        { feeTarget && (
+        { feeTarget && !error && (
           <div className={style.feeDescription}>
             {(showCalculatingFeeLabel || proposeFeeText ? (
               <p>
