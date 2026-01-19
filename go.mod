@@ -5,8 +5,8 @@ go 1.24.0
 require (
 	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260107224316-3f993c2613ec
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d
-	github.com/btcsuite/btcd v0.24.2
-	github.com/btcsuite/btcd/btcec/v2 v2.3.4
+	github.com/btcsuite/btcd v0.25.0
+	github.com/btcsuite/btcd/btcec/v2 v2.3.5
 	github.com/btcsuite/btcd/btcutil v1.1.6
 	github.com/btcsuite/btcd/btcutil/psbt v1.1.10
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
