@@ -17,7 +17,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/karalabe/hid v1.0.1-0.20240919124526-821c38d2678e
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.9.3
+	github.com/sirupsen/logrus v1.9.4
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/stretchr/testify v1.10.0
 	go.etcd.io/bbolt v1.4.3
