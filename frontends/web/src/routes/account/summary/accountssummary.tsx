@@ -55,14 +55,18 @@ export const AccountsSummary = ({
     // replace previous timer if present
     if (summaryReqTimerID.current) {
       window.clearTimeout(summaryReqTimerID.current);
+      summaryReqTimerID.current = undefined;
     }
+    let delay = 1000;
     const chartDataResponse = await accountApi.getChartData();
     if (!mounted.current) {
       return;
     }
     if (chartDataResponse.success) {
       setChartData(chartDataResponse.data);
+      delay = chartDataResponse.data.chartDataMissing ? 1000 : 10000;
     }
+    summaryReqTimerID.current = window.setTimeout(getChartData, delay);
   }, [mounted]);
 
   const getAccountsBalanceSummary = useCallback(async () => {
@@ -135,18 +139,13 @@ export const AccountsSummary = ({
     getAccountsBalanceSummary();
   }, [getChartData, getAccountsBalanceSummary, defaultCurrency]);
 
-  // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
-    // set new timer
-    const delay = (!chartData || chartData.chartDataMissing) ? 1000 : 10000;
-    summaryReqTimerID.current = window.setTimeout(getChartData, delay);
     return () => {
-      // replace previous timer if present
       if (summaryReqTimerID.current) {
         window.clearTimeout(summaryReqTimerID.current);
       }
     };
-  }, [chartData, getChartData]);
+  }, []);
 
   useEffect(() => {
     accounts.forEach(account => {
