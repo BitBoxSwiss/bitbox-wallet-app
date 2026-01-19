@@ -8,6 +8,7 @@
 - Add feedback link to guide and about settings
 - Move active currencies to top of currency dropdown
 - Export logs now includes rotated log file (log.txt.1) when present
+- Fix hang when adding an account with no keystores connected
 - Android: fix connectivity misdetection when switching between WIFI and cellular network.
 - Android: dropped support for Android versions lower than 7.
 - Sort backups from newest to oldest in manage backups
