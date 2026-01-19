@@ -41,7 +41,7 @@ jobs:
           npx playwright install --with-deps chromium webkit
 
       - name: Setup Python 3
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: 3.11
 
