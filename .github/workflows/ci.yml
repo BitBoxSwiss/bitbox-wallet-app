@@ -16,7 +16,7 @@ jobs:
       ci_image_version: ${{ steps.set-ci-image-version.outputs.ci_image_version }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Read CI Image Version
         id: set-ci-image-version
@@ -34,7 +34,7 @@ jobs:
       - name: Clone the repo
         with:
           submodules: recursive
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Run CI script
         # The script also runs golang-ci but it's ok: doesn't take too long and may be useful
         # to keep its linter errors in this log, too.
@@ -51,7 +51,7 @@ jobs:
       image: shiftcrypto/bitbox-wallet-app:${{ needs.setup-env.outputs.ci_image_version }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Enable caching
         uses: actions/cache@v4
         with:
@@ -80,7 +80,7 @@ jobs:
         api-level: [30, 31, 32, 33, 34, 35]
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -132,7 +132,7 @@ jobs:
       artifact-url-rpm: ${{ steps.upload-rpm.outputs.artifact-url }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Build Qt-Linux
@@ -166,7 +166,7 @@ jobs:
       artifact-url: ${{ steps.upload.outputs.artifact-url }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Install Go
@@ -223,7 +223,7 @@ jobs:
       GO_SRC_DIR: src/github.com/BitBoxSwiss/bitbox-wallet-app
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Install Go
@@ -258,7 +258,7 @@ jobs:
       MINGW_BIN: /C/mingw64/bin
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Install Node.js
@@ -304,7 +304,7 @@ jobs:
     if: ${{ !cancelled() && github.event_name == 'push' }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Create vars
@@ -351,7 +351,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Install Go
