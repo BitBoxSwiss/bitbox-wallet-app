@@ -27,29 +27,13 @@ import (
 
 const reorgLimit = 100
 
-type checkpointJSON struct {
-	Height int32  `json:"height"`
-	Hash   string `json:"hash"`
-}
-
-type checkpointsJSONFile struct {
-	BTC struct {
-		Mainnet  checkpointJSON `json:"mainnet"`
-		Testnet3 checkpointJSON `json:"testnet3"`
-	} `json:"btc"`
-	LTC struct {
-		Mainnet  checkpointJSON `json:"mainnet"`
-		Testnet4 checkpointJSON `json:"testnet4"`
-	} `json:"ltc"`
-}
-
 //go:embed checkpoints.json
 var checkpointsJSONRaw []byte
 
 var checkpointsByNet = mustLoadCheckpoints(checkpointsJSONRaw)
 
 func mustLoadCheckpoints(jsonRaw []byte) map[wire.BitcoinNet]*chaincfg.Checkpoint {
-	var file checkpointsJSONFile
+	var file CheckpointsJSONFile
 	if err := json.Unmarshal(jsonRaw, &file); err != nil {
 		panic(errp.WithStack(err))
 	}
@@ -62,7 +46,7 @@ func mustLoadCheckpoints(jsonRaw []byte) map[wire.BitcoinNet]*chaincfg.Checkpoin
 		return hash
 	}
 
-	mustCheckpoint := func(label string, checkpoint checkpointJSON) *chaincfg.Checkpoint {
+	mustCheckpoint := func(label string, checkpoint CheckpointJSON) *chaincfg.Checkpoint {
 		if checkpoint.Height <= 0 {
 			panic(errp.Newf("invalid checkpoint height for %s: %d", label, checkpoint.Height))
 		}
