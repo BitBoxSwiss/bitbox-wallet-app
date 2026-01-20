@@ -122,7 +122,11 @@
 
 .note {
     margin: 0;
-    width: 85%;
+    width: 80%;
+}
+
+.noteLabel {
+    width: 15%;
 }
 
 .note input {
