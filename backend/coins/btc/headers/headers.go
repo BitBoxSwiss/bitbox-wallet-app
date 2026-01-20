@@ -4,10 +4,13 @@ package headers
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
 	"time"
+
+	_ "embed"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
@@ -23,6 +26,62 @@ import (
 )
 
 const reorgLimit = 100
+
+type checkpointJSON struct {
+	Height int32  `json:"height"`
+	Hash   string `json:"hash"`
+}
+
+type checkpointsJSONFile struct {
+	BTC struct {
+		Mainnet  checkpointJSON `json:"mainnet"`
+		Testnet3 checkpointJSON `json:"testnet3"`
+	} `json:"btc"`
+	LTC struct {
+		Mainnet  checkpointJSON `json:"mainnet"`
+		Testnet4 checkpointJSON `json:"testnet4"`
+	} `json:"ltc"`
+}
+
+//go:embed checkpoints.json
+var checkpointsJSONRaw []byte
+
+var checkpointsByNet = mustLoadCheckpoints(checkpointsJSONRaw)
+
+func mustLoadCheckpoints(jsonRaw []byte) map[wire.BitcoinNet]*chaincfg.Checkpoint {
+	var file checkpointsJSONFile
+	if err := json.Unmarshal(jsonRaw, &file); err != nil {
+		panic(errp.WithStack(err))
+	}
+
+	mustUnhex := func(s string) *chainhash.Hash {
+		hash, err := chainhash.NewHashFromStr(s)
+		if err != nil {
+			panic(err)
+		}
+		return hash
+	}
+
+	mustCheckpoint := func(label string, checkpoint checkpointJSON) *chaincfg.Checkpoint {
+		if checkpoint.Height <= 0 {
+			panic(errp.Newf("invalid checkpoint height for %s: %d", label, checkpoint.Height))
+		}
+		if checkpoint.Hash == "" {
+			panic(errp.Newf("missing checkpoint hash for %s", label))
+		}
+		return &chaincfg.Checkpoint{
+			Height: checkpoint.Height,
+			Hash:   mustUnhex(checkpoint.Hash),
+		}
+	}
+
+	return map[wire.BitcoinNet]*chaincfg.Checkpoint{
+		chaincfg.MainNetParams.Net:  mustCheckpoint("btc/mainnet", file.BTC.Mainnet),
+		chaincfg.TestNet3Params.Net: mustCheckpoint("btc/testnet3", file.BTC.Testnet3),
+		ltc.MainNetParams.Net:       mustCheckpoint("ltc/mainnet", file.LTC.Mainnet),
+		ltc.TestNet4Params.Net:      mustCheckpoint("ltc/testnet4", file.LTC.Testnet4),
+	}
+}
 
 // Event instances are sent to the onEvent callback.
 type Event string
@@ -106,41 +165,17 @@ func NewHeaders(
 	}
 }
 
-// checkpoint returns the latest checkpoint for the current chain. It panics if the network is
-// unknown.
+// checkpoint returns the latest checkpoint for the current chain.
 func (headers *Headers) checkpoint() *chaincfg.Checkpoint {
 	// We define our own checkpoints over using headers.net.Checkpoints, because they are defined in
 	// the vendored btcd dep, and we want to control it. Furthermore, the chaincfg.Params are evil
 	// globals registered in the lib's `init()`, so we can't replicate the instances ourselves.
 
-	mustUnhex := func(s string) *chainhash.Hash {
-		hash, err := chainhash.NewHashFromStr(s)
-		if err != nil {
-			panic(err)
-		}
-		return hash
-	}
-	switch headers.net.Net {
-	case chaincfg.MainNetParams.Net: // BTC
-		return &chaincfg.Checkpoint{
-			Height: 629350,
-			Hash:   mustUnhex("000000000000000000076807241b4e0f830c638cc1122cb67bfb856c58a21017"),
-		}
-	case chaincfg.TestNet3Params.Net: // TBTC
-		return &chaincfg.Checkpoint{
-			Height: 1723210,
-			Hash:   mustUnhex("00000000a2aa46899e5eda73c816b55903799a4feb321c903d9baeacc9443925")}
-	case ltc.MainNetParams.Net: // LTC
-		return &chaincfg.Checkpoint{
-			Height: 1837000,
-			Hash:   mustUnhex("43e55db47d6fdbc6e9f1d2f7a8974689f10bc3abf6e27355564dd5e18bfa53e4")}
-	case ltc.TestNet4Params.Net: // TLTC
-		return &chaincfg.Checkpoint{
-			Height: 1464330,
-			Hash:   mustUnhex("4329edb4d3eb20baded30bc67f59ce7d951de176012688124a65fe55e60244b4")}
-	default:
+	checkpoint, ok := checkpointsByNet[headers.net.Net]
+	if !ok {
 		return nil
 	}
+	return checkpoint
 }
 
 // SubscribeEvent subscribes to header events. The provided callback will be notified of events. The

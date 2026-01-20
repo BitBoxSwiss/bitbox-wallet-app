@@ -1,0 +1,22 @@
+{
+  "btc": {
+    "mainnet": {
+      "height": 629350,
+      "hash": "000000000000000000076807241b4e0f830c638cc1122cb67bfb856c58a21017"
+    },
+    "testnet3": {
+      "height": 1723210,
+      "hash": "00000000a2aa46899e5eda73c816b55903799a4feb321c903d9baeacc9443925"
+    }
+  },
+  "ltc": {
+    "mainnet": {
+      "height": 1837000,
+      "hash": "43e55db47d6fdbc6e9f1d2f7a8974689f10bc3abf6e27355564dd5e18bfa53e4"
+    },
+    "testnet4": {
+      "height": 1464330,
+      "hash": "4329edb4d3eb20baded30bc67f59ce7d951de176012688124a65fe55e60244b4"
+    }
+  }
+}
