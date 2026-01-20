@@ -24,7 +24,7 @@ require (
 	golang.org/x/crypto v0.46.0
 	golang.org/x/mobile v0.0.0-20240716161057-1ad2df20a8b6
 	golang.org/x/net v0.48.0
-	golang.org/x/time v0.10.0
+	golang.org/x/time v0.14.0
 )
 
 require (
