@@ -102,3 +102,5 @@ go-vendor:
 	go mod vendor
 update-bitbox02-api-go:
 	./scripts/update-bitbox02-api-go.sh
+update-btc-checkpoints:
+	go run cmd/playground/update_btc_checkpoints/main.go
