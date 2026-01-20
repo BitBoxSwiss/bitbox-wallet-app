@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-// Package notes provides functionality to retrieve and store account transaction notes.
 package notes
 
 import (

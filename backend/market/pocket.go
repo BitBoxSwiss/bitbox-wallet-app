@@ -107,7 +107,7 @@ func GetPocketSupportedRegions(httpClient *http.Client) (map[string]PocketRegion
 //		among them to retrieve the ID needed for the verification.
 func PocketWidgetVerifyAddress(account accounts.Interface, address string) error {
 	if !IsPocketSupported(account.Coin().Code()) {
-		return fmt.Errorf("Coin not supported %s", account.Coin().Code())
+		return fmt.Errorf("coin not supported %s", account.Coin().Code())
 	}
 
 	addressLists, err := account.GetUnusedReceiveAddresses()

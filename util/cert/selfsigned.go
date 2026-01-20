@@ -27,6 +27,8 @@ const (
 )
 
 // generateRSAPrivateKey generates an RSA key pair and wraps it in the type rsa.PrivateKey.
+//
+//nolint:unparam
 func generateRSAPrivateKey() (*rsa.PrivateKey, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, rsaBits)
 	if err != nil {

@@ -8,7 +8,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -25,7 +24,7 @@ type ProposedTransaction struct {
 	// List of signing configurations that might be used in the tx inputs.
 	AccountSigningConfigurations signing.Configurations
 	GetPrevTx                    func(chainhash.Hash) (*wire.MsgTx, error)
-	FormatUnit                   coin.BtcUnit
+	FormatUnit                   coinpkg.BtcUnit
 	// GetKeystoreAddress returns the address from the same keystore given the script hash,
 	// or nil if not found.
 	GetKeystoreAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error)

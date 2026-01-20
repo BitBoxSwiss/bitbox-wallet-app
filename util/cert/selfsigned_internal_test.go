@@ -67,6 +67,6 @@ func (s *certTestSuite) TestSavingCertAsPEM() {
 	s.Require().NoError(err)
 	pemBlock, rest := pem.Decode(pemBytes)
 	s.Require().NotNil(pemBlock)
-	s.Require().EqualValues(certificate, pemBlock.Bytes)
+	s.Require().Equal(certificate, pemBlock.Bytes)
 	s.Require().Empty(rest)
 }
