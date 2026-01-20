@@ -88,7 +88,7 @@ jobs:
           node-version: '20.x'
 
       - name: Download APK
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: BitBoxApp-android-${{ github.sha }}.apk
           path: frontends/mobiletests/apk
