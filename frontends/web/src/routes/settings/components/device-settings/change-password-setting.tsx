@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PointToBitBox02, WarningOLD } from '@/components/icon';
-import { changeDevicePassword } from '@/api/bitbox02';
+import { changeDevicePassword, errUserAbort } from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
@@ -37,8 +37,13 @@ export const ChangeDevicePasswordSetting = ({ deviceID, canChangePassword }: TCh
     const result = await changeDevicePassword(deviceID);
     setShowWaitDialog(false);
     if (!result.success) {
-      console.error(result.message);
-      alertUser(result.message || t('genericError'));
+      if (result.code === errUserAbort) {
+        // User canceled on the device
+        alertUser(t('bitbox02Settings.changePassword.error_104'));
+      } else {
+        console.error(result.message);
+        alertUser(result.message || t('genericError'));
+      }
       return;
     }
     alertUser(t('bitbox02Settings.changePassword.success'));

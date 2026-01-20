@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PointToBitBox02 } from '@/components/icon';
-import { bluetoothToggleEnabled, getDeviceInfo } from '@/api/bitbox02';
+import { bluetoothToggleEnabled, errUserAbort, getDeviceInfo } from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
@@ -63,8 +63,13 @@ const BluetoothToggleEnabledSetting = ({ deviceID }: TBluetoothToggleEnabledSett
     const result = await bluetoothToggleEnabled(deviceID);
     if (!result.success) {
       setShow(false);
-      console.error(result.message);
-      alertUser(result.message || t('genericError'));
+      if (result.code === errUserAbort) {
+        // User canceled on the device
+        alertUser(t('bitbox02Settings.bluetoothToggleEnabled.error_104'));
+      } else {
+        console.error(result.message);
+        alertUser(result.message || t('genericError'));
+      }
       return;
     }
     setShow(false);
