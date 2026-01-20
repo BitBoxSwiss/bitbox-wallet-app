@@ -81,6 +81,10 @@ type Transactions struct {
 
 	closed     bool
 	closedLock locker.Locker
+
+	headerTimestampCacheLock locker.Locker
+	// headerTimestampCache maps confirmed block heights to the corresponding header timestamp.
+	headerTimestampCache map[int]*time.Time
 }
 
 // NewTransactions creates a new instance of Transactions.
@@ -104,6 +108,8 @@ func NewTransactions(
 		blockchain:   blockchain,
 		notifier:     notifier,
 		log:          log.WithFields(logrus.Fields{"group": "transactions", "net": net.Name}),
+
+		headerTimestampCache: map[int]*time.Time{},
 	}
 	transactions.unsubscribeHeadersEvent = headers.SubscribeEvent(transactions.onHeadersEvent)
 	return transactions
@@ -125,14 +131,77 @@ func (transactions *Transactions) isClosed() bool {
 	return transactions.closed
 }
 
+func (transactions *Transactions) getCachedTimestampAtHeight(height int, txInfoHeaderTimestamp *time.Time) *time.Time {
+	// Cache by height only works for confirmed txs.
+	if height > 0 {
+		unlock := transactions.headerTimestampCacheLock.RLock()
+		if cached, ok := transactions.headerTimestampCache[height]; ok {
+			unlock()
+			return cached
+		}
+		unlock()
+	}
+
+	// If the tx timestamp is already known from the db, use it and populate the cache.
+	if txInfoHeaderTimestamp != nil {
+		if height > 0 {
+			unlock := transactions.headerTimestampCacheLock.Lock()
+			transactions.headerTimestampCache[height] = txInfoHeaderTimestamp
+			unlock()
+		}
+		return txInfoHeaderTimestamp
+	}
+
+	if height <= 0 {
+		return nil
+	}
+
+	// Try to get the header timestamp from already-synced headers.
+	header, err := transactions.headers.HeaderByHeight(height)
+	if err != nil {
+		transactions.log.WithError(err).Error("HeaderByHeight")
+	} else if header != nil {
+		timestamp := header.Timestamp
+		headerTimestamp := &timestamp
+		unlock := transactions.headerTimestampCacheLock.Lock()
+		transactions.headerTimestampCache[height] = headerTimestamp
+		unlock()
+		return headerTimestamp
+	}
+
+	headersResult, err := transactions.blockchain.Headers(height, 1)
+	if err != nil {
+		transactions.log.WithError(err).Error("blockchain.Headers")
+		return nil
+	}
+	if len(headersResult.Headers) != 1 {
+		transactions.log.WithFields(logrus.Fields{"height": height, "headers": len(headersResult.Headers)}).
+			Error("unexpected headers result size")
+		return nil
+	}
+	timestamp := headersResult.Headers[0].Timestamp
+	headerTimestamp := &timestamp
+
+	unlock := transactions.headerTimestampCacheLock.Lock()
+	transactions.headerTimestampCache[height] = headerTimestamp
+	unlock()
+	return headerTimestamp
+}
+
 func (transactions *Transactions) processTxForAddress(
-	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
+	dbTx DBTxInterface,
+	scriptHashHex blockchain.ScriptHashHex,
+	txHash chainhash.Hash,
+	tx *wire.MsgTx,
+	height int,
+	headerTimestamp *time.Time,
+) {
 	txInfo, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 	}
 
-	if err := dbTx.PutTx(txHash, tx, height); err != nil {
+	if err := dbTx.PutTx(txHash, tx, height, headerTimestamp); err != nil {
 		transactions.log.WithError(err).Panic("Failed to put tx")
 	}
 
@@ -321,8 +390,8 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 		for _, txInfo := range txs {
 			txHash := txInfo.TXHash.Hash()
 			height := txInfo.Height
-			tx := transactions.getTransactionCached(dbTx, txHash)
-			transactions.processTxForAddress(dbTx, scriptHashHex, txHash, tx, height)
+			tx, headerTimestamp := transactions.getTransactionCached(dbTx, txHash, height)
+			transactions.processTxForAddress(dbTx, scriptHashHex, txHash, tx, height, headerTimestamp)
 		}
 		return nil
 	})
@@ -335,19 +404,23 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 func (transactions *Transactions) getTransactionCached(
 	dbTx DBTxInterface,
 	txHash chainhash.Hash,
-) *wire.MsgTx {
+	height int,
+) (*wire.MsgTx, *time.Time) {
 	txInfo, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve transaction info")
 	}
+
+	headerTimestamp := transactions.getCachedTimestampAtHeight(height, txInfo.HeaderTimestamp)
+
 	if txInfo.Tx != nil {
-		return txInfo.Tx
+		return txInfo.Tx, headerTimestamp
 	}
 	tx, err := transactions.blockchain.TransactionGet(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("TransactionGet failed")
 	}
-	return tx
+	return tx, headerTimestamp
 }
 
 // Balance computes the confirmed and unconfirmed balance of the account.

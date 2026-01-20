@@ -38,7 +38,7 @@ type DBTxInterface interface {
 
 	// PutTx stores a transaction and it's height (according to
 	// https://github.com/kyuupichan/electrumx/blob/46f245891cb62845f9eec0f9549526a7e569eb03/docs/protocol-basics.rst#status).
-	PutTx(txHash chainhash.Hash, tx *wire.MsgTx, height int) error
+	PutTx(txHash chainhash.Hash, tx *wire.MsgTx, height int, headerTimestamp *time.Time) error
 
 	// DeleteTx deletes a transaction (nothing happens if not found).
 	DeleteTx(txHash chainhash.Hash)
