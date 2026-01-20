@@ -22,7 +22,6 @@
 
 .align-right label {
     flex-grow: 1;
-    justify-self: flex-end;
     text-align: right;
 }
 
