@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { Button, Input } from '@/components/forms';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
-import { getDeviceInfo, setDeviceName } from '@/api/bitbox02';
+import { getDeviceInfo, setDeviceName, errUserAbort } from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { DeviceNameErrorMessage } from '@/routes/device/bitbox02/setup/name';
@@ -43,6 +43,11 @@ const DeviceNameSetting = ({ deviceName, deviceID }: TDeviceNameSettingProps) =>
     try {
       const setNameResult = await setDeviceName(deviceID, name);
       if (!setNameResult.success) {
+        // Distinguish “user aborted” (code 104) from other failures
+        if (setNameResult.code === errUserAbort) {
+          alertUser(t('bitbox02Settings.deviceName.error_104'));
+          return;
+        }
         throw new Error(setNameResult.message);
       }
       const deviceInfoResult = await getDeviceInfo(deviceID);
