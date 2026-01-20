@@ -17,7 +17,7 @@ export const AdvancedTxDetail = ({ transactionInfo }: Props) => {
   return (
     <Accordion
       className={styles.advanced}
-      title="Advanced"
+      title={t('transaction.advanced')}
       isOpen={isOpen}
       onToggle={() => setIsOpen(!isOpen)}
     >
