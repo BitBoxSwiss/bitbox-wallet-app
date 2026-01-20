@@ -14,13 +14,22 @@ export const BitcoinBasedAccountInfoGuide = ({
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.accountInformation')}>
-      <Entry key="guide.accountInfo.xpub" entry={t('guide.accountInfo.xpub', { returnObjects: true })} shown={true} />
+      <Entry key="guide.accountInfo.xpub" entry={{
+        text: t('guide.accountInfo.xpub.text'),
+        title: t('guide.accountInfo.xpub.title'),
+      }} shown={true} />
       <Entry key="guide.accountInfo.multipleXPubs" entry={{
         text: t('guide.accountInfo.multipleXPubs.text', { coinName }),
         title: t('guide.accountInfo.multipleXPubs.title'),
       }} />
-      <Entry key="guide.accountInfo.privacy" entry={t('guide.accountInfo.privacy', { returnObjects: true })} />
-      <Entry key="guide.accountInfo.verify" entry={t('guide.accountInfo.verify', { returnObjects: true })} />
+      <Entry key="guide.accountInfo.privacy" entry={{
+        text: t('guide.accountInfo.privacy.text'),
+        title: t('guide.accountInfo.privacy.title'),
+      }} />
+      <Entry key="guide.accountInfo.verify" entry={{
+        text: t('guide.accountInfo.verify.text'),
+        title: t('guide.accountInfo.verify.title'),
+      }} />
       <Entry key="guide.accountInfo.exportTransactions" entry={{
         link: {
           text: 'CoinTracking',

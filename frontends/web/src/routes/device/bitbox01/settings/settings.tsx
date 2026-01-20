@@ -108,8 +108,14 @@ export const Settings = ({ deviceID }: Props) => {
         </div>
       </div>
       <Guide>
-        <Entry key="guide.bitbox.ejectBitbox" entry={t('guide.bitbox.ejectBitbox', { returnObjects: true })} />
-        <Entry key="guide.bitbox.ejectSD" entry={t('guide.bitbox.ejectSD', { returnObjects: true })} />
+        <Entry key="guide.bitbox.ejectBitbox" entry={{
+          text: t('guide.bitbox.ejectBitbox.text'),
+          title: t('guide.bitbox.ejectBitbox.title'),
+        }} />
+        <Entry key="guide.bitbox.ejectSD" entry={{
+          text: t('guide.bitbox.ejectSD.text'),
+          title: t('guide.bitbox.ejectSD.title'),
+        }} />
       </Guide>
     </div>
   );

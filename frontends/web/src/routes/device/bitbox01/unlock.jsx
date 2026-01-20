@@ -144,8 +144,14 @@ class Unlock extends Component {
           </div>
         </div>
         <Guide>
-          <Entry key="guide.unlock.forgotDevicePassword" entry={t('guide.unlock.forgotDevicePassword', { returnObjects: true })} />
-          <Entry key="guide.unlock.reset" entry={t('guide.unlock.reset', { returnObjects: true })} />
+          <Entry key="guide.unlock.forgotDevicePassword" entry={{
+            text: t('guide.unlock.forgotDevicePassword.text'),
+            title: t('guide.unlock.forgotDevicePassword.title'),
+          }} />
+          <Entry key="guide.unlock.reset" entry={{
+            text: t('guide.unlock.reset.text'),
+            title: t('guide.unlock.reset.title'),
+          }} />
         </Guide>
       </div>
     );

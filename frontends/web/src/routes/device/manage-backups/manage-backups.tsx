@@ -106,19 +106,43 @@ const ManageBackupGuide = ({
   case 'bitbox':
     return (
       <Guide>
-        <Entry key="guide.backups.whatIsABackup" entry={t('guide.backups.whatIsABackup', { returnObjects: true })} />
-        <Entry key="guide.backups.encrypt" entry={t('guide.backups.encrypt', { returnObjects: true })} />
-        <Entry key="guide.backups.check" entry={t('guide.backups.check', { returnObjects: true })} />
-        <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften', { returnObjects: true })} />
+        <Entry key="guide.backups.whatIsABackup" entry={{
+          text: t('guide.backups.whatIsABackup.text'),
+          title: t('guide.backups.whatIsABackup.title'),
+        }} />
+        <Entry key="guide.backups.encrypt" entry={{
+          text: t('guide.backups.encrypt.text'),
+          title: t('guide.backups.encrypt.title'),
+        }} />
+        <Entry key="guide.backups.check" entry={{
+          text: t('guide.backups.check.text'),
+          title: t('guide.backups.check.title'),
+        }} />
+        <Entry key="guide.backups.howOften" entry={{
+          text: t('guide.backups.howOften.text'),
+          title: t('guide.backups.howOften.title'),
+        }} />
       </Guide>
     );
   case 'bitbox02':
     return (
       <Guide>
-        <Entry key="guide.backupsBB02.whatIsABackup" entry={t('guide.backupsBB02.whatIsABackup', { returnObjects: true })} />
-        <Entry key="guide.backupsBB02.encrypt" entry={t('guide.backupsBB02.encrypt', { returnObjects: true })} shown={true} />
-        <Entry key="guide.backupsBB02.check" entry={t('guide.backupsBB02.check', { returnObjects: true })} />
-        <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften', { returnObjects: true })} />
+        <Entry key="guide.backupsBB02.whatIsABackup" entry={{
+          text: t('guide.backupsBB02.whatIsABackup.text'),
+          title: t('guide.backupsBB02.whatIsABackup.title'),
+        }} />
+        <Entry key="guide.backupsBB02.encrypt" entry={{
+          text: t('guide.backupsBB02.encrypt.text'),
+          title: t('guide.backupsBB02.encrypt.title'),
+        }} shown={true} />
+        <Entry key="guide.backupsBB02.check" entry={{
+          text: t('guide.backupsBB02.check.text'),
+          title: t('guide.backupsBB02.check.title'),
+        }} />
+        <Entry key="guide.backups.howOften" entry={{
+          text: t('guide.backups.howOften.text'),
+          title: t('guide.backups.howOften.title'),
+        }} />
       </Guide>
     );
   default:
