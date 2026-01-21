@@ -1,0 +1,10 @@
+Our simple yet powerful app is at the center of the BitBox ecosystem. An all-in-one solution to securely manage your digital assets with ease.
+
+See more details at https://shiftcrypto.ch/app/
+
+A BitBox02 hardware wallet is required.
+https://shiftcrypto.ch/bitbox02/
+
+Note: this app will sync around 200mb of blockchain header data. Be careful with using your mobile data.
+
+Please send your feedback to shiftlabs+android@shiftcrypto.ch.
