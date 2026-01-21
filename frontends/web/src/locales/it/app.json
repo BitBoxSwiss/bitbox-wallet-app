@@ -108,7 +108,7 @@
       "aborted": "La verifica del backup è stata interrotta sul dispositivo",
       "checking": "Sto verificando backup...",
       "confirmTitle": "Verifica backup",
-      "notOK": "Il backup NON combacia con il wallet.",
+      "notOK": "Nessun backup sulla scheda microSD corrisponde al wallet nel BitBox. Questo può accadere se è stata inserita una microSD usata per configurare un altro BitBox. Individua la scheda microSD corretta utilizzata per configurare questo BitBox e riprova.",
       "ok": "Il backup combacia con il wallet.",
       "password": {
         "label": "Password di recupero",
@@ -732,7 +732,8 @@
         "description": "Modifica il nome del tuo dispositivo."
       },
       "passwordStretchingAlgo": {
-        "description": "L'algoritmo usato per la cifratura del seed sul tuo BitBox."
+        "description": "L'algoritmo usato per la cifratura del seed sul tuo BitBox.",
+        "title": "Algoritmo di sblocco"
       },
       "rootFingerprint": {
         "description": "La root fingerprint è un identificatore univoco del wallet attualmente in uso. Ti può aiutare a distinguere wallet diversi se usi la passphrase."
@@ -781,7 +782,7 @@
       }
     },
     "firmware": {
-      "firmwareVersion": "Versione Firmware",
+      "firmwareVersion": "Versione firmware",
       "newVersion": {
         "label": "Versione disponibile"
       },
@@ -909,6 +910,7 @@
     "receiveWithoutCoinCode": "Ricevi",
     "receive_bitcoin": "Ricevi Bitcoin",
     "receive_crypto": "Ricevi crypto",
+    "received": "Ricevuta",
     "reset": "Ripristina",
     "resetToDefault": "Ripristina le impostazioni predefinite",
     "search": "Cerca...",
@@ -917,6 +919,7 @@
     "sell_bitcoin": "Vendi Bitcoin",
     "sell_crypto": "Vendi crypto",
     "send": "Invia",
+    "sent": "Inviata",
     "spend_bitcoin": "Spendi bitcoin",
     "spend_crypto": "Spendi crypto"
   },
