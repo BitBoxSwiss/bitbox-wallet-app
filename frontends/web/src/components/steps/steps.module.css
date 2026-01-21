@@ -11,7 +11,6 @@
     flex-wrap: nowrap;
     justify-content: space-between;
     margin-bottom: var(--space-half);
-    overflow: hidden;
     position: relative;
     width: 100%;
 }
