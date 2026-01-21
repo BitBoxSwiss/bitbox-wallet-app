@@ -62,7 +62,9 @@ export const TxDetailsDialog = ({
     return;
   }
 
-  const displayedSign = transactionInfo && getTxSignForTxDetail(transactionInfo.type);
+  const displayedSign = getTxSignForTxDetail(transactionInfo.type);
+  const amountSign = amount.amount === '0' ? '' : displayedSign;
+  const amountAtTimeSign = transactionInfo.amountAtTime?.amount === '0' ? '' : displayedSign;
   // Amount and Confirmations info are displayed using props data
   // instead of transactionInfo because they are live updated.
 
@@ -83,7 +85,8 @@ export const TxDetailsDialog = ({
             amount={amount}
             transactionInfo={transactionInfo}
             time={time}
-            displayedSign={displayedSign}
+            amountSign={amountSign}
+            amountAtTimeSign={amountAtTimeSign}
           />
 
           <hr className={styles.separator} />

@@ -1908,6 +1908,7 @@
     }
   },
   "transaction": {
+    "advanced": "Advanced",
     "confirmation": "Confirmations",
     "details": {
       "activity": "Activity",

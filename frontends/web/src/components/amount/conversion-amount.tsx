@@ -49,7 +49,7 @@ export const ConversionAmount = ({
           {amountToShow.estimated && !skipEstimatedPrefix && (
             <span className={styles.txPrefix}>{estimatedPrefix}{' '}</span>
           )}
-          {conversion && !sendToSelf ? sign : null}
+          {conversion && conversion !== '0' && !sendToSelf ? sign : null}
           <Amount
             amount={sendToSelf ? amountToShow.amount : conversion || ''}
             unit={conversionUnit}
