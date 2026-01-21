@@ -27,7 +27,10 @@ type Account struct {
 	// and not be shown in 'Manage accounts', because the account is unused (has no transaction
 	// history). This is used to facilitate automatic discovery of used accounts.
 	HiddenBecauseUnused bool `json:"hiddenBecauseUnused"`
-	// Watch indicates if the account should be loaded even if its keystore is not connected.
+
+	// The following has been removed, but it's left here commented out so that it will still be
+	// clear its purpose if found in existing configs.
+	// // Watch indicates if the account should be loaded even if its keystore is not connected.
 	//
 	// If false, the account is only displayed if the keystore is connected. If true, it is loaded
 	// and displayed when the app launches.
@@ -35,7 +38,8 @@ type Account struct {
 	// If nil, it is considered false.  The reason for this is that we don't want to suddenly show
 	// all persisted accounts when the Watchonly setting is enabled - only accounts that are loaded
 	// when Watchonly is enabled should do this.
-	Watch                 *bool                  `json:"watch"`
+	Watch *bool `json:"watch"`
+
 	CoinCode              coin.Code              `json:"coinCode"`
 	Name                  string                 `json:"name"`
 	Code                  accountsTypes.Code     `json:"code"`
@@ -70,8 +74,6 @@ type Keystore struct {
 	// Watchonly determines if accounts of this keystore should be loaded even if the keystore is not connected.
 	// If false, accounts are only loaded if this keystore is connected.
 	// If true, they are loaded and displayed when the app launches.
-	// Individual accounts can be exempt from being loaded even if this flag is true by setting the account's
-	// `Watch` flag to false.
 	Watchonly bool `json:"watchonly"`
 	// The root fingerprint is the first 32 bits of the hash160 of the pubkey at the keypath m/.
 	// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#key-identifiers It serves as
@@ -143,16 +145,6 @@ func (cfg AccountsConfig) IsKeystoreWatchonly(rootFingerprint []byte) bool {
 	return ks.Watchonly
 }
 
-// IsAccountWatchonly returns true if the `Watch` setting of the account is set to true and its
-// keystores watchonly setting is true.
-func (cfg AccountsConfig) IsAccountWatchonly(account *Account) (bool, error) {
-	rootFingerprint, err := account.SigningConfigurations.RootFingerprint()
-	if err != nil {
-		return false, err
-	}
-	return cfg.IsKeystoreWatchonly(rootFingerprint) && account.Watch != nil && *account.Watch, nil
-}
-
 // GetOrAddKeystore looks up the keystore by root fingerprint. If it does not exist, one is added to
 // the list of keystores and the newly created one is returned.
 func (cfg *AccountsConfig) GetOrAddKeystore(rootFingerprint []byte) *Keystore {
@@ -164,6 +156,20 @@ func (cfg *AccountsConfig) GetOrAddKeystore(rootFingerprint []byte) *Keystore {
 	ks = &Keystore{RootFingerprint: rootFingerprint}
 	cfg.Keystores = append(cfg.Keystores, ks)
 	return ks
+}
+
+// IsAccountWatchOnly returns true if the keystore for the account is marked as watchonly.
+func (cfg AccountsConfig) IsAccountWatchOnly(account *Account) (bool, error) {
+	if account.HiddenBecauseUnused {
+		return false, nil
+	}
+
+	rootFingerprint, err := account.SigningConfigurations.RootFingerprint()
+	if err != nil {
+		return false, err
+	}
+
+	return cfg.IsKeystoreWatchonly(rootFingerprint), nil
 }
 
 // migrateActiveTokens removes tokens from AccountsConfig.

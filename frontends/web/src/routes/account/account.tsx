@@ -9,7 +9,7 @@ import { TDevices } from '@/api/devices';
 import { getMarketVendors, MarketVendors } from '@/api/market';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
-import { Info, LoupeBlue } from '@/components/icon';
+import { InfoBlue, LoupeBlue } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Message } from '@/components/message/message';
@@ -231,7 +231,7 @@ const RemountAccount = ({
               to={`/account/${code}/info`}
               title={t('accountInfo.title')}
               className={style.accountInfoLink}>
-              <Info className={style.accountIcon} />
+              <InfoBlue className={style.accountIcon} />
               <span className="hide-on-small">
                 {t('accountInfo.label')}
               </span>

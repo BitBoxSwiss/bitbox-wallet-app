@@ -22,7 +22,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
@@ -400,10 +399,6 @@ func TestRegisterKeystore(t *testing.T) {
 	require.Equal(t, "Bitcoin", b.Config().AccountsConfig().Accounts[0].Name)
 	require.Equal(t, "Litecoin", b.Config().AccountsConfig().Accounts[1].Name)
 	require.Equal(t, "Ethereum", b.Config().AccountsConfig().Accounts[2].Name)
-	// All accounts default to not being watch-only.
-	for _, acct := range b.Accounts() {
-		require.Nil(t, acct.Config().Config.Watch)
-	}
 
 	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
 	require.Equal(t, "Mock keystore 1", b.Config().AccountsConfig().Keystores[0].Name)
@@ -414,7 +409,7 @@ func TestRegisterKeystore(t *testing.T) {
 
 	// Deregistering the keystore leaves the loaded accounts (watchonly), and leaves the persisted
 	// accounts and keystores.
-	// Mark accounts as watch-only.
+	// Enable watch-only for the keystore.
 	require.NoError(t, b.SetWatchonly(rootFingerprint1, true))
 
 	b.DeregisterKeystore()
@@ -445,33 +440,13 @@ func TestRegisterKeystore(t *testing.T) {
 
 	b.DeregisterKeystore()
 
-	// Disable watch-only for two accounts, one of each keystore. Now, all accounts plus the
-	// non-watch only accounts of the connected keystore will be loaded.
-	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
-		f := false
-		cfg.Lookup("v0-55555555-btc-0").Watch = &f
-		cfg.Lookup("v0-66666666-ltc-0").Watch = &f
-		return nil
-	}))
-	b.registerKeystore(ks1)
-	checkShownAccountsLen(t, b, 5, 6)
-	// v0-55555555-btc-0 loaded even though watch=false, as the keystore is connected.
-	require.NotNil(t, b.Accounts().lookup("v0-55555555-btc-0"))
-	require.NotNil(t, b.Accounts().lookup("v0-55555555-ltc-0"))
-	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0"))
-	require.NotNil(t, b.Accounts().lookup("v0-66666666-btc-0"))
-	// v0-66666666-ltc-0 not loaded (watch=false).
-	require.Nil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
-	require.NotNil(t, b.Accounts().lookup("v0-66666666-eth-0"))
-
-	b.DeregisterKeystore()
-	checkShownAccountsLen(t, b, 4, 6)
-	// v0-55555555-btc-0 not loaded (watch = false)
+	// Stop watching the first keystore while no keystore is connected.
+	require.NoError(t, b.SetWatchonly(rootFingerprint1, false))
+	checkShownAccountsLen(t, b, 3, 6)
 	require.Nil(t, b.Accounts().lookup("v0-55555555-btc-0"))
-	require.NotNil(t, b.Accounts().lookup("v0-55555555-ltc-0"))
-	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0"))
+	require.Nil(t, b.Accounts().lookup("v0-55555555-ltc-0"))
+	require.Nil(t, b.Accounts().lookup("v0-55555555-eth-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-btc-0"))
-	// v0-66666666-ltc-0 not loaded (watch=false).
-	require.Nil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-eth-0"))
 }

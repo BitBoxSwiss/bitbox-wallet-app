@@ -105,9 +105,10 @@
   },
   "backup": {
     "check": {
+      "aborted": "Checking backup was aborted on the device",
       "checking": "Checking backup…",
       "confirmTitle": "Check backup",
-      "notOK": "Backup does NOT match the wallet.",
+      "notOK": "No backups on the microSD card matched the wallet on the BitBox. This can occur if you inserted a microSD card that was used to set-up another BitBox. Please locate the correct microSD card used to set-up this BitBox and try again.",
       "ok": "Backup matches the wallet.",
       "password": {
         "label": "Recovery password",
@@ -383,6 +384,10 @@
     "connected": "connected",
     "connectionFailed": "failed",
     "connectionIssues": "Having connection issues?",
+    "disabledGloballyDescription": "Please turn on Bluetooth to connect to your BitBox.",
+    "disabledGloballyTitle": "Bluetooth access is disabled.",
+    "disabledPermissionDescription": "Please allow Bluetooth to connect to your BitBox.",
+    "disabledPermissionTitle": "Bluetooth access is disabled for BitBoxApp.",
     "enable": "Please turn on Bluetooth",
     "select": "Select your BitBox"
   },
@@ -462,6 +467,10 @@
               "link": "BitBox security threat model",
               "text": "Bitrefill is an external service that is not covered by the BitBox security threat model. When you make a purchase, your payment is sent to a Bitrefill address. The BitBox cannot verify that this address is correct.",
               "title": "Security notice"
+            },
+            "validEmail": {
+              "text": "Various temporary email providers are not supported by Bitrefill and thus you may not receive your invoice. Your gift card code/voucher will still be present at the end of the workflow.",
+              "title": "Valid email addresses"
             }
           },
           "infobox": {
@@ -731,6 +740,10 @@
       "deviceName": {
         "description": "Change the name of your device."
       },
+      "passwordStretchingAlgo": {
+        "description": "The algorithm used to encrypt the seed on your BitBox.",
+        "title": "Unlock algorithm"
+      },
       "rootFingerprint": {
         "description": "The root fingerprint is a unique identifier for the wallet currently in use. It can help you distinguish between different wallets if you use passphrases."
       },
@@ -782,7 +795,7 @@
       "newVersion": {
         "label": "Available version"
       },
-      "title": "Device firmware",
+      "title": "Firmware",
       "upToDate": "Your device is up to date",
       "upgradeAvailable": "New upgrade available",
       "version": {
@@ -896,6 +909,7 @@
     "buy_bitcoin": "Buy Bitcoin",
     "buy_crypto": "Buy crypto",
     "close": "Close",
+    "enable": "Enable",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
     "noOptionOnIos": "Not available on iOS",
@@ -964,6 +978,10 @@
       "title": "What does incoming mean?"
     },
     "accountInfo": {
+      "exportTransactions": {
+        "text": "\"Export transactions\" under \"Account info\" and open your downloads folder to find the exported CSV file. This can be useful for services like CoinTracking for tax reporting.",
+        "title": "How can I export my transaction history? (e.g., for CoinTracking)"
+      },
       "multipleXPubs": {
         "text": "Each xpub is tied to the \"Type\" shown: either \"Native Segwit (bech32)\", \"Wrapped Segwit\" or “Taproot” (Bitcoin only). These are script types used by {{coinName}}. The BitBoxApp combines them, supporting multiple script types in the same account. Because each script type gives a different xpub, there are multiple xpubs per account.\n\nIf you consistently receive on the default address (Native Segwit), you only need the \"bech32\" xpub. However, if you also receive funds to \"Wrapped Segwit\" or “Taproot”, you also need to use the \"Wrapped Segwit\" and “Taproot” extended public keys respectively.",
         "title": "Why are there multiple xpubs?"
@@ -1110,6 +1128,29 @@
         "title": "How can I eject the microSD card?"
       }
     },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "This may be because you used an email provider that Bitrefill doesn't support. If you need the invoice, please contact Bitrefill support and they can supply you with your invoice.",
+        "title": "I did not receive an invoice from Bitrefill"
+      },
+      "kyc": {
+        "link": {
+          "text": "Bitrefill purchasing limits"
+        },
+        "text": "No, Bitrefill does not require identity verification. You can make purchases without KYC up to certain limits. For full details, please see Bitrefill's purchasing limits policy:",
+        "title": "Does Bitrefill require KYC?"
+      },
+      "limits": {
+        "link": {
+          "text": "Bitrefill account verification"
+        },
+        "text": "You can raise your purchase limits by becoming a verified customer. Please visit the following link to complete the verification process:",
+        "title": "How do I increase my purchasing limits with Bitrefill?"
+      }
+    },
     "bitsurance": {
       "faq": {
         "link": {
@@ -1145,10 +1186,6 @@
         "text": "Bitsurance covers some risks of self-custody that are not in-scope of even the most secure wallet, e.g. burglary, extortion or destruction of the wallet. It’s your personal decision if you need insurance coverage for these risks.",
         "title": "Do I need Bitcoin insurance?"
       }
-    },
-    "cointracking": {
-      "text": "Click the \"Export\" button and open the downloads folder where you will find the CSV export. Then click the link below, upload your BitBox CSV file and import the data in order to use it for your CoinTracking portfolio manager and to create your tax reports.",
-      "title": "How to import my transactions into CoinTracking?"
     },
     "device": {
       "attestation": {

@@ -4,7 +4,7 @@ import abortSVG from './assets/icons/abort.svg';
 import alert from './assets/icons/alert-triangle.svg';
 import BB02StylizedDark from './assets/bitbox02-stylized-reflection-dark.png';
 import BB02StylizedLight from './assets/bitbox02-stylized-reflection-light.png';
-import info from './assets/icons/info.svg';
+import infoBlueSVG from './assets/icons/info-icon-blue.svg';
 import arbitrumColorSVG from './assets/arbitrum-color.svg';
 import arrowDownSVG from './assets/icons/arrow-down-active.svg';
 import arrowDownGreenSVG from './assets/icons/arrow-down-green.svg';
@@ -31,9 +31,10 @@ import checkSVG from './assets/icons/check.svg';
 import chevronRightDark from './assets/icons/chevron-right-dark.svg';
 import chevronLeftDark from './assets/icons/chevron-left-dark.svg';
 import cancelSVG from './assets/icons/cancel.svg';
-import cogSVG from './assets/icons/cog.svg';
+import cogLightSVG from './assets/icons/cog-light.svg';
+import cogDarkSVG from './assets/icons/cog-dark.svg';
 import cogGraySVG from './assets/icons/cog-gray.svg';
-import cogOutlineSVG from './assets/icons/cog-outline.svg';
+import cogBlueSVG from './assets/icons/cog-blue.svg';
 import coinsSVG from './assets/icons/coins.svg';
 import creditCardDarkSVG from './assets/icons/credit-card.svg';
 import creditCardLightSVG from './assets/icons/credit-card-light.svg';
@@ -80,11 +81,20 @@ import selectedCheckLightSVG from './assets/icons/selected-check-light.svg';
 import spinnerRingDarkSVG from './assets/icons/spinner-ring-dark.svg';
 import spinnerRingLightSVG from './assets/icons/spinner-ring-light.svg';
 import usbSuccessSVG from './assets/icons/usb-success.svg';
+import usbLightSVG from './assets/icons/usb-light.svg';
+import usbDarkSVG from './assets/icons/usb-dark.svg';
 import statusInfoSVG from './assets/icons/icon-info.svg';
 import statusSuccessSVG from './assets/icons/icon-success.svg';
 import statusWarningSVG from './assets/icons/icon-warning.svg';
 import statusErrorSVG from './assets/icons/icon-error.svg';
 import plusSVG from './assets/icons/plus.svg';
+import infoIconLightSVG from './assets/icons/info-icon-light.svg';
+import infoIconDarkSVG from './assets/icons/info-icon-dark.svg';
+import advancedSettingsIconSVG from './assets/icons/advanced-settings-icon.svg';
+import advancedSettingsIconDarkSVG from './assets/icons/advanced-settings-icon-dark.svg';
+import accountsIconLightSVG from './assets/icons/accounts-icon-light.svg';
+import accountsIconDarkSVG from './assets/icons/accounts-icon-dark.svg';
+
 
 type SVGProps = JSX.IntrinsicElements['svg'];
 
@@ -136,8 +146,7 @@ export const ChevronRightDark = (props: ImgProps) => (<img src={chevronRightDark
 export const Cancel = (props: ImgProps) => (<img src={cancelSVG} draggable={false} {...props} />);
 export const CreditCardDark = (props: ImgProps) => (<img src={creditCardDarkSVG} draggable={false} {...props} />);
 export const CreditCard = (props: ImgProps) => (<img src={creditCardLightSVG} draggable={false} {...props} />);
-export const CogOutline = (props: ImgProps) => (<img src={cogOutlineSVG} draggable={false} {...props} />);
-export const Cog = (props: ImgProps) => (<img src={cogSVG} draggable={false} {...props} />);
+export const CogBlue = (props: ImgProps) => (<img src={cogBlueSVG} draggable={false} {...props} />);
 export const CogGray = (props: ImgProps) => (<img src={cogGraySVG} draggable={false} {...props} />);
 export const Coins = (props: ImgProps) => (<img src={coinsSVG} draggable={false} {...props} />);
 export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {...props} />);
@@ -158,7 +167,7 @@ export const GlobeDark = (props: ImgProps) => (<img src={globeDarkSVG} draggable
 export const GlobeLight = (props: ImgProps) => (<img src={globeLightSVG} draggable={false} {...props} />);
 export const GreenDot = (props: ImgProps) => (<img src={greenDotSVG} draggable={false} {...props} />);
 export const GuideActive = (props: ImgProps) => (<img src={guideSVG} draggable={false} {...props} />);
-export const Info = (props: ImgProps) => (<img src={info} draggable={false} {...props} />);
+export const InfoBlue = (props: ImgProps) => (<img src={infoBlueSVG} draggable={false} {...props} />);
 export const Linechart = (props: ImgProps) => (<img src={linechartSVG} draggable={false} {...props} />);
 export const Loupe = (props: ImgProps) => (<img src={loupeSVG} draggable={false} {...props} />);
 export const LoupeBlue = (props: ImgProps) => (<img src={loupeBlueSVG} draggable={false} {...props} />);
@@ -186,11 +195,21 @@ export const WarningOLD = (props: ImgProps) => (<img src={warningPNG} draggable=
 export const WarningOutlined = (props: ImgProps) => (<img src={warningOutlinedSVG} draggable={false} {...props} />);
 export const YellowDot = (props: ImgProps) => (<img src={yellowDotSVG} draggable={false} {...props} />);
 export const USBSuccess = (props: ImgProps) => (<img src={usbSuccessSVG} draggable={false} {...props} />);
+export const USBLight = (props: ImgProps) => (<img src={usbLightSVG} draggable={false} {...props} />);
+export const USBDark = (props: ImgProps) => (<img src={usbDarkSVG} draggable={false} {...props} />);
 export const StatusSuccess = (props: ImgProps) => (<img src={statusSuccessSVG} draggable={false} {...props} />);
 export const StatusInfo = (props: ImgProps) => (<img src={statusInfoSVG} draggable={false} {...props} />);
 export const StatusWarning = (props: ImgProps) => (<img src={statusWarningSVG} draggable={false} {...props} />);
 export const StatusError = (props: ImgProps) => (<img src={statusErrorSVG} draggable={false} {...props} />);
 export const Plus = (props: ImgProps) => (<img src={plusSVG} draggable={false} {...props} />);
+export const InfoIconLight = (props: ImgProps) => (<img src={infoIconLightSVG} draggable={false} {...props} />);
+export const InfoIconDark = (props: ImgProps) => (<img src={infoIconDarkSVG} draggable={false} {...props} />);
+export const AdvancedSettingsIcon = (props: ImgProps) => (<img src={advancedSettingsIconSVG} draggable={false} {...props} />);
+export const AdvancedSettingsIconDark = (props: ImgProps) => (<img src={advancedSettingsIconDarkSVG} draggable={false} {...props} />);
+export const AccountsIconLight = (props: ImgProps) => (<img src={accountsIconLightSVG} draggable={false} {...props} />);
+export const AccountsIconDark = (props: ImgProps) => (<img src={accountsIconDarkSVG} draggable={false} {...props} />);
+export const CogLight = (props: ImgProps) => (<img src={cogLightSVG} draggable={false} {...props} />);
+export const CogDark = (props: ImgProps) => (<img src={cogDarkSVG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
  */

@@ -66,19 +66,15 @@
 
 .danger {
     composes: button;
-    background-color: var(--color-softred);
-    border-color: var(--color-softred);
+    background-color: var(--color-error);
+    border-color: var(--color-error);
     color: var(--color-alt);
 }
 
 .danger:not([disabled]):focus,
 .danger:not([disabled]):hover {
-    background-color: var(--color-lightred);
-    border-color: var(--color-lightred);
-}
-
-.danger:focus {
-    outline-color: var(--color-swissred);
+    background-color: var(--color-softred);
+    border-color: var(--color-softred);
 }
 
 .transparent {

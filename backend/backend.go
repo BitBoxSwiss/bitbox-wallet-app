@@ -5,7 +5,6 @@ package backend
 import (
 	"encoding/hex"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -99,6 +98,8 @@ var fixedURLWhitelist = []string{
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
 	"https://github.com/bitcoin/bips/",
+	// iOS app settings
+	"app-settings:",
 	// Others
 	"https://cointracking.info/import/bitbox/",
 }
@@ -1035,8 +1036,6 @@ func (backend *Backend) CancelConnectKeystore() {
 }
 
 // SetWatchonly sets the keystore's watchonly flag to `watchonly`.
-// When enabling watchonly, all currently loaded accounts of that keystore are turned into watchonly accounts.
-// When disabling watchonly, all the watchonly status of all of the keystore's persisted accounts is reset.
 func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) error {
 	err := backend.config.ModifyAccountsConfig(func(config *config.AccountsConfig) error {
 		ks, err := config.LookupKeystore(rootFingerprint)
@@ -1050,28 +1049,10 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 		return err
 	}
 
-	if !watchonly {
-		// When disabling watchonly of the keystore, we reset the Watch flag for each of its
-		// accounts, so that when the user enables watchonly for this keystore again, it does not
-		// show all accounts again - they first need to be loaded via their keystore.
-		return backend.AccountSetWatch(
-			func(account *config.Account) bool {
-				return account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint)
-			},
-			nil,
-		)
-	}
-
-	accounts := backend.Accounts()
-	// When enabling watchonly, we turn the currently loaded accounts into watch-only accounts.
-	t := true
-	return backend.AccountSetWatch(
-		func(account *config.Account) bool {
-			// Apply to each currently loaded account.
-			return !account.HiddenBecauseUnused && accounts.lookup(account.Code) != nil
-		},
-		&t,
-	)
+	defer backend.accountsAndKeystoreLock.Lock()()
+	backend.initAccounts(false)
+	backend.emitAccountsStatusChanged()
+	return nil
 }
 
 // ExportLogs function copy and save log.txt file to help users provide it to support while troubleshooting.
@@ -1089,28 +1070,20 @@ func (backend *Backend) ExportLogs() error {
 	}
 	backend.log.Infof("Export logs to %s.", path)
 
-	file, err := os.Create(path)
+	exportFile, err := os.Create(path)
 	if err != nil {
 		backend.log.WithError(err).Error("error creating new log file")
 		return err
 	}
 	logFilePath := filepath.Join(utilConfig.AppDir(), "log.txt")
 
-	existingLogFile, err := os.Open(logFilePath)
-	if err != nil {
-		backend.log.WithError(err).Error("error opening existing log file")
+	if err := logging.WriteCombinedLog(exportFile, logFilePath); err != nil {
+		backend.log.WithError(err).Error("error copying existing logs to new file")
+		_ = exportFile.Close()
 		return err
 	}
-
-	defer func() {
-		if err := existingLogFile.Close(); err != nil {
-			backend.log.WithError(err).Error("error closing existing log file")
-		}
-	}()
-
-	_, err = io.Copy(file, existingLogFile)
-	if err != nil {
-		backend.log.WithError(err).Error("error copying existing log to new file")
+	if err := exportFile.Close(); err != nil {
+		backend.log.WithError(err).Error("error closing new log file")
 		return err
 	}
 	backend.log.Infof("Exported logs copied to %s.", path)

@@ -209,7 +209,10 @@ export const AccountsSummary = ({
         </Main>
       </GuidedContent>
       <Guide title={t('guide.guideTitle.accountSummary')}>
-        <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription', { returnObjects: true })} />
+        <Entry key="accountSummaryDescription" entry={{
+          text: t('guide.accountSummaryDescription.text'),
+          title: t('guide.accountSummaryDescription.title'),
+        }} />
         <Entry key="accountSummaryAmount" entry={{
           link: {
             text: 'www.coingecko.com',
@@ -218,7 +221,10 @@ export const AccountsSummary = ({
           text: t('guide.accountSummaryAmount.text'),
           title: t('guide.accountSummaryAmount.title')
         }} />
-        <Entry key="trackingModePortfolioChart" entry={t('guide.trackingModePortfolioChart', { returnObjects: true })} />
+        <Entry key="trackingModePortfolioChart" entry={{
+          text: t('guide.trackingModePortfolioChart.text'),
+          title: t('guide.trackingModePortfolioChart.title'),
+        }} />
       </Guide>
     </GuideWrapper>
   );

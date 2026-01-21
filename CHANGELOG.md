@@ -1,22 +1,29 @@
 # Changelog
 
 ## Unreleased
+- iOS: Add haptic feedback on account summary chart scrolls
+- Revamp Marketplace UI
+
+## v4.50.0
+- Bundle BitBox02 Nova firmware version v9.25.0
 - Add a dropdown on the "Receiver address" input in the send screen to select an account
 - Add feedback link to guide and about settings
 - Move active currencies to top of currency dropdown
+- Export logs now includes rotated log file (log.txt.1) when present
+- Fix hang when adding an account with no keystores connected
 - Android: fix connectivity misdetection when switching between WIFI and cellular network.
 - Android: dropped support for Android versions lower than 7.
 - Sort backups from newest to oldest in manage backups
 - Android: fix display of external links from Bitrefill
 - fix language sometimes not persistent across app restarts
-- Android: make the UI work with responsive font sizes and adhere to OS font size settings 
 - Android: fix layout issues with status and navigation bars.
 - Android: make the UI work with responsive font sizes and adhere to OS font size settings
 - Add "Change device password" functionality (in Settings)
 - Add icons for CTA and action buttons in account page
 - Restructure "Manage device" tab in settings
 - Responsive account selector (Marketplace)
-- Revamp Marketplace UI
+- iOS: Improve Bluetooth alert messaging by distinguishing between system-wide Bluetooth being disabled and the app lacking Bluetooth permission.
+- Ethereum: use shiftcrypto.io Etherscan proxy.
 
 ## v4.49.0
 - Bundle BitBox02 Nova firmware version v9.24.0

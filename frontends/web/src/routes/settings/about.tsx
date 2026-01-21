@@ -52,7 +52,10 @@ const AboutGuide = () => {
   const { t } = useTranslation();
   return (
     <Guide>
-      <Entry key="guide.settings.servers" entry={t('guide.settings.servers', { returnObjects: true })} />
+      <Entry key="guide.settings.servers" entry={{
+        text: t('guide.settings.servers.text'),
+        title: t('guide.settings.servers.title'),
+      }} />
     </Guide>
   );
 };

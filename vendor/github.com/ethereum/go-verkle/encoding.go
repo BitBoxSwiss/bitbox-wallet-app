@@ -56,12 +56,11 @@ const (
 	leafC1CommitmentOffset = leafCommitmentOffset + banderwagon.UncompressedSize
 	leafC2CommitmentOffset = leafC1CommitmentOffset + banderwagon.UncompressedSize
 	leafChildrenOffset     = leafC2CommitmentOffset + banderwagon.UncompressedSize
-	leafBalanceSize        = 32
-	leafNonceSize          = 8
+	leafBasicDataSize      = 32
 	leafSlotSize           = 32
 	leafValueIndexSize     = 1
 	singleSlotLeafSize     = nodeTypeSize + StemSize + 2*banderwagon.UncompressedSize + leafValueIndexSize + leafSlotSize
-	eoaLeafSize            = nodeTypeSize + StemSize + 2*banderwagon.UncompressedSize + leafBalanceSize + leafNonceSize
+	eoaLeafSize            = nodeTypeSize + StemSize + 2*banderwagon.UncompressedSize + leafBasicDataSize
 )
 
 func bit(bitlist []byte, nr int) bool {
@@ -138,14 +137,8 @@ func parseLeafNode(serialized []byte, depth byte) (VerkleNode, error) {
 func parseEoAccountNode(serialized []byte, depth byte) (VerkleNode, error) {
 	var values [NodeWidth][]byte
 	offset := leafStemOffset + StemSize + 2*banderwagon.UncompressedSize
-	values[0] = zero32[:]                                   // 0 version
-	values[1] = serialized[offset : offset+leafBalanceSize] // balance
-	var nonce [32]byte
-	offset += leafBalanceSize
-	copy(nonce[:leafNonceSize], serialized[offset:offset+leafNonceSize])
-	values[2] = nonce[:] // nonce
-	values[3] = EmptyCodeHash[:]
-	values[4] = zero32[:] // 0 code size
+	values[0] = serialized[offset : offset+leafBasicDataSize] // basic data
+	values[1] = EmptyCodeHash[:]
 	ln := NewLeafNodeWithNoComms(serialized[leafStemOffset:leafStemOffset+StemSize], values[:])
 	ln.setDepth(depth)
 	ln.c1 = new(Point)

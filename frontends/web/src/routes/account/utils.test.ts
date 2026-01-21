@@ -28,7 +28,6 @@ const createAccount = ({
       ...keystore
     },
     name: 'Account 1',
-    watch: true,
     ...props,
   };
 };
@@ -65,7 +64,6 @@ describe('utils/getAccountsByKeystore', () => {
           watchonly: true
         },
         name: 'Account 1',
-        watch: true
       }, {
         active: true,
         blockExplorerTxPrefix: 'https://mempool.space/testnet/tx/',
@@ -82,7 +80,6 @@ describe('utils/getAccountsByKeystore', () => {
           watchonly: true
         },
         name: 'Account 2',
-        watch: true
       }
     ];
     const result = getAccountsByKeystore(accounts);

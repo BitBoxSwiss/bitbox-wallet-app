@@ -1,17 +1,4 @@
-// Copyright 2018-2019 Shift Cryptosecurity AG
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 // Package firmware contains the API to the physical device.
 package firmware
@@ -133,6 +120,9 @@ type DeviceInfo struct {
 	SecurechipModel string `json:"securechipModel"`
 	// Available on Bluetooth-enabled devices, Will be `nil` otherwise.
 	Bluetooth *BluetoothInfo `json:"bluetooth"`
+	// This information is only available since firmwae v9.25.0. Will be an empty string for older
+	// firmware versions.
+	PasswordStretchingAlgo string `json:"passwordStretchingAlgo"`
 }
 
 // NewDevice creates a new instance of Device.

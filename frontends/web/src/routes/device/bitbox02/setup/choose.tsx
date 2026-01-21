@@ -7,7 +7,7 @@ import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Column, ColumnButtons, Grid } from '@/components/layout';
 import { Button, Label } from '@/components/forms';
 import { Toggle } from '@/components/toggle/toggle';
-import { Info } from '@/components/icon';
+import { InfoBlue } from '@/components/icon';
 import style from './choose.module.css';
 
 export type TWalletSetupChoices = 'create-wallet' | 'restore-sdcard' | 'restore-mnemonic';
@@ -117,7 +117,7 @@ export const SetupOptions = ({
                 </p>
                 <p className="m-top-quarter m-bottom-default">
                   <small>
-                    <Info className={style.textIcon} />
+                    <InfoBlue className={style.textIcon} />
                     {t('bitbox02Wizard.advanced.seed12WordInfo')}
                   </small>
                 </p>
@@ -157,7 +157,7 @@ export const SetupOptions = ({
       width="1100px">
       <ViewHeader small title={t('bitbox02Wizard.stepUninitialized.title')}>
         <p>
-          <Info className={style.textIcon} />
+          <InfoBlue className={style.textIcon} />
           {t('bitbox02Wizard.initialize.tip')}
         </p>
       </ViewHeader>
