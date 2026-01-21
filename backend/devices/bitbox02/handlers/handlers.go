@@ -300,9 +300,6 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 		newVersionStr = newVersion.String()
 		canUpgrade = newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String()
 	}
-
-	product := handlers.device.Product()
-
 	return struct {
 		CurrentVersion         string `json:"currentVersion"`
 		NewVersion             string `json:"newVersion,omitempty"`
@@ -321,9 +318,6 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 		CanCreate12Words  bool `json:"canCreate12Words"`
 		CanBIP85          bool `json:"canBIP85"`
 		CanChangePassword bool `json:"canChangePassword"`
-		// Whether to display the device password stretching algorithm. Only BitBox02 Nova has more
-		// than one, so we only display it for the Nova.
-		DisplayPasswordStretchingAlgo bool `json:"displayPasswordStretchingAlgo"`
 	}{
 		CurrentVersion:             currentVersion.String(),
 		NewVersion:                 newVersionStr,
@@ -333,8 +327,6 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 		CanCreate12Words:           currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
 		CanBIP85:                   currentVersion.AtLeast(semver.NewSemVer(9, 18, 0)),
 		CanChangePassword:          currentVersion.AtLeast(semver.NewSemVer(9, 25, 0)),
-		DisplayPasswordStretchingAlgo: product == bitbox02common.ProductBitBox02PlusBTCOnly ||
-			product == bitbox02common.ProductBitBox02PlusMulti,
 	}
 }
 
