@@ -735,6 +735,10 @@
       "deviceName": {
         "description": "Change the name of your device."
       },
+      "passwordStretchingAlgo": {
+        "description": "The algorithm used to encrypt the seed on your BitBox.",
+        "title": "Unlock algorithm"
+      },
       "rootFingerprint": {
         "description": "The root fingerprint is a unique identifier for the wallet currently in use. It can help you distinguish between different wallets if you use passphrases."
       },
