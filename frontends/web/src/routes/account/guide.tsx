@@ -24,31 +24,58 @@ export const AccountGuide = ({
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.account')}>
-      <Entry key="accountDescription" entry={t('guide.accountDescription', { returnObjects: true })} />
+      <Entry key="accountDescription" entry={{
+        text: t('guide.accountDescription.text'),
+        title: t('guide.accountDescription.title'),
+      }} />
       {hasNoBalance && (
-        <Entry key="accountSendDisabled" entry={t('guide.accountSendDisabled', {
-          unit,
-          returnObjects: true
-        })} />
+        <Entry key="accountSendDisabled" entry={{
+          text: t('guide.accountSendDisabled.text', { unit }),
+          title: t('guide.accountSendDisabled.title'),
+        }} />
       )}
-      <Entry key="accountReload" entry={t('guide.accountReload', { returnObjects: true })} />
+      <Entry key="accountReload" entry={{
+        text: t('guide.accountReload.text'),
+        title: t('guide.accountReload.title'),
+      }} />
       {hasTransactions && (
-        <Entry key="accountTransactionLabel" entry={t('guide.accountTransactionLabel', { returnObjects: true })} />
+        <Entry key="accountTransactionLabel" entry={{
+          text: t('guide.accountTransactionLabel.text'),
+          title: t('guide.accountTransactionLabel.title'),
+        }} />
       )}
       {hasTransactions && (
-        <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime', { returnObjects: true })} />
+        <Entry key="accountTransactionTime" entry={{
+          text: t('guide.accountTransactionTime.text'),
+          title: t('guide.accountTransactionTime.title'),
+        }} />
       )}
       {hasTransactions && (
-        <Entry key="accountTransactionAttributesGeneric" entry={t('guide.accountTransactionAttributesGeneric', { returnObjects: true })} />
+        <Entry key="accountTransactionAttributesGeneric" entry={{
+          text: t('guide.accountTransactionAttributesGeneric.text'),
+          title: t('guide.accountTransactionAttributesGeneric.title'),
+        }} />
       )}
       {hasTransactions && isBitcoinBased(account.coinCode) && (
-        <Entry key="accountTransactionAttributesBTC" entry={t('guide.accountTransactionAttributesBTC', { returnObjects: true })} />
+        <Entry key="accountTransactionAttributesBTC" entry={{
+          text: t('guide.accountTransactionAttributesBTC.text'),
+          title: t('guide.accountTransactionAttributesBTC.title'),
+        }} />
       )}
       {hasIncomingBalance && (
-        <Entry key="accountIncomingBalance" entry={t('guide.accountIncomingBalance', { returnObjects: true })} />
+        <Entry key="accountIncomingBalance" entry={{
+          text: t('guide.accountIncomingBalance.text'),
+          title: t('guide.accountIncomingBalance.title'),
+        }} />
       )}
-      <Entry key="accountTransactionConfirmation" entry={t('guide.accountTransactionConfirmation', { returnObjects: true })} />
-      <Entry key="accountFiat" entry={t('guide.accountFiat', { returnObjects: true })} />
+      <Entry key="accountTransactionConfirmation" entry={{
+        text: t('guide.accountTransactionConfirmation.text'),
+        title: t('guide.accountTransactionConfirmation.title'),
+      }} />
+      <Entry key="accountFiat" entry={{
+        text: t('guide.accountFiat.text'),
+        title: t('guide.accountFiat.title'),
+      }} />
 
       { /* careful, also used in Settings */ }
       <Entry key="accountRates" entry={{

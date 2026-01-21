@@ -48,6 +48,11 @@ class JavascriptBridge: NSObject, WKScriptMessageHandler {
                     self.webView?.alpha = 1.0
                 }
             }
+        } else if message.name == "hapticFeedback" {
+            DispatchQueue.main.async {
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+            }
         }
     }
 }
@@ -116,6 +121,7 @@ struct WebView: UIViewRepresentable {
         let bridge = JavascriptBridge()
         contentController.add(bridge, name: "goCall")
         contentController.add(bridge, name: "appReady")
+        contentController.add(bridge, name: "hapticFeedback")
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
 

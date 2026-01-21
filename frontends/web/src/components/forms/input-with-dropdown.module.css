@@ -1,3 +1,44 @@
+.input {
+    width: 100%;
+    margin-bottom: var(--space-half);
+    position: relative;
+}
+
+.labelContainer {
+    align-items: baseline;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.labelContainer label {
+    display: block;
+    margin: 0 0 var(--space-quarter) 0;
+}
+
+.align-left label {
+    justify-self: flex-start;
+}
+
+.align-right label {
+    flex-grow: 1;
+    text-align: right;
+}
+
+.align-right input {
+    text-align: right;
+}
+
+.isTransparent input[disabled] {
+    border-color: var(--background);
+    color: var(--color-default) !important;
+    cursor: default;
+}
+
+.errorText {
+    color: var(--color-error) !important;
+}
+
 .inputDropdownWrapper {
     display: grid;
     grid-template-columns: 1fr minmax(160px, 280px);

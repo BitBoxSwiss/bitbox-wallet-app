@@ -5,7 +5,7 @@
     "backupReminder": "Deine Wallet <strong>{{name}}</strong> hat {{threshold}} {{fiat}} überschritten!\n\nWir empfehlen ein Backup auf Papier zu erstellen, für zusätzlichen Schutz. Es ist einfach und geht schnell.",
     "backupReminderLink": "Backup erstellen",
     "disconnect": "Verbindung unterbrochen. Erneut verbinden... ",
-    "export": "Transaktionshistorie exportieren",
+    "export": "Transaktionen exportieren",
     "exportTransactions": "Exportiere Transaktionen im Download Ordner als CSV Datei",
     "fatalError": "Ein unerwarteter Fehler ist aufgetreten.",
     "incoming": "Eingehend",
@@ -108,7 +108,7 @@
       "aborted": "Überprüfung des Backups wurde auf dem Gerät abgebrochen.",
       "checking": "Backup wird geprüft…",
       "confirmTitle": "Backup überprüfen",
-      "notOK": "Dein Backup entspricht NICHT deiner aktuellen Wallet.",
+      "notOK": "Keine Backups auf der microSD-Karte passen zur Wallet deiner BitBox. Dies kann passieren, wenn du eine microSD-Karte einsteckst, die mit einer anderen BitBox verwendet wurde. Nutze die korrekte microSD-Karte, die mit dieser BitBox eingerichtet wurde, und versuche es erneut.",
       "ok": "Erfolg! Dein Backup entspricht deiner aktuellen Wallet.",
       "password": {
         "label": "Wiederherstellungspasswort",
@@ -782,7 +782,7 @@
       }
     },
     "firmware": {
-      "firmwareVersion": "Firmware Version",
+      "firmwareVersion": "Firmware-Version",
       "newVersion": {
         "label": "Verfügbare Version"
       },

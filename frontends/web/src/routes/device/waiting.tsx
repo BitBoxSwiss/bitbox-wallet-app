@@ -72,7 +72,10 @@ export const Waiting = () => {
         </Footer>
       </GuidedContent>
       <Guide>
-        <Entry entry={t('guide.waiting.welcome', { returnObjects: true })} shown={true} />
+        <Entry entry={{
+          text: t('guide.waiting.welcome.text'),
+          title: t('guide.waiting.welcome.title'),
+        }} shown={true} />
         { runningInIOS() && (
           <Entry entry={{
             link: {
@@ -101,8 +104,14 @@ export const Waiting = () => {
           text: t('guide.waiting.lostDevice.text'),
           title: t('guide.waiting.lostDevice.title'),
         }} />
-        <Entry entry={t('guide.waiting.internet', { returnObjects: true })} />
-        <Entry entry={t('guide.waiting.useWithoutDevice', { returnObjects: true })} />
+        <Entry entry={{
+          text: t('guide.waiting.internet.text'),
+          title: t('guide.waiting.internet.title'),
+        }} />
+        <Entry entry={{
+          text: t('guide.waiting.useWithoutDevice.text'),
+          title: t('guide.waiting.useWithoutDevice.title'),
+        }} />
       </Guide>
     </GuideWrapper>
   );

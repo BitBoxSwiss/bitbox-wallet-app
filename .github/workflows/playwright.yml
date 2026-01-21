@@ -13,7 +13,7 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download latest simulator from simulators.json
         run: |
@@ -26,7 +26,7 @@ jobs:
           chmod +x simulator-bin/simulator
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -41,7 +41,7 @@ jobs:
           npx playwright install --with-deps chromium webkit
 
       - name: Setup Python 3
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: 3.11
 
@@ -56,7 +56,7 @@ jobs:
 
       - name: Upload Playwright artifacts and logs.
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-artifacts-and-logs
           path: frontends/web/test-results/*

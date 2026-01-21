@@ -14,6 +14,7 @@ import { getDarkmode } from '@/components/darkmode/darkmode';
 import { RatesContext } from '@/contexts/RatesContext';
 import { AppContext, TChartDisplay } from '@/contexts/AppContext';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
+import { triggerHapticFeedback } from '@/utils/transport-mobile';
 import styles from './chart.module.css';
 
 type TProps = {
@@ -133,6 +134,7 @@ export const Chart = ({
   const chartInitialized = useRef(false);
   const lineSeries = useRef<ISeriesApi<'Area'>>();
   const formattedData = useRef<FormattedData>({});
+  const lastHapticTime = useRef<number | null>(null);
 
   const [source, setSource] = useState<'daily' | 'hourly'>(chartDisplay === 'week' ? 'hourly' : 'daily');
   const [difference, setDifference] = useState<number>();
@@ -313,11 +315,18 @@ export const Chart = ({
         ...tooltipData,
         toolTipVisible: false
       }));
+      lastHapticTime.current = null;
       return;
     }
     const price = seriesData.get(lineSeries.current) as LineData<Time>;
     if (!price) {
       return;
+    }
+
+    const currentTime = time as number;
+    if (lastHapticTime.current !== currentTime) {
+      triggerHapticFeedback();
+      lastHapticTime.current = currentTime;
     }
     const coordinate = lineSeries.current.priceToCoordinate(price.value);
     if (!coordinate) {

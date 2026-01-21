@@ -70,7 +70,10 @@ const GeneralGuide = () => {
 
   return (
     <Guide title={t('guide.guideTitle.appearance')}>
-      <Entry key="guide.settings.sats" entry={t('guide.settings.sats', { returnObjects: true })} />
+      <Entry key="guide.settings.sats" entry={{
+        text: t('guide.settings.sats.text'),
+        title: t('guide.settings.sats.title'),
+      }} />
       <Entry key="guide.accountRates" entry={{
         link: {
           text: 'www.coingecko.com',

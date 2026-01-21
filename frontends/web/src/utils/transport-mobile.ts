@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { TMsgCallback, TPayload, TQueryPromiseMap } from './transport-common';
-import { runningInAndroid, runningOnMobile } from './env';
+import { runningInAndroid, runningInIOS, runningOnMobile } from './env';
 
 let queryID: number = 0;
 const queryPromises: TQueryPromiseMap = {};
@@ -51,4 +51,14 @@ export const mobileSubscribePushNotifications = (msgCallback: TMsgCallback) => {
       console.warn('currentListeners.includes(msgCallback)');
     }
   };
+};
+
+/**
+ * triggers haptic feedback on iOS devices.
+ * noop on other platforms.
+ */
+export const triggerHapticFeedback = () => {
+  if (runningInIOS() && window.webkit?.messageHandlers.hapticFeedback) {
+    window.webkit.messageHandlers.hapticFeedback.postMessage({});
+  }
 };

@@ -21,6 +21,9 @@ export declare global {
         appReady: {
           postMessage: (msg: any) => void;
         };
+        hapticFeedback: {
+          postMessage: (msg: any) => void;
+        };
       };
     };
   }

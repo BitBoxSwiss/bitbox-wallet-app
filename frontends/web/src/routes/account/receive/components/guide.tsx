@@ -16,17 +16,41 @@ export const ReceiveGuide = ({
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.receive')}>
-      <Entry key="guide.receive.address" entry={t('guide.receive.address', { returnObjects: true })} />
-      <Entry key="guide.receive.whyVerify" entry={t('guide.receive.whyVerify', { returnObjects: true })} />
-      <Entry key="guide.receive.howVerify" entry={t('guide.receive.howVerify', { returnObjects: true })} />
-      <Entry key="guide.receive.plugout" entry={t('guide.receive.plugout', { returnObjects: true })} />
+      <Entry key="guide.receive.address" entry={{
+        text: t('guide.receive.address.text'),
+        title: t('guide.receive.address.title'),
+      }} />
+      <Entry key="guide.receive.whyVerify" entry={{
+        text: t('guide.receive.whyVerify.text'),
+        title: t('guide.receive.whyVerify.title'),
+      }} />
+      <Entry key="guide.receive.howVerify" entry={{
+        text: t('guide.receive.howVerify.text'),
+        title: t('guide.receive.howVerify.title'),
+      }} />
+      <Entry key="guide.receive.plugout" entry={{
+        text: t('guide.receive.plugout.text'),
+        title: t('guide.receive.plugout.title'),
+      }} />
       {hasMultipleAddresses && (
         <>
-          <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany', { returnObjects: true })} />
-          <Entry key="guide.receive.why20" entry={t('guide.receive.why20', { returnObjects: true })} />
-          <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange', { returnObjects: true })} />
+          <Entry key="guide.receive.whyMany" entry={{
+            text: t('guide.receive.whyMany.text'),
+            title: t('guide.receive.whyMany.title'),
+          }} />
+          <Entry key="guide.receive.why20" entry={{
+            text: t('guide.receive.why20.text'),
+            title: t('guide.receive.why20.title'),
+          }} />
+          <Entry key="guide.receive.addressChange" entry={{
+            text: t('guide.receive.addressChange.text'),
+            title: t('guide.receive.addressChange.title'),
+          }} />
           {hasDifferentFormats && (
-            <Entry key="guide.receive.addressFormats" entry={t('guide.receive.addressFormats', { returnObjects: true })} />
+            <Entry key="guide.receive.addressFormats" entry={{
+              text: t('guide.receive.addressFormats.text'),
+              title: t('guide.receive.addressFormats.title'),
+            }} />
           )}
         </>
       )}

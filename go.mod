@@ -5,8 +5,8 @@ go 1.24.0
 require (
 	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260107224316-3f993c2613ec
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d
-	github.com/btcsuite/btcd v0.24.2
-	github.com/btcsuite/btcd/btcec/v2 v2.3.4
+	github.com/btcsuite/btcd v0.25.0
+	github.com/btcsuite/btcd/btcec/v2 v2.3.5
 	github.com/btcsuite/btcd/btcutil v1.1.6
 	github.com/btcsuite/btcd/btcutil/psbt v1.1.10
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
@@ -17,7 +17,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/karalabe/hid v1.0.1-0.20240919124526-821c38d2678e
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.9.3
+	github.com/sirupsen/logrus v1.9.4
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/stretchr/testify v1.10.0
 	go.etcd.io/bbolt v1.4.3
