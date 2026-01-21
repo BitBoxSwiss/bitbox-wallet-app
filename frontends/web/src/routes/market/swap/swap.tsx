@@ -115,7 +115,10 @@ export const Swap = ({
       <Guide>
         <Entry
           key="guide.settings.servers"
-          entry={t('guide.settings.servers', { returnObjects: true })}
+          entry={{
+            text: t('guide.settings.servers.text'),
+            title: t('guide.settings.servers.title'),
+          }}
         />
       </Guide>
     </GuideWrapper>
