@@ -10,123 +10,123 @@ import (
 
 // finishPairing finalizes the persistence of the pairing configuration, actively listens on the
 // mobile channel and fires an event to indicate pairing success or failure.
-func (device *Device) finishPairing(channel *relay.Channel) {
-	device.mu.Lock()
-	if err := channel.StoreToConfigFile(device.channelConfigDir); err != nil {
-		device.mu.Unlock() // fireEvent below needs read-lock
-		device.log.WithError(err).Error("Failed to store the channel config file.")
-		device.fireEvent(EventPairingError)
+func (dbb *Device) finishPairing(channel *relay.Channel) {
+	dbb.mu.Lock()
+	if err := channel.StoreToConfigFile(dbb.channelConfigDir); err != nil {
+		dbb.mu.Unlock() // fireEvent below needs read-lock
+		dbb.log.WithError(err).Error("Failed to store the channel config file.")
+		dbb.fireEvent(EventPairingError)
 		return
 	}
 
 	truth := true
-	if err := device.FeatureSet(&FeatureSet{Pairing: &truth}); err != nil {
-		device.mu.Unlock() // fireEvent below needs read-lock
-		device.log.WithError(err).Error("Failed activate pairing.")
-		device.fireEvent(EventPairingError)
+	if err := dbb.FeatureSet(&FeatureSet{Pairing: &truth}); err != nil {
+		dbb.mu.Unlock() // fireEvent below needs read-lock
+		dbb.log.WithError(err).Error("Failed activate pairing.")
+		dbb.fireEvent(EventPairingError)
 		return
 	}
-	device.channel = channel
+	dbb.channel = channel
 	// Release lock early to let the next calls proceed without being blocked.
-	device.mu.Unlock()
+	dbb.mu.Unlock()
 
-	go device.listenForMobile()
-	device.fireEvent(EventPairingSuccess)
+	go dbb.listenForMobile()
+	dbb.fireEvent(EventPairingSuccess)
 }
 
-func (device *Device) handlePairingError(err error, message string) {
+func (dbb *Device) handlePairingError(err error, message string) {
 	switch err.Error() {
 	case relay.PullFailedError:
-		device.log.Errorf("Failed to pull the mobile's %s.", message)
-		device.fireEvent(EventPairingPullMessageFailed)
+		dbb.log.Errorf("Failed to pull the mobile's %s.", message)
+		dbb.fireEvent(EventPairingPullMessageFailed)
 	case relay.ResponseTimeoutError:
-		device.log.Errorf("Failed to wait for the mobile's %s.", message)
-		device.fireEvent(EventPairingTimedout)
+		dbb.log.Errorf("Failed to wait for the mobile's %s.", message)
+		dbb.fireEvent(EventPairingTimedout)
 	default:
 	}
 }
 
 // processPairing processes the pairing after the channel has been displayed as a QR code.
-func (device *Device) processPairing(channel *relay.Channel) {
+func (dbb *Device) processPairing(channel *relay.Channel) {
 	status, err := channel.WaitForScanningSuccess(2 * time.Minute)
 	if err != nil {
-		device.handlePairingError(err, "scanning success message")
+		dbb.handlePairingError(err, "scanning success message")
 		return
 	}
 	if status != "success" {
-		device.log.Error("Scanning unsuccessful")
-		device.fireEvent(EventPairingScanningFailed)
+		dbb.log.Error("Scanning unsuccessful")
+		dbb.fireEvent(EventPairingScanningFailed)
 	}
 
-	deviceInfo, err := device.DeviceInfo()
+	deviceInfo, err := dbb.DeviceInfo()
 	if err != nil {
-		device.log.WithError(err).Error("Failed to check if device is locked or not")
-		device.fireEvent(EventPairingError)
+		dbb.log.WithError(err).Error("Failed to check if device is locked or not")
+		dbb.fireEvent(EventPairingError)
 		return
 	}
 	if deviceInfo.Lock {
-		device.log.Debug("Device is locked. Only establishing connection to mobile app without repairing.")
-		device.finishPairing(channel)
+		dbb.log.Debug("Device is locked. Only establishing connection to mobile app without repairing.")
+		dbb.finishPairing(channel)
 		return
 	}
-	device.fireEvent(EventPairingStarted)
+	dbb.fireEvent(EventPairingStarted)
 	mobileECDHPKhash, err := channel.WaitForMobilePublicKeyHash(2 * time.Minute)
 	if err != nil {
-		device.handlePairingError(err, "public key hash")
+		dbb.handlePairingError(err, "public key hash")
 		return
 	}
-	bitboxECDHPKhash, err := device.ecdhPKhash(mobileECDHPKhash)
+	bitboxECDHPKhash, err := dbb.ecdhPKhash(mobileECDHPKhash)
 	if err != nil {
-		device.log.WithError(err).Error("Failed to get the hash of the ECDH public key " +
+		dbb.log.WithError(err).Error("Failed to get the hash of the ECDH public key " +
 			"from the BitBox.")
-		device.fireEvent(EventPairingAborted)
+		dbb.fireEvent(EventPairingAborted)
 		return
 	}
-	if channel.SendHashPubKey(bitboxECDHPKhash) != nil {
-		device.log.WithError(err).Error("Failed to send the hash of the ECDH public key " +
+	if err := channel.SendHashPubKey(bitboxECDHPKhash); err != nil {
+		dbb.log.WithError(err).Error("Failed to send the hash of the ECDH public key " +
 			"to the server.")
-		device.fireEvent(EventPairingError)
+		dbb.fireEvent(EventPairingError)
 		return
 	}
 	mobileECDHPK, err := channel.WaitForMobilePublicKey(2 * time.Minute)
 	if err != nil {
-		device.handlePairingError(err, "public key")
+		dbb.handlePairingError(err, "public key")
 		return
 	}
-	bitboxECDHPK, err := device.ecdhPK(mobileECDHPK)
+	bitboxECDHPK, err := dbb.ecdhPK(mobileECDHPK)
 	if err != nil {
-		device.log.WithError(err).Error("Failed to get the ECDH public key" +
+		dbb.log.WithError(err).Error("Failed to get the ECDH public key" +
 			"from the BitBox.")
-		device.fireEvent(EventPairingError)
+		dbb.fireEvent(EventPairingError)
 		return
 	}
-	if channel.SendPubKey(bitboxECDHPK) != nil {
-		device.log.WithError(err).Error("Failed to send the ECDH public key" +
+	if err := channel.SendPubKey(bitboxECDHPK); err != nil {
+		dbb.log.WithError(err).Error("Failed to send the ECDH public key" +
 			"to the server.")
-		device.fireEvent(EventPairingError)
+		dbb.fireEvent(EventPairingError)
 		return
 	}
-	device.log.Debug("Waiting for challenge command")
+	dbb.log.Debug("Waiting for challenge command")
 	challenge, err := channel.WaitForCommand(2 * time.Minute)
 	for err == nil && challenge == "challenge" {
-		device.log.Debug("Forwarded challenge cmd to device")
-		errDevice := device.ecdhChallenge()
+		dbb.log.Debug("Forwarded challenge cmd to device")
+		errDevice := dbb.ecdhChallenge()
 		if errDevice != nil {
-			device.log.WithError(errDevice).Error("Failed to forward challenge request to device.")
-			device.fireEvent(EventPairingError)
+			dbb.log.WithError(errDevice).Error("Failed to forward challenge request to device.")
+			dbb.fireEvent(EventPairingError)
 			return
 		}
-		device.log.Debug("Waiting for challenge command")
+		dbb.log.Debug("Waiting for challenge command")
 		challenge, err = channel.WaitForCommand(2 * time.Minute)
 	}
 	if err != nil {
-		device.handlePairingError(err, "challenge request")
+		dbb.handlePairingError(err, "challenge request")
 		return
 	}
-	device.log.Debug("Finished pairing")
+	dbb.log.Debug("Finished pairing")
 	if challenge == "finish" {
-		device.finishPairing(channel)
+		dbb.finishPairing(channel)
 	} else {
-		device.fireEvent(EventPairingAborted)
+		dbb.fireEvent(EventPairingAborted)
 	}
 }

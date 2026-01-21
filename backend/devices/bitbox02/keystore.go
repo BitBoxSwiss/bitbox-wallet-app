@@ -8,7 +8,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
@@ -404,8 +403,8 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 		return errp.New("contract creation not supported")
 	}
 	txType := tx.Type()
-	switch { // version bytes defined in EIP2718 https://eips.ethereum.org/EIPS/eip-2718
-	case txType == 2:
+	switch txType { // version bytes defined in EIP2718 https://eips.ethereum.org/EIPS/eip-2718
+	case 2:
 		signature, err = keystore.device.ETHSignEIP1559(
 			txProposal.Coin.ChainID(),
 			txProposal.Keypath.ToUInt32(),
@@ -418,7 +417,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 			tx.Data(),
 			firmware.ETHIdentifyCase(txProposal.RecipientAddress),
 		)
-	case txType == 0:
+	case 0:
 		signature, err = keystore.device.ETHSign(
 			txProposal.Coin.ChainID(),
 			txProposal.Keypath.ToUInt32(),
@@ -465,7 +464,7 @@ func (keystore *keystore) CanSignMessage(code coinpkg.Code) bool {
 }
 
 // SignBTCMessage implements keystore.Keystore.
-func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coin.Code) ([]byte, error) {
+func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coinpkg.Code) ([]byte, error) {
 	sc, ok := btcMsgScriptTypeMap[scriptType]
 	if !ok {
 		return nil, errp.Newf("scriptType not supported: %s", scriptType)

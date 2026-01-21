@@ -14,6 +14,7 @@ import (
 
 type testSuite struct {
 	suite.Suite
+
 	coin      *Coin
 	ERC20Coin *Coin
 	USDTCoin  *Coin
