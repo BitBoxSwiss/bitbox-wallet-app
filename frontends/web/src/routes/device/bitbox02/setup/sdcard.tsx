@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { checkSDCard, insertSDCard } from '@/api/bitbox02';
+import { checkSDCard, insertSDCard, errUserAbort } from '@/api/bitbox02';
 import { View, ViewHeader } from '@/components/view/view';
 import { alertUser } from '@/components/alert/Alert';
 import { Wait } from './wait';
@@ -38,13 +38,18 @@ export const WithSDCard = ({
       if (result.success) {
         return;
       }
-      if (result.message) {
+
+      // User pressed “Abort” on the device
+      if (result.code === errUserAbort) {
+        alertUser(t('backup.restore.error.e104'), { asDialog: false, callback: onAbort });
+      } else if (result.message) {
+        // Other errors:
         alertUser(result.message, { asDialog: false, callback: onAbort });
       }
     } catch (error) {
       console.error(error);
     }
-  }, [deviceID, onAbort]);
+  }, [deviceID, onAbort, t]);
 
   useEffect(() => {
     ensureSDCard();

@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSync } from '@/hooks/api';
-import { restoreBackup } from '@/api/bitbox02';
+import { restoreBackup, errUserAbort } from '@/api/bitbox02';
 import { getBackupList, subscribeBackupList } from '@/api/backup';
 import { Toast } from '@/components/toast/toast';
 import { BackupsListItem } from '@/routes/device/components/backup';
@@ -12,6 +12,7 @@ import { Button } from '@/components/forms';
 import { Check } from './checkbackup';
 import { Create } from './createbackup';
 import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimation';
+import { alertUser } from '@/components/alert/Alert';
 import backupStyle from '@/routes/device/components/backups.module.css';
 
 type TProps = {
@@ -67,9 +68,17 @@ export const BackupsV2 = ({
     setRestoring(true);
     onSelectBackup && onSelectBackup(backup);
     restoreBackup(deviceID, selectedBackup)
-      .then(({ success }) => {
+      .then((result) => {
+        const success = result.success;
         setRestoring(false);
+
+        // Show a clear message if the user aborted on the device
+        if (!success && result.code === errUserAbort) {
+          alertUser(t('backup.restore.error.e104'));
+        }
+
         setErrorText(success ? '' : t('backup.restore.error.general'));
+
         if (onRestoreBackup) {
           onRestoreBackup(success);
         }

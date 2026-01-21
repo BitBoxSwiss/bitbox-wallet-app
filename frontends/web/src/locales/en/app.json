@@ -142,6 +142,7 @@
     "restore": {
       "confirmTitle": "Restore backup",
       "error": {
+        "e104": "Restoring backup was aborted.",
         "e200": "microSD card not found",
         "general": "Error restoring the backup"
       },
