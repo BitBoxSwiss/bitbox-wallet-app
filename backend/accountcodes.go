@@ -7,7 +7,6 @@ import (
 
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 )
 
 // The functions here must all produce globally unique account codes. They are used as names in
@@ -16,19 +15,12 @@ import (
 //
 // There are different types of account codes:
 // - regular: for unified accounts
-// - split: for the individual accounts split from a unified account, if the keystore does not support unified accounts, such as the BitBox01.
 // - erc20: for ERC20 token accounts
 
 // regularAccountCode returns an account code based on a keystore root fingerprint, a coin code and
 // an account number.
 func regularAccountCode(rootFingerprint []byte, coinCode coin.Code, accountNumber uint16) accountsTypes.Code {
 	return accountsTypes.Code(fmt.Sprintf("v0-%x-%s-%d", rootFingerprint, coinCode, accountNumber))
-}
-
-// splitAccountCode returns an account code for split accounts, made by exploding a unified account
-// into one account per signing configuration. This only applies to BTC/LTC.
-func splitAccountCode(parentCode accountsTypes.Code, scriptType signing.ScriptType) accountsTypes.Code {
-	return accountsTypes.Code(fmt.Sprintf("%s-%s", parentCode, scriptType))
 }
 
 // Erc20AccountCode returns the account code used for an ERC20 token.
