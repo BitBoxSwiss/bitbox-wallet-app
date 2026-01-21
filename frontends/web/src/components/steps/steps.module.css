@@ -77,7 +77,7 @@
 }
 
 .wait .dot::before {
-    background: var(--background-quaternary);
+    background: var(--background-tertiary);
     height: var(--icon-size-small);
     width: var(--icon-size-small);
 }
@@ -91,7 +91,7 @@
 }
 
 .wait.line .dot::after {
-    border-color: var(--background-quaternary);
+    border-color: var(--background-tertiary);
     border-top-width: 3px;
     top: 7px;
 }
