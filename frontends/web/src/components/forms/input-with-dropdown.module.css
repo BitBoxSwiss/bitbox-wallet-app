@@ -36,7 +36,7 @@
 }
 
 .errorText {
-    color: var(--color-softred) !important;
+    color: var(--color-error) !important;
 }
 
 .inputDropdownWrapper {
