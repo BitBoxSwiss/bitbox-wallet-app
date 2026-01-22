@@ -34,6 +34,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await page.getByRole('button', { name: 'Receive RBTC' }).click();
     await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
     const addressLocator = page.locator('[data-testid="receive-address"]');
+    await expect(addressLocator).toHaveValue(/bcrt1/);
     recvAdd = await addressLocator.inputValue();
     expect(recvAdd).toContain('bcrt1');
     console.log(`Receive address: ${recvAdd}`);
@@ -41,7 +42,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
 
   await test.step('Verify there are no transactions yet', async () => {
     await page.goto('/#/account-summary');
-    mineBlocks(12);
+    await mineBlocks(12);
     await page.locator('[data-label="Account name"]').nth(0).click();
     await expect(page.getByTestId('transaction')).toHaveCount(0);
   });
@@ -50,18 +51,22 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await page.goto('/#/account-summary');
     await page.getByRole('link', { name: 'Settings' }).click();
     await page.getByRole('link', { name: 'Manage Accounts' }).click();
-    await page.getByRole('button', { name: 'Add account' }).click();
-    await page.getByRole('button', { name: 'Add account' }).click();
+    await page.waitForURL('**/settings/manage-accounts');
+    const addAccountButton = page.getByRole('button', { name: 'Add account' });
+    await expect(addAccountButton).toBeVisible();
+    await addAccountButton.click();
+    await addAccountButton.click();
     await expect(page.locator('body')).toContainText('Bitcoin Regtest 2 has now been added to your accounts.');
     await page.getByRole('button', { name: 'Done' }).click();
+    await expect(page.getByRole('link', { name: 'Bitcoin Regtest 2' })).toBeVisible();
   });
 
   await test.step('Send RBTC to receive address', async () => {
     console.log('Sending RBTC to first account');
     await page.waitForTimeout(2000);
     const sendAmount = '10';
-    sendCoins(recvAdd, sendAmount);
-    mineBlocks(12);
+    await sendCoins(recvAdd, sendAmount);
+    await mineBlocks(12);
   });
 
   await test.step('Verify that the first account has a transaction', async () => {
@@ -80,8 +85,12 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await page.getByRole('link', { name: 'Bitcoin Regtest 2' }).click();
 
     await page.getByRole('button', { name: 'Receive RBTC' }).click();
-    await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
+    await page.waitForURL('**/receive');
+    const verifyButton = page.getByRole('button', { name: 'Verify address on BitBox' });
+    await expect(verifyButton).toBeVisible();
+    await verifyButton.click();
     const addressLocator = page.locator('[data-testid="receive-address"]');
+    await expect(addressLocator).toHaveValue(/bcrt1/);
     recvAdd = await addressLocator.inputValue();
     expect(recvAdd).toContain('bcrt1');
     console.log(`Receive address: ${recvAdd}`);
@@ -92,11 +101,20 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await page.getByRole('link', { name: 'Bitcoin Regtest Bitcoin' }).click();
     console.log('Sending RBTC to second account');
     await page.getByRole('link', { name: 'Send' }).click();
+    await page.waitForURL('**/send');
     await page.fill('#recipientAddress', recvAdd);
     await page.click('#sendAll');
-    await page.getByRole('button', { name: 'Review' }).click();
-    await page.getByRole('button', { name: 'Done' }).click();
-    mineBlocks(12);
+    const reviewButton = page.getByRole('button', { name: 'Review' });
+    await expect(reviewButton).toBeEnabled();
+    const sendTxResponse = page.waitForResponse((response) =>
+      response.url().includes('/sendtx') && response.request().method() === 'POST'
+    );
+    await reviewButton.click();
+    await sendTxResponse;
+    const doneButton = page.getByRole('button', { name: 'Done' });
+    await expect(doneButton).toBeVisible();
+    await doneButton.click();
+    await mineBlocks(12);
   });
 
   await test.step('Verify that first account now has two transactions', async () => {
@@ -125,8 +143,12 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await page.goto('/#/account-summary');
     await page.getByRole('link', { name: 'Bitcoin Regtest 2' }).click();
     await page.getByRole('link', { name: 'Receive' }).click();
-    await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
+    await page.waitForURL('**/receive');
+    const verifyButton = page.getByRole('button', { name: 'Verify address on BitBox' });
+    await expect(verifyButton).toBeVisible();
+    await verifyButton.click();
     const addressLocator = page.locator('[data-testid="receive-address"]');
+    await expect(addressLocator).toHaveValue(/bcrt1/);
     recvAdd = await addressLocator.inputValue();
     expect(recvAdd).toContain('bcrt1');
     console.log(`Receive address: ${recvAdd}`);
@@ -137,10 +159,20 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await page.getByRole('link', { name: 'Bitcoin Regtest 2' }).click();
     console.log('Sending RBTC from second account to itself');
     await page.getByRole('link', { name: 'Send' }).click();
+    await page.waitForURL('**/send');
     await page.fill('#recipientAddress', recvAdd);
     await page.click('#sendAll');
-    await page.getByRole('button', { name: 'Review' }).click();
-    await page.getByRole('button', { name: 'Done' }).click();
+    const reviewButton = page.getByRole('button', { name: 'Review' });
+    await expect(reviewButton).toBeEnabled();
+    const sendTxResponse = page.waitForResponse((response) =>
+      response.url().includes('/sendtx') && response.request().method() === 'POST'
+    );
+    await reviewButton.click();
+    await sendTxResponse;
+    const doneButton = page.getByRole('button', { name: 'Done' });
+    await expect(doneButton).toBeVisible();
+    await doneButton.click();
+    await mineBlocks(12);
   });
 
   await test.step('Verify that the new transaction shows up, with correct values', async () => {
@@ -152,8 +184,9 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await expect(newTx).toHaveAttribute('data-tx-type', 'send_to_self');
 
     // Grab fee and amount from the details.
-    await page.getByTestId('tx-details').nth(0).click();
-    const txDetails = page.getByTestId('tx-details-container').nth(0);
+    await newTx.getByTestId('tx-details-button').click();
+    const txDetails = page.getByTestId('tx-details-container');
+    await expect(txDetails).toBeVisible();
     const amount = await txDetails.getByTestId('amountBlocks').nth(0).textContent();
     const fee = await txDetails.getByTestId('amountBlocks').nth(1).textContent();
 
