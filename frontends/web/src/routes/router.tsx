@@ -12,6 +12,7 @@ import { BTCDirect } from './market/btcdirect';
 import { BTCDirectOTC } from './market/btcdirect-otc';
 import { Bitrefill } from './market/bitrefill';
 import { Swap } from './market/swap/swap';
+import { Info } from './account/info/info';
 import { Receive } from './account/receive/receive';
 import { SendWrapper } from './account/send/send-wrapper';
 import { AccountsSummary } from './account/summary/accountssummary';
@@ -105,6 +106,12 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
   const AccReceive = (<InjectParams>
     <Receive
       code={'' /* dummy to satisfy TS */}
+      accounts={activeAccounts} />
+  </InjectParams>);
+
+  const AccInfo = (<InjectParams>
+    <Info
+      code={''}
       accounts={activeAccounts} />
   </InjectParams>);
 
@@ -241,6 +248,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route index element={Acc} />
           <Route path="send" element={AccSend} />
           <Route path="receive" element={AccReceive} />
+          <Route path="info" element={AccInfo} />
           <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
           <Route path="wallet-connect/dashboard" element={AccDashboardWC} />
         </Route>
