@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
+import { CoinCode } from '@/api/account';
 import { Button, Input, Field, Label } from '@/components/forms';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Message } from '@/components/message/message';
@@ -15,6 +16,8 @@ type TProps = {
   onClose: () => void;
   address: accountApi.TReceiveAddress;
   accountCode: accountApi.AccountCode;
+  scriptType?: accountApi.ScriptType | null;
+  coinCode?: CoinCode;
 };
 
 type TSigningState = 'input' | 'signing' | 'result';
@@ -30,12 +33,18 @@ export const SignMessageDialog = ({
   onClose,
   address,
   accountCode,
+  scriptType,
+  coinCode,
 }: TProps) => {
   const { t } = useTranslation();
   const [message, setMessage] = useState('');
   const [state, setState] = useState<TSigningState>('input');
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<TSignatureResult | null>(null);
+
+  const isTaproot = scriptType === 'p2tr';
+  const isLitecoin = coinCode === 'ltc' || coinCode === 'tltc';
+  const isUnsupported = isTaproot || isLitecoin;
 
   useEffect(() => {
     if (!open) {
@@ -92,6 +101,21 @@ export const SignMessageDialog = ({
   const handleClose = () => {
     onClose();
   };
+
+  const renderUnsupported = () => (
+    <>
+      <Message type="info">
+        {isTaproot
+          ? t('receive.signMessage.unsupportedTaproot')
+          : t('receive.signMessage.unsupportedLitecoin')}
+      </Message>
+      <DialogButtons>
+        <Button primary onClick={handleClose}>
+          {t('button.back')}
+        </Button>
+      </DialogButtons>
+    </>
+  );
 
   const renderInput = () => (
     <>
@@ -195,9 +219,10 @@ export const SignMessageDialog = ({
       medium
     >
       <div className={style.container}>
-        {state === 'input' && renderInput()}
-        {state === 'signing' && renderSigning()}
-        {state === 'result' && renderResult()}
+        {isUnsupported && renderUnsupported()}
+        {!isUnsupported && state === 'input' && renderInput()}
+        {!isUnsupported && state === 'signing' && renderSigning()}
+        {!isUnsupported && state === 'result' && renderResult()}
       </div>
     </Dialog>
   );

@@ -342,6 +342,8 @@ export const Receive = ({
                       onClose={() => setSignMessageDialog(false)}
                       address={currentAddresses[activeIndex]}
                       accountCode={code}
+                      scriptType={receiveAddresses?.[currentAddressIndex]?.scriptType}
+                      coinCode={account.coinCode}
                     />
                   )}
                 </div>

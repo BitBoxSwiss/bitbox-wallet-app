@@ -1632,7 +1632,9 @@
       "wrongKeystore": "Wrong device connected. Please connect the correct BitBox.",
       "error": "Failed to sign message. Please try again.",
       "resultDescription": "Message signed successfully.",
-      "signatureLabel": "Signature (Base64)"
+      "signatureLabel": "Signature (Base64)",
+      "unsupportedTaproot": "Message signing is not supported for Taproot addresses yet. Please go back and change the address type.",
+      "unsupportedLitecoin": "Message signing is not supported for Litecoin yet."
     }
   },
   "reset": {
