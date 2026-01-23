@@ -12,7 +12,6 @@ import (
 
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
@@ -63,16 +62,13 @@ func makeKeystore(
 				return true
 			}
 		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
 		SupportsMultipleAccountsFunc: func() bool {
 			return true
 		},
 		CanSignMessageFunc: func(coinpkg.Code) bool {
 			return true
 		},
-		SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coin.Code) ([]byte, error) {
+		SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coinpkg.Code) ([]byte, error) {
 			require.Equal(t, *expectedScriptType, scriptType)
 			require.Equal(t, dummyMsg, string(message))
 			return []byte(dummySignature), nil
@@ -443,7 +439,7 @@ func TestAOPPFailures(t *testing.T) {
 		b.HandleURI(uriPrefix + params.Encode())
 		b.AOPPApprove()
 		ks2 := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper)
-		ks2.SignBTCMessageFunc = func([]byte, signing.AbsoluteKeypath, signing.ScriptType, coin.Code) ([]byte, error) {
+		ks2.SignBTCMessageFunc = func([]byte, signing.AbsoluteKeypath, signing.ScriptType, coinpkg.Code) ([]byte, error) {
 			return nil, firmware.NewError(firmware.ErrUserAbort, "")
 		}
 		b.registerKeystore(ks2)

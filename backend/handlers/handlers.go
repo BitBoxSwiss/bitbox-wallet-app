@@ -22,7 +22,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/handlers"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -1628,7 +1627,7 @@ func (handlers *Handlers) getKeystoreShowBackupBanner(r *http.Request) interface
 		Success:   true,
 		Show:      balance.Cmp(threshold) > 0,
 		Fiat:      defaultFiat,
-		Threshold: coin.FormatAsCurrency(threshold, defaultFiat),
+		Threshold: coinpkg.FormatAsCurrency(threshold, defaultFiat),
 	}
 }
 

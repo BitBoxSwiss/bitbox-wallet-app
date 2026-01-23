@@ -1153,38 +1153,13 @@ func (backend *Backend) persistBTCAccountConfig(
 		signingConfigurations = append(signingConfigurations, signingConfiguration)
 	}
 
-	if keystore.SupportsUnifiedAccounts() {
-		return backend.persistAccount(config.Account{
-			HiddenBecauseUnused:   hiddenBecauseUnused,
-			CoinCode:              coin.Code(),
-			Name:                  name,
-			Code:                  code,
-			SigningConfigurations: signingConfigurations,
-		}, accountsConfig)
-	}
-
-	// Unified accounts not supported, so we add one account per configuration.
-	for _, cfg := range signingConfigurations {
-		suffixedName := name
-		switch cfg.ScriptType() {
-		case signing.ScriptTypeP2PKH:
-			suffixedName += ": legacy"
-		case signing.ScriptTypeP2WPKH:
-			suffixedName += ": bech32"
-		}
-
-		err := backend.persistAccount(config.Account{
-			HiddenBecauseUnused:   hiddenBecauseUnused,
-			CoinCode:              coin.Code(),
-			Name:                  suffixedName,
-			Code:                  splitAccountCode(code, cfg.ScriptType()),
-			SigningConfigurations: signing.Configurations{cfg},
-		}, accountsConfig)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return backend.persistAccount(config.Account{
+		HiddenBecauseUnused:   hiddenBecauseUnused,
+		CoinCode:              coin.Code(),
+		Name:                  name,
+		Code:                  code,
+		SigningConfigurations: signingConfigurations,
+	}, accountsConfig)
 }
 
 func (backend *Backend) persistETHAccountConfig(
@@ -1363,13 +1338,6 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 
 // maybeAddP2TR adds a taproot subaccount to all Bitcoin accounts if the keystore suports it.
 func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*config.Account) error {
-	if !keystore.SupportsUnifiedAccounts() {
-		// This case is true only for the BitBox01 keystore only at the moment, where accounts are
-		// not unified, but subaccounts are added as top-level accounts instead. We won't handle
-		// this case as the BitBox01 doesn't support taproot. This could be revisited if there is
-		// ever another keystore that doesn't support unified accounts.
-		return nil
-	}
 	for _, account := range accounts {
 		if account.CoinCode == coinpkg.CodeBTC ||
 			account.CoinCode == coinpkg.CodeTBTC ||

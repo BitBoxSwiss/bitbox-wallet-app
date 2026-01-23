@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-// Package bitbox02bootloader contains the API to the physical device.
 package bitbox02bootloader
 
 import (

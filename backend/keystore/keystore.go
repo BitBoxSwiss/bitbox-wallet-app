@@ -65,11 +65,6 @@ type Keystore interface {
 	// meta is a coin-specific metadata related to the account type.
 	SupportsAccount(coinInstance coin.Coin, meta interface{}) bool
 
-	// SupportsUnifiedAccounts returns true if the keystore supports signing transactions with mixed
-	// input script types in BTC/LTC, for single-sig accounts.
-	// If false, the backend will add one account per supported script type.
-	SupportsUnifiedAccounts() bool
-
 	// SupportsMultipleAccounts returns true if the keystore can handle more than one account per
 	// coin.
 	SupportsMultipleAccounts() bool

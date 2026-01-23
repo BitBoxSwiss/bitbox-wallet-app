@@ -77,9 +77,6 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			SupportsPaymentRequestsFunc: func() error {
 //				panic("mock out the SupportsPaymentRequests method")
 //			},
-//			SupportsUnifiedAccountsFunc: func() bool {
-//				panic("mock out the SupportsUnifiedAccounts method")
-//			},
 //			TypeFunc: func() keystore.Type {
 //				panic("mock out the Type method")
 //			},
@@ -152,9 +149,6 @@ type KeystoreMock struct {
 
 	// SupportsPaymentRequestsFunc mocks the SupportsPaymentRequests method.
 	SupportsPaymentRequestsFunc func() error
-
-	// SupportsUnifiedAccountsFunc mocks the SupportsUnifiedAccounts method.
-	SupportsUnifiedAccountsFunc func() bool
 
 	// TypeFunc mocks the Type method.
 	TypeFunc func() keystore.Type
@@ -268,9 +262,6 @@ type KeystoreMock struct {
 		// SupportsPaymentRequests holds details about calls to the SupportsPaymentRequests method.
 		SupportsPaymentRequests []struct {
 		}
-		// SupportsUnifiedAccounts holds details about calls to the SupportsUnifiedAccounts method.
-		SupportsUnifiedAccounts []struct {
-		}
 		// Type holds details about calls to the Type method.
 		Type []struct {
 		}
@@ -316,7 +307,6 @@ type KeystoreMock struct {
 	lockSupportsEIP1559                 sync.RWMutex
 	lockSupportsMultipleAccounts        sync.RWMutex
 	lockSupportsPaymentRequests         sync.RWMutex
-	lockSupportsUnifiedAccounts         sync.RWMutex
 	lockType                            sync.RWMutex
 	lockVerifyAddressBTC                sync.RWMutex
 	lockVerifyAddressETH                sync.RWMutex
@@ -905,33 +895,6 @@ func (mock *KeystoreMock) SupportsPaymentRequestsCalls() []struct {
 	mock.lockSupportsPaymentRequests.RLock()
 	calls = mock.calls.SupportsPaymentRequests
 	mock.lockSupportsPaymentRequests.RUnlock()
-	return calls
-}
-
-// SupportsUnifiedAccounts calls SupportsUnifiedAccountsFunc.
-func (mock *KeystoreMock) SupportsUnifiedAccounts() bool {
-	if mock.SupportsUnifiedAccountsFunc == nil {
-		panic("KeystoreMock.SupportsUnifiedAccountsFunc: method is nil but Keystore.SupportsUnifiedAccounts was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockSupportsUnifiedAccounts.Lock()
-	mock.calls.SupportsUnifiedAccounts = append(mock.calls.SupportsUnifiedAccounts, callInfo)
-	mock.lockSupportsUnifiedAccounts.Unlock()
-	return mock.SupportsUnifiedAccountsFunc()
-}
-
-// SupportsUnifiedAccountsCalls gets all the calls that were made to SupportsUnifiedAccounts.
-// Check the length with:
-//
-//	len(mockedKeystore.SupportsUnifiedAccountsCalls())
-func (mock *KeystoreMock) SupportsUnifiedAccountsCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockSupportsUnifiedAccounts.RLock()
-	calls = mock.calls.SupportsUnifiedAccounts
-	mock.lockSupportsUnifiedAccounts.RUnlock()
 	return calls
 }
 

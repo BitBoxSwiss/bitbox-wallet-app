@@ -361,35 +361,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		return rootFingerprint1, nil
 	}
 
-	ksHelper := keystoreHelper1()
-
-	// A keystore with a similar config to a BitBox01 - supports legacy P2PKH, but no unified
-	// accounts or multiple accounts. Ethereum is also not supported.
-	bitbox01LikeKeystore := &keystoremock.KeystoreMock{
-		RootFingerprintFunc: func() ([]byte, error) {
-			return rootFingerprint1, nil
-		},
-		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
-			return true
-		},
-		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
-			switch coin.(type) {
-			case *btc.Coin:
-				return meta.(signing.ScriptType) != signing.ScriptTypeP2TR
-			default:
-				return false
-			}
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return false
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return false
-		},
-		ExtendedPublicKeyFunc: ksHelper.ExtendedPublicKey,
-		BTCXPubsFunc:          ksHelper.BTCXPubs,
-	}
-
 	// Add a few accounts with BB02.
 	t.Run("bitbox02Like", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
@@ -566,119 +537,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 
 	})
 
-	// Add a few accounts with BB01.
-	t.Run("bitbox01Like", func(t *testing.T) {
-		b := newBackend(t, testnetDisabled, regtestDisabled)
-		defer b.Close()
-
-		// Add a Bitcoin account - it is exploded into three individual accounts as the BB01 does
-		// not support unified accounts.
-		acctCode, err := b.CreateAndPersistAccountConfig(
-			coinpkg.CodeBTC,
-			"bitcoin 1",
-			bitbox01LikeKeystore,
-		)
-		require.NoError(t, err)
-		require.Equal(t, "v0-55555555-btc-0", string(acctCode))
-		require.Equal(t,
-			&config.Account{
-				CoinCode: "btc",
-				Name:     "bitcoin 1: bech32",
-				Code:     "v0-55555555-btc-0-p2wpkh",
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/0'/0'"), test.TstMustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
-				},
-			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-btc-0-p2wpkh"),
-		)
-		require.Equal(t,
-			&config.Account{
-				CoinCode: "btc",
-				Name:     "bitcoin 1",
-				Code:     "v0-55555555-btc-0-p2wpkh-p2sh",
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/0'"), test.TstMustXKey("xpub6CUmEcJb7juvnw7fFYybCwvCJuPSEdhTWZCep9X1DBznwB8RRKTYBUidbEPJ9L7ExjrXhem9S759cX3BpzSUSoP2rWh9vqumJ9MPSAbi98F")),
-				},
-			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-btc-0-p2wpkh-p2sh"),
-		)
-		require.Equal(t,
-			&config.Account{
-				CoinCode: "btc",
-				Name:     "bitcoin 1: legacy",
-				Code:     "v0-55555555-btc-0-p2pkh",
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, rootFingerprint1, mustKeypath("m/44'/0'/0'"), test.TstMustXKey("xpub6D7KuxJsw7N2LtWPQKy6Tqs8vFyKudiDqcx6mtsFXT6FDb8oLcUYRjf7G4Qx8CK4DAQ4kN98n7uDCKmazxaHYLNjwDbJ1nKmDm6QEQCwkGC")),
-				},
-			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-btc-0-p2pkh"),
-		)
-
-		// Add a Litecoin account - it is exploded into two individual accounts as the BB01 does
-		// not support unified accounts, and we don't do P2PKH for Litecoin even with the BB01.
-		acctCode, err = b.CreateAndPersistAccountConfig(
-			coinpkg.CodeLTC,
-			"litecoin 1",
-			bitbox01LikeKeystore,
-		)
-		require.NoError(t, err)
-		require.Equal(t, "v0-55555555-ltc-0", string(acctCode))
-		require.Equal(t,
-			&config.Account{
-				CoinCode: "ltc",
-				Name:     "litecoin 1: bech32",
-				Code:     "v0-55555555-ltc-0-p2wpkh",
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint1, mustKeypath("m/84'/2'/0'"), test.TstMustXKey("xpub6DReBHtKxgeZGBKTaaF1GjeBHa8dZwQpRfgYr3kxt782s8KKqio2pR6piBsiqHEPF7Rg3onMkwt9XrSxNTuW4N1VBjVbn6DQ3GPCBEUgtgP")),
-				},
-			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0-p2wpkh"),
-		)
-		require.Equal(t,
-			&config.Account{
-				CoinCode: "ltc",
-				Name:     "litecoin 1",
-				Code:     "v0-55555555-ltc-0-p2wpkh-p2sh",
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/2'/0'"), test.TstMustXKey("xpub6CrhULuXbYzo7gXNhSNZ6tzgfMWpwRFEisekvFfuWLtpXcV4jfvWf5yCuhRBvhZoisH4JCVp4ddGEi7XF2QE2S4N8pMkirJbp7N2TF5p5qQ")),
-				},
-			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0-p2wpkh-p2sh"),
-		)
-		// We never supported P2PKH in Litecoin,
-		require.Nil(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0-p2pkh"))
-
-		// Number of accounts stays the same - this is to make the unit test a bit more robust.
-		accountsCount := len(b.Config().AccountsConfig().Accounts)
-		// Try to add an Ethereum account - can't, not supported.
-		_, err = b.CreateAndPersistAccountConfig(
-			coinpkg.CodeETH,
-			"ethereum 1",
-			bitbox01LikeKeystore,
-		)
-		require.NoError(t, err)
-		require.Nil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))
-		require.Len(t, b.Config().AccountsConfig().Accounts, accountsCount)
-
-		// Try to add another Bitcoin account - can't, only one account supported.
-		_, err = b.CreateAndPersistAccountConfig(
-			coinpkg.CodeBTC,
-			"bitcoin 2",
-			bitbox01LikeKeystore,
-		)
-		require.Equal(t, errAccountLimitReached, errp.Cause(err))
-		require.Len(t, b.Config().AccountsConfig().Accounts, accountsCount)
-
-		// Try to add another Litecoin account - can't, only one account supported.
-		_, err = b.CreateAndPersistAccountConfig(
-			coinpkg.CodeLTC,
-			"litecoin 2",
-			bitbox01LikeKeystore,
-		)
-		require.Equal(t, errAccountLimitReached, errp.Cause(err))
-		require.Len(t, b.Config().AccountsConfig().Accounts, accountsCount)
-	})
-
 	// If the keystore cannot retrieve an xpub (e.g. USB communication error), no account should be
 	// added.
 	t.Run("xpub-error", func(t *testing.T) {
@@ -698,9 +556,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				return true
 			},
 			SupportsMultipleAccountsFunc: func() bool {
-				return true
-			},
-			SupportsUnifiedAccountsFunc: func() bool {
 				return true
 			},
 			BTCXPubsFunc: func(coin coinpkg.Coin, keypaths []signing.AbsoluteKeypath,
@@ -965,9 +820,6 @@ func TestTaprootUpgrade(t *testing.T) {
 		SupportsMultipleAccountsFunc: func() bool {
 			return true
 		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 		BTCXPubsFunc:          keystoreHelper.BTCXPubs,
 	}
@@ -995,9 +847,6 @@ func TestTaprootUpgrade(t *testing.T) {
 			}
 		},
 		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
 			return true
 		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
@@ -1260,9 +1109,6 @@ func TestWatchonly(t *testing.T) {
 					return true
 				}
 			},
-			SupportsUnifiedAccountsFunc: func() bool {
-				return true
-			},
 			ExtendedPublicKeyFunc: keystoreHelper1.ExtendedPublicKey,
 			BTCXPubsFunc:          keystoreHelper1.BTCXPubs,
 		}
@@ -1284,9 +1130,6 @@ func TestWatchonly(t *testing.T) {
 				default:
 					return true
 				}
-			},
-			SupportsUnifiedAccountsFunc: func() bool {
-				return true
 			},
 			ExtendedPublicKeyFunc: keystoreHelper2.ExtendedPublicKey,
 			BTCXPubsFunc:          keystoreHelper2.BTCXPubs,
