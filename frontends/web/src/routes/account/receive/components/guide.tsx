@@ -30,6 +30,8 @@ export const ReceiveGuide = ({
           )}
         </>
       )}
+      <Entry key="guide.receive.signMessage" entry={t('guide.receive.signMessage', { returnObjects: true })} />
+      <Entry key="guide.receive.whySignMessage" entry={t('guide.receive.whySignMessage', { returnObjects: true })} />
     </Guide>
   );
 };

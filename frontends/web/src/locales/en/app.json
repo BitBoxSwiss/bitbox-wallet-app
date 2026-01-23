@@ -1084,6 +1084,20 @@
         "title": "Why is this useful?"
       }
     },
+    "addresses": {
+      "whatAreUsedAddresses": {
+        "text": "Used addresses are receive addresses that have previously received transactions. This page shows all addresses where you've received funds, sorted by most recent use.",
+        "title": "What are used addresses?"
+      },
+      "whyUsedAddresses": {
+        "text": "You might need to verify an address you previously shared, prove ownership of a past address by signing a message, or review your address history for record-keeping purposes.",
+        "title": "Why would I need to see used addresses?"
+      },
+      "canReceiveOnUsed": {
+        "text": "Yes, but it's not recommended. For privacy reasons, you should use fresh addresses from the Receive page when possible. Reusing addresses can make your transaction history more visible to others.",
+        "title": "Can I still receive on used addresses?"
+      }
+    },
     "appendix": {
       "feedback": {
         "link": "Let us know.",
@@ -1219,6 +1233,7 @@
       "account": "Account guide",
       "accountInformation": "Account information guide",
       "accountSummary": "Account summary guide",
+      "addresses": "Addresses guide",
       "advancedSettings": "Advanced settings guide",
       "appearance": "Appearance guide",
       "buySell": "Marketplace guide",
@@ -1259,8 +1274,16 @@
         "title": "Why so many addresses?"
       },
       "whyVerify": {
-        "text": "You shouldn’t trust your computer to generate and display authentic addresses. It’s big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
+        "text": "You shouldn't trust your computer to generate and display authentic addresses. It's big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
         "title": "Why should I verify the address securely?"
+      },
+      "signMessage": {
+        "text": "Message signing lets you create a cryptographic proof that you control a specific address. The message is signed with your private key without exposing it, and anyone can verify the signature using your public address.",
+        "title": "What is message signing?"
+      },
+      "whySignMessage": {
+        "text": "Message signing is useful for proving ownership of an address to someone without making a transaction. Common uses include proving you control funds to an exchange, verifying your identity in disputes, or authenticating requests.",
+        "title": "Why would I sign a message?"
       }
     },
     "send": {

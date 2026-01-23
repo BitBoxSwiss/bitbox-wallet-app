@@ -14,6 +14,7 @@ import { QRCode } from '@/components/qrcode/qrcode';
 import { CopyableInput } from '@/components/copy/Copy';
 import { SignMessageDialog } from '../receive/components/sign-message-dialog';
 import { Spinner } from '@/components/spinner/Spinner';
+import { AddressesGuide } from './addresses-guide';
 import style from './addresses.module.css';
 
 type TProps = {
@@ -237,6 +238,8 @@ export const Addresses = ({ code, accounts }: TProps) => {
           coinCode={account.coinCode}
         />
       )}
+
+      <AddressesGuide />
     </div>
   );
 };
