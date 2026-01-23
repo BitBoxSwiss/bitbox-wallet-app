@@ -14,15 +14,16 @@ import (
 
 // AddressChain manages a chain of addresses derived from a configuration.
 type AddressChain struct {
-	accountConfiguration *signing.Configuration
-	net                  *chaincfg.Params
-	gapLimit             int
-	change               bool
-	addresses            []*AccountAddress
-	addressesLookup      map[blockchain.ScriptHashHex]*AccountAddress
-	addressesLock        locker.Locker
-	isAddressUsed        func(*AccountAddress) (bool, error)
-	log                  *logrus.Entry
+	accountConfiguration       *signing.Configuration
+	net                        *chaincfg.Params
+	gapLimit                   int
+	change                     bool
+	addresses                  []*AccountAddress
+	addressesLookup            map[blockchain.ScriptHashHex]*AccountAddress
+	addressesLookupByEncoding  map[string]*AccountAddress
+	addressesLock              locker.Locker
+	isAddressUsed              func(*AccountAddress) (bool, error)
+	log                        *logrus.Entry
 }
 
 // NewAddressChain creates an address chain starting at m/<chainIndex> from the given configuration.
@@ -35,13 +36,14 @@ func NewAddressChain(
 	log *logrus.Entry,
 ) *AddressChain {
 	return &AddressChain{
-		accountConfiguration: accountConfiguration,
-		net:                  net,
-		gapLimit:             gapLimit,
-		change:               change,
-		addresses:            []*AccountAddress{},
-		addressesLookup:      map[blockchain.ScriptHashHex]*AccountAddress{},
-		isAddressUsed:        isAddressUsed,
+		accountConfiguration:      accountConfiguration,
+		net:                       net,
+		gapLimit:                  gapLimit,
+		change:                    change,
+		addresses:                 []*AccountAddress{},
+		addressesLookup:           map[blockchain.ScriptHashHex]*AccountAddress{},
+		addressesLookupByEncoding: map[string]*AccountAddress{},
+		isAddressUsed:             isAddressUsed,
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
 			"gap-limit": gapLimit, "change": change,
 			"configuration": accountConfiguration.String()}),
@@ -74,6 +76,7 @@ func (addresses *AddressChain) addAddress() *AccountAddress {
 	)
 	addresses.addresses = append(addresses.addresses, address)
 	addresses.addressesLookup[address.PubkeyScriptHashHex()] = address
+	addresses.addressesLookupByEncoding[address.EncodeForHumans()] = address
 	return address
 }
 
@@ -99,6 +102,13 @@ func (addresses *AddressChain) unusedTailCount() (int, error) {
 func (addresses *AddressChain) LookupByScriptHashHex(hashHex blockchain.ScriptHashHex) *AccountAddress {
 	defer addresses.addressesLock.RLock()()
 	return addresses.addressesLookup[hashHex]
+}
+
+// LookupByAddress returns the address which matches the provided encoded address string. Returns nil
+// if not found.
+func (addresses *AddressChain) LookupByAddress(addressString string) *AccountAddress {
+	defer addresses.addressesLock.RLock()()
+	return addresses.addressesLookupByEncoding[addressString]
 }
 
 // EnsureAddresses appends addresses to the address chain until there are `gapLimit` unused

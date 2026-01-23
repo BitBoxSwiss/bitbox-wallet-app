@@ -736,6 +736,104 @@ func (account *Account) GetUnusedReceiveAddresses() ([]accounts.AddressList, err
 	return addresses, nil
 }
 
+// UsedAddress holds information about a used receive address.
+type UsedAddress struct {
+	Address          string
+	AddressID        string
+	ScriptType       *signing.ScriptType
+	TransactionCount int
+}
+
+// GetUsedReceiveAddresses returns all used receive addresses from transaction history.
+// Returns addresses sorted by most recently used first.
+func (account *Account) GetUsedReceiveAddresses() ([]UsedAddress, error) {
+	if !account.isInitialized() {
+		return nil, errp.New("uninitialized")
+	}
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
+
+	// Get all transactions
+	txs, err := account.Transactions()
+	if err != nil {
+		return nil, err
+	}
+
+	// Track address usage with count and most recent index
+	type addressInfo struct {
+		count     int
+		lastIndex int
+		address   *addresses.AccountAddress
+	}
+	addressMap := make(map[string]*addressInfo)
+
+	// Process transactions (newest first)
+	for i, tx := range txs {
+		for _, addrAmount := range tx.Addresses {
+			if !addrAmount.Ours {
+				continue
+			}
+			// Look up the address in our receive address chains
+			var addr *addresses.AccountAddress
+			for _, subacc := range account.subaccounts {
+				if found := subacc.receiveAddresses.LookupByAddress(addrAmount.Address); found != nil {
+					addr = found
+					break
+				}
+			}
+			if addr == nil {
+				// This is a change address or not found, skip
+				continue
+			}
+
+			if info, exists := addressMap[addrAmount.Address]; exists {
+				info.count++
+				if i < info.lastIndex {
+					info.lastIndex = i
+				}
+			} else {
+				addressMap[addrAmount.Address] = &addressInfo{
+					count:     1,
+					lastIndex: i,
+					address:   addr,
+				}
+			}
+		}
+	}
+
+	// Convert to slice with lastIndex for sorting
+	type sortable struct {
+		addr      UsedAddress
+		lastIndex int
+	}
+	sortableList := make([]sortable, 0, len(addressMap))
+	for addrStr, info := range addressMap {
+		scriptType := info.address.AccountConfiguration.ScriptType()
+		sortableList = append(sortableList, sortable{
+			addr: UsedAddress{
+				Address:          addrStr,
+				AddressID:        info.address.ID(),
+				ScriptType:       &scriptType,
+				TransactionCount: info.count,
+			},
+			lastIndex: info.lastIndex,
+		})
+	}
+
+	// Sort by lastIndex ascending (most recent first)
+	sort.Slice(sortableList, func(i, j int) bool {
+		return sortableList[i].lastIndex < sortableList[j].lastIndex
+	})
+
+	result := make([]UsedAddress, len(sortableList))
+	for i, s := range sortableList {
+		result[i] = s.addr
+	}
+
+	return result, nil
+}
+
 // VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
 // exists.
 func (account *Account) VerifyAddress(addressID string) (bool, error) {

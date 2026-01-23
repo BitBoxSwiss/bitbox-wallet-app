@@ -465,3 +465,21 @@ export const signAddress = (format: ScriptType | '', msg: string, code: AccountC
 export const signMessage = (code: AccountCode, addressID: string, msg: string): Promise<AddressSignResponse> => {
   return apiPost(`account/${code}/sign-address`, { addressID, msg });
 };
+
+export type TUsedAddress = {
+  address: string;
+  addressID: string;
+  scriptType: ScriptType | null;
+  transactionCount: number;
+};
+
+export type TUsedAddressesResponse = {
+  success: true;
+  addresses: TUsedAddress[];
+} | {
+  success: false;
+};
+
+export const getUsedAddresses = (code: AccountCode): Promise<TUsedAddressesResponse> => {
+  return apiGet(`account/${code}/used-addresses`);
+};

@@ -1,0 +1,182 @@
+.description {
+  color: var(--color-secondary);
+  margin-bottom: var(--space-default);
+}
+
+.description a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.description a:hover {
+  text-decoration: underline;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.empty {
+  text-align: center;
+  padding: var(--space-double);
+  color: var(--color-secondary);
+}
+
+.table {
+  width: 100%;
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: 1fr 100px 60px;
+  gap: var(--space-half);
+  padding: var(--space-half);
+  background: var(--background-secondary);
+  font-weight: 600;
+  border-radius: 4px 4px 0 0;
+  font-size: var(--size-small);
+  color: var(--color-secondary);
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 1fr 100px 60px;
+  gap: var(--space-half);
+  padding: var(--space-half);
+  border-bottom: 1px solid var(--color-border);
+  align-items: center;
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.tableRow:hover {
+  background: var(--background-secondary);
+}
+
+.colAddress {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.addressInput {
+  word-break: break-all;
+}
+
+.colCount {
+  text-align: center;
+  font-weight: 500;
+}
+
+.mobileLabel {
+  display: none;
+}
+
+.colActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Dropdown menu styles */
+.menuContainer {
+  position: relative;
+}
+
+.menuButton {
+  appearance: none;
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  height: 37px;
+  min-height: auto;
+  padding: 0 var(--space-half);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menuButton:hover {
+  opacity: 0.9;
+}
+
+.menuButton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.menuDropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background-color: var(--background-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 150px;
+  z-index: 10;
+}
+
+.menuDropdown button {
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--color-default);
+  cursor: pointer;
+  display: block;
+  padding: var(--space-half);
+  text-align: left;
+  width: 100%;
+  font-size: var(--size-default);
+}
+
+.menuDropdown button:hover {
+  background-color: var(--background-secondary);
+}
+
+@media (max-width: 768px) {
+  .tableHeader {
+    display: none;
+  }
+
+  .tableRow {
+    grid-template-columns: 1fr auto;
+    gap: var(--space-quarter);
+    padding: var(--space-default);
+  }
+
+  .colAddress {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .addressInput {
+    field-sizing: content;
+    height: auto !important;
+    min-height: 70px;
+    overflow: hidden !important;
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+    line-height: 1.5 !important;
+    padding-top: var(--space-half) !important;
+    padding-bottom: var(--space-half) !important;
+  }
+
+  .colCount {
+    text-align: left;
+  }
+
+  .mobileLabel {
+    display: inline;
+    color: var(--color-secondary);
+  }
+
+  .colActions {
+    justify-content: flex-start;
+  }
+}

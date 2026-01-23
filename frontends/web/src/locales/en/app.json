@@ -2,6 +2,7 @@
   "account": {
     "account": "Account",
     "accounts": "Accounts",
+    "addressesLink": "Used addresses",
     "backupReminder": "Your wallet <strong>{{name}}</strong> passed {{fiat}} {{threshold}}!\n\nWe recommend creating a paper backup for extra protection. It's quick and simple.",
     "backupReminderLink": "Create paper backup",
     "disconnect": "Connection lost. Retrying…",
@@ -18,6 +19,19 @@
     "uncoveredFunds": "You have coins on the following uncovered address types of your <strong>{{name}}</strong> account: {{uncovered}}.\nSince the account is insured, only coins received via the <strong>Native Segwit</strong> address type are covered. Coins on different address types, even if they are on the same account, are not insured.\nPlease move all your coins from the unsupported address types to the <strong>Native Segwit</strong> address type, so all your coins on this account are insured.",
     "uncoveredFundsLink": "Follow this guide on how to move your coins.",
     "warning": "Warning!"
+  },
+  "addresses": {
+    "title": "Used addresses",
+    "descriptionPart1": "This page lists all addresses of this account which have been used in confirmed transactions. To view unused receive addresses go to",
+    "descriptionLink": "Receive",
+    "empty": "No addresses have been used yet.",
+    "column": {
+      "address": "Address",
+      "txCount": "Transactions",
+      "actions": "Actions"
+    },
+    "verify": "Verify on device",
+    "signMessage": "Sign message"
   },
   "accountInfo": {
     "address": "Address",
