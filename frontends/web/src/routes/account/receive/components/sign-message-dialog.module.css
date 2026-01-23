@@ -1,0 +1,14 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.messageDisplay {
+  padding: var(--space-half);
+  background-color: var(--background-secondary);
+  border-radius: var(--border-radius);
+  word-break: break-word;
+  white-space: pre-wrap;
+}

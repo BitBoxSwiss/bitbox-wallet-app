@@ -12,6 +12,7 @@ import { Button, Radio } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Message } from '@/components/message/message';
 import { ReceiveGuide } from './components/guide';
+import { SignMessageDialog } from './components/sign-message-dialog';
 import { Header } from '@/components/layout';
 import { QRCode } from '@/components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
@@ -108,6 +109,7 @@ export const Receive = ({
   const [addressTypeDialog, setAddressTypeDialog] = useState<boolean>(false);
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.TReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
+  const [signMessageDialog, setSignMessageDialog] = useState<boolean>(false);
 
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
   const insured = account?.bitsuranceStatus === 'active';
@@ -169,6 +171,18 @@ export const Receive = ({
     } finally {
       setVerifying(false);
     }
+  };
+
+  const openSignMessage = async () => {
+    if (account === undefined) {
+      return;
+    }
+    // First connect the keystore before showing the sign message dialog
+    const connectResult = await connectKeystore(account.keystore.rootFingerprint);
+    if (!connectResult.success) {
+      return;
+    }
+    setSignMessageDialog(true);
   };
 
   const previous = (e: React.SyntheticEvent) => {
@@ -266,7 +280,13 @@ export const Receive = ({
                       primary>
                       {t('receive.verifyBitBox02')}
                     </Button>
-                    <BackButton enableEsc={!addressTypeDialog && !verifying}>
+                    <Button
+                      disabled={verifying !== false}
+                      onClick={openSignMessage}
+                      secondary>
+                      {t('receive.signMessage.button')}
+                    </Button>
+                    <BackButton enableEsc={!addressTypeDialog && !verifying && !signMessageDialog}>
                       {t('button.back')}
                     </BackButton>
                   </div>
@@ -316,6 +336,14 @@ export const Receive = ({
                       </>
                     )}
                   </Dialog>
+                  {account && currentAddresses && currentAddresses[activeIndex] && (
+                    <SignMessageDialog
+                      open={signMessageDialog}
+                      onClose={() => setSignMessageDialog(false)}
+                      address={currentAddresses[activeIndex]}
+                      accountCode={code}
+                    />
+                  )}
                 </div>
               )}
             </div>

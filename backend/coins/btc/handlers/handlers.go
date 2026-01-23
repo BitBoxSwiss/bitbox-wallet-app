@@ -756,6 +756,7 @@ func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, erro
 
 	var request struct {
 		AccountCode types.Code         `json:"accountCode"`
+		AddressID   string             `json:"addressID"`
 		Msg         string             `json:"msg"`
 		Format      signing.ScriptType `json:"format"`
 	}
@@ -763,18 +764,26 @@ func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, erro
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 
-	account, ok := handlers.account.(*btc.Account)
-	if !ok {
+	var address, signature string
+	var err error
+
+	// Handle ETH accounts
+	if ethAccount, ok := handlers.account.(*eth.Account); ok {
+		address, signature, err = ethAccount.SignETHMessage(request.Msg)
+	} else if btcAccount, ok := handlers.account.(*btc.Account); ok {
+		// Handle BTC/LTC accounts - use addressID if provided, otherwise fall back to old behavior
+		if request.AddressID != "" {
+			address, signature, err = btcAccount.SignBTCMessage(request.AddressID, request.Msg)
+		} else {
+			address, signature, err = btc.SignBTCAddress(btcAccount, request.Msg, request.Format)
+		}
+	} else {
 		return response{
 			Success:      false,
-			ErrorMessage: "An account must be BTC based to support address signing.",
+			ErrorMessage: "Account type not supported for message signing.",
 		}, nil
 	}
 
-	address, signature, err := btc.SignBTCAddress(
-		account,
-		request.Msg,
-		request.Format)
 	if err != nil {
 		if firmware.IsErrorAbort(err) {
 			return response{Success: false, ErrorCode: errp.ErrUserAbort.Error()}, nil
@@ -782,8 +791,11 @@ func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, erro
 		if errp.Cause(err) == backend.ErrWrongKeystore {
 			return response{Success: false, ErrorCode: backend.ErrWrongKeystore.Error()}, nil
 		}
+		if errp.Cause(err) == keystore.ErrSigningAborted {
+			return response{Success: false, ErrorCode: errp.ErrUserAbort.Error()}, nil
+		}
 
-		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
+		handlers.log.WithField("code", handlers.account.Config().Config.Code).Error(err)
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	return response{Success: true, Address: address, Signature: signature}, nil

@@ -953,3 +953,68 @@ func SignBTCAddress(account accounts.Interface, message string, scriptType signi
 
 	return addr.EncodeForHumans(), base64.StdEncoding.EncodeToString(sig), nil
 }
+
+// SignBTCMessage signs a message with a specific address identified by addressID.
+// Input params:
+//
+//	`addressID` is the script hash hex identifying the address to sign with.
+//	`message` is the message that will be signed by the user with the private key linked to the address.
+//
+// Returned values:
+//
+//	#1: is the address that was used for signing.
+//	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
+//	#3: is an optional error that could be generated during the execution of the function.
+func (account *Account) SignBTCMessage(addressID string, message string) (string, string, error) {
+	if !account.isInitialized() {
+		return "", "", errp.New("account must be initialized")
+	}
+
+	if len(addressID) == 0 {
+		return "", "", errp.New("addressID cannot be empty")
+	}
+
+	if len(message) == 0 {
+		return "", "", errp.New("message cannot be empty")
+	}
+
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return "", "", err
+	}
+
+	canSign := keystore.CanSignMessage(account.Coin().Code())
+	if !canSign {
+		return "", "", errp.Newf("The connected device or keystore cannot sign messages for %s",
+			account.Coin().Code())
+	}
+
+	// Find the address by ID across all subaccounts
+	scriptHashHex := blockchain.ScriptHashHex(addressID)
+	var address *addresses.AccountAddress
+	var signingConfig *signing.Configuration
+
+	for _, subacc := range account.subaccounts {
+		if addr := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); addr != nil {
+			address = addr
+			signingConfig = subacc.signingConfiguration
+			break
+		}
+	}
+
+	if address == nil {
+		return "", "", errp.New("address not found or not a receive address")
+	}
+
+	sig, err := keystore.SignBTCMessage(
+		[]byte(message),
+		address.AbsoluteKeypath(),
+		signingConfig.ScriptType(),
+		account.Coin().Code(),
+	)
+	if err != nil {
+		return "", "", err
+	}
+
+	return address.EncodeForHumans(), base64.StdEncoding.EncodeToString(sig), nil
+}

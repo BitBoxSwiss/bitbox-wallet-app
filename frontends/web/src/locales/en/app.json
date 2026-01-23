@@ -1619,7 +1619,21 @@
     "title": "Receive {{accountName}}",
     "verify": "Verify address securely",
     "verifyBitBox02": "Verify address on BitBox",
-    "verifyInstruction": "Please verify that the following address matches the one displayed on your device."
+    "verifyInstruction": "Please verify that the following address matches the one displayed on your device.",
+    "signMessage": {
+      "button": "Sign message",
+      "title": "Sign message",
+      "addressLabel": "Address",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Enter the message to sign",
+      "signButton": "Sign on device",
+      "signing": "Please confirm the message on your device.",
+      "emptyMessage": "Please enter a message to sign.",
+      "wrongKeystore": "Wrong device connected. Please connect the correct BitBox.",
+      "error": "Failed to sign message. Please try again.",
+      "resultDescription": "Message signed successfully.",
+      "signatureLabel": "Signature (Base64)"
+    }
   },
   "reset": {
     "description": "All data will be deleted from this device. That includes your Private Key!",
