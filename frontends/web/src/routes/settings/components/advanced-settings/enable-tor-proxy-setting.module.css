@@ -1,11 +1,5 @@
-
-
-.settingItem {
-    margin-top: var(--space-half);
-}
-
 @media (max-width: 768px) { 
-    .settingItem {
-        margin-top: 2px;
+    .restartMessage {
+        margin-top: var(--space-half);
     }
 }

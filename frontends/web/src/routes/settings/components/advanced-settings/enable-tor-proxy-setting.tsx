@@ -8,7 +8,6 @@ import { TorProxyDialog } from './tor-proxy-dialog';
 import { Message } from '@/components/message/message';
 import { runningInIOS } from '@/utils/env';
 import styles from './enable-tor-proxy-setting.module.css';
-
 type TProps = {
   proxyConfig?: TProxyConfig;
   onChangeConfig: Dispatch<any>;
@@ -34,12 +33,12 @@ export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) =
   return (
     <>
       { showRestartMessage ? (
-        <Message type="warning">
+        <Message className={styles.restartMessage} type="warning">
           {t('settings.restart')}
         </Message>
       ) : null }
       <SettingsItem
-        className={styles.settingItem}
+        className={styles.torProxyContainer}
         settingName={t('settings.expert.useProxy')}
         onClick={isIOS ? undefined : () => setShowTorProxyDialog(true)}
         secondaryText={t('newSettings.advancedSettings.torProxy.description')}

@@ -36,8 +36,8 @@ export const ActionableItem = ({
           {children}
           {icon ? icon : (
             <ChevronRightDark
-              width={24}
-              height={24}
+              width={19}
+              height={19}
             />
           )}
         </button>

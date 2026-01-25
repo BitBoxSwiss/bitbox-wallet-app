@@ -17,16 +17,6 @@
     margin-bottom: var(--space-half);
 }
 
-.chevronRight {
-    bottom: 0;
-    height: var(--size-subheader);
-    margin: auto;
-    position: absolute;
-    right: var(--space-half);
-    top: 3px;
-    width: var(--size-subheader);
-}
-
 .content {
     flex-shrink: 1;
     max-width: 75%;
@@ -38,14 +28,6 @@
     margin: 0;
 }
 
-.isButton {
-    position: relative;
-}
-
-.isButton:hover {
-    cursor: pointer;
-}
-
 
 .rightContentContainer {
     align-items: center;
@@ -55,7 +37,7 @@
 }
 
 .extraPadding {
-    padding-right: var(--space-half);
+    padding-right: var(--space-quarter);
 }
 
 .displayedValue {
@@ -96,10 +78,6 @@ button .displayedValue {
         padding-right: var(--space-half);
     }
 
-    .chevronRight {
-        right: var(--space-quarter);
-    }
-
     .secondaryText {
         display: none;
     }
@@ -107,22 +85,12 @@ button .displayedValue {
 
 @media (max-width: 560px) {
 
-    .container.collapse {
-        align-items: start;
-        flex-direction: column;
-    }
-
-    .container.collapse .displayedValue.withMargin {
-        margin-right: 0;
-    }
-
-    .container.collapse .rightContentContainer {
-        width: 100%;
-        justify-content: flex-start;
-    }
-
     .hideDisplayedValueOnSmall {
         display: none;
+    }
+
+    .extraComponentSmall {
+        display: block;
     }
 
 }
