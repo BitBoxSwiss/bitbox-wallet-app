@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState, useCallback } from 'react';
-import type { AccountCode, TTransaction } from '@/api/account';
+import type { AccountCode, CoinCode, TTransaction } from '@/api/account';
 import { getTransaction } from '@/api/account';
 import { syncdone } from '@/api/accountsync';
 import { usePrevious } from '@/hooks/previous';
@@ -9,6 +9,7 @@ import { TxDetailsDialog } from '@/components/transactions/components/tx-detail-
 
 type TProps = {
   accountCode: AccountCode;
+  coinCode: CoinCode;
   explorerURL: string;
   internalID: TTransaction['internalID'] | null;
   onClose: () => void;
@@ -16,6 +17,7 @@ type TProps = {
 
 export const TransactionDetails = ({
   accountCode,
+  coinCode,
   internalID,
   explorerURL,
   onClose,
@@ -72,6 +74,7 @@ export const TransactionDetails = ({
         onClose();
       }}
       accountCode={accountCode}
+      coinCode={coinCode}
       explorerURL={explorerURL}
       {...transactionInfo}
     />

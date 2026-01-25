@@ -1723,7 +1723,13 @@
       "insufficientFunds": "insufficient funds",
       "invalidAddress": "invalid address",
       "invalidAmount": "invalid amount",
-      "invalidData": "invalid data"
+      "invalidData": "invalid data",
+      "rbfCoinControlNotAllowed": "Coin control cannot be used when speeding up a transaction",
+      "rbfFeeTooLow": "New fee must be higher than the original fee",
+      "rbfInvalidTxID": "Invalid transaction selected for speed up",
+      "rbfTxAlreadyConfirmed": "Transaction has already been confirmed",
+      "rbfTxNotFound": "Original transaction not found",
+      "rbfTxNotReplaceable": "This transaction can no longer be replaced"
     },
     "fee": {
       "customPlaceholder": "Enter amount",
@@ -1770,6 +1776,16 @@
     "newTransaction": "New transaction",
     "noFeeTargets": "Fee rate estimations are currently unavailable. Please try again later or enter a custom fee.",
     "priority": "Priority",
+    "rbf": {
+      "alreadyConfirmed": "Good news! Your transaction has already been confirmed.",
+      "banner": "Speeding up transaction {{txID}}",
+      "confirmTitle": "Confirm speed up transaction",
+      "newPriority": "New priority",
+      "sendAmount": "Send amount",
+      "success": "Speed up transaction has been signed and sent",
+      "title": "Speed up {{accountName}} transaction",
+      "txID": "TX ID: {{txID}}"
+    },
     "scanQR": "Scan QR code",
     "scanQRNoCameraMessage": "Camera not found. Please ensure that your device supports a camera and permissions are correctly set.",
     "sendToAccount": {
@@ -1939,6 +1955,12 @@
     "no-results": "No transactions found matching \"{{searchTerm}}\"",
     "pending": "Pending transaction",
     "size": "Size",
+    "speedUp": "Speed up transaction",
+    "speedUpError": "Unable to speed up transaction. Please try again.",
+    "speedUpPrompt": {
+      "action": "Speed up",
+      "message": "This transaction is taking a while."
+    },
     "status": {
       "complete": "Complete",
       "failed": "Failed",

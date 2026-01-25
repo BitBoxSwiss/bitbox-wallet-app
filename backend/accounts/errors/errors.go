@@ -29,6 +29,19 @@ var (
 	ErrFeeTooLow = TxValidationError("feeTooLow")
 	// ErrAccountNotsynced is used when the account sync has not successfully finished.
 	ErrAccountNotsynced = TxValidationError("accountNotSynced")
+	// ErrRBFTxNotFound is returned when the transaction to replace (RBF) is not found.
+	ErrRBFTxNotFound = TxValidationError("rbfTxNotFound")
+	// ErrRBFTxAlreadyConfirmed is returned when attempting RBF on an already confirmed transaction.
+	ErrRBFTxAlreadyConfirmed = TxValidationError("rbfTxAlreadyConfirmed")
+	// ErrRBFTxNotReplaceable is returned when the transaction is no longer the active spender of
+	// its inputs, e.g. it has already been replaced by another transaction.
+	ErrRBFTxNotReplaceable = TxValidationError("rbfTxNotReplaceable")
+	// ErrRBFInvalidTxID is returned when the transaction id provided for RBF is invalid.
+	ErrRBFInvalidTxID = TxValidationError("rbfInvalidTxID")
+	// ErrRBFCoinControlNotAllowed is returned when coin control is combined with RBF.
+	ErrRBFCoinControlNotAllowed = TxValidationError("rbfCoinControlNotAllowed")
+	// ErrRBFFeeTooLow is returned when the new fee is not sufficiently higher than the original.
+	ErrRBFFeeTooLow = TxValidationError("rbfFeeTooLow")
 
 	// ErrNotAvailable is returned if data required is not available yet. Example: the headers are
 	// not synced yet, which is a prerequisite to making a timeseries of the portfolio.

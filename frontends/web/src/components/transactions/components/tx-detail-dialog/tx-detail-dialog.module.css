@@ -157,6 +157,21 @@
     gap: var(--space-half);
 }
 
+.speedUpContainer {
+    display: flex;
+    justify-content: center;
+    margin: var(--space-half) 0;
+}
+
+.speedUpButton {
+    gap: var(--space-quarter);
+}
+
+.speedUpIcon {
+    height: 18px;
+    width: 18px;
+}
+
 .explorerLinkContainer {
     align-items: center;
     display: flex;

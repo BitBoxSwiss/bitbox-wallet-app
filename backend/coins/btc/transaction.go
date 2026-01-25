@@ -16,11 +16,21 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 )
 
 // unitSatoshi is 1 BTC (default unit) in Satoshi.
 const unitSatoshi = 1e8
+
+func supportsRBF(code coin.Code) bool {
+	switch code {
+	case coin.CodeBTC, coin.CodeTBTC, coin.CodeRBTC:
+		return true
+	default:
+		return false
+	}
+}
 
 // getFeePerKb returns the fee rate to be used in a new transaction. It is deduced from the supplied
 // fee target (priority) if one is given, or the provided args.FeePerKb if the fee taret is
@@ -141,14 +151,44 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	if !account.Synced() {
 		return nil, nil, accounts.ErrSyncInProgress
 	}
-	utxo, err := account.transactions.SpendableOutputs()
-	if err != nil {
-		return nil, nil, err
+
+	// RBF and coin control are mutually exclusive - RBF must use the original transaction's inputs
+	if args.RBFTxID != "" && len(args.SelectedUTXOs) != 0 {
+		return nil, nil, errors.ErrRBFCoinControlNotAllowed
 	}
+	// RBF is only supported for Bitcoin (including testnet/regtest), not Litecoin.
+	if args.RBFTxID != "" && !supportsRBF(account.coin.Code()) {
+		return nil, nil, errors.ErrRBFInvalidTxID
+	}
+
+	var utxo map[wire.OutPoint]*transactions.SpendableOutput
+	var originalFee btcutil.Amount
+	var originalFeeRatePerKb btcutil.Amount
+	var err error
+
+	// Handle RBF (Replace-By-Fee) mode
+	if args.RBFTxID != "" {
+		account.log.Infof("RBF mode: replacing transaction %s", args.RBFTxID)
+		rbfTxHash, err := chainhash.NewHashFromStr(args.RBFTxID)
+		if err != nil {
+			return nil, nil, errors.ErrRBFInvalidTxID
+		}
+		utxo, originalFee, originalFeeRatePerKb, err = account.transactions.SpendableOutputsForRBF(*rbfTxHash)
+		if err != nil {
+			return nil, nil, err
+		}
+	} else {
+		utxo, err = account.transactions.SpendableOutputs()
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	wireUTXO := make(map[wire.OutPoint]maketx.UTXO, len(utxo))
 	for outPoint, txOut := range utxo {
-		// Apply coin control.
-		if len(args.SelectedUTXOs) != 0 {
+		// Apply coin control (only for non-RBF transactions).
+		// In RBF mode, we must use exactly the original transaction's inputs.
+		if args.RBFTxID == "" && len(args.SelectedUTXOs) != 0 {
 			if _, ok := args.SelectedUTXOs[outPoint]; !ok {
 				continue
 			}
@@ -162,6 +202,17 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	feeRatePerKb, err := account.getFeePerKb(args)
 	if err != nil {
 		return nil, nil, err
+	}
+
+	// For RBF, validate that new fee rate is at least 1 sat/vB higher than original
+	if args.RBFTxID != "" {
+		// 1 sat/vB = 1000 sat/kB
+		minRequiredFeeRate := originalFeeRatePerKb + 1000
+		if feeRatePerKb < minRequiredFeeRate {
+			account.log.Warnf("RBF fee too low: %d < %d (original: %d)",
+				feeRatePerKb, minRequiredFeeRate, originalFeeRatePerKb)
+			return nil, nil, errors.ErrRBFFeeTooLow
+		}
 	}
 
 	var txProposal *maketx.TxProposal
@@ -217,6 +268,14 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 			txProposal.PaymentRequest = args.PaymentRequest
 		}
 	}
+	if args.RBFTxID != "" {
+		// BIP-125 replacements must increase the absolute fee in addition to fee rate.
+		if txProposal.Fee <= originalFee {
+			account.log.Warnf("RBF fee too low: %d <= %d (original absolute fee)", txProposal.Fee, originalFee)
+			return nil, nil, errors.ErrRBFFeeTooLow
+		}
+	}
+
 	account.log.Debugf("creating tx with %d inputs, %d outputs",
 		len(txProposal.Psbt.UnsignedTx.TxIn), len(txProposal.Psbt.UnsignedTx.TxOut))
 	return utxo, txProposal, nil

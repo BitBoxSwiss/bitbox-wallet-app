@@ -31,3 +31,40 @@
     color: var(--color-secondary);
     font-size: var(--size-default);
 }
+
+.rbfTxID {
+    color: var(--color-secondary);
+    margin-bottom: var(--space-half);
+    margin-top: 0;
+}
+
+.rbfField {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-quarter);
+}
+
+.rbfField label {
+    color: var(--color-secondary);
+    margin: 0;
+}
+
+.rbfAmountContainer {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-quarter);
+}
+
+.rbfPrimaryValue {
+    font-size: var(--size-subheader);
+    font-weight: 500;
+    margin: 0;
+    word-break: break-all;
+}
+
+.rbfFiatAmount {
+    color: var(--color-secondary);
+    margin: 0;
+}
