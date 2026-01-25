@@ -22,6 +22,11 @@ type Props = {
   onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
   onCustomFee: (customFee: string) => void;
   error?: string;
+  // Optional preferred fee target to use instead of the default when initializing
+  preferredFeeTarget?: accountApi.FeeTargetCode;
+  // Controlled value - when provided, parent controls the fee target selection
+  value?: accountApi.FeeTargetCode;
+  label?: string;
 };
 
 type TOption = {
@@ -40,9 +45,13 @@ export const FeeTargets = ({
   showCalculatingFeeLabel,
   onFeeTargetChange,
   onCustomFee,
-  error
+  error,
+  preferredFeeTarget,
+  value,
+  label
 }: Props) => {
   const { t } = useTranslation();
+  const feeTargetLabel = label || t('send.priority');
   const config = useLoad(getConfig);
   const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
   const [options, setOptions] = useState<TOption[] | null>(null);
@@ -80,17 +89,29 @@ export const FeeTargets = ({
     if (feeTarget) {
       return;
     }
-    setFeeTarget(feeTargets.defaultFeeTarget);
-    onFeeTargetChange(feeTargets.defaultFeeTarget);
+    // Use preferred fee target if provided and valid, otherwise use default
+    const validFeeTargetCodes = options.map(opt => opt.value);
+    const initialFeeTarget = preferredFeeTarget && validFeeTargetCodes.includes(preferredFeeTarget)
+      ? preferredFeeTarget
+      : feeTargets.defaultFeeTarget;
+    setFeeTarget(initialFeeTarget);
+    onFeeTargetChange(initialFeeTarget);
     if (feeTargets.feeTargets.length === 0) {
       setNoFeeTargets(true);
     }
     focusInput();
-  }, [t, feeTarget, feeTargets, focusInput, accountCode, config, onFeeTargetChange, disabled]);
+  }, [t, feeTarget, feeTargets, focusInput, accountCode, config, onFeeTargetChange, disabled, preferredFeeTarget]);
 
-  const handleFeeTargetChange = (value: accountApi.FeeTargetCode) => {
-    setFeeTarget(value);
-    onFeeTargetChange(value);
+  // Sync internal state when controlled value changes from parent
+  useEffect(() => {
+    if (value !== undefined && value !== feeTarget) {
+      setFeeTarget(value);
+    }
+  }, [value, feeTarget]);
+
+  const handleFeeTargetChange = (newValue: accountApi.FeeTargetCode) => {
+    setFeeTarget(newValue);
+    onFeeTargetChange(newValue);
   };
 
   const handleCustomFee = (event: ChangeEvent<HTMLInputElement>) => {
@@ -109,7 +130,7 @@ export const FeeTargets = ({
   if (options === null) {
     return (
       <Input
-        label={t('send.priority')}
+        label={feeTargetLabel}
         id="feetarget"
         placeholder={t('send.feeTarget.placeholder')}
         disabled
@@ -153,12 +174,12 @@ export const FeeTargets = ({
             <Input
               disabled
               className={style.calculatingFeePlaceholder}
-              label={t('send.priority')}
+              label={feeTargetLabel}
               placeholder={t('send.feeTarget.placeholder')}
               value="" />
           ) : (
             <>
-              <label>{t('send.priority')}</label>
+              <label>{feeTargetLabel}</label>
               <Dropdown
                 isSearchable={false}
                 className={style.priority}
@@ -168,10 +189,10 @@ export const FeeTargets = ({
                     handleFeeTargetChange(newValue.value);
                   }
                 }}
-                defaultValue={[{
+                value={{
                   label: feeTarget as string,
                   value: feeTarget,
-                }]}
+                }}
                 options={options} />
             </>
           )
@@ -185,14 +206,14 @@ export const FeeTargets = ({
               </Message>
             ) : null }
             <div className={style.column}>
-              <label>{t('send.priority')}</label>
+              <label>{feeTargetLabel}</label>
               <Dropdown
                 isSearchable={false}
                 className={style.priority}
-                defaultValue={[{
+                value={{
                   label: feeTarget as string,
                   value: feeTarget,
-                }]}
+                }}
                 id="feeTarget"
                 onChange={(newValue) => handleFeeTargetChange(newValue.value)}
                 renderOptions={renderOption}

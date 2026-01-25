@@ -408,6 +408,8 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		Counter        int            `json:"counter"`
 		PaymentRequest *slip24Request `json:"paymentRequest"`
 		UseHighestFee  bool           `json:"useHighestFee"`
+		// RBFTxID is the transaction ID of a pending transaction to replace (for RBF).
+		RBFTxID string `json:"rbfTxID"`
 	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
@@ -443,6 +445,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		input.PaymentRequest = paymentRequest
 	}
 	input.UseHighestFee = jsonBody.UseHighestFee
+	input.RBFTxID = jsonBody.RBFTxID
 	return nil
 }
 
