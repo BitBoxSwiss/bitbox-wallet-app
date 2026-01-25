@@ -321,6 +321,7 @@ const RemountAccount = ({
 
               <TransactionDetails
                 accountCode={code}
+                coinCode={account.coinCode}
                 explorerURL={account.blockExplorerTxPrefix}
                 internalID={detailID}
                 onClose={() => setDetailID(null)}
