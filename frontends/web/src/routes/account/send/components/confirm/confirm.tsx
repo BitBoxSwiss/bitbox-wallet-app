@@ -45,6 +45,7 @@ type TConfirmSendProps = {
   isConfirming: boolean;
   selectedUTXOs: TSelectedUTXOs;
   coinCode: CoinCode;
+  isRBF: boolean;
   transactionDetails: TransactionDetails;
 };
 
@@ -54,6 +55,7 @@ export const ConfirmSend = ({
   isConfirming,
   selectedUTXOs,
   coinCode,
+  isRBF,
   transactionDetails,
 }: TConfirmSendProps) => {
 
@@ -74,10 +76,13 @@ export const ConfirmSend = ({
     return null;
   }
 
+  const feeTargetLabel = feeTarget ? t(`send.feeTarget.label.${feeTarget}`) : '';
+  const displayedFeeTargetLabel = isRBF ? feeTargetLabel.toLowerCase() : feeTargetLabel;
+
   return (
     <View fullscreen width="840px">
       <UseDisableBackButton />
-      <ViewHeader title={<div className={style.title}>{t('send.confirm.title')}</div>} />
+      <ViewHeader title={<div className={style.title}>{t(isRBF ? 'send.rbf.confirmTitle' : 'send.confirm.title')}</div>} />
       <ViewContent>
         <Message type="info">
           {t('send.confirm.infoMessage')}
@@ -181,7 +186,7 @@ export const ConfirmSend = ({
           <Column col="2">
             <span className={style.label}>
               {t('send.fee.label')}
-              {feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}
+              {feeTarget ? ' (' + displayedFeeTargetLabel + ')' : ''}
             </span>
           </Column>
           <Column className={style.confirmItem}>

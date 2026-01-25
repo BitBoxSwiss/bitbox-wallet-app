@@ -47,6 +47,9 @@ type TxProposalArgs struct {
 	SelectedUTXOs  map[wire.OutPoint]struct{}
 	Note           string
 	PaymentRequest *PaymentRequest
+	// RBFTxID is the transaction ID of a pending transaction to replace (for RBF - Replace-By-Fee).
+	// When set, the new transaction will use the same inputs as the original transaction.
+	RBFTxID string
 }
 
 // Interface is the API of a Account.

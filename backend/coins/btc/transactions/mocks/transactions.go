@@ -7,6 +7,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"sync"
 )
@@ -30,6 +32,9 @@ var _ transactions.Interface = &InterfaceMock{}
 //			SpendableOutputsFunc: func() (map[wire.OutPoint]*transactions.SpendableOutput, error) {
 //				panic("mock out the SpendableOutputs method")
 //			},
+//			SpendableOutputsForRBFFunc: func(txHash chainhash.Hash) (map[wire.OutPoint]*transactions.SpendableOutput, btcutil.Amount, btcutil.Amount, error) {
+//				panic("mock out the SpendableOutputsForRBF method")
+//			},
 //			TransactionsFunc: func(isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error) {
 //				panic("mock out the Transactions method")
 //			},
@@ -52,6 +57,9 @@ type InterfaceMock struct {
 	// SpendableOutputsFunc mocks the SpendableOutputs method.
 	SpendableOutputsFunc func() (map[wire.OutPoint]*transactions.SpendableOutput, error)
 
+	// SpendableOutputsForRBFFunc mocks the SpendableOutputsForRBF method.
+	SpendableOutputsForRBFFunc func(txHash chainhash.Hash) (map[wire.OutPoint]*transactions.SpendableOutput, btcutil.Amount, btcutil.Amount, error)
+
 	// TransactionsFunc mocks the Transactions method.
 	TransactionsFunc func(isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error)
 
@@ -69,6 +77,11 @@ type InterfaceMock struct {
 		// SpendableOutputs holds details about calls to the SpendableOutputs method.
 		SpendableOutputs []struct {
 		}
+		// SpendableOutputsForRBF holds details about calls to the SpendableOutputsForRBF method.
+		SpendableOutputsForRBF []struct {
+			// TxHash is the txHash argument value.
+			TxHash chainhash.Hash
+		}
 		// Transactions holds details about calls to the Transactions method.
 		Transactions []struct {
 			// IsChange is the isChange argument value.
@@ -82,11 +95,12 @@ type InterfaceMock struct {
 			Txs []*blockchain.TxInfo
 		}
 	}
-	lockBalance              sync.RWMutex
-	lockClose                sync.RWMutex
-	lockSpendableOutputs     sync.RWMutex
-	lockTransactions         sync.RWMutex
-	lockUpdateAddressHistory sync.RWMutex
+	lockBalance                sync.RWMutex
+	lockClose                  sync.RWMutex
+	lockSpendableOutputs       sync.RWMutex
+	lockSpendableOutputsForRBF sync.RWMutex
+	lockTransactions           sync.RWMutex
+	lockUpdateAddressHistory   sync.RWMutex
 }
 
 // Balance calls BalanceFunc.
@@ -167,6 +181,40 @@ func (mock *InterfaceMock) SpendableOutputsCalls() []struct {
 	mock.lockSpendableOutputs.RLock()
 	calls = mock.calls.SpendableOutputs
 	mock.lockSpendableOutputs.RUnlock()
+	return calls
+}
+
+// SpendableOutputsForRBF calls SpendableOutputsForRBFFunc.
+func (mock *InterfaceMock) SpendableOutputsForRBF(
+	txHash chainhash.Hash,
+) (map[wire.OutPoint]*transactions.SpendableOutput, btcutil.Amount, btcutil.Amount, error) {
+	if mock.SpendableOutputsForRBFFunc == nil {
+		panic("InterfaceMock.SpendableOutputsForRBFFunc: method is nil but Interface.SpendableOutputsForRBF was just called")
+	}
+	callInfo := struct {
+		TxHash chainhash.Hash
+	}{
+		TxHash: txHash,
+	}
+	mock.lockSpendableOutputsForRBF.Lock()
+	mock.calls.SpendableOutputsForRBF = append(mock.calls.SpendableOutputsForRBF, callInfo)
+	mock.lockSpendableOutputsForRBF.Unlock()
+	return mock.SpendableOutputsForRBFFunc(txHash)
+}
+
+// SpendableOutputsForRBFCalls gets all the calls that were made to SpendableOutputsForRBF.
+// Check the length with:
+//
+//	len(mockedInterface.SpendableOutputsForRBFCalls())
+func (mock *InterfaceMock) SpendableOutputsForRBFCalls() []struct {
+	TxHash chainhash.Hash
+} {
+	var calls []struct {
+		TxHash chainhash.Hash
+	}
+	mock.lockSpendableOutputsForRBF.RLock()
+	calls = mock.calls.SpendableOutputsForRBF
+	mock.lockSpendableOutputsForRBF.RUnlock()
 	return calls
 }
 

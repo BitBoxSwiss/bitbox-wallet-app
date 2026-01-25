@@ -19,7 +19,17 @@ export const txProposalErrorHandling = (errorCode?: string): TProposalError => {
     return { amountError: t(`send.error.${errorCode}`) };
   case 'feeTooLow':
   case 'feesNotAvailable':
+  case 'rbfFeeTooLow':
     return { feeError: t(`send.error.${errorCode}`) };
+  case 'rbfTxNotFound':
+  case 'rbfTxAlreadyConfirmed':
+  case 'rbfTxNotReplaceable':
+    // These are handled separately in the send component
+    return {};
+  case 'rbfInvalidTxID':
+  case 'rbfCoinControlNotAllowed':
+    alertUser(t(`send.error.${errorCode}`));
+    return {};
   default:
     if (errorCode) {
       alertUser(errorCode);
