@@ -217,6 +217,7 @@
   font-size: inherit;
   line-height: inherit;
   margin: 0 var(--space-quarter) 0 0;
+  outline: none !important;
   padding: 0;
 }
 @media (max-width: 768px) {
