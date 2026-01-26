@@ -113,8 +113,7 @@ export const FeeTargets = ({
         id="feetarget"
         placeholder={t('send.feeTarget.placeholder')}
         disabled
-        value=""
-        transparent />
+        value="" />
     );
   }
 
@@ -156,8 +155,7 @@ export const FeeTargets = ({
               className={style.calculatingFeePlaceholder}
               label={t('send.priority')}
               placeholder={t('send.feeTarget.placeholder')}
-              value=""
-              transparent />
+              value="" />
           ) : (
             <>
               <label>{t('send.priority')}</label>
@@ -220,7 +218,6 @@ export const FeeTargets = ({
                   })}
                 id="proposedFee"
                 placeholder={t('send.fee.customPlaceholder')}
-                transparent
                 onInput={handleCustomFee}
                 ref={inputRef}
                 value={customFee}
@@ -260,7 +257,6 @@ export const FeeTargets = ({
         id="proposedFee"
         placeholder={t('send.fee.placeholder')}
         error={error}
-        transparent
         value={proposeFeeText}
       />
     )

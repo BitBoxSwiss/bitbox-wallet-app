@@ -125,13 +125,6 @@
     width: 85%;
 }
 
-.note input {
-    border: none;
-    height: auto;
-    min-height: 20px;
-    padding: 0;
-}
-
 .noteContainer {
     align-items: center;
     display: flex;

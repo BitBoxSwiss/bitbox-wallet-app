@@ -83,10 +83,21 @@
     cursor: not-allowed;
 }
 
+.isTransparent .inputField {
+    background-color: transparent;
+    border-color: transparent;
+    padding: 0;
+}
+
 .isTransparent input[disabled] {
-    border-color: var(--background);
     color: var(--color-default) !important;
     cursor: default;
+}
+
+.isTransparent .inputField input,
+.isTransparent .inputField {
+    height: auto;
+    min-height: 0;
 }
 
 .errorText {
