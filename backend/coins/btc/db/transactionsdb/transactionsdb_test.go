@@ -99,7 +99,7 @@ func TestTxSerialization(t *testing.T) {
 	}
 	txHash := tx.TxHash()
 
-	dbTx.PutTx(txHash, tx, 999)
+	dbTx.PutTx(txHash, tx, 999, nil)
 
 	retrievedTx, err := dbTx.TxInfo(txHash)
 	require.NoError(t, err)
@@ -186,6 +186,9 @@ func TestTxQuick(t *testing.T) {
 			txOuts []wire.TxOut,
 			txLocktime uint32,
 			expectedHeight int,
+			setHeaderTimestamp bool,
+			headerTimestampSeconds int32,
+			headerTimestampNanos uint32,
 		) bool {
 			txInRefs := make([]*wire.TxIn, len(txIns))
 			for k, v := range txIns {
@@ -202,7 +205,13 @@ func TestTxQuick(t *testing.T) {
 				LockTime: txLocktime,
 			}
 			expectedTxHash := expectedTx.TxHash()
-			if err := tx.PutTx(expectedTxHash, expectedTx, expectedHeight); err != nil {
+			var headerTimestamp *time.Time
+			if setHeaderTimestamp {
+				nanos := int64(headerTimestampNanos % 1e9)
+				timestamp := time.Unix(int64(headerTimestampSeconds), nanos)
+				headerTimestamp = &timestamp
+			}
+			if err := tx.PutTx(expectedTxHash, expectedTx, expectedHeight, headerTimestamp); err != nil {
 				return false
 			}
 			txInfo, err := tx.TxInfo(expectedTxHash)
@@ -218,7 +227,14 @@ func TestTxQuick(t *testing.T) {
 			if txInfo.Height != expectedHeight {
 				return false
 			}
-			if txInfo.HeaderTimestamp != nil {
+			if setHeaderTimestamp {
+				if txInfo.HeaderTimestamp == nil {
+					return false
+				}
+				if txInfo.HeaderTimestamp.UnixNano() != headerTimestamp.UnixNano() {
+					return false
+				}
+			} else if txInfo.HeaderTimestamp != nil {
 				return false
 			}
 			if txInfo.CreatedTimestamp == nil {
@@ -252,6 +268,32 @@ func TestTxQuick(t *testing.T) {
 				require.True(t, checkTxHashes())
 			})
 		}
+	})
+}
+
+func TestPutTxHeaderTimestampNotOverwrittenWithNil(t *testing.T) {
+	testTx(func(tx *Tx) {
+		msgTx := &wire.MsgTx{
+			Version: wire.TxVersion,
+			TxIn: []*wire.TxIn{
+				wire.NewTxIn(&wire.OutPoint{Hash: chainhash.HashH(nil), Index: 0}, nil, nil),
+			},
+			TxOut:    []*wire.TxOut{wire.NewTxOut(123, []byte("dummyPubKeyScript"))},
+			LockTime: 0,
+		}
+		txHash := msgTx.TxHash()
+
+		t1 := time.Unix(123456, 789)
+		require.NoError(t, tx.PutTx(txHash, msgTx, 100, &t1))
+
+		// Should not clear existing HeaderTimestamp.
+		require.NoError(t, tx.PutTx(txHash, msgTx, 101, nil))
+
+		txInfo, err := tx.TxInfo(txHash)
+		require.NoError(t, err)
+		require.NotNil(t, txInfo.HeaderTimestamp)
+		require.Equal(t, t1.UnixNano(), txInfo.HeaderTimestamp.UnixNano())
+		require.Equal(t, 101, txInfo.Height)
 	})
 }
 
