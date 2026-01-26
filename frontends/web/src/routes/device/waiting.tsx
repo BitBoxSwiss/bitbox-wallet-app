@@ -21,6 +21,8 @@ import { Footer, GuidedContent, GuideWrapper, Header, Main } from '@/components/
 import { View, ViewContent } from '@/components/view/view';
 import { OutlinedSettingsButton } from '@/components/settingsButton/outlined-settings-button';
 import { runningInIOS } from '@/utils/env';
+import { getAccounts } from '@/api/account';
+import { syncAccountsList } from '@/api/accountsync';
 import style from './waiting.module.css';
 
 export const Waiting = () => {
@@ -30,6 +32,9 @@ export const Waiting = () => {
   const keystores = useKeystores();
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
 
+  const accountsResponse = useSync(getAccounts, syncAccountsList);
+  const accountsLoaded = accountsResponse !== undefined;
+
   // BitBox01 does not have any accounts anymore, so we route directly to the device settings.
   useEffect(() => {
     const deviceValues = Object.values(devices);
@@ -38,7 +43,9 @@ export const Waiting = () => {
     }
   }, [devices, navigate]);
 
-  const loadingAccounts = (keystores !== undefined && keystores.length) || (devices !== undefined && Object.keys(devices).length);
+  const loadingAccounts = !accountsLoaded
+    || (keystores !== undefined && keystores.length)
+    || (devices !== undefined && Object.keys(devices).length);
 
   if (loadingAccounts) {
     return (
