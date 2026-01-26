@@ -3,6 +3,9 @@
 ## Unreleased
 - iOS: Add haptic feedback on account summary chart scrolls
 
+## v4.50.1
+- Fix a bug that would ask to connect a keystore while loading watch-only accounts.
+
 ## v4.50.0
 - Bundle BitBox02 Nova firmware version v9.25.0
 - Add a dropdown on the "Receiver address" input in the send screen to select an account
