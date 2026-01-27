@@ -43,6 +43,7 @@ export const Note = ({ accountCode, note, internalID }: Props) => {
     <form onSubmit={handleSubmit} className={detailsDialogStyles.noteContainer}>
       <label className={detailsDialogStyles.label} htmlFor="note">{t('note.title')}</label>
       <Input
+        autoFocus
         align="right"
         className={detailsDialogStyles.note}
         type="text"
