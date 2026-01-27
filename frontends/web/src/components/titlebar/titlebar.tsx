@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useContext } from 'react';
 import { call } from '@/utils/transport-qt';
 import { runningInQtWebEngine } from '@/utils/env';
+import { AppContext } from '@/contexts/AppContext';
 import styles from './titlebar.module.css';
 
 const callWindowControl = (action: string) => {
@@ -45,6 +47,8 @@ type TitleBarProps = {
 };
 
 export const TitleBar = ({ show }: TitleBarProps) => {
+  const { activeSidebar } = useContext(AppContext);
+
   if (!show) {
     return null;
   }
@@ -55,11 +59,13 @@ export const TitleBar = ({ show }: TitleBarProps) => {
       onMouseDown={handleStartDrag}
       onDoubleClick={handleDoubleClick}
     >
-      {/* Dark section above sidebar */}
-      <div className={styles.sidebarSection} />
+      {/* Dark section above sidebar - animates with sidebar expand/collapse */}
+      <div className={`${styles.sidebarSection || ''} ${activeSidebar ? styles.sidebarSectionExpanded || '' : ''}`} />
 
       {/* Content section with theme-based background */}
-      <div className={styles.contentSection}>
+      <div className={styles.contentSection || ''}>
+        {/* Separate overlay for sidebar dimming - uses visibility for instant hide */}
+        <div className={`${styles.sidebarDimOverlay || ''} ${activeSidebar ? styles.sidebarDimOverlayActive || '' : ''}`} />
         {/* Window controls - hidden on macOS (uses native traffic lights) */}
         <div className={styles.windowControls}>
           <button

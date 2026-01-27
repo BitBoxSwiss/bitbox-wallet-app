@@ -48,7 +48,7 @@
     position: relative;
 }
 
-/* Dim overlay for content section when guide is open */
+/* Dim overlay for content section when guide is open (uses opacity transition - fades) */
 .contentSection::after {
     content: '';
     position: absolute;
@@ -64,6 +64,32 @@
 
 :global(.guideOpen) .contentSection::after {
     opacity: 1;
+}
+
+/* Separate overlay for sidebar dimming (uses visibility - instant hide) */
+.sidebarDimOverlay {
+    display: none;
+}
+
+@media (max-width: 1199px) {
+    .sidebarDimOverlay {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.3);
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity ease 0.2s;
+    }
+
+    .sidebarDimOverlayActive {
+        opacity: 1;
+        visibility: visible;
+    }
 }
 
 /* Blue section above the guide panel - matches guide's exact animation */
@@ -224,16 +250,34 @@
     }
 }
 
-/* Responsive: When sidebar is not fixed, hide sidebar section and reposition controls */
+/* Responsive: When sidebar is not fixed, collapse sidebar section with animation */
 @media (max-width: 1199px) {
     .sidebarSection {
-        display: none;
+        width: 0;
+        transition: width 0.2s ease;
     }
 
-    /* Move macOS traffic lights to left side of content area */
+    /* Expand dark section when sidebar is open */
+    .sidebarSectionExpanded {
+        width: var(--sidebar-width-large);
+    }
+
+    /* Keep macOS traffic lights fixed at left edge of viewport */
     :global(.os-macos) .windowControls {
-        position: static;
-        margin-left: 12px;
-        margin-right: auto;
+        position: fixed;
+        left: 12px;
+        top: 0;
+        height: 32px;
+    }
+}
+
+/* Very small screens: sidebar takes full width with slower animation */
+@media (max-width: 560px) {
+    .sidebarSection {
+        transition: width 0.3s ease;
+    }
+
+    .sidebarSectionExpanded {
+        width: 100vw;
     }
 }
