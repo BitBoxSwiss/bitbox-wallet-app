@@ -40,9 +40,6 @@ export const ChangeDevicePasswordSetting = ({ deviceID, canChangePassword }: TCh
       if (result.code === errUserAbort) {
         // User canceled on the device
         alertUser(t('bitbox02Settings.changePassword.error_104'));
-      } else {
-        console.error(result.message);
-        alertUser(result.message || t('genericError'));
       }
       return;
     }
