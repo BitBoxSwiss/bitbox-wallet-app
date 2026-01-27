@@ -1,0 +1,239 @@
+.titleBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    display: flex;
+    flex-direction: row;
+    z-index: 5000;
+    -webkit-app-region: drag;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Dark section above the sidebar */
+.sidebarSection {
+    width: var(--sidebar-width-large);
+    background-color: var(--background-dark);
+    flex-shrink: 0;
+    position: relative;
+}
+
+/* Dim overlay for sidebar section when guide is open */
+.sidebarSection::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity ease 0.2s;
+}
+
+:global(.guideOpen) .sidebarSection::after {
+    opacity: 1;
+}
+
+/* Content section with theme-based background */
+.contentSection {
+    flex: 1;
+    background-color: var(--background);
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    position: relative;
+}
+
+/* Dim overlay for content section when guide is open */
+.contentSection::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity ease 0.2s;
+}
+
+:global(.guideOpen) .contentSection::after {
+    opacity: 1;
+}
+
+/* Blue section above the guide panel - matches guide's exact animation */
+.guideSection {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: var(--guide-width);
+    background-color: var(--color-blue);
+    margin-right: calc(var(--guide-width) * -1);
+    transition: margin-right 0.2s ease, transform 0.2s ease;
+}
+
+:global(.guideOpen) .guideSection {
+    margin-right: 0;
+}
+
+/* Window control buttons container */
+.windowControls {
+    display: flex;
+    height: 100%;
+    -webkit-app-region: no-drag;
+}
+
+/* Individual control button */
+.controlButton {
+    width: 46px;
+    height: 32px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    outline: none;
+    transition: background-color 0.15s ease;
+}
+
+.controlButton:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.controlButton:active {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Button type classes for platform-specific styling */
+.minimizeButton,
+.maximizeButton {
+    /* Base styles inherited from .controlButton */
+}
+
+/* Close button special styling (Windows/Linux) */
+.closeButton:hover {
+    background-color: #E81123;
+}
+
+.closeButton:hover .controlIcon {
+    stroke: white;
+}
+
+.closeButton:active {
+    background-color: #C50F1F;
+}
+
+/* SVG icon styling */
+.controlIcon {
+    width: 10px;
+    height: 10px;
+    stroke: var(--color-secondary);
+    stroke-width: 1;
+    fill: none;
+    transition: stroke 0.15s ease;
+}
+
+.controlButton:hover .controlIcon {
+    stroke: var(--color-default);
+}
+
+/* Dark mode adjustments */
+:global(.dark-mode) .controlButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+:global(.dark-mode) .controlButton:active {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* macOS: Position controls on the left in the dark sidebar area */
+/* Offset by sidebar width since windowControls is inside contentSection which has position:relative */
+:global(.os-macos) .windowControls {
+    position: absolute;
+    left: calc(-1 * var(--sidebar-width-large) + 12px);
+    top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+:global(.os-macos) .controlButton {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 0 4px;
+    padding: 0;
+    min-width: 12px;
+}
+
+:global(.os-macos) .controlButton .controlIcon {
+    display: none;
+}
+
+/* macOS button order: close, minimize, maximize (left to right) */
+:global(.os-macos) .closeButton {
+    order: 1;
+    background-color: #FF5F57;
+}
+
+:global(.os-macos) .minimizeButton {
+    order: 2;
+    background-color: #FEBC2E;
+}
+
+:global(.os-macos) .maximizeButton {
+    order: 3;
+    background-color: #28C840;
+}
+
+:global(.os-macos) .closeButton:hover {
+    background-color: #FF5F57;
+    filter: brightness(0.85);
+}
+
+:global(.os-macos) .minimizeButton:hover {
+    background-color: #FEBC2E;
+    filter: brightness(0.85);
+}
+
+:global(.os-macos) .maximizeButton:hover {
+    background-color: #28C840;
+    filter: brightness(0.85);
+}
+
+/* Match guide panel's behavior on smaller desktop screens - switches to transform */
+@media screen and (max-width: 1601px) {
+    .guideSection {
+        width: 100%;
+        max-width: 460px;
+        margin-right: 0;
+        transform: translateX(100%);
+        transition-delay: 0.2s;
+    }
+
+    :global(.guideOpen) .guideSection {
+        transform: translateX(0%);
+    }
+}
+
+/* Responsive: When sidebar is not fixed, hide sidebar section and reposition controls */
+@media (max-width: 1199px) {
+    .sidebarSection {
+        display: none;
+    }
+
+    /* Move macOS traffic lights to left side of content area */
+    :global(.os-macos) .windowControls {
+        position: static;
+        margin-left: 12px;
+        margin-right: auto;
+    }
+}

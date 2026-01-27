@@ -25,10 +25,22 @@ const Guide = ({ children, title = t('guide.title') }: TProps) => {
     };
   }, [setGuideExists]);
 
+  // Add/remove body class for title bar dimming
+  useEffect(() => {
+    if (guideShown) {
+      document.body.classList.add('guideOpen');
+    } else {
+      document.body.classList.remove('guideOpen');
+    }
+    return () => {
+      document.body.classList.remove('guideOpen');
+    };
+  }, [guideShown]);
+
   const { t } = useTranslation();
   return (
     <div className={style.wrapper}>
-      <div className={[style.overlay, guideShown && style.show].join(' ')} onClick={toggleGuide}></div>
+      <div className={style.overlay} onClick={toggleGuide}></div>
       <div className={[style.guide, guideShown && style.show].join(' ')}>
         <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
           <h2>{title}</h2>

@@ -302,6 +302,8 @@ int main(int argc, char *argv[])
     QWebEngineUrlScheme::registerScheme(bbappScheme);
 
     view = new WebEngineView();
+    // Use frameless window for custom title bar on all platforms
+    view->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());
     view->setMinimumSize(360, 375);
 
@@ -338,6 +340,7 @@ int main(int argc, char *argv[])
     }
 
     webClass = new WebClass();
+    webClass->setWindow(view);
 
     setupReachabilityNotifier();
 
