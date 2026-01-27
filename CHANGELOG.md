@@ -3,6 +3,7 @@
 ## Unreleased
 - iOS: Add haptic feedback on account summary chart scrolls
 - Portfolio: reduce waiting time to display the chart
+- iOS: Add haptic feedback on toggle component
 
 ## v4.50.0
 - Bundle BitBox02 Nova firmware version v9.25.0
