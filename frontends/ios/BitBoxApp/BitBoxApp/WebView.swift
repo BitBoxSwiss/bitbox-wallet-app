@@ -8,6 +8,7 @@
 import SwiftUI
 import WebKit
 import Mobileserver
+import UIKit
 
 // We setup a custom scheme qrc:/... to load web resources from our local bundle.
 // This serves two purposes:
@@ -147,11 +148,14 @@ struct WebView: UIViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
+        webView.allowsBackForwardNavigationGestures = false
         // hide the WebView initially to prevent white flash (flicker) on initial load
         webView.alpha = 0.0
         
         // set webView reference in bridge for appReady handling
         bridge.webView = webView
+
+        context.coordinator.attachBackSwipeGesture(to: webView)
         
         // Disables automatic content inset adjustment to prevent safe area issues
         // https://developer.apple.com/documentation/uikit/uiscrollview/contentinsetadjustmentbehavior-swift.property
@@ -180,6 +184,40 @@ struct WebView: UIViewRepresentable {
     }
     
     class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+        private weak var webView: WKWebView?
+
+        func attachBackSwipeGesture(to webView: WKWebView) {
+            self.webView = webView
+            let gesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handleBackSwipe(_:)))
+            gesture.edges = .left
+            webView.addGestureRecognizer(gesture)
+        }
+
+        @objc private func handleBackSwipe(_ gesture: UIScreenEdgePanGestureRecognizer) {
+            guard gesture.state == .ended, let webView = webView else {
+                return
+            }
+            webView.evaluateJavaScript("window.onBackButtonPressed ? window.onBackButtonPressed() : true;") { result, error in
+                if error != nil {
+                    if webView.canGoBack {
+                        webView.goBack()
+                    }
+                    return
+                }
+                let shouldGoBack: Bool
+                if let boolValue = result as? Bool {
+                    shouldGoBack = boolValue
+                } else if let stringValue = result as? String {
+                    shouldGoBack = (stringValue as NSString).boolValue
+                } else {
+                    shouldGoBack = true
+                }
+                if shouldGoBack && webView.canGoBack {
+                    webView.goBack()
+                }
+            }
+        }
+
         // Intercept all URLs
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             guard let url = navigationAction.request.url else {
