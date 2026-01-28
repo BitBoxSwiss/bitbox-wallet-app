@@ -17,7 +17,8 @@ type TxDetailHeaderProps = {
   amount: TAmountWithConversions;
   transactionInfo: TTransaction;
   time: string | null;
-  displayedSign: string;
+  amountSign: string;
+  amountAtTimeSign: string;
 };
 
 type StatusAndSignProps = {
@@ -28,7 +29,8 @@ type StatusAndSignProps = {
 };
 
 type AmountAndDateProps = {
-  displayedSign: string;
+  amountSign: string;
+  amountAtTimeSign: string;
   amount: TAmountWithConversions;
   transactionInfo: TTransaction;
   time: string | null;
@@ -42,7 +44,8 @@ export const TxDetailHeader = ({
   amount,
   transactionInfo,
   time,
-  displayedSign,
+  amountSign,
+  amountAtTimeSign,
 }: TxDetailHeaderProps) => {
   return (
     <div className={styles.header}>
@@ -53,7 +56,8 @@ export const TxDetailHeader = ({
         type={type}
       />
       <AmountAndDate
-        displayedSign={displayedSign}
+        amountSign={amountSign}
+        amountAtTimeSign={amountAtTimeSign}
         amount={amount}
         transactionInfo={transactionInfo}
         time={time}
@@ -100,7 +104,8 @@ const StatusAndSign = ({
 };
 
 const AmountAndDate = ({
-  displayedSign,
+  amountSign,
+  amountAtTimeSign,
   amount,
   transactionInfo,
   time
@@ -108,9 +113,10 @@ const AmountAndDate = ({
   return (
     <div className={styles.amountContainer}>
       <span className={styles.amount}>
-        {displayedSign}<AmountWithUnit amount={amount} unitClassName={styles.headerAmountUnit} />
+        {amountSign}<AmountWithUnit amount={amount} unitClassName={styles.headerAmountUnit} />
       </span>
-      <span className={styles.amountFiat}>{displayedSign}<AmountWithUnit amount={transactionInfo.amountAtTime} convertToFiat unitClassName={styles.headerFiatUnit} />
+      <span className={styles.amountFiat}>
+        {amountAtTimeSign}<AmountWithUnit amount={transactionInfo.amountAtTime} convertToFiat unitClassName={styles.headerFiatUnit} />
       </span>
 
       <span className={styles.date}>

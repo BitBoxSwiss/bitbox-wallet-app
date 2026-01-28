@@ -43,7 +43,7 @@ export const Note = ({ accountCode, note, internalID }: Props) => {
 
   return (
     <form onSubmit={handleSubmit} className={detailsDialogStyles.noteContainer}>
-      <label className={detailsDialogStyles.label} htmlFor="note">{t('note.title')}</label>
+      <label className={`${detailsDialogStyles.label || ''} ${detailsDialogStyles.noteLabel || ''}`} htmlFor="note">{t('note.title')}</label>
       <Input
         autoFocus={!isMobile}
         align="right"

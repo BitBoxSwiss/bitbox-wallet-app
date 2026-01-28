@@ -70,6 +70,8 @@ input.inputField:disabled {
     border-color: var(--background-quaternary) !important;
     color: var(--color-secondary);
     cursor: not-allowed;
+    opacity: 1; 
+    -webkit-text-fill-color: var(--color-secondary); 
 }
 
 input.inputField:focus {

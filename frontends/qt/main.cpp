@@ -420,8 +420,9 @@ int main(int argc, char *argv[])
         QObject::connect(quitAction, &QAction::triggered, &a, &QCoreApplication::quit);
         auto trayIconMenu = new QMenu(view);
         trayIconMenu->addAction(quitAction);
-
-        trayIcon = new QSystemTrayIcon(QIcon(":/trayicon.png"), view);
+        QIcon trayIconIcon(":/trayicon.png");
+        trayIconIcon.setIsMask(true);
+        trayIcon = new QSystemTrayIcon(trayIconIcon, view);
         trayIcon->setToolTip(APPNAME);
         trayIcon->setContextMenu(trayIconMenu);
         trayIcon->show();

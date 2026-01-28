@@ -21,7 +21,6 @@ import { BluetoothFirmwareSetting } from './components/device-settings/bluetooth
 import { BluetoothToggleEnabledSetting } from './components/device-settings/bluetooth-toggle-enabled-setting';
 import { ChangeDevicePasswordSetting } from './components/device-settings/change-password-setting';
 import { SecureChipSetting } from './components/device-settings/secure-chip-setting';
-import { PasswordStretchingAlgoSetting } from './components/device-settings/password-sretching-algo-setting';
 import { DeviceNameSetting } from './components/device-settings/device-name-setting';
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
 import { RootFingerprintSetting } from './components/device-settings/root-fingerprint-setting';
@@ -168,11 +167,6 @@ const Content = ({ deviceID }: TProps) => {
             <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
             :
             <StyledSkeleton />
-        }
-        {
-          versionInfo?.displayPasswordStretchingAlgo && deviceInfo?.passwordStretchingAlgo ?
-            <PasswordStretchingAlgoSetting passwordStretchingAlgo={deviceInfo.passwordStretchingAlgo} />
-            : null
         }
       </div>
 

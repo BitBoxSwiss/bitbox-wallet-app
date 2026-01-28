@@ -5,7 +5,7 @@
     "backupReminder": "Deine Wallet <strong>{{name}}</strong> hat {{threshold}} {{fiat}} überschritten!\n\nWir empfehlen ein Backup auf Papier zu erstellen, für zusätzlichen Schutz. Es ist einfach und geht schnell.",
     "backupReminderLink": "Backup erstellen",
     "disconnect": "Verbindung unterbrochen. Erneut verbinden... ",
-    "export": "Transaktionshistorie exportieren",
+    "export": "Transaktionen exportieren",
     "exportTransactions": "Exportiere Transaktionen im Download Ordner als CSV Datei",
     "fatalError": "Ein unerwarteter Fehler ist aufgetreten.",
     "incoming": "Eingehend",
@@ -108,7 +108,7 @@
       "aborted": "Überprüfung des Backups wurde auf dem Gerät abgebrochen.",
       "checking": "Backup wird geprüft…",
       "confirmTitle": "Backup überprüfen",
-      "notOK": "Dein Backup entspricht NICHT deiner aktuellen Wallet.",
+      "notOK": "Keine Backups auf der microSD-Karte passen zur Wallet deiner BitBox. Dies kann passieren, wenn du eine microSD-Karte einsteckst, die mit einer anderen BitBox verwendet wurde. Nutze die korrekte microSD-Karte, die mit dieser BitBox eingerichtet wurde, und versuche es erneut.",
       "ok": "Erfolg! Dein Backup entspricht deiner aktuellen Wallet.",
       "password": {
         "label": "Wiederherstellungspasswort",
@@ -465,6 +465,10 @@
               "link": "BitBox Sicherheitsbedrohungsmodell",
               "text": "Bitrefill ist ein externer Dienstleister der nicht vom Sicherheitsbedrohungsmodell der BitBox abgedeckt wird.  Wenn du einen Kauf tätigst, wird der Betrag an eine Adresse von Bitrefill gesendet. Die BitBox kann nicht unabhängig verifizieren, dass diese Adresse korrekt ist.",
               "title": "Sicherheitshinweis"
+            },
+            "validEmail": {
+              "text": "Manche temporären E-Mail-Anbieter werden nicht von Bitrefill unterstützt, weshalb du eventuell keine Rechnung erhältst. Dein Gutscheincode wird trotzdem am Ende des Vorgangs angezeigt.",
+              "title": "Gültige E-Mail-Adresse"
             }
           },
           "infobox": {
@@ -782,7 +786,7 @@
       }
     },
     "firmware": {
-      "firmwareVersion": "Firmware Version",
+      "firmwareVersion": "Firmware-Version",
       "newVersion": {
         "label": "Verfügbare Version"
       },
@@ -1116,6 +1120,29 @@
       "ejectSD": {
         "text": "Du kannst die Micro SD Karte jederzeit aus der BitBox entfernen, solange du nicht dabei bist, ein Backup zu erstellen oder zu überprüfen",
         "title": "Wie kann ich die Micro-SD-Karte auswerfen?"
+      }
+    },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "Das könnte bedeuten, dass du einen E-Mail-Anbieter verwendet hast, der von Bitrefill nicht unterstützt wird. Wenn du eine Rechnung benötigst, kontaktiere den Bitrefill-Support.",
+        "title": "Ich habe keine Rechnung von Bitrefill erhalten"
+      },
+      "kyc": {
+        "link": {
+          "text": "Bitrefill Kauflimits"
+        },
+        "text": "Nein, Bitrefill benötigt keine Verifizierung der Identität. Du kannst Käufe auch ohne KYC bis zu bestimmten Limits tätigen. Für mehr Details, siehe die Richtlinie zu Kauflimits von Bitrefill:",
+        "title": "Benötigt Bitrefill eine KYC-Verifizierung?"
+      },
+      "limits": {
+        "link": {
+          "text": "Bitrefill Kontoverifizierung"
+        },
+        "text": "Du kannst deine Kauflimits erhöhen indem du ein verifizierter Kunde wirst. Bitte folge dem Link um die Verifizierung abzuschließen:",
+        "title": "Wie kann ich meine Kauflimits mit Bitrefill erhöhen?"
       }
     },
     "bitsurance": {

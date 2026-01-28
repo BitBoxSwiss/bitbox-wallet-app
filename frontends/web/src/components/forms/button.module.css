@@ -97,6 +97,13 @@
     opacity: 0.4;
 }
 
+.inline {
+    height: auto;
+    min-height: auto;
+    padding: 0;
+    text-decoration: underline;
+}
+
 .button[hidden] {
     display: none;
 }

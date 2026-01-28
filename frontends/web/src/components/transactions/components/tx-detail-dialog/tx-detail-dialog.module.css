@@ -122,7 +122,11 @@
 
 .note {
     margin: 0;
-    width: 85%;
+    width: 80%;
+}
+
+.noteLabel {
+    width: 15%;
 }
 
 .noteContainer {
@@ -173,4 +177,14 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+}
+
+@media (max-width: 768px) {
+    .note {
+        width: 65%;
+    }
+    
+    .noteLabel {
+        width: 30%;
+    }
 }
