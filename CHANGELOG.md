@@ -1,8 +1,11 @@
 # Changelog
 
 ## Unreleased
-- iOS: Add haptic feedback on account summary chart scrolls
 - Revamp Marketplace UI
+- iOS: Add haptic feedback on account summary chart scrolls
+- Portfolio: reduce waiting time to display the chart
+- iOS: Add haptic feedback on toggle component
+- Apply rounded corners in several places and components of the app
 
 ## v4.50.0
 - Bundle BitBox02 Nova firmware version v9.25.0
@@ -24,6 +27,7 @@
 - Responsive account selector (Marketplace)
 - iOS: Improve Bluetooth alert messaging by distinguishing between system-wide Bluetooth being disabled and the app lacking Bluetooth permission.
 - Ethereum: use shiftcrypto.io Etherscan proxy.
+- Fixes a bug that would cause the portfolio chart to not load.
 
 ## v4.49.0
 - Bundle BitBox02 Nova firmware version v9.24.0

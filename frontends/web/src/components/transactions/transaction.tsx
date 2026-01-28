@@ -156,7 +156,7 @@ const Amounts = ({
       ${styles[txTypeClass] || ''}
     `}>
       <span className={styles.txAmount}>
-        {getTxSign(type)}
+        {displayAmount.amount !== '0' && getTxSign(type)}
         <AmountWithUnit
           amount={displayAmount}
           unitClassName={styles.txUnit}

@@ -2,7 +2,7 @@
     align-items: center;
     appearance: none;
     border-color: transparent;
-    border-radius: 2px;
+    border-radius: var(--radius-xl);
     border-style: solid;
     border-width: var(--border-width);
     cursor: default;
@@ -95,6 +95,13 @@
 .danger[disabled],
 .transparent[disabled] {
     opacity: 0.4;
+}
+
+.inline {
+    height: auto;
+    min-height: auto;
+    padding: 0;
+    text-decoration: underline;
 }
 
 .button[hidden] {

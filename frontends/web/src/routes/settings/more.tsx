@@ -41,21 +41,21 @@ export const More = ({ devices }: Props) => {
           <Header
             title={<h2>{t('settings.more')}</h2>} />
           <View fullscreen={false}>
-            <ViewContent fullWidth>
+            <ViewContent>
               <div className={styles.container}>
                 <ActionableItem
                   icon={canUpgrade ? (
                     <div className={styles.iconContainer}>
                       <RedDot width={8} height={8} />
                       <ChevronRightDark
-                        width={24}
-                        height={24}
+                        width={19}
+                        height={19}
                       />
                     </div>
                   ) : (
                     <ChevronRightDark
-                      width={24}
-                      height={24}
+                      width={19}
+                      height={19}
                     />
                   )}
                   onClick={() => navigate('/settings')}

@@ -20,6 +20,7 @@ type TButtonStyleBase = {
 type TProps = TButtonStyleProp & {
   disabled?: boolean;
   children: ReactNode;
+  inline?: boolean;
 };
 
 type TButtonLink = LinkProps & TProps;
@@ -32,17 +33,20 @@ export const ButtonLink = ({
   className = '',
   children,
   disabled,
+  inline,
   ...props
 }: TButtonLink) => {
-  const classNames = [
-    style[
+  const classNames = `
+    ${style[
       (primary && 'primary')
       || (secondary && 'secondary')
       || (transparent && 'transparent')
       || (danger && 'danger')
       || 'button'
-    ], className
-  ].join(' ');
+    ] || ''}
+    ${inline && style.inline || ''}
+    ${className || ''}
+  `.trim();
 
   if (disabled) {
     return (
@@ -72,17 +76,20 @@ export const Button = ({
   danger,
   className = '',
   children,
+  inline,
   ...props
 }: TButton) => {
-  const classNames = [
-    style[
+  const classNames = `
+    ${style[
       (primary && 'primary')
       || (secondary && 'secondary')
       || (transparent && 'transparent')
       || (danger && 'danger')
       || 'button'
-    ], className
-  ].join(' ');
+    ] || ''}
+    ${inline && style.inline || ''}
+    ${className || ''}
+  `.trim();
 
   return (
     <button

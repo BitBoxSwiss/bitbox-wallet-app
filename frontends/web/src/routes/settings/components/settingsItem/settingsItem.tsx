@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode } from 'react';
-import { ChevronRightDark, RedDot } from '@/components/icon';
+import { RedDot } from '@/components/icon';
 import styles from './settingsItem.module.css';
+import { ActionableItem } from '@/components/actionable-item/actionable-item';
+import { useMediaQuery } from '@/hooks/mediaquery';
 
 type TProps = {
+  icon?: ReactNode;
   className?: string;
   disabled?: boolean;
   collapseOnSmall?: boolean;
   displayedValue?: string | ReactNode;
   extraComponent?: ReactNode;
-  hideChevron?: boolean;
   hideDisplayedValueOnSmall?: boolean;
   onClick?: () => void;
   secondaryText?: string;
@@ -20,12 +22,12 @@ type TProps = {
 };
 
 export const SettingsItem = ({
+  icon,
   className = '',
   disabled,
   collapseOnSmall = false,
   displayedValue = '',
   extraComponent,
-  hideChevron = false,
   hideDisplayedValueOnSmall = false,
   onClick,
   secondaryText,
@@ -34,6 +36,7 @@ export const SettingsItem = ({
   canUpgrade = false,
 }: TProps) => {
   const notButton = disabled || onClick === undefined;
+  const isSmall = useMediaQuery('(max-width: 560px)');
 
   const rightContent = (
     <div className={`
@@ -50,16 +53,25 @@ export const SettingsItem = ({
         </p>
       )}
       {canUpgrade && <RedDot width={8} height={8} />}
-      {extraComponent ? extraComponent : null}
+      {!(collapseOnSmall && isSmall) && extraComponent}
     </div>
   );
 
   const content = (
     <>
       <span className={styles.content} title={title}>
-        <div className={styles.primaryText}>
-          {settingName}
-        </div>
+        <>
+          <div className={styles.primaryText}>
+            {settingName}
+          </div>
+          {collapseOnSmall && isSmall ? (
+            <div className={styles.extraComponentLarge}>
+              {extraComponent}
+            </div>
+          )
+            :
+            null}
+        </>
         { secondaryText ? (
           <p className={styles.secondaryText}>{secondaryText}</p>
         ) : null }
@@ -68,39 +80,14 @@ export const SettingsItem = ({
     </>
   );
 
-  // render as div when it's notButton
-  // otherwise, render as button
   return (
-    <>
-      {notButton ? (
-        <div className={`
-          ${styles.container || ''}
-          ${className}
-          ${collapseOnSmall && styles.collapse || ''}
-        `}>
-          {content}
-        </div>
-      ) : (
-        <button
-          type="button"
-          className={`
-            ${styles.container || ''}
-            ${styles.isButton || ''}
-            ${className}
-            ${collapseOnSmall && styles.collapse || ''}
-          `}
-          onClick={onClick}>
-          {content}
-          {!hideChevron && (
-            <ChevronRightDark
-              className={styles.chevronRight}
-              width={24}
-              height={24}
-            />
-          )}
-        </button>
-      )}
-    </>
+    <ActionableItem
+      icon={icon}
+      className={`${styles.container || ''} ${className}`}
+      onClick={notButton ? undefined : onClick}
+    >
+      {content}
+    </ActionableItem>
   );
 };
 

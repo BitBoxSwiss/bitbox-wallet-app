@@ -48,7 +48,8 @@
 input.inputField {
     background-color: var(--background-secondary);
     border-color: var(--background-quaternary);
-    border-radius: 2px;
+    border-top-left-radius: var(--radius-xl);
+    border-bottom-left-radius: var(--radius-xl);
     border-style: solid;
     border-width: 1px;
     border-right: none;
@@ -70,6 +71,8 @@ input.inputField:disabled {
     border-color: var(--background-quaternary) !important;
     color: var(--color-secondary);
     cursor: not-allowed;
+    opacity: 1; 
+    -webkit-text-fill-color: var(--color-secondary); 
 }
 
 input.inputField:focus {
@@ -157,6 +160,8 @@ input.inputField::placeholder {
     background-color: var(--background-secondary);
     border: 1px solid var(--background-quaternary);
     border-left: hidden;
+    border-top-right-radius: var(--radius-xl);
+    border-bottom-right-radius: var(--radius-xl);
     display: flex;
     height: var(--input-height);
     justify-content: center;

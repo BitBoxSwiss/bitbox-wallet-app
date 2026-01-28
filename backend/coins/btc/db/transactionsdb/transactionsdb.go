@@ -131,12 +131,15 @@ func (tx *Tx) TxInfo(txHash chainhash.Hash) (
 }
 
 // PutTx implements transactions.DBTxInterface.
-func (tx *Tx) PutTx(txHash chainhash.Hash, msgTx *wire.MsgTx, height int) error {
+func (tx *Tx) PutTx(txHash chainhash.Hash, msgTx *wire.MsgTx, height int, headerTimestamp *time.Time) error {
 	var verified *bool
 	err := tx.modifyTx(txHash[:], func(walletTx *transactions.DBTxInfo) {
 		verified = walletTx.Verified
 		walletTx.Tx = msgTx
 		walletTx.Height = height
+		if headerTimestamp != nil {
+			walletTx.HeaderTimestamp = headerTimestamp
+		}
 	})
 	if err != nil {
 		return err

@@ -11,10 +11,12 @@
 
 .txContent {
   background-color: var(--background-secondary);
+  border-radius: var(--radius-xl);
   display: flex;
   justify-content: space-between;
   padding: var(--space-half) 0;
 }
+
 @media (max-width: 768px) {
   .txContent {
     padding: 10px 0 8px 0;

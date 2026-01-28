@@ -35,22 +35,19 @@ export const ConnectedKeystore = ({
           <small>({keystore.rootFingerprint})</small>
         </>
       ) : null}
-      {keystore.connected && (
-        <>
-          {' '}
-          <Badge
-            icon={props => (
-              <USBSuccess style={{
-                width: 'min(0.9rem, 12px)',
-                height: 'min(0.9rem, 12px)',
-              }} {...props} />
-            )}
-            title={t('device.keystoreConnected')}
-            type="success">
-            {connectedIconOnly ? undefined : t('device.keystoreConnected')}
-          </Badge>
-        </>
-      )}
+      {' '}
+      <Badge
+        className={`${keystore.connected ? style.connected || '' : style.disconnected || ''}`}
+        icon={props => (
+          <USBSuccess style={{
+            width: 'min(0.9rem, 12px)',
+            height: 'min(0.9rem, 12px)',
+          }} {...props} />
+        )}
+        title={t('device.keystoreConnected')}
+        type="success">
+        {connectedIconOnly ? undefined : t('device.keystoreConnected')}
+      </Badge>
     </span>
   );
 };

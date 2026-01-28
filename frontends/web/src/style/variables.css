@@ -51,8 +51,19 @@
     --space-large: 64px;
     --space-default: 32px;
     --space-half: 16px;
+    --space-three-quarter: 12px;
     --space-quarter: 8px;
     --space-eight: 4px;
+
+    /* radius */
+    --radius-xs: 0.125rem;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+    --radius-3xl: 1.5rem;
+    --radius-full: calc(infinity * 1rem);
 
     --item-height-xsmall: 24px;
     --item-height-small: 36px;
