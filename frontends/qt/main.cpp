@@ -25,6 +25,8 @@
 #include <QMenu>
 #include <QSystemTrayIcon>
 #include <QMessageBox>
+#include <QGuiApplication>
+#include <QStyleHints>
 #include <QtGlobal>
 #include <QtSystemDetection>
 #if defined(_WIN32)
@@ -62,6 +64,21 @@ static bool pageLoaded = false;
 static WebClass* webClass;
 static QMutex webClassMutex;
 static QSystemTrayIcon* trayIcon;
+
+namespace {
+
+// Choose the appropriate tray icon based on the color scheme
+QIcon trayIconForScheme(Qt::ColorScheme scheme) {
+    QIcon icon = (scheme == Qt::ColorScheme::Dark)
+        ? QIcon(":/trayicon.png")
+        : QIcon(":/trayicon-dark.png");
+#if defined(Q_OS_MAC)
+    icon.setIsMask(true);
+#endif
+    return icon;
+}
+
+}
 
 class BitBoxApp : public SingleApplication
 {
@@ -420,12 +437,19 @@ int main(int argc, char *argv[])
         QObject::connect(quitAction, &QAction::triggered, &a, &QCoreApplication::quit);
         auto trayIconMenu = new QMenu(view);
         trayIconMenu->addAction(quitAction);
-        QIcon trayIconIcon(":/trayicon.png");
-        trayIconIcon.setIsMask(true);
-        trayIcon = new QSystemTrayIcon(trayIconIcon, view);
+        auto* styleHints = QGuiApplication::styleHints();
+        QIcon trayIconIcon = trayIconForScheme(styleHints->colorScheme());
+        trayIcon = new QSystemTrayIcon(trayIconForScheme(QGuiApplication::styleHints()->colorScheme()), view);
         trayIcon->setToolTip(APPNAME);
         trayIcon->setContextMenu(trayIconMenu);
         trayIcon->show();
+        // Update the tray icon on color scheme changes
+        QObject::connect(styleHints, &QStyleHints::colorSchemeChanged, [](Qt::ColorScheme scheme) {
+            if (trayIcon == nullptr) {
+                return;
+            }
+            trayIcon->setIcon(trayIconForScheme(scheme));
+        });
     }
 
     QObject::connect(&a, &QApplication::aboutToQuit, [&]() {
