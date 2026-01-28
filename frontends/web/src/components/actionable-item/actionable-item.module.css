@@ -39,4 +39,8 @@
   .hideDisplayedValueOnSmall {
     display: none;
   }
+
+  .container {
+    min-height: 64px;
+  }
 }
