@@ -45,8 +45,8 @@ export const Accordion = ({
         <span className={styles.title}>{title}</span>
         <ChevronRightDark
           className={`${styles.chevron || ''} ${currentOpen ? styles.expanded || '' : ''}`}
-          width={24}
-          height={24}
+          width={19}
+          height={19}
         />
       </button>
       {currentOpen && (
