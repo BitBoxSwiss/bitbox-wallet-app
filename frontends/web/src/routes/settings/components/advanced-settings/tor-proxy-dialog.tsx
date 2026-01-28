@@ -2,6 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Dispatch, useEffect, useState } from 'react';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Toggle } from '@/components/toggle/toggle';
 import { Button, Input } from '@/components/forms';
@@ -21,6 +22,7 @@ type TProps = {
 export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfig, handleShowRestartMessage }: TProps) => {
   const [proxyAddress, setProxyAddress] = useState<string>();
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
     if (proxyConfig) {
@@ -79,6 +81,7 @@ export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfi
         <p className="m-none">{t('settings.expert.useProxy')}</p>
         <Toggle
           id="useProxy"
+          autoFocus={!isMobile}
           checked={proxyConfig.useProxy}
           onChange={handleToggleProxy} />
       </div>
