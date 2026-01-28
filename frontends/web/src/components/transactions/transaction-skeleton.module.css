@@ -1,5 +1,6 @@
 .txContentSkeleton {
     background-color: var(--background-secondary);
+    border-radius: var(--radius-xl);
     display: flex;
     height: 82px;
     padding: var(--space-half);

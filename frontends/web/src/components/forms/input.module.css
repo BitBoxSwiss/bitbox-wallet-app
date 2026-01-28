@@ -37,7 +37,7 @@
 .inputField {
     background-color: var(--background-secondary);
     border-color: var(--background-quaternary);
-    border-radius: 2px;
+    border-radius: var(--radius-xl);
     border-style: solid;
     border-width: var(--border-width);
     display: flex;

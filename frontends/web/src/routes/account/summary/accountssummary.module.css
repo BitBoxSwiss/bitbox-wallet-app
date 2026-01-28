@@ -8,6 +8,8 @@
 }
 
 .balanceTable {
+    border-radius: var(--radius-xl);
+    border: solid 1px var(--background-quaternary);
     margin: 0 0 var(--space-default) 0;
 }
 .coincode {
@@ -39,8 +41,22 @@
 .table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: var(--space-half);
-    border: solid 1px var(--background-quaternary);
+}
+
+.table thead tr th:first-child {
+    border-top-left-radius: var(--radius-xl);
+}
+
+.table thead tr th:last-child {
+    border-top-right-radius: var(--radius-xl);
+}
+
+.table tfoot tr th:first-child {
+    border-bottom-left-radius: var(--radius-xl);
+}
+
+.table tfoot tr td {
+    border-bottom-right-radius: var(--radius-xl);
 }
 
 .table tr td,
@@ -127,6 +143,10 @@
     .accountName {
         padding-left: var(--space-half);
     }
+    .balanceTable {
+        margin: 0 var(--space-half);
+        margin-bottom: var(--space-default);
+    }
 }
 
 @media (max-width: 640px) {
@@ -186,5 +206,16 @@
         border-bottom: solid 1px var(--color-mediumgray);
         padding-bottom: var(--space-half);
     }
+
+    .table tr:first-child td:first-child {
+        border-top-left-radius: var(--radius-xl);
+        border-top-right-radius: var(--radius-xl);
+    }
+
+    .table tfoot tr:first-child {
+        border-bottom-left-radius: var(--radius-xl);
+        border-bottom-right-radius: var(--radius-xl);
+    }
+    
 
 }

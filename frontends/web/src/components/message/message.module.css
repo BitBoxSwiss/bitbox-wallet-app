@@ -1,7 +1,7 @@
 .message {
     align-items: flex-start;
     border: solid 1px var(--background-quaternary);
-    border-radius: 2px;
+    border-radius: var(--radius-xl);
     color: var(--color-default);
     display: flex;
     flex-direction: row;

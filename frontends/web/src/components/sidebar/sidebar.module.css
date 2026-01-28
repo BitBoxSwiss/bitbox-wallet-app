@@ -81,15 +81,13 @@
 .sidebarHeaderContainer {
     margin-top: var(--sidebar-margin);
     margin-bottom: 12px;
+    margin-left: 1px;
+    margin-right: var(--space-three-quarter);
     padding: 0 var(--sidebar-margin);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-}
-
-.sidebarPortfolio + .sidebarHeaderContainer {
-    margin-top: 28px;
 }
 
 .sidebarHeader {
@@ -107,13 +105,18 @@
 
 .sidebarItem {
     display: block;
+    margin: 0 var(--space-three-quarter);
+}
+
+.sidebarPortfolio {
+    margin-top: var(--space-three-quarter);
 }
 
 .sidebarItem > a,
 .sidebarItem > button {
     align-items: center;
     background-color: transparent;
-    border-radius: 2px;
+    border-radius: var(--radius-xl);
     color: white;
     cursor: default;
     display: flex;
@@ -137,6 +140,7 @@
 .sidebarItem :global(.stacked),
 .sidebarItem .single {
     margin: 0 var(--sidebar-icon-margin) 0 var(--sidebar-margin);
+    margin-left: 20px;
     height: var(--sidebar-icon-size);
 }
 

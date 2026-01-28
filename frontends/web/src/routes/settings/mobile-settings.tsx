@@ -40,7 +40,7 @@ export const MobileSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsT
           <MobileHeader onClick={handleClick} title={t('settings.title')} />
         } />
       <View fullscreen={false}>
-        <ViewContent fullWidth>
+        <ViewContent>
           <Tabs devices={devices} hasAccounts={hasAccounts} />
         </ViewContent>
       </View>

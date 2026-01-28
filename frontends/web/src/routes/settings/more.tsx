@@ -41,7 +41,7 @@ export const More = ({ devices }: Props) => {
           <Header
             title={<h2>{t('settings.more')}</h2>} />
           <View fullscreen={false}>
-            <ViewContent fullWidth>
+            <ViewContent>
               <div className={styles.container}>
                 <ActionableItem
                   icon={canUpgrade ? (

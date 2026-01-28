@@ -77,7 +77,7 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
               </>
             } />
           <View fullscreen={false}>
-            <ViewContent fullWidth>
+            <ViewContent>
               <WithSettingsTabs
                 devices={devices}
                 hideMobileMenu

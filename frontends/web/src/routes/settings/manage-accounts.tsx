@@ -231,7 +231,7 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
               </>
             } />
           <View fullscreen={false}>
-            <ViewContent fullWidth>
+            <ViewContent>
               <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>
                 <Button
                   className={style.addAccountBtn}
