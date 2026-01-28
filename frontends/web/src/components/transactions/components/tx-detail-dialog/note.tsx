@@ -3,6 +3,7 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { Input } from '@/components/forms';
 import detailsDialogStyles from './tx-detail-dialog.module.css';
 
@@ -15,6 +16,7 @@ type Props = {
 
 export const Note = ({ accountCode, note, internalID }: Props) => {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [newNote, setNewNote] = useState<string>(note);
   const [savedNote, setSavedNote] = useState<string>(note);
 
@@ -43,6 +45,7 @@ export const Note = ({ accountCode, note, internalID }: Props) => {
     <form onSubmit={handleSubmit} className={detailsDialogStyles.noteContainer}>
       <label className={detailsDialogStyles.label} htmlFor="note">{t('note.title')}</label>
       <Input
+        autoFocus={!isMobile}
         align="right"
         className={detailsDialogStyles.note}
         type="text"
