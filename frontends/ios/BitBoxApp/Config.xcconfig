@@ -6,4 +6,4 @@
 
 // Build number, increment this for every separate publication,
 // even if the app version is the same.
-CURRENT_PROJECT_VERSION = 15
+CURRENT_PROJECT_VERSION = 16
