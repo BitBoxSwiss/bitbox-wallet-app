@@ -13,12 +13,12 @@ type Props<T, IsMulti extends boolean = false, TExtra = object, TOptionExt = obj
   options?: TOption<T>[] | TGroupedOption<T, TExtra, TOptionExt>[];
   renderOptions: (option: TOption<T> & TOptionExt, isSelectedValue: boolean) => ReactNode;
   renderGroupHeader?: (group: TGroupedOption<T, TExtra, TOptionExt>) => ReactNode;
+  renderTrigger?: ((props: { onClick: () => void }) => ReactNode);
   value: IsMulti extends true ? TOption<T>[] : TOption<T>;
   onSelect: (newValue: IsMulti extends true ? TOption<T>[] : TOption<T>, actionMeta: ActionMeta<TOption<T>>) => void;
   isMulti?: boolean;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
-  triggerComponent?: ReactNode | ((props: { onClick: () => void }) => ReactNode);
 };
 
 export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TExtra = object, TOptionExt = object>({
@@ -26,12 +26,12 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TEx
   options,
   renderOptions,
   renderGroupHeader,
+  renderTrigger,
   value,
   onSelect,
   isMulti,
   isOpen: controlledIsOpen,
   onOpenChange,
-  triggerComponent,
 }: Props<T, IsMulti, TExtra, TOptionExt>) => {
   const [localIsOpen, setLocalIsOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -162,10 +162,8 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TEx
         return false;
       }}
       />
-      {triggerComponent ? (
-        typeof triggerComponent === 'function' ?
-          triggerComponent({ onClick: handleOpen }) :
-          triggerComponent
+      {renderTrigger ? (
+        renderTrigger({ onClick: handleOpen })
       ) : onOpenChange ? (
         <div className={styles.mobileSelectorTrigger}>
           <span className={styles.mobileSelectorValue}>{displayValue}</span>
