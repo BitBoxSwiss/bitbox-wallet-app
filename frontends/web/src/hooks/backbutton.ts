@@ -7,24 +7,26 @@ import { BackButtonContext, THandler } from '@/contexts/BackButtonContext';
  * The Android back button will call this handler while this hook is active.
  * The handler can perform an action and:
  * - return false to stop any further action
- * - return true for Android to perform the default back operation, which is going back in browser
- * history if possible, or prompting to quit the app.
+ * - return true to allow the system back policy to handle implicit back or (on Android) exit
+ *   when there is no allowed back target.
 */
 export const useBackButton = (handler: THandler) => {
   const { pushHandler, popHandler } = useContext(BackButtonContext);
 
-  // We don't want to re-trigger the handler effect below when the handler changes, no need to
-  // repeat the push/pop pair unnecessarily.
-  const handlerRef = useRef<THandler>(handler);
+  // Keep the latest handler logic without changing the identity used in the stack.
+  const latestHandlerRef = useRef<THandler>(handler);
   useEffect(() => {
-    handlerRef.current = handler;
+    latestHandlerRef.current = handler;
   }, [handler]);
 
+  // This function identity remains stable for push/pop, but always forwards to the latest handler.
+  const stableHandlerRef = useRef<THandler>(() => latestHandlerRef.current());
+
   useEffect(() => {
-    const handler = handlerRef.current;
-    pushHandler(handler);
-    return () => popHandler(handler);
-  }, [handlerRef, pushHandler, popHandler]);
+    const stableHandler = stableHandlerRef.current;
+    pushHandler(stableHandler);
+    return () => popHandler(stableHandler);
+  }, [pushHandler, popHandler]);
 };
 
 /**
