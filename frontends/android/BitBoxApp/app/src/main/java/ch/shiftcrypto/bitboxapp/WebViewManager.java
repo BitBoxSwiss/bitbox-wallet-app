@@ -112,9 +112,7 @@ public class WebViewManager {
 
     // Handle Android back button behavior:
     //
-    // By default, if the webview can go back in browser history, we do that.
-    // If there is no more history, we prompt the user to quit the app. If
-    // confirmed, the app will be force quit.
+    // By default, we prompt the user to quit the app.
     //
     // The default behavior can be modified by the frontend via the
     // window.onBackButtonPressed() function. See the `useBackButton` React
@@ -136,24 +134,21 @@ public class WebViewManager {
         if (webView == null) {
             return;
         }
-        activity.runOnUiThread(() -> webView.evaluateJavascript("window.onBackButtonPressed();", value -> {
-            boolean doDefault = Boolean.parseBoolean(value);
-            if (!doDefault) {
-                return;
-            }
-            // Default behavior: go back in history if we can, otherwise prompt user
-            // if they want to quit the app.
-            if (webView.canGoBack()) {
-                webView.goBack();
-                return;
-            }
-            new AlertDialog.Builder(activity)
-                    .setTitle("Close BitBoxApp")
-                    .setMessage("Do you really want to exit?")
-                    .setPositiveButton(android.R.string.yes, (dialog, which) -> Util.quit(activity))
-                    .setNegativeButton(android.R.string.no, (dialog, which) -> dialog.dismiss())
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
-        }));
+        activity.runOnUiThread(() -> webView.evaluateJavascript(
+                "window.onBackButtonPressed ? window.onBackButtonPressed() : true;",
+                value -> {
+                    boolean doDefault = Boolean.parseBoolean(value);
+                    if (!doDefault) {
+                        return;
+                    }
+                    // Default behavior: prompt user if they want to quit the app.
+                    new AlertDialog.Builder(activity)
+                            .setTitle("Close BitBoxApp")
+                            .setMessage("Do you really want to exit?")
+                            .setPositiveButton(android.R.string.yes, (dialog, which) -> Util.quit(activity))
+                            .setNegativeButton(android.R.string.no, (dialog, which) -> dialog.dismiss())
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }));
     }
 }
