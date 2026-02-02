@@ -160,6 +160,9 @@
         padding: 0;
         height: auto;
         max-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
     }
 
     .overlay {
@@ -172,14 +175,33 @@
         margin-top: 0;
         max-width: 100vw;
         transform: translateY(100vh);
-        transition: transform 300ms;
+        transition: transform 300ms ease-out;
         border-top-right-radius: var(--space-half);
         border-top-left-radius: var(--space-half);
     }
 
     .modal.open {
-      transition: transform 300ms;
+      transition: transform 300ms ease-out;
       transform: translateY(0);
+    }
+
+    .modal.dragging {
+        transition: none;
+    }
+
+
+    /*header wont shrink*/
+    .header {
+        flex-shrink: 0;
+    }
+
+    /*content will shrink and grow if needed (fill remaining space)*/
+    .contentContainer {
+        flex-grow: 1; 
+        flex-shrink: 1;
+        flex-basis: 0%; /* start from 0, then grow if needed */
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .contentContainer.slim {

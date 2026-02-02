@@ -4,6 +4,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import { UseBackButton } from '@/hooks/backbutton';
 import { useEsc, useFocusTrap } from '@/hooks/keyboard';
+import { useMediaQuery } from '@/hooks/mediaquery';
+import { MobileDialog } from './mobile-dialog';
 import style from './dialog.module.css';
 
 type TProps = {
@@ -31,10 +33,13 @@ export const Dialog = ({
 }: TProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [status, setStatus] = useState<'idle' | 'opening' | 'open' | 'closing'>('idle');
-  const contentRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const contentContainerRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useFocusTrap(contentRef, status === 'open');
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  useFocusTrap(modalRef, status === 'open');
 
   /**
    * Deactivate (close) animation handler.
@@ -110,9 +115,14 @@ export const Dialog = ({
   }, [deactivate, onClose, open]);
 
   // Back button handler (mobile)
-  const closeHandler = useCallback(() => {
+  const handleBackButton = useCallback(() => {
     deactivate(true);
     return false;
+  }, [deactivate]);
+
+  // Drag close handler (mobile bottom sheet)
+  const handleDragClose = useCallback(() => {
+    deactivate(true);
   }, [deactivate]);
 
   if (!isVisible) {
@@ -124,7 +134,7 @@ export const Dialog = ({
     ${small && style.small || ''}
     ${medium && style.medium || ''}
     ${large && style.large || ''}
-    ${(status === 'open' || status === 'opening') && style.open || ''}
+    ${status === 'open' && style.open || ''}
   `.trim();
 
   const overlayClass = `
@@ -143,29 +153,48 @@ export const Dialog = ({
     ${slim && style.slim || ''}
   `.trim();
 
+  const dialogContent = (
+    <>
+      {title && (
+        <div className={headerClass}>
+          <h3 className={style.title}>{title}</h3>
+          {onClose && (
+            <button className={style.closeButton} onClick={handleCloseClick} data-testid="close-button">
+              <CloseXDark className="show-in-lightmode" />
+              <CloseXWhite className="show-in-darkmode" />
+            </button>
+          )}
+        </div>
+      )}
+      <div className={contentClass} ref={contentContainerRef}>
+        <div className={style.content}>{children}</div>
+      </div>
+    </>
+  );
+
   return (
     <div
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       className={overlayClass}
     >
-      <UseBackButton handler={closeHandler} />
-      <div className={modalClass} ref={contentRef}>
-        {title && (
-          <div className={headerClass}>
-            <h3 className={style.title}>{title}</h3>
-            {onClose && (
-              <button className={style.closeButton} onClick={handleCloseClick} data-testid="close-button">
-                <CloseXDark className="show-in-lightmode" />
-                <CloseXWhite className="show-in-darkmode" />
-              </button>
-            )}
-          </div>
-        )}
-        <div className={contentClass}>
-          <div className={style.content}>{children}</div>
+      <UseBackButton handler={handleBackButton} />
+      {isMobile ? (
+        <MobileDialog
+          status={status}
+          canClose={!!onClose}
+          onDragClose={handleDragClose}
+          modalClass={modalClass}
+          modalRef={modalRef}
+          contentContainerRef={contentContainerRef}
+        >
+          {dialogContent}
+        </MobileDialog>
+      ) : (
+        <div className={modalClass} ref={modalRef}>
+          {dialogContent}
         </div>
-      </div>
+      )}
     </div>
   );
 };
