@@ -8,6 +8,7 @@ import { Button, Input } from '@/components/forms';
 import { setConfig } from '@/utils/config';
 import type { TBackendConfig, TConfig } from '@/routes/settings/advanced-settings';
 import { Message } from '@/components/message/message';
+import { useMediaQuery } from '@/hooks/mediaquery';
 
 type TProps = {
   backendConfig?: TBackendConfig;
@@ -17,6 +18,7 @@ type TProps = {
 export const CustomGapLimitSettings = ({ backendConfig, onChangeConfig }: TProps) => {
   const { t } = useTranslation();
   const [showDialog, setShowDialog] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const DEFAULT_GAP_LIMIT_RECEIVE = 20;
   const DEFAULT_GAP_LIMIT_CHANGE = 6;
@@ -76,6 +78,7 @@ export const CustomGapLimitSettings = ({ backendConfig, onChangeConfig }: TProps
         title={t('gapLimit.title')}
         medium>
         <Input
+          autoFocus={!isMobile}
           type="number"
           label={t('gapLimit.receive')}
           id="gapLimitReceive"
