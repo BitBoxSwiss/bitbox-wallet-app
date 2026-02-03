@@ -46,6 +46,7 @@ type SelectProps<T, IsMulti extends boolean = false, TExtra = object, TOptionExt
   options?: TOption<T>[] | TGroupedOption<T, TExtra, TOptionExt>[];
   renderOptions?: (selectedItem: TOption<T> & TOptionExt, isSelectedValue: boolean) => ReactNode;
   renderGroupHeader?: (group: TGroupedOption<T, TExtra, TOptionExt>) => ReactNode;
+  renderTrigger?: ((props: { onClick: () => void }) => ReactNode);
   onChange: (
     newValue: IsMulti extends true ? TOption<T>[] : TOption<T>,
     actionMeta: ActionMeta<TOption<T>>
@@ -54,7 +55,6 @@ type SelectProps<T, IsMulti extends boolean = false, TExtra = object, TOptionExt
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
   title?: string;
-  mobileTriggerComponent?: ReactNode | ((props: { onClick: () => void }) => ReactNode);
 };
 
 const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
@@ -132,13 +132,13 @@ export const Dropdown = <T, IsMulti extends boolean = false, TExtra = object, TO
   classNamePrefix = 'react-select',
   renderOptions,
   renderGroupHeader,
+  renderTrigger,
   className,
   onChange,
   title = '',
   mobileFullScreen = false,
   isOpen,
   onOpenChange,
-  mobileTriggerComponent,
   options,
   ...props
 }: SelectProps<T, IsMulti, TExtra, TOptionExt>) => {
@@ -152,12 +152,12 @@ export const Dropdown = <T, IsMulti extends boolean = false, TExtra = object, TO
         options={options}
         renderOptions={renderOptions || (() => null)}
         renderGroupHeader={renderGroupHeader}
+        renderTrigger={renderTrigger}
         value={props.value as IsMulti extends true ? TOption<T>[] : TOption<T>}
         onSelect={onChange}
         isMulti={props.isMulti}
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        triggerComponent={mobileTriggerComponent}
       />
     );
   }
@@ -168,11 +168,21 @@ export const Dropdown = <T, IsMulti extends boolean = false, TExtra = object, TO
       singleValueProps.isMulti ? undefined : (
         <SelectSingleValue
           {...singleValueProps}
-          selectProps={{ ...singleValueProps.selectProps, renderOptions }}
+          selectProps={{
+            ...singleValueProps.selectProps,
+            renderOptions,
+            renderTrigger,
+          }}
         />
       ),
     Option: (optionProps: OptionProps<TOption<T>>) => (
-      <Option {...optionProps} selectProps={{ ...optionProps.selectProps, renderOptions }} />
+      <Option
+        {...optionProps}
+        selectProps={{
+          ...optionProps.selectProps,
+          renderOptions
+        }}
+      />
     ),
     MultiValue: props.isMulti ? CustomMultiValue : undefined,
     IndicatorSeparator: () => null,

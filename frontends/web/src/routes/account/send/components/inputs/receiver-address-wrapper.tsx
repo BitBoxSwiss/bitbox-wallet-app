@@ -43,10 +43,9 @@ const AccountOption = ({ option, isSelectedValue }: Props) => {
   return (
     <div className={`${styles.accountOption || ''}`}>
       <Logo coinCode={option.value.coinCode} alt={option.value.coinName} className={styles.coinLogo} />
-      <span className={
-        isSelectedValue ?
-          styles.accountName : ''
-      }>{option.label}</span>
+      <span className={isSelectedValue ? styles.accountName : ''}>
+        {option.label}
+      </span>
       {option.disabled && <span className={styles.spinner}><SpinnerRingAnimated /></span>}
     </div>
   );
