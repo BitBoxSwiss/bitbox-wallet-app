@@ -242,8 +242,13 @@ type Backend struct {
 	// can be a regular or, if Tor is enabled in the config, a SOCKS5 proxy client.
 	httpClient           *http.Client
 	etherScanRateLimiter *rate.Limiter
-	ratesUpdater         *rates.RateUpdater
-	banners              *banners.Banners
+
+	// etherScanClients maps chain IDs to their respective EtherScan clients.
+	etherScanClients     map[string]*etherscan.EtherScan
+	etherScanClientsLock locker.Locker
+
+	ratesUpdater *rates.RateUpdater
+	banners      *banners.Banners
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
 	tstCheckAccountUsed func(accounts.Interface) bool
@@ -303,6 +308,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 
 		testing:              backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
 		etherScanRateLimiter: rate.NewLimiter(rate.Limit(etherscan.CallsPerSec), 1),
+		etherScanClients:     map[string]*etherscan.EtherScan{},
 	}
 	// TODO: remove when connectivity check is present on all platforms
 	backend.isOnline.Store(true)
@@ -499,6 +505,24 @@ func (backend *Backend) defaultElectrumXServers(code coinpkg.Code) []*config.Ser
 	return backend.defaultProdServers(code)
 }
 
+// etherScan returns the EtherScan client for the given chain ID,
+// creating it if it does not yet exist.
+func (backend *Backend) etherScan(chainID string) *etherscan.EtherScan {
+	defer backend.etherScanClientsLock.Lock()()
+	if etherScan, ok := backend.etherScanClients[chainID]; ok {
+		return etherScan
+	}
+	etherScan := etherscan.NewEtherScan(chainID, backend.httpClient, backend.etherScanRateLimiter)
+	// For mainnet, set the list of ERC20 tokens supported by the app.
+	// This will be used to filter out unsupported tokens when we get the list
+	// of token transactions for an address.
+	if chainID == "1" {
+		etherScan.SetSupportedERC20Tokens(supportedERC20Tokens())
+	}
+	backend.etherScanClients[chainID] = etherScan
+	return etherScan
+}
+
 // DevServers returns the value of the `devservers` flag.
 func (backend *Backend) DevServers() bool {
 	return backend.arguments.DevServers()
@@ -536,19 +560,19 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
 			"https://blockchair.com/litecoin/transaction/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
-		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)
+		etherScan := backend.etherScan("1")
 		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeSEPETH:
-		etherScan := etherscan.NewEtherScan("11155111", backend.httpClient, backend.etherScanRateLimiter)
+		etherScan := backend.etherScan("11155111")
 		coin = eth.NewCoin(etherScan, code, "Ethereum Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig,
 			"https://sepolia.etherscan.io/tx/",
 			etherScan,
 			nil)
 	case erc20Token != nil:
-		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)
+		etherScan := backend.etherScan("1")
 		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			etherScan,
@@ -576,7 +600,7 @@ func (backend *Backend) updateETHAccounts() error {
 	}
 
 	for chainID, ethAccounts := range accountsChainID {
-		etherScanClient := etherscan.NewEtherScan(chainID, backend.httpClient, backend.etherScanRateLimiter)
+		etherScanClient := backend.etherScan(chainID)
 		backend.ethupdater.UpdateBalancesAndBlockNumber(ethAccounts, etherScanClient)
 	}
 

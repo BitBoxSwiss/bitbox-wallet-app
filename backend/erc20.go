@@ -84,3 +84,11 @@ func erc20TokenByCode(code coin.Code) *erc20Token {
 	}
 	return nil
 }
+
+func supportedERC20Tokens() []*erc20.Token {
+	tokens := make([]*erc20.Token, 0, len(erc20Tokens))
+	for _, token := range erc20Tokens {
+		tokens = append(tokens, token.token)
+	}
+	return tokens
+}
