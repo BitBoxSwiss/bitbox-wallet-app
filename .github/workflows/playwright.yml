@@ -15,11 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Download latest simulator from simulators.json
+      - name: Download simulator v9.24.0 from simulators.json
         run: |
           set -euo pipefail
-          simulator_url=$(jq -r '.[-1].url' backend/devices/bitbox02/testdata/simulators.json)
-          simulator_sha=$(jq -r '.[-1].sha256' backend/devices/bitbox02/testdata/simulators.json)
+          simulator_url=$(jq -r '.[] | select(.url | contains("firmware%2Fv9.24.0/")) | .url' backend/devices/bitbox02/testdata/simulators.json)
+          simulator_sha=$(jq -r '.[] | select(.url | contains("firmware%2Fv9.24.0/")) | .sha256' backend/devices/bitbox02/testdata/simulators.json)
           mkdir -p simulator-bin
           curl -L "$simulator_url" -o simulator-bin/simulator
           echo "$simulator_sha  simulator-bin/simulator" | sha256sum -c -

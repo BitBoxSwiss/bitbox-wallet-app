@@ -563,11 +563,10 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 }
 
 func (backend *Backend) updateETHAccounts() error {
-	defer backend.accountsAndKeystoreLock.RLock()()
 	backend.log.Debug("Updating ETH accounts balances")
 
 	accountsChainID := map[string][]*eth.Account{}
-	for _, account := range backend.accounts {
+	for _, account := range backend.Accounts() {
 		ethAccount, ok := account.(*eth.Account)
 		if ok {
 			chainID := ethAccount.ETHCoin().ChainIDstr()

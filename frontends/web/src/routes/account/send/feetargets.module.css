@@ -10,15 +10,6 @@
     flex-shrink: 0;
 }
 
-.rowCustomFee .fee input {
-    border-bottom-left-radius: 0;
-    border-left: none;
-    border-top-left-radius: 0;
-    padding-left: 0;
-    padding-right: 0;
-    border-color: var(--background-quaternary) !important;
-}
-
 /* styles to overwrite default dropdown styling to make it fit into send */
 .priority :global(.react-select__control) {
     border-color: var(--background-quaternary);
@@ -35,25 +26,18 @@
     margin-bottom: var(--space-quarter);
 }
 
+.rowCustomFee .fee > div {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    padding: 0 var(--space-quarter) 0 0;
+}
+
 .fee {
     margin-bottom: var(--space-quarter);
 }
 
-.fee > div {
-    padding: 0 var(--space-quarter) 0 0;
-}
-
 .fee > div:not(:focus-within):not(:has(:invalid)) {
     border-left: none;
-}
-
-@media (min-width: 640px) {
-    .fee input:disabled {
-        border-color: var(--background) !important;
-    }
-    .fee input {
-        border-color: var(--background-quaternary) !important;
-    }
 }
 
 .feeDescription {
@@ -65,6 +49,11 @@
     font-size: var(--size-smaller);
     font-weight: 400;
     margin: 0;
+}
+
+.rowCustomFee .priority :global(.react-select__control) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 .rowCustomFee .priority :global(.react-select__control:not(:hover)) {

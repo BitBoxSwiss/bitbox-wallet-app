@@ -60,11 +60,12 @@ input.inputField {
     font-weight: 400;
     height: var(--input-height);
     padding: 0 var(--space-half);
-    width: 100%;
-    transition: border-color .2s ease-out;
-    will-change: border-color;
     padding-left: var(--input-qr-button);
     padding-right: 0;
+    text-overflow: ellipsis;
+    transition: border-color .2s ease-out;
+    width: 100%;
+    will-change: border-color;
 }
 
 input.inputField:disabled {
@@ -102,7 +103,7 @@ input.inputField::placeholder {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     border-left: none;
-    height: 52px;
+    height: var(--input-height);
     padding: 0;
 }
 

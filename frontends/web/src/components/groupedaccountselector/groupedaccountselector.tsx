@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
+import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
 import { Button } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
 import { USBSuccess } from '@/components/icon';
@@ -29,6 +29,56 @@ export type TOption = TDropdownOption<AccountCode> & TOptionAccountSelector;
 
 export type TGroupedOption = TDropdownGroupedOption<AccountCode, TGroupAccountSelector, TOptionAccountSelector>;
 
+type TTriggerContentProps = {
+  option: TOption | undefined;
+};
+
+const TriggerContent = ({
+  option,
+}: TTriggerContentProps) => {
+  const { t } = useTranslation();
+  return (
+    option && option.coinCode ? (
+      <div className={styles.triggerContent}>
+        <Logo coinCode={option.coinCode} alt={option.coinCode} />
+        <span className={styles.triggerLabel}>
+          {option.label}
+        </span>
+        {option.insured && <InsuredShield />}
+        {option.coinCode && option.balance && (
+          <span className={styles.triggerBalance}>
+            <AmountWithUnit amount={option.balance} />
+          </span>
+        )}
+      </div>
+    ) : (
+      <span className={styles.placeholderText}>
+        {t('buy.info.selectLabel')}
+      </span>
+    )
+  );
+};
+
+const renderOption = (option: TOption) => {
+  return (
+    <div className={styles.valueContainer}>
+      <TriggerContent option={option} />
+    </div>
+  );
+};
+
+const renderGroupHeader = (group: TGroupedOption) => (
+  <div className={styles.groupHeader}>
+    <span className={styles.groupLabel}>{group.label}</span>
+    {group.connected && (
+      <Badge
+        icon={props => <USBSuccess {...props} />}
+        type="success"
+      />
+    )}
+  </div>
+);
+
 type TAccountSelector = {
   title?: string;
   disabled?: boolean;
@@ -38,7 +88,14 @@ type TAccountSelector = {
   accounts: TAccount[];
 };
 
-export const GroupedAccountSelector = ({ title, disabled, selected, onChange, onProceed, accounts }: TAccountSelector) => {
+export const GroupedAccountSelector = ({
+  title,
+  disabled,
+  selected,
+  onChange,
+  onProceed,
+  accounts,
+}: TAccountSelector) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<TGroupedOption[]>();
   const [isOpen, setIsOpen] = useState(false);
@@ -56,63 +113,20 @@ export const GroupedAccountSelector = ({ title, disabled, selected, onChange, on
     return null;
   }
 
-  const selectedOption = !selected
-    ? { label: t('buy.info.selectLabel'), value: 'choose' as AccountCode, disabled: true }
-    : options.flatMap(o => o.options).find(opt => opt.value === selected);
-
-  const renderOption = (option: TDropdownOption<AccountCode>) => {
-    const opt = option as TOption;
-    const { label, coinCode, balance, insured } = opt;
-    return (
-      <div className={styles.valueContainer}>
-        {coinCode ? <Logo coinCode={coinCode} alt={coinCode} /> : null}
-        <span className={styles.selectLabelText}>{label}</span>
-        {insured && <InsuredShield />}
-        {coinCode && balance && (
-          <span className={styles.balance}>
-            <AmountWithUnit amount={balance} />
-          </span>
-        )}
-      </div>
-    );
-  };
-
-  const renderGroupHeader = (group: TGroupedOption) => (
-    <div className={styles.groupHeader}>
-      <span className={styles.groupLabel}>{group.label}</span>
-      {group.connected && (
-        <Badge
-          icon={props => <USBSuccess {...props} />}
-          type="success"
-        />
-      )}
-    </div>
+  const selectedOption: TOption | undefined = (
+    !selected
+      ? { label: t('buy.info.selectLabel'), value: 'choose', disabled: true }
+      : options.flatMap(o => o.options).find(opt => opt.value === selected)
   );
 
-  const mobileTriggerComponent = ({ onClick }: { onClick: () => void }) => {
-    const opt = selectedOption as TOption;
+  const renderTrigger = ({ onClick }: { onClick: () => void }) => {
     return (
       <button
         type="button"
-        className={styles.mobileTrigger}
+        className={styles.trigger}
         onClick={onClick}
       >
-        {opt && opt.coinCode ? (
-          <div className={styles.triggerContent}>
-            <Logo coinCode={opt.coinCode} alt={opt.coinCode} />
-            <span className={styles.triggerLabel}>{opt.label}</span>
-            {opt.insured && <InsuredShield />}
-            {opt.coinCode && opt.balance && (
-              <span className={styles.triggerBalance}>
-                <AmountWithUnit amount={opt.balance} />
-              </span>
-            )}
-          </div>
-        ) : (
-          <span className={styles.placeholderText}>
-            {t('buy.info.selectLabel')}
-          </span>
-        )}
+        <TriggerContent option={selectedOption} />
         <div className={styles.dropdownIcon} />
       </button>
     );
@@ -139,10 +153,10 @@ export const GroupedAccountSelector = ({ title, disabled, selected, onChange, on
         title={title}
         isOpen={isOpen}
         onOpenChange={setIsOpen}
-        mobileTriggerComponent={mobileTriggerComponent}
+        renderTrigger={renderTrigger}
       />
       {onProceed && (
-        <div className="buttons text-center">
+        <div className={styles.buttons}>
           <Button
             primary
             onClick={onProceed}

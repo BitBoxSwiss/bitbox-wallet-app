@@ -7,6 +7,9 @@
 - iOS: Add haptic feedback on toggle component
 - Apply rounded corners in several places and components of the app
 
+## v4.50.1
+- Fix a bug that would delay showing watch-only accounts.
+
 ## v4.50.0
 - Bundle BitBox02 Nova firmware version v9.25.0
 - Add a dropdown on the "Receiver address" input in the send screen to select an account

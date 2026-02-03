@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { forwardRef } from 'react';
-import { TBaseInputProps } from './types';
+import type { TBaseInputProps } from './types';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { Dropdown, TOption } from '@/components/dropdown/dropdown';
 import { ChevronLeftDark } from '@/components/icon';
 import styles from './input-with-dropdown.module.css';
@@ -35,6 +36,7 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
   renderOptions,
   ...props
 }: TInputWithDropdownProps<any>, ref) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
   return (
     <div className={`
       ${styles.input || ''}
@@ -82,11 +84,11 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
               classNamePrefix="react-select"
               isClearable={false}
               isOptionDisabled={isOptionDisabled}
-              mobileTriggerComponent={({ onClick }) => (
+              renderTrigger={isMobile ? ({ onClick }) => (
                 <button className={styles.dropdownTrigger} onClick={onClick}>
                   <ChevronLeftDark className={styles.chevron} />
                 </button>
-              )}
+              ) : undefined}
               isSearchable={false}
               title={dropdownTitle}
               mobileFullScreen

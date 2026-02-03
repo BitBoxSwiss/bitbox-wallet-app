@@ -232,8 +232,8 @@ func BenchmarkDumpHistoryBucket(b *testing.B) {
 	}
 	updater := NewRateUpdater(nil, test.TstTempDir("BenchmarkDumpHistoryBucket"))
 	defer updater.Stop()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		err := updater.dumpHistoryBucket("btcUSD", rates)
 		require.NoError(b, err, "updater.dumpHistoryBucket")
 	}
@@ -254,8 +254,8 @@ func BenchmarkLoadHistoryBucket(b *testing.B) {
 
 	updater2 := NewRateUpdater(nil, dbdir)
 	defer updater2.Stop()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		rates, err := updater2.loadHistoryBucket("btcUSD")
 		require.NoError(b, err, "updater.loadHistoryBucket")
 		require.Len(b, rates, 5000, "len(rates)")

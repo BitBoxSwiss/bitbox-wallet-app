@@ -1,3 +1,9 @@
+.trigger,
+.triggerContent,
+.valueContainer {
+    --logo-image-width: 20px;
+}
+
 .balance, .balanceSingleValue {
     color: var(--color-secondary);
     margin-left: auto;
@@ -33,6 +39,7 @@
 .select {
     font-size: min(var(--size-default), 24px);
     margin-bottom: var(--space-half);
+    width: 100%;
 }
 
 .select :global(.react-select__group-heading) {
@@ -83,6 +90,8 @@
 }
 
 .select :global(.react-select__single-value) {
+    margin-left: 0;
+    margin-right: 0;
     width: 100%;
 }
 
@@ -110,8 +119,8 @@
 }
 
 .valueContainer > img {
-    width: 20px;
-    height: 20px;
+    width: var(--logo-image-width);
+    height: var(--logo-image-width);
 }
 
 .groupLabel {
@@ -120,7 +129,7 @@
     margin-right: var(--space-quarter);
 }
 
-.mobileTrigger {
+.trigger {
     align-items: center;
     background-color: var(--background-secondary);
     border: 1px #ccc solid;
@@ -129,7 +138,7 @@
     cursor: pointer;
     display: flex;
     font-size: var(--size-default);
-    margin-bottom: var(--space-half);
+    margin-bottom: 0;
     min-height: var(--input-height);
     padding: var(--space-quarter) var(--space-half);
     width: 100%;
@@ -143,8 +152,8 @@
 }
 
 .triggerContent > img {
-    width: 20px;
-    height: 20px;
+    width: var(--logo-image-width);
+    height: var(--logo-image-width);
 }
 
 .triggerLabel {
@@ -178,4 +187,9 @@
     .groupHeader {
         padding-left: 0;
     }
+}
+
+.buttons {
+    margin-top: var(--space-half);
+    text-align: center;
 }
