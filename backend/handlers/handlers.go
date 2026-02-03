@@ -1622,10 +1622,57 @@ func (handlers *Handlers) getKeystoreShowBackupBanner(r *http.Request) interface
 	}
 
 	threshold := big.NewRat(1000, 1)
+	overThreshold := balance.Cmp(threshold) > 0
+
+	// BackupReminderAllowed is tri-state: nil = unchecked, false = permanently suppressed,
+	// true = eligible to show when above threshold.
+	var existingAllowed *bool
+	rootFingerprint, err := hex.DecodeString(rootFingerint)
+	if err != nil {
+		handlers.log.WithError(err).Error("Invalid root fingerprint")
+		return response{
+			Success: false,
+		}
+	}
+	if keystoreConfig, err := handlers.backend.Config().AccountsConfig().LookupKeystore(rootFingerprint); err == nil {
+		existingAllowed = keystoreConfig.BackupReminderAllowed
+	}
+
+	boolPtr := func(value bool) *bool {
+		v := value
+		return &v
+	}
+
+	show := overThreshold
+	desiredAllowed := existingAllowed
+	shouldUpdateAllowed := false
+
+	if existingAllowed == nil {
+		if overThreshold {
+			show = false
+			desiredAllowed = boolPtr(false)
+		} else {
+			desiredAllowed = boolPtr(true)
+		}
+		shouldUpdateAllowed = true
+	} else if !*existingAllowed {
+		show = false
+	}
+
+	if shouldUpdateAllowed && desiredAllowed != nil {
+		if err := handlers.backend.Config().ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
+			keystoreConfig := cfg.GetOrAddKeystore(rootFingerprint)
+			value := *desiredAllowed
+			keystoreConfig.BackupReminderAllowed = &value
+			return nil
+		}); err != nil {
+			handlers.log.WithError(err).Error("Could not persist backup reminder eligibility state")
+		}
+	}
 
 	return response{
 		Success:   true,
-		Show:      balance.Cmp(threshold) > 0,
+		Show:      show,
 		Fiat:      defaultFiat,
 		Threshold: coinpkg.FormatAsCurrency(threshold, defaultFiat),
 	}
