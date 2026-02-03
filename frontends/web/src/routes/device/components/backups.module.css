@@ -3,8 +3,6 @@
 }
 
 .backupsList {
-    background: var(--background-secondary);
-    border: 1px solid var(--background-secondary);
     display: flex;
     flex-direction: column;
     text-align: left;
@@ -12,17 +10,37 @@
     padding: var(--space-eight);
 }
 
+.listContainerWrapper {
+    position: relative;
+}
+
+.listContainerWrapper.showFade::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: linear-gradient(to bottom, transparent, var(--background));
+    pointer-events: none;
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+
 .listContainer {
     display: flex;
     flex-direction: column;
+    gap: var(--space-quarter);
     max-height: 45vh;
     overflow-x: hidden;
     overflow-y: scroll;
+    padding-bottom: var(--space-half);
     position: relative;
     width: 100%;
 }
 
 .item {
+    background: var(--background-secondary);
+    border-radius: var(--radius-xl);
     width: 100%;
     padding: var(--space-quarter) var(--space-half);
 }
@@ -72,7 +90,7 @@
 
 @media (max-width: 768px) {
     .backupButtons {
-        align-items: center;
+        align-items: stretch;
         flex-direction: column;
         margin-top: var(--space-default);
     }
