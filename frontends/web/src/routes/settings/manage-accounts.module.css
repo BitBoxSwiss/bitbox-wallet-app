@@ -200,15 +200,11 @@
 }
 
 .expandBtn {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.4' aria-labelledby='chevron down' color='%235e94bf'%3E%3Cdefs/%3E%3Cpolyline points='6 10 12 16 18 10'/%3E%3C/svg%3E%0A");
-    background-position: 100% center;
-    background-repeat: no-repeat;
+    align-items: center;
+    display: flex;
+    gap: var(--space-quarter);
     height: 40px;
     padding: 0 var(--space-default);
-}
-
-.expandBtnOpen {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.4' aria-labelledby='chevron down' color='%235e94bf'%3E%3Cdefs/%3E%3Cpolyline points='6 16 12 10 18 16'/%3E%3C/svg%3E%0A");
 }
 
 .expandBtn,
@@ -217,6 +213,14 @@
     border-color: transparent !important;
     margin-left: 10px;
     outline: none;
+}
+
+.expandIcon {
+    transition: transform 0.2s ease;
+}
+
+.expandIconOpen {
+    transform: rotate(180deg);
 }
 
 

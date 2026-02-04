@@ -92,19 +92,14 @@ input.inputField::placeholder {
     width: 100%;
 }
 
-.chevron {
-    height: 24px;
-    rotate: 270deg;
-    width: 24px;
-}
-
-.dropdown :global(.react-select__control) {
+.dropdown :global(.react-select__control) { 
     border: 1px solid var(--background-quaternary);
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     border-left: none;
     height: var(--input-height);
     padding: 0;
+    padding-right: var(--space-quarter);
 }
 
 .dropdown :global(.react-select__value-container) {
@@ -176,4 +171,5 @@ input.inputField::placeholder {
     .inputDropdownWrapper {
         grid-template-columns: 90% 10%;
     }
+
 }

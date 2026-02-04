@@ -63,11 +63,6 @@
     padding-left: 0;
 }
 
-.backButtonIcon {
-    height: 24px;
-    width: 24px;
-}
-
 .fullscreenTitle {
     color: var(--color-default);
     flex: 1;

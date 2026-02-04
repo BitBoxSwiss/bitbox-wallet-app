@@ -47,16 +47,10 @@ export const More = ({ devices }: Props) => {
                   icon={canUpgrade ? (
                     <div className={styles.iconContainer}>
                       <RedDot width={8} height={8} />
-                      <ChevronRightDark
-                        width={19}
-                        height={19}
-                      />
+                      <ChevronRightDark />
                     </div>
                   ) : (
-                    <ChevronRightDark
-                      width={19}
-                      height={19}
-                    />
+                    <ChevronRightDark />
                   )}
                   onClick={() => navigate('/settings')}
                 >

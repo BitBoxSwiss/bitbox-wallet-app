@@ -51,6 +51,7 @@
     height: 52px;
     margin-bottom: 0;
     min-width: 200px !important;
+    overflow: hidden;
     padding: var(--space-half) calc(var(--space-default) * 1.2 + 5px) var(--space-half) calc(var(--space-half) * .5);
     resize: none;
     width: 100%;
@@ -64,6 +65,11 @@
 
 .inputField:focus {
     outline: solid 1px var(--color-blue);
+}
+
+.inputField::-webkit-scrollbar {
+    width: 0;
+    height: 0;
 }
 
 @media screen and (max-width: 640px) {
