@@ -16,7 +16,7 @@
 
 import type { ChangeEvent } from 'react';
 import type { AccountCode, TAccount } from '@/api/account';
-import { Button, Label, NumberInput } from '@/components/forms';
+import { NumberInput } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import style from './input-with-account-selector.module.css';
 
@@ -27,7 +27,6 @@ type Props = {
   onChangeAccountCode: (accountCode: AccountCode) => void;
   onChangeValue?: (value: string) => void;
   value: string | undefined;
-  label: string;
 };
 
 export const InputWithAccountSelector = ({
@@ -37,23 +36,10 @@ export const InputWithAccountSelector = ({
   onChangeAccountCode,
   onChangeValue,
   value,
-  label,
 }: Props) => {
   const hasAccounts = accounts && accounts.length > 0;
   return (
     <>
-      <Label
-        className={style.label}
-        htmlFor="swapSendAmount">
-        <span>
-          {label}
-        </span>
-        <Button transparent>
-          <small>
-            Max 0.12345678 BTC
-          </small>
-        </Button>
-      </Label>
       <div className={style.accountWithInputContainer}>
         <div className={style.accountSelectorCol}>
           {hasAccounts && (
@@ -66,16 +52,25 @@ export const InputWithAccountSelector = ({
           )}
         </div>
         <div className={style.inputCol}>
-          <NumberInput
-            transparent
-            id={id}
-            className={style.inputComponent}
-            name={id}
-            value={value}
-            onChange={(event: ChangeEvent<HTMLInputElement>) => {
-              onChangeValue && onChangeValue(event.target.value);
-            }}
-          />
+          <div className={style.inputWithUnit}>
+            <NumberInput
+              transparent
+              align="right"
+              id={id}
+              className={style.inputComponent}
+              name={id}
+              value={value}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                onChangeValue && onChangeValue(event.target.value);
+              }}
+            />
+            <span className={style.inputUnit}>
+              ETH
+            </span>
+          </div>
+          <div className={style.fiat}>
+            ~EUR 100
+          </div>
         </div>
       </div>
     </>

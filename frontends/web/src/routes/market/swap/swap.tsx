@@ -25,6 +25,7 @@ import { Entry } from '@/components/guide/entry';
 import { Button, Label } from '@/components/forms';
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
+import style from './swap.module.css';
 
 type Props = {
   accounts: TAccount[];
@@ -63,6 +64,18 @@ export const Swap = ({
             width="600px"
           >
             <ViewContent>
+              <div className={style.row}>
+                <Label
+                  className={style.label}
+                  htmlFor="swapSendAmount">
+                  <span>
+                    {t('generic.send')}
+                  </span>
+                </Label>
+                <Button transparent className={style.maxButton}>
+                  Max 0.12345678 BTC
+                </Button>
+              </div>
               <InputWithAccountSelector
                 accounts={accounts}
                 id="swapSendAmount"
@@ -70,24 +83,24 @@ export const Swap = ({
                 onChangeAccountCode={setFromAccountCode}
                 value={swapSendAmount}
                 onChangeValue={setSwapSendAmount}
-                label={t('generic.send')}
               />
-              <Label
-                htmlFor="swapGetAmount">
-                <span>
-                  {t('generic.receiveWithoutCoinCode')}
-                </span>
-                <small>
+              <div className={style.row}>
+                <Label
+                  htmlFor="swapGetAmount">
+                  <span>
+                    {t('generic.receiveWithoutCoinCode')}
+                  </span>
+                </Label>
+                <Button transparent className={style.maxButton}>
                   Max 45678 ETH
-                </small>
-              </Label>
+                </Button>
+              </div>
               <InputWithAccountSelector
                 accounts={accounts}
                 id="swapGetAmount"
                 accountCode={toAccountCode}
                 onChangeAccountCode={setToAccountCode}
                 value={swapReceiveAmount}
-                label={t('generic.receiveWithoutCoinCode')}
               />
               <SwapServiceSelector />
             </ViewContent>
