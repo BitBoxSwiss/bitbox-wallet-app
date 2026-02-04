@@ -44,10 +44,6 @@
 }
 
 @media (max-width: 768px) {
-    .accountHeader {
-        padding: 0 var(--space-half);
-    }
-
     .button {
         min-height: var(--button-height);
     }

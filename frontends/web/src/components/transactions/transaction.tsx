@@ -202,23 +202,20 @@ const Addresses = ({
   type,
 }: TAddresses) => {
   const { t } = useTranslation();
-  const label = (
-    type === 'receive'
-      ? t('transaction.tx.receive', {
-        context: status
-      })
-      : t('transaction.tx.send', {
-        context: status
-      })
-  // send_to_self will currently show the send message
-  );
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const label = isMobile
+    ? (type === 'receive' ? t('generic.received') : t('generic.sent'))
+    : (type === 'receive'
+      ? t('transaction.tx.receive', { context: status })
+      : t('transaction.tx.send', { context: status })
+    // send_to_self will currently show the send message
+    );
 
   return (
     <span className={styles.txNoteWithAddress}>
       <span className={styles.txType}>
         {label}
       </span>
-      {' '}
       <span className={styles.addresses}>
         {addresses[0]}
         {addresses.length > 1 && (
