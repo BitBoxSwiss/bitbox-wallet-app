@@ -5,6 +5,7 @@
 - Portfolio: reduce waiting time to display the chart
 - iOS: Add haptic feedback on toggle component
 - Apply rounded corners in several places and components of the app
+- Update send-to-self transactions in the transaction list
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import type { TAmountWithConversions, TTransactionStatus, TTransactionType, TTransaction } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Loupe } from '@/components/icon/icon';
@@ -44,6 +44,7 @@ export const Transaction = ({
         </span>
         <Status
           addresses={addresses}
+          amount={amountAtTime}
           note={note}
           numConfirmations={numConfirmations}
           numConfirmationsComplete={numConfirmationsComplete}
@@ -70,6 +71,7 @@ export const Transaction = ({
 
 type TStatus = {
   addresses: string[];
+  amount: TAmountWithConversions;
   note?: TTransaction['note'];
   numConfirmations: number;
   numConfirmationsComplete: number;
@@ -80,6 +82,7 @@ type TStatus = {
 
 const Status = ({
   addresses,
+  amount,
   note,
   numConfirmations,
   numConfirmationsComplete,
@@ -102,6 +105,7 @@ const Status = ({
         ) : (
           <Addresses
             addresses={addresses}
+            amount={amount}
             status={status}
             type={type}
           />
@@ -151,10 +155,13 @@ const Amounts = ({
   const displayAmount = recv ? amount : deductedAmount;
 
   return (
-    <span className={`
+    <span
+      className={`
       ${styles.txAmountsColumn || ''}
       ${styles[txTypeClass] || ''}
-    `}>
+    `}
+      data-testid="tx-amounts"
+    >
       <span className={styles.txAmount}>
         {displayAmount.amount !== '0' && getTxSign(type)}
         <AmountWithUnit
@@ -170,6 +177,22 @@ const Amounts = ({
 type TDateProps = {
   time: string | null;
 };
+
+type TAddressListProps = {
+  values: string[];
+};
+
+const AddressList = ({ values }: TAddressListProps) => (
+  <span className={styles.addresses}>
+    {values[0]}
+    {values.length > 1 && (
+      <span>
+        {' '}
+        (+{values.length - 1})
+      </span>
+    )}
+  </span>
+);
 
 const Date = ({
   time,
@@ -192,16 +215,40 @@ const Date = ({
 
 type TAddresses = {
   addresses: TTransaction['addresses'];
+  amount: TAmountWithConversions;
   status: TTransactionStatus;
   type: TTransactionType;
 };
 
 const Addresses = ({
   addresses,
+  amount,
   status,
   type,
 }: TAddresses) => {
   const { t } = useTranslation();
+
+  if (type === 'send_to_self') {
+    const labelKey = `transaction.tx.send_to_self_${status}`;
+    return (
+      <span className={styles.txNoteWithAddress}>
+        <span className={styles.txType}>
+          <Trans
+            i18nKey={labelKey}
+            components={[
+              <AmountWithUnit
+                amount={amount}
+                unitClassName={styles.txUnit}
+              />
+            ]}
+          />
+        </span>
+        {' '}
+        <AddressList values={addresses} />
+      </span>
+    );
+  }
+
   const label = (
     type === 'receive'
       ? t('transaction.tx.receive', {
@@ -210,7 +257,6 @@ const Addresses = ({
       : t('transaction.tx.send', {
         context: status
       })
-  // send_to_self will currently show the send message
   );
 
   return (
@@ -219,15 +265,7 @@ const Addresses = ({
         {label}
       </span>
       {' '}
-      <span className={styles.addresses}>
-        {addresses[0]}
-        {addresses.length > 1 && (
-          <span>
-            {' '}
-            (+{addresses.length - 1})
-          </span>
-        )}
-      </span>
+      <AddressList values={addresses} />
     </span>
   );
 };

@@ -1961,7 +1961,10 @@
       "receive_pending": "Received to",
       "send_complete": "Sent to",
       "send_failed": "Failed sending to",
-      "send_pending": "Sent to"
+      "send_pending": "Sent to",
+      "send_to_self_complete": "Sent <0></0> to self",
+      "send_to_self_failed": "Failed sending <0></0> to self",
+      "send_to_self_pending": "Sent <0></0> to self"
     },
     "vsize": "Virtual size",
     "weight": "Weight"

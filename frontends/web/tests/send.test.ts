@@ -193,11 +193,14 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await page.getByTestId('close-button').click();
 
     // Verify that the values displayed are correctly
-    const shownDetractedAmount = await newTx.getByTestId('amountBlocks').nth(0).textContent();
-    const shownSentToSelfAmount = await newTx.getByTestId('amountBlocks').nth(1).textContent();
+    const labelAmount = await newTx
+      .getByTestId('amountBlocks').first()
+      .textContent();
+    const amountsColumn = newTx.getByTestId('tx-amounts');
+    const shownDetractedAmount = await amountsColumn.getByTestId('amountBlocks').nth(0).textContent();
 
+    expect(labelAmount).toBe(amount);
     expect(shownDetractedAmount).toBe(fee);
-    expect(shownSentToSelfAmount).toBe(amount);
 
   });
 
