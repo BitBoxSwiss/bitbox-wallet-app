@@ -23,6 +23,7 @@
 - fix language sometimes not persistent across app restarts
 - Android: fix layout issues with status and navigation bars.
 - Android: make the UI work with responsive font sizes and adhere to OS font size settings
+- Android: prompt to save exported files instead of sharing
 - Add "Change device password" functionality (in Settings)
 - Add icons for CTA and action buttons in account page
 - Restructure "Manage device" tab in settings
