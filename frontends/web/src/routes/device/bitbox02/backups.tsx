@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSync } from '@/hooks/api';
+import { useIsScrollable } from '@/hooks/scrollable';
 import { restoreBackup, errUserAbort } from '@/api/bitbox02';
 import { getBackupList, subscribeBackupList } from '@/api/backup';
 import { Toast } from '@/components/toast/toast';
@@ -38,10 +39,13 @@ export const BackupsV2 = ({
   const [selectedBackup, setSelectedBackup] = useState<string>();
   const [restoring, setRestoring] = useState(false);
   const [errorText, setErrorText] = useState('');
+  const scrollableContainerRef = useRef<HTMLDivElement>(null);
 
   const backups = useSync(() => getBackupList(deviceID), subscribeBackupList(deviceID));
   const hasBackups = backups && backups.success && backups !== undefined;
   const hasMoreThanOneBackups = hasBackups && backups.backups.length > 1;
+
+  const isScrollable = useIsScrollable(scrollableContainerRef, [backups]);
 
   useEffect(() => {
     if (!hasBackups || backups.backups.length === 0) {
@@ -51,7 +55,6 @@ export const BackupsV2 = ({
     if (backups.backups.length === 1) {
       setSelectedBackup(backups.backups[0]?.id);
     }
-
   }, [backups, hasBackups]);
 
   const restore = () => {
@@ -106,20 +109,22 @@ export const BackupsV2 = ({
         <div className={backupStyle.backupsList}>
           {
             backups.backups.length ? (
-              <div className={backupStyle.listContainer}>
-                {
-                  backups.backups.map(backup => (
-                    <div key={backup.id} className={backupStyle.item}>
-                      <BackupsListItem
-                        disabled={restoring}
-                        backup={backup}
-                        selectedBackup={selectedBackup}
-                        handleChange={(b => setSelectedBackup(b))}
-                        onFocus={() => undefined}
-                        radio={showRadio} />
-                    </div>
-                  ))
-                }
+              <div className={`${backupStyle.listContainerWrapper || ''} ${isScrollable ? backupStyle.showFade || '' : ''}`}>
+                <div ref={scrollableContainerRef} className={backupStyle.listContainer}>
+                  {
+                    backups.backups.map(backup => (
+                      <div key={backup.id} className={backupStyle.item}>
+                        <BackupsListItem
+                          disabled={restoring}
+                          backup={backup}
+                          selectedBackup={selectedBackup}
+                          handleChange={(b => setSelectedBackup(b))}
+                          onFocus={() => undefined}
+                          radio={showRadio} />
+                      </div>
+                    ))
+                  }
+                </div>
               </div>
             ) : (
               <p className="text-center">{t('backup.noBackups')}</p>
