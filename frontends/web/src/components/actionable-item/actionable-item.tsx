@@ -35,10 +35,7 @@ export const ActionableItem = ({
           onClick={onClick}>
           {children}
           {icon ? icon : (
-            <ChevronRightDark
-              width={19}
-              height={19}
-            />
+            <ChevronRightDark />
           )}
         </button>
       )}

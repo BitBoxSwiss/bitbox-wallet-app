@@ -62,9 +62,7 @@ const AccountItem = ({ account }: TAccountItemProp) => {
       <div className={styles.accountBalanceContainer}>
         <AmountWithUnit amount={balance} unitClassName={styles.unit} />
       </div>
-      <div className={styles.chevron}>
-        <ChevronRightDark />
-      </div>
+      <ChevronRightDark />
     </Link>
   );
 };

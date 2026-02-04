@@ -14,6 +14,7 @@ import Select, {
 } from 'react-select';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { MobileFullscreenSelector } from './mobile-fullscreen-selector';
+import { ChevronDownDark } from '@/components/icon';
 import styles from './dropdown.module.css';
 
 export type TOption<T = any> = {
@@ -59,7 +60,7 @@ type SelectProps<T, IsMulti extends boolean = false, TExtra = object, TOptionExt
 
 const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
   <components.DropdownIndicator {...props}>
-    <div className={styles.dropdown} />
+    <ChevronDownDark />
   </components.DropdownIndicator>
 );
 

@@ -71,16 +71,6 @@
   font-size: var(--size-smaller);
 }
 
-.chevron {
-  color: var(--color-mediumgray);
-  flex-shrink: 0;
-  margin-right: -4px;
-}
-
-.chevron img {
-  display: block;
-}
-
 .emptyState {
   display: flex;
   flex-direction: column;

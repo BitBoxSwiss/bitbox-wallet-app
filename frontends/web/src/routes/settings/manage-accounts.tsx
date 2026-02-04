@@ -9,7 +9,7 @@ import * as backendAPI from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
 import { Button, Input, Label } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
-import { EditActive, EyeOpenedDark, Plus } from '@/components/icon';
+import { ChevronDownDark, EditActive, EyeOpenedDark, Plus } from '@/components/icon';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { Toggle } from '@/components/toggle/toggle';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
@@ -197,15 +197,13 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
                 {renderTokens(account.code, account.activeTokens)}
               </div>
               <Button
-                className={`
-                  ${style.expandBtn || ''}
-                  ${tokensVisible && style.expandBtnOpen || ''}
-                `}
+                className={style.expandBtn}
                 onClick={() => toggleShowTokens(account.code)}
                 transparent>
                 {t(tokensVisible ? 'manageAccounts.settings.hideTokens' : 'manageAccounts.settings.showTokens', {
                   activeTokenCount: `${account.activeTokens?.length || 0}`
                 })}
+                <ChevronDownDark className={`${style.expandIcon || ''} ${tokensVisible ? style.expandIconOpen || '' : ''}`} />
               </Button>
             </div>
           ) : null}
