@@ -4,7 +4,7 @@ import { forwardRef } from 'react';
 import type { TBaseInputProps } from './types';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Dropdown, TOption } from '@/components/dropdown/dropdown';
-import { ChevronLeftDark } from '@/components/icon';
+import { ChevronDownDark } from '@/components/icon';
 import styles from './input-with-dropdown.module.css';
 
 export type TInputWithDropdownProps<T> = TBaseInputProps & {
@@ -86,7 +86,7 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
               isOptionDisabled={isOptionDisabled}
               renderTrigger={isMobile ? ({ onClick }) => (
                 <button className={styles.dropdownTrigger} onClick={onClick}>
-                  <ChevronLeftDark className={styles.chevron} />
+                  <ChevronDownDark />
                 </button>
               ) : undefined}
               isSearchable={false}

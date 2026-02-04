@@ -190,7 +190,7 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TEx
                 type="button"
                 aria-label="Close"
               >
-                <ChevronLeftDark className={styles.backButtonIcon} />
+                <ChevronLeftDark />
               </button>
               <h3 className={styles.fullscreenTitle}>{title}</h3>
             </div>

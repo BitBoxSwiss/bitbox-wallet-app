@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
 import { Button } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
-import { USBSuccess } from '@/components/icon';
+import { USBSuccess, ChevronDownDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
 import { InsuredShield } from '@/routes/account/components/insuredtag';
 import { getAccountsByKeystore } from '@/routes/account/utils';
@@ -127,7 +127,7 @@ export const GroupedAccountSelector = ({
         onClick={onClick}
       >
         <TriggerContent option={selectedOption} />
-        <div className={styles.dropdownIcon} />
+        <ChevronDownDark />
       </button>
     );
   };

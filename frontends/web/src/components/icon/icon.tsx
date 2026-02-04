@@ -30,6 +30,7 @@ import checkedSmallSVG from './assets/icons/checked-small.svg';
 import checkSVG from './assets/icons/check.svg';
 import chevronRightDark from './assets/icons/chevron-right-dark.svg';
 import chevronLeftDark from './assets/icons/chevron-left-dark.svg';
+import chevronDownDark from './assets/icons/chevron-down-dark.svg';
 import cancelSVG from './assets/icons/cancel.svg';
 import cogLightSVG from './assets/icons/cog-light.svg';
 import cogDarkSVG from './assets/icons/cog-dark.svg';
@@ -141,8 +142,9 @@ export const BuyInfo = (props: ImgProps) => (<img src={buyInfoSVG} draggable={fa
 export const Checked = (props: ImgProps) => (<img src={checkedSmallSVG} draggable={false} {...props} />);
 // simple check for copy component
 export const Check = (props: ImgProps) => (<img src={checkSVG} draggable={false} {...props} />);
-export const ChevronLeftDark = (props: ImgProps) => (<img src={chevronLeftDark} draggable={false} {...props} />);
-export const ChevronRightDark = (props: ImgProps) => (<img src={chevronRightDark} draggable={false} {...props} />);
+export const ChevronLeftDark = (props: ImgProps) => (<img width={16} height={16} src={chevronLeftDark} draggable={false} {...props} />);
+export const ChevronRightDark = (props: ImgProps) => (<img width={16} height={16} src={chevronRightDark} draggable={false} {...props} />);
+export const ChevronDownDark = (props: ImgProps) => (<img width={16} height={16} src={chevronDownDark} draggable={false} {...props} />);
 export const Cancel = (props: ImgProps) => (<img src={cancelSVG} draggable={false} {...props} />);
 export const CreditCardDark = (props: ImgProps) => (<img src={creditCardDarkSVG} draggable={false} {...props} />);
 export const CreditCard = (props: ImgProps) => (<img src={creditCardLightSVG} draggable={false} {...props} />);

@@ -47,11 +47,7 @@ export const UnlockSoftwareKeystore = ({
         settingName={t('testWallet.connect.title')}
         secondaryText={t('testWallet.connect.description')}
         icon={
-          <ChevronRightDark
-            className={styles.chevronRight}
-            width={19}
-            height={19}
-          />
+          <ChevronRightDark />
         }
       />
     </SkipForTesting>
