@@ -13,6 +13,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -28,13 +29,16 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// CallsPerSec is thenumber of etherscanr equests allowed
+// CallsPerSec is thenumber of etherscan equests allowed
 // per second.
 // Etherscan rate limits to one request per 0.2 seconds.
 var CallsPerSec = 3.8
 
 const (
 	maxAddressesForBalances = 20
+	// Etherscan returns at most maxTokentxResults token
+	// transactions for a given address.
+	maxTokentxResults = 10000
 )
 
 // ERC20GasErr is the error message returned from etherscan when there is not enough ETH to pay the transaction fee.
@@ -46,6 +50,15 @@ type EtherScan struct {
 	httpClient *http.Client
 	limiter    *rate.Limiter
 	chainId    string
+
+	// When querying for tx tokens for a specific address, we instead
+	// ask Etherscan for all transactions for all tokens.
+	// Then, we store the result in a cache and return transactions for another token
+	// but same start/end block and address from the cache.
+	erc20TxCacheMu sync.RWMutex
+	erc20TxCache   map[common.Address]erc20TokenTxCacheEntry
+
+	supportedERC20Contracts map[common.Address]struct{}
 }
 
 // NewEtherScan creates a new instance of EtherScan.
@@ -56,6 +69,29 @@ func NewEtherScan(chainId string, httpClient *http.Client, limiter *rate.Limiter
 		limiter:    limiter,
 		chainId:    chainId,
 	}
+}
+
+type erc20TokenTxCacheEntry struct {
+	startBlock   string
+	endBlock     string
+	transactions []*Transaction
+}
+
+// SetSupportedERC20Tokens sets the ERC20 contracts used for filtering tokentx results.
+// If unset or empty, all token transactions are accepted.
+// Note: calling this function invalidates the cache.
+func (etherScan *EtherScan) SetSupportedERC20Tokens(tokens []*erc20.Token) {
+	contracts := make(map[common.Address]struct{}, len(tokens))
+	for _, token := range tokens {
+		if token == nil {
+			continue
+		}
+		contracts[token.ContractAddress()] = struct{}{}
+	}
+	etherScan.erc20TxCacheMu.Lock()
+	etherScan.supportedERC20Contracts = contracts
+	etherScan.erc20TxCache = nil
+	etherScan.erc20TxCacheMu.Unlock()
 }
 
 func (etherScan *EtherScan) call(ctx context.Context, params url.Values, result interface{}) error {
@@ -130,11 +166,13 @@ type jsonTransaction struct {
 	From        common.Address `json:"from"`
 	Failed      string         `json:"isError"`
 
-	// One of them is an empty string / nil, the other is an address.
+	// "to" is present for regular and tokentx results. "contractAddress" is present for contract
+	// creation and tokentx results. Both can be set for tokentx.
 	ToAsString              string `json:"to"`
 	to                      *common.Address
 	ContractAddressAsString string `json:"contractAddress"`
 	contractAddress         *common.Address
+	TransactionIndex        string `json:"transactionIndex"`
 
 	Value jsonBigInt `json:"value"`
 }
@@ -180,20 +218,21 @@ func (tx *Transaction) UnmarshalJSON(jsonBytes []byte) error {
 	if err := json.Unmarshal(jsonBytes, &tx.jsonTransaction); err != nil {
 		return errp.WithStack(err)
 	}
-	switch {
-	case tx.jsonTransaction.ToAsString != "":
+	if tx.jsonTransaction.ToAsString != "" {
 		if !common.IsHexAddress(tx.jsonTransaction.ToAsString) {
 			return errp.Newf("eth address expected, got %s", tx.jsonTransaction.ToAsString)
 		}
 		addr := common.HexToAddress(tx.jsonTransaction.ToAsString)
 		tx.jsonTransaction.to = &addr
-	case tx.jsonTransaction.ContractAddressAsString != "":
+	}
+	if tx.jsonTransaction.ContractAddressAsString != "" {
 		if !common.IsHexAddress(tx.jsonTransaction.ContractAddressAsString) {
 			return errp.Newf("eth address expected, got %s", tx.jsonTransaction.ContractAddressAsString)
 		}
 		addr := common.HexToAddress(tx.jsonTransaction.ContractAddressAsString)
 		tx.jsonTransaction.contractAddress = &addr
-	default:
+	}
+	if tx.jsonTransaction.to == nil && tx.jsonTransaction.contractAddress == nil {
 		return errp.New("Need one of: to, contractAddress")
 	}
 	return nil
@@ -302,20 +341,218 @@ func prepareTransactions(
 	return castTransactions, nil
 }
 
+// tokenTransactionsAll queries Etherscan for all token tx for a given address,
+// and filters out those related to tokens we do not support.
+// Finally, it updates the cache.
+func (etherScan *EtherScan) tokenTransactionsAll(
+	address common.Address, endBlock *big.Int) ([]*Transaction, error) {
+	startBlock := big.NewInt(0)
+	startBlockText := startBlock.Text(10)
+	endBlockText := endBlock.Text(10)
+	etherScan.erc20TxCacheMu.RLock()
+	if entry, ok := etherScan.erc20TxCache[address]; ok &&
+		entry.startBlock == startBlockText && entry.endBlock == endBlockText {
+		transactions := entry.transactions
+		etherScan.erc20TxCacheMu.RUnlock()
+		return transactions, nil
+	}
+	etherScan.erc20TxCacheMu.RUnlock()
+
+	transactions, err := etherScan.tokenTransactionsRangeWindow(address, startBlock, endBlock, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	etherScan.erc20TxCacheMu.RLock()
+	supportedContracts := etherScan.supportedERC20Contracts
+	etherScan.erc20TxCacheMu.RUnlock()
+	if len(supportedContracts) > 0 {
+		filtered := make([]*Transaction, 0, len(transactions))
+		for _, tx := range transactions {
+			if tx.jsonTransaction.contractAddress == nil {
+				continue
+			}
+			if _, ok := supportedContracts[*tx.jsonTransaction.contractAddress]; ok {
+				filtered = append(filtered, tx)
+			}
+		}
+		transactions = filtered
+	}
+
+	etherScan.erc20TxCacheMu.Lock()
+	if etherScan.erc20TxCache == nil {
+		etherScan.erc20TxCache = map[common.Address]erc20TokenTxCacheEntry{}
+	}
+	etherScan.erc20TxCache[address] = erc20TokenTxCacheEntry{
+		startBlock:   startBlockText,
+		endBlock:     endBlockText,
+		transactions: transactions,
+	}
+	etherScan.erc20TxCacheMu.Unlock()
+	return transactions, nil
+}
+
+// tokenTransactionsRangeWindow queries Etherscan for token transactions
+// for the given address in the block range [startBlock, endBlock].
+// If the number of results is maxTokentxResults, it continues querying
+// by moving the endBlock downwards until all transactions are fetched.
+func (etherScan *EtherScan) tokenTransactionsRangeWindow(
+	address common.Address,
+	startBlock *big.Int,
+	endBlock *big.Int,
+	contractAddress *common.Address,
+) ([]*Transaction, error) {
+	currentEnd := new(big.Int).Set(endBlock)
+	seen := map[string]struct{}{}
+	all := []*Transaction{}
+	for {
+		before := len(all)
+		transactions, err := etherScan.tokenTransactionsRange(address, startBlock, currentEnd, contractAddress)
+		if err != nil {
+			return nil, err
+		}
+		all = appendUniqueTransactions(all, transactions, seen)
+		if len(transactions) < maxTokentxResults || currentEnd.Cmp(startBlock) <= 0 {
+			return all, nil
+		}
+		last := transactions[len(transactions)-1]
+		nextEnd := last.jsonTransaction.BlockNumber.BigInt()
+		if nextEnd.Cmp(startBlock) < 0 {
+			return all, nil
+		}
+		if nextEnd.Cmp(currentEnd) == 0 && len(all) == before {
+			return all, nil
+		}
+		currentEnd = nextEnd
+	}
+}
+
+// tokenTransactionsRange queries Etherscan for token transactions
+// for the given address in the block range [startBlock, endBlock].
+func (etherScan *EtherScan) tokenTransactionsRange(
+	address common.Address,
+	startBlock *big.Int,
+	endBlock *big.Int,
+	contractAddress *common.Address,
+) ([]*Transaction, error) {
+	params := url.Values{}
+	params.Set("module", "account")
+	params.Set("action", "tokentx")
+	if contractAddress != nil {
+		params.Set("contractaddress", contractAddress.Hex())
+	} else {
+		params.Set("contractaddress", "")
+	}
+	params.Set("startblock", startBlock.Text(10))
+	params.Set("endblock", endBlock.Text(10))
+	params.Set("page", "1")
+	params.Set("offset", strconv.Itoa(maxTokentxResults))
+	params.Set("tag", "latest")
+	params.Set("sort", "desc") // desc by block number
+	params.Set("address", address.Hex())
+
+	result := struct {
+		Result []*Transaction
+	}{}
+	if err := etherScan.call(context.TODO(), params, &result); err != nil {
+		return nil, err
+	}
+	return result.Result, nil
+}
+
+// appendUniqueTransactions appends transactions from source to target,
+// skipping duplicates based on txDedupKey.
+// This is needed because when querying for token transactions in windows of block ranges,
+// we set the new end block to the last transaction's block number, which can lead to
+// duplicates.
+func appendUniqueTransactions(
+	target []*Transaction,
+	source []*Transaction,
+	seen map[string]struct{},
+) []*Transaction {
+	for _, tx := range source {
+		if tx == nil {
+			continue
+		}
+		key := txDedupKey(tx)
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		target = append(target, tx)
+	}
+	return target
+}
+
+func txDedupKey(tx *Transaction) string {
+	if tx == nil {
+		return ""
+	}
+	to := ""
+	if tx.jsonTransaction.to != nil {
+		to = tx.jsonTransaction.to.Hex()
+	}
+	contract := ""
+	if tx.jsonTransaction.contractAddress != nil {
+		contract = tx.jsonTransaction.contractAddress.Hex()
+	}
+	return fmt.Sprintf(
+		"%s:%s:%s:%s:%s:%s:%s",
+		tx.jsonTransaction.Hash.Hex(),
+		tx.jsonTransaction.BlockNumber.BigInt().Text(10),
+		strings.TrimSpace(tx.jsonTransaction.TransactionIndex),
+		tx.jsonTransaction.From.Hex(),
+		to,
+		contract,
+		tx.jsonTransaction.Value.BigInt().Text(10),
+	)
+}
+
+// filterERC20Transactions filters the given transactions for those matching the given contract address.
+func filterERC20Transactions(transactions []*Transaction, contractAddress common.Address) []*Transaction {
+	filtered := make([]*Transaction, 0, len(transactions))
+	for _, tx := range transactions {
+		if tx.jsonTransaction.contractAddress == nil {
+			continue
+		}
+		if *tx.jsonTransaction.contractAddress == contractAddress {
+			filtered = append(filtered, tx)
+		}
+	}
+	return filtered
+}
+
+func cloneTransactions(transactions []*Transaction) []*Transaction {
+	clones := make([]*Transaction, 0, len(transactions))
+	for _, tx := range transactions {
+		if tx == nil {
+			continue
+		}
+		txCopy := *tx
+		clones = append(clones, &txCopy)
+	}
+	return clones
+}
+
 // Transactions queries EtherScan for transactions for the given account, until endBlock.
-// Provide erc20Token to filter for those. If nil, standard etheruem transactions will be fetched.
+// Provide erc20Token to filter for those. If nil, standard ethereum transactions will be fetched.
+// For supported ERC20 tokens, tokentx is fetched without contractaddress and filtered locally.
 func (etherScan *EtherScan) Transactions(
 	blockTipHeight *big.Int,
 	address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
 	[]*accounts.TransactionData, error) {
+	if erc20Token != nil {
+		transactions, err := etherScan.tokenTransactionsAll(address, endBlock)
+		if err != nil {
+			return nil, err
+		}
+		filtered := filterERC20Transactions(transactions, erc20Token.ContractAddress())
+		return prepareTransactions(true, blockTipHeight, false, cloneTransactions(filtered), address)
+	}
+
 	params := url.Values{}
 	params.Set("module", "account")
-	if erc20Token != nil {
-		params.Set("action", "tokentx")
-		params.Set("contractaddress", erc20Token.ContractAddress().Hex())
-	} else {
-		params.Set("action", "txlist")
-	}
+	params.Set("action", "txlist")
 	params.Set("startblock", "0")
 	params.Set("tag", "latest")
 	params.Set("sort", "desc") // desc by block number
