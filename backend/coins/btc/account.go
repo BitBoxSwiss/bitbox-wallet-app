@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"sort"
+	"sync"
 	"sync/atomic"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -482,44 +483,48 @@ func (account *Account) feeTargets() FeeTargets {
 	}
 
 	var minRelayFeeRate *btcutil.Amount
-	minRelayFeeRateVal, err := account.getMinRelayFeeRate()
-	if err == nil {
+	if minRelayFeeRateVal, err := account.getMinRelayFeeRate(); err == nil {
 		minRelayFeeRate = &minRelayFeeRateVal
 	}
 
+	wg := sync.WaitGroup{}
 	for _, feeTarget := range feeTargets {
-		var feeRatePerKb btcutil.Amount
+		wg.Go(func() {
+			var feeRatePerKb btcutil.Amount
 
-		if mempoolFees != nil {
-			feeRatePerKb = mempoolFees.GetFeeRate(feeTarget.code)
-		} else {
-			// If mempool.space fees are not available, we fallback on Bitcoin Core estimation.
-			// If even that one is not available, we just offer the min relay fee.
-			feeRatePerKb, err = account.coin.Blockchain().EstimateFee(feeTarget.blocks)
-			if err != nil {
-				if account.coin.Code() != coin.CodeTLTC {
-					account.log.WithField("fee-target", feeTarget.blocks).
-						Warning("Fee could not be estimated. Taking the minimum relay fee instead")
+			if mempoolFees != nil {
+				feeRatePerKb = mempoolFees.GetFeeRate(feeTarget.code)
+			} else {
+				// If mempool.space fees are not available, we fallback on Bitcoin Core estimation.
+				// If even that one is not available, we just offer the min relay fee.
+				estimatedFeeRatePerKb, err := account.coin.Blockchain().EstimateFee(feeTarget.blocks)
+				if err != nil {
+					if account.coin.Code() != coin.CodeTLTC {
+						account.log.WithField("fee-target", feeTarget.blocks).
+							Warning("Fee could not be estimated. Taking the minimum relay fee instead")
+					}
+					if minRelayFeeRate == nil {
+						account.log.WithField("fee-target", feeTarget.blocks).
+							Warning("Minimum relay fee could not be determined")
+						return
+					}
+					feeRatePerKb = *minRelayFeeRate
+				} else {
+					feeRatePerKb = estimatedFeeRatePerKb
 				}
-				if minRelayFeeRate == nil {
-					account.log.WithField("fee-target", feeTarget.blocks).
-						Warning("Minimum relay fee could not be determined")
-					continue
-				}
+			}
+			// If the minrelayfee is available the estimated fee rate is smaller than the minrelayfee,
+			// we use the minrelayfee instead. If the minrelayfee is unknown, we leave the fee
+			// estimation as is, hoping it will be enough for a transaction to get relayed.
+			if minRelayFeeRate != nil && feeRatePerKb < *minRelayFeeRate {
 				feeRatePerKb = *minRelayFeeRate
 			}
-		}
-		// If the minrelayfee is available the estimated fee rate is smaller than the minrelayfee,
-		// we use the minrelayfee instead. If the minrelayfee is unknown, we leave the fee
-		// estimation as is, hoping it will be enough for a transaction to get relayed.
-		if minRelayFeeRate != nil && feeRatePerKb < *minRelayFeeRate {
-			feeRatePerKb = *minRelayFeeRate
-		}
-		feeTarget.feeRatePerKb = &feeRatePerKb
-		account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
-			"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
+			feeTarget.feeRatePerKb = &feeRatePerKb
+			account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
+				"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
+		})
 	}
-
+	wg.Wait()
 	return feeTargets
 }
 
