@@ -1,0 +1,27 @@
+.customSingleValue {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    outline: 2px solid green;
+}
+
+.customOption {
+
+}
+
+.customOptionFocused {
+}
+
+.customOptionSelected {
+}
+
+.customOptionValue {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.amount {
+    flex-grow: 1;
+    text-align: right;
+}
