@@ -1,0 +1,54 @@
+
+.select :global(.react-select__control) {
+    background-color: var(--background-secondary);
+    border: 1px var(--background-quaternary) solid;
+    border-radius: var(--radius-xl);
+    border-width: var(--border-width);
+    min-height: var(--input-height);
+    padding: 0 var(--space-eight);
+}
+
+.select :global(.react-select__single-value) {
+    color: var(--color-default);
+}
+
+.select :global(.react-select__menu) {
+    background-color: var(--background-secondary);
+    z-index: 99;
+}
+
+.select :global(.react-select__value-container) {
+    padding: 0;
+}
+
+.swapServiceOption {
+    align-items: center;
+    display: flex;
+    min-height: var(--input-height);
+    gap: 8px;
+    padding: 0 var(--space-eight);
+}
+
+.select :global(.react-select__menu) {
+    background-color: var(--background-secondary);
+    z-index: 99;
+}
+
+.select :global(.react-select__menu) .swapServiceOption {
+    padding: 0 var(--space-half);
+}
+
+/*Hovered option color*/
+.select :global(.react-select__menu) .swapServiceOption:hover {
+    background-color: var(--background-custom-select-hover);
+}
+
+.amount {
+    flex-grow: 1;
+    text-align: right;
+}
+
+.serivceName {
+    display: inline-block;
+    padding-right: .4ch;
+}
