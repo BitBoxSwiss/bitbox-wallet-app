@@ -1,5 +1,17 @@
+.select :global(.react-select__control) {
+    padding: var(--space-quarter) var(--space-half);
+}
+
+.select :global(.react-select__value-container) {
+    padding: 0;
+}
+
 .select :global(.react-select__input-container) {
     padding-left: calc(var(--space-default) + var(--space-eight));
+}
+
+.select :global(.react-select__indicator) {
+    padding: 0;
 }
 
 .flag {

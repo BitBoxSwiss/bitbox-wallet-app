@@ -135,6 +135,18 @@
     width: 100%;
 }
 
+.layoutOnTwoLines {
+    background: transparent;
+    border-color: transparent;
+    margin-bottom: 0;
+    padding-left: var(--space-quarter);
+    padding-right: var(--space-quarter);
+}
+
+.layoutOnTwoLines .triggerContent {
+    flex-wrap: wrap;
+}
+
 .triggerContent {
     align-items: center;
     display: flex;
@@ -154,11 +166,26 @@
     white-space: nowrap;
 }
 
+.layoutOnTwoLines .triggerLabel {
+    margin-left: var(--space-quarter);
+}
+
 .triggerBalance {
     color: var(--color-secondary);
     margin-left: auto;
     text-transform: uppercase;
     white-space: nowrap;
+}
+
+.layoutOnTwoLines .triggerAccountName {
+    flex-basis: 100%;
+    text-align: left;
+    padding-left: calc(var(--space-quarter) + var(--logo-image-width));
+}
+
+.triggerAccountName {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
 }
 
 .placeholderText {

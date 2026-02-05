@@ -7,7 +7,7 @@ export const getMarketRegionCodes = (): Promise<string[]> => {
   return apiGet('market/region-codes');
 };
 
-export type TPaymentMethod = 'card' | 'bank-transfer' | 'bancontact' | 'sofort';
+export type TPaymentMethod = 'card' | 'bank-transfer' | 'bancontact' | 'sofort' | '';
 
 export type TMarketDeal = {
   fee: number;
@@ -50,6 +50,7 @@ export const getSwapDeals = (): Promise<TMarketDealsResponse> => {
     deals: [{
       vendorName: 'swapkit',
       deals: [{
+        payment: '',
         fee: 0,
         isFast: false,
         isBest: false,

@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-import Select, { components, SingleValueProps, OptionProps } from 'react-select';
+import Select, { components, SingleValueProps, OptionProps, DropdownIndicatorProps } from 'react-select';
 import { Label } from '@/components/forms';
+import { ChevronDownDark } from '@/components/icon';
+import { Badge } from '@/components/badge/badge';
+import dropdownStyles from '@/components/dropdown/dropdown.module.css';
+import style from './swap-service-selector.module.css';
 
 type TOption<T = any> = {
   amount: string;
   icon: string;
   label: string;
+  recommended: boolean;
   value: T;
 };
 
@@ -29,10 +34,17 @@ const CustomSingleValue = (props: SingleValueProps<TOption, false>) => {
   const { data } = props;
   return (
     <components.SingleValue {...props}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div className={style.customSingleValue}>
         <img src={data.icon} style={{ width: 24, height: 24 }} />
-        <span>{data.label}</span>
-        <span>({data.amount})</span>
+        <span>
+          {data.label}
+          {data.recommended && (
+            <Badge type="success">Recommended</Badge>
+          )}
+        </span>
+        <span className={style.amount}>
+          ({data.amount})
+        </span>
       </div>
     </components.SingleValue>
   );
@@ -46,18 +58,27 @@ const CustomOption = (props: OptionProps<TOption, false>) => {
   return (
     <div
       {...innerProps}
-      style={{
-        backgroundColor: isFocused ? '#eee' : isSelected ? '#ddd' : 'white',
-      }}
+      className={`
+        ${style.customOption || ''}
+        ${isFocused && style.customOptionFocused || ''}
+        ${isSelected && style.customOptionSelected || ''}
+      `}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div className={style.customOptionValue}>
         <img src={data.icon} style={{ width: 24, height: 24 }} />
-        <span>{data.label}</span>
+        -{data.recommended}.
+        <span>{data.label} -{data.recommended ? 'a' : 'b'}- </span>
       </div>
       <span>{data.amount}</span>
     </div>
   );
 };
+
+const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
+  <components.DropdownIndicator {...props}>
+    <ChevronDownDark />
+  </components.DropdownIndicator>
+);
 
 
 export const SwapServiceSelector = () => {
@@ -65,11 +86,13 @@ export const SwapServiceSelector = () => {
     amount: '1',
     icon: '',
     label: 'Thorchain',
+    recommended: true,
     value: 'thor'
   }, {
     amount: '0.04',
     icon: '',
     label: 'Thorchain',
+    recommended: false,
     value: 'thor'
   }];
 
@@ -79,7 +102,12 @@ export const SwapServiceSelector = () => {
         Swapping services
       </Label>
       <Select<TOption>
+        className={dropdownStyles.select}
+        classNamePrefix="react-select"
+        isClearable={false}
         components={{
+          IndicatorSeparator: undefined,
+          DropdownIndicator,
           Option: CustomOption,
           SingleValue: CustomSingleValue,
         }}
