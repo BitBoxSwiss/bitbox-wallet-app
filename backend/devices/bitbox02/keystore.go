@@ -481,6 +481,12 @@ func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.Absolut
 		},
 		message,
 	)
+	if firmware.IsErrorAbort(err) {
+		return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
+	}
+	if err != nil {
+		return nil, err
+	}
 	return signResult.ElectrumSig65, err
 }
 

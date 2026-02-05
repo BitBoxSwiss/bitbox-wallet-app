@@ -13,11 +13,12 @@ import (
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
-	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/stretchr/testify/require"
 )
 
@@ -440,7 +441,7 @@ func TestAOPPFailures(t *testing.T) {
 		b.AOPPApprove()
 		ks2 := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper)
 		ks2.SignBTCMessageFunc = func([]byte, signing.AbsoluteKeypath, signing.ScriptType, coinpkg.Code) ([]byte, error) {
-			return nil, firmware.NewError(firmware.ErrUserAbort, "")
+			return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
 		}
 		b.registerKeystore(ks2)
 		b.AOPPChooseAccount("v0-55555555-btc-0")
