@@ -26,6 +26,7 @@ import { Button, Label } from '@/components/forms';
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import style from './swap.module.css';
+import { ArrowSwap } from '@/components/icon';
 
 type Props = {
   accounts: TAccount[];
@@ -84,6 +85,11 @@ export const Swap = ({
                 value={swapSendAmount}
                 onChangeValue={setSwapSendAmount}
               />
+              <div className="text-center">
+                <Button transparent className={style.flipCoinsButton}>
+                  <ArrowSwap />
+                </Button>
+              </div>
               <div className={style.row}>
                 <Label
                   htmlFor="swapGetAmount">

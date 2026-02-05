@@ -17,3 +17,7 @@
     min-height: auto;
     padding: 0;
 }
+
+.flipCoinsButton {
+  transform: rotate(90deg);
+}
