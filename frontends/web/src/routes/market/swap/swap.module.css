@@ -17,3 +17,22 @@
     min-height: auto;
     padding: 0;
 }
+
+.flipContainer {
+  text-align: center;
+}
+
+.flipAcconutsButton {
+  min-height: auto;
+  padding: 0;
+  text-align: center;
+}
+
+.flipAcconutsButton:disabled .flipAcconutsIcon {
+  opacity: .5;
+}
+
+.flipAcconutsIcon {
+  display: inline-block;
+  transform: rotate(90deg);
+}
