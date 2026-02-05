@@ -380,7 +380,7 @@ func (etherScan *EtherScan) rpcCall(ctx context.Context, params url.Values, resu
 		return errp.New("expected result")
 	}
 	if err := json.Unmarshal(*wrapped.Result, result); err != nil {
-		return errp.WithStack(err)
+		return errp.Newf("unexpected response from EtherScan: %s", string(*wrapped.Result))
 	}
 	return nil
 }
