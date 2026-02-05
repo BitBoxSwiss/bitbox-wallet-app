@@ -18,7 +18,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
-	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 )
 
 const (
@@ -390,47 +389,38 @@ loop:
 	if backend.aopp.XpubRequired {
 		xpub = account.Config().Config.SigningConfigurations[signingConfigIdx].ExtendedPublicKey().String()
 	}
+	var sig []byte
 	switch account.Coin().Code() {
 	case coinpkg.CodeBTC, coinpkg.CodeRBTC:
-		sig, err := backend.keystore.SignBTCMessage(
+		sig, err = backend.keystore.SignBTCMessage(
 			[]byte(backend.aopp.Message),
 			addr.AbsoluteKeypath(),
 			account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
 			account.Coin().Code(),
 		)
-		if err != nil {
-			if firmware.IsErrorAbort(err) {
-				log.WithError(err).Error("user aborted msg signing")
-				backend.aoppSetError(errAOPPSigningAborted)
-				return
-			}
-			log.WithError(err).Error("signing error")
-			backend.aoppSetError(errAOPPUnknown)
-			return
-		}
-		signature = sig
 	case coinpkg.CodeETH:
-		sig, err := backend.keystore.SignETHMessage(
+		sig, err = backend.keystore.SignETHMessage(
 			[]byte(backend.aopp.Message),
 			addr.AbsoluteKeypath(),
 		)
-		if err != nil {
-			if errp.Cause(err) == keystore.ErrSigningAborted {
-				log.WithError(err).Error("user aborted msg signing")
-				backend.aoppSetError(errAOPPSigningAborted)
-				return
-			}
-			log.WithError(err).Error("signing error")
-			backend.aoppSetError(errAOPPUnknown)
-			return
-		}
-		signature = sig
-
 	default:
 		log.Errorf("unsupported coin: %s", account.Coin().Code())
 		backend.aoppSetError(errAOPPUnknown)
 		return
 	}
+
+	if err != nil {
+		if errp.Cause(err) == keystore.ErrSigningAborted {
+			log.WithError(err).Error("user aborted msg signing")
+			backend.aoppSetError(errAOPPSigningAborted)
+			return
+		}
+		log.WithError(err).Error("signing error")
+		backend.aoppSetError(errAOPPUnknown)
+		return
+	}
+	signature = sig
+
 	jsonBody, err := json.Marshal(struct {
 		Version   int    `json:"version"`
 		Address   string `json:"address"`
