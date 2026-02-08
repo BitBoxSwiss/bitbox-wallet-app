@@ -179,6 +179,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .addresses {
   color: var(--color-secondary);
   font-size: var(--size-small);
@@ -224,6 +225,15 @@
 @media (max-width: 768px) {
   .txShowDetailBtn {
     display: none;
+  }
+  
+  .addresses {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .txNoteWithAddress {
+    text-overflow: clip;
   }
 }
 .iconLoupe {
