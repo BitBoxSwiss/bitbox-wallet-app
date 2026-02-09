@@ -782,6 +782,7 @@ export const Send = ({
                         coinCode={account.coinCode}
                         disabled={!amount && !sendAll}
 
+
                         proposedFee={proposedFee}
                         customFee={customFee}
                         showCalculatingFeeLabel={isUpdatingProposal}
@@ -852,7 +853,6 @@ export const Send = ({
                       accountCode={account.code}
                       coinCode={account.coinCode}
                       disabled={!amount && !sendAll}
-                      fiatUnit={defaultCurrency}
                       proposedFee={proposedFee}
                       customFee={customFee}
                       showCalculatingFeeLabel={isUpdatingProposal}
