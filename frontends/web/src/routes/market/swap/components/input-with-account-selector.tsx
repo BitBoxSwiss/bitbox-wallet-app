@@ -16,9 +16,9 @@
 
 import type { ChangeEvent } from 'react';
 import type { AccountCode, TAccount } from '@/api/account';
-import { Grid, Column } from '@/components/layout';
 import { NumberInput } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
+import style from './input-with-account-selector.module.css';
 
 type Props = {
   accountCode: AccountCode | undefined;
@@ -39,26 +39,38 @@ export const InputWithAccountSelector = ({
 }: Props) => {
   const hasAccounts = accounts && accounts.length > 0;
   return (
-    <Grid col={hasAccounts ? '2' : '1'}>
-      {hasAccounts && (
-        <Column>
+    <div className={style.accountWithInputContainer}>
+      <div className={style.accountSelectorCol}>
+        {hasAccounts && (
           <GroupedAccountSelector
             accounts={accounts}
             selected={accountCode}
             onChange={onChangeAccountCode}
+            stackedLayout
           />
-        </Column>
-      )}
-      <Column>
-        <NumberInput
-          id={id}
-          name={id}
-          value={value}
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            onChangeValue && onChangeValue(event.target.value);
-          }}
-        />
-      </Column>
-    </Grid>
+        )}
+      </div>
+      <div className={style.inputCol}>
+        <div className={style.inputWithUnit}>
+          <NumberInput
+            transparent
+            align="right"
+            id={id}
+            className={style.inputComponent}
+            name={id}
+            value={value}
+            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              onChangeValue && onChangeValue(event.target.value);
+            }}
+          />
+          <span className={style.inputUnit}>
+            ETH
+          </span>
+        </div>
+        <div className={style.fiat}>
+          ~EUR 100
+        </div>
+      </div>
+    </div>
   );
 };

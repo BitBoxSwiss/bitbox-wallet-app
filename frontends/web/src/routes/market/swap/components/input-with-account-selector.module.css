@@ -1,0 +1,72 @@
+.accountWithInputContainer {
+  background: var(--background-secondary);
+  border-color: var(--background-quaternary);
+  border-radius: var(--radius-xl);
+  border-style: solid;
+  border-width: var(--border-width);
+  display: flex;
+  margin-bottom: var(--space-half);
+  min-height: var(--input-height);
+}
+
+.accountSelectorCol {
+  flex-basis: 50%;
+  flex-grow: 0;
+  flex-shrink: 0;
+  max-width: 50%;
+}
+
+.accountSelectorCol > div {
+  /* removes space after groupedaccountselector inside inputwithaccountselector on desktop */
+  margin-bottom: 0;
+}
+
+.inputCol {
+  align-items: flex-end;
+  display: flex;
+  flex-basis: 50%;
+  flex-direction: column;
+  flex-grow: 0;
+  flex-shrink: 0;
+  justify-content: center;
+  max-width: 50%;
+}
+
+.inputWithUnit {
+  align-items: baseline;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: var(--space-half);
+  width: 100%;
+}
+
+.inputUnit {
+  font-size: var(--size-small);
+  padding-left: .4ch;
+  white-space: nowrap;
+}
+
+.inputComponent {
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.inputComponent input {
+  border: none;
+  height: auto;
+}
+
+/* bit hack, would be nice to add class directly */
+.inputComponent > div {
+  border-radius: 0;
+}
+
+.inputComponent > div:has(input:invalid) {
+  border-color: var(--color-error);
+}
+
+.fiat {
+  color: var(--color-gray);
+  font-size: var(--size-small);
+  padding-right: var(--space-half);
+}
