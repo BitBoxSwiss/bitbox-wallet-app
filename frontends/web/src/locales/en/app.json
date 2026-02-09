@@ -1956,6 +1956,10 @@
     "pending": "Pending transaction",
     "size": "Size",
     "speedUp": "Speed up transaction",
+    "speedUpPrompt": {
+      "action": "Speed up",
+      "message": "This transaction is taking a while."
+    },
     "speedUpError": "Unable to speed up transaction. Please try again.",
     "status": {
       "complete": "Complete",
