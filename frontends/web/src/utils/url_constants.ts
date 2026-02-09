@@ -12,13 +12,13 @@ export const URL_CONSTANTS = {
 export const getFeedbackLink = (): string => {
   switch (i18n.resolvedLanguage) {
   case 'de':
-    return 'https://bitbox.swiss/de/feedback/';
+    return 'https://bitbox.swiss/de/feedback/?source=bitboxapp';
   case 'it':
-    return 'https://bitbox.swiss/it/feedback/';
+    return 'https://bitbox.swiss/it/feedback/?source=bitboxapp';
   case 'es':
-    return 'https://bitbox.swiss/es/feedback/';
+    return 'https://bitbox.swiss/es/feedback/?source=bitboxapp';
   default:
-    return 'https://bitbox.swiss/feedback/';
+    return 'https://bitbox.swiss/feedback/?source=bitboxapp';
   }
 };
 
