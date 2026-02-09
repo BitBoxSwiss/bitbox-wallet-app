@@ -2,6 +2,7 @@
     animation: skeleton-loading 1.4s ease infinite;
     background: linear-gradient(90deg, rgba(190, 190, 190, .2) 25%, rgba(129, 129, 129, .24) 37%, rgba(190, 190, 190, .2) 63%);
     background-size: 400% 100%;
+    border-radius: var(--radius-xl);
     display: inline-block;
     max-width: 100%;
     overflow: clip;
