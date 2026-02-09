@@ -127,6 +127,16 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 	amount := txInfo.Amount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
 	var formattedTime *string
 	timestamp := txInfo.Timestamp
+	// For pending outgoing Bitcoin transactions, use the first-seen timestamp so the frontend can
+	// determine how long the transaction has been waiting since broadcast.
+	if timestamp == nil {
+		coinCode := handlers.account.Coin().Code()
+		if (coinCode == coin.CodeBTC || coinCode == coin.CodeTBTC || coinCode == coin.CodeRBTC) &&
+			txInfo.Status == accounts.TxStatusPending &&
+			(txInfo.Type == accounts.TxTypeSend || txInfo.Type == accounts.TxTypeSendSelf) {
+			timestamp = txInfo.CreatedTimestamp
+		}
+	}
 
 	deductedAmountAtTime := txInfo.DeductedAmount.FormatWithConversionsAtTime(handlers.account.Coin(), timestamp, accountConfig.RateUpdater)
 	amountAtTime := txInfo.Amount.FormatWithConversionsAtTime(handlers.account.Coin(), timestamp, accountConfig.RateUpdater)

@@ -9,9 +9,16 @@
   }
 }
 
-.txContent {
+.txCard {
   background-color: var(--background-secondary);
   border-radius: var(--radius-xl);
+}
+
+.txCardWithSpeedUp {
+  padding-bottom: var(--space-quarter);
+}
+
+.txContent {
   display: flex;
   justify-content: space-between;
   padding: var(--space-half) 0;
@@ -237,4 +244,116 @@
 .iconLoupe {
   width: 28px;
   vertical-align: text-bottom;
+}
+
+.speedUpPopup {
+  background-color: #c2cfdb;
+  border-radius: var(--radius-xl);
+  margin: 4px 12px 0 12px;
+  padding: 14px var(--space-half);
+  position: relative;
+}
+
+.speedUpPopupHeader {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  padding-right: 24px;
+}
+
+.speedUpPopupText {
+  color: #2f3338;
+  font-size: var(--size-default);
+  line-height: 1.25;
+  margin: 0;
+}
+
+.speedUpPopupInfoIcon {
+  height: 18px;
+  width: 18px;
+}
+
+.speedUpPopupLink {
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--color-blue);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: var(--size-default);
+  gap: 6px;
+  line-height: 1.25;
+  margin-top: 6px;
+  padding: 0;
+}
+
+.speedUpPopupLinkIcon {
+  height: 10px;
+  position: relative;
+  width: 14px;
+}
+
+.speedUpPopupLinkIcon::before,
+.speedUpPopupLinkIcon::after {
+  border-color: transparent transparent transparent var(--color-blue);
+  border-style: solid;
+  border-width: 5px 0 5px 6px;
+  content: '';
+  position: absolute;
+  top: 0;
+}
+
+.speedUpPopupLinkIcon::before {
+  left: 0;
+}
+
+.speedUpPopupLinkIcon::after {
+  left: 5px;
+}
+
+.speedUpPopupLink:hover {
+  color: var(--color-lightblue);
+}
+
+.speedUpPopupLink:hover .speedUpPopupLinkIcon::before,
+.speedUpPopupLink:hover .speedUpPopupLinkIcon::after {
+  border-left-color: var(--color-lightblue);
+}
+
+:global(.dark-mode) .speedUpPopup {
+  background-color: #42515f;
+}
+
+:global(.dark-mode) .speedUpPopupText {
+  color: #e3ebf4;
+}
+
+.speedUpPopupClose {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  position: absolute;
+  right: var(--space-half);
+  top: var(--space-half);
+}
+
+.speedUpPopupCloseIcon {
+  height: 14px;
+  opacity: 0.65;
+  width: 14px;
+}
+
+.speedUpPopupClose:hover .speedUpPopupCloseIcon {
+  opacity: 0.8;
+}
+
+@media (max-width: 560px) {
+  .speedUpPopup {
+    margin-left: var(--space-half);
+    margin-right: var(--space-half);
+    margin-bottom: var(--space-quarter);
+  }
 }

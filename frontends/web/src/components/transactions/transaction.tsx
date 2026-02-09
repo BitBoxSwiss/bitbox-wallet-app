@@ -1,26 +1,33 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useContext, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import type { TAmountWithConversions, TTransactionStatus, TTransactionType, TTransaction } from '@/api/account';
+import type { CoinCode, TAmountWithConversions, TTransactionStatus, TTransactionType, TTransaction } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { Loupe } from '@/components/icon/icon';
+import { CloseXDark, InfoBlue, Loupe } from '@/components/icon/icon';
 import { parseTimeLong, parseTimeShort } from '@/utils/date';
 import { ProgressRing } from '@/components/progressRing/progressRing';
+import { AppContext } from '@/contexts/AppContext';
 import { AmountWithUnit } from '../amount/amount-with-unit';
 import { ConversionAmount } from '@/components/amount/conversion-amount';
 import { Arrow } from './components/arrows';
 import { getTxSign } from '@/utils/transaction';
+import { RBF_PENDING_THRESHOLD_MS, shouldShowSpeedUpPopup } from './speed-up';
 import styles from './transaction.module.css';
 
 type TTransactionProps = TTransaction & {
+  coinCode: CoinCode;
   onShowDetail: (internalID: TTransaction['internalID']) => void;
+  onSpeedUp: (internalID: TTransaction['internalID']) => void;
 };
 
 export const Transaction = ({
   addresses,
   amountAtTime,
+  coinCode,
   deductedAmountAtTime,
   onShowDetail,
+  onSpeedUp,
   internalID,
   note,
   numConfirmations,
@@ -29,7 +36,46 @@ export const Transaction = ({
   time,
   type,
 }: TTransactionProps) => {
+  const { t } = useTranslation();
+  const { isTesting } = useContext(AppContext);
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const [speedUpPromptDismissed, setSpeedUpPromptDismissed] = useState(false);
+  const [now, setNow] = useState<number>(Date.now());
+
+  const parsedBroadcastTime = time ? Date.parse(time) : Number.NaN;
+  const shouldTrackPendingThreshold =
+    !isTesting &&
+    !speedUpPromptDismissed &&
+    !Number.isNaN(parsedBroadcastTime) &&
+    status === 'pending' &&
+    numConfirmations === 0 &&
+    (type === 'send' || type === 'send_to_self');
+
+  useEffect(() => {
+    if (!shouldTrackPendingThreshold) {
+      return;
+    }
+    const thresholdTime = parsedBroadcastTime + RBF_PENDING_THRESHOLD_MS;
+    if (now >= thresholdTime) {
+      return;
+    }
+    const timeout = window.setTimeout(() => setNow(Date.now()), thresholdTime - now);
+    return () => window.clearTimeout(timeout);
+  }, [now, parsedBroadcastTime, shouldTrackPendingThreshold]);
+
+  const showSpeedUpPrompt = !speedUpPromptDismissed && shouldShowSpeedUpPopup({
+    coinCode,
+    isTesting,
+    numConfirmations,
+    status,
+    time,
+    type,
+    now,
+  });
+  const txCardClassName = [
+    styles.txCard,
+    showSpeedUpPrompt ? styles.txCardWithSpeedUp : null
+  ].filter(Boolean).join(' ');
 
   return (
     <section className={styles.tx}
@@ -38,32 +84,64 @@ export const Transaction = ({
           onShowDetail(internalID);
         }
       }}>
-      <div className={styles.txContent} data-testid="transaction" data-tx-type={type}>
-        <span className={styles.txIcon}>
-          <Arrow status={status} type={type} />
-        </span>
-        <Status
-          addresses={addresses}
-          amount={amountAtTime}
-          note={note}
-          numConfirmations={numConfirmations}
-          numConfirmationsComplete={numConfirmationsComplete}
-          status={status}
-          time={time}
-          type={type}
-        />
-        <Amounts
-          amount={amountAtTime}
-          deductedAmount={deductedAmountAtTime}
-          type={type}
-        />
-        <button
-          className={styles.txShowDetailBtn}
-          onClick={() => !isMobile && onShowDetail(internalID)}
-          type="button"
-          data-testid="tx-details-button">
-          <Loupe className={styles.iconLoupe} data-testid="tx-details"/>
-        </button>
+      <div className={txCardClassName}>
+        <div className={styles.txContent} data-testid="transaction" data-tx-type={type}>
+          <span className={styles.txIcon}>
+            <Arrow status={status} type={type} />
+          </span>
+          <Status
+            addresses={addresses}
+            amount={amountAtTime}
+            note={note}
+            numConfirmations={numConfirmations}
+            numConfirmationsComplete={numConfirmationsComplete}
+            status={status}
+            time={time}
+            type={type}
+          />
+          <Amounts
+            amount={amountAtTime}
+            deductedAmount={deductedAmountAtTime}
+            type={type}
+          />
+          <button
+            className={styles.txShowDetailBtn}
+            onClick={() => !isMobile && onShowDetail(internalID)}
+            type="button"
+            data-testid="tx-details-button">
+            <Loupe className={styles.iconLoupe} data-testid="tx-details"/>
+          </button>
+        </div>
+        {showSpeedUpPrompt && (
+          <div
+            className={styles.speedUpPopup}
+            onClick={event => event.stopPropagation()}>
+            <div className={styles.speedUpPopupHeader}>
+              <InfoBlue className={styles.speedUpPopupInfoIcon} />
+              <p className={styles.speedUpPopupText}>{t('transaction.speedUpPrompt.message')}</p>
+            </div>
+            <button
+              className={styles.speedUpPopupClose}
+              onClick={event => {
+                event.stopPropagation();
+                setSpeedUpPromptDismissed(true);
+              }}
+              aria-label={t('generic.close')}
+              type="button">
+              <CloseXDark className={styles.speedUpPopupCloseIcon} />
+            </button>
+            <button
+              className={styles.speedUpPopupLink}
+              onClick={event => {
+                event.stopPropagation();
+                onSpeedUp(internalID);
+              }}
+              type="button">
+              <span className={styles.speedUpPopupLinkIcon} aria-hidden />
+              {t('transaction.speedUpPrompt.action')}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -133,7 +211,7 @@ const Status = ({
       )}
       {' '}
       {isComplete && !showProgress && time && (
-        <Date time={time} />
+        <TxDate time={time} />
       )}
     </span>
   );
@@ -194,7 +272,7 @@ const AddressList = ({ values }: TAddressListProps) => (
   </span>
 );
 
-const Date = ({
+const TxDate = ({
   time,
 }: TDateProps) => {
   const { i18n } = useTranslation();
