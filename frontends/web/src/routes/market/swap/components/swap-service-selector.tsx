@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import Select, { components, SingleValueProps, OptionProps, DropdownIndicatorProps } from 'react-select';
+import type { TAmountWithConversions } from '@/api/account';
 import { Label } from '@/components/forms';
 import { ChevronDownDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { SwapServiceLogo } from './swap-service-logo';
 import style from './swap-service-selector.module.css';
 
 type TOption<T = any> = {
-  amount: string;
+  amount: TAmountWithConversions;
   icon: string;
   label: string;
   isFast: boolean;
@@ -36,7 +38,7 @@ const SwapProviderOption = ({ data }: SwapProviderOptionProps) => {
         )}
       </span>
       <span className={style.amount}>
-        ({data.amount})
+        <AmountWithUnit amount={data.amount} />
       </span>
     </>
   );
@@ -81,15 +83,67 @@ const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
 );
 
 export const SwapServiceSelector = () => {
-  const options = [{
-    amount: '1.00000000',
+  const options: TOption<string>[] = [{
+    amount: {
+      amount: '0.04',
+      unit: 'BTC',
+      estimated: false,
+      conversions: {
+        BTC: '0.005',
+        AUD: '512',
+        BRL: '512',
+        CAD: '512',
+        CHF: '512',
+        CNY: '512',
+        CZK: '512',
+        EUR: '512',
+        GBP: '512',
+        HKD: '512',
+        ILS: '512',
+        JPY: '512',
+        KRW: '512',
+        NOK: '512',
+        PLN: '512',
+        RUB: '512',
+        sat: '512',
+        SEK: '512',
+        SGD: '512',
+        USD: '512',
+      }
+    },
     icon: '',
     label: 'Thorchain',
     isRecommended: true,
     isFast: false,
     value: 'thorchain'
   }, {
-    amount: '0.03',
+    amount: {
+      amount: '0.03',
+      unit: 'BTC',
+      estimated: false,
+      conversions: {
+        BTC: '0.005',
+        AUD: '512',
+        BRL: '512',
+        CAD: '512',
+        CHF: '512',
+        CNY: '512',
+        CZK: '512',
+        EUR: '512',
+        GBP: '512',
+        HKD: '512',
+        ILS: '512',
+        JPY: '512',
+        KRW: '512',
+        NOK: '512',
+        PLN: '512',
+        RUB: '512',
+        sat: '512',
+        SEK: '512',
+        SGD: '512',
+        USD: '512',
+      }
+    },
     icon: '',
     label: 'NEAR',
     isRecommended: false,
