@@ -1,0 +1,38 @@
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-quarter);
+}
+
+.label {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.maxButton {
+    color: var(--color-gray);
+    font-size: var(--size-small);
+    min-height: auto;
+    padding: 0;
+}
+
+.flipContainer {
+  text-align: center;
+}
+
+.flipAcconutsButton {
+  min-height: auto;
+  padding: 0;
+  text-align: center;
+}
+
+.flipAcconutsButton:disabled .flipAcconutsIcon {
+  opacity: .5;
+}
+
+.flipAcconutsIcon {
+  display: inline-block;
+  transform: rotate(90deg);
+}

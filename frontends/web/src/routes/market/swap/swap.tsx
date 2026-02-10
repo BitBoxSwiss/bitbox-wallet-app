@@ -25,6 +25,8 @@ import { Entry } from '@/components/guide/entry';
 import { Button, Label } from '@/components/forms';
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
+import { ArrowSwap } from '@/components/icon';
+import style from './swap.module.css';
 
 type Props = {
   accounts: TAccount[];
@@ -39,10 +41,10 @@ export const Swap = ({
 
   // Send
   const [fromAccountCode, setFromAccountCode] = useState<string>();
-  const [swapSendAmount, setSwapSendAmount] = useState<string>();
+  const [swapSendAmount, setSwapSendAmount] = useState<string>('0.1');
   // Receive
   const [toAccountCode, setToAccountCode] = useState<string>();
-  const [swapReceiveAmount, setSwapReceiveAmount] = useState<string>();
+  const [swapReceiveAmount, setSwapReceiveAmount] = useState<string>('0.00040741');
 
   console.log(code, setSwapReceiveAmount);
 
@@ -63,18 +65,18 @@ export const Swap = ({
             width="600px"
           >
             <ViewContent>
-              <Label
-                htmlFor="swapSendAmount">
-                <span>
-                  {t('generic.send')}
-                </span>
-                <Button transparent>
-                  <small>
-                    Max 0.12345678 BTC
-                  </small>
+              <div className={style.row}>
+                <Label
+                  className={style.label}
+                  htmlFor="swapSendAmount">
+                  <span>
+                    {t('generic.send')}
+                  </span>
+                </Label>
+                <Button transparent className={style.maxButton}>
+                  Max 0.12345678 BTC
                 </Button>
-              </Label>
-
+              </div>
               <InputWithAccountSelector
                 accounts={accounts}
                 id="swapSendAmount"
@@ -83,15 +85,25 @@ export const Swap = ({
                 value={swapSendAmount}
                 onChangeValue={setSwapSendAmount}
               />
-              <Label
-                htmlFor="swapGetAmount">
-                <span>
-                  {t('generic.receiveWithoutCoinCode')}
-                </span>
-                <small>
+              <div className={style.flipContainer}>
+                <Button
+                  disabled
+                  transparent
+                  className={style.flipAcconutsButton}>
+                  <ArrowSwap className={style.flipAcconutsIcon} />
+                </Button>
+              </div>
+              <div className={style.row}>
+                <Label
+                  htmlFor="swapGetAmount">
+                  <span>
+                    {t('generic.receiveWithoutCoinCode')}
+                  </span>
+                </Label>
+                <Button transparent className={style.maxButton}>
                   Max 45678 ETH
-                </small>
-              </Label>
+                </Button>
+              </div>
               <InputWithAccountSelector
                 accounts={accounts}
                 id="swapGetAmount"

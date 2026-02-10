@@ -21,6 +21,7 @@ import arrowCircleLeftSVG from './assets/icons/arrow-circle-left.svg';
 import arrowCircleLeftActiveSVG from './assets/icons/arrow-circle-left-active.svg';
 import arrowCircleRightSVG from './assets/icons/arrow-circle-right.svg';
 import arrowCircleRightActiveSVG from './assets/icons/arrow-circle-right-active.svg';
+import arrowSwapSVG from './assets/icons/arrow-swap.svg';
 import bankDarkSVG from './assets/icons/bank.svg';
 import bankLightSVG from './assets/icons/bank-light.svg';
 import baseColorSVG from './assets/base-color.svg';
@@ -131,6 +132,7 @@ export const ArrowCirlceLeft = (props: ImgProps) => (<img src={arrowCircleLeftSV
 export const ArrowCirlceLeftActive = (props: ImgProps) => (<img src={arrowCircleLeftActiveSVG} draggable={false} {...props} />);
 export const ArrowCirlceRight = (props: ImgProps) => (<img src={arrowCircleRightSVG} draggable={false} {...props} />);
 export const ArrowCirlceRightActive = (props: ImgProps) => (<img src={arrowCircleRightActiveSVG} draggable={false} {...props} />);
+export const ArrowSwap = (props: ImgProps) => (<img src={arrowSwapSVG} draggable={false} {...props} />);
 export const BankDark = (props: ImgProps) => (<img src={bankDarkSVG} draggable={false} {...props} />);
 export const Bank = (props: ImgProps) => (<img src={bankLightSVG} draggable={false} {...props} />);
 export const BaseLogo = (props: ImgProps) => (<img src={baseColorSVG} draggable={false} {...props} />);

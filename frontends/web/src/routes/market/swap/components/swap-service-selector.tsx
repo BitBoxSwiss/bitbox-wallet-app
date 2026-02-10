@@ -1,27 +1,47 @@
-/**
- * Copyright 2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the 'License');
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an 'AS IS' BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import Select, { components, SingleValueProps, OptionProps } from 'react-select';
+import Select, { components, SingleValueProps, OptionProps, DropdownIndicatorProps } from 'react-select';
+import type { TAmountWithConversions } from '@/api/account';
 import { Label } from '@/components/forms';
+import { ChevronDownDark } from '@/components/icon';
+import { Badge } from '@/components/badge/badge';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { SwapServiceLogo } from './swap-service-logo';
+import style from './swap-service-selector.module.css';
 
 type TOption<T = any> = {
-  amount: string;
+  amount: TAmountWithConversions;
   icon: string;
   label: string;
+  isFast: boolean;
+  isRecommended: boolean;
   value: T;
+};
+
+type SwapProviderOptionProps = {
+  data: TOption;
+};
+
+const SwapProviderOption = ({ data }: SwapProviderOptionProps) => {
+  return (
+    <>
+      <SwapServiceLogo name={data.value} />
+      <span>
+        <span className={style.serivceName}>
+          {data.label}
+        </span>
+        {data.isRecommended && (
+          <Badge type="success">Recommended</Badge>
+        )}
+        {data.isFast && (
+          <Badge type="warning">Fastest</Badge>
+        )}
+      </span>
+      <span className={style.amount}>
+        <AmountWithUnit amount={data.amount} />
+      </span>
+    </>
+  );
 };
 
 // shown when selected
@@ -29,15 +49,12 @@ const CustomSingleValue = (props: SingleValueProps<TOption, false>) => {
   const { data } = props;
   return (
     <components.SingleValue {...props}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <img src={data.icon} style={{ width: 24, height: 24 }} />
-        <span>{data.label}</span>
-        <span>({data.amount})</span>
+      <div className={style.swapServiceOption}>
+        <SwapProviderOption data={data} />
       </div>
     </components.SingleValue>
   );
 };
-
 
 // shown in dropdown
 const CustomOption = (props: OptionProps<TOption, false>) => {
@@ -46,31 +63,92 @@ const CustomOption = (props: OptionProps<TOption, false>) => {
   return (
     <div
       {...innerProps}
-      style={{
-        backgroundColor: isFocused ? '#eee' : isSelected ? '#ddd' : 'white',
-      }}
+      className={`
+        ${style.customOption || ''}
+        ${isFocused && style.customOptionFocused || ''}
+        ${isSelected && style.customOptionSelected || ''}
+      `}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <img src={data.icon} style={{ width: 24, height: 24 }} />
-        <span>{data.label}</span>
+      <div className={style.swapServiceOption}>
+        <SwapProviderOption data={data} />
       </div>
-      <span>{data.amount}</span>
     </div>
   );
 };
 
+const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
+  <components.DropdownIndicator {...props}>
+    <ChevronDownDark />
+  </components.DropdownIndicator>
+);
 
 export const SwapServiceSelector = () => {
-  const options = [{
-    amount: '1',
+  const options: TOption<string>[] = [{
+    amount: {
+      amount: '0.04',
+      unit: 'BTC',
+      estimated: false,
+      conversions: {
+        BTC: '0.005',
+        AUD: '512',
+        BRL: '512',
+        CAD: '512',
+        CHF: '512',
+        CNY: '512',
+        CZK: '512',
+        EUR: '512',
+        GBP: '512',
+        HKD: '512',
+        ILS: '512',
+        JPY: '512',
+        KRW: '512',
+        NOK: '512',
+        PLN: '512',
+        RUB: '512',
+        sat: '512',
+        SEK: '512',
+        SGD: '512',
+        USD: '512',
+      }
+    },
     icon: '',
     label: 'Thorchain',
-    value: 'thor'
+    isRecommended: true,
+    isFast: false,
+    value: 'thorchain'
   }, {
-    amount: '0.04',
+    amount: {
+      amount: '0.03',
+      unit: 'BTC',
+      estimated: false,
+      conversions: {
+        BTC: '0.005',
+        AUD: '512',
+        BRL: '512',
+        CAD: '512',
+        CHF: '512',
+        CNY: '512',
+        CZK: '512',
+        EUR: '512',
+        GBP: '512',
+        HKD: '512',
+        ILS: '512',
+        JPY: '512',
+        KRW: '512',
+        NOK: '512',
+        PLN: '512',
+        RUB: '512',
+        sat: '512',
+        SEK: '512',
+        SGD: '512',
+        USD: '512',
+      }
+    },
     icon: '',
-    label: 'Thorchain',
-    value: 'thor'
+    label: 'NEAR',
+    isRecommended: false,
+    isFast: true,
+    value: 'near'
   }];
 
   return (
@@ -79,7 +157,12 @@ export const SwapServiceSelector = () => {
         Swapping services
       </Label>
       <Select<TOption>
+        className={style.select}
+        classNamePrefix="react-select"
+        isClearable={false}
         components={{
+          IndicatorSeparator: undefined,
+          DropdownIndicator,
           Option: CustomOption,
           SingleValue: CustomSingleValue,
         }}
