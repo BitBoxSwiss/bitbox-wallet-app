@@ -9,6 +9,7 @@ import { SubTitle } from '@/components/title';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { Button, Label } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { ArrowSwap } from '@/components/icon';
@@ -103,9 +104,9 @@ export const Swap = ({
               <Button primary>
                 {t('generic.swap')}
               </Button>
-              <Button secondary>
+              <BackButton>
                 {t('button.back')}
-              </Button>
+              </BackButton>
             </ViewButtons>
           </View>
         </Main>
