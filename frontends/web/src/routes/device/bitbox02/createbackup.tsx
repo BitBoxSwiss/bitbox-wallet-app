@@ -51,7 +51,7 @@ export const Create = ({ deviceID }: TProps) => {
   };
 
   return (
-    <span>
+    <>
       <Button
         primary
         disabled={disabled}
@@ -63,6 +63,6 @@ export const Create = ({ deviceID }: TProps) => {
           {t('bitbox02Interact.followInstructions')}
         </WaitDialog>
       )}
-    </span>
+    </>
   );
 };

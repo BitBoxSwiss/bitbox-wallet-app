@@ -56,7 +56,7 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
   };
 
   return (
-    <div>
+    <>
       <Button
         primary
         disabled={disabled}
@@ -91,6 +91,6 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
           </DialogButtons>
         </form>
       </Dialog>
-    </div>
+    </>
   );
 };
