@@ -1,36 +1,32 @@
-/**
- * Copyright 2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { AccountCode, TAccount } from '@/api/account';
+import { getBalance, TBalance, type AccountCode, type TAccount } from '@/api/account';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { SubTitle } from '@/components/title';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { Button, Label } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ArrowSwap } from '@/components/icon';
 import style from './swap.module.css';
 
 type Props = {
   accounts: TAccount[];
   code: AccountCode;
+};
+
+const fetchBlance = async (code: AccountCode) => {
+  const response = await getBalance(code);
+  if (response.success) {
+    return response.balance;
+  }
+  return;
 };
 
 export const Swap = ({
@@ -40,13 +36,21 @@ export const Swap = ({
   const { t } = useTranslation();
 
   // Send
-  const [fromAccountCode, setFromAccountCode] = useState<string>();
-  const [swapSendAmount, setSwapSendAmount] = useState<string>('0.1');
+  const [fromAccountCode, setFromAccountCode] = useState<string>(code);
+  const [swapSendAmount, setSwapSendAmount] = useState<string>('0');
+  const [swapMaxAmount, setSwapMaxAmount] = useState<TBalance | undefined>();
   // Receive
   const [toAccountCode, setToAccountCode] = useState<string>();
-  const [swapReceiveAmount, setSwapReceiveAmount] = useState<string>('0.00040741');
+  const [swapReceiveAmount, setSwapReceiveAmount] = useState<string>('0');
 
-  console.log(code, setSwapReceiveAmount);
+  useEffect(() => {
+    if (fromAccountCode) {
+      fetchBlance(fromAccountCode).then(setSwapMaxAmount);
+    }
+  }, [fromAccountCode]);
+
+  // not used yet, but loggin so we dont get a TS error
+  console.log(setSwapReceiveAmount);
 
   return (
     <GuideWrapper>
@@ -73,9 +77,13 @@ export const Swap = ({
                     {t('generic.send')}
                   </span>
                 </Label>
-                <Button transparent className={style.maxButton}>
-                  Max 0.12345678 BTC
-                </Button>
+                {swapMaxAmount && (
+                  <Button transparent className={style.maxButton}>
+                    Max
+                    {' '}
+                    <AmountWithUnit amount={swapMaxAmount.available} />
+                  </Button>
+                )}
               </div>
               <InputWithAccountSelector
                 accounts={accounts}
@@ -101,7 +109,7 @@ export const Swap = ({
                   </span>
                 </Label>
                 <Button transparent className={style.maxButton}>
-                  Max 45678 ETH
+                  45678 ETH
                 </Button>
               </div>
               <InputWithAccountSelector
@@ -117,9 +125,9 @@ export const Swap = ({
               <Button primary>
                 {t('generic.swap')}
               </Button>
-              <Button secondary>
+              <BackButton>
                 {t('button.back')}
-              </Button>
+              </BackButton>
             </ViewButtons>
           </View>
         </Main>
