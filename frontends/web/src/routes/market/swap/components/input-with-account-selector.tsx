@@ -68,7 +68,7 @@ export const InputWithAccountSelector = ({
           />
         )}
       </div>
-      <div className={style.inputCol}>
+      <label className={style.inputCol}>
         <div className={style.inputWithUnit}>
           <NumberInput
             transparent
@@ -94,7 +94,7 @@ export const InputWithAccountSelector = ({
             </>
           ) : null}
         </div>
-      </div>
+      </label>
     </div>
   );
 };
