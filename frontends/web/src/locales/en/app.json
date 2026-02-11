@@ -689,7 +689,7 @@
     "oldLabel": "Current device password"
   },
   "chart": {
-    "dataMissing": "Gathering historical data... stay tuned.",
+    "dataMissing": "Loading chart, come back later...",
     "dataOldTimestamp": "Historical exchange rates updating. The chart is not displaying data after {{time}}.",
     "dataUpdating": "updating data…",
     "filter": {
