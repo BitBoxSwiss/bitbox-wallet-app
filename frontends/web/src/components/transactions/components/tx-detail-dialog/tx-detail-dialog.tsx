@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TTransaction, TAmountWithConversions, getTransaction, TTransactionStatus, TTransactionType } from '@/api/account';
+import { TTransaction, TAmountWithConversions, getTransaction, TTransactionStatus, TTransactionType, CoinCode } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
+import { Button } from '@/components/forms';
 import { Dialog } from '@/components/dialog/dialog';
 import { Note } from './note';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { getTxSignForTxDetail } from '@/utils/transaction';
-import { ExternalLink } from '@/components/icon';
+import { ArrowFloorUpWhite, ExternalLink } from '@/components/icon';
 import { TxDetailHeader } from '@/components/transactions/components/tx-detail-dialog/tx-detail-header';
 import { AdvancedTxDetail } from '@/components/transactions/components/tx-detail-dialog/advanced-tx-detail';
 import { TxDetailRow } from '@/components/transactions/components/tx-detail-dialog/tx-detail-row';
@@ -19,6 +21,7 @@ type TProps = {
   open: boolean;
   onClose: () => void;
   accountCode: string;
+  coinCode: CoinCode;
   internalID: string;
   note: string;
   status: TTransactionStatus;
@@ -30,10 +33,14 @@ type TProps = {
   explorerURL: string;
 };
 
+// Bitcoin coin codes that support RBF (Replace-By-Fee)
+const BITCOIN_COIN_CODES: CoinCode[] = ['btc', 'tbtc', 'rbtc'];
+
 export const TxDetailsDialog = ({
   open,
   onClose,
   accountCode,
+  coinCode,
   internalID,
   note,
   status,
@@ -45,10 +52,21 @@ export const TxDetailsDialog = ({
   explorerURL,
 }: TProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [transactionInfo, setTransactionInfo] = useState<TTransaction | null>(null);
 
+  // Fetch transaction data when dialog opens or transaction changes
   useEffect(() => {
-    if (!transactionInfo && open) {
+    if (!open) {
+      return;
+    }
+    // Reset if viewing a different transaction
+    if (transactionInfo && transactionInfo.internalID !== internalID) {
+      setTransactionInfo(null);
+      return;
+    }
+    // Fetch if not yet loaded
+    if (!transactionInfo) {
       getTransaction(accountCode, internalID).then(transaction => {
         if (!transaction) {
           console.error(`Unable to retrieve transaction ${internalID}`);
@@ -65,6 +83,31 @@ export const TxDetailsDialog = ({
   const displayedSign = getTxSignForTxDetail(transactionInfo.type);
   const amountSign = amount.amount === '0' ? '' : displayedSign;
   const amountAtTimeSign = transactionInfo.amountAtTime?.amount === '0' ? '' : displayedSign;
+
+  // RBF is available for pending outgoing Bitcoin transactions
+  const isRBFEligible =
+    BITCOIN_COIN_CODES.includes(coinCode) &&
+    numConfirmations === 0 &&
+    (type === 'send' || type === 'send_to_self');
+
+  const handleSpeedUp = () => {
+    // Ensure transactionInfo is loaded and matches the current transaction
+    // This prevents using stale data when the dialog is reused
+    if (!transactionInfo || transactionInfo.internalID !== internalID) {
+      return;
+    }
+
+    // Navigate to send page with tx id only. The send page loads the latest tx details and derives
+    // the rest from backend data.
+    navigate(`/account/${accountCode}/send`, {
+      state: {
+        rbf: {
+          txID: transactionInfo.internalID,
+        }
+      }
+    });
+    onClose();
+  };
   // Amount and Confirmations info are displayed using props data
   // instead of transactionInfo because they are live updated.
 
@@ -151,6 +194,19 @@ export const TxDetailsDialog = ({
           </TxDetailRow>
 
           <AdvancedTxDetail transactionInfo={transactionInfo} />
+
+          {/* Speed up transaction button (RBF) */}
+          {isRBFEligible && (
+            <div className={styles.speedUpContainer}>
+              <Button
+                primary
+                className={styles.speedUpButton}
+                onClick={handleSpeedUp}>
+                <ArrowFloorUpWhite className={styles.speedUpIcon} />
+                {t('transaction.speedUp')}
+              </Button>
+            </div>
+          )}
 
           {/* explorer link */}
           <div className={styles.explorerLinkContainer}>

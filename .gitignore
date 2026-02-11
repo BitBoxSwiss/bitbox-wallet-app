@@ -55,3 +55,6 @@ tags
 # Playwright files
 /frontends/web/playwright-report/
 /frontends/web/test-results/
+
+# Node version
+.nvmrc

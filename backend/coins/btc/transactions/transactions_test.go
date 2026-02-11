@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accounterrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountsMock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	addressesTest "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses/test"
@@ -23,6 +24,7 @@ import (
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/mempool"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/mock"
@@ -330,6 +332,82 @@ func (s *transactionsSuite) TestBalance() {
 	balance, err = s.transactions.Balance()
 	s.Require().NoError(err)
 	s.Require().Equal(newBalance(expectedAmount2, 0), balance)
+}
+
+func (s *transactionsSuite) TestSpendableOutputsForRBFSucceeds() {
+	addresses, err := s.addressChain.EnsureAddresses()
+	s.Require().NoError(err)
+	address := addresses[0]
+	otherAddress := addresses[2]
+
+	fundingAmount := btcutil.Amount(10000)
+	sendAmount := btcutil.Amount(9000)
+	fundingTx := newTx(chainhash.HashH(nil), 0, address, fundingAmount)
+	rbfTx := newTx(fundingTx.TxHash(), 0, otherAddress, sendAmount)
+	s.blockchainMock.RegisterTxs(fundingTx, rbfTx)
+
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
+	s.updateAddressHistory(address, []*blockchainpkg.TxInfo{
+		{TXHash: blockchainpkg.TXHash(fundingTx.TxHash()), Height: 10},
+		{TXHash: blockchainpkg.TXHash(rbfTx.TxHash()), Height: 0},
+	})
+
+	outputs, originalFee, originalFeeRatePerKb, err := s.transactions.SpendableOutputsForRBF(rbfTx.TxHash())
+	s.Require().NoError(err)
+	s.Require().Len(outputs, 1)
+
+	inputOutpoint := wire.OutPoint{Hash: fundingTx.TxHash(), Index: 0}
+	s.Require().Contains(outputs, inputOutpoint)
+	s.Require().Equal(int64(fundingAmount), outputs[inputOutpoint].TxOut.Value)
+
+	expectedFee := fundingAmount - sendAmount
+	s.Require().Equal(expectedFee, originalFee)
+
+	expectedVSize := btcutil.Amount(mempool.GetTxVirtualSize(btcutil.NewTx(rbfTx)))
+	s.Require().NotZero(expectedVSize)
+	s.Require().Equal(expectedFee*1000/expectedVSize, originalFeeRatePerKb)
+}
+
+func (s *transactionsSuite) TestSpendableOutputsForRBFNotFound() {
+	_, _, _, err := s.transactions.SpendableOutputsForRBF(chainhash.HashH([]byte("missing-rbf")))
+	s.Require().ErrorContains(err, accounterrors.ErrRBFTxNotFound.Error())
+}
+
+func (s *transactionsSuite) TestSpendableOutputsForRBFAlreadyConfirmed() {
+	addresses, err := s.addressChain.EnsureAddresses()
+	s.Require().NoError(err)
+	address := addresses[0]
+	confirmedTx := newTx(chainhash.HashH(nil), 0, address, 1234)
+	s.blockchainMock.RegisterTxs(confirmedTx)
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
+	s.updateAddressHistory(address, []*blockchainpkg.TxInfo{
+		{TXHash: blockchainpkg.TXHash(confirmedTx.TxHash()), Height: 10},
+	})
+
+	_, _, _, err = s.transactions.SpendableOutputsForRBF(confirmedTx.TxHash())
+	s.Require().ErrorContains(err, accounterrors.ErrRBFTxAlreadyConfirmed.Error())
+}
+
+func (s *transactionsSuite) TestSpendableOutputsForRBFNotReplaceable() {
+	addresses, err := s.addressChain.EnsureAddresses()
+	s.Require().NoError(err)
+	address := addresses[0]
+	otherAddress := addresses[2]
+
+	fundingTx := newTx(chainhash.HashH(nil), 0, address, 10000)
+	originalTx := newTx(fundingTx.TxHash(), 0, otherAddress, 9000)
+	replacementTx := newTx(fundingTx.TxHash(), 0, otherAddress, 8500)
+	s.blockchainMock.RegisterTxs(fundingTx, originalTx, replacementTx)
+
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
+	s.updateAddressHistory(address, []*blockchainpkg.TxInfo{
+		{TXHash: blockchainpkg.TXHash(fundingTx.TxHash()), Height: 10},
+		{TXHash: blockchainpkg.TXHash(originalTx.TxHash()), Height: 0},
+		{TXHash: blockchainpkg.TXHash(replacementTx.TxHash()), Height: 0},
+	})
+
+	_, _, _, err = s.transactions.SpendableOutputsForRBF(originalTx.TxHash())
+	s.Require().ErrorContains(err, accounterrors.ErrRBFTxNotReplaceable.Error())
 }
 
 func (s *transactionsSuite) TestRemoveTransaction() {
