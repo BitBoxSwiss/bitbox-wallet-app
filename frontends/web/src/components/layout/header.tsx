@@ -20,16 +20,14 @@ export const Header = ({
 }: Props) => {
   const { t } = useTranslation();
 
-  const { guideShown, guideExists, toggleGuide, toggleSidebar } = useContext(AppContext);
+  const { guideExists, toggleGuide, toggleSidebar } = useContext(AppContext);
 
   const toggle = (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!guideExists) {
       return false;
     }
-    if (!guideShown) {
-      toggleGuide();
-    }
+    toggleGuide();
     return false;
   };
 
