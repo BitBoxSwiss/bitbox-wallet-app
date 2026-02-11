@@ -63,7 +63,6 @@
     justify-content: space-between;
     align-items: center;
     padding: 13.5px var(--space-half);
-    border-bottom: solid 1px var(--background);
 }
 
 .header.centered {
