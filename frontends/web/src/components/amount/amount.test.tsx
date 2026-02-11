@@ -175,7 +175,7 @@ describe('Amount formatting', () => {
     });
   });
 
-  describe('non BTC coins amounts', () => {
+  describe('ETH coins amounts (truncated to 9 decimals)', () => {
     let coins: CoinUnit[] = ['ETH', 'SEPETH'];
     coins.forEach(coin => {
       it('10.00000000 ' + coin + ' stays 10.00000000', () => {
@@ -189,6 +189,18 @@ describe('Amount formatting', () => {
       it('42 ' + coin + ' stays 42', () => {
         const { container } = render(<Amount amount="42" unit={coin}/>);
         expect(container).toHaveTextContent('42');
+      });
+      it('0.123456789012 ' + coin + ' becomes 0.123456789 (truncated to 9 decimals)', () => {
+        const { container } = render(<Amount amount="0.123456789012" unit={coin}/>);
+        expect(container).toHaveTextContent('0.123456789');
+      });
+      it('1.000000001 ' + coin + ' stays 1.000000001', () => {
+        const { container } = render(<Amount amount="1.000000001" unit={coin}/>);
+        expect(container).toHaveTextContent('1.000000001');
+      });
+      it('0.123456789012 ' + coin + ' with maxDecimals=18 stays full precision', () => {
+        const { container } = render(<Amount amount="0.123456789012" unit={coin} maxDecimals={18}/>);
+        expect(container).toHaveTextContent('0.123456789012');
       });
     });
   });
