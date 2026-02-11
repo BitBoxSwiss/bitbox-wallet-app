@@ -166,6 +166,7 @@ const Amounts = ({
         {displayAmount.amount !== '0' && getTxSign(type)}
         <AmountWithUnit
           amount={displayAmount}
+          maxDecimals={9}
           unitClassName={styles.txUnit}
         />
       </span>
@@ -253,6 +254,7 @@ const Addresses = ({
               amount: (
                 <AmountWithUnit
                   amount={amount}
+                  maxDecimals={9}
                   unitClassName={styles.txUnit}
                 />
               ),
