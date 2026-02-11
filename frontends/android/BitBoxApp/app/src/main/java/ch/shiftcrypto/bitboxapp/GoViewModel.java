@@ -143,7 +143,14 @@ public class GoViewModel extends AndroidViewModel {
 
         @Override
         public void systemOpen(String url) throws Exception {
-            Util.systemOpen(getApplication(), url);
+            if (url.startsWith("/")) {
+                if (fileSaveHelper != null) {
+                    fileSaveHelper.promptSave(url, Util.getMimeTypeOrDefault(url));
+                    return;
+                }
+                throw new Exception("File save helper not available");
+            }
+            Util.systemOpenExternal(getApplication(), url);
         }
 
         @Override
@@ -200,6 +207,7 @@ public class GoViewModel extends AndroidViewModel {
     private final GoEnvironment goEnvironment;
     private final GoAPI goAPI;
     private NetworkHelper networkHelper;
+    private FileSaveHelper fileSaveHelper;
 
     public NetworkHelper getNetworkHelper() {
         return networkHelper;
@@ -251,5 +259,9 @@ public class GoViewModel extends AndroidViewModel {
             return;
         }
         this.goEnvironment.setDevice(new GoDeviceInfo(device));
+    }
+
+    public void setFileSaveHelper(FileSaveHelper helper) {
+        this.fileSaveHelper = helper;
     }
 }

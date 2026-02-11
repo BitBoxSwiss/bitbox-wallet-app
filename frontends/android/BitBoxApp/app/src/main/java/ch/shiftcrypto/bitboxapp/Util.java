@@ -9,9 +9,6 @@ import android.os.Process;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import androidx.core.content.FileProvider;
-
-import java.io.File;
 import java.util.regex.Pattern;
 
 public class Util {
@@ -35,23 +32,11 @@ public class Util {
         return false;
     }
 
-    public static void systemOpen(Application application, String url) throws Exception {
+    public static void systemOpenExternal(Application application, String url) throws Exception {
         Context context = application.getApplicationContext();
         Intent intent;
-        if (url.startsWith("/")) {
-            // local file
-            intent = new Intent(Intent.ACTION_SEND);
-            Uri uri = FileProvider.getUriForFile(context,
-                    context.getPackageName() + ".provider",
-                    new File(url));
-            intent.setDataAndType(uri, getMimeType(url));
-            intent.putExtra(Intent.EXTRA_STREAM, uri);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        } else {
-            // external link
-            intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(url));
-        }
+        intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
 
         Intent chooserIntent = Intent.createChooser(intent, null);
         chooserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -91,5 +76,10 @@ public class Util {
             }
         }
         return type;
+    }
+
+    public static String getMimeTypeOrDefault(String url) {
+        String type = getMimeType(url);
+        return type != null ? type : "application/octet-stream";
     }
 }
