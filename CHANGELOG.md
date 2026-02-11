@@ -7,6 +7,8 @@
 - Apply rounded corners in several places and components of the app
 - Send: enable rotating currencies in send window.
 - Show the fee's fiat value in send-to-self txs for consistency with others, and include the send-to-self amount in the left-side label
+- Show 9 decimals for ETH balances in portfolio page, account page, and transaction history
+- Show "full" ETH balance (up to 18 decimal places) in Account information view
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.
