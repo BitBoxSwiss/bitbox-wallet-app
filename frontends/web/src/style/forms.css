@@ -20,11 +20,6 @@ label {
     margin-bottom: var(--space-quarter);
 }
 
-input:invalid,
-input:invalid:focus {
-    border-color: var(--color-error);
-}
-
 input::-webkit-credentials-auto-fill-button {
     visibility: hidden;
     display: none !important;

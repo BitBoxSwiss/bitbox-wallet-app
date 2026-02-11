@@ -37,12 +37,14 @@ export const Swap = ({
 
   // Send
   const [fromAccountCode, setFromAccountCode] = useState<string>(code);
-  const [swapSendAmount, setSwapSendAmount] = useState<string>('0');
+  const [swapSendAmount, setSwapSendAmount] = useState<string>('');
   const [swapMaxAmount, setSwapMaxAmount] = useState<TBalance | undefined>();
+
   // Receive
   const [toAccountCode, setToAccountCode] = useState<string>();
-  const [swapReceiveAmount, setSwapReceiveAmount] = useState<string>('0');
+  const [swapReceiveAmount, setSwapReceiveAmount] = useState<string>('');
 
+  // update max swappable amount (total coins of the account)
   useEffect(() => {
     if (fromAccountCode) {
       fetchBlance(fromAccountCode).then(setSwapMaxAmount);
