@@ -64,6 +64,7 @@ export const BalanceRow = (
           <span className={style.summaryTableBalance}>
             <AmountWithUnit
               amount={balance.available}
+              maxDecimals={9}
               unitClassName={style.coinUnit}
             />
           </span>
