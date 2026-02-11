@@ -87,7 +87,13 @@ export const VendorDeals = ({
           {getVendorFormattedName(vendorName)}
         </h3>
         <div className={style.paymentMethodsContainer}>
-          {deals.map(deal => !deal.isHidden && <Deal key={deal.payment} deal={deal} vendorName={vendorName}/>)}
+          {deals.map(deal => !deal.isHidden && (
+            <Deal
+              key={`${vendorName || ''}_${deal.payment || ''}`}
+              deal={deal}
+              vendorName={vendorName}
+            />
+          ))}
         </div>
       </div>
     </div>
