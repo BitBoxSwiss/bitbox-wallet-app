@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -120,20 +121,20 @@ func (u *Updater) PollBalances() {
 }
 
 // UpdateBalancesAndBlockNumber updates the balances of the accounts in the provided slice.
-func (u *Updater) UpdateBalancesAndBlockNumber(accounts []*Account, etherScanClient BalanceAndBlockNumberFetcher) {
-	if len(accounts) == 0 {
+func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScanClient BalanceAndBlockNumberFetcher) {
+	if len(ethAccounts) == 0 {
 		return
 	}
-	chainId := accounts[0].ETHCoin().ChainID()
-	for _, account := range accounts {
+	chainId := ethAccounts[0].ETHCoin().ChainID()
+	for _, account := range ethAccounts {
 		if account.ETHCoin().ChainID() != chainId {
 			u.log.Error("Cannot update balances and block number for accounts with different chain IDs")
 			return
 		}
 	}
 
-	ethNonErc20Addresses := make([]common.Address, 0, len(accounts))
-	for _, account := range accounts {
+	ethNonErc20Addresses := make([]common.Address, 0, len(ethAccounts))
+	for _, account := range ethAccounts {
 		if account.isClosed() {
 			continue
 		}
@@ -161,7 +162,14 @@ func (u *Updater) UpdateBalancesAndBlockNumber(accounts []*Account, etherScanCli
 		return
 	}
 
-	for _, account := range accounts {
+	prefetchedTokenTxsByAccount := map[*Account][]*accounts.TransactionData{}
+	if len(ethAccounts) > 1 {
+		if fetcher, ok := etherScanClient.(*etherscan.EtherScan); ok {
+			prefetchedTokenTxsByAccount = u.prefetchTokenTransactions(ethAccounts, fetcher, blockNumber)
+		}
+	}
+
+	for _, account := range ethAccounts {
 		if account.isClosed() {
 			continue
 		}
@@ -198,11 +206,66 @@ func (u *Updater) UpdateBalancesAndBlockNumber(accounts []*Account, etherScanCli
 		if account.Offline() != nil {
 			continue // Skip updating balance if the account is offline.
 		}
-		if err := account.Update(balance, blockNumber); err != nil {
+		if confirmedTransactions, ok := prefetchedTokenTxsByAccount[account]; ok {
+			setPrefetchedConfirmedTransactions(account, confirmedTransactions)
+			if err := account.Update(balance, blockNumber, false); err != nil {
+				u.log.WithError(err).Errorf("Could not update balance for address %s", address.Address.Hex())
+				account.SetOffline(err)
+				continue
+			}
+			account.SetOffline(nil)
+		} else if err := account.Update(balance, blockNumber, true); err != nil {
 			u.log.WithError(err).Errorf("Could not update balance for address %s", address.Address.Hex())
 			account.SetOffline(err)
 		} else {
 			account.SetOffline(nil)
 		}
 	}
+}
+
+func setPrefetchedConfirmedTransactions(account *Account, confirmedTransactions []*accounts.TransactionData) {
+	defer account.updateLock.Lock()()
+	account.prefetchedConfirmedTransactions = confirmedTransactions
+}
+
+func (u *Updater) prefetchTokenTransactions(
+	ethAccounts []*Account,
+	etherScanClient *etherscan.EtherScan,
+	blockNumber *big.Int,
+) map[*Account][]*accounts.TransactionData {
+	tokenAccountsByAddress := map[common.Address][]*Account{}
+	for _, account := range ethAccounts {
+		if account.isClosed() || !IsERC20(account) {
+			continue
+		}
+		address, err := account.Address()
+		if err != nil {
+			u.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Config.Code)
+			account.SetOffline(err)
+			continue
+		}
+		tokenAccountsByAddress[address.Address] = append(tokenAccountsByAddress[address.Address], account)
+	}
+
+	if len(tokenAccountsByAddress) == 0 {
+		return nil
+	}
+
+	prefetched := map[*Account][]*accounts.TransactionData{}
+	for address, tokenAccounts := range tokenAccountsByAddress {
+		transactionsByContract, err := etherScanClient.TokenTransactionsByContract(
+			blockNumber,
+			address,
+			blockNumber,
+		)
+		if err != nil {
+			u.log.WithError(err).Errorf("Could not get token transactions for address %s", address.Hex())
+			continue
+		}
+		for _, account := range tokenAccounts {
+			contractAddress := account.coin.erc20Token.ContractAddress()
+			prefetched[account] = transactionsByContract[contractAddress]
+		}
+	}
+	return prefetched
 }
