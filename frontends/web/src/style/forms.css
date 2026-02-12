@@ -20,26 +20,10 @@ label {
     margin-bottom: var(--space-quarter);
 }
 
-input:invalid,
-input:invalid:focus {
-    border-color: var(--color-error);
-}
-
 input::-webkit-credentials-auto-fill-button {
     visibility: hidden;
     display: none !important;
     pointer-events: none;
     position: absolute;
     right: 0;
-}
-
-a[tabindex="0"]:focus,
-button:focus,
-input:focus,
-select:focus,
-input[type="checkbox"]:focus + label::before {
-    outline-color: var(--color-blue);
-    outline-offset: -2px;
-    outline-style: auto;
-    outline-width: 4px;
 }
