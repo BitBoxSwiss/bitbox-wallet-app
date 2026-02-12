@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TSelectedUTXOs } from './utxos';
 import { useMountedRef } from '@/hooks/mount';
+import { usePrevious } from '@/hooks/previous';
 import * as accountApi from '@/api/account';
 import { syncdone } from '@/api/accountsync';
-import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
+import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount, type BtcUnit } from '@/api/coins';
 import { View, ViewContent } from '@/components/view/view';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
@@ -16,7 +17,7 @@ import { BackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { FeeTargets } from './feetargets';
-import { isBitcoinBased } from '@/routes/account/utils';
+import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
 import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
 import { SendResult } from './components/result';
@@ -29,6 +30,7 @@ import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
 import { connectKeystore } from '@/api/keystores';
 import { SubTitle } from '@/components/title';
+import { RatesContext } from '@/contexts/RatesContext';
 import style from './send.module.css';
 
 type TProps = {
@@ -37,7 +39,7 @@ type TProps = {
   activeCurrency: accountApi.Fiat;
 };
 
-const useAccountBalance = (accountCode: accountApi.AccountCode) => {
+const useAccountBalance = (accountCode: accountApi.AccountCode, btcUnit?: BtcUnit) => {
   const mounted = useMountedRef();
   const [balance, setBalance] = useState<accountApi.TBalance>();
 
@@ -53,7 +55,7 @@ const useAccountBalance = (accountCode: accountApi.AccountCode) => {
   useEffect(() => {
     updateBalance(accountCode);
     return syncdone(accountCode, () => updateBalance(accountCode));
-  }, [accountCode, updateBalance]);
+  }, [accountCode, updateBalance, btcUnit]);
 
   return balance;
 };
@@ -64,6 +66,7 @@ export const Send = ({
   activeCurrency,
 }: TProps) => {
   const { t } = useTranslation();
+  const { btcUnit } = useContext(RatesContext);
   const selectedUTXOsRef = useRef<TSelectedUTXOs>({});
   const [utxoDialogActive, setUtxoDialogActive] = useState(false);
   // in case there are multiple parallel tx proposals we can ignore all other but the last one
@@ -91,8 +94,10 @@ export const Send = ({
   const [sendResult, setSendResult] = useState<accountApi.TSendTx>();
 
   const [updateFiat, setUpdateFiat] = useState<boolean>(true);
+  const prevActiveCurrency = usePrevious(activeCurrency);
+  const prevBtcUnit = usePrevious(btcUnit);
 
-  const balance = useAccountBalance(account.code);
+  const balance = useAccountBalance(account.code, btcUnit);
 
   const handleContinue = () => {
     setSendAll(false);
@@ -264,6 +269,56 @@ export const Send = ({
     validateAndDisplayFee(updateFiat);
   }, [amount, customFee, feeTarget, fiatAmount, updateFiat, validateAndDisplayFee]);
 
+  useEffect(() => {
+    const currencyChanged = prevActiveCurrency !== undefined && prevActiveCurrency !== activeCurrency;
+    const btcUnitChanged = prevBtcUnit !== undefined && prevBtcUnit !== btcUnit;
+
+    if (!currencyChanged && !btcUnitChanged) {
+      return;
+    }
+
+    if (btcUnitChanged && isBitcoinOnly(account.coinCode)) {
+      if (sendAll && getValidTxInputData()) {
+        validateAndDisplayFee(true);
+      } else if (amount) {
+        const fiatUnit = prevBtcUnit === 'default' ? 'BTC' : 'sat';
+        convertFromCurrency({
+          amount,
+          coinCode: account.coinCode,
+          fiatUnit
+        }).then((data) => {
+          if (data.success) {
+            setAmount(data.amount);
+            setUpdateFiat(false);
+          } else {
+            setErrorHandling({ amountError: t('send.error.invalidAmount') });
+          }
+        }).catch(() => {
+          setErrorHandling({ amountError: t('send.error.invalidAmount') });
+        });
+      }
+      return;
+    }
+
+    if (currencyChanged) {
+      const amountToConvert = sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount;
+      convertToFiat(amountToConvert);
+    }
+  }, [
+    account.coinCode,
+    activeCurrency,
+    amount,
+    btcUnit,
+    convertToFiat,
+    getValidTxInputData,
+    prevActiveCurrency,
+    prevBtcUnit,
+    proposedAmount,
+    sendAll,
+    t,
+    validateAndDisplayFee,
+  ]);
+
   const handleFeeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
     setFeeTarget(feeTarget);
     setCustomFee('');
@@ -368,7 +423,7 @@ export const Send = ({
             <ViewContent>
               <div className={style.sendHeader}>
                 <div className={style.availableBalance}>
-                  <Balance balance={balance} noRotateFiat/>
+                  <Balance balance={balance} />
                 </div>
                 <SubTitle className={style.subTitle}>
                   {t('send.transactionDetails')}
@@ -483,6 +538,7 @@ export const Send = ({
                     <AmountWithUnit
                       amount={proposedAmount}
                       alwaysShowAmounts
+                      enableRotateUnit
                       unitClassName={style.unit}
                     />
                   )}
@@ -491,6 +547,7 @@ export const Send = ({
                     <FiatValue
                       amount={proposedAmount.conversions[activeCurrency] || ''}
                       baseCurrencyUnit={activeCurrency}
+                      enableRotateUnit
                     />
                   ) : null}
                 </p>

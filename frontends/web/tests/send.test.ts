@@ -102,6 +102,13 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     console.log('Sending RBTC to second account');
     await page.getByRole('link', { name: 'Send' }).click();
     await page.waitForURL('**/send');
+    const fiatLabel = page.locator('label[for="fiatAmount"]');
+    const currentFiat = (await fiatLabel.textContent())?.trim() || '';
+    expect(currentFiat).not.toBe('');
+    const availableBalance = page.getByTestId('availableBalance');
+    await availableBalance.getByTestId(`amount-unit-${currentFiat}`).click();
+    await expect(fiatLabel).not.toHaveText(currentFiat);
+
     await page.fill('#recipientAddress', recvAdd);
     await page.click('#sendAll');
     const reviewButton = page.getByRole('button', { name: 'Review' });
