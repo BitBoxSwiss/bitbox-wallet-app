@@ -36,6 +36,14 @@
     margin-bottom: var(--space-quarter);
 }
 
+.fee input {
+    height: auto;
+}
+
+.fee input::placeholder {
+    font-size: var(--size-small);
+}
+
 .fee > div:not(:focus-within):not(:has(:invalid)) {
     border-left: none;
 }
@@ -60,11 +68,6 @@
     border-right-color: var(--background-secondary);
     border-width: var(--border-width);
 }
-
-.fee input::placeholder {
-    font-size: var(--size-small);
-}
-
 .customFeeUnit {
     color: var(--color-secondary);
     font-size: var(--size-small);
