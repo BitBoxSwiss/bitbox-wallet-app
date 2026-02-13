@@ -9,7 +9,15 @@
   visibility: hidden;
 }
 
-.chartUpdatingMessage {
+.chartUnavailableMessageContainer {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+
+.chartUpdatingMessage,
+.chartUnavailableMessage {
   align-items: center;
   color: var(--color-tertiary);
   display: flex;
@@ -18,6 +26,21 @@
   padding: 0 var(--space-half);
   text-align: center;
   white-space: normal;
+}
+
+.chartUnavailableMessage {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-quarter);
+}
+
+.chartUnavailableMessage p {
+  margin: 0;
+}
+
+.chartUnavailableMessage img {
+  width: 24px;
+  height: 24px;
 }
 
 .chart header {
@@ -64,6 +87,12 @@
 }
 
 @media (max-width: 768px) {
+
+  .chartUnavailableMessage img {
+    width: 20px;
+    height: 20px;
+  }
+
   .transitionDiv {
     background-color: var(--background);
     display: block;
