@@ -47,7 +47,7 @@ The below instructions assume a unix environment.
 
 To build the app or run the development workflow, the following dependencies need to be installed:
 
-- [Go](https://golang.org/doc/install) version 1.24
+- [Go](https://golang.org/doc/install) version 1.26
 - [Node.js](https://nodejs.org/) version 20.x
 - [NPM](https://docs.npmjs.com/about-npm-versions) version 10.x or newer
 - [Qt](https://www.qt.io) version 6.8.2
@@ -127,7 +127,7 @@ Tests are located under [`frontends/web/tests`](/frontends/web/tests) and can be
 
 More info can be found [here](/frontends/web/tests/README.md)
 Appium is used to perform automatic test on Android emulators.
-The test runs automatically on PRs and push to master in the Github CI. 
+The test runs automatically on PRs and push to master in the Github CI.
 
 `make mobilee2etest` can be used to launch the tests; however, when ran locally, this requires an Android emulator
 to be already running. In CI, the emulator is automatically spawned from a Github Action.
