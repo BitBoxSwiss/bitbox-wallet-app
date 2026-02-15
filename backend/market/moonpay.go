@@ -66,6 +66,11 @@ var moonpayAPIPaymentMethods = []string{
 	"gbp_open_banking_payment",
 }
 
+// moonpayExcludeAlpha2Codes defines country alpha2 codes to exclude from Moonpay supported regions.
+var moonpayExcludeAlpha2Codes = map[string]struct{}{
+	"UK": {},
+}
+
 // BuyMoonpayInfo contains a starting point for initiating an onramp flow.
 type BuyMoonpayInfo struct {
 	URL     string // moonpay's buy widget URL
@@ -96,7 +101,7 @@ func GetMoonpaySupportedRegions(httpClient *http.Client) (map[string]BuyMoonpayR
 	}
 
 	for _, region := range regionsList {
-		if region.IsBuyAllowed {
+		if _, excluded := moonpayExcludeAlpha2Codes[region.Alpha2]; region.IsBuyAllowed && !excluded {
 			regionsMap[region.Alpha2] = region
 		}
 	}
