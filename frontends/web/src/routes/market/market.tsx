@@ -23,9 +23,10 @@ import { Deals } from './components/deals';
 import { getNativeLocale } from '@/api/nativelocale';
 import { getConfig, setConfig } from '@/utils/config';
 import { CountrySelect, TOption } from './components/countryselect';
-import { InfoContent, TInfoContentProps } from './components/infocontent';
+import { getBTCDirectOTCLink, InfoContent, TInfoContentProps } from './components/infocontent';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { connectKeystore } from '@/api/keystores';
+import { open } from '@/api/system';
 import style from './market.module.css';
 
 type TProps = {
@@ -39,6 +40,7 @@ export const Market = ({
 }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
   const [selectedAccount, setSelectedAccount] = useState<string>(code);
   const [selectedRegion, setSelectedRegion] = useState('');
   const [regions, setRegions] = useState<TOption[]>([]);
@@ -53,6 +55,14 @@ export const Market = ({
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
   const title = t('generic.buySell');
+
+  const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
+
+  useEffect(() => {
+    if (config) {
+      setAgreedBTCDirectOTCTerms(config.frontend.skipBTCDirectOTCDisclaimer);
+    }
+  }, [config]);
 
   // get the list of accounts supported by vendors, needed to correctly handle back button.
   useEffect(() => {
@@ -100,7 +110,8 @@ export const Market = ({
   const buyDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('buy', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
   const sellDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('sell', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
   const spendDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('spend', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
-  const btcDirectOTCSupported = useLoad(selectedAccount ? marketAPI.getBtcDirectOTCSupported(selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
+  // TODO: do we care about selectedAccount, selectedRegion for OTC?
+  const otcDealsResponse = useLoad(marketAPI.getOTCDeals);
   const swapDealsResponse = useLoad(marketAPI.getSwapDeals);
 
   const handleAccountChange = async (accountCode: string) => {
@@ -137,6 +148,8 @@ export const Market = ({
       return spendDealsResponse;
     case 'swap':
       return swapDealsResponse;
+    case 'otc':
+      return otcDealsResponse;
     }
   };
 
@@ -159,6 +172,14 @@ export const Market = ({
     }
     if (activeTab === 'swap') {
       navigate('/market/swap');
+      return;
+    }
+    if (activeTab === 'otc') {
+      if (agreedBTCDirectOTCTerms) {
+        open(getBTCDirectOTCLink());
+      } else {
+        navigate('/market/btcdirect-otc');
+      }
       return;
     }
     if (!selectedAccount) {
@@ -230,17 +251,21 @@ export const Market = ({
                             paymentFees: {}
                           })} />
                         </div>
-                        <label className={style.label}>
-                          {t('account.account')}
-                        </label>
-                        <div className={style.selectContainer}>
-                          <GroupedAccountSelector
-                            accounts={supportedAccounts}
-                            selected={selectedAccount}
-                            onChange={handleAccountChange}
-                          />
 
-                        </div>
+                        {activeTab !== 'otc' && (
+                          <>
+                            <label className={style.label}>
+                              {t('account.account')}
+                            </label>
+                            <div className={style.selectContainer}>
+                              <GroupedAccountSelector
+                                accounts={supportedAccounts}
+                                selected={selectedAccount}
+                                onChange={handleAccountChange}
+                              />
+                            </div>
+                          </>
+                        )}
                       </>
                     )}
 
@@ -250,7 +275,6 @@ export const Market = ({
                       )}
                       <Deals
                         marketDealsResponse={getDealReponse(activeTab)}
-                        btcDirectOTCSupported={btcDirectOTCSupported}
                         goToVendor={goToVendor}
                         action={activeTab}
                         setInfo={setInfo}
