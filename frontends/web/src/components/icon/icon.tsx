@@ -25,7 +25,6 @@ import arrowSwapSVG from './assets/icons/arrow-swap.svg';
 import bankDarkSVG from './assets/icons/bank.svg';
 import bankLightSVG from './assets/icons/bank-light.svg';
 import baseColorSVG from './assets/base-color.svg';
-import businessmanSVG from './assets/icons/businessman.svg';
 import buyInfoSVG from './assets/icons/buy-info.svg';
 import checkedSmallSVG from './assets/icons/checked-small.svg';
 import checkSVG from './assets/icons/check.svg';
@@ -53,8 +52,6 @@ import closeSVG from './assets/icons/close.svg';
 import closeXWhiteSVG from './assets/icons/close-x-white.svg';
 import closeXDarkSVG from './assets/icons/close-x-dark.svg';
 import externalLink from './assets/icons/external-link.svg';
-import externalLinkBlack from './assets/icons/external-link-black.svg';
-import externalLinkWhite from './assets/icons/external-link-white.svg';
 import eyeClosedSVG from './assets/icons/eye-closed.svg';
 import eyeOpenedSVG from './assets/icons/eye-opened.svg';
 import eyeOpenedDarkSVG from './assets/icons/eye-opened-dark.svg';
@@ -139,8 +136,6 @@ export const Bank = (props: ImgProps) => (<img src={bankLightSVG} draggable={fal
 export const BaseLogo = (props: ImgProps) => (<img src={baseColorSVG} draggable={false} {...props} />);
 export const BitBox02StylizedDark = (props: ImgProps) => (<img src={BB02StylizedDark} draggable={false} {...props} />);
 export const BitBox02StylizedLight = (props: ImgProps) => (<img src={BB02StylizedLight} draggable={false} {...props} />);
-// TODO: was used for BTC Direct OTC banner, still needed or remove?
-export const Businessman = (props: ImgProps) => (<img src={businessmanSVG} draggable={false} {...props} />);
 export const BuyInfo = (props: ImgProps) => (<img src={buyInfoSVG} draggable={false} {...props} />);
 // check icon on a green circle
 export const Checked = (props: ImgProps) => (<img src={checkedSmallSVG} draggable={false} {...props} />);
@@ -164,10 +159,6 @@ export const EditActive = (props: ImgProps) => (<img src={editActiveSVG} draggab
 export const Eject = (props: ImgProps) => (<img src={ejectIconSVG} draggable={false} {...props} />);
 export const ETHLogo = (props: ImgProps) => (<img src={ethColorSVG} draggable={false} {...props} />);
 export const ExternalLink = (props: ImgProps) => (<img src={externalLink} draggable={false} {...props} />);
-// TODO: remove?
-export const ExternalLinkWhite = (props: ImgProps) => (<img src={externalLinkWhite} draggable={false} {...props} />);
-// TODO: remove?
-export const ExternalLinkBlack = (props: ImgProps) => (<img src={externalLinkBlack} draggable={false} {...props} />);
 export const EyeClosed = (props: ImgProps) => (<img src={eyeClosedSVG} draggable={false} {...props} />);
 export const EyeOpened = (props: ImgProps) => (<img src={eyeOpenedSVG} draggable={false} {...props} />);
 export const EyeOpenedDark = (props: ImgProps) => (<img src={eyeOpenedDarkSVG} draggable={false} {...props} />);
