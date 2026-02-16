@@ -42,6 +42,13 @@ export const MarketTab = ({
       >
         {t('generic.swap')}
       </PillButton>
+      <PillButton
+        active={activeTab === 'otc'}
+        onClick={() => onChangeTab('otc')}
+      >
+        {/* OTC doesn't need to be translated, but is explained in t('buy.exchange.otcInfo') */}
+        OTC
+      </PillButton>
     </PillButtonGroup>
   );
 };

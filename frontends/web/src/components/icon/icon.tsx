@@ -138,6 +138,7 @@ export const Bank = (props: ImgProps) => (<img src={bankLightSVG} draggable={fal
 export const BaseLogo = (props: ImgProps) => (<img src={baseColorSVG} draggable={false} {...props} />);
 export const BitBox02StylizedDark = (props: ImgProps) => (<img src={BB02StylizedDark} draggable={false} {...props} />);
 export const BitBox02StylizedLight = (props: ImgProps) => (<img src={BB02StylizedLight} draggable={false} {...props} />);
+// TODO: was used for BTC Direct OTC banner, still needed or remove?
 export const Businessman = (props: ImgProps) => (<img src={businessmanSVG} draggable={false} {...props} />);
 export const BuyInfo = (props: ImgProps) => (<img src={buyInfoSVG} draggable={false} {...props} />);
 // check icon on a green circle
@@ -162,7 +163,9 @@ export const EditActive = (props: ImgProps) => (<img src={editActiveSVG} draggab
 export const Eject = (props: ImgProps) => (<img src={ejectIconSVG} draggable={false} {...props} />);
 export const ETHLogo = (props: ImgProps) => (<img src={ethColorSVG} draggable={false} {...props} />);
 export const ExternalLink = (props: ImgProps) => (<img src={externalLink} draggable={false} {...props} />);
+// TODO: remove?
 export const ExternalLinkWhite = (props: ImgProps) => (<img src={externalLinkWhite} draggable={false} {...props} />);
+// TODO: remove?
 export const ExternalLinkBlack = (props: ImgProps) => (<img src={externalLinkBlack} draggable={false} {...props} />);
 export const EyeClosed = (props: ImgProps) => (<img src={eyeClosedSVG} draggable={false} {...props} />);
 export const EyeOpened = (props: ImgProps) => (<img src={eyeOpenedSVG} draggable={false} {...props} />);
