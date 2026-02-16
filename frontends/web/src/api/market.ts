@@ -12,9 +12,9 @@ export type TPaymentMethod = 'card' | 'bank-transfer' | 'bancontact' | 'sofort';
 export type TMarketDeal = {
   fee: number;
   payment?: TPaymentMethod;
-  isFast: boolean;
-  isBest: boolean;
-  isHidden: boolean;
+  isFast?: boolean;
+  isBest?: boolean;
+  isHidden?: boolean;
 };
 
 export type TVendorName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc' | 'bitrefill';
