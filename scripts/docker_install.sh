@@ -70,7 +70,7 @@ aqt install-qt linux desktop 6.8.2 -m qtpositioning qtserialport qtwebchannel qt
 npm install -g npm@10
 npm install -g locize-cli
 
-curl https://dl.google.com/go/go1.24.6.linux-amd64.tar.gz | tar -xz -C /usr/local
+curl https://dl.google.com/go/go1.26.0.linux-amd64.tar.gz | tar -xz -C /usr/local
 
 # fuse is needed to run the linuxdeployqt appimage.
 apt-get install -y --no-install-recommends fuse
