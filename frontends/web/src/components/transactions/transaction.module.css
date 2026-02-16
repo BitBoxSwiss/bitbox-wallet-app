@@ -190,6 +190,8 @@
   color: var(--color-default);
   font-size: var(--size-default);
   line-height: 1.25;
+  max-width: 100%;
+  text-overflow: ellipsis;
 }
 
 .txDateLong {
@@ -228,13 +230,9 @@
   }
   
   .addresses {
-    opacity: 0;
-    pointer-events: none;
+    display: none;
   }
 
-  .txNoteWithAddress {
-    text-overflow: clip;
-  }
 }
 .iconLoupe {
   width: 28px;
