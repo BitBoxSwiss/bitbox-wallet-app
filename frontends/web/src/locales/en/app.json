@@ -1926,7 +1926,7 @@
       "fiatAmount": "Fiat amount",
       "from": "From",
       "historicalFiat": "Historical fiat",
-      "sendToSelf": "Send to self",
+      "sentToSelf": "Sent to self",
       "status": "Status",
       "title": "Transaction Details",
       "type": "Type"
