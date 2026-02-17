@@ -45,18 +45,7 @@ export const getMarketDeals = (action: TMarketAction, accountCode: AccountCode, 
 
 // TODO: implement in backend
 export const getSwapDeals = (): Promise<TMarketDealsResponse> => {
-  return Promise.resolve({
-    success: true,
-    deals: [{
-      vendorName: 'swapkit',
-      deals: [{
-        fee: 0,
-        isFast: false,
-        isBest: false,
-        isHidden: false,
-      }]
-    }]
-  });
+  return apiGet('market/swap-deals');
 };
 
 export type MoonpayBuyInfo = {

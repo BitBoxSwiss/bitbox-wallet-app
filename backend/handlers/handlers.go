@@ -230,6 +230,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/market/region-codes", handlers.getMarketRegionCodes).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/deals/{action}/{code}", handlers.getMarketDeals).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/market/swap-deals", handlers.getMarketSwapDeals).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/vendors/{code}", handlers.getMarketVendors).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/btcdirect-otc/supported/{code}", handlers.getMarketBtcDirectOTCSupported).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/btcdirect/info/{action}/{code}", handlers.getMarketBtcDirectInfo).Methods("GET")
@@ -1246,6 +1247,23 @@ func (handlers *Handlers) getMarketDeals(r *http.Request) interface{} {
 	return marketDealsList{
 		Success: true,
 		Deals:   marketDealsLists,
+	}
+}
+
+func (handlers *Handlers) getMarketSwapDeals(r *http.Request) interface{} {
+	type marketDealsList struct {
+		Deals   []*market.DealsList `json:"deals"`
+		Success bool                `json:"success"`
+	}
+
+	deals := []*market.DealsList{}
+	if swapDeals := market.SwapKitDeals(); swapDeals != nil {
+		deals = append(deals, swapDeals)
+	}
+
+	return marketDealsList{
+		Success: true,
+		Deals:   deals,
 	}
 }
 
