@@ -27,12 +27,16 @@
         "start": "Get started by depositing some coins to the wallet or buying directly in the BitBoxApp."
       }
     },
+    "exportTransactions": "Export transaction history",
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
     "scriptType": "Script type",
+    "signMessage": "Sign message",
     "taproot": "The Taproot extended public key is not shown to protect from accidental misuse, as raw formats for this script type are not widely supported. If you want to view this key, connect your device to wallet software that supports the output descriptor format.",
     "title": "Account information",
+    "usedAddresses": "View used addresses",
     "verify": "Verify on device",
+    "viewXPub": "View extended public key",
     "xpubTypeChangeBtn": {
       "p2pkh": "View legacy P2PKH extended public key",
       "p2tr": "View Taproot",
@@ -1312,7 +1316,7 @@
         "title": "Why so many addresses?"
       },
       "whyVerify": {
-        "text": "You shouldn’t trust your computer to generate and display authentic addresses. It’s big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
+        "text": "You shouldn't trust your computer to generate and display authentic addresses. It's big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
         "title": "Why should I verify the address securely?"
       }
     },
