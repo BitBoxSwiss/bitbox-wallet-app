@@ -1,3 +1,45 @@
+.pageSection {
+    margin: 0 auto;
+    max-width: 760px;
+    width: 100%;
+}
+
+.menuSection {
+    margin: 0 auto;
+    max-width: 520px;
+    width: 100%;
+}
+
+.menuList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.actionIcon {
+    display: block;
+    height: 24px;
+    width: 24px;
+}
+
+.footerButtons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-half);
+    margin-top: var(--space-default);
+}
+
+.footerButtons > * {
+    width: 100%;
+}
+
+.detailCard {
+    background: var(--background-secondary);
+    border: none;
+    border-radius: var(--radius-xl);
+    padding: var(--space-default);
+}
+
 .title {
     font-size: var(--size-header);
     font-weight: 400;
@@ -14,38 +56,113 @@
     margin: 0 0 0 -2px;
 }
 
+.xPubInfo {
+    color: var(--color-secondary);
+    line-height: 1.35;
+    margin: 0 0 var(--space-default);
+}
+
+.address {
+    display: grid;
+    gap: var(--space-default);
+}
+
 .details {
+    display: flex;
+    flex-direction: column;
     font-size: var(--size-default);
-    margin-bottom: var(--space-default);
+    gap: var(--space-half);
+    margin-bottom: 0;
+    min-width: 0;
+}
+
+.entry {
+    align-items: flex-start;
+    display: flex;
+    gap: var(--space-quarter);
+    margin: 0;
+}
+
+.entry strong {
+    flex: none;
+    min-width: 168px;
+}
+
+.entry span,
+.entry code {
+    flex: 1 1 220px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.entry code {
+    font-family: var(--font-family-monospace);
+}
+
+.largeEntry {
+    align-items: stretch;
+    flex-direction: column;
+    gap: var(--space-quarter);
+}
+
+.largeEntry strong {
+    min-width: 0;
+}
+
+.addressField {
+    width: 100%;
+}
+
+.addressFieldInput {
+    background: var(--background-secondary);
+    border: 1px solid var(--background-quaternary);
+    border-radius: 10px;
+    font-family: var(--font-family-monospace);
+    min-height: 96px;
+    padding: 12px 44px 12px 12px;
+    text-align: left;
+}
+
+.addressFieldButton {
+    background: transparent;
+    border: 0;
+    margin-top: 0;
+    right: 10px;
+    top: 12px;
 }
 
 .qrCode {
-    min-height: 260px;
+    align-items: flex-start;
+    display: flex;
+    justify-content: center;
+    min-height: 0;
     text-align: center;
 }
 
 .qrCode img {
+    border-radius: 8px;
     height: auto;
     max-width: 100%;
 }
 
 .buttons {
-    clear: both;
+    clear: none;
     display: flex;
+    gap: var(--space-half);
     justify-content: space-between;
-    min-height: 56px;
+    margin-top: 0;
+}
+
+.buttons > * {
+    flex: 1 1 0;
 }
 
 .verifyButton {
     order: 2;
 }
 
-.entry {
-    align-items: baseline;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    margin-bottom: var(--space-half);
+.entry + .entry {
+    margin-top: 0;
 }
 
 .exportButton {
@@ -53,34 +170,36 @@
     padding-left: 0;
 }
 
-@media screen and (min-width: 640px) {
-
-    .xPubInfo {
-        max-width: calc(100% - 218px);
+@media screen and (min-width: 900px) {
+    .address {
+        align-items: start;
+        column-gap: var(--space-default);
+        grid-template-areas:
+            "details qr"
+            "buttons buttons";
+        grid-template-columns: minmax(0, 1fr) 220px;
     }
 
     .details {
-        display: flex;
-        flex-direction: column;
-        /* QRcode is 256px with 2 x 38px white border = 180px */
-        min-height: 180px;
-    }
-
-    .entry:first-child {
-        margin-top: 0;
+        grid-area: details;
     }
 
     .qrCode {
-        float: right;
-        position: relative;
-        /* QRCode image has 38px white border */
-        top: -38px;
-        right: calc(-1 * var(--space-default));
+        grid-area: qr;
+        justify-content: flex-end;
     }
 
+    .buttons {
+        grid-area: buttons;
+        margin-top: var(--space-half);
+    }
 }
 
 @media (max-width: 640px) {
+
+    .detailCard {
+        padding: var(--space-half);
+    }
 
     .infoContent {
         width: 100%;
@@ -88,26 +207,24 @@
 
     .buttons {
         flex-direction: column-reverse;
-        gap: var(--space-half)
+        gap: var(--space-half);
     }
 
-    .largeEntry {
-        align-items: stretch;
+    .entry {
         flex-direction: column;
+        gap: 4px;
     }
 
-    .largeEntry strong {
-        display: block;
-        margin-bottom: var(--space-quarter);
+    .entry strong {
+        min-width: 0;
     }
 
-    .addressField input {
+    .entry span,
+    .entry code {
+        flex: 1 1 auto;
+    }
+
+    .addressFieldInput {
         font-size: var(--size-smaller);
     }
-
-    .qrCode {
-        margin-left: calc(-1 * var(--space-default));
-        margin-right: calc(-1 * var(--space-default));
-    }
-
 }
