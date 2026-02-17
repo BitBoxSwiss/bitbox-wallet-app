@@ -17,7 +17,7 @@ export const getVendorFormattedName = (
   case 'btcdirect':
     return 'BTC Direct';
   case 'btcdirect-otc':
-    return 'BTC Direct\'s Private Trading Desk';
+    return 'BTC Direct - Private Trading Desk';
   case 'bitrefill':
     return 'Bitrefill';
   case 'swapkit':

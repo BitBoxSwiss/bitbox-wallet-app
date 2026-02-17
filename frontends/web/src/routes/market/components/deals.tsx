@@ -1,25 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '@/hooks/api';
 import * as marketAPI from '@/api/market';
-import { getBTCDirectOTCLink, TInfoContentProps, TPaymentFee } from './infocontent';
+import type { TInfoContentProps, TPaymentFee } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
-import { Message } from '@/components/message/message';
-import { ExternalLinkWhite, ExternalLinkBlack, Businessman } from '@/components/icon';
-import { useDarkmode } from '@/hooks/darkmode';
-import { A } from '@/components/anchor/anchor';
 import { InfoButton } from '@/components/infobutton/infobutton';
-import { getConfig } from '@/utils/config';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { VendorDeals } from '@/routes/market/components/vendor-deals';
 import style from './deals.module.css';
 
 type TProps = {
   marketDealsResponse: marketAPI.TMarketDealsResponse | undefined;
-  btcDirectOTCSupported: marketAPI.TBtcDirectResponse | undefined;
   goToVendor: (vendor: string) => void;
   action: marketAPI.TMarketAction;
   setInfo: (info: TInfoContentProps) => void;
@@ -27,22 +18,12 @@ type TProps = {
 
 export const Deals = ({
   marketDealsResponse,
-  btcDirectOTCSupported,
   goToVendor,
   action,
   setInfo,
 }: TProps) => {
   const { t } = useTranslation();
-  const { isDarkMode } = useDarkmode();
 
-  const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
-  const config = useLoad(getConfig);
-
-  useEffect(() => {
-    if (config) {
-      setAgreedBTCDirectOTCTerms(config.frontend.skipBTCDirectOTCDisclaimer);
-    }
-  }, [config]);
 
   const buildInfo = (marketDeals: marketAPI.TMarketDeals): TInfoContentProps => {
     let paymentFees: TPaymentFee = {};
@@ -70,6 +51,9 @@ export const Deals = ({
           </div>
         ) : (
           <div className={style.exchangeProvidersContainer}>
+            {marketDealsResponse?.success && action === 'otc' && (
+              t('buy.exchange.otcInfo')
+            )}
             {marketDealsResponse?.deals
               // skip the vendors that have only hidden deals.
               .filter(vendor => (vendor.deals.some(deal => !deal.isHidden)))
@@ -89,32 +73,6 @@ export const Deals = ({
                   <InfoButton onClick={() => setInfo(buildInfo(vendor))} />
                 </div>
               ))}
-          </div>
-        )}
-        {btcDirectOTCSupported?.success && btcDirectOTCSupported?.supported && action !== 'spend' && (
-          <div className={style.infoContainer}>
-            <Message type="info" icon={<Businessman/>}>
-              {t('buy.exchange.infoContent.btcdirect.title')}
-              <p>{t('buy.exchange.infoContent.btcdirect.info')}</p>
-              <p>
-                {!agreedBTCDirectOTCTerms ? (
-                  <Link to={'/market/btcdirect-otc'} className={style.link}>
-                    {t('buy.exchange.infoContent.btcdirect.link')}
-                  </Link>
-                ) : (
-                  <A href={getBTCDirectOTCLink()} className={style.link}>
-                    {t('buy.exchange.infoContent.btcdirect.link')}
-                  </A>
-                )}
-                    &nbsp;
-                {isDarkMode ? <ExternalLinkWhite className={style.textIcon}/> : <ExternalLinkBlack className={style.textIcon}/>}
-              </p>
-            </Message>
-            <InfoButton onClick={() => setInfo({
-              action,
-              vendorName: 'btcdirect-otc',
-              paymentFees: {}
-            })} />
           </div>
         )}
       </div>

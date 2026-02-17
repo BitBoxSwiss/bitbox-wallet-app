@@ -437,6 +437,7 @@
       "creditCard": "Credit card",
       "description_bitrefill": "Shop gift cards, phone refills & more",
       "description_swapkit": "Decentralized swapping BTC, ETH, USDT etc",
+      "description_btcdirect-otc": "",
       "fast": "Fast",
       "fee": "fee",
       "infoContent": {
@@ -514,7 +515,6 @@
             },
             "title": "Disclaimer"
           },
-          "info": "Get a personal advisor, reduced fees and place orders directly through your contact at BTC Direct.",
           "infobox": {
             "intro_btconly": "Get personal assistance for high-value, over-the-counter (OTC) Bitcoin trades.",
             "intro_multi": "Get personal assistance for high-value over-the-counter (OTC) trades for Bitcoin, Ethereum stablecoins, and more.",
@@ -525,9 +525,7 @@
             "listItem3": "Minimum order amount: €50,000.",
             "listItem4": "Transparent fees fixed at 0.5%-1%, including personal guidance.",
             "manager": "You'll have a dedicated account manager guiding you at every step, ensuring a secure, straightforward experience with fixed rates and minimal slippage."
-          },
-          "link": "Access BTC Direct - Private Trading Desk",
-          "title": "Buying or selling over €50,000?"
+          }
         },
         "btcdirectWidget": {
           "disclaimer": {
@@ -629,6 +627,7 @@
         }
       },
       "noExchanges": "Sorry, there are no available exchanges in this region.",
+      "otcInfo": "Over-the-counter buy & sell services for amounts over €50,000.",
       "region": "Region",
       "selectRegion": "Not specified",
       "sell": "Sell",
