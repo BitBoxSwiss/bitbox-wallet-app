@@ -459,7 +459,11 @@ type AddressSignResponse = {
 };
 
 export const signAddress = (format: ScriptType | '', msg: string, code: AccountCode): Promise<AddressSignResponse> => {
-  return apiPost(`account/${code}/sign-address`, { format, msg, code });
+  return apiPost(`account/${code}/sign-address`, { format, msg });
+};
+
+export const signMessage = (code: AccountCode, addressID: string, msg: string): Promise<AddressSignResponse> => {
+  return apiPost(`account/${code}/sign-address`, { addressID, msg });
 };
 
 export type TUsedAddress = {
