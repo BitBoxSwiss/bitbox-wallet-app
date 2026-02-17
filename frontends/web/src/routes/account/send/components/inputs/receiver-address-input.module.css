@@ -2,8 +2,9 @@
   position: relative;
 }
 
-.inputWithIcon input {
-  padding-left: calc(var(--space-half) * 3);
+/* TODO: used for ETH, should be its own class */
+.inputWithIcon > div:nth-child(2) {
+  padding-left: var(--input-qr-button);
 }
 
 .action {

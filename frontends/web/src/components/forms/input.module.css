@@ -41,6 +41,7 @@
     border-style: solid;
     border-width: var(--border-width);
     display: flex;
+    flex-direction: row;
     gap: var(--space-eight); /* in case there is a child */
     height: var(--input-height);
     padding: 0 var(--space-half);

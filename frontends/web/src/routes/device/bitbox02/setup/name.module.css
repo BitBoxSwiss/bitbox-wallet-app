@@ -1,6 +1,11 @@
+/* TODO: should be its own class also used in device-name-settings */
 .inputError > div,
 .inputError > div:focus-within {
   border-color: var(--color-danger);
+}
+
+.inputError {
+  margin-bottom: 0;
 }
 
 .errorMessage {
