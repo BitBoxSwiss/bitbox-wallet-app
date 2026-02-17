@@ -2,6 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { ReactElement } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from './forms';
 import { Bluetooth } from '@/components/bluetooth/bluetooth';
 import { TConnectKeystoreErrorCode, cancelConnectKeystore, syncConnectKeystore } from '@/api/backend';
@@ -17,13 +18,27 @@ import styles from './keystoreconnectprompt.module.css';
 export const KeystoreConnectPrompt = () => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [data, reset] = useSubscribeReset(syncConnectKeystore());
+  const isUsedAddressVerifyRoute = /^\/account\/[^/]+\/addresses\/[^/]+\/verify$/.test(location.pathname);
 
   const cancelAndReset = () => {
     // This is needed to close the popup in case of timeout exception.
     reset();
     cancelConnectKeystore();
+  };
+
+  const skipDeviceVerification = () => {
+    cancelAndReset();
+    const params = new URLSearchParams(location.search);
+    params.set('skipDeviceVerification', '1');
+    const search = params.toString();
+    navigate({
+      pathname: location.pathname,
+      search: search ? `?${search}` : '',
+    }, { replace: true });
   };
 
   const errorMessage = (errorCode: TConnectKeystoreErrorCode | undefined): ReactElement | null => {
@@ -79,9 +94,16 @@ export const KeystoreConnectPrompt = () => {
           </div>
         </div>
         <div className={styles.dialogButtonsContainer}>
-          <DialogButtons>
-            <Button secondary onClick={cancelConnectKeystore}>{t('dialog.cancel')}</Button>
-          </DialogButtons>
+          <Button secondary className={styles.dialogPrimaryAction} onClick={cancelAndReset}>{t('dialog.cancel')}</Button>
+          {isUsedAddressVerifyRoute && (
+            <button
+              type="button"
+              className={styles.skipDeviceVerificationText}
+              onClick={skipDeviceVerification}
+            >
+              {t('addresses.skipDeviceVerification')}
+            </button>
+          )}
         </div>
       </Dialog>
     );
