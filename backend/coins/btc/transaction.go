@@ -225,15 +225,8 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 // GetAddress returns the address in the account with the given `scriptHashHex`. Returns nil if the
 // address does not exist in the account.
 func (account *Account) GetAddress(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
-	for _, subacc := range account.subaccounts {
-		if address := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
-			return address
-		}
-		if address := subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
-			return address
-		}
-	}
-	return nil
+	address, _ := account.lookupAddressByScriptHashHex(scriptHashHex)
+	return address
 }
 
 // SendTx implements accounts.Interface.
