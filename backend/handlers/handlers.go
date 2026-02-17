@@ -4,6 +4,7 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -35,6 +36,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	utilConfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
@@ -233,6 +235,9 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/market/vendors/{code}", handlers.getMarketVendors).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/btcdirect-otc/supported/{code}", handlers.getMarketBtcDirectOTCSupported).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/btcdirect/info/{action}/{code}", handlers.getMarketBtcDirectInfo).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/swap/quote", handlers.getSwapkitQuote).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/swap/execute", handlers.swapkitSwap).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/swap/track", handlers.swapkitTrack).Methods("GET")
 	getAPIRouter(apiRouter)("/market/moonpay/buy-info/{code}", handlers.getMarketMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/pocket/api-url/{action}", handlers.getMarketPocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
@@ -1688,4 +1693,95 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 
 	_, err := handlers.backend.ConnectKeystore([]byte(request.RootFingerprint))
 	return response{Success: err == nil}
+}
+
+func (handlers *Handlers) getSwapkitQuote(r *http.Request) interface{} {
+	type result struct {
+		Success bool                   `json:"success"`
+		Error   string                 `json:"error,omitempty"`
+		Quote   *swapkit.QuoteResponse `json:"quote,omitempty"`
+	}
+
+	var request swapkit.QuoteRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return result{Success: false, Error: err.Error()}
+	}
+
+	s := swapkit.NewClient("0722e09f-9d3f-4817-a870-069848d03ee9")
+
+	quoteResponse, err := s.Quote(context.Background(), &request)
+	if err != nil {
+		return result{
+			Success: false,
+			Error:   err.Error(),
+		}
+	}
+
+	res := result{
+		Success: quoteResponse.Error != "",
+		Error:   quoteResponse.Error, // Surface the response error to the top-level
+	}
+	if res.Success {
+		res.Quote = quoteResponse
+	}
+	return res
+}
+
+func (handlers *Handlers) swapkitSwap(r *http.Request) interface{} {
+	type result struct {
+		Success bool                  `json:"success"`
+		Error   string                `json:"error,omitempty"`
+		Swap    *swapkit.SwapResponse `json:"swap,omitempty"`
+	}
+
+	var request swapkit.SwapRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return result{Success: false, Error: err.Error()}
+	}
+
+	s := swapkit.NewClient("0722e09f-9d3f-4817-a870-069848d03ee9")
+	swapResponse, err := s.Swap(context.Background(), &request)
+	if err != nil {
+		return result{
+			Success: false,
+			Error:   err.Error(),
+		}
+	}
+
+	return result{
+		Success: true,
+		Swap:    swapResponse,
+	}
+
+}
+
+func (handlers *Handlers) swapkitTrack(r *http.Request) interface{} {
+	type result struct {
+		Success bool                   `json:"success"`
+		Error   string                 `json:"error,omitempty"`
+		Track   *swapkit.TrackResponse `json:"swap,omitempty"`
+	}
+
+	var request swapkit.TrackRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return result{Success: false, Error: err.Error()}
+	}
+
+	s := swapkit.NewClient("0722e09f-9d3f-4817-a870-069848d03ee9")
+	trackResponse, err := s.Track(context.Background(), &request)
+	if err != nil {
+		return result{
+			Success: false,
+			Error:   err.Error(),
+		}
+	}
+
+	return result{
+		Success: true,
+		Track:   trackResponse,
+	}
+
 }
