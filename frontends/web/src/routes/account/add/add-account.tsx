@@ -78,7 +78,6 @@ const AddAccountSteps = ({
         }} />
         <Input
           autoFocus
-          className={styles.accountNameInput}
           ref={inputRef}
           id="accountName"
           onInput={onAccountNameInput}

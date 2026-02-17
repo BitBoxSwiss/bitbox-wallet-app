@@ -9,12 +9,10 @@ import style from './balance.module.css';
 
 type TProps = {
   balance?: TBalance;
-  noRotateFiat?: boolean;
 };
 
 export const Balance = ({
   balance,
-  noRotateFiat,
 }: TProps) => {
   const { t } = useTranslation();
   if (!balance) {
@@ -31,13 +29,13 @@ export const Balance = ({
       <div className={style.balance} data-testid="availableBalance">
         <AmountWithUnit
           amount={balance.available}
-          enableRotateUnit={!noRotateFiat}
+          enableRotateUnit
           unitClassName={style.unit}
         />
         {' '}
         <AmountWithUnit
           amount={balance.available}
-          enableRotateUnit={!noRotateFiat}
+          enableRotateUnit
           unitClassName={style.unit}
           convertToFiat
         />

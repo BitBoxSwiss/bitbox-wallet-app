@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private GoViewModel goViewModel;
     private WebViewManager webViewManager;
     private UsbDeviceManager usbDeviceManager;
-
     // Connection to bind with GoService
     private final ServiceConnection connection = new ServiceConnection() {
         @Override
@@ -109,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         // GoModel manages the Go backend. It is in a ViewModel so it only runs once, not every time
         // onCreate is called (on a configuration change like orientation change).
         goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
+        goViewModel.setFileSaveHelper(new FileSaveHelper(this));
         webViewManager = new WebViewManager(this, goViewModel);
         webViewManager.initialize(vw);
         usbDeviceManager = new UsbDeviceManager(this, goViewModel);
@@ -263,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Util.log("lifecycle: onDestroy");
+        goViewModel.setFileSaveHelper(null);
         if (goService != null) {
             unbindService(connection);
         }

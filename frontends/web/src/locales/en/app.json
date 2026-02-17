@@ -694,7 +694,7 @@
     "oldLabel": "Current device password"
   },
   "chart": {
-    "dataMissing": "Gathering historical data... stay tuned.",
+    "dataMissing": "Loading chart, come back later...",
     "dataOldTimestamp": "Historical exchange rates updating. The chart is not displaying data after {{time}}.",
     "dataUpdating": "updating data…",
     "filter": {
@@ -1967,7 +1967,9 @@
       "receive_pending": "Received to",
       "send_complete": "Sent to",
       "send_failed": "Failed sending to",
-      "send_pending": "Sent to"
+      "send_pending": "Sent to",
+      "send_to_self": "Sent <amount /> to self",
+      "send_to_self_failed": "Failed sending <amount /> to self"
     },
     "vsize": "Virtual size",
     "weight": "Weight"

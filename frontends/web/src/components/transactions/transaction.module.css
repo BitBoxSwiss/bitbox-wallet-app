@@ -179,6 +179,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .addresses {
   color: var(--color-secondary);
   font-size: var(--size-small);
@@ -189,6 +190,8 @@
   color: var(--color-default);
   font-size: var(--size-default);
   line-height: 1.25;
+  max-width: 100%;
+  text-overflow: ellipsis;
 }
 
 .txDateLong {
@@ -225,6 +228,11 @@
   .txShowDetailBtn {
     display: none;
   }
+  
+  .addresses {
+    display: none;
+  }
+
 }
 .iconLoupe {
   width: 28px;

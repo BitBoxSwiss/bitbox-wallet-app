@@ -105,13 +105,18 @@ export const ConfirmSend = ({
               {proposedAmount ? (
                 <AmountWithUnit
                   amount={proposedAmount}
+                  enableRotateUnit
                   unitClassName={style.unit}
                 />
               ) : 'N/A'}
             </p>
-            {canShowSendAmountFiatValue &&
-            (<FiatValue baseCurrencyUnit={baseCurrencyUnit} amount={proposedAmount.conversions![fiatUnit] || ''} />)
-            }
+            {canShowSendAmountFiatValue && (
+              <FiatValue
+                baseCurrencyUnit={baseCurrencyUnit}
+                amount={proposedAmount.conversions![fiatUnit] || ''}
+                enableRotateUnit
+              />
+            )}
           </div>
         </div>
 
@@ -182,6 +187,7 @@ export const ConfirmSend = ({
                 <AmountWithUnit
                   amount={proposedFee}
                   alwaysShowAmounts
+                  enableRotateUnit
                   unitClassName={style.unit}
                 />
               ) || 'N/A'}
@@ -194,7 +200,11 @@ export const ConfirmSend = ({
               ) : null}
             </p>
             {canShowFeeFiatValue && (
-              <FiatValue baseCurrencyUnit={baseCurrencyUnit} amount={proposedFee.conversions![fiatUnit] || ''} />
+              <FiatValue
+                baseCurrencyUnit={baseCurrencyUnit}
+                amount={proposedFee.conversions![fiatUnit] || ''}
+                enableRotateUnit
+              />
             )}
           </div>
         </div>
@@ -205,7 +215,7 @@ export const ConfirmSend = ({
             <label>{t('send.confirm.total')}</label>
             <p className={style.valueOriginal}>
               <strong>
-                <AmountWithUnit amount={proposedTotal} alwaysShowAmounts />
+                <AmountWithUnit amount={proposedTotal} alwaysShowAmounts enableRotateUnit />
               </strong>
             </p>
             {canShowTotalFiatValue && (
@@ -213,6 +223,7 @@ export const ConfirmSend = ({
                 className={style.totalFiatValue}
                 baseCurrencyUnit={baseCurrencyUnit}
                 amount={proposedTotal.conversions![fiatUnit] || ''}
+                enableRotateUnit
               />
             )}
           </div>

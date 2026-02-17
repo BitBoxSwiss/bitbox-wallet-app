@@ -9,12 +9,8 @@
     margin-bottom: 32px;
 }
 
-.inputWithIcon {
-    position: relative;
-}
-
-.inputWithIcon input {
-    padding-right: calc(var(--space-half) * 2 + 18px);
+.inputFieldWithIcon {
+    padding-left: var(--input-qr-button);
 }
 
 @media (max-width: 768px) {

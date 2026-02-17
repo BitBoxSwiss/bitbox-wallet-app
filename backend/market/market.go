@@ -105,13 +105,13 @@ type Deal struct {
 	// Fee that goes to the vendor in percentage.
 	Fee float32 `json:"fee"`
 	// Payment is the payment method offered in the deal (usually different payment methods bring different fees).
-	Payment PaymentMethod `json:"payment"`
+	Payment PaymentMethod `json:"payment,omitempty"`
 	// IsFast is usually associated with card payments. It is used by the frontend to display the `fast` badge in deals list.
-	IsFast bool `json:"isFast"`
+	IsFast bool `json:"isFast,omitempty"`
 	// IsBest is assigned to the deal with the lowest fee, it is used to show the `best deal` badge in the frontend.
-	IsBest bool `json:"isBest"`
+	IsBest bool `json:"isBest,omitempty"`
 	// IsHidden deals are not explicitly listed in the frontend deals list.
-	IsHidden bool `json:"isHidden"`
+	IsHidden bool `json:"isHidden,omitempty"`
 }
 
 // DealsList list the name of a specific vendors and the list of available deals offered by that vendor.

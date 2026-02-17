@@ -15,6 +15,7 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { AppContext, TChartDisplay } from '@/contexts/AppContext';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
 import { triggerHapticFeedback } from '@/utils/transport-mobile';
+import { LinechartGray } from '@/components/icon';
 import styles from './chart.module.css';
 
 type TProps = {
@@ -612,10 +613,13 @@ export const Chart = ({
       )}
       <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>
         {chartDataMissing ? (
-          <div className={styles.chartUpdatingMessage} style={{ height: chartHeight }}>
-            <p>
-              {t('chart.dataMissing')}
-            </p>
+          <div className={styles.chartUnavailableMessageContainer} style={{ height: chartHeight }}>
+            <div className={styles.chartUnavailableMessage}>
+              <LinechartGray />
+              <p>
+                {t('chart.dataMissing')}
+              </p>
+            </div>
           </div>
         ) : hasData ? !chartIsUpToDate && (
           <div className={styles.chartUpdatingMessage}>

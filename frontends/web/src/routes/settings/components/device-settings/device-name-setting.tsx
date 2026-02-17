@@ -108,7 +108,8 @@ const SetDeviceNameDialog = ({ open, onClose, currentName, onInputChange, name, 
       </p>
       <Input
         autoFocus
-        className={`m-none ${error && !nameIsTooShort ? nameStyle.inputError as string : ''}`}
+        className={nameStyle.input}
+        classNameInputField={error && !nameIsTooShort ? nameStyle.inputFieldError : ''}
         label={t('bitbox02Settings.deviceName.input')}
         onInput={(e) => onInputChange(e.target.value)}
         placeholder={t('bitbox02Settings.deviceName.placeholder')}

@@ -1,5 +1,9 @@
-.inputError input,
-.inputError input:focus {
+.input {
+  margin-bottom: 0;
+}
+
+.inputFieldError,
+.inputFieldError:focus-within {
   border-color: var(--color-danger);
 }
 

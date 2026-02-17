@@ -113,6 +113,7 @@ export const ReceiverAddressInput = ({
           onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
           value={recipientAddress}
           className={style.inputWithIcon}
+          classNameInputField={style.inputFieldWithIcon}
           labelSection={debug ? (
             <span id="sendToSelf" className={`${style.action || ''} ${style.sendToSelf || ''}`} onClick={handleSendToSelf}>
               Send to self

@@ -20,10 +20,6 @@
     min-height: 90px;
 }
 
-.accountNameInput {
-    margin-bottom: 0;
-}
-
 .successMessage {
     color: var(--color-secondary);
 }

@@ -62,6 +62,7 @@ import globeDarkSVG from './assets/icons/globe-dark.svg';
 import globeLightSVG from './assets/icons/globe-light.svg';
 import guideSVG from './assets/icons/guide.svg';
 import linechartSVG from './assets/icons/linechart.svg';
+import linechartGraySVG from './assets/icons/linechart-gray.svg';
 import loupeSVG from './assets/icons/loupe.svg';
 import loupeBlueSVG from './assets/icons/loupe-blue.svg';
 import menuDarkSVG from './assets/icons/menu-dark.svg';
@@ -173,6 +174,7 @@ export const GreenDot = (props: ImgProps) => (<img src={greenDotSVG} draggable={
 export const GuideActive = (props: ImgProps) => (<img src={guideSVG} draggable={false} {...props} />);
 export const InfoBlue = (props: ImgProps) => (<img src={infoBlueSVG} draggable={false} {...props} />);
 export const Linechart = (props: ImgProps) => (<img src={linechartSVG} draggable={false} {...props} />);
+export const LinechartGray = (props: ImgProps) => (<img src={linechartGraySVG} draggable={false} {...props} />);
 export const Loupe = (props: ImgProps) => (<img src={loupeSVG} draggable={false} {...props} />);
 export const LoupeBlue = (props: ImgProps) => (<img src={loupeBlueSVG} draggable={false} {...props} />);
 export const MenuDark = (props: ImgProps) => (<img src={menuDarkSVG} draggable={false} {...props} />);

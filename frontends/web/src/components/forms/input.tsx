@@ -12,6 +12,7 @@ export const Input = forwardRef<HTMLInputElement, TInputProps>(({
   error,
   align = 'left',
   className = '',
+  classNameInputField = '',
   children,
   transparent = false,
   type = 'text',
@@ -43,7 +44,10 @@ export const Input = forwardRef<HTMLInputElement, TInputProps>(({
           {labelSection && labelSection}
         </div>
       ) : null }
-      <div className={styles.inputField}>
+      <div className={`
+        ${styles.inputField || ''}
+        ${classNameInputField}
+      `}>
         <input
           autoComplete="off"
           autoCorrect="off"

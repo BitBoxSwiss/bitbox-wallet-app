@@ -2,8 +2,8 @@
   position: relative;
 }
 
-.inputWithIcon input {
-  padding-left: calc(var(--space-half) * 3);
+.inputFieldWithIcon {
+  padding-left: var(--input-qr-button);
 }
 
 .action {
