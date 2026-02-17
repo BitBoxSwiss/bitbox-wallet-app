@@ -36,23 +36,23 @@ export const Swap = ({
   const { t } = useTranslation();
 
   // Send
-  const [fromAccountCode, setFromAccountCode] = useState<string>(code);
-  const [swapSendAmount, setSwapSendAmount] = useState<string>('');
-  const [swapMaxAmount, setSwapMaxAmount] = useState<TBalance | undefined>();
+  const [sellAccountCode, setSellAccountCode] = useState<string>(code);
+  const [sellAmount, setSellAmount] = useState<string>('');
+  const [maxSellAmount, setMaxSellAmount] = useState<TBalance | undefined>();
 
   // Receive
-  const [toAccountCode, setToAccountCode] = useState<string>();
-  const [swapReceiveAmount, setSwapReceiveAmount] = useState<string>('');
+  const [buyAccountCode, setBuyAccountCode] = useState<string>();
+  const [expectedOutput, setExpectedOutput] = useState<string>('');
 
   // update max swappable amount (total coins of the account)
   useEffect(() => {
-    if (fromAccountCode) {
-      fetchBlance(fromAccountCode).then(setSwapMaxAmount);
+    if (sellAccountCode) {
+      fetchBlance(sellAccountCode).then(setMaxSellAmount);
     }
-  }, [fromAccountCode]);
+  }, [sellAccountCode]);
 
   // not used yet, but loggin so we dont get a TS error
-  console.log(setSwapReceiveAmount);
+  console.log(setExpectedOutput);
 
   return (
     <GuideWrapper>
@@ -79,21 +79,21 @@ export const Swap = ({
                     {t('generic.send')}
                   </span>
                 </Label>
-                {swapMaxAmount && (
+                {maxSellAmount && (
                   <Button transparent className={style.maxButton}>
                     Max
                     {' '}
-                    <AmountWithUnit amount={swapMaxAmount.available} />
+                    <AmountWithUnit amount={maxSellAmount.available} />
                   </Button>
                 )}
               </div>
               <InputWithAccountSelector
                 accounts={accounts}
                 id="swapSendAmount"
-                accountCode={fromAccountCode}
-                onChangeAccountCode={setFromAccountCode}
-                value={swapSendAmount}
-                onChangeValue={setSwapSendAmount}
+                accountCode={sellAccountCode}
+                onChangeAccountCode={setSellAccountCode}
+                value={sellAmount}
+                onChangeValue={setSellAmount}
               />
               <div className={style.flipContainer}>
                 <Button
@@ -117,9 +117,9 @@ export const Swap = ({
               <InputWithAccountSelector
                 accounts={accounts}
                 id="swapGetAmount"
-                accountCode={toAccountCode}
-                onChangeAccountCode={setToAccountCode}
-                value={swapReceiveAmount}
+                accountCode={buyAccountCode}
+                onChangeAccountCode={setBuyAccountCode}
+                value={expectedOutput}
               />
               <SwapServiceSelector />
             </ViewContent>
