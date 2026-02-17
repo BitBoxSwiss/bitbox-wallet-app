@@ -16,6 +16,28 @@
   cursor: pointer;
 }
 
+.leftContent {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+}
+
+.leadingIcon {
+  align-items: center;
+  display: inline-flex;
+  flex: none;
+  height: 24px;
+  justify-content: center;
+  width: 24px;
+}
+
+.leadingIcon > img {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
 .content {
   align-items: center;
   display: flex;

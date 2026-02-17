@@ -39,7 +39,7 @@ export const CopyableInput = ({
 
   useEffect(() => {
     setHeight();
-  }, []);
+  }, [displayValue, value]);
 
   useEffect(() => {
     if (success) {
@@ -110,4 +110,3 @@ export const CopyableInput = ({
     </div>
   );
 };
-

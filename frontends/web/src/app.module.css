@@ -3,6 +3,7 @@
     flex: 1;
     flex-direction: column;
     height: 100dvh;
+    min-height: 0;
     min-width: 0;
     /* mobile viewport bug fix */
     max-height: -webkit-fill-available;

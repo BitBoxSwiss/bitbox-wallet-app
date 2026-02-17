@@ -13,6 +13,7 @@ export const isBitcoinOnly = (coinCode: CoinCode): boolean => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
+  case 'rbtc':
     return true;
   default:
     return false;
@@ -23,6 +24,7 @@ export const isBitcoinCoin = (coin: CoinUnit | undefined) => {
   switch (coin) {
   case 'BTC':
   case 'TBTC':
+  case 'RBTC':
   case 'sat':
   case 'tsat':
     return true;
@@ -35,6 +37,7 @@ export const isBitcoinBased = (coinCode: CoinCode): boolean => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
+  case 'rbtc':
   case 'ltc':
   case 'tltc':
     return true;
@@ -47,10 +50,37 @@ export const isEthereumBased = (coinCode: CoinCode): boolean => {
   return coinCode === 'eth' || coinCode === 'sepeth' || coinCode.startsWith('eth-erc20-');
 };
 
+export const isMessageSigningSupported = (coinCode: CoinCode): boolean => {
+  switch (coinCode) {
+  case 'btc':
+  case 'tbtc':
+  case 'eth':
+  case 'rbtc':
+    return true;
+  default:
+    return false;
+  }
+};
+
+export const getAddressURIPrefix = (coinCode?: CoinCode): string => {
+  switch (coinCode) {
+  case 'btc':
+  case 'tbtc':
+  case 'rbtc':
+    return 'bitcoin:';
+  case 'ltc':
+  case 'tltc':
+    return 'litecoin:';
+  default:
+    return '';
+  }
+};
+
 export const getCoinCode = (coinCode: CoinCode): CoinCode | undefined => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
+  case 'rbtc':
     return 'btc';
   case 'ltc':
   case 'tltc':

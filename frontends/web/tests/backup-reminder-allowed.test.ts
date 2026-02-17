@@ -72,7 +72,7 @@ const unlockWallet = async (page: Page) => {
 const unlockWalletAndGetReceiveAddress = async (page: Page): Promise<string> => {
   await unlockWallet(page);
   await page.getByRole('link', { name: 'Bitcoin Regtest Bitcoin' }).click();
-  await page.getByRole('button', { name: 'Receive RBTC' }).click();
+  await page.getByRole('button', { name: 'Receive Bitcoin' }).click();
   await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
   const addressLocator = page.locator('[data-testid="receive-address"]');
   return addressLocator.inputValue();
