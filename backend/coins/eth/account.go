@@ -80,6 +80,9 @@ type Account struct {
 	balance      coin.Amount
 	blockNumber  *big.Int
 	transactions []*accounts.TransactionData
+	// prefetchedConfirmedTransactions is used when callers want to supply confirmed txs without
+	// querying the transactions source.
+	prefetchedConfirmedTransactions []*accounts.TransactionData
 
 	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
 	activeTxProposal *TxProposal
@@ -331,8 +334,9 @@ func (account *Account) nextNonce() (uint64, error) {
 
 // Update performs an Update of the account's transactions,
 // as well as its balance and the chain's latest blockNumber,
-// both of which must be provided as an argument.
-func (account *Account) Update(balance *big.Int, blockNumber *big.Int) error {
+// both of which must be provided as an argument. If fetchTransactions is false,
+// confirmed transactions are taken from a prefetched cache.
+func (account *Account) Update(balance *big.Int, blockNumber *big.Int, fetchTransactions bool) error {
 	defer account.updateLock.Lock()()
 	defer account.Synchronizer.IncRequestsCounter()()
 
@@ -341,9 +345,16 @@ func (account *Account) Update(balance *big.Int, blockNumber *big.Int) error {
 	go account.updateOutgoingTransactions(account.blockNumber.Uint64())
 
 	// Get confirmed transactions.
-	confirmedTransactions, err := account.confirmedTransactions()
-	if err != nil {
-		return errp.WithStack(err)
+	var confirmedTransactions []*accounts.TransactionData
+	if fetchTransactions {
+		var err error
+		confirmedTransactions, err = account.confirmedTransactions()
+		if err != nil {
+			return errp.WithStack(err)
+		}
+	} else {
+		confirmedTransactions = account.prefetchedConfirmedTransactions
+		account.prefetchedConfirmedTransactions = nil
 	}
 
 	// Get our stored outgoing transactions. Filter out all transactions from the transactions

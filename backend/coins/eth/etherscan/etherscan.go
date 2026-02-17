@@ -34,7 +34,8 @@ import (
 var CallsPerSec = 3.8
 
 const (
-	maxAddressesForBalances = 20
+	maxAddressesForBalances      = 20
+	maxTokenTransactionsPerQuery = 10000
 )
 
 // ERC20GasErr is the error message returned from etherscan when there is not enough ETH to pay the transaction fee.
@@ -180,20 +181,21 @@ func (tx *Transaction) UnmarshalJSON(jsonBytes []byte) error {
 	if err := json.Unmarshal(jsonBytes, &tx.jsonTransaction); err != nil {
 		return errp.WithStack(err)
 	}
-	switch {
-	case tx.jsonTransaction.ToAsString != "":
+	if tx.jsonTransaction.ToAsString != "" {
 		if !common.IsHexAddress(tx.jsonTransaction.ToAsString) {
 			return errp.Newf("eth address expected, got %s", tx.jsonTransaction.ToAsString)
 		}
 		addr := common.HexToAddress(tx.jsonTransaction.ToAsString)
 		tx.jsonTransaction.to = &addr
-	case tx.jsonTransaction.ContractAddressAsString != "":
+	}
+	if tx.jsonTransaction.ContractAddressAsString != "" {
 		if !common.IsHexAddress(tx.jsonTransaction.ContractAddressAsString) {
 			return errp.Newf("eth address expected, got %s", tx.jsonTransaction.ContractAddressAsString)
 		}
 		addr := common.HexToAddress(tx.jsonTransaction.ContractAddressAsString)
 		tx.jsonTransaction.contractAddress = &addr
-	default:
+	}
+	if tx.jsonTransaction.to == nil && tx.jsonTransaction.contractAddress == nil {
 		return errp.New("Need one of: to, contractAddress")
 	}
 	return nil
@@ -352,6 +354,105 @@ func (etherScan *EtherScan) Transactions(
 		}
 	}
 	return append(transactionsNormal, transactionsInternal...), nil
+}
+
+func tokenTransactionDedupKey(tx *Transaction) string {
+	contractAddress := tx.jsonTransaction.ContractAddressAsString
+	if tx.jsonTransaction.contractAddress != nil {
+		contractAddress = tx.jsonTransaction.contractAddress.Hex()
+	}
+	blockNumber := tx.jsonTransaction.BlockNumber.BigInt()
+	gasUsed := tx.jsonTransaction.GasUsed.BigInt()
+	gasPrice := tx.jsonTransaction.GasPrice.BigInt()
+	nonce := tx.jsonTransaction.Nonce.BigInt()
+	value := tx.jsonTransaction.Value.BigInt()
+	timestamp := time.Time(tx.jsonTransaction.Timestamp).Unix()
+	to := ""
+	if tx.jsonTransaction.to != nil {
+		to = tx.jsonTransaction.to.Hex()
+	}
+	from := tx.jsonTransaction.From.Hex()
+	return fmt.Sprintf(
+		"%s-%s-%s-%s-%s-%s-%s-%s-%s-%d-%s",
+		tx.TxID(),
+		contractAddress,
+		from,
+		to,
+		blockNumber.Text(10),
+		nonce.Text(10),
+		gasUsed.Text(10),
+		gasPrice.Text(10),
+		value.Text(10),
+		timestamp,
+		tx.jsonTransaction.Failed,
+	)
+}
+
+// TokenTransactionsByContract queries EtherScan for all token transfers for the given account,
+// grouped by token contract address. It uses the tokentx endpoint without a contract address
+// filter. If the result size hits the 10k limit, it paginates by setting endBlock to the last
+// returned transaction's block number while de-duplicating overlapping results.
+func (etherScan *EtherScan) TokenTransactionsByContract(
+	blockTipHeight *big.Int,
+	address common.Address, endBlock *big.Int) (map[common.Address][]*accounts.TransactionData, error) {
+	params := url.Values{}
+	params.Set("module", "account")
+	params.Set("action", "tokentx")
+	params.Set("startblock", "0")
+	params.Set("tag", "latest")
+	params.Set("sort", "desc") // desc by block number
+	params.Set("address", address.Hex())
+
+	endBlockCursor := new(big.Int).Set(endBlock)
+	seen := map[string]struct{}{}
+	grouped := map[common.Address][]*Transaction{}
+	for {
+		params.Set("endblock", endBlockCursor.Text(10))
+		result := struct {
+			Result []*Transaction
+		}{}
+		if err := etherScan.call(context.TODO(), params, &result); err != nil {
+			return nil, err
+		}
+		if len(result.Result) == 0 {
+			break
+		}
+
+		newCount := 0
+		for _, transaction := range result.Result {
+			key := tokenTransactionDedupKey(transaction)
+			if _, ok := seen[key]; ok {
+				continue
+			}
+			seen[key] = struct{}{}
+			newCount++
+			if transaction.jsonTransaction.contractAddress == nil {
+				return nil, errp.New("token tx missing contract address")
+			}
+			contractAddress := *transaction.jsonTransaction.contractAddress
+			grouped[contractAddress] = append(grouped[contractAddress], transaction)
+		}
+
+		if len(result.Result) < maxTokenTransactionsPerQuery {
+			break
+		}
+		if newCount == 0 {
+			// Avoid an infinite loop if we are not making progress.
+			break
+		}
+		lastTx := result.Result[len(result.Result)-1]
+		endBlockCursor = lastTx.jsonTransaction.BlockNumber.BigInt()
+	}
+
+	byContract := map[common.Address][]*accounts.TransactionData{}
+	for contractAddress, transactions := range grouped {
+		castTransactions, err := prepareTransactions(true, blockTipHeight, false, transactions, address)
+		if err != nil {
+			return nil, err
+		}
+		byContract[contractAddress] = castTransactions
+	}
+	return byContract, nil
 }
 
 // ----- RPC node proxy methods follow
