@@ -75,13 +75,15 @@ export function launchRegtest(): Promise<ChildProcess> {
       fs.rmSync(headersPath, { force: true });
       console.log(`Removed: ${headersPath}`);
     }
-    // Remove all account-*rbtc* directories
-    const entries = fs.readdirSync(basePath);
-    for (const entry of entries) {
-      if (/^account-.*rbtc/i.test(entry)) {
-        const dirPath = path.join(basePath, entry);
-        fs.rmSync(dirPath, { recursive: true, force: true });
-        console.log(`Removed directory: ${dirPath}`);
+    if (fs.existsSync(basePath)) {
+      // Remove all account-*rbtc* directories
+      const entries = fs.readdirSync(basePath);
+      for (const entry of entries) {
+        if (/^account-.*rbtc/i.test(entry)) {
+          const dirPath = path.join(basePath, entry);
+          fs.rmSync(dirPath, { recursive: true, force: true });
+          console.log(`Removed directory: ${dirPath}`);
+        }
       }
     }
   } catch (err) {
