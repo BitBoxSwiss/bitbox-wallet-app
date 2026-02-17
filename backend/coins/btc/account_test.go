@@ -4,6 +4,7 @@ package btc
 
 import (
 	"crypto/sha256"
+	"encoding/base64"
 	"math/big"
 	"os"
 	"testing"
@@ -13,8 +14,10 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	blockchainMock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -31,6 +34,12 @@ func mockKeystore() *keystoremock.KeystoreMock {
 		CanSignMessageFunc: func(coin.Code) bool { return true },
 		SignBTCMessageFunc: func(_ []byte, _ signing.AbsoluteKeypath, _ signing.ScriptType, _ coin.Code) ([]byte, error) {
 			return []byte("signature"), nil
+		},
+		CanVerifyAddressFunc: func(coin.Coin) (bool, bool, error) {
+			return true, false, nil
+		},
+		VerifyAddressBTCFunc: func(_ *signing.Configuration, _ types.Derivation, _ coin.Coin) error {
+			return nil
 		},
 	}
 }
@@ -411,4 +420,37 @@ func TestGetUsedAddressesMixedScriptTypes(t *testing.T) {
 	secondTotalReceived, err := secondResult.TotalReceived.Int64()
 	require.NoError(t, err)
 	require.Equal(t, int64(1600), secondTotalReceived)
+}
+
+func TestVerifyAndSignBTCMessageSupportsChangeAddress(t *testing.T) {
+	account := mockAccount(t, nil)
+	require.NoError(t, account.Initialize())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
+	account.ensureAddresses()
+
+	unusedChangeAddresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+	require.NoError(t, err)
+	changeAddress := unusedChangeAddresses[0]
+
+	keystoreMock := mockKeystore()
+	account.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+		return keystoreMock, nil
+	}
+
+	canVerify, err := account.VerifyAddress(changeAddress.ID())
+	require.NoError(t, err)
+	require.True(t, canVerify)
+	verifyCalls := keystoreMock.VerifyAddressBTCCalls()
+	require.Len(t, verifyCalls, 1)
+	require.Equal(t, changeAddress.AccountConfiguration, verifyCalls[0].AccountConfiguration)
+	require.Equal(t, changeAddress.Derivation, verifyCalls[0].Derivation)
+
+	address, signature, err := account.SignBTCMessage(changeAddress.ID(), "Hello")
+	require.NoError(t, err)
+	require.Equal(t, changeAddress.EncodeForHumans(), address)
+	require.Equal(t, base64.StdEncoding.EncodeToString([]byte("signature")), signature)
+	signCalls := keystoreMock.SignBTCMessageCalls()
+	require.Len(t, signCalls, 1)
+	require.Equal(t, changeAddress.AbsoluteKeypath(), signCalls[0].Keypath)
+	require.Equal(t, changeAddress.AccountConfiguration.ScriptType(), signCalls[0].ScriptType)
 }
