@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getBalance, TBalance, type AccountCode, type TAccount } from '@/api/account';
+import { CoinUnit, getBalance, TBalance, type AccountCode, type TAccount } from '@/api/account';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { SubTitle } from '@/components/title';
@@ -10,10 +10,11 @@ import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { Button, Label } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
-import { SwapServiceSelector } from './components/swap-service-selector';
-import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ArrowSwap } from '@/components/icon';
+import { InputWithAccountSelector } from './components/input-with-account-selector';
+import { SwapServiceSelector } from './components/swap-service-selector';
+import { ConfrimSwap } from './components/swap-confirm';
 import style from './swap.module.css';
 
 type Props = {
@@ -44,6 +45,8 @@ export const Swap = ({
   const [buyAccountCode, setBuyAccountCode] = useState<string>();
   const [expectedOutput, setExpectedOutput] = useState<string>('');
 
+  const [isConfirming, setIsConfirming] = useState(false);
+
   // update max swappable amount (total coins of the account)
   useEffect(() => {
     if (sellAccountCode) {
@@ -53,6 +56,11 @@ export const Swap = ({
 
   // not used yet, but loggin so we dont get a TS error
   console.log(setExpectedOutput);
+
+  const handleConfirm = () => {
+    // TODO: add api call to confirm a swap on the device
+    setIsConfirming(true);
+  };
 
   return (
     <GuideWrapper>
@@ -124,7 +132,7 @@ export const Swap = ({
               <SwapServiceSelector />
             </ViewContent>
             <ViewButtons>
-              <Button primary>
+              <Button primary onClick={handleConfirm}>
                 {t('generic.swap')}
               </Button>
               <BackButton>
@@ -132,6 +140,90 @@ export const Swap = ({
               </BackButton>
             </ViewButtons>
           </View>
+          <ConfrimSwap
+            isConfirming={isConfirming}
+            expectedOutput={{
+              amount: '16.99',
+              unit: 'ETH' as CoinUnit,
+              estimated: false,
+              conversions: {
+                BTC: '0.50000000',
+                AUD: '47\'646.46',
+                BRL: '176\'043.48',
+                CAD: '40\'043.48',
+                CHF: '25\'992.00',
+                CNY: '232\'759.88',
+                CZK: '691\'098.51',
+                EUR: '28\'504.84',
+                GBP: '24\'879.06',
+                HKD: '263\'275.64',
+                ILS: '104\'402.61',
+                JPY: '5\'201\'349.04',
+                KRW: '48\'747\'275.75',
+                NOK: '319\'863.34',
+                PLN: '512',
+                RUB: '512',
+                sat: '50000000',
+                SEK: '512',
+                SGD: '512',
+                USD: '33\'642.50',
+              }
+            }}
+            feeAmount={{
+              amount: '0.00001211',
+              unit: 'ETH' as CoinUnit,
+              estimated: false,
+              conversions: {
+                BTC: '0.00005000',
+                AUD: '4.46',
+                BRL: '17.48',
+                CAD: '40.48',
+                CHF: '25.00',
+                CNY: '232.88',
+                CZK: '691.51',
+                EUR: '28.84',
+                GBP: '24.06',
+                HKD: '263.64',
+                ILS: '104.61',
+                JPY: '5\'201.04',
+                KRW: '484.75',
+                NOK: '319.34',
+                PLN: '512',
+                RUB: '512',
+                sat: '1200',
+                SEK: '512',
+                SGD: '512',
+                USD: '33.50',
+              }
+            }}
+            sellAmount={{
+              amount: '0.50000000',
+              unit: 'BTC' as CoinUnit,
+              estimated: false,
+              conversions: {
+                BTC: '0.50000000',
+                AUD: '47\'646.46',
+                BRL: '176\'043.48',
+                CAD: '40\'043.48',
+                CHF: '25\'992.00',
+                CNY: '232\'759.88',
+                CZK: '691\'098.51',
+                EUR: '28\'504.84',
+                GBP: '24\'879.06',
+                HKD: '263\'275.64',
+                ILS: '104\'402.61',
+                JPY: '5\'201\'349.04',
+                KRW: '48\'747\'275.75',
+                NOK: '319\'863.34',
+                PLN: '512',
+                RUB: '512',
+                sat: '50000000',
+                SEK: '512',
+                SGD: '512',
+                USD: '33\'642.50',
+              }
+            }}
+          />
         </Main>
       </GuidedContent>
       <Guide>
