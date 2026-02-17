@@ -2,8 +2,7 @@
   position: relative;
 }
 
-/* TODO: used for ETH, should be its own class */
-.inputWithIcon > div:nth-child(2) {
+.inputFieldWithIcon {
   padding-left: var(--input-qr-button);
 }
 

@@ -54,7 +54,8 @@ export const SetDeviceName = ({
         <ViewContent textAlign="left" minHeight="140px">
           <Input
             autoFocus
-            className={error && !nameIsTooShort && style.inputError || ''}
+            className={style.input}
+            classNameInputField={error && !nameIsTooShort && style.inputFieldError || ''}
             label={t('bitbox02Wizard.stepCreate.nameLabel')}
             onInput={(e) => setDeviceName(e.target.value)}
             placeholder={t('bitbox02Wizard.stepCreate.namePlaceholder')}

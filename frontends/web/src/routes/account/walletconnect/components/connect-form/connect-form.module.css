@@ -9,12 +9,7 @@
     margin-bottom: 32px;
 }
 
-.inputWithIcon {
-    position: relative;
-}
-
-/* TODO: its own class */
-.inputWithIcon > div:nth-child(2) {
+.inputFieldWithIcon {
     padding-left: var(--input-qr-button);
 }
 

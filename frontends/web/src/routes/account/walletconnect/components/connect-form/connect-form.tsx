@@ -61,7 +61,7 @@ export const WCConnectForm = ({
         }}>
         <Input
           label={t('walletConnect.connect.dappLabel')}
-          className={showQRButton ? styles.inputWithIcon : ''}
+          classNameInputField={showQRButton ? styles.inputFieldWithIcon : ''}
           value={uri}
           readOnly={connectLoading}
           onInput={(e) => onInputChange(e.target.value.replace(/\s/g, ''))}>

@@ -6,6 +6,7 @@ export type TBaseInputProps = {
   align?: 'left' | 'right';
   children?: React.ReactNode;
   className?: string;
+  classNameInputField?: string;
   error?: string | object;
   onInput?: (e: ChangeEvent<HTMLInputElement>) => void;
   transparent?: boolean;
