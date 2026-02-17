@@ -110,9 +110,8 @@ export const Market = ({
   const buyDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('buy', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
   const sellDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('sell', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
   const spendDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('spend', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
-  // TODO: do we care about selectedAccount, selectedRegion for OTC?
-  const otcDealsResponse = useLoad(marketAPI.getOTCDeals);
-  const swapDealsResponse = useLoad(marketAPI.getSwapDeals);
+  const swapDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('swap', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
+  const otcDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('otc', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
 
   const handleAccountChange = async (accountCode: string) => {
     const account = supportedAccounts.find(acc => acc.code === accountCode);
@@ -163,6 +162,8 @@ export const Market = ({
       return t('buy.exchange.spendServices');
     case 'swap':
       return t('buy.exchange.swapServices');
+    case 'otc':
+      return 'OTC';
     }
   };
 

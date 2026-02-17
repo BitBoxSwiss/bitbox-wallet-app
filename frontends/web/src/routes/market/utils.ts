@@ -32,7 +32,12 @@ export const getVendorSupportedAccounts = async (accounts: TAccount[]): Promise<
   const accountsWithFalsyValue = await Promise.all(
     accounts.map(async (account) => {
       const supported = await getMarketVendors(account.code)();
-      return supported.vendors.length ? account : false;
+      const hasBuySellSpendVendor = supported.vendors.some(vendor =>
+        vendor === 'moonpay'
+        || vendor === 'pocket'
+        || vendor === 'btcdirect'
+        || vendor === 'bitrefill');
+      return hasBuySellSpendVendor ? account : false;
     })
   );
   return accountsWithFalsyValue.filter(result => result) as TAccount[];

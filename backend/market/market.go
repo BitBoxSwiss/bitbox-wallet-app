@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 )
@@ -45,7 +46,7 @@ var (
 	ErrRegionNotSupported = Error("regionNotSupported")
 )
 
-// Action identifies buy, sell or spend actions.
+// Action identifies buy, sell, spend, swap or otc actions.
 type Action string
 
 const (
@@ -55,6 +56,10 @@ const (
 	SellAction Action = "sell"
 	// SpendAction identifies a spend market action.
 	SpendAction Action = "spend"
+	// SwapAction identifies a swap market action.
+	SwapAction Action = "swap"
+	// OtcAction identifies an OTC market action.
+	OtcAction Action = "otc"
 )
 
 // ParseAction parses an action string and returns an Action.
@@ -66,6 +71,10 @@ func ParseAction(action string) (Action, error) {
 		return SellAction, nil
 	case "spend":
 		return SpendAction, nil
+	case "swap":
+		return SwapAction, nil
+	case "otc":
+		return OtcAction, nil
 	default:
 		return "", errp.New("Invalid Market action")
 	}
@@ -172,38 +181,36 @@ func ListVendorsByRegion(account accounts.Interface, httpClient *http.Client) Re
 
 // GetDeals returns the vendor deals available for the specified account, region and action.
 func GetDeals(account accounts.Interface, regionCode string, action Action, httpClient *http.Client) ([]*DealsList, error) {
-	moonpaySupportsCoin := IsMoonpaySupported(account.Coin().Code()) && action == BuyAction
-	pocketSupportsCoin := IsPocketSupported(account.Coin().Code()) && (action == BuyAction || action == SellAction)
-	btcDirectSupportsCoin := IsBtcDirectSupported(account.Coin().Code()) && (action == BuyAction || action == SellAction)
-	bitrefillSupportsCoin := IsBitrefillSupported(account.Coin().Code()) && action == SpendAction
+	coinCode := account.Coin().Code()
+	if deals, handled, err := specialActionDeals(coinCode, regionCode, action); handled {
+		return deals, err
+	}
+
+	moonpaySupportsCoin := IsMoonpaySupported(coinCode) && action == BuyAction
+	pocketSupportsCoin := IsPocketSupported(coinCode) && (action == BuyAction || action == SellAction)
+	btcDirectSupportsCoin := IsBtcDirectSupported(coinCode) && (action == BuyAction || action == SellAction)
+	bitrefillSupportsCoin := IsBitrefillSupported(coinCode) && action == SpendAction
 	coinSupported := moonpaySupportsCoin || pocketSupportsCoin || btcDirectSupportsCoin || bitrefillSupportsCoin
 	if !coinSupported {
 		return nil, ErrCoinNotSupported
 	}
 
-	var userRegion *Region
+	userRegion := Region{
+		IsMoonpayEnabled:   true,
+		IsPocketEnabled:    true,
+		IsBtcDirectEnabled: true,
+		IsBitrefillEnabled: true,
+	}
 	if len(regionCode) > 0 {
 		vendorsByRegion := ListVendorsByRegion(account, httpClient)
 		for _, region := range vendorsByRegion.Regions {
 			if region.Code == regionCode {
-				// to avoid exporting loop refs
-				region := region
-				userRegion = &region
+				userRegion = region
 				break
 			}
 		}
 	}
-	if userRegion == nil {
-		userRegion = &Region{
-			IsMoonpayEnabled:   true,
-			IsPocketEnabled:    true,
-			IsBtcDirectEnabled: true,
-			IsBitrefillEnabled: true,
-		}
-	}
-
 	marketDealsLists := []*DealsList{}
-
 	if pocketSupportsCoin && userRegion.IsPocketEnabled {
 		deals := PocketDeals()
 		if deals != nil {
@@ -228,7 +235,6 @@ func GetDeals(account accounts.Interface, regionCode string, action Action, http
 			marketDealsLists = append(marketDealsLists, deals)
 		}
 	}
-
 	if len(marketDealsLists) == 0 {
 		return nil, ErrRegionNotSupported
 	}
@@ -252,4 +258,24 @@ func GetDeals(account accounts.Interface, regionCode string, action Action, http
 	}
 
 	return marketDealsLists, nil
+}
+
+func specialActionDeals(coinCode coin.Code, regionCode string, action Action) ([]*DealsList, bool, error) {
+	switch action {
+	case SwapAction:
+		if !IsSwapKitSupported(coinCode) {
+			return nil, true, ErrCoinNotSupported
+		}
+		return []*DealsList{SwapKitDeals()}, true, nil
+	case OtcAction:
+		if !IsBtcDirectSupported(coinCode) {
+			return nil, true, ErrCoinNotSupported
+		}
+		if !IsBtcDirectOTCSupportedForCoinInRegion(coinCode, regionCode) {
+			return nil, true, ErrRegionNotSupported
+		}
+		return []*DealsList{BtcDirectOTCDeals()}, true, nil
+	default:
+		return nil, false, nil
+	}
 }

@@ -47,11 +47,6 @@ export const getMarketDeals = (
   return apiGet(`market/deals/${action}/${accountCode}?region=${region}`);
 };
 
-// TODO: implement in backend
-export const getSwapDeals = (): Promise<TMarketDealsResponse> => {
-  return apiGet('market/swap-deals');
-};
-
 export type MoonpayBuyInfo = {
   url: string;
   address: string;
@@ -61,22 +56,6 @@ export const getMoonpayBuyInfo = (code: AccountCode) => {
   return (): Promise<MoonpayBuyInfo> => {
     return apiGet(`market/moonpay/buy-info/${code}`);
   };
-};
-
-// TODO: implement in backend
-export const getOTCDeals = (): Promise<TMarketDealsResponse> => {
-  return Promise.resolve({
-    success: true,
-    deals: [{
-      vendorName: 'btcdirect-otc',
-      deals: [{
-        fee: 1,
-        isFast: false,
-        isBest: false,
-        isHidden: false,
-      }]
-    }]
-  });
 };
 
 export type AddressVerificationResponse = {

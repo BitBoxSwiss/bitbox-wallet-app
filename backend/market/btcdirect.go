@@ -12,6 +12,8 @@ import (
 const (
 	// BTCDirectName is the name of the vendor, it is unique among all the supported vendors.
 	BTCDirectName = "btcdirect"
+	// BTCDirectOTCName is the name of the OTC vendor, it is unique among all the supported vendors.
+	BTCDirectOTCName = "btcdirect-otc"
 
 	btcDirectTestApiKey = "6ed4d42bd02eeac1776a6bb54fa3126f779c04d5c228fe5128bb74e89ef61f83"
 
@@ -107,6 +109,18 @@ func BtcDirectDeals(action Action) *DealsList {
 	return &DealsList{
 		VendorName: BTCDirectName,
 		Deals:      deals,
+	}
+}
+
+// BtcDirectOTCDeals returns the OTC purchase conditions offered by BTCDirect.
+func BtcDirectOTCDeals() *DealsList {
+	return &DealsList{
+		VendorName: BTCDirectOTCName,
+		Deals: []*Deal{
+			{
+				Fee: 1,
+			},
+		},
 	}
 }
 
