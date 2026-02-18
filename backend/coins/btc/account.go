@@ -16,7 +16,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/db/transactionsdb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
@@ -284,7 +283,7 @@ func (account *Account) Initialize() error {
 
 	dbName := fmt.Sprintf("%s.db", accountIdentifier)
 	account.log.Debugf("Opening the database '%s' to persist the transactions.", dbName)
-	db, err := transactionsdb.NewDB(path.Join(account.Config().DBFolder, dbName))
+	db, err := openTransactionsDBWithRecovery(path.Join(account.Config().DBFolder, dbName), account.log)
 	if err != nil {
 		return err
 	}
