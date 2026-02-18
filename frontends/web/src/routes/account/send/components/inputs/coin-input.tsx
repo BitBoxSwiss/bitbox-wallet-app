@@ -15,6 +15,7 @@ type TProps = {
   proposedAmount?: TAmountWithConversions;
   amount: string;
   hasSelectedUTXOs: boolean;
+  disabled?: boolean;
 };
 
 export const CoinInput = ({
@@ -25,7 +26,8 @@ export const CoinInput = ({
   amountError,
   proposedAmount,
   amount,
-  hasSelectedUTXOs
+  hasSelectedUTXOs,
+  disabled = false,
 }: TProps) => {
   const { t } = useTranslation();
   return (
@@ -36,17 +38,19 @@ export const CoinInput = ({
       label={balance ? balance.available.unit : t('send.amount.label')}
       id="amount"
       onInput={(e: ChangeEvent<HTMLInputElement>) => onAmountChange(e.target.value)}
-      disabled={sendAll}
+      disabled={sendAll || disabled}
       error={amountError}
       value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}
       placeholder={t('send.amount.placeholder')}
       labelSection={
-        <Checkbox
-          label={t(hasSelectedUTXOs ? 'send.maximumSelectedCoins' : 'send.maximum')}
-          id="sendAll"
-          onChange={(e: ChangeEvent<HTMLInputElement>) => onSendAllChange(e.target.checked)}
-          checked={sendAll}
-          className={style.maxAmount} />
+        disabled ? undefined : (
+          <Checkbox
+            label={t(hasSelectedUTXOs ? 'send.maximumSelectedCoins' : 'send.maximum')}
+            id="sendAll"
+            onChange={(e: ChangeEvent<HTMLInputElement>) => onSendAllChange(e.target.checked)}
+            checked={sendAll}
+            className={style.maxAmount} />
+        )
       }
     />
   );

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { i18n as interfacei18n } from 'i18next';
 import { txProposalErrorHandling } from './services';
 import { alertUser } from '@/components/alert/Alert';
@@ -25,6 +25,10 @@ vi.mock('@/components/alert/Alert', () => ({
 }));
 
 describe('send services', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   describe('txProposalErrorHandling', () => {
 
     it('returns invalid address message on invalidAddress error', () => {
@@ -47,14 +51,49 @@ describe('send services', () => {
       expect(result).toEqual({ feeError: 'send.error.feeTooLow' });
     });
 
+    it('returns rbf fee too low message on rbfFeeTooLow error', () => {
+      const result = txProposalErrorHandling('rbfFeeTooLow');
+      expect(result).toEqual({ feeError: 'send.error.rbfFeeTooLow' });
+    });
+
     it('returns fees not available message on feesNotAvailable error', () => {
       const result = txProposalErrorHandling('feesNotAvailable');
       expect(result).toEqual({ feeError: 'send.error.feesNotAvailable' });
     });
 
+    it('returns no field errors on rbfTxNotFound', () => {
+      const result = txProposalErrorHandling('rbfTxNotFound');
+      expect(result).toEqual({});
+      expect(alertUser).not.toHaveBeenCalled();
+    });
+
+    it('returns no field errors on rbfTxAlreadyConfirmed', () => {
+      const result = txProposalErrorHandling('rbfTxAlreadyConfirmed');
+      expect(result).toEqual({});
+      expect(alertUser).not.toHaveBeenCalled();
+    });
+
+    it('returns no field errors on rbfTxNotReplaceable', () => {
+      const result = txProposalErrorHandling('rbfTxNotReplaceable');
+      expect(result).toEqual({});
+      expect(alertUser).not.toHaveBeenCalled();
+    });
+
+    it('alerts user on rbfInvalidTxID', () => {
+      const result = txProposalErrorHandling('rbfInvalidTxID');
+      expect(result).toEqual({});
+      expect(alertUser).toHaveBeenCalledWith('send.error.rbfInvalidTxID');
+    });
+
+    it('alerts user on rbfCoinControlNotAllowed', () => {
+      const result = txProposalErrorHandling('rbfCoinControlNotAllowed');
+      expect(result).toEqual({});
+      expect(alertUser).toHaveBeenCalledWith('send.error.rbfCoinControlNotAllowed');
+    });
+
     it('returns proposed fee undefined and alerts the user when error is unknown', () => {
       const result = txProposalErrorHandling('unknownError');
-      expect(result).toEqual({ proposedFee: undefined });
+      expect(result).toEqual({});
       expect(alertUser).toHaveBeenCalledWith('unknownError');
     });
 
