@@ -52,7 +52,7 @@ export const Bip85 = ({
                 <br />
               </p>
             </Column>
-            <Column textCenter>
+            <Column textAlign="center">
               <img
                 src={isDarkMode ? bip85GraphicLight : bip85Graphic}
                 style={{ height: 'auto', width: '100%' }}

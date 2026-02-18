@@ -48,7 +48,7 @@ export const SetupOptions = ({
         width="1100px">
         <ViewHeader small title={t('seed.create')} />
         <ViewContent fullWidth>
-          <Grid col="1" textAlign="left">
+          <Grid col="1" textAlign="start">
             <Column asCard>
               <h3 className="title">
                 {t('bitbox02Wizard.advanced.title')}

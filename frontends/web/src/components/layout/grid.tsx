@@ -3,10 +3,12 @@
 import { ReactNode } from 'react';
 import style from './grid.module.css';
 
+type TTextAlign = 'start' | 'center' | 'end';
+
 type TGridProps = {
   children: ReactNode;
   col?: '1' | '2';
-  textAlign?: 'center' | 'left';
+  textAlign?: TTextAlign;
 };
 
 export const Grid = ({
@@ -14,13 +16,13 @@ export const Grid = ({
   col = '2',
   textAlign,
 }: TGridProps) => {
-  const styles = `
+  const classNames = `
     ${style.grid || ''}
     ${style[`grid-columns-${col}`] || ''}
-    ${textAlign !== undefined && style[textAlign] || ''}
+    ${textAlign && style[`align-${textAlign}`] || ''}
   `;
   return (
-    <section className={styles}>
+    <section className={classNames.trim()}>
       {children}
     </section>
   );
@@ -30,23 +32,23 @@ type TColumnProps = {
   asCard?: boolean;
   className?: string;
   children: ReactNode;
-  textCenter?: boolean;
+  textAlign?: TTextAlign;
 };
 
 export const Column = ({
   asCard,
   children,
   className,
-  textCenter,
+  textAlign,
 }: TColumnProps) => {
   const classNames = `
     ${style.column || ''}
     ${asCard && style.columnAsCard || ''}
+    ${textAlign && style[`align-${textAlign}`] || ''}
     ${className || ''}
-    ${textCenter && style.textCenter || ''}
   `;
   return (
-    <div className={classNames}>
+    <div className={classNames.trim()}>
       {children}
     </div>
   );
@@ -69,7 +71,7 @@ export const ColumnButtons = ({
     ${className}
   `;
   return (
-    <div className={classNames}>
+    <div className={classNames.trim()}>
       {children}
     </div>
   );

@@ -27,16 +27,14 @@
     margin-top: 0;
 }
 
-.left {
-    text-align: left;
+.align-start {
+    text-align: start;
 }
-
-.center {
+.align-center {
     text-align: center;
 }
-
-.textCenter {
-    text-align: center;
+.align-end {
+    text-align: end;
 }
 
 @media (max-width: 768px) {

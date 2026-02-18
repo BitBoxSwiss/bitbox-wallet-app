@@ -90,7 +90,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
             <ViewContent>
               <p className={style.noVspace}>{t('bitsurance.intro.text1', { amount })}</p>
               <div className={style.gridContainer}>
-                <Grid col="2" textAlign="left">
+                <Grid col="2" textAlign="start">
                   <Column asCard>
                     <h3 className={style.title}>
                       {t('bitsurance.insure.title')}
