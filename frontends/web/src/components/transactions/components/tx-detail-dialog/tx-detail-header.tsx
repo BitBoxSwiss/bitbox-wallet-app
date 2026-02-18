@@ -81,7 +81,7 @@ const StatusAndSign = ({
     case 'receive':
       return t('generic.received');
     case 'send_to_self':
-      return t('transaction.details.sendToSelf');
+      return t('transaction.details.sentToSelf');
     }
   };
 
