@@ -193,6 +193,17 @@
     text-align: left;
 }
 
+.stackedSelect :global(.react-select__control),
+.stackedSelect :global(.react-select__control:hover) {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    padding-bottom: var(--space-quarter);
+    padding-top: var(--space-quarter);
+    padding-left: 0;
+    padding-right: 0;
+}
+
 @media screen and (max-width: 768px) {
     .groupHeader {
         padding-left: 0;

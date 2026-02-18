@@ -67,14 +67,6 @@ const TriggerContent = ({
   );
 };
 
-const renderOption = (option: TOption) => {
-  return (
-    <div className={styles.valueContainer}>
-      <TriggerContent option={option} />
-    </div>
-  );
-};
-
 const renderGroupHeader = (group: TGroupedOption) => (
   <div className={styles.groupHeader}>
     <span className={styles.groupLabel}>{group.label}</span>
@@ -129,6 +121,15 @@ export const GroupedAccountSelector = ({
       : options.flatMap(o => o.options).find(opt => opt.value === selected)
   );
 
+  const renderOption = (option: TOption, isSelectedValue: boolean) => {
+    const isStacked = stackedLayout && isSelectedValue;
+    return (
+      <div className={`${styles.valueContainer || ''} ${isStacked ? styles.layoutOnTwoLines || '' : ''}`}>
+        <TriggerContent option={option} stackedLayout={isStacked} />
+      </div>
+    );
+  };
+
   const renderTrigger = ({ onClick }: { onClick: () => void }) => {
     return (
       <button
@@ -151,7 +152,7 @@ export const GroupedAccountSelector = ({
         <h1 className="title text-center">{title}</h1>
       )}
       <Dropdown<AccountCode, false, TGroupAccountSelector, TOptionAccountSelector>
-        className={styles.select}
+        className={`${styles.select || ''} ${stackedLayout ? styles.stackedSelect || '' : ''}`}
         classNamePrefix="react-select"
         options={options}
         isSearchable={false}
