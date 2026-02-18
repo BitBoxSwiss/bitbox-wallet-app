@@ -1,11 +1,65 @@
+.grid {
+    --grid-min-height: 0;
+    display: grid;
+    gap: 0 var(--space-default);
+    grid-auto-rows: minmax(var(--grid-min-height), auto);
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+.grid-columns-1 {
+    grid-template-columns: repeat(1, 1fr);
+}
+
+.grid-columns-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.column-2 {
+    grid-column: span 2;
+}
+
+.column p {
+    margin-top: 0;
+}
+
 .columnAsCard {
     background-color: var(--background-secondary);
     border-radius: var(--radius-xl);
     padding: var(--space-default);
 }
 
-.column p {
-    margin-top: 0;
+@media (max-width: 768px) {
+    .grid.responsive {
+        display: block;
+    }
+    .columnAsCard {
+        padding: var(--space-half);
+    }
+    .grid.responsive .columnAsCard + .columnAsCard {
+        margin-top: var(--space-default);
+    }
+}
+
+/* text-align */
+
+.align-start {
+    text-align: start;
+}
+.align-center {
+    text-align: center;
+}
+.align-end {
+    text-align: end;
+}
+
+/* column buttons */
+
+.columnButtons {
+    margin-top: auto;
 }
 
 .columnButtons:not(.columnButtonsInline) button {
@@ -25,47 +79,4 @@
 .columnButtonsInline > button:not(:first-child) {
     margin-right: var(--space-half);
     margin-top: 0;
-}
-
-.align-start {
-    text-align: start;
-}
-.align-center {
-    text-align: center;
-}
-.align-end {
-    text-align: end;
-}
-
-@media (max-width: 768px) {
-    .columnAsCard {
-        padding: var(--space-half);
-    }
-    .columnAsCard + .columnAsCard {
-        margin-top: var(--space-default);
-    }
-}
-
-@media (min-width: 769px) {
-    .grid {
-        display: grid;
-        gap: var(--space-default);
-        grid-auto-rows: minmax(100px, auto);
-    }
-
-    .grid-columns-1 {
-        grid-template-columns: repeat(1, 1fr);
-    }
-    .grid-columns-2 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .column {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .columnButtons {
-        margin-top: auto;
-    }
 }

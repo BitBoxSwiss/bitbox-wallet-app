@@ -432,7 +432,7 @@ export const Send = ({
                   onCoinControlDialogActiveChange={setUtxoDialogActive}
                 />
               </div>
-              <Grid col="1">
+              <Grid col="1" className={style.sendForm}>
                 <Column>
                   <ReceiverAddressInput
                     account={account}
@@ -445,7 +445,7 @@ export const Send = ({
                   />
                 </Column>
               </Grid>
-              <Grid>
+              <Grid className={style.sendForm}>
                 <Column>
                   <CoinInput
                     balance={balance}
@@ -468,7 +468,7 @@ export const Send = ({
                   />
                 </Column>
               </Grid>
-              <Grid>
+              <Grid className={style.sendForm}>
                 <Column>
                   <FeeTargets
                     accountCode={account.code}
