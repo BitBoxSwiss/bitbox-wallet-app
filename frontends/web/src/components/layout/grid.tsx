@@ -3,6 +3,8 @@
 import { ReactNode } from 'react';
 import style from './grid.module.css';
 
+type TTextAlign = 'start' | 'center' | 'end';
+
 type TGridProps = {
   children: ReactNode;
   col?: '1' | '2';
@@ -14,13 +16,13 @@ export const Grid = ({
   col = '2',
   textAlign,
 }: TGridProps) => {
-  const styles = `
+  const classNames = `
     ${style.grid || ''}
     ${style[`grid-columns-${col}`] || ''}
     ${textAlign !== undefined && style[textAlign] || ''}
   `;
   return (
-    <section className={styles}>
+    <section className={classNames}>
       {children}
     </section>
   );
@@ -30,6 +32,7 @@ type TColumnProps = {
   asCard?: boolean;
   className?: string;
   children: ReactNode;
+  textAlign?: TTextAlign;
   textCenter?: boolean;
 };
 
@@ -37,16 +40,20 @@ export const Column = ({
   asCard,
   children,
   className,
+  textAlign,
   textCenter,
 }: TColumnProps) => {
   const classNames = `
     ${style.column || ''}
     ${asCard && style.columnAsCard || ''}
     ${className || ''}
+    ${textAlign !== undefined
+      ? (style[`align-${textAlign || ''}`] || '')
+      : ''}
     ${textCenter && style.textCenter || ''}
   `;
   return (
-    <div className={classNames}>
+    <div className={classNames.trim()}>
       {children}
     </div>
   );
