@@ -32,10 +32,26 @@ func NewDB(filename string, log *logrus.Entry) (*DB, error) {
 		file: file,
 		log:  log,
 	}
+	if err := db.validateSize(); err != nil {
+		_ = file.Close()
+		return nil, err
+	}
 	if err := db.fixTrailingZeroesHeaders(); err != nil {
+		_ = file.Close()
 		return nil, err
 	}
 	return db, nil
+}
+
+func (db *DB) validateSize() error {
+	fileInfo, err := db.file.Stat()
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	if fileInfo.Size()%headerSize != 0 {
+		return errp.Newf("invalid headers file size: %d", fileInfo.Size())
+	}
+	return nil
 }
 
 // fixTrailingZeroesHeaders deletes trailing headers that are stored as zero bytes. Zero headers

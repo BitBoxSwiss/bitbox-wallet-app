@@ -11,7 +11,6 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/db/headersdb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
@@ -103,7 +102,7 @@ func (coin *Coin) Initialize() {
 			_ = os.Remove(oldDBFilename)
 		}
 
-		db, err := headersdb.NewDB(
+		db, err := openHeadersDBWithRecovery(
 			path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.bin", coin.code)),
 			coin.log)
 		if err != nil {
