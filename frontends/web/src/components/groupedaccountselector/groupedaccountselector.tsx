@@ -87,6 +87,7 @@ type TAccountSelector = {
   onProceed?: () => void;
   accounts: TAccount[];
   stackedLayout?: boolean;
+  className?: string;
 };
 
 export const GroupedAccountSelector = ({
@@ -97,6 +98,7 @@ export const GroupedAccountSelector = ({
   onProceed,
   accounts,
   stackedLayout,
+  className = '',
 }: TAccountSelector) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<TGroupedOption[]>();
@@ -152,7 +154,11 @@ export const GroupedAccountSelector = ({
         <h1 className="title text-center">{title}</h1>
       )}
       <Dropdown<AccountCode, false, TGroupAccountSelector, TOptionAccountSelector>
-        className={`${styles.select || ''} ${stackedLayout ? styles.stackedSelect || '' : ''}`}
+        className={`
+          ${styles.select || ''}
+          ${stackedLayout ? styles.stackedSelect || '' : ''}
+          ${className}
+        `.trim()}
         classNamePrefix="react-select"
         options={options}
         isSearchable={false}

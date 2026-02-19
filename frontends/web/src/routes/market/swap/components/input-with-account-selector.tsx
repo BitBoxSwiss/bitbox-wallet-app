@@ -65,10 +65,11 @@ export const InputWithAccountSelector = ({
               onChangeAccountCode(accountCode);
             })}
             stackedLayout
+            className={style.accountSelectorDropdown}
           />
         )}
       </div>
-      <div className={style.inputCol}>
+      <label className={style.inputCol}>
         <div className={style.inputWithUnit}>
           <NumberInput
             transparent
@@ -76,6 +77,7 @@ export const InputWithAccountSelector = ({
             disabled={!selectedAccount}
             id={id}
             className={style.inputComponent}
+            classNameInputField={style.inputField}
             name={id}
             value={value}
             onChange={(event: ChangeEvent<HTMLInputElement>) => {
@@ -94,7 +96,7 @@ export const InputWithAccountSelector = ({
             </>
           ) : null}
         </div>
-      </div>
+      </label>
     </div>
   );
 };

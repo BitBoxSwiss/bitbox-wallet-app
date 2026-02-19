@@ -16,20 +16,35 @@
   max-width: 50%;
 }
 
-.accountSelectorCol > div {
-  /* removes space after groupedaccountselector inside inputwithaccountselector on desktop */
+.accountSelectorDropdown {
   margin-bottom: 0;
 }
 
 .inputCol {
   align-items: flex-end;
+  border: 1px solid transparent;
+  border-top-right-radius: var(--radius-xl);
+  border-bottom-right-radius: var(--radius-xl);
   display: flex;
   flex-basis: 50%;
   flex-direction: column;
   flex-grow: 0;
   flex-shrink: 0;
   justify-content: center;
+  margin-bottom: 0;
   max-width: 50%;
+}
+
+.inputCol:focus-within {
+  border: 1px solid var(--color-blue);
+}
+
+.inputField:has(input:invalid) {
+  border-color: transparent;
+}
+
+.inputCol:has(input:invalid:not(:focus)) {
+  border-color: var(--color-error);
 }
 
 .inputWithUnit {
@@ -56,13 +71,8 @@
   height: auto;
 }
 
-/* bit hack, would be nice to add class directly */
-.inputComponent > div {
+.inputField {
   border-radius: 0;
-}
-
-.inputComponent > div:has(input:invalid) {
-  border-color: var(--color-blue);
 }
 
 .fiat {
