@@ -459,5 +459,31 @@ type AddressSignResponse = {
 };
 
 export const signAddress = (format: ScriptType | '', msg: string, code: AccountCode): Promise<AddressSignResponse> => {
-  return apiPost(`account/${code}/sign-address`, { format, msg, code });
+  return apiPost(`account/${code}/sign-address`, { format, msg });
+};
+
+export const signMessage = (code: AccountCode, addressID: string, msg: string): Promise<AddressSignResponse> => {
+  return apiPost(`account/${code}/sign-address`, { addressID, msg });
+};
+
+export type TUsedAddress = {
+  address: string;
+  addressID: string;
+  scriptType: ScriptType | null;
+  addressType: 'receive' | 'change';
+  lastUsed: string | null;
+  totalReceived: TAmountWithConversions;
+  transactionCount: number;
+};
+
+export type TUsedAddressesResponse = {
+  success: true;
+  addresses: TUsedAddress[];
+} | {
+  success: false;
+  errorCode?: 'syncInProgress' | 'notSupported' | 'loadFailed';
+};
+
+export const getUsedAddresses = (code: AccountCode): Promise<TUsedAddressesResponse> => {
+  return apiGet(`account/${code}/used-addresses`);
 };

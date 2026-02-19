@@ -2,7 +2,14 @@
 
 import { describe, it, expect } from 'vitest';
 import { CoinCode, CoinUnit, TAccount } from '@/api/account';
-import { getAccountsByKeystore } from './utils';
+import {
+  getAccountsByKeystore,
+  getAddressURIPrefix,
+  getCoinCode,
+  isBitcoinBased,
+  isBitcoinCoin,
+  isBitcoinOnly,
+} from './utils';
 
 
 const createAccount = ({
@@ -121,4 +128,23 @@ describe('utils/getAccountsByKeystore', () => {
     expect(result[1].accounts[3].code).toBe(accounts[5].code);
   });
 
+});
+
+describe('utils/bitcoin coin helpers', () => {
+  it('treats rbtc coin codes as bitcoin-only and bitcoin-based', () => {
+    expect(isBitcoinOnly('rbtc')).toBe(true);
+    expect(isBitcoinBased('rbtc')).toBe(true);
+  });
+
+  it('treats rbtc unit as bitcoin coin', () => {
+    expect(isBitcoinCoin('RBTC' as CoinUnit)).toBe(true);
+  });
+
+  it('uses bitcoin URI prefix for rbtc', () => {
+    expect(getAddressURIPrefix('rbtc')).toBe('bitcoin:');
+  });
+
+  it('maps rbtc to canonical btc coin code', () => {
+    expect(getCoinCode('rbtc' as CoinCode)).toBe('btc');
+  });
 });

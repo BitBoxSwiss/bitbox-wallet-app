@@ -13,6 +13,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	blockchainMock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -23,6 +25,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/wire"
 	"github.com/stretchr/testify/require"
 )
 
@@ -31,6 +34,12 @@ func mockKeystore() *keystoremock.KeystoreMock {
 		CanSignMessageFunc: func(coin.Code) bool { return true },
 		SignBTCMessageFunc: func(_ []byte, _ signing.AbsoluteKeypath, _ signing.ScriptType, _ coin.Code) ([]byte, error) {
 			return []byte("signature"), nil
+		},
+		CanVerifyAddressFunc: func(coin.Coin) (bool, bool, error) {
+			return true, false, nil
+		},
+		VerifyAddressBTCFunc: func(_ *signing.Configuration, _ types.Derivation, _ coin.Coin) error {
+			return nil
 		},
 	}
 }
@@ -212,4 +221,236 @@ func TestIsChange(t *testing.T) {
 			require.False(t, account.IsChange(address.PubkeyScriptHashHex()))
 		}
 	}
+}
+
+func makeSigningConfiguration(
+	t *testing.T,
+	net *chaincfg.Params,
+	scriptType signing.ScriptType,
+	keypath string,
+	seedLabel string,
+) *signing.Configuration {
+	t.Helper()
+	absoluteKeypath, err := signing.NewAbsoluteKeypath(keypath)
+	require.NoError(t, err)
+	seed := sha256.Sum256([]byte(seedLabel))
+	xpub, err := hdkeychain.NewMaster(seed[:], net)
+	require.NoError(t, err)
+	xpub, err = xpub.Neuter()
+	require.NoError(t, err)
+	return signing.NewBitcoinConfiguration(scriptType, []byte{1, 2, 3, 4}, absoluteKeypath, xpub)
+}
+
+func mockUnifiedAccount(t *testing.T) *Account {
+	t.Helper()
+	net := &chaincfg.TestNet3Params
+	signingConfigurations := signing.Configurations{
+		makeSigningConfiguration(t, net, signing.ScriptTypeP2WPKH, "m/84'/1'/0'", "native"),
+		makeSigningConfiguration(t, net, signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'", "wrapped"),
+	}
+	account := mockAccount(t, &config.Account{
+		Code:                  "accountcode-unified",
+		Name:                  "accountname-unified",
+		SigningConfigurations: signingConfigurations,
+	})
+	require.NoError(t, account.Initialize())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
+	account.ensureAddresses()
+	return account
+}
+
+func txWithOutputs(outputs ...*wire.TxOut) *wire.MsgTx {
+	tx := wire.NewMsgTx(2)
+	tx.AddTxIn(&wire.TxIn{
+		PreviousOutPoint: wire.OutPoint{},
+		Sequence:         wire.MaxTxInSequenceNum,
+	})
+	for _, txOut := range outputs {
+		tx.AddTxOut(txOut)
+	}
+	return tx
+}
+
+func putWalletTransaction(
+	t *testing.T,
+	account *Account,
+	tx *wire.MsgTx,
+	height int,
+	timestamp *time.Time,
+	scriptHashes ...blockchain.ScriptHashHex,
+) {
+	t.Helper()
+	err := transactions.DBUpdate(account.db, func(dbTx transactions.DBTxInterface) error {
+		txHash := tx.TxHash()
+		if err := dbTx.PutTx(txHash, tx, height, nil); err != nil {
+			return err
+		}
+		for _, scriptHash := range scriptHashes {
+			if err := dbTx.AddAddressToTx(txHash, scriptHash); err != nil {
+				return err
+			}
+		}
+		if timestamp != nil {
+			return dbTx.MarkTxVerified(txHash, *timestamp)
+		}
+		return nil
+	})
+	require.NoError(t, err)
+}
+
+func TestGetUsedAddressesOnlyUsedScriptTypesAreReturned(t *testing.T) {
+	account := mockUnifiedAccount(t)
+
+	firstScriptUnusedReceive, err := account.subaccounts[0].receiveAddresses.GetUnused()
+	require.NoError(t, err)
+	secondScriptUnusedReceive, err := account.subaccounts[1].receiveAddresses.GetUnused()
+	require.NoError(t, err)
+
+	firstScriptAddress := firstScriptUnusedReceive[0]
+	secondScriptAddress := secondScriptUnusedReceive[0]
+
+	confirmedAt := time.Date(2025, 1, 15, 11, 0, 0, 0, time.UTC)
+	putWalletTransaction(
+		t,
+		account,
+		txWithOutputs(&wire.TxOut{
+			Value:    2100,
+			PkScript: firstScriptAddress.PubkeyScript(),
+		}),
+		100,
+		&confirmedAt,
+		firstScriptAddress.PubkeyScriptHashHex(),
+	)
+
+	putWalletTransaction(
+		t,
+		account,
+		txWithOutputs(&wire.TxOut{
+			Value:    4200,
+			PkScript: secondScriptAddress.PubkeyScript(),
+		}),
+		0,
+		nil,
+		secondScriptAddress.PubkeyScriptHashHex(),
+	)
+
+	usedAddresses, err := account.GetUsedAddresses()
+	require.NoError(t, err)
+	require.Len(t, usedAddresses, 1)
+	require.Equal(t, firstScriptAddress.ID(), usedAddresses[0].AddressID)
+	require.Equal(t, signing.ScriptTypeP2WPKH, *usedAddresses[0].ScriptType)
+	require.Equal(t, UsedAddressTypeReceive, usedAddresses[0].AddressType)
+	require.Equal(t, 1, usedAddresses[0].TransactionCount)
+	require.NotNil(t, usedAddresses[0].LastUsed)
+	require.Equal(t, confirmedAt, *usedAddresses[0].LastUsed)
+	totalReceived, err := usedAddresses[0].TotalReceived.Int64()
+	require.NoError(t, err)
+	require.Equal(t, int64(2100), totalReceived)
+}
+
+func TestGetUsedAddressesMixedScriptTypes(t *testing.T) {
+	account := mockUnifiedAccount(t)
+
+	firstScriptUnusedReceive, err := account.subaccounts[0].receiveAddresses.GetUnused()
+	require.NoError(t, err)
+	secondScriptUnusedChange, err := account.subaccounts[1].changeAddresses.GetUnused()
+	require.NoError(t, err)
+
+	firstScriptAddress := firstScriptUnusedReceive[0]
+	secondScriptAddress := secondScriptUnusedChange[0]
+
+	firstTimestamp := time.Date(2025, 1, 12, 9, 0, 0, 0, time.UTC)
+	secondTimestamp := time.Date(2025, 1, 21, 10, 30, 0, 0, time.UTC)
+
+	putWalletTransaction(
+		t,
+		account,
+		txWithOutputs(
+			&wire.TxOut{
+				Value:    1000,
+				PkScript: firstScriptAddress.PubkeyScript(),
+			},
+			&wire.TxOut{
+				Value:    700,
+				PkScript: secondScriptAddress.PubkeyScript(),
+			},
+		),
+		100,
+		&firstTimestamp,
+		firstScriptAddress.PubkeyScriptHashHex(),
+		secondScriptAddress.PubkeyScriptHashHex(),
+	)
+	putWalletTransaction(
+		t,
+		account,
+		txWithOutputs(&wire.TxOut{
+			Value:    900,
+			PkScript: secondScriptAddress.PubkeyScript(),
+		}),
+		120,
+		&secondTimestamp,
+		secondScriptAddress.PubkeyScriptHashHex(),
+	)
+
+	usedAddresses, err := account.GetUsedAddresses()
+	require.NoError(t, err)
+	require.Len(t, usedAddresses, 2)
+
+	firstByID := map[string]UsedAddress{}
+	for _, addr := range usedAddresses {
+		firstByID[addr.AddressID] = addr
+	}
+
+	firstResult, ok := firstByID[firstScriptAddress.ID()]
+	require.True(t, ok)
+	require.Equal(t, signing.ScriptTypeP2WPKH, *firstResult.ScriptType)
+	require.Equal(t, UsedAddressTypeReceive, firstResult.AddressType)
+	require.Equal(t, 1, firstResult.TransactionCount)
+	firstTotalReceived, err := firstResult.TotalReceived.Int64()
+	require.NoError(t, err)
+	require.Equal(t, int64(1000), firstTotalReceived)
+
+	secondResult, ok := firstByID[secondScriptAddress.ID()]
+	require.True(t, ok)
+	require.Equal(t, signing.ScriptTypeP2WPKHP2SH, *secondResult.ScriptType)
+	require.Equal(t, UsedAddressTypeChange, secondResult.AddressType)
+	require.Equal(t, 2, secondResult.TransactionCount)
+	require.NotNil(t, secondResult.LastUsed)
+	require.Equal(t, secondTimestamp, *secondResult.LastUsed)
+	secondTotalReceived, err := secondResult.TotalReceived.Int64()
+	require.NoError(t, err)
+	require.Equal(t, int64(1600), secondTotalReceived)
+}
+
+func TestVerifyAndSignBTCMessageSupportsChangeAddress(t *testing.T) {
+	account := mockAccount(t, nil)
+	require.NoError(t, account.Initialize())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
+	account.ensureAddresses()
+
+	unusedChangeAddresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+	require.NoError(t, err)
+	changeAddress := unusedChangeAddresses[0]
+
+	keystoreMock := mockKeystore()
+	account.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+		return keystoreMock, nil
+	}
+
+	canVerify, err := account.VerifyAddress(changeAddress.ID())
+	require.NoError(t, err)
+	require.True(t, canVerify)
+	verifyCalls := keystoreMock.VerifyAddressBTCCalls()
+	require.Len(t, verifyCalls, 1)
+	require.Equal(t, changeAddress.AccountConfiguration, verifyCalls[0].AccountConfiguration)
+	require.Equal(t, changeAddress.Derivation, verifyCalls[0].Derivation)
+
+	address, signature, err := account.SignBTCMessage(changeAddress.ID(), "Hello")
+	require.NoError(t, err)
+	require.Equal(t, changeAddress.EncodeForHumans(), address)
+	require.Equal(t, base64.StdEncoding.EncodeToString([]byte("signature")), signature)
+	signCalls := keystoreMock.SignBTCMessageCalls()
+	require.Len(t, signCalls, 1)
+	require.Equal(t, changeAddress.AbsoluteKeypath(), signCalls[0].Keypath)
+	require.Equal(t, changeAddress.AccountConfiguration.ScriptType(), signCalls[0].ScriptType)
 }
