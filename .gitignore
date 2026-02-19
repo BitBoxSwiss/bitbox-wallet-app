@@ -6,6 +6,7 @@
 .vscode/
 
 .DS_Store
+AGENTS.md
 .idea
 .cxx/
 
