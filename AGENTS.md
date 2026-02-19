@@ -1,36 +1,201 @@
 # Repository Guidelines for bitbox-wallet-app
 
-## Project Structure & Module Organization
-The repository powers the BitBoxApp. Core Go services live under `backend/` with entrypoints in
-`cmd/` (e.g., `cmd/servewallet`). Frontend clients reside in `frontends/` (`web` for React, `qt` for
-the desktop app, `android` and `ios` for mobile artifacts). Shared assets and docs sit in `docs/`,
-while automation lives in `scripts/`. Use `vendor/` for pinned Go modules and keep `config/` aligned
-with the scenarios documented in `docs/BUILD.md`.
+## Project Structure
 
-## Build, Test, and Development Commands
-- `make envinit` installs golangci-lint, gomobile, and other dev tooling. Run once per environment
-  refresh.
-- `make servewallet` starts the Go backend against the vendored modules; pair it with `make webdev`
-  (which calls `npm start`) for live UI development.
-- `make buildweb` performs a clean web build (`npm ci && npm run build`) used by desktop packages.
-- `make webtest`, `make webe2etest`, and `make weblint` proxy to the React test, Playwright, and
-  ESLint pipelines under `frontends/web`.
-- `./scripts/ci.sh` mirrors CI: Go race tests, frontend build, and packaging checks. Use it before
-  large pull requests.
+- `backend/` — Go services (module: `github.com/BitBoxSwiss/bitbox-wallet-app`, Go 1.24)
+- `cmd/` — Go entrypoints (e.g., `cmd/servewallet`)
+- `frontends/web/` — React/TypeScript frontend (Vite, React 18, TypeScript 5)
+- `frontends/qt/` — Qt desktop shell
+- `frontends/android/`, `frontends/ios/` — mobile frontends
+- `vendor/` — vendored Go dependencies (always use `-mod=vendor`)
+- `scripts/` — CI and build automation
+- `docs/` — build instructions (`BUILD.md`)
 
-## Coding Style & Naming Conventions
-Go code must stay gofmt/goimports clean; prefer package-level names that mirror directory names
-(`backend/accounts`, `backend/rates`). TypeScript follows the ESLint config surfaced by `npm run
-lint`; keep React components PascalCased and colocate styles alongside component folders. When
-adding Make targets or scripts, stick to lowercase hyphenated names (`servewallet-prodservers`).
+## Build & Development
 
-## Testing Guidelines
-Place Go tests in `_test.go` files and run `go test -mod=vendor ./...` (optionally via
-`scripts/coverage.sh` to emit `coverage.cov`). Frontend unit specs live beside components as
-`*.test.ts(x)`; invoke `make webtest` for the suite. Use `make webe2etest` for Playwright smoke
-flows and document new scenarios in `frontends/web/tests/README.md` if they require fixtures.
+```sh
+make envinit            # install dev tools (golangci-lint, gomobile, goimports, mockery, moq)
+make servewallet        # run Go backend (dev mode, testnet)
+make servewallet-mainnet # run Go backend (mainnet)
+make webdev             # run frontend dev server (Vite, port 8080)
+make buildweb           # production frontend build (npm ci && npm run build)
+```
+
+## Lint Commands
+
+```sh
+# Go
+golangci-lint run                                         # all Go linters (.golangci.yml)
+golangci-lint run ./backend/accounts/...                  # lint single package
+
+# Frontend (from repo root)
+make weblint                                              # TypeScript type-check + ESLint
+make webfix                                               # ESLint with --fix
+```
+
+## Test Commands
+
+### Go tests
+
+```sh
+go test -mod=vendor ./...                                 # all Go tests
+go test -mod=vendor ./backend/accounts/...                # single package
+go test -mod=vendor ./backend/accounts/... -run TestName  # single test
+go test -race -mod=vendor ./... -count=1                  # with race detector (CI mode)
+go test -mod=vendor -tags=bitbox02_simulator ./... -run 'TestSimulator*'  # simulator tests
+```
+
+### Frontend unit tests (Vitest)
+
+```sh
+make webtest                                              # all frontend tests
+cd frontends/web && npx vitest run src/path/to/file.test.tsx  # single test file
+cd frontends/web && npx vitest run -t "test name"         # single test by name
+```
+
+### Frontend E2E tests (Playwright)
+
+```sh
+make webe2etest                                           # all Playwright tests
+cd frontends/web && npx playwright test tests/specific.spec.ts  # single spec
+```
+
+### Full CI locally
+
+```sh
+./scripts/ci.sh         # Go build + race tests + golangci-lint + frontend build/lint/test
+```
+
+## Go Code Style
+
+### File headers
+Every file starts with `// SPDX-License-Identifier: Apache-2.0`.
+
+### Formatting
+Code must pass `gofmt` and `goimports`. Both are enforced by golangci-lint.
+
+### Imports
+Three groups separated by blank lines (enforced by goimports):
+```go
+import (
+    "fmt"                           // 1. stdlib
+    "net/http"
+
+    "github.com/sirupsen/logrus"    // 2. third-party
+
+    "github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"  // 3. project-local
+)
+```
+Use aliases when names clash: `coinpkg`, `accountsTypes`, `utilConfig`.
+
+### Naming
+- Exported: `PascalCase` — `NewBackend`, `AccountsList`
+- Unexported: `camelCase` — `registerKeystore`, `deviceEvent`
+- Receiver names: full words (`backend`, `account`), not single letters
+- Constructors: `NewXxx(...)` returning `(*Xxx, error)` or `*Xxx`
+- Test helper exports: `Tst` prefix — `test.TstTempDir`, `test.TstMustXKey`
+- Test hook struct fields: `tst` prefix — `tstCheckAccountUsed`
+- Package names mirror directory names: `backend/accounts` → `package accounts`
+
+### Error handling
+- Use the `util/errp` package (wraps `github.com/pkg/errors`): `errp.New`, `errp.Newf`,
+  `errp.WithStack`, `errp.Wrap`, `errp.WithMessage`
+- `errp.ErrorCode` (string type) for frontend-translatable error codes
+- Return errors early; do not panic except for truly impossible states
+- Log with structured fields: `backend.log.WithError(err).Error("message")`
+
+### Interfaces
+- Define interfaces in the package that **uses** them
+- Name `Interface` within the package (`accounts.Interface`, `device.Interface`) or a
+  descriptive name when in the consumer package (`Environment`)
+- Generate mocks with `moq`: `//go:generate moq -pkg mocks -out mocks/keystore.go . Keystore`
+
+### Common patterns
+- Dependency injection via struct function fields (enables test mocking)
+- Observable pattern: embed `observable.Implementation`, call `Observe()`/`Notify()`
+- Config changes: `config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error { ... })`
+- Custom locker: `defer backend.coinsLock.Lock()()` (deferred unlock)
+- Logging: `logrus` with `WithField`/`WithError`
+
+## Go Test Style
+
+- Tests live in the same package (not `_test` package)
+- Use `testify`: `require.NoError(t, err)`, `require.Equal(t, expected, actual)`
+- Table-driven subtests: `t.Run("description", func(t *testing.T) { ... })`
+- Testify suites (`suite.Suite`) used for stateful test groups
+- Mocks generated by `moq`: `&keystoremock.KeystoreMock{FuncNameFunc: func(...) { ... }}`
+- Temp files: `test.TstTempDir("dirname")`, `test.TstTempFile("name")`
+
+## TypeScript / React Code Style
+
+### File headers
+Every file starts with `// SPDX-License-Identifier: Apache-2.0`.
+
+### File naming
+Kebab-case for all files: `balance.tsx`, `amount-with-unit.module.css`, `balance.test.tsx`.
+
+### Formatting (enforced by ESLint flat config)
+- 2-space indentation; `switch` cases are NOT indented (`SwitchCase: 0`)
+- Single quotes for strings; double quotes for JSX attributes
+- Semicolons required
+- `1tbs` brace style
+- Strict equality (`===`) required (`eqeqeq: 'error'`)
+
+### Imports
+Ordered by convention:
+1. React imports — `import { useCallback, useEffect } from 'react';`
+2. Third-party — `react-router-dom`, `react-i18next`, etc.
+3. Project modules — `import { TBalance } from '@/api/account';` (use `@/` path alias)
+4. Sibling files — `import { Helper } from './helper';` (relative `./`)
+5. CSS modules — `import style from './balance.module.css';` (always last)
+
+### Components
+- All functional arrow components: `export const Balance = ({ balance }: TProps) => { ... };`
+- Named exports only — no default exports
+- No class components
+- Props destructured in the function signature
+
+### Types
+- Prefer `type` over `interface` for props and data shapes
+- Prefix type aliases with `T`: `TProps`, `TAccount`, `TBalance`
+- Use `import type` for type-only imports
+- TypeScript strict mode is on (`strict`, `noImplicitAny`, `noUncheckedIndexedAccess`,
+  `noUnusedLocals`, `noUnusedParameters`)
+
+### Styling
+- CSS Modules (`.module.css`) colocated with components
+- Design tokens as CSS custom properties in `src/style/variables.css`
+- No CSS-in-JS, no Tailwind
+
+### State and data fetching
+- React Context + custom hooks (no Redux)
+- Data hooks: `useLoad(apiCall)`, `useSync(apiCall, subscription)`, `useSubscribe(sub)`
+- API layer: `apiGet(endpoint)` / `apiPost(endpoint, body)` in `src/api/`
+
+### Routing
+`react-router-dom` v6 with `HashRouter`. Route components in `src/routes/`.
+
+## Frontend Test Style
+
+### Unit tests (Vitest + Testing Library)
+- Colocated as `*.test.tsx` next to the component
+- Mock modules with `vi.mock('@/utils/request', () => ({ apiGet: vi.fn() }))`
+- Mock i18n: `import '../../../__mocks__/i18n'`
+- Render and query: `render(<Component />)` + `screen.getByTestId()`
+- Clean up mocks: `afterEach(() => { vi.restoreAllMocks(); })`
+
+### E2E tests (Playwright)
+- Located in `frontends/web/tests/`
+- Two browsers: Chromium and WebKit
+- Custom fixtures provide `host`, `frontendPort`, `servewalletPort`
+- Tests use `test.step()` for logical grouping
+- Real backend processes (servewallet, simulator) are spawned during tests
 
 ## Commit & Pull Request Guidelines
-Follow the existing `context: summary` convention (lowercase imperative, no trailing period)—e.g.,
-`frontend: simplify account selector`. Keep commits atomic and under ~500 lines when
-possible.
+
+- Format: `context: summary` — lowercase imperative, no trailing period, max ~60 chars
+- Examples: `frontend: simplify account selector`, `backend/accounts: fix balance refresh`
+- Body: explain why, wrap at 72-80 chars
+- Reference issues: `Fixes #123`, `Closes #123`, `Refs #123`
+- Keep commits atomic, under ~500 lines when possible
+- Do not mix formatting changes with logic changes
