@@ -18,7 +18,7 @@ type TAmountWithUnitProps = {
 
 export const AmountWithUnit = ({
   amount,
-  enableRotateUnit: rotateUnit,
+  enableRotateUnit,
   sign,
   convertToFiat,
   alwaysShowAmounts = false,
@@ -46,7 +46,7 @@ export const AmountWithUnit = ({
     onClick = rotateBtcUnit;
   }
 
-  const enableClick = rotateUnit && (convertToFiat || isBitcoinCoin(amount.unit));
+  const enableClick = enableRotateUnit && (convertToFiat || isBitcoinCoin(amount.unit));
 
   return (
     <span className={`
