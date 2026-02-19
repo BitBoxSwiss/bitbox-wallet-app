@@ -254,7 +254,6 @@ const RemountAccount = ({
                   <BuyReceiveCTA
                     account={account}
                     code={code}
-                    exchangeSupported={exchangeSupported}
                     unit={balance.available.unit}
                     balanceList={[balance]}
                   />

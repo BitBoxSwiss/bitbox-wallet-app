@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { TAccount } from '@/api/account';
-import { getMarketVendors, TVendorName } from '@/api/market';
+import { TVendorName } from '@/api/market';
 
 /**
  * Gets formatted name for vendors.
@@ -17,23 +16,10 @@ export const getVendorFormattedName = (
   case 'btcdirect':
     return 'BTC Direct';
   case 'btcdirect-otc':
-    return 'BTC Direct\'s Private Trading Desk';
+    return 'BTC Direct - Private Trading Desk';
   case 'bitrefill':
     return 'Bitrefill';
   case 'swapkit':
     return 'Swapkit';
   }
-};
-
-/**
- * Filters a given accounts list, keeping only the accounts supported by at least one vendor.
- */
-export const getVendorSupportedAccounts = async (accounts: TAccount[]): Promise<TAccount[]> => {
-  const accountsWithFalsyValue = await Promise.all(
-    accounts.map(async (account) => {
-      const supported = await getMarketVendors(account.code)();
-      return supported.vendors.length ? account : false;
-    })
-  );
-  return accountsWithFalsyValue.filter(result => result) as TAccount[];
 };
