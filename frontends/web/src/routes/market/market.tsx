@@ -14,7 +14,7 @@ import { MarketGuide } from './guide';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { useLoad } from '@/hooks/api';
 import { getRegionNameFromLocale } from '@/i18n/utils';
-import { getVendorFormattedName, getVendorSupportedAccounts } from './utils';
+import { getVendorFormattedName } from './utils';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Dialog } from '@/components/dialog/dialog';
 import { InfoButton } from '@/components/infobutton/infobutton';
@@ -64,14 +64,12 @@ export const Market = ({
     }
   }, [config]);
 
-  // get the list of accounts supported by vendors, needed to correctly handle back button.
+  // keep account list in sync and ensure a valid selected account.
   useEffect(() => {
-    getVendorSupportedAccounts(accounts).then(vendorSupportedAccounts => {
-      setSupportedAccounts(vendorSupportedAccounts);
-      if (!selectedAccount && vendorSupportedAccounts.length > 0) {
-        setSelectedAccount(vendorSupportedAccounts[0]?.code || '');
-      }
-    });
+    setSupportedAccounts(accounts);
+    if (!selectedAccount || !accounts.some(account => account.code === selectedAccount)) {
+      setSelectedAccount(accounts[0]?.code || '');
+    }
   }, [accounts, selectedAccount]);
 
   // update region Select component when `regionList` or `config` gets populated.
