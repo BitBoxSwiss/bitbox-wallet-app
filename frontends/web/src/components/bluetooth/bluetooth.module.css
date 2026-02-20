@@ -13,10 +13,27 @@
   margin-top: var(--space-half);
 }
 
-.connectionIssuesLink {
+.connectionIssues {
   margin-top: 72px;
-  text-align: center;
   width: 100%;
+}
+
+.connectionIssuesContainer {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: 100%;
+}
+
+.connectionIssuesButton {
+  padding: 0;
+  height: auto;
+  min-height: 0;
+  min-width: 0;
+  text-decoration: underline;
+  display: inline-block;
 }
 
 @media (max-width: 768px) {

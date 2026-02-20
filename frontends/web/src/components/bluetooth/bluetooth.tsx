@@ -94,9 +94,11 @@ const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
   const hasConnection = state.peripherals.some(isConnectedOrConnecting);
   return (
     <>
-      <div className={styles.label}>
-        {t('bluetooth.select')}
-      </div>
+      {state.peripherals.length > 0 && (
+        <div className={styles.label}>
+          {t('bluetooth.select')}
+        </div>
+      )}
       <div className={styles.container}>
         {state.peripherals.map(peripheral => {
           const onClick = !hasConnection ? () => connect(peripheral.identifier) : undefined;
@@ -136,16 +138,24 @@ const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
       )}
 
       {showConnectionIssues && (
-        <div className={styles.connectionIssuesLink}>
-          <Button
-            transparent
-            onClick={(e) => {
-              e.preventDefault();
-              setDialogOpen(true);
-            }}
-          >
-            {t('bluetooth.connectionIssues')}
-          </Button>
+        <div className={styles.connectionIssues}>
+          <Message type="info">
+            <div className={styles.connectionIssuesContainer}>
+              <span>
+                {t('bluetooth.connectionIssues')}
+              </span>
+              <Button
+                transparent
+                className={styles.connectionIssuesButton}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setDialogOpen(true);
+                }}
+              >
+                {t('bluetooth.connectionIssuesLink')}
+              </Button>
+            </div>
+          </Message>
         </div>
       )}
 

@@ -387,6 +387,7 @@
     "connected": "connected",
     "connectionFailed": "failed",
     "connectionIssues": "Having connection issues?",
+    "connectionIssuesLink": "See here",
     "disabledGloballyDescription": "Please turn on Bluetooth to connect to your BitBox.",
     "disabledGloballyTitle": "Bluetooth access is disabled.",
     "disabledPermissionDescription": "Please allow Bluetooth to connect to your BitBox.",
@@ -2047,6 +2048,7 @@
     "getStarted": "Let's get started by installing firmware on your BitBox.",
     "loadingAccounts": "Loading accounts",
     "message": "Please connect your BitBox and tap the side to continue.",
+    "messageIOS": "Please connect your BitBox Nova and tap the side to continue.",
     "title": "Welcome"
   }
 }
