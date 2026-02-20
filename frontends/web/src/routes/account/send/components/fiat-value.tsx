@@ -5,7 +5,7 @@ import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import style from './fiat-value.module.css';
 
 type TFiatValueProps = {
-  amount: TAmountWithConversions;
+  amount: TAmountWithConversions | undefined;
   className?: string;
   enableRotateUnit?: boolean;
 };

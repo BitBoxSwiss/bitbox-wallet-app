@@ -513,7 +513,8 @@ export const Send = ({
               selectedUTXOs={selectedUTXOsRef.current}
               coinCode={account.coinCode}
               transactionDetails={{
-                selectedReceiverAccount: selectedReceiverAccount || undefined,
+                selectedReceiverAccountName: selectedReceiverAccount?.name,
+                selectedReceiverAccountNumber: selectedReceiverAccount?.accountNumber,
                 proposedFee,
                 proposedAmount,
                 proposedTotal,
