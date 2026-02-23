@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VersionInfo } from '@/api/bitbox02';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
-import { Column, ColumnButtons, Grid } from '@/components/layout';
+import { Column, ColumnButtons, Grid, ResponsiveGrid } from '@/components/layout';
 import { Button, Label } from '@/components/forms';
 import { Toggle } from '@/components/toggle/toggle';
 import { InfoBlue } from '@/components/icon';
@@ -162,7 +162,7 @@ export const SetupOptions = ({
         </p>
       </ViewHeader>
       <ViewContent fullWidth>
-        <Grid>
+        <ResponsiveGrid>
           <Column asCard className={style.cardHeight}>
             <h3 className="title">
               {t('button.create')}
@@ -208,7 +208,7 @@ export const SetupOptions = ({
               </Button>
             </ColumnButtons>
           </Column>
-        </Grid>
+        </ResponsiveGrid>
       </ViewContent>
     </View>
   );

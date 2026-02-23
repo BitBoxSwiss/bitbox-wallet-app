@@ -14,7 +14,7 @@ import { Balance } from '@/components/balance/balance';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { Button } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
-import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
+import { Column, ColumnButtons, GuideWrapper, GuidedContent, Header, Main, ResponsiveGrid } from '@/components/layout';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { FeeTargets } from './feetargets';
 import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
@@ -432,8 +432,8 @@ export const Send = ({
                   onCoinControlDialogActiveChange={setUtxoDialogActive}
                 />
               </div>
-              <Grid col="1" className={style.sendForm}>
-                <Column>
+              <ResponsiveGrid className={style.sendForm}>
+                <Column col="2">
                   <ReceiverAddressInput
                     account={account}
                     activeAccounts={activeAccounts}
@@ -444,8 +444,6 @@ export const Send = ({
                     parseQRResult={parseQRResult}
                   />
                 </Column>
-              </Grid>
-              <Grid className={style.sendForm}>
                 <Column>
                   <CoinInput
                     balance={balance}
@@ -467,8 +465,6 @@ export const Send = ({
                     label={defaultCurrency}
                   />
                 </Column>
-              </Grid>
-              <Grid className={style.sendForm}>
                 <Column>
                   <FeeTargets
                     accountCode={account.code}
@@ -504,7 +500,7 @@ export const Send = ({
                     </BackButton>
                   </ColumnButtons>
                 </Column>
-              </Grid>
+              </ResponsiveGrid>
             </ViewContent>
             <ConfirmSend
               note={note}

@@ -15,13 +15,13 @@ type TGridProps = {
 };
 
 /**
- * Grid component
+ * ResponsiveGrid component
  * @param className - optional className for styling, for example to overwrite --grid-min-height CSS variable
  * @param col - render a grid with 1 or 2 columns
- * @param responsive - prevent columns from breaking onto newlines on small screen
+ * @param responsive - prevent columns from breaking onto newlines (only in case of col="2")
  * @param textAlign - control text alignment
  */
-export const Grid = ({
+export const ResponsiveGrid = ({
   children,
   className = '',
   col = '2',
@@ -41,6 +41,23 @@ export const Grid = ({
     </section>
   );
 };
+
+/**
+ * Grid component (same as ResponsiveGrid but not responisve)
+ * @param className - optional className for styling, for example to overwrite --grid-min-height CSS variable
+ * @param col - render a grid with 1 or 2 columns
+ * @param responsive - prevent columns from breaking onto newlines (only in case of col="2")
+ * @param textAlign - control text alignment
+ */
+export const Grid = ({
+  children,
+  responsive = false,
+  ...props
+}: TGridProps) => (
+  <ResponsiveGrid responsive={responsive} {...props}>
+    {children}
+  </ResponsiveGrid>
+);
 
 type TColumnProps = {
   asCard?: boolean;

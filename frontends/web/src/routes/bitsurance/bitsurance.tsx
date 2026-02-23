@@ -9,7 +9,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
 import { Checked, Sync, SyncLight } from '@/components/icon';
-import { Column, ColumnButtons, Grid, GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
+import { Column, ColumnButtons, GuidedContent, GuideWrapper, Header, Main, ResponsiveGrid } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { useDarkmode } from '@/hooks/darkmode';
 import { BitsuranceGuide } from './guide';
@@ -90,7 +90,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
             <ViewContent>
               <p className={style.noVspace}>{t('bitsurance.intro.text1', { amount })}</p>
               <div className={style.gridContainer}>
-                <Grid col="2" textAlign="start">
+                <ResponsiveGrid col="2" textAlign="start">
                   <Column asCard>
                     <h3 className={style.title}>
                       {t('bitsurance.insure.title')}
@@ -136,7 +136,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
                     </ColumnButtons>
 
                   </Column>
-                </Grid>
+                </ResponsiveGrid>
               </div>
             </ViewContent>
           </View>
