@@ -36,7 +36,6 @@ import style from './send.module.css';
 type TProps = {
   account: accountApi.TAccount;
   activeAccounts?: accountApi.TAccount[];
-  activeCurrency: accountApi.Fiat;
 };
 
 const useAccountBalance = (accountCode: accountApi.AccountCode, btcUnit?: BtcUnit) => {
@@ -63,10 +62,9 @@ const useAccountBalance = (accountCode: accountApi.AccountCode, btcUnit?: BtcUni
 export const Send = ({
   account,
   activeAccounts,
-  activeCurrency,
 }: TProps) => {
   const { t } = useTranslation();
-  const { btcUnit } = useContext(RatesContext);
+  const { btcUnit, defaultCurrency } = useContext(RatesContext);
   const selectedUTXOsRef = useRef<TSelectedUTXOs>({});
   const [utxoDialogActive, setUtxoDialogActive] = useState(false);
   // in case there are multiple parallel tx proposals we can ignore all other but the last one
@@ -94,7 +92,7 @@ export const Send = ({
   const [sendResult, setSendResult] = useState<accountApi.TSendTx>();
 
   const [updateFiat, setUpdateFiat] = useState<boolean>(true);
-  const prevActiveCurrency = usePrevious(activeCurrency);
+  const prevDefaultCurrency = usePrevious(defaultCurrency);
   const prevBtcUnit = usePrevious(btcUnit);
 
   const balance = useAccountBalance(account.code, btcUnit);
@@ -164,7 +162,7 @@ export const Send = ({
       const data = await convertToCurrency({
         amount,
         coinCode,
-        fiatUnit: activeCurrency,
+        fiatUnit: defaultCurrency,
       });
       if (data.success) {
         setFiatAmount(data.fiatAmount);
@@ -176,7 +174,7 @@ export const Send = ({
     } else {
       setFiatAmount('');
     }
-  }, [account.coinCode, activeCurrency, t]);
+  }, [account.coinCode, defaultCurrency, t]);
 
   const convertFromFiat = useCallback(async (amount: string) => {
     if (amount) {
@@ -184,7 +182,7 @@ export const Send = ({
       const data = await convertFromCurrency({
         amount,
         coinCode,
-        fiatUnit: activeCurrency,
+        fiatUnit: defaultCurrency,
       });
       if (data.success) {
         setAmount(data.amount);
@@ -195,7 +193,7 @@ export const Send = ({
     } else {
       setAmount('');
     }
-  }, [account.coinCode, activeCurrency, t]);
+  }, [account.coinCode, defaultCurrency, t]);
 
   const txProposal = useCallback((
     updateFiat: boolean,
@@ -270,7 +268,7 @@ export const Send = ({
   }, [amount, customFee, feeTarget, fiatAmount, updateFiat, validateAndDisplayFee]);
 
   useEffect(() => {
-    const currencyChanged = prevActiveCurrency !== undefined && prevActiveCurrency !== activeCurrency;
+    const currencyChanged = prevDefaultCurrency !== undefined && prevDefaultCurrency !== defaultCurrency;
     const btcUnitChanged = prevBtcUnit !== undefined && prevBtcUnit !== btcUnit;
 
     if (!currencyChanged && !btcUnitChanged) {
@@ -306,12 +304,12 @@ export const Send = ({
     }
   }, [
     account.coinCode,
-    activeCurrency,
+    defaultCurrency,
     amount,
     btcUnit,
     convertToFiat,
     getValidTxInputData,
-    prevActiveCurrency,
+    prevDefaultCurrency,
     prevBtcUnit,
     proposedAmount,
     sendAll,
@@ -466,7 +464,7 @@ export const Send = ({
                     disabled={sendAll}
                     error={errorHandling.amountError}
                     fiatAmount={fiatAmount}
-                    label={activeCurrency}
+                    label={defaultCurrency}
                   />
                 </Column>
               </Grid>
@@ -476,7 +474,6 @@ export const Send = ({
                     accountCode={account.code}
                     coinCode={account.coinCode}
                     disabled={!amount && !sendAll}
-                    fiatUnit={activeCurrency}
                     proposedFee={proposedFee}
                     customFee={customFee}
                     showCalculatingFeeLabel={isUpdatingProposal}
@@ -510,7 +507,6 @@ export const Send = ({
               </Grid>
             </ViewContent>
             <ConfirmSend
-              baseCurrencyUnit={activeCurrency}
               note={note}
               hasSelectedUTXOs={hasSelectedUTXOs()}
               isConfirming={isConfirming}
@@ -524,7 +520,6 @@ export const Send = ({
                 customFee,
                 feeTarget,
                 recipientAddress: recipientInput,
-                activeCurrency,
               }}
             />
             {sendResult && (
@@ -543,10 +538,9 @@ export const Send = ({
                     />
                   )}
                   <br />
-                  {(proposedAmount && proposedAmount.conversions && proposedAmount.conversions[activeCurrency]) ? (
+                  {(proposedAmount && proposedAmount.conversions && proposedAmount.conversions[defaultCurrency]) ? (
                     <FiatValue
-                      amount={proposedAmount.conversions[activeCurrency] || ''}
-                      baseCurrencyUnit={activeCurrency}
+                      amount={proposedAmount}
                       enableRotateUnit
                     />
                   ) : null}

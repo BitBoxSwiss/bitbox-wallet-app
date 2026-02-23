@@ -16,7 +16,8 @@ import * as utilsConfig from '@/utils/config';
 const getConfig = vi.spyOn(utilsConfig, 'getConfig');
 
 vi.mock('@/hooks/mediaquery', () => ({
-  useMediaQuery: vi.fn().mockReturnValue(true)
+  useMediaQuery: vi.fn().mockReturnValue(true),
+  useContext: vi.fn(),
 }));
 
 describe('routes/account/send/feetargets', () => {
@@ -41,7 +42,6 @@ describe('routes/account/send/feetargets', () => {
         accountCode="btc"
         coinCode="btc"
         disabled={false}
-        fiatUnit="USD"
         customFee=""
         onCustomFee={vi.fn()}
         onFeeTargetChange={onFeeTargetChangeCB} />,

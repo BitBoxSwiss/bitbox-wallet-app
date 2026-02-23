@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, TAccount, TAmountWithConversions } from '@/api/account';
+import type { CoinCode, FeeTargetCode, TAccount, TAmountWithConversions } from '@/api/account';
+import type { TSelectedUTXOs } from '../../utxos';
+import { RatesContext } from '@/contexts/RatesContext';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { customFeeUnit } from '@/routes/account/utils';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
 import { FiatValue } from '../fiat-value';
-import type { TSelectedUTXOs } from '../../utxos';
-import style from './confirm.module.css';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import style from './confirm.module.css';
 
 type TransactionDetails = {
   selectedReceiverAccount?: TAccount;
@@ -20,11 +22,9 @@ type TransactionDetails = {
   feeTarget?: FeeTargetCode;
   customFee: string;
   recipientAddress: string;
-  activeCurrency: Fiat;
 };
 
 type TConfirmSendProps = {
-  baseCurrencyUnit: ConversionUnit;
   note: string;
   hasSelectedUTXOs: boolean;
   isConfirming: boolean;
@@ -38,7 +38,6 @@ type TUTXOsByAddress = {
 };
 
 export const ConfirmSend = ({
-  baseCurrencyUnit,
   note,
   hasSelectedUTXOs,
   isConfirming,
@@ -48,6 +47,8 @@ export const ConfirmSend = ({
 }: TConfirmSendProps) => {
 
   const { t } = useTranslation();
+  const { defaultCurrency } = useContext(RatesContext);
+
   const {
     proposedFee,
     proposedAmount,
@@ -56,7 +57,6 @@ export const ConfirmSend = ({
     feeTarget,
     selectedReceiverAccount,
     recipientAddress,
-    activeCurrency: fiatUnit
   } = transactionDetails;
 
   const receiverAccountNumberAndName = selectedReceiverAccount ?
@@ -81,9 +81,9 @@ export const ConfirmSend = ({
     return null;
   }
 
-  const canShowSendAmountFiatValue = proposedAmount && proposedAmount.conversions && proposedAmount.conversions[fiatUnit];
-  const canShowFeeFiatValue = proposedFee && proposedFee.conversions && proposedFee.conversions[fiatUnit];
-  const canShowTotalFiatValue = (proposedTotal && proposedTotal.conversions) && proposedTotal.conversions[fiatUnit];
+  const canShowSendAmountFiatValue = proposedAmount && proposedAmount.conversions && proposedAmount.conversions[defaultCurrency];
+  const canShowFeeFiatValue = proposedFee && proposedFee.conversions && proposedFee.conversions[defaultCurrency];
+  const canShowTotalFiatValue = (proposedTotal && proposedTotal.conversions) && proposedTotal.conversions[defaultCurrency];
 
   return (
     <View fullscreen width="840px">
@@ -112,8 +112,7 @@ export const ConfirmSend = ({
             </p>
             {canShowSendAmountFiatValue && (
               <FiatValue
-                baseCurrencyUnit={baseCurrencyUnit}
-                amount={proposedAmount.conversions![fiatUnit] || ''}
+                amount={proposedAmount}
                 enableRotateUnit
               />
             )}
@@ -201,8 +200,7 @@ export const ConfirmSend = ({
             </p>
             {canShowFeeFiatValue && (
               <FiatValue
-                baseCurrencyUnit={baseCurrencyUnit}
-                amount={proposedFee.conversions![fiatUnit] || ''}
+                amount={proposedFee}
                 enableRotateUnit
               />
             )}
@@ -221,8 +219,7 @@ export const ConfirmSend = ({
             {canShowTotalFiatValue && (
               <FiatValue
                 className={style.totalFiatValue}
-                baseCurrencyUnit={baseCurrencyUnit}
-                amount={proposedTotal.conversions![fiatUnit] || ''}
+                amount={proposedTotal}
                 enableRotateUnit
               />
             )}
