@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VersionInfo } from '@/api/bitbox02';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Column, ColumnButtons, Grid, ResponsiveGrid } from '@/components/layout';
 import { Button, Label } from '@/components/forms';
@@ -30,6 +31,7 @@ export const SetupOptions = ({
   versionInfo,
 }: Props) => {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [advanced, setAdvanced] = useState(false);
   const [withMnemonic, setWithMnemonic] = useState(false);
   const [with12Words, setWith12Words] = useState(false);
@@ -47,7 +49,7 @@ export const SetupOptions = ({
         withBottomBar
         width="1100px">
         <ViewHeader small title={t('seed.create')} />
-        <ViewContent fullWidth>
+        <ViewContent>
           <Grid col="1" textAlign="start">
             <Column asCard>
               <h3 className="title">
@@ -122,7 +124,7 @@ export const SetupOptions = ({
                   </small>
                 </p>
               </div>
-              <ColumnButtons inline>
+              <ColumnButtons inline={!isMobile}>
                 <Button
                   onClick={() => onSelectSetup('create-wallet', {
                     withMnemonic,
@@ -161,7 +163,7 @@ export const SetupOptions = ({
           {t('bitbox02Wizard.initialize.tip')}
         </p>
       </ViewHeader>
-      <ViewContent fullWidth>
+      <ViewContent>
         <ResponsiveGrid>
           <Column asCard className={style.cardHeight}>
             <h3 className="title">
