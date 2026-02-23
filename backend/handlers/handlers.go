@@ -235,7 +235,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/market/vendors/{code}", handlers.getMarketVendors).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/btcdirect-otc/supported/{code}", handlers.getMarketBtcDirectOTCSupported).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/btcdirect/info/{action}/{code}", handlers.getMarketBtcDirectInfo).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/swap/quote", handlers.getSwapkitQuote).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/swap/quote", handlers.postSwapkitQuote).Methods("POST")
 	getAPIRouter(apiRouter)("/market/moonpay/buy-info/{code}", handlers.getMarketMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/pocket/api-url/{action}", handlers.getMarketPocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
@@ -1651,7 +1651,7 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 	return response{Success: err == nil}
 }
 
-func (handlers *Handlers) getSwapkitQuote(r *http.Request) interface{} {
+func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	type result struct {
 		Success bool                   `json:"success"`
 		Error   string                 `json:"error,omitempty"`
@@ -1665,6 +1665,7 @@ func (handlers *Handlers) getSwapkitQuote(r *http.Request) interface{} {
 	}
 
 	s := swapkit.NewClient("0722e09f-9d3f-4817-a870-069848d03ee9")
+	request.Providers = []string{"NEAR"}
 
 	quoteResponse, err := s.Quote(context.Background(), &request)
 	if err != nil {
