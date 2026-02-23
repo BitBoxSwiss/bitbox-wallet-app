@@ -100,7 +100,7 @@ func newAccount(t *testing.T) *Account {
 func TestTxProposal(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100)))
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), true))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	t.Run("valid", func(t *testing.T) {
@@ -158,7 +158,7 @@ func TestTxProposal(t *testing.T) {
 func TestMatchesAddress(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100)))
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), true))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	// Test invalid Ethereum address
