@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VersionInfo } from '@/api/bitbox02';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
-import { Column, ColumnButtons, Grid } from '@/components/layout';
+import { Column, ColumnButtons, Grid, ResponsiveGrid } from '@/components/layout';
 import { Button, Label } from '@/components/forms';
 import { Toggle } from '@/components/toggle/toggle';
 import { InfoBlue } from '@/components/icon';
@@ -30,6 +31,7 @@ export const SetupOptions = ({
   versionInfo,
 }: Props) => {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [advanced, setAdvanced] = useState(false);
   const [withMnemonic, setWithMnemonic] = useState(false);
   const [with12Words, setWith12Words] = useState(false);
@@ -47,8 +49,8 @@ export const SetupOptions = ({
         withBottomBar
         width="1100px">
         <ViewHeader small title={t('seed.create')} />
-        <ViewContent fullWidth>
-          <Grid col="1" textAlign="left">
+        <ViewContent>
+          <Grid col="1" textAlign="start">
             <Column asCard>
               <h3 className="title">
                 {t('bitbox02Wizard.advanced.title')}
@@ -122,7 +124,7 @@ export const SetupOptions = ({
                   </small>
                 </p>
               </div>
-              <ColumnButtons inline>
+              <ColumnButtons inline={!isMobile}>
                 <Button
                   onClick={() => onSelectSetup('create-wallet', {
                     withMnemonic,
@@ -161,8 +163,8 @@ export const SetupOptions = ({
           {t('bitbox02Wizard.initialize.tip')}
         </p>
       </ViewHeader>
-      <ViewContent fullWidth>
-        <Grid>
+      <ViewContent>
+        <ResponsiveGrid>
           <Column asCard className={style.cardHeight}>
             <h3 className="title">
               {t('button.create')}
@@ -208,7 +210,7 @@ export const SetupOptions = ({
               </Button>
             </ColumnButtons>
           </Column>
-        </Grid>
+        </ResponsiveGrid>
       </ViewContent>
     </View>
   );
