@@ -38,19 +38,15 @@ export const SignMessageViewGate = ({
   onBack,
   pageSectionClassName,
   footerButtonsClassName,
-  loadingWrapClassName,
+  loadingWrapClassName = '',
   children,
 }: TProps) => {
   if (isLoading || isConnecting) {
     return (
       <div className={pageSectionClassName}>
-        {loadingWrapClassName ? (
-          <div className={loadingWrapClassName}>
-            <Spinner text={loadingText} />
-          </div>
-        ) : (
+        <div className={loadingWrapClassName}>
           <Spinner text={loadingText} />
-        )}
+        </div>
       </div>
     );
   }

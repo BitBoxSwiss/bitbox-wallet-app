@@ -11,10 +11,11 @@ type TProps = {
   nextDisabled: boolean;
   onPrevious: (event: SyntheticEvent) => void;
   onNext: (event: SyntheticEvent) => void;
-  previousIcon: ReactNode;
-  previousActiveIcon: ReactNode;
-  nextIcon: ReactNode;
-  nextActiveIcon: ReactNode;
+  previousDisabledIcon: ReactNode;
+  previousEnabledIcon: ReactNode;
+  nextDisabledIcon: ReactNode;
+  nextEnabledIcon: ReactNode;
+  groupNavigation?: boolean;
   containerClassName?: string;
   previousButtonClassName?: string;
   nextButtonClassName?: string;
@@ -30,10 +31,11 @@ export const AddressPager = ({
   nextDisabled,
   onPrevious,
   onNext,
-  previousIcon,
-  previousActiveIcon,
-  nextIcon,
-  nextActiveIcon,
+  previousDisabledIcon,
+  previousEnabledIcon,
+  nextDisabledIcon,
+  nextEnabledIcon,
+  groupNavigation = false,
   containerClassName,
   previousButtonClassName,
   nextButtonClassName,
@@ -47,7 +49,7 @@ export const AddressPager = ({
       onClick={onPrevious}
       aria-label={previousLabel}
     >
-      {previousDisabled ? previousIcon : previousActiveIcon}
+      {previousDisabled ? previousDisabledIcon : previousEnabledIcon}
     </button>
   );
 
@@ -59,7 +61,7 @@ export const AddressPager = ({
       onClick={onNext}
       aria-label={nextLabel}
     >
-      {nextDisabled ? nextIcon : nextActiveIcon}
+      {nextDisabled ? nextDisabledIcon : nextEnabledIcon}
     </button>
   );
 
@@ -71,7 +73,7 @@ export const AddressPager = ({
     );
   }
 
-  if (navigationClassName) {
+  if (groupNavigation) {
     return (
       <div className={containerClassName}>
         {label}

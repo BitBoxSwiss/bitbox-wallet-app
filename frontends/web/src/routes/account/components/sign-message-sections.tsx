@@ -5,41 +5,48 @@ import { CopyableInput } from '@/components/copy/Copy';
 import { BitBox02StylizedDark, StatusSuccess } from '@/components/icon';
 import { Message } from '@/components/message/message';
 
-type TCopyableFieldClasses = {
-  fieldLabelClassName: string | undefined;
-  copyInputWrapClassName: string | undefined;
-  copyInputFieldClassName: string | undefined;
-  copyInputButtonClassName: string | undefined;
+export type TCopyableFieldStyles = {
+  fieldLabel?: string;
+  copyInputWrap?: string;
+  copyInputField?: string;
+  copyInputButton?: string;
 };
 
 type TSignMessageCopyableFieldProps = {
   label?: string;
   value: string;
   showLabel?: boolean;
-} & TCopyableFieldClasses;
+  fieldStyles: TCopyableFieldStyles;
+};
 
 export const SignMessageCopyableField = ({
   label,
   value,
   showLabel = true,
-  fieldLabelClassName,
-  copyInputWrapClassName,
-  copyInputFieldClassName,
-  copyInputButtonClassName,
-}: TSignMessageCopyableFieldProps) => (
-  <>
-    {showLabel && label && <label className={fieldLabelClassName}>{label}</label>}
-    <CopyableInput
-      key={value}
-      value={value}
-      flexibleHeight
-      alignLeft
-      className={copyInputWrapClassName}
-      inputFieldClassName={copyInputFieldClassName}
-      buttonClassName={copyInputButtonClassName}
-    />
-  </>
-);
+  fieldStyles,
+}: TSignMessageCopyableFieldProps) => {
+  const {
+    fieldLabel,
+    copyInputWrap,
+    copyInputField,
+    copyInputButton,
+  } = fieldStyles;
+
+  return (
+    <>
+      {showLabel && label && <label className={fieldLabel}>{label}</label>}
+      <CopyableInput
+        key={value}
+        value={value}
+        flexibleHeight
+        alignLeft
+        className={copyInputWrap}
+        inputFieldClassName={copyInputField}
+        buttonClassName={copyInputButton}
+      />
+    </>
+  );
+};
 
 type TSignMessageMessageInputProps = {
   label: string;
@@ -92,7 +99,8 @@ type TSignMessageSigningPreviewProps = {
   devicePreviewClassName: string | undefined;
   signingText?: string;
   signingTextClassName?: string | undefined;
-} & TCopyableFieldClasses;
+  fieldStyles: TCopyableFieldStyles;
+};
 
 export const SignMessageSigningPreview = ({
   subtitle,
@@ -109,32 +117,30 @@ export const SignMessageSigningPreview = ({
   devicePreviewClassName,
   signingText,
   signingTextClassName,
-  fieldLabelClassName,
-  copyInputWrapClassName,
-  copyInputFieldClassName,
-  copyInputButtonClassName,
-}: TSignMessageSigningPreviewProps) => (
-  <>
-    <div className={subtitleClassName}>{subtitle}</div>
-    {header}
-    <SignMessageCopyableField
-      label={addressLabel}
-      value={address}
-      showLabel={showAddressLabel}
-      fieldLabelClassName={fieldLabelClassName}
-      copyInputWrapClassName={copyInputWrapClassName}
-      copyInputFieldClassName={copyInputFieldClassName}
-      copyInputButtonClassName={copyInputButtonClassName}
-    />
-    <label className={fieldLabelClassName}>{messageLabel}</label>
-    <div className={messageDisplayClassName}>{message}</div>
-    <div className={deviceArrowClassName}>▼</div>
-    <div className={devicePreviewWrapClassName}>
-      <BitBox02StylizedDark className={devicePreviewClassName} />
-    </div>
-    {signingText && signingTextClassName && <p className={signingTextClassName}>{signingText}</p>}
-  </>
-);
+  fieldStyles,
+}: TSignMessageSigningPreviewProps) => {
+  const { fieldLabel } = fieldStyles;
+
+  return (
+    <>
+      <div className={subtitleClassName}>{subtitle}</div>
+      {header}
+      <SignMessageCopyableField
+        label={addressLabel}
+        value={address}
+        showLabel={showAddressLabel}
+        fieldStyles={fieldStyles}
+      />
+      <label className={fieldLabel}>{messageLabel}</label>
+      <div className={messageDisplayClassName}>{message}</div>
+      <div className={deviceArrowClassName}>▼</div>
+      <div className={devicePreviewWrapClassName}>
+        <BitBox02StylizedDark className={devicePreviewClassName} />
+      </div>
+      {signingText && <p className={signingTextClassName}>{signingText}</p>}
+    </>
+  );
+};
 
 type TSignMessageResultFieldsProps = {
   successText: string;
@@ -146,7 +152,8 @@ type TSignMessageResultFieldsProps = {
   address: string;
   message: string;
   signature: string;
-} & TCopyableFieldClasses;
+  fieldStyles: TCopyableFieldStyles;
+};
 
 export const SignMessageResultFields = ({
   successText,
@@ -158,10 +165,7 @@ export const SignMessageResultFields = ({
   address,
   message,
   signature,
-  fieldLabelClassName,
-  copyInputWrapClassName,
-  copyInputFieldClassName,
-  copyInputButtonClassName,
+  fieldStyles,
 }: TSignMessageResultFieldsProps) => (
   <>
     <div className={successRowClassName}>
@@ -171,26 +175,17 @@ export const SignMessageResultFields = ({
     <SignMessageCopyableField
       label={addressLabel}
       value={address}
-      fieldLabelClassName={fieldLabelClassName}
-      copyInputWrapClassName={copyInputWrapClassName}
-      copyInputFieldClassName={copyInputFieldClassName}
-      copyInputButtonClassName={copyInputButtonClassName}
+      fieldStyles={fieldStyles}
     />
     <SignMessageCopyableField
       label={messageLabel}
       value={message}
-      fieldLabelClassName={fieldLabelClassName}
-      copyInputWrapClassName={copyInputWrapClassName}
-      copyInputFieldClassName={copyInputFieldClassName}
-      copyInputButtonClassName={copyInputButtonClassName}
+      fieldStyles={fieldStyles}
     />
     <SignMessageCopyableField
       label={signatureLabel}
       value={signature}
-      fieldLabelClassName={fieldLabelClassName}
-      copyInputWrapClassName={copyInputWrapClassName}
-      copyInputFieldClassName={copyInputFieldClassName}
-      copyInputButtonClassName={copyInputButtonClassName}
+      fieldStyles={fieldStyles}
     />
   </>
 );

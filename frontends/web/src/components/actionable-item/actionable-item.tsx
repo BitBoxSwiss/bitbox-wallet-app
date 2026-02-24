@@ -9,7 +9,6 @@ type TProps = {
   disabled?: boolean;
   children: ReactNode;
   icon?: ReactNode;
-  leadingIcon?: ReactNode;
   onClick?: () => void;
 };
 
@@ -18,22 +17,15 @@ export const ActionableItem = ({
   disabled,
   children,
   icon,
-  leadingIcon,
   onClick,
 }: TProps) => {
   const notButton = disabled || onClick === undefined;
-  const content = leadingIcon ? (
-    <div className={styles.leftContent}>
-      <span className={styles.leadingIcon}>{leadingIcon}</span>
-      <span>{children}</span>
-    </div>
-  ) : children;
 
   return (
     <>
       {notButton ? (
         <div className={`${styles.container || ''} ${className}`}>
-          {content}
+          {children}
           {icon && icon}
         </div>
       ) : (
@@ -41,7 +33,7 @@ export const ActionableItem = ({
           type="button"
           className={`${styles.container || ''} ${styles.isButton || ''} ${className}`}
           onClick={onClick}>
-          {content}
+          {children}
           {icon ? icon : (
             <ChevronRightDark />
           )}
