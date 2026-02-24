@@ -100,34 +100,42 @@ export const Info = ({
             <div className={style.menuSection}>
               <div className={style.menuList}>
                 <ActionableItem
-                  leadingIcon={<OutlinedUpload className={style.actionIcon} aria-hidden alt="" />}
                   onClick={handleExport}
                   disabled={!hasTransactions}
                 >
-                  {t('accountInfo.exportTransactions')}
+                  <div className={style.actionItem}>
+                    <OutlinedUpload className={style.actionIcon} aria-hidden alt="" />
+                    <span>{t('accountInfo.exportTransactions')}</span>
+                  </div>
                 </ActionableItem>
                 {isBtcBased && (
                   <ActionableItem
-                    leadingIcon={<OutlinedQRCode className={style.actionIcon} aria-hidden alt="" />}
                     onClick={() => setShowXPub(true)}
                   >
-                    {t('accountInfo.viewXPub')}
+                    <div className={style.actionItem}>
+                      <OutlinedQRCode className={style.actionIcon} aria-hidden alt="" />
+                      <span>{t('accountInfo.viewXPub')}</span>
+                    </div>
                   </ActionableItem>
                 )}
                 {canSignMessage && (
                   <ActionableItem
-                    leadingIcon={<OutlinedFileProtect className={style.actionIcon} aria-hidden alt="" />}
                     onClick={() => navigate(`/account/${code}/sign-message`)}
                   >
-                    {t('accountInfo.signMessage')}
+                    <div className={style.actionItem}>
+                      <OutlinedFileProtect className={style.actionIcon} aria-hidden alt="" />
+                      <span>{t('accountInfo.signMessage')}</span>
+                    </div>
                   </ActionableItem>
                 )}
                 {isBtcOnly && (
                   <ActionableItem
-                    leadingIcon={<OutlinedUnorderedList className={style.actionIcon} aria-hidden alt="" />}
                     onClick={() => navigate(`/account/${code}/addresses`)}
                   >
-                    {t('accountInfo.usedAddresses')}
+                    <div className={style.actionItem}>
+                      <OutlinedUnorderedList className={style.actionIcon} aria-hidden alt="" />
+                      <span>{t('accountInfo.usedAddresses')}</span>
+                    </div>
                   </ActionableItem>
                 )}
               </div>

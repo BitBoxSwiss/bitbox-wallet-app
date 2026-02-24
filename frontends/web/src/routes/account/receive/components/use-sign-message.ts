@@ -45,7 +45,6 @@ export const useSignMessage = ({
   const [result, setResult] = useState<TSignatureResult | null>(null);
 
   const isTaproot = scriptType === 'p2tr';
-  const isUnsupported = isTaproot;
 
   const handleSign = useCallback(async () => {
     if (!address) {
@@ -108,7 +107,7 @@ export const useSignMessage = ({
     state,
     error,
     result,
-    isUnsupported,
+    isUnsupported: isTaproot,
     isTaproot,
     handleSign,
     reset,

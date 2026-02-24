@@ -18,9 +18,6 @@ export const getIndexOfMatchingScriptType = (
   receiveAddresses: accountApi.TReceiveAddressList[],
   scriptType: accountApi.ScriptType
 ): number => {
-  if (!receiveAddresses) {
-    return -1;
-  }
   return receiveAddresses.findIndex(addrs => addrs.scriptType !== null && scriptType === addrs.scriptType);
 };
 

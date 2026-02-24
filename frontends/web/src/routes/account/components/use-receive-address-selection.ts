@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import * as accountApi from '@/api/account';
 import { getIndexOfMatchingScriptType, scriptTypes } from './address-type-dialog';
 
@@ -39,30 +39,18 @@ export const useReceiveAddressSelection = ({
 
   const hasManyScriptTypes = (availableScriptTypes?.length || 0) > 1;
 
-  const selectedAddressType = useMemo(() => {
-    if (!availableScriptTypes || availableScriptTypes.length === 0) {
-      return 0;
-    }
-    return Math.min(addressType, availableScriptTypes.length - 1);
-  }, [addressType, availableScriptTypes]);
-
-  useEffect(() => {
-    if (addressType !== selectedAddressType) {
-      setAddressType(selectedAddressType);
-    }
-  }, [addressType, selectedAddressType]);
+  const selectedAddressType = availableScriptTypes?.length
+    ? Math.min(addressType, availableScriptTypes.length - 1)
+    : 0;
 
   const currentAddressIndex = useMemo(() => {
     if (!receiveAddresses || !availableScriptTypes || availableScriptTypes.length === 0) {
       return 0;
     }
-
-    const selectedType = availableScriptTypes[selectedAddressType];
-    if (selectedType === undefined) {
-      return 0;
-    }
-
-    const addressIndex = getIndexOfMatchingScriptType(receiveAddresses, selectedType);
+    const addressIndex = getIndexOfMatchingScriptType(
+      receiveAddresses,
+      availableScriptTypes[selectedAddressType]!,
+    );
     return addressIndex === -1 ? 0 : addressIndex;
   }, [availableScriptTypes, receiveAddresses, selectedAddressType]);
 
