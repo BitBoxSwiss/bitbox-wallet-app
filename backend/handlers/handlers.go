@@ -233,7 +233,6 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/market/region-codes", handlers.getMarketRegionCodes).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/deals/{action}/{code}", handlers.getMarketDeals).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/vendors/{code}", handlers.getMarketVendors).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/market/btcdirect-otc/supported/{code}", handlers.getMarketBtcDirectOTCSupported).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/btcdirect/info/{action}/{code}", handlers.getMarketBtcDirectInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/quote", handlers.postSwapkitQuote).Methods("POST")
 	getAPIRouter(apiRouter)("/market/moonpay/buy-info/{code}", handlers.getMarketMoonpayBuyInfo).Methods("GET")
@@ -1252,34 +1251,6 @@ func (handlers *Handlers) getMarketDeals(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getMarketBtcDirectOTCSupported(r *http.Request) interface{} {
-	type Result struct {
-		Supported bool `json:"supported"`
-		Success   bool `json:"success"`
-	}
-	type errorResult struct {
-		Success bool `json:"success"`
-	}
-
-	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
-	if err != nil {
-		handlers.log.Error(err)
-		return errorResult{Success: false}
-	}
-
-	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
-	if !accountValid {
-		handlers.log.Error("Account not valid")
-		return errorResult{Success: false}
-	}
-
-	regionCode := r.URL.Query().Get("region")
-	return Result{
-		Success:   true,
-		Supported: market.IsBtcDirectOTCSupportedForCoinInRegion(acct.Coin().Code(), regionCode),
-	}
-}
-
 func (handlers *Handlers) getMarketVendors(r *http.Request) interface{} {
 	type vendors struct {
 		Vendors []string `json:"vendors"`
@@ -1304,9 +1275,13 @@ func (handlers *Handlers) getMarketVendors(r *http.Request) interface{} {
 	}
 	if market.IsBtcDirectSupported(acct.Coin().Code()) {
 		supported.Vendors = append(supported.Vendors, market.BTCDirectName)
+		supported.Vendors = append(supported.Vendors, market.BTCDirectOTCName)
 	}
 	if market.IsBitrefillSupported(acct.Coin().Code()) {
 		supported.Vendors = append(supported.Vendors, market.BitrefillName)
+	}
+	if market.IsSwapKitSupported(acct.Coin().Code()) {
+		supported.Vendors = append(supported.Vendors, market.SwapKitName)
 	}
 
 	return supported
