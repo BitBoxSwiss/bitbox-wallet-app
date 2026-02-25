@@ -9,7 +9,7 @@ import { PointToBitBox02 } from '@/components/icon';
 import { invokeBIP85 } from '@/api/bitbox02';
 import { SimpleMarkup } from '@/utils/markup';
 import { A } from '@/components/anchor/anchor';
-import { Column, Grid } from '@/components/layout';
+import { Column, ResponsiveGrid } from '@/components/layout';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { BackButton } from '@/components/backbutton/backbutton';
@@ -40,7 +40,7 @@ export const Bip85 = ({
         verticallyCentered>
         <ViewHeader small title={t('deviceSettings.expert.bip85.what.title')} />
         <ViewContent minHeight="280px">
-          <Grid>
+          <ResponsiveGrid>
             <Column>
               <p>
                 {t('deviceSettings.expert.bip85.what.description')}
@@ -52,7 +52,7 @@ export const Bip85 = ({
                 <br />
               </p>
             </Column>
-            <Column textCenter>
+            <Column textAlign="center">
               <img
                 src={isDarkMode ? bip85GraphicLight : bip85Graphic}
                 style={{ height: 'auto', width: '100%' }}
@@ -60,7 +60,7 @@ export const Bip85 = ({
                 height="147"
               />
             </Column>
-          </Grid>
+          </ResponsiveGrid>
         </ViewContent>
         <ViewButtons>
           <Button

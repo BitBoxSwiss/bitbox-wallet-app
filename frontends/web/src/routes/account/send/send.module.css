@@ -31,3 +31,7 @@
     color: var(--color-secondary);
     font-size: var(--size-default);
 }
+
+.sendForm {
+    --grid-min-height: 100px;
+}

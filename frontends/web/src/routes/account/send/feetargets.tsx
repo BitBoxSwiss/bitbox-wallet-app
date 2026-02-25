@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useEffect, useRef, ChangeEvent, useCallback } from 'react';
+import { useState, useEffect, useRef, ChangeEvent, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
 import { getConfig } from '@/utils/config';
@@ -15,7 +16,6 @@ type Props = {
   accountCode: accountApi.AccountCode;
   coinCode: accountApi.CoinCode;
   disabled: boolean;
-  fiatUnit: accountApi.ConversionUnit;
   proposedFee?: accountApi.TAmountWithConversions;
   customFee: string;
   showCalculatingFeeLabel?: boolean;
@@ -34,7 +34,6 @@ export const FeeTargets = ({
   accountCode,
   coinCode,
   disabled,
-  fiatUnit,
   proposedFee,
   customFee,
   showCalculatingFeeLabel,
@@ -43,6 +42,7 @@ export const FeeTargets = ({
   error
 }: Props) => {
   const { t } = useTranslation();
+  const { defaultCurrency } = useContext(RatesContext);
   const config = useLoad(getConfig);
   const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
   const [options, setOptions] = useState<TOption[] | null>(null);
@@ -102,7 +102,7 @@ export const FeeTargets = ({
       return '';
     }
     const { amount, unit, conversions } = proposedFee;
-    const conversion = (conversions && conversions[fiatUnit]) ? ` = ${conversions[fiatUnit]} ${fiatUnit}` : '';
+    const conversion = (conversions && conversions[defaultCurrency]) ? ` = ${conversions[defaultCurrency]} ${defaultCurrency}` : '';
     return `${amount} ${unit} ${conversion}`;
   };
 
