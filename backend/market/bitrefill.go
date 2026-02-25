@@ -76,15 +76,11 @@ func IsBitrefillSupportedForCoinInRegion(coinCode coin.Code, region string) bool
 	return IsBitrefillSupported(coinCode) && IsRegionSupportedBitrefill(region)
 }
 
-// BitrefillDeals returns the purchase conditions (fee and payment methods) offered by Bitrefill.
-func BitrefillDeals() *DealsList {
-	return &DealsList{
+// BitrefillSpendService returns the spend service descriptor for Bitrefill.
+func BitrefillSpendService() *Service {
+	return &Service{
 		VendorName: BitrefillName,
-		Deals: []*Deal{
-			{
-				Fee: 0, // There is no fee on buying gift cards
-			},
-		},
+		FeeModel:   FeeModelNone,
 	}
 }
 
