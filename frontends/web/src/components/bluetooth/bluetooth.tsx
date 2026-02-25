@@ -35,6 +35,8 @@ const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
       scanningTimeoutRef.current = setTimeout(() => {
         if (state.scanning && state.peripherals.length === 0) {
           setShowConnectionIssues(true);
+        } else {
+          setShowConnectionIssues(false);
         }
       }, TIMEOUT_MS);
     } else {
