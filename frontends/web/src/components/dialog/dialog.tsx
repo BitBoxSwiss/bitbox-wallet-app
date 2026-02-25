@@ -41,6 +41,11 @@ export const Dialog = ({
 
   useFocusTrap(modalRef, status === 'open');
 
+  // create a stable ref so deactivate() doesn't recreate
+  // on every parent re-render
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   /**
    * Deactivate (close) animation handler.
    * If fireOnClose = true, it means user action triggered the close,
@@ -56,8 +61,8 @@ export const Dialog = ({
       setIsVisible(false);
       setStatus('idle');
 
-      if (fireOnClose && onClose) {
-        onClose();
+      if (fireOnClose && onCloseRef.current) {
+        onCloseRef.current();
       }
     }, 400); // match CSS transition
 
@@ -66,7 +71,7 @@ export const Dialog = ({
         clearTimeout(closeTimerRef.current);
       }
     };
-  }, [onClose]);
+  }, []);
 
   // Handle external open state changes.
   useEffect(() => {
