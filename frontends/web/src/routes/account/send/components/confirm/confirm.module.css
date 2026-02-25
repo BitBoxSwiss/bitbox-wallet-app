@@ -1,38 +1,17 @@
 .address {
   color: var(--color-secondary);
-  font-weight: 500;
+}
+
+.confirmItem {
+  margin-bottom: var(--space-three-quarter);
 }
 
 .bitBoxContainer {
   margin-bottom: var(--space-half);
 }
 
-.confirmationItemWrapper {
-  align-items: baseline;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.toWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-quarter);
-}
-
-.confirmItem {
-  margin-bottom: calc(var(--space-half) + var(--space-quarter));
-}
-
-.confirmItem label {
+.label {
   color: var(--color-secondary);
-  margin: 0 !important;
-}
-
-.confirmItem p {
-  flex-grow: 1;
-  margin: 0;
-  word-break: break-all;
 }
 
 .confirmItem ul {
@@ -40,10 +19,6 @@
   margin: 0;
   margin-top: var(--space-quarter);
   padding-left: var(--space-half);
-}
-
-.address {
-  color: var(--color-secondary);
 }
 
 .addressGroup {
@@ -59,25 +34,6 @@
   text-align: center;
 }
 
-.totalWrapper {
-  align-items: baseline;
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.totalWrapper .totalFiatValue {
-  margin-left: auto;
-}
-
-.totalWrapper label {
-  margin-right: var(--space-quarter) !important;
-}
-
-.valueOriginal {
-  font-weight: 500;
-}
-
 .valueOriginalLarge {
   font-size: var(--size-header);
-  font-weight: 500;
 }

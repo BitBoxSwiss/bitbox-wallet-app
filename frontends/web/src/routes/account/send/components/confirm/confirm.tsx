@@ -6,6 +6,7 @@ import type { TSelectedUTXOs } from '../../utxos';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { customFeeUnit } from '@/routes/account/utils';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
+import { Column, Grid } from '@/components/layout';
 import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
 import { FiatValue } from '../fiat-value';
@@ -81,33 +82,46 @@ export const ConfirmSend = ({
         <Message type="info">
           {t('send.confirm.infoMessage')}
         </Message>
-        <div className={style.bitBoxContainer}>
-          <PointToBitBox02 />
-        </div>
 
-        {/*Send amount*/}
-        <div className={style.confirmItem}>
-          <label>{t('generic.send')}</label>
-          <div className={style.confirmationItemWrapper}>
-            <p className={style.valueOriginalLarge}>
+        <Grid col="2">
+
+          <Column col="2">
+            <div className={style.bitBoxContainer}>
+              <PointToBitBox02 />
+            </div>
+          </Column>
+
+          {/* Send amount */}
+          <Column col="2">
+            <span className={style.label}>
+              {t('generic.send')}
+            </span>
+          </Column>
+          <Column className={style.confirmItem}>
+            <span className={style.valueOriginalLarge}>
               <AmountWithUnit
                 amount={proposedAmount}
                 enableRotateUnit
                 unitClassName={style.unit}
               />
-            </p>
+            </span>
+          </Column>
+          <Column className={style.confirmItem}>
             <FiatValue
               amount={proposedAmount}
+              className={style.valueOriginalLarge}
               enableRotateUnit
             />
-          </div>
-        </div>
+          </Column>
 
-        {/*To (recipient address)*/}
-        <div className={style.confirmItem}>
-          <label>{t('send.confirm.to')}</label>
-          <div className={style.toWrapper}>
-            <p className={`${style.valueOriginal || ''}`}>
+          {/* To (recipient address) */}
+          <Column col="2">
+            <span className={style.label}>
+              {t('send.confirm.to')}
+            </span>
+          </Column>
+          <Column col="2" className={style.confirmItem}>
+            <span>
               {selectedReceiverAccountName
                 ? selectedReceiverAccountName
                 : recipientAddress
@@ -118,53 +132,60 @@ export const ConfirmSend = ({
                   (Account #{selectedReceiverAccountNumber})
                 </span>
               )}
-            </p>
+            </span>
             {selectedReceiverAccountName && (
               <span className={style.address}>
                 {recipientAddress}
               </span>
             )}
-          </div>
-        </div>
+          </Column>
 
-        {/*Note*/}
-        {note ? (
-          <div className={style.confirmItem}>
-            <label>{t('note.title')}</label>
-            <p className={style.valueOriginal}>
-              {note}
-            </p>
-          </div>
-        ) : null}
+          {/* Note */}
+          {note ? (
+            <Column col="2" className={style.confirmItem}>
+              <span className={style.label}>
+                {t('note.title')}
+              </span>
+              <span>
+                {note}
+              </span>
+            </Column>
+          ) : null}
 
-        {/*Selected UTXOs grouped by address*/}
-        { hasSelectedUTXOs && (
-          <div className={style.confirmItem}>
-            <label>{t('send.confirm.selected-coins')}</label>
-            <div>
-              { Object.entries(groupUTXOsByAddress(selectedUTXOs)).map(([address, outpoints]) => (
-                <div key={address} className={style.addressGroup}>
-                  <div className={style.address}>
-                    {address}
+          {/* Selected UTXOs grouped by address */}
+          { hasSelectedUTXOs && (
+            <Column col="2" className={style.confirmItem}>
+              <span className={style.label}>
+                {t('send.confirm.selected-coins')}
+              </span>
+              <div>
+                { Object.entries(groupUTXOsByAddress(selectedUTXOs)).map(([address, outpoints]) => (
+                  <div key={address} className={style.addressGroup}>
+                    <div className={style.address}>
+                      {address}
+                    </div>
+                    <ul>
+                      {outpoints.map((outpoint) => (
+                        <li key={outpoint} className={style.valueOriginal}>
+                          {outpoint}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul>
-                    {outpoints.map((outpoint) => (
-                      <li key={outpoint} className={style.valueOriginal}>
-                        {outpoint}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )) }
-            </div>
-          </div>
-        )}
+                )) }
+              </div>
+            </Column>
+          )}
 
-        {/*Fee*/}
-        <div className={style.confirmItem}>
-          <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
-          <div className={style.confirmationItemWrapper}>
-            <p className={style.valueOriginal}>
+          {/* Fee */}
+          <Column col="2">
+            <span className={style.label}>
+              {t('send.fee.label')}
+              {feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}
+            </span>
+          </Column>
+          <Column className={style.confirmItem}>
+            <span>
               <AmountWithUnit
                 amount={proposedFee}
                 alwaysShowAmounts
@@ -174,35 +195,42 @@ export const ConfirmSend = ({
               {' '}
               {customFee ? (
                 <small>
-                  <br/>
+                  <br />
                   ({customFee} {customFeeUnit(coinCode)})
                 </small>
               ) : null}
-            </p>
+            </span>
+          </Column>
+          <Column className={style.confirmItem}>
             <FiatValue
               amount={proposedFee}
               enableRotateUnit
             />
-          </div>
-        </div>
+          </Column>
 
-        {/*Total*/}
-        <div className={style.confirmItem}>
-          <div className={style.totalWrapper}>
-            <label>{t('send.confirm.total')}</label>
-            <p className={style.valueOriginal}>
-              <strong>
-                <AmountWithUnit amount={proposedTotal} alwaysShowAmounts enableRotateUnit />
-              </strong>
-            </p>
+          {/* Total */}
+          <Column col="2">
+            <span className={style.label}>
+              {t('send.confirm.total')}
+            </span>
+          </Column>
+          <Column className={style.valueOriginalLarge}>
+            <AmountWithUnit
+              amount={proposedTotal}
+              alwaysShowAmounts
+              enableRotateUnit
+              unitClassName={style.unit}
+            />
+          </Column>
+          <Column className={style.valueOriginalLarge}>
             <FiatValue
               className={style.totalFiatValue}
               amount={proposedTotal}
               enableRotateUnit
             />
-          </div>
-        </div>
+          </Column>
 
+        </Grid>
       </ViewContent>
     </View>
   );

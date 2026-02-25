@@ -19,12 +19,12 @@ export const FiatValue = ({
   const classNames = `${style.fiatValue || ''} ${className && className || ''}`;
 
   return (
-    <p className={classNames}>
+    <span className={classNames}>
       <AmountWithUnit
         alwaysShowAmounts
         convertToFiat
         amount={amount}
         enableRotateUnit={enableRotateUnit} />
-    </p>
+    </span>
   );
 };
