@@ -197,12 +197,24 @@
 .stackedSelect :global(.react-select__control:hover) {
     background: transparent;
     border-color: transparent;
+    border: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
     box-shadow: none;
-    padding-bottom: var(--space-quarter);
-    padding-top: var(--space-quarter);
+    min-height: 68px;
+    outline: none;
+    padding-bottom: var(--space-three-quarter);
     padding-left: 0;
+    padding-top: var(--space-three-quarter);
     padding-right: 0;
 }
+
+.stackedSelect :global(.react-select__control--is-focused) {
+    border-color: transparent !important;
+    /* using box-shadow instead of border here fixes an ugly Windows rendering bug */
+    box-shadow: inset 0 0 0 1px var(--color-blue) !important;
+}
+
 
 @media screen and (max-width: 768px) {
     .groupHeader {
