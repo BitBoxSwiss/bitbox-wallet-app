@@ -15,6 +15,7 @@ import { ArrowSwap } from '@/components/icon';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { ConfirmSwap } from './components/swap-confirm';
+import { SwapResult } from './components/swap-result';
 import style from './swap.module.css';
 import { RatesContext } from '@/contexts/RatesContext';
 
@@ -229,6 +230,13 @@ export const Swap = ({
               }
             }}
           />
+
+          <SwapResult
+            buyAccountCode={buyAccountCode}
+            onContinue={() => console.log('new swap')}
+            result={undefined}
+          />
+
         </Main>
       </GuidedContent>
       <Guide>
