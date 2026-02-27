@@ -36,7 +36,12 @@ export const deregisterTest = (): Promise<null> => {
   return apiPost('test/deregister');
 };
 
-export const connectKeystore = (rootFingerprint: string): Promise<{ success: boolean }> => {
+export type TConnectKeystoreResponse = {
+  success: boolean;
+  errorCode?: string;
+};
+
+export const connectKeystore = (rootFingerprint: string): Promise<TConnectKeystoreResponse> => {
   return apiPost('connect-keystore', { rootFingerprint });
 };
 

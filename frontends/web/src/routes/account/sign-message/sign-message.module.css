@@ -1,0 +1,197 @@
+.pageSection {
+  margin: 0 auto;
+  max-width: 520px;
+  min-height: calc(100dvh - var(--header-height) - var(--space-large));
+}
+
+.loadingWrap {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 220px;
+}
+
+.addressHeader {
+  align-items: center;
+  display: flex;
+  gap: var(--space-half);
+  justify-content: space-between;
+  margin-bottom: var(--space-quarter);
+}
+
+.label {
+  color: var(--color-secondary);
+  font-size: var(--size-default);
+  line-height: 1.3;
+  margin: 0;
+  text-align: left;
+}
+
+.addressNavigation {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-quarter);
+}
+
+.navigationButton {
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  height: 36px;
+  justify-content: center;
+  padding: 0;
+  width: 36px;
+}
+
+.navigationButton img {
+  display: block;
+  height: min(2.4rem, 36px);
+  width: min(2.4rem, 36px);
+}
+
+.fieldLabel {
+  color: var(--color-secondary);
+  display: block;
+  font-size: var(--size-default);
+  margin: var(--space-half) 0 var(--space-quarter);
+}
+
+.copyInputWrap {
+  margin-bottom: var(--space-default);
+  width: 100%;
+}
+
+.copyInputField {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-quaternary);
+  border-radius: 10px;
+  color: var(--color-default);
+  font-family: var(--font-family-monospace);
+  font-size: var(--size-default);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  padding: 12px 48px 12px 12px;
+  text-align: left;
+  word-break: break-all;
+}
+
+.copyInputButton {
+  background: transparent;
+  border: 0;
+  margin-top: 0;
+  right: 10px;
+  top: 12px;
+}
+
+.copyInputButton img {
+  height: 20px;
+  width: 20px;
+}
+
+.changeTypeWrap {
+  margin: calc(var(--space-half) * -1) auto var(--space-half);
+  text-align: center;
+}
+
+.messageTextarea,
+.messageDisplay {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-quaternary);
+  border-radius: 10px;
+  color: var(--color-default);
+  font-size: var(--size-default);
+  line-height: 1.3;
+  margin-bottom: var(--space-default);
+  min-height: 112px;
+  padding: 12px;
+  width: 100%;
+}
+
+.messageTextarea {
+  font-family: inherit;
+  resize: vertical;
+}
+
+.messageDisplay {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.signSubtitle {
+  color: var(--color-secondary);
+  font-size: var(--size-default);
+  margin: 0 0 var(--space-default);
+  text-align: center;
+}
+
+.deviceArrow {
+  color: var(--color-default);
+  font-size: 22px;
+  line-height: 1;
+  margin: 0 0 var(--space-half);
+  text-align: center;
+}
+
+.devicePreviewWrapCompact {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-quarter);
+}
+
+.devicePreview {
+  max-width: 240px;
+  width: 100%;
+}
+
+.signingText {
+  color: var(--color-secondary);
+  margin: 0;
+  text-align: center;
+}
+
+.successMessage {
+  align-items: center;
+  color: var(--color-secondary);
+  display: flex;
+  font-size: var(--size-default);
+  gap: var(--space-quarter);
+  justify-content: center;
+  margin-bottom: var(--space-half);
+}
+
+.successIcon {
+  height: 18px;
+  width: 18px;
+}
+
+.footerButtons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-half);
+  margin-top: auto;
+}
+
+.footerButtons > * {
+  width: 100%;
+}
+
+@media (min-width: 769px) {
+  .pageSection {
+    min-height: calc(100dvh - var(--header-height) - var(--space-large));
+  }
+}
+
+@media (max-width: 768px) {
+  .pageSection {
+    max-width: 420px;
+    min-height: auto;
+  }
+
+  .navigationButton {
+    height: 30px;
+    width: 30px;
+  }
+}

@@ -841,6 +841,24 @@ func (account *Account) SignTypedMsg(
 	return "0x" + hex.EncodeToString(signedMessage), nil
 }
 
+// SignETHMessage signs a plain text message with the account's Ethereum address.
+// Returns the address used for signing and the signature (hex-encoded with 0x prefix).
+func (account *Account) SignETHMessage(message string) (string, string, error) {
+	if len(message) == 0 {
+		return "", "", errp.New("message cannot be empty")
+	}
+
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return "", "", err
+	}
+	signedMessage, err := keystore.SignETHMessage([]byte(message), account.signingConfiguration.AbsoluteKeypath())
+	if err != nil {
+		return "", "", err
+	}
+	return account.address.Address.Hex(), "0x" + hex.EncodeToString(signedMessage), nil
+}
+
 // WalletConnectArgs are the tx proposal arguments received from Wallet Connect with Gas, GasPrice,
 // Value and Nonce being optional.
 type WalletConnectArgs struct {

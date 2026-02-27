@@ -27,12 +27,16 @@
         "start": "Get started by depositing some coins to the wallet or buying directly in the BitBoxApp."
       }
     },
+    "exportTransactions": "Export transaction history",
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
     "scriptType": "Script type",
+    "signMessage": "Sign message",
     "taproot": "The Taproot extended public key is not shown to protect from accidental misuse, as raw formats for this script type are not widely supported. If you want to view this key, connect your device to wallet software that supports the output descriptor format.",
     "title": "Account information",
+    "usedAddresses": "View used addresses",
     "verify": "Verify on device",
+    "viewXPub": "View extended public key",
     "xpubTypeChangeBtn": {
       "p2pkh": "View legacy P2PKH extended public key",
       "p2tr": "View Taproot",
@@ -74,6 +78,70 @@
       "title": "Account added"
     },
     "title": "Add account"
+  },
+  "addresses": {
+    "addressType": {
+      "change": "Change",
+      "receive": "Receive"
+    },
+    "column": {
+      "actions": "Actions",
+      "address": "Address",
+      "txCount": "Transactions"
+    },
+    "connectBitBoxBody": "Please connect your BitBox named \"{{name}}\" to continue.",
+    "connectBitBoxTitle": "Connect your BitBox",
+    "descriptionLink": "Receive",
+    "descriptionPart1": "This page lists all addresses of this account which have been used in confirmed transactions. To view unused receive addresses go to",
+    "detail": {
+      "address": "Address",
+      "addressType": "Address type",
+      "lastUsed": "Last used",
+      "scriptType": "Script type",
+      "totalReceived": "Total received",
+      "transactionCount": "Transactions"
+    },
+    "detailTitle": "Address details",
+    "empty": "No addresses have been used yet.",
+    "emptyFiltered": "No addresses match your filters.",
+    "filter": {
+      "change": "Change",
+      "changeAddresses": "Change addresses",
+      "receive": "Receive",
+      "receiveAddresses": "Receive addresses"
+    },
+    "listDescriptionPrefix": "This page shows all addresses used with account",
+    "loadFailed": "Could not load used addresses.",
+    "loadNotSupported": "Used addresses are not available for this account type.",
+    "loadSyncInProgress": "Used addresses are still syncing. Please try again shortly.",
+    "messageSigned": "Message signed",
+    "notFound": "Address not found.",
+    "searchPlaceholder": "Search address",
+    "signConnectFailed": "Could not connect to the selected device.",
+    "signConnecting": "Connecting to device…",
+    "signMessage": "Sign message",
+    "signOnBitBoxSubtitle": "Sign message on BitBox",
+    "skipDeviceVerification": "Skip device verification",
+    "skipVerification": "Skip verification",
+    "skipVerifyBody": "Not verifying the address on the device can result in copying an address that doesn’t belong to your BitBox.",
+    "skipVerifyConfirm": "Yes, skip verification",
+    "skipVerifyQuestion": "Are you sure you want to proceed?",
+    "skipVerifyTitle": "Skip device verification?",
+    "skipVerifyWarning": "Warning",
+    "title": "Used addresses",
+    "transactionCountLabel": "Transaction count: {{count}}",
+    "unknown": "Unknown",
+    "unverifiedAddressWarning": "This address has not been verified on the device.",
+    "verify": "Verify on device",
+    "verifyAddressLink": "Verify address on device",
+    "verifyChecking": "Checking secure output…",
+    "verifyConnectFailed": "Could not connect to the selected device.",
+    "verifyConnecting": "Connecting to device…",
+    "verifyFailed": "Address verification failed.",
+    "verifyInsecureWarning": "This keystore has no secure output. You can skip verification and continue.",
+    "verifyOnBitBoxBody": "Please verify the address matches what is on your BitBox.",
+    "verifyOnBitBoxTitle": "Verify on BitBox",
+    "verifySuccess": "Address verified successfully."
   },
   "aopp": {
     "addressRequest": "{{host}} is requesting a receiving address.",
@@ -1248,7 +1316,7 @@
         "title": "Why so many addresses?"
       },
       "whyVerify": {
-        "text": "You shouldn’t trust your computer to generate and display authentic addresses. It’s big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
+        "text": "You shouldn't trust your computer to generate and display authentic addresses. It's big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
         "title": "Why should I verify the address securely?"
       }
     },
@@ -1618,6 +1686,22 @@
       "p2wpkh-p2sh": "Wrapped Segwit (compatible format)"
     },
     "selectAccount": "Select account",
+    "signMessage": {
+      "addressLabel": "Address",
+      "emptyMessage": "Please enter a message to sign.",
+      "error": "Failed to sign message. Please try again.",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Enter the message to sign",
+      "resultDescription": "Message signed successfully.",
+      "signAnother": "Sign another message",
+      "signButton": "Sign on device",
+      "signatureLabel": "Signature",
+      "signing": "Please confirm the message on your device.",
+      "title": "Sign message",
+      "unsupportedLitecoin": "Message signing is not supported for Litecoin yet.",
+      "unsupportedTaproot": "Message signing is not supported for Taproot addresses yet. Please go back and change the address type.",
+      "wrongKeystore": "Wrong device connected. Please connect the correct BitBox."
+    },
     "taprootWarning": "Note: Taproot is a new Bitcoin feature and is not yet widely adopted. Funds received on Taproot addresses may not be visible in third party watch-only wallets. Many wallets and exchanges are not yet able to send to Taproot addresses.",
     "title": "Receive {{accountName}}",
     "verify": "Verify address securely",

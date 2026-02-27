@@ -460,7 +460,10 @@ func (keystore *keystore) SignTransaction(proposedTx interface{}) error {
 
 // CanSignMessage implements keystore.Keystore.
 func (keystore *keystore) CanSignMessage(code coinpkg.Code) bool {
-	return code == coinpkg.CodeBTC || code == coinpkg.CodeETH || code == coinpkg.CodeRBTC
+	return code == coinpkg.CodeBTC ||
+		code == coinpkg.CodeTBTC ||
+		code == coinpkg.CodeETH ||
+		code == coinpkg.CodeRBTC
 }
 
 // SignBTCMessage implements keystore.Keystore.

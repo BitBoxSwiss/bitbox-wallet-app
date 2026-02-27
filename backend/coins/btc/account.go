@@ -11,6 +11,7 @@ import (
 	"sort"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -23,6 +24,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -65,6 +67,16 @@ func (sa subaccounts) signingConfigurations() signing.Configurations {
 	}
 	return result
 }
+
+// UsedAddressType indicates which chain an address belongs to in a unified account.
+type UsedAddressType string
+
+const (
+	// UsedAddressTypeReceive identifies addresses from the receive chain.
+	UsedAddressTypeReceive UsedAddressType = "receive"
+	// UsedAddressTypeChange identifies addresses from the change chain.
+	UsedAddressTypeChange UsedAddressType = "change"
+)
 
 // Account is a account whose addresses are derived from an xpub.
 type Account struct {
@@ -741,7 +753,171 @@ func (account *Account) GetUnusedReceiveAddresses() ([]accounts.AddressList, err
 	return addresses, nil
 }
 
-// VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
+// UsedAddress holds information about a used wallet address.
+type UsedAddress struct {
+	Address          string
+	AddressID        string
+	ScriptType       *signing.ScriptType
+	AddressType      UsedAddressType
+	LastUsed         *time.Time
+	TotalReceived    coin.Amount
+	TransactionCount int
+}
+
+func (account *Account) lookupAddressByScriptHashHex(
+	scriptHashHex blockchain.ScriptHashHex,
+) (*addresses.AccountAddress, UsedAddressType) {
+	for _, subacc := range account.subaccounts {
+		if addr := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); addr != nil {
+			return addr, UsedAddressTypeReceive
+		}
+		if addr := subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex); addr != nil {
+			return addr, UsedAddressTypeChange
+		}
+	}
+	return nil, ""
+}
+
+// GetUsedAddresses returns all used wallet addresses from confirmed transaction history.
+// Returns addresses sorted by most recently used first.
+func (account *Account) GetUsedAddresses() ([]UsedAddress, error) {
+	if !account.isInitialized() {
+		return nil, errp.New("uninitialized")
+	}
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
+
+	// Track address usage with count and most recent usage.
+	type addressInfo struct {
+		count          int
+		address        *addresses.AccountAddress
+		addressType    UsedAddressType
+		lastUsed       *time.Time
+		lastUsedHeight int
+		totalReceived  int64
+	}
+	addressMap := make(map[string]*addressInfo)
+
+	_, err := transactions.DBView(account.db, func(dbTx transactions.DBTxInterface) (struct{}, error) {
+		txHashes, err := dbTx.Transactions()
+		if err != nil {
+			return struct{}{}, err
+		}
+
+		for _, txHash := range txHashes {
+			txInfo, err := dbTx.TxInfo(txHash)
+			if err != nil {
+				return struct{}{}, err
+			}
+			if txInfo == nil || txInfo.Height <= 0 || txInfo.Tx == nil {
+				continue
+			}
+
+			usedAddressIDsInTx := map[string]bool{}
+			for scriptHashHex := range txInfo.Addresses {
+				addr, addressType := account.lookupAddressByScriptHashHex(blockchain.ScriptHashHex(scriptHashHex))
+				if addr == nil {
+					continue
+				}
+				addressID := addr.ID()
+				if _, exists := addressMap[addressID]; !exists {
+					addressMap[addressID] = &addressInfo{
+						address:     addr,
+						addressType: addressType,
+					}
+				}
+				usedAddressIDsInTx[addressID] = true
+			}
+
+			for _, txOut := range txInfo.Tx.TxOut {
+				addr, _ := account.lookupAddressByScriptHashHex(blockchain.NewScriptHashHex(txOut.PkScript))
+				if addr == nil {
+					continue
+				}
+				addressID := addr.ID()
+				info, exists := addressMap[addressID]
+				if !exists {
+					continue
+				}
+				if txOut.Value > 0 {
+					info.totalReceived += txOut.Value
+				}
+			}
+
+			for addressID := range usedAddressIDsInTx {
+				info := addressMap[addressID]
+				info.count++
+
+				if txInfo.HeaderTimestamp != nil &&
+					(info.lastUsed == nil || txInfo.HeaderTimestamp.After(*info.lastUsed)) {
+					copyTimestamp := *txInfo.HeaderTimestamp
+					info.lastUsed = &copyTimestamp
+				}
+				if txInfo.Height > info.lastUsedHeight {
+					info.lastUsedHeight = txInfo.Height
+				}
+			}
+		}
+
+		return struct{}{}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to slice with metadata for sorting.
+	type sortable struct {
+		addr           UsedAddress
+		lastUsed       *time.Time
+		lastUsedHeight int
+	}
+	sortableList := make([]sortable, 0, len(addressMap))
+	for _, info := range addressMap {
+		scriptType := info.address.AccountConfiguration.ScriptType()
+		sortableList = append(sortableList, sortable{
+			addr: UsedAddress{
+				Address:          info.address.EncodeForHumans(),
+				AddressID:        info.address.ID(),
+				ScriptType:       &scriptType,
+				AddressType:      info.addressType,
+				LastUsed:         info.lastUsed,
+				TotalReceived:    coin.NewAmountFromInt64(info.totalReceived),
+				TransactionCount: info.count,
+			},
+			lastUsed:       info.lastUsed,
+			lastUsedHeight: info.lastUsedHeight,
+		})
+	}
+
+	// Sort by timestamp first, then by block height as fallback.
+	sort.Slice(sortableList, func(i, j int) bool {
+		left, right := sortableList[i], sortableList[j]
+		switch {
+		case left.lastUsed != nil && right.lastUsed != nil:
+			if !left.lastUsed.Equal(*right.lastUsed) {
+				return left.lastUsed.After(*right.lastUsed)
+			}
+		case left.lastUsed != nil:
+			return true
+		case right.lastUsed != nil:
+			return false
+		}
+		if left.lastUsedHeight != right.lastUsedHeight {
+			return left.lastUsedHeight > right.lastUsedHeight
+		}
+		return left.addr.AddressID < right.addr.AddressID
+	})
+
+	result := make([]UsedAddress, len(sortableList))
+	for i, s := range sortableList {
+		result[i] = s.addr
+	}
+
+	return result, nil
+}
+
+// VerifyAddress verifies a wallet address on a keystore. Returns false, nil if no secure output
 // exists.
 func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if !account.isInitialized() {
@@ -757,13 +933,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	}
 
 	scriptHashHex := blockchain.ScriptHashHex(addressID)
-	var address *addresses.AccountAddress
-	for _, subacc := range account.subaccounts {
-		if addr := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); addr != nil {
-			address = addr
-			break
-		}
-	}
+	address, _ := account.lookupAddressByScriptHashHex(scriptHashHex)
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
@@ -897,12 +1067,39 @@ func (account *Account) VerifyExtendedPublicKey(signingConfigIndex int) (bool, e
 // IsChange returns true if there is an address corresponding to the provided scriptHashHex in our
 // accounts change address chain. It returns false if no address can be found.
 func (account *Account) IsChange(scriptHashHex blockchain.ScriptHashHex) bool {
-	for _, subacc := range account.subaccounts {
-		if subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil {
-			return true
-		}
+	_, addressType := account.lookupAddressByScriptHashHex(scriptHashHex)
+	return addressType == UsedAddressTypeChange
+}
+
+func getSignMessageKeystore(account accounts.Interface) (keystore.Keystore, error) {
+	ks, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return nil, err
 	}
-	return false
+	if !ks.CanSignMessage(account.Coin().Code()) {
+		return nil, errp.Newf("The connected device or keystore cannot sign messages for %s",
+			account.Coin().Code())
+	}
+	return ks, nil
+}
+
+func signBTCMessageWithAddress(
+	ks keystore.Keystore,
+	account accounts.Interface,
+	message string,
+	address accounts.Address,
+	scriptType signing.ScriptType,
+) (string, string, error) {
+	sig, err := ks.SignBTCMessage(
+		[]byte(message),
+		address.AbsoluteKeypath(),
+		scriptType,
+		account.Coin().Code(),
+	)
+	if err != nil {
+		return "", "", err
+	}
+	return address.EncodeForHumans(), base64.StdEncoding.EncodeToString(sig), nil
 }
 
 // SignBTCAddress returns an unused address and makes the user sign a message to prove ownership.
@@ -919,15 +1116,9 @@ func (account *Account) IsChange(scriptHashHex blockchain.ScriptHashHex) bool {
 //	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
 //	#3: is an optional error that could be generated during the execution of the function.
 func SignBTCAddress(account accounts.Interface, message string, scriptType signing.ScriptType) (string, string, error) {
-	keystore, err := account.Config().ConnectKeystore()
+	ks, err := getSignMessageKeystore(account)
 	if err != nil {
 		return "", "", err
-	}
-
-	canSign := keystore.CanSignMessage(account.Coin().Code())
-	if !canSign {
-		return "", "", errp.Newf("The connected device or keystore cannot sign messages for %s",
-			account.Coin().Code())
 	}
 
 	unused, err := account.GetUnusedReceiveAddresses()
@@ -945,16 +1136,56 @@ func SignBTCAddress(account accounts.Interface, message string, scriptType signi
 		return "", "", err
 	}
 	addr := unused[signingConfigIdx].Addresses[0]
-
-	sig, err := keystore.SignBTCMessage(
-		[]byte(message),
-		addr.AbsoluteKeypath(),
+	return signBTCMessageWithAddress(
+		ks,
+		account,
+		message,
+		addr,
 		account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
-		account.Coin().Code(),
 	)
+}
+
+// SignBTCMessage signs a message with a specific address identified by addressID.
+// Input params:
+//
+//	`addressID` is the script hash hex identifying the address to sign with.
+//	`message` is the message that will be signed by the user with the private key linked to the address.
+//
+// Returned values:
+//
+//	#1: is the address that was used for signing.
+//	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
+//	#3: is an optional error that could be generated during the execution of the function.
+func (account *Account) SignBTCMessage(addressID string, message string) (string, string, error) {
+	if !account.isInitialized() {
+		return "", "", errp.New("account must be initialized")
+	}
+
+	if len(addressID) == 0 {
+		return "", "", errp.New("addressID cannot be empty")
+	}
+
+	if len(message) == 0 {
+		return "", "", errp.New("message cannot be empty")
+	}
+
+	ks, err := getSignMessageKeystore(account)
 	if err != nil {
 		return "", "", err
 	}
 
-	return addr.EncodeForHumans(), base64.StdEncoding.EncodeToString(sig), nil
+	// Find the address by ID across all subaccounts.
+	scriptHashHex := blockchain.ScriptHashHex(addressID)
+	address, _ := account.lookupAddressByScriptHashHex(scriptHashHex)
+
+	if address == nil {
+		return "", "", errp.New("address not found")
+	}
+	return signBTCMessageWithAddress(
+		ks,
+		account,
+		message,
+		address,
+		address.AccountConfiguration.ScriptType(),
+	)
 }

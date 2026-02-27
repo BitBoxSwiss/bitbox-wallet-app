@@ -77,6 +77,13 @@
     padding-right: var(--space-half);
 }
 
+.centerTitle {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding-right: 0;
+}
+
 .title > * {
     margin: 0;
     font-size: var(--size-header);
