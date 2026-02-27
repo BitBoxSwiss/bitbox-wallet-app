@@ -13,9 +13,8 @@
   margin-top: var(--space-half);
 }
 
-.connectionIssuesLink {
-  margin-top: 72px;
-  text-align: center;
+.connectionIssues {
+  margin-top: 96px;
   width: 100%;
 }
 

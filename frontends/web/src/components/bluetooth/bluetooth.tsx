@@ -35,6 +35,8 @@ const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
       scanningTimeoutRef.current = setTimeout(() => {
         if (state.scanning && state.peripherals.length === 0) {
           setShowConnectionIssues(true);
+        } else {
+          setShowConnectionIssues(false);
         }
       }, TIMEOUT_MS);
     } else {
@@ -94,9 +96,33 @@ const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
   const hasConnection = state.peripherals.some(isConnectedOrConnecting);
   return (
     <>
-      <div className={styles.label}>
-        {t('bluetooth.select')}
-      </div>
+      {state.scanning && (
+        <div>
+          <HorizontallyCenteredSpinner />
+        </div>
+      )}
+      {state.peripherals.length > 0 ? (
+        <div className={styles.label}>
+          {t('bluetooth.select')}
+        </div>
+      ) : showConnectionIssues ? (
+        <Message type="info" className={styles.connectionIssues}>
+          <span>
+            {t('bluetooth.connectionIssues')}
+          </span>
+          {' '}
+          <Button
+            transparent
+            inline
+            onClick={(e) => {
+              e.preventDefault();
+              setDialogOpen(true);
+            }}
+          >
+            {t('bluetooth.connectionIssuesLink')}
+          </Button>
+        </Message>
+      ) : null}
       <div className={styles.container}>
         {state.peripherals.map(peripheral => {
           const onClick = !hasConnection ? () => connect(peripheral.identifier) : undefined;
@@ -129,25 +155,6 @@ const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
           );
         })}
       </div>
-      {state.scanning && (
-        <div>
-          <HorizontallyCenteredSpinner />
-        </div>
-      )}
-
-      {showConnectionIssues && (
-        <div className={styles.connectionIssuesLink}>
-          <Button
-            transparent
-            onClick={(e) => {
-              e.preventDefault();
-              setDialogOpen(true);
-            }}
-          >
-            {t('bluetooth.connectionIssues')}
-          </Button>
-        </div>
-      )}
 
       <ConnectionIssuesDialog dialogOpen={dialogOpen} onClose={() => setDialogOpen(false)} />
     </>
