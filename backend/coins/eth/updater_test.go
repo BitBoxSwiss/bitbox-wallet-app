@@ -29,6 +29,30 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type noopNotifier struct{}
+
+func (noopNotifier) Put(id []byte) error { return nil }
+func (noopNotifier) Delete(id []byte) error {
+	return nil
+}
+func (noopNotifier) UnnotifiedCount() (int, error) { return 0, nil }
+func (noopNotifier) MarkAllNotified() error        { return nil }
+
+type transactionsSourceMock struct {
+	calls int
+	txs   []*accounts.TransactionData
+}
+
+func (m *transactionsSourceMock) Transactions(
+	blockTipHeight *big.Int,
+	address common.Address,
+	endBlock *big.Int,
+	erc20Token *erc20.Token,
+) ([]*accounts.TransactionData, error) {
+	m.calls++
+	return m.txs, nil
+}
+
 func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Account {
 	t.Helper()
 
@@ -80,7 +104,7 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 				Name:                  "accountname",
 				SigningConfigurations: signingConfigurations,
 			},
-			GetNotifier: func(signing.Configurations) accounts.Notifier { return nil },
+			GetNotifier: func(signing.Configurations) accounts.Notifier { return noopNotifier{} },
 			DBFolder:    dbFolder,
 		},
 		coin,
@@ -90,7 +114,7 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 	)
 
 	require.NoError(t, acct.Initialize())
-	require.NoError(t, acct.Update(big.NewInt(0), big.NewInt(100), true))
+	require.NoError(t, acct.Update(big.NewInt(0), big.NewInt(100), nil))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 	return acct
 }
@@ -218,4 +242,145 @@ func TestUpdateBalancesWithError(t *testing.T) {
 	updater.UpdateBalancesAndBlockNumber([]*eth.Account{erc20Account}, balanceFetcher)
 	require.Error(t, erc20Account.Offline())
 
+}
+
+func makeConfirmedTx(id string) *accounts.TransactionData {
+	amount := coin.NewAmountFromInt64(1)
+	return &accounts.TransactionData{
+		TxID:       id,
+		InternalID: id,
+		Amount:     amount,
+		Addresses: []accounts.AddressAndAmount{{
+			Address: "0x0000000000000000000000000000000000000000",
+			Amount:  amount,
+		}},
+		Type:   accounts.TxTypeReceive,
+		Status: accounts.TxStatusComplete,
+		Height: 1,
+	}
+}
+
+func TestUpdateBalancesPrefetchTokenTransactions(t *testing.T) {
+	tokenA := erc20.NewToken("0x0000000000000000000000000000000000000001", 12)
+	tokenB := erc20.NewToken("0x0000000000000000000000000000000000000002", 12)
+	accountA := newAccount(t, tokenA, false)
+	accountB := newAccount(t, tokenB, false)
+	defer accountA.Close()
+	defer accountB.Close()
+
+	addrA, err := accountA.Address()
+	require.NoError(t, err)
+	addrB, err := accountB.Address()
+	require.NoError(t, err)
+	require.Equal(t, addrA.Address, addrB.Address)
+
+	txSource := &transactionsSourceMock{}
+	accountA.ETHCoin().TstSetTransactionsSource(txSource)
+	accountB.ETHCoin().TstSetTransactionsSource(txSource)
+
+	blockNumber := big.NewInt(100)
+	tokenTxCalls := 0
+	fetcher := &mocks.TokenTransactionsFetcherMock{
+		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+			require.Len(t, addresses, 0)
+			return map[common.Address]*big.Int{}, nil
+		},
+		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
+			return blockNumber, nil
+		},
+		TokenTransactionsByContractFunc: func(
+			blockTipHeight *big.Int,
+			address common.Address,
+			endBlock *big.Int,
+		) (map[common.Address][]*accounts.TransactionData, error) {
+			tokenTxCalls++
+			require.Equal(t, blockNumber, blockTipHeight)
+			require.Equal(t, blockNumber, endBlock)
+			require.Equal(t, addrA.Address, address)
+			return map[common.Address][]*accounts.TransactionData{
+				tokenA.ContractAddress(): {makeConfirmedTx("tx-a")},
+				tokenB.ContractAddress(): {makeConfirmedTx("tx-b")},
+			}, nil
+		},
+	}
+
+	updater := eth.NewUpdater(nil, nil, nil, nil)
+	updater.UpdateBalancesAndBlockNumber([]*eth.Account{accountA, accountB}, fetcher)
+
+	require.Equal(t, 1, tokenTxCalls)
+	require.Equal(t, 0, txSource.calls)
+}
+
+func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
+	blockNumber := big.NewInt(100)
+	tokenTxCalls := 0
+	var tokenTxResult map[common.Address][]*accounts.TransactionData
+	fetcher := &mocks.TokenTransactionsFetcherMock{
+		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+			require.Len(t, addresses, 0)
+			return map[common.Address]*big.Int{}, nil
+		},
+		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
+			return blockNumber, nil
+		},
+		TokenTransactionsByContractFunc: func(
+			blockTipHeight *big.Int,
+			_ common.Address,
+			endBlock *big.Int,
+		) (map[common.Address][]*accounts.TransactionData, error) {
+			tokenTxCalls++
+			require.Equal(t, blockNumber, blockTipHeight)
+			require.Equal(t, blockNumber, endBlock)
+			return tokenTxResult, nil
+		},
+	}
+
+	t.Run("no-prefetch-falls-back-to-nil", func(t *testing.T) {
+		account := newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12), false)
+		defer account.Close()
+		txSource := &transactionsSourceMock{}
+		account.ETHCoin().TstSetTransactionsSource(txSource)
+
+		tokenTxCalls = 0
+		tokenTxResult = map[common.Address][]*accounts.TransactionData{}
+
+		updater := eth.NewUpdater(nil, nil, nil, nil)
+		updater.UpdateBalancesAndBlockNumber([]*eth.Account{account}, fetcher)
+
+		// With a single token account, updater should skip prefetch entirely.
+		require.Equal(t, 0, tokenTxCalls)
+		// No prefetch entry means Update receives nil and falls back once.
+		require.Equal(t, 1, txSource.calls)
+	})
+
+	t.Run("missing-contract-is-empty-no-fallback", func(t *testing.T) {
+		accountA := newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12), false)
+		accountB := newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000002", 12), false)
+		defer accountA.Close()
+		defer accountB.Close()
+		txSource := &transactionsSourceMock{}
+		accountA.ETHCoin().TstSetTransactionsSource(txSource)
+		accountB.ETHCoin().TstSetTransactionsSource(txSource)
+
+		addrA, err := accountA.Address()
+		require.NoError(t, err)
+		addrB, err := accountB.Address()
+		require.NoError(t, err)
+		require.Equal(t, addrA.Address, addrB.Address)
+
+		tokenTxCalls = 0
+		tokenA := accountA.ETHCoin().ERC20Token()
+		require.NotNil(t, tokenA)
+		// Contract for accountB is intentionally missing. Updater should pass
+		// explicit empty slice (not nil), which must not trigger fallback calls.
+		tokenTxResult = map[common.Address][]*accounts.TransactionData{
+			tokenA.ContractAddress(): {makeConfirmedTx("tx-a")},
+		}
+
+		updater := eth.NewUpdater(nil, nil, nil, nil)
+		updater.UpdateBalancesAndBlockNumber([]*eth.Account{accountA, accountB}, fetcher)
+
+		require.Equal(t, 1, tokenTxCalls)
+		require.Equal(t, 0, txSource.calls)
+	})
 }

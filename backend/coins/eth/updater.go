@@ -32,6 +32,18 @@ type BalanceAndBlockNumberFetcher interface {
 	BlockNumber(ctx context.Context) (*big.Int, error)
 }
 
+// TokenTransactionsFetcher can prefetch token transactions for an address.
+//
+//go:generate moq -pkg mocks -out mocks/tokentransactionsfetcher.go . TokenTransactionsFetcher
+type TokenTransactionsFetcher interface {
+	BalanceAndBlockNumberFetcher
+	TokenTransactionsByContract(
+		blockTipHeight *big.Int,
+		address common.Address,
+		endBlock *big.Int,
+	) (map[common.Address][]*accounts.TransactionData, error)
+}
+
 // Updater is a struct that takes care of updating ETH accounts.
 type Updater struct {
 	// quit is used to indicate to running goroutines that they should stop as the backend is being closed
@@ -163,7 +175,7 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 	}
 
 	prefetchedTokenTxsByAccount := map[*Account][]*accounts.TransactionData{}
-	if fetcher, ok := etherScanClient.(*etherscan.EtherScan); ok {
+	if fetcher, ok := etherScanClient.(TokenTransactionsFetcher); ok {
 		prefetchedTokenTxsByAccount = u.prefetchTokenTransactions(ethAccounts, fetcher, blockNumber)
 	}
 
@@ -201,9 +213,9 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 			account.SetOffline(errp.Newf(errMsg))
 		}
 
-		if account.Offline() != nil {
-			continue // Skip updating balance if the account is offline.
-		}
+			if account.Offline() != nil {
+				continue // Skip updating balance if the account is offline.
+			}
 			var confirmedTransactions []*accounts.TransactionData
 			if prefetched, ok := prefetchedTokenTxsByAccount[account]; ok {
 				// `nil` means "not prefetched"; use an explicit empty slice to mean "prefetched, no txs".
@@ -223,7 +235,7 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 
 func (u *Updater) prefetchTokenTransactions(
 	ethAccounts []*Account,
-	etherScanClient *etherscan.EtherScan,
+	etherScanClient TokenTransactionsFetcher,
 	blockNumber *big.Int,
 ) map[*Account][]*accounts.TransactionData {
 	tokenAccountsByAddress := map[common.Address][]*Account{}
@@ -244,21 +256,13 @@ func (u *Updater) prefetchTokenTransactions(
 		return nil
 	}
 
-	// Prefetch only when we can amortize a full-address scan across multiple token accounts
-	// for the same address. Otherwise, let account.Update() use contract-filtered tokentx calls.
-	prefetchByAddress := map[common.Address][]*Account{}
+	prefetched := map[*Account][]*accounts.TransactionData{}
 	for address, tokenAccounts := range tokenAccountsByAddress {
+		// Prefetch only when we can amortize a full-address scan across multiple token accounts
+		// for the same address. Otherwise, let account.Update() use contract-filtered tokentx calls.
 		if len(tokenAccounts) < 2 {
 			continue
 		}
-		prefetchByAddress[address] = tokenAccounts
-	}
-	if len(prefetchByAddress) == 0 {
-		return nil
-	}
-
-	prefetched := map[*Account][]*accounts.TransactionData{}
-	for address, tokenAccounts := range prefetchByAddress {
 		transactionsByContract, err := etherScanClient.TokenTransactionsByContract(
 			blockNumber,
 			address,
