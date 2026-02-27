@@ -199,6 +199,11 @@ a.sidebarActive .single img,
     }
 }
 
+/* Add padding for title bar when running in Qt desktop */
+:global(.qtwebengine) .sidebar {
+    padding-top: 32px;
+}
+
 @media (min-width: 1200px) {
     .sidebar {
         position: relative;

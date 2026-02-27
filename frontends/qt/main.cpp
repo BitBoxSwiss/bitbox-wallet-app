@@ -16,6 +16,8 @@
 #include <QFile>
 #include <QContextMenuEvent>
 #include <QMenu>
+#include <QPainterPath>
+#include <QRegion>
 #include <QRegularExpression>
 #include <QThread>
 #include <QMutex>
@@ -35,6 +37,7 @@
 #else
 #include <QtPlatformHeaders/QWindowsWindowFunctions>
 #endif
+#include <dwmapi.h>
 #endif
 
 #include <iostream>
@@ -219,9 +222,28 @@ public:
 
 class WebEngineView : public QWebEngineView {
 public:
+    WebEngineView() : QWebEngineView(), m_cornerRadius(8) {}
+
     void closeEvent(QCloseEvent*) override {
         QSettings settings;
         settings.setValue("mainWindowGeometry", saveGeometry());
+    }
+
+    void showEvent(QShowEvent* event) override {
+        QWebEngineView::showEvent(event);
+        updateRoundedMask();
+    }
+
+    void resizeEvent(QResizeEvent* event) override {
+        QWebEngineView::resizeEvent(event);
+        updateRoundedMask();
+    }
+
+    void changeEvent(QEvent* event) override {
+        QWebEngineView::changeEvent(event);
+        if (event->type() == QEvent::WindowStateChange) {
+            updateRoundedMask();
+        }
     }
 
     QSize sizeHint() const override {
@@ -252,6 +274,22 @@ public:
         if (!menu->isEmpty()) {
             menu->popup(event->globalPos());
         }
+    }
+
+private:
+    int m_cornerRadius;
+
+    void updateRoundedMask() {
+        // Use square corners when maximized (standard window behavior)
+        if (isMaximized()) {
+            clearMask();
+            return;
+        }
+
+        // Create a rounded rectangle mask for the window shape
+        QPainterPath path;
+        path.addRoundedRect(rect(), m_cornerRadius, m_cornerRadius);
+        setMask(QRegion(path.toFillPolygon().toPolygon()));
     }
 };
 
@@ -319,6 +357,8 @@ int main(int argc, char *argv[])
     QWebEngineUrlScheme::registerScheme(bbappScheme);
 
     view = new WebEngineView();
+    // Use frameless window for custom title bar on all platforms
+    view->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());
     view->setMinimumSize(360, 375);
 
@@ -355,6 +395,7 @@ int main(int argc, char *argv[])
     }
 
     webClass = new WebClass();
+    webClass->setWindow(view);
 
     setupReachabilityNotifier();
 

@@ -29,6 +29,8 @@ import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { Providers } from './contexts/providers';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
+import { TitleBar } from './components/titlebar/titlebar';
+import { runningInQtWebEngine } from './utils/env';
 import styles from './app.module.css';
 
 export const App = () => {
@@ -37,6 +39,13 @@ export const App = () => {
   const navigate = useNavigate();
   useIgnoreDrop();
   useAppReady();
+
+  // Add body class for Qt desktop styling (frameless title bar)
+  useEffect(() => {
+    if (runningInQtWebEngine()) {
+      document.body.classList.add('qtwebengine');
+    }
+  }, []);
 
   const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
@@ -165,12 +174,14 @@ export const App = () => {
 
   const isBitboxBootloader = firstDevice && devices[firstDevice] === 'bitbox02-bootloader';
   const showBottomNavigation = (deviceIDs.length > 0 || activeAccounts.length > 0) && !isBitboxBootloader;
+  const showTitleBar = runningInQtWebEngine();
 
 
   return (
     <ConnectedApp>
       <Providers>
         <Darkmode />
+        <TitleBar show={showTitleBar} />
         <div className="app">
           <AuthRequired/>
           <Sidebar
@@ -180,6 +191,7 @@ export const App = () => {
           <div className={`
             ${styles.appContent || ''}
             ${showBottomNavigation && styles.hasBottomNavigation || ''}
+            ${showTitleBar && styles.hasTitleBar || ''}
           `}>
             <WCSigningRequest />
             <Aopp />
