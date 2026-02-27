@@ -64,9 +64,9 @@ export const Bitsurance = ({ accounts }: TProps) => {
   const getBitsurancePageLink = (): string => {
     switch (i18n.resolvedLanguage) {
     case 'de':
-      return 'https://www.bitsurance.eu/de/bitbox/';
+      return 'https://www.bitsurance.io/de/bitbox/';
     default:
-      return 'https://www.bitsurance.eu/en/bitbox/';
+      return 'https://www.bitsurance.io/en/bitbox/';
     }
   };
 
