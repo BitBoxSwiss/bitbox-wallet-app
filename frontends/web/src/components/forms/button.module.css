@@ -97,7 +97,7 @@
     opacity: 0.4;
 }
 
-.inline {
+.button.inline {
     height: auto;
     min-height: auto;
     padding: 0;
@@ -111,5 +111,8 @@
 @media (max-width: 768px) {
     .button {
         min-width: 90px;
+    }
+    .button.inline {
+        min-width: auto;
     }
 }
