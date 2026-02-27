@@ -461,7 +461,7 @@ func (handlers *Handlers) postAppConfig(r *http.Request) (interface{}, error) {
 	return nil, handlers.backend.Config().SetAppConfig(appConfig)
 }
 
-// getNativeLocaleHandler returns user preferred UI language as reported
+// getNativeLocale returns user preferred UI language as reported
 // by the native app layer.
 // The response value may be invalid or unsupported by the app.
 func (handlers *Handlers) getNativeLocale(*http.Request) interface{} {
@@ -1140,7 +1140,7 @@ func (handlers *Handlers) getChartData(*http.Request) interface{} {
 	return Result{Success: true, Data: data}
 }
 
-// getSupportedCoinsHandler returns an array of coin codes for which you can add an account.
+// getSupportedCoins returns an array of coin codes for which you can add an account.
 // Exactly one keystore must be connected, otherwise an empty array is returned.
 func (handlers *Handlers) getSupportedCoins(*http.Request) interface{} {
 	type element struct {
