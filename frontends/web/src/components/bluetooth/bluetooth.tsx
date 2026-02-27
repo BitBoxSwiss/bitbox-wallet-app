@@ -96,6 +96,11 @@ const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
   const hasConnection = state.peripherals.some(isConnectedOrConnecting);
   return (
     <>
+      {state.scanning && (
+        <div>
+          <HorizontallyCenteredSpinner />
+        </div>
+      )}
       {state.peripherals.length > 0 ? (
         <div className={styles.label}>
           {t('bluetooth.select')}
@@ -108,7 +113,7 @@ const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
           {' '}
           <Button
             transparent
-            className={styles.connectionIssuesButton}
+            inline
             onClick={(e) => {
               e.preventDefault();
               setDialogOpen(true);
@@ -150,11 +155,6 @@ const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
           );
         })}
       </div>
-      {state.scanning && (
-        <div>
-          <HorizontallyCenteredSpinner />
-        </div>
-      )}
 
       <ConnectionIssuesDialog dialogOpen={dialogOpen} onClose={() => setDialogOpen(false)} />
     </>

@@ -14,17 +14,8 @@
 }
 
 .connectionIssues {
-  margin-top: 72px;
+  margin-top: 96px;
   width: 100%;
-}
-
-.connectionIssuesButton {
-  padding: 0;
-  height: auto;
-  min-height: 0;
-  min-width: 0;
-  text-decoration: underline;
-  display: inline-block;
 }
 
 @media (max-width: 768px) {
