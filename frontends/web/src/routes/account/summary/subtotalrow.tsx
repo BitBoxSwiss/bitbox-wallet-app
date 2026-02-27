@@ -37,6 +37,7 @@ export const SubTotalRow = ({ coinCode, coinName, balance }: TProps) => {
         <span className={style.summaryTableBalance}>
           <AmountWithUnit
             amount={balance}
+            maxDecimals={9}
             unitClassName={style.coinUnit}
           />
         </span>
@@ -72,6 +73,7 @@ export const SubTotalCoinRow = ({ coinCode, coinName, balance }: TProps) => {
         <span className={style.summaryTableBalance}>
           <AmountWithUnit
             amount={balance}
+            maxDecimals={9}
             unitClassName={style.coinUnit}
           />
         </span>

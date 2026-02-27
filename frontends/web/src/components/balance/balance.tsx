@@ -29,6 +29,7 @@ export const Balance = ({
       <div className={style.balance} data-testid="availableBalance">
         <AmountWithUnit
           amount={balance.available}
+          maxDecimals={9}
           enableRotateUnit
           unitClassName={style.unit}
         />
@@ -47,7 +48,7 @@ export const Balance = ({
           <span
             className={style.incomingBalance}
             data-testid="incomingBalance">
-            +<AmountWithUnit amount={balance.incoming} />
+            +<AmountWithUnit amount={balance.incoming} maxDecimals={9} />
             {' '}
             <span className={style.incomingConversion}>
               /&nbsp;

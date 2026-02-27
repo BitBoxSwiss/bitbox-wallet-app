@@ -14,6 +14,7 @@ type TAmountWithUnitProps = {
   alwaysShowAmounts?: boolean;
   convertToFiat?: boolean;
   unitClassName?: string;
+  maxDecimals?: number;
 };
 
 export const AmountWithUnit = ({
@@ -23,6 +24,7 @@ export const AmountWithUnit = ({
   convertToFiat,
   alwaysShowAmounts = false,
   unitClassName = '',
+  maxDecimals,
 }: TAmountWithUnitProps) => {
   const { rotateDefaultCurrency, defaultCurrency, rotateBtcUnit } = useContext(RatesContext);
 
@@ -61,6 +63,7 @@ export const AmountWithUnit = ({
           amount={displayedAmount}
           unit={displayedUnit}
           onMobileClick={enableClick ? onClick : undefined}
+          maxDecimals={maxDecimals}
         />
       ) : '---'}
       {' '}
