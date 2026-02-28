@@ -1115,7 +1115,17 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 			if !ok {
 				vitePort = "8080"
 			}
-			w.Header().Set("Access-Control-Allow-Origin", fmt.Sprintf("http://localhost:%s", vitePort))
+			origin := r.Header.Get("Origin")
+			allowedOrigins := []string{
+				fmt.Sprintf("http://localhost:%s", vitePort),
+				fmt.Sprintf("http://127.0.0.1:%s", vitePort),
+			}
+			for _, allowed := range allowedOrigins {
+				if origin == allowed {
+					w.Header().Set("Access-Control-Allow-Origin", origin)
+					break
+				}
+			}
 		}
 		value, err := h(r)
 		if err != nil {
