@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -29,6 +30,18 @@ type BalanceAndBlockNumberFetcher interface {
 	Balances(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error)
 	// BlockNumber returns the current latest block number.
 	BlockNumber(ctx context.Context) (*big.Int, error)
+}
+
+// TokenTransactionsFetcher can prefetch token transactions for an address.
+//
+//go:generate moq -pkg mocks -out mocks/tokentransactionsfetcher.go . TokenTransactionsFetcher
+type TokenTransactionsFetcher interface {
+	BalanceAndBlockNumberFetcher
+	TokenTransactionsByContract(
+		blockTipHeight *big.Int,
+		address common.Address,
+		endBlock *big.Int,
+	) (map[common.Address][]*accounts.TransactionData, error)
 }
 
 // Updater is a struct that takes care of updating ETH accounts.
@@ -120,20 +133,20 @@ func (u *Updater) PollBalances() {
 }
 
 // UpdateBalancesAndBlockNumber updates the balances of the accounts in the provided slice.
-func (u *Updater) UpdateBalancesAndBlockNumber(accounts []*Account, etherScanClient BalanceAndBlockNumberFetcher) {
-	if len(accounts) == 0 {
+func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScanClient BalanceAndBlockNumberFetcher) {
+	if len(ethAccounts) == 0 {
 		return
 	}
-	chainId := accounts[0].ETHCoin().ChainID()
-	for _, account := range accounts {
+	chainId := ethAccounts[0].ETHCoin().ChainID()
+	for _, account := range ethAccounts {
 		if account.ETHCoin().ChainID() != chainId {
 			u.log.Error("Cannot update balances and block number for accounts with different chain IDs")
 			return
 		}
 	}
 
-	ethNonErc20Addresses := make([]common.Address, 0, len(accounts))
-	for _, account := range accounts {
+	ethNonErc20Addresses := make([]common.Address, 0, len(ethAccounts))
+	for _, account := range ethAccounts {
 		if account.isClosed() {
 			continue
 		}
@@ -161,7 +174,12 @@ func (u *Updater) UpdateBalancesAndBlockNumber(accounts []*Account, etherScanCli
 		return
 	}
 
-	for _, account := range accounts {
+	prefetchedTokenTxsByAccount := map[*Account][]*accounts.TransactionData{}
+	if fetcher, ok := etherScanClient.(TokenTransactionsFetcher); ok {
+		prefetchedTokenTxsByAccount = u.prefetchTokenTransactions(ethAccounts, fetcher, blockNumber)
+	}
+
+	for _, account := range ethAccounts {
 		if account.isClosed() {
 			continue
 		}
@@ -195,14 +213,69 @@ func (u *Updater) UpdateBalancesAndBlockNumber(accounts []*Account, etherScanCli
 			account.SetOffline(errp.Newf(errMsg))
 		}
 
-		if account.Offline() != nil {
-			continue // Skip updating balance if the account is offline.
-		}
-		if err := account.Update(balance, blockNumber); err != nil {
+			if account.Offline() != nil {
+				continue // Skip updating balance if the account is offline.
+			}
+			var confirmedTransactions []*accounts.TransactionData
+			if prefetched, ok := prefetchedTokenTxsByAccount[account]; ok {
+				// `nil` means "not prefetched"; use an explicit empty slice to mean "prefetched, no txs".
+				if prefetched == nil {
+					prefetched = []*accounts.TransactionData{}
+				}
+				confirmedTransactions = prefetched
+			}
+		if err := account.Update(balance, blockNumber, confirmedTransactions); err != nil {
 			u.log.WithError(err).Errorf("Could not update balance for address %s", address.Address.Hex())
 			account.SetOffline(err)
 		} else {
 			account.SetOffline(nil)
 		}
 	}
+}
+
+func (u *Updater) prefetchTokenTransactions(
+	ethAccounts []*Account,
+	etherScanClient TokenTransactionsFetcher,
+	blockNumber *big.Int,
+) map[*Account][]*accounts.TransactionData {
+	tokenAccountsByAddress := map[common.Address][]*Account{}
+	for _, account := range ethAccounts {
+		if account.isClosed() || !IsERC20(account) {
+			continue
+		}
+		address, err := account.Address()
+		if err != nil {
+			u.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Config.Code)
+			account.SetOffline(err)
+			continue
+		}
+		tokenAccountsByAddress[address.Address] = append(tokenAccountsByAddress[address.Address], account)
+	}
+
+	if len(tokenAccountsByAddress) == 0 {
+		return nil
+	}
+
+	prefetched := map[*Account][]*accounts.TransactionData{}
+	for address, tokenAccounts := range tokenAccountsByAddress {
+		// Prefetch only when we can amortize a full-address scan across multiple token accounts
+		// for the same address. Otherwise, let account.Update() use contract-filtered tokentx calls.
+		if len(tokenAccounts) < 2 {
+			continue
+		}
+		transactionsByContract, err := etherScanClient.TokenTransactionsByContract(
+			blockNumber,
+			address,
+			blockNumber,
+		)
+		if err != nil {
+			u.log.WithError(err).Errorf("Could not get token transactions for address %s", address.Hex())
+			continue
+		}
+		for _, account := range tokenAccounts {
+			contractAddress := account.coin.erc20Token.ContractAddress()
+			prefetched[account] = transactionsByContract[contractAddress]
+		}
+	}
+	return prefetched
 }
