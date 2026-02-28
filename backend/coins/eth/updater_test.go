@@ -90,7 +90,7 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 	)
 
 	require.NoError(t, acct.Initialize())
-	require.NoError(t, acct.Update(big.NewInt(0), big.NewInt(100)))
+	require.NoError(t, acct.Update(big.NewInt(0), big.NewInt(100), true))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 	return acct
 }

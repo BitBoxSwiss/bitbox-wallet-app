@@ -331,8 +331,13 @@ func (account *Account) nextNonce() (uint64, error) {
 
 // Update performs an Update of the account's transactions,
 // as well as its balance and the chain's latest blockNumber,
-// both of which must be provided as an argument.
-func (account *Account) Update(balance *big.Int, blockNumber *big.Int) error {
+// both of which must be provided as an argument. If prefetchedConfirmedTransactions is not nil,
+// confirmed transactions are taken from it instead of querying the transactions source.
+func (account *Account) Update(
+	balance *big.Int,
+	blockNumber *big.Int,
+	prefetchedConfirmedTransactions []*accounts.TransactionData,
+) error {
 	defer account.updateLock.Lock()()
 	defer account.Synchronizer.IncRequestsCounter()()
 
@@ -341,9 +346,15 @@ func (account *Account) Update(balance *big.Int, blockNumber *big.Int) error {
 	go account.updateOutgoingTransactions(account.blockNumber.Uint64())
 
 	// Get confirmed transactions.
-	confirmedTransactions, err := account.confirmedTransactions()
-	if err != nil {
-		return errp.WithStack(err)
+	var confirmedTransactions []*accounts.TransactionData
+	if prefetchedConfirmedTransactions == nil {
+		var err error
+		confirmedTransactions, err = account.confirmedTransactions()
+		if err != nil {
+			return errp.WithStack(err)
+		}
+	} else {
+		confirmedTransactions = prefetchedConfirmedTransactions
 	}
 
 	// Get our stored outgoing transactions. Filter out all transactions from the transactions
