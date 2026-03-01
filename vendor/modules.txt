@@ -115,7 +115,7 @@ github.com/deckarep/golang-set/v2
 ## explicit; go 1.17
 github.com/decred/dcrd/crypto/blake256
 github.com/decred/dcrd/crypto/blake256/internal/compress
-# github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0
+# github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.1
 ## explicit; go 1.17
 github.com/decred/dcrd/dcrec/secp256k1/v4
 github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa
