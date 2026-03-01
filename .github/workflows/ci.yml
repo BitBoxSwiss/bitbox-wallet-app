@@ -65,7 +65,7 @@ jobs:
           OS_NAME: linux
       - name: Upload APK
         id: upload
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/android/BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
           name: BitBoxApp-android-${{github.sha}}.apk
@@ -141,21 +141,21 @@ jobs:
           OS_NAME: linux
       - name: Upload AppImage
         id: upload-ai
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/linux/BitBoxApp-*.AppImage
           name: BitBoxApp-linux-${{github.sha}}.AppImage
           if-no-files-found: error
       - name: Upload deb
         id: upload-deb
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/linux/bitbox_*.deb
           name: BitBoxApp-linux-${{github.sha}}.deb
           if-no-files-found: error
       - name: Upload rpm
         id: upload-rpm
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/linux/bitbox-*.rpm
           name: BitBoxApp-linux-${{github.sha}}.rpm
@@ -213,7 +213,7 @@ jobs:
           popd;
       - name: Upload app
         id: upload
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: BitBoxApp-macos.zip
           name: BitBoxApp-macos-${{github.sha}}.zip
@@ -293,7 +293,7 @@ jobs:
           make qt-windows
       - name: Upload Installer
         id: upload
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: frontends/qt/BitBox-installer.exe
           name: BitBoxApp-windows-${{ github.sha }}.exe
