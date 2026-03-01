@@ -23,6 +23,7 @@ import { WatchonlySetting } from './components/manage-accounts/watchonlySetting'
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
+import { TokenListItem } from '@/components/token-list-item/token-list-item';
 import style from './manage-accounts.module.css';
 
 type ManageAccountsProps = {
@@ -64,33 +65,19 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
       const activeToken = (activeTokens || []).find(t => t.tokenCode === token.code);
       const active = activeToken !== undefined;
       return (
-        <div key={token.code}
-          className={`
-            ${style.token || ''}
-            ${!active && style.tokenInactive || ''}
-          `}>
-          <div
-            className={`
-              ${style.acccountLink || ''}
-              ${active && style.accountActive || ''}
-            `}
-            onClick={() => activeToken !== undefined && navigate(`/account/${activeToken.accountCode}`)}>
-            <Logo
-              active={active}
-              alt={token.name}
-              className={style.tokenIcon}
-              coinCode={token.code}
-              stacked />
-            <span className={style.tokenName}>
-              {token.name} ({token.unit})
-            </span>
-          </div>
+        <TokenListItem
+          key={token.code}
+          active={active}
+          coinCode={token.code}
+          name={`${token.name} (${token.unit})`}
+          onClick={() => activeToken !== undefined && navigate(`/account/${activeToken.accountCode}`)}>
           <Toggle
             checked={active}
             className={style.toggle}
             id={token.code}
-            onChange={() => toggleToken(ethAccountCode, token.code, !active)} />
-        </div>
+            onChange={() => toggleToken(ethAccountCode, token.code, !active)}
+          />
+        </TokenListItem>
       );
     });
   };
@@ -155,7 +142,7 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
         <div key={account.code} className={style.setting}>
           <div
             className={`
-              ${style.acccountLink || ''}
+              ${style.accountLink || ''}
               ${active && style.accountActive || ''}
             `}
             onClick={() => active && navigate(`/account/${account.code}`)}>

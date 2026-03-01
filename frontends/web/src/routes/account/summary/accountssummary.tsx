@@ -1,3 +1,4 @@
+
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
@@ -12,7 +13,7 @@ import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View } from '@/components/view/view';
 import { Chart } from './chart';
 import { KeystoreBalance } from './keystorebalance';
-import { CoinBalance } from './coinbalance';
+import { TotalBalanceForAllKeystores } from './total-balance-for-all-keystores';
 import { AddBuyReceiveOnEmptyBalances } from '@/routes/account/info/buy-receive-cta';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
@@ -24,6 +25,7 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { BackupReminder } from '@/components/banners/backup';
 import { OfflineError } from '@/components/banners/offline-error';
+import style from './accountssummary.module.css';
 
 type TProps = {
   accounts: accountApi.TAccount[];
@@ -185,13 +187,14 @@ export const AccountsSummary = ({
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               } />
-            {accountsByKeystore.length > 1 && (
-              <CoinBalance
-                summaryData={chartData}
-                coinsBalances={accountsBalanceSummary?.coinsTotalBalance}
-              />
-            )}
-            {accountsByKeystore &&
+            <div className={style.keystoresContainer}>
+              {accountsByKeystore.length > 1 && (
+                <TotalBalanceForAllKeystores
+                  summaryData={chartData}
+                  coinsBalances={accountsBalanceSummary?.coinsTotalBalance}
+                />
+              )}
+              {accountsByKeystore &&
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 (
                   <KeystoreBalance
@@ -204,6 +207,8 @@ export const AccountsSummary = ({
                   />
                 )
               ))}
+            </div>
+
           </View>
         </Main>
       </GuidedContent>

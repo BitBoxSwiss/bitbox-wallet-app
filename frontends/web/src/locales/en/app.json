@@ -53,6 +53,7 @@
     "subtotalWithCoinName": "Total ({{coinName}})",
     "title": "My portfolio",
     "total": "Total",
+    "totalAssets": "Total assets",
     "transactionHistory": "Transaction history"
   },
   "addAccount": {
