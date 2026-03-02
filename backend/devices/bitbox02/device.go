@@ -169,3 +169,8 @@ func (device *Device) CreateBackup() error {
 	})
 	return nil
 }
+
+// DeterministicEntropy implements handlers.BitBox02.
+func (device *Device) DeterministicEntropy() ([]byte, error) {
+	return device.Keystore().DeterministicEntropy()
+}

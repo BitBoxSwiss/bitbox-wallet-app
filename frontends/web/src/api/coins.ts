@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { CoinCode, Fiat } from './account';
+import type { TAmountWithConversions } from './account';
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
 import { apiPost, apiGet } from '@/utils/request';
 
@@ -34,6 +35,17 @@ export type TAmount = {
 
 export const parseExternalBtcAmount = (amount: string): Promise<TAmount> => {
   return apiGet(`coins/btc/parse-external-amount?amount=${amount}`);
+};
+
+type TSatsAmountResponse = {
+  success: true;
+  amount: TAmountWithConversions;
+} | {
+  success: false;
+};
+
+export const getBtcSatsAmount = (sats: string): Promise<TSatsAmountResponse> => {
+  return apiGet(`coins/btc/sats-amount?sats=${sats}`);
 };
 
 type TConvertCurrency = {

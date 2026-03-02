@@ -4,6 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useKeystores } from '@/hooks/backend';
+import { useLightning } from '@/hooks/lightning';
 import type { TDevices } from '@/api/devices';
 import type { TAccount } from '@/api/account';
 import { deregisterTest } from '@/api/keystores';
@@ -47,6 +48,25 @@ const GetAccountLink = ({
   );
 };
 
+const GetLightningLink = ({ handleSidebarItemClick }: { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) }) => {
+  const { t } = useTranslation();
+  const lightningName = t('lightning.accountLabel');
+  return (
+    <div className={style.sidebarItem}>
+      <NavLink
+        className={({ isActive }) => isActive ? style.sidebarActive : ''}
+        to={'/lightning'}
+        onClick={handleSidebarItemClick}
+        title={lightningName}>
+        <div className={style.single}>
+          <Logo coinCode="lightning" alt={lightningName} />
+        </div>
+        <span className={style.sidebarLabel}>{lightningName}</span>
+      </NavLink>
+    </div>
+  );
+};
+
 const eject = (e: React.SyntheticEvent): void => {
   deregisterTest();
   e.preventDefault();
@@ -60,6 +80,7 @@ const Sidebar = ({
   const { pathname } = useLocation();
   const [ canUpgrade, setCanUpgrade ] = useState(false);
   const { activeSidebar, toggleSidebar } = useContext(AppContext);
+  const { lightningConfig } = useLightning();
 
   const deviceIDs: string[] = Object.keys(devices);
 
@@ -125,6 +146,10 @@ const Sidebar = ({
             </NavLink>
           </div>
         ) : null }
+
+        {lightningConfig.accounts.length !== 0 && (
+          <GetLightningLink key="lightning" handleSidebarItemClick={handleSidebarItemClick} />
+        )}
 
         { accountsByKeystore.map(keystore => (
           <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
