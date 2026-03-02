@@ -107,23 +107,13 @@ export const SignMessage = ({
                     error={controller.error}
                     handleSign={controller.handleSign}
                     backPath={controller.backPath}
-                    changeScriptTypeText={t('receive.changeScriptType')}
-                    messageLabel={t('receive.signMessage.messageLabel')}
-                    messagePlaceholder={t('receive.signMessage.messagePlaceholder')}
-                    unsupportedTaprootText={t('receive.signMessage.unsupportedTaproot')}
-                    unsupportedLitecoinText={t('receive.signMessage.unsupportedLitecoin')}
-                    signButtonText={t('receive.signMessage.signButton')}
-                    backButtonText={t('button.back')}
                   />
                 )}
                 {controller.state === 'signing' && (
                   <SignMessageSigningView
                     addressControlsProps={buildAddressControls(false, true)}
-                    subtitleText={t('addresses.signOnBitBoxSubtitle')}
                     address={controller.address}
-                    messageLabel={t('receive.signMessage.messageLabel')}
                     message={controller.message}
-                    signingText={t('receive.signMessage.signing')}
                   />
                 )}
                 {controller.state === 'result' && (

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, ReactNode } from 'react';
+import { ChangeEvent } from 'react';
 import { CopyableInput } from '@/components/copy/Copy';
-import { BitBox02StylizedDark, StatusSuccess } from '@/components/icon';
+import { StatusSuccess } from '@/components/icon';
 import { Message } from '@/components/message/message';
 
 export type TCopyableFieldStyles = {
@@ -83,64 +83,6 @@ export const SignMessageMessageInput = ({
     {error && <Message type="error">{error}</Message>}
   </>
 );
-
-type TSignMessageSigningPreviewProps = {
-  subtitle: string;
-  subtitleClassName: string | undefined;
-  header?: ReactNode;
-  addressLabel?: string;
-  address: string;
-  showAddressLabel?: boolean;
-  messageLabel: string;
-  message: string;
-  messageDisplayClassName: string | undefined;
-  deviceArrowClassName: string | undefined;
-  devicePreviewWrapClassName: string | undefined;
-  devicePreviewClassName: string | undefined;
-  signingText?: string;
-  signingTextClassName?: string | undefined;
-  fieldStyles: TCopyableFieldStyles;
-};
-
-export const SignMessageSigningPreview = ({
-  subtitle,
-  subtitleClassName,
-  header,
-  addressLabel,
-  address,
-  showAddressLabel = true,
-  messageLabel,
-  message,
-  messageDisplayClassName,
-  deviceArrowClassName,
-  devicePreviewWrapClassName,
-  devicePreviewClassName,
-  signingText,
-  signingTextClassName,
-  fieldStyles,
-}: TSignMessageSigningPreviewProps) => {
-  const { fieldLabel } = fieldStyles;
-
-  return (
-    <>
-      <div className={subtitleClassName}>{subtitle}</div>
-      {header}
-      <SignMessageCopyableField
-        label={addressLabel}
-        value={address}
-        showLabel={showAddressLabel}
-        fieldStyles={fieldStyles}
-      />
-      <label className={fieldLabel}>{messageLabel}</label>
-      <div className={messageDisplayClassName}>{message}</div>
-      <div className={deviceArrowClassName}>▼</div>
-      <div className={devicePreviewWrapClassName}>
-        <BitBox02StylizedDark className={devicePreviewClassName} />
-      </div>
-      {signingText && <p className={signingTextClassName}>{signingText}</p>}
-    </>
-  );
-};
 
 type TSignMessageResultFieldsProps = {
   successText: string;

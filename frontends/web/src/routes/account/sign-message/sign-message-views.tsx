@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { SyntheticEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { Button } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
@@ -10,6 +11,7 @@ import {
   ArrowCirlceLeftActive,
   ArrowCirlceRight,
   ArrowCirlceRightActive,
+  BitBox02StylizedDark,
 } from '@/components/icon';
 import { AddressTypeDialog } from '../components/address-type-dialog';
 import { AddressPager } from '../components/address-pager';
@@ -18,7 +20,6 @@ import {
   SignMessageCopyableField,
   SignMessageMessageInput,
   SignMessageResultFields,
-  SignMessageSigningPreview,
 } from '../components/sign-message-sections';
 import style from './sign-message.module.css';
 
@@ -95,13 +96,6 @@ type TSignMessageInputViewProps = {
   error: string | null;
   handleSign: () => Promise<void>;
   backPath: string;
-  changeScriptTypeText: string;
-  messageLabel: string;
-  messagePlaceholder: string;
-  unsupportedTaprootText: string;
-  unsupportedLitecoinText: string;
-  signButtonText: string;
-  backButtonText: string;
 };
 
 export const SignMessageInputView = ({
@@ -122,113 +116,106 @@ export const SignMessageInputView = ({
   error,
   handleSign,
   backPath,
-  changeScriptTypeText,
-  messageLabel,
-  messagePlaceholder,
-  unsupportedTaprootText,
-  unsupportedLitecoinText,
-  signButtonText,
-  backButtonText,
-}: TSignMessageInputViewProps) => (
-  <div className={style.pageSection}>
-    <AddressControls {...addressControlsProps} />
-    <SignMessageCopyableField
-      value={address}
-      showLabel={false}
-      fieldStyles={copyableFieldStyles}
-    />
+}: TSignMessageInputViewProps) => {
+  const { t } = useTranslation();
 
-    {!isFixedAddressRoute && (hasManyScriptTypes || insured) && (
-      <div className={style.changeTypeWrap}>
+  return (
+    <div className={style.pageSection}>
+      <AddressControls {...addressControlsProps} />
+      <SignMessageCopyableField
+        value={address}
+        showLabel={false}
+        fieldStyles={copyableFieldStyles}
+      />
+
+      {!isFixedAddressRoute && (hasManyScriptTypes || insured) && (
+        <div className={style.changeTypeWrap}>
+          <Button
+            transparent
+            inline
+            onClick={() => setAddressTypeDialog(true)}
+          >
+            {t('receive.changeScriptType')}
+          </Button>
+        </div>
+      )}
+
+      {isUnsupported ? (
+        <Message type="info">
+          {isTaproot ? t('receive.signMessage.unsupportedTaproot') : t('receive.signMessage.unsupportedLitecoin')}
+        </Message>
+      ) : (
+        <SignMessageMessageInput
+          label={t('receive.signMessage.messageLabel')}
+          placeholder={t('receive.signMessage.messagePlaceholder')}
+          value={message}
+          onChange={setMessage}
+          error={error}
+          fieldLabelClassName={style.fieldLabel}
+          textareaClassName={style.messageTextarea}
+          autoFocus
+        />
+      )}
+
+      {!isFixedAddressRoute && (
+        <AddressTypeDialog
+          open={addressTypeDialog}
+          setOpen={setAddressTypeDialog}
+          preselectedAddressType={addressType}
+          availableScriptTypes={availableScriptTypes}
+          insured={insured}
+          handleAddressTypeChosen={handleAddressTypeChosen}
+        />
+      )}
+
+      <div className={style.footerButtons}>
         <Button
-          transparent
-          inline
-          onClick={() => setAddressTypeDialog(true)}
+          primary
+          onClick={handleSign}
+          disabled={!message.trim() || isUnsupported}
         >
-          {changeScriptTypeText}
+          {t('receive.signMessage.signButton')}
         </Button>
+        <BackButton to={backPath} replace={true}>
+          {t('button.back')}
+        </BackButton>
       </div>
-    )}
-
-    {isUnsupported ? (
-      <Message type="info">
-        {isTaproot ? unsupportedTaprootText : unsupportedLitecoinText}
-      </Message>
-    ) : (
-      <SignMessageMessageInput
-        label={messageLabel}
-        placeholder={messagePlaceholder}
-        value={message}
-        onChange={setMessage}
-        error={error}
-        fieldLabelClassName={style.fieldLabel}
-        textareaClassName={style.messageTextarea}
-        autoFocus
-      />
-    )}
-
-    {!isFixedAddressRoute && (
-      <AddressTypeDialog
-        open={addressTypeDialog}
-        setOpen={setAddressTypeDialog}
-        preselectedAddressType={addressType}
-        availableScriptTypes={availableScriptTypes}
-        insured={insured}
-        handleAddressTypeChosen={handleAddressTypeChosen}
-      />
-    )}
-
-    <div className={style.footerButtons}>
-      <Button
-        primary
-        onClick={handleSign}
-        disabled={!message.trim() || isUnsupported}
-      >
-        {signButtonText}
-      </Button>
-      <BackButton to={backPath} replace={true}>
-        {backButtonText}
-      </BackButton>
     </div>
-  </div>
-);
+  );
+};
 
 type TSignMessageSigningViewProps = {
   addressControlsProps: TAddressControlsProps;
-  subtitleText: string;
   address: string;
-  messageLabel: string;
   message: string;
-  signingText: string;
 };
 
 export const SignMessageSigningView = ({
   addressControlsProps,
-  subtitleText,
   address,
-  messageLabel,
   message,
-  signingText,
-}: TSignMessageSigningViewProps) => (
-  <div className={style.pageSection}>
-    <SignMessageSigningPreview
-      subtitle={subtitleText}
-      subtitleClassName={style.signSubtitle}
-      header={<AddressControls {...addressControlsProps} />}
-      address={address}
-      showAddressLabel={false}
-      messageLabel={messageLabel}
-      message={message}
-      messageDisplayClassName={style.messageDisplay}
-      deviceArrowClassName={style.deviceArrow}
-      devicePreviewWrapClassName={style.devicePreviewWrapCompact}
-      devicePreviewClassName={style.devicePreview}
-      signingText={signingText}
-      signingTextClassName={style.signingText}
-      fieldStyles={copyableFieldStyles}
-    />
-  </div>
-);
+}: TSignMessageSigningViewProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className={style.pageSection}>
+      <div className={style.signSubtitle}>{t('addresses.signOnBitBoxSubtitle')}</div>
+      <AddressControls {...addressControlsProps} />
+      <SignMessageCopyableField
+        value={address}
+        showLabel={false}
+        fieldStyles={copyableFieldStyles}
+      />
+      <label className={style.fieldLabel}>{t('receive.signMessage.messageLabel')}</label>
+      <div className={style.messageDisplay}>{message}</div>
+      <div className={style.deviceArrow}>▼</div>
+      <div className={style.devicePreviewWrapCompact}>
+        <BitBox02StylizedDark className={style.devicePreview} />
+      </div>
+      <p className={style.signingText}>{t('receive.signMessage.signing')}</p>
+    </div>
+  );
+};
 
 type TSignMessageResultViewProps = {
   resultAddress: string;
