@@ -149,7 +149,7 @@ describe('routes/account/addresses', () => {
     await user.click(screen.getByTitle(changeAddress.address));
 
     expect(screen.getByPlaceholderText('Search address')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Copy Address' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Copy Address' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sign message' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Verify address on device' })).not.toBeInTheDocument();
   });

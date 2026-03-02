@@ -236,12 +236,14 @@ export const Addresses = ({ code, accounts }: TProps) => {
 
   const renderInlineActions = (address: TUsedAddress) => (
     <div className={style.inlineActions}>
-      <Button transparent inline className={style.linkAction} onClick={() => startVerifyFlow(address.addressID)}>
-        <span className={style.linkActionLabel}>
-          <Copy className={style.linkActionIcon} />
-          {t('button.copy')} {t('addresses.detail.address')}
-        </span>
-      </Button>
+      {address.addressType !== 'change' && (
+        <Button transparent inline className={style.linkAction} onClick={() => startVerifyFlow(address.addressID)}>
+          <span className={style.linkActionLabel}>
+            <Copy className={style.linkActionIcon} />
+            {t('button.copy')} {t('addresses.detail.address')}
+          </span>
+        </Button>
+      )}
 
       {isMessageSigningAvailable && (
         <Button transparent inline className={style.linkAction} onClick={() => navigate(`/account/${code}/addresses/${address.addressID}/sign-message`)}>
