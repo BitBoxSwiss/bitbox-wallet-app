@@ -16,8 +16,8 @@ import { InputWithAccountSelector } from './components/input-with-account-select
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { ConfirmSwap } from './components/swap-confirm';
 import { SwapResult } from './components/swap-result';
-import style from './swap.module.css';
 import { RatesContext } from '@/contexts/RatesContext';
+import style from './swap.module.css';
 
 type Props = {
   accounts: TAccount[];
