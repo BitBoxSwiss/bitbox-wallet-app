@@ -193,9 +193,9 @@ func TestSignAddress(t *testing.T) {
 	require.NoError(t, account.Initialize())
 	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 	// pt2r is not an available script type in the mocked account.
-	_, _, err := SignBTCAddress(account, "Hello there", signing.ScriptTypeP2TR)
+	_, _, err := SignBTCMessageUnusedAddress(account, "Hello there", signing.ScriptTypeP2TR)
 	require.Error(t, err)
-	address, signature, err := SignBTCAddress(account, "Hello there", signing.ScriptTypeP2WPKH)
+	address, signature, err := SignBTCMessageUnusedAddress(account, "Hello there", signing.ScriptTypeP2WPKH)
 	require.NoError(t, err)
 	require.NotEmpty(t, address)
 	require.Equal(t, base64.StdEncoding.EncodeToString([]byte("signature")), signature)
@@ -445,7 +445,7 @@ func TestVerifyAndSignBTCMessageSupportsChangeAddress(t *testing.T) {
 	require.Equal(t, changeAddress.AccountConfiguration, verifyCalls[0].AccountConfiguration)
 	require.Equal(t, changeAddress.Derivation, verifyCalls[0].Derivation)
 
-	address, signature, err := account.SignBTCMessage(changeAddress.ID(), "Hello")
+	address, signature, err := account.SignBTCMessageForAddress(changeAddress.ID(), "Hello")
 	require.NoError(t, err)
 	require.Equal(t, changeAddress.EncodeForHumans(), address)
 	require.Equal(t, base64.StdEncoding.EncodeToString([]byte("signature")), signature)

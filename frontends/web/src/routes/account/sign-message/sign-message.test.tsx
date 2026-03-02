@@ -83,7 +83,7 @@ describe('routes/account/sign-message', () => {
       },
     ];
     vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => receiveAddresses);
-    const signMessageSpy = vi.spyOn(accountApi, 'signMessage').mockResolvedValue({
+    const signMessageSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress').mockResolvedValue({
       success: true,
       address: '3wrappedexample',
       signature: 'signed-message',
@@ -226,7 +226,7 @@ describe('routes/account/sign-message', () => {
         addresses: [{ address: 'bc1qnativeexample', addressID: 'native-address-id' }],
       },
     ]);
-    const signMessageSpy = vi.spyOn(accountApi, 'signMessage').mockResolvedValue({
+    const signMessageSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress').mockResolvedValue({
       success: false,
       errorCode: 'userAbort',
     });
@@ -261,7 +261,7 @@ describe('routes/account/sign-message', () => {
 
   it('shows unsupported state for LTC accounts', async () => {
     const connectSpy = vi.spyOn(keystoresApi, 'connectKeystore').mockResolvedValue({ success: true });
-    const signMessageSpy = vi.spyOn(accountApi, 'signMessage');
+    const signMessageSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress');
     vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
       {
         scriptType: 'p2wpkh',
@@ -290,7 +290,7 @@ describe('routes/account/sign-message', () => {
       success: true,
       addresses: [usedAddress],
     });
-    const signMessageSpy = vi.spyOn(accountApi, 'signMessage').mockResolvedValue({
+    const signMessageSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress').mockResolvedValue({
       success: true,
       address: usedAddress.address,
       signature: 'signed-message',

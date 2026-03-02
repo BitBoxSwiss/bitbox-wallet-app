@@ -8,7 +8,7 @@ import { getConfig } from '@/utils/config';
 import { Dialog } from '@/components/dialog/dialog';
 import { confirmation } from '@/components/confirm/Confirm';
 import { verifyAddress, getPocketURL, TMarketAction } from '@/api/market';
-import { AccountCode, getInfo, getTransactionList, hasPaymentRequest, signAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { AccountCode, getInfo, getTransactionList, hasPaymentRequest, signBTCMessageUnusedAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { PocketTerms } from '@/components/terms/pocket-terms';
@@ -156,7 +156,7 @@ export const Pocket = ({
     signing = true;
     const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
-    signAddress(
+    signBTCMessageUnusedAddress(
       addressType,
       withMessageSignature,
       code)

@@ -458,12 +458,27 @@ type AddressSignResponse = {
   errorCode?: 'userAbort' | 'wrongKeystore';
 };
 
-export const signAddress = (format: ScriptType | '', msg: string, code: AccountCode): Promise<AddressSignResponse> => {
-  return apiPost(`account/${code}/sign-address`, { format, msg });
+export const signBTCMessageUnusedAddress = (
+  format: ScriptType | '',
+  msg: string,
+  code: AccountCode,
+): Promise<AddressSignResponse> => {
+  return apiPost(`account/${code}/btc-sign-message-unused-address`, { format, msg });
 };
 
-export const signMessage = (code: AccountCode, addressID: string, msg: string): Promise<AddressSignResponse> => {
-  return apiPost(`account/${code}/sign-address`, { addressID, msg });
+export const signBTCMessageForAddress = (
+  code: AccountCode,
+  scriptHashHex: string,
+  msg: string,
+): Promise<AddressSignResponse> => {
+  return apiPost(`account/${code}/btc-sign-message-for-address`, { scriptHashHex, msg });
+};
+
+export const signETHMessageForAddress = (
+  code: AccountCode,
+  msg: string,
+): Promise<AddressSignResponse> => {
+  return apiPost(`account/${code}/eth-sign-message-for-address`, { msg });
 };
 
 export type TUsedAddress = {

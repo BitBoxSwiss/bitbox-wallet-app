@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { AccountCode, ScriptType, TReceiveAddress } from '@/api/account';
+import { isEthereumBased } from '../../utils';
 
 export type TSigningState = 'input' | 'signing' | 'result';
 
@@ -15,6 +16,7 @@ export type TSignatureResult = {
 
 type UseSignMessageParams = {
   accountCode: AccountCode;
+  coinCode?: accountApi.CoinCode;
   address: TReceiveAddress | null;
   onClose?: () => void;
   scriptType?: ScriptType | null;
@@ -34,6 +36,7 @@ type UseSignMessageReturn = {
 
 export const useSignMessage = ({
   accountCode,
+  coinCode,
   address,
   onClose,
   scriptType,
@@ -61,11 +64,13 @@ export const useSignMessage = ({
     setState('signing');
 
     try {
-      const response = await accountApi.signMessage(
-        accountCode,
-        address.addressID,
-        message,
-      );
+      const response = coinCode && isEthereumBased(coinCode)
+        ? await accountApi.signETHMessageForAddress(accountCode, message)
+        : await accountApi.signBTCMessageForAddress(
+          accountCode,
+          address.addressID,
+          message,
+        );
 
       if (response.success) {
         setResult({
@@ -92,7 +97,7 @@ export const useSignMessage = ({
       setError(t('receive.signMessage.error'));
       setState('input');
     }
-  }, [accountCode, address, message, onClose, t]);
+  }, [accountCode, address, coinCode, message, onClose, t]);
 
   const reset = useCallback(() => {
     setMessage('');

@@ -818,11 +818,11 @@ func (account *Account) SignMsg(
 	if err != nil {
 		return "", err
 	}
-	signedMessage, err := keystore.SignETHMessage(bytesMessage, account.signingConfiguration.AbsoluteKeypath())
+	signature, err := keystore.SignETHMessage(bytesMessage, account.signingConfiguration.AbsoluteKeypath())
 	if err != nil {
 		return "", err
 	}
-	return "0x" + hex.EncodeToString(signedMessage), nil
+	return "0x" + hex.EncodeToString(signature), nil
 }
 
 // SignTypedMsg signs an Ethereum EIP-712 typed message in BBApp via WalletConnect.
@@ -834,11 +834,11 @@ func (account *Account) SignTypedMsg(
 	if err != nil {
 		return "", err
 	}
-	signedMessage, err := keystore.SignETHTypedMessage(chainId, []byte(data), account.signingConfiguration.AbsoluteKeypath())
+	signature, err := keystore.SignETHTypedMessage(chainId, []byte(data), account.signingConfiguration.AbsoluteKeypath())
 	if err != nil {
 		return "", err
 	}
-	return "0x" + hex.EncodeToString(signedMessage), nil
+	return "0x" + hex.EncodeToString(signature), nil
 }
 
 // SignETHMessage signs a plain text message with the account's Ethereum address.
@@ -852,11 +852,11 @@ func (account *Account) SignETHMessage(message string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	signedMessage, err := keystore.SignETHMessage([]byte(message), account.signingConfiguration.AbsoluteKeypath())
+	signature, err := keystore.SignETHMessage([]byte(message), account.signingConfiguration.AbsoluteKeypath())
 	if err != nil {
 		return "", "", err
 	}
-	return account.address.Address.Hex(), "0x" + hex.EncodeToString(signedMessage), nil
+	return account.address.Address.Hex(), "0x" + hex.EncodeToString(signature), nil
 }
 
 // WalletConnectArgs are the tx proposal arguments received from Wallet Connect with Gas, GasPrice,

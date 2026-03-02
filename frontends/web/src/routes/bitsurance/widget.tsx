@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { getConfig } from '@/utils/config';
-import { ScriptType, signAddress } from '@/api/account';
+import { ScriptType, signBTCMessageUnusedAddress } from '@/api/account';
 import { getInfo } from '@/api/account';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -98,7 +98,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
     const withExtendedPublicKey = !!message.withExtendedPublicKey;
-    signAddress(
+    signBTCMessageUnusedAddress(
       addressType,
       withMessageSignature,
       code)

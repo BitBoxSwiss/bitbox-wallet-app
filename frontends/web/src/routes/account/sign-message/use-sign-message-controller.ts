@@ -136,6 +136,7 @@ export const useSignMessageController = ({
     reset,
   } = useSignMessage({
     accountCode: code,
+    coinCode: account?.coinCode,
     address: currentAddress,
     onClose: isFixedAddressRoute ? () => navigate(backPath, { replace: true }) : undefined,
     scriptType: currentScriptType,

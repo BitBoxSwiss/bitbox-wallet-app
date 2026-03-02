@@ -1102,7 +1102,7 @@ func signBTCMessageWithAddress(
 	return address.EncodeForHumans(), base64.StdEncoding.EncodeToString(sig), nil
 }
 
-// SignBTCAddress returns an unused address and makes the user sign a message to prove ownership.
+// SignBTCMessageUnusedAddress returns an unused address and makes the user sign a message to prove ownership.
 // Input params:
 //
 //	`account` is the account from which the address is derived.
@@ -1115,7 +1115,7 @@ func signBTCMessageWithAddress(
 //	#1: is the first unused address corresponding to the account and the script type identified by the input values.
 //	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
 //	#3: is an optional error that could be generated during the execution of the function.
-func SignBTCAddress(account accounts.Interface, message string, scriptType signing.ScriptType) (string, string, error) {
+func SignBTCMessageUnusedAddress(account accounts.Interface, message string, scriptType signing.ScriptType) (string, string, error) {
 	ks, err := getSignMessageKeystore(account)
 	if err != nil {
 		return "", "", err
@@ -1145,10 +1145,10 @@ func SignBTCAddress(account accounts.Interface, message string, scriptType signi
 	)
 }
 
-// SignBTCMessage signs a message with a specific address identified by addressID.
+// SignBTCMessageForAddress signs a message with a specific address identified by scriptHashHex.
 // Input params:
 //
-//	`addressID` is the script hash hex identifying the address to sign with.
+//	`scriptHashHex` is the script hash hex identifying the address to sign with.
 //	`message` is the message that will be signed by the user with the private key linked to the address.
 //
 // Returned values:
@@ -1156,13 +1156,13 @@ func SignBTCAddress(account accounts.Interface, message string, scriptType signi
 //	#1: is the address that was used for signing.
 //	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
 //	#3: is an optional error that could be generated during the execution of the function.
-func (account *Account) SignBTCMessage(addressID string, message string) (string, string, error) {
+func (account *Account) SignBTCMessageForAddress(scriptHashHex string, message string) (string, string, error) {
 	if !account.isInitialized() {
 		return "", "", errp.New("account must be initialized")
 	}
 
-	if len(addressID) == 0 {
-		return "", "", errp.New("addressID cannot be empty")
+	if len(scriptHashHex) == 0 {
+		return "", "", errp.New("scriptHashHex cannot be empty")
 	}
 
 	if len(message) == 0 {
@@ -1174,9 +1174,8 @@ func (account *Account) SignBTCMessage(addressID string, message string) (string
 		return "", "", err
 	}
 
-	// Find the address by ID across all subaccounts.
-	scriptHashHex := blockchain.ScriptHashHex(addressID)
-	address, _ := account.lookupAddressByScriptHashHex(scriptHashHex)
+	// Find the address by script hash hex across all subaccounts.
+	address, _ := account.lookupAddressByScriptHashHex(blockchain.ScriptHashHex(scriptHashHex))
 
 	if address == nil {
 		return "", "", errp.New("address not found")
