@@ -60,7 +60,7 @@ export const Waiting = () => {
               <div>
                 {isDarkMode ? (<AppLogoInverted />) : (<AppLogo />)}
                 <p className={style.waitingText}>
-                  {t('welcome.message')}
+                  {runningInIOS() ? t('welcome.messageIOS') : t('welcome.message')}
                 </p>
                 <Bluetooth />
               </div>
