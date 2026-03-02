@@ -10,9 +10,7 @@ type TProps = {
 
 export const Arrow = ({ status, type }: TProps) => {
   if (status === 'failed') {
-    return (
-      <Warning />
-    );
+    return <Warning />;
   }
   switch (type) {
   case 'send':

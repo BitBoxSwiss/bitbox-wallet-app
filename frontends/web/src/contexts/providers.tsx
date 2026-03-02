@@ -6,6 +6,7 @@ import { AppProvider } from './AppProvider';
 import { BackButtonProvider } from './BackButtonContext';
 import { WCWeb3WalletProvider } from './WCWeb3WalletProvider';
 import { RatesProvider } from './RatesProvider';
+import { LightningProvider } from './LightningProvider';
 import { LocalizationProvider } from './localization-provider';
 
 type Props = {
@@ -20,7 +21,9 @@ export const Providers = ({ children }: Props) => {
           <LocalizationProvider>
             <RatesProvider>
               <WCWeb3WalletProvider>
-                {children}
+                <LightningProvider>
+                  {children}
+                </LightningProvider>
               </WCWeb3WalletProvider>
             </RatesProvider>
           </LocalizationProvider>
