@@ -34,6 +34,13 @@ export const InputWithAccountSelector = ({
 
   const [esitmatedFiatValue, setEstimatedFiatValue] = useState<string | null>();
 
+  useEffect(() => {
+    if (accountCode) {
+      const account = findAccount(accounts, accountCode);
+      setSelectedAccount(account);
+    }
+  }, [accountCode, accounts]);
+
   // update estimated fiat amount
   useEffect(() => {
     if (selectedAccount && value) {
