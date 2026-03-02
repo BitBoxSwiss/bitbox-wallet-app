@@ -3,7 +3,7 @@
 import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
+import { AutoscaleInfoProvider, createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
 import type { TChartData, ChartData, FormattedLineData } from '@/api/account';
 import { usePrevious } from '@/hooks/previous';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -112,6 +112,45 @@ const renderDate = (
       } : null)
     }
   );
+};
+
+const autoScaleProvider: AutoscaleInfoProvider = (original) => {
+  const res = original();
+  if (!res) {
+    return null;
+  }
+
+  const { minValue, maxValue } = res.priceRange;
+  const diff = maxValue - minValue;
+
+  // if all values are equal or range is extremely small
+  if (diff === 0 || diff < Math.abs(maxValue) * 0.001) {
+    const center = maxValue;
+
+    // define a natural padding strategy
+    let padding;
+
+    if (center === 0) {
+      padding = 0.0001; // for very small BTC-like values
+    } else if (center < 0.001) {
+      padding = 0.0001;
+    } else if (center < 1) {
+      padding = 0.1;
+    } else if (center < 1000) {
+      padding = center * 0.1; // ±10%
+    } else {
+      padding = center * 0.05; // ±5%
+    }
+
+    return {
+      priceRange: {
+        minValue: center - padding,
+        maxValue: center + padding,
+      },
+    };
+  }
+
+  return res;
 };
 
 export const Chart = ({
@@ -420,6 +459,7 @@ export const Chart = ({
       lineSeries.current = chart.current.addAreaSeries({
         priceLineVisible: false,
         lastValueVisible: false,
+        autoscaleInfoProvider: autoScaleProvider,
         priceFormat: (
           data.chartFiat === 'BTC' ? {
             minMove: 0.000001,
