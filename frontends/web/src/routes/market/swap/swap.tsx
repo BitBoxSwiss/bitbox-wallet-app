@@ -62,13 +62,22 @@ export const Swap = ({
     );
   }, [buyAccountCode, sellAccountCode]);
 
+  // flips sell and buy account
+  const handleFlipAccounts = () => {
+    if (buyAccountCode && sellAccountCode) {
+      setSellAccountCode(buyAccountCode);
+      setSellAmount(expectedOutput);
+      setBuyAccountCode(sellAccountCode);
+      setExpectedOutput(sellAmount);
+    }
+  };
+
   // update max swappable amount (total coins of the account)
   useEffect(() => {
     if (sellAccountCode) {
       fetchBlance(sellAccountCode).then(setMaxSellAmount);
     }
   }, [sellAccountCode]);
-
 
   // not used yet, but loggin so we dont get a TS error
   console.log(setExpectedOutput);
@@ -123,7 +132,9 @@ export const Swap = ({
                 <Button
                   disabled={!canFlip}
                   transparent
-                  className={style.flipAcconutsButton}>
+                  className={style.flipAcconutsButton}
+                  onClick={handleFlipAccounts}
+                >
                   <ArrowSwap className={style.flipAcconutsIcon} />
                 </Button>
               </div>
