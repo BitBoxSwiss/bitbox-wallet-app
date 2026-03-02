@@ -120,37 +120,43 @@ const autoScaleProvider: AutoscaleInfoProvider = (original) => {
     return null;
   }
 
-  const { minValue, maxValue } = res.priceRange;
+  let { minValue, maxValue } = res.priceRange;
   const diff = maxValue - minValue;
 
   // if all values are equal or range is extremely small
   if (diff === 0 || diff < Math.abs(maxValue) * 0.001) {
     const center = maxValue;
 
-    // define a natural padding strategy
-    let padding;
+    let padding: number;
 
+    // define a natural padding strategy
     if (center === 0) {
-      padding = 0.0001; // for very small BTC-like values
-    } else if (center < 0.001) {
       padding = 0.0001;
+    } else if (center < 0.001) {
+      padding = 0.0001; // for very small BTC-like values
     } else if (center < 1) {
       padding = 0.1;
     } else if (center < 1000) {
-      padding = center * 0.1; // ±10%
+      padding = center * 0.1;
     } else {
-      padding = center * 0.05; // ±5%
+      padding = center * 0.05;
     }
 
-    return {
-      priceRange: {
-        minValue: center - padding,
-        maxValue: center + padding,
-      },
-    };
+    minValue = center - padding;
+    maxValue = center + padding;
   }
 
-  return res;
+  // clamp to zero (balances never negative)
+  if (minValue < 0) {
+    minValue = 0;
+  }
+
+  return {
+    priceRange: {
+      minValue,
+      maxValue,
+    },
+  };
 };
 
 export const Chart = ({
