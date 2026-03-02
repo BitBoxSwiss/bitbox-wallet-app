@@ -39,6 +39,7 @@ func TestCanSignMessage(t *testing.T) {
 	require.True(t, keystore.CanSignMessage(coin.CodeTBTC))
 	require.True(t, keystore.CanSignMessage(coin.CodeRBTC))
 	require.True(t, keystore.CanSignMessage(coin.CodeETH))
+	require.True(t, keystore.CanSignMessage(coin.CodeSEPETH))
 	require.False(t, keystore.CanSignMessage(coin.CodeLTC))
 }
 

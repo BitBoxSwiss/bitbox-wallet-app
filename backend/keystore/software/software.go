@@ -301,7 +301,8 @@ func (keystore *Keystore) CanSignMessage(code coin.Code) bool {
 	return code == coin.CodeBTC ||
 		code == coin.CodeTBTC ||
 		code == coin.CodeRBTC ||
-		code == coin.CodeETH
+		code == coin.CodeETH ||
+		code == coin.CodeSEPETH
 }
 
 func btcMessageHash(message []byte) ([]byte, error) {

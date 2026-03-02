@@ -463,6 +463,7 @@ func (keystore *keystore) CanSignMessage(code coinpkg.Code) bool {
 	return code == coinpkg.CodeBTC ||
 		code == coinpkg.CodeTBTC ||
 		code == coinpkg.CodeETH ||
+		code == coinpkg.CodeSEPETH ||
 		code == coinpkg.CodeRBTC
 }
 

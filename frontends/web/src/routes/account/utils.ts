@@ -55,6 +55,7 @@ export const isMessageSigningSupported = (coinCode: CoinCode): boolean => {
   case 'btc':
   case 'tbtc':
   case 'eth':
+  case 'sepeth':
   case 'rbtc':
     return true;
   default:

@@ -17,5 +17,6 @@ func TestCanSignMessage(t *testing.T) {
 	require.False(t, ks.CanSignMessage(coinpkg.CodeLTC))
 	require.False(t, ks.CanSignMessage(coinpkg.CodeTLTC))
 	require.True(t, ks.CanSignMessage(coinpkg.CodeETH))
+	require.True(t, ks.CanSignMessage(coinpkg.CodeSEPETH))
 	require.True(t, ks.CanSignMessage(coinpkg.CodeRBTC))
 }

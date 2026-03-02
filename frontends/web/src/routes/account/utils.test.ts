@@ -9,6 +9,7 @@ import {
   isBitcoinBased,
   isBitcoinCoin,
   isBitcoinOnly,
+  isMessageSigningSupported,
 } from './utils';
 
 
@@ -146,5 +147,17 @@ describe('utils/bitcoin coin helpers', () => {
 
   it('maps rbtc to canonical btc coin code', () => {
     expect(getCoinCode('rbtc' as CoinCode)).toBe('btc');
+  });
+});
+
+describe('utils/isMessageSigningSupported', () => {
+  it('supports sepolia and eth message signing', () => {
+    expect(isMessageSigningSupported('eth')).toBe(true);
+    expect(isMessageSigningSupported('sepeth')).toBe(true);
+  });
+
+  it('does not support litecoin message signing', () => {
+    expect(isMessageSigningSupported('ltc')).toBe(false);
+    expect(isMessageSigningSupported('tltc')).toBe(false);
   });
 });
