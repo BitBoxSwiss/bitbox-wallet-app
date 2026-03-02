@@ -469,18 +469,19 @@ export const Chart = ({
         priceFormat: (
           data.chartFiat === 'BTC' ? {
             minMove: 0.000001,
-            // precision: 6,
             type: 'custom',
             formatter: (price: number) => {
-              if (price < 0) {
+              if (price <= 0) {
                 return '0';
               }
-              return price.toLocaleString();
-            },
+              return price.toLocaleString(i18n.language, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 8,
+              });
+            }
           } : {
             type: 'volume',
-          }
-        ),
+          }),
         topColor: darkmode ? '#5E94BF' : '#DFF1FF',
         bottomColor: darkmode ? '#1D1D1B' : '#F5F5F5',
         lineColor: 'rgba(94, 148, 192, 1)',
