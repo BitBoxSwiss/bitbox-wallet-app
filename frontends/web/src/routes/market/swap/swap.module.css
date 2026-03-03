@@ -23,13 +23,12 @@
 }
 
 .flipAcconutsButton {
+  margin-left: -21px;
+  margin-top: -10px;
   min-height: auto;
-  padding: 0;
+  padding: var(--space-quarter);
+  position: absolute;
   text-align: center;
-}
-
-.flipAcconutsButton:disabled .flipAcconutsIcon {
-  opacity: .5;
 }
 
 .flipAcconutsIcon {
