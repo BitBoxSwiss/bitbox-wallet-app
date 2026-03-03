@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { MultilineMarkup } from '@/utils/markup';
 import { useLoad } from '@/hooks/api';
 import { getInfo, TAccount, AccountCode } from '@/api/account';
 import { findAccount } from '@/routes/account/utils';
@@ -82,31 +83,26 @@ export const XPubDetail = ({
                     )}
                   </p>
                 )}
-                {(config?.bitcoinSimple?.scriptType === 'p2tr') ? (
-                  <>
-                    <Message type="info">
-                      {t('accountInfo.taproot')}
-                    </Message>
-                    <div className="buttons hide-on-small">
-                      <BackButton enableEsc>
-                        {t('button.back')}
-                      </BackButton>
-                    </div>
-                  </>
-                ) : (
-                  <SigningConfiguration
-                    key={safeViewXPub}
-                    account={account}
-                    code={code}
-                    info={config}
-                    signingConfigIndex={safeViewXPub}>
-                    <span className="hide-on-small">
-                      <BackButton enableEsc>
-                        {t('button.back')}
-                      </BackButton>
-                    </span>
-                  </SigningConfiguration>
+                {(config?.bitcoinSimple?.scriptType === 'p2tr') && (
+                  <Message type="info">
+                    <MultilineMarkup
+                      markup={t('accountInfo.taproot')}
+                      tagName="span"
+                      withBreaks/>
+                  </Message>
                 )}
+                <SigningConfiguration
+                  key={safeViewXPub}
+                  account={account}
+                  code={code}
+                  info={config}
+                  signingConfigIndex={safeViewXPub}>
+                  <span className="hide-on-small">
+                    <BackButton enableEsc>
+                      {t('button.back')}
+                    </BackButton>
+                  </span>
+                </SigningConfiguration>
               </div>
             </ViewContent>
           </View>
