@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useLoad } from '@/hooks/api';
@@ -20,8 +20,8 @@ import {
   WarningOutlined,
 } from '@/components/icon';
 import { findAccount, getAddressURIPrefix, isMessageSigningSupported } from '@/routes/account/utils';
-import { handleVerifyAddressWithDeviceResult, verifyAddressWithDevice } from '../components/verify-address';
 import { VerifyAddressDialogContent } from '../components/verify-address-dialog-content';
+import { useAddressVerification } from '../components/use-address-verification';
 import style from './addresses.module.css';
 
 type TProps = {
@@ -30,7 +30,6 @@ type TProps = {
 };
 
 type TView = 'list' | 'verify';
-type TVerifyState = 'idle' | 'connecting' | 'connectFailed' | 'skipWarning' | 'skipped' | 'verifying' | 'verified' | 'error';
 
 const formatListDate = (lastUsed: string | null, fallback: string): string => {
   if (!lastUsed) {
@@ -73,15 +72,8 @@ export const Addresses = ({ code, accounts }: TProps) => {
   const [addressTypeFilter, setAddressTypeFilter] = useState<'receive' | 'change'>('receive');
   const [expandedAddressID, setExpandedAddressID] = useState<string | null>(addressID || null);
 
-  const [verifyState, setVerifyState] = useState<TVerifyState>('idle');
-  const [verifyError, setVerifyError] = useState<string | null>(null);
-  const [verifyAttempt, setVerifyAttempt] = useState(0);
-  const verifyStateRef = useRef<TVerifyState>('idle');
-
   const isVerifyView = !!addressID && location.pathname.endsWith('/verify');
   const view: TView = isVerifyView ? 'verify' : 'list';
-  const hasSkipDeviceVerificationQuery = isVerifyView
-    && new URLSearchParams(location.search).get('skipDeviceVerification') === '1';
 
   const isLoading = usedAddressesResponse === undefined;
   const usedAddressesError = useMemo(() => {
@@ -110,6 +102,14 @@ export const Addresses = ({ code, accounts }: TProps) => {
   }, [addressID, usedAddresses]);
 
   const listPath = `/account/${code}/addresses`;
+
+  const returnToList = useCallback((expandedID?: string) => {
+    if (expandedID) {
+      setExpandedAddressID(expandedID);
+    }
+    navigate(listPath);
+  }, [listPath, navigate]);
+
   const filteredAddresses = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
     return usedAddresses
@@ -126,93 +126,13 @@ export const Addresses = ({ code, accounts }: TProps) => {
     }
   }, [addressID, view]);
 
-  const returnToList = (expandedID?: string) => {
-    if (expandedID) {
-      setExpandedAddressID(expandedID);
-    }
-    navigate(listPath);
-  };
-
-  useEffect(() => {
-    verifyStateRef.current = verifyState;
-  }, [verifyState]);
-
-  useEffect(() => {
-    const selectedAddressID = selectedAddress?.addressID;
-    if (view !== 'verify' || !accountRootFingerprint || !selectedAddressID) {
-      return;
-    }
-
-    const params = new URLSearchParams(location.search);
-    if (params.get('skipDeviceVerification') === '1') {
-      setVerifyError(null);
-      setVerifyState('skipWarning');
-      params.delete('skipDeviceVerification');
-      const search = params.toString();
-      navigate({
-        pathname: location.pathname,
-        search: search ? `?${search}` : '',
-      }, { replace: true });
-      return;
-    }
-
-    if (verifyStateRef.current !== 'idle') {
-      return;
-    }
-
-    let cancelled = false;
-
-    const verifyAddress = async () => {
-      setVerifyError(null);
-      setVerifyState('connecting');
-      const verifyResult = await verifyAddressWithDevice({
-        code,
-        addressID: selectedAddressID,
-        rootFingerprint: accountRootFingerprint,
-        onSecureVerificationStart: () => {
-          if (!cancelled) {
-            setVerifyState('verifying');
-          }
-        },
-      });
-
-      if (cancelled) {
-        return;
-      }
-      handleVerifyAddressWithDeviceResult(verifyResult, {
-        onUserAbort: () => {
-          setExpandedAddressID(selectedAddressID);
-          navigate(listPath, { replace: true });
-        },
-        onConnectFailed: () => {
-          setVerifyState('connectFailed');
-          setVerifyError(t('addresses.verifyConnectFailed'));
-        },
-        onSkipDeviceVerification: () => setVerifyState('skipWarning'),
-        onVerified: () => setVerifyState('verified'),
-        onVerifyFailed: () => {
-          setVerifyState('error');
-          setVerifyError(t('addresses.verifyFailed'));
-        },
-      });
-    };
-
-    void verifyAddress();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [accountRootFingerprint, code, listPath, location.pathname, location.search, navigate, selectedAddress?.addressID, t, verifyAttempt, view]);
-
-  useEffect(() => {
-    if (view !== 'verify' || verifyState !== 'verified') {
-      return;
-    }
-    if (selectedAddress?.addressID) {
-      setExpandedAddressID(selectedAddress.addressID);
-    }
-    navigate(listPath, { replace: true });
-  }, [listPath, navigate, selectedAddress?.addressID, verifyState, view]);
+  const verification = useAddressVerification({
+    code,
+    rootFingerprint: accountRootFingerprint,
+    selectedAddress,
+    isVerifyView,
+    returnToList,
+  });
 
   const renderHeaderTitle = () => <h2>{t('addresses.title')}</h2>;
 
@@ -227,17 +147,10 @@ export const Addresses = ({ code, accounts }: TProps) => {
     </div>
   );
 
-  const startVerifyFlow = (selectedAddressID: string) => {
-    setVerifyError(null);
-    setVerifyState('idle');
-    setVerifyAttempt(prev => prev + 1);
-    navigate(`/account/${code}/addresses/${selectedAddressID}/verify`);
-  };
-
   const renderInlineActions = (address: TUsedAddress) => (
     <div className={style.inlineActions}>
       {address.addressType !== 'change' && (
-        <Button transparent inline className={style.linkAction} onClick={() => startVerifyFlow(address.addressID)}>
+        <Button transparent inline className={style.linkAction} onClick={() => verification.startVerifyFlow(address.addressID)}>
           <span className={style.linkActionLabel}>
             <Copy className={style.linkActionIcon} />
             {t('button.copy')} {t('addresses.detail.address')}
@@ -358,8 +271,8 @@ export const Addresses = ({ code, accounts }: TProps) => {
   };
 
   const renderVerifySkipSheet = () => {
-    const isSkipWarningStep = verifyState === 'skipWarning' || hasSkipDeviceVerificationQuery;
-    const isSkippedStep = verifyState === 'skipped';
+    const isSkipWarningStep = verification.verifyState === 'skipWarning' || verification.hasSkipDeviceVerificationQuery;
+    const isSkippedStep = verification.verifyState === 'skipped';
 
     if (!isSkipWarningStep && !isSkippedStep) {
       return null;
@@ -419,7 +332,7 @@ export const Addresses = ({ code, accounts }: TProps) => {
           <p className={style.sheetBody}>{t('addresses.skipVerifyQuestion')}</p>
 
           <div className={style.verifyDialogActions}>
-            <Button secondary className={style.skipVerifyConfirmButton} onClick={() => setVerifyState('skipped')}>
+            <Button secondary className={style.skipVerifyConfirmButton} onClick={verification.skipVerify}>
               {t('addresses.skipVerifyConfirm')}
             </Button>
             <Button
@@ -451,7 +364,7 @@ export const Addresses = ({ code, accounts }: TProps) => {
       return renderAddressNotFound();
     }
 
-    const isError = verifyState === 'error';
+    const isError = verification.verifyState === 'error';
 
     return (
       <Dialog
@@ -473,14 +386,11 @@ export const Addresses = ({ code, accounts }: TProps) => {
 
           {isError && (
             <div className={style.verifyDialogError}>
-              <Message type="error">{verifyError || t('addresses.verifyFailed')}</Message>
+              <Message type="error">{verification.verifyError || t('addresses.verifyFailed')}</Message>
               <div className={style.footerButtons}>
                 <Button
                   secondary
-                  onClick={() => {
-                    setVerifyState('idle');
-                    setVerifyAttempt(prev => prev + 1);
-                  }}
+                  onClick={verification.retryVerify}
                 >
                   {t('generic.retry')}
                 </Button>
@@ -496,7 +406,7 @@ export const Addresses = ({ code, accounts }: TProps) => {
   };
 
   const renderVerifyConnectFailedSheet = () => {
-    if (verifyState !== 'connectFailed') {
+    if (verification.verifyState !== 'connectFailed') {
       return null;
     }
     return (
@@ -508,15 +418,11 @@ export const Addresses = ({ code, accounts }: TProps) => {
         onClose={() => returnToList(selectedAddress?.addressID)}
       >
         <div className={style.verifyDialogContent}>
-          <Message type="error">{verifyError || t('addresses.verifyConnectFailed')}</Message>
+          <Message type="error">{verification.verifyError || t('addresses.verifyConnectFailed')}</Message>
           <div className={style.footerButtons}>
             <Button
               primary
-              onClick={() => {
-                setVerifyError(null);
-                setVerifyState('idle');
-                setVerifyAttempt(prev => prev + 1);
-              }}
+              onClick={verification.retryVerify}
             >
               {t('generic.retry')}
             </Button>
@@ -542,9 +448,9 @@ export const Addresses = ({ code, accounts }: TProps) => {
           {view === 'verify' && (
             <>
               {renderList(selectedAddress?.addressID || null)}
-              {(verifyState === 'skipWarning' || hasSkipDeviceVerificationQuery || verifyState === 'skipped') && renderVerifySkipSheet()}
-              {verifyState === 'connectFailed' && renderVerifyConnectFailedSheet()}
-              {(verifyState === 'verifying' || verifyState === 'error') && renderVerifyOnDeviceSheet()}
+              {(verification.verifyState === 'skipWarning' || verification.hasSkipDeviceVerificationQuery || verification.verifyState === 'skipped') && renderVerifySkipSheet()}
+              {verification.verifyState === 'connectFailed' && renderVerifyConnectFailedSheet()}
+              {(verification.verifyState === 'verifying' || verification.verifyState === 'error') && renderVerifyOnDeviceSheet()}
             </>
           )}
         </div>

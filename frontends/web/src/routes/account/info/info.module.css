@@ -212,10 +212,6 @@
         padding: var(--space-half);
     }
 
-    .infoContent {
-        width: 100%;
-    }
-
     .buttons {
         flex-direction: column-reverse;
         gap: var(--space-half);

@@ -844,6 +844,12 @@ func (account *Account) SignTypedMsg(
 // SignETHMessage signs a plain text message with the account's Ethereum address.
 // Returns the address used for signing and the signature (hex-encoded with 0x prefix).
 func (account *Account) SignETHMessage(message string) (string, string, error) {
+	if !account.isInitialized() {
+		return "", "", errp.New("account must be initialized")
+	}
+	if !account.Synced() {
+		return "", "", accounts.ErrSyncInProgress
+	}
 	if len(message) == 0 {
 		return "", "", errp.New("message cannot be empty")
 	}
@@ -851,6 +857,10 @@ func (account *Account) SignETHMessage(message string) (string, string, error) {
 	keystore, err := account.Config().ConnectKeystore()
 	if err != nil {
 		return "", "", err
+	}
+	if !keystore.CanSignMessage(account.Coin().Code()) {
+		return "", "", errp.Newf("The connected device or keystore cannot sign messages for %s",
+			account.Coin().Code())
 	}
 	signature, err := keystore.SignETHMessage([]byte(message), account.signingConfiguration.AbsoluteKeypath())
 	if err != nil {

@@ -99,9 +99,9 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
     const withExtendedPublicKey = !!message.withExtendedPublicKey;
     signBTCMessageUnusedAddress(
+      code,
       addressType,
-      withMessageSignature,
-      code)
+      withMessageSignature)
       .then(response => {
         signing = false;
         if (response.success) {

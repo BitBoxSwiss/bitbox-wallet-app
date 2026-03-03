@@ -459,9 +459,9 @@ type AddressSignResponse = {
 };
 
 export const signBTCMessageUnusedAddress = (
+  code: AccountCode,
   format: ScriptType | '',
   msg: string,
-  code: AccountCode,
 ): Promise<AddressSignResponse> => {
   return apiPost(`account/${code}/btc-sign-message-unused-address`, { format, msg });
 };

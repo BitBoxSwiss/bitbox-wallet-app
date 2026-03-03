@@ -1116,6 +1116,10 @@ func signBTCMessageWithAddress(
 //	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
 //	#3: is an optional error that could be generated during the execution of the function.
 func SignBTCMessageUnusedAddress(account accounts.Interface, message string, scriptType signing.ScriptType) (string, string, error) {
+	if len(message) == 0 {
+		return "", "", errp.New("message cannot be empty")
+	}
+
 	ks, err := getSignMessageKeystore(account)
 	if err != nil {
 		return "", "", err
@@ -1135,13 +1139,28 @@ func SignBTCMessageUnusedAddress(account accounts.Interface, message string, scr
 		err := errp.Newf("Unsupported format: %s", scriptType)
 		return "", "", err
 	}
-	addr := unused[signingConfigIdx].Addresses[0]
+	// Find the address list matching the requested script type. We cannot use
+	// signingConfigIdx directly because GetUnusedReceiveAddresses may skip
+	// subaccounts (e.g. for insured accounts), so the returned slice indices
+	// do not necessarily correspond to SigningConfigurations indices.
+	var addr accounts.Address
+	for _, addrList := range unused {
+		if addrList.ScriptType != nil && *addrList.ScriptType == scriptType {
+			if len(addrList.Addresses) > 0 {
+				addr = addrList.Addresses[0]
+			}
+			break
+		}
+	}
+	if addr == nil {
+		return "", "", errp.Newf("No unused address found for format: %s", scriptType)
+	}
 	return signBTCMessageWithAddress(
 		ks,
 		account,
 		message,
 		addr,
-		account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
+		scriptType,
 	)
 }
 
@@ -1159,6 +1178,9 @@ func SignBTCMessageUnusedAddress(account accounts.Interface, message string, scr
 func (account *Account) SignBTCMessageForAddress(scriptHashHex string, message string) (string, string, error) {
 	if !account.isInitialized() {
 		return "", "", errp.New("account must be initialized")
+	}
+	if !account.Synced() {
+		return "", "", accounts.ErrSyncInProgress
 	}
 
 	if len(scriptHashHex) == 0 {

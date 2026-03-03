@@ -152,6 +152,15 @@ export const isAmbiguousName = (
   return keystoreNames.filter(keystore => keystore.keystore.name === name).length > 1;
 };
 
+/** Matches `/account/<code>/addresses/<addressID>/verify`. */
+const ADDRESS_VERIFY_ROUTE_RE = /^\/account\/[^/]+\/addresses\/[^/]+\/verify$/;
+
+export const isAddressVerifyRoute = (pathname: string): boolean =>
+  ADDRESS_VERIFY_ROUTE_RE.test(pathname);
+
+/** Query param used to skip device verification on the address verify route. */
+export const SKIP_DEVICE_VERIFICATION_PARAM = 'skipDeviceVerification';
+
 export type TAccountCoinMap = {
   [code in CoinCode]?: TAccount[];
 };

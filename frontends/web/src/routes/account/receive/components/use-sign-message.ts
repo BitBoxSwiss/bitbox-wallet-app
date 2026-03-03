@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { AccountCode, ScriptType, TReceiveAddress } from '@/api/account';
@@ -28,8 +28,7 @@ type UseSignMessageReturn = {
   state: TSigningState;
   error: string | null;
   result: TSignatureResult | null;
-  isUnsupported: boolean;
-  isTaproot: boolean;
+  isTaprootAddress: boolean;
   handleSign: () => Promise<void>;
   reset: () => void;
 };
@@ -49,33 +48,40 @@ export const useSignMessage = ({
 
   const isTaproot = scriptType === 'p2tr';
 
+  const messageRef = useRef(message);
+  messageRef.current = message;
+  const signingRef = useRef(false);
+
   const handleSign = useCallback(async () => {
-    if (!address) {
+    if (!address || signingRef.current) {
       return;
     }
 
+    const currentMessage = messageRef.current;
+
     setError(null);
 
-    if (!message.trim()) {
+    if (!currentMessage.trim()) {
       setError(t('receive.signMessage.emptyMessage'));
       return;
     }
 
+    signingRef.current = true;
     setState('signing');
 
     try {
       const response = coinCode && isEthereumBased(coinCode)
-        ? await accountApi.signETHMessageForAddress(accountCode, message)
+        ? await accountApi.signETHMessageForAddress(accountCode, currentMessage)
         : await accountApi.signBTCMessageForAddress(
           accountCode,
           address.addressID,
-          message,
+          currentMessage,
         );
 
       if (response.success) {
         setResult({
           address: response.address,
-          message: message,
+          message: currentMessage,
           signature: response.signature,
         });
         setState('result');
@@ -96,8 +102,10 @@ export const useSignMessage = ({
     } catch (err) {
       setError(t('receive.signMessage.error'));
       setState('input');
+    } finally {
+      signingRef.current = false;
     }
-  }, [accountCode, address, coinCode, message, onClose, t]);
+  }, [accountCode, address, coinCode, onClose, t]);
 
   const reset = useCallback(() => {
     setMessage('');
@@ -112,8 +120,7 @@ export const useSignMessage = ({
     state,
     error,
     result,
-    isUnsupported: isTaproot,
-    isTaproot,
+    isTaprootAddress: isTaproot,
     handleSign,
     reset,
   };

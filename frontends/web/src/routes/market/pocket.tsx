@@ -157,9 +157,9 @@ export const Pocket = ({
     const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
     signBTCMessageUnusedAddress(
+      code,
       addressType,
-      withMessageSignature,
-      code)
+      withMessageSignature)
       .then(response => {
         signing = false;
         if (response.success) {

@@ -89,8 +89,7 @@ type TSignMessageInputViewProps = {
   addressType: number;
   availableScriptTypes: accountApi.ScriptType[] | undefined;
   handleAddressTypeChosen: (addressType: number) => void;
-  isUnsupported: boolean;
-  isTaproot: boolean;
+  isTaprootAddress: boolean;
   message: string;
   setMessage: (message: string) => void;
   error: string | null;
@@ -109,8 +108,7 @@ export const SignMessageInputView = ({
   addressType,
   availableScriptTypes,
   handleAddressTypeChosen,
-  isUnsupported,
-  isTaproot,
+  isTaprootAddress,
   message,
   setMessage,
   error,
@@ -140,9 +138,9 @@ export const SignMessageInputView = ({
         </div>
       )}
 
-      {isUnsupported ? (
+      {isTaprootAddress ? (
         <Message type="info">
-          {isTaproot ? t('receive.signMessage.unsupportedTaproot') : t('receive.signMessage.unsupportedLitecoin')}
+          {t('receive.signMessage.unsupportedTaproot')}
         </Message>
       ) : (
         <SignMessageMessageInput
@@ -172,7 +170,7 @@ export const SignMessageInputView = ({
         <Button
           primary
           onClick={handleSign}
-          disabled={!message.trim() || isUnsupported}
+          disabled={!message.trim() || isTaprootAddress}
         >
           {t('receive.signMessage.signButton')}
         </Button>

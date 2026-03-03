@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { connectKeystore } from '@/api/keystores';
 
 type TUseKeystoreConnectionParams = {
@@ -29,6 +29,14 @@ export const useKeystoreConnection = ({
   const [connected, setConnected] = useState<boolean>(false);
   const [connecting, setConnecting] = useState<boolean>(false);
 
+  // Use refs for callbacks to keep `connect` identity stable regardless of
+  // whether the caller provides inline arrow functions.
+  const onUserAbortRef = useRef(onUserAbort);
+  onUserAbortRef.current = onUserAbort;
+
+  const onErrorRef = useRef(onError);
+  onErrorRef.current = onError;
+
   const connect = useCallback(async (isCancelled?: () => boolean) => {
     if (!enabled || !rootFingerprint) {
       if (!isCancelled?.()) {
@@ -47,7 +55,7 @@ export const useKeystoreConnection = ({
 
       if (isUserAbort(connectResult.success, connectResult.errorCode)) {
         setConnected(false);
-        onUserAbort?.();
+        onUserAbortRef.current?.();
         return;
       }
 
@@ -55,14 +63,21 @@ export const useKeystoreConnection = ({
     } catch (err) {
       if (!isCancelled?.()) {
         setConnected(false);
-        onError?.(err);
+        onErrorRef.current?.(err);
       }
     } finally {
       if (!isCancelled?.()) {
         setConnecting(false);
       }
     }
-  }, [enabled, onError, onUserAbort, rootFingerprint]);
+  }, [enabled, rootFingerprint]);
+
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!enabled || !rootFingerprint) {
@@ -79,7 +94,7 @@ export const useKeystoreConnection = ({
   }, [connect, enabled, rootFingerprint]);
 
   const retry = useCallback(async () => {
-    await connect();
+    await connect(() => !mountedRef.current);
   }, [connect]);
 
   return {

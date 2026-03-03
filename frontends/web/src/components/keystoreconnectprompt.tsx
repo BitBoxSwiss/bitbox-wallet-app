@@ -13,6 +13,7 @@ import { useDarkmode } from '@/hooks/darkmode';
 import { UseBackButton } from '@/hooks/backbutton';
 import { runningInIOS } from '@/utils/env';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
+import { isAddressVerifyRoute, SKIP_DEVICE_VERIFICATION_PARAM } from '@/routes/account/utils';
 import styles from './keystoreconnectprompt.module.css';
 
 export const KeystoreConnectPrompt = () => {
@@ -22,7 +23,7 @@ export const KeystoreConnectPrompt = () => {
   const navigate = useNavigate();
 
   const [data, reset] = useSubscribeReset(syncConnectKeystore());
-  const isUsedAddressVerifyRoute = /^\/account\/[^/]+\/addresses\/[^/]+\/verify$/.test(location.pathname);
+  const isUsedAddressVerifyRoute = isAddressVerifyRoute(location.pathname);
 
   const cancelAndReset = () => {
     // This is needed to close the popup in case of timeout exception.
@@ -33,7 +34,7 @@ export const KeystoreConnectPrompt = () => {
   const skipDeviceVerification = () => {
     cancelAndReset();
     const params = new URLSearchParams(location.search);
-    params.set('skipDeviceVerification', '1');
+    params.set(SKIP_DEVICE_VERIFICATION_PARAM, '1');
     const search = params.toString();
     navigate({
       pathname: location.pathname,

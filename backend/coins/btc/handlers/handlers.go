@@ -817,15 +817,18 @@ type signMessageForAddressResponse struct {
 }
 
 func (handlers *Handlers) signMessageForAddressErrorResponse(err error) signMessageForAddressResponse {
-	if firmware.IsErrorAbort(err) || errp.Cause(err) == keystore.ErrSigningAborted {
+	if firmware.IsErrorAbort(err) || errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return signMessageForAddressResponse{Success: false, ErrorCode: errp.ErrUserAbort.Error()}
 	}
 	if errp.Cause(err) == backend.ErrWrongKeystore {
 		return signMessageForAddressResponse{Success: false, ErrorCode: backend.ErrWrongKeystore.Error()}
 	}
+	if errp.Cause(err) == accounts.ErrSyncInProgress {
+		return signMessageForAddressResponse{Success: false, ErrorCode: accounts.ErrSyncInProgress.Error()}
+	}
 
-	handlers.log.WithField("code", handlers.account.Config().Config.Code).Error(err)
-	return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}
+	handlers.log.WithField("code", handlers.account.Config().Config.Code).WithError(err).Error("unexpected error signing message")
+	return signMessageForAddressResponse{Success: false, ErrorMessage: "An unexpected error occurred."}
 }
 
 func (handlers *Handlers) postSignBTCMessageUnusedAddress(r *http.Request) (interface{}, error) {

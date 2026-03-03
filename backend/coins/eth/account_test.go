@@ -192,3 +192,46 @@ func TestMatchesAddress(t *testing.T) {
 		require.NoError(t, err)
 	})
 }
+
+func TestSignETHMessage(t *testing.T) {
+	acct := newAccount(t)
+	defer acct.Close()
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100)))
+	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
+
+	t.Run("empty message", func(t *testing.T) {
+		_, _, err := acct.SignETHMessage("")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "cannot be empty")
+	})
+
+	t.Run("keystore cannot sign", func(t *testing.T) {
+		acct.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+			return &keystoremock.KeystoreMock{
+				CanSignMessageFunc: func(code coin.Code) bool {
+					return false
+				},
+			}, nil
+		}
+		_, _, err := acct.SignETHMessage("hello")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "cannot sign messages")
+	})
+
+	t.Run("successful signing", func(t *testing.T) {
+		acct.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+			return &keystoremock.KeystoreMock{
+				CanSignMessageFunc: func(code coin.Code) bool {
+					return true
+				},
+				SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+					return []byte{0xde, 0xad, 0xbe, 0xef}, nil
+				},
+			}, nil
+		}
+		address, signature, err := acct.SignETHMessage("hello")
+		require.NoError(t, err)
+		assert.NotEmpty(t, address)
+		assert.True(t, len(signature) > 2 && signature[:2] == "0x")
+	})
+}

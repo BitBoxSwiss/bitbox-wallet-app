@@ -454,3 +454,30 @@ func TestVerifyAndSignBTCMessageSupportsChangeAddress(t *testing.T) {
 	require.Equal(t, changeAddress.AbsoluteKeypath(), signCalls[0].Keypath)
 	require.Equal(t, changeAddress.AccountConfiguration.ScriptType(), signCalls[0].ScriptType)
 }
+
+func TestSignBTCMessageForAddressEdgeCases(t *testing.T) {
+	account := mockAccount(t, nil)
+	require.NoError(t, account.Initialize())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
+
+	account.ensureAddresses()
+	unusedReceiveAddresses, err := account.subaccounts[0].receiveAddresses.GetUnused()
+	require.NoError(t, err)
+	validID := unusedReceiveAddresses[0].ID()
+
+	t.Run("empty scriptHashHex", func(t *testing.T) {
+		_, _, err := account.SignBTCMessageForAddress("", "Hello")
+		require.Error(t, err)
+	})
+
+	t.Run("empty message", func(t *testing.T) {
+		_, _, err := account.SignBTCMessageForAddress(validID, "")
+		require.Error(t, err)
+	})
+
+	t.Run("address not found", func(t *testing.T) {
+		_, _, err := account.SignBTCMessageForAddress("nonexistent-hash", "Hello")
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "not found")
+	})
+}

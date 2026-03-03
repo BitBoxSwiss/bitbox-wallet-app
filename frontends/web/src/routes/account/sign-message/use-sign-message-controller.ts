@@ -42,8 +42,7 @@ type TResult = {
   state: TSigningState;
   error: string | null;
   result: TSignatureResult | null;
-  isUnsupported: boolean;
-  isTaproot: boolean;
+  isTaprootAddress: boolean;
   handleSign: () => Promise<void>;
   reset: () => void;
   connectingKeystore: boolean;
@@ -73,7 +72,7 @@ export const useSignMessageController = ({
   const infoPath = `/account/${code}/info`;
   const backPath = isFixedAddressRoute ? listPath : infoPath;
 
-  const receiveAddresses = useLoad(isFixedAddressRoute ? null : accountApi.getReceiveAddressList(code));
+  const receiveAddresses = useLoad(isFixedAddressRoute ? null : accountApi.getReceiveAddressList(code), [code, isFixedAddressRoute]);
   const fixedAddressResponse = useLoad(
     isFixedAddressRoute ? () => accountApi.getUsedAddresses(code) : null,
     [code, fixedAddressReloadVersion, isFixedAddressRoute],
@@ -130,8 +129,7 @@ export const useSignMessageController = ({
     state,
     error,
     result,
-    isUnsupported,
-    isTaproot,
+    isTaprootAddress,
     handleSign,
     reset,
   } = useSignMessage({
@@ -166,21 +164,31 @@ export const useSignMessageController = ({
     ? (currentAddress ? 1 : 0)
     : (currentAddresses?.length || 0);
 
-  const previous = (event: SyntheticEvent) => {
+  const previous = useCallback((event: SyntheticEvent) => {
     event.preventDefault();
-    if (state !== 'signing' && activeIndex > 0) {
-      setActiveIndex(activeIndex - 1);
+    if (state !== 'signing') {
+      setActiveIndex(prev => {
+        if (prev > 0) {
+          return prev - 1;
+        }
+        return prev;
+      });
       reset();
     }
-  };
+  }, [state, reset]);
 
-  const next = (event: SyntheticEvent) => {
+  const next = useCallback((event: SyntheticEvent) => {
     event.preventDefault();
-    if (state !== 'signing' && activeIndex < availableAddressCount - 1) {
-      setActiveIndex(activeIndex + 1);
+    if (state !== 'signing') {
+      setActiveIndex(prev => {
+        if (prev < availableAddressCount - 1) {
+          return prev + 1;
+        }
+        return prev;
+      });
       reset();
     }
-  };
+  }, [state, reset, availableAddressCount]);
 
   const bypassConnectionGate = isFixedAddressRoute && availableAddressCount === 0;
   const address = currentAddress?.address ?? '';
@@ -209,8 +217,7 @@ export const useSignMessageController = ({
     state,
     error,
     result,
-    isUnsupported,
-    isTaproot,
+    isTaprootAddress,
     handleSign,
     reset,
     connectingKeystore,

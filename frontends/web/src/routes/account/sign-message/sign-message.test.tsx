@@ -30,6 +30,15 @@ const mockAccount: accountApi.TAccount = {
   blockExplorerTxPrefix: 'https://example.com/tx/',
 };
 
+const ethAccount: accountApi.TAccount = {
+  ...mockAccount,
+  coinCode: 'eth',
+  coinUnit: 'ETH',
+  coinName: 'Ethereum',
+  code: 'eth-account',
+  name: 'Ethereum Account',
+};
+
 const ltcAccount: accountApi.TAccount = {
   ...mockAccount,
   coinCode: 'ltc',
@@ -419,5 +428,48 @@ describe('routes/account/sign-message', () => {
     await screen.findByText('Message signing is not supported for Litecoin yet.');
     expect(screen.queryByPlaceholderText('Enter the message to sign')).not.toBeInTheDocument();
     expect(connectSpy).not.toHaveBeenCalled();
+  });
+
+  it('signs an ETH message using signETHMessageForAddress', async () => {
+    vi.spyOn(keystoresApi, 'connectKeystore').mockResolvedValue({ success: true });
+    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
+      {
+        scriptType: null,
+        addresses: [{ address: '0xAbC123def456', addressID: 'eth-address-id' }],
+      },
+    ]);
+    const btcSignSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress');
+    const ethSignSpy = vi.spyOn(accountApi, 'signETHMessageForAddress').mockResolvedValue({
+      success: true,
+      address: '0xAbC123def456',
+      signature: '0xethsignature',
+    });
+
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <SignMessage
+          accounts={[ethAccount]}
+          code={ethAccount.code}
+        />
+      </MemoryRouter>
+    );
+
+    await user.type(
+      await screen.findByPlaceholderText('Enter the message to sign'),
+      'eth sign test',
+    );
+    await user.click(screen.getByRole('button', { name: 'Sign on device' }));
+
+    await waitFor(() => {
+      expect(ethSignSpy).toHaveBeenCalledWith(
+        ethAccount.code,
+        'eth sign test',
+      );
+    });
+
+    expect(btcSignSpy).not.toHaveBeenCalled();
+    await screen.findByText('Message signed successfully.');
   });
 });

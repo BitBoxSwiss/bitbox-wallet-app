@@ -151,6 +151,12 @@ describe('utils/bitcoin coin helpers', () => {
 });
 
 describe('utils/isMessageSigningSupported', () => {
+  it('supports btc, tbtc and rbtc message signing', () => {
+    expect(isMessageSigningSupported('btc')).toBe(true);
+    expect(isMessageSigningSupported('tbtc')).toBe(true);
+    expect(isMessageSigningSupported('rbtc')).toBe(true);
+  });
+
   it('supports sepolia and eth message signing', () => {
     expect(isMessageSigningSupported('eth')).toBe(true);
     expect(isMessageSigningSupported('sepeth')).toBe(true);
