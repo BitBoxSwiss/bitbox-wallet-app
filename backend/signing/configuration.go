@@ -7,10 +7,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/benma/descriptors-go/descriptors"
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
+	"github.com/btcsuite/btcd/chaincfg"
 )
 
 // KeyInfo contains information about the key and where it is coming from.
@@ -65,6 +68,65 @@ func (ki *KeyInfo) UnmarshalJSON(bytes []byte) error {
 type BitcoinSimple struct {
 	KeyInfo    KeyInfo    `json:"keyInfo"`
 	ScriptType ScriptType `json:"scriptType"`
+}
+
+// Descriptor returns a descriptor for this configuration in the form
+// SCRIPT([fingerprint/path]xpub-or-tpub/<0;1>/*)#checksum.
+func (configuration *BitcoinSimple) Descriptor(net *chaincfg.Params) (string, error) {
+	if configuration == nil {
+		return "", errp.New("bitcoin configuration is nil")
+	}
+	if net == nil {
+		return "", errp.New("network is nil")
+	}
+	if configuration.KeyInfo.ExtendedPublicKey == nil {
+		return "", errp.New("extended public key is nil")
+	}
+	if configuration.KeyInfo.ExtendedPublicKey.IsPrivate() {
+		return "", errp.New("extended key must be public")
+	}
+	if len(configuration.KeyInfo.RootFingerprint) != 4 {
+		return "", errp.Newf(
+			"root fingerprint must be 4 bytes, got %d",
+			len(configuration.KeyInfo.RootFingerprint),
+		)
+	}
+
+	xpub, err := hdkeychain.NewKeyFromString(configuration.KeyInfo.ExtendedPublicKey.String())
+	if err != nil {
+		return "", errp.Wrap(err, "could not clone extended public key")
+	}
+	xpub.SetNet(net)
+
+	originPath := strings.TrimPrefix(configuration.KeyInfo.AbsoluteKeypath.Encode(), "m/")
+	keyOrigin := hex.EncodeToString(configuration.KeyInfo.RootFingerprint)
+	if originPath != "" {
+		keyOrigin += "/" + originPath
+	}
+	keyExpression := fmt.Sprintf("[%s]%s/<0;1>/*", keyOrigin, xpub.String())
+
+	var descriptor string
+	switch configuration.ScriptType {
+	case ScriptTypeP2PKH:
+		descriptor = fmt.Sprintf("pkh(%s)", keyExpression)
+	case ScriptTypeP2WPKHP2SH:
+		descriptor = fmt.Sprintf("sh(wpkh(%s))", keyExpression)
+	case ScriptTypeP2WPKH:
+		descriptor = fmt.Sprintf("wpkh(%s)", keyExpression)
+	case ScriptTypeP2TR:
+		descriptor = fmt.Sprintf("tr(%s)", keyExpression)
+	default:
+		return "", errp.Newf("unsupported script type: %s", configuration.ScriptType)
+	}
+	return addDescriptorChecksum(descriptor)
+}
+
+func addDescriptorChecksum(descriptor string) (string, error) {
+	descriptorWithChecksum, err := descriptors.NewDescriptor(descriptor)
+	if err != nil {
+		return "", errp.Wrap(err, "could not parse descriptor")
+	}
+	return descriptorWithChecksum.String(), nil
 }
 
 // EthereumSimple represents a simple (standard single-sig, no exotic signing methods) Ethereum
