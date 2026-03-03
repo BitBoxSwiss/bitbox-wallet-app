@@ -135,6 +135,7 @@ type TKeyInfo = {
 export type TBitcoinSimple = {
   keyInfo: TKeyInfo;
   scriptType: ScriptType;
+  descriptor: string;
 };
 
 export type TEthereumSimple = {
