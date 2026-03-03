@@ -437,7 +437,7 @@ export const Chart = ({
             color: darkmode ? '#1D1D1B' : '#F5F5F5',
           },
           fontSize: 11,
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
           textColor: darkmode ? '#F5F5F5' : '#1D1D1B',
         },
         leftPriceScale: {
