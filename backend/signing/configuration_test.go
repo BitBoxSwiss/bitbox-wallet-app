@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	descriptorsgo "github.com/benma/descriptors-go/descriptors"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/stretchr/testify/require"
@@ -211,6 +212,12 @@ func TestBitcoinSimpleDescriptorScriptTypes(t *testing.T) {
 			descriptor, err := cfg.Descriptor(&chaincfg.TestNet3Params)
 			require.NoError(t, err)
 			require.Equal(t, test.expectedDescriptor, descriptor)
+
+			descriptorNoChecksum, _, found := strings.Cut(descriptor, "#")
+			require.True(t, found)
+			descriptorFromDep, err := descriptorsgo.NewDescriptor(descriptorNoChecksum)
+			require.NoError(t, err)
+			require.Equal(t, descriptor, descriptorFromDep.String())
 		})
 	}
 }
