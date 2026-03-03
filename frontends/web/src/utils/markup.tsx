@@ -37,7 +37,7 @@ type TMultiMarkupProps = {
 
 /**
  * **<MultilineMarkup>** splits a text by newline and renders each
- * line with the `<SimmpleMarkup>` component.
+ * line with the `<SimpleMarkup>` component.
  */
 export const MultilineMarkup = ({ tagName, markup, withBreaks, ...props }: TMultiMarkupProps) => {
   return (

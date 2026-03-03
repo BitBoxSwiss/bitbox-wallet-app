@@ -7,10 +7,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
+	"github.com/btcsuite/btcd/chaincfg"
 )
 
 // KeyInfo contains information about the key and where it is coming from.
@@ -65,6 +67,135 @@ func (ki *KeyInfo) UnmarshalJSON(bytes []byte) error {
 type BitcoinSimple struct {
 	KeyInfo    KeyInfo    `json:"keyInfo"`
 	ScriptType ScriptType `json:"scriptType"`
+}
+
+const (
+	// Ported from Bitcoin Core DescriptorChecksum() input/checksum charsets:
+	// https://github.com/bitcoin/bitcoin/blob/v30.2/src/script/descriptor.cpp#L118-L127
+	descriptorInputCharset = "0123456789()[],'/*abcdefgh@:$%{}" +
+		"IJKLMNOPQRSTUVWXYZ&+-.;<=>?!^_|~" +
+		"ijklmnopqrstuvwxyzABCDEFGH`#\"\\ "
+	descriptorChecksumCharset = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
+)
+
+// Descriptor returns a descriptor for this configuration in the form
+// SCRIPT([fingerprint/path]xpub-or-tpub/<0;1>/*)#checksum.
+func (configuration *BitcoinSimple) Descriptor(net *chaincfg.Params) (string, error) {
+	if configuration == nil {
+		return "", errp.New("bitcoin configuration is nil")
+	}
+	if net == nil {
+		return "", errp.New("network is nil")
+	}
+	if configuration.KeyInfo.ExtendedPublicKey == nil {
+		return "", errp.New("extended public key is nil")
+	}
+	if configuration.KeyInfo.ExtendedPublicKey.IsPrivate() {
+		return "", errp.New("extended key must be public")
+	}
+	if len(configuration.KeyInfo.RootFingerprint) != 4 {
+		return "", errp.Newf(
+			"root fingerprint must be 4 bytes, got %d",
+			len(configuration.KeyInfo.RootFingerprint),
+		)
+	}
+
+	xpub, err := hdkeychain.NewKeyFromString(configuration.KeyInfo.ExtendedPublicKey.String())
+	if err != nil {
+		return "", errp.Wrap(err, "could not clone extended public key")
+	}
+	xpub.SetNet(net)
+
+	originPath := strings.TrimPrefix(configuration.KeyInfo.AbsoluteKeypath.Encode(), "m/")
+	keyOrigin := hex.EncodeToString(configuration.KeyInfo.RootFingerprint)
+	if originPath != "" {
+		keyOrigin += "/" + originPath
+	}
+	keyExpression := fmt.Sprintf("[%s]%s/<0;1>/*", keyOrigin, xpub.String())
+
+	var descriptor string
+	switch configuration.ScriptType {
+	case ScriptTypeP2PKH:
+		descriptor = fmt.Sprintf("pkh(%s)", keyExpression)
+	case ScriptTypeP2WPKHP2SH:
+		descriptor = fmt.Sprintf("sh(wpkh(%s))", keyExpression)
+	case ScriptTypeP2WPKH:
+		descriptor = fmt.Sprintf("wpkh(%s)", keyExpression)
+	case ScriptTypeP2TR:
+		descriptor = fmt.Sprintf("tr(%s)", keyExpression)
+	default:
+		return "", errp.Newf("unsupported script type: %s", configuration.ScriptType)
+	}
+	return addDescriptorChecksum(descriptor)
+}
+
+// Ported from Bitcoin Core PolyMod():
+// https://github.com/bitcoin/bitcoin/blob/v30.2/src/script/descriptor.cpp#L94-L104
+func descriptorPolyMod(checksum uint64, value int) uint64 {
+	c0 := checksum >> 35
+	checksum = ((checksum & 0x7ffffffff) << 5) ^ uint64(value)
+	if c0&1 != 0 {
+		checksum ^= 0xf5dee51989
+	}
+	if c0&2 != 0 {
+		checksum ^= 0xa9fdca3312
+	}
+	if c0&4 != 0 {
+		checksum ^= 0x1bab10e32d
+	}
+	if c0&8 != 0 {
+		checksum ^= 0x3706b1677a
+	}
+	if c0&16 != 0 {
+		checksum ^= 0x644d626ffd
+	}
+	return checksum
+}
+
+// Ported from Bitcoin Core DescriptorChecksum():
+// https://github.com/bitcoin/bitcoin/blob/v30.2/src/script/descriptor.cpp#L106-L151
+func descriptorChecksum(descriptor string) (string, error) {
+	checksum := uint64(1)
+	class := 0
+	classCount := 0
+	for i := 0; i < len(descriptor); i++ {
+		position := strings.IndexByte(descriptorInputCharset, descriptor[i])
+		if position == -1 {
+			return "", errp.New("invalid character in descriptor")
+		}
+		checksum = descriptorPolyMod(checksum, position&31)
+		class = class*3 + (position >> 5)
+		classCount++
+		if classCount == 3 {
+			checksum = descriptorPolyMod(checksum, class)
+			class = 0
+			classCount = 0
+		}
+	}
+	if classCount > 0 {
+		checksum = descriptorPolyMod(checksum, class)
+	}
+	for i := 0; i < 8; i++ {
+		checksum = descriptorPolyMod(checksum, 0)
+	}
+	checksum ^= 1
+
+	result := make([]byte, 8)
+	for i := 0; i < 8; i++ {
+		index := (checksum >> uint(5*(7-i))) & 31
+		result[i] = descriptorChecksumCharset[int(index)]
+	}
+	return string(result), nil
+}
+
+// Ported from Bitcoin Core AddChecksum():
+// https://github.com/bitcoin/bitcoin/blob/v30.2/src/script/descriptor.cpp#L153
+func addDescriptorChecksum(descriptor string) (string, error) {
+	checksum, err := descriptorChecksum(descriptor)
+	if err != nil {
+		return "", err
+	}
+	return descriptor + "#" + checksum, nil
 }
 
 // EthereumSimple represents a simple (standard single-sig, no exotic signing methods) Ethereum
