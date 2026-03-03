@@ -9,7 +9,7 @@ export const getMarketRegionCodes = (): Promise<string[]> => {
 
 export type TPaymentMethod = 'card' | 'bank-transfer' | 'bancontact' | 'sofort';
 
-export type TMarketDeal = {
+export type TMarketOffer = {
   fee: number;
   payment?: TPaymentMethod;
   isFast?: boolean;
@@ -19,32 +19,60 @@ export type TMarketDeal = {
 
 export type TVendorName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc' | 'bitrefill' | 'swapkit';
 
-export type TMarketDeals = {
+export type TOfferVendor = {
   vendorName: TVendorName;
-  deals: TMarketDeal[];
+  offers: TMarketOffer[];
 };
 
-export type TMarketDealsList = {
-  deals: TMarketDeals[];
-  success: true;
+export type TFeeModel = 'none' | 'dynamic' | 'range';
+
+export type TFeeRange = {
+  minPercent: number;
+  maxPercent: number;
 };
 
-export type TMarketError = {
-  success: false;
+export type TMinTradeAmount = {
+  amount: string;
+  currency: string;
+};
+
+export type TService = {
+  vendorName: TVendorName;
+  feeModel: TFeeModel;
+  feeRange?: TFeeRange;
+  minTradeAmount?: TMinTradeAmount;
+};
+
+export type TActionSection = {
+  success: boolean;
   errorCode?: 'coinNotSupported' | 'regionNotSupported';
-  errorMessage?: string;
+  offerVendors?: TOfferVendor[];
+  services?: TService[];
 };
 
-export type TMarketDealsResponse = TMarketDealsList | TMarketError;
+export type TMarketCatalog = {
+  buy: TActionSection;
+  sell: TActionSection;
+  spend: TActionSection;
+  swap: TActionSection;
+  otc: TActionSection;
+};
+
+export type TMarketCatalogResponse = {
+  success: true;
+  catalog: TMarketCatalog;
+} | {
+  success: false;
+  errorMessage: string;
+};
 
 export type TMarketAction = 'buy' | 'sell' | 'spend' | 'swap' | 'otc';
 
-export const getMarketDeals = (
-  action: TMarketAction,
+export const getMarketCatalog = (
   accountCode: AccountCode,
   region: string,
-): Promise<TMarketDealsResponse> => {
-  return apiGet(`market/deals/${action}/${accountCode}?region=${region}`);
+): Promise<TMarketCatalogResponse> => {
+  return apiGet(`market/catalog/${accountCode}?region=${region}`);
 };
 
 export type MoonpayBuyInfo = {

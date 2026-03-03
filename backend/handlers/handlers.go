@@ -231,7 +231,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/electrum/check", handlers.postElectrumCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/market/region-codes", handlers.getMarketRegionCodes).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/market/deals/{action}/{code}", handlers.getMarketDeals).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/market/catalog/{code}", handlers.getMarketCatalog).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/vendors/{code}", handlers.getMarketVendors).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/btcdirect/info/{action}/{code}", handlers.getMarketBtcDirectInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/quote", handlers.postSwapkitQuote).Methods("POST")
@@ -1210,44 +1210,31 @@ func (handlers *Handlers) getBitsuranceURL(r *http.Request) interface{} {
 
 	return bitsurance.WidgetURL(handlers.backend.DevServers(), lang)
 }
-func (handlers *Handlers) getMarketDeals(r *http.Request) interface{} {
-	type marketDealsList struct {
-		Deals   []*market.DealsList `json:"deals"`
-		Success bool                `json:"success"`
-	}
-	type errorResult struct {
-		ErrorCode    string `json:"errorCode,omitempty"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
-		Success      bool   `json:"success"`
+func (handlers *Handlers) getMarketCatalog(r *http.Request) interface{} {
+	type result struct {
+		Success      bool            `json:"success"`
+		Catalog      *market.Catalog `json:"catalog,omitempty"`
+		ErrorMessage string          `json:"errorMessage,omitempty"`
 	}
 
 	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
 		handlers.log.Error(err)
-		return errorResult{Success: false, ErrorMessage: err.Error()}
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 
 	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
 	if !accountValid {
 		handlers.log.Error("Account not valid")
-		return errorResult{Success: false, ErrorMessage: "Account not valid"}
-	}
-
-	action, err := market.ParseAction(mux.Vars(r)["action"])
-	if err != nil {
-		handlers.log.Error(err)
-		return errorResult{Success: false, ErrorMessage: err.Error()}
+		return result{Success: false, ErrorMessage: "Account not valid"}
 	}
 
 	regionCode := r.URL.Query().Get("region")
-	marketDealsLists, err := market.GetDeals(acct, regionCode, action, handlers.backend.HTTPClient())
-	if err != nil {
-		return errorResult{Success: false, ErrorCode: err.Error()}
-	}
+	catalog := market.GetCatalog(acct, regionCode, handlers.backend.HTTPClient())
 
-	return marketDealsList{
+	return result{
 		Success: true,
-		Deals:   marketDealsLists,
+		Catalog: catalog,
 	}
 }
 
