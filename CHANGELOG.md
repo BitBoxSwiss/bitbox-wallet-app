@@ -8,6 +8,7 @@
 - Send: enable rotating currencies in send window.
 - Show the fee's fiat value in send-to-self txs for consistency with others, and include the send-to-self amount in the left-side label
 - Ethereum WalletConnect: ensure deterministic signatures for typed messages
+- Bitcoin: display output descriptor in account details
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.

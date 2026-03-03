@@ -23,6 +23,7 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState(false);
+  const isTaproot = info.bitcoinSimple?.scriptType === 'p2tr';
 
   const getSimpleInfo = (): TBitcoinSimple | TEthereumSimple => {
     if (info.bitcoinSimple !== undefined) {
@@ -36,7 +37,7 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
   return (
     <div className={style.address}>
       <div className={style.qrCode}>
-        { bitcoinBased ? (
+        { (bitcoinBased && !isTaproot) ? (
           <QRCode
             data={config.keyInfo.xpub}
             size={220} />
@@ -68,7 +69,7 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
           <strong>{account.isToken ? 'Token' : 'Coin'}:</strong>
           <span>{account.coinName} ({account.coinUnit})</span>
         </div>
-        { bitcoinBased ? (
+        { (bitcoinBased && !isTaproot) ? (
           <div key="xpub" className={`${style.entry || ''} ${style.largeEntry || ''}`}>
             <strong className="m-right-half">
               {t('accountInfo.extendedPublicKey')}:
@@ -79,9 +80,21 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
               value={config.keyInfo.xpub} />
           </div>
         ) : null }
+        { info.bitcoinSimple ? (
+          <div key="descriptor" className={`${style.entry || ''} ${style.largeEntry || ''}`}>
+            <strong className="m-right-half">
+              Descriptor:
+            </strong>
+            <CopyableInput
+              className="flex-grow"
+              alignLeft
+              flexibleHeight
+              value={info.bitcoinSimple.descriptor} />
+          </div>
+        ) : null }
       </div>
       <div className={style.buttons}>
-        { bitcoinBased ? (
+        { (bitcoinBased && !isTaproot) ? (
           <Button className={style.verifyButton} primary disabled={verifying} onClick={async () => {
             setVerifying(true);
             try {
@@ -96,11 +109,11 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
           }>
             {t('accountInfo.verify')}
           </Button>
-        ) : (
+        ) : !bitcoinBased ? (
           <Button className={style.verifyButton} primary onClick={() => navigate(`/account/${code}/receive`)}>
             {t('receive.verify')}
           </Button>
-        ) }
+        ) : null}
         {children}
       </div>
     </div>
