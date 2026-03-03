@@ -28,6 +28,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -260,7 +261,54 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 }
 
 func (handlers *Handlers) getAccountInfo(*http.Request) (interface{}, error) {
-	return handlers.account.Info(), nil
+	type bitcoinSimpleInfo struct {
+		KeyInfo    signing.KeyInfo    `json:"keyInfo"`
+		ScriptType signing.ScriptType `json:"scriptType"`
+		Descriptor string             `json:"descriptor"`
+	}
+	type signingConfigurationInfo struct {
+		BitcoinSimple  *bitcoinSimpleInfo      `json:"bitcoinSimple,omitempty"`
+		EthereumSimple *signing.EthereumSimple `json:"ethereumSimple,omitempty"`
+	}
+	type accountInfo struct {
+		SigningConfigurations []signingConfigurationInfo `json:"signingConfigurations"`
+	}
+
+	info := handlers.account.Info()
+	if info == nil {
+		return nil, nil
+	}
+
+	var btcNet *chaincfg.Params
+	if btcCoin, ok := handlers.account.Coin().(*btc.Coin); ok {
+		btcNet = btcCoin.Net()
+	}
+
+	result := accountInfo{
+		SigningConfigurations: make([]signingConfigurationInfo, 0, len(info.SigningConfigurations)),
+	}
+	for _, cfg := range info.SigningConfigurations {
+		signingConfig := signingConfigurationInfo{}
+		if cfg.BitcoinSimple != nil {
+			if btcNet == nil {
+				return nil, errp.New("bitcoin network unavailable for bitcoin signing config")
+			}
+			descriptor, err := cfg.BitcoinSimple.Descriptor(btcNet)
+			if err != nil {
+				return nil, err
+			}
+			signingConfig.BitcoinSimple = &bitcoinSimpleInfo{
+				KeyInfo:    cfg.BitcoinSimple.KeyInfo,
+				ScriptType: cfg.BitcoinSimple.ScriptType,
+				Descriptor: descriptor,
+			}
+		}
+		if cfg.EthereumSimple != nil {
+			signingConfig.EthereumSimple = cfg.EthereumSimple
+		}
+		result.SigningConfigurations = append(result.SigningConfigurations, signingConfig)
+	}
+	return result, nil
 }
 
 func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
