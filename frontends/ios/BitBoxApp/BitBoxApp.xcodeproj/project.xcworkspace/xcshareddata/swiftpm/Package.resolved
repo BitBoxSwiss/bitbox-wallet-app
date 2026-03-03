@@ -1,0 +1,24 @@
+{
+  "originHash" : "1ecb9de618b108e0c3a9e89d5fea4a222140c4a95eb8a1793ce0af0b2c4d6d1d",
+  "pins" : [
+    {
+      "identity" : "breez-sdk-spark-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/breez/breez-sdk-spark-swift.git",
+      "state" : {
+        "revision" : "7c33ab9a71c2c098e05c35b0b2df2fb95762792a",
+        "version" : "0.8.2"
+      }
+    },
+    {
+      "identity" : "swift-bigint",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mkrd/Swift-BigInt.git",
+      "state" : {
+        "revision" : "b07e961f4c999671cf8c2dc80e740899e8946013",
+        "version" : "2.3.0"
+      }
+    }
+  ],
+  "version" : 3
+}

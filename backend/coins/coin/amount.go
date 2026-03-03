@@ -18,6 +18,16 @@ type Amount struct {
 	n *big.Int
 }
 
+// FormattedAmount with unit and conversions.
+type FormattedAmount struct {
+	Amount      string            `json:"amount"`
+	Unit        string            `json:"unit"`
+	Conversions map[string]string `json:"conversions"`
+	// Estimated flag is enabled if the Conversions map was expected to
+	// be calculated using historical rates, but latest rates have been used instead.
+	Estimated bool `json:"estimated"`
+}
+
 // SumAmounts returns the sum of two amounts.
 func SumAmounts(amount1, amount2 Amount) Amount {
 	var z big.Int

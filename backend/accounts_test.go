@@ -5,6 +5,7 @@ package backend
 import (
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"net/http"
 	"testing"
 	"time"
@@ -1508,4 +1509,20 @@ func TestCheckAccountUsed(t *testing.T) {
 		require.True(t, acct.Config().Config.Used)
 	}
 
+}
+
+func TestConvertBtcAmountToFiat(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+	b.ratesUpdater = rates.MockRateUpdater()
+	defer b.ratesUpdater.Stop()
+
+	// convert 1 BTC to USD
+	amount := coinpkg.NewAmountFromInt64(100000000)
+	expectedValue := big.NewRat(21, 1)
+
+	converted, err := b.convertBtcAmountToFiat(amount, rates.USD.String())
+	require.NoError(t, err)
+
+	require.Equal(t, expectedValue, converted)
 }

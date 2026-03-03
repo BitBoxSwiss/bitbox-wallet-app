@@ -34,6 +34,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bluetooth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/lightning"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
@@ -82,6 +83,7 @@ type Backend interface {
 	ReinitializeAccounts()
 	CheckForUpdateIgnoringErrors() *backend.UpdateFile
 	Banners() *banners.Banners
+	Lightning() *lightning.Lightning
 	Environment() backend.Environment
 	ExportLogs() error
 	ExportNotes() error
@@ -207,6 +209,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore/{rootFingerprint}/features", handlers.getKeystoreFeatures).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/keystore-name", handlers.getKeystoreName).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
@@ -225,6 +228,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus(coinpkg.CodeBTC)).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/btc/set-unit", handlers.postBtcFormatUnit).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/coins/btc/parse-external-amount", handlers.getBTCParseExternalAmount).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/btc/sats-amount", handlers.getBTCSatsAmount).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownload).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/electrum/check", handlers.postElectrumCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
@@ -249,6 +253,21 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChanged).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/export-log", handlers.postExportLog).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/config", handlers.getLightningConfigHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/lightning/config", handlers.postLightningConfigHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/activate-node", handlers.postLightningActivateNode).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/deactivate-node", handlers.postLightningDeactivateNode).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/node-info", handlers.getLightningNodeInfo).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/balance", handlers.getLightningBalance).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/list-payments", handlers.getLightningListPayments).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/open-channel-fee", handlers.getLightningOpenChannelFee).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/parse-input", handlers.getLightningParseInput).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/boarding-address", handlers.getLightningBoardingAddress).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/receive-payment", handlers.postLightningReceivePayment).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/send-payment", handlers.postLightningSendPayment).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/diagnostic-data", handlers.getLightningDiagnosticData).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/report-payment-failure", handlers.postLightningReportPaymentFailure).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/service-health-check", handlers.getLightningServiceHealthCheck).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/notes/export", handlers.postExportNotes).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/notes/import", handlers.postImportNotes).Methods("POST")
 
@@ -639,6 +658,27 @@ func (handlers *Handlers) getKeystoreFeatures(r *http.Request) interface{} {
 	}
 }
 
+func (handlers *Handlers) getKeystoreName(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		KeystoreName string `json:"keystoreName,omitempty"`
+	}
+
+	rootFingerprint := r.URL.Query().Get("rootFingerprint")
+	hexFingerprint, err := hex.DecodeString(rootFingerprint)
+	if err != nil {
+		return response{Success: false}
+	}
+	keystore, err := handlers.backend.Config().AccountsConfig().LookupKeystore(jsonp.HexBytes(hexFingerprint))
+	if err != nil {
+		return response{Success: false}
+	}
+	return response{
+		Success:      true,
+		KeystoreName: keystore.Name,
+	}
+}
+
 func (handlers *Handlers) getAccounts(*http.Request) interface{} {
 	persistedAccounts := handlers.backend.Config().AccountsConfig()
 
@@ -749,7 +789,6 @@ func (handlers *Handlers) getAccountsBalanceSummary(*http.Request) (interface{},
 		Success      bool                            `json:"success"`
 		TotalBalance *backend.AccountsBalanceSummary `json:"accountsBalanceSummary"`
 	}
-
 	totalBalance, err := handlers.backend.AccountsBalanceSummary()
 	if err != nil {
 		return response{Success: false}, nil
@@ -851,6 +890,45 @@ func (handlers *Handlers) postRegisterTestKeystore(r *http.Request) (interface{}
 func (handlers *Handlers) postDeregisterTestKeystore(*http.Request) interface{} {
 	handlers.backend.DeregisterKeystore()
 	return nil
+}
+
+// getBTCSatsAmount taks a sats parameter in input and returns a FormattedAmount
+// object with the fiat conversions.
+func (handlers *Handlers) getBTCSatsAmount(r *http.Request) interface{} {
+	type response struct {
+		Success bool                                   `json:"success"`
+		Amount  coinpkg.FormattedAmountWithConversions `json:"amount"`
+	}
+
+	satsAmount := r.URL.Query().Get("sats")
+	satsRat, valid := new(big.Rat).SetString(satsAmount)
+	if !valid {
+		return response{
+			Success: false,
+		}
+	}
+
+	btcCoin, err := handlers.backend.Coin(coinpkg.CodeBTC)
+	if err != nil {
+		handlers.log.WithError(err).Error("Failded getting coin " + coinpkg.CodeBTC)
+		return response{
+			Success: false,
+		}
+	}
+
+	coinAmount := btcCoin.SetAmount(coinpkg.Sat2Btc(satsRat), false)
+	return response{
+		Success: true,
+		Amount: coinpkg.FormattedAmountWithConversions{
+			Amount: btcCoin.FormatAmount(coinAmount, false),
+			Unit:   btcCoin.GetFormatUnit(false),
+			Conversions: coinpkg.Conversions(
+				coinAmount,
+				btcCoin,
+				false,
+				handlers.backend.RatesUpdater()),
+		},
+	}
 }
 
 func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) interface{} {
@@ -1520,6 +1598,91 @@ func (handlers *Handlers) postExportLog(r *http.Request) interface{} {
 		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	return result{Success: true}
+}
+
+type lightningAccountConfigWithoutMnemonic struct {
+	RootFingerprint jsonp.HexBytes     `json:"rootFingerprint"`
+	Code            accountsTypes.Code `json:"code"`
+	Number          uint16             `json:"num"`
+}
+
+type lightningConfigWithoutMnemonic struct {
+	Accounts []*lightningAccountConfigWithoutMnemonic `json:"accounts"`
+}
+
+func (handlers *Handlers) getLightningConfigHandler(_ *http.Request) interface{} {
+	lightningAccounts := handlers.backend.Config().LightningConfig().Accounts
+	accounts := make([]*lightningAccountConfigWithoutMnemonic, len(lightningAccounts))
+	for i, account := range lightningAccounts {
+		accounts[i] = &lightningAccountConfigWithoutMnemonic{
+			RootFingerprint: account.RootFingerprint,
+			Code:            account.Code,
+			Number:          account.Number,
+		}
+	}
+	return lightningConfigWithoutMnemonic{
+		Accounts: accounts,
+	}
+}
+
+func (handlers *Handlers) postLightningConfigHandler(r *http.Request) (interface{}, error) {
+	lightningConfig := config.LightningConfig{}
+	if err := json.NewDecoder(r.Body).Decode(&lightningConfig); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return nil, handlers.backend.Config().SetLightningConfig(lightningConfig)
+}
+
+func (handlers *Handlers) postLightningActivateNode(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostLightningActivateNode(r)
+}
+
+func (handlers *Handlers) postLightningDeactivateNode(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostLightningDeactivateNode(r)
+}
+
+func (handlers *Handlers) getLightningNodeInfo(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetNodeInfo(r)
+}
+
+func (handlers *Handlers) getLightningBalance(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetBalance(r)
+}
+
+func (handlers *Handlers) getLightningListPayments(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetListPayments(r)
+}
+
+func (handlers *Handlers) getLightningOpenChannelFee(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetOpenChannelFee(r)
+}
+
+func (handlers *Handlers) getLightningParseInput(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetParseInput(r)
+}
+
+func (handlers *Handlers) getLightningBoardingAddress(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetBoardingAddress(r)
+}
+
+func (handlers *Handlers) postLightningReceivePayment(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostReceivePayment(r)
+}
+
+func (handlers *Handlers) postLightningSendPayment(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostSendPayment(r)
+}
+
+func (handlers *Handlers) getLightningDiagnosticData(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetDiagnosticData(r)
+}
+
+func (handlers *Handlers) postLightningReportPaymentFailure(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostReportPaymentFailure(r)
+}
+
+func (handlers *Handlers) getLightningServiceHealthCheck(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetServiceHealthCheck(r)
 }
 
 func (handlers *Handlers) postExportNotes(r *http.Request) interface{} {

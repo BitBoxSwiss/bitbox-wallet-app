@@ -1,0 +1,178 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { UseDisableBackButton } from '@/hooks/backbutton';
+import { Header, Main } from '../../components/layout';
+import { View, ViewButtons, ViewContent, ViewHeader } from '../../components/view/view';
+import { MultilineMarkup, SimpleMarkup } from '../../utils/markup';
+import { Button, Checkbox } from '../../components/forms';
+import { PointToBitBox02 } from '../../components/icon';
+import { TKeystores, getKeystores, subscribeKeystores } from '../../api/keystores';
+import { unsubscribe } from '../../utils/subscriptions';
+import { postActivateNode } from '../../api/lightning';
+import { Status } from '../../components/status/status';
+import { route } from '../../utils/route';
+
+const CONTENT_MIN_HEIGHT = '38em';
+
+type TSteps = 'intro' | 'disclaimer' | 'connect' | 'wait' | 'success';
+
+export const LightningActivate = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [agree, setAgree] = useState(false);
+  const [keystores, setKeystores] = useState<TKeystores>();
+  const [step, setStep] = useState<TSteps>('intro');
+  const [setupError, setSetupError] = useState<string>();
+
+  const onStateChange = useCallback(async () => {
+    try {
+      const keystores = await getKeystores();
+      setKeystores(keystores);
+    } catch (err: any) {}
+  }, []);
+
+  useEffect(() => {
+    onStateChange();
+
+    const subscriptions = [subscribeKeystores(onStateChange)];
+    return () => unsubscribe(subscriptions);
+  }, [onStateChange]);
+
+  const activateNode = useCallback(async () => {
+    setStep('wait');
+
+    try {
+      await postActivateNode();
+      setStep('success');
+    } catch (err) {
+      setSetupError(String(err));
+      setStep('disclaimer');
+    }
+  }, []);
+
+  const waitForConnect = useCallback(() => {
+    if (keystores && keystores.length > 0) {
+      activateNode();
+    } else {
+      setStep('connect');
+    }
+  }, [keystores, activateNode]);
+
+  useEffect(() => {
+    if (step === 'connect' && keystores && keystores.length > 0) {
+      activateNode();
+    }
+  }, [keystores, step, activateNode]);
+
+  const renderSteps = () => {
+    switch (step) {
+    case 'intro':
+      return (
+        <View key="step-intro" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
+          <ViewHeader title={t('lightning.activate.intro.title')} />
+          <ViewContent>
+            <MultilineMarkup
+              tagName="p"
+              markup={t('lightning.activate.intro.content')}
+            />
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={() => setStep('disclaimer')}>
+              {t('button.next')}
+            </Button>
+            <Button secondary onClick={() => navigate(-1)}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
+    case 'disclaimer':
+      return (
+        <View key="step-disclaimer" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
+          <ViewHeader title={t('lightning.activate.disclaimer.title')} />
+          <ViewContent>
+            <MultilineMarkup
+              tagName="p"
+              markup={t('lightning.activate.disclaimer.content')}
+            />
+            <Checkbox
+              id="confirm"
+              onChange={() => setAgree(!agree)}
+              checked={agree}>
+              I have read the information above
+            </Checkbox>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary disabled={!agree} onClick={() => waitForConnect()}>
+              Create lightning wallet
+            </Button>
+            <Button secondary onClick={() => navigate(-1)}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
+    case 'connect':
+      return (
+        <View key="step-confirm" minHeight={CONTENT_MIN_HEIGHT} textCenter verticallyCentered>
+          <ViewHeader title={t('lightning.activate.connect.title')}>
+            <SimpleMarkup tagName="p" markup={t('lightning.activate.connect.content')} />
+          </ViewHeader>
+          <ViewContent>
+            <PointToBitBox02 />
+          </ViewContent>
+          <ViewButtons>
+            <Button secondary onClick={() => navigate(-1)}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
+    case 'wait':
+      return (
+        <View
+          key="step-create"
+          fullscreen
+          textCenter
+          verticallyCentered>
+          <UseDisableBackButton />
+          <ViewHeader title={t('lightning.activate.wait.title')}>
+            Confirm on your BitBox that you want to create a lightning wallet.
+          </ViewHeader>
+          <ViewContent minHeight="280px">
+            <PointToBitBox02 />
+          </ViewContent>
+          <ViewButtons>
+            {/* Empty ViewButtons to avoid layout shift changing between different views */}
+          </ViewButtons>
+        </View>
+      );
+    case 'success':
+      return (
+        <View fitContent textCenter verticallyCentered>
+          <ViewContent withIcon="success">
+            <p>{t('lightning.activate.success.message')}</p>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={() => route('/lightning')}>
+              {t('button.done')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
+    }
+  };
+
+  return (
+    <Main>
+      <Status dismissible="" type="warning" hidden={!setupError}>
+        {setupError}
+      </Status>
+      <Header title={t('lightning.activate.title')} />
+      {renderSteps()}
+    </Main>
+  );
+};

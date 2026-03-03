@@ -21,7 +21,7 @@ export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 
 
 export type ERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 'eth-erc20-link' | 'eth-erc20-bat' | 'eth-erc20-mkr' | 'eth-erc20-zrx' | 'eth-erc20-wbtc' | 'eth-erc20-paxg' | 'eth-erc20-dai0x6b17';
 
-export type CoinCode = NativeCoinCode | ERC20CoinCode;
+export type CoinCode = NativeCoinCode | ERC20CoinCode | 'lightning';
 
 export type FiatWithDisplayName = {
   currency: Fiat;

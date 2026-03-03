@@ -6,5 +6,5 @@ export { Radio } from './radio';
 export { Field } from './field';
 export { Input } from './input';
 export { NumberInput } from './input-number';
-export { Label } from './label';
+export { Label, OptionalLabel } from './label';
 export { Select } from './select';

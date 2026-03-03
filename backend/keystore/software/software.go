@@ -89,6 +89,16 @@ func (keystore *Keystore) RootFingerprint() ([]byte, error) {
 	return fingerprint, nil
 }
 
+// DeterministicEntropy implements keystore.Keystore.
+func (keystore *Keystore) DeterministicEntropy() ([]byte, error) {
+	return nil, errp.New("deterministic entropy not supported by software keystore")
+}
+
+// SupportsDeterministicEntropy implements keystore.Keystore.
+func (keystore *Keystore) SupportsDeterministicEntropy() bool {
+	return false
+}
+
 // Configuration implements keystore.Keystore.
 func (keystore *Keystore) Configuration() *signing.Configuration {
 	return nil

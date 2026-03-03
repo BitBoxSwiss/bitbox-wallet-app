@@ -312,6 +312,22 @@ func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
 		}
 	}
 
+	// Add lightning balance to BTC totals when lightning is enabled.
+	lightningConfig := backend.Config().LightningConfig()
+	if lightningConfig.LightningEnabled() {
+		lightningBalance, err := backend.lightning.Balance()
+		if err != nil {
+			return nil, err
+		}
+		availableBalance := lightningBalance.Available().BigInt()
+		if bitcoinBalance, exists := totalCoinsBalances[coinpkg.CodeBTC]; exists {
+			bitcoinBalance.Add(bitcoinBalance, availableBalance)
+		} else {
+			totalCoinsBalances[coinpkg.CodeBTC] = availableBalance
+			sortedCoins = append([]coinpkg.Code{coinpkg.CodeBTC}, sortedCoins...)
+		}
+	}
+
 	for _, coinCode := range sortedCoins {
 		coin, err := backend.Coin(coinCode)
 		if err != nil {
@@ -403,6 +419,29 @@ func (backend *Backend) keystoresBalance() (map[string]KeystoreBalance, error) {
 			return nil, err
 		}
 
+		// Add lightning balance to the matching keystore totals when lightning is enabled.
+		lightningConfig := backend.Config().LightningConfig()
+		if lightningConfig.LightningEnabled() && len(lightningConfig.Accounts) > 0 {
+			lightningConfigRootFingerprint := hex.EncodeToString(lightningConfig.Accounts[0].RootFingerprint)
+			if lightningConfigRootFingerprint == rootFingerprint {
+				lightningBalance, err := backend.lightning.Balance()
+				if err != nil {
+					return nil, err
+				}
+				lightningBalanceFiat, err := backend.convertBtcAmountToFiat(lightningBalance.Available(), fiatUnit)
+				if err != nil {
+					return nil, err
+				}
+				keystoreTotalBalance.Add(keystoreTotalBalance, lightningBalanceFiat)
+				lightningBalanceInt := lightningBalance.Available().BigInt()
+				if btcBalance, exists := keystoreCoinsBalance[coinpkg.CodeBTC]; exists {
+					btcBalance.Add(btcBalance, lightningBalanceInt)
+				} else {
+					keystoreCoinsBalance[coinpkg.CodeBTC] = lightningBalanceInt
+				}
+			}
+		}
+
 		keystoreCoinsAmount := AmountsByCoin{}
 		for coinCode, coinBalance := range keystoreCoinsBalance {
 			coinAmount := coinpkg.NewAmount(coinBalance)
@@ -428,6 +467,31 @@ func (backend *Backend) keystoresBalance() (map[string]KeystoreBalance, error) {
 		}
 	}
 	return keystoreBalanceMap, nil
+}
+
+// Converts bitcoin amount to fiat.
+func (backend *Backend) convertBtcAmountToFiat(amount coinpkg.Amount, fiat string) (*big.Rat, error) {
+	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
+	if err != nil {
+		return nil, err
+	}
+	coinDecimals := new(big.Int).Exp(
+		big.NewInt(10),
+		big.NewInt(int64(btcCoin.Decimals(false))),
+		nil,
+	)
+	price, err := backend.RatesUpdater().LatestPriceForPair(btcCoin.Unit(false), fiat)
+	if err != nil {
+		return nil, err
+	}
+	fiatValue := new(big.Rat).Mul(
+		new(big.Rat).SetFrac(
+			amount.BigInt(),
+			coinDecimals,
+		),
+		new(big.Rat).SetFloat64(price),
+	)
+	return fiatValue, nil
 }
 
 // AccountsBalanceSummary holds the total balance for each coin and of each keystore.
