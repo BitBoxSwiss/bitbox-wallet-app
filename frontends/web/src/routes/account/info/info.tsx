@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useLoad, useSync } from '@/hooks/api';
 import { getInfo, TAccount, AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions, TSigningConfiguration } from '@/api/account';
-import { findAccount } from '@/routes/account/utils';
+import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { Header } from '@/components/layout';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
 import { Message } from '@/components/message/message';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
-import { OutlinedQRCode, OutlinedUpload } from '@/components/icon';
+import { OutlinedQRCode, OutlinedUnorderedList, OutlinedUpload } from '@/components/icon';
 import { alertUser } from '@/components/alert/Alert';
 import { statusChanged } from '@/api/accountsync';
 import style from './info.module.css';
@@ -25,6 +26,7 @@ export const Info = ({
   code,
 }: TProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const info = useLoad(getInfo(code));
   const [viewXPub, setViewXPub] = useState<number>(0);
   const [showXPub, setShowXPub] = useState<boolean>(false);
@@ -84,6 +86,8 @@ export const Info = ({
 
   const xpubType = xpubTypes[(safeViewXPub + 1) % numberOfXPubs];
 
+  const isBtcOnly = isBitcoinOnly(account.coinCode);
+
   // Menu view
   if (!showXPub) {
     return (
@@ -110,6 +114,16 @@ export const Info = ({
                     <span>{t('accountInfo.viewAccountDetails')}</span>
                   </div>
                 </ActionableItem>
+                {isBtcOnly && (
+                  <ActionableItem
+                    onClick={() => navigate(`/account/${code}/addresses`)}
+                  >
+                    <div className={style.actionItem}>
+                      <OutlinedUnorderedList className={style.actionIcon} aria-hidden alt="" />
+                      <span>{t('accountInfo.usedAddresses')}</span>
+                    </div>
+                  </ActionableItem>
+                )}
               </div>
               <div className={style.footerButtons}>
                 <BackButton to={`/account/${code}`} replace={true} enableEsc>

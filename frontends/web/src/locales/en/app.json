@@ -33,6 +33,7 @@
     "scriptType": "Script type",
     "taproot": "The Taproot extended public key is not shown to protect from accidental misuse, as raw formats for this script type are not widely supported. If you want to view this key, connect your device to wallet software that supports the output descriptor format.",
     "title": "Account information",
+    "usedAddresses": "View used addresses",
     "verify": "Verify on device",
     "viewAccountDetails": "View account details",
     "xpubTypeChangeBtn": {
@@ -76,6 +77,34 @@
       "title": "Account added"
     },
     "title": "Add account"
+  },
+  "addresses": {
+    "detail": {
+      "address": "Address"
+    },
+    "empty": "No addresses have been used yet.",
+    "emptyFiltered": "No addresses match your filters.",
+    "filter": {
+      "changeAddresses": "Change addresses",
+      "receiveAddresses": "Receive addresses"
+    },
+    "listDescriptionPrefix": "This page shows all addresses used with account",
+    "loadFailed": "Could not load used addresses.",
+    "loadNotSupported": "Used addresses are not available for this account type.",
+    "loadSyncInProgress": "Used addresses are still syncing. Please try again shortly.",
+    "notFound": "Address not found.",
+    "searchPlaceholder": "Search address",
+    "skipDeviceVerification": "Skip device verification",
+    "skipVerifyBody": "Not verifying the address on the device can result in copying an address that doesn't belong to your BitBox.",
+    "skipVerifyConfirm": "Yes, skip verification",
+    "skipVerifyQuestion": "Are you sure you want to proceed?",
+    "skipVerifyTitle": "Skip device verification?",
+    "skipVerifyWarning": "Warning",
+    "title": "Used addresses",
+    "unknown": "Unknown",
+    "unverifiedAddressWarning": "This address has not been verified on the device.",
+    "verifyConnectFailed": "Could not connect to the selected device.",
+    "verifyFailed": "Address verification failed."
   },
   "aopp": {
     "addressRequest": "{{host}} is requesting a receiving address.",
