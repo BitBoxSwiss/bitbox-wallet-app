@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { ScriptType, signBTCMessageUnusedAddress } from '@/api/account';
 import { getInfo } from '@/api/account';
 import { Header } from '@/components/layout';
@@ -26,13 +26,13 @@ type TProps = {
 export const BitsuranceWidget = ({ code }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { config } = useConfig();
 
   const iframeURL = useLoad(getBitsuranceURL);
-  const config = useLoad(getConfig);
   const accountInfo = useLoad(getInfo(code));
 
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(!!config?.frontend?.skipBitsuranceDisclaimer);
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(Boolean((config?.frontend as { skipBitsuranceDisclaimer?: unknown } | undefined)?.skipBitsuranceDisclaimer));
   const signingRef = useRef(false);
 
   useEffect(() => {

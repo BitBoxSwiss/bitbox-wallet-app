@@ -6,7 +6,7 @@ import { TAccount } from '@/api/account';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { getBitrefillHelpLink, getBitrefillLimitsLink } from '@/routes/market/bitrefill-guide';
 import { Button, Checkbox } from '@/components/forms';
-import { setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { A } from '../anchor/anchor';
 import style from './terms.module.css';
 
@@ -32,12 +32,12 @@ export const getBitrefillPrivacyLink = () => {
   return 'https://www.bitrefill.com/privacy/?hl=' + hl;
 };
 
-const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
-  setConfig({ frontend: { skipBitrefillWidgetDisclaimer: e.target.checked } });
-};
-
 export const BitrefillTerms = ({ account, onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
+  const { setConfig } = useConfig();
+  const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
+    setConfig({ frontend: { skipBitrefillWidgetDisclaimer: e.target.checked } });
+  };
 
   const isBitcoin = isBitcoinOnly(account.coinCode);
   return (
