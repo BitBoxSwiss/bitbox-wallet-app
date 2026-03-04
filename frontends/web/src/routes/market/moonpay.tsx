@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useEffect, createRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
@@ -13,6 +12,7 @@ import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { MoonpayTerms } from '@/components/terms/moonpay-terms';
+import { useVendorIframeShell } from '@/hooks/vendor-iframe';
 import style from './iframe.module.css';
 
 type TProps = {
@@ -22,42 +22,22 @@ type TProps = {
 
 export const Moonpay = ({ accounts, code }: TProps) => {
   const { t } = useTranslation();
-  const [agreedTerms, setAgreedTerms] = useState(false);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const [height, setHeight] = useState(0);
   const { isDarkMode } = useDarkmode();
 
   const config = useLoad(getConfig);
   const moonpay = useLoad(getMoonpayBuyInfo(code));
 
   const account = findAccount(accounts, code);
-  const ref = createRef<HTMLDivElement>();
-  let resizeTimerID: any;
-
-  useEffect(() => {
-    if (config) {
-      setAgreedTerms(config.frontend.skipMoonpayDisclaimer);
-    }
-  }, [config]);
-
-  useEffect(() => {
-    onResize();
-    window.addEventListener('resize', onResize);
-
-    return () => window.removeEventListener('resize', onResize);
+  const {
+    agreedTerms,
+    setAgreedTerms,
+    iframeLoaded,
+    onIframeLoad,
+    containerRef,
+    height,
+  } = useVendorIframeShell({
+    agreedByConfig: !!config?.frontend?.skipMoonpayDisclaimer,
   });
-
-  const onResize = () => {
-    if (resizeTimerID) {
-      clearTimeout(resizeTimerID);
-    }
-    resizeTimerID = setTimeout(() => {
-      if (!ref.current) {
-        return;
-      }
-      setHeight(ref.current.offsetHeight);
-    }, 200);
-  };
 
   if (!account || !config) {
     return null;
@@ -77,7 +57,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
               </h2>
             } />
           </div>
-          <div ref={ref} className={style.container}>
+          <div ref={containerRef} className={style.container}>
             { !agreedTerms ? (
               <MoonpayTerms
                 account={account}
@@ -90,8 +70,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
                 { moonpay && (
                   <iframe
                     onLoad={() => {
-                      setIframeLoaded(true);
-                      onResize();
+                      onIframeLoad();
                     }}
                     title="Moonpay"
                     width="100%"
