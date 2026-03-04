@@ -97,7 +97,7 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
   let recvAdd: string;
   await test.step('Grab receive address', async () => {
     await page.getByRole('link', { name: 'Bitcoin Regtest Bitcoin' }).click();
-    await page.getByRole('button', { name: 'Receive RBTC' }).click();
+    await page.getByRole('button', { name: 'Receive Bitcoin' }).click();
     // The simulator auto-confirms address verification and closes the dialog too fast for UI reads.
     recvAdd = await getReceiveAddress(page, host, servewalletPort);
     console.log(`Receive address: ${recvAdd}`);
@@ -127,7 +127,7 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
     await page.goto('/#/account-summary');
     await page.getByRole('link', { name: 'Bitcoin Regtest 2' }).click();
 
-    await page.getByRole('button', { name: 'Receive RBTC' }).click();
+    await page.getByRole('button', { name: 'Receive Bitcoin' }).click();
     // Same workaround here to avoid flaky reads from the auto-closing verify dialog.
     recvAdd = await getReceiveAddress(page, host, servewalletPort);
     expect(recvAdd).toContain('bcrt1');

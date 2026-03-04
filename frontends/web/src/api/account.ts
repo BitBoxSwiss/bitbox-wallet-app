@@ -458,6 +458,47 @@ type AddressSignResponse = {
   errorCode?: 'userAbort' | 'wrongKeystore';
 };
 
-export const signAddress = (format: ScriptType | '', msg: string, code: AccountCode): Promise<AddressSignResponse> => {
-  return apiPost(`account/${code}/sign-address`, { format, msg, code });
+export const signBTCMessageUnusedAddress = (
+  code: AccountCode,
+  format: ScriptType | '',
+  msg: string,
+): Promise<AddressSignResponse> => {
+  return apiPost(`account/${code}/btc-sign-message-unused-address`, { format, msg });
+};
+
+export const signBTCMessageForAddress = (
+  code: AccountCode,
+  scriptHashHex: string,
+  msg: string,
+): Promise<AddressSignResponse> => {
+  return apiPost(`account/${code}/btc-sign-message-for-address`, { scriptHashHex, msg });
+};
+
+export const signETHMessageForAddress = (
+  code: AccountCode,
+  msg: string,
+): Promise<AddressSignResponse> => {
+  return apiPost(`account/${code}/eth-sign-message-for-address`, { msg });
+};
+
+export type TUsedAddress = {
+  address: string;
+  addressID: string;
+  scriptType: ScriptType | null;
+  addressType: 'receive' | 'change';
+  lastUsed: string | null;
+  totalReceived: TAmountWithConversions;
+  transactionCount: number;
+};
+
+export type TUsedAddressesResponse = {
+  success: true;
+  addresses: TUsedAddress[];
+} | {
+  success: false;
+  errorCode?: 'syncInProgress' | 'notSupported' | 'loadFailed';
+};
+
+export const getUsedAddresses = (code: AccountCode): Promise<TUsedAddressesResponse> => {
+  return apiGet(`account/${code}/used-addresses`);
 };
