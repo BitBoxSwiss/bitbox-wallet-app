@@ -11,6 +11,7 @@ import (
 	"sort"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -65,6 +66,16 @@ func (sa subaccounts) signingConfigurations() signing.Configurations {
 	}
 	return result
 }
+
+// UsedAddressType indicates which chain an address belongs to in a unified account.
+type UsedAddressType string
+
+const (
+	// UsedAddressTypeReceive identifies addresses from the receive chain.
+	UsedAddressTypeReceive UsedAddressType = "receive"
+	// UsedAddressTypeChange identifies addresses from the change chain.
+	UsedAddressTypeChange UsedAddressType = "change"
+)
 
 // Account is a account whose addresses are derived from an xpub.
 type Account struct {
@@ -750,7 +761,129 @@ func (account *Account) GetUnusedReceiveAddresses() ([]accounts.AddressList, err
 	return addresses, nil
 }
 
-// VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
+// UsedAddress holds information about a used wallet address.
+type UsedAddress struct {
+	Address     string
+	AddressID   string
+	AddressType UsedAddressType
+	LastUsed    *time.Time
+}
+
+func (account *Account) lookupAddressByID(
+	addressID addresses.AddressID,
+) (*addresses.AccountAddress, UsedAddressType) {
+	for _, subacc := range account.subaccounts {
+		if addr := subacc.receiveAddresses.LookupByAddressID(addressID); addr != nil {
+			return addr, UsedAddressTypeReceive
+		}
+		if addr := subacc.changeAddresses.LookupByAddressID(addressID); addr != nil {
+			return addr, UsedAddressTypeChange
+		}
+	}
+	return nil, ""
+}
+
+// GetUsedAddresses returns all used wallet addresses from confirmed transaction history.
+// Returns addresses sorted by most recently used first.
+func (account *Account) GetUsedAddresses() ([]UsedAddress, error) {
+	if !account.isInitialized() {
+		return nil, errp.New("uninitialized")
+	}
+	if account.fatalError.Load() {
+		return nil, errp.New("can't call GetUsedAddresses() after a fatal error")
+	}
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
+
+	type sortableUsedAddress struct {
+		addr           UsedAddress
+		lastUsedHeight int
+	}
+	usedAddressesByID := make(map[addresses.AddressID]*sortableUsedAddress)
+
+	_, err := transactions.DBView(account.db, func(dbTx transactions.DBTxInterface) (struct{}, error) {
+		txHashes, err := dbTx.Transactions()
+		if err != nil {
+			return struct{}{}, err
+		}
+
+		for _, txHash := range txHashes {
+			txInfo, err := dbTx.TxInfo(txHash)
+			if err != nil {
+				return struct{}{}, err
+			}
+			if txInfo == nil || txInfo.Height <= 0 || txInfo.Tx == nil {
+				continue
+			}
+
+			for scriptHashHex := range txInfo.Addresses {
+				addressID := addresses.AddressID(scriptHashHex)
+				addr, addressType := account.lookupAddressByID(addressID)
+				if addr == nil {
+					continue
+				}
+				if _, exists := usedAddressesByID[addressID]; !exists {
+					usedAddressesByID[addressID] = &sortableUsedAddress{
+						addr: UsedAddress{
+							Address:     addr.EncodeForHumans(),
+							AddressID:   addr.ID(),
+							AddressType: addressType,
+						},
+					}
+				}
+				info := usedAddressesByID[addressID]
+
+				if txInfo.HeaderTimestamp != nil &&
+					(info.addr.LastUsed == nil || txInfo.HeaderTimestamp.After(*info.addr.LastUsed)) {
+					copyTimestamp := *txInfo.HeaderTimestamp
+					info.addr.LastUsed = &copyTimestamp
+				}
+				if txInfo.Height > info.lastUsedHeight {
+					info.lastUsedHeight = txInfo.Height
+				}
+			}
+		}
+
+		return struct{}{}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	sortableList := make([]sortableUsedAddress, 0, len(usedAddressesByID))
+	for _, info := range usedAddressesByID {
+		sortableList = append(sortableList, *info)
+	}
+
+	// Sort by timestamp first, then by block height as fallback.
+	sort.Slice(sortableList, func(i, j int) bool {
+		left, right := sortableList[i], sortableList[j]
+		switch {
+		case left.addr.LastUsed != nil && right.addr.LastUsed != nil:
+			if !left.addr.LastUsed.Equal(*right.addr.LastUsed) {
+				return left.addr.LastUsed.After(*right.addr.LastUsed)
+			}
+		case left.addr.LastUsed != nil:
+			return true
+		case right.addr.LastUsed != nil:
+			return false
+		}
+		if left.lastUsedHeight != right.lastUsedHeight {
+			return left.lastUsedHeight > right.lastUsedHeight
+		}
+		return left.addr.AddressID < right.addr.AddressID
+	})
+
+	result := make([]UsedAddress, len(sortableList))
+	for i, s := range sortableList {
+		result[i] = s.addr
+	}
+
+	return result, nil
+}
+
+// VerifyAddress verifies a wallet address on a keystore. Returns false, nil if no secure output
 // exists.
 func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if !account.isInitialized() {
@@ -765,15 +898,8 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 		return false, err
 	}
 
-	lookupAddressID := addresses.AddressID(addressID)
-	var address *addresses.AccountAddress
-	for _, subacc := range account.subaccounts {
-		if addr := subacc.receiveAddresses.LookupByAddressID(lookupAddressID); addr != nil {
-			address = addr
-			break
-		}
-	}
-	if address == nil {
+	address, addressType := account.lookupAddressByID(addresses.AddressID(addressID))
+	if address == nil || addressType != UsedAddressTypeReceive {
 		return false, errp.New("unknown address not found")
 	}
 	canVerifyAddress, _, err := keystore.CanVerifyAddress(account.Coin())
@@ -906,12 +1032,8 @@ func (account *Account) VerifyExtendedPublicKey(signingConfigIndex int) (bool, e
 // IsChange returns true if there is an address corresponding to the provided address ID in our
 // accounts change address chain. It returns false if no address can be found.
 func (account *Account) IsChange(addressID addresses.AddressID) bool {
-	for _, subacc := range account.subaccounts {
-		if subacc.changeAddresses.LookupByAddressID(addressID) != nil {
-			return true
-		}
-	}
-	return false
+	_, addressType := account.lookupAddressByID(addressID)
+	return addressType == UsedAddressTypeChange
 }
 
 // SignBTCAddress returns an unused address and makes the user sign a message to prove ownership.

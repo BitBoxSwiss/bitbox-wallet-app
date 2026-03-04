@@ -3,6 +3,7 @@
 import { ReactNode, createElement } from 'react';
 import { IWalletKit } from '@reown/walletkit';
 import { ArbitrumLogo, OptimismLogo, BaseLogo, ETHLogo } from '@/components/icon';
+import { truncateMiddle } from '@/utils/truncate';
 
 type TSupportedChainDetail = {
   [key: string]: { name: string; icon: ReactNode };
@@ -52,6 +53,8 @@ export const getAddressFromEIPString = (address: string) => {
   return parts.length > 2 ? parts[2] : '';
 };
 
+export const truncateAddress = (address: string) =>
+  truncateMiddle(address, 6, 6);
 export const getTopicFromURI = (wcURI: string) => {
   try {
     // Split the URI by ':'

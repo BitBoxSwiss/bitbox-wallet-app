@@ -224,15 +224,8 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 // AddressByID returns the address in the account with the given address ID. Returns nil if the
 // address does not exist in the account.
 func (account *Account) AddressByID(addressID addresses.AddressID) *addresses.AccountAddress {
-	for _, subacc := range account.subaccounts {
-		if address := subacc.receiveAddresses.LookupByAddressID(addressID); address != nil {
-			return address
-		}
-		if address := subacc.changeAddresses.LookupByAddressID(addressID); address != nil {
-			return address
-		}
-	}
-	return nil
+	address, _ := account.lookupAddressByID(addressID)
+	return address
 }
 
 // SendTx implements accounts.Interface.
