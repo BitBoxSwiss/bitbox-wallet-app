@@ -77,6 +77,7 @@ import qrCodeDarkSVG from './assets/icons/qr-dark.svg';
 import qrCodeLightSVG from './assets/icons/qr-light.svg';
 import outlinedUploadDarkSVG from './assets/icons/outlined-upload-dark.svg';
 import outlinedUploadLightSVG from './assets/icons/outlined-upload-light.svg';
+import outlinedUnorderedListSVG from './assets/icons/outlined-unordered-list.svg';
 import shieldSVG from './assets/icons/shield.svg';
 import shieldGreySVG from './assets/icons/shield-gray.svg';
 import syncSVG from './assets/icons/sync.svg';
@@ -183,6 +184,7 @@ export const OptimismLogo = (props: ImgProps) => (<img src={optimismColorSVG} dr
 export const OrangeDot = (props: ImgProps) => (<img src={orangeDotSVG} draggable={false} {...props} />);
 export const OutlinedUploadDark = (props: ImgProps) => (<img src={outlinedUploadDarkSVG} draggable={false} {...props} />);
 export const OutlinedUploadLight = (props: ImgProps) => (<img src={outlinedUploadLightSVG} draggable={false} {...props} />);
+export const OutlinedUnorderedList = (props: ImgProps) => (<img src={outlinedUnorderedListSVG} draggable={false} {...props} />);
 export const WalletConnectDark = (props: ImgProps) => (<img src={walletConnectDarkSVG} draggable={false} {...props} />);
 export const WalletConnectLight = (props: ImgProps) => (<img src={walletConnectLightSVG} draggable={false} {...props} />);
 export const WalletConnectDefaultLogo = (props: ImgProps) => (<img src={walletConnectDefaultSVG} draggable={false} {...props} />);
