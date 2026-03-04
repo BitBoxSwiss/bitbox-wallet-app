@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode, useEffect, useState } from 'react';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from './ConfigProvider';
 import { AppContext } from './AppContext';
 import { useLoad } from '@/hooks/api';
 import { useDefault } from '@/hooks/default';
@@ -19,6 +19,7 @@ type TProps = {
 };
 
 export const AppProvider = ({ children }: TProps) => {
+  const { config, setConfig } = useConfig();
   const nativeLocale = i18nextFormat(useDefault(useLoad(getNativeLocale), 'de-CH'));
   const isTesting = useDefault(useLoad(getTesting), false);
   const isOnline = useSync(getOnline, subscribeOnline);
@@ -54,19 +55,18 @@ export const AppProvider = ({ children }: TProps) => {
   }, [activeSidebar, isMobile, orientation]);
 
   useEffect(() => {
-    getConfig().then(({ frontend }) => {
-      if (frontend) {
-        if (frontend.guideShown !== undefined) {
-          setGuideShown(frontend.guideShown);
-        }
-        if (frontend.hideAmounts !== undefined) {
-          setHideAmounts(frontend.hideAmounts);
-        }
-      } else {
-        setGuideShown(true);
+    const frontend = config?.frontend;
+    if (frontend && typeof frontend === 'object') {
+      if (frontend.guideShown !== undefined) {
+        setGuideShown(Boolean(frontend.guideShown));
       }
-    });
-  }, []);
+      if (frontend.hideAmounts !== undefined) {
+        setHideAmounts(Boolean(frontend.hideAmounts));
+      }
+    } else {
+      setGuideShown(true);
+    }
+  }, [config]);
 
   return (
     <AppContext.Provider

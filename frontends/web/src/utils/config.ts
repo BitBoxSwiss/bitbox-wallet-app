@@ -1,40 +1,42 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { apiGet, apiPost } from '@/utils/request';
+import { getConfig as apiGetConfig, setConfig as apiSetConfig, type TConfig } from '@/api/config';
 
-type TConfig = {
-  backend?: unknown;
-  frontend?: unknown;
-};
+let pendingConfig: Partial<TConfig> = {};
 
-let pendingConfig: TConfig = {};
-
-/**
- * get current configs
- * i.e. await getConfig()
- * returns a promise with backend and frontend configs
- */
-export const getConfig = (): Promise<any> => {
-  return apiGet('config');
+const normalizeConfig = (raw?: Partial<TConfig>): TConfig => {
+  const backend = (raw?.backend && typeof raw.backend === 'object'
+    ? { ...raw.backend }
+    : {}) as Readonly<Record<string, unknown>>;
+  const frontend = (raw?.frontend && typeof raw.frontend === 'object'
+    ? { ...raw.frontend }
+    : {}) as Readonly<Record<string, unknown>>;
+  return { backend, frontend };
 };
 
 /**
- * expects an object with a backend or frontend config
- * i.e. await setConfig({ frontend: { language }})
- * returns a promise and passes the new config
+ * Fetch current config from the backend.
  */
-export const setConfig = (object: TConfig) => {
+export const getConfig = (): Promise<TConfig> => {
+  return apiGetConfig().then(normalizeConfig);
+};
+
+/**
+ * Merge partial config with current, POST to backend, return new config.
+ * Returns the locally merged config object. It does not refetch the config from the backend.
+ */
+export const setConfig = (object: Partial<TConfig>): Promise<TConfig> => {
   return getConfig()
-    .then((currentConfig = {}) => {
-      const nextConfig = Object.assign(currentConfig, {
+    .then((currentConfig) => {
+      const nextConfig = {
         backend: Object.assign({}, currentConfig.backend, pendingConfig.backend, object.backend),
         frontend: Object.assign({}, currentConfig.frontend, pendingConfig.frontend, object.frontend)
-      });
+      };
       pendingConfig = nextConfig;
-      return apiPost('config', nextConfig)
+      return apiSetConfig(nextConfig)
         .then(() => {
           pendingConfig = {};
-          return nextConfig;
+          return nextConfig as TConfig;
         });
     });
 };
