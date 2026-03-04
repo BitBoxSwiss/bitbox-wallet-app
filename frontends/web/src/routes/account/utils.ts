@@ -50,6 +50,20 @@ export const isEthereumBased = (coinCode: CoinCode): boolean => {
   return coinCode === 'eth' || coinCode === 'sepeth' || coinCode.startsWith('eth-erc20-');
 };
 
+export const getAddressURIPrefix = (coinCode?: CoinCode): string => {
+  switch (coinCode) {
+  case 'btc':
+  case 'tbtc':
+  case 'rbtc':
+    return 'bitcoin:';
+  case 'ltc':
+  case 'tltc':
+    return 'litecoin:';
+  default:
+    return '';
+  }
+};
+
 export const getCoinCode = (coinCode: CoinCode): CoinCode | undefined => {
   switch (coinCode) {
   case 'btc':
@@ -137,3 +151,12 @@ export const getAccountsPerCoin = (accounts: TAccount[]): TAccountCoinMap => {
     return accountPerCoin;
   }, {});
 };
+
+/** Matches `/account/<code>/addresses/<addressID>/verify`. */
+const ADDRESS_VERIFY_ROUTE_RE = /^\/account\/[^/]+\/addresses\/[^/]+\/verify$/;
+
+export const isAddressVerifyRoute = (pathname: string): boolean =>
+  ADDRESS_VERIFY_ROUTE_RE.test(pathname);
+
+/** Query param used to skip device verification on the address verify route. */
+export const SKIP_DEVICE_VERIFICATION_PARAM = 'skipDeviceVerification';
