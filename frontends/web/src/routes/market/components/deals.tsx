@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import * as marketAPI from '@/api/market';
-import { Button } from '@/components/forms/button';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { getBTCDirectOTCLink, TInfoContentProps, TPaymentFee } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { Message } from '@/components/message/message';
@@ -125,12 +125,11 @@ export const Deals = ({
       {marketDealsResponse?.success && (
         <div className={style.buttonsContainer}>
           {showBackButton && (
-            <Button
+            <BackButton
               className={style.buttonBack}
-              secondary
               onClick={() => navigate('/market/info')}>
               {t('button.back')}
-            </Button>
+            </BackButton>
           )}
         </div>
       )}
