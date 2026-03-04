@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { ChangeEvent } from 'react';
 import { Button, Checkbox } from '@/components/forms';
-import { setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { A } from '@/components/anchor/anchor';
 import style from './terms.module.css';
 import { SimpleMarkup } from '@/utils/markup';
@@ -14,6 +14,7 @@ type TProps = {
 
 export const PocketTerms = ({ onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
+  const { setConfig } = useConfig();
   const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
     setConfig({ frontend: { skipPocketDisclaimer: e.target.checked } });
   };

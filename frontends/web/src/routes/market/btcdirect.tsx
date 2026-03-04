@@ -10,7 +10,7 @@ import { AccountCode, TAccount, proposeTx, sendTx, TTxInput } from '@/api/accoun
 import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { getURLOrigin } from '@/utils/url';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -42,6 +42,7 @@ export const BTCDirect = ({
   code,
 }: TProps) => {
   const { i18n, t } = useTranslation();
+  const { config } = useConfig();
   const { isDevServers } = useContext(AppContext);
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
@@ -50,11 +51,9 @@ export const BTCDirect = ({
 
   const [blocking, setBlocking] = useState(false);
 
-  const config = useLoad(getConfig);
-
   const account = findAccount(accounts, code);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(!!config?.frontend?.skipBTCDirectWidgetDisclaimer);
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(Boolean((config?.frontend as { skipBTCDirectWidgetDisclaimer?: unknown } | undefined)?.skipBTCDirectWidgetDisclaimer));
 
   const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
     const {
