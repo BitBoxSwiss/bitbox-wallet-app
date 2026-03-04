@@ -65,3 +65,15 @@ func TestFixTrailingZeroes(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, tip)
 }
+
+func TestInvalidFileSize(t *testing.T) {
+	f, err := os.CreateTemp(t.TempDir(), "headersdb")
+	require.NoError(t, err)
+	filename := f.Name()
+	_, err = f.Write([]byte{1})
+	require.NoError(t, err)
+	require.NoError(t, f.Close())
+
+	_, err = NewDB(filename, log)
+	require.Error(t, err)
+}
