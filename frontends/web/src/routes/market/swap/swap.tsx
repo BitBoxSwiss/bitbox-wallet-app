@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getBalance, TBalance, type AccountCode, type TAccount } from '@/api/account';
+import { getSwapQuote, type TSwapQuoteRoute } from '@/api/swap';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { SubTitle } from '@/components/title';
@@ -24,7 +25,10 @@ type Props = {
   code: AccountCode;
 };
 
-const fetchBlance = async (code: AccountCode) => {
+const QUOTE_DEBOUNCE_MS = 300;
+const FALLBACK_FETCH_ERROR = 'Unable to fetch quotes right now. Please try again.';
+
+const fetchBalance = async (code: AccountCode) => {
   const response = await getBalance(code);
   if (response.success) {
     return response.balance;
@@ -42,17 +46,34 @@ export const Swap = ({
   const { btcUnit } = useContext(RatesContext);
 
   // Send
-  const [sellAccountCode, setSellAccountCode] = useState<string>(code);
+  const [sellAccountCode, setSellAccountCode] = useState<AccountCode>(code);
   const [sellAmount, setSellAmount] = useState<string>('');
   const [maxSellAmount, setMaxSellAmount] = useState<TBalance | undefined>();
 
   // Receive
-  const [buyAccountCode, setBuyAccountCode] = useState<string>();
+  const [buyAccountCode, setBuyAccountCode] = useState<AccountCode | undefined>();
   const [expectedOutput, setExpectedOutput] = useState<string>('');
 
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
-
   const [canFlip, setCanFlip] = useState<boolean>(false);
+
+  const [routes, setRoutes] = useState<TSwapQuoteRoute[]>([]);
+  const [selectedRouteId, setSelectedRouteId] = useState<string | undefined>();
+  const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
+  const [routeError, setRouteError] = useState<string | undefined>();
+
+  const fromAccount = useMemo(
+    () => accounts.find(account => account.code === sellAccountCode),
+    [accounts, sellAccountCode],
+  );
+  const toAccount = useMemo(
+    () => accounts.find(account => account.code === buyAccountCode),
+    [accounts, buyAccountCode],
+  );
+  const selectedRoute = useMemo(
+    () => routes.find(route => route.routeId === selectedRouteId),
+    [routes, selectedRouteId],
+  );
 
   // enable flip button
   useEffect(() => {
@@ -61,6 +82,13 @@ export const Swap = ({
       && sellAccountCode !== undefined
     );
   }, [buyAccountCode, sellAccountCode]);
+
+  const clearQuoteState = (error?: string) => {
+    setRoutes([]);
+    setSelectedRouteId(undefined);
+    setExpectedOutput('');
+    setRouteError(error);
+  };
 
   // flips sell and buy account
   const handleFlipAccounts = () => {
@@ -75,12 +103,83 @@ export const Swap = ({
   // update max swappable amount (total coins of the account)
   useEffect(() => {
     if (sellAccountCode) {
-      fetchBlance(sellAccountCode).then(setMaxSellAmount);
+      fetchBalance(sellAccountCode).then(setMaxSellAmount);
     }
   }, [sellAccountCode]);
 
-  // not used yet, but loggin so we dont get a TS error
-  console.log(setExpectedOutput);
+  useEffect(() => {
+    let isCancelled = false;
+    const sellCoinCode = fromAccount?.coinCode;
+    const buyCoinCode = toAccount?.coinCode;
+    const amount = Number(sellAmount);
+
+    if (
+      !sellCoinCode
+      || !buyCoinCode
+      || !sellAmount
+      || Number.isNaN(amount)
+      || amount <= 0
+      || sellAccountCode === buyAccountCode
+    ) {
+      clearQuoteState();
+      setIsFetchingRoutes(false);
+      return;
+    }
+
+    setIsFetchingRoutes(true);
+    setRouteError(undefined);
+
+    const fetchRoutes = async () => {
+      try {
+        const response = await getSwapQuote({
+          buyCoinCode,
+          sellAmount,
+          sellCoinCode,
+        });
+        if (isCancelled) {
+          return;
+        }
+        const nextRoutes = response.success ? response.quote.routes : [];
+        if (nextRoutes.length > 0) {
+          setRoutes(nextRoutes);
+          const firstRouteId = nextRoutes[0]?.routeId;
+          setSelectedRouteId(currentRouteId => (
+            nextRoutes.some(route => route.routeId === currentRouteId)
+              ? currentRouteId
+              : firstRouteId
+          ));
+          return;
+        }
+        clearQuoteState(
+          response.success
+            ? 'no route found'
+            : response.errorMessage || 'Some unexpected error occurred.',
+        );
+      } catch (error: unknown) {
+        if (isCancelled) {
+          return;
+        }
+        clearQuoteState(typeof error === 'string' && error ? error : FALLBACK_FETCH_ERROR);
+      } finally {
+        if (!isCancelled) {
+          setIsFetchingRoutes(false);
+        }
+      }
+    };
+
+    const timeoutId = window.setTimeout(() => {
+      fetchRoutes();
+    }, QUOTE_DEBOUNCE_MS);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [fromAccount?.coinCode, sellAccountCode, sellAmount, toAccount?.coinCode, buyAccountCode]);
+
+  useEffect(() => {
+    setExpectedOutput(selectedRoute?.expectedBuyAmount || '');
+  }, [selectedRoute]);
 
   const handleConfirm = () => {
     // TODO: add api call to confirm a swap on the device
@@ -156,10 +255,17 @@ export const Swap = ({
                 onChangeAccountCode={setBuyAccountCode}
                 value={expectedOutput}
               />
-              <SwapServiceSelector />
+              <SwapServiceSelector
+                buyUnit={toAccount?.coinUnit}
+                error={routeError}
+                isLoading={isFetchingRoutes}
+                onChangeRouteId={setSelectedRouteId}
+                routes={routes}
+                selectedRouteId={selectedRouteId}
+              />
             </ViewContent>
             <ViewButtons>
-              <Button primary onClick={handleConfirm}>
+              <Button primary disabled={!selectedRoute} onClick={handleConfirm}>
                 {t('generic.swap')}
               </Button>
               <BackButton>

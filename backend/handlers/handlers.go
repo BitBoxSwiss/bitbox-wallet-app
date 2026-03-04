@@ -1710,34 +1710,39 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 
 func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	type result struct {
-		Success bool                   `json:"success"`
-		Error   string                 `json:"error,omitempty"`
-		Quote   *swapkit.QuoteResponse `json:"quote,omitempty"`
+		Success      bool                   `json:"success"`
+		ErrorCode    errp.ErrorCode         `json:"errorCode,omitempty"`
+		ErrorMessage string                 `json:"errorMessage,omitempty"`
+		Quote        *swapkit.QuoteResponse `json:"quote,omitempty"`
 	}
-
-	var request swapkit.QuoteRequest
-
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return result{Success: false}
-	}
-
-	s := swapkit.NewClient("0722e09f-9d3f-4817-a870-069848d03ee9")
-	request.Providers = []string{"NEAR"}
-
-	quoteResponse, err := s.Quote(context.Background(), &request)
-	if err != nil {
+	errorResult := func(code errp.ErrorCode, message string) result {
 		return result{
-			Success: false,
-			Error:   err.Error(),
+			Success:      false,
+			ErrorCode:    code,
+			ErrorMessage: message,
 		}
 	}
 
-	res := result{
-		Success: quoteResponse.Error != "",
-		Error:   quoteResponse.Error, // Surface the response error to the top-level
+	var request struct {
+		SellCoinCode string `json:"sellCoinCode"`
+		BuyCoinCode  string `json:"buyCoinCode"`
+		SellAmount   string `json:"sellAmount"`
 	}
-	if res.Success {
-		res.Quote = quoteResponse
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return errorResult(swapkit.ErrInvalidRequest, "Request body is required and must be a valid JSON object.")
 	}
-	return res
+	quoteResponse, quoteError := swapkit.NewQuoteFromCoinCode(
+		context.Background(),
+		request.SellCoinCode,
+		request.BuyCoinCode,
+		request.SellAmount,
+	)
+	if quoteError != nil {
+		return errorResult(quoteError.ErrorCode, quoteError.Message)
+	}
+	return result{
+		Success: true,
+		Quote:   quoteResponse,
+	}
 }
