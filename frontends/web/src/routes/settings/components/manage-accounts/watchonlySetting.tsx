@@ -6,7 +6,7 @@ import { Toggle } from '@/components/toggle/toggle';
 import * as backendAPI from '@/api/backend';
 import * as accountAPI from '@/api/account';
 import { useLoad } from '@/hooks/api';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { Label } from '@/components/forms';
 import { EnableRememberWalletDialog } from '@/routes/settings/components/manage-accounts/dialogs/enableRememberWalletDialog';
 import { DisableRememberWalletDialog } from '@/routes/settings/components/manage-accounts/dialogs/disableRememberWalletDialog';
@@ -18,6 +18,7 @@ type Props = {
 
 export const WatchonlySetting = ({ keystore }: Props) => {
   const { t } = useTranslation();
+  const { getConfig } = useConfig();
   const [disabled, setDisabled] = useState<boolean>(false);
   const [watchonly, setWatchonly] = useState<boolean>();
   const [warningDialogOpen, setWarningDialogOpen] = useState(false);

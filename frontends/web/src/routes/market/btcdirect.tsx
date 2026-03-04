@@ -10,7 +10,7 @@ import { AccountCode, TAccount, proposeTx, sendTx, TTxInput } from '@/api/accoun
 import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { getURLOrigin } from '@/utils/url';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -41,6 +41,7 @@ export const BTCDirect = ({
   code,
 }: TProps) => {
   const { i18n, t } = useTranslation();
+  const { getConfig } = useConfig();
   const { isDevServers } = useContext(AppContext);
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();

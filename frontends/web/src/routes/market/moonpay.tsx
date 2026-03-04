@@ -6,7 +6,7 @@ import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { AccountCode, TAccount } from '@/api/account';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { getMoonpayBuyInfo } from '@/api/market';
 import { MarketGuide } from './guide';
 import { Header } from '@/components/layout';
@@ -22,6 +22,7 @@ type TProps = {
 
 export const Moonpay = ({ accounts, code }: TProps) => {
   const { t } = useTranslation();
+  const { getConfig } = useConfig();
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [height, setHeight] = useState(0);

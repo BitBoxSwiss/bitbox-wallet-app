@@ -13,7 +13,7 @@ import { ExternalLinkWhite, ExternalLinkBlack, Businessman } from '@/components/
 import { useDarkmode } from '@/hooks/darkmode';
 import { A } from '@/components/anchor/anchor';
 import { InfoButton } from '@/components/infobutton/infobutton';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { VendorDeals } from '@/routes/market/components/vendor-deals';
 import style from './deals.module.css';
@@ -36,6 +36,7 @@ export const Deals = ({
   setInfo,
 }: TProps) => {
   const { t } = useTranslation();
+  const { getConfig } = useConfig();
   const { isDarkMode } = useDarkmode();
 
   const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);

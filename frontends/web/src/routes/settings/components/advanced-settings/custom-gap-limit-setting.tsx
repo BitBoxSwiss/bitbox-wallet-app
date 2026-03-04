@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button, Input } from '@/components/forms';
-import { setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import type { TBackendConfig, TConfig } from '@/routes/settings/advanced-settings';
 import { Message } from '@/components/message/message';
 import { useMediaQuery } from '@/hooks/mediaquery';
@@ -17,6 +17,7 @@ type TProps = {
 
 export const CustomGapLimitSettings = ({ backendConfig, onChangeConfig }: TProps) => {
   const { t } = useTranslation();
+  const { setConfig } = useConfig();
   const [showDialog, setShowDialog] = useState(false);
   const isMobile = useMediaQuery('(max-width: 768px)');
 

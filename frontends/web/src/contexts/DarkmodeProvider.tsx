@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState, useEffect, ReactNode, useCallback } from 'react';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from './ConfigProvider';
 import { setDarkTheme, detectDarkTheme } from '@/api/darktheme';
 import { runningInAndroid } from '@/utils/env';
 import { useMediaQuery } from '@/hooks/mediaquery';
@@ -12,6 +12,7 @@ type TProps = {
 };
 
 export const DarkModeProvider = ({ children }: TProps) => {
+  const { getConfig, setConfig } = useConfig();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const androidPrefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
@@ -42,7 +43,7 @@ export const DarkModeProvider = ({ children }: TProps) => {
         }
       })
       .catch(console.error);
-  }, [androidPrefersDarkMode]);
+  }, [androidPrefersDarkMode, getConfig]);
 
   useEffect(() => {
     setAppTheme();

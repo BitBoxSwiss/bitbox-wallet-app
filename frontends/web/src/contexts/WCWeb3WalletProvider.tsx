@@ -6,13 +6,14 @@ import { WCWeb3WalletContext } from './WCWeb3WalletContext';
 import { IWalletKit } from '@reown/walletkit';
 import { getTopicFromURI, pairingHasEverBeenRejected } from '@/utils/walletconnect';
 import { useLoad } from '@/hooks/api';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from './ConfigProvider';
 
 type TProps = {
   children: ReactNode;
 };
 
 export const WCWeb3WalletProvider = ({ children }: TProps) => {
+  const { getConfig, setConfig } = useConfig();
   const { t } = useTranslation();
   const [web3wallet, setWeb3wallet] = useState<IWalletKit>();
   const [isWalletInitialized, setIsWalletInitialized] = useState(false);

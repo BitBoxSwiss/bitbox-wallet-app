@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode, useEffect, useState } from 'react';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from './ConfigProvider';
 import { AppContext } from './AppContext';
 import { useLoad } from '@/hooks/api';
 import { useDefault } from '@/hooks/default';
@@ -19,6 +19,7 @@ type TProps = {
 };
 
 export const AppProvider = ({ children }: TProps) => {
+  const { getConfig, setConfig } = useConfig();
   const nativeLocale = i18nextFormat(useDefault(useLoad(getNativeLocale), 'de-CH'));
   const isTesting = useDefault(useLoad(getTesting), false);
   const isOnline = useSync(getOnline, subscribeOnline);
@@ -66,7 +67,7 @@ export const AppProvider = ({ children }: TProps) => {
         setGuideShown(true);
       }
     });
-  }, []);
+  }, [getConfig]);
 
   return (
     <AppContext.Provider

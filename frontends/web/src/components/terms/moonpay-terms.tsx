@@ -4,7 +4,7 @@ import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { Button, Checkbox } from '@/components/forms';
-import { setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { TAccount } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
 import style from './terms.module.css';
@@ -16,6 +16,7 @@ type TProps = {
 
 export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
+  const { setConfig } = useConfig();
 
   const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
     setConfig({ frontend: { skipMoonpayDisclaimer: e.target.checked } });

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode, useCallback, useEffect, useState } from 'react';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import { useDarkmode } from '@/hooks/darkmode';
 import { Message } from '@/components/message/message';
@@ -29,6 +29,7 @@ export const Status = ({
   children,
 }: TProps) => {
   const [show, setShow] = useState(dismissible ? false : true);
+  const { getConfig, setConfig } = useConfig();
 
   const { isDarkMode } = useDarkmode();
 
@@ -37,7 +38,7 @@ export const Status = ({
       const config = await getConfig();
       setShow(!config ? true : !config.frontend[dismissible]);
     }
-  }, [dismissible]);
+  }, [dismissible, getConfig]);
 
   useEffect(() => {
     checkConfig();

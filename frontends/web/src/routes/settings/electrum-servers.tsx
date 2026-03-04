@@ -6,7 +6,7 @@ import type { TElectrumServer } from '@/api/node';
 import { ElectrumAddServer } from './electrum-add-server';
 import { ElectrumServer } from './electrum-server';
 import { getDefaultConfig } from '@/api/backend';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { confirmation } from '@/components/confirm/Confirm';
 import { Button } from '@/components/forms';
 import style from './electrum.module.css';
@@ -19,11 +19,11 @@ export const ElectrumServers = ({
   coin
 }: Props) => {
   const { t } = useTranslation();
+  const { getConfig, setConfig } = useConfig();
   const [config, setConfigState] = useState<any>();
-  const loadConfig = () => {
+  useEffect(() => {
     getConfig().then(setConfigState);
-  };
-  useEffect(loadConfig, []);
+  }, [getConfig]);
   if (config === undefined) {
     return null;
   }
