@@ -4,10 +4,10 @@ import { Dispatch, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TConfig } from '@/routes/settings/advanced-settings';
 import { AppContext } from '@/contexts/AppContext';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { View, ViewButtons, ViewHeader } from '@/components/view/view';
 import { Button } from '@/components/forms';
-import { setConfig } from '@/utils/config';
 import { UseBackButton } from '@/hooks/backbutton';
 
 type TProps = {
@@ -16,6 +16,7 @@ type TProps = {
 
 export const RestartInTestnetSetting = ({ onChangeConfig }: TProps) => {
   const { t } = useTranslation();
+  const { setConfig } = useConfig();
   const [showRestartMessage, setShowRestartMessage] = useState(false);
   const { isTesting } = useContext(AppContext);
 

@@ -6,7 +6,7 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Toggle } from '@/components/toggle/toggle';
 import { Button, Input } from '@/components/forms';
-import { setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { socksProxyCheck } from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
 import { TConfig, TProxyConfig } from '@/routes/settings/advanced-settings';
@@ -20,6 +20,7 @@ type TProps = {
 };
 
 export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfig, handleShowRestartMessage }: TProps) => {
+  const { setConfig } = useConfig();
   const [proxyAddress, setProxyAddress] = useState<string>();
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');

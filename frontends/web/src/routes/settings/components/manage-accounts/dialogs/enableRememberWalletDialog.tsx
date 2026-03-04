@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button, Checkbox } from '@/components/forms';
 import { useLoad } from '@/hooks/api';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 
 type Props = {
   open: boolean;
@@ -13,6 +13,7 @@ type Props = {
 };
 export const EnableRememberWalletDialog = ({ open, onClose }: Props) => {
   const { t } = useTranslation();
+  const { getConfig, setConfig } = useConfig();
   const config = useLoad(getConfig);
   const [checked, setChecked] = useState(false);
   const [shouldNotShowDialog, setShouldNotShowDialog] = useState(false);

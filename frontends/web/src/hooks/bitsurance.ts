@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { getScriptName } from '@/routes/account/utils';
 
 /**
@@ -45,6 +45,7 @@ export const useBitsurance = (
   account?: accountApi.TAccount,
 ) => {
   const { t } = useTranslation();
+  const { getConfig, setConfig } = useConfig();
 
   const [insured, setInsured] = useState(false);
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
@@ -93,7 +94,7 @@ export const useBitsurance = (
     }
 
     setInsured(false);
-  }, [t, account, code, checkUncoveredUTXOs]);
+  }, [t, account, code, checkUncoveredUTXOs, getConfig, setConfig]);
 
   useEffect(() => {
     maybeCheckBitsuranceStatus();

@@ -21,7 +21,7 @@ import { InfoButton } from '@/components/infobutton/infobutton';
 import { MarketTab } from './components/markettab';
 import { Deals } from './components/deals';
 import { getNativeLocale } from '@/api/nativelocale';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { CountrySelect, TOption } from './components/countryselect';
 import { InfoContent, TInfoContentProps } from './components/infocontent';
 import style from './market.module.css';
@@ -36,6 +36,7 @@ export const Market = ({
   code,
 }: TProps) => {
   const { t } = useTranslation();
+  const { getConfig, setConfig } = useConfig();
   const navigate = useNavigate();
   const [selectedRegion, setSelectedRegion] = useState('');
   const [regions, setRegions] = useState<TOption[]>([]);

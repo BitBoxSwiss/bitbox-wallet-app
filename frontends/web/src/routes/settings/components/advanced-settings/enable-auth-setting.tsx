@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Toggle } from '@/components/toggle/toggle';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { TBackendConfig, TConfig } from '@/routes/settings/advanced-settings';
-import { setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { onAuthSettingChanged, TAuthEventObject, subscribeAuth, forceAuth } from '@/api/backend';
 import { runningInAndroid, runningInIOS } from '@/utils/env';
 
@@ -16,6 +16,7 @@ type TProps = {
 
 export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => {
   const { t } = useTranslation();
+  const { setConfig } = useConfig();
 
   const handleToggleAuth = async (e: ChangeEvent<HTMLInputElement>) => {
     // Before updating the config we need the user to authenticate.
