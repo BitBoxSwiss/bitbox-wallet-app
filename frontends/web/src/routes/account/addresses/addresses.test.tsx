@@ -63,6 +63,15 @@ const changeAddress: accountApi.TUsedAddress = {
   transactionCount: 1,
 };
 
+const ltcAccount: accountApi.TAccount = {
+  ...mockAccount,
+  coinCode: 'ltc',
+  coinUnit: 'LTC',
+  coinName: 'Litecoin',
+  code: 'ltc-account',
+  name: 'Litecoin Account',
+};
+
 const createDeferred = function<T>() {
   let resolve!: (value: T) => void;
   const promise = new Promise<T>(resolvePromise => {
@@ -73,15 +82,16 @@ const createDeferred = function<T>() {
 
 const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAccount[] = [mockAccount]) => {
   let setAccountsState: ((accounts: accountApi.TAccount[]) => void) | undefined;
+  const accountCode = initialAccounts[0]?.code ?? mockAccount.code;
 
   const RouteWrapper = () => {
     const [accounts, setAccounts] = useState(initialAccounts);
     setAccountsState = setAccounts;
     return (
       <Routes>
-        <Route path="/account/:code/addresses" element={<Addresses code={mockAccount.code} accounts={accounts} />} />
-        <Route path="/account/:code/addresses/:addressID" element={<Addresses code={mockAccount.code} accounts={accounts} />} />
-        <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={mockAccount.code} accounts={accounts} />} />
+        <Route path="/account/:code/addresses" element={<Addresses code={accountCode} accounts={accounts} />} />
+        <Route path="/account/:code/addresses/:addressID" element={<Addresses code={accountCode} accounts={accounts} />} />
+        <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={accountCode} accounts={accounts} />} />
       </Routes>
     );
   };
@@ -142,7 +152,18 @@ describe('routes/account/addresses', () => {
 
     expect(screen.getByPlaceholderText('Search address')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Copy Address' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sign message' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Verify address on device' })).not.toBeInTheDocument();
+  });
+
+  it('hides message-signing action for LTC accounts', async () => {
+    const user = userEvent.setup();
+
+    renderWithRoute(`/account/${ltcAccount.code}/addresses`, [ltcAccount]);
+
+    await user.click(await screen.findByTitle(receiveAddress.address));
+    expect(screen.getByRole('button', { name: 'Copy Address' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Sign message' })).not.toBeInTheDocument();
   });
 
   it('shows insecure verify warning and skip path without calling verify API', async () => {
@@ -233,6 +254,7 @@ describe('routes/account/addresses', () => {
       expect(verifyAddressSpy).toHaveBeenCalledWith(mockAccount.code, receiveAddress.addressID);
     });
     await screen.findByRole('button', { name: 'Copy Address' });
+    await screen.findByRole('button', { name: 'Sign message' });
   });
 
   it('shows receive-style verify dialog while secure verification is in progress', async () => {

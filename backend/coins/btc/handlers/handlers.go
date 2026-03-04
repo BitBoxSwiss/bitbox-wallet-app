@@ -17,7 +17,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -60,7 +59,9 @@ func NewHandlers(
 	handleFunc("/used-addresses", handlers.ensureAccountInitialized(handlers.getUsedAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
-	handleFunc("/sign-address", handlers.ensureAccountInitialized(handlers.postSignBTCAddress)).Methods("POST")
+	handleFunc("/btc-sign-message-unused-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageUnusedAddress)).Methods("POST")
+	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageForAddress)).Methods("POST")
+	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignETHMessageForAddress)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/has-payment-request", handlers.ensureAccountInitialized(handlers.getHasPaymentRequest)).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
@@ -807,48 +808,98 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 	}, nil
 }
 
-func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, error) {
-	type response struct {
-		Success      bool   `json:"success"`
-		Address      string `json:"address"`
-		Signature    string `json:"signature"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
-		ErrorCode    string `json:"errorCode,omitempty"`
+type signMessageForAddressResponse struct {
+	Success      bool   `json:"success"`
+	Address      string `json:"address,omitempty"`
+	Signature    string `json:"signature,omitempty"`
+	ErrorMessage string `json:"errorMessage,omitempty"`
+	ErrorCode    string `json:"errorCode,omitempty"`
+}
+
+func (handlers *Handlers) signMessageForAddressErrorResponse(err error) signMessageForAddressResponse {
+	if firmware.IsErrorAbort(err) || errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
+		return signMessageForAddressResponse{Success: false, ErrorCode: errp.ErrUserAbort.Error()}
+	}
+	if errp.Cause(err) == backend.ErrWrongKeystore {
+		return signMessageForAddressResponse{Success: false, ErrorCode: backend.ErrWrongKeystore.Error()}
+	}
+	if errp.Cause(err) == accounts.ErrSyncInProgress {
+		return signMessageForAddressResponse{Success: false, ErrorCode: accounts.ErrSyncInProgress.Error()}
 	}
 
+	handlers.log.WithField("code", handlers.account.Config().Config.Code).WithError(err).Error("unexpected error signing message")
+	return signMessageForAddressResponse{Success: false, ErrorMessage: "An unexpected error occurred."}
+}
+
+func (handlers *Handlers) postSignBTCMessageUnusedAddress(r *http.Request) (interface{}, error) {
 	var request struct {
-		AccountCode types.Code         `json:"accountCode"`
-		Msg         string             `json:"msg"`
-		Format      signing.ScriptType `json:"format"`
+		Msg    string             `json:"msg"`
+		Format signing.ScriptType `json:"format"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
 	}
 
-	account, ok := handlers.account.(*btc.Account)
+	btcAccount, ok := handlers.account.(*btc.Account)
 	if !ok {
-		return response{
+		return signMessageForAddressResponse{
 			Success:      false,
-			ErrorMessage: "An account must be BTC based to support address signing.",
+			ErrorMessage: "Must be a BTC based account",
 		}, nil
 	}
 
-	address, signature, err := btc.SignBTCAddress(
-		account,
-		request.Msg,
-		request.Format)
+	address, signature, err := btc.SignBTCMessageUnusedAddress(btcAccount, request.Msg, request.Format)
 	if err != nil {
-		if firmware.IsErrorAbort(err) {
-			return response{Success: false, ErrorCode: errp.ErrUserAbort.Error()}, nil
-		}
-		if errp.Cause(err) == backend.ErrWrongKeystore {
-			return response{Success: false, ErrorCode: backend.ErrWrongKeystore.Error()}, nil
-		}
-
-		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return handlers.signMessageForAddressErrorResponse(err), nil
 	}
-	return response{Success: true, Address: address, Signature: signature}, nil
+	return signMessageForAddressResponse{Success: true, Address: address, Signature: signature}, nil
+}
+
+func (handlers *Handlers) postSignBTCMessageForAddress(r *http.Request) (interface{}, error) {
+	var request struct {
+		ScriptHashHex string `json:"scriptHashHex"`
+		Msg           string `json:"msg"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+
+	btcAccount, ok := handlers.account.(*btc.Account)
+	if !ok {
+		return signMessageForAddressResponse{
+			Success:      false,
+			ErrorMessage: "Must be a BTC based account",
+		}, nil
+	}
+
+	address, signature, err := btcAccount.SignBTCMessageForAddress(request.ScriptHashHex, request.Msg)
+	if err != nil {
+		return handlers.signMessageForAddressErrorResponse(err), nil
+	}
+	return signMessageForAddressResponse{Success: true, Address: address, Signature: signature}, nil
+}
+
+func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) (interface{}, error) {
+	var request struct {
+		Msg string `json:"msg"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+
+	ethAccount, ok := handlers.account.(*eth.Account)
+	if !ok {
+		return signMessageForAddressResponse{
+			Success:      false,
+			ErrorMessage: "Must be an ETH based account",
+		}, nil
+	}
+
+	address, signature, err := ethAccount.SignETHMessage(request.Msg)
+	if err != nil {
+		return handlers.signMessageForAddressErrorResponse(err), nil
+	}
+	return signMessageForAddressResponse{Success: true, Address: address, Signature: signature}, nil
 }
 
 func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, error) {

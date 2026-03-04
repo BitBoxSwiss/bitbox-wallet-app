@@ -24,6 +24,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -1070,7 +1071,38 @@ func (account *Account) IsChange(scriptHashHex blockchain.ScriptHashHex) bool {
 	return addressType == UsedAddressTypeChange
 }
 
-// SignBTCAddress returns an unused address and makes the user sign a message to prove ownership.
+func getSignMessageKeystore(account accounts.Interface) (keystore.Keystore, error) {
+	ks, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return nil, err
+	}
+	if !ks.CanSignMessage(account.Coin().Code()) {
+		return nil, errp.Newf("The connected device or keystore cannot sign messages for %s",
+			account.Coin().Code())
+	}
+	return ks, nil
+}
+
+func signBTCMessageWithAddress(
+	ks keystore.Keystore,
+	account accounts.Interface,
+	message string,
+	address accounts.Address,
+	scriptType signing.ScriptType,
+) (string, string, error) {
+	sig, err := ks.SignBTCMessage(
+		[]byte(message),
+		address.AbsoluteKeypath(),
+		scriptType,
+		account.Coin().Code(),
+	)
+	if err != nil {
+		return "", "", err
+	}
+	return address.EncodeForHumans(), base64.StdEncoding.EncodeToString(sig), nil
+}
+
+// SignBTCMessageUnusedAddress returns an unused address and makes the user sign a message to prove ownership.
 // Input params:
 //
 //	`account` is the account from which the address is derived.
@@ -1083,16 +1115,14 @@ func (account *Account) IsChange(scriptHashHex blockchain.ScriptHashHex) bool {
 //	#1: is the first unused address corresponding to the account and the script type identified by the input values.
 //	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
 //	#3: is an optional error that could be generated during the execution of the function.
-func SignBTCAddress(account accounts.Interface, message string, scriptType signing.ScriptType) (string, string, error) {
-	keystore, err := account.Config().ConnectKeystore()
-	if err != nil {
-		return "", "", err
+func SignBTCMessageUnusedAddress(account accounts.Interface, message string, scriptType signing.ScriptType) (string, string, error) {
+	if len(message) == 0 {
+		return "", "", errp.New("message cannot be empty")
 	}
 
-	canSign := keystore.CanSignMessage(account.Coin().Code())
-	if !canSign {
-		return "", "", errp.Newf("The connected device or keystore cannot sign messages for %s",
-			account.Coin().Code())
+	ks, err := getSignMessageKeystore(account)
+	if err != nil {
+		return "", "", err
 	}
 
 	unused, err := account.GetUnusedReceiveAddresses()
@@ -1109,17 +1139,74 @@ func SignBTCAddress(account accounts.Interface, message string, scriptType signi
 		err := errp.Newf("Unsupported format: %s", scriptType)
 		return "", "", err
 	}
-	addr := unused[signingConfigIdx].Addresses[0]
-
-	sig, err := keystore.SignBTCMessage(
-		[]byte(message),
-		addr.AbsoluteKeypath(),
-		account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
-		account.Coin().Code(),
+	// Find the address list matching the requested script type. We cannot use
+	// signingConfigIdx directly because GetUnusedReceiveAddresses may skip
+	// subaccounts (e.g. for insured accounts), so the returned slice indices
+	// do not necessarily correspond to SigningConfigurations indices.
+	var addr accounts.Address
+	for _, addrList := range unused {
+		if addrList.ScriptType != nil && *addrList.ScriptType == scriptType {
+			if len(addrList.Addresses) > 0 {
+				addr = addrList.Addresses[0]
+			}
+			break
+		}
+	}
+	if addr == nil {
+		return "", "", errp.Newf("No unused address found for format: %s", scriptType)
+	}
+	return signBTCMessageWithAddress(
+		ks,
+		account,
+		message,
+		addr,
+		scriptType,
 	)
+}
+
+// SignBTCMessageForAddress signs a message with a specific address identified by scriptHashHex.
+// Input params:
+//
+//	`scriptHashHex` is the script hash hex identifying the address to sign with.
+//	`message` is the message that will be signed by the user with the private key linked to the address.
+//
+// Returned values:
+//
+//	#1: is the address that was used for signing.
+//	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
+//	#3: is an optional error that could be generated during the execution of the function.
+func (account *Account) SignBTCMessageForAddress(scriptHashHex string, message string) (string, string, error) {
+	if !account.isInitialized() {
+		return "", "", errp.New("account must be initialized")
+	}
+	if !account.Synced() {
+		return "", "", accounts.ErrSyncInProgress
+	}
+
+	if len(scriptHashHex) == 0 {
+		return "", "", errp.New("scriptHashHex cannot be empty")
+	}
+
+	if len(message) == 0 {
+		return "", "", errp.New("message cannot be empty")
+	}
+
+	ks, err := getSignMessageKeystore(account)
 	if err != nil {
 		return "", "", err
 	}
 
-	return addr.EncodeForHumans(), base64.StdEncoding.EncodeToString(sig), nil
+	// Find the address by script hash hex across all subaccounts.
+	address, _ := account.lookupAddressByScriptHashHex(blockchain.ScriptHashHex(scriptHashHex))
+
+	if address == nil {
+		return "", "", errp.New("address not found")
+	}
+	return signBTCMessageWithAddress(
+		ks,
+		account,
+		message,
+		address,
+		address.AccountConfiguration.ScriptType(),
+	)
 }

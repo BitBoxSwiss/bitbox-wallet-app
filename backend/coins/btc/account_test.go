@@ -14,6 +14,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	blockchainMock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -33,6 +34,12 @@ func mockKeystore() *keystoremock.KeystoreMock {
 		CanSignMessageFunc: func(coin.Code) bool { return true },
 		SignBTCMessageFunc: func(_ []byte, _ signing.AbsoluteKeypath, _ signing.ScriptType, _ coin.Code) ([]byte, error) {
 			return []byte("signature"), nil
+		},
+		CanVerifyAddressFunc: func(coin.Coin) (bool, bool, error) {
+			return true, false, nil
+		},
+		VerifyAddressBTCFunc: func(_ *signing.Configuration, _ types.Derivation, _ coin.Coin) error {
+			return nil
 		},
 	}
 }
@@ -186,9 +193,9 @@ func TestSignAddress(t *testing.T) {
 	require.NoError(t, account.Initialize())
 	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 	// pt2r is not an available script type in the mocked account.
-	_, _, err := SignBTCAddress(account, "Hello there", signing.ScriptTypeP2TR)
+	_, _, err := SignBTCMessageUnusedAddress(account, "Hello there", signing.ScriptTypeP2TR)
 	require.Error(t, err)
-	address, signature, err := SignBTCAddress(account, "Hello there", signing.ScriptTypeP2WPKH)
+	address, signature, err := SignBTCMessageUnusedAddress(account, "Hello there", signing.ScriptTypeP2WPKH)
 	require.NoError(t, err)
 	require.NotEmpty(t, address)
 	require.Equal(t, base64.StdEncoding.EncodeToString([]byte("signature")), signature)
@@ -413,4 +420,64 @@ func TestGetUsedAddressesMixedScriptTypes(t *testing.T) {
 	secondTotalReceived, err := secondResult.TotalReceived.Int64()
 	require.NoError(t, err)
 	require.Equal(t, int64(1600), secondTotalReceived)
+}
+
+func TestVerifyAndSignBTCMessageSupportsChangeAddress(t *testing.T) {
+	account := mockAccount(t, nil)
+	require.NoError(t, account.Initialize())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
+	account.ensureAddresses()
+
+	unusedChangeAddresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+	require.NoError(t, err)
+	changeAddress := unusedChangeAddresses[0]
+
+	keystoreMock := mockKeystore()
+	account.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+		return keystoreMock, nil
+	}
+
+	canVerify, err := account.VerifyAddress(changeAddress.ID())
+	require.NoError(t, err)
+	require.True(t, canVerify)
+	verifyCalls := keystoreMock.VerifyAddressBTCCalls()
+	require.Len(t, verifyCalls, 1)
+	require.Equal(t, changeAddress.AccountConfiguration, verifyCalls[0].AccountConfiguration)
+	require.Equal(t, changeAddress.Derivation, verifyCalls[0].Derivation)
+
+	address, signature, err := account.SignBTCMessageForAddress(changeAddress.ID(), "Hello")
+	require.NoError(t, err)
+	require.Equal(t, changeAddress.EncodeForHumans(), address)
+	require.Equal(t, base64.StdEncoding.EncodeToString([]byte("signature")), signature)
+	signCalls := keystoreMock.SignBTCMessageCalls()
+	require.Len(t, signCalls, 1)
+	require.Equal(t, changeAddress.AbsoluteKeypath(), signCalls[0].Keypath)
+	require.Equal(t, changeAddress.AccountConfiguration.ScriptType(), signCalls[0].ScriptType)
+}
+
+func TestSignBTCMessageForAddressEdgeCases(t *testing.T) {
+	account := mockAccount(t, nil)
+	require.NoError(t, account.Initialize())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
+
+	account.ensureAddresses()
+	unusedReceiveAddresses, err := account.subaccounts[0].receiveAddresses.GetUnused()
+	require.NoError(t, err)
+	validID := unusedReceiveAddresses[0].ID()
+
+	t.Run("empty scriptHashHex", func(t *testing.T) {
+		_, _, err := account.SignBTCMessageForAddress("", "Hello")
+		require.Error(t, err)
+	})
+
+	t.Run("empty message", func(t *testing.T) {
+		_, _, err := account.SignBTCMessageForAddress(validID, "")
+		require.Error(t, err)
+	})
+
+	t.Run("address not found", func(t *testing.T) {
+		_, _, err := account.SignBTCMessageForAddress("nonexistent-hash", "Hello")
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "not found")
+	})
 }

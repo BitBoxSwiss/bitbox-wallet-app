@@ -16,9 +16,10 @@ import {
   CaretDown,
   Copy,
   Loupe,
+  Shield,
   WarningOutlined,
 } from '@/components/icon';
-import { findAccount, getAddressURIPrefix } from '@/routes/account/utils';
+import { findAccount, getAddressURIPrefix, isMessageSigningSupported } from '@/routes/account/utils';
 import { VerifyAddressDialogContent } from '../components/verify-address-dialog-content';
 import { useAddressVerification } from '../components/use-address-verification';
 import style from './addresses.module.css';
@@ -63,6 +64,7 @@ export const Addresses = ({ code, accounts }: TProps) => {
   const [usedAddressesLoadAttempt, setUsedAddressesLoadAttempt] = useState(0);
 
   const account = findAccount(accounts, code);
+  const isMessageSigningAvailable = account ? isMessageSigningSupported(account.coinCode) : false;
   const accountRootFingerprint = account?.keystore.rootFingerprint;
   const usedAddressesResponse = useLoad(() => accountApi.getUsedAddresses(code), [code, usedAddressesLoadAttempt]);
 
@@ -156,6 +158,14 @@ export const Addresses = ({ code, accounts }: TProps) => {
         </Button>
       )}
 
+      {isMessageSigningAvailable && (
+        <Button transparent inline className={style.linkAction} onClick={() => navigate(`/account/${code}/addresses/${address.addressID}/sign-message`)}>
+          <span className={style.linkActionLabel}>
+            <Shield className={style.linkActionIcon} />
+            {t('addresses.signMessage')}
+          </span>
+        </Button>
+      )}
     </div>
   );
 

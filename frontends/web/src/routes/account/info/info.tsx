@@ -5,13 +5,13 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useLoad, useSync } from '@/hooks/api';
 import { getInfo, TAccount, AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions, TSigningConfiguration } from '@/api/account';
-import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
+import { findAccount, isBitcoinOnly, isMessageSigningSupported } from '@/routes/account/utils';
 import { Header } from '@/components/layout';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
 import { Message } from '@/components/message/message';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
-import { OutlinedQRCode, OutlinedUnorderedList, OutlinedUpload } from '@/components/icon';
+import { OutlinedFileProtect, OutlinedQRCode, OutlinedUnorderedList, OutlinedUpload } from '@/components/icon';
 import { alertUser } from '@/components/alert/Alert';
 import { statusChanged } from '@/api/accountsync';
 import style from './info.module.css';
@@ -87,6 +87,7 @@ export const Info = ({
   const xpubType = xpubTypes[(safeViewXPub + 1) % numberOfXPubs];
 
   const isBtcOnly = isBitcoinOnly(account.coinCode);
+  const canSignMessage = isMessageSigningSupported(account.coinCode);
 
   // Menu view
   if (!showXPub) {
@@ -114,6 +115,16 @@ export const Info = ({
                     <span>{t('accountInfo.viewAccountDetails')}</span>
                   </div>
                 </ActionableItem>
+                {canSignMessage && (
+                  <ActionableItem
+                    onClick={() => navigate(`/account/${code}/sign-message`)}
+                  >
+                    <div className={style.actionItem}>
+                      <OutlinedFileProtect className={style.actionIcon} aria-hidden alt="" />
+                      <span>{t('accountInfo.signMessage')}</span>
+                    </div>
+                  </ActionableItem>
+                )}
                 {isBtcOnly && (
                   <ActionableItem
                     onClick={() => navigate(`/account/${code}/addresses`)}
