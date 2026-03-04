@@ -1,0 +1,66 @@
+.token {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    min-height: var(--item-height);
+    padding: 10px 0;
+    position: relative;
+    width: 100%;
+}
+
+.token::before {
+    background-color: var(--token-line-color, #ddd);
+    content: "";
+    height: 4rem;
+    left: 10px;
+    position: absolute;
+    top: -2rem;
+    right: 8px;
+    width: 3px;
+}
+
+.token:first-child::before {
+    height: 2rem;
+    top: -1.1rem;
+}
+
+.tokenIcon,
+.token img {
+    background: var(--background-secondary);
+    outline: 5px solid var(--background-secondary);
+    position: relative;
+    z-index: 2;
+}
+
+.token img:first-child {
+    margin-right: 0;
+}
+
+.tokenIcon {
+    max-height: 24px;
+    max-width: 24px;
+}
+
+.tokenName {
+    flex: 1;
+    display: inline-block;
+    padding-left: 20px;
+}
+
+.tokenInactive {
+    color: var(--color-tertiary);
+    transition: color 0.2s ease;
+}
+
+.accountLink {
+    align-items: center;
+    display: flex;
+    flex-basis: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.accountActive {
+    cursor: pointer;
+}
