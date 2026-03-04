@@ -594,7 +594,7 @@ func newBTCTxFromPSBT(
 	}, nil
 }
 
-// Sign a PSBT. If `options` is nil, the default options are used. The PSBT input signatures will be
+// BTCSignPSBT signs a PSBT. If `options` is nil, the default options are used. The PSBT input signatures will be
 // populated.
 func (device *Device) BTCSignPSBT(
 	coin messages.BTCCoin,
