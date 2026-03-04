@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { ChangeEvent } from 'react';
 import { Button, Checkbox } from '@/components/forms';
-import { setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { i18n } from '@/i18n/i18n';
 import { A } from '../anchor/anchor';
 import style from './terms.module.css';
@@ -27,12 +27,12 @@ export const getBTCDirectPrivacyLink = () => {
   }
 };
 
-const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
-  setConfig({ frontend: { skipBTCDirectOTCDisclaimer: e.target.checked } });
-};
-
 export const BTCDirectOTCTerms = ({ onContinue }: TProps) => {
   const { t } = useTranslation();
+  const { setConfig } = useConfig();
+  const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
+    setConfig({ frontend: { skipBTCDirectOTCDisclaimer: e.target.checked } });
+  };
 
   return (
     <div className={style.disclaimerContainer}>

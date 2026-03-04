@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Toggle } from '@/components/toggle/toggle';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { TConfig, TFrontendConfig } from '@/routes/settings/advanced-settings';
-import { setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 
 type TProps = {
   frontendConfig?: TFrontendConfig;
@@ -14,6 +14,7 @@ type TProps = {
 
 export const EnableCoinControlSetting = ({ frontendConfig, onChangeConfig }: TProps) => {
   const { t } = useTranslation();
+  const { setConfig } = useConfig();
 
   const handleToggleFee = async (e: ChangeEvent<HTMLInputElement>) => {
     const config = await setConfig({

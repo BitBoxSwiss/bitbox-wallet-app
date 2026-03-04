@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '@/hooks/api';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
@@ -15,7 +13,7 @@ import { UnlockSoftwareKeystore } from './components/advanced-settings/unlock-so
 import { RestartInTestnetSetting } from './components/advanced-settings/restart-in-testnet-setting';
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
 import { CustomGapLimitSettings } from './components/advanced-settings/custom-gap-limit-setting';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
@@ -48,16 +46,11 @@ export type TConfig = {
 
 export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
-  const fetchedConfig = useLoad(getConfig) as TConfig;
-  const [config, setConfig] = useState<TConfig>();
+  const { config, setConfig } = useConfig();
 
-  const frontendConfig = config?.frontend;
-  const backendConfig = config?.backend;
-  const proxyConfig = config?.backend?.proxy;
-
-  useEffect(() => {
-    setConfig(fetchedConfig);
-  }, [fetchedConfig]);
+  const frontendConfig = config?.frontend as TFrontendConfig | undefined;
+  const backendConfig = config?.backend as TBackendConfig | undefined;
+  const proxyConfig = config?.backend?.proxy as TProxyConfig | undefined;
 
   const deviceIDs = Object.keys(devices);
 

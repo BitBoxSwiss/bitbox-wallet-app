@@ -8,7 +8,7 @@ import { MarketGuide } from './guide';
 import { AccountCode, TAccount, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { useDarkmode } from '@/hooks/darkmode';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { i18n } from '@/i18n/i18n';
 import { alertUser } from '@/components/alert/Alert';
 import { parseExternalBtcAmount } from '@/api/coins';
@@ -43,6 +43,7 @@ export const Bitrefill = ({
   region,
 }: TProps) => {
   const { t } = useTranslation();
+  const { config } = useConfig();
   const { isDarkMode } = useDarkmode();
   const { isDevServers } = useContext(AppContext);
   const account = findAccount(accounts, code);
@@ -53,8 +54,6 @@ export const Bitrefill = ({
   const [height, setHeight] = useState(0);
   const resizeTimerID = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bitrefillInfo = useLoad(() => getBitrefillInfo('spend', code));
-
-  const config = useLoad(getConfig);
   const [agreedTerms, setAgreedTerms] = useState(false);
 
   const [pendingPayment, setPendingPayment] = useState<boolean>(false);
@@ -63,8 +62,8 @@ export const Bitrefill = ({
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
   useEffect(() => {
-    if (config) {
-      setAgreedTerms(config.frontend.skipBitrefillWidgetDisclaimer);
+    if (config?.frontend) {
+      setAgreedTerms(Boolean(config.frontend.skipBitrefillWidgetDisclaimer));
     }
   }, [config]);
 
