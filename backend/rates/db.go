@@ -4,16 +4,41 @@ package rates
 
 import (
 	"encoding/binary"
+	"errors"
 	"math"
 	"path/filepath"
 	"time"
 
+	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
+	"github.com/sirupsen/logrus"
 	"go.etcd.io/bbolt"
+	bolterrors "go.etcd.io/bbolt/errors"
 )
 
-func openRatesDB(dir string) (*bbolt.DB, error) {
+func isRatesDBCorruptionError(err error) bool {
+	return errors.Is(err, bolterrors.ErrInvalid) ||
+		errors.Is(err, bolterrors.ErrChecksum) ||
+		errors.Is(err, bolterrors.ErrVersionMismatch)
+}
+
+func openRatesDB(dir string, log *logrus.Entry) (*bbolt.DB, error) {
+	filename := filepath.Join(dir, "rates.db")
 	opt := &bbolt.Options{Timeout: 5 * time.Second} // network disks may take long
-	return bbolt.Open(filepath.Join(dir, "rates.db"), 0600, opt)
+	db, err := bbolt.Open(filename, 0600, opt)
+	if err == nil {
+		return db, nil
+	}
+	if !isRatesDBCorruptionError(err) {
+		return nil, err
+	}
+	recovered, recoverErr := backendutil.RemoveCorruptDBFile(filename, err, log, "rates DB")
+	if recoverErr != nil || !recovered {
+		if recoverErr != nil {
+			return nil, recoverErr
+		}
+		return nil, err
+	}
+	return bbolt.Open(filename, 0600, opt)
 }
 
 // loadHistoryBucket loads data from an updater.historyDB bucket identified by the key.

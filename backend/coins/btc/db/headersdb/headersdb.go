@@ -4,6 +4,8 @@ package headersdb
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"os"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -13,6 +15,9 @@ import (
 )
 
 const headerSize = 80
+
+// ErrCorruptDB indicates the headers DB contents are corrupted and can be recreated.
+var ErrCorruptDB = errors.New("corrupt headers db")
 
 // DB is a database for storing headers. The database is simply a file where headers are appended
 // to. Loolup is quick as each header is 80 bytes.
@@ -28,14 +33,33 @@ func NewDB(filename string, log *logrus.Entry) (*DB, error) {
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
+	defer func() {
+		if err != nil {
+			_ = file.Close()
+		}
+	}()
 	db := &DB{
 		file: file,
 		log:  log,
 	}
-	if err := db.fixTrailingZeroesHeaders(); err != nil {
+	if err = db.validateSize(); err != nil {
+		return nil, err
+	}
+	if err = db.fixTrailingZeroesHeaders(); err != nil {
 		return nil, err
 	}
 	return db, nil
+}
+
+func (db *DB) validateSize() error {
+	fileInfo, err := db.file.Stat()
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	if fileInfo.Size()%headerSize != 0 {
+		return fmt.Errorf("%w: invalid headers file size: %d", ErrCorruptDB, fileInfo.Size())
+	}
+	return nil
 }
 
 // fixTrailingZeroesHeaders deletes trailing headers that are stored as zero bytes. Zero headers
@@ -135,9 +159,19 @@ func (db *DB) HeaderByHeight(height int) (*wire.BlockHeader, error) {
 	}
 	header := &wire.BlockHeader{}
 	if err := header.Deserialize(bytes.NewReader(headerBytes)); err != nil {
-		return nil, errp.WithStack(err)
+		return nil, fmt.Errorf(
+			"%w: failed to deserialize header at height %d: %w",
+			ErrCorruptDB,
+			height,
+			err,
+		)
 	}
 	return header, nil
+}
+
+// IsCorruptionError returns whether the error indicates corrupted DB contents.
+func IsCorruptionError(err error) bool {
+	return errors.Is(err, ErrCorruptDB)
 }
 
 // Flush implements headers.DBInterface.
