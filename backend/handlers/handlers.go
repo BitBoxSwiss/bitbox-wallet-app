@@ -1675,29 +1675,57 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 		Quote   *swapkit.QuoteResponse `json:"quote,omitempty"`
 	}
 
-	var request swapkit.QuoteRequest
+	var request struct {
+		SellCoinCode string `json:"sellCoinCode"`
+		BuyCoinCode  string `json:"buyCoinCode"`
+		SellAmount   string `json:"sellAmount"`
+	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return result{Success: false}
+		return result{Success: false, Error: err.Error()}
+	}
+	if request.SellCoinCode == "" {
+		return result{Success: false, Error: "Missing sellCoinCode"}
+	}
+	if request.BuyCoinCode == "" {
+		return result{Success: false, Error: "Missing buyCoinCode"}
+	}
+	sellAsset, ok := swapkit.AssetFromCoinCode(request.SellCoinCode)
+	if !ok {
+		return result{Success: false, Error: "Unsupported sell asset"}
+	}
+	buyAsset, ok := swapkit.AssetFromCoinCode(request.BuyCoinCode)
+	if !ok {
+		return result{Success: false, Error: "Unsupported buy asset"}
+	}
+
+	quoteRequest := swapkit.QuoteRequest{
+		SellAsset:  sellAsset,
+		BuyAsset:   buyAsset,
+		SellAmount: request.SellAmount,
+		Providers:  []string{"NEAR"},
 	}
 
 	s := swapkit.NewClient("0722e09f-9d3f-4817-a870-069848d03ee9")
-	request.Providers = []string{"NEAR"}
-
-	quoteResponse, err := s.Quote(context.Background(), &request)
+	quoteResponse, err := s.Quote(context.Background(), &quoteRequest)
 	if err != nil {
+		if message, ok := swapkit.NoRoutesFoundMessage(err); ok {
+			return result{
+				// Keep this inverted on purpose for business-level quote errors.
+				Success: true,
+				Quote: &swapkit.QuoteResponse{
+					Routes: []swapkit.QuoteRoute{},
+					Error:  message,
+				},
+			}
+		}
 		return result{
 			Success: false,
-			Error:   err.Error(),
+			Error:   "Some unexpected error occurred.",
 		}
 	}
-
-	res := result{
-		Success: quoteResponse.Error != "",
-		Error:   quoteResponse.Error, // Surface the response error to the top-level
+	return result{
+		Success: true,
+		Quote:   quoteResponse,
 	}
-	if res.Success {
-		res.Quote = quoteResponse
-	}
-	return res
 }

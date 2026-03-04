@@ -29,6 +29,12 @@
     padding: 0 var(--space-eight);
 }
 
+.meta {
+    display: block;
+    flex: 1;
+    min-width: 0;
+}
+
 .select :global(.react-select__menu) {
     background-color: var(--background-secondary);
     z-index: 99;
@@ -45,10 +51,23 @@
 
 .amount {
     flex-grow: 1;
+    flex-shrink: 0;
     text-align: right;
 }
 
 .serivceName {
     display: inline-block;
     padding-right: .4ch;
+}
+
+.statusText {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+    margin: 8px 0 0;
+}
+
+.errorText {
+    color: var(--color-red);
+    font-size: var(--size-small);
+    margin: 8px 0 0;
 }
