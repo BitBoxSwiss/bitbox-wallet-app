@@ -13,6 +13,7 @@ export const isBitcoinOnly = (coinCode: CoinCode): boolean => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
+  case 'rbtc':
     return true;
   default:
     return false;
@@ -23,6 +24,7 @@ export const isBitcoinCoin = (coin: NativeCoinUnit | undefined) => {
   switch (coin) {
   case 'BTC':
   case 'TBTC':
+  case 'RBTC':
   case 'sat':
   case 'tsat':
     return true;
@@ -35,6 +37,7 @@ export const isBitcoinBased = (coinCode: CoinCode): boolean => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
+  case 'rbtc':
   case 'ltc':
   case 'tltc':
     return true;
@@ -51,6 +54,7 @@ export const getCoinCode = (coinCode: CoinCode): CoinCode | undefined => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
+  case 'rbtc':
     return 'btc';
   case 'ltc':
   case 'tltc':

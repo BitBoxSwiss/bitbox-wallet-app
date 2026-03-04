@@ -1,6 +1,32 @@
-.title {
-    font-size: var(--size-header);
-    font-weight: 400;
+.menuList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-three-quarter);
+}
+
+.actionItem {
+    align-items: center;
+    display: flex;
+    gap: var(--space-three-quarter);
+    min-width: 0;
+}
+
+.actionIcon {
+    display: block;
+    height: 24px;
+    width: 24px;
+}
+
+.footerButtons {
+    align-items: flex-start;
+    display: flex;
+    margin-top: var(--space-default);
+}
+
+.detailCard {
+    background: var(--background-secondary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-default);
 }
 
 .nextButton {
@@ -14,14 +40,44 @@
     margin: 0 0 0 -2px;
 }
 
+.address {
+    display: grid;
+    gap: var(--space-default);
+}
+
 .details {
+    display: flex;
+    flex-direction: column;
     font-size: var(--size-default);
-    margin-bottom: var(--space-default);
+    gap: var(--space-half);
+    min-width: 0;
+}
+
+.entry {
+    align-items: flex-start;
+    display: flex;
+    gap: var(--space-quarter);
+}
+
+.entry strong {
+    min-width: 168px;
+}
+
+.entry code {
+    font-family: var(--font-family-monospace);
+}
+
+.largeEntry {
+    align-items: stretch;
+    flex-direction: column;
+    gap: var(--space-quarter);
 }
 
 .qrCode {
-    min-height: 260px;
-    text-align: center;
+    align-items: flex-start;
+    display: flex;
+    justify-content: center;
+    min-height: 0;
 }
 
 .qrCode img {
@@ -30,84 +86,66 @@
 }
 
 .buttons {
-    clear: both;
     display: flex;
+    gap: var(--space-half);
     justify-content: space-between;
-    min-height: 56px;
+}
+
+.buttons > * {
+    flex: 1 1 0;
 }
 
 .verifyButton {
     order: 2;
 }
 
-.entry {
-    align-items: baseline;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    margin-bottom: var(--space-half);
-}
-
-.exportButton {
-    margin-bottom: var(--space-eight);
-    padding-left: 0;
-}
-
-@media screen and (min-width: 640px) {
-
-    .xPubInfo {
-        max-width: calc(100% - 218px);
+@media screen and (min-width: 900px) {
+    .address {
+        align-items: start;
+        column-gap: var(--space-default);
+        grid-template-areas:
+            "details qr"
+            "buttons buttons";
+        grid-template-columns: minmax(0, 1fr) 220px;
     }
 
     .details {
-        display: flex;
-        flex-direction: column;
-        /* QRcode is 256px with 2 x 38px white border = 180px */
-        min-height: 180px;
-    }
-
-    .entry:first-child {
-        margin-top: 0;
+        grid-area: details;
     }
 
     .qrCode {
-        float: right;
-        position: relative;
-        /* QRCode image has 38px white border */
-        top: -38px;
-        right: calc(-1 * var(--space-default));
+        grid-area: qr;
+        justify-content: flex-end;
     }
 
+    .buttons {
+        grid-area: buttons;
+        margin-top: var(--space-half);
+    }
 }
 
 @media (max-width: 640px) {
 
-    .infoContent {
-        width: 100%;
+    .detailCard {
+        padding: var(--space-half);
     }
 
     .buttons {
         flex-direction: column-reverse;
-        gap: var(--space-half)
+        gap: var(--space-half);
     }
 
-    .largeEntry {
-        align-items: stretch;
+    .entry {
         flex-direction: column;
+        gap: var(--space-eight);
     }
 
-    .largeEntry strong {
-        display: block;
-        margin-bottom: var(--space-quarter);
+    .entry strong {
+        min-width: 0;
     }
 
-    .addressField input {
+    .addressFieldInput {
         font-size: var(--size-smaller);
+        padding: 10px 40px 10px 10px;
     }
-
-    .qrCode {
-        margin-left: calc(-1 * var(--space-default));
-        margin-right: calc(-1 * var(--space-default));
-    }
-
 }

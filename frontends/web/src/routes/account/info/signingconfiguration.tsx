@@ -38,7 +38,8 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
       <div className={style.qrCode}>
         { bitcoinBased ? (
           <QRCode
-            data={config.keyInfo.xpub} />
+            data={config.keyInfo.xpub}
+            size={220} />
         ) : null }
       </div>
       <div className={style.details}>
@@ -73,7 +74,6 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
               {t('accountInfo.extendedPublicKey')}:
             </strong>
             <CopyableInput
-              className="flex-grow"
               alignLeft
               flexibleHeight
               value={config.keyInfo.xpub} />

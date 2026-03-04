@@ -55,6 +55,8 @@
     padding: var(--space-half) calc(var(--space-default) * 1.2 + 5px) var(--space-half) calc(var(--space-half) * .5);
     resize: none;
     width: 100%;
+    font-family: var(--font-family-monospace);
+    line-height: 1.35;
 }
 
 @media screen and (min-width: 640px) {
