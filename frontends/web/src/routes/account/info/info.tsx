@@ -110,26 +110,20 @@ export const Info = ({
                 {t('account.export')}
               </Button>
               { (config?.bitcoinSimple?.scriptType === 'p2tr') ? (
-                <>
-                  <Message type="info">
-                    {t('accountInfo.taproot')}
-                  </Message>
-                  <BackButton enableEsc>
-                    {t('button.back')}
-                  </BackButton>
-                </>
-              ) : (
-                <SigningConfiguration
-                  key={viewXPub}
-                  account={account}
-                  code={code}
-                  info={config}
-                  signingConfigIndex={viewXPub}>
-                  <BackButton enableEsc>
-                    {t('button.back')}
-                  </BackButton>
-                </SigningConfiguration>
-              )}
+                <Message type="info">
+                  {t('accountInfo.taproot')}
+                </Message>
+              ) : null}
+              <SigningConfiguration
+                key={viewXPub}
+                account={account}
+                code={code}
+                info={config}
+                signingConfigIndex={viewXPub}>
+                <BackButton enableEsc>
+                  {t('button.back')}
+                </BackButton>
+              </SigningConfiguration>
             </div>
           </div>
         </div>
