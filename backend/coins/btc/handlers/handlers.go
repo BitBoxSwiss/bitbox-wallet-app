@@ -57,6 +57,7 @@ func NewHandlers(
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.postAccountTxProposal)).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
+	handleFunc("/used-addresses", handlers.ensureAccountInitialized(handlers.getUsedAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
 	handleFunc("/sign-address", handlers.ensureAccountInitialized(handlers.postSignBTCAddress)).Methods("POST")
@@ -582,6 +583,67 @@ func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error
 		})
 	}
 	return addressList, nil
+}
+
+type usedAddressesProvider interface {
+	accounts.Interface
+	GetUsedAddresses() ([]btc.UsedAddress, error)
+}
+
+func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
+	type jsonUsedAddress struct {
+		Address          string                              `json:"address"`
+		AddressID        string                              `json:"addressID"`
+		ScriptType       *signing.ScriptType                 `json:"scriptType"`
+		AddressType      btc.UsedAddressType                 `json:"addressType"`
+		LastUsed         *string                             `json:"lastUsed"`
+		TotalReceived    coin.FormattedAmountWithConversions `json:"totalReceived"`
+		TransactionCount int                                 `json:"transactionCount"`
+	}
+	type response struct {
+		Success   bool              `json:"success"`
+		Addresses []jsonUsedAddress `json:"addresses"`
+		ErrorCode string            `json:"errorCode,omitempty"`
+	}
+
+	btcAccount, ok := handlers.account.(usedAddressesProvider)
+	if !ok {
+		return response{Success: false, ErrorCode: "notSupported"}, nil
+	}
+
+	usedAddresses, err := btcAccount.GetUsedAddresses()
+	if err != nil {
+		if errp.Cause(err) == accounts.ErrSyncInProgress {
+			return response{Success: false, ErrorCode: accounts.ErrSyncInProgress.Error()}, nil
+		}
+		if handlers.log != nil {
+			handlers.log.WithField("code", handlers.account.Config().Config.Code).WithError(err).Error(
+				"failed to load used addresses",
+			)
+		}
+		// Return success: false instead of error to avoid breaking the frontend.
+		return response{Success: false, ErrorCode: "loadFailed"}, nil
+	}
+
+	result := make([]jsonUsedAddress, len(usedAddresses))
+	for i, addr := range usedAddresses {
+		var lastUsed *string
+		if addr.LastUsed != nil {
+			formatted := addr.LastUsed.Format(time.RFC3339)
+			lastUsed = &formatted
+		}
+		result[i] = jsonUsedAddress{
+			Address:          addr.Address,
+			AddressID:        addr.AddressID,
+			ScriptType:       addr.ScriptType,
+			AddressType:      addr.AddressType,
+			LastUsed:         lastUsed,
+			TotalReceived:    addr.TotalReceived.FormatWithConversions(handlers.account.Coin(), false, handlers.account.Config().RateUpdater),
+			TransactionCount: addr.TransactionCount,
+		}
+	}
+
+	return response{Success: true, Addresses: result}, nil
 }
 
 func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error) {
