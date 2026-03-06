@@ -598,6 +598,23 @@ func (account *Account) isAddressUsed(address *addresses.AccountAddress) (bool, 
 	return len(history) > 0, nil
 }
 
+// reportFatalSyncError marks the account as being in a fatal sync error state, emits a reload
+// event for the UI, and logs the error. If the account was already closed, it only logs and
+// returns.
+func (account *Account) reportFatalSyncError(err error, msg string) {
+	if account.isClosed() {
+		account.log.WithError(err).Error("stopping sync because account was closed")
+		return
+	}
+	account.log.WithError(err).Error(msg)
+	account.fatalError.Store(true)
+	account.Notify(observable.Event{
+		Subject: string(accountsTypes.EventStatusChanged),
+		Action:  action.Reload,
+		Object:  nil,
+	})
+}
+
 // onAddressStatus is called when the status (tx history) of an address might have changed. It is
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
@@ -608,12 +625,8 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 	}
 	addressHistory, err := account.getAddressHistory(address)
 	if err != nil {
-		if account.isClosed() {
-			account.log.WithError(err).Error("stopping sync because account was closed")
-			return
-		}
-		// TODO
-		account.log.WithError(err).Panic("getAddressHistory failed")
+		account.reportFatalSyncError(err, "getAddressHistory failed")
+		return
 	}
 	if status == addressHistory.Status() {
 		account.incAndEmitSyncCounter()
@@ -630,12 +643,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 	if err != nil {
 		// We are not closing client.blockchain here, as it is reused per coin with
 		// different accounts.
-		account.fatalError.Store(true)
-		account.Notify(observable.Event{
-			Subject: string(accountsTypes.EventStatusChanged),
-			Action:  action.Reload,
-			Object:  nil,
-		})
+		account.reportFatalSyncError(err, "ScriptHashGetHistory failed")
 		return
 	}
 	// Safe some work in case account was closed in the meantime.
@@ -660,12 +668,8 @@ func (account *Account) ensureAddresses() {
 		for {
 			newAddresses, err := addressChain.EnsureAddresses()
 			if err != nil {
-				if account.isClosed() {
-					account.log.WithError(err).Error("stopping sync because account was closed")
-					return
-				}
-				// TODO
-				account.log.WithError(err).Panic("EnsureAddresses failed")
+				account.reportFatalSyncError(err, "EnsureAddresses failed")
+				return
 			}
 			if len(newAddresses) == 0 {
 				break
