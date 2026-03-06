@@ -48,6 +48,18 @@
     margin-bottom: var(--space-half);
 }
 
+.contractAddressLink {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--space-quarter);
+    margin-left: auto;
+}
+
+.contractAddressLinkIcon {
+    height: 16px;
+    width: 16px;
+}
+
 .exportButton {
     margin-bottom: var(--space-eight);
     padding-left: 0;
