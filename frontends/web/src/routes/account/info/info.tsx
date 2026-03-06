@@ -124,6 +124,7 @@ export const Info = ({
                   account={account}
                   code={code}
                   info={config}
+                  hasTransactions={!!hasTransactions}
                   signingConfigIndex={viewXPub}>
                   <BackButton enableEsc>
                     {t('button.back')}
