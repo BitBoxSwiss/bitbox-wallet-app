@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { useLoad } from '@/hooks/api';
 import { useTranslation } from 'react-i18next';
 import { runningInIOS } from '@/utils/env';
@@ -37,6 +37,10 @@ type TProps = {
 };
 
 type TWrapperProps = TProps & TPagePropsWithSettingsTabs;
+type TLayoutProps = TPagePropsWithSettingsTabs & {
+  children: ReactNode;
+  mobileHeaderTitle: string;
+};
 
 export const StyledSkeleton = () => {
   return (
@@ -46,7 +50,12 @@ export const StyledSkeleton = () => {
   );
 };
 
-const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
+const BB02SettingsLayout = ({
+  devices,
+  hasAccounts,
+  children,
+  mobileHeaderTitle,
+}: TLayoutProps) => {
   const { t } = useTranslation();
   return (
     <Main>
@@ -60,7 +69,7 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
             title={
               <>
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader withGuide title={t('sidebar.device')} />
+                <MobileHeader withGuide title={mobileHeaderTitle} />
               </>
             }/>
           <View fullscreen={false}>
@@ -70,7 +79,7 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
-                <Content deviceID={deviceID} />
+                {children}
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -81,7 +90,19 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
   );
 };
 
-const Content = ({ deviceID }: TProps) => {
+const BackupContent = ({ deviceID }: TProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className={styles.section}>
+      <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.backups.title')}</SubTitle>
+      <ManageBackupSetting deviceID={deviceID} />
+      <ShowRecoveryWordsSetting deviceID={deviceID} />
+    </div>
+  );
+};
+
+const ManageDeviceContent = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
 
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
@@ -102,13 +123,6 @@ const Content = ({ deviceID }: TProps) => {
 
   return (
     <>
-      {/*"Backups" section*/}
-      <div className={styles.section}>
-        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.backups.title')}</SubTitle>
-        <ManageBackupSetting deviceID={deviceID} />
-        <ShowRecoveryWordsSetting deviceID={deviceID} />
-      </div>
-
       {/*"Device settings" section*/}
       <div className={styles.section}>
         <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceSettings.title')}</SubTitle>
@@ -200,4 +214,32 @@ const Content = ({ deviceID }: TProps) => {
   );
 };
 
-export { BB02Settings };
+const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <BB02SettingsLayout
+      devices={devices}
+      hasAccounts={hasAccounts}
+      mobileHeaderTitle={t('sidebar.device')}
+    >
+      <ManageDeviceContent deviceID={deviceID} />
+    </BB02SettingsLayout>
+  );
+};
+
+const BB02BackupSettings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <BB02SettingsLayout
+      devices={devices}
+      hasAccounts={hasAccounts}
+      mobileHeaderTitle={t('deviceSettings.backups.title')}
+    >
+      <BackupContent deviceID={deviceID} />
+    </BB02SettingsLayout>
+  );
+};
+
+export { BB02Settings, BB02BackupSettings };
