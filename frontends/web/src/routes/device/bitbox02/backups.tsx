@@ -20,6 +20,7 @@ type TProps = {
   deviceID: string;
   showRestore?: boolean;
   showCreate?: boolean;
+  showCheck?: boolean;
   showRadio: boolean;
   onSelectBackup?: (backup: Backup) => void;
   onRestoreBackup?: (success: boolean) => void;
@@ -30,6 +31,7 @@ export const BackupsV2 = ({
   deviceID,
   showRestore,
   showCreate,
+  showCheck,
   showRadio,
   onSelectBackup,
   onRestoreBackup,
@@ -148,7 +150,7 @@ export const BackupsV2 = ({
             )
           }
           {
-            showCreate && (
+            showCheck && (
               <Check
                 deviceID={deviceID}
                 backups={backups.backups ? backups.backups : []}
