@@ -230,9 +230,19 @@
   }
   
   .addresses {
-    display: none;
+    opacity: 0;
   }
 
+  .txNoteWithAddress {
+    text-overflow: unset;
+  }
+
+}
+
+@media (max-width: 320px) {
+  .txNoteWithAddress{
+    text-overflow: ellipsis;
+  }
 }
 .iconLoupe {
   width: 28px;
