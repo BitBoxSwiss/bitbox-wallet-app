@@ -30,6 +30,11 @@ Place Go tests in `_test.go` files and run `go test -mod=vendor ./...` (optional
 `*.test.ts(x)`; invoke `make webtest` for the suite. Use `make webe2etest` for Playwright smoke
 flows and document new scenarios in `frontends/web/tests/README.md` if they require fixtures.
 
+## Review Guidelines
+
+- when reviewing a removed function call, check that the removed behavior was not required and was not dropped by accident during a refactor.
+- when reviewing a removed function call, check if the callee became unused and should also be removed.
+
 ## Commit & Pull Request Guidelines
 Follow the existing `context: summary` convention (lowercase imperative, no trailing period)—e.g.,
 `frontend: simplify account selector`. Keep commits atomic and under ~500 lines when
