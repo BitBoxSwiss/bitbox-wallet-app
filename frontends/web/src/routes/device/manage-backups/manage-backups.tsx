@@ -10,7 +10,10 @@ import { Entry } from '@/components/guide/entry';
 import { Header } from '@/components/layout';
 import { Backups } from '@/routes/device/bitbox01/backups';
 import { BackupsV2 } from '@/routes/device/bitbox02/backups';
+import { Create as CreateBackupV2 } from '@/routes/device/bitbox02/createbackup';
+import { Check as CheckBackupV2 } from '@/routes/device/bitbox02/checkbackup';
 import { SDCardCheck } from '@/routes/device/bitbox02/sdcardcheck';
+import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimation';
 
 type TProps = {
   deviceID: string | null;
@@ -48,6 +51,7 @@ export const ManageBackups = ({
   const { t } = useTranslation();
   const location = useLocation();
   const mode = getBackupMode(location.search);
+  const autoStartID = mode ? `${location.key}-${mode}` : undefined;
 
   if (!deviceID || !devices[deviceID]) {
     return null;
@@ -65,6 +69,7 @@ export const ManageBackups = ({
               deviceID={deviceID}
               devices={devices}
               mode={mode}
+              autoStartID={autoStartID}
             />
           </div>
         </div>
@@ -81,7 +86,8 @@ const BackupsList = ({
   deviceID,
   devices,
   mode,
-}: TProps & { mode?: TBackupMode }) => {
+  autoStartID,
+}: TProps & { mode?: TBackupMode; autoStartID?: string }) => {
   const { t } = useTranslation();
   if (!deviceID) {
     return null;
@@ -108,6 +114,26 @@ const BackupsList = ({
       </>
     );
   case 'bitbox02':
+    if (mode === 'create') {
+      return (
+        <SDCardCheck deviceID={deviceID}>
+          <AutoStartCreateBackup
+            deviceID={deviceID}
+            autoStartID={autoStartID}
+          />
+        </SDCardCheck>
+      );
+    }
+    if (mode === 'check') {
+      return (
+        <SDCardCheck deviceID={deviceID}>
+          <AutoStartCheckBackup
+            deviceID={deviceID}
+            autoStartID={autoStartID}
+          />
+        </SDCardCheck>
+      );
+    }
     return (
       <SDCardCheck deviceID={deviceID}>
         <BackupsV2
@@ -125,6 +151,48 @@ const BackupsList = ({
   default:
     return null;
   }
+};
+
+const AutoStartCreateBackup = ({ deviceID, autoStartID }: { deviceID: string; autoStartID?: string }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="box m-top-default">
+      <HorizontallyCenteredSpinner />
+      <CreateBackupV2
+        deviceID={deviceID}
+        autoStart
+        autoStartID={autoStartID}
+        showButton={false}
+      />
+      <div className="buttons">
+        <BackButton>
+          {t('button.back')}
+        </BackButton>
+      </div>
+    </div>
+  );
+};
+
+const AutoStartCheckBackup = ({ deviceID, autoStartID }: { deviceID: string; autoStartID?: string }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="box m-top-default">
+      <HorizontallyCenteredSpinner />
+      <CheckBackupV2
+        deviceID={deviceID}
+        backups={[]}
+        disabled={false}
+        autoStart
+        autoStartID={autoStartID}
+        showButton={false}
+      />
+      <div className="buttons">
+        <BackButton>
+          {t('button.back')}
+        </BackButton>
+      </div>
+    </div>
+  );
 };
 
 const ManageBackupGuide = ({

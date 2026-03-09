@@ -6,6 +6,7 @@ import { SettingsItem } from '@/routes/settings/components/settingsItem/settings
 
 type TProps = {
   deviceID: string;
+  onClick?: () => void;
 };
 
 type TBackupMode = 'create' | 'check' | 'list';
@@ -18,6 +19,7 @@ type TBackupSettingsItemProps = TProps & {
 
 const BackupSettingsItem = ({
   deviceID,
+  onClick,
   mode,
   settingName,
   secondaryText,
@@ -26,18 +28,19 @@ const BackupSettingsItem = ({
 
   return (
     <SettingsItem
-      onClick={() => navigate(`/manage-backups/${deviceID}?mode=${mode}`)}
+      onClick={onClick || (() => navigate(`/manage-backups/${deviceID}?mode=${mode}`))}
       settingName={settingName}
       secondaryText={secondaryText}
     />
   );
 };
 
-const CreateBackupSetting = ({ deviceID }: TProps) => {
+const CreateBackupSetting = ({ deviceID, onClick }: TProps) => {
   const { t } = useTranslation();
   return (
     <BackupSettingsItem
       deviceID={deviceID}
+      onClick={onClick}
       mode="create"
       settingName={t('backup.create.title')}
       secondaryText={t('deviceSettings.backups.createBackup.description', {
@@ -47,11 +50,12 @@ const CreateBackupSetting = ({ deviceID }: TProps) => {
   );
 };
 
-const CheckBackupSetting = ({ deviceID }: TProps) => {
+const CheckBackupSetting = ({ deviceID, onClick }: TProps) => {
   const { t } = useTranslation();
   return (
     <BackupSettingsItem
       deviceID={deviceID}
+      onClick={onClick}
       mode="check"
       settingName={t('backup.check.title')}
       secondaryText={t('deviceSettings.backups.checkBackup.description', {
@@ -61,11 +65,12 @@ const CheckBackupSetting = ({ deviceID }: TProps) => {
   );
 };
 
-const ListBackupsSetting = ({ deviceID }: TProps) => {
+const ListBackupsSetting = ({ deviceID, onClick }: TProps) => {
   const { t } = useTranslation();
   return (
     <BackupSettingsItem
       deviceID={deviceID}
+      onClick={onClick}
       mode="list"
       settingName={t('deviceSettings.backups.listBackups.title', { defaultValue: 'List backups' })}
       secondaryText={t('deviceSettings.backups.listBackups.description', {

@@ -34,6 +34,8 @@ import { MobileHeader } from './components/mobile-header';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { SubTitle } from '@/components/title';
+import { Create as CreateBackupFlow } from '@/routes/device/bitbox02/createbackup';
+import { Check as CheckBackupFlow } from '@/routes/device/bitbox02/checkbackup';
 import styles from './bb02-settings.module.css';
 
 type TProps = {
@@ -96,14 +98,51 @@ const BB02SettingsLayout = ({
 
 const BackupContent = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
+  const [activeBackupFlow, setActiveBackupFlow] = useState<'create' | 'check'>();
+  const [backupFlowCounter, setBackupFlowCounter] = useState(0);
+
+  const startFlow = (flow: 'create' | 'check') => {
+    setActiveBackupFlow(flow);
+    setBackupFlowCounter(current => current + 1);
+  };
+
+  const flowID = activeBackupFlow ? `${deviceID}-${activeBackupFlow}-${backupFlowCounter}` : undefined;
 
   return (
     <div className={styles.section}>
       <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.backups.title')}</SubTitle>
-      <CreateBackupSetting deviceID={deviceID} />
-      <CheckBackupSetting deviceID={deviceID} />
+      <CreateBackupSetting
+        deviceID={deviceID}
+        onClick={() => startFlow('create')}
+      />
+      <CheckBackupSetting
+        deviceID={deviceID}
+        onClick={() => startFlow('check')}
+      />
       <ListBackupsSetting deviceID={deviceID} />
       <ShowRecoveryWordsSetting deviceID={deviceID} />
+      {
+        activeBackupFlow === 'create' ? (
+          <CreateBackupFlow
+            deviceID={deviceID}
+            autoStart
+            autoStartID={flowID}
+            showButton={false}
+          />
+        ) : null
+      }
+      {
+        activeBackupFlow === 'check' ? (
+          <CheckBackupFlow
+            deviceID={deviceID}
+            backups={[]}
+            disabled={false}
+            autoStart
+            autoStartID={flowID}
+            showButton={false}
+          />
+        ) : null
+      }
     </div>
   );
 };

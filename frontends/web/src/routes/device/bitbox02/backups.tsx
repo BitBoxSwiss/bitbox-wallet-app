@@ -21,6 +21,9 @@ type TProps = {
   showRestore?: boolean;
   showCreate?: boolean;
   showCheck?: boolean;
+  autoStartCreate?: boolean;
+  autoStartCheck?: boolean;
+  autoStartID?: string;
   showRadio: boolean;
   onSelectBackup?: (backup: Backup) => void;
   onRestoreBackup?: (success: boolean) => void;
@@ -32,6 +35,9 @@ export const BackupsV2 = ({
   showRestore,
   showCreate,
   showCheck,
+  autoStartCreate,
+  autoStartCheck,
+  autoStartID,
   showRadio,
   onSelectBackup,
   onRestoreBackup,
@@ -146,7 +152,12 @@ export const BackupsV2 = ({
           }
           {
             showCreate && (
-              <Create deviceID={deviceID} />
+              <Create
+                deviceID={deviceID}
+                autoStart={autoStartCreate}
+                autoStartID={autoStartCreate ? autoStartID : undefined}
+                showButton={!autoStartCreate}
+              />
             )
           }
           {
@@ -155,6 +166,9 @@ export const BackupsV2 = ({
                 deviceID={deviceID}
                 backups={backups.backups ? backups.backups : []}
                 disabled={backups.backups.length === 0}
+                autoStart={autoStartCheck}
+                autoStartID={autoStartCheck ? autoStartID : undefined}
+                showButton={!autoStartCheck}
               />
             )
           }

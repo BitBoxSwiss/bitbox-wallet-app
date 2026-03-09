@@ -1,37 +1,53 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as bitbox02API from '@/api/bitbox02';
 import { BackupsListItem } from '@/routes/device/components/backup';
-import { Backup } from '@/api/backup';
-import { alertUser } from '@/components/alert/Alert';
+import { Backup, getBackupList } from '@/api/backup';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
 import { useTranslation } from 'react-i18next';
+
+const startedCheckBackupFlows = new Set<string>();
 
 type TProps = {
   deviceID: string;
   backups: Backup[];
   disabled: boolean;
+  autoStart?: boolean;
+  autoStartID?: string;
+  showButton?: boolean;
 };
 
-export const Check = ({ deviceID, backups, disabled }: TProps) => {
+export const Check = ({
+  deviceID,
+  backups,
+  disabled,
+  autoStart = false,
+  autoStartID,
+  showButton = true,
+}: TProps) => {
   const [activeDialog, setActiveDialog] = useState(false);
   const [message, setMessage] = useState('');
   const [foundBackup, setFoundBackup] = useState<Backup>();
   const [userVerified, setUserVerified] = useState(false);
+  const checkBackupRef = useRef<() => Promise<void>>();
   const { t } = useTranslation();
 
   const checkBackup = async () => {
     setMessage('');
+    setFoundBackup(undefined);
+    setUserVerified(false);
     try {
       const result = await bitbox02API.checkBackup(deviceID, true);
       if (result.success) {
         const { backupID } = result;
-        const foundBackup = backups.find((backup: Backup) => backup.id === backupID);
+        let foundBackup = backups.find((backup: Backup) => backup.id === backupID);
         if (!foundBackup) {
-          alertUser(t('unknownError', { errorMessage: 'Not found' }));
-          return;
+          const backupListResult = await getBackupList(deviceID);
+          if (backupListResult.success) {
+            foundBackup = backupListResult.backups.find((backup: Backup) => backup.id === backupID);
+          }
         }
         setActiveDialog(true);
         setFoundBackup(foundBackup);
@@ -54,15 +70,30 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
       console.error(error);
     }
   };
+  checkBackupRef.current = checkBackup;
+
+  useEffect(() => {
+    if (!autoStart || disabled) {
+      return;
+    }
+    const id = autoStartID || `check-${deviceID}`;
+    if (startedCheckBackupFlows.has(id)) {
+      return;
+    }
+    startedCheckBackupFlows.add(id);
+    void checkBackupRef.current?.();
+  }, [autoStart, disabled, autoStartID, deviceID]);
 
   return (
     <>
-      <Button
-        primary
-        disabled={disabled}
-        onClick={checkBackup}>
-        {t('button.check')}
-      </Button>
+      {showButton && (
+        <Button
+          primary
+          disabled={disabled}
+          onClick={checkBackup}>
+          {t('button.check')}
+        </Button>
+      )}
       <Dialog
         open={activeDialog}
         title={t('backup.check.confirmTitle')}>
