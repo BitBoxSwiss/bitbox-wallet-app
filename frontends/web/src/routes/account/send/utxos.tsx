@@ -128,7 +128,7 @@ export const UTXOs = ({
                       <span className={style.label}>
                         {t('send.coincontrol.address')}:
                       </span>
-                      <span className={style.shrink}>
+                      <span className={`${style.shrink || ''} ${style.tabularNums || ''}`}>
                         {utxo.address}
                       </span>
                       <div className="m-left-quarter">
@@ -160,9 +160,9 @@ export const UTXOs = ({
                       <span className={style.label}>
                         {t('send.coincontrol.outpoint')}:
                       </span>
-                      <span className={style.shrink}>
+                      <span className={`${style.shrink || ''} ${style.tabularNums || ''}`}>
                         {utxo.txId}
-                      </span>:{utxo.txOutput}
+                      </span>:<span className={style.tabularNums}>{utxo.txOutput}</span>
                     </div>
                   </div>
                   <A

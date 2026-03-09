@@ -6,7 +6,7 @@
 .txConversionAmount {
   align-items: baseline;
   display: flex;
-  font-variant: tabular-nums;
+  font-variant-numeric: tabular-nums;
   margin-left: auto;
   gap: 3px;
 }
