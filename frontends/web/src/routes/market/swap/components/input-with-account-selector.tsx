@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext, useEffect, useState, type ChangeEvent } from 'react';
-import type { AccountCode, TAccount } from '@/api/account';
+import type { AccountCode, TAccountLike } from '@/api/account';
 import { convertToCurrency } from '@/api/coins';
 import { RatesContext } from '@/contexts/RatesContext';
 import { NumberInput } from '@/components/forms';
@@ -11,25 +11,25 @@ import { AmountUnit } from '@/components/amount/amount-with-unit';
 import { findAccount } from '@/routes/account/utils';
 import style from './input-with-account-selector.module.css';
 
-type Props = {
+type Props<T extends TAccountLike> = {
   accountCode: AccountCode | undefined;
-  accounts: TAccount[];
+  accounts: T[];
   id: string;
   onChangeAccountCode: (accountCode: AccountCode) => void;
   onChangeValue?: (value: string) => void;
   value: string | undefined;
 };
 
-export const InputWithAccountSelector = ({
+export const InputWithAccountSelector = <T extends TAccountLike, >({
   accountCode,
   accounts,
   id,
   onChangeAccountCode,
   onChangeValue,
   value,
-}: Props) => {
+}: Props<T>) => {
   const { defaultCurrency } = useContext(RatesContext);
-  const [selectedAccount, setSelectedAccount] = useState<TAccount>();
+  const [selectedAccount, setSelectedAccount] = useState<T>();
   const hasAccounts = accounts && accounts.length > 0;
 
   const [esitmatedFiatValue, setEstimatedFiatValue] = useState<string | null>();
