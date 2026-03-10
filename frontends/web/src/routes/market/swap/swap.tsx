@@ -2,17 +2,20 @@
 
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getBalance, TBalance, type AccountCode, type TAccount } from '@/api/account';
-import { getSwapQuote, type TSwapQuoteRoute } from '@/api/swap';
+import { getBalance, getSwapDestinationAccounts, TBalance, type AccountCode, type TAccount, type TSwapDestinationAccount } from '@/api/account';
+import { getSwapQuote, signSwap, type TSwapQuoteRoute } from '@/api/swap';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { SubTitle } from '@/components/title';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
+import { alertUser } from '@/components/alert/Alert';
 import { Button, Label } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ArrowSwap } from '@/components/icon';
+import { findAccount } from '@/routes/account/utils';
+import { useLoad } from '@/hooks/api';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { ConfirmSwap } from './components/swap-confirm';
@@ -21,6 +24,7 @@ import { RatesContext } from '@/contexts/RatesContext';
 import style from './swap.module.css';
 
 type Props = {
+  activeAccounts: TAccount[];
   accounts: TAccount[];
   code: AccountCode;
 };
@@ -37,10 +41,16 @@ const fetchBalance = async (code: AccountCode) => {
 };
 
 export const Swap = ({
+  activeAccounts,
   accounts,
   code,
 }: Props) => {
   const { t } = useTranslation();
+  const loadedBuyAccounts = useLoad(getSwapDestinationAccounts, [accounts]);
+  const buyAccounts = useMemo<TSwapDestinationAccount[]>(
+    () => loadedBuyAccounts || [],
+    [loadedBuyAccounts],
+  );
 
   // TODO: can be removed once real amount's are used for expectedOutput in sendconfirm
   const { btcUnit } = useContext(RatesContext);
@@ -63,12 +73,14 @@ export const Swap = ({
   const [routeError, setRouteError] = useState<string | undefined>();
 
   const fromAccount = useMemo(
-    () => accounts.find(account => account.code === sellAccountCode),
+    () => findAccount(accounts, sellAccountCode),
     [accounts, sellAccountCode],
   );
-  const toAccount = useMemo(
-    () => accounts.find(account => account.code === buyAccountCode),
-    [accounts, buyAccountCode],
+  const buyAccount = useMemo(
+    () => buyAccountCode
+      ? findAccount(buyAccounts, buyAccountCode)
+      : undefined,
+    [buyAccounts, buyAccountCode],
   );
   const selectedRoute = useMemo(
     () => routes.find(route => route.routeId === selectedRouteId),
@@ -78,10 +90,10 @@ export const Swap = ({
   // enable flip button
   useEffect(() => {
     setCanFlip(
-      buyAccountCode !== undefined
+      buyAccount?.active === true
       && sellAccountCode !== undefined
     );
-  }, [buyAccountCode, sellAccountCode]);
+  }, [buyAccount, sellAccountCode]);
 
   const clearQuoteState = (error?: string) => {
     setRoutes([]);
@@ -110,7 +122,7 @@ export const Swap = ({
   useEffect(() => {
     let isCancelled = false;
     const sellCoinCode = fromAccount?.coinCode;
-    const buyCoinCode = toAccount?.coinCode;
+    const buyCoinCode = buyAccount?.coinCode;
     const amount = Number(sellAmount);
 
     if (
@@ -175,14 +187,28 @@ export const Swap = ({
       isCancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [fromAccount?.coinCode, sellAccountCode, sellAmount, toAccount?.coinCode, buyAccountCode]);
+  }, [buyAccount?.coinCode, buyAccountCode, fromAccount?.coinCode, sellAccountCode, sellAmount]);
 
   useEffect(() => {
     setExpectedOutput(selectedRoute?.expectedBuyAmount || '');
   }, [selectedRoute]);
 
-  const handleConfirm = () => {
-    // TODO: add api call to confirm a swap on the device
+  const handleConfirm = async () => {
+    if (!buyAccountCode || !sellAccountCode || !selectedRouteId || !sellAmount) {
+      alertUser(t('genericError'));
+      return;
+    }
+    const response = await signSwap({
+      buyAccountCode,
+      routeId: selectedRouteId,
+      sellAccountCode,
+      sellAmount,
+    });
+    if (!response.success) {
+      alertUser(response.errorMessage || t('genericError'));
+      return;
+    }
+    // TODO: add the real device signing flow in the backend swap/sign endpoint.
     setIsConfirming(true);
   };
 
@@ -220,7 +246,7 @@ export const Swap = ({
                 )}
               </div>
               <InputWithAccountSelector
-                accounts={accounts}
+                accounts={activeAccounts}
                 id="swapSendAmount"
                 accountCode={sellAccountCode}
                 onChangeAccountCode={setSellAccountCode}
@@ -249,14 +275,14 @@ export const Swap = ({
                 </Button>
               </div>
               <InputWithAccountSelector
-                accounts={accounts}
+                accounts={buyAccounts}
                 id="swapGetAmount"
                 accountCode={buyAccountCode}
                 onChangeAccountCode={setBuyAccountCode}
                 value={expectedOutput}
               />
               <SwapServiceSelector
-                buyUnit={toAccount?.coinUnit}
+                buyUnit={buyAccount?.coinUnit}
                 error={routeError}
                 isLoading={isFetchingRoutes}
                 onChangeRouteId={setSelectedRouteId}
