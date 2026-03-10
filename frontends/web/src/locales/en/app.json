@@ -43,16 +43,12 @@
   },
   "accountSummary": {
     "availableBalance": "Available balance",
-    "balance": "Balance",
-    "coin": "Coin",
-    "exportSummary": "Export accounts summary to downloads folder as CSV file",
-    "fiatBalance": "Fiat balance",
     "name": "Account name",
     "noAccount": "There are no accounts to show.",
     "portfolio": "Portfolio",
-    "subtotalWithCoinName": "Total ({{coinName}})",
     "title": "My portfolio",
     "total": "Total",
+    "totalAssets": "Total assets",
     "transactionHistory": "Transaction history"
   },
   "addAccount": {

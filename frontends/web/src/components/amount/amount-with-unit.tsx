@@ -13,6 +13,7 @@ type TAmountWithUnitProps = {
   sign?: string;
   alwaysShowAmounts?: boolean;
   convertToFiat?: boolean;
+  amountClassName?: string;
   unitClassName?: string;
 };
 
@@ -22,6 +23,7 @@ export const AmountWithUnit = ({
   sign,
   convertToFiat,
   alwaysShowAmounts = false,
+  amountClassName = '',
   unitClassName = '',
 }: TAmountWithUnitProps) => {
   const { rotateDefaultCurrency, defaultCurrency, rotateBtcUnit } = useContext(RatesContext);
@@ -53,6 +55,7 @@ export const AmountWithUnit = ({
       ${style.rates || ''}
       ${style.availableFiatAmount || ''}
       ${!displayedAmount && style.notAvailable || ''}
+      ${amountClassName || ''}
     `.trim()}>
       {!!displayedAmount ? sign : ''}
       {!!displayedAmount ? (
