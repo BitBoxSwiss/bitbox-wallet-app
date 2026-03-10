@@ -683,9 +683,7 @@ export const Chart = ({
           </div>
         ) : (
           <div className={styles.placeholderContainer}>
-            <p>
-              {noDataPlaceholder}
-            </p>
+            {noDataPlaceholder}
           </div>
         )}
         <div ref={ref} className={styles.invisible}></div>

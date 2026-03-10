@@ -1,6 +1,7 @@
 .container {
     padding: calc(var(--space-default) * 1.5) 0;
     text-align: center;
+    white-space: normal;
 }
 
 .button {
