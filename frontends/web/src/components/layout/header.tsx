@@ -10,12 +10,14 @@ import style from './header.module.css';
 type Props = {
   title?: string | JSX.Element | JSX.Element[];
   hideSidebarToggler?: boolean;
+  centerTitle?: boolean;
   children?: ReactNode;
 };
 
 export const Header = ({
   title,
   hideSidebarToggler,
+  centerTitle,
   children,
 }: Props) => {
   const { t } = useTranslation();
@@ -45,7 +47,14 @@ export const Header = ({
           <MenuDark className="show-in-lightmode" />
           <MenuLight className="show-in-darkmode" />
         </div>
-        <div className={style.title}>{title}</div>
+        <div
+          className={[
+            style.title,
+            centerTitle ? style.centerTitle : '',
+          ].join(' ')}
+        >
+          {title}
+        </div>
         <div className={style.children}>
           {children}
           {/* keeps this button in

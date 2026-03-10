@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useLoad, useSync } from '@/hooks/api';
 import { getInfo, TAccount, AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions, TSigningConfiguration } from '@/api/account';
-import { isBitcoinBased } from '@/routes/account/utils';
+import { findAccount, isBitcoinBased, isBitcoinOnly, isMessageSigningSupported } from '@/routes/account/utils';
 import { Header } from '@/components/layout';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
-import { BitcoinBasedAccountInfoGuide } from './guide';
 import { Message } from '@/components/message/message';
-import { Button } from '@/components/forms';
+import { ActionableItem } from '@/components/actionable-item/actionable-item';
+import { OutlinedFileProtect, OutlinedQRCode, OutlinedUnorderedList, OutlinedUpload } from '@/components/icon';
 import { alertUser } from '@/components/alert/Alert';
 import { statusChanged } from '@/api/accountsync';
 import style from './info.module.css';
@@ -25,8 +26,10 @@ export const Info = ({
   code,
 }: TProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const info = useLoad(getInfo(code));
   const [viewXPub, setViewXPub] = useState<number>(0);
+  const [showXPub, setShowXPub] = useState<boolean>(false);
   const [transactions, setTransactions] = useState<TTransactions>();
   const status: TStatus | undefined = useSync(
     () => getStatus(code),
@@ -39,15 +42,24 @@ export const Info = ({
       .catch(console.error);
   }, [code]);
 
+  useEffect(() => {
+    setShowXPub(false);
+    setViewXPub(0);
+  }, [code]);
+
   const hasTransactions = transactions?.success && transactions.list.length > 0;
 
-  const account = accounts.find(({ code: accountCode }) => accountCode === code);
+  const account = findAccount(accounts, code);
   if (!account || !info) {
     return null;
   }
 
-  const config = info.signingConfigurations[viewXPub] as TSigningConfiguration;
   const numberOfXPubs = info.signingConfigurations.length;
+  if (numberOfXPubs === 0) {
+    return null;
+  }
+  const safeViewXPub = Math.max(0, Math.min(viewXPub, numberOfXPubs - 1));
+  const config = info.signingConfigurations[safeViewXPub] as TSigningConfiguration;
   const xpubTypes = info.signingConfigurations.map(cfg => cfg.bitcoinSimple?.scriptType);
 
   const showNextXPub = () => {
@@ -55,7 +67,7 @@ export const Info = ({
       return;
     }
     const numberOfXPubs = info.signingConfigurations.length;
-    setViewXPub((viewXPub + 1) % numberOfXPubs);
+    setViewXPub(prev => (prev + 1) % numberOfXPubs);
   };
 
   const handleExport = async () => {
@@ -72,24 +84,85 @@ export const Info = ({
     }
   };
 
-  const xpubType = xpubTypes[(viewXPub + 1) % numberOfXPubs];
+  const xpubType = xpubTypes[(safeViewXPub + 1) % numberOfXPubs];
 
-  return (
-    <div className="contentWithGuide">
+  const isBtcBased = isBitcoinBased(account.coinCode);
+  const isBtcOnly = isBitcoinOnly(account.coinCode);
+  const canSignMessage = isMessageSigningSupported(account.coinCode);
+
+  // Menu view
+  if (!showXPub) {
+    return (
       <div className="container">
         <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{t('accountInfo.title')}</h2>} />
+          <Header hideSidebarToggler centerTitle title={<h2>{t('accountInfo.title')}</h2>} />
           <div className="content padded">
-            <div className="box larger">
-              { isBitcoinBased(account.coinCode) ? (
-                <h2 className={style.title}>
-                  {t('accountInfo.extendedPublicKey')}
-                </h2>
-              ) : null }
-              { (config?.bitcoinSimple !== undefined && numberOfXPubs > 1) ? (
+            <div className={style.menuSection}>
+              <div className={style.menuList}>
+                <ActionableItem
+                  onClick={handleExport}
+                  disabled={!hasTransactions}
+                >
+                  <div className={style.actionItem}>
+                    <OutlinedUpload className={style.actionIcon} aria-hidden alt="" />
+                    <span>{t('accountInfo.exportTransactions')}</span>
+                  </div>
+                </ActionableItem>
+                {isBtcBased && (
+                  <ActionableItem
+                    onClick={() => setShowXPub(true)}
+                  >
+                    <div className={style.actionItem}>
+                      <OutlinedQRCode className={style.actionIcon} aria-hidden alt="" />
+                      <span>{t('accountInfo.viewXPub')}</span>
+                    </div>
+                  </ActionableItem>
+                )}
+                {canSignMessage && (
+                  <ActionableItem
+                    onClick={() => navigate(`/account/${code}/sign-message`)}
+                  >
+                    <div className={style.actionItem}>
+                      <OutlinedFileProtect className={style.actionIcon} aria-hidden alt="" />
+                      <span>{t('accountInfo.signMessage')}</span>
+                    </div>
+                  </ActionableItem>
+                )}
+                {isBtcOnly && (
+                  <ActionableItem
+                    onClick={() => navigate(`/account/${code}/addresses`)}
+                  >
+                    <div className={style.actionItem}>
+                      <OutlinedUnorderedList className={style.actionIcon} aria-hidden alt="" />
+                      <span>{t('accountInfo.usedAddresses')}</span>
+                    </div>
+                  </ActionableItem>
+                )}
+              </div>
+              <div className={style.footerButtons}>
+                <BackButton to={`/account/${code}`} replace={true} enableEsc>
+                  {t('button.back')}
+                </BackButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // xPub detail view
+  return (
+    <div className="container">
+      <div className="innerContainer scrollableContainer">
+        <Header hideSidebarToggler centerTitle title={<h2>{t('accountInfo.extendedPublicKey')}</h2>} />
+        <div className="content padded">
+          <div className={style.pageSection}>
+            <div className={style.detailCard}>
+              {(config?.bitcoinSimple !== undefined && numberOfXPubs > 1) && (
                 <p className={style.xPubInfo}>
                   {t('accountInfo.xpubTypeInfo', {
-                    current: `${viewXPub + 1}`,
+                    current: `${safeViewXPub + 1}`,
                     numberOfXPubs: numberOfXPubs.toString(),
                     scriptType: config.bitcoinSimple.scriptType.toUpperCase(),
                   })}
@@ -100,32 +173,26 @@ export const Info = ({
                     </button>
                   )}
                 </p>
-              ) : null}
-              <Button
-                transparent
-                disabled={!hasTransactions}
-                className={style.exportButton}
-                onClick={handleExport}
-                title={t('account.exportTransactions')}>
-                {t('account.export')}
-              </Button>
-              { (config?.bitcoinSimple?.scriptType === 'p2tr') ? (
+              )}
+              {(config?.bitcoinSimple?.scriptType === 'p2tr') ? (
                 <>
                   <Message type="info">
                     {t('accountInfo.taproot')}
                   </Message>
-                  <BackButton enableEsc>
-                    {t('button.back')}
-                  </BackButton>
+                  <div className="buttons">
+                    <BackButton onBack={() => setShowXPub(false)} enableEsc>
+                      {t('button.back')}
+                    </BackButton>
+                  </div>
                 </>
               ) : (
                 <SigningConfiguration
-                  key={viewXPub}
+                  key={safeViewXPub}
                   account={account}
                   code={code}
                   info={config}
-                  signingConfigIndex={viewXPub}>
-                  <BackButton enableEsc>
+                  signingConfigIndex={safeViewXPub}>
+                  <BackButton onBack={() => setShowXPub(false)} enableEsc>
                     {t('button.back')}
                   </BackButton>
                 </SigningConfiguration>
@@ -134,9 +201,6 @@ export const Info = ({
           </div>
         </div>
       </div>
-      { isBitcoinBased(account.coinCode) ? (
-        <BitcoinBasedAccountInfoGuide coinName={account.coinName} />
-      ) : null }
     </div>
   );
 };
