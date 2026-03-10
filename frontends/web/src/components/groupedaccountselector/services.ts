@@ -8,11 +8,25 @@ export const createGroupedOptions = (accountsByKeystore: TAccountsByKeystore[]) 
   return accountsByKeystore.map(({ keystore, accounts }) => ({
     label: `${keystore.name} ${isAmbiguousName(keystore.name, accountsByKeystore) ? `(${keystore.rootFingerprint})` : ''}`,
     connected: keystore.connected,
-    options: accounts.map((account) => ({ label: account.name, value: account.code, coinCode: account.coinCode, disabled: false })) as TOption[]
+    options: accounts.map((account) => ({
+      label: account.name,
+      value: account.code,
+      coinCode: account.coinCode,
+      coinUnit: account.coinUnit,
+      balance: account.balance?.available,
+      active: account.active,
+      disabled: false,
+    })) as TOption[]
   }));
 };
 
 const appendBalance = async (option: TOption) => {
+  if (option.balance) {
+    return { ...option };
+  }
+  if (!option.active) {
+    return { ...option };
+  }
   const balance = await getBalance(option.value);
   if (!balance.success) {
     return { ... option };

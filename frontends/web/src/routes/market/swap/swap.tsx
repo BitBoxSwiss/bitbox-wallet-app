@@ -2,16 +2,20 @@
 
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getBalance, TBalance, type AccountCode, type TAccount } from '@/api/account';
+import { getBalance, getSwapDestinationAccounts, TBalance, type AccountCode, type ERC20CoinCode, type TAccount } from '@/api/account';
+import * as backendAPI from '@/api/backend';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { SubTitle } from '@/components/title';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
+import { alertUser } from '@/components/alert/Alert';
 import { Button, Label } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ArrowSwap } from '@/components/icon';
+import { findAccount } from '@/routes/account/utils';
+import { useLoad } from '@/hooks/api';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { ConfirmSwap } from './components/swap-confirm';
@@ -20,6 +24,7 @@ import { RatesContext } from '@/contexts/RatesContext';
 import style from './swap.module.css';
 
 type Props = {
+  activeAccounts: TAccount[];
   accounts: TAccount[];
   code: AccountCode;
 };
@@ -33,10 +38,12 @@ const fetchBlance = async (code: AccountCode) => {
 };
 
 export const Swap = ({
+  activeAccounts,
   accounts,
   code,
 }: Props) => {
   const { t } = useTranslation();
+  const buyAccounts = useLoad(getSwapDestinationAccounts, [accounts]) || [];
 
   // TODO: can be removed once real amount's are used for expectedOutput in sendconfirm
   const { btcUnit } = useContext(RatesContext);
@@ -54,13 +61,17 @@ export const Swap = ({
 
   const [canFlip, setCanFlip] = useState<boolean>(false);
 
+  const buyAccount = buyAccountCode
+    ? findAccount(buyAccounts, buyAccountCode)
+    : undefined;
+
   // enable flip button
   useEffect(() => {
     setCanFlip(
-      buyAccountCode !== undefined
+      buyAccount?.active === true
       && sellAccountCode !== undefined
     );
-  }, [buyAccountCode, sellAccountCode]);
+  }, [buyAccount, sellAccountCode]);
 
   // flips sell and buy account
   const handleFlipAccounts = () => {
@@ -79,10 +90,32 @@ export const Swap = ({
     }
   }, [sellAccountCode]);
 
-  // not used yet, but loggin so we dont get a TS error
-  console.log(setExpectedOutput);
-
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    if (buyAccount && !buyAccount.active) {
+      // TODO: move activation as late as possible in the real swap flow, or ask for explicit confirmation first.
+      if (buyAccount.isToken) {
+        const parentEthAccountCode = buyAccount.parentAccountCode;
+        if (!parentEthAccountCode) {
+          alertUser(t('genericError'));
+          return;
+        }
+        const tokenActivation = await backendAPI.setTokenActive(
+          parentEthAccountCode,
+          buyAccount.coinCode as ERC20CoinCode,
+          true,
+        );
+        if (!tokenActivation.success) {
+          alertUser(tokenActivation.errorMessage || t('genericError'));
+          return;
+        }
+      } else {
+        const { success, errorMessage } = await backendAPI.setAccountActive(buyAccount.code, true);
+        if (!success) {
+          alertUser(errorMessage || t('genericError'));
+          return;
+        }
+      }
+    }
     // TODO: add api call to confirm a swap on the device
     setIsConfirming(true);
   };
@@ -121,7 +154,7 @@ export const Swap = ({
                 )}
               </div>
               <InputWithAccountSelector
-                accounts={accounts}
+                accounts={activeAccounts}
                 id="swapSendAmount"
                 accountCode={sellAccountCode}
                 onChangeAccountCode={setSellAccountCode}
@@ -150,7 +183,7 @@ export const Swap = ({
                 </Button>
               </div>
               <InputWithAccountSelector
-                accounts={accounts}
+                accounts={buyAccounts}
                 id="swapGetAmount"
                 accountCode={buyAccountCode}
                 onChangeAccountCode={setBuyAccountCode}
