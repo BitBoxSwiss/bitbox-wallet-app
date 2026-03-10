@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TPayload } from './utils/transport-common';
+import 'react';
+
+declare module 'react' {
+  interface CSSProperties {
+    [key: `--${string}`]: string | number | undefined;
+  }
+}
 
 export declare global {
   interface Window {
