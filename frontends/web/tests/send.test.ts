@@ -43,7 +43,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
   await test.step('Verify there are no transactions yet', async () => {
     await page.goto('/#/account-summary');
     await mineBlocks(12);
-    await page.locator('[data-label="Account name"]').nth(0).click();
+    await page.locator('[data-testid="account-name"]').nth(0).click();
     await expect(page.getByTestId('transaction')).toHaveCount(0);
   });
 
@@ -71,7 +71,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
 
   await test.step('Verify that the first account has a transaction', async () => {
     await page.goto('/#/account-summary');
-    await page.locator('[data-label="Account name"]').nth(0).click();
+    await page.locator('[data-testid="account-name"]').nth(0).click();
     await expect(page.getByTestId('transaction')).toHaveCount(1);
 
     // It should be an incoming tx
