@@ -58,8 +58,10 @@ export type TAccount = {
   code: AccountCode;
   name: string;
   isToken: boolean;
+  contractAddress?: string;
   activeTokens?: TActiveToken[];
   blockExplorerTxPrefix: string;
+  blockExplorerAddressPrefix?: string;
   bitsuranceStatus?: TDetailStatus;
   accountNumber?: number;
 };

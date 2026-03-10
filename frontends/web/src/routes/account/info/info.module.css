@@ -99,6 +99,18 @@
     order: 2;
 }
 
+.contractAddressLink {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--space-quarter);
+    margin-left: auto;
+}
+
+.contractAddressLinkIcon {
+    height: 16px;
+    width: 16px;
+}
+
 @media screen and (min-width: 900px) {
     .address {
         align-items: start;

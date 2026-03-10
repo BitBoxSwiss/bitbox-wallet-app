@@ -7,8 +7,11 @@ import { AccountCode, TAccount, TAmountWithConversions, TBitcoinSimple, TEthereu
 import { getScriptName, isBitcoinBased, isEthereumBased } from '@/routes/account/utils';
 import { alertUser } from '@/components/alert/Alert';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { A } from '@/components/anchor/anchor';
 import { CopyableInput } from '@/components/copy/Copy';
 import { Button } from '@/components/forms';
+import { ExternalLink } from '@/components/icon';
+import { Message } from '@/components/message/message';
 import { QRCode } from '@/components/qrcode/qrcode';
 import style from './info.module.css';
 
@@ -18,6 +21,13 @@ type TProps = {
   code: AccountCode;
   signingConfigIndex: number;
   children: ReactNode;
+};
+
+const formatContractAddress = (address: string): string => {
+  if (!address) {
+    return '';
+  }
+  return `${address.slice(0, 6)}.....${address.slice(-4)}`;
 };
 
 export const SigningConfiguration = ({ account, info, code, signingConfigIndex, children }: TProps) => {
@@ -45,6 +55,12 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
 
   const config = getSimpleInfo();
   const bitcoinBased = isBitcoinBased(account.coinCode);
+  const contractAddress = account.contractAddress;
+  const blockExplorerAddressPrefix = account.blockExplorerAddressPrefix;
+  const showContractAddress = account.isToken && !!contractAddress && !!blockExplorerAddressPrefix;
+  const contractAddressURL = showContractAddress
+    ? `${blockExplorerAddressPrefix}${contractAddress}`
+    : '';
   return (
     <div className={style.address}>
       <div className={style.qrCode}>
@@ -88,6 +104,24 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
             </span>
           </div>
         ) : null }
+        { showContractAddress ? (
+          <>
+            <div key="contractAddress" className={style.entry}>
+              <strong>Contract address:</strong>
+              <div className={style.contractAddressLink}>
+                <code>{formatContractAddress(contractAddress!)}</code>
+                <A
+                  href={contractAddressURL}
+                  title={contractAddressURL}>
+                  <ExternalLink className={style.contractAddressLinkIcon} />
+                </A>
+              </div>
+            </div>
+            <Message type="warning">
+              {t('accountInfo.contractAddressWarning')}
+            </Message>
+          </>
+        ) : null}
         { bitcoinBased ? (
           <div key="xpub" className={`${style.entry || ''} ${style.largeEntry || ''}`}>
             <strong className="m-right-half">
