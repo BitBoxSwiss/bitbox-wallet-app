@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode } from './account';
+import type { CoinCode } from './account';
 import { apiPost } from '@/utils/request';
 
 export type TGetSwapQuote = {
-  buyAsset: AccountCode;
+  buyAsset: CoinCode;
   sellAmount: string;
-  sellAsset: AccountCode;
+  sellAsset: CoinCode;
 };
 
 export type TSwapResponse = {
@@ -18,4 +18,3 @@ export const getSwapQuote = (
 ): Promise<TSwapResponse> => {
   return apiPost('swap/quote', data);
 };
-

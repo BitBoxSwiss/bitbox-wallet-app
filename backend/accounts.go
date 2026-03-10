@@ -792,6 +792,9 @@ func (backend *Backend) SetTokenActive(accountCode accountsTypes.Code, tokenCode
 		if acct == nil {
 			return errp.Newf("Could not find account %s", accountCode)
 		}
+		if active {
+			acct.Inactive = false
+		}
 		return acct.SetTokenActive(tokenCode, active)
 	})
 	if err != nil {
