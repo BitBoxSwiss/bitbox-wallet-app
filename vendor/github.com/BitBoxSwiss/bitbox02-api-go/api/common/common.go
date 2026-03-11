@@ -45,10 +45,10 @@ const (
 	// btc-only edition firmware. It appears in the HID descriptor.
 	FirmwareDeviceProductStringBitBox02PlusBTCOnly = "BitBox02 Nova BTC-only"
 
-	// BootloaderDeviceProductStringBitBox02Multi is the product string of the "BitBox02 Plus" multi
+	// BootloaderDeviceProductStringBitBox02PlusMulti is the product string of the "BitBox02 Plus" multi
 	// edition bootloader. It appears in the HID descriptor.
 	BootloaderDeviceProductStringBitBox02PlusMulti = "BitBox02 Nova Multi bl"
-	// BootloaderDeviceProductStringBitBox02BTCOnly is the product string of the "BitBox02 Plus"
+	// BootloaderDeviceProductStringBitBox02PlusBTCOnly is the product string of the "BitBox02 Plus"
 	// btc-only edition bootloader. It appears in the HID descriptor and the Bluetooth
 	// characteristic.
 	BootloaderDeviceProductStringBitBox02PlusBTCOnly = "BitBox02 Nova BTC-only bl"

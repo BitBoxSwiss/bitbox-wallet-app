@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode, CoinCode, ScriptType, TAccount, CoinUnit, TKeystore } from '@/api/account';
+import type { AccountCode, CoinCode, ScriptType, TAccount, NativeCoinUnit, TKeystore } from '@/api/account';
 
 export const findAccount = (
   accounts: TAccount[],
@@ -19,7 +19,7 @@ export const isBitcoinOnly = (coinCode: CoinCode): boolean => {
   }
 };
 
-export const isBitcoinCoin = (coin: CoinUnit | undefined) => {
+export const isBitcoinCoin = (coin: NativeCoinUnit | undefined) => {
   switch (coin) {
   case 'BTC':
   case 'TBTC':

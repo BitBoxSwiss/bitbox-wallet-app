@@ -574,14 +574,19 @@ func getValue(what *messages.ETHTypedMessageValueResponse, msg map[string]interf
 }
 
 // ETHSignTypedMessage signs an Ethereum EIP-712 typed message. 27 is added to the recID to denote
-// an uncompressed pubkey.
+// an uncompressed pubkey. If useAntiklepto is false, signing is deterministic and requires
+// firmware >= 9.26.0.
 func (device *Device) ETHSignTypedMessage(
 	chainID uint64,
 	keypath []uint32,
 	jsonMsg []byte,
+	useAntiklepto bool,
 ) ([]byte, error) {
 	if !device.version.AtLeast(semver.NewSemVer(9, 12, 0)) {
 		return nil, UnsupportedError("9.12.0")
+	}
+	if !useAntiklepto && !device.version.AtLeast(semver.NewSemVer(9, 26, 0)) {
+		return nil, UnsupportedError("9.26.0")
 	}
 
 	var msg map[string]interface{}
@@ -589,9 +594,17 @@ func (device *Device) ETHSignTypedMessage(
 		return nil, errp.WithStack(err)
 	}
 
-	hostNonce, err := generateHostNonce()
-	if err != nil {
-		return nil, err
+	var hostNonce []byte
+	var hostNonceCommitment *messages.AntiKleptoHostNonceCommitment
+	if useAntiklepto {
+		var err error
+		hostNonce, err = generateHostNonce()
+		if err != nil {
+			return nil, err
+		}
+		hostNonceCommitment = &messages.AntiKleptoHostNonceCommitment{
+			Commitment: antikleptoHostCommit(hostNonce),
+		}
 	}
 
 	types := msg["types"].(map[string]interface{})
@@ -617,13 +630,11 @@ func (device *Device) ETHSignTypedMessage(
 	request := &messages.ETHRequest{
 		Request: &messages.ETHRequest_SignTypedMsg{
 			SignTypedMsg: &messages.ETHSignTypedMessageRequest{
-				ChainId:     chainID,
-				Keypath:     keypath,
-				Types:       parsedTypes,
-				PrimaryType: msg["primaryType"].(string),
-				HostNonceCommitment: &messages.AntiKleptoHostNonceCommitment{
-					Commitment: antikleptoHostCommit(hostNonce),
-				},
+				ChainId:             chainID,
+				Keypath:             keypath,
+				Types:               parsedTypes,
+				PrimaryType:         msg["primaryType"].(string),
+				HostNonceCommitment: hostNonceCommitment,
 			},
 		},
 	}
@@ -651,19 +662,38 @@ func (device *Device) ETHSignTypedMessage(
 		typedMsgValueResponse, ok = response.Response.(*messages.ETHResponse_TypedMsgValue)
 	}
 
-	signerCommitment, ok := response.Response.(*messages.ETHResponse_AntikleptoSignerCommitment)
-	if !ok {
-		return nil, errp.New("unexpected response")
-	}
-	response, err = device.queryETH(&messages.ETHRequest{
-		Request: &messages.ETHRequest_AntikleptoSignature{
-			AntikleptoSignature: &messages.AntiKleptoSignatureRequest{
-				HostNonce: hostNonce,
+	if useAntiklepto {
+		signerCommitment, ok := response.Response.(*messages.ETHResponse_AntikleptoSignerCommitment)
+		if !ok {
+			return nil, errp.New("unexpected response")
+		}
+		response, err = device.queryETH(&messages.ETHRequest{
+			Request: &messages.ETHRequest_AntikleptoSignature{
+				AntikleptoSignature: &messages.AntiKleptoSignatureRequest{
+					HostNonce: hostNonce,
+				},
 			},
-		},
-	})
-	if err != nil {
-		return nil, err
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		signResponse, ok := response.Response.(*messages.ETHResponse_Sign)
+		if !ok {
+			return nil, errp.New("unexpected response")
+		}
+		signature := signResponse.Sign.Signature
+		err = antikleptoVerify(
+			hostNonce,
+			signerCommitment.AntikleptoSignerCommitment.Commitment,
+			signature[:64],
+		)
+		if err != nil {
+			return nil, err
+		}
+		// 27 is the magic constant to add to the recoverable ID to denote an uncompressed pubkey.
+		signature[64] += 27
+		return signature, nil
 	}
 
 	signResponse, ok := response.Response.(*messages.ETHResponse_Sign)
@@ -671,14 +701,6 @@ func (device *Device) ETHSignTypedMessage(
 		return nil, errp.New("unexpected response")
 	}
 	signature := signResponse.Sign.Signature
-	err = antikleptoVerify(
-		hostNonce,
-		signerCommitment.AntikleptoSignerCommitment.Commitment,
-		signature[:64],
-	)
-	if err != nil {
-		return nil, err
-	}
 	// 27 is the magic constant to add to the recoverable ID to denote an uncompressed pubkey.
 	signature[64] += 27
 	return signature, nil
