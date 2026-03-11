@@ -10,6 +10,7 @@
     flex-direction: row;
     font-family: var(--font-family);
     font-size: var(--size-default);
+    font-variant-numeric: tabular-nums;
     font-weight: 400;
     justify-content: center;
     min-height: var(--button-height);

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
 import { PasswordEntry } from './components/password-entry/password-entry';
+import { ForgotPasswordInfo } from './components/forgot-password-info/forgot-password-info';
 
 type Props = {
   attestation: boolean | null | undefined;
@@ -29,7 +30,10 @@ export const Unlock = ({ attestation }: Props) => {
             {t('bitbox02Wizard.attestationFailed')}
           </Message>
         ) : (
-          <PasswordEntry />
+          <>
+            <PasswordEntry />
+            <ForgotPasswordInfo />
+          </>
         )}
       </ViewContent>
     </View>

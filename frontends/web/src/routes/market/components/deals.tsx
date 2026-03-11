@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import * as marketAPI from '@/api/market';
+import { BackButton } from '@/components/backbutton/backbutton';
 import type { TInfoContentProps, TPaymentFee } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { InfoButton } from '@/components/infobutton/infobutton';
@@ -12,6 +14,7 @@ import style from './deals.module.css';
 type TProps = {
   marketDealsResponse: marketAPI.TMarketDealsResponse | undefined;
   goToVendor: (vendor: string) => void;
+  showBackButton?: boolean;
   action: marketAPI.TMarketAction;
   setInfo: (info: TInfoContentProps) => void;
 };
@@ -19,11 +22,12 @@ type TProps = {
 export const Deals = ({
   marketDealsResponse,
   goToVendor,
+  showBackButton = false,
   action,
   setInfo,
 }: TProps) => {
   const { t } = useTranslation();
-
+  const navigate = useNavigate();
 
   const buildInfo = (marketDeals: marketAPI.TMarketDeals): TInfoContentProps => {
     let paymentFees: TPaymentFee = {};
@@ -76,6 +80,15 @@ export const Deals = ({
           </div>
         )}
       </div>
+      {marketDealsResponse?.success && showBackButton && (
+        <div className={style.buttonsContainer}>
+          <BackButton
+            className={style.buttonBack}
+            onClick={() => navigate('/market/info')}>
+            {t('button.back')}
+          </BackButton>
+        </div>
+      )}
     </>
   );
 };

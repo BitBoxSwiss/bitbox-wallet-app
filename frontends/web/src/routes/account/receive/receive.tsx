@@ -7,7 +7,7 @@ import { UseBackButton } from '@/hooks/backbutton';
 import * as accountApi from '@/api/account';
 import { getScriptName, isEthereumBased } from '@/routes/account/utils';
 import { CopyableInput } from '@/components/copy/Copy';
-import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button, Radio } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Message } from '@/components/message/message';
@@ -45,32 +45,37 @@ const AddressTypeDialog = ({
 
   return (
     <Dialog open={open} onClose={() => setOpen(false)} medium title={t('receive.changeScriptType')} >
-      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        handleAddressTypeChosen(addressType);
-      }}>
-        {availableScriptTypes && availableScriptTypes.map((scriptType, i) => (
-          <div key={scriptType}>
-            <Radio
-              checked={addressType === i}
-              id={scriptType}
-              name="scriptType"
-              onChange={() => setAddressType(i)}
-              title={getScriptName(scriptType)}>
-              {t(`receive.scriptType.${scriptType}`)}
-            </Radio>
-            {scriptType === 'p2tr' && addressType === i && (
-              <Message type="warning" className={style.messageContainer}>
-                {t('receive.taprootWarning')}
-              </Message>
-            )}
-          </div>
-        ))}
-        {insured && (
-          <Message type="warning">
-            {t('receive.bitsuranceWarning')}
-          </Message>
-        )}
+      <form
+        onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+          handleAddressTypeChosen(addressType);
+        }}
+        style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
+      >
+        <DialogScrollContent>
+          {availableScriptTypes && availableScriptTypes.map((scriptType, i) => (
+            <div key={scriptType}>
+              <Radio
+                checked={addressType === i}
+                id={scriptType}
+                name="scriptType"
+                onChange={() => setAddressType(i)}
+                title={getScriptName(scriptType)}>
+                {t(`receive.scriptType.${scriptType}`)}
+              </Radio>
+              {scriptType === 'p2tr' && addressType === i && (
+                <Message type="warning" className={style.messageContainer}>
+                  {t('receive.taprootWarning')}
+                </Message>
+              )}
+            </div>
+          ))}
+          {insured && (
+            <Message type="warning">
+              {t('receive.bitsuranceWarning')}
+            </Message>
+          )}
+        </DialogScrollContent>
         <DialogButtons>
           <Button primary type="submit">
             {t('button.done')}

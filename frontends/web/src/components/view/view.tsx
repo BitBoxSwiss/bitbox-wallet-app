@@ -6,6 +6,7 @@ import { LanguageSwitch } from '@/components/language/language';
 import { Version } from '@/components/layout/version';
 import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '@/components/icon/logo';
 import { AnimatedChecked, Abort, Close } from '@/components/icon/icon';
+import { UseBackButton } from '@/hooks/backbutton';
 import style from './view.module.css';
 
 type TViewProps = {
@@ -70,9 +71,15 @@ export const View = ({
         {children}
       </div>
       {onClose && (
-        <button className={style.closeButton} onClick={onClose}>
-          <Close />
-        </button>
+        <>
+          <UseBackButton handler={() => {
+            onClose();
+            return false;
+          }} />
+          <button className={style.closeButton} onClick={onClose}>
+            <Close />
+          </button>
+        </>
       )}
       {withBottomBar && (
         <div style={{ marginTop: 'auto' }}>

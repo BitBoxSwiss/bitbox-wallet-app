@@ -19,11 +19,14 @@ import (
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	keystorepkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -131,19 +134,26 @@ func TestAccounts(t *testing.T) {
 }
 
 func TestSortAccounts(t *testing.T) {
+	const (
+		alphaWalletName = "Alpha"
+		betaWalletName  = "Beta"
+	)
+
 	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
 	require.NoError(t, err)
 	xpub, err = xpub.Neuter()
 	require.NoError(t, err)
-	rootFingerprint := []byte{1, 2, 3, 4}
-	btcConfig := func(keypath string) signing.Configurations {
+	rootFingerprint1 := []byte{1, 2, 3, 4}
+	rootFingerprint2 := []byte{2, 2, 3, 4}
+	rootFingerprint3 := []byte{3, 2, 3, 4}
+	btcConfig := func(rootFingerprint []byte, keypath string) signing.Configurations {
 		kp, err := signing.NewAbsoluteKeypath(keypath)
 		require.NoError(t, err)
 		return signing.Configurations{
 			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint, kp, xpub),
 		}
 	}
-	ethConfig := func(keypath string) signing.Configurations {
+	ethConfig := func(rootFingerprint []byte, keypath string) signing.Configurations {
 		kp, err := signing.NewAbsoluteKeypath(keypath)
 		require.NoError(t, err)
 		return signing.Configurations{
@@ -152,22 +162,28 @@ func TestSortAccounts(t *testing.T) {
 	}
 
 	accountConfigs := []*config.Account{
+		{Code: "acct-btc-alpha", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig(rootFingerprint2, "m/84'/0'/0'")},
+		{Code: "acct-ltc-alpha", CoinCode: coinpkg.CodeLTC, SigningConfigurations: btcConfig(rootFingerprint2, "m/84'/2'/0'")},
 		{
-			Code:                  "acct-eth-2",
+			Code:                  "acct-eth-beta-2",
 			CoinCode:              coinpkg.CodeETH,
-			SigningConfigurations: ethConfig("m/44'/60'/0'/0/1"),
+			SigningConfigurations: ethConfig(rootFingerprint3, "m/44'/60'/0'/0/1"),
 			ActiveTokens:          []string{"eth-erc20-usdt", "eth-erc20-bat"},
 		},
-		{Code: "acct-eth-1", CoinCode: coinpkg.CodeETH, SigningConfigurations: ethConfig("m/44'/60'/0'/0/0")},
-		{Code: "acct-btc-1", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/0'")},
-		{Code: "acct-btc-3", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/2'")},
-		{Code: "acct-btc-2", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/1'")},
-		{Code: "acct-sepeth", CoinCode: coinpkg.CodeSEPETH},
-		{Code: "acct-ltc", CoinCode: coinpkg.CodeLTC},
-		{Code: "acct-tltc", CoinCode: coinpkg.CodeTLTC},
-		{Code: "acct-tbtc", CoinCode: coinpkg.CodeTBTC},
+		{Code: "acct-btc-beta-2", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig(rootFingerprint3, "m/84'/0'/1'")},
+		{Code: "acct-btc-beta-1", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig(rootFingerprint1, "m/84'/0'/0'")},
+		{Code: "acct-eth-beta-1", CoinCode: coinpkg.CodeETH, SigningConfigurations: ethConfig(rootFingerprint1, "m/44'/60'/0'/0/0")},
 	}
 	backend := newBackend(t, testnetDisabled, regtestDisabled)
+	require.NoError(t, backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		keystore1 := accountsConfig.GetOrAddKeystore(rootFingerprint1)
+		keystore1.Name = betaWalletName
+		keystore2 := accountsConfig.GetOrAddKeystore(rootFingerprint2)
+		keystore2.Name = alphaWalletName
+		keystore3 := accountsConfig.GetOrAddKeystore(rootFingerprint3)
+		keystore3.Name = betaWalletName
+		return nil
+	}))
 	unlockFN := backend.accountsAndKeystoreLock.Lock()
 	for i := range accountConfigs {
 		c, err := backend.Coin(accountConfigs[i].CoinCode)
@@ -177,22 +193,102 @@ func TestSortAccounts(t *testing.T) {
 	unlockFN()
 
 	expectedOrder := []accountsTypes.Code{
-		"acct-btc-1",
-		"acct-btc-2",
-		"acct-btc-3",
-		"acct-tbtc",
-		"acct-ltc",
-		"acct-tltc",
-		"acct-eth-1",
-		"acct-eth-2",
-		"acct-eth-2-eth-erc20-bat",
-		"acct-eth-2-eth-erc20-usdt",
-		"acct-sepeth",
+		"acct-btc-alpha",
+		"acct-ltc-alpha",
+		"acct-btc-beta-1",
+		"acct-eth-beta-1",
+		"acct-btc-beta-2",
+		"acct-eth-beta-2",
+		"acct-eth-beta-2-eth-erc20-bat",
+		"acct-eth-beta-2-eth-erc20-usdt",
 	}
 
 	for i, acct := range backend.Accounts() {
 		assert.Equal(t, expectedOrder[i], acct.Config().Config.Code)
 	}
+}
+
+func TestObserveKeystoreNameChanged(t *testing.T) {
+	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
+	require.NoError(t, err)
+	xpub, err = xpub.Neuter()
+	require.NoError(t, err)
+
+	btcConfig := func(rootFingerprint []byte, keypath string) signing.Configurations {
+		kp, err := signing.NewAbsoluteKeypath(keypath)
+		require.NoError(t, err)
+		return signing.Configurations{
+			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint, kp, xpub),
+		}
+	}
+
+	accountConfigs := []*config.Account{
+		{
+			Code:                  "acct-beta",
+			CoinCode:              coinpkg.CodeBTC,
+			SigningConfigurations: btcConfig(rootFingerprint1, "m/84'/0'/0'"),
+		},
+		{
+			Code:                  "acct-alpha",
+			CoinCode:              coinpkg.CodeBTC,
+			SigningConfigurations: btcConfig(rootFingerprint2, "m/84'/0'/0'"),
+		},
+	}
+
+	backend := newBackend(t, testnetDisabled, regtestDisabled)
+	defer backend.Close()
+	require.NoError(t, backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		accountsConfig.GetOrAddKeystore(rootFingerprint1).Name = "Beta"
+		accountsConfig.GetOrAddKeystore(rootFingerprint2).Name = "Alpha"
+		return nil
+	}))
+
+	unlockFN := backend.accountsAndKeystoreLock.Lock()
+	for i := range accountConfigs {
+		c, err := backend.Coin(accountConfigs[i].CoinCode)
+		require.NoError(t, err)
+		backend.createAndAddAccount(c, accountConfigs[i])
+	}
+	unlockFN()
+
+	require.Equal(t, accountsTypes.Code("acct-alpha"), backend.Accounts()[0].Config().Config.Code)
+	require.Equal(t, accountsTypes.Code("acct-beta"), backend.Accounts()[1].Config().Config.Code)
+
+	var events []observable.Event
+	unobserve := backend.Observe(func(event observable.Event) {
+		events = append(events, event)
+	})
+	defer unobserve()
+
+	var keystoreObserver func(observable.Event)
+	backend.observeKeystore(&keystoremock.KeystoreMock{
+		ObserveFunc: func(fn func(observable.Event)) func() {
+			keystoreObserver = fn
+			return func() {
+				keystoreObserver = nil
+			}
+		},
+	})
+	require.NotNil(t, keystoreObserver)
+
+	keystoreObserver(observable.Event{
+		Subject: string(keystorepkg.EventNameChanged),
+		Action:  action.Replace,
+		Object: keystorepkg.NameChangedEvent{
+			Name:            "Aardvark",
+			RootFingerprint: rootFingerprint1,
+		},
+	})
+
+	keystoreConfig, err := backend.Config().AccountsConfig().LookupKeystore(rootFingerprint1)
+	require.NoError(t, err)
+	require.Equal(t, "Aardvark", keystoreConfig.Name)
+	require.Equal(t, accountsTypes.Code("acct-beta"), backend.Accounts()[0].Config().Config.Code)
+	require.Equal(t, accountsTypes.Code("acct-alpha"), backend.Accounts()[1].Config().Config.Code)
+	require.Contains(t, events, observable.Event{
+		Subject: "accounts",
+		Action:  action.Reload,
+	})
 }
 
 func TestNextAccountNumber(t *testing.T) {
@@ -686,6 +782,74 @@ func TestCreateAndAddAccount(t *testing.T) {
 	require.Equal(t, "Tether USD 2", acct.Config().Config.Name)
 }
 
+func TestETHInitialSyncMode(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+
+	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
+		if _, err := b.createAndPersistAccountConfig(
+			coinpkg.CodeETH,
+			0,
+			false,
+			"",
+			ks,
+			[]string{"eth-erc20-usdt"},
+			cfg,
+		); err != nil {
+			return err
+		}
+		cfg.GetOrAddKeystore(rootFingerprint1).Watchonly = true
+		return nil
+	}))
+
+	expected := map[accountsTypes.Code]bool{
+		"v0-55555555-eth-0":                true,
+		"v0-55555555-eth-0-eth-erc20-usdt": true,
+	}
+
+	captured := map[accountsTypes.Code]bool{}
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
+		captured[config.Config.Code] = config.SkipInitialSync
+		return MockEthAccount(config, coin, httpClient, log)
+	}
+
+	t.Run("startup-watchonly-load", func(t *testing.T) {
+		func() {
+			defer b.accountsAndKeystoreLock.Lock()()
+			b.skipETHInitialSync = true
+			defer func() { b.skipETHInitialSync = false }()
+			b.initPersistedAccounts()
+		}()
+
+		require.Equal(t, expected, captured)
+	})
+
+	t.Run("non-startup-reinit", func(t *testing.T) {
+		func() {
+			defer b.accountsAndKeystoreLock.Lock()()
+			b.uninitAccounts(true)
+		}()
+
+		captured = map[accountsTypes.Code]bool{}
+		expectedNoSkip := map[accountsTypes.Code]bool{
+			"v0-55555555-eth-0":                false,
+			"v0-55555555-eth-0-eth-erc20-usdt": false,
+		}
+
+		func() {
+			defer b.accountsAndKeystoreLock.Lock()()
+			b.initPersistedAccounts()
+		}()
+
+		require.Equal(t, expectedNoSkip, captured)
+	})
+}
+
 // TestAccountSupported tests that only accounts supported by a keystore are 1) persisted when the
 // keystore is first registered 2) loaded when the keytore is registered.
 // The second point is important because it's possible to use e.g. a BitBox02-Multi and a
@@ -798,6 +962,9 @@ func TestTaprootUpgrade(t *testing.T) {
 	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 
 	bitbox02NoTaproot := &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock no taproot", nil
 		},
@@ -824,6 +991,9 @@ func TestTaprootUpgrade(t *testing.T) {
 		BTCXPubsFunc:          keystoreHelper.BTCXPubs,
 	}
 	bitbox02Taproot := &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock taproot", nil
 		},
@@ -1091,6 +1261,9 @@ func TestWatchonly(t *testing.T) {
 		// A keystore with a similar config to a BitBox02 - supporting unified accounts, no legacy
 		// P2PKH.
 		ks1 := &keystoremock.KeystoreMock{
+			ObserveFunc: func(func(observable.Event)) func() {
+				return func() {}
+			},
 			NameFunc: func() (string, error) {
 				return "Mock keystore 1", nil
 			},
@@ -1113,6 +1286,9 @@ func TestWatchonly(t *testing.T) {
 			BTCXPubsFunc:          keystoreHelper1.BTCXPubs,
 		}
 		ks2 := &keystoremock.KeystoreMock{
+			ObserveFunc: func(func(observable.Event)) func() {
+				return func() {}
+			},
 			NameFunc: func() (string, error) {
 				return "Mock keystore 2", nil
 			},

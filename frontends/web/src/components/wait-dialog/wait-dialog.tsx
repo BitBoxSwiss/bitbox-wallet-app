@@ -7,12 +7,20 @@ import style from '@/components/dialog/dialog.module.css';
 
 type Props = {
   includeDefault?: boolean;
+  small?: boolean;
+  medium?: boolean;
+  large?: boolean;
+  noSidebarOffset?: boolean;
   title?: string;
   children?: React.ReactNode;
 };
 
 export const WaitDialog = ({
   includeDefault,
+  small,
+  medium,
+  large,
+  noSidebarOffset = false,
   title,
   children,
 }: Props) => {
@@ -59,13 +67,22 @@ export const WaitDialog = ({
 
   const hasChildren = React.Children.toArray(children).length > 0;
 
+  const modalClass = `
+    ${style.modal || ''}
+    ${small && style.small || ''}
+    ${medium && style.medium || ''}
+    ${large && style.large || ''}
+    ${style.open || ''}
+    ${noSidebarOffset && style.noSidebarOffset || ''}
+  `.trim();
+
   return (
     <div
       className={style.overlay}
       ref={overlay}
       style={{ zIndex: 10001 }}>
       <UseDisableBackButton />
-      <div className={[style.modal, style.open].join(' ')} ref={modal}>
+      <div className={modalClass} ref={modal}>
         {
           title && (
             <div className={style.header}>
@@ -74,14 +91,12 @@ export const WaitDialog = ({
           )
         }
         <div className={style.contentContainer}>
-          <div className={style.content}>
-            { (hasChildren && includeDefault) ? defaultContent : null }
-            { hasChildren ? (
-              <div className="flex flex-column flex-start">
-                {children}
-              </div>
-            ) : defaultContent }
-          </div>
+          { (hasChildren && includeDefault) ? defaultContent : null }
+          { hasChildren ? (
+            <div className="flex flex-column flex-start">
+              {children}
+            </div>
+          ) : defaultContent }
         </div>
       </div>
     </div>

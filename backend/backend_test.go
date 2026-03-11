@@ -69,6 +69,9 @@ var rootFingerprint2 = []byte{0x66, 0x66, 0x66, 0x66}
 func makeBitBox02Multi() *keystoremock.KeystoreMock {
 	ksHelper := keystoreHelper1()
 	return &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock name", nil
 		},
@@ -141,6 +144,11 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 		GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 			result := []accounts.AddressList{}
 			for _, signingConfig := range config.Config.SigningConfigurations {
+				scriptType := signingConfig.ScriptType()
+				if scriptType == signing.ScriptTypeP2WPKHP2SH {
+					// We don't support wrapped segwit in receive flows anymore.
+					continue
+				}
 				addressChain := addresses.NewAddressChain(
 					signingConfig,
 					coin.Net(), 20, false,
@@ -150,7 +158,6 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 					log)
 				addresses, err := addressChain.EnsureAddresses()
 				require.NoError(t, err)
-				scriptType := signingConfig.ScriptType()
 				result = append(result, accounts.AddressList{
 					ScriptType: &scriptType,
 					Addresses: []accounts.Address{
@@ -328,6 +335,9 @@ func TestRegisterKeystore(t *testing.T) {
 	// A keystore with a similar config to a BitBox02 - supporting unified accounts, no legacy
 	// P2PKH.
 	ks1 := &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock keystore 1", nil
 		},
@@ -350,6 +360,9 @@ func TestRegisterKeystore(t *testing.T) {
 		BTCXPubsFunc:          keystoreHelper1.BTCXPubs,
 	}
 	ks2 := &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock keystore 2", nil
 		},

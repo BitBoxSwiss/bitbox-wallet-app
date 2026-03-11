@@ -16,6 +16,7 @@ import { CoinDropDown } from '@/components/dropdown/coin-dropdown';
 import { SubTitle } from '@/components/title';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { UseBackButton } from '@/hooks/backbutton';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { AddAccountGuide } from './add-account-guide';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import styles from './add-account.module.css';
@@ -308,11 +309,11 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
                     {t('addAccount.success.addAnotherAccount')}
                   </Button>
                 ) : (
-                  <Button
+                  <BackButton
                     onClick={back}
-                    secondary>
+                  >
                     {t('button.back')}
-                  </Button>
+                  </BackButton>
                 )}
               </ViewButtons>
             </form>

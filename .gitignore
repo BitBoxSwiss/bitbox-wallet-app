@@ -1,4 +1,5 @@
 /appfolder.dev
+scripts/dev_vm.conf
 /cmd/playground/
 **/*/output.log
 

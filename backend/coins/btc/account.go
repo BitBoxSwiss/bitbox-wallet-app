@@ -11,6 +11,7 @@ import (
 	"sort"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -66,6 +67,16 @@ func (sa subaccounts) signingConfigurations() signing.Configurations {
 	return result
 }
 
+// UsedAddressType indicates which chain an address belongs to in a unified account.
+type UsedAddressType string
+
+const (
+	// UsedAddressTypeReceive identifies addresses from the receive chain.
+	UsedAddressTypeReceive UsedAddressType = "receive"
+	// UsedAddressTypeChange identifies addresses from the change chain.
+	UsedAddressTypeChange UsedAddressType = "change"
+)
+
 // Account is a account whose addresses are derived from an xpub.
 type Account struct {
 	*accounts.BaseAccount
@@ -109,19 +120,20 @@ type Account struct {
 
 	httpClient *http.Client
 
-	// getAddressFromSameKeystore is a function that retrieves an address from any account on the same keystore as this one.
-	getAddressFromSameKeystore func(coin.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error)
+	// getAddressFromSameKeystore retrieves an address from any account on the same keystore as this one.
+	getAddressFromSameKeystore func(coin.Code, addresses.AddressID) (*addresses.AccountAddress, error)
 }
 
 // NewAccount creates a new account.
 //
 // forceGaplimits: if not nil, these limits will be used and persisted for future use.
-// getAddressFromSameKeystore: function to retrieve an address from any account on the same keystore.
+// getAddressFromSameKeystore: function to retrieve an address by address ID from any account on the
+// same keystore.
 func NewAccount(
 	config *accounts.AccountConfig,
 	coin *Coin,
 	forceGapLimits *types.GapLimits,
-	getAddressFromSameKeystore func(coin.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error),
+	getAddressFromSameKeystore func(coin.Code, addresses.AddressID) (*addresses.AccountAddress, error),
 	log *logrus.Entry,
 	httpClient *http.Client,
 ) *Account {
@@ -370,7 +382,14 @@ func (account *Account) Info() *accounts.Info {
 	isInsuredAccount := account.Config().Config.InsuranceStatus == string(bitsurance.ActiveStatus)
 	var signingConfigurations []*signing.Configuration
 	for _, subacc := range account.subaccounts {
-		isNativeSegwit := subacc.signingConfiguration.ScriptType() == signing.ScriptTypeP2WPKH
+		scriptType := subacc.signingConfiguration.ScriptType()
+		isNativeSegwit := scriptType == signing.ScriptTypeP2WPKH
+		isWrappedSegwit := scriptType == signing.ScriptTypeP2WPKHP2SH
+		if isWrappedSegwit {
+			// We don't support wrapped segwit in receive flows anymore, we hide it in the account
+			// info too.
+			continue
+		}
 		// hiding legacy/taproot xpubs as an insured account should only receive on native segwit.
 		if isInsuredAccount && !isNativeSegwit {
 			continue
@@ -598,6 +617,23 @@ func (account *Account) isAddressUsed(address *addresses.AccountAddress) (bool, 
 	return len(history) > 0, nil
 }
 
+// reportFatalSyncError marks the account as being in a fatal sync error state, emits a reload
+// event for the UI, and logs the error. If the account was already closed, it only logs and
+// returns.
+func (account *Account) reportFatalSyncError(err error, msg string) {
+	if account.isClosed() {
+		account.log.WithError(err).Error("stopping sync because account was closed")
+		return
+	}
+	account.log.WithError(err).Error(msg)
+	account.fatalError.Store(true)
+	account.Notify(observable.Event{
+		Subject: string(accountsTypes.EventStatusChanged),
+		Action:  action.Reload,
+		Object:  nil,
+	})
+}
+
 // onAddressStatus is called when the status (tx history) of an address might have changed. It is
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
@@ -608,12 +644,8 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 	}
 	addressHistory, err := account.getAddressHistory(address)
 	if err != nil {
-		if account.isClosed() {
-			account.log.WithError(err).Error("stopping sync because account was closed")
-			return
-		}
-		// TODO
-		account.log.WithError(err).Panic("getAddressHistory failed")
+		account.reportFatalSyncError(err, "getAddressHistory failed")
+		return
 	}
 	if status == addressHistory.Status() {
 		account.incAndEmitSyncCounter()
@@ -630,12 +662,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 	if err != nil {
 		// We are not closing client.blockchain here, as it is reused per coin with
 		// different accounts.
-		account.fatalError.Store(true)
-		account.Notify(observable.Event{
-			Subject: string(accountsTypes.EventStatusChanged),
-			Action:  action.Reload,
-			Object:  nil,
-		})
+		account.reportFatalSyncError(err, "ScriptHashGetHistory failed")
 		return
 	}
 	// Safe some work in case account was closed in the meantime.
@@ -660,12 +687,8 @@ func (account *Account) ensureAddresses() {
 		for {
 			newAddresses, err := addressChain.EnsureAddresses()
 			if err != nil {
-				if account.isClosed() {
-					account.log.WithError(err).Error("stopping sync because account was closed")
-					return
-				}
-				// TODO
-				account.log.WithError(err).Panic("EnsureAddresses failed")
+				account.reportFatalSyncError(err, "EnsureAddresses failed")
+				return
 			}
 			if len(newAddresses) == 0 {
 				break
@@ -717,6 +740,10 @@ func (account *Account) GetUnusedReceiveAddresses() ([]accounts.AddressList, err
 	var addresses []accounts.AddressList
 	for _, subacc := range account.subaccounts {
 		scriptType := subacc.signingConfiguration.ScriptType()
+		if scriptType == signing.ScriptTypeP2WPKHP2SH {
+			// We don't support wrapped segwit in receive flows anymore.
+			continue
+		}
 		if account.Config().Config.InsuranceStatus == string(bitsurance.ActiveStatus) && scriptType != signing.ScriptTypeP2WPKH {
 			// Insured accounts can only receive on native segwit
 			continue
@@ -741,7 +768,129 @@ func (account *Account) GetUnusedReceiveAddresses() ([]accounts.AddressList, err
 	return addresses, nil
 }
 
-// VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
+// UsedAddress holds information about a used wallet address.
+type UsedAddress struct {
+	Address     string
+	AddressID   string
+	AddressType UsedAddressType
+	LastUsed    *time.Time
+}
+
+func (account *Account) lookupAddressByID(
+	addressID addresses.AddressID,
+) (*addresses.AccountAddress, UsedAddressType) {
+	for _, subacc := range account.subaccounts {
+		if addr := subacc.receiveAddresses.LookupByAddressID(addressID); addr != nil {
+			return addr, UsedAddressTypeReceive
+		}
+		if addr := subacc.changeAddresses.LookupByAddressID(addressID); addr != nil {
+			return addr, UsedAddressTypeChange
+		}
+	}
+	return nil, ""
+}
+
+// GetUsedAddresses returns all used wallet addresses from confirmed transaction history.
+// Returns addresses sorted by most recently used first.
+func (account *Account) GetUsedAddresses() ([]UsedAddress, error) {
+	if !account.isInitialized() {
+		return nil, errp.New("uninitialized")
+	}
+	if account.fatalError.Load() {
+		return nil, errp.New("can't call GetUsedAddresses() after a fatal error")
+	}
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
+
+	type sortableUsedAddress struct {
+		addr           UsedAddress
+		lastUsedHeight int
+	}
+	usedAddressesByID := make(map[addresses.AddressID]*sortableUsedAddress)
+
+	_, err := transactions.DBView(account.db, func(dbTx transactions.DBTxInterface) (struct{}, error) {
+		txHashes, err := dbTx.Transactions()
+		if err != nil {
+			return struct{}{}, err
+		}
+
+		for _, txHash := range txHashes {
+			txInfo, err := dbTx.TxInfo(txHash)
+			if err != nil {
+				return struct{}{}, err
+			}
+			if txInfo == nil || txInfo.Height <= 0 || txInfo.Tx == nil {
+				continue
+			}
+
+			for scriptHashHex := range txInfo.Addresses {
+				addressID := addresses.AddressID(scriptHashHex)
+				addr, addressType := account.lookupAddressByID(addressID)
+				if addr == nil {
+					continue
+				}
+				if _, exists := usedAddressesByID[addressID]; !exists {
+					usedAddressesByID[addressID] = &sortableUsedAddress{
+						addr: UsedAddress{
+							Address:     addr.EncodeForHumans(),
+							AddressID:   addr.ID(),
+							AddressType: addressType,
+						},
+					}
+				}
+				info := usedAddressesByID[addressID]
+
+				if txInfo.HeaderTimestamp != nil &&
+					(info.addr.LastUsed == nil || txInfo.HeaderTimestamp.After(*info.addr.LastUsed)) {
+					copyTimestamp := *txInfo.HeaderTimestamp
+					info.addr.LastUsed = &copyTimestamp
+				}
+				if txInfo.Height > info.lastUsedHeight {
+					info.lastUsedHeight = txInfo.Height
+				}
+			}
+		}
+
+		return struct{}{}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	sortableList := make([]sortableUsedAddress, 0, len(usedAddressesByID))
+	for _, info := range usedAddressesByID {
+		sortableList = append(sortableList, *info)
+	}
+
+	// Sort by timestamp first, then by block height as fallback.
+	sort.Slice(sortableList, func(i, j int) bool {
+		left, right := sortableList[i], sortableList[j]
+		switch {
+		case left.addr.LastUsed != nil && right.addr.LastUsed != nil:
+			if !left.addr.LastUsed.Equal(*right.addr.LastUsed) {
+				return left.addr.LastUsed.After(*right.addr.LastUsed)
+			}
+		case left.addr.LastUsed != nil:
+			return true
+		case right.addr.LastUsed != nil:
+			return false
+		}
+		if left.lastUsedHeight != right.lastUsedHeight {
+			return left.lastUsedHeight > right.lastUsedHeight
+		}
+		return left.addr.AddressID < right.addr.AddressID
+	})
+
+	result := make([]UsedAddress, len(sortableList))
+	for i, s := range sortableList {
+		result[i] = s.addr
+	}
+
+	return result, nil
+}
+
+// VerifyAddress verifies a wallet address on a keystore. Returns false, nil if no secure output
 // exists.
 func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if !account.isInitialized() {
@@ -756,15 +905,8 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 		return false, err
 	}
 
-	scriptHashHex := blockchain.ScriptHashHex(addressID)
-	var address *addresses.AccountAddress
-	for _, subacc := range account.subaccounts {
-		if addr := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); addr != nil {
-			address = addr
-			break
-		}
-	}
-	if address == nil {
+	address, addressType := account.lookupAddressByID(addresses.AddressID(addressID))
+	if address == nil || addressType != UsedAddressTypeReceive {
 		return false, errp.New("unknown address not found")
 	}
 	canVerifyAddress, _, err := keystore.CanVerifyAddress(account.Coin())
@@ -847,28 +989,83 @@ type SpendableOutput struct {
 	IsChange bool
 }
 
-// SpendableOutputs returns the utxo set, sorted by the value descending.
-func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
-	if !account.Synced() {
-		return nil, accounts.ErrSyncInProgress
-	}
-	result := []*SpendableOutput{}
-	utxos, err := account.transactions.SpendableOutputs()
-	if err != nil {
-		return nil, err
-	}
+func (account *Account) makeSpendableOutputs(
+	utxos map[wire.OutPoint]*transactions.SpendableOutput,
+) []*SpendableOutput {
+	result := make([]*SpendableOutput, 0, len(utxos))
 	for outPoint, txOut := range utxos {
-		scriptHashHex := blockchain.NewScriptHashHex(txOut.TxOut.PkScript)
+		addressID := addresses.NewAddressID(txOut.TxOut.PkScript)
 		result = append(
 			result,
 			&SpendableOutput{
 				OutPoint:        outPoint,
 				SpendableOutput: txOut,
-				Address:         account.GetAddress(scriptHashHex),
-				IsChange:        account.IsChange(scriptHashHex),
+				Address:         account.AddressByID(addressID),
+				IsChange:        account.IsChange(addressID),
 			})
 	}
-	return sortByAddresses(result), nil
+	return sortByAddresses(result)
+}
+
+// SpendableOutputs returns the utxo set, sorted by the value descending.
+func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
+	utxos, err := account.transactions.SpendableOutputs()
+	if err != nil {
+		return nil, err
+	}
+	return account.makeSpendableOutputs(utxos), nil
+}
+
+// ReusedAddressesForOutputs returns the subset of the provided outputs whose addresses are reused
+// across all indexed wallet outputs.
+func (account *Account) ReusedAddressesForOutputs(
+	outputs []*SpendableOutput,
+) (map[addresses.AddressID]struct{}, error) {
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
+	candidateAddresses := make(map[addresses.AddressID]struct{}, len(outputs))
+	for _, output := range outputs {
+		candidateAddresses[addresses.NewAddressID(output.TxOut.PkScript)] = struct{}{}
+	}
+	if len(candidateAddresses) == 0 {
+		return map[addresses.AddressID]struct{}{}, nil
+	}
+	return transactions.DBView(account.db, func(dbTx transactions.DBTxInterface) (map[addresses.AddressID]struct{}, error) {
+		indexedOutputs, err := dbTx.Outputs()
+		if err != nil {
+			return nil, err
+		}
+		return reusedAddresses(candidateAddresses, indexedOutputs), nil
+	})
+}
+
+// reusedAddresses returns the subset of candidateAddresses that appear more than once in
+// indexedOutputs. candidateAddresses is the set of addresses we care about, typically derived from
+// the current spendable outputs; indexedOutputs is the full set of wallet outputs stored in the DB,
+// including already spent siblings.
+func reusedAddresses(
+	candidateAddresses map[addresses.AddressID]struct{},
+	indexedOutputs map[wire.OutPoint]*wire.TxOut,
+) map[addresses.AddressID]struct{} {
+	addressCounts := make(map[addresses.AddressID]int, len(candidateAddresses))
+	for _, txOut := range indexedOutputs {
+		addressID := addresses.NewAddressID(txOut.PkScript)
+		if _, ok := candidateAddresses[addressID]; !ok {
+			continue
+		}
+		addressCounts[addressID]++
+	}
+	result := map[addresses.AddressID]struct{}{}
+	for addressID, count := range addressCounts {
+		if count > 1 {
+			result[addressID] = struct{}{}
+		}
+	}
+	return result
 }
 
 // VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output
@@ -894,15 +1091,11 @@ func (account *Account) VerifyExtendedPublicKey(signingConfigIndex int) (bool, e
 	return false, nil
 }
 
-// IsChange returns true if there is an address corresponding to the provided scriptHashHex in our
+// IsChange returns true if there is an address corresponding to the provided address ID in our
 // accounts change address chain. It returns false if no address can be found.
-func (account *Account) IsChange(scriptHashHex blockchain.ScriptHashHex) bool {
-	for _, subacc := range account.subaccounts {
-		if subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil {
-			return true
-		}
-	}
-	return false
+func (account *Account) IsChange(addressID addresses.AddressID) bool {
+	_, addressType := account.lookupAddressByID(addressID)
+	return addressType == UsedAddressTypeChange
 }
 
 // SignBTCAddress returns an unused address and makes the user sign a message to prove ownership.
@@ -930,11 +1123,6 @@ func SignBTCAddress(account accounts.Interface, message string, scriptType signi
 			account.Coin().Code())
 	}
 
-	unused, err := account.GetUnusedReceiveAddresses()
-	if err != nil {
-		return "", "", err
-	}
-
 	// Use the format hint to get a compatible address
 	if len(scriptType) == 0 {
 		scriptType = signing.ScriptTypeP2WPKH
@@ -944,7 +1132,15 @@ func SignBTCAddress(account accounts.Interface, message string, scriptType signi
 		err := errp.Newf("Unsupported format: %s", scriptType)
 		return "", "", err
 	}
-	addr := unused[signingConfigIdx].Addresses[0]
+	unused, err := account.GetUnusedReceiveAddresses()
+	if err != nil {
+		return "", "", err
+	}
+	addressList := accounts.FindAddressListByScriptType(unused, scriptType)
+	if addressList == nil || len(addressList.Addresses) == 0 {
+		return "", "", errp.Newf("Unsupported format: %s", scriptType)
+	}
+	addr := addressList.Addresses[0]
 
 	sig, err := keystore.SignBTCMessage(
 		[]byte(message),

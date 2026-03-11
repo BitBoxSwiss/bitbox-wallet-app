@@ -16,6 +16,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
@@ -29,6 +30,8 @@ import (
 
 // Keystore implements a keystore in software.
 type Keystore struct {
+	observable.Implementation
+
 	// The master extended private key from which all keys are derived.
 	master     *hdkeychain.ExtendedKey
 	identifier string
@@ -200,9 +203,10 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			keystore.log.Error("There needs to be exactly one output being spent per input.")
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
+		addressID := spentOutput.Address.PubkeyScriptHashHex()
 		address, err := btcProposedTx.GetKeystoreAddress(
 			btcProposedTx.TXProposal.Coin.Code(),
-			spentOutput.Address.PubkeyScriptHashHex(),
+			addressID,
 		)
 		if err != nil {
 			return err

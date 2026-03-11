@@ -252,7 +252,7 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 		appConfig:         NewDefaultAppConfig(),
 
 		accountsConfigFilename: accountsConfigFilename,
-		accountsConfig:         newDefaultAccountsonfig(),
+		accountsConfig:         newDefaultAccountsConfig(),
 	}
 	config.load()
 	appconf := config.appConfig

@@ -35,7 +35,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func newAccount(t *testing.T) *Account {
+func newAccountWithOptions(t *testing.T, skipInitialSync bool, enqueueUpdateCh chan *Account) *Account {
 	t.Helper()
 	log := logging.Get().WithGroup("account_test")
 
@@ -76,6 +76,7 @@ func newAccount(t *testing.T) *Account {
 				SigningConfigurations: signingConfigurations,
 			},
 			DBFolder:        dbFolder,
+			SkipInitialSync: skipInitialSync,
 			RateUpdater:     nil,
 			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
 			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
@@ -91,10 +92,47 @@ func newAccount(t *testing.T) *Account {
 		coin,
 		&http.Client{},
 		log,
-		make(chan *Account),
+		enqueueUpdateCh,
 	)
 	require.NoError(t, acct.Initialize())
 	return acct
+}
+
+func newAccount(t *testing.T) *Account {
+	t.Helper()
+	return newAccountWithOptions(t, false, make(chan *Account))
+}
+
+func TestInitializeEnqueueUpdate(t *testing.T) {
+	t.Run("default", func(t *testing.T) {
+		enqueueUpdateCh := make(chan *Account, 1)
+		acct := newAccountWithOptions(t, false, enqueueUpdateCh)
+		defer acct.Close()
+
+		require.Eventually(t, func() bool {
+			select {
+			case <-enqueueUpdateCh:
+				return true
+			default:
+				return false
+			}
+		}, time.Second, 10*time.Millisecond)
+	})
+
+	t.Run("skip-initial-sync", func(t *testing.T) {
+		enqueueUpdateCh := make(chan *Account, 1)
+		acct := newAccountWithOptions(t, true, enqueueUpdateCh)
+		defer acct.Close()
+
+		assert.Never(t, func() bool {
+			select {
+			case <-enqueueUpdateCh:
+				return true
+			default:
+				return false
+			}
+		}, 200*time.Millisecond, 10*time.Millisecond)
+	})
 }
 
 func TestTxProposal(t *testing.T) {

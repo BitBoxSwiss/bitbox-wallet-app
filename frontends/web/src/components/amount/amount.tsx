@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext } from 'react';
-import type { CoinUnit, ConversionUnit } from '@/api/account';
+import type { NativeCoinUnit, ConversionUnit } from '@/api/account';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import { useMediaQuery } from '@/hooks/mediaquery';
@@ -69,11 +69,28 @@ const formatBtc = (
   );
 };
 
+const ETH_DEFAULT_DECIMALS = 18;
+
+const formatEth = (
+  amount: string,
+  group: string,
+  decimal: string,
+  maxDecimals: number = ETH_DEFAULT_DECIMALS
+): string => {
+  const dot = amount.indexOf('.');
+  if (dot === -1) {
+    return amount;
+  }
+  const truncated = amount.slice(0, dot + maxDecimals + 1);
+  return formatLocalizedAmount(truncated, group, decimal);
+};
+
 type TProps = {
   amount: string;
-  unit: CoinUnit | ConversionUnit;
+  unit: NativeCoinUnit | ConversionUnit;
   alwaysShowAmounts?: boolean;
   onMobileClick?: () => Promise<void>;
+  maxDecimals?: number;
 };
 
 export const Amount = ({
@@ -81,6 +98,7 @@ export const Amount = ({
   unit,
   alwaysShowAmounts = false,
   onMobileClick,
+  maxDecimals,
 }: TProps) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -91,11 +109,12 @@ export const Amount = ({
   };
 
   return (
-    <span className={style.amount} onClick={handleClick}>
+    <span className={style.amount || ''} onClick={handleClick}>
       <FormattedAmount
         amount={amount}
         unit={unit}
         alwaysShowAmounts={alwaysShowAmounts}
+        maxDecimals={maxDecimals}
       />
     </span>
   );
@@ -105,7 +124,8 @@ export const FormattedAmount = ({
   amount,
   unit,
   alwaysShowAmounts = false,
-}: Omit<TProps, 'allowRotateCurrencyOnMobile'>) => {
+  maxDecimals,
+}: Omit<TProps, 'onMobileClick'>) => {
   const { hideAmounts } = useContext(AppContext);
   const { decimal, group } = useContext(LocalizationContext);
 
@@ -127,6 +147,9 @@ export const FormattedAmount = ({
   case 'sat':
   case 'tsat':
     return formatSats(amount);
+  case 'ETH':
+  case 'SEPETH':
+    return formatEth(amount, group, decimal, maxDecimals);
   }
 
   return formatLocalizedAmount(amount, group, decimal);

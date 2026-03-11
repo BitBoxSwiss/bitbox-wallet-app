@@ -54,7 +54,10 @@ const TriggerContent = ({
         ) : (
           option.coinCode && option.balance && (
             <span className={styles.triggerBalance}>
-              <AmountWithUnit amount={option.balance} />
+              <AmountWithUnit
+                maxDecimals={9}
+                amount={option.balance}
+              />
             </span>
           )
         )}
@@ -69,7 +72,7 @@ const TriggerContent = ({
 
 const renderGroupHeader = (group: TGroupedOption) => (
   <div className={styles.groupHeader}>
-    <span className={styles.groupLabel}>{group.label}</span>
+    <span className={styles.groupLabel} data-testid="grouped-account-selector-group-label">{group.label}</span>
     {group.connected && (
       <Badge
         icon={props => <USBSuccess {...props} />}

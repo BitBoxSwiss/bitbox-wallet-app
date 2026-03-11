@@ -110,11 +110,11 @@ export const TxDetailsDialog = ({
           </TxDetailRow>
 
 
-          {/* historical fiat */}
+          {/* historical value */}
           {transactionInfo.amountAtTime?.estimated === false && (
             <TxDetailRow>
               <div>
-                <p className={styles.label}>{t('transaction.details.historicalFiat')}</p>
+                <p className={styles.label}>{t('transaction.details.historicalValue')}</p>
               </div>
               <span>
                 <AmountWithUnit
@@ -127,10 +127,10 @@ export const TxDetailsDialog = ({
           )}
 
 
-          {/* current fiat */}
+          {/* current value */}
           <TxDetailRow>
             <div>
-              <p className={styles.label}>{t('transaction.details.currentFiat')}</p>
+              <p className={styles.label}>{t('transaction.details.currentValue')}</p>
             </div>
             <span>
               <AmountWithUnit

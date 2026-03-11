@@ -257,6 +257,11 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			}
 		}
 		// Everything was zeroes.
+		// Keep historical zero-only series so wallets with transactions
+		// still render a chart instead of looking empty.
+		if len(s) > 0 {
+			return result
+		}
 		return []ChartEntry{}
 	}
 

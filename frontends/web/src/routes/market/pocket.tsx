@@ -11,6 +11,7 @@ import { verifyAddress, getPocketURL, TMarketAction } from '@/api/market';
 import { AccountCode, getInfo, getTransactionList, hasPaymentRequest, signAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
+import { PointToBitBox02 } from '@/components/icon';
 import { PocketTerms } from '@/components/terms/pocket-terms';
 import { useLoad } from '@/hooks/api';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -361,8 +362,9 @@ export const Pocket = ({
           <Dialog
             open={verifying}
             title={t('receive.verifyBitBox02')}
-            medium centered>
-            <div className="text-center">{t('buy.pocket.verifyBitBox02')}</div>
+            medium>
+            {t('buy.pocket.verifyBitBox02')}
+            <PointToBitBox02 />
           </Dialog>
           <FirmwareUpgradeRequiredDialog
             open={fwRequiredDialog}

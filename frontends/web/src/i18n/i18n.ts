@@ -25,13 +25,11 @@ import { languageFromConfig } from './config';
 import { localeMainLanguage } from './utils';
 import { setConfig } from '@/utils/config';
 
-const locizeProjectID = 'fe4e5a24-e4a2-4903-96fc-3d62c11fc502';
+const i18Init = i18n.use(languageFromConfig);
 
-let i18Init = i18n
-  .use(languageFromConfig);
-
-i18Init.init({
+export const getI18NConfig = () => ({
   fallbackLng: 'en',
+  returnEmptyString: false,
 
   // have a common namespace used around the full app
   ns: ['app', 'wallet'],
@@ -46,12 +44,9 @@ i18Init.init({
   react: {
     useSuspense : true, // Not using Suspense you will need to handle the not ready state yourself
   },
-
-  backend: {
-    projectId: locizeProjectID,
-    referenceLng: 'en'
-  },
 });
+
+i18Init.init(getI18NConfig());
 
 i18n.addResourceBundle('ar', 'app', appTranslationsAR);
 i18n.addResourceBundle('cs', 'app', appTranslationsCS);
