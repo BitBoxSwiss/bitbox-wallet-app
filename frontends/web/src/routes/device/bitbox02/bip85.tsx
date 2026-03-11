@@ -92,11 +92,10 @@ export const Bip85 = ({
             onClick={() => setStatus('info-recover')}>
             {t('button.continue')}
           </Button>
-          <Button
-            secondary
+          <BackButton
             onClick={() => setStatus('info-what')}>
             {t('button.back')}
-          </Button>
+          </BackButton>
         </ViewButtons>
       </View>
     );
@@ -121,11 +120,10 @@ export const Bip85 = ({
             }}>
             {t('button.continue')}
           </Button>
-          <Button
-            secondary
+          <BackButton
             onClick={() => setStatus('info-how')}>
             {t('button.back')}
-          </Button>
+          </BackButton>
         </ViewButtons>
       </View>
     );
@@ -158,11 +156,10 @@ export const Bip85 = ({
             }}>
             {t('button.proceedOnBitBox')}
           </Button>
-          <Button
-            secondary
+          <BackButton
             onClick={() => setStatus('info-recover')}>
             {t('button.back')}
-          </Button>
+          </BackButton>
         </ViewButtons>
       </View>
     );

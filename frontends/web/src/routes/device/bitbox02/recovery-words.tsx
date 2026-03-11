@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { showMnemonic } from '@/api/bitbox02';
 import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
-import { UseDisableBackButton } from '@/hooks/backbutton';
+import { UseBackButton, UseDisableBackButton } from '@/hooks/backbutton';
 import { Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Button, Checkbox } from '@/components/forms';
@@ -69,6 +69,10 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
       fullscreen
       minHeight={CONTENT_MIN_HEIGHT}
       verticallyCentered>
+      <UseBackButton handler={() => {
+        handleAbort();
+        return false;
+      }} />
       <ViewHeader small title={t('backup.showMnemonic.title')} />
       <ViewContent>
         <Message type="warning">
@@ -98,4 +102,3 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
     </View>
   );
 };
-
