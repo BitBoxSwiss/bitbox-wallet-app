@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext } from 'react';
-import type { CoinUnit, ConversionUnit } from '@/api/account';
+import type { NativeCoinUnit, ConversionUnit } from '@/api/account';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import { useMediaQuery } from '@/hooks/mediaquery';
@@ -71,7 +71,7 @@ const formatBtc = (
 
 type TProps = {
   amount: string;
-  unit: CoinUnit | ConversionUnit;
+  unit: NativeCoinUnit | ConversionUnit;
   alwaysShowAmounts?: boolean;
   onMobileClick?: () => Promise<void>;
 };
