@@ -4,7 +4,7 @@ import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
 import { VersionInfo, upgradeDeviceFirmware } from '@/api/bitbox02';
-import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
 import { Checked, RedDot } from '@/components/icon';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
@@ -81,12 +81,14 @@ const UpgradeDialog = ({
   }
   return (
     <Dialog onClose={onClose} open={open} title={t('upgradeFirmware.title')}>
-      {confirming ? t('confirmOnDevice') : (
-        <p>{t('upgradeFirmware.description', {
-          currentVersion: versionInfo.currentVersion,
-          newVersion: versionInfo.newVersion,
-        })}</p>
-      )}
+      <DialogScrollContent>
+        {confirming ? t('confirmOnDevice') : (
+          <p>{t('upgradeFirmware.description', {
+            currentVersion: versionInfo.currentVersion,
+            newVersion: versionInfo.newVersion,
+          })}</p>
+        )}
+      </DialogScrollContent>
       { !confirming && (
         <DialogButtons>
           <Button

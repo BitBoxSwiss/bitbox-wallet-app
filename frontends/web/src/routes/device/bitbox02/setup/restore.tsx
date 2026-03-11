@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { BackupsV2 } from '@/routes/device/bitbox02/backups';
 import { Backup } from '@/api/backup';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
-import { Button } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 
 type Props = {
   deviceID: string;
@@ -39,11 +39,10 @@ export const RestoreFromSDCardBackup = ({
           onSelectBackup={onSelectBackup}
           onRestoreBackup={onRestoreBackup}
         >
-          <Button
-            secondary
+          <BackButton
             onClick={onBack}>
             {t('button.back')}
-          </Button>
+          </BackButton>
         </BackupsV2>
       </ViewContent>
     </View>

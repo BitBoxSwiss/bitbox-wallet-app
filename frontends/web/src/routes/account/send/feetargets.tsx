@@ -222,9 +222,11 @@ export const FeeTargets = ({
                 ref={inputRef}
                 value={customFee}
               >
-                <span className={style.customFeeUnit}>
+                <label
+                  htmlFor="proposedFee"
+                  className={style.customFeeUnit}>
                   { customFeeUnit(coinCode) }
-                </span>
+                </label>
               </Input>
             </div>
           </div>

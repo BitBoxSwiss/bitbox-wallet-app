@@ -10,7 +10,7 @@ let servewallet: ServeWallet;
 test('App main page loads', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name);
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir);
     await servewallet.start();
   });
 

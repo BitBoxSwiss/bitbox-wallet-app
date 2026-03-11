@@ -5,6 +5,8 @@
 package bitbox02
 
 import (
+	"slices"
+
 	deviceevent "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -33,6 +35,7 @@ type Device struct {
 	deviceID    string
 	productName string
 	log         *logrus.Entry
+	keystore    *keystore
 
 	observable.Implementation
 }
@@ -72,6 +75,10 @@ func NewDevice(
 		productName: productName,
 		log:         log,
 	}
+	device.keystore = &keystore{
+		device: device,
+		log:    device.log,
+	}
 	device.Device.SetOnEvent(func(ev firmware.Event, meta interface{}) {
 		switch ev {
 		case firmware.EventStatusChanged:
@@ -91,6 +98,7 @@ func NewDevice(
 		case firmware.EventStatusChanged:
 			switch device.Device.Status() {
 			case firmware.StatusInitialized:
+				device.keystore.clearRootFingerprintCache()
 				device.Notify(observable.Event{
 					Subject: string(deviceevent.EventKeystoreAvailable),
 					Action:  action.Replace,
@@ -136,14 +144,38 @@ func (device *Device) Keystore() keystoreInterface.Keystore {
 	if device.Status() != firmware.StatusInitialized {
 		return nil
 	}
-	return &keystore{
-		device: device,
-		log:    device.log,
-	}
+	return device.keystore
 }
 
 // SetOnEvent implements device.Device.
 func (device *Device) SetOnEvent(onEvent func(deviceevent.Event, interface{})) {
+}
+
+// SetDeviceName updates the device name and notifies keystore observers.
+func (device *Device) SetDeviceName(deviceName string) error {
+	if err := device.Device.SetDeviceName(deviceName); err != nil {
+		return err
+	}
+
+	if ks := device.Keystore(); ks != nil {
+		if bb02Keysytore, ok := ks.(*keystore); ok {
+			rootFingerprint, err := bb02Keysytore.RootFingerprint()
+			if err != nil {
+				// Best effort, not critical.
+				return nil
+			}
+
+			bb02Keysytore.Notify(observable.Event{
+				Subject: string(keystoreInterface.EventNameChanged),
+				Action:  action.Replace,
+				Object: keystoreInterface.NameChangedEvent{
+					Name:            deviceName,
+					RootFingerprint: slices.Clone(rootFingerprint),
+				},
+			})
+		}
+	}
+	return nil
 }
 
 // Reset factory resets the device.

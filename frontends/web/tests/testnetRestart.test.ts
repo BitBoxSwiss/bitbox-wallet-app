@@ -7,7 +7,7 @@ import { expect } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
 
-let servewallet: ServeWallet;
+let servewallet: ServeWallet | undefined;
 
 
 /**
@@ -23,7 +23,7 @@ let servewallet: ServeWallet;
 test('Testnet mode', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { testnet: false });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { testnet: false });
     await servewallet.start();
   });
 
@@ -63,7 +63,7 @@ test('Testnet mode', async ({ page, host, frontendPort, servewalletPort }, testI
   });
 
   await test.step('Restart servewallet', async () => {
-    await servewallet.restart();
+    await servewallet!.restart();
   });
 
   await test.step('Verify testnet is enabled', async () => {
@@ -79,7 +79,7 @@ test('Testnet mode', async ({ page, host, frontendPort, servewalletPort }, testI
   });
 
   await test.step('Restart servewallet', async () => {
-    await servewallet.restart();
+    await servewallet!.restart();
   });
 
   await test.step('Verify testnet is disabled', async () => {
@@ -90,7 +90,8 @@ test('Testnet mode', async ({ page, host, frontendPort, servewalletPort }, testI
 });
 
 // Kill the simulator after each run and delete the config file to ensure a clean state.
-test.afterEach(() => {
-  servewallet.stop();
+test.afterEach(async () => {
+  await servewallet?.stop();
+  servewallet = undefined;
   deleteConfigFile();
 });

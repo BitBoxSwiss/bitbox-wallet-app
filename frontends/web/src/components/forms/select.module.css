@@ -22,6 +22,7 @@
     color: var(--color-default);
     font-family: var(--font-family);
     font-size: var(--size-default);
+    font-variant-numeric: tabular-nums;
     font-weight: 400;
     height: 52px;
     padding: 0 var(--space-half);

@@ -9,6 +9,7 @@ import { Column, ColumnButtons, Grid, ResponsiveGrid } from '@/components/layout
 import { Button, Label } from '@/components/forms';
 import { Toggle } from '@/components/toggle/toggle';
 import { InfoBlue } from '@/components/icon';
+import { BackButton } from '@/components/backbutton/backbutton';
 import style from './choose.module.css';
 
 export type TWalletSetupChoices = 'create-wallet' | 'restore-sdcard' | 'restore-mnemonic';
@@ -133,15 +134,15 @@ export const SetupOptions = ({
                   primary>
                   {t('seed.create')}
                 </Button>
-                <Button
+                <BackButton
                   onClick={() => {
                     setWithMnemonic(false);
                     setWith12Words(false);
                     setAdvanced(false);
                   }}
-                  secondary>
+                >
                   {t('button.back')}
-                </Button>
+                </BackButton>
               </ColumnButtons>
             </Column>
           </Grid>

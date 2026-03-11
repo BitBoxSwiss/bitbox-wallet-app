@@ -18,6 +18,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/require"
 )
@@ -45,6 +46,9 @@ func makeKeystore(
 	t.Helper()
 
 	return &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock keystore", nil
 		},
@@ -121,16 +125,6 @@ func TestAOPPSuccess(t *testing.T) {
 			scriptType:  scriptTypeRef(signing.ScriptTypeP2WPKH),
 			address:     "bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3",
 			addressID:   "9959e354fad09a47b0a5b0ac8af1b5f95924526241689b3ed7c472e79d95bde6",
-			accountCode: "v0-55555555-btc-0",
-			accountName: "Bitcoin",
-		},
-		{
-			asset:       "btc",
-			coinCode:    coinpkg.CodeBTC,
-			format:      "p2sh",
-			scriptType:  scriptTypeRef(signing.ScriptTypeP2WPKHP2SH),
-			address:     "3C4J3CSPSYD3ibV8u1DqqPRtfsUsSbnuPX",
-			addressID:   "58c9954205732bcae1b9dd7eccda521ba5257749680fad3336556e0d46f68866",
 			accountCode: "v0-55555555-btc-0",
 			accountName: "Bitcoin",
 		},

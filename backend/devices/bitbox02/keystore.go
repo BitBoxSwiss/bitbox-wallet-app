@@ -14,6 +14,7 @@ import (
 	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
@@ -26,11 +27,19 @@ import (
 )
 
 type keystore struct {
+	observable.Implementation
+
 	device *Device
 	log    *logrus.Entry
 
 	rootFingerMu sync.Mutex
 	rootFinger   []byte // cached result of RootFingerprint
+}
+
+func (keystore *keystore) clearRootFingerprintCache() {
+	keystore.rootFingerMu.Lock()
+	defer keystore.rootFingerMu.Unlock()
+	keystore.rootFinger = nil
 }
 
 // Type implements keystore.Keystore.
@@ -504,7 +513,12 @@ func (keystore *keystore) SignETHMessage(message []byte, keypath signing.Absolut
 
 // SignETHTypedMessage implements keystore.Keystore.
 func (keystore *keystore) SignETHTypedMessage(chainId uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
-	signature, err := keystore.device.ETHSignTypedMessage(chainId, keypath.ToUInt32(), data)
+	// SignETHTypedMessage is currently only used for WalletConnect. We disable antiklepto there, as
+	// some DeFi apps require deterministic signatures.
+	// Before v9.26.0, antiklepto could not be disabled.
+	useAntiklepto := !keystore.device.Version().AtLeast(semver.NewSemVer(9, 26, 0))
+
+	signature, err := keystore.device.ETHSignTypedMessage(chainId, keypath.ToUInt32(), data, useAntiklepto)
 	if firmware.IsErrorAbort(err) {
 		return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
 	}

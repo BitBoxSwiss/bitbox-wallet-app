@@ -31,7 +31,7 @@ import { GlobalBanners } from '@/components/banners';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { TransactionList } from './components/transaction-list';
 import { TransactionDetails } from '@/components/transactions/details';
-import { Button, Input } from '@/components/forms';
+import { Button, SearchInput } from '@/components/forms';
 import { SubTitle } from '@/components/title';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -298,9 +298,8 @@ const RemountAccount = ({
                       ${style.searchContainer || ''}
                       ${!showSearchBar && style.searchHidden || ''}
                     `}>
-                      <Input
+                      <SearchInput
                         ref={searchInputRef}
-                        type="text"
                         placeholder="Search transactions..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.currentTarget.value)}

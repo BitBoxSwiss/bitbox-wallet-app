@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useEsc } from '@/hooks/keyboard';
 import { Button } from '@/components/forms/button';
+import { useBackButton } from '@/hooks/backbutton';
+import { useBackNavigation } from '@/contexts/BackNavigationContext';
 
 type TBackButton = {
   children: ReactNode;
   className?: string;
   disabled?: boolean;
   enableEsc?: boolean;
+  onClick?: () => void;
 };
 
 export const BackButton = ({
@@ -17,14 +19,27 @@ export const BackButton = ({
   className,
   disabled,
   enableEsc,
+  onClick,
 }: TBackButton) => {
-  const navigate = useNavigate();
+  const { goBack } = useBackNavigation();
 
   const handleBack = useCallback(() => {
     if (!disabled) {
-      navigate(-1);
+      if (onClick) {
+        onClick();
+        return;
+      }
+      goBack();
     }
-  }, [disabled, navigate]);
+  }, [disabled, onClick, goBack]);
+
+  useBackButton(() => {
+    if (disabled) {
+      return false;
+    }
+    handleBack();
+    return false;
+  });
 
   useEsc(useCallback(() => enableEsc && handleBack(), [enableEsc, handleBack]));
 

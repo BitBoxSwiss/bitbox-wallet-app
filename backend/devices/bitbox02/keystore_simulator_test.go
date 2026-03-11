@@ -31,7 +31,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
@@ -463,14 +462,14 @@ func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.Pro
 		GetPrevTx: func(chainhash.Hash) (*wire.MsgTx, error) {
 			return prevTx, nil
 		},
-		GetKeystoreAddress: func(coinCode coinpkg.Code, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, error) {
+		GetKeystoreAddress: func(coinCode coinpkg.Code, addressID addresses.AddressID) (*addresses.AccountAddress, error) {
 			for _, address := range addrs {
-				if address.PubkeyScriptHashHex() == scriptHashHex {
+				if address.PubkeyScriptHashHex() == addressID {
 					return address, nil
 				}
 			}
 			for _, address := range addrsInDifferentAccount {
-				if address.PubkeyScriptHashHex() == scriptHashHex {
+				if address.PubkeyScriptHashHex() == addressID {
 					return address, nil
 				}
 			}

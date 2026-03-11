@@ -11,7 +11,7 @@ import {
 } from '@/api/account';
 import { syncdone } from '@/api/accountsync';
 import { A } from '@/components/anchor/anchor';
-import { Dialog } from '@/components/dialog/dialog';
+import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button, Checkbox } from '@/components/forms';
 import { ExternalLink } from '@/components/icon';
 import { Amount } from '@/components/amount/amount';
@@ -128,7 +128,7 @@ export const UTXOs = ({
                       <span className={style.label}>
                         {t('send.coincontrol.address')}:
                       </span>
-                      <span className={style.shrink}>
+                      <span className={`${style.shrink || ''} ${style.tabularNums || ''}`}>
                         {utxo.address}
                       </span>
                       <div className="m-left-quarter">
@@ -160,9 +160,9 @@ export const UTXOs = ({
                       <span className={style.label}>
                         {t('send.coincontrol.outpoint')}:
                       </span>
-                      <span className={style.shrink}>
+                      <span className={`${style.shrink || ''} ${style.tabularNums || ''}`}>
                         {utxo.txId}
-                      </span>:{utxo.txOutput}
+                      </span>:<span className={style.tabularNums}>{utxo.txOutput}</span>
                     </div>
                   </div>
                   <A
@@ -186,21 +186,19 @@ export const UTXOs = ({
       title={t('send.coincontrol.title')}
       large
       onClose={onClose}>
-      <div>
-        {(reusedAddressUTXOs > 0) && (
-          <Message type="warning">
-            {t('warning.coincontrol')}
-          </Message>
-        )}
-      </div>
-      <div>
+      {(reusedAddressUTXOs > 0) && (
+        <Message type="warning">
+          {t('warning.coincontrol')}
+        </Message>
+      )}
+      <DialogScrollContent>
         { allScriptTypes.map(renderUTXOs) }
-        <div className="buttons text-center m-top-none m-bottom-half">
-          <Button primary onClick={onClose}>
-            {t('button.continue')}
-          </Button>
-        </div>
-      </div>
+      </DialogScrollContent>
+      <DialogButtons>
+        <Button primary onClick={onClose}>
+          {t('button.continue')}
+        </Button>
+      </DialogButtons>
     </Dialog>
   );
 };

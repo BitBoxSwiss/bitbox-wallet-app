@@ -3,7 +3,6 @@
 package addresses
 
 import (
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -19,7 +18,7 @@ type AddressChain struct {
 	gapLimit             int
 	change               bool
 	addresses            []*AccountAddress
-	addressesLookup      map[blockchain.ScriptHashHex]*AccountAddress
+	addressesByID        map[AddressID]*AccountAddress
 	addressesLock        locker.Locker
 	isAddressUsed        func(*AccountAddress) (bool, error)
 	log                  *logrus.Entry
@@ -40,7 +39,7 @@ func NewAddressChain(
 		gapLimit:             gapLimit,
 		change:               change,
 		addresses:            []*AccountAddress{},
-		addressesLookup:      map[blockchain.ScriptHashHex]*AccountAddress{},
+		addressesByID:        map[AddressID]*AccountAddress{},
 		isAddressUsed:        isAddressUsed,
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
 			"gap-limit": gapLimit, "change": change,
@@ -73,7 +72,7 @@ func (addresses *AddressChain) addAddress() *AccountAddress {
 		addresses.log,
 	)
 	addresses.addresses = append(addresses.addresses, address)
-	addresses.addressesLookup[address.PubkeyScriptHashHex()] = address
+	addresses.addressesByID[address.PubkeyScriptHashHex()] = address
 	return address
 }
 
@@ -94,11 +93,11 @@ func (addresses *AddressChain) unusedTailCount() (int, error) {
 	return count, nil
 }
 
-// LookupByScriptHashHex returns the address which matches the provided scriptHashHex. Returns nil
+// LookupByAddressID returns the address which matches the provided address ID. Returns nil
 // if not found.
-func (addresses *AddressChain) LookupByScriptHashHex(hashHex blockchain.ScriptHashHex) *AccountAddress {
+func (addresses *AddressChain) LookupByAddressID(addressID AddressID) *AccountAddress {
 	defer addresses.addressesLock.RLock()()
-	return addresses.addressesLookup[hashHex]
+	return addresses.addressesByID[addressID]
 }
 
 // EnsureAddresses appends addresses to the address chain until there are `gapLimit` unused

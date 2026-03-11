@@ -3,6 +3,7 @@
 package backend
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"math"
@@ -16,7 +17,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
@@ -103,8 +103,9 @@ func (a AccountsList) lookupByTransactionInternalID(internalID string) (accounts
 	return nil, nil
 }
 
-// sortAccounts sorts the accounts in-place by 1) coin 2) account number.
-func sortAccounts(accounts []accounts.Interface) {
+// sortAccounts sorts the accounts in-place by 1) keystore name 2) root fingerprint 3) coin
+// 4) account number.
+func sortAccounts(accounts []accounts.Interface, accountsConfig config.AccountsConfig) {
 	compareCoin := func(coin1, coin2 coinpkg.Coin) int {
 		getOrder := func(c coinpkg.Coin) (int, bool) {
 			order, ok := map[coinpkg.Code]int{
@@ -140,6 +141,18 @@ func sortAccounts(accounts []accounts.Interface) {
 	less := func(i, j int) bool {
 		acct1 := accounts[i]
 		acct2 := accounts[j]
+		rootFingerprint1, err1 := acct1.Config().Config.SigningConfigurations.RootFingerprint()
+		rootFingerprint2, err2 := acct2.Config().Config.SigningConfigurations.RootFingerprint()
+		if err1 == nil && err2 == nil {
+			keystore1, lookupErr1 := accountsConfig.LookupKeystore(rootFingerprint1)
+			keystore2, lookupErr2 := accountsConfig.LookupKeystore(rootFingerprint2)
+			if lookupErr1 == nil && lookupErr2 == nil && keystore1.Name != keystore2.Name {
+				return keystore1.Name < keystore2.Name
+			}
+			if cmp := bytes.Compare(rootFingerprint1, rootFingerprint2); cmp != 0 {
+				return cmp < 0
+			}
+		}
 		coinCmp := compareCoin(acct1.Coin(), acct2.Coin())
 		if coinCmp == 0 && len(acct1.Config().Config.SigningConfigurations) > 0 && len(acct2.Config().Config.SigningConfigurations) > 0 {
 			signingCfg1 := acct1.Config().Config.SigningConfigurations[0]
@@ -259,19 +272,21 @@ func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat stri
 		return nil, err
 	}
 
-	coinDecimals := coinpkg.DecimalsExp(account.Coin())
-	price, err := backend.RatesUpdater().LatestPriceForPair(account.Coin().Unit(false), fiat)
+	return backend.convertToFiat(account.Coin(), balance.Available(), fiat)
+}
+
+func (backend *Backend) convertToFiat(coin coinpkg.Coin, amount coinpkg.Amount, fiat string) (*big.Rat, error) {
+	price, err := backend.RatesUpdater().LatestPriceForPair(coin.Unit(false), fiat)
 	if err != nil {
 		return nil, err
 	}
-	fiatValue := new(big.Rat).Mul(
+	return new(big.Rat).Mul(
 		new(big.Rat).SetFrac(
-			balance.Available().BigInt(),
-			coinDecimals,
+			amount.BigInt(),
+			coinpkg.DecimalsExp(coin),
 		),
 		new(big.Rat).SetFloat64(price),
-	)
-	return fiatValue, nil
+	), nil
 }
 
 type coinFormattedAmount struct {
@@ -821,11 +836,28 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	return nil
 }
 
+// updateKeystoreName persists a keystore name change and re-sorts the loaded accounts accordingly.
+func (backend *Backend) updateKeystoreName(rootFingerprint []byte, name string) error {
+	if name == "" {
+		return errp.New("Name cannot be empty")
+	}
+	if err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		accountsConfig.GetOrAddKeystore(rootFingerprint).Name = name
+		return nil
+	}); err != nil {
+		return err
+	}
+	defer backend.accountsAndKeystoreLock.Lock()()
+	sortAccounts(backend.accounts, backend.config.AccountsConfig())
+	backend.emitAccountsStatusChanged()
+	return nil
+}
+
 // addAccount adds the given account to the backend.
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.accounts = append(backend.accounts, account)
-	sortAccounts(backend.accounts)
+	sortAccounts(backend.accounts, backend.config.AccountsConfig())
 
 	account.Observe(func(event observable.Event) {
 		backend.Notify(observable.Event{
@@ -968,9 +1000,10 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 	}
 	var account accounts.Interface
 	accountConfig := &accounts.AccountConfig{
-		Config:      persistedConfig,
-		DBFolder:    backend.arguments.CacheDirectoryPath(),
-		NotesFolder: backend.arguments.NotesDirectoryPath(),
+		Config:          persistedConfig,
+		DBFolder:        backend.arguments.CacheDirectoryPath(),
+		SkipInitialSync: backend.skipETHInitialSync,
+		NotesFolder:     backend.arguments.NotesDirectoryPath(),
 		ConnectKeystore: func() (keystore.Keystore, error) {
 			accountRootFingerprint, err := persistedConfig.SigningConfigurations.RootFingerprint()
 			if err != nil {
@@ -979,6 +1012,9 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			return backend.ConnectKeystore(accountRootFingerprint)
 		},
 		RateUpdater: backend.ratesUpdater,
+		GetMainCurrency: func() string {
+			return backend.config.AppConfig().Backend.MainFiat
+		},
 		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {
 			return backend.notifier.ForAccount(persistedConfig.Code)
 		},
@@ -988,7 +1024,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 
 	// This function is passed as a callback to the BTC account constructor. It is called when the
 	// keystore needs to determine whether an address belongs to an account on its same keystore.
-	getAddressCallback := func(coinCode coinpkg.Code, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, error) {
+	getAddressByIDCallback := func(coinCode coinpkg.Code, addressID addresses.AddressID) (*addresses.AccountAddress, error) {
 		accountsByKeystore, err := backend.AccountsByKeystore()
 		if err != nil {
 			return nil, err
@@ -1007,7 +1043,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			if btcAccount.Coin().Code() != coinCode {
 				continue
 			}
-			if address := btcAccount.GetAddress(scriptHashHex); address != nil {
+			if address := btcAccount.AddressByID(addressID); address != nil {
 				return address, nil
 			}
 		}
@@ -1020,7 +1056,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			accountConfig,
 			specificCoin,
 			backend.gapLimits(),
-			getAddressCallback,
+			getAddressByIDCallback,
 			backend.log,
 		)
 		backend.addAccount(account)

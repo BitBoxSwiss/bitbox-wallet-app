@@ -8,6 +8,19 @@
 - Apply rounded corners in several places and components of the app
 - Send: enable rotating currencies in send window.
 - Show the fee's fiat value in send-to-self txs for consistency with others, and include the send-to-self amount in the left-side label
+- Ethereum WalletConnect: ensure deterministic signatures for typed messages
+- Show 9 decimals for ETH balances in portfolio page, account page, and transaction history
+- Show "full" ETH balance (up to 18 decimal places) in Account information view
+- Use Inter as default font
+- Add forgot password info during unlock
+- Export transactions CSV: add historical value and historical value currency columns.
+- Show total fiat amount in Bitrefill confirmation step
+- Show contract address in Ethereum token account info
+- Harmonize iOS and Android back swipe/button navigation to only work in expected situations
+- Bitcoin: remove option to receive to wrapped segwit addresses
+- Fix coin control reused-address labels
+- Revamp portfolio / account summary detail (table)
+- Sort wallets by name first, then by root fingerprint when names match.
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.
