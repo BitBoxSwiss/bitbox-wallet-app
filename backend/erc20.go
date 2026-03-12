@@ -14,6 +14,28 @@ type erc20Token struct {
 	token *erc20.Token
 }
 
+// ERC20TokenInfo contains the frontend-facing metadata for a supported ERC20 token.
+type ERC20TokenInfo struct {
+	code coin.Code
+	name string
+	unit string
+}
+
+// Code returns the token coin code.
+func (token ERC20TokenInfo) Code() coin.Code {
+	return token.code
+}
+
+// Name returns the token display name.
+func (token ERC20TokenInfo) Name() string {
+	return token.name
+}
+
+// Unit returns the token unit.
+func (token ERC20TokenInfo) Unit() string {
+	return token.unit
+}
+
 var erc20Tokens = []erc20Token{
 	// Note: if you change the coinCode from eth-erc20- to something else, make sure to check for
 	// instances of it in the frontend.
@@ -83,4 +105,17 @@ func erc20TokenByCode(code coin.Code) *erc20Token {
 		}
 	}
 	return nil
+}
+
+// ERC20Tokens returns the supported ERC20 tokens exposed to the frontend.
+func ERC20Tokens() []ERC20TokenInfo {
+	result := make([]ERC20TokenInfo, 0, len(erc20Tokens))
+	for _, token := range erc20Tokens {
+		result = append(result, ERC20TokenInfo{
+			code: token.code,
+			name: token.name,
+			unit: token.unit,
+		})
+	}
+	return result
 }
