@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Toggle } from '@/components/toggle/toggle';
 import * as backendAPI from '@/api/backend';
 import * as accountAPI from '@/api/account';
-import { useLoad } from '@/hooks/api';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { Label } from '@/components/forms';
 import { EnableRememberWalletDialog } from '@/routes/settings/components/manage-accounts/dialogs/enableRememberWalletDialog';
 import { DisableRememberWalletDialog } from '@/routes/settings/components/manage-accounts/dialogs/disableRememberWalletDialog';
@@ -18,14 +17,14 @@ type Props = {
 
 export const WatchonlySetting = ({ keystore }: Props) => {
   const { t } = useTranslation();
+  const { config } = useConfig();
   const [disabled, setDisabled] = useState<boolean>(false);
   const [watchonly, setWatchonly] = useState<boolean>();
   const [warningDialogOpen, setWarningDialogOpen] = useState(false);
   const [walletRememberedDialogOpen, setWalletRememberedDialogOpen] = useState(false);
-  const config = useLoad(getConfig);
 
   useEffect(() => {
-    if (config) {
+    if (config !== undefined) {
       setWatchonly(keystore.watchonly);
     }
   }, [config, keystore]);

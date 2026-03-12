@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TElectrumServer } from '@/api/node';
 import { ElectrumAddServer } from './electrum-add-server';
 import { ElectrumServer } from './electrum-server';
 import { getDefaultConfig } from '@/api/backend';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { confirmation } from '@/components/confirm/Confirm';
 import { Button } from '@/components/forms';
 import style from './electrum.module.css';
@@ -19,21 +18,23 @@ export const ElectrumServers = ({
   coin
 }: Props) => {
   const { t } = useTranslation();
-  const [config, setConfigState] = useState<any>();
-  const loadConfig = () => {
-    getConfig().then(setConfigState);
-  };
-  useEffect(loadConfig, []);
+  const { config, setConfig } = useConfig();
+
   if (config === undefined) {
     return null;
   }
-  const electrumServers: TElectrumServer[] = config.backend[coin].electrumServers;
+  const backendCoin = config.backend?.[coin] as { electrumServers?: TElectrumServer[] } | undefined;
+  const electrumServers: TElectrumServer[] = backendCoin?.electrumServers ?? [];
 
   const save = async (newElectrumServers: TElectrumServer[]) => {
-    const currentConfig = await getConfig();
-    currentConfig.backend[coin].electrumServers = newElectrumServers;
-    await setConfig(currentConfig);
-    setConfigState(currentConfig);
+    await setConfig({
+      backend: {
+        [coin]: {
+          ...(backendCoin && typeof backendCoin === 'object' ? backendCoin : {}),
+          electrumServers: newElectrumServers
+        }
+      }
+    });
   };
 
   const onAdd = (server: TElectrumServer) => {
