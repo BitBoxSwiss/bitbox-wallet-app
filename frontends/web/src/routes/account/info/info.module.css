@@ -99,12 +99,24 @@
     order: 2;
 }
 
+.contractAddressLink {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--space-quarter);
+}
+
+.contractAddressLinkIcon {
+    height: 16px;
+    width: 16px;
+}
+
 @media screen and (min-width: 900px) {
     .address {
         align-items: start;
         column-gap: var(--space-default);
         grid-template-areas:
             "details qr"
+            "warning warning"
             "buttons buttons";
         grid-template-columns: minmax(0, 1fr) 220px;
     }
@@ -116,6 +128,10 @@
     .qrCode {
         grid-area: qr;
         justify-content: flex-end;
+    }
+
+    .warningMessage {
+        grid-area: warning;
     }
 
     .buttons {

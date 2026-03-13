@@ -72,7 +72,9 @@ var fixedURLWhitelist = []string{
 	"https://sochain.com/tx/LTCTEST/",
 	"https://blockchair.com/litecoin/transaction/",
 	"https://etherscan.io/tx/",
+	"https://etherscan.io/address/",
 	"https://sepolia.etherscan.io/tx/",
+	"https://sepolia.etherscan.io/address/",
 	// Moonpay onramp
 	"https://www.moonpay.com/",
 	"https://support.moonpay.com/",
