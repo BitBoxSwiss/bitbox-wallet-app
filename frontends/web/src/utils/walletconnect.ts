@@ -52,13 +52,6 @@ export const getAddressFromEIPString = (address: string) => {
   return parts.length > 2 ? parts[2] : '';
 };
 
-export const truncateAddress = (address: string) => {
-  if (!address) {
-    return '';
-  }
-  return `${address.substring(0, 6)}...${address.substring(address.length - 6)}`;
-};
-
 export const getTopicFromURI = (wcURI: string) => {
   try {
     // Split the URI by ':'
