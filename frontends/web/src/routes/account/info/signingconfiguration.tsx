@@ -13,6 +13,7 @@ import { Button } from '@/components/forms';
 import { ExternalLink } from '@/components/icon';
 import { Message } from '@/components/message/message';
 import { QRCode } from '@/components/qrcode/qrcode';
+import { truncateMiddle } from '@/utils/address';
 import style from './info.module.css';
 
 type TProps = {
@@ -21,13 +22,6 @@ type TProps = {
   code: AccountCode;
   signingConfigIndex: number;
   children: ReactNode;
-};
-
-const formatContractAddress = (address: string): string => {
-  if (!address) {
-    return '';
-  }
-  return `${address.slice(0, 6)}.....${address.slice(-4)}`;
 };
 
 export const SigningConfiguration = ({ account, info, code, signingConfigIndex, children }: TProps) => {
@@ -57,10 +51,12 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
   const bitcoinBased = isBitcoinBased(account.coinCode);
   const contractAddress = account.contractAddress;
   const blockExplorerAddressPrefix = account.blockExplorerAddressPrefix;
-  const showContractAddress = account.isToken && !!contractAddress && !!blockExplorerAddressPrefix;
-  const contractAddressURL = showContractAddress
-    ? `${blockExplorerAddressPrefix}${contractAddress}`
-    : '';
+  const contractAddressInfo = account.isToken && contractAddress && blockExplorerAddressPrefix
+    ? {
+      address: contractAddress,
+      url: `${blockExplorerAddressPrefix}${contractAddress}`,
+    }
+    : null;
   return (
     <div className={style.address}>
       <div className={style.qrCode}>
@@ -104,23 +100,18 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
             </span>
           </div>
         ) : null }
-        { showContractAddress ? (
-          <>
-            <div key="contractAddress" className={style.entry}>
-              <strong>Contract address:</strong>
-              <div className={style.contractAddressLink}>
-                <code>{formatContractAddress(contractAddress!)}</code>
-                <A
-                  href={contractAddressURL}
-                  title={contractAddressURL}>
-                  <ExternalLink className={style.contractAddressLinkIcon} />
-                </A>
-              </div>
+        { contractAddressInfo ? (
+          <div key="contractAddress" className={style.entry}>
+            <strong>{t('accountInfo.contractAddress')}:</strong>
+            <div className={style.contractAddressLink}>
+              <code>{truncateMiddle(contractAddressInfo.address)}</code>
+              <A
+                href={contractAddressInfo.url}
+                title={contractAddressInfo.url}>
+                <ExternalLink className={style.contractAddressLinkIcon} />
+              </A>
             </div>
-            <Message type="warning">
-              {t('accountInfo.contractAddressWarning')}
-            </Message>
-          </>
+          </div>
         ) : null}
         { bitcoinBased ? (
           <div key="xpub" className={`${style.entry || ''} ${style.largeEntry || ''}`}>
@@ -134,6 +125,11 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
           </div>
         ) : null }
       </div>
+      { contractAddressInfo ? (
+        <Message className={style.warningMessage} type="warning">
+          {t('accountInfo.contractAddressWarning')}
+        </Message>
+      ) : null}
       <div className={style.buttons}>
         { bitcoinBased ? (
           <Button className={style.verifyButton} primary disabled={verifying} onClick={async () => {
