@@ -3,6 +3,7 @@
 import { ReactNode, useContext, createContext, useEffect, useState, useCallback } from 'react';
 import { runningOnMobile } from '@/utils/env';
 import { AppContext } from './AppContext';
+import { useBackNavigation } from './BackNavigationContext';
 
 export type THandler = () => boolean;
 
@@ -29,6 +30,7 @@ type TProviderProps = {
 export const BackButtonProvider = ({ children }: TProviderProps) => {
   const [handlers, setHandlers] = useState<THandler[]>([]);
   const { guideShown, toggleGuide } = useContext(AppContext);
+  const { handleSystemBack } = useBackNavigation();
 
   const callTopHandler = useCallback(() => {
     // On mobile, the guide covers the whole screen.
@@ -41,10 +43,13 @@ export const BackButtonProvider = ({ children }: TProviderProps) => {
 
     if (handlers.length > 0) {
       const topHandler = handlers[handlers.length - 1] as THandler;
-      return topHandler();
+      const shouldContinue = topHandler();
+      if (!shouldContinue) {
+        return false;
+      }
     }
-    return true;
-  }, [handlers, guideShown, toggleGuide]);
+    return handleSystemBack();
+  }, [handlers, guideShown, toggleGuide, handleSystemBack]);
 
   const pushHandler = useCallback((handler: THandler) => {
     setHandlers((prevStack) => [...prevStack, handler]);
