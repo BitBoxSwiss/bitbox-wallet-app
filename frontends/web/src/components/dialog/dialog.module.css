@@ -36,6 +36,9 @@
     .modal {
         margin-left: var(--sidebar-width-large);
     }
+    .modal.noSidebarOffset {
+        margin-left: 0;
+    }
     .modal .contentContainer p {
         --size-default: var(--size-default);
     }

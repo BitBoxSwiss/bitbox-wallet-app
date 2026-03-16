@@ -1983,6 +1983,18 @@
       "e109_touch": "$t(unlock.error.e109_normal) The next login requires holding the touch button.",
       "e113": "Due to many login attempts, the next login requires holding the touch button for 4 seconds."
     },
+    "forgotPassword": {
+      "button": "See here",
+      "dialogDescription": "If you forgot your device password, you can still restore from your wallet backup:",
+      "dialogTitle": "Forgot your device password?",
+      "info": "Forgot your password?",
+      "stillHavingIssues": "Still having issues?",
+      "supportLink": "Contact support",
+      "text1": "After entering the wrong device password 10 times, your device automatically resets to factory settings.",
+      "text2": "You can restore your wallet from a microSD card or paper backup, without needing the old device password. During restore, you can set a new device password.",
+      "title1": "Device resets after repeated failed attempts",
+      "title2": "Restore from your wallet backup"
+    },
     "input": {
       "label": "Device password",
       "placeholder": "Enter your device password to unlock the device"
