@@ -64,13 +64,10 @@ func IsPocketSupported(coinCode coin.Code) bool {
 	return coinCode == coin.CodeBTC || coinCode == coin.CodeTBTC
 }
 
-// PocketDeals returns the purchase conditions (fee and payment methods) offered by Pocket.
-func PocketDeals() *DealsList {
-	// deals details are the same for both buy and sell. In the future we may need to use
-	// an action parameter to give different results.
-	return &DealsList{
+func pocketOfferVendor() *OfferVendor {
+	return &OfferVendor{
 		VendorName: PocketName,
-		Deals: []*Deal{
+		Offers: []*Offer{
 			{
 				Fee:     1.5, // 1.5%
 				Payment: BankTransferPayment,
@@ -78,6 +75,16 @@ func PocketDeals() *DealsList {
 			},
 		},
 	}
+}
+
+// PocketBuyOffers returns buy offers by Pocket.
+func PocketBuyOffers() *OfferVendor {
+	return pocketOfferVendor()
+}
+
+// PocketSellOffers returns sell offers by Pocket.
+func PocketSellOffers() *OfferVendor {
+	return pocketOfferVendor()
 }
 
 // GetPocketSupportedRegions query pocket API and returns a map of available regions.
