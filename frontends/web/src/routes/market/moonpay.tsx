@@ -6,7 +6,7 @@ import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { AccountCode, TAccount } from '@/api/account';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { getMoonpayBuyInfo } from '@/api/market';
 import { MarketGuide } from './guide';
 import { Header } from '@/components/layout';
@@ -22,12 +22,12 @@ type TProps = {
 
 export const Moonpay = ({ accounts, code }: TProps) => {
   const { t } = useTranslation();
+  const { config } = useConfig();
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [height, setHeight] = useState(0);
   const { isDarkMode } = useDarkmode();
 
-  const config = useLoad(getConfig);
   const moonpay = useLoad(getMoonpayBuyInfo(code));
 
   const account = findAccount(accounts, code);
@@ -35,8 +35,8 @@ export const Moonpay = ({ accounts, code }: TProps) => {
   let resizeTimerID: any;
 
   useEffect(() => {
-    if (config) {
-      setAgreedTerms(config.frontend.skipMoonpayDisclaimer);
+    if (config?.frontend) {
+      setAgreedTerms(Boolean(config.frontend.skipMoonpayDisclaimer));
     }
   }, [config]);
 

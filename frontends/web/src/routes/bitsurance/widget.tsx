@@ -4,7 +4,7 @@ import { useState, useEffect, createRef, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { ScriptType, signAddress } from '@/api/account';
 import { getInfo } from '@/api/account';
 import { Header } from '@/components/layout';
@@ -25,13 +25,13 @@ type TProps = {
 export const BitsuranceWidget = ({ code }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { config } = useConfig();
 
   const [height, setHeight] = useState(0);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
 
   const iframeURL = useLoad(getBitsuranceURL);
-  const config = useLoad(getConfig);
   const accountInfo = useLoad(getInfo(code));
 
   const ref = createRef<HTMLDivElement>();
@@ -40,8 +40,8 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   let resizeTimerID: any = undefined;
 
   useEffect(() => {
-    if (config) {
-      setAgreedTerms(config.frontend.skipBitsuranceDisclaimer);
+    if (config !== undefined) {
+      setAgreedTerms(Boolean(config.frontend?.skipBitsuranceDisclaimer ?? false));
     }
   }, [config]);
 

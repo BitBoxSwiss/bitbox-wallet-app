@@ -7,6 +7,7 @@ import { BackButtonProvider } from './BackButtonContext';
 import { WCWeb3WalletProvider } from './WCWeb3WalletProvider';
 import { RatesProvider } from './RatesProvider';
 import { LocalizationProvider } from './localization-provider';
+import { ConfigProvider } from './ConfigProvider';
 
 type Props = {
   children: ReactNode;
@@ -14,18 +15,20 @@ type Props = {
 
 export const Providers = ({ children }: Props) => {
   return (
-    <AppProvider>
-      <BackButtonProvider>
-        <DarkModeProvider>
-          <LocalizationProvider>
-            <RatesProvider>
-              <WCWeb3WalletProvider>
-                {children}
-              </WCWeb3WalletProvider>
-            </RatesProvider>
-          </LocalizationProvider>
-        </DarkModeProvider>
-      </BackButtonProvider>
-    </AppProvider>
+    <ConfigProvider>
+      <AppProvider>
+        <BackButtonProvider>
+          <DarkModeProvider>
+            <LocalizationProvider>
+              <RatesProvider>
+                <WCWeb3WalletProvider>
+                  {children}
+                </WCWeb3WalletProvider>
+              </RatesProvider>
+            </LocalizationProvider>
+          </DarkModeProvider>
+        </BackButtonProvider>
+      </AppProvider>
+    </ConfigProvider>
   );
 };

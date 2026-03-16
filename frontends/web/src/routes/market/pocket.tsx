@@ -4,7 +4,7 @@ import { createRef, useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { Dialog } from '@/components/dialog/dialog';
 import { confirmation } from '@/components/confirm/Confirm';
 import { verifyAddress, getPocketURL, TMarketAction } from '@/api/market';
@@ -31,6 +31,7 @@ export const Pocket = ({
   code,
 }: TProps) => {
   const { t } = useTranslation();
+  const { config } = useConfig();
   const navigate = useNavigate();
 
   // Pocket sell only works if the FW supports payment requests
@@ -44,7 +45,6 @@ export const Pocket = ({
   const [verifying, setVerifying] = useState(false);
 
   const [iframeURL, setIframeUrl] = useState('');
-  const config = useLoad(getConfig);
   const accountInfo = useLoad(getInfo(code));
 
   const ref = createRef<HTMLDivElement>();
@@ -76,8 +76,8 @@ export const Pocket = ({
   }, [action, hasPaymentRequestResponse, t]);
 
   useEffect(() => {
-    if (config) {
-      setAgreedTerms(config.frontend.skipPocketDisclaimer);
+    if (config?.frontend) {
+      setAgreedTerms(Boolean(config.frontend.skipPocketDisclaimer));
     }
   }, [config]);
 

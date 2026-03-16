@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '@/hooks/api';
 import * as marketAPI from '@/api/market';
 import { Button } from '@/components/forms/button';
 import { getBTCDirectOTCLink, TInfoContentProps, TPaymentFee } from './infocontent';
@@ -13,7 +12,7 @@ import { ExternalLinkWhite, ExternalLinkBlack, Businessman } from '@/components/
 import { useDarkmode } from '@/hooks/darkmode';
 import { A } from '@/components/anchor/anchor';
 import { InfoButton } from '@/components/infobutton/infobutton';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { VendorDeals } from '@/routes/market/components/vendor-deals';
 import style from './deals.module.css';
@@ -36,15 +35,15 @@ export const Deals = ({
   setInfo,
 }: TProps) => {
   const { t } = useTranslation();
+  const { config } = useConfig();
   const { isDarkMode } = useDarkmode();
 
   const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
-  const config = useLoad(getConfig);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (config) {
-      setAgreedBTCDirectOTCTerms(config.frontend.skipBTCDirectOTCDisclaimer);
+    if (config?.frontend) {
+      setAgreedBTCDirectOTCTerms(Boolean(config.frontend.skipBTCDirectOTCDisclaimer));
     }
   }, [config]);
 
