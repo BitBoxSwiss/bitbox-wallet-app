@@ -89,11 +89,12 @@ var fixedURLWhitelist = []string{
 	"https://embed.bitrefill.com/",
 	"https://help.bitrefill.com/",
 	// Bitsurance
-	"https://www.bitsurance.eu/",
-	"https://get.bitsurance.eu/",
-	"https://bitsurance.ihr-versicherungsschutz.de/",
-	"https://bitsurance.eu/support",
-	"https://support.bitsurance.eu",
+	"https://www.bitsurance.io/",
+	"https://get.bitsurance.io/",
+	"https://bitsurance.io/support",
+	"https://support.bitsurance.io",
+	"https://api.bs-test.de/",
+	"https://get.bs-test.de/",
 	// Documentation and other articles.
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
