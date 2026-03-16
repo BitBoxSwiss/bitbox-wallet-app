@@ -55,6 +55,7 @@
     border: none;
     font-family: var(--font-family);
     font-size: var(--size-default);
+    font-variant-numeric: tabular-nums;
     font-weight: 400;
     height: var(--input-height);
     padding: 0;

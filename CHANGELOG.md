@@ -10,6 +10,7 @@
 - Ethereum WalletConnect: ensure deterministic signatures for typed messages
 - Show 9 decimals for ETH balances in portfolio page, account page, and transaction history
 - Show "full" ETH balance (up to 18 decimal places) in Account information view
+- Use Inter as default font
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.
