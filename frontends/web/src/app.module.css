@@ -12,6 +12,11 @@
     padding-right: env(safe-area-inset-right, 0);
 }
 
+/* Add padding for custom title bar on desktop */
+.appContent.hasTitleBar {
+    padding-top: 32px;
+}
+
 @media (max-width: 900px) {
     .appContent {
         position: absolute;

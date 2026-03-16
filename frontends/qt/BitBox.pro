@@ -33,6 +33,7 @@ DEFINES += QAPPLICATION_CLASS=QApplication
 
 win32 {
     LIBS += -L$$PWD/server/ -llibserver
+    LIBS += -ldwmapi
     DESTDIR = $$PWD/build/windows
     RC_ICONS += $$PWD/resources/win/icon.ico
     # These flags aren't currently being respected at build time on Windows
