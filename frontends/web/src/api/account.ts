@@ -183,6 +183,7 @@ export type TChartData = {
   chartDataMissing: boolean;
   chartDataDaily: ChartData;
   chartDataHourly: ChartData;
+  chartTransactions: TChartTransaction[];
   chartFiat: ConversionUnit;
   chartTotal: number | null;
   formattedChartTotal: string | null;
@@ -225,6 +226,16 @@ export const getBalance = (code: AccountCode): Promise<TBalanceResponse> => {
 
 export type TTransactionStatus = 'complete' | 'pending' | 'failed';
 export type TTransactionType = 'send' | 'receive' | 'send_to_self';
+
+export type TChartTransaction = {
+  time: number;
+  internalID: string;
+  accountCode: AccountCode;
+  explorerURL: string;
+  type: Extract<TTransactionType, 'send' | 'receive'>;
+  amountAtTime: TAmountWithConversions;
+  deductedAmountAtTime: TAmountWithConversions;
+};
 
 export type TTransaction = {
   addresses: string[];
