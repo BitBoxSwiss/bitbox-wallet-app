@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Dispatch, RefObject, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, RefObject, SetStateAction } from 'react';
 
 import { useVendorIframeResizeHeight } from './vendor-iframe-resize-height';
+import { useVendorIframeTerms } from './vendor-iframe-terms';
 
 type TUseVendorIframeShellProps = {
   agreedByConfig?: boolean;
@@ -19,17 +20,13 @@ type TVendorIframeShell = {
 };
 
 export { useVendorIframeResizeHeight } from './vendor-iframe-resize-height';
+export { useVendorIframeTerms } from './vendor-iframe-terms';
 
 export const useVendorIframeShell = ({
   agreedByConfig = false,
 }: TUseVendorIframeShellProps = {}): TVendorIframeShell => {
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-
-  const [agreedTerms, setAgreedTerms] = useState(agreedByConfig);
-
-  useEffect(() => {
-    setAgreedTerms(agreedByConfig);
-  }, [agreedByConfig]);
+  const { agreedTerms, setAgreedTerms } = useVendorIframeTerms(agreedByConfig);
 
   return {
     agreedTerms,
