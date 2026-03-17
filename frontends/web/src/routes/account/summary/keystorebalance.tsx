@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import type { TKeystore } from '@/api/account';
 import { getAccountsPerCoin, TAccountsByKeystore } from '@/routes/account/utils';
 import { Balances } from './accountssummary';
-import { BalanceRow } from './balancerow';
-import { SubTotalRow } from './subtotalrow';
-import { Amount } from '@/components/amount/amount';
-import { Skeleton } from '@/components/skeleton/skeleton';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
+import { AssetBalance } from './asset-balance';
+import { AssetBalanceTotal } from './asset-balance-total';
+import { AssetBalanceWithLine } from './asset-balance-with-line';
+import { BalanceSection } from './balance-section';
 import style from './accountssummary.module.css';
 
 type TProps = {
@@ -20,98 +21,91 @@ type TProps = {
   balances?: Balances;
 };
 
-export const KeystoreBalance = ({
-  accountsByKeystore,
-  accounts,
-  keystore,
-  keystoreBalance,
-  balances,
-}: TProps) => {
+
+export const KeystoreBalance = ({ accounts, accountsByKeystore, keystore, keystoreBalance, balances }: TProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const accountsPerCoin = getAccountsPerCoin(accounts);
   const coins = Object.keys(accountsPerCoin) as accountApi.CoinCode[];
 
   return (
-    <div>
-      <div className={style.accountName}>
-        <p>
-          <ConnectedKeystore
-            accountsByKeystore={accountsByKeystore}
-            keystore={keystore} />
-        </p>
-      </div>
-      <div className={style.balanceTable}>
-        <table className={style.table}>
-          <colgroup>
-            <col width="33%" />
-            <col width="33%" />
-            <col width="*" />
-          </colgroup>
-          <thead>
-            <tr>
-              <th>{t('accountSummary.name')}</th>
-              <th>{t('accountSummary.balance')}</th>
-              <th>{t('accountSummary.fiatBalance')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            { accounts.length > 0 ? (
-              coins.map(coinCode => {
-                const balanceRows = accountsPerCoin[coinCode]?.map(account => (
-                  <BalanceRow
-                    key={account.code}
-                    code={account.code}
-                    name={account.name}
-                    coinCode={account.coinCode}
-                    balance={balances && balances[account.code]}
-                  />
-                ));
-                if (balanceRows && balanceRows?.length > 1) {
-                  const accountsForCoin = accountsPerCoin[coinCode];
-                  if (accountsForCoin && accountsForCoin.length >= 1) {
-                    const account = accountsForCoin[0] as accountApi.TAccount;
-                    balanceRows.push(
-                      <SubTotalRow
-                        key={account.coinCode}
-                        coinCode={account.coinCode}
-                        coinName={account.coinName}
-                        balance={keystoreBalance?.coinsBalance && keystoreBalance.coinsBalance[coinCode]}
-                      />);
-                  }
+    <BalanceSection
+      name={
+        <ConnectedKeystore
+          className={style.keystoreName}
+          accountsByKeystore={accountsByKeystore}
+          keystore={keystore}
+        />
+      }
+      totalAmount={keystoreBalance?.total}
+      fiatUnit={keystoreBalance?.fiatUnit}
+    >
+      { accounts.length > 0 ? (
+        coins.map(coinCode => {
+          const coinAccounts = accountsPerCoin[coinCode] ?? [];
+          const coinName = coinAccounts[0]?.coinName ?? coinCode;
+          const showTotal = coinAccounts.length > 1;
+          const totalAmount = keystoreBalance?.coinsBalance?.[coinCode];
+
+          return (
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => {
+                if (!showTotal) {
+                  navigate(`/account/${coinAccounts[0]?.code ?? ''}`);
                 }
-                return balanceRows;
-              })
-            ) : (
-              <tr>
-                <td colSpan={3} className={style.noAccount}>
-                  {t('accountSummary.noAccount')}
-                </td>
-              </tr>
-            )}
-          </tbody>
-          <tfoot>
-            <tr>
-              <th>
-                {t('accountSummary.total')}
-              </th>
-              <td colSpan={2}>
-                {keystoreBalance ? (
-                  <strong className={style.summaryTableBalance}>
-                    <Amount
-                      amount={keystoreBalance.total}
-                      unit={keystoreBalance.fiatUnit}
+              }}
+              key={coinCode}
+              className={`
+              ${style.coinGroupCard || ''} 
+              ${!showTotal ? style.clickable || '' : ''}
+              `}
+            >
+              {showTotal && (
+                <AssetBalanceTotal
+                  amount={totalAmount}
+                  coinCode={coinCode}
+                  coinName={coinName}
+                />
+              )}
+
+              {coinAccounts.map((account, ix) => {
+                const balance = balances?.[account.code];
+
+                if (showTotal) {
+                  return (
+                    <AssetBalanceWithLine
+                      key={account.code}
+                      account={account}
+                      coinCode={account.coinCode}
+                      isFirst={ix === 0}
+                      balances={balances}
                     />
-                    <span className={style.coinUnit}>
-                      {keystoreBalance.fiatUnit}
-                    </span>
-                  </strong>
-                ) : (<Skeleton />)}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div>
+                  );
+                }
+
+                return (
+                  <AssetBalance
+                    key={account.code}
+                    amount={balance?.available}
+                    coinCode={account.coinCode}
+                    coinName={account.name}
+                    dataTestId="account-name"
+                  />
+                );
+              })}
+            </div>
+          );
+        })
+      ) : (
+        <div className={style.coinGroupCard}>
+          <p className={style.noAccountText}>
+            {t('accountSummary.noAccount')}
+          </p>
+        </div>
+      )}
+    </BalanceSection>
   );
 };

@@ -321,7 +321,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		log.Errorf("RateUpdater DB cache dir: %v", err)
 	}
 	backend.ratesUpdater = rates.NewRateUpdater(hclient, ratesCache)
-	backend.ratesUpdater.Observe(backend.Notify)
+	backend.ratesUpdater.Observe(func(event observable.Event) {
+		backend.Notify(event)
+		backend.notifyCoinFiatPrices()
+	})
 
 	backend.banners = banners.NewBanners(backend.DevServers())
 	backend.banners.Observe(backend.Notify)
@@ -883,6 +886,51 @@ func (backend *Backend) Deregister(deviceID string) {
 // RatesUpdater returns the backend's ratesUpdater instance.
 func (backend *Backend) RatesUpdater() *rates.RateUpdater {
 	return backend.ratesUpdater
+}
+
+// CoinFiatPrices returns the fiat prices of 1 display-unit of the given coin
+// in all supported fiat currencies, formatted without thousand separators.
+// The successful response matches the frontend TAmountWithConversions shape.
+func (backend *Backend) CoinFiatPrices(code coinpkg.Code) map[string]interface{} {
+	coin, err := backend.Coin(code)
+	if err != nil {
+		return map[string]interface{}{"success": false}
+	}
+	return backend.coinFiatPrices(coin)
+}
+
+func (backend *Backend) coinFiatPrices(coin coinpkg.Coin) map[string]interface{} {
+	coinAmount, err := coin.ParseAmount("1")
+	if err != nil {
+		return map[string]interface{}{"success": false}
+	}
+	conversions := coinpkg.PlainConversions(coinAmount, coin, false, backend.ratesUpdater)
+	if len(conversions) == 0 {
+		return map[string]interface{}{"success": false}
+	}
+	return map[string]interface{}{
+		"success":     true,
+		"amount":      "1",
+		"unit":        coin.Unit(false),
+		"conversions": conversions,
+		"estimated":   false,
+	}
+}
+
+// notifyCoinFiatPrices pushes per-coin fiat price events for all initialized coins.
+func (backend *Backend) notifyCoinFiatPrices() {
+	defer backend.coinsLock.RLock()()
+	for code, coin := range backend.coins {
+		result := backend.coinFiatPrices(coin)
+		if success, ok := result["success"].(bool); !ok || !success {
+			continue
+		}
+		backend.Notify(observable.Event{
+			Subject: fmt.Sprintf("coins/%s/fiat-prices", code),
+			Action:  action.Replace,
+			Object:  result,
+		})
+	}
 }
 
 // DownloadCert downloads the first element of the remote certificate chain.
