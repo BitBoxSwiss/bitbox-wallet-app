@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useEffect, useRef, useCallback, useContext } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -20,6 +20,7 @@ import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import style from './iframe.module.css';
 import { AppContext } from '@/contexts/AppContext';
+import { useVendorIframeShell } from '@/hooks/vendor-iframe';
 
 // Map coins supported by Bitrefill
 const coinMapping: Readonly<Record<string, string>> = {
@@ -47,48 +48,25 @@ export const Bitrefill = ({
   const { isDevServers } = useContext(AppContext);
   const account = findAccount(accounts, code);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const [height, setHeight] = useState(0);
-  const resizeTimerID = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bitrefillInfo = useLoad(() => getBitrefillInfo('spend', code));
 
   const config = useLoad(getConfig);
-  const [agreedTerms, setAgreedTerms] = useState(false);
+  const {
+    agreedTerms,
+    setAgreedTerms,
+    iframeLoaded,
+    onIframeLoad,
+    containerRef,
+    iframeRef,
+    height,
+  } = useVendorIframeShell({
+    agreedByConfig: !!config?.frontend?.skipBitrefillWidgetDisclaimer,
+  });
 
   const [pendingPayment, setPendingPayment] = useState<boolean>(false);
   const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>(false);
 
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
-
-  useEffect(() => {
-    if (config) {
-      setAgreedTerms(config.frontend.skipBitrefillWidgetDisclaimer);
-    }
-  }, [config]);
-
-  const onResize = useCallback(() => {
-    if (resizeTimerID.current) {
-      clearTimeout(resizeTimerID.current);
-    }
-    resizeTimerID.current = setTimeout(() => {
-      if (containerRef.current) {
-        setHeight(containerRef.current.offsetHeight);
-      }
-    }, 200);
-  }, []);
-
-  useEffect(() => {
-    onResize();
-    window.addEventListener('resize', onResize);
-    return () => {
-      window.removeEventListener('resize', onResize);
-      if (resizeTimerID.current) {
-        clearTimeout(resizeTimerID.current);
-      }
-    };
-  }, [onResize]);
 
   const handleConfiguration = useCallback(async (event: MessageEvent) => {
     if (
@@ -255,8 +233,7 @@ export const Bitrefill = ({
                       sandbox="allow-same-origin allow-popups allow-scripts allow-forms"
                       src={bitrefillInfo.url}
                       onLoad={() => {
-                        setIframeLoaded(true);
-                        onResize();
+                        onIframeLoad();
                       }}
                     />
                   )}
