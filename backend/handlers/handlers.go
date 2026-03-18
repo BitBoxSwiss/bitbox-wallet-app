@@ -118,7 +118,7 @@ type Handlers struct {
 	// backend to secure the API call. The data is fed into the static javascript app
 	// that is served, so the client knows where and how to connect to.
 	apiData           *ConnectionData
-	backendEvents     chan interface{}
+	eventBroker       *eventBroker
 	websocketUpgrader websocket.Upgrader
 	log               *logrus.Entry
 }
@@ -152,10 +152,10 @@ func NewHandlers(
 	log := logging.Get().WithGroup("handlers")
 	router := mux.NewRouter()
 	handlers := &Handlers{
-		Router:        router,
-		backend:       backend,
-		apiData:       connData,
-		backendEvents: make(chan interface{}, 1000),
+		Router:      router,
+		backend:     backend,
+		apiData:     connData,
+		eventBroker: newEventBroker(),
 		websocketUpgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -336,21 +336,24 @@ func NewHandlers(
 	// The backend relays events in two ways:
 	// a) old school through the channel returned by Start()
 	// b) new school via observable.
-	// Merge both.
+	// Merge both and fan out to all subscribers via the event broker.
 	events := backend.Start()
 	go func() {
-		for {
-			handlers.backendEvents <- <-events
+		for event := range events {
+			handlers.eventBroker.publish(event)
 		}
 	}()
-	backend.Observe(func(event observable.Event) { handlers.backendEvents <- event })
+	backend.Observe(func(event observable.Event) { handlers.eventBroker.publish(event) })
 
 	return handlers
 }
 
-// Events returns the push notifications channel.
-func (handlers *Handlers) Events() <-chan interface{} {
-	return handlers.backendEvents
+// Events returns a push notifications channel and a cleanup function. Each call creates a new
+// subscription, so every caller receives all events independently. The caller must call the
+// returned function to unsubscribe when done.
+func (handlers *Handlers) Events() (<-chan interface{}, func()) {
+	id, ch := handlers.eventBroker.subscribe()
+	return ch, func() { handlers.eventBroker.unsubscribe(id) }
 }
 
 func writeJSON(w io.Writer, value interface{}) {
@@ -1046,8 +1049,10 @@ func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) 
 		panic(err)
 	}
 
+	events, unsubscribe := handlers.Events()
 	sendChan, quitChan := runWebsocket(conn, handlers.apiData, handlers.log)
 	go func() {
+		defer unsubscribe()
 		for {
 			select {
 			case <-quitChan:
@@ -1056,7 +1061,10 @@ func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) 
 				select {
 				case <-quitChan:
 					return
-				case event := <-handlers.backendEvents:
+				case event, ok := <-events:
+					if !ok {
+						return
+					}
 					sendChan <- jsonp.MustMarshal(event)
 				}
 			}
