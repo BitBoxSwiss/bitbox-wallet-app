@@ -4,6 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { CoinCode, NativeCoinUnit, TAccount } from '@/api/account';
 import {
   getAccountsByKeystore,
+  getAddressURIPrefix,
   getCoinCode,
   isBitcoinBased,
   isBitcoinCoin,
@@ -141,5 +142,9 @@ describe('utils/bitcoin coin helpers', () => {
 
   it('maps rbtc to canonical btc coin code', () => {
     expect(getCoinCode('rbtc' as CoinCode)).toBe('btc');
+  });
+
+  it('uses bitcoin URI prefix for rbtc', () => {
+    expect(getAddressURIPrefix('rbtc')).toBe('bitcoin:');
   });
 });

@@ -15,6 +15,7 @@ import { Bitrefill } from './market/bitrefill';
 import { Info } from './account/info/info';
 import { XPubDetail } from './account/info/xpub-detail';
 import { Receive } from './account/receive/receive';
+import { Addresses } from './account/addresses/addresses';
 import { SendWrapper } from './account/send/send-wrapper';
 import { AccountsSummary } from './account/summary/accountssummary';
 import { DeviceSwitch } from './device/deviceswitch';
@@ -120,6 +121,13 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
   const AccXPubDetail = (<InjectParams>
     <XPubDetail
       code={''}
+      accounts={activeAccounts} />
+  </InjectParams>);
+
+  const AccAddresses = (<InjectParams>
+    <Addresses
+      code={''}
+      devices={devices}
       accounts={activeAccounts} />
   </InjectParams>);
 
@@ -256,6 +264,9 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route index element={Acc} />
           <Route path="send" element={AccSend} />
           <Route path="receive" element={AccReceive} />
+          <Route path="addresses" element={AccAddresses} />
+          <Route path="addresses/:addressID" element={AccAddresses} />
+          <Route path="addresses/:addressID/verify" element={AccAddresses} />
           <Route path="info" element={AccInfo} />
           <Route path="info/xpub-detail" element={AccXPubDetail} />
           <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
