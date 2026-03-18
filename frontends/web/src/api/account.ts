@@ -57,6 +57,7 @@ export type TAccount = {
   coinName: string;
   code: AccountCode;
   name: string;
+  receiveScriptType?: ScriptType;
   isToken: boolean;
   contractAddress?: string;
   activeTokens?: TActiveToken[];

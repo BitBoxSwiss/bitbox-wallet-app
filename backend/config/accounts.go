@@ -44,6 +44,8 @@ type Account struct {
 	Name                  string                 `json:"name"`
 	Code                  accountsTypes.Code     `json:"code"`
 	SigningConfigurations signing.Configurations `json:"configurations"`
+	// ReceiveScriptType stores the user's receive address type for this account.
+	ReceiveScriptType *signing.ScriptType `json:"receiveScriptType,omitempty"`
 	// ActiveTokens list the tokens that should be loaded along with the account.  Currently, this
 	// only applies to ETH, and the elements are ERC20 token codes (e.g. "eth-erc20-usdt",
 	// "eth-erc20-bat", etc).
@@ -66,6 +68,15 @@ func (acct *Account) SetTokenActive(tokenCode string, active bool) error {
 		activeTokens = append(activeTokens, tokenCode)
 	}
 	acct.ActiveTokens = activeTokens
+	return nil
+}
+
+// SetReceiveScriptType stores the receive script type for this account.
+func (acct *Account) SetReceiveScriptType(scriptType signing.ScriptType) error {
+	if acct.SigningConfigurations.FindScriptType(scriptType) == -1 {
+		return errp.Newf("script type %s not supported by account", scriptType)
+	}
+	acct.ReceiveScriptType = &scriptType
 	return nil
 }
 
