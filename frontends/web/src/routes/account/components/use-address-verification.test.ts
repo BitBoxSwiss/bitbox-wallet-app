@@ -80,8 +80,7 @@ describe('routes/account/components/use-address-verification', () => {
       expect(handleVerifyAddressWithDeviceResult).toHaveBeenCalled();
     });
 
-    // After handleVerifyAddressWithDeviceResult calls onVerified, state becomes 'verified'
-    // and the hook then calls returnToList.
+    // onVerified calls returnToList directly.
     await waitFor(() => {
       expect(defaultParams.returnToList).toHaveBeenCalledWith('addr-1');
     });

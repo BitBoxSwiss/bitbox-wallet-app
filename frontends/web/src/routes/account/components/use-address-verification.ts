@@ -8,7 +8,7 @@ import { cancelConnectKeystore } from '@/api/backend';
 import { SKIP_DEVICE_VERIFICATION_PARAM } from '../utils';
 import { verifyAddressWithDevice, handleVerifyAddressWithDeviceResult } from './verify-address';
 
-export type TVerifyState = 'idle' | 'connecting' | 'connectFailed' | 'skipWarning' | 'skipped' | 'verifying' | 'verified' | 'error';
+export type TVerifyState = 'idle' | 'connecting' | 'connectFailed' | 'skipWarning' | 'skipped' | 'verifying' | 'error';
 
 type TUseAddressVerificationParams = {
   code: AccountCode;
@@ -18,7 +18,7 @@ type TUseAddressVerificationParams = {
   returnToList: (expandedID?: string) => void;
 };
 
-type TUseAddressVerificationResult = {
+export type TUseAddressVerificationResult = {
   verifyState: TVerifyState;
   verifyError: string | null;
   hasSkipDeviceVerificationQuery: boolean;
@@ -114,7 +114,7 @@ export const useAddressVerification = ({
           setVerifyError(t('addresses.verifyConnectFailed'));
         },
         onSkipDeviceVerification: () => setVerifyState('skipWarning'),
-        onVerified: () => setVerifyState('verified'),
+        onVerified: () => returnToList(selectedAddressID),
         onVerifyFailed: () => {
           setVerifyState('error');
           setVerifyError(t('addresses.verifyFailed'));
@@ -130,25 +130,16 @@ export const useAddressVerification = ({
     };
   }, [code, isVerifyView, rootFingerprint, returnToList, selectedAddress?.addressID, t, verifyAttempt]);
 
-  useEffect(() => {
-    if (!isVerifyView || verifyState !== 'verified') {
-      return;
-    }
-    returnToList(selectedAddress?.addressID);
-  }, [isVerifyView, returnToList, selectedAddress?.addressID, verifyState]);
-
-  const startVerifyFlow = useCallback((selectedAddressID: string) => {
-    setVerifyError(null);
-    setVerifyState('idle');
-    setVerifyAttempt(prev => prev + 1);
-    navigate(`/account/${code}/addresses/${selectedAddressID}/verify`);
-  }, [code, navigate]);
-
-  const retryVerify = useCallback(() => {
+  const resetAndRetry = useCallback(() => {
     setVerifyError(null);
     setVerifyState('idle');
     setVerifyAttempt(prev => prev + 1);
   }, []);
+
+  const startVerifyFlow = useCallback((selectedAddressID: string) => {
+    resetAndRetry();
+    navigate(`/account/${code}/addresses/${selectedAddressID}/verify`);
+  }, [code, navigate, resetAndRetry]);
 
   const skipVerify = useCallback(() => {
     setVerifyState('skipped');
@@ -159,7 +150,7 @@ export const useAddressVerification = ({
     verifyError,
     hasSkipDeviceVerificationQuery,
     startVerifyFlow,
-    retryVerify,
+    retryVerify: resetAndRetry,
     skipVerify,
   };
 };

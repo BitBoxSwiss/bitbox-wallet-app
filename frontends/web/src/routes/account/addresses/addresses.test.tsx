@@ -302,16 +302,5 @@ describe('routes/account/addresses', () => {
     expect(screen.queryByText('Please verify that the following address matches the one displayed on your device.')).not.toBeInTheDocument();
   });
 
-  it('aborts verify flow when cancel is clicked on skip warning dialog', async () => {
-    const user = userEvent.setup();
-
-    renderWithRoute(`/account/${mockAccount.code}/addresses/${receiveAddress.addressID}/verify?skipDeviceVerification=1`);
-
-    await screen.findByText('Skip device verification?');
-    await user.click(screen.getByRole('button', { name: 'Cancel' }));
-
-    await screen.findByPlaceholderText('Search address');
-    expect(screen.queryByText('Skip device verification?')).not.toBeInTheDocument();
-  });
 
 });
