@@ -53,19 +53,25 @@ export type TAccount = {
   keystore: TKeystore;
   active: boolean;
   coinCode: CoinCode;
-  coinUnit: NativeCoinUnit;
+  coinUnit: CoinUnit;
   coinName: string;
   code: AccountCode;
   name: string;
   isToken: boolean;
   activeTokens?: TActiveToken[];
+  parentAccountCode?: AccountCode;
   blockExplorerTxPrefix: string;
+  balance?: TBalance | null;
   bitsuranceStatus?: TDetailStatus;
   accountNumber?: number;
 };
 
 export const getAccounts = (): Promise<TAccount[]> => {
   return apiGet('accounts');
+};
+
+export const getSwapDestinationAccounts = (): Promise<TAccount[]> => {
+  return apiGet('accounts/swap-destinations');
 };
 
 export type CoinFormattedAmount = {
@@ -200,7 +206,7 @@ type Conversions = {
 export type TAmountWithConversions = {
   amount: string;
   conversions?: Conversions;
-  unit: NativeCoinUnit;
+  unit: CoinUnit;
   estimated: boolean;
 };
 

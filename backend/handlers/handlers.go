@@ -62,6 +62,7 @@ type Backend interface {
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() backend.AccountsList
+	SwapDestinationAccounts() []*backend.SwapDestinationAccount
 	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
 	AccountsFiatAndCoinBalance(backend.AccountsList, string) (*big.Rat, map[coinpkg.Code]*big.Int, error)
 	Keystore() keystore.Keystore
@@ -210,6 +211,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore/{rootFingerprint}/features", handlers.getKeystoreFeatures).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/accounts/swap-destinations", handlers.getSwapDestinationAccounts).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
@@ -378,30 +380,76 @@ type accountJSON struct {
 	// Multiple accounts can belong to the same keystore. For now we replicate the keystore info in
 	// the accounts. In the future the getAccountsHandler() could return the accounts grouped
 	// keystore.
-	Keystore              keystoreJSON       `json:"keystore"`
-	Active                bool               `json:"active"`
-	BitsuranceStatus      string             `json:"bitsuranceStatus"`
-	CoinCode              coinpkg.Code       `json:"coinCode"`
-	CoinUnit              string             `json:"coinUnit"`
-	CoinName              string             `json:"coinName"`
-	Code                  accountsTypes.Code `json:"code"`
-	Name                  string             `json:"name"`
-	IsToken               bool               `json:"isToken"`
-	ActiveTokens          []activeToken      `json:"activeTokens,omitempty"`
-	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
+	Keystore              keystoreJSON        `json:"keystore"`
+	Active                bool                `json:"active"`
+	BitsuranceStatus      string              `json:"bitsuranceStatus"`
+	CoinCode              coinpkg.Code        `json:"coinCode"`
+	CoinUnit              string              `json:"coinUnit"`
+	CoinName              string              `json:"coinName"`
+	Code                  accountsTypes.Code  `json:"code"`
+	Name                  string              `json:"name"`
+	IsToken               bool                `json:"isToken"`
+	ParentAccountCode     *accountsTypes.Code `json:"parentAccountCode,omitempty"`
+	ActiveTokens          []activeToken       `json:"activeTokens,omitempty"`
+	BlockExplorerTxPrefix string              `json:"blockExplorerTxPrefix"`
+	Balance               *balanceJSON        `json:"balance,omitempty"`
 	// Number of the account per coin per keystore, starting at 0. Nil if unknown.
 	AccountNumber *uint16 `json:"accountNumber"`
 }
 
+type balanceJSON struct {
+	HasAvailable bool                                   `json:"hasAvailable"`
+	Available    coinpkg.FormattedAmountWithConversions `json:"available"`
+	HasIncoming  bool                                   `json:"hasIncoming"`
+	Incoming     coinpkg.FormattedAmountWithConversions `json:"incoming"`
+}
+
+func formatAccountBalance(account accounts.Interface) *balanceJSON {
+	if account == nil {
+		return nil
+	}
+	accountBalance, err := account.Balance()
+	if err != nil {
+		return nil
+	}
+	return &balanceJSON{
+		HasAvailable: accountBalance.Available().BigInt().Sign() > 0,
+		Available:    accountBalance.Available().FormatWithConversions(account.Coin(), false, account.Config().RateUpdater),
+		HasIncoming:  accountBalance.Incoming().BigInt().Sign() > 0,
+		Incoming:     accountBalance.Incoming().FormatWithConversions(account.Coin(), false, account.Config().RateUpdater),
+	}
+}
+
+func activeTokensJSON(account *config.Account, tokenCodes []string) []activeToken {
+	if account.CoinCode != coinpkg.CodeETH {
+		return nil
+	}
+	activeTokens := make([]activeToken, 0, len(tokenCodes))
+	for _, tokenCode := range tokenCodes {
+		activeTokens = append(activeTokens, activeToken{
+			TokenCode:   tokenCode,
+			AccountCode: backend.Erc20AccountCode(account.Code, tokenCode),
+		})
+	}
+	return activeTokens
+}
+
+// newAccountJSON builds account JSON for swap destinations from persisted config and coin metadata.
+// It does not take accounts.Interface because swap destinations can include inactive or synthetic
+// token entries that do not exist as loaded account instances.
 func newAccountJSON(
 	keystore config.Keystore,
-	account accounts.Interface,
+	accountConfig *config.Account,
+	accountCoin coinpkg.Coin,
 	activeTokens []activeToken,
-	keystoreConnected bool) *accountJSON {
-	eth, ok := account.Coin().(*eth.Coin)
+	keystoreConnected bool,
+	balance *balanceJSON,
+	parentAccountCode *accountsTypes.Code,
+) *accountJSON {
+	eth, ok := accountCoin.(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
 	var accountNumberPtr *uint16
-	accountNumber, err := account.Config().Config.SigningConfigurations.AccountNumber()
+	accountNumber, err := accountConfig.SigningConfigurations.AccountNumber()
 	if err == nil {
 		accountNumberPtr = &accountNumber
 	}
@@ -410,16 +458,18 @@ func newAccountJSON(
 			Keystore:  keystore,
 			Connected: keystoreConnected,
 		},
-		Active:                !account.Config().Config.Inactive,
-		BitsuranceStatus:      account.Config().Config.InsuranceStatus,
-		CoinCode:              account.Coin().Code(),
-		CoinUnit:              account.Coin().Unit(false),
-		CoinName:              account.Coin().Name(),
-		Code:                  account.Config().Config.Code,
-		Name:                  account.Config().Config.Name,
+		Active:                !accountConfig.Inactive,
+		BitsuranceStatus:      accountConfig.InsuranceStatus,
+		CoinCode:              accountCoin.Code(),
+		CoinUnit:              accountCoin.Unit(false),
+		CoinName:              accountCoin.Name(),
+		Code:                  accountConfig.Code,
+		Name:                  accountConfig.Name,
 		IsToken:               isToken,
+		ParentAccountCode:     parentAccountCode,
 		ActiveTokens:          activeTokens,
-		BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
+		BlockExplorerTxPrefix: accountCoin.BlockExplorerTransactionURLPrefix(),
+		Balance:               balance,
 		AccountNumber:         accountNumberPtr,
 	}
 }
@@ -682,9 +732,33 @@ func (handlers *Handlers) getAccounts(*http.Request) interface{} {
 			}
 		}
 
-		accounts = append(accounts, newAccountJSON(*keystore, account, activeTokens, keystoreConnected))
+		accounts = append(accounts, newAccountJSON(
+			*keystore,
+			persistedAccount,
+			account.Coin(),
+			activeTokens,
+			keystoreConnected,
+			nil,
+			nil,
+		))
 	}
 	return accounts
+}
+
+func (handlers *Handlers) getSwapDestinationAccounts(*http.Request) interface{} {
+	swapAccounts := []*accountJSON{}
+	for _, account := range handlers.backend.SwapDestinationAccounts() {
+		swapAccounts = append(swapAccounts, newAccountJSON(
+			account.Keystore,
+			account.AccountConfig,
+			account.AccountCoin,
+			activeTokensJSON(account.AccountConfig, account.ActiveTokenCodes),
+			account.KeystoreConnected,
+			formatAccountBalance(account.LoadedAccount),
+			account.ParentAccountCode,
+		))
+	}
+	return swapAccounts
 }
 
 func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {

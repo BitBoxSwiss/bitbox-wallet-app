@@ -20,7 +20,9 @@ type TGroupAccountSelector = {
 
 type TOptionAccountSelector = {
   disabled: boolean;
+  active?: boolean;
   coinCode?: TAccount['coinCode'];
+  coinUnit?: TAccount['coinUnit'];
   balance?: TAmountWithConversions;
   insured?: boolean;
 };
@@ -34,6 +36,8 @@ type TTriggerContentProps = {
   stackedLayout?: boolean;
 };
 
+const missingBalancePlaceholder = '-';
+
 const TriggerContent = ({
   option,
   stackedLayout = false,
@@ -44,7 +48,9 @@ const TriggerContent = ({
       <div className={styles.triggerContent}>
         <Logo coinCode={option.coinCode} alt={option.coinCode} />
         <span className={styles.triggerLabel}>
-          {stackedLayout ? option.balance?.unit : option.label}
+          {stackedLayout ? (
+            option.balance ? <AmountWithUnit amount={option.balance} /> : missingBalancePlaceholder
+          ) : option.label}
         </span>
         {option.insured && <InsuredShield />}
         {stackedLayout ? (
@@ -52,9 +58,9 @@ const TriggerContent = ({
             {option.label}
           </span>
         ) : (
-          option.coinCode && option.balance && (
+          option.coinCode && (
             <span className={styles.triggerBalance}>
-              <AmountWithUnit amount={option.balance} />
+              {option.balance ? <AmountWithUnit amount={option.balance} /> : missingBalancePlaceholder}
             </span>
           )
         )}
