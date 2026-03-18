@@ -40,6 +40,8 @@ type AccountConfig struct {
 	NotesFolder     string
 	ConnectKeystore func() (keystore.Keystore, error)
 	RateUpdater     *rates.RateUpdater
+	// Returns the currency selected by the user in app settings.
+	GetMainCurrency func() string
 	GetNotifier     func(signing.Configurations) Notifier
 	GetSaveFilename func(suggestedFilename string) string
 	// Opens a file in a default application. The filename is not checked.
@@ -254,6 +256,8 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 		"Fee Unit",
 		"Address",
 		"Transaction ID",
+		"Historical value",
+		"Historical value currency",
 		"Note",
 	})
 	if err != nil {
@@ -282,6 +286,7 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 		if transaction.Timestamp != nil {
 			timeString = transaction.Timestamp.Format(time.RFC3339)
 		}
+		historicalValue, historicalValueCurrency := account.historicalValueAndCurrency(transaction)
 		for _, addressAndAmount := range transaction.Addresses {
 			if transactionType == "sent" && addressAndAmount.Ours {
 				transactionType = "sent_to_yourself"
@@ -303,19 +308,48 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 				feeUnit,
 				addressAndAmount.Address,
 				transaction.TxID,
+				historicalValue,
+				historicalValueCurrency,
 				account.TxNote(transaction.InternalID),
 			})
 			if err != nil {
 				return errp.WithStack(err)
 			}
 			// a multitx is output in one row per receive address. Show the tx fee only in the
-			// first row.
+			// first row. Historical value is also a tx-level detail shown in the first row.
 			feeString = ""
 			feeUnit = ""
+			historicalValue = ""
+			historicalValueCurrency = ""
 		}
 	}
 	writer.Flush()
 	return writer.Error()
+}
+
+func (account *BaseAccount) historicalValueAndCurrency(transaction *TransactionData) (string, string) {
+	if account.config.RateUpdater == nil || account.config.GetMainCurrency == nil {
+		return "", ""
+	}
+
+	mainCurrency := account.config.GetMainCurrency()
+	if mainCurrency == "" {
+		return "", ""
+	}
+
+	amountAtTime := transaction.Amount.FormatWithConversionsAtTime(
+		account.Coin(),
+		transaction.Timestamp,
+		account.config.RateUpdater,
+	)
+	if amountAtTime.Estimated {
+		return "", ""
+	}
+	conversion, ok := amountAtTime.Conversions[mainCurrency]
+	if !ok || conversion == "" {
+		return "", ""
+	}
+	return conversion, mainCurrency
 }
 
 func (account *BaseAccount) notifySyncDone() {
