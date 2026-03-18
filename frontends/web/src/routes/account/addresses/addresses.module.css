@@ -23,15 +23,6 @@
   margin-bottom: var(--space-default);
 }
 
-.searchIcon {
-  color: var(--color-tertiary);
-  flex: none;
-  height: 20px;
-  margin: auto 0;
-  pointer-events: none;
-  width: 20px;
-}
-
 .segmentWrap {
   display: grid;
   gap: var(--space-half);
@@ -48,12 +39,12 @@
   cursor: pointer;
   font-size: var(--size-default);
   min-height: 42px;
-  padding: 0 var(--space-half);
+  padding: var(--space-quarter) var(--space-half);
   transition: background-color .15s ease-out, color .15s ease-out, border-color .15s ease-out;
 }
 
 .segmentButton:hover {
-  filter: brightness(0.95);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 .segmentButton:focus-visible {
@@ -68,13 +59,33 @@
 }
 
 .segmentButtonActive:hover {
-  filter: brightness(0.9);
+  background-color: var(--color-lightblue);
+}
+
+.addressListWrapper {
+  position: relative;
+}
+
+.addressListWrapper.showFade::after {
+  background: linear-gradient(to bottom, transparent, var(--background));
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  bottom: -10px;
+  content: '';
+  height: 48px;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
 }
 
 .addressList {
   display: flex;
   flex-direction: column;
   gap: var(--space-three-quarter);
+  max-height: 60vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-bottom: var(--space-half);
 }
 
 .columnHeader {
@@ -99,15 +110,17 @@
   border: 1px solid var(--background-quaternary);
   border-radius: var(--radius-xl);
   color: var(--color-default);
-  cursor: pointer;
   display: grid;
-  gap: var(--space-three-quarter);
   grid-template-columns: minmax(0, 1fr) auto auto;
   min-height: 52px;
   padding: var(--space-three-quarter) var(--space-three-quarter);
   text-align: left;
   transition: border-color .15s ease-out;
   width: 100%;
+}
+
+.addressRowAccordion {
+  cursor: pointer;
 }
 
 .addressRow:hover {
@@ -144,12 +157,12 @@
 }
 
 .rowChevron {
-  animation: none !important;
-  color: var(--color-tertiary);
-  height: 14px;
-  margin-top: 6px;
-  opacity: 1;
-  width: 14px;
+  margin-left: var(--space-three-quarter);
+  transition: transform 0.35s ease;
+}
+
+.rowChevronExpanded {
+  transform: rotate(180deg);
 }
 
 .inlineActions {
@@ -287,7 +300,15 @@
   width: 100%;
 }
 
+.backButtonWrap {
+  display: block;
+  margin-top: var(--space-default);
+}
+
 @media (max-width: 768px) {
+  .backButtonWrap {
+    display: none;
+  }
 
   .rowAddressDesktop {
     display: none;

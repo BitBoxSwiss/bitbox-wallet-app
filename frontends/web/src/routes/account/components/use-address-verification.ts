@@ -18,7 +18,7 @@ type TUseAddressVerificationParams = {
   returnToList: (expandedID?: string) => void;
 };
 
-type TUseAddressVerificationResult = {
+export type TUseAddressVerificationResult = {
   verifyState: TVerifyState;
   verifyError: string | null;
   hasSkipDeviceVerificationQuery: boolean;
