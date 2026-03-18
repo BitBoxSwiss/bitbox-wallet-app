@@ -130,6 +130,33 @@ func TestAccounts(t *testing.T) {
 	require.Equal(t, "My ETH Renamed", b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Name)
 }
 
+func TestSetAccountReceiveScriptType(t *testing.T) {
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	b.registerKeystore(ks)
+
+	accountCode := accountsTypes.Code("v0-55555555-btc-0")
+	require.NoError(t, b.SetAccountReceiveScriptType(accountCode, signing.ScriptTypeP2WPKHP2SH))
+
+	persistedAccount := b.Config().AccountsConfig().Lookup(accountCode)
+	require.NotNil(t, persistedAccount)
+	require.NotNil(t, persistedAccount.ReceiveScriptType)
+	require.Equal(t, signing.ScriptTypeP2WPKHP2SH, *persistedAccount.ReceiveScriptType)
+
+	loadedAccount := b.Accounts().lookup(accountCode)
+	require.NotNil(t, loadedAccount)
+	require.NotNil(t, loadedAccount.Config().Config.ReceiveScriptType)
+	require.Equal(t, signing.ScriptTypeP2WPKHP2SH, *loadedAccount.Config().Config.ReceiveScriptType)
+
+	require.Error(t, b.SetAccountReceiveScriptType("v0-55555555-eth-0", signing.ScriptTypeP2TR))
+}
+
 func TestSortAccounts(t *testing.T) {
 	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
 	require.NoError(t, err)
