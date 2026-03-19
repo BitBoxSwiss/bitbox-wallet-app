@@ -1,6 +1,10 @@
 package swapkit
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+)
 
 // QuoteRequest represents a request to the /quote endpoint of the SwapKit API.
 type QuoteRequest struct {
@@ -69,7 +73,7 @@ type NextAction struct {
 
 // QuoteError represents an error from a provider when fetching a quote from the SwapKit API.
 type QuoteError struct {
-	Provider  string `json:"provider"`
-	ErrorCode string `json:"errorCode"`
-	Message   string `json:"message"`
+	Provider  string         `json:"provider"`
+	ErrorCode errp.ErrorCode `json:"errorCode"`
+	Message   string         `json:"message"`
 }
