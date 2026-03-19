@@ -81,7 +81,11 @@ jobs:
       - name: Install Playwright browsers
         run: |
           cd frontends/web
-          npx playwright install --with-deps chromium webkit
+          if [ "${{ matrix.project }}" = "Chromium" ]; then
+            npx playwright install --with-deps chromium
+          else
+            npx playwright install --with-deps webkit
+          fi
 
       - name: Setup Python 3
         uses: actions/setup-python@v6
