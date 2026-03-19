@@ -73,6 +73,11 @@ jobs:
           cd frontends/web
           npm install
 
+      - name: Build frontend
+        run: |
+          cd frontends/web
+          npm run build
+
       - name: Install Playwright browsers
         run: |
           cd frontends/web
@@ -89,6 +94,7 @@ jobs:
 
       - name: Run Playwright tests
         env:
+          PLAYWRIGHT_USE_PREBUILT_WEB: "1"
           SIMULATOR_PATH: ${{ github.workspace }}/simulator-bin/simulator
         run: cd frontends/web && npx playwright test --project="${{ matrix.project }}"
 

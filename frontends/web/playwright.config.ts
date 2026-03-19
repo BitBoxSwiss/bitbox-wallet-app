@@ -7,13 +7,16 @@ import * as path from 'path';
 const HOST = process.env.HOST || 'localhost';
 const FRONTEND_PORT = parseInt(process.env.FRONTEND_PORT || '8080', 10);
 const PLAYWRIGHT_SLOW_MO = parseInt(process.env.PLAYWRIGHT_SLOW_MO || '0', 10);
+const PLAYWRIGHT_USE_PREBUILT_WEB = process.env.PLAYWRIGHT_USE_PREBUILT_WEB === '1';
 
 export default defineConfig({
   testDir: path.join(__dirname, 'tests'),
   testMatch: ['**/*.test.ts'],
   webServer: [
     {
-      command: `make -C ../.. buildweb && make -C ../.. webserve`,
+      command: PLAYWRIGHT_USE_PREBUILT_WEB
+        ? `npx vite preview --host ${HOST} --port ${FRONTEND_PORT}`
+        : `make -C ../.. buildweb && make -C ../.. webserve`,
       port: FRONTEND_PORT,
       reuseExistingServer: true, // If a server is already listening on FRONTEND_PORT, use it. Useful for local development.
       timeout: 120_000,
