@@ -54,7 +54,8 @@
     "title": "بورتفوليو حسابي",
     "total": "المجموع",
     "transactionHistory": "تاريخ التداولات",
-    "coin": ""
+    "coin": "",
+    "portfolio": ""
   },
   "addAccount": {
     "chooseName": {
